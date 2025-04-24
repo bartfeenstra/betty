@@ -1,5 +1,3 @@
-{% with button_label = _('Zoom in'),
-    attributes=new_attributes(html_class=['button-icon', 'overlay-background-contrast'])
-%}
-    {% include 'component/button.html.j2' %}
+{% with attributes = new_attributes(html_class=['overlay-background-contrast']) %}
+    {% include 'component/button-zoom-in.html.j2' %}
 {% endwith %}

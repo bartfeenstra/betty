@@ -22,7 +22,7 @@
   @return url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" fill="#{-to-rgb($color)}" class="ionicon" viewBox="0 0 512 512"><path d="M200.66 352H144a96 96 0 010-192h55.41M312.59 160H368a96 96 0 010 192h-56.66M169.07 256h175.86" fill="none" stroke="currentColor" stroke-linecap="square" stroke-linejoin="round" stroke-width="48"/></svg>');
 }
 
-@function icon-primary-navigation($color) {
+@function icon-menu($color) {
   @return url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" fill="#{-to-rgb($color)}" class="ionicon" viewBox="0 0 512 512"><path d="M64 384h384v-42.67H64zm0-106.67h384v-42.66H64zM64 128v42.67h384V128z"/></svg>');
 }
 

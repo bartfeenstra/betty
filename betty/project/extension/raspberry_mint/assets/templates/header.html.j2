@@ -36,24 +36,40 @@
                     </ul>
                 </div>
             </div>
-            <button class="button button-primary d-none d-md-inline button-icon button-language header-entry-point header-entry-point-language" type="button"
-                    data-bs-toggle="modal"
-                    data-bs-target="#nav-language"
-                    aria-controls="nav-language" aria-expanded="false" aria-label="{% trans %}Toggle translations{% endtrans %}">
-                {% trans %}Translations{% endtrans %}
-            </button>
-            <button class="button button-primary d-none d-md-inline button-icon button-search header-entry-point header-entry-point-search" type="button"
-                    data-bs-toggle="modal"
-                    data-bs-target="#nav-search"
-                    aria-controls="nav-search" aria-expanded="false" aria-label="{% trans %}Toggle search{% endtrans %}">
-                {% trans %}Search{% endtrans %}
-            </button>
-            <button class="button button-primary d-block d-md-none button-icon button-menu header-entry-point header-entry-point-menu" type="button"
-                    data-bs-toggle="modal"
-                    data-bs-target="#nav-menu"
-                    aria-controls="nav-menu" aria-expanded="false" aria-label="{% trans %}Toggle menu{% endtrans %}">
-                {% trans %}Menu{% endtrans %}
-            </button>
+            {% with attributes = new_attributes(html_aria_controls="nav-language",
+                html_aria_expanded=false,
+                html_class=[
+                    "d-none",
+                    "d-md-inline",
+                    "header-entry-point"
+                ]
+            ) %}
+                {% do attributes.set_data(bs_toggle="modal", bs_target="#nav-language") %}
+                {% include "component/button-language.html.j2" %}
+            {% endwith %}
+            {% with attributes = new_attributes(html_aria_controls="nav-search",
+                html_aria_expanded=false,
+                html_class=[
+                    "d-none",
+                    "d-md-inline",
+                    "header-entry-point",
+                    "header-entry-point-search"
+                ]
+            ) %}
+                {% do attributes.set_data(bs_toggle="modal", bs_target="#nav-search") %}
+                {% include "component/button-search.html.j2" %}
+            {% endwith %}
+            {% with attributes = new_attributes(html_aria_controls="nav-menu",
+                html_aria_expanded=false,
+                html_class=[
+                    "d-none",
+                    "d-md-none",
+                    "header-entry-point"
+                ]
+            ) %}
+                {% do attributes.set_data(bs_toggle="modal", bs_target="#nav-menu") %}
+                {% include "component/button-menu.html.j2" %}
+            {% endwith %}
         </nav>
     </div>
 </div>
@@ -66,18 +82,28 @@
                 </li>
             {% endfor %}
         </ul>
-        <button class="button button-primary button-icon button-language header-entry-point" type="button"
-                data-bs-toggle="modal"
-                data-bs-target="#nav-language"
-                aria-controls="nav-language" aria-expanded="false" aria-label="{% trans %}Toggle translations{% endtrans %}">
-            {% trans %}Translations{% endtrans %}
-        </button>
-        <button class="button button-primary button-icon button-search header-entry-point" type="button"
-                data-bs-toggle="modal"
-                data-bs-target="#nav-search"
-                aria-controls="nav-search" aria-expanded="false" aria-label="{% trans %}Toggle search{% endtrans %}">
-            {% trans %}Search{% endtrans %}
-        </button>
+            {% with attributes = new_attributes(html_aria_controls="nav-language",
+                html_aria_expanded=false,
+                html_class=[
+                    "d-none",
+                    "d-md-inline",
+                    "header-entry-point"
+                ]
+            ) %}
+                {% do attributes.set_data(bs_toggle="modal", bs_target="#nav-language") %}
+                {% include "component/button-language.html.j2" %}
+            {% endwith %}
+            {% with attributes = new_attributes(html_aria_controls="nav-search",
+                html_aria_expanded=false,
+                html_class=[
+                    "d-none",
+                    "d-md-inline",
+                    "header-entry-point"
+                ]
+            ) %}
+                {% do attributes.set_data(bs_toggle="modal", bs_target="#nav-search") %}
+                {% include "component/button-search.html.j2" %}
+            {% endwith %}
     </div>
 {% endset %}
 {% with attributes = new_attributes(html_id="nav-menu"),

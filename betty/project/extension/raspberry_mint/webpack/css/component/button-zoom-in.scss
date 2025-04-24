@@ -1,0 +1,7 @@
+.button-zoom-in {
+  background-image: #{icon-zoom-in($white)};
+
+  &:focus {
+    background-image: #{icon-zoom-in($black)};
+  }
+}

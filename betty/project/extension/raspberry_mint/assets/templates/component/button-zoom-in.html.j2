@@ -1,5 +1,5 @@
 {% with attributes = attributes | default(new_attributes()) %}
-    {% do attributes.html_class.append('button-language') %}
-    {% set button_label = _('Language') %}
+    {% do attributes.html_class.append('button-zoom-in') %}
+    {% set button_label = _('Zoom in') %}
     {% include 'component/button-icon.html.j2' %}
 {% endwith %}

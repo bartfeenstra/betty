@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Betty VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2025-04-23 16:11+0100\n"
+"POT-Creation-Date: 2025-04-24 14:22+0100\n"
 "PO-Revision-Date: 2025-03-28 20:02+0000\n"
 "Last-Translator: Ettore Atalan <atalanttore@googlemail.com>\n"
 "Language: de_DE\n"
@@ -1043,20 +1043,8 @@ msgstr "Zeitschiene"
 msgid "Toggle full screen"
 msgstr "Vollbild umschalten"
 
-msgid "Toggle menu"
-msgstr "Menü umschalten"
-
-msgid "Toggle search"
-msgstr "Suche umschalten"
-
-msgid "Toggle translations"
-msgstr "Übersetzungen umschalten"
-
 msgid "Town"
 msgstr "Stadt"
-
-msgid "Translations"
-msgstr "Übersetzungen"
 
 msgid "Trees"
 msgstr "Bäume"

@@ -39,27 +39,3 @@
 #nav-menu .header-entry-point {
   height: 2lh;
 }
-
-.header-entry-point-menu {
-  background-image: #{icon-primary-navigation($white)};
-
-  &:focus {
-    background-image: #{icon-primary-navigation($black)};
-  }
-}
-
-.header-entry-point-search {
-  background-image: #{icon-search($white)};
-
-  &:focus {
-    background-image: #{icon-search($black)};
-  }
-}
-
-.header-entry-point-language {
-  background-image: #{icon-language($white)};
-
-  &:focus {
-    background-image: #{icon-language($black)};
-  }
-}

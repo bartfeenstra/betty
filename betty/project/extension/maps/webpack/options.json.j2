@@ -42,18 +42,18 @@
 {% endset %}
 
 {
-  "viewPadding": {{ view_padding | safe }},
-  "clusterMaximumFeatureDistance": {{ cluster_maximum_feature_distance | safe }},
-  "clusterMinimumClusterDistance": {{ cluster_minimum_cluster_distance | safe }},
-  "fullScreenControlButtonHtml": {{ control_full_screen | json | safe }},
-  "zoomInControlButtonHtml": {{ control_zoom_in | json | safe }},
-  "zoomOutControlButtonHtml": {{ control_zoom_out | json | safe }},
-  "selectedPlaceHtml": {{ selected_place | json | safe }},
-  "markerPlaceAnchor": {{ marker_place_anchor | safe }},
-  "markerPlaceSvg": {{ marker_place | json | safe }},
-  "markerPlaceSelectedSvg": {{ marker_place_selected | json | safe }},
-  "markerPlaceCluster1Svg": {{ marker_place_cluster | json | safe }},
-  "markerPlaceCluster10Svg": {{ marker_place_cluster_10 | json | safe }},
-  "markerPlaceCluster100Svg": {{ marker_place_cluster_100 | json | safe }},
-  "markerPlaceCluster1000Svg": {{ marker_place_cluster_1000 | json | safe }}
+  "viewPadding": {{ view_padding.strip() | safe }},
+  "clusterMaximumFeatureDistance": {{ cluster_maximum_feature_distance.strip() | safe }},
+  "clusterMinimumClusterDistance": {{ cluster_minimum_cluster_distance.strip() | safe }},
+  "fullScreenControlButtonHtml": {{ control_full_screen.strip() | json | safe }},
+  "zoomInControlButtonHtml": {{ control_zoom_in.strip() | json | safe }},
+  "zoomOutControlButtonHtml": {{ control_zoom_out.strip() | json | safe }},
+  "selectedPlaceHtml": {{ selected_place.strip() | json | safe }},
+  "markerPlaceAnchor": {{ marker_place_anchor.strip() | safe }},
+  "markerPlaceSvg": {{ marker_place.strip() | json | safe }},
+  "markerPlaceSelectedSvg": {{ marker_place_selected.strip() | json | safe }},
+  "markerPlaceCluster1Svg": {{ marker_place_cluster.strip() | json | safe }},
+  "markerPlaceCluster10Svg": {{ marker_place_cluster_10.strip() | json | safe }},
+  "markerPlaceCluster100Svg": {{ marker_place_cluster_100.strip() | json | safe }},
+  "markerPlaceCluster1000Svg": {{ marker_place_cluster_1000.strip() | json | safe }}
 }
