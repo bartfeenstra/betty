@@ -27,18 +27,19 @@ import Cluster from "ol/source/Cluster"
 import { BETTY } from "@betty.py/betty/main.ts"
 import { easeOut } from "ol/easing"
 import { IconAnchorUnits } from "ol/style/Icon"
+import { getTranslationFromShorthandStatic, ShorthandStaticTranslations } from "@betty.py/betty/locale/localizable.ts"
 
 const kinetic = new Kinetic(-0.005, 0.05, 100)
 
-async function initializeMap(element: HTMLElement, options: MapOptions): Promise<void> {
-    const map = new Map(element, options)
+async function initializeMap(element: HTMLElement, options: MapOptions, locale: string): Promise<void> {
+    const map = new Map(element, options, locale)
     await map.initialize()
 }
 
-async function initializeMaps(element: HTMLElement, options: MapOptions): Promise<void> {
+async function initializeMaps(element: HTMLElement, options: MapOptions, locale: string): Promise<void> {
     await Promise.allSettled(Array.from(element.getElementsByClassName("map")).map((mapElement) => {
         void (async (): Promise<void> => {
-            await initializeMap(mapElement as HTMLElement, options)
+            await initializeMap(mapElement as HTMLElement, options, locale)
         })()
     }))
 }
@@ -54,10 +55,10 @@ interface MapOptions {
     viewPadding: [number, number, number, number]
     clusterMaximumFeatureDistance: number
     clusterMinimumClusterDistance: number
-    fullScreenControlButtonHtml: string
-    zoomInControlButtonHtml: string
-    zoomOutControlButtonHtml: string
-    selectedPlaceHtml: string
+    fullScreenControlButtonHtml: ShorthandStaticTranslations
+    zoomInControlButtonHtml: ShorthandStaticTranslations
+    zoomOutControlButtonHtml: ShorthandStaticTranslations
+    selectedPlaceHtml: ShorthandStaticTranslations
     markerPlaceSvg: string
     markerPlaceAnchor: [number, number]
     markerPlaceSelectedSvg: string
@@ -91,13 +92,15 @@ class Map {
     private readonly placeSelectedStyle: Style
     private readonly placeClusterStyles: Record<number, Style>
     private readonly embedded: boolean
+    public readonly locale: string
 
-    public constructor(mapElement: HTMLElement, options: MapOptions) {
+    public constructor(mapElement: HTMLElement, options: MapOptions, locale: string) {
         useGeographic()
 
         this.embedded = mapElement.classList.contains("map-embedded")
 
         this.options = options
+        this.locale = locale
         this.viewAnimationOptions = {
             easing: easeOut,
             duration: 500,
@@ -169,9 +172,9 @@ class Map {
             view: this.view,
         })
         if (!this.embedded) {
-            this.map.addControl(new FullScreen(this.options.fullScreenControlButtonHtml, this.map))
-            this.map.addControl(new ZoomIn(this.options.zoomInControlButtonHtml, this.viewAnimationOptions))
-            this.map.addControl(new ZoomOut(this.options.zoomOutControlButtonHtml, this.viewAnimationOptions))
+            this.map.addControl(new FullScreen(getTranslationFromShorthandStatic(this.options.fullScreenControlButtonHtml, this.locale), this.map))
+            this.map.addControl(new ZoomIn(getTranslationFromShorthandStatic(this.options.zoomInControlButtonHtml, this.locale), this.viewAnimationOptions))
+            this.map.addControl(new ZoomOut(getTranslationFromShorthandStatic(this.options.zoomOutControlButtonHtml, this.locale), this.viewAnimationOptions))
             this.map.addControl(this.selectedPlace)
             this.map.addInteraction(new DoubleClickZoom())
             this.map.addInteraction(new DragPan({
