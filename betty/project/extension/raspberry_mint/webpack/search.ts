@@ -16,8 +16,8 @@ class Search {
     private readonly searchFormQueryElement: HTMLInputElement
     private readonly searchFormFilterResetElement: HTMLElement
     private readonly resultsContainer: HTMLElement
-    private index: Index | null = null
-    private filterEntityTypeHtmlIds: Record<string, string>
+    private index: Index | undefined
+    private readonly filterEntityTypeHtmlIds: Record<string, string>
 
     public constructor() {
         this.searchModalElement = this.getElementById("nav-search")
@@ -42,7 +42,11 @@ class Search {
         this.searchFormFilterResetElement.addEventListener("click", () => {
             this.resetFilters()
         })
-        this.filterEntityTypeHtmlIds = JSON.parse(this.searchFormElement.dataset.bettySearchFormFilterEntityType) as Record<string, string>
+        const searchFormFilterEntityType = this.searchFormElement.dataset.bettySearchFormFilterEntityType
+        if (searchFormFilterEntityType === undefined) {
+            throw new Error(`Element does not have the expected "data-betty-search-form-filter-entity-type" attribute.`)
+        }
+        this.filterEntityTypeHtmlIds = JSON.parse(searchFormFilterEntityType) as Record<string, string>
     }
 
     private getElementById(id: string): HTMLElement {
@@ -58,11 +62,11 @@ class Search {
     }
 
     private getFilterEntityTypeElements(): HTMLInputElement[] {
-        return this.searchFormElement.querySelectorAll(".search-form-filter-entity-type input")
+        return Array.from(this.searchFormElement.querySelectorAll(".search-form-filter-entity-type input"))
     }
 
     private getFilterEntityTypeIds(): string[] {
-        const filterEntityTypeIds = []
+        const filterEntityTypeIds: string[] = []
         for (const entityTypeFilterElement of this.getFilterEntityTypeElements()) {
             if (entityTypeFilterElement.checked) {
                 filterEntityTypeIds.push(this.filterEntityTypeHtmlIds[entityTypeFilterElement.id])
@@ -82,8 +86,12 @@ class Search {
     }
 
     private async getIndex(): Promise<Index> {
-        if (this.index === null) {
-            const response = await fetch(this.searchFormElement.dataset.bettySearchFormIndex)
+        if (this.index === undefined) {
+            const searchFormIndex = this.searchFormElement.dataset.bettySearchFormIndex
+            if (searchFormIndex === undefined) {
+                throw new Error(`Element does not have the expected "data-betty-search-form-index" attribute.`)
+            }
+            const response = await fetch(searchFormIndex)
             this.index = await response.json() as Index
         }
         return this.index
@@ -114,12 +122,12 @@ class Search {
 
     private renderResults(index: Index, entries: IndexEntry[]): string {
         return index.resultsContainerTemplate
-            .replace("{{{ betty-search-results }}}", entries.map(entry => this.renderResult(entry)).join(""))
-            .replace("{{{ betty-search-results-count }}}", entries.length)
+            .replace("{{{ betty-search-results }}}", entries.map(entry => this.renderResult(index, entry)).join(""))
+            .replace("{{{ betty-search-results-count }}}", entries.length.toString())
     }
 
-    private renderResult(entry: IndexEntry): string {
-        return this.index?.resultContainerTemplate
+    private renderResult(index: Index, entry: IndexEntry): string {
+        return index.resultContainerTemplate
             .replace("{{{ betty-search-result }}}", entry.result)
     }
 }

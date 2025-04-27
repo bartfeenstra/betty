@@ -5,10 +5,6 @@ import stylistic from '@stylistic/eslint-plugin'
 import globals from 'globals'
 import tseslint from 'typescript-eslint'
 
-const typescriptFiles = [
-    '**/*.ts',
-]
-
 export default [
     // Webpack configuration files.
     {
@@ -70,7 +66,9 @@ export default [
             },
         },
     ].map(config => ({
-        files: typescriptFiles,
+        files: [
+            '**/*.ts',
+        ],
         ...config,
     })),
 ]

@@ -3,7 +3,7 @@
 async function initializeToggles(): Promise<void> { // eslint-disable-line @typescript-eslint/require-await
     const toggles = document.getElementsByClassName("show-toggle")
     for (const toggle of toggles) {
-        initializeToggle(toggle as Element)
+        initializeToggle(toggle)
     }
 }
 
@@ -19,7 +19,7 @@ function initializeToggle(toggle: Element): void {
 function getContainer(node: Element): Element | null {
     const parentNode = node.parentNode as Element | null
     if (!parentNode) {
-        return
+        return null
     }
     if (parentNode.classList.contains("show")) {
         return parentNode

@@ -4,8 +4,8 @@ const _CLOSE_KEYS = ["Escape"]
 const _PREVIOUS_FILE_KEYS = ["ArrowLeft"]
 const _NEXT_FILE_KEYS = ["ArrowRight"]
 
-let _positionX = null
-let _positionY = null
+let _positionX: number | undefined
+let _positionY: number | undefined
 
 async function initializeFiles(): Promise<void> { // eslint-disable-line @typescript-eslint/require-await
     _initializeFileExtendedOpen()
@@ -16,7 +16,7 @@ async function initializeFiles(): Promise<void> { // eslint-disable-line @typesc
 function _initializeFileExtendedOpen(): void {
     const links = document.getElementsByClassName("file-extended-open")
     for (const link of links) {
-        (link as Element).addEventListener("click", _openExtended)
+        link.addEventListener("click", _openExtended)
     }
 }
 
@@ -28,18 +28,18 @@ function _openExtended(): void {
 function _initializeFileExtendedClose(): void {
     const links = document.getElementsByClassName("file-extended-close")
     for (const link of links) {
-        (link as Element).addEventListener("click", _closeExtended)
+        link.addEventListener("click", _closeExtended)
     }
 }
 
 function _closeExtended(e: Event): void {
-    window.location = "#"
+    window.location.href = "#"
     window.scrollTo({
         left: _positionX,
         top: _positionY,
     })
-    _positionX = null
-    _positionY = null
+    _positionX = undefined
+    _positionY = undefined
     e.preventDefault()
 }
 

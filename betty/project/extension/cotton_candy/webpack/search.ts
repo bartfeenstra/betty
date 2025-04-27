@@ -17,15 +17,22 @@ class Search {
     private readonly form: HTMLElement
     private readonly queryElement: HTMLInputElement
     private readonly resultsContainer: HTMLElement
-    private documentY: number
-    private index: Index | null = null
+    private documentY: number | undefined
+    private index: Index | undefined
 
     public constructor() {
-        this.search = document.getElementById("search")
-        this.form = this.search.getElementsByTagName("form").item(0)
-        this.queryElement = document.getElementById("search-query") as HTMLInputElement
-        this.resultsContainer = document.getElementById("search-results-container")
-        this.documentY = null
+        this.search = this.getElementById("search")
+        this.form = this.search.getElementsByTagName("form").item(0) as HTMLElement
+        this.queryElement = this.getElementById("search-query") as HTMLInputElement
+        this.resultsContainer = this.getElementById("search-results-container")
+    }
+
+    private getElementById(id: string): HTMLElement {
+        const element = document.getElementById(id)
+        if (!element) {
+            throw new Error(`Cannot find element with ID #${id}`)
+        }
+        return element
     }
 
     public initialize(): void {
@@ -67,21 +74,28 @@ class Search {
     }
 
     private navigateResults(keyCode: string): void {
+        const activeElement = document.activeElement
+        if (!activeElement) {
+            return
+        }
         if (this.previousResultKeys.includes(keyCode)) {
             // If the focus lies on the query input element, do nothing, because there are no previous search results.
-            if (document.activeElement === this.queryElement) {
+            if (activeElement === this.queryElement) {
                 return
             }
 
-            if (document.activeElement.classList.contains("search-result-target")) {
+            if (activeElement.classList.contains("search-result-target")) {
                 // If the focus lies on a search result, focus on the previous search result if there is one.
-                const previousSearchResultContainer = document.activeElement.closest(".search-result").previousElementSibling
-                if (previousSearchResultContainer) {
-                    const previousSearchResultTarget = previousSearchResultContainer.querySelector<HTMLElement>(".search-result-target")
-                    if (previousSearchResultTarget) {
-                        previousSearchResultTarget.focus()
+                const searchResultContainer = activeElement.closest(".search-result")
+                if (searchResultContainer) {
+                    const previousSearchResultContainer = searchResultContainer.previousElementSibling
+                    if (previousSearchResultContainer) {
+                        const previousSearchResultTarget = previousSearchResultContainer.querySelector<HTMLElement>(".search-result-target")
+                        if (previousSearchResultTarget) {
+                            previousSearchResultTarget.focus()
+                        }
+                        return
                     }
-                    return
                 }
 
                 // If no previous search result exists, focus on the query input element.
@@ -90,7 +104,7 @@ class Search {
         }
         else if (this.nextResultKeys.includes(keyCode)) {
             // If the focus lies on the query input element, focus on the first search result.
-            if (document.activeElement === this.queryElement) {
+            if (activeElement === this.queryElement) {
                 const resultTargets = this.resultsContainer.getElementsByClassName("search-result-target") as HTMLCollectionOf<HTMLElement>
                 if (resultTargets.length) {
                     resultTargets[0].focus()
@@ -98,8 +112,8 @@ class Search {
                 return
             }
             // If the focus lies on a search result, focus on the next search result if there is one.
-            if (document.activeElement.classList.contains("search-result-target")) {
-                const nextSearchResultContainer = document.activeElement.closest(".search-result").nextElementSibling
+            if (activeElement.classList.contains("search-result-target")) {
+                const nextSearchResultContainer = activeElement.closest(".search-result")?.nextElementSibling
                 if (nextSearchResultContainer) {
                     const nextSearchResultTarget = nextSearchResultContainer.querySelector<HTMLElement>(".search-result-target")
                     if (nextSearchResultTarget) {
@@ -110,8 +124,8 @@ class Search {
         }
     }
 
-    private setSearchEntries(entries: IndexEntry[]): void {
-        this.resultsContainer.innerHTML = this.renderResults(entries)
+    private setSearchEntries(index: Index, entries: IndexEntry[]): void {
+        this.resultsContainer.innerHTML = this.renderResults(index, entries)
         this.resultsContainer.scrollTop = 0
     }
 
@@ -127,8 +141,8 @@ class Search {
     }
 
     private hideSearchResults(): void {
-        const activeElement = document.activeElement as HTMLElement | null
-        if (this.search.contains(activeElement)) {
+        const activeElement = document.activeElement
+        if (activeElement instanceof HTMLElement && this.search.contains(activeElement)) {
             activeElement.blur()
         }
         this.search.classList.remove("overlay")
@@ -137,13 +151,17 @@ class Search {
             window.scrollTo({
                 top: this.documentY,
             })
-            this.documentY = null
+            this.documentY = undefined
         }
     }
 
     private async getIndex(): Promise<Index> {
-        if (this.index === null) {
-            const response = await fetch(this.search.dataset.bettySearchIndex)
+        if (this.index === undefined) {
+            const searchIndex = this.search.dataset.bettySearchIndex
+            if (searchIndex === undefined) {
+                throw new Error(`Element does not have the expected "data-betty-search-index" attribute.`)
+            }
+            const response = await fetch(searchIndex)
             this.index = await response.json() as Index
         }
         return this.index
@@ -151,7 +169,7 @@ class Search {
 
     private async perform(query: string): Promise<void> {
         const index = await this.getIndex()
-        this.setSearchEntries(index.index.filter(entry => this.match(query, entry.text)))
+        this.setSearchEntries(index, index.index.filter(entry => this.match(query, entry.text)))
     }
 
     private match(query: string, haystack: string): boolean {
@@ -164,13 +182,13 @@ class Search {
         return true
     }
 
-    private renderResults(entries: IndexEntry[]): string {
-        return this.index.resultsContainerTemplate
-            .replace("{{{ betty-search-results }}}", entries.map(entry => this.renderResult(entry)).join(""))
+    private renderResults(index: Index, entries: IndexEntry[]): string {
+        return index.resultsContainerTemplate
+            .replace("{{{ betty-search-results }}}", entries.map(entry => this.renderResult(index, entry)).join(""))
     }
 
-    private renderResult(entry: IndexEntry): string {
-        return this.index.resultContainerTemplate
+    private renderResult(index: Index, entry: IndexEntry): string {
+        return index.resultContainerTemplate
             .replace("{{{ betty-search-result }}}", entry.result)
     }
 }

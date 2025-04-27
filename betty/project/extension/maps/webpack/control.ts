@@ -8,6 +8,7 @@ import { Map } from "./map.ts"
 import Point from "ol/geom/Point"
 import VectorSource from "ol/source/Vector"
 import Feature from "ol/Feature"
+import { AnimationOptions } from "ol/View"
 
 /**
  * @internal
@@ -33,15 +34,19 @@ class FullScreen extends Control {
 }
 
 class _Zoom extends Control {
-    public constructor(buttonHtml: string, delta: number, classSuffix: string) {
+    public constructor(buttonHtml: string, animationOptions: AnimationOptions, delta: number, classSuffix: string) {
         super(document.createElement("div"), classSuffix)
 
         const button = htmlToElement(buttonHtml)
         button.addEventListener(
             "click",
             (event) => {
+                const map = this.getMap()
+                if (map === null) {
+                    return
+                }
                 event.preventDefault()
-                zoomByDelta(this.getMap(), delta)
+                zoomByDelta(map, delta, animationOptions)
             },
             false,
         )
@@ -53,8 +58,8 @@ class _Zoom extends Control {
  * @internal
  */
 class ZoomIn extends _Zoom {
-    public constructor(buttonHtml: string) {
-        super(buttonHtml, 1, "zoom-in")
+    public constructor(buttonHtml: string, animationOptions: AnimationOptions) {
+        super(buttonHtml, animationOptions, 1, "zoom-in")
     }
 }
 
@@ -62,8 +67,8 @@ class ZoomIn extends _Zoom {
  * @internal
  */
 class ZoomOut extends _Zoom {
-    public constructor(buttonHtml: string) {
-        super(buttonHtml, -1, "zoom-out")
+    public constructor(buttonHtml: string, animationOptions: AnimationOptions) {
+        super(buttonHtml, animationOptions, -1, "zoom-out")
     }
 }
 
@@ -89,9 +94,9 @@ class SelectedPlace extends OpenLayersControl {
             element: htmlToElement(map.options.selectedPlaceHtml),
         })
         this.element.classList.add("map-selected-place")
-        this.inner = this.element.getElementsByClassName("map-selected-place-content")[0]
-        for (const closeButton of this.element.getElementsByClassName("map-selected-place-close") as HTMLElement[]) {
-            closeButton.addEventListener("click", () => {
+        this.inner = this.element.getElementsByClassName("map-selected-place-content")[0] as HTMLElement
+        for (const closeButton of this.element.getElementsByClassName("map-selected-place-close")) {
+            (closeButton as HTMLElement).addEventListener("click", () => {
                 this.unselect()
             })
         }
@@ -116,6 +121,9 @@ class SelectedPlace extends OpenLayersControl {
                 throw new Error(`Invalid value "${anchorName}" for selected place element's ${selectedPlaceAnchorCssVariableName} CSS variable. The value must be one of ${Object.keys(selectedPlaceAnchorNameToIndex).map(name => `"${name}"`).join(", ")}.`)
             }
             const mapSize = this.map.map.getSize()
+            if (mapSize === undefined) {
+                throw new Error("Map has no size.")
+            }
             const selectedPlaceRectangle = this.element.getBoundingClientRect()
             const selectedPlaceSize = [selectedPlaceRectangle.width, selectedPlaceRectangle.height]
             const center = [mapSize[0] / 2, mapSize[1] / 2]
