@@ -20,14 +20,17 @@ function initializeFullScreenControl(control: HTMLElement): void {
     }
     control.addEventListener("click", () => {
         void (async (): Promise<void> => {
-            await toggleFullScreen(document.getElementById(target))
+            const targetElement = document.getElementById(target)
+            if (targetElement) {
+                await toggleFullScreen(targetElement)
+            }
         })()
     })
 }
 
 async function initializeFullScreenControls(element: HTMLElement): Promise<void> { // eslint-disable-line @typescript-eslint/require-await
-    for (const control of element.querySelectorAll(`[${attributeName}]`) as HTMLElement[]) {
-        initializeFullScreenControl(control)
+    for (const control of Array.from(element.querySelectorAll(`[${attributeName}]`))) {
+        initializeFullScreenControl(control as HTMLElement)
     }
 }
 

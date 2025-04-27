@@ -2,6 +2,7 @@
 
 import Point from "ol/geom/Point"
 import Feature from "ol/Feature"
+import { FeatureLike } from "ol/Feature"
 import OpenLayersMap from "ol/Map"
 import OSM from "ol/source/OSM"
 import TileLayer from "ol/layer/Tile"
@@ -37,7 +38,7 @@ async function initializeMap(element: HTMLElement, options: MapOptions): Promise
 async function initializeMaps(element: HTMLElement, options: MapOptions): Promise<void> {
     await Promise.allSettled(Array.from(element.getElementsByClassName("map")).map((mapElement) => {
         void (async (): Promise<void> => {
-            await initializeMap(mapElement, options)
+            await initializeMap(mapElement as HTMLElement, options)
         })()
     }))
 }
@@ -66,14 +67,13 @@ interface MapOptions {
     markerPlaceCluster1000Svg: string
 }
 
-function newIconStyle(svg: string, anchor: [number, number], anchorUnits: IconAnchorUnits, zIndex: number | undefined = undefined): Style {
+function newIconStyle(svg: string, anchor: [number, number], anchorUnits: IconAnchorUnits): Style {
     return new Style({
         image: new Icon({
             src: `data:image/svg+xml;base64,${btoa(svg)}`,
             anchorXUnits: anchorUnits,
             anchorYUnits: anchorUnits,
             anchor,
-            zIndex,
         }),
     })
 }
@@ -111,8 +111,11 @@ class Map {
             100: newIconStyle(this.options.markerPlaceCluster100Svg, [0.5, 0.5], "fraction"),
             1000: newIconStyle(this.options.markerPlaceCluster1000Svg, [0.5, 0.5], "fraction"),
         }
-
-        const placesDataset = JSON.parse(mapElement.dataset.bettyMapsPlaces) as [number, number, string][]
+        const mapsPlaces = mapElement.dataset.bettyMapsPlaces
+        if (mapsPlaces === undefined) {
+            throw new Error(`Element does not have the expected "data-betty-maps-places" attribute.`)
+        }
+        const placesDataset = JSON.parse(mapsPlaces) as [number, number, string][]
         this.placeDatas = Object.fromEntries(placesDataset.map(items => [items[2], {
             id: items[2],
             latitude: items[0],
@@ -167,12 +170,12 @@ class Map {
         })
         if (!this.embedded) {
             this.map.addControl(new FullScreen(this.options.fullScreenControlButtonHtml, this.map))
-            this.map.addControl(new ZoomIn(this.options.zoomInControlButtonHtml))
-            this.map.addControl(new ZoomOut(this.options.zoomOutControlButtonHtml))
+            this.map.addControl(new ZoomIn(this.options.zoomInControlButtonHtml, this.viewAnimationOptions))
+            this.map.addControl(new ZoomOut(this.options.zoomOutControlButtonHtml, this.viewAnimationOptions))
             this.map.addControl(this.selectedPlace)
             this.map.addInteraction(new DoubleClickZoom())
             this.map.addInteraction(new DragPan({
-                condition: (event): boolean => event.activePointers.length === 2 || mouseOnly(event) || document.fullscreenElement === this.map.getTargetElement(),
+                condition: (event): boolean => (event.activePointers !== undefined && event.activePointers.length === 2) || mouseOnly(event) || document.fullscreenElement === this.map.getTargetElement(),
                 kinetic,
             }))
             this.map.addInteraction(new DragZoom())
@@ -216,7 +219,7 @@ class Map {
             })
         }
 
-        const placesCoordinates = []
+        const placesCoordinates: number[][] = []
         for (const placeData of Object.values(this.placeDatas)) {
             const placeCoordinates = [placeData.longitude, placeData.latitude]
             placesCoordinates.push(placeCoordinates)
@@ -237,6 +240,9 @@ class Map {
 
     private fitView(coordinates: number[][]): void {
         const mapSize = this.map.getSize()
+        if (mapSize === undefined) {
+            throw new Error("Map has no size.")
+        }
         const extent = boundingExtent(coordinates)
         let resolution = this.view.getResolutionForExtent(extent, [
             mapSize[0] - this.options.viewPadding[0] - this.options.viewPadding[2],
@@ -258,7 +264,7 @@ class Map {
         this.map.getTargetElement().classList.add("map-initialized")
     }
 
-    private placeLayerStyle(feature: Feature): Style {
+    private placeLayerStyle(feature: FeatureLike): Style {
         if (feature.get("features").length > 1) { // eslint-disable-line @typescript-eslint/no-unsafe-member-access
             const places = feature.get("features") as Feature[]
             let scale = 1

@@ -18,6 +18,9 @@ fi
 if [ -z "${BETTY_TEST_SKIP_STYLELINT-}" ]; then
   ./bin/test-stylelint
 fi
+if [ -z "${BETTY_TEST_SKIP_TSC-}" ]; then
+  ./bin/test-tsc
+fi
 if [ -z "${BETTY_TEST_SKIP_ESLINT-}" ]; then
   ./bin/test-eslint
 fi
