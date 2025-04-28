@@ -19,10 +19,10 @@ from logging import (
     LogRecord,
 )
 from sys import stderr
-from typing import IO, TYPE_CHECKING, Any, final
+from typing import IO, TYPE_CHECKING, Any, ClassVar, final
 
 import asyncclick as click
-from typing_extensions import ClassVar, override
+from typing_extensions import override
 
 from betty import about
 from betty.app import App

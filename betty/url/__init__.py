@@ -23,8 +23,6 @@ class GenerationError(RuntimeError):
     A URL generation error.
     """
 
-    pass
-
 
 class UnsupportedResource(GenerationError):
     """
@@ -67,7 +65,6 @@ class _UrlGenerator(ABC):
         """
         Whether the given resource is supported by this URL generator.
         """
-        pass
 
 
 class UrlGenerator(_UrlGenerator):
@@ -90,7 +87,6 @@ class UrlGenerator(_UrlGenerator):
         :raise UnsupportedResource:
         :raise InvalidMediaType:
         """
-        pass
 
 
 @deprecated(
@@ -116,7 +112,6 @@ class LocalizedUrlGenerator(_UrlGenerator):
         :raise UnsupportedResource:
         :raise InvalidMediaType:
         """
-        pass
 
 
 class PassthroughUrlGenerator(UrlGenerator):
@@ -167,7 +162,6 @@ class StaticUrlGenerator(_UrlGenerator):
         :raise UnsupportedResource:
         :raise InvalidMediaType:
         """
-        pass
 
 
 def generate_from_path(

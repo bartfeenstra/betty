@@ -40,8 +40,6 @@ class ServerNotStartedError(RuntimeError):
     Raised when a web server has not (fully) started yet.
     """
 
-    pass  # pragma: no cover
-
 
 class NoPublicUrlBecauseServerNotStartedError(ServerNotStartedError):
     """
@@ -59,8 +57,6 @@ class OsError(UserFacingError, OSError):
     Raised for I/O errors.
     """
 
-    pass  # pragma: no cover
-
 
 class Server(ABC):
     """
@@ -75,7 +71,6 @@ class Server(ABC):
         """
         Start the server.
         """
-        pass
 
     async def show(self) -> None:
         """
@@ -93,7 +88,6 @@ class Server(ABC):
         """
         Stop the server.
         """
-        pass
 
     @property
     @abstractmethod
@@ -101,7 +95,6 @@ class Server(ABC):
         """
         The server's public URL.
         """
-        pass
 
     async def __aenter__(self) -> Server:
         await self.start()

@@ -4,7 +4,7 @@ Provide the Locale API.
 
 from __future__ import annotations
 
-from typing import Sequence, TypeAlias
+from typing import TYPE_CHECKING, TypeAlias
 
 from babel import Locale
 from babel import negotiate_locale as babel_negotiate_locale
@@ -13,6 +13,9 @@ from langcodes import Language
 
 from betty import fs
 from betty.json.schema import String
+
+if TYPE_CHECKING:
+    from collections.abc import Sequence
 
 _LOCALE_DIRECTORY_PATH = fs.ASSETS_DIRECTORY_PATH / "locale"
 
@@ -37,7 +40,7 @@ def merge_locales(*locales: str) -> str:
     unique_locales = set(locales)
     if len(unique_locales) == 0:
         return NO_LINGUISTIC_CONTENT
-    elif len(unique_locales) == 1:
+    if len(unique_locales) == 1:
         return next(iter(unique_locales))
     # Strip locales without linguistic content.
     if NO_LINGUISTIC_CONTENT in unique_locales:
@@ -124,7 +127,7 @@ def negotiate_locale(
     """
     Negotiate the preferred locale from a sequence.
     """
-    if isinstance(preferred_locales, (str, Locale)):
+    if isinstance(preferred_locales, str | Locale):
         preferred_locales = [preferred_locales]
     return _negotiate_locale(
         [to_babel_identifier(locale) for locale in preferred_locales],

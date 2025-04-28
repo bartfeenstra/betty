@@ -61,8 +61,6 @@ class NotAPageError(ValueError):
     Raised when a URL does not point to a Wikipedia page.
     """
 
-    pass  # pragma: no cover
-
 
 _URL_PATTERN = re.compile(r"^https?://([a-z]+)\.wikipedia\.org/wiki/([^/?#]+).*$")
 
@@ -220,7 +218,7 @@ class _Retriever:
                 ) from error
             async with self._rate_limiter:
                 image_path = await self._fetcher.fetch_file(image_info["url"])
-            image = Image(
+            return Image(
                 image_path,
                 MediaType(image_info["mime"]),
                 # Strip "File:" or any translated equivalent from the beginning of the image's title.
@@ -230,8 +228,6 @@ class _Retriever:
                 image_info["descriptionurl"],
                 Path(urlparse(image_info["url"]).path).name,
             )
-
-            return image
 
     async def get_place_coordinates(
         self, page_language: str, page_name: str

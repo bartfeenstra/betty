@@ -48,7 +48,6 @@ class Command(Plugin):
         """
         Get the plugin's Click command.
         """
-        pass
 
 
 COMMAND_REPOSITORY: PluginRepository[Command] = ProxyPluginRepository(
@@ -232,13 +231,13 @@ async def _read_project_configuration(
                 project_directory_path=str(project_directory_path),
             )
         )
-    else:
-        await _read_project_configuration_file(
-            project,
-            (project_directory_path / provided_configuration_file_path_str)
-            .expanduser()
-            .resolve(),
-        )
+    await _read_project_configuration_file(
+        project,
+        (project_directory_path / provided_configuration_file_path_str)
+        .expanduser()
+        .resolve(),
+    )
+    return None
 
 
 async def _read_project_configuration_file(

@@ -7,13 +7,12 @@ from __future__ import annotations
 import asyncio
 import shutil
 from abc import abstractmethod
-from contextlib import suppress
+from contextlib import AbstractAsyncContextManager, suppress
 from functools import partial
 from os import utime
 from pickle import dumps, loads
 from typing import (
     TYPE_CHECKING,
-    AsyncContextManager,
     Generic,
     Literal,
     Self,
@@ -185,7 +184,7 @@ class _FileCache(
     @overload
     def getset(
         self, cache_item_id: str, *, suffix: str | None = None
-    ) -> AsyncContextManager[
+    ) -> AbstractAsyncContextManager[
         tuple[
             CacheItem[_CacheItemValueContraT] | None,
             CacheItemValueSetter[_CacheItemValueContraT],
@@ -200,7 +199,7 @@ class _FileCache(
         *,
         suffix: str | None = None,
         wait: Literal[False] = False,
-    ) -> AsyncContextManager[
+    ) -> AbstractAsyncContextManager[
         tuple[
             CacheItem[_CacheItemValueContraT] | None,
             CacheItemValueSetter[_CacheItemValueContraT] | None,
@@ -211,7 +210,7 @@ class _FileCache(
     @override
     def getset(
         self, cache_item_id: str, *, suffix: str | None = None, wait: bool = True
-    ) -> AsyncContextManager[
+    ) -> AbstractAsyncContextManager[
         tuple[
             CacheItem[_CacheItemValueContraT] | None,
             CacheItemValueSetter[_CacheItemValueContraT] | None,

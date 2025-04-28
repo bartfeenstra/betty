@@ -7,7 +7,7 @@ from __future__ import annotations
 import logging
 from contextlib import suppress
 from datetime import datetime
-from typing import TYPE_CHECKING, Any, Iterator, TypeAlias
+from typing import TYPE_CHECKING, Any, TypeAlias
 
 from betty.ancestry.event import Event
 from betty.ancestry.event_type.event_types import EndOfLifeEventType
@@ -24,7 +24,7 @@ from betty.model import Entity
 from betty.privacy import HasPrivacy, Privacy
 
 if TYPE_CHECKING:
-    from collections.abc import MutableSequence
+    from collections.abc import Iterator, MutableSequence
 
     from betty.locale.localizer import Localizer
 

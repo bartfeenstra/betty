@@ -4,9 +4,9 @@ Utilities for testing Jinja2 templates.
 
 from __future__ import annotations
 
-from contextlib import asynccontextmanager
+from contextlib import AbstractAsyncContextManager, asynccontextmanager
 from pathlib import Path
-from typing import TYPE_CHECKING, Any, AsyncContextManager
+from typing import TYPE_CHECKING, Any
 
 import aiofiles
 import html5lib
@@ -66,7 +66,7 @@ def assert_template_string(
     locale: Localey | None = None,
     autoescape: bool | None = None,
     extensions: set[type[Extension]] | None = None,
-) -> AsyncContextManager[tuple[str, Project]]:
+) -> AbstractAsyncContextManager[tuple[str, Project]]:
     """
     Assert that a template string can be rendered.
     """
@@ -87,7 +87,7 @@ def assert_template_file(
     locale: Localey | None = None,
     autoescape: bool | None = None,
     extensions: set[type[Extension]] | None = None,
-) -> AsyncContextManager[tuple[str, Project]]:
+) -> AbstractAsyncContextManager[tuple[str, Project]]:
     """
     Assert that a template file can be rendered.
     """
@@ -123,7 +123,7 @@ class TemplateStringTestBase(_TemplateTestBase):
         data: MutableMapping[str, Any] | None = None,
         locale: Localey | None = None,
         autoescape: bool | None = None,
-    ) -> AsyncContextManager[tuple[str, Project]]:
+    ) -> AbstractAsyncContextManager[tuple[str, Project]]:
         """
         Assert that a template string can be rendered.
         """
@@ -152,7 +152,7 @@ class TemplateFileTestBase(_TemplateTestBase):
         data: MutableMapping[str, Any] | None = None,
         locale: Localey | None = None,
         autoescape: bool | None = None,
-    ) -> AsyncContextManager[tuple[str, Project]]:
+    ) -> AbstractAsyncContextManager[tuple[str, Project]]:
         """
         Assert that a template file can be rendered.
         """

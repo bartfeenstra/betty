@@ -8,12 +8,12 @@ import threading
 import time
 from abc import ABC, abstractmethod
 from asyncio import sleep
-from collections.abc import Hashable
+from collections.abc import Hashable, MutableMapping
 from ctypes import c_longdouble
 from math import floor
 from multiprocessing.managers import SyncManager
 from types import TracebackType
-from typing import MutableMapping, Self, TypeAlias, TypeVar, Union, final
+from typing import Self, TypeAlias, TypeVar, Union, final
 
 from typing_extensions import override
 
@@ -45,17 +45,15 @@ class Lock(ABC):
         """
         Acquire the lock.
         """
-        pass
 
     @abstractmethod
     async def release(self) -> None:
         """
         Release the lock.
         """
-        pass
 
 
-Acquirable: TypeAlias = Union[threading.Lock, threading.Semaphore]
+Acquirable: TypeAlias = Union[threading.Lock, threading.Semaphore]  # noqa: UP007
 
 
 async def asynchronize_acquire(acquirable: Acquirable, *, wait: bool = True) -> bool:
@@ -127,14 +125,12 @@ class Semaphore(ABC):
         """
         Acquire the semaphore.
         """
-        pass
 
     @abstractmethod
     async def release(self, n: int = 1) -> None:
         """
         Release the semaphore.
         """
-        pass
 
 
 @final

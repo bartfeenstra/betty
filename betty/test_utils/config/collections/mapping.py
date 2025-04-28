@@ -60,8 +60,6 @@ class ConfigurationMappingTestBase(
     A base class for testing :py:class:`betty.config.collections.mapping.ConfigurationMapping` implementations.
     """
 
-    pass
-
 
 class OrderedConfigurationMappingTestBase(
     Generic[_ConfigurationKeyT, _ConfigurationT],
@@ -70,5 +68,3 @@ class OrderedConfigurationMappingTestBase(
     """
     A base class for testing :py:class:`betty.config.collections.mapping.OrderedConfigurationMapping` implementations.
     """
-
-    pass

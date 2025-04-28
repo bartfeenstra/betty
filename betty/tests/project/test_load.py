@@ -31,7 +31,7 @@ async def test_load__should_fetch_link_with_unsupported_content_type(
         fetch_map={
             link_url: FetchResponse(
                 CIMultiDict({"Content-Type": "text/plain"}),
-                "Hello, world!".encode("utf-8"),
+                b"Hello, world!",
                 "utf-8",
             )
         }

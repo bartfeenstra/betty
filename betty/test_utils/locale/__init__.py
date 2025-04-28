@@ -6,7 +6,7 @@ from __future__ import annotations
 
 import difflib
 from pathlib import Path
-from typing import Iterator
+from typing import TYPE_CHECKING
 
 import aiofiles
 from aiofiles.tempfile import TemporaryDirectory
@@ -16,6 +16,9 @@ from betty.app import App
 from betty.locale.translation import (
     update_project_translations,
 )
+
+if TYPE_CHECKING:
+    from collections.abc import Iterator
 
 
 class PotFileTestBase:

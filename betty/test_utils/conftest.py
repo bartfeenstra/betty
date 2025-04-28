@@ -17,7 +17,7 @@ __all__ = [
 ]
 
 import multiprocessing
-from typing import TYPE_CHECKING, Any, AsyncContextManager, Protocol
+from typing import TYPE_CHECKING, Any, Protocol
 
 import pytest
 import pytest_asyncio
@@ -30,6 +30,7 @@ from betty.multiprocessing import ProcessPoolExecutor
 if TYPE_CHECKING:
     from collections.abc import AsyncIterator, Iterator  # noqa I001
     from concurrent import futures
+    from contextlib import AbstractAsyncContextManager
     from multiprocessing.managers import SyncManager
     from pathlib import Path
 
@@ -89,7 +90,7 @@ class NewTemporaryAppFactory(Protocol):
         *,
         fetcher: Fetcher | None = None,
         process_pool: futures.ProcessPoolExecutor | None = None,
-    ) -> AsyncContextManager[App]:
+    ) -> AbstractAsyncContextManager[App]:
         pass
 
 
@@ -109,7 +110,7 @@ async def new_temporary_app_factory(
         fetcher: Fetcher | None = None,
         process_pool: futures.ProcessPoolExecutor | None = None,
         multiprocessing_manager: SyncManager | None = None,
-    ) -> AsyncContextManager[App]:
+    ) -> AbstractAsyncContextManager[App]:
         return App.new_temporary(
             cache_factory=cache_factory,
             fetcher=fetcher,

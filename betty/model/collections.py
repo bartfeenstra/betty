@@ -11,8 +11,6 @@ from typing import (
     TYPE_CHECKING,
     Any,
     Generic,
-    Iterable,
-    Iterator,
     Self,
     TypeVar,
     cast,
@@ -28,7 +26,14 @@ from betty.mutability import Mutable
 from betty.repr import repr_instance
 
 if TYPE_CHECKING:
-    from collections.abc import AsyncIterator, MutableMapping, MutableSequence, Sequence
+    from collections.abc import (
+        AsyncIterator,
+        Iterable,
+        Iterator,
+        MutableMapping,
+        MutableSequence,
+        Sequence,
+    )
 
     from betty.machine_name import MachineName
     from betty.plugin import PluginIdToTypeMapping
@@ -68,14 +73,12 @@ class EntityCollection(Mutable, Generic[_TargetT], ABC):
         """
         Add the given entities.
         """
-        pass
 
     @abstractmethod
     def remove(self, *entities: _TargetT & Entity) -> None:
         """
         Remove the given entities.
         """
-        pass
 
     def replace(self, *entities: _TargetT & Entity) -> None:
         """
@@ -89,7 +92,6 @@ class EntityCollection(Mutable, Generic[_TargetT], ABC):
         """
         Clear all entities from the collection.
         """
-        pass
 
     @abstractmethod
     def __iter__(self) -> Iterator[_TargetT & Entity]:

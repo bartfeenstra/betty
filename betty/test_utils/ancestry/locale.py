@@ -9,5 +9,3 @@ class DummyHasLocale(HasLocale):
     """
     A dummy :py:class:`betty.ancestry.locale.HasLocale` implementation.
     """
-
-    pass

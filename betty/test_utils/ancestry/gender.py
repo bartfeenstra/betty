@@ -16,12 +16,8 @@ class GenderTestBase(PluginTestBase[Gender]):
     A base class for testing :py:class:`betty.ancestry.gender.Gender` implementations.
     """
 
-    pass
-
 
 class DummyGender(DummyPlugin, Gender):
     """
     A dummy gender implementation.
     """
-
-    pass

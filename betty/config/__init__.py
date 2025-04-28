@@ -72,7 +72,6 @@ class DefaultConfigurable(Configurable[_ConfigurationT], Generic[_ConfigurationT
         """
         Create this extension's default configuration.
         """
-        pass
 
 
 async def assert_configuration_file(

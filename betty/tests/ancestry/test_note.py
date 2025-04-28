@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Any, Mapping, Sequence
+from typing import TYPE_CHECKING, Any
 
 from typing_extensions import override
 
@@ -11,6 +11,8 @@ from betty.test_utils.model import EntityTestBase
 from betty.tests.ancestry.test_has_notes import DummyHasNotes
 
 if TYPE_CHECKING:
+    from collections.abc import Mapping, Sequence
+
     from betty.model import Entity
 
 

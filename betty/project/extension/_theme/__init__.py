@@ -66,7 +66,7 @@ def person_descendant_families(
     parents = {}
     children = defaultdict(set)
     for child in person.children:
-        family = tuple(sorted((parent.id for parent in child.parents)))
+        family = tuple(sorted(parent.id for parent in child.parents))
         if family not in parents:
             parents[family] = tuple(child.parents)
         children[family].add(child)
@@ -199,7 +199,7 @@ def _person_timeline_events(person: Person, lifetime_threshold: int) -> Iterable
             for associated_presence in associated_person.presences:
                 if not isinstance(
                     associated_presence.event.event_type,
-                    (StartOfLifeEventType, EndOfLifeEventType),
+                    StartOfLifeEventType | EndOfLifeEventType,
                 ):
                     continue
                 if not persistent_id(associated_presence.event):

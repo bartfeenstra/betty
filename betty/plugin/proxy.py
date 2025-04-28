@@ -4,9 +4,9 @@ Provide tools for proxying plugin management to other tools.
 
 from collections.abc import AsyncIterator
 from contextlib import suppress
-from typing import Generic, TypeVar, final
+from typing import Generic, TypeVar, final, overload
 
-from typing_extensions import overload, override
+from typing_extensions import override
 
 from betty.factory import Factory, FactoryError
 from betty.json.schema import Schema

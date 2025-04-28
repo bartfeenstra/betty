@@ -5,12 +5,11 @@ Provide the HTML API, for generating HTML pages.
 from __future__ import annotations
 
 from abc import ABC, abstractmethod
-from collections.abc import MutableMapping, Sequence
+from collections.abc import MutableMapping, MutableSequence, Sequence
 from inspect import getmembers
 from typing import (
     Any,
     Generic,
-    MutableSequence,
     NotRequired,
     Self,
     TypedDict,
@@ -18,9 +17,10 @@ from typing import (
     Unpack,
     cast,
     final,
+    overload,
 )
 
-from typing_extensions import overload, override
+from typing_extensions import override
 
 from betty.string import (
     kebab_case_to_lower_camel_case,

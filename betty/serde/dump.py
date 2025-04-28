@@ -37,4 +37,3 @@ class Dumpable(ABC):
         """
         Produce a serialized data dump of ``self``.
         """
-        pass

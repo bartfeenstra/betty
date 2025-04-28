@@ -40,5 +40,3 @@ class NoOpProjectServer(NoOpServer, ProjectServer):
     """
     A project server that does nothing.
     """
-
-    pass

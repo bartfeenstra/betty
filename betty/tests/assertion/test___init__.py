@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from pathlib import Path
 from tempfile import NamedTemporaryFile
-from typing import TYPE_CHECKING, Any, Sized, TypeVar
+from typing import TYPE_CHECKING, Any, TypeVar
 
 import pytest
 from aiofiles.tempfile import TemporaryDirectory
@@ -43,7 +43,7 @@ from betty.test_utils.assertion.error import raises_error
 from betty.typing import Void
 
 if TYPE_CHECKING:
-    from collections.abc import Mapping
+    from collections.abc import Mapping, Sized
 
 _T = TypeVar("_T")
 

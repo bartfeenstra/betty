@@ -6,8 +6,9 @@ from __future__ import annotations
 
 import calendar
 import operator
+from collections.abc import Callable, Mapping
 from functools import total_ordering
-from typing import TYPE_CHECKING, Any, Callable, Mapping, Self, TypeAlias, final
+from typing import TYPE_CHECKING, Any, Self, TypeAlias, final
 
 from typing_extensions import override
 
@@ -30,8 +31,6 @@ class IncompleteDateError(ValueError):
     """
     Raised when a datey was unexpectedly incomplete.
     """
-
-    pass  # pragma: no cover
 
 
 @final
@@ -450,7 +449,7 @@ class DateRange(LinkedDataDumpableJsonLdObject):
     }
 
     def __lt__(self, other: Any) -> bool:
-        if not isinstance(other, (Date, DateRange)):
+        if not isinstance(other, Date | DateRange):
             return NotImplemented
 
         self_start = self._get_comparable_date(self.start)
@@ -469,8 +468,7 @@ class DateRange(LinkedDataDumpableJsonLdObject):
                     other_end is not None,
                 )
             ](self_start, self_end, other_start, other_end)
-        else:
-            return self._LT_DATE_COMPARATORS[signature](self_start, self_end, other)
+        return self._LT_DATE_COMPARATORS[signature](self_start, self_end, other)
 
     @override
     def __eq__(self, other: Any) -> bool:

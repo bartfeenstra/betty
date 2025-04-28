@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Sequence, cast
+from typing import TYPE_CHECKING, cast
 
 import pytest
 from typing_extensions import override
@@ -11,6 +11,8 @@ from betty.test_utils.json.linked_data import assert_dumps_linked_data
 from betty.test_utils.json.schema import SchemaTestBase
 
 if TYPE_CHECKING:
+    from collections.abc import Sequence
+
     from betty.json.schema import Schema
 
 

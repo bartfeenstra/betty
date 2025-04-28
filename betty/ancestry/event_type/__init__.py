@@ -18,8 +18,6 @@ class EventType(Mutable, OrderedPlugin["EventType"]):
     To test your own subclasses, use :py:class:`betty.test_utils.ancestry.event_type.EventTypeTestBase`.
     """
 
-    pass
-
 
 EVENT_TYPE_REPOSITORY: PluginRepository[EventType] = EntryPointPluginRepository(
     "betty.event_type"

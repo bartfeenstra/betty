@@ -4,8 +4,8 @@ Provide plugin configuration.
 
 from __future__ import annotations
 
-from collections.abc import Mapping
-from typing import TYPE_CHECKING, Generic, Sequence, TypeVar, cast
+from collections.abc import Mapping, Sequence
+from typing import TYPE_CHECKING, Generic, TypeVar, cast
 
 from typing_extensions import override
 

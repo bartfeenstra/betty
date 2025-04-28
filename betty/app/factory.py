@@ -22,4 +22,3 @@ class AppDependentFactory(ABC):
         """
         Create a new instance using the given app.
         """
-        pass

@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 from pathlib import Path
-from typing import TYPE_CHECKING, Self, Sequence
+from typing import TYPE_CHECKING, Self
 
 import pytest
 from typing_extensions import override
@@ -42,7 +42,7 @@ from betty.test_utils.project.extension import (
 from betty.warnings import BettyDeprecationWarning
 
 if TYPE_CHECKING:
-    from collections.abc import MutableSequence
+    from collections.abc import MutableSequence, Sequence
 
     from pytest_mock import MockerFixture
 

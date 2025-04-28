@@ -1,5 +1,5 @@
-from collections.abc import Iterable
-from typing import Mapping, TypeVar, cast
+from collections.abc import Iterable, Mapping
+from typing import TypeVar, cast
 
 import pytest
 from typing_extensions import override

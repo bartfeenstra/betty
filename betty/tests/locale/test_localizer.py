@@ -333,7 +333,7 @@ class TestLocalizerRepository:
         async with aiofiles.open(po_file_path, "w") as f:
             await f.write(_DUMMY_PO)
         # Do this multiple times so we hit the file caches.
-        for _ in range(0, 2):
+        for _ in range(2):
             sut = LocalizerRepository(AssetRepository(assets_directory_path))
             actual = (await sut.get(locale))._("Subject")
             assert actual == "Onderwerp"

@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Iterable
+from typing import TYPE_CHECKING
 
 import pytest
 from typing_extensions import override
@@ -51,6 +51,7 @@ from betty.test_utils.project.extension import (
 from betty.typing import Void
 
 if TYPE_CHECKING:
+    from collections.abc import Iterable
     from pathlib import Path
 
     from pytest_mock import MockerFixture

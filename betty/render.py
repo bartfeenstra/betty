@@ -34,7 +34,6 @@ class Renderer(ABC):
         """
         The extensions of the files this renderer can render.
         """
-        pass
 
     @abstractmethod
     async def render_file(
@@ -50,7 +49,6 @@ class Renderer(ABC):
         :return: The file's new path, which may have been changed, e.g. a
             renderer-specific extension may have been stripped from the end.
         """
-        pass
 
 
 RENDERER_REPOSITORY: PluginRepository[Renderer & Plugin] = EntryPointPluginRepository(

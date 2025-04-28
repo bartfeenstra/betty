@@ -25,7 +25,6 @@ class License(Mutable, Plugin):
         """
         The license summary.
         """
-        pass
 
     @property
     @abstractmethod
@@ -33,7 +32,6 @@ class License(Mutable, Plugin):
         """
         The full license text.
         """
-        pass
 
     @property
     def url(self) -> Localizable | None:

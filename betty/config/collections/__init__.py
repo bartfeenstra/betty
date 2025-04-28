@@ -5,16 +5,18 @@ Define and provide collections of :py:class:`betty.config.Configuration` instanc
 from __future__ import annotations
 
 from abc import abstractmethod
-from reprlib import recursive_repr
-from typing import (
-    TYPE_CHECKING,
-    Any,
-    Generic,
+from collections.abc import (
     Hashable,
     Iterable,
     Iterator,
     MutableMapping,
     MutableSequence,
+)
+from reprlib import recursive_repr
+from typing import (
+    TYPE_CHECKING,
+    Any,
+    Generic,
     SupportsIndex,
     TypeAlias,
     TypeVar,
@@ -80,7 +82,6 @@ class ConfigurationCollection(
         """
         Replace any existing values with the given ones.
         """
-        pass
 
     def remove(self, *configuration_keys: _ConfigurationKeyT) -> None:
         """
@@ -115,42 +116,36 @@ class ConfigurationCollection(
 
         :raise betty.assertion.error.AssertionFailed: Raised when the dump is invalid and cannot be loaded.
         """
-        pass
 
     @abstractmethod
     def keys(self) -> Iterator[_ConfigurationKeyT]:
         """
         Get all keys in this collection.
         """
-        pass
 
     @abstractmethod
     def values(self) -> Iterator[_ConfigurationT]:
         """
         Get all values in this collection.
         """
-        pass
 
     @abstractmethod
     def prepend(self, *configurations: _ConfigurationT) -> None:
         """
         Prepend the given values to the beginning of the sequence.
         """
-        pass
 
     @abstractmethod
     def append(self, *configurations: _ConfigurationT) -> None:
         """
         Append the given values to the end of the sequence.
         """
-        pass
 
     @abstractmethod
     def insert(self, index: int, *configurations: _ConfigurationT) -> None:
         """
         Insert the given values at the given index.
         """
-        pass
 
     @override
     def get_mutable_instances(self) -> Iterable[Mutable]:

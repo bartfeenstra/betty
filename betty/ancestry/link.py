@@ -4,7 +4,7 @@ The Link API allows data to reference external resources.
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Any, MutableSequence, Self, final
+from typing import TYPE_CHECKING, Any, Self, final
 
 from typing_extensions import override
 
@@ -29,6 +29,8 @@ from betty.locale.localizable import (
 from betty.privacy import is_public
 
 if TYPE_CHECKING:
+    from collections.abc import MutableSequence
+
     from betty.media_type import MediaType
     from betty.project import Project
     from betty.serde.dump import Dump, DumpMapping

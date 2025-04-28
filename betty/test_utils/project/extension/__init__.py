@@ -86,8 +86,6 @@ class DummyExtension(DummyPlugin, Extension):
     A dummy :py:class:`betty.project.extension.Extension` implementation.
     """
 
-    pass
-
 
 class DummyConfigurableExtension(
     DummyExtension, ConfigurableExtension[DummyConfiguration]

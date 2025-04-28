@@ -17,23 +17,17 @@ class SubprocessError(Exception):
     Raised when a subprocess failed.
     """
 
-    pass
-
 
 class CalledSubprocessError(subprocess.CalledProcessError, SubprocessError):
     """
     Raised when a subprocess was successfully invoked, but subsequently failed during its own execution.
     """
 
-    pass
-
 
 class FileNotFound(FileNotFoundError, SubprocessError):
     """
     Raised when a command could not be found.
     """
-
-    pass
 
 
 async def run_process(

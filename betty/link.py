@@ -18,7 +18,6 @@ class Link(ABC):
         """
         The absolute URL the link points to.
         """
-        pass
 
     @property
     @abstractmethod
@@ -26,4 +25,3 @@ class Link(ABC):
         """
         The human-readable short link label.
         """
-        pass

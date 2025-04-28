@@ -173,7 +173,4 @@ def demo_project_fetcher(binary_file_cache: BinaryFileCache, tmp_path: Path) -> 
     spdx_tar_file_path = tmp_path / "spdx.tar.gz"
     with tarfile.open(spdx_tar_file_path, "w:gz") as spdx_tar_file:
         spdx_tar_file.add(spdx_directory_path, "/")
-    fetcher = StaticFetcher(
-        fetch_file_map={SpdxLicenseRepository.URL: spdx_tar_file_path}
-    )
-    return fetcher
+    return StaticFetcher(fetch_file_map={SpdxLicenseRepository.URL: spdx_tar_file_path})

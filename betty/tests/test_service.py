@@ -1,5 +1,6 @@
 import pickle
-from typing import Awaitable, cast
+from collections.abc import Awaitable
+from typing import cast
 
 import pytest
 from typing_extensions import override

@@ -42,5 +42,3 @@ class DummyEventType(DummyPlugin, EventType):
     """
     A dummy event type implementation.
     """
-
-    pass

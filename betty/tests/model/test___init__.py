@@ -1,4 +1,4 @@
-from typing import Sequence
+from collections.abc import Sequence
 
 import pytest
 from typing_extensions import override
@@ -34,7 +34,7 @@ def test_persistent_id(expected: bool, entity: Entity) -> None:
 class TestEntity:
     @pytest.mark.parametrize(
         "count",
-        range(0, 9),
+        range(9),
     )
     def test_plugin_label_count(self, count: int) -> None:
         class _Entity(Entity):

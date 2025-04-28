@@ -1,11 +1,10 @@
 from abc import abstractmethod
 from collections.abc import AsyncIterator, Sequence
-from contextlib import asynccontextmanager
+from contextlib import AbstractAsyncContextManager, asynccontextmanager
 from datetime import datetime
 from multiprocessing.managers import SyncManager
 from typing import (
     Any,
-    AsyncContextManager,
     Generic,
     Literal,
     Protocol,
@@ -129,7 +128,7 @@ class _CommonCacheBase(Cache[_CacheItemValueContraT], Generic[_CacheItemValueCon
     @overload
     def getset(
         self, cache_item_id: str
-    ) -> AsyncContextManager[
+    ) -> AbstractAsyncContextManager[
         tuple[
             CacheItem[_CacheItemValueContraT] | None,
             CacheItemValueSetter[_CacheItemValueContraT],
@@ -140,7 +139,7 @@ class _CommonCacheBase(Cache[_CacheItemValueContraT], Generic[_CacheItemValueCon
     @overload
     def getset(
         self, cache_item_id: str, *, wait: Literal[False] = False
-    ) -> AsyncContextManager[
+    ) -> AbstractAsyncContextManager[
         tuple[
             CacheItem[_CacheItemValueContraT] | None,
             CacheItemValueSetter[_CacheItemValueContraT] | None,
@@ -150,7 +149,7 @@ class _CommonCacheBase(Cache[_CacheItemValueContraT], Generic[_CacheItemValueCon
 
     def getset(
         self, cache_item_id: str, *, wait: bool = True
-    ) -> AsyncContextManager[
+    ) -> AbstractAsyncContextManager[
         tuple[
             CacheItem[_CacheItemValueContraT] | None,
             CacheItemValueSetter[_CacheItemValueContraT] | None,

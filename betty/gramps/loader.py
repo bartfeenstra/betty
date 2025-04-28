@@ -13,7 +13,7 @@ from dataclasses import dataclass
 from enum import Enum
 from logging import getLogger
 from pathlib import Path
-from typing import TYPE_CHECKING, Generic, Iterable, TypeVar, cast, final
+from typing import TYPE_CHECKING, Generic, TypeVar, cast, final
 
 import aiofiles
 from aiofiles.tempfile import TemporaryDirectory
@@ -110,7 +110,14 @@ from betty.privacy import HasPrivacy
 from betty.typing import internal
 
 if TYPE_CHECKING:
-    from collections.abc import Awaitable, Callable, Mapping, MutableMapping, Sequence
+    from collections.abc import (
+        Awaitable,
+        Callable,
+        Iterable,
+        Mapping,
+        MutableMapping,
+        Sequence,
+    )
     from xml.etree import ElementTree
 
     from betty.ancestry import Ancestry
@@ -134,23 +141,17 @@ class LoaderUsedAlready(GrampsError):
     Raised when a :py:class:`betty.gramps.loader.GrampsLoader` is used more than once.
     """
 
-    pass  # pragma: no cover
-
 
 class GrampsFileNotFound(UserFacingGrampsError, FileNotFound):
     """
     Raised when a Gramps family tree file cannot be found.
     """
 
-    pass  # pragma: no cover
-
 
 class XPathError(GrampsError):
     """
     An error occurred when evaluating an XPath selector on Gramps XML.
     """
-
-    pass  # pragma: no cover
 
 
 class GrampsEntityType(Enum):
@@ -337,7 +338,7 @@ class GrampsLoader:
             return await self.load_gramps(file_path)
         if file_path.suffix == ".xml":
             try:
-                async with aiofiles.open(file_path, mode="r") as f:
+                async with aiofiles.open(file_path) as f:
                     xml = await f.read()
             except FileNotFoundError:
                 raise GrampsFileNotFound.new(file_path) from None

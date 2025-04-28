@@ -17,8 +17,6 @@ class LocaleError(UserFacingError, Exception):
     A locale API error.
     """
 
-    pass
-
 
 class InvalidLocale(LocaleError, ValueError):
     """

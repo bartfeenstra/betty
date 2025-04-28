@@ -2,12 +2,12 @@
 Fetch content from the internet.
 """
 
-import asyncio
 from collections.abc import Awaitable, Callable
+from contextlib import AbstractAsyncContextManager
 from logging import getLogger
 from pathlib import Path
 from time import time
-from typing import AsyncContextManager, TypeVar
+from typing import TypeVar
 from urllib.parse import urlparse
 
 from aiohttp import ClientError, ClientResponse, ClientSession
@@ -45,7 +45,7 @@ class HttpFetcher(Fetcher):
         url: str,
         getsetter: Callable[
             [],
-            AsyncContextManager[
+            AbstractAsyncContextManager[
                 tuple[
                     CacheItem[_CacheItemValueT] | None,
                     CacheItemValueSetter[_CacheItemValueT],
@@ -67,7 +67,7 @@ class HttpFetcher(Fetcher):
                     self._logger.warning(
                         f'Could not successfully connect to "{url}": {error}'
                     )
-                except asyncio.TimeoutError:
+                except TimeoutError:
                     self._logger.warning(f'Timeout when connecting to "{url}"')
                 else:
                     await setter(response_data)

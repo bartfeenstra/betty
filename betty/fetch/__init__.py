@@ -18,8 +18,6 @@ class FetchError(UserFacingError, RuntimeError):
     An error that occurred when fetching a URL.
     """
 
-    pass  # pragma: no cover
-
 
 @final
 @dataclass(frozen=True)
@@ -63,7 +61,6 @@ class Fetcher(ABC):
 
         :raises FetchError: if an error occurred while fetching the content.
         """
-        pass
 
     @abstractmethod
     async def fetch_file(self, url: str) -> Path:
@@ -74,4 +71,3 @@ class Fetcher(ABC):
 
         :return: The path to the file on disk.
         """
-        pass

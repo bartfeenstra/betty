@@ -1,10 +1,13 @@
 from __future__ import annotations
 
-from typing import Any, Mapping
+from typing import TYPE_CHECKING, Any
 
 from betty.locale import UNDETERMINED_LOCALE
 from betty.test_utils.ancestry.locale import DummyHasLocale
 from betty.test_utils.json.linked_data import assert_dumps_linked_data
+
+if TYPE_CHECKING:
+    from collections.abc import Mapping
 
 
 class TestHasLocale:

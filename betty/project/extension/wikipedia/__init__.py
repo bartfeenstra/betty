@@ -5,7 +5,7 @@ from __future__ import annotations
 import logging
 from asyncio import gather
 from pathlib import Path
-from typing import TYPE_CHECKING, Iterable, Self, final
+from typing import TYPE_CHECKING, Self, final
 
 from jinja2 import pass_context
 from typing_extensions import override
@@ -31,6 +31,8 @@ from betty.wikipedia import (
 from betty.wikipedia.copyright_notice import WikipediaContributors
 
 if TYPE_CHECKING:
+    from collections.abc import Iterable
+
     from jinja2.runtime import Context
 
     from betty.ancestry.link import Link

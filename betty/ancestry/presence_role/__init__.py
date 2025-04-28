@@ -16,8 +16,6 @@ class PresenceRole(Mutable, Plugin):
     Read more about :doc:`/development/plugin/presence-role`.
     """
 
-    pass
-
 
 PRESENCE_ROLE_REPOSITORY: PluginRepository[PresenceRole] = EntryPointPluginRepository(
     "betty.presence_role"

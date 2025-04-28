@@ -6,7 +6,9 @@ import asyncio
 import multiprocessing
 import pickle
 from asyncio import create_task, sleep
-from typing import Any, AsyncContextManager, Generic, Iterator, Sequence, TypeVar
+from collections.abc import Iterator, Sequence
+from contextlib import AbstractAsyncContextManager
+from typing import Any, Generic, TypeVar
 
 import pytest
 
@@ -24,7 +26,7 @@ class CacheTestBase(Generic[_CacheItemValueT]):
         self,
         *,
         scopes: Sequence[str] | None = None,
-    ) -> AsyncContextManager[Cache[_CacheItemValueT]]:
+    ) -> AbstractAsyncContextManager[Cache[_CacheItemValueT]]:
         raise NotImplementedError
 
     def _values(self) -> Iterator[_CacheItemValueT]:

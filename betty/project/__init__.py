@@ -14,7 +14,6 @@ from graphlib import TopologicalSorter
 from pathlib import Path
 from typing import (
     TYPE_CHECKING,
-    Iterator,
     Self,
     TypeVar,
     cast,
@@ -66,7 +65,7 @@ from betty.typing import internal
 from betty.warnings import deprecated
 
 if TYPE_CHECKING:
-    from collections.abc import AsyncIterator, Sequence
+    from collections.abc import AsyncIterator, Iterator, Sequence
     from multiprocessing.managers import SyncManager
 
     from betty.ancestry.event_type import EventType

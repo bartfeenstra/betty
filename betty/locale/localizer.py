@@ -8,7 +8,7 @@ import datetime
 import gettext
 from collections import defaultdict
 from contextlib import suppress
-from typing import TYPE_CHECKING, AsyncIterator, Iterator, Mapping, final
+from typing import TYPE_CHECKING, final
 
 import aiofiles
 from babel import dates
@@ -39,7 +39,7 @@ from betty.locale.babel import run_babel
 from betty.typing import threadsafe
 
 if TYPE_CHECKING:
-    from collections.abc import MutableMapping
+    from collections.abc import AsyncIterator, Iterator, Mapping, MutableMapping
     from pathlib import Path
 
     from betty.assets import AssetRepository

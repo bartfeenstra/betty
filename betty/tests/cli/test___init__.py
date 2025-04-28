@@ -1,6 +1,6 @@
 import io
 import logging
-from logging import CRITICAL, DEBUG, ERROR, FATAL, INFO, NOTSET, WARN, WARNING
+from logging import CRITICAL, DEBUG, ERROR, FATAL, INFO, NOTSET, WARNING
 
 import asyncclick as click
 import pytest
@@ -78,7 +78,6 @@ class TestClickHandler:
             FATAL,
             ERROR,
             WARNING,
-            WARN,
             INFO,
             DEBUG,
             NOTSET,

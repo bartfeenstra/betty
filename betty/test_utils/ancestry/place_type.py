@@ -16,12 +16,8 @@ class PlaceTypeTestBase(PluginTestBase[PlaceType]):
     A base class for testing :py:class:`betty.ancestry.place_type.PlaceType` implementations.
     """
 
-    pass
-
 
 class DummyPlaceType(DummyPlugin, PlaceType):
     """
     A dummy place type implementation.
     """
-
-    pass

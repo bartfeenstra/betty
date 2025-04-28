@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Any, Sequence
+from typing import TYPE_CHECKING, Any
 
 import pytest
 from typing_extensions import override
@@ -10,7 +10,7 @@ from betty.media_type.media_types import PLAIN_TEXT
 from betty.test_utils.json.schema import SchemaTestBase
 
 if TYPE_CHECKING:
-    from collections.abc import Mapping
+    from collections.abc import Mapping, Sequence
 
     from betty.json.schema import Schema
     from betty.serde.dump import Dump
