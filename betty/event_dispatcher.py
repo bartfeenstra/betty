@@ -6,11 +6,9 @@ from __future__ import annotations
 
 from asyncio import gather
 from collections import defaultdict
+from collections.abc import Awaitable, Callable, Sequence
 from typing import (
     TYPE_CHECKING,
-    Awaitable,
-    Callable,
-    Sequence,
     TypeAlias,
     TypeVar,
     final,
@@ -28,8 +26,6 @@ class Event:
     a subclass **MUST** be created for that specific event type. Instances of
     these subclasses are dispatched and handled.
     """
-
-    pass
 
 
 _EventT = TypeVar("_EventT", bound=Event)

@@ -52,14 +52,12 @@ class LinkedDataDumpable(Generic[_SchemaTypeT, _DumpT]):
         """
         Define the `JSON Schema <https://json-schema.org/>`_ for :py:meth:`betty.json.linked_data.LinkedDataDumpable.dump_linked_data`.
         """
-        pass
 
     @abstractmethod
     async def dump_linked_data(self, project: Project) -> _DumpT:
         """
         Dump this instance to `JSON-LD <https://json-ld.org/>`_.
         """
-        pass
 
 
 class JsonLdObject(Object):
@@ -133,14 +131,12 @@ class LinkedDataDumpableProvider(Generic[_T, _SchemaTypeT, _DumpT], ABC):
         """
         Define the `JSON Schema <https://json-schema.org/>`_ for :py:meth:`betty.json.linked_data.LinkedDataDumpableProvider.dump_linked_data_for`.
         """
-        pass
 
     @abstractmethod
     async def dump_linked_data_for(self, project: Project, target: _T) -> _DumpT:
         """
         Dump the given target to `JSON-LD <https://json-ld.org/>`_.
         """
-        pass
 
 
 def dump_context(dump: DumpMapping[Dump], **context_definitions: str) -> None:

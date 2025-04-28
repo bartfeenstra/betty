@@ -4,8 +4,6 @@
 class Src:
     """Provide a fixture source class."""
 
-    pass  # pragma: no cover
-
 
 class TestSrc:
     pass  # pragma: no cover

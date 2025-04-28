@@ -531,7 +531,7 @@ class CoverageTester:
     async def test(self) -> None:
         errors: MutableMapping[Path, MutableSequence[str]] = defaultdict(list)
 
-        for directory_path, _, file_names in walk(str((ROOT_DIRECTORY_PATH / "betty"))):
+        for directory_path, _, file_names in walk(str(ROOT_DIRECTORY_PATH / "betty")):
             for file_name in file_names:
                 file_path = Path(directory_path) / file_name
                 if file_path.suffix == ".py":
@@ -752,7 +752,7 @@ class _ModuleFunctionCoverageTester:
         if test_functions:
             if isinstance(self._ignore, MissingReason):
                 formatted_test_members = ", ".join(
-                    (f"{test_function.__name__}()" for test_function in test_functions)
+                    f"{test_function.__name__}()" for test_function in test_functions
                 )
                 yield f"The source function {self._src_function.__module__}.{self._src_function.__name__}() has (a) matching test function(s) {formatted_test_members} in {self._test_module_name}, which was unexpectedly declared as known to be missing."
             return
@@ -868,7 +868,7 @@ class _ModuleClassCoverageTester:
         if test_members:
             if isinstance(ignore, MissingReason):
                 formatted_test_members = ", ".join(
-                    (f"{test_member.__name__}()" for test_member in test_members)
+                    f"{test_member.__name__}()" for test_member in test_members
                 )
                 yield f"The source member {self._src_class.__module__}.{self._src_class.__name__}.{src_member_name}() has (a) matching test method(s) {formatted_test_members} in {test_class.__module__}.{test_class.__name__}, which was unexpectedly declared as known to be missing."
             return

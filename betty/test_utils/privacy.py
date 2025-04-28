@@ -9,5 +9,3 @@ class DummyHasPrivacy(HasPrivacy):
     """
     A dummy :py:class:`betty.privacy.HasPrivacy` implementation.
     """
-
-    pass

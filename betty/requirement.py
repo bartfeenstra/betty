@@ -30,7 +30,6 @@ class Requirement(Localizable):
         """
         Check if the requirement is met.
         """
-        pass
 
     def assert_met(self) -> None:
         """
@@ -38,14 +37,13 @@ class Requirement(Localizable):
         """
         if not self.is_met():
             raise RequirementError(self)
-        return None
+        return
 
     @abstractmethod
     def summary(self) -> Localizable:
         """
         Get the requirement's human-readable summary.
         """
-        pass
 
     def details(self) -> Localizable | None:
         """

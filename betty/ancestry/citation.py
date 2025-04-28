@@ -81,7 +81,7 @@ class Citation(
         *,
         source: ToOneAssociate[Source],
         id: str | None = None,  # noqa A002  # noqa A002
-        facts: ToManyAssociates["HasCitations & Entity"] | None = None,
+        facts: ToManyAssociates[HasCitations & Entity] | None = None,
         location: ShorthandStaticTranslations | None = None,
         date: Datey | None = None,
         file_references: ToManyAssociates[FileReference] | None = None,

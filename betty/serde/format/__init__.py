@@ -5,7 +5,7 @@ Provide serialization formats.
 from __future__ import annotations
 
 from abc import abstractmethod
-from typing import TYPE_CHECKING, Sequence, final
+from typing import TYPE_CHECKING, final
 
 from typing_extensions import override
 
@@ -16,7 +16,7 @@ from betty.plugin import Plugin, PluginRepository
 from betty.plugin.entry_point import EntryPointPluginRepository
 
 if TYPE_CHECKING:
-    from collections.abc import AsyncIterator
+    from collections.abc import AsyncIterator, Sequence
 
     from betty.locale.localizer import Localizer
     from betty.machine_name import MachineName
@@ -28,8 +28,6 @@ class FormatError(AssertionFailed):
     """
     Raised when data that is being deserialized is provided in an unknown (undeserializable) format.
     """
-
-    pass
 
 
 class Format(Plugin):
@@ -43,7 +41,6 @@ class Format(Plugin):
         """
         The file extensions this format can (de)serialize.
         """
-        pass
 
     @abstractmethod
     def load(self, dump: str) -> Dump:
@@ -52,14 +49,12 @@ class Format(Plugin):
 
         :raise FormatError: Raised when the dump could not be loaded.
         """
-        pass
 
     @abstractmethod
     def dump(self, dump: Voidable[Dump]) -> str:
         """
         Serialize data.
         """
-        pass
 
 
 @final

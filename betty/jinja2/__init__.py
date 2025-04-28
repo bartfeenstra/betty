@@ -6,8 +6,8 @@ from __future__ import annotations
 
 import datetime
 from collections import defaultdict
-from collections.abc import Mapping
-from typing import TYPE_CHECKING, Any, Callable, Self, TypeAlias, cast, final
+from collections.abc import Callable, Mapping
+from typing import TYPE_CHECKING, Any, Self, TypeAlias, cast, final
 
 import aiofiles
 from aiofiles import os as aiofiles_os

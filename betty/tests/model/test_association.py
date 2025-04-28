@@ -167,7 +167,7 @@ class TestUnidirectionalToZeroOrOne:
         def __init__(
             self,
             associate: ToZeroOrOneAssociate[
-                "TestUnidirectionalToZeroOrOne._Associate"
+                TestUnidirectionalToZeroOrOne._Associate
             ] = None,
         ):
             super().__init__()
@@ -184,7 +184,7 @@ class TestUnidirectionalToZeroOrOne:
 
     class _OwnerEmbedded(DummyEntity):
         def __init__(
-            self, associate: "TestUnidirectionalToZeroOrOne._Associate" | None = None
+            self, associate: TestUnidirectionalToZeroOrOne._Associate | None = None
         ):
             super().__init__()
             self.associate = associate
@@ -202,8 +202,7 @@ class TestUnidirectionalToZeroOrOne:
     class _OwnerWithUserFacingAssociate(DummyEntity):
         def __init__(
             self,
-            associate: "TestUnidirectionalToZeroOrOne._UserFacingAssociate"
-            | None = None,
+            associate: TestUnidirectionalToZeroOrOne._UserFacingAssociate | None = None,
         ):
             super().__init__()
             self.associate = associate
@@ -332,7 +331,7 @@ class TestBidirectionalToZeroOrOne:
         def __init__(
             self,
             associate: ToZeroOrOneAssociate[
-                "TestBidirectionalToZeroOrOne._Associate"
+                TestBidirectionalToZeroOrOne._Associate
             ] = None,
         ):
             super().__init__()
@@ -351,7 +350,7 @@ class TestBidirectionalToZeroOrOne:
     class _OwnerEmbedded(DummyEntity):
         def __init__(
             self,
-            associate: "TestBidirectionalToZeroOrOne._Associate" | None = None,
+            associate: TestBidirectionalToZeroOrOne._Associate | None = None,
         ):
             super().__init__()
             self.associate = associate
@@ -370,8 +369,7 @@ class TestBidirectionalToZeroOrOne:
     class _OwnerWithUserFacingAssociate(DummyEntity):
         def __init__(
             self,
-            associate: "TestBidirectionalToZeroOrOne._UserFacingAssociate"
-            | None = None,
+            associate: TestBidirectionalToZeroOrOne._UserFacingAssociate | None = None,
         ):
             super().__init__()
             self.associate = associate
@@ -521,7 +519,7 @@ class TestBidirectionalToZeroOrOne:
 class TestUnidirectionalToOne:
     class _Owner(DummyEntity):
         def __init__(
-            self, associate: ToOneAssociate["TestUnidirectionalToOne._Associate"]
+            self, associate: ToOneAssociate[TestUnidirectionalToOne._Associate]
         ):
             super().__init__()
             self.associate = associate
@@ -535,7 +533,7 @@ class TestUnidirectionalToOne:
         )
 
     class _OwnerEmbedded(DummyEntity):
-        def __init__(self, associate: "TestUnidirectionalToOne._Associate"):
+        def __init__(self, associate: TestUnidirectionalToOne._Associate):
             super().__init__()
             self.associate = associate
 
@@ -550,7 +548,7 @@ class TestUnidirectionalToOne:
         )
 
     class _OwnerWithUserFacingAssociate(UserFacingEntity, DummyEntity):
-        def __init__(self, associate: "TestUnidirectionalToOne._UserFacingAssociate"):
+        def __init__(self, associate: TestUnidirectionalToOne._UserFacingAssociate):
             super().__init__()
             self.associate = associate
 
@@ -637,7 +635,7 @@ class TestUnidirectionalToOne:
 class TestBidirectionalToOne:
     class _Owner(DummyEntity):
         def __init__(
-            self, associate: ToOneAssociate["TestBidirectionalToOne._Associate"]
+            self, associate: ToOneAssociate[TestBidirectionalToOne._Associate]
         ):
             super().__init__()
             self.associate = associate
@@ -662,7 +660,7 @@ class TestBidirectionalToOne:
         )
 
     class _OwnerEmbedded(DummyEntity):
-        def __init__(self, associate: "TestBidirectionalToOne._AssociateEmbedded"):
+        def __init__(self, associate: TestBidirectionalToOne._AssociateEmbedded):
             super().__init__()
             self.associate = associate
 
@@ -689,7 +687,7 @@ class TestBidirectionalToOne:
         )
 
     class _OwnerWithUserFacingAssociate(DummyEntity):
-        def __init__(self, associate: "TestBidirectionalToOne._UserFacingAssociate"):
+        def __init__(self, associate: TestBidirectionalToOne._UserFacingAssociate):
             super().__init__()
             self.associate = associate
 

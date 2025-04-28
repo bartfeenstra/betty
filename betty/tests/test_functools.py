@@ -30,8 +30,7 @@ class TestDo:
                 tries -= 1
                 if tries == 0:
                     return await self._do_success(result)
-                else:
-                    await self._do_raise_exception()
+                await self._do_raise_exception()
 
         return __build_do_success_after_retries
 

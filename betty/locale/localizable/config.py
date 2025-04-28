@@ -44,7 +44,7 @@ class StaticTranslationsLocalizableConfiguration(
         translation_count = len(self._translations)
         if translation_count == 0:
             return {}
-        elif translation_count == 1:
+        if translation_count == 1:
             with suppress(KeyError):
                 return self._translations[UNDETERMINED_LOCALE]
         return dict(self._translations)

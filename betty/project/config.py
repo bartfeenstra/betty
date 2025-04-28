@@ -4,9 +4,9 @@ Provide project configuration.
 
 from __future__ import annotations
 
-from collections.abc import Mapping
+from collections.abc import Iterable, Mapping
 from reprlib import recursive_repr
-from typing import TYPE_CHECKING, Any, Iterable, Self, cast, final
+from typing import TYPE_CHECKING, Any, Self, cast, final
 from urllib.parse import urlparse
 
 from typing_extensions import override

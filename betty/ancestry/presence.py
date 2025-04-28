@@ -4,7 +4,7 @@ Data types for people's presences at events.
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Iterable, final
+from typing import TYPE_CHECKING, final
 
 from typing_extensions import override
 
@@ -20,6 +20,8 @@ from betty.privacy import (
 )
 
 if TYPE_CHECKING:
+    from collections.abc import Iterable
+
     from betty.ancestry.event import Event
     from betty.ancestry.person import Person
     from betty.ancestry.presence_role import PresenceRole

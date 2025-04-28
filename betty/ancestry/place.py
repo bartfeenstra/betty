@@ -5,7 +5,7 @@ Provide the place entity.
 from __future__ import annotations
 
 from contextlib import suppress
-from typing import TYPE_CHECKING, Iterable, Iterator, MutableSequence, final
+from typing import TYPE_CHECKING, final
 
 from typing_extensions import override
 
@@ -23,6 +23,8 @@ from betty.plugin import ShorthandPluginBase
 from betty.privacy import HasPrivacy
 
 if TYPE_CHECKING:
+    from collections.abc import Iterable, Iterator, MutableSequence
+
     from geopy import Point
 
     from betty.ancestry.enclosure import Enclosure
@@ -89,8 +91,8 @@ class Place(
         id: str | None = None,  # noqa A002
         names: MutableSequence[Name] | None = None,
         events: ToManyAssociates[Event] | None = None,
-        enclosers: ToManyAssociates["Enclosure"] | None = None,
-        enclosees: ToManyAssociates["Enclosure"] | None = None,
+        enclosers: ToManyAssociates[Enclosure] | None = None,
+        enclosees: ToManyAssociates[Enclosure] | None = None,
         notes: ToManyAssociates[Note] | None = None,
         coordinates: Point | None = None,
         links: MutableSequence[Link] | None = None,
@@ -125,7 +127,7 @@ class Place(
         )
 
     @property
-    def walk_enclosees(self) -> Iterator["Enclosure"]:
+    def walk_enclosees(self) -> Iterator[Enclosure]:
         """
         All enclosed places.
         """

@@ -10,10 +10,10 @@ Read more at :doc:`/development/plugin`.
 from __future__ import annotations
 
 from abc import ABC, abstractmethod
+from collections.abc import Iterable
 from typing import (
     TYPE_CHECKING,
     Generic,
-    Iterable,
     Self,
     TypeAlias,
     TypeVar,
@@ -42,8 +42,6 @@ class PluginError(Exception):
     Any error originating from the Plugin API.
     """
 
-    pass
-
 
 class Plugin(ABC):
     """
@@ -66,7 +64,6 @@ class Plugin(ABC):
         - A plugin repository **MUST** at most have a single plugin for any ID.
         - Different plugin repositories **MAY** each have a plugin with the same ID.
         """
-        pass
 
     @classmethod
     @abstractmethod
@@ -74,7 +71,6 @@ class Plugin(ABC):
         """
         Get the human-readable short plugin label.
         """
-        pass
 
     @classmethod
     def plugin_description(cls) -> Localizable | None:
@@ -274,7 +270,6 @@ class PluginRepository(Generic[_PluginT], TargetFactory, ABC):
 
         :raises PluginNotFound: if no plugin can be found for the given ID.
         """
-        pass
 
     @overload
     async def select(self) -> Sequence[type[_PluginT]]:

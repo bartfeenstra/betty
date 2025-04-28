@@ -1,9 +1,9 @@
 import tarfile
-from collections.abc import Iterator
+from collections.abc import Iterator, Sequence
 from json import dumps
 from multiprocessing.managers import SyncManager
 from pathlib import Path
-from typing import TYPE_CHECKING, Sequence
+from typing import TYPE_CHECKING
 
 import pytest
 from typing_extensions import override

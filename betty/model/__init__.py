@@ -5,7 +5,7 @@ from __future__ import annotations
 from abc import abstractmethod
 from inspect import getmembers
 from reprlib import recursive_repr
-from typing import TYPE_CHECKING, Any, Iterable, Self, TypeAlias, TypeVar
+from typing import TYPE_CHECKING, Any, Self, TypeAlias, TypeVar
 from uuid import uuid4
 
 import typing_extensions
@@ -33,6 +33,7 @@ from betty.warnings import deprecate, deprecated
 
 if TYPE_CHECKING:
     import builtins
+    from collections.abc import Iterable
 
     from betty.project import Project
     from betty.serde.dump import Dump, DumpMapping
@@ -92,7 +93,6 @@ class Entity(LinkedDataDumpableJsonLdObject, Mutable, Plugin):
         """
         The human-readable entity type label, plural.
         """
-        pass
 
     @classmethod
     def plugin_label_count(cls, count: int) -> Localizable:
@@ -201,8 +201,6 @@ class UserFacingEntity(UserFacing):
     A sentinel to mark an entity type as being visible to users (e.g. not internal).
     """
 
-    pass
-
 
 _EntityT = TypeVar("_EntityT", bound=Entity)
 
@@ -246,8 +244,6 @@ class EntityReferenceSchema(ToOneSchema):
     A schema for a reference to another entity resource.
     """
 
-    pass
-
 
 class ToManySchema(Array):
     """
@@ -270,5 +266,3 @@ class EntityReferenceCollectionSchema(ToManySchema):
     """
     A schema for a collection of references to other entity resources.
     """
-
-    pass

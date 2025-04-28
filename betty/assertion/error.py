@@ -7,7 +7,7 @@ from __future__ import annotations
 from abc import ABC, abstractmethod
 from contextlib import contextmanager
 from textwrap import indent
-from typing import TYPE_CHECKING, Iterator, Self, TypeAlias, TypeVar
+from typing import TYPE_CHECKING, Self, TypeAlias, TypeVar
 
 from typing_extensions import override
 
@@ -17,7 +17,7 @@ from betty.locale.localizable import Localizable, _
 from betty.locale.localized import LocalizedStr
 
 if TYPE_CHECKING:
-    from collections.abc import MutableSequence, Sequence
+    from collections.abc import Iterator, MutableSequence, Sequence
 
     from betty.locale.localizer import Localizer
 
@@ -35,7 +35,6 @@ class AssertionContext(ABC):
         """
         Format this context to a string.
         """
-        pass
 
 
 class Attr(AssertionContext):
@@ -186,7 +185,7 @@ class AssertionFailedGroup(AssertionFailed):
     @override
     def localize(self, localizer: Localizer) -> LocalizedStr:
         return LocalizedStr(
-            "\n\n".join((error.localize(localizer) for error in self._errors)),
+            "\n\n".join(error.localize(localizer) for error in self._errors),
             locale=localizer.locale,
         )
 

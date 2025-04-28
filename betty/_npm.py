@@ -9,7 +9,7 @@ from __future__ import annotations
 import logging
 import sys
 from subprocess import CalledProcessError
-from typing import TYPE_CHECKING, Self, Sequence, final
+from typing import TYPE_CHECKING, Self, final
 
 from typing_extensions import override
 
@@ -21,6 +21,7 @@ from betty.requirement import Requirement
 
 if TYPE_CHECKING:
     from asyncio import subprocess as aiosubprocess
+    from collections.abc import Sequence
     from pathlib import Path
 
 _NPM_SUMMARY_AVAILABLE = _("npm is available")

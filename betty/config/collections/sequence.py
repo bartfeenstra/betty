@@ -7,10 +7,6 @@ from __future__ import annotations
 from typing import (
     TYPE_CHECKING,
     Generic,
-    Iterable,
-    Iterator,
-    MutableSequence,
-    Sequence,
     TypeVar,
     overload,
 )
@@ -22,6 +18,8 @@ from betty.config import Configuration
 from betty.config.collections import ConfigurationCollection
 
 if TYPE_CHECKING:
+    from collections.abc import Iterable, Iterator, MutableSequence, Sequence
+
     from betty.serde.dump import Dump, DumpSequence
 
 _ConfigurationT = TypeVar("_ConfigurationT", bound=Configuration)
@@ -68,7 +66,7 @@ class ConfigurationSequence(
 
     @override
     def keys(self) -> Iterator[int]:
-        return iter(range(0, len(self._configurations)))
+        return iter(range(len(self._configurations)))
 
     @override
     def values(self) -> Iterator[_ConfigurationT]:

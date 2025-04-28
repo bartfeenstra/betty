@@ -5,7 +5,7 @@ Data types to describe events.
 from __future__ import annotations
 
 from reprlib import recursive_repr
-from typing import TYPE_CHECKING, Iterable, Mapping, final
+from typing import TYPE_CHECKING, final
 
 from typing_extensions import override
 
@@ -41,6 +41,8 @@ from betty.privacy import HasPrivacy, Privacy
 from betty.repr import repr_instance
 
 if TYPE_CHECKING:
+    from collections.abc import Iterable, Mapping
+
     from betty.ancestry.citation import Citation
     from betty.ancestry.event_type import EventType
     from betty.ancestry.file_reference import FileReference

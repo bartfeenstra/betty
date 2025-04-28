@@ -4,7 +4,7 @@ Data types to describe information sources.
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Iterator, MutableSequence, final
+from typing import TYPE_CHECKING, final
 
 from typing_extensions import override
 
@@ -31,12 +31,14 @@ from betty.plugin import ShorthandPluginBase
 from betty.privacy import HasPrivacy, Privacy, merge_privacies
 
 if TYPE_CHECKING:
+    from collections.abc import Iterator, MutableSequence
+
     from betty.ancestry.citation import Citation  # noqa F401
-    from betty.ancestry.note import Note
     from betty.ancestry.file_reference import FileReference
-    from betty.serde.dump import DumpMapping, Dump
-    from betty.project import Project
+    from betty.ancestry.note import Note
     from betty.date import Datey
+    from betty.project import Project
+    from betty.serde.dump import Dump, DumpMapping
 
 
 @final
@@ -105,7 +107,7 @@ class Source(
         contains: ToManyAssociates[Source] | None = None,
         notes: ToManyAssociates[Note] | None = None,
         date: Datey | None = None,
-        file_references: ToManyAssociates["FileReference"] | None = None,
+        file_references: ToManyAssociates[FileReference] | None = None,
         links: MutableSequence[Link] | None = None,
         privacy: Privacy | None = None,
         public: bool | None = None,

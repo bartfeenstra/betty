@@ -6,7 +6,7 @@ from __future__ import annotations
 
 from abc import ABC, abstractmethod
 from threading import Lock
-from typing import TYPE_CHECKING, MutableSequence, final
+from typing import TYPE_CHECKING, final
 
 from typing_extensions import override
 
@@ -14,7 +14,7 @@ from betty.link import Link
 from betty.serde.dump import Dump, Dumpable, DumpMapping
 
 if TYPE_CHECKING:
-    from collections.abc import Sequence
+    from collections.abc import MutableSequence, Sequence
 
     from betty.ancestry.citation import Citation
     from betty.locale.localizable import (
@@ -33,7 +33,6 @@ class CssProvider(ABC):
         """
         The public URL paths to the CSS files to include in each HTML page.
         """
-        pass
 
 
 class JsProvider(ABC):
@@ -47,7 +46,6 @@ class JsProvider(ABC):
         """
         The public URL paths to the JavaScript files to include in each HTML page.
         """
-        pass
 
 
 @final

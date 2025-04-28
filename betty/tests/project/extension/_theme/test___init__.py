@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 from pathlib import Path
-from typing import TYPE_CHECKING, Iterator
+from typing import TYPE_CHECKING
 
 import pytest
 
@@ -39,6 +39,8 @@ from betty.project.extension._theme import (
 from betty.test_utils.model import DummyEntity
 
 if TYPE_CHECKING:
+    from collections.abc import Iterator
+
     from betty.ancestry.event_type import EventType
     from betty.ancestry.presence_role import PresenceRole
 

@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Iterable
+from typing import TYPE_CHECKING
 
 import pytest
 
@@ -13,6 +13,8 @@ from betty.test_utils.config.collections.sequence import ConfigurationSequenceTe
 from betty.test_utils.model import DummyEntity
 
 if TYPE_CHECKING:
+    from collections.abc import Iterable
+
     from pytest_mock import MockerFixture
 
     from betty.serde.dump import Dump

@@ -200,10 +200,9 @@ def _get_extension_and_locale(
 ) -> tuple[str, Localey | None]:
     if media_type == HTML:
         return "html", locale or default_locale
-    elif media_type in (JSON, JSON_LD):
+    if media_type in (JSON, JSON_LD):
         return "json", None
-    else:
-        raise ValueError(f'Unknown entity media type "{media_type}".')
+    raise ValueError(f'Unknown entity media type "{media_type}".')
 
 
 class __EntityTypeUrlGenerator(_ProjectUrlGenerator):

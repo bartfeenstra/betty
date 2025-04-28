@@ -22,4 +22,3 @@ class ProjectDependentFactory(ABC):
         """
         Create a new instance using the given project.
         """
-        pass

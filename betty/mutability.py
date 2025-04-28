@@ -19,8 +19,6 @@ class MutabilityError(Exception):
     A generic mutability API error.
     """
 
-    pass
-
 
 @internal
 class MutableError(MutabilityError, RuntimeError):
@@ -28,16 +26,12 @@ class MutableError(MutabilityError, RuntimeError):
     An error raised because something was unexpectedly mutable.
     """
 
-    pass
-
 
 @internal
 class ImmutableError(MutabilityError, RuntimeError):
     """
     An error raised because something was unexpectedly immutable.
     """
-
-    pass
 
 
 class Mutable:

@@ -20,8 +20,6 @@ class InvalidMediaType(ValueError):
     Raised when an identifier is not a valid media type.
     """
 
-    pass  # pragma: no cover
-
 
 @final
 class MediaType:

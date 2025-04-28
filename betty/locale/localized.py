@@ -5,7 +5,7 @@ Describe localized information.
 from __future__ import annotations
 
 from contextlib import suppress
-from typing import Sequence
+from typing import TYPE_CHECKING
 
 from typing_extensions import override
 
@@ -15,6 +15,9 @@ from betty.locale import (
     negotiate_locale,
     to_locale,
 )
+
+if TYPE_CHECKING:
+    from collections.abc import Sequence
 
 
 class Localized:

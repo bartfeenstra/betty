@@ -4,7 +4,7 @@ Data types describing persons.
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Iterable, Iterator, MutableSequence, final
+from typing import TYPE_CHECKING, final
 from urllib.parse import quote
 
 from typing_extensions import override
@@ -29,6 +29,8 @@ from betty.plugin import ShorthandPluginBase
 from betty.privacy import HasPrivacy, Privacy
 
 if TYPE_CHECKING:
+    from collections.abc import Iterable, Iterator, MutableSequence
+
     from betty.ancestry.citation import Citation
     from betty.ancestry.file_reference import FileReference
     from betty.ancestry.gender import Gender
@@ -95,7 +97,7 @@ class Person(
         *,
         id: str | None = None,  # noqa A002
         file_references: ToManyAssociates[FileReference] | None = None,
-        citations: ToManyAssociates["Citation"] | None = None,
+        citations: ToManyAssociates[Citation] | None = None,
         links: MutableSequence[Link] | None = None,
         notes: ToManyAssociates[Note] | None = None,
         privacy: Privacy | None = None,
@@ -103,8 +105,8 @@ class Person(
         private: bool | None = None,
         parents: ToManyAssociates[Person] | None = None,
         children: ToManyAssociates[Person] | None = None,
-        presences: ToManyAssociates["Presence"] | None = None,
-        names: ToManyAssociates["PersonName"] | None = None,
+        presences: ToManyAssociates[Presence] | None = None,
+        names: ToManyAssociates[PersonName] | None = None,
         gender: Gender | None = None,
     ):
         super().__init__(

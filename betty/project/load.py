@@ -19,8 +19,6 @@ class LoadAncestryEvent(ProjectEvent):
     Dispatched to load ancestry data into a project.
     """
 
-    pass
-
 
 class PostLoadAncestryEvent(ProjectEvent):
     """
@@ -28,8 +26,6 @@ class PostLoadAncestryEvent(ProjectEvent):
 
     This event is invoked immediately after :py:class:`betty.project.load.LoadAncestryEvent`.
     """
-
-    pass
 
 
 async def load(project: Project) -> None:

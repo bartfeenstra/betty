@@ -1,7 +1,7 @@
 from __future__ import annotations
 
-from collections.abc import Mapping, Sequence
-from typing import TYPE_CHECKING, Iterable, cast
+from collections.abc import Iterable, Mapping, Sequence
+from typing import TYPE_CHECKING, cast
 
 from typing_extensions import override
 

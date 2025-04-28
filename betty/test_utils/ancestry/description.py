@@ -9,5 +9,3 @@ class DummyHasDescription(HasDescription):
     """
     A dummy :py:class:`betty.ancestry.description.HasDescription` implementation.
     """
-
-    pass

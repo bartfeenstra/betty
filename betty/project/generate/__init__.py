@@ -19,17 +19,14 @@ from asyncio import (
     sleep,
     to_thread,
 )
-from collections.abc import MutableSequence
+from collections.abc import Awaitable, Callable, MutableSequence, Sequence
 from contextlib import suppress
 from math import floor
 from pathlib import Path
 from typing import (
     TYPE_CHECKING,
     Any,
-    Awaitable,
-    Callable,
     ParamSpec,
-    Sequence,
     cast,
 )
 
@@ -66,8 +63,6 @@ class GenerateSiteEvent(ProjectEvent):
     """
     Dispatched to generate (part of) a project's site.
     """
-
-    pass
 
 
 async def generate(project: Project) -> None:
@@ -535,12 +530,10 @@ async def _generate_sitemap(
         rendered_sitemap_batch = _SITEMAP_BATCH_TEMPLATE.replace(
             "{{{ urls }}}",
             "".join(
-                (
-                    _SITEMAP_URL_TEMPLATE.replace(
-                        "{{{ loc }}}", sitemap_batch_url
-                    ).replace("{{{ lastmod }}}", job_context.start.isoformat())
-                    for sitemap_batch_url in sitemap_batch_urls
+                _SITEMAP_URL_TEMPLATE.replace("{{{ loc }}}", sitemap_batch_url).replace(
+                    "{{{ lastmod }}}", job_context.start.isoformat()
                 )
+                for sitemap_batch_url in sitemap_batch_urls
             ),
         )
         async with aiofiles.open(
@@ -553,10 +546,8 @@ async def _generate_sitemap(
     rendered_sitemap = _SITEMAP_TEMPLATE.replace(
         "{{{ sitemaps }}}",
         "".join(
-            (
-                _SITEMAP_SITEMAP_TEMPLATE.replace("{{{ loc }}}", sitemap_url)
-                for sitemap_url in sitemap_urls
-            )
+            _SITEMAP_SITEMAP_TEMPLATE.replace("{{{ loc }}}", sitemap_url)
+            for sitemap_url in sitemap_urls
         ),
     )
     async with aiofiles.open(

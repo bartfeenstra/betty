@@ -4,7 +4,7 @@ Data types representing files on disk.
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Iterable, MutableSequence, final
+from typing import TYPE_CHECKING, final
 
 from typing_extensions import override
 
@@ -28,6 +28,7 @@ from betty.plugin import ShorthandPluginBase
 from betty.privacy import HasPrivacy, Privacy
 
 if TYPE_CHECKING:
+    from collections.abc import Iterable, MutableSequence
     from pathlib import Path
 
     from betty.ancestry.citation import Citation

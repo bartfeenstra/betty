@@ -220,7 +220,7 @@ class TestRateLimiter:
                 pass
 
         start = time.time()
-        await gather(*(_task() for _ in range(0, iterations)))
+        await gather(*(_task() for _ in range(iterations)))
         end = time.time()
         duration = end - start
         assert expected == round(duration)

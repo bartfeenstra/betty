@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Generic, Self, Sequence, TypeVar
+from typing import TYPE_CHECKING, Generic, Self, TypeVar
 
 from typing_extensions import override
 
@@ -24,7 +24,7 @@ from betty.service import ServiceProvider
 from betty.typing import private
 
 if TYPE_CHECKING:
-    from collections.abc import Iterable
+    from collections.abc import Iterable, Sequence
     from graphlib import TopologicalSorter
     from pathlib import Path
 
@@ -63,7 +63,6 @@ class Extension(
         """
         Register event handlers with the project.
         """
-        pass
 
     @property
     def project(self) -> Project:
@@ -108,8 +107,6 @@ class Theme(Extension):
     """
     An extension that is a front-end theme.
     """
-
-    pass  # pragma: no cover
 
 
 class ConfigurableExtension(

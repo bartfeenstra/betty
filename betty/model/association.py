@@ -6,11 +6,11 @@ from __future__ import annotations
 
 import weakref
 from abc import ABC, abstractmethod
+from collections.abc import Iterable
 from typing import (
     TYPE_CHECKING,
     Any,
     Generic,
-    Iterable,
     Self,
     TypeAlias,
     TypeVar,
@@ -79,7 +79,6 @@ class _Resolver(Generic[_T], ABC):
 
         :raises ResolutionError: Raised if resolution failed.
         """
-        pass
 
 
 class ToZeroOrOneResolver(Generic[_EntityT], _Resolver[_EntityT | None]):
@@ -87,23 +86,17 @@ class ToZeroOrOneResolver(Generic[_EntityT], _Resolver[_EntityT | None]):
     An object that can optionally resolve to an entity.
     """
 
-    pass
-
 
 class ToOneResolver(Generic[_EntityT], _Resolver[_EntityT]):
     """
     An object that can resolve to an entity.
     """
 
-    pass
-
 
 class ToManyResolver(Generic[_EntityT], _Resolver[Iterable[_EntityT]]):
     """
     An object that can resolve to a collection of entities.
     """
-
-    pass
 
 
 class _TemporaryResolver(Generic[_T], _Resolver[_T]):
@@ -124,8 +117,6 @@ class TemporaryToZeroOrOneResolver(
     is replaced by a real value, because the resolver will never be able to resolve itself.
     """
 
-    pass
-
 
 class TemporaryToOneResolver(
     Generic[_EntityT], _TemporaryResolver[_EntityT], ToOneResolver[_EntityT]
@@ -137,8 +128,6 @@ class TemporaryToOneResolver(
     is replaced by a real value, because the resolver will never be able to resolve itself.
     """
 
-    pass
-
 
 class TemporaryToManyResolver(
     Generic[_EntityT], _TemporaryResolver[_EntityT], ToManyResolver[_EntityT]
@@ -149,8 +138,6 @@ class TemporaryToManyResolver(
     This is helpful to satisfy association requirements in multiple steps. Users **MUST** ensure that this resolver
     is replaced by a real value, because the resolver will never be able to resolve itself.
     """
-
-    pass
 
 
 class _Association(LinkedDataDumpableProvider[_OwnerT], Generic[_OwnerT, _AssociateT]):
@@ -222,14 +209,12 @@ class _Association(LinkedDataDumpableProvider[_OwnerT], Generic[_OwnerT, _Associ
         """
         Resolve any associates the owner may have for this association.
         """
-        pass
 
     @abstractmethod
     def associate(self, owner: _OwnerT, associate: _AssociateT) -> None:
         """
         Associate two entities.
         """
-        pass
 
     @abstractmethod
     def disassociate(self, owner: _OwnerT, associate: _AssociateT) -> None:
@@ -239,14 +224,12 @@ class _Association(LinkedDataDumpableProvider[_OwnerT], Generic[_OwnerT, _Associ
         :raises AssociationRequired: Raised if the association is required and the disassociation would leave it without
             any associates.
         """
-        pass
 
     @abstractmethod
     def get_associates(self, owner: _OwnerT) -> Iterable[_AssociateT]:
         """
         Get the associates for the given owner.
         """
-        pass
 
 
 class _ToOneAssociation(
@@ -303,8 +286,7 @@ class _ToOneAssociation(
         associate = self.__get__(target, type(target))
         if self._linked_data_embedded:
             return await associate.dump_linked_data(project)
-        else:
-            return await _generate_associate_url(project, associate)
+        return await _generate_associate_url(project, associate)
 
 
 class _ToZeroOrOneAssociation(
@@ -373,8 +355,7 @@ class _ToZeroOrOneAssociation(
             return None
         if self._linked_data_embedded:
             return await associate.dump_linked_data(project)
-        else:
-            return await _generate_associate_url(project, associate)
+        return await _generate_associate_url(project, associate)
 
 
 @internal
@@ -634,8 +615,6 @@ class UnidirectionalToMany(
     """
     A unidirectional to-many entity type association.
     """
-
-    pass
 
 
 @final

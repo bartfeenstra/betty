@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Any, Sequence
+from typing import TYPE_CHECKING, Any
 
 import pytest
 from typing_extensions import override
@@ -20,6 +20,8 @@ from betty.test_utils.json.schema import SchemaTestBase
 from betty.test_utils.privacy import DummyHasPrivacy
 
 if TYPE_CHECKING:
+    from collections.abc import Sequence
+
     from betty.json.schema import Schema
     from betty.serde.dump import Dump, DumpMapping
 

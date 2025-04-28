@@ -5,7 +5,10 @@ Provide asynchronous programming utilities.
 from __future__ import annotations
 
 from inspect import isawaitable
-from typing import Awaitable, TypeVar
+from typing import TYPE_CHECKING, TypeVar
+
+if TYPE_CHECKING:
+    from collections.abc import Awaitable
 
 _T = TypeVar("_T")
 

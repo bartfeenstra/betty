@@ -4,8 +4,8 @@ File utilities for site generation.
 
 from __future__ import annotations
 
-from contextlib import asynccontextmanager
-from typing import TYPE_CHECKING, AsyncContextManager
+from contextlib import AbstractAsyncContextManager, asynccontextmanager
+from typing import TYPE_CHECKING
 
 import aiofiles
 from aiofiles.os import makedirs
@@ -27,14 +27,14 @@ async def create_file(path: Path) -> AsyncIterator[AsyncTextIOWrapper]:
         yield f
 
 
-def create_html_resource(path: Path) -> AsyncContextManager[AsyncTextIOWrapper]:
+def create_html_resource(path: Path) -> AbstractAsyncContextManager[AsyncTextIOWrapper]:
     """
     Create the file for an HTML resource.
     """
     return create_file(path / "index.html")
 
 
-def create_json_resource(path: Path) -> AsyncContextManager[AsyncTextIOWrapper]:
+def create_json_resource(path: Path) -> AbstractAsyncContextManager[AsyncTextIOWrapper]:
     """
     Create the file for a JSON resource.
     """

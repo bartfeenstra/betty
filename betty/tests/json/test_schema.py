@@ -1,6 +1,7 @@
 import json
+from collections.abc import Sequence
 from pathlib import Path
-from typing import TYPE_CHECKING, Sequence
+from typing import TYPE_CHECKING
 
 import aiofiles
 from typing_extensions import override

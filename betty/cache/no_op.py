@@ -4,11 +4,10 @@ Provide no-op caching.
 
 from __future__ import annotations
 
-from contextlib import asynccontextmanager
+from contextlib import AbstractAsyncContextManager, asynccontextmanager
 from typing import (
     TYPE_CHECKING,
     Any,
-    AsyncContextManager,
     Literal,
     Self,
     TypeAlias,
@@ -79,7 +78,7 @@ class NoOpCache(Cache[Any]):
     @overload
     def getset(
         self, cache_item_id: str
-    ) -> AsyncContextManager[
+    ) -> AbstractAsyncContextManager[
         tuple[
             CacheItem[Any] | None,
             CacheItemValueSetter[Any],
@@ -90,7 +89,7 @@ class NoOpCache(Cache[Any]):
     @overload
     def getset(
         self, cache_item_id: str, *, wait: Literal[False] = False
-    ) -> AsyncContextManager[
+    ) -> AbstractAsyncContextManager[
         tuple[
             CacheItem[Any] | None,
             CacheItemValueSetter[Any] | None,
@@ -101,7 +100,7 @@ class NoOpCache(Cache[Any]):
     @override
     def getset(
         self, cache_item_id: str, *, wait: bool = True
-    ) -> AsyncContextManager[_GetSet]:
+    ) -> AbstractAsyncContextManager[_GetSet]:
         return _NoOpGetSet(wait)
 
     @override

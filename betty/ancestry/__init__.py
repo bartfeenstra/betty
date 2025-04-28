@@ -5,14 +5,14 @@ Provide Betty's main data model.
 from __future__ import annotations
 
 from contextlib import contextmanager
-from typing import TYPE_CHECKING, Iterable, final
+from typing import TYPE_CHECKING, final
 
 from betty.model import Entity
 from betty.model.association import AssociationRegistry
 from betty.model.collections import MultipleTypesEntityCollection
 
 if TYPE_CHECKING:
-    from collections.abc import Iterator
+    from collections.abc import Iterable, Iterator
 
     from betty.plugin import PluginIdToTypeMapping
 
@@ -55,5 +55,4 @@ class Ancestry(MultipleTypesEntityCollection[Entity]):
     def _get_associates(self, *entities: Entity) -> Iterable[Entity]:
         for entity in entities:
             for association in AssociationRegistry.get_all_associations(entity):
-                for associate in association.get_associates(entity):
-                    yield associate
+                yield from association.get_associates(entity)

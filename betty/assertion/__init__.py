@@ -4,15 +4,20 @@ The Assertion API.
 
 from __future__ import annotations
 
-from collections.abc import Mapping, MutableSequence, Sequence, Sized
+from collections.abc import (
+    Callable,
+    Mapping,
+    MutableMapping,
+    MutableSequence,
+    Sequence,
+    Sized,
+)
 from dataclasses import dataclass
 from pathlib import Path
 from types import NoneType
 from typing import (
     Any,
-    Callable,
     Generic,
-    MutableMapping,
     TypeAlias,
     TypeVar,
     cast,
@@ -113,8 +118,6 @@ class RequiredField(
     A required key-value mapping field.
     """
 
-    pass  # pragma: no cover
-
 
 @final
 @dataclass(frozen=True)
@@ -125,8 +128,6 @@ class OptionalField(
     """
     An optional key-value mapping field.
     """
-
-    pass  # pragma: no cover
 
 
 _AssertionBuilderFunction = Callable[[_AssertionValueT], _AssertionReturnT]

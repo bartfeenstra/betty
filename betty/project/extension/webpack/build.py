@@ -7,12 +7,12 @@ from __future__ import annotations
 import json
 from abc import abstractmethod
 from asyncio import gather, to_thread
-from collections.abc import Mapping
+from collections.abc import Mapping, Sequence
 from json import dumps, loads
 from logging import getLogger
 from pathlib import Path
 from shutil import copy2, copytree
-from typing import TYPE_CHECKING, Sequence, cast
+from typing import TYPE_CHECKING, cast
 
 import aiofiles
 from aiofiles.os import makedirs
@@ -47,7 +47,6 @@ class EntryPointProvider(Extension):
 
         The directory must include at least a ``package.json`` and ``main.ts``.
         """
-        pass
 
     @abstractmethod
     def webpack_entry_point_cache_keys(self) -> Sequence[str]:
@@ -56,7 +55,6 @@ class EntryPointProvider(Extension):
 
         Providers that can be cached regardless may ``return ()``.
         """
-        pass
 
 
 async def _npm_project_id(
@@ -341,7 +339,7 @@ class Builder:
         # Add dependencies to package.json.
         npm_project_package_json_path = npm_project_directory_path / "package.json"
         async with aiofiles.open(
-            npm_project_package_json_path, "r"
+            npm_project_package_json_path
         ) as npm_project_package_json_f:
             npm_project_package_json = loads(await npm_project_package_json_f.read())
         npm_project_package_json["dependencies"].update(  # type: ignore[call-overload,index,union-attr]

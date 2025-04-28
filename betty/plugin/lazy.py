@@ -49,7 +49,6 @@ class LazyPluginRepositoryBase(PluginRepository[_PluginT], Generic[_PluginT]):
         """
         Load the plugins.
         """
-        pass
 
     @override
     async def __aiter__(self) -> AsyncIterator[type[_PluginT]]:

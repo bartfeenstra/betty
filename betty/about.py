@@ -5,12 +5,12 @@ from __future__ import annotations
 import platform
 import sys
 from importlib import metadata
-from typing import TYPE_CHECKING, Iterator
+from typing import TYPE_CHECKING
 
 DEV_VERSION = "0.0.0"
 
 if TYPE_CHECKING:
-    from collections.abc import Mapping
+    from collections.abc import Iterator, Mapping
 
 
 def version() -> str:
@@ -44,10 +44,8 @@ def is_development() -> bool:
 def _indent_mapping(items: Mapping[str, str]) -> str:
     max_indentation = max(map(len, items.keys())) + 4
     return "\n".join(
-        (
-            "\n".join(_indent_mapping_item(x[0], x[1], max_indentation))
-            for x in items.items()
-        )
+        "\n".join(_indent_mapping_item(x[0], x[1], max_indentation))
+        for x in items.items()
     )
 
 

@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 from pathlib import Path
-from typing import TYPE_CHECKING, Sequence
+from typing import TYPE_CHECKING
 
 from typing_extensions import override
 
@@ -11,6 +11,8 @@ from betty.test_utils.model import EntityTestBase
 from betty.tests.ancestry.test___init__ import DummyHasFileReferences
 
 if TYPE_CHECKING:
+    from collections.abc import Sequence
+
     from betty.model import Entity
 
 

@@ -32,8 +32,6 @@ class DerivableEventType(EventType):
     Any event that that may be updated by the deriver API.
     """
 
-    pass  # pragma: no cover
-
 
 class CreatableDerivableEventType(DerivableEventType):
     """
@@ -68,8 +66,6 @@ class StartOfLifeEventType(EventType):
     the time of the start-of-life event.
     """
 
-    pass  # pragma: no cover
-
 
 class DuringLifeEventType(EventType):
     """
@@ -95,8 +91,6 @@ class EndOfLifeEventType(EventType):
     close to someone's death and as such are indicators that that person died around the
     time of the end-of-life event.
     """
-
-    pass  # pragma: no cover
 
 
 class PostDeathEventType(EventType):
@@ -195,8 +189,6 @@ class FinalDispositionEventType(
     """
     Someone's `final disposition <https://en.wikipedia.org/wiki/Disposal_of_human_corpses>`_ took place.
     """
-
-    pass  # pragma: no cover
 
 
 @final

@@ -13,10 +13,6 @@ from io import BytesIO
 from typing import (
     TYPE_CHECKING,
     Any,
-    AsyncIterator,
-    Callable,
-    Iterable,
-    Iterator,
     TypeVar,
 )
 from urllib.parse import quote
@@ -65,7 +61,14 @@ from betty.typing import internal
 from betty.warnings import deprecate, deprecated
 
 if TYPE_CHECKING:
-    from collections.abc import Awaitable, Mapping
+    from collections.abc import (
+        AsyncIterator,
+        Awaitable,
+        Callable,
+        Iterable,
+        Iterator,
+        Mapping,
+    )
     from pathlib import Path
 
     from jinja2.nodes import EvalContext
@@ -239,7 +242,7 @@ def filter_paragraphs(eval_ctx: EvalContext, text: str) -> str | Markup:
     Taken from http://jinja.pocoo.org/docs/2.10/api/#custom-filters.
     """
     result = "\n\n".join(
-        "<p>%s</p>" % p.replace("\n", Markup("<br>\n"))
+        "<p>{}</p>".format(p.replace("\n", Markup("<br>\n")))
         for p in _paragraph_re.split(escape(text))
     )
     if eval_ctx.autoescape:
@@ -415,9 +418,7 @@ async def filter_image_resize_cover(
             size,
             focus,
         )
-    destination_public_path = f"/file/{quote(destination_name)}"
-
-    return destination_public_path
+    return f"/file/{quote(destination_name)}"
 
 
 async def _load_image_image(file_path: Path) -> Image.Image:
@@ -428,15 +429,13 @@ async def _load_image_image(file_path: Path) -> Image.Image:
         image_f = BytesIO(await f.read())
     # Ignore warnings about decompression bombs, because we know where the files come from.
     with warnings.catch_warnings(action="ignore", category=DecompressionBombWarning):
-        image = Image.open(image_f, formats=[image_file_path_format(file_path)])
-    return image
+        return Image.open(image_f, formats=[image_file_path_format(file_path)])
 
 
 async def _load_image_application_pdf(file_path: Path) -> Image.Image:
     # Ignore warnings about decompression bombs, because we know where the files come from.
     with warnings.catch_warnings(action="ignore", category=DecompressionBombWarning):
-        image = convert_from_path(file_path)[0]
-    return image
+        return convert_from_path(file_path)[0]
 
 
 def _execute_filter_image(

@@ -44,7 +44,6 @@ class Localizable(ABC):
         """
         Localize ``self`` to a human-readable string.
         """
-        pass
 
     @override
     def __str__(self) -> str:
@@ -365,10 +364,8 @@ class StaticTranslationsLocalizable(
         if len(self._translations) > 1:
             available_locales = tuple(self._translations.keys())
             requested_locale = to_locale(
-                (
-                    negotiate_locale(localizer.locale, available_locales)
-                    or available_locales[0]
-                )
+                negotiate_locale(localizer.locale, available_locales)
+                or available_locales[0]
             )
             if requested_locale:
                 return LocalizedStr(

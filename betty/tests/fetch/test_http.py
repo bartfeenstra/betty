@@ -1,6 +1,5 @@
-import asyncio
+from collections.abc import AsyncIterator
 from multiprocessing.managers import SyncManager
-from typing import AsyncIterator
 
 import aiofiles
 import pytest
@@ -49,7 +48,7 @@ class TestHttpFetcher:
         "error",
         [
             ClientError(),
-            asyncio.TimeoutError(),
+            TimeoutError(),
         ],
     )
     async def test_fetch__with_cold_cache_and_get_error_should_error(
@@ -65,7 +64,7 @@ class TestHttpFetcher:
         "error",
         [
             ClientError(),
-            asyncio.TimeoutError(),
+            TimeoutError(),
         ],
     )
     async def test_fetch__with_warm_cache_and_get_error_should_return(
@@ -127,7 +126,7 @@ class TestHttpFetcher:
         "error",
         [
             ClientError(),
-            asyncio.TimeoutError(),
+            TimeoutError(),
         ],
     )
     async def test_fetch_file__with_cold_cache_and_get_error_should_error(
@@ -143,7 +142,7 @@ class TestHttpFetcher:
         "error",
         [
             ClientError(),
-            asyncio.TimeoutError(),
+            TimeoutError(),
         ],
     )
     async def test_fetch_file__with_warm_cache_and_get_error_should_return(

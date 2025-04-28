@@ -4,10 +4,13 @@ Test utilities for :py:mod:`betty.config.collections`.
 
 from __future__ import annotations
 
-from typing import Generic, Iterable, TypeVar
+from typing import TYPE_CHECKING, Generic, TypeVar
 
 from betty.config import Configuration
 from betty.config.collections import ConfigurationCollection, ConfigurationKey
+
+if TYPE_CHECKING:
+    from collections.abc import Iterable
 
 _ConfigurationT = TypeVar("_ConfigurationT", bound=Configuration)
 _ConfigurationKeyT = TypeVar("_ConfigurationKeyT", bound=ConfigurationKey)

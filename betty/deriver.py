@@ -7,7 +7,7 @@ from __future__ import annotations
 import logging
 from abc import ABC, abstractmethod
 from enum import Enum
-from typing import TYPE_CHECKING, Iterable, cast, final
+from typing import TYPE_CHECKING, cast, final
 from uuid import NAMESPACE_URL, uuid5
 
 from typing_extensions import override
@@ -23,7 +23,7 @@ from betty.ancestry.presence_role.presence_roles import Subject
 from betty.date import Date, DateRange
 
 if TYPE_CHECKING:
-    from collections.abc import Sequence
+    from collections.abc import Iterable, Sequence
 
     from betty.ancestry import Ancestry
     from betty.ancestry.event_type import EventType

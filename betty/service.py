@@ -34,16 +34,12 @@ class ServiceError(RuntimeError):
     A service API error.
     """
 
-    pass
-
 
 @internal
 class BootstrappedError(ServiceError):
     """
     Something was unexpectedly bootstrapped already.
     """
-
-    pass
 
 
 @internal
@@ -52,16 +48,12 @@ class NotBootstrappedError(ServiceError):
     Something was unexpectedly not yet bootstrapped.
     """
 
-    pass
-
 
 @internal
 class ServiceInitializedError(ServiceError):
     """
     A service was unexpectedly initialized already.
     """
-
-    pass
 
 
 @internal
@@ -109,7 +101,6 @@ class Shutdownable(ABC):
         """
         Shut the component down.
         """
-        pass
 
 
 class ShutdownCallbackKwargs(TypedDict):
@@ -469,8 +460,7 @@ def service(
     ) -> ServiceManager[_ServiceProviderT, _ServiceGetT, Any]:
         if iscoroutinefunction(factory):
             return _AsynchronousServiceManager(factory, shared=shared)  # type: ignore[return-value]
-        else:
-            return _SynchronousServiceManager(factory, shared=shared)
+        return _SynchronousServiceManager(factory, shared=shared)
 
     if factory is None:
         return _service  # type: ignore[return-value]

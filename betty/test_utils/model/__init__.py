@@ -62,5 +62,3 @@ class DummyUserFacingEntity(UserFacingEntity, DummyEntity):
     """
     A dummy user-facing entity.
     """
-
-    pass

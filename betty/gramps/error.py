@@ -10,12 +10,8 @@ class GrampsError(Exception):
     A Gramps API error.
     """
 
-    pass  # pragma: no cover
-
 
 class UserFacingGrampsError(GrampsError, UserFacingError):
     """
     A user-facing Gramps API error.
     """
-
-    pass  # pragma: no cover

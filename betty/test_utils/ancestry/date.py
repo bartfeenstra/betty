@@ -9,5 +9,3 @@ class DummyHasDate(HasDate):
     """
     A dummy :py:class:`betty.ancestry.date.HasDate` implementation.
     """
-
-    pass

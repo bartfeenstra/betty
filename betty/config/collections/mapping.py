@@ -9,8 +9,6 @@ from contextlib import suppress
 from typing import (
     TYPE_CHECKING,
     Generic,
-    Iterable,
-    Iterator,
     TypeVar,
 )
 
@@ -21,7 +19,7 @@ from betty.config import Configuration
 from betty.config.collections import ConfigurationCollection, ConfigurationKey
 
 if TYPE_CHECKING:
-    from collections.abc import MutableMapping
+    from collections.abc import Iterable, Iterator, MutableMapping
 
     from betty.serde.dump import Dump, DumpMapping, DumpSequence
 
@@ -117,8 +115,7 @@ class ConfigurationMapping(
         pass
 
     def __load_item_key(self, value_dump: DumpMapping[Dump], key_dump: str) -> Dump:
-        value_dump = self._load_key(value_dump, key_dump)
-        return value_dump
+        return self._load_key(value_dump, key_dump)
 
     @override
     def load(self, dump: Dump) -> None:

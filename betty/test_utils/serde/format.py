@@ -57,4 +57,3 @@ class FormatTestBase(PluginTestBase[Format]):
         """
         Satisfy :py:class:`betty.tests.coverage.test_coverage.TestCoverage`.
         """
-        pass

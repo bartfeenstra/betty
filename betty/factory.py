@@ -45,7 +45,6 @@ class IndependentFactory(ABC):
         """
         Create a new instance.
         """
-        pass
 
 
 _T = TypeVar("_T")
@@ -82,7 +81,6 @@ class TargetFactory(ABC):
 
         :raises FactoryError: raised when ``cls`` could not be instantiated.
         """
-        pass
 
 
 class Factory(Protocol):
@@ -96,4 +94,3 @@ class Factory(Protocol):
 
         :raises FactoryError: raised when ``cls`` could not be instantiated.
         """
-        pass

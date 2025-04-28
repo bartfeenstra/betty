@@ -12,8 +12,6 @@ class BettyDeprecationWarning(DeprecationWarning):
     Raised for deprecated Betty functionality.
     """
 
-    pass
-
 
 def deprecate(message: str, stacklevel: int = 1):
     """

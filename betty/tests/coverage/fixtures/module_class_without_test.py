@@ -3,5 +3,3 @@
 
 class Src:
     """Provide a fixture source class."""
-
-    pass  # pragma: no cover

@@ -4,7 +4,7 @@ Configuration for the data model.
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Generic, Iterable, TypeVar, final
+from typing import TYPE_CHECKING, Generic, TypeVar, final
 
 from typing_extensions import override
 
@@ -27,6 +27,8 @@ from betty.plugin import PluginIdentifier, PluginRepository, resolve_identifier
 from betty.plugin.assertion import assert_plugin
 
 if TYPE_CHECKING:
+    from collections.abc import Iterable
+
     from betty.serde.dump import Dump, DumpMapping
 
 

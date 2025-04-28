@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Sequence
+from typing import TYPE_CHECKING
 
 from typing_extensions import override
 
@@ -12,6 +12,8 @@ from betty.date import Date
 from betty.test_utils.model import EntityTestBase
 
 if TYPE_CHECKING:
+    from collections.abc import Sequence
+
     from betty.model import Entity
 
 

@@ -7,7 +7,7 @@ from __future__ import annotations
 from asyncio import to_thread
 from contextlib import suppress
 from shutil import rmtree
-from typing import TYPE_CHECKING, Sequence, final
+from typing import TYPE_CHECKING, final
 
 from typing_extensions import override
 
@@ -27,6 +27,8 @@ from betty.project.load import LoadAncestryEvent, load
 from betty.typing import internal
 
 if TYPE_CHECKING:
+    from collections.abc import Sequence
+
     from betty.event_dispatcher import EventHandlerRegistry
     from betty.plugin import PluginIdentifier
     from betty.project import Project

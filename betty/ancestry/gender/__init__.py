@@ -18,8 +18,6 @@ class Gender(Mutable, Plugin):
     To test your own subclasses, use :py:class:`betty.test_utils.ancestry.gender.GenderTestBase`.
     """
 
-    pass
-
 
 GENDER_REPOSITORY: PluginRepository[Gender] = EntryPointPluginRepository("betty.gender")
 """

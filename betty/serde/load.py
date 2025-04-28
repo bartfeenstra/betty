@@ -23,4 +23,3 @@ class Loadable(ABC):
 
         :raises betty.assertion.error.AssertionFailed: Raised if the dump is invalid.
         """
-        pass

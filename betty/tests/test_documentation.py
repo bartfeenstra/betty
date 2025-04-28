@@ -51,7 +51,7 @@ class TestDocumentation:
         if sys.platform.startswith("win32"):
             expected = expected.replace("\r\n", "\n")
         return "\n".join(
-            (f"    {line}" if line.strip() else "" for line in expected.split("\n"))
+            f"    {line}" if line.strip() else "" for line in expected.split("\n")
         )
 
     async def test_should_contain_cli_help(self, new_temporary_app: App) -> None:
@@ -134,12 +134,7 @@ class TestDocstringSphinxReferences:
         for node in ast.walk(module):
             if isinstance(
                 node,
-                (
-                    ast.FunctionDef,
-                    ast.AsyncFunctionDef,
-                    ast.ClassDef,
-                    ast.Module,
-                ),
+                ast.FunctionDef | ast.AsyncFunctionDef | ast.ClassDef | ast.Module,
             ):
                 docstring = ast.get_docstring(node)
                 if docstring is None:

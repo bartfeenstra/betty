@@ -25,7 +25,6 @@ class CopyrightNotice(Mutable, Plugin):
         """
         The copyright summary.
         """
-        pass
 
     @property
     @abstractmethod
@@ -33,7 +32,6 @@ class CopyrightNotice(Mutable, Plugin):
         """
         The full copyright text.
         """
-        pass
 
     @property
     def url(self) -> Localizable | None:

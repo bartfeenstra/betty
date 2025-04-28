@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 from pathlib import Path
-from typing import TYPE_CHECKING, Any, Iterable
+from typing import TYPE_CHECKING, Any
 
 import aiofiles
 import pytest
@@ -31,7 +31,7 @@ from betty.tests.ancestry.test___init__ import DummyHasFileReferences
 from betty.warnings import BettyDeprecationWarning
 
 if TYPE_CHECKING:
-    from collections.abc import MutableMapping, Sequence
+    from collections.abc import Iterable, MutableMapping, Sequence
     from multiprocessing.managers import SyncManager
 
 

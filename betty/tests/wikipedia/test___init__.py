@@ -179,7 +179,7 @@ class TestRetriever:
             fetch_map={
                 fetch_url: FetchResponse(
                     CIMultiDict(),
-                    "{Haha Im not rly JSON}".encode("utf-8"),
+                    b"{Haha Im not rly JSON}",
                     "utf-8",
                 )
             }

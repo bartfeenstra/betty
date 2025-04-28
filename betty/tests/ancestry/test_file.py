@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from pathlib import Path
 from tempfile import NamedTemporaryFile
-from typing import TYPE_CHECKING, Any, Mapping, Sequence
+from typing import TYPE_CHECKING, Any
 
 from typing_extensions import override
 
@@ -24,6 +24,8 @@ from betty.test_utils.model import EntityTestBase
 from betty.tests.ancestry.test___init__ import DummyHasFileReferences
 
 if TYPE_CHECKING:
+    from collections.abc import Mapping, Sequence
+
     from betty.model import Entity
 
 
