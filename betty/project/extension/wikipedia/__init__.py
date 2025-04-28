@@ -20,15 +20,10 @@ from betty.project.extension import ConfigurableExtension
 from betty.project.extension.wikipedia.config import WikipediaConfiguration
 from betty.project.load import PostLoadAncestryEvent
 from betty.service import service
-from betty.wikipedia import (
-    RATE_LIMIT,
-    NotAPageError,
-    Summary,
-    _parse_url,
-    _Populator,
-    _Retriever,
-)
+from betty.wikipedia import NotAPageError, parse_page_url
+from betty.wikipedia.client import RATE_LIMIT, Client, Summary
 from betty.wikipedia.copyright_notice import WikipediaContributors
+from betty.wikipedia.populator import Populator
 
 if TYPE_CHECKING:
     from collections.abc import Iterable
@@ -45,11 +40,11 @@ async def _populate_ancestry(event: PostLoadAncestryEvent) -> None:
     project = event.project
     extensions = await project.extensions
     wikipedia = extensions[Wikipedia]
-    populator = _Populator(
+    populator = Populator(
         project.ancestry,
         list(project.configuration.locales.keys()),
         await project.localizers,
-        await wikipedia.retriever,
+        await wikipedia.client,
         await project.copyright_notice_repository.new_target(WikipediaContributors),
     )
     await populator.populate()
@@ -104,11 +99,11 @@ class Wikipedia(
         )
 
     @service
-    async def retriever(self) -> _Retriever:
+    async def client(self) -> Client:
         """
-        The Wikipedia content retriever.
+        The Wikipedia query API client.
         """
-        return _Retriever(await self.project.app.fetcher, await self.rate_limiter)
+        return Client(await self.project.app.fetcher, await self.rate_limiter)
 
     @override
     @property
@@ -146,14 +141,14 @@ class Wikipedia(
 
     async def _filter_wikipedia_link(self, locale: str, link: Link) -> Summary | None:
         try:
-            page_language, page_name = _parse_url(link.url)
+            page_language, page_name = parse_page_url(link.url)
         except NotAPageError:
             return None
         if negotiate_locale(locale, [page_language]) is None:
             return None
         try:
-            retriever = await self.retriever
-            return await retriever.get_summary(page_language, page_name)
+            client = await self.client
+            return await client.get_summary(page_language, page_name)
         except FetchError as error:
             logger = logging.getLogger(__name__)
             logger.warning(str(error))

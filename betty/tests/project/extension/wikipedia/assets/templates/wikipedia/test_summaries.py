@@ -7,7 +7,7 @@ from betty.locale.localizer import DEFAULT_LOCALIZER
 from betty.project.extension.wikipedia import Wikipedia
 from betty.test_utils.jinja2 import assert_template_file
 from betty.test_utils.model import DummyEntity
-from betty.wikipedia import Summary, _Retriever
+from betty.wikipedia.client import Client, Summary
 from betty.wikipedia.copyright_notice import WikipediaContributors
 
 
@@ -42,16 +42,16 @@ async def test_with_links_without_wikipedia_links() -> None:
 
 async def test_without_summaries(mocker: MockerFixture) -> None:
     wikipedia_url = "https://en.wikipedia.org/wiki/Amsterdam"
-    m_retriever = mocker.AsyncMock(spec=_Retriever)
-    m_retriever.get_summary.return_value = None
+    m_client = mocker.AsyncMock(spec=Client)
+    m_client.get_summary.return_value = None
 
-    async def _awaitable_retriever():
-        return m_retriever  # type: ignore[no-any-return]
+    async def _awaitable_client():
+        return m_client  # type: ignore[no-any-return]
 
     mocker.patch(
-        "betty.project.extension.wikipedia.Wikipedia.retriever",
+        "betty.project.extension.wikipedia.Wikipedia.client",
         new_callable=PropertyMock,
-        return_value=_awaitable_retriever(),
+        return_value=_awaitable_client(),
     )
     resource = DummyResource()
     resource.links.append(Link(wikipedia_url))
@@ -63,7 +63,7 @@ async def test_without_summaries(mocker: MockerFixture) -> None:
         template="wikipedia/summaries.html.j2",
     ) as (actual, _):
         assert actual == ""
-    m_retriever.get_summary.assert_called_once_with("en", "Amsterdam")
+    m_client.get_summary.assert_called_once_with("en", "Amsterdam")
 
 
 async def test_with_summaries_in_irrelevant_locale() -> None:
@@ -83,16 +83,16 @@ async def test_with_summaries_in_irrelevant_locale() -> None:
 async def test_with_summary_should_render(mocker: MockerFixture) -> None:
     wikipedia_url = "https://en.wikipedia.org/wiki/Amsterdam"
     summary = Summary("en", "Amsterdam", "Amstelredam", "Capital of the Netherlands")
-    m_retriever = mocker.AsyncMock(spec=_Retriever)
-    m_retriever.get_summary.return_value = summary
+    m_client = mocker.AsyncMock(spec=Client)
+    m_client.get_summary.return_value = summary
 
-    async def _awaitable_retriever():
-        return m_retriever  # type: ignore[no-any-return]
+    async def _awaitable_client():
+        return m_client  # type: ignore[no-any-return]
 
     mocker.patch(
-        "betty.project.extension.wikipedia.Wikipedia.retriever",
+        "betty.project.extension.wikipedia.Wikipedia.client",
         new_callable=PropertyMock,
-        return_value=_awaitable_retriever(),
+        return_value=_awaitable_client(),
     )
     resource = DummyResource()
     resource.links.append(Link(wikipedia_url))
@@ -113,4 +113,4 @@ async def test_with_summary_should_render(mocker: MockerFixture) -> None:
             wikipedia_contributors_copyright_notice.url.localize(DEFAULT_LOCALIZER)
             in actual
         )
-    m_retriever.get_summary.assert_called_once_with("en", "Amsterdam")
+    m_client.get_summary.assert_called_once_with("en", "Amsterdam")

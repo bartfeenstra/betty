@@ -6,7 +6,7 @@ from betty.project.extension.raspberry_mint import RaspberryMint
 from betty.project.extension.wikipedia import Wikipedia
 from betty.test_utils.jinja2 import assert_template_file
 from betty.tests.project.test_load import DummyHasLinks
-from betty.wikipedia import Summary
+from betty.wikipedia.client import Summary
 
 
 async def test_minimal() -> None:
@@ -24,7 +24,7 @@ async def test_minimal() -> None:
 
 async def test_with_summary(mocker: MockerFixture) -> None:
     summary_content = "Hello, world!"
-    m_get_summary = mocker.patch("betty.wikipedia._Retriever.get_summary")
+    m_get_summary = mocker.patch("betty.wikipedia.client.Client.get_summary")
     m_get_summary.return_value = Summary(
         DEFAULT_LOCALE, "Example", "Example", summary_content
     )

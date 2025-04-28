@@ -497,8 +497,10 @@ _BASELINE: Mapping[str, _ModuleIgnore] = {
         "BettyDeprecationWarning": MissingReason.STATIC_CONTENT_ONLY,
     },
     "betty/wikipedia/__init__.py": {
-        "Image": MissingReason.DATACLASS,
         "NotAPageError": MissingReason.STATIC_CONTENT_ONLY,
+    },
+    "betty/wikipedia/client.py": {
+        "Image": MissingReason.DATACLASS,
         "Summary": {
             "__eq__": MissingReason.DATACLASS,
             "__delattr__": MissingReason.DATACLASS,

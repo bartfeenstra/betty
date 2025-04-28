@@ -11,7 +11,7 @@ from betty.project import Project
 from betty.project.extension.wikipedia import Wikipedia
 from betty.project.load import load
 from betty.test_utils.project.extension import ExtensionTestBase
-from betty.wikipedia import Summary
+from betty.wikipedia.client import Summary
 
 if TYPE_CHECKING:
     from multiprocessing.managers import SyncManager
@@ -44,7 +44,7 @@ class TestWikipedia(ExtensionTestBase[Wikipedia]):
         extract = "De hoofdstad van Nederland."
         summary = Summary(language, name, title, extract)
 
-        m_get_summary = mocker.patch("betty.wikipedia._Retriever.get_summary")
+        m_get_summary = mocker.patch("betty.wikipedia.client.Client.get_summary")
         m_get_summary.return_value = summary
 
         page_url = f"https://{language}.wikipedia.org/wiki/{name}"
@@ -73,7 +73,7 @@ class TestWikipedia(ExtensionTestBase[Wikipedia]):
     async def test_post_load(
         self, mocker: MockerFixture, new_temporary_app: App
     ) -> None:
-        m_populate = mocker.patch("betty.wikipedia._Populator.populate")
+        m_populate = mocker.patch("betty.wikipedia.populator.Populator.populate")
 
         async with Project.new_temporary(new_temporary_app) as project:
             project.configuration.extensions.enable(Wikipedia)
@@ -82,13 +82,13 @@ class TestWikipedia(ExtensionTestBase[Wikipedia]):
 
             m_populate.assert_called_once()
 
-    async def test_retriever(self, new_temporary_app: App) -> None:
+    async def test_client(self, new_temporary_app: App) -> None:
         async with Project.new_temporary(new_temporary_app) as project:
             project.configuration.extensions.enable(Wikipedia)
             async with project:
                 extensions = await project.extensions
                 wikipedia = extensions[Wikipedia]
-                await wikipedia.retriever
+                await wikipedia.client
 
     async def test_globals(
         self, new_temporary_app_factory: NewTemporaryAppFactory
