@@ -480,10 +480,6 @@ class TestClient:
                     Path(__file__),
                     SVG,
                     "An Example Image",
-                    {
-                        "en": "An Example Image",
-                        "nl": "Een voorbeeldafbeelding",
-                    },
                     "https://example.com/description",
                     "example.svg",
                 ),
@@ -506,14 +502,6 @@ class TestClient:
                                         "mime": "image/svg+xml",
                                         "canonicaltitle": "File:An Example Image",
                                         "descriptionurl": "https://example.com/description",
-                                        "extmetadata": {
-                                            "ImageDescription": {
-                                                "value": {
-                                                    "en": "An Example Image",
-                                                    "nl": "Een voorbeeldafbeelding",
-                                                },
-                                            },
-                                        },
                                     },
                                 ],
                             }
@@ -538,7 +526,7 @@ class TestClient:
         page_language = "en"
         page_name = "Amsterdam & Omstreken"
         page_fetch_url = "https://en.wikipedia.org/w/api.php?action=query&titles=Amsterdam%20%26%20Omstreken&prop=langlinks|pageimages|coordinates&lllimit=500&piprop=name&pilicense=free&pilimit=1&coprimary=primary&format=json&formatversion=2"
-        file_fetch_url = "https://en.wikipedia.org/w/api.php?action=query&prop=imageinfo&titles=File:Amsterdam%20%26%20Omstreken&iiprop=url|mime|canonicaltitle|extmetadata&iiextmetadatamultilang=1&format=json&formatversion=2"
+        file_fetch_url = "https://en.wikipedia.org/w/api.php?action=query&prop=imageinfo&titles=File:Amsterdam%20%26%20Omstreken&iiprop=url|mime|canonicaltitle&format=json&formatversion=2"
 
         fetch_map = {page_fetch_url: _new_json_fetch_response(page_fetch_json)}
         fetch_file_map = {}
@@ -560,7 +548,3 @@ class TestClient:
             assert actual.title == expected.title
             assert actual.wikimedia_commons_url == expected.wikimedia_commons_url
             assert actual.path is image_file_path
-            assert actual.description == {
-                "en": "An Example Image",
-                "nl": "Een voorbeeldafbeelding",
-            }
