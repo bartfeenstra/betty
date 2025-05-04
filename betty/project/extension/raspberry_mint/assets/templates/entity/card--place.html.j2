@@ -1,0 +1,13 @@
+{% extends "entity/card.html.j2" %}
+{% block preview %}
+    {% set preview -%}
+        {{ super() }}
+    {%- endset %}
+    {% if preview %}
+        {{ preview }}
+    {% else %}
+        {% with places = [entity], embedded = true %}
+            {% include 'maps/map.html.j2' %}
+        {% endwith %}
+    {% endif %}
+{% endblock %}
