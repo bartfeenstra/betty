@@ -31,6 +31,7 @@ from betty.wikipedia import NotAPageError, parse_page_url
 
 if TYPE_CHECKING:
     from collections.abc import Mapping, MutableMapping, MutableSequence, Sequence
+    from pathlib import Path
 
     from betty.ancestry import Ancestry
     from betty.locale.localizer import LocalizerRepository
@@ -57,8 +58,8 @@ class Populator:
         self._locales = locales
         self._localizers = localizers
         self._client = client
-        self._image_files: MutableMapping[Image, File] = {}
-        self._image_files_locks: Mapping[Image, Lock] = defaultdict(
+        self._image_files: MutableMapping[Path, File] = {}
+        self._image_files_locks: Mapping[Path, Lock] = defaultdict(
             AsynchronizedLock.threading
         )
         self._copyright_notice = copyright_notice
@@ -218,9 +219,9 @@ class Populator:
     async def _image_file_reference(
         self, has_file_references: HasFileReferences, image: Image
     ) -> FileReference:
-        async with self._image_files_locks[image]:
+        async with self._image_files_locks[image.path]:
             try:
-                file = self._image_files[image]
+                file = self._image_files[image.path]
             except KeyError:
                 links = []
                 for locale in self._locales:
@@ -245,8 +246,9 @@ class Populator:
                     media_type=image.media_type,
                     links=links,
                     copyright_notice=self._copyright_notice,
+                    description=image.description,
                 )
-                self._image_files[image] = file
+                self._image_files[image.path] = file
                 self._ancestry.add(file)
             file_reference = FileReference(has_file_references, file)
             self._ancestry.add(file_reference)
