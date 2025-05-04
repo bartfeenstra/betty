@@ -387,6 +387,7 @@ class TestPopulator:
             Path(__file__),
             MediaType("application/octet-stream"),
             "",
+            {},
             "https://example.com",
             "example",
         )
