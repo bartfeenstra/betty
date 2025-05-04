@@ -15,10 +15,7 @@ from urllib.parse import quote, urlparse
 from geopy import Point
 
 from betty.fetch import Fetcher, FetchError
-from betty.locale.localizable import (
-    StaticTranslations,
-    plain,
-)
+from betty.locale.localizable import plain
 from betty.media_type import MediaType
 from betty.typing import internal
 
@@ -28,7 +25,6 @@ if TYPE_CHECKING:
     from betty.concurrent import RateLimiter
 
 
-@internal
 @final
 @dataclass(frozen=True)
 class Summary:
@@ -49,7 +45,6 @@ class Summary:
         return f"https://{self.locale}.wikipedia.org/wiki/{self.name}"
 
 
-@internal
 @final
 @dataclass(frozen=True)
 class Image:
@@ -60,7 +55,6 @@ class Image:
     path: Path
     media_type: MediaType
     title: str
-    description: StaticTranslations
     wikimedia_commons_url: str
     name: str
 
@@ -181,7 +175,7 @@ class Client:
             if page_image_name in self._images:
                 return self._images[page_image_name]
 
-            url = f"https://en.wikipedia.org/w/api.php?action=query&prop=imageinfo&titles=File:{quote(page_image_name)}&iiprop=url|mime|canonicaltitle|extmetadata&iiextmetadatamultilang=1&format=json&formatversion=2"
+            url = f"https://en.wikipedia.org/w/api.php?action=query&prop=imageinfo&titles=File:{quote(page_image_name)}&iiprop=url|mime|canonicaltitle&format=json&formatversion=2"
             image_info_api_data = await self._get_query_api_data(url)
 
             try:
@@ -201,13 +195,6 @@ class Client:
                 image_info["canonicaltitle"][
                     image_info["canonicaltitle"].index(":") + 1 :
                 ],
-                {
-                    language: description
-                    for language, description in image_info["extmetadata"][
-                        "ImageDescription"
-                    ]["value"].items()
-                    if not language.startswith("_")
-                },
                 image_info["descriptionurl"],
                 Path(urlparse(image_info["url"]).path).name,
             )
