@@ -8,20 +8,20 @@ msgstr ""
 "Project-Id-Version: Betty VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
 "POT-Creation-Date: 2025-04-24 14:22+0100\n"
-"PO-Revision-Date: 2025-02-19 16:48+0000\n"
-"Last-Translator: Yaron Shahrabani <sh.yaron@gmail.com>\n"
+"PO-Revision-Date: 2025-05-05 09:31+0000\n"
+"Last-Translator: Eden Kuperman <edenkup@gmail.com>\n"
+"Language-Team: Hebrew <https://hosted.weblate.org/projects/betty/betty/he/>\n"
 "Language: he\n"
-"Language-Team: Hebrew "
-"<https://hosted.weblate.org/projects/betty/betty/he/>\n"
-"Plural-Forms: nplurals=2; plural=(n != 1);\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=utf-8\n"
 "Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+"X-Generator: Weblate 5.12-dev\n"
 "Generated-By: Babel 2.17.0\n"
 
 #, python-brace-format
 msgid "\"{hex_value}\" is not a valid hexadecimal color, such as #ffc0cb."
-msgstr ""
+msgstr "\"{hex_value}\" קוד הקסדצימלי לא תקין, כמו #ffc0cb."
 
 #, python-brace-format
 msgid "\"{invalid_locale}\" is not a valid IETF BCP 47 language tag."
@@ -36,6 +36,7 @@ msgid ""
 "\"{value}\" is not a valid machine name: only lowercase letters, digits, "
 "and hyphens (-) are allowed."
 msgstr ""
+"\"{value}\" שם מכשיר לא תקין: רק אותיות קטנות, ספרות, ומקפים (-) מאושרים."
 
 #, python-format
 msgid "%(date)s in %(place)s"
@@ -47,7 +48,7 @@ msgstr ""
 
 #, python-format
 msgid "%(event)s with %(subjects)s"
-msgstr ""
+msgstr "%(event)s עם %(subjects)s"
 
 #, python-format
 msgid "%(person_individual_name)s had a child with %(co_parent_labels)s."
@@ -76,30 +77,30 @@ msgid "API documentation"
 msgstr ""
 
 msgid "About"
-msgstr ""
+msgstr "אודות"
 
 msgid "Access denied"
-msgstr ""
+msgstr "גישה נדחתה"
 
 #, python-format
 msgid "Accessed %(date)s"
 msgstr ""
 
 msgid "Adoption"
-msgstr ""
+msgstr "אימוץ"
 
 msgid "All caches cleared."
 msgstr ""
 
 msgid "All of these requirements must be met"
-msgstr ""
+msgstr "יש למלא את כל הדרישות"
 
 msgid "All rights reserved"
-msgstr ""
+msgstr "כל הזכויות שמורות"
 
-#, python-format
+#, fuzzy, python-format
 msgid "Also known as %(names)s"
-msgstr ""
+msgstr "ידוע גם כ%(names)s"
 
 msgid "Ancestral names include"
 msgstr ""
@@ -1354,4 +1355,3 @@ msgstr ""
 #, python-brace-format
 msgid "© Copyright {author}, unless otherwise credited"
 msgstr ""
-
