@@ -5,7 +5,6 @@ Provide the Serve API to serve resources within the application.
 from __future__ import annotations
 
 import contextlib
-import logging
 import threading
 import webbrowser
 from abc import ABC, abstractmethod
@@ -29,8 +28,8 @@ from betty.project.factory import ProjectDependentFactory
 if TYPE_CHECKING:
     from types import TracebackType
 
-    from betty.locale.localizer import Localizer
     from betty.project import Project
+    from betty.user import User
 
 DEFAULT_PORT = 8000
 
@@ -63,8 +62,8 @@ class Server(ABC):
     Provide a (development) web server.
     """
 
-    def __init__(self, localizer: Localizer):
-        self._localizer = localizer
+    def __init__(self, *, user: User):
+        self._user = user
 
     @abstractmethod
     async def start(self) -> None:  # noqa B027
@@ -76,8 +75,8 @@ class Server(ABC):
         """
         Show the served site to the user.
         """
-        logging.getLogger(__name__).info(
-            self._localizer._("Serving your site at {url}...").format(
+        await self._user.message_information(
+            _("Serving your site at {url}...").format(
                 url=self.public_url,
             )
         )
@@ -142,14 +141,14 @@ class ProjectServer(ProjectDependentFactory, Server):
     A web server for a Betty project.
     """
 
-    def __init__(self, localizer: Localizer, project: Project) -> None:
-        super().__init__(localizer)
+    def __init__(self, project: Project) -> None:
+        super().__init__(user=project.app.user)
         self._project = project
 
     @override
     @classmethod
     async def new_for_project(cls, project: Project) -> Self:
-        return cls(await project.app.localizer, project)
+        return cls(project)
 
 
 @final
@@ -167,13 +166,9 @@ class BuiltinServer(Server):
     """
 
     def __init__(
-        self,
-        www_directory_path: Path,
-        *,
-        root_path: str | None = None,
-        localizer: Localizer,
+        self, www_directory_path: Path, *, root_path: str | None = None, user: User
     ) -> None:
-        super().__init__(localizer)
+        super().__init__(user=user)
         self._www_directory_path = www_directory_path
         self._root_path = root_path
         self._http_server: HTTPServer | None = None
@@ -199,8 +194,8 @@ class BuiltinServer(Server):
             www_directory_path = temporary_root_directory_path
         else:
             www_directory_path = self._www_directory_path
-        logging.getLogger(__name__).info(
-            self._localizer._("Starting Python's built-in web server...")
+        await self._user.message_information(
+            _("Starting Python's built-in web server...")
         )
         for self._port in range(DEFAULT_PORT, 65535):
             with contextlib.suppress(OSError):
@@ -253,12 +248,12 @@ class BuiltinProjectServer(ProjectServer):
     A built-in server for a Betty project.
     """
 
-    def __init__(self, localizer: Localizer, project: Project) -> None:
-        super().__init__(localizer, project)
+    def __init__(self, project: Project) -> None:
+        super().__init__(project)
         self._server = BuiltinServer(
             project.configuration.www_directory_path,
             root_path=project.configuration.root_path,
-            localizer=localizer,
+            user=project.app.user,
         )
 
     @override

@@ -4,7 +4,6 @@ Manage translations of built-in translatable strings.
 
 from __future__ import annotations
 
-import logging
 from contextlib import redirect_stdout
 from io import StringIO
 from pathlib import Path
@@ -24,6 +23,7 @@ if TYPE_CHECKING:
     from collections.abc import Iterable
 
     from betty.project import Project
+    from betty.user import User
 
 
 ExtensionT = TypeVar("ExtensionT", bound=Extension)
@@ -53,33 +53,43 @@ def assert_extension_has_assets_directory_path(
     return extension
 
 
-async def new_extension_translation(locale: str, extension: type[Extension]) -> None:
+async def new_extension_translation(
+    locale: str, extension: type[Extension], *, user: User
+) -> None:
     """
     Create a new translation for the given extension.
     """
-    await _new_translation(locale, assert_extension_assets_directory_path(extension))
+    await _new_translation(
+        locale, assert_extension_assets_directory_path(extension), user=user
+    )
 
 
-async def new_project_translation(locale: str, project: Project) -> None:
+async def new_project_translation(locale: str, project: Project, *, user: User) -> None:
     """
     Create a new translation for the given project.
     """
-    await _new_translation(locale, project.configuration.assets_directory_path)
+    await _new_translation(
+        locale, project.configuration.assets_directory_path, user=user
+    )
 
 
-async def new_dev_translation(locale: str) -> None:
+async def new_dev_translation(locale: str, *, user: User) -> None:
     """
     Create a new translation for Betty itself.
     """
-    await _new_translation(locale, fs.ASSETS_DIRECTORY_PATH)
+    await _new_translation(locale, fs.ASSETS_DIRECTORY_PATH, user=user)
 
 
-async def _new_translation(locale: str, assets_directory_path: Path) -> None:
+async def _new_translation(
+    locale: str, assets_directory_path: Path, *, user: User
+) -> None:
     po_file_path = assets_directory_path / "locale" / locale / "betty.po"
     with redirect_stdout(StringIO()):
         if await exists(po_file_path):
-            logging.getLogger(__name__).info(
-                f"Translations for {locale} already exist at {po_file_path}."
+            await user.message_information(
+                _("Translations for {locale} already exist at {po_file_path}.").format(
+                    locale=locale, po_file_path=str(po_file_path)
+                )
             )
             return
 
@@ -97,8 +107,10 @@ async def _new_translation(locale: str, assets_directory_path: Path) -> None:
             "-D",
             "betty",
         )
-        logging.getLogger(__name__).info(
-            f"Translations for {locale} initialized at {po_file_path}."
+        await user.message_information(
+            _("Translations for {locale} initialized at {po_file_path}.").format(
+                locale=locale, po_file_path=str(po_file_path)
+            )
         )
 
 

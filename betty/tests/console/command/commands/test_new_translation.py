@@ -1,0 +1,47 @@
+from unittest.mock import ANY
+
+from pytest_mock import MockerFixture
+from typing_extensions import override
+
+from betty.app import App
+from betty.config import write_configuration_file
+from betty.console import SystemExitCode
+from betty.console.command import Command
+from betty.console.command.commands.new_translation import NewTranslation
+from betty.project import Project
+from betty.test_utils.console import run
+from betty.test_utils.console.command import CommandTestBase
+
+
+class TestNewTranslation(CommandTestBase):
+    @override
+    def get_sut_class(self) -> type[Command]:
+        return NewTranslation
+
+    async def test_configure__minimal(
+        self, mocker: MockerFixture, new_temporary_app: App
+    ) -> None:
+        async with Project.new_temporary(new_temporary_app) as project, project:
+            await write_configuration_file(
+                project.configuration, project.configuration.configuration_file_path
+            )
+            locale = "nl-NL"
+            m_new_translation = mocker.patch(
+                "betty.locale.translation.new_project_translation"
+            )
+            await run(
+                new_temporary_app,
+                "new-translation",
+                "--project",
+                str(project.configuration.configuration_file_path),
+                locale,
+            )
+            m_new_translation.assert_awaited_once_with(locale, ANY, user=ANY)
+
+    async def test_configure__with_invalid_locale(self, new_temporary_app: App) -> None:
+        await run(
+            new_temporary_app,
+            "new-translation",
+            "",
+            expected_exit_code=SystemExitCode.ERROR_CONSOLE_USAGE,
+        )

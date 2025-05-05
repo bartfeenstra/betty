@@ -45,7 +45,7 @@ async def _load_ancestry(event: LoadAncestryEvent) -> None:
         await GrampsLoader(
             project.ancestry,
             attribute_prefix_key=project.configuration.name,
-            localizer=await project.app.localizer,
+            user=project.app.user,
             copyright_notices=project.copyright_notice_repository,
             licenses=await project.license_repository,
             event_type_mapping={

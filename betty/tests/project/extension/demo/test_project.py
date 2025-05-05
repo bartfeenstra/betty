@@ -29,7 +29,7 @@ async def test_load_ancestry(
     new_temporary_app_factory: NewTemporaryAppFactory,
 ) -> None:
     async with (
-        await new_temporary_app_factory(fetcher=demo_project_fetcher) as app,
+        new_temporary_app_factory(fetcher=demo_project_fetcher) as app,
         app,
         Project.new_temporary(app) as project,
         project,

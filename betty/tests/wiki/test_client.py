@@ -12,6 +12,7 @@ from betty.concurrent import RateLimiter
 from betty.fetch import FetchResponse
 from betty.fetch.static import StaticFetcher
 from betty.media_type.media_types import SVG
+from betty.test_utils.user import StaticUser
 from betty.wiki.client import Client, Image, Summary
 
 if TYPE_CHECKING:
@@ -97,7 +98,7 @@ class TestClient:
             fetch_map={fetch_url: _new_json_fetch_response(fetch_json)}
         )
         translations = await Client(
-            fetcher, RateLimiter(1, manager=multiprocessing_manager)
+            fetcher, RateLimiter(1, manager=multiprocessing_manager), user=StaticUser()
         ).get_translations(page_language, page_name)
         assert expected == translations
 
@@ -121,7 +122,7 @@ class TestClient:
             }
         )
         actual = await Client(
-            fetcher, RateLimiter(1, manager=multiprocessing_manager)
+            fetcher, RateLimiter(1, manager=multiprocessing_manager), user=StaticUser()
         ).get_translations(page_language, page_name)
         assert actual == {}
 
@@ -149,7 +150,7 @@ class TestClient:
             fetch_map={fetch_url: _new_json_fetch_response(response_json)}
         )
         actual = await Client(
-            fetcher, RateLimiter(1, manager=multiprocessing_manager)
+            fetcher, RateLimiter(1, manager=multiprocessing_manager), user=StaticUser()
         ).get_translations(page_language, page_name)
         assert actual == {}
 
@@ -226,7 +227,9 @@ class TestClient:
         fetcher = StaticFetcher(
             fetch_map={fetch_url: _new_json_fetch_response(fetch_json)}
         )
-        client = Client(fetcher, RateLimiter(1, manager=multiprocessing_manager))
+        client = Client(
+            fetcher, RateLimiter(1, manager=multiprocessing_manager), user=StaticUser()
+        )
         actual = await client.get_summary(page_language, page_name)
         assert actual == expected
 
@@ -379,7 +382,7 @@ class TestClient:
             fetch_map={fetch_url: _new_json_fetch_response(fetch_json)}
         )
         actual = await Client(
-            fetcher, RateLimiter(1, manager=multiprocessing_manager)
+            fetcher, RateLimiter(1, manager=multiprocessing_manager), user=StaticUser()
         ).get_place_coordinates(page_language, page_name)
         assert actual == expected
 
@@ -538,7 +541,7 @@ class TestClient:
         fetcher = StaticFetcher(fetch_map=fetch_map, fetch_file_map=fetch_file_map)
 
         actual = await Client(
-            fetcher, RateLimiter(1, manager=multiprocessing_manager)
+            fetcher, RateLimiter(1, manager=multiprocessing_manager), user=StaticUser()
         ).get_image(page_language, page_name)
         if expected is None:
             assert actual is None

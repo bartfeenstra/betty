@@ -11,7 +11,6 @@ from collections import defaultdict
 from contextlib import ExitStack, suppress
 from dataclasses import dataclass
 from enum import Enum
-from logging import getLogger
 from pathlib import Path
 from typing import TYPE_CHECKING, Generic, TypeVar, cast, final
 
@@ -130,8 +129,8 @@ if TYPE_CHECKING:
     from betty.ancestry.presence_role import PresenceRole
     from betty.copyright_notice import CopyrightNotice
     from betty.license import License
-    from betty.locale.localizer import Localizer
     from betty.plugin import PluginRepository
+    from betty.user import User
 
 _EntityT = TypeVar("_EntityT", bound=Entity)
 
@@ -286,7 +285,7 @@ class GrampsLoader:
         self,
         ancestry: Ancestry,
         *,
-        localizer: Localizer,
+        user: User,
         copyright_notices: PluginRepository[CopyrightNotice],
         licenses: PluginRepository[License],
         attribute_prefix_key: str | None = None,
@@ -310,7 +309,7 @@ class GrampsLoader:
         self._tree: ElementTree.ElementTree
         self._tree_xml_namespace: dict[str, str]
         self._loaded = False
-        self._localizer = localizer
+        self._user = user
         self._copyright_notices = copyright_notices
         self._licenses = licenses
         self._event_type_mapping = event_type_mapping or {}
@@ -325,9 +324,8 @@ class GrampsLoader:
         :raises betty.gramps.error.GrampsError:
         """
         file_path = file_path.resolve()
-        logger = getLogger(__name__)
-        logger.info(
-            self._localizer._('Loading "{file_path}"...').format(
+        await self._user.message_information(
+            _('Loading "{file_path}"...').format(
                 file_path=str(file_path),
             )
         )
@@ -423,8 +421,6 @@ class GrampsLoader:
         self._loaded = True
         self._tree = tree
 
-        logger = getLogger(__name__)
-
         database = self._tree.getroot()
 
         match = re.fullmatch(
@@ -458,58 +454,60 @@ class GrampsLoader:
 
         with self._ancestry.unchecked():
             await self._load_notes(database)
-            logger.info(
-                self._localizer._("Loaded {note_count} notes.").format(
-                    note_count=self._added_entity_counts[Note]
+            await self._user.message_information(
+                _("Loaded {note_count} notes.").format(
+                    note_count=str(self._added_entity_counts[Note])
                 )
             )
             await self._load_objects(database, media_path)
-            logger.info(
-                self._localizer._("Loaded {file_count} files.").format(
-                    file_count=self._added_entity_counts[File]
+            await self._user.message_information(
+                _("Loaded {file_count} files.").format(
+                    file_count=str(self._added_entity_counts[File])
                 )
             )
 
             await self._load_repositories(database)
             repository_count = self._added_entity_counts[Source]
-            logger.info(
-                self._localizer._(
-                    "Loaded {repository_count} repositories as sources."
-                ).format(repository_count=repository_count)
+            await self._user.message_information(
+                _("Loaded {repository_count} repositories as sources.").format(
+                    repository_count=str(repository_count)
+                )
             )
 
             await self._load_sources(database)
-            logger.info(
-                self._localizer._("Loaded {source_count} sources.").format(
-                    source_count=self._added_entity_counts[Source] - repository_count
+            await self._user.message_information(
+                _("Loaded {source_count} sources.").format(
+                    source_count=str(
+                        self._added_entity_counts[Source] - repository_count
+                    )
                 )
             )
 
             await self._load_citations(database)
-            logger.info(
-                self._localizer._("Loaded {citation_count} citations.").format(
-                    citation_count=self._added_entity_counts[Citation]
+            await self._user.message_information(
+                _("Loaded {citation_count} citations.").format(
+                    citation_count=str(self._added_entity_counts[Citation])
                 )
             )
 
             await self._load_places(database)
-            logger.info(
-                self._localizer._("Loaded {place_count} places.").format(
-                    place_count=self._added_entity_counts[Place]
+            await self._user.message_information(
+                _("Loaded {place_count} places.").format(
+                    place_count=str(self._added_entity_counts[Place])
                 )
             )
 
             await self._load_events(database)
-            logger.info(
-                self._localizer._("Loaded {event_count} events.").format(
-                    event_count=self._added_entity_counts[Event]
+            await self._user.message_information(
+                _("Loaded {event_count} events.").format(
+                    event_count=str(self._added_entity_counts[Event])
                 )
             )
 
             await self._load_people(database)
-            logger.info(
-                self._localizer._("Loaded {person_count} people.").format(
-                    person_count=self._added_entity_counts[Person]
+            await self._user.message_information(
+                _("Loaded {person_count} people.").format(
+                    person_count=str(self._added_entity_counts[Person])
                 )
             )
 
@@ -690,7 +688,7 @@ class GrampsLoader:
         if element.get("priv") == "1":
             file.private = True
 
-        self._load_attributes_for(
+        await self._load_attributes_for(
             file,
             GrampsEntityReference(GrampsEntityType.OBJECT, file.id),
             element,
@@ -705,8 +703,8 @@ class GrampsLoader:
                     copyright_notice_id
                 )
             except PluginNotFound:
-                getLogger(__name__).warning(
-                    self._localizer._(
+                await self._user.message_warning(
+                    _(
                         'Betty is unfamiliar with Gramps file "{file_id}"\'s copyright notice ID of "{copyright_notice_id}" and ignored it.',
                     ).format(file_id=file_id, copyright_notice_id=copyright_notice_id)
                 )
@@ -715,8 +713,8 @@ class GrampsLoader:
             try:
                 file.license = await self._licenses.new_target(license_id)
             except PluginNotFound:
-                getLogger(__name__).warning(
-                    self._localizer._(
+                await self._user.message_warning(
+                    _(
                         'Betty is unfamiliar with Gramps file "{file_id}"\'s license ID of "{license_id}" and ignored it.',
                     ).format(file_id=file_id, license_id=license_id)
                 )
@@ -791,7 +789,7 @@ class GrampsLoader:
         if element.get("priv") == "1":
             person.private = True
 
-        self._load_attributes_for(
+        await self._load_attributes_for(
             person,
             GrampsEntityReference(GrampsEntityType.PERSON, person.id),
             element,
@@ -841,15 +839,15 @@ class GrampsLoader:
             presence_role_factory = self._presence_role_mapping[gramps_presence_role]
         except KeyError:
             presence_role = UnknownPresenceRole()
-            getLogger(__name__).warning(
-                self._localizer._(
+            await self._user.message_warning(
+                _(
                     'Betty is unfamiliar with person "{person_id}"\'s Gramps presence role of "{gramps_presence_role}" for the event with Gramps handle "{event_handle}". The role was imported, but set to "{betty_presence_role}".',
                 ).format(
                     person_id=person.id,
                     event_handle=event_handle,
                     gramps_presence_role=gramps_presence_role,
                     betty_presence_role=presence_role.plugin_label().localize(
-                        self._localizer
+                        self._user.localizer
                     ),
                 )
             )
@@ -863,7 +861,7 @@ class GrampsLoader:
         if eventref.get("priv") == "1":
             presence.private = True
 
-        self._load_attributes_for(
+        await self._load_attributes_for(
             presence,
             GrampsEntityReference(GrampsEntityType.PERSON, person.id),
             eventref,
@@ -902,14 +900,14 @@ class GrampsLoader:
             place_type_factory = self._place_type_mapping[gramps_type]
         except KeyError:
             place_type = UnknownPlaceType()
-            getLogger(__name__).warning(
-                self._localizer._(
+            await self._user.message_warning(
+                _(
                     'Betty is unfamiliar with Gramps place "{place_id}"\'s type of "{gramps_place_type}". The place was imported, but its type was set to "{betty_place_type}".',
                 ).format(
                     place_id=place_id,
                     gramps_place_type=gramps_type,
                     betty_place_type=place_type.plugin_label().localize(
-                        self._localizer
+                        self._user.localizer
                     ),
                 )
             )
@@ -922,7 +920,7 @@ class GrampsLoader:
             place_type=place_type,
         )
 
-        coordinates = self._load_coordinates(element)
+        coordinates = await self._load_coordinates(element)
         if coordinates:
             place.coordinates = coordinates
 
@@ -939,7 +937,7 @@ class GrampsLoader:
             )
             self._add_entity(enclosure)
 
-    def _load_coordinates(self, element: ElementTree.Element) -> Point | None:
+    async def _load_coordinates(self, element: ElementTree.Element) -> Point | None:
         with suppress(XPathError):
             coord_element = self._xpath1(element, "./ns:coord")
 
@@ -947,8 +945,8 @@ class GrampsLoader:
             try:
                 return Point.from_string(coordinates)
             except ValueError:
-                getLogger(__name__).warning(
-                    self._localizer._(
+                await self._user.message_warning(
+                    _(
                         'Cannot load coordinates "{coordinates}", because they are in an unknown format.',
                     ).format(
                         coordinates=coordinates,
@@ -972,14 +970,14 @@ class GrampsLoader:
             event_type_factory = self._event_type_mapping[gramps_type]
         except KeyError:
             event_type = UnknownEventType()
-            getLogger(__name__).warning(
-                self._localizer._(
+            await self._user.message_warning(
+                _(
                     'Betty is unfamiliar with Gramps event "{event_id}"\'s type of "{gramps_event_type}". The event was imported, but its type was set to "{betty_event_type}".',
                 ).format(
                     event_id=event_id,
                     gramps_event_type=gramps_type,
                     betty_event_type=event_type.plugin_label().localize(
-                        self._localizer
+                        self._user.localizer
                     ),
                 )
             )
@@ -1011,7 +1009,7 @@ class GrampsLoader:
         self._load_citationref(event, element)
         self._load_noteref(event, element)
 
-        self._load_attributes_for(
+        await self._load_attributes_for(
             event,
             GrampsEntityReference(GrampsEntityType.EVENT, event.id),
             element,
@@ -1074,7 +1072,7 @@ class GrampsLoader:
         if element.get("priv") == "1":
             source.private = True
 
-        self._load_attributes_for(
+        await self._load_attributes_for(
             source,
             GrampsEntityReference(GrampsEntityType.SOURCE, source.id),
             element,
@@ -1109,7 +1107,7 @@ class GrampsLoader:
 
         self._load_objref(citation, element)
 
-        self._load_attributes_for(
+        await self._load_attributes_for(
             citation,
             GrampsEntityReference(GrampsEntityType.CITATION, citation.id),
             element,
@@ -1176,7 +1174,7 @@ class GrampsLoader:
                 link.label = description  # type: ignore[assignment]
             owner.links.append(link)
 
-    def _load_attribute_privacy(
+    async def _load_attribute_privacy(
         self, entity: HasPrivacy & Entity, element: ElementTree.Element, tag: str
     ) -> None:
         privacy_value = self._load_attribute("privacy", element, tag)
@@ -1188,14 +1186,14 @@ class GrampsLoader:
         if privacy_value == "public":
             entity.public = True
             return
-        getLogger(__name__).warning(
-            self._localizer._(
+        await self._user.message_warning(
+            _(
                 'The betty:privacy Gramps attribute must have a value of "public" or "private", but "{privacy_value}" was given for {entity_type} {entity_id} ({entity_label}), which was ignored.',
             ).format(
                 privacy_value=privacy_value,
-                entity_type=entity.plugin_label().localize(self._localizer),
+                entity_type=entity.plugin_label().localize(self._user.localizer),
                 entity_id=entity.id,
-                entity_label=entity.label.localize(self._localizer),
+                entity_label=entity.label.localize(self._user.localizer),
             )
         )
 
@@ -1222,15 +1220,13 @@ class GrampsLoader:
 
     _LINK_ATTRIBUTE_PATTERN = re.compile(r"^link-([^:]+?):(.+?)$")
 
-    def _load_attribute_links(
+    async def _load_attribute_links(
         self,
         entity: HasLinks & Entity,
         gramps_entity_reference: GrampsEntityReference,
         element: ElementTree.Element,
         tag: str,
     ) -> None:
-        logger = getLogger(__name__)
-
         attributes = self._load_attributes(element, tag)
         links_attributes: MutableMapping[str, MutableMapping[str, str]] = defaultdict(
             dict
@@ -1244,11 +1240,11 @@ class GrampsLoader:
             links_attributes[link_name][link_attribute_name] = attribute_value
         for link_name, link_attributes in links_attributes.items():
             if "url" not in link_attributes:
-                logger.warning(
-                    self._localizer._(
+                await self._user.message_warning(
+                    _(
                         'The Gramps {gramps_entity_reference} entity requires a "betty:link-{link_name}:url" attribute. This link was ignored.',
                     ).format(
-                        gramps_entity_reference=gramps_entity_reference,
+                        gramps_entity_reference=str(gramps_entity_reference),
                         link_name=link_name,
                     )
                 )
@@ -1269,11 +1265,11 @@ class GrampsLoader:
                 try:
                     media_type = MediaType(link_attributes["media_type"])
                 except InvalidMediaType:
-                    logger.warning(
-                        self._localizer._(
+                    await self._user.message_warning(
+                        _(
                             'The Gramps {gramps_entity_reference} entity has a "betty:link-{link_name}:media_type" attribute with value "{media_type}", which is not a valid IANA media type. This media type was ignored.',
                         ).format(
-                            gramps_entity_reference=gramps_entity_reference,
+                            gramps_entity_reference=str(gramps_entity_reference),
                             link_name=link_name,
                             media_type=link_attributes["media_type"],
                         )
@@ -1311,7 +1307,7 @@ class GrampsLoader:
                         attributes[attribute_type[len(prefix) + 1 :]] = attribute_value
         return attributes
 
-    def _load_attributes_for(
+    async def _load_attributes_for(
         self,
         entity: Entity,
         gramps_entity_reference: GrampsEntityReference,
@@ -1319,6 +1315,8 @@ class GrampsLoader:
         tag: str,
     ) -> None:
         if isinstance(entity, HasPrivacy):
-            self._load_attribute_privacy(entity, element, tag)
+            await self._load_attribute_privacy(entity, element, tag)
         if isinstance(entity, HasLinks):
-            self._load_attribute_links(entity, gramps_entity_reference, element, tag)
+            await self._load_attribute_links(
+                entity, gramps_entity_reference, element, tag
+            )

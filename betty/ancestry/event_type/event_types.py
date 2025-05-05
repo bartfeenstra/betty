@@ -10,8 +10,8 @@ from typing_extensions import override
 
 from betty.ancestry.event_type import EventType
 from betty.locale.localizable import _
-from betty.locale.localizer import DEFAULT_LOCALIZER
 from betty.plugin import PluginIdentifier, ShorthandPluginBase
+from betty.user.no_op import NoOpUser
 
 if TYPE_CHECKING:
     from betty.ancestry.person import Person
@@ -178,9 +178,7 @@ class Death(CreatableDerivableEventType, EndOfLifeEventType, ShorthandPluginBase
     def may_create(cls, person: Person, lifetime_threshold: int) -> bool:
         from betty.privacy.privatizer import Privatizer
 
-        return Privatizer(lifetime_threshold, localizer=DEFAULT_LOCALIZER).has_expired(
-            person, 1
-        )
+        return Privatizer(lifetime_threshold, user=NoOpUser()).has_expired(person, 1)
 
 
 class FinalDispositionEventType(

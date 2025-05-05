@@ -64,7 +64,7 @@ class TestWikipediaContributors(CopyrightNoticeTestBase):
             }
         )
         async with (
-            await new_temporary_app_factory(fetcher=fetcher) as app,
+            new_temporary_app_factory(fetcher=fetcher) as app,
             app,
         ):
             sut = await WikipediaContributors.new_for_app(app)

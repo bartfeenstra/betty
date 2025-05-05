@@ -21,6 +21,7 @@ from betty.locale.localizer import DEFAULT_LOCALIZER
 from betty.multiprocessing import ProcessPoolExecutor
 from betty.plugin import PluginNotFound
 from betty.test_utils.license import LicenseTestBase
+from betty.test_utils.user import StaticUser
 
 if TYPE_CHECKING:
     from betty.serde.dump import Dump, DumpMapping
@@ -95,7 +96,7 @@ class TestSpdxLicenseRepository:
             sut = SpdxLicenseRepository(
                 binary_file_cache=binary_file_cache,
                 fetcher=fetcher,
-                localizer=DEFAULT_LOCALIZER,
+                user=StaticUser(),
                 manager=multiprocessing_manager,
                 process_pool=process_pool,
             )
@@ -191,7 +192,7 @@ class TestSpdxLicenseRepository:
             sut = SpdxLicenseRepository(
                 binary_file_cache=binary_file_cache,
                 fetcher=fetcher,
-                localizer=DEFAULT_LOCALIZER,
+                user=StaticUser(),
                 manager=multiprocessing_manager,
                 process_pool=process_pool,
             )

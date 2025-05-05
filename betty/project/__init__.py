@@ -8,7 +8,6 @@ site from the entire project.
 
 from __future__ import annotations
 
-import logging
 from contextlib import AsyncExitStack, asynccontextmanager
 from graphlib import TopologicalSorter
 from pathlib import Path
@@ -64,6 +63,7 @@ if TYPE_CHECKING:
     from betty.jinja2 import Environment
     from betty.machine_name import MachineName
     from betty.plugin import PluginIdentifier, PluginRepository
+    from betty.progress import Progress
     from betty.url import UrlGenerator
 
 _T = TypeVar("_T")
@@ -238,7 +238,7 @@ class Project(Configurable[ProjectConfiguration], TargetFactory, ServiceProvider
         extensions = {}
         for extension_configuration in self.configuration.extensions.values():
             extension = await self.extension_repository.get(extension_configuration.id)
-            extension_requirement = await extension.requirement()
+            extension_requirement = await extension.requirement(user=self.app.user)
             extension_requirement.assert_met()
             extensions[extension] = extension_configuration
 
@@ -275,10 +275,10 @@ class Project(Configurable[ProjectConfiguration], TargetFactory, ServiceProvider
         # Users may not realize no theme is enabled, and be confused by their site looking bare.
         # Warn them out of courtesy.
         if theme_count == 0:
-            logging.getLogger().warning(
+            await self.app.user.message_warning(
                 _(
                     'Your project has no theme enabled. This means your site\'s pages may look bare. Try the "raspberry-mint" extension.'
-                ).localize(await self.app.localizer)
+                )
             )
 
         return initialized_extensions
@@ -606,8 +606,14 @@ class ProjectContext(Context):
     A job context for a project.
     """
 
-    def __init__(self, project: Project, manager: SyncManager):
-        super().__init__(manager=manager)
+    def __init__(
+        self,
+        project: Project,
+        *,
+        manager: SyncManager,
+        progress: Progress | None = None,
+    ):
+        super().__init__(manager=manager, progress=progress)
         self._project = project
 
     @property

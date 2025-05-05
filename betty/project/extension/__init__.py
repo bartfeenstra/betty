@@ -33,6 +33,7 @@ if TYPE_CHECKING:
     from betty.machine_name import MachineName
     from betty.project import Project
     from betty.requirement import Requirement
+    from betty.user import User
 
 _ConfigurationT = TypeVar("_ConfigurationT", bound=Configuration)
 
@@ -92,13 +93,13 @@ class Extension(
         return self._project
 
     @classmethod
-    async def requirement(cls) -> Requirement:
+    async def requirement(cls, *, user: User) -> Requirement:
         """
         Define the requirement for this extension to be enabled.
 
         This defaults to the extension's dependencies.
         """
-        return await Dependencies.new(cls)
+        return await Dependencies.new(cls, user=user)
 
     @classmethod
     def assets_directory_path(cls) -> Path | None:
@@ -175,7 +176,7 @@ class Dependencies(AllRequirements):
         self._extension_id_to_type_mapping = extension_id_to_type_mapping
 
     @classmethod
-    async def new(cls, dependent: type[Extension]) -> Self:
+    async def new(cls, dependent: type[Extension], *, user: User) -> Self:
         """
         Create a new instance.
         """
@@ -185,7 +186,7 @@ class Dependencies(AllRequirements):
                     await EXTENSION_REPOSITORY.get(dependency_identifier)
                     if isinstance(dependency_identifier, str)
                     else dependency_identifier
-                ).requirement()
+                ).requirement(user=user)
                 for dependency_identifier in dependent.depends_on()
             ]
         except RecursionError:

@@ -135,6 +135,32 @@ class RequirementCollection(Requirement):
 
 
 @final
+class StaticRequirement(Requirement):
+    """
+    A requirement that is met or unmet upon creation.
+    """
+
+    def __init__(
+        self, met: bool, summary: Localizable, details: Localizable | None = None
+    ):
+        self._met = met
+        self._summary = summary
+        self._details = details
+
+    @override
+    def is_met(self) -> bool:
+        return self._met
+
+    @override
+    def summary(self) -> Localizable:
+        return self._summary
+
+    @override
+    def details(self) -> Localizable | None:
+        return self._details
+
+
+@final
 class AnyRequirement(RequirementCollection):
     """
     A requirement that is met if any of the given requirements are met.

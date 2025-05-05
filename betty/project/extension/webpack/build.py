@@ -9,7 +9,6 @@ from abc import abstractmethod
 from asyncio import gather, to_thread
 from collections.abc import Mapping, Sequence
 from json import dumps, loads
-from logging import getLogger
 from pathlib import Path
 from shutil import copy2, copytree
 from typing import TYPE_CHECKING, cast
@@ -20,6 +19,7 @@ from aiofiles.os import makedirs
 from betty import _npm
 from betty.fs import ROOT_DIRECTORY_PATH
 from betty.hashid import hashid, hashid_file_content, hashid_sequence
+from betty.locale.localizable import _
 from betty.os import copy_tree
 from betty.project.extension import Extension
 from betty.serde.dump import Dump, DumpMapping
@@ -28,8 +28,8 @@ if TYPE_CHECKING:
     from collections.abc import MutableMapping, Sequence
 
     from betty.job import Context
-    from betty.locale.localizer import Localizer
     from betty.render import Renderer
+    from betty.user import User
 
 _NPM_PROJECT_DIRECTORIES_PATH = Path(__file__).parent / "webpack"
 
@@ -128,7 +128,7 @@ class Builder:
         root_path: str,
         *,
         job_context: Context,
-        localizer: Localizer,
+        user: User,
     ) -> None:
         self._working_directory_path = working_directory_path
         self._entry_point_providers = entry_point_providers
@@ -136,7 +136,7 @@ class Builder:
         self._renderer = renderer
         self._root_path = root_path
         self._job_context = job_context
-        self._localizer = localizer
+        self._user = user
 
     async def _prepare_betty(self, npm_project_directory_path: Path) -> None:
         await to_thread(
@@ -185,7 +185,7 @@ class Builder:
             file_callback=lambda destination_file_path: self._renderer.render_file(
                 destination_file_path,
                 job_context=self._job_context,
-                localizer=self._localizer,
+                localizer=self._user.localizer,
             ),
         )
         npm_project_package_json_dependencies[entry_point_provider.plugin_id()] = (
@@ -351,12 +351,16 @@ class Builder:
             await npm_project_package_json_f.write(dumps(npm_project_package_json))
 
     async def _npm_install(self, npm_project_directory_path: Path) -> None:
-        await _npm.npm(("install", "--production"), cwd=npm_project_directory_path)
+        await _npm.npm(
+            ("install", "--production"), cwd=npm_project_directory_path, user=self._user
+        )
 
     async def _webpack_build(
         self, npm_project_directory_path: Path, webpack_build_directory_path: Path
     ) -> None:
-        await _npm.npm(("run", "webpack"), cwd=npm_project_directory_path)
+        await _npm.npm(
+            ("run", "webpack"), cwd=npm_project_directory_path, user=self._user
+        )
 
         # Ensure there is always a webpack-vendor.css. This makes for easy and unconditional importing.
         await makedirs(webpack_build_directory_path / "css", exist_ok=True)
@@ -388,7 +392,5 @@ class Builder:
         await self._webpack_build(
             npm_project_directory_path, webpack_build_directory_path
         )
-        getLogger(__name__).info(
-            self._localizer._("Built the Webpack front-end assets.")
-        )
+        await self._user.message_information(_("Built the Webpack front-end assets."))
         return webpack_build_directory_path

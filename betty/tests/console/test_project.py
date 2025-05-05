@@ -1,0 +1,79 @@
+import argparse
+import json
+from contextlib import chdir
+from pathlib import Path
+from typing import TYPE_CHECKING
+
+import aiofiles
+import pytest
+
+from betty.app import App
+from betty.assertion.error import AssertionFailed
+from betty.console import call_command_func
+from betty.console.project import add_project_argument
+from betty.project import Project
+
+if TYPE_CHECKING:
+    from betty.serde.dump import Dump, DumpMapping
+
+
+async def test_add_project_argument__with_argument(
+    new_temporary_app: App, tmp_path: Path
+) -> None:
+    configuration: DumpMapping[Dump] = {
+        "url": "https://example.com",
+    }
+    configuration_file_path = tmp_path / "betty.json"
+    parser = argparse.ArgumentParser()
+
+    async def _command_function(*, project: Project) -> None:
+        assert project.configuration.configuration_file_path == configuration_file_path
+
+    command_function = await add_project_argument(
+        parser, _command_function, new_temporary_app
+    )
+    async with aiofiles.open(configuration_file_path, "w") as f:
+        await f.write(json.dumps(configuration))
+    namespace = parser.parse_args(["--project", str(configuration_file_path)])
+    assert namespace.project_configuration_file_path == configuration_file_path
+    await call_command_func(command_function, namespace)
+
+
+async def test_add_project_argument__without_argument_with_file(
+    new_temporary_app: App, tmp_path: Path
+) -> None:
+    configuration: DumpMapping[Dump] = {
+        "url": "https://example.com",
+    }
+    configuration_file_path = tmp_path / "betty.json"
+    parser = argparse.ArgumentParser()
+
+    async def _command_function(*, project: Project) -> None:
+        assert project.configuration.configuration_file_path == configuration_file_path
+
+    command_function = await add_project_argument(
+        parser, _command_function, new_temporary_app
+    )
+    async with aiofiles.open(configuration_file_path, "w") as f:
+        await f.write(json.dumps(configuration))
+    namespace = parser.parse_args([])
+    assert namespace.project_configuration_file_path is None
+    with chdir(tmp_path):
+        await call_command_func(command_function, namespace)
+
+
+async def test_add_project_argument__without_argument_without_file(
+    new_temporary_app: App, tmp_path: Path
+) -> None:
+    parser = argparse.ArgumentParser()
+
+    async def _command_function(*, project: Project) -> None:
+        pass  # pragma: no cover
+
+    command_function = await add_project_argument(
+        parser, _command_function, new_temporary_app
+    )
+    namespace = parser.parse_args([])
+    assert namespace.project_configuration_file_path is None
+    with chdir(tmp_path), pytest.raises(AssertionFailed):
+        await call_command_func(command_function, namespace)

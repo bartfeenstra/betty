@@ -10,11 +10,11 @@ from typing_extensions import override
 from betty._npm import NpmUnavailable
 from betty.app import App
 from betty.job import Context
-from betty.locale.localizer import DEFAULT_LOCALIZER
 from betty.plugin.static import StaticPluginRepository
 from betty.project import Project
 from betty.project.extension.webpack.build import Builder, EntryPointProvider
 from betty.test_utils.project.extension import DummyExtension
+from betty.test_utils.user import StaticUser
 
 
 class DummyEntryPointProviderExtension(EntryPointProvider, DummyExtension):
@@ -89,7 +89,7 @@ class TestBuilder:
                     await project.renderer,
                     root_path,
                     job_context=job_context,
-                    localizer=DEFAULT_LOCALIZER,
+                    user=StaticUser(),
                 )
                 # Build twice, to test with warm caches as well.
                 await sut.build()
@@ -135,7 +135,7 @@ class TestBuilder:
             m_renderer,
             "",
             job_context=job_context,
-            localizer=DEFAULT_LOCALIZER,
+            user=StaticUser(),
         )
         with pytest.raises(NpmUnavailable):
             await sut.build()

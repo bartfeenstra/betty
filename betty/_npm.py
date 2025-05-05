@@ -6,7 +6,6 @@ This module is internal.
 
 from __future__ import annotations
 
-import logging
 import sys
 from subprocess import CalledProcessError
 from typing import TYPE_CHECKING, Self, final
@@ -16,13 +15,14 @@ from typing_extensions import override
 from betty import subprocess
 from betty.exception import UserFacingException
 from betty.locale.localizable import Localizable, _
-from betty.locale.localizer import DEFAULT_LOCALIZER
 from betty.requirement import Requirement
 
 if TYPE_CHECKING:
     from asyncio import subprocess as aiosubprocess
     from collections.abc import Sequence
     from pathlib import Path
+
+    from betty.user import User
 
 _NPM_SUMMARY_AVAILABLE = _("npm is available")
 _NPM_SUMMARY_UNAVAILABLE = _("npm is not available")
@@ -37,8 +37,7 @@ class NpmUnavailable(UserFacingException, RuntimeError):
 
 
 async def npm(
-    arguments: Sequence[str],
-    cwd: Path | None = None,
+    arguments: Sequence[str], cwd: Path | None = None, *, user: User
 ) -> aiosubprocess.Process:
     """
     Run an npm command.
@@ -50,6 +49,7 @@ async def npm(
             # Use a shell on Windows so subprocess can find the executables it needs (see
             # https://bugs.python.org/issue17023).
             shell=sys.platform.startswith("win32"),
+            user=user,
         )
     except FileNotFoundError:
         raise NpmUnavailable() from None
@@ -62,18 +62,16 @@ class NpmRequirement(Requirement):
         self._met = met
 
     @classmethod
-    async def new(cls) -> Self:
+    async def new(cls, *, user: User) -> Self:
         try:
-            await npm(["--version"])
+            await npm(["--version"], user=user)
         except NpmUnavailable:
-            logging.getLogger(__name__).debug(
-                _NPM_SUMMARY_UNAVAILABLE.localize(DEFAULT_LOCALIZER)
-            )
-            logging.getLogger(__name__).debug(_NPM_DETAILS.localize(DEFAULT_LOCALIZER))
+            await user.message_debug(_NPM_SUMMARY_UNAVAILABLE)
+            await user.message_debug(_NPM_DETAILS)
             return cls(False)
-        except CalledProcessError as error:
-            logging.getLogger(__name__).exception(error)
-            logging.getLogger(__name__).debug(_NPM_DETAILS.localize(DEFAULT_LOCALIZER))
+        except CalledProcessError:
+            await user.message_exception()
+            await user.message_debug(_NPM_DETAILS)
             return cls(False)
         else:
             return cls(True)

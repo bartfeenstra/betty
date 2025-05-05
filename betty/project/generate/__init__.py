@@ -6,29 +6,13 @@ from __future__ import annotations
 
 import asyncio
 import json
-import logging
 import os
 import shutil
-from asyncio import (
-    CancelledError,
-    Semaphore,
-    Task,
-    as_completed,
-    create_task,
-    gather,
-    sleep,
-    to_thread,
-)
-from collections.abc import Awaitable, Callable, MutableSequence, Sequence
+from asyncio import Semaphore, as_completed, create_task, gather, to_thread
+from collections.abc import Awaitable, Callable, MutableSequence
 from contextlib import suppress
-from math import floor
 from pathlib import Path
-from typing import (
-    TYPE_CHECKING,
-    Any,
-    ParamSpec,
-    cast,
-)
+from typing import TYPE_CHECKING, Any, ParamSpec, cast
 
 import aiofiles
 from aiofiles.os import makedirs
@@ -54,7 +38,6 @@ from betty.user import UserFacing
 if TYPE_CHECKING:
     from collections.abc import AsyncIterator, Coroutine
 
-    from betty.app import App
     from betty.project import Project
     from betty.serde.dump import Dump, DumpMapping
 
@@ -69,42 +52,37 @@ async def generate(project: Project) -> None:
     """
     Generate a new site.
     """
-    logger = logging.getLogger(__name__)
-    job_context = ProjectContext(project, manager=project.app.multiprocessing_manager)
-    app = project.app
-    localizer = await app.localizer
-
-    logger.info(
-        localizer._("Generating your site to {output_directory}.").format(
-            output_directory=project.configuration.output_directory_path
+    async with project.app.user.message_progress(
+        _("Generating your site to {output_directory}.").format(
+            output_directory=str(project.configuration.output_directory_path)
         )
-    )
-    with suppress(FileNotFoundError):
-        await asyncio.to_thread(
-            shutil.rmtree, project.configuration.output_directory_path
+    ) as progress:
+        job_context = ProjectContext(
+            project, manager=project.app.multiprocessing_manager, progress=progress
         )
-    await makedirs(project.configuration.output_directory_path, exist_ok=True)
 
-    # The static public assets may be overridden depending on the number of locales rendered, so ensure they are
-    # generated before anything else.
-    await _generate_static_public_assets(job_context)
+        with suppress(FileNotFoundError):
+            await asyncio.to_thread(
+                shutil.rmtree, project.configuration.output_directory_path
+            )
+        await makedirs(project.configuration.output_directory_path, exist_ok=True)
 
-    jobs = []
-    log_job: Task[None] | None = None
-    try:
-        async for job_coroutine in _run_jobs(job_context):
-            jobs.append(create_task(job_coroutine))
-        log_job = create_task(_log_jobs_forever(app, jobs))
-        for completed_job in as_completed(jobs):
-            await completed_job
-    except BaseException:
-        for job in jobs:
-            job.cancel()
-        raise
-    finally:
-        if log_job is not None:  # type: ignore[redundant-expr]
-            log_job.cancel()
-    await _log_jobs(app, jobs)
+        # The static public assets may be overridden depending on the number of locales rendered, so ensure they are
+        # generated before anything else.
+        await progress.add()
+        await _generate_static_public_assets(job_context)
+        await progress.done()
+
+        jobs = []
+        try:
+            async for job_coroutine in _run_jobs(job_context):
+                jobs.append(create_task(job_coroutine))
+            for completed_job in as_completed(jobs):
+                await completed_job
+        except BaseException:
+            for job in jobs:
+                job.cancel()
+            raise
 
     project.configuration.output_directory_path.chmod(0o755)
     for directory_path_str, subdirectory_names, file_names in os.walk(
@@ -117,42 +95,22 @@ async def generate(project: Project) -> None:
             (directory_path / file_name).chmod(0o644)
 
 
-async def _log_jobs(app: App, jobs: Sequence[Task[None]]) -> None:
-    localizer = await app.localizer
-    total_job_count = len(jobs)
-    completed_job_count = len([job for job in jobs if job.done()])
-    logging.getLogger(__name__).info(
-        localizer._(
-            "Generated {completed_job_count} out of {total_job_count} items ({completed_job_percentage}%)."
-        ).format(
-            completed_job_count=completed_job_count,
-            total_job_count=total_job_count,
-            completed_job_percentage=floor(
-                completed_job_count / (total_job_count / 100)
-            ),
-        )
-    )
-
-
-async def _log_jobs_forever(app: App, jobs: Sequence[Task[None]]) -> None:
-    with suppress(CancelledError):
-        while True:
-            await _log_jobs(app, jobs)
-            await sleep(5)
-
-
 _JobP = ParamSpec("_JobP")
 
 
-def _run_job(
+async def _run_job(
+    job_context: ProjectContext,
     semaphore: Semaphore,
     f: Callable[_JobP, Awaitable[None]],
     *args: _JobP.args,
     **kwargs: _JobP.kwargs,
 ) -> Coroutine[Any, Any, None]:
+    await job_context.progress.add()
+
     async def _job():
         async with semaphore:
             await f(*args, **kwargs)
+            await job_context.progress.done()
 
     return _job()
 
@@ -162,19 +120,25 @@ async def _run_jobs(
 ) -> AsyncIterator[Coroutine[Any, Any, None]]:
     project = job_context.project
     semaphore = Semaphore(256)
-    yield _run_job(semaphore, _generate_favicon, job_context)
-    yield _run_job(semaphore, _generate_json_error_responses, project)
-    yield _run_job(semaphore, _generate_dispatch, job_context)
-    yield _run_job(semaphore, _generate_robots_txt, job_context)
-    yield _run_job(semaphore, _generate_sitemap, job_context)
-    yield _run_job(semaphore, _generate_json_schema, job_context)
-    yield _run_job(semaphore, _generate_openapi, job_context)
+    yield await _run_job(job_context, semaphore, _generate_favicon, job_context)
+    yield await _run_job(
+        job_context, semaphore, _generate_json_error_responses, project
+    )
+    yield await _run_job(job_context, semaphore, _generate_dispatch, job_context)
+    yield await _run_job(job_context, semaphore, _generate_robots_txt, job_context)
+    yield await _run_job(job_context, semaphore, _generate_sitemap, job_context)
+    yield await _run_job(job_context, semaphore, _generate_json_schema, job_context)
+    yield await _run_job(job_context, semaphore, _generate_openapi, job_context)
 
     locales = list(project.configuration.locales.keys())
 
     for locale in locales:
-        yield _run_job(
-            semaphore, _generate_localized_public_assets, job_context, locale
+        yield await _run_job(
+            job_context,
+            semaphore,
+            _generate_localized_public_assets,
+            job_context,
+            locale,
         )
 
     async for entity_type in model.ENTITY_TYPE_REPOSITORY:
@@ -185,26 +149,37 @@ async def _run_jobs(
             and project.configuration.entity_types[entity_type].generate_html_list
         ):
             for locale in locales:
-                yield _run_job(
+                yield await _run_job(
+                    job_context,
                     semaphore,
                     _generate_entity_type_list_html,
                     job_context,
                     locale,
                     entity_type,
                 )
-        yield _run_job(
-            semaphore, _generate_entity_type_list_json, job_context, entity_type
+        yield await _run_job(
+            job_context,
+            semaphore,
+            _generate_entity_type_list_json,
+            job_context,
+            entity_type,
         )
         for entity in project.ancestry[entity_type]:
             if not persistent_id(entity):
                 continue
 
-            yield _run_job(
-                semaphore, _generate_entity_json, job_context, entity_type, entity.id
+            yield await _run_job(
+                job_context,
+                semaphore,
+                _generate_entity_json,
+                job_context,
+                entity_type,
+                entity.id,
             )
             if is_public(entity):
                 for locale in locales:
-                    yield _run_job(
+                    yield await _run_job(
+                        job_context,
                         semaphore,
                         _generate_entity_html,
                         job_context,
@@ -245,10 +220,9 @@ async def _generate_localized_public_assets(
     assets = await project.assets
     localizer = await project.app.localizer
     locale_label = get_display_name(locale, localizer.locale)
-    logging.getLogger(__name__).debug(
-        localizer._("Generating localized public files in {locale}...").format(
-            locale=locale_label,
-            localizer=await project.app.localizers.get(locale),
+    await project.app.user.message_debug(
+        _("Generating localized public files in {locale}...").format(
+            locale=locale_label or locale
         )
     )
     await gather(
@@ -279,8 +253,7 @@ async def _generate_static_public_assets(
     project = job_context.project
     app = project.app
     assets = await project.assets
-    localizer = await app.localizer
-    logging.getLogger(__name__).info(localizer._("Generating static public files..."))
+    await app.user.message_information(_("Generating static public files..."))
     await gather(
         *[
             _generate_static_public_asset(asset_path, project, job_context)
@@ -560,8 +533,7 @@ async def _generate_json_schema(
     job_context: ProjectContext,
 ) -> None:
     project = job_context.project
-    localizer = await project.app.localizer
-    logging.getLogger(__name__).debug(localizer._("Generating JSON Schema..."))
+    await project.app.user.message_debug(_("Generating JSON Schema..."))
     schema = await ProjectSchema.new_for_project(project)
     rendered_json = json.dumps(schema.schema)
     async with create_file(ProjectSchema.www_path(project)) as f:
@@ -573,10 +545,7 @@ async def _generate_openapi(
 ) -> None:
     project = job_context.project
     app = project.app
-    localizer = await app.localizer
-    logging.getLogger(__name__).debug(
-        localizer._("Generating OpenAPI specification...")
-    )
+    await app.user.message_debug(_("Generating OpenAPI specification..."))
     api_directory_path = project.configuration.www_directory_path / "api"
     rendered_json = json.dumps(await Specification(project).build())
     async with create_json_resource(api_directory_path) as f:

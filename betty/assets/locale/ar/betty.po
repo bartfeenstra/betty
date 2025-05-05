@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Betty VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2025-05-17 14:29+0100\n"
+"POT-Creation-Date: 2025-05-20 13:19+0100\n"
 "PO-Revision-Date: 2024-11-30 19:00+0000\n"
 "Last-Translator: Bart Feenstra <bart@bartfeenstra.com>\n"
 "Language: ar\n"
@@ -82,6 +82,15 @@ msgstr "جميع الحقوق محفوظة"
 
 #, python-format
 msgid "Also known as %(names)s"
+msgstr ""
+
+msgid "Also show (third-party) log messages"
+msgstr ""
+
+msgid "Also show debug messages"
+msgstr ""
+
+msgid "An unexpected error occurred:"
 msgstr ""
 
 msgid "Announcement of divorce"
@@ -280,6 +289,10 @@ msgid "Correspondence"
 msgstr ""
 
 #, python-brace-format
+msgid "Could neither fetch \"{url}\", nor find an old version in the cache."
+msgstr ""
+
+#, python-brace-format
 msgid "Could not extract {file_path} as a gzip file  (*.gz)."
 msgstr ""
 
@@ -305,6 +318,10 @@ msgstr ""
 msgid ""
 "Could not load \"{file_path}\" as a *.gpkg, a *.gramps, or an *.xml "
 "family tree."
+msgstr ""
+
+#, python-brace-format
+msgid "Could not successfully connect to \"{url}\": {error}"
 msgstr ""
 
 msgid "Country"
@@ -373,6 +390,9 @@ msgid "District"
 msgstr ""
 
 msgid "Divorce"
+msgstr ""
+
+msgid "Do not show any output, except errors"
 msgstr ""
 
 #, python-brace-format
@@ -444,6 +464,10 @@ msgstr ""
 msgid "Female"
 msgstr ""
 
+#, python-brace-format
+msgid "Fetching \"{url}\"..."
+msgstr ""
+
 msgid "File"
 msgstr ""
 
@@ -475,12 +499,6 @@ msgid "Gender"
 msgstr ""
 
 msgid "Generate a static site"
-msgstr ""
-
-#, python-brace-format
-msgid ""
-"Generated {completed_job_count} out of {total_job_count} items "
-"({completed_job_percentage}%)."
 msgstr ""
 
 msgid "Generating JSON Schema..."
@@ -540,6 +558,13 @@ msgstr ""
 
 #, python-brace-format
 msgid "Invalid YAML: {error}."
+msgstr ""
+
+#, python-brace-format
+msgid "Invalid argument {argument}: {error}"
+msgstr ""
+
+msgid "It appears you called Betty without a command or arguments"
 msgstr ""
 
 msgid "Keywords"
@@ -670,6 +695,9 @@ msgstr ""
 msgid "Operating system"
 msgstr ""
 
+msgid "Options"
+msgstr ""
+
 msgid "Organizer"
 msgstr ""
 
@@ -713,6 +741,9 @@ msgstr "أماكن"
 msgid ""
 "Plugin {plugin_label} ({plugin_id}) is not configurable, but "
 "configuration was given."
+msgstr ""
+
+msgid "Positional arguments"
 msgstr ""
 
 msgid "Presence"
@@ -775,6 +806,9 @@ msgstr ""
 msgid "Python packages"
 msgstr ""
 
+msgid "Quitting..."
+msgstr ""
+
 msgid "Read more"
 msgstr ""
 
@@ -807,6 +841,10 @@ msgid "Retirement"
 msgstr ""
 
 #, python-brace-format
+msgid "Running subprocess `{command}`..."
+msgstr ""
+
+#, python-brace-format
 msgid "Saved your project to {configuration_file}."
 msgstr ""
 
@@ -818,6 +856,20 @@ msgstr ""
 
 #, python-brace-format
 msgid "Serving your site at {url}..."
+msgstr ""
+
+msgid ""
+"Set the locale for Betty's user interface. This must be an IETF BCP 47 "
+"language tag."
+msgstr ""
+
+msgid "Show all available commands"
+msgstr ""
+
+msgid "Show information about the current Betty version and environment"
+msgstr ""
+
+msgid "Show this help message"
 msgstr ""
 
 msgid "Source"
@@ -838,10 +890,25 @@ msgstr ""
 msgid "Street"
 msgstr ""
 
+msgid "Subcommands"
+msgstr ""
+
 msgid "Subject"
 msgstr ""
 
 msgid "Subjects"
+msgstr ""
+
+#, python-brace-format
+msgid ""
+"Subprocess `{command}` stderr:\n"
+"{stderr}"
+msgstr ""
+
+#, python-brace-format
+msgid ""
+"Subprocess `{command}` stdout:\n"
+"{stdout}"
 msgstr ""
 
 #, python-format
@@ -890,6 +957,12 @@ msgid ""
 msgstr ""
 
 msgid "The following errors occurred"
+msgstr ""
+
+#, python-brace-format
+msgid ""
+"The path to a Betty project directory or configuration file. Defaults to "
+"{default} in the current working directory."
 msgstr ""
 
 #, python-brace-format
@@ -969,13 +1042,28 @@ msgstr ""
 msgid "This person's name is unknown."
 msgstr ""
 
+msgid "This will open your web browser."
+msgstr ""
+
 msgid "Timeline"
 msgstr "الخط الزمني"
+
+#, python-brace-format
+msgid "Timeout when connecting to \"{url}\""
+msgstr ""
 
 msgid "Toggle full screen"
 msgstr ""
 
 msgid "Town"
+msgstr ""
+
+#, python-brace-format
+msgid "Translations for {locale} already exist at {po_file_path}."
+msgstr ""
+
+#, python-brace-format
+msgid "Translations for {locale} initialized at {po_file_path}."
 msgstr ""
 
 msgid "Trees"
@@ -1010,6 +1098,12 @@ msgstr ""
 msgid ""
 "Updated {updated_derivations} {event_type} events based on existing "
 "information."
+msgstr ""
+
+msgid "Usage: "
+msgstr ""
+
+msgid "View Betty's interactive documentation. This will open your web browser."
 msgstr ""
 
 msgid "View original"

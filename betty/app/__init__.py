@@ -40,6 +40,7 @@ if TYPE_CHECKING:
 
     from betty.cache import Cache
     from betty.plugin import PluginRepository
+    from betty.user import User
 
 _T = TypeVar("_T")
 
@@ -56,13 +57,17 @@ class App(Configurable[AppConfiguration], TargetFactory, ServiceProvider):
         configuration: AppConfiguration,
         cache_directory_path: Path,
         *,
+        user: User | None = None,
         cache_factory: ServiceFactory[Self, Cache[Any]],
         fetcher: Fetcher | None = None,
         process_pool: futures.ProcessPoolExecutor | None = None,
         multiprocessing_manager: SyncManager | None = None,
     ):
+        from betty.console.user import ConsoleUser
+
         cls = type(self)
         super().__init__(configuration=configuration)
+        self._user = user or ConsoleUser()
         if fetcher is not None:
             cls.fetcher.override(self, fetcher)
         if process_pool is not None:
@@ -80,6 +85,7 @@ class App(Configurable[AppConfiguration], TargetFactory, ServiceProvider):
             "_bootstrapped": True,
             "_cache_directory_path": self._cache_directory_path,
             "_configuration": self._configuration,
+            "_user": self._user,
             **cls.binary_file_cache.get_state(self),
             **cls.cache.get_state(self),
         }
@@ -112,6 +118,7 @@ class App(Configurable[AppConfiguration], TargetFactory, ServiceProvider):
         fetcher: Fetcher | None = None,
         process_pool: futures.ProcessPoolExecutor | None = None,
         multiprocessing_manager: SyncManager | None = None,
+        user: User | None = None,
     ) -> AsyncIterator[Self]:
         """
         Create a new, temporary, isolated application.
@@ -129,7 +136,26 @@ class App(Configurable[AppConfiguration], TargetFactory, ServiceProvider):
                 fetcher=fetcher or StaticFetcher(),
                 process_pool=process_pool,
                 multiprocessing_manager=multiprocessing_manager,
+                user=user,
             )
+
+    @override
+    async def bootstrap(self) -> None:
+        await super().bootstrap()
+        await self._user.connect()
+        self._user.localizer = await self.localizer
+
+    @override
+    async def shutdown(self, *, wait: bool = True) -> None:
+        await self._user.disconnect()
+        await super().shutdown(wait=wait)
+
+    @property
+    def user(self) -> User:
+        """
+        The current user session.
+        """
+        return self._user
 
     @service
     def assets(self) -> AssetRepository:
@@ -181,6 +207,7 @@ class App(Configurable[AppConfiguration], TargetFactory, ServiceProvider):
             await self.http_client,
             self.cache.with_scope("fetch"),
             self.binary_file_cache.with_scope("fetch"),
+            user=self.user,
         )
 
     @service(shared=True)
@@ -258,7 +285,7 @@ class App(Configurable[AppConfiguration], TargetFactory, ServiceProvider):
             SpdxLicenseRepository(
                 binary_file_cache=self.binary_file_cache.with_scope("spdx"),
                 fetcher=await self.fetcher,
-                localizer=await self.localizer,
+                user=self.user,
                 factory=self.new_target,
                 process_pool=self.process_pool,
                 manager=self.multiprocessing_manager,

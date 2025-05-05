@@ -37,7 +37,7 @@ async def test_load__should_fetch_link_with_unsupported_content_type(
         }
     )
     async with (
-        await new_temporary_app_factory(fetcher=fetcher) as app,
+        new_temporary_app_factory(fetcher=fetcher) as app,
         app,
         Project.new_temporary(app) as project,
     ):
@@ -73,7 +73,7 @@ async def test_load__should_fetch_link_with_invalid_html(
         }
     )
     async with (
-        await new_temporary_app_factory(fetcher=fetcher) as app,
+        new_temporary_app_factory(fetcher=fetcher) as app,
         app,
         Project.new_temporary(app) as project,
     ):
@@ -112,7 +112,7 @@ async def test_load__should_fetch_link_label_from_valid_html_with_title(
         }
     )
     async with (
-        await new_temporary_app_factory(fetcher=fetcher) as app,
+        new_temporary_app_factory(fetcher=fetcher) as app,
         app,
         Project.new_temporary(app) as project,
     ):
@@ -147,7 +147,7 @@ async def test_load__should_fetch_link_label_with_valid_html_without_title(
         }
     )
     async with (
-        await new_temporary_app_factory(fetcher=fetcher) as app,
+        new_temporary_app_factory(fetcher=fetcher) as app,
         app,
         Project.new_temporary(app) as project,
     ):
@@ -187,7 +187,7 @@ async def test_load__should_fetch_link_description_from_valid_html_with_meta_des
         }
     )
     async with (
-        await new_temporary_app_factory(fetcher=fetcher) as app,
+        new_temporary_app_factory(fetcher=fetcher) as app,
         app,
         Project.new_temporary(app) as project,
     ):

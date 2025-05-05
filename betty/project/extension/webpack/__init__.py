@@ -30,6 +30,7 @@ if TYPE_CHECKING:
 
     from betty.event_dispatcher import EventHandlerRegistry
     from betty.job import Context
+    from betty.user import User
 
 
 async def _generate_assets(event: GenerateSiteEvent) -> None:
@@ -62,11 +63,11 @@ class Webpack(ShorthandPluginBase, Extension, CssProvider, JsProvider, Jinja2Pro
 
     @override
     @classmethod
-    async def requirement(cls) -> Requirement:
+    async def requirement(cls, *, user: User) -> Requirement:
         if cls._requirement is None:
             cls._requirement = AllRequirements(
-                await super().requirement(),
-                await NpmRequirement.new(),
+                await super().requirement(user=user),
+                await NpmRequirement.new(user=user),
             )
         return cls._requirement
 
@@ -126,7 +127,7 @@ class Webpack(ShorthandPluginBase, Extension, CssProvider, JsProvider, Jinja2Pro
             await self._project.renderer,
             self._project.configuration.root_path,
             job_context=job_context,
-            localizer=await self._project.app.localizer,
+            user=self._project.app.user,
         )
 
     async def _copy_build_directory(
@@ -149,4 +150,6 @@ class Webpack(ShorthandPluginBase, Extension, CssProvider, JsProvider, Jinja2Pro
             # (Re)build the assets if `npm` is available.
             return await builder.build()
         except NpmUnavailable:
-            raise RequirementError(await self.requirement()) from None
+            raise RequirementError(
+                await self.requirement(user=self._project.app.user)
+            ) from None

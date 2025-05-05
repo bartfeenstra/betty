@@ -2,7 +2,6 @@
 Provide a subprocess API.
 """
 
-import logging
 import os
 import subprocess
 from asyncio import create_subprocess_exec, create_subprocess_shell
@@ -10,6 +9,9 @@ from asyncio.subprocess import Process
 from collections.abc import Sequence
 from pathlib import Path
 from subprocess import PIPE
+
+from betty.locale.localizable import _, plain
+from betty.user import User
 
 
 class SubprocessError(Exception):
@@ -31,9 +33,7 @@ class FileNotFound(FileNotFoundError, SubprocessError):
 
 
 async def run_process(
-    runnee: Sequence[str],
-    cwd: Path | None = None,
-    shell: bool = False,
+    runnee: Sequence[str], cwd: Path | None = None, shell: bool = False, *, user: User
 ) -> Process:
     """
     Run a command in a subprocess.
@@ -41,8 +41,9 @@ async def run_process(
     :raise betty.subprocess.SubprocessError:
     """
     command = " ".join(runnee)
-    logger = logging.getLogger(__name__)
-    logger.debug(f"Running subprocess `{command}`...")
+    await user.message_debug(
+        _("Running subprocess `{command}`...").format(command=command)
+    )
 
     try:
         if shell:
@@ -55,7 +56,7 @@ async def run_process(
             )
         stdout, stderr = await process.communicate()
     except FileNotFoundError as error:
-        logger.debug(str(error))
+        await user.message_debug(plain(str(error)))
         raise FileNotFound(str(error)) from None
 
     if process.returncode == 0:
@@ -65,9 +66,17 @@ async def run_process(
     stderr_str = "\n".join(stderr.decode().split(os.linesep))
 
     if stdout_str:
-        logger.debug(f"Subprocess `{command}` stdout:\n{stdout_str}")
+        await user.message_debug(
+            _("Subprocess `{command}` stdout:\n{stdout}").format(
+                command=command, stdout=stdout_str
+            )
+        )
     if stderr_str:
-        logger.debug(f"Subprocess `{command}` stderr:\n{stderr_str}")
+        await user.message_debug(
+            _("Subprocess `{command}` stderr:\n{stderr}").format(
+                command=command, stderr=stderr_str
+            )
+        )
 
     assert process.returncode is not None
     raise CalledSubprocessError(

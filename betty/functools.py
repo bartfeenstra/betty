@@ -4,6 +4,7 @@ Provide functional programming utilities.
 
 from __future__ import annotations
 
+import contextlib
 from asyncio import sleep
 from itertools import chain
 from time import time
@@ -13,14 +14,17 @@ from typing import (
     Generic,
     ParamSpec,
     TypeVar,
+    final,
 )
 
 from betty.asyncio import ensure_await
+from betty.typing import Void, processsafe
 
 if TYPE_CHECKING:
     from collections.abc import Awaitable, Callable, Iterable, Iterator
 
 _T = TypeVar("_T")
+_P = ParamSpec("_P")
 
 
 def filter_suppress(
@@ -123,3 +127,69 @@ def passthrough(value: _T) -> _T:
     Return the value.
     """
     return value
+
+
+def suppress(
+    target: Callable[_P, _T], *exceptions: type[BaseException]
+) -> Callable[_P, _T | type[Void]]:
+    """
+    Return the value, but suppress any errors.
+    """
+
+    def _suppress(*target_args: _P.args, **target_kwargs: _P.kwargs) -> _T | type[Void]:
+        with contextlib.suppress(*exceptions):
+            return target(*target_args, **target_kwargs)
+        return Void
+
+    return _suppress
+
+
+class ResultUnavailable(RuntimeError):
+    """
+    A :py:attr:`betty.functools.Result.result` is unavailable.
+    """
+
+    def __init__(self):
+        super().__init__(
+            "The result is unavailable because the target has not been called yet."
+        )
+
+
+@final
+@processsafe
+class Result(Generic[_P, _T]):
+    """
+    Decorate a callable and store its return value or raised exception.
+    """
+
+    __slots__ = "_error", "_result", "_target"
+    _error: BaseException
+    _result: _T
+
+    def __init__(self, target: Callable[_P, _T]):
+        self._target = target
+
+    def __call__(self, *args: _P.args, **kwargs: _P.kwargs) -> _T:
+        """
+        Call the target.
+        """
+        try:
+            self._result = self._target(*args, **kwargs)
+            return self._result
+        except BaseException as error:
+            self._error = error
+            raise
+
+    def result(self) -> _T:
+        """
+        Get the target's return value.
+
+        If the target raised an exception, calling this method will re-raise the exception.
+        """
+        try:
+            raise self._error
+        except AttributeError:
+            try:
+                return self._result
+            except AttributeError:
+                raise ResultUnavailable from None

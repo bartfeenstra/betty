@@ -17,7 +17,6 @@ requires-python = '~= 3.11'
 dependencies = [
     'aiofiles ~= 24.1',
     'aiohttp ~= 3.10, != 3.11.0',
-    'asyncclick ~= 8.1',
     'babel ~= 2.16',
     'basedtyping ~= 0.1.10',
     'furo == 2024.8.6',
@@ -34,6 +33,8 @@ dependencies = [
     'Pillow ~= 11.0',
     'pyyaml ~= 6.0',
     'referencing ~= 0.35',
+    'rich ~= 14.0.0',
+    'rich-argparse ~= 1.7.0',
     'sphinx ~= 8.1',
     'sphinx-design ~= 0.6',
     'typing_extensions ~= 4.12',
@@ -75,23 +76,23 @@ Twitter = 'https://twitter.com/BettyProject'
 X = 'https://twitter.com/BettyProject'
 
 [project.entry-points.'console_scripts']
-betty = 'betty.cli:main'
+betty = 'betty.console:main_standalone'
 
 [project.entry-points.'betty.command']
-'clear-caches' = 'betty.cli.commands.clear_caches:ClearCaches'
-'config' = 'betty.cli.commands.config:Config'
-'demo' = 'betty.cli.commands.demo:Demo'
-'docs' = 'betty.cli.commands.docs:Docs'
-'extension-new-translation' = 'betty.cli.commands.extension_new_translation:ExtensionNewTranslation'
-'extension-update-translations' = 'betty.cli.commands.extension_update_translations:ExtensionUpdateTranslations'
-'generate' = 'betty.cli.commands.generate:Generate'
-'new' = 'betty.cli.commands.new:New'
-'new-translation' = 'betty.cli.commands.new_translation:NewTranslation'
-'serve' = 'betty.cli.commands.serve:Serve'
-'update-translations' = 'betty.cli.commands.update_translations:UpdateTranslations'
+'clear-caches' = 'betty.console.command.commands.clear_caches:ClearCaches'
+'config' = 'betty.console.command.commands.config:Config'
+'demo' = 'betty.console.command.commands.demo:Demo'
+'docs' = 'betty.console.command.commands.docs:Docs'
+'extension-new-translation' = 'betty.console.command.commands.extension_new_translation:ExtensionNewTranslation'
+'extension-update-translations' = 'betty.console.command.commands.extension_update_translations:ExtensionUpdateTranslations'
+'generate' = 'betty.console.command.commands.generate:Generate'
+'new' = 'betty.console.command.commands.new:New'
+'new-translation' = 'betty.console.command.commands.new_translation:NewTranslation'
+'serve' = 'betty.console.command.commands.serve:Serve'
+'update-translations' = 'betty.console.command.commands.update_translations:UpdateTranslations'
 
 [project.entry-points.'betty.dev.command']
-'dev-update-translations' = 'betty.cli.commands.dev_update_translations:DevUpdateTranslations'
+'dev-update-translations' = 'betty.console.command.commands.dev_update_translations:DevUpdateTranslations'
 
 [project.entry-points.'betty.copyright_notice']
 'project-author' = 'betty.copyright_notice.copyright_notices:ProjectAuthor'

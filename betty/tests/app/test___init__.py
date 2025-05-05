@@ -11,9 +11,14 @@ from betty.app.factory import AppDependentFactory
 from betty.cache.memory import MemoryCache
 from betty.locale import DEFAULT_LOCALE
 from betty.service import StaticService
+from betty.test_utils.user import StaticUser
 
 if TYPE_CHECKING:
     from multiprocessing.managers import SyncManager
+
+    from pytest_mock import MockerFixture
+
+    from betty.test_utils.conftest import NewTemporaryAppFactory
 
 
 class TestApp:
@@ -21,6 +26,18 @@ class TestApp:
         async with App.new_from_environment() as sut, sut:
             assert sut.cache is sut.cache
             assert await sut.fetcher is await sut.fetcher
+
+    async def test_bootstrap__should_set_user_localizer(
+        self, mocker: MockerFixture, new_temporary_app: App
+    ) -> None:
+        user = StaticUser()
+        async with App.new_temporary(user=user) as sut, sut:
+            assert sut.user.localizer is await sut.localizer
+
+    async def test_user(self, new_temporary_app: App) -> None:
+        user = StaticUser()
+        async with App.new_temporary(user=user) as sut, sut:
+            assert sut.user is user
 
     async def test_assets(self, new_temporary_app: App) -> None:
         assert new_temporary_app.assets is new_temporary_app.assets
@@ -81,9 +98,12 @@ class TestApp:
             with pytest.raises(RuntimeError):
                 pickle.loads(pickle.dumps(sut))
 
-    async def test___getstate____minimal(self, new_temporary_app: App) -> None:
-        unpickled_sut = pickle.loads(pickle.dumps(new_temporary_app))
-        await unpickled_sut.shutdown()
+    async def test___getstate____minimal(
+        self, new_temporary_app_factory: NewTemporaryAppFactory
+    ) -> None:
+        async with new_temporary_app_factory(user=StaticUser()) as app, app:
+            unpickled_sut = pickle.loads(pickle.dumps(app))
+            await unpickled_sut.shutdown()
 
     async def test___getstate____full(
         self, multiprocessing_manager: SyncManager
@@ -92,7 +112,8 @@ class TestApp:
             App.new_temporary(
                 cache_factory=StaticService(
                     MemoryCache(manager=multiprocessing_manager)
-                )
+                ),
+                user=StaticUser(),
             ) as sut,
             sut,
         ):

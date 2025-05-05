@@ -16,11 +16,11 @@ from betty.ancestry.presence import Presence
 from betty.ancestry.presence_role.presence_roles import Subject
 from betty.date import Date, DateRange, Datey
 from betty.deriver import Deriver
-from betty.locale.localizer import DEFAULT_LOCALIZER
 from betty.model.collections import record_added
 from betty.plugin.static import StaticPluginRepository
 from betty.project.config import DEFAULT_LIFETIME_THRESHOLD
 from betty.test_utils.ancestry.event_type import DummyEventType
+from betty.test_utils.user import StaticUser
 
 if TYPE_CHECKING:
     from betty.ancestry.event_type import EventType
@@ -124,7 +124,7 @@ class TestDeriver:
                 DEFAULT_LIFETIME_THRESHOLD,
                 self._EVENT_TYPE_REPOSITORY,
                 self._DERIVABLE_EVENT_TYPES,
-                localizer=DEFAULT_LOCALIZER,
+                user=StaticUser(),
             ).derive()
 
         assert len(added) == 0
@@ -156,7 +156,7 @@ class TestDeriver:
                 DEFAULT_LIFETIME_THRESHOLD,
                 self._EVENT_TYPE_REPOSITORY,
                 self._DERIVABLE_EVENT_TYPES,
-                localizer=DEFAULT_LOCALIZER,
+                user=StaticUser(),
             ).derive()
 
         assert len(added) == 0
@@ -190,7 +190,7 @@ class TestDeriver:
                 DEFAULT_LIFETIME_THRESHOLD,
                 self._EVENT_TYPE_REPOSITORY,
                 self._DERIVABLE_EVENT_TYPES,
-                localizer=DEFAULT_LOCALIZER,
+                user=StaticUser(),
             ).derive()
 
         assert len(added) == 0
@@ -419,7 +419,7 @@ class TestDeriver:
                 DEFAULT_LIFETIME_THRESHOLD,
                 self._EVENT_TYPE_REPOSITORY,
                 {ComesBeforeDerivable},
-                localizer=DEFAULT_LOCALIZER,
+                user=StaticUser(),
             ).derive()
 
         assert len(added) == 0
@@ -478,7 +478,7 @@ class TestDeriver:
                 DEFAULT_LIFETIME_THRESHOLD,
                 self._EVENT_TYPE_REPOSITORY,
                 {ComesBeforeCreatableDerivable},
-                localizer=DEFAULT_LOCALIZER,
+                user=StaticUser(),
             ).derive()
 
         if expected_datey is None:
@@ -722,7 +722,7 @@ class TestDeriver:
                 DEFAULT_LIFETIME_THRESHOLD,
                 self._EVENT_TYPE_REPOSITORY,
                 {ComesAfterDerivable},
-                localizer=DEFAULT_LOCALIZER,
+                user=StaticUser(),
             ).derive()
 
         assert len(added) == 0
@@ -782,7 +782,7 @@ class TestDeriver:
                 DEFAULT_LIFETIME_THRESHOLD,
                 self._EVENT_TYPE_REPOSITORY,
                 {ComesAfterCreatableDerivable},
-                localizer=DEFAULT_LOCALIZER,
+                user=StaticUser(),
             ).derive()
 
         if expected_datey is None:
@@ -837,7 +837,7 @@ class TestDeriver:
                 DEFAULT_LIFETIME_THRESHOLD,
                 self._EVENT_TYPE_REPOSITORY,
                 {MayNotCreateComesAfterCreatableDerivable},
-                localizer=DEFAULT_LOCALIZER,
+                user=StaticUser(),
             ).derive()
 
         assert len(added) == 0
