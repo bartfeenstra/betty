@@ -4,7 +4,6 @@ Provide an API to derive information from ancestries, and create new entities or
 
 from __future__ import annotations
 
-import logging
 from abc import ABC, abstractmethod
 from enum import Enum
 from typing import TYPE_CHECKING, cast, final
@@ -21,14 +20,15 @@ from betty.ancestry.person import Person
 from betty.ancestry.presence import Presence
 from betty.ancestry.presence_role.presence_roles import Subject
 from betty.date import Date, DateRange
+from betty.locale.localizable import _
 
 if TYPE_CHECKING:
     from collections.abc import Iterable, Sequence
 
     from betty.ancestry import Ancestry
     from betty.ancestry.event_type import EventType
-    from betty.locale.localizer import Localizer
     from betty.plugin import PluginRepository
+    from betty.user import User
 
 
 class Derivation(Enum):
@@ -68,20 +68,19 @@ class Deriver:
         event_types: PluginRepository[EventType],
         derivable_event_types: set[type[DerivableEventType]],
         *,
-        localizer: Localizer,
+        user: User,
     ):
         super().__init__()
         self._ancestry = ancestry
         self._lifetime_threshold = lifetime_threshold
         self._event_types = event_types
         self._derivable_event_type = derivable_event_types
-        self._localizer = localizer
+        self._user = user
 
     async def derive(self) -> None:
         """
         Derive additional data.
         """
-        logger = logging.getLogger(__name__)
         for derivable_event_type in self._derivable_event_type:
             created_derivations = 0
             updated_derivations = 0
@@ -92,25 +91,21 @@ class Deriver:
                 created_derivations += created
                 updated_derivations += updated
             if updated_derivations > 0:
-                logger.info(
-                    self._localizer._(
+                await self._user.message_information(
+                    _(
                         "Updated {updated_derivations} {event_type} events based on existing information."
                     ).format(
                         updated_derivations=str(updated_derivations),
-                        event_type=derivable_event_type.plugin_label().localize(
-                            self._localizer
-                        ),
+                        event_type=derivable_event_type.plugin_label(),
                     )
                 )
             if created_derivations > 0:
-                logger.info(
-                    self._localizer._(
+                await self._user.message_information(
+                    _(
                         "Created {created_derivations} additional {event_type} events based on existing information."
                     ).format(
                         created_derivations=str(created_derivations),
-                        event_type=derivable_event_type.plugin_label().localize(
-                            self._localizer
-                        ),
+                        event_type=derivable_event_type.plugin_label(),
                     )
                 )
 

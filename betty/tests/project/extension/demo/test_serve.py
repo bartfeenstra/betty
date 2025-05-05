@@ -27,7 +27,7 @@ class TestDemoServer:
     ) -> None:
         mocker.patch("webbrowser.open_new_tab")
         async with (
-            await new_temporary_app_factory(fetcher=demo_project_fetcher) as app,
+            new_temporary_app_factory(fetcher=demo_project_fetcher) as app,
             app,
             DemoServer(app=app) as server,
         ):

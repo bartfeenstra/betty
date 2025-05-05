@@ -9,9 +9,9 @@ from requests import Response
 
 from betty.app import App
 from betty.functools import Do
-from betty.locale.localizer import DEFAULT_LOCALIZER
 from betty.project import Project
 from betty.serve import BuiltinProjectServer, BuiltinServer
+from betty.test_utils.user import StaticUser
 
 
 class TestBuiltinServer:
@@ -32,7 +32,7 @@ class TestBuiltinServer:
         async with aiofiles.open(www_directory_path / "index.html", "w") as f:
             await f.write(content)
         async with BuiltinServer(
-            www_directory_path, root_path=root_path, localizer=DEFAULT_LOCALIZER
+            www_directory_path, root_path=root_path, user=StaticUser()
         ) as server:
 
             def _assert_response(response: Response) -> None:

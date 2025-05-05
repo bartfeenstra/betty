@@ -47,6 +47,7 @@ if TYPE_CHECKING:
 
     from betty.json.schema import Schema
     from betty.serde.dump import Dump
+    from betty.user import User
 
 
 class _DummyExtensionWithAssetsDirectory(DummyExtension):
@@ -69,7 +70,7 @@ class _UnmetRequirement(Requirement):
 class _DummyExtensionWithUnmetRequirement(DummyExtension):
     @override
     @classmethod
-    async def requirement(cls) -> Requirement:
+    async def requirement(cls, *, user: User) -> Requirement:
         return _UnmetRequirement()
 
 

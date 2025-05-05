@@ -4,7 +4,6 @@ Expand an ancestry by deriving additional data from existing data.
 
 from __future__ import annotations
 
-from logging import getLogger
 from typing import TYPE_CHECKING, final
 
 from typing_extensions import override
@@ -25,9 +24,7 @@ if TYPE_CHECKING:
 
 async def _derive_ancestry(event: PostLoadAncestryEvent) -> None:
     project = event.project
-    localizer = await project.app.localizer
-    logger = getLogger(__name__)
-    logger.info(localizer._("Deriving..."))
+    await project.app.user.message_information(_("Deriving..."))
 
     deriver = DeriverApi(
         project.ancestry,
@@ -38,7 +35,7 @@ async def _derive_ancestry(event: PostLoadAncestryEvent) -> None:
                 DerivableEventType  # type: ignore[type-abstract]
             )
         ),
-        localizer=localizer,
+        user=event.project.app.user,
     )
     await deriver.derive()
 

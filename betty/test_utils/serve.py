@@ -6,8 +6,8 @@ from typing import Any
 
 from typing_extensions import override
 
-from betty.locale.localizer import DEFAULT_LOCALIZER
 from betty.serve import ProjectServer, Server
+from betty.test_utils.user import StaticUser
 
 
 class NoOpServer(Server):
@@ -16,7 +16,7 @@ class NoOpServer(Server):
     """
 
     def __init__(self, *_: Any, **__: Any):
-        Server.__init__(self, DEFAULT_LOCALIZER)
+        super().__init__(user=StaticUser())
 
     @override
     @property
@@ -36,7 +36,7 @@ class NoOpServer(Server):
         pass
 
 
-class NoOpProjectServer(NoOpServer, ProjectServer):
+class NoOpProjectServer(ProjectServer, NoOpServer):
     """
     A project server that does nothing.
     """

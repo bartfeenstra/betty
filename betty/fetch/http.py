@@ -4,7 +4,6 @@ Fetch content from the internet.
 
 from collections.abc import Awaitable, Callable
 from contextlib import AbstractAsyncContextManager
-from logging import getLogger
 from pathlib import Path
 from time import time
 from typing import TypeVar
@@ -16,7 +15,8 @@ from typing_extensions import override
 from betty.cache import Cache, CacheItem, CacheItemValueSetter
 from betty.cache.file import BinaryFileCache
 from betty.fetch import Fetcher, FetchError, FetchResponse
-from betty.locale.localizable import plain
+from betty.locale.localizable import _
+from betty.user import User
 
 _CacheItemValueT = TypeVar("_CacheItemValueT")
 
@@ -33,12 +33,14 @@ class HttpFetcher(Fetcher):
         binary_file_cache: BinaryFileCache,
         # Default to seven days.
         ttl: int = 86400 * 7,
+        *,
+        user: User,
     ):
         self._response_cache = response_cache
         self._binary_file_cache = binary_file_cache
         self._ttl = ttl
         self._http_client = http_client
-        self._logger = getLogger(__name__)
+        self._user = user
 
     async def _fetch(
         self,
@@ -59,16 +61,20 @@ class HttpFetcher(Fetcher):
             if cache_item and cache_item.modified + self._ttl > time():
                 response_data = await cache_item.value()
             else:
-                self._logger.debug(f'Fetching "{url}"...')
+                await self._user.message_debug(_('Fetching "{url}"...').format(url=url))
                 try:
                     async with self._http_client.get(url) as response:
                         response_data = await response_mapper(response)
                 except ClientError as error:
-                    self._logger.warning(
-                        f'Could not successfully connect to "{url}": {error}'
+                    await self._user.message_warning(
+                        _('Could not successfully connect to "{url}": {error}').format(
+                            url=url, error=str(error)
+                        )
                     )
                 except TimeoutError:
-                    self._logger.warning(f'Timeout when connecting to "{url}"')
+                    await self._user.message_warning(
+                        _('Timeout when connecting to "{url}"').format(url=url)
+                    )
                 else:
                     await setter(response_data)
 
@@ -77,9 +83,9 @@ class HttpFetcher(Fetcher):
                 response_data = await cache_item.value()
             else:
                 raise FetchError(
-                    plain(
-                        f'Could neither fetch "{url}", nor find an old version in the cache.'
-                    )
+                    _(
+                        'Could neither fetch "{url}", nor find an old version in the cache.'
+                    ).format(url=url)
                 )
 
         return response_data

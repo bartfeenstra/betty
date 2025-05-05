@@ -40,6 +40,7 @@ from betty.locale.localizer import DEFAULT_LOCALIZER
 from betty.media_type import MediaType
 from betty.privacy import Privacy
 from betty.project import Project
+from betty.test_utils.user import StaticUser
 
 if TYPE_CHECKING:
     from collections.abc import Awaitable, Callable, Mapping
@@ -77,7 +78,7 @@ class TestGrampsLoader:
         async with Project.new_temporary(new_temporary_app) as project, project:
             sut = GrampsLoader(
                 project.ancestry,
-                localizer=DEFAULT_LOCALIZER,
+                user=StaticUser(),
                 copyright_notices=project.copyright_notice_repository,
                 licenses=await project.license_repository,
                 genders=project.gender_repository,
@@ -91,7 +92,7 @@ class TestGrampsLoader:
         async with Project.new_temporary(new_temporary_app) as project, project:
             sut = GrampsLoader(
                 project.ancestry,
-                localizer=DEFAULT_LOCALIZER,
+                user=StaticUser(),
                 copyright_notices=project.copyright_notice_repository,
                 licenses=await project.license_repository,
                 genders=project.gender_repository,
@@ -112,7 +113,7 @@ class TestGrampsLoader:
         async with Project.new_temporary(new_temporary_app) as project, project:
             sut = GrampsLoader(
                 project.ancestry,
-                localizer=DEFAULT_LOCALIZER,
+                user=StaticUser(),
                 copyright_notices=project.copyright_notice_repository,
                 licenses=await project.license_repository,
                 genders=project.gender_repository,
@@ -126,7 +127,7 @@ class TestGrampsLoader:
         async with Project.new_temporary(new_temporary_app) as project, project:
             sut = GrampsLoader(
                 project.ancestry,
-                localizer=DEFAULT_LOCALIZER,
+                user=StaticUser(),
                 copyright_notices=project.copyright_notice_repository,
                 licenses=await project.license_repository,
                 genders=project.gender_repository,
@@ -144,7 +145,7 @@ class TestGrampsLoader:
         async with Project.new_temporary(new_temporary_app) as project, project:
             sut = GrampsLoader(
                 project.ancestry,
-                localizer=DEFAULT_LOCALIZER,
+                user=StaticUser(),
                 copyright_notices=project.copyright_notice_repository,
                 licenses=await project.license_repository,
                 genders=project.gender_repository,
@@ -168,7 +169,7 @@ class TestGrampsLoader:
         async with Project.new_temporary(new_temporary_app) as project, project:
             sut = GrampsLoader(
                 project.ancestry,
-                localizer=DEFAULT_LOCALIZER,
+                user=StaticUser(),
                 copyright_notices=project.copyright_notice_repository,
                 licenses=await project.license_repository,
                 genders=project.gender_repository,
@@ -187,7 +188,7 @@ class TestGrampsLoader:
         async with Project.new_temporary(new_temporary_app) as project, project:
             sut = GrampsLoader(
                 project.ancestry,
-                localizer=DEFAULT_LOCALIZER,
+                user=StaticUser(),
                 copyright_notices=project.copyright_notice_repository,
                 licenses=await project.license_repository,
                 genders=project.gender_repository,
@@ -203,7 +204,7 @@ class TestGrampsLoader:
         async with Project.new_temporary(new_temporary_app) as project, project:
             sut = GrampsLoader(
                 project.ancestry,
-                localizer=DEFAULT_LOCALIZER,
+                user=StaticUser(),
                 copyright_notices=project.copyright_notice_repository,
                 licenses=await project.license_repository,
                 genders=project.gender_repository,
@@ -218,7 +219,7 @@ class TestGrampsLoader:
         async with Project.new_temporary(new_temporary_app) as project, project:
             sut = GrampsLoader(
                 project.ancestry,
-                localizer=DEFAULT_LOCALIZER,
+                user=StaticUser(),
                 copyright_notices=project.copyright_notice_repository,
                 licenses=await project.license_repository,
                 genders=project.gender_repository,
@@ -251,7 +252,7 @@ class TestGrampsLoader:
             async with project:
                 loader = GrampsLoader(
                     project.ancestry,
-                    localizer=DEFAULT_LOCALIZER,
+                    user=StaticUser(),
                     copyright_notices=project.copyright_notice_repository,
                     licenses=await project.license_repository,
                     genders=project.gender_repository,
@@ -302,7 +303,7 @@ class TestGrampsLoader:
         async with Project.new_temporary(new_temporary_app) as project, project:
             sut = GrampsLoader(
                 project.ancestry,
-                localizer=DEFAULT_LOCALIZER,
+                user=StaticUser(),
                 copyright_notices=project.copyright_notice_repository,
                 licenses=await project.license_repository,
                 genders=project.gender_repository,
@@ -324,7 +325,7 @@ class TestGrampsLoader:
         async with Project.new_temporary(new_temporary_app) as project, project:
             sut = GrampsLoader(
                 project.ancestry,
-                localizer=DEFAULT_LOCALIZER,
+                user=StaticUser(),
                 copyright_notices=project.copyright_notice_repository,
                 licenses=await project.license_repository,
                 genders=project.gender_repository,
@@ -350,7 +351,7 @@ class TestGrampsLoader:
         async with Project.new_temporary(new_temporary_app) as project, project:
             sut = GrampsLoader(
                 project.ancestry,
-                localizer=DEFAULT_LOCALIZER,
+                user=StaticUser(),
                 copyright_notices=project.copyright_notice_repository,
                 licenses=await project.license_repository,
                 genders=project.gender_repository,

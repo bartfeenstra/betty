@@ -3,7 +3,7 @@ from __future__ import annotations
 import pytest
 from typing_extensions import override
 
-from betty.locale.localizable import Localizable, _, static
+from betty.locale.localizable import Localizable, _, plain, static
 from betty.locale.localizer import DEFAULT_LOCALIZER
 from betty.requirement import (
     AllRequirements,
@@ -11,6 +11,7 @@ from betty.requirement import (
     Requirement,
     RequirementCollection,
     RequirementError,
+    StaticRequirement,
 )
 
 
@@ -183,3 +184,17 @@ class TestRequirementError:
         requirement = _UnmetRequirement()
         sut = RequirementError(requirement)
         assert sut.requirement() is requirement
+
+
+class TestStaticRequirement:
+    def test_is_met(self) -> None:
+        assert StaticRequirement(True, plain("")).is_met()
+        assert not StaticRequirement(False, plain("")).is_met()
+
+    def test_summary(self) -> None:
+        summary = plain("Hello, world!")
+        assert StaticRequirement(True, summary).summary() is summary
+
+    def test_details(self) -> None:
+        details = plain("Hello, world!")
+        assert StaticRequirement(True, plain(""), details).details() is details

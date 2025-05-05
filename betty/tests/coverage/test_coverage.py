@@ -67,6 +67,11 @@ _ModuleIgnore = _ModuleExistsIgnore | MissingReason
 # This baseline MUST NOT be extended. It SHOULD decrease in size as more coverage is added to Betty over time.
 _BASELINE: Mapping[str, _ModuleIgnore] = {
     "betty/__init__.py": MissingReason.SHOULD_BE_COVERED,
+    "betty/app/__init__.py": {
+        "App": {
+            "shutdown": MissingReason.COVERED_ELSEWHERE,
+        }
+    },
     "betty/app/factory.py": MissingReason.ABSTRACT,
     "betty/assertion/__init__.py": {
         "Field": MissingReason.INTERNAL,
@@ -87,19 +92,16 @@ _BASELINE: Mapping[str, _ModuleIgnore] = {
         "CacheItem": MissingReason.SHOULD_BE_COVERED,
     },
     "betty/cache/_base.py": MissingReason.COVERED_ELSEWHERE,
-    "betty/cli/__init__.py": {
-        "ContextAppObject": MissingReason.SHOULD_BE_COVERED,
-        "ctx_app_object": MissingReason.SHOULD_BE_COVERED,
+    "betty/console/__init__.py": {
+        "SystemExitCode": MissingReason.ENUM,
     },
-    "betty/cli/exception.py": {
-        "user_facing_exception_to_bad_parameter": MissingReason.SHOULD_BE_COVERED,
+    "betty/console/user.py": {
+        "ConsoleUser": {
+            "disconnect": MissingReason.COVERED_ELSEWHERE,
+        },
     },
-    "betty/cli/commands/__init__.py": {
-        "command": MissingReason.SHOULD_BE_COVERED,
+    "betty/console/command/__init__.py": {
         "Command": MissingReason.SHOULD_BE_COVERED,
-        "CommandRepository": MissingReason.SHOULD_BE_COVERED,
-        "parameter_callback": MissingReason.SHOULD_BE_COVERED,
-        "project_option": MissingReason.SHOULD_BE_COVERED,
     },
     "betty/concurrent.py": {
         "AsynchronizedLock": {
@@ -180,6 +182,11 @@ _BASELINE: Mapping[str, _ModuleIgnore] = {
         },
     },
     "betty/fetch/static.py": MissingReason.SHOULD_BE_COVERED,
+    "betty/functools.py": {
+        "Result": {
+            "result": MissingReason.COVERED_ELSEWHERE,
+        }
+    },
     "betty/gramps/error.py": MissingReason.SHOULD_BE_COVERED,
     "betty/gramps/loader.py": {
         "GrampsEntityReference": MissingReason.SHOULD_BE_COVERED,
@@ -345,6 +352,9 @@ _BASELINE: Mapping[str, _ModuleIgnore] = {
             "has_expired": MissingReason.SHOULD_BE_COVERED,
         },
     },
+    "betty/progress.py": {
+        "Progress": MissingReason.ABSTRACT,
+    },
     "betty/project/extension/__init__.py": {
         "ConfigurableExtension": MissingReason.SHOULD_BE_COVERED,
         "Dependencies": MissingReason.SHOULD_BE_COVERED,
@@ -467,8 +477,18 @@ _BASELINE: Mapping[str, _ModuleIgnore] = {
             "__init_subclass__": MissingReason.INHERITED,
         },
     },
-    "betty/user.py": {
+    "betty/user/__init__.py": {
+        "User": MissingReason.ABSTRACT,
+        "UserError": MissingReason.ABSTRACT,
         "UserFacing": MissingReason.STATIC_CONTENT_ONLY,
+        "UserTimeoutError": MissingReason.STATIC_CONTENT_ONLY,
+        "Verbosity": MissingReason.ENUM,
+    },
+    "betty/user/logging.py": {
+        "UserHandler": {
+            "__aenter__": MissingReason.COVERED_ELSEWHERE,
+            "__aexit__": MissingReason.COVERED_ELSEWHERE,
+        },
     },
     "betty/warnings.py": {
         "BettyDeprecationWarning": MissingReason.STATIC_CONTENT_ONLY,

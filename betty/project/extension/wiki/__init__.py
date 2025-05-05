@@ -2,7 +2,6 @@
 
 from __future__ import annotations
 
-import logging
 from asyncio import gather
 from pathlib import Path
 from typing import TYPE_CHECKING, Self, final
@@ -105,7 +104,11 @@ class Wiki(
         """
         The API client.
         """
-        return Client(await self.project.app.fetcher, await self.rate_limiter)
+        return Client(
+            await self.project.app.fetcher,
+            await self.rate_limiter,
+            user=self.project.app.user,
+        )
 
     @override
     @property
@@ -152,8 +155,7 @@ class Wiki(
             client = await self.client
             return await client.get_summary(page_language, page_name)
         except FetchError as error:
-            logger = logging.getLogger(__name__)
-            logger.warning(str(error))
+            await self._project.app.user.message_warning(plain(str(error)))
             return None
 
     @override

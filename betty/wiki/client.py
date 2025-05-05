@@ -4,8 +4,7 @@ Interact with the Wikipedia Query API.
 
 from __future__ import annotations
 
-import logging
-from contextlib import contextmanager
+from contextlib import asynccontextmanager
 from dataclasses import dataclass
 from json import JSONDecodeError
 from pathlib import Path
@@ -20,9 +19,10 @@ from betty.media_type import MediaType
 from betty.typing import internal
 
 if TYPE_CHECKING:
-    from collections.abc import Iterator, Mapping, MutableMapping
+    from collections.abc import AsyncIterator, Mapping, MutableMapping
 
     from betty.concurrent import RateLimiter
+    from betty.user import User
 
 
 @final
@@ -68,17 +68,18 @@ class Client:
     Fetch information from the Wikipedia Query API.
     """
 
-    def __init__(self, fetcher: Fetcher, rate_limiter: RateLimiter):
+    def __init__(self, fetcher: Fetcher, rate_limiter: RateLimiter, *, user: User):
         self._fetcher = fetcher
         self._images: MutableMapping[str, Image | None] = {}
         self._rate_limiter = rate_limiter
+        self._user = user
 
-    @contextmanager
-    def _catch_exceptions(self) -> Iterator[None]:
+    @asynccontextmanager
+    async def _catch_exceptions(self) -> AsyncIterator[None]:
         try:
             yield
         except FetchError as error:
-            logging.getLogger(__name__).warning(str(error))
+            await self._user.message_warning(error)
 
     async def _fetch_json(self, url: str, *selectors: str | int) -> Any:
         async with self._rate_limiter:
@@ -122,8 +123,7 @@ class Client:
         try:
             api_data = await self._get_page_query_api_data(page_language, page_name)
         except FetchError as error:
-            logger = logging.getLogger(__name__)
-            logger.warning(str(error))
+            await self._user.message_warning(error)
             return {}
         try:
             translations_data = api_data["langlinks"]
@@ -139,7 +139,7 @@ class Client:
         """
         Get a summary for a page.
         """
-        with self._catch_exceptions():
+        async with self._catch_exceptions():
             url = f"https://{page_language}.wikipedia.org/api/rest_v1/page/summary/{page_name}"
             api_data = await self._fetch_json(url)
             try:
@@ -164,7 +164,7 @@ class Client:
         """
         Get an image for a page.
         """
-        with self._catch_exceptions():
+        async with self._catch_exceptions():
             api_data = await self._get_page_query_api_data(page_language, page_name)
             try:
                 page_image_name = api_data["pageimage"]
@@ -205,7 +205,7 @@ class Client:
         """
         Get the coordinates for a page that is a place.
         """
-        with self._catch_exceptions():
+        async with self._catch_exceptions():
             api_data = await self._get_page_query_api_data(page_language, page_name)
             try:
                 coordinates = api_data["coordinates"][0]

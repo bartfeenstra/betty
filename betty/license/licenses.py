@@ -2,7 +2,6 @@
 Provide :py:class:`betty.license.License` plugins.
 """
 
-import logging
 import re
 import tarfile
 from asyncio import gather, get_running_loop
@@ -23,10 +22,10 @@ from betty.factory import Factory
 from betty.fetch import Fetcher, FetchError
 from betty.license import License
 from betty.locale.localizable import Localizable, _, plain
-from betty.locale.localizer import Localizer
 from betty.machine_name import MachineName
 from betty.plugin import PluginNotFound, PluginRepository, ShorthandPluginBase
 from betty.typing import threadsafe
+from betty.user import User
 
 
 class AllRightsReserved(ShorthandPluginBase, License):
@@ -94,7 +93,7 @@ class SpdxLicenseRepository(PluginRepository[License]):
         self,
         *,
         fetcher: Fetcher,
-        localizer: Localizer,
+        user: User,
         binary_file_cache: BinaryFileCache,
         process_pool: Executor,
         factory: Factory | None = None,
@@ -102,7 +101,7 @@ class SpdxLicenseRepository(PluginRepository[License]):
     ):
         super().__init__(License, factory=factory)
         self._fetcher = fetcher
-        self._localizer = localizer
+        self._user = user
         self._cache_directory_path = binary_file_cache.with_scope(
             self.SPDX_VERSION
         ).path
@@ -144,9 +143,8 @@ class SpdxLicenseRepository(PluginRepository[License]):
             try:
                 spdx_licenses_data_path = await self._fetcher.fetch_file(self.URL)
             except FetchError:
-                logger = logging.getLogger(__name__)
-                logger.warning(
-                    self._localizer._("Betty could not load the SPDX licenses")
+                await self._user.message_warning(
+                    _("Betty could not load the SPDX licenses")
                 )
                 return
 

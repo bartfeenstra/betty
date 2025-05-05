@@ -2,7 +2,6 @@
 Provide the Ancestry loading API.
 """
 
-import logging
 from asyncio import gather
 from xml.etree.ElementTree import Element
 
@@ -12,6 +11,7 @@ from betty.ancestry.link import HasLinks, Link
 from betty.fetch import Fetcher, FetchError
 from betty.media_type import InvalidMediaType, MediaType
 from betty.project import Project, ProjectContext, ProjectEvent
+from betty.user import User
 
 
 class LoadAncestryEvent(ProjectEvent):
@@ -35,14 +35,14 @@ async def load(project: Project) -> None:
     job_context = ProjectContext(project, manager=project.app.multiprocessing_manager)
     await project.event_dispatcher.dispatch(LoadAncestryEvent(job_context))
     await project.event_dispatcher.dispatch(PostLoadAncestryEvent(job_context))
-    await _fetch_link_titles(project)
+    await _fetch_link_titles(project, user=project.app.user)
     project.ancestry.immutable()
 
 
-async def _fetch_link_titles(project: Project) -> None:
+async def _fetch_link_titles(project: Project, *, user: User) -> None:
     await gather(
         *[
-            _fetch_link_title(await project.app.fetcher, link)
+            _fetch_link_title(await project.app.fetcher, link, user=user)
             for entity in project.ancestry
             if isinstance(entity, HasLinks)
             for link in entity.links
@@ -50,13 +50,13 @@ async def _fetch_link_titles(project: Project) -> None:
     )
 
 
-async def _fetch_link_title(fetcher: Fetcher, link: Link) -> None:
+async def _fetch_link_title(fetcher: Fetcher, link: Link, *, user: User) -> None:
     if link.label:
         return
     try:
         response = await fetcher.fetch(link.url)
     except FetchError as error:
-        logging.getLogger(__name__).warning(str(error))
+        await user.message_warning(error)
         return
     try:
         content_type = MediaType(response.headers["Content-Type"])

@@ -28,7 +28,6 @@ copyright = "Bart Feenstra and contributors"  # noqa A001
 intersphinx_mapping = {
     "aiohttp": ("https://docs.aiohttp.org/en/stable/", None),
     "babel": ("https://babel.pocoo.org/en/stable/", None),
-    "click": ("https://click.palletsprojects.com/en/latest/", None),
     "geopy": ("https://geopy.readthedocs.io/en/stable/", None),
     "jinja2": ("https://jinja.palletsprojects.com/en/latest/", None),
     "jsonschema": ("https://python-jsonschema.readthedocs.io/en/stable/", None),

@@ -3,7 +3,16 @@ from typing import Any, TypeVar
 
 import pytest
 
-from betty.functools import Do, filter_suppress, passthrough, unique
+from betty.functools import (
+    Do,
+    Result,
+    ResultUnavailable,
+    filter_suppress,
+    passthrough,
+    suppress,
+    unique,
+)
+from betty.typing import Void
 
 _T = TypeVar("_T")
 
@@ -126,3 +135,82 @@ def test_filter_suppress() -> None:
     assert list(
         filter_suppress(_raising_filter, ValueError, [0, 1, 2, 3, 4, 5, 6, 7, 8, 9])
     ) == [0, 2, 4, 6, 8]
+
+
+class TestResult:
+    def test___call____and_result_with_return_value(self) -> None:
+        return_value = 123
+
+        def _target() -> int:
+            return return_value
+
+        sut = Result(_target)
+        assert sut() == return_value
+        assert sut.result() == return_value
+
+    def test___call____and_result_with_returned_exception(self) -> None:
+        return_value = RuntimeError()
+
+        def _target() -> BaseException:
+            return return_value
+
+        sut = Result(_target)
+        assert sut() == return_value
+        assert sut.result() == return_value
+
+    def test___call____and_result_with_raised_exception(self) -> None:
+        class _Exception(Exception):
+            pass
+
+        def _target() -> int:
+            raise _Exception
+
+        sut = Result(_target)
+        with pytest.raises(_Exception):
+            sut()
+        with pytest.raises(_Exception):
+            sut.result()
+
+    def test_result_without_call(self) -> None:
+        def _target() -> None:
+            pass  # pragma: nocover
+
+        sut = Result(_target)
+        with pytest.raises(ResultUnavailable):
+            sut.result()
+
+
+class TestResultUnavailable:
+    def test(self) -> None:
+        sut = ResultUnavailable()
+        assert str(sut)
+
+
+def test_suppress_with_return_value() -> None:
+    return_value = "Hello, world!"
+
+    def _target() -> Any:
+        return return_value
+
+    assert suppress(_target)() == return_value
+
+
+def test_suppress__with_suppressed_raised_exception() -> None:
+    class _Exception(Exception):
+        pass
+
+    def _target() -> Any:
+        raise _Exception
+
+    assert suppress(_target, _Exception)() is Void
+
+
+def test_suppress__with_unsuppressed_raised_exception() -> None:
+    class _Exception(Exception):
+        pass
+
+    def _target() -> Any:
+        raise _Exception
+
+    with pytest.raises(_Exception):
+        suppress(_target)()

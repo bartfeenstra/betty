@@ -1,0 +1,67 @@
+from pathlib import Path
+
+from pytest_mock import MockerFixture
+from typing_extensions import override
+
+from betty.app import App
+from betty.console import SystemExitCode
+from betty.console.command import Command
+from betty.console.command.commands.demo import Demo
+from betty.project import Project
+from betty.test_utils.console import run
+from betty.test_utils.console.command import CommandTestBase
+from betty.test_utils.serve import NoOpServer
+
+
+class TestDemo(CommandTestBase):
+    @override
+    def get_sut_class(self) -> type[Command]:
+        return Demo
+
+    async def test_configure__minimal(
+        self, mocker: MockerFixture, new_temporary_app: App
+    ) -> None:
+        mocker.patch("asyncio.sleep", side_effect=KeyboardInterrupt)
+        mocker.patch("betty.project.extension.demo.serve.DemoServer", new=NoOpServer)
+
+        await run(
+            new_temporary_app, "demo", expected_exit_code=SystemExitCode.USER_QUIT
+        )
+
+    async def test_configure__with_path(
+        self, mocker: MockerFixture, new_temporary_app: App, tmp_path: Path
+    ) -> None:
+        m_generate_with_cleanup = mocker.patch(
+            "betty.project.extension.demo.generate_with_cleanup"
+        )
+
+        project_directory_path = tmp_path / "project"
+
+        await run(new_temporary_app, "demo", "--path", str(project_directory_path))
+
+        m_generate_with_cleanup.assert_called_once()
+
+    async def test_configure__with_path_and_url(
+        self, mocker: MockerFixture, new_temporary_app: App, tmp_path: Path
+    ) -> None:
+        m_generate_with_cleanup = mocker.patch(
+            "betty.project.extension.demo.generate_with_cleanup"
+        )
+
+        project_directory_path = tmp_path / "project"
+        url = "https://betty.example.com"
+
+        await run(
+            new_temporary_app,
+            "demo",
+            "--path",
+            str(project_directory_path),
+            "--url",
+            url,
+        )
+
+        m_generate_with_cleanup.assert_called_once()
+        assert len(m_generate_with_cleanup.call_args.args) == 1
+        project = m_generate_with_cleanup.call_args.args[0]
+        assert isinstance(project, Project)
+        assert project.configuration.url == url

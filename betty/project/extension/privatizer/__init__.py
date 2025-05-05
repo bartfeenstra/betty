@@ -3,7 +3,6 @@
 from __future__ import annotations
 
 from collections import defaultdict
-from logging import getLogger
 from typing import TYPE_CHECKING, final
 
 from typing_extensions import override
@@ -25,12 +24,11 @@ if TYPE_CHECKING:
 
 async def _privatize_ancestry(event: PostLoadAncestryEvent) -> None:
     localizer = await event.project.app.localizer
-    logger = getLogger(__name__)
-    logger.info(localizer._("Privatizing..."))
+    user = event.project.app.user
+    await user.message_information(_("Privatizing..."))
 
     privatizer = PrivatizerApi(
-        event.project.configuration.lifetime_threshold,
-        localizer=localizer,
+        event.project.configuration.lifetime_threshold, user=user
     )
 
     newly_privatized: MutableMapping[type[HasPrivacy & Entity], int] = defaultdict(
@@ -44,24 +42,22 @@ async def _privatize_ancestry(event: PostLoadAncestryEvent) -> None:
                 newly_privatized[type(entity)] -= 1
 
     for entity in entities:
-        privatizer.privatize(entity)
+        await privatizer.privatize(entity)
 
     for entity in entities:
         if entity.private:
             newly_privatized[type(entity)] += 1
 
     if newly_privatized[Person] > 0:
-        logger.info(
-            localizer._(
-                "Privatized {count} people because they are likely still alive."
-            ).format(
+        await user.message_information(
+            _("Privatized {count} people because they are likely still alive.").format(
                 count=str(newly_privatized[Person]),
             )
         )
     for entity_type in set(newly_privatized) - {Person}:
         if newly_privatized[entity_type] > 0:
-            logger.info(
-                localizer._(
+            await user.message_information(
+                _(
                     "Privatized {count} {entity_type}, because they are associated with private information."
                 ).format(
                     count=str(newly_privatized[entity_type]),

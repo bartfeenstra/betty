@@ -10,6 +10,7 @@ from betty.cache.file import BinaryFileCache
 from betty.cache.memory import MemoryCache
 from betty.fetch import FetchError
 from betty.fetch.http import HttpFetcher
+from betty.test_utils.user import StaticUser
 
 
 class TestHttpFetcher:
@@ -22,6 +23,7 @@ class TestHttpFetcher:
                 http_client,
                 MemoryCache(manager=multiprocessing_manager),
                 binary_file_cache,
+                user=StaticUser(),
             )
 
     async def test_fetch__should_return(
@@ -82,6 +84,7 @@ class TestHttpFetcher:
                 binary_file_cache,
                 # A negative TTL ensures every cache item is considered expired a long time ago.
                 -999999999,
+                user=StaticUser(),
             )
             url = "https://example.com"
             content = "The name's Text. Plain Text."
@@ -160,6 +163,7 @@ class TestHttpFetcher:
                 binary_file_cache,
                 # A negative TTL ensures every cache item is considered expired a long time ago.
                 -999999999,
+                user=StaticUser(),
             )
             url = "https://example.com"
             content = b"The name's Text. Plain Text."

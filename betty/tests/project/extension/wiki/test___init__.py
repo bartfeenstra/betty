@@ -95,7 +95,7 @@ class TestWiki(ExtensionTestBase[Wiki]):
     ) -> None:
         fetcher = StaticFetcher()
         async with (
-            await new_temporary_app_factory(fetcher=fetcher) as app,
+            new_temporary_app_factory(fetcher=fetcher) as app,
             app,
             Project.new_temporary(app) as project,
         ):

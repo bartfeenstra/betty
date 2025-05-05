@@ -1,7 +1,6 @@
 import ast
 import builtins
 import re
-import sys
 from collections.abc import Iterator
 from os import walk
 from pathlib import Path
@@ -14,9 +13,7 @@ from requests import Response
 from sphinx.errors import ExtensionError
 from sphinx.util import import_object
 
-from betty.app import App
-from betty.cli import _BettyCommands
-from betty.cli.commands import COMMAND_REPOSITORY
+from betty.console.command import COMMAND_REPOSITORY
 from betty.documentation import DocumentationServer
 from betty.fs import ROOT_DIRECTORY_PATH
 from betty.functools import Do
@@ -26,13 +23,14 @@ from betty.locale.localizer import DEFAULT_LOCALIZER
 from betty.project.config import ProjectConfiguration
 from betty.serde.format import Format
 from betty.serde.format.formats import Json, Yaml
-from betty.test_utils.cli import run
+from betty.test_utils.conftest import NewTemporaryAppFactory
+from betty.test_utils.user import StaticUser
 
 
 class TestDocumentationServer:
     async def test(self, mocker: MockerFixture, tmp_path: Path) -> None:
         mocker.patch("webbrowser.open_new_tab")
-        async with DocumentationServer(tmp_path, localizer=DEFAULT_LOCALIZER) as server:
+        async with DocumentationServer(tmp_path, user=StaticUser()) as server:
 
             def _assert_response(response: Response) -> None:
                 assert response.status_code == 200
@@ -42,33 +40,16 @@ class TestDocumentationServer:
 
 
 class TestDocumentation:
-    async def _get_help(self, app: App, command: str | None = None) -> str:
-        _BettyCommands.terminal_width = 80
-        args: tuple[str, ...] = ("--help",)
-        if command is not None:
-            args = (command, *args)
-        expected = (await run(app, *args)).stdout.strip()
-        if sys.platform.startswith("win32"):
-            expected = expected.replace("\r\n", "\n")
-        return "\n".join(
-            f"    {line}" if line.strip() else "" for line in expected.split("\n")
-        )
-
-    async def test_should_contain_cli_help(self, new_temporary_app: App) -> None:
+    async def test_should_contain_console_help(
+        self, new_temporary_app_factory: NewTemporaryAppFactory
+    ) -> None:
         async with aiofiles.open(
-            ROOT_DIRECTORY_PATH / "documentation" / "usage" / "cli.rst"
+            ROOT_DIRECTORY_PATH / "documentation" / "usage" / "console.rst"
         ) as f:
             actual = await f.read()
-        assert await self._get_help(new_temporary_app) in actual
         async for command in COMMAND_REPOSITORY:
-            if command.plugin_id() in (
-                "dev-new-translation",
-                "dev-update-translations",
-            ):
-                continue
-            assert (
-                await self._get_help(new_temporary_app, command.plugin_id()) in actual
-            )
+            assert command.plugin_id() in actual
+            assert command.plugin_label().localize(DEFAULT_LOCALIZER) in actual
 
     @pytest.mark.parametrize(
         ("language", "serde_format"),

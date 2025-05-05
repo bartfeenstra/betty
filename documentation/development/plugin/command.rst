@@ -6,33 +6,33 @@ CLI command plugins
    :stub-columns: 1
 
    * -  Type
-     -  :py:class:`betty.cli.commands.Command`
+     -  :py:class:`betty.console.command.Command`
    * -  Repository
-     -  :py:class:`betty.cli.commands.COMMAND_REPOSITORY`
+     -  :py:class:`betty.console.command.COMMAND_REPOSITORY`
 
-Betty's :doc:`Command Line Interface </usage/cli>` allows you to run Betty by invoking commands. These commands
-are built using `Click <https://click.palletsprojects.com/>`_.
+Betty's :doc:`console </usage/console>` allows you to run Betty by invoking commands. These commands
+are built using :py:mod:`argparse`.
 
 Creating a command
 ------------------
 
-#. Create a new class that extends :py:class:`betty.cli.commands.Command` and implements the abstract methods,
+#. Create a new class that extends :py:class:`betty.console.command.Command` and implements the abstract methods,
    for example:
 
    .. code-block:: python
 
     from typing import override
-    from betty.cli.commands import Command
+    from betty.console.commands import Command
     from betty.machine_name import MachineName
 
     class MyCommand(Command):
-      @override
-      @classmethod
-      def plugin_id(cls) -> MachineName:
-          return "my-module-my-command"
+        @override
+        @classmethod
+        def plugin_id(cls) -> MachineName:
+            return "my-module-my-command"
 
-      # Implement remaining abstract methods...
-      ...
+        # Implement remaining abstract methods...
+        ...
 
 
 #. Tell Betty about your command by registering it as an entry point. Given the command above in a module ``my_package.my_module``, add the following to your Python package:
@@ -42,56 +42,52 @@ Creating a command
        [project.entry-points.'betty.command']
        'my-module-my-command' = 'my_package.my_module.MyCommand'
               
-#. Build the Click command, decorated with :py:func:`betty.cli.commands.command` (which works almost identically to
-   :py:func:`asyncclick.command`), by returning it from your :py:meth:`betty.cli.commands.Command.click_command`
-   implementation:
+#. Configure the argument parser and return the function to invoke the command:
 
    .. code-block:: python
 
+     import argparse
      from typing import override
-     import click
-     from betty.cli.commands import Command, command
+     from betty.console.commands import Command, command
      from betty.machine_name import MachineName
 
      class MyCommand(Command):
-       @override
-       async def click_command(self) -> click.Command:
-           @command
-           def my_command() -> Any:
-             # Implement your Click command.
-             ...
-           return my_command
+         @override
+         async def configure(
+             self, parser: argparse.ArgumentParser
+         ) -> Callable[..., Awaitable[None]]:
+             return self._invoke
 
-       # Implement remaining abstract methods...
-       ...
+         async def _invoke(self) -> None:
+             # Perform the actual command...
 
-   Building your Click command in your Command plugin allows you to access to all of Betty's ``async`` functionality.
+   Arguments can be added through the parser, and are passed on to the command function as keyword arguments:
 
+   .. code-block:: python
 
-Project-specific commands
-^^^^^^^^^^^^^^^^^^^^^^^^^
+     import argparse
+     from typing import override
+     from betty.console import add_project_argument
+     from betty.console.commands import Command, command
+     from betty.machine_name import MachineName
+     from betty.project import Project
 
-To make your command use a specific Betty project, use the :py:func:`betty.cli.commands.project_option` decorator:
+     class MyCommand(Command):
+         @override
+         async def configure(
+             self, parser: argparse.ArgumentParser
+         ) -> Callable[..., Awaitable[None]]:
+             # Require a project by adding a project configuration file argument:
+             await add_project_argument(parser, self._app)
+             # Add another, custom argument:
+             parser.add_argument("--my-first-argument")
+             return self._invoke
 
-.. code-block:: python
+         async def _invoke(self, project: Project, my_first_argument: str) -> None:
+             # Perform the actual command...
 
- from betty.project import Project
- from betty.cli.commands import command, project_option
-
- @command
- @project_option
- async def my_command(project: Project) -> None:
-   # Do what your command needs to do here...
-   ...
-
-This also gives you access to the Betty application through :py:attr:`betty.project.Project.app`.
-
-Accessing the application
-^^^^^^^^^^^^^^^^^^^^^^^^^
-
-Access the currently running :py:class:`betty.app.App` anywhere in your ``Command`` plugin via ``self._app``.
 
 See also
 --------
-Read more about how to use the Command Line Interface and Betty's built-in commands at :doc:`/usage/cli`.
+Read more about how to use the console and Betty's built-in commands at :doc:`/usage/console`.
 
