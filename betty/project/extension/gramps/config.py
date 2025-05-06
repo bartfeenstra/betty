@@ -104,8 +104,6 @@ class PluginMapping(Configuration):
 class FamilyTreeConfiguration(Configuration):
     """
     Configure a single Gramps family tree.
-
-    The ``genders`` argument has been deprecated since Betty 0.4.13. There is no alternative.
     """
 
     def __init__(
