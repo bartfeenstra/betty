@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import pytest
 
-from betty.wikipedia import NotAPageError, parse_page_url
+from betty.wiki import NotAPageError, parse_page_url
 
 
 @pytest.mark.parametrize(

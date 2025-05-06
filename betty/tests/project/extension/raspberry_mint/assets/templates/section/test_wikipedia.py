@@ -3,10 +3,10 @@ from pytest_mock import MockerFixture
 from betty.ancestry.link import Link
 from betty.locale import DEFAULT_LOCALE
 from betty.project.extension.raspberry_mint import RaspberryMint
-from betty.project.extension.wikipedia import Wikipedia
+from betty.project.extension.wiki import Wiki
 from betty.test_utils.jinja2 import assert_template_file
 from betty.tests.project.test_load import DummyHasLinks
-from betty.wikipedia.client import Summary
+from betty.wiki.client import Summary
 
 
 async def test_minimal() -> None:
@@ -16,7 +16,7 @@ async def test_minimal() -> None:
             "entity": entity,
             "page_resource": "betty:///index.html",
         },
-        extensions={RaspberryMint, Wikipedia},
+        extensions={RaspberryMint, Wiki},
         template="section/wikipedia.html.j2",
     ) as (actual, _):
         assert not actual
@@ -24,7 +24,7 @@ async def test_minimal() -> None:
 
 async def test_with_summary(mocker: MockerFixture) -> None:
     summary_content = "Hello, world!"
-    m_get_summary = mocker.patch("betty.wikipedia.client.Client.get_summary")
+    m_get_summary = mocker.patch("betty.wiki.client.Client.get_summary")
     m_get_summary.return_value = Summary(
         DEFAULT_LOCALE, "Example", "Example", summary_content
     )
@@ -34,7 +34,7 @@ async def test_with_summary(mocker: MockerFixture) -> None:
             "entity": entity,
             "page_resource": "betty:///index.html",
         },
-        extensions={RaspberryMint, Wikipedia},
+        extensions={RaspberryMint, Wiki},
         template="section/wikipedia.html.j2",
     ) as (actual, _):
         assert summary_content in actual

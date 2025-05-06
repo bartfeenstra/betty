@@ -27,15 +27,15 @@ from betty.locale import (
 from betty.locale.error import LocaleError
 from betty.media_type.media_types import HTML
 from betty.typing import internal, threadsafe
-from betty.wikipedia import NotAPageError, parse_page_url
+from betty.wiki import NotAPageError, parse_page_url
 
 if TYPE_CHECKING:
     from collections.abc import Mapping, MutableMapping, MutableSequence, Sequence
 
     from betty.ancestry import Ancestry
     from betty.locale.localizer import LocalizerRepository
-    from betty.wikipedia.client import Client, Image, Summary
-    from betty.wikipedia.copyright_notice import WikipediaContributors
+    from betty.wiki.client import Client, Image, Summary
+    from betty.wiki.copyright_notice import WikipediaContributors
 
 
 @internal

@@ -8,10 +8,10 @@ from betty.ancestry.link import Link
 from betty.fetch.static import StaticFetcher
 from betty.job import Context
 from betty.project import Project
-from betty.project.extension.wikipedia import Wikipedia
+from betty.project.extension.wiki import Wiki
 from betty.project.load import load
 from betty.test_utils.project.extension import ExtensionTestBase
-from betty.wikipedia.client import Summary
+from betty.wiki.client import Summary
 
 if TYPE_CHECKING:
     from multiprocessing.managers import SyncManager
@@ -22,10 +22,10 @@ if TYPE_CHECKING:
     from betty.test_utils.conftest import NewTemporaryAppFactory
 
 
-class TestWikipedia(ExtensionTestBase[Wikipedia]):
+class TestWiki(ExtensionTestBase[Wiki]):
     @override
-    def get_sut_class(self) -> type[Wikipedia]:
-        return Wikipedia
+    def get_sut_class(self) -> type[Wiki]:
+        return Wiki
 
     async def test_filters(self, new_temporary_app: App) -> None:
         async with Project.new_temporary(new_temporary_app) as project, project:
@@ -44,7 +44,7 @@ class TestWikipedia(ExtensionTestBase[Wikipedia]):
         extract = "De hoofdstad van Nederland."
         summary = Summary(language, name, title, extract)
 
-        m_get_summary = mocker.patch("betty.wikipedia.client.Client.get_summary")
+        m_get_summary = mocker.patch("betty.wiki.client.Client.get_summary")
         m_get_summary.return_value = summary
 
         page_url = f"https://{language}.wikipedia.org/wiki/{name}"
@@ -57,7 +57,7 @@ class TestWikipedia(ExtensionTestBase[Wikipedia]):
         ]
 
         async with Project.new_temporary(new_temporary_app) as project:
-            project.configuration.extensions.enable(Wikipedia)
+            project.configuration.extensions.enable(Wiki)
             async with project:
                 jinja2_environment = await project.jinja2_environment
                 actual = await jinja2_environment.from_string(
@@ -73,10 +73,10 @@ class TestWikipedia(ExtensionTestBase[Wikipedia]):
     async def test_post_load(
         self, mocker: MockerFixture, new_temporary_app: App
     ) -> None:
-        m_populate = mocker.patch("betty.wikipedia.populator.Populator.populate")
+        m_populate = mocker.patch("betty.wiki.populator.Populator.populate")
 
         async with Project.new_temporary(new_temporary_app) as project:
-            project.configuration.extensions.enable(Wikipedia)
+            project.configuration.extensions.enable(Wiki)
             async with project:
                 await load(project)
 
@@ -84,10 +84,10 @@ class TestWikipedia(ExtensionTestBase[Wikipedia]):
 
     async def test_client(self, new_temporary_app: App) -> None:
         async with Project.new_temporary(new_temporary_app) as project:
-            project.configuration.extensions.enable(Wikipedia)
+            project.configuration.extensions.enable(Wiki)
             async with project:
                 extensions = await project.extensions
-                wikipedia = extensions[Wikipedia]
+                wikipedia = extensions[Wiki]
                 await wikipedia.client
 
     async def test_globals(
@@ -99,8 +99,8 @@ class TestWikipedia(ExtensionTestBase[Wikipedia]):
             app,
             Project.new_temporary(app) as project,
         ):
-            project.configuration.extensions.enable(Wikipedia)
+            project.configuration.extensions.enable(Wiki)
             async with project:
                 extensions = await project.extensions
-                sut = extensions[Wikipedia]
+                sut = extensions[Wiki]
                 assert sut.globals

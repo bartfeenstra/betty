@@ -1,6 +1,6 @@
-The *Wikipedia* extension
-=======================
-The ``wikipedia`` extension enriches your ancestry and site with content from Wikipedia.
+The *Wiki* extension
+====================
+The ``wikip`` extension enriches your ancestry and site with content from Wikipedia and Wikimedia Commons.
 
 Enable this extension in your project's :doc:`configuration file </usage/project/configuration>` as follows:
 
@@ -11,7 +11,7 @@ Enable this extension in your project's :doc:`configuration file </usage/project
       .. code-block:: yaml
 
           extensions:
-            wikipedia: {}
+            wiki: {}
 
    .. tab-item:: JSON
 
@@ -19,7 +19,7 @@ Enable this extension in your project's :doc:`configuration file </usage/project
 
           {
             "extensions": {
-              "wikipedia": {}
+              "wiki": {}
             }
           }
 
@@ -34,7 +34,7 @@ This extension is configurable:
       .. code-block:: yaml
 
           extensions:
-            wikipedia:
+            wiki:
               configuration:
                 populate_images: false
 
@@ -44,7 +44,7 @@ This extension is configurable:
 
           {
             "extensions": {
-              "wikipedia": {
+              "wiki": {
                 "configuration" : {
                   "populate_images": false
                 }
@@ -77,10 +77,10 @@ Templating
 Globals
 ^^^^^^^
 
-``wikipedia_contributors_copyright_notice`` (:py:class:`betty.wikipedia.copyright_notice.WikipediaContributors`)
+``wikipedia_contributors_copyright_notice`` (:py:class:`betty.wiki.copyright_notice.WikipediaContributors`)
     The copyright notice plugin instance for Wikipedia contributors.
 
 Filters
 ^^^^^^^
 
-- :py:meth:`wikipedia <betty.project.extension.wikipedia.Wikipedia.filter_wikipedia_links>`
+- :py:meth:`wikipedia <betty.project.extension.wiki.Wiki.filter_wikipedia_links>`

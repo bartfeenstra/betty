@@ -29,7 +29,7 @@ from betty.project.extension.privatizer import Privatizer
 from betty.project.extension.raspberry_mint import RaspberryMint
 from betty.project.extension.trees import Trees
 from betty.project.extension.webpack import Webpack
-from betty.project.extension.wikipedia import Wikipedia
+from betty.project.extension.wiki import Wiki
 
 if TYPE_CHECKING:
     from collections.abc import Callable, Sequence
@@ -80,9 +80,7 @@ class New(ShorthandPluginBase, AppDependentFactory, Command):
                 configuration_file_path,
             )
 
-            configuration.extensions.enable(
-                Deriver, Privatizer, RaspberryMint, Wikipedia
-            )
+            configuration.extensions.enable(Deriver, Privatizer, RaspberryMint, Wiki)
             webpack_requirement = await Webpack.requirement()
             if webpack_requirement.is_met():
                 configuration.extensions.enable(HttpApiDoc, Maps, Trees)

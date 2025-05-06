@@ -24,7 +24,7 @@ Built-in extensions
 - :doc:`/usage/extension/privatizer`
 - :doc:`/usage/extension/raspberry-mint`
 - :doc:`/usage/extension/trees`
-- :doc:`/usage/extension/wikipedia`
+- :doc:`/usage/extension/wiki`
 
 See also
 --------

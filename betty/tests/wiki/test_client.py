@@ -12,7 +12,7 @@ from betty.concurrent import RateLimiter
 from betty.fetch import FetchResponse
 from betty.fetch.static import StaticFetcher
 from betty.media_type.media_types import SVG
-from betty.wikipedia.client import Client, Image, Summary
+from betty.wiki.client import Client, Image, Summary
 
 if TYPE_CHECKING:
     from collections.abc import Mapping

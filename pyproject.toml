@@ -94,7 +94,7 @@ betty = 'betty.cli:main'
 'project-author' = 'betty.copyright_notice.copyright_notices:ProjectAuthor'
 'public-domain' = 'betty.copyright_notice.copyright_notices:PublicDomain'
 'streetmix' = 'betty.project.extension.demo.copyright_notice:Streetmix'
-'wikipedia-contributors' = 'betty.wikipedia.copyright_notice:WikipediaContributors'
+'wikipedia-contributors' = 'betty.wiki.copyright_notice:WikipediaContributors'
 
 [project.entry-points.'betty.license']
 'all-rights-reserved' = 'betty.license.licenses:AllRightsReserved'
@@ -149,7 +149,7 @@ betty = 'betty.cli:main'
 'raspberry-mint' = 'betty.project.extension.raspberry_mint:RaspberryMint'
 'trees' = 'betty.project.extension.trees:Trees'
 'webpack' = 'betty.project.extension.webpack:Webpack'
-'wikipedia' = 'betty.project.extension.wikipedia:Wikipedia'
+'wiki' = 'betty.project.extension.wiki:Wiki'
 
 [project.entry-points.'betty.gender']
 'female' = 'betty.ancestry.gender.genders:Female'
