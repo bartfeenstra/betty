@@ -2,11 +2,14 @@
 Provide the OpenAPI specification.
 """
 
+from json import loads
 from pathlib import Path
 from typing import Self, final
 
+import aiofiles
+
 from betty import about, model
-from betty.json.schema import FileBasedSchema
+from betty.json.schema import Schema
 from betty.locale.localizer import DEFAULT_LOCALIZER
 from betty.project import Project, ProjectSchema
 from betty.serde.dump import Dump, DumpMapping
@@ -174,7 +177,7 @@ class Specification:
 
 
 @final
-class SpecificationSchema(FileBasedSchema):
+class SpecificationSchema(Schema):
     """
     The OpenAPI Specification schema.
     """
@@ -187,11 +190,13 @@ class SpecificationSchema(FileBasedSchema):
         Create a new instance.
         """
         if cls._instance is None:
-            cls._instance = await cls.new_for(
+            async with aiofiles.open(
                 Path(__file__).parent
                 / "json"
                 / "schemas"
-                / "openapi-specification.json",
-                def_name="openApiSpecification",
-            )
+                / "openapi-specification.json"
+            ) as f:
+                raw_schema = await f.read()
+            cls._instance = cls(def_name="openApiSpecification")
+            cls._instance._schema = loads(raw_schema)  # type: ignore[assignment]
         return cls._instance
