@@ -55,7 +55,7 @@ class MemoryCache(
         self,
         *,
         scopes: Sequence[str] | None = None,
-        manager: SyncManager | _MemoryCacheState[_CacheItemValueContraT] | None = None,
+        manager: SyncManager | _MemoryCacheState[_CacheItemValueContraT],
     ):
         super().__init__(scopes=scopes, manager=manager)
         if isinstance(manager, _MemoryCacheState):

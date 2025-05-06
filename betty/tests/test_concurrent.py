@@ -19,9 +19,7 @@ from betty.concurrent import (
     RateLimiter,
     Semaphore,
     asynchronize_acquire,
-    ensure_manager,
 )
-from betty.warnings import BettyDeprecationWarning
 
 _KeyT = TypeVar("_KeyT")
 
@@ -316,13 +314,3 @@ class TestLedger:
             manager=multiprocessing_manager,
         )
         pickle.loads(pickle.dumps(sut))
-
-
-def test_ensure_manager__with_manager() -> None:
-    manager = SyncManager()
-    assert ensure_manager(manager) is manager
-
-
-def test_ensure_manager__without_manager() -> None:
-    with pytest.warns(BettyDeprecationWarning):
-        ensure_manager(None)

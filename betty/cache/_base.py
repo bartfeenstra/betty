@@ -16,7 +16,7 @@ from typing import (
 from typing_extensions import override
 
 from betty.cache import Cache, CacheItem, CacheItemValueSetter
-from betty.concurrent import AsynchronizedLock, Ledger, ensure_manager
+from betty.concurrent import AsynchronizedLock, Ledger
 from betty.typing import processsafe
 
 _CacheT = TypeVar("_CacheT", bound=Cache[Any])
@@ -79,14 +79,13 @@ class _CommonCacheBase(Cache[_CacheItemValueContraT], Generic[_CacheItemValueCon
         self,
         *,
         scopes: Sequence[str] | None = None,
-        manager: SyncManager | _CommonCacheBaseState[Self] | None = None,
+        manager: SyncManager | _CommonCacheBaseState[Self],
     ):
         self._scopes = scopes or ()
         if isinstance(manager, _CommonCacheBaseState):
             self._cache_lock = manager.cache_lock
             self._cache_item_lock_ledger = manager.cache_item_lock_ledger
         else:
-            manager = ensure_manager(manager)
             self._cache_lock = AsynchronizedLock(manager.Lock())
             self._cache_item_lock_ledger = Ledger(self._cache_lock, manager=manager)
 
