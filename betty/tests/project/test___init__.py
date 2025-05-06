@@ -39,7 +39,6 @@ from betty.test_utils.project.extension import (
     DummyConfigurableExtension,
     DummyExtension,
 )
-from betty.warnings import BettyDeprecationWarning
 
 if TYPE_CHECKING:
     from collections.abc import MutableSequence, Sequence
@@ -278,16 +277,6 @@ class TestProject:
     async def test_url_generator(self, new_temporary_app: App) -> None:
         async with Project.new_temporary(new_temporary_app) as sut, sut:
             await sut.url_generator
-
-    async def test_static_url_generator(self, new_temporary_app: App) -> None:
-        async with Project.new_temporary(new_temporary_app) as sut, sut:
-            with pytest.warns(BettyDeprecationWarning):
-                await sut.static_url_generator
-
-    async def test_localized_url_generator(self, new_temporary_app: App) -> None:
-        async with Project.new_temporary(new_temporary_app) as sut, sut:
-            with pytest.warns(BettyDeprecationWarning):
-                await sut.localized_url_generator
 
     async def test_new_target(self, new_temporary_app: App) -> None:
         class Dependent:

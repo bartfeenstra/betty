@@ -49,20 +49,11 @@ from betty.project import extension
 from betty.project.config import ProjectConfiguration
 from betty.project.extension import Extension, Theme, sort_extension_type_graph
 from betty.project.factory import ProjectDependentFactory
-from betty.project.url import (
-    LocalizedUrlGenerator as ProjectLocalizedUrlGenerator,
-)
-from betty.project.url import (
-    StaticUrlGenerator as ProjectStaticUrlGenerator,
-)
-from betty.project.url import (
-    new_project_url_generator,
-)
+from betty.project.url import new_project_url_generator
 from betty.render import RENDERER_REPOSITORY, Renderer, SequentialRenderer
 from betty.service import ServiceProvider, service
 from betty.string import kebab_case_to_lower_camel_case
 from betty.typing import internal
-from betty.warnings import deprecated
 
 if TYPE_CHECKING:
     from collections.abc import AsyncIterator, Iterator, Sequence
@@ -74,7 +65,7 @@ if TYPE_CHECKING:
     from betty.license import License
     from betty.machine_name import MachineName
     from betty.plugin import PluginIdentifier, PluginRepository
-    from betty.url import LocalizedUrlGenerator, StaticUrlGenerator, UrlGenerator
+    from betty.url import UrlGenerator
 
 _T = TypeVar("_T")
 _EntityT = TypeVar("_EntityT", bound=Entity)
@@ -218,26 +209,6 @@ class Project(Configurable[ProjectConfiguration], TargetFactory, ServiceProvider
         The URL generator.
         """
         return await new_project_url_generator(self)
-
-    @service
-    @deprecated(
-        "This service has been deprecated since Betty 0.4.8, and will be removed in Betty 0.5. Instead use `Project.url_generator`."
-    )
-    async def localized_url_generator(self) -> LocalizedUrlGenerator:
-        """
-        The URL generator for localizable resources.
-        """
-        return await ProjectLocalizedUrlGenerator.new_for_project(self)
-
-    @service
-    @deprecated(
-        "This service has been deprecated since Betty 0.4.8, and will be removed in Betty 0.5. Instead use `Project.url_generator`."
-    )
-    async def static_url_generator(self) -> StaticUrlGenerator:
-        """
-        The URL generator for static resources.
-        """
-        return await ProjectStaticUrlGenerator.new_for_project(self)
 
     @service
     async def jinja2_environment(self) -> Environment:

@@ -13,21 +13,13 @@ from betty.media_type.media_types import HTML, JSON, JSON_LD
 from betty.model import Entity
 from betty.project.factory import ProjectDependentFactory
 from betty.string import camel_case_to_kebab_case
-from betty.typing import private
 from betty.url import (
     InvalidMediaType,
     PassthroughUrlGenerator,
     UrlGenerator,
     generate_from_path,
 )
-from betty.url import (
-    LocalizedUrlGenerator as StdLocalizedUrlGenerator,
-)
-from betty.url import (
-    StaticUrlGenerator as StdStaticUrlGenerator,
-)
-from betty.url.proxy import ProxyLocalizedUrlGenerator, ProxyUrlGenerator
-from betty.warnings import deprecated
+from betty.url.proxy import ProxyUrlGenerator
 
 if TYPE_CHECKING:
     from collections.abc import Mapping
@@ -129,33 +121,6 @@ class _ProjectUrlGenerator(ProjectDependentFactory):
         )
 
 
-def _supports_path(resource: Any) -> bool:
-    return isinstance(resource, str) and resource.startswith("/")
-
-
-@final
-class _LocalizedPathUrlGenerator(_ProjectUrlGenerator, StdLocalizedUrlGenerator):
-    @override
-    def supports(self, resource: Any) -> bool:
-        return _supports_path(resource)
-
-    @override
-    def generate(
-        self,
-        resource: Any,
-        media_type: MediaType,
-        *,
-        absolute: bool = False,
-        locale: Localey | None = None,
-    ) -> str:
-        assert self.supports(resource)
-        return self._generate_from_path(
-            resource,
-            absolute=absolute,
-            locale=locale or self._default_locale,
-        )
-
-
 async def new_project_url_generator(project: Project) -> UrlGenerator:
     """
     Generate URLs for all resources provided by a Betty project.
@@ -169,30 +134,6 @@ async def new_project_url_generator(project: Project) -> UrlGenerator:
         await _StaticPathUrlUrlGenerator.new_for_project(project),
         PassthroughUrlGenerator(),
     )
-
-
-@deprecated(
-    f"This class has been deprecated since Betty 0.4.8, and will be removed in Betty 0.5. Instead use {new_project_url_generator}."
-)
-@final
-class StaticUrlGenerator(_ProjectUrlGenerator, StdStaticUrlGenerator):
-    """
-    Generate URLs for static (non-localized) file paths.
-    """
-
-    @override
-    def supports(self, resource: Any) -> bool:
-        return _supports_path(resource)
-
-    @override
-    def generate(
-        self,
-        resource: Any,
-        *,
-        absolute: bool = False,
-    ) -> str:
-        assert self.supports(resource)
-        return self._generate_from_path(resource, absolute=absolute)
 
 
 def _get_extension_and_locale(
@@ -233,29 +174,6 @@ class _EntityTypeUrlGenerator(__EntityTypeUrlGenerator, UrlGenerator):
         )
 
 
-@final
-class _EntityTypeLocalizedUrlGenerator(
-    __EntityTypeUrlGenerator, StdLocalizedUrlGenerator
-):
-    @override
-    def generate(
-        self,
-        resource: type[Entity],
-        media_type: MediaType,
-        *,
-        absolute: bool = False,
-        locale: Localey | None = None,
-    ) -> str:
-        assert self.supports(resource)
-        return self._generate_from_entity_type(
-            resource,
-            self._pattern,
-            media_type=media_type,
-            locale=locale,
-            absolute=absolute,
-        )
-
-
 class __EntityUrlGenerator(_ProjectUrlGenerator):
     _pattern = "/{entity_type}/{entity_id}/index.{extension}"
 
@@ -271,27 +189,6 @@ class _EntityUrlGenerator(__EntityUrlGenerator, UrlGenerator):
         resource: Entity,
         *,
         media_type: MediaType | None = None,
-        absolute: bool = False,
-        locale: Localey | None = None,
-    ) -> str:
-        assert self.supports(resource)
-        return self._generate_from_entity(
-            resource,
-            self._pattern,
-            media_type=media_type,
-            locale=locale,
-            absolute=absolute,
-        )
-
-
-@final
-class _EntityLocalizedUrlGenerator(__EntityUrlGenerator, StdLocalizedUrlGenerator):
-    @override
-    def generate(
-        self,
-        resource: Entity,
-        media_type: MediaType,
-        *,
         absolute: bool = False,
         locale: Localey | None = None,
     ) -> str:
@@ -406,46 +303,3 @@ class _StaticPathUrlUrlGenerator(_ProjectUrlGenerator, UrlGenerator):
         parsed_url = urlparse(resource)
         url_path = "/" + (parsed_url.netloc + parsed_url.path).lstrip("/")
         return self._generate_from_path(url_path, absolute=absolute)
-
-
-@deprecated(
-    f"This class has been deprecated since Betty 0.4.8, and will be removed in Betty 0.5. Instead use {UrlGenerator}."
-)
-@final
-class LocalizedUrlGenerator(StdLocalizedUrlGenerator, ProjectDependentFactory):
-    """
-    Generate URLs for all resources provided by a Betty project.
-    """
-
-    @private
-    def __init__(
-        self,
-        *upstreams: StdLocalizedUrlGenerator,
-    ):
-        self._upstream = ProxyLocalizedUrlGenerator(*upstreams)
-
-    @override
-    @classmethod
-    async def new_for_project(cls, project: Project) -> Self:
-        return cls(
-            await _EntityTypeLocalizedUrlGenerator.new_for_project(project),
-            await _EntityLocalizedUrlGenerator.new_for_project(project),
-            await _LocalizedPathUrlGenerator.new_for_project(project),
-        )
-
-    @override
-    def supports(self, resource: Any) -> bool:
-        return self._upstream.supports(resource)
-
-    @override
-    def generate(
-        self,
-        resource: Any,
-        media_type: MediaType,
-        *,
-        absolute: bool = False,
-        locale: Localey | None = None,
-    ) -> str:
-        return self._upstream.generate(
-            resource, media_type, absolute=absolute, locale=locale
-        )

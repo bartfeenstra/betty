@@ -10,11 +10,7 @@ import warnings
 from asyncio import get_running_loop, run
 from contextlib import suppress
 from io import BytesIO
-from typing import (
-    TYPE_CHECKING,
-    Any,
-    TypeVar,
-)
+from typing import TYPE_CHECKING, Any, TypeVar
 from urllib.parse import quote
 
 import aiofiles
@@ -101,49 +97,6 @@ async def filter_url(
         locale=locale or context_localizer(context).locale,
         **kwargs,
     )
-
-
-@deprecated(
-    "This filter has been deprecated since Betty 0.4.8, and will be removed in Betty 0.5. Instead use the `url` filter."
-)
-@pass_context
-async def filter_localized_url(
-    context: Context,
-    resource: Any,
-    locale: Localey | None = None,
-    media_type: str | None = None,
-    **kwargs: Any,
-) -> str:
-    """
-    Generate a localized URL for a localizable resource.
-    """
-    from betty.jinja2 import context_localizer, context_project
-
-    localized_url_generator = await context_project(context).localized_url_generator
-    return localized_url_generator.generate(
-        resource,
-        MediaType(media_type) if media_type else HTML,
-        locale=locale or context_localizer(context).locale,
-        **kwargs,
-    )
-
-
-@deprecated(
-    "This filter has been deprecated since Betty 0.4.8, and will be removed in Betty 0.5. Instead use the `url` filter."
-)
-@pass_context
-async def filter_static_url(
-    context: Context,
-    resource: Any,
-    absolute: bool = False,
-) -> str:
-    """
-    Generate a static URL for a static resource.
-    """
-    from betty.jinja2 import context_project
-
-    static_url_generator = await context_project(context).static_url_generator
-    return static_url_generator.generate(resource, absolute=absolute)
 
 
 @pass_context
@@ -649,14 +602,12 @@ async def filters() -> Mapping[str, Callable[..., Any]]:
         "json": filter_json,
         "locale_get_data": locale_get_data,
         "localize": filter_localize,
-        "localized_url": filter_localized_url,
         "map": filter_map,
         "negotiate_has_dates": filter_negotiate_has_dates,
         "negotiate_localizeds": filter_negotiate_localizeds,
         "paragraphs": filter_paragraphs,
         "select_has_dates": filter_select_has_dates,
         "select_localizeds": filter_select_localizeds,
-        "static_url": filter_static_url,
         "sort_localizeds": filter_sort_localizeds,
         "str": str,
         "unique": filter_unique,

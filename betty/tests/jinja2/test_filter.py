@@ -714,26 +714,6 @@ async def test_filter_url(expected: str, data: Any, absolute: bool) -> None:
 
 
 @pytest.mark.parametrize(
-    ("expected", "data", "absolute"),
-    [
-        ("/index.html", "/index.html", False),
-        ("https://example.com/index.html", "/index.html", True),
-    ],
-)
-async def test_filter_localized_url(expected: str, data: Any, absolute: bool) -> None:
-    template = "{{ data | localized_url(absolute=absolute) }}"
-    with pytest.warns(BettyDeprecationWarning):
-        async with assert_template_string(
-            template=template,
-            data={
-                "data": data,
-                "absolute": absolute,
-            },
-        ) as (actual, _):
-            assert actual == expected
-
-
-@pytest.mark.parametrize(
     ("expected", "data"),
     [
         (
@@ -869,23 +849,3 @@ async def test_filter_public_js__with_deprecated_url_path() -> None:
             data={"data": "/js/my-first-js.js"},
         ) as (actual, _):
             assert actual == "None['/js/my-first-js.js']"
-
-
-@pytest.mark.parametrize(
-    ("expected", "data", "absolute"),
-    [
-        ("/index.html", "/index.html", False),
-        ("https://example.com/index.html", "/index.html", True),
-    ],
-)
-async def test_filter_static_url(expected: str, data: Any, absolute: bool) -> None:
-    template = "{{ data | static_url(absolute=absolute) }}"
-    with pytest.warns(BettyDeprecationWarning):
-        async with assert_template_string(
-            template=template,
-            data={
-                "data": data,
-                "absolute": absolute,
-            },
-        ) as (actual, _):
-            assert actual == expected
