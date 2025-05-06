@@ -4,11 +4,11 @@ from pytest_mock import MockerFixture
 
 from betty.ancestry.link import HasLinks, Link
 from betty.locale.localizer import DEFAULT_LOCALIZER
-from betty.project.extension.wikipedia import Wikipedia
+from betty.project.extension.wiki import Wiki
 from betty.test_utils.jinja2 import assert_template_file
 from betty.test_utils.model import DummyEntity
-from betty.wikipedia.client import Client, Summary
-from betty.wikipedia.copyright_notice import WikipediaContributors
+from betty.wiki.client import Client, Summary
+from betty.wiki.copyright_notice import WikipediaContributors
 
 
 class DummyResource(HasLinks, DummyEntity):
@@ -21,7 +21,7 @@ async def test_without_links() -> None:
         data={
             "resource": resource,
         },
-        extensions={Wikipedia},
+        extensions={Wiki},
         template="wikipedia/summaries.html.j2",
     ) as (actual, _):
         assert actual == ""
@@ -34,7 +34,7 @@ async def test_with_links_without_wikipedia_links() -> None:
         data={
             "resource": resource,
         },
-        extensions={Wikipedia},
+        extensions={Wiki},
         template="wikipedia/summaries.html.j2",
     ) as (actual, _):
         assert actual == ""
@@ -49,7 +49,7 @@ async def test_without_summaries(mocker: MockerFixture) -> None:
         return m_client  # type: ignore[no-any-return]
 
     mocker.patch(
-        "betty.project.extension.wikipedia.Wikipedia.client",
+        "betty.project.extension.wiki.Wiki.client",
         new_callable=PropertyMock,
         return_value=_awaitable_client(),
     )
@@ -59,7 +59,7 @@ async def test_without_summaries(mocker: MockerFixture) -> None:
         data={
             "resource": resource,
         },
-        extensions={Wikipedia},
+        extensions={Wiki},
         template="wikipedia/summaries.html.j2",
     ) as (actual, _):
         assert actual == ""
@@ -74,7 +74,7 @@ async def test_with_summaries_in_irrelevant_locale() -> None:
         data={
             "resource": resource,
         },
-        extensions={Wikipedia},
+        extensions={Wiki},
         template="wikipedia/summaries.html.j2",
     ) as (actual, _):
         assert actual == ""
@@ -90,7 +90,7 @@ async def test_with_summary_should_render(mocker: MockerFixture) -> None:
         return m_client  # type: ignore[no-any-return]
 
     mocker.patch(
-        "betty.project.extension.wikipedia.Wikipedia.client",
+        "betty.project.extension.wiki.Wiki.client",
         new_callable=PropertyMock,
         return_value=_awaitable_client(),
     )
@@ -100,7 +100,7 @@ async def test_with_summary_should_render(mocker: MockerFixture) -> None:
         data={
             "resource": resource,
         },
-        extensions={Wikipedia},
+        extensions={Wiki},
         template="wikipedia/summaries.html.j2",
     ) as (actual, _):
         assert summary.content in actual

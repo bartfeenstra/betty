@@ -14,9 +14,9 @@ from betty.config import Configuration
 from betty.serde.dump import Dump, DumpMapping
 
 
-class WikipediaConfiguration(Configuration):
+class WikiConfiguration(Configuration):
     """
-    Provides configuration for the :py:class:`betty.project.extension.wikipedia.Wikipedia` extension.
+    Provides configuration for the :py:class:`betty.project.extension.wiki.Wiki` extension.
     """
 
     def __init__(self):

@@ -11,7 +11,7 @@ from betty.fetch.static import StaticFetcher
 from betty.locale.localizer import DEFAULT_LOCALIZER
 from betty.test_utils.conftest import NewTemporaryAppFactory
 from betty.test_utils.copyright_notice import CopyrightNoticeTestBase
-from betty.wikipedia.copyright_notice import WikipediaContributors
+from betty.wiki.copyright_notice import WikipediaContributors
 
 
 def _new_json_fetch_response(json_data: Any) -> FetchResponse:

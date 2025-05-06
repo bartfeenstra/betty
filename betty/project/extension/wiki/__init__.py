@@ -14,16 +14,16 @@ from betty.concurrent import RateLimiter
 from betty.fetch import FetchError
 from betty.jinja2 import Filters, Globals, Jinja2Provider, context_localizer
 from betty.locale import negotiate_locale
-from betty.locale.localizable import _
+from betty.locale.localizable import _, plain
 from betty.plugin import ShorthandPluginBase
 from betty.project.extension import ConfigurableExtension
-from betty.project.extension.wikipedia.config import WikipediaConfiguration
+from betty.project.extension.wiki.config import WikiConfiguration
 from betty.project.load import PostLoadAncestryEvent
 from betty.service import service
-from betty.wikipedia import NotAPageError, parse_page_url
-from betty.wikipedia.client import RATE_LIMIT, Client, Summary
-from betty.wikipedia.copyright_notice import WikipediaContributors
-from betty.wikipedia.populator import Populator
+from betty.wiki import NotAPageError, parse_page_url
+from betty.wiki.client import RATE_LIMIT, Client, Summary
+from betty.wiki.copyright_notice import WikipediaContributors
+from betty.wiki.populator import Populator
 
 if TYPE_CHECKING:
     from collections.abc import Iterable
@@ -39,7 +39,7 @@ if TYPE_CHECKING:
 async def _populate_ancestry(event: PostLoadAncestryEvent) -> None:
     project = event.project
     extensions = await project.extensions
-    wikipedia = extensions[Wikipedia]
+    wikipedia = extensions[Wiki]
     populator = Populator(
         project.ancestry,
         list(project.configuration.locales.keys()),
@@ -51,8 +51,8 @@ async def _populate_ancestry(event: PostLoadAncestryEvent) -> None:
 
 
 @final
-class Wikipedia(
-    ShorthandPluginBase, ConfigurableExtension[WikipediaConfiguration], Jinja2Provider
+class Wiki(
+    ShorthandPluginBase, ConfigurableExtension[WikiConfiguration], Jinja2Provider
 ):
     """
     Integrates Betty with `Wikipedia <https://wikipedia.org>`_.
@@ -63,7 +63,7 @@ class Wikipedia(
         project: Project,
         wikipedia_contributors_copyright_notice: CopyrightNotice,
         *,
-        configuration: WikipediaConfiguration,
+        configuration: WikiConfiguration,
     ):
         super().__init__(project, configuration=configuration)
         self._wikipedia_contributors_copyright_notice = (
@@ -81,9 +81,11 @@ class Wikipedia(
             configuration=cls.new_default_configuration(),
         )
 
-    _plugin_id = "wikipedia"
-    _plugin_label = _("Wikipedia")
-    _plugin_description = _("Enrich your ancestry with information from Wikipedia")
+    _plugin_id = "wiki"
+    _plugin_label = plain("Wiki")
+    _plugin_description = _(
+        "Enrich your ancestry with information from Wikipedia and Wikimedia Commons"
+    )
 
     @override
     def register_event_handlers(self, registry: EventHandlerRegistry) -> None:
@@ -101,7 +103,7 @@ class Wikipedia(
     @service
     async def client(self) -> Client:
         """
-        The Wikipedia query API client.
+        The API client.
         """
         return Client(await self.project.app.fetcher, await self.rate_limiter)
 
@@ -161,5 +163,5 @@ class Wikipedia(
 
     @override
     @classmethod
-    def new_default_configuration(cls) -> WikipediaConfiguration:
-        return WikipediaConfiguration()
+    def new_default_configuration(cls) -> WikiConfiguration:
+        return WikiConfiguration()

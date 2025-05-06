@@ -70,7 +70,7 @@ class TestDemo(ExtensionTestBase[Demo]):
         mocker: MockerFixture,
         new_temporary_app_factory: NewTemporaryAppFactory,
     ) -> None:
-        mocker.patch("betty.wikipedia.populator.Populator.populate")
+        mocker.patch("betty.wiki.populator.Populator.populate")
         async with (
             await new_temporary_app_factory(fetcher=demo_project_fetcher) as app,
             app,

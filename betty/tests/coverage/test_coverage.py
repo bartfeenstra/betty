@@ -390,8 +390,8 @@ _BASELINE: Mapping[str, _ModuleIgnore] = {
     },
     "betty/project/extension/webpack/jinja2/__init__.py": MissingReason.SHOULD_BE_COVERED,
     "betty/project/extension/webpack/jinja2/filter.py": MissingReason.SHOULD_BE_COVERED,
-    "betty/project/extension/wikipedia/config.py": {
-        "WikipediaConfiguration": {
+    "betty/project/extension/wiki/config.py": {
+        "WikiConfiguration": {
             "populate_images": MissingReason.SHOULD_BE_COVERED,
         },
     },
@@ -473,10 +473,10 @@ _BASELINE: Mapping[str, _ModuleIgnore] = {
     "betty/warnings.py": {
         "BettyDeprecationWarning": MissingReason.STATIC_CONTENT_ONLY,
     },
-    "betty/wikipedia/__init__.py": {
+    "betty/wiki/__init__.py": {
         "NotAPageError": MissingReason.STATIC_CONTENT_ONLY,
     },
-    "betty/wikipedia/client.py": {
+    "betty/wiki/client.py": {
         "Image": MissingReason.DATACLASS,
         "Summary": {
             "__eq__": MissingReason.DATACLASS,

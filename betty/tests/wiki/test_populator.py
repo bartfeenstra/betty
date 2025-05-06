@@ -17,9 +17,9 @@ from betty.locale import UNDETERMINED_LOCALE
 from betty.locale.localizer import DEFAULT_LOCALIZER, LocalizerRepository
 from betty.media_type import MediaType
 from betty.media_type.media_types import HTML, PLAIN_TEXT
-from betty.wikipedia.client import Client, Image, Summary
-from betty.wikipedia.copyright_notice import WikipediaContributors
-from betty.wikipedia.populator import Populator
+from betty.wiki.client import Client, Image, Summary
+from betty.wiki.copyright_notice import WikipediaContributors
+from betty.wiki.populator import Populator
 
 if TYPE_CHECKING:
     from pytest_mock import MockerFixture
@@ -29,7 +29,7 @@ class TestPopulator:
     async def test_populate_link__should_convert_http_to_https(
         self, mocker: MockerFixture, tmp_path: Path
     ) -> None:
-        m_client = mocker.patch("betty.wikipedia.client.Client")
+        m_client = mocker.patch("betty.wiki.client.Client")
         link = Link("http://en.wikipedia.org/wiki/Amsterdam")
         page_language = "nl"
         sut = Populator(
@@ -57,7 +57,7 @@ class TestPopulator:
         mocker: MockerFixture,
         tmp_path: Path,
     ) -> None:
-        m_client = mocker.patch("betty.wikipedia.client.Client")
+        m_client = mocker.patch("betty.wiki.client.Client")
         link = Link(
             "http://en.wikipedia.org/wiki/Amsterdam",
             media_type=media_type,
@@ -87,7 +87,7 @@ class TestPopulator:
         mocker: MockerFixture,
         tmp_path: Path,
     ) -> None:
-        m_client = mocker.patch("betty.wikipedia.client.Client")
+        m_client = mocker.patch("betty.wiki.client.Client")
         link = Link("http://en.wikipedia.org/wiki/Amsterdam")
         link.relationship = relationship
         sut = Populator(
@@ -116,7 +116,7 @@ class TestPopulator:
         mocker: MockerFixture,
         tmp_path: Path,
     ) -> None:
-        m_client = mocker.patch("betty.wikipedia.client.Client")
+        m_client = mocker.patch("betty.wiki.client.Client")
         link = Link(f"http://{page_language}.wikipedia.org/wiki/Amsterdam")
         link.locale = original_link_locale
         sut = Populator(
@@ -139,7 +139,7 @@ class TestPopulator:
     async def test_populate_link__should_set_description(
         self, expected: str, description: str, mocker: MockerFixture, tmp_path: Path
     ) -> None:
-        m_client = mocker.patch("betty.wikipedia.client.Client")
+        m_client = mocker.patch("betty.wiki.client.Client")
         link = Link(
             "http://en.wikipedia.org/wiki/Amsterdam",
             description=description,
@@ -165,7 +165,7 @@ class TestPopulator:
     async def test_populate_link__should_set_label(
         self, expected: str, label: str | None, mocker: MockerFixture, tmp_path: Path
     ) -> None:
-        m_client = mocker.patch("betty.wikipedia.client.Client")
+        m_client = mocker.patch("betty.wiki.client.Client")
         link = Link("http://en.wikipedia.org/wiki/Amsterdam")
         if label:
             link.label = label  # type: ignore[assignment]
@@ -188,7 +188,7 @@ class TestPopulator:
     async def test_populate__should_ignore_resource_without_link_support(
         self, mocker: MockerFixture, tmp_path: Path
     ) -> None:
-        m_client = mocker.patch("betty.wikipedia.client.Client")
+        m_client = mocker.patch("betty.wiki.client.Client")
         source = Source("The Source")
         resource = Citation(
             id="the_citation",
@@ -208,7 +208,7 @@ class TestPopulator:
     async def test_populate__should_ignore_resource_without_links(
         self, mocker: MockerFixture, tmp_path: Path
     ) -> None:
-        m_client = mocker.patch("betty.wikipedia.client.Client")
+        m_client = mocker.patch("betty.wiki.client.Client")
         resource = Source(
             id="the_source",
             name="The Source",
@@ -228,7 +228,7 @@ class TestPopulator:
     async def test_populate__should_ignore_non_wikipedia_links(
         self, mocker: MockerFixture, tmp_path: Path
     ) -> None:
-        m_client = mocker.patch("betty.wikipedia.client.Client")
+        m_client = mocker.patch("betty.wiki.client.Client")
         link = Link("https://example.com")
         resource = Source(
             id="the_source",
@@ -251,7 +251,7 @@ class TestPopulator:
         self, mocker: MockerFixture, tmp_path: Path
     ) -> None:
         m_client = mocker.patch(
-            "betty.wikipedia.client.Client", spec=Client, new_callable=AsyncMock
+            "betty.wiki.client.Client", spec=Client, new_callable=AsyncMock
         )
         page_language = "en"
         page_name = "Amsterdam & Omstreken"
@@ -289,7 +289,7 @@ class TestPopulator:
         self, mocker: MockerFixture, tmp_path: Path
     ) -> None:
         m_client = mocker.patch(
-            "betty.wikipedia.client.Client", spec=Client, new_callable=AsyncMock
+            "betty.wiki.client.Client", spec=Client, new_callable=AsyncMock
         )
         page_language = "en"
         page_name = "Amsterdam & Omstreken"
@@ -349,7 +349,7 @@ class TestPopulator:
         self, mocker: MockerFixture, tmp_path: Path
     ) -> None:
         m_client = mocker.patch(
-            "betty.wikipedia.client.Client", spec=Client, new_callable=AsyncMock
+            "betty.wiki.client.Client", spec=Client, new_callable=AsyncMock
         )
         page_language = "en"
         page_name = "Almelo"
@@ -379,7 +379,7 @@ class TestPopulator:
         self, mocker: MockerFixture, tmp_path: Path
     ) -> None:
         m_client = mocker.patch(
-            "betty.wikipedia.client.Client", spec=Client, new_callable=AsyncMock
+            "betty.wiki.client.Client", spec=Client, new_callable=AsyncMock
         )
         page_language = "en"
         page_name = "Almelo"

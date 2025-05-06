@@ -22,7 +22,7 @@ from betty.project.extension.http_api_doc import HttpApiDoc
 from betty.project.extension.maps import Maps
 from betty.project.extension.raspberry_mint import RaspberryMint
 from betty.project.extension.trees import Trees
-from betty.project.extension.wikipedia import Wikipedia
+from betty.project.extension.wiki import Wiki
 from betty.project.load import LoadAncestryEvent, load
 from betty.typing import internal
 
@@ -70,7 +70,7 @@ class Demo(ShorthandPluginBase, NavigationLinkProvider, Extension):
             Maps,
             RaspberryMint,
             Trees,
-            Wikipedia,
+            Wiki,
         }
 
     @override
