@@ -170,7 +170,7 @@ class TestGramps(ExtensionTestBase[Gramps]):
             async with project:
                 await load(project)
             assert isinstance(
-                project.ancestry[Person]["I0000"].presences[0].role, Subject
+                next(iter(project.ancestry[Person]["I0000"].presences)).role, Subject
             )
 
     async def test_load_multiple_family_trees(self, new_temporary_app: App) -> None:
