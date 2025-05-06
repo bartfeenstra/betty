@@ -16,7 +16,6 @@ from betty.app import App
 from betty.model import (
     ENTITY_TYPE_REPOSITORY,
     Entity,
-    UserFacingEntity,
 )
 from betty.plugin.proxy import ProxyPluginRepository
 from betty.plugin.static import StaticPluginRepository
@@ -26,9 +25,10 @@ from betty.project.generate import GenerateSiteEvent, generate
 from betty.string import camel_case_to_kebab_case, kebab_case_to_lower_camel_case
 from betty.test_utils.jinja2 import assert_betty_html, assert_betty_json
 from betty.test_utils.model import DummyEntity
+from betty.user import UserFacing
 
 
-class ThirdPartyEntity(UserFacingEntity, DummyEntity):
+class ThirdPartyEntity(UserFacing, DummyEntity):
     pass
 
 

@@ -5,7 +5,7 @@ from typing import TYPE_CHECKING, TypeVar
 import pytest
 from typing_extensions import override
 
-from betty.model import Entity, UserFacingEntity
+from betty.model import Entity
 from betty.model.association import (
     AssociationRegistry,
     AssociationRequired,
@@ -27,6 +27,7 @@ from betty.model.association import (
 from betty.project import Project
 from betty.test_utils.json.linked_data import assert_dumps_linked_data_for
 from betty.test_utils.model import DummyEntity
+from betty.user import UserFacing
 
 if TYPE_CHECKING:
     from collections.abc import Iterable
@@ -219,7 +220,7 @@ class TestUnidirectionalToZeroOrOne:
     class _Associate(DummyEntity):
         pass
 
-    class _UserFacingAssociate(UserFacingEntity, DummyEntity):
+    class _UserFacingAssociate(UserFacing, DummyEntity):
         pass
 
     def test(self) -> None:
@@ -395,7 +396,7 @@ class TestBidirectionalToZeroOrOne:
             "associate",
         )
 
-    class _UserFacingAssociate(UserFacingEntity, DummyEntity):
+    class _UserFacingAssociate(UserFacing, DummyEntity):
         owner = BidirectionalToZeroOrOne[
             "TestBidirectionalToZeroOrOne._UserFacingAssociate",
             "TestBidirectionalToZeroOrOne._OwnerWithUserFacingAssociate",
@@ -547,7 +548,7 @@ class TestUnidirectionalToOne:
             linked_data_embedded=True,
         )
 
-    class _OwnerWithUserFacingAssociate(UserFacingEntity, DummyEntity):
+    class _OwnerWithUserFacingAssociate(UserFacing, DummyEntity):
         def __init__(self, associate: TestUnidirectionalToOne._UserFacingAssociate):
             super().__init__()
             self.associate = associate
@@ -564,7 +565,7 @@ class TestUnidirectionalToOne:
     class _Associate(DummyEntity):
         pass
 
-    class _UserFacingAssociate(UserFacingEntity, DummyEntity):
+    class _UserFacingAssociate(UserFacing, DummyEntity):
         pass
 
     def test(self) -> None:
@@ -701,7 +702,7 @@ class TestBidirectionalToOne:
             "owner",
         )
 
-    class _UserFacingAssociate(UserFacingEntity, DummyEntity):
+    class _UserFacingAssociate(UserFacing, DummyEntity):
         owner = BidirectionalToZeroOrOne[
             "TestBidirectionalToOne._UserFacingAssociate",
             "TestBidirectionalToOne._OwnerWithUserFacingAssociate",
@@ -803,7 +804,7 @@ class TestUnidirectionalToMany:
     class _Associate(DummyEntity):
         pass
 
-    class _UserFacingAssociate(UserFacingEntity, _Associate):
+    class _UserFacingAssociate(UserFacing, _Associate):
         pass
 
     def test(self) -> None:
@@ -924,7 +925,7 @@ class TestBidirectionalToMany:
             "associates",
         )
 
-    class _UserFacingAssociateEmbedded(UserFacingEntity, _AssociateEmbedded):
+    class _UserFacingAssociateEmbedded(UserFacing, _AssociateEmbedded):
         pass
 
     class _OwnerWithUserFacingAssociate(DummyEntity):
@@ -938,7 +939,7 @@ class TestBidirectionalToMany:
             "owner",
         )
 
-    class _UserFacingAssociate(UserFacingEntity, DummyEntity):
+    class _UserFacingAssociate(UserFacing, DummyEntity):
         owner = BidirectionalToZeroOrOne[
             "TestBidirectionalToMany._UserFacingAssociate",
             "TestBidirectionalToMany._OwnerWithUserFacingAssociate",

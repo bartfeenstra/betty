@@ -17,11 +17,7 @@ from betty.license.licenses import AllRightsReserved
 from betty.locale import DEFAULT_LOCALE, UNDETERMINED_LOCALE
 from betty.locale.localizer import DEFAULT_LOCALIZER
 from betty.machine_name import MachineName
-from betty.model import UserFacingEntity
-from betty.plugin.config import (
-    PluginConfiguration,
-    PluginInstanceConfiguration,
-)
+from betty.plugin.config import PluginConfiguration, PluginInstanceConfiguration
 from betty.plugin.static import StaticPluginRepository
 from betty.project.config import (
     CopyrightNoticeConfiguration,
@@ -49,6 +45,7 @@ from betty.test_utils.project.extension import (
     DummyExtension,
 )
 from betty.typing import Void
+from betty.user import UserFacing
 
 if TYPE_CHECKING:
     from collections.abc import Iterable
@@ -285,11 +282,11 @@ class TestExtensionInstanceConfigurationMapping(
         assert DummyExtension in sut
 
 
-class EntityTypeConfigurationTestEntityOne(UserFacingEntity, DummyEntity):
+class EntityTypeConfigurationTestEntityOne(UserFacing, DummyEntity):
     pass
 
 
-class EntityTypeConfigurationTestEntityOther(UserFacingEntity, DummyEntity):
+class EntityTypeConfigurationTestEntityOther(UserFacing, DummyEntity):
     pass
 
 

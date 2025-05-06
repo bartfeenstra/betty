@@ -16,13 +16,14 @@ from betty.locale.localizable import (
     _,
     ngettext,
 )
-from betty.model import Entity, UserFacingEntity
+from betty.model import Entity
 from betty.model.association import (
     BidirectionalToZeroOrOne,
     ToZeroOrOneAssociate,
 )
 from betty.plugin import ShorthandPluginBase
 from betty.privacy import HasPrivacy, Privacy
+from betty.user import UserFacing
 
 if TYPE_CHECKING:
     from betty.ancestry.has_notes import HasNotes
@@ -31,7 +32,7 @@ if TYPE_CHECKING:
 
 
 @final
-class Note(ShorthandPluginBase, UserFacingEntity, HasPrivacy, HasLinks, Entity):
+class Note(ShorthandPluginBase, UserFacing, HasPrivacy, HasLinks, Entity):
     """
     A note is a bit of textual information that can be associated with another entity.
     """

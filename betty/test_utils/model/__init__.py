@@ -10,8 +10,9 @@ from typing_extensions import override
 
 from betty.locale.localizable import Localizable, plain
 from betty.locale.localizer import DEFAULT_LOCALIZER
-from betty.model import Entity, UserFacingEntity
+from betty.model import Entity
 from betty.test_utils.plugin import DummyPlugin, PluginTestBase
+from betty.user import UserFacing
 
 if TYPE_CHECKING:
     from collections.abc import Sequence
@@ -58,7 +59,7 @@ class DummyEntity(DummyPlugin, Entity):
         return plain(cls.__name__)
 
 
-class DummyUserFacingEntity(UserFacingEntity, DummyEntity):
+class DummyUserFacingEntity(UserFacing, DummyEntity):
     """
     A dummy user-facing entity.
     """

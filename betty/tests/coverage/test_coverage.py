@@ -273,7 +273,6 @@ _BASELINE: Mapping[str, _ModuleIgnore] = {
         "EntityReferenceCollectionSchema": MissingReason.STATIC_CONTENT_ONLY,
         "EntityReferenceSchema": MissingReason.STATIC_CONTENT_ONLY,
         "NonPersistentId": MissingReason.SHOULD_BE_COVERED,
-        "UserFacingEntity": MissingReason.ABSTRACT,
     },
     "betty/model/association.py": {
         "BidirectionalToOne": {

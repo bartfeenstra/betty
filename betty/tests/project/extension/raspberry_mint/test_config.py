@@ -3,12 +3,12 @@ from __future__ import annotations
 from typing import TYPE_CHECKING, Any
 
 from betty.assertion.error import AssertionFailed
-from betty.model import UserFacingEntity
 from betty.model.config import EntityReference
 from betty.plugin.static import StaticPluginRepository
 from betty.project.extension.raspberry_mint.config import RaspberryMintConfiguration
 from betty.test_utils.assertion.error import raises_error
 from betty.test_utils.model import DummyEntity
+from betty.user import UserFacing
 
 if TYPE_CHECKING:
     from collections.abc import Mapping
@@ -18,7 +18,7 @@ if TYPE_CHECKING:
     from betty.serde.dump import Dump, DumpMapping
 
 
-class RaspberryMintConfigurationTestEntity(UserFacingEntity, DummyEntity):
+class RaspberryMintConfigurationTestEntity(UserFacing, DummyEntity):
     pass
 
 
