@@ -29,7 +29,7 @@ from betty.plugin.entry_point import EntryPointPluginRepository
 from betty.repr import repr_instance
 from betty.string import kebab_case_to_lower_camel_case
 from betty.user import UserFacing
-from betty.warnings import deprecate, deprecated
+from betty.warnings import deprecate
 
 if TYPE_CHECKING:
     import builtins
@@ -236,15 +236,6 @@ class ToOneSchema(String):
         )
 
 
-@deprecated(
-    f"This class has been deprecated since Betty 0.4.13, and will be removed in Betty 0.5. Instead use {ToOneSchema}."
-)
-class EntityReferenceSchema(ToOneSchema):
-    """
-    A schema for a reference to another entity resource.
-    """
-
-
 class ToManySchema(Array):
     """
     A schema for a to-many entity association.
@@ -257,12 +248,3 @@ class ToManySchema(Array):
             description=description
             or "References to associate entities' JSON resources",
         )
-
-
-@deprecated(
-    f"This class has been deprecated since Betty 0.4.13, and will be removed in Betty 0.5. Instead use {ToManySchema}."
-)
-class EntityReferenceCollectionSchema(ToManySchema):
-    """
-    A schema for a collection of references to other entity resources.
-    """
