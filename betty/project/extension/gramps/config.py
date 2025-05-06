@@ -6,7 +6,6 @@ from __future__ import annotations
 
 from pathlib import Path
 from typing import TYPE_CHECKING, Any, TypeVar, final
-from warnings import warn
 
 from typing_extensions import override
 
@@ -116,7 +115,6 @@ class FamilyTreeConfiguration(Configuration):
         event_types: Mapping[str, PluginInstanceConfiguration] | None = None,
         place_types: Mapping[str, PluginInstanceConfiguration] | None = None,
         presence_roles: Mapping[str, PluginInstanceConfiguration] | None = None,
-        genders: Mapping[str, PluginInstanceConfiguration] | None = None,
     ):
         super().__init__()
         self.file_path = file_path
@@ -127,13 +125,6 @@ class FamilyTreeConfiguration(Configuration):
             },
             event_types or {},
         )
-        if genders is not None:
-            warn(
-                "The ``genders`` argument has been deprecated since Betty 0.4.13. There is no alternative.",
-                category=DeprecationWarning,
-                stacklevel=2,
-            )
-        self._genders = PluginMapping({}, genders or {})
         self._place_types = PluginMapping(
             {
                 gramps_value: PluginInstanceConfiguration(event_type)
@@ -153,7 +144,6 @@ class FamilyTreeConfiguration(Configuration):
     def get_mutable_instances(self) -> Iterable[Mutable]:
         return (
             self._event_types,
-            self._genders,
             self._place_types,
             self._presence_roles,
         )
@@ -178,13 +168,6 @@ class FamilyTreeConfiguration(Configuration):
         return self._event_types
 
     @property
-    def genders(self) -> PluginMapping:
-        """
-        How to map genders.
-        """
-        return self._genders
-
-    @property
     def place_types(self) -> PluginMapping:
         """
         How to map place types.
@@ -204,7 +187,6 @@ class FamilyTreeConfiguration(Configuration):
         assert_record(
             RequiredField("file", assert_path() | assert_setattr(self, "file_path")),
             OptionalField("event_types", self.event_types.load),
-            OptionalField("genders", self.genders.load),
             OptionalField("place_types", self.place_types.load),
             OptionalField("presence_roles", self.presence_roles.load),
         )(dump)
@@ -214,7 +196,6 @@ class FamilyTreeConfiguration(Configuration):
         return {
             "file": str(self.file_path) if self.file_path else None,
             "event_types": self.event_types.dump(),
-            "genders": self.genders.dump(),
             "place_types": self.place_types.dump(),
             "presence_roles": self.presence_roles.dump(),
         }
