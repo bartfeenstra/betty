@@ -10,7 +10,7 @@ from typing import TYPE_CHECKING, Generic, Literal, Self, TypeAlias, overload
 
 from typing_extensions import TypeVar
 
-from betty.typing import threadsafe
+from betty.typing import processsafe
 
 if TYPE_CHECKING:
     from contextlib import AbstractAsyncContextManager
@@ -42,13 +42,10 @@ class CacheItem(Generic[_CacheItemValueCoT], ABC):
 CacheItemValueSetter: TypeAlias = Callable[[_CacheItemValueT], Awaitable[None]]
 
 
-@threadsafe
+@processsafe
 class Cache(Generic[_CacheItemValueContraT], ABC):
     """
     A cache.
-
-    Implementations SHOULD be multiprocessing-safe. It is deprecated for implementations not to be multiprocessing-safe
-    as of Betty 0.4.10. As of Betty 0.5.0, implementations MUST be multiprocessing-safe.
 
     To test your own subclasses, use :py:class:`betty.test_utils.cache.CacheTestBase`.
     """
