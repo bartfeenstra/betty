@@ -12,7 +12,7 @@ from typing import Any, Self, cast, final
 import aiofiles
 from jsonschema.validators import Draft202012Validator
 from referencing import Registry, Resource
-from typing_extensions import deprecated, override
+from typing_extensions import override
 
 from betty.serde.dump import Dump, DumpMapping
 
@@ -403,35 +403,8 @@ class JsonSchemaReference(String):
         )
 
 
-@deprecated(
-    "This has been deprecated since Betty 0.4.10. There is no direct alternative."
-)
-class FileBasedSchema(Schema):
-    """
-    A JSON Schema that is stored in a file.
-    """
-
-    @classmethod
-    async def new_for(
-        cls,
-        file_path: Path,
-        *,
-        def_name: str | None = None,
-        title: str | None = None,
-        description: str | None = None,
-    ) -> Self:
-        """
-        Create a new instance.
-        """
-        async with aiofiles.open(file_path) as f:
-            raw_schema = await f.read()
-        schema = cls(def_name=def_name, title=title, description=description)
-        schema._schema = loads(raw_schema)  # type: ignore[assignment]
-        return schema
-
-
 @final
-class JsonSchemaSchema(FileBasedSchema):
+class JsonSchemaSchema(Schema):
     """
     The JSON Schema Draft 2020-12 schema.
     """
@@ -444,9 +417,10 @@ class JsonSchemaSchema(FileBasedSchema):
         Create a new instance.
         """
         if cls._instance is None:
-            cls._instance = await cls.new_for(
-                Path(__file__).parent / "schemas" / "json-schema.json",
-                def_name="jsonSchema",
-                title="JSON Schema",
-            )
+            async with aiofiles.open(
+                Path(__file__).parent / "schemas" / "json-schema.json"
+            ) as f:
+                raw_schema = await f.read()
+            cls._instance = cls(def_name="jsonSchema", title="JSON Schema")
+            cls._instance._schema = loads(raw_schema)  # type: ignore[assignment]
         return cls._instance

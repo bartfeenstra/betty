@@ -1,9 +1,6 @@
-import json
 from collections.abc import Sequence
-from pathlib import Path
 from typing import TYPE_CHECKING
 
-import aiofiles
 from typing_extensions import override
 
 from betty.json.schema import (
@@ -14,7 +11,6 @@ from betty.json.schema import (
     Const,
     Def,
     Enum,
-    FileBasedSchema,
     Integer,
     JsonSchemaReference,
     JsonSchemaSchema,
@@ -132,19 +128,6 @@ class TestRef(SchemaTestBase):
         return [
             (Ref("someDefinition"), [], []),
         ]
-
-
-class TestFileBasedSchema:
-    async def test_new_for(self, tmp_path: Path) -> None:
-        schema = {
-            "$schema": "https://json-schema.org/draft/2020-12/schema",
-            "type": "string",
-        }
-        schema_path = tmp_path / "schema.json"
-        async with aiofiles.open(schema_path, "w") as f:
-            await f.write(json.dumps(schema))
-        sut = await FileBasedSchema.new_for(schema_path)
-        assert sut.schema == schema
 
 
 class TestJsonSchemaReference(SchemaTestBase):

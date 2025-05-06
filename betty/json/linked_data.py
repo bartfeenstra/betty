@@ -7,12 +7,14 @@ from __future__ import annotations
 from abc import ABC, abstractmethod
 from collections.abc import MutableSequence
 from inspect import getmembers
+from json import loads
 from pathlib import Path
 from typing import TYPE_CHECKING, Generic, Self, cast, final
 
+import aiofiles
 from typing_extensions import TypeVar, override
 
-from betty.json.schema import FileBasedSchema, Object, Schema
+from betty.json.schema import Object, Schema
 from betty.serde.dump import Dump, DumpMapping
 from betty.string import snake_case_to_lower_camel_case
 
@@ -158,7 +160,7 @@ async def dump_link(dump: DumpMapping[Dump], project: Project, *links: Link) -> 
 
 
 @final
-class JsonLdSchema(FileBasedSchema):
+class JsonLdSchema(Schema):
     """
     A `JSON-LD <https://json-ld.org/>`_ JSON Schema reference.
     """
@@ -171,9 +173,10 @@ class JsonLdSchema(FileBasedSchema):
         Create a new instance.
         """
         if cls._instance is None:
-            cls._instance = await cls.new_for(
-                Path(__file__).parent / "schemas" / "json-ld.json",
-                def_name="jsonLd",
-                title="JSON-LD",
-            )
+            async with aiofiles.open(
+                Path(__file__).parent / "schemas" / "json-ld.json"
+            ) as f:
+                raw_schema = await f.read()
+            cls._instance = cls(def_name="jsonLd", title="JSON-LD")
+            cls._instance._schema = loads(raw_schema)  # type: ignore[assignment]
         return cls._instance
