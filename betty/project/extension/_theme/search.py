@@ -1,5 +1,5 @@
 """
-Provide Cotton Candy's search functionality.
+Provide search functionality.
 """
 
 from __future__ import annotations

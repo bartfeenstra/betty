@@ -395,7 +395,7 @@ class TestProject:
 
     async def test_extension_repository(self, new_temporary_app: App) -> None:
         async with Project.new_temporary(new_temporary_app) as sut, sut:
-            assert await sut.extension_repository.get("cotton-candy")
+            assert await sut.extension_repository.get("raspberry-mint")
 
 
 class TestProjectContext:

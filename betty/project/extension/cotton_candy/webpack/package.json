@@ -1,6 +1,0 @@
-{
-  "name": "@betty.py/betty.extension.cotton-candy",
-  "dependencies": {
-    "@betty.py/betty": "*"
-  }
-}

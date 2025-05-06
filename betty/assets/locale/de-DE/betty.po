@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Betty VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2025-04-24 14:22+0100\n"
+"POT-Creation-Date: 2025-05-06 18:45+0100\n"
 "PO-Revision-Date: 2025-03-28 20:02+0000\n"
 "Last-Translator: Ettore Atalan <atalanttore@googlemail.com>\n"
 "Language: de_DE\n"
@@ -49,26 +49,6 @@ msgstr "%(event)s von %(subjects)s"
 msgid "%(event)s with %(subjects)s"
 msgstr "%(event)s mit %(subjects)s"
 
-#, python-format
-msgid "%(person_individual_name)s had a child with %(co_parent_labels)s."
-msgid_plural ""
-"%(person_individual_name)s had %(child_count)s children with "
-"%(co_parent_labels)s."
-msgstr[0] "%(person_individual_name)s hat ein Kind mit %(co_parent_labels)s."
-msgstr[1] ""
-"%(person_individual_name)s hat %(child_count)s Kinder mit "
-"%(co_parent_labels)s."
-
-#, python-format
-msgid "%(person_individual_name)s had a child."
-msgid_plural "%(person_individual_name)s had %(child_count)s children."
-msgstr[0] "%(person_individual_name)s hatte ein Kind."
-msgstr[1] "%(person_individual_name)s hatte %(child_count)s Kinder."
-
-#, python-format
-msgid "%(person_individual_name)s is the child of %(parent_labels)s."
-msgstr "%(person_individual_name)s ist Kind von %(parent_labels)s."
-
 msgid ""
 "A family history as told by <a "
 "href=\"https://betty.readthedocs.io\">Betty👵</a>"
@@ -104,9 +84,6 @@ msgstr "Alle Rechte vorbehalten"
 #, python-format
 msgid "Also known as %(names)s"
 msgstr "Auch bekannt als %(names)s"
-
-msgid "Ancestral names include"
-msgstr "Zu den Namen der Vorfahren gehören"
 
 msgid "Announcement of divorce"
 msgstr "Ankündigung der Scheidung"
@@ -319,9 +296,6 @@ msgstr ""
 msgid "Correspondence"
 msgstr "Schriftverkehr"
 
-msgid "Cotton Candy is Betty's legacy theme."
-msgstr ""
-
 #, python-brace-format
 msgid "Could not extract {file_path} as a gzip file  (*.gz)."
 msgstr "Konnte {file_path} nicht als gzip (*.gz) Date extrahieren."
@@ -397,9 +371,6 @@ msgstr "Ableiter"
 msgid "Deriving..."
 msgstr "Ableiten..."
 
-msgid "Descendant names include"
-msgstr "Zu den Namen der Nachkommen gehören"
-
 msgid "Description, licensing, and image history"
 msgstr "Beschreibung, Lizenzierung und Bildgeschichte"
 
@@ -447,10 +418,6 @@ msgstr ""
 msgid "Do you want to load a Gramps family tree?"
 msgstr ""
 
-#, python-format
-msgid "E.g. \"%(example)s\""
-msgstr "Z.B. \"%(example)s\""
-
 msgid "Emigration"
 msgstr "Auswanderung"
 
@@ -478,9 +445,6 @@ msgstr "Ereignisse"
 #, python-brace-format
 msgid "Exactly {expected} items are required, but found {actual}."
 msgstr ""
-
-msgid "Exit the search"
-msgstr "Suche beenden"
 
 msgid "Explore a demonstration site"
 msgstr ""
@@ -565,21 +529,6 @@ msgstr "HTTP API Dokumentation"
 
 msgid "Hamlet"
 msgstr "Weiler"
-
-msgid "I'm sorry, dear, but it seems there are no events."
-msgstr "Es tut mir leid, aber sieht so aus, als ob es keine Ereignisse gibt."
-
-msgid "I'm sorry, dear, but it seems there are no media."
-msgstr "Es tut mir leid, aber sieht so aus, als ob es keine Medien gibt."
-
-msgid "I'm sorry, dear, but it seems there are no people."
-msgstr "Es tut mir leid, aber sieht so aus, als ob es keine Personen gibt."
-
-msgid "I'm sorry, dear, but it seems there are no places."
-msgstr "Es tut mir leid, aber sieht so aus, als ob es keine Orte gibt."
-
-msgid "I'm sorry, dear, but it seems there are no sources."
-msgstr "Es tut mir leid, aber sieht so aus, als ob es keine Quellen gibt."
 
 msgid "I'm sorry, dear, but it seems there is nothing to show."
 msgstr ""
@@ -987,9 +936,6 @@ msgid_plural "They had %(child_count)s children."
 msgstr[0] "Er oder sie hatte ein Kind."
 msgstr[1] "Er oder sie hatten %(child_count)s Kinder."
 
-msgid "This citation's details are unavailable to protect people's privacy."
-msgstr ""
-
 msgid "This field is required."
 msgstr "Diese Feld ist erforderlich."
 
@@ -1023,19 +969,8 @@ msgstr "Es muss eine ganze Zahl sein."
 msgid "This must be none/null."
 msgstr "Es muss None/Null sein."
 
-msgid "This person's details are unavailable to protect their privacy."
-msgstr ""
-"Die Angaben zu dieser Person sind zum Schutz ihrer Privatsphäre nicht "
-"verfügbar."
-
-msgid "This person's name is unavailable to protect their privacy."
-msgstr "Der Name dieser Person ist zum Schutz ihrer Privatsphäre nicht verfügbar."
-
 msgid "This person's name is unknown."
 msgstr "Der Name dieser Person ist nicht bekannt."
-
-msgid "This source's details are unavailable to protect people's privacy."
-msgstr ""
 
 msgid "Timeline"
 msgstr "Zeitschiene"
@@ -1083,13 +1018,6 @@ msgid ""
 msgstr ""
 "Aktualisierte {updated_derivations} {event_type} Ereignisse auf Grund "
 "existierender Informationen."
-
-msgid ""
-"Use <kbd>↑</kbd> and <kbd>↓</kbd> to navigate results, or <kbd>esc</kbd> "
-"to exit the search."
-msgstr ""
-"Nimm <kbd>↑</kbd> und <kbd>↓</kbd> um zwischen den Ergebnissen zu "
-"navigieren oder <kbd>esc</kbd> um die Suche zu verlassen."
 
 msgid "View original"
 msgstr "Original ansehen"
@@ -1145,15 +1073,6 @@ msgid ""
 "Works in the public domain can be used or referenced without permission, "
 "because nobody holds any exclusive rights over these works (anymore)."
 msgstr ""
-
-#, python-format
-msgid ""
-"Your browser cannot show PDF documents. <a href=\"%(file_url)s\">Download"
-" %(file_name)s</a> to view it on your device instead."
-msgstr ""
-"Dein Browser kann keine PDF-Dokumente anzeigen <a "
-"href=\"%(file_url)s\">Late %(file_name)s</a> herunter, um sie auf deinem "
-"Gerät anzuzeigen."
 
 msgid ""
 "Your project has no theme enabled. This means your site's pages may look "
@@ -1251,21 +1170,6 @@ msgstr "npm ist nicht verfügbar"
 
 msgid "private"
 msgstr "anonym"
-
-#, python-format
-msgid "show %(name_count)s more"
-msgid_plural "show %(name_count)s more"
-msgstr[0] "zeige weitere %(name_count)s"
-msgstr[1] "zeige %(name_count)s weite"
-
-msgid "show fewer"
-msgstr "zeige weniger"
-
-msgid "show less"
-msgstr "zeige weniger"
-
-msgid "show more"
-msgstr "zeige mehr"
 
 msgid "sometime"
 msgstr "irgendwann"

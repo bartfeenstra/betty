@@ -1,9 +1,0 @@
-{% set people = people | default(entities) | select('public') | list %}
-<ul class="entities">
-    {%- for person in people %}
-        <li class="{{ loop.cycle('odd', 'even') }}" {% if type_of is defined %} typeOf="{{ type_of }}"{% endif %} {% if property is defined %}property="{{ property }}"{% endif %}>
-            {% include 'entity/label--person.html.j2' %}
-            {% include 'entity/meta--person.html.j2' ignore missing %}
-        </li>
-    {%- endfor -%}
-</ul>

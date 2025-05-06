@@ -8,7 +8,6 @@
     "@types/node": "*",
     "@types/webpack": "^5.28.5",
     "@betty.py/betty": "file:./js",
-    "@betty.py/betty.extension.cotton-candy": "file:./betty/project/extension/cotton_candy/webpack",
     "@betty.py/betty.extension.http-api-doc": "file:./betty/project/extension/http_api_doc/webpack",
     "@betty.py/betty.extension.maps": "file:./betty/project/extension/maps/webpack",
     "@betty.py/betty.extension.raspberry-mint": "file:./betty/project/extension/raspberry_mint/webpack",
