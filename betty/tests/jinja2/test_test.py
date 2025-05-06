@@ -12,16 +12,6 @@ from betty.ancestry.event_type.event_types import (
 from betty.ancestry.event_type.event_types import (
     Unknown as UnknownEventType,
 )
-from betty.ancestry.name import Name
-from betty.ancestry.person import Person
-from betty.ancestry.place import Place
-from betty.ancestry.presence_role.presence_roles import (
-    Subject,
-    Witness,
-)
-from betty.ancestry.presence_role.presence_roles import (
-    Unknown as UnknownPresenceRole,
-)
 from betty.date import Date, DateRange
 from betty.jinja2.test import PluginTester
 from betty.json.linked_data import LinkedDataDumpableJsonLdObject
@@ -33,11 +23,9 @@ from betty.test_utils.model import DummyUserFacingEntity
 from betty.test_utils.plugin import DummyPlugin
 from betty.tests.ancestry.test___init__ import DummyHasFileReferences
 from betty.tests.ancestry.test_link import DummyHasLinks
-from betty.warnings import BettyDeprecationWarning
 
 if TYPE_CHECKING:
     from betty.machine_name import MachineName
-    from betty.model import Entity
 
 
 class DummyPluginOne(DummyPlugin):
@@ -68,94 +56,6 @@ class TestPluginTester:
     ) -> None:
         sut = PluginTester(DummyPlugin, "dummy_plugin")
         assert sut(data, plugin_identifier) == expected
-
-
-class TestTestEntity:
-    @pytest.mark.parametrize(
-        ("expected", "entity_type_identifier", "data"),
-        [
-            ("true", None, Person(id="P1")),
-            ("true", Person, Person(id="P1")),
-            (
-                "false",
-                Person,
-                Place(
-                    id="P1",
-                    names=[Name("The Place")],
-                ),
-            ),
-            (
-                "true",
-                Place,
-                Place(
-                    id="P1",
-                    names=[Name("The Place")],
-                ),
-            ),
-            ("false", Place, Person(id="P1")),
-            ("false", Place, 999),
-            ("false", Person, object()),
-        ],
-    )
-    async def test___call__(
-        self, expected: str, entity_type_identifier: type[Entity] | None, data: Any
-    ) -> None:
-        entity_type_identifier_arg = (
-            ""
-            if entity_type_identifier is None
-            else f'"{entity_type_identifier.plugin_id()}"'
-        )
-        template = f"{{% if data is entity({entity_type_identifier_arg}) %}}true{{% else %}}false{{% endif %}}"
-        with pytest.warns(BettyDeprecationWarning):
-            async with assert_template_string(
-                template=template,
-                data={
-                    "data": data,
-                },
-            ) as (actual, _):
-                assert actual == expected
-
-
-@pytest.mark.parametrize(
-    ("expected", "data"),
-    [
-        ("true", Subject()),
-        ("false", Subject),
-        ("false", UnknownPresenceRole()),
-        ("false", object()),
-    ],
-)
-async def test_test_subject_role(expected: str, data: Any) -> None:
-    template = "{% if data is subject_role %}true{% else %}false{% endif %}"
-    with pytest.warns(BettyDeprecationWarning):
-        async with assert_template_string(
-            template=template,
-            data={
-                "data": data,
-            },
-        ) as (actual, _):
-            assert actual == expected
-
-
-@pytest.mark.parametrize(
-    ("expected", "data"),
-    [
-        ("true", Witness()),
-        ("false", Witness),
-        ("false", UnknownPresenceRole()),
-        ("false", object()),
-    ],
-)
-async def test_test_witness_role(expected: str, data: Any) -> None:
-    template = "{% if data is witness_role %}true{% else %}false{% endif %}"
-    with pytest.warns(BettyDeprecationWarning):
-        async with assert_template_string(
-            template=template,
-            data={
-                "data": data,
-            },
-        ) as (actual, _):
-            assert actual == expected
 
 
 @pytest.mark.parametrize(
