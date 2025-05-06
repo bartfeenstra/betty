@@ -20,7 +20,6 @@ In addition to Jinja2's built-in filters, Betty provides the following:
 - :py:func:`json <betty.jinja2.filter.filter_json>`
 - :py:func:`locale_get_data <betty.locale.get_data>`
 - :py:func:`localize <betty.jinja2.filter.filter_localize>`
-- :py:func:`localized_url <betty.jinja2.filter.filter_localized_url>` (deprecated)
 - :py:func:`map <betty.jinja2.filter.filter_map>`
 - :py:func:`negotiate_has_dates <betty.jinja2.filter.filter_negotiate_has_dates>`
 - :py:func:`negotiate_localizeds <betty.jinja2.filter.filter_negotiate_localizeds>`
@@ -29,7 +28,6 @@ In addition to Jinja2's built-in filters, Betty provides the following:
 - :py:func:`public_js <betty.jinja2.filter.filter_public_js>`
 - :py:func:`select_has_dates <betty.jinja2.filter.filter_select_has_dates>`
 - :py:func:`select_localizeds <betty.jinja2.filter.filter_select_localizeds>`
-- :py:func:`static_url <betty.jinja2.filter.filter_static_url>` (deprecated)
 - :py:func:`sort_localizeds <betty.jinja2.filter.filter_sort_localizeds>`
 - :py:class:`str <str>`
 - :py:func:`unique <betty.jinja2.filter.filter_unique>`
