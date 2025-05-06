@@ -96,7 +96,7 @@ class _FileCache(
         cache_directory_path: Path,
         *,
         scopes: Sequence[str] | None = None,
-        manager: SyncManager | _CommonCacheBaseState[Self] | None = None,
+        manager: SyncManager | _CommonCacheBaseState[Self],
     ):
         super().__init__(scopes=scopes, manager=manager)
         self._root_path = cache_directory_path

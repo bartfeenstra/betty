@@ -17,7 +17,7 @@ import aiofiles
 from typing_extensions import override
 
 from betty.cache.file import BinaryFileCache
-from betty.concurrent import AsynchronizedLock, Ledger, ensure_manager
+from betty.concurrent import AsynchronizedLock, Ledger
 from betty.error import UserFacingError
 from betty.factory import Factory
 from betty.fetch import Fetcher, FetchError
@@ -98,10 +98,9 @@ class SpdxLicenseRepository(PluginRepository[License]):
         binary_file_cache: BinaryFileCache,
         process_pool: Executor,
         factory: Factory | None = None,
-        manager: SyncManager | None = None,
+        manager: SyncManager,
     ):
         super().__init__(factory=factory)
-        manager = ensure_manager(manager)
         self._fetcher = fetcher
         self._localizer = localizer
         self._cache_directory_path = binary_file_cache.with_scope(

@@ -9,7 +9,6 @@ from typing import TYPE_CHECKING, Any
 from uuid import uuid4
 
 from betty.cache.memory import MemoryCache
-from betty.concurrent import ensure_manager
 
 if TYPE_CHECKING:
     from multiprocessing.managers import SyncManager
@@ -22,8 +21,7 @@ class Context:
     Define a job context.
     """
 
-    def __init__(self, *, manager: SyncManager | None = None):
-        manager = ensure_manager(manager)
+    def __init__(self, *, manager: SyncManager):
         self._id = str(uuid4())
         self._cache: Cache[Any] = MemoryCache(manager=manager)
         self._start = datetime.now()

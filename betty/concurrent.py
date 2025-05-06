@@ -3,7 +3,6 @@ Provide utilities for concurrent programming.
 """
 
 import asyncio
-import multiprocessing
 import threading
 import time
 from abc import ABC, abstractmethod
@@ -18,7 +17,6 @@ from typing import Self, TypeAlias, TypeVar, Union, final
 from typing_extensions import override
 
 from betty.typing import processsafe
-from betty.warnings import deprecate
 
 _KeyT = TypeVar("_KeyT")
 _ValueT = TypeVar("_ValueT")
@@ -176,10 +174,7 @@ class RateLimiter:
     This class implements the `Token Bucket algorithm <https://en.wikipedia.org/wiki/Token_bucket>`_.
     """
 
-    def __init__(
-        self, maximum: int, period: int = 1, *, manager: SyncManager | None = None
-    ):
-        manager = ensure_manager(manager)
+    def __init__(self, maximum: int, period: int = 1, *, manager: SyncManager):
         self._lock = AsynchronizedLock(manager.Lock())
         self._maximum = maximum
         self._period = period
@@ -280,8 +275,7 @@ class Ledger:
     The ledger lock is released once a transaction lock is acquired.
     """
 
-    def __init__(self, ledger_lock: Lock, *, manager: SyncManager | None = None):
-        manager = ensure_manager(manager)
+    def __init__(self, ledger_lock: Lock, *, manager: SyncManager):
         self._ledger_lock = ledger_lock
         self._ledger: MutableMapping[Hashable, bool] = manager.dict()
 
@@ -290,16 +284,3 @@ class Ledger:
         Ledger a new lock for the given transaction ID.
         """
         return _Transaction(transaction_id, self._ledger_lock, self._ledger)
-
-
-def ensure_manager(manager: SyncManager | None, *, stacklevel: int = 1) -> SyncManager:
-    """
-    Ensure that a value is a multiprocessing manager.
-    """
-    if manager:
-        return manager
-    deprecate(
-        "Not providing a multiprocessing manager is deprecated as of Betty 0.4.10.",
-        stacklevel=stacklevel,
-    )
-    return multiprocessing.Manager()
