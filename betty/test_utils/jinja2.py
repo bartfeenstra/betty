@@ -17,7 +17,6 @@ from betty.jinja2 import Environment
 from betty.json.schema import AllOf, Ref
 from betty.project import Project, ProjectSchema
 from betty.project.extension import Extension
-from betty.warnings import deprecated
 
 if TYPE_CHECKING:
     from collections.abc import AsyncIterator, Callable, MutableMapping
@@ -106,63 +105,6 @@ class _TemplateTestBase:
     """
     The extensions to enable before rendering the template.
     """
-
-
-class TemplateStringTestBase(_TemplateTestBase):
-    """
-    A base class for testing Jinja2 template strings.
-    """
-
-    @deprecated(
-        f"This class is deprecated as of Betty 0.4.11. Use {assert_template_string} directly instead."
-    )
-    def assert_template_string(
-        self,
-        template: str,
-        *,
-        data: MutableMapping[str, Any] | None = None,
-        locale: Localey | None = None,
-        autoescape: bool | None = None,
-    ) -> AbstractAsyncContextManager[tuple[str, Project]]:
-        """
-        Assert that a template string can be rendered.
-        """
-        return assert_template_string(
-            template,
-            data=data,
-            locale=locale,
-            autoescape=autoescape,
-            extensions=self.extensions,
-        )
-
-
-class TemplateFileTestBase(_TemplateTestBase):
-    """
-    A base class for testing Jinja2 template files.
-    """
-
-    template: str
-
-    @deprecated(
-        f"This class is deprecated as of Betty 0.4.11. Use {assert_template_file} directly instead."
-    )
-    def assert_template_file(
-        self,
-        *,
-        data: MutableMapping[str, Any] | None = None,
-        locale: Localey | None = None,
-        autoescape: bool | None = None,
-    ) -> AbstractAsyncContextManager[tuple[str, Project]]:
-        """
-        Assert that a template file can be rendered.
-        """
-        return assert_template_file(
-            self.template,
-            data=data,
-            locale=locale,
-            autoescape=autoescape,
-            extensions=self.extensions,
-        )
 
 
 async def assert_betty_html(project: Project, url_path: str) -> Path:
