@@ -58,14 +58,6 @@ class TestFamilyTreeConfiguration:
         assert sut.event_types[gramps_type].id == plugin_id
         assert sut.event_types["Birth"].id == Birth.plugin_id()
 
-    def test___init____with_genders(self, tmp_path: Path) -> None:
-        gramps_type = "my-first-gramps-type"
-        plugin_id = "my-first-betty-plugin-id"
-        sut = FamilyTreeConfiguration(
-            tmp_path, genders={gramps_type: PluginInstanceConfiguration(plugin_id)}
-        )
-        assert sut.genders[gramps_type].id == plugin_id
-
     def test___init____with_place_types(self, tmp_path: Path) -> None:
         gramps_type = "my-first-gramps-type"
         plugin_id = "my-first-betty-plugin-id"
@@ -91,10 +83,6 @@ class TestFamilyTreeConfiguration:
             gramps_type: plugin.plugin_id()
             for gramps_type, plugin in DEFAULT_EVENT_TYPES_MAPPING.items()
         }
-
-    def test_genders(self, tmp_path: Path) -> None:
-        sut = FamilyTreeConfiguration(tmp_path)
-        assert sut.genders.dump() == {}
 
     def test_place_types(self, tmp_path: Path) -> None:
         sut = FamilyTreeConfiguration(tmp_path)
@@ -125,16 +113,6 @@ class TestFamilyTreeConfiguration:
         sut.load(dump)
         assert sut.event_types["my-first-gramps-type"].id == "my-first-betty-plugin-id"
         assert sut.event_types["Birth"].id == Birth.plugin_id()
-
-    async def test_load__with_genders(self, tmp_path: Path) -> None:
-        file_path = tmp_path / "ancestry.gramps"
-        dump: Dump = {
-            "file": str(file_path),
-            "genders": {"my-first-gramps-type": "my-first-betty-plugin-id"},
-        }
-        sut = FamilyTreeConfiguration(tmp_path)
-        sut.load(dump)
-        assert sut.genders["my-first-gramps-type"].id == "my-first-betty-plugin-id"
 
     async def test_load__with_place_types(self, tmp_path: Path) -> None:
         file_path = tmp_path / "ancestry.gramps"
@@ -179,7 +157,6 @@ class TestFamilyTreeConfiguration:
         )
         assert actual == {
             "file": str(tmp_path),
-            "genders": {},
         }
 
     async def test_dump__with_event_types(self, tmp_path: Path) -> None:
@@ -192,19 +169,6 @@ class TestFamilyTreeConfiguration:
             },
         )
         actual = sut.dump()["event_types"]
-        assert isinstance(actual, Mapping)
-        assert actual["my-first-gramps-type"] == "my-first-betty-plugin-id"
-
-    async def test_dump__with_genders(self, tmp_path: Path) -> None:
-        sut = FamilyTreeConfiguration(
-            tmp_path,
-            genders={
-                "my-first-gramps-type": PluginInstanceConfiguration(
-                    "my-first-betty-plugin-id"
-                )
-            },
-        )
-        actual = sut.dump()["genders"]
         assert isinstance(actual, Mapping)
         assert actual["my-first-gramps-type"] == "my-first-betty-plugin-id"
 
@@ -237,7 +201,6 @@ class TestFamilyTreeConfiguration:
     def test_get_mutable_instances(self) -> None:
         sut = FamilyTreeConfiguration(Path(__file__))
         sut.immutable()
-        assert sut.genders.is_immutable
         assert sut.event_types.is_immutable
         assert sut.place_types.is_immutable
         assert sut.presence_roles.is_immutable
@@ -402,7 +365,6 @@ class TestGrampsConfiguration:
         sut.family_trees.append(FamilyTreeConfiguration(file_path=file_path))
         actual = sut.dump()
         actual["family_trees"][0].pop("event_types")  # type: ignore[arg-type, index, union-attr]
-        actual["family_trees"][0].pop("genders")  # type: ignore[arg-type, index, union-attr]
         actual["family_trees"][0].pop("place_types")  # type: ignore[arg-type, index, union-attr]
         actual["family_trees"][0].pop("presence_roles")  # type: ignore[arg-type, index, union-attr]
         expected = {
