@@ -4,9 +4,6 @@ import pytest
 from typing_extensions import override
 
 from betty.json.schema import Schema
-from betty.locale.localizable import Localizable, plain
-from betty.locale.localizer import DEFAULT_LOCALIZER
-from betty.machine_name import MachineName
 from betty.model import (
     Entity,
     ToManySchema,
@@ -17,7 +14,6 @@ from betty.model import (
 from betty.serde.dump import Dump
 from betty.test_utils.json.schema import SchemaTestBase
 from betty.test_utils.model import DummyEntity
-from betty.warnings import BettyDeprecationWarning
 
 
 @pytest.mark.parametrize(
@@ -29,32 +25,6 @@ from betty.warnings import BettyDeprecationWarning
 )
 def test_persistent_id(expected: bool, entity: Entity) -> None:
     assert persistent_id(entity) == expected
-
-
-class TestEntity:
-    @pytest.mark.parametrize(
-        "count",
-        range(9),
-    )
-    def test_plugin_label_count(self, count: int) -> None:
-        class _Entity(Entity):
-            @override
-            @classmethod
-            def plugin_id(cls) -> MachineName:
-                return cls.__name__
-
-            @override
-            @classmethod
-            def plugin_label(cls) -> Localizable:
-                return plain(cls.__name__)
-
-            @override
-            @classmethod
-            def plugin_label_plural(cls) -> Localizable:
-                return plain(cls.__name__)
-
-        with pytest.warns(BettyDeprecationWarning):
-            assert _Entity().plugin_label_count(count).localize(DEFAULT_LOCALIZER)
 
 
 class TestToOneSchema(SchemaTestBase):

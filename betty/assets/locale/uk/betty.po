@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Betty 0.4\n"
 "Report-Msgid-Bugs-To: illia@maier.page\n"
-"POT-Creation-Date: 2025-05-06 18:45+0100\n"
+"POT-Creation-Date: 2025-05-06 20:25+0100\n"
 "PO-Revision-Date: 2025-04-25 11:02+0000\n"
 "Last-Translator: Максим Горпиніч <maksimgorpinic2005a@gmail.com>\n"
 "Language: uk\n"
@@ -1278,13 +1278,6 @@ msgid_plural "{count} enclosures"
 msgstr[0] "{count} корпус"
 msgstr[1] "{count} корпуси"
 msgstr[2] "{count} корпуси"
-
-#, python-brace-format
-msgid "{count} entity"
-msgid_plural "{count} entities"
-msgstr[0] "{count} сутність"
-msgstr[1] "{count} сутності"
-msgstr[2] "{count} сутності"
 
 #, python-brace-format
 msgid "{count} event"
