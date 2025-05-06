@@ -29,7 +29,6 @@ from PIL.Image import DecompressionBombWarning
 from betty.ancestry.file import File
 from betty.ancestry.file_reference import FileReference
 from betty.hashid import hashid, hashid_file_meta
-from betty.html import CssProvider, JsProvider
 from betty.image import (
     FocusArea,
     Size,
@@ -54,7 +53,6 @@ from betty.string import (
     upper_camel_case_to_lower_camel_case,
 )
 from betty.typing import internal
-from betty.warnings import deprecate, deprecated
 
 if TYPE_CHECKING:
     from collections.abc import (
@@ -545,42 +543,6 @@ def filter_select_has_dates(
     )
 
 
-@deprecated(
-    f"This filter has been deprecated since Betty 0.4.13, and will be removed in Betty 0.5. Instead add CSS files to pages by making an extension extend {CssProvider}."
-)
-@pass_context
-async def filter_public_css(context: Context, public_path: str) -> None:
-    """
-    Add a CSS file to the current page.
-    """
-    if public_path.startswith("/") and len(public_path) >= 2:
-        deprecate(
-            f"Calling `public_css` with a URL path has been deprecated since Betty 0.4.8, and will be removed in Betty 0.5. Instead, prefix the URL path with betty-static://: 'betty-static://{public_path}'."
-        )
-        public_path = f"betty-static://{public_path}"
-    context.resolve_or_missing("public_css_paths").append(
-        await filter_url(context, public_path)
-    )
-
-
-@deprecated(
-    f"This filter has been deprecated since Betty 0.4.13, and will be removed in Betty 0.5. Instead add CSS files to pages by making an extension extend {JsProvider}."
-)
-@pass_context
-async def filter_public_js(context: Context, public_path: str) -> None:
-    """
-    Add a JavaScript file to the current page.
-    """
-    if public_path.startswith("/") and len(public_path) >= 2:
-        deprecate(
-            f"Calling `public_js` with a URL path has been deprecated since Betty 0.4.8, and will be removed in Betty 0.5. Instead, prefix the URL path with betty-static://: 'betty-static://{public_path}'."
-        )
-        public_path = f"betty-static://{public_path}"
-    context.resolve_or_missing("public_js_paths").append(
-        await filter_url(context, public_path)
-    )
-
-
 locale_get_data = get_data
 
 
@@ -612,7 +574,5 @@ async def filters() -> Mapping[str, Callable[..., Any]]:
         "str": str,
         "unique": filter_unique,
         "upper_camel_case_to_lower_camel_case": upper_camel_case_to_lower_camel_case,
-        "public_css": filter_public_css,
-        "public_js": filter_public_js,
         "url": filter_url,
     }

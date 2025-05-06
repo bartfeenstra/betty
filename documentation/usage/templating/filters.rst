@@ -24,8 +24,6 @@ In addition to Jinja2's built-in filters, Betty provides the following:
 - :py:func:`negotiate_has_dates <betty.jinja2.filter.filter_negotiate_has_dates>`
 - :py:func:`negotiate_localizeds <betty.jinja2.filter.filter_negotiate_localizeds>`
 - :py:func:`paragraphs <betty.jinja2.filter.filter_paragraphs>`
-- :py:func:`public_css <betty.jinja2.filter.filter_public_css>`
-- :py:func:`public_js <betty.jinja2.filter.filter_public_js>`
 - :py:func:`select_has_dates <betty.jinja2.filter.filter_select_has_dates>`
 - :py:func:`select_localizeds <betty.jinja2.filter.filter_select_localizeds>`
 - :py:func:`sort_localizeds <betty.jinja2.filter.filter_sort_localizeds>`
