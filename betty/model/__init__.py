@@ -20,7 +20,6 @@ from betty.locale.localizable import (
     Localizable,
     StaticTranslationsLocalizableAttr,
     _,
-    ngettext,
 )
 from betty.locale.localizer import DEFAULT_LOCALIZER
 from betty.mutability import Mutable
@@ -29,7 +28,6 @@ from betty.plugin.entry_point import EntryPointPluginRepository
 from betty.repr import repr_instance
 from betty.string import kebab_case_to_lower_camel_case
 from betty.user import UserFacing
-from betty.warnings import deprecate
 
 if TYPE_CHECKING:
     import builtins
@@ -95,16 +93,11 @@ class Entity(LinkedDataDumpableJsonLdObject, Mutable, Plugin):
         """
 
     @classmethod
+    @abstractmethod
     def plugin_label_count(cls, count: int) -> Localizable:
         """
         The human-readable entity type label for the given entity count.
         """
-        deprecate(
-            f"Not overriding {cls}.plugin_label_count() has been deprecated since Betty 0.4.13."
-        )
-        return ngettext("{count} entity", "{count} entities", count).format(
-            count=str(count)
-        )
 
     @override  # type: ignore[callable-functiontype]
     @recursive_repr()
