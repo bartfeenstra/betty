@@ -25,7 +25,7 @@ class TestSingleTypeEntityCollection(EntityCollectionTestBase[DummyEntity]):
     async def get_entities(self) -> Sequence[DummyEntity]:
         return DummyEntity(), DummyEntity(), DummyEntity()
 
-    async def test___getitem___by_entity_id(self) -> None:
+    async def test___getitem____by_entity_id(self) -> None:
         for sut in await self.get_suts():
             entities = await self.get_entities()
             sut.add(*entities)
@@ -60,13 +60,13 @@ class TestMultipleTypesEntityCollection(EntityCollectionTestBase[DummyEntity]):
     async def get_entities(self) -> Sequence[DummyEntity]:
         return DummyEntity(), DummyEntity(), DummyEntity()
 
-    async def test___getitem___by_entity_type(self) -> None:
+    async def test___getitem____by_entity_type(self) -> None:
         for sut in await self.get_suts():
             entities = await self.get_entities()
             sut.add(*entities)
             assert list(sut[DummyEntity]) == list(entities)
 
-    async def test___getitem___by_entity_type_id(self) -> None:
+    async def test___getitem____by_entity_type_id(self) -> None:
         sut = MultipleTypesEntityCollection[DummyEntity](
             entity_type_id_to_type_mapping=PluginIdToTypeMapping(
                 {DummyEntity.plugin_id(): DummyEntity}

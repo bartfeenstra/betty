@@ -101,20 +101,6 @@ class EntityCollection(Mutable, Generic[_TargetT], ABC):
     def __len__(self) -> int:
         pass
 
-    @overload
-    def __getitem__(self, index: int) -> _TargetT & Entity:
-        pass
-
-    @overload
-    def __getitem__(self, indices: slice) -> Sequence[_TargetT & Entity]:
-        pass
-
-    @abstractmethod
-    def __getitem__(
-        self, key: int | slice
-    ) -> _TargetT & Entity | Sequence[_TargetT & Entity]:
-        pass
-
     @abstractmethod
     def __delitem__(self, key: _TargetT & Entity) -> None:
         pass
@@ -182,35 +168,7 @@ class SingleTypeEntityCollection(Generic[_TargetT], EntityCollection[_TargetT]):
     def __len__(self) -> int:
         return len(self._entities)
 
-    @overload
-    def __getitem__(self, index: int) -> _TargetT & Entity:
-        pass
-
-    @overload
-    def __getitem__(self, indices: slice) -> Sequence[_TargetT & Entity]:
-        pass
-
-    @overload
     def __getitem__(self, entity_id: str) -> _TargetT & Entity:
-        pass
-
-    @override
-    def __getitem__(
-        self, key: int | slice | str
-    ) -> _TargetT & Entity | Sequence[_TargetT & Entity]:
-        if isinstance(key, int):
-            return self._getitem_by_index(key)
-        if isinstance(key, slice):
-            return self._getitem_by_indices(key)
-        return self._getitem_by_entity_id(key)
-
-    def _getitem_by_index(self, index: int) -> _TargetT & Entity:
-        return self._entities[index]
-
-    def _getitem_by_indices(self, indices: slice) -> Sequence[_TargetT & Entity]:
-        return self.view[indices]
-
-    def _getitem_by_entity_id(self, entity_id: str) -> _TargetT & Entity:
         for entity in self._entities:
             if entity_id == entity.id:
                 return entity
@@ -307,14 +265,6 @@ class MultipleTypesEntityCollection(Generic[_TargetT], EntityCollection[_TargetT
             )
 
     @overload
-    def __getitem__(self, index: int) -> _TargetT & Entity:
-        pass
-
-    @overload
-    def __getitem__(self, indices: slice) -> Sequence[_TargetT & Entity]:
-        pass
-
-    @overload
     def __getitem__(
         self, entity_type_id: MachineName
     ) -> SingleTypeEntityCollection[Entity]:
@@ -326,20 +276,10 @@ class MultipleTypesEntityCollection(Generic[_TargetT], EntityCollection[_TargetT
     ) -> SingleTypeEntityCollection[_EntityT]:
         pass
 
-    @override
     def __getitem__(
         self,
-        key: int | slice | str | type[_EntityT],
-    ) -> (
-        _TargetT & Entity
-        | SingleTypeEntityCollection[Entity]
-        | SingleTypeEntityCollection[_EntityT]
-        | Sequence[_TargetT & Entity]
-    ):
-        if isinstance(key, int):
-            return self._getitem_by_index(key)
-        if isinstance(key, slice):
-            return self._getitem_by_indices(key)
+        key: str | type[_EntityT],
+    ) -> SingleTypeEntityCollection[Entity] | SingleTypeEntityCollection[_EntityT]:
         if isinstance(key, str):
             return self._getitem_by_entity_type_id(key)
         return self._getitem_by_entity_type(key)
@@ -355,12 +295,6 @@ class MultipleTypesEntityCollection(Generic[_TargetT], EntityCollection[_TargetT
         return self._get_collection(
             self._entity_type_id_to_type_mapping[entity_type_id]
         )
-
-    def _getitem_by_index(self, index: int) -> _TargetT & Entity:
-        return self.view[index]
-
-    def _getitem_by_indices(self, indices: slice) -> Sequence[_TargetT & Entity]:
-        return self.view[indices]
 
     @override
     def __delitem__(
