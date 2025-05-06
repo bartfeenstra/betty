@@ -19,13 +19,14 @@ from betty.locale.localizable import (
     _,
     ngettext,
 )
-from betty.model import Entity, UserFacingEntity
+from betty.model import Entity
 from betty.model.association import (
     BidirectionalToMany,
     ToManyAssociates,
 )
 from betty.plugin import ShorthandPluginBase
 from betty.privacy import HasPrivacy, Privacy
+from betty.user import UserFacing
 
 if TYPE_CHECKING:
     from collections.abc import Iterable, MutableSequence
@@ -52,7 +53,7 @@ class File(
     HasMediaType,
     HasNotes,
     HasCitations,
-    UserFacingEntity,
+    UserFacing,
     Entity,
 ):
     """

@@ -17,10 +17,11 @@ from betty.ancestry.place_type.place_types import Unknown as UnknownPlaceType
 from betty.json.linked_data import JsonLdObject, dump_context
 from betty.json.schema import Array, Number, Object
 from betty.locale.localizable import Localizable, _, ngettext
-from betty.model import Entity, UserFacingEntity
+from betty.model import Entity
 from betty.model.association import BidirectionalToMany, ToManyAssociates
 from betty.plugin import ShorthandPluginBase
 from betty.privacy import HasPrivacy
+from betty.user import UserFacing
 
 if TYPE_CHECKING:
     from collections.abc import Iterable, Iterator, MutableSequence
@@ -44,7 +45,7 @@ class Place(
     HasFileReferences,
     HasNotes,
     HasPrivacy,
-    UserFacingEntity,
+    UserFacing,
     Entity,
 ):
     """

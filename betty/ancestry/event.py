@@ -29,7 +29,6 @@ from betty.locale.localizable import (
     call,
     ngettext,
 )
-from betty.model import UserFacingEntity
 from betty.model.association import (
     BidirectionalToMany,
     BidirectionalToZeroOrOne,
@@ -39,6 +38,7 @@ from betty.model.association import (
 from betty.plugin import ShorthandPluginBase
 from betty.privacy import HasPrivacy, Privacy
 from betty.repr import repr_instance
+from betty.user import UserFacing
 
 if TYPE_CHECKING:
     from collections.abc import Iterable, Mapping
@@ -63,7 +63,7 @@ class Event(
     HasDescription,
     HasPrivacy,
     HasLinks,
-    UserFacingEntity,
+    UserFacing,
 ):
     """
     An event that took place.

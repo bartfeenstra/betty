@@ -20,7 +20,7 @@ from betty.locale.localizable import (
     _,
     ngettext,
 )
-from betty.model import Entity, UserFacingEntity
+from betty.model import Entity
 from betty.model.association import (
     BidirectionalToMany,
     BidirectionalToZeroOrOne,
@@ -29,6 +29,7 @@ from betty.model.association import (
 )
 from betty.plugin import ShorthandPluginBase
 from betty.privacy import HasPrivacy, Privacy, merge_privacies
+from betty.user import UserFacing
 
 if TYPE_CHECKING:
     from collections.abc import Iterator, MutableSequence
@@ -49,7 +50,7 @@ class Source(
     HasNotes,
     HasLinks,
     HasPrivacy,
-    UserFacingEntity,
+    UserFacing,
     Entity,
 ):
     """

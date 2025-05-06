@@ -19,7 +19,6 @@ from betty.locale.localizable import (
     _,
     ngettext,
 )
-from betty.model import UserFacingEntity
 from betty.model.association import (
     BidirectionalToMany,
     BidirectionalToOne,
@@ -28,6 +27,7 @@ from betty.model.association import (
 )
 from betty.plugin import ShorthandPluginBase
 from betty.privacy import HasPrivacy, Privacy, merge_secondary_privacies
+from betty.user import UserFacing
 
 if TYPE_CHECKING:
     from betty.ancestry.has_citations import HasCitations  # noqa F401
@@ -45,7 +45,7 @@ class Citation(
     HasFileReferences,
     HasPrivacy,
     HasLinks,
-    UserFacingEntity,
+    UserFacing,
 ):
     """
     A citation (a reference to a source).

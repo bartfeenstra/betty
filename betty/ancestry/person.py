@@ -9,7 +9,6 @@ from urllib.parse import quote
 
 from typing_extensions import override
 
-from betty.ancestry.citation import Citation
 from betty.ancestry.gender.genders import Unknown as UnknownGender
 from betty.ancestry.has_citations import HasCitations
 from betty.ancestry.has_file_references import HasFileReferences
@@ -18,15 +17,11 @@ from betty.ancestry.link import HasLinks, Link
 from betty.functools import unique
 from betty.json.linked_data import JsonLdObject, dump_context
 from betty.locale.localizable import Localizable, _, ngettext
-from betty.model import (
-    Entity,
-    ToManySchema,
-    UserFacingEntity,
-    persistent_id,
-)
+from betty.model import Entity, ToManySchema, persistent_id
 from betty.model.association import BidirectionalToMany, ToManyAssociates
 from betty.plugin import ShorthandPluginBase
 from betty.privacy import HasPrivacy, Privacy
+from betty.user import UserFacing
 
 if TYPE_CHECKING:
     from collections.abc import Iterable, Iterator, MutableSequence
@@ -50,7 +45,7 @@ class Person(
     HasNotes,
     HasLinks,
     HasPrivacy,
-    UserFacingEntity,
+    UserFacing,
     Entity,
 ):
     """

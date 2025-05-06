@@ -8,7 +8,6 @@ from reprlib import recursive_repr
 from typing import TYPE_CHECKING, Any, Self, TypeAlias, TypeVar
 from uuid import uuid4
 
-import typing_extensions
 from typing_extensions import override
 
 from betty.json.linked_data import (
@@ -184,15 +183,6 @@ def persistent_id(entity_or_id: Entity | str) -> bool:
         entity_or_id if isinstance(entity_or_id, str) else entity_or_id.id,
         NonPersistentId,
     )
-
-
-@typing_extensions.deprecated(
-    f"This class has been deprecated since Betty 0.4.13, and will be removed in Betty 0.5. Instead use {UserFacing}."
-)
-class UserFacingEntity(UserFacing):
-    """
-    A sentinel to mark an entity type as being visible to users (e.g. not internal).
-    """
 
 
 _EntityT = TypeVar("_EntityT", bound=Entity)
