@@ -7,16 +7,16 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Betty VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2025-04-24 14:22+0100\n"
+"POT-Creation-Date: 2025-05-06 18:45+0100\n"
 "PO-Revision-Date: 2025-05-06 10:01+0000\n"
 "Last-Translator: Yaron Shahrabani <sh.yaron@gmail.com>\n"
-"Language-Team: Hebrew <https://hosted.weblate.org/projects/betty/betty/he/>\n"
 "Language: he\n"
+"Language-Team: Hebrew "
+"<https://hosted.weblate.org/projects/betty/betty/he/>\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=utf-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"Plural-Forms: nplurals=2; plural=(n != 1);\n"
-"X-Generator: Weblate 5.12-dev\n"
 "Generated-By: Babel 2.17.0\n"
 
 #, python-brace-format
@@ -36,8 +36,8 @@ msgid ""
 "\"{value}\" is not a valid machine name: only lowercase letters, digits, "
 "and hyphens (-) are allowed."
 msgstr ""
-"שם המכונה „{value}” שגוי: מותר להשתמש באותיות לטיניות קטנות, ספרות ומינוסים "
-"(-) בלבד."
+"שם המכונה „{value}” שגוי: מותר להשתמש באותיות לטיניות קטנות, ספרות "
+"ומינוסים (-) בלבד."
 
 #, python-format
 msgid "%(date)s in %(place)s"
@@ -50,24 +50,6 @@ msgstr ""
 #, python-format
 msgid "%(event)s with %(subjects)s"
 msgstr "%(event)s עם %(subjects)s"
-
-#, python-format
-msgid "%(person_individual_name)s had a child with %(co_parent_labels)s."
-msgid_plural ""
-"%(person_individual_name)s had %(child_count)s children with "
-"%(co_parent_labels)s."
-msgstr[0] ""
-msgstr[1] ""
-
-#, python-format
-msgid "%(person_individual_name)s had a child."
-msgid_plural "%(person_individual_name)s had %(child_count)s children."
-msgstr[0] ""
-msgstr[1] ""
-
-#, python-format
-msgid "%(person_individual_name)s is the child of %(parent_labels)s."
-msgstr ""
 
 msgid ""
 "A family history as told by <a "
@@ -102,9 +84,6 @@ msgstr "כל הזכויות שמורות"
 #, python-format
 msgid "Also known as %(names)s"
 msgstr "ידוע גם בתור %(names)s"
-
-msgid "Ancestral names include"
-msgstr ""
 
 msgid "Announcement of divorce"
 msgstr ""
@@ -295,9 +274,6 @@ msgstr ""
 msgid "Correspondence"
 msgstr ""
 
-msgid "Cotton Candy is Betty's legacy theme."
-msgstr ""
-
 #, python-brace-format
 msgid "Could not extract {file_path} as a gzip file  (*.gz)."
 msgstr ""
@@ -367,9 +343,6 @@ msgstr ""
 msgid "Deriving..."
 msgstr ""
 
-msgid "Descendant names include"
-msgstr ""
-
 msgid "Description, licensing, and image history"
 msgstr ""
 
@@ -411,10 +384,6 @@ msgstr ""
 msgid "Do you want to load a Gramps family tree?"
 msgstr ""
 
-#, python-format
-msgid "E.g. \"%(example)s\""
-msgstr ""
-
 msgid "Emigration"
 msgstr ""
 
@@ -441,9 +410,6 @@ msgstr ""
 
 #, python-brace-format
 msgid "Exactly {expected} items are required, but found {actual}."
-msgstr ""
-
-msgid "Exit the search"
 msgstr ""
 
 msgid "Explore a demonstration site"
@@ -528,21 +494,6 @@ msgid "HTTP API Documentation"
 msgstr ""
 
 msgid "Hamlet"
-msgstr ""
-
-msgid "I'm sorry, dear, but it seems there are no events."
-msgstr ""
-
-msgid "I'm sorry, dear, but it seems there are no media."
-msgstr ""
-
-msgid "I'm sorry, dear, but it seems there are no people."
-msgstr ""
-
-msgid "I'm sorry, dear, but it seems there are no places."
-msgstr ""
-
-msgid "I'm sorry, dear, but it seems there are no sources."
 msgstr ""
 
 msgid "I'm sorry, dear, but it seems there is nothing to show."
@@ -935,9 +886,6 @@ msgid_plural "They had %(child_count)s children."
 msgstr[0] ""
 msgstr[1] ""
 
-msgid "This citation's details are unavailable to protect people's privacy."
-msgstr ""
-
 msgid "This field is required."
 msgstr ""
 
@@ -971,16 +919,7 @@ msgstr ""
 msgid "This must be none/null."
 msgstr ""
 
-msgid "This person's details are unavailable to protect their privacy."
-msgstr ""
-
-msgid "This person's name is unavailable to protect their privacy."
-msgstr ""
-
 msgid "This person's name is unknown."
-msgstr ""
-
-msgid "This source's details are unavailable to protect people's privacy."
 msgstr ""
 
 msgid "Timeline"
@@ -1024,11 +963,6 @@ msgstr ""
 msgid ""
 "Updated {updated_derivations} {event_type} events based on existing "
 "information."
-msgstr ""
-
-msgid ""
-"Use <kbd>↑</kbd> and <kbd>↓</kbd> to navigate results, or <kbd>esc</kbd> "
-"to exit the search."
 msgstr ""
 
 msgid "View original"
@@ -1084,12 +1018,6 @@ msgstr ""
 msgid ""
 "Works in the public domain can be used or referenced without permission, "
 "because nobody holds any exclusive rights over these works (anymore)."
-msgstr ""
-
-#, python-format
-msgid ""
-"Your browser cannot show PDF documents. <a href=\"%(file_url)s\">Download"
-" %(file_name)s</a> to view it on your device instead."
 msgstr ""
 
 msgid ""
@@ -1184,21 +1112,6 @@ msgid "npm is not available"
 msgstr ""
 
 msgid "private"
-msgstr ""
-
-#, python-format
-msgid "show %(name_count)s more"
-msgid_plural "show %(name_count)s more"
-msgstr[0] ""
-msgstr[1] ""
-
-msgid "show fewer"
-msgstr ""
-
-msgid "show less"
-msgstr ""
-
-msgid "show more"
 msgstr ""
 
 msgid "sometime"
@@ -1356,3 +1269,4 @@ msgstr ""
 #, python-brace-format
 msgid "© Copyright {author}, unless otherwise credited"
 msgstr ""
+

@@ -17,7 +17,6 @@ that determine how the extension should work. This can be done in your project's
 
 Built-in extensions
 ---------------
-- :doc:`/usage/extension/cotton-candy`
 - :doc:`/usage/extension/deriver`
 - :doc:`/usage/extension/gramps`
 - :doc:`/usage/extension/http-api-doc`

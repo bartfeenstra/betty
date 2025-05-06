@@ -7,16 +7,16 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PROJECT VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2025-04-23 16:11+0100\n"
+"POT-Creation-Date: 2025-05-06 18:45+0100\n"
 "PO-Revision-Date: 2025-04-25 13:44+0000\n"
 "Last-Translator: Bart Feenstra <bart@bartfeenstra.com>\n"
-"Language-Team: Dutch <https://hosted.weblate.org/projects/betty/betty/nl/>\n"
-"Language: nl-NL\n"
+"Language: nl_NL\n"
+"Language-Team: Dutch "
+"<https://hosted.weblate.org/projects/betty/betty/nl/>\n"
+"Plural-Forms: nplurals=2; plural=n != 1;\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=utf-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"Plural-Forms: nplurals=2; plural=n != 1;\n"
-"X-Generator: Weblate 5.11.1-dev\n"
 "Generated-By: Babel 2.17.0\n"
 
 #, python-brace-format
@@ -53,26 +53,6 @@ msgstr "%(event)s van %(subjects)s"
 msgid "%(event)s with %(subjects)s"
 msgstr "%(event)s met %(subjects)s"
 
-#, python-format
-msgid "%(person_individual_name)s had a child with %(co_parent_labels)s."
-msgid_plural ""
-"%(person_individual_name)s had %(child_count)s children with "
-"%(co_parent_labels)s."
-msgstr[0] "%(person_individual_name)s had een kind met %(co_parent_labels)s."
-msgstr[1] ""
-"%(person_individual_name)s had %(child_count)s kinderen met "
-"%(co_parent_labels)s."
-
-#, python-format
-msgid "%(person_individual_name)s had a child."
-msgid_plural "%(person_individual_name)s had %(child_count)s children."
-msgstr[0] "%(person_individual_name)s had een kind."
-msgstr[1] "%(person_individual_name)s had %(child_count)s kinderen."
-
-#, python-format
-msgid "%(person_individual_name)s is the child of %(parent_labels)s."
-msgstr "%(person_individual_name)s is het kind van %(parent_labels)s."
-
 msgid ""
 "A family history as told by <a "
 "href=\"https://betty.readthedocs.io\">Betty👵</a>"
@@ -108,9 +88,6 @@ msgstr "Alle rechten voorbehouden"
 #, python-format
 msgid "Also known as %(names)s"
 msgstr "Ook bekend als %(names)s"
-
-msgid "Ancestral names include"
-msgstr "De voorouders heetten"
 
 msgid "Announcement of divorce"
 msgstr "Scheidingsaankondiging"
@@ -336,9 +313,6 @@ msgstr ""
 msgid "Correspondence"
 msgstr "Correspondentie"
 
-msgid "Cotton Candy is Betty's legacy theme."
-msgstr "Cotton Candy is het oude thema van Betty."
-
 #, python-brace-format
 msgid "Could not extract {file_path} as a gzip file  (*.gz)."
 msgstr "Kan het bestand {file_path} niet als een gzip-bestand (*.gz) uitpakken."
@@ -418,9 +392,6 @@ msgstr "Afleider"
 msgid "Deriving..."
 msgstr "Afleiden..."
 
-msgid "Descendant names include"
-msgstr "De nakomelingen heten"
-
 msgid "Description, licensing, and image history"
 msgstr "Beschrijving, licentie, en afbeeldingsgeschiedenis"
 
@@ -469,10 +440,6 @@ msgstr "Wil je nog een taalregio toevoegen?"
 msgid "Do you want to load a Gramps family tree?"
 msgstr "Wil je een Gramps-stamboom laden?"
 
-#, python-format
-msgid "E.g. \"%(example)s\""
-msgstr "Bijvoorbeeld \"%(example)s\""
-
 msgid "Emigration"
 msgstr "Emigratie"
 
@@ -500,9 +467,6 @@ msgstr "Gebeurtenissen"
 #, python-brace-format
 msgid "Exactly {expected} items are required, but found {actual}."
 msgstr "Precies {expected} items zijn vereist, maar er waren er {actual} gevonden."
-
-msgid "Exit the search"
-msgstr "Stop met zoeken"
 
 msgid "Explore a demonstration site"
 msgstr "Ontdek een demonstratiesite"
@@ -583,29 +547,15 @@ msgid ""
 "{supported_gramps_xml_version}. Gramps XML {loaded_gramps_xml_version} is"
 " not supported."
 msgstr ""
-"Gramps-XML moet compatibel zijn met versie {supported_gramps_xml_version}. "
-"Gramps-XML {loaded_gramps_xml_version} is niet ondersteund."
+"Gramps-XML moet compatibel zijn met versie "
+"{supported_gramps_xml_version}. Gramps-XML {loaded_gramps_xml_version} is"
+" niet ondersteund."
 
 msgid "HTTP API Documentation"
 msgstr "HTTP API-documentatie"
 
 msgid "Hamlet"
 msgstr "Gehucht"
-
-msgid "I'm sorry, dear, but it seems there are no events."
-msgstr "Het spijt me, schat, maar het lijkt erop dat er geen gebeurtenissen zijn."
-
-msgid "I'm sorry, dear, but it seems there are no media."
-msgstr "Het spijt me, schat, maar het lijkt erop dat er geen media zijn."
-
-msgid "I'm sorry, dear, but it seems there are no people."
-msgstr "Het spijt me, schat, maar het lijkt erop dat er geen personen zijn."
-
-msgid "I'm sorry, dear, but it seems there are no places."
-msgstr "Het spijt me, schat, maar het lijkt erop dat er geen plaatsen zijn."
-
-msgid "I'm sorry, dear, but it seems there are no sources."
-msgstr "Het spijt me, schat, maar het lijkt erop dat er geen bronnen zijn."
 
 msgid "I'm sorry, dear, but it seems there is nothing to show."
 msgstr "Het spijt me, schat, maar het lijkt erop dat er niets is om te laten zien."
@@ -1026,11 +976,6 @@ msgid_plural "They had %(child_count)s children."
 msgstr[0] "Hen had een kind."
 msgstr[1] "Hen had %(child_count)s kinderen."
 
-msgid "This citation's details are unavailable to protect people's privacy."
-msgstr ""
-"De gegevens van deze verwijzing zijn niet beschikbaar vanwege "
-"privacyredenen."
-
 msgid "This field is required."
 msgstr "Dit veld is vereist."
 
@@ -1064,17 +1009,8 @@ msgstr "Dit moet een geheel getal zijn."
 msgid "This must be none/null."
 msgstr "Dit moet none/null zijn."
 
-msgid "This person's details are unavailable to protect their privacy."
-msgstr "De gegevens van deze persoon zijn niet beschikbaar vanwege privacyredenen."
-
-msgid "This person's name is unavailable to protect their privacy."
-msgstr "De naam van deze persoon is niet beschikbaar vanwege privacyredenen."
-
 msgid "This person's name is unknown."
 msgstr "De naam van deze persoon is onbekend."
-
-msgid "This source's details are unavailable to protect people's privacy."
-msgstr "De gegevens van deze bron zijn niet beschikbaar vanwege privacyredenen."
 
 msgid "Timeline"
 msgstr "Tijdlijn"
@@ -1122,13 +1058,6 @@ msgid ""
 msgstr ""
 "{updated_derivations} {event_type}-gebeurtenissen bijgewerkt op basis van"
 " bestaande informatie."
-
-msgid ""
-"Use <kbd>↑</kbd> and <kbd>↓</kbd> to navigate results, or <kbd>esc</kbd> "
-"to exit the search."
-msgstr ""
-"Gebruik <kbd>↑</kbd> en <kbd>↓</kbd> om door de resultaten te bladeren, "
-"of <kbd>esc</kbd> om te stoppen met zoeken."
 
 msgid "View original"
 msgstr "Bekijk origineel"
@@ -1189,15 +1118,6 @@ msgstr ""
 "Werken in het publieke domein mogen gebruikt of naar verwezen worden "
 "zonder toestemming, omdat niemand (meer) exclusieve rechten over deze "
 "werken heeft."
-
-#, python-format
-msgid ""
-"Your browser cannot show PDF documents. <a href=\"%(file_url)s\">Download"
-" %(file_name)s</a> to view it on your device instead."
-msgstr ""
-"Je browser kan geen PDF-bestanden weergeven. <a "
-"href=\"%(file_url)s\">Download %(file_name)s</a> om het daarna te "
-"bekijken."
 
 msgid ""
 "Your project has no theme enabled. This means your site's pages may look "
@@ -1298,21 +1218,6 @@ msgstr "npm is niet beschikbaar"
 
 msgid "private"
 msgstr "privé"
-
-#, python-format
-msgid "show %(name_count)s more"
-msgid_plural "show %(name_count)s more"
-msgstr[0] "toon één meer"
-msgstr[1] "toon %(name_count)s meer"
-
-msgid "show fewer"
-msgstr "toon minder"
-
-msgid "show less"
-msgstr "toon minder"
-
-msgid "show more"
-msgstr "toon meer"
 
 msgid "sometime"
 msgstr "ooit"
@@ -1469,3 +1374,4 @@ msgstr "© Copyright de auteur, tenzij anders vermeld"
 #, python-brace-format
 msgid "© Copyright {author}, unless otherwise credited"
 msgstr "© Copyright {author}, tenzij anders vermeld"
+

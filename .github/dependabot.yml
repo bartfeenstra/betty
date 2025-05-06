@@ -37,17 +37,6 @@ updates:
       prefix: npm dependencies (Betty library)
       include: scope
   - package-ecosystem: npm
-    directory: betty/project/extension/cotton_candy/webpack/
-    ignore:
-      - dependency-name: "@betty.py/betty"
-    schedule:
-      interval: weekly
-    assignees:
-      - bartfeenstra
-    commit-message:
-      prefix: npm dependencies (Cotton Candy extension)
-      include: scope
-  - package-ecosystem: npm
     directory: betty/project/extension/http_api_doc/webpack/
     ignore:
       - dependency-name: "@betty.py/betty"

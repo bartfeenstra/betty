@@ -363,20 +363,6 @@ _BASELINE: Mapping[str, _ModuleIgnore] = {
         "ExtensionTypeInvalidError": MissingReason.SHOULD_BE_COVERED,
         "Theme": MissingReason.STATIC_CONTENT_ONLY,
     },
-    "betty/project/extension/cotton_candy/__init__.py": {
-        "CottonCandy": {
-            "__init_subclass__": MissingReason.INHERITED,
-        },
-    },
-    "betty/project/extension/cotton_candy/config.py": {
-        "CottonCandyConfiguration": {
-            "featured_entities": MissingReason.SHOULD_BE_COVERED,
-            "link_active_color": MissingReason.SHOULD_BE_COVERED,
-            "link_inactive_color": MissingReason.SHOULD_BE_COVERED,
-            "primary_active_color": MissingReason.SHOULD_BE_COVERED,
-            "primary_inactive_color": MissingReason.SHOULD_BE_COVERED,
-        },
-    },
     "betty/project/extension/demo/__init__.py": {
         "Demo": {
             "secondary_navigation_links": MissingReason.STATIC_CONTENT_ONLY,
