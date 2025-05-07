@@ -22,20 +22,20 @@ class TestWebpack(ExtensionTestBase[Webpack]):
     def get_sut_class(self) -> type[Webpack]:
         return Webpack
 
-    async def test_public_js_paths(self, new_temporary_app: App) -> None:
+    async def test_get_public_js_paths(self, new_temporary_app: App) -> None:
         async with Project.new_temporary(new_temporary_app) as project, project:
             sut = await project.new_target(self.get_sut_class())
-            assert len(sut.public_js_paths)
+            assert len(await sut.get_public_js_paths())
 
     async def test_filters(self, new_temporary_app: App) -> None:
         async with Project.new_temporary(new_temporary_app) as project, project:
             sut = await project.new_target(self.get_sut_class())
             assert len(sut.filters)
 
-    async def test_public_css_paths(self, new_temporary_app: App) -> None:
+    async def test_get_public_css_paths(self, new_temporary_app: App) -> None:
         async with Project.new_temporary(new_temporary_app) as project, project:
             sut = await project.new_target(self.get_sut_class())
-            assert len(sut.public_css_paths)
+            assert len(await sut.get_public_css_paths())
 
     async def test_generate_with_npm(
         self, mocker: MockerFixture, new_temporary_app: App, tmp_path: Path

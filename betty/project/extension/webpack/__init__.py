@@ -6,10 +6,8 @@ This module is internal.
 
 from __future__ import annotations
 
-import asyncio
 from pathlib import Path
-from threading import Thread
-from typing import TYPE_CHECKING, ClassVar, Self, final
+from typing import TYPE_CHECKING, ClassVar, final
 
 from typing_extensions import override
 
@@ -25,14 +23,13 @@ from betty.project.extension.webpack.build import EntryPointProvider
 from betty.project.extension.webpack.jinja2.filter import FILTERS
 from betty.project.generate import GenerateSiteEvent
 from betty.requirement import AllRequirements, Requirement, RequirementError
-from betty.typing import internal, private
+from betty.typing import internal
 
 if TYPE_CHECKING:
     from collections.abc import Sequence
 
     from betty.event_dispatcher import EventHandlerRegistry
     from betty.job import Context
-    from betty.project import Project
 
 
 async def _generate_assets(event: GenerateSiteEvent) -> None:
@@ -59,24 +56,6 @@ class Webpack(ShorthandPluginBase, Extension, CssProvider, JsProvider, Jinja2Pro
     _plugin_label = static("Webpack")
     _requirement: ClassVar[Requirement | None] = None
 
-    @private
-    def __init__(
-        self, project: Project, _public_css_path_prefix: str, _public_js_path: str
-    ):
-        super().__init__(project)
-        self._public_css_path_prefix = _public_css_path_prefix
-        self._public_js_path = _public_js_path
-
-    @override
-    @classmethod
-    async def new_for_project(cls, project: Project) -> Self:
-        url_generator = await project.url_generator
-        return cls(
-            project,
-            url_generator.generate("betty-static:///css/"),
-            url_generator.generate("betty-static:///js/webpack-entry-loader.js"),
-        )
-
     @override
     def register_event_handlers(self, registry: EventHandlerRegistry) -> None:
         registry.add_handler(GenerateSiteEvent, _generate_assets)
@@ -97,21 +76,12 @@ class Webpack(ShorthandPluginBase, Extension, CssProvider, JsProvider, Jinja2Pro
         return Path(__file__).parent / "assets"
 
     @override
-    @property
-    def public_css_paths(self) -> Sequence[str]:
-        entry_points: Sequence[EntryPointProvider & Extension] = []
-
-        def _target():
-            entry_points.extend(asyncio.run(self._project_entry_point_providers()))
-
-        thread = Thread(target=_target)
-        thread.start()
-        thread.join()
+    async def get_public_css_paths(self) -> Sequence[str]:
         return (
-            f"{self._public_css_path_prefix}/webpack-vendor.css",
+            "betty-static:///css/webpack-vendor.css",
             *(
-                f"{self._public_css_path_prefix}/webpack/{entry_point.plugin_id()}.css"
-                for entry_point in entry_points
+                f"betty-static:///css/webpack/{entry_point.plugin_id()}.css"
+                for entry_point in await self._project_entry_point_providers()
                 if (
                     entry_point.webpack_entry_point_directory_path() / "main.scss"
                 ).is_file()
@@ -119,9 +89,8 @@ class Webpack(ShorthandPluginBase, Extension, CssProvider, JsProvider, Jinja2Pro
         )
 
     @override
-    @property
-    def public_js_paths(self) -> Sequence[str]:
-        return (self._public_js_path,)
+    async def get_public_js_paths(self) -> Sequence[str]:
+        return ("betty-static:///js/webpack-entry-loader.js",)
 
     @override
     def new_context_vars(self) -> ContextVars:
