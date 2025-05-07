@@ -201,6 +201,7 @@ class Environment(ProjectDependentFactory, Jinja2Environment):
         extensions: Sequence[Extension],
         assets: AssetRepository,
         entity_contexts: EntityContexts,
+        globals: Mapping[str, Any],  # noqa A002
         filters: Mapping[str, Callable[..., Any]],
         tests: Mapping[str, Callable[..., bool]],
     ):
@@ -233,6 +234,7 @@ class Environment(ProjectDependentFactory, Jinja2Environment):
 
         self._init_i18n()
         self._init_globals()
+        self.globals.update(globals)
         self.filters.update(filters)
         self.tests.update(tests)
         self._init_extensions()
@@ -240,12 +242,27 @@ class Environment(ProjectDependentFactory, Jinja2Environment):
     @override
     @classmethod
     async def new_for_project(cls, project: Project) -> Self:
-        extensions = await project.extensions
+        extensions = list((await project.extensions).flatten())
         return cls(
             project,
-            list(extensions.flatten()),
+            extensions,
             await project.assets,
             await EntityContexts.new(),
+            {
+                # Ideally we would use the Dispatcher for this. However, it is asynchronous only.
+                "public_css_paths": [
+                    path
+                    for extension in extensions
+                    if isinstance(extension, CssProvider)
+                    for path in await extension.get_public_css_paths()
+                ],
+                "public_js_paths": [
+                    path
+                    for extension in extensions
+                    if isinstance(extension, JsProvider)
+                    for path in await extension.get_public_js_paths()
+                ],
+            },
             await filters(),
             await tests(),
         )
@@ -353,19 +370,6 @@ class Environment(ProjectDependentFactory, Jinja2Environment):
         self.globals["project"] = self.project
         today = datetime.date.today()
         self.globals["today"] = Date(today.year, today.month, today.day)
-        # Ideally we would use the Dispatcher for this. However, it is asynchronous only.
-        self.globals["public_css_paths"] = [
-            path
-            for extension in self._extensions
-            if isinstance(extension, CssProvider)
-            for path in extension.public_css_paths
-        ]
-        self.globals["public_js_paths"] = [
-            path
-            for extension in self._extensions
-            if isinstance(extension, JsProvider)
-            for path in extension.public_js_paths
-        ]
         self.globals["primary_navigation_links"] = [
             link
             for extension in self._extensions

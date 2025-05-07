@@ -27,11 +27,10 @@ class CssProvider(ABC):
     Provide CSS for HTML pages.
     """
 
-    @property
     @abstractmethod
-    def public_css_paths(self) -> Sequence[str]:
+    async def get_public_css_paths(self) -> Sequence[str]:
         """
-        The public URL paths to the CSS files to include in each HTML page.
+        The URL-generatable resources of the CSS files to include in each HTML page.
         """
 
 
@@ -40,11 +39,10 @@ class JsProvider(ABC):
     Provide JavaScript for HTML pages.
     """
 
-    @property
     @abstractmethod
-    def public_js_paths(self) -> Sequence[str]:
+    async def get_public_js_paths(self) -> Sequence[str]:
         """
-        The public URL paths to the JavaScript files to include in each HTML page.
+        The URL-generatable resources of the JS files to include in each HTML page.
         """
 
 
