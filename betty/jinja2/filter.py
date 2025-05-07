@@ -251,7 +251,7 @@ async def filter_file(context: Context, file: File) -> str:
     """
     Preprocess a file for use in a page.
 
-    :return: The public path to the preprocessed file. This can be used on a web page.
+    :return: A ``betty-static://`` URL resource from which a public URL can be generated.
     """
     from betty.jinja2 import context_job_context, context_project
 
@@ -280,7 +280,7 @@ async def filter_file(context: Context, file: File) -> str:
         await makedirs(file_destination_path.parent, exist_ok=True)
         await link_or_copy(file.path, file_destination_path)
 
-    return f"/file/{quote(file.id)}/file/{quote(file.name)}"
+    return f"betty-static:///file/{quote(file.id)}/file/{quote(file.name)}"
 
 
 @pass_context
@@ -294,7 +294,7 @@ async def filter_image_resize_cover(
     """
     Preprocess an image file for use in a page.
 
-    :return: The public path to the preprocessed file. This can be embedded in a web page.
+    :return: A ``betty-static://`` URL resource from which a public URL can be generated.
     """
     from betty.jinja2 import context_job_context, context_project
 
@@ -369,7 +369,7 @@ async def filter_image_resize_cover(
             size,
             focus,
         )
-    return f"/file/{quote(destination_name)}"
+    return f"betty-static:///file/{quote(destination_name)}"
 
 
 async def _load_image_image(file_path: Path) -> Image.Image:
