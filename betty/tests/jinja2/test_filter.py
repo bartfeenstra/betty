@@ -52,7 +52,7 @@ class _DummyLocalized(DummyLocalized):
 _TEST_FILTER_FILE_PARAMETER_ARGNAMES = ("expected", "template", "file")
 _TEST_FILTER_FILE_PARAMETER_ARGVALUES = [
     (
-        "/file/F1/file/test_filter.py",
+        "betty-static:///file/F1/file/test_filter.py",
         "{{ file | file }}",
         File(
             id="F1",
@@ -60,8 +60,8 @@ _TEST_FILTER_FILE_PARAMETER_ARGVALUES = [
         ),
     ),
     (
-        "/file/F1/file/test_filter.py:/file/F1/file/test_filter.py",
-        "{{ file | file }}:{{ file | file }}",
+        "betty-static:///file/F1/file/test_filter.py#betty-static:///file/F1/file/test_filter.py",
+        "{{ file | file }}#{{ file | file }}",
         File(
             id="F1",
             path=Path(__file__),
@@ -81,8 +81,8 @@ async def test_filter_file(expected: str, template: str, file: File) -> None:
         },
     ) as (actual, project):
         assert actual == expected
-        for file_path in actual.split(":"):
-            assert (project.configuration.www_directory_path / file_path[1:]).exists()
+        for file_path in actual.split("#"):
+            assert (project.configuration.www_directory_path / file_path[16:]).exists()
 
 
 @pytest.mark.parametrize(
@@ -102,8 +102,8 @@ async def test_filter_file__with_job_context(
         },
     ) as (actual, project):
         assert actual == expected
-        for file_path in actual.split(":"):
-            assert (project.configuration.www_directory_path / file_path[1:]).exists()
+        for file_path in actual.split("#"):
+            assert (project.configuration.www_directory_path / file_path[16:]).exists()
 
 
 @pytest.mark.parametrize(
@@ -213,7 +213,7 @@ _TEST_FILTER_IMAGE_RESIZE_COVER_IMAGE_PATH = (
 _TEST_FILTER_IMAGE_RESIZE_COVER_PARAMETER_ARGNAMES = ("expected", "template", "filey")
 _TEST_FILTER_IMAGE_RESIZE_COVER_PARAMETER_ARGVALUES = [
     (
-        "/file/F1-99x-.png",
+        "betty-static:///file/F1-99x-.png",
         "{{ filey | image_resize_cover((99, none)) }}",
         File(
             id="F1",
@@ -222,7 +222,7 @@ _TEST_FILTER_IMAGE_RESIZE_COVER_PARAMETER_ARGVALUES = [
         ),
     ),
     (
-        "/file/F1--x99.png",
+        "betty-static:///file/F1--x99.png",
         "{{ filey | image_resize_cover((none, 99)) }}",
         File(
             id="F1",
@@ -231,7 +231,7 @@ _TEST_FILTER_IMAGE_RESIZE_COVER_PARAMETER_ARGVALUES = [
         ),
     ),
     (
-        "/file/F1-99x99.png",
+        "betty-static:///file/F1-99x99.png",
         "{{ filey | image_resize_cover((99, 99)) }}",
         File(
             id="F1",
@@ -240,7 +240,7 @@ _TEST_FILTER_IMAGE_RESIZE_COVER_PARAMETER_ARGVALUES = [
         ),
     ),
     (
-        "/file/F1-99x99-1x2x3x4.png",
+        "betty-static:///file/F1-99x99-1x2x3x4.png",
         "{{ filey | image_resize_cover((99, 99), focus=(1, 2, 3, 4)) }}",
         File(
             id="F1",
@@ -249,8 +249,8 @@ _TEST_FILTER_IMAGE_RESIZE_COVER_PARAMETER_ARGVALUES = [
         ),
     ),
     (
-        "/file/F1-99x99.png:/file/F1-99x99.png",
-        "{{ filey | image_resize_cover((99, 99)) }}:{{ filey | image_resize_cover((99, 99)) }}",
+        "betty-static:///file/F1-99x99.png#betty-static:///file/F1-99x99.png",
+        "{{ filey | image_resize_cover((99, 99)) }}#{{ filey | image_resize_cover((99, 99)) }}",
         File(
             id="F1",
             path=_TEST_FILTER_IMAGE_RESIZE_COVER_IMAGE_PATH,
@@ -258,7 +258,7 @@ _TEST_FILTER_IMAGE_RESIZE_COVER_PARAMETER_ARGVALUES = [
         ),
     ),
     (
-        "/file/F1-99x99.png",
+        "betty-static:///file/F1-99x99.png",
         "{{ filey | image_resize_cover((99, 99)) }}",
         FileReference(
             DummyHasFileReferences(),
@@ -270,7 +270,7 @@ _TEST_FILTER_IMAGE_RESIZE_COVER_PARAMETER_ARGVALUES = [
         ),
     ),
     (
-        "/file/F1-99x99-0x0x9x9.png",
+        "betty-static:///file/F1-99x99-0x0x9x9.png",
         "{{ filey | image_resize_cover((99, 99)) }}",
         FileReference(
             DummyHasFileReferences(),
@@ -299,8 +299,8 @@ async def test_filter_image_resize_cover(
         },
     ) as (actual, project):
         assert actual == expected
-        for file_path in actual.split(":"):
-            assert (project.configuration.www_directory_path / file_path[1:]).exists()
+        for file_path in actual.split("#"):
+            assert (project.configuration.www_directory_path / file_path[16:]).exists()
 
 
 @pytest.mark.parametrize(
@@ -321,8 +321,8 @@ async def test_filter_image_resize_cover__with_job_context(
         },
     ) as (actual, project):
         assert actual == expected
-        for file_path in actual.split(":"):
-            assert (project.configuration.www_directory_path / file_path[1:]).exists()
+        for file_path in actual.split("#"):
+            assert (project.configuration.www_directory_path / file_path[16:]).exists()
 
 
 async def test_filter_image_resize_cover__with_svg(tmp_path: Path) -> None:
@@ -341,9 +341,9 @@ async def test_filter_image_resize_cover__with_svg(tmp_path: Path) -> None:
             )
         },
     ) as (actual, project):
-        assert actual == "/file/F1/file/image.svg"
-        for file_path in actual.split(":"):
-            assert (project.configuration.www_directory_path / file_path[1:]).exists()
+        assert actual == "betty-static:///file/F1/file/image.svg"
+        for file_path in actual.split("#"):
+            assert (project.configuration.www_directory_path / file_path[16:]).exists()
 
 
 async def test_filter_image_resize_cover__with_pdf(tmp_path: Path) -> None:
@@ -360,9 +360,9 @@ async def test_filter_image_resize_cover__with_pdf(tmp_path: Path) -> None:
             )
         },
     ) as (actual, project):
-        assert actual == "/file/F1-.jpg"
-        for public_file_path in actual.split(":"):
-            file_path = project.configuration.www_directory_path / public_file_path[1:]
+        assert actual == "betty-static:///file/F1-.jpg"
+        for public_file_path in actual.split("#"):
+            file_path = project.configuration.www_directory_path / public_file_path[16:]
             assert (file_path).exists()
             assert what(file_path) == "jpeg"
 

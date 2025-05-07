@@ -18,7 +18,7 @@
             {% set image_references = entity | associated_file_references | selectattr('file', 'public') | selectattr('file.media_type', 'image_supported_media_type') | list %}
             {% if image_references | length > 0 %}
                 {% set image_reference = image_references[0] %}
-                <img src="{{ ('betty-static://' ~ image_reference | image_resize_cover((500, 500))) | url }}" alt="{{ image_reference.file.label | localize }}" class="card-img-bottom">
+                <img src="{{ image_reference | image_resize_cover((500, 500)) | url }}" alt="{{ image_reference.file.label | localize }}" class="card-img-bottom">
             {% endif %}
         {% endif %}
     {% endblock %}
