@@ -1,3 +1,4 @@
+from collections.abc import Sequence
 from importlib.metadata import EntryPoint, EntryPoints
 
 import pytest
@@ -34,8 +35,8 @@ class FormatOne(_Format):
 
     @override
     @classmethod
-    def extensions(cls) -> set[str]:
-        return {".one"}
+    def extensions(cls) -> Sequence[str]:
+        return [".one"]
 
 
 class FormatTwo(_Format):
@@ -44,8 +45,8 @@ class FormatTwo(_Format):
 
     @override
     @classmethod
-    def extensions(cls) -> set[str]:
-        return {".two"}
+    def extensions(cls) -> Sequence[str]:
+        return [".two"]
 
 
 class TestFormatRepository:
@@ -76,7 +77,7 @@ class TestFormatRepository:
 
     async def test_extensions(self) -> None:
         sut = FormatRepository()
-        assert await sut.extensions() == {".one", ".two"}
+        assert await sut.extensions() == [".one", ".two"]
 
     async def test_get(self) -> None:
         sut = FormatRepository()

@@ -16,6 +16,8 @@ from betty.serde.dump import Dump
 from betty.serde.format import Format, FormatError
 
 if TYPE_CHECKING:
+    from collections.abc import Sequence
+
     from betty.typing import Voidable
 
 
@@ -30,8 +32,8 @@ class Json(ShorthandPluginBase, Format):
 
     @override
     @classmethod
-    def extensions(cls) -> set[str]:
-        return {".json"}
+    def extensions(cls) -> Sequence[str]:
+        return [".json"]
 
     @override
     def load(self, dump: str) -> Dump:
@@ -58,8 +60,8 @@ class Yaml(ShorthandPluginBase, Format):
 
     @override
     @classmethod
-    def extensions(cls) -> set[str]:
-        return {".yaml", ".yml"}
+    def extensions(cls) -> Sequence[str]:
+        return [".yaml", ".yml"]
 
     @override
     def load(self, dump: str) -> Dump:
