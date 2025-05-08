@@ -37,9 +37,11 @@ class Format(Plugin):
 
     @classmethod
     @abstractmethod
-    def extensions(cls) -> set[str]:
+    def extensions(cls) -> Sequence[str]:
         """
         The file extensions this format can (de)serialize.
+
+        Extensions must include a leading dot, and are returned in order of decreasing priority.
         """
 
     @abstractmethod
@@ -75,15 +77,17 @@ class FormatRepository(PluginRepository[Format]):
     def __aiter__(self) -> AsyncIterator[type[Format]]:
         return self._upstream.__aiter__()
 
-    async def extensions(self) -> set[str]:
+    async def extensions(self) -> Sequence[str]:
         """
         All file extensions supported by the formats in this repository.
+
+        Extensions include a leading dot, and are returned in order of decreasing priority.
         """
-        return {
+        return [
             extension
             async for serde_format in self
             for extension in serde_format.extensions()
-        }
+        ]
 
 
 FORMAT_REPOSITORY = FormatRepository()
