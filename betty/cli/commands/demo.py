@@ -8,8 +8,9 @@ import asyncclick as click
 from betty.app.factory import AppDependentFactory
 from betty.cli.commands import command, Command
 from betty.locale.localizable import _
-from betty.plugin import ShorthandPluginBase
+
 import betty.project.extension.demo as stddemo
+from betty.plugin import ShorthandPluginBase
 from betty.project.extension.demo.project import create_project
 from typing_extensions import override
 

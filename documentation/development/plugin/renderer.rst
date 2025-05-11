@@ -6,26 +6,25 @@ Renderer plugins
    :stub-columns: 1
 
    * -  Type
-     -  :py:class:`betty.render.Renderer` ``&`` :py:class:`betty.plugin.Plugin`
+     -  :py:class:`betty.render.plugin.Renderer`
    * -  Repository
-     -  :py:class:`betty.render.RENDERER_REPOSITORY`
+     -  :py:class:`betty.render.plugin.RENDERER_REPOSITORY`
 
 Renderers convert textual content to HTML. A renderer is often built to support one or more related source content types.
 
 Creating a renderer
 -------------------
 
-#. Create a new class that extends both :py:class:`betty.render.Renderer` and :py:class:`betty.plugin.Plugin` and implements the abstract methods,
+#. Create a new class that extends :py:class:`betty.render.plugin.Renderer` and implements the abstract methods,
    for example:
 
    .. code-block:: python
 
      from typing import override
      from betty.machine_name import MachineName
-     from betty.plugin import Plugin
-     from betty.render import Renderer
+     from betty.render.plugin import Renderer
 
-     class MyRenderer(Renderer, Plugin):
+     class MyRenderer(Renderer):
        @override
        @classmethod
        def plugin_id(cls) -> MachineName:

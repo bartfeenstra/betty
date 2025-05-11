@@ -17,6 +17,7 @@ from betty.locale import translation
 from betty.locale.localizable import _
 from betty.locale.translation import assert_extension_has_assets_directory_path
 from betty.plugin import ShorthandPluginBase
+
 from betty.project import extension
 
 if TYPE_CHECKING:

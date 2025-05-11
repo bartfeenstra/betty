@@ -9,10 +9,7 @@ from typing_extensions import override
 from betty.copyright_notice import CopyrightNotice
 from betty.locale.localizable import Localizable, plain
 from betty.locale.localizer import DEFAULT_LOCALIZER
-from betty.test_utils.plugin import (
-    DummyPlugin,
-    PluginInstanceTestBase,
-)
+from betty.test_utils.plugin import DummyPluginBase, PluginInstanceTestBase
 
 
 class CopyrightNoticeTestBase(PluginInstanceTestBase[CopyrightNotice]):
@@ -44,7 +41,7 @@ class CopyrightNoticeTestBase(PluginInstanceTestBase[CopyrightNotice]):
                 assert url.localize(DEFAULT_LOCALIZER)
 
 
-class DummyCopyrightNotice(DummyPlugin, CopyrightNotice):
+class DummyCopyrightNotice(DummyPluginBase, CopyrightNotice):
     """
     A dummy copyright notice implementation.
     """

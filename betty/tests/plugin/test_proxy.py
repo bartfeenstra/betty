@@ -25,42 +25,53 @@ class ProxyPluginRepositoryTestPluginThree(DummyPlugin):
 
 class TestProxyPluginRepository:
     async def test_get(self) -> None:
-        sut = ProxyPluginRepository[Plugin](
-            StaticPluginRepository(ProxyPluginRepositoryTestPluginOne)
+        sut = ProxyPluginRepository(
+            DummyPlugin,
+            StaticPluginRepository(DummyPlugin, ProxyPluginRepositoryTestPluginOne),
         )
         await sut.get(ProxyPluginRepositoryTestPluginOne.plugin_id())
 
     async def test_get__not_found_without_upstreams(self) -> None:
-        sut = ProxyPluginRepository[Plugin]()
+        sut = ProxyPluginRepository(DummyPlugin)
         with pytest.raises(PluginNotFound):
             await sut.get(ProxyPluginRepositoryTestPluginOne.plugin_id())
 
     async def test_get__not_found_with_upstreams(self) -> None:
-        sut = ProxyPluginRepository[Plugin](
-            StaticPluginRepository(), StaticPluginRepository(), StaticPluginRepository()
+        sut = ProxyPluginRepository(
+            DummyPlugin,
+            StaticPluginRepository(DummyPlugin),
+            StaticPluginRepository(DummyPlugin),
+            StaticPluginRepository(DummyPlugin),
         )
         with pytest.raises(PluginNotFound):
             await sut.get(ProxyPluginRepositoryTestPluginOne.plugin_id())
 
     async def test___aiter____without_upstreams(self) -> None:
-        sut = ProxyPluginRepository[Plugin]()
+        sut = ProxyPluginRepository(DummyPlugin)
         with pytest.raises(StopAsyncIteration):
             await anext(aiter(sut))
 
     async def test___aiter____with_upstreams_without_plugins(self) -> None:
-        sut = ProxyPluginRepository[Plugin](
-            StaticPluginRepository(), StaticPluginRepository(), StaticPluginRepository()
+        sut = ProxyPluginRepository(
+            DummyPlugin,
+            StaticPluginRepository(DummyPlugin),
+            StaticPluginRepository(DummyPlugin),
+            StaticPluginRepository(DummyPlugin),
         )
         with pytest.raises(StopAsyncIteration):
             await anext(aiter(sut))
 
     async def test___aiter____with_upstreams_with_plugins(self) -> None:
-        sut = ProxyPluginRepository[Plugin](
-            StaticPluginRepository(ProxyPluginRepositoryTestPluginOne),
+        sut = ProxyPluginRepository(
+            DummyPlugin,
+            StaticPluginRepository(DummyPlugin, ProxyPluginRepositoryTestPluginOne),
             StaticPluginRepository(
-                ProxyPluginRepositoryTestPluginTwo, ProxyPluginRepositoryTestPluginOne
+                DummyPlugin,
+                ProxyPluginRepositoryTestPluginTwo,
+                ProxyPluginRepositoryTestPluginOne,
             ),
             StaticPluginRepository(
+                DummyPlugin,
                 ProxyPluginRepositoryTestPluginThree,
                 ProxyPluginRepositoryTestPluginTwo,
                 ProxyPluginRepositoryTestPluginOne,
@@ -86,10 +97,13 @@ class TestProxyPluginRepository:
         async def _error_raising_factory(cls: type[_T]) -> _T:
             raise FactoryError(cls)
 
-        sut = ProxyPluginRepository[Plugin](
+        sut = ProxyPluginRepository(
+            DummyPlugin,
             StaticPluginRepository(
-                ProxyPluginRepositoryTestPluginOne, factory=_error_raising_factory
-            )
+                DummyPlugin,
+                ProxyPluginRepositoryTestPluginOne,
+                factory=_error_raising_factory,
+            ),
         )
         await sut.new_target(target)
 
@@ -106,8 +120,9 @@ class TestProxyPluginRepository:
         async def _error_raising_factory(cls: type[_T]) -> _T:
             raise FactoryError(cls)
 
-        sut = ProxyPluginRepository[Plugin](
-            StaticPluginRepository(ProxyPluginRepositoryTestPluginOne),
+        sut = ProxyPluginRepository(
+            DummyPlugin,
+            StaticPluginRepository(DummyPlugin, ProxyPluginRepositoryTestPluginOne),
             factory=_error_raising_factory,
         )
         await sut.new_target(target)
@@ -125,9 +140,12 @@ class TestProxyPluginRepository:
         async def _error_raising_factory(cls: type[_T]) -> _T:
             raise FactoryError(cls)
 
-        sut = ProxyPluginRepository[Plugin](
+        sut = ProxyPluginRepository(
+            DummyPlugin,
             StaticPluginRepository(
-                ProxyPluginRepositoryTestPluginOne, factory=_error_raising_factory
+                DummyPlugin,
+                ProxyPluginRepositoryTestPluginOne,
+                factory=_error_raising_factory,
             ),
             factory=_error_raising_factory,
         )

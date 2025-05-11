@@ -41,14 +41,14 @@ async def _privatize_ancestry(event: PostLoadAncestryEvent) -> None:
         if isinstance(entity, HasPrivacy):
             entities.append(entity)
             if entity.private:
-                newly_privatized[entity.type] -= 1  # type: ignore[index]
+                newly_privatized[type(entity)] -= 1
 
     for entity in entities:
         privatizer.privatize(entity)
 
     for entity in entities:
         if entity.private:
-            newly_privatized[entity.type] += 1  # type: ignore[index]
+            newly_privatized[type(entity)] += 1
 
     if newly_privatized[Person] > 0:
         logger.info(

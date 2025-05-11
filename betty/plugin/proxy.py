@@ -9,7 +9,6 @@ from typing import Generic, TypeVar, final, overload
 from typing_extensions import override
 
 from betty.factory import Factory, FactoryError
-from betty.json.schema import Schema
 from betty.machine_name import MachineName
 from betty.plugin import Plugin, PluginNotFound, PluginRepository
 
@@ -25,11 +24,11 @@ class ProxyPluginRepository(PluginRepository[_PluginT], Generic[_PluginT]):
 
     def __init__(
         self,
+        plugin: type[_PluginT],
         *upstreams: PluginRepository[_PluginT],
         factory: Factory | None = None,
-        schema_template: Schema | None = None,
     ):
-        super().__init__(factory=factory, schema_template=schema_template)
+        super().__init__(plugin, factory=factory)
         self._upstreams = upstreams
 
     @overload

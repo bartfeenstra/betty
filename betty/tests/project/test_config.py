@@ -17,6 +17,7 @@ from betty.license.licenses import AllRightsReserved
 from betty.locale import DEFAULT_LOCALE, UNDETERMINED_LOCALE
 from betty.locale.localizer import DEFAULT_LOCALIZER
 from betty.machine_name import MachineName
+from betty.model import Entity
 from betty.plugin.config import PluginConfiguration, PluginInstanceConfiguration
 from betty.plugin.static import StaticPluginRepository
 from betty.project.config import (
@@ -379,7 +380,7 @@ class TestEntityTypeConfiguration:
         plugin = DummyEntity
         sut = EntityTypeConfiguration(plugin, generate_html_list=True)
         with pytest.raises(AssertionFailed):
-            await sut.validate(StaticPluginRepository(plugin))
+            await sut.validate(StaticPluginRepository(Entity, plugin))
 
 
 class EntityTypeConfigurationMappingTestEntity0(DummyEntity):
@@ -452,7 +453,7 @@ class TestEntityTypeConfigurationMapping(
             [EntityTypeConfiguration(plugin, generate_html_list=True)]
         )
         with pytest.raises(AssertionFailed):
-            await sut.validate(StaticPluginRepository(plugin))
+            await sut.validate(StaticPluginRepository(Entity, plugin))
 
 
 class TestCopyrightNoticeConfiguration:

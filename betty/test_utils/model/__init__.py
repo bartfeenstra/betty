@@ -11,7 +11,7 @@ from typing_extensions import override
 from betty.locale.localizable import Localizable, plain
 from betty.locale.localizer import DEFAULT_LOCALIZER
 from betty.model import Entity
-from betty.test_utils.plugin import DummyPlugin, PluginTestBase
+from betty.test_utils.plugin import DummyPluginBase, PluginTestBase
 from betty.user import UserFacing
 
 if TYPE_CHECKING:
@@ -43,7 +43,7 @@ class EntityTestBase(PluginTestBase[Entity]):
             assert entity.label.localize(DEFAULT_LOCALIZER)
 
 
-class DummyEntity(DummyPlugin, Entity):
+class DummyEntity(DummyPluginBase, Entity):
     """
     A dummy entity.
     """

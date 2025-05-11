@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PROJECT VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2025-05-07 00:34+0100\n"
+"POT-Creation-Date: 2025-05-12 23:52+0100\n"
 "PO-Revision-Date: 2024-11-29 18:58+0000\n"
 "Last-Translator: Bart Feenstra <bart@bartfeenstra.com>\n"
 "Language: fr_FR\n"
@@ -243,6 +243,9 @@ msgstr ""
 msgid "Close"
 msgstr ""
 
+msgid "Command"
+msgstr ""
+
 msgid "Conference"
 msgstr ""
 
@@ -264,6 +267,9 @@ msgid "Copyright <a href=\"%(url)s\">OpenStreetMap</a> contributors"
 msgstr ""
 
 msgid "Copyright Wikipedia contributors"
+msgstr ""
+
+msgid "Copyright notice"
 msgstr ""
 
 msgid ""
@@ -399,11 +405,17 @@ msgstr "Fiançailles"
 msgid "Enrich your ancestry with information from Wikipedia and Wikimedia Commons"
 msgstr ""
 
+msgid "Entity"
+msgstr ""
+
 msgid "Entity type"
 msgstr ""
 
 msgid "Event"
 msgstr "Evénement"
+
+msgid "Event type"
+msgstr ""
 
 msgid "Events"
 msgstr "Evénements"
@@ -413,6 +425,9 @@ msgid "Exactly {expected} items are required, but found {actual}."
 msgstr ""
 
 msgid "Explore a demonstration site"
+msgstr ""
+
+msgid "Extension"
 msgstr ""
 
 msgid "External links"
@@ -451,8 +466,14 @@ msgstr ""
 msgid "Find out more about this image on Wikimedia Commons."
 msgstr ""
 
+msgid "Format"
+msgstr ""
+
 msgid "Funeral"
 msgstr "Funérailles"
+
+msgid "Gender"
+msgstr ""
 
 msgid "Generate a static site"
 msgstr ""
@@ -680,6 +701,9 @@ msgstr ""
 msgid "Place"
 msgstr "Lieu"
 
+msgid "Place type"
+msgstr ""
+
 msgid "Places"
 msgstr "Lieux"
 
@@ -694,6 +718,9 @@ msgstr ""
 
 #, python-brace-format
 msgid "Presence of {person} at {event}"
+msgstr ""
+
+msgid "Presence role"
 msgstr ""
 
 msgid "Presences"
@@ -756,6 +783,9 @@ msgid "References"
 msgstr "Références"
 
 msgid "Region"
+msgstr ""
+
+msgid "Renderer"
 msgstr ""
 
 msgid "Reset"

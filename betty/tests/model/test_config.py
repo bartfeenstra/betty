@@ -173,7 +173,7 @@ class TestEntityReference:
     ) -> None:
         sut = EntityReference[Entity]("betty.non_existent.Entity")
         with raises_error(error_type=AssertionFailed):
-            await sut.validate(StaticPluginRepository())
+            await sut.validate(StaticPluginRepository(Entity))
 
 
 class TestEntityReferenceSequence(
@@ -241,4 +241,4 @@ class TestEntityReferenceSequence(
             [EntityReference("betty.non_existent.Entity")]
         )
         with raises_error(error_type=AssertionFailed):
-            await sut.validate(StaticPluginRepository())
+            await sut.validate(StaticPluginRepository(Entity))

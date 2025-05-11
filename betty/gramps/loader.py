@@ -540,7 +540,7 @@ class GrampsLoader:
         self._ancestry.add(entity)
         if handle is not None:
             self._handles_to_entities[handle] = entity
-        self._added_entity_counts[entity.type] += 1
+        self._added_entity_counts[type(entity)] += 1
 
     def _xpath(
         self, element: ElementTree.Element, selector: str

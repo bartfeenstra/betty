@@ -100,7 +100,7 @@ class SpdxLicenseRepository(PluginRepository[License]):
         factory: Factory | None = None,
         manager: SyncManager,
     ):
-        super().__init__(factory=factory)
+        super().__init__(License, factory=factory)
         self._fetcher = fetcher
         self._localizer = localizer
         self._cache_directory_path = binary_file_cache.with_scope(

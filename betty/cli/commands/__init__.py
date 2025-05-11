@@ -9,9 +9,19 @@ from abc import abstractmethod
 from contextlib import suppress
 from functools import wraps
 from pathlib import Path
-from typing import TYPE_CHECKING, Any, Concatenate, ParamSpec, TypeVar, cast, overload
+from typing import (
+    TYPE_CHECKING,
+    Any,
+    Concatenate,
+    ParamSpec,
+    TypeVar,
+    cast,
+    final,
+    overload,
+)
 
 import asyncclick as click
+from typing_extensions import override
 
 from betty import about
 from betty.assertion import assert_none, assert_or, assert_path
@@ -19,7 +29,7 @@ from betty.assertion.error import AssertionFailed
 from betty.cli.error import user_facing_error_to_bad_parameter
 from betty.config import assert_configuration_file
 from betty.error import FileNotFound, UserFacingError
-from betty.locale.localizable import _
+from betty.locale.localizable import Localizable, _
 from betty.plugin import Plugin, PluginRepository
 from betty.plugin.entry_point import EntryPointPluginRepository
 from betty.plugin.proxy import ProxyPluginRepository
@@ -31,6 +41,7 @@ if TYPE_CHECKING:
     from collections.abc import Callable, Coroutine
 
     from betty.cli import ContextAppObject
+    from betty.machine_name import MachineName
 
 _T = TypeVar("_T")
 _P = ParamSpec("_P")
@@ -43,6 +54,24 @@ class Command(Plugin):
     Read more about :doc:`/development/plugin/command`.
     """
 
+    @final
+    @override
+    @classmethod
+    def plugin_type_cls(cls) -> type[Plugin]:
+        return Command
+
+    @final
+    @override
+    @classmethod
+    def plugin_type_id(cls) -> MachineName:
+        return "command"
+
+    @final
+    @override
+    @classmethod
+    def plugin_type_label(cls) -> Localizable:
+        return _("Command")
+
     @abstractmethod
     async def click_command(self) -> click.Command:
         """
@@ -51,9 +80,10 @@ class Command(Plugin):
 
 
 COMMAND_REPOSITORY: PluginRepository[Command] = ProxyPluginRepository(
-    EntryPointPluginRepository("betty.command"),
+    Command,
+    EntryPointPluginRepository(Command, "betty.command"),
     *(
-        [EntryPointPluginRepository("betty.dev.command")]
+        [EntryPointPluginRepository(Command, "betty.dev.command")]
         if about.is_development()
         else []
     ),

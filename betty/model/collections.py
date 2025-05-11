@@ -347,7 +347,7 @@ class MultipleTypesEntityCollection(Generic[_TargetT], EntityCollection[_TargetT
     def add(self, *entities: _TargetT & Entity) -> None:
         added_entities = [*self._unknown(*entities)]
         for entity in added_entities:
-            self[entity.type].add(entity)
+            self[type(entity)].add(entity)
         if added_entities:
             self._on_add(*added_entities)
 
@@ -355,7 +355,7 @@ class MultipleTypesEntityCollection(Generic[_TargetT], EntityCollection[_TargetT
     def remove(self, *entities: _TargetT & Entity) -> None:
         removed_entities = [*self._known(*entities)]
         for entity in removed_entities:
-            self[entity.type].remove(entity)
+            self[type(entity)].remove(entity)
         if removed_entities:
             self._on_remove(*removed_entities)
 

@@ -9,7 +9,6 @@ from typing import TYPE_CHECKING, final
 
 from typing_extensions import override
 
-from betty.plugin.entry_point import EntryPointPluginRepository
 from betty.typing import internal
 
 if TYPE_CHECKING:
@@ -18,7 +17,6 @@ if TYPE_CHECKING:
 
     from betty.job import Context
     from betty.locale.localizer import Localizer
-    from betty.plugin import Plugin, PluginRepository
 
 
 class Renderer(ABC):
@@ -49,16 +47,6 @@ class Renderer(ABC):
         :return: The file's new path, which may have been changed, e.g. a
             renderer-specific extension may have been stripped from the end.
         """
-
-
-RENDERER_REPOSITORY: PluginRepository[Renderer & Plugin] = EntryPointPluginRepository(
-    "betty.renderer"
-)
-"""
-The renderer plugin repository.
-
-Read more about :doc:`/development/plugin/renderer`.
-"""
 
 
 @internal

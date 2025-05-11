@@ -13,11 +13,10 @@ from betty.cli.commands import Command, command
 from betty.config import write_configuration_file
 from betty.plugin.static import StaticPluginRepository
 from betty.project import Project
-from betty.test_utils.cli import run
-from betty.test_utils.plugin import DummyPlugin
+from betty.test_utils.cli import DummyCommand, run
 
 
-class _NoOpCommand(Command, DummyPlugin):
+class _NoOpCommand(DummyCommand):
     @override
     async def click_command(self) -> click.Command:
         @command(self.plugin_id())
@@ -58,7 +57,7 @@ class TestVerbosity:
     async def test(
         self, mocker: MockerFixture, new_temporary_app_cli: App, verbosity: str
     ) -> None:
-        command_repository = StaticPluginRepository(_NoOpCommand)
+        command_repository = StaticPluginRepository(Command, _NoOpCommand)
         mocker.patch(
             "betty.cli.commands.COMMAND_REPOSITORY",
             new=command_repository,

@@ -21,20 +21,24 @@ class StaticPluginRepositoryTestPlugin(Plugin):
 
 class TestStaticPluginRepository:
     async def test_get(self) -> None:
-        sut = StaticPluginRepository[Plugin](StaticPluginRepositoryTestPlugin)
+        sut = StaticPluginRepository(
+            StaticPluginRepositoryTestPlugin, StaticPluginRepositoryTestPlugin
+        )
         await sut.get(StaticPluginRepositoryTestPlugin.plugin_id())
 
     async def test_get_not_found(self) -> None:
-        sut = StaticPluginRepository[Plugin]()
+        sut = StaticPluginRepository(StaticPluginRepositoryTestPlugin)
         with pytest.raises(PluginNotFound):
             await sut.get(StaticPluginRepositoryTestPlugin.plugin_id())
 
     async def test___aiter__(self) -> None:
-        sut = StaticPluginRepository[Plugin](StaticPluginRepositoryTestPlugin)
+        sut = StaticPluginRepository(
+            StaticPluginRepositoryTestPlugin, StaticPluginRepositoryTestPlugin
+        )
         plugin = [plugin async for plugin in sut][0]
         assert plugin is StaticPluginRepositoryTestPlugin
 
     async def test___aiter___without_plugins(self) -> None:
-        sut = StaticPluginRepository[Plugin]()
+        sut = StaticPluginRepository(StaticPluginRepositoryTestPlugin)
         with pytest.raises(StopAsyncIteration):
             await anext(aiter(sut))

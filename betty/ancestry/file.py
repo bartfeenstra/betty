@@ -20,10 +20,7 @@ from betty.locale.localizable import (
     ngettext,
 )
 from betty.model import Entity
-from betty.model.association import (
-    BidirectionalToMany,
-    ToManyAssociates,
-)
+from betty.model.association import BidirectionalToMany, ToManyAssociates
 from betty.plugin import ShorthandPluginBase
 from betty.privacy import HasPrivacy, Privacy
 from betty.user import UserFacing

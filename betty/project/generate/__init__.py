@@ -416,7 +416,7 @@ async def _generate_entity_html(
         job_context=job_context,
         localizer=await app.localizers.get(locale),
         page_resource=entity,
-        entity_type=entity.type,
+        entity_type=type(entity),
         entity=entity,
     )
     async with create_html_resource(entity_path) as f:
