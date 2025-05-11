@@ -7,7 +7,6 @@ import pytest
 from typing_extensions import override
 
 from betty.factory import Factory, new
-from betty.json.schema import Schema
 from betty.plugin import (
     CyclicDependencyError,
     DependentPlugin,
@@ -97,13 +96,8 @@ class _TestPluginRepositoryPluginCustomFactory(DummyPlugin):
 
 
 class _TestPluginRepositoryPluginRepository(PluginRepository[DummyPlugin]):
-    def __init__(
-        self,
-        *plugins: type[DummyPlugin],
-        factory: Factory | None = None,
-        schema_template: Schema | None = None,
-    ):
-        super().__init__(factory=factory, schema_template=schema_template)
+    def __init__(self, *plugins: type[DummyPlugin], factory: Factory | None = None):
+        super().__init__(DummyPlugin, factory=factory)
         self._plugins = {plugin.plugin_id(): plugin for plugin in plugins}
 
     @override
@@ -121,22 +115,32 @@ class _TestPluginRepositoryPluginRepository(PluginRepository[DummyPlugin]):
 
 class TestPluginIdToTypeMapping:
     async def test_new(self) -> None:
-        await PluginIdToTypeMapping.new(StaticPluginRepository())
+        await PluginIdToTypeMapping.new(StaticPluginRepository(DummyPlugin))
 
     async def test_get(self) -> None:
-        sut = await PluginIdToTypeMapping.new(StaticPluginRepository(DummyPlugin))
+        sut = await PluginIdToTypeMapping.new(
+            StaticPluginRepository(DummyPlugin, DummyPlugin)
+        )
         assert sut.get(DummyPlugin.plugin_id()) is DummyPlugin
 
     async def test___getitem__(self) -> None:
-        sut = await PluginIdToTypeMapping.new(StaticPluginRepository(DummyPlugin))
+        sut = await PluginIdToTypeMapping.new(
+            StaticPluginRepository(DummyPlugin, DummyPlugin)
+        )
         assert sut[DummyPlugin.plugin_id()] is DummyPlugin
 
     async def test___iter__(self) -> None:
-        sut = await PluginIdToTypeMapping.new(StaticPluginRepository(DummyPlugin))
+        sut = await PluginIdToTypeMapping.new(
+            StaticPluginRepository(DummyPlugin, DummyPlugin)
+        )
         assert list(iter(sut)) == [DummyPlugin.plugin_id()]
 
 
 class TestPluginRepository:
+    async def test_plugin(self) -> None:
+        sut = _TestPluginRepositoryPluginRepository()
+        assert sut.plugin is DummyPlugin
+
     async def test_resolve_identifier__with_unknown_plugin_id(self) -> None:
         sut = _TestPluginRepositoryPluginRepository()
         with pytest.raises(PluginNotFound):
@@ -304,17 +308,12 @@ class TestPluginRepository:
         )
 
     async def test_plugin_id_schema(self) -> None:
-        def_name = "myFirstSchema"
-        title = "My First Schema"
         sut = _TestPluginRepositoryPluginRepository(
             _TestPluginRepositoryPluginOne,
             _TestPluginRepositoryPluginOneTwo,
             _TestPluginRepositoryPluginOneTwoThree,
-            schema_template=Schema(def_name=def_name, title=title),
         )
         actual = await sut.plugin_id_schema
-        assert actual.def_name == def_name
-        assert actual.schema["title"] == title
         assert actual.schema["enum"] == [
             "test-plugin-repository-plugin-one",
             "test-plugin-repository-plugin-one-two",

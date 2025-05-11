@@ -6,7 +6,7 @@ from __future__ import annotations
 
 from betty.ancestry.event_type import EventType
 from betty.test_utils.plugin import (
-    DummyPlugin,
+    DummyPluginBase,
     PluginTestBase,
     assert_plugin_identifier,
 )
@@ -38,7 +38,7 @@ class EventTypeTestBase(PluginTestBase[EventType]):
             )
 
 
-class DummyEventType(DummyPlugin, EventType):
+class DummyEventType(DummyPluginBase, EventType):
     """
     A dummy event type implementation.
     """

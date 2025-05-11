@@ -123,7 +123,8 @@ async def test_sort_extension_type_graph(
 ) -> None:
     mocker.patch(
         "betty.project.extension.EXTENSION_REPOSITORY",
-        new=StaticPluginRepository[Extension](
+        new=StaticPluginRepository(
+            Extension,
             ComesBeforeTargetExtension,
             DependsOnComesBeforeTargetExtension,
             HasComesBeforeExtension,

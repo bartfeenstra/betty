@@ -15,6 +15,7 @@ from betty.locale import get_display_name, DEFAULT_LOCALE
 from betty.locale.localizable import _, StaticTranslations
 from betty.machine_name import machinify, assert_machine_name
 from betty.plugin import ShorthandPluginBase
+
 from betty.plugin.config import PluginInstanceConfiguration
 from betty.project.config import LocaleConfiguration, ProjectConfiguration
 from betty.project.extension.deriver import Deriver

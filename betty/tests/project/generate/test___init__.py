@@ -168,8 +168,10 @@ async def test_generate__third_party_entities(
 ) -> None:
     mocker.patch(
         "betty.model.ENTITY_TYPE_REPOSITORY",
-        new=ProxyPluginRepository[Entity](
-            StaticPluginRepository(ThirdPartyEntity), ENTITY_TYPE_REPOSITORY
+        new=ProxyPluginRepository(
+            Entity,
+            StaticPluginRepository(Entity, ThirdPartyEntity),
+            ENTITY_TYPE_REPOSITORY,
         ),
     )
     async with Project.new_temporary(new_temporary_app) as project:
@@ -194,8 +196,10 @@ async def test_generate__third_party_entity(
 ) -> None:
     mocker.patch(
         "betty.model.ENTITY_TYPE_REPOSITORY",
-        new=ProxyPluginRepository[Entity](
-            StaticPluginRepository(ThirdPartyEntity), ENTITY_TYPE_REPOSITORY
+        new=ProxyPluginRepository(
+            Entity,
+            StaticPluginRepository(Entity, ThirdPartyEntity),
+            ENTITY_TYPE_REPOSITORY,
         ),
     )
     async with Project.new_temporary(new_temporary_app) as project:

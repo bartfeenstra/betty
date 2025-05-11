@@ -5,7 +5,7 @@ from __future__ import annotations
 from abc import abstractmethod
 from inspect import getmembers
 from reprlib import recursive_repr
-from typing import TYPE_CHECKING, Any, Self, TypeAlias, TypeVar
+from typing import TYPE_CHECKING, Any, Self, TypeAlias, TypeVar, final
 from uuid import uuid4
 
 from typing_extensions import override
@@ -32,17 +32,9 @@ if TYPE_CHECKING:
     import builtins
     from collections.abc import Iterable
 
+    from betty.machine_name import MachineName
     from betty.project import Project
     from betty.serde.dump import Dump, DumpMapping
-
-ENTITY_TYPE_REPOSITORY: PluginRepository[Entity] = EntryPointPluginRepository(
-    "betty.entity_type"
-)
-"""
-The entity type plugin repository.
-
-Read more about :doc:`/development/plugin/entity-type`.
-"""
 
 
 class NonPersistentId(str):
@@ -85,6 +77,24 @@ class Entity(LinkedDataDumpableJsonLdObject, Mutable, Plugin):
     def __hash__(self) -> int:
         return hash(self.ancestry_id)
 
+    @final
+    @override
+    @classmethod
+    def plugin_type_cls(cls) -> builtins.type[Plugin]:
+        return Entity
+
+    @final
+    @override
+    @classmethod
+    def plugin_type_id(cls) -> MachineName:
+        return "entity"
+
+    @final
+    @override
+    @classmethod
+    def plugin_type_label(cls) -> Localizable:
+        return _("Entity")
+
     @classmethod
     @abstractmethod
     def plugin_label_plural(cls) -> Localizable:
@@ -105,13 +115,6 @@ class Entity(LinkedDataDumpableJsonLdObject, Mutable, Plugin):
         return repr_instance(self, id=self._id)
 
     @property
-    def type(self) -> builtins.type[Self]:
-        """
-        The entity type.
-        """
-        return self.__class__
-
-    @property
     def id(self) -> str:
         """
         The entity ID.
@@ -127,7 +130,7 @@ class Entity(LinkedDataDumpableJsonLdObject, Mutable, Plugin):
 
         This MUST be unique per ancestry.
         """
-        return self.type, self.id
+        return type(self), self.id
 
     @property
     def label(self) -> Localizable:
@@ -145,7 +148,7 @@ class Entity(LinkedDataDumpableJsonLdObject, Mutable, Plugin):
         if persistent_id(self) and isinstance(self, UserFacing):
             url_generator = await project.url_generator
             dump["@id"] = url_generator.generate(
-                f"betty-static:///{self.type.plugin_id()}/{self.id}/index.json",
+                f"betty-static:///{self.plugin_id()}/{self.id}/index.json",
                 absolute=True,
             )
         dump["id"] = self.id
@@ -169,6 +172,16 @@ class Entity(LinkedDataDumpableJsonLdObject, Mutable, Plugin):
         for __, member in getmembers(type(self)):
             if isinstance(member, StaticTranslationsLocalizableAttr):
                 yield member.__get__(self, type(self))
+
+
+ENTITY_TYPE_REPOSITORY: PluginRepository[Entity] = EntryPointPluginRepository(
+    Entity, "betty.entity_type"
+)
+"""
+The entity type plugin repository.
+
+Read more about :doc:`/development/plugin/entity-type`.
+"""
 
 
 AncestryEntityId: TypeAlias = tuple[type[Entity], str]

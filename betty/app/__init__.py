@@ -253,6 +253,7 @@ class App(Configurable[AppConfiguration], TargetFactory, ServiceProvider):
         The SPDX licenses available to this application.
         """
         return ProxyPluginRepository(
+            License,
             LICENSE_REPOSITORY,
             SpdxLicenseRepository(
                 binary_file_cache=self.binary_file_cache.with_scope("spdx"),

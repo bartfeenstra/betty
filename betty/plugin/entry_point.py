@@ -8,7 +8,6 @@ from typing import Generic, TypeVar, final
 
 from typing_extensions import override
 
-from betty.json.schema import Schema
 from betty.plugin import Plugin
 from betty.plugin.lazy import LazyPluginRepositoryBase
 
@@ -33,10 +32,8 @@ class EntryPointPluginRepository(LazyPluginRepositoryBase[_PluginT], Generic[_Pl
         'my-package-plugin' = 'my_package.my_module:MyPlugin'
     """
 
-    def __init__(
-        self, entry_point_group: str, *, schema_template: Schema | None = None
-    ):
-        super().__init__(schema_template=schema_template)
+    def __init__(self, plugin: type[_PluginT], entry_point_group: str, /):
+        super().__init__(plugin)
         self._entry_point_group = entry_point_group
 
     @override

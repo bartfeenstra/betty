@@ -30,7 +30,7 @@ from betty.project.config import (
     LicenseConfiguration,
     ProjectConfiguration,
 )
-from betty.project.extension import EXTENSION_REPOSITORY
+from betty.project.extension import EXTENSION_REPOSITORY, Extension
 from betty.project.factory import ProjectDependentFactory
 from betty.requirement import Requirement, RequirementError
 from betty.test_utils.json.schema import SchemaTestBase
@@ -46,7 +46,6 @@ if TYPE_CHECKING:
     from pytest_mock import MockerFixture
 
     from betty.json.schema import Schema
-    from betty.project.extension import Extension
     from betty.serde.dump import Dump
 
 
@@ -122,7 +121,7 @@ class TestProject:
     ) -> None:
         mocker.patch(
             "betty.project.extension.EXTENSION_REPOSITORY",
-            new=StaticPluginRepository(DummyExtension),
+            new=StaticPluginRepository(Extension, DummyExtension),
         )
         async with Project.new_temporary(new_temporary_app) as sut:
             sut.configuration.extensions.enable(DummyExtension)
@@ -136,7 +135,8 @@ class TestProject:
     ) -> None:
         plugin = DummyEntity
         mocker.patch(
-            "betty.model.ENTITY_TYPE_REPOSITORY", new=StaticPluginRepository(plugin)
+            "betty.model.ENTITY_TYPE_REPOSITORY",
+            new=StaticPluginRepository(Extension, plugin),
         )
         async with Project.new_temporary(new_temporary_app) as sut:
             sut.configuration.entity_types.replace(
@@ -160,7 +160,7 @@ class TestProject:
     ) -> None:
         mocker.patch(
             "betty.project.extension.EXTENSION_REPOSITORY",
-            new=StaticPluginRepository(_DummyExtensionWithUnmetRequirement),
+            new=StaticPluginRepository(Extension, _DummyExtensionWithUnmetRequirement),
         )
         async with Project.new_temporary(new_temporary_app) as sut:
             sut.configuration.extensions.enable(_DummyExtensionWithUnmetRequirement)
@@ -183,7 +183,7 @@ class TestProject:
     ) -> None:
         mocker.patch(
             "betty.project.extension.EXTENSION_REPOSITORY",
-            new=StaticPluginRepository(_DummyExtensionA, _DummyExtensionB),
+            new=StaticPluginRepository(Extension, _DummyExtensionA, _DummyExtensionB),
         )
         async with Project.new_temporary(new_temporary_app) as sut:
             sut.configuration.extensions.enable(*enable)
@@ -223,7 +223,7 @@ class TestProject:
     ) -> None:
         mocker.patch(
             "betty.project.extension.EXTENSION_REPOSITORY",
-            new=StaticPluginRepository(DummyExtension),
+            new=StaticPluginRepository(Extension, DummyExtension),
         )
         async with Project.new_temporary(new_temporary_app) as sut:
             sut.configuration.extensions.enable(DummyExtension)
@@ -236,7 +236,7 @@ class TestProject:
     ) -> None:
         mocker.patch(
             "betty.project.extension.EXTENSION_REPOSITORY",
-            new=StaticPluginRepository(_DummyExtensionWithAssetsDirectory),
+            new=StaticPluginRepository(Extension, _DummyExtensionWithAssetsDirectory),
         )
         async with Project.new_temporary(new_temporary_app) as sut:
             sut.configuration.extensions.enable(_DummyExtensionWithAssetsDirectory)

@@ -9,10 +9,7 @@ from typing_extensions import override
 from betty.license import License
 from betty.locale.localizable import Localizable, plain
 from betty.locale.localizer import DEFAULT_LOCALIZER
-from betty.test_utils.plugin import (
-    DummyPlugin,
-    PluginInstanceTestBase,
-)
+from betty.test_utils.plugin import DummyPluginBase, PluginInstanceTestBase
 
 
 class LicenseTestBase(PluginInstanceTestBase[License]):
@@ -44,7 +41,7 @@ class LicenseTestBase(PluginInstanceTestBase[License]):
                 assert url.localize(DEFAULT_LOCALIZER)
 
 
-class DummyLicense(DummyPlugin, License):
+class DummyLicense(DummyPluginBase, License):
     """
     A dummy license implementation.
     """

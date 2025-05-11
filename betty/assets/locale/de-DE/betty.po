@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Betty VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2025-05-07 00:34+0100\n"
+"POT-Creation-Date: 2025-05-12 23:52+0100\n"
 "PO-Revision-Date: 2025-03-28 20:02+0000\n"
 "Last-Translator: Ettore Atalan <atalanttore@googlemail.com>\n"
 "Language: de_DE\n"
@@ -265,6 +265,9 @@ msgstr ""
 msgid "Close"
 msgstr "Schließen"
 
+msgid "Command"
+msgstr ""
+
 msgid "Conference"
 msgstr "Konferenz"
 
@@ -286,6 +289,9 @@ msgid "Copyright <a href=\"%(url)s\">OpenStreetMap</a> contributors"
 msgstr ""
 
 msgid "Copyright Wikipedia contributors"
+msgstr ""
+
+msgid "Copyright notice"
 msgstr ""
 
 msgid ""
@@ -433,11 +439,17 @@ msgstr "Verlobung"
 msgid "Enrich your ancestry with information from Wikipedia and Wikimedia Commons"
 msgstr ""
 
+msgid "Entity"
+msgstr ""
+
 msgid "Entity type"
 msgstr ""
 
 msgid "Event"
 msgstr "Ereignis"
+
+msgid "Event type"
+msgstr ""
 
 msgid "Events"
 msgstr "Ereignisse"
@@ -447,6 +459,9 @@ msgid "Exactly {expected} items are required, but found {actual}."
 msgstr ""
 
 msgid "Explore a demonstration site"
+msgstr ""
+
+msgid "Extension"
 msgstr ""
 
 msgid "External links"
@@ -485,8 +500,14 @@ msgstr ""
 msgid "Find out more about this image on Wikimedia Commons."
 msgstr "Mehr über dieses Bild erfährst du auf Wikimedia Commons."
 
+msgid "Format"
+msgstr ""
+
 msgid "Funeral"
 msgstr "Beerdigung"
+
+msgid "Gender"
+msgstr ""
 
 msgid "Generate a static site"
 msgstr ""
@@ -714,6 +735,9 @@ msgstr "Namen der Personen"
 msgid "Place"
 msgstr "Ort"
 
+msgid "Place type"
+msgstr ""
+
 msgid "Places"
 msgstr "Orte"
 
@@ -729,6 +753,9 @@ msgstr "Anwesenheit"
 #, python-brace-format
 msgid "Presence of {person} at {event}"
 msgstr "Anwesenheit von {person} zum {event}"
+
+msgid "Presence role"
+msgstr ""
 
 msgid "Presences"
 msgstr "Anwesenheiten"
@@ -798,6 +825,9 @@ msgstr "Referenzen"
 
 msgid "Region"
 msgstr "Region"
+
+msgid "Renderer"
+msgstr ""
 
 msgid "Reset"
 msgstr "Zurücksetzen"

@@ -51,8 +51,10 @@ class TestRaspberryMint(EntryPointProviderTestBase, ExtensionTestBase[RaspberryM
     ) -> None:
         mocker.patch(
             "betty.model.ENTITY_TYPE_REPOSITORY",
-            new=ProxyPluginRepository[Entity](
-                StaticPluginRepository(DummyUserFacingEntity), ENTITY_TYPE_REPOSITORY
+            new=ProxyPluginRepository(
+                Entity,
+                StaticPluginRepository(Entity, DummyUserFacingEntity),
+                ENTITY_TYPE_REPOSITORY,
             ),
         )
         async with Project.new_temporary(new_temporary_app) as project:

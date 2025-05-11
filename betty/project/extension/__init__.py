@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Generic, Self, TypeVar
+from typing import TYPE_CHECKING, Generic, Self, TypeVar, final
 
 from typing_extensions import override
 
@@ -12,6 +12,7 @@ from betty.plugin import (
     CyclicDependencyError,
     DependentPlugin,
     OrderedPlugin,
+    Plugin,
     PluginIdToTypeMapping,
     PluginRepository,
     sort_dependent_plugin_graph,
@@ -29,6 +30,7 @@ if TYPE_CHECKING:
     from pathlib import Path
 
     from betty.event_dispatcher import EventHandlerRegistry
+    from betty.machine_name import MachineName
     from betty.project import Project
     from betty.requirement import Requirement
 
@@ -58,6 +60,24 @@ class Extension(
     @classmethod
     async def new_for_project(cls, project: Project) -> Self:
         return cls(project)
+
+    @final
+    @override
+    @classmethod
+    def plugin_type_cls(cls) -> type[Plugin]:
+        return Extension
+
+    @final
+    @override
+    @classmethod
+    def plugin_type_id(cls) -> MachineName:
+        return "extension"
+
+    @final
+    @override
+    @classmethod
+    def plugin_type_label(cls) -> Localizable:
+        return _("Extension")
 
     def register_event_handlers(self, registry: EventHandlerRegistry) -> None:
         """
@@ -94,7 +114,7 @@ _ExtensionT = TypeVar("_ExtensionT", bound=Extension)
 
 
 EXTENSION_REPOSITORY: PluginRepository[Extension] = EntryPointPluginRepository(
-    "betty.extension"
+    Extension, "betty.extension"
 )
 """
 The project extension plugin repository.

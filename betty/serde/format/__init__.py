@@ -35,6 +35,24 @@ class Format(Plugin):
     Defines a (de)serialization format.
     """
 
+    @final
+    @override
+    @classmethod
+    def plugin_type_cls(cls) -> type[Plugin]:
+        return Format
+
+    @final
+    @override
+    @classmethod
+    def plugin_type_id(cls) -> MachineName:
+        return "format"
+
+    @final
+    @override
+    @classmethod
+    def plugin_type_label(cls) -> Localizable:
+        return _("Format")
+
     @classmethod
     @abstractmethod
     def extensions(cls) -> Sequence[str]:
@@ -66,8 +84,8 @@ class FormatRepository(PluginRepository[Format]):
     """
 
     def __init__(self):
-        super().__init__()
-        self._upstream = EntryPointPluginRepository[Format]("betty.serde_format")
+        super().__init__(Format)
+        self._upstream = EntryPointPluginRepository(Format, "betty.serde_format")
 
     @override
     async def get(self, plugin_id: MachineName) -> type[Format]:

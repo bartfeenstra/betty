@@ -3,7 +3,7 @@ Test utilities for :py:mod:`betty.plugin`.
 """
 
 from collections.abc import Sequence
-from typing import Any, Generic, TypeVar
+from typing import Any, Generic, TypeVar, final
 
 from typing_extensions import override
 
@@ -78,9 +78,9 @@ class PluginInstanceTestBase(Generic[_PluginT], PluginTestBase[_PluginT]):
         raise NotImplementedError
 
 
-class DummyPlugin(Plugin):
+class DummyPluginBase(Plugin):
     """
-    A dummy plugin implementation.
+    A base dummy plugin implementation.
     """
 
     @override
@@ -92,3 +92,27 @@ class DummyPlugin(Plugin):
     @classmethod
     def plugin_label(cls) -> Localizable:
         return plain(cls.__name__)
+
+
+class DummyPlugin(DummyPluginBase):
+    """
+    A dummy plugin implementation.
+    """
+
+    @final
+    @override
+    @classmethod
+    def plugin_type_cls(cls) -> type[Plugin]:
+        return DummyPlugin
+
+    @final
+    @override
+    @classmethod
+    def plugin_type_id(cls) -> MachineName:
+        return "dummy"
+
+    @final
+    @override
+    @classmethod
+    def plugin_type_label(cls) -> Localizable:
+        return plain("Dummy")

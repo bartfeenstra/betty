@@ -57,7 +57,7 @@ class Test_EntityUrlUrlGenerator:
         locale = "nl-NL"
         m_entity_url_generator = mocker.patch("betty.project.url._EntityUrlGenerator")
         m_entity_url_generator.generate.return_value = url
-        plugin_repository = StaticPluginRepository(DummyEntity)
+        plugin_repository = StaticPluginRepository(Entity, DummyEntity)
         entity = DummyEntity(self._ENTITY_ID)
         ancestry = Ancestry(
             entity_type_id_to_type_mapping=await plugin_repository.mapping()
@@ -313,8 +313,8 @@ async def test_new_project_url_generator__supports(
 ) -> None:
     mocker.patch(
         "betty.model.ENTITY_TYPE_REPOSITORY",
-        new=ProxyPluginRepository[Entity](
-            StaticPluginRepository(DummyEntity), ENTITY_TYPE_REPOSITORY
+        new=ProxyPluginRepository(
+            Entity, StaticPluginRepository(Entity, DummyEntity), ENTITY_TYPE_REPOSITORY
         ),
     )
     async with Project.new_temporary(new_temporary_app) as project, project:
@@ -378,8 +378,8 @@ async def test_new_project_url_generator__generate(
 ) -> None:
     mocker.patch(
         "betty.model.ENTITY_TYPE_REPOSITORY",
-        new=ProxyPluginRepository[Entity](
-            StaticPluginRepository(DummyEntity), ENTITY_TYPE_REPOSITORY
+        new=ProxyPluginRepository(
+            Entity, StaticPluginRepository(Entity, DummyEntity), ENTITY_TYPE_REPOSITORY
         ),
     )
     async with Project.new_temporary(new_temporary_app) as project:

@@ -8,6 +8,8 @@ from asyncclick.testing import CliRunner, Result
 
 from betty.app import App
 from betty.cli import new_main_command
+from betty.cli.commands import Command
+from betty.test_utils.plugin import DummyPluginBase
 
 
 async def run(
@@ -31,3 +33,9 @@ Stderr:
 {result.stderr}
 """
     return result
+
+
+class DummyCommand(DummyPluginBase, Command):
+    """
+    A dummy command.
+    """

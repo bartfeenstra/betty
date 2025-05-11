@@ -26,7 +26,7 @@ from typing_extensions import override
 
 from betty import event_dispatcher, fs, model
 from betty.ancestry import Ancestry
-from betty.ancestry.event_type import EVENT_TYPE_REPOSITORY
+from betty.ancestry.event_type import EVENT_TYPE_REPOSITORY, EventType
 from betty.ancestry.gender import GENDER_REPOSITORY, Gender
 from betty.ancestry.place_type import PLACE_TYPE_REPOSITORY, PlaceType
 from betty.ancestry.presence_role import PRESENCE_ROLE_REPOSITORY, PresenceRole
@@ -38,6 +38,7 @@ from betty.factory import TargetFactory
 from betty.hashid import hashid
 from betty.job import Context
 from betty.json.schema import JsonSchemaReference, Schema
+from betty.license import License
 from betty.locale.localizable import _
 from betty.locale.localizer import LocalizerRepository
 from betty.model import Entity, ToManySchema
@@ -49,7 +50,8 @@ from betty.project.config import ProjectConfiguration
 from betty.project.extension import Extension, Theme, sort_extension_type_graph
 from betty.project.factory import ProjectDependentFactory
 from betty.project.url import new_project_url_generator
-from betty.render import RENDERER_REPOSITORY, Renderer, SequentialRenderer
+from betty.render import Renderer, SequentialRenderer
+from betty.render.plugin import RENDERER_REPOSITORY
 from betty.service import ServiceProvider, service
 from betty.string import kebab_case_to_lower_camel_case
 from betty.typing import internal
@@ -58,10 +60,8 @@ if TYPE_CHECKING:
     from collections.abc import AsyncIterator, Iterator, Sequence
     from multiprocessing.managers import SyncManager
 
-    from betty.ancestry.event_type import EventType
     from betty.app import App
     from betty.jinja2 import Environment
-    from betty.license import License
     from betty.machine_name import MachineName
     from betty.plugin import PluginIdentifier, PluginRepository
     from betty.url import UrlGenerator
@@ -337,12 +337,12 @@ class Project(Configurable[ProjectConfiguration], TargetFactory, ServiceProvider
         Read more about :doc:`/development/plugin/copyright-notice`.
         """
         return ProxyPluginRepository(
+            CopyrightNotice,
             COPYRIGHT_NOTICE_REPOSITORY,
-            StaticPluginRepository(*self.configuration.copyright_notices.new_plugins()),
-            factory=self.new_target,
-            schema_template=Schema(
-                def_name="copyrightNotice", title="Copyright notice"
+            StaticPluginRepository(
+                CopyrightNotice, *self.configuration.copyright_notices.new_plugins()
             ),
+            factory=self.new_target,
         )
 
     @service
@@ -362,10 +362,10 @@ class Project(Configurable[ProjectConfiguration], TargetFactory, ServiceProvider
         Read more about :doc:`/development/plugin/license`.
         """
         return ProxyPluginRepository(
+            License,
             await self._app.spdx_license_repository,
-            StaticPluginRepository(*self.configuration.licenses.new_plugins()),
+            StaticPluginRepository(License, *self.configuration.licenses.new_plugins()),
             factory=self.new_target,
-            schema_template=Schema(def_name="license", title="License"),
         )
 
     @service
@@ -374,10 +374,12 @@ class Project(Configurable[ProjectConfiguration], TargetFactory, ServiceProvider
         The event types available to this project.
         """
         return ProxyPluginRepository(
+            EventType,
             EVENT_TYPE_REPOSITORY,
-            StaticPluginRepository(*self.configuration.event_types.new_plugins()),
+            StaticPluginRepository(
+                EventType, *self.configuration.event_types.new_plugins()
+            ),
             factory=self.new_target,
-            schema_template=Schema(def_name="eventType", title="Event type"),
         )
 
     @service
@@ -386,10 +388,12 @@ class Project(Configurable[ProjectConfiguration], TargetFactory, ServiceProvider
         The place types available to this project.
         """
         return ProxyPluginRepository(
+            PlaceType,
             PLACE_TYPE_REPOSITORY,
-            StaticPluginRepository(*self.configuration.place_types.new_plugins()),
+            StaticPluginRepository(
+                PlaceType, *self.configuration.place_types.new_plugins()
+            ),
             factory=self.new_target,
-            schema_template=Schema(def_name="placeType", title="Place type"),
         )
 
     @service
@@ -398,10 +402,12 @@ class Project(Configurable[ProjectConfiguration], TargetFactory, ServiceProvider
         The presence roles available to this project.
         """
         return ProxyPluginRepository(
+            PresenceRole,
             PRESENCE_ROLE_REPOSITORY,
-            StaticPluginRepository(*self.configuration.presence_roles.new_plugins()),
+            StaticPluginRepository(
+                PresenceRole, *self.configuration.presence_roles.new_plugins()
+            ),
             factory=self.new_target,
-            schema_template=Schema(def_name="presenceRole", title="Presence role"),
         )
 
     @service
@@ -412,10 +418,10 @@ class Project(Configurable[ProjectConfiguration], TargetFactory, ServiceProvider
         Read more about :doc:`/development/plugin/gender`.
         """
         return ProxyPluginRepository(
+            Gender,
             GENDER_REPOSITORY,
-            StaticPluginRepository(*self.configuration.genders.new_plugins()),
+            StaticPluginRepository(Gender, *self.configuration.genders.new_plugins()),
             factory=self.new_target,
-            schema_template=Schema(def_name="gender", title="Gender"),
         )
 
     @service
@@ -426,9 +432,7 @@ class Project(Configurable[ProjectConfiguration], TargetFactory, ServiceProvider
         Read more about :doc:`/development/plugin/entity-type`.
         """
         return ProxyPluginRepository(
-            model.ENTITY_TYPE_REPOSITORY,
-            factory=self.new_target,
-            schema_template=Schema(def_name="entityType", title="Entity type"),
+            Entity, model.ENTITY_TYPE_REPOSITORY, factory=self.new_target
         )
 
     @service
@@ -439,7 +443,7 @@ class Project(Configurable[ProjectConfiguration], TargetFactory, ServiceProvider
         Read more about :doc:`/development/plugin/extension`.
         """
         return ProxyPluginRepository(
-            extension.EXTENSION_REPOSITORY, factory=self.new_target
+            Extension, extension.EXTENSION_REPOSITORY, factory=self.new_target
         )
 
 

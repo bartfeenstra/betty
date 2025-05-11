@@ -1,53 +1,48 @@
 """
-Provide presence roles.
+Integrate the render API with the plugin API.
 """
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, final
+from typing import TYPE_CHECKING
 
 from typing_extensions import override
 
 from betty.locale.localizable import Localizable, _
-from betty.mutability import Mutable
 from betty.plugin import Plugin, PluginRepository
 from betty.plugin.entry_point import EntryPointPluginRepository
+from betty.render import Renderer as GenericRenderer
 
 if TYPE_CHECKING:
     from betty.machine_name import MachineName
 
 
-class PresenceRole(Mutable, Plugin):
+class Renderer(GenericRenderer, Plugin):
     """
-    A person's role at an event.
-
-    Read more about :doc:`/development/plugin/presence-role`.
+    A renderer plugin.
     """
 
-    @final
     @override
     @classmethod
     def plugin_type_cls(cls) -> type[Plugin]:
-        return PresenceRole
+        return Renderer
 
-    @final
     @override
     @classmethod
     def plugin_type_id(cls) -> MachineName:
-        return "presence-role"
+        return "renderer"
 
-    @final
     @override
     @classmethod
     def plugin_type_label(cls) -> Localizable:
-        return _("Presence role")
+        return _("Renderer")
 
 
-PRESENCE_ROLE_REPOSITORY: PluginRepository[PresenceRole] = EntryPointPluginRepository(
-    PresenceRole, "betty.presence_role"
+RENDERER_REPOSITORY: PluginRepository[Renderer] = EntryPointPluginRepository(
+    Renderer, "betty.renderer"
 )
 """
-The presence role plugin repository.
+The renderer plugin repository.
 
-Read more about :doc:`/development/plugin/presence-role`.
+Read more about :doc:`/development/plugin/renderer`.
 """

@@ -41,7 +41,7 @@ from betty.locale.localizer import DEFAULT_LOCALIZER, Localizer
 from betty.model import ENTITY_TYPE_REPOSITORY
 from betty.plugin import Plugin, PluginIdToTypeMapping
 from betty.project.factory import ProjectDependentFactory
-from betty.render import Renderer
+from betty.render.plugin import Renderer
 from betty.typing import private
 from betty.warnings import deprecate
 
@@ -106,7 +106,7 @@ class EntityContexts:
             lambda: None
         )
         for entity in entities:
-            self._contexts[entity.type] = entity
+            self._contexts[type(entity)] = entity
 
     @classmethod
     async def new(cls, *entities: Entity) -> Self:
@@ -134,7 +134,7 @@ class EntityContexts:
             entity_type_id_to_type_mapping=self._entity_type_id_to_type_mapping,
         )
         for entity in entities:
-            updated_contexts._contexts[entity.type] = entity
+            updated_contexts._contexts[type(entity)] = entity
         return updated_contexts
 
 

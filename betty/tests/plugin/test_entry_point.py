@@ -37,14 +37,18 @@ class TestEntryPointPluginRepository:
                 ]
             ),
         )
-        sut = EntryPointPluginRepository[Plugin](entry_point_group)
+        sut = EntryPointPluginRepository(
+            EntryPointPluginRepositoryTestPlugin, entry_point_group
+        )
         # Hit the cache.
         for _ in range(2):
             await sut.get(EntryPointPluginRepositoryTestPlugin.plugin_id())
         m_entry_points.assert_called_once_with(group=entry_point_group)
 
     async def test_get_not_found(self) -> None:
-        sut = EntryPointPluginRepository[Plugin]("test-entry-point")
+        sut = EntryPointPluginRepository(
+            EntryPointPluginRepositoryTestPlugin, "test-entry-point"
+        )
         # Hit the cache.
         for _ in range(2):
             with pytest.raises(PluginNotFound):
@@ -64,7 +68,9 @@ class TestEntryPointPluginRepository:
                 ]
             ),
         )
-        sut = EntryPointPluginRepository[Plugin](entry_point_group)
+        sut = EntryPointPluginRepository(
+            EntryPointPluginRepositoryTestPlugin, entry_point_group
+        )
         # Hit the cache.
         for _ in range(2):
             plugin = [plugin async for plugin in sut][0]
@@ -77,7 +83,9 @@ class TestEntryPointPluginRepository:
             "importlib.metadata.entry_points",
             return_value=EntryPoints([]),
         )
-        sut = EntryPointPluginRepository[Plugin](entry_point_group)
+        sut = EntryPointPluginRepository(
+            EntryPointPluginRepositoryTestPlugin, entry_point_group
+        )
         # Hit the cache.
         for _ in range(2):
             with pytest.raises(StopAsyncIteration):

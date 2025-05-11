@@ -3,8 +3,12 @@ Provide copyright notices.
 """
 
 from abc import abstractmethod
+from typing import final
 
-from betty.locale.localizable import Localizable
+from typing_extensions import override
+
+from betty.locale.localizable import Localizable, _
+from betty.machine_name import MachineName
 from betty.mutability import Mutable
 from betty.plugin import Plugin, PluginRepository
 from betty.plugin.entry_point import EntryPointPluginRepository
@@ -18,6 +22,24 @@ class CopyrightNotice(Mutable, Plugin):
 
     To test your own subclasses, use :py:class:`betty.test_utils.copyright_notice.CopyrightNoticeTestBase`.
     """
+
+    @final
+    @override
+    @classmethod
+    def plugin_type_cls(cls) -> type[Plugin]:
+        return CopyrightNotice
+
+    @final
+    @override
+    @classmethod
+    def plugin_type_id(cls) -> MachineName:
+        return "copyright-notice"
+
+    @final
+    @override
+    @classmethod
+    def plugin_type_label(cls) -> Localizable:
+        return _("Copyright notice")
 
     @property
     @abstractmethod
@@ -42,7 +64,7 @@ class CopyrightNotice(Mutable, Plugin):
 
 
 COPYRIGHT_NOTICE_REPOSITORY: PluginRepository[CopyrightNotice] = (
-    EntryPointPluginRepository("betty.copyright_notice")
+    EntryPointPluginRepository(CopyrightNotice, "betty.copyright_notice")
 )
 """
 The copyright notice plugin repository.

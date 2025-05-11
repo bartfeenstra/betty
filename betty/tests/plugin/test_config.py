@@ -312,7 +312,7 @@ class TestPluginInstanceConfiguration:
         sut = PluginInstanceConfiguration(
             plugin, configuration=DummyConfiguration(value)
         )
-        repository = StaticPluginRepository(plugin)
+        repository = StaticPluginRepository(DummyPlugin, plugin)
         instance = await sut.new_plugin_instance(repository)
         assert isinstance(instance, plugin)
         assert instance.configuration.value == value
@@ -322,7 +322,7 @@ class TestPluginInstanceConfiguration:
     ) -> None:
         plugin = _DummyDefaultConfigurablePlugin
         sut = PluginInstanceConfiguration(plugin)
-        repository = StaticPluginRepository(plugin)
+        repository = StaticPluginRepository(DummyPlugin, plugin)
         instance = await sut.new_plugin_instance(repository)
         assert isinstance(instance, plugin)
 
@@ -334,7 +334,7 @@ class TestPluginInstanceConfiguration:
         sut = PluginInstanceConfiguration(
             plugin, configuration=DummyConfiguration(value)
         )
-        repository = StaticPluginRepository(plugin)
+        repository = StaticPluginRepository(DummyPlugin, plugin)
         with pytest.raises(AssertionFailed):
             await sut.new_plugin_instance(repository)
 
@@ -343,7 +343,7 @@ class TestPluginInstanceConfiguration:
     ) -> None:
         plugin = DummyPlugin
         sut = PluginInstanceConfiguration(plugin)
-        repository = StaticPluginRepository(plugin)
+        repository = StaticPluginRepository(DummyPlugin, plugin)
         instance = await sut.new_plugin_instance(repository)
         assert isinstance(instance, plugin)
 

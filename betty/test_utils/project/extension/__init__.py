@@ -12,7 +12,7 @@ from betty.project import Project
 from betty.project.extension import ConfigurableExtension, Extension
 from betty.test_utils.config import DummyConfiguration
 from betty.test_utils.plugin import (
-    DummyPlugin,
+    DummyPluginBase,
     PluginTestBase,
     assert_plugin_identifier,
 )
@@ -81,7 +81,7 @@ class ExtensionTestBase(Generic[_ExtensionT], PluginTestBase[_ExtensionT]):
             sut.register_event_handlers(registry)
 
 
-class DummyExtension(DummyPlugin, Extension):
+class DummyExtension(DummyPluginBase, Extension):
     """
     A dummy :py:class:`betty.project.extension.Extension` implementation.
     """

@@ -17,6 +17,7 @@ from typing import (
     Self,
     TypeAlias,
     TypeVar,
+    final,
     overload,
 )
 
@@ -24,9 +25,11 @@ from typing_extensions import override
 
 from betty.error import UserFacingError
 from betty.factory import Factory, TargetFactory, new
-from betty.json.schema import Enum, Schema
+from betty.json.schema import Enum
 from betty.locale.localizable import _, do_you_mean, join
+from betty.locale.localizer import DEFAULT_LOCALIZER
 from betty.machine_name import MachineName
+from betty.string import kebab_case_to_lower_camel_case
 
 if TYPE_CHECKING:
     from collections.abc import AsyncIterator, Iterable, Iterator, Mapping, Sequence
@@ -52,6 +55,27 @@ class Plugin(ABC):
 
     To test your own subclasses, use :py:class:`betty.test_utils.plugin.PluginTestBase`.
     """
+
+    @classmethod
+    @abstractmethod
+    def plugin_type_cls(cls) -> type[Plugin]:
+        """
+        The base type (class) of all plugins of this type.
+        """
+
+    @classmethod
+    @abstractmethod
+    def plugin_type_id(cls) -> MachineName:
+        """
+        The plugin type ID.
+        """
+
+    @classmethod
+    @abstractmethod
+    def plugin_type_label(cls) -> Localizable:
+        """
+        Get the human-readable short plugin type label for the given count.
+        """
 
     @classmethod
     @abstractmethod
@@ -229,12 +253,18 @@ class PluginRepository(Generic[_PluginT], TargetFactory, ABC):
     Discover and manage plugins.
     """
 
-    def __init__(
-        self, *, factory: Factory | None = None, schema_template: Schema | None = None
-    ):
+    def __init__(self, plugin: type[_PluginT], *, factory: Factory | None = None):
+        self._plugin = plugin
         self._factory = factory or new
-        self._schema_template = schema_template
         self._plugin_id_schema: Enum | None = None
+
+    @final
+    @property
+    def plugin(self) -> type[_PluginT]:
+        """
+        The plugin this repository manages.
+        """
+        return self._plugin
 
     async def resolve_identifier(
         self, plugin_identifier: PluginIdentifier[_PluginT]
@@ -363,16 +393,13 @@ class PluginRepository(Generic[_PluginT], TargetFactory, ABC):
         """
         Get the JSON schema for the IDs of the plugins in this repository.
         """
-        if self._schema_template is None:
-            raise RuntimeError(
-                f"Cannot provide a JSON schema for {self} which has no schema template."
-            )
         if self._plugin_id_schema is None:
+            label = self.plugin.plugin_type_label().localize(DEFAULT_LOCALIZER)
             self._plugin_id_schema = Enum(
                 *[plugin.plugin_id() async for plugin in self],  # noqa A002
-                def_name=self._schema_template.def_name,
-                title=self._schema_template.title,
-                description=f"A {self._schema_template.title} plugin ID",
+                def_name=kebab_case_to_lower_camel_case(self.plugin.plugin_type_id()),
+                title=label,
+                description=f"A {label} plugin ID",
             )
         return self._plugin_id_schema
 
