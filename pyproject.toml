@@ -57,10 +57,13 @@ classifiers = [
     'Topic :: Sociology :: Genealogy',
     'Topic :: Sociology :: History',
     'Topic :: Software Development :: Code Generators',
+    'Natural Language :: Arabic',
     'Natural Language :: Dutch',
     'Natural Language :: English',
     'Natural Language :: French',
     'Natural Language :: German',
+    'Natural Language :: Hebrew',
+    'Natural Language :: Russian',
     'Natural Language :: Ukrainian',
     'Typing :: Typed',
 ]
