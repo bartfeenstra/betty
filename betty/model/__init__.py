@@ -81,6 +81,7 @@ class Entity(LinkedDataDumpableJsonLdObject, Mutable, Plugin):
         self._id = NonPersistentId() if id is None else id
         super().__init__(*args, **kwargs)
 
+    @override
     def __hash__(self) -> int:
         return hash(self.ancestry_id)
 

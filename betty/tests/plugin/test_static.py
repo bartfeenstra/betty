@@ -1,4 +1,5 @@
 import pytest
+from typing_extensions import override
 
 from betty.locale.localizable import Localizable, static
 from betty.machine_name import MachineName
@@ -7,10 +8,12 @@ from betty.plugin.static import StaticPluginRepository
 
 
 class StaticPluginRepositoryTestPlugin(Plugin):
+    @override
     @classmethod
     def plugin_id(cls) -> MachineName:
         return cls.__name__
 
+    @override
     @classmethod
     def plugin_label(cls) -> Localizable:
         return static("")  # pragma: no cover

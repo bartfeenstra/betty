@@ -2,6 +2,7 @@ from importlib.metadata import EntryPoint, EntryPoints
 
 import pytest
 from pytest_mock import MockerFixture
+from typing_extensions import override
 
 from betty.locale.localizable import Localizable, static
 from betty.machine_name import MachineName
@@ -10,10 +11,12 @@ from betty.plugin.entry_point import EntryPointPluginRepository
 
 
 class EntryPointPluginRepositoryTestPlugin(Plugin):
+    @override
     @classmethod
     def plugin_id(cls) -> MachineName:
         return cls.__name__
 
+    @override
     @classmethod
     def plugin_label(cls) -> Localizable:
         return static("")  # pragma: no cover

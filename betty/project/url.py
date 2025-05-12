@@ -45,6 +45,7 @@ class _ProjectUrlGenerator(ProjectDependentFactory):
         self._default_locale = next(iter(locales))
         self._clean_urls = clean_urls
 
+    @override
     @classmethod
     async def new_for_project(cls, project: Project) -> Self:
         """

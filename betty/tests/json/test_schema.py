@@ -156,6 +156,7 @@ class TestJsonSchemaSchema(SchemaTestBase):
 
 
 class TestString(SchemaTestBase):
+    @override
     async def get_sut_instances(
         self,
     ) -> Sequence[tuple[Schema, Sequence[Dump], Sequence[Dump]]]:
@@ -163,6 +164,7 @@ class TestString(SchemaTestBase):
 
 
 class TestNumber(SchemaTestBase):
+    @override
     async def get_sut_instances(
         self,
     ) -> Sequence[tuple[Schema, Sequence[Dump], Sequence[Dump]]]:
@@ -170,6 +172,7 @@ class TestNumber(SchemaTestBase):
 
 
 class TestInteger(SchemaTestBase):
+    @override
     async def get_sut_instances(
         self,
     ) -> Sequence[tuple[Schema, Sequence[Dump], Sequence[Dump]]]:
@@ -183,6 +186,7 @@ class TestInteger(SchemaTestBase):
 
 
 class TestBoolean(SchemaTestBase):
+    @override
     async def get_sut_instances(
         self,
     ) -> Sequence[tuple[Schema, Sequence[Dump], Sequence[Dump]]]:
@@ -190,6 +194,7 @@ class TestBoolean(SchemaTestBase):
 
 
 class TestObject(SchemaTestBase):
+    @override
     async def get_sut_instances(
         self,
     ) -> Sequence[tuple[Schema, Sequence[Dump], Sequence[Dump]]]:
@@ -225,6 +230,7 @@ class TestObject(SchemaTestBase):
 
 
 class TestConst(SchemaTestBase):
+    @override
     async def get_sut_instances(
         self,
     ) -> Sequence[tuple[Schema, Sequence[Dump], Sequence[Dump]]]:
@@ -235,6 +241,7 @@ class TestConst(SchemaTestBase):
 
 
 class TestEnum(SchemaTestBase):
+    @override
     async def get_sut_instances(
         self,
     ) -> Sequence[tuple[Schema, Sequence[Dump], Sequence[Dump]]]:
@@ -248,6 +255,7 @@ class TestEnum(SchemaTestBase):
 
 
 class TestNull(SchemaTestBase):
+    @override
     async def get_sut_instances(
         self,
     ) -> Sequence[tuple[Schema, Sequence[Dump], Sequence[Dump]]]:
@@ -261,6 +269,7 @@ class TestNull(SchemaTestBase):
 
 
 class TestAllOf(SchemaTestBase):
+    @override
     async def get_sut_instances(
         self,
     ) -> Sequence[tuple[Schema, Sequence[Dump], Sequence[Dump]]]:
@@ -274,6 +283,7 @@ class TestAllOf(SchemaTestBase):
 
 
 class TestAnyOf(SchemaTestBase):
+    @override
     async def get_sut_instances(
         self,
     ) -> Sequence[tuple[Schema, Sequence[Dump], Sequence[Dump]]]:
@@ -294,6 +304,7 @@ class TestAnyOf(SchemaTestBase):
 
 
 class TestOneOf(SchemaTestBase):
+    @override
     async def get_sut_instances(
         self,
     ) -> Sequence[tuple[Schema, Sequence[Dump], Sequence[Dump]]]:

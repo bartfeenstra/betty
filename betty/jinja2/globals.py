@@ -4,6 +4,7 @@ Provide Betty's default Jinja2 globals.
 
 from jinja2 import pass_context
 from jinja2.runtime import Context
+from typing_extensions import override
 
 
 class HtmlId:
@@ -20,6 +21,7 @@ class HtmlId:
         """
         self._count += 1
 
+    @override
     def __str__(self) -> str:
         return str(self._count)
 

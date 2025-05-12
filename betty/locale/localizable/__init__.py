@@ -324,6 +324,7 @@ class StaticTranslationsLocalizable(
         else:
             self._translations = {}
 
+    @override
     def __repr__(self) -> str:
         return repr_instance(self, translations=self._translations)
 

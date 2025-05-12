@@ -33,6 +33,7 @@ class ConfigurationSequenceTestConfiguration(Configuration):
 class TestConfigurationSequence(
     ConfigurationSequenceTestBase[ConfigurationSequenceTestConfiguration]
 ):
+    @override
     async def get_sut(
         self,
         configurations: (
@@ -41,6 +42,7 @@ class TestConfigurationSequence(
     ) -> ConfigurationSequenceTestConfigurationSequence:
         return ConfigurationSequenceTestConfigurationSequence(configurations)
 
+    @override
     async def get_configurations(
         self,
     ) -> tuple[

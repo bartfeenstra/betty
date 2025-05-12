@@ -33,7 +33,7 @@ class HasLocale(Localized, LinkedDataDumpableJsonLdObject):
         super().__init__(*args, **kwargs)
         self._locale = locale
 
-    @override
+    @override  # type: ignore[explicit-override]
     @property
     def locale(self) -> str:
         return self._locale

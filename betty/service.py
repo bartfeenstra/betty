@@ -161,6 +161,7 @@ class ServiceProvider(Bootstrapped, Shutdownable):
         super().__init__(*args, **kwargs)
         self._shutdown_stack = ShutdownStack()
 
+    @override
     def __getstate__(self) -> dict[str, Any]:
         self.assert_bootstrapped()
         return {
@@ -383,6 +384,7 @@ class _AsynchronousServiceManager(
             setattr(instance, lock_attr_name, lock)
             return lock
 
+    @override
     async def _get(self, instance: _ServiceProviderT) -> _ServiceT:
         async with self._lock(instance):
             service = self._get_attr(instance)
@@ -399,6 +401,7 @@ class _SynchronousServiceManager(
     Generic[_ServiceProviderT, _ServiceT],
     ServiceManager[_ServiceProviderT, _ServiceT, _ServiceT],
 ):
+    @override
     def _get(self, instance: _ServiceProviderT) -> _ServiceT:
         service = self._get_attr(instance)
         if not_void(service):

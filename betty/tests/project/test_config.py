@@ -153,6 +153,7 @@ class TestLocaleConfigurationMapping(
             LocaleConfiguration("fr"),
         )
 
+    @override
     async def test___delitem__(self) -> None:
         configurations = await self.get_configurations()
         sut = await self.get_sut([configurations[0]])
@@ -412,6 +413,7 @@ class TestEntityTypeConfigurationMapping(
             ),
         )
 
+    @override
     def get_configuration_keys(
         self,
     ) -> tuple[MachineName, MachineName, MachineName, MachineName]:
@@ -422,11 +424,13 @@ class TestEntityTypeConfigurationMapping(
             EntityTypeConfigurationMappingTestEntity3.plugin_id(),
         )
 
+    @override
     async def get_sut(
         self, configurations: Iterable[EntityTypeConfiguration] | None = None
     ) -> EntityTypeConfigurationMapping:
         return EntityTypeConfigurationMapping(configurations)
 
+    @override
     async def get_configurations(
         self,
     ) -> tuple[

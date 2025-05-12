@@ -292,6 +292,7 @@ class TestProject:
             def __init__(self, project: Project):
                 self.project = project
 
+            @override
             @classmethod
             async def new_for_project(cls, project: Project) -> Self:
                 return cls(project)

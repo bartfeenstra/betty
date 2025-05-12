@@ -39,6 +39,7 @@ class UserFacingError(Exception, Localizable, UserFacing):
         )
         self._localizable_message = message
 
+    @override
     def __str__(self) -> str:
         from betty.locale.localizer import DEFAULT_LOCALIZER
 

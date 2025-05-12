@@ -47,15 +47,18 @@ class ConfigurationMappingTestConfiguration(Configuration):
 class TestConfigurationMapping(
     ConfigurationMappingTestBase[str, ConfigurationMappingTestConfiguration]
 ):
+    @override
     def get_configuration_keys(self) -> tuple[str, str, str, str]:
         return "foo", "bar", "baz", "qux"
 
+    @override
     async def get_sut(
         self,
         configurations: (Iterable[ConfigurationMappingTestConfiguration] | None) = None,
     ) -> ConfigurationMappingTestConfigurationMapping:
         return ConfigurationMappingTestConfigurationMapping(configurations)
 
+    @override
     async def get_configurations(
         self,
     ) -> tuple[
@@ -115,14 +118,17 @@ class ConfigurationMappingTestConfigurationMapping(
         configuration.load(dump)
         return configuration
 
+    @override
     def _get_key(self, configuration: ConfigurationMappingTestConfiguration) -> str:
         return configuration.key
 
+    @override
     def _load_key(self, item_dump: Dump, key_dump: str) -> Dump:
         assert isinstance(item_dump, Mapping)
         item_dump["key"] = key_dump
         return item_dump
 
+    @override
     def _dump_key(self, item_dump: Dump) -> tuple[Dump, str]:
         assert isinstance(item_dump, Mapping)
         return item_dump, cast(str, item_dump.pop("key"))
@@ -131,9 +137,11 @@ class ConfigurationMappingTestConfigurationMapping(
 class TestOrderedConfigurationMapping(
     ConfigurationMappingTestBase[str, ConfigurationMappingTestConfiguration]
 ):
+    @override
     def get_configuration_keys(self) -> tuple[str, str, str, str]:
         return "foo", "bar", "baz", "qux"
 
+    @override
     async def get_sut(
         self,
         configurations: (Iterable[ConfigurationMappingTestConfiguration] | None) = None,
@@ -142,6 +150,7 @@ class TestOrderedConfigurationMapping(
             configurations
         )
 
+    @override
     async def get_configurations(
         self,
     ) -> tuple[

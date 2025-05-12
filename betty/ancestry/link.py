@@ -68,7 +68,7 @@ class Link(
             self._label = label
         self.relationship = relationship
 
-    @override
+    @override  # type: ignore[explicit-override]
     @property
     def url(self) -> str:
         return self._url
@@ -77,7 +77,7 @@ class Link(
     def url(self, url: str) -> None:
         self._url = url
 
-    @override
+    @override  # type: ignore[explicit-override]
     @property
     def label(self) -> StaticTranslationsLocalizable:
         return self._label

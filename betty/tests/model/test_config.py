@@ -3,6 +3,7 @@ from __future__ import annotations
 from typing import TYPE_CHECKING
 
 import pytest
+from typing_extensions import override
 
 from betty.assertion.error import AssertionFailed
 from betty.model import Entity
@@ -185,11 +186,13 @@ class TestEntityReferenceSequence(
             new=StaticPluginRepository(EntityReferenceSequenceTestEntity),
         )
 
+    @override
     async def get_sut(
         self, configurations: Iterable[EntityReference[Entity]] | None = None
     ) -> EntityReferenceSequence[Entity]:
         return EntityReferenceSequence(configurations)
 
+    @override
     async def get_configurations(
         self,
     ) -> tuple[

@@ -146,6 +146,7 @@ class _CommonCacheBase(Cache[_CacheItemValueContraT], Generic[_CacheItemValueCon
     ]:
         pass
 
+    @override
     def getset(
         self, cache_item_id: str, *, wait: bool = True
     ) -> AbstractAsyncContextManager[

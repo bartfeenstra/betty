@@ -72,6 +72,7 @@ class App(Configurable[AppConfiguration], TargetFactory, ServiceProvider):
         self._cache_directory_path = cache_directory_path
         cls.cache.override_factory(self, cache_factory)
 
+    @override
     def __getstate__(self) -> dict[str, Any]:
         cls = type(self)
         return {
