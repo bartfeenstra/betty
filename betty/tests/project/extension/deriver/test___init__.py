@@ -42,6 +42,7 @@ class ComesAfterReference(DummyEventType):
 
 
 class ComesBeforeDerivable(DerivableEventType):
+    @override
     @classmethod
     def comes_before(cls) -> set[PluginIdentifier[EventType]]:
         return {ComesBeforeReference}
@@ -52,6 +53,7 @@ class ComesBeforeCreatableDerivable(CreatableDerivableEventType, ComesBeforeDeri
 
 
 class ComesAfterDerivable(DerivableEventType, DummyEventType):
+    @override
     @classmethod
     def comes_after(cls) -> set[PluginIdentifier[EventType]]:
         return {ComesAfterReference}
@@ -62,10 +64,12 @@ class ComesAfterCreatableDerivable(CreatableDerivableEventType, ComesAfterDeriva
 
 
 class ComesBeforeAndAfterDerivable(DerivableEventType, DummyEventType):
+    @override
     @classmethod
     def comes_before(cls) -> set[PluginIdentifier[EventType]]:
         return {Ignored}
 
+    @override
     @classmethod
     def comes_after(cls) -> set[PluginIdentifier[EventType]]:
         return {Ignored}

@@ -5,6 +5,7 @@ from pathlib import Path
 import aiofiles
 import pytest
 from pytest_mock import MockerFixture
+from typing_extensions import override
 
 from betty._npm import NpmUnavailable
 from betty.app import App
@@ -17,10 +18,12 @@ from betty.test_utils.project.extension import DummyExtension
 
 
 class DummyEntryPointProviderExtension(EntryPointProvider, DummyExtension):
+    @override
     @classmethod
     def webpack_entry_point_directory_path(cls) -> Path:
         return Path(__file__).parent / "test_build_webpack_entry_point"
 
+    @override
     def webpack_entry_point_cache_keys(self) -> Sequence[str]:
         return ()
 

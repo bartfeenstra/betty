@@ -3,6 +3,7 @@ from __future__ import annotations
 from typing import TYPE_CHECKING
 
 import pytest
+from typing_extensions import override
 
 from betty.ancestry import Ancestry
 from betty.ancestry.event import Event
@@ -39,6 +40,7 @@ class ComesAfterReference(DummyEventType):
 
 
 class ComesBeforeDerivable(DummyEventType, DerivableEventType):
+    @override
     @classmethod
     def comes_before(cls) -> set[PluginIdentifier[EventType]]:
         return {ComesBeforeReference}
@@ -49,6 +51,7 @@ class ComesBeforeCreatableDerivable(ComesBeforeDerivable, CreatableDerivableEven
 
 
 class ComesAfterDerivable(DummyEventType, DerivableEventType):
+    @override
     @classmethod
     def comes_after(cls) -> set[PluginIdentifier[EventType]]:
         return {ComesAfterReference}
@@ -59,10 +62,12 @@ class ComesAfterCreatableDerivable(ComesAfterDerivable, CreatableDerivableEventT
 
 
 class ComesBeforeAndAfterDerivable(DummyEventType, DerivableEventType):
+    @override
     @classmethod
     def comes_before(cls) -> set[PluginIdentifier[EventType]]:
         return {Ignored}
 
+    @override
     @classmethod
     def comes_after(cls) -> set[PluginIdentifier[EventType]]:
         return {Ignored}
@@ -75,6 +80,7 @@ class ComesBeforeAndAfterCreatableDerivable(
 
 
 class MayNotCreateComesAfterCreatableDerivable(ComesAfterCreatableDerivable):
+    @override
     @classmethod
     def may_create(cls, person: Person, lifetime_threshold: int) -> bool:
         return False

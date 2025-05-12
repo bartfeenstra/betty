@@ -82,6 +82,7 @@ class PluginConfiguration(Configuration):
         if description is not None:
             self.description = description
 
+    @override
     def __repr__(self) -> str:
         return repr_instance(self, id=self.id, label=self.label)
 
@@ -199,6 +200,7 @@ class PluginInstanceConfiguration(Configuration):
             else configuration
         )
 
+    @override
     def __repr__(self) -> str:
         return repr_instance(self, id=self.id, configuration=self.configuration)
 

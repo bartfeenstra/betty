@@ -24,6 +24,7 @@ class TestRequirement:
 
     async def test_localize__with_details(self) -> None:
         class _Requirement(_MetRequirement):
+            @override
             def details(self) -> Localizable:
                 return _("Dolor sit amet")
 

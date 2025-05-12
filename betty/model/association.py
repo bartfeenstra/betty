@@ -160,6 +160,7 @@ class _Association(LinkedDataDumpableProvider[_OwnerT], Generic[_OwnerT, _Associ
         self._description = description
         AssociationRegistry._register(self)
 
+    @override
     def __hash__(self) -> int:
         return hash(
             (
@@ -502,6 +503,7 @@ class BidirectionalToZeroOrOne(
     A bidirectional *-to-zero-or-one entity type association.
     """
 
+    @override
     def __set__(
         self, instance: _OwnerT, value: ToZeroOrOneAssociate[_AssociateT]
     ) -> None:
@@ -543,6 +545,7 @@ class BidirectionalToOne(
             setattr(owner, self._internal_owner_attr_name, associate)
             self.inverse().associate(associate, owner)
 
+    @override
     def __set__(self, instance: _OwnerT, value: ToOneAssociate[_AssociateT]) -> None:
         try:
             previous_associate = cast(

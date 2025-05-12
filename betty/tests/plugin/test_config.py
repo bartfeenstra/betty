@@ -194,11 +194,13 @@ class TestPluginConfiguration:
 class TestPluginConfigurationPluginConfigurationMapping(
     ConfigurationMappingTestBase[MachineName, PluginConfiguration]
 ):
+    @override
     async def get_sut(
         self, configurations: Iterable[PluginConfiguration] | None = None
     ) -> ConfigurationCollection[MachineName, PluginConfiguration]:
         return PluginConfigurationPluginConfigurationMapping(configurations)
 
+    @override
     def get_configuration_keys(
         self,
     ) -> tuple[MachineName, MachineName, MachineName, MachineName]:
@@ -209,6 +211,7 @@ class TestPluginConfigurationPluginConfigurationMapping(
             "hello-world-4",
         )
 
+    @override
     async def get_configurations(
         self,
     ) -> tuple[

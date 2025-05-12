@@ -2,6 +2,7 @@ from collections.abc import Iterable, Mapping
 from pathlib import Path
 
 import pytest
+from typing_extensions import override
 
 from betty.ancestry.event_type.event_types import Birth
 from betty.ancestry.place_type.place_types import Borough
@@ -27,11 +28,13 @@ from betty.test_utils.config.collections.sequence import ConfigurationSequenceTe
 class TestFamilyTreeConfigurationSequence(
     ConfigurationSequenceTestBase[FamilyTreeConfiguration]
 ):
+    @override
     async def get_sut(
         self, configurations: Iterable[FamilyTreeConfiguration] | None = None
     ) -> FamilyTreeConfigurationSequence:
         return FamilyTreeConfigurationSequence(configurations)
 
+    @override
     async def get_configurations(
         self,
     ) -> tuple[

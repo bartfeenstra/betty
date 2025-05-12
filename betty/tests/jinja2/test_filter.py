@@ -7,6 +7,7 @@ import aiofiles
 import pytest
 from PIL import Image
 from puremagic import what
+from typing_extensions import override
 
 from betty.ancestry.file import File
 from betty.ancestry.file_reference import FileReference
@@ -39,6 +40,7 @@ class _DummyHasDate(DummyHasDate):
         super().__init__(date=date)
         self.value = value
 
+    @override
     def __str__(self) -> str:
         return self.value
 
@@ -549,6 +551,7 @@ class WithLocalizedDummyLocalizeds:
         self.id = identifier
         self.names = names
 
+    @override
     def __repr__(self) -> str:
         return self.id
 

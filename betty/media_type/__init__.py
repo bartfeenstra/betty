@@ -52,6 +52,7 @@ class MediaType:
             self._subtype = type_part_remainder
             self._suffix = None
 
+    @override
     def __hash__(self) -> int:
         return hash(self._str)
 

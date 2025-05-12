@@ -7,6 +7,8 @@ from __future__ import annotations
 from contextlib import contextmanager
 from typing import TYPE_CHECKING, final
 
+from typing_extensions import override
+
 from betty.model import Entity
 from betty.model.association import AssociationRegistry
 from betty.model.collections import MultipleTypesEntityCollection
@@ -47,6 +49,7 @@ class Ancestry(MultipleTypesEntityCollection[Entity]):
         finally:
             self._check_graph = True
 
+    @override
     def _on_add(self, *entities: Entity) -> None:
         super()._on_add(*entities)
         if self._check_graph:
