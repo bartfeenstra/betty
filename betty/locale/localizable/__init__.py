@@ -59,7 +59,7 @@ class _FormattableLocalizable(Localizable):
     def format(
         self, *format_args: str | Localizable, **format_kwargs: str | Localizable
     ) -> Localizable:
-        return format(self, **format_kwargs)
+        return format(self, *format_args, **format_kwargs)
 
 
 class _CallLocalizable(Localizable):
