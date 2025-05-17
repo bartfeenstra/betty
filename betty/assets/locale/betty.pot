@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Betty VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2025-05-12 23:52+0100\n"
+"POT-Creation-Date: 2025-05-17 14:29+0100\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -662,6 +662,9 @@ msgstr ""
 msgid "One or more of these requirements must be met"
 msgstr ""
 
+msgid "Operating system"
+msgstr ""
+
 msgid "Organizer"
 msgstr ""
 
@@ -762,6 +765,9 @@ msgid "Province"
 msgstr ""
 
 msgid "Public domain"
+msgstr ""
+
+msgid "Python packages"
 msgstr ""
 
 msgid "Read more"

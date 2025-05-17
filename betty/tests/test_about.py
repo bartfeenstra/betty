@@ -1,4 +1,5 @@
 from betty import about
+from betty.locale.localizer import DEFAULT_LOCALIZER
 
 
 async def test_version() -> None:
@@ -18,4 +19,4 @@ def test_is_stable() -> None:
 
 
 def test_report() -> None:
-    assert len(about.report().split("\n"))
+    assert len(about.report(localizer=DEFAULT_LOCALIZER).split("\n"))

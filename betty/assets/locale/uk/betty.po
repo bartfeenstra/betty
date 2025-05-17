@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Betty 0.4\n"
 "Report-Msgid-Bugs-To: illia@maier.page\n"
-"POT-Creation-Date: 2025-05-12 23:52+0100\n"
+"POT-Creation-Date: 2025-05-17 14:29+0100\n"
 "PO-Revision-Date: 2025-04-25 11:02+0000\n"
 "Last-Translator: Максим Горпиніч <maksimgorpinic2005a@gmail.com>\n"
 "Language: uk\n"
@@ -729,6 +729,9 @@ msgstr "Праця"
 msgid "One or more of these requirements must be met"
 msgstr "Потрібно виконати одну або кілька з цих вимог"
 
+msgid "Operating system"
+msgstr ""
+
 msgid "Organizer"
 msgstr "Організатор"
 
@@ -841,6 +844,9 @@ msgstr "Провінція"
 
 msgid "Public domain"
 msgstr "Публічний домен"
+
+msgid "Python packages"
+msgstr ""
 
 msgid "Read more"
 msgstr "Читати далі"
