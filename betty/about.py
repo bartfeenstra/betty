@@ -12,6 +12,8 @@ DEV_VERSION = "0.0.0"
 if TYPE_CHECKING:
     from collections.abc import Iterator, Mapping
 
+    from betty.locale.localizer import Localizer
+
 
 def version() -> str:
     """
@@ -56,7 +58,7 @@ def _indent_mapping_item(key: str, value: str, max_indentation: int) -> Iterator
         yield f"{' ' * max_indentation}    {line}"
 
 
-def report() -> str:
+def report(*, localizer: Localizer) -> str:
     """
     Produce a human-readable report about the current Betty installation.
 
@@ -65,9 +67,9 @@ def report() -> str:
     return _indent_mapping(
         {
             "Betty": version_label(),
-            "Operating system": platform.platform(),
+            localizer._("Operating system"): platform.platform(),
             "Python": sys.version,
-            "Python packages": _indent_mapping(
+            localizer._("Python packages"): _indent_mapping(
                 {
                     x.metadata["Name"]: x.version
                     for x in sorted(

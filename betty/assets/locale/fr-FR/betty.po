@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PROJECT VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2025-05-12 23:52+0100\n"
+"POT-Creation-Date: 2025-05-17 14:29+0100\n"
 "PO-Revision-Date: 2024-11-29 18:58+0000\n"
 "Last-Translator: Bart Feenstra <bart@bartfeenstra.com>\n"
 "Language: fr_FR\n"
@@ -668,6 +668,9 @@ msgstr "Profession"
 msgid "One or more of these requirements must be met"
 msgstr ""
 
+msgid "Operating system"
+msgstr ""
+
 msgid "Organizer"
 msgstr ""
 
@@ -768,6 +771,9 @@ msgid "Province"
 msgstr ""
 
 msgid "Public domain"
+msgstr ""
+
+msgid "Python packages"
 msgstr ""
 
 msgid "Read more"

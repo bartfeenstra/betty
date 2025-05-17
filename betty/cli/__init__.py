@@ -181,6 +181,7 @@ async def new_main_command(app: App) -> click.Command:
     """
     Create a new Click command for the Betty Command Line Interface.
     """
+    localizer = await app.localizer
 
     @click.command(
         "betty",
@@ -190,7 +191,7 @@ async def new_main_command(app: App) -> click.Command:
     )
     @click.version_option(
         about.version_label(),
-        message=about.report(),
+        message=about.report(localizer=localizer),
         prog_name="Betty",
     )
     def main_command(*args: str) -> None:
