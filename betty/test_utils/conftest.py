@@ -24,7 +24,7 @@ import pytest_asyncio
 
 from betty.app import App
 from betty.cache.file import BinaryFileCache
-from betty.error import do_raise
+from betty.exception import do_raise
 from betty.multiprocessing import ProcessPoolExecutor
 
 if TYPE_CHECKING:

@@ -10,7 +10,7 @@ from typing import TYPE_CHECKING, Any, cast, final
 
 from typing_extensions import override
 
-from betty.error import UserFacingError
+from betty.exception import UserFacingException
 from betty.locale.localizable import Localizable, _
 from betty.locale.localized import LocalizedStr
 
@@ -74,7 +74,7 @@ class Requirement(Localizable):
 
 
 @final
-class RequirementError(UserFacingError, RuntimeError):
+class RequirementError(UserFacingException, RuntimeError):
     """
     Raised when a requirement is not met.
     """

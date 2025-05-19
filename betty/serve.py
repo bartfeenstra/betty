@@ -21,7 +21,7 @@ from aiofiles.os import makedirs, symlink
 from aiofiles.tempfile import AiofilesContextManagerTempDir, TemporaryDirectory
 from typing_extensions import override
 
-from betty.error import UserFacingError
+from betty.exception import UserFacingException
 from betty.functools import Do
 from betty.locale.localizable import _
 from betty.project.factory import ProjectDependentFactory
@@ -52,7 +52,7 @@ class NoPublicUrlBecauseServerNotStartedError(ServerNotStartedError):
         )
 
 
-class OsError(UserFacingError, OSError):
+class OsError(UserFacingException, OSError):
     """
     Raised for I/O errors.
     """
@@ -120,7 +120,7 @@ class Server(ABC):
         try:
             await Do[Any, None](self._assert_available).until()
         except Exception as error:
-            raise UserFacingError(
+            raise UserFacingException(
                 _("The server at {url} was unreachable after starting.").format(
                     url=self.public_url
                 )

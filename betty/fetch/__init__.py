@@ -10,10 +10,10 @@ from typing import Any, final
 
 from multidict import CIMultiDict
 
-from betty.error import UserFacingError
+from betty.exception import UserFacingException
 
 
-class FetchError(UserFacingError, RuntimeError):
+class FetchError(UserFacingException, RuntimeError):
     """
     An error that occurred when fetching a URL.
     """

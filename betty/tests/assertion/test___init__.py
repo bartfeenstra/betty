@@ -36,7 +36,7 @@ from betty.assertion import (
     assert_str,
 )
 from betty.assertion.error import AssertionFailed, Index, Key
-from betty.error import UserFacingError
+from betty.exception import UserFacingException
 from betty.locale import DEFAULT_LOCALE, UNDETERMINED_LOCALE
 from betty.locale.localizable import static
 from betty.test_utils.assertion.error import raises_error
@@ -392,7 +392,7 @@ async def test_assert_directory_path__with_valid_path_path() -> None:
 
 
 def test_assert_file_path__without_existing_path() -> None:
-    with pytest.raises(UserFacingError):
+    with pytest.raises(UserFacingException):
         assert_file_path()("~/../foo/bar")
 
 

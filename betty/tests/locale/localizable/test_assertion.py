@@ -1,6 +1,6 @@
 import pytest
 
-from betty.error import UserFacingError
+from betty.exception import UserFacingException
 from betty.locale import DEFAULT_LOCALE
 from betty.locale.localizable import ShorthandStaticTranslations
 from betty.locale.localizable.assertion import assert_static_translations
@@ -44,5 +44,5 @@ async def test_assert_static_translations__with_valid_value(
 async def test_assert_static_translations__with_invalid_value(
     value: ShorthandStaticTranslations,
 ) -> None:
-    with pytest.raises(UserFacingError):
+    with pytest.raises(UserFacingException):
         assert_static_translations()(value)

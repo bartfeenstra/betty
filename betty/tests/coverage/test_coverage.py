@@ -91,8 +91,8 @@ _BASELINE: Mapping[str, _ModuleIgnore] = {
         "ContextAppObject": MissingReason.SHOULD_BE_COVERED,
         "ctx_app_object": MissingReason.SHOULD_BE_COVERED,
     },
-    "betty/cli/error.py": {
-        "user_facing_error_to_bad_parameter": MissingReason.SHOULD_BE_COVERED,
+    "betty/cli/exception.py": {
+        "user_facing_exception_to_bad_parameter": MissingReason.SHOULD_BE_COVERED,
     },
     "betty/cli/commands/__init__.py": {
         "command": MissingReason.SHOULD_BE_COVERED,
@@ -157,7 +157,6 @@ _BASELINE: Mapping[str, _ModuleIgnore] = {
     },
     "betty/error.py": {
         "FileNotFound": MissingReason.SHOULD_BE_COVERED,
-        "UserFacingError": MissingReason.SHOULD_BE_COVERED,
     },
     "betty/event_dispatcher.py": {
         "Event": MissingReason.ABSTRACT,

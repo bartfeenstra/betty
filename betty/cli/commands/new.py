@@ -9,7 +9,7 @@ from typing_extensions import override
 from betty.app.factory import AppDependentFactory
 from betty.assertion import assert_str, assert_path, assert_locale
 from betty.cli.commands import command, Command
-from betty.cli.error import user_facing_error_to_bad_parameter
+from betty.cli.exception import user_facing_exception_to_bad_parameter
 from betty.config import write_configuration_file
 from betty.locale import get_display_name, DEFAULT_LOCALE
 from betty.locale.localizable import _, StaticTranslations
@@ -73,7 +73,7 @@ class New(ShorthandPluginBase, AppDependentFactory, Command):
                 localizer._(
                     "Where do you want to save your project's configuration file?"
                 ),
-                value_proc=user_facing_error_to_bad_parameter(localizer)(
+                value_proc=user_facing_exception_to_bad_parameter(localizer)(
                     _assert_project_configuration_file_path
                 ),
             )
@@ -93,7 +93,7 @@ class New(ShorthandPluginBase, AppDependentFactory, Command):
                             "Which language should your project site be generated in? Enter an IETF BCP 47 language code."
                         ),
                         default=DEFAULT_LOCALE,
-                        value_proc=user_facing_error_to_bad_parameter(localizer)(
+                        value_proc=user_facing_exception_to_bad_parameter(localizer)(
                             assert_locale()
                         ),
                     )
@@ -106,9 +106,9 @@ class New(ShorthandPluginBase, AppDependentFactory, Command):
                             localizer._(
                                 "Which language should your project site be generated in? Enter an IETF BCP 47 language code."
                             ),
-                            value_proc=user_facing_error_to_bad_parameter(localizer)(
-                                assert_locale()
-                            ),
+                            value_proc=user_facing_exception_to_bad_parameter(
+                                localizer
+                            )(assert_locale()),
                         )
                     )
                 )
@@ -128,7 +128,7 @@ class New(ShorthandPluginBase, AppDependentFactory, Command):
                         )
                     )
                 ),
-                value_proc=user_facing_error_to_bad_parameter(localizer)(
+                value_proc=user_facing_exception_to_bad_parameter(localizer)(
                     assert_machine_name()
                 ),
             )
@@ -141,7 +141,9 @@ class New(ShorthandPluginBase, AppDependentFactory, Command):
             configuration.url = click.prompt(
                 localizer._("At which URL will your site be published?"),
                 default="https://example.com",
-                value_proc=user_facing_error_to_bad_parameter(localizer)(_assert_url),
+                value_proc=user_facing_exception_to_bad_parameter(localizer)(
+                    _assert_url
+                ),
             )
 
             if click.confirm(localizer._("Do you want to load a Gramps family tree?")):
@@ -155,7 +157,7 @@ class New(ShorthandPluginBase, AppDependentFactory, Command):
                                         localizer._(
                                             "What is the path to your exported Gramps family tree file?"
                                         ),
-                                        value_proc=user_facing_error_to_bad_parameter(
+                                        value_proc=user_facing_exception_to_bad_parameter(
                                             localizer
                                         )(assert_path()),
                                     )

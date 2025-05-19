@@ -26,9 +26,10 @@ from typing_extensions import override
 from betty import about
 from betty.assertion import assert_none, assert_or, assert_path
 from betty.assertion.error import AssertionFailed
-from betty.cli.error import user_facing_error_to_bad_parameter
+from betty.cli.exception import user_facing_exception_to_bad_parameter
 from betty.config import assert_configuration_file
-from betty.error import FileNotFound, UserFacingError
+from betty.error import FileNotFound
+from betty.exception import UserFacingException
 from betty.locale.localizable import Localizable, _
 from betty.plugin import Plugin, PluginRepository
 from betty.plugin.entry_point import EntryPointPluginRepository
@@ -159,8 +160,8 @@ def command(
 
     This is almost identical to :py:func:`asyncclick.command`.
 
-    Functions decorated with ``@command`` may choose to raise :py:class:`betty.error.UserFacingError`, which will
-    automatically be localized and reraised as :py:class:`asyncclick.ClickException`.
+    Functions decorated with ``@command`` may choose to raise :py:class:`betty.exception.UserFacingException`, which
+    will automatically be localized and reraised as :py:class:`asyncclick.ClickException`.
 
     Read more about :doc:`/development/plugin/command`.
     """
@@ -206,7 +207,7 @@ def command(
         ) -> Any:
             try:
                 return await f(*args, **kwargs)
-            except UserFacingError as error:
+            except UserFacingException as error:
                 raise click.ClickException(error.localize(obj.localizer)) from error
 
         return cast(click.Command, _command)
@@ -230,7 +231,7 @@ def parameter_callback(
     from betty.cli import ctx_app_object
 
     def _callback(ctx: click.Context, __: click.Parameter, value: _T) -> _ReturnT:
-        with user_facing_error_to_bad_parameter(ctx_app_object(ctx).localizer):
+        with user_facing_exception_to_bad_parameter(ctx_app_object(ctx).localizer):
             return f(value, *args, **kwargs)
 
     return _callback
@@ -278,7 +279,7 @@ async def _read_project_configuration_file(
     assert_configuration = await assert_configuration_file(project.configuration)
     try:
         assert_configuration(configuration_file_path)
-    except UserFacingError as error:
+    except UserFacingException as error:
         logger.debug(error.localize(localizer))
         raise
     else:

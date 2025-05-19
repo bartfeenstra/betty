@@ -18,7 +18,7 @@ from typing_extensions import override
 
 from betty.cache.file import BinaryFileCache
 from betty.concurrent import AsynchronizedLock, Ledger
-from betty.error import UserFacingError
+from betty.exception import UserFacingException
 from betty.factory import Factory
 from betty.fetch import Fetcher, FetchError
 from betty.license import License
@@ -241,7 +241,7 @@ class SpdxLicenseRepository(PluginRepository[License]):
         try:
             yield
         except (AssertionError, LookupError) as error:
-            raise UserFacingError(
+            raise UserFacingException(
                 plain(f"Invalid JSON response received from {self.URL}")
             ) from error
 
