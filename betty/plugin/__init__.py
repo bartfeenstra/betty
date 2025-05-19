@@ -23,7 +23,7 @@ from typing import (
 
 from typing_extensions import override
 
-from betty.error import UserFacingError
+from betty.exception import UserFacingException
 from betty.factory import Factory, TargetFactory, new
 from betty.json.schema import Enum
 from betty.locale.localizable import _, do_you_mean, join
@@ -182,7 +182,7 @@ def resolve_identifier(plugin_identifier: PluginIdentifier[Plugin]) -> MachineNa
     return plugin_identifier.plugin_id()
 
 
-class PluginNotFound(PluginError, UserFacingError):
+class PluginNotFound(PluginError, UserFacingException):
     """
     Raised when a plugin cannot be found.
     """

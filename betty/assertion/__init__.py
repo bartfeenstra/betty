@@ -26,7 +26,8 @@ from typing import (
 )
 
 from betty.assertion.error import AssertionFailed, AssertionFailedGroup, Index, Key
-from betty.error import FileNotFound, UserFacingError
+from betty.error import FileNotFound
+from betty.exception import UserFacingException
 from betty.locale import UNDETERMINED_LOCALE, get_data
 from betty.locale.localizable import Localizable, _, do_you_mean, join, plain
 from betty.typing import Void, Voidable, internal
@@ -536,7 +537,7 @@ def assert_locale() -> AssertionChain[Any, str]:
 
         try:
             get_data(value)
-        except UserFacingError as error:
+        except UserFacingException as error:
             raise AssertionFailed(error) from error
         return value
 

@@ -14,7 +14,7 @@ from typing import TYPE_CHECKING, Self, final
 from typing_extensions import override
 
 from betty import subprocess
-from betty.error import UserFacingError
+from betty.exception import UserFacingException
 from betty.locale.localizable import Localizable, _
 from betty.locale.localizer import DEFAULT_LOCALIZER
 from betty.requirement import Requirement
@@ -31,7 +31,7 @@ _NPM_DETAILS = _(
 )
 
 
-class NpmUnavailable(UserFacingError, RuntimeError):
+class NpmUnavailable(UserFacingException, RuntimeError):
     def __init__(self):
         super().__init__(_NPM_DETAILS)
 

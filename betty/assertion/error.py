@@ -11,7 +11,7 @@ from typing import TYPE_CHECKING, Self, TypeAlias, TypeVar
 
 from typing_extensions import override
 
-from betty.error import UserFacingError
+from betty.exception import UserFacingException
 from betty.locale import UNDETERMINED_LOCALE
 from betty.locale.localizable import Localizable, _
 from betty.locale.localized import LocalizedStr
@@ -112,7 +112,7 @@ def localizable_contexts(*contexts: Contextey) -> Sequence[Localizable]:
     return localizable_contexts
 
 
-class AssertionFailed(UserFacingError, ValueError):
+class AssertionFailed(UserFacingException, ValueError):
     """
     An assertion failure.
     """

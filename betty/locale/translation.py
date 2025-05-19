@@ -14,7 +14,7 @@ from aiofiles.os import makedirs
 from aiofiles.ospath import exists
 
 from betty import fs
-from betty.error import UserFacingError
+from betty.exception import UserFacingException
 from betty.locale import get_data
 from betty.locale.babel import run_babel
 from betty.locale.localizable import _
@@ -35,7 +35,7 @@ def assert_extension_assets_directory_path(extension: type[Extension]) -> Path:
     """
     assets_directory_path = extension.assets_directory_path()
     if assets_directory_path is None:
-        raise UserFacingError(
+        raise UserFacingException(
             _("{extension} does not have an assets directory.").format(
                 extension=extension.plugin_id()
             )

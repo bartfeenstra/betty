@@ -8,7 +8,7 @@ import re
 from typing import Any, Self, TypeAlias, TypeGuard
 
 from betty.assertion import AssertionChain, assert_str
-from betty.error import UserFacingError
+from betty.exception import UserFacingException
 from betty.locale.localizable import _
 
 MachineName: TypeAlias = str
@@ -31,7 +31,7 @@ def validate_machine_name(alleged_machine_name: str) -> TypeGuard[MachineName]:
     return _MACHINE_NAME_PATTERN.fullmatch(alleged_machine_name) is not None
 
 
-class InvalidMachineName(UserFacingError, ValueError):
+class InvalidMachineName(UserFacingException, ValueError):
     """
     Raised when something is not a valid machine name.
     """

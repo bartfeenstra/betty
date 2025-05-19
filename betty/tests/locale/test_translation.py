@@ -5,7 +5,7 @@ from pathlib import Path
 import pytest
 from typing_extensions import override
 
-from betty.error import UserFacingError
+from betty.exception import UserFacingException
 from betty.fs import ASSETS_DIRECTORY_PATH
 from betty.locale.translation import (
     assert_extension_assets_directory_path,
@@ -24,7 +24,7 @@ class _DummyExtensionWithAssetsDirectory(DummyExtension):
 
 
 def test_assert_extension_assets_directory_path__without_assets_directory() -> None:
-    with pytest.raises(UserFacingError):
+    with pytest.raises(UserFacingException):
         assert_extension_assets_directory_path(DummyExtension)
 
 
@@ -36,7 +36,7 @@ def test_assert_extension_assets_directory_path__with_assets_directory() -> None
 
 
 def test_assert_extension_has_assets_directory_path__without_assets_directory() -> None:
-    with pytest.raises(UserFacingError):
+    with pytest.raises(UserFacingException):
         assert_extension_has_assets_directory_path(DummyExtension)
 
 
