@@ -45,6 +45,25 @@ class PluginTestBase(Generic[_PluginT]):
             f"Failed asserting that plugin class {self.get_sut_class()} is public (its name must not start with an underscore)"
         )
 
+    async def test_plugin_type_cls(self) -> None:
+        """
+        Tests :py:meth:`betty.plugin.Plugin.plugin_type_cls` implementations.
+        """
+        sut = self.get_sut_class()
+        assert issubclass(sut, sut.plugin_type_cls())
+
+    async def test_plugin_type_id(self) -> None:
+        """
+        Tests :py:meth:`betty.plugin.Plugin.plugin_type_id` implementations.
+        """
+        assert_machine_name()(self.get_sut_class().plugin_type_id())
+
+    async def test_plugin_type_label(self) -> None:
+        """
+        Tests :py:meth:`betty.plugin.Plugin.plugin_type_label` implementations.
+        """
+        assert self.get_sut_class().plugin_type_label().localize(DEFAULT_LOCALIZER)
+
     async def test_plugin_id(self) -> None:
         """
         Tests :py:meth:`betty.plugin.Plugin.plugin_id` implementations.
