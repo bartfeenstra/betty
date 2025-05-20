@@ -11,12 +11,9 @@ from betty.locale.localizable import Localizable, _, call
 from betty.plugin import (
     CyclicDependencyError,
     DependentPlugin,
-    OrderedPlugin,
     Plugin,
     PluginIdToTypeMapping,
     PluginRepository,
-    sort_dependent_plugin_graph,
-    sort_ordered_plugin_graph,
 )
 from betty.plugin.entry_point import EntryPointPluginRepository
 from betty.project.factory import ProjectDependentFactory
@@ -25,8 +22,7 @@ from betty.service import ServiceProvider
 from betty.typing import private
 
 if TYPE_CHECKING:
-    from collections.abc import Iterable, Sequence
-    from graphlib import TopologicalSorter
+    from collections.abc import Sequence
     from pathlib import Path
 
     from betty.event_dispatcher import EventHandlerRegistry
@@ -39,7 +35,6 @@ _ConfigurationT = TypeVar("_ConfigurationT", bound=Configuration)
 
 
 class Extension(
-    OrderedPlugin["Extension"],
     DependentPlugin["Extension"],
     ServiceProvider,
     ProjectDependentFactory,
@@ -143,22 +138,6 @@ class ConfigurableExtension(
         return cls(project, configuration=cls.new_default_configuration())
 
 
-async def sort_extension_type_graph(
-    sorter: TopologicalSorter[type[Extension]],
-    extension_types: Iterable[type[Extension]],
-) -> None:
-    """
-    Sort an extension graph.
-    """
-    await sort_ordered_plugin_graph(
-        sorter,
-        EXTENSION_REPOSITORY,
-        await sort_dependent_plugin_graph(
-            sorter, EXTENSION_REPOSITORY, extension_types
-        ),
-    )
-
-
 class Dependencies(AllRequirements):
     """
     Check a dependent's dependency requirements.
@@ -188,6 +167,7 @@ class Dependencies(AllRequirements):
                     else dependency_identifier
                 ).requirement(user=user)
                 for dependency_identifier in dependent.depends_on()
+                & dependent.comes_after()
             ]
         except RecursionError:
             raise CyclicDependencyError([dependent]) from None

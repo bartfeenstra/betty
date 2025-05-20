@@ -114,7 +114,7 @@ class OrderedPlugin(Generic[_PluginT], Plugin):
     """
 
     @classmethod
-    def comes_before(cls) -> set[PluginIdentifier[_PluginT]]:
+    def comes_before(cls) -> set[PluginIdentifier[_PluginT & OrderedPlugin[_PluginT]]]:
         """
         Get the plugins that this plugin comes before.
 
@@ -123,7 +123,7 @@ class OrderedPlugin(Generic[_PluginT], Plugin):
         return set()
 
     @classmethod
-    def comes_after(cls) -> set[PluginIdentifier[_PluginT]]:
+    def comes_after(cls) -> set[PluginIdentifier[_PluginT & OrderedPlugin[_PluginT]]]:
         """
         Get the plugins that this plugin comes after.
 
@@ -132,15 +132,18 @@ class OrderedPlugin(Generic[_PluginT], Plugin):
         return set()
 
 
-class DependentPlugin(Generic[_PluginT], Plugin):
+class DependentPlugin(Generic[_PluginT], OrderedPlugin[_PluginT]):
     """
     A plugin that can declare its dependency on other plugins.
     """
 
     @classmethod
-    def depends_on(cls) -> set[PluginIdentifier[_PluginT]]:
+    def depends_on(cls) -> set[PluginIdentifier[_PluginT & DependentPlugin[_PluginT]]]:
         """
         The plugins this one depends on.
+
+        To declare whether this plugin comes before or after its dependencies, implement
+        :py:meth:`betty.plugin.OrderedPlugin.comes_before` and/or :py:meth:`betty.plugin.OrderedPlugin.comes_after`.
         """
         return set()
 
@@ -417,59 +420,64 @@ class CyclicDependencyError(PluginError):
 
 
 async def sort_ordered_plugin_graph(
-    sorter: TopologicalSorter[type[_PluginT]],
-    plugins: PluginRepository[_PluginT & OrderedPlugin[_PluginT]],
-    entry_point_plugins: Iterable[type[_PluginT & OrderedPlugin[_PluginT]]],
+    plugin_repository: PluginRepository[_PluginCoT & OrderedPlugin[_PluginCoT]],
+    plugins: Iterable[type[_PluginCoT & OrderedPlugin[_PluginCoT]]],
+    sorter: TopologicalSorter[type[_PluginCoT & OrderedPlugin[_PluginCoT]]],
 ) -> None:
     """
     Build a graph of the given plugins.
     """
-    entry_point_plugins = list(entry_point_plugins)
-    for entry_point_plugin in entry_point_plugins:
-        sorter.add(entry_point_plugin)
-        for before_identifier in entry_point_plugin.comes_before():
+    plugins = sorted(plugins, key=lambda plugin: plugin.plugin_id())
+    for plugin in plugins:
+        sorter.add(plugin)
+        for before_identifier in plugin.comes_before():
             before = (
-                await plugins.get(before_identifier)
+                await plugin_repository.get(before_identifier)
                 if isinstance(before_identifier, str)
                 else before_identifier
             )
-            if before in entry_point_plugins:
-                sorter.add(before, entry_point_plugin)
-        for after_identifier in entry_point_plugin.comes_after():
+            if before in plugins:
+                sorter.add(before, plugin)
+        for after_identifier in plugin.comes_after():
             after = (
-                await plugins.get(after_identifier)
+                await plugin_repository.get(after_identifier)
                 if isinstance(after_identifier, str)
                 else after_identifier
             )
-            if after in entry_point_plugins:
-                sorter.add(entry_point_plugin, after)
+            if after in plugins:
+                sorter.add(plugin, after)
+
+
+async def expand_plugin_dependencies(
+    plugin_repository: PluginRepository[_PluginCoT & DependentPlugin[_PluginCoT]],
+    plugins: Iterable[type[_PluginCoT & DependentPlugin[_PluginCoT]]],
+) -> set[type[_PluginCoT & DependentPlugin[_PluginCoT]]]:
+    """
+    Expand a collection of plugins to include their dependencies.
+    """
+    dependencies = set()
+    for plugin in plugins:
+        dependencies.add(plugin)
+        dependencies.update(
+            await expand_plugin_dependencies(
+                plugin_repository,
+                # We have not quite figured out how to type this correctly, so ignore any errors for now.
+                await plugin_repository.resolve_identifiers(plugin.depends_on()),
+            )
+        )
+    return dependencies
 
 
 async def sort_dependent_plugin_graph(
-    sorter: TopologicalSorter[type[_PluginT]],
-    plugins: PluginRepository[_PluginT],
-    entry_point_plugins: Iterable[type[_PluginT & DependentPlugin[_PluginT]]],
-) -> Sequence[type[_PluginT & DependentPlugin[_PluginT]]]:
+    plugin_repository: PluginRepository[_PluginCoT & DependentPlugin[_PluginCoT]],
+    plugins: Iterable[type[_PluginCoT & DependentPlugin[_PluginCoT]]],
+    sorter: TopologicalSorter[type[_PluginCoT & DependentPlugin[_PluginCoT]]],
+) -> None:
     """
-    Build a graph of the given plugins and their dependencies.
+    Sort a dependent plugin graph.
     """
-    updated_entry_point_plugins = []
-    for entry_point_plugin in entry_point_plugins:
-        if entry_point_plugin not in updated_entry_point_plugins:
-            updated_entry_point_plugins.append(entry_point_plugin)
-        dependencies = await plugins.resolve_identifiers(
-            entry_point_plugin.depends_on()
-        )
-        for dependency in dependencies:
-            if dependency not in updated_entry_point_plugins:
-                updated_entry_point_plugins.append(
-                    dependency,  # type: ignore[arg-type]
-                )
-        sorter.add(entry_point_plugin, *dependencies)
-        await sort_dependent_plugin_graph(
-            sorter,
-            plugins,
-            # We have not quite figured out how to type this correctly, so ignore any errors for now.
-            dependencies,  # type: ignore[arg-type]
-        )
-    return updated_entry_point_plugins
+    await sort_ordered_plugin_graph(
+        plugin_repository,  # type: ignore[arg-type]
+        await expand_plugin_dependencies(plugin_repository, plugins),
+        sorter,  # type: ignore[arg-type]
+    )
