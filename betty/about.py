@@ -7,7 +7,7 @@ import sys
 from importlib import metadata
 from typing import TYPE_CHECKING
 
-DEV_VERSION = "0.0.0"
+_DEV_VERSION = "0.0.0"
 
 if TYPE_CHECKING:
     from collections.abc import Iterator, Mapping
@@ -15,32 +15,28 @@ if TYPE_CHECKING:
     from betty.locale.localizer import Localizer
 
 
-def version() -> str:
-    """
-    Get the current Betty installation's version, if it has any.
-    """
-    return metadata.version("betty")
+VERSION = metadata.version("betty")
+"""
+The current Betty installation's version, if it has any.
+"""
 
 
-def version_label() -> str:
-    """
-    Get the human-readable label for the current Betty installation's version.
-    """
-    return "development" if is_development() else version()
+IS_STABLE = VERSION != _DEV_VERSION
+"""
+Whether the current Betty installation is a stable version.
+"""
 
 
-def is_stable() -> bool:
-    """
-    Check if the current Betty installation is a stable version.
-    """
-    return version() != DEV_VERSION
+IS_DEVELOPMENT = not IS_STABLE
+"""
+Whether the current Betty installation is an unstable development version.
+"""
 
 
-def is_development() -> bool:
-    """
-    Check if the current Betty installation is an unstable development version.
-    """
-    return version() == DEV_VERSION
+VERSION_LABEL = "development" if IS_DEVELOPMENT else VERSION
+"""
+The human-readable label for the current Betty installation's version.
+"""
 
 
 def _indent_mapping(items: Mapping[str, str]) -> str:
@@ -66,7 +62,7 @@ def report(*, localizer: Localizer) -> str:
     """
     return _indent_mapping(
         {
-            "Betty": version_label(),
+            "Betty": VERSION_LABEL,
             localizer._("Operating system"): platform.platform(),
             "Python": sys.version,
             localizer._("Python packages"): _indent_mapping(

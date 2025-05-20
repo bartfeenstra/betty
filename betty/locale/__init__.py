@@ -11,13 +11,13 @@ from babel import negotiate_locale as babel_negotiate_locale
 from babel.core import UnknownLocaleError
 from langcodes import Language
 
-from betty import fs
+import betty
 from betty.json.schema import String
 
 if TYPE_CHECKING:
     from collections.abc import Sequence
 
-_LOCALE_DIRECTORY_PATH = fs.ASSETS_DIRECTORY_PATH / "locale"
+_LOCALE_DIRECTORY_PATH = betty.ASSETS_DIRECTORY_PATH / "locale"
 
 NO_LINGUISTIC_CONTENT = "zxx"
 UNDETERMINED_LOCALE = "und"

@@ -31,6 +31,7 @@ dependencies = [
     'pdf2image ~= 1.17',
     'polib ~= 1.2',
     'Pillow ~= 11.0',
+    'platformdirs ~= 4.3.8',
     'pyyaml ~= 6.0',
     'referencing ~= 0.35',
     'rich ~= 14.0.0',

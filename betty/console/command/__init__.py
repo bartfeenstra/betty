@@ -70,7 +70,7 @@ COMMAND_REPOSITORY: PluginRepository[Command] = ProxyPluginRepository(
     EntryPointPluginRepository(Command, "betty.command"),
     *(
         [EntryPointPluginRepository(Command, "betty.dev.command")]
-        if about.is_development()
+        if about.IS_DEVELOPMENT
         else []
     ),
 )

@@ -15,7 +15,6 @@ from babel import dates
 from babel.dates import format_date
 from polib import pofile
 
-from betty import fs
 from betty.concurrent import AsynchronizedLock, Lock
 from betty.date import (
     Date,
@@ -43,6 +42,7 @@ if TYPE_CHECKING:
     from pathlib import Path
 
     from betty.assets import AssetRepository
+    from betty.cache.file import BinaryFileCache
 
 
 class Localizer:
@@ -287,8 +287,9 @@ class LocalizerRepository:
     Exposes the available localizers.
     """
 
-    def __init__(self, assets: AssetRepository):
+    def __init__(self, assets: AssetRepository, cache: BinaryFileCache):
         self._assets = assets
+        self._cache = cache
         self._localizers: MutableMapping[str, Localizer] = {}
         self._locks: Mapping[str, Lock] = defaultdict(AsynchronizedLock.threading)
         self._locales: set[str] | None = None
@@ -345,9 +346,7 @@ class LocalizerRepository:
             translation_version = await hashid_file_meta(po_file_path)
         except FileNotFoundError:
             return None
-        cache_directory_path = (
-            fs.HOME_DIRECTORY_PATH / "cache" / "locale" / translation_version
-        )
+        cache_directory_path = self._cache.path / "locale" / translation_version
         mo_file_path = cache_directory_path / "betty.mo"
 
         with suppress(FileNotFoundError), open(mo_file_path, "rb") as f:

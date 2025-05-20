@@ -39,7 +39,7 @@ class Specification:
             ],
             "info": {
                 "title": "Betty",
-                "version": about.version_label(),
+                "version": about.VERSION_LABEL,
             },
             "paths": {},
             "components": {

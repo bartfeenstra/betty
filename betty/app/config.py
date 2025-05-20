@@ -8,7 +8,6 @@ from typing import TYPE_CHECKING, final
 
 from typing_extensions import override
 
-from betty import fs
 from betty.assertion import (
     OptionalField,
     assert_locale,
@@ -17,12 +16,13 @@ from betty.assertion import (
     assert_str,
 )
 from betty.config import Configuration
+from betty.dirs import APP_CONFIG_DIRECTORY_PATH
 from betty.typing import pickleable
 
 if TYPE_CHECKING:
     from betty.serde.dump import Dump, DumpMapping
 
-CONFIGURATION_FILE_PATH = fs.HOME_DIRECTORY_PATH / "app.json"
+CONFIGURATION_FILE_PATH = APP_CONFIG_DIRECTORY_PATH / "app.json"
 
 
 @final

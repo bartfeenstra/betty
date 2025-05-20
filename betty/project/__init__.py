@@ -23,7 +23,8 @@ from typing import (
 from aiofiles.tempfile import TemporaryDirectory
 from typing_extensions import override
 
-from betty import event_dispatcher, fs, model
+import betty
+from betty import event_dispatcher, model
 from betty.ancestry import Ancestry
 from betty.ancestry.event_type import EVENT_TYPE_REPOSITORY, EventType
 from betty.ancestry.gender import GENDER_REPOSITORY, Gender
@@ -192,7 +193,7 @@ class Project(Configurable[ProjectConfiguration], TargetFactory, ServiceProvider
             if extension_assets_directory_path is not None:
                 asset_paths.append(extension_assets_directory_path)
         # Mimic :py:attr:`betty.app.App.assets`.
-        asset_paths.append(fs.ASSETS_DIRECTORY_PATH)
+        asset_paths.append(betty.ASSETS_DIRECTORY_PATH)
         return AssetRepository(*asset_paths)
 
     @service
@@ -200,7 +201,7 @@ class Project(Configurable[ProjectConfiguration], TargetFactory, ServiceProvider
         """
         The available localizers.
         """
-        return LocalizerRepository(await self.assets)
+        return LocalizerRepository(await self.assets, self.app.binary_file_cache)
 
     @service
     async def url_generator(self) -> UrlGenerator:
@@ -317,7 +318,7 @@ class Project(Configurable[ProjectConfiguration], TargetFactory, ServiceProvider
         """
         return (
             self._configuration.logo
-            or fs.ASSETS_DIRECTORY_PATH / "public" / "static" / "betty-512x512.png"
+            or betty.ASSETS_DIRECTORY_PATH / "public" / "static" / "betty-512x512.png"
         )
 
     @service

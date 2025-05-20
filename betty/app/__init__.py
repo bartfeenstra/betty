@@ -12,7 +12,7 @@ import aiohttp
 from aiofiles.tempfile import TemporaryDirectory
 from typing_extensions import override
 
-from betty import fs
+import betty
 from betty.app import config
 from betty.app.config import AppConfiguration
 from betty.app.factory import AppDependentFactory
@@ -20,10 +20,10 @@ from betty.assets import AssetRepository
 from betty.cache.file import BinaryFileCache, PickledFileCache
 from betty.cache.no_op import NoOpCache
 from betty.config import Configurable, assert_configuration_file
+from betty.dirs import CACHE_DIRECTORY_PATH
 from betty.factory import TargetFactory, new
 from betty.fetch import Fetcher, http
 from betty.fetch.static import StaticFetcher
-from betty.fs import HOME_DIRECTORY_PATH
 from betty.license import LICENSE_REPOSITORY, License
 from betty.license.licenses import SpdxLicenseRepository
 from betty.locale import DEFAULT_LOCALE
@@ -103,7 +103,7 @@ class App(Configurable[AppConfiguration], TargetFactory, ServiceProvider):
             )
         yield cls(
             configuration,
-            Path(environ.get("BETTY_CACHE_DIRECTORY", HOME_DIRECTORY_PATH / "cache")),
+            Path(environ.get("BETTY_CACHE_DIRECTORY", CACHE_DIRECTORY_PATH)),
             cache_factory=lambda app: PickledFileCache[Any](
                 app._cache_directory_path, manager=app.multiprocessing_manager
             ),
@@ -162,7 +162,7 @@ class App(Configurable[AppConfiguration], TargetFactory, ServiceProvider):
         """
         The assets file system.
         """
-        return AssetRepository(fs.ASSETS_DIRECTORY_PATH)
+        return AssetRepository(betty.ASSETS_DIRECTORY_PATH)
 
     @service
     async def localizer(self) -> Localizer:
@@ -178,7 +178,7 @@ class App(Configurable[AppConfiguration], TargetFactory, ServiceProvider):
         """
         The available localizers.
         """
-        return LocalizerRepository(self.assets)
+        return LocalizerRepository(self.assets, self.binary_file_cache)
 
     @service
     async def http_client(self) -> aiohttp.ClientSession:

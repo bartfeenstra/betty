@@ -12,7 +12,7 @@ from typing import TYPE_CHECKING, TypeVar
 from aiofiles.os import makedirs
 from aiofiles.ospath import exists
 
-from betty import fs
+import betty
 from betty.exception import UserFacingException
 from betty.locale import get_data
 from betty.locale.babel import run_babel
@@ -77,7 +77,7 @@ async def new_dev_translation(locale: str, *, user: User) -> None:
     """
     Create a new translation for Betty itself.
     """
-    await _new_translation(locale, fs.ASSETS_DIRECTORY_PATH, user=user)
+    await _new_translation(locale, betty.ASSETS_DIRECTORY_PATH, user=user)
 
 
 async def _new_translation(
@@ -171,11 +171,11 @@ async def update_dev_translations(
     """
     Update the translations for Betty itself.
     """
-    source_directory_path = fs.ROOT_DIRECTORY_PATH / "betty"
+    source_directory_path = betty.ROOT_DIRECTORY_PATH / "betty"
     test_directory_path = source_directory_path / "tests"
     await _update_translations(
         set(find_source_files(source_directory_path, test_directory_path)),
-        fs.ASSETS_DIRECTORY_PATH,
+        betty.ASSETS_DIRECTORY_PATH,
         _output_assets_directory_path_override,
     )
 
