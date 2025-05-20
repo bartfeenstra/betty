@@ -103,14 +103,11 @@ Extensions have fine-grained control over which other extensions they require, a
 which they appear in the extension dependency tree:
 
 :py:meth:`betty.project.extension.Extension.depends_on`
-    Declare required other extensions. This ensures those extensions are enabled and appear before
-    your extension in the extension dependency tree.
+    Declare required other extensions. This ensures those extensions are enabled.
 :py:meth:`betty.project.extension.Extension.comes_after`
-    Declare other extensions that are not required, but if they **are** enabled, then your extension
-    will appear after them in the extension dependency tree.
+    Declare which other extensions your extension comes after (if they are enabled).
 :py:meth:`betty.project.extension.Extension.comes_before`
-    Declare other extensions that are not required, but if they **are** enabled, then your extension
-    will appear before them in the extension dependency tree.
+    Declare which other extensions your extension comes before (if they are enabled).
 
 Optional functionality
 ----------------------

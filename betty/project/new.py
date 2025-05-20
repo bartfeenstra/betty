@@ -21,6 +21,7 @@ from betty.project.extension.maps import Maps
 from betty.project.extension.privatizer import Privatizer
 from betty.project.extension.raspberry_mint import RaspberryMint
 from betty.project.extension.trees import Trees
+from betty.project.extension.webpack import Webpack
 from betty.project.extension.wiki import Wiki
 from betty.requirement import AllRequirements
 
@@ -36,7 +37,17 @@ async def new(app: App) -> None:
     """
     Create a new project.
     """
-    extensions = (Deriver, HttpApiDoc, Maps, Privatizer, RaspberryMint, Trees, Wiki)
+    extensions = (
+        Deriver,
+        HttpApiDoc,
+        Maps,
+        Privatizer,
+        RaspberryMint,
+        Trees,
+        # Enable the Webpack extension explicitly for the test's mock to work.
+        Webpack,
+        Wiki,
+    )
     AllRequirements(
         *[await extension.requirement(user=app.user) for extension in extensions]
     ).assert_met()

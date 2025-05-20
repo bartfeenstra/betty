@@ -42,12 +42,12 @@ from betty.license import License
 from betty.locale.localizable import _
 from betty.locale.localizer import LocalizerRepository
 from betty.model import Entity, ToManySchema
-from betty.plugin import resolve_identifier
+from betty.plugin import resolve_identifier, sort_dependent_plugin_graph
 from betty.plugin.proxy import ProxyPluginRepository
 from betty.plugin.static import StaticPluginRepository
 from betty.project import extension
 from betty.project.config import ProjectConfiguration
-from betty.project.extension import Extension, Theme, sort_extension_type_graph
+from betty.project.extension import Extension, Theme
 from betty.project.factory import ProjectDependentFactory
 from betty.project.url import new_project_url_generator
 from betty.render import Renderer, SequentialRenderer
@@ -244,7 +244,9 @@ class Project(Configurable[ProjectConfiguration], TargetFactory, ServiceProvider
             extensions[extension] = extension_configuration
 
         extensions_sorter = TopologicalSorter[type[Extension]]()
-        await sort_extension_type_graph(extensions_sorter, extensions)
+        await sort_dependent_plugin_graph(
+            self.extension_repository, extensions, extensions_sorter
+        )
         extensions_sorter.prepare()
 
         theme_count = 0
