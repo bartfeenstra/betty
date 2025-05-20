@@ -10,6 +10,8 @@ from json import JSONDecodeError
 from pathlib import Path
 from typing import TYPE_CHECKING, Any, cast, final
 from urllib.parse import quote, urlparse
+from html import unescape
+import re
 
 from geopy import Point
 
@@ -57,7 +59,16 @@ class Image:
     title: str
     wikimedia_commons_url: str
     name: str
+    copyright: Copyright | None
 
+@final
+@dataclass(frozen=True)
+class Copyright:
+    """
+    Copyright information for a Wikimedia Commons contributor.
+    """
+    author: str
+    copyright_url: str
 
 RATE_LIMIT = 200
 
@@ -175,7 +186,7 @@ class Client:
             if page_image_name in self._images:
                 return self._images[page_image_name]
 
-            url = f"https://en.wikipedia.org/w/api.php?action=query&prop=imageinfo&titles=File:{quote(page_image_name)}&iiprop=url|mime|canonicaltitle&format=json&formatversion=2"
+            url = f"https://en.wikipedia.org/w/api.php?action=query&prop=imageinfo&titles=File:{quote(page_image_name)}&iiprop=url|mime|canonicaltitle|extmetadata&format=json&formatversion=2"
             image_info_api_data = await self._get_query_api_data(url)
 
             try:
@@ -186,9 +197,24 @@ class Client:
                         f"Could not successfully parse the JSON content returned by {url}: {error}"
                     )
                 ) from error
+
+            # Fetch copyright information
+            copyright = None
+            try:
+                artist = image_info["extmetadata"]["Artist"]["value"]
+                # Strip any HTML tags from the artist field, as it may contain markup
+                clean_artist = re.sub(r"<[^>]+>", "", unescape(artist)).strip()
+                if clean_artist:
+                    copyright = Copyright(
+                        author=clean_artist,
+                        copyright_url=f"{image_info['descriptionurl']}#Licensing",                    )
+            except (LookupError, KeyError):
+                # If extmetadata or Artist is missing, copyright remains None
+                pass
+
             async with self._rate_limiter:
                 image_path = await self._fetcher.fetch_file(image_info["url"])
-            return Image(
+            image = Image(
                 image_path,
                 MediaType(image_info["mime"]),
                 # Strip "File:" or any translated equivalent from the beginning of the image's title.
@@ -197,7 +223,10 @@ class Client:
                 ],
                 image_info["descriptionurl"],
                 Path(urlparse(image_info["url"]).path).name,
+                copyright=copyright,
             )
+            self._images[page_image_name] = image
+            return image
 
     async def get_place_coordinates(
         self, page_language: str, page_name: str
