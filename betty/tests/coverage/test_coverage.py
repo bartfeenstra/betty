@@ -23,7 +23,7 @@ from typing import Any, Protocol, TypeAlias, cast
 import aiofiles
 import pytest
 
-from betty.fs import ROOT_DIRECTORY_PATH
+from betty import ROOT_DIRECTORY_PATH
 from betty.html.attributes import Attributes
 from betty.tests.coverage.fixtures import (
     _module_private,
@@ -157,6 +157,7 @@ _BASELINE: Mapping[str, _ModuleIgnore] = {
             "stop": MissingReason.SHOULD_BE_COVERED,
         },
     },
+    "betty/dirs.py": MissingReason.STATIC_CONTENT_ONLY,
     "betty/error.py": {
         "FileNotFound": MissingReason.SHOULD_BE_COVERED,
     },

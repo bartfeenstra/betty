@@ -5,8 +5,8 @@ from pathlib import Path
 import pytest
 from typing_extensions import override
 
+from betty import ASSETS_DIRECTORY_PATH
 from betty.exception import UserFacingException
-from betty.fs import ASSETS_DIRECTORY_PATH
 from betty.locale.translation import (
     assert_extension_assets_directory_path,
     assert_extension_has_assets_directory_path,

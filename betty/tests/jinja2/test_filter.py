@@ -9,10 +9,10 @@ from PIL import Image
 from puremagic import what
 from typing_extensions import override
 
+from betty import ASSETS_DIRECTORY_PATH
 from betty.ancestry.file import File
 from betty.ancestry.file_reference import FileReference
 from betty.date import Date, DateRange, Datey
-from betty.fs import ASSETS_DIRECTORY_PATH
 from betty.job import Context
 from betty.locale import (
     MULTIPLE_LOCALES,

@@ -13,9 +13,9 @@ from requests import Response
 from sphinx.errors import ExtensionError
 from sphinx.util import import_object
 
+from betty import ROOT_DIRECTORY_PATH
 from betty.console.command import COMMAND_REPOSITORY
 from betty.documentation import DocumentationServer
-from betty.fs import ROOT_DIRECTORY_PATH
 from betty.functools import Do
 from betty.jinja2.filter import filters
 from betty.jinja2.test import tests

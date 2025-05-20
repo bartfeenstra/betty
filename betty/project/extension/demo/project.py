@@ -7,6 +7,7 @@ from __future__ import annotations
 from random import choice
 from typing import TYPE_CHECKING
 
+from betty import DATA_DIRECTORY_PATH
 from betty.ancestry.citation import Citation
 from betty.ancestry.enclosure import Enclosure
 from betty.ancestry.event import Event
@@ -30,7 +31,6 @@ from betty.ancestry.presence import Presence
 from betty.ancestry.presence_role.presence_roles import Subject
 from betty.ancestry.source import Source
 from betty.date import Date, DateRange
-from betty.fs import DATA_DIRECTORY_PATH
 from betty.license.licenses import spdx_license_id_to_license_id
 from betty.media_type.media_types import SVG
 from betty.model.config import EntityReference

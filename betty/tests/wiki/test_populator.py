@@ -13,6 +13,7 @@ from betty.ancestry.link import Link
 from betty.ancestry.place import Place
 from betty.ancestry.source import Source
 from betty.assets import AssetRepository
+from betty.cache.file import BinaryFileCache
 from betty.locale import UNDETERMINED_LOCALE
 from betty.locale.localizer import DEFAULT_LOCALIZER, LocalizerRepository
 from betty.media_type import MediaType
@@ -22,12 +23,17 @@ from betty.wiki.copyright_notice import WikipediaContributors
 from betty.wiki.populator import Populator
 
 if TYPE_CHECKING:
+    from multiprocessing.managers import SyncManager
+
     from pytest_mock import MockerFixture
 
 
 class TestPopulator:
     async def test_populate_link__should_convert_http_to_https(
-        self, mocker: MockerFixture, tmp_path: Path
+        self,
+        mocker: MockerFixture,
+        multiprocessing_manager: SyncManager,
+        tmp_path: Path,
     ) -> None:
         m_client = mocker.patch("betty.wiki.client.Client")
         link = Link("http://en.wikipedia.org/wiki/Amsterdam")
@@ -35,7 +41,10 @@ class TestPopulator:
         sut = Populator(
             await Ancestry.new(),
             [],
-            LocalizerRepository(AssetRepository(tmp_path / "assets")),
+            LocalizerRepository(
+                AssetRepository(tmp_path / "assets"),
+                BinaryFileCache(tmp_path / "cache", manager=multiprocessing_manager),
+            ),
             m_client,
             WikipediaContributors({}),
         )
@@ -55,6 +64,7 @@ class TestPopulator:
         expected: MediaType,
         media_type: MediaType | None,
         mocker: MockerFixture,
+        multiprocessing_manager: SyncManager,
         tmp_path: Path,
     ) -> None:
         m_client = mocker.patch("betty.wiki.client.Client")
@@ -65,7 +75,10 @@ class TestPopulator:
         sut = Populator(
             await Ancestry.new(),
             [],
-            LocalizerRepository(AssetRepository(tmp_path / "assets")),
+            LocalizerRepository(
+                AssetRepository(tmp_path / "assets"),
+                BinaryFileCache(tmp_path / "cache", manager=multiprocessing_manager),
+            ),
             m_client,
             WikipediaContributors({}),
         )
@@ -85,6 +98,7 @@ class TestPopulator:
         expected: str,
         relationship: str | None,
         mocker: MockerFixture,
+        multiprocessing_manager: SyncManager,
         tmp_path: Path,
     ) -> None:
         m_client = mocker.patch("betty.wiki.client.Client")
@@ -93,7 +107,10 @@ class TestPopulator:
         sut = Populator(
             await Ancestry.new(),
             [],
-            LocalizerRepository(AssetRepository(tmp_path / "assets")),
+            LocalizerRepository(
+                AssetRepository(tmp_path / "assets"),
+                BinaryFileCache(tmp_path / "cache", manager=multiprocessing_manager),
+            ),
             m_client,
             WikipediaContributors({}),
         )
@@ -114,6 +131,7 @@ class TestPopulator:
         page_language: str,
         original_link_locale: str,
         mocker: MockerFixture,
+        multiprocessing_manager: SyncManager,
         tmp_path: Path,
     ) -> None:
         m_client = mocker.patch("betty.wiki.client.Client")
@@ -122,7 +140,10 @@ class TestPopulator:
         sut = Populator(
             await Ancestry.new(),
             [],
-            LocalizerRepository(AssetRepository(tmp_path / "assets")),
+            LocalizerRepository(
+                AssetRepository(tmp_path / "assets"),
+                BinaryFileCache(tmp_path / "cache", manager=multiprocessing_manager),
+            ),
             m_client,
             WikipediaContributors({}),
         )
@@ -137,7 +158,12 @@ class TestPopulator:
         ],
     )
     async def test_populate_link__should_set_description(
-        self, expected: str, description: str, mocker: MockerFixture, tmp_path: Path
+        self,
+        expected: str,
+        description: str,
+        mocker: MockerFixture,
+        multiprocessing_manager: SyncManager,
+        tmp_path: Path,
     ) -> None:
         m_client = mocker.patch("betty.wiki.client.Client")
         link = Link(
@@ -148,7 +174,10 @@ class TestPopulator:
         sut = Populator(
             await Ancestry.new(),
             [],
-            LocalizerRepository(AssetRepository(tmp_path / "assets")),
+            LocalizerRepository(
+                AssetRepository(tmp_path / "assets"),
+                BinaryFileCache(tmp_path / "cache", manager=multiprocessing_manager),
+            ),
             m_client,
             WikipediaContributors({}),
         )
@@ -163,7 +192,12 @@ class TestPopulator:
         ],
     )
     async def test_populate_link__should_set_label(
-        self, expected: str, label: str | None, mocker: MockerFixture, tmp_path: Path
+        self,
+        expected: str,
+        label: str | None,
+        mocker: MockerFixture,
+        multiprocessing_manager: SyncManager,
+        tmp_path: Path,
     ) -> None:
         m_client = mocker.patch("betty.wiki.client.Client")
         link = Link("http://en.wikipedia.org/wiki/Amsterdam")
@@ -178,7 +212,10 @@ class TestPopulator:
         sut = Populator(
             await Ancestry.new(),
             [],
-            LocalizerRepository(AssetRepository(tmp_path / "assets")),
+            LocalizerRepository(
+                AssetRepository(tmp_path / "assets"),
+                BinaryFileCache(tmp_path / "cache", manager=multiprocessing_manager),
+            ),
             m_client,
             WikipediaContributors({}),
         )
@@ -186,7 +223,10 @@ class TestPopulator:
         assert link.label.localize(DEFAULT_LOCALIZER) == expected
 
     async def test_populate__should_ignore_resource_without_link_support(
-        self, mocker: MockerFixture, tmp_path: Path
+        self,
+        mocker: MockerFixture,
+        multiprocessing_manager: SyncManager,
+        tmp_path: Path,
     ) -> None:
         m_client = mocker.patch("betty.wiki.client.Client")
         source = Source("The Source")
@@ -199,14 +239,20 @@ class TestPopulator:
         sut = Populator(
             ancestry,
             [],
-            LocalizerRepository(AssetRepository(tmp_path / "assets")),
+            LocalizerRepository(
+                AssetRepository(tmp_path / "assets"),
+                BinaryFileCache(tmp_path / "cache", manager=multiprocessing_manager),
+            ),
             m_client,
             WikipediaContributors({}),
         )
         await sut.populate()
 
     async def test_populate__should_ignore_resource_without_links(
-        self, mocker: MockerFixture, tmp_path: Path
+        self,
+        mocker: MockerFixture,
+        multiprocessing_manager: SyncManager,
+        tmp_path: Path,
     ) -> None:
         m_client = mocker.patch("betty.wiki.client.Client")
         resource = Source(
@@ -218,7 +264,10 @@ class TestPopulator:
         sut = Populator(
             ancestry,
             [],
-            LocalizerRepository(AssetRepository(tmp_path / "assets")),
+            LocalizerRepository(
+                AssetRepository(tmp_path / "assets"),
+                BinaryFileCache(tmp_path / "cache", manager=multiprocessing_manager),
+            ),
             m_client,
             WikipediaContributors({}),
         )
@@ -226,7 +275,10 @@ class TestPopulator:
         assert resource.links == []
 
     async def test_populate__should_ignore_non_wikipedia_links(
-        self, mocker: MockerFixture, tmp_path: Path
+        self,
+        mocker: MockerFixture,
+        multiprocessing_manager: SyncManager,
+        tmp_path: Path,
     ) -> None:
         m_client = mocker.patch("betty.wiki.client.Client")
         link = Link("https://example.com")
@@ -240,7 +292,10 @@ class TestPopulator:
         sut = Populator(
             ancestry,
             [],
-            LocalizerRepository(AssetRepository(tmp_path / "assets")),
+            LocalizerRepository(
+                AssetRepository(tmp_path / "assets"),
+                BinaryFileCache(tmp_path / "cache", manager=multiprocessing_manager),
+            ),
             m_client,
             WikipediaContributors({}),
         )
@@ -248,7 +303,10 @@ class TestPopulator:
         assert [link] == resource.links
 
     async def test_populate__should_populate_existing_link(
-        self, mocker: MockerFixture, tmp_path: Path
+        self,
+        mocker: MockerFixture,
+        multiprocessing_manager: SyncManager,
+        tmp_path: Path,
     ) -> None:
         m_client = mocker.patch(
             "betty.wiki.client.Client", spec=Client, new_callable=AsyncMock
@@ -272,7 +330,10 @@ class TestPopulator:
         sut = Populator(
             ancestry,
             [],
-            LocalizerRepository(AssetRepository(tmp_path / "assets")),
+            LocalizerRepository(
+                AssetRepository(tmp_path / "assets"),
+                BinaryFileCache(tmp_path / "cache", manager=multiprocessing_manager),
+            ),
             m_client,
             WikipediaContributors({}),
         )
@@ -286,7 +347,10 @@ class TestPopulator:
         assert link.relationship == "external"
 
     async def test_populate__should_add_translation_links(
-        self, mocker: MockerFixture, tmp_path: Path
+        self,
+        mocker: MockerFixture,
+        multiprocessing_manager: SyncManager,
+        tmp_path: Path,
     ) -> None:
         m_client = mocker.patch(
             "betty.wiki.client.Client", spec=Client, new_callable=AsyncMock
@@ -324,7 +388,10 @@ class TestPopulator:
         sut = Populator(
             ancestry,
             ["en-US", "nl-NL"],
-            LocalizerRepository(AssetRepository(tmp_path / "assets")),
+            LocalizerRepository(
+                AssetRepository(tmp_path / "assets"),
+                BinaryFileCache(tmp_path / "cache", manager=multiprocessing_manager),
+            ),
             m_client,
             WikipediaContributors({}),
         )
@@ -346,7 +413,10 @@ class TestPopulator:
         assert link_nl.relationship == "external"
 
     async def test_populate_place__should_add_coordinates(
-        self, mocker: MockerFixture, tmp_path: Path
+        self,
+        mocker: MockerFixture,
+        multiprocessing_manager: SyncManager,
+        tmp_path: Path,
     ) -> None:
         m_client = mocker.patch(
             "betty.wiki.client.Client", spec=Client, new_callable=AsyncMock
@@ -367,7 +437,10 @@ class TestPopulator:
         sut = Populator(
             ancestry,
             [],
-            LocalizerRepository(AssetRepository(tmp_path / "assets")),
+            LocalizerRepository(
+                AssetRepository(tmp_path / "assets"),
+                BinaryFileCache(tmp_path / "cache", manager=multiprocessing_manager),
+            ),
             m_client,
             WikipediaContributors({}),
         )
@@ -376,7 +449,10 @@ class TestPopulator:
         assert coordinates is place.coordinates
 
     async def test_populate_has_links(
-        self, mocker: MockerFixture, tmp_path: Path
+        self,
+        mocker: MockerFixture,
+        multiprocessing_manager: SyncManager,
+        tmp_path: Path,
     ) -> None:
         m_client = mocker.patch(
             "betty.wiki.client.Client", spec=Client, new_callable=AsyncMock
@@ -401,7 +477,10 @@ class TestPopulator:
         sut = Populator(
             ancestry,
             [],
-            LocalizerRepository(AssetRepository(tmp_path / "assets")),
+            LocalizerRepository(
+                AssetRepository(tmp_path / "assets"),
+                BinaryFileCache(tmp_path / "cache", manager=multiprocessing_manager),
+            ),
             m_client,
             WikipediaContributors({}),
         )
