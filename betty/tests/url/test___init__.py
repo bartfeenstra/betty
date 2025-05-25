@@ -9,7 +9,7 @@ from betty.media_type.media_types import HTML
 from betty.url import PassthroughUrlGenerator, generate_from_path
 
 if TYPE_CHECKING:
-    from collections.abc import Mapping
+    from collections.abc import Mapping, Sequence
 
 
 class TestPassthroughUrlGenerator:
@@ -44,6 +44,8 @@ class TestPassthroughUrlGenerator:
         "path",
         "absolute",
         "locale",
+        "fragment",
+        "query",
     ),
     [
         # The simplest and shortest URLs, and the most disabled configuration possible.
@@ -55,6 +57,8 @@ class TestPassthroughUrlGenerator:
                 False,
                 path,
                 False,
+                None,
+                None,
                 None,
             )
             for expected, path in [
@@ -75,6 +79,8 @@ class TestPassthroughUrlGenerator:
                 path,
                 True,
                 None,
+                None,
+                None,
             )
             for expected, path in [
                 ("https://example.com", "/"),
@@ -93,6 +99,8 @@ class TestPassthroughUrlGenerator:
                 True,
                 path,
                 False,
+                None,
+                None,
                 None,
             )
             for expected, path in [
@@ -113,6 +121,8 @@ class TestPassthroughUrlGenerator:
                 path,
                 False,
                 "nl-NL",
+                None,
+                None,
             )
             for expected, path in [
                 ("/nl", "/"),
@@ -120,6 +130,51 @@ class TestPassthroughUrlGenerator:
                 ("/nl/example", "/example"),
                 ("/nl/example", "/example/"),
                 ("/nl/example/index.html", "/example/index.html"),
+            ]
+        ],
+        # Fragments
+        *[
+            (
+                expected,
+                "/",
+                {DEFAULT_LOCALE: DEFAULT_LOCALE},
+                False,
+                path,
+                False,
+                None,
+                "my-first-fragment",
+                None,
+            )
+            for expected, path in [
+                ("/#my-first-fragment", "/"),
+                ("/index.html#my-first-fragment", "/index.html"),
+                ("/example#my-first-fragment", "/example"),
+                ("/example#my-first-fragment", "/example/"),
+                ("/example/index.html#my-first-fragment", "/example/index.html"),
+            ]
+        ],
+        # Queries.
+        *[
+            (
+                expected,
+                "/",
+                {DEFAULT_LOCALE: DEFAULT_LOCALE},
+                False,
+                path,
+                False,
+                None,
+                None,
+                {"my_first_query": "my first value"},
+            )
+            for expected, path in [
+                ("/?my_first_query=my+first+value", "/"),
+                ("/index.html?my_first_query=my+first+value", "/index.html"),
+                ("/example?my_first_query=my+first+value", "/example"),
+                ("/example?my_first_query=my+first+value", "/example/"),
+                (
+                    "/example/index.html?my_first_query=my+first+value",
+                    "/example/index.html",
+                ),
             ]
         ],
     ],
@@ -132,15 +187,19 @@ async def test_generate_from_path(
     path: str,
     absolute: bool,
     locale: Localey | None,
+    fragment: str | None,
+    query: Mapping[str, Sequence[str]] | None,
 ) -> None:
     assert (
         generate_from_path(
             path,
             absolute=absolute,
-            locale=locale,
             base_url="https://example.com",
+            fragment=fragment,
+            locale=locale,
+            query=query,
             root_path=root_path,
-            locales=locales,
+            locale_aliases=locales,
             clean_urls=clean_urls,
         )
         == expected

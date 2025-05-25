@@ -2,6 +2,7 @@
 Provide proxy URL generators.
 """
 
+from collections.abc import Mapping, Sequence
 from typing import Any, final
 
 from typing_extensions import override
@@ -29,13 +30,20 @@ class ProxyUrlGenerator(UrlGenerator):
         self,
         resource: Any,
         *,
-        media_type: MediaType | None = None,
         absolute: bool = False,
+        fragment: str | None = None,
         locale: Localey | None = None,
+        media_type: MediaType | None = None,
+        query: Mapping[str, Sequence[str]] | None = None,
     ) -> str:
         for upstream in self._upstreams:
             if upstream.supports(resource):
                 return upstream.generate(
-                    resource, media_type=media_type, absolute=absolute, locale=locale
+                    resource,
+                    absolute=absolute,
+                    fragment=fragment,
+                    locale=locale,
+                    media_type=media_type,
+                    query=query,
                 )
         raise UnsupportedResource.new(resource)
