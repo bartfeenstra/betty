@@ -8,52 +8,65 @@ msgstr ""
 "Project-Id-Version: Betty VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
 "POT-Creation-Date: 2025-04-24 14:22+0100\n"
-"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
-"Last-Translator: Automatically generated\n"
-"Language-Team: none\n"
-"Language: ru\n"
+"PO-Revision-Date: 2025-05-26 21:01+0000\n"
+"Last-Translator: Maksim_220 Кабанов <law820314@gmail.com>\n"
+"Language-Team: Russian <https://hosted.weblate.org/projects/betty/betty/ru/>"
+"\n"
+"Language: ru-RU\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=utf-8\n"
 "Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=3; plural=n%10==1 && n%100!=11 ? 0 : n%10>=2 && "
+"n%10<=4 && (n%100<10 || n%100>=20) ? 1 : 2;\n"
+"X-Generator: Weblate 5.12-dev\n"
 "Generated-By: Babel 2.17.0\n"
 
 #, python-brace-format
 msgid "\"{hex_value}\" is not a valid hexadecimal color, such as #ffc0cb."
 msgstr ""
+"«{hex_value}» не является допустимым шестнадцатеричным цветом, например "
+"#ffc0cb."
 
 #, python-brace-format
 msgid "\"{invalid_locale}\" is not a valid IETF BCP 47 language tag."
-msgstr ""
+msgstr "«{invalid_locale}» не является допустимым языковым тегом IETF BCP 47."
 
 #, python-brace-format
 msgid "\"{path}\" is not a directory."
-msgstr ""
+msgstr "«{path}» не является каталогом."
 
 #, python-brace-format
 msgid ""
 "\"{value}\" is not a valid machine name: only lowercase letters, digits, "
 "and hyphens (-) are allowed."
 msgstr ""
+"{value} не является допустимым именем машины: разрешены только строчные "
+"буквы, цифры и дефисы (-)."
 
 #, python-format
 msgid "%(date)s in %(place)s"
-msgstr ""
+msgstr "%(date)s в %(place)s"
 
 #, python-format
 msgid "%(event)s of %(subjects)s"
-msgstr ""
+msgstr "%(event)s %(subjects)s"
 
 #, python-format
 msgid "%(event)s with %(subjects)s"
-msgstr ""
+msgstr "%(event)s с %(subjects)s"
 
 #, python-format
 msgid "%(person_individual_name)s had a child with %(co_parent_labels)s."
 msgid_plural ""
 "%(person_individual_name)s had %(child_count)s children with "
 "%(co_parent_labels)s."
-msgstr[0] ""
+msgstr[0] "У %(person_individual_name)s был ребенок с %(co_parent_labels)s."
 msgstr[1] ""
+"У %(person_individual_name)s было %(child_count)s детей с "
+"%(co_parent_labels)s."
+msgstr[2] ""
+"У %(person_individual_name)s было %(child_count)s детей с "
+"%(co_parent_labels)s."
 
 #, python-format
 msgid "%(person_individual_name)s had a child."
