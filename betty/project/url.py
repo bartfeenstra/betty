@@ -22,7 +22,7 @@ from betty.url import (
 from betty.url.proxy import ProxyUrlGenerator
 
 if TYPE_CHECKING:
-    from collections.abc import Mapping
+    from collections.abc import Mapping, Sequence
 
     from betty.ancestry import Ancestry
     from betty.locale import Localey
@@ -35,14 +35,15 @@ class _ProjectUrlGenerator(ProjectDependentFactory):
         self,
         base_url: str,
         root_path: str,
-        locales: Mapping[str, str],
+        locales_to_aliases: Mapping[str, str],
         clean_urls: bool,
+        /,
     ):
         self._base_url = base_url
         self._root_path = root_path
-        self._locales = locales
-        assert len(locales)
-        self._default_locale = next(iter(locales))
+        self._locales_to_aliases = locales_to_aliases
+        assert len(locales_to_aliases)
+        self._default_locale = next(iter(locales_to_aliases))
         self._clean_urls = clean_urls
 
     @override
@@ -62,16 +63,24 @@ class _ProjectUrlGenerator(ProjectDependentFactory):
         )
 
     def _generate_from_path(
-        self, path: str, *, absolute: bool = False, locale: Localey | None = None
+        self,
+        path: str,
+        *,
+        absolute: bool,
+        fragment: str | None,
+        locale: Localey | None,
+        query: Mapping[str, Sequence[str]] | None,
     ) -> str:
         return generate_from_path(
             path,
             absolute=absolute,
-            locale=locale,
             base_url=self._base_url,
-            root_path=self._root_path,
-            locales=self._locales,
             clean_urls=self._clean_urls,
+            fragment=fragment,
+            locale=locale,
+            locale_aliases=self._locales_to_aliases,
+            query=query,
+            root_path=self._root_path,
         )
 
     def _generate_from_entity(
@@ -79,9 +88,11 @@ class _ProjectUrlGenerator(ProjectDependentFactory):
         entity: Entity,
         pattern: str,
         *,
-        media_type: MediaType | None,
-        locale: Localey | None,
         absolute: bool,
+        fragment: str | None,
+        locale: Localey | None,
+        media_type: MediaType | None,
+        query: Mapping[str, Sequence[str]] | None,
     ) -> str:
         if media_type not in [HTML, JSON_LD, JSON]:
             raise InvalidMediaType.new(entity, media_type)
@@ -95,7 +106,9 @@ class _ProjectUrlGenerator(ProjectDependentFactory):
                 extension=extension,
             ),
             absolute=absolute,
+            fragment=fragment,
             locale=locale,
+            query=query,
         )
 
     def _generate_from_entity_type(
@@ -103,9 +116,11 @@ class _ProjectUrlGenerator(ProjectDependentFactory):
         entity_type: type[Entity],
         pattern: str,
         *,
-        media_type: MediaType | None,
-        locale: Localey | None,
         absolute: bool,
+        fragment: str | None,
+        locale: Localey | None,
+        media_type: MediaType | None,
+        query: Mapping[str, Sequence[str]] | None,
     ) -> str:
         if media_type not in [HTML, JSON_LD, JSON]:
             raise InvalidMediaType.new(entity_type, media_type)
@@ -118,7 +133,9 @@ class _ProjectUrlGenerator(ProjectDependentFactory):
                 extension=extension,
             ),
             absolute=absolute,
+            fragment=fragment,
             locale=locale,
+            query=query,
         )
 
 
@@ -161,17 +178,21 @@ class _EntityTypeUrlGenerator(__EntityTypeUrlGenerator, UrlGenerator):
         self,
         resource: type[Entity],
         *,
-        media_type: MediaType | None = None,
         absolute: bool = False,
+        fragment: str | None = None,
         locale: Localey | None = None,
+        media_type: MediaType | None = None,
+        query: Mapping[str, Sequence[str]] | None = None,
     ) -> str:
         assert self.supports(resource)
         return self._generate_from_entity_type(
             resource,
             self._pattern,
-            media_type=media_type,
-            locale=locale,
             absolute=absolute,
+            fragment=fragment,
+            locale=locale,
+            media_type=media_type,
+            query=query,
         )
 
 
@@ -189,17 +210,21 @@ class _EntityUrlGenerator(__EntityUrlGenerator, UrlGenerator):
         self,
         resource: Entity,
         *,
-        media_type: MediaType | None = None,
         absolute: bool = False,
+        fragment: str | None = None,
         locale: Localey | None = None,
+        media_type: MediaType | None = None,
+        query: Mapping[str, Sequence[str]] | None = None,
     ) -> str:
         assert self.supports(resource)
         return self._generate_from_entity(
             resource,
             self._pattern,
-            media_type=media_type,
-            locale=locale,
             absolute=absolute,
+            fragment=fragment,
+            locale=locale,
+            media_type=media_type,
+            query=query,
         )
 
 
@@ -229,16 +254,23 @@ class _EntityUrlUrlGenerator(UrlGenerator):
         self,
         resource: str,
         *,
-        media_type: MediaType | None = None,
         absolute: bool = False,
+        fragment: str | None = None,
         locale: Localey | None = None,
+        media_type: MediaType | None = None,
+        query: Mapping[str, Sequence[str]] | None = None,
     ) -> str:
         parsed_url = urlparse(resource)
         entity_type_id = parsed_url.netloc
         entity_id = parsed_url.path[1:]
         entity = self._ancestry[entity_type_id][entity_id]
         return self._entity_url_generator.generate(
-            entity, media_type=media_type, absolute=absolute, locale=locale
+            entity,
+            absolute=absolute,
+            fragment=fragment,
+            locale=locale,
+            media_type=media_type,
+            query=query,
         )
 
 
@@ -262,9 +294,11 @@ class _LocalizedPathUrlUrlGenerator(_ProjectUrlGenerator, UrlGenerator):
         self,
         resource: str,
         *,
-        media_type: MediaType | None = None,
         absolute: bool = False,
+        fragment: str | None = None,
         locale: Localey | None = None,
+        media_type: MediaType | None = None,
+        query: Mapping[str, Sequence[str]] | None = None,
     ) -> str:
         assert self.supports(resource)
         parsed_url = urlparse(resource)
@@ -272,7 +306,9 @@ class _LocalizedPathUrlUrlGenerator(_ProjectUrlGenerator, UrlGenerator):
         return self._generate_from_path(
             url_path,
             absolute=absolute,
+            fragment=fragment,
             locale=locale or self._default_locale,
+            query=query,
         )
 
 
@@ -296,11 +332,19 @@ class _StaticPathUrlUrlGenerator(_ProjectUrlGenerator, UrlGenerator):
         self,
         resource: str,
         *,
-        media_type: MediaType | None = None,
         absolute: bool = False,
+        fragment: str | None = None,
         locale: Localey | None = None,
+        media_type: MediaType | None = None,
+        query: Mapping[str, Sequence[str]] | None = None,
     ) -> str:
         assert self.supports(resource)
         parsed_url = urlparse(resource)
         url_path = "/" + (parsed_url.netloc + parsed_url.path).lstrip("/")
-        return self._generate_from_path(url_path, absolute=absolute)
+        return self._generate_from_path(
+            url_path,
+            absolute=absolute,
+            fragment=fragment,
+            locale=None,
+            query=query,
+        )
