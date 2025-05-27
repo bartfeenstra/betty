@@ -4,7 +4,7 @@ from typing import TYPE_CHECKING, Any
 from urllib.parse import urlparse
 
 from betty.assertion import assert_str, assert_path, assert_locale
-from betty.config import write_configuration_file
+from betty.config.file import write_configuration_file
 from betty.locale import get_display_name, DEFAULT_LOCALE, localizable
 from betty.locale.localizable import _, StaticTranslations, Localizable
 from betty.machine_name import machinify, assert_machine_name

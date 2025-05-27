@@ -4,7 +4,7 @@ from pytest_mock import MockerFixture
 from typing_extensions import override
 
 from betty.app import App
-from betty.config import write_configuration_file
+from betty.config.file import write_configuration_file
 from betty.console.command import Command
 from betty.console.command.commands.generate import Generate
 from betty.project import Project

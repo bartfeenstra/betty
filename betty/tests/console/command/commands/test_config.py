@@ -5,7 +5,7 @@ from typing_extensions import override
 
 from betty.app import App
 from betty.app.config import AppConfiguration
-from betty.config import assert_configuration_file
+from betty.config.file import assert_configuration_file
 from betty.console.command import Command
 from betty.console.command.commands.config import Config
 from betty.test_utils.console import run

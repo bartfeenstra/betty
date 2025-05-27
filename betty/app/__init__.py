@@ -19,7 +19,8 @@ from betty.app.factory import AppDependentFactory
 from betty.assets import AssetRepository
 from betty.cache.file import BinaryFileCache, PickledFileCache
 from betty.cache.no_op import NoOpCache
-from betty.config import Configurable, assert_configuration_file
+from betty.config import Configurable
+from betty.config.file import assert_configuration_file
 from betty.dirs import CACHE_DIRECTORY_PATH
 from betty.factory import TargetFactory, new
 from betty.fetch import Fetcher, http
