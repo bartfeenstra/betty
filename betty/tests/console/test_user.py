@@ -159,8 +159,8 @@ class TestConsoleUser:
             async with ConsoleUser() as sut:
                 sut.verbosity = verbosity
                 async with sut.message_progress(plain(message)) as progress:
-                    await progress.add()
-                    await progress.done()
+                    await progress.add(2)
+                    await progress.done(2)
         stdout.seek(0)
         stdout_str = stdout.read().replace("\n", "")
         if expected:

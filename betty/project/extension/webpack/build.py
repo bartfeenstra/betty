@@ -391,5 +391,5 @@ class Builder:
         await self._webpack_build(
             npm_project_directory_path, webpack_build_directory_path
         )
-        await self._user.message_information(_("Built the Webpack front-end assets."))
+        await self._user.message_debug(_("Built the Webpack front-end assets."))
         return webpack_build_directory_path
