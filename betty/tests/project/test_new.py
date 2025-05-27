@@ -3,7 +3,7 @@ from pathlib import Path
 import pytest
 from pytest_mock import MockerFixture
 
-from betty.config import assert_configuration_file
+from betty.config.file import assert_configuration_file
 from betty.exception import UserFacingException
 from betty.locale import DEFAULT_LOCALE
 from betty.locale.localizable import plain

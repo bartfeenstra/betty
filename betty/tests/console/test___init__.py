@@ -9,7 +9,7 @@ from pytest_mock import MockerFixture
 from typing_extensions import override
 
 from betty.app import App
-from betty.config import write_configuration_file
+from betty.config.file import write_configuration_file
 from betty.console import (
     SystemExitCode,
     call_command_func,
