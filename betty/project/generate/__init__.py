@@ -52,24 +52,21 @@ async def generate(project: Project) -> None:
     """
     Generate a new site.
     """
-    async with project.app.user.message_progress(
-        _("Generating your site to {output_directory}.").format(
-            output_directory=str(project.configuration.output_directory_path)
-        )
-    ) as progress:
+    async with project.app.user.message_progress(_("Generating site...")) as progress:
         job_context = ProjectContext(
             project, manager=project.app.multiprocessing_manager, progress=progress
         )
+        await progress.add(3)
 
         with suppress(FileNotFoundError):
             await asyncio.to_thread(
                 shutil.rmtree, project.configuration.output_directory_path
             )
         await makedirs(project.configuration.output_directory_path, exist_ok=True)
+        await progress.done()
 
         # The static public assets may be overridden depending on the number of locales rendered, so ensure they are
         # generated before anything else.
-        await progress.add()
         await _generate_static_public_assets(job_context)
         await progress.done()
 
@@ -84,15 +81,16 @@ async def generate(project: Project) -> None:
                 job.cancel()
             raise
 
-    project.configuration.output_directory_path.chmod(0o755)
-    for directory_path_str, subdirectory_names, file_names in os.walk(
-        project.configuration.output_directory_path
-    ):
-        directory_path = Path(directory_path_str)
-        for subdirectory_name in subdirectory_names:
-            (directory_path / subdirectory_name).chmod(0o755)
-        for file_name in file_names:
-            (directory_path / file_name).chmod(0o644)
+        project.configuration.output_directory_path.chmod(0o755)
+        for directory_path_str, subdirectory_names, file_names in os.walk(
+            project.configuration.output_directory_path
+        ):
+            directory_path = Path(directory_path_str)
+            for subdirectory_name in subdirectory_names:
+                (directory_path / subdirectory_name).chmod(0o755)
+            for file_name in file_names:
+                (directory_path / file_name).chmod(0o644)
+        await progress.done()
 
 
 _JobP = ParamSpec("_JobP")
@@ -190,8 +188,9 @@ async def _run_jobs(
 
 
 async def _generate_dispatch(job_context: ProjectContext) -> None:
-    project = job_context.project
-    await project.event_dispatcher.dispatch(GenerateSiteEvent(job_context))
+    await job_context.project.event_dispatcher.dispatch(
+        GenerateSiteEvent(job_context), progress=job_context.progress
+    )
 
 
 async def _generate_localized_public_asset(
@@ -253,7 +252,7 @@ async def _generate_static_public_assets(
     project = job_context.project
     app = project.app
     assets = await project.assets
-    await app.user.message_information(_("Generating static public files..."))
+    await app.user.message_debug(_("Generating static public files..."))
     await gather(
         *[
             _generate_static_public_asset(asset_path, project, job_context)

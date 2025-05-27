@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Betty VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2025-05-20 13:19+0100\n"
+"POT-Creation-Date: 2025-05-27 20:00+0100\n"
 "PO-Revision-Date: 2024-11-30 19:00+0000\n"
 "Last-Translator: Bart Feenstra <bart@bartfeenstra.com>\n"
 "Language: ar\n"
@@ -511,11 +511,10 @@ msgstr ""
 msgid "Generating localized public files in {locale}..."
 msgstr ""
 
-msgid "Generating static public files..."
+msgid "Generating site..."
 msgstr ""
 
-#, python-brace-format
-msgid "Generating your site to {output_directory}."
+msgid "Generating static public files..."
 msgstr ""
 
 msgid "Go to the front page"
@@ -621,6 +620,9 @@ msgstr ""
 
 #, python-brace-format
 msgid "Loading \"{file_path}\"..."
+msgstr ""
+
+msgid "Loading ancestry..."
 msgstr ""
 
 msgid "Locale aliases must not contain slashes."

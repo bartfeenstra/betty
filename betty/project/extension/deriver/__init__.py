@@ -24,7 +24,7 @@ if TYPE_CHECKING:
 
 async def _derive_ancestry(event: PostLoadAncestryEvent) -> None:
     project = event.project
-    await project.app.user.message_information(_("Deriving..."))
+    await project.app.user.message_debug(_("Deriving..."))
 
     deriver = DeriverApi(
         project.ancestry,
