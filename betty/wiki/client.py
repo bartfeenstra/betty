@@ -4,15 +4,14 @@ Interact with the Wikipedia Query API.
 
 from __future__ import annotations
 
-import re
 from contextlib import asynccontextmanager
 from dataclasses import dataclass
-from html import unescape
 from json import JSONDecodeError
 from pathlib import Path
 from typing import TYPE_CHECKING, Any, cast, final
 from urllib.parse import quote, urlparse
 
+import html5lib
 from geopy import Point
 
 from betty.fetch import Fetcher, FetchError
@@ -61,6 +60,7 @@ class Image:
     name: str
     copyright: Copyright | None
 
+
 @final
 @dataclass(frozen=True)
 class Copyright:
@@ -69,7 +69,8 @@ class Copyright:
     """
 
     author: str
-    copyright_url: str
+    url: str
+
 
 RATE_LIMIT = 200
 
@@ -200,18 +201,20 @@ class Client:
                 ) from error
 
             # Fetch copyright information
-            copyright = None
+            image_copyright = None
             try:
                 artist = image_info["extmetadata"]["Artist"]["value"]
-                # Strip any HTML tags from the artist field, as it may contain markup
-                clean_artist = re.sub(r"<[^>]+>", "", unescape(artist)).strip()
+                # Use html5lib to parse the HTML and extract text content
+                document = html5lib.parse(artist, namespaceHTMLElements=False)
+                clean_artist = "".join(document.itertext()).strip()
                 if clean_artist:
-                    copyright = Copyright(
+                    image_copyright = Copyright(
                         author=clean_artist,
-                        copyright_url=f"{image_info['descriptionurl']}#Licensing",                    )
-            except (LookupError, KeyError):
+                        url=f"{image_info['descriptionurl']}#Licensing",
+                    )
+            except KeyError:
                 # If extmetadata or Artist is missing, copyright remains None
-                pass
+                image_copyright = None
 
             async with self._rate_limiter:
                 image_path = await self._fetcher.fetch_file(image_info["url"])
@@ -224,7 +227,7 @@ class Client:
                 ],
                 image_info["descriptionurl"],
                 Path(urlparse(image_info["url"]).path).name,
-                copyright=copyright,
+                copyright=image_copyright,
             )
             self._images[page_image_name] = image
             return image
