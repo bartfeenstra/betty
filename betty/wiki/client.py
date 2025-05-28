@@ -4,14 +4,14 @@ Interact with the Wikipedia Query API.
 
 from __future__ import annotations
 
+import re
 from contextlib import asynccontextmanager
 from dataclasses import dataclass
+from html import unescape
 from json import JSONDecodeError
 from pathlib import Path
 from typing import TYPE_CHECKING, Any, cast, final
 from urllib.parse import quote, urlparse
-from html import unescape
-import re
 
 from geopy import Point
 
@@ -67,6 +67,7 @@ class Copyright:
     """
     Copyright information for a Wikimedia Commons contributor.
     """
+
     author: str
     copyright_url: str
 
