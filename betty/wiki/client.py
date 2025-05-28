@@ -200,8 +200,7 @@ class Client:
                     )
                 ) from error
 
-            # Fetch copyright information
-             try:
+            try:
                 artist = image_info["extmetadata"]["Artist"]["value"]
                 # Use html5lib to parse the HTML and extract text content
                 document = html5lib.parse(artist, namespaceHTMLElements=False)
