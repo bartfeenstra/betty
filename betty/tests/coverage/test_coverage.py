@@ -353,7 +353,7 @@ _BASELINE: Mapping[str, _ModuleIgnore] = {
             "has_expired": MissingReason.SHOULD_BE_COVERED,
         },
     },
-    "betty/progress.py": {
+    "betty/progress/__init__.py": {
         "Progress": MissingReason.ABSTRACT,
     },
     "betty/project/extension/__init__.py": {
