@@ -9,7 +9,7 @@ from typing import TYPE_CHECKING, Any
 from uuid import uuid4
 
 from betty.cache.memory import MemoryCache
-from betty.test_utils.progress import NoOpProgress
+from betty.progress.no_op import NoOpProgress
 
 if TYPE_CHECKING:
     from multiprocessing.managers import SyncManager

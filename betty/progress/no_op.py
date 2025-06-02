@@ -1,5 +1,5 @@
 """
-Test utilities for :py:mod:`betty.progress`.
+Progress tracking that does nothing.
 """
 
 from typing_extensions import override

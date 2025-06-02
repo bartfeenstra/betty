@@ -13,8 +13,8 @@ from betty.assertion import Assertion
 from betty.locale.localizable import Localizable
 from betty.locale.localizer import DEFAULT_LOCALIZER
 from betty.progress import Progress
+from betty.progress.no_op import NoOpProgress
 from betty.test_utils.console import _T
-from betty.test_utils.progress import NoOpProgress
 from betty.typing import Void, internal
 from betty.user import User, UserTimeoutError
 
