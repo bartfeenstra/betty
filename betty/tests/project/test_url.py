@@ -1,3 +1,4 @@
+from collections.abc import Mapping, Sequence
 from typing import Any
 
 import pytest
@@ -54,7 +55,9 @@ class Test_EntityUrlUrlGenerator:
 
     async def test_generate(self, mocker: MockerFixture) -> None:
         url = f"https://example.com/betty/{self._ENTITY_ID}"
+        fragment = "my-first-fragment"
         locale = "nl-NL"
+        query = {"my_first_query": "my first value"}
         m_entity_url_generator = mocker.patch("betty.project.url._EntityUrlGenerator")
         m_entity_url_generator.generate.return_value = url
         plugin_repository = StaticPluginRepository(Entity, DummyEntity)
@@ -67,14 +70,21 @@ class Test_EntityUrlUrlGenerator:
         assert (
             sut.generate(
                 f"betty-entity://{DummyEntity.plugin_id()}/{self._ENTITY_ID}",
-                media_type=HTML,
                 absolute=True,
+                fragment=fragment,
                 locale=locale,
+                media_type=HTML,
+                query=query,
             )
             == url
         )
         m_entity_url_generator.generate.assert_called_once_with(
-            entity, media_type=HTML, absolute=True, locale=locale
+            entity,
+            absolute=True,
+            fragment=fragment,
+            locale=locale,
+            media_type=HTML,
+            query=query,
         )
 
 
@@ -228,16 +238,20 @@ class Test_StaticPathUrlUrlGenerator:
             "absolute",
             "locale",
             "additional_project_locale",
+            "fragment",
+            "query",
         ),
         [
             *[
                 (
-                    "https://example.com/some/path/index.html",
+                    "https://example.com/some/path/index.html?my_first_query=my+first+value#my-first-fragment",
                     resource,
                     media_type,
                     True,
                     locale,
                     additional_project_locale,
+                    "my-first-fragment",
+                    {"my_first_query": "my first value"},
                 )
                 for resource in _GENERATE_RESOURCES
                 for media_type in [HTML, JSON]
@@ -246,12 +260,14 @@ class Test_StaticPathUrlUrlGenerator:
             ],
             *[
                 (
-                    "/some/path/index.html",
+                    "/some/path/index.html?my_first_query=my+first+value#my-first-fragment",
                     resource,
                     media_type,
                     False,
                     locale,
                     additional_project_locale,
+                    "my-first-fragment",
+                    {"my_first_query": "my first value"},
                 )
                 for resource in _GENERATE_RESOURCES
                 for media_type in [HTML, JSON]
@@ -268,6 +284,8 @@ class Test_StaticPathUrlUrlGenerator:
         absolute: bool,
         locale: Localey | None,
         additional_project_locale: str | None,
+        fragment: str | None,
+        query: Mapping[str, Sequence[str]] | None,
         new_temporary_app: App,
     ) -> None:
         async with Project.new_temporary(new_temporary_app) as project:
@@ -280,9 +298,11 @@ class Test_StaticPathUrlUrlGenerator:
                 assert (
                     sut.generate(
                         resource,
-                        media_type=media_type,
                         absolute=absolute,
+                        fragment=fragment,
                         locale=locale,
+                        media_type=media_type,
+                        query=query,
                     )
                     == expected
                 )

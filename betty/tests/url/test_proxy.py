@@ -1,4 +1,5 @@
-from collections.abc import Sequence
+from collections.abc import Mapping, Sequence
+from json import dumps, loads
 from typing import Any
 
 import pytest
@@ -22,11 +23,22 @@ class TestProxyUrlGenerator:
             self,
             resource: Any,
             *,
-            media_type: MediaType | None = None,
             absolute: bool = False,
+            fragment: str | None = None,
             locale: Localey | None = None,
+            media_type: MediaType | None = None,
+            query: Mapping[str, Sequence[str]] | None = None,
         ) -> str:
-            return f"{resource}\n{media_type}\n{absolute}\n{locale}"
+            return dumps(
+                {
+                    "resource": resource,
+                    "media_type": str(media_type),
+                    "absolute": absolute,
+                    "locale": locale,
+                    "fragment": fragment,
+                    "query": query,
+                }
+            )
 
     class _UnsupportedUrlGenerator(UrlGenerator):
         @override
@@ -38,9 +50,11 @@ class TestProxyUrlGenerator:
             self,
             resource: Any,
             *,
-            media_type: MediaType | None = None,
             absolute: bool = False,
+            fragment: str | None = None,
             locale: Localey | None = None,
+            media_type: MediaType | None = None,
+            query: Mapping[str, Sequence[str]] | None = None,
         ) -> str:
             raise UnsupportedResource.new(resource)  # pragma: nocover
 
@@ -67,53 +81,92 @@ class TestProxyUrlGenerator:
         assert sut.supports(resource) == expected
 
     @pytest.mark.parametrize(
-        ("expected", "resource", "media_type", "absolute", "locale"),
+        (
+            "resource",
+            "media_type",
+            "absolute",
+            "locale",
+            "fragment",
+            "query",
+        ),
         [
             (
-                "/\ntext/html\nFalse\nNone",
                 "/",
                 HTML,
                 False,
                 None,
+                None,
+                None,
             ),
             (
-                "/\napplication/json\nFalse\nNone",
                 "/",
                 JSON,
                 False,
                 None,
+                None,
+                None,
             ),
             (
-                "/\ntext/html\nTrue\nNone",
                 "/",
                 HTML,
                 True,
                 None,
+                None,
+                None,
             ),
             (
-                "/\ntext/html\nFalse\nnl-NL",
                 "/",
                 HTML,
                 False,
                 "nl-NL",
+                None,
+                None,
+            ),
+            (
+                "/",
+                HTML,
+                False,
+                None,
+                "my-first-fragment",
+                None,
+            ),
+            (
+                "/",
+                HTML,
+                False,
+                None,
+                None,
+                {"my_first_query": "my first value"},
             ),
         ],
     )
     async def test_generate(
         self,
-        expected: str,
         resource: Any,
         media_type: MediaType,
         absolute: bool,
         locale: Localey | None,
+        fragment: str | None,
+        query: Mapping[str, Sequence[str]] | None,
     ) -> None:
         sut = ProxyUrlGenerator(
             self._UnsupportedUrlGenerator(),
             self._SupportedUrlGenerator(),
         )
-        assert (
+        assert loads(
             sut.generate(
-                resource, media_type=media_type, absolute=absolute, locale=locale
+                resource,
+                absolute=absolute,
+                fragment=fragment,
+                locale=locale,
+                media_type=media_type,
+                query=query,
             )
-            == expected
-        )
+        ) == {
+            "resource": resource,
+            "media_type": str(media_type),
+            "absolute": absolute,
+            "locale": locale,
+            "fragment": fragment,
+            "query": query,
+        }

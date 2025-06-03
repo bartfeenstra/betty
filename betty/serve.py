@@ -194,9 +194,7 @@ class BuiltinServer(Server):
             www_directory_path = temporary_root_directory_path
         else:
             www_directory_path = self._www_directory_path
-        await self._user.message_information(
-            _("Starting Python's built-in web server...")
-        )
+        await self._user.message_debug(_("Starting Python's built-in web server..."))
         for self._port in range(DEFAULT_PORT, 65535):
             with contextlib.suppress(OSError):
                 self._http_server = HTTPServer(

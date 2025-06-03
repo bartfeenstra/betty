@@ -17,6 +17,8 @@ from typing import (
 if TYPE_CHECKING:
     from collections.abc import Mapping, MutableMapping, MutableSequence
 
+    from betty.progress import Progress
+
 
 class Event:
     """
@@ -86,9 +88,30 @@ class EventDispatcher(_EventHandlerRegistry):
     Dispatch events to event handlers.
     """
 
-    async def dispatch(self, event: Event) -> None:
+    async def dispatch(self, event: Event, *, progress: Progress | None = None) -> None:
         """
         Dispatch an event.
         """
-        for handler_batch in self._handlers[type(event)]:
-            await gather(*(handler(event) for handler in handler_batch))
+        handler_batches = self._handlers[type(event)]
+        if progress is not None:
+            await progress.add(
+                sum([len(handler_batch) for handler_batch in handler_batches])
+            )
+        for handler_batch in handler_batches:
+            await gather(
+                *(
+                    self._dispatch_handler(handler, event, progress=progress)
+                    for handler in handler_batch
+                )
+            )
+
+    async def _dispatch_handler(
+        self,
+        handler: EventHandler[_EventT],
+        event: _EventT,
+        *,
+        progress: Progress | None,
+    ):
+        await handler(event)
+        if progress is not None:
+            await progress.done()

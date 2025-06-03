@@ -9,6 +9,7 @@ from html5lib import parse
 
 from betty.ancestry.link import HasLinks, Link
 from betty.fetch import Fetcher, FetchError
+from betty.locale.localizable import _
 from betty.media_type import InvalidMediaType, MediaType
 from betty.project import Project, ProjectContext, ProjectEvent
 from betty.user import User
@@ -32,11 +33,24 @@ async def load(project: Project) -> None:
     """
     Load an ancestry.
     """
-    job_context = ProjectContext(project, manager=project.app.multiprocessing_manager)
-    await project.event_dispatcher.dispatch(LoadAncestryEvent(job_context))
-    await project.event_dispatcher.dispatch(PostLoadAncestryEvent(job_context))
-    await _fetch_link_titles(project, user=project.app.user)
-    project.ancestry.immutable()
+    async with project.app.user.message_progress(
+        _("Loading ancestry...").format(
+            output_directory=str(project.configuration.output_directory_path)
+        )
+    ) as progress:
+        job_context = ProjectContext(
+            project, manager=project.app.multiprocessing_manager, progress=progress
+        )
+        await progress.add()
+        await project.event_dispatcher.dispatch(
+            LoadAncestryEvent(job_context), progress=progress
+        )
+        await project.event_dispatcher.dispatch(
+            PostLoadAncestryEvent(job_context), progress=progress
+        )
+        await _fetch_link_titles(project, user=project.app.user)
+        await progress.done()
+        project.ancestry.immutable()
 
 
 async def _fetch_link_titles(project: Project, *, user: User) -> None:

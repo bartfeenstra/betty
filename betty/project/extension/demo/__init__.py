@@ -74,6 +74,11 @@ class Demo(ShorthandPluginBase, NavigationLinkProvider, Extension):
         }
 
     @override
+    @classmethod
+    def comes_after(cls) -> set[PluginIdentifier[Extension]]:
+        return cls.depends_on()
+
+    @override
     def register_event_handlers(self, registry: EventHandlerRegistry) -> None:
         registry.add_handler(
             LoadAncestryEvent, lambda event: load_ancestry(event.project)

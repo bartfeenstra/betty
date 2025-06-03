@@ -8,26 +8,19 @@ from contextlib import AsyncExitStack, asynccontextmanager
 from typing import TextIO, cast, final, overload
 
 from rich.console import Console
-from rich.progress import (
-    BarColumn,
-    TaskProgressColumn,
-    TextColumn,
-    TimeElapsedColumn,
-)
-from rich.progress import (
-    Progress as RichProgress,
-)
+from rich.progress import BarColumn, MofNCompleteColumn, TextColumn, TimeElapsedColumn
+from rich.progress import Progress as RichProgress
 from rich.prompt import Confirm, Prompt
 from typing_extensions import override
 
 from betty.assertion import Assertion
-from betty.concurrent import AsynchronizedLock
 from betty.console import _T
+from betty.console.progress import ConsoleProgress
 from betty.console.rich import ConsoleTheme
 from betty.locale.localizable import Localizable
 from betty.progress import Progress
-from betty.test_utils.progress import NoOpProgress
-from betty.typing import Void, internal, threadsafe
+from betty.progress.no_op import NoOpProgress
+from betty.typing import Void, internal
 from betty.user import User, Verbosity
 from betty.user.logging import UserHandler
 
@@ -123,11 +116,11 @@ class ConsoleUser(User):
             with RichProgress(
                 TextColumn("[progress.description]{task.description}"),
                 BarColumn(),
-                TaskProgressColumn(),
+                MofNCompleteColumn(),
                 TimeElapsedColumn(),
                 console=self._rich_console,
             ) as rich_progress:
-                yield _ConsoleProgress(rich_progress, message.localize(self.localizer))
+                yield ConsoleProgress(rich_progress, message.localize(self.localizer))
 
     @override
     async def ask_confirmation(
@@ -191,25 +184,3 @@ class ConsoleUser(User):
         if assertion is None:
             return value
         return assertion(value)
-
-
-@threadsafe
-class _ConsoleProgress(Progress):
-    def __init__(self, rich_progress: RichProgress, rich_task_description: str):
-        self._rich_progress = rich_progress
-        self._rich_task = self._rich_progress.add_task(
-            f"[green]{rich_task_description}"
-        )
-        self._lock = AsynchronizedLock.threading()
-        self._total = 0
-
-    @override
-    async def add(self, add: int = 1) -> None:
-        async with self._lock:
-            self._total += 1
-            self._rich_progress.update(self._rich_task, total=self._total)
-
-    @override
-    async def done(self, done: int = 1) -> None:
-        async with self._lock:
-            self._rich_progress.update(self._rich_task, advance=1)

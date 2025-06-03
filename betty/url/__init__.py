@@ -6,14 +6,14 @@ from __future__ import annotations
 
 from abc import ABC, abstractmethod
 from typing import TYPE_CHECKING, Any, Self
-from urllib.parse import urlparse
+from urllib.parse import urlencode, urlparse
 
 from typing_extensions import override
 
 from betty.locale import Localey, negotiate_locale, to_locale
 
 if TYPE_CHECKING:
-    from collections.abc import Mapping
+    from collections.abc import Mapping, Sequence
 
     from betty.media_type import MediaType
 
@@ -70,9 +70,11 @@ class UrlGenerator(ABC):
         self,
         resource: Any,
         *,
-        media_type: MediaType | None = None,
         absolute: bool = False,
+        fragment: str | None = None,
         locale: Localey | None = None,
+        media_type: MediaType | None = None,
+        query: Mapping[str, Sequence[str]] | None = None,
     ) -> str:
         """
         Generate a URL for a resource.
@@ -101,9 +103,11 @@ class PassthroughUrlGenerator(UrlGenerator):
         self,
         resource: Any,
         *,
-        media_type: MediaType | None = None,
         absolute: bool = False,
+        fragment: str | None = None,
         locale: Localey | None = None,
+        media_type: MediaType | None = None,
+        query: Mapping[str, Sequence[str]] | None = None,
     ) -> str:
         assert isinstance(resource, str)
         return resource
@@ -113,11 +117,13 @@ def generate_from_path(
     path: str,
     *,
     base_url: str,
-    root_path: str,
-    locales: Mapping[str, str],
     clean_urls: bool,
+    root_path: str,
     absolute: bool = False,
+    fragment: str | None = None,
     locale: Localey | None = None,
+    locale_aliases: Mapping[str, str],
+    query: Mapping[str, Sequence[str]] | None = None,
 ) -> str:
     """
     Generate a full URL from a public path.
@@ -128,16 +134,16 @@ def generate_from_path(
         f'Paths must be root-relative (start with a forward slash), but "{path}" was given'
     )
     path = path.strip("/")
-    if locale and len(locales) > 1:
+    if locale and len(locale_aliases) > 1:
         locale = to_locale(locale)
         try:
-            negotiated_locale_data = negotiate_locale(locale, list(locales))
+            negotiated_locale_data = negotiate_locale(locale, list(locale_aliases))
             if negotiated_locale_data is None:
                 raise KeyError
-            locale_alias = locales[to_locale(negotiated_locale_data)]
+            locale_alias = locale_aliases[to_locale(negotiated_locale_data)]
         except KeyError:
             raise ValueError(
-                f'Cannot generate URLs in "{locale}", because it cannot be resolved to any of the available locales: {", ".join(locales)}'
+                f'Cannot generate URLs in "{locale}", because it cannot be resolved to any of the available locales: {", ".join(locale_aliases)}'
             ) from None
         url += f"/{locale_alias}"
     if path:
@@ -147,4 +153,8 @@ def generate_from_path(
     # Ensure URLs are root-relative.
     if not absolute:
         url = f"/{url.lstrip('/')}"
+    if query is not None:
+        url += "?" + urlencode(query)
+    if fragment is not None:
+        url += "#" + fragment
     return url

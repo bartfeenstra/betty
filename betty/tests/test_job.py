@@ -3,7 +3,7 @@ from __future__ import annotations
 from typing import TYPE_CHECKING
 
 from betty.job import Context
-from betty.test_utils.progress import NoOpProgress
+from betty.progress.no_op import NoOpProgress
 
 if TYPE_CHECKING:
     from multiprocessing.managers import SyncManager

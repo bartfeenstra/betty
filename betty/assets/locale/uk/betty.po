@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Betty 0.4\n"
 "Report-Msgid-Bugs-To: illia@maier.page\n"
-"POT-Creation-Date: 2025-05-20 13:19+0100\n"
+"POT-Creation-Date: 2025-05-27 20:00+0100\n"
 "PO-Revision-Date: 2025-05-13 17:01+0000\n"
 "Last-Translator: Максим Горпиніч <maksimgorpinic4@gmail.com>\n"
 "Language: uk\n"
@@ -564,12 +564,11 @@ msgstr "Генерація специфікації OpenAPI..."
 msgid "Generating localized public files in {locale}..."
 msgstr "Генерація локалізованих публічних файлів для {locale}..."
 
+msgid "Generating site..."
+msgstr ""
+
 msgid "Generating static public files..."
 msgstr "Генерація статичних публічних файлів..."
-
-#, python-brace-format
-msgid "Generating your site to {output_directory}."
-msgstr "Генерація вашого сайту в {output_directory}."
 
 msgid "Go to the front page"
 msgstr "Перейти на першу сторінку"
@@ -679,6 +678,9 @@ msgstr "Завантажено {source_count} джерел."
 #, python-brace-format
 msgid "Loading \"{file_path}\"..."
 msgstr "Завантаження \"{file_path}\"..."
+
+msgid "Loading ancestry..."
+msgstr ""
 
 msgid "Locale aliases must not contain slashes."
 msgstr "Аліаси локалей не повинні містити слешів."
