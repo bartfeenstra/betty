@@ -19,6 +19,7 @@ from aiofiles.os import makedirs
 from PIL import Image
 
 from betty import model
+from betty.cache.memory import MemoryCache
 from betty.locale import get_display_name
 from betty.locale.localizable import _
 from betty.locale.localizer import DEFAULT_LOCALIZER
@@ -54,7 +55,9 @@ async def generate(project: Project) -> None:
     """
     async with project.app.user.message_progress(_("Generating site...")) as progress:
         job_context = ProjectContext(
-            project, manager=project.app.multiprocessing_manager, progress=progress
+            project,
+            cache=MemoryCache(manager=project.app.multiprocessing_manager),
+            progress=progress,
         )
         await progress.add(3)
 

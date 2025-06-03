@@ -13,6 +13,7 @@ from graphlib import TopologicalSorter
 from pathlib import Path
 from typing import (
     TYPE_CHECKING,
+    Any,
     Self,
     TypeVar,
     cast,
@@ -58,9 +59,9 @@ from betty.typing import internal
 
 if TYPE_CHECKING:
     from collections.abc import AsyncIterator, Iterator, Sequence
-    from multiprocessing.managers import SyncManager
 
     from betty.app import App
+    from betty.cache import Cache
     from betty.jinja2 import Environment
     from betty.machine_name import MachineName
     from betty.plugin import PluginIdentifier, PluginRepository
@@ -613,10 +614,10 @@ class ProjectContext(Context):
         self,
         project: Project,
         *,
-        manager: SyncManager,
+        cache: Cache[Any] | None = None,
         progress: Progress | None = None,
     ):
-        super().__init__(manager=manager, progress=progress)
+        super().__init__(cache=cache, progress=progress)
         self._project = project
 
     @property

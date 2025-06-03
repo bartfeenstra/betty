@@ -392,27 +392,19 @@ class TestProject:
 class TestProjectContext:
     async def test_project(self, new_temporary_app: App) -> None:
         async with Project.new_temporary(new_temporary_app) as project, project:
-            sut = ProjectContext(
-                project, manager=new_temporary_app.multiprocessing_manager
-            )
+            sut = ProjectContext(project)
             assert sut.project is project
 
 
 class TestProjectEvent:
     async def test_project(self, new_temporary_app: App) -> None:
         async with Project.new_temporary(new_temporary_app) as project, project:
-            sut = ProjectEvent(
-                ProjectContext(
-                    project, manager=new_temporary_app.multiprocessing_manager
-                )
-            )
+            sut = ProjectEvent(ProjectContext(project))
             assert sut.project is project
 
     async def test_job_context(self, new_temporary_app: App) -> None:
         async with Project.new_temporary(new_temporary_app) as project, project:
-            job_context = ProjectContext(
-                project, manager=new_temporary_app.multiprocessing_manager
-            )
+            job_context = ProjectContext(project)
             sut = ProjectEvent(job_context)
             assert sut.job_context is job_context
 

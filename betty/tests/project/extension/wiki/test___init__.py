@@ -14,8 +14,6 @@ from betty.test_utils.project.extension import ExtensionTestBase
 from betty.wiki.client import Summary
 
 if TYPE_CHECKING:
-    from multiprocessing.managers import SyncManager
-
     from pytest_mock import MockerFixture
 
     from betty.app import App
@@ -33,10 +31,7 @@ class TestWiki(ExtensionTestBase[Wiki]):
             assert len(sut.filters)
 
     async def test_filter_wikipedia_links(
-        self,
-        mocker: MockerFixture,
-        multiprocessing_manager: SyncManager,
-        new_temporary_app: App,
+        self, mocker: MockerFixture, new_temporary_app: App
     ) -> None:
         language = "en"
         name = "Amsterdam"
@@ -63,7 +58,7 @@ class TestWiki(ExtensionTestBase[Wiki]):
                 actual = await jinja2_environment.from_string(
                     "{% for entry in (links | wikipedia) %}{{ entry.content }}{% endfor %}"
                 ).render_async(
-                    job_context=Context(manager=multiprocessing_manager),
+                    job_context=Context(),
                     links=links,
                 )
 
