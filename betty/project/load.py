@@ -8,6 +8,7 @@ from xml.etree.ElementTree import Element
 from html5lib import parse
 
 from betty.ancestry.link import HasLinks, Link
+from betty.cache.memory import MemoryCache
 from betty.fetch import Fetcher, FetchError
 from betty.locale.localizable import _
 from betty.media_type import InvalidMediaType, MediaType
@@ -39,7 +40,9 @@ async def load(project: Project) -> None:
         )
     ) as progress:
         job_context = ProjectContext(
-            project, manager=project.app.multiprocessing_manager, progress=progress
+            project,
+            cache=MemoryCache(manager=project.app.multiprocessing_manager),
+            progress=progress,
         )
         await progress.add()
         await project.event_dispatcher.dispatch(

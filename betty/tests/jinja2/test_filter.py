@@ -12,6 +12,7 @@ from typing_extensions import override
 from betty import ASSETS_DIRECTORY_PATH
 from betty.ancestry.file import File
 from betty.ancestry.file_reference import FileReference
+from betty.cache.memory import MemoryCache
 from betty.date import Date, DateRange, Datey
 from betty.job import Context
 from betty.locale import (
@@ -91,16 +92,13 @@ async def test_filter_file(expected: str, template: str, file: File) -> None:
     _TEST_FILTER_FILE_PARAMETER_ARGNAMES, _TEST_FILTER_FILE_PARAMETER_ARGVALUES
 )
 async def test_filter_file__with_job_context(
-    expected: str,
-    template: str,
-    file: File,
-    multiprocessing_manager: SyncManager,
+    expected: str, template: str, file: File, multiprocessing_manager: SyncManager
 ) -> None:
     async with assert_template_string(
         template=template,
         data={
             "file": file,
-            "job_context": Context(manager=multiprocessing_manager),
+            "job_context": Context(cache=MemoryCache(manager=multiprocessing_manager)),
         },
     ) as (actual, project):
         assert actual == expected
@@ -310,16 +308,13 @@ async def test_filter_image_resize_cover(
     _TEST_FILTER_IMAGE_RESIZE_COVER_PARAMETER_ARGVALUES,
 )
 async def test_filter_image_resize_cover__with_job_context(
-    expected: str,
-    template: str,
-    filey: File,
-    multiprocessing_manager: SyncManager,
+    expected: str, template: str, filey: File, multiprocessing_manager: SyncManager
 ) -> None:
     async with assert_template_string(
         template=template,
         data={
             "filey": filey,
-            "job_context": Context(manager=multiprocessing_manager),
+            "job_context": Context(cache=MemoryCache(manager=multiprocessing_manager)),
         },
     ) as (actual, project):
         assert actual == expected
