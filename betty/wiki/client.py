@@ -58,7 +58,7 @@ class Image:
     title: str
     wikimedia_commons_url: str
     name: str
-    copyright: Copyright | None
+    image_copyright: Copyright | None
 
 
 @final
@@ -225,7 +225,7 @@ class Client:
                 ],
                 image_info["descriptionurl"],
                 Path(urlparse(image_info["url"]).path).name,
-                copyright=image_copyright,
+                image_copyright=image_copyright,
             )
             self._images[page_image_name] = image
             return image
