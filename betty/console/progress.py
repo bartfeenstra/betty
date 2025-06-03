@@ -23,7 +23,7 @@ class ConsoleProgress(Progress):
     def __init__(self, rich_progress: RichProgress, rich_task_description: str):
         self._rich_progress = rich_progress
         self._rich_task = self._rich_progress.add_task(
-            f"[green]{rich_task_description}"
+            f"[green]{rich_task_description}", total=0
         )
         self._lock = AsynchronizedLock.threading()
         self._total = 0
