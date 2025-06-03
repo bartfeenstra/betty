@@ -1,5 +1,4 @@
 from collections.abc import Sequence
-from multiprocessing.managers import SyncManager
 from pathlib import Path
 
 import aiofiles
@@ -36,12 +35,7 @@ class TestBuilder:
             new=StaticPluginRepository(DummyEntryPointProviderExtension),
         )
 
-    async def test_build(
-        self,
-        new_temporary_app: App,
-        multiprocessing_manager: SyncManager,
-        tmp_path: Path,
-    ) -> None:
+    async def test_build(self, new_temporary_app: App, tmp_path: Path) -> None:
         # Loop instead of parameterization, so we can reuse caches.
         for index, (with_entry_point_provider, debug, root_path) in enumerate(
             [
@@ -55,7 +49,6 @@ class TestBuilder:
         ):
             await self._test_build(
                 new_temporary_app,
-                multiprocessing_manager,
                 tmp_path / str(index),
                 with_entry_point_provider,
                 debug,
@@ -65,14 +58,13 @@ class TestBuilder:
     async def _test_build(
         self,
         new_temporary_app: App,
-        multiprocessing_manager: SyncManager,
         tmp_path: Path,
         with_entry_point_provider: bool,
         debug: bool,
         root_path: str,
     ) -> None:
         async with Project.new_temporary(new_temporary_app) as project:
-            job_context = Context(manager=multiprocessing_manager)
+            job_context = Context()
             async with project:
                 sut = Builder(
                     tmp_path,
@@ -118,15 +110,12 @@ class TestBuilder:
                 ).exists()
 
     async def test_build_with_npm_unavailable(
-        self,
-        mocker: MockerFixture,
-        multiprocessing_manager: SyncManager,
-        tmp_path: Path,
+        self, mocker: MockerFixture, tmp_path: Path
     ) -> None:
         m_npm = mocker.patch("betty._npm.npm")
         m_npm.side_effect = NpmUnavailable()
 
-        job_context = Context(manager=multiprocessing_manager)
+        job_context = Context()
         m_renderer = mocker.AsyncMock()
         sut = Builder(
             tmp_path,

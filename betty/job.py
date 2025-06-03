@@ -8,12 +8,10 @@ from datetime import datetime
 from typing import TYPE_CHECKING, Any
 from uuid import uuid4
 
-from betty.cache.memory import MemoryCache
+from betty.cache.no_op import NoOpCache
 from betty.progress.no_op import NoOpProgress
 
 if TYPE_CHECKING:
-    from multiprocessing.managers import SyncManager
-
     from betty.cache import Cache
     from betty.progress import Progress
 
@@ -23,9 +21,11 @@ class Context:
     Define a job context.
     """
 
-    def __init__(self, *, manager: SyncManager, progress: Progress | None = None):
+    def __init__(
+        self, *, cache: Cache[Any] | None = None, progress: Progress | None = None
+    ):
         self._id = str(uuid4())
-        self._cache: Cache[Any] = MemoryCache(manager=manager)
+        self._cache = cache or NoOpCache()
         self._start = datetime.now()
         self._progress = progress or NoOpProgress()
 
