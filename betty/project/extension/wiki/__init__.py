@@ -41,7 +41,7 @@ async def _populate_ancestry(event: PostLoadAncestryEvent) -> None:
     wikipedia = extensions[Wiki]
     populator = Populator(
         project.ancestry,
-        list(project.configuration.locales.keys()),
+        list(project.configuration.locales),
         await project.localizers,
         await wikipedia.client,
         await project.copyright_notice_repository.new_target(WikipediaContributors),

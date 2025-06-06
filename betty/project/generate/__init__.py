@@ -131,7 +131,7 @@ async def _run_jobs(
     yield await _run_job(job_context, semaphore, _generate_json_schema, job_context)
     yield await _run_job(job_context, semaphore, _generate_openapi, job_context)
 
-    locales = list(project.configuration.locales.keys())
+    locales = list(project.configuration.locales)
 
     for locale in locales:
         yield await _run_job(
