@@ -69,7 +69,7 @@ class WikipediaContributors(ShorthandPluginBase, AppDependentFactory, CopyrightN
         return call(lambda localizer: self._localize_url(localizer.locale))
 
     def _localize_url(self, locale: str) -> str:
-        locale = negotiate_locale([locale, "en"], list(self._urls.keys()))
+        locale = negotiate_locale([locale, "en"], list(self._urls))
         # We know there's always "en" (English).
         assert locale is not None
         return f"https://{locale}.wikipedia.org/wiki/{self._urls[locale.language]}"
