@@ -57,6 +57,7 @@ def _create_parser_class(*, localizer: Localizer) -> type[argparse.ArgumentParse
             add_help: bool = True,
             allow_abbrev: bool = True,
             exit_on_error: bool = False,
+            color: bool = False,
         ):
             super().__init__(
                 prog,

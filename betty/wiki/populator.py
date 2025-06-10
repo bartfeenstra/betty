@@ -59,7 +59,7 @@ class Populator:
         self._client = client
         self._image_files: MutableMapping[Image, File] = {}
         self._image_files_locks: Mapping[Image, Lock] = defaultdict(
-            AsynchronizedLock.threading
+            AsynchronizedLock.new_threadsafe
         )
         self._copyright_notice = copyright_notice
 

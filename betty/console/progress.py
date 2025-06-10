@@ -25,7 +25,7 @@ class ConsoleProgress(Progress):
         self._rich_task = self._rich_progress.add_task(
             f"[green]{rich_task_description}", total=0
         )
-        self._lock = AsynchronizedLock.threading()
+        self._lock = AsynchronizedLock.new_threadsafe()
         self._total = 0
 
     @override

@@ -95,7 +95,7 @@ class AsynchronizedLock(Lock):
         self._lock.release()
 
     @classmethod
-    def threading(cls) -> Self:
+    def new_threadsafe(cls) -> Self:
         """
         Create a new thread-safe, asynchronous lock.
         """
@@ -158,7 +158,7 @@ class AsynchronizedSemaphore(Semaphore):
         self._semaphore.release(n)
 
     @classmethod
-    def threading(cls, n: int = 1) -> Self:
+    def new_threadsafe(cls, n: int = 1) -> Self:
         """
         Create a new thread-safe, asynchronous semaphore.
         """
