@@ -20,7 +20,7 @@ jobs:
           # to the number of `after_n_builds` in ./codecov.yml.
           - name: 'Python 3.14'
             os: ubuntu-latest
-            python: '3.14.0-alpha.5'
+            python: '3.14.0-beta.2'
           - name: 'Python 3.13'
             os: ubuntu-latest
             python: '3.13'
