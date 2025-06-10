@@ -291,7 +291,7 @@ class LocalizerRepository:
         self._assets = assets
         self._cache = cache
         self._localizers: MutableMapping[str, Localizer] = {}
-        self._locks: Mapping[str, Lock] = defaultdict(AsynchronizedLock.threading)
+        self._locks: Mapping[str, Lock] = defaultdict(AsynchronizedLock.new_threadsafe)
         self._locales: set[str] | None = None
 
     @property

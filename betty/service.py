@@ -380,7 +380,7 @@ class _AsynchronousServiceManager(
             # We do not need a process-safe lock here, because we only ever lazily initialize services for the current
             # thread. Services that are shared across processes are explicitly initialized and pickled by service
             # providers.
-            lock = AsynchronizedLock.threading()
+            lock = AsynchronizedLock.new_threadsafe()
             setattr(instance, lock_attr_name, lock)
             return lock
 

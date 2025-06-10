@@ -153,7 +153,7 @@ class TestAsynchronizedLock:
         assert AsynchronizedLock(lock).lock is lock
 
     def test_threading(self) -> None:
-        AsynchronizedLock.threading()
+        AsynchronizedLock.new_threadsafe()
 
 
 class TestAsynchronizedSemaphore:
@@ -196,7 +196,7 @@ class TestAsynchronizedSemaphore:
         assert AsynchronizedSemaphore(semaphore).semaphore is semaphore
 
     def test_threading(self) -> None:
-        AsynchronizedSemaphore.threading()
+        AsynchronizedSemaphore.new_threadsafe()
 
 
 class TestRateLimiter:
