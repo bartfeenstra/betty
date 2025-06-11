@@ -17,7 +17,6 @@ from typing import (
     overload,
 )
 
-from basedtyping import Intersection
 from typing_extensions import override
 
 from betty.functools import unique
@@ -221,7 +220,7 @@ class SingleTypeEntityCollection(Generic[_TargetT], EntityCollection[_TargetT]):
     @override
     def __delitem__(self, key: str | _TargetT & Entity) -> None:
         if isinstance(key, self._target_type):
-            return self._delitem_by_entity(cast(Intersection[_TargetT, Entity], key))
+            return self._delitem_by_entity(cast("_TargetT & Entity", key))
         if isinstance(key, str):
             return self._delitem_by_entity_id(key)
         raise TypeError(f"Cannot find entities by {repr(key)}.")
@@ -238,7 +237,7 @@ class SingleTypeEntityCollection(Generic[_TargetT], EntityCollection[_TargetT]):
     @override
     def __contains__(self, value: Any) -> bool:
         if isinstance(value, self._target_type):
-            return self._contains_by_entity(cast(Intersection[_TargetT, Entity], value))
+            return self._contains_by_entity(cast("_TargetT & Entity", value))
         if isinstance(value, str):
             return self._contains_by_entity_id(value)
         return False
@@ -394,7 +393,7 @@ class MultipleTypesEntityCollection(Generic[_TargetT], EntityCollection[_TargetT
     def __iter__(self) -> Iterator[_TargetT & Entity]:
         for collection in self._collections.values():
             for entity in collection:
-                yield cast(Intersection[_TargetT, Entity], entity)
+                yield cast("_TargetT & Entity", entity)
 
     @override
     def __len__(self) -> int:
