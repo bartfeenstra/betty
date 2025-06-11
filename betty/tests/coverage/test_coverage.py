@@ -380,14 +380,6 @@ _BASELINE: Mapping[str, _ModuleIgnore] = {
             "stop": MissingReason.SHOULD_BE_COVERED,
         },
     },
-    "betty/project/extension/gramps/config.py": {
-        "FamilyTreeConfiguration": {
-            "file_path": MissingReason.SHOULD_BE_COVERED,
-        },
-        "GrampsConfiguration": {
-            "family_trees": MissingReason.SHOULD_BE_COVERED,
-        },
-    },
     "betty/project/extension/privatizer/__init__.py": {
         "Privatizer": {
             "privatize": MissingReason.SHOULD_BE_COVERED,

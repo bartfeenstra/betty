@@ -2,11 +2,14 @@ from __future__ import annotations
 
 import gzip
 import tarfile
+from asyncio.subprocess import Process
 from pathlib import Path
 from typing import TYPE_CHECKING
+from unittest.mock import ANY
 
 import aiofiles
 import pytest
+from aiofiles.tempfile import AiofilesContextManagerTempDir
 
 from betty.ancestry.citation import Citation
 from betty.ancestry.event import Event
@@ -40,10 +43,13 @@ from betty.locale.localizer import DEFAULT_LOCALIZER
 from betty.media_type import MediaType
 from betty.privacy import Privacy
 from betty.project import Project
+from betty.subprocess import CalledSubprocessError
 from betty.test_utils.user import StaticUser
 
 if TYPE_CHECKING:
     from collections.abc import Awaitable, Callable, Mapping
+
+    from pytest_mock import MockerFixture
 
     from betty.ancestry import Ancestry
     from betty.ancestry.event_type import EventType
@@ -229,6 +235,73 @@ class TestGrampsLoader:
                 await sut.load_file(
                     Path(__file__).parent / "assets" / "minimal.invalid"
                 )
+
+    async def test_load_name__with_existent_family_tree(
+        self, mocker: MockerFixture, new_temporary_app: App, tmp_path: Path
+    ) -> None:
+        gramps_executable = "gramps"
+        family_tree_name = "my-first-family-tree"
+        m_aiofiles_context_manager_temp_dir = mocker.AsyncMock(
+            spec=AiofilesContextManagerTempDir
+        )
+        m_aiofiles_context_manager_temp_dir.__aenter__.return_value = str(tmp_path)
+        mocker.patch(
+            "aiofiles.tempfile.TemporaryDirectory",
+            side_effect=lambda: m_aiofiles_context_manager_temp_dir,
+        )
+        m_run_process = mocker.patch("betty.subprocess.run_process")
+        m_run_process.side_effect = mocker.AsyncMock(spec=Process)
+        gramps_file_path = tmp_path / "betty.gramps"
+        with gzip.open(gramps_file_path, "w") as f:
+            f.write(_minimal_xml().encode("utf-8"))
+        async with Project.new_temporary(new_temporary_app) as project, project:
+            sut = GrampsLoader(
+                project.ancestry,
+                user=StaticUser(),
+                copyright_notices=project.copyright_notice_repository,
+                licenses=await project.license_repository,
+                genders=project.gender_repository,
+                attribute_prefix_key=self.ATTRIBUTE_PREFIX_KEY,
+                executable=gramps_executable,
+            )
+            await sut.load_name(family_tree_name)
+        m_run_process.assert_awaited_once_with(
+            [gramps_executable, "-O", family_tree_name, "-e", str(gramps_file_path)],
+            user=ANY,
+        )
+
+    async def test_load_name__with_non_existent_family_tree(
+        self, mocker: MockerFixture, new_temporary_app: App, tmp_path: Path
+    ) -> None:
+        gramps_executable = "gramps"
+        family_tree_name = "my-first-family-tree"
+        m_aiofiles_context_manager_temp_dir = mocker.AsyncMock(
+            spec=AiofilesContextManagerTempDir
+        )
+        m_aiofiles_context_manager_temp_dir.__aenter__.return_value = str(tmp_path)
+        mocker.patch(
+            "aiofiles.tempfile.TemporaryDirectory",
+            side_effect=lambda: m_aiofiles_context_manager_temp_dir,
+        )
+        m_run_process = mocker.patch("betty.subprocess.run_process")
+        m_run_process.side_effect = CalledSubprocessError(1, "", "", "")
+        gramps_file_path = tmp_path / "betty.gramps"
+        async with Project.new_temporary(new_temporary_app) as project, project:
+            sut = GrampsLoader(
+                project.ancestry,
+                user=StaticUser(),
+                copyright_notices=project.copyright_notice_repository,
+                licenses=await project.license_repository,
+                genders=project.gender_repository,
+                attribute_prefix_key=self.ATTRIBUTE_PREFIX_KEY,
+                executable=gramps_executable,
+            )
+            with pytest.raises(UserFacingGrampsError):
+                await sut.load_name(family_tree_name)
+        m_run_process.assert_awaited_once_with(
+            [gramps_executable, "-O", family_tree_name, "-e", str(gramps_file_path)],
+            user=ANY,
+        )
 
     async def _load(
         self,

@@ -52,6 +52,16 @@ class TestFamilyTreeConfigurationSequence(
 
 
 class TestFamilyTreeConfiguration:
+    def test___init____with_source_file_path(self, tmp_path: Path) -> None:
+        file_path = tmp_path / "betty.gramps"
+        sut = FamilyTreeConfiguration(file_path)
+        assert sut.source == file_path
+
+    def test___init____with_source_name(self) -> None:
+        name = "my-first-family-tree"
+        sut = FamilyTreeConfiguration(name)
+        assert sut.source == name
+
     def test___init____with_event_types(self, tmp_path: Path) -> None:
         gramps_type = "my-first-gramps-type"
         plugin_id = "my-first-betty-plugin-id"
@@ -79,6 +89,11 @@ class TestFamilyTreeConfiguration:
         )
         assert sut.presence_roles[gramps_type].id == plugin_id
         assert sut.presence_roles["Aide"].id == Attendee.plugin_id()
+
+    def test_source(self) -> None:
+        source = "my-first-family-tree"
+        sut = FamilyTreeConfiguration(source)
+        assert sut.source == source
 
     def test_event_types(self, tmp_path: Path) -> None:
         sut = FamilyTreeConfiguration(tmp_path)
@@ -336,6 +351,28 @@ class TestPluginMapping:
 
 
 class TestGrampsConfiguration:
+    async def test___init____with_family_trees(self) -> None:
+        family_trees = [FamilyTreeConfiguration("my-first-family-tree")]
+        sut = GrampsConfiguration(family_trees=family_trees)
+        assert list(sut.family_trees) == family_trees
+
+    async def test___init____with_executable(self) -> None:
+        executable = Path("my-first-gramps")
+        sut = GrampsConfiguration(executable=executable)
+        assert sut.executable == executable
+
+    async def test_family_trees(self) -> None:
+        family_trees = [FamilyTreeConfiguration("my-first-family-tree")]
+        sut = GrampsConfiguration()
+        sut.family_trees = family_trees  # type: ignore[assignment]
+        assert list(sut.family_trees) == family_trees
+
+    async def test_executable(self) -> None:
+        executable = Path("my-first-gramps")
+        sut = GrampsConfiguration()
+        sut.executable = executable
+        assert sut.executable == executable
+
     async def test_load__with_minimal_configuration(self) -> None:
         dump: Dump = {}
         GrampsConfiguration().load(dump)
@@ -345,27 +382,27 @@ class TestGrampsConfiguration:
         with raises_error(error_type=AssertionFailed):
             GrampsConfiguration().load(dump)
 
-    async def test_load__with_family_tree(self, tmp_path: Path) -> None:
-        file_path = tmp_path / "ancestry.gramps"
+    async def test_load__with_family_tree(self) -> None:
+        family_tree_name = "my-first-family-tree"
         dump: Dump = {
             "family_trees": [
                 {
-                    "file": str(file_path),
+                    "name": family_tree_name,
                 },
             ],
         }
         sut = GrampsConfiguration()
         sut.load(dump)
-        assert sut.family_trees[0].file_path == file_path
+        assert sut.family_trees[0].source == family_tree_name
 
     async def test_dump__with_minimal_configuration(self) -> None:
         sut = GrampsConfiguration()
         assert sut.dump() == {"family_trees": []}
 
     async def test_dump__with_family_tree(self, tmp_path: Path) -> None:
-        file_path = tmp_path / "ancestry.gramps"
+        family_tree_name = "my-first-family-tree"
         sut = GrampsConfiguration()
-        sut.family_trees.append(FamilyTreeConfiguration(file_path=file_path))
+        sut.family_trees.append(FamilyTreeConfiguration(family_tree_name))
         actual = sut.dump()
         actual["family_trees"][0].pop("event_types")  # type: ignore[arg-type, index, union-attr]
         actual["family_trees"][0].pop("place_types")  # type: ignore[arg-type, index, union-attr]
@@ -373,7 +410,7 @@ class TestGrampsConfiguration:
         expected = {
             "family_trees": [
                 {
-                    "file": str(file_path),
+                    "name": family_tree_name,
                 },
             ],
         }

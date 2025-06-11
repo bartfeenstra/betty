@@ -62,7 +62,7 @@ class TestGramps(ExtensionTestBase[Gramps]):
                     configuration=GrampsConfiguration(
                         family_trees=[
                             FamilyTreeConfiguration(
-                                file_path=gramps_family_tree_path,
+                                gramps_family_tree_path,
                                 event_types={
                                     "Birth": PluginInstanceConfiguration("birth")
                                 },
@@ -105,7 +105,7 @@ class TestGramps(ExtensionTestBase[Gramps]):
                     configuration=GrampsConfiguration(
                         family_trees=[
                             FamilyTreeConfiguration(
-                                file_path=gramps_family_tree_path,
+                                gramps_family_tree_path,
                                 place_types={
                                     "City": PluginInstanceConfiguration("city")
                                 },
@@ -156,7 +156,7 @@ class TestGramps(ExtensionTestBase[Gramps]):
                     configuration=GrampsConfiguration(
                         family_trees=[
                             FamilyTreeConfiguration(
-                                file_path=gramps_family_tree_path,
+                                gramps_family_tree_path,
                                 presence_roles={
                                     "MyFirstRole": PluginInstanceConfiguration(
                                         "subject"
@@ -284,12 +284,8 @@ class TestGramps(ExtensionTestBase[Gramps]):
                         Gramps,
                         configuration=GrampsConfiguration(
                             family_trees=[
-                                FamilyTreeConfiguration(
-                                    file_path=gramps_family_tree_one_path
-                                ),
-                                FamilyTreeConfiguration(
-                                    file_path=gramps_family_tree_two_path
-                                ),
+                                FamilyTreeConfiguration(gramps_family_tree_one_path),
+                                FamilyTreeConfiguration(gramps_family_tree_two_path),
                             ],
                         ),
                     )

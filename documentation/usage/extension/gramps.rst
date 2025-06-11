@@ -36,6 +36,7 @@ This extension is configurable:
           extensions:
             gramps:
               configuration:
+                executable: /path/to/gramps
                 family_trees:
                   - file: ./gramps.gpkg
                     event-types:
@@ -56,6 +57,7 @@ This extension is configurable:
             "extensions": {
               "gramps": {
                 "configuration" : {
+                  "executable": "/path/to/gramps",
                   "family_trees": [
                     {
                       "file": "./gramps.gpkg"
@@ -79,6 +81,14 @@ This extension is configurable:
           }
 
 
+``executable``
+^^^^^^^^^^^^^^^^
+:sup:`optional`
+
+The path to an existing Gramps installation on your system. Defaults to ``gramps`` on Linux and macOS, and to
+``Gramps.exe`` on Windows.
+
+
 ``family_trees``
 ^^^^^^^^^^^^^^^^
 :sup:`required`
@@ -94,7 +104,17 @@ Each item is an object with the following keys:
 ~~~~~~~~~~~~~~~~~~~~~~~
 :sup:`required`
 
-the path to a *Gramps XML* or *Gramps XML Package* file.
+The path to a *Gramps XML* or *Gramps XML Package* file.
+
+This is mutually exclusive with ``family_trees[].name``.
+
+``family_trees[].name``
+~~~~~~~~~~~~~~~~~~~~~~~
+:sup:`required`
+
+The name of a family tree in your local Gramps installation.
+
+This is mutually exclusive with ``family_trees[].file``.
 
 ``family_trees[].event_types``
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
