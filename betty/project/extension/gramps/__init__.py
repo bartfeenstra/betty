@@ -38,11 +38,9 @@ async def _load_ancestry(event: LoadAncestryEvent) -> None:
     extensions = await project.extensions
     gramps_configuration = extensions[Gramps].configuration
     for family_tree_configuration in gramps_configuration.family_trees:
-        file_path = family_tree_configuration.file_path
-        if not file_path:
-            continue
+        source = family_tree_configuration.source
 
-        await GrampsLoader(
+        loader = GrampsLoader(
             project.ancestry,
             attribute_prefix_key=project.configuration.name,
             user=project.app.user,
@@ -70,7 +68,12 @@ async def _load_ancestry(event: LoadAncestryEvent) -> None:
                 )
                 for gramps_type in family_tree_configuration.presence_roles
             },
-        ).load_file(file_path)
+            executable=gramps_configuration.executable,
+        )
+        if isinstance(source, str):
+            await loader.load_name(source)
+        else:
+            await loader.load_file(source)
 
 
 @final

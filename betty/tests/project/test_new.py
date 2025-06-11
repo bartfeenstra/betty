@@ -229,6 +229,6 @@ async def test_new__with_gramps(
             )
             assert isinstance(gramps, Gramps)
             assert (
-                gramps.configuration.family_trees[0].file_path
+                gramps.configuration.family_trees[0].source
                 == gramps_family_tree_file_path
             )

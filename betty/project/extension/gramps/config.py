@@ -11,7 +11,6 @@ from typing_extensions import override
 
 from betty.assertion import (
     OptionalField,
-    RequiredField,
     assert_len,
     assert_mapping,
     assert_path,
@@ -19,6 +18,7 @@ from betty.assertion import (
     assert_setattr,
     assert_str,
 )
+from betty.assertion.error import AssertionFailed
 from betty.config import Configuration
 from betty.config.collections.sequence import ConfigurationSequence
 from betty.gramps.loader import (
@@ -26,6 +26,7 @@ from betty.gramps.loader import (
     DEFAULT_PLACE_TYPES_MAPPING,
     DEFAULT_PRESENCE_ROLES_MAPPING,
 )
+from betty.locale.localizable import _
 from betty.plugin import Plugin
 from betty.plugin.config import PluginInstanceConfiguration
 from betty.typing import internal
@@ -108,14 +109,14 @@ class FamilyTreeConfiguration(Configuration):
 
     def __init__(
         self,
-        file_path: Path,
+        source: Path | str,
         *,
         event_types: Mapping[str, PluginInstanceConfiguration] | None = None,
         place_types: Mapping[str, PluginInstanceConfiguration] | None = None,
         presence_roles: Mapping[str, PluginInstanceConfiguration] | None = None,
     ):
         super().__init__()
-        self.file_path = file_path
+        self._source = source
         self._event_types = PluginMapping(
             {
                 gramps_value: PluginInstanceConfiguration(event_type)
@@ -147,16 +148,18 @@ class FamilyTreeConfiguration(Configuration):
         )
 
     @property
-    def file_path(self) -> Path | None:
+    def source(self) -> Path | str:
         """
-        The path to the Gramps family tree file.
-        """
-        return self._file_path
+        The family tree's source.
 
-    @file_path.setter
-    def file_path(self, file_path: Path | None) -> None:
+        This is either the name of a family tree in Gramps, or the path to a Gramps family tree file.
+        """
+        return self._source
+
+    @source.setter
+    def source(self, source: Path | str) -> None:
         self.assert_mutable()
-        self._file_path = file_path
+        self._source = source
 
     @property
     def event_types(self) -> PluginMapping:
@@ -182,8 +185,21 @@ class FamilyTreeConfiguration(Configuration):
     @override
     def load(self, dump: Dump) -> None:
         self.assert_mutable()
+        dump = assert_mapping()(dump)
+        if (
+            "file" in dump
+            and "name" in dump
+            or "file" not in dump
+            and "name" not in dump
+        ):
+            raise AssertionFailed(
+                _(
+                    'Family tree configuration must contain either a "file" or a "name" key'
+                )
+            )
         assert_record(
-            RequiredField("file", assert_path() | assert_setattr(self, "file_path")),
+            OptionalField("file", assert_path() | assert_setattr(self, "source")),
+            OptionalField("name", assert_str() | assert_setattr(self, "source")),
             OptionalField("event_types", self.event_types.load),
             OptionalField("place_types", self.place_types.load),
             OptionalField("presence_roles", self.presence_roles.load),
@@ -191,12 +207,16 @@ class FamilyTreeConfiguration(Configuration):
 
     @override
     def dump(self) -> DumpMapping[Dump]:
-        return {
-            "file": str(self.file_path) if self.file_path else None,
+        dump = {
             "event_types": self.event_types.dump(),
             "place_types": self.place_types.dump(),
             "presence_roles": self.presence_roles.dump(),
         }
+        if isinstance(self.source, str):
+            dump["name"] = self.source
+        else:
+            dump["file"] = str(self.source)
+        return dump
 
 
 class FamilyTreeConfigurationSequence(ConfigurationSequence[FamilyTreeConfiguration]):
@@ -219,10 +239,14 @@ class GrampsConfiguration(Configuration):
     """
 
     def __init__(
-        self, *, family_trees: Iterable[FamilyTreeConfiguration] | None = None
+        self,
+        *,
+        family_trees: Iterable[FamilyTreeConfiguration] | None = None,
+        executable: Path | None = None,
     ):
         super().__init__()
         self._family_trees = FamilyTreeConfigurationSequence(family_trees)
+        self._executable = executable
 
     @override
     def get_mutable_instances(self) -> Iterable[Mutable]:
@@ -235,11 +259,36 @@ class GrampsConfiguration(Configuration):
         """
         return self._family_trees
 
+    @family_trees.setter
+    def family_trees(self, family_trees: Iterable[FamilyTreeConfiguration]) -> None:
+        self._family_trees.replace(*family_trees)
+
+    @property
+    def executable(self) -> Path | None:
+        """
+        The path to a specific Gramps executable.
+
+        Leave ``None`` to use Gramps from the PATH.
+        """
+        return self._executable
+
+    @executable.setter
+    def executable(self, executable: Path | None) -> None:
+        self._executable = executable
+
     @override
     def load(self, dump: Dump) -> None:
         self.assert_mutable()
-        assert_record(OptionalField("family_trees", self.family_trees.load))(dump)
+        assert_record(
+            OptionalField("family_trees", self.family_trees.load),
+            OptionalField(
+                "executable", assert_path() | assert_setattr(self, "executable")
+            ),
+        )(dump)
 
     @override
     def dump(self) -> DumpMapping[Dump]:
-        return {"family_trees": self.family_trees.dump()}
+        dump: DumpMapping[Dump] = {"family_trees": self.family_trees.dump()}
+        if self.executable is not None:
+            dump["executable"] = str(self.executable)
+        return dump

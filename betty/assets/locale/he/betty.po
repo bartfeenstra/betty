@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Betty VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2025-05-27 20:00+0100\n"
+"POT-Creation-Date: 2025-06-13 15:18+0100\n"
 "PO-Revision-Date: 2025-05-06 10:01+0000\n"
 "Last-Translator: Yaron Shahrabani <sh.yaron@gmail.com>\n"
 "Language: he\n"
@@ -459,6 +459,9 @@ msgstr ""
 msgid "Family"
 msgstr ""
 
+msgid "Family tree configuration must contain either a \"file\" or a \"name\" key"
+msgstr ""
+
 msgid "Farm"
 msgstr ""
 
@@ -526,6 +529,12 @@ msgid ""
 "Gramps XML must be compatible with version "
 "{supported_gramps_xml_version}. Gramps XML {loaded_gramps_xml_version} is"
 " not supported."
+msgstr ""
+
+#, python-brace-format
+msgid ""
+"Gramps exited with the following error:\n"
+"{error}"
 msgstr ""
 
 msgid "HTTP API Documentation"

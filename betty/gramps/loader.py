@@ -6,6 +6,7 @@ from __future__ import annotations
 
 import gzip
 import re
+import sys
 import tarfile
 from collections import defaultdict
 from contextlib import ExitStack, suppress
@@ -15,11 +16,12 @@ from pathlib import Path
 from typing import TYPE_CHECKING, Generic, TypeVar, cast, final
 
 import aiofiles
-from aiofiles.tempfile import TemporaryDirectory
+from aiofiles import tempfile
 from geopy import Point
 from lxml import etree
 from typing_extensions import override
 
+from betty import subprocess
 from betty.ancestry.citation import Citation
 from betty.ancestry.enclosure import Enclosure
 from betty.ancestry.event import Event
@@ -109,6 +111,7 @@ from betty.privacy import HasPrivacy
 from betty.typing import internal
 
 if TYPE_CHECKING:
+    from asyncio.subprocess import Process
     from collections.abc import (
         Awaitable,
         Callable,
@@ -272,6 +275,10 @@ DEFAULT_PRESENCE_ROLES_MAPPING = {
     "Witness": Witness,
 }
 
+_DEFAULT_GRAMPS_EXECUTABLE = (
+    "Gramps.exe" if sys.platform.startswith("win32") else "gramps"
+)
+
 
 @internal
 class GrampsLoader:
@@ -298,6 +305,7 @@ class GrampsLoader:
             str, Callable[[], PresenceRole | Awaitable[PresenceRole]]
         ]
         | None = None,
+        executable: Path | str | None = None,
     ):
         super().__init__()
         self._ancestry = ancestry
@@ -316,6 +324,38 @@ class GrampsLoader:
         self._genders = genders
         self._place_type_mapping = place_type_mapping or {}
         self._presence_role_mapping = presence_role_mapping or {}
+        self._gramps_executable = executable or _DEFAULT_GRAMPS_EXECUTABLE
+
+    async def _run_gramps(self, runnee: Sequence[str]) -> Process:
+        try:
+            return await subprocess.run_process(
+                [str(self._gramps_executable), *runnee],
+                user=self._user,
+            )
+        except subprocess.CalledSubprocessError as error:
+            raise UserFacingGrampsError(
+                _("Gramps exited with the following error:\n{error}").format(
+                    error=error.stderr
+                )
+            ) from None
+
+    async def load_name(self, name: str) -> None:
+        """
+        Load family history data directly from Gramps using a family tree name.
+
+        :raises betty.gramps.error.GrampsError:
+        """
+        async with tempfile.TemporaryDirectory() as working_directory_path_str:
+            gramps_file_path = Path(working_directory_path_str) / "betty.gramps"
+            await self._run_gramps(
+                [
+                    "-O",
+                    name,
+                    "-e",
+                    str(gramps_file_path),
+                ]
+            )
+            await self.load_file(gramps_file_path)
 
     async def load_file(self, file_path: Path) -> None:
         """
@@ -390,7 +430,7 @@ class GrampsLoader:
                         "Could not extract {file_path} as a gzipped tar file  (*.tar.gz)."
                     ).format(file_path=str(gpkg_path))
                 ) from error
-            async with TemporaryDirectory() as cache_directory_path_str:
+            async with tempfile.TemporaryDirectory() as cache_directory_path_str:
                 tar_file.extractall(cache_directory_path_str, filter="data")
                 await self.load_gramps(Path(cache_directory_path_str) / "data.gramps")
 
