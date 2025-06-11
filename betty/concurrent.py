@@ -4,7 +4,7 @@ Provide utilities for concurrent programming.
 
 import asyncio
 import multiprocessing
-import threading
+import threading as stdthreading
 import time
 from abc import ABC, abstractmethod
 from asyncio import sleep
@@ -53,7 +53,7 @@ class Lock(ABC):
         """
 
 
-Acquirable: TypeAlias = Union[threading.Lock, threading.Semaphore]  # noqa: UP007
+Acquirable: TypeAlias = Union[stdthreading.Lock, stdthreading.Semaphore]  # noqa: UP007
 
 
 async def asynchronize_acquire(acquirable: Acquirable, *, wait: bool = True) -> bool:
@@ -78,11 +78,11 @@ class AsynchronizedLock(Lock):
 
     __slots__ = "_lock"
 
-    def __init__(self, lock: threading.Lock):
+    def __init__(self, lock: stdthreading.Lock):
         self._lock = lock
 
     @property
-    def lock(self) -> threading.Lock:
+    def lock(self) -> stdthreading.Lock:
         """
         The underlying, synchronous lock.
         """
@@ -101,7 +101,7 @@ class AsynchronizedLock(Lock):
         """
         Create a new thread-safe, asynchronous lock.
         """
-        return cls(threading.Lock())
+        return cls(stdthreading.Lock())
 
 
 class Semaphore(ABC):
@@ -141,11 +141,11 @@ class AsynchronizedSemaphore(Semaphore):
 
     __slots__ = "_semaphore"
 
-    def __init__(self, semaphore: threading.Semaphore):
+    def __init__(self, semaphore: stdthreading.Semaphore):
         self._semaphore = semaphore
 
     @property
-    def semaphore(self) -> threading.Semaphore:
+    def semaphore(self) -> stdthreading.Semaphore:
         """
         The underlying, synchronous semaphore.
         """
@@ -164,7 +164,7 @@ class AsynchronizedSemaphore(Semaphore):
         """
         Create a new thread-safe, asynchronous semaphore.
         """
-        return cls(threading.Semaphore(n))
+        return cls(stdthreading.Semaphore(n))
 
 
 @final

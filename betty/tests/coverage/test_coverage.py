@@ -173,6 +173,7 @@ _BASELINE: Mapping[str, _ModuleIgnore] = {
     "betty/fetch/__init__.py": {
         "Fetcher": MissingReason.ABSTRACT,
         "FetchResponse": {
+            "__annotate_func__": MissingReason.DATACLASS,
             "__eq__": MissingReason.DATACLASS,
             "__delattr__": MissingReason.DATACLASS,
             "__hash__": MissingReason.DATACLASS,
@@ -324,6 +325,9 @@ _BASELINE: Mapping[str, _ModuleIgnore] = {
         "MutabilityError": MissingReason.STATIC_CONTENT_ONLY,
         "MutableError": MissingReason.STATIC_CONTENT_ONLY,
         "ImmutableError": MissingReason.STATIC_CONTENT_ONLY,
+    },
+    "betty/openapi.py": {
+        "SpecificationSchema": {"__annotate_func__": MissingReason.DATACLASS},
     },
     "betty/plugin/__init__.py": {
         "DependentPlugin": MissingReason.ABSTRACT,
