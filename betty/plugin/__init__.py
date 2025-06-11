@@ -353,7 +353,7 @@ class PluginRepository(Generic[_PluginT], TargetFactory, ABC):
 
         This method is overloaded to provide for the majority use case of at most
         three mixins, because when using ``*args: *Ts``, we cannot unpack ``Ts`` into an
-        :py:class:`basedtyping.Intersection` return type.
+        intersection return type.
         """
         return [
             plugin
