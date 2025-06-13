@@ -7,7 +7,7 @@ build-backend = 'setuptools.build_meta'
 [project]
 version = '0.0.0'
 name = 'betty'
-description = 'Betty helps you visualize and publish your family history by building interactive genealogy websites out of your Gramps and GEDCOM family trees'
+description = 'Betty visualizes and publishes your family history by building interactive, encyclopedia-like genealogy websites out of your Gramps and GEDCOM family trees'
 readme = 'README.md'
 license = {file = 'LICENSE.txt'}
 authors = [
