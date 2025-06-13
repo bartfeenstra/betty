@@ -38,7 +38,9 @@ sys.exit(1)"""
     async with aiofiles.open(script_path, "w") as f:
         await f.write(python_script)
     with pytest.raises(SubprocessError):
-        await run_process(["python", str(script_path)], shell=shell, user=user)
+        await run_process(
+            ["python", "-W", "ignore", str(script_path)], shell=shell, user=user
+        )
     user.assert_not_message_debug("stdout:\n")
     user.assert_not_message_debug("stderr:\n")
 
@@ -65,9 +67,11 @@ sys.exit(1)"""
     async with aiofiles.open(script_path, "w") as f:
         await f.write(python_script)
     with pytest.raises(SubprocessError):
-        await run_process(["python", str(script_path)], shell=shell, user=user)
-    user.assert_message_debug(f"stdout:\n{stdout_sentinel}")
-    user.assert_message_debug(f"stderr:\n{stderr_sentinel}")
+        await run_process(
+            ["python", "-W", "ignore", str(script_path)], shell=shell, user=user
+        )
+    user.assert_message_debug(["stdout:", stdout_sentinel])
+    user.assert_message_debug(["stderr:", stderr_sentinel])
 
 
 @pytest.mark.parametrize(

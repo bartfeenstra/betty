@@ -3,7 +3,7 @@ Test utilities for :py:mod:`betty.user`.
 """
 
 import sys
-from collections.abc import AsyncIterator, Iterable, MutableSequence
+from collections.abc import AsyncIterator, Collection, Iterable, MutableSequence
 from contextlib import asynccontextmanager
 from typing import overload
 
@@ -48,89 +48,130 @@ class StaticUser(User):  # pragma: no cover
     async def disconnect(self) -> None:
         self.connected = False
 
-    def _assert_message(self, fragment: str, message_type: str) -> None:
-        for message in getattr(self, f"_messages_{message_type}"):  # type: ignore[attr-defined]
-            if fragment in message.localize(DEFAULT_LOCALIZER):
+    def _format_fragments(self, fragments: str | Iterable[str]) -> str:
+        if isinstance(fragments, str):
+            fragments = [fragments]
+        return ", ".join(f'"{fragment}"' for fragment in fragments)
+
+    def _message_contains(self, message: str, fragments: Iterable[str]) -> bool:
+        return all(fragment in message for fragment in fragments)
+
+    def _assert_message(
+        self,
+        fragments: str | Iterable[str],
+        message_type: str,
+        messages: Collection[str],
+    ) -> None:
+        if isinstance(fragments, str):
+            fragments = [fragments]
+        for message in messages:
+            if self._message_contains(message, fragments):
                 return
         raise AssertionError(
-            f'Failed asserting that a(n) "{message_type}" message was sent containing the fragment "{fragment}".'
+            f'Failed asserting that a(n) "{message_type}" message was sent containing the fragment(s) {self._format_fragments(fragments)}.'
         )
 
-    def assert_message_exception(self, fragment: str) -> None:
+    def _assert_localizable_message(
+        self, fragments: str | Iterable[str], message_type: str
+    ) -> None:
+        self._assert_message(
+            fragments,
+            message_type,
+            [
+                message.localize(DEFAULT_LOCALIZER)
+                for message in getattr(self, f"_messages_{message_type}")  # type: ignore[attr-defined]
+            ],
+        )
+
+    def assert_message_exception(self, fragments: str | Iterable[str]) -> None:
         """
         Assert that an exception message was sent.
         """
-        for exception in self._messages_exception:
-            if fragment in str(exception):
-                return
-        raise AssertionError(
-            f'Failed asserting that a(n) "exception" message was sent containing the fragment "{fragment}".'
+        self._assert_message(
+            fragments, "exception", list(map(str, self._messages_exception))
         )
 
-    def assert_message_error(self, fragment: str) -> None:
+    def assert_message_error(self, fragments: str | Iterable[str]) -> None:
         """
         Assert that an error message was sent.
         """
-        self._assert_message(fragment, "error")
+        self._assert_localizable_message(fragments, "error")
 
-    def assert_message_warning(self, fragment: str) -> None:
+    def assert_message_warning(self, fragments: str | Iterable[str]) -> None:
         """
         Assert that a warning message was sent.
         """
-        self._assert_message(fragment, "warning")
+        self._assert_localizable_message(fragments, "warning")
 
-    def assert_message_information(self, fragment: str) -> None:
+    def assert_message_information(self, fragments: str | Iterable[str]) -> None:
         """
         Assert that an information message was sent.
         """
-        self._assert_message(fragment, "information")
+        self._assert_localizable_message(fragments, "information")
 
-    def assert_message_debug(self, fragment: str) -> None:
+    def assert_message_debug(self, fragments: str | Iterable[str]) -> None:
         """
         Assert that a debug message was sent.
         """
-        self._assert_message(fragment, "debug")
+        self._assert_localizable_message(fragments, "debug")
 
-    def _assert_not_message(self, fragment: str, message_type: str) -> None:
-        for message in getattr(self, f"_messages_{message_type}"):  # type: ignore[attr-defined]
-            if fragment in message.localize(DEFAULT_LOCALIZER):
+    def _assert_not_message(
+        self,
+        fragments: str | Iterable[str],
+        message_type: str,
+        messages: Collection[str],
+    ) -> None:
+        if isinstance(fragments, str):
+            fragments = [fragments]
+        for message in messages:
+            if self._message_contains(message, fragments):
                 raise AssertionError(
-                    f'Failed asserting that no "{message_type}" message was sent containing the fragment "{fragment}".'
+                    f'Failed asserting that a(n) "{message_type}" message was sent containing the fragment(s) {self._format_fragments(fragments)}.'
                 )
 
-    def assert_not_message_exception(self, fragment: str) -> None:
+    def _assert_not_localizable_message(
+        self, fragments: str | Iterable[str], message_type: str
+    ) -> None:
+        self._assert_not_message(
+            fragments,
+            message_type,
+            [
+                message.localize(DEFAULT_LOCALIZER)
+                for message in getattr(self, f"_messages_{message_type}")  # type: ignore[attr-defined]
+            ],
+        )
+
+    def assert_not_message_exception(self, fragments: str | Iterable[str]) -> None:
         """
         Assert that no exception message was sent.
         """
-        for exception in self._messages_exception:
-            if fragment in str(exception):
-                raise AssertionError(
-                    f'Failed asserting that no "exception" message was sent containing the fragment "{fragment}".'
-                )
+        self._assert_not_message(
+            fragments, "exception", list(map(str, self._messages_exception))
+        )
 
-    def assert_not_message_error(self, fragment: str) -> None:
+    def assert_not_message_error(self, fragments: str | Iterable[str]) -> None:
         """
         Assert that no error message was sent.
         """
-        self._assert_not_message(fragment, "error")
+        self._assert_not_localizable_message(fragments, "error")
 
-    def assert_not_message_warning(self, fragment: str) -> None:
+    def assert_not_message_warning(self, fragments: str | Iterable[str]) -> None:
         """
         Assert that no warning message was sent.
         """
-        self._assert_not_message(fragment, "warning")
+        self._assert_not_localizable_message(fragments, "warning")
 
-    def assert_not_message_information(self, fragment: str) -> None:
+    def assert_not_message_information(self, fragments: str | Iterable[str]) -> None:
         """
         Assert that no information message was sent.
         """
-        self._assert_not_message(fragment, "information")
+        self._assert_not_localizable_message(fragments, "information")
 
-    def assert_not_message_debug(self, fragment: str) -> None:
+    def assert_not_message_debug(self, fragments: str | Iterable[str]) -> None:
         """
         Assert that no debug message was sent.
         """
-        self._assert_not_message(fragment, "debug")
+        self._assert_not_localizable_message(fragments, "debug")
 
     @override
     async def message_exception(self) -> None:
