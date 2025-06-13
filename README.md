@@ -17,7 +17,7 @@ View the author's own Betty site at [ancestry.bartfeenstra.com](https://ancestry
 
 ## Documentation
 
-View the documentation at [https://betty.readthedocs.io/](https://betty.readthedocs.io/0.5.x).
+View the documentation at [https://betty.readthedocs.io/](https://betty.readthedocs.io).
 
 ## Sponsors
 
