@@ -38,7 +38,7 @@ sys.exit(1)"""
     async with aiofiles.open(script_path, "w") as f:
         await f.write(python_script)
     with pytest.raises(SubprocessError), caplog.at_level(logging.NOTSET):
-        await run_process(["python", str(script_path)], shell=shell)
+        await run_process(["python", "-W", "ignore", str(script_path)], shell=shell)
     assert "stdout:\n" not in caplog.text
     assert "stderr:\n" not in caplog.text
 
@@ -64,7 +64,7 @@ sys.exit(1)"""
     async with aiofiles.open(script_path, "w") as f:
         await f.write(python_script)
     with pytest.raises(SubprocessError), caplog.at_level(logging.NOTSET):
-        await run_process(["python", str(script_path)], shell=shell)
+        await run_process(["python", "-W", "ignore", str(script_path)], shell=shell)
     assert f"stdout:\n{stdout_sentinel}" in caplog.text
     assert f"stderr:\n{stderr_sentinel}" in caplog.text
 
