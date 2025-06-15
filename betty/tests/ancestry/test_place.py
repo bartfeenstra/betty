@@ -13,7 +13,8 @@ from betty.ancestry.link import Link
 from betty.ancestry.name import Name
 from betty.ancestry.place import Place
 from betty.ancestry.place_type.place_types import Unknown as UnknownPlaceType
-from betty.locale import UNDETERMINED_LOCALE
+from betty.locale import DEFAULT_LOCALE, UNDETERMINED_LOCALE
+from betty.locale.localizable import plain
 from betty.model.association import AssociationRequired, TemporaryToOneResolver
 from betty.test_utils.ancestry.place_type import DummyPlaceType
 from betty.test_utils.json.linked_data import assert_dumps_linked_data
@@ -167,7 +168,7 @@ class TestPlace(EntityTestBase):
         longitude = -54.321
         coordinates = Point(latitude, longitude)
         link = Link("https://example.com/the-place")
-        link.label = "The Place Online"  # type: ignore[assignment]
+        link.label = plain("The Place Online")
         place = Place(
             id=place_id,
             names=[Name(name)],
@@ -202,7 +203,7 @@ class TestPlace(EntityTestBase):
                 {
                     "@context": {"description": "https://schema.org/description"},
                     "url": "https://example.com/the-place",
-                    "label": {UNDETERMINED_LOCALE: "The Place Online"},
+                    "label": {DEFAULT_LOCALE: "The Place Online"},
                     "locale": "und",
                     "description": {},
                 },

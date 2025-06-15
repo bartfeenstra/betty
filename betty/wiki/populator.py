@@ -25,6 +25,7 @@ from betty.locale import (
     to_locale,
 )
 from betty.locale.error import LocaleError
+from betty.locale.localizable import _, static
 from betty.media_type.media_types import HTML
 from betty.typing import internal, threadsafe
 from betty.wiki import NotAPageError, parse_page_url
@@ -101,7 +102,7 @@ class Populator:
                     summary_links.append((page_language, page_name))
 
             summary = None
-            if not link.label:
+            if not link.has_label:
                 with suppress(FetchError):
                     summary = await self._client.get_summary(page_language, page_name)
             await self._populate_link(link, page_language, summary)
@@ -166,8 +167,8 @@ class Populator:
                 link.description = (
                     await self._localizers.get_negotiated(link.locale)
                 )._("Read more on Wikipedia.")
-        if summary is not None and not link.label:
-            link.label[summary_language] = summary.title
+        if summary is not None and not link.has_label:
+            link.label = static({summary_language: summary.title})
 
     async def _populate_place(self, place: Place) -> None:
         await self._populate_place_coordinates(place)
@@ -228,9 +229,7 @@ class Populator:
                     links.append(
                         Link(
                             f"{image.wikimedia_commons_url}?uselang={locale}",
-                            label=localizer._(
-                                "Description, licensing, and image history"
-                            ),
+                            label=_("Description, licensing, and image history"),
                             description=localizer._(
                                 "Find out more about this image on Wikimedia Commons."
                             ),

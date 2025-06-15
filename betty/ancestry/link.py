@@ -21,10 +21,11 @@ from betty.json.schema import Array, String
 from betty.link import Link as StdLink
 from betty.locale import UNDETERMINED_LOCALE
 from betty.locale.localizable import (
-    OptionalStaticTranslationsLocalizableAttr,
+    Localizable,
     ShorthandStaticTranslations,
     StaticTranslationsLocalizable,
     StaticTranslationsLocalizableSchema,
+    plain,
 )
 from betty.privacy import is_public
 
@@ -46,14 +47,13 @@ class Link(
 
     #: The link's `IANA link relationship <https://www.iana.org/assignments/link-relations/link-relations.xhtml>`_.
     relationship: str | None
-    _label = OptionalStaticTranslationsLocalizableAttr("_label", title="Label")
 
     def __init__(
         self,
         url: str,
         *,
         relationship: str | None = None,
-        label: ShorthandStaticTranslations | None = None,
+        label: Localizable | None = None,
         description: ShorthandStaticTranslations | None = None,
         media_type: MediaType | None = None,
         locale: str = UNDETERMINED_LOCALE,
@@ -64,8 +64,7 @@ class Link(
             locale=locale,
         )
         self._url = url
-        if label:
-            self._label = label
+        self._label = label
         self.relationship = relationship
 
     @override  # type: ignore[explicit-override]
@@ -79,23 +78,37 @@ class Link(
 
     @override  # type: ignore[explicit-override]
     @property
-    def label(self) -> StaticTranslationsLocalizable:
-        return self._label
+    def label(self) -> Localizable:
+        return plain(self.url) if self._label is None else self._label
 
     @label.setter
-    def label(self, label: ShorthandStaticTranslations) -> None:
+    def label(self, label: Localizable | None) -> None:
         self._label = label
 
     @label.deleter
     def label(self) -> None:
         del self._label
 
+    @property
+    def has_label(self) -> bool:
+        """
+        Whether the link has an explicit label set.
+        """
+        return self._label is not None
+
     @override
     async def dump_linked_data(self, project: Project) -> DumpMapping[Dump]:
         dump = await super().dump_linked_data(project)
         dump["url"] = self.url
-        if self._label:
-            dump["label"] = await self._label.dump_linked_data(project)
+        if self._label is not None:
+            localizers = await project.localizers
+            dump["label"] = await StaticTranslationsLocalizable.from_localizable(
+                self._label,
+                *[
+                    await localizers.get(locale)
+                    for locale in project.configuration.locales
+                ],
+            ).dump_linked_data(project)
         if self.relationship is not None:
             dump["relationship"] = self.relationship
         return dump

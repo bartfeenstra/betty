@@ -45,7 +45,7 @@ async def test_load__should_fetch_link_with_unsupported_content_type(
         async with project:
             await load(project)
 
-        assert not link.label
+        assert not link.has_label
         assert not link.description
 
 
@@ -81,7 +81,7 @@ async def test_load__should_fetch_link_with_invalid_html(
         async with project:
             await load(project)
 
-        assert not link.label
+        assert not link.has_label
         assert not link.description
 
 
@@ -155,7 +155,7 @@ async def test_load__should_fetch_link_label_with_valid_html_without_title(
         async with project:
             await load(project)
 
-        assert not link.label
+        assert not link.has_label
 
 
 @pytest.mark.parametrize(

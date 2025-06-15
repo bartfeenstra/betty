@@ -356,6 +356,24 @@ class TestLocalizerRepository:
         actual = (await sut.get(locale))._("Subject")
         assert actual == "Subject"
 
+    async def test_localizers(
+        self, multiprocessing_manager: SyncManager, tmp_path: Path
+    ) -> None:
+        locale = "nl-NL"
+        assets_directory_path = tmp_path / "assets"
+        po_file_path = assets_directory_path / "locale" / locale / "betty.po"
+        po_file_path.parent.mkdir(parents=True)
+        async with aiofiles.open(po_file_path, "w") as f:
+            await f.write(_DUMMY_PO)
+        # Do this multiple times so we hit the file caches.
+        for _ in range(2):
+            sut = LocalizerRepository(
+                AssetRepository(assets_directory_path),
+                BinaryFileCache(tmp_path / "cache", manager=multiprocessing_manager),
+            )
+            localizers = await sut.localizers
+            assert locale in (localizer.locale for localizer in localizers)
+
     async def test_coverage__with_default_locale(
         self, multiprocessing_manager: SyncManager, tmp_path: Path
     ) -> None:

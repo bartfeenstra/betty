@@ -3,6 +3,7 @@ from __future__ import annotations
 import gzip
 import tarfile
 from asyncio.subprocess import Process
+from gettext import NullTranslations
 from pathlib import Path
 from typing import TYPE_CHECKING
 from unittest.mock import ANY
@@ -39,7 +40,7 @@ from betty.gramps.error import UserFacingGrampsError
 from betty.gramps.loader import GrampsFileNotFound, GrampsLoader, LoaderUsedAlready
 from betty.license.licenses import PublicDomain as PublicDomainLicense
 from betty.locale import DEFAULT_LOCALE, UNDETERMINED_LOCALE
-from betty.locale.localizer import DEFAULT_LOCALIZER
+from betty.locale.localizer import DEFAULT_LOCALIZER, Localizer
 from betty.media_type import MediaType
 from betty.privacy import Privacy
 from betty.project import Project
@@ -1402,6 +1403,7 @@ class TestGrampsLoader:
         assert len(links) == 1
         link = list(links)[0]
         assert link.url == "https://alexandria.example.com"
+        assert link.label is not None
         assert (
             link.label.localize(DEFAULT_LOCALIZER) == "Library of Alexandria Catalogue"
         )
@@ -1527,7 +1529,7 @@ class TestGrampsLoader:
         link = source.links[0]
         assert link.url == url
         assert not link.description
-        assert not link.label
+        assert not link.has_label
         assert link.locale is UNDETERMINED_LOCALE
         assert link.media_type is None
         assert link.relationship is None
@@ -1536,12 +1538,10 @@ class TestGrampsLoader:
         self,
     ) -> None:
         url = "https://example.com"
-        label_und = "Example.com"
-        label_default = "Also Example.com"
-        description_und = "Check out the world's example domain!"
-        description_default = (
-            "This is supposed to be a translation into the default locale."
-        )
+        label_nl = "Dit is een link"
+        label_undetermined = "This is a link"
+        description_nl = "Dit is de Nederlandse beschrijving"
+        description_undetermined = "This is the default description"
         locale = "en"
         media_type = "text/plain"
         relationship = "external"
@@ -1550,10 +1550,10 @@ class TestGrampsLoader:
 <sources>
     <source handle="_e2b5e77b4cc5c91c9ed60a6cb39" change="1558277217" id="S0000">
       <srcattribute type="betty:link-full:url" value="{url}"/>
-      <srcattribute type="betty:link-full:label" value="{label_und}"/>
-      <srcattribute type="betty:link-full:label:{DEFAULT_LOCALE}" value="{label_default}"/>
-      <srcattribute type="betty:link-full:description" value="{description_und}"/>
-      <srcattribute type="betty:link-full:description:{DEFAULT_LOCALE}" value="{description_default}"/>
+      <srcattribute type="betty:link-full:label" value="{label_undetermined}"/>
+      <srcattribute type="betty:link-full:label:nl" value="{label_nl}"/>
+      <srcattribute type="betty:link-full:description" value="{description_undetermined}"/>
+      <srcattribute type="betty:link-full:description:nl" value="{description_nl}"/>
       <srcattribute type="betty:link-full:locale" value="{locale}"/>
       <srcattribute type="betty:link-full:media_type" value="{media_type}"/>
       <srcattribute type="betty:link-full:relationship" value="{relationship}"/>
@@ -1565,13 +1565,12 @@ class TestGrampsLoader:
         assert source.links
         link = source.links[0]
         assert link.url == url
-        assert link.label.translations == {
-            UNDETERMINED_LOCALE: label_und,
-            DEFAULT_LOCALE: label_default,
-        }
+        assert link.label is not None
+        assert link.label.localize(Localizer("nl", NullTranslations())) == label_nl
+        assert link.label.localize(DEFAULT_LOCALIZER) == label_undetermined
         assert link.description.translations == {
-            UNDETERMINED_LOCALE: description_und,
-            DEFAULT_LOCALE: description_default,
+            "nl": description_nl,
+            UNDETERMINED_LOCALE: description_undetermined,
         }
         assert link.locale == locale
         assert link.media_type == MediaType(media_type)
@@ -2146,6 +2145,7 @@ class TestGrampsLoader:
         links = ancestry[Person]["I0000"].links
         assert len(links) == 1
         link = list(links)[0]
+        assert link.label is not None
         assert (
             link.label.localize(DEFAULT_LOCALIZER) == "Library of Alexandria Catalogue"
         )

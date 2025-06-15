@@ -1,5 +1,6 @@
 from betty.ancestry.link import HasLinks, Link
 from betty.locale import DEFAULT_LOCALE
+from betty.locale.localizable import plain
 from betty.project.extension.raspberry_mint import RaspberryMint
 from betty.test_utils.jinja2 import assert_template_file
 from betty.test_utils.model import DummyEntity
@@ -24,7 +25,7 @@ async def test_minimal() -> None:
 async def test_with_link_without_locale() -> None:
     link_url = "https://example.com"
     link_label = "An example site"
-    link = Link(link_url, label=link_label)
+    link = Link(link_url, label=plain(link_label))
     entity = DummyEntityWithLinks()
     entity.links.append(link)
     async with assert_template_file(
@@ -41,7 +42,7 @@ async def test_with_link_without_locale() -> None:
 async def test_with_link_with_matching_locale() -> None:
     link_url = "https://example.com"
     link_label = "An example site"
-    link = Link(link_url, label=link_label, locale=DEFAULT_LOCALE)
+    link = Link(link_url, label=plain(link_label), locale=DEFAULT_LOCALE)
     entity = DummyEntityWithLinks()
     entity.links.append(link)
     async with assert_template_file(
@@ -58,7 +59,7 @@ async def test_with_link_with_matching_locale() -> None:
 async def test_with_link_without_matching_locale() -> None:
     link_url = "https://example.com"
     link_label = "An example site"
-    link = Link(link_url, label=link_label, locale="nl")
+    link = Link(link_url, label=plain(link_label), locale="nl")
     entity = DummyEntityWithLinks()
     entity.links.append(link)
     async with assert_template_file(

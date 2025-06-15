@@ -102,7 +102,12 @@ from betty.date import Date, DateRange, Datey
 from betty.error import FileNotFound
 from betty.gramps.error import GrampsError, UserFacingGrampsError
 from betty.locale import UNDETERMINED_LOCALE
-from betty.locale.localizable import StaticTranslations, _, plain
+from betty.locale.localizable import (
+    StaticTranslations,
+    StaticTranslationsLocalizable,
+    _,
+    plain,
+)
 from betty.media_type import InvalidMediaType, MediaType
 from betty.model import Entity
 from betty.model.association import ToManyResolver, ToOneResolver, resolve
@@ -1211,7 +1216,7 @@ class GrampsLoader:
             link.relationship = "external"
             description = url_element.get("description")
             if description:
-                link.label = description  # type: ignore[assignment]
+                link.label = plain(description)
             owner.links.append(link)
 
     async def _load_attribute_privacy(
@@ -1296,8 +1301,10 @@ class GrampsLoader:
                     element, tag, f"link-{link_name}:description"
                 )
             if "label" in link_attributes:
-                link.label = self._parse_attribute_static_translations(  # type: ignore[assignment]
-                    element, tag, f"link-{link_name}:label"
+                link.label = StaticTranslationsLocalizable(
+                    self._parse_attribute_static_translations(
+                        element, tag, f"link-{link_name}:label"
+                    )
                 )
             if "locale" in link_attributes:
                 link.locale = link_attributes["locale"]
