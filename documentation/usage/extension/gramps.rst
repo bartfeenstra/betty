@@ -104,7 +104,16 @@ Each item is an object with the following keys:
 ~~~~~~~~~~~~~~~~~~~~~~~
 :sup:`required`
 
-The path to a *Gramps XML* or *Gramps XML Package* file.
+The path to a family history file. Supported file types are:
+
+- CSV (``.csv``)
+- GEDCOM (``.ged``)
+- GeneWeb (``.gw``)
+- Gramps package (``.gpkg``)
+- Gramps XML (``.gramps``)
+- Gramps 2.x database (``.grdb``)
+- Pro-Gen (``.def``)
+- vCard (``.vcf``)
 
 This is mutually exclusive with ``family_trees[].name``.
 

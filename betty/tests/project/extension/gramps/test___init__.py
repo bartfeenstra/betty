@@ -1,6 +1,6 @@
+import gzip
 from pathlib import Path
 
-import aiofiles
 from aiofiles.tempfile import TemporaryDirectory
 from typing_extensions import override
 
@@ -51,9 +51,9 @@ class TestGramps(ExtensionTestBase[Gramps]):
     </events>
 </database>
 """.strip()
-        gramps_family_tree_path = tmp_path / "gramps.xml"
-        async with aiofiles.open(gramps_family_tree_path, mode="w") as f:
-            await f.write(family_tree_xml)
+        gramps_family_tree_path = tmp_path / "betty.gramps"
+        with gzip.open(gramps_family_tree_path, "w") as f:
+            f.write(family_tree_xml.encode("utf-8"))
 
         async with Project.new_temporary(new_temporary_app) as project:
             project.configuration.extensions.append(
@@ -94,9 +94,9 @@ class TestGramps(ExtensionTestBase[Gramps]):
     </places>
 </database>
 """.strip()
-        gramps_family_tree_path = tmp_path / "gramps.xml"
-        async with aiofiles.open(gramps_family_tree_path, mode="w") as f:
-            await f.write(family_tree_xml)
+        gramps_family_tree_path = tmp_path / "betty.gramps"
+        with gzip.open(gramps_family_tree_path, "w") as f:
+            f.write(family_tree_xml.encode("utf-8"))
 
         async with Project.new_temporary(new_temporary_app) as project:
             project.configuration.extensions.append(
@@ -145,9 +145,9 @@ class TestGramps(ExtensionTestBase[Gramps]):
     </events>
 </database>
 """.strip()
-        gramps_family_tree_path = tmp_path / "gramps.xml"
-        async with aiofiles.open(gramps_family_tree_path, mode="w") as f:
-            await f.write(family_tree_xml)
+        gramps_family_tree_path = tmp_path / "betty.gramps"
+        with gzip.open(gramps_family_tree_path, "w") as f:
+            f.write(family_tree_xml.encode("utf-8"))
 
         async with Project.new_temporary(new_temporary_app) as project:
             project.configuration.extensions.append(
@@ -270,13 +270,13 @@ class TestGramps(ExtensionTestBase[Gramps]):
 """.strip()
         async with TemporaryDirectory() as working_directory_path_str:
             working_directory_path = Path(working_directory_path_str)
-            gramps_family_tree_one_path = working_directory_path / "one.xml"
-            async with aiofiles.open(gramps_family_tree_one_path, mode="w") as f:
-                await f.write(family_tree_one_xml)
+            gramps_family_tree_one_path = working_directory_path / "one.gramps"
+            with gzip.open(gramps_family_tree_one_path, "w") as f:
+                f.write(family_tree_one_xml.encode("utf-8"))
 
-            gramps_family_tree_two_path = working_directory_path / "two.xml"
-            async with aiofiles.open(gramps_family_tree_two_path, mode="w") as f:
-                await f.write(family_tree_two_xml)
+            gramps_family_tree_two_path = working_directory_path / "two.gramps"
+            with gzip.open(gramps_family_tree_two_path, "w") as f:
+                f.write(family_tree_two_xml.encode("utf-8"))
 
             async with Project.new_temporary(new_temporary_app) as project:
                 project.configuration.extensions.append(

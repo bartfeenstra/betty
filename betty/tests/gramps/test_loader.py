@@ -7,7 +7,6 @@ from pathlib import Path
 from typing import TYPE_CHECKING
 from unittest.mock import ANY
 
-import aiofiles
 import pytest
 from aiofiles.tempfile import AiofilesContextManagerTempDir
 
@@ -73,12 +72,46 @@ def _minimal_xml(version: str = "1.7.1") -> str:
     return __MINIMAL_XML.format(version=version)
 
 
+_MINIMAL_GED = """
+0 HEAD
+1 SOUR PAF
+2 NAME Personal Ancestral File
+2 VERS 5.0
+1 DATE 30 NOV 2000
+1 GEDC
+2 VERS 5.5
+2 FORM LINEAGE-LINKED
+1 CHAR ANSEL
+1 SUBM @U1@
+0 @I1@ INDI
+1 NAME John /Smith/
+1 SEX M
+1 FAMS @F1@
+0 @I2@ INDI
+1 NAME Elizabeth /Stansfield/
+1 SEX F
+1 FAMS @F1@
+0 @I3@ INDI
+1 NAME James /Smith/
+1 SEX M
+1 FAMC @F1@
+0 @F1@ FAM
+1 HUSB @I1@
+1 WIFE @I2@
+1 MARR
+1 CHIL @I3@
+0 @U1@ SUBM
+1 NAME Submitter
+0 TRLR
+"""
+
+
 class TestGrampsLoader:
     ATTRIBUTE_PREFIX_KEY = "pre3f1x"
     PROJECT_NAME = "pr0j3ct"
 
     async def test_load_gramps(self, new_temporary_app: App, tmp_path: Path) -> None:
-        gramps_file_path = tmp_path / "gramps.gramps"
+        gramps_file_path = tmp_path / "betty.gramps"
         with gzip.open(gramps_file_path, "w") as f:
             f.write(_minimal_xml().encode("utf-8"))
         async with Project.new_temporary(new_temporary_app) as project, project:
@@ -108,7 +141,7 @@ class TestGrampsLoader:
                 await sut.load_gramps(tmp_path / "non-existent-file")
 
     async def test_load_gpkg(self, new_temporary_app: App, tmp_path: Path) -> None:
-        gramps_file_path = tmp_path / "gramps.gramps"
+        gramps_file_path = tmp_path / "betty.gramps"
         with gzip.open(gramps_file_path, "w") as f:
             f.write(_minimal_xml().encode("utf-8"))
         gpkg_file_path = tmp_path / "gramps.gpkg"
@@ -145,7 +178,7 @@ class TestGrampsLoader:
     async def test_load_file__with_gramps(
         self, new_temporary_app: App, tmp_path: Path
     ) -> None:
-        gramps_file_path = tmp_path / "gramps.gramps"
+        gramps_file_path = tmp_path / "betty.gramps"
         with gzip.open(gramps_file_path, "w") as f:
             f.write(_minimal_xml().encode("utf-8"))
         async with Project.new_temporary(new_temporary_app) as project, project:
@@ -164,7 +197,7 @@ class TestGrampsLoader:
     async def test_load_file__with_gpkg(
         self, new_temporary_app: App, tmp_path: Path
     ) -> None:
-        gramps_file_path = tmp_path / "gramps.gramps"
+        gramps_file_path = tmp_path / "betty.gramps"
         with gzip.open(gramps_file_path, "w") as f:
             f.write(_minimal_xml().encode("utf-8"))
         gpkg_file_path = tmp_path / "gramps.gpkg"
@@ -185,12 +218,24 @@ class TestGrampsLoader:
             with pytest.raises(LoaderUsedAlready):
                 await sut.load_file(gpkg_file_path)
 
-    async def test_load_file__with_xml(
-        self, new_temporary_app: App, tmp_path: Path
+    async def test_load_file__with_ged(
+        self, mocker: MockerFixture, new_temporary_app: App, tmp_path: Path
     ) -> None:
-        xml_file_path = tmp_path / "gramps.xml"
-        async with aiofiles.open(xml_file_path, "w") as f:
-            await f.write(_minimal_xml())
+        gramps_executable = "gramps"
+        ged_file_path = Path("my-first-family-tree.ged")
+        m_aiofiles_context_manager_temp_dir = mocker.AsyncMock(
+            spec=AiofilesContextManagerTempDir
+        )
+        m_aiofiles_context_manager_temp_dir.__aenter__.return_value = str(tmp_path)
+        mocker.patch(
+            "aiofiles.tempfile.TemporaryDirectory",
+            side_effect=lambda: m_aiofiles_context_manager_temp_dir,
+        )
+        m_run_process = mocker.patch("betty.subprocess.run_process")
+        m_run_process.side_effect = mocker.AsyncMock(spec=Process)
+        gramps_file_path = tmp_path / "betty.gramps"
+        with gzip.open(gramps_file_path, "w") as f:
+            f.write(_minimal_xml().encode("utf-8"))
         async with Project.new_temporary(new_temporary_app) as project, project:
             sut = GrampsLoader(
                 project.ancestry,
@@ -199,10 +244,10 @@ class TestGrampsLoader:
                 licenses=await project.license_repository,
                 genders=project.gender_repository,
                 attribute_prefix_key=self.ATTRIBUTE_PREFIX_KEY,
+                executable=gramps_executable,
             )
-            await sut.load_file(xml_file_path)
-            with pytest.raises(LoaderUsedAlready):
-                await sut.load_file(xml_file_path)
+            await sut.load_file(ged_file_path)
+        m_run_process.assert_awaited()
 
     async def test_load_file__with_non_existent_file(
         self, new_temporary_app: App, tmp_path: Path
