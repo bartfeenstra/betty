@@ -108,6 +108,7 @@ from betty.locale.localizable import (
     StaticTranslationsLocalizable,
     _,
     plain,
+    static,
 )
 from betty.media_type import InvalidMediaType, MediaType
 from betty.model import Entity
@@ -1085,9 +1086,11 @@ class GrampsLoader:
             element,
             "attribute",
         )
-        event.name = self._parse_attribute_static_translations(
+        event_name_translations = self._parse_attribute_static_translations(
             element, "attribute", "name"
         )
+        if event_name_translations:
+            event.name = static(event_name_translations)
 
         self._add_entity(event, event_handle)
 

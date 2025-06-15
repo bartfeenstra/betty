@@ -16,7 +16,7 @@ from betty.ancestry.presence import Presence
 from betty.ancestry.presence_role.presence_roles import Subject
 from betty.ancestry.source import Source
 from betty.date import Date, DateRange
-from betty.locale import DEFAULT_LOCALE, UNDETERMINED_LOCALE
+from betty.locale import DEFAULT_LOCALE
 from betty.locale.localizable import plain
 from betty.locale.localizer import DEFAULT_LOCALIZER
 from betty.model.association import AssociationRequired, TemporaryToOneResolver
@@ -59,7 +59,8 @@ class TestEvent(EntityTestBase):
 
     def test___init____with_name(self) -> None:
         name = "The Event"
-        sut = Event(name=name)
+        sut = Event(name=plain(name))
+        assert sut.name is not None
         assert sut.name.localize(DEFAULT_LOCALIZER) == name
 
     async def test_id(self) -> None:
@@ -126,7 +127,8 @@ class TestEvent(EntityTestBase):
     async def test_name(self) -> None:
         name = "The Event"
         sut = Event()
-        sut.name = name
+        sut.name = plain(name)
+        assert sut.name is not None
         assert sut.name.localize(DEFAULT_LOCALIZER) == name
 
     async def test_dump_linked_data__should_dump_minimal(self) -> None:
@@ -151,7 +153,6 @@ class TestEvent(EntityTestBase):
             "citations": [],
             "notes": [],
             "links": [],
-            "name": {},
             "fileReferences": [],
             "place": None,
         }
@@ -167,7 +168,7 @@ class TestEvent(EntityTestBase):
                 id="the_place",
                 names=[Name("The Place")],
             ),
-            name="The Event",
+            name=plain("The Event"),
             description=plain("The Event Description"),
         )
         presence = Presence(Person(id="the_person"), Subject(), event)
@@ -230,7 +231,7 @@ class TestEvent(EntityTestBase):
             },
             "place": "/place/the_place/index.json",
             "links": [],
-            "name": {UNDETERMINED_LOCALE: "The Event"},
+            "name": {DEFAULT_LOCALE: "The Event"},
             "description": {DEFAULT_LOCALE: "The Event Description"},
             "fileReferences": [],
         }
@@ -285,7 +286,6 @@ class TestEvent(EntityTestBase):
             "notes": [],
             "place": "/place/the_place/index.json",
             "links": [],
-            "name": None,
             "fileReferences": [],
         }
         actual = await assert_dumps_linked_data(event)
@@ -295,4 +295,3 @@ class TestEvent(EntityTestBase):
         sut = Event()
         sut.immutable()
         assert sut.event_type.is_immutable
-        assert sut.name.is_immutable
