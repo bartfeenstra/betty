@@ -16,7 +16,8 @@ from betty.ancestry.presence import Presence
 from betty.ancestry.presence_role.presence_roles import Subject
 from betty.ancestry.source import Source
 from betty.date import Date, DateRange
-from betty.locale import UNDETERMINED_LOCALE
+from betty.locale import DEFAULT_LOCALE, UNDETERMINED_LOCALE
+from betty.locale.localizable import plain
 from betty.locale.localizer import DEFAULT_LOCALIZER
 from betty.model.association import AssociationRequired, TemporaryToOneResolver
 from betty.privacy import Privacy
@@ -38,9 +39,9 @@ class TestEvent(EntityTestBase):
     async def get_sut_instances(self) -> Sequence[Entity]:
         return [
             Event(),
-            Event(description="My First Event"),
+            Event(description=plain("My First Event")),
             Event(
-                description="My First Event",
+                description=plain("My First Event"),
                 presences=[Presence(Person(), Subject(), TemporaryToOneResolver())],
             ),
         ]
@@ -151,7 +152,6 @@ class TestEvent(EntityTestBase):
             "notes": [],
             "links": [],
             "name": {},
-            "description": {},
             "fileReferences": [],
             "place": None,
         }
@@ -168,6 +168,7 @@ class TestEvent(EntityTestBase):
                 names=[Name("The Place")],
             ),
             name="The Event",
+            description=plain("The Event Description"),
         )
         presence = Presence(Person(id="the_person"), Subject(), event)
         event.citations.add(
@@ -230,7 +231,7 @@ class TestEvent(EntityTestBase):
             "place": "/place/the_place/index.json",
             "links": [],
             "name": {UNDETERMINED_LOCALE: "The Event"},
-            "description": {},
+            "description": {DEFAULT_LOCALE: "The Event Description"},
             "fileReferences": [],
         }
         actual = await assert_dumps_linked_data(event)
@@ -285,7 +286,6 @@ class TestEvent(EntityTestBase):
             "place": "/place/the_place/index.json",
             "links": [],
             "name": None,
-            "description": None,
             "fileReferences": [],
         }
         actual = await assert_dumps_linked_data(event)

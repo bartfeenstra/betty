@@ -754,7 +754,7 @@ class GrampsLoader:
         file.media_type = MediaType(mime)
         description = file_element.get("description")
         if description:
-            file.description = description
+            file.description = plain(description)
         if element.get("priv") == "1":
             file.private = True
 
@@ -1070,7 +1070,7 @@ class GrampsLoader:
         with suppress(XPathError):
             description = self._xpath1(element, "./ns:description").text
             if description:
-                event.description = description
+                event.description = plain(description)
 
         if element.get("priv") == "1":
             event.private = True
@@ -1322,8 +1322,10 @@ class GrampsLoader:
             link = Link(link_attributes["url"])
             entity.links.append(link)
             if "description" in link_attributes:
-                link.description = self._parse_attribute_static_translations(
-                    element, tag, f"link-{link_name}:description"
+                link.description = StaticTranslationsLocalizable(
+                    self._parse_attribute_static_translations(
+                        element, tag, f"link-{link_name}:description"
+                    )
                 )
             if "label" in link_attributes:
                 link.label = StaticTranslationsLocalizable(

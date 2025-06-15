@@ -107,7 +107,7 @@ class Event(
         public: bool | None = None,
         private: bool | None = None,
         place: ToZeroOrOneAssociate[Place] = None,
-        description: ShorthandStaticTranslations | None = None,
+        description: Localizable | None = None,
         presences: ToManyAssociates[Presence] | None = None,
         name: ShorthandStaticTranslations | None = None,
     ):

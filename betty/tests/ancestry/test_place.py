@@ -205,7 +205,6 @@ class TestPlace(EntityTestBase):
                     "url": "https://example.com/the-place",
                     "label": {DEFAULT_LOCALE: "The Place Online"},
                     "locale": "und",
-                    "description": {},
                 },
             ],
             "coordinates": {

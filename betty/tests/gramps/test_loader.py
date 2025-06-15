@@ -1126,6 +1126,7 @@ class TestGrampsLoader:
 """
         )
         event = ancestry[Event]["E0000"]
+        assert event.description is not None
         assert event.description.localize(DEFAULT_LOCALIZER) == "Something happened!"
 
     async def test_event_should_include_note(self) -> None:
@@ -1611,12 +1612,12 @@ class TestGrampsLoader:
         link = source.links[0]
         assert link.url == url
         assert link.label is not None
-        assert link.label.localize(Localizer("nl", NullTranslations())) == label_nl
+        localizer_nl = Localizer("nl", NullTranslations())
+        assert link.label.localize(localizer_nl) == label_nl
         assert link.label.localize(DEFAULT_LOCALIZER) == label_undetermined
-        assert link.description.translations == {
-            "nl": description_nl,
-            UNDETERMINED_LOCALE: description_undetermined,
-        }
+        assert link.description is not None
+        assert link.description.localize(localizer_nl) == description_nl
+        assert link.description.localize(DEFAULT_LOCALIZER) == description_undetermined
         assert link.locale == locale
         assert link.media_type == MediaType(media_type)
         assert link.relationship == relationship
@@ -1812,6 +1813,7 @@ class TestGrampsLoader:
 """
         )
         file = ancestry[File]["O0000"]
+        assert file.description is not None
         assert file.description.localize(DEFAULT_LOCALIZER) == "My First Description"
 
     async def test_file_not_exists_should_error(self, tmp_path: Path) -> None:

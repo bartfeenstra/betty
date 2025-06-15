@@ -15,7 +15,6 @@ from betty.ancestry.link import HasLinks, Link
 from betty.ancestry.media_type import HasMediaType
 from betty.locale.localizable import (
     Localizable,
-    ShorthandStaticTranslations,
     _,
     ngettext,
 )
@@ -90,7 +89,7 @@ class File(
         id: str | None = None,  # noqa A002  # noqa A002
         name: str | None = None,
         media_type: MediaType | None = None,
-        description: ShorthandStaticTranslations | None = None,
+        description: Localizable | None = None,
         notes: ToManyAssociates[Note] | None = None,
         citations: ToManyAssociates[Citation] | None = None,
         privacy: Privacy | None = None,

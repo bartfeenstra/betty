@@ -91,7 +91,6 @@ class TestLink:
             "@context": {"description": "https://schema.org/description"},
             "url": "https://example.com",
             "locale": "und",
-            "description": {},
         }
         actual = await assert_dumps_linked_data(link)
         assert actual == expected
@@ -99,7 +98,8 @@ class TestLink:
     async def test_dump_linked_data__should_dump_full(self) -> None:
         link = Link(
             "https://example.com",
-            label=plain("The Link"),
+            label=plain("The Label"),
+            description=plain("The Description"),
             relationship="external",
             locale="nl-NL",
             media_type=HTML,
@@ -108,10 +108,10 @@ class TestLink:
             "@context": {"description": "https://schema.org/description"},
             "url": "https://example.com",
             "relationship": "external",
-            "label": {DEFAULT_LOCALE: "The Link"},
+            "label": {DEFAULT_LOCALE: "The Label"},
+            "description": {DEFAULT_LOCALE: "The Description"},
             "locale": "nl-NL",
             "mediaType": "text/html",
-            "description": {},
         }
         actual = await assert_dumps_linked_data(link)
         assert actual == expected
@@ -188,7 +188,6 @@ class TestHasLinks:
                             },
                             "url": "https://example.com",
                             "locale": "und",
-                            "description": {},
                         }
                     ]
                 },
