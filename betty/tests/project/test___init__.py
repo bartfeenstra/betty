@@ -12,7 +12,7 @@ import betty.ancestry.place
 from betty.ancestry import Ancestry
 from betty.app import App
 from betty.app.factory import AppDependentFactory
-from betty.assertion.error import AssertionFailed
+from betty.exception import UserFacingException
 from betty.json.schema import JsonSchemaSchema
 from betty.locale.localizable import Localizable, plain
 from betty.plugin.config import PluginConfiguration
@@ -143,7 +143,7 @@ class TestProject:
             sut.configuration.entity_types.replace(
                 EntityTypeConfiguration(plugin, generate_html_list=True)
             )
-            with pytest.raises(AssertionFailed):
+            with pytest.raises(UserFacingException):
                 async with sut:
                     pass
 

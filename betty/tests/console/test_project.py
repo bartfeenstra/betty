@@ -8,9 +8,9 @@ import aiofiles
 import pytest
 
 from betty.app import App
-from betty.assertion.error import AssertionFailed
 from betty.console import call_command_func
 from betty.console.project import add_project_argument
+from betty.exception import UserFacingException
 from betty.project import Project
 
 if TYPE_CHECKING:
@@ -75,5 +75,5 @@ async def test_add_project_argument__without_argument_without_file(
     )
     namespace = parser.parse_args([])
     assert namespace.project_configuration_file_path is None
-    with chdir(tmp_path), pytest.raises(AssertionFailed):
+    with chdir(tmp_path), pytest.raises(UserFacingException):
         await call_command_func(command_function, namespace)

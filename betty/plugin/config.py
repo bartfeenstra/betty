@@ -16,10 +16,10 @@ from betty.assertion import (
     assert_record,
     assert_setattr,
 )
-from betty.assertion.error import AssertionFailed
 from betty.config import Configuration, DefaultConfigurable
 from betty.config.collections import ConfigurationKey
 from betty.config.collections.mapping import ConfigurationMapping
+from betty.exception import UserFacingException
 from betty.locale.localizable import _
 from betty.locale.localizable.config import (
     OptionalStaticTranslationsLocalizableConfigurationAttr,
@@ -227,7 +227,7 @@ class PluginInstanceConfiguration(Configuration):
         plugin = await repository.new_target(self.id)
         if not_void(self.configuration):
             if not isinstance(plugin, DefaultConfigurable):  # type: ignore[redundant-expr]
-                raise AssertionFailed(
+                raise UserFacingException(
                     _(
                         "Plugin {plugin_label} ({plugin_id}) is not configurable, but configuration was given."
                     ).format(

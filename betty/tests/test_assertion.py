@@ -35,11 +35,10 @@ from betty.assertion import (
     assert_setattr,
     assert_str,
 )
-from betty.assertion.error import AssertionFailed, Index, Key
-from betty.exception import UserFacingException
+from betty.exception import Index, Key, UserFacingException
 from betty.locale import DEFAULT_LOCALE, UNDETERMINED_LOCALE
 from betty.locale.localizable import static
-from betty.test_utils.assertion.error import raises_error
+from betty.test_utils.exception import raises_error
 from betty.typing import Void
 
 if TYPE_CHECKING:
@@ -73,7 +72,7 @@ def _always_valid(value: int) -> int:
 
 
 def _always_invalid(value: int) -> int:
-    raise AssertionFailed(static(""))
+    raise UserFacingException(static(""))
 
 
 @pytest.mark.parametrize(
@@ -93,7 +92,7 @@ def test_assert_or__with_valid_assertion(
 
 
 def test_assert_or__with_invalid_assertion() -> None:
-    with raises_error(error_type=AssertionFailed):
+    with raises_error(error_type=UserFacingException):
         assert_or(_always_invalid, _always_invalid)(123)
 
 
@@ -102,7 +101,7 @@ def test_assert_bool__with_valid_value() -> None:
 
 
 def test_assert_bool__with_invalid_value() -> None:
-    with raises_error(error_type=AssertionFailed):
+    with raises_error(error_type=UserFacingException):
         assert_bool()(123)
 
 
@@ -111,7 +110,7 @@ def test_assert_int__with_valid_value() -> None:
 
 
 def test_assert_int__with_invalid_value() -> None:
-    with raises_error(error_type=AssertionFailed):
+    with raises_error(error_type=UserFacingException):
         assert_int()(False)
 
 
@@ -120,7 +119,7 @@ def test_assert_float__with_valid_value() -> None:
 
 
 def test_assert_float__with_invalid_value() -> None:
-    with raises_error(error_type=AssertionFailed):
+    with raises_error(error_type=UserFacingException):
         assert_float()(False)
 
 
@@ -136,7 +135,7 @@ def test_assert_number__with_valid_value(value: Number) -> None:
 
 
 def test_assert_number__with_invalid_value() -> None:
-    with raises_error(error_type=AssertionFailed):
+    with raises_error(error_type=UserFacingException):
         assert_number()(False)
 
 
@@ -162,7 +161,7 @@ def test_assert_positive_number__with_valid_value(value: int | float) -> None:
     ],
 )
 def test_assert_positive_number__with_invalid_value(value: int | float) -> None:
-    with raises_error(error_type=AssertionFailed):
+    with raises_error(error_type=UserFacingException):
         assert_positive_number()(value)
 
 
@@ -171,7 +170,7 @@ def test_assert_str__with_valid_value() -> None:
 
 
 def test_assert_str__with_invalid_value() -> None:
-    with raises_error(error_type=AssertionFailed):
+    with raises_error(error_type=UserFacingException):
         assert_str()(False)
 
 
@@ -187,12 +186,12 @@ def test_assert_str__with_invalid_value() -> None:
     ],
 )
 def test_assert_sequence__with_invalid_top_level_value(value: Any) -> None:
-    with raises_error(error_type=AssertionFailed):
+    with raises_error(error_type=UserFacingException):
         assert_sequence()(value)
 
 
 def test_assert_sequence__with_invalid_item() -> None:
-    with raises_error(error_type=AssertionFailed, error_contexts=[Index(0)]):
+    with raises_error(error_type=UserFacingException, error_contexts=[Index(0)]):
         assert_sequence(assert_str())([123])
 
 
@@ -211,12 +210,12 @@ def test_assert_sequence__valid(
 
 
 def test_assert_fields__with_invalid_value() -> None:
-    with raises_error(error_type=AssertionFailed):
+    with raises_error(error_type=UserFacingException):
         assert_fields(OptionalField("hello", assert_str()))(None)
 
 
 def test_assert_fields__required_without_key() -> None:
-    with raises_error(error_type=AssertionFailed, error_contexts=[Key("hello")]):
+    with raises_error(error_type=UserFacingException, error_contexts=[Key("hello")]):
         assert_fields(RequiredField("hello", assert_str()))({})
 
 
@@ -251,12 +250,12 @@ def test_assert_fields__without_field_assertion() -> None:
 
 
 def test_assert_field__with_invalid_value() -> None:
-    with raises_error(error_type=AssertionFailed):
+    with raises_error(error_type=UserFacingException):
         assert_field(OptionalField("hello", assert_str()))(None)
 
 
 def test_assert_field__required_without_key() -> None:
-    with raises_error(error_type=AssertionFailed, error_contexts=[Key("hello")]):
+    with raises_error(error_type=UserFacingException, error_contexts=[Key("hello")]):
         assert_field(RequiredField("hello", assert_str()))({})
 
 
@@ -291,17 +290,17 @@ def test_assert_field__optional_key_with_key() -> None:
     ],
 )
 def test_assert_mapping__with_invalid_top_level_value(value: Any) -> None:
-    with raises_error(error_type=AssertionFailed):
+    with raises_error(error_type=UserFacingException):
         assert_mapping()(value)
 
 
 def test_assert_mapping__with_invalid_item_value() -> None:
-    with raises_error(error_type=AssertionFailed, error_contexts=[Key("abc")]):
+    with raises_error(error_type=UserFacingException, error_contexts=[Key("abc")]):
         assert_mapping(assert_str())({"abc": 123})
 
 
 def test_assert_mapping__with_invalid_item_key() -> None:
-    with raises_error(error_type=AssertionFailed, error_contexts=[Key("123")]):
+    with raises_error(error_type=UserFacingException, error_contexts=[Key("123")]):
         assert_mapping(None, assert_str())({123: "abc"})
 
 
@@ -345,7 +344,7 @@ def test_assert_record__with_optional_fields_with_items() -> None:
 
 
 def test_assert_record__with_required_fields_without_items() -> None:
-    with raises_error(error_type=AssertionFailed):
+    with raises_error(error_type=UserFacingException):
         assert_record(RequiredField("hello", assert_str()))({})
 
 
@@ -372,12 +371,12 @@ def test_assert_path__with_valid_path_path() -> None:
 
 
 def test_assert_directory_path__without_existing_path() -> None:
-    with raises_error(error_type=AssertionFailed):
+    with raises_error(error_type=UserFacingException):
         assert_directory_path()("~/../foo/bar")
 
 
 def test_assert_directory_path__without_directory_path() -> None:
-    with NamedTemporaryFile() as f, raises_error(error_type=AssertionFailed):
+    with NamedTemporaryFile() as f, raises_error(error_type=UserFacingException):
         assert_directory_path()(f.name)
 
 
@@ -418,7 +417,7 @@ def test_assert_isinstance__without_instance() -> None:
     class MyClass:
         pass
 
-    with pytest.raises(AssertionFailed):
+    with pytest.raises(UserFacingException):
         assert assert_isinstance(MyClass)(object())  # type: ignore[truthy-bool]
 
 
@@ -452,7 +451,7 @@ def test_assert_len__exact_with_valid_value(exact: int, value: Sized) -> None:
     ],
 )
 def test_assert_len__exact_with_invalid_value(exact: int, value: Sized) -> None:
-    with pytest.raises(AssertionFailed):
+    with pytest.raises(UserFacingException):
         assert_len(exact)(value)
 
 
@@ -508,7 +507,7 @@ def test_assert_len__bound_with_valid_value(
 def test_assert_len__bound_with_invalid_value(
     minimum: int | None, maximum: int | None, value: Sized
 ) -> None:
-    with pytest.raises(AssertionFailed):
+    with pytest.raises(UserFacingException):
         assert_len(minimum=minimum, maximum=maximum)(value)
 
 
@@ -529,7 +528,7 @@ def test_assert_none__with_valid_value() -> None:
     ],
 )
 def test_assert_none__with_invalid_value(value: Any) -> None:
-    with pytest.raises(AssertionFailed):
+    with pytest.raises(UserFacingException):
         assert_none()(value)
 
 
@@ -560,7 +559,7 @@ def test_assert_locale__with_valid_value(value: str) -> None:
     ],
 )
 def test_assert_locale__with_invalid_value(value: Any) -> None:
-    with pytest.raises(AssertionFailed):
+    with pytest.raises(UserFacingException):
         assert_locale()(value)
 
 
@@ -591,7 +590,7 @@ def test_assert_locale_identifier__with_valid_value(value: str) -> None:
     ],
 )
 def test_assert_locale_identifier__with_invalid_value(value: Any) -> None:
-    with pytest.raises(AssertionFailed):
+    with pytest.raises(UserFacingException):
         assert_locale_identifier()(value)
 
 

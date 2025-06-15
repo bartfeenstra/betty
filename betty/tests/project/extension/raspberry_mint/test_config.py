@@ -2,11 +2,11 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING, Any
 
-from betty.assertion.error import AssertionFailed
+from betty.exception import UserFacingException
 from betty.model.config import EntityReference
 from betty.plugin.static import StaticPluginRepository
 from betty.project.extension.raspberry_mint.config import RaspberryMintConfiguration
-from betty.test_utils.assertion.error import raises_error
+from betty.test_utils.exception import raises_error
 from betty.test_utils.model import DummyEntity
 from betty.user import UserFacing
 
@@ -49,7 +49,7 @@ class TestRaspberryMintConfiguration:
 
     def test_load__without_dict_should_error(self) -> None:
         dump = None
-        with raises_error(error_type=AssertionFailed):
+        with raises_error(error_type=UserFacingException):
             RaspberryMintConfiguration().load(dump)
 
     def test_load__with_featured_entities(self, mocker: MockerFixture) -> None:
