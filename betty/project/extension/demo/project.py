@@ -32,6 +32,7 @@ from betty.ancestry.presence_role.presence_roles import Subject
 from betty.ancestry.source import Source
 from betty.date import Date, DateRange
 from betty.license.licenses import spdx_license_id_to_license_id
+from betty.locale.localizable import static
 from betty.media_type.media_types import SVG
 from betty.model.config import EntityReference
 from betty.plugin.config import PluginInstanceConfiguration
@@ -514,10 +515,12 @@ Did you know that while Amsterdam is the country's official capital, The Hague i
         date=DateRange(Date(1970, 1, 1), start_is_boundary=True),
         place=netherlands,
         citations=[cite_first_person_account],
-        description={
-            "en-US": "The 'birth of the author', so to speak.",
-            "nl-NL": "De 'geboorte van de auteur', om het zo maar te zeggen.",
-        },
+        description=static(
+            {
+                "en-US": "The 'birth of the author', so to speak.",
+                "nl-NL": "De 'geboorte van de auteur', om het zo maar te zeggen.",
+            }
+        ),
     )
     ancestry.add(birth_of_johan_de_boer)
 

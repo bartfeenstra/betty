@@ -161,7 +161,7 @@ class TestPopulator:
     async def test_populate_link__should_set_description(
         self,
         expected: str,
-        description: str,
+        description: str | None,
         mocker: MockerFixture,
         multiprocessing_manager: SyncManager,
         tmp_path: Path,
@@ -169,7 +169,7 @@ class TestPopulator:
         m_client = mocker.patch("betty.wiki.client.Client")
         link = Link(
             "http://en.wikipedia.org/wiki/Amsterdam",
-            description=description,
+            description=None if description is None else plain(description),
         )
         page_language = "en"
         sut = Populator(
@@ -183,6 +183,7 @@ class TestPopulator:
             WikipediaContributors({}),
         )
         await sut._populate_link(link, page_language)
+        assert link.description is not None
         assert link.description.localize(DEFAULT_LOCALIZER) == expected
 
     @pytest.mark.parametrize(

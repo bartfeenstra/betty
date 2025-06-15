@@ -161,12 +161,8 @@ class Populator:
             link.relationship = "external"
         if link.locale is UNDETERMINED_LOCALE:
             link.locale = summary_language
-        if not link.description:
-            # There are valid reasons for links in locales that aren't supported.
-            with suppress(ValueError):
-                link.description = (
-                    await self._localizers.get_negotiated(link.locale)
-                )._("Read more on Wikipedia.")
+        if link.description is None:
+            link.description = _("Read more on Wikipedia.")
         if summary is not None and not link.has_label:
             link.label = static({summary_language: summary.title})
 
@@ -225,12 +221,11 @@ class Populator:
             except KeyError:
                 links = []
                 for locale in self._locales:
-                    localizer = await self._localizers.get(locale)
                     links.append(
                         Link(
                             f"{image.wikimedia_commons_url}?uselang={locale}",
                             label=_("Description, licensing, and image history"),
-                            description=localizer._(
+                            description=_(
                                 "Find out more about this image on Wikimedia Commons."
                             ),
                             locale=locale,

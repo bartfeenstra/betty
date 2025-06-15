@@ -93,7 +93,7 @@ async def _fetch_link_title(fetcher: Fetcher, link: Link, *, user: User) -> None
     if not link.description:
         description = _extract_html_meta_description(document)
         if description is not None:
-            link.description = description
+            link.description = plain(description)
 
 
 def _extract_html_title(document: Element) -> str | None:

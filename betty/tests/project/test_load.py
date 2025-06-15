@@ -195,6 +195,7 @@ async def test_load__should_fetch_link_description_from_valid_html_with_meta_des
         async with project:
             await load(project)
 
+        assert link.description is not None
         assert (
             link.description.localize(DEFAULT_LOCALIZER) == link_page_meta_description
         )

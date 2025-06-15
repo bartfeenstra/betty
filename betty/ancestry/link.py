@@ -22,7 +22,6 @@ from betty.link import Link as StdLink
 from betty.locale import UNDETERMINED_LOCALE
 from betty.locale.localizable import (
     Localizable,
-    ShorthandStaticTranslations,
     StaticTranslationsLocalizable,
     StaticTranslationsLocalizableSchema,
     plain,
@@ -54,7 +53,7 @@ class Link(
         *,
         relationship: str | None = None,
         label: Localizable | None = None,
-        description: ShorthandStaticTranslations | None = None,
+        description: Localizable | None = None,
         media_type: MediaType | None = None,
         locale: str = UNDETERMINED_LOCALE,
     ):

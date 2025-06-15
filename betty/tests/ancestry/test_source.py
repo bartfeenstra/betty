@@ -214,7 +214,6 @@ class TestSource(EntityTestBase):
                     "url": "https://example.com/the-source",
                     "label": {DEFAULT_LOCALE: "The Source Online"},
                     "locale": "und",
-                    "description": {},
                 },
             ],
         }

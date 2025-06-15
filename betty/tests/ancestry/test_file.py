@@ -16,6 +16,8 @@ from betty.copyright_notice.copyright_notices import (
     PublicDomain as PublicDomainCopyrightNotice,
 )
 from betty.license.licenses import PublicDomain as PublicDomainLicense
+from betty.locale import DEFAULT_LOCALE
+from betty.locale.localizable import plain
 from betty.locale.localizer import DEFAULT_LOCALIZER
 from betty.media_type.media_types import PLAIN_TEXT
 from betty.privacy import Privacy
@@ -38,7 +40,7 @@ class TestFile(EntityTestBase):
     async def get_sut_instances(self) -> Sequence[Entity]:
         return [
             File(Path(__file__)),
-            File(Path(__file__), description="My First File"),
+            File(Path(__file__), description=plain("My First File")),
         ]
 
     async def test_id(self) -> None:
@@ -109,7 +111,8 @@ class TestFile(EntityTestBase):
         )
         assert not sut.description
         description = "Hi, my name is Betty!"
-        sut.description = description
+        sut.description = plain(description)
+        assert sut.description is not None
         assert sut.description.localize(DEFAULT_LOCALIZER) == description
 
     async def test_notes(self) -> None:
@@ -166,7 +169,6 @@ class TestFile(EntityTestBase):
                 "notes": [],
                 "links": [],
                 "referees": [],
-                "description": {},
             }
             actual = await assert_dumps_linked_data(file)
             assert actual == expected
@@ -179,6 +181,7 @@ class TestFile(EntityTestBase):
                 media_type=PLAIN_TEXT,
                 copyright_notice=PublicDomainCopyrightNotice(),
                 license=PublicDomainLicense(),
+                description=plain("The Description"),
             )
             file.notes.add(
                 Note(
@@ -216,7 +219,7 @@ class TestFile(EntityTestBase):
                         "file": "/file/the_file/index.json",
                     },
                 ],
-                "description": {},
+                "description": {DEFAULT_LOCALE: "The Description"},
                 "copyrightNotice": "public-domain",
                 "license": "public-domain",
             }
@@ -230,6 +233,7 @@ class TestFile(EntityTestBase):
                 path=Path(f.name),
                 private=True,
                 media_type=PLAIN_TEXT,
+                description=plain("The File"),
             )
             file.notes.add(
                 Note(
@@ -266,7 +270,6 @@ class TestFile(EntityTestBase):
                         "file": "/file/the_file/index.json",
                     },
                 ],
-                "description": None,
             }
             actual = await assert_dumps_linked_data(file)
             assert actual == expected

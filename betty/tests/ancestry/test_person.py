@@ -321,7 +321,6 @@ class TestPerson(EntityTestBase):
                     "url": "https://example.com/the-person",
                     "label": {DEFAULT_LOCALE: "The Person Online"},
                     "locale": "und",
-                    "description": {},
                 },
             ],
             "fileReferences": [],
