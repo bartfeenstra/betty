@@ -23,8 +23,7 @@ from betty.json.linked_data import JsonLdObject, dump_context
 from betty.json.schema import String
 from betty.locale.localizable import (
     Localizable,
-    OptionalStaticTranslationsLocalizableAttr,
-    ShorthandStaticTranslations,
+    StaticTranslationsLocalizable,
     _,
     call,
     ngettext,
@@ -91,9 +90,6 @@ class Event(
         linked_data_embedded=True,
     )
 
-    #: The human-readable event name.
-    name = OptionalStaticTranslationsLocalizableAttr("name", title="Name")
-
     def __init__(
         self,
         *,
@@ -109,7 +105,7 @@ class Event(
         place: ToZeroOrOneAssociate[Place] = None,
         description: Localizable | None = None,
         presences: ToManyAssociates[Presence] | None = None,
-        name: ShorthandStaticTranslations | None = None,
+        name: Localizable | None = None,
     ):
         super().__init__(
             id,
@@ -127,8 +123,7 @@ class Event(
             self.place = place
         if presences is not None:
             self.presences = presences
-        if name:
-            self.name = name
+        self.name = name
 
     @override
     def get_mutable_instances(self) -> Iterable[Mutable]:
@@ -205,6 +200,15 @@ class Event(
         dump["type"] = self.event_type.plugin_id()
         dump["eventAttendanceMode"] = "https://schema.org/OfflineEventAttendanceMode"
         dump["eventStatus"] = "https://schema.org/EventScheduled"
+        if self.name is not None:
+            localizers = await project.localizers
+            dump["name"] = await StaticTranslationsLocalizable.from_localizable(
+                self.name,
+                *[
+                    await localizers.get(locale)
+                    for locale in project.configuration.locales
+                ],
+            ).dump_linked_data(project)
         return dump
 
     @override

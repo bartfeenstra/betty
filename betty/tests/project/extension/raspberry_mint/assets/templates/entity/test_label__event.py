@@ -4,6 +4,7 @@ from betty.ancestry.person import Person
 from betty.ancestry.presence import Presence
 from betty.ancestry.presence_role.presence_roles import Subject
 from betty.jinja2 import EntityContexts
+from betty.locale.localizable import plain
 from betty.project.extension.raspberry_mint import RaspberryMint
 from betty.test_utils.jinja2 import assert_template_file
 
@@ -24,7 +25,7 @@ async def test_minimal() -> None:
 async def test_with_name() -> None:
     event = Event(
         event_type=Birth(),
-        name="Something happened!",
+        name=plain("Something happened!"),
     )
     expected = '<span lang="und" dir="auto">Something happened!</span>'
     async with assert_template_file(
@@ -42,7 +43,7 @@ async def test_with_persistent_id() -> None:
     event = Event(
         id=event_id,
         event_type=Birth(),
-        name="Something happened!",
+        name=plain("Something happened!"),
     )
     expected = '<a href="/event/EVENT1/index.html"><span lang="und" dir="auto">Something happened!</span></a>'
     async with assert_template_file(
@@ -60,7 +61,7 @@ async def test_with_embedded() -> None:
     event = Event(
         id=event_id,
         event_type=Birth(),
-        name="Something happened!",
+        name=plain("Something happened!"),
     )
     expected = '<span lang="und" dir="auto">Something happened!</span>'
     async with assert_template_file(
