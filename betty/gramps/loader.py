@@ -14,8 +14,9 @@ from dataclasses import dataclass
 from enum import Enum
 from pathlib import Path
 from typing import TYPE_CHECKING, Generic, TypeVar, cast, final
+from uuid import uuid4
+from xml.etree.ElementTree import tostring
 
-import aiofiles
 from aiofiles import tempfile
 from geopy import Point
 from lxml import etree
@@ -278,6 +279,27 @@ DEFAULT_PRESENCE_ROLES_MAPPING = {
 _DEFAULT_GRAMPS_EXECUTABLE = (
     "Gramps.exe" if sys.platform.startswith("win32") else "gramps"
 )
+_GRAMPS_EXTENSIONS_NATIVE = (
+    # Gramps package
+    ".gpkg",
+    # Gramps XML
+    ".gramps",
+)
+_GRAMPS_EXTENSIONS_IMPORT = (
+    # CSV
+    ".csv",
+    # GEDCOM
+    ".ged",
+    # GeneWeb
+    ".gw",
+    # Gramps 2.x database
+    ".grdb",
+    # Pro-Gen
+    ".def",
+    # vCard
+    ".vcf",
+)
+_GRAMPS_EXTENSIONS = (*_GRAMPS_EXTENSIONS_NATIVE, *_GRAMPS_EXTENSIONS_IMPORT)
 
 
 @internal
@@ -374,19 +396,22 @@ class GrampsLoader:
             return await self.load_gpkg(file_path)
         if file_path.suffix == ".gramps":
             return await self.load_gramps(file_path)
-        if file_path.suffix == ".xml":
-            try:
-                async with aiofiles.open(file_path) as f:
-                    xml = await f.read()
-            except FileNotFoundError:
-                raise GrampsFileNotFound.new(file_path) from None
-            return await self.load_xml(xml)
+        if file_path.suffix in _GRAMPS_EXTENSIONS_IMPORT:
+            return await self._load_file_gramps_import(file_path)
 
         raise UserFacingGrampsError(
             _(
-                'Could not load "{file_path}" as a *.gpkg, a *.gramps, or an *.xml family tree.'
-            ).format(file_path=str(file_path))
+                "The Gramps extension can only load the following file types: {file_extensions}"
+            ).format(file_extensions=", ".join(sorted(_GRAMPS_EXTENSIONS)))
         )
+
+    async def _load_file_gramps_import(self, file_path: Path) -> None:
+        family_tree_name = f"betty-{str(uuid4())}"
+        try:
+            await self._run_gramps(["-C", family_tree_name, "-i", str(file_path)])
+            await self.load_name(family_tree_name)
+        finally:
+            await self._run_gramps(["-r", f"^{family_tree_name}$", "-y"])
 
     async def load_gramps(self, gramps_path: Path) -> None:
         """
@@ -591,7 +616,7 @@ class GrampsLoader:
         found_element = element.find(selector, namespaces=self._tree_xml_namespace)
         if found_element is None:
             raise XPathError(
-                f'Cannot find an element "{selector}" within {str(element)}.'
+                f'Cannot find an element "{selector}" within {tostring(element, "utf-8")}.'
             )
         return found_element
 

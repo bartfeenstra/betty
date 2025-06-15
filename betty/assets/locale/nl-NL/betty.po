@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PROJECT VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2025-06-13 15:18+0100\n"
+"POT-Creation-Date: 2025-06-15 18:23+0100\n"
 "PO-Revision-Date: 2025-05-17 01:43+0000\n"
 "Last-Translator: Bart Feenstra <bart@bartfeenstra.com>\n"
 "Language: nl_NL\n"
@@ -357,14 +357,6 @@ msgstr ""
 #, python-brace-format
 msgid "Could not find the file \"{file_path}\"."
 msgstr "Kan het bestand \"{file_path}\" niet vinden."
-
-#, python-brace-format
-msgid ""
-"Could not load \"{file_path}\" as a *.gpkg, a *.gramps, or an *.xml "
-"family tree."
-msgstr ""
-"Kan het besand \"{file_path}\" niet als een *.gpkg-, een *.gramps-, of "
-"een *.xml-stamboom laden."
 
 #, python-brace-format
 msgid "Could not successfully connect to \"{url}\": {error}"
@@ -1001,6 +993,12 @@ msgstr ""
 #, python-format
 msgid "The '%(project_title)s' logo"
 msgstr "Het logo van '%(project_title)s'"
+
+#, python-brace-format
+msgid ""
+"The Gramps extension can only load the following file types: "
+"{file_extensions}"
+msgstr ""
 
 #, python-brace-format
 msgid ""

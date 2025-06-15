@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Betty VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2025-06-13 15:18+0100\n"
+"POT-Creation-Date: 2025-06-15 18:23+0100\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -308,12 +308,6 @@ msgstr ""
 
 #, python-brace-format
 msgid "Could not find the file \"{file_path}\"."
-msgstr ""
-
-#, python-brace-format
-msgid ""
-"Could not load \"{file_path}\" as a *.gpkg, a *.gramps, or an *.xml family"
-" tree."
 msgstr ""
 
 #, python-brace-format
@@ -919,6 +913,12 @@ msgstr ""
 
 #, python-format
 msgid "The '%(project_title)s' logo"
+msgstr ""
+
+#, python-brace-format
+msgid ""
+"The Gramps extension can only load the following file types: "
+"{file_extensions}"
 msgstr ""
 
 #, python-brace-format

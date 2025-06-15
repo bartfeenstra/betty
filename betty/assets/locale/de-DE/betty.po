@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Betty VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2025-06-13 15:18+0100\n"
+"POT-Creation-Date: 2025-06-15 18:23+0100\n"
 "PO-Revision-Date: 2025-03-28 20:02+0000\n"
 "Last-Translator: Ettore Atalan <atalanttore@googlemail.com>\n"
 "Language: de_DE\n"
@@ -336,14 +336,6 @@ msgstr ""
 #, python-brace-format
 msgid "Could not find the file \"{file_path}\"."
 msgstr "Konnte die Datei \"{file_path}\" nicht finden."
-
-#, python-brace-format
-msgid ""
-"Could not load \"{file_path}\" as a *.gpkg, a *.gramps, or an *.xml "
-"family tree."
-msgstr ""
-"Kann die Datei \"{file_path}\" nicht als *.gpkg, *.gramps, oder *.xml "
-"family tree laden."
 
 #, python-brace-format
 msgid "Could not successfully connect to \"{url}\": {error}"
@@ -967,6 +959,12 @@ msgstr ""
 #, python-format
 msgid "The '%(project_title)s' logo"
 msgstr "Das Logo von '%(project_title)s'"
+
+#, python-brace-format
+msgid ""
+"The Gramps extension can only load the following file types: "
+"{file_extensions}"
+msgstr ""
 
 #, python-brace-format
 msgid ""
