@@ -18,9 +18,9 @@ from betty.assertion import (
     assert_setattr,
     assert_str,
 )
-from betty.assertion.error import AssertionFailed
 from betty.config import Configuration
 from betty.config.collections.sequence import ConfigurationSequence
+from betty.exception import UserFacingException
 from betty.gramps.loader import (
     DEFAULT_EVENT_TYPES_MAPPING,
     DEFAULT_PLACE_TYPES_MAPPING,
@@ -192,7 +192,7 @@ class FamilyTreeConfiguration(Configuration):
             or "file" not in dump
             and "name" not in dump
         ):
-            raise AssertionFailed(
+            raise UserFacingException(
                 _(
                     'Family tree configuration must contain either a "file" or a "name" key'
                 )

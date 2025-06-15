@@ -114,7 +114,7 @@ class ConfigurationCollection(
         """
         Create and load a new item from the given dump, or raise an assertion error.
 
-        :raise betty.assertion.error.AssertionFailed: Raised when the dump is invalid and cannot be loaded.
+        :raise betty.exception.UserFacingException: Raised when the dump is invalid and cannot be loaded.
         """
 
     @abstractmethod

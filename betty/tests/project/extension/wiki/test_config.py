@@ -2,9 +2,9 @@ from typing import TYPE_CHECKING, Any
 
 import pytest
 
-from betty.assertion.error import AssertionFailed
+from betty.exception import UserFacingException
 from betty.project.extension.wiki.config import WikiConfiguration
-from betty.test_utils.assertion.error import raises_error
+from betty.test_utils.exception import raises_error
 
 if TYPE_CHECKING:
     from collections.abc import Mapping
@@ -19,7 +19,7 @@ class TestWikiConfiguration:
 
     async def test_load__without_dict_should_error(self) -> None:
         dump = None
-        with raises_error(error_type=AssertionFailed):
+        with raises_error(error_type=UserFacingException):
             WikiConfiguration().load(dump)
 
     @pytest.mark.parametrize(

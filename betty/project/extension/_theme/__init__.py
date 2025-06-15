@@ -21,9 +21,9 @@ from betty.ancestry.person import Person
 from betty.ancestry.place import Place
 from betty.ancestry.presence_role.presence_roles import Subject
 from betty.assertion import assert_str
-from betty.assertion.error import AssertionFailed
 from betty.config import Configuration
 from betty.date import Date, Datey
+from betty.exception import UserFacingException
 from betty.functools import unique
 from betty.locale.localizable import _
 from betty.model import persistent_id
@@ -241,7 +241,7 @@ class ColorConfiguration(Configuration):
 
     def _assert_hex(self, hex_value: str) -> str:
         if not self._HEX_PATTERN.match(hex_value):
-            raise AssertionFailed(
+            raise UserFacingException(
                 _(
                     '"{hex_value}" is not a valid hexadecimal color, such as #ffc0cb.'
                 ).format(

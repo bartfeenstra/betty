@@ -25,9 +25,8 @@ from typing import (
     overload,
 )
 
-from betty.assertion.error import AssertionFailed, AssertionFailedGroup, Index, Key
 from betty.error import FileNotFound
-from betty.exception import UserFacingException
+from betty.exception import Index, Key, UserFacingException, UserFacingExceptionGroup
 from betty.locale import UNDETERMINED_LOCALE, get_data
 from betty.locale.localizable import Localizable, _, do_you_mean, join, plain
 from betty.typing import Void, Voidable, internal
@@ -89,7 +88,7 @@ class AssertionChain(Generic[_AssertionValueT, _AssertionReturnT]):
 
         This method may be called more than once.
 
-        :raises betty.assertion.error.AssertionFailed: Raised if any part of the
+        :raises betty.exception.UserFacingException: Raised if any part of the
             assertion chain fails.
         """
         return self._assertion(value)
@@ -166,7 +165,7 @@ def _assert_type(
         value_disallowed_type is None or not isinstance(value, value_disallowed_type)
     ):
         return value
-    raise AssertionFailed(
+    raise UserFacingException(
         _assert_type_violation_error_message(
             value_required_type,  # type: ignore[arg-type]
         )
@@ -183,11 +182,11 @@ def assert_or(
 
     def _assert_or(value: Any) -> _AssertionReturnT | _AssertionReturnU:
         assertions = (if_assertion, else_assertion)
-        errors = AssertionFailedGroup()
+        errors = UserFacingExceptionGroup()
         for assertion in assertions:
             try:
                 return assertion(value)
-            except AssertionFailed as e:
+            except UserFacingException as e:
                 errors.append(e)
         raise errors
 
@@ -254,7 +253,7 @@ def assert_positive_number() -> AssertionChain[Any, Number]:
         number: int | float,
     ) -> Number:
         if number <= 0:
-            raise AssertionFailed(_("This must be a positive number."))
+            raise UserFacingException(_("This must be a positive number."))
         return number
 
     return assert_number() | _assert_positive_number
@@ -302,7 +301,7 @@ def assert_sequence(
         if value_assertion is None:
             return list(sequence)
         asserted_sequence = []
-        with AssertionFailedGroup().assert_valid() as errors:
+        with UserFacingExceptionGroup().assert_valid() as errors:
             for value_index, value_value in enumerate(sequence):
                 with errors.catch(Index(value_index)):
                     asserted_sequence.append(value_assertion(value_value))
@@ -362,7 +361,7 @@ def assert_mapping(
         if value_assertion is None and key_assertion is None:
             return dict(mapping)
         asserted_mapping = {}
-        with AssertionFailedGroup().assert_valid() as errors:
+        with UserFacingExceptionGroup().assert_valid() as errors:
             for value_key, value_value in mapping.items():
                 asserted_value_key = value_key
                 if key_assertion:
@@ -387,7 +386,7 @@ def assert_fields(
 
     def _assert_fields(value: Mapping[Any, Any]) -> MutableMapping[str, Any]:
         mapping: MutableMapping[str, Any] = {}
-        with AssertionFailedGroup().assert_valid() as errors:
+        with UserFacingExceptionGroup().assert_valid() as errors:
             for field in fields:
                 with errors.catch(Key(field.name)):
                     if field.name in value:
@@ -397,7 +396,7 @@ def assert_fields(
                             else value[field.name]
                         )
                     elif isinstance(field, RequiredField):
-                        raise AssertionFailed(_("This field is required."))
+                        raise UserFacingException(_("This field is required."))
         return mapping
 
     return assert_mapping() | _assert_fields
@@ -452,10 +451,10 @@ def assert_record(
     def _assert_record(value: Mapping[Any, Any]) -> MutableMapping[str, Any]:
         known_keys = {x.name for x in fields}
         unknown_keys = set(value.keys()) - known_keys
-        with AssertionFailedGroup().assert_valid() as errors:
+        with UserFacingExceptionGroup().assert_valid() as errors:
             for unknown_key in unknown_keys:
                 with errors.catch(Key(unknown_key)):
-                    raise AssertionFailed(
+                    raise UserFacingException(
                         join(
                             _("Unknown key: {unknown_key}.").format(
                                 unknown_key=f'"{unknown_key}"'
@@ -481,7 +480,9 @@ def assert_isinstance(
     def _assert(value: Any) -> _AssertionValueT:
         if isinstance(value, alleged_type):
             return value
-        raise AssertionFailed(plain(f"{value} must be an instance of {alleged_type}."))
+        raise UserFacingException(
+            plain(f"{value} must be an instance of {alleged_type}.")
+        )
 
     return _assert
 
@@ -503,7 +504,7 @@ def assert_directory_path() -> AssertionChain[Any, Path]:
     def _assert_directory_path(directory_path: Path) -> Path:
         if directory_path.is_dir():
             return directory_path
-        raise AssertionFailed(
+        raise UserFacingException(
             _('"{path}" is not a directory.').format(path=str(directory_path))
         )
 
@@ -538,7 +539,7 @@ def assert_locale() -> AssertionChain[Any, str]:
         try:
             get_data(value)
         except UserFacingException as error:
-            raise AssertionFailed(error) from error
+            raise UserFacingException(error) from error
         return value
 
     return assert_locale_identifier() | _assert_locale
@@ -604,19 +605,19 @@ def assert_len(
     def _assert_len(value: _SizedT) -> _SizedT:
         actual = len(value)
         if exact is not None and actual != exact:
-            raise AssertionFailed(
+            raise UserFacingException(
                 _("Exactly {expected} items are required, but found {actual}.").format(
                     expected=str(exact), actual=str(actual)
                 )
             )
         if minimum is not None and actual < minimum:
-            raise AssertionFailed(
+            raise UserFacingException(
                 _("At least {expected} items are required, but found {actual}.").format(
                     expected=str(minimum), actual=str(actual)
                 )
             )
         if maximum is not None and actual > maximum:
-            raise AssertionFailed(
+            raise UserFacingException(
                 _("At most {expected} items are allowed, but found {actual}.").format(
                     expected=str(maximum), actual=str(actual)
                 )

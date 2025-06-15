@@ -9,7 +9,6 @@ from typing import Any
 
 from betty.app import App
 from betty.assertion import assert_path
-from betty.assertion.error import AssertionFailed
 from betty.config.file import assert_configuration_file
 from betty.console.assertion import assertion_to_argument_type
 from betty.console.command import CommandFunction
@@ -66,7 +65,7 @@ async def _read_project_configuration(
                 return await _read_project_configuration_file(
                     project, try_configuration_file_path
                 )
-        raise AssertionFailed(
+        raise UserFacingException(
             _(
                 "Could not find any of the following configuration files in {project_directory_path}: {configuration_file_names}."
             ).format(

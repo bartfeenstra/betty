@@ -35,12 +35,12 @@ from betty.assertion import (
     assert_setattr,
     assert_str,
 )
-from betty.assertion.error import AssertionFailed, AssertionFailedGroup, Key
 from betty.config import Configuration
 from betty.config.collections.mapping import (
     OrderedConfigurationMapping,
 )
 from betty.copyright_notice import CopyrightNotice
+from betty.exception import Key, UserFacingException, UserFacingExceptionGroup
 from betty.license import License
 from betty.license.licenses import AllRightsReserved
 from betty.locale import DEFAULT_LOCALE, UNDETERMINED_LOCALE
@@ -162,7 +162,7 @@ class EntityTypeConfiguration(Configuration):
         """
         entity_type = await entity_type_repository.get(self.id)
         if self.generate_html_list and not issubclass(entity_type, UserFacing):
-            raise AssertionFailed(
+            raise UserFacingException(
                 _(
                     "Cannot generate pages for {entity_type}, because it is not a user-facing entity type."
                 ).format(entity_type=entity_type.plugin_label())
@@ -204,7 +204,7 @@ class EntityTypeConfigurationMapping(
         """
         Validate the configuration.
         """
-        with AssertionFailedGroup().assert_valid() as errors:
+        with UserFacingExceptionGroup().assert_valid() as errors:
             for configuration in self.values():
                 with errors.catch(Key(configuration.id)):
                     await configuration.validate(entity_type_repository)
@@ -225,7 +225,7 @@ class LocaleConfiguration(Configuration):
         super().__init__()
         self._locale = locale
         if alias is not None and "/" in alias:
-            raise AssertionFailed(_("Locale aliases must not contain slashes."))
+            raise UserFacingException(_("Locale aliases must not contain slashes."))
         self._alias = alias
 
     @override  # type: ignore[callable-functiontype]
@@ -779,11 +779,11 @@ class ProjectConfiguration(Configuration):
         self.assert_mutable()
         url_parts = urlparse(url)
         if not url_parts.scheme:
-            raise AssertionFailed(
+            raise UserFacingException(
                 _("The URL must start with a scheme such as https:// or http://.")
             )
         if not url_parts.netloc:
-            raise AssertionFailed(_("The URL must include a host."))
+            raise UserFacingException(_("The URL must include a host."))
         self._url = f"{url_parts.scheme}://{url_parts.netloc}{url_parts.path}"
 
     @property

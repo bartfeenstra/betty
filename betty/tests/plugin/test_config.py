@@ -4,9 +4,9 @@ from typing import TypeVar, cast
 import pytest
 from typing_extensions import override
 
-from betty.assertion.error import AssertionFailed
 from betty.config import DefaultConfigurable
 from betty.config.collections import ConfigurationCollection
+from betty.exception import UserFacingException
 from betty.locale import UNDETERMINED_LOCALE
 from betty.locale.localizable import ShorthandStaticTranslations
 from betty.locale.localizer import DEFAULT_LOCALIZER
@@ -21,9 +21,9 @@ from betty.plugin.config import (
 )
 from betty.plugin.static import StaticPluginRepository
 from betty.serde.dump import Dump
-from betty.test_utils.assertion.error import raises_error
 from betty.test_utils.config import DummyConfiguration
 from betty.test_utils.config.collections.mapping import ConfigurationMappingTestBase
+from betty.test_utils.exception import raises_error
 from betty.test_utils.plugin import DummyPlugin
 
 _PluginT = TypeVar("_PluginT", bound=Plugin)
@@ -262,7 +262,7 @@ class TestPluginInstanceConfiguration:
 
     def test_load__without_id(self) -> None:
         plugin = DummyPlugin
-        with raises_error(error_type=AssertionFailed):
+        with raises_error(error_type=UserFacingException):
             (PluginInstanceConfiguration(plugin)).load({})
 
     def test_load__minimal(self) -> None:
@@ -335,7 +335,7 @@ class TestPluginInstanceConfiguration:
             plugin, configuration=DummyConfiguration(value)
         )
         repository = StaticPluginRepository(DummyPlugin, plugin)
-        with pytest.raises(AssertionFailed):
+        with pytest.raises(UserFacingException):
             await sut.new_plugin_instance(repository)
 
     async def test_new_plugin_instance__with_non_configurable_plugin_without_configuration(

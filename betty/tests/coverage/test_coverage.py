@@ -73,19 +73,10 @@ _BASELINE: Mapping[str, _ModuleIgnore] = {
         }
     },
     "betty/app/factory.py": MissingReason.ABSTRACT,
-    "betty/assertion/__init__.py": {
+    "betty/assertion.py": {
         "Field": MissingReason.INTERNAL,
         "OptionalField": MissingReason.DATACLASS,
         "RequiredField": MissingReason.DATACLASS,
-    },
-    "betty/assertion/error.py": {
-        "AssertionContext": MissingReason.ABSTRACT,
-        "AssertionFailed": {
-            "contexts": MissingReason.COVERED_ELSEWHERE,
-        },
-        "AssertionFailedGroup": {
-            "invalid": MissingReason.COVERED_ELSEWHERE,
-        },
     },
     "betty/cache/__init__.py": {
         "Cache": MissingReason.ABSTRACT,
@@ -165,6 +156,15 @@ _BASELINE: Mapping[str, _ModuleIgnore] = {
         "Event": MissingReason.ABSTRACT,
         "EventHandlerRegistry": {
             "handlers": MissingReason.COVERED_ELSEWHERE,
+        },
+    },
+    "betty/exception.py": {
+        "UserFacingExceptionContext": MissingReason.ABSTRACT,
+        "UserFacingException": {
+            "contexts": MissingReason.COVERED_ELSEWHERE,
+        },
+        "UserFacingExceptionGroup": {
+            "invalid": MissingReason.COVERED_ELSEWHERE,
         },
     },
     "betty/factory.py": {

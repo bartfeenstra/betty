@@ -1,5 +1,5 @@
 """
-Test utilities for :py:mod:`betty.assertion.error`.
+Test utilities for :py:mod:`betty.exception`.
 """
 
 from __future__ import annotations
@@ -7,10 +7,10 @@ from __future__ import annotations
 from contextlib import contextmanager
 from typing import TYPE_CHECKING, Any, overload
 
-from betty.assertion.error import (
-    AssertionFailed,
-    AssertionFailedGroup,
+from betty.exception import (
     Contextey,
+    UserFacingException,
+    UserFacingExceptionGroup,
     localizable_contexts,
 )
 from betty.locale.localizer import DEFAULT_LOCALIZER
@@ -21,42 +21,42 @@ if TYPE_CHECKING:
 
 @overload
 def assert_error(
-    actual_error: AssertionFailed | AssertionFailedGroup,
+    actual_error: UserFacingException | UserFacingExceptionGroup,
     *,
-    error: AssertionFailed,
-    error_type: type[AssertionFailed] = AssertionFailed,
+    error: UserFacingException,
+    error_type: type[UserFacingException] = UserFacingException,
     error_message: None = None,
     error_contexts: None = None,
-) -> Sequence[AssertionFailed]:
+) -> Sequence[UserFacingException]:
     pass
 
 
 @overload
 def assert_error(
-    actual_error: AssertionFailed | AssertionFailedGroup,
+    actual_error: UserFacingException | UserFacingExceptionGroup,
     *,
     error: None = None,
-    error_type: type[AssertionFailed] = AssertionFailed,
+    error_type: type[UserFacingException] = UserFacingException,
     error_message: str | None = None,
     error_contexts: Sequence[Contextey] | None = None,
-) -> Sequence[AssertionFailed]:
+) -> Sequence[UserFacingException]:
     pass
 
 
 def assert_error(
-    actual_error: AssertionFailed | AssertionFailedGroup,
+    actual_error: UserFacingException | UserFacingExceptionGroup,
     *,
-    error: AssertionFailed | None = None,
-    error_type: type[AssertionFailed] = AssertionFailed,
+    error: UserFacingException | None = None,
+    error_type: type[UserFacingException] = UserFacingException,
     error_message: str | None = None,
     error_contexts: Sequence[Contextey] | None = None,
-) -> Sequence[AssertionFailed]:
+) -> Sequence[UserFacingException]:
     """
     Assert that an error group contains an error matching the given parameters.
     """
     expected_error_contexts: Sequence[str] | None
-    actual_errors: Iterable[AssertionFailed]
-    if isinstance(actual_error, AssertionFailedGroup):
+    actual_errors: Iterable[UserFacingException]
+    if isinstance(actual_error, UserFacingExceptionGroup):
         actual_errors = [*actual_error]
     else:
         actual_errors = [actual_error]
@@ -104,16 +104,16 @@ def assert_error(
         ]
     if errors:
         return errors
-    raise AssertionError("Failed raising AssertionFailed.")
+    raise AssertionError("Failed raising UserFacingException.")
 
 
 @contextmanager
-def raises_error(*args: Any, **kwargs: Any) -> Iterator[AssertionFailedGroup]:
+def raises_error(*args: Any, **kwargs: Any) -> Iterator[UserFacingExceptionGroup]:
     """
     Provide a context manager to assert that an error group contains an error matching the given parameters.
     """
     try:
-        with AssertionFailedGroup().catch() as errors:
+        with UserFacingExceptionGroup().catch() as errors:
             yield errors
     finally:
         assert_error(errors, *args, **kwargs)

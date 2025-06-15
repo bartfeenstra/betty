@@ -17,9 +17,9 @@ from betty.assertion import (
     assert_setattr,
     assert_str,
 )
-from betty.assertion.error import AssertionFailed
 from betty.config import Configuration
 from betty.config.collections.sequence import ConfigurationSequence
+from betty.exception import UserFacingException
 from betty.locale.localizable import _
 from betty.machine_name import MachineName, assert_machine_name
 from betty.model import Entity
@@ -183,7 +183,7 @@ class EntityReferenceSequence(
             return
 
         if entity_reference_entity_type is None:
-            raise AssertionFailed(
+            raise UserFacingException(
                 _(
                     "The entity reference must be for an entity of type {expected_entity_type_id}, but instead does not specify an entity type at all."
                 ).format(
@@ -191,7 +191,7 @@ class EntityReferenceSequence(
                 )
             )
 
-        raise AssertionFailed(
+        raise UserFacingException(
             _(
                 "The entity reference must be for an entity of type {expected_entity_type_id}, but instead is for an entity of type {actual_entity_type_id}."
             ).format(

@@ -5,7 +5,7 @@ from typing import TYPE_CHECKING
 import pytest
 from typing_extensions import override
 
-from betty.assertion.error import AssertionFailed
+from betty.exception import UserFacingException
 from betty.model import ENTITY_TYPE_REPOSITORY, Entity
 from betty.model.config import EntityReference
 from betty.plugin.proxy import ProxyPluginRepository
@@ -42,7 +42,7 @@ class TestRaspberryMint(EntryPointProviderTestBase, ExtensionTestBase[RaspberryM
             sut.configuration.featured_entities.replace(
                 EntityReference("non-existent-entity")
             )
-            with pytest.raises(AssertionFailed):
+            with pytest.raises(UserFacingException):
                 async with sut:
                     pass  # pragma: nocover
 

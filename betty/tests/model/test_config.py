@@ -5,12 +5,12 @@ from typing import TYPE_CHECKING
 import pytest
 from typing_extensions import override
 
-from betty.assertion.error import AssertionFailed
+from betty.exception import UserFacingException
 from betty.model import Entity
 from betty.model.config import EntityReference, EntityReferenceSequence
 from betty.plugin.static import StaticPluginRepository
-from betty.test_utils.assertion.error import raises_error
 from betty.test_utils.config.collections.sequence import ConfigurationSequenceTestBase
+from betty.test_utils.exception import raises_error
 from betty.test_utils.model import DummyEntity
 
 if TYPE_CHECKING:
@@ -96,7 +96,7 @@ class TestEntityReference:
         sut = EntityReference(
             EntityReferenceTestEntityOne, entity_type_is_constrained=True
         )
-        with raises_error(error_type=AssertionFailed):
+        with raises_error(error_type=UserFacingException):
             sut.load(dump)
 
     async def test_load__without_constraint(self, mocker: MockerFixture) -> None:
@@ -123,7 +123,7 @@ class TestEntityReference:
             "entity": entity_id,
         }
         sut = EntityReference[EntityReferenceTestEntityOne]()
-        with raises_error(error_type=AssertionFailed):
+        with raises_error(error_type=UserFacingException):
             sut.load(dump)
 
     async def test_load__without_constraint_without_string_entity_type_should_error(
@@ -135,7 +135,7 @@ class TestEntityReference:
             "entity": entity_id,
         }
         sut = EntityReference[EntityReferenceTestEntityOne]()
-        with raises_error(error_type=AssertionFailed):
+        with raises_error(error_type=UserFacingException):
             sut.load(dump)
 
     async def test_load__without_constraint_without_string_entity_id_should_error(
@@ -147,7 +147,7 @@ class TestEntityReference:
             "entity": None,
         }
         sut = EntityReference[EntityReferenceTestEntityOne]()
-        with raises_error(error_type=AssertionFailed):
+        with raises_error(error_type=UserFacingException):
             sut.load(dump)
 
     async def test_dump__with_constraint(self) -> None:
@@ -172,7 +172,7 @@ class TestEntityReference:
         self,
     ) -> None:
         sut = EntityReference[Entity]("betty.non_existent.Entity")
-        with raises_error(error_type=AssertionFailed):
+        with raises_error(error_type=UserFacingException):
             await sut.validate(StaticPluginRepository(Entity))
 
 
@@ -217,7 +217,7 @@ class TestEntityReferenceSequence(
             pass
 
         sut = EntityReferenceSequence(entity_type_constraint=DummyConstraintedEntity)
-        with pytest.raises(AssertionFailed):
+        with pytest.raises(UserFacingException):
             sut.append(
                 EntityReference(DummyEntity)  # type: ignore[arg-type]
             )
@@ -227,7 +227,7 @@ class TestEntityReferenceSequence(
             pass
 
         sut = EntityReferenceSequence(entity_type_constraint=DummyConstraintedEntity)
-        with pytest.raises(AssertionFailed):
+        with pytest.raises(UserFacingException):
             sut.append(EntityReference())
 
     async def test_pre_add_with_valid_value(self) -> None:
@@ -240,5 +240,5 @@ class TestEntityReferenceSequence(
         sut = EntityReferenceSequence[Entity](
             [EntityReference("betty.non_existent.Entity")]
         )
-        with raises_error(error_type=AssertionFailed):
+        with raises_error(error_type=UserFacingException):
             await sut.validate(StaticPluginRepository(Entity))
