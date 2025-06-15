@@ -7,7 +7,8 @@ from typing_extensions import override
 
 from betty.ancestry.link import HasLinks, Link, LinkCollectionSchema, LinkSchema
 from betty.app import App
-from betty.locale import UNDETERMINED_LOCALE
+from betty.locale import DEFAULT_LOCALE, UNDETERMINED_LOCALE
+from betty.locale.localizable import plain
 from betty.locale.localizer import DEFAULT_LOCALIZER
 from betty.media_type.media_types import HTML
 from betty.project import Project
@@ -43,7 +44,7 @@ class TestLink:
     async def test___init____with_label(self) -> None:
         url = "https://example.com"
         label = "Hello, world!"
-        sut = Link(url, label=label)
+        sut = Link(url, label=plain(label))
         assert sut.label.localize(DEFAULT_LOCALIZER) == label
 
     async def test_url(self) -> None:
@@ -74,7 +75,15 @@ class TestLink:
     async def test_label(self) -> None:
         url = "https://example.com"
         sut = Link(url)
-        assert not sut.label
+        assert sut.label is not None
+
+    async def test_has_label__without_label(self) -> None:
+        sut = Link("https://example.com")
+        assert not sut.has_label
+
+    async def test_has_label__with_label(self) -> None:
+        sut = Link("https://example.com", label=plain(""))
+        assert sut.has_label
 
     async def test_dump_linked_data__should_dump_minimal(self) -> None:
         link = Link("https://example.com")
@@ -82,7 +91,6 @@ class TestLink:
             "@context": {"description": "https://schema.org/description"},
             "url": "https://example.com",
             "locale": "und",
-            "label": {},
             "description": {},
         }
         actual = await assert_dumps_linked_data(link)
@@ -91,7 +99,7 @@ class TestLink:
     async def test_dump_linked_data__should_dump_full(self) -> None:
         link = Link(
             "https://example.com",
-            label="The Link",
+            label=plain("The Link"),
             relationship="external",
             locale="nl-NL",
             media_type=HTML,
@@ -100,7 +108,7 @@ class TestLink:
             "@context": {"description": "https://schema.org/description"},
             "url": "https://example.com",
             "relationship": "external",
-            "label": {UNDETERMINED_LOCALE: "The Link"},
+            "label": {DEFAULT_LOCALE: "The Link"},
             "locale": "nl-NL",
             "mediaType": "text/html",
             "description": {},
@@ -180,7 +188,6 @@ class TestHasLinks:
                             },
                             "url": "https://example.com",
                             "locale": "und",
-                            "label": {},
                             "description": {},
                         }
                     ]

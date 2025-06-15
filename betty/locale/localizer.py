@@ -6,6 +6,7 @@ from __future__ import annotations
 
 import datetime
 import gettext
+from asyncio import gather
 from collections import defaultdict
 from contextlib import suppress
 from typing import TYPE_CHECKING, final
@@ -38,7 +39,13 @@ from betty.locale.babel import run_babel
 from betty.typing import threadsafe
 
 if TYPE_CHECKING:
-    from collections.abc import AsyncIterator, Iterator, Mapping, MutableMapping
+    from collections.abc import (
+        AsyncIterator,
+        Iterable,
+        Iterator,
+        Mapping,
+        MutableMapping,
+    )
     from pathlib import Path
 
     from betty.assets import AssetRepository
@@ -306,6 +313,13 @@ class LocalizerRepository:
                 for po_file_path in assets_directory_path.glob("locale/*/betty.po"):
                     self._locales.add(po_file_path.parent.name)
         yield from self._locales
+
+    @property
+    async def localizers(self) -> Iterable[Localizer]:
+        """
+        The available localizers.
+        """
+        return await gather(*[self.get(locale) for locale in self.locales])
 
     async def get(self, locale: Localey) -> Localizer:
         """

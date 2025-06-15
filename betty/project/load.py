@@ -10,7 +10,7 @@ from html5lib import parse
 from betty.ancestry.link import HasLinks, Link
 from betty.cache.memory import MemoryCache
 from betty.fetch import Fetcher, FetchError
-from betty.locale.localizable import _
+from betty.locale.localizable import _, plain
 from betty.media_type import InvalidMediaType, MediaType
 from betty.project import Project, ProjectContext, ProjectEvent
 from betty.user import User
@@ -68,7 +68,7 @@ async def _fetch_link_titles(project: Project, *, user: User) -> None:
 
 
 async def _fetch_link_title(fetcher: Fetcher, link: Link, *, user: User) -> None:
-    if link.label:
+    if link.has_label:
         return
     try:
         response = await fetcher.fetch(link.url)
@@ -89,7 +89,7 @@ async def _fetch_link_title(fetcher: Fetcher, link: Link, *, user: User) -> None
     document = parse(response.text)
     title = _extract_html_title(document)
     if title is not None:
-        link.label = title  # type: ignore[assignment]
+        link.label = plain(title)
     if not link.description:
         description = _extract_html_meta_description(document)
         if description is not None:

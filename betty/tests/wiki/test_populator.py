@@ -15,6 +15,7 @@ from betty.ancestry.source import Source
 from betty.assets import AssetRepository
 from betty.cache.file import BinaryFileCache
 from betty.locale import UNDETERMINED_LOCALE
+from betty.locale.localizable import plain
 from betty.locale.localizer import DEFAULT_LOCALIZER, LocalizerRepository
 from betty.media_type import MediaType
 from betty.media_type.media_types import HTML, PLAIN_TEXT
@@ -202,7 +203,7 @@ class TestPopulator:
         m_client = mocker.patch("betty.wiki.client.Client")
         link = Link("http://en.wikipedia.org/wiki/Amsterdam")
         if label:
-            link.label = label  # type: ignore[assignment]
+            link.label = plain(label)
         summary = Summary(
             "en",
             "The_city_of_Amsterdam",

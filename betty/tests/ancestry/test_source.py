@@ -9,7 +9,8 @@ from betty.ancestry.citation import Citation
 from betty.ancestry.link import Link
 from betty.ancestry.source import Source
 from betty.date import Date
-from betty.locale import UNDETERMINED_LOCALE
+from betty.locale import DEFAULT_LOCALE
+from betty.locale.localizable import plain
 from betty.locale.localizer import DEFAULT_LOCALIZER
 from betty.privacy import Privacy
 from betty.test_utils.json.linked_data import assert_dumps_linked_data
@@ -157,7 +158,7 @@ class TestSource(EntityTestBase):
 
     async def test_dump_linked_data__should_dump_full(self) -> None:
         link = Link("https://example.com/the-source")
-        link.label = "The Source Online"  # type: ignore[assignment]
+        link.label = plain("The Source Online")
         source = Source(
             id="the_source",
             name="The Source",
@@ -211,7 +212,7 @@ class TestSource(EntityTestBase):
                 {
                     "@context": {"description": "https://schema.org/description"},
                     "url": "https://example.com/the-source",
-                    "label": {UNDETERMINED_LOCALE: "The Source Online"},
+                    "label": {DEFAULT_LOCALE: "The Source Online"},
                     "locale": "und",
                     "description": {},
                 },
@@ -222,7 +223,7 @@ class TestSource(EntityTestBase):
 
     async def test_dump_linked_data__should_dump_private(self) -> None:
         link = Link("https://example.com/the-source")
-        link.label = "The Source Online"  # type: ignore[assignment]
+        link.label = plain("The Source Online")
         source = Source(
             id="the_source",
             name="The Source",

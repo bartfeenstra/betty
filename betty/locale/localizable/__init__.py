@@ -386,6 +386,20 @@ class StaticTranslationsLocalizable(
     async def linked_data_schema(cls, project: Project) -> Object:
         return StaticTranslationsLocalizableSchema()
 
+    @classmethod
+    def from_localizable(cls, other: Localizable, *localizers: Localizer) -> Self:
+        """
+        Create a new instance from another :py:class`betty.locale.localizable.Localizable`.
+        """
+        if type(other) is cls:
+            return other
+        return cls(
+            {
+                localizer.locale: other.localize(localizer=localizer)
+                for localizer in localizers
+            }
+        )
+
 
 def static(translations: ShorthandStaticTranslations) -> Localizable:
     """
