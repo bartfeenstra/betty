@@ -9,6 +9,7 @@ from betty.ancestry.event import Event
 from betty.ancestry.event_type.event_types import Birth
 from betty.ancestry.has_citations import HasCitations
 from betty.ancestry.source import Source
+from betty.locale.localizable import plain
 from betty.locale.localizer import DEFAULT_LOCALIZER
 from betty.privacy import Privacy
 from betty.test_utils.json.linked_data import assert_dumps_linked_data
@@ -86,7 +87,7 @@ class TestCitation(EntityTestBase):
     async def test_dump_linked_data__should_dump_minimal(self) -> None:
         citation = Citation(
             id="the_citation",
-            source=Source(name="The Source"),
+            source=Source(name=plain("The Source")),
         )
         expected: Mapping[str, Any] = {
             "@id": "https://example.com/citation/the_citation/index.json",
@@ -107,7 +108,7 @@ class TestCitation(EntityTestBase):
             id="the_citation",
             source=Source(
                 id="the_source",
-                name="The Source",
+                name=plain("The Source"),
             ),
         )
         citation.facts.add(
@@ -135,7 +136,7 @@ class TestCitation(EntityTestBase):
             id="the_citation",
             source=Source(
                 id="the_source",
-                name="The Source",
+                name=plain("The Source"),
             ),
             private=True,
         )

@@ -4,6 +4,7 @@ from betty.ancestry.citation import Citation
 from betty.ancestry.source import Source
 from betty.date import Date
 from betty.jinja2 import EntityContexts
+from betty.locale.localizable import plain
 from betty.project.extension.raspberry_mint import RaspberryMint
 from betty.test_utils.jinja2 import assert_template_file
 
@@ -66,7 +67,7 @@ async def test_with_private_source() -> None:
 
 
 async def test_with_source_author() -> None:
-    source = Source(author="Bart")
+    source = Source(author=plain("Bart"))
     citation = Citation(source=source)
     expected = f'Bart. <i>"<span lang="und" dir="auto">Source {source.id}</span>"</i>.'
     async with assert_template_file(
@@ -80,7 +81,7 @@ async def test_with_source_author() -> None:
 
 
 async def test_with_source_publisher() -> None:
-    source = Source(publisher="Bart")
+    source = Source(publisher=plain("Bart"))
     citation = Citation(source=source)
     expected = f'<i>"<span lang="und" dir="auto">Source {source.id}</span>"</i>. Bart.'
     async with assert_template_file(

@@ -12,11 +12,10 @@ from betty.ancestry.date import HasDate
 from betty.ancestry.has_file_references import HasFileReferences
 from betty.ancestry.has_notes import HasNotes
 from betty.ancestry.link import HasLinks, Link
-from betty.json.linked_data import dump_context
+from betty.json.linked_data import JsonLdObject, dump_context
 from betty.locale.localizable import (
     Localizable,
-    OptionalStaticTranslationsLocalizableAttr,
-    ShorthandStaticTranslations,
+    StaticTranslationsLocalizable,
     _,
     ngettext,
 )
@@ -28,7 +27,7 @@ from betty.model.association import (
     ToZeroOrOneAssociate,
 )
 from betty.plugin import ShorthandPluginBase
-from betty.privacy import HasPrivacy, Privacy, merge_privacies
+from betty.privacy import HasPrivacy, Privacy, is_public, merge_privacies
 from betty.user import UserFacing
 
 if TYPE_CHECKING:
@@ -86,24 +85,13 @@ class Source(
         description="The citations referencing this source",
     )
 
-    #: The human-readable source name.
-    name = OptionalStaticTranslationsLocalizableAttr("name", title="Name")
-
-    #: The human-readable author.
-    author = OptionalStaticTranslationsLocalizableAttr("author", title="Author")
-
-    #: The human-readable publisher.
-    publisher = OptionalStaticTranslationsLocalizableAttr(
-        "publisher", title="Publisher"
-    )
-
     def __init__(
         self,
-        name: ShorthandStaticTranslations | None = None,
+        name: Localizable | None = None,
         *,
         id: str | None = None,  # noqa A002  # noqa A002
-        author: ShorthandStaticTranslations | None = None,
-        publisher: ShorthandStaticTranslations | None = None,
+        author: Localizable | None = None,
+        publisher: Localizable | None = None,
         contained_by: ToZeroOrOneAssociate[Source] = None,
         contains: ToManyAssociates[Source] | None = None,
         notes: ToManyAssociates[Note] | None = None,
@@ -124,12 +112,9 @@ class Source(
             public=public,
             private=private,
         )
-        if name:
-            self.name = name
-        if author:
-            self.author = author
-        if publisher:
-            self.publisher = publisher
+        self.name = name
+        self.author = author
+        self.publisher = publisher
         if contained_by is not None:
             self.contained_by = contained_by
         if contains is not None:
@@ -169,8 +154,37 @@ class Source(
         return self.name if self.name else super().label
 
     @override
+    @classmethod
+    async def linked_data_schema(cls, project: Project) -> JsonLdObject:
+        schema = await super().linked_data_schema(project)
+        static_translations_schema = (
+            await StaticTranslationsLocalizable.linked_data_schema(project)
+        )
+        schema.add_property("author", static_translations_schema, False)
+        schema.add_property("name", static_translations_schema, False)
+        schema.add_property("publisher", static_translations_schema, False)
+        return schema
+
+    @override
     async def dump_linked_data(self, project: Project) -> DumpMapping[Dump]:
         dump = await super().dump_linked_data(project)
         dump["@type"] = "https://schema.org/Thing"
         dump_context(dump, name="https://schema.org/name")
+        if is_public(self):
+            if self.author is not None:
+                dump[
+                    "author"
+                ] = await StaticTranslationsLocalizable.dump_linked_data_for(
+                    project, self.author
+                )
+            if self.name is not None:
+                dump["name"] = await StaticTranslationsLocalizable.dump_linked_data_for(
+                    project, self.name
+                )
+            if self.publisher is not None:
+                dump[
+                    "publisher"
+                ] = await StaticTranslationsLocalizable.dump_linked_data_for(
+                    project, self.publisher
+                )
         return dump

@@ -14,6 +14,7 @@ from betty.ancestry.person import Person
 from betty.ancestry.presence import Presence
 from betty.ancestry.presence_role.presence_roles import Subject
 from betty.ancestry.source import Source
+from betty.locale.localizable import plain
 from betty.project import Project
 from betty.project.extension.privatizer import Privatizer
 from betty.project.load import load
@@ -38,7 +39,7 @@ class TestPrivatizer(ExtensionTestBase[Privatizer]):
         )
         source = Source(
             id="S0",
-            name="The Source",
+            name=plain("The Source"),
             private=True,
         )
         FileReference(source, source_file)
@@ -47,7 +48,7 @@ class TestPrivatizer(ExtensionTestBase[Privatizer]):
             id="F0",
             path=Path(__file__),
         )
-        citation_source = Source("The Source")
+        citation_source = Source(plain("The Source"))
         citation = Citation(
             id="C0",
             source=citation_source,

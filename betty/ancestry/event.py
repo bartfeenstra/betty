@@ -201,20 +201,20 @@ class Event(
         dump["eventAttendanceMode"] = "https://schema.org/OfflineEventAttendanceMode"
         dump["eventStatus"] = "https://schema.org/EventScheduled"
         if self.name is not None:
-            localizers = await project.localizers
-            dump["name"] = await StaticTranslationsLocalizable.from_localizable(
-                self.name,
-                *[
-                    await localizers.get(locale)
-                    for locale in project.configuration.locales
-                ],
-            ).dump_linked_data(project)
+            dump["name"] = await StaticTranslationsLocalizable.dump_linked_data_for(
+                project, self.name
+            )
         return dump
 
     @override
     @classmethod
     async def linked_data_schema(cls, project: Project) -> JsonLdObject:
         schema = await super().linked_data_schema(project)
+        schema.add_property(
+            "name",
+            await StaticTranslationsLocalizable.linked_data_schema(project),
+            False,
+        )
         schema.add_property(
             "type", await project.event_type_repository.plugin_id_schema
         )

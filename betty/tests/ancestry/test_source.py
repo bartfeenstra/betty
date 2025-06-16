@@ -29,22 +29,25 @@ class TestSource(EntityTestBase):
     async def get_sut_instances(self) -> Sequence[Entity]:
         return [
             Source(),
-            Source(name="My First Source"),
+            Source(name=plain("My First Source")),
         ]
 
     def test___init____with_name(self) -> None:
         name = "The Source"
-        sut = Source(name=name)
+        sut = Source(name=plain(name))
+        assert sut.name is not None
         assert sut.name.localize(DEFAULT_LOCALIZER) == name
 
     def test___init____with_author(self) -> None:
         author = "Me"
-        sut = Source(author=author)
+        sut = Source(author=plain(author))
+        assert sut.author is not None
         assert sut.author.localize(DEFAULT_LOCALIZER) == author
 
     def test___init____with_publisher(self) -> None:
         publisher = "Me"
-        sut = Source(publisher=publisher)
+        sut = Source(publisher=plain(publisher))
+        assert sut.publisher is not None
         assert sut.publisher.localize(DEFAULT_LOCALIZER) == publisher
 
     def test___init____with_contained_by(self) -> None:
@@ -65,9 +68,9 @@ class TestSource(EntityTestBase):
 
     async def test_name(self) -> None:
         sut = Source()
-        assert not sut.name.localize(DEFAULT_LOCALIZER)
+        assert sut.name is None
         name = "The Source"
-        sut.name = name
+        sut.name = plain(name)
         assert sut.name.localize(DEFAULT_LOCALIZER) == name
 
     async def test_contained_by(self) -> None:
@@ -102,14 +105,15 @@ class TestSource(EntityTestBase):
         sut = Source()
         assert not sut.author
         author = "Me"
-        sut.author = author
+        sut.author = plain(author)
         assert sut.author.localize(DEFAULT_LOCALIZER) == author
 
     async def test_publisher(self) -> None:
         sut = Source()
         assert not sut.publisher
         publisher = "Me"
-        sut.publisher = publisher
+        sut.publisher = plain(publisher)
+        assert sut.publisher is not None
         assert sut.publisher.localize(DEFAULT_LOCALIZER) == publisher
 
     async def test_date(self) -> None:
@@ -133,7 +137,7 @@ class TestSource(EntityTestBase):
     async def test_dump_linked_data__should_dump_minimal(self) -> None:
         source = Source(
             id="the_source",
-            name="The Source",
+            name=plain("The Source"),
         )
         expected: Mapping[str, Any] = {
             "@context": {
@@ -143,9 +147,7 @@ class TestSource(EntityTestBase):
             "@type": "https://schema.org/Thing",
             "id": "the_source",
             "private": False,
-            "name": {"und": "The Source"},
-            "author": {},
-            "publisher": {},
+            "name": {DEFAULT_LOCALE: "The Source"},
             "fileReferences": [],
             "contains": [],
             "containedBy": None,
@@ -161,18 +163,18 @@ class TestSource(EntityTestBase):
         link.label = plain("The Source Online")
         source = Source(
             id="the_source",
-            name="The Source",
-            author="The Author",
-            publisher="The Publisher",
+            name=plain("The Source"),
+            author=plain("The Author"),
+            publisher=plain("The Publisher"),
             date=Date(2000, 1, 1),
             contained_by=Source(
                 id="the_containing_source",
-                name="The Containing Source",
+                name=plain("The Containing Source"),
             ),
             contains=[
                 Source(
                     id="the_contained_source",
-                    name="The Contained Source",
+                    name=plain("The Contained Source"),
                 )
             ],
             links=[link],
@@ -189,9 +191,9 @@ class TestSource(EntityTestBase):
             "@type": "https://schema.org/Thing",
             "id": "the_source",
             "private": False,
-            "name": {"und": "The Source"},
-            "author": {"und": "The Author"},
-            "publisher": {"und": "The Publisher"},
+            "name": {DEFAULT_LOCALE: "The Source"},
+            "author": {DEFAULT_LOCALE: "The Author"},
+            "publisher": {DEFAULT_LOCALE: "The Publisher"},
             "fileReferences": [],
             "contains": [
                 "/source/the_contained_source/index.json",
@@ -225,18 +227,18 @@ class TestSource(EntityTestBase):
         link.label = plain("The Source Online")
         source = Source(
             id="the_source",
-            name="The Source",
-            author="The Author",
-            publisher="The Publisher",
+            name=plain("The Source"),
+            author=plain("The Author"),
+            publisher=plain("The Publisher"),
             date=Date(2000, 1, 1),
             contained_by=Source(
                 id="the_containing_source",
-                name="The Containing Source",
+                name=plain("The Containing Source"),
             ),
             contains=[
                 Source(
                     id="the_contained_source",
-                    name="The Contained Source",
+                    name=plain("The Contained Source"),
                 )
             ],
             links=[link],
@@ -254,9 +256,6 @@ class TestSource(EntityTestBase):
             "@type": "https://schema.org/Thing",
             "id": "the_source",
             "private": True,
-            "name": None,
-            "author": None,
-            "publisher": None,
             "fileReferences": [],
             "contains": [
                 "/source/the_contained_source/index.json",
@@ -277,11 +276,11 @@ class TestSource(EntityTestBase):
     ) -> None:
         contained_by_source = Source(
             id="the_containing_source",
-            name="The Containing Source",
+            name=plain("The Containing Source"),
         )
         contains_source = Source(
             id="the_contained_source",
-            name="The Contained Source",
+            name=plain("The Contained Source"),
             private=True,
         )
         source = Source(
@@ -302,9 +301,6 @@ class TestSource(EntityTestBase):
             "@type": "https://schema.org/Thing",
             "id": "the_source",
             "private": False,
-            "name": {},
-            "author": {},
-            "publisher": {},
             "fileReferences": [],
             "contains": [
                 "/source/the_contained_source/index.json",

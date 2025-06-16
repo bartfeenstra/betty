@@ -1100,10 +1100,10 @@ class GrampsLoader:
 
     async def _load_repository(self, element: ElementTree.Element) -> None:
         repository_source_handle = element.get("handle")
-
+        source_name = self._xpath1(element, "./ns:rname").text
         source = Source(
             id=element.get("id"),
-            name=self._xpath1(element, "./ns:rname").text,
+            name=None if source_name is None else plain(source_name),
         )
 
         self._load_urls(source, element)
@@ -1123,7 +1123,7 @@ class GrampsLoader:
 
         source = Source(
             id=element.get("id"),
-            name=source_name,
+            name=None if source_name is None else plain(source_name),
         )
 
         repository_source_handle = self._load_handle("reporef", element)
@@ -1134,13 +1134,13 @@ class GrampsLoader:
         with suppress(XPathError):
             author = self._xpath1(element, "./ns:sauthor").text
             if author:
-                source.author = author
+                source.author = plain(author)
 
         # Load the publication info.
         with suppress(XPathError):
             publisher = self._xpath1(element, "./ns:spubinfo").text
             if publisher:
-                source.publisher = publisher
+                source.publisher = plain(publisher)
 
         if element.get("priv") == "1":
             source.private = True

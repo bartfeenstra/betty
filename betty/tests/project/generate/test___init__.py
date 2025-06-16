@@ -13,6 +13,7 @@ from betty.ancestry.person import Person
 from betty.ancestry.place import Place
 from betty.ancestry.source import Source
 from betty.app import App
+from betty.locale.localizable import plain
 from betty.model import (
     ENTITY_TYPE_REPOSITORY,
     Entity,
@@ -322,7 +323,7 @@ async def test_generate__event(new_temporary_app: App) -> None:
 
 async def test_generate__citation(new_temporary_app: App) -> None:
     async with Project.new_temporary(new_temporary_app) as project:
-        source = Source("A Little Birdie")
+        source = Source(plain("A Little Birdie"))
         citation = Citation(
             id="CITATION1",
             source=source,
@@ -349,7 +350,7 @@ async def test_generate__source(new_temporary_app: App) -> None:
     async with Project.new_temporary(new_temporary_app) as project:
         source = Source(
             id="SOURCE1",
-            name="A Little Birdie",
+            name=plain("A Little Birdie"),
         )
         project.ancestry.add(source)
         async with project:
