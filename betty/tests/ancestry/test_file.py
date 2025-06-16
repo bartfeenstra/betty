@@ -123,7 +123,7 @@ class TestFile(EntityTestBase):
             path=file_path,
         )
         assert list(sut.notes) == []
-        notes = [Note(text=""), Note(text="")]
+        notes = [Note(plain("")), Note(plain(""))]
         sut.notes = notes
         assert list(sut.notes) == notes
 
@@ -186,7 +186,7 @@ class TestFile(EntityTestBase):
             file.notes.add(
                 Note(
                     id="the_note",
-                    text="The Note",
+                    text=plain("The Note"),
                 )
             )
             reference = FileReference(Person(id="the_person"), file)
@@ -238,7 +238,7 @@ class TestFile(EntityTestBase):
             file.notes.add(
                 Note(
                     id="the_note",
-                    text="The Note",
+                    text=plain("The Note"),
                 )
             )
             reference = FileReference(Person(id="the_person"), file)

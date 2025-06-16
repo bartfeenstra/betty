@@ -705,7 +705,7 @@ class GrampsLoader:
         text = str(text_element.text)
         note = Note(
             id=note_id,
-            text=text,
+            text=plain(text),
         )
         if element.get("priv") == "1":
             note.private = True

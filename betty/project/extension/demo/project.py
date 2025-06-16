@@ -180,9 +180,11 @@ async def load_ancestry(project: Project) -> None:
     ancestry.add(north_holland)
 
     amsterdam_note = Note(
-        """
+        plain(
+            """
 Did you know that while Amsterdam is the country's official capital, The Hague is the Netherlands' administrative center and seat of government?
     """
+        )
     )
 
     amsterdam = Place(
@@ -429,10 +431,12 @@ Did you know that while Amsterdam is the country's official capital, The Hague i
     ancestry.add(death_of_liberta_lankester)
 
     liberta_lankester_note = Note(
-        {
-            "en-US": """Did you know that Liberta "Betty" Lankester is Betty's namesake?""",
-            "nl": """Wist je dat Betty vernoemd is naar Liberta "Betty" Lankester?""",
-        }
+        static(
+            {
+                "en-US": """Did you know that Liberta "Betty" Lankester is Betty's namesake?""",
+                "nl": """Wist je dat Betty vernoemd is naar Liberta "Betty" Lankester?""",
+            }
+        )
     )
 
     liberta_lankester = Person(

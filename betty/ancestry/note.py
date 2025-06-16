@@ -11,8 +11,7 @@ from typing_extensions import override
 from betty.ancestry.link import HasLinks
 from betty.locale.localizable import (
     Localizable,
-    RequiredStaticTranslationsLocalizableAttr,
-    ShorthandStaticTranslations,
+    StaticTranslationsLocalizable,
     _,
     ngettext,
 )
@@ -22,11 +21,12 @@ from betty.model.association import (
     ToZeroOrOneAssociate,
 )
 from betty.plugin import ShorthandPluginBase
-from betty.privacy import HasPrivacy, Privacy
+from betty.privacy import HasPrivacy, Privacy, is_public
 from betty.user import UserFacing
 
 if TYPE_CHECKING:
     from betty.ancestry.has_notes import HasNotes
+    from betty.json.linked_data import JsonLdObject
     from betty.project import Project
     from betty.serde.dump import Dump, DumpMapping
 
@@ -50,12 +50,9 @@ class Note(ShorthandPluginBase, UserFacing, HasPrivacy, HasLinks, Entity):
         description="The entity the note belongs to",
     )
 
-    #: The human-readable note text.
-    text = RequiredStaticTranslationsLocalizableAttr("text", title="Text")
-
     def __init__(
         self,
-        text: ShorthandStaticTranslations,
+        text: Localizable,
         *,
         id: str | None = None,  # noqa A002  # noqa A002
         entity: ToZeroOrOneAssociate[HasNotes] | None = None,
@@ -92,4 +89,19 @@ class Note(ShorthandPluginBase, UserFacing, HasPrivacy, HasLinks, Entity):
     async def dump_linked_data(self, project: Project) -> DumpMapping[Dump]:
         dump = await super().dump_linked_data(project)
         dump["@type"] = "https://schema.org/Thing"
+        if is_public(self):
+            dump["text"] = await StaticTranslationsLocalizable.dump_linked_data_for(
+                project, self.text
+            )
         return dump
+
+    @override
+    @classmethod
+    async def linked_data_schema(cls, project: Project) -> JsonLdObject:
+        schema = await super().linked_data_schema(project)
+        schema.add_property(
+            "text",
+            await StaticTranslationsLocalizable.linked_data_schema(project),
+            False,
+        )
+        return schema
