@@ -24,6 +24,7 @@ from betty.locale.localizable import (
     StaticTranslationsLocalizable,
     StaticTranslationsLocalizableAttr,
 )
+from betty.locale.localizer import Localizer
 from betty.model import Entity
 from betty.privacy import is_private
 from betty.typing import internal
@@ -31,8 +32,6 @@ from betty.typing import internal
 if TYPE_CHECKING:
     from collections.abc import Iterable, Sequence
 
-    from betty.ancestry import Ancestry
-    from betty.jinja2 import Environment
     from betty.job import Context
     from betty.locale.localizer import Localizer
     from betty.machine_name import MachineName
@@ -81,12 +80,7 @@ async def _generate_search_index_for_locale(
                 "text": " ".join(entry.text),
                 "result": entry.result,
             }
-            for entry in await Index(
-                project.ancestry,
-                await project.jinja2_environment,
-                job_context,
-                localizer,
-            ).build()
+            for entry in await Index(project, job_context, localizer).build()
         ],
     }
     search_index_json = json.dumps(search_index)
@@ -97,32 +91,40 @@ async def _generate_search_index_for_locale(
         await f.write(search_index_json)
 
 
-def _static_translations_to_text(
-    translations: StaticTranslationsLocalizable,
+async def _localizable_to_text(
+    project: Project,
+    localizable: Localizable,
 ) -> set[str]:
+    localizers = await project.localizers
     return {
         word
-        for translation in translations.translations.values()
+        for translation in StaticTranslationsLocalizable.from_localizable(
+            localizable, await localizers.localizers
+        ).translations.values()
         for word in translation.strip().lower().split()
     }
 
 
 class _EntityTypeIndexer(Generic[_EntityT], ABC):
-    def text(self, localizer: Localizer, entity: _EntityT) -> set[str]:
+    def __init__(self, project: Project):
+        self._project = project
+
+    async def text(self, localizer: Localizer, entity: _EntityT) -> set[str]:
         text = {entity.id.lower()}
 
         # Each note is owner by a single other entity, so index it as part of that entity.
         if isinstance(entity, HasNotes):
             for note in entity.notes:
-                text.update(_static_translations_to_text(note.text))
+                text.update(await _localizable_to_text(self._project, note.text))
 
         for attr_name, class_attr_value in getmembers(type(entity)):
             if isinstance(class_attr_value, StaticTranslationsLocalizableAttr):
                 text.update(
-                    _static_translations_to_text(
+                    await _localizable_to_text(
+                        self._project,
                         cast(
                             "StaticTranslationsLocalizable", getattr(entity, attr_name)
-                        )
+                        ),
                     )
                 )
 
@@ -130,9 +132,12 @@ class _EntityTypeIndexer(Generic[_EntityT], ABC):
 
 
 class _PersonIndexer(_EntityTypeIndexer[Person]):
+    def __init__(self, project: Project):
+        self._project = project
+
     @override
-    def text(self, localizer: Localizer, entity: Person) -> set[str]:
-        text = super().text(localizer, entity)
+    async def text(self, localizer: Localizer, entity: Person) -> set[str]:
+        text = await super().text(localizer, entity)
         for name in entity.names:
             if name.individual is not None:
                 text.update(set(name.individual.lower().split()))
@@ -143,17 +148,17 @@ class _PersonIndexer(_EntityTypeIndexer[Person]):
 
 class _PlaceIndexer(_EntityTypeIndexer[Place]):
     @override
-    def text(self, localizer: Localizer, entity: Place) -> set[str]:
-        text = super().text(localizer, entity)
+    async def text(self, localizer: Localizer, entity: Place) -> set[str]:
+        text = await super().text(localizer, entity)
         for name in entity.names:
-            text.update(_static_translations_to_text(name.name))
+            text.update(await _localizable_to_text(self._project, name.name))
         return text
 
 
 class _FileIndexer(_EntityTypeIndexer[File]):
     @override
-    def text(self, localizer: Localizer, entity: File) -> set[str]:
-        text = super().text(localizer, entity)
+    async def text(self, localizer: Localizer, entity: File) -> set[str]:
+        text = await super().text(localizer, entity)
         text.update(entity.path.name.strip().lower().split())
         if entity.description:
             text.update(entity.description.localize(localizer).strip().lower().split())
@@ -180,13 +185,11 @@ class Index:
 
     def __init__(
         self,
-        ancestry: Ancestry,
-        jinja2_environment: Environment,
+        project: Project,
         job_context: Context | None,
         localizer: Localizer,
     ):
-        self._ancestry = ancestry
-        self._jinja2_environment = jinja2_environment
+        self._project = project
         self._job_context = job_context
         self._localizer = localizer
 
@@ -197,10 +200,10 @@ class Index:
         return [
             entry
             for entries in await gather(
-                self._build_entities(_PersonIndexer(), Person),
-                self._build_entities(_PlaceIndexer(), Place),
-                self._build_entities(_FileIndexer(), File),
-                self._build_entities(_SourceIndexer(), Source),
+                self._build_entities(_PersonIndexer(self._project), Person),
+                self._build_entities(_PlaceIndexer(self._project), Place),
+                self._build_entities(_FileIndexer(self._project), File),
+                self._build_entities(_SourceIndexer(self._project), Source),
             )
             for entry in entries
             if entry is not None
@@ -212,7 +215,7 @@ class Index:
         return await gather(
             *(
                 self._build_entity(indexer, entity)
-                for entity in self._ancestry[entity_type]
+                for entity in self._project.ancestry[entity_type]
             )
         )
 
@@ -221,13 +224,14 @@ class Index:
     ) -> _Entry | None:
         if is_private(entity):
             return None
-        text = indexer.text(self._localizer, entity)
+        text = await indexer.text(self._localizer, entity)
         if not text:
             return None
         return _Entry(entity.plugin_id(), await self._render_entity(entity), text)
 
     async def _render_entity(self, entity: Entity) -> str:
-        return await self._jinja2_environment.select_template(
+        jinja2_environment = await self._project.jinja2_environment
+        return await jinja2_environment.select_template(
             [
                 f"search/result--{entity.plugin_id()}.html.j2",
                 "search/result.html.j2",

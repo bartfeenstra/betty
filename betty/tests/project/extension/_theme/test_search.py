@@ -9,7 +9,7 @@ from betty.ancestry.person_name import PersonName
 from betty.ancestry.place import Place
 from betty.app import App
 from betty.job import Context
-from betty.locale.localizable import plain
+from betty.locale.localizable import plain, static
 from betty.locale.localizer import DEFAULT_LOCALIZER
 from betty.project import Project
 from betty.project.config import LocaleConfiguration
@@ -29,12 +29,7 @@ class TestIndex:
                 )
             )
             async with project:
-                actual = await Index(
-                    project.ancestry,
-                    await project.jinja2_environment,
-                    Context(),
-                    DEFAULT_LOCALIZER,
-                ).build()
+                actual = await Index(project, Context(), DEFAULT_LOCALIZER).build()
 
                 assert actual == []
 
@@ -53,12 +48,7 @@ class TestIndex:
             )
             project.ancestry.add(person)
             async with project:
-                actual = await Index(
-                    project.ancestry,
-                    await project.jinja2_environment,
-                    Context(),
-                    DEFAULT_LOCALIZER,
-                ).build()
+                actual = await Index(project, Context(), DEFAULT_LOCALIZER).build()
 
                 assert actual[0].text == {"p1"}
 
@@ -85,12 +75,7 @@ class TestIndex:
             )
             project.ancestry.add(person)
             async with project:
-                actual = await Index(
-                    project.ancestry,
-                    await project.jinja2_environment,
-                    Context(),
-                    DEFAULT_LOCALIZER,
-                ).build()
+                actual = await Index(project, Context(), DEFAULT_LOCALIZER).build()
 
                 assert actual == []
 
@@ -125,10 +110,7 @@ class TestIndex:
             async with project:
                 localizers = await project.localizers
                 actual = await Index(
-                    project.ancestry,
-                    await project.jinja2_environment,
-                    Context(),
-                    await localizers.get(locale),
+                    project, Context(), await localizers.get(locale)
                 ).build()
 
                 assert actual[0].text == {"p1", "jane"}
@@ -165,8 +147,7 @@ class TestIndex:
             async with project:
                 localizers = await project.localizers
                 actual = await Index(
-                    project.ancestry,
-                    await project.jinja2_environment,
+                    project,
                     Context(),
                     await localizers.get(locale),
                 ).build()
@@ -207,10 +188,7 @@ class TestIndex:
             async with project:
                 localizers = await project.localizers
                 actual = await Index(
-                    project.ancestry,
-                    await project.jinja2_environment,
-                    Context(),
-                    await localizers.get(locale),
+                    project, Context(), await localizers.get(locale)
                 ).build()
 
                 assert actual[0].text == {"p1", "jane", "doughnut"}
@@ -231,10 +209,12 @@ class TestIndex:
             id=place_id,
             names=[
                 Name(
-                    {
-                        "en": "Netherlands",
-                        "nl": "Nederland",
-                    }
+                    static(
+                        {
+                            "en": "Netherlands",
+                            "nl": "Nederland",
+                        }
+                    )
                 ),
             ],
         )
@@ -252,8 +232,7 @@ class TestIndex:
             async with project:
                 localizers = await project.localizers
                 actual = await Index(
-                    project.ancestry,
-                    await project.jinja2_environment,
+                    project,
                     Context(),
                     await localizers.get(locale),
                 ).build()
@@ -266,7 +245,7 @@ class TestIndex:
         place = Place(
             id=place_id,
             names=[
-                Name({"en": "Netherlands"}),
+                Name(static({"en": "Netherlands"})),
             ],
             private=True,
         )
@@ -277,8 +256,7 @@ class TestIndex:
             project.ancestry.add(place)
             async with project:
                 actual = await Index(
-                    project.ancestry,
-                    await project.jinja2_environment,
+                    project,
                     Context(),
                     DEFAULT_LOCALIZER,
                 ).build()
@@ -366,8 +344,7 @@ class TestIndex:
             async with project:
                 localizers = await project.localizers
                 actual = await Index(
-                    project.ancestry,
-                    await project.jinja2_environment,
+                    project,
                     Context(),
                     await localizers.get(locale),
                 ).build()
@@ -390,8 +367,7 @@ class TestIndex:
             project.ancestry.add(file)
             async with project:
                 actual = await Index(
-                    project.ancestry,
-                    await project.jinja2_environment,
+                    project,
                     Context(),
                     DEFAULT_LOCALIZER,
                 ).build()

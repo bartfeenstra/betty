@@ -141,12 +141,14 @@ async def load_ancestry(project: Project) -> None:
         id="betty-demo-netherlands",
         names=[
             Name(
-                {
-                    "en": "Netherlands",
-                    "nl": "Nederland",
-                    "uk": "Нідерланди",
-                    "fr": "Pays-Bas",
-                }
+                static(
+                    {
+                        "en": "Netherlands",
+                        "nl": "Nederland",
+                        "uk": "Нідерланди",
+                        "fr": "Pays-Bas",
+                    }
+                )
             ),
         ],
         links=[Link("https://en.wikipedia.org/wiki/Netherlands")],
@@ -158,12 +160,14 @@ async def load_ancestry(project: Project) -> None:
         id="betty-demo-north-holland",
         names=[
             Name(
-                {
-                    "en": "North Holland",
-                    "nl": "Noord-Holland",
-                    "uk": "Північна Голландія",
-                    "fr": "Hollande-Septentrionale",
-                }
+                static(
+                    {
+                        "en": "North Holland",
+                        "nl": "Noord-Holland",
+                        "uk": "Північна Голландія",
+                        "fr": "Hollande-Septentrionale",
+                    }
+                )
             ),
         ],
         links=[
@@ -184,7 +188,7 @@ Did you know that while Amsterdam is the country's official capital, The Hague i
     amsterdam = Place(
         id="betty-demo-amsterdam",
         names=[
-            Name({"nl": "Amsterdam", "uk": "Амстерда́м"}),
+            Name(static({"nl": "Amsterdam", "uk": "Амстерда́м"})),
         ],
         links=[
             Link("https://nl.wikipedia.org/wiki/Amsterdam"),
@@ -200,10 +204,12 @@ Did you know that while Amsterdam is the country's official capital, The Hague i
         id="betty-demo-ilpendam",
         names=[
             Name(
-                {
-                    "nl": "Ilpendam",
-                    "uk": "Илпендам",
-                }
+                static(
+                    {
+                        "nl": "Ilpendam",
+                        "uk": "Илпендам",
+                    }
+                )
             ),
         ],
         links=[Link("https://nl.wikipedia.org/wiki/Ilpendam")],

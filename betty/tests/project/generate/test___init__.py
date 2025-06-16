@@ -265,7 +265,7 @@ async def test_generate__place(new_temporary_app: App) -> None:
     ):
         place = Place(
             id="PLACE1",
-            names=[Name("one")],
+            names=[Name(plain("one"))],
         )
         project.ancestry.add(place)
         async with project:

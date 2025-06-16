@@ -43,7 +43,7 @@ async def test_with_place() -> None:
     event = Event(event_type=Birth())
     event.place = Place(
         id="P0",
-        names=[Name("The Place")],
+        names=[Name(plain("The Place"))],
     )
     expected = 'in <a href="/place/P0/index.html"><span lang="und" dir="auto">The Place</span></a>'
     async with assert_template_file(
@@ -60,7 +60,7 @@ async def test_with_place_is_place_context() -> None:
     event = Event(event_type=Birth())
     place = Place(
         id="P0",
-        names=[Name("The Place")],
+        names=[Name(plain("The Place"))],
     )
     event.place = place
     async with assert_template_file(
@@ -81,7 +81,7 @@ async def test_with_date_and_place() -> None:
     )
     event.place = Place(
         id="P0",
-        names=[Name("The Place")],
+        names=[Name(plain("The Place"))],
     )
     expected = '1970 in <a href="/place/P0/index.html"><span lang="und" dir="auto">The Place</span></a>'
     async with assert_template_file(
@@ -115,7 +115,7 @@ async def test_embedded() -> None:
     )
     event.place = Place(
         id="P0",
-        names=[Name("The Place")],
+        names=[Name(plain("The Place"))],
     )
     event.citations.add(Citation(source=Source(name=plain("The Source"))))
     expected = '1970 in <span lang="und" dir="auto">The Place</span>'

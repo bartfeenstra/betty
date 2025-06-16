@@ -74,7 +74,7 @@ class TestEvent(EntityTestBase):
     async def test_place(self) -> None:
         place = Place(
             id="1",
-            names=[Name("one")],
+            names=[Name(plain("one"))],
         )
         sut = Event(event_type=UnknownEventType())
         sut.place = place
@@ -166,7 +166,7 @@ class TestEvent(EntityTestBase):
             date=DateRange(Date(2000, 1, 1), Date(2019, 12, 31)),
             place=Place(
                 id="the_place",
-                names=[Name("The Place")],
+                names=[Name(plain("The Place"))],
             ),
             name=plain("The Event"),
             description=plain("The Event Description"),
@@ -246,7 +246,7 @@ class TestEvent(EntityTestBase):
             date=DateRange(Date(2000, 1, 1), Date(2019, 12, 31)),
             place=Place(
                 id="the_place",
-                names=[Name("The Place")],
+                names=[Name(plain("The Place"))],
             ),
         )
         presence = Presence(Person(id="the_person"), Subject(), event)

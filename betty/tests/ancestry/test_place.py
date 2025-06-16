@@ -13,7 +13,7 @@ from betty.ancestry.link import Link
 from betty.ancestry.name import Name
 from betty.ancestry.place import Place
 from betty.ancestry.place_type.place_types import Unknown as UnknownPlaceType
-from betty.locale import DEFAULT_LOCALE, UNDETERMINED_LOCALE
+from betty.locale import DEFAULT_LOCALE
 from betty.locale.localizable import plain
 from betty.model.association import AssociationRequired, TemporaryToOneResolver
 from betty.test_utils.ancestry.place_type import DummyPlaceType
@@ -35,7 +35,7 @@ class TestPlace(EntityTestBase):
     async def get_sut_instances(self) -> Sequence[Entity]:
         return [
             Place(),
-            Place(names=[Name("My First Place")]),
+            Place(names=[Name(plain("My First Place"))]),
         ]
 
     def test_place_type__default(self) -> None:
@@ -171,7 +171,7 @@ class TestPlace(EntityTestBase):
         link.label = plain("The Place Online")
         place = Place(
             id=place_id,
-            names=[Name(name)],
+            names=[Name(plain(name))],
             events=[
                 Event(
                     id="E1",
@@ -194,7 +194,7 @@ class TestPlace(EntityTestBase):
             "@id": "https://example.com/place/the_place/index.json",
             "@type": "https://schema.org/Place",
             "id": place_id,
-            "names": [{"name": {UNDETERMINED_LOCALE: name}}],
+            "names": [{"name": {DEFAULT_LOCALE: name}}],
             "events": [
                 "/event/E1/index.json",
             ],
