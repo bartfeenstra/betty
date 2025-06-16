@@ -8,8 +8,7 @@ import json
 from abc import ABC
 from asyncio import gather
 from dataclasses import dataclass
-from inspect import getmembers
-from typing import TYPE_CHECKING, Generic, TypeVar, cast, final
+from typing import TYPE_CHECKING, Generic, TypeVar, final
 
 import aiofiles
 from typing_extensions import override
@@ -19,12 +18,6 @@ from betty.ancestry.has_notes import HasNotes
 from betty.ancestry.person import Person
 from betty.ancestry.place import Place
 from betty.ancestry.source import Source
-from betty.locale.localizable import (
-    Localizable,
-    StaticTranslationsLocalizable,
-    StaticTranslationsLocalizableAttr,
-)
-from betty.locale.localizer import Localizer
 from betty.model import Entity
 from betty.privacy import is_private
 from betty.typing import internal
@@ -33,6 +26,7 @@ if TYPE_CHECKING:
     from collections.abc import Iterable, Sequence
 
     from betty.job import Context
+    from betty.locale.localizable import Localizable
     from betty.locale.localizer import Localizer
     from betty.machine_name import MachineName
     from betty.project import Project
@@ -91,20 +85,6 @@ async def _generate_search_index_for_locale(
         await f.write(search_index_json)
 
 
-async def _localizable_to_text(
-    project: Project,
-    localizable: Localizable,
-) -> set[str]:
-    localizers = await project.localizers
-    return {
-        word
-        for translation in StaticTranslationsLocalizable.from_localizable(
-            localizable, await localizers.localizers
-        ).translations.values()
-        for word in translation.strip().lower().split()
-    }
-
-
 class _EntityTypeIndexer(Generic[_EntityT], ABC):
     def __init__(self, project: Project):
         self._project = project
@@ -112,21 +92,10 @@ class _EntityTypeIndexer(Generic[_EntityT], ABC):
     async def text(self, localizer: Localizer, entity: _EntityT) -> set[str]:
         text = {entity.id.lower()}
 
-        # Each note is owner by a single other entity, so index it as part of that entity.
+        # Each note is owned by a single other entity, so index it as part of that entity.
         if isinstance(entity, HasNotes):
             for note in entity.notes:
-                text.update(await _localizable_to_text(self._project, note.text))
-
-        for attr_name, class_attr_value in getmembers(type(entity)):
-            if isinstance(class_attr_value, StaticTranslationsLocalizableAttr):
-                text.update(
-                    await _localizable_to_text(
-                        self._project,
-                        cast(
-                            "StaticTranslationsLocalizable", getattr(entity, attr_name)
-                        ),
-                    )
-                )
+                text.update(note.text.localize(localizer).lower().split())
 
         return text
 
@@ -151,7 +120,7 @@ class _PlaceIndexer(_EntityTypeIndexer[Place]):
     async def text(self, localizer: Localizer, entity: Place) -> set[str]:
         text = await super().text(localizer, entity)
         for name in entity.names:
-            text.update(await _localizable_to_text(self._project, name.name))
+            text.update(name.name.localize(localizer).lower().split())
         return text
 
 

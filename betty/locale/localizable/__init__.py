@@ -6,24 +6,21 @@ from __future__ import annotations
 
 from abc import ABC, abstractmethod
 from collections.abc import Callable, Iterable, Mapping, MutableMapping, Sequence
-from typing import TYPE_CHECKING, Any, Self, TypeAlias, TypeVar, cast, final, overload
+from typing import TYPE_CHECKING, Any, Self, TypeAlias, TypeVar, cast
 from warnings import warn
 
 from typing_extensions import override
 
 from betty.json.linked_data import (
     LinkedDataDumpable,
-    LinkedDataDumpableProvider,
 )
-from betty.json.schema import Null, Object, OneOf, Schema
+from betty.json.schema import Object
 from betty.locale import UNDETERMINED_LOCALE, negotiate_locale, to_locale
 from betty.locale.localized import LocalizedStr
 from betty.locale.localizer import DEFAULT_LOCALIZER, Localizer
 from betty.mutability import Mutable
-from betty.privacy import is_private
 from betty.repr import repr_instance
 from betty.serde.dump import Dump, DumpMapping
-from betty.typing import internal
 
 if TYPE_CHECKING:
     from betty.project import Project
@@ -423,80 +420,3 @@ def static(translations: ShorthandStaticTranslations) -> Localizable:
     from betty.locale.localizable.assertion import assert_static_translations
 
     return StaticTranslationsLocalizable(assert_static_translations()(translations))
-
-
-@internal
-class StaticTranslationsLocalizableAttr(LinkedDataDumpableProvider[object]):
-    """
-    An instance attribute that contains :py:class:`betty.locale.localizable.StaticTranslationsLocalizable`.
-    """
-
-    _required: bool
-
-    def __init__(
-        self, attr_name: str, title: str | None = None, description: str | None = None
-    ):
-        self._attr_name = f"_{attr_name}"
-        self._title = title
-        self._description = description
-
-    @overload
-    def __get__(self, instance: None, owner: type[object]) -> Self:
-        pass
-
-    @overload
-    def __get__(self, instance: _T, owner: type[_T]) -> StaticTranslationsLocalizable:
-        pass
-
-    def __get__(
-        self, instance: object | None, owner: type[object]
-    ) -> StaticTranslationsLocalizable | Self:
-        if instance is None:
-            return self  # type: ignore[return-value]
-        try:
-            return cast(
-                "StaticTranslationsLocalizable", getattr(instance, self._attr_name)
-            )
-        except AttributeError:
-            value = StaticTranslationsLocalizable(None, required=self._required)
-            setattr(instance, self._attr_name, value)
-            return value
-
-    def __set__(self, instance: object, value: ShorthandStaticTranslations) -> None:
-        self.__get__(instance, type(instance)).replace(value)
-
-    @override
-    async def linked_data_schema_for(self, project: Project) -> Schema:
-        return OneOf(
-            await StaticTranslationsLocalizable.linked_data_schema(project),
-            Null(),
-            title=self._title,
-            description=self._description,
-        )
-
-    @override
-    async def dump_linked_data_for(self, project: Project, target: object) -> Dump:
-        if is_private(target):
-            return None
-        return await self.__get__(target, type(target)).dump_linked_data(project)
-
-
-@final
-class RequiredStaticTranslationsLocalizableAttr(StaticTranslationsLocalizableAttr):
-    """
-    An instance attribute that contains :py:class:`betty.locale.localizable.StaticTranslationsLocalizable`.
-    """
-
-    _required = True
-
-
-@final
-class OptionalStaticTranslationsLocalizableAttr(StaticTranslationsLocalizableAttr):
-    """
-    An instance attribute that contains :py:class:`betty.locale.localizable.StaticTranslationsLocalizable`.
-    """
-
-    _required = False
-
-    def __delete__(self, instance: object) -> None:
-        self.__get__(instance, type(instance)).replace({})
