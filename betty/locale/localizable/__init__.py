@@ -400,6 +400,19 @@ class StaticTranslationsLocalizable(
             }
         )
 
+    @classmethod
+    async def dump_linked_data_for(
+        cls, project: Project, other: Localizable
+    ) -> DumpMapping[Dump]:
+        """
+        Dump a :py:class:`betty.locale.localizable.Localizable` to `JSON-LD <https://json-ld.org/>`_.
+        """
+        localizers = await project.localizers
+        return await StaticTranslationsLocalizable.from_localizable(
+            other,
+            *[await localizers.get(locale) for locale in project.configuration.locales],
+        ).dump_linked_data(project)
+
 
 def static(translations: ShorthandStaticTranslations) -> Localizable:
     """

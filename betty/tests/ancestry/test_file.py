@@ -195,7 +195,7 @@ class TestFile(EntityTestBase):
                     id="the_citation",
                     source=Source(
                         id="the_source",
-                        name="The Source",
+                        name=plain("The Source"),
                     ),
                 )
             )
@@ -247,7 +247,7 @@ class TestFile(EntityTestBase):
                     id="the_citation",
                     source=Source(
                         id="the_source",
-                        name="The Source",
+                        name=plain("The Source"),
                     ),
                 )
             )

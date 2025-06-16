@@ -231,7 +231,7 @@ class TestPopulator:
         tmp_path: Path,
     ) -> None:
         m_client = mocker.patch("betty.wiki.client.Client")
-        source = Source("The Source")
+        source = Source(plain("The Source"))
         resource = Citation(
             id="the_citation",
             source=source,
@@ -259,7 +259,7 @@ class TestPopulator:
         m_client = mocker.patch("betty.wiki.client.Client")
         resource = Source(
             id="the_source",
-            name="The Source",
+            name=plain("The Source"),
         )
         ancestry = await Ancestry.new()
         ancestry.add(resource)
@@ -286,7 +286,7 @@ class TestPopulator:
         link = Link("https://example.com")
         resource = Source(
             id="the_source",
-            name="The Source",
+            name=plain("The Source"),
             links=[link],
         )
         ancestry = await Ancestry.new()
@@ -324,7 +324,7 @@ class TestPopulator:
         link = Link("https://en.wikipedia.org/wiki/Amsterdam & Omstreken")
         resource = Source(
             id="the_source",
-            name="The Source",
+            name=plain("The Source"),
             links=[link],
         )
         ancestry = await Ancestry.new()
@@ -382,7 +382,7 @@ class TestPopulator:
         link_en = Link("https://en.wikipedia.org/wiki/Amsterdam & Omstreken")
         resource = Source(
             id="the_source",
-            name="The Source",
+            name=plain("The Source"),
             links=[link_en],
         )
         ancestry = await Ancestry.new()

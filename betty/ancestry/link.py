@@ -100,14 +100,10 @@ class Link(
         dump = await super().dump_linked_data(project)
         dump["url"] = self.url
         if self._label is not None:
-            localizers = await project.localizers
-            dump["label"] = await StaticTranslationsLocalizable.from_localizable(
-                self._label,
-                *[
-                    await localizers.get(locale)
-                    for locale in project.configuration.locales
-                ],
-            ).dump_linked_data(project)
+            await project.localizers
+            dump["label"] = await StaticTranslationsLocalizable.dump_linked_data_for(
+                project, self._label
+            )
         if self.relationship is not None:
             dump["relationship"] = self.relationship
         return dump

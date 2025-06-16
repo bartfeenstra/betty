@@ -6,6 +6,7 @@ from betty.ancestry.place import Place
 from betty.ancestry.source import Source
 from betty.date import Date
 from betty.jinja2 import EntityContexts
+from betty.locale.localizable import plain
 from betty.project.extension.raspberry_mint import RaspberryMint
 from betty.test_utils.jinja2 import assert_template_file
 
@@ -95,7 +96,7 @@ async def test_with_date_and_place() -> None:
 
 async def test_with_citation() -> None:
     event = Event(event_type=Birth())
-    event.citations.add(Citation(source=Source(name="The Source")))
+    event.citations.add(Citation(source=Source(name=plain("The Source"))))
     expected = 'sometime <sup><a href="#reference-1">[1]</a></sup>'
     async with assert_template_file(
         data={
@@ -116,7 +117,7 @@ async def test_embedded() -> None:
         id="P0",
         names=[Name("The Place")],
     )
-    event.citations.add(Citation(source=Source(name="The Source")))
+    event.citations.add(Citation(source=Source(name=plain("The Source"))))
     expected = '1970 in <span lang="und" dir="auto">The Place</span>'
     async with assert_template_file(
         data={

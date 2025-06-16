@@ -214,7 +214,7 @@ Did you know that while Amsterdam is the country's official capital, The Hague i
 
     personal_accounts = Source(
         id="betty-demo-personal-accounts",
-        name="Personal accounts",
+        name=static("Personal accounts"),
     )
     ancestry.add(personal_accounts)
 
@@ -227,16 +227,16 @@ Did you know that while Amsterdam is the country's official capital, The Hague i
 
     noord_hollands_archief = Source(
         id="betty-demo-noord-hollands-archief",
-        name="Noord-Hollands Archief",
+        name=static("Noord-Hollands Archief"),
         links=[Link("https://noord-hollandsarchief.nl/")],
     )
     ancestry.add(noord_hollands_archief)
 
     bevolkingsregister_amsterdam = Source(
         id="betty-demo-bevolkingsregister-amsterdam",
-        name="Bevolkingsregister Amsterdam",
-        author="Gemeente Amsterdam",
-        publisher="Gemeente Amsterdam",
+        name=static("Bevolkingsregister Amsterdam"),
+        author=static("Gemeente Amsterdam"),
+        publisher=static("Gemeente Amsterdam"),
         contained_by=noord_hollands_archief,
     )
     ancestry.add(bevolkingsregister_amsterdam)

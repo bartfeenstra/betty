@@ -1431,6 +1431,7 @@ class TestGrampsLoader:
 """
         )
         source = ancestry[Source]["R0000"]
+        assert source.name is not None
         assert source.name.localize(DEFAULT_LOCALIZER) == "Library of Alexandria"
 
     async def test_source_from_repository_should_include_link(self) -> None:
@@ -1464,6 +1465,7 @@ class TestGrampsLoader:
 """
         )
         source = ancestry[Source]["S0000"]
+        assert source.name is not None
         assert source.name.localize(DEFAULT_LOCALIZER) == "A Whisper"
 
     async def test_source_from_source_should_include_author(self) -> None:
@@ -1477,6 +1479,7 @@ class TestGrampsLoader:
 """
         )
         source = ancestry[Source]["S0000"]
+        assert source.author is not None
         assert source.author.localize(DEFAULT_LOCALIZER) == "A Little Birdie"
 
     async def test_source_from_source_should_include_publisher(self) -> None:
@@ -1490,6 +1493,7 @@ class TestGrampsLoader:
 """
         )
         source = ancestry[Source]["S0000"]
+        assert source.publisher is not None
         assert (
             source.publisher.localize(DEFAULT_LOCALIZER) == "Somewhere over the rainbow"
         )
