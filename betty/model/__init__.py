@@ -3,7 +3,6 @@
 from __future__ import annotations
 
 from abc import abstractmethod
-from inspect import getmembers
 from reprlib import recursive_repr
 from typing import TYPE_CHECKING, Any, Self, TypeAlias, TypeVar, final
 from uuid import uuid4
@@ -15,11 +14,7 @@ from betty.json.linked_data import (
     LinkedDataDumpableJsonLdObject,
 )
 from betty.json.schema import Array, JsonSchemaReference, Null, OneOf, String
-from betty.locale.localizable import (
-    Localizable,
-    StaticTranslationsLocalizableAttr,
-    _,
-)
+from betty.locale.localizable import Localizable, _
 from betty.locale.localizer import DEFAULT_LOCALIZER
 from betty.mutability import Mutable
 from betty.plugin import Plugin, PluginRepository
@@ -30,7 +25,6 @@ from betty.user import UserFacing
 
 if TYPE_CHECKING:
     import builtins
-    from collections.abc import Iterable
 
     from betty.machine_name import MachineName
     from betty.project import Project
@@ -165,13 +159,6 @@ class Entity(LinkedDataDumpableJsonLdObject, Mutable, Plugin):
         schema.add_property("id", String(title="Entity ID"), False)
 
         return schema
-
-    @override
-    def get_mutable_instances(self) -> Iterable[Mutable]:
-        yield from super().get_mutable_instances()
-        for __, member in getmembers(type(self)):
-            if isinstance(member, StaticTranslationsLocalizableAttr):
-                yield member.__get__(self, type(self))
 
 
 ENTITY_TYPE_REPOSITORY: PluginRepository[Entity] = EntryPointPluginRepository(

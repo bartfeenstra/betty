@@ -195,14 +195,18 @@ class TestIndex:
                 assert expected in actual[0].result
 
     @pytest.mark.parametrize(
-        ("expected", "locale"),
+        ("expected_result", "expected_text", "locale"),
         [
-            ("/nl/place/P1/index.html", "nl-NL"),
-            ("/en/place/P1/index.html", "en-US"),
+            ("/nl/place/P1/index.html", {"p1", "nederland"}, "nl-NL"),
+            ("/en/place/P1/index.html", {"p1", "netherlands"}, "en-US"),
         ],
     )
     async def test_build_place(
-        self, expected: str, locale: str, new_temporary_app: App
+        self,
+        expected_result: str,
+        expected_text: set[str],
+        locale: str,
+        new_temporary_app: App,
     ) -> None:
         place_id = "P1"
         place = Place(
@@ -237,8 +241,8 @@ class TestIndex:
                     await localizers.get(locale),
                 ).build()
 
-                assert actual[0].text == {"p1", "netherlands", "nederland"}
-                assert expected in actual[0].result
+                assert actual[0].text == expected_text
+                assert expected_result in actual[0].result
 
     async def test_build_private_place(self, new_temporary_app: App) -> None:
         place_id = "P1"

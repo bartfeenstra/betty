@@ -8,8 +8,6 @@ from betty.json.schema import Schema
 from betty.locale import DEFAULT_LOCALE, UNDETERMINED_LOCALE
 from betty.locale.localizable import (
     Localizable,
-    OptionalStaticTranslationsLocalizableAttr,
-    RequiredStaticTranslationsLocalizableAttr,
     ShorthandStaticTranslations,
     StaticTranslations,
     StaticTranslationsLocalizable,
@@ -228,44 +226,6 @@ class TestStaticTranslationsLocalizableSchema(SchemaTestBase):
                 invalid_datas,
             ),
         ]
-
-
-class TestRequiredStaticTranslationsLocalizableAttr:
-    class Instance:
-        attr = RequiredStaticTranslationsLocalizableAttr("attr")
-
-    def test___get__(self) -> None:
-        instance = self.Instance()
-        instance.attr  # noqa B018
-
-    def test___set__(self) -> None:
-        translation = "Hello, world!"
-        instance = self.Instance()
-        instance.attr = translation
-        assert instance.attr[UNDETERMINED_LOCALE] == translation
-
-
-class TestOptionalStaticTranslationsLocalizableAttr:
-    class Instance:
-        attr = OptionalStaticTranslationsLocalizableAttr("attr")
-
-    def test___get__(self) -> None:
-        instance = self.Instance()
-        instance.attr  # noqa B018
-
-    def test___set__(self) -> None:
-        translation = "Hello, world!"
-        instance = self.Instance()
-        instance.attr = translation
-        assert instance.attr[UNDETERMINED_LOCALE] == translation
-
-    def test___delete__(self) -> None:
-        translation = "Hello, world!"
-        instance = self.Instance()
-        instance.attr = translation
-        del instance.attr
-        with pytest.raises(KeyError):
-            instance.attr[UNDETERMINED_LOCALE]  # noqa B018
 
 
 @pytest.mark.parametrize(
