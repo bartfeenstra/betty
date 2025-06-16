@@ -9,6 +9,7 @@ from betty.ancestry.event import Event
 from betty.ancestry.event_type.event_types import Birth
 from betty.ancestry.has_citations import HasCitations
 from betty.ancestry.source import Source
+from betty.locale import DEFAULT_LOCALE
 from betty.locale.localizable import plain
 from betty.locale.localizer import DEFAULT_LOCALIZER
 from betty.privacy import Privacy
@@ -30,7 +31,7 @@ class TestCitation(EntityTestBase):
     async def get_sut_instances(self) -> Sequence[Entity]:
         return [
             Citation(source=Source()),
-            Citation(source=Source(), location="My First Location"),
+            Citation(source=Source(), location=plain("My First Location")),
         ]
 
     async def test___init____with_facts(self) -> None:
@@ -40,7 +41,8 @@ class TestCitation(EntityTestBase):
 
     async def test___init____with_location(self) -> None:
         location = "Somewhere"
-        sut = Citation(source=Source(), location=location)
+        sut = Citation(source=Source(), location=plain(location))
+        assert sut.location is not None
         assert sut.location.localize(DEFAULT_LOCALIZER) == location
 
     async def test_id(self) -> None:
@@ -67,7 +69,8 @@ class TestCitation(EntityTestBase):
         sut = Citation(source=Source())
         assert not sut.location
         location = "Somewhere"
-        sut.location = location
+        sut.location = plain(location)
+        assert sut.location is not None
         assert sut.location.localize(DEFAULT_LOCALIZER) == location
 
     async def test_date(self) -> None:
@@ -94,7 +97,6 @@ class TestCitation(EntityTestBase):
             "@type": "https://schema.org/Thing",
             "id": "the_citation",
             "private": False,
-            "location": {},
             "facts": [],
             "links": [],
             "fileReferences": [],
@@ -110,6 +112,7 @@ class TestCitation(EntityTestBase):
                 id="the_source",
                 name=plain("The Source"),
             ),
+            location=plain("My First Location"),
         )
         citation.facts.add(
             Event(
@@ -122,7 +125,7 @@ class TestCitation(EntityTestBase):
             "@type": "https://schema.org/Thing",
             "id": "the_citation",
             "private": False,
-            "location": {},
+            "location": {DEFAULT_LOCALE: "My First Location"},
             "source": "/source/the_source/index.json",
             "facts": ["/event/the_event/index.json"],
             "links": [],
@@ -151,7 +154,6 @@ class TestCitation(EntityTestBase):
             "@type": "https://schema.org/Thing",
             "id": "the_citation",
             "private": True,
-            "location": None,
             "source": "/source/the_source/index.json",
             "facts": ["/event/the_event/index.json"],
             "links": [],

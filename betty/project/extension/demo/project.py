@@ -32,7 +32,7 @@ from betty.ancestry.presence_role.presence_roles import Subject
 from betty.ancestry.source import Source
 from betty.date import Date, DateRange
 from betty.license.licenses import spdx_license_id_to_license_id
-from betty.locale.localizable import static
+from betty.locale.localizable import plain, static
 from betty.media_type.media_types import SVG
 from betty.model.config import EntityReference
 from betty.plugin.config import PluginInstanceConfiguration
@@ -221,7 +221,7 @@ Did you know that while Amsterdam is the country's official capital, The Hague i
     cite_first_person_account = Citation(
         id="betty-demo-first-person-account",
         source=personal_accounts,
-        location="Bart Feenstra",
+        location=plain("Bart Feenstra"),
     )
     ancestry.add(cite_first_person_account)
 
@@ -400,7 +400,7 @@ Did you know that while Amsterdam is the country's official capital, The Hague i
     cite_birth_of_liberta_lankester_from_bevolkingsregister_amsterdam = Citation(
         id="betty-demo-birth-of-liberta-lankester-from-bevolkingsregister-amsterdam",
         source=bevolkingsregister_amsterdam,
-        location="Amsterdam",
+        location=static("Amsterdam"),
     )
     ancestry.add(cite_birth_of_liberta_lankester_from_bevolkingsregister_amsterdam)
 

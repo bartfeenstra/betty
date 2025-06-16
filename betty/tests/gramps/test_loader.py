@@ -2100,6 +2100,7 @@ class TestGrampsLoader:
 """
         )
         citation = ancestry[Citation]["C0000"]
+        assert citation.location is not None
         assert citation.location.localize(DEFAULT_LOCALIZER) == "My First Page"
 
     async def test_citation_should_include_source(self) -> None:
