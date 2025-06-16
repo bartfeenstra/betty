@@ -961,7 +961,7 @@ class GrampsLoader:
             assert name is not None
             names.append(
                 Name(
-                    {language or UNDETERMINED_LOCALE: name},
+                    static({language or UNDETERMINED_LOCALE: name}),
                     date=date,
                 )
             )

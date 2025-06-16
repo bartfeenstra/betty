@@ -5,7 +5,7 @@ The localizable API allows objects to be localized at the point of use.
 from __future__ import annotations
 
 from abc import ABC, abstractmethod
-from collections.abc import Callable, Mapping, MutableMapping, Sequence
+from collections.abc import Callable, Iterable, Mapping, MutableMapping, Sequence
 from typing import TYPE_CHECKING, Any, Self, TypeAlias, TypeVar, cast, final, overload
 from warnings import warn
 
@@ -387,7 +387,9 @@ class StaticTranslationsLocalizable(
         return StaticTranslationsLocalizableSchema()
 
     @classmethod
-    def from_localizable(cls, other: Localizable, *localizers: Localizer) -> Self:
+    def from_localizable(
+        cls, other: Localizable, localizers: Iterable[Localizer]
+    ) -> Self:
         """
         Create a new instance from another :py:class`betty.locale.localizable.Localizable`.
         """
@@ -410,7 +412,7 @@ class StaticTranslationsLocalizable(
         localizers = await project.localizers
         return await StaticTranslationsLocalizable.from_localizable(
             other,
-            *[await localizers.get(locale) for locale in project.configuration.locales],
+            [await localizers.get(locale) for locale in project.configuration.locales],
         ).dump_linked_data(project)
 
 
