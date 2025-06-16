@@ -14,8 +14,7 @@ from betty.ancestry.link import HasLinks
 from betty.ancestry.source import Source
 from betty.locale.localizable import (
     Localizable,
-    OptionalStaticTranslationsLocalizableAttr,
-    ShorthandStaticTranslations,
+    StaticTranslationsLocalizable,
     _,
     ngettext,
 )
@@ -26,16 +25,17 @@ from betty.model.association import (
     ToOneAssociate,
 )
 from betty.plugin import ShorthandPluginBase
-from betty.privacy import HasPrivacy, Privacy, merge_secondary_privacies
+from betty.privacy import HasPrivacy, Privacy, is_public, merge_secondary_privacies
 from betty.user import UserFacing
 
 if TYPE_CHECKING:
-    from betty.ancestry.has_citations import HasCitations  # noqa F401
-    from betty.model import Entity  # noqa F401
-    from betty.serde.dump import DumpMapping, Dump
-    from betty.project import Project
-    from betty.date import Datey
     from betty.ancestry.file_reference import FileReference
+    from betty.ancestry.has_citations import HasCitations  # noqa F401
+    from betty.date import Datey
+    from betty.json.linked_data import JsonLdObject
+    from betty.model import Entity  # noqa F401
+    from betty.project import Project
+    from betty.serde.dump import Dump, DumpMapping
 
 
 @final
@@ -71,18 +71,13 @@ class Citation(
         description="The source this citation references.",
     )
 
-    #: The human-readable citation location.
-    location = OptionalStaticTranslationsLocalizableAttr(
-        "location", title="This citation's location within its source."
-    )
-
     def __init__(
         self,
         *,
         source: ToOneAssociate[Source],
         id: str | None = None,  # noqa A002  # noqa A002
         facts: ToManyAssociates[HasCitations & Entity] | None = None,
-        location: ShorthandStaticTranslations | None = None,
+        location: Localizable | None = None,
         date: Datey | None = None,
         file_references: ToManyAssociates[FileReference] | None = None,
         privacy: Privacy | None = None,
@@ -99,8 +94,7 @@ class Citation(
         )
         if facts is not None:
             self.facts = facts
-        if location:
-            self.location = location
+        self.location = location
         self.source = source
 
     @override
@@ -128,4 +122,19 @@ class Citation(
     async def dump_linked_data(self, project: Project) -> DumpMapping[Dump]:
         dump = await super().dump_linked_data(project)
         dump["@type"] = "https://schema.org/Thing"
+        if is_public(self) and self.location is not None:
+            dump["location"] = await StaticTranslationsLocalizable.dump_linked_data_for(
+                project, self.location
+            )
         return dump
+
+    @override
+    @classmethod
+    async def linked_data_schema(cls, project: Project) -> JsonLdObject:
+        schema = await super().linked_data_schema(project)
+        schema.add_property(
+            "location",
+            await StaticTranslationsLocalizable.linked_data_schema(project),
+            False,
+        )
+        return schema

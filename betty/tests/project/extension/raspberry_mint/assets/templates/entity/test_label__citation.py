@@ -96,7 +96,7 @@ async def test_with_source_publisher() -> None:
 
 async def test_with_location() -> None:
     source = Source()
-    citation = Citation(source=source, location="Somewhere")
+    citation = Citation(source=source, location=plain("Somewhere"))
     expected = (
         f'<i>"<span lang="und" dir="auto">Source {source.id}</span>"</i>. Somewhere.'
     )
@@ -112,7 +112,7 @@ async def test_with_location() -> None:
 
 async def test_with_citation_context() -> None:
     source = Source()
-    citation = Citation(id="C0", source=source, location="Somewhere")
+    citation = Citation(id="C0", source=source, location=plain("Somewhere"))
     expected = (
         f'<i>"<span lang="und" dir="auto">Source {source.id}</span>"</i>. Somewhere.'
     )

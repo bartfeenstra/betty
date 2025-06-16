@@ -1176,7 +1176,7 @@ class GrampsLoader:
         with suppress(XPathError):
             page = self._xpath1(element, "./ns:page").text
             if page:
-                citation.location = page
+                citation.location = plain(page)
 
         self._load_objref(citation, element)
 
