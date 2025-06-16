@@ -168,7 +168,7 @@ class App(Configurable[AppConfiguration], TargetFactory, ServiceProvider):
     @service
     async def localizer(self) -> Localizer:
         """
-        Get the application's localizer.
+        Get the application's user-facing localizer.
         """
         return await self.localizers.get_negotiated(
             self.configuration.locale or DEFAULT_LOCALE

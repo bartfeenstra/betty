@@ -9,6 +9,7 @@ import gettext
 from asyncio import gather
 from collections import defaultdict
 from contextlib import suppress
+from io import BytesIO
 from typing import TYPE_CHECKING, final
 
 import aiofiles
@@ -42,7 +43,6 @@ if TYPE_CHECKING:
     from collections.abc import (
         AsyncIterator,
         Iterable,
-        Iterator,
         Mapping,
         MutableMapping,
     )
@@ -52,9 +52,10 @@ if TYPE_CHECKING:
     from betty.cache.file import BinaryFileCache
 
 
+@final
 class Localizer:
     """
-    Provide localization functionality for a specific locale.
+    Localize a variety of data into a specific locale.
     """
 
     def __init__(self, locale: str, translations: gettext.NullTranslations):
@@ -302,7 +303,7 @@ class LocalizerRepository:
         self._locales: set[str] | None = None
 
     @property
-    def locales(self) -> Iterator[str]:
+    def locales(self) -> Iterable[str]:
         """
         The available locales.
         """
@@ -332,11 +333,11 @@ class LocalizerRepository:
             except KeyError:
                 return await self._build_translation(locale)
 
-    async def get_negotiated(self, *preferred_locales: str) -> Localizer:
+    async def get_negotiated(self, *preferred_locales: Localey) -> Localizer:
         """
         Get the best matching available locale for the given preferred locales.
         """
-        preferred_locales = (*preferred_locales, DEFAULT_LOCALE)
+        preferred_locales = (*list(map(to_locale, preferred_locales)), DEFAULT_LOCALE)
         negotiated_locale = negotiate_locale(preferred_locales, list(self.locales))
         return await self.get(negotiated_locale or DEFAULT_LOCALE)
 
@@ -363,8 +364,9 @@ class LocalizerRepository:
         cache_directory_path = self._cache.path / "locale" / translation_version
         mo_file_path = cache_directory_path / "betty.mo"
 
-        with suppress(FileNotFoundError), open(mo_file_path, "rb") as f:
-            return gettext.GNUTranslations(f)
+        with suppress(FileNotFoundError):
+            async with aiofiles.open(mo_file_path, "rb") as f:
+                return gettext.GNUTranslations(BytesIO(await f.read()))
 
         cache_directory_path.mkdir(exist_ok=True, parents=True)
 
@@ -380,8 +382,8 @@ class LocalizerRepository:
             "-D",
             "betty",
         )
-        with open(mo_file_path, "rb") as f:
-            return gettext.GNUTranslations(f)
+        async with aiofiles.open(mo_file_path, "rb") as f:
+            return gettext.GNUTranslations(BytesIO(await f.read()))
 
     async def coverage(self, locale: Localey) -> tuple[int, int]:
         """
