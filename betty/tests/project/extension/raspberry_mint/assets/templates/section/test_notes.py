@@ -1,4 +1,5 @@
 from betty.ancestry.note import Note
+from betty.locale.localizable import plain
 from betty.project.extension.raspberry_mint import RaspberryMint
 from betty.test_utils.jinja2 import assert_template_file
 from betty.tests.ancestry.test_has_notes import DummyHasNotes
@@ -19,7 +20,7 @@ async def test_minimal() -> None:
 
 async def test_with_public_notes() -> None:
     note_text = "Hello, world!"
-    entity = DummyHasNotes(notes=[Note(note_text)])
+    entity = DummyHasNotes(notes=[Note(plain(note_text))])
     async with assert_template_file(
         data={
             "entity": entity,
@@ -33,7 +34,7 @@ async def test_with_public_notes() -> None:
 
 async def test_without_public_notes() -> None:
     note_text = "Hello, world!"
-    entity = DummyHasNotes(notes=[Note(note_text, private=True)])
+    entity = DummyHasNotes(notes=[Note(plain(note_text), private=True)])
     async with assert_template_file(
         data={
             "entity": entity,

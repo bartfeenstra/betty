@@ -6,6 +6,7 @@ import pytest
 
 from betty.ancestry.has_notes import HasNotes
 from betty.ancestry.note import Note
+from betty.locale.localizable import plain
 from betty.test_utils.json.linked_data import assert_dumps_linked_data
 from betty.test_utils.model import DummyEntity
 
@@ -19,14 +20,14 @@ class DummyHasNotes(HasNotes, DummyEntity):
 
 class TestHasNotes:
     async def test___init___with_notes(self) -> None:
-        note = Note("")
+        note = Note(plain(""))
         sut = DummyHasNotes(notes=[note])
         assert list(sut.notes) == [note]
 
     async def test_notes(self) -> None:
         sut = DummyHasNotes()
         assert list(sut.notes) == []
-        note = Note("")
+        note = Note(plain(""))
         sut.notes = [note]
         assert list(sut.notes) == [note]
 
@@ -46,7 +47,7 @@ class TestHasNotes:
                     "notes": [],
                 },
                 DummyHasNotes(
-                    notes=[Note(text="Hello, world!")], id="my-first-has-notes"
+                    notes=[Note(plain("Hello, world!"))], id="my-first-has-notes"
                 ),
             ),
             (
@@ -55,7 +56,7 @@ class TestHasNotes:
                     "notes": ["/note/my-first-note/index.json"],
                 },
                 DummyHasNotes(
-                    notes=[Note(text="Hello, world!", id="my-first-note")],
+                    notes=[Note(plain("Hello, world!"), id="my-first-note")],
                     id="my-first-has-notes",
                 ),
             ),
