@@ -37,6 +37,7 @@ dependencies = [
     'rich-argparse ~= 1.7',
     'sphinx ~= 8.1',
     'sphinx-design ~= 0.6.1',
+    'textual ~= 3.5.0',
     'typing_extensions ~= 4.12',
 ]
 classifiers = [
@@ -83,6 +84,7 @@ betty = 'betty.console:main_standalone'
 'clear-caches' = 'betty.console.command.commands.clear_caches:ClearCaches'
 'config' = 'betty.console.command.commands.config:Config'
 'demo' = 'betty.console.command.commands.demo:Demo'
+'desktop' = 'betty.console.command.commands.desktop:Desktop'
 'docs' = 'betty.console.command.commands.docs:Docs'
 'extension-new-translation' = 'betty.console.command.commands.extension_new_translation:ExtensionNewTranslation'
 'extension-update-translations' = 'betty.console.command.commands.extension_update_translations:ExtensionUpdateTranslations'

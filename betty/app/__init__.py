@@ -37,6 +37,7 @@ from betty.multiprocessing import ProcessPoolExecutor
 from betty.plugin.proxy import ProxyPluginRepository
 from betty.service import ServiceFactory, ServiceProvider, StaticService, service
 from betty.typing import processsafe
+from betty.user.no_op import NoOpUser
 
 if TYPE_CHECKING:
     from collections.abc import AsyncIterator
@@ -67,11 +68,9 @@ class App(Configurable[AppConfiguration], TargetFactory, ServiceProvider):
         process_pool: futures.ProcessPoolExecutor | None = None,
         translations: TranslationRepository | None = None,
     ):
-        from betty.console.user import ConsoleUser
-
         cls = type(self)
         super().__init__(configuration=configuration)
-        self._user = user or ConsoleUser()
+        self._user = user or NoOpUser()
         if fetcher is not None:
             cls.fetcher.override(self, fetcher)
         if process_pool is not None:
@@ -143,6 +142,8 @@ class App(Configurable[AppConfiguration], TargetFactory, ServiceProvider):
     @override
     async def bootstrap(self) -> None:
         await super().bootstrap()
+        # @todo If we make users swappable, App MUST NOT bootstrap them or shut them down. Or perhaps only if no external
+        # @todo user was provided, and App
         await self._user.connect()
         self._user.localizer = await self.localizer
 
@@ -157,6 +158,13 @@ class App(Configurable[AppConfiguration], TargetFactory, ServiceProvider):
         The current user session.
         """
         return self._user
+
+    async def set_user(self, user: User) -> None:
+        """
+        Set the ``user``.
+        """
+        user.localizer = await self.localizer
+        self._user = user
 
     @service
     def assets(self) -> AssetRepository:
