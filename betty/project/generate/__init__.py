@@ -199,18 +199,19 @@ async def _generate_dispatch(job_context: ProjectContext) -> None:
 async def _generate_localized_public_asset(
     asset_path: Path, project: Project, job_context: ProjectContext, locale: str
 ) -> None:
-    assets = await project.assets
     www_directory_path = project.configuration.localize_www_directory_path(locale)
     file_destination_path = www_directory_path / asset_path.relative_to(
         Path("public") / "localized"
     )
     await makedirs(file_destination_path.parent, exist_ok=True)
-    await to_thread(shutil.copy2, await assets.get(asset_path), file_destination_path)
+    await to_thread(
+        shutil.copy2, await project.assets.get(asset_path), file_destination_path
+    )
     renderer = await project.renderer
     await renderer.render_file(
         file_destination_path,
         job_context=job_context,
-        localizer=await project.app.localizers.get(locale),
+        localizer=project.app.localizers.get(locale),
     )
 
 
@@ -219,9 +220,7 @@ async def _generate_localized_public_assets(
     locale: str,
 ) -> None:
     project = job_context.project
-    assets = await project.assets
-    localizer = await project.app.localizer
-    locale_label = get_display_name(locale, localizer.locale)
+    locale_label = get_display_name(locale, project.app.localizer.locale)
     await project.app.user.message_debug(
         _("Generating localized public files in {locale}...").format(
             locale=locale_label or locale
@@ -230,7 +229,7 @@ async def _generate_localized_public_assets(
     await gather(
         *[
             _generate_localized_public_asset(asset_path, project, job_context, locale)
-            async for asset_path in assets.walk(Path("public") / "localized")
+            async for asset_path in project.assets.walk(Path("public") / "localized")
         ]
     )
 
@@ -238,13 +237,14 @@ async def _generate_localized_public_assets(
 async def _generate_static_public_asset(
     asset_path: Path, project: Project, job_context: ProjectContext
 ) -> None:
-    assets = await project.assets
     file_destination_path = (
         project.configuration.www_directory_path
         / asset_path.relative_to(Path("public") / "static")
     )
     await makedirs(file_destination_path.parent, exist_ok=True)
-    await to_thread(shutil.copy2, await assets.get(asset_path), file_destination_path)
+    await to_thread(
+        shutil.copy2, await project.assets.get(asset_path), file_destination_path
+    )
     renderer = await project.renderer
     await renderer.render_file(file_destination_path, job_context=job_context)
 
@@ -254,12 +254,11 @@ async def _generate_static_public_assets(
 ) -> None:
     project = job_context.project
     app = project.app
-    assets = await project.assets
     await app.user.message_debug(_("Generating static public files..."))
     await gather(
         *[
             _generate_static_public_asset(asset_path, project, job_context)
-            async for asset_path in assets.walk(Path("public") / "static")
+            async for asset_path in project.assets.walk(Path("public") / "static")
         ]
     )
 
@@ -329,7 +328,7 @@ async def _generate_entity_type_list_html(
     )
     rendered_html = await template.render_async(
         job_context=job_context,
-        localizer=await app.localizers.get(locale),
+        localizer=app.localizers.get(locale),
         page_resource=entity_type,
         entity_type=entity_type,
         entities=project.ancestry[entity_type],
@@ -389,7 +388,7 @@ async def _generate_entity_html(
         ]
     ).render_async(
         job_context=job_context,
-        localizer=await app.localizers.get(locale),
+        localizer=app.localizers.get(locale),
         page_resource=entity,
         entity_type=type(entity),
         entity=entity,

@@ -14,8 +14,6 @@ from betty.service import StaticService
 from betty.test_utils.user import StaticUser
 
 if TYPE_CHECKING:
-    from pytest_mock import MockerFixture
-
     from betty.test_utils.conftest import NewTemporaryAppFactory
 
 
@@ -26,11 +24,11 @@ class TestApp:
             assert await sut.fetcher is await sut.fetcher
 
     async def test_bootstrap__should_set_user_localizer(
-        self, mocker: MockerFixture, new_temporary_app: App
+        self, new_temporary_app: App
     ) -> None:
         user = StaticUser()
         async with App.new_temporary(user=user) as sut, sut:
-            assert sut.user.localizer is await sut.localizer
+            assert sut.user.localizer is sut.localizer
 
     async def test_user(self, new_temporary_app: App) -> None:
         user = StaticUser()
@@ -57,12 +55,12 @@ class TestApp:
         )
 
     async def test_localizer(self, new_temporary_app: App) -> None:
-        assert await new_temporary_app.localizer is await new_temporary_app.localizer
+        assert new_temporary_app.localizer is new_temporary_app.localizer
 
     async def test_localizers(self, new_temporary_app: App) -> None:
         localizer = new_temporary_app.localizers
         assert localizer is new_temporary_app.localizers
-        assert (await localizer.get(DEFAULT_LOCALE)).locale == DEFAULT_LOCALE
+        assert localizer.get(DEFAULT_LOCALE).locale == DEFAULT_LOCALE
 
     async def test_process_pool(self, new_temporary_app: App) -> None:
         assert new_temporary_app.process_pool is new_temporary_app.process_pool
@@ -139,7 +137,7 @@ class TestApp:
 
             # Test that other services can be requested.
             unpickled_sut.assets  # noqa B018
-            await unpickled_sut.localizer
+            unpickled_sut.localizer  # noqa B018
             unpickled_sut.localizers  # noqa B018
             await unpickled_sut.http_client
             await unpickled_sut.fetcher

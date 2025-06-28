@@ -24,7 +24,7 @@ class TestExtensionNewTranslation(ExtensionTranslationTestBase, CommandTestBase)
     ) -> None:
         locale = "nl-NL"
         m_new_extension_translation = mocker.patch(
-            "betty.locale.translation.new_extension_translation"
+            "betty.locale.translation.project.extension.new_extension_translation"
         )
         await run(
             new_temporary_app,

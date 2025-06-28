@@ -42,6 +42,7 @@ from betty.json.schema import JsonSchemaReference, Schema
 from betty.license import License
 from betty.locale.localizable import _
 from betty.locale.localizer import LocalizerRepository
+from betty.locale.translation import TranslationRepository
 from betty.model import Entity, ToManySchema
 from betty.plugin import resolve_identifier, sort_dependent_plugin_graph
 from betty.plugin.proxy import ProxyPluginRepository
@@ -53,7 +54,7 @@ from betty.project.factory import ProjectDependentFactory
 from betty.project.url import new_project_url_generator
 from betty.render import Renderer, SequentialRenderer
 from betty.render.plugin import RENDERER_REPOSITORY
-from betty.service import ServiceProvider, service
+from betty.service import ServiceProvider, async_service, sync_service
 from betty.string import kebab_case_to_lower_camel_case
 from betty.typing import internal
 
@@ -139,7 +140,7 @@ class Project(Configurable[ProjectConfiguration], TargetFactory, ServiceProvider
     async def bootstrap(self) -> None:
         await super().bootstrap()
         try:
-            for project_extension_batch in await self.extensions:
+            for project_extension_batch in self.extensions:
                 batch_event_handlers = EventHandlerRegistry()
                 for project_extension in project_extension_batch:
                     await project_extension.bootstrap()
@@ -179,13 +180,13 @@ class Project(Configurable[ProjectConfiguration], TargetFactory, ServiceProvider
         """
         return self._ancestry
 
-    @service
-    async def assets(self) -> AssetRepository:
+    @sync_service
+    def assets(self) -> AssetRepository:
         """
         The assets file system.
         """
         asset_paths = [self.configuration.assets_directory_path]
-        extensions = await self.extensions
+        extensions = self.extensions
         for project_extension in extensions.flatten():
             extension_assets_directory_path = project_extension.assets_directory_path()
             if extension_assets_directory_path is not None:
@@ -194,21 +195,30 @@ class Project(Configurable[ProjectConfiguration], TargetFactory, ServiceProvider
         asset_paths.append(betty.ASSETS_DIRECTORY_PATH)
         return AssetRepository(*asset_paths)
 
-    @service
-    async def localizers(self) -> LocalizerRepository:
+    @async_service(shared=True)
+    async def translations(self) -> TranslationRepository:
+        """
+        The available translations.
+        """
+        translations = TranslationRepository(self.assets, self.app.binary_file_cache)
+        await translations.bootstrap()
+        return translations
+
+    @sync_service
+    def localizers(self) -> LocalizerRepository:
         """
         The available localizers.
         """
-        return LocalizerRepository(await self.assets, self.app.binary_file_cache)
+        return LocalizerRepository(self.translations)
 
-    @service
+    @async_service
     async def url_generator(self) -> UrlGenerator:
         """
         The URL generator.
         """
         return await new_project_url_generator(self)
 
-    @service
+    @async_service
     async def jinja2_environment(self) -> Environment:
         """
         The Jinja2 environment.
@@ -217,7 +227,7 @@ class Project(Configurable[ProjectConfiguration], TargetFactory, ServiceProvider
 
         return await Environment.new_for_project(self)
 
-    @service
+    @async_service
     async def renderer(self) -> Renderer:
         """
         The (file) content renderer.
@@ -229,7 +239,7 @@ class Project(Configurable[ProjectConfiguration], TargetFactory, ServiceProvider
             ]
         )
 
-    @service
+    @async_service(shared=True)
     async def extensions(self) -> ProjectExtensions:
         """
         The enabled extensions.
@@ -284,7 +294,7 @@ class Project(Configurable[ProjectConfiguration], TargetFactory, ServiceProvider
 
         return initialized_extensions
 
-    @service
+    @sync_service
     def event_dispatcher(self) -> EventDispatcher:
         """
         The event dispatcher.
@@ -321,7 +331,7 @@ class Project(Configurable[ProjectConfiguration], TargetFactory, ServiceProvider
             or betty.ASSETS_DIRECTORY_PATH / "public" / "static" / "betty-512x512.png"
         )
 
-    @service
+    @async_service
     async def copyright_notice(self) -> CopyrightNotice:
         """
         The overall project copyright.
@@ -330,7 +340,7 @@ class Project(Configurable[ProjectConfiguration], TargetFactory, ServiceProvider
             self.copyright_notice_repository
         )
 
-    @service
+    @sync_service
     def copyright_notice_repository(self) -> PluginRepository[CopyrightNotice]:
         """
         The copyright notices available to this project.
@@ -346,7 +356,7 @@ class Project(Configurable[ProjectConfiguration], TargetFactory, ServiceProvider
             factory=self.new_target,
         )
 
-    @service
+    @async_service
     async def license(self) -> License:
         """
         The overall project license.
@@ -355,7 +365,7 @@ class Project(Configurable[ProjectConfiguration], TargetFactory, ServiceProvider
             await self.license_repository
         )
 
-    @service
+    @async_service
     async def license_repository(self) -> PluginRepository[License]:
         """
         The licenses available to this project.
@@ -369,7 +379,7 @@ class Project(Configurable[ProjectConfiguration], TargetFactory, ServiceProvider
             factory=self.new_target,
         )
 
-    @service
+    @sync_service
     def event_type_repository(self) -> PluginRepository[EventType]:
         """
         The event types available to this project.
@@ -383,7 +393,7 @@ class Project(Configurable[ProjectConfiguration], TargetFactory, ServiceProvider
             factory=self.new_target,
         )
 
-    @service
+    @sync_service
     def place_type_repository(self) -> PluginRepository[PlaceType]:
         """
         The place types available to this project.
@@ -397,7 +407,7 @@ class Project(Configurable[ProjectConfiguration], TargetFactory, ServiceProvider
             factory=self.new_target,
         )
 
-    @service
+    @sync_service
     def presence_role_repository(self) -> PluginRepository[PresenceRole]:
         """
         The presence roles available to this project.
@@ -411,7 +421,7 @@ class Project(Configurable[ProjectConfiguration], TargetFactory, ServiceProvider
             factory=self.new_target,
         )
 
-    @service
+    @sync_service
     def gender_repository(self) -> PluginRepository[Gender]:
         """
         The genders available to this project.
@@ -425,7 +435,7 @@ class Project(Configurable[ProjectConfiguration], TargetFactory, ServiceProvider
             factory=self.new_target,
         )
 
-    @service
+    @sync_service
     def entity_type_repository(self) -> PluginRepository[Entity]:
         """
         The entity types available to this project.
@@ -436,7 +446,7 @@ class Project(Configurable[ProjectConfiguration], TargetFactory, ServiceProvider
             Entity, model.ENTITY_TYPE_REPOSITORY, factory=self.new_target
         )
 
-    @service
+    @sync_service
     def extension_repository(self) -> PluginRepository[Extension]:
         """
         The extensions available to this project.

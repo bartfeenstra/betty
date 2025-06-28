@@ -242,11 +242,11 @@ class Environment(ProjectDependentFactory, Jinja2Environment):
     @override
     @classmethod
     async def new_for_project(cls, project: Project) -> Self:
-        extensions = list((await project.extensions).flatten())
+        extensions = list((project.extensions).flatten())
         return cls(
             project,
             extensions,
-            await project.assets,
+            project.assets,
             await EntityContexts.new(),
             {
                 # Ideally we would use the Dispatcher for this. However, it is asynchronous only.

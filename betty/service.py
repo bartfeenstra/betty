@@ -6,11 +6,12 @@ from __future__ import annotations
 
 from abc import ABC, abstractmethod
 from collections.abc import Awaitable, Callable, Iterable, MutableSequence
-from inspect import getmembers, iscoroutinefunction
+from inspect import getmembers
 from typing import (
     TYPE_CHECKING,
     Any,
     Generic,
+    Literal,
     Protocol,
     Self,
     TypeAlias,
@@ -156,7 +157,8 @@ class ServiceProvider(Bootstrapped, Shutdownable):
     A service provider.
 
     Service providers make up a running Betty 'application'. They can provide services through
-    :py:func:`betty.service.service`, and manage their resources by being bootstrapped and shut down.
+    :py:func:`betty.service.sync_service` and :py:func:`betty.service.async_service`, and manage their resources by
+    being bootstrapped and shut down.
 
     Service providers may be pickled once bootstrapped. Unpickled service providers are bootstrapped, and must be shut
     down by the caller.
@@ -171,6 +173,11 @@ class ServiceProvider(Bootstrapped, Shutdownable):
         self.assert_bootstrapped()
         state = {
             "_bootstrapped": True,
+            **{
+                service_manager.name: service_manager.get_state(self)
+                for service_manager in self._service_managers()
+                if service_manager.is_shared
+            },
         }
         for service_manager in self._service_managers():
             if service_manager.is_shared:
@@ -196,24 +203,29 @@ class ServiceProvider(Bootstrapped, Shutdownable):
         await self._initialize_shared_services()
 
     @classmethod
-    def _service_managers(cls) -> Iterable[ServiceManager[Self, Any, Any]]:
+    def _service_managers(cls) -> Iterable[ServiceManager[Self, Any, Any, Any]]:
         for _, value in getmembers(cls):
             if isinstance(value, ServiceManager):
                 yield value
 
     async def _initialize_shared_services(self) -> None:
         """
-        Initialize shared services, so they are ready to be pickled if/when they need to be.
-
-        This is a workaround, because all pickling APIs are synchronous and will not allow us to call asynchronous
-        service factories.
+        Initialize shared services.
         """
         for service_manager in self._service_managers():
             if not service_manager.is_shared:
                 continue
-            service = service_manager.get(self)
-            if isinstance(service_manager, _AsynchronousServiceManager):
-                await service
+            if isinstance(
+                service_manager,
+                _AsynchronousFactoryAsynchronousGetterServiceManager,
+            ):
+                await service_manager.get(self)
+            elif isinstance(
+                service_manager, _AsynchronousFactorySynchronousGetterServiceManager
+            ):
+                await service_manager.preload(self)
+            else:
+                service_manager.get(self)
 
     @public
     @override
@@ -250,20 +262,23 @@ class ServiceProvider(Bootstrapped, Shutdownable):
 
 _ServiceProviderT = TypeVar("_ServiceProviderT", bound=ServiceProvider)
 _ServiceT = TypeVar("_ServiceT")
+_ServiceFactoryT = TypeVar("_ServiceFactoryT")
 _ServiceGetT = TypeVar("_ServiceGetT")
 
-ServiceFactory: TypeAlias = Callable[[_ServiceProviderT], _ServiceT]
+ServiceFactory: TypeAlias = Callable[[_ServiceProviderT], _ServiceFactoryT]
 
 
 @internal
-class ServiceManager(Generic[_ServiceProviderT, _ServiceGetT, _ServiceT]):
+class ServiceManager(
+    Generic[_ServiceProviderT, _ServiceT, _ServiceFactoryT, _ServiceGetT]
+):
     """
     Manages a single service for a service provider.
     """
 
     def __init__(
         self,
-        factory: ServiceFactory[_ServiceProviderT, _ServiceGetT],
+        factory: ServiceFactory[_ServiceProviderT, _ServiceFactoryT],
         *,
         shared: bool = False,
     ):
@@ -323,9 +338,9 @@ class ServiceManager(Generic[_ServiceProviderT, _ServiceGetT, _ServiceT]):
 
     def _get_factory(
         self, instance: _ServiceProviderT
-    ) -> ServiceFactory[_ServiceProviderT, _ServiceGetT]:
+    ) -> ServiceFactory[_ServiceProviderT, _ServiceFactoryT]:
         factory = cast(
-            "ServiceFactory[_ServiceProviderT, _ServiceGetT] | None",
+            "ServiceFactory[_ServiceProviderT, _ServiceFactoryT] | None",
             getattr(instance, self._factory_override_attr_name, None),
         )
         if factory is not None:
@@ -355,7 +370,7 @@ class ServiceManager(Generic[_ServiceProviderT, _ServiceGetT, _ServiceT]):
     def override_factory(
         self,
         instance: _ServiceProviderT,
-        factory: ServiceFactory[_ServiceProviderT, _ServiceGetT],
+        factory: ServiceFactory[_ServiceProviderT, _ServiceFactoryT],
     ) -> None:
         """
         Override the default service factory for the given instance.
@@ -391,10 +406,17 @@ class ServiceManager(Generic[_ServiceProviderT, _ServiceGetT, _ServiceT]):
         return {}
 
 
-class _AsynchronousServiceManager(
+class _AsynchronousFactoryAsynchronousGetterServiceManager(
     Generic[_ServiceProviderT, _ServiceT],
-    ServiceManager[_ServiceProviderT, Awaitable[_ServiceT], _ServiceT],
+    ServiceManager[
+        _ServiceProviderT, _ServiceT, Awaitable[_ServiceT], Awaitable[_ServiceT]
+    ],
 ):
+    def __init__(
+        self, factory: ServiceFactory[_ServiceProviderT, Awaitable[_ServiceT]]
+    ):
+        super().__init__(factory, shared=False)
+
     def _lock(self, instance: _ServiceProviderT) -> Lock:
         lock_attr_name = f"_{self._service_attr_name}_lock"
         try:
@@ -420,10 +442,43 @@ class _AsynchronousServiceManager(
             return new_service
 
 
+class _AsynchronousFactorySynchronousGetterServiceManager(
+    Generic[_ServiceProviderT, _ServiceT],
+    ServiceManager[_ServiceProviderT, _ServiceT, Awaitable[_ServiceT], _ServiceT],
+):
+    def __init__(
+        self, factory: ServiceFactory[_ServiceProviderT, Awaitable[_ServiceT]]
+    ):
+        super().__init__(factory, shared=True)
+
+    async def preload(self, instance: _ServiceProviderT) -> None:
+        service = self._get_attr(instance)
+        if service is Void:
+            setattr(
+                instance,
+                self._service_attr_name,
+                await self._get_factory(instance)(instance),
+            )
+
+    @override
+    def _get(self, instance: _ServiceProviderT) -> _ServiceT:
+        service = self._get_attr(instance)
+        assert service is not Void
+        return service  # type: ignore[return-value]
+
+
 class _SynchronousServiceManager(
     Generic[_ServiceProviderT, _ServiceT],
-    ServiceManager[_ServiceProviderT, _ServiceT, _ServiceT],
+    ServiceManager[_ServiceProviderT, _ServiceT, _ServiceT, _ServiceT],
 ):
+    def __init__(
+        self,
+        factory: ServiceFactory[_ServiceProviderT, _ServiceT],
+        *,
+        shared: bool = False,
+    ):
+        super().__init__(factory, shared=shared)
+
     @override
     def _get(self, instance: _ServiceProviderT) -> _ServiceT:
         service = self._get_attr(instance)
@@ -435,57 +490,139 @@ class _SynchronousServiceManager(
         return new_service
 
 
-class _ServiceDecorator(Protocol):
-    @overload
+class _AsynchronousFactorySynchronousGetterServiceDecorator(Protocol):
+    def __call__(
+        self, factory: Callable[[_ServiceProviderT], Awaitable[_ServiceT]]
+    ) -> _AsynchronousFactorySynchronousGetterServiceManager[
+        _ServiceProviderT, _ServiceT
+    ]:
+        pass
+
+
+class _AsynchronousFactoryAsynchronousGetterServiceDecorator(Protocol):
+    def __call__(
+        self, factory: Callable[[_ServiceProviderT], Awaitable[_ServiceT]]
+    ) -> _AsynchronousFactoryAsynchronousGetterServiceManager[
+        _ServiceProviderT, _ServiceT
+    ]:
+        pass
+
+
+class _SynchronousServiceDecorator(Protocol):
     def __call__(
         self, factory: Callable[[_ServiceProviderT], _ServiceT]
     ) -> _SynchronousServiceManager[_ServiceProviderT, _ServiceT]:
         pass
 
-    @overload
-    def __call__(
-        self, factory: Callable[[_ServiceProviderT], Awaitable[_ServiceT]]
-    ) -> _AsynchronousServiceManager[_ServiceProviderT, _ServiceT]:
-        pass
-
 
 @overload
-def service(  # type: ignore[overload-overlap]
-    factory: Callable[[_ServiceProviderT], Awaitable[_ServiceT]], shared: bool = False
-) -> _AsynchronousServiceManager[_ServiceProviderT, _ServiceT]:
+def async_service(
+    factory: Callable[[_ServiceProviderT], Awaitable[_ServiceT]],
+    *,
+    shared: Literal[True],
+) -> _AsynchronousFactorySynchronousGetterServiceManager[_ServiceProviderT, _ServiceT]:
     pass
 
 
 @overload
-def service(
-    factory: Callable[[_ServiceProviderT], _ServiceT], shared: bool = False
+def async_service(
+    factory: Callable[[_ServiceProviderT], Awaitable[_ServiceT]],
+    *,
+    shared: Literal[False] = False,
+) -> _AsynchronousFactoryAsynchronousGetterServiceManager[_ServiceProviderT, _ServiceT]:
+    pass
+
+
+@overload
+def async_service(
+    factory: None = None, *, shared: Literal[True]
+) -> _AsynchronousFactorySynchronousGetterServiceDecorator:
+    pass
+
+
+@overload
+def async_service(
+    factory: None = None, *, shared: Literal[False] = False
+) -> _AsynchronousFactoryAsynchronousGetterServiceDecorator:
+    pass
+
+
+def async_service(
+    factory: Callable[[_ServiceProviderT], Awaitable[_ServiceT]] | None = None,
+    shared: bool = False,
+) -> (
+    _AsynchronousFactorySynchronousGetterServiceDecorator
+    | _AsynchronousFactoryAsynchronousGetterServiceDecorator
+    | _AsynchronousFactorySynchronousGetterServiceManager[_ServiceProviderT, _ServiceT]
+    | _AsynchronousFactoryAsynchronousGetterServiceManager[_ServiceProviderT, _ServiceT]
+):
+    """
+    Decorate an asynchronous service factory method.
+
+    The factory method is replaced with a :py:class:`service manager <betty.service.ServiceManager>` which handles lazy
+    service instantiation, caching, and multiprocessing support.
+
+    The decorated factory method must return a new service instance.
+    """
+    if shared:
+
+        def _synchronous_getter_service(
+            factory: Callable[[_ServiceProviderT], Awaitable[_ServiceT]],
+        ) -> _AsynchronousFactorySynchronousGetterServiceManager[Any, Any]:
+            return _AsynchronousFactorySynchronousGetterServiceManager(factory)
+
+        if factory is None:
+            return _synchronous_getter_service  # type: ignore[return-value]
+        return _synchronous_getter_service(factory)
+
+    def _asynchronous_getter_service(
+        factory: Callable[[_ServiceProviderT], Awaitable[_ServiceT]],
+    ) -> _AsynchronousFactoryAsynchronousGetterServiceManager[Any, Any]:
+        return _AsynchronousFactoryAsynchronousGetterServiceManager(factory)
+
+    if factory is None:
+        return _asynchronous_getter_service  # type: ignore[return-value]
+    return _asynchronous_getter_service(factory)
+
+
+@overload
+def sync_service(
+    factory: Callable[[_ServiceProviderT], _ServiceT],
+    *,
+    shared: bool = False,
 ) -> _SynchronousServiceManager[_ServiceProviderT, _ServiceT]:
     pass
 
 
 @overload
-def service(factory: None = None, shared: bool = False) -> _ServiceDecorator:
+def sync_service(
+    factory: None = None,
+    *,
+    shared: bool = False,
+) -> _SynchronousServiceDecorator:
     pass
 
 
-def service(
-    factory: Callable[[_ServiceProviderT], _ServiceGetT] | None = None,
+def sync_service(
+    factory: Callable[[_ServiceProviderT], _ServiceT] | None = None,
+    *,
     shared: bool = False,
-) -> ServiceManager[_ServiceProviderT, _ServiceGetT, Any] | _ServiceDecorator:
+) -> (
+    _SynchronousServiceDecorator
+    | _SynchronousServiceManager[_ServiceProviderT, _ServiceT]
+):
     """
-    Decorate a service factory method.
+    Decorate a synchronous service factory method.
 
     The factory method is replaced with a :py:class:`service manager <betty.service.ServiceManager>` which handles lazy
     service instantiation, caching, and multiprocessing support.
 
-    The decorated factory method should return a new service instance.
+    The decorated factory method must return a new service instance.
     """
 
     def _service(
-        factory: Callable[[_ServiceProviderT], _ServiceGetT],
-    ) -> ServiceManager[_ServiceProviderT, _ServiceGetT, Any]:
-        if iscoroutinefunction(factory):
-            return _AsynchronousServiceManager(factory, shared=shared)  # type: ignore[return-value]
+        factory: Callable[[_ServiceProviderT], _ServiceT],
+    ) -> _SynchronousServiceManager[_ServiceProviderT, _ServiceT]:
         return _SynchronousServiceManager(factory, shared=shared)
 
     if factory is None:

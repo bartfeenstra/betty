@@ -406,10 +406,12 @@ class StaticTranslationsLocalizable(
         """
         Dump a :py:class:`betty.locale.localizable.Localizable` to `JSON-LD <https://json-ld.org/>`_.
         """
-        localizers = await project.localizers
         return await StaticTranslationsLocalizable.from_localizable(
             other,
-            [await localizers.get(locale) for locale in project.configuration.locales],
+            [
+                project.localizers.get(locale)
+                for locale in project.configuration.locales
+            ],
         ).dump_linked_data(project)
 
 

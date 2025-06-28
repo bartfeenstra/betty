@@ -108,9 +108,8 @@ class TestIndex:
             )
             project.ancestry.add(person)
             async with project:
-                localizers = await project.localizers
                 actual = await Index(
-                    project, Context(), await localizers.get(locale)
+                    project, Context(), project.localizers.get(locale)
                 ).build()
 
                 assert actual[0].text == {"p1", "jane"}
@@ -145,11 +144,10 @@ class TestIndex:
             )
             project.ancestry.add(person)
             async with project:
-                localizers = await project.localizers
                 actual = await Index(
                     project,
                     Context(),
-                    await localizers.get(locale),
+                    project.localizers.get(locale),
                 ).build()
 
                 assert actual[0].text == {"p1", "doughnut"}
@@ -186,9 +184,8 @@ class TestIndex:
             )
             project.ancestry.add(person)
             async with project:
-                localizers = await project.localizers
                 actual = await Index(
-                    project, Context(), await localizers.get(locale)
+                    project, Context(), project.localizers.get(locale)
                 ).build()
 
                 assert actual[0].text == {"p1", "jane", "doughnut"}
@@ -234,11 +231,10 @@ class TestIndex:
             )
             project.ancestry.add(place)
             async with project:
-                localizers = await project.localizers
                 actual = await Index(
                     project,
                     Context(),
-                    await localizers.get(locale),
+                    project.localizers.get(locale),
                 ).build()
 
                 assert actual[0].text == expected_text
@@ -346,11 +342,10 @@ class TestIndex:
             )
             project.ancestry.add(file)
             async with project:
-                localizers = await project.localizers
                 actual = await Index(
                     project,
                     Context(),
-                    await localizers.get(locale),
+                    project.localizers.get(locale),
                 ).build()
 
                 assert actual[0].text == expected_text

@@ -40,8 +40,7 @@ async def _generate_people_json_for_locale(
 ) -> None:
     project = event.project
     url_generator = await project.url_generator
-    localizers = await project.localizers
-    localizer = await localizers.get(locale)
+    localizer = project.localizers.get(locale)
     private_label = localizer._("private")
     people = {
         person.id: {

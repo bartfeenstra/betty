@@ -45,7 +45,7 @@ async def _assert_template(
         if data is None:
             data = {}
         if locale is not None:
-            data["localizer"] = await app.localizers.get(locale)
+            data["localizer"] = app.localizers.get(locale)
         if extensions is not None:
             project.configuration.extensions.enable(*extensions)
         async with project:

@@ -35,8 +35,7 @@ def _new_plugin_instance_factory(
 
 async def _load_ancestry(event: LoadAncestryEvent) -> None:
     project = event.project
-    extensions = await project.extensions
-    gramps_configuration = extensions[Gramps].configuration
+    gramps_configuration = project.extensions[Gramps].configuration
     for family_tree_configuration in gramps_configuration.family_trees:
         source = family_tree_configuration.source
 

@@ -26,17 +26,16 @@ async def add_project_argument(
     """
     Add an argument to load a :py:class:`betty.project.Project` into a ``project`` keyword argument.
     """
-    localizer = await app.localizer
     parser.add_argument(
         "-p",
         "--project",
         dest="project_configuration_file_path",
-        help=localizer._(
+        help=app.localizer._(
             "The path to a Betty project directory or configuration file. Defaults to {default} in the current working directory."
         ).format(
             default=f"betty.{'|'.join(extension[1:] for serde_format in await FORMAT_REPOSITORY.select() for extension in serde_format.extensions())}"
         ),
-        type=assertion_to_argument_type(assert_path(), localizer=localizer),
+        type=assertion_to_argument_type(assert_path(), localizer=app.localizer),
     )
 
     async def _command_function_with_project_argument(

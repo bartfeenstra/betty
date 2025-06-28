@@ -95,7 +95,7 @@ async def new(app: App) -> None:
         default=str(
             machinify(
                 configuration.title.localize(
-                    await app.localizers.get(configuration.locales.default.locale)
+                    app.localizers.get(configuration.locales.default.locale)
                 )
             )
         ),

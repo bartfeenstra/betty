@@ -26,7 +26,7 @@ class TestExtensionUpdateTranslations(ExtensionTranslationTestBase, CommandTestB
         source = tmp_path / "source"
         source.mkdir()
         m_update_extension_translations = mocker.patch(
-            "betty.locale.translation.update_extension_translations"
+            "betty.locale.translation.project.extension.update_extension_translations"
         )
         await run(
             new_temporary_app,
@@ -45,7 +45,7 @@ class TestExtensionUpdateTranslations(ExtensionTranslationTestBase, CommandTestB
         for exclude in excludes:
             exclude.mkdir()
         m_update_extension_translations = mocker.patch(
-            "betty.locale.translation.update_extension_translations"
+            "betty.locale.translation.project.extension.update_extension_translations"
         )
         await run(
             new_temporary_app,

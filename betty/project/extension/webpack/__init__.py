@@ -35,8 +35,7 @@ if TYPE_CHECKING:
 
 async def _generate_assets(event: GenerateSiteEvent) -> None:
     project = event.project
-    extensions = await project.extensions
-    webpack = extensions[Webpack]
+    webpack = project.extensions[Webpack]
     build_directory_path = await webpack._generate_ensure_build_directory(
         job_context=event.job_context,
     )
@@ -107,10 +106,9 @@ class Webpack(ShorthandPluginBase, Extension, CssProvider, JsProvider, Jinja2Pro
     async def _project_entry_point_providers(
         self,
     ) -> Sequence[EntryPointProvider & Extension]:
-        extensions = await self._project.extensions
         return [
             extension
-            for extension in extensions.flatten()
+            for extension in self._project.extensions.flatten()
             if isinstance(extension, EntryPointProvider)
         ]
 

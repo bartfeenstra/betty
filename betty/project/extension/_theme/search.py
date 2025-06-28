@@ -63,8 +63,7 @@ async def _generate_search_index_for_locale(
     *,
     job_context: Context,
 ) -> None:
-    localizers = await project.localizers
-    localizer = await localizers.get(locale)
+    localizer = project.localizers.get(locale)
     search_index = {
         "resultContainerTemplate": result_container_template.localize(localizer),
         "resultsContainerTemplate": results_container_template.localize(localizer),

@@ -81,8 +81,7 @@ class TestWiki(ExtensionTestBase[Wiki]):
         async with Project.new_temporary(new_temporary_app) as project:
             project.configuration.extensions.enable(Wiki)
             async with project:
-                extensions = await project.extensions
-                wikipedia = extensions[Wiki]
+                wikipedia = project.extensions[Wiki]
                 await wikipedia.client
 
     async def test_globals(
@@ -96,6 +95,5 @@ class TestWiki(ExtensionTestBase[Wiki]):
         ):
             project.configuration.extensions.enable(Wiki)
             async with project:
-                extensions = await project.extensions
-                sut = extensions[Wiki]
+                sut = project.extensions[Wiki]
                 assert sut.globals

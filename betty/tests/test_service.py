@@ -17,9 +17,10 @@ from betty.service import (
     Shutdownable,
     ShutdownStack,
     StaticService,
-    _AsynchronousServiceManager,
+    _AsynchronousFactoryAsynchronousGetterServiceManager,
     _SynchronousServiceManager,
-    service,
+    async_service,
+    sync_service,
 )
 from betty.test_utils.config import DummyConfiguration
 
@@ -100,12 +101,12 @@ class _ServiceProviderWithSharedServices(ServiceProvider):
         self.my_first_asynchronous_service_initialized = False
         self.my_first_synchronous_service_initialized = False
 
-    @service(shared=True)
+    @async_service(shared=True)
     async def my_first_asynchronous_service(self) -> object:
         self.my_first_asynchronous_service_initialized = True
         return object()
 
-    @service(shared=True)
+    @sync_service(shared=True)
     def my_first_synchronous_service(self) -> object:
         self.my_first_synchronous_service_initialized = True
         return object()
@@ -176,13 +177,23 @@ class TestServiceProvider:
             pickle.dumps(sut)
 
 
-class _AsynchronousServiceProvider(ServiceProvider):
+class _AsynchronousFactoryAsynchronousGetterServiceProvider(ServiceProvider):
     def __init__(self, service: object):
         super().__init__()
         self._init_service = service
 
-    @service
-    async def my_first_asynchronous_service(self) -> object:
+    @async_service
+    async def my_first_service(self) -> object:
+        return self._init_service
+
+
+class _AsynchronousFactorySynchronousGetterServiceProvider(ServiceProvider):
+    def __init__(self, service: object):
+        super().__init__()
+        self._init_service = service
+
+    @async_service(shared=True)
+    async def my_first_service(self) -> object:
         return self._init_service
 
 
@@ -191,28 +202,48 @@ class _SynchronousServiceProvider(ServiceProvider):
         super().__init__()
         self._init_service = service
 
-    @service
-    def my_first_synchronous_service(self) -> object:
+    @sync_service
+    def my_first_service(self) -> object:
+        return self._init_service
+
+
+class _AsynchronousSharedServiceProvider(ServiceProvider):
+    def __init__(self, service: object):
+        super().__init__()
+        self._init_service = service
+
+    @async_service(shared=True)
+    async def my_first_service(self) -> object:
+        return self._init_service
+
+
+class _SynchronousSharedServiceProvider(ServiceProvider):
+    def __init__(self, service: object):
+        super().__init__()
+        self._init_service = service
+
+    @sync_service(shared=True)
+    def my_first_service(self) -> object:
         return self._init_service
 
 
 class _AsynchronousServiceProviderWithOverride(ServiceProvider):
     def __init__(self, service: object):
         super().__init__()
-        type(self).my_first_asynchronous_service.override(self, service)
+        type(self).my_first_service.override(self, service)
 
-    @service
-    async def my_first_asynchronous_service(self) -> object:
+    @async_service
+    async def my_first_service(self) -> object:
         raise NotImplementedError
 
 
 class _SynchronousServiceProviderWithOverride(ServiceProvider):
     def __init__(self, service: object):
         super().__init__()
-        type(self).my_first_synchronous_service.override(self, service)
+        type(self).my_first_service.override(self, service)
 
-    @service
-    def my_first_synchronous_service(self) -> object:
+    @sync_service
+    def my_first_service(self) -> object:
         raise NotImplementedError
 
 
@@ -224,10 +255,10 @@ class _AsynchronousServiceProviderWithOverrideFactory(ServiceProvider):
         ],
     ):
         super().__init__()
-        type(self).my_first_asynchronous_service.override_factory(self, service_factory)
+        type(self).my_first_service.override_factory(self, service_factory)
 
-    @service
-    async def my_first_asynchronous_service(self) -> object:
+    @async_service
+    async def my_first_service(self) -> object:
         raise NotImplementedError
 
 
@@ -239,38 +270,56 @@ class _SynchronousServiceProviderWithOverrideFactory(ServiceProvider):
         ],
     ):
         super().__init__()
-        type(self).my_first_synchronous_service.override_factory(self, service_factory)
+        type(self).my_first_service.override_factory(self, service_factory)
 
-    @service
-    def my_first_synchronous_service(self) -> object:
+    @sync_service
+    def my_first_service(self) -> object:
         raise NotImplementedError
 
 
-class _AsynchronousSharedServiceProvider(ServiceProvider):
-    def __init__(self, service: object):
-        super().__init__()
-        self._init_service = service
-
-    @service(shared=True)
-    async def my_first_asynchronous_service(self) -> object:
-        return self._init_service
-
-
-async def test_service__with_asynchronous_method() -> None:
+async def test_async_service() -> None:
+    service = object()
     assert isinstance(
-        _AsynchronousServiceProvider.my_first_asynchronous_service,
-        _AsynchronousServiceManager,
+        _AsynchronousFactoryAsynchronousGetterServiceProvider.my_first_service,
+        _AsynchronousFactoryAsynchronousGetterServiceManager,
     )
+    async with _AsynchronousFactoryAsynchronousGetterServiceProvider(
+        service
+    ) as service_provider:
+        assert await service_provider.my_first_service is service
 
 
-async def test_service__with_synchronous_method() -> None:
+async def test_async_service__with_shared() -> None:
+    service = object()
     assert isinstance(
-        _SynchronousServiceProvider.my_first_synchronous_service,
+        _AsynchronousSharedServiceProvider.my_first_service,
+        _AsynchronousFactoryAsynchronousGetterServiceManager,
+    )
+    async with _AsynchronousSharedServiceProvider(service) as service_provider:
+        assert service_provider.my_first_service is service
+
+
+async def test_sync_service() -> None:
+    service = object()
+    assert isinstance(
+        _SynchronousServiceProvider.my_first_service,
         _SynchronousServiceManager,
     )
+    async with _SynchronousServiceProvider(service) as service_provider:
+        assert service_provider.my_first_service is service
 
 
-class _DummyServiceManager(ServiceManager[Any, None, None]):
+async def test_sync_service__with_shared() -> None:
+    service = object()
+    assert isinstance(
+        _SynchronousSharedServiceProvider.my_first_service,
+        _SynchronousServiceManager,
+    )
+    async with _SynchronousSharedServiceProvider(service) as service_provider:
+        assert service_provider.my_first_service is service
+
+
+class _DummyServiceManager(ServiceManager[Any, None, None, None]):
     @override
     def _get(self, instance: Any) -> None:
         return None
@@ -287,21 +336,21 @@ class TestServiceManager:
     async def test_get__with_asynchronous_method_with_bootstrapped(
         self,
     ) -> None:
-        async with _AsynchronousServiceProvider(object()) as service_provider:
-            assert await type(service_provider).my_first_asynchronous_service.get(
+        async with _AsynchronousFactoryAsynchronousGetterServiceProvider(
+            object()
+        ) as service_provider:
+            assert await type(service_provider).my_first_service.get(
                 service_provider
-            ) is await type(service_provider).my_first_asynchronous_service.get(
-                service_provider
-            )
+            ) is await type(service_provider).my_first_service.get(service_provider)
 
     async def test_get__with_asynchronous_method_without_bootstrapped(
         self,
     ) -> None:
-        service_provider = _AsynchronousServiceProvider(object())
+        service_provider = _AsynchronousFactoryAsynchronousGetterServiceProvider(
+            object()
+        )
         with pytest.raises(NotBootstrappedError):
-            await type(service_provider).my_first_asynchronous_service.get(
-                service_provider
-            )
+            await type(service_provider).my_first_service.get(service_provider)
 
     async def test_get__instance_attr_with_asynchronous_method_with_override(
         self,
@@ -311,9 +360,7 @@ class TestServiceManager:
             service
         ) as service_provider:
             assert (
-                await type(service_provider).my_first_asynchronous_service.get(
-                    service_provider
-                )
+                await type(service_provider).my_first_service.get(service_provider)
                 is service
             )
 
@@ -331,9 +378,7 @@ class TestServiceManager:
             _service_factory
         ) as service_provider:
             assert (
-                await type(service_provider).my_first_asynchronous_service.get(
-                    service_provider
-                )
+                await type(service_provider).my_first_service.get(service_provider)
                 is service
             )
 
@@ -341,18 +386,16 @@ class TestServiceManager:
         self,
     ) -> None:
         async with _SynchronousServiceProvider(object()) as service_provider:
-            assert type(service_provider).my_first_synchronous_service.get(
+            assert type(service_provider).my_first_service.get(
                 service_provider
-            ) is type(service_provider).my_first_synchronous_service.get(
-                service_provider
-            )
+            ) is type(service_provider).my_first_service.get(service_provider)
 
     async def test_get__instance_attr_with_synchronous_method_without_bootstrapped(
         self,
     ) -> None:
         service_provider = _SynchronousServiceProvider(object())
         with pytest.raises(NotBootstrappedError):
-            type(service_provider).my_first_synchronous_service.get(service_provider)  # noqa: B018
+            type(service_provider).my_first_service.get(service_provider)  # noqa: B018
 
     async def test_get__instance_attr_with_synchronous_method_with_override(
         self,
@@ -360,10 +403,7 @@ class TestServiceManager:
         service = object()
         async with _SynchronousServiceProviderWithOverride(service) as service_provider:
             assert (
-                type(service_provider).my_first_synchronous_service.get(
-                    service_provider
-                )
-                is service
+                type(service_provider).my_first_service.get(service_provider) is service
             )
 
     async def test_get__instance_attr_with_synchronous_method_with_factory_override(
@@ -374,76 +414,66 @@ class TestServiceManager:
             lambda _: service
         ) as service_provider:
             assert (
-                type(service_provider).my_first_synchronous_service.get(
-                    service_provider
-                )
-                is service
+                type(service_provider).my_first_service.get(service_provider) is service
             )
 
     async def test___get____with_class_attr(self) -> None:
-        _AsynchronousServiceProvider.my_first_asynchronous_service  # noqa B018
+        _AsynchronousFactoryAsynchronousGetterServiceProvider.my_first_service  # noqa B018
 
     async def test___get____with_instance_attr_with_asynchronous_method(self) -> None:
         service = object()
-        async with _AsynchronousServiceProvider(service) as service_provider:
-            assert await service_provider.my_first_asynchronous_service is service
+        async with _AsynchronousFactoryAsynchronousGetterServiceProvider(
+            service
+        ) as service_provider:
+            assert await service_provider.my_first_service is service
 
     async def test___get____with_instance_attr_with_synchronous_method(self) -> None:
         service = object()
         async with _SynchronousServiceProvider(service) as service_provider:
-            assert service_provider.my_first_synchronous_service is service
+            assert service_provider.my_first_service is service
 
     async def test_get_state__not_bootstrapped_should_error(self) -> None:
-        service_provider = _AsynchronousServiceProvider(object())
+        service_provider = _AsynchronousFactoryAsynchronousGetterServiceProvider(
+            object()
+        )
         with pytest.raises(NotBootstrappedError):
-            type(service_provider).my_first_asynchronous_service.get_state(
-                service_provider
-            )
+            type(service_provider).my_first_service.get_state(service_provider)
 
     async def test_get_state__minimal(self) -> None:
-        async with _AsynchronousServiceProvider(object()) as service_provider:
-            state = type(service_provider).my_first_asynchronous_service.get_state(
-                service_provider
-            )
+        async with _AsynchronousFactoryAsynchronousGetterServiceProvider(
+            object()
+        ) as service_provider:
+            state = type(service_provider).my_first_service.get_state(service_provider)
             assert state == {}
 
     async def test_get_state__with_shared(self) -> None:
         service = object()
         async with _AsynchronousSharedServiceProvider(service) as service_provider:
-            state = type(service_provider).my_first_asynchronous_service.get_state(
-                service_provider
-            )
+            state = type(service_provider).my_first_service.get_state(service_provider)
             assert state == {
-                "_my_first_asynchronous_service": service,
+                "_my_first_service": service,
             }
 
     async def test_get_state__with_shared_with_overridden(self) -> None:
         service = object()
         service_provider = _AsynchronousSharedServiceProvider(object())
-        type(service_provider).my_first_asynchronous_service.override(
-            service_provider,
-            service,  # type: ignore[arg-type]
-        )
+        type(service_provider).my_first_service.override(service_provider, service)
         async with service_provider:
-            state = type(service_provider).my_first_asynchronous_service.get_state(
-                service_provider
-            )
+            state = type(service_provider).my_first_service.get_state(service_provider)
             assert state == {
-                "_my_first_asynchronous_service": service,
+                "_my_first_service": service,
             }
 
     async def test_get_state__without_shared_with_overridden(self) -> None:
         service = object()
-        service_provider = _AsynchronousServiceProvider(object())
-        type(service_provider).my_first_asynchronous_service.override(
-            service_provider, service
+        service_provider = _AsynchronousFactoryAsynchronousGetterServiceProvider(
+            object()
         )
+        type(service_provider).my_first_service.override(service_provider, service)
         async with service_provider:
-            state = type(service_provider).my_first_asynchronous_service.get_state(
-                service_provider
-            )
+            state = type(service_provider).my_first_service.get_state(service_provider)
             assert state == {
-                "_my_first_asynchronous_service": service,
+                "_my_first_service": service,
             }
 
     async def test_get_state__with_shared_with_overridden_factory(self) -> None:
@@ -455,51 +485,51 @@ class TestServiceManager:
             return service
 
         service_provider = _AsynchronousSharedServiceProvider(object())
-        type(service_provider).my_first_asynchronous_service.override_factory(
+        type(service_provider).my_first_service.override_factory(
             service_provider, _factory
         )
         async with service_provider:
-            state = type(service_provider).my_first_asynchronous_service.get_state(
-                service_provider
-            )
+            state = type(service_provider).my_first_service.get_state(service_provider)
             assert state == {
-                "_my_first_asynchronous_service": service,
+                "_my_first_service": service,
             }
 
     async def test_get_state__without_shared_with_overridden_factory(self) -> None:
-        async def _factory(service_provider: _AsynchronousServiceProvider) -> object:
+        async def _factory(
+            service_provider: _AsynchronousFactoryAsynchronousGetterServiceProvider,
+        ) -> object:
             return object()
 
-        service_provider = _AsynchronousServiceProvider(object())
-        type(service_provider).my_first_asynchronous_service.override_factory(
+        service_provider = _AsynchronousFactoryAsynchronousGetterServiceProvider(
+            object()
+        )
+        type(service_provider).my_first_service.override_factory(
             service_provider, _factory
         )
         async with service_provider:
-            state = type(service_provider).my_first_asynchronous_service.get_state(
-                service_provider
-            )
+            state = type(service_provider).my_first_service.get_state(service_provider)
             assert state == {
-                "_my_first_asynchronous_service_factory_override": _factory,
+                "_my_first_service_factory_override": _factory,
             }
 
     async def test_is_shared(self) -> None:
-        async with _AsynchronousSharedServiceProvider(object()) as service_provider:
-            assert type(service_provider).my_first_asynchronous_service.is_shared
+        sut = _DummyServiceManager(lambda _: None, shared=True)
+        assert sut.is_shared
 
     async def test_override(self) -> None:
         service = object()
-        async with _AsynchronousServiceProvider(object()) as service_provider:
-            type(service_provider).my_first_asynchronous_service.override(
-                service_provider, service
-            )
-            assert await service_provider.my_first_asynchronous_service is service
+        async with _AsynchronousFactoryAsynchronousGetterServiceProvider(
+            object()
+        ) as service_provider:
+            type(service_provider).my_first_service.override(service_provider, service)
+            assert await service_provider.my_first_service is service
 
     async def test_override__with_override_with_initialized_already(self) -> None:
         async with _AsynchronousServiceProviderWithOverride(
             object()
         ) as service_provider:
             with pytest.raises(ServiceInitializedError):
-                type(service_provider).my_first_asynchronous_service.override(
+                type(service_provider).my_first_service.override(
                     service_provider, object()
                 )
 
@@ -507,15 +537,17 @@ class TestServiceManager:
         service = object()
 
         async def _factory(
-            service_provider: _AsynchronousServiceProvider,
+            service_provider: _AsynchronousFactoryAsynchronousGetterServiceProvider,
         ) -> object:
             return service
 
-        async with _AsynchronousServiceProvider(object()) as service_provider:
-            type(service_provider).my_first_asynchronous_service.override_factory(
+        async with _AsynchronousFactoryAsynchronousGetterServiceProvider(
+            object()
+        ) as service_provider:
+            type(service_provider).my_first_service.override_factory(
                 service_provider, _factory
             )
-            assert await service_provider.my_first_asynchronous_service is service
+            assert await service_provider.my_first_service is service
 
     async def test_override_factory__with_override_with_initialized_already(
         self,
@@ -529,7 +561,7 @@ class TestServiceManager:
             object()
         ) as service_provider:
             with pytest.raises(ServiceInitializedError):
-                type(service_provider).my_first_asynchronous_service.override_factory(
+                type(service_provider).my_first_service.override_factory(
                     service_provider, _factory
                 )
 

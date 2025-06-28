@@ -39,11 +39,10 @@ class Config(ShorthandPluginBase, AppDependentFactory, Command):
 
     @override
     async def configure(self, parser: argparse.ArgumentParser) -> CommandFunction:
-        localizer = await self._app.localizer
         parser.add_argument(
             "--locale",
             default=DEFAULT_LOCALE,
-            help=localizer._(
+            help=self._app.localizer._(
                 "Set the locale for Betty's user interface. This must be an IETF BCP 47 language tag."
             ),
         )
@@ -53,7 +52,7 @@ class Config(ShorthandPluginBase, AppDependentFactory, Command):
         updated_configuration = AppConfiguration()
         updated_configuration.update(self._app.configuration)
         updated_configuration.locale = locale
-        self._app.user.localizer = await self._app.localizers.get(locale)
+        self._app.user.localizer = self._app.localizers.get(locale)
         await self._app.user.message_information(
             _("Betty will talk to you in {locale}").format(
                 locale=str(get_display_name(locale))

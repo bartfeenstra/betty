@@ -4,6 +4,7 @@ from typing import TYPE_CHECKING, final, Self
 
 from typing_extensions import override
 
+import betty.locale.translation.project.extension
 from betty.app.factory import AppDependentFactory
 from betty.assertion import (
     assert_or,
@@ -12,9 +13,10 @@ from betty.assertion import (
 )
 from betty.console.assertion import assertion_to_argument_type
 from betty.console.command import Command, CommandFunction
-from betty.locale import translation
 from betty.locale.localizable import _
-from betty.locale.translation import assert_extension_has_assets_directory_path
+from betty.locale.translation.project.extension import (
+    assert_extension_has_assets_directory_path,
+)
 from betty.plugin import ShorthandPluginBase
 
 from betty.project import extension
@@ -46,7 +48,6 @@ class ExtensionUpdateTranslations(ShorthandPluginBase, AppDependentFactory, Comm
 
     @override
     async def configure(self, parser: argparse.ArgumentParser) -> CommandFunction:
-        localizer = await self._app.localizer
         extension_id_to_type_mapping = await extension.EXTENSION_REPOSITORY.mapping()
 
         parser.add_argument(
@@ -55,20 +56,21 @@ class ExtensionUpdateTranslations(ShorthandPluginBase, AppDependentFactory, Comm
                 lambda extension_id: assert_extension_has_assets_directory_path(
                     extension_id_to_type_mapping.get(extension_id)
                 ),
-                localizer=localizer,
+                localizer=self._app.localizer,
             ),
         )
         parser.add_argument(
             "source",
             type=assertion_to_argument_type(
-                assert_or(assert_none(), assert_directory_path()), localizer=localizer
+                assert_or(assert_none(), assert_directory_path()),
+                localizer=self._app.localizer,
             ),
         )
         parser.add_argument(
             "--exclude",
             action="append",
             type=assertion_to_argument_type(
-                assert_directory_path(), localizer=localizer
+                assert_directory_path(), localizer=self._app.localizer
             ),
         )
         return self._command_function
@@ -76,6 +78,6 @@ class ExtensionUpdateTranslations(ShorthandPluginBase, AppDependentFactory, Comm
     async def _command_function(
         self, extension: type[Extension], source: Path, exclude: tuple[Path] | None
     ) -> None:
-        await translation.update_extension_translations(
+        await betty.locale.translation.project.extension.update_extension_translations(
             extension, source, None if exclude is None else set(exclude)
         )

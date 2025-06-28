@@ -31,6 +31,5 @@ class TestHttpApiDoc(EntryPointProviderTestBase):
         async with Project.new_temporary(new_temporary_app) as project:
             project.configuration.extensions.enable(HttpApiDoc)
             async with project:
-                extensions = await project.extensions
-                sut = extensions[HttpApiDoc]
+                sut = project.extensions[HttpApiDoc]
                 sut.secondary_navigation_links()

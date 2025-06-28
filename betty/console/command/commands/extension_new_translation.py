@@ -4,13 +4,15 @@ from typing import TYPE_CHECKING, final, Self
 
 from typing_extensions import override
 
+import betty.locale.translation.project.extension
 from betty.app.factory import AppDependentFactory
 from betty.assertion import assert_locale_identifier
 from betty.console.assertion import assertion_to_argument_type
 from betty.console.command import Command, CommandFunction
-from betty.locale import translation
 from betty.locale.localizable import _
-from betty.locale.translation import assert_extension_has_assets_directory_path
+from betty.locale.translation.project.extension import (
+    assert_extension_has_assets_directory_path,
+)
 from betty.plugin import ShorthandPluginBase
 
 from betty.project import extension
@@ -41,7 +43,6 @@ class ExtensionNewTranslation(ShorthandPluginBase, AppDependentFactory, Command)
 
     @override
     async def configure(self, parser: argparse.ArgumentParser) -> CommandFunction:
-        localizer = await self._app.localizer
         extension_id_to_type_map = await extension.EXTENSION_REPOSITORY.mapping()
         parser.add_argument(
             "extension",
@@ -49,18 +50,18 @@ class ExtensionNewTranslation(ShorthandPluginBase, AppDependentFactory, Command)
                 lambda extension_id: assert_extension_has_assets_directory_path(
                     extension_id_to_type_map.get(extension_id)
                 ),
-                localizer=localizer,
+                localizer=self._app.localizer,
             ),
         )
         parser.add_argument(
             "locale",
             type=assertion_to_argument_type(
-                assert_locale_identifier(), localizer=localizer
+                assert_locale_identifier(), localizer=self._app.localizer
             ),
         )
         return self._command_function
 
     async def _command_function(self, extension: type[Extension], locale: str) -> None:
-        await translation.new_extension_translation(
+        await betty.locale.translation.project.extension.new_extension_translation(
             locale, extension, user=self._app.user
         )

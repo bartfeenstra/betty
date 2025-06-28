@@ -53,7 +53,7 @@ async def _generate_place_preview_for_locale(
             "maps/selected-place-preview.html.j2",
         ).render_async(
             job_context=job_context,
-            localizer=await app.localizers.get(locale),
+            localizer=app.localizers.get(locale),
             place=place,
         )
         async with create_file(place_path / "-maps-place-preview.html") as f:

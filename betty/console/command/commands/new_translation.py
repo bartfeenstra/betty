@@ -4,12 +4,12 @@ from typing import TYPE_CHECKING, final, Self
 
 from typing_extensions import override
 
+import betty.locale.translation.project
 from betty.app.factory import AppDependentFactory
 from betty.assertion import assert_locale_identifier
 from betty.console.assertion import assertion_to_argument_type
 from betty.console.project import add_project_argument
 from betty.console.command import Command, CommandFunction
-from betty.locale import translation
 from betty.locale.localizable import _
 from betty.plugin import ShorthandPluginBase
 
@@ -39,20 +39,19 @@ class NewTranslation(ShorthandPluginBase, AppDependentFactory, Command):
 
     @override
     async def configure(self, parser: argparse.ArgumentParser) -> CommandFunction:
-        localizer = await self._app.localizer
         command_function = await add_project_argument(
             parser, self._command_function, self._app
         )
         parser.add_argument(
             "locale",
             type=assertion_to_argument_type(
-                assert_locale_identifier(), localizer=localizer
+                assert_locale_identifier(), localizer=self._app.localizer
             ),
         )
         return command_function
 
     async def _command_function(self, project: Project, locale: str) -> None:
         async with project:
-            await translation.new_project_translation(
+            await betty.locale.translation.project.new_project_translation(
                 locale, project, user=self._app.user
             )

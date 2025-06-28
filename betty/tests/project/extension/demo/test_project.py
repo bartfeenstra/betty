@@ -21,7 +21,7 @@ async def test_create_project(new_temporary_app: App, tmp_path: Path) -> None:
     project = await create_project(new_temporary_app, tmp_path)
     async with project:
         assert project.configuration.project_directory_path == tmp_path
-        assert Demo.plugin_id() in await project.extensions
+        assert Demo.plugin_id() in project.extensions
 
 
 async def test_load_ancestry(

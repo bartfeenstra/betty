@@ -68,7 +68,6 @@ async def _generate_search_index(event: GenerateSiteEvent) -> None:
 
 async def _generate_webmanifest(event: GenerateSiteEvent) -> None:
     project = event.project
-    extensions = await project.extensions
     webmanifest = json.dumps(
         {
             "name": project.configuration.title.localize(DEFAULT_LOCALIZER),
@@ -76,7 +75,9 @@ async def _generate_webmanifest(event: GenerateSiteEvent) -> None:
                 {"src": "/logo" + project.logo.suffix},
             ],
             "lang": project.configuration.locales.default.locale,
-            "theme_color": extensions[RaspberryMint].configuration.secondary_color.hex,
+            "theme_color": project.extensions[
+                RaspberryMint
+            ].configuration.secondary_color.hex,
             "background_color": "#ffffff",
             "display": "fullscreen",
         }

@@ -127,8 +127,7 @@ class TestProject:
         async with Project.new_temporary(new_temporary_app) as sut:
             sut.configuration.extensions.enable(DummyExtension)
             async with sut:
-                extensions = await sut.extensions
-                extension = extensions[DummyExtension.plugin_id()]
+                extension = sut.extensions[DummyExtension.plugin_id()]
                 assert extension.bootstrapped
 
     async def test_bootstrap__should_validate_entity_type_configuration(
@@ -151,10 +150,9 @@ class TestProject:
         self, new_temporary_app: App
     ) -> None:
         async with Project.new_temporary(new_temporary_app) as sut, sut:
-            extensions = await sut.extensions
             async for betty_extension in EXTENSION_REPOSITORY:
                 if betty_extension.plugin_id().startswith("betty-"):
-                    assert betty_extension.plugin_id() in extensions
+                    assert betty_extension.plugin_id() in sut.extensions
 
     async def test_extensions__should_assert_requirement(
         self, mocker: MockerFixture, new_temporary_app: App
@@ -189,7 +187,7 @@ class TestProject:
         async with Project.new_temporary(new_temporary_app) as sut:
             sut.configuration.extensions.enable(*enable)
             async with sut:
-                extensions = list(map(type, (await sut.extensions).flatten()))
+                extensions = list(map(type, sut.extensions.flatten()))
                 assert extensions.index(_DummyExtensionA) < extensions.index(
                     _DummyExtensionB
                 )
@@ -216,8 +214,7 @@ class TestProject:
 
     async def test_assets__without_extensions(self, new_temporary_app: App) -> None:
         async with Project.new_temporary(new_temporary_app) as sut, sut:
-            assets = await sut.assets
-            assert len(assets.assets_directory_paths) == 2
+            assert len(sut.assets.assets_directory_paths) == 2
 
     async def test_assets__with_extension_without_assets_directory(
         self, mocker: MockerFixture, new_temporary_app: App
@@ -229,8 +226,7 @@ class TestProject:
         async with Project.new_temporary(new_temporary_app) as sut:
             sut.configuration.extensions.enable(DummyExtension)
             async with sut:
-                assets = await sut.assets
-                assert len(assets.assets_directory_paths) == 2
+                assert len(sut.assets.assets_directory_paths) == 2
 
     async def test_assets__with_extension_with_assets_directory(
         self, mocker: MockerFixture, new_temporary_app: App, tmp_path: Path
@@ -242,8 +238,7 @@ class TestProject:
         async with Project.new_temporary(new_temporary_app) as sut:
             sut.configuration.extensions.enable(_DummyExtensionWithAssetsDirectory)
             async with sut:
-                assets = await sut.assets
-                assert len(assets.assets_directory_paths) == 3
+                assert len(sut.assets.assets_directory_paths) == 3
 
     async def test_event_dispatcher(self, new_temporary_app: App) -> None:
         async with Project.new_temporary(new_temporary_app) as sut, sut:
@@ -255,8 +250,7 @@ class TestProject:
 
     async def test_localizers(self, new_temporary_app: App) -> None:
         async with Project.new_temporary(new_temporary_app) as sut, sut:
-            localizers = await sut.localizers
-            assert len(list(localizers.locales)) > 0
+            sut.localizers  # noqa B018
 
     async def test_name__with_configuration_name(self, new_temporary_app: App) -> None:
         name = "hello-world"

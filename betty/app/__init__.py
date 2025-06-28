@@ -28,9 +28,16 @@ from betty.license import LICENSE_REPOSITORY, License
 from betty.license.licenses import SpdxLicenseRepository
 from betty.locale import DEFAULT_LOCALE
 from betty.locale.localizer import Localizer, LocalizerRepository
+from betty.locale.translation import TranslationRepository
 from betty.multiprocessing import ProcessPoolExecutor
 from betty.plugin.proxy import ProxyPluginRepository
-from betty.service import ServiceFactory, ServiceProvider, StaticService, service
+from betty.service import (
+    ServiceFactory,
+    ServiceProvider,
+    StaticService,
+    async_service,
+    sync_service,
+)
 from betty.typing import processsafe
 
 if TYPE_CHECKING:
@@ -130,8 +137,12 @@ class App(Configurable[AppConfiguration], TargetFactory, ServiceProvider):
     @override
     async def bootstrap(self) -> None:
         await super().bootstrap()
-        await self._user.connect()
-        self._user.localizer = await self.localizer
+        try:
+            await self._user.connect()
+            self._user.localizer = self.localizer
+        except BaseException:
+            await self.shutdown(wait=False)
+            raise
 
     @override
     async def shutdown(self, *, wait: bool = True) -> None:
@@ -145,30 +156,37 @@ class App(Configurable[AppConfiguration], TargetFactory, ServiceProvider):
         """
         return self._user
 
-    @service
+    @sync_service
     def assets(self) -> AssetRepository:
         """
         The assets file system.
         """
         return AssetRepository(betty.ASSETS_DIRECTORY_PATH)
 
-    @service
-    async def localizer(self) -> Localizer:
+    @async_service(shared=True)
+    async def translations(self) -> TranslationRepository:
+        """
+        The available translations.
+        """
+        translations = TranslationRepository(self.assets, self.binary_file_cache)
+        await translations.bootstrap()
+        return translations
+
+    @sync_service
+    def localizer(self) -> Localizer:
         """
         Get the application's user-facing localizer.
         """
-        return await self.localizers.get_negotiated(
-            self.configuration.locale or DEFAULT_LOCALE
-        )
+        return self.localizers.get(self.configuration.locale or DEFAULT_LOCALE)
 
-    @service
+    @sync_service
     def localizers(self) -> LocalizerRepository:
         """
         The available localizers.
         """
-        return LocalizerRepository(self.assets, self.binary_file_cache)
+        return LocalizerRepository(self.translations)
 
-    @service
+    @async_service
     async def http_client(self) -> aiohttp.ClientSession:
         """
         The HTTP client.
@@ -186,7 +204,7 @@ class App(Configurable[AppConfiguration], TargetFactory, ServiceProvider):
         self._shutdown_stack.append(_shutdown)
         return http_client
 
-    @service
+    @async_service
     async def fetcher(self) -> Fetcher:
         """
         The fetcher.
@@ -198,21 +216,21 @@ class App(Configurable[AppConfiguration], TargetFactory, ServiceProvider):
             user=self.user,
         )
 
-    @service(shared=True)
+    @sync_service(shared=True)
     def cache(self) -> Cache[Any]:
         """
         The cache.
         """
         raise NotImplementedError
 
-    @service(shared=True)
+    @sync_service(shared=True)
     def binary_file_cache(self) -> BinaryFileCache:
         """
         The binary file cache.
         """
         return BinaryFileCache(self._cache_directory_path)
 
-    @service
+    @sync_service
     def process_pool(self) -> futures.ProcessPoolExecutor:
         """
         The shared process pool.
@@ -245,7 +263,7 @@ class App(Configurable[AppConfiguration], TargetFactory, ServiceProvider):
             return cast(_T, await cls.new_for_app(self))
         return await new(cls)
 
-    @service
+    @async_service
     async def spdx_license_repository(self) -> PluginRepository[License]:
         """
         The SPDX licenses available to this application.

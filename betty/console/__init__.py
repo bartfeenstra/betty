@@ -109,11 +109,10 @@ async def _create_command_parser(
     command_plugin: type[Command],
     formatter_class: type[argparse.HelpFormatter],
 ) -> argparse.ArgumentParser:
-    localizer = await app.localizer
     command = await app.new_target(command_plugin)
     command_parser: argparse.ArgumentParser = subparsers.add_parser(
         command.plugin_id(),
-        description=command.plugin_label().localize(localizer),
+        description=command.plugin_label().localize(app.localizer),
         exit_on_error=False,
         formatter_class=formatter_class,
     )
@@ -128,7 +127,7 @@ async def _create_command_parser(
         dest="_verbosity",
         action="store_const",
         const=Verbosity.QUIET,
-        help=localizer._("Do not show any output, except errors"),
+        help=app.localizer._("Do not show any output, except errors"),
     )
     verbosity_group.add_argument(
         "-v",
@@ -136,7 +135,7 @@ async def _create_command_parser(
         dest="_verbosity",
         action="store_const",
         const=Verbosity.VERBOSE,
-        help=localizer._("Also show debug messages"),
+        help=app.localizer._("Also show debug messages"),
     )
     verbosity_group.add_argument(
         "-vv",
@@ -144,7 +143,7 @@ async def _create_command_parser(
         dest="_verbosity",
         action="store_const",
         const=Verbosity.MORE_VERBOSE,
-        help=localizer._("Also show (third-party) log messages"),
+        help=app.localizer._("Also show (third-party) log messages"),
     )
 
     return command_parser
@@ -208,27 +207,26 @@ async def _create_list_commands_action_class(
 
 
 async def _create_parser(app: App) -> argparse.ArgumentParser:
-    localizer = await app.localizer
-    argument_parser_class = _create_parser_class(localizer=localizer)
-    formatter_class = _create_formatter_class(localizer=localizer)
+    argument_parser_class = _create_parser_class(localizer=app.localizer)
+    formatter_class = _create_formatter_class(localizer=app.localizer)
     parser = argument_parser_class(
         exit_on_error=False, formatter_class=formatter_class, prog="betty"
     )
     parser.add_argument(
         "--commands",
-        action=await _create_list_commands_action_class(localizer=localizer),
+        action=await _create_list_commands_action_class(localizer=app.localizer),
         default=argparse.SUPPRESS,
-        help=localizer._("Show all available commands"),
+        help=app.localizer._("Show all available commands"),
     )
     parser.add_argument(
         "--version",
         action="version",
-        version=about.report(localizer=localizer),
-        help=localizer._(
+        version=about.report(localizer=app.localizer),
+        help=app.localizer._(
             "Show information about the current Betty version and environment"
         ),
     )
-    subparsers = parser.add_subparsers(title=localizer._("Subcommands"))
+    subparsers = parser.add_subparsers(title=app.localizer._("Subcommands"))
     async for command_plugin in command.COMMAND_REPOSITORY:
         await _create_command_parser(app, subparsers, command_plugin, formatter_class)
     return parser

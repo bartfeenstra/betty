@@ -18,7 +18,7 @@ from betty.plugin import ShorthandPluginBase
 from betty.project.extension import ConfigurableExtension
 from betty.project.extension.wiki.config import WikiConfiguration
 from betty.project.load import PostLoadAncestryEvent
-from betty.service import service
+from betty.service import async_service
 from betty.wiki import NotAPageError, parse_page_url
 from betty.wiki.client import RATE_LIMIT, Client, Summary
 from betty.wiki.copyright_notice import WikipediaContributors
@@ -37,12 +37,11 @@ if TYPE_CHECKING:
 
 async def _populate_ancestry(event: PostLoadAncestryEvent) -> None:
     project = event.project
-    extensions = await project.extensions
-    wikipedia = extensions[Wiki]
+    wikipedia = project.extensions[Wiki]
     populator = Populator(
         project.ancestry,
         list(project.configuration.locales),
-        await project.localizers,
+        project.localizers,
         await wikipedia.client,
         await project.copyright_notice_repository.new_target(WikipediaContributors),
     )
@@ -90,14 +89,14 @@ class Wiki(
     def register_event_handlers(self, registry: EventHandlerRegistry) -> None:
         registry.add_handler(PostLoadAncestryEvent, _populate_ancestry)
 
-    @service
+    @async_service
     async def rate_limiter(self) -> RateLimiter:
         """
         The Wikipedia API rate limiter.
         """
         return RateLimiter(RATE_LIMIT)
 
-    @service
+    @async_service
     async def client(self) -> Client:
         """
         The API client.

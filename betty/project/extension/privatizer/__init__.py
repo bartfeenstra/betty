@@ -23,7 +23,7 @@ if TYPE_CHECKING:
 
 
 async def _privatize_ancestry(event: PostLoadAncestryEvent) -> None:
-    localizer = await event.project.app.localizer
+    localizer = event.project.app.localizer
     user = event.project.app.user
     await user.message_information(_("Privatizing..."))
 

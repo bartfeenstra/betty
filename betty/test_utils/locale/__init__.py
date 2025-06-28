@@ -13,9 +13,7 @@ from aiofiles.tempfile import TemporaryDirectory
 from typing_extensions import override
 
 from betty.app import App
-from betty.locale.translation import (
-    update_project_translations,
-)
+from betty.locale.translation.project import update_project_translations
 
 if TYPE_CHECKING:
     from collections.abc import Iterator
