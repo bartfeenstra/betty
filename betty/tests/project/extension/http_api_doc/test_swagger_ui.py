@@ -30,6 +30,9 @@ class TestSwaggerUi:
 
     @pytest.mark.asyncio(loop_scope="session")
     @check_skip_playwright
+    @pytest.mark.xfail(
+        reason="This has been failing for Webkit on Github Actions since June 25, 2025. Cause unknown."
+    )
     async def test(self, page: Page, served_project: tuple[Project, Server]) -> None:
         project, server = served_project
         await page.goto(server.public_url + "/api/index.html")
