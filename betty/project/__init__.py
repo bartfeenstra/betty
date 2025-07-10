@@ -131,10 +131,7 @@ class Project(Configurable[ProjectConfiguration], TargetFactory, ServiceProvider
                     TemporaryDirectory()
                 )
                 configuration = await ProjectConfiguration.new(
-                    Path(
-                        project_directory_path_str,  # type: ignore[arg-type]
-                    )
-                    / "betty.json"
+                    Path(project_directory_path_str) / "betty.json"
                 )
             yield await cls.new(app, configuration=configuration, ancestry=ancestry)
 
