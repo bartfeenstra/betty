@@ -22,21 +22,27 @@ jobs:
           # to the number of `after_n_builds` in ./codecov.yml.
           - name: 'Python 3.14'
             os: ubuntu-latest
+            nodejs: 22.x
             python: '3.14.0-beta.2'
           - name: 'Python 3.13'
             os: ubuntu-latest
+            nodejs: 22.x
             python: '3.13'
           - name: 'Python 3.12'
             os: ubuntu-latest
+            nodejs: 22.x
             python: '3.12'
           - name: 'Python 3.11'
             os: ubuntu-latest
+            nodejs: 22.x
             python: '3.11'
           - name: 'macOS'
             os: macos-latest
+            nodejs: 22.x
             python: '3.13'
           - name: 'Windows'
             os: windows-latest
+            nodejs: 22.x
             python: '3.13'
     timeout-minutes: 60
     steps:
@@ -84,7 +90,7 @@ jobs:
       - name: Set up Node.js
         uses: actions/setup-node@v4
         with:
-          node-version-file: ./package.json
+          node-version: ${{ matrix.nodejs }}
 
       - name: Install APT dependencies
         if: startsWith(runner.os, 'Linux')
