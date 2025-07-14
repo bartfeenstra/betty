@@ -2,11 +2,13 @@
 An API for providing application-wide services.
 """
 
+from __future__ import annotations
+
 from abc import ABC, abstractmethod
-from collections.abc import Awaitable, Callable, MutableSequence
+from collections.abc import Awaitable, Callable, Iterable, MutableSequence
 from inspect import getmembers, iscoroutinefunction
-from types import TracebackType
 from typing import (
+    TYPE_CHECKING,
     Any,
     Generic,
     Protocol,
@@ -26,6 +28,9 @@ from typing_extensions import override
 from betty.concurrent import AsynchronizedLock, Lock
 from betty.config import Configurable
 from betty.typing import Void, internal, not_void, processsafe, public
+
+if TYPE_CHECKING:
+    from types import TracebackType
 
 
 @internal
@@ -164,9 +169,13 @@ class ServiceProvider(Bootstrapped, Shutdownable):
     @override
     def __getstate__(self) -> dict[str, Any]:
         self.assert_bootstrapped()
-        return {
+        state = {
             "_bootstrapped": True,
         }
+        for service_manager in self._service_managers():
+            if service_manager.is_shared:
+                state.update(service_manager.get_state(self))
+        return state
 
     def __setstate__(self, state: dict[str, Any]) -> None:
         self.__dict__.update(state)
@@ -186,6 +195,12 @@ class ServiceProvider(Bootstrapped, Shutdownable):
             self.configuration.immutable()
         await self._initialize_shared_services()
 
+    @classmethod
+    def _service_managers(cls) -> Iterable[ServiceManager[Self, Any, Any]]:
+        for _, value in getmembers(cls):
+            if isinstance(value, ServiceManager):
+                yield value
+
     async def _initialize_shared_services(self) -> None:
         """
         Initialize shared services, so they are ready to be pickled if/when they need to be.
@@ -193,14 +208,12 @@ class ServiceProvider(Bootstrapped, Shutdownable):
         This is a workaround, because all pickling APIs are synchronous and will not allow us to call asynchronous
         service factories.
         """
-        for _service_name, service_manager in getmembers(type(self)):
-            if (
-                isinstance(service_manager, ServiceManager)
-                and service_manager.is_shared
-            ):
-                service = service_manager.get(self)
-                if isinstance(service_manager, _AsynchronousServiceManager):
-                    await service
+        for service_manager in self._service_managers():
+            if not service_manager.is_shared:
+                continue
+            service = service_manager.get(self)
+            if isinstance(service_manager, _AsynchronousServiceManager):
+                await service
 
     @public
     @override
@@ -249,14 +262,24 @@ class ServiceManager(Generic[_ServiceProviderT, _ServiceGetT, _ServiceT]):
     """
 
     def __init__(
-        self, factory: ServiceFactory[_ServiceProviderT, _ServiceGetT], *, shared: bool
+        self,
+        factory: ServiceFactory[_ServiceProviderT, _ServiceGetT],
+        *,
+        shared: bool = False,
     ):
         self._factory = factory
         self._shared = shared
-        self._service_name = factory.__name__  # type: ignore[attr-defined]
+        self._service_name: str = factory.__name__  # type: ignore[attr-defined]
         self._service_attr_name = f"_{self._service_name}"
         self._service_override_attr_name = f"{self._service_attr_name}_override"
         self._factory_override_attr_name = f"{self._service_attr_name}_factory_override"
+
+    @property
+    def name(self) -> str:
+        """
+        The service name.
+        """
+        return self._service_name
 
     @property
     def is_shared(self) -> bool:

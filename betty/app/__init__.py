@@ -80,15 +80,11 @@ class App(Configurable[AppConfiguration], TargetFactory, ServiceProvider):
 
     @override
     def __getstate__(self) -> dict[str, Any]:
-        cls = type(self)
         return {
             **super().__getstate__(),
-            "_bootstrapped": True,
             "_cache_directory_path": self._cache_directory_path,
             "_configuration": self._configuration,
             "_user": self._user,
-            **cls.binary_file_cache.get_state(self),
-            **cls.cache.get_state(self),
         }
 
     @classmethod
