@@ -73,13 +73,6 @@ async def new_project_translation(locale: str, project: Project, *, user: User) 
     )
 
 
-async def new_dev_translation(locale: str, *, user: User) -> None:
-    """
-    Create a new translation for Betty itself.
-    """
-    await _new_translation(locale, betty.ASSETS_DIRECTORY_PATH, user=user)
-
-
 async def _new_translation(
     locale: str, assets_directory_path: Path, *, user: User
 ) -> None:
