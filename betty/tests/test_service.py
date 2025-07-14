@@ -1,6 +1,6 @@
 import pickle
 from collections.abc import Awaitable
-from typing import cast
+from typing import Any, cast
 
 import pytest
 from typing_extensions import override
@@ -12,6 +12,7 @@ from betty.service import (
     NotBootstrappedError,
     ServiceFactory,
     ServiceInitializedError,
+    ServiceManager,
     ServiceProvider,
     Shutdownable,
     ShutdownStack,
@@ -269,7 +270,20 @@ async def test_service__with_synchronous_method() -> None:
     )
 
 
+class _DummyServiceManager(ServiceManager[Any, None, None]):
+    @override
+    def _get(self, instance: Any) -> None:
+        return None
+
+
 class TestServiceManager:
+    def test_name(self) -> None:
+        def my_first_service(_: Any) -> None:
+            return None
+
+        sut = _DummyServiceManager(my_first_service)
+        assert sut.name == "my_first_service"
+
     async def test_get__with_asynchronous_method_with_bootstrapped(
         self,
     ) -> None:
