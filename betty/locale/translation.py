@@ -67,13 +67,6 @@ async def new_project_translation(locale: str, project: Project) -> None:
     await _new_translation(locale, project.configuration.assets_directory_path)
 
 
-async def new_dev_translation(locale: str) -> None:
-    """
-    Create a new translation for Betty itself.
-    """
-    await _new_translation(locale, fs.ASSETS_DIRECTORY_PATH)
-
-
 async def _new_translation(locale: str, assets_directory_path: Path) -> None:
     po_file_path = assets_directory_path / "locale" / locale / "betty.po"
     with redirect_stdout(StringIO()):
