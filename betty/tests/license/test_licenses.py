@@ -1,7 +1,6 @@
 import tarfile
 from collections.abc import Iterator, Sequence
 from json import dumps
-from multiprocessing.managers import SyncManager
 from pathlib import Path
 from typing import TYPE_CHECKING
 
@@ -65,10 +64,7 @@ def test_spdx_license_id_to_license_id(expected: str, spdx_license_id: str) -> N
 class TestSpdxLicenseRepository:
     @pytest.fixture
     def sut_without_licenses(
-        self,
-        binary_file_cache: BinaryFileCache,
-        multiprocessing_manager: SyncManager,
-        tmp_path: Path,
+        self, binary_file_cache: BinaryFileCache, tmp_path: Path
     ) -> Iterator[SpdxLicenseRepository]:
         spdx_directory_path = tmp_path / "spdx"
         spdx_directory_path.mkdir()
@@ -97,17 +93,13 @@ class TestSpdxLicenseRepository:
                 binary_file_cache=binary_file_cache,
                 fetcher=fetcher,
                 user=StaticUser(),
-                manager=multiprocessing_manager,
                 process_pool=process_pool,
             )
             yield sut
 
     @pytest.fixture
     def sut_with_licenses(
-        self,
-        binary_file_cache: BinaryFileCache,
-        multiprocessing_manager: SyncManager,
-        tmp_path: Path,
+        self, binary_file_cache: BinaryFileCache, tmp_path: Path
     ) -> Iterator[SpdxLicenseRepository]:
         spdx_directory_path = tmp_path / "spdx"
         spdx_directory_path.mkdir()
@@ -193,7 +185,6 @@ class TestSpdxLicenseRepository:
                 binary_file_cache=binary_file_cache,
                 fetcher=fetcher,
                 user=StaticUser(),
-                manager=multiprocessing_manager,
                 process_pool=process_pool,
             )
             yield sut

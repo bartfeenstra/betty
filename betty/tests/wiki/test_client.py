@@ -17,7 +17,6 @@ from betty.wiki.client import Client, Image, Summary
 
 if TYPE_CHECKING:
     from collections.abc import Mapping
-    from multiprocessing.managers import SyncManager
 
     from pytest_mock import MockerFixture
 
@@ -87,7 +86,6 @@ class TestClient:
         expected: Mapping[str, str],
         fetch_json: Mapping[str, Any],
         mocker: MockerFixture,
-        multiprocessing_manager: SyncManager,
         binary_file_cache: BinaryFileCache,
     ) -> None:
         mocker.patch("sys.stderr")
@@ -98,14 +96,13 @@ class TestClient:
             fetch_map={fetch_url: _new_json_fetch_response(fetch_json)}
         )
         translations = await Client(
-            fetcher, RateLimiter(1, manager=multiprocessing_manager), user=StaticUser()
+            fetcher, RateLimiter(1), user=StaticUser()
         ).get_translations(page_language, page_name)
         assert expected == translations
 
     async def test_get_translations__with_invalid_json_response_should_return_none(
         self,
         mocker: MockerFixture,
-        multiprocessing_manager: SyncManager,
         binary_file_cache: BinaryFileCache,
     ) -> None:
         mocker.patch("sys.stderr")
@@ -122,7 +119,7 @@ class TestClient:
             }
         )
         actual = await Client(
-            fetcher, RateLimiter(1, manager=multiprocessing_manager), user=StaticUser()
+            fetcher, RateLimiter(1), user=StaticUser()
         ).get_translations(page_language, page_name)
         assert actual == {}
 
@@ -139,7 +136,6 @@ class TestClient:
         self,
         response_json: Mapping[str, Any],
         mocker: MockerFixture,
-        multiprocessing_manager: SyncManager,
         binary_file_cache: BinaryFileCache,
     ) -> None:
         mocker.patch("sys.stderr")
@@ -150,7 +146,7 @@ class TestClient:
             fetch_map={fetch_url: _new_json_fetch_response(response_json)}
         )
         actual = await Client(
-            fetcher, RateLimiter(1, manager=multiprocessing_manager), user=StaticUser()
+            fetcher, RateLimiter(1), user=StaticUser()
         ).get_translations(page_language, page_name)
         assert actual == {}
 
@@ -217,7 +213,6 @@ class TestClient:
         expected: Summary | None,
         fetch_json: Mapping[str, Any],
         binary_file_cache: BinaryFileCache,
-        multiprocessing_manager: SyncManager,
     ) -> None:
         page_language = "en"
         page_name = "Amsterdam & Omstreken"
@@ -227,9 +222,7 @@ class TestClient:
         fetcher = StaticFetcher(
             fetch_map={fetch_url: _new_json_fetch_response(fetch_json)}
         )
-        client = Client(
-            fetcher, RateLimiter(1, manager=multiprocessing_manager), user=StaticUser()
-        )
+        client = Client(fetcher, RateLimiter(1), user=StaticUser())
         actual = await client.get_summary(page_language, page_name)
         assert actual == expected
 
@@ -371,7 +364,6 @@ class TestClient:
         expected: Point | None,
         fetch_json: Mapping[str, Any],
         mocker: MockerFixture,
-        multiprocessing_manager: SyncManager,
         binary_file_cache: BinaryFileCache,
     ) -> None:
         mocker.patch("sys.stderr")
@@ -382,7 +374,7 @@ class TestClient:
             fetch_map={fetch_url: _new_json_fetch_response(fetch_json)}
         )
         actual = await Client(
-            fetcher, RateLimiter(1, manager=multiprocessing_manager), user=StaticUser()
+            fetcher, RateLimiter(1), user=StaticUser()
         ).get_place_coordinates(page_language, page_name)
         assert actual == expected
 
@@ -520,7 +512,6 @@ class TestClient:
         page_fetch_json: Mapping[str, Any],
         file_fetch_json: Mapping[str, Any] | None,
         mocker: MockerFixture,
-        multiprocessing_manager: SyncManager,
         binary_file_cache: BinaryFileCache,
         tmp_path: Path,
     ) -> None:
@@ -540,9 +531,9 @@ class TestClient:
             fetch_file_map["https://example.com/image"] = image_file_path
         fetcher = StaticFetcher(fetch_map=fetch_map, fetch_file_map=fetch_file_map)
 
-        actual = await Client(
-            fetcher, RateLimiter(1, manager=multiprocessing_manager), user=StaticUser()
-        ).get_image(page_language, page_name)
+        actual = await Client(fetcher, RateLimiter(1), user=StaticUser()).get_image(
+            page_language, page_name
+        )
         if expected is None:
             assert actual is None
         else:

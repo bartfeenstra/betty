@@ -9,14 +9,12 @@ from __future__ import annotations
 
 __all__ = [
     "binary_file_cache",
-    "multiprocessing_manager",
     "new_temporary_app",
     "new_temporary_app_factory",
     "page",
     "process_pool",
 ]
 
-import multiprocessing
 from contextlib import asynccontextmanager
 from typing import TYPE_CHECKING, Any, Protocol
 
@@ -33,7 +31,6 @@ if TYPE_CHECKING:
     from collections.abc import AsyncIterator, Iterator  # noqa I001
     from concurrent import futures
     from contextlib import AbstractAsyncContextManager
-    from multiprocessing.managers import SyncManager
     from pathlib import Path
 
     from betty.cache import Cache
@@ -44,13 +41,11 @@ if TYPE_CHECKING:
 
 
 @pytest.fixture
-async def binary_file_cache(
-    multiprocessing_manager: SyncManager, tmp_path: Path
-) -> BinaryFileCache:
+async def binary_file_cache(tmp_path: Path) -> BinaryFileCache:
     """
     Create a temporary binary file cache.
     """
-    return BinaryFileCache(tmp_path, manager=multiprocessing_manager)
+    return BinaryFileCache(tmp_path)
 
 
 @pytest.fixture(scope="session")
@@ -62,29 +57,18 @@ async def process_pool() -> AsyncIterator[futures.ProcessPoolExecutor]:
         yield process_pool
 
 
-@pytest.fixture(scope="session")
-def multiprocessing_manager() -> Iterator[SyncManager]:
-    """
-    Raise Betty's own deprecation warnings as errors.
-    """
-    with multiprocessing.Manager() as manager:
-        yield manager
-
-
 def _configure_new_temporary_app(app: App) -> None:
     app.user.verbosity = Verbosity.QUIET
 
 
 @pytest.fixture
 async def new_temporary_app(
-    process_pool: futures.ProcessPoolExecutor, multiprocessing_manager: SyncManager
+    process_pool: futures.ProcessPoolExecutor,
 ) -> AsyncIterator[App]:
     """
     Create a new, temporary :py:class:`betty.app.App`.
     """
-    async with App.new_temporary(
-        process_pool=process_pool, multiprocessing_manager=multiprocessing_manager
-    ) as app:
+    async with App.new_temporary(process_pool=process_pool) as app:
         _configure_new_temporary_app(app)
         async with app:
             yield app
@@ -103,13 +87,12 @@ class NewTemporaryAppFactory(Protocol):
 
 @pytest.fixture
 def new_temporary_app_factory(
-    process_pool: futures.ProcessPoolExecutor, multiprocessing_manager: SyncManager
+    process_pool: futures.ProcessPoolExecutor,
 ) -> NewTemporaryAppFactory:
     """
     Get a factory to create a new, temporary :py:class:`betty.app.App`.
     """
     fixture_process_pool = process_pool
-    fixture_multiprocessing_manager = multiprocessing_manager
 
     @asynccontextmanager
     async def _new_temporary_app_factory(
@@ -117,15 +100,12 @@ def new_temporary_app_factory(
         cache_factory: ServiceFactory[App, Cache[Any]] | None = None,
         fetcher: Fetcher | None = None,
         process_pool: futures.ProcessPoolExecutor | None = None,
-        multiprocessing_manager: SyncManager | None = None,
         user: User | None = None,
     ) -> AsyncIterator[App]:
         async with App.new_temporary(
             cache_factory=cache_factory,
             fetcher=fetcher,
             process_pool=process_pool or fixture_process_pool,
-            multiprocessing_manager=multiprocessing_manager
-            or fixture_multiprocessing_manager,
             user=user,
         ) as app:
             _configure_new_temporary_app(app)

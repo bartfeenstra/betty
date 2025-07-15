@@ -41,7 +41,7 @@ async def load(project: Project) -> None:
     ) as progress:
         job_context = ProjectContext(
             project,
-            cache=MemoryCache(manager=project.app.multiprocessing_manager),
+            cache=MemoryCache(),
             progress=progress,
         )
         await progress.add()

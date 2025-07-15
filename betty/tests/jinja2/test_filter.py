@@ -33,7 +33,6 @@ from betty.tests.ancestry.test___init__ import DummyHasFileReferences
 
 if TYPE_CHECKING:
     from collections.abc import Iterable, MutableMapping, Sequence
-    from multiprocessing.managers import SyncManager
 
 
 class _DummyHasDate(DummyHasDate):
@@ -92,13 +91,13 @@ async def test_filter_file(expected: str, template: str, file: File) -> None:
     _TEST_FILTER_FILE_PARAMETER_ARGNAMES, _TEST_FILTER_FILE_PARAMETER_ARGVALUES
 )
 async def test_filter_file__with_job_context(
-    expected: str, template: str, file: File, multiprocessing_manager: SyncManager
+    expected: str, template: str, file: File
 ) -> None:
     async with assert_template_string(
         template=template,
         data={
             "file": file,
-            "job_context": Context(cache=MemoryCache(manager=multiprocessing_manager)),
+            "job_context": Context(cache=MemoryCache()),
         },
     ) as (actual, project):
         assert actual == expected
@@ -308,13 +307,13 @@ async def test_filter_image_resize_cover(
     _TEST_FILTER_IMAGE_RESIZE_COVER_PARAMETER_ARGVALUES,
 )
 async def test_filter_image_resize_cover__with_job_context(
-    expected: str, template: str, filey: File, multiprocessing_manager: SyncManager
+    expected: str, template: str, filey: File
 ) -> None:
     async with assert_template_string(
         template=template,
         data={
             "filey": filey,
-            "job_context": Context(cache=MemoryCache(manager=multiprocessing_manager)),
+            "job_context": Context(cache=MemoryCache()),
         },
     ) as (actual, project):
         assert actual == expected
