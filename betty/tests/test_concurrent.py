@@ -1,11 +1,10 @@
 import asyncio
-import multiprocessing
 import pickle
 import threading
 import time
 from asyncio import create_task, gather, sleep, wait_for
-from multiprocessing.managers import SyncManager
-from typing import TypeVar, cast
+from collections.abc import Iterable
+from typing import TypeVar
 
 import pytest
 from typing_extensions import override
@@ -20,6 +19,7 @@ from betty.concurrent import (
     Semaphore,
     asynchronize_acquire,
 )
+from betty.multiprocessing import CONTEXT, manager
 
 _KeyT = TypeVar("_KeyT")
 
@@ -80,47 +80,43 @@ class TestSemaphore:
             await wait_for(sut.__aenter__(), 0.000000001)
 
 
-@pytest.fixture(
-    params=[
-        lambda _: threading.Lock(),
-        lambda _: threading.Semaphore(),
-        lambda multiprocessing_manager: multiprocessing_manager.Lock(),
-        lambda multiprocessing_manager: multiprocessing_manager.Semaphore(),
+@pytest.fixture
+def acquirables() -> Iterable[Acquirable]:
+    return [
+        threading.Lock(),
+        threading.Semaphore(),
+        manager().Lock(),
+        manager().Semaphore(),
     ]
-)
-def acquirable(
-    multiprocessing_manager: SyncManager, request: pytest.FixtureRequest
-) -> Acquirable:
-    """
-    Produce :py:class:`betty.concurrent.Acquirable` instances.
-    """
-    return cast(Acquirable, request.param(multiprocessing_manager))
 
 
 async def test_asynchronize_acquire__should_acquire_immediately(
-    acquirable: Acquirable,
+    acquirables: Iterable[Acquirable],
 ) -> None:
-    assert await asynchronize_acquire(acquirable)
-    assert not await asynchronize_acquire(acquirable, wait=False)
-    acquirable.release()
+    for acquirable in acquirables:
+        assert await asynchronize_acquire(acquirable)
+        assert not await asynchronize_acquire(acquirable, wait=False)
+        acquirable.release()
 
 
 async def test_asynchronize_acquire__should_acquire_after_waiting(
-    acquirable: Acquirable,
+    acquirables: Iterable[Acquirable],
 ) -> None:
-    acquirable.acquire()
-    task = create_task(asynchronize_acquire(acquirable))
-    await sleep(1)
-    acquirable.release()
-    assert await task
+    for acquirable in acquirables:
+        acquirable.acquire()
+        task = create_task(asynchronize_acquire(acquirable))
+        await sleep(1)
+        acquirable.release()
+        assert await task
 
 
 async def test_asynchronize_acquire__should_not_acquire_if_not_waiting(
-    acquirable: Acquirable,
+    acquirables: Iterable[Acquirable],
 ) -> None:
-    acquirable.acquire()
-    assert not await asynchronize_acquire(acquirable, wait=False)
-    acquirable.release()
+    for acquirable in acquirables:
+        acquirable.acquire()
+        assert not await asynchronize_acquire(acquirable, wait=False)
+        acquirable.release()
 
 
 class TestAsynchronizedLock:
@@ -208,10 +204,8 @@ class TestRateLimiter:
             (1, 101),
         ],
     )
-    async def test_wait(
-        self, expected: int, iterations: int, multiprocessing_manager: SyncManager
-    ) -> None:
-        sut = RateLimiter(100, manager=multiprocessing_manager)
+    async def test_wait(self, expected: int, iterations: int) -> None:
+        sut = RateLimiter(100)
 
         async def _task() -> None:
             async with sut:
@@ -223,8 +217,8 @@ class TestRateLimiter:
         duration = end - start
         assert expected == round(duration)
 
-    async def test_is_available(self, multiprocessing_manager: SyncManager) -> None:
-        sut = RateLimiter(1, 1, manager=multiprocessing_manager)
+    async def test_is_available(self) -> None:
+        sut = RateLimiter(1, 1)
 
         await sut.wait()
         assert not await sut.is_available()
@@ -235,12 +229,10 @@ class TestRateLimiter:
     def _test_wait_concurrently_target(cls, sut: RateLimiter):
         asyncio.run(sut.wait())
 
-    async def test_wait_concurrently(
-        self, multiprocessing_manager: SyncManager
-    ) -> None:
-        sut = RateLimiter(1, 1, manager=multiprocessing_manager)
+    async def test_wait_concurrently(self) -> None:
+        sut = RateLimiter(1, 1)
 
-        process = multiprocessing.Process(
+        process = CONTEXT.Process(
             target=self._test_wait_concurrently_target, args=(sut,)
         )
         process.start()
@@ -250,44 +242,33 @@ class TestRateLimiter:
         await sleep(2)
         assert await sut.is_available()
 
-    def test_pickle(self, multiprocessing_manager: SyncManager) -> None:
-        sut = RateLimiter(1, manager=multiprocessing_manager)
+    def test_pickle(self) -> None:
+        sut = RateLimiter(1)
         pickle.loads(pickle.dumps(sut))
 
 
 class TestLedger:
-    async def test_ledger__with_wait_with_unlocked(
-        self, multiprocessing_manager: SyncManager
-    ) -> None:
+    async def test_ledger__with_wait_with_unlocked(self) -> None:
         transaction_id = "my-first-transaction-id"
         sut = Ledger(
-            AsynchronizedLock(multiprocessing_manager.Lock()),
-            manager=multiprocessing_manager,
+            AsynchronizedLock(manager().Lock()),
         )
         lock = sut.ledger(transaction_id)
         assert await lock.acquire()
         await lock.release()
 
-    async def test_ledger__without_wait_with_unlocked(
-        self, multiprocessing_manager: SyncManager
-    ) -> None:
+    async def test_ledger__without_wait_with_unlocked(self) -> None:
         transaction_id = "my-first-transaction-id"
         sut = Ledger(
-            AsynchronizedLock(multiprocessing_manager.Lock()),
-            manager=multiprocessing_manager,
+            AsynchronizedLock(manager().Lock()),
         )
         lock = sut.ledger(transaction_id)
         assert await lock.acquire(wait=False)
         await lock.release()
 
-    async def test_ledger__with_wait_with_locked(
-        self, multiprocessing_manager: SyncManager
-    ) -> None:
+    async def test_ledger__with_wait_with_locked(self) -> None:
         transaction_id = "my-first-transaction-id"
-        sut = Ledger(
-            AsynchronizedLock(multiprocessing_manager.Lock()),
-            manager=multiprocessing_manager,
-        )
+        sut = Ledger(AsynchronizedLock(manager().Lock()))
         lock = sut.ledger(transaction_id)
         await lock.acquire()
         task = create_task(lock.acquire())
@@ -295,22 +276,14 @@ class TestLedger:
         await lock.release()
         assert await task
 
-    async def test_ledger__without_wait_with_locked(
-        self, multiprocessing_manager: SyncManager
-    ) -> None:
+    async def test_ledger__without_wait_with_locked(self) -> None:
         transaction_id = "my-first-transaction-id"
-        sut = Ledger(
-            AsynchronizedLock(multiprocessing_manager.Lock()),
-            manager=multiprocessing_manager,
-        )
+        sut = Ledger(AsynchronizedLock(manager().Lock()))
         lock = sut.ledger(transaction_id)
         await lock.acquire()
         assert not await lock.acquire(wait=False)
         await lock.release()
 
-    def test_pickle(self, multiprocessing_manager: SyncManager) -> None:
-        sut = Ledger(
-            AsynchronizedLock(multiprocessing_manager.Lock()),
-            manager=multiprocessing_manager,
-        )
+    def test_pickle(self) -> None:
+        sut = Ledger(AsynchronizedLock(manager().Lock()))
         pickle.loads(pickle.dumps(sut))

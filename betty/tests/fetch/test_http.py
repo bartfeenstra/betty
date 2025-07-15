@@ -1,5 +1,4 @@
 from collections.abc import AsyncIterator
-from multiprocessing.managers import SyncManager
 
 import aiofiles
 import pytest
@@ -16,12 +15,12 @@ from betty.test_utils.user import StaticUser
 class TestHttpFetcher:
     @pytest.fixture
     async def sut(
-        self, binary_file_cache: BinaryFileCache, multiprocessing_manager: SyncManager
+        self, binary_file_cache: BinaryFileCache
     ) -> AsyncIterator[HttpFetcher]:
         async with ClientSession() as http_client:
             yield HttpFetcher(
                 http_client,
-                MemoryCache(manager=multiprocessing_manager),
+                MemoryCache(),
                 binary_file_cache,
                 user=StaticUser(),
             )
@@ -74,13 +73,12 @@ class TestHttpFetcher:
         aioresponses: aioresponses,
         binary_file_cache: BinaryFileCache,
         error: Exception,
-        multiprocessing_manager: SyncManager,
         sut: HttpFetcher,
     ) -> None:
         async with ClientSession() as http_client:
             sut = HttpFetcher(
                 http_client,
-                MemoryCache(manager=multiprocessing_manager),
+                MemoryCache(),
                 binary_file_cache,
                 # A negative TTL ensures every cache item is considered expired a long time ago.
                 -999999999,
@@ -153,13 +151,12 @@ class TestHttpFetcher:
         aioresponses: aioresponses,
         binary_file_cache: BinaryFileCache,
         error: Exception,
-        multiprocessing_manager: SyncManager,
         sut: HttpFetcher,
     ) -> None:
         async with ClientSession() as http_client:
             sut = HttpFetcher(
                 http_client,
-                MemoryCache(manager=multiprocessing_manager),
+                MemoryCache(),
                 binary_file_cache,
                 # A negative TTL ensures every cache item is considered expired a long time ago.
                 -999999999,

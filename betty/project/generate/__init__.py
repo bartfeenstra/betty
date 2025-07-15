@@ -56,7 +56,7 @@ async def generate(project: Project) -> None:
     async with project.app.user.message_progress(_("Generating site...")) as progress:
         job_context = ProjectContext(
             project,
-            cache=MemoryCache(manager=project.app.multiprocessing_manager),
+            cache=MemoryCache(),
             progress=progress,
         )
         await progress.add(3)

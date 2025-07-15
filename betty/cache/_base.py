@@ -2,7 +2,6 @@ from abc import abstractmethod
 from collections.abc import AsyncIterator, Sequence
 from contextlib import AbstractAsyncContextManager, asynccontextmanager
 from datetime import datetime
-from multiprocessing.managers import SyncManager
 from typing import (
     Any,
     Generic,
@@ -17,6 +16,7 @@ from typing_extensions import override
 
 from betty.cache import Cache, CacheItem, CacheItemValueSetter
 from betty.concurrent import AsynchronizedLock, Ledger
+from betty.multiprocessing import manager
 from betty.typing import processsafe
 
 _CacheT = TypeVar("_CacheT", bound=Cache[Any])
@@ -79,15 +79,15 @@ class _CommonCacheBase(Cache[_CacheItemValueContraT], Generic[_CacheItemValueCon
         self,
         *,
         scopes: Sequence[str] | None = None,
-        manager: SyncManager | _CommonCacheBaseState[Self],
+        state: _CommonCacheBaseState[Self] | None = None,
     ):
         self._scopes = scopes or ()
-        if isinstance(manager, _CommonCacheBaseState):
-            self._cache_lock = manager.cache_lock
-            self._cache_item_lock_ledger = manager.cache_item_lock_ledger
+        if state is not None:
+            self._cache_lock = state.cache_lock
+            self._cache_item_lock_ledger = state.cache_item_lock_ledger
         else:
-            self._cache_lock = AsynchronizedLock(manager.Lock())
-            self._cache_item_lock_ledger = Ledger(self._cache_lock, manager=manager)
+            self._cache_lock = AsynchronizedLock(manager().Lock())
+            self._cache_item_lock_ledger = Ledger(self._cache_lock)
 
     @override
     @asynccontextmanager

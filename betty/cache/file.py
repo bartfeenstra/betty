@@ -32,7 +32,6 @@ from betty.typing import processsafe
 
 if TYPE_CHECKING:
     from collections.abc import Sequence
-    from multiprocessing.managers import SyncManager
     from pathlib import Path
 
 _CacheItemValueCoT = TypeVar("_CacheItemValueCoT", covariant=True)
@@ -96,9 +95,9 @@ class _FileCache(
         cache_directory_path: Path,
         *,
         scopes: Sequence[str] | None = None,
-        manager: SyncManager | _CommonCacheBaseState[Self],
+        state: _CommonCacheBaseState[Self] | None = None,
     ):
-        super().__init__(scopes=scopes, manager=manager)
+        super().__init__(scopes=scopes, state=state)
         self._root_path = cache_directory_path
 
     @override
@@ -106,9 +105,7 @@ class _FileCache(
         return type(self)(
             self._root_path,
             scopes=(*self._scopes, scope),
-            manager=_CommonCacheBaseState(
-                self._cache_lock, self._cache_item_lock_ledger
-            ),
+            state=_CommonCacheBaseState(self._cache_lock, self._cache_item_lock_ledger),
         )
 
     def _cache_item_file_path(

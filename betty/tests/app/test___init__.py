@@ -14,8 +14,6 @@ from betty.service import StaticService
 from betty.test_utils.user import StaticUser
 
 if TYPE_CHECKING:
-    from multiprocessing.managers import SyncManager
-
     from pytest_mock import MockerFixture
 
     from betty.test_utils.conftest import NewTemporaryAppFactory
@@ -105,14 +103,10 @@ class TestApp:
             unpickled_sut = pickle.loads(pickle.dumps(app))
             await unpickled_sut.shutdown()
 
-    async def test___getstate____full(
-        self, multiprocessing_manager: SyncManager
-    ) -> None:
+    async def test___getstate____full(self) -> None:
         async with (
             App.new_temporary(
-                cache_factory=StaticService(
-                    MemoryCache(manager=multiprocessing_manager)
-                ),
+                cache_factory=StaticService(MemoryCache()),
                 user=StaticUser(),
             ) as sut,
             sut,
@@ -150,7 +144,6 @@ class TestApp:
             await unpickled_sut.http_client
             await unpickled_sut.fetcher
             unpickled_sut.process_pool  # noqa B018
-            unpickled_sut.multiprocessing_manager  # noqa B018
             await unpickled_sut.spdx_license_repository
 
         await unpickled_sut.shutdown()

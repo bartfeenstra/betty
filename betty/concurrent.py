@@ -10,12 +10,12 @@ from asyncio import sleep
 from collections.abc import Hashable, MutableMapping
 from ctypes import c_longdouble
 from math import floor
-from multiprocessing.managers import SyncManager
 from types import TracebackType
 from typing import Self, TypeAlias, TypeVar, Union, final
 
 from typing_extensions import override
 
+from betty.multiprocessing import manager
 from betty.typing import processsafe
 
 _KeyT = TypeVar("_KeyT")
@@ -174,17 +174,17 @@ class RateLimiter:
     This class implements the `Token Bucket algorithm <https://en.wikipedia.org/wiki/Token_bucket>`_.
     """
 
-    def __init__(self, maximum: int, period: int = 1, *, manager: SyncManager):
-        self._lock = AsynchronizedLock(manager.Lock())
+    def __init__(self, maximum: int, period: int = 1, /):
+        self._lock = AsynchronizedLock(manager().Lock())
         self._maximum = maximum
         self._period = period
-        self._available = manager.Value(c_longdouble, maximum)
+        self._available = manager().Value(c_longdouble, maximum)
         # A Token Bucket fills as time passes. However, we want callers to be able to start
         # using the limiter immediately, so we 'preload' the first's period's tokens, and
         # set the last added time to the end of the first period. This ensures there is no
         # needless waiting if the number of tokens consumed in total is less than the limit
         # per period.
-        self._last_add = manager.Value(c_longdouble, time.monotonic() + self._period)
+        self._last_add = manager().Value(c_longdouble, time.monotonic() + self._period)
 
     def _add_tokens(self):
         now = time.monotonic()
@@ -275,9 +275,9 @@ class Ledger:
     The ledger lock is released once a transaction lock is acquired.
     """
 
-    def __init__(self, ledger_lock: Lock, *, manager: SyncManager):
+    def __init__(self, ledger_lock: Lock):
         self._ledger_lock = ledger_lock
-        self._ledger: MutableMapping[Hashable, bool] = manager.dict()
+        self._ledger: MutableMapping[Hashable, bool] = manager().dict()
 
     def ledger(self, transaction_id: Hashable) -> Lock:
         """

@@ -14,7 +14,6 @@ from betty.locale.localizer import DEFAULT_LOCALIZER, LocalizerRepository
 
 if TYPE_CHECKING:
     from collections.abc import Sequence
-    from multiprocessing.managers import SyncManager
     from pathlib import Path
 
 
@@ -327,9 +326,7 @@ class TestLocalizer:
 
 
 class TestLocalizerRepository:
-    async def test_get__with_known_translations(
-        self, multiprocessing_manager: SyncManager, tmp_path: Path
-    ) -> None:
+    async def test_get__with_known_translations(self, tmp_path: Path) -> None:
         locale = "nl-NL"
         assets_directory_path = tmp_path / "assets"
         po_file_path = assets_directory_path / "locale" / locale / "betty.po"
@@ -340,25 +337,21 @@ class TestLocalizerRepository:
         for _ in range(2):
             sut = LocalizerRepository(
                 AssetRepository(assets_directory_path),
-                BinaryFileCache(tmp_path / "cache", manager=multiprocessing_manager),
+                BinaryFileCache(tmp_path / "cache"),
             )
             actual = (await sut.get(locale))._("Subject")
             assert actual == "Onderwerp"
 
-    async def test_get__with_unknown_translations(
-        self, multiprocessing_manager: SyncManager, tmp_path: Path
-    ) -> None:
+    async def test_get__with_unknown_translations(self, tmp_path: Path) -> None:
         locale = "nl-NL"
         sut = LocalizerRepository(
             AssetRepository(tmp_path / "assets"),
-            BinaryFileCache(tmp_path / "cache", manager=multiprocessing_manager),
+            BinaryFileCache(tmp_path / "cache"),
         )
         actual = (await sut.get(locale))._("Subject")
         assert actual == "Subject"
 
-    async def test_localizers(
-        self, multiprocessing_manager: SyncManager, tmp_path: Path
-    ) -> None:
+    async def test_localizers(self, tmp_path: Path) -> None:
         locale = "nl-NL"
         assets_directory_path = tmp_path / "assets"
         po_file_path = assets_directory_path / "locale" / locale / "betty.po"
@@ -369,14 +362,12 @@ class TestLocalizerRepository:
         for _ in range(2):
             sut = LocalizerRepository(
                 AssetRepository(assets_directory_path),
-                BinaryFileCache(tmp_path / "cache", manager=multiprocessing_manager),
+                BinaryFileCache(tmp_path / "cache"),
             )
             localizers = await sut.localizers
             assert locale in (localizer.locale for localizer in localizers)
 
-    async def test_coverage__with_default_locale(
-        self, multiprocessing_manager: SyncManager, tmp_path: Path
-    ) -> None:
+    async def test_coverage__with_default_locale(self, tmp_path: Path) -> None:
         assets_directory_path = tmp_path / "assets"
         pot_file_path = assets_directory_path / "locale" / "betty.pot"
         pot_file_path.parent.mkdir(parents=True)
@@ -384,15 +375,13 @@ class TestLocalizerRepository:
             await f.write(_DUMMY_POT)
         sut = LocalizerRepository(
             AssetRepository(assets_directory_path),
-            BinaryFileCache(tmp_path / "cache", manager=multiprocessing_manager),
+            BinaryFileCache(tmp_path / "cache"),
         )
         translated_count, translatable_count = await sut.coverage(DEFAULT_LOCALE)
         assert translatable_count == 1
         assert translated_count == translatable_count
 
-    async def test_coverage__with_untranslated_locale(
-        self, multiprocessing_manager: SyncManager, tmp_path: Path
-    ) -> None:
+    async def test_coverage__with_untranslated_locale(self, tmp_path: Path) -> None:
         locale = "nl-NL"
         assets_directory_path = tmp_path / "assets"
         pot_file_path = assets_directory_path / "locale" / "betty.pot"
@@ -401,15 +390,13 @@ class TestLocalizerRepository:
             await f.write(_DUMMY_POT)
         sut = LocalizerRepository(
             AssetRepository(assets_directory_path),
-            BinaryFileCache(tmp_path / "cache", manager=multiprocessing_manager),
+            BinaryFileCache(tmp_path / "cache"),
         )
         translated_count, translatable_count = await sut.coverage(locale)
         assert translatable_count == 1
         assert translated_count == 0
 
-    async def test_coverage__with_translated_locale(
-        self, multiprocessing_manager: SyncManager, tmp_path: Path
-    ) -> None:
+    async def test_coverage__with_translated_locale(self, tmp_path: Path) -> None:
         locale = "nl-NL"
         assets_directory_path = tmp_path / "assets"
         pot_file_path = assets_directory_path / "locale" / "betty.pot"
@@ -422,42 +409,36 @@ class TestLocalizerRepository:
             await f.write(_DUMMY_PO)
         sut = LocalizerRepository(
             AssetRepository(assets_directory_path),
-            BinaryFileCache(tmp_path / "cache", manager=multiprocessing_manager),
+            BinaryFileCache(tmp_path / "cache"),
         )
         translated_count, translatable_count = await sut.coverage(locale)
         assert translatable_count == 1
         assert translated_count == 1
 
     async def test_get_negotiated__without_preferred_locales(
-        self, multiprocessing_manager: SyncManager, tmp_path: Path
+        self, tmp_path: Path
     ) -> None:
         sut = LocalizerRepository(
             AssetRepository(),
-            BinaryFileCache(tmp_path / "cache", manager=multiprocessing_manager),
+            BinaryFileCache(tmp_path / "cache"),
         )
         assert (await sut.get_negotiated()).locale == DEFAULT_LOCALE
 
-    async def test_locales__without_assets_directories(
-        self, multiprocessing_manager: SyncManager, tmp_path: Path
-    ) -> None:
+    async def test_locales__without_assets_directories(self, tmp_path: Path) -> None:
         sut = LocalizerRepository(
             AssetRepository(),
-            BinaryFileCache(tmp_path / "cache", manager=multiprocessing_manager),
+            BinaryFileCache(tmp_path / "cache"),
         )
         assert set(sut.locales) == {DEFAULT_LOCALE}
 
-    async def test_locales__with_empty_assets_directory(
-        self, multiprocessing_manager: SyncManager, tmp_path: Path
-    ) -> None:
+    async def test_locales__with_empty_assets_directory(self, tmp_path: Path) -> None:
         sut = LocalizerRepository(
             AssetRepository(tmp_path / "assets"),
-            BinaryFileCache(tmp_path / "cache", manager=multiprocessing_manager),
+            BinaryFileCache(tmp_path / "cache"),
         )
         assert set(sut.locales) == {DEFAULT_LOCALE}
 
-    async def test_locales__with_available_translation(
-        self, multiprocessing_manager: SyncManager, tmp_path: Path
-    ) -> None:
+    async def test_locales__with_available_translation(self, tmp_path: Path) -> None:
         locale = "nl-NL"
         assets_directory_path = tmp_path / "assets"
         lc_messages_directory_path = assets_directory_path / "locale" / locale
@@ -467,6 +448,6 @@ class TestLocalizerRepository:
 
         sut = LocalizerRepository(
             AssetRepository(assets_directory_path),
-            BinaryFileCache(tmp_path / "cache", manager=multiprocessing_manager),
+            BinaryFileCache(tmp_path / "cache"),
         )
         assert set(sut.locales) == {DEFAULT_LOCALE, locale}

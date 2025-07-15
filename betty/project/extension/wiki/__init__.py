@@ -95,9 +95,7 @@ class Wiki(
         """
         The Wikipedia API rate limiter.
         """
-        return RateLimiter(
-            RATE_LIMIT, manager=self._project.app.multiprocessing_manager
-        )
+        return RateLimiter(RATE_LIMIT)
 
     @service
     async def client(self) -> Client:

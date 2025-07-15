@@ -4,7 +4,6 @@ Provide caching that stores cache items in volatile memory.
 
 from __future__ import annotations
 
-import multiprocessing
 from collections.abc import MutableMapping, Sequence
 from typing import TYPE_CHECKING, Generic, Self, TypeAlias, TypeVar, final
 
@@ -12,11 +11,10 @@ from typing_extensions import override
 
 from betty.cache import CacheItem
 from betty.cache._base import _CommonCacheBase, _CommonCacheBaseState, _StaticCacheItem
+from betty.multiprocessing import manager
 from betty.typing import processsafe
 
 if TYPE_CHECKING:
-    from multiprocessing.managers import SyncManager
-
     from betty.concurrent import AsynchronizedLock, Ledger
 
 _CacheItemValueContraT = TypeVar("_CacheItemValueContraT", contravariant=True)
@@ -51,23 +49,25 @@ class MemoryCache(
     Provide a cache that stores cache items in volatile memory.
     """
 
+    _store: _MemoryCacheStore[_CacheItemValueContraT]
+
     def __init__(
         self,
         *,
         scopes: Sequence[str] | None = None,
-        manager: SyncManager | _MemoryCacheState[_CacheItemValueContraT],
+        state: _MemoryCacheState[_CacheItemValueContraT] | None = None,
     ):
-        super().__init__(scopes=scopes, manager=manager)
-        if isinstance(manager, _MemoryCacheState):
-            self._store = manager.store
+        super().__init__(scopes=scopes, state=state)
+        if state is None:
+            self._store = manager().dict()
         else:
-            self._store = multiprocessing.Manager().dict()
+            self._store = state.store
 
     @override
     def with_scope(self, scope: str) -> Self:
         return type(self)(
             scopes=(*self._scopes, scope),
-            manager=_MemoryCacheState[_CacheItemValueContraT](
+            state=_MemoryCacheState[_CacheItemValueContraT](
                 self._cache_lock, self._cache_item_lock_ledger, self._store
             ),
         )

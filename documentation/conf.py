@@ -2,7 +2,6 @@
 Provide Sphinx configuration.
 """
 
-import multiprocessing
 import sys
 from asyncio import run
 from pathlib import Path
@@ -17,15 +16,12 @@ from betty.locale.localizer import LocalizerRepository
 betty_replacements: dict[str, str] = {}
 
 assets = AssetRepository(betty.ASSETS_DIRECTORY_PATH)
-with multiprocessing.Manager() as manager:
-    localizers = LocalizerRepository(
-        assets, BinaryFileCache(CACHE_DIRECTORY_PATH, manager=manager)
+localizers = LocalizerRepository(assets, BinaryFileCache(CACHE_DIRECTORY_PATH))
+for locale in localizers.locales:
+    coverage = run(localizers.coverage(locale))
+    betty_replacements[f"translation-coverage-{locale}"] = str(
+        int(round(100 / (coverage[1] / coverage[0]) if coverage[0] else 0))
     )
-    for locale in localizers.locales:
-        coverage = run(localizers.coverage(locale))
-        betty_replacements[f"translation-coverage-{locale}"] = str(
-            int(round(100 / (coverage[1] / coverage[0]) if coverage[0] else 0))
-        )
 
 sys.path.insert(0, str(Path(betty.__file__).parent.parent))
 project = "Betty"

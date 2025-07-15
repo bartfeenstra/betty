@@ -24,8 +24,6 @@ from betty.wiki.copyright_notice import WikipediaContributors
 from betty.wiki.populator import Populator
 
 if TYPE_CHECKING:
-    from multiprocessing.managers import SyncManager
-
     from pytest_mock import MockerFixture
 
 
@@ -33,7 +31,6 @@ class TestPopulator:
     async def test_populate_link__should_convert_http_to_https(
         self,
         mocker: MockerFixture,
-        multiprocessing_manager: SyncManager,
         tmp_path: Path,
     ) -> None:
         m_client = mocker.patch("betty.wiki.client.Client")
@@ -44,7 +41,7 @@ class TestPopulator:
             [],
             LocalizerRepository(
                 AssetRepository(tmp_path / "assets"),
-                BinaryFileCache(tmp_path / "cache", manager=multiprocessing_manager),
+                BinaryFileCache(tmp_path / "cache"),
             ),
             m_client,
             WikipediaContributors({}),
@@ -65,7 +62,6 @@ class TestPopulator:
         expected: MediaType,
         media_type: MediaType | None,
         mocker: MockerFixture,
-        multiprocessing_manager: SyncManager,
         tmp_path: Path,
     ) -> None:
         m_client = mocker.patch("betty.wiki.client.Client")
@@ -78,7 +74,7 @@ class TestPopulator:
             [],
             LocalizerRepository(
                 AssetRepository(tmp_path / "assets"),
-                BinaryFileCache(tmp_path / "cache", manager=multiprocessing_manager),
+                BinaryFileCache(tmp_path / "cache"),
             ),
             m_client,
             WikipediaContributors({}),
@@ -99,7 +95,6 @@ class TestPopulator:
         expected: str,
         relationship: str | None,
         mocker: MockerFixture,
-        multiprocessing_manager: SyncManager,
         tmp_path: Path,
     ) -> None:
         m_client = mocker.patch("betty.wiki.client.Client")
@@ -110,7 +105,7 @@ class TestPopulator:
             [],
             LocalizerRepository(
                 AssetRepository(tmp_path / "assets"),
-                BinaryFileCache(tmp_path / "cache", manager=multiprocessing_manager),
+                BinaryFileCache(tmp_path / "cache"),
             ),
             m_client,
             WikipediaContributors({}),
@@ -132,7 +127,6 @@ class TestPopulator:
         page_language: str,
         original_link_locale: str,
         mocker: MockerFixture,
-        multiprocessing_manager: SyncManager,
         tmp_path: Path,
     ) -> None:
         m_client = mocker.patch("betty.wiki.client.Client")
@@ -143,7 +137,7 @@ class TestPopulator:
             [],
             LocalizerRepository(
                 AssetRepository(tmp_path / "assets"),
-                BinaryFileCache(tmp_path / "cache", manager=multiprocessing_manager),
+                BinaryFileCache(tmp_path / "cache"),
             ),
             m_client,
             WikipediaContributors({}),
@@ -163,7 +157,6 @@ class TestPopulator:
         expected: str,
         description: str | None,
         mocker: MockerFixture,
-        multiprocessing_manager: SyncManager,
         tmp_path: Path,
     ) -> None:
         m_client = mocker.patch("betty.wiki.client.Client")
@@ -177,7 +170,7 @@ class TestPopulator:
             [],
             LocalizerRepository(
                 AssetRepository(tmp_path / "assets"),
-                BinaryFileCache(tmp_path / "cache", manager=multiprocessing_manager),
+                BinaryFileCache(tmp_path / "cache"),
             ),
             m_client,
             WikipediaContributors({}),
@@ -198,7 +191,6 @@ class TestPopulator:
         expected: str,
         label: str | None,
         mocker: MockerFixture,
-        multiprocessing_manager: SyncManager,
         tmp_path: Path,
     ) -> None:
         m_client = mocker.patch("betty.wiki.client.Client")
@@ -216,7 +208,7 @@ class TestPopulator:
             [],
             LocalizerRepository(
                 AssetRepository(tmp_path / "assets"),
-                BinaryFileCache(tmp_path / "cache", manager=multiprocessing_manager),
+                BinaryFileCache(tmp_path / "cache"),
             ),
             m_client,
             WikipediaContributors({}),
@@ -227,7 +219,6 @@ class TestPopulator:
     async def test_populate__should_ignore_resource_without_link_support(
         self,
         mocker: MockerFixture,
-        multiprocessing_manager: SyncManager,
         tmp_path: Path,
     ) -> None:
         m_client = mocker.patch("betty.wiki.client.Client")
@@ -243,7 +234,7 @@ class TestPopulator:
             [],
             LocalizerRepository(
                 AssetRepository(tmp_path / "assets"),
-                BinaryFileCache(tmp_path / "cache", manager=multiprocessing_manager),
+                BinaryFileCache(tmp_path / "cache"),
             ),
             m_client,
             WikipediaContributors({}),
@@ -253,7 +244,6 @@ class TestPopulator:
     async def test_populate__should_ignore_resource_without_links(
         self,
         mocker: MockerFixture,
-        multiprocessing_manager: SyncManager,
         tmp_path: Path,
     ) -> None:
         m_client = mocker.patch("betty.wiki.client.Client")
@@ -268,7 +258,7 @@ class TestPopulator:
             [],
             LocalizerRepository(
                 AssetRepository(tmp_path / "assets"),
-                BinaryFileCache(tmp_path / "cache", manager=multiprocessing_manager),
+                BinaryFileCache(tmp_path / "cache"),
             ),
             m_client,
             WikipediaContributors({}),
@@ -279,7 +269,6 @@ class TestPopulator:
     async def test_populate__should_ignore_non_wikipedia_links(
         self,
         mocker: MockerFixture,
-        multiprocessing_manager: SyncManager,
         tmp_path: Path,
     ) -> None:
         m_client = mocker.patch("betty.wiki.client.Client")
@@ -296,7 +285,7 @@ class TestPopulator:
             [],
             LocalizerRepository(
                 AssetRepository(tmp_path / "assets"),
-                BinaryFileCache(tmp_path / "cache", manager=multiprocessing_manager),
+                BinaryFileCache(tmp_path / "cache"),
             ),
             m_client,
             WikipediaContributors({}),
@@ -307,7 +296,6 @@ class TestPopulator:
     async def test_populate__should_populate_existing_link(
         self,
         mocker: MockerFixture,
-        multiprocessing_manager: SyncManager,
         tmp_path: Path,
     ) -> None:
         m_client = mocker.patch(
@@ -334,7 +322,7 @@ class TestPopulator:
             [],
             LocalizerRepository(
                 AssetRepository(tmp_path / "assets"),
-                BinaryFileCache(tmp_path / "cache", manager=multiprocessing_manager),
+                BinaryFileCache(tmp_path / "cache"),
             ),
             m_client,
             WikipediaContributors({}),
@@ -351,7 +339,6 @@ class TestPopulator:
     async def test_populate__should_add_translation_links(
         self,
         mocker: MockerFixture,
-        multiprocessing_manager: SyncManager,
         tmp_path: Path,
     ) -> None:
         m_client = mocker.patch(
@@ -392,7 +379,7 @@ class TestPopulator:
             ["en-US", "nl-NL"],
             LocalizerRepository(
                 AssetRepository(tmp_path / "assets"),
-                BinaryFileCache(tmp_path / "cache", manager=multiprocessing_manager),
+                BinaryFileCache(tmp_path / "cache"),
             ),
             m_client,
             WikipediaContributors({}),
@@ -417,7 +404,6 @@ class TestPopulator:
     async def test_populate_place__should_add_coordinates(
         self,
         mocker: MockerFixture,
-        multiprocessing_manager: SyncManager,
         tmp_path: Path,
     ) -> None:
         m_client = mocker.patch(
@@ -441,7 +427,7 @@ class TestPopulator:
             [],
             LocalizerRepository(
                 AssetRepository(tmp_path / "assets"),
-                BinaryFileCache(tmp_path / "cache", manager=multiprocessing_manager),
+                BinaryFileCache(tmp_path / "cache"),
             ),
             m_client,
             WikipediaContributors({}),
@@ -453,7 +439,6 @@ class TestPopulator:
     async def test_populate_has_links(
         self,
         mocker: MockerFixture,
-        multiprocessing_manager: SyncManager,
         tmp_path: Path,
     ) -> None:
         m_client = mocker.patch(
@@ -481,7 +466,7 @@ class TestPopulator:
             [],
             LocalizerRepository(
                 AssetRepository(tmp_path / "assets"),
-                BinaryFileCache(tmp_path / "cache", manager=multiprocessing_manager),
+                BinaryFileCache(tmp_path / "cache"),
             ),
             m_client,
             WikipediaContributors({}),
