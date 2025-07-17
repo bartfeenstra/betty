@@ -31,7 +31,7 @@ class AssetRepository:
         """
         self._assets_directory_paths = assets_directory_paths
         self.__assets: Mapping[Path, Path] | None = None
-        self._lock = AsynchronizedLock.new_threadsafe()
+        self._lock = AsynchronizedLock.new_processsafe()
 
     async def _assets(self) -> Mapping[Path, Path]:
         if self.__assets is None:

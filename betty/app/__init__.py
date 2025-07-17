@@ -163,6 +163,9 @@ class App(Configurable[AppConfiguration], TargetFactory, ServiceProvider):
         """
         return AssetRepository(betty.ASSETS_DIRECTORY_PATH)
 
+    # @todo We don't want to pickle this, but we do want to preload so it's available synchronously
+    # @todo Will we need a dedicated `preload` option for that after all?
+    # @todo
     @async_service(shared=True)
     async def translations(self) -> TranslationRepository:
         """

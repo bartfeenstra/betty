@@ -533,6 +533,32 @@ def async_service(
     pass
 
 
+# @todo SHARE implies PRELOAD
+# @todo - share=False,preload=False
+# @todo - share=False,preload=True
+# @todo - share=True,preload=True
+# @todo
+# @todo
+# @todo
+
+
+@overload
+def async_service(
+    factory: Callable[[_ServiceProviderT], Awaitable[_ServiceT]],
+    *,
+    shared: Literal[False] = False,
+    preload: bool = False
+) -> _AsynchronousFactoryAsynchronousGetterServiceManager[_ServiceProviderT, _ServiceT]:
+    pass
+
+
+
+
+
+
+
+
+
 @overload
 def async_service(
     factory: None = None, *, shared: Literal[True]

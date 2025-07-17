@@ -101,6 +101,13 @@ class AsynchronizedLock(Lock):
         """
         return cls(threading.Lock())
 
+    @classmethod
+    def new_processsafe(cls) -> Self:
+        """
+        Create a new process-safe, asynchronous lock.
+        """
+        return cls(manager().Lock())
+
 
 class Semaphore(ABC):
     """
