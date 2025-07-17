@@ -235,7 +235,7 @@ test = [
     'betty[setuptools]',
 ]
 development = [
-    'pytest-repeat ~= 0.9',
+    'pytest-repeat ~= 0.9.4',
     'betty[test]',
 ]
 ci = [
