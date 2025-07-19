@@ -34,7 +34,7 @@ dependencies = [
     'pyyaml ~= 6.0',
     'referencing ~= 0.35',
     'sphinx ~= 8.1',
-    'sphinx-design ~= 0.6',
+    'sphinx-design ~= 0.6.1',
     'typing_extensions ~= 4.12',
 ]
 classifiers = [
