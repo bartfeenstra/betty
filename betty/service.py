@@ -406,17 +406,45 @@ class ServiceManager(
         return {}
 
 
+# @todo THINK AGAIN
+# @todo
+# @todo After un pickling a ServiceProvider, any async service must either be shared or NOT preloaded
+# @todo Which, with the original 3 branches means that if preloaded then also shared for async services.
+# @todo We had already determined that if shared then also preloaded
+# @todo which leads to the conclusion that shared *IS* preloaded?
+# @todo
+# @todo
+# @todo
+# @todo
+class _AsynchronousServiceManager(
+    Generic[_ServiceProviderT, _ServiceT, _ServiceFactoryT, _ServiceGetT],
+    ServiceManager[_ServiceProviderT, _ServiceT, _ServiceFactoryT, _ServiceGetT],
+):
+    def __init__(
+        self,
+        factory: ServiceFactory[_ServiceProviderT, _ServiceFactoryT],
+        *,
+        shared: bool,
+        preload: bool | None,
+    ):
+        if preload is None:
+            preload = shared
+        if shared:
+            assert preload is not False
+        super().__init__(factory, shared=shared)
+        self._preload = preload
+
+    @property
+    def is_preloaded(self) -> bool:
+        return self._preload
+
+
 class _AsynchronousFactoryAsynchronousGetterServiceManager(
     Generic[_ServiceProviderT, _ServiceT],
-    ServiceManager[
+    _AsynchronousServiceManager[
         _ServiceProviderT, _ServiceT, Awaitable[_ServiceT], Awaitable[_ServiceT]
     ],
 ):
-    def __init__(
-        self, factory: ServiceFactory[_ServiceProviderT, Awaitable[_ServiceT]]
-    ):
-        super().__init__(factory, shared=False)
-
     def _lock(self, instance: _ServiceProviderT) -> Lock:
         lock_attr_name = f"_{self._service_attr_name}_lock"
         try:
@@ -444,12 +472,17 @@ class _AsynchronousFactoryAsynchronousGetterServiceManager(
 
 class _AsynchronousFactorySynchronousGetterServiceManager(
     Generic[_ServiceProviderT, _ServiceT],
-    ServiceManager[_ServiceProviderT, _ServiceT, Awaitable[_ServiceT], _ServiceT],
+    _AsynchronousServiceManager[
+        _ServiceProviderT, _ServiceT, Awaitable[_ServiceT], _ServiceT
+    ],
 ):
     def __init__(
-        self, factory: ServiceFactory[_ServiceProviderT, Awaitable[_ServiceT]]
+        self,
+        factory: ServiceFactory[_ServiceProviderT, _ServiceFactoryT],
+        *,
+        shared: bool,
     ):
-        super().__init__(factory, shared=True)
+        super().__init__(factory, shared=shared, preload=True)
 
     async def preload(self, instance: _ServiceProviderT) -> None:
         service = self._get_attr(instance)
@@ -520,6 +553,7 @@ def async_service(
     factory: Callable[[_ServiceProviderT], Awaitable[_ServiceT]],
     *,
     shared: Literal[True],
+    preload: Literal[True] = True,
 ) -> _AsynchronousFactorySynchronousGetterServiceManager[_ServiceProviderT, _ServiceT]:
     pass
 
@@ -529,46 +563,21 @@ def async_service(
     factory: Callable[[_ServiceProviderT], Awaitable[_ServiceT]],
     *,
     shared: Literal[False] = False,
+    preload: bool | None = None,
 ) -> _AsynchronousFactoryAsynchronousGetterServiceManager[_ServiceProviderT, _ServiceT]:
     pass
 
 
-# @todo SHARE implies PRELOAD
-# @todo - share=False,preload=False
-# @todo - share=False,preload=True
-# @todo - share=True,preload=True
-# @todo
-# @todo
-# @todo
-
-
 @overload
 def async_service(
-    factory: Callable[[_ServiceProviderT], Awaitable[_ServiceT]],
-    *,
-    shared: Literal[False] = False,
-    preload: bool = False
-) -> _AsynchronousFactoryAsynchronousGetterServiceManager[_ServiceProviderT, _ServiceT]:
-    pass
-
-
-
-
-
-
-
-
-
-@overload
-def async_service(
-    factory: None = None, *, shared: Literal[True]
+    factory: None = None, *, shared: Literal[True], preload: Literal[True] = True
 ) -> _AsynchronousFactorySynchronousGetterServiceDecorator:
     pass
 
 
 @overload
 def async_service(
-    factory: None = None, *, shared: Literal[False] = False
+    factory: None = None, *, shared: Literal[False] = False, preload: bool | None = None
 ) -> _AsynchronousFactoryAsynchronousGetterServiceDecorator:
     pass
 
@@ -576,6 +585,7 @@ def async_service(
 def async_service(
     factory: Callable[[_ServiceProviderT], Awaitable[_ServiceT]] | None = None,
     shared: bool = False,
+    preload: bool | None = None,
 ) -> (
     _AsynchronousFactorySynchronousGetterServiceDecorator
     | _AsynchronousFactoryAsynchronousGetterServiceDecorator
@@ -591,6 +601,7 @@ def async_service(
     The decorated factory method must return a new service instance.
     """
     if shared:
+        assert preload is not False
 
         def _synchronous_getter_service(
             factory: Callable[[_ServiceProviderT], Awaitable[_ServiceT]],
@@ -604,7 +615,9 @@ def async_service(
     def _asynchronous_getter_service(
         factory: Callable[[_ServiceProviderT], Awaitable[_ServiceT]],
     ) -> _AsynchronousFactoryAsynchronousGetterServiceManager[Any, Any]:
-        return _AsynchronousFactoryAsynchronousGetterServiceManager(factory)
+        return _AsynchronousFactoryAsynchronousGetterServiceManager(
+            factory, preload=preload
+        )
 
     if factory is None:
         return _asynchronous_getter_service  # type: ignore[return-value]
