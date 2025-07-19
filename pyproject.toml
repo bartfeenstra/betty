@@ -210,7 +210,7 @@ setuptools = [
     'wheel ~= 0.45.1',
 ]
 test = [
-    'aioresponses ~= 0.7',
+    'aioresponses ~= 0.7.8',
     'basedmypy ~= 2.6',
     'coverage ~= 7.6',
     'packaging ~= 25.0',
