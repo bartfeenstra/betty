@@ -207,7 +207,7 @@ betty = 'betty.console:main_standalone'
 setuptools = [
     'build ~= 1.2.2',
     'twine ~= 6.0',
-    'wheel ~= 0.44',
+    'wheel ~= 0.45.1',
 ]
 test = [
     'aioresponses ~= 0.7',
