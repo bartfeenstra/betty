@@ -106,7 +106,7 @@ jobs:
 
       - name: Install Scoop dependencies
         if: startsWith(runner.os, 'Windows')
-        uses: MinoruSekine/setup-scoop@v4.0.1
+        uses: MinoruSekine/setup-scoop@v4
         with:
           apps: poppler
 
