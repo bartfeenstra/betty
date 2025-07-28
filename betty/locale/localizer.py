@@ -6,18 +6,12 @@ from __future__ import annotations
 
 import datetime
 import gettext
-from asyncio import gather
-from collections import defaultdict
 from contextlib import suppress
-from io import BytesIO
 from typing import TYPE_CHECKING, final
 
-import aiofiles
 from babel import dates
 from babel.dates import format_date
-from polib import pofile
 
-from betty.concurrent import AsynchronizedLock, Lock
 from betty.date import (
     Date,
     DateFormatters,
@@ -27,29 +21,21 @@ from betty.date import (
     Datey,
     IncompleteDateError,
 )
-from betty.hashid import hashid_file_meta
 from betty.locale import (
     DEFAULT_LOCALE,
     Localey,
     get_data,
-    negotiate_locale,
     to_babel_identifier,
     to_locale,
 )
-from betty.locale.babel import run_babel
 from betty.typing import threadsafe
 
 if TYPE_CHECKING:
     from collections.abc import (
-        AsyncIterator,
-        Iterable,
-        Mapping,
         MutableMapping,
     )
-    from pathlib import Path
 
-    from betty.assets import AssetRepository
-    from betty.cache.file import BinaryFileCache
+    from betty.locale.translation import TranslationRepository
 
 
 @final
@@ -295,132 +281,17 @@ class LocalizerRepository:
     Exposes the available localizers.
     """
 
-    def __init__(self, assets: AssetRepository, cache: BinaryFileCache):
-        self._assets = assets
-        self._cache = cache
+    def __init__(self, translations: TranslationRepository):
+        self._translations = translations
         self._localizers: MutableMapping[str, Localizer] = {}
-        self._locks: Mapping[str, Lock] = defaultdict(AsynchronizedLock.new_threadsafe)
-        self._locales: set[str] | None = None
 
-    @property
-    def locales(self) -> Iterable[str]:
-        """
-        The available locales.
-        """
-        if self._locales is None:
-            self._locales = set()
-            self._locales.add(DEFAULT_LOCALE)
-            for assets_directory_path in reversed(self._assets.assets_directory_paths):
-                for po_file_path in assets_directory_path.glob("locale/*/betty.po"):
-                    self._locales.add(po_file_path.parent.name)
-        yield from self._locales
-
-    @property
-    async def localizers(self) -> Iterable[Localizer]:
-        """
-        The available localizers.
-        """
-        return await gather(*[self.get(locale) for locale in self.locales])
-
-    async def get(self, locale: Localey) -> Localizer:
+    def get(self, locale: Localey) -> Localizer:
         """
         Get the localizer for the given locale.
         """
         locale = to_locale(locale)
-        async with self._locks[locale]:
-            try:
-                return self._localizers[locale]
-            except KeyError:
-                return await self._build_translation(locale)
-
-    async def get_negotiated(self, *preferred_locales: Localey) -> Localizer:
-        """
-        Get the best matching available locale for the given preferred locales.
-        """
-        preferred_locales = (*list(map(to_locale, preferred_locales)), DEFAULT_LOCALE)
-        negotiated_locale = negotiate_locale(preferred_locales, list(self.locales))
-        return await self.get(negotiated_locale or DEFAULT_LOCALE)
-
-    async def _build_translation(self, locale: str) -> Localizer:
-        translations = gettext.NullTranslations()
-        for assets_directory_path in reversed(self._assets.assets_directory_paths):
-            opened_translations = await self._open_translations(
-                locale, assets_directory_path
-            )
-            if opened_translations:
-                opened_translations.add_fallback(translations)
-                translations = opened_translations
-        self._localizers[locale] = Localizer(locale, translations)
-        return self._localizers[locale]
-
-    async def _open_translations(
-        self, locale: str, assets_directory_path: Path
-    ) -> gettext.GNUTranslations | None:
-        po_file_path = assets_directory_path / "locale" / locale / "betty.po"
         try:
-            translation_version = await hashid_file_meta(po_file_path)
-        except FileNotFoundError:
-            return None
-        cache_directory_path = self._cache.path / "locale" / translation_version
-        mo_file_path = cache_directory_path / "betty.mo"
-
-        with suppress(FileNotFoundError):
-            async with aiofiles.open(mo_file_path, "rb") as f:
-                return gettext.GNUTranslations(BytesIO(await f.read()))
-
-        cache_directory_path.mkdir(exist_ok=True, parents=True)
-
-        await run_babel(
-            "",
-            "compile",
-            "-i",
-            str(po_file_path),
-            "-o",
-            str(mo_file_path),
-            "-l",
-            str(get_data(locale)),
-            "-D",
-            "betty",
-        )
-        async with aiofiles.open(mo_file_path, "rb") as f:
-            return gettext.GNUTranslations(BytesIO(await f.read()))
-
-    async def coverage(self, locale: Localey) -> tuple[int, int]:
-        """
-        Get the translation coverage for the given locale.
-
-        :return: A 2-tuple of the number of available translations and the
-            number of translatable source strings.
-        """
-        translatables = {
-            translatable async for translatable in self._get_translatables()
-        }
-        locale = to_locale(locale)
-        if locale == DEFAULT_LOCALE:
-            return len(translatables), len(translatables)
-        translations = {
-            translation async for translation in self._get_translations(locale)
-        }
-        return len(translations), len(translatables)
-
-    async def _get_translatables(self) -> AsyncIterator[str]:
-        for assets_directory_path in self._assets.assets_directory_paths:
-            with suppress(FileNotFoundError):
-                async with aiofiles.open(
-                    assets_directory_path / "locale" / "betty.pot"
-                ) as pot_data_f:
-                    pot_data = await pot_data_f.read()
-                    for entry in pofile(pot_data):
-                        yield entry.msgid_with_context
-
-    async def _get_translations(self, locale: str) -> AsyncIterator[str]:
-        for assets_directory_path in reversed(self._assets.assets_directory_paths):
-            with suppress(FileNotFoundError):
-                async with aiofiles.open(
-                    assets_directory_path / "locale" / locale / "betty.po",
-                    encoding="utf-8",
-                ) as po_data_f:
-                    po_data = await po_data_f.read()
-                for entry in pofile(po_data):
-                    if entry.translated():
-                        yield entry.msgid_with_context
+            return self._localizers[locale]
+        except KeyError:
+            self._localizers[locale] = Localizer(locale, self._translations.get(locale))
+            return self._localizers[locale]

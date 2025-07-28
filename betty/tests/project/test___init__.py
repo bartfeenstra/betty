@@ -256,7 +256,7 @@ class TestProject:
     async def test_localizers(self, new_temporary_app: App) -> None:
         async with Project.new_temporary(new_temporary_app) as sut, sut:
             localizers = await sut.localizers
-            assert len(list(localizers.locales)) > 0
+            assert localizers is await sut.localizers
 
     async def test_name__with_configuration_name(self, new_temporary_app: App) -> None:
         name = "hello-world"

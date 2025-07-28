@@ -42,6 +42,7 @@ from betty.json.schema import JsonSchemaReference, Schema
 from betty.license import License
 from betty.locale.localizable import _
 from betty.locale.localizer import LocalizerRepository
+from betty.locale.translation import TranslationRepository
 from betty.model import Entity, ToManySchema
 from betty.plugin import resolve_identifier, sort_dependent_plugin_graph
 from betty.plugin.proxy import ProxyPluginRepository
@@ -195,11 +196,22 @@ class Project(Configurable[ProjectConfiguration], TargetFactory, ServiceProvider
         return AssetRepository(*asset_paths)
 
     @service
+    async def translations(self) -> TranslationRepository:
+        """
+        The available translations.
+        """
+        translations = TranslationRepository(
+            await self.assets, self.app.binary_file_cache
+        )
+        await translations.bootstrap()
+        return translations
+
+    @service
     async def localizers(self) -> LocalizerRepository:
         """
         The available localizers.
         """
-        return LocalizerRepository(await self.assets, self.app.binary_file_cache)
+        return LocalizerRepository(await self.translations)
 
     @service
     async def url_generator(self) -> UrlGenerator:

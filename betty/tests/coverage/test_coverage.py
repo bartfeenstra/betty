@@ -245,13 +245,20 @@ _BASELINE: Mapping[str, _ModuleIgnore] = {
     "betty/locale/babel.py": {
         "run_babel": MissingReason.SHOULD_BE_COVERED,
     },
-    "betty/locale/translation.py": {
+    "betty/locale/translation/__init__.py": {
         "find_source_files": MissingReason.SHOULD_BE_COVERED,
         "new_dev_translation": MissingReason.SHOULD_BE_COVERED,
-        "new_project_translation": MissingReason.SHOULD_BE_COVERED,
-        "new_extension_translation": MissingReason.SHOULD_BE_COVERED,
+        "TranslationRepository": {
+            "bootstrap": MissingReason.COVERED_ELSEWHERE,
+        },
         "update_dev_translations": MissingReason.SHOULD_BE_COVERED,
+    },
+    "betty/locale/translation/project/__init__.py": {
+        "new_project_translation": MissingReason.SHOULD_BE_COVERED,
         "update_project_translations": MissingReason.SHOULD_BE_COVERED,
+    },
+    "betty/locale/translation/project/extension.py": {
+        "new_extension_translation": MissingReason.SHOULD_BE_COVERED,
         "update_extension_translations": MissingReason.SHOULD_BE_COVERED,
     },
     "betty/locale/localizable/__init__.py": {

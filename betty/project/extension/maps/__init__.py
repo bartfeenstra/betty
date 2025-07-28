@@ -43,6 +43,7 @@ async def _generate_place_preview_for_locale(
         job_context = event.job_context
         project = job_context.project
         app = project.app
+        localizers = await app.localizers
         jinja2_environment = await project.jinja2_environment
         place_path = (
             project.configuration.localize_www_directory_path(locale)
@@ -53,7 +54,7 @@ async def _generate_place_preview_for_locale(
             "maps/selected-place-preview.html.j2",
         ).render_async(
             job_context=job_context,
-            localizer=await app.localizers.get(locale),
+            localizer=localizers.get(locale),
             place=place,
         )
         async with create_file(place_path / "-maps-place-preview.html") as f:

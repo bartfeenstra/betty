@@ -14,7 +14,6 @@ from betty.console.assertion import assertion_to_argument_type
 from betty.console.command import Command, CommandFunction
 from betty.locale import translation
 from betty.locale.localizable import _
-from betty.locale.translation import assert_extension_has_assets_directory_path
 from betty.plugin import ShorthandPluginBase
 
 from betty.project import extension
@@ -52,7 +51,7 @@ class ExtensionUpdateTranslations(ShorthandPluginBase, AppDependentFactory, Comm
         parser.add_argument(
             "extension",
             type=assertion_to_argument_type(
-                lambda extension_id: assert_extension_has_assets_directory_path(
+                lambda extension_id: translation.project.extension.assert_extension_has_assets_directory_path(
                     extension_id_to_type_mapping.get(extension_id)
                 ),
                 localizer=localizer,
@@ -76,6 +75,6 @@ class ExtensionUpdateTranslations(ShorthandPluginBase, AppDependentFactory, Comm
     async def _command_function(
         self, extension: type[Extension], source: Path, exclude: tuple[Path] | None
     ) -> None:
-        await translation.update_extension_translations(
+        await translation.project.extension.update_extension_translations(
             extension, source, None if exclude is None else set(exclude)
         )

@@ -206,11 +206,12 @@ async def _generate_localized_public_asset(
     )
     await makedirs(file_destination_path.parent, exist_ok=True)
     await to_thread(shutil.copy2, await assets.get(asset_path), file_destination_path)
+    localizers = await project.localizers
     renderer = await project.renderer
     await renderer.render_file(
         file_destination_path,
         job_context=job_context,
-        localizer=await project.app.localizers.get(locale),
+        localizer=localizers.get(locale),
     )
 
 
@@ -315,7 +316,7 @@ async def _generate_entity_type_list_html(
     entity_type: type[Entity],
 ) -> None:
     project = job_context.project
-    app = project.app
+    localizers = await project.localizers
     jinja2_environment = await project.jinja2_environment
     entity_type_path = (
         project.configuration.localize_www_directory_path(locale)
@@ -329,7 +330,7 @@ async def _generate_entity_type_list_html(
     )
     rendered_html = await template.render_async(
         job_context=job_context,
-        localizer=await app.localizers.get(locale),
+        localizer=localizers.get(locale),
         page_resource=entity_type,
         entity_type=entity_type,
         entities=project.ancestry[entity_type],
@@ -374,7 +375,7 @@ async def _generate_entity_html(
     entity_id: str,
 ) -> None:
     project = job_context.project
-    app = project.app
+    localizers = await project.localizers
     jinja2_environment = await project.jinja2_environment
     entity = project.ancestry[entity_type][entity_id]
     entity_path = (
@@ -389,7 +390,7 @@ async def _generate_entity_html(
         ]
     ).render_async(
         job_context=job_context,
-        localizer=await app.localizers.get(locale),
+        localizer=localizers.get(locale),
         page_resource=entity,
         entity_type=type(entity),
         entity=entity,

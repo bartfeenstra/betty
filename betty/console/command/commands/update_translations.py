@@ -67,7 +67,7 @@ class UpdateTranslations(ShorthandPluginBase, AppDependentFactory, Command):
         self, project: Project, source: Path | None, exclude: tuple[Path] | None
     ) -> None:
         async with project:
-            await translation.update_project_translations(
+            await translation.project.update_project_translations(
                 project.configuration.project_directory_path,
                 source,
                 None if exclude is None else set(exclude),

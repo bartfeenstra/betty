@@ -53,6 +53,6 @@ class NewTranslation(ShorthandPluginBase, AppDependentFactory, Command):
 
     async def _command_function(self, project: Project, locale: str) -> None:
         async with project:
-            await translation.new_project_translation(
+            await translation.project.new_project_translation(
                 locale, project, user=self._app.user
             )

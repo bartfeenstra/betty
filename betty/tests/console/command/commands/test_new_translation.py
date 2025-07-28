@@ -27,7 +27,7 @@ class TestNewTranslation(CommandTestBase):
             )
             locale = "nl-NL"
             m_new_translation = mocker.patch(
-                "betty.locale.translation.new_project_translation"
+                "betty.locale.translation.project.new_project_translation"
             )
             await run(
                 new_temporary_app,

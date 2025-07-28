@@ -28,6 +28,7 @@ from betty.license import LICENSE_REPOSITORY, License
 from betty.license.licenses import SpdxLicenseRepository
 from betty.locale import DEFAULT_LOCALE
 from betty.locale.localizer import Localizer, LocalizerRepository
+from betty.locale.translation import TranslationRepository
 from betty.multiprocessing import ProcessPoolExecutor
 from betty.plugin.proxy import ProxyPluginRepository
 from betty.service import ServiceFactory, ServiceProvider, StaticService, service
@@ -153,20 +154,27 @@ class App(Configurable[AppConfiguration], TargetFactory, ServiceProvider):
         return AssetRepository(betty.ASSETS_DIRECTORY_PATH)
 
     @service
+    async def translations(self) -> TranslationRepository:
+        """
+        The available translations.
+        """
+        translations = TranslationRepository(self.assets, self.binary_file_cache)
+        await translations.bootstrap()
+        return translations
+
+    @service
     async def localizer(self) -> Localizer:
         """
         Get the application's user-facing localizer.
         """
-        return await self.localizers.get_negotiated(
-            self.configuration.locale or DEFAULT_LOCALE
-        )
+        return (await self.localizers).get(self.configuration.locale or DEFAULT_LOCALE)
 
     @service
-    def localizers(self) -> LocalizerRepository:
+    async def localizers(self) -> LocalizerRepository:
         """
         The available localizers.
         """
-        return LocalizerRepository(self.assets, self.binary_file_cache)
+        return LocalizerRepository(await self.translations)
 
     @service
     async def http_client(self) -> aiohttp.ClientSession:
