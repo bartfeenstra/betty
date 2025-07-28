@@ -109,9 +109,7 @@ class TestIndex:
             project.ancestry.add(person)
             async with project:
                 localizers = await project.localizers
-                actual = await Index(
-                    project, Context(), await localizers.get(locale)
-                ).build()
+                actual = await Index(project, Context(), localizers.get(locale)).build()
 
                 assert actual[0].text == {"p1", "jane"}
                 assert expected in actual[0].result
@@ -149,7 +147,7 @@ class TestIndex:
                 actual = await Index(
                     project,
                     Context(),
-                    await localizers.get(locale),
+                    localizers.get(locale),
                 ).build()
 
                 assert actual[0].text == {"p1", "doughnut"}
@@ -187,9 +185,7 @@ class TestIndex:
             project.ancestry.add(person)
             async with project:
                 localizers = await project.localizers
-                actual = await Index(
-                    project, Context(), await localizers.get(locale)
-                ).build()
+                actual = await Index(project, Context(), localizers.get(locale)).build()
 
                 assert actual[0].text == {"p1", "jane", "doughnut"}
                 assert expected in actual[0].result
@@ -238,7 +234,7 @@ class TestIndex:
                 actual = await Index(
                     project,
                     Context(),
-                    await localizers.get(locale),
+                    localizers.get(locale),
                 ).build()
 
                 assert actual[0].text == expected_text
@@ -350,7 +346,7 @@ class TestIndex:
                 actual = await Index(
                     project,
                     Context(),
-                    await localizers.get(locale),
+                    localizers.get(locale),
                 ).build()
 
                 assert actual[0].text == expected_text

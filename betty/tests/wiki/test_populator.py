@@ -17,6 +17,7 @@ from betty.cache.file import BinaryFileCache
 from betty.locale import UNDETERMINED_LOCALE
 from betty.locale.localizable import plain
 from betty.locale.localizer import DEFAULT_LOCALIZER, LocalizerRepository
+from betty.locale.translation import TranslationRepository
 from betty.media_type import MediaType
 from betty.media_type.media_types import HTML, PLAIN_TEXT
 from betty.wiki.client import Client, Image, Summary
@@ -40,8 +41,10 @@ class TestPopulator:
             await Ancestry.new(),
             [],
             LocalizerRepository(
-                AssetRepository(tmp_path / "assets"),
-                BinaryFileCache(tmp_path / "cache"),
+                TranslationRepository(
+                    AssetRepository(tmp_path / "assets"),
+                    BinaryFileCache(tmp_path / "cache"),
+                )
             ),
             m_client,
             WikipediaContributors({}),
@@ -73,8 +76,10 @@ class TestPopulator:
             await Ancestry.new(),
             [],
             LocalizerRepository(
-                AssetRepository(tmp_path / "assets"),
-                BinaryFileCache(tmp_path / "cache"),
+                TranslationRepository(
+                    AssetRepository(tmp_path / "assets"),
+                    BinaryFileCache(tmp_path / "cache"),
+                )
             ),
             m_client,
             WikipediaContributors({}),
@@ -104,8 +109,10 @@ class TestPopulator:
             await Ancestry.new(),
             [],
             LocalizerRepository(
-                AssetRepository(tmp_path / "assets"),
-                BinaryFileCache(tmp_path / "cache"),
+                TranslationRepository(
+                    AssetRepository(tmp_path / "assets"),
+                    BinaryFileCache(tmp_path / "cache"),
+                )
             ),
             m_client,
             WikipediaContributors({}),
@@ -136,8 +143,10 @@ class TestPopulator:
             await Ancestry.new(),
             [],
             LocalizerRepository(
-                AssetRepository(tmp_path / "assets"),
-                BinaryFileCache(tmp_path / "cache"),
+                TranslationRepository(
+                    AssetRepository(tmp_path / "assets"),
+                    BinaryFileCache(tmp_path / "cache"),
+                )
             ),
             m_client,
             WikipediaContributors({}),
@@ -169,8 +178,10 @@ class TestPopulator:
             await Ancestry.new(),
             [],
             LocalizerRepository(
-                AssetRepository(tmp_path / "assets"),
-                BinaryFileCache(tmp_path / "cache"),
+                TranslationRepository(
+                    AssetRepository(tmp_path / "assets"),
+                    BinaryFileCache(tmp_path / "cache"),
+                )
             ),
             m_client,
             WikipediaContributors({}),
@@ -207,8 +218,10 @@ class TestPopulator:
             await Ancestry.new(),
             [],
             LocalizerRepository(
-                AssetRepository(tmp_path / "assets"),
-                BinaryFileCache(tmp_path / "cache"),
+                TranslationRepository(
+                    AssetRepository(tmp_path / "assets"),
+                    BinaryFileCache(tmp_path / "cache"),
+                )
             ),
             m_client,
             WikipediaContributors({}),
@@ -233,8 +246,10 @@ class TestPopulator:
             ancestry,
             [],
             LocalizerRepository(
-                AssetRepository(tmp_path / "assets"),
-                BinaryFileCache(tmp_path / "cache"),
+                TranslationRepository(
+                    AssetRepository(tmp_path / "assets"),
+                    BinaryFileCache(tmp_path / "cache"),
+                )
             ),
             m_client,
             WikipediaContributors({}),
@@ -257,8 +272,10 @@ class TestPopulator:
             ancestry,
             [],
             LocalizerRepository(
-                AssetRepository(tmp_path / "assets"),
-                BinaryFileCache(tmp_path / "cache"),
+                TranslationRepository(
+                    AssetRepository(tmp_path / "assets"),
+                    BinaryFileCache(tmp_path / "cache"),
+                )
             ),
             m_client,
             WikipediaContributors({}),
@@ -284,8 +301,10 @@ class TestPopulator:
             ancestry,
             [],
             LocalizerRepository(
-                AssetRepository(tmp_path / "assets"),
-                BinaryFileCache(tmp_path / "cache"),
+                TranslationRepository(
+                    AssetRepository(tmp_path / "assets"),
+                    BinaryFileCache(tmp_path / "cache"),
+                )
             ),
             m_client,
             WikipediaContributors({}),
@@ -321,8 +340,10 @@ class TestPopulator:
             ancestry,
             [],
             LocalizerRepository(
-                AssetRepository(tmp_path / "assets"),
-                BinaryFileCache(tmp_path / "cache"),
+                TranslationRepository(
+                    AssetRepository(tmp_path / "assets"),
+                    BinaryFileCache(tmp_path / "cache"),
+                )
             ),
             m_client,
             WikipediaContributors({}),
@@ -378,8 +399,10 @@ class TestPopulator:
             ancestry,
             ["en-US", "nl-NL"],
             LocalizerRepository(
-                AssetRepository(tmp_path / "assets"),
-                BinaryFileCache(tmp_path / "cache"),
+                TranslationRepository(
+                    AssetRepository(tmp_path / "assets"),
+                    BinaryFileCache(tmp_path / "cache"),
+                )
             ),
             m_client,
             WikipediaContributors({}),
@@ -426,8 +449,10 @@ class TestPopulator:
             ancestry,
             [],
             LocalizerRepository(
-                AssetRepository(tmp_path / "assets"),
-                BinaryFileCache(tmp_path / "cache"),
+                TranslationRepository(
+                    AssetRepository(tmp_path / "assets"),
+                    BinaryFileCache(tmp_path / "cache"),
+                )
             ),
             m_client,
             WikipediaContributors({}),
@@ -465,8 +490,10 @@ class TestPopulator:
             ancestry,
             [],
             LocalizerRepository(
-                AssetRepository(tmp_path / "assets"),
-                BinaryFileCache(tmp_path / "cache"),
+                TranslationRepository(
+                    AssetRepository(tmp_path / "assets"),
+                    BinaryFileCache(tmp_path / "cache"),
+                )
             ),
             m_client,
             WikipediaContributors({}),

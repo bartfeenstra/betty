@@ -408,8 +408,7 @@ class StaticTranslationsLocalizable(
         """
         localizers = await project.localizers
         return await StaticTranslationsLocalizable.from_localizable(
-            other,
-            [await localizers.get(locale) for locale in project.configuration.locales],
+            other, [localizers.get(locale) for locale in project.configuration.locales]
         ).dump_linked_data(project)
 
 

@@ -12,13 +12,16 @@ from betty.assets import AssetRepository
 from betty.cache.file import BinaryFileCache
 from betty.dirs import CACHE_DIRECTORY_PATH
 from betty.locale.localizer import LocalizerRepository
+from betty.locale.translation import TranslationRepository
 
 betty_replacements: dict[str, str] = {}
 
 assets = AssetRepository(betty.ASSETS_DIRECTORY_PATH)
-localizers = LocalizerRepository(assets, BinaryFileCache(CACHE_DIRECTORY_PATH))
-for locale in localizers.locales:
-    coverage = run(localizers.coverage(locale))
+translations = TranslationRepository(assets, BinaryFileCache(CACHE_DIRECTORY_PATH))
+run(translations.bootstrap())
+localizers = LocalizerRepository(translations)
+for locale in translations.locales:
+    coverage = run(translations.coverage(locale))
     betty_replacements[f"translation-coverage-{locale}"] = str(
         int(round(100 / (coverage[1] / coverage[0]) if coverage[0] else 0))
     )

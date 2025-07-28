@@ -50,10 +50,11 @@ class Config(ShorthandPluginBase, AppDependentFactory, Command):
         return self._command_function
 
     async def _command_function(self, *, locale: str) -> None:
+        localizers = await self._app.localizers
         updated_configuration = AppConfiguration()
         updated_configuration.update(self._app.configuration)
         updated_configuration.locale = locale
-        self._app.user.localizer = await self._app.localizers.get(locale)
+        self._app.user.localizer = localizers.get(locale)
         await self._app.user.message_information(
             _("Betty will talk to you in {locale}").format(
                 locale=str(get_display_name(locale))

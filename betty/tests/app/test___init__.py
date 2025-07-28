@@ -9,7 +9,6 @@ from typing_extensions import override
 from betty.app import App
 from betty.app.factory import AppDependentFactory
 from betty.cache.memory import MemoryCache
-from betty.locale import DEFAULT_LOCALE
 from betty.service import StaticService
 from betty.test_utils.user import StaticUser
 
@@ -60,9 +59,8 @@ class TestApp:
         assert await new_temporary_app.localizer is await new_temporary_app.localizer
 
     async def test_localizers(self, new_temporary_app: App) -> None:
-        localizer = new_temporary_app.localizers
-        assert localizer is new_temporary_app.localizers
-        assert (await localizer.get(DEFAULT_LOCALE)).locale == DEFAULT_LOCALE
+        localizers = await new_temporary_app.localizers
+        assert localizers is await new_temporary_app.localizers
 
     async def test_process_pool(self, new_temporary_app: App) -> None:
         assert new_temporary_app.process_pool is new_temporary_app.process_pool
@@ -140,7 +138,7 @@ class TestApp:
             # Test that other services can be requested.
             unpickled_sut.assets  # noqa B018
             await unpickled_sut.localizer
-            unpickled_sut.localizers  # noqa B018
+            await unpickled_sut.localizers
             await unpickled_sut.http_client
             await unpickled_sut.fetcher
             unpickled_sut.process_pool  # noqa B018

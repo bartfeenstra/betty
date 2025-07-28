@@ -37,6 +37,8 @@ async def new(app: App) -> None:
     """
     Create a new project.
     """
+    localizers = await app.localizers
+
     extensions = (
         Deriver,
         HttpApiDoc,
@@ -95,7 +97,7 @@ async def new(app: App) -> None:
         default=str(
             machinify(
                 configuration.title.localize(
-                    await app.localizers.get(configuration.locales.default.locale)
+                    localizers.get(configuration.locales.default.locale)
                 )
             )
         ),

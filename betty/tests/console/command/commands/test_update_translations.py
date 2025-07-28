@@ -23,7 +23,7 @@ class TestUpdateTranslations(CommandTestBase):
         self, mocker: MockerFixture, new_temporary_app: App
     ) -> None:
         m_update_project_translations = mocker.patch(
-            "betty.locale.translation.update_project_translations"
+            "betty.locale.translation.project.update_project_translations"
         )
         async with Project.new_temporary(new_temporary_app) as project, project:
             await write_configuration_file(
@@ -43,7 +43,7 @@ class TestUpdateTranslations(CommandTestBase):
         source = tmp_path / "source"
         source.mkdir()
         m_update_project_translations = mocker.patch(
-            "betty.locale.translation.update_project_translations"
+            "betty.locale.translation.project.update_project_translations"
         )
         async with Project.new_temporary(new_temporary_app) as project, project:
             await write_configuration_file(
@@ -68,7 +68,7 @@ class TestUpdateTranslations(CommandTestBase):
         for exclude in excludes:
             exclude.mkdir()
         m_update_project_translations = mocker.patch(
-            "betty.locale.translation.update_project_translations"
+            "betty.locale.translation.project.update_project_translations"
         )
         async with Project.new_temporary(new_temporary_app) as project, project:
             await write_configuration_file(

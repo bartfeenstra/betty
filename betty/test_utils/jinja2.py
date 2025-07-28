@@ -42,13 +42,14 @@ async def _assert_template(
         Project.new_temporary(app) as project,
     ):
         project.configuration.debug = True
-        if data is None:
-            data = {}
-        if locale is not None:
-            data["localizer"] = await app.localizers.get(locale)
         if extensions is not None:
             project.configuration.extensions.enable(*extensions)
         async with project:
+            localizers = await project.localizers
+            if data is None:
+                data = {}
+            if locale is not None:
+                data["localizer"] = localizers.get(locale)
             jinja2_environment = await project.jinja2_environment
             if autoescape is not None:
                 jinja2_environment.autoescape = autoescape
