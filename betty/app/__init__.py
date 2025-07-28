@@ -61,6 +61,7 @@ class App(Configurable[AppConfiguration], TargetFactory, ServiceProvider):
         cache_factory: ServiceFactory[Self, Cache[Any]],
         fetcher: Fetcher | None = None,
         process_pool: futures.ProcessPoolExecutor | None = None,
+        translations: TranslationRepository | None = None,
     ):
         from betty.console.user import ConsoleUser
 
@@ -71,6 +72,8 @@ class App(Configurable[AppConfiguration], TargetFactory, ServiceProvider):
             cls.fetcher.override(self, fetcher)
         if process_pool is not None:
             cls.process_pool.override(self, process_pool)
+        if translations is not None:
+            cls.translations.override(self, translations)
         self._cache_directory_path = cache_directory_path
         cls.cache.override_factory(self, cache_factory)
 
@@ -109,6 +112,7 @@ class App(Configurable[AppConfiguration], TargetFactory, ServiceProvider):
         fetcher: Fetcher | None = None,
         process_pool: futures.ProcessPoolExecutor | None = None,
         user: User | None = None,
+        translations: TranslationRepository | None | False = False,
     ) -> AsyncIterator[Self]:
         """
         Create a new, temporary, isolated application.
@@ -119,13 +123,19 @@ class App(Configurable[AppConfiguration], TargetFactory, ServiceProvider):
         async with (
             TemporaryDirectory() as cache_directory_path_str,
         ):
+            cache_directory_path = Path(cache_directory_path_str)
             yield cls(
                 AppConfiguration(),
-                Path(cache_directory_path_str),
+                cache_directory_path,
                 cache_factory=cache_factory or StaticService(NoOpCache()),
                 fetcher=fetcher or StaticFetcher(),
                 process_pool=process_pool,
                 user=user,
+                translations=TranslationRepository(
+                    AssetRepository(), BinaryFileCache(cache_directory_path)
+                )
+                if translations is False
+                else translations,
             )
 
     @override
