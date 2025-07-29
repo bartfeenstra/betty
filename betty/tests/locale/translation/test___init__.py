@@ -1,15 +1,24 @@
 from __future__ import annotations
 
+import gettext
 from typing import TYPE_CHECKING
 
 import aiofiles
+import pytest
 from typing_extensions import override
 
 from betty import ASSETS_DIRECTORY_PATH
-from betty.assets import AssetRepository
+from betty.assets import StaticAssetRepository
 from betty.cache.file import BinaryFileCache
 from betty.locale import DEFAULT_LOCALE
-from betty.locale.translation import TranslationRepository, update_dev_translations
+from betty.locale.error import UnknownLocale
+from betty.locale.translation import (
+    AssetTranslationRepository,
+    NoOpTranslationRepository,
+    ProxyTranslationRepository,
+    StaticTranslationRepository,
+    update_dev_translations,
+)
 from betty.test_utils.locale import PotFileTestBase
 
 if TYPE_CHECKING:
@@ -85,7 +94,7 @@ class TestPotFile(PotFileTestBase):
         )
 
 
-class TestTranslationRepository:
+class TestAssetTranslationRepository:
     async def test_get__with_known_translations(self, tmp_path: Path) -> None:
         locale = "nl-NL"
         assets_directory_path = tmp_path / "assets"
@@ -95,8 +104,8 @@ class TestTranslationRepository:
             await f.write(_DUMMY_PO)
         # Do this multiple times so we hit the file caches.
         for _ in range(2):
-            sut = TranslationRepository(
-                AssetRepository(assets_directory_path),
+            sut = AssetTranslationRepository(
+                StaticAssetRepository(assets_directory_path),
                 BinaryFileCache(tmp_path / "cache"),
             )
             await sut.bootstrap()
@@ -106,8 +115,8 @@ class TestTranslationRepository:
 
     async def test_get__with_unknown_translations(self, tmp_path: Path) -> None:
         locale = "nl-NL"
-        sut = TranslationRepository(
-            AssetRepository(tmp_path / "assets"),
+        sut = AssetTranslationRepository(
+            StaticAssetRepository(tmp_path / "assets"),
             BinaryFileCache(tmp_path / "cache"),
         )
         await sut.bootstrap()
@@ -120,8 +129,8 @@ class TestTranslationRepository:
         pot_file_path.parent.mkdir(parents=True)
         async with aiofiles.open(pot_file_path, "w") as f:
             await f.write(_DUMMY_POT)
-        sut = TranslationRepository(
-            AssetRepository(assets_directory_path),
+        sut = AssetTranslationRepository(
+            StaticAssetRepository(assets_directory_path),
             BinaryFileCache(tmp_path / "cache"),
         )
         await sut.bootstrap()
@@ -136,8 +145,8 @@ class TestTranslationRepository:
         pot_file_path.parent.mkdir(parents=True)
         async with aiofiles.open(pot_file_path, "w") as f:
             await f.write(_DUMMY_POT)
-        sut = TranslationRepository(
-            AssetRepository(assets_directory_path),
+        sut = AssetTranslationRepository(
+            StaticAssetRepository(assets_directory_path),
             BinaryFileCache(tmp_path / "cache"),
         )
         await sut.bootstrap()
@@ -156,8 +165,8 @@ class TestTranslationRepository:
         po_file_path.parent.mkdir(parents=True)
         async with aiofiles.open(po_file_path, "w") as f:
             await f.write(_DUMMY_PO)
-        sut = TranslationRepository(
-            AssetRepository(assets_directory_path),
+        sut = AssetTranslationRepository(
+            StaticAssetRepository(assets_directory_path),
             BinaryFileCache(tmp_path / "cache"),
         )
         await sut.bootstrap()
@@ -166,16 +175,16 @@ class TestTranslationRepository:
         assert translated_count == 1
 
     async def test_locales__without_assets_directories(self, tmp_path: Path) -> None:
-        sut = TranslationRepository(
-            AssetRepository(),
+        sut = AssetTranslationRepository(
+            StaticAssetRepository(),
             BinaryFileCache(tmp_path / "cache"),
         )
         await sut.bootstrap()
         assert set(sut.locales) == {DEFAULT_LOCALE}
 
     async def test_locales__with_empty_assets_directory(self, tmp_path: Path) -> None:
-        sut = TranslationRepository(
-            AssetRepository(tmp_path / "assets"),
+        sut = AssetTranslationRepository(
+            StaticAssetRepository(tmp_path / "assets"),
             BinaryFileCache(tmp_path / "cache"),
         )
         await sut.bootstrap()
@@ -189,9 +198,71 @@ class TestTranslationRepository:
         async with aiofiles.open(lc_messages_directory_path / "betty.po", "w") as f:
             await f.write(_DUMMY_PO)
 
-        sut = TranslationRepository(
-            AssetRepository(assets_directory_path),
+        sut = AssetTranslationRepository(
+            StaticAssetRepository(assets_directory_path),
             BinaryFileCache(tmp_path / "cache"),
         )
         await sut.bootstrap()
         assert set(sut.locales) == {DEFAULT_LOCALE, locale}
+
+
+class TestNoOpTranslationRepository:
+    def test_locales(self) -> None:
+        sut = NoOpTranslationRepository()
+        assert not list(sut.locales)
+
+    def test_get(self) -> None:
+        sut = NoOpTranslationRepository()
+        sut.get("nl-NL")
+
+
+class TestStaticTranslationRepository:
+    def test_locales(self) -> None:
+        locale = "nl-NL"
+        sut = StaticTranslationRepository({locale: gettext.NullTranslations()})
+        assert list(sut.locales) == [locale]
+
+    def test_get(self) -> None:
+        translation = gettext.NullTranslations()
+        locale = "nl-NL"
+        sut = StaticTranslationRepository({locale: translation})
+        assert sut.get(locale) is translation
+
+    def test_get__with_unknown_locale(self) -> None:
+        sut = StaticTranslationRepository({})
+        with pytest.raises(UnknownLocale):
+            sut.get("nl-NL")
+
+
+class TestProxyTranslationRepository:
+    def test_locales(self) -> None:
+        locale_one = "nl-NL"
+        locale_two = "uk"
+        upstream_one = StaticTranslationRepository(
+            {locale_one: gettext.NullTranslations()}
+        )
+        upstream_two = StaticTranslationRepository(
+            {locale_two: gettext.NullTranslations()}
+        )
+        sut = ProxyTranslationRepository(upstream_one, upstream_two)
+        assert list(sut.locales) == [locale_one, locale_two]
+
+    def test_locales__without_upstreams(self) -> None:
+        sut = ProxyTranslationRepository()
+        assert not list(sut.locales)
+
+    def test_get(self) -> None:
+        locale_one = "nl-NL"
+        locale_two = "uk"
+        translation_one = gettext.NullTranslations()
+        translation_two = gettext.NullTranslations()
+        upstream_one = StaticTranslationRepository({locale_one: translation_one})
+        upstream_two = StaticTranslationRepository({locale_two: translation_two})
+        sut = ProxyTranslationRepository(upstream_one, upstream_two)
+        assert sut.get(locale_one) is translation_one
+        assert sut.get(locale_two) is translation_two
+
+    def test_get__without_upstreams(self) -> None:
+        sut = ProxyTranslationRepository()
+        with pytest.raises(UnknownLocale):
+            sut.get("nl-NL")

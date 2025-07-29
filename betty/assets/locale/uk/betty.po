@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Betty 0.4\n"
 "Report-Msgid-Bugs-To: illia@maier.page\n"
-"POT-Creation-Date: 2025-06-15 18:23+0100\n"
+"POT-Creation-Date: 2025-07-30 14:40+0100\n"
 "PO-Revision-Date: 2025-05-13 17:01+0000\n"
 "Last-Translator: Максим Горпиніч <maksimgorpinic4@gmail.com>\n"
 "Language: uk\n"
@@ -232,10 +232,6 @@ msgstr "Не вдалося знайти доступний порт для пр
 #, python-brace-format
 msgid "Cannot find and import \"{plugin_id}\"."
 msgstr "Не вдалося знайти та імпортувати \"{plugin_id}\"."
-
-#, python-brace-format
-msgid "Cannot find locale {locale}."
-msgstr "Не вдалося знайти локаль {locale}."
 
 #, python-brace-format
 msgid ""
@@ -685,6 +681,10 @@ msgstr ""
 
 msgid "Locale aliases must not contain slashes."
 msgstr "Аліаси локалей не повинні містити слешів."
+
+#, python-brace-format
+msgid "Locale {locale} is not supported by your system."
+msgstr ""
 
 msgid "Locality"
 msgstr "Місцевість"
@@ -1171,6 +1171,10 @@ msgstr ""
 #, python-brace-format
 msgid "Unknown key: {unknown_key}."
 msgstr "Невідомий ключ: {unknown_key}."
+
+#, python-brace-format
+msgid "Unknown locale {locale}."
+msgstr ""
 
 msgid "Update all existing translations"
 msgstr "Оновити всі наявні переклади"

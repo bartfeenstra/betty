@@ -4,25 +4,116 @@ The Assets API.
 
 from __future__ import annotations
 
+from abc import ABC, abstractmethod
 from asyncio import to_thread
+from contextlib import suppress
 from os import walk
 from pathlib import Path
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Self
+
+from typing_extensions import override
 
 from betty.concurrent import AsynchronizedLock
 from betty.typing import threadsafe
 
 if TYPE_CHECKING:
-    from collections.abc import AsyncIterator, Mapping, Sequence
+    from collections.abc import AsyncIterable, Iterable, Mapping, Sequence
+
+
+class AssetError(Exception):
+    """
+    Raised for asset API errors.
+    """
+
+
+class UnknownAsset(AssetError):
+    """
+    Raised when a requested asset cannot be found.
+    """
+
+    @classmethod
+    def new(cls, path: Path, assets_directory_paths: Iterable[Path]) -> Self:
+        """
+        Create a new instance.
+        """
+        return cls(
+            f"Asset {path} cannot be found in any of: {', '.join(map(str, assets_directory_paths))}"
+        )
 
 
 @threadsafe
-class AssetRepository:
+class AssetRepository(ABC):
     """
     Manages a set of assets.
 
     This repository unifies several directory paths on disk, overlaying them on
     each other. Paths added later act as fallbacks, e.g. earlier paths have priority.
+    """
+
+    @property
+    @abstractmethod
+    def assets_directory_paths(self) -> Sequence[Path]:
+        """
+        The paths to the individual virtual layers.
+        """
+
+    @abstractmethod
+    def walk(self, asset_directory_path: Path | None = None) -> AsyncIterable[Path]:
+        """
+        Get virtual paths to available assets.
+
+        :param asset_directory_path: If given, only asses under the directory are returned.
+        """
+
+    @abstractmethod
+    async def get(self, path: Path) -> Path:
+        """
+        Get the path to a single asset file.
+
+        :param path: The virtual asset path.
+        :return: The path to the actual file on disk.
+        """
+
+
+class ProxyAssetRepository(AssetRepository):
+    """
+    Provides assets from upstream repositories.
+    """
+
+    def __init__(self, *upstreams: AssetRepository):
+        self._upstreams = upstreams
+
+    @override
+    @property
+    def assets_directory_paths(self) -> Sequence[Path]:
+        return [
+            path
+            for upstream in self._upstreams
+            for path in upstream.assets_directory_paths
+        ]
+
+    @override
+    async def walk(
+        self, asset_directory_path: Path | None = None
+    ) -> AsyncIterable[Path]:
+        seen = set()
+        for upstream in self._upstreams:
+            async for path in upstream.walk(asset_directory_path):
+                if path not in seen:
+                    seen.add(path)
+                    yield path
+
+    @override
+    async def get(self, path: Path) -> Path:
+        for upstream in self._upstreams:
+            with suppress(Exception):
+                return await upstream.get(path)
+        raise UnknownAsset(path, self.assets_directory_paths)
+
+
+class StaticAssetRepository(AssetRepository):
+    """
+    Manages static assets.
     """
 
     def __init__(self, *assets_directory_paths: Path):
@@ -50,21 +141,15 @@ class AssetRepository:
             for file_name in file_names
         }
 
+    @override
     @property
     def assets_directory_paths(self) -> Sequence[Path]:
-        """
-        The paths to the individual virtual layers.
-        """
         return self._assets_directory_paths
 
+    @override
     async def walk(
         self, asset_directory_path: Path | None = None
-    ) -> AsyncIterator[Path]:
-        """
-        Get virtual paths to available assets.
-
-        :param asset_directory_path: If given, only asses under the directory are returned.
-        """
+    ) -> AsyncIterable[Path]:
         asset_directory_path_str = str(asset_directory_path)
         for asset_path in await self._assets():
             if asset_directory_path is None or str(asset_path).startswith(
@@ -72,11 +157,9 @@ class AssetRepository:
             ):
                 yield asset_path
 
+    @override
     async def get(self, path: Path) -> Path:
-        """
-        Get the path to a single asset file.
-
-        :param path: The virtual asset path.
-        :return: The path to the actual file on disk.
-        """
-        return (await self._assets())[path]
+        try:
+            return (await self._assets())[path]
+        except KeyError:
+            raise UnknownAsset(path, self.assets_directory_paths) from None

@@ -12,12 +12,10 @@ from betty.ancestry.citation import Citation
 from betty.ancestry.link import Link
 from betty.ancestry.place import Place
 from betty.ancestry.source import Source
-from betty.assets import AssetRepository
-from betty.cache.file import BinaryFileCache
 from betty.locale import UNDETERMINED_LOCALE
 from betty.locale.localizable import plain
 from betty.locale.localizer import DEFAULT_LOCALIZER, LocalizerRepository
-from betty.locale.translation import TranslationRepository
+from betty.locale.translation import NoOpTranslationRepository
 from betty.media_type import MediaType
 from betty.media_type.media_types import HTML, PLAIN_TEXT
 from betty.wiki.client import Client, Image, Summary
@@ -40,12 +38,7 @@ class TestPopulator:
         sut = Populator(
             await Ancestry.new(),
             [],
-            LocalizerRepository(
-                TranslationRepository(
-                    AssetRepository(tmp_path / "assets"),
-                    BinaryFileCache(tmp_path / "cache"),
-                )
-            ),
+            LocalizerRepository(NoOpTranslationRepository()),
             m_client,
             WikipediaContributors({}),
         )
@@ -75,12 +68,7 @@ class TestPopulator:
         sut = Populator(
             await Ancestry.new(),
             [],
-            LocalizerRepository(
-                TranslationRepository(
-                    AssetRepository(tmp_path / "assets"),
-                    BinaryFileCache(tmp_path / "cache"),
-                )
-            ),
+            LocalizerRepository(NoOpTranslationRepository()),
             m_client,
             WikipediaContributors({}),
         )
@@ -108,12 +96,7 @@ class TestPopulator:
         sut = Populator(
             await Ancestry.new(),
             [],
-            LocalizerRepository(
-                TranslationRepository(
-                    AssetRepository(tmp_path / "assets"),
-                    BinaryFileCache(tmp_path / "cache"),
-                )
-            ),
+            LocalizerRepository(NoOpTranslationRepository()),
             m_client,
             WikipediaContributors({}),
         )
@@ -142,12 +125,7 @@ class TestPopulator:
         sut = Populator(
             await Ancestry.new(),
             [],
-            LocalizerRepository(
-                TranslationRepository(
-                    AssetRepository(tmp_path / "assets"),
-                    BinaryFileCache(tmp_path / "cache"),
-                )
-            ),
+            LocalizerRepository(NoOpTranslationRepository()),
             m_client,
             WikipediaContributors({}),
         )
@@ -177,12 +155,7 @@ class TestPopulator:
         sut = Populator(
             await Ancestry.new(),
             [],
-            LocalizerRepository(
-                TranslationRepository(
-                    AssetRepository(tmp_path / "assets"),
-                    BinaryFileCache(tmp_path / "cache"),
-                )
-            ),
+            LocalizerRepository(NoOpTranslationRepository()),
             m_client,
             WikipediaContributors({}),
         )
@@ -217,12 +190,7 @@ class TestPopulator:
         sut = Populator(
             await Ancestry.new(),
             [],
-            LocalizerRepository(
-                TranslationRepository(
-                    AssetRepository(tmp_path / "assets"),
-                    BinaryFileCache(tmp_path / "cache"),
-                )
-            ),
+            LocalizerRepository(NoOpTranslationRepository()),
             m_client,
             WikipediaContributors({}),
         )
@@ -245,12 +213,7 @@ class TestPopulator:
         sut = Populator(
             ancestry,
             [],
-            LocalizerRepository(
-                TranslationRepository(
-                    AssetRepository(tmp_path / "assets"),
-                    BinaryFileCache(tmp_path / "cache"),
-                )
-            ),
+            LocalizerRepository(NoOpTranslationRepository()),
             m_client,
             WikipediaContributors({}),
         )
@@ -271,12 +234,7 @@ class TestPopulator:
         sut = Populator(
             ancestry,
             [],
-            LocalizerRepository(
-                TranslationRepository(
-                    AssetRepository(tmp_path / "assets"),
-                    BinaryFileCache(tmp_path / "cache"),
-                )
-            ),
+            LocalizerRepository(NoOpTranslationRepository()),
             m_client,
             WikipediaContributors({}),
         )
@@ -300,12 +258,7 @@ class TestPopulator:
         sut = Populator(
             ancestry,
             [],
-            LocalizerRepository(
-                TranslationRepository(
-                    AssetRepository(tmp_path / "assets"),
-                    BinaryFileCache(tmp_path / "cache"),
-                )
-            ),
+            LocalizerRepository(NoOpTranslationRepository()),
             m_client,
             WikipediaContributors({}),
         )
@@ -339,12 +292,7 @@ class TestPopulator:
         sut = Populator(
             ancestry,
             [],
-            LocalizerRepository(
-                TranslationRepository(
-                    AssetRepository(tmp_path / "assets"),
-                    BinaryFileCache(tmp_path / "cache"),
-                )
-            ),
+            LocalizerRepository(NoOpTranslationRepository()),
             m_client,
             WikipediaContributors({}),
         )
@@ -398,12 +346,7 @@ class TestPopulator:
         sut = Populator(
             ancestry,
             ["en-US", "nl-NL"],
-            LocalizerRepository(
-                TranslationRepository(
-                    AssetRepository(tmp_path / "assets"),
-                    BinaryFileCache(tmp_path / "cache"),
-                )
-            ),
+            LocalizerRepository(NoOpTranslationRepository()),
             m_client,
             WikipediaContributors({}),
         )
@@ -448,12 +391,7 @@ class TestPopulator:
         sut = Populator(
             ancestry,
             [],
-            LocalizerRepository(
-                TranslationRepository(
-                    AssetRepository(tmp_path / "assets"),
-                    BinaryFileCache(tmp_path / "cache"),
-                )
-            ),
+            LocalizerRepository(NoOpTranslationRepository()),
             m_client,
             WikipediaContributors({}),
         )
@@ -489,12 +427,7 @@ class TestPopulator:
         sut = Populator(
             ancestry,
             [],
-            LocalizerRepository(
-                TranslationRepository(
-                    AssetRepository(tmp_path / "assets"),
-                    BinaryFileCache(tmp_path / "cache"),
-                )
-            ),
+            LocalizerRepository(NoOpTranslationRepository()),
             m_client,
             WikipediaContributors({}),
         )

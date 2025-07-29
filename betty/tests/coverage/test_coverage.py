@@ -73,6 +73,10 @@ _BASELINE: Mapping[str, _ModuleIgnore] = {
         }
     },
     "betty/app/factory.py": MissingReason.ABSTRACT,
+    "betty/assets.py": {
+        "AssetError": MissingReason.ABSTRACT,
+        "AssetRepository": MissingReason.ABSTRACT,
+    },
     "betty/assertion.py": {
         "Field": MissingReason.INTERNAL,
         "OptionalField": MissingReason.DATACLASS,
@@ -239,8 +243,8 @@ _BASELINE: Mapping[str, _ModuleIgnore] = {
     },
     "betty/locale/error.py": {
         "InvalidLocale": MissingReason.SHOULD_BE_COVERED,
-        "LocaleError": MissingReason.STATIC_CONTENT_ONLY,
-        "LocaleNotFound": MissingReason.SHOULD_BE_COVERED,
+        "LocaleError": MissingReason.ABSTRACT,
+        "UnsupportedLocale": MissingReason.SHOULD_BE_COVERED,
     },
     "betty/locale/babel.py": {
         "run_babel": MissingReason.SHOULD_BE_COVERED,
@@ -248,9 +252,10 @@ _BASELINE: Mapping[str, _ModuleIgnore] = {
     "betty/locale/translation/__init__.py": {
         "find_source_files": MissingReason.SHOULD_BE_COVERED,
         "new_dev_translation": MissingReason.SHOULD_BE_COVERED,
-        "TranslationRepository": {
+        "AssetTranslationRepository": {
             "bootstrap": MissingReason.COVERED_ELSEWHERE,
         },
+        "TranslationRepository": MissingReason.ABSTRACT,
         "update_dev_translations": MissingReason.SHOULD_BE_COVERED,
     },
     "betty/locale/translation/project/__init__.py": {

@@ -18,7 +18,7 @@ class LocaleError(UserFacingException, Exception):
     """
 
 
-class InvalidLocale(LocaleError, ValueError):
+class InvalidLocale(LocaleError):
     """
     Raised when a value is not a valid locale.
     """
@@ -32,9 +32,18 @@ class InvalidLocale(LocaleError, ValueError):
         self.invalid_locale = invalid_locale
 
 
-class LocaleNotFound(LocaleError, ValueError):
+class UnknownLocale(LocaleError):
     """
-    Raised when a locale could not be found.
+    Raised when a locale is unknown.
+    """
+
+    def __init__(self, locale: str):
+        super().__init__(_("Unknown locale {locale}.").format(locale=locale))
+
+
+class UnsupportedLocale(LocaleError):
+    """
+    Raised when a locale is not supported by the system.
     """
 
     def __init__(self, locale: str) -> None:
@@ -46,7 +55,9 @@ class LocaleNotFound(LocaleError, ValueError):
         )
         super().__init__(
             join(
-                _("Cannot find locale {locale}.").format(locale=locale),
+                _("Locale {locale} is not supported by your system.").format(
+                    locale=locale
+                ),
                 do_you_mean(*available_locales),
             )
         )

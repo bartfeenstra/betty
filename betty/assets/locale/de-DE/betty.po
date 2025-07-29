@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Betty VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2025-06-15 18:23+0100\n"
+"POT-Creation-Date: 2025-07-30 14:40+0100\n"
 "PO-Revision-Date: 2025-03-28 20:02+0000\n"
 "Last-Translator: Ettore Atalan <atalanttore@googlemail.com>\n"
 "Language: de_DE\n"
@@ -223,10 +223,6 @@ msgstr ""
 
 #, python-brace-format
 msgid "Cannot find and import \"{plugin_id}\"."
-msgstr ""
-
-#, python-brace-format
-msgid "Cannot find locale {locale}."
 msgstr ""
 
 #, python-brace-format
@@ -663,6 +659,10 @@ msgstr ""
 
 msgid "Locale aliases must not contain slashes."
 msgstr "Gebietsschema-Aliase dürfen keine Schrägstriche enthalten."
+
+#, python-brace-format
+msgid "Locale {locale} is not supported by your system."
+msgstr ""
 
 msgid "Locality"
 msgstr "Örtlichkeit"
@@ -1134,6 +1134,10 @@ msgstr ""
 #, python-brace-format
 msgid "Unknown key: {unknown_key}."
 msgstr "Unbekannter Schlüssel: {unknown_key}."
+
+#, python-brace-format
+msgid "Unknown locale {locale}."
+msgstr ""
 
 msgid "Update all existing translations"
 msgstr "Alle vorhandenen Übersetzungen aktualisieren"
