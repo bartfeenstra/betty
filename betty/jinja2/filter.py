@@ -117,10 +117,7 @@ _CHARACTER_ORDER_TO_HTML_LANG_MAP = {
 
 
 @pass_context
-def filter_html_lang(
-    context: Context,
-    localized: LocalizedStr | str,
-) -> str | Markup:
+def filter_html_lang(context: Context, localized: str) -> str | Markup:
     """
     Optionally add the necessary HTML to indicate the localized string has a different locale than the surrounding HTML.
     """

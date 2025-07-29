@@ -11,7 +11,7 @@ from typing_extensions import override
 
 from betty.exception import UserFacingException
 from betty.locale.localizable import Localizable, _
-from betty.locale.localized import LocalizedStr
+from betty.locale.localized import Localized, LocalizedStr
 from betty.plugin import Plugin, PluginRepository
 from betty.plugin.entry_point import EntryPointPluginRepository
 
@@ -126,7 +126,7 @@ class FormatStr(Localizable):
         self._serde_formats = serde_formats
 
     @override
-    def localize(self, localizer: Localizer) -> LocalizedStr:
+    def localize(self, localizer: Localizer) -> Localized & str:
         return LocalizedStr(
             ", ".join(
                 [
