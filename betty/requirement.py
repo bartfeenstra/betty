@@ -12,7 +12,7 @@ from typing_extensions import override
 
 from betty.exception import UserFacingException
 from betty.locale.localizable import Localizable, _
-from betty.locale.localized import LocalizedStr
+from betty.locale.localized import Localized, LocalizedStr
 
 if TYPE_CHECKING:
     from collections.abc import MutableSequence, Sequence
@@ -52,7 +52,7 @@ class Requirement(Localizable):
         return None
 
     @override
-    def localize(self, localizer: Localizer) -> LocalizedStr:
+    def localize(self, localizer: Localizer) -> Localized & str:
         super_localized = self.summary().localize(localizer)
         details = self.details()
         localized: str = super_localized
@@ -108,7 +108,7 @@ class RequirementCollection(Requirement):
         return self._requirements == other._requirements
 
     @override
-    def localize(self, localizer: Localizer) -> LocalizedStr:
+    def localize(self, localizer: Localizer) -> Localized & str:
         super_localized = super().localize(localizer)
         localized: str = super_localized
         for requirement in self._requirements:

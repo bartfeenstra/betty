@@ -16,7 +16,7 @@ from betty.json.linked_data import (
 )
 from betty.json.schema import Object
 from betty.locale import UNDETERMINED_LOCALE, negotiate_locale, to_locale
-from betty.locale.localized import LocalizedStr
+from betty.locale.localized import Localized, LocalizedStr
 from betty.locale.localizer import DEFAULT_LOCALIZER, Localizer
 from betty.mutability import Mutable
 from betty.repr import repr_instance
@@ -37,7 +37,7 @@ class Localizable(ABC):
     """
 
     @abstractmethod
-    def localize(self, localizer: Localizer) -> LocalizedStr:
+    def localize(self, localizer: Localizer) -> Localized & str:
         """
         Localize ``self`` to a human-readable string.
         """
@@ -64,7 +64,7 @@ class _CallLocalizable(Localizable):
         self._call = call
 
     @override
-    def localize(self, localizer: Localizer) -> LocalizedStr:
+    def localize(self, localizer: Localizer) -> Localized & str:
         return LocalizedStr(self._call(localizer), locale=localizer.locale)
 
 
@@ -81,7 +81,7 @@ class _JoinLocalizable(Localizable):
         self._separator = separator
 
     @override
-    def localize(self, localizer: Localizer) -> LocalizedStr:
+    def localize(self, localizer: Localizer) -> Localized & str:
         return LocalizedStr(
             self._separator.join(
                 localizable.localize(localizer) for localizable in self._localizables
@@ -124,7 +124,7 @@ class _GettextLocalizable(_FormattableLocalizable):
         self._gettext_args = gettext_args
 
     @override
-    def localize(self, localizer: Localizer) -> LocalizedStr:
+    def localize(self, localizer: Localizer) -> Localized & str:
         return LocalizedStr(
             cast(
                 "str",
@@ -210,7 +210,7 @@ class _FormattedLocalizable(Localizable):
         self._format_kwargs = format_kwargs
 
     @override
-    def localize(self, localizer: Localizer) -> LocalizedStr:
+    def localize(self, localizer: Localizer) -> Localized & str:
         return LocalizedStr(
             self._localizable.localize(localizer).format(
                 *(
@@ -248,7 +248,7 @@ class _PlainStrLocalizable(Localizable):
         self._locale = locale
 
     @override
-    def localize(self, localizer: Localizer) -> LocalizedStr:
+    def localize(self, localizer: Localizer) -> Localized & str:
         return LocalizedStr(self._string, locale=self._locale)
 
 
@@ -358,7 +358,7 @@ class StaticTranslationsLocalizable(
         return dict(self._translations)
 
     @override
-    def localize(self, localizer: Localizer) -> LocalizedStr:
+    def localize(self, localizer: Localizer) -> Localized & str:
         if len(self._translations) > 1:
             available_locales = tuple(self._translations.keys())
             requested_locale = to_locale(

@@ -13,7 +13,7 @@ from typing_extensions import override
 
 from betty.locale import UNDETERMINED_LOCALE
 from betty.locale.localizable import Localizable, _
-from betty.locale.localized import LocalizedStr
+from betty.locale.localized import Localized, LocalizedStr
 from betty.user import UserFacing
 
 if TYPE_CHECKING:
@@ -93,7 +93,7 @@ class _Contexts(Localizable):
         self.contexts: MutableSequence[UserFacingExceptionContext] = [context]
 
     @override
-    def localize(self, localizer: Localizer) -> LocalizedStr:
+    def localize(self, localizer: Localizer) -> Localized & str:
         return LocalizedStr(
             "data" + "".join(context.format() for context in self.contexts),
             locale=UNDETERMINED_LOCALE,
@@ -148,7 +148,7 @@ class UserFacingException(Exception, Localizable, UserFacing):
         return self.localize(DEFAULT_LOCALIZER)
 
     @override
-    def localize(self, localizer: Localizer) -> LocalizedStr:
+    def localize(self, localizer: Localizer) -> Localized & str:
         return LocalizedStr(
             (
                 self._localizable_message.localize(localizer)
@@ -207,7 +207,7 @@ class UserFacingExceptionGroup(UserFacingException):
         yield from self._errors
 
     @override
-    def localize(self, localizer: Localizer) -> LocalizedStr:
+    def localize(self, localizer: Localizer) -> Localized & str:
         return LocalizedStr(
             "\n\n".join(error.localize(localizer) for error in self._errors),
             locale=localizer.locale,

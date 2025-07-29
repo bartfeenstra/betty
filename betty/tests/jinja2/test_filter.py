@@ -647,7 +647,7 @@ async def test_filter_format_datey() -> None:
 async def test_filter_html_lang(
     expected: str,
     autoescape: bool,
-    localized: LocalizedStr | str,
+    localized: str,
     localizer_locale: str,
 ) -> None:
     template = "{{ localized | html_lang }}"
