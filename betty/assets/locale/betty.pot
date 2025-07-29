@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Betty VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2025-06-15 18:23+0100\n"
+"POT-Creation-Date: 2025-07-30 14:40+0100\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -200,10 +200,6 @@ msgstr ""
 
 #, python-brace-format
 msgid "Cannot find and import \"{plugin_id}\"."
-msgstr ""
-
-#, python-brace-format
-msgid "Cannot find locale {locale}."
 msgstr ""
 
 #, python-brace-format
@@ -624,6 +620,10 @@ msgid "Loading ancestry..."
 msgstr ""
 
 msgid "Locale aliases must not contain slashes."
+msgstr ""
+
+#, python-brace-format
+msgid "Locale {locale} is not supported by your system."
 msgstr ""
 
 msgid "Locality"
@@ -1077,6 +1077,10 @@ msgstr ""
 
 #, python-brace-format
 msgid "Unknown key: {unknown_key}."
+msgstr ""
+
+#, python-brace-format
+msgid "Unknown locale {locale}."
 msgstr ""
 
 msgid "Update all existing translations"

@@ -104,9 +104,9 @@ def get_data(locale: Localey) -> Locale:
 
         raise InvalidLocale(locale) from None
     except UnknownLocaleError:
-        from betty.locale.error import LocaleNotFound
+        from betty.locale.error import UnsupportedLocale
 
-        raise LocaleNotFound(locale) from None
+        raise UnsupportedLocale(locale) from None
 
 
 def get_display_name(

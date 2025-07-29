@@ -31,7 +31,7 @@ from betty.ancestry.event_type import EVENT_TYPE_REPOSITORY, EventType
 from betty.ancestry.gender import GENDER_REPOSITORY, Gender
 from betty.ancestry.place_type import PLACE_TYPE_REPOSITORY, PlaceType
 from betty.ancestry.presence_role import PRESENCE_ROLE_REPOSITORY, PresenceRole
-from betty.assets import AssetRepository
+from betty.assets import AssetRepository, ProxyAssetRepository, StaticAssetRepository
 from betty.config import Configurable
 from betty.copyright_notice import COPYRIGHT_NOTICE_REPOSITORY, CopyrightNotice
 from betty.event_dispatcher import EventDispatcher, EventHandlerRegistry
@@ -42,7 +42,11 @@ from betty.json.schema import JsonSchemaReference, Schema
 from betty.license import License
 from betty.locale.localizable import _
 from betty.locale.localizer import LocalizerRepository
-from betty.locale.translation import TranslationRepository
+from betty.locale.translation import (
+    AssetTranslationRepository,
+    ProxyTranslationRepository,
+    TranslationRepository,
+)
 from betty.model import Entity, ToManySchema
 from betty.plugin import resolve_identifier, sort_dependent_plugin_graph
 from betty.plugin.proxy import ProxyPluginRepository
@@ -181,30 +185,33 @@ class Project(Configurable[ProjectConfiguration], TargetFactory, ServiceProvider
         return self._ancestry
 
     @service
-    async def assets(self) -> AssetRepository:
-        """
-        The assets file system.
-        """
+    async def _project_assets(self) -> AssetRepository:
         asset_paths = [self.configuration.assets_directory_path]
         extensions = await self.extensions
         for project_extension in extensions.flatten():
             extension_assets_directory_path = project_extension.assets_directory_path()
             if extension_assets_directory_path is not None:
                 asset_paths.append(extension_assets_directory_path)
-        # Mimic :py:attr:`betty.app.App.assets`.
-        asset_paths.append(betty.ASSETS_DIRECTORY_PATH)
-        return AssetRepository(*asset_paths)
+        return StaticAssetRepository(*asset_paths)
+
+    @service
+    async def assets(self) -> AssetRepository:
+        """
+        The assets file system.
+        """
+        return ProxyAssetRepository(await self._project_assets, self.app.assets)
 
     @service
     async def translations(self) -> TranslationRepository:
         """
         The available translations.
         """
-        translations = TranslationRepository(
-            await self.assets, self.app.binary_file_cache
+        return ProxyTranslationRepository(
+            AssetTranslationRepository(
+                await self._project_assets, self.app.binary_file_cache
+            ),
+            await self.app.translations,
         )
-        await translations.bootstrap()
-        return translations
 
     @service
     async def localizers(self) -> LocalizerRepository:

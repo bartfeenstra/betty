@@ -8,16 +8,16 @@ from pathlib import Path
 
 import betty
 from betty import ASSETS_DIRECTORY_PATH
-from betty.assets import AssetRepository
+from betty.assets import StaticAssetRepository
 from betty.cache.file import BinaryFileCache
 from betty.dirs import CACHE_DIRECTORY_PATH
 from betty.locale.localizer import LocalizerRepository
-from betty.locale.translation import TranslationRepository
+from betty.locale.translation import AssetTranslationRepository
 
 betty_replacements: dict[str, str] = {}
 
-assets = AssetRepository(betty.ASSETS_DIRECTORY_PATH)
-translations = TranslationRepository(assets, BinaryFileCache(CACHE_DIRECTORY_PATH))
+assets = StaticAssetRepository(betty.ASSETS_DIRECTORY_PATH)
+translations = AssetTranslationRepository(assets, BinaryFileCache(CACHE_DIRECTORY_PATH))
 run(translations.bootstrap())
 localizers = LocalizerRepository(translations)
 for locale in translations.locales:

@@ -15,7 +15,7 @@ import betty
 from betty.app import config
 from betty.app.config import AppConfiguration
 from betty.app.factory import AppDependentFactory
-from betty.assets import AssetRepository
+from betty.assets import AssetRepository, StaticAssetRepository
 from betty.cache.file import BinaryFileCache, PickledFileCache
 from betty.cache.no_op import NoOpCache
 from betty.config import Configurable
@@ -28,7 +28,11 @@ from betty.license import LICENSE_REPOSITORY, License
 from betty.license.licenses import SpdxLicenseRepository
 from betty.locale import DEFAULT_LOCALE
 from betty.locale.localizer import Localizer, LocalizerRepository
-from betty.locale.translation import TranslationRepository
+from betty.locale.translation import (
+    AssetTranslationRepository,
+    NoOpTranslationRepository,
+    TranslationRepository,
+)
 from betty.multiprocessing import ProcessPoolExecutor
 from betty.plugin.proxy import ProxyPluginRepository
 from betty.service import ServiceFactory, ServiceProvider, StaticService, service
@@ -131,9 +135,7 @@ class App(Configurable[AppConfiguration], TargetFactory, ServiceProvider):
                 fetcher=fetcher or StaticFetcher(),
                 process_pool=process_pool,
                 user=user,
-                translations=TranslationRepository(
-                    AssetRepository(), BinaryFileCache(cache_directory_path)
-                )
+                translations=NoOpTranslationRepository()
                 if translations is False
                 else translations,
             )
@@ -161,14 +163,14 @@ class App(Configurable[AppConfiguration], TargetFactory, ServiceProvider):
         """
         The assets file system.
         """
-        return AssetRepository(betty.ASSETS_DIRECTORY_PATH)
+        return StaticAssetRepository(betty.ASSETS_DIRECTORY_PATH)
 
     @service
     async def translations(self) -> TranslationRepository:
         """
         The available translations.
         """
-        translations = TranslationRepository(self.assets, self.binary_file_cache)
+        translations = AssetTranslationRepository(self.assets, self.binary_file_cache)
         await translations.bootstrap()
         return translations
 

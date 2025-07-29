@@ -5,6 +5,7 @@ Manage translations of built-in translatable strings.
 from __future__ import annotations
 
 import gettext
+from abc import ABC, abstractmethod
 from contextlib import redirect_stdout, suppress
 from io import BytesIO, StringIO
 from pathlib import Path
@@ -14,16 +15,18 @@ import aiofiles
 from aiofiles.os import makedirs
 from aiofiles.ospath import exists
 from polib import pofile
+from typing_extensions import override
 
 import betty
 from betty.hashid import hashid_file_meta
 from betty.locale import DEFAULT_LOCALE, Localey, get_data, to_locale
 from betty.locale.babel import run_babel
+from betty.locale.error import UnknownLocale
 from betty.locale.localizable import _
 from betty.typing import threadsafe
 
 if TYPE_CHECKING:
-    from collections.abc import AsyncIterator, Iterable, MutableMapping
+    from collections.abc import AsyncIterator, Iterable, Mapping, MutableMapping
 
     from betty.assets import AssetRepository
     from betty.cache.file import BinaryFileCache
@@ -160,11 +163,111 @@ def find_source_files(
             yield source_file_path
 
 
+class TranslationRepository(ABC):
+    """
+    Provide translations.
+    """
+
+    @property
+    @abstractmethod
+    def locales(self) -> Iterable[str]:
+        """
+        The available locales.
+        """
+
+    @abstractmethod
+    def get(self, locale: Localey) -> gettext.NullTranslations:
+        """
+        Get the translations for the given locale.
+        """
+
+
+@final
+class NoOpTranslationRepository(TranslationRepository):
+    """
+    Provide no translations.
+    """
+
+    def __init__(self):
+        self._translations = gettext.NullTranslations()
+
+    @override
+    @property
+    def locales(self) -> Iterable[str]:
+        return ()
+
+    @override
+    def get(self, locale: Localey) -> gettext.NullTranslations:
+        return self._translations
+
+
+@final
+class StaticTranslationRepository(TranslationRepository):
+    """
+    Provide static translations.
+    """
+
+    def __init__(self, translations: Mapping[str, gettext.NullTranslations]):
+        self._translations = translations
+
+    @override
+    @property
+    def locales(self) -> Iterable[str]:
+        return self._translations.keys()
+
+    @override
+    def get(self, locale: Localey) -> gettext.NullTranslations:
+        locale = to_locale(locale)
+        try:
+            return self._translations[locale]
+        except KeyError:
+            raise UnknownLocale(locale) from None
+
+
+@final
+class ProxyTranslationRepository(TranslationRepository):
+    """
+    Provide translations from upstream repositories.
+    """
+
+    def __init__(self, *upstreams: TranslationRepository):
+        self._upstreams = upstreams
+        self._translations: MutableMapping[str, gettext.NullTranslations] = {}
+
+    @override
+    @property
+    def locales(self) -> Iterable[str]:
+        for upstream in self._upstreams:
+            yield from upstream.locales
+
+    @override
+    def get(self, locale: Localey) -> gettext.NullTranslations:
+        locale = to_locale(locale)
+        try:
+            return self._translations[locale]
+        except KeyError:
+            translations: gettext.NullTranslations | None = None
+            for upstream in self._upstreams:
+                try:
+                    upstream_translations = upstream.get(locale)
+                except UnknownLocale:
+                    pass
+                else:
+                    if translations is None:
+                        translations = upstream_translations
+                    else:
+                        translations.add_fallback(upstream_translations)
+            if translations is None:
+                raise UnknownLocale(locale) from None
+            self._translations[locale] = translations
+            return translations
+
+
 @final
 @threadsafe
-class TranslationRepository:
+class AssetTranslationRepository(TranslationRepository):
     """
-    Expose the available translations.
+    Provide translations from assets.
     """
 
     def __init__(self, assets: AssetRepository, cache: BinaryFileCache):
@@ -187,18 +290,14 @@ class TranslationRepository:
             await self._build_translation(locale)
         self._bootstrapped = True
 
+    @override
     @property
     def locales(self) -> Iterable[str]:
-        """
-        The available locales.
-        """
         assert self._bootstrapped
         return self._locales
 
+    @override
     def get(self, locale: Localey) -> gettext.NullTranslations:
-        """
-        Get the translations for the given locale.
-        """
         locale = to_locale(locale)
         try:
             return self._translations[locale]

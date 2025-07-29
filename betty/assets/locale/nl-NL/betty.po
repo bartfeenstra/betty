@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PROJECT VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2025-06-15 18:23+0100\n"
+"POT-Creation-Date: 2025-07-30 14:40+0100\n"
 "PO-Revision-Date: 2025-05-17 01:43+0000\n"
 "Last-Translator: Bart Feenstra <bart@bartfeenstra.com>\n"
 "Language: nl_NL\n"
@@ -235,10 +235,6 @@ msgstr "Kan geen beschikbare poort voor de webserver vinden."
 #, python-brace-format
 msgid "Cannot find and import \"{plugin_id}\"."
 msgstr "Kan plugin \"{plugin_id}\" niet vinden en importeren."
-
-#, python-brace-format
-msgid "Cannot find locale {locale}."
-msgstr "Kan taalregio {locale} niet vinden."
 
 #, python-brace-format
 msgid ""
@@ -690,6 +686,10 @@ msgstr ""
 
 msgid "Locale aliases must not contain slashes."
 msgstr "Taalregioaliassen mogen geen schuine streep bevatten."
+
+#, python-brace-format
+msgid "Locale {locale} is not supported by your system."
+msgstr ""
 
 msgid "Locality"
 msgstr "Plaats"
@@ -1172,6 +1172,10 @@ msgstr ""
 #, python-brace-format
 msgid "Unknown key: {unknown_key}."
 msgstr "Onbekende sleutel: {unknown_key}."
+
+#, python-brace-format
+msgid "Unknown locale {locale}."
+msgstr ""
 
 msgid "Update all existing translations"
 msgstr "Update alle bestaande vertalingen"
