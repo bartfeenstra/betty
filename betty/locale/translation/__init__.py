@@ -28,7 +28,7 @@ from betty.typing import threadsafe
 if TYPE_CHECKING:
     from collections.abc import AsyncIterator, Iterable, Mapping, MutableMapping
 
-    from betty.assets import AssetRepository
+    from betty.asset import AssetRepository
     from betty.cache.file import BinaryFileCache
     from betty.user import User
 

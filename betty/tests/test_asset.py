@@ -3,7 +3,7 @@ from pathlib import Path
 import pytest
 from aiofiles.tempfile import TemporaryDirectory
 
-from betty.assets import (
+from betty.asset import (
     AssetRepository,
     ProxyAssetRepository,
     StaticAssetRepository,
