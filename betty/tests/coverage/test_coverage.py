@@ -73,7 +73,7 @@ _BASELINE: Mapping[str, _ModuleIgnore] = {
         }
     },
     "betty/app/factory.py": MissingReason.ABSTRACT,
-    "betty/assets.py": {
+    "betty/asset.py": {
         "AssetError": MissingReason.ABSTRACT,
         "AssetRepository": MissingReason.ABSTRACT,
     },

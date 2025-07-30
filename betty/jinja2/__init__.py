@@ -49,7 +49,7 @@ if TYPE_CHECKING:
     from collections.abc import Iterator, MutableMapping, Sequence
     from pathlib import Path
 
-    from betty.assets import AssetRepository
+    from betty.asset import AssetRepository
     from betty.machine_name import MachineName
     from betty.model import Entity
     from betty.project import Project

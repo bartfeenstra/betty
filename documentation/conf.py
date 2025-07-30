@@ -8,7 +8,7 @@ from pathlib import Path
 
 import betty
 from betty import ASSETS_DIRECTORY_PATH
-from betty.assets import StaticAssetRepository
+from betty.asset import StaticAssetRepository
 from betty.cache.file import BinaryFileCache
 from betty.dirs import CACHE_DIRECTORY_PATH
 from betty.locale.localizer import LocalizerRepository

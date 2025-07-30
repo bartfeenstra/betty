@@ -31,7 +31,7 @@ from betty.ancestry.event_type import EVENT_TYPE_REPOSITORY, EventType
 from betty.ancestry.gender import GENDER_REPOSITORY, Gender
 from betty.ancestry.place_type import PLACE_TYPE_REPOSITORY, PlaceType
 from betty.ancestry.presence_role import PRESENCE_ROLE_REPOSITORY, PresenceRole
-from betty.assets import AssetRepository, ProxyAssetRepository, StaticAssetRepository
+from betty.asset import AssetRepository, ProxyAssetRepository, StaticAssetRepository
 from betty.config import Configurable
 from betty.copyright_notice import COPYRIGHT_NOTICE_REPOSITORY, CopyrightNotice
 from betty.event_dispatcher import EventDispatcher, EventHandlerRegistry

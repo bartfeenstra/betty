@@ -8,7 +8,7 @@ import pytest
 from typing_extensions import override
 
 from betty import ASSETS_DIRECTORY_PATH
-from betty.assets import StaticAssetRepository
+from betty.asset import StaticAssetRepository
 from betty.cache.file import BinaryFileCache
 from betty.locale import DEFAULT_LOCALE
 from betty.locale.error import UnknownLocale

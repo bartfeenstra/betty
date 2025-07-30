@@ -15,7 +15,7 @@ import betty
 from betty.app import config
 from betty.app.config import AppConfiguration
 from betty.app.factory import AppDependentFactory
-from betty.assets import AssetRepository, StaticAssetRepository
+from betty.asset import AssetRepository, StaticAssetRepository
 from betty.cache.file import BinaryFileCache, PickledFileCache
 from betty.cache.no_op import NoOpCache
 from betty.config import Configurable
