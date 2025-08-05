@@ -205,7 +205,7 @@ betty = 'betty.console:main_standalone'
 
 [project.optional-dependencies]
 setuptools = [
-    'build ~= 1.2.2',
+    'build >= 1.2.2,< 1.4.0',
     'twine ~= 6.0',
     'wheel ~= 0.45.1',
 ]
