@@ -2,7 +2,7 @@
   text-decoration-color: var(--betty-link-decoration-color);
   text-decoration-thickness: 2px;
 
-  &:hover {
+  &:hover {  /* stylelint-disable-line nesting-selector-no-missing-scoping-root */
     color: var(--bs-link-hover-color);
     text-decoration-color: var(--betty-link-hover-decoration-color);
   }
