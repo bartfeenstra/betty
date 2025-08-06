@@ -108,7 +108,7 @@ class Webpack(ShorthandPluginBase, Extension, CssProvider, JsProvider, Jinja2Pro
         thread.start()
         thread.join()
         return (
-            f"{self._public_css_path_prefix}/webpack-vendor.css",
+            f"{self._public_css_path_prefix}/webpack/webpack-vendor.css",
             *(
                 f"{self._public_css_path_prefix}/webpack/{entry_point.plugin_id()}.css"
                 for entry_point in entry_points

@@ -92,7 +92,7 @@ class TestBuilder:
                 await sut.build()
                 webpack_build_directory_path = await sut.build()
             assert (
-                webpack_build_directory_path / "css" / "webpack-vendor.css"
+                webpack_build_directory_path / "css" / "webpack" / "webpack-vendor.css"
             ).exists()
             assert (
                 webpack_build_directory_path / "js" / "webpack-entry-loader.js"
