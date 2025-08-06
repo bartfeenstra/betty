@@ -79,7 +79,7 @@ class Webpack(ShorthandPluginBase, Extension, CssProvider, JsProvider, Jinja2Pro
     @override
     async def get_public_css_paths(self) -> Sequence[str]:
         return (
-            "betty-static:///css/webpack-vendor.css",
+            "betty-static:///css/webpack/webpack-vendor.css",
             *(
                 f"betty-static:///css/webpack/{entry_point.plugin_id()}.css"
                 for entry_point in await self._project_entry_point_providers()
