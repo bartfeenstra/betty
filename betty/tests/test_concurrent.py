@@ -3,8 +3,10 @@ import multiprocessing
 import pickle
 import threading
 import time
-from asyncio import create_task, gather, sleep, wait_for
+from asyncio import create_task, gather, run, sleep, wait_for
+from concurrent.futures import as_completed
 from multiprocessing.managers import SyncManager
+from os import cpu_count
 from typing import TypeVar, cast
 
 import pytest
@@ -21,6 +23,7 @@ from betty.concurrent import (
     asynchronize_acquire,
     ensure_manager,
 )
+from betty.multiprocessing import ProcessPoolExecutor
 from betty.warnings import BettyDeprecationWarning
 
 _KeyT = TypeVar("_KeyT")
@@ -202,28 +205,65 @@ class TestAsynchronizedSemaphore:
 
 
 class TestRateLimiter:
+    _TEST_WAIT_PARAMETERS = [
+        (0, 100, 100),
+        # This is one higher than the rate limiter's maximum, to ensure we spend at least one full period.
+        (1, 101, 100),
+    ]
+
     @pytest.mark.parametrize(
-        ("expected", "iterations"),
-        [
-            (0, 100),
-            # This is one higher than the rate limiter's maximum, to ensure we spend at least one full period.
-            (1, 101),
-        ],
+        ("expected", "consumers", "maximum"),
+        _TEST_WAIT_PARAMETERS,
     )
     async def test_wait(
-        self, expected: int, iterations: int, multiprocessing_manager: SyncManager
+        self,
+        expected: int,
+        consumers: int,
+        maximum: int,
+        multiprocessing_manager: SyncManager,
     ) -> None:
-        sut = RateLimiter(100, manager=multiprocessing_manager)
+        sut = RateLimiter(maximum, manager=multiprocessing_manager)
 
         async def _task() -> None:
             async with sut:
                 pass
 
         start = time.time()
-        await gather(*(_task() for _ in range(iterations)))
+        await gather(*(_task() for _ in range(consumers)))
         end = time.time()
         duration = end - start
-        assert expected == round(duration)
+        assert duration >= expected
+
+    @classmethod
+    def _consume(cls, sut: RateLimiter) -> None:
+        run(cls.__consume(sut))
+
+    @classmethod
+    async def __consume(cls, sut: RateLimiter) -> None:
+        async with sut:
+            pass
+
+    @pytest.mark.parametrize(
+        ("expected", "consumers", "maximum"),
+        _TEST_WAIT_PARAMETERS,
+    )
+    async def test_wait__with_multiprocessing(
+        self,
+        expected: int,
+        consumers: int,
+        maximum: int,
+        multiprocessing_manager: SyncManager,
+    ) -> None:
+        sut = RateLimiter(maximum, manager=multiprocessing_manager)
+
+        with ProcessPoolExecutor(max_workers=cpu_count() or 2) as pool:
+            start = time.time()
+            futures = [pool.submit(self._consume, sut) for _ in range(consumers)]
+            for future in as_completed(futures):
+                future.result()
+            end = time.time()
+        duration = end - start
+        assert duration >= expected
 
     async def test_is_available(self, multiprocessing_manager: SyncManager) -> None:
         sut = RateLimiter(1, 1, manager=multiprocessing_manager)
