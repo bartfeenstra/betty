@@ -25,14 +25,12 @@ from typing_extensions import override
 from betty.importlib import import_any
 from betty.json.linked_data import LinkedDataDumpableProvider
 from betty.json.schema import Array, Null, OneOf, Schema
-from betty.model import (
-    Entity,
-    ToManySchema,
-    ToZeroOrOneSchema,
-    persistent_id,
+from betty.model import Entity, ToManySchema, ToZeroOrOneSchema, persistent_id
+from betty.model.collections import (
+    EntityCollection,
+    MultipleTypesEntityCollection,
+    SingleTypeEntityCollection,
 )
-from betty.model.collections import EntityCollection, SingleTypeEntityCollection
-from betty.typing import internal
 from betty.user import UserFacing
 
 if TYPE_CHECKING:
@@ -43,6 +41,7 @@ _T = TypeVar("_T")
 _EntityT = TypeVar("_EntityT", bound=Entity)
 _OwnerT = TypeVar("_OwnerT", bound=Entity)
 _AssociateT = TypeVar("_AssociateT", bound=Entity)
+_EntityCollectionT = TypeVar("_EntityCollectionT", bound=EntityCollection[_AssociateT])
 
 
 async def _generate_associate_url(project: Project, associate: Entity) -> str | None:
@@ -359,21 +358,20 @@ class _ToZeroOrOneAssociation(
         return await _generate_associate_url(project, associate)
 
 
-@internal
 class _ToManyAssociation(
-    Generic[_OwnerT, _AssociateT], _Association[_OwnerT, _AssociateT]
+    Generic[_OwnerT, _AssociateT, _EntityCollectionT],
+    _Association[_OwnerT, _AssociateT],
 ):
-    def _new_collection(self, instance: _OwnerT) -> EntityCollection[_AssociateT]:
-        return SingleTypeEntityCollection[_AssociateT](self.associate_type)
+    @abstractmethod
+    def _new_collection(self, instance: _OwnerT) -> _EntityCollectionT:
+        pass
 
     @overload
     def __get__(self, instance: None, owner: type[_OwnerT]) -> Self:
         pass
 
     @overload
-    def __get__(
-        self, instance: _OwnerT, owner: type[_OwnerT]
-    ) -> EntityCollection[_AssociateT]:
+    def __get__(self, instance: _OwnerT, owner: type[_OwnerT]) -> _EntityCollectionT:
         pass
 
     def __get__(self, instance: _OwnerT | None, owner: type[_OwnerT]):
@@ -387,7 +385,7 @@ class _ToManyAssociation(
             return value
         else:
             assert not isinstance(value, _Resolver)
-            return cast(EntityCollection[_AssociateT], value)
+            return cast(_EntityCollectionT, value)
 
     def __set__(self, instance: _OwnerT, value: ToManyAssociates[_AssociateT]) -> None:
         if isinstance(value, _Resolver):
@@ -494,6 +492,7 @@ class _BidirectionalAssociation(
         return association
 
 
+@final
 class BidirectionalToZeroOrOne(
     Generic[_OwnerT, _AssociateT],
     _ToZeroOrOneAssociation[_OwnerT, _AssociateT],
@@ -526,6 +525,7 @@ class BidirectionalToZeroOrOne(
                 self.inverse().associate(associate, owner)
 
 
+@final
 class BidirectionalToOne(
     Generic[_OwnerT, _AssociateT],
     _ToOneAssociation[_OwnerT, _AssociateT],
@@ -562,18 +562,40 @@ class BidirectionalToOne(
             self.inverse().associate(value, instance)
 
 
-class BidirectionalToMany(
+@final
+class BidirectionalToManySingleType(
     Generic[_OwnerT, _AssociateT],
-    _ToManyAssociation[_OwnerT, _AssociateT],
+    _ToManyAssociation[_OwnerT, _AssociateT, SingleTypeEntityCollection[_AssociateT]],
     _BidirectionalAssociation[_OwnerT, _AssociateT],
 ):
     """
-    A bidirectional *-to-many entity type association.
+    A bidirectional *-to-many entity type association where all associates are of the same entity type.
     """
 
     @override
-    def _new_collection(self, instance: _OwnerT) -> EntityCollection[_AssociateT]:
-        return _BidirectionalAssociateCollection(
+    def _new_collection(
+        self, instance: _OwnerT
+    ) -> SingleTypeEntityCollection[_AssociateT]:
+        return _BidirectionalSingleTypeAssociateCollection(instance, self)
+
+
+@final
+class BidirectionalToManyMultipleTypes(
+    Generic[_OwnerT, _AssociateT],
+    _ToManyAssociation[
+        _OwnerT, _AssociateT, MultipleTypesEntityCollection[_AssociateT]
+    ],
+    _BidirectionalAssociation[_OwnerT, _AssociateT],
+):
+    """
+    A bidirectional *-to-many entity type association where associates may be of different entity types.
+    """
+
+    @override
+    def _new_collection(
+        self, instance: _OwnerT
+    ) -> MultipleTypesEntityCollection[_AssociateT]:
+        return _BidirectionalMultipleTypesAssociateCollection(
             instance,
             self,
         )
@@ -612,12 +634,39 @@ class UnidirectionalToOne(
 
 
 @final
-class UnidirectionalToMany(
-    Generic[_OwnerT, _AssociateT], _ToManyAssociation[_OwnerT, _AssociateT]
+class UnidirectionalToManySingleType(
+    Generic[_OwnerT, _AssociateT],
+    _ToManyAssociation[_OwnerT, _AssociateT, SingleTypeEntityCollection[_AssociateT]],
 ):
     """
-    A unidirectional to-many entity type association.
+    A unidirectional to-many entity type association where all associates are of the same entity type.
     """
+
+    @override
+    def _new_collection(
+        self, instance: _OwnerT
+    ) -> SingleTypeEntityCollection[_AssociateT]:
+        return SingleTypeEntityCollection[_AssociateT](target_type=self.associate_type)
+
+
+@final
+class UnidirectionalToManyMultipleTypes(
+    Generic[_OwnerT, _AssociateT],
+    _ToManyAssociation[
+        _OwnerT, _AssociateT, MultipleTypesEntityCollection[_AssociateT]
+    ],
+):
+    """
+    A unidirectional to-many entity type association where associates may be of different entity types.
+    """
+
+    @override
+    def _new_collection(
+        self, instance: _OwnerT
+    ) -> MultipleTypesEntityCollection[_AssociateT]:
+        return MultipleTypesEntityCollection[_AssociateT](
+            target_type=self.associate_type
+        )
 
 
 @final
@@ -660,16 +709,14 @@ class AssociationRegistry:
 
 
 class _BidirectionalAssociateCollection(
-    Generic[_AssociateT, _OwnerT], SingleTypeEntityCollection[_AssociateT]
+    Generic[_AssociateT, _OwnerT], EntityCollection[_AssociateT]
 ):
-    __slots__ = "__owner", "_association"
-
     def __init__(
         self,
         owner: _OwnerT,
         association: _BidirectionalAssociation[_OwnerT, _AssociateT],
     ):
-        super().__init__(association.associate_type)
+        super().__init__(target_type=association.associate_type)
         self._association = association
         self.__owner = weakref.ref(owner)
 
@@ -692,6 +739,22 @@ class _BidirectionalAssociateCollection(
         super()._on_remove(*entities)
         for associate in entities:
             self._association.inverse().disassociate(associate, self._owner)
+
+
+class _BidirectionalSingleTypeAssociateCollection(
+    Generic[_AssociateT, _OwnerT],
+    _BidirectionalAssociateCollection[_AssociateT, _OwnerT],
+    SingleTypeEntityCollection[_AssociateT],
+):
+    pass
+
+
+class _BidirectionalMultipleTypesAssociateCollection(
+    Generic[_AssociateT, _OwnerT],
+    _BidirectionalAssociateCollection[_AssociateT, _OwnerT],
+    MultipleTypesEntityCollection[_AssociateT],
+):
+    pass
 
 
 def resolve(*entities: Entity) -> None:

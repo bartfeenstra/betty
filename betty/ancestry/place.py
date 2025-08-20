@@ -18,7 +18,7 @@ from betty.json.linked_data import JsonLdObject, dump_context
 from betty.json.schema import Array, Number, Object
 from betty.locale.localizable import Localizable, _, ngettext
 from betty.model import Entity
-from betty.model.association import BidirectionalToMany, ToManyAssociates
+from betty.model.association import BidirectionalToManySingleType, ToManyAssociates
 from betty.plugin import ShorthandPluginBase
 from betty.privacy import HasPrivacy
 from betty.user import UserFacing
@@ -59,7 +59,7 @@ class Place(
     _plugin_id = "place"
     _plugin_label = _("Place")
 
-    events = BidirectionalToMany["Place", "Event"](
+    events = BidirectionalToManySingleType["Place", "Event"](
         "betty.ancestry.place:Place",
         "events",
         "betty.ancestry.event:Event",
@@ -67,7 +67,7 @@ class Place(
         title="Events",
         description="The events that happened in this place",
     )
-    enclosers = BidirectionalToMany["Place", "Enclosure"](
+    enclosers = BidirectionalToManySingleType["Place", "Enclosure"](
         "betty.ancestry.place:Place",
         "encloser",
         "betty.ancestry.enclosure:Enclosure",
@@ -76,7 +76,7 @@ class Place(
         description="The places this place is enclosed or contained by",
         linked_data_embedded=True,
     )
-    enclosees = BidirectionalToMany["Place", "Enclosure"](
+    enclosees = BidirectionalToManySingleType["Place", "Enclosure"](
         "betty.ancestry.place:Place",
         "enclosee",
         "betty.ancestry.enclosure:Enclosure",

@@ -19,7 +19,7 @@ from betty.locale.localizable import (
     ngettext,
 )
 from betty.model.association import (
-    BidirectionalToMany,
+    BidirectionalToManyMultipleTypes,
     BidirectionalToOne,
     ToManyAssociates,
     ToOneAssociate,
@@ -54,7 +54,7 @@ class Citation(
     _plugin_id = "citation"
     _plugin_label = _("Citation")
 
-    facts = BidirectionalToMany["Citation", "HasCitations"](
+    facts = BidirectionalToManyMultipleTypes["Citation", "HasCitations"](
         "betty.ancestry.citation:Citation",
         "facts",
         "betty.ancestry.has_citations:HasCitations",

@@ -9,7 +9,8 @@ from betty.model import Entity
 from betty.model.association import (
     AssociationRegistry,
     AssociationRequired,
-    BidirectionalToMany,
+    BidirectionalToManyMultipleTypes,
+    BidirectionalToManySingleType,
     BidirectionalToOne,
     BidirectionalToZeroOrOne,
     TemporaryToManyResolver,
@@ -20,7 +21,8 @@ from betty.model.association import (
     ToOneResolver,
     ToZeroOrOneAssociate,
     ToZeroOrOneResolver,
-    UnidirectionalToMany,
+    UnidirectionalToManyMultipleTypes,
+    UnidirectionalToManySingleType,
     UnidirectionalToOne,
     UnidirectionalToZeroOrOne,
 )
@@ -780,24 +782,25 @@ class TestBidirectionalToOne:
             assert actual == expected
 
 
-class TestUnidirectionalToMany:
+class TestUnidirectionalToManySingleType:
     class _Owner(DummyEntity):
-        associates = UnidirectionalToMany[
-            "TestUnidirectionalToMany._Owner", "TestUnidirectionalToMany._Associate"
+        associates = UnidirectionalToManySingleType[
+            "TestUnidirectionalToManySingleType._Owner",
+            "TestUnidirectionalToManySingleType._Associate",
         ](
-            "betty.tests.model.test_association:TestUnidirectionalToMany._Owner",
+            "betty.tests.model.test_association:TestUnidirectionalToManySingleType._Owner",
             "associates",
-            "betty.tests.model.test_association:TestUnidirectionalToMany._Associate",
+            "betty.tests.model.test_association:TestUnidirectionalToManySingleType._Associate",
         )
 
     class _OwnerEmbedded(DummyEntity):
-        associates = UnidirectionalToMany[
-            "TestUnidirectionalToMany._OwnerEmbedded",
-            "TestUnidirectionalToMany._Associate",
+        associates = UnidirectionalToManySingleType[
+            "TestUnidirectionalToManySingleType._OwnerEmbedded",
+            "TestUnidirectionalToManySingleType._Associate",
         ](
-            "betty.tests.model.test_association:TestUnidirectionalToMany._OwnerEmbedded",
+            "betty.tests.model.test_association:TestUnidirectionalToManySingleType._OwnerEmbedded",
             "associates",
-            "betty.tests.model.test_association:TestUnidirectionalToMany._Associate",
+            "betty.tests.model.test_association:TestUnidirectionalToManySingleType._Associate",
             linked_data_embedded=True,
         )
 
@@ -881,47 +884,106 @@ class TestUnidirectionalToMany:
             assert actual == expected
 
 
-class TestBidirectionalToMany:
-    class _Owner(DummyEntity):
-        associates = BidirectionalToMany[
-            "TestBidirectionalToMany._Owner", "TestBidirectionalToMany._Associate"
+class _TestUnidirectionalToManyMultipleTypesOwner(DummyEntity):
+    pass
+
+
+class _TestUnidirectionalToManyMultipleTypesTargetMixin(Entity):
+    owner = UnidirectionalToZeroOrOne[
+        "_TestUnidirectionalToManyMultipleTypesTargetMixin",
+        _TestUnidirectionalToManyMultipleTypesOwner,
+    ](
+        f"{__name__}:_TestUnidirectionalToManyMultipleTypesTargetMixin",
+        "owner",
+        f"{__name__}:{_TestUnidirectionalToManyMultipleTypesOwner.__name__}",
+        title="Owner",
+    )
+
+
+class _TestUnidirectionalToManyMultipleTypesAssociateOne(
+    _TestUnidirectionalToManyMultipleTypesTargetMixin, DummyEntity
+):
+    pass
+
+
+class _TestUnidirectionalToManyMultipleTypesAssociateTwo(
+    _TestUnidirectionalToManyMultipleTypesTargetMixin, DummyEntity
+):
+    pass
+
+
+class _TestUnidirectionalToManyMultipleTypesAssociateUnknown(DummyEntity):
+    pass
+
+
+class TestUnidirectionalToManyMultipleTypes:
+    async def test_support_multiple_types(self) -> None:
+        sut = UnidirectionalToManyMultipleTypes[
+            _TestUnidirectionalToManyMultipleTypesOwner,
+            _TestUnidirectionalToManyMultipleTypesTargetMixin,
         ](
-            "betty.tests.model.test_association:TestBidirectionalToMany._Owner",
+            f"{_TestUnidirectionalToManyMultipleTypesOwner.__module__}:{_TestUnidirectionalToManyMultipleTypesOwner.__name__}",
             "associates",
-            "betty.tests.model.test_association:TestBidirectionalToMany._Associate",
+            f"{_TestUnidirectionalToManyMultipleTypesTargetMixin.__module__}:{_TestUnidirectionalToManyMultipleTypesTargetMixin.__name__}",
+        )
+
+        owner = _TestUnidirectionalToManyMultipleTypesOwner()
+        associates = sut.__get__(owner, type(owner))
+
+        associate_one = _TestUnidirectionalToManyMultipleTypesAssociateOne()
+        associate_two = _TestUnidirectionalToManyMultipleTypesAssociateTwo()
+        associates.add(associate_one, associate_two)
+        associates_one = associates[_TestUnidirectionalToManyMultipleTypesAssociateOne]
+        assert associate_one in associates_one
+        assert associate_two not in associates_one
+        associates_two = associates[_TestUnidirectionalToManyMultipleTypesAssociateTwo]
+        assert associate_one not in associates_two
+        assert associate_two in associates_two
+
+
+class TestBidirectionalToManySingleType:
+    class _Owner(DummyEntity):
+        associates = BidirectionalToManySingleType[
+            "TestBidirectionalToManySingleType._Owner",
+            "TestBidirectionalToManySingleType._Associate",
+        ](
+            "betty.tests.model.test_association:TestBidirectionalToManySingleType._Owner",
+            "associates",
+            "betty.tests.model.test_association:TestBidirectionalToManySingleType._Associate",
             "owner",
         )
 
     class _Associate(DummyEntity):
         owner = BidirectionalToZeroOrOne[
-            "TestBidirectionalToMany._Associate", "TestBidirectionalToMany._Owner"
+            "TestBidirectionalToManySingleType._Associate",
+            "TestBidirectionalToManySingleType._Owner",
         ](
-            "betty.tests.model.test_association:TestBidirectionalToMany._Associate",
+            "betty.tests.model.test_association:TestBidirectionalToManySingleType._Associate",
             "owner",
-            "betty.tests.model.test_association:TestBidirectionalToMany._Owner",
+            "betty.tests.model.test_association:TestBidirectionalToManySingleType._Owner",
             "associates",
         )
 
     class _OwnerEmbedded(DummyEntity):
-        associates = BidirectionalToMany[
-            "TestBidirectionalToMany._OwnerEmbedded",
-            "TestBidirectionalToMany._AssociateEmbedded",
+        associates = BidirectionalToManySingleType[
+            "TestBidirectionalToManySingleType._OwnerEmbedded",
+            "TestBidirectionalToManySingleType._AssociateEmbedded",
         ](
-            "betty.tests.model.test_association:TestBidirectionalToMany._OwnerEmbedded",
+            "betty.tests.model.test_association:TestBidirectionalToManySingleType._OwnerEmbedded",
             "associates",
-            "betty.tests.model.test_association:TestBidirectionalToMany._AssociateEmbedded",
+            "betty.tests.model.test_association:TestBidirectionalToManySingleType._AssociateEmbedded",
             "owner",
             linked_data_embedded=True,
         )
 
     class _AssociateEmbedded(DummyEntity):
         owner = BidirectionalToZeroOrOne[
-            "TestBidirectionalToMany._AssociateEmbedded",
-            "TestBidirectionalToMany._OwnerEmbedded",
+            "TestBidirectionalToManySingleType._AssociateEmbedded",
+            "TestBidirectionalToManySingleType._OwnerEmbedded",
         ](
-            "betty.tests.model.test_association:TestBidirectionalToMany._AssociateEmbedded",
+            "betty.tests.model.test_association:TestBidirectionalToManySingleType._AssociateEmbedded",
             "owner",
-            "betty.tests.model.test_association:TestBidirectionalToMany._OwnerEmbedded",
+            "betty.tests.model.test_association:TestBidirectionalToManySingleType._OwnerEmbedded",
             "associates",
         )
 
@@ -929,24 +991,24 @@ class TestBidirectionalToMany:
         pass
 
     class _OwnerWithUserFacingAssociate(DummyEntity):
-        associates = BidirectionalToMany[
-            "TestBidirectionalToMany._OwnerWithUserFacingAssociate",
-            "TestBidirectionalToMany._UserFacingAssociate",
+        associates = BidirectionalToManySingleType[
+            "TestBidirectionalToManySingleType._OwnerWithUserFacingAssociate",
+            "TestBidirectionalToManySingleType._UserFacingAssociate",
         ](
-            "betty.tests.model.test_association:TestBidirectionalToMany._OwnerWithUserFacingAssociate",
+            "betty.tests.model.test_association:TestBidirectionalToManySingleType._OwnerWithUserFacingAssociate",
             "associates",
-            "betty.tests.model.test_association:TestBidirectionalToMany._UserFacingAssociate",
+            "betty.tests.model.test_association:TestBidirectionalToManySingleType._UserFacingAssociate",
             "owner",
         )
 
     class _UserFacingAssociate(UserFacing, DummyEntity):
         owner = BidirectionalToZeroOrOne[
-            "TestBidirectionalToMany._UserFacingAssociate",
-            "TestBidirectionalToMany._OwnerWithUserFacingAssociate",
+            "TestBidirectionalToManySingleType._UserFacingAssociate",
+            "TestBidirectionalToManySingleType._OwnerWithUserFacingAssociate",
         ](
-            "betty.tests.model.test_association:TestBidirectionalToMany._UserFacingAssociate",
+            "betty.tests.model.test_association:TestBidirectionalToManySingleType._UserFacingAssociate",
             "owner",
-            "betty.tests.model.test_association:TestBidirectionalToMany._OwnerWithUserFacingAssociate",
+            "betty.tests.model.test_association:TestBidirectionalToManySingleType._OwnerWithUserFacingAssociate",
             "associates",
         )
 
@@ -1060,6 +1122,65 @@ class TestBidirectionalToMany:
                 },
             ]
             assert actual == expected
+
+
+class _TestBidirectionalToManyMultipleTypesOwner(DummyEntity):
+    pass
+
+
+class _TestBidirectionalToManyMultipleTypesTargetMixin(Entity):
+    owner = BidirectionalToZeroOrOne[
+        "_TestBidirectionalToManyMultipleTypesTargetMixin",
+        _TestBidirectionalToManyMultipleTypesOwner,
+    ](
+        f"{__name__}:_TestBidirectionalToManyMultipleTypesTargetMixin",
+        "owner",
+        f"{__name__}:{_TestBidirectionalToManyMultipleTypesOwner.__name__}",
+        "associates",
+        title="Owner",
+    )
+
+
+class _TestBidirectionalToManyMultipleTypesAssociateOne(
+    _TestBidirectionalToManyMultipleTypesTargetMixin, DummyEntity
+):
+    pass
+
+
+class _TestBidirectionalToManyMultipleTypesAssociateTwo(
+    _TestBidirectionalToManyMultipleTypesTargetMixin, DummyEntity
+):
+    pass
+
+
+class _TestBidirectionalToManyMultipleTypesAssociateUnknown(DummyEntity):
+    pass
+
+
+class TestBidirectionalToManyMultipleTypes:
+    async def test_support_multiple_types(self) -> None:
+        sut = BidirectionalToManyMultipleTypes[
+            _TestBidirectionalToManyMultipleTypesOwner,
+            _TestBidirectionalToManyMultipleTypesTargetMixin,
+        ](
+            f"{_TestBidirectionalToManyMultipleTypesOwner.__module__}:{_TestBidirectionalToManyMultipleTypesOwner.__name__}",
+            "associates",
+            f"{_TestBidirectionalToManyMultipleTypesTargetMixin.__module__}:{_TestBidirectionalToManyMultipleTypesTargetMixin.__name__}",
+            "owner",
+        )
+
+        owner = _TestBidirectionalToManyMultipleTypesOwner()
+        associates = sut.__get__(owner, type(owner))
+
+        associate_one = _TestBidirectionalToManyMultipleTypesAssociateOne()
+        associate_two = _TestBidirectionalToManyMultipleTypesAssociateTwo()
+        associates.add(associate_one, associate_two)
+        associates_one = associates[_TestBidirectionalToManyMultipleTypesAssociateOne]
+        assert associate_one in associates_one
+        assert associate_two not in associates_one
+        associates_two = associates[_TestBidirectionalToManyMultipleTypesAssociateTwo]
+        assert associate_one not in associates_two
+        assert associate_two in associates_two
 
 
 class TestAssociationRequired:
