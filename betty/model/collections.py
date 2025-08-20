@@ -7,13 +7,7 @@ from __future__ import annotations
 from abc import ABC, abstractmethod
 from contextlib import contextmanager
 from reprlib import recursive_repr
-from typing import (
-    TYPE_CHECKING,
-    Any,
-    Generic,
-    TypeVar,
-    cast,
-)
+from typing import TYPE_CHECKING, Any, Generic, Self, TypeVar, cast
 
 from typing_extensions import override
 
@@ -36,14 +30,25 @@ _EntityT = TypeVar("_EntityT", bound=Entity)
 _TargetT = TypeVar("_TargetT")
 
 
+class UnsupportedTarget(RuntimeError):
+    """
+    Raised when an entity is not supported as a target.
+    """
+
+    @classmethod
+    def new(cls, expected_target: type, actual_target: object) -> Self:
+        """
+        Create a new instance.
+        """
+        return cls(f"Expected {expected_target}, but {type(actual_target)} was given.")
+
+
 class EntityCollection(Mutable, Generic[_TargetT], ABC):
     """
     Provide a collection of entities.
 
     To test your own subclasses, use :py:class:`betty.test_utils.model.collections.EntityCollectionTestBase`.
     """
-
-    __slots__ = ()
 
     def _on_add(self, *entities: _TargetT & Entity) -> None:
         pass
@@ -122,9 +127,9 @@ class SingleTypeEntityCollection(Generic[_TargetT], EntityCollection[_TargetT]):
     Collect entities of a single type.
     """
 
-    __slots__ = "_entities", "_target_type"
-
-    def __init__(self, target_type: type[_TargetT], *entities: _TargetT & Entity):
+    def __init__(
+        self, *entities: _TargetT & Entity, target_type: type[_TargetT & Entity]
+    ):
         super().__init__()
         self._entities: MutableSequence[_TargetT & Entity] = [*entities]
         self._target_type = target_type
@@ -138,6 +143,8 @@ class SingleTypeEntityCollection(Generic[_TargetT], EntityCollection[_TargetT]):
     def add(self, *entities: _TargetT & Entity) -> None:
         added_entities = [*self._unknown(*entities)]
         for entity in added_entities:
+            if not isinstance(entity, self._target_type):
+                raise UnsupportedTarget.new(self._target_type, entity)
             self._entities.append(entity)
         if added_entities:
             self._on_add(*added_entities)
@@ -207,10 +214,11 @@ class MultipleTypesEntityCollection(Generic[_TargetT], EntityCollection[_TargetT
     Collect entities of multiple types.
     """
 
-    __slots__ = "_collections"
-
-    def __init__(self, *entities: _TargetT & Entity):
+    def __init__(
+        self, *entities: _TargetT & Entity, target_type: type[_TargetT] | None = None
+    ):
         super().__init__()
+        self._target_type = target_type or Entity
         self._collections: MutableMapping[
             type[Entity], SingleTypeEntityCollection[Entity]
         ] = {}
@@ -236,7 +244,9 @@ class MultipleTypesEntityCollection(Generic[_TargetT], EntityCollection[_TargetT
                 "SingleTypeEntityCollection[_EntityT]", self._collections[entity_type]
             )
         except KeyError:
-            self._collections[entity_type] = SingleTypeEntityCollection(entity_type)
+            self._collections[entity_type] = SingleTypeEntityCollection(
+                target_type=entity_type
+            )
             return cast(
                 "SingleTypeEntityCollection[_EntityT]", self._collections[entity_type]
             )
@@ -290,6 +300,8 @@ class MultipleTypesEntityCollection(Generic[_TargetT], EntityCollection[_TargetT
     def add(self, *entities: _TargetT & Entity) -> None:
         added_entities = [*self._unknown(*entities)]
         for entity in added_entities:
+            if not isinstance(entity, self._target_type):
+                raise UnsupportedTarget(self._target_type, entity)
             self[type(entity)].add(entity)
         if added_entities:
             self._on_add(*added_entities)

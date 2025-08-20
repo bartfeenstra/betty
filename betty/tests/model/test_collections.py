@@ -7,6 +7,7 @@ from typing_extensions import override
 from betty.model.collections import (
     MultipleTypesEntityCollection,
     SingleTypeEntityCollection,
+    UnsupportedTarget,
 )
 from betty.test_utils.model import DummyEntity
 from betty.test_utils.model.collections import EntityCollectionTestBase
@@ -15,10 +16,18 @@ if TYPE_CHECKING:
     from collections.abc import Sequence
 
 
+class TestUnsupportedTarget:
+    def test_new(self) -> None:
+        class _Actual:
+            pass
+
+        UnsupportedTarget.new(DummyEntity, _Actual())
+
+
 class TestSingleTypeEntityCollection(EntityCollectionTestBase[DummyEntity]):
     @override
     async def get_suts(self) -> Sequence[SingleTypeEntityCollection[DummyEntity]]:
-        return (SingleTypeEntityCollection(DummyEntity),)
+        return (SingleTypeEntityCollection(target_type=DummyEntity),)
 
     @override
     async def get_entities(self) -> Sequence[DummyEntity]:

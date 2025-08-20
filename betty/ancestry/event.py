@@ -29,7 +29,7 @@ from betty.locale.localizable import (
     ngettext,
 )
 from betty.model.association import (
-    BidirectionalToMany,
+    BidirectionalToManySingleType,
     BidirectionalToZeroOrOne,
     ToManyAssociates,
     ToZeroOrOneAssociate,
@@ -80,7 +80,7 @@ class Event(
         title="Place",
         description="The location of the event",
     )
-    presences = BidirectionalToMany["Event", Presence](
+    presences = BidirectionalToManySingleType["Event", Presence](
         "betty.ancestry.event:Event",
         "presences",
         "betty.ancestry.presence:Presence",

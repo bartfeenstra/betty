@@ -7,10 +7,7 @@ from __future__ import annotations
 from typing import TYPE_CHECKING, Any
 
 from betty.model import Entity
-from betty.model.association import (
-    BidirectionalToMany,
-    ToManyAssociates,
-)
+from betty.model.association import BidirectionalToManySingleType, ToManyAssociates
 
 if TYPE_CHECKING:
     from betty.ancestry.citation import Citation
@@ -21,7 +18,7 @@ class HasCitations(Entity):
     An entity with citations that support it.
     """
 
-    citations = BidirectionalToMany["HasCitations & Entity", "Citation"](
+    citations = BidirectionalToManySingleType["HasCitations", "Citation"](
         "betty.ancestry.has_citations:HasCitations",
         "citations",
         "betty.ancestry.citation:Citation",

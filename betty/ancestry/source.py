@@ -21,7 +21,7 @@ from betty.locale.localizable import (
 )
 from betty.model import Entity
 from betty.model.association import (
-    BidirectionalToMany,
+    BidirectionalToManySingleType,
     BidirectionalToZeroOrOne,
     ToManyAssociates,
     ToZeroOrOneAssociate,
@@ -68,7 +68,7 @@ class Source(
         title="Contained by",
         description="Another source this source may be contained by",
     )
-    contains = BidirectionalToMany["Source", "Source"](
+    contains = BidirectionalToManySingleType["Source", "Source"](
         "betty.ancestry.source:Source",
         "contains",
         "betty.ancestry.source:Source",
@@ -76,7 +76,7 @@ class Source(
         title="Contains",
         description="Other sources this source may contain",
     )
-    citations = BidirectionalToMany["Source", "Citation"](
+    citations = BidirectionalToManySingleType["Source", "Citation"](
         "betty.ancestry.source:Source",
         "citations",
         "betty.ancestry.citation:Citation",

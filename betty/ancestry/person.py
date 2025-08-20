@@ -18,7 +18,7 @@ from betty.functools import unique
 from betty.json.linked_data import JsonLdObject, dump_context
 from betty.locale.localizable import Localizable, _, ngettext
 from betty.model import Entity, ToManySchema, persistent_id
-from betty.model.association import BidirectionalToMany, ToManyAssociates
+from betty.model.association import BidirectionalToManySingleType, ToManyAssociates
 from betty.plugin import ShorthandPluginBase
 from betty.privacy import HasPrivacy, Privacy
 from betty.user import UserFacing
@@ -55,21 +55,21 @@ class Person(
     _plugin_id = "person"
     _plugin_label = _("Person")
 
-    parents = BidirectionalToMany["Person", "Person"](
+    parents = BidirectionalToManySingleType["Person", "Person"](
         "betty.ancestry.person:Person",
         "parents",
         "betty.ancestry.person:Person",
         "children",
         title="Parents",
     )
-    children = BidirectionalToMany["Person", "Person"](
+    children = BidirectionalToManySingleType["Person", "Person"](
         "betty.ancestry.person:Person",
         "children",
         "betty.ancestry.person:Person",
         "parents",
         title="Children",
     )
-    presences = BidirectionalToMany["Person", "Presence"](
+    presences = BidirectionalToManySingleType["Person", "Presence"](
         "betty.ancestry.person:Person",
         "presences",
         "betty.ancestry.presence:Presence",
@@ -78,7 +78,7 @@ class Person(
         description="This person's presences at events",
         linked_data_embedded=True,
     )
-    names = BidirectionalToMany["Person", "PersonName"](
+    names = BidirectionalToManySingleType["Person", "PersonName"](
         "betty.ancestry.person:Person",
         "names",
         "betty.ancestry.person_name:PersonName",

@@ -7,10 +7,7 @@ from __future__ import annotations
 from typing import TYPE_CHECKING, Any
 
 from betty.model import Entity
-from betty.model.association import (
-    BidirectionalToMany,
-    ToManyAssociates,
-)
+from betty.model.association import BidirectionalToManySingleType, ToManyAssociates
 
 if TYPE_CHECKING:
     from betty.ancestry.file_reference import FileReference
@@ -21,7 +18,7 @@ class HasFileReferences(Entity):
     An entity that has associated :py:class:`betty.ancestry.file.File` entities.
     """
 
-    file_references = BidirectionalToMany[
+    file_references = BidirectionalToManySingleType[
         "HasFileReferences & Entity", "FileReference"
     ](
         "betty.ancestry.has_file_references:HasFileReferences",
