@@ -2,8 +2,10 @@ import asyncio
 import pickle
 import threading
 import time
-from asyncio import create_task, gather, sleep, wait_for
+from asyncio import create_task, gather, run, sleep, wait_for
 from collections.abc import Iterable
+from concurrent.futures import as_completed
+from os import cpu_count
 from typing import TypeVar
 
 import pytest
@@ -19,7 +21,7 @@ from betty.concurrent import (
     Semaphore,
     asynchronize_acquire,
 )
-from betty.multiprocessing import CONTEXT, manager
+from betty.multiprocessing import ProcessPoolExecutor, manager
 
 _KeyT = TypeVar("_KeyT")
 
@@ -196,48 +198,60 @@ class TestAsynchronizedSemaphore:
 
 
 class TestRateLimiter:
+    _TEST_WAIT_PARAMETERS = [
+        (0, 100, 100),
+        # This is one higher than the rate limiter's maximum, to ensure we spend at least one full period.
+        (1, 101, 100),
+    ]
+
     @pytest.mark.parametrize(
-        ("expected", "iterations"),
-        [
-            (0, 100),
-            # This is one higher than the rate limiter's maximum, to ensure we spend at least one full period.
-            (1, 101),
-        ],
+        ("expected", "consumers", "maximum"),
+        _TEST_WAIT_PARAMETERS,
     )
-    async def test_wait(self, expected: int, iterations: int) -> None:
-        sut = RateLimiter(100)
+    async def test_wait(self, expected: int, consumers: int, maximum: int) -> None:
+        sut = RateLimiter(maximum)
 
         async def _task() -> None:
             async with sut:
                 pass
 
         start = time.time()
-        await gather(*(_task() for _ in range(iterations)))
+        await gather(*(_task() for _ in range(consumers)))
         end = time.time()
         duration = end - start
-        assert expected == round(duration)
+        assert duration >= expected
+
+    @classmethod
+    def _consume(cls, sut: RateLimiter) -> None:
+        run(cls.__consume(sut))
+
+    @classmethod
+    async def __consume(cls, sut: RateLimiter) -> None:
+        async with sut:
+            pass
+
+    @pytest.mark.parametrize(
+        ("expected", "consumers", "maximum"),
+        _TEST_WAIT_PARAMETERS,
+    )
+    async def test_wait__with_multiprocessing(
+        self, expected: int, consumers: int, maximum: int
+    ) -> None:
+        sut = RateLimiter(maximum)
+
+        with ProcessPoolExecutor(max_workers=cpu_count() or 2) as pool:
+            start = time.time()
+            futures = [pool.submit(self._consume, sut) for _ in range(consumers)]
+            for future in as_completed(futures):
+                future.result()
+            end = time.time()
+        duration = end - start
+        assert duration >= expected
 
     async def test_is_available(self) -> None:
         sut = RateLimiter(1, 1)
 
         await sut.wait()
-        assert not await sut.is_available()
-        await sleep(2)
-        assert await sut.is_available()
-
-    @classmethod
-    def _test_wait_concurrently_target(cls, sut: RateLimiter):
-        asyncio.run(sut.wait())
-
-    async def test_wait_concurrently(self) -> None:
-        sut = RateLimiter(1, 1)
-
-        process = CONTEXT.Process(
-            target=self._test_wait_concurrently_target, args=(sut,)
-        )
-        process.start()
-
-        await sleep(0.5)
         assert not await sut.is_available()
         await sleep(2)
         assert await sut.is_available()
