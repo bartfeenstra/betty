@@ -8,7 +8,6 @@ from betty.model.collections import (
     MultipleTypesEntityCollection,
     SingleTypeEntityCollection,
 )
-from betty.plugin import PluginIdToTypeMapping
 from betty.test_utils.model import DummyEntity
 from betty.test_utils.model.collections import EntityCollectionTestBase
 
@@ -54,7 +53,7 @@ class TestSingleTypeEntityCollection(EntityCollectionTestBase[DummyEntity]):
 class TestMultipleTypesEntityCollection(EntityCollectionTestBase[DummyEntity]):
     @override
     async def get_suts(self) -> Sequence[MultipleTypesEntityCollection[DummyEntity]]:
-        return (await MultipleTypesEntityCollection.new(),)
+        return (MultipleTypesEntityCollection(),)
 
     @override
     async def get_entities(self) -> Sequence[DummyEntity]:
@@ -66,17 +65,6 @@ class TestMultipleTypesEntityCollection(EntityCollectionTestBase[DummyEntity]):
             sut.add(*entities)
             assert list(sut[DummyEntity]) == list(entities)
 
-    async def test___getitem____by_entity_type_id(self) -> None:
-        sut = MultipleTypesEntityCollection[DummyEntity](
-            entity_type_id_to_type_mapping=PluginIdToTypeMapping(
-                {DummyEntity.plugin_id(): DummyEntity}
-            )
-        )
-        entities = await self.get_entities()
-        sut.add(*entities)
-
-        assert list(sut[DummyEntity.plugin_id()]) == list(entities)
-
     async def test___delitem___by_entity_type(self) -> None:
         for sut in await self.get_suts():
             entities = await self.get_entities()
@@ -85,16 +73,3 @@ class TestMultipleTypesEntityCollection(EntityCollectionTestBase[DummyEntity]):
             del sut[DummyEntity]
 
             assert list(sut) == []
-
-    async def test___delitem___by_entity_type_id(self) -> None:
-        sut = MultipleTypesEntityCollection[DummyEntity](
-            entity_type_id_to_type_mapping=PluginIdToTypeMapping(
-                {DummyEntity.plugin_id(): DummyEntity}
-            )
-        )
-        entities = await self.get_entities()
-        sut.add(*entities)
-
-        del sut[DummyEntity.plugin_id()]
-
-        assert list(sut) == []

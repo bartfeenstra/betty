@@ -112,7 +112,7 @@ class Project(Configurable[ProjectConfiguration], TargetFactory, ServiceProvider
         return cls(
             app,
             configuration,
-            ancestry=await Ancestry.new() if ancestry is None else ancestry,
+            ancestry=Ancestry() if ancestry is None else ancestry,
         )
 
     @classmethod

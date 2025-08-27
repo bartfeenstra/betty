@@ -1,11 +1,12 @@
 {% extends 'base.html.j2' %}
+{% set demo_enabled = project.extension_repository.get("wiki") in project.extensions %}
 {% block page_summary %}
-{% if 'demo' in project.extensions %}
+{% if demo_enabled %}
     {% include '-front-demo-summary.html.j2' %}
 {% endif %}
 {% endblock %}
 {% block page_content %}
-{% if 'demo' in project.extensions %}
+{% if demo_enabled %}
     {% include '-front-demo-content.html.j2' %}
 {% endif %}
 {% set featured_entity_references = project.extensions['raspberry-mint'].configuration.featured_entities %}

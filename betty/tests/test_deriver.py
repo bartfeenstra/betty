@@ -115,10 +115,10 @@ class TestDeriver:
         self, event_type: type[DerivableEventType]
     ) -> None:
         person = Person(id="P0")
-        ancestry = await Ancestry.new()
+        ancestry = Ancestry()
         ancestry.add(person)
 
-        async with record_added(ancestry) as added:
+        with record_added(ancestry) as added:
             await Deriver(
                 ancestry,
                 DEFAULT_LIFETIME_THRESHOLD,
@@ -147,10 +147,10 @@ class TestDeriver:
         person = Person(id="P0")
         derivable_event = Event(event_type=Ignored())
         Presence(person, Subject(), derivable_event)
-        ancestry = await Ancestry.new()
+        ancestry = Ancestry()
         ancestry.add(person)
 
-        async with record_added(ancestry) as added:
+        with record_added(ancestry) as added:
             await Deriver(
                 ancestry,
                 DEFAULT_LIFETIME_THRESHOLD,
@@ -181,10 +181,10 @@ class TestDeriver:
         Presence(person, Subject(), Event(event_type=Ignored()))
         derivable_event = Event(event_type=event_type)
         Presence(person, Subject(), derivable_event)
-        ancestry = await Ancestry.new()
+        ancestry = Ancestry()
         ancestry.add(person)
 
-        async with record_added(ancestry) as added:
+        with record_added(ancestry) as added:
             await Deriver(
                 ancestry,
                 DEFAULT_LIFETIME_THRESHOLD,
@@ -410,10 +410,10 @@ class TestDeriver:
             date=derivable_datey,
         )
         Presence(person, Subject(), derivable_event)
-        ancestry = await Ancestry.new()
+        ancestry = Ancestry()
         ancestry.add(person)
 
-        async with record_added(ancestry) as added:
+        with record_added(ancestry) as added:
             await Deriver(
                 ancestry,
                 DEFAULT_LIFETIME_THRESHOLD,
@@ -469,10 +469,10 @@ class TestDeriver:
                 date=before_datey,
             ),
         )
-        ancestry = await Ancestry.new()
+        ancestry = Ancestry()
         ancestry.add(person)
 
-        async with record_added(ancestry) as added:
+        with record_added(ancestry) as added:
             await Deriver(
                 ancestry,
                 DEFAULT_LIFETIME_THRESHOLD,
@@ -713,10 +713,10 @@ class TestDeriver:
             date=derivable_datey,
         )
         Presence(person, Subject(), derivable_event)
-        ancestry = await Ancestry.new()
+        ancestry = Ancestry()
         ancestry.add(person)
 
-        async with record_added(ancestry) as added:
+        with record_added(ancestry) as added:
             await Deriver(
                 ancestry,
                 DEFAULT_LIFETIME_THRESHOLD,
@@ -773,10 +773,10 @@ class TestDeriver:
                 date=after_datey,
             ),
         )
-        ancestry = await Ancestry.new()
+        ancestry = Ancestry()
         ancestry.add(person)
 
-        async with record_added(ancestry) as added:
+        with record_added(ancestry) as added:
             await Deriver(
                 ancestry,
                 DEFAULT_LIFETIME_THRESHOLD,
@@ -828,10 +828,10 @@ class TestDeriver:
                 date=after_datey,
             ),
         )
-        ancestry = await Ancestry.new()
+        ancestry = Ancestry()
         ancestry.add(person)
 
-        async with record_added(ancestry) as added:
+        with record_added(ancestry) as added:
             await Deriver(
                 ancestry,
                 DEFAULT_LIFETIME_THRESHOLD,

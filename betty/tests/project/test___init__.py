@@ -94,7 +94,7 @@ class TestProject:
     async def test_new__with_ancestry(
         self, new_temporary_app: App, tmp_path: Path
     ) -> None:
-        ancestry = await Ancestry.new()
+        ancestry = Ancestry()
         sut = await Project.new(
             new_temporary_app,
             configuration=await ProjectConfiguration.new(tmp_path / "betty.json"),
@@ -197,7 +197,7 @@ class TestProject:
     async def test_ancestry__with___init___ancestry(
         self, new_temporary_app: App
     ) -> None:
-        ancestry = await Ancestry.new()
+        ancestry = Ancestry()
         async with (
             Project.new_temporary(new_temporary_app, ancestry=ancestry) as sut,
             sut,
