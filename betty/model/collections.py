@@ -5,16 +5,14 @@ Entity collections.
 from __future__ import annotations
 
 from abc import ABC, abstractmethod
-from contextlib import asynccontextmanager
+from contextlib import contextmanager
 from reprlib import recursive_repr
 from typing import (
     TYPE_CHECKING,
     Any,
     Generic,
-    Self,
     TypeVar,
     cast,
-    overload,
 )
 
 from typing_extensions import override
@@ -26,7 +24,6 @@ from betty.repr import repr_instance
 
 if TYPE_CHECKING:
     from collections.abc import (
-        AsyncIterator,
         Iterable,
         Iterator,
         MutableMapping,
@@ -34,8 +31,6 @@ if TYPE_CHECKING:
         Sequence,
     )
 
-    from betty.machine_name import MachineName
-    from betty.plugin import PluginIdToTypeMapping
 
 _EntityT = TypeVar("_EntityT", bound=Entity)
 _TargetT = TypeVar("_TargetT")
@@ -212,31 +207,14 @@ class MultipleTypesEntityCollection(Generic[_TargetT], EntityCollection[_TargetT
     Collect entities of multiple types.
     """
 
-    __slots__ = ("_collections", "_entity_type_id_to_type_mapping")
+    __slots__ = "_collections"
 
-    def __init__(
-        self,
-        *entities: _TargetT & Entity,
-        entity_type_id_to_type_mapping: PluginIdToTypeMapping[Entity],
-    ):
+    def __init__(self, *entities: _TargetT & Entity):
         super().__init__()
-        self._entity_type_id_to_type_mapping = entity_type_id_to_type_mapping
         self._collections: MutableMapping[
             type[Entity], SingleTypeEntityCollection[Entity]
         ] = {}
         self.add(*entities)
-
-    @classmethod
-    async def new(cls, *entities: _TargetT & Entity) -> Self:
-        """
-        Create a new instance.
-        """
-        from betty.model import ENTITY_TYPE_REPOSITORY
-
-        return cls(
-            *entities,
-            entity_type_id_to_type_mapping=await ENTITY_TYPE_REPOSITORY.mapping(),
-        )
 
     @override  # type: ignore[callable-functiontype]
     @recursive_repr()
@@ -263,24 +241,10 @@ class MultipleTypesEntityCollection(Generic[_TargetT], EntityCollection[_TargetT
                 "SingleTypeEntityCollection[_EntityT]", self._collections[entity_type]
             )
 
-    @overload
-    def __getitem__(
-        self, entity_type_id: MachineName
-    ) -> SingleTypeEntityCollection[Entity]:
-        pass
-
-    @overload
-    def __getitem__(
-        self, entity_type: type[_EntityT]
-    ) -> SingleTypeEntityCollection[_EntityT]:
-        pass
-
     def __getitem__(
         self,
-        key: str | type[_EntityT],
-    ) -> SingleTypeEntityCollection[Entity] | SingleTypeEntityCollection[_EntityT]:
-        if isinstance(key, str):
-            return self._getitem_by_entity_type_id(key)
+        key: type[_EntityT],
+    ) -> SingleTypeEntityCollection[_EntityT]:
         return self._getitem_by_entity_type(key)
 
     def _getitem_by_entity_type(
@@ -288,26 +252,11 @@ class MultipleTypesEntityCollection(Generic[_TargetT], EntityCollection[_TargetT
     ) -> SingleTypeEntityCollection[_EntityT]:
         return self._get_collection(entity_type)
 
-    def _getitem_by_entity_type_id(
-        self, entity_type_id: MachineName
-    ) -> SingleTypeEntityCollection[Entity]:
-        return self._get_collection(
-            self._entity_type_id_to_type_mapping[entity_type_id]
-        )
-
     @override
-    def __delitem__(
-        self, key: str | type[_TargetT & Entity] | _TargetT & Entity
-    ) -> None:
+    def __delitem__(self, key: type[_TargetT & Entity] | _TargetT & Entity) -> None:
         if isinstance(key, type):
-            return self._delitem_by_entity_type(
-                key,
-            )
-        if isinstance(key, Entity):
-            return self._delitem_by_entity(
-                key,  # type: ignore[arg-type]
-            )
-        return self._delitem_by_entity_type_id(key)
+            return self._delitem_by_entity_type(key)
+        return self._delitem_by_entity(key)
 
     def _delitem_by_entity_type(self, entity_type: type[_TargetT & Entity]) -> None:
         removed_entities = [*self._get_collection(entity_type)]
@@ -317,11 +266,6 @@ class MultipleTypesEntityCollection(Generic[_TargetT], EntityCollection[_TargetT
 
     def _delitem_by_entity(self, entity: _TargetT & Entity) -> None:
         self.remove(entity)
-
-    def _delitem_by_entity_type_id(self, entity_type_id: MachineName) -> None:
-        self._delitem_by_entity_type(
-            self._entity_type_id_to_type_mapping[entity_type_id]  # type: ignore [arg-type]
-        )
 
     @override
     def __iter__(self) -> Iterator[_TargetT & Entity]:
@@ -367,14 +311,14 @@ class MultipleTypesEntityCollection(Generic[_TargetT], EntityCollection[_TargetT
             self._on_remove(*removed_entities)
 
 
-@asynccontextmanager
-async def record_added(
+@contextmanager
+def record_added(
     entities: EntityCollection[_EntityT],
-) -> AsyncIterator[MultipleTypesEntityCollection[_EntityT]]:
+) -> Iterator[MultipleTypesEntityCollection[_EntityT]]:
     """
     Record all entities that are added to a collection.
     """
     original = [*entities]
-    added = await MultipleTypesEntityCollection[_EntityT].new()
+    added = MultipleTypesEntityCollection[_EntityT]()
     yield added
     added.add(*[entity for entity in entities if entity not in original])

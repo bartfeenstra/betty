@@ -46,11 +46,11 @@ class Test_EntityUrlUrlGenerator:
         mocker: MockerFixture,
     ) -> None:
         m_entity_url_generator = mocker.patch("betty.project.url._EntityUrlGenerator")
-        plugin_repository = StaticPluginRepository(DummyEntity)
-        ancestry = Ancestry(
-            entity_type_id_to_type_mapping=await plugin_repository.mapping()
+        ancestry = Ancestry()
+        entity_repository = StaticPluginRepository(Entity, DummyEntity)
+        sut = _EntityUrlUrlGenerator(
+            ancestry, m_entity_url_generator, await entity_repository.mapping()
         )
-        sut = _EntityUrlUrlGenerator(ancestry, m_entity_url_generator)
         assert sut.supports(resource) == expected
 
     async def test_generate(self, mocker: MockerFixture) -> None:
@@ -60,13 +60,13 @@ class Test_EntityUrlUrlGenerator:
         query = {"my_first_query": "my first value"}
         m_entity_url_generator = mocker.patch("betty.project.url._EntityUrlGenerator")
         m_entity_url_generator.generate.return_value = url
-        plugin_repository = StaticPluginRepository(Entity, DummyEntity)
         entity = DummyEntity(self._ENTITY_ID)
-        ancestry = Ancestry(
-            entity_type_id_to_type_mapping=await plugin_repository.mapping()
-        )
+        ancestry = Ancestry()
         ancestry.add(entity)
-        sut = _EntityUrlUrlGenerator(ancestry, m_entity_url_generator)
+        entity_repository = StaticPluginRepository(Entity, DummyEntity)
+        sut = _EntityUrlUrlGenerator(
+            ancestry, m_entity_url_generator, await entity_repository.mapping()
+        )
         assert (
             sut.generate(
                 f"betty-entity://{DummyEntity.plugin_id()}/{self._ENTITY_ID}",

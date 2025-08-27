@@ -53,7 +53,7 @@ class _TestAncestry_OneToOne_Right(DummyEntity):
 class TestAncestry(EntityCollectionTestBase[Entity]):
     @override
     async def get_suts(self) -> Sequence[EntityCollection[Entity]]:
-        return (await Ancestry.new(),)
+        return (Ancestry(),)
 
     @override
     async def get_entities(
@@ -66,7 +66,7 @@ class TestAncestry(EntityCollectionTestBase[Entity]):
         )
 
     async def test_add_(self) -> None:
-        sut = await Ancestry.new()
+        sut = Ancestry()
         left = _TestAncestry_OneToOne_Left()
         right = _TestAncestry_OneToOne_Right()
         left.one_right = right
@@ -75,7 +75,7 @@ class TestAncestry(EntityCollectionTestBase[Entity]):
         assert right in sut
 
     async def test_unchecked(self) -> None:
-        sut = await Ancestry.new()
+        sut = Ancestry()
         left = _TestAncestry_OneToOne_Left()
         right = _TestAncestry_OneToOne_Right()
         left.one_right = right

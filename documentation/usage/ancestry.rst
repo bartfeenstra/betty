@@ -27,7 +27,7 @@ access any entity of any type.
 
           from betty.ancestry import Ancestry, Person
 
-          ancestry = await Ancestry.new()
+          ancestry = Ancestry()
           person = Person(id='a1b2')
           ancestry.add(person)
           assert person is ancestry[Person]['a1b2']

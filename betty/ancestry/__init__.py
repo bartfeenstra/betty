@@ -16,8 +16,6 @@ from betty.model.collections import MultipleTypesEntityCollection
 if TYPE_CHECKING:
     from collections.abc import Iterable, Iterator
 
-    from betty.plugin import PluginIdToTypeMapping
-
 
 @final
 class Ancestry(MultipleTypesEntityCollection[Entity]):
@@ -25,14 +23,8 @@ class Ancestry(MultipleTypesEntityCollection[Entity]):
     An ancestry contains all the entities of a single family tree/genealogical data set.
     """
 
-    def __init__(
-        self,
-        *entities: Entity,
-        entity_type_id_to_type_mapping: PluginIdToTypeMapping[Entity],
-    ):
-        super().__init__(
-            *entities, entity_type_id_to_type_mapping=entity_type_id_to_type_mapping
-        )
+    def __init__(self, *entities: Entity):
+        super().__init__(*entities)
         self._check_graph = True
 
     @contextmanager
