@@ -36,7 +36,7 @@
                     </ul>
                 </div>
             </div>
-            {% with attributes = new_attributes(html_aria_controls="nav-language",
+            {% with attributes = new_attributes(html_aria_controls=["nav-language"],
                 html_aria_expanded=false,
                 html_class=[
                     "header-entry-point"
@@ -45,7 +45,7 @@
                 {% do attributes.set_data(bs_toggle="modal", bs_target="#nav-language") %}
                 {% include "component/button-language.html.j2" %}
             {% endwith %}
-            {% with attributes = new_attributes(html_aria_controls="nav-search",
+            {% with attributes = new_attributes(html_aria_controls=["nav-search"],
                 html_aria_expanded=false,
                 html_class=[
                     "header-entry-point",
@@ -55,7 +55,7 @@
                 {% do attributes.set_data(bs_toggle="modal", bs_target="#nav-search") %}
                 {% include "component/button-search.html.j2" %}
             {% endwith %}
-            {% with attributes = new_attributes(html_aria_controls="nav-menu",
+            {% with attributes = new_attributes(html_aria_controls=["nav-menu"],
                 html_aria_expanded=false,
                 html_class=[
                     "d-block",
@@ -78,7 +78,7 @@
                 </li>
             {% endfor %}
         </ul>
-            {% with attributes = new_attributes(html_aria_controls="nav-language",
+            {% with attributes = new_attributes(html_aria_controls=["nav-language"],
                 html_aria_expanded=false,
                 html_class=[
                     "d-none",
@@ -89,7 +89,7 @@
                 {% do attributes.set_data(bs_toggle="modal", bs_target="#nav-language") %}
                 {% include "component/button-language.html.j2" %}
             {% endwith %}
-            {% with attributes = new_attributes(html_aria_controls="nav-search",
+            {% with attributes = new_attributes(html_aria_controls=["nav-search"],
                 html_aria_expanded=false,
                 html_class=[
                     "d-none",
