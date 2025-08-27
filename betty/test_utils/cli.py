@@ -19,7 +19,7 @@ async def run(
     """
     Run a Betty CLI command.
     """
-    runner = CliRunner(mix_stderr=False)
+    runner = CliRunner()
     result = await runner.invoke(
         await new_main_command(app), args, catch_exceptions=False, input=input
     )

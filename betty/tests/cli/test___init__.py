@@ -28,7 +28,7 @@ class _NoOpCommand(Command, DummyPlugin):
 
 
 async def test_main__without_arguments(new_temporary_app_cli: App) -> None:
-    await run(new_temporary_app_cli)
+    await run(new_temporary_app_cli, expected_exit_code=2)
 
 
 async def test_main__help(new_temporary_app_cli: App) -> None:
@@ -96,4 +96,4 @@ class TestClickHandler:
 
 async def test_new_main_command(new_temporary_app_cli: App) -> None:
     main_command = await new_main_command(new_temporary_app_cli)
-    assert await main_command.main("--help", standalone_mode=False) == 0
+    assert await main_command.main(["--help"], standalone_mode=False) == 0
