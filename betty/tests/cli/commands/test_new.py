@@ -33,6 +33,8 @@ class TestNew:
             "",
             author,
             url,
+            "",
+            "",
         ]
         configuration = await self._assert_new(new_temporary_app_cli, tmp_path, inputs)
         assert configuration.title.localize(DEFAULT_LOCALIZER) == title
@@ -51,6 +53,8 @@ class TestNew:
             "Mijn Eerste Project",
             "",
             "Mijn Eerste Auteur",
+            "",
+            "",
             "",
         ]
         configuration = await self._assert_new(new_temporary_app_cli, tmp_path, inputs)
@@ -77,6 +81,7 @@ class TestNew:
             "My First Author",
             "",
             "",
+            "",
         ]
         configuration = await self._assert_new(new_temporary_app_cli, tmp_path, inputs)
         assert configuration.name == "mijn-eerste-project"
@@ -96,6 +101,7 @@ class TestNew:
             "My First Project",
             name,
             "My First Author",
+            "",
             "",
             "",
         ]

@@ -64,7 +64,7 @@ class _ClickHandler(Handler):
         return self.COLOR_LEVELS[NOTSET]
 
 
-class _BettyCommands(click.MultiCommand):
+class _BettyCommands(click.Group):
     terminal_width: ClassVar[int | None] = None
     _bootstrapped = False
     _app: ClassVar[App]
