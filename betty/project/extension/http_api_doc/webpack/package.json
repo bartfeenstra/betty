@@ -2,7 +2,7 @@
   "name": "@betty.py/betty.extension.http-api-doc",
   "dependencies": {
     "@betty.py/betty": "*",
-    "swagger-ui": "^5.18.2"
+    "swagger-ui": "^5.27.1, <5.28"
   },
   "type": "module"
 }
