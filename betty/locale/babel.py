@@ -18,6 +18,6 @@ def _run_babel(*args: str) -> None:
 
 async def run_babel(*args: str) -> None:
     """
-    Run a Babel Command Line Interface (CLI) command.
+    Run a Babel Command Line Interface (Console) command.
     """
     await to_thread(_run_babel, *args)

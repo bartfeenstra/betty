@@ -1,4 +1,4 @@
-CLI command plugins
+Console command plugins
 ===================
 
 .. list-table::
