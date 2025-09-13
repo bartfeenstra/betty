@@ -301,7 +301,7 @@ class MultipleTypesEntityCollection(Generic[_TargetT], EntityCollection[_TargetT
         added_entities = [*self._unknown(*entities)]
         for entity in added_entities:
             if not isinstance(entity, self._target_type):
-                raise UnsupportedTarget(self._target_type, entity)
+                raise UnsupportedTarget.new(self._target_type, entity)
             self[type(entity)].add(entity)
         if added_entities:
             self._on_add(*added_entities)
