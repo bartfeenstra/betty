@@ -85,7 +85,7 @@ class Key(UserFacingExceptionContext):
         return f'["{self._key}"]'
 
 
-Contextey: TypeAlias = UserFacingExceptionContext | Localizable
+ContextLike: TypeAlias = UserFacingExceptionContext | Localizable
 
 
 class _Contexts(Localizable):
@@ -100,7 +100,7 @@ class _Contexts(Localizable):
         )
 
 
-def localizable_contexts(*contexts: Contextey) -> Sequence[Localizable]:
+def localizable_contexts(*contexts: ContextLike) -> Sequence[Localizable]:
     """
     The contexts as :py:class:`betty.locale.localizable.Localizable` instances.
     """
@@ -130,7 +130,7 @@ class UserFacingException(Exception, Localizable, UserFacing):
     """
 
     def __init__(
-        self, message: Localizable, *, contexts: tuple[Contextey, ...] | None = None
+        self, message: Localizable, *, contexts: tuple[ContextLike, ...] | None = None
     ):
         from betty.locale.localizer import DEFAULT_LOCALIZER
 
@@ -139,7 +139,7 @@ class UserFacingException(Exception, Localizable, UserFacing):
             message.localize(DEFAULT_LOCALIZER),
         )
         self._localizable_message = message
-        self._contexts: tuple[Contextey, ...] = contexts or ()
+        self._contexts: tuple[ContextLike, ...] = contexts or ()
 
     @override
     def __str__(self) -> str:
@@ -171,13 +171,13 @@ class UserFacingException(Exception, Localizable, UserFacing):
         return isinstance(self, error_type)
 
     @property
-    def contexts(self) -> tuple[Contextey, ...]:
+    def contexts(self) -> tuple[ContextLike, ...]:
         """
         Get the human-readable contexts describing where the error occurred in the source data.
         """
         return self._contexts
 
-    def with_context(self, *contexts: Contextey) -> Self:
+    def with_context(self, *contexts: ContextLike) -> Self:
         """
         Add a message describing the error's context.
         """
@@ -235,7 +235,7 @@ class UserFacingExceptionGroup(UserFacingException):
         return not self.valid
 
     @contextmanager
-    def assert_valid(self, *contexts: Contextey) -> Iterator[Self]:
+    def assert_valid(self, *contexts: ContextLike) -> Iterator[Self]:
         """
         Assert that this collection contains no errors.
         """
@@ -257,7 +257,7 @@ class UserFacingExceptionGroup(UserFacingException):
                 self._errors.append(error.with_context(*self._contexts))
 
     @override
-    def with_context(self, *contexts: Contextey) -> Self:
+    def with_context(self, *contexts: ContextLike) -> Self:
         self_copy = super().with_context(*contexts)
         self_copy._errors = [error.with_context(*contexts) for error in self._errors]
         return self_copy
@@ -267,7 +267,7 @@ class UserFacingExceptionGroup(UserFacingException):
         return type(self)()
 
     @contextmanager
-    def catch(self, *contexts: Contextey) -> Iterator[UserFacingExceptionGroup]:
+    def catch(self, *contexts: ContextLike) -> Iterator[UserFacingExceptionGroup]:
         """
         Catch any errors raised within this context manager and add them to the collection.
 
