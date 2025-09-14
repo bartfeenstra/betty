@@ -9,7 +9,7 @@ Events inherit from:
 
 - :doc:`/usage/ancestry/privacy`
 
-``date`` (:doc:`Datey </usage/ancestry/date>`)
+``date`` (:doc:`date-like </usage/ancestry/date>`)
     When the event took place.
 ``event_type`` (:doc:`EventType </usage/ancestry/event-type>`)
     The event's type.

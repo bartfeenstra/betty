@@ -12,7 +12,7 @@ from betty.ancestry.date import HasDate
 from betty.locale.localizable import StaticTranslationsLocalizable
 
 if TYPE_CHECKING:
-    from betty.date import Datey
+    from betty.date import DateLike
     from betty.json.linked_data import JsonLdObject
     from betty.locale.localizable import Localizable
     from betty.project import Project
@@ -31,7 +31,7 @@ class Name(HasDate):
         self,
         name: Localizable,
         *,
-        date: Datey | None = None,
+        date: DateLike | None = None,
     ):
         super().__init__(date=date)
         self.name = name

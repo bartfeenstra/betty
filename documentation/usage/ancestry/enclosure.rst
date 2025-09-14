@@ -8,7 +8,7 @@ Fields
 ------
 ``citations`` (iterable of :doc:`Citation </usage/ancestry/citation>`)
     The citations for this enclosure.
-``date`` (:doc:`Datey </usage/ancestry/date>`)
+``date`` (:doc:`date-like </usage/ancestry/date>`)
     When these places enclosed each other.
 ``enclosee`` (:doc:`Place </usage/ancestry/place>`)
     The place that is enclosed by ``encloser``.

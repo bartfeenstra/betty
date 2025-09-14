@@ -22,7 +22,7 @@ from betty.ancestry.place import Place
 from betty.ancestry.presence_role.presence_roles import Subject
 from betty.assertion import assert_str
 from betty.config import Configuration
-from betty.date import Date, Datey
+from betty.date import Date, DateLike
 from betty.exception import UserFacingException
 from betty.functools import unique
 from betty.locale.localizable import _
@@ -172,7 +172,7 @@ def _person_timeline_events(person: Person, lifetime_threshold: int) -> Iterable
 
     if start_date is None or end_date is None:
         reference_dates = sorted(
-            cast(Datey, presence.event.date)
+            cast(DateLike, presence.event.date)
             for presence in person.presences
             if _is_person_timeline_presence(presence)
         )

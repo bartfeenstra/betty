@@ -18,7 +18,7 @@ Sources inherit from:
     Another source that contains this one.
 ``contains`` (iterable of ``Source``)
     Other sources contained by this one.
-``date`` (:doc:`Datey </usage/ancestry/date>`)
+``date`` (:doc:`date-like </usage/ancestry/date>`)
     The source (access) date.
 ``files`` (iterable of :doc:`File </usage/ancestry/file>`)
     The files attached to this source.

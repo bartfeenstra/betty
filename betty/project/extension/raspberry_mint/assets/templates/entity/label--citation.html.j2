@@ -36,7 +36,7 @@
     {% endif %}
     {% if entity.date %}
         {% set formatted_citation_date %}
-            {% trans date = entity.date | format_datey %}Accessed {{ date }}{% endtrans %}.
+            {% trans date = entity.date | format_date_like %}Accessed {{ date }}{% endtrans %}.
         {% endset %}
     {% endif %}
 {% else %}

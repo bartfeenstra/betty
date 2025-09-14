@@ -7,7 +7,7 @@ a date to indicate its usage.
 Fields
 ------
 
-``date`` (:doc:`Datey </usage/ancestry/date>`)
+``date`` (:doc:`date-like </usage/ancestry/date>`)
     When this name was used.
 ``id`` (``str``)
     The name's own entity ID.

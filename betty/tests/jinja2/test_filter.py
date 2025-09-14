@@ -13,7 +13,7 @@ from betty import ASSETS_DIRECTORY_PATH
 from betty.ancestry.file import File
 from betty.ancestry.file_reference import FileReference
 from betty.cache.memory import MemoryCache
-from betty.date import Date, DateRange, Datey
+from betty.date import Date, DateLike, DateRange
 from betty.job import Context
 from betty.locale import (
     MULTIPLE_LOCALES,
@@ -36,7 +36,7 @@ if TYPE_CHECKING:
 
 
 class _DummyHasDate(DummyHasDate):
-    def __init__(self, value: str, date: Datey | None = None):
+    def __init__(self, value: str, date: DateLike | None = None):
         super().__init__(date=date)
         self.value = value
 
@@ -594,8 +594,8 @@ async def test_filter_sort_localizeds__with_empty_iterable() -> None:
         assert actual == "[]"
 
 
-async def test_filter_format_datey() -> None:
-    template = "{{ date | format_datey }}"
+async def test_filter_format_date_like() -> None:
+    template = "{{ date | format_date_like }}"
     date = Date(1970, 1, 1)
     async with assert_template_string(
         template=template,

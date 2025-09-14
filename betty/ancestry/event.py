@@ -46,7 +46,7 @@ if TYPE_CHECKING:
     from betty.ancestry.event_type import EventType
     from betty.ancestry.file_reference import FileReference
     from betty.ancestry.note import Note
-    from betty.date import Datey
+    from betty.date import DateLike
     from betty.mutability import Mutable
     from betty.project import Project
     from betty.serde.dump import Dump, DumpMapping
@@ -95,7 +95,7 @@ class Event(
         *,
         id: str | None = None,  # noqa A002
         event_type: EventType | None = None,
-        date: Datey | None = None,
+        date: DateLike | None = None,
         file_references: ToManyAssociates[FileReference] | None = None,
         citations: ToManyAssociates[Citation] | None = None,
         notes: ToManyAssociates[Note] | None = None,
