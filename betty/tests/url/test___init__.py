@@ -4,7 +4,7 @@ from typing import TYPE_CHECKING, Any
 
 import pytest
 
-from betty.locale import DEFAULT_LOCALE, Localey
+from betty.locale import DEFAULT_LOCALE, LocaleLike
 from betty.media_type.media_types import HTML
 from betty.url import PassthroughUrlGenerator, generate_from_path
 
@@ -186,7 +186,7 @@ async def test_generate_from_path(
     clean_urls: bool,
     path: str,
     absolute: bool,
-    locale: Localey | None,
+    locale: LocaleLike | None,
     fragment: str | None,
     query: Mapping[str, Sequence[str]] | None,
 ) -> None:

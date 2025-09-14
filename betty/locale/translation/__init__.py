@@ -19,7 +19,7 @@ from typing_extensions import override
 
 import betty
 from betty.hashid import hashid_file_meta
-from betty.locale import DEFAULT_LOCALE, Localey, get_data, to_locale
+from betty.locale import DEFAULT_LOCALE, LocaleLike, get_data, to_locale
 from betty.locale.babel import run_babel
 from betty.locale.error import UnknownLocale
 from betty.locale.localizable import _
@@ -176,7 +176,7 @@ class TranslationRepository(ABC):
         """
 
     @abstractmethod
-    def get(self, locale: Localey) -> gettext.NullTranslations:
+    def get(self, locale: LocaleLike) -> gettext.NullTranslations:
         """
         Get the translations for the given locale.
         """
@@ -197,7 +197,7 @@ class NoOpTranslationRepository(TranslationRepository):
         return ()
 
     @override
-    def get(self, locale: Localey) -> gettext.NullTranslations:
+    def get(self, locale: LocaleLike) -> gettext.NullTranslations:
         return self._translations
 
 
@@ -216,7 +216,7 @@ class StaticTranslationRepository(TranslationRepository):
         return self._translations.keys()
 
     @override
-    def get(self, locale: Localey) -> gettext.NullTranslations:
+    def get(self, locale: LocaleLike) -> gettext.NullTranslations:
         locale = to_locale(locale)
         try:
             return self._translations[locale]
@@ -241,7 +241,7 @@ class ProxyTranslationRepository(TranslationRepository):
             yield from upstream.locales
 
     @override
-    def get(self, locale: Localey) -> gettext.NullTranslations:
+    def get(self, locale: LocaleLike) -> gettext.NullTranslations:
         locale = to_locale(locale)
         try:
             return self._translations[locale]
@@ -297,7 +297,7 @@ class AssetTranslationRepository(TranslationRepository):
         return self._locales
 
     @override
-    def get(self, locale: Localey) -> gettext.NullTranslations:
+    def get(self, locale: LocaleLike) -> gettext.NullTranslations:
         locale = to_locale(locale)
         try:
             return self._translations[locale]
@@ -349,7 +349,7 @@ class AssetTranslationRepository(TranslationRepository):
         async with aiofiles.open(mo_file_path, "rb") as f:
             return gettext.GNUTranslations(BytesIO(await f.read()))
 
-    async def coverage(self, locale: Localey) -> tuple[int, int]:
+    async def coverage(self, locale: LocaleLike) -> tuple[int, int]:
         """
         Get the translation coverage for the given locale.
 

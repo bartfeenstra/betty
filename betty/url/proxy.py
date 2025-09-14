@@ -7,7 +7,7 @@ from typing import Any, final
 
 from typing_extensions import override
 
-from betty.locale import Localey
+from betty.locale import LocaleLike
 from betty.media_type import MediaType
 from betty.url import UnsupportedResource, UrlGenerator
 
@@ -32,7 +32,7 @@ class ProxyUrlGenerator(UrlGenerator):
         *,
         absolute: bool = False,
         fragment: str | None = None,
-        locale: Localey | None = None,
+        locale: LocaleLike | None = None,
         media_type: MediaType | None = None,
         query: Mapping[str, Sequence[str]] | None = None,
     ) -> str:

@@ -38,7 +38,7 @@ from betty.image import (
 from betty.locale import (
     SPECIAL_LOCALES,
     UNDETERMINED_LOCALE,
-    Localey,
+    LocaleLike,
     get_data,
     negotiate_locale,
 )
@@ -79,7 +79,7 @@ _T = TypeVar("_T")
 async def filter_url(
     context: Context,
     resource: Any,
-    locale: Localey | None = None,
+    locale: LocaleLike | None = None,
     media_type: str | None = None,
     **kwargs: Any,
 ) -> str:

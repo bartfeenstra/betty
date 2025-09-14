@@ -48,7 +48,7 @@ def merge_locales(*locales: str) -> str:
     return MULTIPLE_LOCALES
 
 
-def to_babel_identifier(locale: Localey) -> str:
+def to_babel_identifier(locale: LocaleLike) -> str:
     """
     Convert a locale or locale metadata to a Babel locale identifier.
 
@@ -68,7 +68,7 @@ def to_babel_identifier(locale: Localey) -> str:
     )
 
 
-def to_locale(locale: Localey) -> str:
+def to_locale(locale: LocaleLike) -> str:
     """
     Ensure that a locale or locale metadata is a locale.
     """
@@ -85,10 +85,10 @@ def to_locale(locale: Localey) -> str:
     )
 
 
-Localey: TypeAlias = str | Locale
+LocaleLike: TypeAlias = str | Locale
 
 
-def get_data(locale: Localey) -> Locale:
+def get_data(locale: LocaleLike) -> Locale:
     """
     Get locale metadata.
 
@@ -110,7 +110,7 @@ def get_data(locale: Localey) -> Locale:
 
 
 def get_display_name(
-    locale: Localey, display_locale: Localey | None = None
+    locale: LocaleLike, display_locale: LocaleLike | None = None
 ) -> str | None:
     """
     Return a locale's human-readable display name.
@@ -122,7 +122,8 @@ def get_display_name(
 
 
 def negotiate_locale(
-    preferred_locales: Localey | Sequence[Localey], available_locales: Sequence[Localey]
+    preferred_locales: LocaleLike | Sequence[LocaleLike],
+    available_locales: Sequence[LocaleLike],
 ) -> Locale | None:
     """
     Negotiate the preferred locale from a sequence.

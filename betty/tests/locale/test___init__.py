@@ -10,8 +10,8 @@ from betty.locale import (
     MULTIPLE_LOCALES,
     NO_LINGUISTIC_CONTENT,
     SPECIAL_LOCALES,
+    LocaleLike,
     LocaleSchema,
-    Localey,
     merge_locales,
     negotiate_locale,
     to_locale,
@@ -63,9 +63,9 @@ def test_merge_locales(expected: str, locales: Sequence[str]) -> None:
     ],
 )
 async def test_negotiate_locale(
-    expected: Localey | None,
-    preferred_locale: Localey,
-    available_locales: Sequence[Localey],
+    expected: LocaleLike | None,
+    preferred_locale: LocaleLike,
+    available_locales: Sequence[LocaleLike],
 ) -> None:
     actual = negotiate_locale(preferred_locale, available_locales)
     assert expected == (to_locale(actual) if actual else actual)

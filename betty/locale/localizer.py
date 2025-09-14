@@ -23,7 +23,7 @@ from betty.date import (
 )
 from betty.locale import (
     DEFAULT_LOCALE,
-    Localey,
+    LocaleLike,
     get_data,
     to_babel_identifier,
     to_locale,
@@ -285,7 +285,7 @@ class LocalizerRepository:
         self._translations = translations
         self._localizers: MutableMapping[str, Localizer] = {}
 
-    def get(self, locale: Localey) -> Localizer:
+    def get(self, locale: LocaleLike) -> Localizer:
         """
         Get the localizer for the given locale.
         """
