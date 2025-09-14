@@ -25,7 +25,7 @@ if TYPE_CHECKING:
     from collections.abc import Mapping, Sequence
 
     from betty.ancestry import Ancestry
-    from betty.locale import Localey
+    from betty.locale import LocaleLike
     from betty.media_type import MediaType
     from betty.plugin import PluginIdToTypeMapping
     from betty.project import Project
@@ -69,7 +69,7 @@ class _ProjectUrlGenerator(ProjectDependentFactory):
         *,
         absolute: bool,
         fragment: str | None,
-        locale: Localey | None,
+        locale: LocaleLike | None,
         query: Mapping[str, Sequence[str]] | None,
     ) -> str:
         return generate_from_path(
@@ -91,7 +91,7 @@ class _ProjectUrlGenerator(ProjectDependentFactory):
         *,
         absolute: bool,
         fragment: str | None,
-        locale: Localey | None,
+        locale: LocaleLike | None,
         media_type: MediaType | None,
         query: Mapping[str, Sequence[str]] | None,
     ) -> str:
@@ -119,7 +119,7 @@ class _ProjectUrlGenerator(ProjectDependentFactory):
         *,
         absolute: bool,
         fragment: str | None,
-        locale: Localey | None,
+        locale: LocaleLike | None,
         media_type: MediaType | None,
         query: Mapping[str, Sequence[str]] | None,
     ) -> str:
@@ -160,8 +160,8 @@ async def new_project_url_generator(project: Project) -> UrlGenerator:
 
 
 def _get_extension_and_locale(
-    media_type: MediaType, default_locale: str, *, locale: Localey | None
-) -> tuple[str, Localey | None]:
+    media_type: MediaType, default_locale: str, *, locale: LocaleLike | None
+) -> tuple[str, LocaleLike | None]:
     if media_type == HTML:
         return "html", locale or default_locale
     if media_type in (JSON, JSON_LD):
@@ -185,7 +185,7 @@ class _EntityTypeUrlGenerator(__EntityTypeUrlGenerator, UrlGenerator):
         *,
         absolute: bool = False,
         fragment: str | None = None,
-        locale: Localey | None = None,
+        locale: LocaleLike | None = None,
         media_type: MediaType | None = None,
         query: Mapping[str, Sequence[str]] | None = None,
     ) -> str:
@@ -217,7 +217,7 @@ class _EntityUrlGenerator(__EntityUrlGenerator, UrlGenerator):
         *,
         absolute: bool = False,
         fragment: str | None = None,
-        locale: Localey | None = None,
+        locale: LocaleLike | None = None,
         media_type: MediaType | None = None,
         query: Mapping[str, Sequence[str]] | None = None,
     ) -> str:
@@ -267,7 +267,7 @@ class _EntityUrlUrlGenerator(UrlGenerator):
         *,
         absolute: bool = False,
         fragment: str | None = None,
-        locale: Localey | None = None,
+        locale: LocaleLike | None = None,
         media_type: MediaType | None = None,
         query: Mapping[str, Sequence[str]] | None = None,
     ) -> str:
@@ -309,7 +309,7 @@ class _LocalizedPathUrlUrlGenerator(_ProjectUrlGenerator, UrlGenerator):
         *,
         absolute: bool = False,
         fragment: str | None = None,
-        locale: Localey | None = None,
+        locale: LocaleLike | None = None,
         media_type: MediaType | None = None,
         query: Mapping[str, Sequence[str]] | None = None,
     ) -> str:
@@ -347,7 +347,7 @@ class _StaticPathUrlUrlGenerator(_ProjectUrlGenerator, UrlGenerator):
         *,
         absolute: bool = False,
         fragment: str | None = None,
-        locale: Localey | None = None,
+        locale: LocaleLike | None = None,
         media_type: MediaType | None = None,
         query: Mapping[str, Sequence[str]] | None = None,
     ) -> str:

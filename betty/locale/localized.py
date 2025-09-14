@@ -11,7 +11,7 @@ from typing_extensions import override
 
 from betty.locale import (
     UNDETERMINED_LOCALE,
-    Localey,
+    LocaleLike,
     negotiate_locale,
     to_locale,
 )
@@ -36,7 +36,8 @@ class Localized:
 
 
 def negotiate_localizeds(
-    preferred_locales: Localey | Sequence[Localey], localizeds: Sequence[Localized]
+    preferred_locales: LocaleLike | Sequence[LocaleLike],
+    localizeds: Sequence[Localized],
 ) -> Localized | None:
     """
     Negotiate the preferred localized value from a sequence.

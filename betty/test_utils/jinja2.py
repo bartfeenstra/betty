@@ -23,7 +23,7 @@ if TYPE_CHECKING:
 
     from jinja2 import Template
 
-    from betty.locale import Localey
+    from betty.locale import LocaleLike
 
 
 @asynccontextmanager
@@ -32,7 +32,7 @@ async def _assert_template(
     template: str,
     *,
     data: MutableMapping[str, Any] | None = None,
-    locale: Localey | None = None,
+    locale: LocaleLike | None = None,
     autoescape: bool | None = None,
     extensions: set[type[Extension]] | None = None,
 ) -> AsyncIterator[tuple[str, Project]]:
@@ -63,7 +63,7 @@ def assert_template_string(
     template: str,
     *,
     data: MutableMapping[str, Any] | None = None,
-    locale: Localey | None = None,
+    locale: LocaleLike | None = None,
     autoescape: bool | None = None,
     extensions: set[type[Extension]] | None = None,
 ) -> AbstractAsyncContextManager[tuple[str, Project]]:
@@ -84,7 +84,7 @@ def assert_template_file(
     template: str,
     *,
     data: MutableMapping[str, Any] | None = None,
-    locale: Localey | None = None,
+    locale: LocaleLike | None = None,
     autoescape: bool | None = None,
     extensions: set[type[Extension]] | None = None,
 ) -> AbstractAsyncContextManager[tuple[str, Project]]:

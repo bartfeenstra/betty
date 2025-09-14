@@ -19,7 +19,7 @@ from betty.fetch import FetchError
 from betty.functools import filter_suppress
 from betty.locale import (
     UNDETERMINED_LOCALE,
-    Localey,
+    LocaleLike,
     get_data,
     negotiate_locale,
     to_locale,
@@ -122,7 +122,7 @@ class Populator:
             )
             if len(page_translations) == 0:
                 continue
-            page_translation_locale_datas: Sequence[Localey] = list(
+            page_translation_locale_datas: Sequence[LocaleLike] = list(
                 filter_suppress(get_data, LocaleError, page_translations.keys())
             )
             for locale in locales:

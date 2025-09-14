@@ -10,7 +10,7 @@ from urllib.parse import urlencode, urlparse
 
 from typing_extensions import override
 
-from betty.locale import Localey, negotiate_locale, to_locale
+from betty.locale import LocaleLike, negotiate_locale, to_locale
 
 if TYPE_CHECKING:
     from collections.abc import Mapping, Sequence
@@ -72,7 +72,7 @@ class UrlGenerator(ABC):
         *,
         absolute: bool = False,
         fragment: str | None = None,
-        locale: Localey | None = None,
+        locale: LocaleLike | None = None,
         media_type: MediaType | None = None,
         query: Mapping[str, Sequence[str]] | None = None,
     ) -> str:
@@ -105,7 +105,7 @@ class PassthroughUrlGenerator(UrlGenerator):
         *,
         absolute: bool = False,
         fragment: str | None = None,
-        locale: Localey | None = None,
+        locale: LocaleLike | None = None,
         media_type: MediaType | None = None,
         query: Mapping[str, Sequence[str]] | None = None,
     ) -> str:
@@ -121,7 +121,7 @@ def generate_from_path(
     root_path: str,
     absolute: bool = False,
     fragment: str | None = None,
-    locale: Localey | None = None,
+    locale: LocaleLike | None = None,
     locale_aliases: Mapping[str, str],
     query: Mapping[str, Sequence[str]] | None = None,
 ) -> str:
