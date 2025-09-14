@@ -68,7 +68,7 @@ if TYPE_CHECKING:
     from jinja2.nodes import EvalContext
 
     from betty.ancestry.date import HasDate
-    from betty.date import Datey
+    from betty.date import DateLike
     from betty.locale.localizable import Localizable
     from betty.locale.localized import Localized
 
@@ -151,16 +151,16 @@ def filter_html_lang(context: Context, localized: str) -> str | Markup:
 
 
 @pass_context
-def filter_format_datey(
+def filter_format_date_like(
     context: Context,
-    datey: Datey,
+    date_like: DateLike,
 ) -> str:
     """
-    Format a date or a date range.
+    Format a :py:type:`betty.date.DateLike`.
     """
     from betty.jinja2 import context_localizer
 
-    return context_localizer(context).format_datey(datey)
+    return context_localizer(context).format_date_like(date_like)
 
 
 def filter_json(data: Any, indent: int | None = None) -> str:
@@ -509,7 +509,7 @@ def filter_select_localizeds(
 
 @pass_context
 def filter_negotiate_has_dates(
-    context: Context, has_dates: Iterable[HasDate], date: Datey | None
+    context: Context, has_dates: Iterable[HasDate], date: DateLike | None
 ) -> HasDate | None:
     """
     Try to find an object whose date falls in the given date.
@@ -523,7 +523,7 @@ def filter_negotiate_has_dates(
 
 @pass_context
 def filter_select_has_dates(
-    context: Context, has_dates: Iterable[HasDate], date: Datey | None
+    context: Context, has_dates: Iterable[HasDate], date: DateLike | None
 ) -> Iterator[HasDate]:
     """
     Select all objects whose date falls in the given date.
@@ -553,7 +553,7 @@ async def filters() -> Mapping[str, Callable[..., Any]]:
         "camel_case_to_snake_case": camel_case_to_snake_case,
         "file": filter_file,
         "flatten": filter_flatten,
-        "format_datey": filter_format_datey,
+        "format_date_like": filter_format_date_like,
         "format_degrees": filter_format_degrees,
         "hashid": hashid,
         "image_resize_cover": filter_image_resize_cover,

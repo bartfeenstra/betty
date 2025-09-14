@@ -9,7 +9,7 @@ Citations inherit from:
 
 - :doc:`/usage/ancestry/privacy`
 
-``date`` (:doc:`Datey </usage/ancestry/date>`)
+``date`` (:doc:`date-like </usage/ancestry/date>`)
     The citation (access) date.
 ``facts`` (iterable of any entity)
     The entities this citation bridges to ``source``.

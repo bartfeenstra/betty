@@ -5,7 +5,14 @@ from typing import TYPE_CHECKING, cast
 import pytest
 from typing_extensions import override
 
-from betty.date import Date, DateRange, DateRangeSchema, DateSchema, Datey, DateySchema
+from betty.date import (
+    Date,
+    DateLike,
+    DateLikeSchema,
+    DateRange,
+    DateRangeSchema,
+    DateSchema,
+)
 from betty.serde.dump import Dump, DumpMapping
 from betty.test_utils.json.linked_data import assert_dumps_linked_data
 from betty.test_utils.json.schema import SchemaTestBase
@@ -95,7 +102,9 @@ _DUMMY_DATE_RANGE_DUMPS: tuple[
     [],
 )
 
-_DUMMY_DATEY_DUMPS: tuple[Sequence[DumpMapping[Dump]], Sequence[DumpMapping[Dump]]] = (
+_DUMMY_DATE_LIKE_DUMPS: tuple[
+    Sequence[DumpMapping[Dump]], Sequence[DumpMapping[Dump]]
+] = (
     [*_DUMMY_DATE_DUMPS[0], *_DUMMY_DATE_RANGE_DUMPS[0]],
     [*_DUMMY_DATE_DUMPS[1], *_DUMMY_DATE_RANGE_DUMPS[1]],
 )
@@ -182,7 +191,7 @@ class TestDate:
             (False, DateRange()),
         ],
     )
-    def test___contains__(self, expected: bool, other: Datey) -> None:
+    def test___contains__(self, expected: bool, other: DateLike) -> None:
         assert (other in Date(1970, 2, 2)) == expected
 
     @pytest.mark.parametrize(
@@ -197,7 +206,7 @@ class TestDate:
             (True, Date(1970, 2, 2), Date(1970, 3)),
         ],
     )
-    def test___lt__(self, expected: bool, sut: Date, other: Datey) -> None:
+    def test___lt__(self, expected: bool, sut: Date, other: DateLike) -> None:
         assert (sut < other) == expected
 
     @pytest.mark.parametrize(
@@ -212,7 +221,7 @@ class TestDate:
             (True, Date(1970, 2, 2), Date(1970, 3)),
         ],
     )
-    def test___le__(self, expected: bool, sut: Date, other: Datey) -> None:
+    def test___le__(self, expected: bool, sut: Date, other: DateLike) -> None:
         assert (sut <= other) == expected
 
     @pytest.mark.parametrize(
@@ -228,7 +237,7 @@ class TestDate:
             (False, None),
         ],
     )
-    def test___eq__(self, expected: bool, other: Datey) -> None:
+    def test___eq__(self, expected: bool, other: DateLike) -> None:
         assert (Date(1970, 1, 1) == other) == expected
         assert (other == Date(1970, 1, 1)) == expected
 
@@ -244,7 +253,7 @@ class TestDate:
             (False, Date(1970, 2, 2), Date(1970, 3)),
         ],
     )
-    def test___ge__(self, expected: bool, sut: Date, other: Datey) -> None:
+    def test___ge__(self, expected: bool, sut: Date, other: DateLike) -> None:
         assert (sut >= other) == expected
 
     @pytest.mark.parametrize(
@@ -259,7 +268,7 @@ class TestDate:
             (False, Date(1970, 2, 2), Date(1970, 3)),
         ],
     )
-    def test___gt__(self, expected: bool, sut: Date, other: Datey) -> None:
+    def test___gt__(self, expected: bool, sut: Date, other: DateLike) -> None:
         assert (sut > other) == expected
 
     @pytest.mark.parametrize(
@@ -310,7 +319,7 @@ class TestDateRange:
     def test_comparable(self, expected: bool, sut: DateRange) -> None:
         assert sut.comparable == expected
 
-    _TEST_CONTAINS_PARAMETERS: Sequence[tuple[bool, Datey, Datey]] = [
+    _TEST_CONTAINS_PARAMETERS: Sequence[tuple[bool, DateLike, DateLike]] = [
         (False, Date(1970, 2, 2), DateRange()),
         (False, Date(1970, 2), DateRange()),
         (False, Date(1970), DateRange()),
@@ -388,7 +397,7 @@ class TestDateRange:
         _TEST_CONTAINS_PARAMETERS
         + [(x[0], x[2], x[1]) for x in _TEST_CONTAINS_PARAMETERS],
     )
-    def test___contains__(self, expected: bool, other: Datey, sut: Datey) -> None:
+    def test___contains__(self, expected: bool, other: DateLike, sut: DateLike) -> None:
         assert (other in sut) == expected
 
     @pytest.mark.parametrize(
@@ -513,7 +522,7 @@ class TestDateRange:
         ],
     )
     def test___lt____with_both_dates(
-        self, expected: bool, sut: DateRange, other: Datey
+        self, expected: bool, sut: DateRange, other: DateLike
     ) -> None:
         assert (sut < other) == expected
 
@@ -638,7 +647,7 @@ class TestDateRange:
             ),
         ],
     )
-    def test___le__(self, expected: bool, sut: DateRange, other: Datey) -> None:
+    def test___le__(self, expected: bool, sut: DateRange, other: DateLike) -> None:
         assert (sut <= other) == expected
 
     @pytest.mark.parametrize(
@@ -654,7 +663,7 @@ class TestDateRange:
             (False, None),
         ],
     )
-    def test___eq__(self, expected: bool, other: Datey) -> None:
+    def test___eq__(self, expected: bool, other: DateLike) -> None:
         assert (DateRange(Date(1970, 2, 2)) == other) == expected
 
     @pytest.mark.parametrize(
@@ -778,7 +787,7 @@ class TestDateRange:
             ),
         ],
     )
-    def test___ge__(self, expected: bool, sut: DateRange, other: Datey) -> None:
+    def test___ge__(self, expected: bool, sut: DateRange, other: DateLike) -> None:
         assert (sut >= other) == expected
 
     @pytest.mark.parametrize(
@@ -798,7 +807,7 @@ class TestDateRange:
             (True, DateRange(Date(1970, 2, 1), Date(1970, 2, 3))),
         ],
     )
-    def test___gt__(self, expected: bool, other: Datey) -> None:
+    def test___gt__(self, expected: bool, other: DateLike) -> None:
         assert (DateRange(Date(1970, 2, 2)) > other) == expected
 
     @pytest.mark.parametrize(
@@ -873,9 +882,9 @@ class TestDateRangeSchema(SchemaTestBase):
         return [(await DateRangeSchema.new(), *_DUMMY_DATE_RANGE_DUMPS)]
 
 
-class TestDateySchema(SchemaTestBase):
+class TestDateLikeSchema(SchemaTestBase):
     @override
     async def get_sut_instances(
         self,
     ) -> Sequence[tuple[Schema, Sequence[Dump], Sequence[Dump]]]:
-        return [(await DateySchema.new(), *_DUMMY_DATEY_DUMPS)]
+        return [(await DateLikeSchema.new(), *_DUMMY_DATE_LIKE_DUMPS)]

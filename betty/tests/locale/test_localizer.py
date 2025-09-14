@@ -5,7 +5,7 @@ from typing import TYPE_CHECKING
 
 import pytest
 
-from betty.date import Date, DateRange, Datey, IncompleteDateError
+from betty.date import Date, DateLike, DateRange, IncompleteDateError
 from betty.locale import DEFAULT_LOCALE
 from betty.locale.localizer import DEFAULT_LOCALIZER, LocalizerRepository
 from betty.locale.translation import TranslationRepository
@@ -191,15 +191,17 @@ class TestLocalizer:
         with pytest.raises(IncompleteDateError):
             assert sut.format_date_range(date_range)
 
-    _FORMAT_DATEY_TEST_PARAMETERS = (
+    _FORMAT_DATE_LIKE_TEST_PARAMETERS = (
         *_FORMAT_DATE_TEST_PARAMETERS,
         *_FORMAT_DATE_RANGE_TEST_PARAMETERS,
     )
 
-    @pytest.mark.parametrize(("expected", "datey"), _FORMAT_DATEY_TEST_PARAMETERS)
-    async def test_format_datey(self, expected: str, datey: Datey) -> None:
+    @pytest.mark.parametrize(
+        ("expected", "date_like"), _FORMAT_DATE_LIKE_TEST_PARAMETERS
+    )
+    async def test_format_date_like(self, expected: str, date_like: DateLike) -> None:
         sut = DEFAULT_LOCALIZER
-        assert sut.format_datey(datey) == expected
+        assert sut.format_date_like(date_like) == expected
 
     async def test_format_datetime_datetime(self) -> None:
         sut = DEFAULT_LOCALIZER

@@ -31,7 +31,7 @@ from betty.user import UserFacing
 if TYPE_CHECKING:
     from betty.ancestry.file_reference import FileReference
     from betty.ancestry.has_citations import HasCitations  # noqa F401
-    from betty.date import Datey
+    from betty.date import DateLike
     from betty.json.linked_data import JsonLdObject
     from betty.model import Entity  # noqa F401
     from betty.project import Project
@@ -78,7 +78,7 @@ class Citation(
         id: str | None = None,  # noqa A002  # noqa A002
         facts: ToManyAssociates[HasCitations & Entity] | None = None,
         location: Localizable | None = None,
-        date: Datey | None = None,
+        date: DateLike | None = None,
         file_references: ToManyAssociates[FileReference] | None = None,
         privacy: Privacy | None = None,
         public: bool | None = None,

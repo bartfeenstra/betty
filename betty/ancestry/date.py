@@ -8,7 +8,7 @@ from typing import TYPE_CHECKING, Any
 
 from typing_extensions import override
 
-from betty.date import Date, Datey, DateySchema
+from betty.date import Date, DateLike, DateLikeSchema
 from betty.json.linked_data import JsonLdObject, LinkedDataDumpableJsonLdObject
 from betty.privacy import is_public
 
@@ -25,7 +25,7 @@ class HasDate(LinkedDataDumpableJsonLdObject):
     def __init__(
         self,
         *args: Any,
-        date: Datey | None = None,
+        date: DateLike | None = None,
         **kwargs: Any,
     ):
         super().__init__(*args, **kwargs)
@@ -64,5 +64,5 @@ class HasDate(LinkedDataDumpableJsonLdObject):
     @classmethod
     async def linked_data_schema(cls, project: Project) -> JsonLdObject:
         schema = await super().linked_data_schema(project)
-        schema.add_property("date", await DateySchema.new(), False)
+        schema.add_property("date", await DateLikeSchema.new(), False)
         return schema

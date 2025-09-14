@@ -29,7 +29,7 @@ if TYPE_CHECKING:
 
 class IncompleteDateError(ValueError):
     """
-    Raised when a datey was unexpectedly incomplete.
+    Raised when a date-like was unexpectedly incomplete.
     """
 
 
@@ -86,7 +86,7 @@ class Date(LinkedDataDumpableJsonLdObject):
     @property
     def comparable(self) -> bool:
         """
-        If this date is comparable to other dateys.
+        If this date is comparable to other date-likes.
         """
         return self.year is not None
 
@@ -145,7 +145,7 @@ class Date(LinkedDataDumpableJsonLdObject):
             selfish = selfish.to_range()  # type: ignore[assignment]
         return comparator(selfish, other)
 
-    def __contains__(self, other: Datey) -> bool:
+    def __contains__(self, other: DateLike) -> bool:
         if isinstance(other, Date):
             return self == other
         return self in other
@@ -251,7 +251,7 @@ class DateRange(LinkedDataDumpableJsonLdObject):
     @property
     def comparable(self) -> bool:
         """
-        If this date is comparable to other dateys.
+        If this date is comparable to other date-likes.
         """
         return (
             self.start is not None
@@ -260,7 +260,7 @@ class DateRange(LinkedDataDumpableJsonLdObject):
             and self.end.comparable
         )
 
-    def __contains__(self, other: Datey) -> bool:
+    def __contains__(self, other: DateLike) -> bool:
         if not self.comparable:
             return False
 
@@ -485,16 +485,16 @@ class DateRange(LinkedDataDumpableJsonLdObject):
         )
 
 
-class DateySchema(OneOf):
+class DateLikeSchema(OneOf):
     """
-    A JSON Schema for :py:type:`betty.date.Datey`.
+    A JSON Schema for :py:type:`betty.date.DateLike`.
     """
 
     def __init__(self, date_schema: DateSchema, date_range_schema: DateRangeSchema):
         super().__init__(
             date_schema,
             date_range_schema,
-            def_name="datey",
+            def_name="dateLike",
             title="Date or date range",
         )
 
@@ -506,7 +506,7 @@ class DateySchema(OneOf):
         return cls(await DateSchema.new(), await DateRangeSchema.new())
 
 
-Datey: TypeAlias = Date | DateRange
+DateLike: TypeAlias = Date | DateRange
 DatePartsFormatters: TypeAlias = Mapping[tuple[bool, bool, bool], str]
 DateFormatters: TypeAlias = Mapping[tuple[bool | None], str]
 DateRangeFormatters: TypeAlias = Mapping[

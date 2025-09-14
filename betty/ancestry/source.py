@@ -36,7 +36,7 @@ if TYPE_CHECKING:
     from betty.ancestry.citation import Citation  # noqa F401
     from betty.ancestry.file_reference import FileReference
     from betty.ancestry.note import Note
-    from betty.date import Datey
+    from betty.date import DateLike
     from betty.project import Project
     from betty.serde.dump import Dump, DumpMapping
 
@@ -95,7 +95,7 @@ class Source(
         contained_by: ToZeroOrOneAssociate[Source] = None,
         contains: ToManyAssociates[Source] | None = None,
         notes: ToManyAssociates[Note] | None = None,
-        date: Datey | None = None,
+        date: DateLike | None = None,
         file_references: ToManyAssociates[FileReference] | None = None,
         links: MutableSequence[Link] | None = None,
         privacy: Privacy | None = None,

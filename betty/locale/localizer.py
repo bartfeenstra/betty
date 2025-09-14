@@ -15,10 +15,10 @@ from babel.dates import format_date
 from betty.date import (
     Date,
     DateFormatters,
+    DateLike,
     DatePartsFormatters,
     DateRange,
     DateRangeFormatters,
-    Datey,
     IncompleteDateError,
 )
 from betty.locale import (
@@ -187,9 +187,9 @@ class Localizer:
             }
         return self.__date_range_formatters
 
-    def format_datey(self, date: Datey) -> str:
+    def format_date_like(self, date: DateLike) -> str:
         """
-        Format a datey value into a human-readable string.
+        Format a date-like value into a human-readable string.
         """
         if isinstance(date, Date):
             return self.format_date(date)
