@@ -8,7 +8,7 @@ from contextlib import contextmanager
 from typing import TYPE_CHECKING, Any, overload
 
 from betty.exception import (
-    Contextey,
+    ContextLike,
     UserFacingException,
     UserFacingExceptionGroup,
     localizable_contexts,
@@ -38,7 +38,7 @@ def assert_error(
     error: None = None,
     error_type: type[UserFacingException] = UserFacingException,
     error_message: str | None = None,
-    error_contexts: Sequence[Contextey] | None = None,
+    error_contexts: Sequence[ContextLike] | None = None,
 ) -> Sequence[UserFacingException]:
     pass
 
@@ -49,7 +49,7 @@ def assert_error(
     error: UserFacingException | None = None,
     error_type: type[UserFacingException] = UserFacingException,
     error_message: str | None = None,
-    error_contexts: Sequence[Contextey] | None = None,
+    error_contexts: Sequence[ContextLike] | None = None,
 ) -> Sequence[UserFacingException]:
     """
     Assert that an error group contains an error matching the given parameters.

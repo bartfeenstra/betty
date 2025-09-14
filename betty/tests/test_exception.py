@@ -5,7 +5,7 @@ import pytest
 
 from betty.exception import (
     Attr,
-    Contextey,
+    ContextLike,
     Index,
     Key,
     UserFacingException,
@@ -83,7 +83,7 @@ class TestKey:
     ],
 )
 def test_localizable_contexts(
-    expected: Sequence[str], contexts: Sequence[Contextey]
+    expected: Sequence[str], contexts: Sequence[ContextLike]
 ) -> None:
     sut = UserFacingException(static("Something went wrong!")).with_context(*contexts)
     assert [
