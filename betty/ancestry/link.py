@@ -4,33 +4,34 @@ The Link API allows data to reference external resources.
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Any, Self, final
+from typing import TYPE_CHECKING, final
 
 from typing_extensions import override
 
 from betty.ancestry.description import HasDescription
 from betty.ancestry.locale import HasLocale
 from betty.ancestry.media_type import HasMediaType
-from betty.json.linked_data import (
-    JsonLdObject,
-    JsonLdSchema,
-    LinkedDataDumpableJsonLdObject,
-    dump_link,
-)
-from betty.json.schema import Array, String
+from betty.json.schema import String
 from betty.link import Link as StdLink
 from betty.locale import UNDETERMINED_LOCALE
 from betty.locale.localizable import (
     Localizable,
     StaticTranslationsLocalizable,
     StaticTranslationsLocalizableSchema,
+    _,
+    ngettext,
     plain,
 )
-from betty.privacy import is_public
+from betty.model import Entity
+from betty.model.association import BidirectionalToZeroOrOne
+from betty.plugin import ShorthandPluginBase
+from betty.privacy import HasPrivacy, Privacy, merge_privacies
 
 if TYPE_CHECKING:
-    from collections.abc import MutableSequence
-
+    from betty.ancestry.has_links import HasLinks
+    from betty.json.linked_data import (
+        JsonLdObject,
+    )
     from betty.media_type import MediaType
     from betty.project import Project
     from betty.serde.dump import Dump, DumpMapping
@@ -38,14 +39,32 @@ if TYPE_CHECKING:
 
 @final
 class Link(
-    StdLink, HasMediaType, HasLocale, HasDescription, LinkedDataDumpableJsonLdObject
+    ShorthandPluginBase,
+    StdLink,
+    HasMediaType,
+    HasLocale,
+    HasDescription,
+    HasPrivacy,
+    Entity,
 ):
     """
     An external link.
     """
 
+    _plugin_id = "link"
+    _plugin_label = _("Link")
+
     #: The link's `IANA link relationship <https://www.iana.org/assignments/link-relations/link-relations.xhtml>`_.
     relationship: str | None
+
+    #: The entity hat owns the link.
+    owner = BidirectionalToZeroOrOne["Link", "HasLinks"](
+        "betty.ancestry.link:Link",
+        "owner",
+        "betty.ancestry.has_links:HasLinks",
+        "links",
+        title="Owner",
+    )
 
     def __init__(
         self,
@@ -56,15 +75,34 @@ class Link(
         description: Localizable | None = None,
         media_type: MediaType | None = None,
         locale: str = UNDETERMINED_LOCALE,
+        owner: HasLinks | None = None,
+        privacy: Privacy | None = None,
+        public: bool | None = None,
+        private: bool | None = None,
     ):
         super().__init__(
             media_type=media_type,
             description=description,
             locale=locale,
+            privacy=privacy,
+            public=public,
+            private=private,
         )
         self._url = url
         self._label = label
         self.relationship = relationship
+        if owner is not None:
+            self.owner = owner
+
+    @override
+    @classmethod
+    def plugin_label_plural(cls) -> Localizable:
+        return _("Links")
+
+    @override
+    @classmethod
+    def plugin_label_count(cls, count: int) -> Localizable:
+        return ngettext("{count} link", "{count} links", count).format(count=str(count))
 
     @override  # type: ignore[explicit-override]
     @property
@@ -98,111 +136,50 @@ class Link(
     @override
     async def dump_linked_data(self, project: Project) -> DumpMapping[Dump]:
         dump = await super().dump_linked_data(project)
-        dump["url"] = self.url
-        if self._label is not None:
-            await project.localizers
-            dump["label"] = await StaticTranslationsLocalizable.dump_linked_data_for(
-                project, self._label
-            )
-        if self.relationship is not None:
-            dump["relationship"] = self.relationship
-        return dump
-
-    @override
-    @classmethod
-    async def linked_data_schema(cls, project: Project) -> LinkSchema:
-        return await LinkSchema.new()
-
-
-@final
-class LinkSchema(JsonLdObject):
-    """
-    A JSON Schema for :py:class:`betty.ancestry.link.Link`.
-    """
-
-    def __init__(self, json_ld_schema: JsonLdSchema):
-        super().__init__(json_ld_schema, def_name="link", title="Link")
-        self.add_property(
-            "url",
-            String(
-                format=String.Format.URI,
-                description="The full URL to the other resource.",
-            ),
-        )
-        self.add_property(
-            "relationship",
-            String(
-                description="The relationship between this resource and the link target (https://en.wikipedia.org/wiki/Link_relation)."
-            ),
-            False,
-        )
-        self.add_property(
-            "label",
-            StaticTranslationsLocalizableSchema(
-                title="Label", description="The human-readable link label."
-            ),
-            False,
-        )
-
-    @classmethod
-    async def new(cls) -> Self:
-        """
-        Create a new instance.
-        """
-        return cls(await JsonLdSchema.new())
-
-
-class LinkCollectionSchema(Array):
-    """
-    A JSON Schema for :py:class:`betty.ancestry.link.Link` collections.
-    """
-
-    def __init__(self, link_schema: LinkSchema):
-        super().__init__(link_schema, def_name="linkCollection", title="Links")
-
-    @classmethod
-    async def new(cls) -> Self:
-        """
-        Create a new instance.
-        """
-        return cls(await LinkSchema.new())
-
-
-class HasLinks(LinkedDataDumpableJsonLdObject):
-    """
-    A resource that has external links.
-    """
-
-    def __init__(
-        self,
-        *args: Any,
-        links: MutableSequence[Link] | None = None,
-        **kwargs: Any,
-    ):
-        super().__init__(*args, **kwargs)
-        self._links: MutableSequence[Link] = links if links else []
-
-    @property
-    def links(self) -> MutableSequence[Link]:
-        """
-        The extenal links.
-        """
-        return self._links
-
-    @override
-    async def dump_linked_data(self, project: Project) -> DumpMapping[Dump]:
-        dump = await super().dump_linked_data(project)
-        await dump_link(
-            dump,
-            project,
-            *(self.links if is_public(self) else ()),
-        )
-
+        if self.public:
+            dump["url"] = self.url
+            if self._label is not None:
+                await project.localizers
+                dump[
+                    "label"
+                ] = await StaticTranslationsLocalizable.dump_linked_data_for(
+                    project, self._label
+                )
+            if self.relationship is not None:
+                dump["relationship"] = self.relationship
         return dump
 
     @override
     @classmethod
     async def linked_data_schema(cls, project: Project) -> JsonLdObject:
         schema = await super().linked_data_schema(project)
-        schema.add_property("links", await LinkCollectionSchema.new())
+        schema.add_property(
+            "url",
+            String(
+                format=String.Format.URI,
+                description="The full URL to the other resource.",
+            ),
+            False,
+        )
+        schema.add_property(
+            "relationship",
+            String(
+                description="The relationship between this resource and the link target (https://en.wikipedia.org/wiki/Link_relation)."
+            ),
+            False,
+        )
+        schema.add_property(
+            "label",
+            StaticTranslationsLocalizableSchema(
+                title="Label", description="The human-readable link label."
+            ),
+            False,
+        )
         return schema
+
+    @override
+    def _get_effective_privacy(self) -> Privacy:
+        privacy = super()._get_effective_privacy()
+        if isinstance(self.owner, HasPrivacy):  # type: ignore[redundant-expr]
+            return merge_privacies(privacy, self.owner)  # type: ignore[unreachable]
+        return privacy

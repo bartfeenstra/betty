@@ -5,12 +5,12 @@ A :py:class:`betty.ancestry.link.Link` adds external links to entities.
 
 Fields
 ------
-Notes inherit from:
+Links inherit from:
 
 - :doc:`/usage/ancestry/privacy`
 
 ``description`` (optional :doc:`/usage/ancestry/static-translations`)
-    The event's human-readable description.
+    The link's human-readable description.
 ``locale`` (optional ``str``)
     The locale of the referenced resource as an `IETF BCP 47 <https://tools.ietf.org/html/bcp47>`_ language tag.
 ``label`` (optional :doc:`/usage/ancestry/static-translations`)

@@ -247,7 +247,7 @@ class TestPerson(EntityTestBase):
             "https://example.com/the-person",
             label=plain("The Person Online"),
         )
-        person.links.append(link)
+        person.links.add(link)
         person.citations.add(
             Citation(
                 id="the_citation",
@@ -318,9 +318,12 @@ class TestPerson(EntityTestBase):
             "links": [
                 {
                     "@context": {"description": "https://schema.org/description"},
+                    "id": link.id,
                     "url": "https://example.com/the-person",
                     "label": {DEFAULT_LOCALE: "The Person Online"},
                     "locale": "und",
+                    "owner": "/person/the_person/index.json",
+                    "private": False,
                 },
             ],
             "fileReferences": [],
@@ -354,8 +357,8 @@ class TestPerson(EntityTestBase):
         person.parents.add(parent)
         person.children.add(child)
         link = Link("https://example.com/the-person")
-        link.label = "The Person Online"  # type: ignore[assignment]
-        person.links.append(link)
+        link.label = plain("The Person Online")
+        person.links.add(link)
         person.citations.add(
             Citation(
                 id="the_citation",
@@ -415,7 +418,15 @@ class TestPerson(EntityTestBase):
                 "/citation/the_citation/index.json",
             ],
             "notes": [],
-            "links": [],
+            "links": [
+                {
+                    "@context": {"description": "https://schema.org/description"},
+                    "id": link.id,
+                    "locale": None,
+                    "owner": "/person/the_person/index.json",
+                    "private": True,
+                }
+            ],
             "fileReferences": [],
         }
         actual = await assert_dumps_linked_data(person)

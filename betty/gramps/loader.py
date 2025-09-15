@@ -59,7 +59,8 @@ from betty.ancestry.gender.genders import (
 from betty.ancestry.gender.genders import (
     Unknown as UnknownGender,
 )
-from betty.ancestry.link import HasLinks, Link
+from betty.ancestry.has_links import HasLinks
+from betty.ancestry.link import Link
 from betty.ancestry.name import Name
 from betty.ancestry.note import Note
 from betty.ancestry.person import Person
@@ -1245,7 +1246,7 @@ class GrampsLoader:
             description = url_element.get("description")
             if description:
                 link.label = plain(description)
-            owner.links.append(link)
+            owner.links.add(link)
 
     async def _load_attribute_privacy(
         self, entity: HasPrivacy & Entity, element: ElementTree.Element, tag: str
@@ -1323,7 +1324,7 @@ class GrampsLoader:
                 )
                 continue
             link = Link(link_attributes["url"])
-            entity.links.append(link)
+            entity.links.add(link)
             if "description" in link_attributes:
                 link.description = StaticTranslationsLocalizable(
                     self._parse_attribute_static_translations(

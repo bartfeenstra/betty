@@ -2,42 +2,22 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING, Any
 
-import pytest
-from typing_extensions import override
-
-from betty.ancestry.link import HasLinks, Link, LinkCollectionSchema, LinkSchema
-from betty.app import App
+from betty.ancestry.has_links import HasLinks
+from betty.ancestry.link import Link
 from betty.locale import DEFAULT_LOCALE, UNDETERMINED_LOCALE
 from betty.locale.localizable import plain
 from betty.locale.localizer import DEFAULT_LOCALIZER
 from betty.media_type.media_types import HTML
-from betty.project import Project
 from betty.test_utils.json.linked_data import assert_dumps_linked_data
-from betty.test_utils.json.schema import SchemaTestBase
+from betty.test_utils.model import DummyEntity
+from betty.user import UserFacing
 
 if TYPE_CHECKING:
-    from collections.abc import Mapping, Sequence
+    from collections.abc import Mapping
 
-    from betty.json.schema import Schema
-    from betty.serde.dump import Dump, DumpMapping
 
-_DUMMY_LINK_DUMPS: Sequence[DumpMapping[Dump]] = (
-    {
-        "url": "https://example.com",
-    },
-    {
-        "url": "https://example.com",
-        "relationship": "canonical",
-    },
-    {
-        "url": "https://example.com",
-        "label": {UNDETERMINED_LOCALE: "Hello, world!"},
-    },
-    {
-        "url": "https://example.com",
-        "privacy": True,
-    },
-)
+class DummyUserFacingHasLinks(UserFacing, HasLinks, DummyEntity):
+    pass
 
 
 class TestLink:
@@ -46,6 +26,15 @@ class TestLink:
         label = "Hello, world!"
         sut = Link(url, label=plain(label))
         assert sut.label.localize(DEFAULT_LOCALIZER) == label
+
+    def test_owner__without_owner(self) -> None:
+        sut = Link("https://example.com")
+        assert sut.owner is None
+
+    def test_owner__with_owner(self) -> None:
+        owner = DummyUserFacingHasLinks()
+        sut = Link("https://example.com", owner=owner)
+        assert sut.owner is owner
 
     async def test_url(self) -> None:
         url = "https://example.com"
@@ -89,13 +78,17 @@ class TestLink:
         link = Link("https://example.com")
         expected: Mapping[str, Any] = {
             "@context": {"description": "https://schema.org/description"},
+            "id": link.id,
             "url": "https://example.com",
             "locale": "und",
+            "owner": None,
+            "private": False,
         }
         actual = await assert_dumps_linked_data(link)
         assert actual == expected
 
     async def test_dump_linked_data__should_dump_full(self) -> None:
+        owner = DummyUserFacingHasLinks(id="O1")
         link = Link(
             "https://example.com",
             label=plain("The Label"),
@@ -103,99 +96,41 @@ class TestLink:
             relationship="external",
             locale="nl-NL",
             media_type=HTML,
+            owner=owner,
         )
         expected: Mapping[str, Any] = {
             "@context": {"description": "https://schema.org/description"},
+            "id": link.id,
             "url": "https://example.com",
             "relationship": "external",
             "label": {DEFAULT_LOCALE: "The Label"},
             "description": {DEFAULT_LOCALE: "The Description"},
             "locale": "nl-NL",
             "mediaType": "text/html",
+            "owner": "/dummy-user-facing-has-links/O1/index.json",
+            "private": False,
         }
         actual = await assert_dumps_linked_data(link)
         assert actual == expected
 
-
-class TestLinkSchema(SchemaTestBase):
-    @override
-    async def get_sut_instances(
-        self,
-    ) -> Sequence[tuple[Schema, Sequence[Dump], Sequence[Dump]]]:
-        return [
-            (
-                await LinkSchema.new(),
-                _DUMMY_LINK_DUMPS,
-                [True, False, None, 123, "abc", [], {}],
-            )
-        ]
-
-
-class TestLinkCollectionSchema(SchemaTestBase):
-    @override
-    async def get_sut_instances(
-        self,
-    ) -> Sequence[tuple[Schema, Sequence[Dump], Sequence[Dump]]]:
-        schemas = []
-        valid_datas: Sequence[Dump] = [
-            *[[data] for data in _DUMMY_LINK_DUMPS],  # type: ignore[list-item]
-            list(_DUMMY_LINK_DUMPS),
-        ]
-        invalid_datas: Sequence[Dump] = [True, False, None, 123, "abc", {}]
-        async with (
-            App.new_temporary() as app,
-            app,
-            Project.new_temporary(app) as project,
-            project,
-        ):
-            schemas.append(
-                (
-                    await LinkCollectionSchema.new(),
-                    valid_datas,
-                    invalid_datas,
-                )
-            )
-        return schemas
-
-
-class DummyHasLinks(HasLinks):
-    pass
-
-
-class TestHasLinks:
-    async def test___init____with_links(self) -> None:
-        link = Link("https://example.com")
-        sut = DummyHasLinks(links=[link])
-        assert sut.links == [link]
-
-    async def test_links(self) -> None:
-        sut = DummyHasLinks()
-        assert sut.links is sut.links
-
-    @pytest.mark.parametrize(
-        ("expected", "sut"),
-        [
-            (
-                {"links": []},
-                DummyHasLinks(),
-            ),
-            (
-                {
-                    "links": [
-                        {
-                            "@context": {
-                                "description": "https://schema.org/description"
-                            },
-                            "url": "https://example.com",
-                            "locale": "und",
-                        }
-                    ]
-                },
-                DummyHasLinks(links=[Link("https://example.com")]),
-            ),
-        ],
-    )
-    async def test_dump_linked_data(
-        self, expected: DumpMapping[Dump], sut: HasLinks
-    ) -> None:
-        assert await assert_dumps_linked_data(sut) == expected
+    async def test_dump_linked_data__should_dump_private(self) -> None:
+        owner = DummyUserFacingHasLinks(id="O1")
+        link = Link(
+            "https://example.com",
+            label=plain("The Label"),
+            description=plain("The Description"),
+            relationship="external",
+            locale="nl-NL",
+            media_type=HTML,
+            owner=owner,
+            private=True,
+        )
+        expected: Mapping[str, Any] = {
+            "@context": {"description": "https://schema.org/description"},
+            "id": link.id,
+            "locale": None,
+            "owner": "/dummy-user-facing-has-links/O1/index.json",
+            "private": True,
+        }
+        actual = await assert_dumps_linked_data(link)
+        assert actual == expected

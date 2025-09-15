@@ -8,7 +8,7 @@ from typing import TYPE_CHECKING, final
 
 from typing_extensions import override
 
-from betty.ancestry.link import HasLinks
+from betty.ancestry.has_links import HasLinks
 from betty.locale.localizable import (
     Localizable,
     StaticTranslationsLocalizable,

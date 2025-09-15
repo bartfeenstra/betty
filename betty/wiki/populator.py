@@ -12,7 +12,8 @@ from typing import TYPE_CHECKING
 from betty.ancestry.file import File
 from betty.ancestry.file_reference import FileReference
 from betty.ancestry.has_file_references import HasFileReferences
-from betty.ancestry.link import HasLinks, Link
+from betty.ancestry.has_links import HasLinks
+from betty.ancestry.link import Link
 from betty.ancestry.place import Place
 from betty.concurrent import AsynchronizedLock, Lock
 from betty.fetch import FetchError
@@ -146,7 +147,7 @@ class Populator:
                 await self._populate_link(
                     added_link, added_page_language, added_summary
                 )
-                has_links.links.append(added_link)
+                has_links.links.add(added_link)
                 summary_links.append((added_page_language, added_page_name))
             return
 

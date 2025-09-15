@@ -10,7 +10,7 @@ from typing_extensions import override
 
 from betty.ancestry.date import HasDate
 from betty.ancestry.has_file_references import HasFileReferences
-from betty.ancestry.link import HasLinks
+from betty.ancestry.has_links import HasLinks
 from betty.ancestry.source import Source
 from betty.locale.localizable import (
     Localizable,

@@ -1,0 +1,52 @@
+from __future__ import annotations
+
+from typing import TYPE_CHECKING
+
+from betty.ancestry.has_links import HasLinks
+from betty.ancestry.link import Link
+from betty.test_utils.json.linked_data import assert_dumps_linked_data
+from betty.test_utils.model import DummyEntity
+
+if TYPE_CHECKING:
+    from betty.serde.dump import Dump, DumpMapping
+
+
+class DummyHasLinks(HasLinks, DummyEntity):
+    pass
+
+
+class TestHasLinks:
+    async def test___init____with_links(self) -> None:
+        link = Link("https://example.com")
+        sut = DummyHasLinks(links=[link])
+        assert sut.links.view == [link]
+
+    async def test_links(self) -> None:
+        sut = DummyHasLinks()
+        assert sut.links is sut.links
+
+    async def test_dump_linked_data_without_links(self) -> None:
+        sut = DummyHasLinks()
+        expected: DumpMapping[Dump] = {
+            "id": sut.id,
+            "links": [],
+        }
+        assert await assert_dumps_linked_data(sut) == expected
+
+    async def test_dump_linked_data(self) -> None:
+        link = Link("https://example.com")
+        sut = DummyHasLinks(links=[link])
+        expected = {
+            "id": sut.id,
+            "links": [
+                {
+                    "@context": {"description": "https://schema.org/description"},
+                    "id": link.id,
+                    "url": "https://example.com",
+                    "locale": "und",
+                    "owner": None,
+                    "private": False,
+                }
+            ],
+        }
+        assert await assert_dumps_linked_data(sut) == expected

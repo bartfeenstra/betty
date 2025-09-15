@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Betty 0.4\n"
 "Report-Msgid-Bugs-To: illia@maier.page\n"
-"POT-Creation-Date: 2025-07-30 14:40+0100\n"
+"POT-Creation-Date: 2025-09-15 15:11+0100\n"
 "PO-Revision-Date: 2025-05-13 17:01+0000\n"
 "Last-Translator: Максим Горпиніч <maksimgorpinic4@gmail.com>\n"
 "Language: uk\n"
@@ -630,6 +630,12 @@ msgstr "Остання зміна %(last_modified)s"
 
 msgid "License"
 msgstr "Ліцензія"
+
+msgid "Link"
+msgstr ""
+
+msgid "Links"
+msgstr ""
 
 msgid "Load <a href=\"https://gramps-project.org/\">Gramps</a> family trees."
 msgstr ""
@@ -1437,6 +1443,13 @@ msgid_plural "{count} file references"
 msgstr[0] "{count} посилання на файл"
 msgstr[1] "{count} посилання на файли"
 msgstr[2] "{count} посилання на файлів"
+
+#, python-brace-format
+msgid "{count} link"
+msgid_plural "{count} links"
+msgstr[0] ""
+msgstr[1] ""
+msgstr[2] ""
 
 #, python-brace-format
 msgid "{count} note"
