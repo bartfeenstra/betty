@@ -90,79 +90,87 @@ class TestPersonName(EntityTestBase):
         )
         assert sut.affiliation == affiliation
 
-    @pytest.mark.parametrize(
-        ("expected", "sut"),
-        [
-            (
-                {
-                    "@context": {
-                        "individual": "https://schema.org/givenName",
-                    },
-                    "id": "my-first-name",
-                    "individual": "Jane",
-                    "locale": UNDETERMINED_LOCALE,
-                    "private": False,
-                    "citations": [],
-                    "person": None,
-                },
-                PersonName(person=Person(), individual="Jane", id="my-first-name"),
-            ),
-            (
-                {
-                    "@context": {
-                        "affiliation": "https://schema.org/familyName",
-                    },
-                    "id": "my-first-name",
-                    "affiliation": "Dough",
-                    "locale": UNDETERMINED_LOCALE,
-                    "private": False,
-                    "citations": [],
-                    "person": None,
-                },
-                PersonName(person=Person(), affiliation="Dough", id="my-first-name"),
-            ),
-            (
-                {
-                    "@context": {
-                        "individual": "https://schema.org/givenName",
-                        "affiliation": "https://schema.org/familyName",
-                    },
-                    "id": "my-first-name",
-                    "individual": "Jane",
-                    "affiliation": "Dough",
-                    "locale": "nl-NL",
-                    "private": False,
-                    "citations": [],
-                    "person": None,
-                },
-                PersonName(
-                    person=Person(),
-                    individual="Jane",
-                    affiliation="Dough",
-                    locale="nl-NL",
-                    id="my-first-name",
-                ),
-            ),
-            (
-                {
-                    "id": "my-first-name",
-                    "locale": None,
-                    "private": True,
-                    "citations": [],
-                    "person": None,
-                },
-                PersonName(
-                    person=Person(),
-                    individual="Jane",
-                    affiliation="Dough",
-                    locale="nl-NL",
-                    private=True,
-                    id="my-first-name",
-                ),
-            ),
-        ],
-    )
-    async def test_dump_linked_data(
-        self, expected: DumpMapping[Dump], sut: PersonName
-    ) -> None:
-        assert await assert_dumps_linked_data(sut) == expected
+    async def test_dump_linked_data__should_dump_minimal_individual(self) -> None:
+        sut = PersonName(person=Person(), individual="Jane")
+        actual = await assert_dumps_linked_data(sut)
+        expected: DumpMapping[Dump] = {
+            "@context": {
+                "individual": "https://schema.org/givenName",
+            },
+            "id": sut.id,
+            "individual": "Jane",
+            "locale": UNDETERMINED_LOCALE,
+            "private": False,
+            "citations": [],
+            "person": None,
+        }
+        assert actual == expected
+
+    async def test_dump_linked_data__should_dump_minimal_affiliation(self) -> None:
+        sut = PersonName(person=Person(), affiliation="Doe")
+        actual = await assert_dumps_linked_data(sut)
+        expected: DumpMapping[Dump] = {
+            "@context": {
+                "affiliation": "https://schema.org/familyName",
+            },
+            "id": sut.id,
+            "affiliation": "Doe",
+            "locale": UNDETERMINED_LOCALE,
+            "private": False,
+            "citations": [],
+            "person": None,
+        }
+        assert actual == expected
+
+    async def test_dump_linked_data__should_dump_full(self) -> None:
+        person = Person(id="P1")
+        citation = Citation(id="C1", source=Source())
+        locale = "nl-NL"
+        sut = PersonName(
+            person=person,
+            individual="Jane",
+            affiliation="Doe",
+            citations=[citation],
+            locale=locale,
+        )
+        actual = await assert_dumps_linked_data(sut)
+        expected = {
+            "@context": {
+                "individual": "https://schema.org/givenName",
+                "affiliation": "https://schema.org/familyName",
+            },
+            "id": sut.id,
+            "individual": "Jane",
+            "affiliation": "Doe",
+            "locale": locale,
+            "private": False,
+            "citations": [
+                "/citation/C1/index.json",
+            ],
+            "person": "/person/P1/index.json",
+        }
+        assert actual == expected
+
+    async def test_dump_linked_data__should_dump_private(self) -> None:
+        person = Person(id="P1")
+        citation = Citation(id="C1", source=Source())
+        locale = "nl-NL"
+        sut = PersonName(
+            person=person,
+            individual="Jane",
+            affiliation="Doe",
+            citations=[citation],
+            locale=locale,
+            private=True,
+        )
+        actual = await assert_dumps_linked_data(sut)
+        expected = {
+            "id": sut.id,
+            "locale": None,
+            "private": True,
+            "citations": [
+                "/citation/C1/index.json",
+            ],
+            "person": "/person/P1/index.json",
+        }
+        assert actual == expected
