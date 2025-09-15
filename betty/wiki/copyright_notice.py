@@ -73,3 +73,38 @@ class WikipediaContributors(ShorthandPluginBase, AppDependentFactory, CopyrightN
         # We know there's always "en" (English).
         assert locale is not None
         return f"https://{locale}.wikipedia.org/wiki/{self._urls[locale.language]}"
+
+class WikimediaCommonsCopyright(ShorthandPluginBase, AppDependentFactory, CopyrightNotice):
+    """
+    The copyright for images from Wikimedia Commons.
+    """
+    _plugin_id = "wikimedia-commons-copyright"
+    _plugin_label = _("Wikimedia Commons contributors")
+
+    def __init__(self, author: str, url: str):
+        self._author = author
+        self._url = url
+
+    @classmethod
+    async def new_for_app(cls, app: App, author: str, url: str) -> Self:
+        """
+        Create a new instance for the given app, author, and URL.
+        """
+        return cls(author, url)
+
+    @override
+    @property
+    def summary(self) -> Localizable:
+        return _("Copyright {author}").format(author=self._author)
+
+    @override
+    @property
+    def text(self) -> Localizable:
+        return _(
+            "This image is copyrighted by {author}, sourced from Wikimedia Commons."
+        ).format(author=self._author)
+
+    @override
+    @property
+    def url(self) -> Localizable:
+        return self._url

@@ -36,8 +36,7 @@ if TYPE_CHECKING:
     from betty.ancestry import Ancestry
     from betty.locale.localizer import LocalizerRepository
     from betty.wiki.client import Client, Image, Summary
-    from betty.wiki.copyright_notice import WikipediaContributors
-
+    from betty.wiki.copyright_notice import WikipediaContributors, WikimediaCommonsCopyright
 
 @internal
 @threadsafe
@@ -52,7 +51,6 @@ class Populator:
         locales: Sequence[str],
         localizers: LocalizerRepository,
         client: Client,
-        copyright_notice: WikipediaContributors,
     ):
         self._ancestry = ancestry
         self._locales = locales
@@ -62,7 +60,6 @@ class Populator:
         self._image_files_locks: Mapping[Image, Lock] = defaultdict(
             AsynchronizedLock.new_threadsafe
         )
-        self._copyright_notice = copyright_notice
 
     async def populate(self) -> None:
         """
@@ -238,7 +235,15 @@ class Populator:
                     path=image.path,
                     media_type=image.media_type,
                     links=links,
-                    copyright_notice=self._copyright_notice,
+                    copyright_notice=(
+                        await WikimediaCommonsCopyright.new_for_app(
+                            self._ancestry.app,
+                            author=image.image_copyright.author,
+                            url=image.image_copyright.url,
+                        )
+                        if image.image_copyright
+                        else await WikipediaContributors.new_for_app(self._ancestry.app)
+                    ),
                 )
                 self._image_files[image] = file
                 self._ancestry.add(file)
