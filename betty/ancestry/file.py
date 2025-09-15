@@ -10,8 +10,8 @@ from typing_extensions import override
 
 from betty.ancestry.description import HasDescription
 from betty.ancestry.has_citations import HasCitations
+from betty.ancestry.has_links import HasLinks
 from betty.ancestry.has_notes import HasNotes
-from betty.ancestry.link import HasLinks, Link
 from betty.ancestry.media_type import HasMediaType
 from betty.locale.localizable import (
     Localizable,
@@ -30,6 +30,7 @@ if TYPE_CHECKING:
 
     from betty.ancestry.citation import Citation
     from betty.ancestry.file_reference import FileReference  # noqa F401
+    from betty.ancestry.link import Link
     from betty.ancestry.note import Note
     from betty.copyright_notice import CopyrightNotice
     from betty.json.linked_data import JsonLdObject

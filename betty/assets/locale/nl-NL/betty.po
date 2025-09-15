@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PROJECT VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2025-07-30 14:40+0100\n"
+"POT-Creation-Date: 2025-09-15 15:11+0100\n"
 "PO-Revision-Date: 2025-05-17 01:43+0000\n"
 "Last-Translator: Bart Feenstra <bart@bartfeenstra.com>\n"
 "Language: nl_NL\n"
@@ -637,6 +637,12 @@ msgstr "Laatst bijgewerkt op %(last_modified)s"
 
 msgid "License"
 msgstr "Licentie"
+
+msgid "Link"
+msgstr ""
+
+msgid "Links"
+msgstr ""
 
 msgid "Load <a href=\"https://gramps-project.org/\">Gramps</a> family trees."
 msgstr "Laad <a href=\"https://gramps-project.org/\">Gramps-</a>stambomen."
@@ -1435,6 +1441,12 @@ msgid "{count} file reference"
 msgid_plural "{count} file references"
 msgstr[0] "{count} bestandsverwijzing"
 msgstr[1] "{count} bestandsverwijzingen"
+
+#, python-brace-format
+msgid "{count} link"
+msgid_plural "{count} links"
+msgstr[0] ""
+msgstr[1] ""
 
 #, python-brace-format
 msgid "{count} note"

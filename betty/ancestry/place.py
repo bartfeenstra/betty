@@ -10,8 +10,8 @@ from typing import TYPE_CHECKING, final
 from typing_extensions import override
 
 from betty.ancestry.has_file_references import HasFileReferences
+from betty.ancestry.has_links import HasLinks
 from betty.ancestry.has_notes import HasNotes
-from betty.ancestry.link import HasLinks, Link
 from betty.ancestry.name import Name
 from betty.ancestry.place_type.place_types import Unknown as UnknownPlaceType
 from betty.json.linked_data import JsonLdObject, dump_context
@@ -30,6 +30,7 @@ if TYPE_CHECKING:
 
     from betty.ancestry.enclosure import Enclosure
     from betty.ancestry.event import Event
+    from betty.ancestry.link import Link
     from betty.ancestry.note import Note
     from betty.ancestry.place_type import PlaceType
     from betty.mutability import Mutable

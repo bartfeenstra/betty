@@ -239,7 +239,7 @@ class TestPopulator:
             WikipediaContributors({}),
         )
         await sut.populate()
-        assert resource.links == []
+        assert resource.links.view == []
 
     async def test_populate__should_ignore_non_wikipedia_links(
         self,
@@ -263,7 +263,7 @@ class TestPopulator:
             WikipediaContributors({}),
         )
         await sut.populate()
-        assert [link] == resource.links
+        assert resource.links.view == [link]
 
     async def test_populate__should_populate_existing_link(
         self,

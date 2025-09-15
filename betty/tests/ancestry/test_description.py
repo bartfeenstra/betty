@@ -11,7 +11,7 @@ from betty.test_utils.ancestry.description import DummyHasDescription
 from betty.test_utils.json.linked_data import assert_dumps_linked_data
 
 if TYPE_CHECKING:
-    from betty.ancestry.link import HasLinks
+    from betty.ancestry.has_links import HasLinks
     from betty.serde.dump import Dump, DumpMapping
 
 

@@ -13,7 +13,7 @@ from betty.ancestry.event_type.event_types import (
 )
 from betty.ancestry.gender import Gender
 from betty.ancestry.has_file_references import HasFileReferences
-from betty.ancestry.link import HasLinks
+from betty.ancestry.has_links import HasLinks
 from betty.ancestry.place_type import PlaceType
 from betty.ancestry.presence_role import PresenceRole
 from betty.copyright_notice import CopyrightNotice

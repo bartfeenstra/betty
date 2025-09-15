@@ -213,9 +213,12 @@ class TestSource(EntityTestBase):
             "links": [
                 {
                     "@context": {"description": "https://schema.org/description"},
+                    "id": link.id,
                     "url": "https://example.com/the-source",
                     "label": {DEFAULT_LOCALE: "The Source Online"},
                     "locale": "und",
+                    "owner": "/source/the_source/index.json",
+                    "private": False,
                 },
             ],
         }

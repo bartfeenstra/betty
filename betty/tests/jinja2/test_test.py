@@ -12,6 +12,8 @@ from betty.ancestry.event_type.event_types import (
 from betty.ancestry.event_type.event_types import (
     Unknown as UnknownEventType,
 )
+from betty.ancestry.has_file_references import HasFileReferences
+from betty.ancestry.has_links import HasLinks
 from betty.date import Date, DateRange
 from betty.jinja2.test import PluginTester
 from betty.json.linked_data import LinkedDataDumpableJsonLdObject
@@ -19,13 +21,19 @@ from betty.media_type import MediaType
 from betty.media_type.media_types import PDF, SVG
 from betty.test_utils.ancestry.event_type import DummyEventType
 from betty.test_utils.jinja2 import assert_template_string
-from betty.test_utils.model import DummyUserFacingEntity
+from betty.test_utils.model import DummyEntity, DummyUserFacingEntity
 from betty.test_utils.plugin import DummyPlugin
-from betty.tests.ancestry.test___init__ import DummyHasFileReferences
-from betty.tests.ancestry.test_link import DummyHasLinks
 
 if TYPE_CHECKING:
     from betty.machine_name import MachineName
+
+
+class DummyHasLinks(HasLinks, DummyEntity):
+    pass
+
+
+class DummyHasFileReferences(HasFileReferences, DummyEntity):
+    pass
 
 
 class DummyPluginOne(DummyPlugin):

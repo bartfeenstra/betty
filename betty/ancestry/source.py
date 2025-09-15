@@ -10,8 +10,8 @@ from typing_extensions import override
 
 from betty.ancestry.date import HasDate
 from betty.ancestry.has_file_references import HasFileReferences
+from betty.ancestry.has_links import HasLinks
 from betty.ancestry.has_notes import HasNotes
-from betty.ancestry.link import HasLinks, Link
 from betty.json.linked_data import JsonLdObject, dump_context
 from betty.locale.localizable import (
     Localizable,
@@ -35,6 +35,7 @@ if TYPE_CHECKING:
 
     from betty.ancestry.citation import Citation  # noqa F401
     from betty.ancestry.file_reference import FileReference
+    from betty.ancestry.link import Link
     from betty.ancestry.note import Note
     from betty.date import DateLike
     from betty.project import Project

@@ -1575,7 +1575,7 @@ class TestGrampsLoader:
         )
         source = ancestry[Source]["S0000"]
         assert source.links
-        link = source.links[0]
+        link = source.links.view[0]
         assert link.url == url
         assert not link.description
         assert not link.has_label
@@ -1612,7 +1612,7 @@ class TestGrampsLoader:
         )
         source = ancestry[Source]["S0000"]
         assert source.links
-        link = source.links[0]
+        link = source.links.view[0]
         assert link.url == url
         assert link.label is not None
         localizer_nl = Localizer("nl", NullTranslations())
@@ -1655,7 +1655,7 @@ class TestGrampsLoader:
         )
         source = ancestry[Source]["S0000"]
         assert source.links
-        link_one = source.links[0]
+        link_one = source.links.view[0]
         assert link_one.media_type is None
 
     @pytest.mark.parametrize(

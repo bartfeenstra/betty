@@ -7,7 +7,8 @@ from xml.etree.ElementTree import Element
 
 from html5lib import parse
 
-from betty.ancestry.link import HasLinks, Link
+from betty.ancestry.has_links import HasLinks
+from betty.ancestry.link import Link
 from betty.cache.memory import MemoryCache
 from betty.fetch import Fetcher, FetchError
 from betty.locale.localizable import _, plain

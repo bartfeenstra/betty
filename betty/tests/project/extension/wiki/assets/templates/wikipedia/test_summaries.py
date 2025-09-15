@@ -2,7 +2,8 @@ from unittest.mock import PropertyMock
 
 from pytest_mock import MockerFixture
 
-from betty.ancestry.link import HasLinks, Link
+from betty.ancestry.has_links import HasLinks
+from betty.ancestry.link import Link
 from betty.locale.localizer import DEFAULT_LOCALIZER
 from betty.project.extension.wiki import Wiki
 from betty.test_utils.jinja2 import assert_template_file
@@ -29,7 +30,7 @@ async def test_without_links() -> None:
 
 async def test_with_links_without_wikipedia_links() -> None:
     resource = DummyResource()
-    resource.links.append(Link("https://example.com"))
+    resource.links.add(Link("https://example.com"))
     async with assert_template_file(
         data={
             "resource": resource,
@@ -54,7 +55,7 @@ async def test_without_summaries(mocker: MockerFixture) -> None:
         return_value=_awaitable_client(),
     )
     resource = DummyResource()
-    resource.links.append(Link(wikipedia_url))
+    resource.links.add(Link(wikipedia_url))
     async with assert_template_file(
         data={
             "resource": resource,
@@ -69,7 +70,7 @@ async def test_without_summaries(mocker: MockerFixture) -> None:
 async def test_with_summaries_in_irrelevant_locale() -> None:
     wikipedia_url = "https://nl.wikipedia.org/wiki/Amsterdam"
     resource = DummyResource()
-    resource.links.append(Link(wikipedia_url))
+    resource.links.add(Link(wikipedia_url))
     async with assert_template_file(
         data={
             "resource": resource,
@@ -95,7 +96,7 @@ async def test_with_summary_should_render(mocker: MockerFixture) -> None:
         return_value=_awaitable_client(),
     )
     resource = DummyResource()
-    resource.links.append(Link(wikipedia_url))
+    resource.links.add(Link(wikipedia_url))
     async with assert_template_file(
         data={
             "resource": resource,

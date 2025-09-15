@@ -1,4 +1,5 @@
-from betty.ancestry.link import HasLinks, Link
+from betty.ancestry.has_links import HasLinks
+from betty.ancestry.link import Link
 from betty.locale import DEFAULT_LOCALE
 from betty.locale.localizable import plain
 from betty.project.extension.raspberry_mint import RaspberryMint
@@ -27,7 +28,7 @@ async def test_with_link_without_locale() -> None:
     link_label = "An example site"
     link = Link(link_url, label=plain(link_label))
     entity = DummyEntityWithLinks()
-    entity.links.append(link)
+    entity.links.add(link)
     async with assert_template_file(
         data={
             "page_resource": entity,
@@ -44,7 +45,7 @@ async def test_with_link_with_matching_locale() -> None:
     link_label = "An example site"
     link = Link(link_url, label=plain(link_label), locale=DEFAULT_LOCALE)
     entity = DummyEntityWithLinks()
-    entity.links.append(link)
+    entity.links.add(link)
     async with assert_template_file(
         data={
             "page_resource": entity,
@@ -61,7 +62,7 @@ async def test_with_link_without_matching_locale() -> None:
     link_label = "An example site"
     link = Link(link_url, label=plain(link_label), locale="nl")
     entity = DummyEntityWithLinks()
-    entity.links.append(link)
+    entity.links.add(link)
     async with assert_template_file(
         data={
             "page_resource": entity,
