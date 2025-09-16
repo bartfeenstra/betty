@@ -37,11 +37,9 @@ async function initializeMap(element: HTMLElement, options: MapOptions, locale: 
 }
 
 async function initializeMaps(element: HTMLElement, options: MapOptions, locale: string): Promise<void> {
-    await Promise.allSettled(Array.from(element.getElementsByClassName("map")).map((mapElement) => {
-        void (async (): Promise<void> => {
-            await initializeMap(mapElement as HTMLElement, options, locale)
-        })()
-    }))
+    for (const mapElement of element.getElementsByClassName("map")) {
+        await initializeMap(mapElement as HTMLElement, options, locale)
+    }
 }
 
 interface PlaceData {
