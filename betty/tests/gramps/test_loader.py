@@ -38,7 +38,6 @@ from betty.date import Date, DateRange
 from betty.gramps.error import UserFacingGrampsError
 from betty.gramps.loader import GrampsFileNotFound, GrampsLoader, LoaderUsedAlready
 from betty.license.licenses import PublicDomain as PublicDomainLicense
-from betty.locale import UNDETERMINED_LOCALE
 from betty.locale.localizer import DEFAULT_LOCALIZER, Localizer
 from betty.media_type import MediaType
 from betty.privacy import Privacy
@@ -1448,7 +1447,7 @@ class TestGrampsLoader:
         links = ancestry[Source]["R0000"].links
         assert len(links) == 1
         link = list(links)[0]
-        assert link.url == "https://alexandria.example.com"
+        assert link.url.localize(DEFAULT_LOCALIZER) == "https://alexandria.example.com"
         assert link.label is not None
         assert (
             link.label.localize(DEFAULT_LOCALIZER) == "Library of Alexandria Catalogue"
@@ -1576,34 +1575,33 @@ class TestGrampsLoader:
         source = ancestry[Source]["S0000"]
         assert source.links
         link = source.links.view[0]
-        assert link.url == url
+        assert link.url.localize(DEFAULT_LOCALIZER) == url
         assert not link.description
         assert not link.has_label
-        assert link.locale is UNDETERMINED_LOCALE
         assert link.media_type is None
         assert link.relationship is None
 
     async def test__load_attribute_links_should_include_attribute_links_full(
         self,
     ) -> None:
-        url = "https://example.com"
+        url_nl = "https://nl.example.com"
+        url_undetermined = "https://example.com"
         label_nl = "Dit is een link"
         label_undetermined = "This is a link"
         description_nl = "Dit is de Nederlandse beschrijving"
         description_undetermined = "This is the default description"
-        locale = "en"
         media_type = "text/plain"
         relationship = "external"
         ancestry = await self._load_partial(
             f"""
 <sources>
     <source handle="_e2b5e77b4cc5c91c9ed60a6cb39" change="1558277217" id="S0000">
-      <srcattribute type="betty:link-full:url" value="{url}"/>
+      <srcattribute type="betty:link-full:url" value="{url_undetermined}"/>
+      <srcattribute type="betty:link-full:url:nl" value="{url_nl}"/>
       <srcattribute type="betty:link-full:label" value="{label_undetermined}"/>
       <srcattribute type="betty:link-full:label:nl" value="{label_nl}"/>
       <srcattribute type="betty:link-full:description" value="{description_undetermined}"/>
       <srcattribute type="betty:link-full:description:nl" value="{description_nl}"/>
-      <srcattribute type="betty:link-full:locale" value="{locale}"/>
       <srcattribute type="betty:link-full:media_type" value="{media_type}"/>
       <srcattribute type="betty:link-full:relationship" value="{relationship}"/>
     </source>
@@ -1613,15 +1611,15 @@ class TestGrampsLoader:
         source = ancestry[Source]["S0000"]
         assert source.links
         link = source.links.view[0]
-        assert link.url == url
-        assert link.label is not None
         localizer_nl = Localizer("nl", NullTranslations())
+        assert link.url.localize(localizer_nl) == url_nl
+        assert link.url.localize(DEFAULT_LOCALIZER) == url_undetermined
+        assert link.label is not None
         assert link.label.localize(localizer_nl) == label_nl
         assert link.label.localize(DEFAULT_LOCALIZER) == label_undetermined
         assert link.description is not None
         assert link.description.localize(localizer_nl) == description_nl
         assert link.description.localize(DEFAULT_LOCALIZER) == description_undetermined
-        assert link.locale == locale
         assert link.media_type == MediaType(media_type)
         assert link.relationship == relationship
 
@@ -2180,7 +2178,7 @@ class TestGrampsLoader:
         links = ancestry[Person]["I0000"].links
         assert len(links) == 1
         link = list(links)[0]
-        assert link.url == "https://alexandria.example.com"
+        assert link.url.localize(DEFAULT_LOCALIZER) == "https://alexandria.example.com"
 
     async def test_url_should_include_description_as_label(self) -> None:
         ancestry = await self._load_partial(

@@ -19,7 +19,7 @@
                 {% endif %}
                 {% for link in secondary_navigation_links %}
                     <p>
-                        <a href="{{ link.url | url }}">{{ link.label | localize | html_lang }}</a>
+                        <a href="{{ link.url | localize | url }}">{{ link.label | localize | html_lang }}</a>
                     </p>
                 {% endfor %}
             </div>

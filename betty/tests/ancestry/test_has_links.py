@@ -4,6 +4,7 @@ from typing import TYPE_CHECKING
 
 from betty.ancestry.has_links import HasLinks
 from betty.ancestry.link import Link
+from betty.locale import DEFAULT_LOCALE
 from betty.test_utils.json.linked_data import assert_dumps_linked_data
 from betty.test_utils.model import DummyEntity
 
@@ -42,8 +43,9 @@ class TestHasLinks:
                 {
                     "@context": {"description": "https://schema.org/description"},
                     "id": link.id,
-                    "url": "https://example.com",
-                    "locale": "und",
+                    "url": {
+                        DEFAULT_LOCALE: "https://example.com",
+                    },
                     "owner": None,
                     "private": False,
                 }

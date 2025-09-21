@@ -187,16 +187,13 @@ you may add links using those:
      - Description
    * - ``betty:link-LINKNAME:url``
      - **required**
-     - The URL the link targets.
+     - The URL the link targets. This may contain :ref:`static translations <gramps-attributes-static-translations>`.
    * - ``betty:link-LINKNAME:description``
      - optional
      - A human-friendly longer link description. This may contain :ref:`static translations <gramps-attributes-static-translations>`.
    * - ``betty:link-LINKNAME:label``
      - optional
      - A human-friendly short link label. This may contain :ref:`static translations <gramps-attributes-static-translations>`.
-   * - ``betty:link-LINKNAME:locale``
-     - optional
-     - An `IETF BCP 47 language tag <https://en.wikipedia.org/wiki/IETF_language_tag>`_.
    * - ``betty:link-LINKNAME:media_type``
      - optional
      - An `IANA media type <https://www.iana.org/assignments/media-types/media-types.xhtml>`_.

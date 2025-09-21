@@ -11,15 +11,14 @@ from typing import TYPE_CHECKING, final
 from typing_extensions import override
 
 from betty.link import Link
+from betty.locale.localizable import plain
 from betty.serde.dump import Dump, Dumpable, DumpMapping
 
 if TYPE_CHECKING:
     from collections.abc import MutableSequence, Sequence
 
     from betty.ancestry.citation import Citation
-    from betty.locale.localizable import (
-        Localizable,
-    )
+    from betty.locale.localizable import Localizable
 
 
 class CssProvider(ABC):
@@ -52,13 +51,13 @@ class NavigationLink(Link):
     A navigation link.
     """
 
-    def __init__(self, url: str, label: Localizable):
-        self._url = url
+    def __init__(self, url: Localizable | str, label: Localizable):
+        self._url = plain(url) if isinstance(url, str) else url
         self._label = label
 
     @override
     @property
-    def url(self) -> str:
+    def url(self) -> Localizable:
         return self._url
 
     @override

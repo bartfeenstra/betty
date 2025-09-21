@@ -307,14 +307,13 @@ class StaticTranslationsLocalizable(
     def __init__(
         self,
         translations: ShorthandStaticTranslations | None = None,
-        *args: Any,
+        *,
         required: bool = True,
-        **kwargs: Any,
     ):
         """
         :param translations: Keys are locales, values are translations.
         """
-        super().__init__(*args, **kwargs)
+        super().__init__()
         self._required = required
         if translations is not None:
             self.replace(translations)
@@ -385,7 +384,11 @@ class StaticTranslationsLocalizable(
 
     @classmethod
     def from_localizable(
-        cls, other: Localizable, localizers: Iterable[Localizer]
+        cls,
+        other: Localizable,
+        localizers: Iterable[Localizer],
+        *,
+        required: bool = True,
     ) -> Self:
         """
         Create a new instance from another :py:class`betty.locale.localizable.Localizable`.
@@ -396,7 +399,8 @@ class StaticTranslationsLocalizable(
             {
                 localizer.locale: other.localize(localizer=localizer)
                 for localizer in localizers
-            }
+            },
+            required=required,
         )
 
     @classmethod

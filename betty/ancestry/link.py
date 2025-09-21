@@ -9,11 +9,9 @@ from typing import TYPE_CHECKING, final
 from typing_extensions import override
 
 from betty.ancestry.description import HasDescription
-from betty.ancestry.locale import HasLocale
 from betty.ancestry.media_type import HasMediaType
 from betty.json.schema import String
 from betty.link import Link as StdLink
-from betty.locale import UNDETERMINED_LOCALE
 from betty.locale.localizable import (
     Localizable,
     StaticTranslationsLocalizable,
@@ -42,7 +40,6 @@ class Link(
     ShorthandPluginBase,
     StdLink,
     HasMediaType,
-    HasLocale,
     HasDescription,
     HasPrivacy,
     Entity,
@@ -68,13 +65,12 @@ class Link(
 
     def __init__(
         self,
-        url: str,
+        url: Localizable | str,
         *,
         relationship: str | None = None,
         label: Localizable | None = None,
         description: Localizable | None = None,
         media_type: MediaType | None = None,
-        locale: str = UNDETERMINED_LOCALE,
         owner: HasLinks | None = None,
         privacy: Privacy | None = None,
         public: bool | None = None,
@@ -83,12 +79,11 @@ class Link(
         super().__init__(
             media_type=media_type,
             description=description,
-            locale=locale,
             privacy=privacy,
             public=public,
             private=private,
         )
-        self._url = url
+        self._url = plain(url) if isinstance(url, str) else url
         self._label = label
         self.relationship = relationship
         if owner is not None:
@@ -106,17 +101,17 @@ class Link(
 
     @override  # type: ignore[explicit-override]
     @property
-    def url(self) -> str:
+    def url(self) -> Localizable:
         return self._url
 
     @url.setter
-    def url(self, url: str) -> None:
+    def url(self, url: Localizable) -> None:
         self._url = url
 
     @override  # type: ignore[explicit-override]
     @property
     def label(self) -> Localizable:
-        return plain(self.url) if self._label is None else self._label
+        return self.url if self._label is None else self._label
 
     @label.setter
     def label(self, label: Localizable | None) -> None:
@@ -137,7 +132,9 @@ class Link(
     async def dump_linked_data(self, project: Project) -> DumpMapping[Dump]:
         dump = await super().dump_linked_data(project)
         if self.public:
-            dump["url"] = self.url
+            dump["url"] = await StaticTranslationsLocalizable.dump_linked_data_for(
+                project, self._url
+            )
             if self._label is not None:
                 await project.localizers
                 dump[
@@ -155,9 +152,8 @@ class Link(
         schema = await super().linked_data_schema(project)
         schema.add_property(
             "url",
-            String(
-                format=String.Format.URI,
-                description="The full URL to the other resource.",
+            StaticTranslationsLocalizableSchema(
+                title="Label", description="The full URL to the other resource."
             ),
             False,
         )

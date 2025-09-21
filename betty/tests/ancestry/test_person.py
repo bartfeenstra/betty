@@ -319,9 +319,12 @@ class TestPerson(EntityTestBase):
                 {
                     "@context": {"description": "https://schema.org/description"},
                     "id": link.id,
-                    "url": "https://example.com/the-person",
-                    "label": {DEFAULT_LOCALE: "The Person Online"},
-                    "locale": "und",
+                    "url": {
+                        DEFAULT_LOCALE: "https://example.com/the-person",
+                    },
+                    "label": {
+                        DEFAULT_LOCALE: "The Person Online",
+                    },
                     "owner": "/person/the_person/index.json",
                     "private": False,
                 },
@@ -422,7 +425,6 @@ class TestPerson(EntityTestBase):
                 {
                     "@context": {"description": "https://schema.org/description"},
                     "id": link.id,
-                    "locale": None,
                     "owner": "/person/the_person/index.json",
                     "private": True,
                 }

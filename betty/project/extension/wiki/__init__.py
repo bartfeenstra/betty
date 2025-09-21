@@ -19,10 +19,9 @@ from betty.project.extension import ConfigurableExtension
 from betty.project.extension.wiki.config import WikiConfiguration
 from betty.project.load import PostLoadAncestryEvent
 from betty.service import service
-from betty.wiki import NotAPageError, parse_page_url
+from betty.wiki import NotAPageError, parse_page_url, populator
 from betty.wiki.client import RATE_LIMIT, Client, Summary
 from betty.wiki.copyright_notice import WikipediaContributors
-from betty.wiki.populator import Populator
 
 if TYPE_CHECKING:
     from collections.abc import Iterable
@@ -38,15 +37,8 @@ if TYPE_CHECKING:
 async def _populate_ancestry(event: PostLoadAncestryEvent) -> None:
     project = event.project
     extensions = await project.extensions
-    wikipedia = extensions[Wiki]
-    populator = Populator(
-        project.ancestry,
-        list(project.configuration.locales),
-        await project.localizers,
-        await wikipedia.client,
-        await project.copyright_notice_repository.new_target(WikipediaContributors),
-    )
-    await populator.populate()
+    populator = await extensions[Wiki].populator
+    await gather(*(populator.populate(entity) for entity in project.ancestry))
 
 
 @final
@@ -108,6 +100,21 @@ class Wiki(
             user=self.project.app.user,
         )
 
+    @service
+    async def populator(self) -> populator.Populator:
+        """
+        The ancestry populator.
+        """
+        return populator.Populator(
+            self.project.ancestry,
+            list(self.project.configuration.locales),
+            await self.project.localizers,
+            await self.client,
+            await self.project.copyright_notice_repository.new_target(
+                WikipediaContributors
+            ),
+        )
+
     @override
     @property
     def globals(self) -> Globals:
@@ -143,8 +150,11 @@ class Wiki(
         )
 
     async def _filter_wikipedia_link(self, locale: str, link: Link) -> Summary | None:
+        localizers = await self.project.app.localizers
         try:
-            page_language, page_name = parse_page_url(link.url)
+            page_language, page_name = parse_page_url(
+                link.url.localize(localizers.get(locale))
+            )
         except NotAPageError:
             return None
         if negotiate_locale(locale, [page_language]) is None:

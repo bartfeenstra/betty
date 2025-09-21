@@ -1323,7 +1323,13 @@ class GrampsLoader:
                     )
                 )
                 continue
-            link = Link(link_attributes["url"])
+            link = Link(
+                StaticTranslationsLocalizable(
+                    self._parse_attribute_static_translations(
+                        element, tag, f"link-{link_name}:url"
+                    )
+                )
+            )
             entity.links.add(link)
             if "description" in link_attributes:
                 link.description = StaticTranslationsLocalizable(
@@ -1337,8 +1343,6 @@ class GrampsLoader:
                         element, tag, f"link-{link_name}:label"
                     )
                 )
-            if "locale" in link_attributes:
-                link.locale = link_attributes["locale"]
             if "media_type" in link_attributes:
                 try:
                     media_type = MediaType(link_attributes["media_type"])
