@@ -1,38 +1,50 @@
 from __future__ import annotations
 
+from gettext import NullTranslations
+from typing import TYPE_CHECKING
+
 import pytest
 
-from betty.wiki import NotAPageError, parse_page_url
+from betty.ancestry.link import Link
+from betty.locale import DEFAULT_LOCALE, UNDETERMINED_LOCALE
+from betty.locale.localizable import StaticTranslationsLocalizable
+from betty.locale.localizer import Localizer
+from betty.wiki import NotAPageError, parse_page_link, parse_page_url
+
+if TYPE_CHECKING:
+    from collections.abc import Mapping
+
+_PAGE_URL_PARAMETERS = [
+    (
+        ("en", "Amsterdam"),
+        "http://en.wikipedia.org/wiki/Amsterdam",
+    ),
+    (
+        ("nl", "Amsterdam"),
+        "https://nl.wikipedia.org/wiki/Amsterdam",
+    ),
+    (
+        ("en", "Amsterdam"),
+        "https://en.wikipedia.org/wiki/Amsterdam/",
+    ),
+    (
+        ("en", "Amsterdam"),
+        "https://en.wikipedia.org/wiki/Amsterdam/some-path",
+    ),
+    (
+        ("en", "Amsterdam"),
+        "https://en.wikipedia.org/wiki/Amsterdam?some=query",
+    ),
+    (
+        ("en", "Amsterdam"),
+        "https://en.wikipedia.org/wiki/Amsterdam#some-fragment",
+    ),
+]
 
 
 @pytest.mark.parametrize(
     ("expected", "url"),
-    [
-        (
-            ("en", "Amsterdam"),
-            "http://en.wikipedia.org/wiki/Amsterdam",
-        ),
-        (
-            ("nl", "Amsterdam"),
-            "https://nl.wikipedia.org/wiki/Amsterdam",
-        ),
-        (
-            ("en", "Amsterdam"),
-            "https://en.wikipedia.org/wiki/Amsterdam/",
-        ),
-        (
-            ("en", "Amsterdam"),
-            "https://en.wikipedia.org/wiki/Amsterdam/some-path",
-        ),
-        (
-            ("en", "Amsterdam"),
-            "https://en.wikipedia.org/wiki/Amsterdam?some=query",
-        ),
-        (
-            ("en", "Amsterdam"),
-            "https://en.wikipedia.org/wiki/Amsterdam#some-fragment",
-        ),
-    ],
+    _PAGE_URL_PARAMETERS,
 )
 async def test_parse_page_url__should_return(
     expected: tuple[str, str], url: str
@@ -51,3 +63,46 @@ async def test_parse_page_url__should_return(
 async def test_parse_page_url__should_error(url: str) -> None:
     with pytest.raises(NotAPageError):
         parse_page_url(url)
+
+
+@pytest.mark.parametrize(
+    ("expected", "url"),
+    _PAGE_URL_PARAMETERS,
+)
+async def test_parse_page_link__should_return(
+    expected: tuple[str, str], url: str
+) -> None:
+    localizers = [
+        Localizer("en", NullTranslations()),
+        Localizer("nl", NullTranslations()),
+    ]
+    link = Link(url)
+    assert expected == parse_page_link(link, localizers)
+
+
+@pytest.mark.parametrize(
+    "urls",
+    [
+        {
+            DEFAULT_LOCALE: "",
+        },
+        {
+            DEFAULT_LOCALE: "ftp://en.wikipedia.org/wiki/Amsterdam",
+        },
+        {
+            DEFAULT_LOCALE: "https://en.wikipedia.org/w/index.php?title=Amsterdam&action=edit",
+        },
+        {
+            DEFAULT_LOCALE: "https://en.wikipedia.org/wiki/Amsterdam",
+            UNDETERMINED_LOCALE: "https://und.wikipedia.org/wiki/Amsterdam",
+        },
+    ],
+)
+async def test_parse_page_link__should_error(urls: Mapping[str, str]) -> None:
+    localizers = [
+        Localizer("en", NullTranslations()),
+        Localizer("nl", NullTranslations()),
+    ]
+    link = Link(StaticTranslationsLocalizable(urls))
+    with pytest.raises(NotAPageError):
+        parse_page_link(link, localizers)

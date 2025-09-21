@@ -30,7 +30,7 @@
                         {% endfor %}
                         {% for link in primary_navigation_links %}
                             <li>
-                                <a href="{{ link.url | url }}">{{ link.label | localize | html_lang }}</a>
+                                <a href="{{ link.url | localize | url }}">{{ link.label | localize | html_lang }}</a>
                             </li>
                         {% endfor %}
                     </ul>

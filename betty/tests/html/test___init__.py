@@ -4,13 +4,14 @@ from betty.ancestry.citation import Citation
 from betty.ancestry.source import Source
 from betty.html import Breadcrumbs, Citer, NavigationLink, NavigationLinkProvider
 from betty.locale.localizable import plain
+from betty.locale.localizer import DEFAULT_LOCALIZER
 
 
 class TestNavigationLink:
     def test_url(self) -> None:
         url = "https://example.com"
         sut = NavigationLink(url, plain("Hello, world!"))
-        assert sut.url == url
+        assert sut.url.localize(DEFAULT_LOCALIZER) == url
 
     def test_label(self) -> None:
         label = plain("Hello, world!")

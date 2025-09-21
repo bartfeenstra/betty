@@ -3,6 +3,8 @@ Provide the Ancestry loading API.
 """
 
 from asyncio import gather
+from collections import defaultdict
+from collections.abc import Iterable, MutableMapping
 from xml.etree.ElementTree import Element
 
 from html5lib import parse
@@ -10,8 +12,8 @@ from html5lib import parse
 from betty.ancestry.has_links import HasLinks
 from betty.ancestry.link import Link
 from betty.cache.memory import MemoryCache
-from betty.fetch import Fetcher, FetchError
-from betty.locale.localizable import _, plain
+from betty.fetch import FetchError
+from betty.locale.localizable import StaticTranslationsLocalizable, _
 from betty.media_type import InvalidMediaType, MediaType
 from betty.project import Project, ProjectContext, ProjectEvent
 from betty.user import User
@@ -52,15 +54,15 @@ async def load(project: Project) -> None:
         await project.event_dispatcher.dispatch(
             PostLoadAncestryEvent(job_context), progress=progress
         )
-        await _fetch_link_titles(project, user=project.app.user)
+        await _populate_links(project, user=project.app.user)
         await progress.done()
         project.ancestry.immutable()
 
 
-async def _fetch_link_titles(project: Project, *, user: User) -> None:
+async def _populate_links(project: Project, *, user: User) -> None:
     await gather(
         *[
-            _fetch_link_title(await project.app.fetcher, link, user=user)
+            _populate_link(project, link, user=user)
             for entity in project.ancestry
             if isinstance(entity, HasLinks)
             for link in entity.links
@@ -68,11 +70,52 @@ async def _fetch_link_titles(project: Project, *, user: User) -> None:
     )
 
 
-async def _fetch_link_title(fetcher: Fetcher, link: Link, *, user: User) -> None:
-    if link.has_label:
+async def _populate_link(project: Project, link: Link, *, user: User) -> None:
+    if link.has_label and link.description:
         return
+
+    localizers = await project.localizers
+    urls = StaticTranslationsLocalizable.from_localizable(
+        link.url, [localizers.get(locale) for locale in project.configuration.locales]
+    )
+    urls_to_locales = defaultdict(set)
+    for locale, url in urls.translations.items():
+        urls_to_locales[url].add(locale)
+    labels: MutableMapping[str, str] = {}
+    descriptions: MutableMapping[str, str] = {}
+    await gather(
+        *(
+            _populate_link_from_url(
+                project,
+                link,
+                url,
+                project.configuration.locales,
+                labels,
+                descriptions,
+                user=user,
+            )
+            for url in urls_to_locales
+        )
+    )
+    if not link.has_label and labels:
+        link.label = StaticTranslationsLocalizable(labels)
+    if not link.description and descriptions:
+        link.description = StaticTranslationsLocalizable(descriptions)
+
+
+async def _populate_link_from_url(
+    project: Project,
+    link: Link,
+    url: str,
+    locales: Iterable[str],
+    labels: MutableMapping[str, str],
+    descriptions: MutableMapping[str, str],
+    *,
+    user: User,
+) -> None:
+    fetcher = await project.app.fetcher
     try:
-        response = await fetcher.fetch(link.url)
+        response = await fetcher.fetch(url)
     except FetchError as error:
         await user.message_warning(error)
         return
@@ -88,13 +131,16 @@ async def _fetch_link_title(fetcher: Fetcher, link: Link, *, user: User) -> None
         return
 
     document = parse(response.text)
-    title = _extract_html_title(document)
-    if title is not None:
-        link.label = plain(title)
+    if not link.has_label:
+        title = _extract_html_title(document)
+        if title is not None:
+            for locale in locales:
+                labels[locale] = title
     if not link.description:
         description = _extract_html_meta_description(document)
         if description is not None:
-            link.description = plain(description)
+            for locale in locales:
+                descriptions[locale] = description
 
 
 def _extract_html_title(document: Element) -> str | None:

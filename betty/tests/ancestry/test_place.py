@@ -203,9 +203,12 @@ class TestPlace(EntityTestBase):
                 {
                     "@context": {"description": "https://schema.org/description"},
                     "id": link.id,
-                    "url": "https://example.com/the-place",
-                    "label": {DEFAULT_LOCALE: "The Place Online"},
-                    "locale": "und",
+                    "url": {
+                        DEFAULT_LOCALE: "https://example.com/the-place",
+                    },
+                    "label": {
+                        DEFAULT_LOCALE: "The Place Online",
+                    },
                     "owner": "/place/the_place/index.json",
                     "private": False,
                 },

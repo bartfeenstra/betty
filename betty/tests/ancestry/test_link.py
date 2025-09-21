@@ -4,7 +4,7 @@ from typing import TYPE_CHECKING, Any
 
 from betty.ancestry.has_links import HasLinks
 from betty.ancestry.link import Link
-from betty.locale import DEFAULT_LOCALE, UNDETERMINED_LOCALE
+from betty.locale import DEFAULT_LOCALE
 from betty.locale.localizable import plain
 from betty.locale.localizer import DEFAULT_LOCALIZER
 from betty.media_type.media_types import HTML
@@ -39,17 +39,12 @@ class TestLink:
     async def test_url(self) -> None:
         url = "https://example.com"
         sut = Link(url)
-        assert sut.url == url
+        assert sut.url.localize(DEFAULT_LOCALIZER) == url
 
     async def test_media_type(self) -> None:
         url = "https://example.com"
         sut = Link(url)
         assert sut.media_type is None
-
-    async def test_locale(self) -> None:
-        url = "https://example.com"
-        sut = Link(url)
-        assert sut.locale is UNDETERMINED_LOCALE
 
     async def test_description(self) -> None:
         url = "https://example.com"
@@ -79,8 +74,9 @@ class TestLink:
         expected: Mapping[str, Any] = {
             "@context": {"description": "https://schema.org/description"},
             "id": link.id,
-            "url": "https://example.com",
-            "locale": "und",
+            "url": {
+                DEFAULT_LOCALE: "https://example.com",
+            },
             "owner": None,
             "private": False,
         }
@@ -94,18 +90,22 @@ class TestLink:
             label=plain("The Label"),
             description=plain("The Description"),
             relationship="external",
-            locale="nl-NL",
             media_type=HTML,
             owner=owner,
         )
         expected: Mapping[str, Any] = {
             "@context": {"description": "https://schema.org/description"},
             "id": link.id,
-            "url": "https://example.com",
+            "url": {
+                DEFAULT_LOCALE: "https://example.com",
+            },
             "relationship": "external",
-            "label": {DEFAULT_LOCALE: "The Label"},
-            "description": {DEFAULT_LOCALE: "The Description"},
-            "locale": "nl-NL",
+            "label": {
+                DEFAULT_LOCALE: "The Label",
+            },
+            "description": {
+                DEFAULT_LOCALE: "The Description",
+            },
             "mediaType": "text/html",
             "owner": "/dummy-user-facing-has-links/O1/index.json",
             "private": False,
@@ -120,7 +120,6 @@ class TestLink:
             label=plain("The Label"),
             description=plain("The Description"),
             relationship="external",
-            locale="nl-NL",
             media_type=HTML,
             owner=owner,
             private=True,
@@ -128,7 +127,6 @@ class TestLink:
         expected: Mapping[str, Any] = {
             "@context": {"description": "https://schema.org/description"},
             "id": link.id,
-            "locale": None,
             "owner": "/dummy-user-facing-has-links/O1/index.json",
             "private": True,
         }

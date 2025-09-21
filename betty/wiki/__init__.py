@@ -5,7 +5,15 @@ Fetch information from Wikipedia.
 from __future__ import annotations
 
 import re
-from typing import cast
+from typing import TYPE_CHECKING, cast
+
+from betty.locale.localizable import StaticTranslationsLocalizable
+
+if TYPE_CHECKING:
+    from collections.abc import Sequence
+
+    from betty.link import Link
+    from betty.locale.localizer import Localizer
 
 
 class NotAPageError(ValueError):
@@ -27,3 +35,21 @@ def parse_page_url(url: str) -> tuple[str, str]:
     if match is None:
         raise NotAPageError
     return cast(tuple[str, str], match.groups())
+
+
+def parse_page_link(link: Link, localizers: Sequence[Localizer]) -> tuple[str, str]:
+    """
+    Parse the URL for a link to a Wikipedia page.
+
+    :return: A 2-tuple with the page language and the page name.
+    """
+    original_urls = set(
+        StaticTranslationsLocalizable.from_localizable(
+            link.url, localizers
+        ).translations.values()
+    )
+    if len(original_urls) > 1:
+        # Skip links that already provide different localized URLs, as things would get too complex.
+        raise NotAPageError
+    original_url = next(iter(original_urls))
+    return parse_page_url(original_url)

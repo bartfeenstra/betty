@@ -14,7 +14,7 @@ class Link(ABC):
 
     @property
     @abstractmethod
-    def url(self) -> str:
+    def url(self) -> Localizable:
         """
         The absolute URL the link points to.
         """
