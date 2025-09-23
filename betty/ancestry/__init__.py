@@ -28,10 +28,10 @@ class Ancestry(MultipleTypesEntityCollection[Entity]):
         *entities: Entity,
         entity_type_id_to_type_mapping: PluginIdToTypeMapping[Entity],
     ):
+        self._check_graph = True
         super().__init__(
             *entities, entity_type_id_to_type_mapping=entity_type_id_to_type_mapping
         )
-        self._check_graph = True
 
     @contextmanager
     def unchecked(self) -> Iterator[None]:

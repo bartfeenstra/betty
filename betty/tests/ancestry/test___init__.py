@@ -65,6 +65,11 @@ class TestAncestry(EntityCollectionTestBase[Entity]):
             DummyEntity(),
         )
 
+    async def test___init___with_entities(self) -> None:
+        entity = DummyEntity()
+        sut = await Ancestry.new(entity)
+        assert entity in sut
+
     async def test_add_(self) -> None:
         sut = await Ancestry.new()
         left = _TestAncestry_OneToOne_Left()
