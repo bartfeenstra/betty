@@ -24,8 +24,8 @@ class Ancestry(MultipleTypesEntityCollection[Entity]):
     """
 
     def __init__(self, *entities: Entity):
-        super().__init__(*entities)
         self._check_graph = True
+        super().__init__(*entities)
 
     @contextmanager
     def unchecked(self) -> Iterator[None]:
