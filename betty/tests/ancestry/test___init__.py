@@ -65,7 +65,12 @@ class TestAncestry(EntityCollectionTestBase[Entity]):
             DummyEntity(),
         )
 
-    async def test_add_(self) -> None:
+    def test___init___with_entities(self) -> None:
+        entity = DummyEntity()
+        sut = Ancestry(entity)
+        assert entity in sut
+
+    def test_add_(self) -> None:
         sut = Ancestry()
         left = _TestAncestry_OneToOne_Left()
         right = _TestAncestry_OneToOne_Right()
@@ -74,7 +79,7 @@ class TestAncestry(EntityCollectionTestBase[Entity]):
         assert left in sut
         assert right in sut
 
-    async def test_unchecked(self) -> None:
+    def test_unchecked(self) -> None:
         sut = Ancestry()
         left = _TestAncestry_OneToOne_Left()
         right = _TestAncestry_OneToOne_Right()
