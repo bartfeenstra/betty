@@ -86,7 +86,7 @@ class SpdxLicenseRepository(PluginRepository[License]):
     Provide licenses from the `SPDX License List <https://spdx.org/licenses/>`_.
     """
 
-    SPDX_VERSION = "3.25.0"
+    SPDX_VERSION = "3.27.0"
     URL = f"https://github.com/spdx/license-list-data/archive/refs/tags/v{SPDX_VERSION}.tar.gz"
 
     def __init__(
