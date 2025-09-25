@@ -20,7 +20,7 @@ from betty.locale import get_data, negotiate_locale
 from betty.locale.error import LocaleError
 from betty.locale.localizable import StaticTranslationsLocalizable, _
 from betty.media_type.media_types import HTML
-from betty.typing import internal, threadsafe
+from betty.typing import threadsafe
 from betty.wiki import NotAPageError, parse_page_link
 
 if TYPE_CHECKING:
@@ -33,11 +33,10 @@ if TYPE_CHECKING:
     from betty.wiki.copyright_notice import WikipediaContributors
 
 
-@internal
 @threadsafe
 class Populator:
     """
-    Populate an ancestry with information from Wikipedia.
+    Populate an ancestry with information from Wikipedia and Wikimedia.
     """
 
     def __init__(
