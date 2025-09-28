@@ -101,7 +101,9 @@ class Specification:
         }
 
         # Add entity operations.
-        for entity_type in await model.ENTITY_TYPE_REPOSITORY.select(UserFacing):
+        async for entity_type in model.ENTITY_TYPE_REPOSITORY:
+            if not issubclass(entity_type, UserFacing):
+                continue
             await entity_type.linked_data_schema(self._project)
             if self._project.configuration.clean_urls:
                 collection_path = f"/{entity_type.plugin_id()}/"

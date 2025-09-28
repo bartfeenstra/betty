@@ -154,7 +154,8 @@ async def _create_list_commands_action_class(
     *, localizer: Localizer
 ) -> type[argparse.Action]:
     commands = sorted(
-        await COMMAND_REPOSITORY.select(), key=lambda command: command.plugin_id()
+        [plugin async for plugin in COMMAND_REPOSITORY],
+        key=lambda command: command.plugin_id(),
     )
 
     class _ListCommandsAction(argparse.Action):

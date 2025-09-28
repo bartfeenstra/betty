@@ -679,7 +679,7 @@ class ProjectConfiguration(Configuration):
         """
         return cls(
             configuration_file_path,
-            available_formats=await FORMAT_REPOSITORY.select(),
+            available_formats=[plugin async for plugin in FORMAT_REPOSITORY],
             url=url,
             clean_urls=clean_urls,
             title=title,

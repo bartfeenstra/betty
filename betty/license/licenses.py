@@ -121,7 +121,9 @@ class SpdxLicenseRepository(PluginRepository[License]):
         try:
             return self._license_id_to_spdx_license_id_map[license_id]
         except KeyError:
-            raise PluginNotFound.new(license_id, await self.select()) from None
+            raise PluginNotFound.new(
+                license_id, [plugin async for plugin in self]
+            ) from None
 
     @override
     async def get(self, plugin_id: MachineName) -> type[License]:
@@ -218,7 +220,9 @@ class SpdxLicenseRepository(PluginRepository[License]):
             try:
                 license = self._licenses[license_id]  # noqa a001
             except KeyError:
-                raise PluginNotFound.new(license_id, await self.select()) from None
+                raise PluginNotFound.new(
+                    license_id, [plugin async for plugin in self]
+                ) from None
             else:
                 if license is None:
                     license = await self._create_license(license_id)  # noqa a001

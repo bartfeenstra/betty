@@ -41,11 +41,11 @@ class DeriveAncestry(Job[ProjectContext]):
             project.ancestry,
             project.configuration.lifetime_threshold,
             project.event_type_repository,
-            set(
-                await event_type.EVENT_TYPE_REPOSITORY.select(
-                    DerivableEventType  # type: ignore[type-abstract]
-                )
-            ),
+            {
+                plugin
+                async for plugin in event_type.EVENT_TYPE_REPOSITORY
+                if issubclass(plugin, DerivableEventType)
+            },
             user=project.app.user,
         )
         await deriver.derive()
