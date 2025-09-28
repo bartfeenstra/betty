@@ -21,7 +21,6 @@ from betty.typing import internal
 if TYPE_CHECKING:
     from collections.abc import AsyncIterator, Mapping, MutableMapping
 
-    from betty.concurrent import RateLimiter
     from betty.user import User
 
 
@@ -59,19 +58,15 @@ class Image:
     name: str
 
 
-RATE_LIMIT = 200
-
-
 @internal
 class Client:
     """
     Fetch information from the Wikipedia Query API.
     """
 
-    def __init__(self, fetcher: Fetcher, rate_limiter: RateLimiter, *, user: User):
+    def __init__(self, fetcher: Fetcher, *, user: User):
         self._fetcher = fetcher
         self._images: MutableMapping[str, Image | None] = {}
-        self._rate_limiter = rate_limiter
         self._user = user
 
     @asynccontextmanager
@@ -82,8 +77,7 @@ class Client:
             await self._user.message_warning(error)
 
     async def _fetch_json(self, url: str, *selectors: str | int) -> Any:
-        async with self._rate_limiter:
-            response = await self._fetcher.fetch(url)
+        response = await self._fetcher.fetch(url)
         try:
             data = response.json
         except JSONDecodeError as error:
@@ -186,8 +180,7 @@ class Client:
                         f"Could not successfully parse the JSON content returned by {url}: {error}"
                     )
                 ) from error
-            async with self._rate_limiter:
-                image_path = await self._fetcher.fetch_file(image_info["url"])
+            image_path = await self._fetcher.fetch_file(image_info["url"])
             return Image(
                 image_path,
                 MediaType(image_info["mime"]),

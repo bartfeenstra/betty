@@ -28,6 +28,7 @@ plugin repository, how to use the plugins, and how to create your own.
 - :doc:`Event types </development/plugin/event-type>`
 - :doc:`Extensions </development/plugin/extension>`
 - :doc:`Genders </development/plugin/gender>`
+- :doc:`HTTP rate limits </development/plugin/http-rate-limit>`
 - :doc:`Licenses </development/plugin/license>`
 - :doc:`Place types </development/plugin/place-type>`
 - :doc:`Presence roles </development/plugin/presence-role>`

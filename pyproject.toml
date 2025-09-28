@@ -196,6 +196,9 @@ betty = 'betty.console:main_standalone'
 'unknown' = 'betty.ancestry.presence_role.presence_roles:Unknown.plugin'
 'witness' = 'betty.ancestry.presence_role.presence_roles:Witness.plugin'
 
+[project.entry-points.'betty.http_rate_limit']
+'wikipedia-action-api' = 'betty.http_client.rate_limits:WikipediaActionApi.plugin'
+
 [project.entry-points.'betty.renderer']
 'jinja2' = 'betty.jinja2:Jinja2Renderer.plugin'
 
@@ -228,6 +231,7 @@ test = [
     'types-requests ~= 2.32',
     'types-setuptools ~= 80.0',
     'virtualenv ~= 20.27',
+    'yarl ~= 1.22',
     'betty[setuptools]',
 ]
 development = [

@@ -25,6 +25,7 @@ from betty.dirs import CACHE_DIRECTORY_PATH
 from betty.factory import TargetFactory, new
 from betty.fetch import Fetcher, http
 from betty.fetch.static import StaticFetcher
+from betty.http_client.rate_limit import RateLimitDefinition, RateLimitMiddleware
 from betty.license import LicenseDefinition
 from betty.license.licenses import SpdxLicenseBuilder
 from betty.locale import DEFAULT_LOCALE
@@ -36,6 +37,7 @@ from betty.locale.translation import (
 )
 from betty.model import EntityDefinition
 from betty.multiprocessing import ProcessPoolExecutor
+from betty.plugin import sort_ordered_plugin_graph
 from betty.plugin.entry_point import EntryPointPluginRepository
 from betty.plugin.proxy import ProxyPluginRepository
 from betty.plugin.static import StaticPluginRepository
@@ -216,15 +218,37 @@ class App(Configurable[AppConfiguration], TargetFactory, ServiceProvider):
         return LocalizerRepository(await self.translations)
 
     @service
+    def http_rate_limit_repository(self) -> PluginRepository[RateLimitDefinition]:
+        """
+        The rate limit plugin repository.
+
+        Read more about :doc:`/development/plugin/http-rate-limit`.
+        """
+        return EntryPointPluginRepository(RateLimitDefinition, "betty.http_rate_limit")
+
+    @service
     async def http_client(self) -> aiohttp.ClientSession:
         """
         The HTTP client.
         """
+        rate_limit_sorter = await sort_ordered_plugin_graph(
+            self.http_rate_limit_repository, self.http_rate_limit_repository
+        )
+
         http_client = aiohttp.ClientSession(
-            connector=aiohttp.TCPConnector(limit_per_host=99),
             headers={
                 "User-Agent": "Betty (https://betty.readthedocs.io/)",
             },
+            middlewares=[
+                RateLimitMiddleware(
+                    [
+                        await self.new_target(
+                            self.http_rate_limit_repository[rate_limit_id].cls
+                        )
+                        for rate_limit_id in rate_limit_sorter.static_order()
+                    ]
+                )
+            ],
         )
 
         async def _shutdown(wait: bool) -> None:
