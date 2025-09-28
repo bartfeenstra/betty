@@ -206,6 +206,9 @@ _BASELINE: Mapping[str, _ModuleIgnore] = {
             if attr_name.startswith("html_")
         },
     },
+    "betty/http_client/rate_limit.py": {
+        "RateLimit": MissingReason.ABSTRACT,
+    },
     "betty/jinja2/__init__.py": {
         "context_job_context": MissingReason.SHOULD_BE_COVERED,
         "context_localizer": MissingReason.SHOULD_BE_COVERED,

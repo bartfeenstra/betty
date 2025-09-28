@@ -9,7 +9,6 @@ from typing import TYPE_CHECKING, Self, final
 from jinja2 import pass_context
 from typing_extensions import override
 
-from betty.concurrent import RateLimiter
 from betty.fetch import FetchError
 from betty.jinja2 import Filters, Globals, Jinja2Provider, context_localizer
 from betty.locale import negotiate_locale
@@ -20,7 +19,7 @@ from betty.project.extension.wiki.jobs import PopulateEntity
 from betty.project.load import PostLoader
 from betty.service import service
 from betty.wiki import NotAPageError, parse_page_url, populator
-from betty.wiki.client import RATE_LIMIT, Client, Summary
+from betty.wiki.client import Client, Summary
 
 if TYPE_CHECKING:
     from collections.abc import Iterable
@@ -81,22 +80,11 @@ class Wiki(
         )
 
     @service
-    async def rate_limiter(self) -> RateLimiter:
-        """
-        The Wikipedia API rate limiter.
-        """
-        return RateLimiter(RATE_LIMIT)
-
-    @service
     async def client(self) -> Client:
         """
         The API client.
         """
-        return Client(
-            await self.project.app.fetcher,
-            await self.rate_limiter,
-            user=self.project.app.user,
-        )
+        return Client(await self.project.app.fetcher, user=self.project.app.user)
 
     @service
     async def populator(self) -> populator.Populator:

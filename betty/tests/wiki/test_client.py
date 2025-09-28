@@ -8,7 +8,6 @@ import pytest
 from geopy import Point
 from multidict import CIMultiDict
 
-from betty.concurrent import RateLimiter
 from betty.fetch import FetchResponse
 from betty.fetch.static import StaticFetcher
 from betty.media_type.media_types import SVG
@@ -95,9 +94,9 @@ class TestClient:
         fetcher = StaticFetcher(
             fetch_map={fetch_url: _new_json_fetch_response(fetch_json)}
         )
-        translations = await Client(
-            fetcher, RateLimiter(1), user=StaticUser()
-        ).get_translations(page_language, page_name)
+        translations = await Client(fetcher, user=StaticUser()).get_translations(
+            page_language, page_name
+        )
         assert expected == translations
 
     async def test_get_translations__with_invalid_json_response_should_return_none(
@@ -118,9 +117,9 @@ class TestClient:
                 )
             }
         )
-        actual = await Client(
-            fetcher, RateLimiter(1), user=StaticUser()
-        ).get_translations(page_language, page_name)
+        actual = await Client(fetcher, user=StaticUser()).get_translations(
+            page_language, page_name
+        )
         assert actual == {}
 
     @pytest.mark.parametrize(
@@ -145,9 +144,9 @@ class TestClient:
         fetcher = StaticFetcher(
             fetch_map={fetch_url: _new_json_fetch_response(response_json)}
         )
-        actual = await Client(
-            fetcher, RateLimiter(1), user=StaticUser()
-        ).get_translations(page_language, page_name)
+        actual = await Client(fetcher, user=StaticUser()).get_translations(
+            page_language, page_name
+        )
         assert actual == {}
 
     @pytest.mark.parametrize(
@@ -222,7 +221,7 @@ class TestClient:
         fetcher = StaticFetcher(
             fetch_map={fetch_url: _new_json_fetch_response(fetch_json)}
         )
-        client = Client(fetcher, RateLimiter(1), user=StaticUser())
+        client = Client(fetcher, user=StaticUser())
         actual = await client.get_summary(page_language, page_name)
         assert actual == expected
 
@@ -373,9 +372,9 @@ class TestClient:
         fetcher = StaticFetcher(
             fetch_map={fetch_url: _new_json_fetch_response(fetch_json)}
         )
-        actual = await Client(
-            fetcher, RateLimiter(1), user=StaticUser()
-        ).get_place_coordinates(page_language, page_name)
+        actual = await Client(fetcher, user=StaticUser()).get_place_coordinates(
+            page_language, page_name
+        )
         assert actual == expected
 
     @pytest.mark.parametrize(
@@ -531,7 +530,7 @@ class TestClient:
             fetch_file_map["https://example.com/image"] = image_file_path
         fetcher = StaticFetcher(fetch_map=fetch_map, fetch_file_map=fetch_file_map)
 
-        actual = await Client(fetcher, RateLimiter(1), user=StaticUser()).get_image(
+        actual = await Client(fetcher, user=StaticUser()).get_image(
             page_language, page_name
         )
         if expected is None:

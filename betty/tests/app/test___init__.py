@@ -50,6 +50,9 @@ class TestApp:
     async def test_fetcher(self, new_temporary_app: App) -> None:
         assert await new_temporary_app.fetcher is await new_temporary_app.fetcher
 
+    async def test_http_rate_limit_repository(self, new_temporary_app: App) -> None:
+        assert list(new_temporary_app.http_rate_limit_repository)
+
     async def test_http_client(self, new_temporary_app: App) -> None:
         assert (
             await new_temporary_app.http_client is await new_temporary_app.http_client
