@@ -59,7 +59,7 @@ async def write_configuration_file(
     Write configuration to a file.
     """
     serde_format_type = format_for(
-        await FORMAT_REPOSITORY.select(), configuration_file_path.suffix
+        [plugin async for plugin in FORMAT_REPOSITORY], configuration_file_path.suffix
     )
     serde_format = await FORMAT_REPOSITORY.new_target(serde_format_type)
     dump = serde_format.dump(configuration.dump())

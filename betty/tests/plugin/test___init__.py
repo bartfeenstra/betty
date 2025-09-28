@@ -25,7 +25,7 @@ from betty.plugin.static import StaticPluginRepository
 from betty.test_utils.plugin import DummyPlugin
 
 if TYPE_CHECKING:
-    from collections.abc import AsyncIterator, Iterable, Sequence
+    from collections.abc import AsyncIterator, Iterable
 
     from betty.machine_name import MachineName
 
@@ -197,81 +197,6 @@ class TestPluginRepository:
             plugin_id_to_type_mapping[_TestPluginRepositoryPluginOne.plugin_id()]
             is _TestPluginRepositoryPluginOne
         )
-
-    async def test_select__without_plugins(self) -> None:
-        sut = _TestPluginRepositoryPluginRepository()
-        assert len(await sut.select()) == 0
-
-    @pytest.mark.parametrize(
-        (
-            "expected",
-            "mixins",
-        ),
-        [
-            (
-                (
-                    _TestPluginRepositoryPluginOne,
-                    _TestPluginRepositoryPluginOneTwo,
-                    _TestPluginRepositoryPluginOneTwoThree,
-                ),
-                {},
-            ),
-            (
-                (
-                    _TestPluginRepositoryPluginOne,
-                    _TestPluginRepositoryPluginOneTwo,
-                    _TestPluginRepositoryPluginOneTwoThree,
-                ),
-                {_TestPluginRepositoryMixinOne},
-            ),
-            (
-                (
-                    _TestPluginRepositoryPluginOneTwo,
-                    _TestPluginRepositoryPluginOneTwoThree,
-                ),
-                {_TestPluginRepositoryMixinOne, _TestPluginRepositoryMixinTwo},
-            ),
-            (
-                (_TestPluginRepositoryPluginOneTwoThree,),
-                {
-                    _TestPluginRepositoryMixinOne,
-                    _TestPluginRepositoryMixinTwo,
-                    _TestPluginRepositoryMixinThree,
-                },
-            ),
-            (
-                (
-                    _TestPluginRepositoryPluginOneTwo,
-                    _TestPluginRepositoryPluginOneTwoThree,
-                ),
-                {_TestPluginRepositoryMixinTwo},
-            ),
-            (
-                (_TestPluginRepositoryPluginOneTwoThree,),
-                {_TestPluginRepositoryMixinTwo, _TestPluginRepositoryMixinThree},
-            ),
-            (
-                (_TestPluginRepositoryPluginOneTwoThree,),
-                {_TestPluginRepositoryMixinThree},
-            ),
-        ],
-    )
-    async def test_select__with_mixins(
-        self,
-        expected: Sequence[type[DummyPlugin]],
-        mixins: set[
-            _TestPluginRepositoryMixinOne
-            | _TestPluginRepositoryMixinTwo
-            | _TestPluginRepositoryMixinThree
-        ],
-    ) -> None:
-        sut = _TestPluginRepositoryPluginRepository(
-            _TestPluginRepositoryPluginOne,
-            _TestPluginRepositoryPluginOneTwo,
-            _TestPluginRepositoryPluginOneTwoThree,
-        )
-
-        assert list(await sut.select(*mixins)) == list(expected)
 
     async def test_new_target__with_default_factory(self) -> None:
         sut = _TestPluginRepositoryPluginRepository(

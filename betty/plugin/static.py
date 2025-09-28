@@ -34,7 +34,9 @@ class StaticPluginRepository(PluginRepository[_PluginT], Generic[_PluginT]):
         try:
             return self._plugins[plugin_id]
         except KeyError:
-            raise PluginNotFound.new(plugin_id, await self.select()) from None
+            raise PluginNotFound.new(
+                plugin_id, [plugin async for plugin in self]
+            ) from None
 
     @override
     async def __aiter__(self) -> AsyncIterator[type[_PluginT]]:

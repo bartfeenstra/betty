@@ -230,10 +230,7 @@ class Project(Configurable[ProjectConfiguration], TargetFactory, ServiceProvider
         The (file) content renderer.
         """
         return SequentialRenderer(
-            [
-                await self.new_target(plugin)
-                for plugin in await RENDERER_REPOSITORY.select()
-            ]
+            [await self.new_target(plugin) async for plugin in RENDERER_REPOSITORY]
         )
 
     @service
