@@ -456,6 +456,7 @@ def assert_record(
                 with errors.catch(Key(unknown_key)):
                     raise UserFacingException(
                         Join(
+                            " ",
                             _("Unknown key: {unknown_key}.").format(
                                 unknown_key=f'"{unknown_key}"'
                             ),

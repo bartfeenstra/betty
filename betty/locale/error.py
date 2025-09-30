@@ -55,6 +55,7 @@ class UnsupportedLocale(LocaleError):
         )
         super().__init__(
             Join(
+                " ",
                 _("Locale {locale} is not supported by your system.").format(
                     locale=locale
                 ),

@@ -28,6 +28,7 @@ def assert_plugin(
         except PluginNotFound:
             raise UserFacingException(
                 Join(
+                    " ",
                     _(
                         'Cannot find and import "{plugin_id}".',
                     ).format(plugin_id=plugin_id),
