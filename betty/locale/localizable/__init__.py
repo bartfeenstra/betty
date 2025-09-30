@@ -6,7 +6,17 @@ from __future__ import annotations
 
 from abc import ABC, abstractmethod
 from collections.abc import Callable, Iterable, Mapping, MutableMapping, Sequence
-from typing import TYPE_CHECKING, Any, Self, TypeAlias, TypeVar, cast, final
+from typing import (
+    TYPE_CHECKING,
+    Any,
+    Generic,
+    Self,
+    TypeAlias,
+    TypeVar,
+    cast,
+    final,
+    overload,
+)
 from warnings import warn
 
 from typing_extensions import override
@@ -27,7 +37,22 @@ if TYPE_CHECKING:
 _T = TypeVar("_T")
 
 
-class Localizable(ABC):
+class _Localizable(Generic[_T], ABC):
+    @abstractmethod
+    def format(
+        self, *format_args: str | Localizable, **format_kwargs: str | Localizable
+    ) -> _T:
+        """
+        Apply string formatting to the eventual localized string.
+
+        The arguments are identical to those of :py:meth:`str.format`.
+
+        :return:
+            A new localizable object.
+        """
+
+
+class Localizable(_Localizable["Localizable"]):
     """
     A localizable object.
 
@@ -40,17 +65,10 @@ class Localizable(ABC):
         Localize ``self`` to a human-readable string.
         """
 
+    @override
     def format(
         self, *format_args: str | Localizable, **format_kwargs: str | Localizable
     ) -> Localizable:
-        """
-        Apply string formatting to the eventual localized string.
-
-        The arguments are identical to those of :py:meth:`str.format`.
-
-        :return:
-            A new localizable object.
-        """
         return _FormattedLocalizable(self, format_args, format_kwargs)
 
     @override
@@ -61,6 +79,24 @@ class Localizable(ABC):
             stacklevel=2,
         )
         return localized
+
+
+class CountableLocalizable(_Localizable["CountableLocalizable"]):
+    """
+    An object that can be localized for a specific count (number of things).
+    """
+
+    @abstractmethod
+    def count(self, count: int) -> Localizable:
+        """
+        Create a localizable for the given count (number of things).
+        """
+
+    @override
+    def format(
+        self, *format_args: str | Localizable, **format_kwargs: str | Localizable
+    ) -> CountableLocalizable:
+        return _FormattedCountableLocalizable(self, format_args, format_kwargs)
 
 
 @final
@@ -134,6 +170,22 @@ class _GettextLocalizable(Localizable):
         )
 
 
+class _CountableGettextLocalizable(CountableLocalizable):
+    def __init__(
+        self,
+        gettext_method_name: str,
+        *gettext_args: Any,
+    ) -> None:
+        self._gettext_method_name = gettext_method_name
+        self._gettext_args = gettext_args
+
+    @override
+    def count(self, count: int) -> Localizable:
+        return _GettextLocalizable(
+            self._gettext_method_name, *self._gettext_args, count
+        )
+
+
 def gettext(message: str) -> Localizable:
     """
     Like :py:meth:`gettext.gettext`.
@@ -158,7 +210,21 @@ def _(message: str) -> Localizable:
     return gettext(message)
 
 
+@overload
 def ngettext(message_singular: str, message_plural: str, n: int) -> Localizable:
+    pass
+
+
+@overload
+def ngettext(
+    message_singular: str, message_plural: str, n: None = None
+) -> CountableLocalizable:
+    pass
+
+
+def ngettext(
+    message_singular: str, message_plural: str, n: int | None = None
+) -> Localizable | CountableLocalizable:
     """
     Like :py:meth:`gettext.ngettext`.
 
@@ -167,6 +233,10 @@ def ngettext(message_singular: str, message_plural: str, n: int) -> Localizable:
     any :py:class:`betty.locale.localizable.Localizable` will be localized before string
     formatting.
     """
+    if n is None:
+        return _CountableGettextLocalizable(
+            "ngettext", message_singular, message_plural
+        )
     return _GettextLocalizable("ngettext", message_singular, message_plural, n)
 
 
@@ -182,9 +252,23 @@ def pgettext(context: str, message: str) -> Localizable:
     return _GettextLocalizable("pgettext", context, message)
 
 
+@overload
 def npgettext(
     context: str, message_singular: str, message_plural: str, n: int
 ) -> Localizable:
+    pass
+
+
+@overload
+def npgettext(
+    context: str, message_singular: str, message_plural: str, n: None = None
+) -> CountableLocalizable:
+    pass
+
+
+def npgettext(
+    context: str, message_singular: str, message_plural: str, n: int | None = None
+) -> Localizable | CountableLocalizable:
     """
     Like :py:meth:`gettext.npgettext`.
 
@@ -193,6 +277,10 @@ def npgettext(
     any :py:class:`betty.locale.localizable.Localizable` will be localized before string
     formatting.
     """
+    if n is None:
+        return _CountableGettextLocalizable(
+            "npgettext", context, message_singular, message_plural
+        )
     return _GettextLocalizable(
         "npgettext", context, message_singular, message_plural, n
     )
@@ -226,6 +314,24 @@ class _FormattedLocalizable(Localizable):
                     for format_kwarg_key, format_kwarg in self._format_kwargs.items()
                 },
             )
+        )
+
+
+class _FormattedCountableLocalizable(CountableLocalizable):
+    def __init__(
+        self,
+        localizable: CountableLocalizable,
+        format_args: Sequence[str | Localizable],
+        format_kwargs: Mapping[str, str | Localizable],
+    ):
+        self._localizable = localizable
+        self._format_args = format_args
+        self._format_kwargs = format_kwargs
+
+    @override
+    def count(self, count: int) -> Localizable:
+        return _FormattedLocalizable(
+            self._localizable.count(count), self._format_args, self._format_kwargs
         )
 
 
