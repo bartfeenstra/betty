@@ -7,6 +7,7 @@ from typing_extensions import override
 from betty.json.schema import Schema
 from betty.locale import DEFAULT_LOCALE, UNDETERMINED_LOCALE
 from betty.locale.localizable import (
+    CountableLocalizable,
     Join,
     Localizable,
     Plain,
@@ -266,3 +267,19 @@ class TestJoin:
 )
 async def test_do_you_mean(expected: str, available_options: Sequence[str]) -> None:
     assert do_you_mean(*available_options).localize(DEFAULT_LOCALIZER) == expected
+
+
+class TestCountableLocalizable:
+    class _Sut(CountableLocalizable):
+        @override
+        def count(self, count: int) -> Localizable:
+            return Plain("{format_placeholder}")
+
+    def test_format(self) -> None:
+        sut = self._Sut()
+        assert (
+            sut.count(9)
+            .format(format_placeholder="format-value")
+            .localize(DEFAULT_LOCALIZER)
+            == "format-value"
+        )
