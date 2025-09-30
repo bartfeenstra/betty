@@ -8,7 +8,7 @@ import pytest
 from typing_extensions import override
 
 from betty.ancestry.event import Event
-from betty.ancestry.event_type import EventType
+from betty.ancestry.event_type import EventType, EventTypeDefinition
 from betty.ancestry.event_type.event_types import (
     CreatableDerivableEventType,
     DerivableEventType,
@@ -18,71 +18,96 @@ from betty.ancestry.presence import Presence
 from betty.ancestry.presence_role.presence_roles import Subject
 from betty.date import Date, DateLike, DateRange
 from betty.deriver import Deriver
+from betty.locale.localizable import Plain
 from betty.model.collections import record_added
 from betty.plugin.static import StaticPluginRepository
 from betty.project import Project
-from betty.test_utils.ancestry.event_type import DummyEventType
 
 if TYPE_CHECKING:
     from collections.abc import AsyncIterator
 
     from betty.app import App
-    from betty.plugin import PluginIdentifier
 
 NewProject: TypeAlias = Callable[
-    [Iterable[type[EventType]]], AbstractAsyncContextManager[Project]
+    [Iterable[EventTypeDefinition]], AbstractAsyncContextManager[Project]
 ]
 
 
-class Ignored(DummyEventType):
+@EventTypeDefinition(
+    id="ignored",
+    label=Plain(""),
+)
+class Ignored(EventType):
     pass
 
 
-class ComesBeforeReference(DummyEventType):
+@EventTypeDefinition(
+    id="comes-before-reference",
+    label=Plain(""),
+)
+class ComesBeforeReference(EventType):
     pass
 
 
-class ComesAfterReference(DummyEventType):
+@EventTypeDefinition(
+    id="comes-after-reference",
+    label=Plain(""),
+)
+class ComesAfterReference(EventType):
     pass
 
 
-class ComesBeforeDerivable(DummyEventType, DerivableEventType):
-    @override
-    @classmethod
-    def comes_before(cls) -> set[PluginIdentifier[EventType]]:
-        return {ComesBeforeReference}
-
-
-class ComesBeforeCreatableDerivable(ComesBeforeDerivable, CreatableDerivableEventType):
+@EventTypeDefinition(
+    id="comes-before-derivable",
+    label=Plain(""),
+    comes_before={ComesBeforeReference.plugin},
+)
+class ComesBeforeDerivable(DerivableEventType):
     pass
 
 
-class ComesAfterDerivable(DummyEventType, DerivableEventType):
-    @override
-    @classmethod
-    def comes_after(cls) -> set[PluginIdentifier[EventType]]:
-        return {ComesAfterReference}
-
-
-class ComesAfterCreatableDerivable(ComesAfterDerivable, CreatableDerivableEventType):
+@EventTypeDefinition(
+    id="comes-before-creatable-derivable",
+    label=Plain(""),
+    comes_before={ComesBeforeReference.plugin},
+)
+class ComesBeforeCreatableDerivable(CreatableDerivableEventType):
     pass
 
 
-class ComesBeforeAndAfterDerivable(DummyEventType, DerivableEventType):
-    @override
-    @classmethod
-    def comes_before(cls) -> set[PluginIdentifier[EventType]]:
-        return {ComesBeforeReference}
-
-    @override
-    @classmethod
-    def comes_after(cls) -> set[PluginIdentifier[EventType]]:
-        return {ComesAfterReference}
+@EventTypeDefinition(
+    id="comes-before-and-after-derivable",
+    label=Plain(""),
+    comes_before={ComesBeforeReference.plugin},
+    comes_after={ComesAfterReference.plugin},
+)
+class ComesBeforeAndAfterDerivable(DerivableEventType):
+    pass
 
 
-class ComesBeforeAndAfterCreatableDerivable(
-    DummyEventType, CreatableDerivableEventType
-):
+@EventTypeDefinition(
+    id="comes-after-derivable",
+    label=Plain(""),
+    comes_after={ComesAfterReference.plugin},
+)
+class ComesAfterDerivable(DerivableEventType):
+    pass
+
+
+@EventTypeDefinition(
+    id="comes-after-creatable-derivable",
+    label=Plain(""),
+    comes_after={ComesAfterReference.plugin},
+)
+class ComesAfterCreatableDerivable(CreatableDerivableEventType):
+    pass
+
+
+@EventTypeDefinition(
+    id="comes-before-and-after-creatable-derivable",
+    label=Plain(""),
+)
+class ComesBeforeAndAfterCreatableDerivable(CreatableDerivableEventType):
     pass
 
 
@@ -98,12 +123,11 @@ class TestDeriver:
     def new_project(self, new_temporary_app: App) -> NewProject:
         @asynccontextmanager
         async def _new_project(
-            event_types: Iterable[type[EventType]],
+            event_types: Iterable[EventTypeDefinition],
         ) -> AsyncIterator[Project]:
             async with Project.new_temporary(new_temporary_app) as project, project:
                 project.event_type_repository = StaticPluginRepository(
-                    EventType,
-                    *event_types,
+                    EventTypeDefinition, *event_types
                 )
                 yield project
 
@@ -113,15 +137,15 @@ class TestDeriver:
     async def project(self, new_project: NewProject) -> AsyncIterator[Project]:
         async with new_project(
             {
-                ComesAfterCreatableDerivable,
-                ComesAfterDerivable,
-                ComesBeforeAndAfterCreatableDerivable,
-                ComesBeforeAndAfterDerivable,
-                ComesBeforeCreatableDerivable,
-                ComesBeforeDerivable,
-                ComesAfterReference,
-                ComesBeforeReference,
-                Ignored,
+                ComesAfterCreatableDerivable.plugin,
+                ComesAfterDerivable.plugin,
+                ComesBeforeAndAfterCreatableDerivable.plugin,
+                ComesBeforeAndAfterDerivable.plugin,
+                ComesBeforeCreatableDerivable.plugin,
+                ComesBeforeDerivable.plugin,
+                ComesAfterReference.plugin,
+                ComesBeforeReference.plugin,
+                Ignored.plugin,
             }
         ) as project:
             yield project
@@ -394,7 +418,12 @@ class TestDeriver:
         derivable_date_like: DateLike | None,
         new_project: NewProject,
     ) -> None:
-        async with new_project({ComesBeforeDerivable}) as project:
+        async with new_project(
+            {
+                ComesBeforeDerivable.plugin,
+                ComesBeforeReference.plugin,
+            }
+        ) as project:
             person = Person(id="P0")
             Presence(
                 person,
@@ -453,7 +482,12 @@ class TestDeriver:
         before_date_like: DateLike | None,
         new_project: NewProject,
     ) -> None:
-        async with new_project({ComesBeforeCreatableDerivable}) as project:
+        async with new_project(
+            {
+                ComesBeforeCreatableDerivable.plugin,
+                ComesBeforeReference.plugin,
+            }
+        ) as project:
             person = Person(id="P0")
             Presence(
                 person,
@@ -688,7 +722,12 @@ class TestDeriver:
         derivable_date_like: DateLike | None,
         new_project: NewProject,
     ) -> None:
-        async with new_project({ComesAfterDerivable}) as project:
+        async with new_project(
+            {
+                ComesAfterDerivable.plugin,
+                ComesAfterReference.plugin,
+            }
+        ) as project:
             person = Person(id="P0")
             Presence(
                 person,
@@ -748,7 +787,12 @@ class TestDeriver:
         after_date_like: DateLike | None,
         new_project: NewProject,
     ) -> None:
-        async with new_project({ComesAfterCreatableDerivable}) as project:
+        async with new_project(
+            {
+                ComesAfterCreatableDerivable.plugin,
+                ComesAfterReference.plugin,
+            }
+        ) as project:
             person = Person(id="P0")
             Presence(
                 person,
@@ -805,7 +849,12 @@ class TestDeriver:
     async def test_derive__may_not_create(
         self, after_date_like: DateLike | None, new_project: NewProject
     ) -> None:
-        async with new_project({MayNotCreateComesAfterCreatableDerivable}) as project:
+        async with new_project(
+            {
+                MayNotCreateComesAfterCreatableDerivable.plugin,
+                ComesAfterReference.plugin,
+            }
+        ) as project:
             person = Person(id="P0")
             presence = Presence(
                 person,

@@ -7,13 +7,13 @@ from betty.project.extension.wiki import Wiki
 from betty.project.extension.wiki.jobs import PopulateEntity
 from betty.project.load.jobs import PopulateLink
 from betty.test_utils.job import do
-from betty.test_utils.model import DummyEntity
+from betty.test_utils.model import DummyEntityOne
 
 
 class TestPopulateEntity:
     async def test_do(self, mocker: MockerFixture, new_temporary_app: App) -> None:
         m_populate = mocker.patch("betty.wiki.populator.Populator.populate")
-        entity = DummyEntity()
+        entity = DummyEntityOne()
         async with Project.new_temporary(new_temporary_app) as project:
             project.configuration.extensions.enable(Wiki)
             async with project:

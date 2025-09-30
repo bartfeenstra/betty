@@ -1,20 +1,27 @@
 from __future__ import annotations
 
 from graphlib import TopologicalSorter
-from typing import TYPE_CHECKING, TypeVar
+from typing import TYPE_CHECKING, ClassVar, TypeVar
 
 import pytest
 from typing_extensions import override
 
+from betty.locale.localizable import CountablePlain, Plain
+from betty.machine_name import MachineName
 from betty.plugin import (
+    ClassedPlugin,
+    ClassedPluginDefinition,
+    ClassedPluginTypeDefinition,
+    CountableUserFacingPluginDefinition,
     CyclicDependencyError,
-    DependentPlugin,
-    OrderedPlugin,
-    Plugin,
-    PluginIdentifier,
-    PluginIdToTypeMapping,
+    DependentPluginDefinition,
+    OrderedPluginDefinition,
+    PluginDefinition,
+    PluginIdMapping,
     PluginNotFound,
     PluginRepository,
+    PluginTypeDefinition,
+    UserFacingPluginDefinition,
     expand_plugin_dependencies,
     get_comes_after,
     get_comes_before,
@@ -23,217 +30,174 @@ from betty.plugin import (
     sort_ordered_plugin_graph,
 )
 from betty.plugin.static import StaticPluginRepository
-from betty.test_utils.plugin import DummyPlugin
+from betty.test_utils.plugin import (
+    DUMMY_PLUGIN_ONE,
+    DUMMY_PLUGIN_THREE,
+    DUMMY_PLUGIN_TWO,
+    DummyPluginDefinition,
+)
 
 if TYPE_CHECKING:
     from collections.abc import AsyncIterator, Iterable
 
-    from betty.machine_name import MachineName
 
 _T = TypeVar("_T")
 
 
-def test_resolve_identifier__with_plugin() -> None:
-    assert resolve_identifier(DummyPlugin) == DummyPlugin.plugin_id()
+def test_resolve_identifier__with_plugin_cls() -> None:
+    plugin_id = "my-first-plugin-id"
+
+    class _ClassedPluginCls:
+        pass
+
+    class _ClassedPluginDefinition(ClassedPluginDefinition[_ClassedPluginCls]):
+        type: ClassVar[ClassedPluginTypeDefinition] = ClassedPluginTypeDefinition(
+            id="-", cls=_ClassedPluginCls, label=Plain("")
+        )
+
+    @_ClassedPluginDefinition(id=plugin_id)
+    class _ClassedPlugin(_ClassedPluginCls, ClassedPlugin):
+        pass
+
+    assert resolve_identifier(_ClassedPlugin) == plugin_id
+
+
+def test_resolve_identifier__with_plugin_definition() -> None:
+    plugin_id = "my-first-plugin-id"
+    assert resolve_identifier(PluginDefinition(id=plugin_id)) == plugin_id
 
 
 def test_resolve_identifier__with_plugin_id() -> None:
-    assert resolve_identifier(DummyPlugin.plugin_id()) == DummyPlugin.plugin_id()
+    plugin_id = "my-first-plugin-id"
+    assert resolve_identifier(plugin_id) == plugin_id
 
 
 class TestPluginNotFound:
+    async def test_new__without_available_plugins(self) -> None:
+        unknown_plugin = "my-first-plugin-id"
+        sut = PluginNotFound.new(unknown_plugin, [])
+        assert unknown_plugin in str(sut)
+
+    async def test_new__with_available_plugins(self) -> None:
+        unknown_plugin = "my-first-plugin-id"
+        available_plugin = "my-first-available-plugin-id"
+        sut = PluginNotFound.new(unknown_plugin, [available_plugin])
+        assert unknown_plugin in str(sut)
+        assert available_plugin in str(sut)
+
+
+class TestPluginIdMapping:
     async def test_new(self) -> None:
-        PluginNotFound.new("my-first-plugin-id", [])
-
-
-class TestPlugin:
-    async def test_plugin_description(self) -> None:
-        Plugin.plugin_description()
-
-
-class _TestPluginRepositoryMixinOne:
-    pass
-
-
-class _TestPluginRepositoryMixinTwo:
-    pass
-
-
-class _TestPluginRepositoryMixinThree:
-    pass
-
-
-class _TestPluginRepositoryPluginOne(DummyPlugin, _TestPluginRepositoryMixinOne):
-    pass
-
-
-class _TestPluginRepositoryPluginOneTwo(
-    DummyPlugin,
-    _TestPluginRepositoryMixinOne,
-    _TestPluginRepositoryMixinTwo,
-):
-    pass
-
-
-class _TestPluginRepositoryPluginOneTwoThree(
-    DummyPlugin,
-    _TestPluginRepositoryMixinOne,
-    _TestPluginRepositoryMixinTwo,
-    _TestPluginRepositoryMixinThree,
-):
-    pass
-
-
-class _TestPluginRepositoryPluginRepository(PluginRepository[DummyPlugin]):
-    def __init__(self, *plugins: type[DummyPlugin]):
-        super().__init__(DummyPlugin)
-        self._plugins = {plugin.plugin_id(): plugin for plugin in plugins}
-
-    @override
-    async def get(self, plugin_id: MachineName) -> type[DummyPlugin]:
-        try:
-            return self._plugins[plugin_id]
-        except KeyError:
-            raise PluginNotFound.new(plugin_id, []) from None
-
-    @override
-    async def __aiter__(self) -> AsyncIterator[type[DummyPlugin]]:
-        for plugin in self._plugins.values():
-            yield plugin
-
-
-class TestPluginIdToTypeMapping:
-    async def test_new(self) -> None:
-        await PluginIdToTypeMapping.new(StaticPluginRepository(DummyPlugin))
+        await PluginIdMapping.new(StaticPluginRepository(DummyPluginDefinition))
 
     async def test_get(self) -> None:
-        sut = await PluginIdToTypeMapping.new(
-            StaticPluginRepository(DummyPlugin, DummyPlugin)
+        sut = await PluginIdMapping.new(
+            StaticPluginRepository(DummyPluginDefinition, DUMMY_PLUGIN_ONE)
         )
-        assert sut.get(DummyPlugin.plugin_id()) is DummyPlugin
+        assert sut.get(DUMMY_PLUGIN_ONE.id) is DUMMY_PLUGIN_ONE
 
     async def test___getitem__(self) -> None:
-        sut = await PluginIdToTypeMapping.new(
-            StaticPluginRepository(DummyPlugin, DummyPlugin)
+        sut = await PluginIdMapping.new(
+            StaticPluginRepository(DummyPluginDefinition, DUMMY_PLUGIN_ONE)
         )
-        assert sut[DummyPlugin.plugin_id()] is DummyPlugin
+        assert sut[DUMMY_PLUGIN_ONE.id] is DUMMY_PLUGIN_ONE
 
     async def test___iter__(self) -> None:
-        sut = await PluginIdToTypeMapping.new(
-            StaticPluginRepository(DummyPlugin, DummyPlugin)
+        sut = await PluginIdMapping.new(
+            StaticPluginRepository(DummyPluginDefinition, DUMMY_PLUGIN_ONE)
         )
-        assert list(iter(sut)) == [DummyPlugin.plugin_id()]
+        assert list(iter(sut)) == [DUMMY_PLUGIN_ONE.id]
 
 
 class TestPluginRepository:
-    async def test_plugin(self) -> None:
-        sut = _TestPluginRepositoryPluginRepository()
-        assert sut.plugin is DummyPlugin
+    class _Sut(PluginRepository[DummyPluginDefinition]):
+        def __init__(self, *plugins: DummyPluginDefinition):
+            super().__init__(DummyPluginDefinition)
+            self._plugins = {plugin.id: plugin for plugin in plugins}
 
-    async def test_resolve_identifier__with_unknown_plugin_id(self) -> None:
-        sut = _TestPluginRepositoryPluginRepository()
-        with pytest.raises(PluginNotFound):
-            await sut.resolve_identifier("unknown-plugin")
+        @override
+        async def get(self, plugin_id: MachineName) -> DummyPluginDefinition:
+            try:
+                return self._plugins[plugin_id]
+            except KeyError:
+                raise PluginNotFound.new(plugin_id, []) from None
 
-    async def test_resolve_identifier__with_known_plugin_id(self) -> None:
-        sut = _TestPluginRepositoryPluginRepository(_TestPluginRepositoryPluginOne)
-        assert (
-            await sut.resolve_identifier(_TestPluginRepositoryPluginOne.plugin_id())
-            == _TestPluginRepositoryPluginOne
-        )
-
-    async def test_resolve_identifier__with_known_plugin(self) -> None:
-        sut = _TestPluginRepositoryPluginRepository(_TestPluginRepositoryPluginOne)
-        assert (
-            await sut.resolve_identifier(_TestPluginRepositoryPluginOne)
-            is _TestPluginRepositoryPluginOne
-        )
-
-    async def test_resolve_identifiers__without_identifiers(self) -> None:
-        sut = _TestPluginRepositoryPluginRepository()
-        assert await sut.resolve_identifiers([]) == []
-
-    async def test_resolve_identifiers__with_unknown_plugin_id(self) -> None:
-        sut = _TestPluginRepositoryPluginRepository()
-        with pytest.raises(PluginNotFound):
-            await sut.resolve_identifiers(["unknown-plugin"])
-
-    async def test_resolve_identifiers__with_known_plugin_id(self) -> None:
-        sut = _TestPluginRepositoryPluginRepository(_TestPluginRepositoryPluginOne)
-        assert await sut.resolve_identifiers(
-            [_TestPluginRepositoryPluginOne.plugin_id()]
-        ) == [_TestPluginRepositoryPluginOne]
-
-    async def test_resolve_identifiers__with_known_plugin(self) -> None:
-        sut = _TestPluginRepositoryPluginRepository(_TestPluginRepositoryPluginOne)
-        assert await sut.resolve_identifiers([_TestPluginRepositoryPluginOne]) == [
-            _TestPluginRepositoryPluginOne
-        ]
+        @override
+        async def __aiter__(self) -> AsyncIterator[DummyPluginDefinition]:
+            for plugin in self._plugins.values():
+                yield plugin
 
     async def test_mapping__without_plugins(self) -> None:
-        sut = _TestPluginRepositoryPluginRepository()
+        sut = self._Sut()
         await sut.mapping()
 
     async def test_mapping__with_plugins(self) -> None:
-        sut = _TestPluginRepositoryPluginRepository(
-            _TestPluginRepositoryPluginOne,
-            _TestPluginRepositoryPluginOneTwo,
-            _TestPluginRepositoryPluginOneTwoThree,
+        sut = self._Sut(
+            DUMMY_PLUGIN_ONE,
+            DUMMY_PLUGIN_TWO,
+            DUMMY_PLUGIN_THREE,
         )
-        plugin_id_to_type_mapping = await sut.mapping()
-        assert (
-            plugin_id_to_type_mapping[_TestPluginRepositoryPluginOne.plugin_id()]
-            is _TestPluginRepositoryPluginOne
-        )
+        plugin_id_mapping = await sut.mapping()
+        assert plugin_id_mapping[DUMMY_PLUGIN_ONE.id] is DUMMY_PLUGIN_ONE
 
     async def test_plugin_id_schema(self) -> None:
-        sut = _TestPluginRepositoryPluginRepository(
-            _TestPluginRepositoryPluginOne,
-            _TestPluginRepositoryPluginOneTwo,
-            _TestPluginRepositoryPluginOneTwoThree,
+        sut = self._Sut(
+            DUMMY_PLUGIN_ONE,
+            DUMMY_PLUGIN_TWO,
+            DUMMY_PLUGIN_THREE,
         )
         actual = await sut.plugin_id_schema
         assert actual.schema["enum"] == [
-            "test-plugin-repository-plugin-one",
-            "test-plugin-repository-plugin-one-two",
-            "test-plugin-repository-plugin-one-two-three",
+            "dummy-plugin-one",
+            "dummy-plugin-two",
+            "dummy-plugin-three",
         ]
 
 
 class TestCyclicDependencyError:
     def test(self) -> None:
-        sut = CyclicDependencyError([DummyPlugin])
-        assert str(sut)
+        plugin_id = "my-first-plugin"
+        sut = CyclicDependencyError([plugin_id])
+        assert plugin_id in str(sut)
 
 
-class _DummyOrderedPlugin(OrderedPlugin["_DummyOrderedPlugin"], DummyPlugin):
-    pass
+class _OrderedPluginDefinition(OrderedPluginDefinition):
+    type = PluginTypeDefinition(
+        id="ordered-plugin",
+        label=Plain(""),
+    )
 
 
-class ComesBeforeTargetOrderedPlugin(_DummyOrderedPlugin):
-    pass
+_ORDERED_PLUGIN_COMES_BEFORE_TARGET = _OrderedPluginDefinition(
+    id="ordered-plugin-comes-before-target",
+)
+
+_ORDERED_PLUGIN_HAS_COMES_BEFORE = _OrderedPluginDefinition(
+    id="ordered-plugin-has-comes-before",
+    comes_before={_ORDERED_PLUGIN_COMES_BEFORE_TARGET},
+)
+_ORDERED_PLUGIN_COMES_AFTER_TARGET = _OrderedPluginDefinition(
+    id="ordered-plugin-comes-after-target",
+)
+
+_ORDERED_PLUGIN_HAS_COMES_AFTER = _OrderedPluginDefinition(
+    id="ordered-plugin-has-comes-after",
+    comes_after={_ORDERED_PLUGIN_COMES_AFTER_TARGET},
+)
+
+_ORDERED_PLUGIN_ISOLATED = _OrderedPluginDefinition(
+    id="ordered-plugin-isolated",
+)
 
 
-class HasComesBeforeOrderedPlugin(_DummyOrderedPlugin):
-    @override
-    @classmethod
-    def comes_before(cls) -> set[PluginIdentifier[_DummyOrderedPlugin]]:
-        return {ComesBeforeTargetOrderedPlugin}
-
-
-class ComesAfterTargetOrderedPlugin(_DummyOrderedPlugin):
-    pass
-
-
-class HasComesAfterOrderedPlugin(_DummyOrderedPlugin):
-    @override
-    @classmethod
-    def comes_after(cls) -> set[PluginIdentifier[_DummyOrderedPlugin]]:
-        return {ComesAfterTargetOrderedPlugin}
-
-
-class IsolatedOrderedPlugin(_DummyOrderedPlugin):
-    pass
+_ORDERED_PLUGIN_HAS_COMES_BEFORE_BIDIRECTIONAL = _OrderedPluginDefinition(
+    id="ordered-plugin-has-comes-before-bidirectional",
+    comes_before={"ordered-plugin-has-comes-after-bidirectional"},
+)
+_ORDERED_PLUGIN_HAS_COMES_AFTER_BIDIRECTIONAL = _OrderedPluginDefinition(
+    id="ordered-plugin-has-comes-after-bidirectional",
+    comes_after={_ORDERED_PLUGIN_HAS_COMES_BEFORE_BIDIRECTIONAL},
+)
 
 
 @pytest.mark.parametrize(
@@ -244,40 +208,52 @@ class IsolatedOrderedPlugin(_DummyOrderedPlugin):
             [],
         ),
         (
-            [IsolatedOrderedPlugin],
-            [IsolatedOrderedPlugin],
+            [_ORDERED_PLUGIN_ISOLATED.id],
+            [_ORDERED_PLUGIN_ISOLATED],
         ),
         (
-            [HasComesAfterOrderedPlugin],
-            [HasComesAfterOrderedPlugin],
+            [_ORDERED_PLUGIN_HAS_COMES_AFTER.id],
+            [_ORDERED_PLUGIN_HAS_COMES_AFTER],
         ),
         (
-            [ComesAfterTargetOrderedPlugin, HasComesAfterOrderedPlugin],
-            [ComesAfterTargetOrderedPlugin, HasComesAfterOrderedPlugin],
+            [
+                _ORDERED_PLUGIN_COMES_AFTER_TARGET.id,
+                _ORDERED_PLUGIN_HAS_COMES_AFTER.id,
+            ],
+            [
+                _ORDERED_PLUGIN_COMES_AFTER_TARGET,
+                _ORDERED_PLUGIN_HAS_COMES_AFTER,
+            ],
         ),
         (
-            [HasComesBeforeOrderedPlugin],
-            [HasComesBeforeOrderedPlugin],
+            [_ORDERED_PLUGIN_HAS_COMES_BEFORE.id],
+            [_ORDERED_PLUGIN_HAS_COMES_BEFORE],
         ),
         (
-            [HasComesBeforeOrderedPlugin, ComesBeforeTargetOrderedPlugin],
-            [ComesBeforeTargetOrderedPlugin, HasComesBeforeOrderedPlugin],
+            [
+                _ORDERED_PLUGIN_HAS_COMES_BEFORE.id,
+                _ORDERED_PLUGIN_COMES_BEFORE_TARGET.id,
+            ],
+            [
+                _ORDERED_PLUGIN_COMES_BEFORE_TARGET,
+                _ORDERED_PLUGIN_HAS_COMES_BEFORE,
+            ],
         ),
     ],
 )
 async def test_sort_ordered_plugin_graph(
-    expected: list[type[_DummyOrderedPlugin]],
-    plugins: Iterable[type[_DummyOrderedPlugin]],
+    expected: list[MachineName],
+    plugins: Iterable[_OrderedPluginDefinition],
 ) -> None:
-    sorter = TopologicalSorter[type[_DummyOrderedPlugin]]()
+    sorter = TopologicalSorter[MachineName]()
     await sort_ordered_plugin_graph(
         StaticPluginRepository(
-            _DummyOrderedPlugin,
-            ComesBeforeTargetOrderedPlugin,
-            HasComesBeforeOrderedPlugin,
-            ComesAfterTargetOrderedPlugin,
-            HasComesAfterOrderedPlugin,
-            IsolatedOrderedPlugin,
+            _OrderedPluginDefinition,
+            _ORDERED_PLUGIN_COMES_BEFORE_TARGET,
+            _ORDERED_PLUGIN_HAS_COMES_BEFORE,
+            _ORDERED_PLUGIN_COMES_AFTER_TARGET,
+            _ORDERED_PLUGIN_HAS_COMES_AFTER,
+            _ORDERED_PLUGIN_ISOLATED,
         ),
         plugins,
         sorter,
@@ -285,30 +261,28 @@ async def test_sort_ordered_plugin_graph(
     assert list(sorter.static_order()) == expected
 
 
-class _DummyDependentPlugin(DependentPlugin["_DummyDependentPlugin"], DummyPlugin):
-    pass
+class _DependentPluginDefinition(DependentPluginDefinition):
+    type = PluginTypeDefinition(
+        id="dependent",
+        label=Plain("_ExpandPluginDependenciesTestPluginDefinition"),
+    )
 
 
-class DownStreamDependentPlugin(_DummyDependentPlugin):
-    pass
+_DEPENDENT_PLUGIN_DOWNSTREAM_DEPENDENT = _DependentPluginDefinition(
+    id="expand-plugin-dependencies-test-downstream-dependent",
+)
+_DEPENDENT_PLUGIN_UPSTREAM_AND_DOWNSTREAM_DEPENDENT = _DependentPluginDefinition(
+    id="expand-plugin-dependencies-test-upstream-and-downstream-dependent",
+    depends_on={_DEPENDENT_PLUGIN_DOWNSTREAM_DEPENDENT},
+)
+_DEPENDENT_PLUGIN_UPSTREAM_DEPENDENT = _DependentPluginDefinition(
+    id="expand-plugin-dependencies-test-upstream-dependent",
+    depends_on={_DEPENDENT_PLUGIN_UPSTREAM_AND_DOWNSTREAM_DEPENDENT},
+)
 
-
-class UpstreamDependentPlugin(_DummyDependentPlugin):
-    @override
-    @classmethod
-    def depends_on(cls) -> set[PluginIdentifier[_DummyDependentPlugin]]:
-        return {UpstreamAndDownstreamDependentPlugin}
-
-
-class UpstreamAndDownstreamDependentPlugin(_DummyDependentPlugin):
-    @override
-    @classmethod
-    def depends_on(cls) -> set[PluginIdentifier[_DummyDependentPlugin]]:
-        return {DownStreamDependentPlugin}
-
-
-class IsolatedDependentPlugin(_DummyDependentPlugin):
-    pass
+_DEPENDENT_PLUGIN_ISOLATED = _DependentPluginDefinition(
+    id="expand-plugin-dependencies-test-isolated",
+)
 
 
 @pytest.mark.parametrize(
@@ -320,62 +294,62 @@ class IsolatedDependentPlugin(_DummyDependentPlugin):
         ),
         (
             {
-                IsolatedDependentPlugin,
+                _DEPENDENT_PLUGIN_ISOLATED,
             },
             {
-                IsolatedDependentPlugin,
-            },
-        ),
-        (
-            {
-                DownStreamDependentPlugin,
-                UpstreamAndDownstreamDependentPlugin,
-                UpstreamDependentPlugin,
-            },
-            {
-                UpstreamDependentPlugin,
-                UpstreamAndDownstreamDependentPlugin,
-                DownStreamDependentPlugin,
+                _DEPENDENT_PLUGIN_ISOLATED,
             },
         ),
         (
             {
-                DownStreamDependentPlugin,
-                UpstreamAndDownstreamDependentPlugin,
-                UpstreamDependentPlugin,
+                _DEPENDENT_PLUGIN_DOWNSTREAM_DEPENDENT,
+                _DEPENDENT_PLUGIN_UPSTREAM_AND_DOWNSTREAM_DEPENDENT,
+                _DEPENDENT_PLUGIN_UPSTREAM_DEPENDENT,
             },
             {
-                UpstreamDependentPlugin,
+                _DEPENDENT_PLUGIN_UPSTREAM_DEPENDENT,
+                _DEPENDENT_PLUGIN_UPSTREAM_AND_DOWNSTREAM_DEPENDENT,
+                _DEPENDENT_PLUGIN_DOWNSTREAM_DEPENDENT,
+            },
+        ),
+        (
+            {
+                _DEPENDENT_PLUGIN_DOWNSTREAM_DEPENDENT,
+                _DEPENDENT_PLUGIN_UPSTREAM_AND_DOWNSTREAM_DEPENDENT,
+                _DEPENDENT_PLUGIN_UPSTREAM_DEPENDENT,
+            },
+            {
+                _DEPENDENT_PLUGIN_UPSTREAM_DEPENDENT,
             },
         ),
         (
             {
-                DownStreamDependentPlugin,
-                UpstreamAndDownstreamDependentPlugin,
+                _DEPENDENT_PLUGIN_DOWNSTREAM_DEPENDENT,
+                _DEPENDENT_PLUGIN_DOWNSTREAM_DEPENDENT,
             },
             {
-                UpstreamAndDownstreamDependentPlugin,
+                _DEPENDENT_PLUGIN_DOWNSTREAM_DEPENDENT,
             },
         ),
         (
-            {DownStreamDependentPlugin},
+            {_DEPENDENT_PLUGIN_DOWNSTREAM_DEPENDENT},
             {
-                DownStreamDependentPlugin,
+                _DEPENDENT_PLUGIN_DOWNSTREAM_DEPENDENT,
             },
         ),
     ],
 )
 async def test_expand_plugin_dependencies(
-    expected: set[type[_DummyDependentPlugin]],
-    plugins: set[type[_DummyDependentPlugin]],
+    expected: set[_DependentPluginDefinition],
+    plugins: set[_DependentPluginDefinition],
 ) -> None:
     actual = await expand_plugin_dependencies(
         StaticPluginRepository(
-            _DummyDependentPlugin,
-            IsolatedDependentPlugin,
-            UpstreamDependentPlugin,
-            UpstreamAndDownstreamDependentPlugin,
-            DownStreamDependentPlugin,
+            _DependentPluginDefinition,
+            _DEPENDENT_PLUGIN_ISOLATED,
+            _DEPENDENT_PLUGIN_UPSTREAM_DEPENDENT,
+            _DEPENDENT_PLUGIN_UPSTREAM_AND_DOWNSTREAM_DEPENDENT,
+            _DEPENDENT_PLUGIN_DOWNSTREAM_DEPENDENT,
         ),
         plugins,
     )
@@ -391,116 +365,101 @@ async def test_expand_plugin_dependencies(
         ),
         (
             [
-                IsolatedDependentPlugin,
+                _DEPENDENT_PLUGIN_ISOLATED.id,
             ],
             {
-                IsolatedDependentPlugin,
+                _DEPENDENT_PLUGIN_ISOLATED,
             },
         ),
         (
             [
-                DownStreamDependentPlugin,
-                UpstreamAndDownstreamDependentPlugin,
-                UpstreamDependentPlugin,
+                _DEPENDENT_PLUGIN_DOWNSTREAM_DEPENDENT.id,
+                _DEPENDENT_PLUGIN_UPSTREAM_AND_DOWNSTREAM_DEPENDENT.id,
+                _DEPENDENT_PLUGIN_UPSTREAM_DEPENDENT.id,
             ],
             {
-                UpstreamDependentPlugin,
-                UpstreamAndDownstreamDependentPlugin,
-                DownStreamDependentPlugin,
+                _DEPENDENT_PLUGIN_UPSTREAM_DEPENDENT,
+                _DEPENDENT_PLUGIN_UPSTREAM_AND_DOWNSTREAM_DEPENDENT,
+                _DEPENDENT_PLUGIN_DOWNSTREAM_DEPENDENT,
             },
         ),
         (
             [
-                DownStreamDependentPlugin,
-                UpstreamAndDownstreamDependentPlugin,
-                UpstreamDependentPlugin,
+                _DEPENDENT_PLUGIN_DOWNSTREAM_DEPENDENT.id,
+                _DEPENDENT_PLUGIN_UPSTREAM_AND_DOWNSTREAM_DEPENDENT.id,
+                _DEPENDENT_PLUGIN_UPSTREAM_DEPENDENT.id,
             ],
             {
-                UpstreamDependentPlugin,
+                _DEPENDENT_PLUGIN_UPSTREAM_DEPENDENT,
             },
         ),
         (
             [
-                DownStreamDependentPlugin,
-                UpstreamAndDownstreamDependentPlugin,
+                _DEPENDENT_PLUGIN_DOWNSTREAM_DEPENDENT.id,
+                _DEPENDENT_PLUGIN_UPSTREAM_AND_DOWNSTREAM_DEPENDENT.id,
             ],
             {
-                UpstreamAndDownstreamDependentPlugin,
+                _DEPENDENT_PLUGIN_UPSTREAM_AND_DOWNSTREAM_DEPENDENT,
             },
         ),
         (
-            [DownStreamDependentPlugin],
+            [_DEPENDENT_PLUGIN_DOWNSTREAM_DEPENDENT.id],
             {
-                DownStreamDependentPlugin,
+                _DEPENDENT_PLUGIN_DOWNSTREAM_DEPENDENT,
             },
         ),
     ],
 )
 async def test_sort_dependent_plugin_graph(
-    expected: list[type[DummyPlugin]], plugins: Iterable[type[_DummyDependentPlugin]]
+    expected: list[MachineName], plugins: Iterable[_DependentPluginDefinition]
 ) -> None:
     plugin_repository = StaticPluginRepository(
-        _DummyDependentPlugin,
-        IsolatedDependentPlugin,
-        UpstreamDependentPlugin,
-        UpstreamAndDownstreamDependentPlugin,
-        DownStreamDependentPlugin,
+        _DependentPluginDefinition,
+        _DEPENDENT_PLUGIN_ISOLATED,
+        _DEPENDENT_PLUGIN_UPSTREAM_DEPENDENT,
+        _DEPENDENT_PLUGIN_UPSTREAM_AND_DOWNSTREAM_DEPENDENT,
+        _DEPENDENT_PLUGIN_DOWNSTREAM_DEPENDENT,
     )
-    sorter = TopologicalSorter[type[_DummyDependentPlugin]]()
+    sorter = TopologicalSorter[MachineName]()
     await sort_dependent_plugin_graph(plugin_repository, plugins, sorter)
     assert list(sorter.static_order()) == expected
 
 
-class HasBidirectionalComesBeforeOrderedPlugin(_DummyOrderedPlugin):
-    @override
-    @classmethod
-    def comes_before(cls) -> set[PluginIdentifier[_DummyOrderedPlugin]]:
-        return {HasBidirectionalComesAfterOrderedPlugin}
-
-
-class HasBidirectionalComesAfterOrderedPlugin(_DummyOrderedPlugin):
-    @override
-    @classmethod
-    def comes_after(cls) -> set[PluginIdentifier[_DummyOrderedPlugin]]:
-        return {HasBidirectionalComesBeforeOrderedPlugin}
-
-
 @pytest.mark.parametrize(
     ("expected", "origin"),
     [
         (
             set(),
-            IsolatedOrderedPlugin,
+            _ORDERED_PLUGIN_ISOLATED,
         ),
         (
-            {ComesBeforeTargetOrderedPlugin},
-            HasComesBeforeOrderedPlugin,
+            {_ORDERED_PLUGIN_COMES_BEFORE_TARGET},
+            _ORDERED_PLUGIN_HAS_COMES_BEFORE,
         ),
         (
-            {HasComesAfterOrderedPlugin},
-            ComesAfterTargetOrderedPlugin,
+            {_ORDERED_PLUGIN_HAS_COMES_AFTER},
+            _ORDERED_PLUGIN_COMES_AFTER_TARGET,
         ),
         (
-            {HasBidirectionalComesAfterOrderedPlugin},
-            HasBidirectionalComesBeforeOrderedPlugin,
+            {_ORDERED_PLUGIN_HAS_COMES_AFTER_BIDIRECTIONAL},
+            _ORDERED_PLUGIN_HAS_COMES_BEFORE_BIDIRECTIONAL,
         ),
     ],
 )
 async def test_get_comes_before(
-    expected: set[type[_DummyOrderedPlugin]],
-    origin: type[_DummyOrderedPlugin],
+    expected: set[_OrderedPluginDefinition], origin: _OrderedPluginDefinition
 ) -> None:
     assert (
         await get_comes_before(
             StaticPluginRepository(
-                _DummyOrderedPlugin,
-                ComesBeforeTargetOrderedPlugin,
-                HasComesBeforeOrderedPlugin,
-                ComesAfterTargetOrderedPlugin,
-                HasComesAfterOrderedPlugin,
-                IsolatedOrderedPlugin,
-                HasBidirectionalComesBeforeOrderedPlugin,
-                HasBidirectionalComesAfterOrderedPlugin,
+                _OrderedPluginDefinition,
+                _ORDERED_PLUGIN_COMES_BEFORE_TARGET,
+                _ORDERED_PLUGIN_HAS_COMES_BEFORE,
+                _ORDERED_PLUGIN_COMES_AFTER_TARGET,
+                _ORDERED_PLUGIN_HAS_COMES_AFTER,
+                _ORDERED_PLUGIN_ISOLATED,
+                _ORDERED_PLUGIN_HAS_COMES_BEFORE_BIDIRECTIONAL,
+                _ORDERED_PLUGIN_HAS_COMES_AFTER_BIDIRECTIONAL,
             ),
             origin,
         )
@@ -513,39 +472,143 @@ async def test_get_comes_before(
     [
         (
             set(),
-            IsolatedOrderedPlugin,
+            _ORDERED_PLUGIN_ISOLATED,
         ),
         (
-            {ComesAfterTargetOrderedPlugin},
-            HasComesAfterOrderedPlugin,
+            {_ORDERED_PLUGIN_COMES_AFTER_TARGET},
+            _ORDERED_PLUGIN_HAS_COMES_AFTER,
         ),
         (
-            {HasComesBeforeOrderedPlugin},
-            ComesBeforeTargetOrderedPlugin,
+            {_ORDERED_PLUGIN_HAS_COMES_BEFORE},
+            _ORDERED_PLUGIN_COMES_BEFORE_TARGET,
         ),
         (
-            {HasBidirectionalComesBeforeOrderedPlugin},
-            HasBidirectionalComesAfterOrderedPlugin,
+            {_ORDERED_PLUGIN_HAS_COMES_BEFORE_BIDIRECTIONAL},
+            _ORDERED_PLUGIN_HAS_COMES_AFTER_BIDIRECTIONAL,
         ),
     ],
 )
 async def test_get_comes_after(
-    expected: set[type[_DummyOrderedPlugin]],
-    origin: type[_DummyOrderedPlugin],
+    expected: set[_OrderedPluginDefinition], origin: _OrderedPluginDefinition
 ) -> None:
     assert (
         await get_comes_after(
             StaticPluginRepository(
-                _DummyOrderedPlugin,
-                ComesAfterTargetOrderedPlugin,
-                HasComesAfterOrderedPlugin,
-                ComesBeforeTargetOrderedPlugin,
-                HasComesBeforeOrderedPlugin,
-                IsolatedOrderedPlugin,
-                HasBidirectionalComesAfterOrderedPlugin,
-                HasBidirectionalComesBeforeOrderedPlugin,
+                _OrderedPluginDefinition,
+                _ORDERED_PLUGIN_COMES_BEFORE_TARGET,
+                _ORDERED_PLUGIN_HAS_COMES_BEFORE,
+                _ORDERED_PLUGIN_COMES_AFTER_TARGET,
+                _ORDERED_PLUGIN_HAS_COMES_AFTER,
+                _ORDERED_PLUGIN_ISOLATED,
+                _ORDERED_PLUGIN_HAS_COMES_AFTER_BIDIRECTIONAL,
+                _ORDERED_PLUGIN_HAS_COMES_BEFORE_BIDIRECTIONAL,
             ),
             origin,
         )
         == expected
     )
+
+
+class TestPluginTypeDefinition:
+    def test_id(self) -> None:
+        plugin_type_id = "my-first-plugin-type"
+        sut = PluginTypeDefinition(id=plugin_type_id, label=Plain(""))
+        assert sut.id == plugin_type_id
+
+    def test_label(self) -> None:
+        label = Plain("my-first-plugin-type")
+        sut = PluginTypeDefinition(label=label, id="my-first-plugin-type")
+        assert sut.label is label
+
+
+class TestClassedPluginTypeDefinition:
+    def test_cls(self) -> None:
+        class _Cls:
+            pass
+
+        sut = ClassedPluginTypeDefinition(
+            cls=_Cls, id="my-first-plugin-type", label=Plain("")
+        )
+        assert sut.cls is _Cls
+
+
+class TestClassedPluginDefinition:
+    def test_cls(self) -> None:
+        class _Cls:
+            pass
+
+        sut = ClassedPluginDefinition(cls=_Cls, id="my-first-plugin")
+        assert sut.cls is _Cls
+
+    def test___call__(self) -> None:
+        class _Cls:
+            pass
+
+        sut = ClassedPluginDefinition[_Cls](id="my-first-plugin")
+        sut(_Cls)
+        assert sut.cls is _Cls
+
+
+class TestCountableUserFacingPluginDefinition:
+    def test_label_plural(self) -> None:
+        label_plural = Plain("")
+        sut = CountableUserFacingPluginDefinition(
+            label_plural=label_plural,
+            label_countable=CountablePlain("", ""),
+            id="my-first-plugin",
+            label=Plain(""),
+        )
+        assert sut.label_plural is label_plural
+
+    def test_label_countable(self) -> None:
+        label_countable = CountablePlain("", "")
+        sut = CountableUserFacingPluginDefinition(
+            label_countable=label_countable,
+            label_plural=Plain(""),
+            id="my-first-plugin",
+            label=Plain(""),
+        )
+        assert sut.label_countable is label_countable
+
+
+class TestDependentPluginDefinition:
+    def test_depends_on(self) -> None:
+        depends_on = {"depends-on"}
+        sut = DependentPluginDefinition(
+            depends_on=depends_on,  # type: ignore[arg-type]
+            id="my-first-plugin",
+        )
+        assert sut.depends_on == depends_on
+
+
+class TestOrderedPluginDefinition:
+    def test_comes_before(self) -> None:
+        comes_before = {"comes-before"}
+        sut = DependentPluginDefinition(comes_before=comes_before, id="my-first-plugin")
+        assert sut.comes_before == comes_before
+
+    def test_comes_after(self) -> None:
+        comes_after = {"comes-after"}
+        sut = DependentPluginDefinition(comes_after=comes_after, id="my-first-plugin")
+        assert sut.comes_after == comes_after
+
+
+class TestPluginDefinition:
+    def test_id(self) -> None:
+        id = "my-first-plugin"  # noqa A001
+        sut = PluginDefinition(id=id)
+        assert sut.id == id
+
+
+class TestUserFacingPluginDefinition:
+    def test_label(self) -> None:
+        label = Plain("")
+        sut = UserFacingPluginDefinition(label=label, id="my-first-plugin")
+        assert sut.label is label
+
+    def test_description(self) -> None:
+        description = Plain("")
+        sut = UserFacingPluginDefinition(
+            description=description, id="my-first-plugin", label=Plain("")
+        )
+        assert sut.description is description

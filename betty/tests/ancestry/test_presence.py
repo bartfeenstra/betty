@@ -9,33 +9,30 @@ from betty.ancestry.event import Event
 from betty.ancestry.event_type.event_types import Unknown as UnknownEventType
 from betty.ancestry.person import Person
 from betty.ancestry.presence import Presence
-from betty.ancestry.presence_role.presence_roles import (
-    Subject,
-)
-from betty.ancestry.presence_role.presence_roles import (
-    Unknown as UnknownPresenceRole,
-)
+from betty.ancestry.presence_role.presence_roles import Subject
+from betty.ancestry.presence_role.presence_roles import Unknown as UnknownPresenceRole
 from betty.privacy import Privacy
 from betty.test_utils.json.linked_data import assert_dumps_linked_data
-from betty.test_utils.model import EntityTestBase
+from betty.test_utils.model import EntityDefinitionTestBase, EntityTestBase
 
 if TYPE_CHECKING:
-    from collections.abc import Sequence
-
     from betty.model import Entity
+    from betty.plugin import PluginDefinition
     from betty.serde.dump import Dump, DumpMapping
+
+
+class TestPresenceDefinition(EntityDefinitionTestBase):
+    @override
+    @pytest.fixture
+    def sut(self) -> PluginDefinition:
+        return Presence.plugin
 
 
 class TestPresence(EntityTestBase):
     @override
-    def get_sut_class(self) -> type[Presence]:
-        return Presence
-
-    @override
-    async def get_sut_instances(self) -> Sequence[Entity]:
-        return [
-            Presence(Person(), UnknownPresenceRole(), Event()),
-        ]
+    @pytest.fixture
+    async def sut(self) -> Entity:
+        return Presence(Person(), UnknownPresenceRole(), Event())
 
     async def test_person(self) -> None:
         person = Person()
@@ -85,7 +82,7 @@ class TestPresence(EntityTestBase):
             "event": "/event/my-first-event/index.json",
             "person": "/person/my-first-person/index.json",
             "private": False,
-            "role": role.plugin_id(),
+            "role": role.plugin.id,
         }
         actual = await assert_dumps_linked_data(sut)
         assert actual == expected

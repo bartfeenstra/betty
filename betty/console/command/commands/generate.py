@@ -6,10 +6,9 @@ from typing_extensions import override
 
 from betty.app.factory import AppDependentFactory
 from betty.cache.memory import MemoryCache
+from betty.console.command import Command, CommandFunction, CommandDefinition
 from betty.console.project import add_project_argument
-from betty.console.command import Command, CommandFunction
 from betty.locale.localizable import _
-from betty.plugin import ShorthandPluginBase
 from betty.project import ProjectContext
 
 if TYPE_CHECKING:
@@ -20,13 +19,14 @@ if TYPE_CHECKING:
 
 
 @final
-class Generate(ShorthandPluginBase, AppDependentFactory, Command):
+@CommandDefinition(
+    id="generate",
+    label=_("Generate a static site"),
+)
+class Generate(AppDependentFactory, Command):
     """
     A command to generate a new site.
     """
-
-    _plugin_id = "generate"
-    _plugin_label = _("Generate a static site")
 
     def __init__(self, app: App):
         self._app = app

@@ -30,7 +30,7 @@ async def assert_configuration_file(
     Assert that configuration can be loaded from a file.
     """
     available_formats = {
-        available_format: await new(available_format)
+        available_format: await new(available_format.cls)
         async for available_format in FORMAT_REPOSITORY
     }
 
@@ -62,7 +62,7 @@ async def write_configuration_file(
     serde_format_type = format_for(
         [plugin async for plugin in FORMAT_REPOSITORY], configuration_file_path.suffix
     )
-    serde_format = await new(serde_format_type)
+    serde_format = await new(serde_format_type.cls)
     dump = serde_format.dump(configuration.dump())
     await makedirs(configuration_file_path.parent, exist_ok=True)
     async with aiofiles.open(configuration_file_path, mode="w") as f:

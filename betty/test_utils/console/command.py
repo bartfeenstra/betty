@@ -2,11 +2,15 @@
 Test utilities for :py:mod:`betty.console.command`.
 """
 
-from betty.console.command import Command
-from betty.test_utils.plugin import PluginTestBase
+from betty.test_utils.plugin import (
+    ClassedPluginDefinitionTestBase,
+    UserFacingPluginDefinitionTestBase,
+)
 
 
-class CommandTestBase(PluginTestBase[Command]):
+class CommandDefinitionTestBase(
+    UserFacingPluginDefinitionTestBase, ClassedPluginDefinitionTestBase
+):
     """
-    A base class for testing :py:class:`betty.console.command.Command` implementations.
+    A base class for testing :py:class:`betty.console.command.CommandDefinition` subclasses.
     """

@@ -4,6 +4,7 @@ from gettext import NullTranslations
 from typing import TYPE_CHECKING
 
 import aiofiles
+import pytest
 from typing_extensions import override
 
 from betty.ancestry.has_file_references import HasFileReferences
@@ -17,13 +18,14 @@ from betty.job import Context
 from betty.locale.localizer import Localizer
 from betty.project import Project
 from betty.project.config import LocaleConfiguration
-from betty.test_utils.model import DummyEntity
-from betty.test_utils.plugin import PluginTestBase
+from betty.test_utils.model import DummyEntityOne
+from betty.test_utils.render import RendererDefinitionTestBase
 
 if TYPE_CHECKING:
     from pathlib import Path
 
     from betty.app import App
+    from betty.plugin import PluginDefinition
 
 
 class TestJinja2Provider:
@@ -44,11 +46,14 @@ class TestJinja2Provider:
         assert isinstance(sut.new_context_vars(), dict)
 
 
-class TestJinja2Renderer(PluginTestBase[Jinja2Renderer]):
+class TestJinja2RendererDefinition(RendererDefinitionTestBase):
     @override
-    def get_sut_class(self) -> type[Jinja2Renderer]:
-        return Jinja2Renderer
+    @pytest.fixture
+    def sut(self) -> PluginDefinition:
+        return Jinja2Renderer.plugin
 
+
+class TestJinja2Renderer:
     async def test_render_file(self, new_temporary_app: App, tmp_path: Path) -> None:
         async with Project.new_temporary(new_temporary_app) as project, project:
             sut = await Jinja2Renderer.new_for_project(project)
@@ -166,40 +171,32 @@ class TestJinja2Renderer(PluginTestBase[Jinja2Renderer]):
             sut.file_extensions  # noqa B018
 
 
-class DummyHasFileReferencesEntity(HasFileReferences, DummyEntity):
-    pass
-
-
-class EntityContextsTestEntityA(DummyEntity):
-    pass
-
-
-class EntityContextsTestEntityB(DummyEntity):
+class DummyHasFileReferencesEntity(HasFileReferences):
     pass
 
 
 class TestEntityContexts:
     async def test___getitem__(self) -> None:
-        sut = await EntityContexts.new()
-        assert sut[EntityContextsTestEntityA] is None
+        sut = EntityContexts()
+        assert sut[DummyEntityOne] is None
 
     async def test___getitem___with___init__(self) -> None:
-        a = EntityContextsTestEntityA()
-        sut = await EntityContexts.new(a)
-        assert sut[EntityContextsTestEntityA] is a
+        a = DummyEntityOne()
+        sut = EntityContexts(a)
+        assert sut[DummyEntityOne] is a
 
     async def test___call__(self) -> None:
-        a = EntityContextsTestEntityA()
-        contexts = await EntityContexts.new()
+        a = DummyEntityOne()
+        contexts = EntityContexts()
         sut = contexts(a)
-        assert sut[EntityContextsTestEntityA] is a
+        assert sut[DummyEntityOne] is a
 
     async def test___call___with___init__(self) -> None:
-        a = EntityContextsTestEntityA()
-        b = EntityContextsTestEntityA()
-        contexts = await EntityContexts.new(a)
+        a = DummyEntityOne()
+        b = DummyEntityOne()
+        contexts = EntityContexts(a)
         sut = contexts(b)
-        assert sut[EntityContextsTestEntityA] is b
+        assert sut[DummyEntityOne] is b
 
 
 class TestEnvironment:

@@ -15,31 +15,28 @@ Event types are used to indicate the **type** of an :doc:`/usage/ancestry/event`
 Creating an event type
 ----------------------
 
-#. Create a new class that extends :py:class:`betty.ancestry.event_type.EventType` and implements the abstract methods,
-   for example:
+Create a new class that extends :py:class:`betty.ancestry.event_type.EventType` and implements the abstract methods, for
+example:
 
-   .. code-block:: python
+.. code-block:: python
 
-     from typing import override
-     from betty.ancestry.event_type import EventType
-     from betty.machine_name import MachineName
+   from betty.ancestry.event_type import EventType, EventTypeDefinition
 
-     class MyEventType(EventType):
-       @override
-       @classmethod
-       def plugin_id(cls) -> MachineName:
-           return "my-module-my-event-type"
-
-       # Implement remaining abstract methods...
-       ...
+   @EventTypeDefinition(
+       id="my-event-type",
+       label=_("My Event Type"),
+   )
+   class MyEventType(EventType):
+       pass
 
 
-#. Tell Betty about your event type by registering it as an entry point. Given the event type above in a module ``my_package.my_module``, add the following to your Python package:
+Tell Betty about your event type by registering it as an entry point. Given the event type above in a module
+``my_package.my_module``, add the following to your Python package:
 
-   .. code-block:: toml
+.. code-block:: toml
 
-       [project.entry-points.'betty.event_type']
-       'my-module-my-event-type' = 'my_package.my_module.MyEventType'
+   [project.entry-points.'betty.event_type']
+   'my-event-type' = 'my_package.my_module.MyEventType.plugin'
 
 See also
 --------

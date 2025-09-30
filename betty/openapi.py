@@ -102,16 +102,16 @@ class Specification:
 
         # Add entity operations.
         async for entity_type in model.ENTITY_TYPE_REPOSITORY:
-            if not issubclass(entity_type, UserFacing):
+            if not issubclass(entity_type.cls, UserFacing):
                 continue
-            await entity_type.linked_data_schema(self._project)
+            await entity_type.cls.linked_data_schema(self._project)
             if self._project.configuration.clean_urls:
-                collection_path = f"/{entity_type.plugin_id()}/"
-                single_path = f"/{entity_type.plugin_id()}/{{id}}/"
+                collection_path = f"/{entity_type.id}/"
+                single_path = f"/{entity_type.id}/{{id}}/"
             else:
-                collection_path = f"/{entity_type.plugin_id()}/index.json"
-                single_path = f"/{entity_type.plugin_id()}/{{id}}/index.json"
-            entity_type_label = entity_type.plugin_label().localize(DEFAULT_LOCALIZER)
+                collection_path = f"/{entity_type.id}/index.json"
+                single_path = f"/{entity_type.id}/{{id}}/index.json"
+            entity_type_label = entity_type.label.localize(DEFAULT_LOCALIZER)
             specification["paths"].update(  # type: ignore[union-attr]
                 {
                     collection_path: {
@@ -125,7 +125,7 @@ class Specification:
                                             "schema": {
                                                 "$ref": await ProjectSchema.def_url(
                                                     self._project,
-                                                    f"{kebab_case_to_lower_camel_case(entity_type.plugin_id())}EntityCollectionResponse",
+                                                    f"{kebab_case_to_lower_camel_case(entity_type.id)}EntityCollectionResponse",
                                                 ),
                                             },
                                         },
@@ -146,7 +146,7 @@ class Specification:
                                             "schema": {
                                                 "$ref": await ProjectSchema.def_url(
                                                     self._project,
-                                                    f"{kebab_case_to_lower_camel_case(entity_type.plugin_id())}Entity",
+                                                    f"{kebab_case_to_lower_camel_case(entity_type.id)}Entity",
                                                 ),
                                             },
                                         },

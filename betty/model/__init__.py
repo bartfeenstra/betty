@@ -2,9 +2,8 @@
 
 from __future__ import annotations
 
-from abc import abstractmethod
 from reprlib import recursive_repr
-from typing import TYPE_CHECKING, Any, Self, TypeAlias, TypeVar, final
+from typing import TYPE_CHECKING, Any, ClassVar, Self, TypeAlias, TypeVar, final
 from uuid import uuid4
 
 from typing_extensions import override
@@ -17,7 +16,13 @@ from betty.json.schema import Array, JsonSchemaReference, Null, OneOf, String
 from betty.locale.localizable import Localizable, _
 from betty.locale.localizer import DEFAULT_LOCALIZER
 from betty.mutability import Mutable
-from betty.plugin import Plugin, PluginRepository
+from betty.plugin import (
+    ClassedPlugin,
+    ClassedPluginDefinition,
+    ClassedPluginTypeDefinition,
+    CountableUserFacingPluginDefinition,
+    PluginRepository,
+)
 from betty.plugin.entry_point import EntryPointPluginRepository
 from betty.repr import repr_instance
 from betty.string import kebab_case_to_lower_camel_case
@@ -26,7 +31,6 @@ from betty.user import UserFacing
 if TYPE_CHECKING:
     import builtins
 
-    from betty.machine_name import MachineName
     from betty.project import Project
     from betty.serde.dump import Dump, DumpMapping
 
@@ -49,7 +53,7 @@ class NonPersistentId(str):
         return super().__new__(cls, entity_id or str(uuid4()))
 
 
-class Entity(LinkedDataDumpableJsonLdObject, Mutable, Plugin):
+class Entity(LinkedDataDumpableJsonLdObject, Mutable, ClassedPlugin):
     """
     An entity is a uniquely identifiable data container.
 
@@ -57,6 +61,8 @@ class Entity(LinkedDataDumpableJsonLdObject, Mutable, Plugin):
 
     To test your own subclasses, use :py:class:`betty.test_utils.model.EntityTestBase`.
     """
+
+    plugin: ClassVar[EntityDefinition]
 
     def __init__(
         self,
@@ -70,38 +76,6 @@ class Entity(LinkedDataDumpableJsonLdObject, Mutable, Plugin):
     @override
     def __hash__(self) -> int:
         return hash(self.ancestry_id)
-
-    @final
-    @override
-    @classmethod
-    def plugin_type_cls(cls) -> builtins.type[Plugin]:
-        return Entity
-
-    @final
-    @override
-    @classmethod
-    def plugin_type_id(cls) -> MachineName:
-        return "entity"
-
-    @final
-    @override
-    @classmethod
-    def plugin_type_label(cls) -> Localizable:
-        return _("Entity")
-
-    @classmethod
-    @abstractmethod
-    def plugin_label_plural(cls) -> Localizable:
-        """
-        The human-readable entity type label, plural.
-        """
-
-    @classmethod
-    @abstractmethod
-    def plugin_label_count(cls, count: int) -> Localizable:
-        """
-        The human-readable entity type label for the given entity count.
-        """
 
     @override  # type: ignore[callable-functiontype]
     @recursive_repr()
@@ -132,7 +106,7 @@ class Entity(LinkedDataDumpableJsonLdObject, Mutable, Plugin):
         The entity's human-readable label.
         """
         return _("{entity_type} {entity_id}").format(
-            entity_type=self.plugin_label(), entity_id=self.id
+            entity_type=self.plugin.label, entity_id=self.id
         )
 
     @override
@@ -142,7 +116,7 @@ class Entity(LinkedDataDumpableJsonLdObject, Mutable, Plugin):
         if persistent_id(self) and isinstance(self, UserFacing):
             url_generator = await project.url_generator
             dump["@id"] = url_generator.generate(
-                f"betty-static:///{self.plugin_id()}/{self.id}/index.json",
+                f"betty-static:///{self.plugin.id}/{self.id}/index.json",
                 absolute=True,
             )
         dump["id"] = self.id
@@ -153,16 +127,31 @@ class Entity(LinkedDataDumpableJsonLdObject, Mutable, Plugin):
     @classmethod
     async def linked_data_schema(cls, project: Project) -> JsonLdObject:
         schema = await super().linked_data_schema(project)
-        schema._def_name = f"{kebab_case_to_lower_camel_case(cls.plugin_id())}Entity"
-        schema.title = cls.plugin_label().localize(DEFAULT_LOCALIZER)
+        schema._def_name = f"{kebab_case_to_lower_camel_case(cls.plugin.id)}Entity"
+        schema.title = cls.plugin.label.localize(DEFAULT_LOCALIZER)
         schema.add_property("$schema", JsonSchemaReference())
         schema.add_property("id", String(title="Entity ID"), False)
 
         return schema
 
 
-ENTITY_TYPE_REPOSITORY: PluginRepository[Entity] = EntryPointPluginRepository(
-    Entity, "betty.entity_type"
+@final
+class EntityDefinition(
+    CountableUserFacingPluginDefinition, ClassedPluginDefinition[Entity]
+):
+    """
+    An entity definition.
+    """
+
+    type: ClassVar[ClassedPluginTypeDefinition] = ClassedPluginTypeDefinition(
+        id="entity",
+        label=_("Entity"),
+        cls=Entity,
+    )
+
+
+ENTITY_TYPE_REPOSITORY: PluginRepository[EntityDefinition] = EntryPointPluginRepository(
+    EntityDefinition, "betty.entity_type"
 )
 """
 The entity type plugin repository.

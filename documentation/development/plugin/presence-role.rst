@@ -16,31 +16,27 @@ such as the subject, a witness, or an officiant.
 Creating a presence role
 ------------------------
 
-#. Create a new class that extends :py:class:`betty.ancestry.presence_role.PresenceRole` and implements the abstract methods,
-   for example:
+Create a new class that extends :py:class:`betty.ancestry.presence_role.PresenceRole` and implements the abstract
+methods, for example:
 
-   .. code-block:: python
+.. code-block:: python
 
-     from typing import override
-     from betty.ancestry.presence_role import PresenceRole
-     from betty.machine_name import MachineName
+   from betty.ancestry.presence_role import PresenceRole, PresenceRoleDefinition
 
-     class MyPresenceRole(PresenceRole):
-       @override
-       @classmethod
-       def plugin_id(cls) -> MachineName:
-           return "my-module-my-presence-role"
-
-       # Implement remaining abstract methods...
-       ...
+   @PresenceRoleDefinition(
+       id="my-presence-role",
+       label=_("My Presence Role"),
+   )
+   class MyPresenceRole(PresenceRole):
+       pass
 
 
-#. Tell Betty about your presence role by registering it as an entry point. Given the role above in a module ``my_package.my_module``, add the following to your Python package:
+Tell Betty about your presence role by registering it as an entry point. Given the role above in a module ``my_package.my_module``, add the following to your Python package:
 
-   .. code-block:: toml
+.. code-block:: toml
 
-       [project.entry-points.'betty.presence_role']
-       'my-module-my-presence-role' = 'my_package.my_module.MyPresenceRole'
+   [project.entry-points.'betty.presence_role']
+   'my-module-my-presence-role' = 'my_package.my_module.MyPresenceRole'
 
 See also
 --------

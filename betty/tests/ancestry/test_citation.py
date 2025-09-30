@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Any
+from typing import TYPE_CHECKING, Any, cast
 
 from typing_extensions import override
 
@@ -10,29 +10,49 @@ from betty.ancestry.event_type.event_types import Birth
 from betty.ancestry.has_citations import HasCitations
 from betty.ancestry.source import Source
 from betty.locale import DEFAULT_LOCALE
-from betty.locale.localizable import Plain
+from betty.locale.localizable import CountablePlain, Plain
 from betty.locale.localizer import DEFAULT_LOCALIZER
+from betty.model import Entity, EntityDefinition
 from betty.privacy import Privacy
 from betty.test_utils.json.linked_data import assert_dumps_linked_data
-from betty.test_utils.model import DummyEntity, EntityTestBase
+from betty.test_utils.model import EntityDefinitionTestBase, EntityTestBase
 
 if TYPE_CHECKING:
     from collections.abc import Mapping, Sequence
 
-    from betty.model import Entity
+    from betty.plugin import PluginDefinition
+import pytest
+
+
+class TestCitationDefinition(EntityDefinitionTestBase):
+    @override
+    @pytest.fixture
+    def sut(self) -> PluginDefinition:
+        return Citation.plugin
+
+
+@EntityDefinition(
+    id="dummy-has-citations",
+    label=Plain(""),
+    label_plural=Plain(""),
+    label_countable=CountablePlain("", ""),
+)
+class DummyHasCitations(HasCitations):
+    pass
 
 
 class TestCitation(EntityTestBase):
-    @override
-    def get_sut_class(self) -> type[Citation]:
-        return Citation
-
-    @override
-    async def get_sut_instances(self) -> Sequence[Entity]:
+    @staticmethod
+    def _sut_params() -> Sequence[Entity]:
         return [
             Citation(source=Source()),
             Citation(source=Source(), location=Plain("My First Location")),
         ]
+
+    @override
+    @pytest.fixture(params=_sut_params())
+    async def sut(self, request: pytest.FixtureRequest) -> Entity:
+        return cast(Entity, request.param)
 
     async def test___init____with_facts(self) -> None:
         fact = DummyHasCitations()
@@ -161,7 +181,3 @@ class TestCitation(EntityTestBase):
         }
         actual = await assert_dumps_linked_data(citation)
         assert actual == expected
-
-
-class DummyHasCitations(HasCitations, DummyEntity):
-    pass

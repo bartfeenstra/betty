@@ -119,7 +119,7 @@ async def test_with_citation_context() -> None:
     async with assert_template_file(
         data={
             "entity": citation,
-            "entity_contexts": await EntityContexts.new(citation),
+            "entity_contexts": EntityContexts(citation),
         },
         extensions={RaspberryMint},
         template="entity/label--citation.html.j2",

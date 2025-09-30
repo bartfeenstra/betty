@@ -6,15 +6,21 @@ import pytest
 
 from betty.ancestry.has_notes import HasNotes
 from betty.ancestry.note import Note
-from betty.locale.localizable import Plain
+from betty.locale.localizable import CountablePlain, Plain
+from betty.model import EntityDefinition
 from betty.test_utils.json.linked_data import assert_dumps_linked_data
-from betty.test_utils.model import DummyEntity
 
 if TYPE_CHECKING:
     from betty.serde.dump import Dump, DumpMapping
 
 
-class DummyHasNotes(HasNotes, DummyEntity):
+@EntityDefinition(
+    id="dummy-has-notes",
+    label=Plain(""),
+    label_plural=Plain(""),
+    label_countable=CountablePlain("", ""),
+)
+class DummyHasNotes(HasNotes):
     pass
 
 

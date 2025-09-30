@@ -15,12 +15,8 @@ from betty.locale.localizable import (
     _,
     ngettext,
 )
-from betty.model import Entity
-from betty.model.association import (
-    BidirectionalToZeroOrOne,
-    ToZeroOrOneAssociate,
-)
-from betty.plugin import ShorthandPluginBase
+from betty.model import Entity, EntityDefinition
+from betty.model.association import BidirectionalToZeroOrOne, ToZeroOrOneAssociate
 from betty.privacy import HasPrivacy, Privacy, is_public
 from betty.user import UserFacing
 
@@ -32,13 +28,16 @@ if TYPE_CHECKING:
 
 
 @final
-class Note(ShorthandPluginBase, UserFacing, HasPrivacy, HasLinks, Entity):
+@EntityDefinition(
+    id="note",
+    label=_("Note"),
+    label_plural=_("Notes"),
+    label_countable=ngettext("{count} note", "{count} notes"),
+)
+class Note(UserFacing, HasPrivacy, HasLinks, Entity):
     """
     A note is a bit of textual information that can be associated with another entity.
     """
-
-    _plugin_id = "note"
-    _plugin_label = _("Note")
 
     #: The entity the note belongs to.
     entity = BidirectionalToZeroOrOne["Note", "HasNotes"](
@@ -69,16 +68,6 @@ class Note(ShorthandPluginBase, UserFacing, HasPrivacy, HasLinks, Entity):
         self.text = text
         if entity is not None:
             self.entity = entity
-
-    @override
-    @classmethod
-    def plugin_label_plural(cls) -> Localizable:
-        return _("Notes")
-
-    @override
-    @classmethod
-    def plugin_label_count(cls, count: int) -> Localizable:
-        return ngettext("{count} note", "{count} notes", count).format(count=str(count))
 
     @override
     @property

@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 from collections.abc import Mapping, MutableMapping, Sequence
-from typing import TYPE_CHECKING, Any
+from typing import TYPE_CHECKING, Any, cast
 
 from typing_extensions import override
 
@@ -12,25 +12,37 @@ from betty.date import Date
 from betty.locale import DEFAULT_LOCALE
 from betty.locale.localizable import Plain
 from betty.locale.localizer import DEFAULT_LOCALIZER
+from betty.model import Entity
 from betty.privacy import Privacy
 from betty.test_utils.json.linked_data import assert_dumps_linked_data
-from betty.test_utils.model import EntityTestBase
+from betty.test_utils.model import EntityDefinitionTestBase, EntityTestBase
 
 if TYPE_CHECKING:
-    from betty.model import Entity
+    from betty.plugin import PluginDefinition
+
+
+import pytest
+
+
+class TestSourceDefinition(EntityDefinitionTestBase):
+    @override
+    @pytest.fixture
+    def sut(self) -> PluginDefinition:
+        return Source.plugin
 
 
 class TestSource(EntityTestBase):
-    @override
-    def get_sut_class(self) -> type[Source]:
-        return Source
-
-    @override
-    async def get_sut_instances(self) -> Sequence[Entity]:
+    @staticmethod
+    def _sut_params() -> Sequence[Entity]:
         return [
             Source(),
             Source(name=Plain("My First Source")),
         ]
+
+    @override
+    @pytest.fixture(params=_sut_params())
+    async def sut(self, request: pytest.FixtureRequest) -> Entity:
+        return cast(Entity, request.param)
 
     def test___init____with_name(self) -> None:
         name = "The Source"

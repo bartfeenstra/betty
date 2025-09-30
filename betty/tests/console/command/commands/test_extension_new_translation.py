@@ -1,24 +1,28 @@
 from unittest.mock import ANY
 
+import pytest
 from pytest_mock import MockerFixture
 from typing_extensions import override
 
 from betty.app import App
 from betty.console import SystemExitCode
-from betty.console.command import Command
 from betty.console.command.commands.extension_new_translation import (
     ExtensionNewTranslation,
 )
+from betty.plugin import PluginDefinition
 from betty.test_utils.console import run
-from betty.test_utils.console.command import CommandTestBase
+from betty.test_utils.console.command import CommandDefinitionTestBase
 from betty.tests.console.command import ExtensionTranslationTestBase
 
 
-class TestExtensionNewTranslation(ExtensionTranslationTestBase, CommandTestBase):
+class TestExtensionNewTranslationsDefinition(CommandDefinitionTestBase):
     @override
-    def get_sut_class(self) -> type[Command]:
-        return ExtensionNewTranslation
+    @pytest.fixture
+    def sut(self) -> PluginDefinition:
+        return ExtensionNewTranslation.plugin
 
+
+class TestExtensionNewTranslation(ExtensionTranslationTestBase):
     async def test_configure__minimal(
         self, mocker: MockerFixture, new_temporary_app: App
     ) -> None:
@@ -29,7 +33,7 @@ class TestExtensionNewTranslation(ExtensionTranslationTestBase, CommandTestBase)
         await run(
             new_temporary_app,
             "extension-new-translation",
-            "dummy-with-assets-directory-extension",
+            "dummy-with-assets",
             locale,
         )
         m_new_extension_translation.assert_awaited_once_with(locale, ANY, user=ANY)
@@ -51,7 +55,7 @@ class TestExtensionNewTranslation(ExtensionTranslationTestBase, CommandTestBase)
         await run(
             new_temporary_app,
             "extension-new-translation",
-            "dummy-without-assets-directory-extension",
+            "dummy-without-assets",
             "nl-NL",
             expected_exit_code=SystemExitCode.ERROR_CONSOLE_USAGE,
         )
@@ -60,7 +64,7 @@ class TestExtensionNewTranslation(ExtensionTranslationTestBase, CommandTestBase)
         await run(
             new_temporary_app,
             "extension-new-translation",
-            "dummy-with-assets-directory-extension",
+            "dummy-with-assets",
             "",
             expected_exit_code=SystemExitCode.ERROR_CONSOLE_USAGE,
         )

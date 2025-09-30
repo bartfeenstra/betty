@@ -7,13 +7,8 @@ import pytest
 
 from betty.ancestry.citation import Citation
 from betty.ancestry.event import Event
-from betty.ancestry.event_type.event_types import (
-    Birth,
-    Death,
-)
-from betty.ancestry.event_type.event_types import (
-    Unknown as UnknownEventType,
-)
+from betty.ancestry.event_type.event_types import Birth, Death
+from betty.ancestry.event_type.event_types import Unknown as UnknownEventType
 from betty.ancestry.file import File
 from betty.ancestry.file_reference import FileReference
 from betty.ancestry.has_file_references import HasFileReferences
@@ -21,12 +16,8 @@ from betty.ancestry.person import Person
 from betty.ancestry.person_name import PersonName
 from betty.ancestry.place import Place
 from betty.ancestry.presence import Presence
-from betty.ancestry.presence_role.presence_roles import (
-    Subject,
-)
-from betty.ancestry.presence_role.presence_roles import (
-    Unknown as UnknownPresenceRole,
-)
+from betty.ancestry.presence_role.presence_roles import Subject
+from betty.ancestry.presence_role.presence_roles import Unknown as UnknownPresenceRole
 from betty.ancestry.source import Source
 from betty.date import Date, DateLike, DateRange
 from betty.model import persistent_id
@@ -36,7 +27,6 @@ from betty.project.extension._theme import (
     associated_file_references,
     person_timeline_events,
 )
-from betty.test_utils.model import DummyEntity
 
 if TYPE_CHECKING:
     from collections.abc import Iterator
@@ -262,7 +252,7 @@ class TestPersonLifetimeEvents:
 
 class TestAssociatedFileReferences:
     async def test_with_plain_has_file_references_without_files(self) -> None:
-        class DummyHasFileReferences(HasFileReferences, DummyEntity):
+        class DummyHasFileReferences(HasFileReferences):
             pass
 
         assert list(associated_file_references(DummyHasFileReferences())) == []
@@ -271,7 +261,7 @@ class TestAssociatedFileReferences:
         file1 = File(path=Path())
         file2 = File(path=Path())
 
-        class _DummyHasFileReferences(HasFileReferences, DummyEntity):
+        class _DummyHasFileReferences(HasFileReferences):
             pass
 
         has_file_references = _DummyHasFileReferences()

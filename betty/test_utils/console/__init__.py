@@ -9,8 +9,6 @@ from typing import TypeVar, final
 
 from betty.app import App
 from betty.console import SystemExitCode, main
-from betty.console.command import Command
-from betty.test_utils.plugin import DummyPluginBase
 
 _T = TypeVar("_T")
 
@@ -63,9 +61,3 @@ Stderr:
 {stderr}
 """
     return Result(exit_code, stderr, stdout)
-
-
-class DummyCommand(DummyPluginBase, Command):
-    """
-    A dummy command.
-    """

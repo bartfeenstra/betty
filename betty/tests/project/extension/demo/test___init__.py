@@ -13,7 +13,10 @@ from betty.ancestry.source import Source
 from betty.project import Project, ProjectContext
 from betty.project.extension.demo import Demo, generate_with_cleanup
 from betty.project.load import load
-from betty.test_utils.project.extension import ExtensionTestBase
+from betty.test_utils.project.extension import (
+    ExtensionDefinitionTestBase,
+    ExtensionTestBase,
+)
 from betty.test_utils.project.extension.demo.project import (
     demo_project_fetcher,  # noqa F401
 )
@@ -23,6 +26,8 @@ if TYPE_CHECKING:
 
     from betty.app import App
     from betty.fetch import Fetcher
+    from betty.plugin import PluginDefinition
+    from betty.project.extension import Extension
     from betty.test_utils.conftest import NewTemporaryAppFactory
 
 
@@ -63,10 +68,19 @@ async def test_generate_with_cleanup__with_error(
         assert not project.configuration.project_directory_path.exists()
 
 
-class TestDemo(ExtensionTestBase[Demo]):
+class TestDemoDefinition(ExtensionDefinitionTestBase):
     @override
-    def get_sut_class(self) -> type[Demo]:
-        return Demo
+    @pytest.fixture
+    def sut(self) -> PluginDefinition:
+        return Demo.plugin
+
+
+class TestDemo(ExtensionTestBase):
+    @override
+    @pytest.fixture
+    async def sut(self, new_temporary_app: App) -> Extension:
+        async with Project.new_temporary(new_temporary_app) as project, project:
+            return await Demo.new_for_project(project)
 
     async def test_load(
         self,

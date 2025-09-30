@@ -1,24 +1,28 @@
 from pathlib import Path
 from unittest.mock import ANY
 
+import pytest
 from pytest_mock import MockerFixture
 from typing_extensions import override
 
 from betty.app import App
 from betty.config.file import write_configuration_file
 from betty.console import SystemExitCode
-from betty.console.command import Command
 from betty.console.command.commands.update_translations import UpdateTranslations
+from betty.plugin import PluginDefinition
 from betty.project import Project
 from betty.test_utils.console import run
-from betty.test_utils.console.command import CommandTestBase
+from betty.test_utils.console.command import CommandDefinitionTestBase
 
 
-class TestUpdateTranslations(CommandTestBase):
+class TestUpdateTranslationsDefinition(CommandDefinitionTestBase):
     @override
-    def get_sut_class(self) -> type[Command]:
-        return UpdateTranslations
+    @pytest.fixture
+    def sut(self) -> PluginDefinition:
+        return UpdateTranslations.plugin
 
+
+class TestUpdateTranslations:
     async def test_configure__minimal(
         self, mocker: MockerFixture, new_temporary_app: App
     ) -> None:

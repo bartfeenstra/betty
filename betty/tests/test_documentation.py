@@ -48,8 +48,8 @@ class TestDocumentation:
         ) as f:
             actual = await f.read()
         async for command in COMMAND_REPOSITORY:
-            assert command.plugin_id() in actual
-            assert command.plugin_label().localize(DEFAULT_LOCALIZER) in actual
+            assert command.id in actual
+            assert command.label.localize(DEFAULT_LOCALIZER) in actual
 
     @pytest.mark.parametrize(
         ("language", "serde_format"),

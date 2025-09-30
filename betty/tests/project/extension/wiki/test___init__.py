@@ -2,6 +2,7 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING
 
+import pytest
 from typing_extensions import override
 
 from betty.ancestry.link import Link
@@ -17,18 +18,19 @@ if TYPE_CHECKING:
     from pytest_mock import MockerFixture
 
     from betty.app import App
+    from betty.project.extension import Extension
     from betty.test_utils.conftest import NewTemporaryAppFactory
 
 
-class TestWiki(ExtensionTestBase[Wiki]):
+class TestWiki(ExtensionTestBase):
     @override
-    def get_sut_class(self) -> type[Wiki]:
-        return Wiki
-
-    async def test_filters(self, new_temporary_app: App) -> None:
+    @pytest.fixture
+    async def sut(self, new_temporary_app: App) -> Extension:
         async with Project.new_temporary(new_temporary_app) as project, project:
-            sut = await project.new_target(self.get_sut_class())
-            assert len(sut.filters)
+            return await Wiki.new_for_project(project)
+
+    async def test_filters(self, sut: Wiki) -> None:
+        assert sut.filters
 
     async def test_filter_wikipedia_links(
         self, mocker: MockerFixture, new_temporary_app: App

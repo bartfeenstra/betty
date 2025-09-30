@@ -24,7 +24,7 @@ from betty.dirs import CACHE_DIRECTORY_PATH
 from betty.factory import TargetFactory, new
 from betty.fetch import Fetcher, http
 from betty.fetch.static import StaticFetcher
-from betty.license import LICENSE_REPOSITORY, License
+from betty.license import LICENSE_REPOSITORY, LicenseDefinition
 from betty.license.licenses import SpdxLicenseRepository
 from betty.locale import DEFAULT_LOCALE
 from betty.locale.localizer import Localizer, LocalizerRepository
@@ -266,12 +266,12 @@ class App(Configurable[AppConfiguration], TargetFactory, ServiceProvider):
         return await new(cls)
 
     @service
-    async def spdx_license_repository(self) -> PluginRepository[License]:
+    async def spdx_license_repository(self) -> PluginRepository[LicenseDefinition]:
         """
         The SPDX licenses available to this application.
         """
         return ProxyPluginRepository(
-            License,
+            LicenseDefinition,
             LICENSE_REPOSITORY,
             SpdxLicenseRepository(
                 binary_file_cache=self.binary_file_cache.with_scope("spdx"),

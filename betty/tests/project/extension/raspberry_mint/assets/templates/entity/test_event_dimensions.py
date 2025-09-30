@@ -66,7 +66,7 @@ async def test_with_place_is_place_context() -> None:
     async with assert_template_file(
         data={
             "event": event,
-            "entity_contexts": await EntityContexts.new(place),
+            "entity_contexts": EntityContexts(place),
         },
         extensions={RaspberryMint},
         template="entity/event-dimensions.html.j2",

@@ -7,9 +7,8 @@ from typing_extensions import override
 
 from betty import documentation
 from betty.app.factory import AppDependentFactory
-from betty.console.command import Command, CommandFunction
+from betty.console.command import Command, CommandFunction, CommandDefinition
 from betty.locale.localizable import _
-from betty.plugin import ShorthandPluginBase
 
 if TYPE_CHECKING:
     import argparse
@@ -18,16 +17,17 @@ if TYPE_CHECKING:
 
 
 @final
-class Docs(ShorthandPluginBase, AppDependentFactory, Command):
+@CommandDefinition(
+    id="docs",
+    label=_("View the documentation"),
+    description=_(
+        "View Betty's interactive documentation. This will open your web browser."
+    ),
+)
+class Docs(AppDependentFactory, Command):
     """
     A command to view Betty's documentation.
     """
-
-    _plugin_id = "docs"
-    _plugin_label = _("View the documentation")
-    _plugin_description = _(
-        "View Betty's interactive documentation. This will open your web browser."
-    )
 
     def __init__(self, app: App):
         self._app = app

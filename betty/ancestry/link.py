@@ -20,36 +20,29 @@ from betty.locale.localizable import (
     _,
     ngettext,
 )
-from betty.model import Entity
+from betty.model import Entity, EntityDefinition
 from betty.model.association import BidirectionalToZeroOrOne
-from betty.plugin import ShorthandPluginBase
 from betty.privacy import HasPrivacy, Privacy, merge_privacies
 
 if TYPE_CHECKING:
     from betty.ancestry.has_links import HasLinks
-    from betty.json.linked_data import (
-        JsonLdObject,
-    )
+    from betty.json.linked_data import JsonLdObject
     from betty.media_type import MediaType
     from betty.project import Project
     from betty.serde.dump import Dump, DumpMapping
 
 
 @final
-class Link(
-    ShorthandPluginBase,
-    StdLink,
-    HasMediaType,
-    HasDescription,
-    HasPrivacy,
-    Entity,
-):
+@EntityDefinition(
+    id="link",
+    label=_("Link"),
+    label_plural=_("Links"),
+    label_countable=ngettext("{count} link", "{count} links"),
+)
+class Link(StdLink, HasMediaType, HasDescription, HasPrivacy, Entity):
     """
     An external link.
     """
-
-    _plugin_id = "link"
-    _plugin_label = _("Link")
 
     #: The link's `IANA link relationship <https://www.iana.org/assignments/link-relations/link-relations.xhtml>`_.
     relationship: str | None
@@ -88,16 +81,6 @@ class Link(
         self.relationship = relationship
         if owner is not None:
             self.owner = owner
-
-    @override
-    @classmethod
-    def plugin_label_plural(cls) -> Localizable:
-        return _("Links")
-
-    @override
-    @classmethod
-    def plugin_label_count(cls, count: int) -> Localizable:
-        return ngettext("{count} link", "{count} links", count).format(count=str(count))
 
     @override  # type: ignore[explicit-override]
     @property

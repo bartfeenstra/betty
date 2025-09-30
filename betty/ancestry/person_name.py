@@ -14,9 +14,8 @@ from betty.json.linked_data import JsonLdObject, dump_context
 from betty.json.schema import String
 from betty.locale import UNDETERMINED_LOCALE
 from betty.locale.localizable import Localizable, _, ngettext
-from betty.model import Entity
+from betty.model import Entity, EntityDefinition
 from betty.model.association import BidirectionalToOne, ToManyAssociates, ToOneAssociate
-from betty.plugin import ShorthandPluginBase
 from betty.privacy import HasPrivacy, Privacy, merge_privacies
 from betty.repr import repr_instance
 
@@ -28,13 +27,16 @@ if TYPE_CHECKING:
 
 
 @final
-class PersonName(ShorthandPluginBase, HasLocale, HasCitations, HasPrivacy, Entity):
+@EntityDefinition(
+    id="person-name",
+    label=_("Person name"),
+    label_plural=_("Person names"),
+    label_countable=ngettext("{count} person name", "{count} person names"),
+)
+class PersonName(HasLocale, HasCitations, HasPrivacy, Entity):
     """
     A name for a :py:class:`betty.ancestry.person.Person`.
     """
-
-    _plugin_id = "person-name"
-    _plugin_label = _("Person name")
 
     #: The person whose name this is.
     person = BidirectionalToOne["PersonName", "Person"](
@@ -84,18 +86,6 @@ class PersonName(ShorthandPluginBase, HasLocale, HasCitations, HasPrivacy, Entit
     def __repr__(self) -> str:
         return repr_instance(
             self, id=self.id, individual=self.individual, affiliation=self.affiliation
-        )
-
-    @override
-    @classmethod
-    def plugin_label_plural(cls) -> Localizable:
-        return _("Person names")
-
-    @override
-    @classmethod
-    def plugin_label_count(cls, count: int) -> Localizable:
-        return ngettext("{count} person name", "{count} person names", count).format(
-            count=str(count)
         )
 
     @property

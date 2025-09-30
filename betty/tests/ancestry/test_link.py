@@ -2,22 +2,42 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING, Any
 
+from typing_extensions import override
+
 from betty.ancestry.has_links import HasLinks
 from betty.ancestry.link import Link
 from betty.locale import DEFAULT_LOCALE
-from betty.locale.localizable import Plain
+from betty.locale.localizable import CountablePlain, Plain
 from betty.locale.localizer import DEFAULT_LOCALIZER
 from betty.media_type.media_types import HTML
+from betty.model import EntityDefinition
 from betty.test_utils.json.linked_data import assert_dumps_linked_data
-from betty.test_utils.model import DummyEntity
+from betty.test_utils.model import EntityDefinitionTestBase
 from betty.user import UserFacing
 
 if TYPE_CHECKING:
     from collections.abc import Mapping
 
+    from betty.plugin import PluginDefinition
 
-class DummyUserFacingHasLinks(UserFacing, HasLinks, DummyEntity):
+import pytest
+
+
+@EntityDefinition(
+    id="dummy-user-facing-has-links",
+    label=Plain(""),
+    label_plural=Plain(""),
+    label_countable=CountablePlain("", ""),
+)
+class DummyUserFacingHasLinks(UserFacing, HasLinks):
     pass
+
+
+class TestLinkDefinition(EntityDefinitionTestBase):
+    @override
+    @pytest.fixture
+    def sut(self) -> PluginDefinition:
+        return Link.plugin
 
 
 class TestLink:

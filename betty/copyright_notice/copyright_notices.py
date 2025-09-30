@@ -2,24 +2,25 @@
 Provide :py:class:`betty.copyright_notice.CopyrightNotice` plugins.
 """
 
-from typing import Self
+from typing import Self, final
 
 from typing_extensions import override
 
-from betty.copyright_notice import CopyrightNotice
+from betty.copyright_notice import CopyrightNotice, CopyrightNoticeDefinition
 from betty.locale.localizable import Localizable, _
-from betty.plugin import ShorthandPluginBase
 from betty.project import Project
 from betty.project.factory import ProjectDependentFactory
 
 
-class ProjectAuthor(ShorthandPluginBase, ProjectDependentFactory, CopyrightNotice):
+@final
+@CopyrightNoticeDefinition(
+    id="project-author",
+    label=_("Project author"),
+)
+class ProjectAuthor(ProjectDependentFactory, CopyrightNotice):
     """
     Copyright belonging to a project author.
     """
-
-    _plugin_id = "project-author"
-    _plugin_label = _("Project author")
 
     def __init__(self, author: Localizable | None):
         self._author = author
@@ -44,13 +45,15 @@ class ProjectAuthor(ShorthandPluginBase, ProjectDependentFactory, CopyrightNotic
         return self.summary
 
 
-class PublicDomain(ShorthandPluginBase, CopyrightNotice):
+@final
+@CopyrightNoticeDefinition(
+    id="public-domain",
+    label=_("Public domain"),
+)
+class PublicDomain(CopyrightNotice):
     """
     A work is in the `public domain <https://en.wikipedia.org/wiki/Public_domain>`.
     """
-
-    _plugin_id = "public-domain"
-    _plugin_label = _("Public domain")
 
     @property
     @override

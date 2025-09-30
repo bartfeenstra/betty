@@ -1,10 +1,20 @@
 from pathlib import Path
 
+import pytest
 from typing_extensions import override
 
 from betty.job import Context
 from betty.locale.localizer import Localizer
-from betty.render import Renderer, SequentialRenderer
+from betty.plugin import PluginDefinition
+from betty.render import Renderer, RendererDefinition, SequentialRenderer
+from betty.test_utils.plugin import PluginDefinitionClassTestBase
+
+
+class TestRendererDefinition(PluginDefinitionClassTestBase):
+    @override
+    @pytest.fixture
+    def sut(self) -> type[PluginDefinition]:
+        return RendererDefinition
 
 
 class _Renderer(Renderer):

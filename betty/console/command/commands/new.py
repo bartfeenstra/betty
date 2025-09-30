@@ -5,9 +5,8 @@ from typing import TYPE_CHECKING, final, Self
 from typing_extensions import override
 
 from betty.app.factory import AppDependentFactory
-from betty.console.command import Command, CommandFunction
+from betty.console.command import Command, CommandFunction, CommandDefinition
 from betty.locale.localizable import _
-from betty.plugin import ShorthandPluginBase
 from betty.project import new
 
 if TYPE_CHECKING:
@@ -17,13 +16,14 @@ if TYPE_CHECKING:
 
 
 @final
-class New(ShorthandPluginBase, AppDependentFactory, Command):
+@CommandDefinition(
+    id="new",
+    label=_("Create a new project"),
+)
+class New(AppDependentFactory, Command):
     """
     A command to create a new project.
     """
-
-    _plugin_id = "new"
-    _plugin_label = _("Create a new project")
 
     def __init__(self, app: App):
         self._app = app

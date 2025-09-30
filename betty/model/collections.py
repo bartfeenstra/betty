@@ -12,7 +12,7 @@ from typing import TYPE_CHECKING, Any, Generic, Self, TypeVar, cast
 from typing_extensions import override
 
 from betty.functools import unique
-from betty.model import Entity
+from betty.model import Entity, EntityDefinition
 from betty.mutability import Mutable
 from betty.repr import repr_instance
 
@@ -230,7 +230,7 @@ class MultipleTypesEntityCollection(Generic[_TargetT], EntityCollection[_TargetT
         return repr_instance(
             self,
             entity_types=", ".join(
-                entity_type.plugin_id() for entity_type in self._collections
+                entity_type.plugin.id for entity_type in self._collections
             ),
             length=len(self),
         )
@@ -253,14 +253,13 @@ class MultipleTypesEntityCollection(Generic[_TargetT], EntityCollection[_TargetT
 
     def __getitem__(
         self,
-        key: type[_EntityT],
+        key: EntityDefinition | type[_EntityT],
     ) -> SingleTypeEntityCollection[_EntityT]:
-        return self._getitem_by_entity_type(key)
-
-    def _getitem_by_entity_type(
-        self, entity_type: type[_EntityT]
-    ) -> SingleTypeEntityCollection[_EntityT]:
-        return self._get_collection(entity_type)
+        if isinstance(key, EntityDefinition):
+            return self._get_collection(
+                key.cls  # type: ignore[arg-type]
+            )
+        return self._get_collection(key)
 
     @override
     def __delitem__(self, key: type[_TargetT & Entity] | _TargetT & Entity) -> None:

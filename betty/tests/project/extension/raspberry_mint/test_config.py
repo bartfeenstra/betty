@@ -3,12 +3,12 @@ from __future__ import annotations
 from typing import TYPE_CHECKING, Any
 
 from betty.exception import UserFacingException
+from betty.model import EntityDefinition
 from betty.model.config import EntityReference
 from betty.plugin.static import StaticPluginRepository
 from betty.project.extension.raspberry_mint.config import RaspberryMintConfiguration
 from betty.test_utils.exception import raises_error
-from betty.test_utils.model import DummyEntity
-from betty.user import UserFacing
+from betty.test_utils.model import DummyEntityOne
 
 if TYPE_CHECKING:
     from collections.abc import Mapping
@@ -18,13 +18,9 @@ if TYPE_CHECKING:
     from betty.serde.dump import Dump, DumpMapping
 
 
-class RaspberryMintConfigurationTestEntity(UserFacing, DummyEntity):
-    pass
-
-
 class TestRaspberryMintConfiguration:
     def test_featured_entities__from___init__(self) -> None:
-        entity_reference = EntityReference(RaspberryMintConfigurationTestEntity)
+        entity_reference = EntityReference(DummyEntityOne.plugin)
         sut = RaspberryMintConfiguration(featured_entities=[entity_reference])
         assert entity_reference in sut.featured_entities
 
@@ -55,21 +51,21 @@ class TestRaspberryMintConfiguration:
     def test_load__with_featured_entities(self, mocker: MockerFixture) -> None:
         mocker.patch(
             "betty.model.ENTITY_TYPE_REPOSITORY",
-            new=StaticPluginRepository(RaspberryMintConfigurationTestEntity),
+            new=StaticPluginRepository(EntityDefinition),
         )
-        entity_type = RaspberryMintConfigurationTestEntity
+        entity_type = DummyEntityOne.plugin
         entity_id = "123"
         dump: Dump = {
             "featured_entities": [
                 {
-                    "entity_type": entity_type.plugin_id(),
+                    "entity_type": entity_type.id,
                     "entity": entity_id,
                 },
             ],
         }
         sut = RaspberryMintConfiguration()
         sut.load(dump)
-        assert sut.featured_entities[0].entity_type == entity_type.plugin_id()
+        assert sut.featured_entities[0].entity_type == entity_type.id
         assert sut.featured_entities[0].entity_id == entity_id
 
     def test_load__with_primary_color(self) -> None:
@@ -110,14 +106,14 @@ class TestRaspberryMintConfiguration:
         assert sut.dump() == expected
 
     def test_dump__with_featured_entities(self) -> None:
-        entity_type = RaspberryMintConfigurationTestEntity
+        entity_type = DummyEntityOne.plugin
         entity_id = "123"
         sut = RaspberryMintConfiguration(
             featured_entities=[EntityReference(entity_type, entity_id)],
         )
         expected = [
             {
-                "entity_type": entity_type.plugin_id(),
+                "entity_type": entity_type.id,
                 "entity": entity_id,
             },
         ]

@@ -5,11 +5,12 @@ Provide :py:class:`betty.license.License` plugins.
 import re
 import tarfile
 from asyncio import gather, get_running_loop
-from collections.abc import AsyncIterator, Iterator, Mapping, Sequence
+from collections.abc import AsyncIterator, Iterator, Mapping, MutableMapping, Sequence
 from concurrent.futures import Executor
 from contextlib import contextmanager
 from json import loads
 from pathlib import Path
+from typing import final
 
 import aiofiles
 from typing_extensions import override
@@ -18,27 +19,29 @@ from betty.cache.file import BinaryFileCache
 from betty.concurrent import AsynchronizedLock, Ledger
 from betty.exception import UserFacingException
 from betty.fetch import Fetcher, FetchError
-from betty.license import License
+from betty.license import License, LicenseDefinition
 from betty.locale.localizable import Localizable, Plain, _
 from betty.machine_name import MachineName
 from betty.multiprocessing import manager
-from betty.plugin import PluginNotFound, PluginRepository, ShorthandPluginBase
+from betty.plugin import PluginNotFound, PluginRepository
 from betty.typing import threadsafe
 from betty.user import User
 
 
-class AllRightsReserved(ShorthandPluginBase, License):
+@final
+@LicenseDefinition(
+    id="all-rights-reserved",
+    label=_("All rights reserved"),
+)
+class AllRightsReserved(License):
     """
     A license that does not permit the public any rights.
     """
 
-    _plugin_id = "all-rights-reserved"
-    _plugin_label = _("All rights reserved")
-
     @property
     @override
     def summary(self) -> Localizable:
-        return self._plugin_label
+        return self.plugin.label
 
     @property
     @override
@@ -48,18 +51,20 @@ class AllRightsReserved(ShorthandPluginBase, License):
         )
 
 
-class PublicDomain(ShorthandPluginBase, License):
+@final
+@LicenseDefinition(
+    id="public-domain",
+    label=_("Public domain"),
+)
+class PublicDomain(License):
     """
     A work is in the `public domain <https://en.wikipedia.org/wiki/Public_domain>`.
     """
 
-    _plugin_id = "public-domain"
-    _plugin_label = _("Public domain")
-
     @property
     @override
     def summary(self) -> Localizable:
-        return _("Public domain")
+        return self.plugin.label
 
     @property
     @override
@@ -80,7 +85,7 @@ def spdx_license_id_to_license_id(spdx_license_id: str) -> MachineName:
 
 
 @threadsafe
-class SpdxLicenseRepository(PluginRepository[License]):
+class SpdxLicenseRepository(PluginRepository[LicenseDefinition]):
     """
     Provide licenses from the `SPDX License List <https://spdx.org/licenses/>`_.
     """
@@ -96,7 +101,7 @@ class SpdxLicenseRepository(PluginRepository[License]):
         binary_file_cache: BinaryFileCache,
         process_pool: Executor,
     ):
-        super().__init__(License)
+        super().__init__(LicenseDefinition)
         self._fetcher = fetcher
         self._user = user
         self._cache_directory_path = binary_file_cache.with_scope(
@@ -105,7 +110,7 @@ class SpdxLicenseRepository(PluginRepository[License]):
         self._license_id_to_spdx_license_id_map: Mapping[MachineName, str]
         self._license_id_to_spdx_reference_map: Mapping[MachineName, str]
         self._license_id_to_spdx_details_url_map: Mapping[MachineName, str]
-        self._licenses: Mapping[str, type[License] | None]
+        self._licenses: MutableMapping[MachineName, LicenseDefinition | None]
         self._lock = AsynchronizedLock(manager().Lock())
         self._ledger = Ledger(self._lock)
         self._licenses_loaded = False
@@ -124,7 +129,7 @@ class SpdxLicenseRepository(PluginRepository[License]):
             ) from None
 
     @override
-    async def get(self, plugin_id: MachineName) -> type[License]:
+    async def get(self, plugin_id: MachineName) -> LicenseDefinition:
         return await self._load_license(plugin_id)
 
     async def _load_licenses(self) -> None:
@@ -212,23 +217,23 @@ class SpdxLicenseRepository(PluginRepository[License]):
                 filter="data",
             )
 
-    async def _load_license(self, license_id: MachineName) -> type[License]:
+    async def _load_license(self, license_id: MachineName) -> LicenseDefinition:
         await self._load_licenses()
         async with self._ledger.ledger(license_id):
             try:
-                license = self._licenses[license_id]  # noqa a001
+                license = self._licenses[license_id]  # noqa A002
             except KeyError:
                 raise PluginNotFound.new(
                     license_id, [plugin async for plugin in self]
                 ) from None
             else:
                 if license is None:
-                    license = await self._create_license(license_id)  # noqa a001
-                    self._licenses[license_id] = license  # type: ignore[index]
+                    license = await self._create_license(license_id)  # noqa A002
+                    self._licenses[license_id] = license
                 return license
 
     @override
-    async def __aiter__(self) -> AsyncIterator[type[License]]:
+    async def __aiter__(self) -> AsyncIterator[LicenseDefinition]:
         await self._load_licenses()
         for license in await gather(  # noqa A001
             *(self._load_license(license_id) for license_id in self._licenses)
@@ -244,7 +249,7 @@ class SpdxLicenseRepository(PluginRepository[License]):
                 Plain(f"Invalid JSON response received from {self.URL}")
             ) from error
 
-    async def _create_license(self, license_id: MachineName) -> type[License]:
+    async def _create_license(self, license_id: MachineName) -> LicenseDefinition:
         async with aiofiles.open(
             self._cache_directory_path
             / f"license-list-data-{self.SPDX_VERSION}"
@@ -262,19 +267,15 @@ class SpdxLicenseRepository(PluginRepository[License]):
 
             license_name = spdx_license_data["name"]
             assert isinstance(license_name, str)
-            plugin_label = Plain(license_name)
 
             license_text = spdx_license_data["licenseText"]
             assert isinstance(license_text, str)
 
-            class _SpdxLicense(ShorthandPluginBase, License):
-                _plugin_id = license_id
-                _plugin_label = plugin_label
-
+            class _SpdxLicense(License):
                 @override
                 @property
                 def summary(self) -> Localizable:
-                    return self.plugin_label()
+                    return self.plugin.label
 
                 @override
                 @property
@@ -288,4 +289,8 @@ class SpdxLicenseRepository(PluginRepository[License]):
                 def url(self) -> Localizable | None:
                     return Plain(url)
 
-            return _SpdxLicense
+            return LicenseDefinition(
+                id=license_id,
+                label=Plain(license_name),
+                cls=_SpdxLicense,
+            )

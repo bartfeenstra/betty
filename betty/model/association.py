@@ -51,7 +51,7 @@ async def _generate_associate_url(project: Project, associate: Entity) -> str | 
         return None
     url_generator = await project.url_generator
     return url_generator.generate(
-        f"betty-static:///{associate.plugin_id()}/{quote(associate.id)}/index.json"
+        f"betty-static:///{associate.plugin.id}/{quote(associate.id)}/index.json"
     )
 
 

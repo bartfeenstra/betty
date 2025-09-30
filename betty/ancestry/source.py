@@ -19,14 +19,13 @@ from betty.locale.localizable import (
     _,
     ngettext,
 )
-from betty.model import Entity
+from betty.model import Entity, EntityDefinition
 from betty.model.association import (
     BidirectionalToManySingleType,
     BidirectionalToZeroOrOne,
     ToManyAssociates,
     ToZeroOrOneAssociate,
 )
-from betty.plugin import ShorthandPluginBase
 from betty.privacy import HasPrivacy, Privacy, is_public, merge_privacies
 from betty.user import UserFacing
 
@@ -43,8 +42,13 @@ if TYPE_CHECKING:
 
 
 @final
+@EntityDefinition(
+    id="source",
+    label=_("Source"),
+    label_plural=_("Sources"),
+    label_countable=ngettext("{count} source", "{count} sources"),
+)
 class Source(
-    ShorthandPluginBase,
     HasDate,
     HasFileReferences,
     HasNotes,
@@ -56,9 +60,6 @@ class Source(
     """
     A source of information.
     """
-
-    _plugin_id = "source"
-    _plugin_label = _("Source")
 
     #: The source this one is directly contained by.
     contained_by = BidirectionalToZeroOrOne["Source", "Source"](
@@ -136,18 +137,6 @@ class Source(
         for source in self.contains:
             yield source
             yield from source.contains
-
-    @override
-    @classmethod
-    def plugin_label_plural(cls) -> Localizable:
-        return _("Sources")
-
-    @override
-    @classmethod
-    def plugin_label_count(cls, count: int) -> Localizable:
-        return ngettext("{count} source", "{count} sources", count).format(
-            count=str(count)
-        )
 
     @override
     @property

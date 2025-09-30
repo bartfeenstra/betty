@@ -5,10 +5,13 @@ Provide configuration for the :py:class:`betty.project.extension.gramps.Gramps` 
 from __future__ import annotations
 
 from pathlib import Path
-from typing import TYPE_CHECKING, Any, TypeVar, final
+from typing import TYPE_CHECKING, Any, Generic, TypeVar, final
 
 from typing_extensions import override
 
+from betty.ancestry.event_type import EventType
+from betty.ancestry.place_type import PlaceType
+from betty.ancestry.presence_role import PresenceRole
 from betty.assertion import (
     OptionalField,
     assert_len,
@@ -27,7 +30,7 @@ from betty.gramps.loader import (
     DEFAULT_PRESENCE_ROLES_MAPPING,
 )
 from betty.locale.localizable import _
-from betty.plugin import Plugin
+from betty.plugin import ClassedPluginDefinition
 from betty.plugin.config import PluginInstanceConfiguration
 from betty.typing import internal
 
@@ -37,7 +40,10 @@ if TYPE_CHECKING:
     from betty.mutability import Mutable
     from betty.serde.dump import Dump, DumpMapping
 
-_PluginT = TypeVar("_PluginT", bound=Plugin)
+_PluginT = TypeVar("_PluginT")
+_ClassedPluginDefinitionT = TypeVar(
+    "_ClassedPluginDefinitionT", bound=ClassedPluginDefinition[Any]
+)
 
 
 def _assert_gramps_type(value: Any) -> str:
@@ -48,19 +54,25 @@ def _assert_gramps_type(value: Any) -> str:
 
 @internal
 @final
-class PluginMapping(Configuration):
+class PluginMapping(Generic[_ClassedPluginDefinitionT, _PluginT], Configuration):
     """
     Map Gramps types to Betty plugin instances.
     """
 
     def __init__(
         self,
-        default_mapping: Mapping[str, PluginInstanceConfiguration],
-        mapping: Mapping[str, PluginInstanceConfiguration],
+        default_mapping: Mapping[
+            str, PluginInstanceConfiguration[_ClassedPluginDefinitionT, _PluginT]
+        ],
+        mapping: Mapping[
+            str, PluginInstanceConfiguration[_ClassedPluginDefinitionT, _PluginT]
+        ],
     ):
         super().__init__()
         self._default_mapping = default_mapping
-        self._mapping: MutableMapping[str, PluginInstanceConfiguration] = {
+        self._mapping: MutableMapping[
+            str, PluginInstanceConfiguration[_ClassedPluginDefinitionT, _PluginT]
+        ] = {
             **default_mapping,
             **mapping,
         }
@@ -73,8 +85,12 @@ class PluginMapping(Configuration):
             **assert_mapping(self._load_item, _assert_gramps_type)(dump),
         }
 
-    def _load_item(self, dump: Dump) -> PluginInstanceConfiguration:
-        configuration = PluginInstanceConfiguration("-")
+    def _load_item(
+        self, dump: Dump
+    ) -> PluginInstanceConfiguration[_ClassedPluginDefinitionT, _PluginT]:
+        configuration = PluginInstanceConfiguration[
+            _ClassedPluginDefinitionT, _PluginT
+        ]("-")
         configuration.load(dump)
         return configuration
 
@@ -85,11 +101,15 @@ class PluginMapping(Configuration):
             for gramps_type, configuration in self._mapping.items()
         }
 
-    def __getitem__(self, gramps_type: str) -> PluginInstanceConfiguration:
+    def __getitem__(
+        self, gramps_type: str
+    ) -> PluginInstanceConfiguration[_ClassedPluginDefinitionT, _PluginT]:
         return self._mapping[gramps_type]
 
     def __setitem__(
-        self, gramps_type: str, configuration: PluginInstanceConfiguration
+        self,
+        gramps_type: str,
+        configuration: PluginInstanceConfiguration[_ClassedPluginDefinitionT, _PluginT],
     ) -> None:
         self.assert_mutable()
         self._mapping[gramps_type] = configuration
@@ -111,27 +131,47 @@ class FamilyTreeConfiguration(Configuration):
         self,
         source: Path | str,
         *,
-        event_types: Mapping[str, PluginInstanceConfiguration] | None = None,
-        place_types: Mapping[str, PluginInstanceConfiguration] | None = None,
-        presence_roles: Mapping[str, PluginInstanceConfiguration] | None = None,
+        event_types: Mapping[
+            str,
+            PluginInstanceConfiguration[ClassedPluginDefinition[EventType], EventType],
+        ]
+        | None = None,
+        place_types: Mapping[
+            str,
+            PluginInstanceConfiguration[ClassedPluginDefinition[PlaceType], PlaceType],
+        ]
+        | None = None,
+        presence_roles: Mapping[
+            str,
+            PluginInstanceConfiguration[
+                ClassedPluginDefinition[PresenceRole], PresenceRole
+            ],
+        ]
+        | None = None,
     ):
         super().__init__()
         self._source = source
-        self._event_types = PluginMapping(
+        self._event_types = PluginMapping[
+            ClassedPluginDefinition[EventType], EventType
+        ](
             {
                 gramps_value: PluginInstanceConfiguration(event_type)
                 for gramps_value, event_type in DEFAULT_EVENT_TYPES_MAPPING.items()
             },
             event_types or {},
         )
-        self._place_types = PluginMapping(
+        self._place_types = PluginMapping[
+            ClassedPluginDefinition[PlaceType], PlaceType
+        ](
             {
                 gramps_value: PluginInstanceConfiguration(event_type)
                 for gramps_value, event_type in DEFAULT_PLACE_TYPES_MAPPING.items()
             },
             place_types or {},
         )
-        self._presence_roles = PluginMapping(
+        self._presence_roles = PluginMapping[
+            ClassedPluginDefinition[PresenceRole], PresenceRole
+        ](
             {
                 gramps_value: PluginInstanceConfiguration(event_type)
                 for gramps_value, event_type in DEFAULT_PRESENCE_ROLES_MAPPING.items()
@@ -162,21 +202,27 @@ class FamilyTreeConfiguration(Configuration):
         self._source = source
 
     @property
-    def event_types(self) -> PluginMapping:
+    def event_types(
+        self,
+    ) -> PluginMapping[ClassedPluginDefinition[EventType], EventType]:
         """
         How to map event types.
         """
         return self._event_types
 
     @property
-    def place_types(self) -> PluginMapping:
+    def place_types(
+        self,
+    ) -> PluginMapping[ClassedPluginDefinition[PlaceType], PlaceType]:
         """
         How to map place types.
         """
         return self._place_types
 
     @property
-    def presence_roles(self) -> PluginMapping:
+    def presence_roles(
+        self,
+    ) -> PluginMapping[ClassedPluginDefinition[PresenceRole], PresenceRole]:
         """
         How to map presence roles.
         """

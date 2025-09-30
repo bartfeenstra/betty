@@ -9,14 +9,19 @@ from typing_extensions import override
 from betty._npm import NpmUnavailable
 from betty.app import App
 from betty.job import Context
+from betty.locale.localizable import Plain
 from betty.plugin.static import StaticPluginRepository
 from betty.project import Project
+from betty.project.extension import Extension, ExtensionDefinition
 from betty.project.extension.webpack.build import Builder, EntryPointProvider
-from betty.test_utils.project.extension import DummyExtension
 from betty.test_utils.user import StaticUser
 
 
-class DummyEntryPointProviderExtension(EntryPointProvider, DummyExtension):
+@ExtensionDefinition(
+    id="dummy",
+    label=Plain(""),
+)
+class DummyEntryPointProviderExtension(EntryPointProvider, Extension):
     @override
     @classmethod
     def webpack_entry_point_directory_path(cls) -> Path:
@@ -32,7 +37,7 @@ class TestBuilder:
     def _extensions(self, mocker: MockerFixture) -> None:
         mocker.patch(
             "betty.project.extension.EXTENSION_REPOSITORY",
-            new=StaticPluginRepository(DummyEntryPointProviderExtension),
+            new=StaticPluginRepository(ExtensionDefinition),
         )
 
     async def test_build(self, new_temporary_app: App, tmp_path: Path) -> None:
@@ -99,14 +104,14 @@ class TestBuilder:
                     webpack_entry_loader_js = await f.read()
                 assert f"{root_path}/js/webpack/runtime.js" in webpack_entry_loader_js
                 assert (
-                    f"{root_path}/js/webpack/{DummyEntryPointProviderExtension.plugin_id()}.js"
+                    f"{root_path}/js/webpack/{DummyEntryPointProviderExtension.plugin.id}.js"
                     in webpack_entry_loader_js
                 )
                 assert (
                     webpack_build_directory_path
                     / "js"
                     / "webpack"
-                    / f"{DummyEntryPointProviderExtension.plugin_id()}.js"
+                    / f"{DummyEntryPointProviderExtension.plugin.id}.js"
                 ).exists()
 
     async def test_build_with_npm_unavailable(

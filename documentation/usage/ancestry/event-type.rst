@@ -59,21 +59,6 @@ Built-in event types
 ``will`` (:py:class:`betty.ancestry.event_type.event_types.Will`)
     Any event associated with the reading and excution of someone's `will and testament <https://en.wikipedia.org/wiki/Will_and_testament>`_.
 
-Built-in meta event types
--------------------------
-The aforementioned event types can inherit from these meta types. For example, births and baptisms are both start-of-life events.
-
-:py:class:`betty.ancestry.event_type.event_types.StartOfLifeEventType`
-    Any event taking place because of and close to someone's birth, such as a baptism, or an actual birth.
-:py:class:`betty.ancestry.event_type.event_types.DuringLifeEventType`
-    Any event taking place while the subject was still alive, e.g. between their birth and death.
-:py:class:`betty.ancestry.event_type.event_types.EndOfLifeEventType`
-    Any event taking place because of and close to someone's death, such as a funeral, or an actual death.
-:py:class:`betty.ancestry.event_type.event_types.PostDeathEventType`
-    Any event taking place after someone's death, such as a funeral or will reading.
-:py:class:`betty.ancestry.event_type.event_types.FinalDispositionEventType`
-    Any `final disposition <https://en.wikipedia.org/wiki/Final_disposition>`_, such as a burial or cremation.
-
 See also
 --------
 - :doc:`/development/plugin/event-type`

@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Betty 0.4\n"
 "Report-Msgid-Bugs-To: illia@maier.page\n"
-"POT-Creation-Date: 2025-09-27 00:43+0200\n"
+"POT-Creation-Date: 2025-10-08 20:16+0100\n"
 "PO-Revision-Date: 2025-05-13 17:01+0000\n"
 "Last-Translator: Максим Горпиніч <maksimgorpinic4@gmail.com>\n"
 "Language: uk\n"
@@ -51,6 +51,9 @@ msgstr "%(event)s %(subjects)s"
 #, python-format
 msgid "%(event)s with %(subjects)s"
 msgstr "%(event)s з %(subjects)s"
+
+msgid "(De)serialization format)"
+msgstr ""
 
 msgid ""
 "A family history as told by <a "
@@ -391,9 +394,6 @@ msgstr "Смерть"
 msgid "Department"
 msgstr "Відділ"
 
-msgid "Deriver"
-msgstr "Похідне"
-
 msgid "Description, licensing, and image history"
 msgstr "Опис, ліцензування та історія зображення"
 
@@ -415,11 +415,9 @@ msgid "Display interactive maps"
 msgstr "Відображайте списки місць у вигляді інтерактивних мап"
 
 msgid ""
-"Display the HTTP API documentation in a user-friendly way using <a "
-"href=\"https://swagger.io/tools/swagger-ui\">Swagger UI</a>."
+"Display the HTTP API documentation in a user-friendly way using Swagger "
+"UI."
 msgstr ""
-"Відображайте документацію HTTP API у зручному форматі за допомогою <a "
-"href=\"https://swagger.io/tools/swagger-ui\">Swagger UI</a>."
 
 msgid "District"
 msgstr "Район"
@@ -527,9 +525,6 @@ msgstr "Знайдіть Betty на GitHub"
 msgid "Find out more about this image on Wikimedia Commons."
 msgstr "Дізнайтеся більше про це зображення на Wikimedia Commons."
 
-msgid "Format"
-msgstr ""
-
 msgid "Funeral"
 msgstr "Похорон"
 
@@ -559,9 +554,6 @@ msgid ""
 "Gramps exited with the following error:\n"
 "{error}"
 msgstr ""
-
-msgid "HTTP API Documentation"
-msgstr "документація HTTP API"
 
 msgid "Hamlet"
 msgstr "Хутір"
@@ -618,10 +610,8 @@ msgstr ""
 msgid "Links"
 msgstr ""
 
-msgid "Load <a href=\"https://gramps-project.org/\">Gramps</a> family trees."
+msgid "Load Gramps family trees."
 msgstr ""
-"Завантажити генеалогічні дерева <a href=\"https://gramps-"
-"project.org/\">Gramps</a>."
 
 #, python-brace-format
 msgid "Loaded the configuration from {configuration_file_path}."
@@ -687,9 +677,6 @@ msgstr "MMMM y року"
 
 msgid "Male"
 msgstr "Чоловік"
-
-msgid "Maps"
-msgstr "Мапи"
 
 msgid "Marriage"
 msgstr "Шлюб"
@@ -785,12 +772,8 @@ msgid "Places"
 msgstr "Місця"
 
 #, python-brace-format
-msgid ""
-"Plugin {plugin_label} ({plugin_id}) is not configurable, but "
-"configuration was given."
+msgid "Plugin \"{plugin_id}\" is not configurable, but configuration was given."
 msgstr ""
-"Плагін {plugin_label} ({plugin_id}) не налаштовується, але були надані "
-"параметри налаштування."
 
 msgid "Positional arguments"
 msgstr ""
@@ -825,16 +808,19 @@ msgstr ""
 " оскільки воно не пов’язане з жодною публічною інформацією."
 
 #, python-brace-format
-msgid "Privatized {count} people because they are likely still alive."
-msgstr "Приватизовано {count} осіб, оскільки, ймовірно, вони ще живі."
+msgid ""
+"Privatized {count} \"{entity_type_id}\" entity, because it is associated "
+"with private information."
+msgid_plural ""
+"Privatized {count} \"{entity_type_id}\" entities, because they are "
+"associated with private information."
+msgstr[0] ""
+msgstr[1] ""
+msgstr[2] ""
 
 #, python-brace-format
-msgid ""
-"Privatized {count} {entity_type}, because they are associated with "
-"private information."
-msgstr ""
-"Приватизовано {count} {entity_type}, оскільки вони пов’язані з приватною "
-"інформацією."
+msgid "Privatized {count} people because they are likely still alive."
+msgstr "Приватизовано {count} осіб, оскільки, ймовірно, вони ще живі."
 
 #, python-brace-format
 msgid ""
@@ -845,9 +831,6 @@ msgstr ""
 "{privatized_entity_type} {privatized_entity_id} ({privatized_entity}) "
 "зроблено приватним через {reason_entity_type} {reason_entity_id} "
 "({reason_entity})."
-
-msgid "Privatizer"
-msgstr "Приватизатор"
 
 msgid "Project author"
 msgstr "Автор проєкту"
@@ -1131,9 +1114,6 @@ msgstr ""
 #, python-brace-format
 msgid "Translations for {locale} initialized at {po_file_path}."
 msgstr ""
-
-msgid "Trees"
-msgstr "Дерева"
 
 msgid "Unauthorized"
 msgstr "Неавторизовано"

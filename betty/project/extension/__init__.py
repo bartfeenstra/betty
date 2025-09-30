@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Generic, Self, TypeVar, final
+from typing import TYPE_CHECKING, Any, ClassVar, Generic, Self, TypeVar, final
 
 from typing_extensions import override
 
@@ -10,11 +10,16 @@ from betty.config import Configuration, DefaultConfigurable
 from betty.job import Context
 from betty.locale.localizable import Join, Localizable, _
 from betty.plugin import (
+    ClassedPlugin,
+    ClassedPluginDefinition,
+    ClassedPluginTypeDefinition,
     CyclicDependencyError,
-    DependentPlugin,
-    Plugin,
-    PluginIdToTypeMapping,
+    DependentPluginDefinition,
+    OrderedPluginDefinition,
+    PluginIdMapping,
     PluginRepository,
+    UserFacingPluginDefinition,
+    resolve_identifier,
 )
 from betty.plugin.entry_point import EntryPointPluginRepository
 from betty.project.factory import ProjectDependentFactory
@@ -26,7 +31,6 @@ if TYPE_CHECKING:
     from collections.abc import Sequence
     from pathlib import Path
 
-    from betty.machine_name import MachineName
     from betty.project import Project
     from betty.requirement import Requirement
     from betty.user import User
@@ -36,7 +40,7 @@ _ConfigurationT = TypeVar("_ConfigurationT", bound=Configuration)
 _ContextT = TypeVar("_ContextT", bound=Context)
 
 
-class Extension(DependentPlugin["Extension"], ServiceProvider, ProjectDependentFactory):
+class Extension(ServiceProvider, ProjectDependentFactory, ClassedPlugin):
     """
     Integrate optional functionality with Betty :py:class:`betty.project.Project`s.
 
@@ -44,6 +48,8 @@ class Extension(DependentPlugin["Extension"], ServiceProvider, ProjectDependentF
 
     To test your own subclasses, use :py:class:`betty.test_utils.project.extension.ExtensionTestBase`.
     """
+
+    plugin: ClassVar[ExtensionDefinition]
 
     def __init__(self, project: Project):
         assert type(self) is not Extension
@@ -54,24 +60,6 @@ class Extension(DependentPlugin["Extension"], ServiceProvider, ProjectDependentF
     @classmethod
     async def new_for_project(cls, project: Project) -> Self:
         return cls(project)
-
-    @final
-    @override
-    @classmethod
-    def plugin_type_cls(cls) -> type[Plugin]:
-        return Extension
-
-    @final
-    @override
-    @classmethod
-    def plugin_type_id(cls) -> MachineName:
-        return "extension"
-
-    @final
-    @override
-    @classmethod
-    def plugin_type_label(cls) -> Localizable:
-        return _("Extension")
 
     @property
     def project(self) -> Project:
@@ -87,34 +75,64 @@ class Extension(DependentPlugin["Extension"], ServiceProvider, ProjectDependentF
 
         This defaults to the extension's dependencies.
         """
-        return await Dependencies.new(cls, user=user)
-
-    @classmethod
-    def assets_directory_path(cls) -> Path | None:
-        """
-        Return the path on disk where the extension's assets are located.
-
-        This may be anywhere in your Python package.
-        """
-        return None
+        return await Dependencies.new(cls.plugin, user=user)
 
 
 _ExtensionT = TypeVar("_ExtensionT", bound=Extension)
 
-EXTENSION_REPOSITORY: PluginRepository[Extension] = EntryPointPluginRepository(
-    Extension, "betty.extension"
+
+@final
+class ExtensionDefinition(
+    UserFacingPluginDefinition,
+    ClassedPluginDefinition[Extension],
+    DependentPluginDefinition,
+    OrderedPluginDefinition,
+):
+    """
+    An extension definition.
+    """
+
+    type: ClassVar[ClassedPluginTypeDefinition] = ClassedPluginTypeDefinition(
+        id="extension",
+        label=_("Extension"),
+        cls=Extension,
+    )
+
+    def __init__(
+        self,
+        *,
+        assets_directory_path: Path | None = None,
+        theme: bool = False,
+        **kwargs: Any,
+    ):
+        super().__init__(**kwargs)
+        self._assets_directory_path = assets_directory_path
+        self._theme = theme
+
+    @property
+    def assets_directory_path(self) -> Path | None:
+        """
+        The path on disk where the extension's assets are located.
+        """
+        return self._assets_directory_path
+
+    @property
+    def theme(self) -> bool:
+        """
+        Whether this extension is a theme.
+        """
+        return self._theme
+
+
+EXTENSION_REPOSITORY: PluginRepository[ExtensionDefinition] = (
+    EntryPointPluginRepository(ExtensionDefinition, "betty.extension")
 )
+
 """
 The project extension plugin repository.
 
 Read more about :doc:`/development/plugin/extension`.
 """
-
-
-class Theme(Extension):
-    """
-    An extension that is a front-end theme.
-    """
 
 
 class ConfigurableExtension(
@@ -138,31 +156,31 @@ class Dependencies(AllRequirements):
     @private
     def __init__(
         self,
-        dependent: type[Extension],
-        extension_id_to_type_mapping: PluginIdToTypeMapping[Extension],
+        dependent: ExtensionDefinition,
+        extension_id_mapping: PluginIdMapping[ExtensionDefinition],
         dependency_requirements: Sequence[Requirement],
     ):
         super().__init__(*dependency_requirements)
         self._dependent = dependent
-        self._extension_id_to_type_mapping = extension_id_to_type_mapping
+        self._extension_id_mapping = extension_id_mapping
 
     @classmethod
-    async def new(cls, dependent: type[Extension], *, user: User) -> Self:
+    async def new(cls, dependent: ExtensionDefinition, *, user: User) -> Self:
         """
         Create a new instance.
         """
         try:
             dependency_requirements = [
                 await (
-                    await EXTENSION_REPOSITORY.get(dependency_identifier)
-                    if isinstance(dependency_identifier, str)
-                    else dependency_identifier
-                ).requirement(user=user)
-                for dependency_identifier in dependent.depends_on()
-                & dependent.comes_after()
+                    await EXTENSION_REPOSITORY.get(
+                        resolve_identifier(dependency_identifier)
+                    )
+                ).cls.requirement(user=user)
+                for dependency_identifier in dependent.depends_on
+                & dependent.comes_after
             ]
         except RecursionError:
-            raise CyclicDependencyError([dependent]) from None
+            raise CyclicDependencyError([dependent.id]) from None
         else:
             return cls(
                 dependent, await EXTENSION_REPOSITORY.mapping(), dependency_requirements
@@ -171,14 +189,12 @@ class Dependencies(AllRequirements):
     @override
     def summary(self) -> Localizable:
         return _("{dependent_label} requires {dependency_labels}.").format(
-            dependent_label=self._dependent.plugin_label(),
+            dependent_label=self._dependent.label,
             dependency_labels=Join(
                 ", ",
                 *(
-                    self._extension_id_to_type_mapping[
-                        dependency_identifier
-                    ].plugin_label()
-                    for dependency_identifier in self._dependent.depends_on()
+                    self._extension_id_mapping[dependency_identifier].label
+                    for dependency_identifier in self._dependent.depends_on
                 ),
             ),
         )

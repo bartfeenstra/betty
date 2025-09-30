@@ -2,24 +2,10 @@ from importlib.metadata import EntryPoint, EntryPoints
 
 import pytest
 from pytest_mock import MockerFixture
-from typing_extensions import override
 
-from betty.locale.localizable import Localizable, StaticTranslations
-from betty.machine_name import MachineName
-from betty.plugin import Plugin, PluginNotFound
+from betty.plugin import PluginNotFound
 from betty.plugin.entry_point import EntryPointPluginRepository
-
-
-class EntryPointPluginRepositoryTestPlugin(Plugin):
-    @override
-    @classmethod
-    def plugin_id(cls) -> MachineName:
-        return cls.__name__
-
-    @override
-    @classmethod
-    def plugin_label(cls) -> Localizable:
-        return StaticTranslations("")  # pragma: no cover
+from betty.test_utils.plugin import DUMMY_PLUGIN_ONE, DummyPluginDefinition
 
 
 class TestEntryPointPluginRepository:
@@ -30,29 +16,25 @@ class TestEntryPointPluginRepository:
             return_value=EntryPoints(
                 [
                     EntryPoint(
-                        name=EntryPointPluginRepositoryTestPlugin.plugin_id(),
-                        value=f"{EntryPointPluginRepositoryTestPlugin.__module__}:{EntryPointPluginRepositoryTestPlugin.__qualname__}",
+                        name=DUMMY_PLUGIN_ONE.id,
+                        value="betty.test_utils.plugin:DUMMY_PLUGIN_ONE",
                         group=entry_point_group,
                     )
                 ]
             ),
         )
-        sut = EntryPointPluginRepository(
-            EntryPointPluginRepositoryTestPlugin, entry_point_group
-        )
+        sut = EntryPointPluginRepository(DummyPluginDefinition, entry_point_group)
         # Hit the cache.
         for _ in range(2):
-            await sut.get(EntryPointPluginRepositoryTestPlugin.plugin_id())
+            assert await sut.get(DUMMY_PLUGIN_ONE.id) is DUMMY_PLUGIN_ONE
         m_entry_points.assert_called_once_with(group=entry_point_group)
 
     async def test_get_not_found(self) -> None:
-        sut = EntryPointPluginRepository(
-            EntryPointPluginRepositoryTestPlugin, "test-entry-point"
-        )
+        sut = EntryPointPluginRepository(DummyPluginDefinition, "test-entry-point")
         # Hit the cache.
         for _ in range(2):
             with pytest.raises(PluginNotFound):
-                await sut.get(EntryPointPluginRepositoryTestPlugin.plugin_id())
+                await sut.get(DUMMY_PLUGIN_ONE.id)
 
     async def test___aiter___with_plugins(self, mocker: MockerFixture) -> None:
         entry_point_group = "test-entry-point"
@@ -61,20 +43,18 @@ class TestEntryPointPluginRepository:
             return_value=EntryPoints(
                 [
                     EntryPoint(
-                        name=EntryPointPluginRepositoryTestPlugin.plugin_id(),
-                        value=f"{EntryPointPluginRepositoryTestPlugin.__module__}:{EntryPointPluginRepositoryTestPlugin.__qualname__}",
+                        name=DUMMY_PLUGIN_ONE.id,
+                        value="betty.test_utils.plugin:DUMMY_PLUGIN_ONE",
                         group=entry_point_group,
                     )
                 ]
             ),
         )
-        sut = EntryPointPluginRepository(
-            EntryPointPluginRepositoryTestPlugin, entry_point_group
-        )
+        sut = EntryPointPluginRepository(DummyPluginDefinition, entry_point_group)
         # Hit the cache.
         for _ in range(2):
             plugin = [plugin async for plugin in sut][0]
-            assert plugin is EntryPointPluginRepositoryTestPlugin
+            assert plugin is DUMMY_PLUGIN_ONE
         m_entry_points.assert_called_once_with(group=entry_point_group)
 
     async def test___aiter___without_plugins(self, mocker: MockerFixture) -> None:
@@ -83,9 +63,7 @@ class TestEntryPointPluginRepository:
             "importlib.metadata.entry_points",
             return_value=EntryPoints([]),
         )
-        sut = EntryPointPluginRepository(
-            EntryPointPluginRepositoryTestPlugin, entry_point_group
-        )
+        sut = EntryPointPluginRepository(DummyPluginDefinition, entry_point_group)
         # Hit the cache.
         for _ in range(2):
             with pytest.raises(StopAsyncIteration):

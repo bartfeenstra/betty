@@ -7,19 +7,12 @@ from __future__ import annotations
 import datetime
 from collections import defaultdict
 from collections.abc import Callable, Mapping
-from typing import TYPE_CHECKING, Any, Self, TypeAlias, cast, final
+from typing import TYPE_CHECKING, Any, ClassVar, Self, TypeAlias, cast, final
 
 import aiofiles
 from aiofiles import os as aiofiles_os
-from jinja2 import (
-    Environment as Jinja2Environment,
-)
-from jinja2 import (
-    FileSystemLoader,
-    Template,
-    pass_context,
-    select_autoescape,
-)
+from jinja2 import Environment as Jinja2Environment
+from jinja2 import FileSystemLoader, Template, pass_context, select_autoescape
 from jinja2.runtime import Context, DebugUndefined, StrictUndefined
 from typing_extensions import override
 
@@ -36,12 +29,10 @@ from betty.jinja2.filter import filters
 from betty.jinja2.globals import HtmlId, generate_html_id
 from betty.jinja2.test import tests
 from betty.job import Context as JobContext
-from betty.locale.localizable import Localizable, Plain
 from betty.locale.localizer import DEFAULT_LOCALIZER, Localizer
-from betty.model import ENTITY_TYPE_REPOSITORY
-from betty.plugin import Plugin, PluginIdToTypeMapping
+from betty.plugin import PluginIdentifier, resolve_identifier
 from betty.project.factory import ProjectDependentFactory
-from betty.render.plugin import Renderer
+from betty.render import Renderer, RendererDefinition
 from betty.typing import private
 from betty.warnings import deprecate
 
@@ -96,45 +87,25 @@ class EntityContexts:
     context.
     """
 
-    def __init__(
-        self,
-        *entities: Entity,
-        entity_type_id_to_type_mapping: PluginIdToTypeMapping[Entity],
-    ) -> None:
-        self._entity_type_id_to_type_mapping = entity_type_id_to_type_mapping
-        self._contexts: MutableMapping[type[Entity], Entity | None] = defaultdict(
+    def __init__(self, *entities: Entity) -> None:
+        self._contexts: MutableMapping[MachineName, Entity | None] = defaultdict(
             lambda: None
         )
         for entity in entities:
-            self._contexts[type(entity)] = entity
+            self._contexts[entity.plugin.id] = entity
 
-    @classmethod
-    async def new(cls, *entities: Entity) -> Self:
-        """
-        Create a new instance.
-        """
-        return cls(
-            *entities,
-            entity_type_id_to_type_mapping=await ENTITY_TYPE_REPOSITORY.mapping(),
-        )
-
-    def __getitem__(
-        self, entity_type_or_type_name: type[Entity] | str
-    ) -> Entity | None:
-        return self._contexts[
-            self._entity_type_id_to_type_mapping[entity_type_or_type_name]
-        ]
+    def __getitem__(self, entity_type: PluginIdentifier) -> Entity | None:
+        return self._contexts[resolve_identifier(entity_type)]
 
     def __call__(self, *entities: Entity) -> EntityContexts:
         """
         Create a new context with the given entities.
         """
         updated_contexts = EntityContexts(
-            *(entity for entity in self._contexts.values() if entity is not None),
-            entity_type_id_to_type_mapping=self._entity_type_id_to_type_mapping,
+            *(entity for entity in self._contexts.values() if entity is not None)
         )
         for entity in entities:
-            updated_contexts._contexts[type(entity)] = entity
+            updated_contexts._contexts[entity.plugin.id] = entity
         return updated_contexts
 
 
@@ -247,7 +218,7 @@ class Environment(ProjectDependentFactory, Jinja2Environment):
             project,
             extensions,
             await project.assets,
-            await EntityContexts.new(),
+            EntityContexts(),
             {
                 # Ideally we would use the Dispatcher for this. However, it is asynchronous only.
                 "public_css_paths": [
@@ -397,24 +368,19 @@ class Environment(ProjectDependentFactory, Jinja2Environment):
 
 
 @final
-class Jinja2Renderer(Renderer, ProjectDependentFactory, Plugin):
+@RendererDefinition(
+    id="jinja2",
+)
+class Jinja2Renderer(Renderer, ProjectDependentFactory):
     """
     Render content as Jinja2 templates.
     """
 
+    plugin: ClassVar[RendererDefinition]
+
     def __init__(self, environment: Environment, configuration: ProjectConfiguration):
         self._environment = environment
         self._configuration = configuration
-
-    @override
-    @classmethod
-    def plugin_id(cls) -> MachineName:
-        return "jinja2"
-
-    @override
-    @classmethod
-    def plugin_label(cls) -> Localizable:
-        return Plain("Jinja2")
 
     @override
     @classmethod

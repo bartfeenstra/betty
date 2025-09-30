@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PROJECT VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2025-09-27 00:43+0200\n"
+"POT-Creation-Date: 2025-10-08 20:16+0100\n"
 "PO-Revision-Date: 2025-05-17 01:43+0000\n"
 "Last-Translator: Bart Feenstra <bart@bartfeenstra.com>\n"
 "Language: nl_NL\n"
@@ -52,6 +52,9 @@ msgstr "%(event)s van %(subjects)s"
 #, python-format
 msgid "%(event)s with %(subjects)s"
 msgstr "%(event)s met %(subjects)s"
+
+msgid "(De)serialization format)"
+msgstr ""
 
 msgid ""
 "A family history as told by <a "
@@ -394,9 +397,6 @@ msgstr "Overlijden"
 msgid "Department"
 msgstr "Departement"
 
-msgid "Deriver"
-msgstr "Afleider"
-
 msgid "Description, licensing, and image history"
 msgstr "Beschrijving, licentie, en afbeeldingsgeschiedenis"
 
@@ -418,12 +418,9 @@ msgid "Display interactive maps"
 msgstr "Geef plaatsen weer als interactieve kaarten"
 
 msgid ""
-"Display the HTTP API documentation in a user-friendly way using <a "
-"href=\"https://swagger.io/tools/swagger-ui\">Swagger UI</a>."
+"Display the HTTP API documentation in a user-friendly way using Swagger "
+"UI."
 msgstr ""
-"Geef de HTTP API-documentatie op een gebruiksvriendelijke manier weer met"
-" behulp van <a href=\"https://swagger.io/tools/swagger-ui\">Swagger "
-"UI</a>."
 
 msgid "District"
 msgstr "District"
@@ -531,9 +528,6 @@ msgstr "Vind Betty op GitHub"
 msgid "Find out more about this image on Wikimedia Commons."
 msgstr "Vind meer informatie over deze afbeelding op Wikimedia Commons."
 
-msgid "Format"
-msgstr ""
-
 msgid "Funeral"
 msgstr "Uitvaart"
 
@@ -564,9 +558,6 @@ msgid ""
 "Gramps exited with the following error:\n"
 "{error}"
 msgstr ""
-
-msgid "HTTP API Documentation"
-msgstr "HTTP API-documentatie"
 
 msgid "Hamlet"
 msgstr "Gehucht"
@@ -625,8 +616,8 @@ msgstr ""
 msgid "Links"
 msgstr ""
 
-msgid "Load <a href=\"https://gramps-project.org/\">Gramps</a> family trees."
-msgstr "Laad <a href=\"https://gramps-project.org/\">Gramps-</a>stambomen."
+msgid "Load Gramps family trees."
+msgstr ""
 
 #, python-brace-format
 msgid "Loaded the configuration from {configuration_file_path}."
@@ -692,9 +683,6 @@ msgstr "MMMM y"
 
 msgid "Male"
 msgstr "Mannelijk"
-
-msgid "Maps"
-msgstr "Kaarten"
 
 msgid "Marriage"
 msgstr "Huwelijk"
@@ -790,12 +778,8 @@ msgid "Places"
 msgstr "Plaatsen"
 
 #, python-brace-format
-msgid ""
-"Plugin {plugin_label} ({plugin_id}) is not configurable, but "
-"configuration was given."
+msgid "Plugin \"{plugin_id}\" is not configurable, but configuration was given."
 msgstr ""
-"Plugin {plugin_label} ({plugin_id}) is niet configureerbaar, maar er was "
-"configuratie voorzien."
 
 msgid "Positional arguments"
 msgstr ""
@@ -830,16 +814,18 @@ msgstr ""
 "deze niet met enige openbare informatie geassocieerd is."
 
 #, python-brace-format
-msgid "Privatized {count} people because they are likely still alive."
-msgstr "{count} personen geprivatiseerd omdat zij waarschijnlijk nog leven."
+msgid ""
+"Privatized {count} \"{entity_type_id}\" entity, because it is associated "
+"with private information."
+msgid_plural ""
+"Privatized {count} \"{entity_type_id}\" entities, because they are "
+"associated with private information."
+msgstr[0] ""
+msgstr[1] ""
 
 #, python-brace-format
-msgid ""
-"Privatized {count} {entity_type}, because they are associated with "
-"private information."
-msgstr ""
-"{count} {entity_type} geprivatiseerd, omdat deze met privéinformatie "
-"geassocieerd zijn."
+msgid "Privatized {count} people because they are likely still alive."
+msgstr "{count} personen geprivatiseerd omdat zij waarschijnlijk nog leven."
 
 #, python-brace-format
 msgid ""
@@ -850,9 +836,6 @@ msgstr ""
 "{privatized_entity_type} {privatized_entity_id} ({privatized_entity}) "
 "geprivatiseerd vanwege {reason_entity_type} {reason_entity_id} "
 "({reason_entity})."
-
-msgid "Privatizer"
-msgstr "Privatiseerder"
 
 msgid "Project author"
 msgstr "Projectauteur"
@@ -1132,9 +1115,6 @@ msgstr ""
 #, python-brace-format
 msgid "Translations for {locale} initialized at {po_file_path}."
 msgstr ""
-
-msgid "Trees"
-msgstr "Stambomen"
 
 msgid "Unauthorized"
 msgstr "Onbevoegd"

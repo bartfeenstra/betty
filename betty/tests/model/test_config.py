@@ -6,60 +6,43 @@ import pytest
 from typing_extensions import override
 
 from betty.exception import UserFacingException
-from betty.model import Entity
+from betty.model import EntityDefinition
 from betty.model.config import EntityReference, EntityReferenceSequence
 from betty.plugin.static import StaticPluginRepository
 from betty.test_utils.config.collections.sequence import ConfigurationSequenceTestBase
 from betty.test_utils.exception import raises_error
-from betty.test_utils.model import DummyEntity
+from betty.test_utils.model import DummyEntityOne, DummyEntityTwo
 
 if TYPE_CHECKING:
     from collections.abc import Iterable
 
-    from pytest_mock import MockerFixture
-
     from betty.serde.dump import Dump
-
-
-class EntityReferenceTestEntityOne(DummyEntity):
-    pass
-
-
-class EntityReferenceTestEntityTwo(DummyEntity):
-    pass
-
-
-class EntityReferenceSequenceTestEntity(DummyEntity):
-    pass
 
 
 class TestEntityReference:
     async def test_entity_type__with_constraint(self) -> None:
-        entity_type = EntityReferenceTestEntityOne
-        sut = EntityReference[EntityReferenceTestEntityOne](
-            entity_type, None, entity_type_is_constrained=True
+        sut = EntityReference(
+            DummyEntityOne.plugin, None, entity_type_is_constrained=True
         )
-        assert sut.entity_type == entity_type.plugin_id()
+        assert sut.entity_type == DummyEntityOne.plugin.id
         with pytest.raises(AttributeError):
-            sut.entity_type = entity_type.plugin_id()
+            sut.entity_type = DummyEntityTwo  # type: ignore[assignment]
 
     async def test_entity_type__without_constraint(self) -> None:
-        entity_type = EntityReferenceTestEntityOne
-        sut = EntityReference[EntityReferenceTestEntityOne]()
+        sut = EntityReference()
         assert sut.entity_type is None
-        sut.entity_type = entity_type.plugin_id()
-        assert sut.entity_type == entity_type.plugin_id()
+        sut.entity_type = DummyEntityOne  # type: ignore[assignment]
+        assert sut.entity_type == DummyEntityOne.plugin.id
 
     async def test_entity_type_is_constrained(self) -> None:
-        entity_type = EntityReferenceTestEntityOne
-        sut = EntityReference[EntityReferenceTestEntityOne](
-            entity_type, None, entity_type_is_constrained=True
+        sut = EntityReference(
+            DummyEntityOne.plugin, None, entity_type_is_constrained=True
         )
         assert sut.entity_type_is_constrained
 
     async def test_entity_id(self) -> None:
         entity_id = "123"
-        sut = EntityReference[EntityReferenceTestEntityOne]()
+        sut = EntityReference()
         assert sut.entity_id is None
         sut.entity_id = entity_id
         assert sut.entity_id == entity_id
@@ -67,9 +50,7 @@ class TestEntityReference:
         assert sut.entity_id is None
 
     async def test_load__with_constraint(self) -> None:
-        sut = EntityReference(
-            EntityReferenceTestEntityOne, entity_type_is_constrained=True
-        )
+        sut = EntityReference(DummyEntityOne.plugin, entity_type_is_constrained=True)
         entity_id = "123"
         dump = entity_id
         sut.load(dump)
@@ -79,11 +60,11 @@ class TestEntityReference:
         "dump",
         [
             {
-                "entity_type": EntityReferenceTestEntityOne,
+                "entity_type": DummyEntityOne.plugin.id,
                 "entity": "123",
             },
             {
-                "entity_type": EntityReferenceTestEntityTwo,
+                "entity_type": DummyEntityTwo.plugin.id,
                 "entity": "123",
             },
             False,
@@ -93,26 +74,20 @@ class TestEntityReference:
     async def test_load__with_constraint_without_string_should_error(
         self, dump: Dump
     ) -> None:
-        sut = EntityReference(
-            EntityReferenceTestEntityOne, entity_type_is_constrained=True
-        )
+        sut = EntityReference(DummyEntityOne.plugin, entity_type_is_constrained=True)
         with raises_error(error_type=UserFacingException):
             sut.load(dump)
 
-    async def test_load__without_constraint(self, mocker: MockerFixture) -> None:
-        mocker.patch(
-            "betty.model.ENTITY_TYPE_REPOSITORY",
-            new=StaticPluginRepository(EntityReferenceTestEntityOne),
-        )
-        entity_type = EntityReferenceTestEntityOne
+    async def test_load__without_constraint(self) -> None:
+        entity_type = DummyEntityOne.plugin
         entity_id = "123"
         dump: Dump = {
-            "entity_type": entity_type.plugin_id(),
+            "entity_type": entity_type.id,
             "entity": entity_id,
         }
-        sut = EntityReference[EntityReferenceTestEntityOne]()
+        sut = EntityReference()
         sut.load(dump)
-        assert sut.entity_type == entity_type.plugin_id()
+        assert sut.entity_type == entity_type.id
         assert sut.entity_id == entity_id
 
     async def test_load__without_constraint_without_entity_type_should_error(
@@ -122,7 +97,7 @@ class TestEntityReference:
         dump: Dump = {
             "entity": entity_id,
         }
-        sut = EntityReference[EntityReferenceTestEntityOne]()
+        sut = EntityReference()
         with raises_error(error_type=UserFacingException):
             sut.load(dump)
 
@@ -134,36 +109,37 @@ class TestEntityReference:
             "entity_type": 123,
             "entity": entity_id,
         }
-        sut = EntityReference[EntityReferenceTestEntityOne]()
+        sut = EntityReference()
         with raises_error(error_type=UserFacingException):
             sut.load(dump)
 
     async def test_load__without_constraint_without_string_entity_id_should_error(
         self,
     ) -> None:
-        entity_type = EntityReferenceTestEntityOne
         dump: Dump = {
-            "entity_type": entity_type.plugin_id(),
+            "entity_type": DummyEntityOne.plugin.id,
             "entity": None,
         }
-        sut = EntityReference[EntityReferenceTestEntityOne]()
+        sut = EntityReference()
         with raises_error(error_type=UserFacingException):
             sut.load(dump)
 
     async def test_dump__with_constraint(self) -> None:
-        sut = EntityReference[Entity](Entity, None, entity_type_is_constrained=True)
+        sut = EntityReference(
+            DummyEntityOne.plugin, None, entity_type_is_constrained=True
+        )
         entity_id = "123"
         sut.entity_id = entity_id
         assert sut.dump() == entity_id
 
     async def test_dump__without_constraint(self) -> None:
-        sut = EntityReference[EntityReferenceTestEntityOne]()
-        entity_type = EntityReferenceTestEntityOne
+        sut = EntityReference()
+        entity_type = DummyEntityOne.plugin
         entity_id = "123"
-        sut.entity_type = entity_type.plugin_id()
+        sut.entity_type = entity_type.id
         sut.entity_id = entity_id
         expected = {
-            "entity_type": entity_type.plugin_id(),
+            "entity_type": entity_type.id,
             "entity": entity_id,
         }
         assert sut.dump() == expected
@@ -171,74 +147,55 @@ class TestEntityReference:
     async def test_validate__without_constraint_without_importable_entity_type_should_error(
         self,
     ) -> None:
-        sut = EntityReference[Entity]("betty.non_existent.Entity")
+        sut = EntityReference("betty.non_existent.Entity")
         with raises_error(error_type=UserFacingException):
-            await sut.validate(StaticPluginRepository(Entity))
+            await sut.validate(StaticPluginRepository(EntityDefinition))
 
 
-class TestEntityReferenceSequence(
-    ConfigurationSequenceTestBase[EntityReference[Entity]]
-):
-    @pytest.fixture(autouse=True)
-    def _entity_types(self, mocker: MockerFixture) -> None:
-        mocker.patch(
-            "betty.model.ENTITY_TYPE_REPOSITORY",
-            new=StaticPluginRepository(EntityReferenceSequenceTestEntity),
-        )
-
+class TestEntityReferenceSequence(ConfigurationSequenceTestBase[EntityReference]):
     @override
     async def get_sut(
-        self, configurations: Iterable[EntityReference[Entity]] | None = None
-    ) -> EntityReferenceSequence[Entity]:
+        self, configurations: Iterable[EntityReference] | None = None
+    ) -> EntityReferenceSequence:
         return EntityReferenceSequence(configurations)
 
     @override
     async def get_configurations(
         self,
     ) -> tuple[
-        EntityReference[Entity],
-        EntityReference[Entity],
-        EntityReference[Entity],
-        EntityReference[Entity],
+        EntityReference,
+        EntityReference,
+        EntityReference,
+        EntityReference,
     ]:
         return (
-            EntityReference[Entity](),
-            EntityReference[Entity](EntityReferenceSequenceTestEntity),
-            EntityReference[Entity](EntityReferenceSequenceTestEntity, "123"),
-            EntityReference[Entity](
-                EntityReferenceSequenceTestEntity,
+            EntityReference(),
+            EntityReference(DummyEntityOne.plugin),
+            EntityReference(DummyEntityOne.plugin, "123"),
+            EntityReference(
+                DummyEntityOne.plugin,
                 "123",
                 entity_type_is_constrained=True,
             ),
         )
 
-    async def test_pre_add_with_missing_required_entity_type(self) -> None:
-        class DummyConstraintedEntity(DummyEntity):
-            pass
-
-        sut = EntityReferenceSequence(entity_type_constraint=DummyConstraintedEntity)
-        with pytest.raises(UserFacingException):
-            sut.append(
-                EntityReference(DummyEntity)  # type: ignore[arg-type]
-            )
-
-    async def test_pre_add_with_invalid_required_entity_type(self) -> None:
-        class DummyConstraintedEntity(DummyEntity):
-            pass
-
-        sut = EntityReferenceSequence(entity_type_constraint=DummyConstraintedEntity)
+    async def test__pre_add__with_missing_required_entity_type(self) -> None:
+        sut = EntityReferenceSequence(entity_type_constraint=DummyEntityOne.plugin)
         with pytest.raises(UserFacingException):
             sut.append(EntityReference())
 
-    async def test_pre_add_with_valid_value(self) -> None:
-        sut = EntityReferenceSequence(entity_type_constraint=DummyEntity)
-        sut.append(EntityReference(DummyEntity))
+    async def test__pre_add__with_invalid_required_entity_type(self) -> None:
+        sut = EntityReferenceSequence(entity_type_constraint=DummyEntityOne.plugin)
+        with pytest.raises(UserFacingException):
+            sut.append(EntityReference(DummyEntityTwo.plugin))
+
+    async def test__pre_add__with_valid_value(self) -> None:
+        sut = EntityReferenceSequence(entity_type_constraint=DummyEntityOne.plugin)
+        sut.append(EntityReference(DummyEntityOne.plugin))
 
     async def test_validate__with_invalid_item(
         self,
     ) -> None:
-        sut = EntityReferenceSequence[Entity](
-            [EntityReference("betty.non_existent.Entity")]
-        )
+        sut = EntityReferenceSequence([EntityReference("betty.non_existent.Entity")])
         with raises_error(error_type=UserFacingException):
-            await sut.validate(StaticPluginRepository(Entity))
+            await sut.validate(StaticPluginRepository(EntityDefinition))

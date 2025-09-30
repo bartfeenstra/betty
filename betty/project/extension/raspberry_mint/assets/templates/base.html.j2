@@ -19,7 +19,7 @@
                 {% block page_summary %}
                     {% if page_resource is entity_plugin %}
                         {% with entity = page_resource %}
-                            {% include 'entity/summary--' + entity.plugin_id() + '.html.j2' ignore missing %}
+                            {% include 'entity/summary--' + entity.plugin.id + '.html.j2' ignore missing %}
                         {% endwith %}
                     {% endif %}
                 {% endblock %}

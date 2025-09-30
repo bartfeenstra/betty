@@ -27,7 +27,7 @@ async def test_with_non_unknown_place_type() -> None:
         extensions={RaspberryMint},
         template="entity/summary--place.html.j2",
     ) as (actual, _):
-        assert Country.plugin_label().localize(DEFAULT_LOCALIZER) in actual
+        assert Country.plugin.label.localize(DEFAULT_LOCALIZER) in actual
 
 
 async def test_with_encloser() -> None:

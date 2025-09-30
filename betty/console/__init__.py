@@ -16,7 +16,7 @@ from typing_extensions import override
 from betty import about
 from betty.app import App
 from betty.console import command
-from betty.console.command import COMMAND_REPOSITORY, Command, CommandFunction
+from betty.console.command import COMMAND_REPOSITORY, CommandDefinition, CommandFunction
 from betty.exception import UserFacingException
 from betty.locale.localizable import _
 from betty.locale.localizer import Localizer
@@ -106,14 +106,14 @@ def _create_formatter_class(*, localizer: Localizer) -> type[argparse.HelpFormat
 async def _create_command_parser(
     app: App,
     subparsers: argparse._SubParsersAction,  # type: ignore[type-arg]
-    command_plugin: type[Command],
+    command_plugin: CommandDefinition,
     formatter_class: type[argparse.HelpFormatter],
 ) -> argparse.ArgumentParser:
     localizer = await app.localizer
-    command = await app.new_target(command_plugin)
+    command = await app.new_target(command_plugin.cls)
     command_parser: argparse.ArgumentParser = subparsers.add_parser(
-        command.plugin_id(),
-        description=command.plugin_label().localize(localizer),
+        command.plugin.id,
+        description=command.plugin.label.localize(localizer),
         exit_on_error=False,
         formatter_class=formatter_class,
     )
@@ -153,9 +153,9 @@ async def _create_command_parser(
 async def _create_list_commands_action_class(
     *, localizer: Localizer
 ) -> type[argparse.Action]:
-    commands = sorted(
+    command_definitions = sorted(
         [plugin async for plugin in COMMAND_REPOSITORY],
-        key=lambda command: command.plugin_id(),
+        key=lambda command_definition: command_definition.id,
     )
 
     class _ListCommandsAction(argparse.Action):
@@ -190,17 +190,17 @@ async def _create_list_commands_action_class(
             usage = localizer._("Usage: ")
             for (
                 index,
-                command,  # noqa F402
-            ) in enumerate(commands):
+                command_definition,  # noqa F402
+            ) in enumerate(command_definitions):
                 if index != 0:
                     rich.print("")
                 rich.print(
-                    f"[dark_orange]{command.plugin_label().localize(localizer)}:[/]"
+                    f"[dark_orange]{command_definition.label.localize(localizer)}:[/]"
                 )
                 rich.print(
-                    f"  [cyan]{usage}[/][grey50]{parser.prog} {command.plugin_id()}[/]"
+                    f"  [cyan]{usage}[/][grey50]{parser.prog} {command_definition.id}[/]"
                 )
-                description = command.plugin_description()
+                description = command_definition.description
                 if description is not None:
                     rich.print(f"  {description.localize(localizer)}")
             raise SystemExit(SystemExitCode.OK)

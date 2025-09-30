@@ -4,15 +4,15 @@ import asyncio
 from pathlib import Path
 from typing import TYPE_CHECKING, final, Self
 
+from typing_extensions import override
+
+import betty.project.extension.demo as stddemo
 from betty.app.factory import AppDependentFactory
 from betty.cache.memory import MemoryCache
-from betty.console.command import Command, CommandFunction
+from betty.console.command import Command, CommandFunction, CommandDefinition
 from betty.locale.localizable import _
-from betty.plugin import ShorthandPluginBase
-import betty.project.extension.demo as stddemo
 from betty.project import ProjectContext
 from betty.project.extension.demo.project import create_project
-from typing_extensions import override
 
 if TYPE_CHECKING:
     import argparse
@@ -21,13 +21,14 @@ if TYPE_CHECKING:
 
 
 @final
-class Demo(ShorthandPluginBase, AppDependentFactory, Command):
+@CommandDefinition(
+    id="demo",
+    label=_("Explore a demonstration site"),
+)
+class Demo(AppDependentFactory, Command):
     """
     A command to run the demonstration site.
     """
-
-    _plugin_id = "demo"
-    _plugin_label = _("Explore a demonstration site")
 
     def __init__(self, app: App):
         self._app = app

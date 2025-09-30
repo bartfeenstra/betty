@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Any
+from typing import TYPE_CHECKING, Any, cast
 
 import pytest
 from typing_extensions import override
@@ -18,25 +18,28 @@ from betty.ancestry.presence_role.presence_roles import Subject
 from betty.ancestry.source import Source
 from betty.locale import DEFAULT_LOCALE
 from betty.locale.localizable import Plain
+from betty.model import Entity
 from betty.model.association import AssociationRequired, TemporaryToOneResolver
 from betty.privacy import Privacy
-from betty.test_utils.ancestry.gender import DummyGender
 from betty.test_utils.json.linked_data import assert_dumps_linked_data
-from betty.test_utils.model import EntityTestBase
+from betty.test_utils.model import EntityDefinitionTestBase, EntityTestBase
 
 if TYPE_CHECKING:
     from collections.abc import Mapping, Sequence
 
-    from betty.model import Entity
+    from betty.plugin import PluginDefinition
+
+
+class TestPersonDefinition(EntityDefinitionTestBase):
+    @override
+    @pytest.fixture
+    def sut(self) -> PluginDefinition:
+        return Person.plugin
 
 
 class TestPerson(EntityTestBase):
-    @override
-    def get_sut_class(self) -> type[Person]:
-        return Person
-
-    @override
-    async def get_sut_instances(self) -> Sequence[Entity]:
+    @staticmethod
+    def _sut_params() -> Sequence[Entity]:
         person_with_private_names_only = Person()
         PersonName(
             person=person_with_private_names_only,
@@ -53,6 +56,11 @@ class TestPerson(EntityTestBase):
             person_with_private_names_only,
             person_with_one_public_name,
         ]
+
+    @override
+    @pytest.fixture(params=_sut_params())
+    async def sut(self, request: pytest.FixtureRequest) -> Entity:
+        return cast(Entity, request.param)
 
     async def test___init____with_children(self) -> None:
         child = Person()
@@ -206,7 +214,7 @@ class TestPerson(EntityTestBase):
             "@type": "https://schema.org/Person",
             "id": person_id,
             "private": False,
-            "gender": UnknownGender.plugin_id(),
+            "gender": UnknownGender.plugin.id,
             "names": [],
             "parents": [],
             "children": [],
@@ -277,7 +285,7 @@ class TestPerson(EntityTestBase):
             "@type": "https://schema.org/Person",
             "id": person_id,
             "private": False,
-            "gender": NonBinary.plugin_id(),
+            "gender": NonBinary.plugin.id,
             "names": [
                 {
                     "@context": {
@@ -435,7 +443,7 @@ class TestPerson(EntityTestBase):
         assert actual == expected
 
     def test_gender(self) -> None:
-        gender = DummyGender()
+        gender = NonBinary()
         sut = Person()
         sut.gender = gender
         assert sut.gender is gender

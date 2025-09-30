@@ -4,30 +4,31 @@ Data types to reference files on disk.
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING
-
-from typing_extensions import override
+from typing import TYPE_CHECKING, final
 
 from betty.ancestry.file import File
-from betty.locale.localizable import Localizable, _, ngettext
-from betty.model import Entity
+from betty.locale.localizable import _, ngettext
+from betty.model import Entity, EntityDefinition
 from betty.model.association import BidirectionalToOne, ToOneAssociate
-from betty.plugin import ShorthandPluginBase
 
 if TYPE_CHECKING:
     from betty.ancestry.has_file_references import HasFileReferences
     from betty.image import FocusArea
 
 
-class FileReference(ShorthandPluginBase, Entity):
+@final
+@EntityDefinition(
+    id="file-reference",
+    label=_("File reference"),
+    label_plural=_("File references"),
+    label_countable=ngettext("{count} file reference", "{count} file references"),
+)
+class FileReference(Entity):
     """
     A reference between :py:class:`betty.ancestry.has_file_references.HasFileReferences` and betty.ancestry.file.File.
 
     This reference holds additional information specific to the relationship between the two entities.
     """
-
-    _plugin_id = "file-reference"
-    _plugin_label = _("File reference")
 
     #: The entity that references the file.
     referee = BidirectionalToOne["FileReference", "HasFileReferences"](
@@ -59,18 +60,6 @@ class FileReference(ShorthandPluginBase, Entity):
         self.referee = referee
         self.file = file
         self.focus = focus
-
-    @override
-    @classmethod
-    def plugin_label_plural(cls) -> Localizable:
-        return _("File references")
-
-    @override
-    @classmethod
-    def plugin_label_count(cls, count: int) -> Localizable:
-        return ngettext(
-            "{count} file reference", "{count} file references", count
-        ).format(count=str(count))
 
     @property
     def focus(self) -> FocusArea | None:

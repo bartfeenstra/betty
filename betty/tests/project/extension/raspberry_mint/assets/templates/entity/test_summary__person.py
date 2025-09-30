@@ -67,8 +67,8 @@ async def test_private() -> None:
         template="entity/summary--person.html.j2",
     ) as (actual, _):
         assert individual_name not in actual
-        assert birth.event_type.plugin_label().localize(DEFAULT_LOCALIZER) not in actual
-        assert death.event_type.plugin_label().localize(DEFAULT_LOCALIZER) not in actual
+        assert birth.event_type.plugin.label.localize(DEFAULT_LOCALIZER) not in actual
+        assert death.event_type.plugin.label.localize(DEFAULT_LOCALIZER) not in actual
         assert "#reference" not in actual
 
 
@@ -127,7 +127,7 @@ async def test_with_start_of_life_event() -> None:
         extensions={RaspberryMint},
         template="entity/summary--person.html.j2",
     ) as (actual, _):
-        assert birth.event_type.plugin_label().localize(DEFAULT_LOCALIZER) in actual
+        assert birth.event_type.plugin.label.localize(DEFAULT_LOCALIZER) in actual
         assert "#reference" in actual
 
 
@@ -143,7 +143,7 @@ async def test_with_end_of_life_event() -> None:
         extensions={RaspberryMint},
         template="entity/summary--person.html.j2",
     ) as (actual, _):
-        assert death.event_type.plugin_label().localize(DEFAULT_LOCALIZER) in actual
+        assert death.event_type.plugin.label.localize(DEFAULT_LOCALIZER) in actual
         assert "#reference" in actual
 
 
@@ -156,4 +156,4 @@ async def test_with_gender() -> None:
         extensions={RaspberryMint},
         template="entity/summary--person.html.j2",
     ) as (actual, _):
-        assert NonBinary.plugin_label().localize(DEFAULT_LOCALIZER) in actual
+        assert NonBinary.plugin.label.localize(DEFAULT_LOCALIZER) in actual

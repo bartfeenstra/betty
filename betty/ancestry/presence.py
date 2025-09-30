@@ -9,15 +9,9 @@ from typing import TYPE_CHECKING, final
 from typing_extensions import override
 
 from betty.locale.localizable import Localizable, _, ngettext
-from betty.model import Entity
+from betty.model import Entity, EntityDefinition
 from betty.model.association import BidirectionalToOne, ToOneAssociate
-from betty.plugin import ShorthandPluginBase
-from betty.privacy import (
-    HasPrivacy,
-    Privacy,
-    is_public,
-    merge_secondary_privacies,
-)
+from betty.privacy import HasPrivacy, Privacy, is_public, merge_secondary_privacies
 
 if TYPE_CHECKING:
     from collections.abc import Iterable
@@ -32,13 +26,16 @@ if TYPE_CHECKING:
 
 
 @final
-class Presence(ShorthandPluginBase, HasPrivacy, Entity):
+@EntityDefinition(
+    id="presence",
+    label=_("Presence"),
+    label_plural=_("Presences"),
+    label_countable=ngettext("{count} presence", "{count} presences"),
+)
+class Presence(HasPrivacy, Entity):
     """
     The presence of a :py:class:`betty.ancestry.person.Person` at an :py:class:`betty.ancestry.event.Event`.
     """
-
-    _plugin_id = "presence"
-    _plugin_label = _("Presence")
 
     #: The person whose presence is described.
     person = BidirectionalToOne["Presence", "Person"](
@@ -79,18 +76,6 @@ class Presence(ShorthandPluginBase, HasPrivacy, Entity):
         return (self.role,)
 
     @override
-    @classmethod
-    def plugin_label_plural(cls) -> Localizable:
-        return _("Presences")
-
-    @override
-    @classmethod
-    def plugin_label_count(cls, count: int) -> Localizable:
-        return ngettext("{count} presence", "{count} presences", count).format(
-            count=str(count)
-        )
-
-    @override
     @property
     def label(self) -> Localizable:
         return _("Presence of {person} at {event}").format(
@@ -119,5 +104,5 @@ class Presence(ShorthandPluginBase, HasPrivacy, Entity):
     async def dump_linked_data(self, project: Project) -> DumpMapping[Dump]:
         dump = await super().dump_linked_data(project)
         if is_public(self):
-            dump["role"] = self.role.plugin_id()
+            dump["role"] = self.role.plugin.id
         return dump

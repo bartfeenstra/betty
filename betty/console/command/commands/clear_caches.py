@@ -9,9 +9,8 @@ from typing import TYPE_CHECKING, Self, final
 from typing_extensions import override
 
 from betty.app.factory import AppDependentFactory
-from betty.console.command import Command, CommandFunction
+from betty.console.command import Command, CommandFunction, CommandDefinition
 from betty.locale.localizable import _
-from betty.plugin import ShorthandPluginBase
 
 if TYPE_CHECKING:
     import argparse
@@ -23,13 +22,14 @@ _LEGACY_CACHE_DIRECTORY_PATH = Path.home() / ".betty" / "cache"
 
 
 @final
-class ClearCaches(ShorthandPluginBase, AppDependentFactory, Command):
+@CommandDefinition(
+    id="clear-caches",
+    label=_("Clear all caches"),
+)
+class ClearCaches(AppDependentFactory, Command):
     """
     A command to clear all Betty caches.
     """
-
-    _plugin_id = "clear-caches"
-    _plugin_label = _("Clear all caches")
 
     def __init__(self, app: App):
         self._app = app

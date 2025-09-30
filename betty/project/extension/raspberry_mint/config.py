@@ -16,10 +16,8 @@ from betty.project.extension._theme import ColorConfiguration
 if TYPE_CHECKING:
     from collections.abc import Iterable, Sequence
 
-    from betty.model import Entity
     from betty.mutability import Mutable
     from betty.serde.dump import Dump, DumpMapping
-    from betty.user import UserFacing
 
 
 class RaspberryMintConfiguration(Configuration):
@@ -34,17 +32,13 @@ class RaspberryMintConfiguration(Configuration):
     def __init__(
         self,
         *,
-        featured_entities: (
-            Sequence[EntityReference[UserFacing & Entity]] | None
-        ) = None,
+        featured_entities: (Sequence[EntityReference] | None) = None,
         primary_color: str = DEFAULT_PRIMARY_COLOR,
         secondary_color: str = DEFAULT_SECONDARY_COLOR,
         tertiary_color: str = DEFAULT_TERTIARY_COLOR,
     ):
         super().__init__()
-        self._featured_entities = EntityReferenceSequence["UserFacing & Entity"](
-            featured_entities or ()
-        )
+        self._featured_entities = EntityReferenceSequence(featured_entities or ())
         self._primary_color = ColorConfiguration(primary_color)
         self._secondary_color = ColorConfiguration(secondary_color)
         self._tertiary_color = ColorConfiguration(tertiary_color)
@@ -59,7 +53,7 @@ class RaspberryMintConfiguration(Configuration):
         )
 
     @property
-    def featured_entities(self) -> EntityReferenceSequence[UserFacing & Entity]:
+    def featured_entities(self) -> EntityReferenceSequence:
         """
         The entities featured on the front page.
         """

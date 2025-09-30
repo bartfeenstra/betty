@@ -90,6 +90,8 @@ class CountableLocalizable(_Localizable["CountableLocalizable"]):
     def count(self, count: int) -> Localizable:
         """
         Create a localizable for the given count (number of things).
+
+        Implementations MUST automatically format the returned localizable with a ``{count}`` argument set to ``count``.
         """
 
     @override
@@ -170,7 +172,7 @@ class _CountableGettextLocalizable(CountableLocalizable):
     def count(self, count: int) -> Localizable:
         return _GettextLocalizable(
             self._gettext_method_name, *self._gettext_args, count
-        )
+        ).format(count=str(count))
 
 
 def gettext(message: str) -> Localizable:
@@ -318,7 +320,9 @@ class _FormattedCountableLocalizable(CountableLocalizable):
     @override
     def count(self, count: int) -> Localizable:
         return _FormattedLocalizable(
-            self._localizable.count(count), self._format_args, self._format_kwargs
+            self._localizable.count(count),
+            self._format_args,
+            {**self._format_kwargs, "count": str(count)},
         )
 
 

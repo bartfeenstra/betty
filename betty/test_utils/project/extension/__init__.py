@@ -2,84 +2,79 @@
 Test utilities for :py:mod:`betty.project.extension`.
 """
 
-from typing import Generic, TypeVar
+from typing import final
 
+import pytest
 from typing_extensions import override
 
 from betty.app import App
+from betty.locale.localizable import Plain
 from betty.project import Project
-from betty.project.extension import ConfigurableExtension, Extension
+from betty.project.extension import (
+    ConfigurableExtension,
+    Extension,
+    ExtensionDefinition,
+)
 from betty.test_utils.config import DummyConfiguration
 from betty.test_utils.plugin import (
-    DummyPluginBase,
-    PluginTestBase,
-    assert_plugin_identifier,
+    ClassedPluginDefinitionTestBase,
+    DependentPluginDefinitionTestBase,
+    OrderedPluginDefinitionTestBase,
+    UserFacingPluginDefinitionTestBase,
 )
 
-_ExtensionT = TypeVar("_ExtensionT", bound=Extension)
+
+class ExtensionDefinitionTestBase(
+    UserFacingPluginDefinitionTestBase,
+    ClassedPluginDefinitionTestBase,
+    DependentPluginDefinitionTestBase,
+    OrderedPluginDefinitionTestBase,
+):
+    """
+    A base class for testing :py:class:`betty.project.extension.ExtensionDefinition` implementations.
+    """
 
 
-class ExtensionTestBase(Generic[_ExtensionT], PluginTestBase[_ExtensionT]):
+class ExtensionTestBase:
     """
     A base class for testing :py:class:`betty.project.extension.Extension` implementations.
     """
 
-    async def test_new_for_project(self, new_temporary_app: App) -> None:
+    @pytest.fixture
+    def sut(self) -> Extension:
+        """
+        Provide the system(s) under test.
+        """
+        raise NotImplementedError
+
+    async def test_new_for_project(
+        self, new_temporary_app: App, sut: Extension
+    ) -> None:
         """
         Tests :py:meth:`betty.project.extension.Extension.new_for_project` implementations.
         """
         async with Project.new_temporary(new_temporary_app) as project, project:
-            sut = await self.get_sut_class().new_for_project(project)
+            sut = await type(sut).new_for_project(project)
             assert sut.project == project
 
-    async def test_assets_directory_path(self) -> None:
-        """
-        Tests :py:meth:`betty.project.extension.Extension.assets_directory_path` implementations.
-        """
-        assets_directory_path = self.get_sut_class().assets_directory_path()
-        if assets_directory_path is not None:
-            assert assets_directory_path.is_dir()
 
-    async def test_depends_on(self) -> None:
-        """
-        Tests :py:meth:`betty.project.extension.Extension.depends_on` implementations.
-        """
-        for extension_id in self.get_sut_class().depends_on():
-            assert_plugin_identifier(
-                extension_id,
-                Extension,  # type: ignore[type-abstract]
-            )
-
-    async def test_comes_after(self) -> None:
-        """
-        Tests :py:meth:`betty.project.extension.Extension.comes_after` implementations.
-        """
-        for extension_id in self.get_sut_class().comes_after():
-            assert_plugin_identifier(
-                extension_id,
-                Extension,  # type: ignore[type-abstract]
-            )
-
-    async def test_comes_before(self) -> None:
-        """
-        Tests :py:meth:`betty.project.extension.Extension.comes_before` implementations.
-        """
-        for extension_id in self.get_sut_class().comes_before():
-            assert_plugin_identifier(
-                extension_id,
-                Extension,  # type: ignore[type-abstract]
-            )
-
-
-class DummyExtension(DummyPluginBase, Extension):
+@final
+@ExtensionDefinition(
+    id="dummy",
+    label=Plain(""),
+)
+class DummyExtension(Extension):
     """
     A dummy :py:class:`betty.project.extension.Extension` implementation.
     """
 
 
-class DummyConfigurableExtension(
-    DummyExtension, ConfigurableExtension[DummyConfiguration]
-):
+@final
+@ExtensionDefinition(
+    id="dummy-configurable",
+    label=Plain(""),
+)
+class DummyConfigurableExtension(ConfigurableExtension[DummyConfiguration]):
     """
     A dummy :py:class:`betty.project.extension.ConfigurableExtension` implementation.
     """

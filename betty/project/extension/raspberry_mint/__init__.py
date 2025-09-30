@@ -11,17 +11,13 @@ from typing import TYPE_CHECKING, final
 import aiofiles
 from typing_extensions import override
 
-from betty.jinja2 import (
-    Filters,
-    Jinja2Provider,
-)
+from betty.jinja2 import Filters, Jinja2Provider
 from betty.job import Job
-from betty.locale.localizable import Join, Plain, StaticTranslations, _
+from betty.locale.localizable import Join, Plain, _
 from betty.locale.localizer import DEFAULT_LOCALIZER
 from betty.os import link_or_copy
-from betty.plugin import ShorthandPluginBase
 from betty.project import ProjectContext
-from betty.project.extension import ConfigurableExtension, Extension, Theme
+from betty.project.extension import ConfigurableExtension, ExtensionDefinition
 from betty.project.extension._theme import jinja2_filters
 from betty.project.extension._theme.search import generate_search_index
 from betty.project.extension.maps import Maps
@@ -35,7 +31,6 @@ if TYPE_CHECKING:
     from collections.abc import Sequence
 
     from betty.job.scheduler import Scheduler
-    from betty.plugin import PluginIdentifier
 
 
 class _GenerateLogo(Job[ProjectContext]):
@@ -108,9 +103,15 @@ class _GenerateWebmanifest(Job[ProjectContext]):
 
 
 @final
+@ExtensionDefinition(
+    id="raspberry-mint",
+    label=Plain("Raspberry Mint"),
+    depends_on={Webpack.plugin},
+    comes_before={Maps.plugin, Trees.plugin},
+    theme=True,
+    assets_directory_path=Path(__file__).parent / "assets",
+)
 class RaspberryMint(
-    ShorthandPluginBase,
-    Theme,
     ConfigurableExtension[RaspberryMintConfiguration],
     Jinja2Provider,
     Generator,
@@ -119,9 +120,6 @@ class RaspberryMint(
     """
     The Raspberry Mint theme.
     """
-
-    _plugin_id = "raspberry-mint"
-    _plugin_label = StaticTranslations("Raspberry Mint")
 
     @override
     async def bootstrap(self) -> None:
@@ -144,21 +142,6 @@ class RaspberryMint(
             _GenerateSearchIndex(),
             _GenerateWebmanifest(),
         )
-
-    @override
-    @classmethod
-    def depends_on(cls) -> set[PluginIdentifier[Extension]]:
-        return {Webpack}
-
-    @override
-    @classmethod
-    def comes_before(cls) -> set[PluginIdentifier[Extension]]:
-        return {Maps, Trees}
-
-    @override
-    @classmethod
-    def assets_directory_path(cls) -> Path:
-        return Path(__file__).parent / "assets"
 
     @override
     @classmethod

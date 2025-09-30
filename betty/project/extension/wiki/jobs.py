@@ -37,7 +37,7 @@ class PopulateEntity(Job[ProjectContext]):
         """
         Get the job ID.
         """
-        return f"wiki:populate:{entity.plugin_id()}:{entity.id}"
+        return f"wiki:populate:{entity.plugin.id}:{entity.id}"
 
     @override
     async def do(self, scheduler: Scheduler[ProjectContext], /) -> None:

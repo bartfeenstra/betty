@@ -2,42 +2,51 @@
 Provide concrete gender implementations.
 """
 
-from betty.ancestry.gender import Gender
+from typing import final
+
+from betty.ancestry.gender import Gender, GenderDefinition
 from betty.locale.localizable import _
-from betty.plugin import ShorthandPluginBase
 
 
-class Female(ShorthandPluginBase, Gender):
+@final
+@GenderDefinition(
+    id="female",
+    label=_("Female"),
+)
+class Female(Gender):
     """
     A female person.
     """
 
-    _plugin_id = "female"
-    _plugin_label = _("Female")
 
-
-class Male(ShorthandPluginBase, Gender):
+@final
+@GenderDefinition(
+    id="male",
+    label=_("Male"),
+)
+class Male(Gender):
     """
     A male person.
     """
 
-    _plugin_id = "male"
-    _plugin_label = _("Male")
 
-
-class NonBinary(ShorthandPluginBase, Gender):
+@final
+@GenderDefinition(
+    id="non-binary",
+    label=_("Non-binary"),
+)
+class NonBinary(Gender):
     """
     A non-binary person.
     """
 
-    _plugin_id = "non-binary"
-    _plugin_label = _("Non-binary")
 
-
-class Unknown(ShorthandPluginBase, Gender):
+@final
+@GenderDefinition(
+    id="unknown",
+    label=_("Unknown"),
+)
+class Unknown(Gender):
     """
     A person of an unknown gender.
     """
-
-    _plugin_id = "unknown"
-    _plugin_label = _("Unknown")

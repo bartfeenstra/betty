@@ -186,13 +186,13 @@ class Builder:
                 localizer=self._user.localizer,
             ),
         )
-        npm_project_package_json_dependencies[entry_point_provider.plugin_id()] = (
+        npm_project_package_json_dependencies[entry_point_provider.plugin.id] = (
             # Ensure a relative path inside the npm project directory, or else npm
             # will not install our entry points' dependencies.
             f"file:{entry_point_provider_working_directory_path.relative_to(npm_project_directory_path)}"
         )
         # Webpack requires relative paths to start with a leading dot and use forward slashes.
-        webpack_entry[entry_point_provider.plugin_id()] = "/".join(
+        webpack_entry[entry_point_provider.plugin.id] = "/".join(
             (
                 ".",
                 *(entry_point_provider_working_directory_path / "main.ts")

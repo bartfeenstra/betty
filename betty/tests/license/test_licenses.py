@@ -1,5 +1,5 @@
 import tarfile
-from collections.abc import Iterator, Sequence
+from collections.abc import Iterator
 from json import dumps
 from pathlib import Path
 from typing import TYPE_CHECKING
@@ -19,36 +19,40 @@ from betty.license.licenses import (
 )
 from betty.locale.localizer import DEFAULT_LOCALIZER
 from betty.multiprocessing import ProcessPoolExecutor
-from betty.plugin import PluginNotFound
-from betty.test_utils.license import LicenseTestBase
+from betty.plugin import PluginDefinition, PluginNotFound
+from betty.test_utils.license import LicenseDefinitionTestBase, LicenseTestBase
 from betty.test_utils.user import StaticUser
 
 if TYPE_CHECKING:
     from betty.serde.dump import Dump, DumpMapping
 
 
+class TestAllRightsReservedDefinition(LicenseDefinitionTestBase):
+    @override
+    @pytest.fixture
+    def sut(self) -> PluginDefinition:
+        return AllRightsReserved.plugin
+
+
 class TestAllRightsReserved(LicenseTestBase):
     @override
-    def get_sut_class(self) -> type[License]:
-        return AllRightsReserved
+    @pytest.fixture
+    def sut(self) -> License:
+        return AllRightsReserved()
 
+
+class TestPublicDomainDefinition(LicenseDefinitionTestBase):
     @override
-    def get_sut_instances(self) -> Sequence[License]:
-        return [
-            AllRightsReserved(),
-        ]
+    @pytest.fixture
+    def sut(self) -> PluginDefinition:
+        return PublicDomain.plugin
 
 
 class TestPublicDomain(LicenseTestBase):
     @override
-    def get_sut_class(self) -> type[License]:
-        return PublicDomain
-
-    @override
-    def get_sut_instances(self) -> Sequence[License]:
-        return [
-            PublicDomain(),
-        ]
+    @pytest.fixture
+    def sut(self) -> License:
+        return PublicDomain()
 
 
 @pytest.mark.parametrize(
@@ -193,10 +197,9 @@ class TestSpdxLicenseRepository:
     async def test_get(self, sut_with_licenses: SpdxLicenseRepository) -> None:
         zero_bsd_type = await sut_with_licenses.get("spdx-0bsd")
         assert (
-            zero_bsd_type.plugin_label().localize(DEFAULT_LOCALIZER)
-            == "BSD Zero Clause License"
+            zero_bsd_type.label.localize(DEFAULT_LOCALIZER) == "BSD Zero Clause License"
         )
-        zero_bsd = await new(zero_bsd_type)
+        zero_bsd = await new(zero_bsd_type.cls)
         assert zero_bsd.summary.localize(DEFAULT_LOCALIZER) == "BSD Zero Clause License"
         assert (
             zero_bsd.text.localize(DEFAULT_LOCALIZER)
@@ -219,9 +222,7 @@ class TestSpdxLicenseRepository:
             await sut_without_licenses.get("unknown-license")
 
     async def test___aiter__(self, sut_with_licenses: SpdxLicenseRepository) -> None:
-        assert [plugin.plugin_id() async for plugin in sut_with_licenses] == [
-            "spdx-0bsd"
-        ]
+        assert [plugin.id async for plugin in sut_with_licenses] == ["spdx-0bsd"]
 
     async def test___aiter___without_plugins(
         self, sut_without_licenses: SpdxLicenseRepository

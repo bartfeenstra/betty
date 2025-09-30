@@ -6,7 +6,7 @@ import pytest
 from typing_extensions import override
 
 from betty.exception import UserFacingException
-from betty.model import ENTITY_TYPE_REPOSITORY, Entity
+from betty.model import ENTITY_TYPE_REPOSITORY, EntityDefinition
 from betty.model.config import EntityReference
 from betty.plugin.proxy import ProxyPluginRepository
 from betty.plugin.static import StaticPluginRepository
@@ -14,25 +14,25 @@ from betty.project import Project
 from betty.project.config import EntityTypeConfiguration
 from betty.project.extension.raspberry_mint import RaspberryMint
 from betty.project.generate import generate
-from betty.test_utils.model import DummyUserFacingEntity
-from betty.test_utils.project.extension import ExtensionTestBase
+from betty.test_utils.model import DummyUserFacingEntityOne
 from betty.test_utils.project.extension.webpack.build import EntryPointProviderTestBase
 
 if TYPE_CHECKING:
     from pytest_mock import MockerFixture
 
     from betty.app import App
+    from betty.project.extension import Extension
 
 
-class TestRaspberryMint(EntryPointProviderTestBase, ExtensionTestBase[RaspberryMint]):
+class TestRaspberryMint(EntryPointProviderTestBase):
     @override
-    def get_sut_class(self) -> type[RaspberryMint]:
-        return RaspberryMint
-
-    async def test_filters(self, new_temporary_app: App) -> None:
+    @pytest.fixture
+    async def sut(self, new_temporary_app: App) -> Extension:
         async with Project.new_temporary(new_temporary_app) as project, project:
-            sut = await project.new_target(self.get_sut_class())
-            assert len(sut.filters)
+            return await RaspberryMint.new_for_project(project)
+
+    async def test_filters(self, sut: RaspberryMint) -> None:
+        assert sut.filters
 
     async def test_bootstrap__should_validate_featured_entities_configuration(
         self, new_temporary_app: App
@@ -52,20 +52,24 @@ class TestRaspberryMint(EntryPointProviderTestBase, ExtensionTestBase[RaspberryM
         mocker.patch(
             "betty.model.ENTITY_TYPE_REPOSITORY",
             new=ProxyPluginRepository(
-                Entity,
-                StaticPluginRepository(Entity, DummyUserFacingEntity),
+                EntityDefinition,
+                StaticPluginRepository(
+                    EntityDefinition, DummyUserFacingEntityOne.plugin
+                ),
                 ENTITY_TYPE_REPOSITORY,
             ),
         )
         async with Project.new_temporary(new_temporary_app) as project:
             project.configuration.extensions.enable(RaspberryMint)
             project.configuration.entity_types.replace(
-                EntityTypeConfiguration(DummyUserFacingEntity, generate_html_list=True)
+                EntityTypeConfiguration(
+                    DummyUserFacingEntityOne, generate_html_list=True
+                )
             )
             async with project:
                 await generate(project)
             assert (
                 project.configuration.www_directory_path
-                / DummyUserFacingEntity.plugin_id()
+                / DummyUserFacingEntityOne.plugin.id
                 / "index.html"
             ).is_file()

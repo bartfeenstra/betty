@@ -4,40 +4,33 @@ Provide Betty's default Jinja2 tests.
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Any, Generic, TypeVar
+from typing import TYPE_CHECKING, Any, TypeVar
 
-from betty.ancestry.event_type import EventType
-from betty.ancestry.event_type.event_types import (
-    EndOfLifeEventType,
-    StartOfLifeEventType,
-)
-from betty.ancestry.gender import Gender
+from betty.ancestry.event_type import EventTypeDefinition
+from betty.ancestry.gender import GenderDefinition
 from betty.ancestry.has_file_references import HasFileReferences
 from betty.ancestry.has_links import HasLinks
-from betty.ancestry.place_type import PlaceType
-from betty.ancestry.presence_role import PresenceRole
-from betty.copyright_notice import CopyrightNotice
+from betty.ancestry.place_type import PlaceTypeDefinition
+from betty.ancestry.presence_role import PresenceRoleDefinition
+from betty.copyright_notice import CopyrightNoticeDefinition
 from betty.date import DateRange
 from betty.image import is_supported_media_type
 from betty.json.linked_data import LinkedDataDumpable
-from betty.license import License
-from betty.model import (
-    Entity,
-    persistent_id,
-)
-from betty.plugin import Plugin
+from betty.license import LicenseDefinition
+from betty.model import EntityDefinition, persistent_id
+from betty.plugin import ClassedPluginTypeDefinition, PluginDefinition
 from betty.privacy import is_private, is_public
+from betty.string import kebab_case_to_snake_case
 from betty.typing import internal
 from betty.user import UserFacing
 
 if TYPE_CHECKING:
     from collections.abc import Callable, Mapping
 
-    from betty.ancestry.event import Event
     from betty.machine_name import MachineName
     from betty.media_type import MediaType
 
-_PluginT = TypeVar("_PluginT", bound=Plugin)
+_PluginDefinitionCoT = TypeVar("_PluginDefinitionCoT", bound=PluginDefinition)
 
 
 def test_linked_data_dumpable(value: Any) -> bool:
@@ -47,30 +40,28 @@ def test_linked_data_dumpable(value: Any) -> bool:
     return isinstance(value, LinkedDataDumpable)
 
 
-class PluginTester(Generic[_PluginT]):
+class PluginTester:
     """
     Provides tests for a specific plugin type.
     """
 
-    def __init__(self, plugin_type: type[_PluginT], plugin_type_name: str):
+    def __init__(self, plugin_type: ClassedPluginTypeDefinition):
         self._plugin_type = plugin_type
-        self._plugin_type_name = plugin_type_name
 
     def tests(self) -> Mapping[str, Callable[..., bool]]:
         """
         Get the available tests, keyed by test name.
         """
-        return {f"{self._plugin_type_name}_plugin": self}
+        return {f"{kebab_case_to_snake_case(self._plugin_type.id)}_plugin": self}
 
-    def __call__(
-        self, value: Any, plugin_identifier: MachineName | None = None
-    ) -> bool:
+    def __call__(self, value: Any, plugin_id: MachineName | None = None) -> bool:
         """
-        :param entity_type_id: If given, additionally ensure the value is an entity of this type.
+        :param entity_type_id: If given, additionally ensure the value is an instance of this type.
         """
-        if not isinstance(value, self._plugin_type):
+        assert self._plugin_type.cls is not None
+        if not isinstance(value, self._plugin_type.cls):
             return False
-        if plugin_identifier is not None and value.plugin_id() != plugin_identifier:
+        if plugin_id is not None and value.plugin.id != plugin_id:  # type: ignore[attr-defined]
             return False
         return True
 
@@ -103,20 +94,6 @@ def test_date_range(value: Any) -> bool:
     return isinstance(value, DateRange)
 
 
-def test_start_of_life_event(event: Event) -> bool:
-    """
-    Test if an event is a start-of-life event.
-    """
-    return isinstance(event.event_type, StartOfLifeEventType)
-
-
-def test_end_of_life_event(event: Event) -> bool:
-    """
-    Test if an event is an end-of-life event.
-    """
-    return isinstance(event.event_type, EndOfLifeEventType)
-
-
 def test_image_supported_media_type(media_type: MediaType | None) -> bool:
     """
     Test if a media type is supported by the image API.
@@ -133,7 +110,6 @@ async def tests() -> Mapping[str, Callable[..., bool]]:
     """
     return {
         "date_range": test_date_range,
-        "end_of_life_event": test_end_of_life_event,
         "has_file_references": test_has_file_references,
         "persistent_entity_id": persistent_id,
         "has_links": test_has_links,
@@ -141,48 +117,12 @@ async def tests() -> Mapping[str, Callable[..., bool]]:
         "linked_data_dumpable": test_linked_data_dumpable,
         "private": is_private,
         "public": is_public,
-        "start_of_life_event": test_start_of_life_event,
         "user_facing_entity": test_user_facing_entity,
-        **(
-            PluginTester(
-                CopyrightNotice,  # type: ignore[type-abstract]
-                "copyright_notice",
-            )
-        ).tests(),
-        **(
-            PluginTester(
-                Entity,  # type: ignore[type-abstract]
-                "entity",
-            )
-        ).tests(),
-        **(
-            PluginTester(
-                EventType,  # type: ignore[type-abstract]
-                "event_type",
-            )
-        ).tests(),
-        **(
-            PluginTester(
-                Gender,  # type: ignore[type-abstract]
-                "gender",
-            )
-        ).tests(),
-        **(
-            PluginTester(
-                License,  # type: ignore[type-abstract]
-                "license",
-            )
-        ).tests(),
-        **(
-            PluginTester(
-                PlaceType,  # type: ignore[type-abstract]
-                "place_type",
-            )
-        ).tests(),
-        **(
-            PluginTester(
-                PresenceRole,  # type: ignore[type-abstract]
-                "presence_role",
-            )
-        ).tests(),
+        **(PluginTester(CopyrightNoticeDefinition.type)).tests(),
+        **(PluginTester(EntityDefinition.type)).tests(),
+        **(PluginTester(EventTypeDefinition.type)).tests(),
+        **(PluginTester(GenderDefinition.type)).tests(),
+        **(PluginTester(LicenseDefinition.type)).tests(),
+        **(PluginTester(PlaceTypeDefinition.type)).tests(),
+        **(PluginTester(PresenceRoleDefinition.type)).tests(),
     }

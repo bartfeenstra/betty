@@ -5,17 +5,16 @@ Wikipedia copyright notices.
 from __future__ import annotations
 
 from contextlib import suppress
-from typing import TYPE_CHECKING, Self
+from typing import TYPE_CHECKING, Self, final
 
 from typing_extensions import override
 
 from betty.app.factory import AppDependentFactory
-from betty.copyright_notice import CopyrightNotice
+from betty.copyright_notice import CopyrightNotice, CopyrightNoticeDefinition
 from betty.fetch import Fetcher, FetchError
 from betty.locale import negotiate_locale, to_babel_identifier
 from betty.locale.localizable import Localizable, _
 from betty.locale.localized import LocalizedStr
-from betty.plugin import ShorthandPluginBase
 
 if TYPE_CHECKING:
     from collections.abc import Mapping
@@ -25,13 +24,15 @@ if TYPE_CHECKING:
     from betty.locale.localizer import Localizer
 
 
-class WikipediaContributors(ShorthandPluginBase, AppDependentFactory, CopyrightNotice):
+@final
+@CopyrightNoticeDefinition(
+    id="wikipedia-contributors",
+    label=_("Wikipedia contributors"),
+)
+class WikipediaContributors(AppDependentFactory, CopyrightNotice):
     """
     The copyright for resources on Wikipedia.
     """
-
-    _plugin_id = "wikipedia-contributors"
-    _plugin_label = _("Wikipedia contributors")
 
     def __init__(self, urls: Mapping[str, str]):
         self._url = _WikipediaContributorsUrl({"en": "Wikipedia:Copyrights", **urls})

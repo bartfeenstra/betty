@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, cast
 
 import pytest
 from typing_extensions import override
@@ -10,28 +10,37 @@ from betty.ancestry.person import Person
 from betty.ancestry.person_name import PersonName
 from betty.ancestry.source import Source
 from betty.locale import UNDETERMINED_LOCALE
+from betty.model import Entity
 from betty.test_utils.json.linked_data import assert_dumps_linked_data
-from betty.test_utils.model import EntityTestBase
+from betty.test_utils.model import EntityDefinitionTestBase, EntityTestBase
 
 if TYPE_CHECKING:
     from collections.abc import Sequence
 
-    from betty.model import Entity
+    from betty.plugin import PluginDefinition
     from betty.serde.dump import Dump, DumpMapping
 
 
-class TestPersonName(EntityTestBase):
+class TestPersonNameDefinition(EntityDefinitionTestBase):
     @override
-    def get_sut_class(self) -> type[PersonName]:
-        return PersonName
+    @pytest.fixture
+    def sut(self) -> PluginDefinition:
+        return PersonName.plugin
 
-    @override
-    async def get_sut_instances(self) -> Sequence[Entity]:
+
+class TestPersonName(EntityTestBase):
+    @staticmethod
+    def _sut_params() -> Sequence[Entity]:
         return [
             PersonName(person=Person(), individual="Jane"),
             PersonName(person=Person(), affiliation="Doe"),
             PersonName(person=Person(), individual="Jane", affiliation="Doe"),
         ]
+
+    @override
+    @pytest.fixture(params=_sut_params())
+    async def sut(self, request: pytest.FixtureRequest) -> Entity:
+        return cast(Entity, request.param)
 
     def test___init___should_require_at_least_one_type_of_name(self) -> None:
         with pytest.raises(ValueError):  # noqa PT011

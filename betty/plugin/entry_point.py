@@ -8,14 +8,16 @@ from typing import Generic, TypeVar, final
 
 from typing_extensions import override
 
-from betty.plugin import Plugin
+from betty.plugin import PluginDefinition
 from betty.plugin.lazy import LazyPluginRepositoryBase
 
-_PluginT = TypeVar("_PluginT", bound=Plugin)
+_PluginDefinitionT = TypeVar("_PluginDefinitionT", bound=PluginDefinition)
 
 
 @final
-class EntryPointPluginRepository(LazyPluginRepositoryBase[_PluginT], Generic[_PluginT]):
+class EntryPointPluginRepository(
+    LazyPluginRepositoryBase[_PluginDefinitionT], Generic[_PluginDefinitionT]
+):
     """
     Discover plugins defined as distribution package `entry points <https://packaging.python.org/en/latest/specifications/entry-points/>`_.
 
@@ -32,12 +34,17 @@ class EntryPointPluginRepository(LazyPluginRepositoryBase[_PluginT], Generic[_Pl
         'my-package-plugin' = 'my_package.my_module:MyPlugin'
     """
 
-    def __init__(self, plugin: type[_PluginT], entry_point_group: str, /):
+    def __init__(
+        self,
+        plugin: type[_PluginDefinitionT],  # noqa A002
+        entry_point_group: str,
+        /,
+    ):
         super().__init__(plugin)
         self._entry_point_group = entry_point_group
 
     @override
-    async def _load_plugins(self) -> Sequence[type[_PluginT]]:
+    async def _load_plugins(self) -> Sequence[_PluginDefinitionT]:
         return [
             entry_point.load()
             for entry_point in metadata.entry_points(

@@ -1,3 +1,4 @@
+import pytest
 from aiofiles.os import makedirs
 from pytest_mock import MockerFixture
 from typing_extensions import override
@@ -5,19 +6,22 @@ from typing_extensions import override
 from betty.app import App
 from betty.config.file import write_configuration_file
 from betty.console import SystemExitCode
-from betty.console.command import Command
 from betty.console.command.commands.serve import Serve
+from betty.plugin import PluginDefinition
 from betty.project import Project
 from betty.test_utils.console import run
-from betty.test_utils.console.command import CommandTestBase
+from betty.test_utils.console.command import CommandDefinitionTestBase
 from betty.test_utils.serve import NoOpProjectServer
 
 
-class TestServe(CommandTestBase):
+class TestServeDefinition(CommandDefinitionTestBase):
     @override
-    def get_sut_class(self) -> type[Command]:
-        return Serve
+    @pytest.fixture
+    def sut(self) -> PluginDefinition:
+        return Serve.plugin
 
+
+class TestServe:
     async def test_configure(
         self, mocker: MockerFixture, new_temporary_app: App
     ) -> None:

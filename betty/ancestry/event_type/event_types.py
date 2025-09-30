@@ -8,9 +8,8 @@ from typing import TYPE_CHECKING, final
 
 from typing_extensions import override
 
-from betty.ancestry.event_type import EventType
+from betty.ancestry.event_type import EventType, EventTypeDefinition
 from betty.locale.localizable import _
-from betty.plugin import PluginIdentifier, ShorthandPluginBase
 
 if TYPE_CHECKING:
     from betty.ancestry.person import Person
@@ -18,13 +17,14 @@ if TYPE_CHECKING:
 
 
 @final
-class Unknown(ShorthandPluginBase, EventType):
+@EventTypeDefinition(
+    id="unknown",
+    label=_("Unknown"),
+)
+class Unknown(EventType):
     """
     Describe an event for which no more specific type is known.
     """
-
-    _plugin_id = "unknown"
-    _plugin_label = _("Unknown")
 
 
 class DerivableEventType(EventType):
@@ -46,132 +46,29 @@ class CreatableDerivableEventType(DerivableEventType):
         return True  # pragma: no cover
 
 
-class PreBirthEventType(EventType):
-    """
-    Any event that only ever takes place before someone's birth.
-    """
-
-    @override
-    @classmethod
-    def comes_before(cls) -> set[PluginIdentifier[EventType]]:
-        return {Birth}  # pragma: no cover
-
-
-class StartOfLifeEventType(EventType):
-    """
-    An event that indicates the start of someone's life.
-
-    This includes someone's actual birth, but also other types of events that take place
-    close to someone's birth and as such are indicators that that person was born around
-    the time of the start-of-life event.
-    """
-
-
-class DuringLifeEventType(EventType):
-    """
-    Any event that only ever takes place during someone's life, e.g. after their birth and before their death.
-    """
-
-    @override
-    @classmethod
-    def comes_after(cls) -> set[PluginIdentifier[EventType]]:
-        return {Birth}  # pragma: no cover
-
-    @override
-    @classmethod
-    def comes_before(cls) -> set[PluginIdentifier[EventType]]:
-        return {Death}  # pragma: no cover
-
-
-class EndOfLifeEventType(EventType):
-    """
-    An event that indicates the end of someone's life.
-
-    This includes someone's actual death, but also other types of events that take place
-    close to someone's death and as such are indicators that that person died around the
-    time of the end-of-life event.
-    """
-
-
-class PostDeathEventType(EventType):
-    """
-    An event that only ever happens after someone's death.
-    """
-
-    @override
-    @classmethod
-    def comes_after(cls) -> set[PluginIdentifier[EventType]]:
-        return {Death}  # pragma: no cover
-
-
 @final
-class Birth(CreatableDerivableEventType, StartOfLifeEventType, ShorthandPluginBase):
+@EventTypeDefinition(
+    id="birth",
+    label=_("Birth"),
+    is_start_of_life=True,
+)
+class Birth(CreatableDerivableEventType):
     """
     Someone was born.
     """
 
-    _plugin_id = "birth"
-    _plugin_label = _("Birth")
-
-    @override
-    @classmethod
-    def comes_before(cls) -> set[PluginIdentifier[EventType]]:
-        return {DuringLifeEventType}  # pragma: no cover
-
 
 @final
-class Baptism(DuringLifeEventType, StartOfLifeEventType, ShorthandPluginBase):
-    """
-    Someone was `baptized <https://en.wikipedia.org/wiki/Baptism>`_.
-    """
-
-    _plugin_id = "baptism"
-    _plugin_label = _("Baptism")
-
-
-@final
-class BarMitzvah(DuringLifeEventType, StartOfLifeEventType, ShorthandPluginBase):
-    """
-    Someone's `bar mitzvah <https://en.wikipedia.org/wiki/Bar_and_bat_mitzvah>`_ took place.
-    """
-
-    _plugin_id = "bar-mitzvah"
-    _plugin_label = _("Bar mitzvah")
-
-
-@final
-class BatMitzvah(DuringLifeEventType, StartOfLifeEventType, ShorthandPluginBase):
-    """
-    Someone's `bat mitzvah <https://en.wikipedia.org/wiki/Bar_and_bat_mitzvah>`_ took place.
-    """
-
-    _plugin_id = "bat-mitzvah"
-    _plugin_label = _("Bat mitzvah")
-
-
-@final
-class Adoption(DuringLifeEventType, ShorthandPluginBase):
-    """
-    Someone was adopted.
-    """
-
-    _plugin_id = "adoption"
-    _plugin_label = _("Adoption")
-
-
-@final
-class Death(CreatableDerivableEventType, EndOfLifeEventType, ShorthandPluginBase):
+@EventTypeDefinition(
+    id="death",
+    label=_("Death"),
+    comes_after={Birth},
+    is_end_of_life=True,
+)
+class Death(CreatableDerivableEventType):
     """
     Someone died.
     """
-
-    _plugin_id = "death"
-    _plugin_label = _("Death")
-
-    @override
-    @classmethod
-    def comes_after(cls) -> set[PluginIdentifier[EventType]]:
-        return {DuringLifeEventType}  # pragma: no cover
 
     @override
     @classmethod
@@ -183,216 +80,289 @@ class Death(CreatableDerivableEventType, EndOfLifeEventType, ShorthandPluginBase
         ).has_expired(person, 1)
 
 
-class FinalDispositionEventType(
-    PostDeathEventType, DerivableEventType, EndOfLifeEventType
-):
+@final
+@EventTypeDefinition(
+    id="baptism",
+    label=_("Baptism"),
+    comes_before={Death},
+    comes_after={Birth},
+    is_start_of_life=True,
+)
+class Baptism(EventType):
     """
-    Someone's `final disposition <https://en.wikipedia.org/wiki/Disposal_of_human_corpses>`_ took place.
+    Someone was `baptized <https://en.wikipedia.org/wiki/Baptism>`_.
     """
 
 
 @final
-class Funeral(FinalDispositionEventType, ShorthandPluginBase):
+@EventTypeDefinition(
+    id="bar-mitzvah",
+    label=_("Bar mitzvah"),
+    comes_before={Death},
+    comes_after={Birth},
+    is_start_of_life=True,
+)
+class BarMitzvah(EventType):
+    """
+    Someone's `bar mitzvah <https://en.wikipedia.org/wiki/Bar_and_bat_mitzvah>`_ took place.
+    """
+
+
+@final
+@EventTypeDefinition(
+    id="ba-mitzvah",
+    label=_("Bat mitzvah"),
+    comes_before={Death},
+    comes_after={Birth},
+    is_start_of_life=True,
+)
+class BatMitzvah(EventType):
+    """
+    Someone's `bat mitzvah <https://en.wikipedia.org/wiki/Bar_and_bat_mitzvah>`_ took place.
+    """
+
+
+@final
+@EventTypeDefinition(
+    id="adoption",
+    label=_("Adoption"),
+    comes_before={Death},
+    comes_after={Birth},
+)
+class Adoption(EventType):
+    """
+    Someone was adopted.
+    """
+
+
+@final
+@EventTypeDefinition(
+    id="funeral",
+    label=_("Funeral"),
+    comes_after={Death},
+    is_end_of_life=True,
+)
+class Funeral(DerivableEventType):
     """
     Someone's funeral took place.
     """
 
-    _plugin_id = "funeral"
-    _plugin_label = _("Funeral")
-
 
 @final
-class Cremation(FinalDispositionEventType, ShorthandPluginBase):
+@EventTypeDefinition(
+    id="cremation",
+    label=_("Cremation"),
+    comes_after={Death},
+    is_end_of_life=True,
+)
+class Cremation(DerivableEventType):
     """
     Someone was cremated.
     """
 
-    _plugin_id = "cremation"
-    _plugin_label = _("Cremation")
-
 
 @final
-class Burial(FinalDispositionEventType, ShorthandPluginBase):
+@EventTypeDefinition(
+    id="burial",
+    label=_("Burial"),
+    comes_after={Death},
+    is_end_of_life=True,
+)
+class Burial(DerivableEventType):
     """
     Someone was buried.
     """
 
-    _plugin_id = "burial"
-    _plugin_label = _("Burial")
-
 
 @final
-class Will(PostDeathEventType, ShorthandPluginBase):
+@EventTypeDefinition(
+    id="will",
+    label=_("Will"),
+    comes_after={Death},
+)
+class Will(EventType):
     """
     Someone's `will and testament <https://en.wikipedia.org/wiki/Will_and_testament>`_ came into effect.
     """
 
-    _plugin_id = "will"
-    _plugin_label = _("Will")
-
 
 @final
-class Engagement(DuringLifeEventType, ShorthandPluginBase):
+@EventTypeDefinition(
+    id="engagement",
+    label=_("Engagement"),
+    comes_after={Birth},
+    comes_before={Death},
+)
+class Engagement(EventType):
     """
     People got engaged with the intent to marry.
     """
 
-    _plugin_id = "engagement"
-    _plugin_label = _("Engagement")
-
-    @override
-    @classmethod
-    def comes_before(cls) -> set[PluginIdentifier[EventType]]:
-        return {Marriage}  # pragma: no cover
-
 
 @final
-class Marriage(DuringLifeEventType, ShorthandPluginBase):
+@EventTypeDefinition(
+    id="marriage",
+    label=_("Marriage"),
+    comes_after={Birth, Engagement},
+    comes_before={Death},
+)
+class Marriage(EventType):
     """
     People were married.
     """
 
-    _plugin_id = "marriage"
-    _plugin_label = _("Marriage")
-
 
 @final
-class MarriageAnnouncement(DuringLifeEventType, ShorthandPluginBase):
+@EventTypeDefinition(
+    id="marriage-announcement",
+    label=_("Announcement of marriage"),
+    comes_after={Birth},
+    comes_before={Death, Marriage},
+)
+class MarriageAnnouncement(EventType):
     """
     People's marriage was announced.
     """
 
-    _plugin_id = "marriage-announcement"
-    _plugin_label = _("Announcement of marriage")
-
-    @override
-    @classmethod
-    def comes_before(cls) -> set[PluginIdentifier[EventType]]:
-        return {Marriage}  # pragma: no cover
-
 
 @final
-class Divorce(DuringLifeEventType, ShorthandPluginBase):
+@EventTypeDefinition(
+    id="divorce",
+    label=_("Divorce"),
+    comes_after={Birth, Marriage},
+    comes_before={Death},
+)
+class Divorce(EventType):
     """
     People were divorced.
     """
 
-    _plugin_id = "divorce"
-    _plugin_label = _("Divorce")
-
-    @override
-    @classmethod
-    def comes_after(cls) -> set[PluginIdentifier[EventType]]:
-        return {Marriage}  # pragma: no cover
-
 
 @final
-class DivorceAnnouncement(DuringLifeEventType, ShorthandPluginBase):
+@EventTypeDefinition(
+    id="divorce-announcement",
+    label=_("Announcement of divorce"),
+    comes_after={Birth, Marriage},
+    comes_before={Death, Divorce},
+)
+class DivorceAnnouncement(EventType):
     """
     People's divorce was announced.
     """
 
-    _plugin_id = "divorce-announcement"
-    _plugin_label = _("Announcement of divorce")
-
-    @override
-    @classmethod
-    def comes_after(cls) -> set[PluginIdentifier[EventType]]:
-        return {Marriage}  # pragma: no cover
-
-    @override
-    @classmethod
-    def comes_before(cls) -> set[PluginIdentifier[EventType]]:
-        return {Divorce}  # pragma: no cover
-
 
 @final
-class Residence(DuringLifeEventType, ShorthandPluginBase):
+@EventTypeDefinition(
+    id="residence",
+    label=_("Residence"),
+    comes_after={Birth},
+    comes_before={Death},
+)
+class Residence(EventType):
     """
     Someone resided/lived in a place.
     """
 
-    _plugin_id = "residence"
-    _plugin_label = _("Residence")
-
 
 @final
-class Immigration(DuringLifeEventType, ShorthandPluginBase):
+@EventTypeDefinition(
+    id="immigration",
+    label=_("Immigration"),
+    comes_after={Birth},
+    comes_before={Death},
+)
+class Immigration(EventType):
     """
     Someone immigrated to a place.
     """
 
-    _plugin_id = "immigration"
-    _plugin_label = _("Immigration")
-
 
 @final
-class Emigration(ShorthandPluginBase, DuringLifeEventType):
+@EventTypeDefinition(
+    id="emigration",
+    label=_("Emigration"),
+    comes_after={Birth},
+    comes_before={Death},
+)
+class Emigration(EventType):
     """
     Someone emigrated from a place.
     """
 
-    _plugin_id = "emigration"
-    _plugin_label = _("Emigration")
-
 
 @final
-class Occupation(ShorthandPluginBase, DuringLifeEventType):
+@EventTypeDefinition(
+    id="occupation",
+    label=_("Occupation"),
+    comes_after={Birth},
+    comes_before={Death},
+)
+class Occupation(EventType):
     """
     Someone's occupation, e.g. their main recurring activity.
 
     This may include employment, education, stay at home parent, etc.
     """
 
-    _plugin_id = "occupation"
-    _plugin_label = _("Occupation")
-
 
 @final
-class Retirement(ShorthandPluginBase, DuringLifeEventType):
+@EventTypeDefinition(
+    id="retirement",
+    label=_("Retirement"),
+    comes_after={Birth},
+    comes_before={Death},
+)
+class Retirement(EventType):
     """
     Someone `retired <https://en.wikipedia.org/wiki/Retirement>`_.
     """
 
-    _plugin_id = "retirement"
-    _plugin_label = _("Retirement")
-
 
 @final
-class Correspondence(ShorthandPluginBase, EventType):
+@EventTypeDefinition(
+    id="correspondence",
+    label=_("Correspondence"),
+)
+class Correspondence(EventType):
     """
     People corresponded with each other.
     """
 
-    _plugin_id = "correspondence"
-    _plugin_label = _("Correspondence")
-
 
 @final
-class Confirmation(ShorthandPluginBase, DuringLifeEventType):
+@EventTypeDefinition(
+    id="confirmation",
+    label=_("Confirmation"),
+    comes_after={Birth},
+    comes_before={Death},
+)
+class Confirmation(EventType):
     """
     Someone's `confirmation <https://en.wikipedia.org/wiki/Confirmation>`_ took place.
     """
 
-    _plugin_id = "confirmation"
-    _plugin_label = _("Confirmation")
-
 
 @final
-class Missing(ShorthandPluginBase, DuringLifeEventType):
+@EventTypeDefinition(
+    id="missing",
+    label=_("Missing"),
+    comes_after={Birth},
+    comes_before={Death},
+)
+class Missing(EventType):
     """
     Someone went missing.
     """
 
-    _plugin_id = "missing"
-    _plugin_label = _("Missing")
-
 
 @final
-class Conference(ShorthandPluginBase, DuringLifeEventType):
+@EventTypeDefinition(
+    id="conference",
+    label=_("Conference"),
+    comes_before={Death},
+    comes_after={Birth},
+)
+class Conference(EventType):
     """
     A conference between people took place.
     """
-
-    _plugin_id = "conference"
-    _plugin_label = _("Conference")

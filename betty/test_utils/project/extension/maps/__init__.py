@@ -9,19 +9,20 @@ from shutil import copytree
 
 import pytest
 from geopy import Point
+from playwright.async_api import Page, expect
 
 from betty import serve
 from betty.ancestry.name import Name
 from betty.ancestry.place import Place
 from betty.app import App
 from betty.locale.localizable import Plain
+from betty.plugin import PluginIdentifier
 from betty.project import Project
-from betty.project.extension import Extension
+from betty.project.extension import ExtensionDefinition, Extension
 from betty.project.extension.maps import Maps
 from betty.project.generate import generate
 from betty.serve import Server
 from betty.tests.conftest import check_skip_playwright
-from playwright.async_api import Page, expect
 
 _PLACE_ID = "P0001"
 _PLACE_NAME = "My First Place"
@@ -32,7 +33,9 @@ class MapsTestBase:
     A base class for testing maps.
     """
 
-    def get_other_extensions(self) -> Iterable[type[Extension]]:
+    def get_other_extensions(
+        self,
+    ) -> Iterable[PluginIdentifier[ExtensionDefinition, Extension]]:
         """
         Get the other extensions to enable while performing the tests.
 

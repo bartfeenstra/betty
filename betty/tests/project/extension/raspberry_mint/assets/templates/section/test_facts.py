@@ -1,7 +1,7 @@
 from betty.locale.localizer import DEFAULT_LOCALIZER
 from betty.project.extension.raspberry_mint import RaspberryMint
 from betty.test_utils.jinja2 import assert_template_file
-from betty.test_utils.model import DummyEntity
+from betty.test_utils.model import DummyEntityOne
 
 
 async def test_minimal() -> None:
@@ -17,7 +17,7 @@ async def test_minimal() -> None:
 
 
 async def test_with_fact() -> None:
-    fact = DummyEntity()
+    fact = DummyEntityOne()
     async with assert_template_file(
         data={
             "facts": [fact],

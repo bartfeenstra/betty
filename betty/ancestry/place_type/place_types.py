@@ -4,195 +4,238 @@ Provide Betty's ancestry place types.
 
 from __future__ import annotations
 
-from betty.ancestry.place_type import PlaceType
+from typing import final
+
+from betty.ancestry.place_type import PlaceType, PlaceTypeDefinition
 from betty.locale.localizable import _
-from betty.plugin import ShorthandPluginBase
 
 
-class Borough(ShorthandPluginBase, PlaceType):
+@final
+@PlaceTypeDefinition(
+    id="borough",
+    label=_("Borough"),
+)
+class Borough(PlaceType):
     """
     A borough.
     """
 
-    _plugin_id = "borough"
-    _plugin_label = _("Borough")
 
-
-class Building(ShorthandPluginBase, PlaceType):
+@final
+@PlaceTypeDefinition(
+    id="building",
+    label=_("Building"),
+)
+class Building(PlaceType):
     """
     A building.
     """
 
-    _plugin_id = "building"
-    _plugin_label = _("Building")
 
-
-class City(ShorthandPluginBase, PlaceType):
+@final
+@PlaceTypeDefinition(
+    id="city",
+    label=_("City"),
+)
+class City(PlaceType):
     """
     A city.
     """
 
-    _plugin_id = "city"
-    _plugin_label = _("City")
 
-
-class Country(ShorthandPluginBase, PlaceType):
+@final
+@PlaceTypeDefinition(
+    id="country",
+    label=_("Country"),
+)
+class Country(PlaceType):
     """
     A country.
     """
 
-    _plugin_id = "country"
-    _plugin_label = _("Country")
 
-
-class County(ShorthandPluginBase, PlaceType):
+@final
+@PlaceTypeDefinition(
+    id="county",
+    label=_("County"),
+)
+class County(PlaceType):
     """
     A county.
     """
 
-    _plugin_id = "county"
-    _plugin_label = _("County")
 
-
-class Department(ShorthandPluginBase, PlaceType):
+@final
+@PlaceTypeDefinition(
+    id="department",
+    label=_("Department"),
+)
+class Department(PlaceType):
     """
     A department.
     """
 
-    _plugin_id = "department"
-    _plugin_label = _("Department")
 
-
-class District(ShorthandPluginBase, PlaceType):
+@final
+@PlaceTypeDefinition(
+    id="district",
+    label=_("District"),
+)
+class District(PlaceType):
     """
     A district.
     """
 
-    _plugin_id = "district"
-    _plugin_label = _("District")
 
-
-class Farm(ShorthandPluginBase, PlaceType):
+@final
+@PlaceTypeDefinition(
+    id="farm",
+    label=_("Farm"),
+)
+class Farm(PlaceType):
     """
     A farm.
     """
 
-    _plugin_id = "farm"
-    _plugin_label = _("Farm")
 
-
-class Hamlet(ShorthandPluginBase, PlaceType):
+@final
+@PlaceTypeDefinition(
+    id="hamlet",
+    label=_("Hamlet"),
+)
+class Hamlet(PlaceType):
     """
     A hamlet.
     """
 
-    _plugin_id = "hamlet"
-    _plugin_label = _("Hamlet")
 
-
-class Locality(ShorthandPluginBase, PlaceType):
+@final
+@PlaceTypeDefinition(
+    id="locality",
+    label=_("Locality"),
+)
+class Locality(PlaceType):
     """
     A locality.
     """
 
-    _plugin_id = "locality"
-    _plugin_label = _("Locality")
 
-
-class Municipality(ShorthandPluginBase, PlaceType):
+@final
+@PlaceTypeDefinition(
+    id="municipality",
+    label=_("Municipality"),
+)
+class Municipality(PlaceType):
     """
     A municipality.
     """
 
-    _plugin_id = "municipality"
-    _plugin_label = _("Municipality")
 
-
-class Neighborhood(ShorthandPluginBase, PlaceType):
+@final
+@PlaceTypeDefinition(
+    id="neighborhood",
+    label=_("Neighborhood"),
+)
+class Neighborhood(PlaceType):
     """
     A neighborhood.
     """
 
-    _plugin_id = "neighborhood"
-    _plugin_label = _("Neighborhood")
 
-
-class Number(ShorthandPluginBase, PlaceType):
+@final
+@PlaceTypeDefinition(
+    id="number",
+    label=_("Number"),
+)
+class Number(PlaceType):
     """
     A place number, e.g. a house or flat number.
     """
 
-    _plugin_id = "number"
-    _plugin_label = _("Number")
 
-
-class Parish(ShorthandPluginBase, PlaceType):
+@final
+@PlaceTypeDefinition(
+    id="parish",
+    label=_("Parish"),
+)
+class Parish(PlaceType):
     """
     A parish.
     """
 
-    _plugin_id = "parish"
-    _plugin_label = _("Parish")
 
-
-class Province(ShorthandPluginBase, PlaceType):
+@final
+@PlaceTypeDefinition(
+    id="province",
+    label=_("Province"),
+)
+class Province(PlaceType):
     """
     A province.
     """
 
-    _plugin_id = "province"
-    _plugin_label = _("Province")
 
-
-class Region(ShorthandPluginBase, PlaceType):
+@final
+@PlaceTypeDefinition(
+    id="region",
+    label=_("Region"),
+)
+class Region(PlaceType):
     """
     A region.
     """
 
-    _plugin_id = "region"
-    _plugin_label = _("Region")
 
-
-class State(ShorthandPluginBase, PlaceType):
+@final
+@PlaceTypeDefinition(
+    id="state",
+    label=_("State"),
+)
+class State(PlaceType):
     """
     A state.
     """
 
-    _plugin_id = "state"
-    _plugin_label = _("State")
 
-
-class Street(ShorthandPluginBase, PlaceType):
+@final
+@PlaceTypeDefinition(
+    id="street",
+    label=_("Street"),
+)
+class Street(PlaceType):
     """
     A street.
     """
 
-    _plugin_id = "street"
-    _plugin_label = _("Street")
 
-
-class Town(ShorthandPluginBase, PlaceType):
+@final
+@PlaceTypeDefinition(
+    id="town",
+    label=_("Town"),
+)
+class Town(PlaceType):
     """
     A town.
     """
 
-    _plugin_id = "town"
-    _plugin_label = _("Town")
 
-
-class Unknown(ShorthandPluginBase, PlaceType):
+@final
+@PlaceTypeDefinition(
+    id="unknown",
+    label=_("Unknown"),
+)
+class Unknown(PlaceType):
     """
     A place of an unknown type.
     """
 
-    _plugin_id = "unknown"
-    _plugin_label = _("Unknown")
 
-
-class Village(ShorthandPluginBase, PlaceType):
+@final
+@PlaceTypeDefinition(
+    id="village",
+    label=_("Village"),
+)
+class Village(PlaceType):
     """
     A village.
     """
-
-    _plugin_id = "village"
-    _plugin_label = _("Village")

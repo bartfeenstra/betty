@@ -2,10 +2,10 @@
 {% for entity_type_configuration in project.configuration.entity_types.values() | selectattr('generate_html_list') %}
     {% set entity_type = project.entity_type_repository.get(entity_type_configuration.id) %}
     {% set entity_type_label -%}
-        {% if entity_type.plugin_id() == 'event' %}
+        {% if entity_type.id == 'event' %}
             {% trans %}Timeline{% endtrans %}
         {% else %}
-            {{ entity_type.plugin_label_plural() | localize }}
+            {{ entity_type.label_plural | localize }}
         {% endif %}
     {%- endset %}
     {% do ns.primary_navigation_links.update({entity_type | url: entity_type_label}) %}
@@ -142,7 +142,7 @@
             {% do ns.filter_entity_type_checkboxes.append({
                 'attributes': new_attributes(html_checked=true, html_id=entity_type_html_id),
                 'form_control_attributes': new_attributes(html_class=['search-form-filter-entity-type']),
-                'label': project.entity_type_repository.get(entity_type_id).plugin_label() | localize,
+                'label': project.entity_type_repository.get(entity_type_id).label | localize,
                 'value': entity_type_id,
             }) %}
             {% do ns.filter_entity_type_html_ids.setdefault(entity_type_html_id, entity_type_id) %}

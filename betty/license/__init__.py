@@ -2,19 +2,27 @@
 Provide licenses.
 """
 
+from __future__ import annotations
+
 from abc import abstractmethod
-from typing import final
+from typing import TYPE_CHECKING, ClassVar, final
 
-from typing_extensions import override
-
-from betty.locale.localizable import Localizable, _
-from betty.machine_name import MachineName
+from betty.locale.localizable import _
 from betty.mutability import Mutable
-from betty.plugin import Plugin, PluginRepository
+from betty.plugin import (
+    ClassedPlugin,
+    ClassedPluginDefinition,
+    ClassedPluginTypeDefinition,
+    PluginRepository,
+    UserFacingPluginDefinition,
+)
 from betty.plugin.entry_point import EntryPointPluginRepository
 
+if TYPE_CHECKING:
+    from betty.locale.localizable import Localizable
 
-class License(Mutable, Plugin):
+
+class License(Mutable, ClassedPlugin):
     """
     A license.
 
@@ -23,23 +31,7 @@ class License(Mutable, Plugin):
     To test your own subclasses, use :py:class:`betty.test_utils.license.LicenseTestBase`.
     """
 
-    @final
-    @override
-    @classmethod
-    def plugin_type_cls(cls) -> type[Plugin]:
-        return License
-
-    @final
-    @override
-    @classmethod
-    def plugin_type_id(cls) -> MachineName:
-        return "license"
-
-    @final
-    @override
-    @classmethod
-    def plugin_type_label(cls) -> Localizable:
-        return _("License")
+    plugin: ClassVar[LicenseDefinition]
 
     @property
     @abstractmethod
@@ -63,8 +55,23 @@ class License(Mutable, Plugin):
         return None
 
 
-LICENSE_REPOSITORY: PluginRepository[License] = EntryPointPluginRepository(
-    License, "betty.license"
+@final
+class LicenseDefinition(UserFacingPluginDefinition, ClassedPluginDefinition[License]):
+    """
+    A license definition.
+
+    Read more about :doc:`/development/plugin/license`.
+    """
+
+    type: ClassVar[ClassedPluginTypeDefinition] = ClassedPluginTypeDefinition(
+        id="license",
+        label=_("License"),
+        cls=License,
+    )
+
+
+LICENSE_REPOSITORY: PluginRepository[LicenseDefinition] = EntryPointPluginRepository(
+    LicenseDefinition, "betty.license"
 )
 """
 The license plugin repository.

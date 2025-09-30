@@ -5,19 +5,20 @@ from typing import TYPE_CHECKING
 import pytest
 from typing_extensions import override
 
-from betty.ancestry.event_type import EventType
-from betty.ancestry.gender import Gender
-from betty.ancestry.place_type import PlaceType
-from betty.ancestry.presence_role import PresenceRole
-from betty.copyright_notice import CopyrightNotice
+from betty.ancestry.event_type import EventTypeDefinition
+from betty.ancestry.gender import GenderDefinition
+from betty.ancestry.place_type import PlaceTypeDefinition
+from betty.ancestry.presence_role import PresenceRoleDefinition
+from betty.copyright_notice import CopyrightNoticeDefinition
 from betty.copyright_notice.copyright_notices import ProjectAuthor
 from betty.exception import UserFacingException
-from betty.license import License
+from betty.license import LicenseDefinition
 from betty.license.licenses import AllRightsReserved
 from betty.locale import DEFAULT_LOCALE, UNDETERMINED_LOCALE
+from betty.locale.localizable import CountablePlain, Plain
 from betty.locale.localizer import DEFAULT_LOCALIZER
 from betty.machine_name import MachineName
-from betty.model import Entity
+from betty.model import Entity, EntityDefinition
 from betty.plugin.config import PluginConfiguration, PluginInstanceConfiguration
 from betty.plugin.static import StaticPluginRepository
 from betty.project.config import (
@@ -36,17 +37,17 @@ from betty.project.config import (
     PresenceRoleConfigurationMapping,
     ProjectConfiguration,
 )
+from betty.project.extension import Extension, ExtensionDefinition
 from betty.test_utils.config import DummyConfiguration
 from betty.test_utils.config.collections.mapping import ConfigurationMappingTestBase
 from betty.test_utils.exception import raises_error
-from betty.test_utils.model import DummyEntity
+from betty.test_utils.model import DummyEntityOne, DummyUserFacingEntityOne
 from betty.test_utils.plugin.config import PluginConfigurationMappingTestBase
 from betty.test_utils.project.extension import (
     DummyConfigurableExtension,
     DummyExtension,
 )
 from betty.typing import Void
-from betty.user import UserFacing
 
 if TYPE_CHECKING:
     from collections.abc import Iterable
@@ -58,7 +59,11 @@ if TYPE_CHECKING:
     from betty.serde.dump import Dump, DumpMapping
 
 
-class _DummyNonConfigurableExtension(DummyExtension):
+@ExtensionDefinition(
+    id="dummy-non-configurable",
+    label=Plain(""),
+)
+class _DummyNonConfigurableExtension(Extension):
     pass
 
 
@@ -225,40 +230,61 @@ class TestLocaleConfigurationMapping(
         assert sut.multilingual
 
 
-class ExtensionInstanceConfigurationMappingTestExtension0(DummyExtension):
+@ExtensionDefinition(
+    id="extension-instance-configuration-mapping-test-extension-0",
+    label=Plain(""),
+)
+class ExtensionInstanceConfigurationMappingTestExtension0(Extension):
     pass
 
 
-class ExtensionInstanceConfigurationMappingTestExtension1(DummyExtension):
+@ExtensionDefinition(
+    id="extension-instance-configuration-mapping-test-extension-1",
+    label=Plain(""),
+)
+class ExtensionInstanceConfigurationMappingTestExtension1(Extension):
     pass
 
 
-class ExtensionInstanceConfigurationMappingTestExtension2(DummyExtension):
+@ExtensionDefinition(
+    id="extension-instance-configuration-mapping-test-extension-2",
+    label=Plain(""),
+)
+class ExtensionInstanceConfigurationMappingTestExtension2(Extension):
     pass
 
 
-class ExtensionInstanceConfigurationMappingTestExtension3(DummyExtension):
+@ExtensionDefinition(
+    id="extension-instance-configuration-mapping-test-extension-3",
+    label=Plain(""),
+)
+class ExtensionInstanceConfigurationMappingTestExtension3(Extension):
     pass
 
 
 class TestExtensionInstanceConfigurationMapping(
-    ConfigurationMappingTestBase[MachineName, PluginInstanceConfiguration]
+    ConfigurationMappingTestBase[
+        MachineName, PluginInstanceConfiguration[ExtensionDefinition, Extension]
+    ]
 ):
     @override
     def get_configuration_keys(
         self,
     ) -> tuple[MachineName, MachineName, MachineName, MachineName]:
         return (
-            ExtensionInstanceConfigurationMappingTestExtension0.plugin_id(),
-            ExtensionInstanceConfigurationMappingTestExtension1.plugin_id(),
-            ExtensionInstanceConfigurationMappingTestExtension2.plugin_id(),
-            ExtensionInstanceConfigurationMappingTestExtension3.plugin_id(),
+            ExtensionInstanceConfigurationMappingTestExtension0.plugin.id,
+            ExtensionInstanceConfigurationMappingTestExtension1.plugin.id,
+            ExtensionInstanceConfigurationMappingTestExtension2.plugin.id,
+            ExtensionInstanceConfigurationMappingTestExtension3.plugin.id,
         )
 
     @override
     async def get_sut(
         self,
-        configurations: Iterable[PluginInstanceConfiguration] | None = None,
+        configurations: Iterable[
+            PluginInstanceConfiguration[ExtensionDefinition, Extension]
+        ]
+        | None = None,
     ) -> ExtensionInstanceConfigurationMapping:
         return ExtensionInstanceConfigurationMapping(configurations)
 
@@ -266,10 +292,10 @@ class TestExtensionInstanceConfigurationMapping(
     async def get_configurations(
         self,
     ) -> tuple[
-        PluginInstanceConfiguration,
-        PluginInstanceConfiguration,
-        PluginInstanceConfiguration,
-        PluginInstanceConfiguration,
+        PluginInstanceConfiguration[ExtensionDefinition, Extension],
+        PluginInstanceConfiguration[ExtensionDefinition, Extension],
+        PluginInstanceConfiguration[ExtensionDefinition, Extension],
+        PluginInstanceConfiguration[ExtensionDefinition, Extension],
     ]:
         return (
             PluginInstanceConfiguration(self.get_configuration_keys()[0]),
@@ -281,25 +307,17 @@ class TestExtensionInstanceConfigurationMapping(
     def test_enable(self) -> None:
         sut = ExtensionInstanceConfigurationMapping()
         sut.enable(DummyExtension)
-        assert DummyExtension in sut
-
-
-class EntityTypeConfigurationTestEntityOne(UserFacing, DummyEntity):
-    pass
-
-
-class EntityTypeConfigurationTestEntityOther(UserFacing, DummyEntity):
-    pass
+        assert DummyExtension.plugin in sut
 
 
 class TestEntityTypeConfiguration:
     async def test_id__with___init___entity_type(self) -> None:
-        entity_type = EntityTypeConfigurationTestEntityOne
+        entity_type = DummyUserFacingEntityOne
         sut = EntityTypeConfiguration(entity_type)
-        assert sut.id == entity_type.plugin_id()
+        assert sut.id == entity_type.plugin.id
 
     async def test_id__with___init___entity_type_id(self) -> None:
-        entity_type_id = EntityTypeConfigurationTestEntityOne.plugin_id()
+        entity_type_id = DummyUserFacingEntityOne.plugin.id
         sut = EntityTypeConfiguration(entity_type_id)
         assert sut.id == entity_type_id
 
@@ -311,13 +329,13 @@ class TestEntityTypeConfiguration:
         ],
     )
     async def test_generate_html_list(self, generate_html_list: bool) -> None:
-        sut = EntityTypeConfiguration(EntityTypeConfigurationTestEntityOne)
+        sut = EntityTypeConfiguration(DummyUserFacingEntityOne)
         sut.generate_html_list = generate_html_list
         assert sut.generate_html_list == generate_html_list
 
     async def test_load__with_empty_configuration(self) -> None:
         dump: Dump = {}
-        sut = EntityTypeConfiguration(EntityTypeConfigurationTestEntityOne)
+        sut = EntityTypeConfiguration(DummyUserFacingEntityOne)
         with raises_error(error_type=UserFacingException):
             sut.load(dump)
 
@@ -326,12 +344,14 @@ class TestEntityTypeConfiguration:
     ) -> None:
         mocker.patch(
             "betty.model.ENTITY_TYPE_REPOSITORY",
-            new=StaticPluginRepository(EntityTypeConfigurationTestEntityOne),
+            new=StaticPluginRepository(
+                EntityDefinition, DummyUserFacingEntityOne.plugin
+            ),
         )
         dump: Dump = {
-            "id": EntityTypeConfigurationTestEntityOne.plugin_id(),
+            "id": DummyUserFacingEntityOne.plugin.id,
         }
-        sut = EntityTypeConfiguration(EntityTypeConfigurationTestEntityOne)
+        sut = EntityTypeConfiguration(DummyUserFacingEntityOne)
         sut.load(dump)
 
     @pytest.mark.parametrize(
@@ -346,30 +366,32 @@ class TestEntityTypeConfiguration:
     ) -> None:
         mocker.patch(
             "betty.model.ENTITY_TYPE_REPOSITORY",
-            new=StaticPluginRepository(EntityTypeConfigurationTestEntityOne),
+            new=StaticPluginRepository(
+                EntityDefinition, DummyUserFacingEntityOne.plugin
+            ),
         )
         dump: Dump = {
-            "id": EntityTypeConfigurationTestEntityOne.plugin_id(),
+            "id": DummyUserFacingEntityOne.plugin.id,
             "generate_html_list": generate_html_list,
         }
-        sut = EntityTypeConfiguration(EntityTypeConfigurationTestEntityOne)
+        sut = EntityTypeConfiguration(DummyUserFacingEntityOne)
         sut.load(dump)
         assert sut.generate_html_list == generate_html_list
 
     async def test_dump__with_minimal_configuration(self) -> None:
-        sut = EntityTypeConfiguration(EntityTypeConfigurationTestEntityOne)
+        sut = EntityTypeConfiguration(DummyUserFacingEntityOne)
         expected = {
-            "id": EntityTypeConfigurationTestEntityOne.plugin_id(),
+            "id": DummyUserFacingEntityOne.plugin.id,
             "generate_html_list": False,
         }
         assert sut.dump() == expected
 
     async def test_dump__with_generate_html_list(self) -> None:
         sut = EntityTypeConfiguration(
-            EntityTypeConfigurationTestEntityOne, generate_html_list=False
+            DummyUserFacingEntityOne, generate_html_list=False
         )
         expected = {
-            "id": EntityTypeConfigurationTestEntityOne.plugin_id(),
+            "id": DummyUserFacingEntityOne.plugin.id,
             "generate_html_list": False,
         }
         assert sut.dump() == expected
@@ -377,25 +399,50 @@ class TestEntityTypeConfiguration:
     async def test_validate__with_generate_html_list_without_user_facing_entity_type_should_error(
         self,
     ) -> None:
-        plugin = DummyEntity
-        sut = EntityTypeConfiguration(plugin, generate_html_list=True)
+        sut = EntityTypeConfiguration(DummyEntityOne, generate_html_list=True)
         with pytest.raises(UserFacingException):
-            await sut.validate(StaticPluginRepository(Entity, plugin))
+            await sut.validate(
+                StaticPluginRepository(EntityDefinition, DummyEntityOne.plugin)
+            )
 
 
-class EntityTypeConfigurationMappingTestEntity0(DummyEntity):
+@EntityDefinition(
+    id="zero",
+    label=Plain(""),
+    label_plural=Plain(""),
+    label_countable=CountablePlain("", ""),
+)
+class EntityTypeConfigurationMappingTestEntity0(Entity):
     pass
 
 
-class EntityTypeConfigurationMappingTestEntity1(DummyEntity):
+@EntityDefinition(
+    id="one",
+    label=Plain(""),
+    label_plural=Plain(""),
+    label_countable=CountablePlain("", ""),
+)
+class EntityTypeConfigurationMappingTestEntity1(Entity):
     pass
 
 
-class EntityTypeConfigurationMappingTestEntity2(DummyEntity):
+@EntityDefinition(
+    id="two",
+    label=Plain(""),
+    label_plural=Plain(""),
+    label_countable=CountablePlain("", ""),
+)
+class EntityTypeConfigurationMappingTestEntity2(Entity):
     pass
 
 
-class EntityTypeConfigurationMappingTestEntity3(DummyEntity):
+@EntityDefinition(
+    id="three",
+    label=Plain(""),
+    label_plural=Plain(""),
+    label_countable=CountablePlain("", ""),
+)
+class EntityTypeConfigurationMappingTestEntity3(Entity):
     pass
 
 
@@ -407,10 +454,11 @@ class TestEntityTypeConfigurationMapping(
         mocker.patch(
             "betty.model.ENTITY_TYPE_REPOSITORY",
             new=StaticPluginRepository(
-                EntityTypeConfigurationMappingTestEntity0,
-                EntityTypeConfigurationMappingTestEntity1,
-                EntityTypeConfigurationMappingTestEntity2,
-                EntityTypeConfigurationMappingTestEntity3,
+                EntityDefinition,
+                EntityTypeConfigurationMappingTestEntity0.plugin,
+                EntityTypeConfigurationMappingTestEntity1.plugin,
+                EntityTypeConfigurationMappingTestEntity2.plugin,
+                EntityTypeConfigurationMappingTestEntity3.plugin,
             ),
         )
 
@@ -419,10 +467,10 @@ class TestEntityTypeConfigurationMapping(
         self,
     ) -> tuple[MachineName, MachineName, MachineName, MachineName]:
         return (
-            EntityTypeConfigurationMappingTestEntity0.plugin_id(),
-            EntityTypeConfigurationMappingTestEntity1.plugin_id(),
-            EntityTypeConfigurationMappingTestEntity2.plugin_id(),
-            EntityTypeConfigurationMappingTestEntity3.plugin_id(),
+            EntityTypeConfigurationMappingTestEntity0.plugin.id,
+            EntityTypeConfigurationMappingTestEntity1.plugin.id,
+            EntityTypeConfigurationMappingTestEntity2.plugin.id,
+            EntityTypeConfigurationMappingTestEntity3.plugin.id,
         )
 
     @override
@@ -448,12 +496,13 @@ class TestEntityTypeConfigurationMapping(
         )
 
     async def test_validate__with_item_error_should_error(self) -> None:
-        plugin = DummyEntity
         sut = EntityTypeConfigurationMapping(
-            [EntityTypeConfiguration(plugin, generate_html_list=True)]
+            [EntityTypeConfiguration(DummyEntityOne, generate_html_list=True)]
         )
         with pytest.raises(UserFacingException):
-            await sut.validate(StaticPluginRepository(Entity, plugin))
+            await sut.validate(
+                StaticPluginRepository(EntityDefinition, DummyEntityOne.plugin)
+            )
 
 
 class TestCopyrightNoticeConfiguration:
@@ -523,7 +572,9 @@ class TestCopyrightNoticeConfiguration:
 
 
 class TestCopyrightNoticeConfigurationMapping(
-    PluginConfigurationMappingTestBase[CopyrightNotice, CopyrightNoticeConfiguration]
+    PluginConfigurationMappingTestBase[
+        CopyrightNoticeDefinition, CopyrightNoticeConfiguration
+    ]
 ):
     @override
     def get_configuration_keys(self) -> tuple[str, str, str, str]:
@@ -619,7 +670,7 @@ class TestLicenseConfiguration:
 
 
 class TestLicenseConfigurationMapping(
-    PluginConfigurationMappingTestBase[License, LicenseConfiguration]
+    PluginConfigurationMappingTestBase[LicenseDefinition, LicenseConfiguration]
 ):
     @override
     def get_configuration_keys(self) -> tuple[str, str, str, str]:
@@ -649,7 +700,7 @@ class TestLicenseConfigurationMapping(
 
 
 class TestEventTypeConfigurationMapping(
-    PluginConfigurationMappingTestBase[EventType, PluginConfiguration]
+    PluginConfigurationMappingTestBase[EventTypeDefinition, PluginConfiguration]
 ):
     @override
     def get_configuration_keys(self) -> tuple[str, str, str, str]:
@@ -679,7 +730,7 @@ class TestEventTypeConfigurationMapping(
 
 
 class TestPlaceTypeConfigurationMapping(
-    PluginConfigurationMappingTestBase[PlaceType, PluginConfiguration]
+    PluginConfigurationMappingTestBase[PlaceTypeDefinition, PluginConfiguration]
 ):
     @override
     def get_configuration_keys(self) -> tuple[str, str, str, str]:
@@ -709,7 +760,7 @@ class TestPlaceTypeConfigurationMapping(
 
 
 class TestPresenceRoleConfigurationMapping(
-    PluginConfigurationMappingTestBase[PresenceRole, PluginConfiguration]
+    PluginConfigurationMappingTestBase[PresenceRoleDefinition, PluginConfiguration]
 ):
     @override
     def get_configuration_keys(self) -> tuple[str, str, str, str]:
@@ -739,7 +790,7 @@ class TestPresenceRoleConfigurationMapping(
 
 
 class TestGenderConfigurationMapping(
-    PluginConfigurationMappingTestBase[Gender, PluginConfiguration]
+    PluginConfigurationMappingTestBase[GenderDefinition, PluginConfiguration]
 ):
     @override
     def get_configuration_keys(self) -> tuple[str, str, str, str]:
@@ -1089,15 +1140,15 @@ class TestProjectConfiguration:
     ) -> None:
         mocker.patch(
             "betty.project.extension.EXTENSION_REPOSITORY",
-            new=StaticPluginRepository(DummyExtension),
+            new=StaticPluginRepository(ExtensionDefinition, DummyExtension.plugin),
         )
         sut = await ProjectConfiguration.new(tmp_path / "betty.json")
         dump = sut.dump()
         dump["extensions"] = {
-            DummyExtension.plugin_id(): {},
+            DummyExtension.plugin.id: {},
         }
         sut.load(dump)
-        actual = sut.extensions[DummyExtension]
+        actual = sut.extensions[DummyExtension.plugin]
         assert actual.configuration is Void
 
     async def test_load__extension_with_invalid_configuration_should_raise_error(
@@ -1106,7 +1157,7 @@ class TestProjectConfiguration:
         sut = await ProjectConfiguration.new(tmp_path / "betty.json")
         dump = sut.dump()
         dump["extensions"] = {
-            DummyConfigurableExtension.plugin_id(): 1337,
+            DummyConfigurableExtension.plugin.id: 1337,
         }
         with raises_error(error_type=UserFacingException):
             sut.load(dump)
@@ -1290,13 +1341,13 @@ class TestProjectConfiguration:
         value = "Hello, world!"
         sut.extensions.append(
             PluginInstanceConfiguration(
-                DummyConfigurableExtension,
+                DummyConfigurableExtension.plugin,
                 configuration=DummyConfiguration(value=value),
             )
         )
         dump = sut.dump()
         expected = {
-            DummyConfigurableExtension.plugin_id(): {
+            DummyConfigurableExtension.plugin.id: {
                 "configuration": {
                     "value": value,
                 },
@@ -1310,7 +1361,7 @@ class TestProjectConfiguration:
         sut = await ProjectConfiguration.new(tmp_path / "betty.json")
         sut.extensions.enable(_DummyNonConfigurableExtension)
         dump = sut.dump()
-        expected: Dump = {_DummyNonConfigurableExtension.plugin_id(): {}}
+        expected: Dump = {_DummyNonConfigurableExtension.plugin.id: {}}
         assert dump["extensions"] == expected
 
     async def test_dump__should_dump_event_types(self, tmp_path: Path) -> None:
@@ -1369,7 +1420,7 @@ class TestProjectConfiguration:
 
     async def test_dump__should_dump_copyright_notice(self, tmp_path: Path) -> None:
         sut = await ProjectConfiguration.new(tmp_path / "betty.json")
-        assert sut.dump()["copyright_notice"] == ProjectAuthor.plugin_id()
+        assert sut.dump()["copyright_notice"] == ProjectAuthor.plugin.id
 
     async def test_dump__should_dump_copyright_notices_without_items(
         self, tmp_path: Path
@@ -1406,7 +1457,7 @@ class TestProjectConfiguration:
 
     async def test_dump__should_dump_license(self, tmp_path: Path) -> None:
         sut = await ProjectConfiguration.new(tmp_path / "betty.json")
-        assert sut.dump()["license"] == AllRightsReserved.plugin_id()
+        assert sut.dump()["license"] == AllRightsReserved.plugin.id
 
     async def test_dump__should_dump_licenses_without_items(
         self, tmp_path: Path

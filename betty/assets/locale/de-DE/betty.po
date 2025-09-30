@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Betty VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2025-09-27 00:43+0200\n"
+"POT-Creation-Date: 2025-10-08 20:16+0100\n"
 "PO-Revision-Date: 2025-03-28 20:02+0000\n"
 "Last-Translator: Ettore Atalan <atalanttore@googlemail.com>\n"
 "Language: de_DE\n"
@@ -48,6 +48,9 @@ msgstr "%(event)s von %(subjects)s"
 #, python-format
 msgid "%(event)s with %(subjects)s"
 msgstr "%(event)s mit %(subjects)s"
+
+msgid "(De)serialization format)"
+msgstr ""
 
 msgid ""
 "A family history as told by <a "
@@ -373,9 +376,6 @@ msgstr "Tod"
 msgid "Department"
 msgstr ""
 
-msgid "Deriver"
-msgstr "Ableiter"
-
 msgid "Description, licensing, and image history"
 msgstr "Beschreibung, Lizenzierung und Bildgeschichte"
 
@@ -397,11 +397,9 @@ msgid "Display interactive maps"
 msgstr "Zeige Listen von Orten als interaktive Karten"
 
 msgid ""
-"Display the HTTP API documentation in a user-friendly way using <a "
-"href=\"https://swagger.io/tools/swagger-ui\">Swagger UI</a>."
+"Display the HTTP API documentation in a user-friendly way using Swagger "
+"UI."
 msgstr ""
-"Zeige die HTTP-API-Dokumentation auf benutzerfreundliche Weise mit <a "
-"href=\"https://swagger.io/tools/swagger-ui\">Swagger UI</a> an."
 
 msgid "District"
 msgstr "Bezirk"
@@ -509,9 +507,6 @@ msgstr ""
 msgid "Find out more about this image on Wikimedia Commons."
 msgstr "Mehr über dieses Bild erfährst du auf Wikimedia Commons."
 
-msgid "Format"
-msgstr ""
-
 msgid "Funeral"
 msgstr "Beerdigung"
 
@@ -539,9 +534,6 @@ msgid ""
 "Gramps exited with the following error:\n"
 "{error}"
 msgstr ""
-
-msgid "HTTP API Documentation"
-msgstr "HTTP API Dokumentation"
 
 msgid "Hamlet"
 msgstr "Weiler"
@@ -598,8 +590,8 @@ msgstr ""
 msgid "Links"
 msgstr ""
 
-msgid "Load <a href=\"https://gramps-project.org/\">Gramps</a> family trees."
-msgstr "Lade <a href=\"https://gramps-project.org/\">Gramps</a>Stammbäume."
+msgid "Load Gramps family trees."
+msgstr ""
 
 #, python-brace-format
 msgid "Loaded the configuration from {configuration_file_path}."
@@ -665,9 +657,6 @@ msgstr "MMMM y"
 
 msgid "Male"
 msgstr "Männlich"
-
-msgid "Maps"
-msgstr "Karten"
 
 msgid "Marriage"
 msgstr "Hochzeit"
@@ -760,9 +749,7 @@ msgid "Places"
 msgstr "Orte"
 
 #, python-brace-format
-msgid ""
-"Plugin {plugin_label} ({plugin_id}) is not configurable, but "
-"configuration was given."
+msgid "Plugin \"{plugin_id}\" is not configurable, but configuration was given."
 msgstr ""
 
 msgid "Positional arguments"
@@ -796,16 +783,20 @@ msgid ""
 msgstr ""
 
 #, python-brace-format
+msgid ""
+"Privatized {count} \"{entity_type_id}\" entity, because it is associated "
+"with private information."
+msgid_plural ""
+"Privatized {count} \"{entity_type_id}\" entities, because they are "
+"associated with private information."
+msgstr[0] ""
+msgstr[1] ""
+
+#, python-brace-format
 msgid "Privatized {count} people because they are likely still alive."
 msgstr ""
 "Privatisierte {count} Personen, weil sie wahrscheinlich noch am Leben "
 "sind."
-
-#, python-brace-format
-msgid ""
-"Privatized {count} {entity_type}, because they are associated with "
-"private information."
-msgstr ""
 
 #, python-brace-format
 msgid ""
@@ -816,9 +807,6 @@ msgstr ""
 "Privatisierte {privatized_entity_type} {privatized_entity_id} "
 "({privatized_entity}) weil {reason_entity_type} {reason_entity_id} "
 "({reason_entity})."
-
-msgid "Privatizer"
-msgstr "Privatisierer"
 
 msgid "Project author"
 msgstr "Projektautor"
@@ -1094,9 +1082,6 @@ msgstr ""
 #, python-brace-format
 msgid "Translations for {locale} initialized at {po_file_path}."
 msgstr ""
-
-msgid "Trees"
-msgstr "Bäume"
 
 msgid "Unauthorized"
 msgstr "Unberechtigt"

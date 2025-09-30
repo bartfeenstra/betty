@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Any
+from typing import TYPE_CHECKING, Any, cast
 
 import pytest
 from geopy import Point
@@ -12,31 +12,40 @@ from betty.ancestry.event_type.event_types import Birth
 from betty.ancestry.link import Link
 from betty.ancestry.name import Name
 from betty.ancestry.place import Place
+from betty.ancestry.place_type.place_types import Hamlet
 from betty.ancestry.place_type.place_types import Unknown as UnknownPlaceType
 from betty.locale import DEFAULT_LOCALE
 from betty.locale.localizable import Plain
+from betty.model import Entity
 from betty.model.association import AssociationRequired, TemporaryToOneResolver
-from betty.test_utils.ancestry.place_type import DummyPlaceType
 from betty.test_utils.json.linked_data import assert_dumps_linked_data
-from betty.test_utils.model import EntityTestBase
+from betty.test_utils.model import EntityDefinitionTestBase, EntityTestBase
 
 if TYPE_CHECKING:
     from collections.abc import Mapping, Sequence
 
-    from betty.model import Entity
+    from betty.plugin import PluginDefinition
+
+
+class TestPlaceDefinition(EntityDefinitionTestBase):
+    @override
+    @pytest.fixture
+    def sut(self) -> PluginDefinition:
+        return Place.plugin
 
 
 class TestPlace(EntityTestBase):
-    @override
-    def get_sut_class(self) -> type[Place]:
-        return Place
-
-    @override
-    async def get_sut_instances(self) -> Sequence[Entity]:
+    @staticmethod
+    def _sut_params() -> Sequence[Entity]:
         return [
             Place(),
             Place(names=[Name(Plain("My First Place"))]),
         ]
+
+    @override
+    @pytest.fixture(params=_sut_params())
+    async def sut(self, request: pytest.FixtureRequest) -> Entity:
+        return cast(Entity, request.param)
 
     def test_place_type__default(self) -> None:
         sut = Place()
@@ -61,12 +70,12 @@ class TestPlace(EntityTestBase):
         assert enclosure.encloser is sut
 
     def test___init____with_place_type(self) -> None:
-        place_type = DummyPlaceType()
+        place_type = Hamlet()
         sut = Place(place_type=place_type)
         assert sut.place_type is place_type
 
     def test_place_type(self) -> None:
-        place_type = DummyPlaceType()
+        place_type = Hamlet()
         sut = Place()
         sut.place_type = place_type
         assert sut.place_type is place_type

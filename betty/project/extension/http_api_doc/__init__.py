@@ -8,39 +8,29 @@ from typing import TYPE_CHECKING, final
 from typing_extensions import override
 
 from betty.html import NavigationLink, NavigationLinkProvider
-from betty.locale.localizable import _
-from betty.plugin import ShorthandPluginBase
+from betty.locale.localizable import Plain, _
+from betty.project.extension import ExtensionDefinition
 from betty.project.extension.webpack import Webpack
 from betty.project.extension.webpack.build import EntryPointProvider
 
 if TYPE_CHECKING:
     from collections.abc import Sequence
 
-    from betty.plugin import PluginIdentifier
-    from betty.project.extension import Extension
-
 
 @final
-class HttpApiDoc(ShorthandPluginBase, EntryPointProvider, NavigationLinkProvider):
+@ExtensionDefinition(
+    id="http-api-doc",
+    label=Plain("HTTP API Documentation"),
+    description=_(
+        "Display the HTTP API documentation in a user-friendly way using Swagger UI."
+    ),
+    depends_on={Webpack.plugin},
+    assets_directory_path=Path(__file__).parent / "assets",
+)
+class HttpApiDoc(EntryPointProvider, NavigationLinkProvider):
     """
     Provide user-friendly HTTP API documentation.
     """
-
-    _plugin_id = "http-api-doc"
-    _plugin_label = _("HTTP API Documentation")
-    _plugin_description = _(
-        'Display the HTTP API documentation in a user-friendly way using <a href="https://swagger.io/tools/swagger-ui">Swagger UI</a>.'
-    )
-
-    @override
-    @classmethod
-    def depends_on(cls) -> set[PluginIdentifier[Extension]]:
-        return {Webpack}
-
-    @override
-    @classmethod
-    def assets_directory_path(cls) -> Path:
-        return Path(__file__).parent / "assets"
 
     @override
     @classmethod

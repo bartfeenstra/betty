@@ -1,6 +1,7 @@
 import gzip
 from pathlib import Path
 
+import pytest
 from aiofiles.tempfile import TemporaryDirectory
 from typing_extensions import override
 
@@ -16,6 +17,7 @@ from betty.ancestry.source import Source
 from betty.app import App
 from betty.plugin.config import PluginInstanceConfiguration
 from betty.project import Project
+from betty.project.extension import Extension
 from betty.project.extension.gramps import Gramps
 from betty.project.extension.gramps.config import (
     FamilyTreeConfiguration,
@@ -25,10 +27,12 @@ from betty.project.load import load
 from betty.test_utils.project.extension import ExtensionTestBase
 
 
-class TestGramps(ExtensionTestBase[Gramps]):
+class TestGramps(ExtensionTestBase):
     @override
-    def get_sut_class(self) -> type[Gramps]:
-        return Gramps
+    @pytest.fixture
+    async def sut(self, new_temporary_app: App) -> Extension:
+        async with Project.new_temporary(new_temporary_app) as project, project:
+            return await Gramps.new_for_project(project)
 
     async def test_load__with_event_type_mapping(
         self, new_temporary_app: App, tmp_path: Path
@@ -58,7 +62,7 @@ class TestGramps(ExtensionTestBase[Gramps]):
         async with Project.new_temporary(new_temporary_app) as project:
             project.configuration.extensions.append(
                 PluginInstanceConfiguration(
-                    Gramps,
+                    Gramps.plugin,
                     configuration=GrampsConfiguration(
                         family_trees=[
                             FamilyTreeConfiguration(
@@ -101,7 +105,7 @@ class TestGramps(ExtensionTestBase[Gramps]):
         async with Project.new_temporary(new_temporary_app) as project:
             project.configuration.extensions.append(
                 PluginInstanceConfiguration(
-                    Gramps,
+                    Gramps.plugin,
                     configuration=GrampsConfiguration(
                         family_trees=[
                             FamilyTreeConfiguration(
@@ -152,7 +156,7 @@ class TestGramps(ExtensionTestBase[Gramps]):
         async with Project.new_temporary(new_temporary_app) as project:
             project.configuration.extensions.append(
                 PluginInstanceConfiguration(
-                    Gramps,
+                    Gramps.plugin,
                     configuration=GrampsConfiguration(
                         family_trees=[
                             FamilyTreeConfiguration(
@@ -283,7 +287,7 @@ class TestGramps(ExtensionTestBase[Gramps]):
             async with Project.new_temporary(new_temporary_app) as project:
                 project.configuration.extensions.append(
                     PluginInstanceConfiguration(
-                        Gramps,
+                        Gramps.plugin,
                         configuration=GrampsConfiguration(
                             family_trees=[
                                 FamilyTreeConfiguration(gramps_family_tree_one_path),

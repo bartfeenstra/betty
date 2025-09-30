@@ -1,13 +1,19 @@
 from betty.ancestry.has_links import HasLinks
 from betty.ancestry.link import Link
 from betty.locale import DEFAULT_LOCALE
-from betty.locale.localizable import Plain, StaticTranslations
+from betty.locale.localizable import CountablePlain, Plain, StaticTranslations
+from betty.model import EntityDefinition
 from betty.project.extension.raspberry_mint import RaspberryMint
 from betty.test_utils.jinja2 import assert_template_file
-from betty.test_utils.model import DummyEntity
 
 
-class DummyEntityWithLinks(HasLinks, DummyEntity):
+@EntityDefinition(
+    id="dummy-has-links",
+    label=Plain(""),
+    label_plural=Plain(""),
+    label_countable=CountablePlain("", ""),
+)
+class DummyEntityWithLinks(HasLinks):
     pass
 
 

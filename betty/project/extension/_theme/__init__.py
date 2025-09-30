@@ -13,10 +13,6 @@ from typing import TYPE_CHECKING, cast
 from typing_extensions import override
 
 from betty.ancestry.event import Event
-from betty.ancestry.event_type.event_types import (
-    EndOfLifeEventType,
-    StartOfLifeEventType,
-)
 from betty.ancestry.person import Person
 from betty.ancestry.place import Place
 from betty.ancestry.presence_role.presence_roles import Subject
@@ -123,11 +119,11 @@ def _person_timeline_events(person: Person, lifetime_threshold: int) -> Iterable
             continue
         assert presence.event is not None
         assert presence.event.date is not None
-        if not isinstance(presence.role, Subject):
+        if presence.role.plugin.id != Subject.plugin.id:
             continue
-        if isinstance(presence.event.event_type, StartOfLifeEventType):
+        if presence.event.event_type.plugin.is_start_of_life:
             start_dates.append(presence.event.date)
-        if isinstance(presence.event.event_type, EndOfLifeEventType):
+        if presence.event.event_type.plugin.is_end_of_life:
             end_dates.append(presence.event.date)
     start_date = sorted(start_dates)[0] if start_dates else None
     end_date = sorted(end_dates)[0] if end_dates else None
@@ -197,9 +193,9 @@ def _person_timeline_events(person: Person, lifetime_threshold: int) -> Iterable
         for associated_person in associated_people:
             # For associated events, we are only interested in people's start- or end-of-life events.
             for associated_presence in associated_person.presences:
-                if not isinstance(
-                    associated_presence.event.event_type,
-                    StartOfLifeEventType | EndOfLifeEventType,
+                if (
+                    not associated_presence.event.event_type.plugin.is_start_of_life
+                    or associated_presence.event.event_type.plugin.is_end_of_life
                 ):
                     continue
                 if not persistent_id(associated_presence.event):

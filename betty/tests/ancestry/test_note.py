@@ -9,25 +9,29 @@ from betty.locale import DEFAULT_LOCALE
 from betty.locale.localizable import Plain
 from betty.locale.localizer import DEFAULT_LOCALIZER
 from betty.test_utils.json.linked_data import assert_dumps_linked_data
-from betty.test_utils.model import EntityTestBase
+from betty.test_utils.model import EntityDefinitionTestBase, EntityTestBase
 from betty.tests.ancestry.test_has_notes import DummyHasNotes
 
 if TYPE_CHECKING:
-    from collections.abc import Mapping, Sequence
+    from collections.abc import Mapping
 
     from betty.model import Entity
+    from betty.plugin import PluginDefinition
+import pytest
+
+
+class TestNoteDefinition(EntityDefinitionTestBase):
+    @override
+    @pytest.fixture
+    def sut(self) -> PluginDefinition:
+        return Note.plugin
 
 
 class TestNote(EntityTestBase):
     @override
-    def get_sut_class(self) -> type[Note]:
-        return Note
-
-    @override
-    async def get_sut_instances(self) -> Sequence[Entity]:
-        return [
-            Note(Plain("Betty wrote this.")),
-        ]
+    @pytest.fixture
+    async def sut(self) -> Entity:
+        return Note(Plain("Betty wrote this."))
 
     async def test___init____with_entity(self) -> None:
         entity = DummyHasNotes()
