@@ -17,9 +17,8 @@ from betty.ancestry.place_type.place_types import Unknown as UnknownPlaceType
 from betty.json.linked_data import JsonLdObject, dump_context
 from betty.json.schema import Array, Number, Object
 from betty.locale.localizable import Localizable, _, ngettext
-from betty.model import Entity
+from betty.model import EntityDefinition
 from betty.model.association import BidirectionalToManySingleType, ToManyAssociates
-from betty.plugin import ShorthandPluginBase
 from betty.privacy import HasPrivacy
 from betty.user import UserFacing
 
@@ -40,15 +39,13 @@ if TYPE_CHECKING:
 
 
 @final
-class Place(
-    ShorthandPluginBase,
-    HasLinks,
-    HasFileReferences,
-    HasNotes,
-    HasPrivacy,
-    UserFacing,
-    Entity,
-):
+@EntityDefinition(
+    id="place",
+    label=_("Place"),
+    label_plural=_("Places"),
+    label_countable=ngettext("{count} place", "{count} places"),
+)
+class Place(HasLinks, HasFileReferences, HasNotes, HasPrivacy, UserFacing):
     """
     A place.
 
@@ -56,9 +53,6 @@ class Place(
     be a well-known city, with names in many languages, imagery, and its own Wikipedia page, or
     any type of place in between.
     """
-
-    _plugin_id = "place"
-    _plugin_label = _("Place")
 
     events = BidirectionalToManySingleType["Place", "Event"](
         "betty.ancestry.place:Place",
@@ -136,18 +130,6 @@ class Place(
         for enclosure in self.enclosees:
             yield enclosure
             yield from enclosure.enclosee.walk_enclosees
-
-    @override
-    @classmethod
-    def plugin_label_plural(cls) -> Localizable:
-        return _("Places")
-
-    @override
-    @classmethod
-    def plugin_label_count(cls, count: int) -> Localizable:
-        return ngettext("{count} place", "{count} places", count).format(
-            count=str(count)
-        )
 
     @property
     def place_type(self) -> PlaceType:

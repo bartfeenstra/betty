@@ -13,33 +13,33 @@ from betty.locale.translation import (
     _update_translations,
     find_source_files,
 )
-from betty.project.extension import Extension
+from betty.project.extension import ExtensionDefinition
 
 if TYPE_CHECKING:
     from pathlib import Path
 
     from betty.user import User
 
-_ExtensionT = TypeVar("_ExtensionT", bound=Extension)
+_ExtensionDefinitionT = TypeVar("_ExtensionDefinitionT", bound=ExtensionDefinition)
 
 
-def assert_extension_assets_directory_path(extension: type[Extension]) -> Path:
+def assert_extension_assets_directory_path(extension: ExtensionDefinition) -> Path:
     """
     Check that the given extension has an assets directory, and return its path.
     """
-    assets_directory_path = extension.assets_directory_path()
+    assets_directory_path = extension.assets_directory_path
     if assets_directory_path is None:
         raise UserFacingException(
             _("{extension} does not have an assets directory.").format(
-                extension=extension.plugin_id()
+                extension=extension.id
             )
         )
     return assets_directory_path
 
 
 def assert_extension_has_assets_directory_path(
-    extension: type[_ExtensionT],
-) -> type[_ExtensionT]:
+    extension: _ExtensionDefinitionT,
+) -> _ExtensionDefinitionT:
     """
     Check that the given extension has an assets directory, and return it.
     """
@@ -48,7 +48,7 @@ def assert_extension_has_assets_directory_path(
 
 
 async def new_extension_translation(
-    locale: str, extension: type[Extension], *, user: User
+    locale: str, extension: ExtensionDefinition, *, user: User
 ) -> None:
     """
     Create a new translation for the given extension.
@@ -59,7 +59,7 @@ async def new_extension_translation(
 
 
 async def update_extension_translations(
-    extension: type[Extension],
+    extension: ExtensionDefinition,
     source_directory_path: Path | None = None,
     exclude_source_directory_paths: set[Path] | None = None,
     *,

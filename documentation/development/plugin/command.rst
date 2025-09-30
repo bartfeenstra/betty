@@ -16,76 +16,62 @@ are built using :py:mod:`argparse`.
 Creating a command
 ------------------
 
-#. Create a new class that extends :py:class:`betty.console.command.Command` and implements the abstract methods,
-   for example:
+Create a new class decorated with :py:class:`betty.console.command.CommandDefinition`, and that implements the
+abstract methods, for example:
 
-   .. code-block:: python
+.. code-block:: python
 
-    from typing import override
-    from betty.console.commands import Command
-    from betty.machine_name import MachineName
+   import argparse
+   from typing import override
 
-    class MyCommand(Command):
-        @override
-        @classmethod
-        def plugin_id(cls) -> MachineName:
-            return "my-module-my-command"
+   from betty.console.command import Command, CommandDefinition, CommandFunction
 
-        # Implement remaining abstract methods...
-        ...
+   @CommandDefinition(
+       id="my-command",
+       label=_("My Command"),
+   )
+   class MyCommand(Command):
+       @override
+       async def configure(
+           self, parser: argparse.ArgumentParser
+       ) -> CommandFunction:
+           ... # Implement this method...
 
+Tell Betty about your command by registering it as an entry point. Given the command above in a module
+``my_package.my_module``, add the following to your Python package:
 
-#. Tell Betty about your command by registering it as an entry point. Given the command above in a module ``my_package.my_module``, add the following to your Python package:
+.. code-block:: toml
 
-   .. code-block:: toml
-
-       [project.entry-points.'betty.command']
-       'my-module-my-command' = 'my_package.my_module.MyCommand'
+   [project.entry-points.'betty.command']
+   'my-command' = 'my_package.my_module.MyCommand.plugin'
               
-#. Configure the argument parser and return the function to invoke the command:
+Examples
+^^^^^^^^
 
-   .. code-block:: python
+Arguments can be added through the parser, and are passed on to the command function as keyword arguments:
 
-     import argparse
-     from typing import override
-     from betty.console.commands import Command, command
-     from betty.machine_name import MachineName
+.. code-block:: python
 
-     class MyCommand(Command):
-         @override
-         async def configure(
-             self, parser: argparse.ArgumentParser
-         ) -> Callable[..., Awaitable[None]]:
-             return self._invoke
+   import argparse
+   from typing import override
 
-         async def _invoke(self) -> None:
-             # Perform the actual command...
+   from betty.console import add_project_argument
+   from betty.console.command import Command, CommandFunction
+   from betty.project import Project
 
-   Arguments can be added through the parser, and are passed on to the command function as keyword arguments:
+   class MyCommand(Command):
+       @override
+       async def configure(
+           self, parser: argparse.ArgumentParser
+       ) -> CommandFunction:
+           # Require a project by adding a project configuration file argument:
+           await add_project_argument(parser, self._app)
+           # Add another, custom argument:
+           parser.add_argument("--my-first-argument")
+           return self._invoke
 
-   .. code-block:: python
-
-     import argparse
-     from typing import override
-     from betty.console import add_project_argument
-     from betty.console.commands import Command, command
-     from betty.machine_name import MachineName
-     from betty.project import Project
-
-     class MyCommand(Command):
-         @override
-         async def configure(
-             self, parser: argparse.ArgumentParser
-         ) -> Callable[..., Awaitable[None]]:
-             # Require a project by adding a project configuration file argument:
-             await add_project_argument(parser, self._app)
-             # Add another, custom argument:
-             parser.add_argument("--my-first-argument")
-             return self._invoke
-
-         async def _invoke(self, project: Project, my_first_argument: str) -> None:
-             # Perform the actual command...
-
+       async def _invoke(self, project: Project, my_first_argument: str) -> None:
+           # Perform the actual command...
 
 See also
 --------

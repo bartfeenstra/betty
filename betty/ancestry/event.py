@@ -28,13 +28,13 @@ from betty.locale.localizable import (
     _,
     ngettext,
 )
+from betty.model import EntityDefinition
 from betty.model.association import (
     BidirectionalToManySingleType,
     BidirectionalToZeroOrOne,
     ToManyAssociates,
     ToZeroOrOneAssociate,
 )
-from betty.plugin import ShorthandPluginBase
 from betty.privacy import HasPrivacy, Privacy
 from betty.repr import repr_instance
 from betty.user import UserFacing
@@ -53,8 +53,13 @@ if TYPE_CHECKING:
 
 
 @final
+@EntityDefinition(
+    id="event",
+    label=_("Event"),
+    label_plural=_("Events"),
+    label_countable=ngettext("{count} event", "{count} events"),
+)
 class Event(
-    ShorthandPluginBase,
     HasDate,
     HasFileReferences,
     HasCitations,
@@ -67,9 +72,6 @@ class Event(
     """
     An event that took place.
     """
-
-    _plugin_id = "event"
-    _plugin_label = _("Event")
 
     #: The place the event happened.
     place = BidirectionalToZeroOrOne["Event", Place](
@@ -147,7 +149,7 @@ class Event(
             return self.name
 
         format_kwargs: Mapping[str, str | Localizable] = {
-            "event_type": self._event_type.plugin_label(),
+            "event_type": self._event_type.plugin.label,
         }
         subjects = [
             presence.person
@@ -170,18 +172,6 @@ class Event(
     def __repr__(self) -> str:
         return repr_instance(self, id=self._id, type=self._event_type)
 
-    @override
-    @classmethod
-    def plugin_label_plural(cls) -> Localizable:
-        return _("Events")
-
-    @override
-    @classmethod
-    def plugin_label_count(cls, count: int) -> Localizable:
-        return ngettext("{count} event", "{count} events", count).format(
-            count=str(count)
-        )
-
     @property
     def event_type(self) -> EventType:
         """
@@ -195,7 +185,7 @@ class Event(
         dump_context(dump, place="https://schema.org/location")
         dump_context(dump, presences="https://schema.org/performer")
         dump["@type"] = "https://schema.org/Event"
-        dump["type"] = self.event_type.plugin_id()
+        dump["type"] = self.event_type.plugin.id
         dump["eventAttendanceMode"] = "https://schema.org/OfflineEventAttendanceMode"
         dump["eventStatus"] = "https://schema.org/EventScheduled"
         if self.name is not None:

@@ -12,10 +12,9 @@ from typing import TYPE_CHECKING, final
 from typing_extensions import override
 
 from betty.html import NavigationLink, NavigationLinkProvider
-from betty.locale.localizable import StaticTranslations, _
-from betty.plugin import ShorthandPluginBase
+from betty.locale.localizable import Plain, _
 from betty.project import ProjectContext, generate
-from betty.project.extension import Extension
+from betty.project.extension import Extension, ExtensionDefinition
 from betty.project.extension.demo.jobs import LoadAncestry
 from betty.project.extension.deriver import Deriver
 from betty.project.extension.http_api_doc import HttpApiDoc
@@ -54,31 +53,27 @@ async def generate_with_cleanup(
         raise
 
 
+_DEPENDENCIES: set[PluginIdentifier] = {
+    Deriver.plugin,
+    HttpApiDoc.plugin,
+    Maps.plugin,
+    RaspberryMint.plugin,
+    Trees.plugin,
+    Wiki.plugin,
+}
+
+
 @final
-class Demo(ShorthandPluginBase, NavigationLinkProvider, Loader, Extension):
+@ExtensionDefinition(
+    id="demo",
+    label=Plain("Demo"),
+    depends_on=_DEPENDENCIES,
+    comes_after=_DEPENDENCIES,
+)
+class Demo(NavigationLinkProvider, Loader, Extension):
     """
     Provide demonstration site functionality.
     """
-
-    _plugin_id = "demo"
-    _plugin_label = StaticTranslations("Demo")
-
-    @override
-    @classmethod
-    def depends_on(cls) -> set[PluginIdentifier[Extension]]:
-        return {
-            Deriver,
-            HttpApiDoc,
-            Maps,
-            RaspberryMint,
-            Trees,
-            Wiki,
-        }
-
-    @override
-    @classmethod
-    def comes_after(cls) -> set[PluginIdentifier[Extension]]:
-        return cls.depends_on()
 
     @override
     async def load(self, scheduler: Scheduler[ProjectContext]) -> None:

@@ -2,28 +2,35 @@ from pathlib import Path
 
 import pytest
 from pytest_mock import MockerFixture
-from typing_extensions import override
 
+from betty.locale.localizable import Plain
 from betty.plugin.static import StaticPluginRepository
-from betty.test_utils.project.extension import DummyExtension
+from betty.project.extension import Extension, ExtensionDefinition
 
 
 class ExtensionTranslationTestBase:
     @pytest.fixture(autouse=True)
     def _extensions(self, mocker: MockerFixture, tmp_path: Path) -> None:
-        class _DummyWithoutAssetsDirectoryExtension(DummyExtension):
+        @ExtensionDefinition(
+            id="dummy-without-assets",
+            label=Plain("Dummy without assets"),
+        )
+        class _DummyWithoutAssetsDirectoryExtension(Extension):
             pass
 
-        class _DummyWithAssetsDirectoryExtension(DummyExtension):
-            @override
-            @classmethod
-            def assets_directory_path(cls) -> Path | None:
-                return tmp_path / "assets"
+        @ExtensionDefinition(
+            id="dummy-with-assets",
+            label=Plain("Dummy with assets"),
+            assets_directory_path=tmp_path / "assets",
+        )
+        class _DummyWithAssetsDirectoryExtension(Extension):
+            pass
 
         mocker.patch(
             "betty.project.extension.EXTENSION_REPOSITORY",
             new=StaticPluginRepository(
-                _DummyWithoutAssetsDirectoryExtension,
-                _DummyWithAssetsDirectoryExtension,
+                ExtensionDefinition,
+                _DummyWithoutAssetsDirectoryExtension.plugin,
+                _DummyWithAssetsDirectoryExtension.plugin,
             ),
         )

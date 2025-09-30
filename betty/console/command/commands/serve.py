@@ -6,10 +6,9 @@ from typing import TYPE_CHECKING, final, Self
 from typing_extensions import override
 
 from betty.app.factory import AppDependentFactory
+from betty.console.command import Command, CommandFunction, CommandDefinition
 from betty.console.project import add_project_argument
-from betty.console.command import Command, CommandFunction
 from betty.locale.localizable import _
-from betty.plugin import ShorthandPluginBase
 
 if TYPE_CHECKING:
     import argparse
@@ -19,14 +18,15 @@ if TYPE_CHECKING:
 
 
 @final
-class Serve(ShorthandPluginBase, AppDependentFactory, Command):
+@CommandDefinition(
+    id="serve",
+    label=_("Serve a generated site"),
+    description=_("This will open your web browser."),
+)
+class Serve(AppDependentFactory, Command):
     """
     A command to serve a generated site.
     """
-
-    _plugin_id = "serve"
-    _plugin_label = _("Serve a generated site")
-    _plugin_description = _("This will open your web browser.")
 
     def __init__(self, app: App):
         self._app = app

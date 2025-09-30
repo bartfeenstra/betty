@@ -13,10 +13,10 @@ from typing_extensions import override
 
 from betty.ancestry.person import Person
 from betty.job import Job
-from betty.locale.localizable import _
+from betty.locale.localizable import Plain, _
 from betty.media_type.media_types import HTML
-from betty.plugin import ShorthandPluginBase
 from betty.project import ProjectContext
+from betty.project.extension import ExtensionDefinition
 from betty.project.extension.webpack import Webpack
 from betty.project.extension.webpack.build import EntryPointProvider
 from betty.project.generate import Generator
@@ -25,8 +25,6 @@ if TYPE_CHECKING:
     from collections.abc import Sequence
 
     from betty.job.scheduler import Scheduler
-    from betty.plugin import PluginIdentifier
-    from betty.project.extension import Extension
 
 
 class _GeneratePeopleJson(Job[ProjectContext]):
@@ -75,26 +73,19 @@ class _GeneratePeopleJson(Job[ProjectContext]):
 
 
 @final
-class Trees(ShorthandPluginBase, Generator, EntryPointProvider):
+@ExtensionDefinition(
+    id="trees",
+    label=Plain("Trees"),
+    description=_(
+        'Display interactive family trees using <a href="https://cytoscape.org/">Cytoscape</a>.'
+    ),
+    depends_on={Webpack.plugin},
+    assets_directory_path=Path(__file__).parent / "assets",
+)
+class Trees(Generator, EntryPointProvider):
     """
     Provide interactive family trees for use in web pages.
     """
-
-    _plugin_id = "trees"
-    _plugin_label = _("Trees")
-    _plugin_description = _(
-        'Display interactive family trees using <a href="https://cytoscape.org/">Cytoscape</a>.'
-    )
-
-    @override
-    @classmethod
-    def depends_on(cls) -> set[PluginIdentifier[Extension]]:
-        return {Webpack}
-
-    @override
-    @classmethod
-    def assets_directory_path(cls) -> Path | None:
-        return Path(__file__).parent / "assets"
 
     @override
     async def generate(self, scheduler: Scheduler[ProjectContext]) -> None:

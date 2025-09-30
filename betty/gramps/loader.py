@@ -125,15 +125,16 @@ if TYPE_CHECKING:
 
     from betty.ancestry import Ancestry
     from betty.ancestry.event_type import EventType
-    from betty.ancestry.gender import Gender
+    from betty.ancestry.gender import GenderDefinition
     from betty.ancestry.has_citations import HasCitations
     from betty.ancestry.has_file_references import HasFileReferences
     from betty.ancestry.has_notes import HasNotes
     from betty.ancestry.place_type import PlaceType
     from betty.ancestry.presence_role import PresenceRole
-    from betty.copyright_notice import CopyrightNotice
+    from betty.copyright_notice import CopyrightNoticeDefinition
     from betty.factory import Factory
-    from betty.license import License
+    from betty.license import LicenseDefinition
+    from betty.machine_name import MachineName
     from betty.plugin import PluginRepository
     from betty.user import User
 
@@ -207,74 +208,74 @@ class _ToManyResolver(Generic[_EntityT], ToManyResolver[_EntityT]):
 
 
 _GENDER_MAPPING = {
-    "F": Female,
-    "M": Male,
-    "U": UnknownGender,
-    "X": NonBinary,
+    "F": Female.plugin,
+    "M": Male.plugin,
+    "U": UnknownGender.plugin,
+    "X": NonBinary.plugin,
 }
 
 DEFAULT_EVENT_TYPES_MAPPING = {
-    "Adopted": Adoption,
-    "Adult Christening": Baptism,
-    "Baptism": Baptism,
-    "Bar Mitzvah": BarMitzvah,
-    "Bat Mitzvah": BatMitzvah,
-    "Birth": Birth,
-    "Burial": Burial,
-    "Christening": Baptism,
-    "Confirmation": Confirmation,
-    "Cremation": Cremation,
-    "Death": Death,
-    "Divorce": Divorce,
-    "Divorce Filing": DivorceAnnouncement,
-    "Emigration": Emigration,
-    "Engagement": Engagement,
-    "Immigration": Immigration,
-    "Marriage": Marriage,
-    "Marriage Banns": MarriageAnnouncement,
-    "Occupation": Occupation,
-    "Residence": Residence,
-    "Retirement": Retirement,
-    "Will": Will,
+    "Adopted": Adoption.plugin,
+    "Adult Christening": Baptism.plugin,
+    "Baptism": Baptism.plugin,
+    "Bar Mitzvah": BarMitzvah.plugin,
+    "Bat Mitzvah": BatMitzvah.plugin,
+    "Birth": Birth.plugin,
+    "Burial": Burial.plugin,
+    "Christening": Baptism.plugin,
+    "Confirmation": Confirmation.plugin,
+    "Cremation": Cremation.plugin,
+    "Death": Death.plugin,
+    "Divorce": Divorce.plugin,
+    "Divorce Filing": DivorceAnnouncement.plugin,
+    "Emigration": Emigration.plugin,
+    "Engagement": Engagement.plugin,
+    "Immigration": Immigration.plugin,
+    "Marriage": Marriage.plugin,
+    "Marriage Banns": MarriageAnnouncement.plugin,
+    "Occupation": Occupation.plugin,
+    "Residence": Residence.plugin,
+    "Retirement": Retirement.plugin,
+    "Will": Will.plugin,
 }
 
 
 DEFAULT_PLACE_TYPES_MAPPING = {
-    "Borough": Borough,
-    "Building": Building,
-    "City": City,
-    "Country": Country,
-    "County": County,
-    "Department": Department,
-    "District": District,
-    "Farm": Farm,
-    "Hamlet": Hamlet,
-    "Locality": Locality,
-    "Municipality": Municipality,
-    "Neighborhood": Neighborhood,
-    "Number": Number,
-    "Parish": Parish,
-    "Province": Province,
-    "Region": Region,
-    "State": State,
-    "Street": Street,
-    "Town": Town,
-    "Unknown": UnknownPlaceType,
-    "Village": Village,
+    "Borough": Borough.plugin,
+    "Building": Building.plugin,
+    "City": City.plugin,
+    "Country": Country.plugin,
+    "County": County.plugin,
+    "Department": Department.plugin,
+    "District": District.plugin,
+    "Farm": Farm.plugin,
+    "Hamlet": Hamlet.plugin,
+    "Locality": Locality.plugin,
+    "Municipality": Municipality.plugin,
+    "Neighborhood": Neighborhood.plugin,
+    "Number": Number.plugin,
+    "Parish": Parish.plugin,
+    "Province": Province.plugin,
+    "Region": Region.plugin,
+    "State": State.plugin,
+    "Street": Street.plugin,
+    "Town": Town.plugin,
+    "Unknown": UnknownPlaceType.plugin,
+    "Village": Village.plugin,
 }
 
 
 DEFAULT_PRESENCE_ROLES_MAPPING = {
-    "Aide": Attendee,
-    "Bride": Subject,
-    "Celebrant": Celebrant,
-    "Clergy": Celebrant,
-    "Family": Subject,
-    "Groom": Subject,
-    "Informant": Informant,
-    "Primary": Subject,
-    "Unknown": UnknownPresenceRole,
-    "Witness": Witness,
+    "Aide": Attendee.plugin,
+    "Bride": Subject.plugin,
+    "Celebrant": Celebrant.plugin,
+    "Clergy": Celebrant.plugin,
+    "Family": Subject.plugin,
+    "Groom": Subject.plugin,
+    "Informant": Informant.plugin,
+    "Primary": Subject.plugin,
+    "Unknown": UnknownPresenceRole.plugin,
+    "Witness": Witness.plugin,
 }
 
 _DEFAULT_GRAMPS_EXECUTABLE = (
@@ -317,12 +318,12 @@ class GrampsLoader:
         *,
         factory: Factory,
         user: User,
-        copyright_notices: PluginRepository[CopyrightNotice],
-        licenses: PluginRepository[License],
+        copyright_notices: PluginRepository[CopyrightNoticeDefinition],
+        licenses: PluginRepository[LicenseDefinition],
         attribute_prefix_key: str | None = None,
         event_type_mapping: Mapping[str, Callable[[], EventType | Awaitable[EventType]]]
         | None = None,
-        genders: PluginRepository[Gender],
+        genders: PluginRepository[GenderDefinition],
         place_type_mapping: Mapping[str, Callable[[], PlaceType | Awaitable[PlaceType]]]
         | None = None,
         presence_role_mapping: Mapping[
@@ -768,7 +769,7 @@ class GrampsLoader:
         if copyright_notice_id:
             try:
                 file.copyright_notice = await self._factory(
-                    await self._copyright_notices.get(copyright_notice_id)
+                    (await self._copyright_notices.get(copyright_notice_id)).cls
                 )
             except PluginNotFound:
                 await self._user.message_warning(
@@ -779,7 +780,9 @@ class GrampsLoader:
         license_id = self._load_attribute("license", element, "attribute")
         if license_id:
             try:
-                file.license = await self._factory(await self._licenses.get(license_id))
+                file.license = await self._factory(
+                    (await self._licenses.get(license_id)).cls
+                )
             except PluginNotFound:
                 await self._user.message_warning(
                     _(
@@ -802,21 +805,17 @@ class GrampsLoader:
         assert person_handle is not None
         person_id = element.get("id")
         assert person_id is not None
-        gender_target: type[Gender] | str | None = self._load_attribute(
+        gender_id: MachineName | None = self._load_attribute(
             "gender", element, "attribute"
         )
-        if gender_target is None:
+        if gender_id is None:
             gramps_gender = self._xpath1(element, "./ns:gender").text
             assert gramps_gender is not None
-            gender_target = _GENDER_MAPPING[gramps_gender]
+            gender_id = _GENDER_MAPPING[gramps_gender].id
 
         person = Person(
             id=element.get("id"),
-            gender=await self._factory(
-                await self._genders.get(gender_target)
-                if isinstance(gender_target, str)
-                else gender_target
-            ),
+            gender=await self._factory((await self._genders.get(gender_id)).cls),
         )
 
         name_elements = sorted(
@@ -918,7 +917,7 @@ class GrampsLoader:
                     person_id=person.id,
                     event_handle=event_handle,
                     gramps_presence_role=gramps_presence_role,
-                    betty_presence_role=presence_role.plugin_label().localize(
+                    betty_presence_role=presence_role.plugin.label.localize(
                         self._user.localizer
                     ),
                 )
@@ -978,7 +977,7 @@ class GrampsLoader:
                 ).format(
                     place_id=place_id,
                     gramps_place_type=gramps_type,
-                    betty_place_type=place_type.plugin_label().localize(
+                    betty_place_type=place_type.plugin.label.localize(
                         self._user.localizer
                     ),
                 )
@@ -1048,7 +1047,7 @@ class GrampsLoader:
                 ).format(
                     event_id=event_id,
                     gramps_event_type=gramps_type,
-                    betty_event_type=event_type.plugin_label().localize(
+                    betty_event_type=event_type.plugin.label.localize(
                         self._user.localizer
                     ),
                 )
@@ -1265,7 +1264,7 @@ class GrampsLoader:
                 'The betty:privacy Gramps attribute must have a value of "public" or "private", but "{privacy_value}" was given for {entity_type} {entity_id} ({entity_label}), which was ignored.',
             ).format(
                 privacy_value=privacy_value,
-                entity_type=entity.plugin_label().localize(self._user.localizer),
+                entity_type=entity.plugin.label.localize(self._user.localizer),
                 entity_id=entity.id,
                 entity_label=entity.label.localize(self._user.localizer),
             )

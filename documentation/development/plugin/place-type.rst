@@ -16,31 +16,27 @@ number.
 Creating a place type
 ---------------------
 
-#. Create a new class that extends :py:class:`betty.ancestry.place_type.PlaceType` and implements the abstract methods,
-   for example:
+Create a new class that extends :py:class:`betty.ancestry.place_type.PlaceType` and implements the abstract methods, for
+example:
 
-   .. code-block:: python
+.. code-block:: python
 
-     from typing import override
-     from betty.ancestry.place_type import PlaceType
-     from betty.machine_name import MachineName
+   from betty.ancestry.place_type import PlaceType, PlaceTypeDefinition
 
-     class MyPlaceType(PlaceType):
-       @override
-       @classmethod
-       def plugin_id(cls) -> MachineName:
-           return "my-module-my-place-type"
-
-       # Implement remaining abstract methods...
-       ...
+   @PlaceTypeDefinition(
+       id="my-place-type",
+       label=_("My Place Type"),
+   )
+   class MyPlaceType(PlaceType):
+       pass
 
 
-#. Tell Betty about your place type by registering it as an entry point. Given the place type above in a module ``my_package.my_module``, add the following to your Python package:
+Tell Betty about your place type by registering it as an entry point. Given the place type above in a module ``my_package.my_module``, add the following to your Python package:
 
-   .. code-block:: toml
+.. code-block:: toml
 
-       [project.entry-points.'betty.place_type']
-       'my-module-my-place-type' = 'my_package.my_module.MyPlaceType'
+   [project.entry-points.'betty.place_type']
+   'my-module-my-place-type' = 'my_package.my_module.MyPlaceType'
 
 See also
 --------

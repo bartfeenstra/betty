@@ -9,7 +9,7 @@ from betty.ancestry.has_file_references import HasFileReferences
 from betty.model import Entity
 from betty.model.association import BidirectionalToZeroOrOne
 from betty.test_utils.ancestry.date import DummyHasDate
-from betty.test_utils.model import DummyEntity
+from betty.test_utils.model import DummyEntityOne
 from betty.test_utils.model.collections import EntityCollectionTestBase
 
 if TYPE_CHECKING:
@@ -24,11 +24,11 @@ class DummyHasDateWithContextDefinitions(DummyHasDate):
         return "single-date", "start-date", "end-date"
 
 
-class DummyHasFileReferences(HasFileReferences, DummyEntity):
+class DummyHasFileReferences(HasFileReferences, Entity):
     pass
 
 
-class _TestAncestry_OneToOne_Left(DummyEntity):
+class _TestAncestry_OneToOne_Left(Entity):
     one_right = BidirectionalToZeroOrOne[
         "_TestAncestry_OneToOne_Left", "_TestAncestry_OneToOne_Right"
     ](
@@ -39,7 +39,7 @@ class _TestAncestry_OneToOne_Left(DummyEntity):
     )
 
 
-class _TestAncestry_OneToOne_Right(DummyEntity):
+class _TestAncestry_OneToOne_Right(Entity):
     one_left = BidirectionalToZeroOrOne[
         "_TestAncestry_OneToOne_Right", _TestAncestry_OneToOne_Left
     ](
@@ -62,11 +62,11 @@ class TestAncestry(EntityCollectionTestBase[Entity]):
         return (
             _TestAncestry_OneToOne_Left(),
             _TestAncestry_OneToOne_Right(),
-            DummyEntity(),
+            DummyEntityOne(),
         )
 
     def test___init___with_entities(self) -> None:
-        entity = DummyEntity()
+        entity = DummyEntityOne()
         sut = Ancestry(entity)
         assert entity in sut
 

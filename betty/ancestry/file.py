@@ -13,14 +13,9 @@ from betty.ancestry.has_citations import HasCitations
 from betty.ancestry.has_links import HasLinks
 from betty.ancestry.has_notes import HasNotes
 from betty.ancestry.media_type import HasMediaType
-from betty.locale.localizable import (
-    Localizable,
-    _,
-    ngettext,
-)
-from betty.model import Entity
+from betty.locale.localizable import Localizable, _, ngettext
+from betty.model import EntityDefinition
 from betty.model.association import BidirectionalToManyMultipleTypes, ToManyAssociates
-from betty.plugin import ShorthandPluginBase
 from betty.privacy import HasPrivacy, Privacy
 from betty.user import UserFacing
 
@@ -42,8 +37,13 @@ if TYPE_CHECKING:
 
 
 @final
+@EntityDefinition(
+    id="file",
+    label=_("File"),
+    label_plural=_("Files"),
+    label_countable=ngettext("{count} file", "{count} files"),
+)
 class File(
-    ShorthandPluginBase,
     HasDescription,
     HasPrivacy,
     HasLinks,
@@ -51,7 +51,6 @@ class File(
     HasNotes,
     HasCitations,
     UserFacing,
-    Entity,
 ):
     """
     A file on disk.
@@ -63,9 +62,6 @@ class File(
     - audio
     - PDF documents
     """
-
-    _plugin_id = "file"
-    _plugin_label = _("File")
 
     referees = BidirectionalToManyMultipleTypes["File", "FileReference"](
         "betty.ancestry.file:File",
@@ -130,16 +126,6 @@ class File(
         """
         return self._name or self.path.name
 
-    @override
-    @classmethod
-    def plugin_label_plural(cls) -> Localizable:
-        return _("Files")
-
-    @override
-    @classmethod
-    def plugin_label_count(cls, count: int) -> Localizable:
-        return ngettext("{count} file", "{count} files", count).format(count=str(count))
-
     @property
     def path(self) -> Path:
         """
@@ -170,7 +156,7 @@ class File(
     async def dump_linked_data(self, project: Project) -> DumpMapping[Dump]:
         dump = await super().dump_linked_data(project)
         if self.copyright_notice:
-            dump["copyrightNotice"] = self.copyright_notice.plugin_id()
+            dump["copyrightNotice"] = self.copyright_notice.plugin.id
         if self.license:
-            dump["license"] = self.license.plugin_id()
+            dump["license"] = self.license.plugin.id
         return dump

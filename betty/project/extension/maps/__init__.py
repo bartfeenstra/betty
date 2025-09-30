@@ -9,9 +9,9 @@ from typing_extensions import override
 
 from betty.ancestry.place import Place
 from betty.job import Job
-from betty.locale.localizable import _
-from betty.plugin import ShorthandPluginBase
+from betty.locale.localizable import Plain, _
 from betty.project import ProjectContext
+from betty.project.extension import ExtensionDefinition
 from betty.project.extension.webpack import Webpack
 from betty.project.extension.webpack.build import EntryPointProvider
 from betty.project.generate import Generator
@@ -21,8 +21,6 @@ if TYPE_CHECKING:
     from collections.abc import Sequence
 
     from betty.job.scheduler import Scheduler
-    from betty.plugin import PluginIdentifier
-    from betty.project.extension import Extension
 
 
 class _GeneratePlacePreviews(Job[ProjectContext]):
@@ -58,7 +56,7 @@ class _GeneratePlacePreview(Job[ProjectContext]):
         jinja2_environment = await project.jinja2_environment
         place_path = (
             project.configuration.localize_www_directory_path(self._locale)
-            / place.plugin_id()
+            / place.plugin.id
             / place.id
         )
         rendered_html = await jinja2_environment.get_template(
@@ -71,24 +69,17 @@ class _GeneratePlacePreview(Job[ProjectContext]):
 
 
 @final
-class Maps(ShorthandPluginBase, Generator, EntryPointProvider):
+@ExtensionDefinition(
+    id="maps",
+    label=Plain("Maps"),
+    description=_("Display interactive maps"),
+    depends_on={Webpack.plugin},
+    assets_directory_path=Path(__file__).parent / "assets",
+)
+class Maps(Generator, EntryPointProvider):
     """
     Provide interactive maps for use on web pages.
     """
-
-    _plugin_id = "maps"
-    _plugin_label = _("Maps")
-    _plugin_description = _("Display interactive maps")
-
-    @override
-    @classmethod
-    def depends_on(cls) -> set[PluginIdentifier[Extension]]:
-        return {Webpack}
-
-    @override
-    @classmethod
-    def assets_directory_path(cls) -> Path | None:
-        return Path(__file__).parent / "assets"
 
     @override
     @classmethod

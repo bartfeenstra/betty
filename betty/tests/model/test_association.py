@@ -5,7 +5,8 @@ from typing import TYPE_CHECKING, TypeVar
 import pytest
 from typing_extensions import override
 
-from betty.model import Entity
+from betty.locale.localizable import CountablePlain, Plain
+from betty.model import Entity, EntityDefinition
 from betty.model.association import (
     AssociationRegistry,
     AssociationRequired,
@@ -28,7 +29,6 @@ from betty.model.association import (
 )
 from betty.project import Project
 from betty.test_utils.json.linked_data import assert_dumps_linked_data_for
-from betty.test_utils.model import DummyEntity
 from betty.user import UserFacing
 
 if TYPE_CHECKING:
@@ -69,7 +69,7 @@ class _PassthroughToManyResolver(ToManyResolver[_EntityT]):
 
 
 class TestAssociationRegistry:
-    class _OwnerBase(DummyEntity):
+    class _OwnerBase(Entity):
         base_associate = UnidirectionalToZeroOrOne[
             "TestAssociationRegistry._OwnerBase",
             "TestAssociationRegistry._Associate",
@@ -89,7 +89,7 @@ class TestAssociationRegistry:
             "betty.tests.model.test_association:TestAssociationRegistry._Associate",
         )
 
-    class _Associate(DummyEntity):
+    class _Associate(Entity):
         pass
 
     def test_get_all_associations__with_base_class_should_return_base_associations(
@@ -166,7 +166,13 @@ class TestAssociationRegistry:
 
 
 class TestUnidirectionalToZeroOrOne:
-    class _Owner(DummyEntity):
+    @EntityDefinition(
+        id="owner",
+        label=Plain(""),
+        label_plural=Plain(""),
+        label_countable=CountablePlain("", ""),
+    )
+    class _Owner(Entity):
         def __init__(
             self,
             associate: ToZeroOrOneAssociate[
@@ -185,7 +191,13 @@ class TestUnidirectionalToZeroOrOne:
             "betty.tests.model.test_association:TestUnidirectionalToZeroOrOne._Associate",
         )
 
-    class _OwnerEmbedded(DummyEntity):
+    @EntityDefinition(
+        id="owner-embedded",
+        label=Plain(""),
+        label_plural=Plain(""),
+        label_countable=CountablePlain("", ""),
+    )
+    class _OwnerEmbedded(Entity):
         def __init__(
             self, associate: TestUnidirectionalToZeroOrOne._Associate | None = None
         ):
@@ -202,7 +214,13 @@ class TestUnidirectionalToZeroOrOne:
             linked_data_embedded=True,
         )
 
-    class _OwnerWithUserFacingAssociate(DummyEntity):
+    @EntityDefinition(
+        id="owner-with-user-facing-associate",
+        label=Plain(""),
+        label_plural=Plain(""),
+        label_countable=CountablePlain("", ""),
+    )
+    class _OwnerWithUserFacingAssociate(Entity):
         def __init__(
             self,
             associate: TestUnidirectionalToZeroOrOne._UserFacingAssociate | None = None,
@@ -219,10 +237,22 @@ class TestUnidirectionalToZeroOrOne:
             "betty.tests.model.test_association:TestUnidirectionalToZeroOrOne._UserFacingAssociate",
         )
 
-    class _Associate(DummyEntity):
+    @EntityDefinition(
+        id="associate",
+        label=Plain(""),
+        label_plural=Plain(""),
+        label_countable=CountablePlain("", ""),
+    )
+    class _Associate(Entity):
         pass
 
-    class _UserFacingAssociate(UserFacing, DummyEntity):
+    @EntityDefinition(
+        id="user-facing-associate",
+        label=Plain(""),
+        label_plural=Plain(""),
+        label_countable=CountablePlain("", ""),
+    )
+    class _UserFacingAssociate(UserFacing, Entity):
         pass
 
     def test(self) -> None:
@@ -330,7 +360,13 @@ class TestUnidirectionalToZeroOrOne:
 
 
 class TestBidirectionalToZeroOrOne:
-    class _Owner(DummyEntity):
+    @EntityDefinition(
+        id="owner",
+        label=Plain(""),
+        label_plural=Plain(""),
+        label_countable=CountablePlain("", ""),
+    )
+    class _Owner(Entity):
         def __init__(
             self,
             associate: ToZeroOrOneAssociate[
@@ -350,7 +386,13 @@ class TestBidirectionalToZeroOrOne:
             "owner",
         )
 
-    class _OwnerEmbedded(DummyEntity):
+    @EntityDefinition(
+        id="owner-embedded",
+        label=Plain(""),
+        label_plural=Plain(""),
+        label_countable=CountablePlain("", ""),
+    )
+    class _OwnerEmbedded(Entity):
         def __init__(
             self,
             associate: TestBidirectionalToZeroOrOne._Associate | None = None,
@@ -369,7 +411,13 @@ class TestBidirectionalToZeroOrOne:
             linked_data_embedded=True,
         )
 
-    class _OwnerWithUserFacingAssociate(DummyEntity):
+    @EntityDefinition(
+        id="owner-with-user-facing-associate",
+        label=Plain(""),
+        label_plural=Plain(""),
+        label_countable=CountablePlain("", ""),
+    )
+    class _OwnerWithUserFacingAssociate(Entity):
         def __init__(
             self,
             associate: TestBidirectionalToZeroOrOne._UserFacingAssociate | None = None,
@@ -387,7 +435,13 @@ class TestBidirectionalToZeroOrOne:
             "owner",
         )
 
-    class _Associate(DummyEntity):
+    @EntityDefinition(
+        id="associate",
+        label=Plain(""),
+        label_plural=Plain(""),
+        label_countable=CountablePlain("", ""),
+    )
+    class _Associate(Entity):
         owner = BidirectionalToZeroOrOne[
             "TestBidirectionalToZeroOrOne._Associate",
             "TestBidirectionalToZeroOrOne._Owner",
@@ -398,7 +452,13 @@ class TestBidirectionalToZeroOrOne:
             "associate",
         )
 
-    class _UserFacingAssociate(UserFacing, DummyEntity):
+    @EntityDefinition(
+        id="user-facing-associate",
+        label=Plain(""),
+        label_plural=Plain(""),
+        label_countable=CountablePlain("", ""),
+    )
+    class _UserFacingAssociate(UserFacing, Entity):
         owner = BidirectionalToZeroOrOne[
             "TestBidirectionalToZeroOrOne._UserFacingAssociate",
             "TestBidirectionalToZeroOrOne._OwnerWithUserFacingAssociate",
@@ -520,7 +580,13 @@ class TestBidirectionalToZeroOrOne:
 
 
 class TestUnidirectionalToOne:
-    class _Owner(DummyEntity):
+    @EntityDefinition(
+        id="owner",
+        label=Plain(""),
+        label_plural=Plain(""),
+        label_countable=CountablePlain("", ""),
+    )
+    class _Owner(Entity):
         def __init__(
             self, associate: ToOneAssociate[TestUnidirectionalToOne._Associate]
         ):
@@ -535,7 +601,13 @@ class TestUnidirectionalToOne:
             "betty.tests.model.test_association:TestUnidirectionalToOne._Associate",
         )
 
-    class _OwnerEmbedded(DummyEntity):
+    @EntityDefinition(
+        id="owner-embedded",
+        label=Plain(""),
+        label_plural=Plain(""),
+        label_countable=CountablePlain("", ""),
+    )
+    class _OwnerEmbedded(Entity):
         def __init__(self, associate: TestUnidirectionalToOne._Associate):
             super().__init__()
             self.associate = associate
@@ -550,7 +622,13 @@ class TestUnidirectionalToOne:
             linked_data_embedded=True,
         )
 
-    class _OwnerWithUserFacingAssociate(UserFacing, DummyEntity):
+    @EntityDefinition(
+        id="owner-with-user-facing-associate",
+        label=Plain(""),
+        label_plural=Plain(""),
+        label_countable=CountablePlain("", ""),
+    )
+    class _OwnerWithUserFacingAssociate(UserFacing, Entity):
         def __init__(self, associate: TestUnidirectionalToOne._UserFacingAssociate):
             super().__init__()
             self.associate = associate
@@ -564,10 +642,22 @@ class TestUnidirectionalToOne:
             "betty.tests.model.test_association:TestUnidirectionalToOne._UserFacingAssociate",
         )
 
-    class _Associate(DummyEntity):
+    @EntityDefinition(
+        id="associate",
+        label=Plain(""),
+        label_plural=Plain(""),
+        label_countable=CountablePlain("", ""),
+    )
+    class _Associate(Entity):
         pass
 
-    class _UserFacingAssociate(UserFacing, DummyEntity):
+    @EntityDefinition(
+        id="user-facing-associate",
+        label=Plain(""),
+        label_plural=Plain(""),
+        label_countable=CountablePlain("", ""),
+    )
+    class _UserFacingAssociate(UserFacing, Entity):
         pass
 
     def test(self) -> None:
@@ -636,7 +726,13 @@ class TestUnidirectionalToOne:
 
 
 class TestBidirectionalToOne:
-    class _Owner(DummyEntity):
+    @EntityDefinition(
+        id="owner",
+        label=Plain(""),
+        label_plural=Plain(""),
+        label_countable=CountablePlain("", ""),
+    )
+    class _Owner(Entity):
         def __init__(
             self, associate: ToOneAssociate[TestBidirectionalToOne._Associate]
         ):
@@ -652,7 +748,13 @@ class TestBidirectionalToOne:
             "owner",
         )
 
-    class _Associate(DummyEntity):
+    @EntityDefinition(
+        id="associate",
+        label=Plain(""),
+        label_plural=Plain(""),
+        label_countable=CountablePlain("", ""),
+    )
+    class _Associate(Entity):
         owner = BidirectionalToZeroOrOne[
             "TestBidirectionalToOne._Associate", "TestBidirectionalToOne._Owner"
         ](
@@ -662,7 +764,13 @@ class TestBidirectionalToOne:
             "associate",
         )
 
-    class _OwnerEmbedded(DummyEntity):
+    @EntityDefinition(
+        id="owner-embedded",
+        label=Plain(""),
+        label_plural=Plain(""),
+        label_countable=CountablePlain("", ""),
+    )
+    class _OwnerEmbedded(Entity):
         def __init__(self, associate: TestBidirectionalToOne._AssociateEmbedded):
             super().__init__()
             self.associate = associate
@@ -678,7 +786,13 @@ class TestBidirectionalToOne:
             linked_data_embedded=True,
         )
 
-    class _AssociateEmbedded(DummyEntity):
+    @EntityDefinition(
+        id="associate-embedded",
+        label=Plain(""),
+        label_plural=Plain(""),
+        label_countable=CountablePlain("", ""),
+    )
+    class _AssociateEmbedded(Entity):
         owner = BidirectionalToZeroOrOne[
             "TestBidirectionalToOne._AssociateEmbedded",
             "TestBidirectionalToOne._OwnerEmbedded",
@@ -689,7 +803,13 @@ class TestBidirectionalToOne:
             "associate",
         )
 
-    class _OwnerWithUserFacingAssociate(DummyEntity):
+    @EntityDefinition(
+        id="owner-with-user-facing-associate",
+        label=Plain(""),
+        label_plural=Plain(""),
+        label_countable=CountablePlain("", ""),
+    )
+    class _OwnerWithUserFacingAssociate(Entity):
         def __init__(self, associate: TestBidirectionalToOne._UserFacingAssociate):
             super().__init__()
             self.associate = associate
@@ -704,7 +824,13 @@ class TestBidirectionalToOne:
             "owner",
         )
 
-    class _UserFacingAssociate(UserFacing, DummyEntity):
+    @EntityDefinition(
+        id="user-facing-associate",
+        label=Plain(""),
+        label_plural=Plain(""),
+        label_countable=CountablePlain("", ""),
+    )
+    class _UserFacingAssociate(UserFacing, Entity):
         owner = BidirectionalToZeroOrOne[
             "TestBidirectionalToOne._UserFacingAssociate",
             "TestBidirectionalToOne._OwnerWithUserFacingAssociate",
@@ -783,7 +909,13 @@ class TestBidirectionalToOne:
 
 
 class TestUnidirectionalToManySingleType:
-    class _Owner(DummyEntity):
+    @EntityDefinition(
+        id="owner",
+        label=Plain(""),
+        label_plural=Plain(""),
+        label_countable=CountablePlain("", ""),
+    )
+    class _Owner(Entity):
         associates = UnidirectionalToManySingleType[
             "TestUnidirectionalToManySingleType._Owner",
             "TestUnidirectionalToManySingleType._Associate",
@@ -793,7 +925,13 @@ class TestUnidirectionalToManySingleType:
             "betty.tests.model.test_association:TestUnidirectionalToManySingleType._Associate",
         )
 
-    class _OwnerEmbedded(DummyEntity):
+    @EntityDefinition(
+        id="owner-embedded",
+        label=Plain(""),
+        label_plural=Plain(""),
+        label_countable=CountablePlain("", ""),
+    )
+    class _OwnerEmbedded(Entity):
         associates = UnidirectionalToManySingleType[
             "TestUnidirectionalToManySingleType._OwnerEmbedded",
             "TestUnidirectionalToManySingleType._Associate",
@@ -804,9 +942,21 @@ class TestUnidirectionalToManySingleType:
             linked_data_embedded=True,
         )
 
-    class _Associate(DummyEntity):
+    @EntityDefinition(
+        id="associate",
+        label=Plain(""),
+        label_plural=Plain(""),
+        label_countable=CountablePlain("", ""),
+    )
+    class _Associate(Entity):
         pass
 
+    @EntityDefinition(
+        id="user-facing-associate",
+        label=Plain(""),
+        label_plural=Plain(""),
+        label_countable=CountablePlain("", ""),
+    )
     class _UserFacingAssociate(UserFacing, _Associate):
         pass
 
@@ -884,7 +1034,7 @@ class TestUnidirectionalToManySingleType:
             assert actual == expected
 
 
-class _TestUnidirectionalToManyMultipleTypesOwner(DummyEntity):
+class _TestUnidirectionalToManyMultipleTypesOwner(Entity):
     pass
 
 
@@ -901,18 +1051,18 @@ class _TestUnidirectionalToManyMultipleTypesTargetMixin(Entity):
 
 
 class _TestUnidirectionalToManyMultipleTypesAssociateOne(
-    _TestUnidirectionalToManyMultipleTypesTargetMixin, DummyEntity
+    _TestUnidirectionalToManyMultipleTypesTargetMixin, Entity
 ):
     pass
 
 
 class _TestUnidirectionalToManyMultipleTypesAssociateTwo(
-    _TestUnidirectionalToManyMultipleTypesTargetMixin, DummyEntity
+    _TestUnidirectionalToManyMultipleTypesTargetMixin, Entity
 ):
     pass
 
 
-class _TestUnidirectionalToManyMultipleTypesAssociateUnknown(DummyEntity):
+class _TestUnidirectionalToManyMultipleTypesAssociateUnknown(Entity):
     pass
 
 
@@ -942,7 +1092,13 @@ class TestUnidirectionalToManyMultipleTypes:
 
 
 class TestBidirectionalToManySingleType:
-    class _Owner(DummyEntity):
+    @EntityDefinition(
+        id="owner",
+        label=Plain(""),
+        label_plural=Plain(""),
+        label_countable=CountablePlain("", ""),
+    )
+    class _Owner(Entity):
         associates = BidirectionalToManySingleType[
             "TestBidirectionalToManySingleType._Owner",
             "TestBidirectionalToManySingleType._Associate",
@@ -953,7 +1109,13 @@ class TestBidirectionalToManySingleType:
             "owner",
         )
 
-    class _Associate(DummyEntity):
+    @EntityDefinition(
+        id="associate",
+        label=Plain(""),
+        label_plural=Plain(""),
+        label_countable=CountablePlain("", ""),
+    )
+    class _Associate(Entity):
         owner = BidirectionalToZeroOrOne[
             "TestBidirectionalToManySingleType._Associate",
             "TestBidirectionalToManySingleType._Owner",
@@ -964,7 +1126,13 @@ class TestBidirectionalToManySingleType:
             "associates",
         )
 
-    class _OwnerEmbedded(DummyEntity):
+    @EntityDefinition(
+        id="owner-embedded",
+        label=Plain(""),
+        label_plural=Plain(""),
+        label_countable=CountablePlain("", ""),
+    )
+    class _OwnerEmbedded(Entity):
         associates = BidirectionalToManySingleType[
             "TestBidirectionalToManySingleType._OwnerEmbedded",
             "TestBidirectionalToManySingleType._AssociateEmbedded",
@@ -976,7 +1144,13 @@ class TestBidirectionalToManySingleType:
             linked_data_embedded=True,
         )
 
-    class _AssociateEmbedded(DummyEntity):
+    @EntityDefinition(
+        id="associate-embedded",
+        label=Plain(""),
+        label_plural=Plain(""),
+        label_countable=CountablePlain("", ""),
+    )
+    class _AssociateEmbedded(Entity):
         owner = BidirectionalToZeroOrOne[
             "TestBidirectionalToManySingleType._AssociateEmbedded",
             "TestBidirectionalToManySingleType._OwnerEmbedded",
@@ -987,10 +1161,22 @@ class TestBidirectionalToManySingleType:
             "associates",
         )
 
+    @EntityDefinition(
+        id="user-facing-associate-embedded",
+        label=Plain(""),
+        label_plural=Plain(""),
+        label_countable=CountablePlain("", ""),
+    )
     class _UserFacingAssociateEmbedded(UserFacing, _AssociateEmbedded):
         pass
 
-    class _OwnerWithUserFacingAssociate(DummyEntity):
+    @EntityDefinition(
+        id="owner-with-user-facing-associate",
+        label=Plain(""),
+        label_plural=Plain(""),
+        label_countable=CountablePlain("", ""),
+    )
+    class _OwnerWithUserFacingAssociate(Entity):
         associates = BidirectionalToManySingleType[
             "TestBidirectionalToManySingleType._OwnerWithUserFacingAssociate",
             "TestBidirectionalToManySingleType._UserFacingAssociate",
@@ -1001,7 +1187,13 @@ class TestBidirectionalToManySingleType:
             "owner",
         )
 
-    class _UserFacingAssociate(UserFacing, DummyEntity):
+    @EntityDefinition(
+        id="user-facing-associate",
+        label=Plain(""),
+        label_plural=Plain(""),
+        label_countable=CountablePlain("", ""),
+    )
+    class _UserFacingAssociate(UserFacing, Entity):
         owner = BidirectionalToZeroOrOne[
             "TestBidirectionalToManySingleType._UserFacingAssociate",
             "TestBidirectionalToManySingleType._OwnerWithUserFacingAssociate",
@@ -1124,7 +1316,7 @@ class TestBidirectionalToManySingleType:
             assert actual == expected
 
 
-class _TestBidirectionalToManyMultipleTypesOwner(DummyEntity):
+class _TestBidirectionalToManyMultipleTypesOwner(Entity):
     pass
 
 
@@ -1142,18 +1334,18 @@ class _TestBidirectionalToManyMultipleTypesTargetMixin(Entity):
 
 
 class _TestBidirectionalToManyMultipleTypesAssociateOne(
-    _TestBidirectionalToManyMultipleTypesTargetMixin, DummyEntity
+    _TestBidirectionalToManyMultipleTypesTargetMixin, Entity
 ):
     pass
 
 
 class _TestBidirectionalToManyMultipleTypesAssociateTwo(
-    _TestBidirectionalToManyMultipleTypesTargetMixin, DummyEntity
+    _TestBidirectionalToManyMultipleTypesTargetMixin, Entity
 ):
     pass
 
 
-class _TestBidirectionalToManyMultipleTypesAssociateUnknown(DummyEntity):
+class _TestBidirectionalToManyMultipleTypesAssociateUnknown(Entity):
     pass
 
 
@@ -1184,7 +1376,7 @@ class TestBidirectionalToManyMultipleTypes:
 
 
 class TestAssociationRequired:
-    class _Owner(DummyEntity):
+    class _Owner(Entity):
         associate = UnidirectionalToOne[
             "TestAssociationRequired._Owner", "TestAssociationRequired._Associate"
         ](
@@ -1193,7 +1385,7 @@ class TestAssociationRequired:
             "betty.tests.model.test_association:TestAssociationRequired._Associate",
         )
 
-    class _Associate(DummyEntity):
+    class _Associate(Entity):
         pass
 
     def test_new(self) -> None:

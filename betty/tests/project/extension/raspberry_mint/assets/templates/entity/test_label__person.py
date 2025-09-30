@@ -106,7 +106,7 @@ async def test_person_is_context() -> None:
     async with assert_template_file(
         data={
             "entity": person,
-            "entity_contexts": await EntityContexts.new(person),
+            "entity_contexts": EntityContexts(person),
         },
         extensions={RaspberryMint},
         template="entity/label--person.html.j2",

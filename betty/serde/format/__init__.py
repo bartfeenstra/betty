@@ -5,14 +5,19 @@ Provide serialization formats.
 from __future__ import annotations
 
 from abc import abstractmethod
-from typing import TYPE_CHECKING, final
+from typing import TYPE_CHECKING, ClassVar, final
 
 from typing_extensions import override
 
 from betty.exception import UserFacingException
 from betty.locale.localizable import Localizable, _
 from betty.locale.localized import Localized, LocalizedStr
-from betty.plugin import Plugin, PluginRepository
+from betty.plugin import (
+    ClassedPluginDefinition,
+    ClassedPluginTypeDefinition,
+    PluginRepository,
+    UserFacingPluginDefinition,
+)
 from betty.plugin.entry_point import EntryPointPluginRepository
 
 if TYPE_CHECKING:
@@ -30,28 +35,14 @@ class FormatError(UserFacingException):
     """
 
 
-class Format(Plugin):
+class Format:
     """
     Defines a (de)serialization format.
+
+    Read more about :doc:`/development/plugin/serde-format`.
     """
 
-    @final
-    @override
-    @classmethod
-    def plugin_type_cls(cls) -> type[Plugin]:
-        return Format
-
-    @final
-    @override
-    @classmethod
-    def plugin_type_id(cls) -> MachineName:
-        return "format"
-
-    @final
-    @override
-    @classmethod
-    def plugin_type_label(cls) -> Localizable:
-        return _("Format")
+    plugin: ClassVar[FormatDefinition]
 
     @classmethod
     @abstractmethod
@@ -78,21 +69,40 @@ class Format(Plugin):
 
 
 @final
-class FormatRepository(PluginRepository[Format]):
+class FormatDefinition(UserFacingPluginDefinition, ClassedPluginDefinition[Format]):
+    """
+    A (de)serialization format definition.
+
+    Read more about :doc:`/development/plugin/serde-format`.
+    """
+
+    type: ClassVar[ClassedPluginTypeDefinition] = ClassedPluginTypeDefinition(
+        id="format",
+        label=_("(De)serialization format)"),
+        cls=Format,
+    )
+
+
+@final
+class FormatRepository(PluginRepository[FormatDefinition]):
     """
     Exposes the available (de)serialization formats.
+
+    Read more about :doc:`/development/plugin/serde-format`.
     """
 
     def __init__(self):
-        super().__init__(Format)
-        self._upstream = EntryPointPluginRepository(Format, "betty.serde_format")
+        super().__init__(FormatDefinition)
+        self._upstream = EntryPointPluginRepository(
+            FormatDefinition, "betty.serde_format"
+        )
 
     @override
-    async def get(self, plugin_id: MachineName) -> type[Format]:
+    async def get(self, plugin_id: MachineName) -> FormatDefinition:
         return await self._upstream.get(plugin_id)
 
     @override
-    def __aiter__(self) -> AsyncIterator[type[Format]]:
+    def __aiter__(self) -> AsyncIterator[FormatDefinition]:
         return self._upstream.__aiter__()
 
     async def extensions(self) -> Sequence[str]:
@@ -104,7 +114,7 @@ class FormatRepository(PluginRepository[Format]):
         return [
             extension
             async for serde_format in self
-            for extension in serde_format.extensions()
+            for extension in serde_format.cls.extensions()
         ]
 
 
@@ -122,7 +132,7 @@ class FormatStr(Localizable):
     Localize and format a sequence of (de)serialization formats.
     """
 
-    def __init__(self, serde_formats: Sequence[type[Format]]):
+    def __init__(self, serde_formats: Sequence[FormatDefinition]):
         self._serde_formats = serde_formats
 
     @override
@@ -130,22 +140,22 @@ class FormatStr(Localizable):
         return LocalizedStr(
             ", ".join(
                 [
-                    f"{extension} ({serde_format.plugin_label().localize(localizer)})"
+                    f"{extension} ({serde_format.label.localize(localizer)})"
                     for serde_format in self._serde_formats
-                    for extension in serde_format.extensions()
+                    for extension in serde_format.cls.extensions()
                 ]
             )
         )
 
 
 def format_for(
-    available_formats: Sequence[type[Format]], extension: str
-) -> type[Format]:
+    available_formats: Sequence[FormatDefinition], extension: str
+) -> FormatDefinition:
     """
     Get the (de)serialization format for the given file extension.
     """
     for available_format in available_formats:
-        if extension in available_format.extensions():
+        if extension in available_format.cls.extensions():
             return available_format
     raise FormatError(
         _(

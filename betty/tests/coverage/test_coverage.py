@@ -323,7 +323,9 @@ _BASELINE: Mapping[str, _ModuleIgnore] = {
             "dated_linked_data_contexts": MissingReason.STATIC_CONTENT_ONLY,
         },
     },
-    "betty/ancestry/event_type/__init__.py": MissingReason.STATIC_CONTENT_ONLY,
+    "betty/ancestry/event_type/__init__.py": {
+        "EventType": MissingReason.STATIC_CONTENT_ONLY,
+    },
     "betty/ancestry/event_type/event_types.py": {
         "CreatableDerivableEventType": MissingReason.ABSTRACT,
         "CreatableEventType": MissingReason.ABSTRACT,
@@ -335,11 +337,21 @@ _BASELINE: Mapping[str, _ModuleIgnore] = {
         "PreBirthEventType": MissingReason.ABSTRACT,
         "StartOfLifeEventType": MissingReason.ABSTRACT,
     },
-    "betty/ancestry/gender/__init__.py": MissingReason.STATIC_CONTENT_ONLY,
-    "betty/ancestry/place_type/__init__.py": MissingReason.STATIC_CONTENT_ONLY,
-    "betty/ancestry/presence_role/__init__.py": MissingReason.STATIC_CONTENT_ONLY,
-    "betty/copyright_notice/__init__.py": MissingReason.STATIC_CONTENT_ONLY,
-    "betty/license/__init__.py": MissingReason.STATIC_CONTENT_ONLY,
+    "betty/ancestry/gender/__init__.py": {
+        "Gender": MissingReason.STATIC_CONTENT_ONLY,
+    },
+    "betty/ancestry/place_type/__init__.py": {
+        "PlaceType": MissingReason.STATIC_CONTENT_ONLY,
+    },
+    "betty/ancestry/presence_role/__init__.py": {
+        "PresenceRole": MissingReason.STATIC_CONTENT_ONLY,
+    },
+    "betty/copyright_notice/__init__.py": {
+        "CopyrightNotice": MissingReason.STATIC_CONTENT_ONLY,
+    },
+    "betty/license/__init__.py": {
+        "License": MissingReason.STATIC_CONTENT_ONLY,
+    },
     "betty/path.py": MissingReason.SHOULD_BE_COVERED,
     "betty/multiprocessing.py": MissingReason.STATIC_CONTENT_ONLY,
     "betty/mutability.py": {
@@ -351,18 +363,12 @@ _BASELINE: Mapping[str, _ModuleIgnore] = {
         "SpecificationSchema": {"__annotate_func__": MissingReason.DATACLASS},
     },
     "betty/plugin/__init__.py": {
-        "DependentPlugin": MissingReason.ABSTRACT,
-        "OrderedPlugin": MissingReason.ABSTRACT,
-        "Plugin": {
-            "plugin_id": MissingReason.ABSTRACT,
-            "plugin_label": MissingReason.ABSTRACT,
-        },
+        "ClassedPlugin": MissingReason.STATIC_CONTENT_ONLY,
         "PluginError": MissingReason.ABSTRACT,
         "PluginRepository": {
             "__aiter__": MissingReason.ABSTRACT,
             "get": MissingReason.ABSTRACT,
         },
-        "ShorthandPluginBase": MissingReason.SHOULD_BE_COVERED,
     },
     "betty/plugin/assertion.py": {
         "assert_plugin": MissingReason.SHOULD_BE_COVERED,
@@ -440,10 +446,9 @@ _BASELINE: Mapping[str, _ModuleIgnore] = {
             "__init_subclass__": MissingReason.INHERITED,
         },
     },
-    "betty/render/__init__.py": {
+    "betty/render.py": {
         "Renderer": MissingReason.ABSTRACT,
     },
-    "betty/render/plugin.py": MissingReason.STATIC_CONTENT_ONLY,
     "betty/repr.py": MissingReason.SHOULD_BE_COVERED,
     "betty/requirement.py": {
         "Requirement": {

@@ -14,31 +14,28 @@ Gender plugins
 Creating a gender
 -----------------
 
-#. Create a new class that extends :py:class:`betty.ancestry.gender.Gender` and implements the abstract methods,
-   for example:
+Create a new class that extends :py:class:`betty.ancestry.gender.Gender` and implements the abstract methods, for
+example:
 
-   .. code-block:: python
+.. code-block:: python
 
-     from typing import override
-     from betty.ancestry.gender import Gender
-     from betty.machine_name import MachineName
+   from betty.ancestry.gender import Gender, GenderDefinition
 
+   @GenderDefinition(
+       id="my-gender",
+       label=_("My Gender"),
+   )
      class MyGender(Gender):
-       @override
-       @classmethod
-       def plugin_id(cls) -> MachineName:
-           return "my-module-my-gender"
-
-       # Implement remaining abstract methods...
-       ...
+         pass
 
 
-#. Tell Betty about your gender by registering it as an entry point. Given the gender above in a module ``my_package.my_module``, add the following to your Python package:
+Tell Betty about your gender by registering it as an entry point. Given the gender above in a module
+``my_package.my_module``, add the following to your Python package:
 
-   .. code-block:: toml
+.. code-block:: toml
 
-       [project.entry-points.'betty.gender']
-       'my-module-my-gender' = 'my_package.my_module.MyGender'
+   [project.entry-points.'betty.gender']
+   'my-gender' = 'my_package.my_module.MyGender.plugin'
 
 See also
 --------

@@ -12,47 +12,38 @@ from betty.ancestry.date import HasDate
 from betty.ancestry.has_file_references import HasFileReferences
 from betty.ancestry.has_links import HasLinks
 from betty.ancestry.source import Source
-from betty.locale.localizable import (
-    Localizable,
-    StaticTranslations,
-    _,
-    ngettext,
-)
+from betty.locale.localizable import Localizable, StaticTranslations, _, ngettext
+from betty.model import EntityDefinition
 from betty.model.association import (
     BidirectionalToManyMultipleTypes,
     BidirectionalToOne,
     ToManyAssociates,
     ToOneAssociate,
 )
-from betty.plugin import ShorthandPluginBase
 from betty.privacy import HasPrivacy, Privacy, is_public, merge_secondary_privacies
 from betty.user import UserFacing
 
 if TYPE_CHECKING:
     from betty.ancestry.file_reference import FileReference
-    from betty.ancestry.has_citations import HasCitations  # noqa F401
+    from betty.ancestry.has_citations import HasCitations
     from betty.date import DateLike
     from betty.json.linked_data import JsonLdObject
-    from betty.model import Entity  # noqa F401
+    from betty.model import Entity
     from betty.project import Project
     from betty.serde.dump import Dump, DumpMapping
 
 
 @final
-class Citation(
-    ShorthandPluginBase,
-    HasDate,
-    HasFileReferences,
-    HasPrivacy,
-    HasLinks,
-    UserFacing,
-):
+@EntityDefinition(
+    id="citation",
+    label=_("Citation"),
+    label_plural=_("Citations"),
+    label_countable=ngettext("{count} citation", "{count} citations"),
+)
+class Citation(HasDate, HasFileReferences, HasPrivacy, HasLinks, UserFacing):
     """
     A citation (a reference to a source).
     """
-
-    _plugin_id = "citation"
-    _plugin_label = _("Citation")
 
     facts = BidirectionalToManyMultipleTypes["Citation", "HasCitations"](
         "betty.ancestry.citation:Citation",
@@ -100,18 +91,6 @@ class Citation(
     @override
     def _get_effective_privacy(self) -> Privacy:
         return merge_secondary_privacies(super()._get_effective_privacy(), self.source)
-
-    @override
-    @classmethod
-    def plugin_label_plural(cls) -> Localizable:
-        return _("Citations")
-
-    @override
-    @classmethod
-    def plugin_label_count(cls, count: int) -> Localizable:
-        return ngettext("{count} citation", "{count} citations", count).format(
-            count=str(count)
-        )
 
     @override
     @property

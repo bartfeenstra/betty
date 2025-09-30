@@ -19,18 +19,25 @@ from typing_extensions import TypeVar, override
 import betty
 from betty import model
 from betty.ancestry import Ancestry
-from betty.ancestry.event_type import EVENT_TYPE_REPOSITORY, EventType
-from betty.ancestry.gender import GENDER_REPOSITORY, Gender
-from betty.ancestry.place_type import PLACE_TYPE_REPOSITORY, PlaceType
-from betty.ancestry.presence_role import PRESENCE_ROLE_REPOSITORY, PresenceRole
+from betty.ancestry.event_type import EVENT_TYPE_REPOSITORY, EventTypeDefinition
+from betty.ancestry.gender import GENDER_REPOSITORY, GenderDefinition
+from betty.ancestry.place_type import PLACE_TYPE_REPOSITORY, PlaceTypeDefinition
+from betty.ancestry.presence_role import (
+    PRESENCE_ROLE_REPOSITORY,
+    PresenceRoleDefinition,
+)
 from betty.asset import AssetRepository, ProxyAssetRepository, StaticAssetRepository
 from betty.config import Configurable
-from betty.copyright_notice import COPYRIGHT_NOTICE_REPOSITORY, CopyrightNotice
+from betty.copyright_notice import (
+    COPYRIGHT_NOTICE_REPOSITORY,
+    CopyrightNotice,
+    CopyrightNoticeDefinition,
+)
 from betty.factory import TargetFactory
 from betty.hashid import hashid
 from betty.job import Context
 from betty.json.schema import JsonSchemaReference, Schema
-from betty.license import License
+from betty.license import LicenseDefinition
 from betty.locale.localizable import _
 from betty.locale.localizer import LocalizerRepository
 from betty.locale.translation import (
@@ -38,28 +45,28 @@ from betty.locale.translation import (
     ProxyTranslationRepository,
     TranslationRepository,
 )
-from betty.model import Entity, ToManySchema
+from betty.machine_name import MachineName
+from betty.model import Entity, EntityDefinition, ToManySchema
 from betty.plugin import resolve_identifier, sort_dependent_plugin_graph
 from betty.plugin.proxy import ProxyPluginRepository
 from betty.plugin.static import StaticPluginRepository
 from betty.project import extension
 from betty.project.config import ProjectConfiguration
-from betty.project.extension import Extension, Theme
+from betty.project.extension import Extension, ExtensionDefinition
 from betty.project.factory import ProjectDependentFactory
 from betty.project.url import new_project_url_generator
-from betty.render import Renderer, SequentialRenderer
-from betty.render.plugin import RENDERER_REPOSITORY
+from betty.render import RENDERER_REPOSITORY, Renderer, SequentialRenderer
 from betty.service import ServiceProvider, service
 from betty.string import kebab_case_to_lower_camel_case
 from betty.typing import internal
 
 if TYPE_CHECKING:
-    from collections.abc import AsyncIterator, Iterator, Sequence
+    from collections.abc import AsyncIterator, Iterator, MutableSequence, Sequence
 
     from betty.app import App
     from betty.cache import Cache
     from betty.jinja2 import Environment
-    from betty.machine_name import MachineName
+    from betty.license import License
     from betty.plugin import PluginIdentifier, PluginRepository
     from betty.progress import Progress
     from betty.url import UrlGenerator
@@ -177,7 +184,9 @@ class Project(Configurable[ProjectConfiguration], TargetFactory, ServiceProvider
         asset_paths = [self.configuration.assets_directory_path]
         extensions = await self.extensions
         for project_extension in extensions.flatten():
-            extension_assets_directory_path = project_extension.assets_directory_path()
+            extension_assets_directory_path = (
+                project_extension.plugin.assets_directory_path
+            )
             if extension_assets_directory_path is not None:
                 asset_paths.append(extension_assets_directory_path)
         return StaticAssetRepository(*asset_paths)
@@ -230,7 +239,7 @@ class Project(Configurable[ProjectConfiguration], TargetFactory, ServiceProvider
         The (file) content renderer.
         """
         return SequentialRenderer(
-            [await self.new_target(plugin) async for plugin in RENDERER_REPOSITORY]
+            [await self.new_target(plugin.cls) async for plugin in RENDERER_REPOSITORY]
         )
 
     @service
@@ -238,44 +247,58 @@ class Project(Configurable[ProjectConfiguration], TargetFactory, ServiceProvider
         """
         The enabled extensions.
         """
-        extensions = {}
+        configured_extension_definitions = []
+        configured_extension_configurations = {}
         for extension_configuration in self.configuration.extensions.values():
-            extension = await self.extension_repository.get(extension_configuration.id)
-            extensions[extension] = extension_configuration
+            configured_extension_definitions.append(
+                await self.extension_repository.get(extension_configuration.id)
+            )
+            configured_extension_configurations[extension_configuration.id] = (
+                extension_configuration
+            )
 
-        extensions_sorter = TopologicalSorter[type[Extension]]()
+        extensions_sorter = TopologicalSorter[MachineName]()
         await sort_dependent_plugin_graph(
-            self.extension_repository, extensions, extensions_sorter
+            self.extension_repository,
+            configured_extension_definitions,
+            extensions_sorter,
         )
         extensions_sorter.prepare()
 
         theme_count = 0
-        project_extension_instances = []
+        enabled_extensions = []
         while extensions_sorter.is_active():
-            extensions_batch = extensions_sorter.get_ready()
-            extension_instances_batch = []
-            for extension in extensions_batch:
-                extension_requirement = await extension.requirement(user=self.app.user)
-                extension_requirement.assert_met()
-                if issubclass(extension, Theme):
+            enabled_extension_ids_batch = extensions_sorter.get_ready()
+            enabled_extension_batch: MutableSequence[Extension] = []
+            for enabled_extension_id in enabled_extension_ids_batch:
+                enabled_extension_definition = await self.extension_repository.get(
+                    enabled_extension_id
+                )
+                enabled_extension_requirement = (
+                    await enabled_extension_definition.cls.requirement(
+                        user=self.app.user
+                    )
+                )
+                enabled_extension_requirement.assert_met()
+                if enabled_extension_definition.theme:
                     theme_count += 1
-                if extension in extensions:
-                    extension_instance = await extensions[
-                        extension
+                if enabled_extension_id in configured_extension_configurations:
+                    extension = await configured_extension_configurations[
+                        enabled_extension_id
                     ].new_plugin_instance(
                         self.extension_repository, factory=self.new_target
                     )
                 else:
-                    extension_instance = await self.new_target(extension)
-                extension_instances_batch.append(extension_instance)
-                extensions_sorter.done(extension)
-            project_extension_instances.append(
+                    extension = await self.new_target(enabled_extension_definition.cls)
+                enabled_extension_batch.append(extension)
+                extensions_sorter.done(enabled_extension_id)
+            enabled_extensions.append(
                 sorted(
-                    extension_instances_batch,
-                    key=lambda extension_instance: extension_instance.plugin_id(),
+                    enabled_extension_batch,
+                    key=lambda extension: extension.plugin.id,
                 )
             )
-        initialized_extensions = ProjectExtensions(project_extension_instances)
+        initialized_extensions = ProjectExtensions(enabled_extensions)
 
         # Users may not realize no theme is enabled, and be confused by their site looking bare.
         # Warn them out of courtesy.
@@ -328,17 +351,20 @@ class Project(Configurable[ProjectConfiguration], TargetFactory, ServiceProvider
         )
 
     @service
-    def copyright_notice_repository(self) -> PluginRepository[CopyrightNotice]:
+    def copyright_notice_repository(
+        self,
+    ) -> PluginRepository[CopyrightNoticeDefinition]:
         """
         The copyright notices available to this project.
 
         Read more about :doc:`/development/plugin/copyright-notice`.
         """
         return ProxyPluginRepository(
-            CopyrightNotice,
+            CopyrightNoticeDefinition,
             COPYRIGHT_NOTICE_REPOSITORY,
             StaticPluginRepository(
-                CopyrightNotice, *self.configuration.copyright_notices.new_plugins()
+                CopyrightNoticeDefinition,
+                *self.configuration.copyright_notices.new_plugins(),
             ),
         )
 
@@ -352,87 +378,92 @@ class Project(Configurable[ProjectConfiguration], TargetFactory, ServiceProvider
         )
 
     @service
-    async def license_repository(self) -> PluginRepository[License]:
+    async def license_repository(self) -> PluginRepository[LicenseDefinition]:
         """
         The licenses available to this project.
 
         Read more about :doc:`/development/plugin/license`.
         """
         return ProxyPluginRepository(
-            License,
+            LicenseDefinition,
             await self._app.spdx_license_repository,
-            StaticPluginRepository(License, *self.configuration.licenses.new_plugins()),
+            StaticPluginRepository(
+                LicenseDefinition, *self.configuration.licenses.new_plugins()
+            ),
         )
 
     @service
-    def event_type_repository(self) -> PluginRepository[EventType]:
+    def event_type_repository(self) -> PluginRepository[EventTypeDefinition]:
         """
         The event types available to this project.
         """
         return ProxyPluginRepository(
-            EventType,
+            EventTypeDefinition,
             EVENT_TYPE_REPOSITORY,
             StaticPluginRepository(
-                EventType, *self.configuration.event_types.new_plugins()
+                EventTypeDefinition, *self.configuration.event_types.new_plugins()
             ),
         )
 
     @service
-    def place_type_repository(self) -> PluginRepository[PlaceType]:
+    def place_type_repository(self) -> PluginRepository[PlaceTypeDefinition]:
         """
         The place types available to this project.
         """
         return ProxyPluginRepository(
-            PlaceType,
+            PlaceTypeDefinition,
             PLACE_TYPE_REPOSITORY,
             StaticPluginRepository(
-                PlaceType, *self.configuration.place_types.new_plugins()
+                PlaceTypeDefinition, *self.configuration.place_types.new_plugins()
             ),
         )
 
     @service
-    def presence_role_repository(self) -> PluginRepository[PresenceRole]:
+    def presence_role_repository(self) -> PluginRepository[PresenceRoleDefinition]:
         """
         The presence roles available to this project.
         """
         return ProxyPluginRepository(
-            PresenceRole,
+            PresenceRoleDefinition,
             PRESENCE_ROLE_REPOSITORY,
             StaticPluginRepository(
-                PresenceRole, *self.configuration.presence_roles.new_plugins()
+                PresenceRoleDefinition,
+                *self.configuration.presence_roles.new_plugins(),
             ),
         )
 
     @service
-    def gender_repository(self) -> PluginRepository[Gender]:
+    def gender_repository(self) -> PluginRepository[GenderDefinition]:
         """
         The genders available to this project.
 
         Read more about :doc:`/development/plugin/gender`.
         """
         return ProxyPluginRepository(
-            Gender,
+            GenderDefinition,
             GENDER_REPOSITORY,
-            StaticPluginRepository(Gender, *self.configuration.genders.new_plugins()),
+            StaticPluginRepository(
+                GenderDefinition, *self.configuration.genders.new_plugins()
+            ),
         )
 
     @service
-    def entity_type_repository(self) -> PluginRepository[Entity]:
+    def entity_type_repository(self) -> PluginRepository[EntityDefinition]:
         """
         The entity types available to this project.
 
         Read more about :doc:`/development/plugin/entity-type`.
         """
-        return ProxyPluginRepository(Entity, model.ENTITY_TYPE_REPOSITORY)
+        return model.ENTITY_TYPE_REPOSITORY
 
     @service
-    def extension_repository(self) -> PluginRepository[Extension]:
+    def extension_repository(self) -> PluginRepository[ExtensionDefinition]:
         """
         The extensions available to this project.
 
         Read more about :doc:`/development/plugin/extension`.
         """
-        return ProxyPluginRepository(Extension, extension.EXTENSION_REPOSITORY)
+        return extension.EXTENSION_REPOSITORY
 
 
 _ExtensionT = TypeVar("_ExtensionT", bound=Extension)
@@ -450,21 +481,23 @@ class ProjectExtensions:
         self._project_extensions = project_extensions
 
     @overload
-    def __getitem__(self, extension_id: MachineName) -> Extension:
+    def __getitem__(self, extension: type[_ExtensionT]) -> _ExtensionT:
         pass
 
     @overload
-    def __getitem__(self, extension_type: type[_ExtensionT]) -> _ExtensionT:
+    def __getitem__(
+        self, extension: PluginIdentifier[ExtensionDefinition, Extension]
+    ) -> Extension:
         pass
 
     def __getitem__(
-        self, extension_identifier: PluginIdentifier[Extension]
+        self, extension: PluginIdentifier[ExtensionDefinition, Extension]
     ) -> Extension:
-        extension_id = resolve_identifier(extension_identifier)
+        extension_id = resolve_identifier(extension)
         for project_extension in self.flatten():
-            if project_extension.plugin_id() == extension_id:
+            if project_extension.plugin.id == extension_id:
                 return project_extension
-        raise KeyError(f'Unknown extension of type "{extension_identifier}"')
+        raise KeyError(f'Unknown extension of type "{extension_id}"')
 
     def __iter__(self) -> Iterator[Iterator[Extension]]:
         """
@@ -486,9 +519,13 @@ class ProjectExtensions:
         for batch in self:
             yield from batch
 
-    def __contains__(self, extension_identifier: PluginIdentifier[Extension]) -> bool:
+    def __contains__(
+        self, extension: PluginIdentifier[ExtensionDefinition, Extension]
+    ) -> bool:
+        if isinstance(extension, type) and issubclass(extension, Extension):
+            extension = extension.plugin
         try:
-            self[extension_identifier]
+            self[resolve_identifier(extension)]
         except KeyError:
             return False
         else:
@@ -561,9 +598,9 @@ class ProjectSchema(ProjectDependentFactory, Schema):
 
         # Add entity schemas.
         async for entity_type in model.ENTITY_TYPE_REPOSITORY:
-            entity_type_schema = await entity_type.linked_data_schema(project)
+            entity_type_schema = await entity_type.cls.linked_data_schema(project)
             entity_type_schema.embed(schema)
-            def_name = f"{kebab_case_to_lower_camel_case(entity_type.plugin_id())}EntityCollectionResponse"
+            def_name = f"{kebab_case_to_lower_camel_case(entity_type.id)}EntityCollectionResponse"
             schema.defs[def_name] = {
                 "type": "object",
                 "properties": {

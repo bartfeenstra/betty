@@ -6,20 +6,24 @@ from __future__ import annotations
 
 from abc import abstractmethod
 from collections.abc import Awaitable, Callable
-from typing import TYPE_CHECKING, ParamSpec, TypeAlias, TypeVar, final
-
-from typing_extensions import override
+from typing import TYPE_CHECKING, ClassVar, ParamSpec, TypeAlias, TypeVar, final
 
 from betty import about
-from betty.locale.localizable import Localizable, _
-from betty.plugin import Plugin, PluginRepository
+from betty.locale.localizable import _
+from betty.plugin import (
+    ClassedPluginDefinition,
+    ClassedPluginTypeDefinition,
+    UserFacingPluginDefinition,
+)
 from betty.plugin.entry_point import EntryPointPluginRepository
 from betty.plugin.proxy import ProxyPluginRepository
 
 if TYPE_CHECKING:
     import argparse
 
-    from betty.machine_name import MachineName
+    from betty.plugin import (
+        PluginRepository,
+    )
 
 _T = TypeVar("_T")
 _P = ParamSpec("_P")
@@ -28,32 +32,14 @@ _P = ParamSpec("_P")
 CommandFunction: TypeAlias = Callable[..., Awaitable[None]]
 
 
-class Command(Plugin):
+class Command:
     """
     A console command plugin.
 
     Read more about :doc:`/development/plugin/command`.
-
-    To test your own subclasses, use :py:class:`betty.test_utils.console.command.CommandTestBase`.
     """
 
-    @final
-    @override
-    @classmethod
-    def plugin_type_cls(cls) -> type[Plugin]:
-        return Command
-
-    @final
-    @override
-    @classmethod
-    def plugin_type_id(cls) -> MachineName:
-        return "command"
-
-    @final
-    @override
-    @classmethod
-    def plugin_type_label(cls) -> Localizable:
-        return _("Command")
+    plugin: ClassVar[CommandDefinition]
 
     @abstractmethod
     async def configure(self, parser: argparse.ArgumentParser) -> CommandFunction:
@@ -65,11 +51,26 @@ class Command(Plugin):
         """
 
 
-COMMAND_REPOSITORY: PluginRepository[Command] = ProxyPluginRepository(
-    Command,
-    EntryPointPluginRepository(Command, "betty.command"),
+@final
+class CommandDefinition(UserFacingPluginDefinition, ClassedPluginDefinition[Command]):
+    """
+    A console command definition.
+
+    Read more about :doc:`/development/plugin/command`.
+    """
+
+    type: ClassVar[ClassedPluginTypeDefinition] = ClassedPluginTypeDefinition(
+        id="command",
+        label=_("Command"),
+        cls=Command,
+    )
+
+
+COMMAND_REPOSITORY: PluginRepository[CommandDefinition] = ProxyPluginRepository(
+    CommandDefinition,
+    EntryPointPluginRepository(CommandDefinition, "betty.command"),
     *(
-        [EntryPointPluginRepository(Command, "betty.dev.command")]
+        [EntryPointPluginRepository(CommandDefinition, "betty.dev.command")]
         if about.IS_DEVELOPMENT
         else []
     ),

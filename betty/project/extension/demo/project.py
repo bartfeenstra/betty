@@ -29,7 +29,7 @@ async def create_project(app: App, project_directory_path: Path) -> Project:
 
     configuration = await ProjectConfiguration.new(
         project_directory_path / "betty.json",
-        name=Demo.plugin_id(),
+        name=Demo.plugin.id,
         license=PluginInstanceConfiguration("spdx-gpl-3--0-or-later"),
         title={
             "en-US": "A Betty demonstration",
@@ -45,14 +45,14 @@ async def create_project(app: App, project_directory_path: Path) -> Project:
             "uk": "Bart Feenstra і учасники",
         },
         extensions=[
-            PluginInstanceConfiguration(Demo),
+            PluginInstanceConfiguration(Demo.plugin),
             PluginInstanceConfiguration(
-                RaspberryMint,
+                RaspberryMint.plugin,
                 configuration=RaspberryMintConfiguration(
                     featured_entities=[
-                        EntityReference(Place, "betty-demo-amsterdam"),
-                        EntityReference(Person, "betty-demo-liberta-lankester"),
-                        EntityReference(Place, "betty-demo-netherlands"),
+                        EntityReference(Place.plugin, "betty-demo-amsterdam"),
+                        EntityReference(Person.plugin, "betty-demo-liberta-lankester"),
+                        EntityReference(Place.plugin, "betty-demo-netherlands"),
                     ],
                 ),
             ),

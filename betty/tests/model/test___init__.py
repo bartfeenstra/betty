@@ -6,21 +6,30 @@ from typing_extensions import override
 from betty.json.schema import Schema
 from betty.model import (
     Entity,
+    EntityDefinition,
     ToManySchema,
     ToOneSchema,
     ToZeroOrOneSchema,
     persistent_id,
 )
+from betty.plugin import PluginDefinition
 from betty.serde.dump import Dump
 from betty.test_utils.json.schema import SchemaTestBase
-from betty.test_utils.model import DummyEntity
+from betty.test_utils.plugin import PluginDefinitionClassTestBase
+
+
+class TestEntityDefinition(PluginDefinitionClassTestBase):
+    @override
+    @pytest.fixture
+    def sut(self) -> type[PluginDefinition]:
+        return EntityDefinition
 
 
 @pytest.mark.parametrize(
     ("expected", "entity"),
     [
-        (False, DummyEntity()),
-        (True, DummyEntity("my-first-entity-id")),
+        (False, Entity()),
+        (True, Entity("my-first-entity-id")),
     ],
 )
 def test_persistent_id(expected: bool, entity: Entity) -> None:

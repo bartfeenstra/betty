@@ -15,7 +15,7 @@ from betty.locale.localizer import LocalizerRepository
 from betty.locale.translation import NoOpTranslationRepository
 from betty.media_type import MediaType
 from betty.media_type.media_types import HTML
-from betty.test_utils.model import DummyEntity
+from betty.test_utils.model import DummyEntityOne
 from betty.wiki.client import Client, Image, Summary
 from betty.wiki.copyright_notice import WikipediaContributors
 from betty.wiki.populator import Populator
@@ -139,7 +139,7 @@ class TestPopulator:
     ) -> None:
         m_client = mocker.patch("betty.wiki.client.Client")
         Source(Plain("The Source"))
-        entity = DummyEntity()
+        entity = DummyEntityOne()
         ancestry = Ancestry(entity)
         sut = Populator(
             ancestry,

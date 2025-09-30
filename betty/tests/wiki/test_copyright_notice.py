@@ -1,7 +1,7 @@
-from collections.abc import Sequence
 from json import dumps
 from typing import Any
 
+import pytest
 from multidict import CIMultiDict
 from typing_extensions import override
 
@@ -9,8 +9,12 @@ from betty.copyright_notice import CopyrightNotice
 from betty.fetch import FetchResponse
 from betty.fetch.static import StaticFetcher
 from betty.locale.localizer import DEFAULT_LOCALIZER
+from betty.plugin import PluginDefinition
 from betty.test_utils.conftest import NewTemporaryAppFactory
-from betty.test_utils.copyright_notice import CopyrightNoticeTestBase
+from betty.test_utils.copyright_notice import (
+    CopyrightNoticeDefinitionTestBase,
+    CopyrightNoticeTestBase,
+)
 from betty.wiki.copyright_notice import WikipediaContributors
 
 
@@ -18,20 +22,24 @@ def _new_json_fetch_response(json_data: Any) -> FetchResponse:
     return FetchResponse(CIMultiDict(), dumps(json_data).encode("utf-8"), "utf-8")
 
 
+class TestWikipediaContributorsDefinition(CopyrightNoticeDefinitionTestBase):
+    @override
+    @pytest.fixture
+    def sut(self) -> PluginDefinition:
+        return WikipediaContributors.plugin
+
+
 class TestWikipediaContributors(CopyrightNoticeTestBase):
     @override
-    def get_sut_class(self) -> type[CopyrightNotice]:
-        return WikipediaContributors
-
-    @override
-    def get_sut_instances(self) -> Sequence[CopyrightNotice]:
-        return [
-            WikipediaContributors({}),
-            WikipediaContributors({"en": "Wikipedia:Copyrights"}),
-            WikipediaContributors(
-                {"en": "Wikipedia:Copyrights", "nl": "Wikipedia:Auteursrechten"}
-            ),
+    @pytest.fixture(
+        params=[
+            {},
+            {"en": "Wikipedia:Copyrights"},
+            {"en": "Wikipedia:Copyrights", "nl": "Wikipedia:Auteursrechten"},
         ]
+    )
+    def sut(self, request: pytest.FixtureRequest) -> CopyrightNotice:
+        return WikipediaContributors(request.param)
 
     async def test_new_for_app(
         self, new_temporary_app_factory: NewTemporaryAppFactory

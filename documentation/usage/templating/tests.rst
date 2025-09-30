@@ -10,7 +10,6 @@ In addition to Jinja2's built-in tests, Betty provides the following:
 
 - :py:func:`copyright_notice_plugin <betty.jinja2.test.PluginTester.__call__>`
 - :py:func:`date_range <betty.jinja2.test.test_date_range>`
-- :py:func:`end_of_life_event <betty.jinja2.test.test_end_of_life_event>`
 - :py:func:`entity_plugin <betty.jinja2.test.PluginTester.__call__>`
 - :py:func:`event_type_plugin <betty.jinja2.test.PluginTester.__call__>`
 - :py:func:`gender_plugin <betty.jinja2.test.PluginTester.__call__>`
@@ -24,5 +23,4 @@ In addition to Jinja2's built-in tests, Betty provides the following:
 - :py:func:`presence_role_plugin <betty.jinja2.test.PluginTester.__call__>`
 - :py:func:`private <betty.privacy.is_private>`
 - :py:func:`public <betty.privacy.is_public>`
-- :py:func:`start_of_life_event <betty.jinja2.test.test_start_of_life_event>`
 - :py:func:`user_facing_entity <betty.jinja2.test.test_user_facing_entity>`

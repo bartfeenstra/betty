@@ -196,13 +196,13 @@ class Index:
         text = await indexer.text(self._localizer, entity)
         if not text:
             return None
-        return _Entry(entity.plugin_id(), await self._render_entity(entity), text)
+        return _Entry(entity.plugin.id, await self._render_entity(entity), text)
 
     async def _render_entity(self, entity: Entity) -> str:
         jinja2_environment = await self._project.jinja2_environment
         return await jinja2_environment.select_template(
             [
-                f"search/result--{entity.plugin_id()}.html.j2",
+                f"search/result--{entity.plugin.id}.html.j2",
                 "search/result.html.j2",
             ]
         ).render_async(

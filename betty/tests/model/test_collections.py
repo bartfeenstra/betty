@@ -9,7 +9,7 @@ from betty.model.collections import (
     SingleTypeEntityCollection,
     UnsupportedTarget,
 )
-from betty.test_utils.model import DummyEntity
+from betty.test_utils.model import DummyEntityOne
 from betty.test_utils.model.collections import EntityCollectionTestBase
 
 if TYPE_CHECKING:
@@ -21,17 +21,17 @@ class TestUnsupportedTarget:
         class _Actual:
             pass
 
-        UnsupportedTarget.new(DummyEntity, _Actual())
+        UnsupportedTarget.new(DummyEntityOne, _Actual())
 
 
-class TestSingleTypeEntityCollection(EntityCollectionTestBase[DummyEntity]):
+class TestSingleTypeEntityCollection(EntityCollectionTestBase[DummyEntityOne]):
     @override
-    async def get_suts(self) -> Sequence[SingleTypeEntityCollection[DummyEntity]]:
-        return (SingleTypeEntityCollection(target_type=DummyEntity),)
+    async def get_suts(self) -> Sequence[SingleTypeEntityCollection[DummyEntityOne]]:
+        return (SingleTypeEntityCollection(target_type=DummyEntityOne),)
 
     @override
-    async def get_entities(self) -> Sequence[DummyEntity]:
-        return DummyEntity(), DummyEntity(), DummyEntity()
+    async def get_entities(self) -> Sequence[DummyEntityOne]:
+        return DummyEntityOne(), DummyEntityOne(), DummyEntityOne()
 
     async def test___getitem____by_entity_id(self) -> None:
         for sut in await self.get_suts():
@@ -59,26 +59,26 @@ class TestSingleTypeEntityCollection(EntityCollectionTestBase[DummyEntity]):
             assert entities[1].id not in sut
 
 
-class TestMultipleTypesEntityCollection(EntityCollectionTestBase[DummyEntity]):
+class TestMultipleTypesEntityCollection(EntityCollectionTestBase[DummyEntityOne]):
     @override
-    async def get_suts(self) -> Sequence[MultipleTypesEntityCollection[DummyEntity]]:
+    async def get_suts(self) -> Sequence[MultipleTypesEntityCollection[DummyEntityOne]]:
         return (MultipleTypesEntityCollection(),)
 
     @override
-    async def get_entities(self) -> Sequence[DummyEntity]:
-        return DummyEntity(), DummyEntity(), DummyEntity()
+    async def get_entities(self) -> Sequence[DummyEntityOne]:
+        return DummyEntityOne(), DummyEntityOne(), DummyEntityOne()
 
     async def test___getitem____by_entity_type(self) -> None:
         for sut in await self.get_suts():
             entities = await self.get_entities()
             sut.add(*entities)
-            assert list(sut[DummyEntity]) == list(entities)
+            assert list(sut[DummyEntityOne]) == list(entities)
 
     async def test___delitem___by_entity_type(self) -> None:
         for sut in await self.get_suts():
             entities = await self.get_entities()
             sut.add(*entities)
 
-            del sut[DummyEntity]
+            del sut[DummyEntityOne]
 
             assert list(sut) == []

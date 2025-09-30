@@ -8,9 +8,8 @@ from typing import TYPE_CHECKING, final
 
 from typing_extensions import override
 
-from betty.locale.localizable import StaticTranslations, _
-from betty.plugin import ShorthandPluginBase
-from betty.project.extension import ConfigurableExtension
+from betty.locale.localizable import Plain, _
+from betty.project.extension import ConfigurableExtension, ExtensionDefinition
 from betty.project.extension.gramps.config import GrampsConfiguration
 from betty.project.extension.gramps.jobs import LoadAncestry
 from betty.project.load import Loader
@@ -21,16 +20,15 @@ if TYPE_CHECKING:
 
 
 @final
-class Gramps(ShorthandPluginBase, Loader, ConfigurableExtension[GrampsConfiguration]):
+@ExtensionDefinition(
+    id="gramps",
+    label=Plain("Gramps"),
+    description=_("Load Gramps family trees."),
+)
+class Gramps(Loader, ConfigurableExtension[GrampsConfiguration]):
     """
     Integrate Betty with `Gramps <https://gramps-project.org>`_.
     """
-
-    _plugin_id = "gramps"
-    _plugin_label = StaticTranslations("Gramps")
-    _plugin_description = _(
-        'Load <a href="https://gramps-project.org/">Gramps</a> family trees.'
-    )
 
     @override
     @classmethod

@@ -12,31 +12,26 @@ from __future__ import annotations
 from abc import ABC, abstractmethod
 from collections import defaultdict
 from collections.abc import Iterable
-from typing import (
-    TYPE_CHECKING,
-    Generic,
-    Self,
-    TypeAlias,
-    TypeVar,
-    final,
-)
+from typing import TYPE_CHECKING, Any, ClassVar, Generic, Self, TypeAlias
 
-from typing_extensions import override
+from typing_extensions import TypeVar
 
 from betty.exception import UserFacingException
 from betty.json.schema import Enum
-from betty.locale.localizable import Join, _, do_you_mean
+from betty.locale.localizable import CountableLocalizable, Join, _, do_you_mean
 from betty.locale.localizer import DEFAULT_LOCALIZER
-from betty.machine_name import MachineName
+from betty.machine_name import InvalidMachineName, MachineName, validate_machine_name
 from betty.string import kebab_case_to_lower_camel_case
+from betty.user import UserFacing
 
 if TYPE_CHECKING:
+    import builtins
     from collections.abc import AsyncIterator, Iterable, Iterator, Mapping, Sequence
     from graphlib import TopologicalSorter
 
     from betty.locale.localizable import Localizable
 
-_T = TypeVar("_T")
+_PluginT = TypeVar("_PluginT")
 
 
 class PluginError(Exception):
@@ -45,143 +40,303 @@ class PluginError(Exception):
     """
 
 
-class Plugin(ABC):
+class PluginDefinition:
     """
-    A plugin.
-
-    Plugins are identified by their :py:meth:`IDs <betty.plugin.Plugin.plugin_id>` as well as their types.
-    Each must be able to uniquely identify the plugin within a plugin repository.
-
-    To test your own subclasses, use :py:class:`betty.test_utils.plugin.PluginTestBase`.
+    A plugin definition.
     """
 
-    @classmethod
-    @abstractmethod
-    def plugin_type_cls(cls) -> type[Plugin]:
-        """
-        The base type (class) of all plugins of this type.
-        """
+    type: ClassVar[PluginTypeDefinition]
 
-    @classmethod
-    @abstractmethod
-    def plugin_type_id(cls) -> MachineName:
-        """
-        The plugin type ID.
-        """
+    def __init__(
+        self,
+        *,
+        id: MachineName,  # noqa A002
+    ):
+        if not validate_machine_name(id):  # type: ignore[redundant-expr]
+            raise InvalidMachineName.new(id)
+        self._id = id
 
-    @classmethod
-    @abstractmethod
-    def plugin_type_label(cls) -> Localizable:
+    @property
+    def id(self) -> MachineName:
         """
-        Get the human-readable short plugin type label for the given count.
-        """
-
-    @classmethod
-    @abstractmethod
-    def plugin_id(cls) -> MachineName:
-        """
-        Get the plugin ID.
+        The plugin ID.
 
         IDs are unique per plugin type:
 
         - A plugin repository **MUST** at most have a single plugin for any ID.
         - Different plugin repositories **MAY** each have a plugin with the same ID.
         """
-
-    @classmethod
-    @abstractmethod
-    def plugin_label(cls) -> Localizable:
-        """
-        Get the human-readable short plugin label.
-        """
-
-    @classmethod
-    def plugin_description(cls) -> Localizable | None:
-        """
-        Get the human-readable long plugin description.
-        """
-        return None
+        return self._id
 
 
-_PluginT = TypeVar("_PluginT", bound=Plugin)
-_PluginCoT = TypeVar("_PluginCoT", bound=Plugin, covariant=True)
+_PluginDefinitionT = TypeVar(
+    "_PluginDefinitionT", bound=PluginDefinition, default=PluginDefinition
+)
+_PluginDefinitionCoT = TypeVar(
+    "_PluginDefinitionCoT", bound=PluginDefinition, covariant=True
+)
 
 
-class OrderedPlugin(Generic[_PluginT], Plugin):
+class PluginTypeDefinition:
     """
-    A plugin that can declare its order with respect to other plugins.
+    A plugin type definition.
     """
 
-    @classmethod
-    def comes_before(cls) -> set[PluginIdentifier[_PluginT & OrderedPlugin[_PluginT]]]:
+    def __init__(
+        self,
+        *,
+        id: MachineName,  # noqa A002
+        label: Localizable,
+    ):
+        if not validate_machine_name(id):  # type: ignore[redundant-expr]
+            raise InvalidMachineName.new(id)
+        self._id = id
+        self._label = label
+
+    @property
+    def id(self) -> MachineName:
+        """
+        The plugin type ID.
+        """
+        return self._id
+
+    @property
+    def label(self) -> Localizable:
+        """
+        The plugin type label.
+        """
+        return self._label
+
+
+class ClassedPlugin:
+    """
+    A plugin class that can expose its plugin.
+    """
+
+    plugin: ClassVar[ClassedPluginDefinition[Self]]
+
+
+_ClassedPluginT = TypeVar("_ClassedPluginT", bound=ClassedPlugin, default=ClassedPlugin)
+
+
+class ClassedPluginTypeDefinition(PluginTypeDefinition):
+    """
+    A plugin type definition for classed plugins.
+    """
+
+    def __init__(
+        self,
+        *,
+        cls: type,
+        **kwargs: Any,
+    ):
+        super().__init__(**kwargs)
+        self._cls = cls
+
+    @property
+    def cls(self) -> type:
+        """
+        The base class for all plugins of this type.
+        """
+        return self._cls
+
+
+class UserFacingPluginDefinition(UserFacing, PluginDefinition):
+    """
+    A definition of a plugin that is user-facing.
+    """
+
+    def __init__(
+        self,
+        *args: Any,
+        label: Localizable,
+        description: Localizable | None = None,
+        **kwargs: Any,
+    ):
+        super().__init__(*args, **kwargs)
+        self._label = label
+        self._description = description
+
+    @property
+    def label(self) -> Localizable:
+        """
+        The human-readable short plugin label (singular).
+        """
+        return self._label
+
+    @property
+    def description(self) -> Localizable | None:
+        """
+        The human-readable long plugin description.
+        """
+        return self._description
+
+
+class CountableUserFacingPluginDefinition(UserFacingPluginDefinition):
+    """
+    A definition of a plugin that is user-facing, and of which instances are countable.
+    """
+
+    def __init__(
+        self,
+        *args: Any,
+        label_plural: Localizable,
+        label_countable: CountableLocalizable,
+        **kwargs: Any,
+    ):
+        super().__init__(*args, **kwargs)
+        self._label_plural = label_plural
+        self._label_countable = label_countable
+
+    @property
+    def label_plural(self) -> Localizable:
+        """
+        The human-readable short plugin label (plural).
+        """
+        return self._label_plural
+
+    @property
+    def label_countable(self) -> CountableLocalizable:
+        """
+        The human-readable short plugin label (countable).
+        """
+        return self._label_countable
+
+
+class OrderedPluginDefinition(PluginDefinition):
+    """
+    A definition of plugin that can declare its order with respect to other plugins.
+    """
+
+    def __init__(
+        self,
+        *,
+        comes_before: set[PluginIdentifier] | None = None,
+        comes_after: set[PluginIdentifier] | None = None,
+        **kwargs: Any,
+    ):
+        super().__init__(**kwargs)
+        self._comes_before = (
+            set()
+            if comes_before is None
+            else {resolve_identifier(plugin) for plugin in comes_before}
+        )
+        self._comes_after = (
+            set()
+            if comes_after is None
+            else {resolve_identifier(plugin) for plugin in comes_after}
+        )
+
+    @property
+    def comes_before(self) -> set[MachineName]:
         """
         Get the plugins that this plugin comes before.
 
         The returned plugins come after this plugin.
         """
-        return set()
+        return self._comes_before
 
-    @classmethod
-    def comes_after(cls) -> set[PluginIdentifier[_PluginT & OrderedPlugin[_PluginT]]]:
+    @property
+    def comes_after(self) -> set[MachineName]:
         """
         Get the plugins that this plugin comes after.
 
         The returned plugins come before this plugin.
         """
-        return set()
+        return self._comes_after
 
 
-class DependentPlugin(Generic[_PluginT], OrderedPlugin[_PluginT]):
+_OrderedPluginDefinitionT = TypeVar(
+    "_OrderedPluginDefinitionT", bound=OrderedPluginDefinition
+)
+
+
+class DependentPluginDefinition(OrderedPluginDefinition):
     """
-    A plugin that can declare its dependency on other plugins.
+    A definition of a plugin that can declare its dependency on other plugins.
     """
 
-    @classmethod
-    def depends_on(cls) -> set[PluginIdentifier[_PluginT & DependentPlugin[_PluginT]]]:
+    def __init__(
+        self,
+        *,
+        depends_on: set[PluginIdentifier] | None = None,
+        **kwargs: Any,
+    ):
+        super().__init__(**kwargs)
+        self._depends_on = (
+            set()
+            if depends_on is None
+            else {resolve_identifier(plugin) for plugin in depends_on}
+        )
+
+    @property
+    def depends_on(self) -> set[MachineName]:
         """
         The plugins this one depends on.
 
-        To declare whether this plugin comes before or after its dependencies, implement
-        :py:meth:`betty.plugin.OrderedPlugin.comes_before` and/or :py:meth:`betty.plugin.OrderedPlugin.comes_after`.
+        To declare whether this plugin comes before or after its dependencies, use
+        :py:meth:`betty.plugin.OrderedPluginDefinition.comes_before` and/or
+        :py:meth:`betty.plugin.OrderedPluginDefinition.comes_after`.
         """
-        return set()
+        return self._depends_on
 
 
-class ShorthandPluginBase(Plugin):
+_DependentPluginDefinitionT = TypeVar(
+    "_DependentPluginDefinitionT", bound=DependentPluginDefinition
+)
+
+
+class ClassedPluginDefinition(Generic[_PluginT], PluginDefinition):
     """
-    Allow shorthand declaration of plugins.
+    A definition of a plugin that is based around a class.
     """
 
-    _plugin_id: MachineName
-    _plugin_label: Localizable
-    _plugin_description: Localizable | None = None
+    type: ClassVar[ClassedPluginTypeDefinition]
 
-    @override
-    @classmethod
-    def plugin_id(cls) -> MachineName:
-        return cls._plugin_id
+    def __init__(
+        self,
+        *,
+        cls: builtins.type[_PluginT] | None = None,
+        **kwargs: Any,
+    ):
+        super().__init__(**kwargs)
+        self._cls = cls
+        if cls is not None:
+            self._set_cls(cls)
 
-    @override
-    @classmethod
-    def plugin_label(cls) -> Localizable:
-        return cls._plugin_label
+    @property
+    def cls(self) -> builtins.type[_PluginT]:
+        """
+        The plugin class.
+        """
+        assert self._cls is not None
+        return self._cls
 
-    @override
-    @classmethod
-    def plugin_description(cls) -> Localizable | None:
-        return cls._plugin_description
+    def _set_cls(self, cls: builtins.type[_PluginT]) -> None:
+        cls.plugin = self  # type: ignore[attr-defined]
+
+    def __call__(self, cls: builtins.type[_PluginT]) -> builtins.type[_PluginT]:
+        """
+        Set the plugin's class.
+        """
+        assert self._cls is None
+        self._set_cls(cls)
+        self._cls = cls
+        return cls
 
 
-PluginIdentifier: TypeAlias = type[_PluginT] | MachineName
+PluginIdentifier: TypeAlias = MachineName | _PluginDefinitionT | type[_ClassedPluginT]
 
 
-def resolve_identifier(plugin_identifier: PluginIdentifier[Plugin]) -> MachineName:
+def resolve_identifier(identifier: PluginIdentifier, /) -> MachineName:
     """
     Resolve a plugin identifier to a plugin ID.
     """
-    if isinstance(plugin_identifier, str):
-        return plugin_identifier
-    return plugin_identifier.plugin_id()
+    if isinstance(identifier, type) and issubclass(identifier, ClassedPlugin):
+        return identifier.plugin.id
+    if isinstance(identifier, PluginDefinition):
+        return identifier.id
+    return identifier
 
 
 class PluginNotFound(PluginError, UserFacingException):
@@ -191,7 +346,10 @@ class PluginNotFound(PluginError, UserFacingException):
 
     @classmethod
     def new(
-        cls, plugin_id: MachineName, available_plugins: Sequence[type[Plugin]]
+        cls,
+        plugin_not_found: MachineName,
+        available_plugins: Sequence[PluginIdentifier],
+        /,
     ) -> Self:
         """
         Create a new instance.
@@ -199,104 +357,73 @@ class PluginNotFound(PluginError, UserFacingException):
         return cls(
             Join(
                 " ",
-                _('Could not find a plugin "{plugin_id}".').format(plugin_id=plugin_id),
+                _('Could not find a plugin "{plugin_id}".').format(
+                    plugin_id=plugin_not_found
+                ),
                 do_you_mean(
-                    *[f'"{plugin.plugin_id()}"' for plugin in available_plugins]
+                    *[
+                        f'"{resolve_identifier(available_plugin)}"'
+                        for available_plugin in available_plugins
+                    ]
                 ),
             )
         )
 
 
-_PluginMixinOneT = TypeVar("_PluginMixinOneT")
-_PluginMixinTwoT = TypeVar("_PluginMixinTwoT")
-_PluginMixinThreeT = TypeVar("_PluginMixinThreeT")
-
-
-class PluginIdToTypeMapping(Generic[_PluginCoT]):
+class PluginIdMapping(Generic[_PluginDefinitionT]):
     """
-    Map plugin IDs to their types.
+    Map plugin IDs to their definitions.
     """
 
-    def __init__(self, id_to_type_mapping: Mapping[MachineName, type[_PluginCoT]]):
-        self._id_to_type_mapping = id_to_type_mapping
+    def __init__(self, id_mapping: Mapping[MachineName, _PluginDefinitionT], /):
+        self._id_mapping = id_mapping
 
     @classmethod
-    async def new(cls, plugins: PluginRepository[_PluginCoT]) -> Self:
+    async def new(cls, plugins: PluginRepository[_PluginDefinitionT], /) -> Self:
         """
         Create a new instance.
         """
-        return cls({plugin.plugin_id(): plugin async for plugin in plugins})
+        return cls({plugin.id: plugin async for plugin in plugins})
 
-    def get(
-        self, plugin_identifier: MachineName | type[_PluginCoT]
-    ) -> type[_PluginCoT]:
+    def get(self, plugin_id: MachineName, /) -> _PluginDefinitionT:
         """
         Get the type for the given plugin identifier.
         """
-        if isinstance(plugin_identifier, type):
-            return plugin_identifier
         try:
-            return self._id_to_type_mapping[plugin_identifier]
+            return self._id_mapping[plugin_id]
         except KeyError:
             raise PluginNotFound.new(
-                plugin_identifier, list(self._id_to_type_mapping.values())
+                plugin_id, list(self._id_mapping.values())
             ) from None
 
-    def __getitem__(
-        self, plugin_identifier: MachineName | type[_PluginCoT]
-    ) -> type[_PluginCoT]:
-        return self.get(plugin_identifier)
+    def __getitem__(self, plugin_id: MachineName) -> _PluginDefinitionT:
+        return self.get(plugin_id)
 
     def __iter__(self) -> Iterator[MachineName]:
-        yield from self._id_to_type_mapping
+        yield from self._id_mapping
 
 
-class PluginRepository(Generic[_PluginT], ABC):
+class PluginRepository(Generic[_PluginDefinitionCoT], ABC):
     """
     Discover and manage plugins.
     """
 
-    def __init__(self, plugin: type[_PluginT]):
+    def __init__(
+        self,
+        plugin: type[_PluginDefinitionCoT],
+        /,
+    ):
         self._plugin = plugin
         self._plugin_id_schema: Enum | None = None
 
-    @final
-    @property
-    def plugin(self) -> type[_PluginT]:
-        """
-        The plugin this repository manages.
-        """
-        return self._plugin
-
-    async def resolve_identifier(
-        self, plugin_identifier: PluginIdentifier[_PluginT]
-    ) -> type[_PluginT]:
-        """
-        Resolve a plugin identifier to a plugin type.
-        """
-        if isinstance(plugin_identifier, type):
-            return plugin_identifier
-        return await self.get(plugin_identifier)
-
-    async def resolve_identifiers(
-        self, plugin_identifiers: Iterable[PluginIdentifier[_PluginT]]
-    ) -> Sequence[type[_PluginT]]:
-        """
-        Resolve plugin identifiers to plugin types.
-        """
-        return [
-            await self.resolve_identifier(plugin_identifier)
-            for plugin_identifier in plugin_identifiers
-        ]
-
-    async def mapping(self) -> PluginIdToTypeMapping[_PluginT]:
+    async def mapping(self) -> PluginIdMapping[_PluginDefinitionCoT]:
         """
         Get the plugin ID to type mapping.
         """
-        return await PluginIdToTypeMapping.new(self)
+        return await PluginIdMapping.new(self)
 
     @abstractmethod
-    async def get(self, plugin_id: MachineName) -> type[_PluginT]:
+    async def get(self, plugin_id: MachineName, /) -> _PluginDefinitionCoT:
         """
         Get a single plugin by its ID.
 
@@ -304,7 +431,7 @@ class PluginRepository(Generic[_PluginT], ABC):
         """
 
     @abstractmethod
-    def __aiter__(self) -> AsyncIterator[type[_PluginT]]:
+    def __aiter__(self) -> AsyncIterator[_PluginDefinitionCoT]:
         pass
 
     @property
@@ -313,10 +440,10 @@ class PluginRepository(Generic[_PluginT], ABC):
         Get the JSON schema for the IDs of the plugins in this repository.
         """
         if self._plugin_id_schema is None:
-            label = self.plugin.plugin_type_label().localize(DEFAULT_LOCALIZER)
+            label = self._plugin.type.label.localize(DEFAULT_LOCALIZER)
             self._plugin_id_schema = Enum(
-                *[plugin.plugin_id() async for plugin in self],  # noqa A002
-                def_name=kebab_case_to_lower_camel_case(self.plugin.plugin_type_id()),
+                *[plugin.id async for plugin in self],  # noqa A002
+                def_name=kebab_case_to_lower_camel_case(self._plugin.type.id),
                 title=label,
                 description=f"A {label} plugin ID",
             )
@@ -328,46 +455,40 @@ class CyclicDependencyError(PluginError):
     Raised when plugins define a cyclic dependency, e.g. two plugins depend on each other.
     """
 
-    def __init__(self, plugin_types: Iterable[type[Plugin]]):
-        plugin_names = ", ".join([plugin.plugin_id() for plugin in plugin_types])
+    def __init__(self, plugin_ids: Iterable[MachineName], /):
+        plugin_names = ", ".join(plugin_ids)
         super().__init__(
             f"The following plugins have cyclic dependencies: {plugin_names}"
         )
 
 
 async def sort_ordered_plugin_graph(
-    plugin_repository: PluginRepository[_PluginCoT & OrderedPlugin[_PluginCoT]],
-    plugins: Iterable[type[_PluginCoT & OrderedPlugin[_PluginCoT]]],
-    sorter: TopologicalSorter[type[_PluginCoT & OrderedPlugin[_PluginCoT]]],
+    plugin_repository: PluginRepository[_OrderedPluginDefinitionT],
+    plugins: Iterable[_OrderedPluginDefinitionT],
+    sorter: TopologicalSorter[MachineName],
+    /,
 ) -> None:
     """
     Build a graph of the given plugins.
     """
-    plugins = sorted(plugins, key=lambda plugin: plugin.plugin_id())
+    plugins = sorted(plugins, key=lambda plugin: plugin.id)
     for plugin in plugins:
-        sorter.add(plugin)
-        for before_identifier in plugin.comes_before():
-            before = (
-                await plugin_repository.get(before_identifier)
-                if isinstance(before_identifier, str)
-                else before_identifier
-            )
+        sorter.add(plugin.id)
+        for before_identifier in map(resolve_identifier, plugin.comes_before):
+            before = await plugin_repository.get(before_identifier)
             if before in plugins:
-                sorter.add(before, plugin)
-        for after_identifier in plugin.comes_after():
-            after = (
-                await plugin_repository.get(after_identifier)
-                if isinstance(after_identifier, str)
-                else after_identifier
-            )
+                sorter.add(before.id, plugin.id)
+        for after_identifier in map(resolve_identifier, plugin.comes_after):
+            after = await plugin_repository.get(after_identifier)
             if after in plugins:
-                sorter.add(plugin, after)
+                sorter.add(plugin.id, after.id)
 
 
 async def expand_plugin_dependencies(
-    plugin_repository: PluginRepository[_PluginCoT & DependentPlugin[_PluginCoT]],
-    plugins: Iterable[type[_PluginCoT & DependentPlugin[_PluginCoT]]],
-) -> set[type[_PluginCoT & DependentPlugin[_PluginCoT]]]:
+    plugin_repository: PluginRepository[_DependentPluginDefinitionT],
+    plugins: Iterable[_DependentPluginDefinitionT],
+    /,
+) -> set[_DependentPluginDefinitionT]:
     """
     Expand a collection of plugins to include their dependencies.
     """
@@ -377,73 +498,73 @@ async def expand_plugin_dependencies(
         dependencies.update(
             await expand_plugin_dependencies(
                 plugin_repository,
-                # We have not quite figured out how to type this correctly, so ignore any errors for now.
-                await plugin_repository.resolve_identifiers(plugin.depends_on()),
+                [
+                    await plugin_repository.get(depends_on)
+                    for depends_on in plugin.depends_on
+                ],
             )
         )
     return dependencies
 
 
 async def sort_dependent_plugin_graph(
-    plugin_repository: PluginRepository[_PluginCoT & DependentPlugin[_PluginCoT]],
-    plugins: Iterable[type[_PluginCoT & DependentPlugin[_PluginCoT]]],
-    sorter: TopologicalSorter[type[_PluginCoT & DependentPlugin[_PluginCoT]]],
+    plugin_repository: PluginRepository[_DependentPluginDefinitionT],
+    plugins: Iterable[_DependentPluginDefinitionT],
+    sorter: TopologicalSorter[MachineName],
+    /,
 ) -> None:
     """
     Sort a dependent plugin graph.
     """
     await sort_ordered_plugin_graph(
-        plugin_repository,  # type: ignore[arg-type]
+        plugin_repository,
         await expand_plugin_dependencies(plugin_repository, plugins),
-        sorter,  # type: ignore[arg-type]
+        sorter,
     )
 
 
-def _collect_ordered_plugin_graph(
-    graph: Mapping[
-        type[_PluginCoT & OrderedPlugin[_PluginCoT]],
-        set[type[_PluginCoT & OrderedPlugin[_PluginCoT]]],
-    ],
-    origin: type[_PluginCoT & OrderedPlugin[_PluginCoT]],
-) -> Iterator[type[_PluginCoT & OrderedPlugin[_PluginCoT]]]:
+def _collect_plugin_graph(
+    graph: Mapping[_PluginDefinitionT, set[_PluginDefinitionT]],
+    origin: _PluginDefinitionT,
+) -> Iterator[_PluginDefinitionT]:
     yield from graph[origin]
     for target in graph[origin]:
-        yield from _collect_ordered_plugin_graph(graph, target)
+        yield from _collect_plugin_graph(graph, target)
 
 
 async def get_comes_before(
-    plugin_repository: PluginRepository[_PluginCoT & OrderedPlugin[_PluginCoT]],
-    origin: type[_PluginCoT & OrderedPlugin[_PluginCoT]],
+    plugin_repository: PluginRepository[_OrderedPluginDefinitionT],
+    origin: _OrderedPluginDefinitionT,
     /,
-) -> set[type[_PluginCoT & OrderedPlugin[_PluginCoT]]]:
+) -> set[_OrderedPluginDefinitionT]:
     """
     Get all other plugins the given plugin comes before.
     """
     graph = defaultdict(set)
-    async for event_type in plugin_repository:
-        for comes_before_id in event_type.comes_before():
-            comes_before = await plugin_repository.resolve_identifier(comes_before_id)
-            graph[event_type].add(comes_before)
-        for comes_after_id in event_type.comes_after():
-            comes_after = await plugin_repository.resolve_identifier(comes_after_id)
-            graph[comes_after].add(event_type)
-    return set(_collect_ordered_plugin_graph(graph, origin))
+    async for plugin in plugin_repository:
+        for comes_before_id in plugin.comes_before:
+            comes_before = await plugin_repository.get(comes_before_id)
+            graph[plugin].add(comes_before)
+        for comes_after_id in plugin.comes_after:
+            comes_after = await plugin_repository.get(comes_after_id)
+            graph[comes_after].add(plugin)
+    return set(_collect_plugin_graph(graph, origin))
 
 
 async def get_comes_after(
-    plugin_repository: PluginRepository[_PluginCoT & OrderedPlugin[_PluginCoT]],
-    origin: type[_PluginCoT & OrderedPlugin[_PluginCoT]],
+    plugin_repository: PluginRepository[_OrderedPluginDefinitionT],
+    origin: _OrderedPluginDefinitionT,
     /,
-) -> set[type[_PluginCoT & OrderedPlugin[_PluginCoT]]]:
+) -> set[_OrderedPluginDefinitionT]:
     """
     Get all other plugins the given plugin comes after.
     """
     graph = defaultdict(set)
-    async for event_type in plugin_repository:
-        for comes_after_id in event_type.comes_after():
-            comes_after = await plugin_repository.resolve_identifier(comes_after_id)
-            graph[event_type].add(comes_after)
-        for comes_before_id in event_type.comes_before():
-            comes_before = await plugin_repository.resolve_identifier(comes_before_id)
-            graph[comes_before].add(event_type)
-    return set(_collect_ordered_plugin_graph(graph, origin))
+    async for plugin in plugin_repository:
+        for comes_after_id in plugin.comes_after:
+            comes_after = await plugin_repository.get(comes_after_id)
+            graph[plugin].add(comes_after)
+        for comes_before_id in plugin.comes_before:
+            comes_before = await plugin_repository.get(comes_before_id)
+            graph[comes_before].add(plugin)
+    return set(_collect_plugin_graph(graph, origin))

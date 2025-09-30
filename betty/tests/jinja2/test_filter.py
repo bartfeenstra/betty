@@ -28,7 +28,7 @@ from betty.media_type.media_types import SVG
 from betty.test_utils.ancestry.date import DummyHasDate
 from betty.test_utils.jinja2 import assert_template_string
 from betty.test_utils.locale.localized import DummyLocalized
-from betty.test_utils.model import DummyEntity
+from betty.test_utils.model import DummyEntityOne
 from betty.tests.ancestry.test___init__ import DummyHasFileReferences
 
 if TYPE_CHECKING:
@@ -694,7 +694,7 @@ async def test_filter_localize() -> None:
     [
         ("/index.html", "betty:///index.html", False),
         ("/index.html", "betty-static:///index.html", False),
-        ("https://example.com/dummy-entity/E0/index.html", DummyEntity("E0"), True),
+        ("https://example.com/dummy-one/E0/index.html", DummyEntityOne("E0"), True),
     ],
 )
 async def test_filter_url(expected: str, data: Any, absolute: bool) -> None:

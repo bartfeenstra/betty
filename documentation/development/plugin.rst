@@ -13,39 +13,14 @@ Plugins are the mechanism through which optional, drop-in functionality can be p
 They are used for a variety of purposes, such as extending the Betty application, or providing additional
 ancestry data types.
 
-Plugins must extend :py:class:`betty.plugin.Plugin`:
+The bare minimum requirement for a plugin is to have an ID that is exposed through a plugin definition.
 
-  .. code-block:: python
-
-      from typing import override
-      from betty.locale.localizable import _
-      from betty.plugin import Plugin
-
-      class MyPlugin(Plugin):
-          @override
-          @classmethod
-          def plugin_id(cls) -> PluginId:
-              return "my-plugin"
-
-          @override
-          @classmethod
-          def plugin_label(cls) -> Localizable:
-              return _("My Plugin")
-
-Plugin types
-------------
-
-Plugin types are discovered and made available through :py:class:`betty.plugin.PluginRepository` implementations.
-Other than that, there are no guidelines or limitations for what plugins can do, or be used for.
-
-Working with an existing plugin type
-------------------------------------
-The plugin type's documentation tells you where to find the plugin repository, how to
-use the plugins, and how to create your own.
+Plugins are discovered through plugin repositories.
 
 Built-in plugin types
-^^^^^^^^^^^^^^^^^^^^^
-The following plugin types are provided by Betty itself:
+---------------------
+The following plugin types are provided by Betty itself. Each plugin type's documentation tells you where to find the
+plugin repository, how to use the plugins, and how to create your own.
 
 - :doc:`CLI commands </development/plugin/command>`
 - :doc:`Copyright notices </development/plugin/copyright-notice>`
@@ -61,12 +36,49 @@ The following plugin types are provided by Betty itself:
 
 Creating a new plugin type
 --------------------------
-If you are developing an API that needs a new plugin type, and you want other developers to be
-able to define them as entry points, you **must** create a plugin repository, and you **should** create an abstract
-plugin class that extends :py:class:`betty.plugin.Plugin`.
 
-Built-in plugin repository types
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+To create a new plugin type, you will need a **plugin type definition**, a **plugin definition class**, and a **plugin
+repository**.
+
+Creating a plugin (type) definition
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+A plugin definition class must subclass :py:class:`betty.plugin.PluginDefinition`. A minimal example is:
+
+   .. code-block:: python
+
+     from typing import ClassVar
+     from betty.locale.localizable import _
+     from betty.plugin import PluginDefinition, PluginTypeDefinition
+
+     class MyFirstPluginDefinition(PluginDefinition):
+        type: ClassVar[PluginTypeDefinition] = PluginTypeDefinition(
+            id="my-first-plugin-type",
+            Label=_("My First Plugin Type"),
+        )
+
+This creates a new plugin type, for which plugins are defined using ``MyFirstPluginDefinition``, and only have an ID.
+
+Your plugin definition class may subclass any of the following base classes, so each plugin can provide additional
+metadata in its definition:
+
+:py:class:`betty.plugin.UserFacingPluginDefinition`
+    To add human-readable labels and descriptions to plugins.
+:py:class:`betty.plugin.CountableUserFacingPluginDefinition`
+    To add countable human-readable labels and descriptions to plugins.
+:py:class:`betty.plugin.OrderedPluginDefinition`
+    To allow plugins to define if they come before or after any other plugins.
+:py:class:`betty.plugin.DependentPluginDefinition`
+    To allow plugins to define their dependencies on any other plugins.
+:py:class:`betty.plugin.ClassedPluginDefinition`
+    For plugins that have classes that can be instantiated.
+
+Creating a plugin repository
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+A plugin repository implements :py:class:`betty.plugin.PluginRepository` and is responsible for discovering all plugins
+of the type it is responsible for, and making them available to other code. Your plugin repository may subclass one of
+the following base classes to get started quickly:
 
 :py:class:`betty.plugin.entry_point.EntryPointPluginRepository`
     to discover plugins defined as package entry points.

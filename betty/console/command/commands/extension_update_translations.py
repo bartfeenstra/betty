@@ -5,17 +5,14 @@ from typing import TYPE_CHECKING, final, Self
 from typing_extensions import override
 
 from betty.app.factory import AppDependentFactory
-from betty.assertion import (
-    assert_or,
-    assert_none,
-    assert_directory_path,
-)
+from betty.assertion import assert_or, assert_none, assert_directory_path
 from betty.console.assertion import assertion_to_argument_type
-from betty.console.command import Command, CommandFunction
-from betty.locale import translation
+from betty.console.command import Command, CommandFunction, CommandDefinition
 from betty.locale.localizable import _
-from betty.plugin import ShorthandPluginBase
-
+from betty.locale.translation.project import extension as extension_translation
+from betty.locale.translation.project.extension import (
+    assert_extension_has_assets_directory_path,
+)
 from betty.project import extension
 
 if TYPE_CHECKING:
@@ -23,17 +20,18 @@ if TYPE_CHECKING:
     from pathlib import Path
 
     from betty.app import App
-    from betty.project.extension import Extension
+    from betty.project.extension import ExtensionDefinition
 
 
 @final
-class ExtensionUpdateTranslations(ShorthandPluginBase, AppDependentFactory, Command):
+@CommandDefinition(
+    id="extension-update-translations",
+    label=_("Update all existing translations for an extension"),
+)
+class ExtensionUpdateTranslations(AppDependentFactory, Command):
     """
     A command to update all of an extension's translations.
     """
-
-    _plugin_id = "extension-update-translations"
-    _plugin_label = _("Update all existing translations for an extension")
 
     def __init__(self, app: App):
         self._app = app
@@ -46,13 +44,13 @@ class ExtensionUpdateTranslations(ShorthandPluginBase, AppDependentFactory, Comm
     @override
     async def configure(self, parser: argparse.ArgumentParser) -> CommandFunction:
         localizer = await self._app.localizer
-        extension_id_to_type_mapping = await extension.EXTENSION_REPOSITORY.mapping()
+        extension_id_mapping = await extension.EXTENSION_REPOSITORY.mapping()
 
         parser.add_argument(
             "extension",
             type=assertion_to_argument_type(
-                lambda extension_id: translation.project.extension.assert_extension_has_assets_directory_path(
-                    extension_id_to_type_mapping.get(extension_id)
+                lambda extension_id: assert_extension_has_assets_directory_path(
+                    extension_id_mapping.get(extension_id)
                 ),
                 localizer=localizer,
             ),
@@ -73,8 +71,8 @@ class ExtensionUpdateTranslations(ShorthandPluginBase, AppDependentFactory, Comm
         return self._command_function
 
     async def _command_function(
-        self, extension: type[Extension], source: Path, exclude: tuple[Path] | None
+        self, extension: ExtensionDefinition, source: Path, exclude: tuple[Path] | None
     ) -> None:
-        await translation.project.extension.update_extension_translations(
+        await extension_translation.update_extension_translations(
             extension, source, None if exclude is None else set(exclude)
         )

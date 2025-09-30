@@ -1,3 +1,4 @@
+import pytest
 from typing_extensions import override
 
 from betty.ancestry.place_type.place_types import (
@@ -23,130 +24,152 @@ from betty.ancestry.place_type.place_types import (
     Unknown,
     Village,
 )
-from betty.test_utils.ancestry.place_type import PlaceTypeTestBase
+from betty.plugin import PluginDefinition
+from betty.test_utils.ancestry.place_type import PlaceTypeDefinitionTestBase
 
 
-class TestBorough(PlaceTypeTestBase):
+class TestBorough(PlaceTypeDefinitionTestBase):
     @override
-    def get_sut_class(self) -> type[Borough]:
-        return Borough
+    @pytest.fixture
+    def sut(self) -> PluginDefinition:
+        return Borough.plugin
 
 
-class TestBuilding(PlaceTypeTestBase):
+class TestBuilding(PlaceTypeDefinitionTestBase):
     @override
-    def get_sut_class(self) -> type[Building]:
-        return Building
+    @pytest.fixture
+    def sut(self) -> PluginDefinition:
+        return Building.plugin
 
 
-class TestCity(PlaceTypeTestBase):
+class TestCity(PlaceTypeDefinitionTestBase):
     @override
-    def get_sut_class(self) -> type[City]:
-        return City
+    @pytest.fixture
+    def sut(self) -> PluginDefinition:
+        return City.plugin
 
 
-class TestCountry(PlaceTypeTestBase):
+class TestCountry(PlaceTypeDefinitionTestBase):
     @override
-    def get_sut_class(self) -> type[Country]:
-        return Country
+    @pytest.fixture
+    def sut(self) -> PluginDefinition:
+        return Country.plugin
 
 
-class TestCounty(PlaceTypeTestBase):
+class TestCounty(PlaceTypeDefinitionTestBase):
     @override
-    def get_sut_class(self) -> type[County]:
-        return County
+    @pytest.fixture
+    def sut(self) -> PluginDefinition:
+        return County.plugin
 
 
-class TestDepartment(PlaceTypeTestBase):
+class TestDepartment(PlaceTypeDefinitionTestBase):
     @override
-    def get_sut_class(self) -> type[Department]:
-        return Department
+    @pytest.fixture
+    def sut(self) -> PluginDefinition:
+        return Department.plugin
 
 
-class TestDistrict(PlaceTypeTestBase):
+class TestDistrict(PlaceTypeDefinitionTestBase):
     @override
-    def get_sut_class(self) -> type[District]:
-        return District
+    @pytest.fixture
+    def sut(self) -> PluginDefinition:
+        return District.plugin
 
 
-class TestFarm(PlaceTypeTestBase):
+class TestFarm(PlaceTypeDefinitionTestBase):
     @override
-    def get_sut_class(self) -> type[Farm]:
-        return Farm
+    @pytest.fixture
+    def sut(self) -> PluginDefinition:
+        return Farm.plugin
 
 
-class TestHamlet(PlaceTypeTestBase):
+class TestHamlet(PlaceTypeDefinitionTestBase):
     @override
-    def get_sut_class(self) -> type[Hamlet]:
-        return Hamlet
+    @pytest.fixture
+    def sut(self) -> PluginDefinition:
+        return Hamlet.plugin
 
 
-class TestLocality(PlaceTypeTestBase):
+class TestLocality(PlaceTypeDefinitionTestBase):
     @override
-    def get_sut_class(self) -> type[Locality]:
-        return Locality
+    @pytest.fixture
+    def sut(self) -> PluginDefinition:
+        return Locality.plugin
 
 
-class TestMunicipality(PlaceTypeTestBase):
+class TestMunicipality(PlaceTypeDefinitionTestBase):
     @override
-    def get_sut_class(self) -> type[Municipality]:
-        return Municipality
+    @pytest.fixture
+    def sut(self) -> PluginDefinition:
+        return Municipality.plugin
 
 
-class TestNeighborhood(PlaceTypeTestBase):
+class TestNeighborhood(PlaceTypeDefinitionTestBase):
     @override
-    def get_sut_class(self) -> type[Neighborhood]:
-        return Neighborhood
+    @pytest.fixture
+    def sut(self) -> PluginDefinition:
+        return Neighborhood.plugin
 
 
-class TestNumber(PlaceTypeTestBase):
+class TestNumber(PlaceTypeDefinitionTestBase):
     @override
-    def get_sut_class(self) -> type[Number]:
-        return Number
+    @pytest.fixture
+    def sut(self) -> PluginDefinition:
+        return Number.plugin
 
 
-class TestParish(PlaceTypeTestBase):
+class TestParish(PlaceTypeDefinitionTestBase):
     @override
-    def get_sut_class(self) -> type[Parish]:
-        return Parish
+    @pytest.fixture
+    def sut(self) -> PluginDefinition:
+        return Parish.plugin
 
 
-class TestProvince(PlaceTypeTestBase):
+class TestProvince(PlaceTypeDefinitionTestBase):
     @override
-    def get_sut_class(self) -> type[Province]:
-        return Province
+    @pytest.fixture
+    def sut(self) -> PluginDefinition:
+        return Province.plugin
 
 
-class TestRegion(PlaceTypeTestBase):
+class TestRegion(PlaceTypeDefinitionTestBase):
     @override
-    def get_sut_class(self) -> type[Region]:
-        return Region
+    @pytest.fixture
+    def sut(self) -> PluginDefinition:
+        return Region.plugin
 
 
-class TestState(PlaceTypeTestBase):
+class TestState(PlaceTypeDefinitionTestBase):
     @override
-    def get_sut_class(self) -> type[State]:
-        return State
+    @pytest.fixture
+    def sut(self) -> PluginDefinition:
+        return State.plugin
 
 
-class TestStreet(PlaceTypeTestBase):
+class TestStreet(PlaceTypeDefinitionTestBase):
     @override
-    def get_sut_class(self) -> type[Street]:
-        return Street
+    @pytest.fixture
+    def sut(self) -> PluginDefinition:
+        return Street.plugin
 
 
-class TestTown(PlaceTypeTestBase):
+class TestTown(PlaceTypeDefinitionTestBase):
     @override
-    def get_sut_class(self) -> type[Town]:
-        return Town
+    @pytest.fixture
+    def sut(self) -> PluginDefinition:
+        return Town.plugin
 
 
-class TestUnknown(PlaceTypeTestBase):
+class TestUnknown(PlaceTypeDefinitionTestBase):
     @override
-    def get_sut_class(self) -> type[Unknown]:
-        return Unknown
+    @pytest.fixture
+    def sut(self) -> PluginDefinition:
+        return Unknown.plugin
 
 
-class TestVillage(PlaceTypeTestBase):
+class TestVillage(PlaceTypeDefinitionTestBase):
     @override
-    def get_sut_class(self) -> type[Village]:
-        return Village
+    @pytest.fixture
+    def sut(self) -> PluginDefinition:
+        return Village.plugin

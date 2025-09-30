@@ -1,28 +1,34 @@
+import pytest
 from typing_extensions import override
 
 from betty.ancestry.gender.genders import Female, Male, NonBinary, Unknown
-from betty.test_utils.ancestry.gender import GenderTestBase
+from betty.plugin import PluginDefinition
+from betty.test_utils.ancestry.gender import GenderDefinitionTestBase
 
 
-class TestNonBinary(GenderTestBase):
+class TestNonBinary(GenderDefinitionTestBase):
     @override
-    def get_sut_class(self) -> type[NonBinary]:
-        return NonBinary
+    @pytest.fixture
+    def sut(self) -> PluginDefinition:
+        return NonBinary.plugin
 
 
-class TestFemale(GenderTestBase):
+class TestFemale(GenderDefinitionTestBase):
     @override
-    def get_sut_class(self) -> type[Female]:
-        return Female
+    @pytest.fixture
+    def sut(self) -> PluginDefinition:
+        return Female.plugin
 
 
-class TestMale(GenderTestBase):
+class TestMale(GenderDefinitionTestBase):
     @override
-    def get_sut_class(self) -> type[Male]:
-        return Male
+    @pytest.fixture
+    def sut(self) -> PluginDefinition:
+        return Male.plugin
 
 
-class TestUnknown(GenderTestBase):
+class TestUnknown(GenderDefinitionTestBase):
     @override
-    def get_sut_class(self) -> type[Unknown]:
-        return Unknown
+    @pytest.fixture
+    def sut(self) -> PluginDefinition:
+        return Unknown.plugin

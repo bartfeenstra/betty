@@ -11,11 +11,10 @@ from betty.assertion import (
     assert_directory_path,
 )
 from betty.console.assertion import assertion_to_argument_type
+from betty.console.command import Command, CommandFunction, CommandDefinition
 from betty.console.project import add_project_argument
-from betty.console.command import Command, CommandFunction
 from betty.locale import translation
 from betty.locale.localizable import _
-from betty.plugin import ShorthandPluginBase
 
 if TYPE_CHECKING:
     import argparse
@@ -26,13 +25,14 @@ if TYPE_CHECKING:
 
 
 @final
-class UpdateTranslations(ShorthandPluginBase, AppDependentFactory, Command):
+@CommandDefinition(
+    id="update-translations",
+    label=_("Update all existing translations"),
+)
+class UpdateTranslations(AppDependentFactory, Command):
     """
     A command to update all of a project's translations.
     """
-
-    _plugin_id = "update-translations"
-    _plugin_label = _("Update all existing translations")
 
     def __init__(self, app: App):
         self._app = app

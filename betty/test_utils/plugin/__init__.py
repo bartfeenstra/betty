@@ -2,136 +2,276 @@
 Test utilities for :py:mod:`betty.plugin`.
 """
 
-from collections.abc import Sequence
-from typing import Any, Generic, TypeVar, final
+from __future__ import annotations
 
+from typing import Any, ClassVar, final
+
+import pytest
 from typing_extensions import override
 
-from betty.locale.localizable import Localizable, Plain
+from betty.config import DefaultConfigurable
+from betty.locale.localizable import Plain
 from betty.locale.localizer import DEFAULT_LOCALIZER
-from betty.machine_name import MachineName, assert_machine_name
-from betty.plugin import Plugin
-from betty.string import camel_case_to_kebab_case
+from betty.machine_name import assert_machine_name
+from betty.plugin import (
+    ClassedPluginDefinition,
+    ClassedPluginTypeDefinition,
+    CountableUserFacingPluginDefinition,
+    DependentPluginDefinition,
+    OrderedPluginDefinition,
+    PluginDefinition,
+    PluginTypeDefinition,
+    UserFacingPluginDefinition,
+)
+from betty.test_utils.config import DummyConfiguration
 
-_PluginT = TypeVar("_PluginT", bound=Plugin)
+
+def _assert_cls_is_public(cls: type) -> None:
+    assert not cls.__name__.startswith("_"), (
+        f"Failed asserting that plugin class {cls} is public (its name must not start with an underscore)"
+    )
 
 
-def assert_plugin_identifier(value: Any, plugin_type: type[_PluginT]) -> None:
+class PluginDefinitionClassTestBase:
     """
-    Assert that something is a plugin identifier.
-    """
-    if isinstance(value, str):
-        assert_machine_name()(value)
-    else:
-        assert issubclass(value, plugin_type)
-
-
-class PluginTestBase(Generic[_PluginT]):
-    """
-    A base class for testing :py:class:`betty.plugin.Plugin` implementations.
+    A base class for testing :py:class:`betty.plugin.PluginDefinition` subclasses.
     """
 
-    def get_sut_class(self) -> type[_PluginT]:
+    @pytest.fixture
+    def sut(self) -> type[PluginDefinition]:
         """
-        Produce the class of the plugin under test.
+        Provide the system(s) under test.
         """
         raise NotImplementedError
 
-    async def test_class_is_public(self) -> None:
+    def test_type__id(self, sut: PluginDefinition) -> None:
         """
-        Tests that the plugin class is public.
+        Tests the :py:class:`betty.plugin.PluginDefinition`'s ``type`` attribute's ``id`` value.
         """
-        assert not self.get_sut_class().__name__.startswith("_"), (
-            f"Failed asserting that plugin class {self.get_sut_class()} is public (its name must not start with an underscore)"
-        )
+        assert_machine_name()(sut.type.id)
 
-    async def test_plugin_type_cls(self) -> None:
+    def test_type__label(self, sut: PluginDefinition) -> None:
         """
-        Tests :py:meth:`betty.plugin.Plugin.plugin_type_cls` implementations.
+        Tests the :py:class:`betty.plugin.PluginDefinition`'s ``type`` attribute's ``label`` value.
         """
-        sut = self.get_sut_class()
-        assert issubclass(sut, sut.plugin_type_cls())
-
-    async def test_plugin_type_id(self) -> None:
-        """
-        Tests :py:meth:`betty.plugin.Plugin.plugin_type_id` implementations.
-        """
-        assert_machine_name()(self.get_sut_class().plugin_type_id())
-
-    async def test_plugin_type_label(self) -> None:
-        """
-        Tests :py:meth:`betty.plugin.Plugin.plugin_type_label` implementations.
-        """
-        assert self.get_sut_class().plugin_type_label().localize(DEFAULT_LOCALIZER)
-
-    async def test_plugin_id(self) -> None:
-        """
-        Tests :py:meth:`betty.plugin.Plugin.plugin_id` implementations.
-        """
-        assert_machine_name()(self.get_sut_class().plugin_id())
-
-    async def test_plugin_label(self) -> None:
-        """
-        Tests :py:meth:`betty.plugin.Plugin.plugin_label` implementations.
-        """
-        assert self.get_sut_class().plugin_label().localize(DEFAULT_LOCALIZER)
-
-    async def test_plugin_description(self) -> None:
-        """
-        Tests :py:meth:`betty.plugin.Plugin.plugin_description` implementations.
-        """
-        description = self.get_sut_class().plugin_description()
-        if description is not None:
-            assert description.localize(DEFAULT_LOCALIZER)
+        assert sut.type.label.localize(DEFAULT_LOCALIZER)
 
 
-class PluginInstanceTestBase(Generic[_PluginT], PluginTestBase[_PluginT]):
+class PluginDefinitionTestBase:
     """
-    A base class for testing :py:class:`betty.plugin.Plugin` implementation instances.
+    A base class for testing :py:class:`betty.plugin.PluginDefinition` subclasses.
     """
 
-    def get_sut_instances(self) -> Sequence[_PluginT]:
+    @pytest.fixture
+    def sut(self) -> PluginDefinition:
         """
-        Produce instances of the plugin under test.
+        Provide the system(s) under test.
         """
         raise NotImplementedError
 
+    def test_id(self, sut: PluginDefinition) -> None:
+        """
+        Tests the :py:attr:`betty.plugin.PluginDefinition.id` value.
+        """
+        assert_machine_name()(sut.id)
 
-class DummyPluginBase(Plugin):
+
+class UserFacingPluginDefinitionTestBase(PluginDefinitionTestBase):
     """
-    A base dummy plugin implementation.
-    """
-
-    @override
-    @classmethod
-    def plugin_id(cls) -> MachineName:
-        return camel_case_to_kebab_case(cls.__name__.strip("_"))
-
-    @override
-    @classmethod
-    def plugin_label(cls) -> Localizable:
-        return Plain(cls.__name__)
-
-
-class DummyPlugin(DummyPluginBase):
-    """
-    A dummy plugin implementation.
+    A base class for testing :py:class:`betty.plugin.UserFacingPluginDefinition` subclasses.
     """
 
-    @final
-    @override
-    @classmethod
-    def plugin_type_cls(cls) -> type[Plugin]:
-        return DummyPlugin
+    def test_label(self, sut: UserFacingPluginDefinition) -> None:
+        """
+        Tests the :py:attr:`betty.plugin.UserFacingPluginDefinition.label` value.
+        """
+        assert sut.label.localize(DEFAULT_LOCALIZER)
 
-    @final
-    @override
-    @classmethod
-    def plugin_type_id(cls) -> MachineName:
-        return "dummy"
+    def test_description(self, sut: UserFacingPluginDefinition) -> None:
+        """
+        Tests the :py:attr:`betty.plugin.UserFacingPluginDefinition.label` value.
+        """
+        if sut.description is not None:
+            assert sut.description.localize(DEFAULT_LOCALIZER)
 
-    @final
+
+class CountableUserFacingPluginDefinitionTestBase(UserFacingPluginDefinitionTestBase):
+    """
+    A base class for testing :py:class:`betty.plugin.CountableUserFacingPluginDefinition` subclasses.
+    """
+
+    def test_label_plural(self, sut: CountableUserFacingPluginDefinition) -> None:
+        """
+        Tests the :py:attr:`betty.plugin.CountableUserFacingPluginDefinition.label_plural` value.
+        """
+        assert sut.label_plural.localize(DEFAULT_LOCALIZER)
+
+    @pytest.mark.parametrize(
+        "count",
+        range(9),
+    )
+    def test_label_countable(
+        self, sut: CountableUserFacingPluginDefinition, count: int
+    ) -> None:
+        """
+        Tests the :py:attr:`betty.plugin.CountableUserFacingPluginDefinition.label_countable` value.
+        """
+        assert sut.label_countable.count(count).localize(DEFAULT_LOCALIZER)
+
+
+class OrderedPluginDefinitionTestBase(PluginDefinitionTestBase):
+    """
+    A base class for testing :py:class:`betty.plugin.OrderedPluginDefinition` subclasses.
+    """
+
+    def test_comes_after(self, sut: OrderedPluginDefinition) -> None:
+        """
+        Tests the :py:attr:`betty.plugin.OrderedPluginDefinition.comes_after` value.
+        """
+        for plugin_id in sut.comes_after:
+            assert_machine_name()(plugin_id)
+
+    def test_comes_before(self, sut: OrderedPluginDefinition) -> None:
+        """
+        Tests the :py:attr:`betty.plugin.OrderedPluginDefinition.comes_before` value.
+        """
+        for plugin_id in sut.comes_before:
+            assert_machine_name()(plugin_id)
+
+
+class DependentPluginDefinitionTestBase(PluginDefinitionTestBase):
+    """
+    A base class for testing :py:class:`betty.plugin.DependentPluginDefinition` subclasses.
+    """
+
+    def test_depends_on(self, sut: DependentPluginDefinition) -> None:
+        """
+        Tests the :py:attr:`betty.plugin.DependentPluginDefinition.depends_on` value.
+        """
+        for plugin_id in sut.depends_on:
+            assert_machine_name()(plugin_id)
+
+
+class ClassedPluginDefinitionTestBase(PluginDefinitionTestBase):
+    """
+    A base class for testing :py:class:`betty.plugin.ClassedPluginDefinition` subclasses.
+    """
+
+    def test_type__cls(self, sut: ClassedPluginDefinition[Any]) -> None:
+        """
+        Tests the :py:class:`betty.plugin.ClassedPluginDefinition`'s ``type`` attribute's ``cls`` value.
+        """
+        _assert_cls_is_public(sut.type.cls)
+
+    def test_cls(self, sut: ClassedPluginDefinition[Any]) -> None:
+        """
+        Tests the :py:attr:`betty.plugin.ClassedPluginDefinition.cls` value.
+        """
+        _assert_cls_is_public(sut.cls)
+
+
+class DummyPluginDefinition(PluginDefinition):
+    """
+    A definition of a dummy plugin.
+    """
+
+    type = PluginTypeDefinition(
+        id="dummy-plugin",
+        label=Plain("Dummy plugin"),
+    )
+
+
+DUMMY_PLUGIN_ONE = DummyPluginDefinition(
+    id="dummy-plugin-one",
+)
+
+DUMMY_PLUGIN_TWO = DummyPluginDefinition(
+    id="dummy-plugin-two",
+)
+
+DUMMY_PLUGIN_THREE = DummyPluginDefinition(
+    id="dummy-plugin-three",
+)
+DUMMY_PLUGIN_FOUR = DummyPluginDefinition(
+    id="dummy-plugin-four",
+)
+
+
+class ClassedDummyPlugin:
+    """
+    A classed dummy plugin.
+    """
+
+    plugin: ClassVar[ClassedDummyPluginDefinition]
+
+
+class ClassedDummyPluginDefinition(ClassedPluginDefinition[ClassedDummyPlugin]):
+    """
+    A definition of a classed dummy plugin.
+    """
+
+    type = ClassedPluginTypeDefinition(
+        id="classed-dummy-plugin",
+        label=Plain("Classed dummy plugin"),
+        cls=ClassedDummyPlugin,
+    )
+
+
+@final
+@ClassedDummyPluginDefinition(
+    id="classed-dummy-plugin-one",
+)
+class ClassedDummyPluginOne(ClassedDummyPlugin):
+    """
+    A classed dummy plugin (one).
+    """
+
+
+@final
+@ClassedDummyPluginDefinition(
+    id="classed-dummy-plugin-two",
+)
+class ClassedDummyPluginTwo(ClassedDummyPlugin):
+    """
+    A classed dummy plugin (two).
+    """
+
+
+class ConfigurableDummyPlugin(DefaultConfigurable[DummyConfiguration]):
+    """
+    A configurable dummy plugin.
+    """
+
+    plugin: ClassVar[ConfigurableDummyPluginDefinition]
+
+    def __init__(self):
+        super().__init__(configuration=self.new_default_configuration())
+
     @override
     @classmethod
-    def plugin_type_label(cls) -> Localizable:
-        return Plain("Dummy")
+    def new_default_configuration(cls) -> DummyConfiguration:
+        return DummyConfiguration()
+
+
+class ConfigurableDummyPluginDefinition(
+    ClassedPluginDefinition[ConfigurableDummyPlugin]
+):
+    """
+    A definition of a configurable dummy plugin.
+    """
+
+    type = ClassedPluginTypeDefinition(
+        id="configurable-dummy-plugin",
+        label=Plain("Configurable dummy plugin"),
+        cls=ConfigurableDummyPlugin,
+    )
+
+
+@final
+@ConfigurableDummyPluginDefinition(
+    id="configurable-dummy-plugin-one",
+)
+class ConfigurableDummyPluginOne(ConfigurableDummyPlugin):
+    """
+    A configurable dummy plugin (one).
+    """

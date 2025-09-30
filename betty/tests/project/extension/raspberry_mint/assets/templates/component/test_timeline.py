@@ -80,7 +80,7 @@ async def test_with_subject_attendee() -> None:
     async with assert_template_file(
         data={
             "events": [event],
-            "entity_contexts": await EntityContexts.new(person),
+            "entity_contexts": EntityContexts(person),
         },
         extensions={RaspberryMint},
         template="component/timeline.html.j2",
@@ -96,7 +96,7 @@ async def test_with_other_attendee() -> None:
     async with assert_template_file(
         data={
             "events": [event],
-            "entity_contexts": await EntityContexts.new(person),
+            "entity_contexts": EntityContexts(person),
         },
         extensions={RaspberryMint},
         template="component/timeline.html.j2",

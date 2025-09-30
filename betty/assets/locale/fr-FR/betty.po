@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PROJECT VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2025-09-27 00:43+0200\n"
+"POT-Creation-Date: 2025-10-08 20:16+0100\n"
 "PO-Revision-Date: 2024-11-29 18:58+0000\n"
 "Last-Translator: Bart Feenstra <bart@bartfeenstra.com>\n"
 "Language: fr_FR\n"
@@ -48,6 +48,9 @@ msgstr "%(event)s de %(subjects)s"
 #, python-format
 msgid "%(event)s with %(subjects)s"
 msgstr "%(event)s avec %(subjects)s"
+
+msgid "(De)serialization format)"
+msgstr ""
 
 msgid ""
 "A family history as told by <a "
@@ -347,9 +350,6 @@ msgstr "Décès"
 msgid "Department"
 msgstr ""
 
-msgid "Deriver"
-msgstr ""
-
 msgid "Description, licensing, and image history"
 msgstr ""
 
@@ -367,8 +367,8 @@ msgid "Display interactive maps"
 msgstr ""
 
 msgid ""
-"Display the HTTP API documentation in a user-friendly way using <a "
-"href=\"https://swagger.io/tools/swagger-ui\">Swagger UI</a>."
+"Display the HTTP API documentation in a user-friendly way using Swagger "
+"UI."
 msgstr ""
 
 msgid "District"
@@ -477,9 +477,6 @@ msgstr ""
 msgid "Find out more about this image on Wikimedia Commons."
 msgstr ""
 
-msgid "Format"
-msgstr ""
-
 msgid "Funeral"
 msgstr "Funérailles"
 
@@ -506,9 +503,6 @@ msgstr ""
 msgid ""
 "Gramps exited with the following error:\n"
 "{error}"
-msgstr ""
-
-msgid "HTTP API Documentation"
 msgstr ""
 
 msgid "Hamlet"
@@ -566,7 +560,7 @@ msgstr ""
 msgid "Links"
 msgstr ""
 
-msgid "Load <a href=\"https://gramps-project.org/\">Gramps</a> family trees."
+msgid "Load Gramps family trees."
 msgstr ""
 
 #, python-brace-format
@@ -632,9 +626,6 @@ msgid "MMMM, y"
 msgstr "MMMM y"
 
 msgid "Male"
-msgstr ""
-
-msgid "Maps"
 msgstr ""
 
 msgid "Marriage"
@@ -728,9 +719,7 @@ msgid "Places"
 msgstr "Lieux"
 
 #, python-brace-format
-msgid ""
-"Plugin {plugin_label} ({plugin_id}) is not configurable, but "
-"configuration was given."
+msgid "Plugin \"{plugin_id}\" is not configurable, but configuration was given."
 msgstr ""
 
 msgid "Positional arguments"
@@ -762,13 +751,17 @@ msgid ""
 msgstr ""
 
 #, python-brace-format
-msgid "Privatized {count} people because they are likely still alive."
-msgstr ""
+msgid ""
+"Privatized {count} \"{entity_type_id}\" entity, because it is associated "
+"with private information."
+msgid_plural ""
+"Privatized {count} \"{entity_type_id}\" entities, because they are "
+"associated with private information."
+msgstr[0] ""
+msgstr[1] ""
 
 #, python-brace-format
-msgid ""
-"Privatized {count} {entity_type}, because they are associated with "
-"private information."
+msgid "Privatized {count} people because they are likely still alive."
 msgstr ""
 
 #, python-brace-format
@@ -776,9 +769,6 @@ msgid ""
 "Privatized {privatized_entity_type} {privatized_entity_id} "
 "({privatized_entity}) because of {reason_entity_type} {reason_entity_id} "
 "({reason_entity})."
-msgstr ""
-
-msgid "Privatizer"
 msgstr ""
 
 msgid "Project author"
@@ -1045,9 +1035,6 @@ msgstr ""
 
 #, python-brace-format
 msgid "Translations for {locale} initialized at {po_file_path}."
-msgstr ""
-
-msgid "Trees"
 msgstr ""
 
 msgid "Unauthorized"

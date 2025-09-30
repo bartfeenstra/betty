@@ -19,7 +19,7 @@ class TestLoadAncestry:
         async with Project.new_temporary(new_temporary_app) as project:
             project.configuration.extensions.append(
                 PluginInstanceConfiguration(
-                    Gramps,
+                    Gramps.plugin,
                     configuration=GrampsConfiguration(
                         family_trees=[FamilyTreeConfiguration(family_tree_name)],
                     ),

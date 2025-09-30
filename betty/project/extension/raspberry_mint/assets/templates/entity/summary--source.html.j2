@@ -1,7 +1,7 @@
 {%- set embedded = embedded | default(False) -%}
 {%- set source_context = entity_contexts['source'] -%}
 <div class="small">
-    <p class="m-0">{{ entity.plugin_label() | localize | html_lang }}</p>
+    <p class="m-0">{{ entity.plugin.label | localize | html_lang }}</p>
     {%- if entity.contained_by -%}
         {%- set contained_by_label -%}
             {%- with source = entity.contained_by -%}

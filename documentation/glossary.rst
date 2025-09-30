@@ -6,18 +6,6 @@ Glossary
     plugin
       A drop-in piece of functionality.
 
-      A plugin is a concrete class that extends :py:class:`betty.plugin.Plugin`.
-
-      Read more about :doc:`plugins </development/plugin>`.
-
-    plugin instance
-      An object that is an instance of a :term:`plugin` (class).
-
-      Read more about :doc:`plugins </development/plugin>`.
-
-    plugin type
-      A plugin type is a potentially abstract class that is or extends :py:class:`betty.plugin.Plugin`.
-
       Read more about :doc:`plugins </development/plugin>`.
 
     static site

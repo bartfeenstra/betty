@@ -16,30 +16,26 @@ Serialization formats allow serializable data, such as project configuration, to
 Creating a serialization format
 -------------------------------
 
-#. Create a new class that extends :py:class:`betty.serde.format.Format` and implements the abstract methods,
-   for example:
+Create a new class that extends :py:class:`betty.serde.format.Format` and implements the abstract methods, for example:
 
-   .. code-block:: python
+.. code-block:: python
 
-     from typing import override
-     from betty.machine_name import MachineName
-     from betty.plugin import Plugin
-     from betty.serde.format.Format
+   from betty.serde.format import Format, FormatDefinition
 
-     class MyFormat(Format, Plugin):
-       @override
-       @classmethod
-       def plugin_id(cls) -> MachineName:
-           return "my-module-my-format"
-
+   @FormatDefinition(
+       id="my-format",
+       label=_("My Format"),
+   )
+   class MyFormat(Format, Plugin):
        # Implement remaining abstract methods...
        ...
 
 
-#. Tell Betty about your serialization format by registering it as an entry point. Given the serialization format above in a module ``my_package.my_module``, add the following to your Python package:
+Tell Betty about your serialization format by registering it as an entry point. Given the serialization format above in
+a module ``my_package.my_module``, add the following to your Python package:
 
-   .. code-block:: toml
+.. code-block:: toml
 
-       [project.entry-points.'betty.serde_format']
-       'my-module-my-format' = 'my_package.my_module.MyFormat'
+   [project.entry-points.'betty.serde_format']
+   'my-module-my-format' = 'my_package.my_module.MyFormat'
 

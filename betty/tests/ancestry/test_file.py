@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from pathlib import Path
 from tempfile import NamedTemporaryFile
-from typing import TYPE_CHECKING, Any
+from typing import TYPE_CHECKING, Any, cast
 
 from typing_extensions import override
 
@@ -20,28 +20,39 @@ from betty.locale import DEFAULT_LOCALE
 from betty.locale.localizable import Plain
 from betty.locale.localizer import DEFAULT_LOCALIZER
 from betty.media_type.media_types import PLAIN_TEXT
+from betty.model import Entity
 from betty.privacy import Privacy
 from betty.test_utils.json.linked_data import assert_dumps_linked_data
-from betty.test_utils.model import EntityTestBase
+from betty.test_utils.model import EntityDefinitionTestBase, EntityTestBase
 from betty.tests.ancestry.test___init__ import DummyHasFileReferences
 
 if TYPE_CHECKING:
     from collections.abc import Mapping, Sequence
 
-    from betty.model import Entity
+    from betty.plugin import PluginDefinition
+
+import pytest
+
+
+class TestFileDefinition(EntityDefinitionTestBase):
+    @override
+    @pytest.fixture
+    def sut(self) -> PluginDefinition:
+        return File.plugin
 
 
 class TestFile(EntityTestBase):
-    @override
-    def get_sut_class(self) -> type[File]:
-        return File
-
-    @override
-    async def get_sut_instances(self) -> Sequence[Entity]:
+    @staticmethod
+    def _sut_params() -> Sequence[Entity]:
         return [
             File(Path(__file__)),
             File(Path(__file__), description=Plain("My First File")),
         ]
+
+    @override
+    @pytest.fixture(params=_sut_params())
+    async def sut(self, request: pytest.FixtureRequest) -> Entity:
+        return cast(Entity, request.param)
 
     async def test_id(self) -> None:
         file_id = "BETTY01"

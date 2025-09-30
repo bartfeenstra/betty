@@ -14,8 +14,7 @@ from betty.fetch import FetchError
 from betty.jinja2 import Filters, Globals, Jinja2Provider, context_localizer
 from betty.locale import negotiate_locale
 from betty.locale.localizable import Plain, _
-from betty.plugin import ShorthandPluginBase
-from betty.project.extension import ConfigurableExtension
+from betty.project.extension import ConfigurableExtension, ExtensionDefinition
 from betty.project.extension.wiki.config import WikiConfiguration
 from betty.project.extension.wiki.jobs import PopulateEntity
 from betty.project.load import PostLoader
@@ -35,8 +34,15 @@ if TYPE_CHECKING:
 
 
 @final
+@ExtensionDefinition(
+    id="wiki",
+    label=Plain("Wiki"),
+    description=_(
+        "Enrich your ancestry with information from Wikipedia and Wikimedia Commons"
+    ),
+    assets_directory_path=Path(__file__).parent / "assets",
+)
 class Wiki(
-    ShorthandPluginBase,
     PostLoader,
     ConfigurableExtension[WikiConfiguration],
     Jinja2Provider,
@@ -63,16 +69,14 @@ class Wiki(
         return cls(
             project,
             await project.new_target(
-                await project.copyright_notice_repository.get("wikipedia-contributors")
+                (
+                    await project.copyright_notice_repository.get(
+                        "wikipedia-contributors"
+                    )
+                ).cls
             ),
             configuration=cls.new_default_configuration(),
         )
-
-    _plugin_id = "wiki"
-    _plugin_label = Plain("Wiki")
-    _plugin_description = _(
-        "Enrich your ancestry with information from Wikipedia and Wikimedia Commons"
-    )
 
     @override
     async def post_load(self, scheduler: Scheduler[ProjectContext]) -> None:
@@ -161,11 +165,6 @@ class Wiki(
         except FetchError as error:
             await self._project.app.user.message_warning(Plain(str(error)))
             return None
-
-    @override
-    @classmethod
-    def assets_directory_path(cls) -> Path | None:
-        return Path(__file__).parent / "assets"
 
     @override
     @classmethod

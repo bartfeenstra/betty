@@ -83,7 +83,7 @@ async def test_with_single_subject_as_person_context() -> None:
     async with assert_template_file(
         data={
             "entity": event,
-            "entity_contexts": await EntityContexts.new(context_subject),
+            "entity_contexts": EntityContexts(context_subject),
         },
         extensions={RaspberryMint},
         template="entity/label--event.html.j2",
@@ -101,7 +101,7 @@ async def test_with_subjects_and_subject_as_person_context() -> None:
     async with assert_template_file(
         data={
             "entity": event,
-            "entity_contexts": await EntityContexts.new(context_subject),
+            "entity_contexts": EntityContexts(context_subject),
         },
         extensions={RaspberryMint},
         template="entity/label--event.html.j2",

@@ -2,19 +2,27 @@
 Provide copyright notices.
 """
 
+from __future__ import annotations
+
 from abc import abstractmethod
-from typing import final
+from typing import TYPE_CHECKING, ClassVar, final
 
-from typing_extensions import override
-
-from betty.locale.localizable import Localizable, _
-from betty.machine_name import MachineName
+from betty.locale.localizable import _
 from betty.mutability import Mutable
-from betty.plugin import Plugin, PluginRepository
+from betty.plugin import (
+    ClassedPlugin,
+    ClassedPluginDefinition,
+    ClassedPluginTypeDefinition,
+    PluginRepository,
+    UserFacingPluginDefinition,
+)
 from betty.plugin.entry_point import EntryPointPluginRepository
 
+if TYPE_CHECKING:
+    from betty.locale.localizable import Localizable
 
-class CopyrightNotice(Mutable, Plugin):
+
+class CopyrightNotice(Mutable, ClassedPlugin):
     """
     A copyright notice.
 
@@ -23,23 +31,7 @@ class CopyrightNotice(Mutable, Plugin):
     To test your own subclasses, use :py:class:`betty.test_utils.copyright_notice.CopyrightNoticeTestBase`.
     """
 
-    @final
-    @override
-    @classmethod
-    def plugin_type_cls(cls) -> type[Plugin]:
-        return CopyrightNotice
-
-    @final
-    @override
-    @classmethod
-    def plugin_type_id(cls) -> MachineName:
-        return "copyright-notice"
-
-    @final
-    @override
-    @classmethod
-    def plugin_type_label(cls) -> Localizable:
-        return _("Copyright notice")
+    plugin: ClassVar[CopyrightNoticeDefinition]
 
     @property
     @abstractmethod
@@ -63,8 +55,25 @@ class CopyrightNotice(Mutable, Plugin):
         return None
 
 
-COPYRIGHT_NOTICE_REPOSITORY: PluginRepository[CopyrightNotice] = (
-    EntryPointPluginRepository(CopyrightNotice, "betty.copyright_notice")
+@final
+class CopyrightNoticeDefinition(
+    UserFacingPluginDefinition, ClassedPluginDefinition[CopyrightNotice]
+):
+    """
+    A copyright notice definition.
+
+    Read more about :doc:`/development/plugin/copyright-notice`.
+    """
+
+    type: ClassVar[ClassedPluginTypeDefinition] = ClassedPluginTypeDefinition(
+        id="copyright-notice",
+        label=_("Copyright notice"),
+        cls=CopyrightNotice,
+    )
+
+
+COPYRIGHT_NOTICE_REPOSITORY: PluginRepository[CopyrightNoticeDefinition] = (
+    EntryPointPluginRepository(CopyrightNoticeDefinition, "betty.copyright_notice")
 )
 """
 The copyright notice plugin repository.

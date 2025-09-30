@@ -7,28 +7,28 @@ from typing_extensions import override
 from betty.app.factory import AppDependentFactory
 from betty.assertion import assert_locale_identifier
 from betty.console.assertion import assertion_to_argument_type
-from betty.console.command import Command, CommandFunction
+from betty.console.command import Command, CommandFunction, CommandDefinition
 from betty.locale import translation
 from betty.locale.localizable import _
-from betty.plugin import ShorthandPluginBase
-
 from betty.project import extension
+from betty.locale.translation.project import extension as extension_translation
 
 if TYPE_CHECKING:
     import argparse
 
     from betty.app import App
-    from betty.project.extension import Extension
+    from betty.project.extension import ExtensionDefinition
 
 
 @final
-class ExtensionNewTranslation(ShorthandPluginBase, AppDependentFactory, Command):
+@CommandDefinition(
+    id="extension-new-translation",
+    label=_("Create a new translation for an extension"),
+)
+class ExtensionNewTranslation(AppDependentFactory, Command):
     """
     A command to create new translations for an extension.
     """
-
-    _plugin_id = "extension-new-translation"
-    _plugin_label = _("Create a new translation for an extension")
 
     def __init__(self, app: App):
         self._app = app
@@ -59,7 +59,9 @@ class ExtensionNewTranslation(ShorthandPluginBase, AppDependentFactory, Command)
         )
         return self._command_function
 
-    async def _command_function(self, extension: type[Extension], locale: str) -> None:
-        await translation.project.extension.new_extension_translation(
+    async def _command_function(
+        self, extension: ExtensionDefinition, locale: str
+    ) -> None:
+        await extension_translation.new_extension_translation(
             locale, extension, user=self._app.user
         )

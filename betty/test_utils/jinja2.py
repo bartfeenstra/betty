@@ -15,8 +15,8 @@ from html5lib.html5parser import ParseError
 from betty.app import App
 from betty.jinja2 import Environment
 from betty.json.schema import AllOf, Ref
+from betty.plugin import PluginIdentifier
 from betty.project import Project, ProjectSchema
-from betty.project.extension import Extension
 
 if TYPE_CHECKING:
     from collections.abc import AsyncIterator, Callable, MutableMapping
@@ -24,6 +24,7 @@ if TYPE_CHECKING:
     from jinja2 import Template
 
     from betty.locale import LocaleLike
+    from betty.project.extension import Extension, ExtensionDefinition
 
 
 @asynccontextmanager
@@ -34,7 +35,7 @@ async def _assert_template(
     data: MutableMapping[str, Any] | None = None,
     locale: LocaleLike | None = None,
     autoescape: bool | None = None,
-    extensions: set[type[Extension]] | None = None,
+    extensions: set[PluginIdentifier[ExtensionDefinition, Extension]] | None = None,
 ) -> AsyncIterator[tuple[str, Project]]:
     async with (
         App.new_temporary() as app,
@@ -65,7 +66,7 @@ def assert_template_string(
     data: MutableMapping[str, Any] | None = None,
     locale: LocaleLike | None = None,
     autoescape: bool | None = None,
-    extensions: set[type[Extension]] | None = None,
+    extensions: set[PluginIdentifier[ExtensionDefinition, Extension]] | None = None,
 ) -> AbstractAsyncContextManager[tuple[str, Project]]:
     """
     Assert that a template string can be rendered.
@@ -86,7 +87,7 @@ def assert_template_file(
     data: MutableMapping[str, Any] | None = None,
     locale: LocaleLike | None = None,
     autoescape: bool | None = None,
-    extensions: set[type[Extension]] | None = None,
+    extensions: set[PluginIdentifier[ExtensionDefinition, Extension]] | None = None,
 ) -> AbstractAsyncContextManager[tuple[str, Project]]:
     """
     Assert that a template file can be rendered.
@@ -102,7 +103,7 @@ def assert_template_file(
 
 
 class _TemplateTestBase:
-    extensions = set[type[Extension]]()
+    extensions = set[PluginIdentifier]()
     """
     The extensions to enable before rendering the template.
     """

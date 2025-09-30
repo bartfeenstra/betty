@@ -35,7 +35,7 @@ async def add_project_argument(
         help=localizer._(
             "The path to a Betty project directory or configuration file. Defaults to {default} in the current working directory."
         ).format(
-            default=f"betty.{'|'.join(extension[1:] for serde_format in serde_formats for extension in serde_format.extensions())}"
+            default=f"betty.{'|'.join(extension[1:] for serde_format in serde_formats for extension in serde_format.cls.extensions())}"
         ),
         type=assertion_to_argument_type(assert_path(), localizer=localizer),
     )

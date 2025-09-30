@@ -1,25 +1,29 @@
-from collections.abc import Sequence
 from typing import TYPE_CHECKING
 
 import pytest
 from typing_extensions import override
 
+from betty.plugin import PluginDefinition
 from betty.serde.format import Format, FormatError
 from betty.serde.format.formats import Json, Yaml
-from betty.test_utils.serde.format import FormatTestBase
+from betty.test_utils.serde.format import FormatDefinitionTestBase, FormatTestBase
 
 if TYPE_CHECKING:
     from betty.serde.dump import Dump
 
 
+class TestJsonDefinition(FormatDefinitionTestBase):
+    @override
+    @pytest.fixture
+    def sut(self) -> PluginDefinition:
+        return Json.plugin
+
+
 class TestJson(FormatTestBase):
     @override
-    def get_sut_class(self) -> type[Format]:
-        return Json
-
-    @override
-    def get_format_sut_instances(self) -> Sequence[Format]:
-        return [Json()]
+    @pytest.fixture
+    def sut(self) -> Format:
+        return Json()
 
     def test_load__with_invalid_dump(self) -> None:
         with pytest.raises(FormatError):
@@ -39,14 +43,18 @@ class TestJson(FormatTestBase):
         assert json_dump == '{"hello": [123, "World!"]}'
 
 
+class TestYamlDefinition(FormatDefinitionTestBase):
+    @override
+    @pytest.fixture
+    def sut(self) -> PluginDefinition:
+        return Yaml.plugin
+
+
 class TestYaml(FormatTestBase):
     @override
-    def get_sut_class(self) -> type[Format]:
-        return Yaml
-
-    @override
-    def get_format_sut_instances(self) -> Sequence[Format]:
-        return [Yaml()]
+    @pytest.fixture
+    def sut(self) -> Format:
+        return Yaml()
 
     def test_load__with_invalid_dump(self) -> None:
         with pytest.raises(FormatError):

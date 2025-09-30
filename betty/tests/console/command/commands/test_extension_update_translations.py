@@ -1,25 +1,29 @@
 from pathlib import Path
 from unittest.mock import ANY
 
+import pytest
 from pytest_mock import MockerFixture
 from typing_extensions import override
 
 from betty.app import App
 from betty.console import SystemExitCode
-from betty.console.command import Command
 from betty.console.command.commands.extension_update_translations import (
     ExtensionUpdateTranslations,
 )
+from betty.plugin import PluginDefinition
 from betty.test_utils.console import run
-from betty.test_utils.console.command import CommandTestBase
+from betty.test_utils.console.command import CommandDefinitionTestBase
 from betty.tests.console.command import ExtensionTranslationTestBase
 
 
-class TestExtensionUpdateTranslations(ExtensionTranslationTestBase, CommandTestBase):
+class TestExtensionUpdateTranslationsDefinition(CommandDefinitionTestBase):
     @override
-    def get_sut_class(self) -> type[Command]:
-        return ExtensionUpdateTranslations
+    @pytest.fixture
+    def sut(self) -> PluginDefinition:
+        return ExtensionUpdateTranslations.plugin
 
+
+class TestExtensionUpdateTranslations(ExtensionTranslationTestBase):
     async def test_configure__minimal(
         self, mocker: MockerFixture, new_temporary_app: App, tmp_path: Path
     ) -> None:
@@ -31,7 +35,7 @@ class TestExtensionUpdateTranslations(ExtensionTranslationTestBase, CommandTestB
         await run(
             new_temporary_app,
             "extension-update-translations",
-            "dummy-with-assets-directory-extension",
+            "dummy-with-assets",
             str(source),
         )
         m_update_extension_translations.assert_awaited_once_with(ANY, source, None)
@@ -50,7 +54,7 @@ class TestExtensionUpdateTranslations(ExtensionTranslationTestBase, CommandTestB
         await run(
             new_temporary_app,
             "extension-update-translations",
-            "dummy-with-assets-directory-extension",
+            "dummy-with-assets",
             str(source),
             *[arg for exclude in excludes for arg in ("--exclude", str(exclude))],
         )
@@ -90,7 +94,7 @@ class TestExtensionUpdateTranslations(ExtensionTranslationTestBase, CommandTestB
         await run(
             new_temporary_app,
             "extension-update-translations",
-            "dummy-with-assets-directory-extension",
+            "dummy-with-assets",
             str(tmp_path / "non-existent-source"),
             expected_exit_code=SystemExitCode.ERROR_CONSOLE_USAGE,
         )

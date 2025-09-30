@@ -7,12 +7,11 @@ from betty.ancestry.link import Link
 from betty.locale.localizer import DEFAULT_LOCALIZER
 from betty.project.extension.wiki import Wiki
 from betty.test_utils.jinja2 import assert_template_file
-from betty.test_utils.model import DummyEntity
 from betty.wiki.client import Client, Summary
 from betty.wiki.copyright_notice import WikipediaContributors
 
 
-class DummyResource(HasLinks, DummyEntity):
+class DummyResource(HasLinks):
     pass
 
 

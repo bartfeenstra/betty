@@ -1,6 +1,5 @@
 from __future__ import annotations  # noqa D100
 
-
 from typing import TYPE_CHECKING, final, Self
 
 from typing_extensions import override
@@ -8,11 +7,10 @@ from typing_extensions import override
 from betty.app import config as app_config
 from betty.app.config import AppConfiguration
 from betty.app.factory import AppDependentFactory
-from betty.console.command import Command, CommandFunction
 from betty.config.file import write_configuration_file
+from betty.console.command import Command, CommandFunction, CommandDefinition
 from betty.locale import DEFAULT_LOCALE, get_display_name
 from betty.locale.localizable import _
-from betty.plugin import ShorthandPluginBase
 
 if TYPE_CHECKING:
     import argparse
@@ -21,13 +19,14 @@ if TYPE_CHECKING:
 
 
 @final
-class Config(ShorthandPluginBase, AppDependentFactory, Command):
+@CommandDefinition(
+    id="config",
+    label=_("Configure Betty"),
+)
+class Config(AppDependentFactory, Command):
     """
     A command to manage Betty application configuration.
     """
-
-    _plugin_id = "config"
-    _plugin_label = _("Configure Betty")
 
     def __init__(self, app: App):
         self._app = app

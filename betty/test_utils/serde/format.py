@@ -2,31 +2,41 @@
 Test utilities for :py:mod:`betty.serde.format`.
 """
 
-from collections.abc import Sequence
-
 import pytest
 
 from betty.serde.dump import Dump
 from betty.serde.format import Format
-from betty.test_utils.plugin import PluginTestBase
+from betty.test_utils.plugin import (
+    ClassedPluginDefinitionTestBase,
+    UserFacingPluginDefinitionTestBase,
+)
 
 
-class FormatTestBase(PluginTestBase[Format]):
+class FormatDefinitionTestBase(
+    UserFacingPluginDefinitionTestBase, ClassedPluginDefinitionTestBase
+):
+    """
+    A base class for testing :py:class:`betty.serde.format.FormatDefinition` subclasses.
+    """
+
+
+class FormatTestBase:
     """
     A base class for testing :py:class:`betty.serde.format.Format` implementations.
     """
 
-    def get_format_sut_instances(self) -> Sequence[Format]:
+    @pytest.fixture
+    def sut(self) -> Format:
         """
-        Produce instances of the plugin under test.
+        Provide the system(s) under test.
         """
         raise NotImplementedError
 
-    def test_extensions(self) -> None:
+    def test_extensions(self, sut: Format) -> None:
         """
         Tests :py:meth:`betty.serde.format.Format.extensions` implementations.
         """
-        extensions = self.get_sut_class().extensions()
+        extensions = type(sut).extensions()
         assert extensions
         for extension in extensions:
             assert len(extension) > 2
@@ -46,12 +56,11 @@ class FormatTestBase(PluginTestBase[Format]):
             ["value"],
         ],
     )
-    def test_dump_and_load(self, dump: Dump) -> None:
+    def test_dump_and_load(self, dump: Dump, sut: Format) -> None:
         """
         Tests :py:meth:`betty.serde.format.Format.load` and :py:meth:`betty.serde.format.Format.dump` implementations.
         """
-        for sut in self.get_format_sut_instances():
-            assert sut.load(sut.dump(dump)) == dump
+        assert sut.load(sut.dump(dump)) == dump
 
     def test_load(self) -> None:
         """

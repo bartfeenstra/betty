@@ -10,7 +10,7 @@ from urllib.parse import quote, urlparse
 from typing_extensions import override
 
 from betty.media_type.media_types import HTML, JSON, JSON_LD
-from betty.model import Entity
+from betty.model import Entity, EntityDefinition
 from betty.project.factory import ProjectDependentFactory
 from betty.string import camel_case_to_kebab_case
 from betty.url import (
@@ -27,7 +27,7 @@ if TYPE_CHECKING:
     from betty.ancestry import Ancestry
     from betty.locale import LocaleLike
     from betty.media_type import MediaType
-    from betty.plugin import PluginIdToTypeMapping
+    from betty.plugin import PluginIdMapping
     from betty.project import Project
 
 
@@ -102,7 +102,7 @@ class _ProjectUrlGenerator(ProjectDependentFactory):
         )
         return self._generate_from_path(
             pattern.format(
-                entity_type=camel_case_to_kebab_case(entity.plugin_id()),
+                entity_type=camel_case_to_kebab_case(entity.plugin.id),
                 entity_id=quote(entity.id),
                 extension=extension,
             ),
@@ -114,7 +114,7 @@ class _ProjectUrlGenerator(ProjectDependentFactory):
 
     def _generate_from_entity_type(
         self,
-        entity_type: type[Entity],
+        entity_type: EntityDefinition,
         pattern: str,
         *,
         absolute: bool,
@@ -130,7 +130,7 @@ class _ProjectUrlGenerator(ProjectDependentFactory):
         )
         return self._generate_from_path(
             pattern.format(
-                entity_type=camel_case_to_kebab_case(entity_type.plugin_id()),
+                entity_type=camel_case_to_kebab_case(entity_type.id),
                 extension=extension,
             ),
             absolute=absolute,
@@ -173,7 +173,7 @@ class __EntityTypeUrlGenerator(_ProjectUrlGenerator):
     _pattern = "/{entity_type}/index.{extension}"
 
     def supports(self, resource: Any) -> bool:
-        return isinstance(resource, type) and issubclass(resource, Entity)
+        return isinstance(resource, EntityDefinition)
 
 
 @final
@@ -181,7 +181,7 @@ class _EntityTypeUrlGenerator(__EntityTypeUrlGenerator, UrlGenerator):
     @override
     def generate(
         self,
-        resource: type[Entity],
+        resource: EntityDefinition,
         *,
         absolute: bool = False,
         fragment: str | None = None,
@@ -238,11 +238,11 @@ class _EntityUrlUrlGenerator(UrlGenerator):
         self,
         ancestry: Ancestry,
         entity_url_generator: _EntityUrlGenerator,
-        entity_type_id_to_type_mapping: PluginIdToTypeMapping[Entity],
+        entity_type_id_mapping: PluginIdMapping[EntityDefinition],
     ):
         self._ancestry = ancestry
         self._entity_url_generator = entity_url_generator
-        self._entity_type_id_to_type_mapping = entity_type_id_to_type_mapping
+        self._entity_type_id_mapping = entity_type_id_mapping
 
     @override
     def supports(self, resource: Any) -> bool:
@@ -274,7 +274,7 @@ class _EntityUrlUrlGenerator(UrlGenerator):
         parsed_url = urlparse(resource)
         entity_type_id = parsed_url.netloc
         entity_id = parsed_url.path[1:]
-        entity = self._ancestry[self._entity_type_id_to_type_mapping[entity_type_id]][
+        entity = self._ancestry[self._entity_type_id_mapping[entity_type_id].cls][
             entity_id
         ]
         return self._entity_url_generator.generate(

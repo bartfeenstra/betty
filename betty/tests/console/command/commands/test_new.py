@@ -1,20 +1,24 @@
 from unittest.mock import ANY
 
+import pytest
 from pytest_mock import MockerFixture
 from typing_extensions import override
 
 from betty.app import App
-from betty.console.command import Command
 from betty.console.command.commands.new import New
+from betty.plugin import PluginDefinition
 from betty.test_utils.console import run
-from betty.test_utils.console.command import CommandTestBase
+from betty.test_utils.console.command import CommandDefinitionTestBase
 
 
-class TestNew(CommandTestBase):
+class TestNewDefinition(CommandDefinitionTestBase):
     @override
-    def get_sut_class(self) -> type[Command]:
-        return New
+    @pytest.fixture
+    def sut(self) -> PluginDefinition:
+        return New.plugin
 
+
+class TestNew:
     async def test_configure(
         self, new_temporary_app: App, mocker: MockerFixture
     ) -> None:

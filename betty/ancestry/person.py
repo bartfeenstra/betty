@@ -17,9 +17,8 @@ from betty.ancestry.has_notes import HasNotes
 from betty.functools import unique
 from betty.json.linked_data import JsonLdObject, dump_context
 from betty.locale.localizable import Localizable, _, ngettext
-from betty.model import Entity, ToManySchema, persistent_id
+from betty.model import EntityDefinition, ToManySchema, persistent_id
 from betty.model.association import BidirectionalToManySingleType, ToManyAssociates
-from betty.plugin import ShorthandPluginBase
 from betty.privacy import HasPrivacy, Privacy
 from betty.user import UserFacing
 
@@ -39,22 +38,18 @@ if TYPE_CHECKING:
 
 
 @final
+@EntityDefinition(
+    id="person",
+    label=_("Person"),
+    label_plural=_("People"),
+    label_countable=ngettext("{count} person", "{count} people"),
+)
 class Person(
-    ShorthandPluginBase,
-    HasFileReferences,
-    HasCitations,
-    HasNotes,
-    HasLinks,
-    HasPrivacy,
-    UserFacing,
-    Entity,
+    HasFileReferences, HasCitations, HasNotes, HasLinks, HasPrivacy, UserFacing
 ):
     """
     A person.
     """
-
-    _plugin_id = "person"
-    _plugin_label = _("Person")
 
     parents = BidirectionalToManySingleType["Person", "Person"](
         "betty.ancestry.person:Person",
@@ -124,18 +119,6 @@ class Person(
         if names is not None:
             self.names = names
         self._gender = gender or UnknownGender()
-
-    @override
-    @classmethod
-    def plugin_label_plural(cls) -> Localizable:
-        return _("People")
-
-    @override
-    @classmethod
-    def plugin_label_count(cls, count: int) -> Localizable:
-        return ngettext("{count} person", "{count} people", count).format(
-            count=str(count)
-        )
 
     @override
     def get_mutable_instances(self) -> Iterable[Mutable]:
@@ -214,7 +197,7 @@ class Person(
             if persistent_id(sibling)
         ]
         if self.public:
-            dump["gender"] = self.gender.plugin_id()
+            dump["gender"] = self.gender.plugin.id
         return dump
 
     @override

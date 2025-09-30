@@ -15,11 +15,10 @@ from betty._npm import NpmRequirement, NpmUnavailable
 from betty.html import CssProvider, JsProvider
 from betty.jinja2 import ContextVars, Filters, Jinja2Provider
 from betty.job import Job
-from betty.locale.localizable import StaticTranslations
+from betty.locale.localizable import Plain
 from betty.os import copy_tree
-from betty.plugin import ShorthandPluginBase
 from betty.project import ProjectContext
-from betty.project.extension import Extension
+from betty.project.extension import Extension, ExtensionDefinition
 from betty.project.extension.webpack import build
 from betty.project.extension.webpack.build import EntryPointProvider
 from betty.project.extension.webpack.jinja2.filter import FILTERS
@@ -55,15 +54,16 @@ class _GenerateAssets(Job[ProjectContext]):
 
 @internal
 @final
-class Webpack(
-    ShorthandPluginBase, Generator, Extension, CssProvider, JsProvider, Jinja2Provider
-):
+@ExtensionDefinition(
+    id="webpack",
+    label=Plain("Webpack"),
+    assets_directory_path=Path(__file__).parent / "assets",
+)
+class Webpack(Generator, Extension, CssProvider, JsProvider, Jinja2Provider):
     """
     Integrate Betty with `Webpack <https://webpack.js.org/>`_.
     """
 
-    _plugin_id = "webpack"
-    _plugin_label = StaticTranslations("Webpack")
     _requirement: ClassVar[Requirement | None] = None
 
     @override
@@ -81,16 +81,11 @@ class Webpack(
         return cls._requirement
 
     @override
-    @classmethod
-    def assets_directory_path(cls) -> Path:
-        return Path(__file__).parent / "assets"
-
-    @override
     async def get_public_css_paths(self) -> Sequence[str]:
         return (
             "betty-static:///css/webpack/webpack-vendor.css",
             *(
-                f"betty-static:///css/webpack/{entry_point.plugin_id()}.css"
+                f"betty-static:///css/webpack/{entry_point.plugin.id}.css"
                 for entry_point in await self._project_entry_point_providers()
                 if (
                     entry_point.webpack_entry_point_directory_path() / "main.scss"

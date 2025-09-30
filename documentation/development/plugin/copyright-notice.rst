@@ -14,31 +14,28 @@ Copyright notice plugins
 Creating a copyright
 --------------------
 
-#. Create a new class that extends :py:class:`betty.copyright_notice.CopyrightNotice` and implements the abstract methods,
-   for example:
+Create a new class that extends :py:class:`betty.copyright_notice.CopyrightNotice` and implements the abstract methods,
+for example:
 
-   .. code-block:: python
+.. code-block:: python
 
-     from typing import override
-     from betty.copyright import CopyrightNotice
-     from betty.machine_name import MachineName
+   from betty.copyright import CopyrightNotice, CopyrightNoticeDefinition
 
-     class MyCopyrightNotice(CopyrightNotice):
-       @override
-       @classmethod
-       def plugin_id(cls) -> MachineName:
-           return "my-module-my-copyright-notice"
-
+   @CopyrightNoticeDefinition(
+       id="my-copyright-notice",
+       label=_("My Copyright Notice"),
+   )
+   class MyCopyrightNotice(CopyrightNotice):
        # Implement remaining abstract methods...
        ...
 
 
-#. Tell Betty about your copyright notice by registering it as an entry point. Given the copyright notice above in a module ``my_package.my_module``, add the following to your Python package:
+Tell Betty about your copyright notice by registering it as an entry point. Given the copyright notice above in a module ``my_package.my_module``, add the following to your Python package:
 
-   .. code-block:: toml
+.. code-block:: toml
 
-       [project.entry-points.'betty.copyright_notice']
-       'my-module-my-copyright-notice' = 'my_package.my_module.MyCopyrightNotice'
+   [project.entry-points.'betty.copyright_notice']
+   'my-copyright-notice' = 'my_package.my_module.MyCopyrightNotice.plugin'
 
 See also
 --------

@@ -4,7 +4,7 @@ Configuration for the data model.
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Generic, TypeVar, final
+from typing import TYPE_CHECKING, final
 
 from typing_extensions import override
 
@@ -22,28 +22,25 @@ from betty.config.collections.sequence import ConfigurationSequence
 from betty.exception import UserFacingException
 from betty.locale.localizable import _
 from betty.machine_name import MachineName, assert_machine_name
-from betty.model import Entity
 from betty.plugin import PluginIdentifier, PluginRepository, resolve_identifier
 from betty.plugin.assertion import assert_plugin
 
 if TYPE_CHECKING:
     from collections.abc import Iterable
 
+    from betty.model import Entity, EntityDefinition
     from betty.serde.dump import Dump, DumpMapping
 
 
-_EntityCoT = TypeVar("_EntityCoT", bound=Entity, covariant=True)
-
-
 @final
-class EntityReference(Configuration, Generic[_EntityCoT]):
+class EntityReference(Configuration):
     """
     Configuration that references an entity from the project's ancestry.
     """
 
     def __init__(
         self,
-        entity_type: PluginIdentifier[_EntityCoT] | None = None,
+        entity_type: PluginIdentifier[EntityDefinition, Entity] | None = None,
         entity_id: str | None = None,
         *,
         entity_type_is_constrained: bool = False,
@@ -63,7 +60,9 @@ class EntityReference(Configuration, Generic[_EntityCoT]):
         return self._entity_type
 
     @entity_type.setter
-    def entity_type(self, entity_type: PluginIdentifier[_EntityCoT]) -> None:
+    def entity_type(
+        self, entity_type: PluginIdentifier[EntityDefinition, Entity]
+    ) -> None:
         if self._entity_type_is_constrained:
             raise AttributeError(
                 f"The entity type cannot be set, as it is already constrained to {self._entity_type}."
@@ -94,7 +93,10 @@ class EntityReference(Configuration, Generic[_EntityCoT]):
 
     @override
     def load(self, dump: Dump) -> None:
-        if isinstance(dump, dict) or not self.entity_type_is_constrained:
+        if self.entity_type_is_constrained:
+            assert_str()(dump)
+            assert_setattr(self, "entity_id")(dump)
+        else:
             assert_record(
                 RequiredField(
                     "entity_type",
@@ -108,9 +110,6 @@ class EntityReference(Configuration, Generic[_EntityCoT]):
                     assert_str() | assert_setattr(self, "entity_id"),
                 ),
             )(dump)
-        else:
-            assert_str()(dump)
-            assert_setattr(self, "entity_id")(dump)
 
     @override
     def dump(self) -> DumpMapping[Dump] | str | None:
@@ -122,7 +121,9 @@ class EntityReference(Configuration, Generic[_EntityCoT]):
             dump["entity"] = self.entity_id
         return dump
 
-    async def validate(self, entity_type_repository: PluginRepository[Entity]) -> None:
+    async def validate(
+        self, entity_type_repository: PluginRepository[EntityDefinition]
+    ) -> None:
         """
         Validate the configuration.
         """
@@ -130,18 +131,17 @@ class EntityReference(Configuration, Generic[_EntityCoT]):
 
 
 @final
-class EntityReferenceSequence(
-    Generic[_EntityCoT], ConfigurationSequence[EntityReference[_EntityCoT]]
-):
+class EntityReferenceSequence(ConfigurationSequence[EntityReference]):
     """
     Configuration for a sequence of references to entities from the project's ancestry.
     """
 
     def __init__(
         self,
-        entity_references: Iterable[EntityReference[_EntityCoT]] | None = None,
+        entity_references: Iterable[EntityReference] | None = None,
         *,
-        entity_type_constraint: PluginIdentifier[_EntityCoT] | None = None,
+        entity_type_constraint: PluginIdentifier[EntityDefinition, Entity]
+        | None = None,
     ):
         self._entity_type_constraint = (
             None
@@ -151,11 +151,11 @@ class EntityReferenceSequence(
         super().__init__(entity_references)
 
     @override
-    def _load_item(self, dump: Dump) -> EntityReference[_EntityCoT]:
-        configuration = EntityReference[_EntityCoT](
+    def _load_item(self, dump: Dump) -> EntityReference:
+        configuration = EntityReference(
             # Use a dummy entity type for now to satisfy the initializer.
             # It will be overridden when loading the dump.
-            Entity  # type: ignore[arg-type]
+            "-"
             if self._entity_type_constraint is None
             else self._entity_type_constraint,
             entity_type_is_constrained=self._entity_type_constraint is not None,
@@ -164,7 +164,7 @@ class EntityReferenceSequence(
         return configuration
 
     @override
-    def _pre_add(self, configuration: EntityReference[_EntityCoT]) -> None:
+    def _pre_add(self, configuration: EntityReference) -> None:
         super()._pre_add(configuration)
 
         entity_type_constraint = self._entity_type_constraint
@@ -200,7 +200,9 @@ class EntityReferenceSequence(
             )
         )
 
-    async def validate(self, entity_type_repository: PluginRepository[Entity]) -> None:
+    async def validate(
+        self, entity_type_repository: PluginRepository[EntityDefinition]
+    ) -> None:
         """
         Validate the configuration.
         """

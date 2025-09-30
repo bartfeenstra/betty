@@ -3,33 +3,26 @@ from __future__ import annotations
 from pathlib import Path
 from typing import TYPE_CHECKING
 
+import pytest
 from typing_extensions import override
 
 from betty.ancestry.file import File
 from betty.ancestry.file_reference import FileReference
-from betty.test_utils.model import EntityTestBase
+from betty.test_utils.model import EntityDefinitionTestBase
 from betty.tests.ancestry.test___init__ import DummyHasFileReferences
 
 if TYPE_CHECKING:
-    from collections.abc import Sequence
-
-    from betty.model import Entity
+    from betty.plugin import PluginDefinition
 
 
-class TestFileReference(EntityTestBase):
+class TestFileReferenceDefinition(EntityDefinitionTestBase):
     @override
-    def get_sut_class(self) -> type[FileReference]:
-        return FileReference
+    @pytest.fixture
+    def sut(self) -> PluginDefinition:
+        return FileReference.plugin
 
-    @override
-    async def get_sut_instances(self) -> Sequence[Entity]:
-        referee = DummyHasFileReferences()
-        file = File(Path())
-        return [
-            FileReference(referee, file),
-            FileReference(referee, file, focus=(1, 2, 3, 4)),
-        ]
 
+class TestFileReference:
     async def test_focus(self) -> None:
         sut = FileReference(DummyHasFileReferences(), File(Path()))
         focus = (1, 2, 3, 4)

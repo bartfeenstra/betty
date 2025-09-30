@@ -4,7 +4,7 @@
             <div class="col">
                 {% with entity = project.ancestry[project.entity_type_repository.get(featured_entity_reference.entity_type)][featured_entity_reference.entity_id] %}
                     {% include [
-                        'entity/card--' + entity.plugin_id() + '.html.j2',
+                        'entity/card--' + entity.plugin.id + '.html.j2',
                         'entity/card.html.j2',
                     ] %}
                 {% endwith %}

@@ -5,10 +5,17 @@ Provide the Render API.
 from __future__ import annotations
 
 from abc import ABC, abstractmethod
-from typing import TYPE_CHECKING, final
+from typing import TYPE_CHECKING, ClassVar, final
 
 from typing_extensions import override
 
+from betty.locale.localizable import _
+from betty.plugin import (
+    ClassedPluginDefinition,
+    ClassedPluginTypeDefinition,
+    PluginRepository,
+)
+from betty.plugin.entry_point import EntryPointPluginRepository
 from betty.typing import internal
 
 if TYPE_CHECKING:
@@ -47,6 +54,31 @@ class Renderer(ABC):
         :return: The file's new path, which may have been changed, e.g. a
             renderer-specific extension may have been stripped from the end.
         """
+
+
+@final
+class RendererDefinition(ClassedPluginDefinition[Renderer]):
+    """
+    A renderer definition.
+
+    Read more about :doc:`/development/plugin/renderer`.
+    """
+
+    type: ClassVar[ClassedPluginTypeDefinition] = ClassedPluginTypeDefinition(
+        id="renderer",
+        label=_("Renderer"),
+        cls=Renderer,
+    )
+
+
+RENDERER_REPOSITORY: PluginRepository[RendererDefinition] = EntryPointPluginRepository(
+    RendererDefinition, "betty.renderer"
+)
+"""
+The renderer plugin repository.
+
+Read more about :doc:`/development/plugin/renderer`.
+"""
 
 
 @internal

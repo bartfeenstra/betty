@@ -2,16 +2,11 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING
 
+import pytest
 from typing_extensions import override
 
 from betty.ancestry.event import Event
-from betty.ancestry.event_type.event_types import (
-    CreatableDerivableEventType,
-    DerivableEventType,
-    EndOfLifeEventType,
-    Residence,
-    StartOfLifeEventType,
-)
+from betty.ancestry.event_type.event_types import Residence
 from betty.ancestry.person import Person
 from betty.ancestry.presence import Presence
 from betty.ancestry.presence_role.presence_roles import Subject
@@ -20,71 +15,19 @@ from betty.model.collections import record_added
 from betty.project import Project
 from betty.project.extension.deriver import Deriver
 from betty.project.load import load
-from betty.test_utils.ancestry.event_type import DummyEventType
 from betty.test_utils.project.extension import ExtensionTestBase
 
 if TYPE_CHECKING:
-    from betty.ancestry.event_type import EventType
     from betty.app import App
-    from betty.plugin import PluginIdentifier
+    from betty.project.extension import Extension
 
 
-class Ignored(DummyEventType):
-    pass
-
-
-class ComesBeforeReference(DummyEventType):
-    pass
-
-
-class ComesAfterReference(DummyEventType):
-    pass
-
-
-class ComesBeforeDerivable(DerivableEventType):
+class TestDeriver(ExtensionTestBase):
     @override
-    @classmethod
-    def comes_before(cls) -> set[PluginIdentifier[EventType]]:
-        return {ComesBeforeReference}
-
-
-class ComesBeforeCreatableDerivable(CreatableDerivableEventType, ComesBeforeDerivable):
-    pass
-
-
-class ComesAfterDerivable(DerivableEventType, DummyEventType):
-    @override
-    @classmethod
-    def comes_after(cls) -> set[PluginIdentifier[EventType]]:
-        return {ComesAfterReference}
-
-
-class ComesAfterCreatableDerivable(CreatableDerivableEventType, ComesAfterDerivable):
-    pass
-
-
-class ComesBeforeAndAfterDerivable(DerivableEventType, DummyEventType):
-    @override
-    @classmethod
-    def comes_before(cls) -> set[PluginIdentifier[EventType]]:
-        return {Ignored}
-
-    @override
-    @classmethod
-    def comes_after(cls) -> set[PluginIdentifier[EventType]]:
-        return {Ignored}
-
-
-class ComesBeforeAndAfterCreatableDerivable(
-    CreatableDerivableEventType, DerivableEventType
-):
-    pass
-
-
-class TestDeriver(ExtensionTestBase[Deriver]):
-    @override
-    def get_sut_class(self) -> type[Deriver]:
-        return Deriver
+    @pytest.fixture
+    async def sut(self, new_temporary_app: App) -> Extension:
+        async with Project.new_temporary(new_temporary_app) as project, project:
+            return await Deriver.new_for_project(project)
 
     async def test_post_load(self, new_temporary_app: App) -> None:
         person = Person(id="P0")
@@ -105,7 +48,7 @@ class TestDeriver(ExtensionTestBase[Deriver]):
                 start = [
                     presence
                     for presence in person.presences
-                    if isinstance(presence.event.event_type, StartOfLifeEventType)
+                    if presence.event.event_type.plugin.is_start_of_life
                 ][0]
                 assert start is not None
                 assert start.event is not None
@@ -117,7 +60,7 @@ class TestDeriver(ExtensionTestBase[Deriver]):
                 end = [
                     presence
                     for presence in person.presences
-                    if isinstance(presence.event.event_type, EndOfLifeEventType)
+                    if presence.event.event_type.plugin.is_end_of_life
                 ][0]
                 assert end is not None
                 assert end.event is not None

@@ -70,7 +70,7 @@ class LoadAncestry(Job[ProjectContext]):
                 return
 
             try:
-                streetmix_files = streetmix_files_per_gender[person.gender.plugin_id()]
+                streetmix_files = streetmix_files_per_gender[person.gender.plugin.id]
             except KeyError:
                 streetmix_files = fallback_streetmix_files
             streetmix_file = choice(streetmix_files)
@@ -509,7 +509,7 @@ class LoadAncestry(Job[ProjectContext]):
     ) -> tuple[Mapping[MachineName, Sequence[File]], Sequence[File]]:
         licenses = await project.license_repository
         license = await project.new_target(  # noqa A001
-            await licenses.get(spdx_license_id_to_license_id("AGPL-3.0-or-later"))
+            (await licenses.get(spdx_license_id_to_license_id("AGPL-3.0-or-later"))).cls
         )
         copyright_notice = await project.new_target(Streetmix)
         streetmix_image_directory_path = DATA_DIRECTORY_PATH / "images" / "streetmix"
@@ -551,6 +551,6 @@ class LoadAncestry(Job[ProjectContext]):
             project.ancestry.add(file)
 
         return {
-            Female.plugin_id(): feminine + androgynous,
-            Male.plugin_id(): masculine + androgynous,
+            Female.plugin.id: feminine + androgynous,
+            Male.plugin.id: masculine + androgynous,
         }, androgynous

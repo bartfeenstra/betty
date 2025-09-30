@@ -10,10 +10,9 @@ from typing import TYPE_CHECKING, cast, final
 import yaml
 from typing_extensions import override
 
-from betty.locale.localizable import StaticTranslations, _
-from betty.plugin import ShorthandPluginBase
+from betty.locale.localizable import Plain, _
 from betty.serde.dump import Dump
-from betty.serde.format import Format, FormatError
+from betty.serde.format import Format, FormatDefinition, FormatError
 
 if TYPE_CHECKING:
     from collections.abc import Sequence
@@ -22,13 +21,14 @@ if TYPE_CHECKING:
 
 
 @final
-class Json(ShorthandPluginBase, Format):
+@FormatDefinition(
+    id="json",
+    label=Plain("JSON"),
+)
+class Json(Format):
     """
     Defines the `JSON <https://json.org/>`_ (de)serialization format.
     """
-
-    _plugin_id = "json"
-    _plugin_label = StaticTranslations("JSON")
 
     @override
     @classmethod
@@ -50,13 +50,14 @@ class Json(ShorthandPluginBase, Format):
 
 
 @final
-class Yaml(ShorthandPluginBase, Format):
+@FormatDefinition(
+    id="yaml",
+    label=Plain("YAML"),
+)
+class Yaml(Format):
     """
     Defines the `YAML <https://yaml.org/>`_ (de)serialization format.
     """
-
-    _plugin_id = "yaml"
-    _plugin_label = StaticTranslations("YAML")
 
     @override
     @classmethod

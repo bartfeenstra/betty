@@ -4,7 +4,7 @@ The Configuration API.
 
 from __future__ import annotations
 
-from abc import abstractmethod
+from abc import ABC, abstractmethod
 from collections.abc import Callable
 from typing import Any, Generic, Self, TypeAlias, TypeVar
 
@@ -49,7 +49,7 @@ class Configurable(Generic[_ConfigurationT]):
         return self._configuration
 
 
-class DefaultConfigurable(Configurable[_ConfigurationT], Generic[_ConfigurationT]):
+class DefaultConfigurable(Configurable[_ConfigurationT], Generic[_ConfigurationT], ABC):
     """
     A configurable type that can provide its own default configuration.
     """

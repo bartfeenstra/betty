@@ -1,8 +1,7 @@
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Any
+from typing import TYPE_CHECKING, Any, cast
 
-import pytest
 from typing_extensions import override
 
 from betty.ancestry.citation import Citation
@@ -19,24 +18,30 @@ from betty.date import Date, DateRange
 from betty.locale import DEFAULT_LOCALE
 from betty.locale.localizable import Plain
 from betty.locale.localizer import DEFAULT_LOCALIZER
+from betty.model import Entity
 from betty.model.association import AssociationRequired, TemporaryToOneResolver
 from betty.privacy import Privacy
 from betty.test_utils.json.linked_data import assert_dumps_linked_data
-from betty.test_utils.model import EntityTestBase
+from betty.test_utils.model import EntityDefinitionTestBase, EntityTestBase
 
 if TYPE_CHECKING:
     from collections.abc import Mapping, Sequence
 
-    from betty.model import Entity
+    from betty.plugin import PluginDefinition
+
+import pytest
+
+
+class TestEventDefinition(EntityDefinitionTestBase):
+    @override
+    @pytest.fixture
+    def sut(self) -> PluginDefinition:
+        return Event.plugin
 
 
 class TestEvent(EntityTestBase):
-    @override
-    def get_sut_class(self) -> type[Event]:
-        return Event
-
-    @override
-    async def get_sut_instances(self) -> Sequence[Entity]:
+    @staticmethod
+    def _sut_params() -> Sequence[Entity]:
         return [
             Event(),
             Event(description=Plain("My First Event")),
@@ -45,6 +50,11 @@ class TestEvent(EntityTestBase):
                 presences=[Presence(Person(), Subject(), TemporaryToOneResolver())],
             ),
         ]
+
+    @override
+    @pytest.fixture(params=_sut_params())
+    async def sut(self, request: pytest.FixtureRequest) -> Entity:
+        return cast(Entity, request.param)
 
     def test___init____with_place(self) -> None:
         place = Place()

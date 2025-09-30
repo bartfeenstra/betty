@@ -10,7 +10,6 @@ from typing_extensions import override
 
 from betty.gramps.loader import GrampsLoader
 from betty.job import Job
-from betty.plugin import Plugin, PluginRepository
 from betty.project import ProjectContext
 
 if TYPE_CHECKING:
@@ -18,14 +17,17 @@ if TYPE_CHECKING:
 
     from betty.factory import Factory
     from betty.job.scheduler import Scheduler
+    from betty.plugin import ClassedPluginDefinition, PluginRepository
     from betty.plugin.config import PluginInstanceConfiguration
 
-_PluginT = TypeVar("_PluginT", bound=Plugin)
+_PluginT = TypeVar("_PluginT")
 
 
 def _new_plugin_instance_factory(
-    configuration: PluginInstanceConfiguration,
-    repository: PluginRepository[_PluginT],
+    configuration: PluginInstanceConfiguration[
+        ClassedPluginDefinition[_PluginT], _PluginT
+    ],
+    repository: PluginRepository[ClassedPluginDefinition[_PluginT]],
     *,
     factory: Factory,
 ) -> Callable[[], Awaitable[_PluginT]]:

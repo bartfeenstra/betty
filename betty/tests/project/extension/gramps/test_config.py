@@ -23,6 +23,7 @@ from betty.project.extension.gramps.config import (
 from betty.serde.dump import Dump
 from betty.test_utils.config.collections.sequence import ConfigurationSequenceTestBase
 from betty.test_utils.exception import raises_error
+from betty.test_utils.plugin import ClassedDummyPlugin, ClassedDummyPluginDefinition
 
 
 class TestFamilyTreeConfigurationSequence(
@@ -69,7 +70,7 @@ class TestFamilyTreeConfiguration:
             tmp_path, event_types={gramps_type: PluginInstanceConfiguration(plugin_id)}
         )
         assert sut.event_types[gramps_type].id == plugin_id
-        assert sut.event_types["Birth"].id == Birth.plugin_id()
+        assert sut.event_types["Birth"].id == Birth.plugin.id
 
     def test___init____with_place_types(self, tmp_path: Path) -> None:
         gramps_type = "my-first-gramps-type"
@@ -78,7 +79,7 @@ class TestFamilyTreeConfiguration:
             tmp_path, place_types={gramps_type: PluginInstanceConfiguration(plugin_id)}
         )
         assert sut.place_types[gramps_type].id == plugin_id
-        assert sut.place_types["Borough"].id == Borough.plugin_id()
+        assert sut.place_types["Borough"].id == Borough.plugin.id
 
     def test___init____with_presence_roles(self, tmp_path: Path) -> None:
         gramps_type = "my-first-gramps-type"
@@ -88,7 +89,7 @@ class TestFamilyTreeConfiguration:
             presence_roles={gramps_type: PluginInstanceConfiguration(plugin_id)},
         )
         assert sut.presence_roles[gramps_type].id == plugin_id
-        assert sut.presence_roles["Aide"].id == Attendee.plugin_id()
+        assert sut.presence_roles["Aide"].id == Attendee.plugin.id
 
     def test_source(self) -> None:
         source = "my-first-family-tree"
@@ -98,21 +99,21 @@ class TestFamilyTreeConfiguration:
     def test_event_types(self, tmp_path: Path) -> None:
         sut = FamilyTreeConfiguration(tmp_path)
         assert sut.event_types.dump() == {
-            gramps_type: plugin.plugin_id()
+            gramps_type: plugin.id
             for gramps_type, plugin in DEFAULT_EVENT_TYPES_MAPPING.items()
         }
 
     def test_place_types(self, tmp_path: Path) -> None:
         sut = FamilyTreeConfiguration(tmp_path)
         assert sut.place_types.dump() == {
-            gramps_type: plugin.plugin_id()
+            gramps_type: plugin.id
             for gramps_type, plugin in DEFAULT_PLACE_TYPES_MAPPING.items()
         }
 
     def test_presence_roles(self, tmp_path: Path) -> None:
         sut = FamilyTreeConfiguration(tmp_path)
         assert sut.presence_roles.dump() == {
-            gramps_type: plugin.plugin_id()
+            gramps_type: plugin.id
             for gramps_type, plugin in DEFAULT_PRESENCE_ROLES_MAPPING.items()
         }
 
@@ -130,7 +131,7 @@ class TestFamilyTreeConfiguration:
         sut = FamilyTreeConfiguration(tmp_path)
         sut.load(dump)
         assert sut.event_types["my-first-gramps-type"].id == "my-first-betty-plugin-id"
-        assert sut.event_types["Birth"].id == Birth.plugin_id()
+        assert sut.event_types["Birth"].id == Birth.plugin.id
 
     async def test_load__with_place_types(self, tmp_path: Path) -> None:
         file_path = tmp_path / "ancestry.gramps"
@@ -141,7 +142,7 @@ class TestFamilyTreeConfiguration:
         sut = FamilyTreeConfiguration(tmp_path)
         sut.load(dump)
         assert sut.place_types["my-first-gramps-type"].id == "my-first-betty-plugin-id"
-        assert sut.place_types["Borough"].id == Borough.plugin_id()
+        assert sut.place_types["Borough"].id == Borough.plugin.id
 
     async def test_load__with_presence_roles(self, tmp_path: Path) -> None:
         file_path = tmp_path / "ancestry.gramps"
@@ -154,7 +155,7 @@ class TestFamilyTreeConfiguration:
         assert (
             sut.presence_roles["my-first-gramps-type"].id == "my-first-betty-plugin-id"
         )
-        assert sut.presence_roles["Aide"].id == Attendee.plugin_id()
+        assert sut.presence_roles["Aide"].id == Attendee.plugin.id
 
     async def test_load__without_dict_should_error(self, tmp_path: Path) -> None:
         dump = None
@@ -226,7 +227,7 @@ class TestFamilyTreeConfiguration:
 
 class TestPluginMapping:
     def test___init____with_values(self) -> None:
-        sut = PluginMapping(
+        sut = PluginMapping[ClassedDummyPluginDefinition, ClassedDummyPlugin](
             {
                 "my-first-gramps-type": PluginInstanceConfiguration(
                     "some-elses-betty-plugin-id"
@@ -245,7 +246,7 @@ class TestPluginMapping:
         assert sut["my-second-gramps-type"].id == "my-second-betty-plugin-id"
 
     def test_load__without_values(self) -> None:
-        sut = PluginMapping({}, {})
+        sut = PluginMapping[ClassedDummyPluginDefinition, ClassedDummyPlugin]({}, {})
         sut.load({})
         assert sut.dump() == {}
 
@@ -254,7 +255,7 @@ class TestPluginMapping:
             "my-first-gramps-type": "my-first-betty-plugin-id",
             "my-second-gramps-type": "my-second-betty-plugin-id",
         }
-        sut = PluginMapping(
+        sut = PluginMapping[ClassedDummyPluginDefinition, ClassedDummyPlugin](
             {
                 "my-first-gramps-type": PluginInstanceConfiguration(
                     "some-elses-betty-plugin-id"
@@ -279,14 +280,17 @@ class TestPluginMapping:
         ],
     )
     def test_load__should_error(self, dump: Dump) -> None:
-        sut = PluginMapping({}, {})
+        sut = PluginMapping[ClassedDummyPluginDefinition, ClassedDummyPlugin]({}, {})
         with pytest.raises(UserFacingException):
             sut.load(dump)
 
     @pytest.mark.parametrize(
         ("expected", "sut"),
         [
-            ({}, PluginMapping({}, {})),
+            (
+                {},
+                PluginMapping[ClassedDummyPluginDefinition, ClassedDummyPlugin]({}, {}),
+            ),
             (
                 {"my-first-gramps-type": "my-first-betty-plugin-id"},
                 PluginMapping(
@@ -300,11 +304,15 @@ class TestPluginMapping:
             ),
         ],
     )
-    def test_dump(self, expected: Dump, sut: PluginMapping) -> None:
+    def test_dump(
+        self,
+        expected: Dump,
+        sut: PluginMapping[ClassedDummyPluginDefinition, ClassedDummyPlugin],
+    ) -> None:
         assert sut.dump() == expected
 
     def test___getitem__(self) -> None:
-        sut = PluginMapping(
+        sut = PluginMapping[ClassedDummyPluginDefinition, ClassedDummyPlugin](
             {},
             {
                 "my-first-gramps-type": PluginInstanceConfiguration(
@@ -315,14 +323,14 @@ class TestPluginMapping:
         assert sut["my-first-gramps-type"].id == "my-first-betty-plugin-id"
 
     def test___setitem__(self) -> None:
-        sut = PluginMapping({}, {})
+        sut = PluginMapping[ClassedDummyPluginDefinition, ClassedDummyPlugin]({}, {})
         sut["my-first-gramps-type"] = PluginInstanceConfiguration(
             "my-first-betty-plugin-id"
         )
         assert sut["my-first-gramps-type"].id == "my-first-betty-plugin-id"
 
     def test___delitem__(self) -> None:
-        sut = PluginMapping(
+        sut = PluginMapping[ClassedDummyPluginDefinition, ClassedDummyPlugin](
             {},
             {
                 "my-first-gramps-type": PluginInstanceConfiguration(
@@ -335,11 +343,11 @@ class TestPluginMapping:
             sut["my-first-gramps-type"]
 
     def test___iter____without_items(self) -> None:
-        sut = PluginMapping({}, {})
+        sut = PluginMapping[ClassedDummyPluginDefinition, ClassedDummyPlugin]({}, {})
         assert list(iter(sut)) == []
 
     def test___iter____with_items(self) -> None:
-        sut = PluginMapping(
+        sut = PluginMapping[ClassedDummyPluginDefinition, ClassedDummyPlugin](
             {},
             {
                 "my-first-gramps-type": PluginInstanceConfiguration(

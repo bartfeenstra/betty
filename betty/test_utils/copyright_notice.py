@@ -4,54 +4,57 @@ Test utilities for :py:mod:`betty.copyright_notice`.
 
 from __future__ import annotations
 
-from typing_extensions import override
+from typing import TYPE_CHECKING
 
-from betty.copyright_notice import CopyrightNotice
-from betty.locale.localizable import Localizable, Plain
+import pytest
+
 from betty.locale.localizer import DEFAULT_LOCALIZER
-from betty.test_utils.plugin import DummyPluginBase, PluginInstanceTestBase
+from betty.test_utils.plugin import (
+    ClassedPluginDefinitionTestBase,
+    UserFacingPluginDefinitionTestBase,
+)
+
+if TYPE_CHECKING:
+    from betty.copyright_notice import CopyrightNotice
 
 
-class CopyrightNoticeTestBase(PluginInstanceTestBase[CopyrightNotice]):
+class CopyrightNoticeDefinitionTestBase(
+    UserFacingPluginDefinitionTestBase,
+    ClassedPluginDefinitionTestBase,
+):
+    """
+    A base class for testing :py:class:`betty.copyright_notice.CopyrightNoticeDefinition` implementations.
+    """
+
+
+class CopyrightNoticeTestBase:
     """
     A base class for testing :py:class:`betty.copyright_notice.CopyrightNotice` implementations.
     """
 
-    def test_summary(self) -> None:
+    @pytest.fixture
+    def sut(self) -> CopyrightNotice:
+        """
+        Provide the system(s) under test.
+        """
+        raise NotImplementedError
+
+    def test_summary(self, sut: CopyrightNotice) -> None:
         """
         Tests :py:meth:`betty.copyright_notice.CopyrightNotice.summary` implementations.
         """
-        for sut in self.get_sut_instances():
-            assert sut.summary.localize(DEFAULT_LOCALIZER)
+        assert sut.summary.localize(DEFAULT_LOCALIZER)
 
-    def test_text(self) -> None:
+    def test_text(self, sut: CopyrightNotice) -> None:
         """
         Tests :py:meth:`betty.copyright_notice.CopyrightNotice.text` implementations.
         """
-        for sut in self.get_sut_instances():
-            assert sut.text.localize(DEFAULT_LOCALIZER)
+        assert sut.text.localize(DEFAULT_LOCALIZER)
 
-    def test_url(self) -> None:
+    def test_url(self, sut: CopyrightNotice) -> None:
         """
         Tests :py:meth:`betty.copyright_notice.CopyrightNotice.url` implementations.
         """
-        for sut in self.get_sut_instances():
-            url = sut.url
-            if url is not None:
-                assert url.localize(DEFAULT_LOCALIZER)
-
-
-class DummyCopyrightNotice(DummyPluginBase, CopyrightNotice):
-    """
-    A dummy copyright notice implementation.
-    """
-
-    @override
-    @property
-    def summary(self) -> Localizable:
-        return Plain("Dummy Copyright Notice Summary")  # pragma: no cover
-
-    @override
-    @property
-    def text(self) -> Localizable:
-        return Plain("Dummy Copyright Notice Text")  # pragma: no cover
+        url = sut.url
+        if url is not None:
+            assert url.localize(DEFAULT_LOCALIZER)

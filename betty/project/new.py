@@ -51,7 +51,10 @@ async def new(app: App) -> None:
         Wiki,
     )
     AllRequirements(
-        *[await extension.requirement(user=app.user) for extension in extensions]
+        *[
+            await extension.plugin.cls.requirement(user=app.user)
+            for extension in extensions
+        ]
     ).assert_met()
 
     configuration_file_path = await app.user.ask_input(
@@ -119,7 +122,7 @@ async def new(app: App) -> None:
         gramps_requirement.assert_met()
         configuration.extensions.append(
             PluginInstanceConfiguration(
-                Gramps,
+                Gramps.plugin,
                 configuration=GrampsConfiguration(
                     family_trees=[
                         FamilyTreeConfiguration(

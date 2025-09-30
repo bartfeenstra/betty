@@ -10,22 +10,22 @@ from typing_extensions import override
 
 from betty.app import App
 from betty.config.file import write_configuration_file
-from betty.console import (
-    SystemExitCode,
-    call_command_func,
-    main_standalone,
-)
-from betty.console.command import Command
+from betty.console import SystemExitCode, call_command_func, main_standalone
+from betty.console.command import Command, CommandDefinition
 from betty.exception import UserFacingException
 from betty.functools import Result, suppress
 from betty.locale.localizable import Plain
 from betty.plugin.static import StaticPluginRepository
 from betty.project import Project
-from betty.test_utils.console import DummyCommand, run
+from betty.test_utils.console import run
 from betty.user import Verbosity
 
 
-class _NoOpCommand(DummyCommand):
+@CommandDefinition(
+    id="no-op",
+    label=Plain("No-op"),
+)
+class _NoOpCommand(Command):
     @override
     async def configure(
         self, parser: argparse.ArgumentParser
@@ -36,8 +36,8 @@ class _NoOpCommand(DummyCommand):
         pass
 
 
-def _create_raising_command(exception: BaseException) -> type[Command]:
-    class _RaisingCommand(DummyCommand):
+def _create_raising_command(exception: BaseException) -> CommandDefinition:
+    class _RaisingCommand(Command):
         @override
         async def configure(
             self, parser: argparse.ArgumentParser
@@ -47,7 +47,11 @@ def _create_raising_command(exception: BaseException) -> type[Command]:
         async def _invoke(self) -> None:
             raise exception
 
-    return _RaisingCommand
+    return CommandDefinition(
+        id="raising",
+        label=Plain("Raising"),
+        cls=_RaisingCommand,
+    )
 
 
 async def test_main__without_arguments(new_temporary_app: App) -> None:
@@ -78,7 +82,7 @@ async def test_main__with_unknown_command(new_temporary_app: App) -> None:
 @pytest.mark.parametrize(
     ("expected", "command"),
     [
-        (SystemExitCode.OK, _NoOpCommand),
+        (SystemExitCode.OK, _NoOpCommand.plugin),
         (
             SystemExitCode.ERROR_UNEXPECTED,
             _create_raising_command(UserFacingException(Plain(""))),
@@ -90,17 +94,17 @@ async def test_main__with_unknown_command(new_temporary_app: App) -> None:
 )
 async def test_main__with_user_facing_exception(
     expected: SystemExitCode,
-    command: type[Command],
+    command: CommandDefinition,
     mocker: MockerFixture,
     new_temporary_app: App,
 ) -> None:
     mocker.patch(
         "betty.console.command.COMMAND_REPOSITORY",
-        new=StaticPluginRepository(Command, command),
+        new=StaticPluginRepository(CommandDefinition, command),
     )
     await run(
         new_temporary_app,
-        command.plugin_id(),
+        command.id,
         expected_exit_code=expected,
     )
 
@@ -108,7 +112,7 @@ async def test_main__with_user_facing_exception(
 @pytest.mark.parametrize(
     ("expected", "command"),
     [
-        (SystemExitCode.OK, _NoOpCommand),
+        (SystemExitCode.OK, _NoOpCommand.plugin),
         (
             SystemExitCode.ERROR_UNEXPECTED,
             _create_raising_command(UserFacingException(Plain(""))),
@@ -119,14 +123,14 @@ async def test_main__with_user_facing_exception(
     ],
 )
 def test_main_standalone(
-    expected: SystemExitCode, command: type[Command], mocker: MockerFixture
+    expected: SystemExitCode, command: CommandDefinition, mocker: MockerFixture
 ) -> None:
     def _target() -> None:
         mocker.patch(
             "betty.console.command.COMMAND_REPOSITORY",
-            new=StaticPluginRepository(Command, command),
+            new=StaticPluginRepository(CommandDefinition, command),
         )
-        (mocker.patch("sys.argv", new=["betty", command.plugin_id()]),)
+        (mocker.patch("sys.argv", new=["betty", command.id]),)
         main_standalone()
 
     # Run this in a thread so as not to conflict with pytest-playwright-asyncio's session-scoped event loop.
@@ -159,13 +163,13 @@ class TestVerbosity:
     ) -> None:
         mocker.patch(
             "betty.console.command.COMMAND_REPOSITORY",
-            new=StaticPluginRepository(Command, _NoOpCommand),
+            new=StaticPluginRepository(CommandDefinition, _NoOpCommand.plugin),
         )
         async with Project.new_temporary(new_temporary_app) as project:
             await write_configuration_file(
                 project.configuration, project.configuration.configuration_file_path
             )
-            args = ["no-op-command"]
+            args = ["no-op"]
             if verbosity is not None:
                 args.append(verbosity)
             await run(new_temporary_app, *args)

@@ -10,10 +10,9 @@ from betty.project import Project, ProjectContext
 from betty.project.load.jobs import PopulateLink
 from betty.test_utils.conftest import NewTemporaryAppFactory
 from betty.test_utils.job import do
-from betty.test_utils.model import DummyEntity
 
 
-class DummyHasLinks(HasLinks, DummyEntity):
+class DummyHasLinks(HasLinks):
     pass
 
 
