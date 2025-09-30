@@ -5,7 +5,7 @@ import pytest
 from pytest_mock import MockerFixture
 from typing_extensions import override
 
-from betty.locale.localizable import plain
+from betty.locale.localizable import Plain
 from betty.locale.localizer import DEFAULT_LOCALIZER
 from betty.plugin import PluginNotFound, ShorthandPluginBase
 from betty.serde.dump import Dump
@@ -31,7 +31,7 @@ class _Format(ShorthandPluginBase, Format):
 
 class FormatOne(_Format):
     _plugin_id = "one"
-    _plugin_label = plain("One")
+    _plugin_label = Plain("One")
 
     @override
     @classmethod
@@ -41,7 +41,7 @@ class FormatOne(_Format):
 
 class FormatTwo(_Format):
     _plugin_id = "two"
-    _plugin_label = plain("Two")
+    _plugin_label = Plain("Two")
 
     @override
     @classmethod

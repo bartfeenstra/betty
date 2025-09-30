@@ -36,7 +36,7 @@ from betty.jinja2.filter import filters
 from betty.jinja2.globals import HtmlId, generate_html_id
 from betty.jinja2.test import tests
 from betty.job import Context as JobContext
-from betty.locale.localizable import Localizable, plain
+from betty.locale.localizable import Localizable, Plain
 from betty.locale.localizer import DEFAULT_LOCALIZER, Localizer
 from betty.model import ENTITY_TYPE_REPOSITORY
 from betty.plugin import Plugin, PluginIdToTypeMapping
@@ -414,7 +414,7 @@ class Jinja2Renderer(Renderer, ProjectDependentFactory, Plugin):
     @override
     @classmethod
     def plugin_label(cls) -> Localizable:
-        return plain("Jinja2")
+        return Plain("Jinja2")
 
     @override
     @classmethod

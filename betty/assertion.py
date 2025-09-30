@@ -28,7 +28,7 @@ from typing import (
 from betty.error import FileNotFound
 from betty.exception import Index, Key, UserFacingException, UserFacingExceptionGroup
 from betty.locale import UNDETERMINED_LOCALE, get_data
-from betty.locale.localizable import Localizable, _, do_you_mean, join, plain
+from betty.locale.localizable import Join, Localizable, Plain, _, do_you_mean
 from betty.typing import Void, Voidable, internal
 
 Number: TypeAlias = int | float
@@ -455,7 +455,7 @@ def assert_record(
             for unknown_key in unknown_keys:
                 with errors.catch(Key(unknown_key)):
                     raise UserFacingException(
-                        join(
+                        Join(
                             _("Unknown key: {unknown_key}.").format(
                                 unknown_key=f'"{unknown_key}"'
                             ),
@@ -481,7 +481,7 @@ def assert_isinstance(
         if isinstance(value, alleged_type):
             return value
         raise UserFacingException(
-            plain(f"{value} must be an instance of {alleged_type}.")
+            Plain(f"{value} must be an instance of {alleged_type}.")
         )
 
     return _assert

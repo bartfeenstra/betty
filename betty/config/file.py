@@ -13,7 +13,7 @@ from aiofiles.os import makedirs
 from betty.assertion import AssertionChain, assert_file_path
 from betty.config import Configuration
 from betty.exception import UserFacingExceptionGroup
-from betty.locale.localizable import plain
+from betty.locale.localizable import Plain
 from betty.serde.format import FORMAT_REPOSITORY, format_for
 
 if TYPE_CHECKING:
@@ -42,7 +42,7 @@ async def assert_configuration_file(
         ):
             with open(configuration_file_path) as f:
                 read_configuration = f.read()
-            with errors.catch(plain(f"in {str(configuration_file_path.resolve())}")):
+            with errors.catch(Plain(f"in {str(configuration_file_path.resolve())}")):
                 configuration_file_format = available_formats[
                     format_for(list(available_formats), configuration_file_path.suffix)
                 ]

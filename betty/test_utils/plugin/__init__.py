@@ -7,7 +7,7 @@ from typing import Any, Generic, TypeVar, final
 
 from typing_extensions import override
 
-from betty.locale.localizable import Localizable, plain
+from betty.locale.localizable import Localizable, Plain
 from betty.locale.localizer import DEFAULT_LOCALIZER
 from betty.machine_name import MachineName, assert_machine_name
 from betty.plugin import Plugin
@@ -110,7 +110,7 @@ class DummyPluginBase(Plugin):
     @override
     @classmethod
     def plugin_label(cls) -> Localizable:
-        return plain(cls.__name__)
+        return Plain(cls.__name__)
 
 
 class DummyPlugin(DummyPluginBase):
@@ -134,4 +134,4 @@ class DummyPlugin(DummyPluginBase):
     @override
     @classmethod
     def plugin_type_label(cls) -> Localizable:
-        return plain("Dummy")
+        return Plain("Dummy")

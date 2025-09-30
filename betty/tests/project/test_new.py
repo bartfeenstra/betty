@@ -6,7 +6,7 @@ from pytest_mock import MockerFixture
 from betty.config.file import assert_configuration_file
 from betty.exception import UserFacingException
 from betty.locale import DEFAULT_LOCALE
-from betty.locale.localizable import plain
+from betty.locale.localizable import Plain
 from betty.locale.localizer import DEFAULT_LOCALIZER
 from betty.project import Project
 from betty.project.config import ProjectConfiguration
@@ -27,7 +27,7 @@ async def test_new__minimal(
     new_temporary_app_factory: NewTemporaryAppFactory,
     tmp_path: Path,
 ) -> None:
-    requirement = StaticRequirement(True, plain(""))
+    requirement = StaticRequirement(True, Plain(""))
     mocker.patch(
         "betty.project.extension.webpack.Webpack.requirement"
     ).return_value = requirement
@@ -64,7 +64,7 @@ async def test_new__without_webpack(
     new_temporary_app_factory: NewTemporaryAppFactory,
     tmp_path: Path,
 ) -> None:
-    requirement = StaticRequirement(False, plain(""))
+    requirement = StaticRequirement(False, Plain(""))
     mocker.patch(
         "betty.project.extension.webpack.Webpack.requirement"
     ).return_value = requirement
@@ -80,7 +80,7 @@ async def test_new__with_project_directory(
     new_temporary_app_factory: NewTemporaryAppFactory,
     tmp_path: Path,
 ) -> None:
-    requirement = StaticRequirement(True, plain(""))
+    requirement = StaticRequirement(True, Plain(""))
     mocker.patch(
         "betty.project.extension.webpack.Webpack.requirement"
     ).return_value = requirement

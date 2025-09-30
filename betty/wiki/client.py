@@ -14,7 +14,7 @@ from urllib.parse import quote, urlparse
 from geopy import Point
 
 from betty.fetch import Fetcher, FetchError
-from betty.locale.localizable import plain
+from betty.locale.localizable import Plain
 from betty.media_type import MediaType
 from betty.typing import internal
 
@@ -88,7 +88,7 @@ class Client:
             data = response.json
         except JSONDecodeError as error:
             raise FetchError(
-                plain(f"Invalid JSON returned by {url}: {error}")
+                Plain(f"Invalid JSON returned by {url}: {error}")
             ) from error
 
         try:
@@ -96,7 +96,7 @@ class Client:
                 data = data[selector]
         except (LookupError, TypeError) as error:
             raise FetchError(
-                plain(
+                Plain(
                     f"Could not successfully parse the JSON format returned by {url}: {error}"
                 )
             ) from error
@@ -155,7 +155,7 @@ class Client:
                 )
             except LookupError as error:
                 raise FetchError(
-                    plain(
+                    Plain(
                         f"Could not successfully parse the JSON content returned by {url}: {error}"
                     )
                 ) from error
@@ -182,7 +182,7 @@ class Client:
                 image_info = image_info_api_data["imageinfo"][0]
             except LookupError as error:
                 raise FetchError(
-                    plain(
+                    Plain(
                         f"Could not successfully parse the JSON content returned by {url}: {error}"
                     )
                 ) from error
@@ -218,5 +218,5 @@ class Client:
                 return Point(coordinates["lat"], coordinates["lon"])
             except LookupError as error:
                 raise FetchError(
-                    plain(f"Could not successfully parse the JSON content: {error}")
+                    Plain(f"Could not successfully parse the JSON content: {error}")
                 ) from error

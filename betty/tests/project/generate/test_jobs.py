@@ -18,7 +18,7 @@ from betty.ancestry.presence_role.presence_roles import Unknown as UnknownPresen
 from betty.ancestry.source import Source
 from betty.app import App
 from betty.json.schema import JsonSchemaSchema
-from betty.locale.localizable import plain
+from betty.locale.localizable import Plain
 from betty.model import Entity
 from betty.openapi import SpecificationSchema
 from betty.project import Project, ProjectContext
@@ -93,7 +93,7 @@ class TestGenerateEntitiesHtml:
             Citation(source=Source(), id="ID"),
             Event(id="ID"),
             File(Path(__file__), id="ID"),
-            Note(plain(""), id="ID"),
+            Note(Plain(""), id="ID"),
             Person(id="ID"),
             Place(id="ID"),
             Source(id="ID"),
@@ -119,8 +119,8 @@ class TestGenerateEntitiesHtml:
             Event(id="ID", private=True),
             File(Path(__file__)),
             File(Path(__file__), id="ID", private=True),
-            Note(plain("")),
-            Note(plain(""), id="ID", private=True),
+            Note(Plain("")),
+            Note(Plain(""), id="ID", private=True),
             Person(),
             Person(id="ID", private=True),
             PersonName(individual="Jane", person=Person()),
@@ -154,7 +154,7 @@ class TestGenerateEntitiesJson:
             Citation(source=Source(), id="ID"),
             Event(id="ID"),
             File(Path(__file__), id="ID"),
-            Note(plain(""), id="ID"),
+            Note(Plain(""), id="ID"),
             Person(id="ID"),
             Place(id="ID"),
             Source(id="ID"),
@@ -179,7 +179,7 @@ class TestGenerateEntitiesJson:
             Enclosure(enclosee=Place(), encloser=Place()),
             Event(),
             File(Path(__file__)),
-            Note(plain("")),
+            Note(Plain("")),
             Person(),
             PersonName(individual="Jane", person=Person()),
             Presence(Person(), UnknownPresenceRole(), Event()),

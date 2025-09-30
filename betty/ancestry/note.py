@@ -11,7 +11,7 @@ from typing_extensions import override
 from betty.ancestry.has_links import HasLinks
 from betty.locale.localizable import (
     Localizable,
-    StaticTranslationsLocalizable,
+    StaticTranslations,
     _,
     ngettext,
 )
@@ -90,7 +90,7 @@ class Note(ShorthandPluginBase, UserFacing, HasPrivacy, HasLinks, Entity):
         dump = await super().dump_linked_data(project)
         dump["@type"] = "https://schema.org/Thing"
         if is_public(self):
-            dump["text"] = await StaticTranslationsLocalizable.dump_linked_data_for(
+            dump["text"] = await StaticTranslations.dump_linked_data_for(
                 project, self.text
             )
         return dump
@@ -101,7 +101,7 @@ class Note(ShorthandPluginBase, UserFacing, HasPrivacy, HasLinks, Entity):
         schema = await super().linked_data_schema(project)
         schema.add_property(
             "text",
-            await StaticTranslationsLocalizable.linked_data_schema(project),
+            await StaticTranslations.linked_data_schema(project),
             False,
         )
         return schema

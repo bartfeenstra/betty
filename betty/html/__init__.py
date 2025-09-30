@@ -11,7 +11,7 @@ from typing import TYPE_CHECKING, final
 from typing_extensions import override
 
 from betty.link import Link
-from betty.locale.localizable import plain
+from betty.locale.localizable import Plain
 from betty.serde.dump import Dump, Dumpable, DumpMapping
 
 if TYPE_CHECKING:
@@ -52,7 +52,7 @@ class NavigationLink(Link):
     """
 
     def __init__(self, url: Localizable | str, label: Localizable):
-        self._url = plain(url) if isinstance(url, str) else url
+        self._url = Plain(url) if isinstance(url, str) else url
         self._label = label
 
     @override

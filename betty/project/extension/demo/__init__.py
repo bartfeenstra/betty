@@ -12,7 +12,7 @@ from typing import TYPE_CHECKING, final
 from typing_extensions import override
 
 from betty.html import NavigationLink, NavigationLinkProvider
-from betty.locale.localizable import _, static
+from betty.locale.localizable import StaticTranslations, _
 from betty.plugin import ShorthandPluginBase
 from betty.project import ProjectContext, generate
 from betty.project.extension import Extension
@@ -61,7 +61,7 @@ class Demo(ShorthandPluginBase, NavigationLinkProvider, Loader, Extension):
     """
 
     _plugin_id = "demo"
-    _plugin_label = static("Demo")
+    _plugin_label = StaticTranslations("Demo")
 
     @override
     @classmethod

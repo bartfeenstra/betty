@@ -18,7 +18,7 @@ from betty.console import (
 from betty.console.command import Command
 from betty.exception import UserFacingException
 from betty.functools import Result, suppress
-from betty.locale.localizable import plain
+from betty.locale.localizable import Plain
 from betty.plugin.static import StaticPluginRepository
 from betty.project import Project
 from betty.test_utils.console import DummyCommand, run
@@ -81,7 +81,7 @@ async def test_main__with_unknown_command(new_temporary_app: App) -> None:
         (SystemExitCode.OK, _NoOpCommand),
         (
             SystemExitCode.ERROR_UNEXPECTED,
-            _create_raising_command(UserFacingException(plain(""))),
+            _create_raising_command(UserFacingException(Plain(""))),
         ),
         (SystemExitCode.USER_QUIT, _create_raising_command(CancelledError())),
         (SystemExitCode.USER_QUIT, _create_raising_command(KeyboardInterrupt())),
@@ -111,7 +111,7 @@ async def test_main__with_user_facing_exception(
         (SystemExitCode.OK, _NoOpCommand),
         (
             SystemExitCode.ERROR_UNEXPECTED,
-            _create_raising_command(UserFacingException(plain(""))),
+            _create_raising_command(UserFacingException(Plain(""))),
         ),
         (SystemExitCode.USER_QUIT, _create_raising_command(CancelledError())),
         (SystemExitCode.USER_QUIT, _create_raising_command(KeyboardInterrupt())),

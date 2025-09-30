@@ -22,10 +22,10 @@ from betty.ancestry.presence_role.presence_roles import Subject
 from betty.json.linked_data import JsonLdObject, dump_context
 from betty.json.schema import String
 from betty.locale.localizable import (
+    Call,
     Localizable,
-    StaticTranslationsLocalizable,
+    StaticTranslations,
     _,
-    call,
     ngettext,
 )
 from betty.model.association import (
@@ -157,7 +157,7 @@ class Event(
             and presence.person.public
         ]
         if subjects:
-            format_kwargs["subjects"] = call(
+            format_kwargs["subjects"] = Call(
                 lambda localizer: ", ".join(
                     person.label.localize(localizer) for person in subjects
                 )
@@ -201,7 +201,7 @@ class Event(
         dump["eventAttendanceMode"] = "https://schema.org/OfflineEventAttendanceMode"
         dump["eventStatus"] = "https://schema.org/EventScheduled"
         if self.name is not None:
-            dump["name"] = await StaticTranslationsLocalizable.dump_linked_data_for(
+            dump["name"] = await StaticTranslations.dump_linked_data_for(
                 project, self.name
             )
         return dump
@@ -212,7 +212,7 @@ class Event(
         schema = await super().linked_data_schema(project)
         schema.add_property(
             "name",
-            await StaticTranslationsLocalizable.linked_data_schema(project),
+            await StaticTranslations.linked_data_schema(project),
             False,
         )
         schema.add_property(

@@ -4,7 +4,7 @@ from betty.ancestry.name import Name
 from betty.ancestry.place import Place
 from betty.date import Date, DateRange
 from betty.jinja2 import EntityContexts
-from betty.locale.localizable import plain
+from betty.locale.localizable import Plain
 from betty.project.extension.raspberry_mint import RaspberryMint
 from betty.test_utils.jinja2 import assert_template_file
 
@@ -38,7 +38,7 @@ async def test_with_persistent_id() -> None:
 
 
 async def test_with_name() -> None:
-    place = Place(names=[Name(plain("The Place"))])
+    place = Place(names=[Name(Plain("The Place"))])
     expected = '<span lang="und" dir="auto">The Place</span>'
     async with assert_template_file(
         data={
@@ -53,7 +53,7 @@ async def test_with_name() -> None:
 async def test_embedded() -> None:
     place = Place(
         id="P0",
-        names=[Name(plain("The Place"))],
+        names=[Name(Plain("The Place"))],
     )
     expected = '<span lang="und" dir="auto">The Place</span>'
     async with assert_template_file(
@@ -86,11 +86,11 @@ async def test_with_date_context() -> None:
     place = Place(
         names=[
             Name(
-                plain("The Old Place"),
+                Plain("The Old Place"),
                 date=DateRange(None, Date(1969, 12, 31)),
             ),
             Name(
-                plain("The New Place"),
+                Plain("The New Place"),
                 date=DateRange(Date(1970, 1, 1)),
             ),
         ],

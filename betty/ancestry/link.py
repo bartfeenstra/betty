@@ -14,11 +14,11 @@ from betty.json.schema import String
 from betty.link import Link as StdLink
 from betty.locale.localizable import (
     Localizable,
-    StaticTranslationsLocalizable,
-    StaticTranslationsLocalizableSchema,
+    Plain,
+    StaticTranslations,
+    StaticTranslationsSchema,
     _,
     ngettext,
-    plain,
 )
 from betty.model import Entity
 from betty.model.association import BidirectionalToZeroOrOne
@@ -83,7 +83,7 @@ class Link(
             public=public,
             private=private,
         )
-        self._url = plain(url) if isinstance(url, str) else url
+        self._url = Plain(url) if isinstance(url, str) else url
         self._label = label
         self.relationship = relationship
         if owner is not None:
@@ -132,14 +132,12 @@ class Link(
     async def dump_linked_data(self, project: Project) -> DumpMapping[Dump]:
         dump = await super().dump_linked_data(project)
         if self.public:
-            dump["url"] = await StaticTranslationsLocalizable.dump_linked_data_for(
+            dump["url"] = await StaticTranslations.dump_linked_data_for(
                 project, self._url
             )
             if self._label is not None:
                 await project.localizers
-                dump[
-                    "label"
-                ] = await StaticTranslationsLocalizable.dump_linked_data_for(
+                dump["label"] = await StaticTranslations.dump_linked_data_for(
                     project, self._label
                 )
             if self.relationship is not None:
@@ -152,7 +150,7 @@ class Link(
         schema = await super().linked_data_schema(project)
         schema.add_property(
             "url",
-            StaticTranslationsLocalizableSchema(
+            StaticTranslationsSchema(
                 title="Label", description="The full URL to the other resource."
             ),
             False,
@@ -166,7 +164,7 @@ class Link(
         )
         schema.add_property(
             "label",
-            StaticTranslationsLocalizableSchema(
+            StaticTranslationsSchema(
                 title="Label", description="The human-readable link label."
             ),
             False,

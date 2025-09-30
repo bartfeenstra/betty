@@ -1,7 +1,7 @@
 import pytest
 from typing_extensions import override
 
-from betty.locale.localizable import Localizable, static
+from betty.locale.localizable import Localizable, StaticTranslations
 from betty.machine_name import MachineName
 from betty.plugin import Plugin, PluginNotFound
 from betty.plugin.static import StaticPluginRepository
@@ -16,7 +16,7 @@ class StaticPluginRepositoryTestPlugin(Plugin):
     @override
     @classmethod
     def plugin_label(cls) -> Localizable:
-        return static("")  # pragma: no cover
+        return StaticTranslations("")  # pragma: no cover
 
 
 class TestStaticPluginRepository:

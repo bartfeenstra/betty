@@ -20,7 +20,7 @@ from betty.exception import UserFacingException
 from betty.factory import Factory
 from betty.fetch import Fetcher, FetchError
 from betty.license import License
-from betty.locale.localizable import Localizable, _, plain
+from betty.locale.localizable import Localizable, Plain, _
 from betty.machine_name import MachineName
 from betty.multiprocessing import manager
 from betty.plugin import PluginNotFound, PluginRepository, ShorthandPluginBase
@@ -243,7 +243,7 @@ class SpdxLicenseRepository(PluginRepository[License]):
             yield
         except (AssertionError, LookupError) as error:
             raise UserFacingException(
-                plain(f"Invalid JSON response received from {self.URL}")
+                Plain(f"Invalid JSON response received from {self.URL}")
             ) from error
 
     async def _create_license(self, license_id: MachineName) -> type[License]:
@@ -264,7 +264,7 @@ class SpdxLicenseRepository(PluginRepository[License]):
 
             license_name = spdx_license_data["name"]
             assert isinstance(license_name, str)
-            plugin_label = plain(license_name)
+            plugin_label = Plain(license_name)
 
             license_text = spdx_license_data["licenseText"]
             assert isinstance(license_text, str)
@@ -281,13 +281,13 @@ class SpdxLicenseRepository(PluginRepository[License]):
                 @override
                 @property
                 def text(self) -> Localizable:
-                    return plain(
+                    return Plain(
                         license_text  # type: ignore[arg-type]
                     )
 
                 @override
                 @property
                 def url(self) -> Localizable | None:
-                    return plain(url)
+                    return Plain(url)
 
             return _SpdxLicense

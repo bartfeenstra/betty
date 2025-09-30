@@ -14,7 +14,7 @@ from betty.ancestry.name import Name
 from betty.ancestry.place import Place
 from betty.ancestry.place_type.place_types import Unknown as UnknownPlaceType
 from betty.locale import DEFAULT_LOCALE
-from betty.locale.localizable import plain
+from betty.locale.localizable import Plain
 from betty.model.association import AssociationRequired, TemporaryToOneResolver
 from betty.test_utils.ancestry.place_type import DummyPlaceType
 from betty.test_utils.json.linked_data import assert_dumps_linked_data
@@ -35,7 +35,7 @@ class TestPlace(EntityTestBase):
     async def get_sut_instances(self) -> Sequence[Entity]:
         return [
             Place(),
-            Place(names=[Name(plain("My First Place"))]),
+            Place(names=[Name(Plain("My First Place"))]),
         ]
 
     def test_place_type__default(self) -> None:
@@ -168,10 +168,10 @@ class TestPlace(EntityTestBase):
         longitude = -54.321
         coordinates = Point(latitude, longitude)
         link = Link("https://example.com/the-place")
-        link.label = plain("The Place Online")
+        link.label = Plain("The Place Online")
         place = Place(
             id=place_id,
-            names=[Name(plain(name))],
+            names=[Name(Plain(name))],
             events=[
                 Event(
                     id="E1",

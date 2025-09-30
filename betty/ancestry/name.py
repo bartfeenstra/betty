@@ -9,7 +9,7 @@ from typing import TYPE_CHECKING, final
 from typing_extensions import override
 
 from betty.ancestry.date import HasDate
-from betty.locale.localizable import StaticTranslationsLocalizable
+from betty.locale.localizable import StaticTranslations
 
 if TYPE_CHECKING:
     from betty.date import DateLike
@@ -41,14 +41,12 @@ class Name(HasDate):
     async def linked_data_schema(cls, project: Project) -> JsonLdObject:
         schema = await super().linked_data_schema(project)
         schema.add_property(
-            "name", await StaticTranslationsLocalizable.linked_data_schema(project)
+            "name", await StaticTranslations.linked_data_schema(project)
         )
         return schema
 
     @override
     async def dump_linked_data(self, project: Project) -> DumpMapping[Dump]:
         dump = await super().dump_linked_data(project)
-        dump["name"] = await StaticTranslationsLocalizable.dump_linked_data_for(
-            project, self.name
-        )
+        dump["name"] = await StaticTranslations.dump_linked_data_for(project, self.name)
         return dump

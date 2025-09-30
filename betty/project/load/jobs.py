@@ -13,7 +13,7 @@ from typing_extensions import override
 
 from betty.fetch import FetchError
 from betty.job import Job
-from betty.locale.localizable import StaticTranslationsLocalizable
+from betty.locale.localizable import StaticTranslations
 from betty.media_type import InvalidMediaType, MediaType
 from betty.project import Project, ProjectContext
 
@@ -50,7 +50,7 @@ class PopulateLink(Job[ProjectContext]):
         project = scheduler.context.project
 
         localizers = await project.localizers
-        urls = StaticTranslationsLocalizable.from_localizable(
+        urls = StaticTranslations.from_localizable(
             self._link.url,
             [localizers.get(locale) for locale in project.configuration.locales],
         )
@@ -72,9 +72,9 @@ class PopulateLink(Job[ProjectContext]):
             )
         )
         if not self._link.has_label and labels:
-            self._link.label = StaticTranslationsLocalizable(labels)
+            self._link.label = StaticTranslations(labels)
         if not self._link.description and descriptions:
-            self._link.description = StaticTranslationsLocalizable(descriptions)
+            self._link.description = StaticTranslations(descriptions)
 
     async def _populate_link_from_url(
         self,

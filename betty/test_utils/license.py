@@ -7,7 +7,7 @@ from __future__ import annotations
 from typing_extensions import override
 
 from betty.license import License
-from betty.locale.localizable import Localizable, plain
+from betty.locale.localizable import Localizable, Plain
 from betty.locale.localizer import DEFAULT_LOCALIZER
 from betty.test_utils.plugin import DummyPluginBase, PluginInstanceTestBase
 
@@ -49,9 +49,9 @@ class DummyLicense(DummyPluginBase, License):
     @override
     @property
     def summary(self) -> Localizable:
-        return plain("")  # pragma: nocover
+        return Plain("")  # pragma: nocover
 
     @override
     @property
     def text(self) -> Localizable:
-        return plain("")  # pragma: nocover
+        return Plain("")  # pragma: nocover

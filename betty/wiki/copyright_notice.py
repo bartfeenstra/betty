@@ -13,7 +13,7 @@ from betty.app.factory import AppDependentFactory
 from betty.copyright_notice import CopyrightNotice
 from betty.fetch import Fetcher, FetchError
 from betty.locale import negotiate_locale, to_babel_identifier
-from betty.locale.localizable import Localizable, _, call
+from betty.locale.localizable import Call, Localizable, _
 from betty.plugin import ShorthandPluginBase
 
 
@@ -66,7 +66,7 @@ class WikipediaContributors(ShorthandPluginBase, AppDependentFactory, CopyrightN
     @override
     @property
     def url(self) -> Localizable:
-        return call(lambda localizer: self._localize_url(localizer.locale))
+        return Call(lambda localizer: self._localize_url(localizer.locale))
 
     def _localize_url(self, locale: str) -> str:
         locale = negotiate_locale([locale, "en"], list(self._urls))

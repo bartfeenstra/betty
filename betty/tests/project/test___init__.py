@@ -14,7 +14,7 @@ from betty.app import App
 from betty.app.factory import AppDependentFactory
 from betty.exception import UserFacingException
 from betty.json.schema import JsonSchemaSchema
-from betty.locale.localizable import Localizable, plain
+from betty.locale.localizable import Localizable, Plain
 from betty.plugin.config import PluginConfiguration
 from betty.plugin.static import StaticPluginRepository
 from betty.project import Project, ProjectContext, ProjectExtensions, ProjectSchema
@@ -58,7 +58,7 @@ class _UnmetRequirement(Requirement):
 
     @override
     def summary(self) -> Localizable:
-        return plain("")
+        return Plain("")
 
 
 class _DummyExtensionWithUnmetRequirement(DummyExtension):

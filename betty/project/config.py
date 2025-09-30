@@ -47,8 +47,8 @@ from betty.locale import DEFAULT_LOCALE, UNDETERMINED_LOCALE
 from betty.locale.localizable import Localizable, ShorthandStaticTranslations, _
 from betty.locale.localizable.assertion import assert_static_translations
 from betty.locale.localizable.config import (
-    OptionalStaticTranslationsLocalizableConfigurationAttr,
-    RequiredStaticTranslationsLocalizableConfigurationAttr,
+    OptionalStaticTranslationsConfigurationAttr,
+    RequiredStaticTranslationsConfigurationAttr,
 )
 from betty.machine_name import MachineName, assert_machine_name
 from betty.model import Entity
@@ -327,8 +327,8 @@ class CopyrightNoticeConfiguration(PluginConfiguration):
     Configuration to define :py:class:`betty.copyright_notice.CopyrightNotice` plugins.
     """
 
-    summary = RequiredStaticTranslationsLocalizableConfigurationAttr("summary")
-    text = RequiredStaticTranslationsLocalizableConfigurationAttr("text")
+    summary = RequiredStaticTranslationsConfigurationAttr("summary")
+    text = RequiredStaticTranslationsConfigurationAttr("text")
 
     def __init__(
         self,
@@ -417,8 +417,8 @@ class LicenseConfiguration(PluginConfiguration):
     Configuration to define :py:class:`betty.license.License` plugins.
     """
 
-    summary = RequiredStaticTranslationsLocalizableConfigurationAttr("summary")
-    text = RequiredStaticTranslationsLocalizableConfigurationAttr("text")
+    summary = RequiredStaticTranslationsConfigurationAttr("summary")
+    text = RequiredStaticTranslationsConfigurationAttr("text")
 
     def __init__(
         self,
@@ -568,8 +568,8 @@ class ProjectConfiguration(Configuration):
     Provide the configuration for a :py:class:`betty.project.Project`.
     """
 
-    title = OptionalStaticTranslationsLocalizableConfigurationAttr("title")
-    author = OptionalStaticTranslationsLocalizableConfigurationAttr("author")
+    title = OptionalStaticTranslationsConfigurationAttr("title")
+    author = OptionalStaticTranslationsConfigurationAttr("author")
     #: The project-wide :py:class:`betty.copyright_notice.CopyrightNotice` plugin to use.
     copyright_notice: PluginInstanceConfiguration
     #: The project-wide :py:class:`betty.license.License` plugin to use.

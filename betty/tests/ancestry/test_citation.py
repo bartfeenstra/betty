@@ -10,7 +10,7 @@ from betty.ancestry.event_type.event_types import Birth
 from betty.ancestry.has_citations import HasCitations
 from betty.ancestry.source import Source
 from betty.locale import DEFAULT_LOCALE
-from betty.locale.localizable import plain
+from betty.locale.localizable import Plain
 from betty.locale.localizer import DEFAULT_LOCALIZER
 from betty.privacy import Privacy
 from betty.test_utils.json.linked_data import assert_dumps_linked_data
@@ -31,7 +31,7 @@ class TestCitation(EntityTestBase):
     async def get_sut_instances(self) -> Sequence[Entity]:
         return [
             Citation(source=Source()),
-            Citation(source=Source(), location=plain("My First Location")),
+            Citation(source=Source(), location=Plain("My First Location")),
         ]
 
     async def test___init____with_facts(self) -> None:
@@ -41,7 +41,7 @@ class TestCitation(EntityTestBase):
 
     async def test___init____with_location(self) -> None:
         location = "Somewhere"
-        sut = Citation(source=Source(), location=plain(location))
+        sut = Citation(source=Source(), location=Plain(location))
         assert sut.location is not None
         assert sut.location.localize(DEFAULT_LOCALIZER) == location
 
@@ -69,7 +69,7 @@ class TestCitation(EntityTestBase):
         sut = Citation(source=Source())
         assert not sut.location
         location = "Somewhere"
-        sut.location = plain(location)
+        sut.location = Plain(location)
         assert sut.location is not None
         assert sut.location.localize(DEFAULT_LOCALIZER) == location
 
@@ -90,7 +90,7 @@ class TestCitation(EntityTestBase):
     async def test_dump_linked_data__should_dump_minimal(self) -> None:
         citation = Citation(
             id="the_citation",
-            source=Source(name=plain("The Source")),
+            source=Source(name=Plain("The Source")),
         )
         expected: Mapping[str, Any] = {
             "@id": "https://example.com/citation/the_citation/index.json",
@@ -110,9 +110,9 @@ class TestCitation(EntityTestBase):
             id="the_citation",
             source=Source(
                 id="the_source",
-                name=plain("The Source"),
+                name=Plain("The Source"),
             ),
-            location=plain("My First Location"),
+            location=Plain("My First Location"),
         )
         citation.facts.add(
             Event(
@@ -139,7 +139,7 @@ class TestCitation(EntityTestBase):
             id="the_citation",
             source=Source(
                 id="the_source",
-                name=plain("The Source"),
+                name=Plain("The Source"),
             ),
             private=True,
         )

@@ -6,7 +6,7 @@ from betty.ancestry.place import Place
 from betty.ancestry.source import Source
 from betty.date import Date
 from betty.jinja2 import EntityContexts
-from betty.locale.localizable import plain
+from betty.locale.localizable import Plain
 from betty.project.extension.raspberry_mint import RaspberryMint
 from betty.test_utils.jinja2 import assert_template_file
 
@@ -43,7 +43,7 @@ async def test_with_place() -> None:
     event = Event(event_type=Birth())
     event.place = Place(
         id="P0",
-        names=[Name(plain("The Place"))],
+        names=[Name(Plain("The Place"))],
     )
     expected = 'in <a href="/place/P0/index.html"><span lang="und" dir="auto">The Place</span></a>'
     async with assert_template_file(
@@ -60,7 +60,7 @@ async def test_with_place_is_place_context() -> None:
     event = Event(event_type=Birth())
     place = Place(
         id="P0",
-        names=[Name(plain("The Place"))],
+        names=[Name(Plain("The Place"))],
     )
     event.place = place
     async with assert_template_file(
@@ -81,7 +81,7 @@ async def test_with_date_and_place() -> None:
     )
     event.place = Place(
         id="P0",
-        names=[Name(plain("The Place"))],
+        names=[Name(Plain("The Place"))],
     )
     expected = '1970 in <a href="/place/P0/index.html"><span lang="und" dir="auto">The Place</span></a>'
     async with assert_template_file(
@@ -96,7 +96,7 @@ async def test_with_date_and_place() -> None:
 
 async def test_with_citation() -> None:
     event = Event(event_type=Birth())
-    event.citations.add(Citation(source=Source(name=plain("The Source"))))
+    event.citations.add(Citation(source=Source(name=Plain("The Source"))))
     expected = 'sometime <sup><a href="#reference-1">[1]</a></sup>'
     async with assert_template_file(
         data={
@@ -115,9 +115,9 @@ async def test_embedded() -> None:
     )
     event.place = Place(
         id="P0",
-        names=[Name(plain("The Place"))],
+        names=[Name(Plain("The Place"))],
     )
-    event.citations.add(Citation(source=Source(name=plain("The Source"))))
+    event.citations.add(Citation(source=Source(name=Plain("The Source"))))
     expected = '1970 in <span lang="und" dir="auto">The Place</span>'
     async with assert_template_file(
         data={

@@ -7,7 +7,7 @@ from __future__ import annotations
 from typing_extensions import override
 
 from betty.copyright_notice import CopyrightNotice
-from betty.locale.localizable import Localizable, plain
+from betty.locale.localizable import Localizable, Plain
 from betty.locale.localizer import DEFAULT_LOCALIZER
 from betty.test_utils.plugin import DummyPluginBase, PluginInstanceTestBase
 
@@ -49,9 +49,9 @@ class DummyCopyrightNotice(DummyPluginBase, CopyrightNotice):
     @override
     @property
     def summary(self) -> Localizable:
-        return plain("Dummy Copyright Notice Summary")  # pragma: no cover
+        return Plain("Dummy Copyright Notice Summary")  # pragma: no cover
 
     @override
     @property
     def text(self) -> Localizable:
-        return plain("Dummy Copyright Notice Text")  # pragma: no cover
+        return Plain("Dummy Copyright Notice Text")  # pragma: no cover
