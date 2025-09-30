@@ -2,19 +2,27 @@
 Wikipedia copyright notices.
 """
 
-from collections.abc import Mapping
+from __future__ import annotations
+
 from contextlib import suppress
-from typing import Self
+from typing import TYPE_CHECKING, Self
 
 from typing_extensions import override
 
-from betty.app import App
 from betty.app.factory import AppDependentFactory
 from betty.copyright_notice import CopyrightNotice
 from betty.fetch import Fetcher, FetchError
 from betty.locale import negotiate_locale, to_babel_identifier
-from betty.locale.localizable import Call, Localizable, _
+from betty.locale.localizable import Localizable, _
+from betty.locale.localized import LocalizedStr
 from betty.plugin import ShorthandPluginBase
+
+if TYPE_CHECKING:
+    from collections.abc import Mapping
+
+    from betty.app import App
+    from betty.locale.localized import Localized
+    from betty.locale.localizer import Localizer
 
 
 class WikipediaContributors(ShorthandPluginBase, AppDependentFactory, CopyrightNotice):
@@ -26,7 +34,7 @@ class WikipediaContributors(ShorthandPluginBase, AppDependentFactory, CopyrightN
     _plugin_label = _("Wikipedia contributors")
 
     def __init__(self, urls: Mapping[str, str]):
-        self._urls = {"en": "Wikipedia:Copyrights", **urls}
+        self._url = _WikipediaContributorsUrl({"en": "Wikipedia:Copyrights", **urls})
 
     @classmethod
     async def new(cls, fetcher: Fetcher) -> Self:
@@ -66,10 +74,19 @@ class WikipediaContributors(ShorthandPluginBase, AppDependentFactory, CopyrightN
     @override
     @property
     def url(self) -> Localizable:
-        return Call(lambda localizer: self._localize_url(localizer.locale))
+        return self._url
 
-    def _localize_url(self, locale: str) -> str:
-        locale = negotiate_locale([locale, "en"], list(self._urls))
+
+class _WikipediaContributorsUrl(Localizable):
+    def __init__(self, urls: Mapping[str, str]):
+        self._urls = urls
+
+    @override
+    def localize(self, localizer: Localizer) -> Localized & str:
+        locale = negotiate_locale([localizer.locale, "en"], list(self._urls))
         # We know there's always "en" (English).
         assert locale is not None
-        return f"https://{locale}.wikipedia.org/wiki/{self._urls[locale.language]}"
+        return LocalizedStr(
+            f"https://{locale}.wikipedia.org/wiki/{self._urls[locale.language]}",
+            locale=locale.language,
+        )

@@ -254,7 +254,7 @@ class TestJoin:
     async def test_localize(
         self, expected: str, localizables: Sequence[Localizable]
     ) -> None:
-        assert Join(*localizables).localize(DEFAULT_LOCALIZER) == expected
+        assert Join(" ", *localizables).localize(DEFAULT_LOCALIZER) == expected
 
 
 @pytest.mark.parametrize(

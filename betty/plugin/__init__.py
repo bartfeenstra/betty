@@ -199,6 +199,7 @@ class PluginNotFound(PluginError, UserFacingException):
         """
         return cls(
             Join(
+                " ",
                 _('Could not find a plugin "{plugin_id}".').format(plugin_id=plugin_id),
                 do_you_mean(
                     *[f'"{plugin.plugin_id()}"' for plugin in available_plugins]

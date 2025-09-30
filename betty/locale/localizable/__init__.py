@@ -5,7 +5,7 @@ The localizable API allows objects to be localized at the point of use.
 from __future__ import annotations
 
 from abc import ABC, abstractmethod
-from collections.abc import Callable, Iterable, Mapping, MutableMapping, Sequence
+from collections.abc import Iterable, Mapping, MutableMapping, Sequence
 from typing import (
     TYPE_CHECKING,
     Any,
@@ -100,34 +100,21 @@ class CountableLocalizable(_Localizable["CountableLocalizable"]):
 
 
 @final
-class Call(Localizable):
-    """
-    Create a new localizable that outputs the callable's return value.
-    """
-
-    def __init__(self, call: Callable[[Localizer], str]):
-        self._call = call
-
-    @override
-    def localize(self, localizer: Localizer) -> Localized & str:
-        return LocalizedStr(self._call(localizer), locale=localizer.locale)
-
-
-@final
 class Join(Localizable):
     """
     Join multiple localizables.
     """
 
-    def __init__(self, *localizables: Localizable, separator: str = " "):
-        self._localizables = localizables
+    def __init__(self, separator: str, *parts: Localizable | str):
+        self._parts = parts
         self._separator = separator
 
     @override
     def localize(self, localizer: Localizer) -> Localized & str:
         return LocalizedStr(
             self._separator.join(
-                localizable.localize(localizer) for localizable in self._localizables
+                part.localize(localizer) if isinstance(part, Localizable) else part
+                for part in self._parts
             ),
             locale=localizer.locale,
         )

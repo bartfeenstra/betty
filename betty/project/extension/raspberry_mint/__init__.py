@@ -16,7 +16,7 @@ from betty.jinja2 import (
     Jinja2Provider,
 )
 from betty.job import Job
-from betty.locale.localizable import Call, Plain, StaticTranslations
+from betty.locale.localizable import Join, Plain, StaticTranslations, _
 from betty.locale.localizer import DEFAULT_LOCALIZER
 from betty.os import link_or_copy
 from betty.plugin import ShorthandPluginBase
@@ -58,10 +58,11 @@ class _GenerateSearchIndex(Job[ProjectContext]):
     </li>
     """)
 
-    _RESULTS_CONTAINER_TEMPLATE = Call(
-        lambda localizer: '<ul class="entity-list"><h3 class="h2">'
-        + localizer._("Results ({{{ betty-search-results-count }}})")
-        + "</h3>{{{ betty-search-results }}}</ul>"
+    _RESULTS_CONTAINER_TEMPLATE = Join(
+        "",
+        '<ul class="entity-list"><h3 class="h2">',
+        _("Results ({{{ betty-search-results-count }}})"),
+        "</h3>{{{ betty-search-results }}}</ul>",
     )
 
     def __init__(self):
