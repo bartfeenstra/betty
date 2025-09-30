@@ -90,9 +90,7 @@ jobs:
         if: startsWith(runner.os, 'Linux')
         run: |
           sudo apt-get update
-          # libjpeg-dev is needed because pillow does not (yet) publish wheels for Python 3.14.
-          # libxml2 and libxslt are needed because lxml does not (yet) publish wheels for Python 3.14.
-          sudo apt-get install libjpeg-dev libxml2 libxslt1-dev poppler-utils
+          sudo apt-get install  poppler-utils
 
       - name: Install Brew dependencies
         if: startsWith(runner.os, 'macOS')
