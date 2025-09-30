@@ -40,6 +40,19 @@ class Localizable(ABC):
         Localize ``self`` to a human-readable string.
         """
 
+    def format(
+        self, *format_args: str | Localizable, **format_kwargs: str | Localizable
+    ) -> Localizable:
+        """
+        Apply string formatting to the eventual localized string.
+
+        The arguments are identical to those of :py:meth:`str.format`.
+
+        :return:
+            A new localizable object.
+        """
+        return _FormattedLocalizable(self, format_args, format_kwargs)
+
     @override
     def __str__(self) -> str:
         localized = self.localize(DEFAULT_LOCALIZER)
@@ -48,20 +61,6 @@ class Localizable(ABC):
             stacklevel=2,
         )
         return localized
-
-
-class FormattableLocalizable(Localizable):
-    """
-    A Localizable that supports localized string formatting.
-    """
-
-    def format(
-        self, *format_args: str | Localizable, **format_kwargs: str | Localizable
-    ) -> Localizable:
-        """
-        Format the string after localization.
-        """
-        return format(self, *format_args, **format_kwargs)
 
 
 @final
@@ -115,7 +114,7 @@ def do_you_mean(*available_options: str) -> Localizable:
             )
 
 
-class _GettextLocalizable(FormattableLocalizable):
+class _GettextLocalizable(Localizable):
     def __init__(
         self,
         gettext_method_name: str,
@@ -135,7 +134,7 @@ class _GettextLocalizable(FormattableLocalizable):
         )
 
 
-def gettext(message: str) -> FormattableLocalizable:
+def gettext(message: str) -> Localizable:
     """
     Like :py:meth:`gettext.gettext`.
 
@@ -147,7 +146,7 @@ def gettext(message: str) -> FormattableLocalizable:
     return _GettextLocalizable("gettext", message)
 
 
-def _(message: str) -> FormattableLocalizable:
+def _(message: str) -> Localizable:
     """
     Like :py:meth:`betty.locale.localizable.gettext`.
 
@@ -159,9 +158,7 @@ def _(message: str) -> FormattableLocalizable:
     return gettext(message)
 
 
-def ngettext(
-    message_singular: str, message_plural: str, n: int
-) -> FormattableLocalizable:
+def ngettext(message_singular: str, message_plural: str, n: int) -> Localizable:
     """
     Like :py:meth:`gettext.ngettext`.
 
@@ -173,7 +170,7 @@ def ngettext(
     return _GettextLocalizable("ngettext", message_singular, message_plural, n)
 
 
-def pgettext(context: str, message: str) -> FormattableLocalizable:
+def pgettext(context: str, message: str) -> Localizable:
     """
     Like :py:meth:`gettext.pgettext`.
 
@@ -187,7 +184,7 @@ def pgettext(context: str, message: str) -> FormattableLocalizable:
 
 def npgettext(
     context: str, message_singular: str, message_plural: str, n: int
-) -> FormattableLocalizable:
+) -> Localizable:
     """
     Like :py:meth:`gettext.npgettext`.
 
@@ -230,19 +227,6 @@ class _FormattedLocalizable(Localizable):
                 },
             )
         )
-
-
-def format(  # noqa A001
-    localizable: Localizable,
-    *format_args: str | Localizable,
-    **format_kwargs: str | Localizable,
-) -> Localizable:
-    """
-    Perform string formatting.
-
-    The arguments are identical to those of :py:meth:`str.format`.
-    """
-    return _FormattedLocalizable(localizable, format_args, format_kwargs)
 
 
 @final
@@ -297,7 +281,7 @@ class StaticTranslationsSchema(Object):
 
 
 class StaticTranslations(
-    Mutable, FormattableLocalizable, LinkedDataDumpable[Object, DumpMapping[Dump]]
+    Mutable, Localizable, LinkedDataDumpable[Object, DumpMapping[Dump]]
 ):
     """
     Provide a :py:class:`betty.locale.localizable.Localizable` backed by static translations.

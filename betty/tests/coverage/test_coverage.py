@@ -278,9 +278,8 @@ _BASELINE: Mapping[str, _ModuleIgnore] = {
     "betty/locale/localizable/__init__.py": {
         "Call": MissingReason.SHOULD_BE_COVERED,
         "format": MissingReason.SHOULD_BE_COVERED,
-        "FormattableLocalizable": MissingReason.SHOULD_BE_COVERED,
         "gettext": MissingReason.SHOULD_BE_COVERED,
-        "Localizable": MissingReason.ABSTRACT,
+        "Localizable": MissingReason.SHOULD_BE_COVERED,
         "ngettext": MissingReason.SHOULD_BE_COVERED,
         "npgettext": MissingReason.SHOULD_BE_COVERED,
         "pgettext": MissingReason.SHOULD_BE_COVERED,

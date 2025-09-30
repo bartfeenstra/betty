@@ -5,7 +5,7 @@ from urllib.parse import urlparse
 
 from betty.assertion import assert_str, assert_path, assert_locale
 from betty.config.file import write_configuration_file
-from betty.locale import get_display_name, DEFAULT_LOCALE, localizable
+from betty.locale import get_display_name, DEFAULT_LOCALE
 from betty.locale.localizable import _, StaticTranslationsMapping, Localizable
 from betty.machine_name import machinify, assert_machine_name
 from betty.plugin.config import PluginInstanceConfiguration
@@ -162,7 +162,7 @@ async def _user_input_static_translations(
 ) -> StaticTranslationsMapping:
     return {
         locale: await user.ask_input(
-            localizable.format(question, locale=get_display_name(locale) or locale)
+            question.format(locale=get_display_name(locale) or locale)
         )
         for locale in locales
     }
