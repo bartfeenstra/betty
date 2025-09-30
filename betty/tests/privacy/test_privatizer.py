@@ -23,7 +23,7 @@ from betty.ancestry.presence_role.presence_roles import (
 )
 from betty.ancestry.source import Source
 from betty.date import Date, DateRange
-from betty.locale.localizable import plain
+from betty.locale.localizable import Plain
 from betty.privacy import Privacy
 from betty.privacy.privatizer import Privatizer
 from betty.project.config import DEFAULT_LIFETIME_THRESHOLD
@@ -504,7 +504,7 @@ class TestPrivatizer:
             path=Path(__file__),
         )
         source = Source(
-            name=plain("The Source"),
+            name=Plain("The Source"),
             public=True,
         )
         FileReference(source, file)
@@ -519,7 +519,7 @@ class TestPrivatizer:
             path=Path(__file__),
         )
         source = Source(
-            name=plain("The Source"),
+            name=Plain("The Source"),
             private=True,
         )
         FileReference(source, file)

@@ -8,7 +8,7 @@ from typing import TYPE_CHECKING, final
 
 from typing_extensions import override
 
-from betty.locale.localizable import _, static
+from betty.locale.localizable import StaticTranslations, _
 from betty.plugin import ShorthandPluginBase
 from betty.project.extension import ConfigurableExtension
 from betty.project.extension.gramps.config import GrampsConfiguration
@@ -27,7 +27,7 @@ class Gramps(ShorthandPluginBase, Loader, ConfigurableExtension[GrampsConfigurat
     """
 
     _plugin_id = "gramps"
-    _plugin_label = static("Gramps")
+    _plugin_label = StaticTranslations("Gramps")
     _plugin_description = _(
         'Load <a href="https://gramps-project.org/">Gramps</a> family trees.'
     )

@@ -25,7 +25,7 @@ from betty.job.scheduler import (
     Scheduler,
     UnknownJobError,
 )
-from betty.locale.localizable import plain
+from betty.locale.localizable import Plain
 from betty.typing import Sentinel, threadsafe
 
 if TYPE_CHECKING:
@@ -61,7 +61,7 @@ class _ScheduledJobBatch:
     async def __call__(self) -> None:
         try:
             for job in self._jobs:
-                await self._user.message_debug(plain(f'Doing job "{job.id}"...'))
+                await self._user.message_debug(Plain(f'Doing job "{job.id}"...'))
                 await job.do(self._scheduler)
         except BaseException as reason:
             await self._scheduler.cancel(reason)

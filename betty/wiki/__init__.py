@@ -7,7 +7,7 @@ from __future__ import annotations
 import re
 from typing import TYPE_CHECKING, cast
 
-from betty.locale.localizable import StaticTranslationsLocalizable
+from betty.locale.localizable import StaticTranslations
 
 if TYPE_CHECKING:
     from collections.abc import Sequence
@@ -44,9 +44,7 @@ def parse_page_link(link: Link, localizers: Sequence[Localizer]) -> tuple[str, s
     :return: A 2-tuple with the page language and the page name.
     """
     original_urls = set(
-        StaticTranslationsLocalizable.from_localizable(
-            link.url, localizers
-        ).translations.values()
+        StaticTranslations.from_localizable(link.url, localizers).translations.values()
     )
     if len(original_urls) > 1:
         # Skip links that already provide different localized URLs, as things would get too complex.

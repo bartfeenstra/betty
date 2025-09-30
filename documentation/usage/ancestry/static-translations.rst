@@ -1,7 +1,7 @@
 Static translations
 ===================
 
-Static translations  in the data model are stored :py:class:`betty.locale.localizable.StaticTranslationsLocalizable`.
+Static translations  in the data model are stored :py:class:`betty.locale.localizable.StaticTranslations`.
 
 Attribute values
 ----------------

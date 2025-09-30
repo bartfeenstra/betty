@@ -7,7 +7,7 @@ import pytest
 
 from betty.ancestry.link import Link
 from betty.locale import DEFAULT_LOCALE, UNDETERMINED_LOCALE
-from betty.locale.localizable import StaticTranslationsLocalizable
+from betty.locale.localizable import StaticTranslations
 from betty.locale.localizer import Localizer
 from betty.wiki import NotAPageError, parse_page_link, parse_page_url
 
@@ -103,6 +103,6 @@ async def test_parse_page_link__should_error(urls: Mapping[str, str]) -> None:
         Localizer("en", NullTranslations()),
         Localizer("nl", NullTranslations()),
     ]
-    link = Link(StaticTranslationsLocalizable(urls))
+    link = Link(StaticTranslations(urls))
     with pytest.raises(NotAPageError):
         parse_page_link(link, localizers)

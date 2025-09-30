@@ -16,7 +16,7 @@ from betty.jinja2 import (
     Jinja2Provider,
 )
 from betty.job import Job
-from betty.locale.localizable import call, plain, static
+from betty.locale.localizable import Call, Plain, StaticTranslations
 from betty.locale.localizer import DEFAULT_LOCALIZER
 from betty.os import link_or_copy
 from betty.plugin import ShorthandPluginBase
@@ -52,13 +52,13 @@ class _GenerateLogo(Job[ProjectContext]):
 
 
 class _GenerateSearchIndex(Job[ProjectContext]):
-    _RESULT_CONTAINER_TEMPLATE = plain("""
+    _RESULT_CONTAINER_TEMPLATE = Plain("""
     <li class="d-flex gap-2 search-result">
         {{{ betty-search-result }}}
     </li>
     """)
 
-    _RESULTS_CONTAINER_TEMPLATE = call(
+    _RESULTS_CONTAINER_TEMPLATE = Call(
         lambda localizer: '<ul class="entity-list"><h3 class="h2">'
         + localizer._("Results ({{{ betty-search-results-count }}})")
         + "</h3>{{{ betty-search-results }}}</ul>"
@@ -120,7 +120,7 @@ class RaspberryMint(
     """
 
     _plugin_id = "raspberry-mint"
-    _plugin_label = static("Raspberry Mint")
+    _plugin_label = StaticTranslations("Raspberry Mint")
 
     @override
     async def bootstrap(self) -> None:

@@ -13,7 +13,7 @@ from betty.concurrent import RateLimiter
 from betty.fetch import FetchError
 from betty.jinja2 import Filters, Globals, Jinja2Provider, context_localizer
 from betty.locale import negotiate_locale
-from betty.locale.localizable import _, plain
+from betty.locale.localizable import Plain, _
 from betty.plugin import ShorthandPluginBase
 from betty.project.extension import ConfigurableExtension
 from betty.project.extension.wiki.config import WikiConfiguration
@@ -70,7 +70,7 @@ class Wiki(
         )
 
     _plugin_id = "wiki"
-    _plugin_label = plain("Wiki")
+    _plugin_label = Plain("Wiki")
     _plugin_description = _(
         "Enrich your ancestry with information from Wikipedia and Wikimedia Commons"
     )
@@ -162,7 +162,7 @@ class Wiki(
             client = await self.client
             return await client.get_summary(page_language, page_name)
         except FetchError as error:
-            await self._project.app.user.message_warning(plain(str(error)))
+            await self._project.app.user.message_warning(Plain(str(error)))
             return None
 
     @override

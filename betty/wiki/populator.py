@@ -18,7 +18,7 @@ from betty.concurrent import AsynchronizedLock, Lock
 from betty.functools import filter_suppress
 from betty.locale import get_data, negotiate_locale
 from betty.locale.error import LocaleError
-from betty.locale.localizable import StaticTranslationsLocalizable, _
+from betty.locale.localizable import StaticTranslations, _
 from betty.media_type.media_types import HTML
 from betty.typing import threadsafe
 from betty.wiki import NotAPageError, parse_page_link
@@ -107,14 +107,14 @@ class Populator:
                     else str(negotiated_page_language)
                 )
 
-            link.url = StaticTranslationsLocalizable(
+            link.url = StaticTranslations(
                 {
                     locale: f"https://{page_language}.wikipedia.org/wiki/{page_translations[page_language]}"
                     for locale, page_language in locales_to_page_languages.items()
                 }
             )
             if not link.has_label:
-                link.label = StaticTranslationsLocalizable(
+                link.label = StaticTranslations(
                     {
                         locale: await self._fetch_link_label_from_page(
                             page_language, page_translations[page_language]
@@ -196,7 +196,7 @@ class Populator:
                     media_type=image.media_type,
                     links=[
                         Link(
-                            StaticTranslationsLocalizable(
+                            StaticTranslations(
                                 {
                                     locale: f"{image.wikimedia_commons_url}?uselang={locale}"
                                     for locale in self._locales

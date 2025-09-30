@@ -12,7 +12,7 @@ from betty.config import Configuration
 from betty.locale import UNDETERMINED_LOCALE
 from betty.locale.localizable import (
     ShorthandStaticTranslations,
-    StaticTranslationsLocalizable,
+    StaticTranslations,
 )
 from betty.locale.localizable.assertion import assert_static_translations
 from betty.serde.dump import Dump
@@ -21,9 +21,7 @@ _T = TypeVar("_T")
 
 
 @final
-class StaticTranslationsLocalizableConfiguration(
-    Configuration, StaticTranslationsLocalizable
-):
+class StaticTranslationsConfiguration(Configuration, StaticTranslations):
     """
     Provide configuration for a :py:class:`betty.locale.localizable.Localizable`.
 
@@ -50,7 +48,7 @@ class StaticTranslationsLocalizableConfiguration(
         return dict(self._translations)
 
 
-class _StaticTranslationsLocalizableConfigurationAttr:
+class _StaticTranslationsConfigurationAttr:
     _required: bool
 
     def __init__(self, attr_name: str):
@@ -61,23 +59,21 @@ class _StaticTranslationsLocalizableConfigurationAttr:
         pass
 
     @overload
-    def __get__(
-        self, instance: _T, owner: type[_T]
-    ) -> StaticTranslationsLocalizableConfiguration:
+    def __get__(self, instance: _T, owner: type[_T]) -> StaticTranslationsConfiguration:
         pass
 
     def __get__(
         self, instance: object | None, owner: type[object]
-    ) -> StaticTranslationsLocalizableConfiguration | Self:
+    ) -> StaticTranslationsConfiguration | Self:
         if instance is None:
             return self  # type: ignore[return-value]
         try:
             return cast(
-                "StaticTranslationsLocalizableConfiguration",
+                "StaticTranslationsConfiguration",
                 getattr(instance, self._attr_name),
             )
         except AttributeError:
-            value = StaticTranslationsLocalizableConfiguration(required=self._required)
+            value = StaticTranslationsConfiguration(required=self._required)
             setattr(instance, self._attr_name, value)
             return value
 
@@ -86,22 +82,18 @@ class _StaticTranslationsLocalizableConfigurationAttr:
 
 
 @final
-class RequiredStaticTranslationsLocalizableConfigurationAttr(
-    _StaticTranslationsLocalizableConfigurationAttr
-):
+class RequiredStaticTranslationsConfigurationAttr(_StaticTranslationsConfigurationAttr):
     """
-    An instance attribute that contains :py:class:`betty.locale.localizable.config.StaticTranslationsLocalizableConfiguration`.
+    An instance attribute that contains :py:class:`betty.locale.localizable.config.StaticTranslationsConfiguration`.
     """
 
     _required = True
 
 
 @final
-class OptionalStaticTranslationsLocalizableConfigurationAttr(
-    _StaticTranslationsLocalizableConfigurationAttr
-):
+class OptionalStaticTranslationsConfigurationAttr(_StaticTranslationsConfigurationAttr):
     """
-    An instance attribute that contains :py:class:`betty.locale.localizable.config.StaticTranslationsLocalizableConfiguration`.
+    An instance attribute that contains :py:class:`betty.locale.localizable.config.StaticTranslationsConfiguration`.
     """
 
     _required = False

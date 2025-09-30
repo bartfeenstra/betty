@@ -3,7 +3,7 @@ from __future__ import annotations
 import pytest
 from typing_extensions import override
 
-from betty.locale.localizable import Localizable, _, plain, static
+from betty.locale.localizable import Localizable, Plain, StaticTranslations, _
 from betty.locale.localizer import DEFAULT_LOCALIZER
 from betty.requirement import (
     AllRequirements,
@@ -106,7 +106,7 @@ class _RequirementCollection(RequirementCollection):
 
     @override
     def summary(self) -> Localizable:
-        return static("Lorem ipsum")
+        return StaticTranslations("Lorem ipsum")
 
 
 class _ReduceToRequirementCollectionRequirementCollection(_RequirementCollection):
@@ -116,7 +116,7 @@ class _ReduceToRequirementCollectionRequirementCollection(_RequirementCollection
 
     @override
     def summary(self) -> Localizable:
-        return static("Lorem ipsum")
+        return StaticTranslations("Lorem ipsum")
 
 
 class _MetRequirement(Requirement):
@@ -126,7 +126,7 @@ class _MetRequirement(Requirement):
 
     @override
     def summary(self) -> Localizable:
-        return static("Lorem ipsum")
+        return StaticTranslations("Lorem ipsum")
 
 
 class _UnmetRequirement(Requirement):
@@ -136,7 +136,7 @@ class _UnmetRequirement(Requirement):
 
     @override
     def summary(self) -> Localizable:
-        return static("Lorem ipsum")
+        return StaticTranslations("Lorem ipsum")
 
 
 class _ReducedToNoneRequirement(_MetRequirement):
@@ -188,13 +188,13 @@ class TestRequirementError:
 
 class TestStaticRequirement:
     def test_is_met(self) -> None:
-        assert StaticRequirement(True, plain("")).is_met()
-        assert not StaticRequirement(False, plain("")).is_met()
+        assert StaticRequirement(True, Plain("")).is_met()
+        assert not StaticRequirement(False, Plain("")).is_met()
 
     def test_summary(self) -> None:
-        summary = plain("Hello, world!")
+        summary = Plain("Hello, world!")
         assert StaticRequirement(True, summary).summary() is summary
 
     def test_details(self) -> None:
-        details = plain("Hello, world!")
-        assert StaticRequirement(True, plain(""), details).details() is details
+        details = Plain("Hello, world!")
+        assert StaticRequirement(True, Plain(""), details).details() is details

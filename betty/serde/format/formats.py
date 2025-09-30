@@ -10,7 +10,7 @@ from typing import TYPE_CHECKING, cast, final
 import yaml
 from typing_extensions import override
 
-from betty.locale.localizable import _, static
+from betty.locale.localizable import StaticTranslations, _
 from betty.plugin import ShorthandPluginBase
 from betty.serde.dump import Dump
 from betty.serde.format import Format, FormatError
@@ -28,7 +28,7 @@ class Json(ShorthandPluginBase, Format):
     """
 
     _plugin_id = "json"
-    _plugin_label = static("JSON")
+    _plugin_label = StaticTranslations("JSON")
 
     @override
     @classmethod
@@ -56,7 +56,7 @@ class Yaml(ShorthandPluginBase, Format):
     """
 
     _plugin_id = "yaml"
-    _plugin_label = static("YAML")
+    _plugin_label = StaticTranslations("YAML")
 
     @override
     @classmethod

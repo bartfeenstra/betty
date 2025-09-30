@@ -21,7 +21,7 @@ from betty.locale import (
     UNCODED_LOCALE,
     UNDETERMINED_LOCALE,
 )
-from betty.locale.localizable import plain
+from betty.locale.localizable import Plain
 from betty.locale.localized import Localized, LocalizedStr
 from betty.media_type import MediaType
 from betty.media_type.media_types import SVG
@@ -684,7 +684,7 @@ async def test_filter_localize() -> None:
     template = "{{ data | localize }}"
     async with assert_template_string(
         template=template,
-        data={"data": plain("Hello, world!")},
+        data={"data": Plain("Hello, world!")},
     ) as (actual, _):
         assert actual == "Hello, world!"
 

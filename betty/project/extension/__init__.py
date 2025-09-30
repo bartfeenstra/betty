@@ -8,7 +8,7 @@ from typing_extensions import override
 
 from betty.config import Configuration, DefaultConfigurable
 from betty.job import Context
-from betty.locale.localizable import Localizable, _, call
+from betty.locale.localizable import Call, Localizable, _
 from betty.plugin import (
     CyclicDependencyError,
     DependentPlugin,
@@ -172,7 +172,7 @@ class Dependencies(AllRequirements):
     def summary(self) -> Localizable:
         return _("{dependent_label} requires {dependency_labels}.").format(
             dependent_label=self._dependent.plugin_label(),
-            dependency_labels=call(
+            dependency_labels=Call(
                 lambda localizer: ", ".join(
                     self._extension_id_to_type_mapping[dependency_identifier]
                     .plugin_label()

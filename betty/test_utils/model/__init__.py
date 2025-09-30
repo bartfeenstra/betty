@@ -8,7 +8,7 @@ from typing import TYPE_CHECKING
 
 from typing_extensions import override
 
-from betty.locale.localizable import Localizable, plain
+from betty.locale.localizable import Localizable, Plain
 from betty.locale.localizer import DEFAULT_LOCALIZER
 from betty.model import Entity
 from betty.test_utils.plugin import DummyPluginBase, PluginTestBase
@@ -51,12 +51,12 @@ class DummyEntity(DummyPluginBase, Entity):
     @override
     @classmethod
     def plugin_label_plural(cls) -> Localizable:
-        return plain(cls.__name__)
+        return Plain(cls.__name__)
 
     @override
     @classmethod
     def plugin_label_count(cls, count: int) -> Localizable:
-        return plain(cls.__name__)
+        return Plain(cls.__name__)
 
 
 class DummyUserFacingEntity(UserFacing, DummyEntity):

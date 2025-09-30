@@ -22,8 +22,8 @@ from betty.config.collections.mapping import ConfigurationMapping
 from betty.exception import UserFacingException
 from betty.locale.localizable import _
 from betty.locale.localizable.config import (
-    OptionalStaticTranslationsLocalizableConfigurationAttr,
-    RequiredStaticTranslationsLocalizableConfigurationAttr,
+    OptionalStaticTranslationsConfigurationAttr,
+    RequiredStaticTranslationsConfigurationAttr,
 )
 from betty.machine_name import MachineName, assert_machine_name
 from betty.plugin import Plugin, PluginIdentifier, PluginRepository, resolve_identifier
@@ -66,8 +66,8 @@ class PluginConfiguration(Configuration):
     Configure a single plugin.
     """
 
-    label = RequiredStaticTranslationsLocalizableConfigurationAttr("label")
-    description = OptionalStaticTranslationsLocalizableConfigurationAttr("description")
+    label = RequiredStaticTranslationsConfigurationAttr("label")
+    description = OptionalStaticTranslationsConfigurationAttr("description")
 
     def __init__(
         self,

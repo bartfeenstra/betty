@@ -105,11 +105,10 @@ from betty.error import FileNotFound
 from betty.gramps.error import GrampsError, UserFacingGrampsError
 from betty.locale import UNDETERMINED_LOCALE
 from betty.locale.localizable import (
+    Plain,
     StaticTranslations,
-    StaticTranslationsLocalizable,
+    StaticTranslationsMapping,
     _,
-    plain,
-    static,
 )
 from betty.media_type import InvalidMediaType, MediaType
 from betty.model import Entity
@@ -480,7 +479,7 @@ class GrampsLoader:
                 "ElementTree.ElementTree", etree.ElementTree(etree.fromstring(xml))
             )
         except etree.ParseError as error:
-            raise UserFacingGrampsError(plain(str(error))) from error
+            raise UserFacingGrampsError(Plain(str(error))) from error
         await self._load_tree(tree)
 
     async def _load_tree(self, tree: ElementTree.ElementTree) -> None:
@@ -706,7 +705,7 @@ class GrampsLoader:
         text = str(text_element.text)
         note = Note(
             id=note_id,
-            text=plain(text),
+            text=Plain(text),
         )
         if element.get("priv") == "1":
             note.private = True
@@ -756,7 +755,7 @@ class GrampsLoader:
         file.media_type = MediaType(mime)
         description = file_element.get("description")
         if description:
-            file.description = plain(description)
+            file.description = Plain(description)
         if element.get("priv") == "1":
             file.private = True
 
@@ -962,7 +961,7 @@ class GrampsLoader:
             assert name is not None
             names.append(
                 Name(
-                    static({language or UNDETERMINED_LOCALE: name}),
+                    StaticTranslations({language or UNDETERMINED_LOCALE: name}),
                     date=date,
                 )
             )
@@ -1072,7 +1071,7 @@ class GrampsLoader:
         with suppress(XPathError):
             description = self._xpath1(element, "./ns:description").text
             if description:
-                event.description = plain(description)
+                event.description = Plain(description)
 
         if element.get("priv") == "1":
             event.private = True
@@ -1091,7 +1090,7 @@ class GrampsLoader:
             element, "attribute", "name"
         )
         if event_name_translations:
-            event.name = static(event_name_translations)
+            event.name = StaticTranslations(event_name_translations)
 
         self._add_entity(event, event_handle)
 
@@ -1104,7 +1103,7 @@ class GrampsLoader:
         source_name = self._xpath1(element, "./ns:rname").text
         source = Source(
             id=element.get("id"),
-            name=None if source_name is None else plain(source_name),
+            name=None if source_name is None else Plain(source_name),
         )
 
         self._load_urls(source, element)
@@ -1124,7 +1123,7 @@ class GrampsLoader:
 
         source = Source(
             id=element.get("id"),
-            name=None if source_name is None else plain(source_name),
+            name=None if source_name is None else Plain(source_name),
         )
 
         repository_source_handle = self._load_handle("reporef", element)
@@ -1135,13 +1134,13 @@ class GrampsLoader:
         with suppress(XPathError):
             author = self._xpath1(element, "./ns:sauthor").text
             if author:
-                source.author = plain(author)
+                source.author = Plain(author)
 
         # Load the publication info.
         with suppress(XPathError):
             publisher = self._xpath1(element, "./ns:spubinfo").text
             if publisher:
-                source.publisher = plain(publisher)
+                source.publisher = Plain(publisher)
 
         if element.get("priv") == "1":
             source.private = True
@@ -1177,7 +1176,7 @@ class GrampsLoader:
         with suppress(XPathError):
             page = self._xpath1(element, "./ns:page").text
             if page:
-                citation.location = plain(page)
+                citation.location = Plain(page)
 
         self._load_objref(citation, element)
 
@@ -1245,7 +1244,7 @@ class GrampsLoader:
             link.relationship = "external"
             description = url_element.get("description")
             if description:
-                link.label = plain(description)
+                link.label = Plain(description)
             owner.links.add(link)
 
     async def _load_attribute_privacy(
@@ -1275,7 +1274,7 @@ class GrampsLoader:
 
     def _parse_attribute_static_translations(
         self, element: ElementTree.Element, tag: str, name: str
-    ) -> StaticTranslations:
+    ) -> StaticTranslationsMapping:
         translations = {}
         name_length = len(name)
         for attribute_key, attribute_value in self._load_attributes(
@@ -1324,7 +1323,7 @@ class GrampsLoader:
                 )
                 continue
             link = Link(
-                StaticTranslationsLocalizable(
+                StaticTranslations(
                     self._parse_attribute_static_translations(
                         element, tag, f"link-{link_name}:url"
                     )
@@ -1332,13 +1331,13 @@ class GrampsLoader:
             )
             entity.links.add(link)
             if "description" in link_attributes:
-                link.description = StaticTranslationsLocalizable(
+                link.description = StaticTranslations(
                     self._parse_attribute_static_translations(
                         element, tag, f"link-{link_name}:description"
                     )
                 )
             if "label" in link_attributes:
-                link.label = StaticTranslationsLocalizable(
+                link.label = StaticTranslations(
                     self._parse_attribute_static_translations(
                         element, tag, f"link-{link_name}:label"
                     )

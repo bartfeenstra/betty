@@ -5,7 +5,7 @@ from typing import TYPE_CHECKING, Any
 from betty.ancestry.has_links import HasLinks
 from betty.ancestry.link import Link
 from betty.locale import DEFAULT_LOCALE
-from betty.locale.localizable import plain
+from betty.locale.localizable import Plain
 from betty.locale.localizer import DEFAULT_LOCALIZER
 from betty.media_type.media_types import HTML
 from betty.test_utils.json.linked_data import assert_dumps_linked_data
@@ -24,7 +24,7 @@ class TestLink:
     async def test___init____with_label(self) -> None:
         url = "https://example.com"
         label = "Hello, world!"
-        sut = Link(url, label=plain(label))
+        sut = Link(url, label=Plain(label))
         assert sut.label.localize(DEFAULT_LOCALIZER) == label
 
     def test_owner__without_owner(self) -> None:
@@ -66,7 +66,7 @@ class TestLink:
         assert not sut.has_label
 
     async def test_has_label__with_label(self) -> None:
-        sut = Link("https://example.com", label=plain(""))
+        sut = Link("https://example.com", label=Plain(""))
         assert sut.has_label
 
     async def test_dump_linked_data__should_dump_minimal(self) -> None:
@@ -87,8 +87,8 @@ class TestLink:
         owner = DummyUserFacingHasLinks(id="O1")
         link = Link(
             "https://example.com",
-            label=plain("The Label"),
-            description=plain("The Description"),
+            label=Plain("The Label"),
+            description=Plain("The Description"),
             relationship="external",
             media_type=HTML,
             owner=owner,
@@ -117,8 +117,8 @@ class TestLink:
         owner = DummyUserFacingHasLinks(id="O1")
         link = Link(
             "https://example.com",
-            label=plain("The Label"),
-            description=plain("The Description"),
+            label=Plain("The Label"),
+            description=Plain("The Description"),
             relationship="external",
             media_type=HTML,
             owner=owner,

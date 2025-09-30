@@ -21,7 +21,7 @@ from typing import Self, final
 from typing_extensions import override
 
 from betty.functools import Result, ResultUnavailable, suppress
-from betty.locale.localizable import plain
+from betty.locale.localizable import Plain
 from betty.user import User
 
 
@@ -86,4 +86,4 @@ class UserHandler(logging.Handler):
             message_func = self._user.message_information
         else:
             message_func = self._user.message_debug
-        self._queue.put_nowait(partial(message_func, plain(self.format(record))))
+        self._queue.put_nowait(partial(message_func, Plain(self.format(record))))

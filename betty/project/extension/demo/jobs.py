@@ -35,7 +35,7 @@ from betty.ancestry.source import Source
 from betty.date import Date, DateRange
 from betty.job import Job
 from betty.license.licenses import spdx_license_id_to_license_id
-from betty.locale.localizable import plain, static
+from betty.locale.localizable import Plain, StaticTranslations
 from betty.media_type.media_types import SVG
 from betty.project import Project, ProjectContext
 from betty.project.extension.demo.copyright_notice import Streetmix
@@ -80,7 +80,7 @@ class LoadAncestry(Job[ProjectContext]):
             id="betty-demo-netherlands",
             names=[
                 Name(
-                    static(
+                    StaticTranslations(
                         {
                             "en": "Netherlands",
                             "nl": "Nederland",
@@ -99,7 +99,7 @@ class LoadAncestry(Job[ProjectContext]):
             id="betty-demo-north-holland",
             names=[
                 Name(
-                    static(
+                    StaticTranslations(
                         {
                             "en": "North Holland",
                             "nl": "Noord-Holland",
@@ -119,7 +119,7 @@ class LoadAncestry(Job[ProjectContext]):
         ancestry.add(north_holland)
 
         amsterdam_note = Note(
-            plain(
+            Plain(
                 """
     Did you know that while Amsterdam is the country's official capital, The Hague is the Netherlands' administrative center and seat of government?
         """
@@ -129,7 +129,7 @@ class LoadAncestry(Job[ProjectContext]):
         amsterdam = Place(
             id="betty-demo-amsterdam",
             names=[
-                Name(static({"nl": "Amsterdam", "uk": "Амстерда́м"})),
+                Name(StaticTranslations({"nl": "Amsterdam", "uk": "Амстерда́м"})),
             ],
             links=[
                 Link("https://nl.wikipedia.org/wiki/Amsterdam"),
@@ -145,7 +145,7 @@ class LoadAncestry(Job[ProjectContext]):
             id="betty-demo-ilpendam",
             names=[
                 Name(
-                    static(
+                    StaticTranslations(
                         {
                             "nl": "Ilpendam",
                             "uk": "Илпендам",
@@ -161,29 +161,29 @@ class LoadAncestry(Job[ProjectContext]):
 
         personal_accounts = Source(
             id="betty-demo-personal-accounts",
-            name=static("Personal accounts"),
+            name=StaticTranslations("Personal accounts"),
         )
         ancestry.add(personal_accounts)
 
         cite_first_person_account = Citation(
             id="betty-demo-first-person-account",
             source=personal_accounts,
-            location=plain("Bart Feenstra"),
+            location=Plain("Bart Feenstra"),
         )
         ancestry.add(cite_first_person_account)
 
         noord_hollands_archief = Source(
             id="betty-demo-noord-hollands-archief",
-            name=static("Noord-Hollands Archief"),
+            name=StaticTranslations("Noord-Hollands Archief"),
             links=[Link("https://noord-hollandsarchief.nl/")],
         )
         ancestry.add(noord_hollands_archief)
 
         bevolkingsregister_amsterdam = Source(
             id="betty-demo-bevolkingsregister-amsterdam",
-            name=static("Bevolkingsregister Amsterdam"),
-            author=static("Gemeente Amsterdam"),
-            publisher=static("Gemeente Amsterdam"),
+            name=StaticTranslations("Bevolkingsregister Amsterdam"),
+            author=StaticTranslations("Gemeente Amsterdam"),
+            publisher=StaticTranslations("Gemeente Amsterdam"),
             contained_by=noord_hollands_archief,
         )
         ancestry.add(bevolkingsregister_amsterdam)
@@ -359,7 +359,7 @@ class LoadAncestry(Job[ProjectContext]):
         cite_birth_of_liberta_lankester_from_bevolkingsregister_amsterdam = Citation(
             id="betty-demo-birth-of-liberta-lankester-from-bevolkingsregister-amsterdam",
             source=bevolkingsregister_amsterdam,
-            location=static("Amsterdam"),
+            location=StaticTranslations("Amsterdam"),
         )
         ancestry.add(cite_birth_of_liberta_lankester_from_bevolkingsregister_amsterdam)
 
@@ -384,7 +384,7 @@ class LoadAncestry(Job[ProjectContext]):
         ancestry.add(death_of_liberta_lankester)
 
         liberta_lankester_note = Note(
-            static(
+            StaticTranslations(
                 {
                     "en-US": """Did you know that Liberta "Betty" Lankester is Betty's namesake?""",
                     "nl": """Wist je dat Betty vernoemd is naar Liberta "Betty" Lankester?""",
@@ -478,7 +478,7 @@ class LoadAncestry(Job[ProjectContext]):
             date=DateRange(Date(1970, 1, 1), start_is_boundary=True),
             place=netherlands,
             citations=[cite_first_person_account],
-            description=static(
+            description=StaticTranslations(
                 {
                     "en-US": "The 'birth of the author', so to speak.",
                     "nl-NL": "De 'geboorte van de auteur', om het zo maar te zeggen.",

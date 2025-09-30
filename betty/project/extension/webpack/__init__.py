@@ -15,7 +15,7 @@ from betty._npm import NpmRequirement, NpmUnavailable
 from betty.html import CssProvider, JsProvider
 from betty.jinja2 import ContextVars, Filters, Jinja2Provider
 from betty.job import Job
-from betty.locale.localizable import static
+from betty.locale.localizable import StaticTranslations
 from betty.os import copy_tree
 from betty.plugin import ShorthandPluginBase
 from betty.project import ProjectContext
@@ -63,7 +63,7 @@ class Webpack(
     """
 
     _plugin_id = "webpack"
-    _plugin_label = static("Webpack")
+    _plugin_label = StaticTranslations("Webpack")
     _requirement: ClassVar[Requirement | None] = None
 
     @override

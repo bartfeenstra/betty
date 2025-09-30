@@ -5,7 +5,7 @@ Copyright notices for the Betty demonstration site.
 from typing_extensions import override
 
 from betty.copyright_notice import CopyrightNotice
-from betty.locale.localizable import Localizable, static
+from betty.locale.localizable import Localizable, StaticTranslations
 from betty.plugin import ShorthandPluginBase
 
 
@@ -15,7 +15,7 @@ class Streetmix(ShorthandPluginBase, CopyrightNotice):
     """
 
     _plugin_id = "streetmix"
-    _plugin_label = static("Streetmix LLC")
+    _plugin_label = StaticTranslations("Streetmix LLC")
 
     @override
     @property
@@ -30,4 +30,4 @@ class Streetmix(ShorthandPluginBase, CopyrightNotice):
     @override
     @property
     def url(self) -> Localizable:
-        return static("https://github.com/streetmix/streetmix")
+        return StaticTranslations("https://github.com/streetmix/streetmix")

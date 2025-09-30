@@ -15,7 +15,7 @@ from betty.ancestry.has_notes import HasNotes
 from betty.json.linked_data import JsonLdObject, dump_context
 from betty.locale.localizable import (
     Localizable,
-    StaticTranslationsLocalizable,
+    StaticTranslations,
     _,
     ngettext,
 )
@@ -158,8 +158,8 @@ class Source(
     @classmethod
     async def linked_data_schema(cls, project: Project) -> JsonLdObject:
         schema = await super().linked_data_schema(project)
-        static_translations_schema = (
-            await StaticTranslationsLocalizable.linked_data_schema(project)
+        static_translations_schema = await StaticTranslations.linked_data_schema(
+            project
         )
         schema.add_property("author", static_translations_schema, False)
         schema.add_property("name", static_translations_schema, False)
@@ -173,19 +173,15 @@ class Source(
         dump_context(dump, name="https://schema.org/name")
         if is_public(self):
             if self.author is not None:
-                dump[
-                    "author"
-                ] = await StaticTranslationsLocalizable.dump_linked_data_for(
+                dump["author"] = await StaticTranslations.dump_linked_data_for(
                     project, self.author
                 )
             if self.name is not None:
-                dump["name"] = await StaticTranslationsLocalizable.dump_linked_data_for(
+                dump["name"] = await StaticTranslations.dump_linked_data_for(
                     project, self.name
                 )
             if self.publisher is not None:
-                dump[
-                    "publisher"
-                ] = await StaticTranslationsLocalizable.dump_linked_data_for(
+                dump["publisher"] = await StaticTranslations.dump_linked_data_for(
                     project, self.publisher
                 )
         return dump

@@ -17,7 +17,7 @@ from betty.copyright_notice.copyright_notices import (
 )
 from betty.license.licenses import PublicDomain as PublicDomainLicense
 from betty.locale import DEFAULT_LOCALE
-from betty.locale.localizable import plain
+from betty.locale.localizable import Plain
 from betty.locale.localizer import DEFAULT_LOCALIZER
 from betty.media_type.media_types import PLAIN_TEXT
 from betty.privacy import Privacy
@@ -40,7 +40,7 @@ class TestFile(EntityTestBase):
     async def get_sut_instances(self) -> Sequence[Entity]:
         return [
             File(Path(__file__)),
-            File(Path(__file__), description=plain("My First File")),
+            File(Path(__file__), description=Plain("My First File")),
         ]
 
     async def test_id(self) -> None:
@@ -111,7 +111,7 @@ class TestFile(EntityTestBase):
         )
         assert not sut.description
         description = "Hi, my name is Betty!"
-        sut.description = plain(description)
+        sut.description = Plain(description)
         assert sut.description is not None
         assert sut.description.localize(DEFAULT_LOCALIZER) == description
 
@@ -123,7 +123,7 @@ class TestFile(EntityTestBase):
             path=file_path,
         )
         assert list(sut.notes) == []
-        notes = [Note(plain("")), Note(plain(""))]
+        notes = [Note(Plain("")), Note(Plain(""))]
         sut.notes = notes
         assert list(sut.notes) == notes
 
@@ -181,12 +181,12 @@ class TestFile(EntityTestBase):
                 media_type=PLAIN_TEXT,
                 copyright_notice=PublicDomainCopyrightNotice(),
                 license=PublicDomainLicense(),
-                description=plain("The Description"),
+                description=Plain("The Description"),
             )
             file.notes.add(
                 Note(
                     id="the_note",
-                    text=plain("The Note"),
+                    text=Plain("The Note"),
                 )
             )
             reference = FileReference(Person(id="the_person"), file)
@@ -195,7 +195,7 @@ class TestFile(EntityTestBase):
                     id="the_citation",
                     source=Source(
                         id="the_source",
-                        name=plain("The Source"),
+                        name=Plain("The Source"),
                     ),
                 )
             )
@@ -233,12 +233,12 @@ class TestFile(EntityTestBase):
                 path=Path(f.name),
                 private=True,
                 media_type=PLAIN_TEXT,
-                description=plain("The File"),
+                description=Plain("The File"),
             )
             file.notes.add(
                 Note(
                     id="the_note",
-                    text=plain("The Note"),
+                    text=Plain("The Note"),
                 )
             )
             reference = FileReference(Person(id="the_person"), file)
@@ -247,7 +247,7 @@ class TestFile(EntityTestBase):
                     id="the_citation",
                     source=Source(
                         id="the_source",
-                        name=plain("The Source"),
+                        name=Plain("The Source"),
                     ),
                 )
             )

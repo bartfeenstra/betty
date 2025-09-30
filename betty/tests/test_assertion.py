@@ -37,7 +37,7 @@ from betty.assertion import (
 )
 from betty.exception import Index, Key, UserFacingException
 from betty.locale import DEFAULT_LOCALE, UNDETERMINED_LOCALE
-from betty.locale.localizable import static
+from betty.locale.localizable import StaticTranslations
 from betty.test_utils.exception import raises_error
 from betty.typing import Void
 
@@ -72,7 +72,7 @@ def _always_valid(value: int) -> int:
 
 
 def _always_invalid(value: int) -> int:
-    raise UserFacingException(static(""))
+    raise UserFacingException(StaticTranslations(""))
 
 
 @pytest.mark.parametrize(

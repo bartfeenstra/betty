@@ -3,18 +3,18 @@ from __future__ import annotations
 from betty.ancestry.citation import Citation
 from betty.ancestry.source import Source
 from betty.html import Breadcrumbs, Citer, NavigationLink, NavigationLinkProvider
-from betty.locale.localizable import plain
+from betty.locale.localizable import Plain
 from betty.locale.localizer import DEFAULT_LOCALIZER
 
 
 class TestNavigationLink:
     def test_url(self) -> None:
         url = "https://example.com"
-        sut = NavigationLink(url, plain("Hello, world!"))
+        sut = NavigationLink(url, Plain("Hello, world!"))
         assert sut.url.localize(DEFAULT_LOCALIZER) == url
 
     def test_label(self) -> None:
-        label = plain("Hello, world!")
+        label = Plain("Hello, world!")
         sut = NavigationLink("https://example.com", label)
         assert sut.label == label
 

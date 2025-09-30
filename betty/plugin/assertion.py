@@ -6,7 +6,7 @@ from typing import Any, TypeVar
 
 from betty.assertion import AssertionChain, assert_str
 from betty.exception import UserFacingException
-from betty.locale.localizable import _, do_you_mean, join
+from betty.locale.localizable import Join, _, do_you_mean
 from betty.plugin import Plugin, PluginIdToTypeMapping, PluginNotFound
 
 _PluginT = TypeVar("_PluginT", bound=Plugin)
@@ -27,7 +27,7 @@ def assert_plugin(
             return plugin_id_to_type_mapping[plugin_id]
         except PluginNotFound:
             raise UserFacingException(
-                join(
+                Join(
                     _(
                         'Cannot find and import "{plugin_id}".',
                     ).format(plugin_id=plugin_id),

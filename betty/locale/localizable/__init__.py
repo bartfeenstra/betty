@@ -6,14 +6,12 @@ from __future__ import annotations
 
 from abc import ABC, abstractmethod
 from collections.abc import Callable, Iterable, Mapping, MutableMapping, Sequence
-from typing import TYPE_CHECKING, Any, Self, TypeAlias, TypeVar, cast
+from typing import TYPE_CHECKING, Any, Self, TypeAlias, TypeVar, cast, final
 from warnings import warn
 
 from typing_extensions import override
 
-from betty.json.linked_data import (
-    LinkedDataDumpable,
-)
+from betty.json.linked_data import LinkedDataDumpable
 from betty.json.schema import Object
 from betty.locale import UNDETERMINED_LOCALE, negotiate_locale, to_locale
 from betty.locale.localized import Localized, LocalizedStr
@@ -52,14 +50,26 @@ class Localizable(ABC):
         return localized
 
 
-class _FormattableLocalizable(Localizable):
+class FormattableLocalizable(Localizable):
+    """
+    A Localizable that supports localized string formatting.
+    """
+
     def format(
         self, *format_args: str | Localizable, **format_kwargs: str | Localizable
     ) -> Localizable:
+        """
+        Format the string after localization.
+        """
         return format(self, *format_args, **format_kwargs)
 
 
-class _CallLocalizable(Localizable):
+@final
+class Call(Localizable):
+    """
+    Create a new localizable that outputs the callable's return value.
+    """
+
     def __init__(self, call: Callable[[Localizer], str]):
         self._call = call
 
@@ -68,15 +78,13 @@ class _CallLocalizable(Localizable):
         return LocalizedStr(self._call(localizer), locale=localizer.locale)
 
 
-def call(call: Callable[[Localizer], str]) -> Localizable:
+@final
+class Join(Localizable):
     """
-    Create a new localizable that outputs the callable's return value.
+    Join multiple localizables.
     """
-    return _CallLocalizable(call)
 
-
-class _JoinLocalizable(Localizable):
-    def __init__(self, *localizables: Localizable, separator: str):
+    def __init__(self, *localizables: Localizable, separator: str = " "):
         self._localizables = localizables
         self._separator = separator
 
@@ -88,13 +96,6 @@ class _JoinLocalizable(Localizable):
             ),
             locale=localizer.locale,
         )
-
-
-def join(*localizables: Localizable, separator: str = " ") -> Localizable:
-    """
-    Join multiple localizables.
-    """
-    return _JoinLocalizable(*localizables, separator=separator)
 
 
 def do_you_mean(*available_options: str) -> Localizable:
@@ -114,7 +115,7 @@ def do_you_mean(*available_options: str) -> Localizable:
             )
 
 
-class _GettextLocalizable(_FormattableLocalizable):
+class _GettextLocalizable(FormattableLocalizable):
     def __init__(
         self,
         gettext_method_name: str,
@@ -134,7 +135,7 @@ class _GettextLocalizable(_FormattableLocalizable):
         )
 
 
-def gettext(message: str) -> _GettextLocalizable:
+def gettext(message: str) -> FormattableLocalizable:
     """
     Like :py:meth:`gettext.gettext`.
 
@@ -146,7 +147,7 @@ def gettext(message: str) -> _GettextLocalizable:
     return _GettextLocalizable("gettext", message)
 
 
-def _(message: str) -> _GettextLocalizable:
+def _(message: str) -> FormattableLocalizable:
     """
     Like :py:meth:`betty.locale.localizable.gettext`.
 
@@ -158,7 +159,9 @@ def _(message: str) -> _GettextLocalizable:
     return gettext(message)
 
 
-def ngettext(message_singular: str, message_plural: str, n: int) -> _GettextLocalizable:
+def ngettext(
+    message_singular: str, message_plural: str, n: int
+) -> FormattableLocalizable:
     """
     Like :py:meth:`gettext.ngettext`.
 
@@ -170,7 +173,7 @@ def ngettext(message_singular: str, message_plural: str, n: int) -> _GettextLoca
     return _GettextLocalizable("ngettext", message_singular, message_plural, n)
 
 
-def pgettext(context: str, message: str) -> _GettextLocalizable:
+def pgettext(context: str, message: str) -> FormattableLocalizable:
     """
     Like :py:meth:`gettext.pgettext`.
 
@@ -184,7 +187,7 @@ def pgettext(context: str, message: str) -> _GettextLocalizable:
 
 def npgettext(
     context: str, message_singular: str, message_plural: str, n: int
-) -> _GettextLocalizable:
+) -> FormattableLocalizable:
     """
     Like :py:meth:`gettext.npgettext`.
 
@@ -242,7 +245,12 @@ def format(  # noqa A001
     return _FormattedLocalizable(localizable, format_args, format_kwargs)
 
 
-class _PlainStrLocalizable(Localizable):
+@final
+class Plain(Localizable):
+    """
+    Turns a plain string into a :py:class:`betty.locale.localizable.Localizable` without any actual translations.
+    """
+
     def __init__(self, string: str, locale: str = UNDETERMINED_LOCALE):
         self._string = string
         self._locale = locale
@@ -252,14 +260,7 @@ class _PlainStrLocalizable(Localizable):
         return LocalizedStr(self._string, locale=self._locale)
 
 
-def plain(string: str) -> Localizable:
-    """
-    Turns a plain string into a :py:class:`betty.locale.localizable.Localizable` without any actual translations.
-    """
-    return _PlainStrLocalizable(string)
-
-
-StaticTranslations: TypeAlias = Mapping[str, str]
+StaticTranslationsMapping: TypeAlias = Mapping[str, str]
 """
 Keys are locales, values are translations.
 
@@ -267,7 +268,7 @@ See :py:func:`betty.locale.localizable.assertion.assert_static_translations`.
 """
 
 
-ShorthandStaticTranslations: TypeAlias = StaticTranslations | str
+ShorthandStaticTranslations: TypeAlias = StaticTranslationsMapping | str
 """
 :py:const:`StaticTranslations` or a string which is the translation for the undetermined locale.
 
@@ -275,9 +276,9 @@ See :py:func:`betty.locale.localizable.assertion.assert_static_translations`.
 """
 
 
-class StaticTranslationsLocalizableSchema(Object):
+class StaticTranslationsSchema(Object):
     """
-    A JSON Schema for :py:class:`betty.locale.localizable.StaticTranslationsLocalizable`.
+    A JSON Schema for :py:class:`betty.locale.localizable.StaticTranslations`.
     """
 
     def __init__(
@@ -295,8 +296,8 @@ class StaticTranslationsLocalizableSchema(Object):
         }
 
 
-class StaticTranslationsLocalizable(
-    Mutable, _FormattableLocalizable, LinkedDataDumpable[Object, DumpMapping[Dump]]
+class StaticTranslations(
+    Mutable, FormattableLocalizable, LinkedDataDumpable[Object, DumpMapping[Dump]]
 ):
     """
     Provide a :py:class:`betty.locale.localizable.Localizable` backed by static translations.
@@ -342,7 +343,7 @@ class StaticTranslationsLocalizable(
         from betty.locale.localizable.assertion import assert_static_translations
 
         self.assert_mutable()
-        if isinstance(translations, StaticTranslationsLocalizable):
+        if isinstance(translations, StaticTranslations):
             self._translations = translations._translations
         else:
             translations = assert_static_translations()(translations)
@@ -350,7 +351,7 @@ class StaticTranslationsLocalizable(
             self._translations = dict(translations)
 
     @property
-    def translations(self) -> StaticTranslations:
+    def translations(self) -> StaticTranslationsMapping:
         """
         The translations.
         """
@@ -380,7 +381,7 @@ class StaticTranslationsLocalizable(
     @override
     @classmethod
     async def linked_data_schema(cls, project: Project) -> Object:
-        return StaticTranslationsLocalizableSchema()
+        return StaticTranslationsSchema()
 
     @classmethod
     def from_localizable(
@@ -411,15 +412,6 @@ class StaticTranslationsLocalizable(
         Dump a :py:class:`betty.locale.localizable.Localizable` to `JSON-LD <https://json-ld.org/>`_.
         """
         localizers = await project.localizers
-        return await StaticTranslationsLocalizable.from_localizable(
+        return await StaticTranslations.from_localizable(
             other, [localizers.get(locale) for locale in project.configuration.locales]
         ).dump_linked_data(project)
-
-
-def static(translations: ShorthandStaticTranslations) -> Localizable:
-    """
-    Create a new localizable that outputs the given static translations.
-    """
-    from betty.locale.localizable.assertion import assert_static_translations
-
-    return StaticTranslationsLocalizable(assert_static_translations()(translations))

@@ -9,7 +9,7 @@ from babel.localedata import locale_identifiers
 
 from betty.exception import UserFacingException
 from betty.locale import to_locale
-from betty.locale.localizable import _, do_you_mean, join
+from betty.locale.localizable import Join, _, do_you_mean
 
 
 class LocaleError(UserFacingException, Exception):
@@ -54,7 +54,7 @@ class UnsupportedLocale(LocaleError):
             if set(identifier[: identifier.find("_")]) & locale_chars
         )
         super().__init__(
-            join(
+            Join(
                 _("Locale {locale} is not supported by your system.").format(
                     locale=locale
                 ),
