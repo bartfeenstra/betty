@@ -91,4 +91,4 @@ Run the following to install the latest unstable version:
 
 #. ``git clone https://github.com/bartfeenstra/betty.git``
 #. ``cd betty``
-#. ``./bin/build``
+#. ``./bin/build-dev``
