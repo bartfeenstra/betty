@@ -277,7 +277,6 @@ class App(Configurable[AppConfiguration], TargetFactory, ServiceProvider):
                 binary_file_cache=self.binary_file_cache.with_scope("spdx"),
                 fetcher=await self.fetcher,
                 user=self.user,
-                factory=self.new_target,
                 process_pool=self.process_pool,
             ),
         )

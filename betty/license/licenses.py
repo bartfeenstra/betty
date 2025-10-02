@@ -17,7 +17,6 @@ from typing_extensions import override
 from betty.cache.file import BinaryFileCache
 from betty.concurrent import AsynchronizedLock, Ledger
 from betty.exception import UserFacingException
-from betty.factory import Factory
 from betty.fetch import Fetcher, FetchError
 from betty.license import License
 from betty.locale.localizable import Localizable, Plain, _
@@ -96,9 +95,8 @@ class SpdxLicenseRepository(PluginRepository[License]):
         user: User,
         binary_file_cache: BinaryFileCache,
         process_pool: Executor,
-        factory: Factory | None = None,
     ):
-        super().__init__(License, factory=factory)
+        super().__init__(License)
         self._fetcher = fetcher
         self._user = user
         self._cache_directory_path = binary_file_cache.with_scope(

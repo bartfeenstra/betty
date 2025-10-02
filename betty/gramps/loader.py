@@ -51,14 +51,8 @@ from betty.ancestry.event_type.event_types import (
 from betty.ancestry.event_type.event_types import Unknown as UnknownEventType
 from betty.ancestry.file import File
 from betty.ancestry.file_reference import FileReference
-from betty.ancestry.gender.genders import (
-    Female,
-    Male,
-    NonBinary,
-)
-from betty.ancestry.gender.genders import (
-    Unknown as UnknownGender,
-)
+from betty.ancestry.gender.genders import Female, Male, NonBinary
+from betty.ancestry.gender.genders import Unknown as UnknownGender
 from betty.ancestry.has_links import HasLinks
 from betty.ancestry.link import Link
 from betty.ancestry.name import Name
@@ -138,6 +132,7 @@ if TYPE_CHECKING:
     from betty.ancestry.place_type import PlaceType
     from betty.ancestry.presence_role import PresenceRole
     from betty.copyright_notice import CopyrightNotice
+    from betty.factory import Factory
     from betty.license import License
     from betty.plugin import PluginRepository
     from betty.user import User
@@ -320,6 +315,7 @@ class GrampsLoader:
         self,
         ancestry: Ancestry,
         *,
+        factory: Factory,
         user: User,
         copyright_notices: PluginRepository[CopyrightNotice],
         licenses: PluginRepository[License],
@@ -353,6 +349,7 @@ class GrampsLoader:
         self._place_type_mapping = place_type_mapping or {}
         self._presence_role_mapping = presence_role_mapping or {}
         self._gramps_executable = executable or _DEFAULT_GRAMPS_EXECUTABLE
+        self._factory = factory
 
     async def _run_gramps(self, runnee: Sequence[str]) -> Process:
         try:
@@ -770,8 +767,8 @@ class GrampsLoader:
         )
         if copyright_notice_id:
             try:
-                file.copyright_notice = await self._copyright_notices.new_target(
-                    copyright_notice_id
+                file.copyright_notice = await self._factory(
+                    await self._copyright_notices.get(copyright_notice_id)
                 )
             except PluginNotFound:
                 await self._user.message_warning(
@@ -782,7 +779,7 @@ class GrampsLoader:
         license_id = self._load_attribute("license", element, "attribute")
         if license_id:
             try:
-                file.license = await self._licenses.new_target(license_id)
+                file.license = await self._factory(await self._licenses.get(license_id))
             except PluginNotFound:
                 await self._user.message_warning(
                     _(
@@ -815,7 +812,11 @@ class GrampsLoader:
 
         person = Person(
             id=element.get("id"),
-            gender=await self._genders.new_target(gender_target),
+            gender=await self._factory(
+                await self._genders.get(gender_target)
+                if isinstance(gender_target, str)
+                else gender_target
+            ),
         )
 
         name_elements = sorted(

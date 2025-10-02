@@ -27,10 +27,10 @@ if TYPE_CHECKING:
     from collections.abc import Mapping, MutableMapping, Sequence
 
     from betty.ancestry import Ancestry
+    from betty.copyright_notice import CopyrightNotice
     from betty.locale.localizer import LocalizerRepository
     from betty.model import Entity
     from betty.wiki.client import Client, Image
-    from betty.wiki.copyright_notice import WikipediaContributors
 
 
 @threadsafe
@@ -45,7 +45,7 @@ class Populator:
         locales: Sequence[str],
         localizers: LocalizerRepository,
         client: Client,
-        copyright_notice: WikipediaContributors,
+        copyright_notice: CopyrightNotice,
     ):
         self._ancestry = ancestry
         self._locales = locales

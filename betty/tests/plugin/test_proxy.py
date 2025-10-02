@@ -2,8 +2,7 @@ from typing import TypeVar
 
 import pytest
 
-from betty.factory import FactoryError
-from betty.plugin import Plugin, PluginIdentifier, PluginNotFound
+from betty.plugin import PluginNotFound
 from betty.plugin.proxy import ProxyPluginRepository
 from betty.plugin.static import StaticPluginRepository
 from betty.test_utils.plugin import DummyPlugin
@@ -83,71 +82,3 @@ class TestProxyPluginRepository:
             ProxyPluginRepositoryTestPluginTwo,
             ProxyPluginRepositoryTestPluginThree,
         ]
-
-    @pytest.mark.parametrize(
-        "target",
-        [
-            ProxyPluginRepositoryTestPluginOne,
-            ProxyPluginRepositoryTestPluginOne.plugin_id(),
-        ],
-    )
-    async def test_new_target__with_own_factory(
-        self, target: PluginIdentifier[Plugin]
-    ) -> None:
-        async def _error_raising_factory(cls: type[_T]) -> _T:
-            raise FactoryError(cls)
-
-        sut = ProxyPluginRepository(
-            DummyPlugin,
-            StaticPluginRepository(
-                DummyPlugin,
-                ProxyPluginRepositoryTestPluginOne,
-                factory=_error_raising_factory,
-            ),
-        )
-        await sut.new_target(target)
-
-    @pytest.mark.parametrize(
-        "target",
-        [
-            ProxyPluginRepositoryTestPluginOne,
-            ProxyPluginRepositoryTestPluginOne.plugin_id(),
-        ],
-    )
-    async def test_new_target__with_upstream_factory(
-        self, target: PluginIdentifier[Plugin]
-    ) -> None:
-        async def _error_raising_factory(cls: type[_T]) -> _T:
-            raise FactoryError(cls)
-
-        sut = ProxyPluginRepository(
-            DummyPlugin,
-            StaticPluginRepository(DummyPlugin, ProxyPluginRepositoryTestPluginOne),
-            factory=_error_raising_factory,
-        )
-        await sut.new_target(target)
-
-    @pytest.mark.parametrize(
-        "target",
-        [
-            ProxyPluginRepositoryTestPluginOne,
-            ProxyPluginRepositoryTestPluginOne.plugin_id(),
-        ],
-    )
-    async def test_new_target__without_successful_factories(
-        self, target: PluginIdentifier[Plugin]
-    ) -> None:
-        async def _error_raising_factory(cls: type[_T]) -> _T:
-            raise FactoryError(cls)
-
-        sut = ProxyPluginRepository(
-            DummyPlugin,
-            StaticPluginRepository(
-                DummyPlugin,
-                ProxyPluginRepositoryTestPluginOne,
-                factory=_error_raising_factory,
-            ),
-            factory=_error_raising_factory,
-        )
-        with pytest.raises(FactoryError):
-            await sut.new_target(ProxyPluginRepositoryTestPluginOne)

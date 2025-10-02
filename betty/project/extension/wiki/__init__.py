@@ -22,7 +22,6 @@ from betty.project.load import PostLoader
 from betty.service import service
 from betty.wiki import NotAPageError, parse_page_url, populator
 from betty.wiki.client import RATE_LIMIT, Client, Summary
-from betty.wiki.copyright_notice import WikipediaContributors
 
 if TYPE_CHECKING:
     from collections.abc import Iterable
@@ -63,8 +62,8 @@ class Wiki(
     async def new_for_project(cls, project: Project) -> Self:
         return cls(
             project,
-            await project.copyright_notice_repository.new_target(
-                "wikipedia-contributors"
+            await project.new_target(
+                await project.copyright_notice_repository.get("wikipedia-contributors")
             ),
             configuration=cls.new_default_configuration(),
         )
@@ -109,9 +108,7 @@ class Wiki(
             list(self.project.configuration.locales),
             await self.project.localizers,
             await self.client,
-            await self.project.copyright_notice_repository.new_target(
-                WikipediaContributors
-            ),
+            self._wikipedia_contributors_copyright_notice,
         )
 
     @override

@@ -18,13 +18,11 @@ from typing import (
     TypeAlias,
     TypeVar,
     final,
-    overload,
 )
 
 from typing_extensions import override
 
 from betty.exception import UserFacingException
-from betty.factory import Factory, TargetFactory, new
 from betty.json.schema import Enum
 from betty.locale.localizable import Join, _, do_you_mean
 from betty.locale.localizer import DEFAULT_LOCALIZER
@@ -252,14 +250,13 @@ class PluginIdToTypeMapping(Generic[_PluginCoT]):
         yield from self._id_to_type_mapping
 
 
-class PluginRepository(Generic[_PluginT], TargetFactory, ABC):
+class PluginRepository(Generic[_PluginT], ABC):
     """
     Discover and manage plugins.
     """
 
-    def __init__(self, plugin: type[_PluginT], *, factory: Factory | None = None):
+    def __init__(self, plugin: type[_PluginT]):
         self._plugin = plugin
-        self._factory = factory or new
         self._plugin_id_schema: Enum | None = None
 
     @final
@@ -308,18 +305,6 @@ class PluginRepository(Generic[_PluginT], TargetFactory, ABC):
     @abstractmethod
     def __aiter__(self) -> AsyncIterator[type[_PluginT]]:
         pass
-
-    @overload
-    async def new_target(self, cls: type[_T]) -> _T:
-        pass
-
-    @overload
-    async def new_target(self, cls: MachineName) -> _PluginT:
-        pass
-
-    @override
-    async def new_target(self, cls: type[_T] | MachineName) -> _T | _PluginT:
-        return await self._factory(await self.get(cls) if isinstance(cls, str) else cls)
 
     @property
     async def plugin_id_schema(self) -> Enum:

@@ -8,7 +8,6 @@ from typing import Generic, TypeVar
 
 from typing_extensions import override
 
-from betty.factory import Factory
 from betty.machine_name import MachineName
 from betty.plugin import Plugin, PluginNotFound, PluginRepository
 
@@ -20,8 +19,8 @@ class LazyPluginRepositoryBase(PluginRepository[_PluginT], Generic[_PluginT]):
     Lazily load plugins.
     """
 
-    def __init__(self, plugin: type[_PluginT], *, factory: Factory | None = None):
-        super().__init__(plugin, factory=factory)
+    def __init__(self, plugin: type[_PluginT]):
+        super().__init__(plugin)
         self.__plugins: Mapping[str, type[_PluginT]] | None = None
 
     @override

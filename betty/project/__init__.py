@@ -262,11 +262,11 @@ class Project(Configurable[ProjectConfiguration], TargetFactory, ServiceProvider
                 if extension in extensions:
                     extension_instance = await extensions[
                         extension
-                    ].new_plugin_instance(self.extension_repository)
-                else:
-                    extension_instance = await self.extension_repository.new_target(
-                        extension
+                    ].new_plugin_instance(
+                        self.extension_repository, factory=self.new_target
                     )
+                else:
+                    extension_instance = await self.new_target(extension)
                 extension_instances_batch.append(extension_instance)
                 extensions_sorter.done(extension)
             project_extension_instances.append(
@@ -324,7 +324,7 @@ class Project(Configurable[ProjectConfiguration], TargetFactory, ServiceProvider
         The overall project copyright.
         """
         return await self.configuration.copyright_notice.new_plugin_instance(
-            self.copyright_notice_repository
+            self.copyright_notice_repository, factory=self.new_target
         )
 
     @service
@@ -340,7 +340,6 @@ class Project(Configurable[ProjectConfiguration], TargetFactory, ServiceProvider
             StaticPluginRepository(
                 CopyrightNotice, *self.configuration.copyright_notices.new_plugins()
             ),
-            factory=self.new_target,
         )
 
     @service
@@ -349,7 +348,7 @@ class Project(Configurable[ProjectConfiguration], TargetFactory, ServiceProvider
         The overall project license.
         """
         return await self.configuration.license.new_plugin_instance(
-            await self.license_repository
+            await self.license_repository, factory=self.new_target
         )
 
     @service
@@ -363,7 +362,6 @@ class Project(Configurable[ProjectConfiguration], TargetFactory, ServiceProvider
             License,
             await self._app.spdx_license_repository,
             StaticPluginRepository(License, *self.configuration.licenses.new_plugins()),
-            factory=self.new_target,
         )
 
     @service
@@ -377,7 +375,6 @@ class Project(Configurable[ProjectConfiguration], TargetFactory, ServiceProvider
             StaticPluginRepository(
                 EventType, *self.configuration.event_types.new_plugins()
             ),
-            factory=self.new_target,
         )
 
     @service
@@ -391,7 +388,6 @@ class Project(Configurable[ProjectConfiguration], TargetFactory, ServiceProvider
             StaticPluginRepository(
                 PlaceType, *self.configuration.place_types.new_plugins()
             ),
-            factory=self.new_target,
         )
 
     @service
@@ -405,7 +401,6 @@ class Project(Configurable[ProjectConfiguration], TargetFactory, ServiceProvider
             StaticPluginRepository(
                 PresenceRole, *self.configuration.presence_roles.new_plugins()
             ),
-            factory=self.new_target,
         )
 
     @service
@@ -419,7 +414,6 @@ class Project(Configurable[ProjectConfiguration], TargetFactory, ServiceProvider
             Gender,
             GENDER_REPOSITORY,
             StaticPluginRepository(Gender, *self.configuration.genders.new_plugins()),
-            factory=self.new_target,
         )
 
     @service
@@ -429,9 +423,7 @@ class Project(Configurable[ProjectConfiguration], TargetFactory, ServiceProvider
 
         Read more about :doc:`/development/plugin/entity-type`.
         """
-        return ProxyPluginRepository(
-            Entity, model.ENTITY_TYPE_REPOSITORY, factory=self.new_target
-        )
+        return ProxyPluginRepository(Entity, model.ENTITY_TYPE_REPOSITORY)
 
     @service
     def extension_repository(self) -> PluginRepository[Extension]:
@@ -440,9 +432,7 @@ class Project(Configurable[ProjectConfiguration], TargetFactory, ServiceProvider
 
         Read more about :doc:`/development/plugin/extension`.
         """
-        return ProxyPluginRepository(
-            Extension, extension.EXTENSION_REPOSITORY, factory=self.new_target
-        )
+        return ProxyPluginRepository(Extension, extension.EXTENSION_REPOSITORY)
 
 
 _ExtensionT = TypeVar("_ExtensionT", bound=Extension)

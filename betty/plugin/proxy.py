@@ -3,12 +3,10 @@ Provide tools for proxying plugin management to other tools.
 """
 
 from collections.abc import AsyncIterator
-from contextlib import suppress
-from typing import Generic, TypeVar, final, overload
+from typing import Generic, TypeVar, final
 
 from typing_extensions import override
 
-from betty.factory import Factory, FactoryError
 from betty.machine_name import MachineName
 from betty.plugin import Plugin, PluginNotFound, PluginRepository
 
@@ -22,37 +20,9 @@ class ProxyPluginRepository(PluginRepository[_PluginT], Generic[_PluginT]):
     Expose multiple other plugin repositories as one unified repository.
     """
 
-    def __init__(
-        self,
-        plugin: type[_PluginT],
-        *upstreams: PluginRepository[_PluginT],
-        factory: Factory | None = None,
-    ):
-        super().__init__(plugin, factory=factory)
+    def __init__(self, plugin: type[_PluginT], *upstreams: PluginRepository[_PluginT]):
+        super().__init__(plugin)
         self._upstreams = upstreams
-
-    @overload
-    async def new_target(self, cls: type[_T]) -> _T:
-        pass
-
-    @overload
-    async def new_target(self, cls: MachineName) -> _PluginT:
-        pass
-
-    @override
-    async def new_target(self, cls: type[_T] | MachineName) -> _T | _PluginT:
-        with suppress(FactoryError):
-            return await super().new_target(cls)
-        resolved_cls = await self.get(cls) if isinstance(cls, str) else cls
-        for upstream in self._upstreams:
-            if issubclass(resolved_cls, Plugin):
-                try:
-                    await upstream.get(resolved_cls.plugin_id())
-                except PluginNotFound:
-                    continue
-            with suppress(PluginNotFound, FactoryError):
-                return await upstream.new_target(resolved_cls)
-        raise FactoryError()
 
     @override
     async def get(self, plugin_id: MachineName) -> type[_PluginT]:

@@ -225,7 +225,7 @@ async def test_new__with_gramps(
         assert Gramps in configuration.extensions
         async with Project.new_temporary(app) as project, project:
             gramps = await configuration.extensions[Gramps].new_plugin_instance(
-                project.extension_repository
+                project.extension_repository, factory=project.new_target
             )
             assert isinstance(gramps, Gramps)
             assert (
