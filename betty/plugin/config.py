@@ -33,6 +33,7 @@ from betty.typing import Void, Voidable, not_void
 if TYPE_CHECKING:
     from collections.abc import Iterable
 
+    from betty.factory import Factory
     from betty.locale.localizable import ShorthandStaticTranslations
     from betty.serde.dump import Dump, DumpMapping
 
@@ -219,12 +220,12 @@ class PluginInstanceConfiguration(Configuration):
         return self._configuration
 
     async def new_plugin_instance(
-        self, repository: PluginRepository[_PluginT]
+        self, repository: PluginRepository[_PluginT], *, factory: Factory
     ) -> _PluginT:
         """
         Create a new plugin instance.
         """
-        plugin = await repository.new_target(self.id)
+        plugin = await factory(await repository.get(self.id))
         if not_void(self.configuration):
             if not isinstance(plugin, DefaultConfigurable):  # type: ignore[redundant-expr]
                 raise UserFacingException(

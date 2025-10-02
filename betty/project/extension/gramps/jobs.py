@@ -16,6 +16,7 @@ from betty.project import ProjectContext
 if TYPE_CHECKING:
     from collections.abc import Awaitable, Callable
 
+    from betty.factory import Factory
     from betty.job.scheduler import Scheduler
     from betty.plugin.config import PluginInstanceConfiguration
 
@@ -23,10 +24,13 @@ _PluginT = TypeVar("_PluginT", bound=Plugin)
 
 
 def _new_plugin_instance_factory(
-    configuration: PluginInstanceConfiguration, repository: PluginRepository[_PluginT]
+    configuration: PluginInstanceConfiguration,
+    repository: PluginRepository[_PluginT],
+    *,
+    factory: Factory,
 ) -> Callable[[], Awaitable[_PluginT]]:
     async def plugin_instance_factory() -> _PluginT:
-        return await configuration.new_plugin_instance(repository)
+        return await configuration.new_plugin_instance(repository, factory=factory)
 
     return plugin_instance_factory
 
@@ -51,6 +55,7 @@ class LoadAncestry(Job[ProjectContext]):
 
             loader = GrampsLoader(
                 project.ancestry,
+                factory=project.new_target,
                 attribute_prefix_key=project.configuration.name,
                 user=project.app.user,
                 copyright_notices=project.copyright_notice_repository,
@@ -59,6 +64,7 @@ class LoadAncestry(Job[ProjectContext]):
                     gramps_type: _new_plugin_instance_factory(
                         family_tree_configuration.event_types[gramps_type],
                         project.event_type_repository,
+                        factory=project.new_target,
                     )
                     for gramps_type in family_tree_configuration.event_types
                 },
@@ -67,6 +73,7 @@ class LoadAncestry(Job[ProjectContext]):
                     gramps_type: _new_plugin_instance_factory(
                         family_tree_configuration.place_types[gramps_type],
                         project.place_type_repository,
+                        factory=project.new_target,
                     )
                     for gramps_type in family_tree_configuration.place_types
                 },
@@ -74,6 +81,7 @@ class LoadAncestry(Job[ProjectContext]):
                     gramps_type: _new_plugin_instance_factory(
                         family_tree_configuration.presence_roles[gramps_type],
                         project.presence_role_repository,
+                        factory=project.new_target,
                     )
                     for gramps_type in family_tree_configuration.presence_roles
                 },

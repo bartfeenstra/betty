@@ -8,6 +8,7 @@ import pytest
 from typing_extensions import override
 
 from betty.cache.file import BinaryFileCache
+from betty.factory import new
 from betty.fetch.static import StaticFetcher
 from betty.license import License
 from betty.license.licenses import (
@@ -195,7 +196,7 @@ class TestSpdxLicenseRepository:
             zero_bsd_type.plugin_label().localize(DEFAULT_LOCALIZER)
             == "BSD Zero Clause License"
         )
-        zero_bsd = await sut_with_licenses.new_target(zero_bsd_type)
+        zero_bsd = await new(zero_bsd_type)
         assert zero_bsd.summary.localize(DEFAULT_LOCALIZER) == "BSD Zero Clause License"
         assert (
             zero_bsd.text.localize(DEFAULT_LOCALIZER)

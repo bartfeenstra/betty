@@ -1,12 +1,11 @@
 from __future__ import annotations
 
 from graphlib import TopologicalSorter
-from typing import TYPE_CHECKING, Literal, Self, TypeVar
+from typing import TYPE_CHECKING, TypeVar
 
 import pytest
 from typing_extensions import override
 
-from betty.factory import Factory, new
 from betty.plugin import (
     CyclicDependencyError,
     DependentPlugin,
@@ -83,22 +82,9 @@ class _TestPluginRepositoryPluginOneTwoThree(
     pass
 
 
-class _TestPluginRepositoryPluginDefaultFactory(DummyPlugin):
-    pass
-
-
-class _TestPluginRepositoryPluginCustomFactory(DummyPlugin):
-    def __init__(self, must_be_true: Literal[True]):
-        assert must_be_true
-
-    @classmethod
-    def new_custom(cls) -> Self:
-        return cls(True)
-
-
 class _TestPluginRepositoryPluginRepository(PluginRepository[DummyPlugin]):
-    def __init__(self, *plugins: type[DummyPlugin], factory: Factory | None = None):
-        super().__init__(DummyPlugin, factory=factory)
+    def __init__(self, *plugins: type[DummyPlugin]):
+        super().__init__(DummyPlugin)
         self._plugins = {plugin.plugin_id(): plugin for plugin in plugins}
 
     @override
@@ -196,41 +182,6 @@ class TestPluginRepository:
         assert (
             plugin_id_to_type_mapping[_TestPluginRepositoryPluginOne.plugin_id()]
             is _TestPluginRepositoryPluginOne
-        )
-
-    async def test_new_target__with_default_factory(self) -> None:
-        sut = _TestPluginRepositoryPluginRepository(
-            _TestPluginRepositoryPluginDefaultFactory
-        )
-        assert isinstance(
-            await sut.new_target(_TestPluginRepositoryPluginDefaultFactory),
-            _TestPluginRepositoryPluginDefaultFactory,
-        )
-        assert isinstance(
-            await sut.new_target(_TestPluginRepositoryPluginDefaultFactory.plugin_id()),
-            _TestPluginRepositoryPluginDefaultFactory,
-        )
-
-    async def test_new_target__with_custom_factory(self) -> None:
-        async def factory(
-            cls: type[_T],
-        ) -> _T:
-            return (
-                cls.new_custom()  # type: ignore[return-value]
-                if issubclass(cls, _TestPluginRepositoryPluginCustomFactory)
-                else await new(cls)  # type: ignore[arg-type]
-            )
-
-        sut = _TestPluginRepositoryPluginRepository(
-            _TestPluginRepositoryPluginCustomFactory, factory=factory
-        )
-        assert isinstance(
-            await sut.new_target(_TestPluginRepositoryPluginCustomFactory),
-            _TestPluginRepositoryPluginCustomFactory,
-        )
-        assert isinstance(
-            await sut.new_target(_TestPluginRepositoryPluginCustomFactory.plugin_id()),
-            _TestPluginRepositoryPluginCustomFactory,
         )
 
     async def test_plugin_id_schema(self) -> None:

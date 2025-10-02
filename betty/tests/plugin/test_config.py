@@ -7,6 +7,7 @@ from typing_extensions import override
 from betty.config import DefaultConfigurable
 from betty.config.collections import ConfigurationCollection
 from betty.exception import UserFacingException
+from betty.factory import new
 from betty.locale import UNDETERMINED_LOCALE
 from betty.locale.localizable import ShorthandStaticTranslations
 from betty.locale.localizer import DEFAULT_LOCALIZER
@@ -313,7 +314,7 @@ class TestPluginInstanceConfiguration:
             plugin, configuration=DummyConfiguration(value)
         )
         repository = StaticPluginRepository(DummyPlugin, plugin)
-        instance = await sut.new_plugin_instance(repository)
+        instance = await sut.new_plugin_instance(repository, factory=new)
         assert isinstance(instance, plugin)
         assert instance.configuration.value == value
 
@@ -323,7 +324,7 @@ class TestPluginInstanceConfiguration:
         plugin = _DummyDefaultConfigurablePlugin
         sut = PluginInstanceConfiguration(plugin)
         repository = StaticPluginRepository(DummyPlugin, plugin)
-        instance = await sut.new_plugin_instance(repository)
+        instance = await sut.new_plugin_instance(repository, factory=new)
         assert isinstance(instance, plugin)
 
     async def test_new_plugin_instance__with_non_configurable_plugin_with_configuration(
@@ -336,7 +337,7 @@ class TestPluginInstanceConfiguration:
         )
         repository = StaticPluginRepository(DummyPlugin, plugin)
         with pytest.raises(UserFacingException):
-            await sut.new_plugin_instance(repository)
+            await sut.new_plugin_instance(repository, factory=new)
 
     async def test_new_plugin_instance__with_non_configurable_plugin_without_configuration(
         self,
@@ -344,7 +345,7 @@ class TestPluginInstanceConfiguration:
         plugin = DummyPlugin
         sut = PluginInstanceConfiguration(plugin)
         repository = StaticPluginRepository(DummyPlugin, plugin)
-        instance = await sut.new_plugin_instance(repository)
+        instance = await sut.new_plugin_instance(repository, factory=new)
         assert isinstance(instance, plugin)
 
 
