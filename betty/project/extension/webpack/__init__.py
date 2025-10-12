@@ -29,8 +29,8 @@ from betty.typing import internal
 if TYPE_CHECKING:
     from collections.abc import Sequence
 
+    from betty.app import App
     from betty.job.scheduler import Scheduler
-    from betty.user import User
 
 
 class _GenerateAssets(Job[ProjectContext]):
@@ -72,11 +72,11 @@ class Webpack(Generator, Extension, CssProvider, JsProvider, Jinja2Provider):
 
     @override
     @classmethod
-    async def requirement(cls, *, user: User) -> Requirement:
+    async def requirement(cls, *, app: App) -> Requirement:
         if cls._requirement is None:
             cls._requirement = AllRequirements(
-                await super().requirement(user=user),
-                await NpmRequirement.new(user=user),
+                await super().requirement(app=app),
+                await NpmRequirement.new(user=app.user),
             )
         return cls._requirement
 
@@ -155,5 +155,5 @@ class Webpack(Generator, Extension, CssProvider, JsProvider, Jinja2Provider):
             return await builder.build()
         except NpmUnavailable:
             raise RequirementError(
-                await self.requirement(user=self._project.app.user)
+                await self.requirement(app=self._project.app)
             ) from None

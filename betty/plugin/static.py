@@ -2,8 +2,8 @@
 Provide static plugin management.
 """
 
-from collections.abc import AsyncIterator
-from typing import Generic, TypeVar, final
+from collections.abc import Iterator
+from typing import Generic, TypeVar
 
 from typing_extensions import override
 
@@ -13,7 +13,6 @@ from betty.plugin import PluginDefinition, PluginNotFound, PluginRepository
 _PluginDefinitionT = TypeVar("_PluginDefinitionT", bound=PluginDefinition)
 
 
-@final
 class StaticPluginRepository(
     PluginRepository[_PluginDefinitionT], Generic[_PluginDefinitionT]
 ):
@@ -30,15 +29,12 @@ class StaticPluginRepository(
         self._plugins = {plugin.id: plugin for plugin in plugins}
 
     @override
-    async def get(self, plugin_id: MachineName) -> _PluginDefinitionT:
+    def get(self, plugin_id: MachineName) -> _PluginDefinitionT:
         try:
             return self._plugins[plugin_id]
         except KeyError:
-            raise PluginNotFound.new(
-                plugin_id, [plugin async for plugin in self]
-            ) from None
+            raise PluginNotFound.new(plugin_id, list(self)) from None
 
     @override
-    async def __aiter__(self) -> AsyncIterator[_PluginDefinitionT]:
-        for plugin in self._plugins.values():
-            yield plugin
+    def __iter__(self) -> Iterator[_PluginDefinitionT]:
+        yield from self._plugins.values()

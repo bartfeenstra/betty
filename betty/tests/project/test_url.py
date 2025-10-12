@@ -9,8 +9,7 @@ from betty.app import App
 from betty.locale import DEFAULT_LOCALE, LocaleLike
 from betty.media_type import MediaType
 from betty.media_type.media_types import HTML, JSON
-from betty.model import ENTITY_TYPE_REPOSITORY, EntityDefinition
-from betty.plugin.proxy import ProxyPluginRepository
+from betty.model import EntityDefinition
 from betty.plugin.static import StaticPluginRepository
 from betty.project import Project
 from betty.project.config import LocaleConfiguration
@@ -20,6 +19,7 @@ from betty.project.url import (
     _StaticPathUrlUrlGenerator,
     new_project_url_generator,
 )
+from betty.test_utils.conftest import NewTemporaryAppFactory
 from betty.test_utils.model import DummyEntityOne
 
 
@@ -51,7 +51,7 @@ class Test_EntityUrlUrlGenerator:
             EntityDefinition, DummyEntityOne.plugin
         )
         sut = _EntityUrlUrlGenerator(
-            ancestry, m_entity_url_generator, await entity_repository.mapping()
+            ancestry, m_entity_url_generator, entity_repository
         )
         assert sut.supports(resource) == expected
 
@@ -69,7 +69,7 @@ class Test_EntityUrlUrlGenerator:
             EntityDefinition, DummyEntityOne.plugin
         )
         sut = _EntityUrlUrlGenerator(
-            ancestry, m_entity_url_generator, await entity_repository.mapping()
+            ancestry, m_entity_url_generator, entity_repository
         )
         assert (
             sut.generate(
@@ -333,17 +333,18 @@ class Test_StaticPathUrlUrlGenerator:
     ],
 )
 async def test_new_project_url_generator__supports(
-    expected: bool, resource: Any, new_temporary_app: App, mocker: MockerFixture
+    expected: bool, resource: Any, new_temporary_app_factory: NewTemporaryAppFactory
 ) -> None:
-    mocker.patch(
-        "betty.model.ENTITY_TYPE_REPOSITORY",
-        new=ProxyPluginRepository(
-            EntityDefinition,
-            StaticPluginRepository(EntityDefinition, DummyEntityOne.plugin),
-            ENTITY_TYPE_REPOSITORY,
-        ),
-    )
-    async with Project.new_temporary(new_temporary_app) as project, project:
+    async with (
+        new_temporary_app_factory(
+            entity_type_repository=StaticPluginRepository(
+                EntityDefinition, DummyEntityOne.plugin
+            )
+        ) as app,
+        app,
+        Project.new_temporary(app) as project,
+        project,
+    ):
         sut = await new_project_url_generator(project)
         assert sut.supports(resource) == expected
 
@@ -399,18 +400,17 @@ async def test_new_project_url_generator__generate(
     absolute: bool,
     locale: LocaleLike | None,
     additional_project_locale: str | None,
-    new_temporary_app: App,
-    mocker: MockerFixture,
+    new_temporary_app_factory: NewTemporaryAppFactory,
 ) -> None:
-    mocker.patch(
-        "betty.model.ENTITY_TYPE_REPOSITORY",
-        new=ProxyPluginRepository(
-            EntityDefinition,
-            StaticPluginRepository(EntityDefinition, DummyEntityOne.plugin),
-            ENTITY_TYPE_REPOSITORY,
-        ),
-    )
-    async with Project.new_temporary(new_temporary_app) as project:
+    async with (
+        new_temporary_app_factory(
+            entity_type_repository=StaticPluginRepository(
+                EntityDefinition, DummyEntityOne.plugin
+            )
+        ) as app,
+        app,
+        Project.new_temporary(app) as project,
+    ):
         if additional_project_locale:
             project.configuration.locales.append(
                 LocaleConfiguration(additional_project_locale)

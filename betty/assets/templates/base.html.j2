@@ -11,7 +11,7 @@
     {% block page_content %}{% endblock %}
 </div>
 {% include 'linked-data.html.j2' %}
-{% if project.extension_repository.get("webpack") in project.extensions %}
+{% if "webpack" in project.extensions %}
     {% include 'webpack-entry-loader.html.j2' %}
 {% endif %}
 {% include 'scripts.html.j2' %}

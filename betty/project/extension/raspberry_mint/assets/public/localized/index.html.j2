@@ -1,5 +1,5 @@
 {% extends 'base.html.j2' %}
-{% set demo_enabled = project.extension_repository.get("demo") in project.extensions %}
+{% set demo_enabled = "demo" in project.extensions %}
 {% block page_summary %}
 {% if demo_enabled %}
     {% include '-front-demo-summary.html.j2' %}

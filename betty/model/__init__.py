@@ -21,9 +21,7 @@ from betty.plugin import (
     ClassedPluginDefinition,
     ClassedPluginTypeDefinition,
     CountableUserFacingPluginDefinition,
-    PluginRepository,
 )
-from betty.plugin.entry_point import EntryPointPluginRepository
 from betty.repr import repr_instance
 from betty.string import kebab_case_to_lower_camel_case
 from betty.user import UserFacing
@@ -148,16 +146,6 @@ class EntityDefinition(
         label=_("Entity"),
         cls=Entity,
     )
-
-
-ENTITY_TYPE_REPOSITORY: PluginRepository[EntityDefinition] = EntryPointPluginRepository(
-    EntityDefinition, "betty.entity_type"
-)
-"""
-The entity type plugin repository.
-
-Read more about :doc:`/development/plugin/entity-type`.
-"""
 
 
 AncestryEntityId: TypeAlias = tuple[type[Entity], str]

@@ -1,4 +1,4 @@
-{% if project.extension_repository.get("wiki") in project.extensions %}
+{% if "wiki" in project.extensions %}
     {% set content -%}
         {% with resource = entity %}
             {% include 'wikipedia/summaries.html.j2' %}

@@ -203,9 +203,7 @@ class Event(
             await StaticTranslations.linked_data_schema(project),
             False,
         )
-        schema.add_property(
-            "type", await project.event_type_repository.plugin_id_schema
-        )
+        schema.add_property("type", project.event_type_repository.plugin_id_schema)
         schema.add_property("eventStatus", String(title="Event status"))
         schema.add_property(
             "eventAttendanceMode", String(title="Event attendance mode")

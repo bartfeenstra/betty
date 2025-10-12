@@ -12,6 +12,7 @@ from aiofiles.tempfile import TemporaryDirectory
 from typing_extensions import override
 
 import betty
+from betty import about
 from betty.app import config
 from betty.app.config import AppConfiguration
 from betty.app.factory import AppDependentFactory
@@ -24,8 +25,8 @@ from betty.dirs import CACHE_DIRECTORY_PATH
 from betty.factory import TargetFactory, new
 from betty.fetch import Fetcher, http
 from betty.fetch.static import StaticFetcher
-from betty.license import LICENSE_REPOSITORY, LicenseDefinition
-from betty.license.licenses import SpdxLicenseRepository
+from betty.license import LicenseDefinition
+from betty.license.licenses import SpdxLicenseBuilder
 from betty.locale import DEFAULT_LOCALE
 from betty.locale.localizer import Localizer, LocalizerRepository
 from betty.locale.translation import (
@@ -33,8 +34,13 @@ from betty.locale.translation import (
     NoOpTranslationRepository,
     TranslationRepository,
 )
+from betty.model import EntityDefinition
 from betty.multiprocessing import ProcessPoolExecutor
+from betty.plugin.entry_point import EntryPointPluginRepository
 from betty.plugin.proxy import ProxyPluginRepository
+from betty.plugin.static import StaticPluginRepository
+from betty.project.extension import ExtensionDefinition
+from betty.render import RendererDefinition
 from betty.service import ServiceFactory, ServiceProvider, StaticService, service
 from betty.typing import processsafe
 
@@ -43,6 +49,7 @@ if TYPE_CHECKING:
     from concurrent import futures
 
     from betty.cache import Cache
+    from betty.console.command import CommandDefinition
     from betty.plugin import PluginRepository
     from betty.user import User
 
@@ -66,6 +73,10 @@ class App(Configurable[AppConfiguration], TargetFactory, ServiceProvider):
         fetcher: Fetcher | None = None,
         process_pool: futures.ProcessPoolExecutor | None = None,
         translations: TranslationRepository | None = None,
+        entity_type_repository: PluginRepository[EntityDefinition] | None = None,
+        extension_repository: PluginRepository[ExtensionDefinition] | None = None,
+        command_repository: PluginRepository[CommandDefinition] | None = None,
+        renderer_repository: PluginRepository[RendererDefinition] | None = None,
     ):
         from betty.console.user import ConsoleUser
 
@@ -78,6 +89,14 @@ class App(Configurable[AppConfiguration], TargetFactory, ServiceProvider):
             cls.process_pool.override(self, process_pool)
         if translations is not None:
             cls.translations.override(self, translations)
+        if entity_type_repository is not None:
+            cls.entity_type_repository.override(self, entity_type_repository)
+        if extension_repository is not None:
+            cls.extension_repository.override(self, extension_repository)
+        if command_repository is not None:
+            cls.command_repository.override(self, command_repository)
+        if renderer_repository is not None:
+            cls.renderer_repository.override(self, renderer_repository)
         self._cache_directory_path = cache_directory_path
         cls.cache.override_factory(self, cache_factory)
 
@@ -117,6 +136,10 @@ class App(Configurable[AppConfiguration], TargetFactory, ServiceProvider):
         process_pool: futures.ProcessPoolExecutor | None = None,
         user: User | None = None,
         translations: TranslationRepository | None | False = False,
+        entity_type_repository: PluginRepository[EntityDefinition] | None = None,
+        extension_repository: PluginRepository[ExtensionDefinition] | None = None,
+        command_repository: PluginRepository[CommandDefinition] | None = None,
+        renderer_repository: PluginRepository[RendererDefinition] | None = None,
     ) -> AsyncIterator[Self]:
         """
         Create a new, temporary, isolated application.
@@ -138,6 +161,10 @@ class App(Configurable[AppConfiguration], TargetFactory, ServiceProvider):
                 translations=NoOpTranslationRepository()
                 if translations is False
                 else translations,
+                entity_type_repository=entity_type_repository,
+                extension_repository=extension_repository,
+                command_repository=command_repository,
+                renderer_repository=renderer_repository,
             )
 
     @override
@@ -266,17 +293,65 @@ class App(Configurable[AppConfiguration], TargetFactory, ServiceProvider):
         return await new(cls)
 
     @service
+    def entity_type_repository(self) -> PluginRepository[EntityDefinition]:
+        """
+        The entity types available to this application.
+
+        Read more about :doc:`/development/plugin/entity-type`.
+        """
+        return EntryPointPluginRepository(EntityDefinition, "betty.entity_type")
+
+    @service
+    def extension_repository(self) -> PluginRepository[ExtensionDefinition]:
+        """
+        The extensions available to this application.
+
+        Read more about :doc:`/development/plugin/extension`.
+        """
+        return EntryPointPluginRepository(ExtensionDefinition, "betty.extension")
+
+    @service
+    def command_repository(self) -> PluginRepository[CommandDefinition]:
+        """
+        The console commands available to this application.
+
+        Read more about :doc:`/development/plugin/command`.
+        """
+        from betty.console.command import CommandDefinition
+
+        return ProxyPluginRepository(
+            CommandDefinition,
+            EntryPointPluginRepository(CommandDefinition, "betty.command"),
+            *(
+                [EntryPointPluginRepository(CommandDefinition, "betty.dev.command")]
+                if about.IS_DEVELOPMENT
+                else []
+            ),
+        )
+
+    @service
+    def renderer_repository(self) -> PluginRepository[RendererDefinition]:
+        """
+        The renderers available to this application.
+
+        Read more about :doc:`/development/plugin/renderer`.
+        """
+        return EntryPointPluginRepository(RendererDefinition, "betty.renderer")
+
+    @service
     async def spdx_license_repository(self) -> PluginRepository[LicenseDefinition]:
         """
         The SPDX licenses available to this application.
         """
-        return ProxyPluginRepository(
+        return StaticPluginRepository(
             LicenseDefinition,
-            LICENSE_REPOSITORY,
-            SpdxLicenseRepository(
-                binary_file_cache=self.binary_file_cache.with_scope("spdx"),
-                fetcher=await self.fetcher,
-                user=self.user,
-                process_pool=self.process_pool,
-            ),
+            *[
+                license
+                async for license in SpdxLicenseBuilder(  # noqa A001
+                    binary_file_cache=self.binary_file_cache.with_scope("spdx"),
+                    fetcher=await self.fetcher,
+                    user=self.user,
+                    process_pool=self.process_pool,
+                ).build()
+            ],
         )
