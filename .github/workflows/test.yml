@@ -23,7 +23,7 @@ jobs:
           - name: 'Python 3.14'
             os: ubuntu-latest
             nodejs: 22.x
-            python: '3.14.0-beta - 3.14.0'
+            python: '3.14'
           - name: 'Python 3.13'
             os: ubuntu-latest
             nodejs: 22.x
@@ -39,11 +39,11 @@ jobs:
           - name: 'macOS'
             os: macos-latest
             nodejs: 22.x
-            python: '3.13'
+            python: '3.14'
           - name: 'Windows'
             os: windows-latest
             nodejs: 22.x
-            python: '3.13'
+            python: '3.14'
     timeout-minutes: 60
     steps:
       - name: Check out the source code
