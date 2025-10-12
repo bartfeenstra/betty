@@ -8,22 +8,15 @@ from abc import abstractmethod
 from collections.abc import Awaitable, Callable
 from typing import TYPE_CHECKING, ClassVar, ParamSpec, TypeAlias, TypeVar, final
 
-from betty import about
 from betty.locale.localizable import _
 from betty.plugin import (
     ClassedPluginDefinition,
     ClassedPluginTypeDefinition,
     UserFacingPluginDefinition,
 )
-from betty.plugin.entry_point import EntryPointPluginRepository
-from betty.plugin.proxy import ProxyPluginRepository
 
 if TYPE_CHECKING:
     import argparse
-
-    from betty.plugin import (
-        PluginRepository,
-    )
 
 _T = TypeVar("_T")
 _P = ParamSpec("_P")
@@ -64,14 +57,3 @@ class CommandDefinition(UserFacingPluginDefinition, ClassedPluginDefinition[Comm
         label=_("Command"),
         cls=Command,
     )
-
-
-COMMAND_REPOSITORY: PluginRepository[CommandDefinition] = ProxyPluginRepository(
-    CommandDefinition,
-    EntryPointPluginRepository(CommandDefinition, "betty.command"),
-    *(
-        [EntryPointPluginRepository(CommandDefinition, "betty.dev.command")]
-        if about.IS_DEVELOPMENT
-        else []
-    ),
-)

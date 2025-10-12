@@ -4,7 +4,7 @@ Provide Betty's ancestry genders.
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, ClassVar, final
+from typing import ClassVar, final
 
 from betty.locale.localizable import _
 from betty.mutability import Mutable
@@ -13,10 +13,6 @@ from betty.plugin import (
     ClassedPluginTypeDefinition,
     UserFacingPluginDefinition,
 )
-from betty.plugin.entry_point import EntryPointPluginRepository
-
-if TYPE_CHECKING:
-    from betty.plugin import PluginRepository
 
 
 class Gender(Mutable):
@@ -42,13 +38,3 @@ class GenderDefinition(UserFacingPluginDefinition, ClassedPluginDefinition[Gende
         label=_("Gender"),
         cls=Gender,
     )
-
-
-GENDER_REPOSITORY: PluginRepository[GenderDefinition] = EntryPointPluginRepository(
-    GenderDefinition, "betty.gender"
-)
-"""
-The gender plugin repository.
-
-Read more about :doc:`/development/plugin/gender`.
-"""

@@ -144,11 +144,11 @@ class File(
         schema = await super().linked_data_schema(project)
         schema.add_property(
             "copyrightNotice",
-            await project.copyright_notice_repository.plugin_id_schema,
+            project.copyright_notice_repository.plugin_id_schema,
             False,
         )
         schema.add_property(
-            "license", await (await project.license_repository).plugin_id_schema, False
+            "license", (await project.license_repository).plugin_id_schema, False
         )
         return schema
 

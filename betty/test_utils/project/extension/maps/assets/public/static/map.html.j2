@@ -1,7 +1,7 @@
 {% extends 'base.html.j2' %}
 {% block page_content %}
     <div style="height: 500px; width: 500px;">
-        {% with places = project.ancestry[project.entity_type_repository.get('place')] %}
+        {% with places = project.ancestry[app.entity_type_repository.get('place')] %}
             {% include 'maps/map.html.j2' %}
         {% endwith %}
     </div>

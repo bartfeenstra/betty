@@ -4,7 +4,7 @@ Provide Betty's ancestry place types.
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, ClassVar, final
+from typing import ClassVar, final
 
 from betty.locale.localizable import _
 from betty.mutability import Mutable
@@ -13,10 +13,6 @@ from betty.plugin import (
     ClassedPluginTypeDefinition,
     UserFacingPluginDefinition,
 )
-from betty.plugin.entry_point import EntryPointPluginRepository
-
-if TYPE_CHECKING:
-    from betty.plugin import PluginRepository
 
 
 class PlaceType(Mutable):
@@ -44,13 +40,3 @@ class PlaceTypeDefinition(
         label=_("Place type"),
         cls=PlaceType,
     )
-
-
-PLACE_TYPE_REPOSITORY: PluginRepository[PlaceTypeDefinition] = (
-    EntryPointPluginRepository(PlaceTypeDefinition, "betty.place_type")
-)
-"""
-The place type plugin repository.
-
-Read more about :doc:`/development/plugin/place-type`.
-"""

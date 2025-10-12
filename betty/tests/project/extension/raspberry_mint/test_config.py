@@ -3,17 +3,13 @@ from __future__ import annotations
 from typing import TYPE_CHECKING, Any
 
 from betty.exception import UserFacingException
-from betty.model import EntityDefinition
 from betty.model.config import EntityReference
-from betty.plugin.static import StaticPluginRepository
 from betty.project.extension.raspberry_mint.config import RaspberryMintConfiguration
 from betty.test_utils.exception import raises_error
 from betty.test_utils.model import DummyEntityOne
 
 if TYPE_CHECKING:
     from collections.abc import Mapping
-
-    from pytest_mock import MockerFixture
 
     from betty.serde.dump import Dump, DumpMapping
 
@@ -48,11 +44,7 @@ class TestRaspberryMintConfiguration:
         with raises_error(error_type=UserFacingException):
             RaspberryMintConfiguration().load(dump)
 
-    def test_load__with_featured_entities(self, mocker: MockerFixture) -> None:
-        mocker.patch(
-            "betty.model.ENTITY_TYPE_REPOSITORY",
-            new=StaticPluginRepository(EntityDefinition),
-        )
+    def test_load__with_featured_entities(self) -> None:
         entity_type = DummyEntityOne.plugin
         entity_id = "123"
         dump: Dump = {

@@ -769,7 +769,7 @@ class GrampsLoader:
         if copyright_notice_id:
             try:
                 file.copyright_notice = await self._factory(
-                    (await self._copyright_notices.get(copyright_notice_id)).cls
+                    self._copyright_notices[copyright_notice_id].cls
                 )
             except PluginNotFound:
                 await self._user.message_warning(
@@ -780,9 +780,7 @@ class GrampsLoader:
         license_id = self._load_attribute("license", element, "attribute")
         if license_id:
             try:
-                file.license = await self._factory(
-                    (await self._licenses.get(license_id)).cls
-                )
+                file.license = await self._factory(self._licenses[license_id].cls)
             except PluginNotFound:
                 await self._user.message_warning(
                     _(
@@ -815,7 +813,7 @@ class GrampsLoader:
 
         person = Person(
             id=element.get("id"),
-            gender=await self._factory((await self._genders.get(gender_id)).cls),
+            gender=await self._factory(self._genders[gender_id].cls),
         )
 
         name_elements = sorted(

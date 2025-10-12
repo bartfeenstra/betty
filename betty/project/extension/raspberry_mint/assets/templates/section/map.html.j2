@@ -1,4 +1,4 @@
-{% if project.extension_repository.get("maps") in project.extensions %}
+{% if "maps" in project.extensions %}
     {% set map -%}
         {% include 'maps/map.html.j2' %}
     {%- endset %}

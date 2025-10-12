@@ -14,12 +14,12 @@ from betty.license import License
 from betty.license.licenses import (
     AllRightsReserved,
     PublicDomain,
-    SpdxLicenseRepository,
+    SpdxLicenseBuilder,
     spdx_license_id_to_license_id,
 )
 from betty.locale.localizer import DEFAULT_LOCALIZER
 from betty.multiprocessing import ProcessPoolExecutor
-from betty.plugin import PluginDefinition, PluginNotFound
+from betty.plugin import PluginDefinition
 from betty.test_utils.license import LicenseDefinitionTestBase, LicenseTestBase
 from betty.test_utils.user import StaticUser
 
@@ -66,21 +66,21 @@ def test_spdx_license_id_to_license_id(expected: str, spdx_license_id: str) -> N
     assert spdx_license_id_to_license_id(spdx_license_id) == expected
 
 
-class TestSpdxLicenseRepository:
+class TestSpdxLicenseBuilder:
     @pytest.fixture
     def sut_without_licenses(
         self, binary_file_cache: BinaryFileCache, tmp_path: Path
-    ) -> Iterator[SpdxLicenseRepository]:
+    ) -> Iterator[SpdxLicenseBuilder]:
         spdx_directory_path = tmp_path / "spdx"
         spdx_directory_path.mkdir()
         licenses_data: DumpMapping[Dump] = {
-            "licenseListVersion": SpdxLicenseRepository.SPDX_VERSION,
+            "licenseListVersion": SpdxLicenseBuilder.VERSION,
             "licenses": [],
             "releaseDate": "2024-08-19",
         }
         licenses_file_path = (
             spdx_directory_path
-            / f"license-list-data-{SpdxLicenseRepository.SPDX_VERSION}"
+            / f"license-list-data-{SpdxLicenseBuilder.VERSION}"
             / "json"
             / "licenses.json"
         )
@@ -91,10 +91,10 @@ class TestSpdxLicenseRepository:
         with tarfile.open(spdx_tar_file_path, "w:gz") as spdx_tar_file:
             spdx_tar_file.add(spdx_directory_path, "/")
         fetcher = StaticFetcher(
-            fetch_file_map={SpdxLicenseRepository.URL: spdx_tar_file_path}
+            fetch_file_map={SpdxLicenseBuilder.URL: spdx_tar_file_path}
         )
         with ProcessPoolExecutor() as process_pool:
-            sut = SpdxLicenseRepository(
+            sut = SpdxLicenseBuilder(
                 binary_file_cache=binary_file_cache,
                 fetcher=fetcher,
                 user=StaticUser(),
@@ -105,11 +105,11 @@ class TestSpdxLicenseRepository:
     @pytest.fixture
     def sut_with_licenses(
         self, binary_file_cache: BinaryFileCache, tmp_path: Path
-    ) -> Iterator[SpdxLicenseRepository]:
+    ) -> Iterator[SpdxLicenseBuilder]:
         spdx_directory_path = tmp_path / "spdx"
         spdx_directory_path.mkdir()
         licenses_data: DumpMapping[Dump] = {
-            "licenseListVersion": SpdxLicenseRepository.SPDX_VERSION,
+            "licenseListVersion": SpdxLicenseBuilder.VERSION,
             "licenses": [
                 {
                     "reference": "https://spdx.org/licenses/0BSD.html",
@@ -129,7 +129,7 @@ class TestSpdxLicenseRepository:
         }
         licenses_file_path = (
             spdx_directory_path
-            / f"license-list-data-{SpdxLicenseRepository.SPDX_VERSION}"
+            / f"license-list-data-{SpdxLicenseBuilder.VERSION}"
             / "json"
             / "licenses.json"
         )
@@ -171,7 +171,7 @@ class TestSpdxLicenseRepository:
         }
         license_file_path = (
             spdx_directory_path
-            / f"license-list-data-{SpdxLicenseRepository.SPDX_VERSION}"
+            / f"license-list-data-{SpdxLicenseBuilder.VERSION}"
             / "json"
             / "details"
             / "0BSD.json"
@@ -183,10 +183,10 @@ class TestSpdxLicenseRepository:
         with tarfile.open(spdx_tar_file_path, "w:gz") as spdx_tar_file:
             spdx_tar_file.add(spdx_directory_path, "/")
         fetcher = StaticFetcher(
-            fetch_file_map={SpdxLicenseRepository.URL: spdx_tar_file_path}
+            fetch_file_map={SpdxLicenseBuilder.URL: spdx_tar_file_path}
         )
         with ProcessPoolExecutor() as process_pool:
-            sut = SpdxLicenseRepository(
+            sut = SpdxLicenseBuilder(
                 binary_file_cache=binary_file_cache,
                 fetcher=fetcher,
                 user=StaticUser(),
@@ -194,8 +194,13 @@ class TestSpdxLicenseRepository:
             )
             yield sut
 
-    async def test_get(self, sut_with_licenses: SpdxLicenseRepository) -> None:
-        zero_bsd_type = await sut_with_licenses.get("spdx-0bsd")
+    async def test_build__with_licenses(
+        self, sut_with_licenses: SpdxLicenseBuilder
+    ) -> None:
+        zero_bsd_type = [
+            license
+            async for license in sut_with_licenses.build()  # noqa A001
+        ][0]
         assert (
             zero_bsd_type.label.localize(DEFAULT_LOCALIZER) == "BSD Zero Clause License"
         )
@@ -209,35 +214,10 @@ class TestSpdxLicenseRepository:
         assert url is not None
         assert url.localize(DEFAULT_LOCALIZER) == "https://spdx.org/licenses/0BSD.html"
 
-    async def test_get_not_found_with_licenses(
-        self, sut_with_licenses: SpdxLicenseRepository
+    async def test_build__without_licenses(
+        self, sut_without_licenses: SpdxLicenseBuilder
     ) -> None:
-        with pytest.raises(PluginNotFound):
-            await sut_with_licenses.get("unknown-license")
-
-    async def test_get_not_found_without_licenses(
-        self, sut_without_licenses: SpdxLicenseRepository
-    ) -> None:
-        with pytest.raises(PluginNotFound):
-            await sut_without_licenses.get("unknown-license")
-
-    async def test___aiter__(self, sut_with_licenses: SpdxLicenseRepository) -> None:
-        assert [plugin.id async for plugin in sut_with_licenses] == ["spdx-0bsd"]
-
-    async def test___aiter___without_plugins(
-        self, sut_without_licenses: SpdxLicenseRepository
-    ) -> None:
-        assert [plugin async for plugin in sut_without_licenses] == []
-
-    async def test_license_id_to_spdx_license_id(
-        self, sut_with_licenses: SpdxLicenseRepository
-    ) -> None:
-        assert (
-            await sut_with_licenses.license_id_to_spdx_license_id("spdx-0bsd") == "0BSD"
-        )
-
-    async def test_license_id_to_spdx_license_id_not_found(
-        self, sut_without_licenses: SpdxLicenseRepository
-    ) -> None:
-        with pytest.raises(PluginNotFound):
-            await sut_without_licenses.license_id_to_spdx_license_id("unknown-license")
+        assert not [
+            license
+            async for license in sut_without_licenses.build()  # noqa A001
+        ]

@@ -27,7 +27,7 @@ if TYPE_CHECKING:
     from betty.ancestry import Ancestry
     from betty.locale import LocaleLike
     from betty.media_type import MediaType
-    from betty.plugin import PluginIdMapping
+    from betty.plugin import PluginRepository
     from betty.project import Project
 
 
@@ -149,9 +149,7 @@ async def new_project_url_generator(project: Project) -> UrlGenerator:
         await _EntityTypeUrlGenerator.new_for_project(project),
         entity_url_generator,
         _EntityUrlUrlGenerator(
-            project.ancestry,
-            entity_url_generator,
-            await project.entity_type_repository.mapping(),
+            project.ancestry, entity_url_generator, project.app.entity_type_repository
         ),
         await _LocalizedPathUrlUrlGenerator.new_for_project(project),
         await _StaticPathUrlUrlGenerator.new_for_project(project),
@@ -238,11 +236,11 @@ class _EntityUrlUrlGenerator(UrlGenerator):
         self,
         ancestry: Ancestry,
         entity_url_generator: _EntityUrlGenerator,
-        entity_type_id_mapping: PluginIdMapping[EntityDefinition],
+        entity_types: PluginRepository[EntityDefinition],
     ):
         self._ancestry = ancestry
         self._entity_url_generator = entity_url_generator
-        self._entity_type_id_mapping = entity_type_id_mapping
+        self._entity_types = entity_types
 
     @override
     def supports(self, resource: Any) -> bool:
@@ -274,9 +272,7 @@ class _EntityUrlUrlGenerator(UrlGenerator):
         parsed_url = urlparse(resource)
         entity_type_id = parsed_url.netloc
         entity_id = parsed_url.path[1:]
-        entity = self._ancestry[self._entity_type_id_mapping[entity_type_id].cls][
-            entity_id
-        ]
+        entity = self._ancestry[self._entity_types[entity_type_id].cls][entity_id]
         return self._entity_url_generator.generate(
             entity,
             absolute=absolute,

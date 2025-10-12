@@ -239,9 +239,7 @@ class PluginInstanceConfiguration(
         """
         Create a new plugin instance.
         """
-        plugin_definition = cast(
-            ClassedPluginDefinition[_PluginT], await repository.get(self.id)
-        )
+        plugin_definition = cast(ClassedPluginDefinition[_PluginT], repository[self.id])
         plugin = await factory(plugin_definition.cls)
         if not_void(self.configuration):
             if not isinstance(plugin, DefaultConfigurable):
