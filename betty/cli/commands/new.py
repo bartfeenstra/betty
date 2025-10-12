@@ -68,7 +68,7 @@ class New(ShorthandPluginBase, AppDependentFactory, Command):
             else self.plugin_label().localize(localizer),
         )
         async def new() -> None:
-            configuration_file_path = click.prompt(
+            configuration_file_path = await click.prompt(
                 localizer._(
                     "Where do you want to save your project's configuration file?"
                 ),
@@ -89,7 +89,7 @@ class New(ShorthandPluginBase, AppDependentFactory, Command):
 
             configuration.locales.replace(
                 LocaleConfiguration(
-                    click.prompt(
+                    await click.prompt(
                         localizer._(
                             "Which language should your project site be generated in? Enter an IETF BCP 47 language code."
                         ),
@@ -103,7 +103,7 @@ class New(ShorthandPluginBase, AppDependentFactory, Command):
             while click.confirm(localizer._("Do you want to add another locale?")):
                 configuration.locales.append(
                     LocaleConfiguration(
-                        click.prompt(
+                        await click.prompt(
                             localizer._(
                                 "Which language should your project site be generated in? Enter an IETF BCP 47 language code."
                             ),
@@ -115,12 +115,12 @@ class New(ShorthandPluginBase, AppDependentFactory, Command):
                 )
             locales = list(configuration.locales)
 
-            configuration.title = _prompt_static_translations(
+            configuration.title = await _prompt_static_translations(
                 locales,
                 localizer._("What is your project called in {locale}?"),
             )
 
-            configuration.name = click.prompt(
+            configuration.name = await click.prompt(
                 localizer._("What is your project's machine name?"),
                 default=machinify(
                     configuration.title.localize(
@@ -134,12 +134,12 @@ class New(ShorthandPluginBase, AppDependentFactory, Command):
                 ),
             )
 
-            configuration.author = _prompt_static_translations(
+            configuration.author = await _prompt_static_translations(
                 locales,
                 localizer._("What is the project author called in {locale}?"),
             )
 
-            configuration.url = click.prompt(
+            configuration.url = await click.prompt(
                 localizer._("At which URL will your site be published?"),
                 default="https://example.com",
                 value_proc=user_facing_error_to_bad_parameter(localizer)(_assert_url),
@@ -152,7 +152,7 @@ class New(ShorthandPluginBase, AppDependentFactory, Command):
                         configuration=GrampsConfiguration(
                             family_trees=[
                                 FamilyTreeConfiguration(
-                                    click.prompt(
+                                    await click.prompt(
                                         localizer._(
                                             "What is the path to your exported Gramps family tree file?"
                                         ),
@@ -193,7 +193,7 @@ def _assert_url(value: Any) -> str:
     return f"{scheme}://{parsed_url.netloc}{parsed_url.path}"
 
 
-def _prompt_static_translations(
+async def _prompt_static_translations(
     locales: Sequence[str],
     text: str,
     default: Any | None = None,
@@ -207,7 +207,7 @@ def _prompt_static_translations(
     show_choices: bool = True,
 ) -> StaticTranslations:
     return {
-        locale: click.prompt(
+        locale: await click.prompt(
             text.format(locale=get_display_name(locale)),
             default,
             hide_input,
