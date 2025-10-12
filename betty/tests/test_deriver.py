@@ -72,12 +72,12 @@ class ComesBeforeAndAfterDerivable(DummyEventType, DerivableEventType):
     @override
     @classmethod
     def comes_before(cls) -> set[PluginIdentifier[EventType]]:
-        return {Ignored}
+        return {ComesBeforeReference}
 
     @override
     @classmethod
     def comes_after(cls) -> set[PluginIdentifier[EventType]]:
-        return {Ignored}
+        return {ComesAfterReference}
 
 
 class ComesBeforeAndAfterCreatableDerivable(

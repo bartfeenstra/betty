@@ -10,6 +10,7 @@ Read more at :doc:`/development/plugin`.
 from __future__ import annotations
 
 from abc import ABC, abstractmethod
+from collections import defaultdict
 from collections.abc import Iterable
 from typing import (
     TYPE_CHECKING,
@@ -396,3 +397,53 @@ async def sort_dependent_plugin_graph(
         await expand_plugin_dependencies(plugin_repository, plugins),
         sorter,  # type: ignore[arg-type]
     )
+
+
+def _collect_ordered_plugin_graph(
+    graph: Mapping[
+        type[_PluginCoT & OrderedPlugin[_PluginCoT]],
+        set[type[_PluginCoT & OrderedPlugin[_PluginCoT]]],
+    ],
+    origin: type[_PluginCoT & OrderedPlugin[_PluginCoT]],
+) -> Iterator[type[_PluginCoT & OrderedPlugin[_PluginCoT]]]:
+    yield from graph[origin]
+    for target in graph[origin]:
+        yield from _collect_ordered_plugin_graph(graph, target)
+
+
+async def get_comes_before(
+    plugin_repository: PluginRepository[_PluginCoT & OrderedPlugin[_PluginCoT]],
+    origin: type[_PluginCoT & OrderedPlugin[_PluginCoT]],
+    /,
+) -> set[type[_PluginCoT & OrderedPlugin[_PluginCoT]]]:
+    """
+    Get all other plugins the given plugin comes before.
+    """
+    graph = defaultdict(set)
+    async for event_type in plugin_repository:
+        for comes_before_id in event_type.comes_before():
+            comes_before = await plugin_repository.resolve_identifier(comes_before_id)
+            graph[event_type].add(comes_before)
+        for comes_after_id in event_type.comes_after():
+            comes_after = await plugin_repository.resolve_identifier(comes_after_id)
+            graph[comes_after].add(event_type)
+    return set(_collect_ordered_plugin_graph(graph, origin))
+
+
+async def get_comes_after(
+    plugin_repository: PluginRepository[_PluginCoT & OrderedPlugin[_PluginCoT]],
+    origin: type[_PluginCoT & OrderedPlugin[_PluginCoT]],
+    /,
+) -> set[type[_PluginCoT & OrderedPlugin[_PluginCoT]]]:
+    """
+    Get all other plugins the given plugin comes after.
+    """
+    graph = defaultdict(set)
+    async for event_type in plugin_repository:
+        for comes_after_id in event_type.comes_after():
+            comes_after = await plugin_repository.resolve_identifier(comes_after_id)
+            graph[event_type].add(comes_after)
+        for comes_before_id in event_type.comes_before():
+            comes_before = await plugin_repository.resolve_identifier(comes_before_id)
+            graph[comes_before].add(event_type)
+    return set(_collect_ordered_plugin_graph(graph, origin))
