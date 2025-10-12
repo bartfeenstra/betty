@@ -11,10 +11,10 @@ jobs:
     strategy:
       matrix:
         include:
-          - name: 'Python 3.13'
+          - name: 'Python 3.14'
             os: ubuntu-latest
             nodejs: 22.x
-            python: '3.13'
+            python: '3.14'
     steps:
       - name: Check out the source code
         uses: actions/checkout@v5
