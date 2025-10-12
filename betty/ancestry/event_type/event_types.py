@@ -11,10 +11,10 @@ from typing_extensions import override
 from betty.ancestry.event_type import EventType
 from betty.locale.localizable import _
 from betty.plugin import PluginIdentifier, ShorthandPluginBase
-from betty.user.no_op import NoOpUser
 
 if TYPE_CHECKING:
     from betty.ancestry.person import Person
+    from betty.project import Project
 
 
 @final
@@ -39,7 +39,7 @@ class CreatableDerivableEventType(DerivableEventType):
     """
 
     @classmethod
-    def may_create(cls, person: Person, lifetime_threshold: int) -> bool:
+    async def may_create(cls, project: Project, person: Person) -> bool:
         """
         Whether a new event of this type may be created for the given person.
         """
@@ -175,10 +175,12 @@ class Death(CreatableDerivableEventType, EndOfLifeEventType, ShorthandPluginBase
 
     @override
     @classmethod
-    def may_create(cls, person: Person, lifetime_threshold: int) -> bool:
+    async def may_create(cls, project: Project, person: Person) -> bool:
         from betty.privacy.privatizer import Privatizer
 
-        return Privatizer(lifetime_threshold, user=NoOpUser()).has_expired(person, 1)
+        return Privatizer(
+            project.configuration.lifetime_threshold, user=project.app.user
+        ).has_expired(person, 1)
 
 
 class FinalDispositionEventType(

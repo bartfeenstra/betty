@@ -25,10 +25,8 @@ from betty.locale.localizable import _
 if TYPE_CHECKING:
     from collections.abc import Iterable, Sequence
 
-    from betty.ancestry import Ancestry
     from betty.ancestry.event_type import EventType
-    from betty.plugin import PluginRepository
-    from betty.user import User
+    from betty.project import Project
 
 
 class Derivation(Enum):
@@ -61,37 +59,27 @@ class Deriver:
     Derive information from ancestries, and create new entities or update existing ones.
     """
 
-    def __init__(
-        self,
-        ancestry: Ancestry,
-        lifetime_threshold: int,
-        event_types: PluginRepository[EventType],
-        derivable_event_types: set[type[DerivableEventType]],
-        *,
-        user: User,
-    ):
+    def __init__(self, project: Project):
         super().__init__()
-        self._ancestry = ancestry
-        self._lifetime_threshold = lifetime_threshold
-        self._event_types = event_types
-        self._derivable_event_type = derivable_event_types
-        self._user = user
+        self._project = project
 
     async def derive(self) -> None:
         """
         Derive additional data.
         """
-        for derivable_event_type in self._derivable_event_type:
+        async for derivable_event_type in self._project.event_type_repository:
+            if not issubclass(derivable_event_type, DerivableEventType):
+                continue
             created_derivations = 0
             updated_derivations = 0
-            for person in self._ancestry[Person]:
+            for person in self._project.ancestry[Person]:
                 created, updated = await self._derive_person(
                     person, derivable_event_type
                 )
                 created_derivations += created
                 updated_derivations += updated
             if updated_derivations > 0:
-                await self._user.message_debug(
+                await self._project.app.user.message_debug(
                     _(
                         "Updated {updated_derivations} {event_type} events based on existing information."
                     ).format(
@@ -100,7 +88,7 @@ class Deriver:
                     )
                 )
             if created_derivations > 0:
-                await self._user.message_debug(
+                await self._project.app.user.message_debug(
                     _(
                         "Created {created_derivations} additional {event_type} events based on existing information."
                     ).format(
@@ -130,10 +118,7 @@ class Deriver:
             if issubclass(
                 derivable_event_type,
                 CreatableDerivableEventType,
-            ) and derivable_event_type.may_create(
-                person,
-                self._lifetime_threshold,
-            ):
+            ) and await derivable_event_type.may_create(self._project, person):
                 derivable_events = [
                     (
                         Event(
@@ -148,16 +133,18 @@ class Deriver:
 
         # Aggregate event type order from references and backreferences.
         comes_before_event_types = set(
-            await self._event_types.resolve_identifiers(
+            await self._project.event_type_repository.resolve_identifiers(
                 derivable_event_type.comes_before()
             )
         )
         comes_after_event_types = set(
-            await self._event_types.resolve_identifiers(
+            await self._project.event_type_repository.resolve_identifiers(
                 derivable_event_type.comes_after()
             )
         )
-        for other_event_type in self._derivable_event_type:
+        async for other_event_type in self._project.event_type_repository:
+            if not issubclass(other_event_type, DerivableEventType):
+                continue
             if derivable_event_type in other_event_type.comes_before():
                 comes_after_event_types.add(other_event_type)
             if derivable_event_type in other_event_type.comes_after():
@@ -183,11 +170,11 @@ class Deriver:
                 )
 
             if dates_derived:
-                self._ancestry.add(derivable_event)
+                self._project.ancestry.add(derivable_event)
                 if derivation is Derivation.CREATE:
                     created_derivations += 1
                     presence = Presence(person, Subject(), derivable_event)
-                    self._ancestry.add(presence)
+                    self._project.ancestry.add(presence)
                 else:
                     updated_derivations += 1
 
