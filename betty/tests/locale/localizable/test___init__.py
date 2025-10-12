@@ -1,4 +1,4 @@
-from collections.abc import Sequence
+from collections.abc import Callable, Sequence
 from gettext import NullTranslations
 
 import pytest
@@ -8,6 +8,7 @@ from betty.json.schema import Schema
 from betty.locale import DEFAULT_LOCALE, UNDETERMINED_LOCALE
 from betty.locale.localizable import (
     CountableLocalizable,
+    CountablePlain,
     Join,
     Localizable,
     Plain,
@@ -240,6 +241,86 @@ class TestPlain:
     )
     async def test_localize(self, string: str) -> None:
         assert Plain(string).localize(DEFAULT_LOCALIZER) == string
+
+
+class TestCountablePlain:
+    @pytest.mark.parametrize(
+        (
+            "expected",
+            "string_singular",
+            "string_plural",
+            "locale",
+            "is_plural",
+            "count",
+        ),
+        [
+            (
+                "Hello, worlds!",
+                "Hello, world!",
+                "Hello, worlds!",
+                DEFAULT_LOCALE,
+                None,
+                0,
+            ),
+            (
+                "Hello, world!",
+                "Hello, world!",
+                "Hello, worlds!",
+                DEFAULT_LOCALE,
+                None,
+                1,
+            ),
+            (
+                "Hello, worlds!",
+                "Hello, world!",
+                "Hello, worlds!",
+                DEFAULT_LOCALE,
+                None,
+                2,
+            ),
+            (
+                "Hello, world!",
+                "Hello, world!",
+                "Hello, worlds!",
+                DEFAULT_LOCALE,
+                lambda count: count > 1,
+                0,
+            ),
+            (
+                "Hello, world!",
+                "Hello, world!",
+                "Hello, worlds!",
+                DEFAULT_LOCALE,
+                lambda count: count > 1,
+                1,
+            ),
+            (
+                "Hello, worlds!",
+                "Hello, world!",
+                "Hello, worlds!",
+                DEFAULT_LOCALE,
+                lambda count: count > 1,
+                2,
+            ),
+        ],
+    )
+    async def test_count(
+        self,
+        expected: str,
+        string_singular: str,
+        string_plural: str,
+        locale: str,
+        is_plural: Callable[[int], bool] | None,
+        count: int,
+    ) -> None:
+        assert (
+            CountablePlain(
+                string_singular, string_plural, locale=locale, is_plural=is_plural
+            )
+            .count(count)
+            .localize(DEFAULT_LOCALIZER)
+            == expected
+        )
 
 
 class TestJoin:
