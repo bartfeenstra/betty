@@ -36,11 +36,12 @@ from betty.ancestry.person import Person
 from betty.ancestry.presence import Presence
 from betty.ancestry.presence_role.presence_roles import Subject
 from betty.date import Date
-from betty.project.config import DEFAULT_LIFETIME_THRESHOLD
+from betty.project import Project
 from betty.test_utils.ancestry.event_type import EventTypeTestBase
 
 if TYPE_CHECKING:
     from betty.ancestry.event_type import EventType
+    from betty.app import App
 
 
 class TestAdoption(EventTypeTestBase):
@@ -108,36 +109,45 @@ class TestDeath(EventTypeTestBase):
     def get_sut_class(self) -> type[EventType]:
         return Death
 
-    async def test_may_create_may_not_for_person_without_presences(self) -> None:
-        person = Person(id="P0")
+    async def test_may_create_may_not_for_person_without_presences(
+        self, new_temporary_app: App
+    ) -> None:
+        async with Project.new_temporary(new_temporary_app) as project, project:
+            person = Person(id="P0")
 
-        assert Death.may_create(person, DEFAULT_LIFETIME_THRESHOLD) is False
+            assert await Death.may_create(project, person) is False
 
-    async def test_may_create_may_not_within_lifetime_threshold(self) -> None:
-        person = Person(id="P0")
-        Presence(
-            person,
-            Subject(),
-            Event(
-                event_type=Birth(),
-                date=Date(1970, 1, 1),
-            ),
-        )
+    async def test_may_create_may_not_within_lifetime_threshold(
+        self, new_temporary_app: App
+    ) -> None:
+        async with Project.new_temporary(new_temporary_app) as project, project:
+            person = Person(id="P0")
+            Presence(
+                person,
+                Subject(),
+                Event(
+                    event_type=Birth(),
+                    date=Date(1970, 1, 1),
+                ),
+            )
 
-        assert Death.may_create(person, DEFAULT_LIFETIME_THRESHOLD) is False
+            assert await Death.may_create(project, person) is False
 
-    async def test_may_create_may_over_lifetime_threshold(self) -> None:
-        person = Person(id="P0")
-        Presence(
-            person,
-            Subject(),
-            Event(
-                event_type=Birth(),
-                date=Date(1, 1, 1),
-            ),
-        )
+    async def test_may_create_may_over_lifetime_threshold(
+        self, new_temporary_app: App
+    ) -> None:
+        async with Project.new_temporary(new_temporary_app) as project, project:
+            person = Person(id="P0")
+            Presence(
+                person,
+                Subject(),
+                Event(
+                    event_type=Birth(),
+                    date=Date(1, 1, 1),
+                ),
+            )
 
-        assert Death.may_create(person, DEFAULT_LIFETIME_THRESHOLD) is True
+            assert await Death.may_create(project, person) is True
 
 
 class TestDivorce(EventTypeTestBase):
