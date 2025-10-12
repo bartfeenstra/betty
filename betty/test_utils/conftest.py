@@ -33,11 +33,17 @@ if TYPE_CHECKING:
     from contextlib import AbstractAsyncContextManager
     from pathlib import Path
 
+    from playwright.async_api import BrowserContext, Page
+
     from betty.cache import Cache
+    from betty.console.command import CommandDefinition
     from betty.fetch import Fetcher
+    from betty.model import EntityDefinition
+    from betty.plugin import PluginRepository
+    from betty.project.extension import ExtensionDefinition
+    from betty.render import RendererDefinition
     from betty.service import ServiceFactory
     from betty.user import User
-    from playwright.async_api import BrowserContext, Page
 
 
 @pytest.fixture
@@ -81,6 +87,10 @@ class NewTemporaryAppFactory(Protocol):
         fetcher: Fetcher | None = None,
         process_pool: futures.ProcessPoolExecutor | None = None,
         user: User | None = None,
+        entity_type_repository: PluginRepository[EntityDefinition] | None = None,
+        extension_repository: PluginRepository[ExtensionDefinition] | None = None,
+        command_repository: PluginRepository[CommandDefinition] | None = None,
+        renderer_repository: PluginRepository[RendererDefinition] | None = None,
     ) -> AbstractAsyncContextManager[App]:
         pass
 
@@ -101,12 +111,20 @@ def new_temporary_app_factory(
         fetcher: Fetcher | None = None,
         process_pool: futures.ProcessPoolExecutor | None = None,
         user: User | None = None,
+        entity_type_repository: PluginRepository[EntityDefinition] | None = None,
+        extension_repository: PluginRepository[ExtensionDefinition] | None = None,
+        command_repository: PluginRepository[CommandDefinition] | None = None,
+        renderer_repository: PluginRepository[RendererDefinition] | None = None,
     ) -> AsyncIterator[App]:
         async with App.new_temporary(
             cache_factory=cache_factory,
             fetcher=fetcher,
             process_pool=process_pool or fixture_process_pool,
             user=user,
+            entity_type_repository=entity_type_repository,
+            extension_repository=extension_repository,
+            command_repository=command_repository,
+            renderer_repository=renderer_repository,
         ) as app:
             _configure_new_temporary_app(app)
             yield app

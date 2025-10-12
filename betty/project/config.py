@@ -61,11 +61,10 @@ from betty.plugin.config import (
 )
 from betty.project.extension import Extension, ExtensionDefinition
 from betty.repr import repr_instance
-from betty.serde.format import FORMAT_REPOSITORY, FormatDefinition, format_for
+from betty.serde.format import FORMAT_REPOSITORY, format_for
 from betty.user import UserFacing
 
 if TYPE_CHECKING:
-    from collections.abc import Sequence
     from pathlib import Path
 
     from betty.plugin import (
@@ -160,7 +159,7 @@ class EntityTypeConfiguration(Configuration):
         """
         Validate the configuration.
         """
-        entity_type = await entity_type_repository.get(self.id)
+        entity_type = entity_type_repository[self.id]
         if self.generate_html_list and not issubclass(entity_type.cls, UserFacing):
             raise UserFacingException(
                 _(
@@ -579,7 +578,6 @@ class ProjectConfiguration(Configuration):
         self,
         configuration_file_path: Path,
         *,
-        available_formats: Sequence[FormatDefinition],
         url: str = "https://example.com",
         clean_urls: bool = False,
         title: ShorthandStaticTranslations = "Betty",
@@ -609,7 +607,6 @@ class ProjectConfiguration(Configuration):
         from betty.copyright_notice.copyright_notices import ProjectAuthor
 
         super().__init__()
-        self._available_formats = available_formats
         self._configuration_file_path = configuration_file_path
         self._name = name
         self._computed_name: str | None = None
@@ -685,7 +682,6 @@ class ProjectConfiguration(Configuration):
         """
         return cls(
             configuration_file_path,
-            available_formats=[plugin async for plugin in FORMAT_REPOSITORY],
             url=url,
             clean_urls=clean_urls,
             title=title,
@@ -719,7 +715,7 @@ class ProjectConfiguration(Configuration):
         self.assert_mutable()
         if configuration_file_path == self._configuration_file_path:
             return
-        format_for(self._available_formats, configuration_file_path.suffix)
+        format_for(list(FORMAT_REPOSITORY), configuration_file_path.suffix)
         self._configuration_file_path = configuration_file_path
 
     @property

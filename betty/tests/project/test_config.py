@@ -53,8 +53,6 @@ if TYPE_CHECKING:
     from collections.abc import Iterable
     from pathlib import Path
 
-    from pytest_mock import MockerFixture
-
     from betty.config import Configuration
     from betty.serde.dump import Dump, DumpMapping
 
@@ -339,15 +337,7 @@ class TestEntityTypeConfiguration:
         with raises_error(error_type=UserFacingException):
             sut.load(dump)
 
-    async def test_load__with_minimal_configuration(
-        self, mocker: MockerFixture
-    ) -> None:
-        mocker.patch(
-            "betty.model.ENTITY_TYPE_REPOSITORY",
-            new=StaticPluginRepository(
-                EntityDefinition, DummyUserFacingEntityOne.plugin
-            ),
-        )
+    def test_load__with_minimal_configuration(self) -> None:
         dump: Dump = {
             "id": DummyUserFacingEntityOne.plugin.id,
         }
@@ -361,15 +351,7 @@ class TestEntityTypeConfiguration:
             False,
         ],
     )
-    async def test_load__with_generate_html_list(
-        self, generate_html_list: bool, mocker: MockerFixture
-    ) -> None:
-        mocker.patch(
-            "betty.model.ENTITY_TYPE_REPOSITORY",
-            new=StaticPluginRepository(
-                EntityDefinition, DummyUserFacingEntityOne.plugin
-            ),
-        )
+    def test_load__with_generate_html_list(self, generate_html_list: bool) -> None:
         dump: Dump = {
             "id": DummyUserFacingEntityOne.plugin.id,
             "generate_html_list": generate_html_list,
@@ -449,19 +431,6 @@ class EntityTypeConfigurationMappingTestEntity3(Entity):
 class TestEntityTypeConfigurationMapping(
     ConfigurationMappingTestBase[MachineName, EntityTypeConfiguration]
 ):
-    @pytest.fixture(autouse=True)
-    def _entity_types(self, mocker: MockerFixture) -> None:
-        mocker.patch(
-            "betty.model.ENTITY_TYPE_REPOSITORY",
-            new=StaticPluginRepository(
-                EntityDefinition,
-                EntityTypeConfigurationMappingTestEntity0.plugin,
-                EntityTypeConfigurationMappingTestEntity1.plugin,
-                EntityTypeConfigurationMappingTestEntity2.plugin,
-                EntityTypeConfigurationMappingTestEntity3.plugin,
-            ),
-        )
-
     @override
     def get_configuration_keys(
         self,
@@ -1135,13 +1104,7 @@ class TestProjectConfiguration:
         sut.load(dump)
         assert sut.debug == debug
 
-    async def test_load__should_load_extension(
-        self, mocker: MockerFixture, tmp_path: Path
-    ) -> None:
-        mocker.patch(
-            "betty.project.extension.EXTENSION_REPOSITORY",
-            new=StaticPluginRepository(ExtensionDefinition, DummyExtension.plugin),
-        )
+    async def test_load__should_load_extension(self, tmp_path: Path) -> None:
         sut = await ProjectConfiguration.new(tmp_path / "betty.json")
         dump = sut.dump()
         dump["extensions"] = {

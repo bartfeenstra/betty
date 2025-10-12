@@ -13,7 +13,6 @@ from betty.locale.translation.project import extension as extension_translation
 from betty.locale.translation.project.extension import (
     assert_extension_has_assets_directory_path,
 )
-from betty.project import extension
 
 if TYPE_CHECKING:
     import argparse
@@ -44,13 +43,12 @@ class ExtensionUpdateTranslations(AppDependentFactory, Command):
     @override
     async def configure(self, parser: argparse.ArgumentParser) -> CommandFunction:
         localizer = await self._app.localizer
-        extension_id_mapping = await extension.EXTENSION_REPOSITORY.mapping()
 
         parser.add_argument(
             "extension",
             type=assertion_to_argument_type(
                 lambda extension_id: assert_extension_has_assets_directory_path(
-                    extension_id_mapping.get(extension_id)
+                    self._app.extension_repository[extension_id]
                 ),
                 localizer=localizer,
             ),

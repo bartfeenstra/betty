@@ -31,7 +31,7 @@ async def assert_configuration_file(
     """
     available_formats = {
         available_format: await new(available_format.cls)
-        async for available_format in FORMAT_REPOSITORY
+        for available_format in FORMAT_REPOSITORY
     }
 
     def _assert(configuration_file_path: Path) -> _ConfigurationT:
@@ -60,7 +60,7 @@ async def write_configuration_file(
     Write configuration to a file.
     """
     serde_format_type = format_for(
-        [plugin async for plugin in FORMAT_REPOSITORY], configuration_file_path.suffix
+        list(FORMAT_REPOSITORY), configuration_file_path.suffix
     )
     serde_format = await new(serde_format_type.cls)
     dump = serde_format.dump(configuration.dump())

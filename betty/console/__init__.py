@@ -15,8 +15,7 @@ from typing_extensions import override
 
 from betty import about
 from betty.app import App
-from betty.console import command
-from betty.console.command import COMMAND_REPOSITORY, CommandDefinition, CommandFunction
+from betty.console.command import CommandDefinition, CommandFunction
 from betty.exception import UserFacingException
 from betty.locale.localizable import _
 from betty.locale.localizer import Localizer
@@ -151,10 +150,10 @@ async def _create_command_parser(
 
 
 async def _create_list_commands_action_class(
-    *, localizer: Localizer
+    app: App, *, localizer: Localizer
 ) -> type[argparse.Action]:
     command_definitions = sorted(
-        [plugin async for plugin in COMMAND_REPOSITORY],
+        app.command_repository,
         key=lambda command_definition: command_definition.id,
     )
 
@@ -217,7 +216,7 @@ async def _create_parser(app: App) -> argparse.ArgumentParser:
     )
     parser.add_argument(
         "--commands",
-        action=await _create_list_commands_action_class(localizer=localizer),
+        action=await _create_list_commands_action_class(app, localizer=localizer),
         default=argparse.SUPPRESS,
         help=localizer._("Show all available commands"),
     )
@@ -230,7 +229,7 @@ async def _create_parser(app: App) -> argparse.ArgumentParser:
         ),
     )
     subparsers = parser.add_subparsers(title=localizer._("Subcommands"))
-    async for command_plugin in command.COMMAND_REPOSITORY:
+    for command_plugin in app.command_repository:
         await _create_command_parser(app, subparsers, command_plugin, formatter_class)
     return parser
 
