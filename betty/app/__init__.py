@@ -194,7 +194,7 @@ class App(Configurable[AppConfiguration], TargetFactory, ServiceProvider):
         The HTTP client.
         """
         http_client = aiohttp.ClientSession(
-            connector=aiohttp.TCPConnector(limit_per_host=5),
+            connector=aiohttp.TCPConnector(limit_per_host=99),
             headers={
                 "User-Agent": "Betty (https://betty.readthedocs.io/)",
             },
