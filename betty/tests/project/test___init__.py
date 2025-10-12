@@ -25,7 +25,7 @@ from betty.project.config import (
     LicenseConfiguration,
     ProjectConfiguration,
 )
-from betty.project.extension import EXTENSION_REPOSITORY, Extension, ExtensionDefinition
+from betty.project.extension import Extension, ExtensionDefinition
 from betty.project.factory import ProjectDependentFactory
 from betty.requirement import Requirement, RequirementError
 from betty.test_utils.json.schema import SchemaTestBase
@@ -38,11 +38,9 @@ from betty.test_utils.project.extension import (
 if TYPE_CHECKING:
     from collections.abc import MutableSequence, Sequence
 
-    from pytest_mock import MockerFixture
-
     from betty.json.schema import Schema
     from betty.serde.dump import Dump
-    from betty.user import User
+    from betty.test_utils.conftest import NewTemporaryAppFactory
 
 
 @ExtensionDefinition(
@@ -73,7 +71,7 @@ class _UnmetRequirement(Requirement):
 class _DummyExtensionWithUnmetRequirement(Extension):
     @override
     @classmethod
-    async def requirement(cls, *, user: User) -> Requirement:
+    async def requirement(cls, *, app: App) -> Requirement:
         return _UnmetRequirement()
 
 
@@ -129,13 +127,17 @@ class TestProject:
             assert sut.configuration is configuration
 
     async def test_bootstrap__should_initialize_extensions(
-        self, mocker: MockerFixture, new_temporary_app: App
+        self, new_temporary_app_factory: NewTemporaryAppFactory
     ) -> None:
-        mocker.patch(
-            "betty.project.extension.EXTENSION_REPOSITORY",
-            new=StaticPluginRepository(ExtensionDefinition, DummyExtension.plugin),
-        )
-        async with Project.new_temporary(new_temporary_app) as sut:
+        async with (
+            new_temporary_app_factory(
+                extension_repository=StaticPluginRepository(
+                    ExtensionDefinition, DummyExtension.plugin
+                )
+            ) as app,
+            app,
+            Project.new_temporary(app) as sut,
+        ):
             sut.configuration.extensions.enable(DummyExtension)
             async with sut:
                 extensions = await sut.extensions
@@ -143,13 +145,17 @@ class TestProject:
                 assert extension.bootstrapped
 
     async def test_bootstrap__should_validate_entity_type_configuration(
-        self, mocker: MockerFixture, new_temporary_app: App
+        self, new_temporary_app_factory: NewTemporaryAppFactory
     ) -> None:
-        mocker.patch(
-            "betty.model.ENTITY_TYPE_REPOSITORY",
-            new=StaticPluginRepository(EntityDefinition, DummyEntityOne.plugin),
-        )
-        async with Project.new_temporary(new_temporary_app) as sut:
+        async with (
+            new_temporary_app_factory(
+                entity_type_repository=StaticPluginRepository(
+                    EntityDefinition, DummyEntityOne.plugin
+                )
+            ) as app,
+            app,
+            Project.new_temporary(app) as sut,
+        ):
             sut.configuration.entity_types.replace(
                 EntityTypeConfiguration(DummyEntityOne.plugin, generate_html_list=True)
             )
@@ -162,20 +168,23 @@ class TestProject:
     ) -> None:
         async with Project.new_temporary(new_temporary_app) as sut, sut:
             extensions = await sut.extensions
-            async for betty_extension in EXTENSION_REPOSITORY:
+
+            for betty_extension in new_temporary_app.extension_repository:
                 if betty_extension.id.startswith("betty-"):
                     assert betty_extension.id in extensions
 
     async def test_extensions__should_assert_requirement(
-        self, mocker: MockerFixture, new_temporary_app: App
+        self, new_temporary_app_factory: NewTemporaryAppFactory
     ) -> None:
-        mocker.patch(
-            "betty.project.extension.EXTENSION_REPOSITORY",
-            new=StaticPluginRepository(
-                ExtensionDefinition, _DummyExtensionWithUnmetRequirement.plugin
-            ),
-        )
-        async with Project.new_temporary(new_temporary_app) as sut:
+        async with (
+            new_temporary_app_factory(
+                extension_repository=StaticPluginRepository(
+                    ExtensionDefinition, _DummyExtensionWithUnmetRequirement.plugin
+                )
+            ) as app,
+            app,
+            Project.new_temporary(app) as sut,
+        ):
             sut.configuration.extensions.enable(_DummyExtensionWithUnmetRequirement)
             with pytest.raises(RequirementError):
                 async with sut:
@@ -191,18 +200,19 @@ class TestProject:
     async def test_extensions__should_sort_by_plugin_id(
         self,
         enable: Sequence[type[Extension]],
-        mocker: MockerFixture,
-        new_temporary_app: App,
+        new_temporary_app_factory: NewTemporaryAppFactory,
     ) -> None:
-        mocker.patch(
-            "betty.project.extension.EXTENSION_REPOSITORY",
-            new=StaticPluginRepository(
-                ExtensionDefinition,
-                _DummyExtensionA.plugin,
-                _DummyExtensionB.plugin,
-            ),
-        )
-        async with Project.new_temporary(new_temporary_app) as sut:
+        async with (
+            new_temporary_app_factory(
+                extension_repository=StaticPluginRepository(
+                    ExtensionDefinition,
+                    _DummyExtensionA.plugin,
+                    _DummyExtensionB.plugin,
+                )
+            ) as app,
+            app,
+            Project.new_temporary(app) as sut,
+        ):
             sut.configuration.extensions.enable(*enable)
             async with sut:
                 extensions = [
@@ -238,28 +248,34 @@ class TestProject:
             assert len(assets.assets_directory_paths) == 2
 
     async def test_assets__with_extension_without_assets_directory(
-        self, mocker: MockerFixture, new_temporary_app: App
+        self, new_temporary_app_factory: NewTemporaryAppFactory
     ) -> None:
-        mocker.patch(
-            "betty.project.extension.EXTENSION_REPOSITORY",
-            new=StaticPluginRepository(ExtensionDefinition, DummyExtension.plugin),
-        )
-        async with Project.new_temporary(new_temporary_app) as sut:
+        async with (
+            new_temporary_app_factory(
+                extension_repository=StaticPluginRepository(
+                    ExtensionDefinition, DummyExtension.plugin
+                )
+            ) as app,
+            app,
+            Project.new_temporary(app) as sut,
+        ):
             sut.configuration.extensions.enable(DummyExtension)
             async with sut:
                 assets = await sut.assets
                 assert len(assets.assets_directory_paths) == 2
 
     async def test_assets__with_extension_with_assets_directory(
-        self, mocker: MockerFixture, new_temporary_app: App, tmp_path: Path
+        self, new_temporary_app_factory: NewTemporaryAppFactory, tmp_path: Path
     ) -> None:
-        mocker.patch(
-            "betty.project.extension.EXTENSION_REPOSITORY",
-            new=StaticPluginRepository(
-                ExtensionDefinition, _DummyExtensionWithAssetsDirectory.plugin
-            ),
-        )
-        async with Project.new_temporary(new_temporary_app) as sut:
+        async with (
+            new_temporary_app_factory(
+                extension_repository=StaticPluginRepository(
+                    ExtensionDefinition, _DummyExtensionWithAssetsDirectory.plugin
+                )
+            ) as app,
+            app,
+            Project.new_temporary(app) as sut,
+        ):
             sut.configuration.extensions.enable(_DummyExtensionWithAssetsDirectory)
             async with sut:
                 assets = await sut.assets
@@ -357,7 +373,7 @@ class TestProject:
                 CopyrightNoticeConfiguration("foo", "Foo", summary="", text="")
             )
             async with sut:
-                await sut.copyright_notice_repository.get("foo")
+                sut.copyright_notice_repository.get("foo")
 
     async def test_license(self, new_temporary_app: App) -> None:
         async with Project.new_temporary(new_temporary_app) as sut, sut:
@@ -370,39 +386,31 @@ class TestProject:
             )
             async with sut:
                 licenses = await sut.license_repository
-                await licenses.get("foo")
+                licenses.get("foo")
 
     async def test_event_type_repository(self, new_temporary_app: App) -> None:
         async with Project.new_temporary(new_temporary_app) as sut:
             sut.configuration.event_types.append(PluginConfiguration("foo", "Foo"))
             async with sut:
-                await sut.event_type_repository.get("foo")
+                sut.event_type_repository.get("foo")
 
     async def test_place_type_repository(self, new_temporary_app: App) -> None:
         async with Project.new_temporary(new_temporary_app) as sut:
             sut.configuration.place_types.append(PluginConfiguration("foo", "Foo"))
             async with sut:
-                await sut.place_type_repository.get("foo")
+                sut.place_type_repository.get("foo")
 
     async def test_presence_role_repository(self, new_temporary_app: App) -> None:
         async with Project.new_temporary(new_temporary_app) as sut:
             sut.configuration.presence_roles.append(PluginConfiguration("foo", "Foo"))
             async with sut:
-                await sut.presence_role_repository.get("foo")
+                sut.presence_role_repository.get("foo")
 
     async def test_gender_repository(self, new_temporary_app: App) -> None:
         async with Project.new_temporary(new_temporary_app) as sut:
             sut.configuration.genders.append(PluginConfiguration("foo", "Foo"))
             async with sut:
-                await sut.gender_repository.get("foo")
-
-    async def test_entity_type_repository(self, new_temporary_app: App) -> None:
-        async with Project.new_temporary(new_temporary_app) as sut, sut:
-            await sut.entity_type_repository.get("person")
-
-    async def test_extension_repository(self, new_temporary_app: App) -> None:
-        async with Project.new_temporary(new_temporary_app) as sut, sut:
-            await sut.extension_repository.get("raspberry-mint")
+                sut.gender_repository.get("foo")
 
     async def test_privatizer(self, new_temporary_app: App) -> None:
         async with Project.new_temporary(new_temporary_app) as sut, sut:

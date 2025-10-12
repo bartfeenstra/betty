@@ -2,7 +2,7 @@
 Provide tools for proxying plugin management to other tools.
 """
 
-from collections.abc import AsyncIterator
+from collections.abc import Iterator
 from typing import Generic, TypeVar, final
 
 from typing_extensions import override
@@ -35,19 +35,19 @@ class ProxyPluginRepository(
         self._upstreams = upstreams
 
     @override
-    async def get(self, plugin_id: MachineName) -> _PluginDefinitionT:
+    def get(self, plugin_id: MachineName) -> _PluginDefinitionT:
         for upstream in self._upstreams:
             try:
-                return await upstream.get(plugin_id)
+                return upstream.get(plugin_id)
             except PluginNotFound:
                 pass
-        raise PluginNotFound.new(plugin_id, [plugin async for plugin in self]) from None
+        raise PluginNotFound.new(plugin_id, list(self)) from None
 
     @override
-    async def __aiter__(self) -> AsyncIterator[_PluginDefinitionT]:
+    def __iter__(self) -> Iterator[_PluginDefinitionT]:
         seen = set()
         for upstream in self._upstreams:
-            async for plugin in upstream:
+            for plugin in upstream:
                 if plugin.id not in seen:
                     seen.add(plugin.id)
                     yield plugin

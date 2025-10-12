@@ -17,22 +17,14 @@ from aiofiles.tempfile import TemporaryDirectory
 from typing_extensions import TypeVar, override
 
 import betty
-from betty import model
 from betty.ancestry import Ancestry
-from betty.ancestry.event_type import EVENT_TYPE_REPOSITORY, EventTypeDefinition
-from betty.ancestry.gender import GENDER_REPOSITORY, GenderDefinition
-from betty.ancestry.place_type import PLACE_TYPE_REPOSITORY, PlaceTypeDefinition
-from betty.ancestry.presence_role import (
-    PRESENCE_ROLE_REPOSITORY,
-    PresenceRoleDefinition,
-)
+from betty.ancestry.event_type import EventTypeDefinition
+from betty.ancestry.gender import GenderDefinition
+from betty.ancestry.place_type import PlaceTypeDefinition
+from betty.ancestry.presence_role import PresenceRoleDefinition
 from betty.asset import AssetRepository, ProxyAssetRepository, StaticAssetRepository
 from betty.config import Configurable
-from betty.copyright_notice import (
-    COPYRIGHT_NOTICE_REPOSITORY,
-    CopyrightNotice,
-    CopyrightNoticeDefinition,
-)
+from betty.copyright_notice import CopyrightNotice, CopyrightNoticeDefinition
 from betty.factory import TargetFactory
 from betty.hashid import hashid
 from betty.job import Context
@@ -46,17 +38,17 @@ from betty.locale.translation import (
     TranslationRepository,
 )
 from betty.machine_name import MachineName
-from betty.model import Entity, EntityDefinition, ToManySchema
+from betty.model import Entity, ToManySchema
 from betty.plugin import resolve_identifier, sort_dependent_plugin_graph
+from betty.plugin.entry_point import EntryPointPluginRepository
 from betty.plugin.proxy import ProxyPluginRepository
 from betty.plugin.static import StaticPluginRepository
 from betty.privacy.privatizer import Privatizer
-from betty.project import extension
 from betty.project.config import ProjectConfiguration
 from betty.project.extension import Extension, ExtensionDefinition
 from betty.project.factory import ProjectDependentFactory
 from betty.project.url import new_project_url_generator
-from betty.render import RENDERER_REPOSITORY, Renderer, SequentialRenderer
+from betty.render import Renderer, SequentialRenderer
 from betty.service import ServiceProvider, service
 from betty.string import kebab_case_to_lower_camel_case
 from betty.typing import internal
@@ -153,7 +145,7 @@ class Project(Configurable[ProjectConfiguration], TargetFactory, ServiceProvider
             raise
 
     async def _assert_configuration(self) -> None:
-        await self.configuration.entity_types.validate(self.entity_type_repository)
+        await self.configuration.entity_types.validate(self.app.entity_type_repository)
 
     @property
     def app(self) -> App:
@@ -240,7 +232,10 @@ class Project(Configurable[ProjectConfiguration], TargetFactory, ServiceProvider
         The (file) content renderer.
         """
         return SequentialRenderer(
-            [await self.new_target(plugin.cls) async for plugin in RENDERER_REPOSITORY]
+            [
+                await self.new_target(plugin.cls)
+                for plugin in self.app.renderer_repository
+            ]
         )
 
     @service
@@ -252,7 +247,7 @@ class Project(Configurable[ProjectConfiguration], TargetFactory, ServiceProvider
         configured_extension_configurations = {}
         for extension_configuration in self.configuration.extensions.values():
             configured_extension_definitions.append(
-                await self.extension_repository.get(extension_configuration.id)
+                self.app.extension_repository[extension_configuration.id]
             )
             configured_extension_configurations[extension_configuration.id] = (
                 extension_configuration
@@ -260,7 +255,7 @@ class Project(Configurable[ProjectConfiguration], TargetFactory, ServiceProvider
 
         extensions_sorter = TopologicalSorter[MachineName]()
         await sort_dependent_plugin_graph(
-            self.extension_repository,
+            self.app.extension_repository,
             configured_extension_definitions,
             extensions_sorter,
         )
@@ -272,13 +267,11 @@ class Project(Configurable[ProjectConfiguration], TargetFactory, ServiceProvider
             enabled_extension_ids_batch = extensions_sorter.get_ready()
             enabled_extension_batch: MutableSequence[Extension] = []
             for enabled_extension_id in enabled_extension_ids_batch:
-                enabled_extension_definition = await self.extension_repository.get(
+                enabled_extension_definition = self.app.extension_repository[
                     enabled_extension_id
-                )
+                ]
                 enabled_extension_requirement = (
-                    await enabled_extension_definition.cls.requirement(
-                        user=self.app.user
-                    )
+                    await enabled_extension_definition.cls.requirement(app=self.app)
                 )
                 enabled_extension_requirement.assert_met()
                 if enabled_extension_definition.theme:
@@ -287,7 +280,7 @@ class Project(Configurable[ProjectConfiguration], TargetFactory, ServiceProvider
                     extension = await configured_extension_configurations[
                         enabled_extension_id
                     ].new_plugin_instance(
-                        self.extension_repository, factory=self.new_target
+                        self.app.extension_repository, factory=self.new_target
                     )
                 else:
                     extension = await self.new_target(enabled_extension_definition.cls)
@@ -362,7 +355,9 @@ class Project(Configurable[ProjectConfiguration], TargetFactory, ServiceProvider
         """
         return ProxyPluginRepository(
             CopyrightNoticeDefinition,
-            COPYRIGHT_NOTICE_REPOSITORY,
+            EntryPointPluginRepository(
+                CopyrightNoticeDefinition, "betty.copyright_notice"
+            ),
             StaticPluginRepository(
                 CopyrightNoticeDefinition,
                 *self.configuration.copyright_notices.new_plugins(),
@@ -387,6 +382,7 @@ class Project(Configurable[ProjectConfiguration], TargetFactory, ServiceProvider
         """
         return ProxyPluginRepository(
             LicenseDefinition,
+            EntryPointPluginRepository(LicenseDefinition, "betty.license"),
             await self._app.spdx_license_repository,
             StaticPluginRepository(
                 LicenseDefinition, *self.configuration.licenses.new_plugins()
@@ -397,10 +393,12 @@ class Project(Configurable[ProjectConfiguration], TargetFactory, ServiceProvider
     def event_type_repository(self) -> PluginRepository[EventTypeDefinition]:
         """
         The event types available to this project.
+
+        Read more about :doc:`/development/plugin/event-type`.
         """
         return ProxyPluginRepository(
             EventTypeDefinition,
-            EVENT_TYPE_REPOSITORY,
+            EntryPointPluginRepository(EventTypeDefinition, "betty.event_type"),
             StaticPluginRepository(
                 EventTypeDefinition, *self.configuration.event_types.new_plugins()
             ),
@@ -410,10 +408,12 @@ class Project(Configurable[ProjectConfiguration], TargetFactory, ServiceProvider
     def place_type_repository(self) -> PluginRepository[PlaceTypeDefinition]:
         """
         The place types available to this project.
+
+        Read more about :doc:`/development/plugin/place-type`.
         """
         return ProxyPluginRepository(
             PlaceTypeDefinition,
-            PLACE_TYPE_REPOSITORY,
+            EntryPointPluginRepository(PlaceTypeDefinition, "betty.place_type"),
             StaticPluginRepository(
                 PlaceTypeDefinition, *self.configuration.place_types.new_plugins()
             ),
@@ -423,10 +423,12 @@ class Project(Configurable[ProjectConfiguration], TargetFactory, ServiceProvider
     def presence_role_repository(self) -> PluginRepository[PresenceRoleDefinition]:
         """
         The presence roles available to this project.
+
+        Read more about :doc:`/development/plugin/presence-role`.
         """
         return ProxyPluginRepository(
             PresenceRoleDefinition,
-            PRESENCE_ROLE_REPOSITORY,
+            EntryPointPluginRepository(PresenceRoleDefinition, "betty.presence_role"),
             StaticPluginRepository(
                 PresenceRoleDefinition,
                 *self.configuration.presence_roles.new_plugins(),
@@ -442,29 +444,11 @@ class Project(Configurable[ProjectConfiguration], TargetFactory, ServiceProvider
         """
         return ProxyPluginRepository(
             GenderDefinition,
-            GENDER_REPOSITORY,
+            EntryPointPluginRepository(GenderDefinition, "betty.gender"),
             StaticPluginRepository(
                 GenderDefinition, *self.configuration.genders.new_plugins()
             ),
         )
-
-    @service
-    def entity_type_repository(self) -> PluginRepository[EntityDefinition]:
-        """
-        The entity types available to this project.
-
-        Read more about :doc:`/development/plugin/entity-type`.
-        """
-        return model.ENTITY_TYPE_REPOSITORY
-
-    @service
-    def extension_repository(self) -> PluginRepository[ExtensionDefinition]:
-        """
-        The extensions available to this project.
-
-        Read more about :doc:`/development/plugin/extension`.
-        """
-        return extension.EXTENSION_REPOSITORY
 
     @service
     def privatizer(self) -> Privatizer:
@@ -599,13 +583,11 @@ class ProjectSchema(ProjectDependentFactory, Schema):
     @override
     @classmethod
     async def new_for_project(cls, project: Project) -> Self:
-        from betty import model
-
         schema = cls()
         schema._schema["$id"] = await cls.url(project)
 
         # Add entity schemas.
-        async for entity_type in model.ENTITY_TYPE_REPOSITORY:
+        for entity_type in project.app.entity_type_repository:
             entity_type_schema = await entity_type.cls.linked_data_schema(project)
             entity_type_schema.embed(schema)
             def_name = f"{kebab_case_to_lower_camel_case(entity_type.id)}EntityCollectionResponse"

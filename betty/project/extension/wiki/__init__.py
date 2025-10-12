@@ -69,11 +69,7 @@ class Wiki(
         return cls(
             project,
             await project.new_target(
-                (
-                    await project.copyright_notice_repository.get(
-                        "wikipedia-contributors"
-                    )
-                ).cls
+                (project.copyright_notice_repository["wikipedia-contributors"]).cls
             ),
             configuration=cls.new_default_configuration(),
         )
