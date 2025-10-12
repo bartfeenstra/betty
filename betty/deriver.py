@@ -21,9 +21,10 @@ from betty.ancestry.presence import Presence
 from betty.ancestry.presence_role.presence_roles import Subject
 from betty.date import Date, DateRange
 from betty.locale.localizable import _
+from betty.plugin import get_comes_after, get_comes_before
 
 if TYPE_CHECKING:
-    from collections.abc import Iterable, Sequence
+    from collections.abc import Collection, Iterable, Sequence
 
     from betty.ancestry.event_type import EventType
     from betty.project import Project
@@ -132,23 +133,12 @@ class Deriver:
                 return 0, 0
 
         # Aggregate event type order from references and backreferences.
-        comes_before_event_types = set(
-            await self._project.event_type_repository.resolve_identifiers(
-                derivable_event_type.comes_before()
-            )
+        comes_before_event_types = await get_comes_before(
+            self._project.event_type_repository, derivable_event_type
         )
-        comes_after_event_types = set(
-            await self._project.event_type_repository.resolve_identifiers(
-                derivable_event_type.comes_after()
-            )
+        comes_after_event_types = await get_comes_after(
+            self._project.event_type_repository, derivable_event_type
         )
-        async for other_event_type in self._project.event_type_repository:
-            if not issubclass(other_event_type, DerivableEventType):
-                continue
-            if derivable_event_type in other_event_type.comes_before():
-                comes_after_event_types.add(other_event_type)
-            if derivable_event_type in other_event_type.comes_after():
-                comes_before_event_types.add(other_event_type)
 
         created_derivations = 0
         updated_derivations = 0
@@ -187,7 +177,7 @@ class _DateDeriver(ABC):
         cls,
         person: Person,
         derivable_event: Event,
-        reference_event_types: set[type[EventType]],
+        reference_event_types: Collection[type[EventType]],
     ) -> bool:
         assert isinstance(derivable_event.event_type, DerivableEventType)
 
@@ -341,7 +331,7 @@ def _get_derivable_events(
 
 def _get_reference_events(
     person: Person,
-    reference_event_types: set[type[EventType]],
+    reference_event_types: Collection[type[EventType]],
     derivable_event_type: type[EventType],
 ) -> Iterable[Event]:
     for presence in person.presences:

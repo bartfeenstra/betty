@@ -16,6 +16,8 @@ from betty.plugin import (
     PluginNotFound,
     PluginRepository,
     expand_plugin_dependencies,
+    get_comes_after,
+    get_comes_before,
     resolve_identifier,
     sort_dependent_plugin_graph,
     sort_ordered_plugin_graph,
@@ -447,3 +449,103 @@ async def test_sort_dependent_plugin_graph(
     sorter = TopologicalSorter[type[_DummyDependentPlugin]]()
     await sort_dependent_plugin_graph(plugin_repository, plugins, sorter)
     assert list(sorter.static_order()) == expected
+
+
+class HasBidirectionalComesBeforeOrderedPlugin(_DummyOrderedPlugin):
+    @override
+    @classmethod
+    def comes_before(cls) -> set[PluginIdentifier[_DummyOrderedPlugin]]:
+        return {HasBidirectionalComesAfterOrderedPlugin}
+
+
+class HasBidirectionalComesAfterOrderedPlugin(_DummyOrderedPlugin):
+    @override
+    @classmethod
+    def comes_after(cls) -> set[PluginIdentifier[_DummyOrderedPlugin]]:
+        return {HasBidirectionalComesBeforeOrderedPlugin}
+
+
+@pytest.mark.parametrize(
+    ("expected", "origin"),
+    [
+        (
+            set(),
+            IsolatedOrderedPlugin,
+        ),
+        (
+            {ComesBeforeTargetOrderedPlugin},
+            HasComesBeforeOrderedPlugin,
+        ),
+        (
+            {HasComesAfterOrderedPlugin},
+            ComesAfterTargetOrderedPlugin,
+        ),
+        (
+            {HasBidirectionalComesAfterOrderedPlugin},
+            HasBidirectionalComesBeforeOrderedPlugin,
+        ),
+    ],
+)
+async def test_get_comes_before(
+    expected: set[type[_DummyOrderedPlugin]],
+    origin: type[_DummyOrderedPlugin],
+) -> None:
+    assert (
+        await get_comes_before(
+            StaticPluginRepository(
+                _DummyOrderedPlugin,
+                ComesBeforeTargetOrderedPlugin,
+                HasComesBeforeOrderedPlugin,
+                ComesAfterTargetOrderedPlugin,
+                HasComesAfterOrderedPlugin,
+                IsolatedOrderedPlugin,
+                HasBidirectionalComesBeforeOrderedPlugin,
+                HasBidirectionalComesAfterOrderedPlugin,
+            ),
+            origin,
+        )
+        == expected
+    )
+
+
+@pytest.mark.parametrize(
+    ("expected", "origin"),
+    [
+        (
+            set(),
+            IsolatedOrderedPlugin,
+        ),
+        (
+            {ComesAfterTargetOrderedPlugin},
+            HasComesAfterOrderedPlugin,
+        ),
+        (
+            {HasComesBeforeOrderedPlugin},
+            ComesBeforeTargetOrderedPlugin,
+        ),
+        (
+            {HasBidirectionalComesBeforeOrderedPlugin},
+            HasBidirectionalComesAfterOrderedPlugin,
+        ),
+    ],
+)
+async def test_get_comes_after(
+    expected: set[type[_DummyOrderedPlugin]],
+    origin: type[_DummyOrderedPlugin],
+) -> None:
+    assert (
+        await get_comes_after(
+            StaticPluginRepository(
+                _DummyOrderedPlugin,
+                ComesAfterTargetOrderedPlugin,
+                HasComesAfterOrderedPlugin,
+                ComesBeforeTargetOrderedPlugin,
+                HasComesBeforeOrderedPlugin,
+                IsolatedOrderedPlugin,
+                HasBidirectionalComesAfterOrderedPlugin,
+                HasBidirectionalComesBeforeOrderedPlugin,
+            ),
+            origin,
+        )
+        == expected
+    )
