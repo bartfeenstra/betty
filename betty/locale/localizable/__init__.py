@@ -5,7 +5,7 @@ The localizable API allows objects to be localized at the point of use.
 from __future__ import annotations
 
 from abc import ABC, abstractmethod
-from collections.abc import Iterable, Mapping, MutableMapping, Sequence
+from collections.abc import Callable, Iterable, Mapping, MutableMapping, Sequence
 from typing import (
     TYPE_CHECKING,
     Any,
@@ -335,6 +335,33 @@ class Plain(Localizable):
     @override
     def localize(self, localizer: Localizer) -> Localized & str:
         return LocalizedStr(self._string, locale=self._locale)
+
+
+@final
+class CountablePlain(CountableLocalizable):
+    """
+    Turn plain strings into a :py:class:`betty.locale.localizable.CountableLocalizable` without any actual translations.
+    """
+
+    def _default_is_plural(self, count: int) -> bool:
+        # This mimics Python's built-in gettext module.
+        return count != 1
+
+    def __init__(
+        self,
+        string_singular: str,
+        string_plural: str,
+        *,
+        locale: str = UNDETERMINED_LOCALE,
+        is_plural: Callable[[int], bool] | None = None,
+    ):
+        self._string_singular = Plain(string_singular, locale=locale)
+        self._string_plural = Plain(string_plural, locale=locale)
+        self._is_plural = is_plural or self._default_is_plural
+
+    @override
+    def count(self, count: int) -> Localizable:
+        return self._string_plural if self._is_plural(count) else self._string_singular
 
 
 StaticTranslationsMapping: TypeAlias = Mapping[str, str]
