@@ -5,7 +5,7 @@ Console user sessions.
 import logging
 from collections.abc import AsyncIterator
 from contextlib import AsyncExitStack, asynccontextmanager
-from typing import TextIO, cast, final, overload
+from typing import TextIO, TypeVar, cast, final, overload
 
 from rich.console import Console
 from rich.progress import BarColumn, MofNCompleteColumn, TextColumn, TimeElapsedColumn
@@ -14,7 +14,6 @@ from rich.prompt import Confirm, Prompt
 from typing_extensions import override
 
 from betty.assertion import Assertion
-from betty.console import _T
 from betty.console.progress import ConsoleProgress
 from betty.console.rich import ConsoleTheme
 from betty.locale.localizable import Localizable
@@ -23,6 +22,8 @@ from betty.progress.no_op import NoOpProgress
 from betty.typing import Void, internal
 from betty.user import User, Verbosity
 from betty.user.logging import UserHandler
+
+_T = TypeVar("_T")
 
 
 @internal

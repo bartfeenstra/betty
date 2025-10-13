@@ -5,7 +5,7 @@ Test utilities for :py:mod:`betty.user`.
 import sys
 from collections.abc import AsyncIterator, Collection, Iterable, MutableSequence
 from contextlib import asynccontextmanager
-from typing import overload
+from typing import TypeVar, overload
 
 from typing_extensions import override
 
@@ -14,9 +14,10 @@ from betty.locale.localizable import Localizable
 from betty.locale.localizer import DEFAULT_LOCALIZER
 from betty.progress import Progress
 from betty.progress.no_op import NoOpProgress
-from betty.test_utils.console import _T
 from betty.typing import Void, internal
 from betty.user import User, UserTimeoutError
+
+_T = TypeVar("_T")
 
 
 @internal
