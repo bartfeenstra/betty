@@ -99,22 +99,24 @@ class SpdxLicenseBuilder:
     ):
         self._fetcher = fetcher
         self._user = user
-        self._cache_directory_path = binary_file_cache.with_scope(self.VERSION).path
+        self._cache_directory_path = (
+            binary_file_cache.with_scope("spdx-licenses").with_scope(self.VERSION).path
+        )
         self._process_pool = process_pool
 
     async def build(self) -> AsyncIterable[LicenseDefinition]:
         """
         Build the licenses.
         """
-        try:
-            spdx_licenses_data_path = await self._fetcher.fetch_file(self.URL)
-        except FetchError:
-            await self._user.message_warning(
-                _("Betty could not load the SPDX licenses")
-            )
-            return
-
         if not self._cache_directory_path.exists():
+            try:
+                spdx_licenses_data_path = await self._fetcher.fetch_file(self.URL)
+            except FetchError:
+                await self._user.message_warning(
+                    _("Betty could not load the SPDX licenses")
+                )
+                return
+
             loop = get_running_loop()
             await loop.run_in_executor(
                 self._process_pool,
