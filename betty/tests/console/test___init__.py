@@ -63,11 +63,6 @@ async def test_main__help(temporary_app: App) -> None:
     await run(temporary_app, "--help")
 
 
-async def test_main__version(temporary_app: App) -> None:
-    result = await run(temporary_app, "--version")
-    assert "Betty" in result.stdout
-
-
 async def test_main__commands(temporary_app: App) -> None:
     await run(temporary_app, "--commands")
 

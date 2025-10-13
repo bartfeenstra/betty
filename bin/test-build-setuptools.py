@@ -24,8 +24,8 @@ with TemporaryDirectory() as working_directory_path_str:
         ]
     )
     output = check_output(
-        [path.join(working_directory_path_str, "venv", venv_bin, "betty"), "--version"]
-    ).decode()
+        [path.join(working_directory_path_str, "venv", venv_bin, "betty"), "about"]
+    ).decode(sys.stdout.encoding)
     assert VERSION in output
 
 # Remove any stale artifacts.

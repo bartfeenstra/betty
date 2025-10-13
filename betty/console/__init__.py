@@ -13,7 +13,6 @@ import rich  # noqa F401
 import rich_argparse
 from typing_extensions import override
 
-from betty import about
 from betty.app import App
 from betty.console.command import CommandDefinition, CommandFunction
 from betty.exception import HumanFacingException
@@ -227,14 +226,6 @@ async def _create_parser(app: App) -> argparse.ArgumentParser:
         action=await _create_list_commands_action_class(app, localizer=localizer),
         default=argparse.SUPPRESS,
         help=localizer._("Show all available commands"),
-    )
-    parser.add_argument(
-        "--version",
-        action="version",
-        version=about.report(localizer=localizer),
-        help=localizer._(
-            "Show information about the current Betty version and environment"
-        ),
     )
     subparsers = parser.add_subparsers(title=localizer._("Subcommands"))
     for command_plugin in app.command_repository:

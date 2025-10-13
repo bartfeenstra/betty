@@ -20,8 +20,18 @@ from betty.project.config import ProjectConfiguration
 from betty.serde.format import format_repository
 
 
+class ConfigurationFileNotFound(HumanFacingException):
+    """
+    Raised when no configuration file could be found.
+    """
+
+
 async def add_project_argument(
-    parser: argparse.ArgumentParser, command_function: CommandFunction, app: App
+    parser: argparse.ArgumentParser,
+    command_function: CommandFunction,
+    app: App,
+    *,
+    required: bool = True,
 ) -> CommandFunction:
     """
     Add an argument to load a :py:class:`betty.project.Project` into a ``project`` keyword argument.
@@ -42,10 +52,15 @@ async def add_project_argument(
     async def _command_function_with_project_argument(
         *, project_configuration_file_path: Path | None = None, **kwargs: Any
     ) -> None:
-        project = await Project.new(
+        project: Project | None = await Project.new(
             app, configuration=await ProjectConfiguration.new(Path())
         )
-        await _read_project_configuration(project, project_configuration_file_path)
+        try:
+            await _read_project_configuration(project, project_configuration_file_path)
+        except ConfigurationFileNotFound:
+            if required:
+                raise
+            project = None
         return await command_function(project=project, **kwargs)
 
     return _command_function_with_project_argument
@@ -66,7 +81,7 @@ async def _read_project_configuration(
                 return await _read_project_configuration_file(
                     project, try_configuration_file_path
                 )
-        raise HumanFacingException(
+        raise ConfigurationFileNotFound(
             _(
                 "Could not find any of the following configuration files in {project_directory_path}: {configuration_file_names}."
             ).format(

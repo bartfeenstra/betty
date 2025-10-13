@@ -95,6 +95,7 @@ betty = 'betty.console:main_standalone'
 'renderer' = 'betty.render:RendererDefinition'
 
 [project.entry-points.'betty.command']
+'about' = 'betty.console.command.commands.about:About'
 'clear-caches' = 'betty.console.command.commands.clear_caches:ClearCaches'
 'config' = 'betty.console.command.commands.config:Config'
 'demo' = 'betty.console.command.commands.demo:Demo'

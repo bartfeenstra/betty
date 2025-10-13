@@ -89,7 +89,7 @@ class FormatDefinition(HumanFacingPluginDefinition, ClassedPluginDefinition[Form
     plugin_type_cls = Format
     type = PluginTypeDefinition(
         id="format",
-        label=_("(De)serialization format)"),
+        label=_("(De)serialization format"),
         repository=GlobalPluginRepositoryDefinition(format_repository),
     )
 
