@@ -50,6 +50,7 @@ from betty.model import Entity, EntityDefinition, ToManySchema
 from betty.plugin import resolve_identifier, sort_dependent_plugin_graph
 from betty.plugin.proxy import ProxyPluginRepository
 from betty.plugin.static import StaticPluginRepository
+from betty.privacy.privatizer import Privatizer
 from betty.project import extension
 from betty.project.config import ProjectConfiguration
 from betty.project.extension import Extension, ExtensionDefinition
@@ -464,6 +465,13 @@ class Project(Configurable[ProjectConfiguration], TargetFactory, ServiceProvider
         Read more about :doc:`/development/plugin/extension`.
         """
         return extension.EXTENSION_REPOSITORY
+
+    @service
+    def privatizer(self) -> Privatizer:
+        """
+        The privatizer.
+        """
+        return Privatizer(self.configuration.lifetime_threshold, user=self.app.user)
 
 
 _ExtensionT = TypeVar("_ExtensionT", bound=Extension)

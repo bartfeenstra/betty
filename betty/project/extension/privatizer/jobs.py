@@ -13,7 +13,6 @@ from betty.ancestry.person import Person
 from betty.job import Job
 from betty.locale.localizable import _, ngettext
 from betty.privacy import HasPrivacy
-from betty.privacy.privatizer import Privatizer as PrivatizerApi
 from betty.project import ProjectContext
 
 if TYPE_CHECKING:
@@ -45,8 +44,6 @@ class PrivatizeAncestry(Job[ProjectContext]):
         await project.app.localizer
         user = project.app.user
 
-        privatizer = PrivatizerApi(project.configuration.lifetime_threshold, user=user)
-
         newly_privatized: MutableMapping[MachineName, int] = defaultdict(lambda: 0)
         entities: MutableSequence[HasPrivacy & Entity] = []
         for entity in project.ancestry:
@@ -56,7 +53,7 @@ class PrivatizeAncestry(Job[ProjectContext]):
                     newly_privatized[entity.plugin.id] -= 1
 
         for entity in entities:
-            await privatizer.privatize(entity)
+            await project.privatizer.privatize(entity)
 
         for entity in entities:
             if entity.private:
