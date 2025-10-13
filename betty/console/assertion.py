@@ -4,11 +4,13 @@ Integrate the console and assertion APIs.
 
 import argparse
 from collections.abc import Callable
+from typing import TypeVar
 
 from betty.assertion import Assertion
-from betty.console import _T
 from betty.exception import UserFacingException
 from betty.locale.localizer import Localizer
+
+_T = TypeVar("_T")
 
 
 def assertion_to_argument_type(
