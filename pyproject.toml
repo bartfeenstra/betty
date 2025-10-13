@@ -15,7 +15,7 @@ authors = [
 ]
 requires-python = '~= 3.11'
 dependencies = [
-    'aiofiles ~= 24.1',
+    'aiofiles ~= 25.1',
     'aiohttp ~= 3.12',
     'babel ~= 2.16',
     'furo == 2025.9.25',
