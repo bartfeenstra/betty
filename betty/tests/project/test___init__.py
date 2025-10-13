@@ -404,6 +404,10 @@ class TestProject:
         async with Project.new_temporary(new_temporary_app) as sut, sut:
             await sut.extension_repository.get("raspberry-mint")
 
+    async def test_privatizer(self, new_temporary_app: App) -> None:
+        async with Project.new_temporary(new_temporary_app) as sut, sut:
+            sut.privatizer  # noqa B018
+
 
 class TestProjectContext:
     async def test_project(self, new_temporary_app: App) -> None:

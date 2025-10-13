@@ -73,11 +73,7 @@ class Death(CreatableDerivableEventType):
     @override
     @classmethod
     async def may_create(cls, project: Project, person: Person) -> bool:
-        from betty.privacy.privatizer import Privatizer
-
-        return Privatizer(
-            project.configuration.lifetime_threshold, user=project.app.user
-        ).has_expired(person, 1)
+        return project.privatizer.has_expired(person, 1)
 
 
 @final
