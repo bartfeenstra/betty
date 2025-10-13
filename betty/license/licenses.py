@@ -127,7 +127,8 @@ class SpdxLicenseBuilder:
             self._cache_directory_path
             / f"license-list-data-{self.VERSION}"
             / "json"
-            / "licenses.json"
+            / "licenses.json",
+            encoding="utf-8",
         ) as spdx_licenses_data_f:
             spdx_licenses_data_json = await spdx_licenses_data_f.read()
         spdx_data = loads(spdx_licenses_data_json)
