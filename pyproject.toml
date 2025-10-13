@@ -196,6 +196,10 @@ betty = 'betty.console:main_standalone'
 'unknown' = 'betty.ancestry.presence_role.presence_roles:Unknown.plugin'
 'witness' = 'betty.ancestry.presence_role.presence_roles:Witness.plugin'
 
+[project.entry-points.'betty.serde_format']
+'json' = 'betty.serde.format.formats:Json.plugin'
+'yaml' = 'betty.serde.format.formats:Yaml.plugin'
+
 [project.entry-points.'betty.renderer']
 'jinja2' = 'betty.jinja2:Jinja2Renderer.plugin'
 

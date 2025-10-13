@@ -96,7 +96,7 @@ class Presence(HasPrivacy, Entity):
     async def linked_data_schema(cls, project: Project) -> JsonLdObject:
         schema = await super().linked_data_schema(project)
         schema.add_property(
-            "role", project.presence_role_repository.plugin_id_schema, False
+            "role", await project.presence_role_repository.plugin_id_schema, False
         )
         return schema
 

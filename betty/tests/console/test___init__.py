@@ -17,7 +17,6 @@ from betty.functools import Result, suppress
 from betty.locale.localizable import Plain
 from betty.plugin.static import StaticPluginRepository
 from betty.project import Project
-from betty.test_utils.conftest import NewTemporaryAppFactory
 from betty.test_utils.console import run
 from betty.user import Verbosity
 
@@ -96,19 +95,18 @@ async def test_main__with_unknown_command(new_temporary_app: App) -> None:
 async def test_main__with_user_facing_exception(
     expected: SystemExitCode,
     command: CommandDefinition,
-    new_temporary_app_factory: NewTemporaryAppFactory,
+    mocker: MockerFixture,
+    new_temporary_app: App,
 ) -> None:
-    async with (
-        new_temporary_app_factory(
-            command_repository=StaticPluginRepository(CommandDefinition, command)
-        ) as app,
-        app,
-    ):
-        await run(
-            app,
-            command.id,
-            expected_exit_code=expected,
-        )
+    mocker.patch(
+        "betty.console.command.COMMAND_REPOSITORY",
+        new=StaticPluginRepository(CommandDefinition, command),
+    )
+    await run(
+        new_temporary_app,
+        command.id,
+        expected_exit_code=expected,
+    )
 
 
 @pytest.mark.parametrize(
@@ -129,7 +127,7 @@ def test_main_standalone(
 ) -> None:
     def _target() -> None:
         mocker.patch(
-            "betty.app.App.command_repository",
+            "betty.console.command.COMMAND_REPOSITORY",
             new=StaticPluginRepository(CommandDefinition, command),
         )
         (mocker.patch("sys.argv", new=["betty", command.id]),)
@@ -159,26 +157,23 @@ class TestVerbosity:
     async def test(
         self,
         expected: Verbosity,
-        new_temporary_app_factory: NewTemporaryAppFactory,
+        mocker: MockerFixture,
+        new_temporary_app: App,
         verbosity: str | None,
     ) -> None:
-        async with (
-            new_temporary_app_factory(
-                command_repository=StaticPluginRepository(
-                    CommandDefinition, _NoOpCommand.plugin
-                )
-            ) as app,
-            app,
-            Project.new_temporary(app) as project,
-        ):
+        mocker.patch(
+            "betty.console.command.COMMAND_REPOSITORY",
+            new=StaticPluginRepository(CommandDefinition, _NoOpCommand.plugin),
+        )
+        async with Project.new_temporary(new_temporary_app) as project:
             await write_configuration_file(
                 project.configuration, project.configuration.configuration_file_path
             )
             args = ["no-op"]
             if verbosity is not None:
                 args.append(verbosity)
-            await run(app, *args)
-            assert app.user.verbosity is expected
+            await run(new_temporary_app, *args)
+            assert new_temporary_app.user.verbosity is expected
 
 
 async def test_call_command_func() -> None:

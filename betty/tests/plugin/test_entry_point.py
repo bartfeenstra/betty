@@ -9,7 +9,7 @@ from betty.test_utils.plugin import DUMMY_PLUGIN_ONE, DummyPluginDefinition
 
 
 class TestEntryPointPluginRepository:
-    def test_get(self, mocker: MockerFixture) -> None:
+    async def test_get(self, mocker: MockerFixture) -> None:
         entry_point_group = "test-entry-point"
         m_entry_points = mocker.patch(
             "importlib.metadata.entry_points",
@@ -26,17 +26,17 @@ class TestEntryPointPluginRepository:
         sut = EntryPointPluginRepository(DummyPluginDefinition, entry_point_group)
         # Hit the cache.
         for _ in range(2):
-            assert sut[DUMMY_PLUGIN_ONE.id] is DUMMY_PLUGIN_ONE
+            assert await sut.get(DUMMY_PLUGIN_ONE.id) is DUMMY_PLUGIN_ONE
         m_entry_points.assert_called_once_with(group=entry_point_group)
 
-    def test_get_not_found(self) -> None:
+    async def test_get_not_found(self) -> None:
         sut = EntryPointPluginRepository(DummyPluginDefinition, "test-entry-point")
         # Hit the cache.
         for _ in range(2):
             with pytest.raises(PluginNotFound):
-                sut.get(DUMMY_PLUGIN_ONE.id)
+                await sut.get(DUMMY_PLUGIN_ONE.id)
 
-    def test___aiter___with_plugins(self, mocker: MockerFixture) -> None:
+    async def test___aiter___with_plugins(self, mocker: MockerFixture) -> None:
         entry_point_group = "test-entry-point"
         m_entry_points = mocker.patch(
             "importlib.metadata.entry_points",
@@ -53,11 +53,11 @@ class TestEntryPointPluginRepository:
         sut = EntryPointPluginRepository(DummyPluginDefinition, entry_point_group)
         # Hit the cache.
         for _ in range(2):
-            plugin = list(sut)[0]
+            plugin = [plugin async for plugin in sut][0]
             assert plugin is DUMMY_PLUGIN_ONE
         m_entry_points.assert_called_once_with(group=entry_point_group)
 
-    def test___iter___without_plugins(self, mocker: MockerFixture) -> None:
+    async def test___aiter___without_plugins(self, mocker: MockerFixture) -> None:
         entry_point_group = "test-entry-point"
         m_entry_points = mocker.patch(
             "importlib.metadata.entry_points",
@@ -66,6 +66,6 @@ class TestEntryPointPluginRepository:
         sut = EntryPointPluginRepository(DummyPluginDefinition, entry_point_group)
         # Hit the cache.
         for _ in range(2):
-            with pytest.raises(StopIteration):
-                next(iter(sut))
+            with pytest.raises(StopAsyncIteration):
+                await anext(aiter(sut))
         m_entry_points.assert_called_once_with(group=entry_point_group)

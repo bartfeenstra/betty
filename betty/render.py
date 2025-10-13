@@ -13,7 +13,9 @@ from betty.locale.localizable import _
 from betty.plugin import (
     ClassedPluginDefinition,
     ClassedPluginTypeDefinition,
+    PluginRepository,
 )
+from betty.plugin.entry_point import EntryPointPluginRepository
 from betty.typing import internal
 
 if TYPE_CHECKING:
@@ -67,6 +69,16 @@ class RendererDefinition(ClassedPluginDefinition[Renderer]):
         label=_("Renderer"),
         cls=Renderer,
     )
+
+
+RENDERER_REPOSITORY: PluginRepository[RendererDefinition] = EntryPointPluginRepository(
+    RendererDefinition, "betty.renderer"
+)
+"""
+The renderer plugin repository.
+
+Read more about :doc:`/development/plugin/renderer`.
+"""
 
 
 @internal

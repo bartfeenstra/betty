@@ -11,7 +11,7 @@ from typing import TYPE_CHECKING
 import pytest
 
 from betty.fetch.static import StaticFetcher
-from betty.license.licenses import SpdxLicenseBuilder
+from betty.license.licenses import SpdxLicenseRepository
 
 if TYPE_CHECKING:
     from pathlib import Path
@@ -22,7 +22,7 @@ if TYPE_CHECKING:
 
 
 LICENSES_DATA: DumpMapping[Dump] = {
-    "licenseListVersion": SpdxLicenseBuilder.VERSION,
+    "licenseListVersion": SpdxLicenseRepository.SPDX_VERSION,
     "licenses": [
         {
             "reference": "https://spdx.org/licenses/AGPL-3.0-or-later.html",
@@ -150,7 +150,7 @@ def demo_project_fetcher(binary_file_cache: BinaryFileCache, tmp_path: Path) -> 
 
     licenses_file_path = (
         spdx_directory_path
-        / f"license-list-data-{SpdxLicenseBuilder.VERSION}"
+        / f"license-list-data-{SpdxLicenseRepository.SPDX_VERSION}"
         / "json"
         / "licenses.json"
     )
@@ -160,7 +160,7 @@ def demo_project_fetcher(binary_file_cache: BinaryFileCache, tmp_path: Path) -> 
 
     license_details_directory_path = (
         spdx_directory_path
-        / f"license-list-data-{SpdxLicenseBuilder.VERSION}"
+        / f"license-list-data-{SpdxLicenseRepository.SPDX_VERSION}"
         / "json"
         / "details"
     )
@@ -173,4 +173,4 @@ def demo_project_fetcher(binary_file_cache: BinaryFileCache, tmp_path: Path) -> 
     spdx_tar_file_path = tmp_path / "spdx.tar.gz"
     with tarfile.open(spdx_tar_file_path, "w:gz") as spdx_tar_file:
         spdx_tar_file.add(spdx_directory_path, "/")
-    return StaticFetcher(fetch_file_map={SpdxLicenseBuilder.URL: spdx_tar_file_path})
+    return StaticFetcher(fetch_file_map={SpdxLicenseRepository.URL: spdx_tar_file_path})

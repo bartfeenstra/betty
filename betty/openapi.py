@@ -8,7 +8,7 @@ from typing import Self, final
 
 import aiofiles
 
-from betty import about
+from betty import about, model
 from betty.json.schema import Schema
 from betty.locale.localizer import DEFAULT_LOCALIZER
 from betty.project import Project, ProjectSchema
@@ -101,7 +101,7 @@ class Specification:
         }
 
         # Add entity operations.
-        for entity_type in self._project.app.entity_type_repository:
+        async for entity_type in model.ENTITY_TYPE_REPOSITORY:
             if not issubclass(entity_type.cls, UserFacing):
                 continue
             await entity_type.cls.linked_data_schema(self._project)

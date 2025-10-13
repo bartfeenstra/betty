@@ -14,7 +14,6 @@ from betty.plugin.static import StaticPluginRepository
 from betty.project import Project
 from betty.project.extension import Extension, ExtensionDefinition
 from betty.project.extension.webpack.build import Builder, EntryPointProvider
-from betty.test_utils.conftest import NewTemporaryAppFactory
 from betty.test_utils.user import StaticUser
 
 
@@ -34,33 +33,32 @@ class DummyEntryPointProviderExtension(EntryPointProvider, Extension):
 
 
 class TestBuilder:
-    async def test_build(
-        self, new_temporary_app_factory: NewTemporaryAppFactory, tmp_path: Path
-    ) -> None:
-        async with (
-            new_temporary_app_factory(
-                extension_repository=StaticPluginRepository(ExtensionDefinition)
-            ) as app,
-            app,
+    @pytest.fixture(autouse=True)
+    def _extensions(self, mocker: MockerFixture) -> None:
+        mocker.patch(
+            "betty.project.extension.EXTENSION_REPOSITORY",
+            new=StaticPluginRepository(ExtensionDefinition),
+        )
+
+    async def test_build(self, new_temporary_app: App, tmp_path: Path) -> None:
+        # Loop instead of parameterization, so we can reuse caches.
+        for index, (with_entry_point_provider, debug, root_path) in enumerate(
+            [
+                # With an entry point provider and debug.
+                (True, True, ""),
+                # With an entry point provider and a root path.
+                (True, False, "/root-path"),
+                # Without an entry point provider or debug.
+                (False, False, ""),
+            ]
         ):
-            # Loop instead of parameterization, so we can reuse caches.
-            for index, (with_entry_point_provider, debug, root_path) in enumerate(
-                [
-                    # With an entry point provider and debug.
-                    (True, True, ""),
-                    # With an entry point provider and a root path.
-                    (True, False, "/root-path"),
-                    # Without an entry point provider or debug.
-                    (False, False, ""),
-                ]
-            ):
-                await self._test_build(
-                    app,
-                    tmp_path / str(index),
-                    with_entry_point_provider,
-                    debug,
-                    root_path,
-                )
+            await self._test_build(
+                new_temporary_app,
+                tmp_path / str(index),
+                with_entry_point_provider,
+                debug,
+                root_path,
+            )
 
     async def _test_build(
         self,

@@ -127,7 +127,7 @@ class EntityReference(Configuration):
         """
         Validate the configuration.
         """
-        assert_plugin(entity_type_repository)(self.entity_type)
+        assert_plugin(await entity_type_repository.mapping())(self.entity_type)
 
 
 @final

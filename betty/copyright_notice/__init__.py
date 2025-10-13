@@ -13,8 +13,10 @@ from betty.plugin import (
     ClassedPlugin,
     ClassedPluginDefinition,
     ClassedPluginTypeDefinition,
+    PluginRepository,
     UserFacingPluginDefinition,
 )
+from betty.plugin.entry_point import EntryPointPluginRepository
 
 if TYPE_CHECKING:
     from betty.locale.localizable import Localizable
@@ -68,3 +70,13 @@ class CopyrightNoticeDefinition(
         label=_("Copyright notice"),
         cls=CopyrightNotice,
     )
+
+
+COPYRIGHT_NOTICE_REPOSITORY: PluginRepository[CopyrightNoticeDefinition] = (
+    EntryPointPluginRepository(CopyrightNoticeDefinition, "betty.copyright_notice")
+)
+"""
+The copyright notice plugin repository.
+
+Read more about :doc:`/development/plugin/copyright-notice`.
+"""

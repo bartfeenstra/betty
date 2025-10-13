@@ -13,8 +13,10 @@ from betty.plugin import (
     ClassedPlugin,
     ClassedPluginDefinition,
     ClassedPluginTypeDefinition,
+    PluginRepository,
     UserFacingPluginDefinition,
 )
+from betty.plugin.entry_point import EntryPointPluginRepository
 
 if TYPE_CHECKING:
     from betty.locale.localizable import Localizable
@@ -66,3 +68,13 @@ class LicenseDefinition(UserFacingPluginDefinition, ClassedPluginDefinition[Lice
         label=_("License"),
         cls=License,
     )
+
+
+LICENSE_REPOSITORY: PluginRepository[LicenseDefinition] = EntryPointPluginRepository(
+    LicenseDefinition, "betty.license"
+)
+"""
+The license plugin repository.
+
+Read more about :doc:`/development/plugin/license`.
+"""

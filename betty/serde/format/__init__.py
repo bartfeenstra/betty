@@ -15,14 +15,16 @@ from betty.locale.localized import Localized, LocalizedStr
 from betty.plugin import (
     ClassedPluginDefinition,
     ClassedPluginTypeDefinition,
+    PluginRepository,
     UserFacingPluginDefinition,
 )
-from betty.plugin.static import StaticPluginRepository
+from betty.plugin.entry_point import EntryPointPluginRepository
 
 if TYPE_CHECKING:
-    from collections.abc import Sequence
+    from collections.abc import AsyncIterator, Sequence
 
     from betty.locale.localizer import Localizer
+    from betty.machine_name import MachineName
     from betty.serde.dump import Dump
     from betty.typing import Voidable
 
@@ -36,6 +38,8 @@ class FormatError(UserFacingException):
 class Format:
     """
     Defines a (de)serialization format.
+
+    Read more about :doc:`/development/plugin/serde-format`.
     """
 
     plugin: ClassVar[FormatDefinition]
@@ -68,6 +72,8 @@ class Format:
 class FormatDefinition(UserFacingPluginDefinition, ClassedPluginDefinition[Format]):
     """
     A (de)serialization format definition.
+
+    Read more about :doc:`/development/plugin/serde-format`.
     """
 
     type: ClassVar[ClassedPluginTypeDefinition] = ClassedPluginTypeDefinition(
@@ -78,17 +84,28 @@ class FormatDefinition(UserFacingPluginDefinition, ClassedPluginDefinition[Forma
 
 
 @final
-class FormatRepository(StaticPluginRepository[FormatDefinition]):
+class FormatRepository(PluginRepository[FormatDefinition]):
     """
     Exposes the available (de)serialization formats.
+
+    Read more about :doc:`/development/plugin/serde-format`.
     """
 
     def __init__(self):
-        from betty.serde.format.formats import Json, Yaml
+        super().__init__(FormatDefinition)
+        self._upstream = EntryPointPluginRepository(
+            FormatDefinition, "betty.serde_format"
+        )
 
-        super().__init__(FormatDefinition, Json.plugin, Yaml.plugin)
+    @override
+    async def get(self, plugin_id: MachineName) -> FormatDefinition:
+        return await self._upstream.get(plugin_id)
 
-    def extensions(self) -> Sequence[str]:
+    @override
+    def __aiter__(self) -> AsyncIterator[FormatDefinition]:
+        return self._upstream.__aiter__()
+
+    async def extensions(self) -> Sequence[str]:
         """
         All file extensions supported by the formats in this repository.
 
@@ -96,7 +113,7 @@ class FormatRepository(StaticPluginRepository[FormatDefinition]):
         """
         return [
             extension
-            for serde_format in self
+            async for serde_format in self
             for extension in serde_format.cls.extensions()
         ]
 
@@ -104,6 +121,8 @@ class FormatRepository(StaticPluginRepository[FormatDefinition]):
 FORMAT_REPOSITORY = FormatRepository()
 """
 The (de)serialization format plugin repository.
+
+Read more about :doc:`/development/plugin/serde-format`.
 """
 
 
