@@ -879,7 +879,7 @@ class TestProjectConfiguration:
 
     async def test_entity_types(self, tmp_path: Path) -> None:
         sut = await ProjectConfiguration.new(tmp_path / "betty.json")
-        assert len(sut.entity_types)
+        sut.entity_types  # noqa B018
 
     @pytest.mark.parametrize(
         "debug",

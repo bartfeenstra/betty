@@ -6,12 +6,18 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING
 
+from betty.ancestry.event import Event
 from betty.ancestry.person import Person
 from betty.ancestry.place import Place
+from betty.ancestry.source import Source
 from betty.model.config import EntityReference
 from betty.plugin.config import PluginInstanceConfiguration
 from betty.project import Project
-from betty.project.config import LocaleConfiguration, ProjectConfiguration
+from betty.project.config import (
+    EntityTypeConfiguration,
+    LocaleConfiguration,
+    ProjectConfiguration,
+)
 from betty.project.extension.raspberry_mint import RaspberryMint
 from betty.project.extension.raspberry_mint.config import RaspberryMintConfiguration
 
@@ -56,6 +62,12 @@ async def create_project(app: App, project_directory_path: Path) -> Project:
                     ],
                 ),
             ),
+        ],
+        entity_types=[
+            EntityTypeConfiguration(Person, generate_html_list=True),
+            EntityTypeConfiguration(Event, generate_html_list=True),
+            EntityTypeConfiguration(Place, generate_html_list=True),
+            EntityTypeConfiguration(Source, generate_html_list=True),
         ],
         locales=[
             LocaleConfiguration(

@@ -11,14 +11,10 @@ from urllib.parse import urlparse
 
 from typing_extensions import override
 
-from betty.ancestry.event import Event
 from betty.ancestry.event_type import EventType, EventTypeDefinition
 from betty.ancestry.gender import Gender, GenderDefinition
-from betty.ancestry.person import Person
-from betty.ancestry.place import Place
 from betty.ancestry.place_type import PlaceType, PlaceTypeDefinition
 from betty.ancestry.presence_role import PresenceRole, PresenceRoleDefinition
-from betty.ancestry.source import Source
 from betty.assertion import (
     OptionalField,
     RequiredField,
@@ -622,15 +618,7 @@ class ProjectConfiguration(Configuration):
         self.title = title
         if author:
             self.author = author
-        self._entity_types = EntityTypeConfigurationMapping(
-            entity_types
-            or [
-                EntityTypeConfiguration(Person, generate_html_list=True),
-                EntityTypeConfiguration(Event, generate_html_list=True),
-                EntityTypeConfiguration(Place, generate_html_list=True),
-                EntityTypeConfiguration(Source, generate_html_list=True),
-            ]
-        )
+        self._entity_types = EntityTypeConfigurationMapping(entity_types or ())
         self.copyright_notice = copyright_notice or PluginInstanceConfiguration[
             CopyrightNoticeDefinition, CopyrightNotice
         ](ProjectAuthor)
