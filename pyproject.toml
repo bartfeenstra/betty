@@ -15,7 +15,7 @@ authors = [
 ]
 requires-python = '~= 3.11'
 dependencies = [
-    'aiofiles ~= 24.1',
+    'aiofiles ~= 25.1',
     'aiohttp ~= 3.12',
     'babel ~= 2.16',
     'furo == 2025.9.25',
@@ -222,7 +222,7 @@ test = [
     'pytest-playwright-asyncio ~= 0.7.0',
     'requests ~= 2.32',
     'ruff ~= 0.13.0',
-    'types-aiofiles ~= 24.1',
+    'types-aiofiles ~= 25.1',
     'types-babel ~= 2.11',
     'types-html5lib ~= 1.1',
     'types-jsonschema ~= 4.23',
