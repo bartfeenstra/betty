@@ -132,20 +132,21 @@
 {% endwith %}
 {% set nav_search_body %}
     <div class="container">
-        {% set entity_type_ids = ['file', 'person', 'place', 'source'] %}
         {% set ns = namespace(
             filter_entity_type_checkboxes = [],
             filter_entity_type_html_ids = {}
         ) %}
-        {% for entity_type_id in entity_type_ids %}
-            {% set entity_type_html_id = 'betty-search-form-filter-entity-type--' + entity_type_id %}
-            {% do ns.filter_entity_type_checkboxes.append({
-                'attributes': new_attributes(html_checked=true, html_id=entity_type_html_id),
-                'form_control_attributes': new_attributes(html_class=['search-form-filter-entity-type']),
-                'label': project.entity_type_repository.get(entity_type_id).label | localize,
-                'value': entity_type_id,
-            }) %}
-            {% do ns.filter_entity_type_html_ids.setdefault(entity_type_html_id, entity_type_id) %}
+        {% for entity_type in project.entity_type_repository %}
+            {% if entity_type.cls is user_facing %}
+                {% set entity_type_html_id = 'betty-search-form-filter-entity-type--' + entity_type.id %}
+                {% do ns.filter_entity_type_checkboxes.append({
+                    'attributes': new_attributes(html_checked=true, html_id=entity_type_html_id),
+                    'form_control_attributes': new_attributes(html_class=['search-form-filter-entity-type']),
+                    'label': entity_type.label | localize,
+                    'value': entity_type.id,
+                }) %}
+                {% do ns.filter_entity_type_html_ids.setdefault(entity_type_html_id, entity_type.id) %}
+            {% endif %}
         {% endfor %}
         <form id="search-form" data-betty-search-form-index="{{ 'betty:///search-index.json' | url }}" data-betty-search-form-filter-entity-type="{{ ns.filter_entity_type_html_ids | json }}">
             <div class="align-items-end d-flex gap-2">
@@ -163,7 +164,7 @@
                 <div class="col col-12 col-md-4 col-lg-3">
                     <h3 class="h2 section-heading">{% trans %}Filters{% endtrans %}</h3>
                     {% set search_form_filter_entity_type %}
-                        {% with checkboxes = ns.filter_entity_type_checkboxes,
+                        {% with checkboxes = ns.filter_entity_type_checkboxes | sort(attribute="label"),
                             checkboxes_label = _('Entity type'),
                             checkboxes_label_visually_hidden = true
                         %}

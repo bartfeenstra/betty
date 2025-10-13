@@ -134,13 +134,14 @@ async def test_test_linked_data_dumpable(expected: str, data: Any) -> None:
 @pytest.mark.parametrize(
     ("expected", "data"),
     [
+        ("true", DummyUserFacingEntityOne),
         ("true", DummyUserFacingEntityOne()),
-        ("false", DummyUserFacingEntityOne),
+        ("false", object),
         ("false", object()),
     ],
 )
-async def test_test_user_facing_entity(expected: str, data: Any) -> None:
-    template = "{% if data is user_facing_entity %}true{% else %}false{% endif %}"
+async def test_test_user_facing(expected: str, data: Any) -> None:
+    template = "{% if data is user_facing %}true{% else %}false{% endif %}"
     async with assert_template_string(
         template=template,
         data={

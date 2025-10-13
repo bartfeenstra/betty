@@ -18,13 +18,13 @@ from betty.ancestry.file import File
 from betty.ancestry.has_notes import HasNotes
 from betty.ancestry.person import Person
 from betty.ancestry.place import Place
-from betty.ancestry.source import Source
 from betty.model import Entity
 from betty.privacy import is_private
 from betty.typing import internal
+from betty.user import UserFacing
 
 if TYPE_CHECKING:
-    from collections.abc import Iterable, Sequence
+    from collections.abc import Iterable, Mapping, Sequence
 
     from betty.job import Context
     from betty.locale.localizable import Localizable
@@ -33,6 +33,7 @@ if TYPE_CHECKING:
     from betty.project import Project
 
 _EntityT = TypeVar("_EntityT", bound=Entity)
+_EntityCoT = TypeVar("_EntityCoT", bound=Entity, covariant=True)
 
 
 async def generate_search_index(
@@ -85,11 +86,15 @@ async def _generate_search_index_for_locale(
         await f.write(search_index_json)
 
 
-class _EntityTypeIndexer(Generic[_EntityT], ABC):
+class _EntityTypeIndexer(Generic[_EntityCoT], ABC):
     def __init__(self, project: Project):
         self._project = project
 
-    async def text(self, localizer: Localizer, entity: _EntityT) -> set[str]:
+    async def text(
+        self,
+        localizer: Localizer,
+        entity: _EntityCoT,  # type: ignore[unsafe-variance]
+    ) -> set[str]:
         text = {entity.id.lower()}
 
         # Each note is owned by a single other entity, so index it as part of that entity.
@@ -97,6 +102,17 @@ class _EntityTypeIndexer(Generic[_EntityT], ABC):
             for note in entity.notes:
                 text.update(note.text.localize(localizer).lower().split())
 
+        return text
+
+
+class _FallbackIndexer(_EntityTypeIndexer[Entity]):
+    def __init__(self, project: Project):
+        self._project = project
+
+    @override
+    async def text(self, localizer: Localizer, entity: Entity) -> set[str]:
+        text = await super().text(localizer, entity)
+        text.update(entity.label.localize(localizer))
         return text
 
 
@@ -134,10 +150,6 @@ class _FileIndexer(_EntityTypeIndexer[File]):
         return text
 
 
-class _SourceIndexer(_EntityTypeIndexer[Source]):
-    pass
-
-
 @final
 @dataclass(frozen=True)
 class _Entry:
@@ -166,13 +178,26 @@ class Index:
         """
         Build the search index.
         """
+        specialized_indexers: Mapping[type[Entity], _EntityTypeIndexer[Entity]] = {
+            File: _FileIndexer(self._project),
+            Person: _PersonIndexer(self._project),
+            Place: _PlaceIndexer(self._project),
+        }
         return [
             entry
             for entries in await gather(
-                self._build_entities(_PersonIndexer(self._project), Person),
-                self._build_entities(_PlaceIndexer(self._project), Place),
-                self._build_entities(_FileIndexer(self._project), File),
-                self._build_entities(_SourceIndexer(self._project), Source),
+                *[
+                    self._build_entities(indexer, entity_type)
+                    for entity_type, indexer in specialized_indexers.items()
+                ],
+                *[
+                    self._build_entities(
+                        _FallbackIndexer(self._project), entity_type.cls
+                    )
+                    async for entity_type in self._project.entity_type_repository
+                    if issubclass(entity_type.cls, UserFacing)
+                    and entity_type.cls not in specialized_indexers
+                ],
             )
             for entry in entries
             if entry is not None
