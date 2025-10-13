@@ -4,8 +4,6 @@ concurrency =
     multiprocessing
     thread
 omit =
-    betty/_bootstrap.py
-    betty/_package/**
     betty/sphinx/**/*
 parallel = True
 source = betty
@@ -19,8 +17,6 @@ exclude_also =
     @overload
     raise NotImplementedError
 omit =
-    betty/_bootstrap.py
-    betty/_package/**
     betty/sphinx/**/*
 show_missing = True
 skip_covered = True
