@@ -68,7 +68,7 @@ class Deriver:
         """
         Derive additional data.
         """
-        for derivable_event_type in self._project.event_type_repository:
+        async for derivable_event_type in self._project.event_type_repository:
             if not issubclass(derivable_event_type.cls, DerivableEventType):
                 continue
             created_derivations = 0
@@ -134,10 +134,10 @@ class Deriver:
                 return 0, 0
 
         # Aggregate event type order from references and backreferences.
-        comes_before_event_types = get_comes_before(
+        comes_before_event_types = await get_comes_before(
             self._project.event_type_repository, derivable_event_type
         )
-        comes_after_event_types = get_comes_after(
+        comes_after_event_types = await get_comes_after(
             self._project.event_type_repository, derivable_event_type
         )
 

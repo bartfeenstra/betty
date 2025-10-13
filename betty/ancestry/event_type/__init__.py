@@ -13,8 +13,10 @@ from betty.plugin import (
     ClassedPluginDefinition,
     ClassedPluginTypeDefinition,
     OrderedPluginDefinition,
+    PluginRepository,
     UserFacingPluginDefinition,
 )
+from betty.plugin.entry_point import EntryPointPluginRepository
 
 
 class EventType(Mutable, ClassedPlugin):
@@ -67,3 +69,13 @@ class EventTypeDefinition(
         Whether events of this type indicate the end of a person's life.
         """
         return self._is_end_of_life
+
+
+EVENT_TYPE_REPOSITORY: PluginRepository[EventTypeDefinition] = (
+    EntryPointPluginRepository(EventTypeDefinition, "betty.event_type")
+)
+"""
+The event type plugin repository.
+
+Read more about :doc:`/development/plugin/event-type`.
+"""

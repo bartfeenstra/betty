@@ -14,7 +14,7 @@ from sphinx.errors import ExtensionError
 from sphinx.util import import_object
 
 from betty import ROOT_DIRECTORY_PATH
-from betty.app import App
+from betty.console.command import COMMAND_REPOSITORY
 from betty.documentation import DocumentationServer
 from betty.functools import Do
 from betty.jinja2.filter import filters
@@ -23,6 +23,7 @@ from betty.locale.localizer import DEFAULT_LOCALIZER
 from betty.project.config import ProjectConfiguration
 from betty.serde.format import Format
 from betty.serde.format.formats import Json, Yaml
+from betty.test_utils.conftest import NewTemporaryAppFactory
 from betty.test_utils.user import StaticUser
 
 
@@ -39,12 +40,14 @@ class TestDocumentationServer:
 
 
 class TestDocumentation:
-    async def test_should_contain_console_help(self, new_temporary_app: App) -> None:
+    async def test_should_contain_console_help(
+        self, new_temporary_app_factory: NewTemporaryAppFactory
+    ) -> None:
         async with aiofiles.open(
             ROOT_DIRECTORY_PATH / "documentation" / "usage" / "console.rst"
         ) as f:
             actual = await f.read()
-        for command in new_temporary_app.command_repository:
+        async for command in COMMAND_REPOSITORY:
             assert command.id in actual
             assert command.label.localize(DEFAULT_LOCALIZER) in actual
 

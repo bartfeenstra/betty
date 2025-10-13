@@ -204,6 +204,8 @@ class Person(
     @classmethod
     async def linked_data_schema(cls, project: Project) -> JsonLdObject:
         schema = await super().linked_data_schema(project)
-        schema.add_property("gender", project.gender_repository.plugin_id_schema, False)
+        schema.add_property(
+            "gender", await project.gender_repository.plugin_id_schema, False
+        )
         schema.add_property("siblings", ToManySchema(title="Siblings"))
         return schema

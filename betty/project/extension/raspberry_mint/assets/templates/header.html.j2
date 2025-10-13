@@ -1,6 +1,6 @@
 {% set ns = namespace(primary_navigation_links = {}) %}
 {% for entity_type_configuration in project.configuration.entity_types.values() | selectattr('generate_html_list') %}
-    {% set entity_type = app.entity_type_repository[entity_type_configuration.id] %}
+    {% set entity_type = project.entity_type_repository.get(entity_type_configuration.id) %}
     {% set entity_type_label -%}
         {% if entity_type.id == 'event' %}
             {% trans %}Timeline{% endtrans %}
@@ -136,7 +136,7 @@
             filter_entity_type_checkboxes = [],
             filter_entity_type_html_ids = {}
         ) %}
-        {% for entity_type in app.entity_type_repository %}
+        {% for entity_type in project.entity_type_repository %}
             {% if entity_type.cls is user_facing %}
                 {% set entity_type_html_id = 'betty-search-form-filter-entity-type--' + entity_type.id %}
                 {% do ns.filter_entity_type_checkboxes.append({

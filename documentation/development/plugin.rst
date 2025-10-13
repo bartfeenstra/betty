@@ -32,6 +32,7 @@ plugin repository, how to use the plugins, and how to create your own.
 - :doc:`Place types </development/plugin/place-type>`
 - :doc:`Presence roles </development/plugin/presence-role>`
 - :doc:`Renderers </development/plugin/renderer>`
+- :doc:`Serialization formats </development/plugin/serde-format>`
 
 Creating a new plugin type
 --------------------------
@@ -81,6 +82,8 @@ the following base classes to get started quickly:
 
 :py:class:`betty.plugin.entry_point.EntryPointPluginRepository`
     to discover plugins defined as package entry points.
+:py:class:`betty.plugin.lazy.LazyPluginRepositoryBase`
+    to easily build repositories that lazily load their plugins.
 :py:class:`betty.plugin.proxy.ProxyPluginRepository`
     to discover plugins via one or more upstream plugin repositories.
 :py:class:`betty.plugin.static.StaticPluginRepository`

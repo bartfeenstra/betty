@@ -16,9 +16,12 @@ from betty.plugin import (
     CyclicDependencyError,
     DependentPluginDefinition,
     OrderedPluginDefinition,
+    PluginIdMapping,
+    PluginRepository,
     UserFacingPluginDefinition,
     resolve_identifier,
 )
+from betty.plugin.entry_point import EntryPointPluginRepository
 from betty.project.factory import ProjectDependentFactory
 from betty.requirement import AllRequirements
 from betty.service import ServiceProvider
@@ -28,9 +31,9 @@ if TYPE_CHECKING:
     from collections.abc import Sequence
     from pathlib import Path
 
-    from betty.app import App
     from betty.project import Project
     from betty.requirement import Requirement
+    from betty.user import User
 
 _T = TypeVar("_T")
 _ConfigurationT = TypeVar("_ConfigurationT", bound=Configuration)
@@ -66,13 +69,13 @@ class Extension(ServiceProvider, ProjectDependentFactory, ClassedPlugin):
         return self._project
 
     @classmethod
-    async def requirement(cls, *, app: App) -> Requirement:
+    async def requirement(cls, *, user: User) -> Requirement:
         """
         Define the requirement for this extension to be enabled.
 
         This defaults to the extension's dependencies.
         """
-        return await Dependencies.new(cls.plugin, app=app)
+        return await Dependencies.new(cls.plugin, user=user)
 
 
 _ExtensionT = TypeVar("_ExtensionT", bound=Extension)
@@ -121,6 +124,17 @@ class ExtensionDefinition(
         return self._theme
 
 
+EXTENSION_REPOSITORY: PluginRepository[ExtensionDefinition] = (
+    EntryPointPluginRepository(ExtensionDefinition, "betty.extension")
+)
+
+"""
+The project extension plugin repository.
+
+Read more about :doc:`/development/plugin/extension`.
+"""
+
+
 class ConfigurableExtension(
     DefaultConfigurable[_ConfigurationT], Extension, Generic[_ConfigurationT]
 ):
@@ -143,38 +157,34 @@ class Dependencies(AllRequirements):
     def __init__(
         self,
         dependent: ExtensionDefinition,
+        extension_id_mapping: PluginIdMapping[ExtensionDefinition],
         dependency_requirements: Sequence[Requirement],
-        dependencies: Sequence[ExtensionDefinition],
     ):
         super().__init__(*dependency_requirements)
         self._dependent = dependent
-        self._dependencies = dependencies
+        self._extension_id_mapping = extension_id_mapping
 
     @classmethod
-    async def new(
-        cls,
-        dependent: ExtensionDefinition,
-        *,
-        app: App,
-    ) -> Self:
+    async def new(cls, dependent: ExtensionDefinition, *, user: User) -> Self:
         """
         Create a new instance.
         """
         try:
-            dependency_requirements = []
-            dependencies = []
-            for dependency_identifier in dependent.depends_on & dependent.comes_after:
-                dependency = app.extension_repository[
-                    resolve_identifier(dependency_identifier)
-                ]
-                dependency_requirements.append(
-                    await dependency.cls.requirement(app=app)
-                )
-                dependencies.append(dependency)
+            dependency_requirements = [
+                await (
+                    await EXTENSION_REPOSITORY.get(
+                        resolve_identifier(dependency_identifier)
+                    )
+                ).cls.requirement(user=user)
+                for dependency_identifier in dependent.depends_on
+                & dependent.comes_after
+            ]
         except RecursionError:
             raise CyclicDependencyError([dependent.id]) from None
         else:
-            return cls(dependent, dependency_requirements, dependencies)
+            return cls(
+                dependent, await EXTENSION_REPOSITORY.mapping(), dependency_requirements
+            )
 
     @override
     def summary(self) -> Localizable:
@@ -182,6 +192,9 @@ class Dependencies(AllRequirements):
             dependent_label=self._dependent.label,
             dependency_labels=Join(
                 ", ",
-                *(dependency.label for dependency in self._dependencies),
+                *(
+                    self._extension_id_mapping[dependency_identifier].label
+                    for dependency_identifier in self._dependent.depends_on
+                ),
             ),
         )

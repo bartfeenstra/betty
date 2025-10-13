@@ -16,6 +16,7 @@ from aiofiles.os import makedirs
 from PIL import Image
 from typing_extensions import override
 
+from betty import model
 from betty.job import Job
 from betty.locale.localizable import _
 from betty.locale.localizer import DEFAULT_LOCALIZER
@@ -452,7 +453,7 @@ class GenerateEntityTypesJson(Job[ProjectContext]):
         await gather(
             *[
                 scheduler.add(_GenerateEntityTypeJson(entity_type))
-                for entity_type in scheduler.context.project.app.entity_type_repository
+                async for entity_type in model.ENTITY_TYPE_REPOSITORY
             ]
         )
 
@@ -516,7 +517,7 @@ class GenerateEntityTypesHtml(Job[ProjectContext]):
         await gather(
             *[
                 scheduler.add(_GenerateEntityTypeHtml(entity_type, locale))
-                for entity_type in project.app.entity_type_repository
+                async for entity_type in model.ENTITY_TYPE_REPOSITORY
                 for locale in project.configuration.locales
                 if issubclass(entity_type.cls, UserFacing)
                 and (
@@ -585,12 +586,11 @@ class GenerateEntitiesJson(Job[ProjectContext]):
 
     @override
     async def do(self, scheduler: Scheduler[ProjectContext], /) -> None:
-        project = scheduler.context.project
         await gather(
             *[
                 scheduler.add(_GenerateEntityJson(entity_type, entity.id))
-                for entity_type in project.app.entity_type_repository
-                for entity in project.ancestry[entity_type.cls]
+                async for entity_type in model.ENTITY_TYPE_REPOSITORY
+                for entity in scheduler.context.project.ancestry[entity_type.cls]
                 if persistent_id(entity)
             ]
         )
@@ -644,7 +644,7 @@ class GenerateEntitiesHtml(Job[ProjectContext]):
         await gather(
             *[
                 scheduler.add(_GenerateEntityHtml(entity_type, entity.id, locale))
-                for entity_type in project.app.entity_type_repository
+                async for entity_type in model.ENTITY_TYPE_REPOSITORY
                 if issubclass(entity_type.cls, UserFacing)
                 for entity in project.ancestry[entity_type.cls]
                 if persistent_id(entity) and is_public(entity)

@@ -17,6 +17,7 @@ from betty.plugin import (
     DependentPluginDefinition,
     OrderedPluginDefinition,
     PluginDefinition,
+    PluginIdMapping,
     PluginNotFound,
     PluginRepository,
     PluginTypeDefinition,
@@ -37,7 +38,8 @@ from betty.test_utils.plugin import (
 )
 
 if TYPE_CHECKING:
-    from collections.abc import Iterable, Iterator
+    from collections.abc import AsyncIterator, Iterable
+
 
 _T = TypeVar("_T")
 
@@ -84,6 +86,29 @@ class TestPluginNotFound:
         assert available_plugin in str(sut)
 
 
+class TestPluginIdMapping:
+    async def test_new(self) -> None:
+        await PluginIdMapping.new(StaticPluginRepository(DummyPluginDefinition))
+
+    async def test_get(self) -> None:
+        sut = await PluginIdMapping.new(
+            StaticPluginRepository(DummyPluginDefinition, DUMMY_PLUGIN_ONE)
+        )
+        assert sut.get(DUMMY_PLUGIN_ONE.id) is DUMMY_PLUGIN_ONE
+
+    async def test___getitem__(self) -> None:
+        sut = await PluginIdMapping.new(
+            StaticPluginRepository(DummyPluginDefinition, DUMMY_PLUGIN_ONE)
+        )
+        assert sut[DUMMY_PLUGIN_ONE.id] is DUMMY_PLUGIN_ONE
+
+    async def test___iter__(self) -> None:
+        sut = await PluginIdMapping.new(
+            StaticPluginRepository(DummyPluginDefinition, DUMMY_PLUGIN_ONE)
+        )
+        assert list(iter(sut)) == [DUMMY_PLUGIN_ONE.id]
+
+
 class TestPluginRepository:
     class _Sut(PluginRepository[DummyPluginDefinition]):
         def __init__(self, *plugins: DummyPluginDefinition):
@@ -91,39 +116,37 @@ class TestPluginRepository:
             self._plugins = {plugin.id: plugin for plugin in plugins}
 
         @override
-        def get(self, plugin_id: MachineName) -> DummyPluginDefinition:
+        async def get(self, plugin_id: MachineName) -> DummyPluginDefinition:
             try:
                 return self._plugins[plugin_id]
             except KeyError:
                 raise PluginNotFound.new(plugin_id, []) from None
 
         @override
-        def __iter__(self) -> Iterator[DummyPluginDefinition]:
-            yield from self._plugins.values()
+        async def __aiter__(self) -> AsyncIterator[DummyPluginDefinition]:
+            for plugin in self._plugins.values():
+                yield plugin
 
-    def test___getitem__(self) -> None:
-        sut = self._Sut(DUMMY_PLUGIN_ONE)
-        assert sut[DUMMY_PLUGIN_ONE.id] is DUMMY_PLUGIN_ONE
+    async def test_mapping__without_plugins(self) -> None:
+        sut = self._Sut()
+        await sut.mapping()
 
-    def test___iter__(self) -> None:
+    async def test_mapping__with_plugins(self) -> None:
         sut = self._Sut(
             DUMMY_PLUGIN_ONE,
             DUMMY_PLUGIN_TWO,
             DUMMY_PLUGIN_THREE,
         )
-        assert list(iter(sut)) == [
-            DUMMY_PLUGIN_ONE,
-            DUMMY_PLUGIN_TWO,
-            DUMMY_PLUGIN_THREE,
-        ]
+        plugin_id_mapping = await sut.mapping()
+        assert plugin_id_mapping[DUMMY_PLUGIN_ONE.id] is DUMMY_PLUGIN_ONE
 
-    def test_plugin_id_schema(self) -> None:
+    async def test_plugin_id_schema(self) -> None:
         sut = self._Sut(
             DUMMY_PLUGIN_ONE,
             DUMMY_PLUGIN_TWO,
             DUMMY_PLUGIN_THREE,
         )
-        actual = sut.plugin_id_schema
+        actual = await sut.plugin_id_schema
         assert actual.schema["enum"] == [
             "dummy-plugin-one",
             "dummy-plugin-two",
@@ -423,11 +446,11 @@ async def test_sort_dependent_plugin_graph(
         ),
     ],
 )
-def test_get_comes_before(
+async def test_get_comes_before(
     expected: set[_OrderedPluginDefinition], origin: _OrderedPluginDefinition
 ) -> None:
     assert (
-        get_comes_before(
+        await get_comes_before(
             StaticPluginRepository(
                 _OrderedPluginDefinition,
                 _ORDERED_PLUGIN_COMES_BEFORE_TARGET,
@@ -465,11 +488,11 @@ def test_get_comes_before(
         ),
     ],
 )
-def test_get_comes_after(
+async def test_get_comes_after(
     expected: set[_OrderedPluginDefinition], origin: _OrderedPluginDefinition
 ) -> None:
     assert (
-        get_comes_after(
+        await get_comes_after(
             StaticPluginRepository(
                 _OrderedPluginDefinition,
                 _ORDERED_PLUGIN_COMES_BEFORE_TARGET,

@@ -26,7 +26,7 @@ from betty.user import UserFacing
 
 if TYPE_CHECKING:
     import builtins
-    from collections.abc import Iterable, Iterator, Mapping, Sequence
+    from collections.abc import AsyncIterator, Iterable, Iterator, Mapping, Sequence
     from graphlib import TopologicalSorter
 
     from betty.locale.localizable import Localizable
@@ -370,6 +370,39 @@ class PluginNotFound(PluginError, UserFacingException):
         )
 
 
+class PluginIdMapping(Generic[_PluginDefinitionT]):
+    """
+    Map plugin IDs to their definitions.
+    """
+
+    def __init__(self, id_mapping: Mapping[MachineName, _PluginDefinitionT], /):
+        self._id_mapping = id_mapping
+
+    @classmethod
+    async def new(cls, plugins: PluginRepository[_PluginDefinitionT], /) -> Self:
+        """
+        Create a new instance.
+        """
+        return cls({plugin.id: plugin async for plugin in plugins})
+
+    def get(self, plugin_id: MachineName, /) -> _PluginDefinitionT:
+        """
+        Get the type for the given plugin identifier.
+        """
+        try:
+            return self._id_mapping[plugin_id]
+        except KeyError:
+            raise PluginNotFound.new(
+                plugin_id, list(self._id_mapping.values())
+            ) from None
+
+    def __getitem__(self, plugin_id: MachineName) -> _PluginDefinitionT:
+        return self.get(plugin_id)
+
+    def __iter__(self) -> Iterator[MachineName]:
+        yield from self._id_mapping
+
+
 class PluginRepository(Generic[_PluginDefinitionCoT], ABC):
     """
     Discover and manage plugins.
@@ -383,8 +416,14 @@ class PluginRepository(Generic[_PluginDefinitionCoT], ABC):
         self._plugin = plugin
         self._plugin_id_schema: Enum | None = None
 
+    async def mapping(self) -> PluginIdMapping[_PluginDefinitionCoT]:
+        """
+        Get the plugin ID to type mapping.
+        """
+        return await PluginIdMapping.new(self)
+
     @abstractmethod
-    def get(self, plugin_id: MachineName, /) -> _PluginDefinitionCoT:
+    async def get(self, plugin_id: MachineName, /) -> _PluginDefinitionCoT:
         """
         Get a single plugin by its ID.
 
@@ -392,21 +431,18 @@ class PluginRepository(Generic[_PluginDefinitionCoT], ABC):
         """
 
     @abstractmethod
-    def __iter__(self) -> Iterator[_PluginDefinitionCoT]:
+    def __aiter__(self) -> AsyncIterator[_PluginDefinitionCoT]:
         pass
 
-    def __getitem__(self, plugin_id: MachineName) -> _PluginDefinitionCoT:
-        return self.get(plugin_id)
-
     @property
-    def plugin_id_schema(self) -> Enum:
+    async def plugin_id_schema(self) -> Enum:
         """
         Get the JSON schema for the IDs of the plugins in this repository.
         """
         if self._plugin_id_schema is None:
             label = self._plugin.type.label.localize(DEFAULT_LOCALIZER)
             self._plugin_id_schema = Enum(
-                *[plugin.id for plugin in self],  # noqa A002
+                *[plugin.id async for plugin in self],  # noqa A002
                 def_name=kebab_case_to_lower_camel_case(self._plugin.type.id),
                 title=label,
                 description=f"A {label} plugin ID",
@@ -439,11 +475,11 @@ async def sort_ordered_plugin_graph(
     for plugin in plugins:
         sorter.add(plugin.id)
         for before_identifier in map(resolve_identifier, plugin.comes_before):
-            before = plugin_repository[before_identifier]
+            before = await plugin_repository.get(before_identifier)
             if before in plugins:
                 sorter.add(before.id, plugin.id)
         for after_identifier in map(resolve_identifier, plugin.comes_after):
-            after = plugin_repository[after_identifier]
+            after = await plugin_repository.get(after_identifier)
             if after in plugins:
                 sorter.add(plugin.id, after.id)
 
@@ -462,7 +498,10 @@ async def expand_plugin_dependencies(
         dependencies.update(
             await expand_plugin_dependencies(
                 plugin_repository,
-                [plugin_repository.get(depends_on) for depends_on in plugin.depends_on],
+                [
+                    await plugin_repository.get(depends_on)
+                    for depends_on in plugin.depends_on
+                ],
             )
         )
     return dependencies
@@ -493,7 +532,7 @@ def _collect_plugin_graph(
         yield from _collect_plugin_graph(graph, target)
 
 
-def get_comes_before(
+async def get_comes_before(
     plugin_repository: PluginRepository[_OrderedPluginDefinitionT],
     origin: _OrderedPluginDefinitionT,
     /,
@@ -502,17 +541,17 @@ def get_comes_before(
     Get all other plugins the given plugin comes before.
     """
     graph = defaultdict(set)
-    for plugin in plugin_repository:
+    async for plugin in plugin_repository:
         for comes_before_id in plugin.comes_before:
-            comes_before = plugin_repository[comes_before_id]
+            comes_before = await plugin_repository.get(comes_before_id)
             graph[plugin].add(comes_before)
         for comes_after_id in plugin.comes_after:
-            comes_after = plugin_repository[comes_after_id]
+            comes_after = await plugin_repository.get(comes_after_id)
             graph[comes_after].add(plugin)
     return set(_collect_plugin_graph(graph, origin))
 
 
-def get_comes_after(
+async def get_comes_after(
     plugin_repository: PluginRepository[_OrderedPluginDefinitionT],
     origin: _OrderedPluginDefinitionT,
     /,
@@ -521,11 +560,11 @@ def get_comes_after(
     Get all other plugins the given plugin comes after.
     """
     graph = defaultdict(set)
-    for plugin in plugin_repository:
+    async for plugin in plugin_repository:
         for comes_after_id in plugin.comes_after:
-            comes_after = plugin_repository[comes_after_id]
+            comes_after = await plugin_repository.get(comes_after_id)
             graph[plugin].add(comes_after)
         for comes_before_id in plugin.comes_before:
-            comes_before = plugin_repository[comes_before_id]
+            comes_before = await plugin_repository.get(comes_before_id)
             graph[comes_before].add(plugin)
     return set(_collect_plugin_graph(graph, origin))

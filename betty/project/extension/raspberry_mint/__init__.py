@@ -132,7 +132,7 @@ class RaspberryMint(
 
     async def _assert_configuration(self) -> None:
         await self.configuration.featured_entities.validate(
-            self.project.app.entity_type_repository
+            self.project.entity_type_repository
         )
 
     @override

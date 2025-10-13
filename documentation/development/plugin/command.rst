@@ -8,7 +8,7 @@ CLI command plugins
    * -  Type
      -  :py:class:`betty.console.command.Command`
    * -  Repository
-     -  :py:class:`betty.app.App.command_repository`
+     -  :py:class:`betty.console.command.COMMAND_REPOSITORY`
 
 Betty's :doc:`console </usage/console>` allows you to run Betty by invoking commands. These commands
 are built using :py:mod:`argparse`.

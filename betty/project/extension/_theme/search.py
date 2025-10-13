@@ -194,7 +194,7 @@ class Index:
                     self._build_entities(
                         _FallbackIndexer(self._project), entity_type.cls
                     )
-                    for entity_type in self._project.app.entity_type_repository
+                    async for entity_type in self._project.entity_type_repository
                     if issubclass(entity_type.cls, UserFacing)
                     and entity_type.cls not in specialized_indexers
                 ],

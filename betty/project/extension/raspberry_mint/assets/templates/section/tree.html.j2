@@ -1,4 +1,4 @@
-{% if "trees" in project.extensions %}
+{% if project.extension_repository.get("trees") in project.extensions %}
     <div class="tree-section">
         {% include 'trees/tree.html.j2' %}
     </div>
