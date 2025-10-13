@@ -10,6 +10,8 @@ the name of a command) to see how to use that specific command, e.g. ``betty gen
 Commands
 --------
 
+``about``
+    Output information about Betty, and optionally your project
 ``clear-caches``
     Clear all caches
 ``config``

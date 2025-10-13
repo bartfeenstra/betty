@@ -13,7 +13,7 @@ node_version = (
         ["node", "-e", r"console.log(process.versions.node.split('.')[0])"],
         stderr=STDOUT,
     )
-    .decode()
+    .decode(sys.stdout.encoding)
     .strip()
 )
 check_call(

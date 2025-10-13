@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PROJECT VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2025-11-16 23:24+0000\n"
+"POT-Creation-Date: 2025-11-17 21:03+0000\n"
 "PO-Revision-Date: 2025-11-08 23:46+0000\n"
 "Last-Translator: Bart Feenstra <bart@bartfeenstra.com>\n"
 "Language: nl_NL\n"
@@ -53,7 +53,7 @@ msgstr "%(event)s van %(subjects)s"
 msgid "%(event)s with %(subjects)s"
 msgstr "%(event)s met %(subjects)s"
 
-msgid "(De)serialization format)"
+msgid "(De)serialization format"
 msgstr ""
 
 msgid ""
@@ -114,6 +114,9 @@ msgstr "Huwelijksaankondiging"
 
 msgid "Appearances"
 msgstr "Verschijningen"
+
+msgid "Assets directory"
+msgstr ""
 
 #, python-brace-format
 msgid "At least {expected} items are required, but found {actual}."
@@ -302,6 +305,9 @@ msgstr ""
 
 msgid "Conference"
 msgstr "Conferentie"
+
+msgid "Configuration file"
+msgstr ""
 
 msgid "Configure Betty"
 msgstr "Configureer Betty"
@@ -605,6 +611,9 @@ msgstr ""
 msgid "I'm sorry, dear, but it seems you're not logged in."
 msgstr "Het spijt me, lieverd, maar het lijkt erop dat je niet ingelogd bent."
 
+msgid "ID"
+msgstr ""
+
 msgid "Ilpendam"
 msgstr ""
 
@@ -635,6 +644,9 @@ msgstr ""
 
 msgid "Keywords"
 msgstr "Zoekwoorden"
+
+msgid "Label"
+msgstr ""
 
 msgid "Language"
 msgstr "Taal"
@@ -741,8 +753,14 @@ msgstr "Menu"
 msgid "Missing"
 msgstr "Vermist"
 
+msgid "More plugins may be available when running this command with --project."
+msgstr ""
+
 msgid "Municipality"
 msgstr "Gemeente"
+
+msgid "N/A"
+msgstr ""
 
 msgid "Neighborhood"
 msgstr "Buurt"
@@ -798,6 +816,15 @@ msgstr "Overige aanwezigen"
 msgid "Other places contained by this one"
 msgstr "Overige plaatsen binnen deze"
 
+msgid "Output directory"
+msgstr ""
+
+msgid "Output information about Betty, and optionally your project"
+msgstr ""
+
+msgid "Package"
+msgstr ""
+
 #, python-format
 msgid "Page %(page)s"
 msgstr ""
@@ -843,6 +870,12 @@ msgstr ""
 
 #, python-brace-format
 msgid "Plugin \"{plugin_id}\" is not configurable, but configuration was given."
+msgstr ""
+
+msgid "Plugins"
+msgstr ""
+
+msgid "Plugins of this type are only available for projects."
 msgstr ""
 
 msgid "Positional arguments"
@@ -982,9 +1015,6 @@ msgstr ""
 msgid "Show all available commands"
 msgstr ""
 
-msgid "Show information about the current Betty version and environment"
-msgstr ""
-
 msgid "Show this help message"
 msgstr ""
 
@@ -1025,6 +1055,9 @@ msgstr ""
 msgid ""
 "Subprocess `{command}` stdout:\n"
 "{stdout}"
+msgstr ""
+
+msgid "System"
 msgstr ""
 
 #, python-format
@@ -1188,6 +1221,9 @@ msgstr ""
 msgid "Translations for {locale} initialized at {po_file_path}."
 msgstr ""
 
+msgid "Type"
+msgstr ""
+
 msgid "Unauthorized"
 msgstr "Onbevoegd"
 
@@ -1228,6 +1264,9 @@ msgstr ""
 " bestaande informatie."
 
 msgid "Usage: "
+msgstr ""
+
+msgid "Version"
 msgstr ""
 
 msgid "View Betty's interactive documentation. This will open your web browser."
@@ -1292,6 +1331,10 @@ msgstr ""
 "Werken in het publieke domein mogen gebruikt of naar verwezen worden "
 "zonder toestemming, omdat niemand (meer) exclusieve rechten over deze "
 "werken heeft."
+
+#, python-brace-format
+msgid "Your project at {file}"
+msgstr ""
 
 msgid ""
 "Your project has no theme enabled. This means your site's pages may look "

@@ -11,6 +11,10 @@ from betty.user import Verbosity
 
 
 class TestConsoleUser:
+    async def test_console(self) -> None:
+        sut = ConsoleUser()
+        sut.console  # noqa B018
+
     async def test_verbosity(self) -> None:
         sut = ConsoleUser()
         sut.verbosity  # noqa B018

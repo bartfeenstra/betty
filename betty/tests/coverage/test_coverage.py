@@ -90,13 +90,16 @@ _BASELINE: Mapping[str, _ModuleIgnore] = {
     "betty/console/__init__.py": {
         "SystemExitCode": MissingReason.ENUM,
     },
+    "betty/console/command/__init__.py": {
+        "Command": MissingReason.SHOULD_BE_COVERED,
+    },
+    "betty/console/project.py": {
+        "ConfigurationFileNotFound": MissingReason.STATIC_CONTENT_ONLY,
+    },
     "betty/console/user.py": {
         "ConsoleUser": {
             "disconnect": MissingReason.COVERED_ELSEWHERE,
         },
-    },
-    "betty/console/command/__init__.py": {
-        "Command": MissingReason.SHOULD_BE_COVERED,
     },
     "betty/concurrent.py": {
         "AsynchronizedLock": {

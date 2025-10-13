@@ -36,17 +36,24 @@ class ConsoleUser(User):
     def __init__(self):
         self._connected = False
         self._exit_stack = AsyncExitStack()
-        self._rich_console = Console(theme=ConsoleTheme())
+        self._console = Console(theme=ConsoleTheme())
         self._verbosity = Verbosity.DEFAULT
         self._logging_handler = UserHandler(self)
         self._exit_stack.push_async_callback(self._logging_handler.stop)
         self._logger = logging.getLogger()
         self._log_formatter = logging.Formatter()
 
+    @property
+    def console(self) -> Console:
+        """
+        The Rich console.
+        """
+        return self._console
+
     @override
     async def connect(self) -> None:
         self._connected = True
-        await self.set_verbosity(self._verbosity)
+        await self._propagate_verbosity()
 
     @override
     async def disconnect(self) -> None:
@@ -61,10 +68,13 @@ class ConsoleUser(User):
 
     @override
     async def set_verbosity(self, verbosity: Verbosity) -> None:
-        assert self._connected
         if verbosity is self._verbosity:
             return
         self._verbosity = verbosity
+        if self._connected:
+            await self._propagate_verbosity()
+
+    async def _propagate_verbosity(self) -> None:
         if self.verbosity >= Verbosity.MOST_VERBOSE:
             self._logger.addHandler(self._logging_handler)
             await self._logging_handler.start()
@@ -78,9 +88,7 @@ class ConsoleUser(User):
     @override
     async def message_exception(self) -> None:
         self._message_error(self.localizer._("An unexpected error occurred:"))
-        self._rich_console.print_exception(
-            show_locals=self.verbosity >= Verbosity.VERBOSE
-        )
+        self._console.print_exception(show_locals=self.verbosity >= Verbosity.VERBOSE)
 
     @override
     async def message_error(self, message: Localizable) -> None:
@@ -88,41 +96,41 @@ class ConsoleUser(User):
 
     def _message_error(self, message: str) -> None:
         assert self._connected
-        self._rich_console.print(f"[red]{message}[/]")
+        self._console.print(f"[red]{message}[/]")
 
     @override
     async def message_warning(self, message: Localizable) -> None:
         assert self._connected
         if self._verbosity < Verbosity.DEFAULT:
             return
-        self._rich_console.print(f"[yellow]{message.localize(self.localizer)}[/]")
+        self._console.print(f"[yellow]{message.localize(self.localizer)}[/]")
 
     @override
     async def message_information(self, message: Localizable) -> None:
         assert self._connected
         if self._verbosity < Verbosity.DEFAULT:
             return
-        self._rich_console.print(f"[green]{message.localize(self.localizer)}[/]")
+        self._console.print(f"[green]{message.localize(self.localizer)}[/]")
 
     @override
     async def message_information_details(self, message: Localizable) -> None:
         assert self._connected
         if self._verbosity < Verbosity.VERBOSE:
             return
-        self._rich_console.print(f"[green]{message.localize(self.localizer)}[/]")
+        self._console.print(f"[green]{message.localize(self.localizer)}[/]")
 
     @override
     async def message_debug(self, message: Localizable) -> None:
         assert self._connected
         if self._verbosity < Verbosity.MORE_VERBOSE:
             return
-        self._rich_console.print(f"[white]{message.localize(self.localizer)}[/]")
+        self._console.print(f"[white]{message.localize(self.localizer)}[/]")
 
     @override
     async def message_log(self, message: logging.LogRecord) -> None:
         if self._verbosity < Verbosity.MOST_VERBOSE:
             return
-        self._rich_console.print(f"[blue]{self._log_formatter.format(message)}[/]")
+        self._console.print(f"[blue]{self._log_formatter.format(message)}[/]")
 
     @override
     @asynccontextmanager
@@ -135,7 +143,7 @@ class ConsoleUser(User):
                 BarColumn(),
                 TaskProgressColumn(),
                 TimeElapsedColumn(),
-                console=self._rich_console,
+                console=self._console,
             ) as rich_progress:
                 yield ConsoleProgress(rich_progress, message.localize(self.localizer))
 
@@ -150,7 +158,7 @@ class ConsoleUser(User):
         assert self._connected
         return Confirm.ask(
             statement.localize(self.localizer),
-            console=self._rich_console,
+            console=self._console,
             default=default,
             stream=stdin,
         )
@@ -193,7 +201,7 @@ class ConsoleUser(User):
             str,
             Prompt.ask(  # type: ignore[call-overload]
                 question.localize(self.localizer),
-                console=self._rich_console,
+                console=self._console,
                 stream=stdin,
                 **ask_kwargs,
             ),
