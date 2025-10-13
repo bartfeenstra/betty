@@ -157,7 +157,8 @@ class SpdxLicenseBuilder:
             / f"license-list-data-{self.VERSION}"
             / "json"
             / "details"
-            / f"{license_id}.json"
+            / f"{license_id}.json",
+            encoding="utf-8",
         ) as spdx_license_data_f:
             spdx_license_data_json = await spdx_license_data_f.read()
 
