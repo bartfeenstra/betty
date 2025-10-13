@@ -22,7 +22,7 @@ from betty.locale.localizable import Plain
 from betty.model import Entity
 from betty.openapi import SpecificationSchema
 from betty.project import Project, ProjectContext
-from betty.project.config import LocaleConfiguration
+from betty.project.config import EntityTypeConfiguration, LocaleConfiguration
 from betty.project.generate.jobs import (
     GenerateEntitiesHtml,
     GenerateEntitiesJson,
@@ -53,10 +53,14 @@ class TestGenerateEntityTypesHtml:
         ],
     )
     async def test_do(self, entity_type: type[Entity], new_temporary_app: App) -> None:
-        async with Project.new_temporary(new_temporary_app) as project, project:
-            await do(ProjectContext(project), GenerateEntityTypesHtml())
+        async with Project.new_temporary(new_temporary_app) as project:
+            project.configuration.entity_types.append(
+                EntityTypeConfiguration(entity_type, generate_html_list=True)
+            )
+            async with project:
+                await do(ProjectContext(project), GenerateEntityTypesHtml())
 
-            await assert_betty_html(project, f"/{entity_type.plugin.id}/index.html")
+                await assert_betty_html(project, f"/{entity_type.plugin.id}/index.html")
 
 
 class TestGenerateEntityTypesJson:

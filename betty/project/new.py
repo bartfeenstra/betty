@@ -3,13 +3,21 @@ from __future__ import annotations  # noqa D100
 from typing import TYPE_CHECKING, Any
 from urllib.parse import urlparse
 
+from betty.ancestry.event import Event
+from betty.ancestry.person import Person
+from betty.ancestry.place import Place
+from betty.ancestry.source import Source
 from betty.assertion import assert_str, assert_path, assert_locale
 from betty.config.file import write_configuration_file
 from betty.locale import get_display_name, DEFAULT_LOCALE
 from betty.locale.localizable import _, StaticTranslationsMapping, Localizable
 from betty.machine_name import machinify, assert_machine_name
 from betty.plugin.config import PluginInstanceConfiguration
-from betty.project.config import LocaleConfiguration, ProjectConfiguration
+from betty.project.config import (
+    LocaleConfiguration,
+    ProjectConfiguration,
+    EntityTypeConfiguration,
+)
 from betty.project.extension.deriver import Deriver
 from betty.project.extension.gramps import Gramps
 from betty.project.extension.gramps.config import (
@@ -63,6 +71,12 @@ async def new(app: App) -> None:
     )
     configuration = await ProjectConfiguration.new(
         configuration_file_path,
+        entity_types=[
+            EntityTypeConfiguration(Person, generate_html_list=True),
+            EntityTypeConfiguration(Event, generate_html_list=True),
+            EntityTypeConfiguration(Place, generate_html_list=True),
+            EntityTypeConfiguration(Source, generate_html_list=True),
+        ],
     )
 
     configuration.extensions.enable(*extensions)
