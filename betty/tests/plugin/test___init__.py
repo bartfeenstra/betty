@@ -1,13 +1,11 @@
 from __future__ import annotations
 
-from graphlib import TopologicalSorter
 from typing import TYPE_CHECKING, ClassVar, TypeVar
 
 import pytest
 from typing_extensions import override
 
 from betty.locale.localizable import CountablePlain, Plain
-from betty.machine_name import MachineName
 from betty.plugin import (
     ClassedPlugin,
     ClassedPluginDefinition,
@@ -38,6 +36,8 @@ from betty.test_utils.plugin import (
 
 if TYPE_CHECKING:
     from collections.abc import Iterable, Iterator
+
+    from betty.machine_name import MachineName
 
 _T = TypeVar("_T")
 
@@ -222,8 +222,7 @@ async def test_sort_ordered_plugin_graph(
     expected: list[MachineName],
     plugins: Iterable[_OrderedPluginDefinition],
 ) -> None:
-    sorter = TopologicalSorter[MachineName]()
-    await sort_ordered_plugin_graph(
+    sorter = await sort_ordered_plugin_graph(
         StaticPluginRepository(
             _OrderedPluginDefinition,
             _ORDERED_PLUGIN_COMES_BEFORE_TARGET,
@@ -233,7 +232,6 @@ async def test_sort_ordered_plugin_graph(
             _ORDERED_PLUGIN_ISOLATED,
         ),
         plugins,
-        sorter,
     )
     assert list(sorter.static_order()) == expected
 
@@ -397,8 +395,7 @@ async def test_sort_dependent_plugin_graph(
         _DEPENDENT_PLUGIN_UPSTREAM_AND_DOWNSTREAM_DEPENDENT,
         _DEPENDENT_PLUGIN_DOWNSTREAM_DEPENDENT,
     )
-    sorter = TopologicalSorter[MachineName]()
-    await sort_dependent_plugin_graph(plugin_repository, plugins, sorter)
+    sorter = await sort_dependent_plugin_graph(plugin_repository, plugins)
     assert list(sorter.static_order()) == expected
 
 
