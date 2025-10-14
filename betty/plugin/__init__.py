@@ -12,6 +12,7 @@ from __future__ import annotations
 from abc import ABC, abstractmethod
 from collections import defaultdict
 from collections.abc import Iterable
+from graphlib import TopologicalSorter
 from typing import TYPE_CHECKING, Any, ClassVar, Generic, Self, TypeAlias
 
 from typing_extensions import TypeVar
@@ -27,7 +28,6 @@ from betty.user import UserFacing
 if TYPE_CHECKING:
     import builtins
     from collections.abc import Iterable, Iterator, Mapping, Sequence
-    from graphlib import TopologicalSorter
 
     from betty.locale.localizable import Localizable
 
@@ -429,12 +429,12 @@ class CyclicDependencyError(PluginError):
 async def sort_ordered_plugin_graph(
     plugin_repository: PluginRepository[_OrderedPluginDefinitionT],
     plugins: Iterable[_OrderedPluginDefinitionT],
-    sorter: TopologicalSorter[MachineName],
     /,
-) -> None:
+) -> TopologicalSorter[MachineName]:
     """
     Build a graph of the given plugins.
     """
+    sorter = TopologicalSorter[MachineName]()
     plugins = sorted(plugins, key=lambda plugin: plugin.id)
     for plugin in plugins:
         sorter.add(plugin.id)
@@ -446,6 +446,7 @@ async def sort_ordered_plugin_graph(
             after = plugin_repository[after_identifier]
             if after in plugins:
                 sorter.add(plugin.id, after.id)
+    return sorter
 
 
 async def expand_plugin_dependencies(
@@ -471,16 +472,13 @@ async def expand_plugin_dependencies(
 async def sort_dependent_plugin_graph(
     plugin_repository: PluginRepository[_DependentPluginDefinitionT],
     plugins: Iterable[_DependentPluginDefinitionT],
-    sorter: TopologicalSorter[MachineName],
     /,
-) -> None:
+) -> TopologicalSorter[MachineName]:
     """
     Sort a dependent plugin graph.
     """
-    await sort_ordered_plugin_graph(
-        plugin_repository,
-        await expand_plugin_dependencies(plugin_repository, plugins),
-        sorter,
+    return await sort_ordered_plugin_graph(
+        plugin_repository, await expand_plugin_dependencies(plugin_repository, plugins)
     )
 
 

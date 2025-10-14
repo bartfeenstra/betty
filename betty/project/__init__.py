@@ -9,7 +9,6 @@ site from the entire project.
 from __future__ import annotations
 
 from contextlib import AsyncExitStack, asynccontextmanager
-from graphlib import TopologicalSorter
 from pathlib import Path
 from typing import TYPE_CHECKING, Any, Self, cast, final, overload
 
@@ -37,7 +36,6 @@ from betty.locale.translation import (
     ProxyTranslationRepository,
     TranslationRepository,
 )
-from betty.machine_name import MachineName
 from betty.model import Entity, ToManySchema
 from betty.plugin import resolve_identifier, sort_dependent_plugin_graph
 from betty.plugin.entry_point import EntryPointPluginRepository
@@ -60,6 +58,7 @@ if TYPE_CHECKING:
     from betty.cache import Cache
     from betty.jinja2 import Environment
     from betty.license import License
+    from betty.machine_name import MachineName
     from betty.plugin import PluginIdentifier, PluginRepository
     from betty.progress import Progress
     from betty.url import UrlGenerator
@@ -253,11 +252,8 @@ class Project(Configurable[ProjectConfiguration], TargetFactory, ServiceProvider
                 extension_configuration
             )
 
-        extensions_sorter = TopologicalSorter[MachineName]()
-        await sort_dependent_plugin_graph(
-            self.app.extension_repository,
-            configured_extension_definitions,
-            extensions_sorter,
+        extensions_sorter = await sort_dependent_plugin_graph(
+            self.app.extension_repository, configured_extension_definitions
         )
         extensions_sorter.prepare()
 
