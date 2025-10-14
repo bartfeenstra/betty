@@ -176,28 +176,12 @@ class ServiceProvider(Bootstrapped, Shutdownable):
     async def _bootstrap(self) -> None:
         if isinstance(self, Configurable):
             self.configuration.immutable()
-        await self._initialize_shared_services()
 
     @classmethod
     def _service_managers(cls) -> Iterable[ServiceManager[Self, Any, Any]]:
         for _, value in getmembers(cls):
             if isinstance(value, ServiceManager):
                 yield value
-
-    # @todo We no longer need this!
-    async def _initialize_shared_services(self) -> None:
-        """
-        Initialize shared services, so they are ready to be pickled if/when they need to be.
-
-        This is a workaround, because all pickling APIs are synchronous and will not allow us to call asynchronous
-        service factories.
-        """
-        for service_manager in self._service_managers():
-            if not service_manager.is_shared:
-                continue
-            service = service_manager.get(self)
-            if isinstance(service_manager, _AsynchronousServiceManager):
-                await service
 
     @public
     @override
@@ -245,14 +229,8 @@ class ServiceManager(Generic[_ServiceProviderT, _ServiceGetT, _ServiceT]):
     Manages a single service for a service provider.
     """
 
-    def __init__(
-        self,
-        factory: ServiceFactory[_ServiceProviderT, _ServiceGetT],
-        *,
-        shared: bool = False,
-    ):
+    def __init__(self, factory: ServiceFactory[_ServiceProviderT, _ServiceGetT]):
         self._factory = factory
-        self._shared = shared
         self._service_name: str = factory.__name__  # type: ignore[attr-defined]
         self._service_attr_name = f"_{self._service_name}"
         self._service_override_attr_name = f"{self._service_attr_name}_override"
@@ -264,13 +242,6 @@ class ServiceManager(Generic[_ServiceProviderT, _ServiceGetT, _ServiceT]):
         The service name.
         """
         return self._service_name
-
-    @property
-    def is_shared(self) -> bool:
-        """
-        Whether the service is shared between service provider instances.
-        """
-        return self._shared
 
     @overload
     def __get__(self, instance: None, owner: type[_ServiceProviderT]) -> Self:
@@ -352,28 +323,6 @@ class ServiceManager(Generic[_ServiceProviderT, _ServiceGetT, _ServiceT]):
         self._assert_not_initialized(instance)
         setattr(instance, self._factory_override_attr_name, factory)
 
-    def get_state(self, instance: _ServiceProviderT) -> dict[str, Any]:
-        """
-        Get the attribute's state for the given instance.
-
-        The returned state is the subset of ``instance.__dict__`` owned by this descriptor and that must be pickled
-        along with ``instance``.
-        """
-        instance.assert_bootstrapped()
-        service_overridden = getattr(instance, self._service_override_attr_name, False)
-        if self.is_shared or service_overridden:
-            service = self._get_attr(instance)
-            assert not_void(service)
-            return {
-                self._service_attr_name: service,
-            }
-        factory = getattr(instance, self._factory_override_attr_name, None)
-        if factory:
-            return {
-                self._factory_override_attr_name: factory,
-            }
-        return {}
-
 
 class _AsynchronousServiceManager(
     Generic[_ServiceProviderT, _ServiceT],
@@ -384,9 +333,6 @@ class _AsynchronousServiceManager(
         try:
             return cast(Lock, getattr(instance, lock_attr_name))
         except AttributeError:
-            # We do not need a process-safe lock here, because we only ever lazily initialize services for the current
-            # thread. Services that are shared across processes are explicitly initialized and pickled by service
-            # providers.
             lock = AsynchronizedLock.new_threadsafe()
             setattr(instance, lock_attr_name, lock)
             return lock
@@ -435,26 +381,25 @@ class _ServiceDecorator(Protocol):
 
 @overload
 def service(  # type: ignore[overload-overlap]
-    factory: Callable[[_ServiceProviderT], Awaitable[_ServiceT]], shared: bool = False
+    factory: Callable[[_ServiceProviderT], Awaitable[_ServiceT]],
 ) -> _AsynchronousServiceManager[_ServiceProviderT, _ServiceT]:
     pass
 
 
 @overload
 def service(
-    factory: Callable[[_ServiceProviderT], _ServiceT], shared: bool = False
+    factory: Callable[[_ServiceProviderT], _ServiceT],
 ) -> _SynchronousServiceManager[_ServiceProviderT, _ServiceT]:
     pass
 
 
 @overload
-def service(factory: None = None, shared: bool = False) -> _ServiceDecorator:
+def service(factory: None = None) -> _ServiceDecorator:
     pass
 
 
 def service(
     factory: Callable[[_ServiceProviderT], _ServiceGetT] | None = None,
-    shared: bool = False,
 ) -> ServiceManager[_ServiceProviderT, _ServiceGetT, Any] | _ServiceDecorator:
     """
     Decorate a service factory method.
@@ -469,8 +414,8 @@ def service(
         factory: Callable[[_ServiceProviderT], _ServiceGetT],
     ) -> ServiceManager[_ServiceProviderT, _ServiceGetT, Any]:
         if iscoroutinefunction(factory):
-            return _AsynchronousServiceManager(factory, shared=shared)  # type: ignore[return-value]
-        return _SynchronousServiceManager(factory, shared=shared)
+            return _AsynchronousServiceManager(factory)  # type: ignore[return-value]
+        return _SynchronousServiceManager(factory)
 
     if factory is None:
         return _service  # type: ignore[return-value]
