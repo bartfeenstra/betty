@@ -32,7 +32,7 @@ class TestClientErrorToUserMessageMiddleware:
             handler_called_request.append(request)
             raise error
 
-        request = ClientRequest("GET", URL("https://example.coffffffffm"))
+        request = ClientRequest("GET", URL("https://example.com"))
         user = StaticUser()
         sut = ClientErrorToUserMessageMiddleware(user)
         with pytest.raises(ClientError) as exc_info:
