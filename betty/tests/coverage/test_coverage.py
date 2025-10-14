@@ -528,6 +528,7 @@ _BASELINE: Mapping[str, _ModuleIgnore] = {
         "NotAPageError": MissingReason.STATIC_CONTENT_ONLY,
     },
     "betty/wiki/client.py": {
+        "ClientError": MissingReason.STATIC_CONTENT_ONLY,
         "Image": MissingReason.DATACLASS,
         "Summary": {
             "__eq__": MissingReason.DATACLASS,

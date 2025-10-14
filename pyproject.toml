@@ -17,6 +17,8 @@ requires-python = '~= 3.11'
 dependencies = [
     'aiofiles ~= 25.1',
     'aiohttp ~= 3.12',
+    'aiohttp-client-cache ~= 0.14',
+    'aiosqlite ~= 0.21',
     'babel ~= 2.16',
     'furo == 2025.9.25',
     'geopy ~= 2.4',
@@ -26,7 +28,6 @@ dependencies = [
     'langcodes ~= 3.4',
     'lxml ~= 6.0',
     'markupsafe ~= 3.0',
-    'multidict ~= 6.1',
     'pdf2image ~= 1.17',
     'polib ~= 1.2',
     'Pillow ~= 11.0',

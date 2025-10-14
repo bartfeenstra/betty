@@ -16,7 +16,6 @@ class TestApp:
     async def test_new_from_environment(self, new_temporary_app: App) -> None:
         async with App.new_from_environment() as sut, sut:
             assert sut.cache is sut.cache
-            assert await sut.fetcher is await sut.fetcher
 
     async def test_bootstrap__should_set_user_localizer(
         self, mocker: MockerFixture, new_temporary_app: App
@@ -40,9 +39,6 @@ class TestApp:
 
     async def test_cache(self, new_temporary_app: App) -> None:
         assert new_temporary_app.cache is new_temporary_app.cache
-
-    async def test_fetcher(self, new_temporary_app: App) -> None:
-        assert await new_temporary_app.fetcher is await new_temporary_app.fetcher
 
     async def test_http_rate_limit_repository(self, new_temporary_app: App) -> None:
         assert list(new_temporary_app.http_rate_limit_repository)

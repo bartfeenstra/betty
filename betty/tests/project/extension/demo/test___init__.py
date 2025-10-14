@@ -18,17 +18,15 @@ from betty.test_utils.project.extension import (
     ExtensionTestBase,
 )
 from betty.test_utils.project.extension.demo.project import (
-    demo_project_fetcher,  # noqa F401
+    demo_project_aioresponses,  # noqa F401
 )
 
 if TYPE_CHECKING:
     from pytest_mock import MockerFixture
 
     from betty.app import App
-    from betty.fetch import Fetcher
     from betty.plugin import PluginDefinition
     from betty.project.extension import Extension
-    from betty.test_utils.conftest import NewTemporaryAppFactory
 
 
 async def test_generate_with_cleanup__without_error(
@@ -84,16 +82,12 @@ class TestDemo(ExtensionTestBase):
 
     async def test_load(
         self,
-        demo_project_fetcher: Fetcher,  # noqa F811
+        demo_project_aioresponses: None,  # noqa F811
         mocker: MockerFixture,
-        new_temporary_app_factory: NewTemporaryAppFactory,
+        new_temporary_app: App,
     ) -> None:
         mocker.patch("betty.wiki.populator.Populator.populate")
-        async with (
-            new_temporary_app_factory(fetcher=demo_project_fetcher) as app,
-            app,
-            Project.new_temporary(app) as project,
-        ):
+        async with Project.new_temporary(new_temporary_app) as project:
             project.configuration.extensions.enable(Demo)
             async with project:
                 await load(project)

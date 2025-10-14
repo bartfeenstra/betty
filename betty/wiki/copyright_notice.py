@@ -7,17 +7,19 @@ from __future__ import annotations
 from contextlib import suppress
 from typing import TYPE_CHECKING, Self, final
 
+import aiohttp
 from typing_extensions import override
 
 from betty.app.factory import AppDependentFactory
 from betty.copyright_notice import CopyrightNotice, CopyrightNoticeDefinition
-from betty.fetch import Fetcher, FetchError
 from betty.locale import negotiate_locale, to_babel_identifier
 from betty.locale.localizable import Localizable, _
 from betty.locale.localized import LocalizedStr
 
 if TYPE_CHECKING:
     from collections.abc import Mapping
+
+    from aiohttp import ClientSession
 
     from betty.app import App
     from betty.locale.localized import Localized
@@ -38,19 +40,22 @@ class WikipediaContributors(AppDependentFactory, CopyrightNotice):
         self._url = _WikipediaContributorsUrl({"en": "Wikipedia:Copyrights", **urls})
 
     @classmethod
-    async def new(cls, fetcher: Fetcher) -> Self:
+    async def new(cls, *, http_client: ClientSession) -> Self:
         """
         Create a new instance.
         """
         urls = {}
         try:
-            languages_response = await fetcher.fetch(
+            response = await http_client.get(
                 "https://en.wikipedia.org/w/api.php?action=query&titles=Wikipedia:Copyrights&prop=langlinks&lllimit=500&format=json&formatversion=2"
             )
-        except FetchError:
+            response_json = await response.json()
+        except aiohttp.ClientError:
             pass
         else:
-            for link in languages_response.json["query"]["pages"][0]["langlinks"]:
+            for link in response_json["query"]["pages"][0][
+                "langlinks"
+            ]:  # typing: ignore[index]
                 with suppress(ValueError):
                     urls[to_babel_identifier(link["lang"])] = link["title"]
         return cls(urls)
@@ -58,7 +63,7 @@ class WikipediaContributors(AppDependentFactory, CopyrightNotice):
     @override
     @classmethod
     async def new_for_app(cls, app: App) -> Self:
-        return await cls.new(await app.fetcher)
+        return await cls.new(http_client=await app.http_client)
 
     @override
     @property

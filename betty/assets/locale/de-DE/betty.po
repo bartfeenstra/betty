@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Betty VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2025-10-15 15:48+0100\n"
+"POT-Creation-Date: 2025-10-15 22:46+0100\n"
 "PO-Revision-Date: 2025-03-28 20:02+0000\n"
 "Last-Translator: Ettore Atalan <atalanttore@googlemail.com>\n"
 "Language: de_DE\n"
@@ -308,10 +308,6 @@ msgid "Correspondence"
 msgstr "Schriftverkehr"
 
 #, python-brace-format
-msgid "Could neither fetch \"{url}\", nor find an old version in the cache."
-msgstr ""
-
-#, python-brace-format
 msgid "Could not extract {file_path} as a gzip file  (*.gz)."
 msgstr "Konnte {file_path} nicht als gzip (*.gz) Date extrahieren."
 
@@ -332,10 +328,6 @@ msgstr ""
 #, python-brace-format
 msgid "Could not find the file \"{file_path}\"."
 msgstr "Konnte die Datei \"{file_path}\" nicht finden."
-
-#, python-brace-format
-msgid "Could not successfully connect to \"{url}\": {error}"
-msgstr ""
 
 msgid "Country"
 msgstr "Land"
@@ -481,10 +473,6 @@ msgstr "Bauernhof"
 
 msgid "Female"
 msgstr "Weiblich"
-
-#, python-brace-format
-msgid "Fetching \"{url}\"..."
-msgstr ""
 
 msgid "File"
 msgstr "Datei"
@@ -1067,10 +1055,6 @@ msgstr ""
 
 msgid "Timeline"
 msgstr "Zeitschiene"
-
-#, python-brace-format
-msgid "Timeout when connecting to \"{url}\""
-msgstr ""
 
 msgid "Toggle full screen"
 msgstr "Vollbild umschalten"

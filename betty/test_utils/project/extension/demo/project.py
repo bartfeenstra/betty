@@ -4,20 +4,21 @@ Test utilities for :py:mod:`betty.project.extension.demo.project`.
 
 from __future__ import annotations
 
+import re
 import tarfile
+from io import BytesIO
 from json import dumps
 from typing import TYPE_CHECKING
 
 import pytest
 
-from betty.fetch.static import StaticFetcher
 from betty.license.licenses import SpdxLicenseBuilder
 
 if TYPE_CHECKING:
     from pathlib import Path
 
-    from betty.cache.file import BinaryFileCache
-    from betty.fetch import Fetcher
+    from aioresponses import aioresponses
+
     from betty.serde.dump import Dump, DumpMapping
 
 
@@ -141,10 +142,17 @@ LICENSES = {
 
 
 @pytest.fixture
-def demo_project_fetcher(binary_file_cache: BinaryFileCache, tmp_path: Path) -> Fetcher:
+def demo_project_aioresponses(http_client_mock: aioresponses, tmp_path: Path) -> None:
     """
-    Create the fetcher necessary to build the demonstration site in isolation.
+    Mock the HTTP responses necessary to build the demonstration site in isolation.
     """
+    _demo_project_aioresponses_spdx_license_data(http_client_mock, tmp_path)
+    _demo_project_aioresponses_wiki_apis(http_client_mock, tmp_path)
+
+
+def _demo_project_aioresponses_spdx_license_data(
+    http_client_mock: aioresponses, tmp_path: Path
+) -> None:
     spdx_directory_path = tmp_path / "spdx"
     spdx_directory_path.mkdir()
 
@@ -170,7 +178,56 @@ def demo_project_fetcher(binary_file_cache: BinaryFileCache, tmp_path: Path) -> 
         with open(license_file_path, "w") as f:
             f.write(dumps(license_data))
 
-    spdx_tar_file_path = tmp_path / "spdx.tar.gz"
-    with tarfile.open(spdx_tar_file_path, "w:gz") as spdx_tar_file:
+    spdx_file = BytesIO()
+    with tarfile.open(fileobj=spdx_file, mode="w:gz") as spdx_tar_file:
         spdx_tar_file.add(spdx_directory_path, "/")
-    return StaticFetcher(fetch_file_map={SpdxLicenseBuilder.URL: spdx_tar_file_path})
+    spdx_file.seek(0)
+
+    http_client_mock.get(SpdxLicenseBuilder.URL, body=spdx_file.read())
+
+
+def _demo_project_aioresponses_wiki_apis(
+    http_client_mock: aioresponses, tmp_path: Path
+) -> None:
+    http_client_mock.get(
+        re.compile(
+            r"^https:\/\/([a-z]+)\.wikipedia\.org\/w\/api\.php\?action=query&coprimary=primary&format=json&formatversion=2&lllimit=500&pilicense=free&pilimit=1&piprop=name&prop=langlinks%257Cpageimages%257Ccoordinates&titles=(.+)$"
+        ),
+        body=dumps(
+            {
+                "query": {
+                    "pages": [
+                        {},
+                    ],
+                },
+            }
+        ),
+        repeat=True,
+    )
+    http_client_mock.get(
+        re.compile(
+            r"^https://([a-z]+)\.wikipedia\.org/w/api\.php\?action=query&prop=langlinks\|pageimages\|coordinates&lllimit=500&piprop=name&pilicense=free&pilimit=1&coprimary=primary&format=json&formatversion=2&titles=(.+)$"
+        ),
+        body=dumps(
+            {
+                "query": {
+                    "pages": [
+                        {},
+                    ],
+                },
+            }
+        ),
+        repeat=True,
+    )
+    http_client_mock.get(
+        re.compile(r"^https://([a-z]+)\.wikipedia\.org/api/rest_v1/page/summary/(.+)$"),
+        body=dumps(
+            {
+                "titles": {
+                    "normalized": "My First Wikipedia REST API page summary",
+                },
+                "extract_html": "My First Wikipedia REST API page HTML extract.",
+            }
+        ),
+        repeat=True,
+    )

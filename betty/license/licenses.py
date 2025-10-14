@@ -4,20 +4,20 @@ Provide :py:class:`betty.license.License` plugins.
 
 import re
 import tarfile
-from asyncio import get_running_loop
+from asyncio import to_thread
 from collections.abc import AsyncIterable, Iterator, Mapping, Sequence
-from concurrent.futures import Executor
 from contextlib import contextmanager
+from io import BytesIO
 from json import loads
 from pathlib import Path
 from typing import final
 
 import aiofiles
+from aiohttp import ClientError, ClientSession
 from typing_extensions import override
 
 from betty.cache.file import BinaryFileCache
 from betty.exception import UserFacingException
-from betty.fetch import Fetcher, FetchError
 from betty.license import License, LicenseDefinition
 from betty.locale.localizable import Localizable, Plain, _
 from betty.machine_name import MachineName
@@ -92,17 +92,16 @@ class SpdxLicenseBuilder:
 
     def __init__(
         self,
-        fetcher: Fetcher,
+        *,
+        http_client: ClientSession,
         user: User,
         binary_file_cache: BinaryFileCache,
-        process_pool: Executor,
     ):
-        self._fetcher = fetcher
+        self._http_client = http_client
         self._user = user
         self._cache_directory_path = (
             binary_file_cache.with_scope("spdx-licenses").with_scope(self.VERSION).path
         )
-        self._process_pool = process_pool
 
     async def build(self) -> AsyncIterable[LicenseDefinition]:
         """
@@ -110,18 +109,17 @@ class SpdxLicenseBuilder:
         """
         if not self._cache_directory_path.exists():
             try:
-                spdx_licenses_data_path = await self._fetcher.fetch_file(self.URL)
-            except FetchError:
+                spdx_licenses_response = await self._http_client.get(self.URL)
+                spdx_licenses_data_tar = await spdx_licenses_response.read()
+            except ClientError:
                 await self._user.message_warning(
                     _("Betty could not load the SPDX licenses")
                 )
                 return
 
-            loop = get_running_loop()
-            await loop.run_in_executor(
-                self._process_pool,
+            await to_thread(
                 self._extract_licenses,
-                spdx_licenses_data_path,
+                spdx_licenses_data_tar,
                 self._cache_directory_path,
             )
 
@@ -201,9 +199,11 @@ class SpdxLicenseBuilder:
 
     @classmethod
     def _extract_licenses(
-        cls, spdx_licenses_data_path: Path, cache_directory_path: Path
+        cls, spdx_licenses_data_tar: bytes, cache_directory_path: Path
     ):
-        with tarfile.open(spdx_licenses_data_path, "r:gz") as tar_file:
+        with tarfile.open(
+            fileobj=BytesIO(spdx_licenses_data_tar), mode="r:gz"
+        ) as tar_file:
             tar_file.extractall(
                 cache_directory_path,
                 members=[

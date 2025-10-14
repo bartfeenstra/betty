@@ -1,25 +1,18 @@
 from json import dumps
-from typing import Any
 
 import pytest
-from multidict import CIMultiDict
+from aioresponses import aioresponses
 from typing_extensions import override
 
+from betty.app import App
 from betty.copyright_notice import CopyrightNotice
-from betty.fetch import FetchResponse
-from betty.fetch.static import StaticFetcher
 from betty.locale.localizer import DEFAULT_LOCALIZER
 from betty.plugin import PluginDefinition
-from betty.test_utils.conftest import NewTemporaryAppFactory
 from betty.test_utils.copyright_notice import (
     CopyrightNoticeDefinitionTestBase,
     CopyrightNoticeTestBase,
 )
 from betty.wiki.copyright_notice import WikipediaContributors
-
-
-def _new_json_fetch_response(json_data: Any) -> FetchResponse:
-    return FetchResponse(CIMultiDict(), dumps(json_data).encode("utf-8"), "utf-8")
 
 
 class TestWikipediaContributorsDefinition(CopyrightNoticeDefinitionTestBase):
@@ -42,7 +35,7 @@ class TestWikipediaContributors(CopyrightNoticeTestBase):
         return WikipediaContributors(request.param)
 
     async def test_new_for_app(
-        self, new_temporary_app_factory: NewTemporaryAppFactory
+        self, http_client_mock: aioresponses, new_temporary_app: App
     ) -> None:
         response_json = {
             "continue": {"llcontinue": "49479|an", "continue": "||"},
@@ -64,16 +57,9 @@ class TestWikipediaContributors(CopyrightNoticeTestBase):
                 ]
             },
         }
-        fetcher = StaticFetcher(
-            fetch_map={
-                "https://en.wikipedia.org/w/api.php?action=query&titles=Wikipedia:Copyrights&prop=langlinks&lllimit=500&format=json&formatversion=2": _new_json_fetch_response(
-                    response_json
-                )
-            }
+        http_client_mock.get(
+            "https://en.wikipedia.org/w/api.php?action=query&titles=Wikipedia:Copyrights&prop=langlinks&lllimit=500&format=json&formatversion=2",
+            body=dumps(response_json),
         )
-        async with (
-            new_temporary_app_factory(fetcher=fetcher) as app,
-            app,
-        ):
-            sut = await WikipediaContributors.new_for_app(app)
-            assert sut.url.localize(DEFAULT_LOCALIZER)
+        sut = await WikipediaContributors.new_for_app(new_temporary_app)
+        assert sut.url.localize(DEFAULT_LOCALIZER)

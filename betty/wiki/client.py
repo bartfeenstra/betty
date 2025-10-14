@@ -4,24 +4,35 @@ Interact with the Wikipedia Query API.
 
 from __future__ import annotations
 
-from contextlib import asynccontextmanager
+from asyncio import to_thread
+from contextlib import contextmanager
 from dataclasses import dataclass
 from json import JSONDecodeError
 from pathlib import Path
 from typing import TYPE_CHECKING, Any, cast, final
 from urllib.parse import quote, urlparse
 
+import aiofiles
 from geopy import Point
 
-from betty.fetch import Fetcher, FetchError
+from betty.exception import UserFacingException
+from betty.hashid import hashid
 from betty.locale.localizable import Plain
 from betty.media_type import MediaType
 from betty.typing import internal
 
 if TYPE_CHECKING:
-    from collections.abc import AsyncIterator, Mapping, MutableMapping
+    from collections.abc import Iterator, Mapping, MutableMapping
+
+    from aiohttp import ClientSession
 
     from betty.user import User
+
+
+class ClientError(UserFacingException, RuntimeError):
+    """
+    A client error.
+    """
 
 
 @final
@@ -64,36 +75,37 @@ class Client:
     Fetch information from the Wikipedia Query API.
     """
 
-    def __init__(self, fetcher: Fetcher, *, user: User):
-        self._fetcher = fetcher
+    def __init__(
+        self, *, download_directory_path: Path, http_client: ClientSession, user: User
+    ):
+        self._download_directory_path = download_directory_path
+        self._http_client = http_client
         self._images: MutableMapping[str, Image | None] = {}
         self._user = user
 
-    @asynccontextmanager
-    async def _catch_exceptions(self) -> AsyncIterator[None]:
+    @contextmanager
+    def _catch_json_lookup_errors(self, url: str) -> Iterator[None]:
         try:
             yield
-        except FetchError as error:
-            await self._user.message_warning(error)
+        except (LookupError, TypeError) as error:
+            raise ClientError(
+                Plain(
+                    f"Could not successfully parse the JSON content returned by {url}: {error}"
+                )
+            ) from error
 
     async def _fetch_json(self, url: str, *selectors: str | int) -> Any:
-        response = await self._fetcher.fetch(url)
+        response = await self._http_client.get(url)
         try:
-            data = response.json
+            data = await response.json()
         except JSONDecodeError as error:
-            raise FetchError(
+            raise ClientError(
                 Plain(f"Invalid JSON returned by {url}: {error}")
             ) from error
 
-        try:
+        with self._catch_json_lookup_errors(url):
             for selector in selectors:
                 data = data[selector]
-        except (LookupError, TypeError) as error:
-            raise FetchError(
-                Plain(
-                    f"Could not successfully parse the JSON format returned by {url}: {error}"
-                )
-            ) from error
         return data
 
     async def _get_query_api_data(self, url: str) -> Mapping[str, Any]:
@@ -103,10 +115,9 @@ class Client:
 
     async def _get_page_query_api_data(
         self, page_language: str, page_name: str
-    ) -> Mapping[str, Any]:
-        return await self._get_query_api_data(
-            f"https://{page_language}.wikipedia.org/w/api.php?action=query&titles={quote(page_name)}&prop=langlinks|pageimages|coordinates&lllimit=500&piprop=name&pilicense=free&pilimit=1&coprimary=primary&format=json&formatversion=2"
-        )
+    ) -> tuple[str, Mapping[str, Any]]:
+        url = f"https://{page_language}.wikipedia.org/w/api.php?action=query&prop=langlinks|pageimages|coordinates&lllimit=500&piprop=name&pilicense=free&pilimit=1&coprimary=primary&format=json&formatversion=2&titles={quote(page_name)}"
+        return url, await self._get_query_api_data(url)
 
     async def get_translations(
         self, page_language: str, page_name: str
@@ -114,11 +125,7 @@ class Client:
         """
         Get the available translations for a page.
         """
-        try:
-            api_data = await self._get_page_query_api_data(page_language, page_name)
-        except FetchError as error:
-            await self._user.message_warning(error)
-            return {}
+        _, api_data = await self._get_page_query_api_data(page_language, page_name)
         try:
             translations_data = api_data["langlinks"]
         except LookupError:
@@ -129,68 +136,66 @@ class Client:
             for translation_data in translations_data
         }
 
-    async def get_summary(self, page_language: str, page_name: str) -> Summary | None:
+    async def get_summary(self, page_language: str, page_name: str) -> Summary:
         """
         Get a summary for a page.
         """
-        async with self._catch_exceptions():
-            url = f"https://{page_language}.wikipedia.org/api/rest_v1/page/summary/{page_name}"
-            api_data = await self._fetch_json(url)
-            try:
-                return Summary(
-                    page_language,
-                    page_name,
-                    api_data["titles"]["normalized"],
-                    (
-                        api_data["extract_html"]
-                        if "extract_html" in api_data
-                        else api_data["extract"]
-                    ),
-                )
-            except LookupError as error:
-                raise FetchError(
-                    Plain(
-                        f"Could not successfully parse the JSON content returned by {url}: {error}"
-                    )
-                ) from error
+        url = f"https://{page_language}.wikipedia.org/api/rest_v1/page/summary/{page_name}"
+        api_data = await self._fetch_json(url)
+        with self._catch_json_lookup_errors(url):
+            title = api_data["titles"]["normalized"]
+            extract = (
+                api_data["extract_html"]
+                if "extract_html" in api_data
+                else api_data["extract"]
+            )
+        return Summary(
+            page_language,
+            page_name,
+            title,
+            extract,
+        )
 
     async def get_image(self, page_language: str, page_name: str) -> Image | None:
         """
         Get an image for a page.
         """
-        async with self._catch_exceptions():
-            api_data = await self._get_page_query_api_data(page_language, page_name)
-            try:
-                page_image_name = api_data["pageimage"]
-            except LookupError:
-                # There may not be any images.
-                return None
+        _, api_data = await self._get_page_query_api_data(page_language, page_name)
+        try:
+            page_image_name = api_data["pageimage"]
+        except LookupError:
+            # There may not be any images.
+            return None
 
-            if page_image_name in self._images:
-                return self._images[page_image_name]
+        if page_image_name in self._images:
+            return self._images[page_image_name]
 
-            url = f"https://en.wikipedia.org/w/api.php?action=query&prop=imageinfo&titles=File:{quote(page_image_name)}&iiprop=url|mime|canonicaltitle&format=json&formatversion=2"
-            image_info_api_data = await self._get_query_api_data(url)
+        url = f"https://en.wikipedia.org/w/api.php?action=query&prop=imageinfo&titles=File:{quote(page_image_name)}&iiprop=url|mime|canonicaltitle&format=json&formatversion=2"
+        image_info_api_data = await self._get_query_api_data(url)
 
-            try:
-                image_info = image_info_api_data["imageinfo"][0]
-            except LookupError as error:
-                raise FetchError(
-                    Plain(
-                        f"Could not successfully parse the JSON content returned by {url}: {error}"
-                    )
-                ) from error
-            image_path = await self._fetcher.fetch_file(image_info["url"])
-            return Image(
-                image_path,
-                MediaType(image_info["mime"]),
-                # Strip "File:" or any translated equivalent from the beginning of the image's title.
-                image_info["canonicaltitle"][
-                    image_info["canonicaltitle"].index(":") + 1 :
-                ],
-                image_info["descriptionurl"],
-                Path(urlparse(image_info["url"]).path).name,
+        with self._catch_json_lookup_errors(url):
+            image_info = image_info_api_data["imageinfo"][0]
+        image_response = await self._http_client.get(image_info["url"])
+        image_path = (
+            self._download_directory_path
+            / "image"
+            / (
+                hashid(image_info["url"])
+                + Path(urlparse(image_info["url"]).path).suffix.lower()
             )
+        )
+        image_data = await image_response.read()
+        await to_thread(image_path.parent.mkdir, exist_ok=True, parents=True)
+        async with aiofiles.open(image_path, mode="wb") as image_f:
+            await image_f.write(image_data)
+        return Image(
+            image_path,
+            MediaType(image_info["mime"]),
+            # Strip "File:" or any translated equivalent from the beginning of the image's title.
+            image_info["canonicaltitle"][image_info["canonicaltitle"].index(":") + 1 :],
+            image_info["descriptionurl"],
+            Path(urlparse(image_info["url"]).path).name,
+        )
 
     async def get_place_coordinates(
         self, page_language: str, page_name: str
@@ -198,18 +203,15 @@ class Client:
         """
         Get the coordinates for a page that is a place.
         """
-        async with self._catch_exceptions():
-            api_data = await self._get_page_query_api_data(page_language, page_name)
-            try:
-                coordinates = api_data["coordinates"][0]
-            except LookupError:
-                # There may not be any coordinates.
+        url, api_data = await self._get_page_query_api_data(page_language, page_name)
+        try:
+            coordinates = api_data["coordinates"][0]
+        except LookupError:
+            # There may not be any coordinates.
+            return None
+        with self._catch_json_lookup_errors(url):
+            if coordinates["globe"] != "earth":
                 return None
-            try:
-                if coordinates["globe"] != "earth":
-                    return None
-                return Point(coordinates["lat"], coordinates["lon"])
-            except LookupError as error:
-                raise FetchError(
-                    Plain(f"Could not successfully parse the JSON content: {error}")
-                ) from error
+            latitude = coordinates["lat"]
+            longitude = coordinates["lon"]
+        return Point(latitude, longitude)
