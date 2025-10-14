@@ -5,10 +5,10 @@ from typing import Any
 from typing_extensions import override
 
 from betty.cache.memory import MemoryCache
-from betty.test_utils.cache import ProcesssafeCacheTestBase
+from betty.test_utils.cache import CacheTestBase
 
 
-class TestMemoryCache(ProcesssafeCacheTestBase[Any]):
+class TestMemoryCache(CacheTestBase[Any]):
     @override
     @asynccontextmanager
     async def _new_sut(

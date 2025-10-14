@@ -133,7 +133,7 @@ _BASELINE: Mapping[str, _ModuleIgnore] = {
         "ServiceError": MissingReason.ABSTRACT,
         "ServiceInitializedError": MissingReason.ABSTRACT,
         "ServiceProvider": {
-            "__setstate__": MissingReason.COVERED_ELSEWHERE,
+            "__reduce_ex__": MissingReason.SHOULD_BE_COVERED,
         },
         "Shutdownable": MissingReason.ABSTRACT,
         "ShutdownCallbackKwargs": MissingReason.TYPED_DICT,

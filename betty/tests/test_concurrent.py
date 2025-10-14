@@ -1,11 +1,8 @@
 import asyncio
-import pickle
 import threading
 import time
 from asyncio import create_task, gather, run, sleep, wait_for
 from collections.abc import Iterable
-from concurrent.futures import as_completed
-from os import cpu_count
 from typing import TypeVar
 
 import pytest
@@ -21,7 +18,6 @@ from betty.concurrent import (
     Semaphore,
     asynchronize_acquire,
 )
-from betty.multiprocessing import ProcessPoolExecutor, manager
 
 _KeyT = TypeVar("_KeyT")
 
@@ -87,8 +83,6 @@ def acquirables() -> Iterable[Acquirable]:
     return [
         threading.Lock(),
         threading.Semaphore(),
-        manager().Lock(),
-        manager().Semaphore(),
     ]
 
 
@@ -230,24 +224,6 @@ class TestRateLimiter:
         async with sut:
             pass
 
-    @pytest.mark.parametrize(
-        ("expected", "consumers", "maximum"),
-        _TEST_WAIT_PARAMETERS,
-    )
-    async def test_wait__with_multiprocessing(
-        self, expected: int, consumers: int, maximum: int
-    ) -> None:
-        sut = RateLimiter(maximum)
-
-        with ProcessPoolExecutor(max_workers=cpu_count() or 2) as pool:
-            start = time.time()
-            futures = [pool.submit(self._consume, sut) for _ in range(consumers)]
-            for future in as_completed(futures):
-                future.result()
-            end = time.time()
-        duration = end - start
-        assert duration >= expected
-
     async def test_is_available(self) -> None:
         sut = RateLimiter(1, 1)
 
@@ -256,33 +232,25 @@ class TestRateLimiter:
         await sleep(2)
         assert await sut.is_available()
 
-    def test_pickle(self) -> None:
-        sut = RateLimiter(1)
-        pickle.loads(pickle.dumps(sut))
-
 
 class TestLedger:
     async def test_ledger__with_wait_with_unlocked(self) -> None:
         transaction_id = "my-first-transaction-id"
-        sut = Ledger(
-            AsynchronizedLock(manager().Lock()),
-        )
+        sut = Ledger(AsynchronizedLock.new_threadsafe())
         lock = sut.ledger(transaction_id)
         assert await lock.acquire()
         await lock.release()
 
     async def test_ledger__without_wait_with_unlocked(self) -> None:
         transaction_id = "my-first-transaction-id"
-        sut = Ledger(
-            AsynchronizedLock(manager().Lock()),
-        )
+        sut = Ledger(AsynchronizedLock.new_threadsafe())
         lock = sut.ledger(transaction_id)
         assert await lock.acquire(wait=False)
         await lock.release()
 
     async def test_ledger__with_wait_with_locked(self) -> None:
         transaction_id = "my-first-transaction-id"
-        sut = Ledger(AsynchronizedLock(manager().Lock()))
+        sut = Ledger(AsynchronizedLock.new_threadsafe())
         lock = sut.ledger(transaction_id)
         await lock.acquire()
         task = create_task(lock.acquire())
@@ -292,12 +260,8 @@ class TestLedger:
 
     async def test_ledger__without_wait_with_locked(self) -> None:
         transaction_id = "my-first-transaction-id"
-        sut = Ledger(AsynchronizedLock(manager().Lock()))
+        sut = Ledger(AsynchronizedLock.new_threadsafe())
         lock = sut.ledger(transaction_id)
         await lock.acquire()
         assert not await lock.acquire(wait=False)
         await lock.release()
-
-    def test_pickle(self) -> None:
-        sut = Ledger(AsynchronizedLock(manager().Lock()))
-        pickle.loads(pickle.dumps(sut))

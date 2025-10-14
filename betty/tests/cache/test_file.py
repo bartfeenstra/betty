@@ -8,10 +8,10 @@ from aiofiles.tempfile import TemporaryDirectory
 from typing_extensions import override
 
 from betty.cache.file import BinaryFileCache, PickledFileCache
-from betty.test_utils.cache import ProcesssafeCacheTestBase
+from betty.test_utils.cache import CacheTestBase
 
 
-class TestPickledFileCache(ProcesssafeCacheTestBase[Any]):
+class TestPickledFileCache(CacheTestBase[Any]):
     @override
     @asynccontextmanager
     async def _new_sut(
@@ -32,7 +32,7 @@ class TestPickledFileCache(ProcesssafeCacheTestBase[Any]):
         yield {}
 
 
-class TestBinaryFileCache(ProcesssafeCacheTestBase[bytes]):
+class TestBinaryFileCache(CacheTestBase[bytes]):
     @override
     @asynccontextmanager
     async def _new_sut(

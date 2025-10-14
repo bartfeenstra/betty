@@ -16,8 +16,7 @@ from typing_extensions import override
 
 from betty.cache import Cache, CacheItem, CacheItemValueSetter
 from betty.concurrent import AsynchronizedLock, Ledger
-from betty.multiprocessing import manager
-from betty.typing import processsafe
+from betty.typing import threadsafe
 
 _CacheT = TypeVar("_CacheT", bound=Cache[Any])
 _CacheItemValueCoT = TypeVar("_CacheItemValueCoT", covariant=True)
@@ -73,7 +72,7 @@ class _CommonCacheBaseState(Generic[_CacheT]):
         self.cache_item_lock_ledger = cache_item_lock_ledger
 
 
-@processsafe
+@threadsafe
 class _CommonCacheBase(Cache[_CacheItemValueContraT], Generic[_CacheItemValueContraT]):
     def __init__(
         self,
@@ -86,7 +85,7 @@ class _CommonCacheBase(Cache[_CacheItemValueContraT], Generic[_CacheItemValueCon
             self._cache_lock = state.cache_lock
             self._cache_item_lock_ledger = state.cache_item_lock_ledger
         else:
-            self._cache_lock = AsynchronizedLock(manager().Lock())
+            self._cache_lock = AsynchronizedLock.new_threadsafe()
             self._cache_item_lock_ledger = Ledger(self._cache_lock)
 
     @override

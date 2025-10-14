@@ -11,8 +11,7 @@ from typing_extensions import override
 
 from betty.cache import CacheItem
 from betty.cache._base import _CommonCacheBase, _CommonCacheBaseState, _StaticCacheItem
-from betty.multiprocessing import manager
-from betty.typing import processsafe
+from betty.typing import threadsafe
 
 if TYPE_CHECKING:
     from betty.concurrent import AsynchronizedLock, Ledger
@@ -41,7 +40,7 @@ class _MemoryCacheState(
 
 
 @final
-@processsafe
+@threadsafe
 class MemoryCache(
     _CommonCacheBase[_CacheItemValueContraT], Generic[_CacheItemValueContraT]
 ):
@@ -59,7 +58,7 @@ class MemoryCache(
     ):
         super().__init__(scopes=scopes, state=state)
         if state is None:
-            self._store = manager().dict()
+            self._store = {}
         else:
             self._store = state.store
 

@@ -28,7 +28,7 @@ from typing_extensions import override
 from betty.cache import CacheItem, CacheItemValueSetter
 from betty.cache._base import _CommonCacheBase, _CommonCacheBaseState
 from betty.hashid import hashid
-from betty.typing import processsafe
+from betty.typing import threadsafe
 
 if TYPE_CHECKING:
     from collections.abc import Sequence
@@ -222,7 +222,7 @@ class _FileCache(
 
 
 @final
-@processsafe
+@threadsafe
 class PickledFileCache(
     _FileCache[_CacheItemValueContraT], Generic[_CacheItemValueContraT]
 ):
@@ -238,7 +238,7 @@ class PickledFileCache(
 
 
 @final
-@processsafe
+@threadsafe
 class BinaryFileCache(_FileCache[bytes]):
     """
     Provide a cache that persists bytes values to binary files.

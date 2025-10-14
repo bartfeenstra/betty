@@ -2,13 +2,10 @@
 Test utilities for :py:mod:`betty.cache`.
 """
 
-import asyncio
-import multiprocessing
-import pickle
 from asyncio import create_task, sleep
 from collections.abc import Iterator, Sequence
 from contextlib import AbstractAsyncContextManager
-from typing import Any, Generic, TypeVar
+from typing import Generic, TypeVar
 
 import pytest
 
@@ -194,81 +191,5 @@ class CacheTestBase(Generic[_CacheItemValueT]):
         async with self._new_sut(scopes=scopes) as sut:
             await sut.set("id", next(self._values()))
             await sut.clear()
-            async with sut.get("id") as cache_item:
-                assert cache_item is None
-
-
-class ProcesssafeCacheTestBase(
-    Generic[_CacheItemValueT], CacheTestBase[_CacheItemValueT]
-):
-    """
-    A base class for tests of :py:class:`betty.cache.Cache` implementations that are process-safe.
-    """
-
-    async def test_pickle(self) -> None:
-        """
-        Test that implementations can be pickled.
-        """
-        async with self._new_sut() as sut:
-            pickle.loads(pickle.dumps(sut))
-
-    @classmethod
-    def _test_get_with_multiprocessing_target(
-        cls, sut: Cache[_CacheItemValueT], cache_item_id: str, value: _CacheItemValueT
-    ) -> None:
-        asyncio.run(sut.set(cache_item_id, value))
-
-    async def test_set_with_multiprocessing(self) -> None:
-        """
-        Test implementations of :py:meth:`betty.cache.Cache.set`.
-        """
-        for value in self._values():
-            async with self._new_sut() as sut:
-                process = multiprocessing.Process(
-                    target=type(self)._test_get_with_multiprocessing_target,
-                    args=(sut, "id", value),
-                )
-                process.start()
-                process.join()
-                async with sut.get("id") as cache_item:
-                    assert cache_item
-                    assert await cache_item.value() == value
-
-    @classmethod
-    def _test_delete_with_multiprocessing_target(
-        cls, sut: Cache[_CacheItemValueT], cache_item_id: str
-    ) -> None:
-        asyncio.run(sut.delete(cache_item_id))
-
-    async def test_delete_with_multiprocessing(self) -> None:
-        """
-        Test implementations of :py:meth:`betty.cache.Cache.delete`.
-        """
-        async with self._new_sut() as sut:
-            await sut.set("id", next(self._values()))
-            process = multiprocessing.Process(
-                target=type(self)._test_delete_with_multiprocessing_target,
-                args=(sut, "id"),
-            )
-            process.start()
-            process.join()
-            async with sut.get("id") as cache_item:
-                assert cache_item is None
-
-    @classmethod
-    def _test_clear_with_multiprocessing_target(cls, sut: Cache[Any]):
-        asyncio.run(sut.clear())
-
-    async def test_clear_with_multiprocessing(self) -> None:
-        """
-        Test implementations of :py:meth:`betty.cache.Cache.clear`.
-        """
-        async with self._new_sut() as sut:
-            await sut.set("id", next(self._values()))
-            process = multiprocessing.Process(
-                target=type(self)._test_clear_with_multiprocessing_target, args=(sut,)
-            )
-            process.start()
-            process.join()
             async with sut.get("id") as cache_item:
                 assert cache_item is None
