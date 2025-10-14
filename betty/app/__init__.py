@@ -25,6 +25,7 @@ from betty.dirs import CACHE_DIRECTORY_PATH
 from betty.factory import TargetFactory, new
 from betty.fetch import Fetcher, http
 from betty.fetch.static import StaticFetcher
+from betty.http_client import ClientErrorToUserMessageMiddleware
 from betty.http_client.rate_limit import RateLimitDefinition, RateLimitMiddleware
 from betty.license import LicenseDefinition
 from betty.license.licenses import SpdxLicenseBuilder
@@ -231,6 +232,7 @@ class App(Configurable[AppConfiguration], TargetFactory, ServiceProvider):
                 "User-Agent": "Betty (https://betty.readthedocs.io/)",
             },
             middlewares=[
+                ClientErrorToUserMessageMiddleware(self.user),
                 RateLimitMiddleware(
                     [
                         await self.new_target(
@@ -238,7 +240,7 @@ class App(Configurable[AppConfiguration], TargetFactory, ServiceProvider):
                         )
                         for rate_limit_id in rate_limit_sorter.static_order()
                     ]
-                )
+                ),
             ],
         )
 
