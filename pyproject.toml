@@ -198,6 +198,7 @@ betty = 'betty.console:main_standalone'
 
 [project.entry-points.'betty.http_rate_limit']
 'wikipedia-action-api' = 'betty.http_client.rate_limits:WikipediaActionApi.plugin'
+'wikipedia-rest-api' = 'betty.http_client.rate_limits:WikipediaRestApi.plugin'
 
 [project.entry-points.'betty.renderer']
 'jinja2' = 'betty.jinja2:Jinja2Renderer.plugin'
