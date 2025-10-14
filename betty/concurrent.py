@@ -8,15 +8,13 @@ import time
 from abc import ABC, abstractmethod
 from asyncio import sleep
 from collections.abc import Hashable, MutableMapping
-from ctypes import c_longdouble
 from math import floor
 from types import TracebackType
 from typing import Self, TypeAlias, TypeVar, Union, final
 
 from typing_extensions import override
 
-from betty.multiprocessing import manager
-from betty.typing import processsafe
+from betty.typing import threadsafe
 
 _KeyT = TypeVar("_KeyT")
 _ValueT = TypeVar("_ValueT")
@@ -169,7 +167,7 @@ class AsynchronizedSemaphore(Semaphore):
 
 
 @final
-@processsafe
+@threadsafe
 class RateLimiter:
     """
     Rate-limit operations.
@@ -178,25 +176,25 @@ class RateLimiter:
     """
 
     def __init__(self, maximum: int, period: int = 1, /):
-        self._lock = AsynchronizedLock(manager().Lock())
+        self._lock = AsynchronizedLock.new_threadsafe()
         self._maximum = maximum
         self._period = period
-        self._available = manager().Value(c_longdouble, maximum)
+        self._available = maximum
         # A Token Bucket fills as time passes. However, we want callers to be able to start
         # using the limiter immediately, so we 'preload' the first's period's tokens, and
         # set the last added time to the end of the first period. This ensures there is no
         # needless waiting if the number of tokens consumed in total is less than the limit
         # per period.
-        self._last_add = manager().Value(c_longdouble, time.monotonic() + self._period)
+        self._last_add = time.monotonic() + self._period
 
     def _add_tokens(self):
         now = time.monotonic()
-        elapsed = now - self._last_add.value
+        elapsed = now - self._last_add
         added = elapsed * self._maximum
-        possibly_available = floor(self._available.value + added)
+        possibly_available = floor(self._available + added)
         if possibly_available > 0:
-            self._available.value = min(possibly_available, self._maximum)
-            self._last_add.value = now
+            self._available = min(possibly_available, self._maximum)
+            self._last_add = now
 
     async def __aenter__(self) -> None:
         await self.wait()
@@ -215,18 +213,18 @@ class RateLimiter:
         """
         async with self._lock:
             self._add_tokens()
-            return self._available.value != 0
+            return self._available != 0
 
     async def wait(self) -> None:
         """
         Wait until an operation may be performed (again).
         """
         async with self._lock:
-            while self._available.value < 1:
+            while self._available < 1:
                 self._add_tokens()
-                if self._available.value < 1:
+                if self._available < 1:
                     await asyncio.sleep(0)
-            self._available.value -= 1
+            self._available -= 1
 
 
 class _Transaction(Lock):
@@ -270,7 +268,7 @@ class _Transaction(Lock):
         self._ledger[self._transaction_id] = False
 
 
-@processsafe
+@threadsafe
 class Ledger:
     """
     Lazily create locks by keeping a ledger.
@@ -280,7 +278,7 @@ class Ledger:
 
     def __init__(self, ledger_lock: Lock):
         self._ledger_lock = ledger_lock
-        self._ledger: MutableMapping[Hashable, bool] = manager().dict()
+        self._ledger: MutableMapping[Hashable, bool] = {}
 
     def ledger(self, transaction_id: Hashable) -> Lock:
         """

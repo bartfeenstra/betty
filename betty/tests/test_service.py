@@ -1,6 +1,5 @@
-import pickle
 from collections.abc import Awaitable
-from typing import Any, cast
+from typing import Any
 
 import pytest
 from typing_extensions import override
@@ -164,16 +163,6 @@ class TestServiceProvider:
         await sut.bootstrap()
         await sut.shutdown()
         assert not sut.bootstrapped
-
-    async def test___getstate____and___setstate__(self) -> None:
-        async with ServiceProvider() as sut:
-            unpickled_sut = cast(ServiceProvider, pickle.loads(pickle.dumps(sut)))
-        await unpickled_sut.shutdown()
-
-    async def test___getstate____not_bootstrapped_should_error(self) -> None:
-        sut = ServiceProvider()
-        with pytest.raises(NotBootstrappedError):
-            pickle.dumps(sut)
 
 
 class _AsynchronousServiceProvider(ServiceProvider):

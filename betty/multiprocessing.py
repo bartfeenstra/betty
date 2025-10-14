@@ -4,21 +4,9 @@ Multiprocessing functionality.
 
 from concurrent import futures
 from multiprocessing import get_context
-from multiprocessing.managers import SyncManager
 from signal import SIG_IGN, SIGINT, signal
 
 CONTEXT = get_context("spawn")
-_manager: SyncManager | None = None
-
-
-def manager() -> SyncManager:
-    """
-    Get the multiprocessing manager.
-    """
-    global _manager
-    if _manager is None:
-        _manager = CONTEXT.Manager()
-    return _manager
 
 
 class ProcessPoolExecutor(futures.ProcessPoolExecutor):

@@ -27,7 +27,7 @@ from typing_extensions import override
 
 from betty.concurrent import AsynchronizedLock, Lock
 from betty.config import Configurable
-from betty.typing import Void, internal, not_void, processsafe, public
+from betty.typing import Void, internal, not_void, public, unpickleable
 
 if TYPE_CHECKING:
     from types import TracebackType
@@ -151,34 +151,17 @@ class ShutdownStack(Bootstrapped, Shutdownable):
 
 
 @internal
+@unpickleable
 class ServiceProvider(Bootstrapped, Shutdownable):
     """
     A service provider.
 
     Service providers make up a running Betty 'application'. They can provide services through
     :py:func:`betty.service.service`, and manage their resources by being bootstrapped and shut down.
-
-    Service providers may be pickled once bootstrapped. Unpickled service providers are bootstrapped, and must be shut
-    down by the caller.
     """
 
     def __init__(self, *args: Any, **kwargs: Any):
         super().__init__(*args, **kwargs)
-        self._shutdown_stack = ShutdownStack()
-
-    @override
-    def __getstate__(self) -> dict[str, Any]:
-        self.assert_bootstrapped()
-        state = {
-            "_bootstrapped": True,
-        }
-        for service_manager in self._service_managers():
-            if service_manager.is_shared:
-                state.update(service_manager.get_state(self))
-        return state
-
-    def __setstate__(self, state: dict[str, Any]) -> None:
-        self.__dict__.update(state)
         self._shutdown_stack = ShutdownStack()
 
     @public
@@ -201,6 +184,7 @@ class ServiceProvider(Bootstrapped, Shutdownable):
             if isinstance(value, ServiceManager):
                 yield value
 
+    # @todo We no longer need this!
     async def _initialize_shared_services(self) -> None:
         """
         Initialize shared services, so they are ready to be pickled if/when they need to be.
@@ -494,7 +478,6 @@ def service(
 
 
 @internal
-@processsafe
 class StaticService(Generic[_ServiceProviderT, _ServiceT]):
     """
     A service factory that returns a static, predefined service.

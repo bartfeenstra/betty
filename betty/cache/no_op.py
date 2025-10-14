@@ -18,7 +18,7 @@ from typing import (
 from typing_extensions import override
 
 from betty.cache import Cache, CacheItem, CacheItemValueSetter
-from betty.typing import processsafe
+from betty.typing import threadsafe
 
 if TYPE_CHECKING:
     from collections.abc import AsyncIterator
@@ -50,7 +50,7 @@ class _NoOpGetSet:
 
 
 @final
-@processsafe
+@threadsafe
 class NoOpCache(Cache[Any]):
     """
     Provide a cache that does nothing.

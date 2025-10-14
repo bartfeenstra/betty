@@ -44,7 +44,7 @@ from betty.plugin.static import StaticPluginRepository
 from betty.project.extension import ExtensionDefinition
 from betty.render import RendererDefinition
 from betty.service import ServiceFactory, ServiceProvider, StaticService, service
-from betty.typing import processsafe
+from betty.typing import threadsafe
 
 if TYPE_CHECKING:
     from collections.abc import AsyncIterator
@@ -59,7 +59,7 @@ _T = TypeVar("_T")
 
 
 @final
-@processsafe
+@threadsafe
 class App(Configurable[AppConfiguration], TargetFactory, ServiceProvider):
     """
     The Betty application.
@@ -101,15 +101,6 @@ class App(Configurable[AppConfiguration], TargetFactory, ServiceProvider):
             cls.renderer_repository.override(self, renderer_repository)
         self._cache_directory_path = cache_directory_path
         cls.cache.override_factory(self, cache_factory)
-
-    @override
-    def __getstate__(self) -> dict[str, Any]:
-        return {
-            **super().__getstate__(),
-            "_cache_directory_path": self._cache_directory_path,
-            "_configuration": self._configuration,
-            "_user": self._user,
-        }
 
     @classmethod
     @asynccontextmanager

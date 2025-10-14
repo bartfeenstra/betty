@@ -10,7 +10,7 @@ from typing import TYPE_CHECKING, Generic, Literal, Self, TypeAlias, overload
 
 from typing_extensions import TypeVar
 
-from betty.typing import processsafe
+from betty.typing import threadsafe
 
 if TYPE_CHECKING:
     from contextlib import AbstractAsyncContextManager
@@ -42,7 +42,7 @@ class CacheItem(Generic[_CacheItemValueCoT], ABC):
 CacheItemValueSetter: TypeAlias = Callable[[_CacheItemValueT], Awaitable[None]]
 
 
-@processsafe
+@threadsafe
 class Cache(Generic[_CacheItemValueContraT], ABC):
     """
     A cache.
