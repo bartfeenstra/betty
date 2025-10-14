@@ -262,14 +262,14 @@ class App(Configurable[AppConfiguration], TargetFactory, ServiceProvider):
             user=self.user,
         )
 
-    @service(shared=True)
+    @service
     def cache(self) -> Cache[Any]:
         """
         The cache.
         """
         raise NotImplementedError
 
-    @service(shared=True)
+    @service
     def binary_file_cache(self) -> BinaryFileCache:
         """
         The binary file cache.
