@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Betty VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2025-10-15 15:48+0100\n"
+"POT-Creation-Date: 2025-10-15 22:46+0100\n"
 "PO-Revision-Date: 2024-11-30 19:00+0000\n"
 "Last-Translator: Bart Feenstra <bart@bartfeenstra.com>\n"
 "Language: ar\n"
@@ -285,10 +285,6 @@ msgid "Correspondence"
 msgstr ""
 
 #, python-brace-format
-msgid "Could neither fetch \"{url}\", nor find an old version in the cache."
-msgstr ""
-
-#, python-brace-format
 msgid "Could not extract {file_path} as a gzip file  (*.gz)."
 msgstr ""
 
@@ -308,10 +304,6 @@ msgstr ""
 
 #, python-brace-format
 msgid "Could not find the file \"{file_path}\"."
-msgstr ""
-
-#, python-brace-format
-msgid "Could not successfully connect to \"{url}\": {error}"
 msgstr ""
 
 msgid "Country"
@@ -449,10 +441,6 @@ msgid "Farm"
 msgstr ""
 
 msgid "Female"
-msgstr ""
-
-#, python-brace-format
-msgid "Fetching \"{url}\"..."
 msgstr ""
 
 msgid "File"
@@ -1036,10 +1024,6 @@ msgstr ""
 
 msgid "Timeline"
 msgstr "الخط الزمني"
-
-#, python-brace-format
-msgid "Timeout when connecting to \"{url}\""
-msgstr ""
 
 msgid "Toggle full screen"
 msgstr ""

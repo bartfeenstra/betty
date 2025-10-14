@@ -6,7 +6,6 @@ import pytest
 from typing_extensions import override
 
 from betty.ancestry.link import Link
-from betty.fetch.static import StaticFetcher
 from betty.job import Context
 from betty.project import Project
 from betty.project.extension.wiki import Wiki
@@ -19,7 +18,6 @@ if TYPE_CHECKING:
 
     from betty.app import App
     from betty.project.extension import Extension
-    from betty.test_utils.conftest import NewTemporaryAppFactory
 
 
 class TestWiki(ExtensionTestBase):
@@ -91,15 +89,8 @@ class TestWiki(ExtensionTestBase):
                 wikipedia = extensions[Wiki]
                 await wikipedia.client
 
-    async def test_globals(
-        self, new_temporary_app_factory: NewTemporaryAppFactory
-    ) -> None:
-        fetcher = StaticFetcher()
-        async with (
-            new_temporary_app_factory(fetcher=fetcher) as app,
-            app,
-            Project.new_temporary(app) as project,
-        ):
+    async def test_globals(self, new_temporary_app: App) -> None:
+        async with Project.new_temporary(new_temporary_app) as project:
             project.configuration.extensions.enable(Wiki)
             async with project:
                 extensions = await project.extensions

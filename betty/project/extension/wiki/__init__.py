@@ -9,7 +9,6 @@ from typing import TYPE_CHECKING, Self, final
 from jinja2 import pass_context
 from typing_extensions import override
 
-from betty.fetch import FetchError
 from betty.jinja2 import Filters, Globals, Jinja2Provider, context_localizer
 from betty.locale import negotiate_locale
 from betty.locale.localizable import Plain, _
@@ -19,7 +18,7 @@ from betty.project.extension.wiki.jobs import PopulateEntity
 from betty.project.load import PostLoader
 from betty.service import service
 from betty.wiki import NotAPageError, parse_page_url, populator
-from betty.wiki.client import Client, Summary
+from betty.wiki.client import Client, ClientError, Summary
 
 if TYPE_CHECKING:
     from collections.abc import Iterable
@@ -84,7 +83,13 @@ class Wiki(
         """
         The API client.
         """
-        return Client(await self.project.app.fetcher, user=self.project.app.user)
+        return Client(
+            download_directory_path=self.project.app.binary_file_cache.with_scope(
+                "wiki-client"
+            ).path,
+            http_client=await self.project.app.http_client,
+            user=self.project.app.user,
+        )
 
     @service
     async def populator(self) -> populator.Populator:
@@ -146,8 +151,7 @@ class Wiki(
         try:
             client = await self.client
             return await client.get_summary(page_language, page_name)
-        except FetchError as error:
-            await self._project.app.user.message_warning(Plain(str(error)))
+        except ClientError:
             return None
 
     @override

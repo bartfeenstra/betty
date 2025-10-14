@@ -1,15 +1,17 @@
 import tarfile
-from collections.abc import Iterator
+from collections.abc import AsyncIterator
+from io import BytesIO
 from json import dumps
 from pathlib import Path
 from typing import TYPE_CHECKING
 
 import pytest
+from aiohttp import ClientSession
+from aioresponses import aioresponses
 from typing_extensions import override
 
 from betty.cache.file import BinaryFileCache
 from betty.factory import new
-from betty.fetch.static import StaticFetcher
 from betty.license import License
 from betty.license.licenses import (
     AllRightsReserved,
@@ -18,7 +20,6 @@ from betty.license.licenses import (
     spdx_license_id_to_license_id,
 )
 from betty.locale.localizer import DEFAULT_LOCALIZER
-from betty.multiprocessing import ProcessPoolExecutor
 from betty.plugin import PluginDefinition
 from betty.test_utils.license import LicenseDefinitionTestBase, LicenseTestBase
 from betty.test_utils.user import StaticUser
@@ -68,9 +69,12 @@ def test_spdx_license_id_to_license_id(expected: str, spdx_license_id: str) -> N
 
 class TestSpdxLicenseBuilder:
     @pytest.fixture
-    def sut_without_licenses(
-        self, binary_file_cache: BinaryFileCache, tmp_path: Path
-    ) -> Iterator[SpdxLicenseBuilder]:
+    async def sut_without_licenses(
+        self,
+        binary_file_cache: BinaryFileCache,
+        http_client_mock: aioresponses,
+        tmp_path: Path,
+    ) -> AsyncIterator[SpdxLicenseBuilder]:
         spdx_directory_path = tmp_path / "spdx"
         spdx_directory_path.mkdir()
         licenses_data: DumpMapping[Dump] = {
@@ -87,25 +91,26 @@ class TestSpdxLicenseBuilder:
         licenses_file_path.parent.mkdir(parents=True)
         with open(licenses_file_path, "w") as f:
             f.write(dumps(licenses_data))
-        spdx_tar_file_path = tmp_path / "spdx.tar.gz"
-        with tarfile.open(spdx_tar_file_path, "w:gz") as spdx_tar_file:
+        spdx_file = BytesIO()
+        with tarfile.open(fileobj=spdx_file, mode="w:gz") as spdx_tar_file:
             spdx_tar_file.add(spdx_directory_path, "/")
-        fetcher = StaticFetcher(
-            fetch_file_map={SpdxLicenseBuilder.URL: spdx_tar_file_path}
-        )
-        with ProcessPoolExecutor() as process_pool:
+        spdx_file.seek(0)
+        http_client_mock.get(SpdxLicenseBuilder.URL, body=spdx_file.read())
+        async with ClientSession() as http_client:
             sut = SpdxLicenseBuilder(
+                http_client=http_client,
                 binary_file_cache=binary_file_cache,
-                fetcher=fetcher,
                 user=StaticUser(),
-                process_pool=process_pool,
             )
             yield sut
 
     @pytest.fixture
-    def sut_with_licenses(
-        self, binary_file_cache: BinaryFileCache, tmp_path: Path
-    ) -> Iterator[SpdxLicenseBuilder]:
+    async def sut_with_licenses(
+        self,
+        binary_file_cache: BinaryFileCache,
+        http_client_mock: aioresponses,
+        tmp_path: Path,
+    ) -> AsyncIterator[SpdxLicenseBuilder]:
         spdx_directory_path = tmp_path / "spdx"
         spdx_directory_path.mkdir()
         licenses_data: DumpMapping[Dump] = {
@@ -182,15 +187,16 @@ class TestSpdxLicenseBuilder:
         spdx_tar_file_path = tmp_path / "spdx.tar.gz"
         with tarfile.open(spdx_tar_file_path, "w:gz") as spdx_tar_file:
             spdx_tar_file.add(spdx_directory_path, "/")
-        fetcher = StaticFetcher(
-            fetch_file_map={SpdxLicenseBuilder.URL: spdx_tar_file_path}
-        )
-        with ProcessPoolExecutor() as process_pool:
+        spdx_file = BytesIO()
+        with tarfile.open(fileobj=spdx_file, mode="w:gz") as spdx_tar_file:
+            spdx_tar_file.add(spdx_directory_path, "/")
+        spdx_file.seek(0)
+        http_client_mock.get(SpdxLicenseBuilder.URL, body=spdx_file.read())
+        async with ClientSession() as http_client:
             sut = SpdxLicenseBuilder(
+                http_client=http_client,
                 binary_file_cache=binary_file_cache,
-                fetcher=fetcher,
                 user=StaticUser(),
-                process_pool=process_pool,
             )
             yield sut
 

@@ -8,15 +8,13 @@ from betty.project.extension.demo.jobs import LoadAncestry
 from betty.project.extension.demo.project import create_project
 from betty.test_utils.job import do
 from betty.test_utils.project.extension.demo.project import (
-    demo_project_fetcher,  # noqa F401
+    demo_project_aioresponses,  # noqa F401
 )
 
 if TYPE_CHECKING:
     from pathlib import Path
 
     from betty.app import App
-    from betty.fetch import Fetcher
-    from betty.test_utils.conftest import NewTemporaryAppFactory
 
 
 async def test_create_project(new_temporary_app: App, tmp_path: Path) -> None:
@@ -27,13 +25,11 @@ async def test_create_project(new_temporary_app: App, tmp_path: Path) -> None:
 
 
 async def test_load_ancestry(
-    demo_project_fetcher: Fetcher,  # noqa F811
-    new_temporary_app_factory: NewTemporaryAppFactory,
+    demo_project_aioresponses: None,  # noqa F811
+    new_temporary_app: App,
 ) -> None:
     async with (
-        new_temporary_app_factory(fetcher=demo_project_fetcher) as app,
-        app,
-        Project.new_temporary(app) as project,
+        Project.new_temporary(new_temporary_app) as project,
         project,
     ):
         context = ProjectContext(project)

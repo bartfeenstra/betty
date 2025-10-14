@@ -9,6 +9,7 @@ from __future__ import annotations
 
 __all__ = [
     "binary_file_cache",
+    "http_client_mock",
     "new_temporary_app",
     "new_temporary_app_factory",
     "page",
@@ -20,6 +21,7 @@ from typing import TYPE_CHECKING, Any, Protocol
 
 import pytest
 import pytest_asyncio
+from aioresponses import aioresponses
 
 from betty.app import App
 from betty.cache.file import BinaryFileCache
@@ -37,13 +39,21 @@ if TYPE_CHECKING:
 
     from betty.cache import Cache
     from betty.console.command import CommandDefinition
-    from betty.fetch import Fetcher
     from betty.model import EntityDefinition
     from betty.plugin import PluginRepository
     from betty.project.extension import ExtensionDefinition
     from betty.render import RendererDefinition
     from betty.service import ServiceFactory
     from betty.user import User
+
+
+@pytest.fixture(autouse=True)
+def http_client_mock() -> Iterator[aioresponses]:
+    """
+    Mock HTTP responses.
+    """
+    with aioresponses() as _http_client_mock:
+        yield _http_client_mock
 
 
 @pytest.fixture
@@ -84,7 +94,6 @@ class NewTemporaryAppFactory(Protocol):
     def __call__(
         self,
         *,
-        fetcher: Fetcher | None = None,
         process_pool: futures.ProcessPoolExecutor | None = None,
         user: User | None = None,
         entity_type_repository: PluginRepository[EntityDefinition] | None = None,
@@ -108,7 +117,6 @@ def new_temporary_app_factory(
     async def _new_temporary_app_factory(
         *,
         cache_factory: ServiceFactory[App, Cache[Any]] | None = None,
-        fetcher: Fetcher | None = None,
         process_pool: futures.ProcessPoolExecutor | None = None,
         user: User | None = None,
         entity_type_repository: PluginRepository[EntityDefinition] | None = None,
@@ -118,7 +126,6 @@ def new_temporary_app_factory(
     ) -> AsyncIterator[App]:
         async with App.new_temporary(
             cache_factory=cache_factory,
-            fetcher=fetcher,
             process_pool=process_pool or fixture_process_pool,
             user=user,
             entity_type_repository=entity_type_repository,

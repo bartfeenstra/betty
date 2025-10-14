@@ -258,7 +258,7 @@ class BinaryFileCache(_FileCache[bytes]):
         return self._path
 
     def cache_item_file_path(
-        self, cache_item_id: str, suffix: str | None = None
+        self, cache_item_id: str, suffix: str | None = None, /
     ) -> Path:
         """
         Get the file path for a cache item with the given ID.

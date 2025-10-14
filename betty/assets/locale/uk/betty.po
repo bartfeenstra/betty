@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Betty 0.4\n"
 "Report-Msgid-Bugs-To: illia@maier.page\n"
-"POT-Creation-Date: 2025-10-15 15:48+0100\n"
+"POT-Creation-Date: 2025-10-15 22:46+0100\n"
 "PO-Revision-Date: 2025-05-13 17:01+0000\n"
 "Last-Translator: Максим Горпиніч <maksimgorpinic4@gmail.com>\n"
 "Language: uk\n"
@@ -324,10 +324,6 @@ msgid "Correspondence"
 msgstr "Листування"
 
 #, python-brace-format
-msgid "Could neither fetch \"{url}\", nor find an old version in the cache."
-msgstr ""
-
-#, python-brace-format
 msgid "Could not extract {file_path} as a gzip file  (*.gz)."
 msgstr "Не вдалося розпакувати {file_path} як gzip файл (*.gz)."
 
@@ -350,10 +346,6 @@ msgstr ""
 #, python-brace-format
 msgid "Could not find the file \"{file_path}\"."
 msgstr "Не вдалося знайти файл \"{file_path}\"."
-
-#, python-brace-format
-msgid "Could not successfully connect to \"{url}\": {error}"
-msgstr ""
 
 msgid "Country"
 msgstr "Країна"
@@ -499,10 +491,6 @@ msgstr "Ферма"
 
 msgid "Female"
 msgstr "Жінка"
-
-#, python-brace-format
-msgid "Fetching \"{url}\"..."
-msgstr ""
 
 msgid "File"
 msgstr "Файл"
@@ -1099,10 +1087,6 @@ msgstr ""
 
 msgid "Timeline"
 msgstr "Хронологія"
-
-#, python-brace-format
-msgid "Timeout when connecting to \"{url}\""
-msgstr ""
 
 msgid "Toggle full screen"
 msgstr "Перемкнути на весь екран"

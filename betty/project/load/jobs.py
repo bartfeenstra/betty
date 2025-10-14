@@ -8,10 +8,10 @@ from asyncio import gather
 from collections import defaultdict
 from typing import TYPE_CHECKING, final
 
+from aiohttp import ClientError
 from html5lib import parse
 from typing_extensions import override
 
-from betty.fetch import FetchError
 from betty.job import Job
 from betty.locale.localizable import StaticTranslations
 from betty.media_type import InvalidMediaType, MediaType
@@ -84,12 +84,10 @@ class PopulateLink(Job[ProjectContext]):
         labels: MutableMapping[str, str],
         descriptions: MutableMapping[str, str],
     ) -> None:
-        user = project.app.user
-        fetcher = await project.app.fetcher
+        http_client = await project.app.http_client
         try:
-            response = await fetcher.fetch(url)
-        except FetchError as error:
-            await user.message_warning(error)
+            response = await http_client.get(url)
+        except ClientError:
             return
         try:
             content_type = MediaType(response.headers["Content-Type"])
@@ -102,7 +100,7 @@ class PopulateLink(Job[ProjectContext]):
         ):
             return
 
-        document = parse(response.text)
+        document = parse(await response.text())
         if not self._link.has_label:
             title = self._extract_html_title(document)
             if title is not None:

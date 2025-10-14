@@ -8,6 +8,8 @@ from asyncio import gather
 from collections import defaultdict
 from typing import TYPE_CHECKING
 
+from aiohttp import ClientError
+
 from betty.ancestry.file import File
 from betty.ancestry.file_reference import FileReference
 from betty.ancestry.has_file_references import HasFileReferences
@@ -83,9 +85,12 @@ class Populator:
             link.relationship = "external"
         if link.description is None:
             link.description = _("Read more on Wikipedia.")
-        page_translations = dict(
-            await self._client.get_translations(page_language, page_name)
-        )
+        try:
+            page_translations = dict(
+                await self._client.get_translations(page_language, page_name)
+            )
+        except ClientError:
+            return
         if page_translations:
             # For convenience, we add the original page language and name to the available translations.
             page_translations[page_language] = page_name
@@ -128,7 +133,7 @@ class Populator:
         self, page_language: str, page_name: str
     ) -> str | None:
         summary = await self._client.get_summary(page_language, page_name)
-        return summary.title if summary else None
+        return summary.title
 
     async def _populate_place(self, place: Place) -> None:
         await self._populate_place_coordinates(place)

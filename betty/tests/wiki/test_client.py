@@ -1,29 +1,24 @@
 from __future__ import annotations
 
 from json import dumps
-from pathlib import Path
 from typing import TYPE_CHECKING, Any
+from urllib.parse import quote
 
+import aiofiles
 import pytest
+from aiohttp import ClientSession
 from geopy import Point
-from multidict import CIMultiDict
 
-from betty.fetch import FetchResponse
-from betty.fetch.static import StaticFetcher
 from betty.media_type.media_types import SVG
 from betty.test_utils.user import StaticUser
-from betty.wiki.client import Client, Image, Summary
+from betty.wiki.client import Client, ClientError, Summary
 
 if TYPE_CHECKING:
     from collections.abc import Mapping
+    from pathlib import Path
 
+    from aioresponses import aioresponses
     from pytest_mock import MockerFixture
-
-    from betty.cache.file import BinaryFileCache
-
-
-def _new_json_fetch_response(json_data: Any) -> FetchResponse:
-    return FetchResponse(CIMultiDict(), dumps(json_data).encode("utf-8"), "utf-8")
 
 
 class TestSummary:
@@ -34,18 +29,42 @@ class TestSummary:
 
 class TestClient:
     @pytest.mark.parametrize(
-        ("expected", "fetch_json"),
+        "response_body",
         [
-            (
-                {},
-                {},
-            ),
-            (
-                {},
-                {
-                    "query": {},
-                },
-            ),
+            "{Haha Im not rly JSON}",
+            b"{Haha Im not rly JSON}",
+            dumps({}),
+            dumps({"query": {}}),
+            dumps({"query": {"pages": {}}}),
+            dumps({"query": {"pages": []}}),
+        ],
+    )
+    async def test_get_translations__should_error(
+        self,
+        response_body: str,
+        http_client_mock: aioresponses,
+        mocker: MockerFixture,
+        tmp_path: Path,
+    ) -> None:
+        mocker.patch("sys.stderr")
+        page_language = "en"
+        page_name = "Amsterdam & Omstreken"
+        page_url = f"https://{page_language}.wikipedia.org/w/api.php?action=query&titles={quote(page_name)}&prop=langlinks|pageimages|coordinates&lllimit=500&piprop=name&pilicense=free&pilimit=1&coprimary=primary&format=json&formatversion=2"
+
+        download_directory_path = tmp_path / "download"
+        http_client_mock.get(page_url, body=response_body)
+        async with ClientSession() as http_client:
+            sut = Client(
+                download_directory_path=download_directory_path,
+                http_client=http_client,
+                user=StaticUser(),
+            )
+            with pytest.raises(ClientError):
+                await sut.get_translations(page_language, page_name)
+
+    @pytest.mark.parametrize(
+        ("expected", "response_body"),
+        [
             (
                 {},
                 {
@@ -83,76 +102,30 @@ class TestClient:
     async def test_get_translations__should_return(
         self,
         expected: Mapping[str, str],
-        fetch_json: Mapping[str, Any],
+        response_body: Mapping[str, Any],
+        http_client_mock: aioresponses,
         mocker: MockerFixture,
-        binary_file_cache: BinaryFileCache,
+        tmp_path: Path,
     ) -> None:
         mocker.patch("sys.stderr")
         page_language = "en"
         page_name = "Amsterdam & Omstreken"
-        fetch_url = "https://en.wikipedia.org/w/api.php?action=query&titles=Amsterdam%20%26%20Omstreken&prop=langlinks|pageimages|coordinates&lllimit=500&piprop=name&pilicense=free&pilimit=1&coprimary=primary&format=json&formatversion=2"
-        fetcher = StaticFetcher(
-            fetch_map={fetch_url: _new_json_fetch_response(fetch_json)}
-        )
-        translations = await Client(fetcher, user=StaticUser()).get_translations(
-            page_language, page_name
-        )
+        url = "https://en.wikipedia.org/w/api.php?action=query&titles=Amsterdam%20%26%20Omstreken&prop=langlinks|pageimages|coordinates&lllimit=500&piprop=name&pilicense=free&pilimit=1&coprimary=primary&format=json&formatversion=2"
+
+        download_directory_path = tmp_path / "download"
+        http_client_mock.get(url, body=dumps(response_body))
+        async with ClientSession() as http_client:
+            sut = Client(
+                download_directory_path=download_directory_path,
+                http_client=http_client,
+                user=StaticUser(),
+            )
+            translations = await sut.get_translations(page_language, page_name)
         assert expected == translations
 
-    async def test_get_translations__with_invalid_json_response_should_return_none(
-        self,
-        mocker: MockerFixture,
-        binary_file_cache: BinaryFileCache,
-    ) -> None:
-        mocker.patch("sys.stderr")
-        page_language = "en"
-        page_name = "Amsterdam & Omstreken"
-        fetch_url = "https://en.wikipedia.org/w/api.php?action=query&titles=Amsterdam%20%26%20Omstreken&prop=langlinks&lllimit=500&format=json&formatversion=2"
-        fetcher = StaticFetcher(
-            fetch_map={
-                fetch_url: FetchResponse(
-                    CIMultiDict(),
-                    b"{Haha Im not rly JSON}",
-                    "utf-8",
-                )
-            }
-        )
-        actual = await Client(fetcher, user=StaticUser()).get_translations(
-            page_language, page_name
-        )
-        assert actual == {}
-
     @pytest.mark.parametrize(
-        "response_json",
+        ("expected", "page_response_json"),
         [
-            {},
-            {"query": {}},
-            {"query": {"pages": {}}},
-            {"query": {"pages": []}},
-        ],
-    )
-    async def test_get_translations__with_unexpected_json_response_should_return_none(
-        self,
-        response_json: Mapping[str, Any],
-        mocker: MockerFixture,
-        binary_file_cache: BinaryFileCache,
-    ) -> None:
-        mocker.patch("sys.stderr")
-        page_language = "en"
-        page_name = "Amsterdam & Omstreken"
-        fetch_url = "https://en.wikipedia.org/w/api.php?action=query&titles=Amsterdam%20%26%20Omstrekens&prop=langlinks&lllimit=500&format=json&formatversion=2"
-        fetcher = StaticFetcher(
-            fetch_map={fetch_url: _new_json_fetch_response(response_json)}
-        )
-        actual = await Client(fetcher, user=StaticUser()).get_translations(
-            page_language, page_name
-        )
-        assert actual == {}
-
-    @pytest.mark.parametrize(
-        ("expected", "fetch_json"),
-        [
-            # Missing keys in the fetch response.
             (
                 None,
                 {},
@@ -176,7 +149,35 @@ class TestClient:
                     "extract": "De hoofdstad van Nederland.",
                 },
             ),
-            # Success.
+        ],
+    )
+    async def test_get_summary__should_error(
+        self,
+        expected: Summary | None,
+        page_response_json: Mapping[str, Any],
+        http_client_mock: aioresponses,
+        tmp_path: Path,
+    ) -> None:
+        page_language = "en"
+        page_name = "Amsterdam & Omstreken"
+        page_url = (
+            "https://en.wikipedia.org/api/rest_v1/page/summary/Amsterdam & Omstreken"
+        )
+
+        download_directory_path = tmp_path / "download"
+        http_client_mock.get(page_url, body=dumps(page_response_json))
+        async with ClientSession() as http_client:
+            sut = Client(
+                download_directory_path=download_directory_path,
+                http_client=http_client,
+                user=StaticUser(),
+            )
+            with pytest.raises(ClientError):
+                await sut.get_summary(page_language, page_name)
+
+    @pytest.mark.parametrize(
+        ("expected", "page_response_json"),
+        [
             (
                 Summary(
                     "en",
@@ -209,44 +210,120 @@ class TestClient:
     )
     async def test_get_summary__should_return(
         self,
-        expected: Summary | None,
-        fetch_json: Mapping[str, Any],
-        binary_file_cache: BinaryFileCache,
+        expected: Summary,
+        page_response_json: Mapping[str, Any],
+        http_client_mock: aioresponses,
+        tmp_path: Path,
     ) -> None:
         page_language = "en"
         page_name = "Amsterdam & Omstreken"
-        fetch_url = (
+        page_url = (
             "https://en.wikipedia.org/api/rest_v1/page/summary/Amsterdam & Omstreken"
         )
-        fetcher = StaticFetcher(
-            fetch_map={fetch_url: _new_json_fetch_response(fetch_json)}
-        )
-        client = Client(fetcher, user=StaticUser())
-        actual = await client.get_summary(page_language, page_name)
+
+        download_directory_path = tmp_path / "download"
+        http_client_mock.get(page_url, body=dumps(page_response_json))
+        async with ClientSession() as http_client:
+            sut = Client(
+                download_directory_path=download_directory_path,
+                http_client=http_client,
+                user=StaticUser(),
+            )
+            actual = await sut.get_summary(page_language, page_name)
         assert actual == expected
 
     @pytest.mark.parametrize(
-        ("expected", "fetch_json"),
+        "page_response_json",
         [
-            # Missing keys in the fetch response.
+            ({},),
             (
-                None,
-                {},
-            ),
-            (
-                None,
                 {
                     "query": {},
                 },
             ),
             (
-                None,
                 {
                     "query": {
                         "pages": [],
                     },
                 },
             ),
+            (
+                {
+                    "query": {
+                        "pages": [
+                            {
+                                "coordinates": [
+                                    {
+                                        "lon": 6.66666667,
+                                        "globe": "earth",
+                                    },
+                                ],
+                            }
+                        ],
+                    },
+                },
+            ),
+            (
+                {
+                    "query": {
+                        "pages": [
+                            {
+                                "coordinates": [
+                                    {
+                                        "lat": 52.35,
+                                        "globe": "earth",
+                                    },
+                                ],
+                            }
+                        ],
+                    },
+                },
+            ),
+            (
+                {
+                    "query": {
+                        "pages": [
+                            {
+                                "coordinates": [
+                                    {
+                                        "lat": 52.35,
+                                        "lon": 6.66666667,
+                                    },
+                                ],
+                            }
+                        ],
+                    },
+                },
+            ),
+        ],
+    )
+    async def test_get_place_coordinates__should_error(
+        self,
+        page_response_json: Mapping[str, Any],
+        http_client_mock: aioresponses,
+        mocker: MockerFixture,
+        tmp_path: Path,
+    ) -> None:
+        mocker.patch("sys.stderr")
+        page_language = "en"
+        page_name = "Amsterdam & Omstreken"
+        page_url = "https://en.wikipedia.org/w/api.php?action=query&titles=Amsterdam%20%26%20Omstreken&prop=langlinks|pageimages|coordinates&lllimit=500&piprop=name&pilicense=free&pilimit=1&coprimary=primary&format=json&formatversion=2"
+
+        download_directory_path = tmp_path / "download"
+        http_client_mock.get(page_url, body=dumps(page_response_json))
+        async with ClientSession() as http_client:
+            sut = Client(
+                download_directory_path=download_directory_path,
+                http_client=http_client,
+                user=StaticUser(),
+            )
+            with pytest.raises(ClientError):
+                await sut.get_place_coordinates(page_language, page_name)
+
+    @pytest.mark.parametrize(
+        ("expected", "page_response_json"),
+        [
             (
                 None,
                 {
@@ -262,57 +339,6 @@ class TestClient:
                         "pages": [
                             {
                                 "coordinates": [],
-                            }
-                        ],
-                    },
-                },
-            ),
-            (
-                None,
-                {
-                    "query": {
-                        "pages": [
-                            {
-                                "coordinates": [
-                                    {
-                                        "lon": 6.66666667,
-                                        "globe": "earth",
-                                    },
-                                ],
-                            }
-                        ],
-                    },
-                },
-            ),
-            (
-                None,
-                {
-                    "query": {
-                        "pages": [
-                            {
-                                "coordinates": [
-                                    {
-                                        "lat": 52.35,
-                                        "globe": "earth",
-                                    },
-                                ],
-                            }
-                        ],
-                    },
-                },
-            ),
-            (
-                None,
-                {
-                    "query": {
-                        "pages": [
-                            {
-                                "coordinates": [
-                                    {
-                                        "lat": 52.35,
-                                        "lon": 6.66666667,
-                                    },
-                                ],
                             }
                         ],
                     },
@@ -361,55 +387,43 @@ class TestClient:
     async def test_get_place_coordinates__should_return(
         self,
         expected: Point | None,
-        fetch_json: Mapping[str, Any],
+        page_response_json: Mapping[str, Any],
+        http_client_mock: aioresponses,
         mocker: MockerFixture,
-        binary_file_cache: BinaryFileCache,
+        tmp_path: Path,
     ) -> None:
         mocker.patch("sys.stderr")
         page_language = "en"
         page_name = "Amsterdam & Omstreken"
-        fetch_url = "https://en.wikipedia.org/w/api.php?action=query&titles=Amsterdam%20%26%20Omstreken&prop=langlinks|pageimages|coordinates&lllimit=500&piprop=name&pilicense=free&pilimit=1&coprimary=primary&format=json&formatversion=2"
-        fetcher = StaticFetcher(
-            fetch_map={fetch_url: _new_json_fetch_response(fetch_json)}
-        )
-        actual = await Client(fetcher, user=StaticUser()).get_place_coordinates(
-            page_language, page_name
-        )
+        page_url = "https://en.wikipedia.org/w/api.php?action=query&titles=Amsterdam%20%26%20Omstreken&prop=langlinks|pageimages|coordinates&lllimit=500&piprop=name&pilicense=free&pilimit=1&coprimary=primary&format=json&formatversion=2"
+
+        download_directory_path = tmp_path / "download"
+        http_client_mock.get(page_url, body=dumps(page_response_json))
+        async with ClientSession() as http_client:
+            sut = Client(
+                download_directory_path=download_directory_path,
+                http_client=http_client,
+                user=StaticUser(),
+            )
+            actual = await sut.get_place_coordinates(page_language, page_name)
         assert actual == expected
 
     @pytest.mark.parametrize(
-        ("expected", "page_fetch_json", "file_fetch_json"),
+        ("page_response_json", "file_response_json"),
         [
-            # Missing JSON keys for the page API fetch.
             (
-                None,
                 {},
                 None,
             ),
             (
-                None,
                 {"query": {}},
                 None,
             ),
             (
-                None,
                 {"query": {"pages": []}},
                 None,
             ),
             (
-                None,
-                {
-                    "query": {
-                        "pages": [
-                            {},
-                        ]
-                    }
-                },
-                None,
-            ),
-            # Missing JSON keys for the file API fetch.
-            (
-                None,
                 {
                     "query": {
                         "pages": [
@@ -422,7 +436,6 @@ class TestClient:
                 {},
             ),
             (
-                None,
                 {
                     "query": {
                         "pages": [
@@ -435,7 +448,6 @@ class TestClient:
                 {"query": {}},
             ),
             (
-                None,
                 {
                     "query": {
                         "pages": [
@@ -448,7 +460,6 @@ class TestClient:
                 {"query": {"pages": []}},
             ),
             (
-                None,
                 {
                     "query": {
                         "pages": [
@@ -468,15 +479,44 @@ class TestClient:
                     }
                 },
             ),
+        ],
+    )
+    async def test_get_image__should_error(
+        self,
+        page_response_json: Mapping[str, Any],
+        file_response_json: Mapping[str, Any] | None,
+        http_client_mock: aioresponses,
+        mocker: MockerFixture,
+        tmp_path: Path,
+    ) -> None:
+        mocker.patch("sys.stderr")
+
+        page_language = "en"
+        page_name = "Amsterdam & Omstreken"
+        page_url = "https://en.wikipedia.org/w/api.php?action=query&titles=Amsterdam%20%26%20Omstreken&prop=langlinks|pageimages|coordinates&lllimit=500&piprop=name&pilicense=free&pilimit=1&coprimary=primary&format=json&formatversion=2"
+        file_url = "https://en.wikipedia.org/w/api.php?action=query&prop=imageinfo&titles=File:Amsterdam%20%26%20Omstreken&iiprop=url|mime|canonicaltitle&format=json&formatversion=2"
+        image_url = "https://example.com/image.svg"
+        image_data = bytes(123)
+
+        download_directory_path = tmp_path / "download"
+        http_client_mock.get(page_url, body=dumps(page_response_json))
+        http_client_mock.get(file_url, body=dumps(file_response_json))
+        http_client_mock.get(image_url, body=image_data)
+        async with ClientSession() as http_client:
+            sut = Client(
+                download_directory_path=download_directory_path,
+                http_client=http_client,
+                user=StaticUser(),
+            )
+            with pytest.raises(ClientError):
+                await sut.get_image(page_language, page_name)
+
+    @pytest.mark.parametrize(
+        ("expected", "page_response_json", "file_response_json"),
+        [
             # A successful response.
             (
-                Image(
-                    Path(__file__),
-                    SVG,
-                    "An Example Image",
-                    "https://example.com/description",
-                    "example.svg",
-                ),
+                True,
                 {
                     "query": {
                         "pages": [
@@ -492,7 +532,7 @@ class TestClient:
                             {
                                 "imageinfo": [
                                     {
-                                        "url": "https://example.com/image",
+                                        "url": "https://example.com/image.svg",
                                         "mime": "image/svg+xml",
                                         "canonicaltitle": "File:An Example Image",
                                         "descriptionurl": "https://example.com/description",
@@ -503,41 +543,56 @@ class TestClient:
                     },
                 },
             ),
+            # No "pageimage".
+            (
+                None,
+                {
+                    "query": {
+                        "pages": [
+                            {},
+                        ]
+                    }
+                },
+                None,
+            ),
         ],
     )
     async def test_get_image__should_return(
         self,
-        expected: Image | None,
-        page_fetch_json: Mapping[str, Any],
-        file_fetch_json: Mapping[str, Any] | None,
+        expected: bool,
+        page_response_json: Mapping[str, Any],
+        file_response_json: Mapping[str, Any] | None,
+        http_client_mock: aioresponses,
         mocker: MockerFixture,
-        binary_file_cache: BinaryFileCache,
         tmp_path: Path,
     ) -> None:
         mocker.patch("sys.stderr")
 
         page_language = "en"
         page_name = "Amsterdam & Omstreken"
-        page_fetch_url = "https://en.wikipedia.org/w/api.php?action=query&titles=Amsterdam%20%26%20Omstreken&prop=langlinks|pageimages|coordinates&lllimit=500&piprop=name&pilicense=free&pilimit=1&coprimary=primary&format=json&formatversion=2"
-        file_fetch_url = "https://en.wikipedia.org/w/api.php?action=query&prop=imageinfo&titles=File:Amsterdam%20%26%20Omstreken&iiprop=url|mime|canonicaltitle&format=json&formatversion=2"
+        page_url = "https://en.wikipedia.org/w/api.php?action=query&titles=Amsterdam%20%26%20Omstreken&prop=langlinks|pageimages|coordinates&lllimit=500&piprop=name&pilicense=free&pilimit=1&coprimary=primary&format=json&formatversion=2"
+        file_url = "https://en.wikipedia.org/w/api.php?action=query&prop=imageinfo&titles=File:Amsterdam%20%26%20Omstreken&iiprop=url|mime|canonicaltitle&format=json&formatversion=2"
+        image_url = "https://example.com/image.svg"
+        image_data = bytes(123)
 
-        fetch_map = {page_fetch_url: _new_json_fetch_response(page_fetch_json)}
-        fetch_file_map = {}
-        if file_fetch_json is not None:
-            fetch_map[file_fetch_url] = _new_json_fetch_response(file_fetch_json)
-        image_file_path = tmp_path / "image"
-        if expected is not None:
-            fetch_file_map["https://example.com/image"] = image_file_path
-        fetcher = StaticFetcher(fetch_map=fetch_map, fetch_file_map=fetch_file_map)
-
-        actual = await Client(fetcher, user=StaticUser()).get_image(
-            page_language, page_name
-        )
-        if expected is None:
-            assert actual is None
-        else:
+        download_directory_path = tmp_path / "download"
+        http_client_mock.get(page_url, body=dumps(page_response_json))
+        http_client_mock.get(file_url, body=dumps(file_response_json))
+        http_client_mock.get(image_url, body=image_data)
+        async with ClientSession() as http_client:
+            sut = Client(
+                download_directory_path=download_directory_path,
+                http_client=http_client,
+                user=StaticUser(),
+            )
+            actual = await sut.get_image(page_language, page_name)
+        if expected:
             assert actual is not None
-            assert actual.media_type == expected.media_type
-            assert actual.title == expected.title
-            assert actual.wikimedia_commons_url == expected.wikimedia_commons_url
-            assert actual.path is image_file_path
+            assert actual.media_type == SVG
+            assert actual.title == "An Example Image"
+            assert actual.wikimedia_commons_url == "https://example.com/description"
+            assert actual.path.suffix == ".svg"
+            async with aiofiles.open(actual.path, mode="rb") as image_f:
+                assert await image_f.read() == image_data
+        else:
+            assert actual is None

@@ -7,8 +7,9 @@ from os import environ
 from pathlib import Path
 from typing import TYPE_CHECKING, Any, Self, TypeVar, cast, final
 
-import aiohttp
 from aiofiles.tempfile import TemporaryDirectory
+from aiohttp_client_cache.backends.filesystem import FileBackend
+from aiohttp_client_cache.session import CachedSession
 from typing_extensions import override
 
 import betty
@@ -23,8 +24,6 @@ from betty.config import Configurable
 from betty.config.file import assert_configuration_file
 from betty.dirs import CACHE_DIRECTORY_PATH
 from betty.factory import TargetFactory, new
-from betty.fetch import Fetcher, http
-from betty.fetch.static import StaticFetcher
 from betty.http_client import ClientErrorToUserMessageMiddleware
 from betty.http_client.rate_limit import RateLimitDefinition, RateLimitMiddleware
 from betty.license import LicenseDefinition
@@ -51,6 +50,8 @@ if TYPE_CHECKING:
     from collections.abc import AsyncIterator
     from concurrent import futures
 
+    import aiohttp
+
     from betty.cache import Cache
     from betty.console.command import CommandDefinition
     from betty.plugin import PluginRepository
@@ -73,7 +74,6 @@ class App(Configurable[AppConfiguration], TargetFactory, ServiceProvider):
         *,
         user: User | None = None,
         cache_factory: ServiceFactory[Self, Cache[Any]],
-        fetcher: Fetcher | None = None,
         process_pool: futures.ProcessPoolExecutor | None = None,
         translations: TranslationRepository | None = None,
         entity_type_repository: PluginRepository[EntityDefinition] | None = None,
@@ -86,8 +86,6 @@ class App(Configurable[AppConfiguration], TargetFactory, ServiceProvider):
         cls = type(self)
         super().__init__(configuration=configuration)
         self._user = user or ConsoleUser()
-        if fetcher is not None:
-            cls.fetcher.override(self, fetcher)
         if process_pool is not None:
             cls.process_pool.override(self, process_pool)
         if translations is not None:
@@ -126,7 +124,6 @@ class App(Configurable[AppConfiguration], TargetFactory, ServiceProvider):
         cls,
         *,
         cache_factory: ServiceFactory[Self, Cache[Any]] | None = None,
-        fetcher: Fetcher | None = None,
         process_pool: futures.ProcessPoolExecutor | None = None,
         user: User | None = None,
         translations: TranslationRepository | None | False = False,
@@ -149,7 +146,6 @@ class App(Configurable[AppConfiguration], TargetFactory, ServiceProvider):
                 AppConfiguration(),
                 cache_directory_path,
                 cache_factory=cache_factory or StaticService(NoOpCache()),
-                fetcher=fetcher or StaticFetcher(),
                 process_pool=process_pool,
                 user=user,
                 translations=NoOpTranslationRepository()
@@ -227,7 +223,8 @@ class App(Configurable[AppConfiguration], TargetFactory, ServiceProvider):
             self.http_rate_limit_repository, self.http_rate_limit_repository
         )
 
-        http_client = aiohttp.ClientSession(
+        http_client: aiohttp.ClientSession = CachedSession(
+            cache=FileBackend(self.binary_file_cache.with_scope("http-client").path),
             headers={
                 "User-Agent": "Betty (https://betty.readthedocs.io/)",
             },
@@ -248,19 +245,8 @@ class App(Configurable[AppConfiguration], TargetFactory, ServiceProvider):
             await http_client.close()
 
         self._shutdown_stack.append(_shutdown)
-        return http_client
 
-    @service
-    async def fetcher(self) -> Fetcher:
-        """
-        The fetcher.
-        """
-        return http.HttpFetcher(
-            await self.http_client,
-            self.cache.with_scope("fetch"),
-            self.binary_file_cache.with_scope("fetch"),
-            user=self.user,
-        )
+        return http_client
 
     @service
     def cache(self) -> Cache[Any]:
@@ -366,9 +352,8 @@ class App(Configurable[AppConfiguration], TargetFactory, ServiceProvider):
                 license
                 async for license in SpdxLicenseBuilder(  # noqa A001
                     binary_file_cache=self.binary_file_cache.with_scope("spdx"),
-                    fetcher=await self.fetcher,
+                    http_client=await self.http_client,
                     user=self.user,
-                    process_pool=self.process_pool,
                 ).build()
             ],
         )

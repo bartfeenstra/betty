@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PROJECT VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2025-10-15 15:48+0100\n"
+"POT-Creation-Date: 2025-10-15 22:46+0100\n"
 "PO-Revision-Date: 2025-05-17 01:43+0000\n"
 "Last-Translator: Bart Feenstra <bart@bartfeenstra.com>\n"
 "Language: nl_NL\n"
@@ -325,10 +325,6 @@ msgid "Correspondence"
 msgstr "Correspondentie"
 
 #, python-brace-format
-msgid "Could neither fetch \"{url}\", nor find an old version in the cache."
-msgstr ""
-
-#, python-brace-format
 msgid "Could not extract {file_path} as a gzip file  (*.gz)."
 msgstr "Kan het bestand {file_path} niet als een gzip-bestand (*.gz) uitpakken."
 
@@ -353,10 +349,6 @@ msgstr ""
 #, python-brace-format
 msgid "Could not find the file \"{file_path}\"."
 msgstr "Kan het bestand \"{file_path}\" niet vinden."
-
-#, python-brace-format
-msgid "Could not successfully connect to \"{url}\": {error}"
-msgstr ""
 
 msgid "Country"
 msgstr "Land"
@@ -502,10 +494,6 @@ msgstr "Boerderij"
 
 msgid "Female"
 msgstr "Vrouwelijk"
-
-#, python-brace-format
-msgid "Fetching \"{url}\"..."
-msgstr ""
 
 msgid "File"
 msgstr "Bestand"
@@ -1100,10 +1088,6 @@ msgstr ""
 
 msgid "Timeline"
 msgstr "Tijdlijn"
-
-#, python-brace-format
-msgid "Timeout when connecting to \"{url}\""
-msgstr ""
 
 msgid "Toggle full screen"
 msgstr "Schakel volledig scherm"
