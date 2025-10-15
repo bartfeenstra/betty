@@ -4,7 +4,7 @@ Provide an API that lets code express arbitrary requirements.
 
 from __future__ import annotations
 
-from abc import abstractmethod
+from abc import ABC, abstractmethod
 from textwrap import indent
 from typing import TYPE_CHECKING, Any, cast, final
 
@@ -17,6 +17,7 @@ from betty.locale.localized import Localized, LocalizedStr
 if TYPE_CHECKING:
     from collections.abc import MutableSequence, Sequence
 
+    from betty.app import App
     from betty.locale.localizer import Localizer
 
 
@@ -179,14 +180,19 @@ class AnyRequirement(RequirementCollection):
         return self._summary
 
 
+@final
 class AllRequirements(RequirementCollection):
     """
     A requirement that is met if all of the given requirements are met.
     """
 
-    def __init__(self, *requirements: Requirement | None):
+    def __init__(
+        self, *requirements: Requirement | None, summary: Localizable | None = None
+    ):
         super().__init__(*requirements)
-        self._summary = _("All of these requirements must be met")
+        self._summary = (
+            _("All of these requirements must be met") if summary is None else summary
+        )
 
     @override
     def is_met(self) -> bool:
@@ -195,3 +201,19 @@ class AllRequirements(RequirementCollection):
     @override
     def summary(self) -> Localizable:
         return self._summary
+
+
+class HasRequirement(ABC):
+    """
+    Define a class that has requirements to be met before it can be used.
+    """
+
+    @classmethod
+    @abstractmethod
+    async def requirement(cls, *, app: App) -> Requirement | None:
+        """
+        Define the requirement for this extension to be enabled.
+
+        This defaults to the extension's dependencies.
+        """
+        return None

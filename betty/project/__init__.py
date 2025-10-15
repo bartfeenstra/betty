@@ -269,7 +269,8 @@ class Project(Configurable[ProjectConfiguration], TargetFactory, ServiceProvider
                 enabled_extension_requirement = (
                     await enabled_extension_definition.cls.requirement(app=self.app)
                 )
-                enabled_extension_requirement.assert_met()
+                if enabled_extension_requirement is not None:
+                    enabled_extension_requirement.assert_met()
                 if enabled_extension_definition.theme:
                     theme_count += 1
                 if enabled_extension_id in configured_extension_configurations:

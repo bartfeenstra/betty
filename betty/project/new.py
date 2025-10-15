@@ -130,7 +130,8 @@ async def new(app: App) -> None:
 
     if await app.user.ask_confirmation(_("Do you want to load a Gramps family tree?")):
         gramps_requirement = await Gramps.requirement(app=app)
-        gramps_requirement.assert_met()
+        if gramps_requirement is not None:
+            gramps_requirement.assert_met()
         configuration.extensions.append(
             PluginInstanceConfiguration(
                 Gramps.plugin,
