@@ -7,7 +7,7 @@ from tempfile import TemporaryDirectory
 import yappi
 
 from betty.app import App
-from betty.project.extension.demo.project import create_project, load_ancestry
+from betty.project.extension.demo.project import create_project
 from betty.project.generate import generate
 from betty.project.load import load
 
@@ -40,11 +40,11 @@ async def _main_yappi(clock_type: str) -> None:
         stats = yappi.get_func_stats()
         stats.save(file_path)
 
-    stats.sort("ttot", "asc")
+    stats.sort("tsub", "asc")
     stats.print_all(
         columns={
-            0: ("ttot", 10),
-            1: ("tsub", 10),
+            0: ("tsub", 10),
+            1: ("ttot", 10),
             2: ("tavg", 10),
             3: ("ncall", 10),
             4: ("name", 99),
@@ -58,7 +58,6 @@ async def __main() -> None:
         with TemporaryDirectory() as tmp_path_str:
             project = await create_project(app, Path(tmp_path_str))
             async with project:
-                await load_ancestry(project)
                 await load(project)
                 await generate(project)
 
