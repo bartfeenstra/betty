@@ -394,7 +394,6 @@ _BASELINE: Mapping[str, _ModuleIgnore] = {
     },
     "betty/project/extension/__init__.py": {
         "ConfigurableExtension": MissingReason.SHOULD_BE_COVERED,
-        "Dependencies": MissingReason.SHOULD_BE_COVERED,
         "ExtensionError": MissingReason.STATIC_CONTENT_ONLY,
         "ExtensionTypeError": MissingReason.STATIC_CONTENT_ONLY,
         "ExtensionTypeInvalidError": MissingReason.SHOULD_BE_COVERED,
@@ -454,6 +453,7 @@ _BASELINE: Mapping[str, _ModuleIgnore] = {
     },
     "betty/repr.py": MissingReason.SHOULD_BE_COVERED,
     "betty/requirement.py": {
+        "HasRequirement": MissingReason.STATIC_CONTENT_ONLY,
         "Requirement": {
             "details": MissingReason.ABSTRACT,
             "is_met": MissingReason.ABSTRACT,

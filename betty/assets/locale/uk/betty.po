@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Betty 0.4\n"
 "Report-Msgid-Bugs-To: illia@maier.page\n"
-"POT-Creation-Date: 2025-10-14 10:03+0100\n"
+"POT-Creation-Date: 2025-10-15 15:48+0100\n"
 "PO-Revision-Date: 2025-05-13 17:01+0000\n"
 "Last-Translator: Максим Горпиніч <maksimgorpinic4@gmail.com>\n"
 "Language: uk\n"
@@ -1456,10 +1456,6 @@ msgid "{date}"
 msgstr "{date}"
 
 #, python-brace-format
-msgid "{dependent_label} requires {dependency_labels}."
-msgstr "{dependent_label} вимагає {dependency_labels}."
-
-#, python-brace-format
 msgid "{entity_type} {entity_id}"
 msgstr "{entity_type} {entity_id}"
 
@@ -1478,6 +1474,10 @@ msgstr "У розширення {extension} відсутній каталог as
 #, python-brace-format
 msgid "{individual_name} {affiliation_name}"
 msgstr "{individual_name} {affiliation_name}"
+
+#, python-brace-format
+msgid "{plugin_type_label} {plugin_label} depends on {dependency_labels}."
+msgstr ""
 
 msgid "© Copyright the author, unless otherwise credited"
 msgstr "© Авторське право належить автору, якщо не зазначено інше"
