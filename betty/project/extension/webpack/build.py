@@ -143,6 +143,7 @@ class Builder:
             npm_project_directory_path
             / "packages"
             / _package_name_to_path("@betty.py/betty"),
+            dirs_exist_ok=True,
         )
 
     async def _prepare_webpack_extension(
