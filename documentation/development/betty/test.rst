@@ -15,6 +15,8 @@ These impact the ``./bin/test`` command:
 * ``BETTY_TEST_SKIP_TSC=true``: Skip tsc tests.
 * ``BETTY_TEST_SKIP_ESLINT=true``: Skip ESLint tests.
 * ``BETTY_TEST_SKIP_PLAYWRIGHT=true``: Skip Playwright tests.
+* ``BETTY_TEST_SKIP_WEBPACK_ENTRY_POINT_PROVIDER=true``: Skip tests covering
+  :py:class:`betty.project.extension.webpack.build.EntryPointProvider`'s Webpack builds.
 
 Fixing problems automatically
 -----------------------------

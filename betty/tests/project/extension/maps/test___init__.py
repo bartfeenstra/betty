@@ -8,6 +8,7 @@ from betty.project.extension import Extension
 from betty.project.extension.maps import Maps
 from betty.project.generate import generate
 from betty.test_utils.project.extension.webpack.build import EntryPointProviderTestBase
+from betty.tests.conftest import check_skip_webpack_entry_point_provider
 
 
 class TestMaps(EntryPointProviderTestBase):
@@ -17,6 +18,7 @@ class TestMaps(EntryPointProviderTestBase):
         async with Project.new_temporary(new_temporary_app) as project, project:
             return await Maps.new_for_project(project)
 
+    @check_skip_webpack_entry_point_provider
     async def test_generate(self, new_temporary_app: App) -> None:
         async with Project.new_temporary(new_temporary_app) as project:
             project.configuration.debug = True
