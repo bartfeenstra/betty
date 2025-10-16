@@ -28,3 +28,8 @@ check_skip_playwright = pytest.mark.skipif(
     environ.get("BETTY_TEST_SKIP_PLAYWRIGHT", False) is not False,
     reason="Playwright tests are being skipped",
 )
+
+check_skip_webpack_entry_point_provider = pytest.mark.skipif(
+    environ.get("BETTY_TEST_SKIP_WEBPACK_ENTRY_POINT_PROVIDER", False) is not False,
+    reason="Webpack entry point provider tests are being skipped",
+)

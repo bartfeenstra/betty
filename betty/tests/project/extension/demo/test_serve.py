@@ -10,6 +10,7 @@ from betty.project.extension.demo.serve import DemoServer
 from betty.test_utils.project.extension.demo.project import (
     demo_project_aioresponses,  # noqa F401
 )
+from betty.tests.conftest import check_skip_webpack_entry_point_provider
 
 if TYPE_CHECKING:
     from pytest_mock import MockerFixture
@@ -18,6 +19,7 @@ if TYPE_CHECKING:
 
 
 class TestDemoServer:
+    @check_skip_webpack_entry_point_provider
     async def test(
         self,
         demo_project_aioresponses: None,  # noqa F811

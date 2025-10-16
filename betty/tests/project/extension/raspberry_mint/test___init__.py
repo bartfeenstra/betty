@@ -15,6 +15,7 @@ from betty.project.extension.raspberry_mint import RaspberryMint
 from betty.project.generate import generate
 from betty.test_utils.model import DummyUserFacingEntityOne
 from betty.test_utils.project.extension.webpack.build import EntryPointProviderTestBase
+from betty.tests.conftest import check_skip_webpack_entry_point_provider
 
 if TYPE_CHECKING:
     from betty.app import App
@@ -44,6 +45,7 @@ class TestRaspberryMint(EntryPointProviderTestBase):
                 async with sut:
                     pass  # pragma: nocover
 
+    @check_skip_webpack_entry_point_provider
     async def test_generate__html_list_for_third_party_entity(
         self, new_temporary_app_factory: NewTemporaryAppFactory
     ) -> None:
