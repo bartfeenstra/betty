@@ -5,7 +5,7 @@ The localizable API allows objects to be localized at the point of use.
 from __future__ import annotations
 
 from abc import ABC, abstractmethod
-from collections.abc import Callable, Iterable, Mapping, MutableMapping, Sequence
+from collections.abc import Callable, Iterable, Mapping, MutableMapping
 from typing import (
     TYPE_CHECKING,
     Any,
@@ -39,9 +39,7 @@ _T = TypeVar("_T")
 
 class _Localizable(Generic[_T], ABC):
     @abstractmethod
-    def format(
-        self, *format_args: str | Localizable, **format_kwargs: str | Localizable
-    ) -> _T:
+    def format(self, **format_kwargs: str | Localizable) -> _T:
         """
         Apply string formatting to the eventual localized string.
 
@@ -66,10 +64,8 @@ class Localizable(_Localizable["Localizable"]):
         """
 
     @override
-    def format(
-        self, *format_args: str | Localizable, **format_kwargs: str | Localizable
-    ) -> Localizable:
-        return _FormattedLocalizable(self, format_args, format_kwargs)
+    def format(self, **format_kwargs: str | Localizable) -> Localizable:
+        return _FormattedLocalizable(self, format_kwargs)
 
     @override
     def __str__(self) -> str:
@@ -95,10 +91,8 @@ class CountableLocalizable(_Localizable["CountableLocalizable"]):
         """
 
     @override
-    def format(
-        self, *format_args: str | Localizable, **format_kwargs: str | Localizable
-    ) -> CountableLocalizable:
-        return _FormattedCountableLocalizable(self, format_args, format_kwargs)
+    def format(self, **format_kwargs: str | Localizable) -> CountableLocalizable:
+        return _FormattedCountableLocalizable(self, format_kwargs)
 
 
 @final
@@ -221,12 +215,16 @@ def ngettext(
     Keyword arguments are identical to those of :py:met:`str.format`, except that
     any :py:class:`betty.locale.localizable.Localizable` will be localized before string
     formatting.
+
+    Messages MUST have a ``{count}`` placeholder.
     """
     if n is None:
         return _CountableGettextLocalizable(
             "ngettext", message_singular, message_plural
         )
-    return _GettextLocalizable("ngettext", message_singular, message_plural, n)
+    return _GettextLocalizable("ngettext", message_singular, message_plural, n).format(
+        count=str(n)
+    )
 
 
 def pgettext(context: str, message: str) -> Localizable:
@@ -272,30 +270,25 @@ def npgettext(
         )
     return _GettextLocalizable(
         "npgettext", context, message_singular, message_plural, n
-    )
+    ).format(count=str(n))
 
 
 class _FormattedLocalizable(Localizable):
     def __init__(
-        self,
-        localizable: Localizable,
-        format_args: Sequence[str | Localizable],
-        format_kwargs: Mapping[str, str | Localizable],
+        self, localizable: Localizable, format_kwargs: Mapping[str, str | Localizable]
     ):
         self._localizable = localizable
-        self._format_args = format_args
-        self._format_kwargs = format_kwargs
+        self._format_kwargs = dict(format_kwargs)
+
+    @override
+    def format(self, **format_kwargs: str | Localizable) -> Localizable:
+        self._format_kwargs.update(format_kwargs)
+        return self
 
     @override
     def localize(self, localizer: Localizer) -> Localized & str:
         return LocalizedStr(
             self._localizable.localize(localizer).format(
-                *(
-                    format_arg.localize(localizer)
-                    if isinstance(format_arg, Localizable)
-                    else format_arg
-                    for format_arg in self._format_args
-                ),
                 **{
                     format_kwarg_key: format_kwarg.localize(localizer)
                     if isinstance(format_kwarg, Localizable)
@@ -310,18 +303,15 @@ class _FormattedCountableLocalizable(CountableLocalizable):
     def __init__(
         self,
         localizable: CountableLocalizable,
-        format_args: Sequence[str | Localizable],
         format_kwargs: Mapping[str, str | Localizable],
     ):
         self._localizable = localizable
-        self._format_args = format_args
         self._format_kwargs = format_kwargs
 
     @override
     def count(self, count: int) -> Localizable:
         return _FormattedLocalizable(
             self._localizable.count(count),
-            self._format_args,
             {**self._format_kwargs, "count": str(count)},
         )
 
