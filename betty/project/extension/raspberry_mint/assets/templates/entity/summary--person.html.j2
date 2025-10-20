@@ -21,20 +21,20 @@
             <span class="aka">{%- trans names = alternative_names | map(_embedded_person_name_label if embedded else _person_name_label) | list | join(', ') -%}Also known as {{ names }}{%- endtrans -%}</span>
         {%- endif -%}
         {% set events = entity.presences | selectattr('role', 'presence_role_plugin', 'subject') | map(attribute='event') | reject('none') | select('public') | list %}
-        {% set start_of_life_events = events | selectattr('event_type.plugin.is_start_of_life') | list %}
-        {%- if start_of_life_events | length -%}
-            {% set start_of_life_event = start_of_life_events | first %}
+        {% set birth_indicators = events | selectattr('event_type.plugin.id', 'eq', 'birth') | list + events | selectattr('event_type.plugin.indicates', 'eq', 'birth') | list %}
+        {%- if birth_indicators | length -%}
+            {% set birth_indicator = birth_indicators | first %}
             {%- set formatted_start -%}
-                {%- with event = start_of_life_event -%}
+                {%- with event = birth_indicator -%}
                     {%- include 'entity/event-dimensions.html.j2' -%}
                 {%- endwith -%}
             {%- endset -%}
         {%- endif -%}
-        {% set end_of_life_events = events | selectattr('event_type.plugin.is_end_of_life') | list %}
-        {%- if end_of_life_events | length -%}
-            {% set end_of_life_event = end_of_life_events | first %}
+        {% set death_indicators = events | selectattr('event_type.plugin.id', 'eq', 'death') | list + events | selectattr('event_type.plugin.indicates', 'eq', 'death') | list %}
+        {%- if death_indicators | length -%}
+            {% set death_indicator = death_indicators | first %}
             {%- set formatted_end -%}
-                {%- with event = end_of_life_event -%}
+                {%- with event = death_indicator -%}
                     {%- include 'entity/event-dimensions.html.j2' -%}
                 {%- endwith -%}
             {%- endset -%}
@@ -44,7 +44,7 @@
                 {%- if formatted_start is defined and formatted_start -%}
                     <div class="d-table-row">
                         <dt class="d-table-cell pe-2">
-                            {{ start_of_life_event.event_type.plugin.label | localize | html_lang }}
+                            {{ birth_indicator.event_type.plugin.label | localize | html_lang }}
                         </dt>
                         <dd class="d-table-cell">
                             {{ formatted_start }}
@@ -54,7 +54,7 @@
                 {%- if formatted_end is defined and formatted_end -%}
                     <div class="d-table-row">
                         <dt class="d-table-cell pe-2">
-                            {{ end_of_life_event.event_type.plugin.label | localize | html_lang }}
+                            {{ death_indicator.event_type.plugin.label | localize | html_lang }}
                         </dt>
                         <dd class="d-table-cell">
                             {{ formatted_end }}

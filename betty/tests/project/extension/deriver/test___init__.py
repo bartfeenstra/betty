@@ -6,7 +6,7 @@ import pytest
 from typing_extensions import override
 
 from betty.ancestry.event import Event
-from betty.ancestry.event_type.event_types import Residence
+from betty.ancestry.event_type.event_types import Birth, Death, Residence
 from betty.ancestry.person import Person
 from betty.ancestry.presence import Presence
 from betty.ancestry.presence_role.presence_roles import Subject
@@ -48,7 +48,8 @@ class TestDeriver(ExtensionTestBase):
                 start = [
                     presence
                     for presence in person.presences
-                    if presence.event.event_type.plugin.is_start_of_life
+                    if presence.event.event_type.plugin.id == Birth.plugin.id
+                    or presence.event.event_type.plugin.indicates == Birth.plugin.id
                 ][0]
                 assert start is not None
                 assert start.event is not None
@@ -60,7 +61,8 @@ class TestDeriver(ExtensionTestBase):
                 end = [
                     presence
                     for presence in person.presences
-                    if presence.event.event_type.plugin.is_end_of_life
+                    if presence.event.event_type.plugin.id == Death.plugin.id
+                    or presence.event.event_type.plugin.indicates == Death.plugin.id
                 ][0]
                 assert end is not None
                 assert end.event is not None

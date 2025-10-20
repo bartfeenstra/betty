@@ -9,6 +9,7 @@ from datetime import datetime
 from typing import TYPE_CHECKING, Any, TypeAlias
 
 from betty.ancestry.event import Event
+from betty.ancestry.event_type.event_types import Death
 from betty.ancestry.has_citations import HasCitations
 from betty.ancestry.has_file_references import HasFileReferences
 from betty.ancestry.has_notes import HasNotes
@@ -179,7 +180,10 @@ class Privatizer:
 
         # A dead person is not private, regardless of when they died.
         for presence in person.presences:
-            if presence.event.event_type.plugin.is_end_of_life:
+            if (
+                presence.event.event_type.plugin.id == Death.plugin.id
+                or presence.event.event_type.plugin.indicates == Death.plugin.id
+            ):
                 if presence.event.date is None:
                     person.public = True
                     return

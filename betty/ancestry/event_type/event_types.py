@@ -50,7 +50,6 @@ class CreatableDerivableEventType(DerivableEventType):
 @EventTypeDefinition(
     id="birth",
     label=_("Birth"),
-    is_start_of_life=True,
 )
 class Birth(CreatableDerivableEventType):
     """
@@ -63,7 +62,6 @@ class Birth(CreatableDerivableEventType):
     id="death",
     label=_("Death"),
     comes_after={Birth},
-    is_end_of_life=True,
 )
 class Death(CreatableDerivableEventType):
     """
@@ -82,7 +80,7 @@ class Death(CreatableDerivableEventType):
     label=_("Baptism"),
     comes_before={Death},
     comes_after={Birth},
-    is_start_of_life=True,
+    indicates=Birth,
 )
 class Baptism(EventType):
     """
@@ -96,7 +94,7 @@ class Baptism(EventType):
     label=_("Bar mitzvah"),
     comes_before={Death},
     comes_after={Birth},
-    is_start_of_life=True,
+    indicates=Birth,
 )
 class BarMitzvah(EventType):
     """
@@ -110,7 +108,7 @@ class BarMitzvah(EventType):
     label=_("Bat mitzvah"),
     comes_before={Death},
     comes_after={Birth},
-    is_start_of_life=True,
+    indicates=Birth,
 )
 class BatMitzvah(EventType):
     """
@@ -136,7 +134,7 @@ class Adoption(EventType):
     id="funeral",
     label=_("Funeral"),
     comes_after={Death},
-    is_end_of_life=True,
+    indicates=Death,
 )
 class Funeral(DerivableEventType):
     """
@@ -149,7 +147,7 @@ class Funeral(DerivableEventType):
     id="cremation",
     label=_("Cremation"),
     comes_after={Death},
-    is_end_of_life=True,
+    indicates=Death,
 )
 class Cremation(DerivableEventType):
     """
@@ -162,7 +160,7 @@ class Cremation(DerivableEventType):
     id="burial",
     label=_("Burial"),
     comes_after={Death},
-    is_end_of_life=True,
+    indicates=Death,
 )
 class Burial(DerivableEventType):
     """

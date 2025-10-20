@@ -115,7 +115,7 @@ async def test_with_private_alternative_name() -> None:
         assert "#reference" not in actual
 
 
-async def test_with_start_of_life_event() -> None:
+async def test_with_birh_indicator() -> None:
     source = Source()
     person = Person()
     birth = Event(event_type=Birth(), citations=[Citation(source=source)])
@@ -131,7 +131,7 @@ async def test_with_start_of_life_event() -> None:
         assert "#reference" in actual
 
 
-async def test_with_end_of_life_event() -> None:
+async def test_with_death_indicator() -> None:
     source = Source()
     person = Person()
     death = Event(event_type=Death(), citations=[Citation(source=source)])
