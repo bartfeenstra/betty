@@ -29,7 +29,6 @@ from betty.model.association import (
 )
 from betty.project import Project
 from betty.test_utils.json.linked_data import assert_dumps_linked_data_for
-from betty.user import UserFacing
 
 if TYPE_CHECKING:
     from collections.abc import Iterable
@@ -215,26 +214,27 @@ class TestUnidirectionalToZeroOrOne:
         )
 
     @EntityDefinition(
-        id="owner-with-user-facing-associate",
+        id="owner-with-non-public-facing-associate",
         label=Plain(""),
         label_plural=Plain(""),
         label_countable=CountablePlain("", ""),
     )
-    class _OwnerWithUserFacingAssociate(Entity):
+    class _OwnerWithNonPublicFacingAssociate(Entity):
         def __init__(
             self,
-            associate: TestUnidirectionalToZeroOrOne._UserFacingAssociate | None = None,
+            associate: TestUnidirectionalToZeroOrOne._NonPublicFacingAssociate
+            | None = None,
         ):
             super().__init__()
             self.associate = associate
 
         associate = UnidirectionalToZeroOrOne[
-            "TestUnidirectionalToZeroOrOne._OwnerWithUserFacingAssociate",
-            "TestUnidirectionalToZeroOrOne._UserFacingAssociate",
+            "TestUnidirectionalToZeroOrOne._OwnerWithNonPublicFacingAssociate",
+            "TestUnidirectionalToZeroOrOne._NonPublicFacingAssociate",
         ](
-            "betty.tests.model.test_association:TestUnidirectionalToZeroOrOne._OwnerWithUserFacingAssociate",
+            "betty.tests.model.test_association:TestUnidirectionalToZeroOrOne._OwnerWithNonPublicFacingAssociate",
             "associate",
-            "betty.tests.model.test_association:TestUnidirectionalToZeroOrOne._UserFacingAssociate",
+            "betty.tests.model.test_association:TestUnidirectionalToZeroOrOne._NonPublicFacingAssociate",
         )
 
     @EntityDefinition(
@@ -247,12 +247,13 @@ class TestUnidirectionalToZeroOrOne:
         pass
 
     @EntityDefinition(
-        id="user-facing-associate",
+        id="non-public-facing-associate",
         label=Plain(""),
         label_plural=Plain(""),
         label_countable=CountablePlain("", ""),
+        public_facing=False,
     )
-    class _UserFacingAssociate(UserFacing, Entity):
+    class _NonPublicFacingAssociate(Entity):
         pass
 
     def test(self) -> None:
@@ -306,27 +307,27 @@ class TestUnidirectionalToZeroOrOne:
         self, new_temporary_app: App
     ) -> None:
         async with Project.new_temporary(new_temporary_app) as project, project:
-            associate = self._UserFacingAssociate("my-first-associate")
-            target = self._OwnerWithUserFacingAssociate(associate)
+            associate = self._Associate("my-first-associate")
+            target = self._Owner(associate)
             actual = await assert_dumps_linked_data_for(type(target).associate, target)
-            expected = "/user-facing-associate/my-first-associate/index.json"
+            expected = "/associate/my-first-associate/index.json"
             assert actual == expected
 
     async def test_dump_linked_data_for__with_generated_id(
         self, new_temporary_app: App
     ) -> None:
         async with Project.new_temporary(new_temporary_app) as project, project:
-            associate = self._UserFacingAssociate()
-            target = self._OwnerWithUserFacingAssociate(associate)
+            associate = self._NonPublicFacingAssociate()
+            target = self._OwnerWithNonPublicFacingAssociate(associate)
             actual = await assert_dumps_linked_data_for(type(target).associate, target)
             assert actual is None
 
-    async def test_dump_linked_data_for__without_user_facing(
+    async def test_dump_linked_data_for__with_non_public_facing(
         self, new_temporary_app: App
     ) -> None:
         async with Project.new_temporary(new_temporary_app) as project, project:
-            associate = self._Associate("my-first-associate")
-            target = self._Owner(associate)
+            associate = self._NonPublicFacingAssociate("my-first-associate")
+            target = self._OwnerWithNonPublicFacingAssociate(associate)
             actual = await assert_dumps_linked_data_for(type(target).associate, target)
             assert actual is None
 
@@ -412,26 +413,27 @@ class TestBidirectionalToZeroOrOne:
         )
 
     @EntityDefinition(
-        id="owner-with-user-facing-associate",
+        id="owner-with-non-public-facing-associate",
         label=Plain(""),
         label_plural=Plain(""),
         label_countable=CountablePlain("", ""),
     )
-    class _OwnerWithUserFacingAssociate(Entity):
+    class _OwnerWithNonPublicFacingAssociate(Entity):
         def __init__(
             self,
-            associate: TestBidirectionalToZeroOrOne._UserFacingAssociate | None = None,
+            associate: TestBidirectionalToZeroOrOne._NonPublicFacingAssociate
+            | None = None,
         ):
             super().__init__()
             self.associate = associate
 
         associate = BidirectionalToZeroOrOne[
-            "TestBidirectionalToZeroOrOne._OwnerWithUserFacingAssociate",
-            "TestBidirectionalToZeroOrOne._UserFacingAssociate",
+            "TestBidirectionalToZeroOrOne._OwnerWithNonPublicFacingAssociate",
+            "TestBidirectionalToZeroOrOne._NonPublicFacingAssociate",
         ](
-            "betty.tests.model.test_association:TestBidirectionalToZeroOrOne._OwnerWithUserFacingAssociate",
+            "betty.tests.model.test_association:TestBidirectionalToZeroOrOne._OwnerWithNonPublicFacingAssociate",
             "associate",
-            "betty.tests.model.test_association:TestBidirectionalToZeroOrOne._UserFacingAssociate",
+            "betty.tests.model.test_association:TestBidirectionalToZeroOrOne._NonPublicFacingAssociate",
             "owner",
         )
 
@@ -453,19 +455,20 @@ class TestBidirectionalToZeroOrOne:
         )
 
     @EntityDefinition(
-        id="user-facing-associate",
+        id="non-public-facing-associate",
         label=Plain(""),
         label_plural=Plain(""),
         label_countable=CountablePlain("", ""),
+        public_facing=False,
     )
-    class _UserFacingAssociate(UserFacing, Entity):
+    class _NonPublicFacingAssociate(Entity):
         owner = BidirectionalToZeroOrOne[
-            "TestBidirectionalToZeroOrOne._UserFacingAssociate",
-            "TestBidirectionalToZeroOrOne._OwnerWithUserFacingAssociate",
+            "TestBidirectionalToZeroOrOne._NonPublicFacingAssociate",
+            "TestBidirectionalToZeroOrOne._OwnerWithNonPublicFacingAssociate",
         ](
-            "betty.tests.model.test_association:TestBidirectionalToZeroOrOne._UserFacingAssociate",
+            "betty.tests.model.test_association:TestBidirectionalToZeroOrOne._NonPublicFacingAssociate",
             "owner",
-            "betty.tests.model.test_association:TestBidirectionalToZeroOrOne._OwnerWithUserFacingAssociate",
+            "betty.tests.model.test_association:TestBidirectionalToZeroOrOne._OwnerWithNonPublicFacingAssociate",
             "associate",
         )
 
@@ -525,27 +528,27 @@ class TestBidirectionalToZeroOrOne:
         self, new_temporary_app: App
     ) -> None:
         async with Project.new_temporary(new_temporary_app) as project, project:
-            associate = self._UserFacingAssociate("my-first-associate")
-            target = self._OwnerWithUserFacingAssociate(associate)
+            associate = self._Associate("my-first-associate")
+            target = self._Owner(associate)
             actual = await assert_dumps_linked_data_for(type(target).associate, target)
-            expected = "/user-facing-associate/my-first-associate/index.json"
+            expected = "/associate/my-first-associate/index.json"
             assert actual == expected
 
     async def test_dump_linked_data_for__with_generated_id(
         self, new_temporary_app: App
     ) -> None:
         async with Project.new_temporary(new_temporary_app) as project, project:
-            associate = self._UserFacingAssociate()
-            target = self._OwnerWithUserFacingAssociate(associate)
+            associate = self._NonPublicFacingAssociate()
+            target = self._OwnerWithNonPublicFacingAssociate(associate)
             actual = await assert_dumps_linked_data_for(type(target).associate, target)
             assert actual is None
 
-    async def test_dump_linked_data_for__without_user_facing(
+    async def test_dump_linked_data_for__with_non_public_facing(
         self, new_temporary_app: App
     ) -> None:
         async with Project.new_temporary(new_temporary_app) as project, project:
-            associate = self._Associate("my-first-associate")
-            target = self._Owner(associate)
+            associate = self._NonPublicFacingAssociate("my-first-associate")
+            target = self._OwnerWithNonPublicFacingAssociate(associate)
             actual = await assert_dumps_linked_data_for(type(target).associate, target)
             assert actual is None
 
@@ -623,23 +626,25 @@ class TestUnidirectionalToOne:
         )
 
     @EntityDefinition(
-        id="owner-with-user-facing-associate",
+        id="owner-with-non-public-facing-associate",
         label=Plain(""),
         label_plural=Plain(""),
         label_countable=CountablePlain("", ""),
     )
-    class _OwnerWithUserFacingAssociate(UserFacing, Entity):
-        def __init__(self, associate: TestUnidirectionalToOne._UserFacingAssociate):
+    class _OwnerWithNonPublicFacingAssociate(Entity):
+        def __init__(
+            self, associate: TestUnidirectionalToOne._NonPublicFacingAssociate
+        ):
             super().__init__()
             self.associate = associate
 
         associate = UnidirectionalToOne[
-            "TestUnidirectionalToOne._OwnerWithUserFacingAssociate",
-            "TestUnidirectionalToOne._UserFacingAssociate",
+            "TestUnidirectionalToOne._OwnerWithNonPublicFacingAssociate",
+            "TestUnidirectionalToOne._NonPublicFacingAssociate",
         ](
-            "betty.tests.model.test_association:TestUnidirectionalToOne._OwnerWithUserFacingAssociate",
+            "betty.tests.model.test_association:TestUnidirectionalToOne._OwnerWithNonPublicFacingAssociate",
             "associate",
-            "betty.tests.model.test_association:TestUnidirectionalToOne._UserFacingAssociate",
+            "betty.tests.model.test_association:TestUnidirectionalToOne._NonPublicFacingAssociate",
         )
 
     @EntityDefinition(
@@ -652,12 +657,13 @@ class TestUnidirectionalToOne:
         pass
 
     @EntityDefinition(
-        id="user-facing-associate",
+        id="non-public-facing-associate",
         label=Plain(""),
         label_plural=Plain(""),
         label_countable=CountablePlain("", ""),
+        public_facing=False,
     )
-    class _UserFacingAssociate(UserFacing, Entity):
+    class _NonPublicFacingAssociate(Entity):
         pass
 
     def test(self) -> None:
@@ -688,27 +694,27 @@ class TestUnidirectionalToOne:
         self, new_temporary_app: App
     ) -> None:
         async with Project.new_temporary(new_temporary_app) as project, project:
-            associate = self._UserFacingAssociate("my-first-associate")
-            target = self._OwnerWithUserFacingAssociate(associate)
+            associate = self._Associate("my-first-associate")
+            target = self._Owner(associate)
             actual = await assert_dumps_linked_data_for(type(target).associate, target)
-            expected = "/user-facing-associate/my-first-associate/index.json"
+            expected = "/associate/my-first-associate/index.json"
             assert actual == expected
 
     async def test_dump_linked_data_for__with_generated_id(
         self, new_temporary_app: App
     ) -> None:
         async with Project.new_temporary(new_temporary_app) as project, project:
-            associate = self._UserFacingAssociate()
-            target = self._OwnerWithUserFacingAssociate(associate)
+            associate = self._NonPublicFacingAssociate()
+            target = self._OwnerWithNonPublicFacingAssociate(associate)
             actual = await assert_dumps_linked_data_for(type(target).associate, target)
             assert actual is None
 
-    async def test_dump_linked_data_for__without_user_facing(
+    async def test_dump_linked_data_for__with_non_public_facing(
         self, new_temporary_app: App
     ) -> None:
         async with Project.new_temporary(new_temporary_app) as project, project:
-            associate = self._Associate("my-first-associate")
-            target = self._Owner(associate)
+            associate = self._NonPublicFacingAssociate("my-first-associate")
+            target = self._OwnerWithNonPublicFacingAssociate(associate)
             actual = await assert_dumps_linked_data_for(type(target).associate, target)
             assert actual is None
 
@@ -804,40 +810,41 @@ class TestBidirectionalToOne:
         )
 
     @EntityDefinition(
-        id="owner-with-user-facing-associate",
+        id="owner-with-non-public-facing-associate",
         label=Plain(""),
         label_plural=Plain(""),
         label_countable=CountablePlain("", ""),
     )
-    class _OwnerWithUserFacingAssociate(Entity):
-        def __init__(self, associate: TestBidirectionalToOne._UserFacingAssociate):
+    class _OwnerWithNonPublicFacingAssociate(Entity):
+        def __init__(self, associate: TestBidirectionalToOne._NonPublicFacingAssociate):
             super().__init__()
             self.associate = associate
 
         associate = BidirectionalToOne[
-            "TestBidirectionalToOne._OwnerWithUserFacingAssociate",
-            "TestBidirectionalToOne._UserFacingAssociate",
+            "TestBidirectionalToOne._OwnerWithNonPublicFacingAssociate",
+            "TestBidirectionalToOne._NonPublicFacingAssociate",
         ](
-            "betty.tests.model.test_association:TestBidirectionalToOne._OwnerWithUserFacingAssociate",
+            "betty.tests.model.test_association:TestBidirectionalToOne._OwnerWithNonPublicFacingAssociate",
             "associate",
-            "betty.tests.model.test_association:TestBidirectionalToOne._UserFacingAssociate",
+            "betty.tests.model.test_association:TestBidirectionalToOne._NonPublicFacingAssociate",
             "owner",
         )
 
     @EntityDefinition(
-        id="user-facing-associate",
+        id="non-public-facing-associate",
         label=Plain(""),
         label_plural=Plain(""),
         label_countable=CountablePlain("", ""),
+        public_facing=False,
     )
-    class _UserFacingAssociate(UserFacing, Entity):
+    class _NonPublicFacingAssociate(Entity):
         owner = BidirectionalToZeroOrOne[
-            "TestBidirectionalToOne._UserFacingAssociate",
-            "TestBidirectionalToOne._OwnerWithUserFacingAssociate",
+            "TestBidirectionalToOne._NonPublicFacingAssociate",
+            "TestBidirectionalToOne._OwnerWithNonPublicFacingAssociate",
         ](
-            "betty.tests.model.test_association:TestBidirectionalToOne._UserFacingAssociate",
+            "betty.tests.model.test_association:TestBidirectionalToOne._NonPublicFacingAssociate",
             "owner",
-            "betty.tests.model.test_association:TestBidirectionalToOne._OwnerWithUserFacingAssociate",
+            "betty.tests.model.test_association:TestBidirectionalToOne._OwnerWithNonPublicFacingAssociate",
             "associate",
         )
 
@@ -870,27 +877,27 @@ class TestBidirectionalToOne:
         self, new_temporary_app: App
     ) -> None:
         async with Project.new_temporary(new_temporary_app) as project, project:
-            associate = self._UserFacingAssociate("my-first-associate")
-            target = self._OwnerWithUserFacingAssociate(associate)
+            associate = self._Associate("my-first-associate")
+            target = self._Owner(associate)
             actual = await assert_dumps_linked_data_for(type(target).associate, target)
-            expected = "/user-facing-associate/my-first-associate/index.json"
+            expected = "/associate/my-first-associate/index.json"
             assert actual == expected
 
     async def test_dump_linked_data_for__with_generated_id(
         self, new_temporary_app: App
     ) -> None:
         async with Project.new_temporary(new_temporary_app) as project, project:
-            associate = self._UserFacingAssociate()
-            target = self._OwnerWithUserFacingAssociate(associate)
+            associate = self._NonPublicFacingAssociate()
+            target = self._OwnerWithNonPublicFacingAssociate(associate)
             actual = await assert_dumps_linked_data_for(type(target).associate, target)
             assert actual is None
 
-    async def test_dump_linked_data_for__without_user_facing(
+    async def test_dump_linked_data_for__with_non_public_facing(
         self, new_temporary_app: App
     ) -> None:
         async with Project.new_temporary(new_temporary_app) as project, project:
-            associate = self._Associate("my-first-associate")
-            target = self._Owner(associate)
+            associate = self._NonPublicFacingAssociate("my-first-associate")
+            target = self._OwnerWithNonPublicFacingAssociate(associate)
             actual = await assert_dumps_linked_data_for(type(target).associate, target)
             assert actual is None
 
@@ -952,12 +959,13 @@ class TestUnidirectionalToManySingleType:
         pass
 
     @EntityDefinition(
-        id="user-facing-associate",
+        id="non-public-facing-associate",
         label=Plain(""),
         label_plural=Plain(""),
         label_countable=CountablePlain("", ""),
+        public_facing=False,
     )
-    class _UserFacingAssociate(UserFacing, _Associate):
+    class _NonPublicFacingAssociate(_Associate):
         pass
 
     def test(self) -> None:
@@ -990,38 +998,40 @@ class TestUnidirectionalToManySingleType:
 
     async def test_dump_linked_data_for(self, new_temporary_app: App) -> None:
         async with Project.new_temporary(new_temporary_app) as project, project:
-            publishable_associate = self._UserFacingAssociate(
-                "my-first-user-facing-associate"
+            publishable_associate = self._NonPublicFacingAssociate(
+                "my-first-non-public-facing-associate"
             )
-            unpublishable_associate_because_generated_id = self._UserFacingAssociate()
-            unpublishable_associate_because_not_user_facing = self._Associate(
+            unpublishable_associate_because_generated_id = self._Associate(
                 "my-first-associate"
+            )
+            unpublishable_associate_because_not_public_facing = (
+                self._NonPublicFacingAssociate()
             )
             target = self._Owner()
             target.associates = [
                 publishable_associate,
                 unpublishable_associate_because_generated_id,
-                unpublishable_associate_because_not_user_facing,
+                unpublishable_associate_because_not_public_facing,
             ]
             actual = await assert_dumps_linked_data_for(type(target).associates, target)
-            expected = [
-                "/user-facing-associate/my-first-user-facing-associate/index.json"
-            ]
+            expected = ["/associate/my-first-associate/index.json"]
             assert actual == expected
 
     async def test_dump_linked_data_for__with_embedded(
         self, new_temporary_app: App
     ) -> None:
         async with Project.new_temporary(new_temporary_app) as project, project:
-            associate_one = self._UserFacingAssociate("my-first-publishable-associate")
-            associate_two = self._UserFacingAssociate()
-            associate_three = self._Associate("my-first-not-user-facing-associate")
+            associate_one = self._Associate("my-first-publishable-associate")
+            associate_two = self._NonPublicFacingAssociate()
+            associate_three = self._NonPublicFacingAssociate(
+                "my-first-non-public-facing-associate"
+            )
             target = self._OwnerEmbedded()
             target.associates = [associate_one, associate_two, associate_three]
             actual = await assert_dumps_linked_data_for(type(target).associates, target)
             expected = [
                 {
-                    "@id": "https://example.com/user-facing-associate/my-first-publishable-associate/index.json",
+                    "@id": "https://example.com/associate/my-first-publishable-associate/index.json",
                     "id": associate_one.id,
                 },
                 {
@@ -1162,45 +1172,47 @@ class TestBidirectionalToManySingleType:
         )
 
     @EntityDefinition(
-        id="user-facing-associate-embedded",
+        id="non-public-facing-associate-embedded",
         label=Plain(""),
         label_plural=Plain(""),
         label_countable=CountablePlain("", ""),
+        public_facing=False,
     )
-    class _UserFacingAssociateEmbedded(UserFacing, _AssociateEmbedded):
+    class _NonPublicFacingAssociateEmbedded(_AssociateEmbedded):
         pass
 
     @EntityDefinition(
-        id="owner-with-user-facing-associate",
+        id="owner-with-non-public-facing-associate",
         label=Plain(""),
         label_plural=Plain(""),
         label_countable=CountablePlain("", ""),
     )
-    class _OwnerWithUserFacingAssociate(Entity):
+    class _OwnerWithNonPublicFacingAssociate(Entity):
         associates = BidirectionalToManySingleType[
-            "TestBidirectionalToManySingleType._OwnerWithUserFacingAssociate",
-            "TestBidirectionalToManySingleType._UserFacingAssociate",
+            "TestBidirectionalToManySingleType._OwnerWithNonPublicFacingAssociate",
+            "TestBidirectionalToManySingleType._NonPublicFacingAssociate",
         ](
-            "betty.tests.model.test_association:TestBidirectionalToManySingleType._OwnerWithUserFacingAssociate",
+            "betty.tests.model.test_association:TestBidirectionalToManySingleType._OwnerWithNonPublicFacingAssociate",
             "associates",
-            "betty.tests.model.test_association:TestBidirectionalToManySingleType._UserFacingAssociate",
+            "betty.tests.model.test_association:TestBidirectionalToManySingleType._NonPublicFacingAssociate",
             "owner",
         )
 
     @EntityDefinition(
-        id="user-facing-associate",
+        id="non-public-facing-associate",
         label=Plain(""),
         label_plural=Plain(""),
         label_countable=CountablePlain("", ""),
+        public_facing=False,
     )
-    class _UserFacingAssociate(UserFacing, Entity):
+    class _NonPublicFacingAssociate(Entity):
         owner = BidirectionalToZeroOrOne[
-            "TestBidirectionalToManySingleType._UserFacingAssociate",
-            "TestBidirectionalToManySingleType._OwnerWithUserFacingAssociate",
+            "TestBidirectionalToManySingleType._NonPublicFacingAssociate",
+            "TestBidirectionalToManySingleType._OwnerWithNonPublicFacingAssociate",
         ](
-            "betty.tests.model.test_association:TestBidirectionalToManySingleType._UserFacingAssociate",
+            "betty.tests.model.test_association:TestBidirectionalToManySingleType._NonPublicFacingAssociate",
             "owner",
-            "betty.tests.model.test_association:TestBidirectionalToManySingleType._OwnerWithUserFacingAssociate",
+            "betty.tests.model.test_association:TestBidirectionalToManySingleType._OwnerWithNonPublicFacingAssociate",
             "associates",
         )
 
@@ -1239,29 +1251,29 @@ class TestBidirectionalToManySingleType:
         self, new_temporary_app: App
     ) -> None:
         async with Project.new_temporary(new_temporary_app) as project, project:
-            associate = self._UserFacingAssociate("my-first-associate")
-            target = self._OwnerWithUserFacingAssociate()
+            associate = self._Associate("my-first-associate")
+            target = self._Owner()
             target.associates = [associate]
             actual = await assert_dumps_linked_data_for(type(target).associates, target)
-            expected = ["/user-facing-associate/my-first-associate/index.json"]
+            expected = ["/associate/my-first-associate/index.json"]
             assert actual == expected
 
     async def test_dump_linked_data_for__with_generated_id(
         self, new_temporary_app: App
     ) -> None:
         async with Project.new_temporary(new_temporary_app) as project, project:
-            associate = self._UserFacingAssociate()
-            target = self._OwnerWithUserFacingAssociate()
+            associate = self._Associate()
+            target = self._Owner()
             target.associates = [associate]
             actual = await assert_dumps_linked_data_for(type(target).associates, target)
             assert actual == []
 
-    async def test_dump_linked_data_for__without_user_facing(
+    async def test_dump_linked_data_for__with_non_public_facing(
         self, new_temporary_app: App
     ) -> None:
         async with Project.new_temporary(new_temporary_app) as project, project:
-            associate = self._Associate("my-first-associate")
-            target = self._Owner()
+            associate = self._NonPublicFacingAssociate("my-first-associate")
+            target = self._OwnerWithNonPublicFacingAssociate()
             target.associates = [associate]
             actual = await assert_dumps_linked_data_for(type(target).associates, target)
             assert actual == []
@@ -1270,13 +1282,13 @@ class TestBidirectionalToManySingleType:
         self, new_temporary_app: App
     ) -> None:
         async with Project.new_temporary(new_temporary_app) as project, project:
-            associate = self._UserFacingAssociateEmbedded("my-first-associate")
+            associate = self._AssociateEmbedded("my-first-associate")
             target = self._OwnerEmbedded()
             target.associates = [associate]
             actual = await assert_dumps_linked_data_for(type(target).associates, target)
             expected = [
                 {
-                    "@id": "https://example.com/user-facing-associate-embedded/my-first-associate/index.json",
+                    "@id": "https://example.com/associate-embedded/my-first-associate/index.json",
                     "id": associate.id,
                     "owner": None,
                 }
@@ -1287,7 +1299,7 @@ class TestBidirectionalToManySingleType:
         self, new_temporary_app: App
     ) -> None:
         async with Project.new_temporary(new_temporary_app) as project, project:
-            associate = self._UserFacingAssociateEmbedded()
+            associate = self._AssociateEmbedded()
             target = self._OwnerEmbedded()
             target.associates = [associate]
             actual = await assert_dumps_linked_data_for(type(target).associates, target)
@@ -1299,11 +1311,11 @@ class TestBidirectionalToManySingleType:
             ]
             assert actual == expected
 
-    async def test_dump_linked_data_for__with_embedded_without_user_facing(
+    async def test_dump_linked_data_for__with_embedded_with_non_public_facing(
         self, new_temporary_app: App
     ) -> None:
         async with Project.new_temporary(new_temporary_app) as project, project:
-            associate = self._AssociateEmbedded("my-first-associate")
+            associate = self._NonPublicFacingAssociateEmbedded("my-first-associate")
             target = self._OwnerEmbedded()
             target.associates = [associate]
             actual = await assert_dumps_linked_data_for(type(target).associates, target)

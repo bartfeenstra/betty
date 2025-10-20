@@ -42,6 +42,7 @@ class TestHasNotes:
         [
             (
                 {
+                    "@id": "https://example.com/dummy-has-notes/my-first-has-notes/index.json",
                     "id": "my-first-has-notes",
                     "notes": [],
                 },
@@ -49,6 +50,7 @@ class TestHasNotes:
             ),
             (
                 {
+                    "@id": "https://example.com/dummy-has-notes/my-first-has-notes/index.json",
                     "id": "my-first-has-notes",
                     "notes": [],
                 },
@@ -58,6 +60,7 @@ class TestHasNotes:
             ),
             (
                 {
+                    "@id": "https://example.com/dummy-has-notes/my-first-has-notes/index.json",
                     "id": "my-first-has-notes",
                     "notes": ["/note/my-first-note/index.json"],
                 },

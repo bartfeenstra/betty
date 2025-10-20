@@ -22,6 +22,7 @@ if TYPE_CHECKING:
     label=_("Enclosure"),
     label_plural=_("Enclosures"),
     label_countable=ngettext("{count} enclosure", "{count} enclosures"),
+    public_facing=False,
 )
 class Enclosure(HasDate, HasCitations, Entity):
     """

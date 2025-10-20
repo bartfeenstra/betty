@@ -30,7 +30,6 @@ from betty.project.generate.file import (
     create_json_resource,
 )
 from betty.string import kebab_case_to_lower_camel_case
-from betty.user import UserFacing
 
 if TYPE_CHECKING:
     from collections.abc import MutableSequence
@@ -145,7 +144,7 @@ class GenerateSitemap(Job[ProjectContext]):
             for entity in project.ancestry:
                 if not persistent_id(entity):
                     continue
-                if not isinstance(entity, UserFacing):
+                if not entity.plugin.public_facing:
                     continue
 
                 sitemap_batch_urls.append(
@@ -518,7 +517,7 @@ class GenerateEntityTypesHtml(Job[ProjectContext]):
                 scheduler.add(_GenerateEntityTypeHtml(entity_type, locale))
                 for entity_type in project.app.entity_type_repository
                 for locale in project.configuration.locales
-                if issubclass(entity_type.cls, UserFacing)
+                if entity_type.public_facing
                 and (
                     entity_type in project.configuration.entity_types
                     and project.configuration.entity_types[
@@ -645,7 +644,7 @@ class GenerateEntitiesHtml(Job[ProjectContext]):
             *[
                 scheduler.add(_GenerateEntityHtml(entity_type, entity.id, locale))
                 for entity_type in project.app.entity_type_repository
-                if issubclass(entity_type.cls, UserFacing)
+                if entity_type.public_facing
                 for entity in project.ancestry[entity_type.cls]
                 if persistent_id(entity) and is_public(entity)
                 for locale in locales

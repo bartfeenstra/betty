@@ -15,7 +15,6 @@ from betty.test_utils.plugin import (
     ClassedPluginDefinitionTestBase,
     CountableUserFacingPluginDefinitionTestBase,
 )
-from betty.user import UserFacing
 
 
 class EntityTestBase:
@@ -74,14 +73,16 @@ class DummyEntityTwo(Entity):
 
 @final
 @EntityDefinition(
-    id="dummy-user-facing-one",
-    label=Plain("Dummy user-facing (two)"),
-    label_plural=Plain("Dummies user-facing (two)"),
+    id="dummy-non-public-facing-one",
+    label=Plain("Dummy non-public-facing (two)"),
+    label_plural=Plain("Dummies non-public-facing (two)"),
     label_countable=CountablePlain(
-        "{count} dummy user-facing (two)", "{count} dummies user-facing (two)"
+        "{count} dummy non-public-facing (two)",
+        "{count} dummies non-public-facing (two)",
     ),
+    public_facing=False,
 )
-class DummyUserFacingEntityOne(UserFacing, Entity):
+class DummyNonPublicFacingEntityOne(Entity):
     """
-    A dummy user-facing entity.
+    A dummy non-public-facing entity.
     """

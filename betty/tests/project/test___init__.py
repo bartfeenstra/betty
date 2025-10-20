@@ -29,7 +29,7 @@ from betty.project.extension import Extension, ExtensionDefinition
 from betty.project.factory import ProjectDependentFactory
 from betty.requirement import Requirement, RequirementError
 from betty.test_utils.json.schema import SchemaTestBase
-from betty.test_utils.model import DummyEntityOne
+from betty.test_utils.model import DummyNonPublicFacingEntityOne
 from betty.test_utils.project.extension import (
     DummyConfigurableExtension,
     DummyExtension,
@@ -150,14 +150,16 @@ class TestProject:
         async with (
             new_temporary_app_factory(
                 entity_type_repository=StaticPluginRepository(
-                    EntityDefinition, DummyEntityOne.plugin
+                    EntityDefinition, DummyNonPublicFacingEntityOne.plugin
                 )
             ) as app,
             app,
             Project.new_temporary(app) as sut,
         ):
             sut.configuration.entity_types.replace(
-                EntityTypeConfiguration(DummyEntityOne.plugin, generate_html_list=True)
+                EntityTypeConfiguration(
+                    DummyNonPublicFacingEntityOne.plugin, generate_html_list=True
+                )
             )
             with pytest.raises(UserFacingException):
                 async with sut:

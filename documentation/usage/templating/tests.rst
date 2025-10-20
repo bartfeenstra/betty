@@ -23,4 +23,3 @@ In addition to Jinja2's built-in tests, Betty provides the following:
 - :py:func:`presence_role_plugin <betty.jinja2.test.PluginTester.__call__>`
 - :py:func:`private <betty.privacy.is_private>`
 - :py:func:`public <betty.privacy.is_public>`
-- :py:func:`user_facing <betty.jinja2.test.test_user_facing>`

@@ -27,7 +27,6 @@ from betty.model.association import (
     ToZeroOrOneAssociate,
 )
 from betty.privacy import HasPrivacy, Privacy, is_public, merge_privacies
-from betty.user import UserFacing
 
 if TYPE_CHECKING:
     from collections.abc import Iterator, MutableSequence
@@ -48,15 +47,7 @@ if TYPE_CHECKING:
     label_plural=_("Sources"),
     label_countable=ngettext("{count} source", "{count} sources"),
 )
-class Source(
-    HasDate,
-    HasFileReferences,
-    HasNotes,
-    HasLinks,
-    HasPrivacy,
-    UserFacing,
-    Entity,
-):
+class Source(HasDate, HasFileReferences, HasNotes, HasLinks, HasPrivacy, Entity):
     """
     A source of information.
     """

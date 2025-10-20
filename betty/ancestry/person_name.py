@@ -32,6 +32,7 @@ if TYPE_CHECKING:
     label=_("Person name"),
     label_plural=_("Person names"),
     label_countable=ngettext("{count} person name", "{count} person names"),
+    public_facing=False,
 )
 class PersonName(HasLocale, HasCitations, HasPrivacy, Entity):
     """

@@ -14,7 +14,6 @@ from typing_extensions import override
 from betty.locale import UNDETERMINED_LOCALE
 from betty.locale.localizable import Localizable, _
 from betty.locale.localized import Localized, LocalizedStr
-from betty.user import UserFacing
 
 if TYPE_CHECKING:
     from collections.abc import Iterator, MutableSequence, Sequence
@@ -121,7 +120,7 @@ def localizable_contexts(*contexts: ContextLike) -> Sequence[Localizable]:
     return localizable_contexts
 
 
-class UserFacingException(Exception, Localizable, UserFacing):
+class UserFacingException(Exception, Localizable):
     """
     A localizable, user-facing exception.
 

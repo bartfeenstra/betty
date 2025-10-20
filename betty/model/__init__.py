@@ -24,7 +24,6 @@ from betty.plugin import (
 )
 from betty.repr import repr_instance
 from betty.string import kebab_case_to_lower_camel_case
-from betty.user import UserFacing
 
 if TYPE_CHECKING:
     import builtins
@@ -111,7 +110,7 @@ class Entity(LinkedDataDumpableJsonLdObject, Mutable, ClassedPlugin):
     async def dump_linked_data(self, project: Project) -> DumpMapping[Dump]:
         dump = await super().dump_linked_data(project)
 
-        if persistent_id(self) and isinstance(self, UserFacing):
+        if persistent_id(self) and self.plugin.public_facing:
             url_generator = await project.url_generator
             dump["@id"] = url_generator.generate(
                 f"betty-static:///{self.plugin.id}/{self.id}/index.json",
@@ -146,6 +145,22 @@ class EntityDefinition(
         label=_("Entity"),
         cls=Entity,
     )
+
+    def __init__(
+        self,
+        *,
+        public_facing: bool = True,
+        **kwargs: Any,
+    ):
+        super().__init__(**kwargs)
+        self._public_facing = public_facing
+
+    @property
+    def public_facing(self) -> bool:
+        """
+        Whether entities of this type are public-facing.
+        """
+        return self._public_facing
 
 
 AncestryEntityId: TypeAlias = tuple[type[Entity], str]

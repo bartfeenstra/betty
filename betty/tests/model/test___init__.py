@@ -4,6 +4,7 @@ import pytest
 from typing_extensions import override
 
 from betty.json.schema import Schema
+from betty.locale.localizable import CountablePlain, Plain
 from betty.model import (
     Entity,
     EntityDefinition,
@@ -23,6 +24,16 @@ class TestEntityDefinition(PluginDefinitionClassTestBase):
     @pytest.fixture
     def sut(self) -> type[PluginDefinition]:
         return EntityDefinition
+
+    def test_public_facing(self) -> None:
+        sut = EntityDefinition(
+            public_facing=True,
+            id="-",
+            label=Plain(""),
+            label_plural=Plain(""),
+            label_countable=CountablePlain("", ""),
+        )
+        assert sut.public_facing
 
 
 @pytest.mark.parametrize(

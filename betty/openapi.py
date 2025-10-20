@@ -14,7 +14,6 @@ from betty.locale.localizer import DEFAULT_LOCALIZER
 from betty.project import Project, ProjectSchema
 from betty.serde.dump import Dump, DumpMapping
 from betty.string import kebab_case_to_lower_camel_case
-from betty.user import UserFacing
 
 
 class Specification:
@@ -102,7 +101,7 @@ class Specification:
 
         # Add entity operations.
         for entity_type in self._project.app.entity_type_repository:
-            if not issubclass(entity_type.cls, UserFacing):
+            if not entity_type.public_facing:
                 continue
             await entity_type.cls.linked_data_schema(self._project)
             if self._project.configuration.clean_urls:

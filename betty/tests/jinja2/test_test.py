@@ -13,7 +13,6 @@ from betty.media_type import MediaType
 from betty.media_type.media_types import PDF, SVG
 from betty.model import Entity
 from betty.test_utils.jinja2 import assert_template_string
-from betty.test_utils.model import DummyUserFacingEntityOne
 from betty.test_utils.plugin import (
     ClassedDummyPluginDefinition,
     ClassedDummyPluginOne,
@@ -122,26 +121,6 @@ async def test_test_has_links(expected: str, data: Any) -> None:
 )
 async def test_test_linked_data_dumpable(expected: str, data: Any) -> None:
     template = "{% if data is linked_data_dumpable %}true{% else %}false{% endif %}"
-    async with assert_template_string(
-        template=template,
-        data={
-            "data": data,
-        },
-    ) as (actual, _):
-        assert actual == expected
-
-
-@pytest.mark.parametrize(
-    ("expected", "data"),
-    [
-        ("true", DummyUserFacingEntityOne),
-        ("true", DummyUserFacingEntityOne()),
-        ("false", object),
-        ("false", object()),
-    ],
-)
-async def test_test_user_facing(expected: str, data: Any) -> None:
-    template = "{% if data is user_facing %}true{% else %}false{% endif %}"
     async with assert_template_string(
         template=template,
         data={

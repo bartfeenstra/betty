@@ -13,7 +13,7 @@ from betty.project import Project
 from betty.project.config import EntityTypeConfiguration
 from betty.project.extension.raspberry_mint import RaspberryMint
 from betty.project.generate import generate
-from betty.test_utils.model import DummyUserFacingEntityOne
+from betty.test_utils.model import DummyEntityOne
 from betty.test_utils.project.extension.webpack.build import EntryPointProviderTestBase
 from betty.tests.conftest import check_skip_webpack_entry_point_provider
 
@@ -52,7 +52,7 @@ class TestRaspberryMint(EntryPointProviderTestBase):
         async with (
             new_temporary_app_factory(
                 entity_type_repository=StaticPluginRepository(
-                    EntityDefinition, DummyUserFacingEntityOne.plugin
+                    EntityDefinition, DummyEntityOne.plugin
                 )
             ) as app,
             app,
@@ -60,14 +60,12 @@ class TestRaspberryMint(EntryPointProviderTestBase):
         ):
             project.configuration.extensions.enable(RaspberryMint)
             project.configuration.entity_types.replace(
-                EntityTypeConfiguration(
-                    DummyUserFacingEntityOne, generate_html_list=True
-                )
+                EntityTypeConfiguration(DummyEntityOne, generate_html_list=True)
             )
             async with project:
                 await generate(project)
             assert (
                 project.configuration.www_directory_path
-                / DummyUserFacingEntityOne.plugin.id
+                / DummyEntityOne.plugin.id
                 / "index.html"
             ).is_file()
