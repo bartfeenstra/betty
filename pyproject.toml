@@ -166,6 +166,7 @@ betty = 'betty.console:main_standalone'
 [project.entry-points.'betty.place_type']
 'borough' = 'betty.ancestry.place_type.place_types:Borough.plugin'
 'building' = 'betty.ancestry.place_type.place_types:Building.plugin'
+'cemetery' = 'betty.ancestry.place_type.place_types:Cemetery.plugin'
 'city' = 'betty.ancestry.place_type.place_types:City.plugin'
 'country' = 'betty.ancestry.place_type.place_types:Country.plugin'
 'county' = 'betty.ancestry.place_type.place_types:County.plugin'

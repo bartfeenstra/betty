@@ -34,6 +34,17 @@ class Building(PlaceType):
 
 @final
 @PlaceTypeDefinition(
+    id="cemetery",
+    label=_("Cemetery"),
+)
+class Cemetery(PlaceType):
+    """
+    A cemetery.
+    """
+
+
+@final
+@PlaceTypeDefinition(
     id="city",
     label=_("City"),
 )

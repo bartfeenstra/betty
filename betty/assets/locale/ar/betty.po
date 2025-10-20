@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Betty VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2025-10-20 22:19+0100\n"
+"POT-Creation-Date: 2025-10-20 23:45+0100\n"
 "PO-Revision-Date: 2024-11-30 19:00+0000\n"
 "Last-Translator: Bart Feenstra <bart@bartfeenstra.com>\n"
 "Language: ar\n"
@@ -230,6 +230,9 @@ msgid ""
 msgstr ""
 
 msgid "Celebrant"
+msgstr ""
+
+msgid "Cemetery"
 msgstr ""
 
 msgid "Citation"

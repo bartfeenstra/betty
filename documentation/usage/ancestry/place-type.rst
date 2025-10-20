@@ -11,6 +11,8 @@ Built-in place types
     A `borough <https://en.wikipedia.org/wiki/Borough>`_.
 ``building`` (:py:class:`betty.ancestry.place_type.place_types.Building`)
     A building.
+``cemetery`` (:py:class:`betty.ancestry.place_type.place_types.Cemetery`)
+    A cemetery.
 ``city`` (:py:class:`betty.ancestry.place_type.place_types.City`)
     A `city <https://en.wikipedia.org/wiki/City>`_.
 ``country`` (:py:class:`betty.ancestry.place_type.place_types.Country`)
