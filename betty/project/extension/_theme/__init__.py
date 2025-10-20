@@ -13,6 +13,7 @@ from typing import TYPE_CHECKING, cast
 from typing_extensions import override
 
 from betty.ancestry.event import Event
+from betty.ancestry.event_type.event_types import Birth, Death
 from betty.ancestry.person import Person
 from betty.ancestry.place import Place
 from betty.ancestry.presence_role.presence_roles import Subject
@@ -121,9 +122,15 @@ def _person_timeline_events(person: Person, lifetime_threshold: int) -> Iterable
         assert presence.event.date is not None
         if presence.role.plugin.id != Subject.plugin.id:
             continue
-        if presence.event.event_type.plugin.is_start_of_life:
+        if (
+            presence.event.event_type.plugin.id == Birth.plugin.id
+            or presence.event.event_type.plugin.indicates == Birth.plugin.id
+        ):
             start_dates.append(presence.event.date)
-        if presence.event.event_type.plugin.is_end_of_life:
+        if (
+            presence.event.event_type.plugin.id == Death.plugin.id
+            or presence.event.event_type.plugin.indicates == Death.plugin.id
+        ):
             end_dates.append(presence.event.date)
     start_date = sorted(start_dates)[0] if start_dates else None
     end_date = sorted(end_dates)[0] if end_dates else None
@@ -194,8 +201,13 @@ def _person_timeline_events(person: Person, lifetime_threshold: int) -> Iterable
             # For associated events, we are only interested in people's start- or end-of-life events.
             for associated_presence in associated_person.presences:
                 if (
-                    not associated_presence.event.event_type.plugin.is_start_of_life
-                    or associated_presence.event.event_type.plugin.is_end_of_life
+                    associated_presence.event.event_type.plugin.id != Birth.plugin.id
+                    and associated_presence.event.event_type.plugin.id
+                    != Birth.plugin.id
+                    and associated_presence.event.event_type.plugin.id
+                    != Death.plugin.id
+                    and associated_presence.event.event_type.plugin.indicates
+                    != Death.plugin.id
                 ):
                     continue
                 if not persistent_id(associated_presence.event):

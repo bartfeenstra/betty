@@ -4,7 +4,7 @@ Provide Betty's ancestry event types.
 
 from __future__ import annotations
 
-from typing import Any, ClassVar, final
+from typing import TYPE_CHECKING, Any, ClassVar, final
 
 from betty.locale.localizable import _
 from betty.mutability import Mutable
@@ -13,8 +13,13 @@ from betty.plugin import (
     ClassedPluginDefinition,
     ClassedPluginTypeDefinition,
     OrderedPluginDefinition,
+    PluginIdentifier,
     UserFacingPluginDefinition,
+    resolve_identifier,
 )
+
+if TYPE_CHECKING:
+    from betty.machine_name import MachineName
 
 
 class EventType(Mutable, ClassedPlugin):
@@ -46,24 +51,15 @@ class EventTypeDefinition(
     def __init__(
         self,
         *,
-        is_start_of_life: bool = False,
-        is_end_of_life: bool = False,
+        indicates: PluginIdentifier[EventTypeDefinition, EventType] | None = None,
         **kwargs: Any,
     ):
         super().__init__(**kwargs)
-        self._is_start_of_life = is_start_of_life
-        self._is_end_of_life = is_end_of_life
+        self._indicates = None if indicates is None else resolve_identifier(indicates)
 
     @property
-    def is_start_of_life(self) -> bool:
+    def indicates(self) -> MachineName | None:
         """
-        Whether events of this type indicate the start of a person's life.
+        Return whether events of this type (approximately) indicate that an event of the retuned type has happened.
         """
-        return self._is_start_of_life
-
-    @property
-    def is_end_of_life(self) -> bool:
-        """
-        Whether events of this type indicate the end of a person's life.
-        """
-        return self._is_end_of_life
+        return self._indicates

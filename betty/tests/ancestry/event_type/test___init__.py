@@ -13,10 +13,7 @@ class TestEventTypeDefinition(PluginDefinitionClassTestBase):
     def sut(self) -> type[PluginDefinition]:
         return EventTypeDefinition
 
-    def test_is_start_of_life(self) -> None:
-        sut = EventTypeDefinition(is_start_of_life=True, id="-", label=Plain(""))
-        assert sut.is_start_of_life
-
-    def test_is_end_of_life(self) -> None:
-        sut = EventTypeDefinition(is_end_of_life=True, id="-", label=Plain(""))
-        assert sut.is_end_of_life
+    def test_indicates(self) -> None:
+        indicates = "my-other-event-type"
+        sut = EventTypeDefinition(indicates=indicates, id="-", label=Plain(""))
+        assert sut.indicates == indicates
