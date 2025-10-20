@@ -22,7 +22,6 @@ from betty.plugin import ClassedPluginTypeDefinition, PluginDefinition
 from betty.privacy import is_private, is_public
 from betty.string import kebab_case_to_snake_case
 from betty.typing import internal
-from betty.user import UserFacing
 
 if TYPE_CHECKING:
     from collections.abc import Callable, Mapping
@@ -64,17 +63,6 @@ class PluginTester:
         if plugin_id is not None and value.plugin.id != plugin_id:  # type: ignore[attr-defined]
             return False
         return True
-
-
-def test_user_facing(value: Any) -> bool:
-    """
-    Test if a value is of a user-facing type.
-    """
-    return (
-        isinstance(value, UserFacing)
-        or isinstance(value, type)
-        and issubclass(value, UserFacing)
-    )
 
 
 def test_has_links(value: Any) -> bool:
@@ -121,7 +109,6 @@ async def tests() -> Mapping[str, Callable[..., bool]]:
         "linked_data_dumpable": test_linked_data_dumpable,
         "private": is_private,
         "public": is_public,
-        "user_facing": test_user_facing,
         **(PluginTester(CopyrightNoticeDefinition.type)).tests(),
         **(PluginTester(EntityDefinition.type)).tests(),
         **(PluginTester(EventTypeDefinition.type)).tests(),

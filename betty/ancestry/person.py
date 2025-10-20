@@ -20,7 +20,6 @@ from betty.locale.localizable import Localizable, _, ngettext
 from betty.model import EntityDefinition, ToManySchema, persistent_id
 from betty.model.association import BidirectionalToManySingleType, ToManyAssociates
 from betty.privacy import HasPrivacy, Privacy
-from betty.user import UserFacing
 
 if TYPE_CHECKING:
     from collections.abc import Iterable, Iterator, MutableSequence
@@ -44,9 +43,7 @@ if TYPE_CHECKING:
     label_plural=_("People"),
     label_countable=ngettext("{count} person", "{count} people"),
 )
-class Person(
-    HasFileReferences, HasCitations, HasNotes, HasLinks, HasPrivacy, UserFacing
-):
+class Person(HasFileReferences, HasCitations, HasNotes, HasLinks, HasPrivacy):
     """
     A person.
     """

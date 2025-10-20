@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Betty 0.4\n"
 "Report-Msgid-Bugs-To: illia@maier.page\n"
-"POT-Creation-Date: 2025-10-15 22:46+0100\n"
+"POT-Creation-Date: 2025-10-20 22:19+0100\n"
 "PO-Revision-Date: 2025-05-13 17:01+0000\n"
 "Last-Translator: Максим Горпиніч <maksimgorpinic4@gmail.com>\n"
 "Language: uk\n"
@@ -235,11 +235,9 @@ msgstr "Не вдалося знайти та імпортувати \"{plugin_i
 
 #, python-brace-format
 msgid ""
-"Cannot generate pages for {entity_type}, because it is not a user-facing "
-"entity type."
+"Cannot generate pages for {entity_type}, because it is not a public-"
+"facing entity type."
 msgstr ""
-"Неможливо згенерувати сторінки для {entity_type}, оскільки це тип "
-"сутності, що не призначений для користувачів."
 
 #, python-brace-format
 msgid ""

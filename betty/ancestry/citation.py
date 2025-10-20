@@ -21,7 +21,6 @@ from betty.model.association import (
     ToOneAssociate,
 )
 from betty.privacy import HasPrivacy, Privacy, is_public, merge_secondary_privacies
-from betty.user import UserFacing
 
 if TYPE_CHECKING:
     from betty.ancestry.file_reference import FileReference
@@ -40,7 +39,7 @@ if TYPE_CHECKING:
     label_plural=_("Citations"),
     label_countable=ngettext("{count} citation", "{count} citations"),
 )
-class Citation(HasDate, HasFileReferences, HasPrivacy, HasLinks, UserFacing):
+class Citation(HasDate, HasFileReferences, HasPrivacy, HasLinks):
     """
     A citation (a reference to a source).
     """

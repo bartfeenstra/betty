@@ -41,7 +41,7 @@ from betty.project.extension import Extension, ExtensionDefinition
 from betty.test_utils.config import DummyConfiguration
 from betty.test_utils.config.collections.mapping import ConfigurationMappingTestBase
 from betty.test_utils.exception import raises_error
-from betty.test_utils.model import DummyEntityOne, DummyUserFacingEntityOne
+from betty.test_utils.model import DummyEntityOne, DummyNonPublicFacingEntityOne
 from betty.test_utils.plugin.config import PluginConfigurationMappingTestBase
 from betty.test_utils.project.extension import (
     DummyConfigurableExtension,
@@ -310,12 +310,12 @@ class TestExtensionInstanceConfigurationMapping(
 
 class TestEntityTypeConfiguration:
     async def test_id__with___init___entity_type(self) -> None:
-        entity_type = DummyUserFacingEntityOne
+        entity_type = DummyEntityOne
         sut = EntityTypeConfiguration(entity_type)
         assert sut.id == entity_type.plugin.id
 
     async def test_id__with___init___entity_type_id(self) -> None:
-        entity_type_id = DummyUserFacingEntityOne.plugin.id
+        entity_type_id = DummyEntityOne.plugin.id
         sut = EntityTypeConfiguration(entity_type_id)
         assert sut.id == entity_type_id
 
@@ -327,21 +327,21 @@ class TestEntityTypeConfiguration:
         ],
     )
     async def test_generate_html_list(self, generate_html_list: bool) -> None:
-        sut = EntityTypeConfiguration(DummyUserFacingEntityOne)
+        sut = EntityTypeConfiguration(DummyEntityOne)
         sut.generate_html_list = generate_html_list
         assert sut.generate_html_list == generate_html_list
 
     async def test_load__with_empty_configuration(self) -> None:
         dump: Dump = {}
-        sut = EntityTypeConfiguration(DummyUserFacingEntityOne)
+        sut = EntityTypeConfiguration(DummyEntityOne)
         with raises_error(error_type=UserFacingException):
             sut.load(dump)
 
     def test_load__with_minimal_configuration(self) -> None:
         dump: Dump = {
-            "id": DummyUserFacingEntityOne.plugin.id,
+            "id": DummyEntityOne.plugin.id,
         }
-        sut = EntityTypeConfiguration(DummyUserFacingEntityOne)
+        sut = EntityTypeConfiguration(DummyEntityOne)
         sut.load(dump)
 
     @pytest.mark.parametrize(
@@ -353,38 +353,40 @@ class TestEntityTypeConfiguration:
     )
     def test_load__with_generate_html_list(self, generate_html_list: bool) -> None:
         dump: Dump = {
-            "id": DummyUserFacingEntityOne.plugin.id,
+            "id": DummyEntityOne.plugin.id,
             "generate_html_list": generate_html_list,
         }
-        sut = EntityTypeConfiguration(DummyUserFacingEntityOne)
+        sut = EntityTypeConfiguration(DummyEntityOne)
         sut.load(dump)
         assert sut.generate_html_list == generate_html_list
 
     async def test_dump__with_minimal_configuration(self) -> None:
-        sut = EntityTypeConfiguration(DummyUserFacingEntityOne)
+        sut = EntityTypeConfiguration(DummyEntityOne)
         expected = {
-            "id": DummyUserFacingEntityOne.plugin.id,
+            "id": DummyEntityOne.plugin.id,
             "generate_html_list": False,
         }
         assert sut.dump() == expected
 
     async def test_dump__with_generate_html_list(self) -> None:
-        sut = EntityTypeConfiguration(
-            DummyUserFacingEntityOne, generate_html_list=False
-        )
+        sut = EntityTypeConfiguration(DummyEntityOne, generate_html_list=False)
         expected = {
-            "id": DummyUserFacingEntityOne.plugin.id,
+            "id": DummyEntityOne.plugin.id,
             "generate_html_list": False,
         }
         assert sut.dump() == expected
 
-    async def test_validate__with_generate_html_list_without_user_facing_entity_type_should_error(
+    async def test_validate__with_generate_html_list_with_non_public_facing_entity_type_should_error(
         self,
     ) -> None:
-        sut = EntityTypeConfiguration(DummyEntityOne, generate_html_list=True)
+        sut = EntityTypeConfiguration(
+            DummyNonPublicFacingEntityOne, generate_html_list=True
+        )
         with pytest.raises(UserFacingException):
             await sut.validate(
-                StaticPluginRepository(EntityDefinition, DummyEntityOne.plugin)
+                StaticPluginRepository(
+                    EntityDefinition, DummyNonPublicFacingEntityOne.plugin
+                )
             )
 
 
@@ -466,11 +468,17 @@ class TestEntityTypeConfigurationMapping(
 
     async def test_validate__with_item_error_should_error(self) -> None:
         sut = EntityTypeConfigurationMapping(
-            [EntityTypeConfiguration(DummyEntityOne, generate_html_list=True)]
+            [
+                EntityTypeConfiguration(
+                    DummyNonPublicFacingEntityOne, generate_html_list=True
+                )
+            ]
         )
         with pytest.raises(UserFacingException):
             await sut.validate(
-                StaticPluginRepository(EntityDefinition, DummyEntityOne.plugin)
+                StaticPluginRepository(
+                    EntityDefinition, DummyNonPublicFacingEntityOne.plugin
+                )
             )
 
 

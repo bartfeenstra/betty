@@ -24,12 +24,6 @@ if TYPE_CHECKING:
 _T = TypeVar("_T")
 
 
-class UserFacing:
-    """
-    A sentinel to mark something as being visible to users (e.g. not internal).
-    """
-
-
 class Verbosity(IntEnum):
     """
     User interaction verbosity.

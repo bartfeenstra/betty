@@ -21,7 +21,6 @@ from betty.ancestry.place import Place
 from betty.model import Entity
 from betty.privacy import is_private
 from betty.typing import internal
-from betty.user import UserFacing
 
 if TYPE_CHECKING:
     from collections.abc import Iterable, Mapping, Sequence
@@ -195,7 +194,7 @@ class Index:
                         _FallbackIndexer(self._project), entity_type.cls
                     )
                     for entity_type in self._project.app.entity_type_repository
-                    if issubclass(entity_type.cls, UserFacing)
+                    if entity_type.public_facing
                     and entity_type.cls not in specialized_indexers
                 ],
             )

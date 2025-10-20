@@ -23,7 +23,6 @@ from betty.locale.localizable import CountableLocalizable, Join, _, do_you_mean
 from betty.locale.localizer import DEFAULT_LOCALIZER
 from betty.machine_name import InvalidMachineName, MachineName, validate_machine_name
 from betty.string import kebab_case_to_lower_camel_case
-from betty.user import UserFacing
 
 if TYPE_CHECKING:
     import builtins
@@ -141,7 +140,7 @@ class ClassedPluginTypeDefinition(PluginTypeDefinition):
         return self._cls
 
 
-class UserFacingPluginDefinition(UserFacing, PluginDefinition):
+class UserFacingPluginDefinition(PluginDefinition):
     """
     A definition of a plugin that is user-facing.
     """

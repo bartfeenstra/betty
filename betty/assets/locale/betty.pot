@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Betty VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2025-10-15 22:46+0100\n"
+"POT-Creation-Date: 2025-10-20 22:19+0100\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -204,8 +204,8 @@ msgstr ""
 
 #, python-brace-format
 msgid ""
-"Cannot generate pages for {entity_type}, because it is not a user-facing "
-"entity type."
+"Cannot generate pages for {entity_type}, because it is not a public-facing"
+" entity type."
 msgstr ""
 
 #, python-brace-format

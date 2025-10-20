@@ -31,6 +31,7 @@ if TYPE_CHECKING:
     label=_("Presence"),
     label_plural=_("Presences"),
     label_countable=ngettext("{count} presence", "{count} presences"),
+    public_facing=False,
 )
 class Presence(HasPrivacy, Entity):
     """

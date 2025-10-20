@@ -44,6 +44,7 @@ class TestHasCitations:
         [
             (
                 {
+                    "@id": "https://example.com/dummy-has-citations/my-first-has-citations/index.json",
                     "id": "my-first-has-citations",
                     "citations": [],
                 },
@@ -51,6 +52,7 @@ class TestHasCitations:
             ),
             (
                 {
+                    "@id": "https://example.com/dummy-has-citations/my-first-has-citations/index.json",
                     "id": "my-first-has-citations",
                     "citations": [],
                 },
@@ -60,6 +62,7 @@ class TestHasCitations:
             ),
             (
                 {
+                    "@id": "https://example.com/dummy-has-citations/my-first-has-citations/index.json",
                     "id": "my-first-has-citations",
                     "citations": ["/citation/my-first-citation/index.json"],
                 },

@@ -13,7 +13,6 @@ from betty.media_type.media_types import HTML
 from betty.model import EntityDefinition
 from betty.test_utils.json.linked_data import assert_dumps_linked_data
 from betty.test_utils.model import EntityDefinitionTestBase
-from betty.user import UserFacing
 
 if TYPE_CHECKING:
     from collections.abc import Mapping
@@ -24,12 +23,12 @@ import pytest
 
 
 @EntityDefinition(
-    id="dummy-user-facing-has-links",
+    id="dummy-has-links",
     label=Plain(""),
     label_plural=Plain(""),
     label_countable=CountablePlain("", ""),
 )
-class DummyUserFacingHasLinks(UserFacing, HasLinks):
+class DummyHasLinks(HasLinks):
     pass
 
 
@@ -52,7 +51,7 @@ class TestLink:
         assert sut.owner is None
 
     def test_owner__with_owner(self) -> None:
-        owner = DummyUserFacingHasLinks()
+        owner = DummyHasLinks()
         sut = Link("https://example.com", owner=owner)
         assert sut.owner is owner
 
@@ -104,7 +103,7 @@ class TestLink:
         assert actual == expected
 
     async def test_dump_linked_data__should_dump_full(self) -> None:
-        owner = DummyUserFacingHasLinks(id="O1")
+        owner = DummyHasLinks(id="O1")
         link = Link(
             "https://example.com",
             label=Plain("The Label"),
@@ -127,14 +126,14 @@ class TestLink:
                 DEFAULT_LOCALE: "The Description",
             },
             "mediaType": "text/html",
-            "owner": "/dummy-user-facing-has-links/O1/index.json",
+            "owner": "/dummy-has-links/O1/index.json",
             "private": False,
         }
         actual = await assert_dumps_linked_data(link)
         assert actual == expected
 
     async def test_dump_linked_data__should_dump_private(self) -> None:
-        owner = DummyUserFacingHasLinks(id="O1")
+        owner = DummyHasLinks(id="O1")
         link = Link(
             "https://example.com",
             label=Plain("The Label"),
@@ -147,7 +146,7 @@ class TestLink:
         expected: Mapping[str, Any] = {
             "@context": {"description": "https://schema.org/description"},
             "id": link.id,
-            "owner": "/dummy-user-facing-has-links/O1/index.json",
+            "owner": "/dummy-has-links/O1/index.json",
             "private": True,
         }
         actual = await assert_dumps_linked_data(link)

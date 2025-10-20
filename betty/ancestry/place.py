@@ -20,7 +20,6 @@ from betty.locale.localizable import Localizable, _, ngettext
 from betty.model import EntityDefinition
 from betty.model.association import BidirectionalToManySingleType, ToManyAssociates
 from betty.privacy import HasPrivacy
-from betty.user import UserFacing
 
 if TYPE_CHECKING:
     from collections.abc import Iterable, Iterator, MutableSequence
@@ -45,7 +44,7 @@ if TYPE_CHECKING:
     label_plural=_("Places"),
     label_countable=ngettext("{count} place", "{count} places"),
 )
-class Place(HasLinks, HasFileReferences, HasNotes, HasPrivacy, UserFacing):
+class Place(HasLinks, HasFileReferences, HasNotes, HasPrivacy):
     """
     A place.
 

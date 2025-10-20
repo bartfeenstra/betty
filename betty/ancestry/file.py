@@ -17,7 +17,6 @@ from betty.locale.localizable import Localizable, _, ngettext
 from betty.model import EntityDefinition
 from betty.model.association import BidirectionalToManyMultipleTypes, ToManyAssociates
 from betty.privacy import HasPrivacy, Privacy
-from betty.user import UserFacing
 
 if TYPE_CHECKING:
     from collections.abc import Iterable, MutableSequence
@@ -50,7 +49,6 @@ class File(
     HasMediaType,
     HasNotes,
     HasCitations,
-    UserFacing,
 ):
     """
     A file on disk.

@@ -38,6 +38,7 @@ if TYPE_CHECKING:
     label=_("Link"),
     label_plural=_("Links"),
     label_countable=ngettext("{count} link", "{count} links"),
+    public_facing=False,
 )
 class Link(StdLink, HasMediaType, HasDescription, HasPrivacy, Entity):
     """

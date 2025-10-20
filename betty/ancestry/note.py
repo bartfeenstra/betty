@@ -18,7 +18,6 @@ from betty.locale.localizable import (
 from betty.model import Entity, EntityDefinition
 from betty.model.association import BidirectionalToZeroOrOne, ToZeroOrOneAssociate
 from betty.privacy import HasPrivacy, Privacy, is_public
-from betty.user import UserFacing
 
 if TYPE_CHECKING:
     from betty.ancestry.has_notes import HasNotes
@@ -34,7 +33,7 @@ if TYPE_CHECKING:
     label_plural=_("Notes"),
     label_countable=ngettext("{count} note", "{count} notes"),
 )
-class Note(UserFacing, HasPrivacy, HasLinks, Entity):
+class Note(HasPrivacy, HasLinks, Entity):
     """
     A note is a bit of textual information that can be associated with another entity.
     """

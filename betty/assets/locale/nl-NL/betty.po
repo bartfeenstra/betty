@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PROJECT VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2025-10-15 22:46+0100\n"
+"POT-Creation-Date: 2025-10-20 22:19+0100\n"
 "PO-Revision-Date: 2025-05-17 01:43+0000\n"
 "Last-Translator: Bart Feenstra <bart@bartfeenstra.com>\n"
 "Language: nl_NL\n"
@@ -238,11 +238,9 @@ msgstr "Kan plugin \"{plugin_id}\" niet vinden en importeren."
 
 #, python-brace-format
 msgid ""
-"Cannot generate pages for {entity_type}, because it is not a user-facing "
-"entity type."
+"Cannot generate pages for {entity_type}, because it is not a public-"
+"facing entity type."
 msgstr ""
-"Kan geen pagina's genereren voor {entity_type}, omdat het entiteitstype "
-"niet zichtbaar is voor gebruikers."
 
 #, python-brace-format
 msgid ""

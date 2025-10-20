@@ -62,7 +62,6 @@ from betty.plugin.config import (
 from betty.project.extension import Extension, ExtensionDefinition
 from betty.repr import repr_instance
 from betty.serde.format import FORMAT_REPOSITORY, format_for
-from betty.user import UserFacing
 
 if TYPE_CHECKING:
     from pathlib import Path
@@ -160,10 +159,10 @@ class EntityTypeConfiguration(Configuration):
         Validate the configuration.
         """
         entity_type = entity_type_repository[self.id]
-        if self.generate_html_list and not issubclass(entity_type.cls, UserFacing):
+        if self.generate_html_list and not entity_type.public_facing:
             raise UserFacingException(
                 _(
-                    "Cannot generate pages for {entity_type}, because it is not a user-facing entity type."
+                    "Cannot generate pages for {entity_type}, because it is not a public-facing entity type."
                 ).format(entity_type=entity_type.label)
             )
 

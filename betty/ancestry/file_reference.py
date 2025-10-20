@@ -22,6 +22,7 @@ if TYPE_CHECKING:
     label=_("File reference"),
     label_plural=_("File references"),
     label_countable=ngettext("{count} file reference", "{count} file references"),
+    public_facing=False,
 )
 class FileReference(Entity):
     """

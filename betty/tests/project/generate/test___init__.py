@@ -4,16 +4,10 @@ import aiofiles
 
 from betty.ancestry.person import Person
 from betty.app import App
-from betty.model import Entity
 from betty.project import Project
 from betty.project.config import LocaleConfiguration
 from betty.project.generate import generate
 from betty.test_utils.jinja2 import assert_betty_html
-from betty.user import UserFacing
-
-
-class ThirdPartyEntity(UserFacing, Entity):
-    pass
 
 
 async def test_generate__html_lang(new_temporary_app: App) -> None:
