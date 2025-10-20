@@ -12,9 +12,9 @@ from betty.plugin import (
     ClassedPlugin,
     ClassedPluginDefinition,
     ClassedPluginTypeDefinition,
+    HumanFacingPluginDefinition,
     OrderedPluginDefinition,
     PluginIdentifier,
-    UserFacingPluginDefinition,
     resolve_identifier,
 )
 
@@ -32,7 +32,7 @@ class EventType(Mutable, ClassedPlugin):
 
 @final
 class EventTypeDefinition(
-    UserFacingPluginDefinition,
+    HumanFacingPluginDefinition,
     OrderedPluginDefinition,
     ClassedPluginDefinition[EventType],
 ):

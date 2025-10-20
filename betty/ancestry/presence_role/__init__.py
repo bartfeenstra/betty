@@ -11,7 +11,7 @@ from betty.mutability import Mutable
 from betty.plugin import (
     ClassedPluginDefinition,
     ClassedPluginTypeDefinition,
-    UserFacingPluginDefinition,
+    HumanFacingPluginDefinition,
 )
 
 
@@ -27,7 +27,7 @@ class PresenceRole(Mutable):
 
 @final
 class PresenceRoleDefinition(
-    UserFacingPluginDefinition, ClassedPluginDefinition[PresenceRole]
+    HumanFacingPluginDefinition, ClassedPluginDefinition[PresenceRole]
 ):
     """
     A presence role definition.

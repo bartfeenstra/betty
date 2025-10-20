@@ -13,7 +13,7 @@ from betty.plugin import (
     ClassedPlugin,
     ClassedPluginDefinition,
     ClassedPluginTypeDefinition,
-    UserFacingPluginDefinition,
+    HumanFacingPluginDefinition,
 )
 
 if TYPE_CHECKING:
@@ -55,7 +55,7 @@ class CopyrightNotice(Mutable, ClassedPlugin):
 
 @final
 class CopyrightNoticeDefinition(
-    UserFacingPluginDefinition, ClassedPluginDefinition[CopyrightNotice]
+    HumanFacingPluginDefinition, ClassedPluginDefinition[CopyrightNotice]
 ):
     """
     A copyright notice definition.

@@ -6,12 +6,12 @@ from __future__ import annotations
 
 from betty.test_utils.plugin import (
     ClassedPluginDefinitionTestBase,
-    UserFacingPluginDefinitionTestBase,
+    HumanFacingPluginDefinitionTestBase,
 )
 
 
 class PresenceRoleDefinitionTestBase(
-    UserFacingPluginDefinitionTestBase,
+    HumanFacingPluginDefinitionTestBase,
     ClassedPluginDefinitionTestBase,
 ):
     """

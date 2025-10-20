@@ -12,7 +12,7 @@ from betty.locale.localizable import _
 from betty.plugin import (
     ClassedPluginDefinition,
     ClassedPluginTypeDefinition,
-    UserFacingPluginDefinition,
+    HumanFacingPluginDefinition,
 )
 
 if TYPE_CHECKING:
@@ -45,7 +45,7 @@ class Command:
 
 
 @final
-class CommandDefinition(UserFacingPluginDefinition, ClassedPluginDefinition[Command]):
+class CommandDefinition(HumanFacingPluginDefinition, ClassedPluginDefinition[Command]):
     """
     A console command definition.
 

@@ -11,7 +11,7 @@ from betty.mutability import Mutable
 from betty.plugin import (
     ClassedPluginDefinition,
     ClassedPluginTypeDefinition,
-    UserFacingPluginDefinition,
+    HumanFacingPluginDefinition,
 )
 
 
@@ -27,7 +27,7 @@ class PlaceType(Mutable):
 
 @final
 class PlaceTypeDefinition(
-    UserFacingPluginDefinition, ClassedPluginDefinition[PlaceType]
+    HumanFacingPluginDefinition, ClassedPluginDefinition[PlaceType]
 ):
     """
     A place type definition.

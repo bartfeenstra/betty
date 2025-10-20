@@ -11,7 +11,7 @@ from betty.mutability import Mutable
 from betty.plugin import (
     ClassedPluginDefinition,
     ClassedPluginTypeDefinition,
-    UserFacingPluginDefinition,
+    HumanFacingPluginDefinition,
 )
 
 
@@ -26,7 +26,7 @@ class Gender(Mutable):
 
 
 @final
-class GenderDefinition(UserFacingPluginDefinition, ClassedPluginDefinition[Gender]):
+class GenderDefinition(HumanFacingPluginDefinition, ClassedPluginDefinition[Gender]):
     """
     A gender definition.
 

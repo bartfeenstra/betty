@@ -16,12 +16,12 @@ from betty.machine_name import assert_machine_name
 from betty.plugin import (
     ClassedPluginDefinition,
     ClassedPluginTypeDefinition,
-    CountableUserFacingPluginDefinition,
+    CountableHumanFacingPluginDefinition,
     DependentPluginDefinition,
+    HumanFacingPluginDefinition,
     OrderedPluginDefinition,
     PluginDefinition,
     PluginTypeDefinition,
-    UserFacingPluginDefinition,
 )
 from betty.test_utils.config import DummyConfiguration
 
@@ -76,33 +76,33 @@ class PluginDefinitionTestBase:
         assert_machine_name()(sut.id)
 
 
-class UserFacingPluginDefinitionTestBase(PluginDefinitionTestBase):
+class HumanFacingPluginDefinitionTestBase(PluginDefinitionTestBase):
     """
-    A base class for testing :py:class:`betty.plugin.UserFacingPluginDefinition` subclasses.
+    A base class for testing :py:class:`betty.plugin.HumanFacingPluginDefinition` subclasses.
     """
 
-    def test_label(self, sut: UserFacingPluginDefinition) -> None:
+    def test_label(self, sut: HumanFacingPluginDefinition) -> None:
         """
-        Tests the :py:attr:`betty.plugin.UserFacingPluginDefinition.label` value.
+        Tests the :py:attr:`betty.plugin.HumanFacingPluginDefinition.label` value.
         """
         assert sut.label.localize(DEFAULT_LOCALIZER)
 
-    def test_description(self, sut: UserFacingPluginDefinition) -> None:
+    def test_description(self, sut: HumanFacingPluginDefinition) -> None:
         """
-        Tests the :py:attr:`betty.plugin.UserFacingPluginDefinition.label` value.
+        Tests the :py:attr:`betty.plugin.HumanFacingPluginDefinition.label` value.
         """
         if sut.description is not None:
             assert sut.description.localize(DEFAULT_LOCALIZER)
 
 
-class CountableUserFacingPluginDefinitionTestBase(UserFacingPluginDefinitionTestBase):
+class CountableHumanFacingPluginDefinitionTestBase(HumanFacingPluginDefinitionTestBase):
     """
-    A base class for testing :py:class:`betty.plugin.CountableUserFacingPluginDefinition` subclasses.
+    A base class for testing :py:class:`betty.plugin.CountableHumanFacingPluginDefinition` subclasses.
     """
 
-    def test_label_plural(self, sut: CountableUserFacingPluginDefinition) -> None:
+    def test_label_plural(self, sut: CountableHumanFacingPluginDefinition) -> None:
         """
-        Tests the :py:attr:`betty.plugin.CountableUserFacingPluginDefinition.label_plural` value.
+        Tests the :py:attr:`betty.plugin.CountableHumanFacingPluginDefinition.label_plural` value.
         """
         assert sut.label_plural.localize(DEFAULT_LOCALIZER)
 
@@ -111,10 +111,10 @@ class CountableUserFacingPluginDefinitionTestBase(UserFacingPluginDefinitionTest
         range(9),
     )
     def test_label_countable(
-        self, sut: CountableUserFacingPluginDefinition, count: int
+        self, sut: CountableHumanFacingPluginDefinition, count: int
     ) -> None:
         """
-        Tests the :py:attr:`betty.plugin.CountableUserFacingPluginDefinition.label_countable` value.
+        Tests the :py:attr:`betty.plugin.CountableHumanFacingPluginDefinition.label_countable` value.
         """
         assert sut.label_countable.count(count).localize(DEFAULT_LOCALIZER)
 

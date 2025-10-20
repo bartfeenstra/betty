@@ -8,12 +8,12 @@ from betty.serde.dump import Dump
 from betty.serde.format import Format
 from betty.test_utils.plugin import (
     ClassedPluginDefinitionTestBase,
-    UserFacingPluginDefinitionTestBase,
+    HumanFacingPluginDefinitionTestBase,
 )
 
 
 class FormatDefinitionTestBase(
-    UserFacingPluginDefinitionTestBase, ClassedPluginDefinitionTestBase
+    HumanFacingPluginDefinitionTestBase, ClassedPluginDefinitionTestBase
 ):
     """
     A base class for testing :py:class:`betty.serde.format.FormatDefinition` subclasses.
