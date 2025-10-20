@@ -4,6 +4,7 @@ from typing_extensions import override
 from betty.ancestry.place_type.place_types import (
     Borough,
     Building,
+    Cemetery,
     City,
     Country,
     County,
@@ -40,6 +41,13 @@ class TestBuilding(PlaceTypeDefinitionTestBase):
     @pytest.fixture
     def sut(self) -> PluginDefinition:
         return Building.plugin
+
+
+class TestCemetery(PlaceTypeDefinitionTestBase):
+    @override
+    @pytest.fixture
+    def sut(self) -> PluginDefinition:
+        return Cemetery.plugin
 
 
 class TestCity(PlaceTypeDefinitionTestBase):
