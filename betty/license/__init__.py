@@ -13,7 +13,7 @@ from betty.plugin import (
     ClassedPlugin,
     ClassedPluginDefinition,
     ClassedPluginTypeDefinition,
-    UserFacingPluginDefinition,
+    HumanFacingPluginDefinition,
 )
 
 if TYPE_CHECKING:
@@ -54,7 +54,7 @@ class License(Mutable, ClassedPlugin):
 
 
 @final
-class LicenseDefinition(UserFacingPluginDefinition, ClassedPluginDefinition[License]):
+class LicenseDefinition(HumanFacingPluginDefinition, ClassedPluginDefinition[License]):
     """
     A license definition.
 

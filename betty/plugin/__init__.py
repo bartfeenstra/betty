@@ -140,9 +140,9 @@ class ClassedPluginTypeDefinition(PluginTypeDefinition):
         return self._cls
 
 
-class UserFacingPluginDefinition(PluginDefinition):
+class HumanFacingPluginDefinition(PluginDefinition):
     """
-    A definition of a plugin that is user-facing.
+    A definition of a plugin that is human-facing.
     """
 
     def __init__(
@@ -171,9 +171,9 @@ class UserFacingPluginDefinition(PluginDefinition):
         return self._description
 
 
-class CountableUserFacingPluginDefinition(UserFacingPluginDefinition):
+class CountableHumanFacingPluginDefinition(HumanFacingPluginDefinition):
     """
-    A definition of a plugin that is user-facing, and of which instances are countable.
+    A definition of a plugin that is human-facing, and of which instances are countable.
     """
 
     def __init__(

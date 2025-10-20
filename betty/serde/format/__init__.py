@@ -15,7 +15,7 @@ from betty.locale.localized import Localized, LocalizedStr
 from betty.plugin import (
     ClassedPluginDefinition,
     ClassedPluginTypeDefinition,
-    UserFacingPluginDefinition,
+    HumanFacingPluginDefinition,
 )
 from betty.plugin.static import StaticPluginRepository
 
@@ -65,7 +65,7 @@ class Format:
 
 
 @final
-class FormatDefinition(UserFacingPluginDefinition, ClassedPluginDefinition[Format]):
+class FormatDefinition(HumanFacingPluginDefinition, ClassedPluginDefinition[Format]):
     """
     A (de)serialization format definition.
     """

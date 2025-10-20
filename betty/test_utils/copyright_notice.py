@@ -11,7 +11,7 @@ import pytest
 from betty.locale.localizer import DEFAULT_LOCALIZER
 from betty.test_utils.plugin import (
     ClassedPluginDefinitionTestBase,
-    UserFacingPluginDefinitionTestBase,
+    HumanFacingPluginDefinitionTestBase,
 )
 
 if TYPE_CHECKING:
@@ -19,7 +19,7 @@ if TYPE_CHECKING:
 
 
 class CopyrightNoticeDefinitionTestBase(
-    UserFacingPluginDefinitionTestBase,
+    HumanFacingPluginDefinitionTestBase,
     ClassedPluginDefinitionTestBase,
 ):
     """

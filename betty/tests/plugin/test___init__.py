@@ -10,15 +10,15 @@ from betty.plugin import (
     ClassedPlugin,
     ClassedPluginDefinition,
     ClassedPluginTypeDefinition,
-    CountableUserFacingPluginDefinition,
+    CountableHumanFacingPluginDefinition,
     CyclicDependencyError,
     DependentPluginDefinition,
+    HumanFacingPluginDefinition,
     OrderedPluginDefinition,
     PluginDefinition,
     PluginNotFound,
     PluginRepository,
     PluginTypeDefinition,
-    UserFacingPluginDefinition,
     expand_plugin_dependencies,
     get_comes_after,
     get_comes_before,
@@ -523,10 +523,10 @@ class TestClassedPluginDefinition:
         assert sut.cls is _Cls
 
 
-class TestCountableUserFacingPluginDefinition:
+class TestCountableHumanFacingPluginDefinition:
     def test_label_plural(self) -> None:
         label_plural = Plain("")
-        sut = CountableUserFacingPluginDefinition(
+        sut = CountableHumanFacingPluginDefinition(
             label_plural=label_plural,
             label_countable=CountablePlain("", ""),
             id="my-first-plugin",
@@ -536,7 +536,7 @@ class TestCountableUserFacingPluginDefinition:
 
     def test_label_countable(self) -> None:
         label_countable = CountablePlain("", "")
-        sut = CountableUserFacingPluginDefinition(
+        sut = CountableHumanFacingPluginDefinition(
             label_countable=label_countable,
             label_plural=Plain(""),
             id="my-first-plugin",
@@ -574,15 +574,15 @@ class TestPluginDefinition:
         assert sut.id == id
 
 
-class TestUserFacingPluginDefinition:
+class TestHumanFacingPluginDefinition:
     def test_label(self) -> None:
         label = Plain("")
-        sut = UserFacingPluginDefinition(label=label, id="my-first-plugin")
+        sut = HumanFacingPluginDefinition(label=label, id="my-first-plugin")
         assert sut.label is label
 
     def test_description(self) -> None:
         description = Plain("")
-        sut = UserFacingPluginDefinition(
+        sut = HumanFacingPluginDefinition(
             description=description, id="my-first-plugin", label=Plain("")
         )
         assert sut.description is description

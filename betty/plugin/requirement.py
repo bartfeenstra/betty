@@ -11,7 +11,7 @@ from betty.plugin import (
     ClassedPluginDefinition,
     CyclicDependencyError,
     DependentPluginDefinition,
-    UserFacingPluginDefinition,
+    HumanFacingPluginDefinition,
     resolve_identifier,
 )
 from betty.requirement import AllRequirements
@@ -60,13 +60,13 @@ async def new_dependencies_requirement(
             ).format(
                 plugin_type_label=dependent.type.label,
                 plugin_label=dependent.label
-                if isinstance(dependent, UserFacingPluginDefinition)
+                if isinstance(dependent, HumanFacingPluginDefinition)
                 else dependent.id,
                 dependency_labels=Join(
                     ", ",
                     *(
                         dependency.label
-                        if isinstance(dependency, UserFacingPluginDefinition)
+                        if isinstance(dependency, HumanFacingPluginDefinition)
                         else dependency.id
                         for dependency in dependencies
                     ),

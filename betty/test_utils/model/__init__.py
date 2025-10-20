@@ -13,7 +13,7 @@ from betty.locale.localizer import DEFAULT_LOCALIZER
 from betty.model import Entity, EntityDefinition
 from betty.test_utils.plugin import (
     ClassedPluginDefinitionTestBase,
-    CountableUserFacingPluginDefinitionTestBase,
+    CountableHumanFacingPluginDefinitionTestBase,
 )
 
 
@@ -37,7 +37,7 @@ class EntityTestBase:
 
 
 class EntityDefinitionTestBase(
-    CountableUserFacingPluginDefinitionTestBase,
+    CountableHumanFacingPluginDefinitionTestBase,
     ClassedPluginDefinitionTestBase,
 ):
     """

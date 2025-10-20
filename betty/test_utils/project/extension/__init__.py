@@ -19,13 +19,13 @@ from betty.test_utils.config import DummyConfiguration
 from betty.test_utils.plugin import (
     ClassedPluginDefinitionTestBase,
     DependentPluginDefinitionTestBase,
+    HumanFacingPluginDefinitionTestBase,
     OrderedPluginDefinitionTestBase,
-    UserFacingPluginDefinitionTestBase,
 )
 
 
 class ExtensionDefinitionTestBase(
-    UserFacingPluginDefinitionTestBase,
+    HumanFacingPluginDefinitionTestBase,
     ClassedPluginDefinitionTestBase,
     DependentPluginDefinitionTestBase,
     OrderedPluginDefinitionTestBase,

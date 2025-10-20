@@ -14,8 +14,8 @@ from betty.plugin import (
     ClassedPluginDefinition,
     ClassedPluginTypeDefinition,
     DependentPluginDefinition,
+    HumanFacingPluginDefinition,
     OrderedPluginDefinition,
-    UserFacingPluginDefinition,
 )
 from betty.plugin.requirement import new_dependencies_requirement
 from betty.project.factory import ProjectDependentFactory
@@ -77,7 +77,7 @@ _ExtensionT = TypeVar("_ExtensionT", bound=Extension)
 
 @final
 class ExtensionDefinition(
-    UserFacingPluginDefinition,
+    HumanFacingPluginDefinition,
     ClassedPluginDefinition[Extension],
     DependentPluginDefinition,
     OrderedPluginDefinition,

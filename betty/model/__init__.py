@@ -20,7 +20,7 @@ from betty.plugin import (
     ClassedPlugin,
     ClassedPluginDefinition,
     ClassedPluginTypeDefinition,
-    CountableUserFacingPluginDefinition,
+    CountableHumanFacingPluginDefinition,
 )
 from betty.repr import repr_instance
 from betty.string import kebab_case_to_lower_camel_case
@@ -134,7 +134,7 @@ class Entity(LinkedDataDumpableJsonLdObject, Mutable, ClassedPlugin):
 
 @final
 class EntityDefinition(
-    CountableUserFacingPluginDefinition, ClassedPluginDefinition[Entity]
+    CountableHumanFacingPluginDefinition, ClassedPluginDefinition[Entity]
 ):
     """
     An entity definition.
