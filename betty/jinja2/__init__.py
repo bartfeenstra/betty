@@ -16,6 +16,7 @@ from jinja2 import FileSystemLoader, Template, pass_context, select_autoescape
 from jinja2.runtime import Context, DebugUndefined, StrictUndefined
 from typing_extensions import override
 
+from betty import about
 from betty.date import Date
 from betty.html import (
     Breadcrumbs,
@@ -337,6 +338,7 @@ class Environment(ProjectDependentFactory, Jinja2Environment):
         )
 
     def _init_globals(self) -> None:
+        self.globals["about_version_major"] = about.VERSION_MAJOR_LABEL
         self.globals["app"] = self.project.app
         self.globals["project"] = self.project
         today = datetime.date.today()
