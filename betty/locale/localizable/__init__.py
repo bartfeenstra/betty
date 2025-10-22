@@ -535,7 +535,9 @@ class _Join(_LocalizableSequence, Localizable):
     def localize(self, localizer: Localizer) -> Localized & str:
         return LocalizedStr(
             self._SEPARATOR.join(
-                part.localize(localizer) for part in self.localizables
+                localized
+                for part in self.localizables
+                if (localized := part.localize(localizer))
             ),
             locale=localizer.locale,
         )
@@ -557,6 +559,15 @@ class Paragraph(_Join):
     """
 
     _SEPARATOR = " "
+
+
+@final
+class Paragraphs(_Join):
+    """
+    Represent multiple localizables as multiple paragraphs of text.
+    """
+
+    _SEPARATOR = "\n\n"
 
 
 class _List(_LocalizableSequence, Localizable):

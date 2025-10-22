@@ -15,6 +15,7 @@ from betty.locale.localizable import (
     Localizable,
     OrderedList,
     Paragraph,
+    Paragraphs,
     Plain,
     ShorthandStaticTranslations,
     StaticTranslations,
@@ -369,6 +370,22 @@ class TestParagraph:
     )
     def test_localize(self, expected: str, localizables: Sequence[Localizable]) -> None:
         sut = Paragraph(*localizables)
+        assert sut.localize(DEFAULT_LOCALIZER) == expected
+
+
+class TestParagraphs:
+    @pytest.mark.parametrize(
+        ("expected", "localizables"),
+        [
+            ("", []),
+            (
+                "Foo\n\nBar",
+                [Plain("Foo"), Plain("Bar")],
+            ),
+        ],
+    )
+    def test_localize(self, expected: str, localizables: Sequence[Localizable]) -> None:
+        sut = Paragraphs(*localizables)
         assert sut.localize(DEFAULT_LOCALIZER) == expected
 
 
