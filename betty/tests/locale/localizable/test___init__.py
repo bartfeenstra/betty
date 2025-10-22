@@ -408,6 +408,27 @@ class TestOrderedList:
                 Localizer("ar", NullTranslations()),
                 [Plain("Foo"), Plain("Bar")],
             ),
+            (
+                "1. Foo\n   Foo2\n2. Bar\n   Bar2",
+                DEFAULT_LOCALIZER,
+                [Plain("Foo\nFoo2"), Plain("Bar\nBar2")],
+            ),
+            (
+                "1.  1\n2.  2\n3.  3\n4.  4\n5.  5\n6.  6\n7.  7\n8.  8\n9.  9\n10. 10",
+                DEFAULT_LOCALIZER,
+                [
+                    Plain("1"),
+                    Plain("2"),
+                    Plain("3"),
+                    Plain("4"),
+                    Plain("5"),
+                    Plain("6"),
+                    Plain("7"),
+                    Plain("8"),
+                    Plain("9"),
+                    Plain("10"),
+                ],
+            ),
         ],
     )
     def test_localize(
@@ -440,6 +461,14 @@ class TestUnorderedList:
                 [
                     Plain("Foo"),
                     Plain("Bar"),
+                ],
+            ),
+            (
+                "- Foo\n  Foo2\n- Bar\n  Bar2",
+                DEFAULT_LOCALIZER,
+                [
+                    Plain("Foo\nFoo2"),
+                    Plain("Bar\nBar2"),
                 ],
             ),
         ],
