@@ -5,13 +5,12 @@ Provide an API that lets code express arbitrary requirements.
 from __future__ import annotations
 
 from abc import ABC, abstractmethod
-from textwrap import indent
 from typing import TYPE_CHECKING, Any, cast, final
 
 from typing_extensions import override
 
 from betty.exception import UserFacingException
-from betty.locale.localizable import Localizable, _
+from betty.locale.localizable import Localizable, Paragraphs, UnorderedList, _
 from betty.locale.localized import Localized, LocalizedStr
 
 if TYPE_CHECKING:
@@ -110,11 +109,10 @@ class RequirementCollection(Requirement):
 
     @override
     def localize(self, localizer: Localizer) -> Localized & str:
-        super_localized = super().localize(localizer)
-        localized: str = super_localized
-        for requirement in self._requirements:
-            localized += f"\n-{indent(requirement.localize(localizer), '  ')[1:]}"
-        return LocalizedStr(localized, locale=super_localized.locale)
+        return Paragraphs(
+            super().localize(localizer),
+            UnorderedList(*self._requirements),
+        ).localize(localizer)
 
     @override
     def reduce(self) -> Requirement | None:

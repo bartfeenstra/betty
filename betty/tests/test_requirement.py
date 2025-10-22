@@ -3,7 +3,7 @@ from __future__ import annotations
 import pytest
 from typing_extensions import override
 
-from betty.locale.localizable import Localizable, Plain, StaticTranslations, _
+from betty.locale.localizable import Localizable, Plain, _
 from betty.locale.localizer import DEFAULT_LOCALIZER
 from betty.requirement import (
     AllRequirements,
@@ -31,11 +31,11 @@ class TestRequirement:
 
         assert (
             _Requirement().localize(DEFAULT_LOCALIZER)
-            == "Lorem ipsum\n-----------\nDolor sit amet"
+            == "_Requirement\n------------\nDolor sit amet"
         )
 
     async def test_localize__without_details(self) -> None:
-        assert _MetRequirement().localize(DEFAULT_LOCALIZER) == "Lorem ipsum"
+        assert _MetRequirement().localize(DEFAULT_LOCALIZER) == "_MetRequirement"
 
 
 class TestRequirementCollection:
@@ -53,12 +53,15 @@ class TestRequirementCollection:
         ) == _RequirementCollection(requirement_1, requirement_2)
 
     async def test_localize__without_requirements(self) -> None:
-        assert _RequirementCollection().localize(DEFAULT_LOCALIZER) == "Lorem ipsum"
+        assert (
+            _RequirementCollection().localize(DEFAULT_LOCALIZER)
+            == "_RequirementCollection"
+        )
 
     async def test_localize__with_requirements(self) -> None:
         assert (
             _RequirementCollection(_MetRequirement()).localize(DEFAULT_LOCALIZER)
-            == "Lorem ipsum\n- Lorem ipsum"
+            == "_RequirementCollection\n\n- _MetRequirement"
         )
 
     async def test_reduce__without_requirements(self) -> None:
@@ -106,7 +109,7 @@ class _RequirementCollection(RequirementCollection):
 
     @override
     def summary(self) -> Localizable:
-        return StaticTranslations("Lorem ipsum")
+        return Plain(self.__class__.__name__)
 
 
 class _ReduceToRequirementCollectionRequirementCollection(_RequirementCollection):
@@ -116,7 +119,7 @@ class _ReduceToRequirementCollectionRequirementCollection(_RequirementCollection
 
     @override
     def summary(self) -> Localizable:
-        return StaticTranslations("Lorem ipsum")
+        return Plain(self.__class__.__name__)
 
 
 class _MetRequirement(Requirement):
@@ -126,7 +129,7 @@ class _MetRequirement(Requirement):
 
     @override
     def summary(self) -> Localizable:
-        return StaticTranslations("Lorem ipsum")
+        return Plain(self.__class__.__name__)
 
 
 class _UnmetRequirement(Requirement):
@@ -136,7 +139,7 @@ class _UnmetRequirement(Requirement):
 
     @override
     def summary(self) -> Localizable:
-        return StaticTranslations("Lorem ipsum")
+        return Plain(self.__class__.__name__)
 
 
 class _ReducedToNoneRequirement(_MetRequirement):
