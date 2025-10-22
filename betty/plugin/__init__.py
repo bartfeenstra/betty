@@ -19,7 +19,7 @@ from typing_extensions import TypeVar
 
 from betty.exception import UserFacingException
 from betty.json.schema import Enum
-from betty.locale.localizable import CountableLocalizable, Join, _, do_you_mean
+from betty.locale.localizable import CountableLocalizable, Paragraph, _, do_you_mean
 from betty.locale.localizer import DEFAULT_LOCALIZER
 from betty.machine_name import InvalidMachineName, MachineName, validate_machine_name
 from betty.string import kebab_case_to_lower_camel_case
@@ -354,8 +354,7 @@ class PluginNotFound(PluginError, UserFacingException):
         Create a new instance.
         """
         return cls(
-            Join(
-                " ",
+            Paragraph(
                 _('Could not find a plugin "{plugin_id}".').format(
                     plugin_id=plugin_not_found
                 ),

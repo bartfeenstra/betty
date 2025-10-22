@@ -6,7 +6,7 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING, Any, TypeVar
 
-from betty.locale.localizable import Join, _
+from betty.locale.localizable import AnyEnumeration, _
 from betty.plugin import (
     ClassedPluginDefinition,
     CyclicDependencyError,
@@ -62,8 +62,7 @@ async def new_dependencies_requirement(
                 plugin_label=dependent.label
                 if isinstance(dependent, HumanFacingPluginDefinition)
                 else dependent.id,
-                dependency_labels=Join(
-                    ", ",
+                dependency_labels=AnyEnumeration(
                     *(
                         dependency.label
                         if isinstance(dependency, HumanFacingPluginDefinition)

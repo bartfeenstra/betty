@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Betty VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2025-10-20 23:45+0100\n"
+"POT-Creation-Date: 2025-10-22 12:02+0100\n"
 "PO-Revision-Date: 2025-03-28 20:02+0000\n"
 "Last-Translator: Ettore Atalan <atalanttore@googlemail.com>\n"
 "Language: de_DE\n"
@@ -1409,6 +1409,14 @@ msgstr ""
 #, python-brace-format
 msgid "{individual_name} {affiliation_name}"
 msgstr "{individual_name} {affiliation_name}"
+
+#, python-brace-format
+msgid "{most}, and {last}"
+msgstr ""
+
+#, python-brace-format
+msgid "{most}, or {last}"
+msgstr ""
 
 #, python-brace-format
 msgid "{plugin_type_label} {plugin_label} depends on {dependency_labels}."

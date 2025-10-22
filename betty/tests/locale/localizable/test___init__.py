@@ -7,15 +7,20 @@ from typing_extensions import override
 from betty.json.schema import Schema
 from betty.locale import DEFAULT_LOCALE, UNDETERMINED_LOCALE
 from betty.locale.localizable import (
+    AllEnumeration,
+    AnyEnumeration,
+    Chain,
     CountableLocalizable,
     CountablePlain,
-    Join,
     Localizable,
+    OrderedList,
+    Paragraph,
     Plain,
     ShorthandStaticTranslations,
     StaticTranslations,
     StaticTranslationsMapping,
     StaticTranslationsSchema,
+    UnorderedList,
     do_you_mean,
 )
 from betty.locale.localizer import DEFAULT_LOCALIZER, Localizer
@@ -323,21 +328,6 @@ class TestCountablePlain:
         )
 
 
-class TestJoin:
-    @pytest.mark.parametrize(
-        ("expected", "localizables"),
-        [
-            ("", []),
-            ("foo", [Plain("foo")]),
-            ("foo bar baz", [Plain("foo"), Plain("bar"), Plain("baz")]),
-        ],
-    )
-    async def test_localize(
-        self, expected: str, localizables: Sequence[Localizable]
-    ) -> None:
-        assert Join(" ", *localizables).localize(DEFAULT_LOCALIZER) == expected
-
-
 @pytest.mark.parametrize(
     ("expected", "available_options"),
     [
@@ -364,3 +354,137 @@ class TestCountableLocalizable:
             .localize(DEFAULT_LOCALIZER)
             == "format-value"
         )
+
+
+class TestParagraph:
+    @pytest.mark.parametrize(
+        ("expected", "localizables"),
+        [
+            ("", []),
+            (
+                "Foo Bar",
+                [Plain("Foo"), Plain("Bar")],
+            ),
+        ],
+    )
+    def test_localize(self, expected: str, localizables: Sequence[Localizable]) -> None:
+        sut = Paragraph(*localizables)
+        assert sut.localize(DEFAULT_LOCALIZER) == expected
+
+
+class TestOrderedList:
+    @pytest.mark.parametrize(
+        ("expected", "localizer", "localizables"),
+        [
+            (
+                "",
+                DEFAULT_LOCALIZER,
+                [],
+            ),
+            (
+                "1. Foo\n2. Bar",
+                DEFAULT_LOCALIZER,
+                [Plain("Foo"), Plain("Bar")],
+            ),
+            (
+                "Foo .1\nBar .2",
+                Localizer("ar", NullTranslations()),
+                [Plain("Foo"), Plain("Bar")],
+            ),
+        ],
+    )
+    def test_localize(
+        self, expected: str, localizer: Localizer, localizables: Sequence[Localizable]
+    ) -> None:
+        sut = OrderedList(*localizables)
+        assert sut.localize(localizer) == expected
+
+
+class TestUnorderedList:
+    @pytest.mark.parametrize(
+        ("expected", "localizer", "localizables"),
+        [
+            (
+                "",
+                DEFAULT_LOCALIZER,
+                [],
+            ),
+            (
+                "- Foo\n- Bar",
+                DEFAULT_LOCALIZER,
+                [
+                    Plain("Foo"),
+                    Plain("Bar"),
+                ],
+            ),
+            (
+                "Foo -\nBar -",
+                Localizer("ar", NullTranslations()),
+                [
+                    Plain("Foo"),
+                    Plain("Bar"),
+                ],
+            ),
+        ],
+    )
+    def test_localize(
+        self, expected: str, localizer: Localizer, localizables: Sequence[Localizable]
+    ) -> None:
+        sut = UnorderedList(*localizables)
+        assert sut.localize(localizer) == expected
+
+
+class TestChain:
+    @pytest.mark.parametrize(
+        ("expected", "localizables"),
+        [
+            ("", []),
+            (
+                "FooBar",
+                [Plain("Foo"), Plain("Bar")],
+            ),
+        ],
+    )
+    def test(self, expected: str, localizables: Sequence[Localizable]) -> None:
+        sut = Chain(*localizables)
+        assert sut.localize(DEFAULT_LOCALIZER) == expected
+
+
+class TestAnyEnumeration:
+    @pytest.mark.parametrize(
+        ("expected", "localizables"),
+        [
+            ("", []),
+            (
+                "Foo",
+                [Plain("Foo")],
+            ),
+            (
+                "Foo, or Bar",
+                [Plain("Foo"), Plain("Bar")],
+            ),
+        ],
+    )
+    def test(self, expected: str, localizables: Sequence[Localizable]) -> None:
+        sut = AnyEnumeration(*localizables)
+        assert sut.localize(DEFAULT_LOCALIZER) == expected
+
+
+class TestAllEnumeration:
+    @pytest.mark.parametrize(
+        ("expected", "localizables"),
+        [
+            ("", []),
+            (
+                "Foo",
+                [Plain("Foo")],
+            ),
+            (
+                "Foo, and Bar",
+                [Plain("Foo"), Plain("Bar")],
+            ),
+        ],
+    )
+    def test(self, expected: str, localizables: Sequence[Localizable]) -> None:
+        sut = AllEnumeration(*localizables)
+        assert sut.localize(DEFAULT_LOCALIZER) == expected

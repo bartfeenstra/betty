@@ -5,10 +5,17 @@ The localizable API allows objects to be localized at the point of use.
 from __future__ import annotations
 
 from abc import ABC, abstractmethod
-from collections.abc import Callable, Iterable, Mapping, MutableMapping
+from collections.abc import (
+    Callable,
+    Iterable,
+    Mapping,
+    MutableMapping,
+    Sequence,
+)
 from typing import (
     TYPE_CHECKING,
     Any,
+    ClassVar,
     Generic,
     Self,
     TypeAlias,
@@ -93,27 +100,6 @@ class CountableLocalizable(_Localizable["CountableLocalizable"]):
     @override
     def format(self, **format_kwargs: str | Localizable) -> CountableLocalizable:
         return _FormattedCountableLocalizable(self, format_kwargs)
-
-
-@final
-class Join(Localizable):
-    """
-    Join multiple localizables.
-    """
-
-    def __init__(self, separator: str, *parts: Localizable | str):
-        self._parts = parts
-        self._separator = separator
-
-    @override
-    def localize(self, localizer: Localizer) -> Localized & str:
-        return LocalizedStr(
-            self._separator.join(
-                part.localize(localizer) if isinstance(part, Localizable) else part
-                for part in self._parts
-            ),
-            locale=localizer.locale,
-        )
 
 
 def do_you_mean(*available_options: str) -> Localizable:
@@ -513,3 +499,150 @@ class StaticTranslations(
         return await StaticTranslations.from_localizable(
             other, [localizers.get(locale) for locale in project.configuration.locales]
         ).dump_linked_data(project)
+
+
+class LocalizableSequence(ABC):
+    """
+    A sequence of localizables.
+    """
+
+    @property
+    @abstractmethod
+    def localizables(self) -> Sequence[Localizable]:
+        """
+        The localizables.
+        """
+        raise NotImplementedError
+
+
+class _LocalizableSequence(LocalizableSequence):
+    def __init__(self, *localizables: Localizable | str):
+        self._localizables = tuple(
+            localizable if isinstance(localizable, Localizable) else Plain(localizable)
+            for localizable in localizables
+        )
+
+    @override
+    @property
+    def localizables(self) -> Sequence[Localizable]:
+        return self._localizables
+
+
+class _Join(_LocalizableSequence, Localizable):
+    _SEPARATOR: ClassVar[str]
+
+    @override
+    def localize(self, localizer: Localizer) -> Localized & str:
+        return LocalizedStr(
+            self._SEPARATOR.join(
+                part.localize(localizer) for part in self.localizables
+            ),
+            locale=localizer.locale,
+        )
+
+
+@final
+class Chain(_Join):
+    """
+    Chain multiple localizables together, back to back.
+    """
+
+    _SEPARATOR = ""
+
+
+@final
+class Paragraph(_Join):
+    """
+    Represent multiple localizables as a single paragraph of text.
+    """
+
+    _SEPARATOR = " "
+
+
+class _List(_LocalizableSequence, Localizable):
+    _TEMPLATE_LEFT_TO_RIGHT = "{prefix} {localized}"
+    _TEMPLATE_RIGHT_TO_LEFT = "{localized} {prefix}"
+
+    @override
+    def localize(self, localizer: Localizer) -> Localized & str:
+        if localizer.locale_data.character_order == "right-to-left":
+            template = self._TEMPLATE_RIGHT_TO_LEFT
+        else:
+            template = self._TEMPLATE_LEFT_TO_RIGHT
+        return LocalizedStr(
+            "\n".join(
+                template.format(
+                    localized=localizable.localize(localizer),
+                    prefix=self._get_prefix(localizer, index),
+                )
+                for index, localizable in enumerate(self._localizables)
+            )
+        )
+
+    @abstractmethod
+    def _get_prefix(self, localizer: Localizer, index: int) -> str:
+        pass
+
+
+@final
+class OrderedList(_List):
+    """
+    Represent multiple localizables in an ordered list.
+    """
+
+    _PREFIX_TEMPLATE_LEFT_TO_RIGHT = "{index}."
+    _PREFIX_TEMPLATE_RIGHT_TO_LEFT = ".{index}"
+
+    @override
+    def _get_prefix(self, localizer: Localizer, index: int) -> str:
+        if localizer.locale_data.character_order == "right-to-left":
+            template = self._PREFIX_TEMPLATE_RIGHT_TO_LEFT
+        else:
+            template = self._PREFIX_TEMPLATE_LEFT_TO_RIGHT
+        return template.format(index=index + 1)
+
+
+@final
+class UnorderedList(_List):
+    """
+    Represent multiple localizables in an unordered list.
+    """
+
+    @override
+    def _get_prefix(self, localizer: Localizer, index: int) -> str:
+        return "-"
+
+
+class _Enumeration(_LocalizableSequence, Localizable):
+    _LOCALIZABLE: ClassVar[Localizable]
+
+    @override
+    def localize(self, localizer: Localizer) -> Localized & str:
+        if len(self.localizables) == 0:
+            return LocalizedStr("")
+        if len(self.localizables) == 1:
+            return self.localizables[0].localize(localizer)
+        return self._LOCALIZABLE.format(
+            most=", ".join(
+                part.localize(localizer) for part in self.localizables[0:-1]
+            ),
+            last=self.localizables[-1],
+        ).localize(localizer)
+
+
+@final
+class AnyEnumeration(_Enumeration):
+    """
+    An enumeration where any of the localizables may be applicable.
+    """
+
+    _LOCALIZABLE = _("{most}, or {last}")
+
+
+@final
+class AllEnumeration(_Enumeration):
+    """
+    An enumeration where all of the localizables are applicable.
+    """
+
+    _LOCALIZABLE = _("{most}, and {last}")
