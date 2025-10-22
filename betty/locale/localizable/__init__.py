@@ -12,6 +12,7 @@ from collections.abc import (
     MutableMapping,
     Sequence,
 )
+from textwrap import indent
 from typing import (
     TYPE_CHECKING,
     Any,
@@ -576,17 +577,30 @@ class _List(_LocalizableSequence, Localizable):
 
     @override
     def localize(self, localizer: Localizer) -> Localized & str:
+        if not self.localizables:
+            return LocalizedStr("")
+        localizeds = []
+        prefixes = []
+        prefix_lengths = []
         if localizer.locale_data.character_order == "right-to-left":
             template = self._TEMPLATE_RIGHT_TO_LEFT
         else:
             template = self._TEMPLATE_LEFT_TO_RIGHT
+        for index, localizable in enumerate(self._localizables):
+            localizeds.append(localizable.localize(localizer))
+            prefix = self._get_prefix(localizer, index)
+            prefixes.append(prefix)
+            prefix_lengths.append(len(prefix))
+        max_prefix_length = max(prefix_lengths) + 1
         return LocalizedStr(
             "\n".join(
                 template.format(
-                    localized=localizable.localize(localizer),
+                    localized=indent(localized, " " * max_prefix_length)[
+                        len(prefixes[index]) + 1 :
+                    ],
                     prefix=self._get_prefix(localizer, index),
                 )
-                for index, localizable in enumerate(self._localizables)
+                for index, localized in enumerate(localizeds)
             )
         )
 
