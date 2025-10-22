@@ -9,7 +9,7 @@ import gettext
 from contextlib import suppress
 from typing import TYPE_CHECKING, final
 
-from babel import dates
+from babel import Locale, dates
 from babel.dates import format_date
 
 from betty.date import (
@@ -58,6 +58,13 @@ class Localizer:
         The locale.
         """
         return self._locale
+
+    @property
+    def locale_data(self) -> Locale:
+        """
+        The locale data.
+        """
+        return self._locale_data
 
     def _(self, message: str) -> str:
         """

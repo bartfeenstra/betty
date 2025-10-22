@@ -285,6 +285,7 @@ _BASELINE: Mapping[str, _ModuleIgnore] = {
         "format": MissingReason.SHOULD_BE_COVERED,
         "gettext": MissingReason.SHOULD_BE_COVERED,
         "Localizable": MissingReason.SHOULD_BE_COVERED,
+        "LocalizableSequence": MissingReason.ABSTRACT,
         "ngettext": MissingReason.SHOULD_BE_COVERED,
         "npgettext": MissingReason.SHOULD_BE_COVERED,
         "pgettext": MissingReason.SHOULD_BE_COVERED,

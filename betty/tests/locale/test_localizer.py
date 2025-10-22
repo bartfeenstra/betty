@@ -214,6 +214,10 @@ class TestLocalizer:
         sut = DEFAULT_LOCALIZER
         assert sut.locale == DEFAULT_LOCALE
 
+    async def test_locale_data(self) -> None:
+        sut = DEFAULT_LOCALIZER
+        assert sut.locale_data.language == "en"
+
     async def test__(self) -> None:
         sut = DEFAULT_LOCALIZER
         assert sut._("My First Translatable String") == "My First Translatable String"

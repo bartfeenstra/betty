@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PROJECT VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2025-10-20 23:45+0100\n"
+"POT-Creation-Date: 2025-10-22 12:02+0100\n"
 "PO-Revision-Date: 2025-05-17 01:43+0000\n"
 "Last-Translator: Bart Feenstra <bart@bartfeenstra.com>\n"
 "Language: nl_NL\n"
@@ -1450,6 +1450,14 @@ msgstr "{extension} heeft geen assets-directory."
 #, python-brace-format
 msgid "{individual_name} {affiliation_name}"
 msgstr "{individual_name} {affiliation_name}"
+
+#, python-brace-format
+msgid "{most}, and {last}"
+msgstr ""
+
+#, python-brace-format
+msgid "{most}, or {last}"
+msgstr ""
 
 #, python-brace-format
 msgid "{plugin_type_label} {plugin_label} depends on {dependency_labels}."

@@ -13,7 +13,7 @@ from typing_extensions import override
 
 from betty.jinja2 import Filters, Jinja2Provider
 from betty.job import Job
-from betty.locale.localizable import Join, Plain, _
+from betty.locale.localizable import Chain, Plain, _
 from betty.locale.localizer import DEFAULT_LOCALIZER
 from betty.os import link_or_copy
 from betty.project import ProjectContext
@@ -53,8 +53,7 @@ class _GenerateSearchIndex(Job[ProjectContext]):
     </li>
     """)
 
-    _RESULTS_CONTAINER_TEMPLATE = Join(
-        "",
+    _RESULTS_CONTAINER_TEMPLATE = Chain(
         '<ul class="entity-list"><h3 class="h2">',
         _("Results ({{{ betty-search-results-count }}})"),
         "</h3>{{{ betty-search-results }}}</ul>",

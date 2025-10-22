@@ -22,7 +22,7 @@ from betty.ancestry.presence_role.presence_roles import Subject
 from betty.json.linked_data import JsonLdObject, dump_context
 from betty.json.schema import String
 from betty.locale.localizable import (
-    Join,
+    AllEnumeration,
     Localizable,
     StaticTranslations,
     _,
@@ -157,7 +157,7 @@ class Event(
             and presence.person.public
         ]
         if subjects:
-            format_kwargs["subjects"] = Join(
+            format_kwargs["subjects"] = AllEnumeration(
                 ", ", *(person.label for person in subjects)
             )
 
