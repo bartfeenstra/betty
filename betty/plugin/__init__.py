@@ -267,15 +267,14 @@ class DependentPluginDefinition(OrderedPluginDefinition):
             if depends_on is None
             else {resolve_identifier(plugin) for plugin in depends_on}
         )
+        self._comes_after.update(self._depends_on)
 
     @property
     def depends_on(self) -> set[MachineName]:
         """
         The plugins this one depends on.
 
-        To declare whether this plugin comes before or after its dependencies, use
-        :py:meth:`betty.plugin.OrderedPluginDefinition.comes_before` and/or
-        :py:meth:`betty.plugin.OrderedPluginDefinition.comes_after`.
+        All plugins will automatically be added to :py:meth:`betty.plugin.OrderedPluginDefinition.comes_after`.
         """
         return self._depends_on
 
