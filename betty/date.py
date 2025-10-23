@@ -8,13 +8,12 @@ import calendar
 import operator
 from collections.abc import Callable, Mapping
 from functools import total_ordering
-from typing import TYPE_CHECKING, Any, Self, TypeAlias, final
+from typing import TYPE_CHECKING, Any, TypeAlias, final
 
 from typing_extensions import override
 
 from betty.json.linked_data import (
     JsonLdObject,
-    JsonLdSchema,
     LinkedDataDumpableJsonLdObject,
     dump_context,
 )
@@ -39,8 +38,8 @@ class DateSchema(JsonLdObject):
     A JSON Schema for :py:type:`betty.date.Date`.
     """
 
-    def __init__(self, json_ld_schema: JsonLdSchema):
-        super().__init__(json_ld_schema, def_name="date", title="Date")
+    def __init__(self):
+        super().__init__(def_name="date", title="Date")
         self.add_property("fuzzy", Boolean(title="Fuzzy"))
         self.add_property("year", Number(title="Year"), False)
         self.add_property("month", Number(title="Month"), False)
@@ -52,13 +51,6 @@ class DateSchema(JsonLdObject):
             ),
             False,
         )
-
-    @classmethod
-    async def new(cls) -> Self:
-        """
-        Create a new instance.
-        """
-        return cls(await JsonLdSchema.new())
 
 
 class Date(LinkedDataDumpableJsonLdObject):
@@ -193,7 +185,7 @@ class Date(LinkedDataDumpableJsonLdObject):
     @override
     @classmethod
     async def linked_data_schema(cls, project: Project) -> DateSchema:
-        return await DateSchema.new()
+        return DateSchema()
 
 
 def _dump_date_iso8601(date: Date) -> str | None:
@@ -211,18 +203,12 @@ class DateRangeSchema(JsonLdObject):
     A JSON Schema for :py:type:`betty.date.DateRange`.
     """
 
-    def __init__(self, json_ld_schema: JsonLdSchema, date_schema: DateSchema):
-        super().__init__(json_ld_schema, def_name="dateRange", title="Date range")
+    def __init__(self):
+        super().__init__(def_name="dateRange", title="Date range")
+        date_schema = DateSchema()
         self._schema["additionalProperties"] = False
         self.add_property("start", OneOf(date_schema, Null(), title="Start date"))
         self.add_property("end", OneOf(date_schema, Null(), title="End date"))
-
-    @classmethod
-    async def new(cls) -> Self:
-        """
-        Create a new instance.
-        """
-        return cls(await JsonLdSchema.new(), await DateSchema.new())
 
 
 @total_ordering
@@ -330,7 +316,7 @@ class DateRange(LinkedDataDumpableJsonLdObject):
     @override
     @classmethod
     async def linked_data_schema(cls, project: Project) -> DateRangeSchema:
-        return await DateRangeSchema.new()
+        return DateRangeSchema()
 
     def _get_comparable_date(self, date: Date | None) -> Date | None:
         if date and date.comparable:
@@ -490,20 +476,13 @@ class DateLikeSchema(OneOf):
     A JSON Schema for :py:type:`betty.date.DateLike`.
     """
 
-    def __init__(self, date_schema: DateSchema, date_range_schema: DateRangeSchema):
+    def __init__(self):
         super().__init__(
-            date_schema,
-            date_range_schema,
+            DateSchema(),
+            DateRangeSchema(),
             def_name="dateLike",
             title="Date or date range",
         )
-
-    @classmethod
-    async def new(cls) -> Self:
-        """
-        Create a new instance.
-        """
-        return cls(await DateSchema.new(), await DateRangeSchema.new())
 
 
 DateLike: TypeAlias = Date | DateRange

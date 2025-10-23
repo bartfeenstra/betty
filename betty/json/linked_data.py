@@ -7,11 +7,8 @@ from __future__ import annotations
 from abc import ABC, abstractmethod
 from collections.abc import MutableSequence
 from inspect import getmembers
-from json import loads
-from pathlib import Path
-from typing import TYPE_CHECKING, Generic, Self, cast, final
+from typing import TYPE_CHECKING, Generic, cast, final
 
-import aiofiles
 from typing_extensions import TypeVar, override
 
 from betty.json.schema import Object, Schema
@@ -69,7 +66,6 @@ class JsonLdObject(Object):
 
     def __init__(
         self,
-        json_ld_schema: JsonLdSchema,
         *,
         def_name: str | None = None,
         title: str | None = None,
@@ -80,7 +76,7 @@ class JsonLdObject(Object):
             title=title,
             description=description,
         )
-        self._schema["allOf"] = [json_ld_schema.embed(self)]
+        self._schema["allOf"] = [JsonLdSchema().embed(self)]
 
 
 class LinkedDataDumpableJsonLdObject(
@@ -97,7 +93,7 @@ class LinkedDataDumpableJsonLdObject(
     @override
     @classmethod
     async def linked_data_schema(cls, project: Project) -> JsonLdObject:
-        schema = JsonLdObject(await JsonLdSchema.new())
+        schema = JsonLdObject()
         for attr_name, class_attr_value in getmembers(cls):
             if isinstance(class_attr_value, LinkedDataDumpableProvider):
                 linked_data_dumpable = class_attr_value
@@ -165,18 +161,87 @@ class JsonLdSchema(Schema):
     A `JSON-LD <https://json-ld.org/>`_ JSON Schema reference.
     """
 
-    _instance: Self | None = None
+    _SCHEMA: DumpMapping[Dump] = {
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
+        "additionalProperties": True,
+        "allOf": [
+            {"$ref": "#/$defs/context"},
+            {"$ref": "#/$defs/graph"},
+            {"$ref": "#/$defs/common"},
+        ],
+        "$defs": {
+            "context": {
+                "additionalProperties": True,
+                "properties": {
+                    "@context": {
+                        "description": "Used to define the short-hand names that are used throughout a JSON-LD document.",
+                        "type": ["object", "string", "array", "null"],
+                    }
+                },
+            },
+            "graph": {
+                "additionalProperties": True,
+                "properties": {
+                    "@graph": {
+                        "description": "Used to express a graph.",
+                        "anyOf": [
+                            {"type": "array", "items": {"$ref": "#/$defs/common"}},
+                            {"$ref": "#/$defs/common", "type": "object"},
+                        ],
+                    }
+                },
+            },
+            "common": {
+                "additionalProperties": {"anyOf": [{"$ref": "#/$defs/common"}]},
+                "properties": {
+                    "@id": {
+                        "description": "Used to uniquely identify things that are being described in the document with IRIs or blank node identifiers.",
+                        "type": "string",
+                        "format": "uri",
+                    },
+                    "@value": {
+                        "description": "Used to specify the data that is associated with a particular property in the graph.",
+                        "type": ["string", "boolean", "number", "null"],
+                    },
+                    "@language": {
+                        "description": "Used to specify the language for a particular string value or the default language of a JSON-LD document.",
+                        "type": ["string", "null"],
+                    },
+                    "@type": {
+                        "description": "Used to set the data type of a node or typed value.",
+                        "type": ["string", "null", "array"],
+                    },
+                    "@container": {
+                        "description": "Used to set the default container type for a term.",
+                        "type": ["string", "null"],
+                        "enum": ["@language", "@list", "@index", "@set"],
+                    },
+                    "@list": {"description": "Used to express an ordered set of data."},
+                    "@set": {
+                        "description": "Used to express an unordered set of data and to ensure that values are always represented as arrays."
+                    },
+                    "@reverse": {
+                        "description": "Used to express reverse properties.",
+                        "type": ["string", "object", "null"],
+                        "additionalProperties": {"anyOf": [{"$ref": "#/$defs/common"}]},
+                    },
+                    "@base": {
+                        "description": "Used to set the base IRI against which relative IRIs are resolved",
+                        "type": ["string", "null"],
+                        "format": "uri",
+                    },
+                    "@vocab": {
+                        "description": "Used to expand properties and values in @type with a common prefix IRI",
+                        "type": ["string", "null"],
+                        "format": "uri",
+                    },
+                },
+            },
+        },
+        "title": "Schema for JSON-LD",
+        "type": ["object", "array"],
+    }
 
-    @classmethod
-    async def new(cls) -> Self:
-        """
-        Create a new instance.
-        """
-        if cls._instance is None:
-            async with aiofiles.open(
-                Path(__file__).parent / "schemas" / "json-ld.json"
-            ) as f:
-                raw_schema = await f.read()
-            cls._instance = cls(def_name="jsonLd", title="JSON-LD")
-            cls._instance._schema = loads(raw_schema)  # type: ignore[assignment]
-        return cls._instance
+    def __init__(self):
+        super().__init__(def_name="jsonLd", title="JSON-LD")
+        self._schema = self._SCHEMA

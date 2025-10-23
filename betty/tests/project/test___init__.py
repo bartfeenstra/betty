@@ -472,11 +472,12 @@ class TestProjectSchema(SchemaTestBase):
             False,
         ],
     )
-    async def test_new(self, clean_urls: bool, new_temporary_app: App) -> None:
+    async def test_new_for_project(
+        self, clean_urls: bool, new_temporary_app: App
+    ) -> None:
         async with Project.new_temporary(new_temporary_app) as project, project:
             sut = await ProjectSchema.new_for_project(project)
-        json_schema = await JsonSchemaSchema.new()
-        json_schema.validate(sut.schema)
+        JsonSchemaSchema().validate(sut.schema)
 
     async def test_def_url(self, new_temporary_app: App) -> None:
         async with Project.new_temporary(new_temporary_app) as project, project:
