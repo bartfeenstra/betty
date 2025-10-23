@@ -401,13 +401,6 @@ class CopyrightNoticeConfigurationMapping(
         item.load(dump)
         return item
 
-    # @todo Do we need this still?
-    @classmethod
-    def _create_default_item(
-        cls, configuration_key: str
-    ) -> CopyrightNoticeConfiguration:
-        return CopyrightNoticeConfiguration(configuration_key, {}, summary="", text="")
-
 
 class LicenseConfiguration(PluginConfiguration):
     """
@@ -488,11 +481,6 @@ class LicenseConfigurationMapping(
         item = LicenseConfiguration("-", "", summary="", text="")
         item.load(dump)
         return item
-
-    # @todo Do we need this still?
-    @classmethod
-    def _create_default_item(cls, configuration_key: str) -> LicenseConfiguration:
-        return LicenseConfiguration(configuration_key, {}, summary="", text="")
 
 
 class EventTypeConfigurationMapping(
