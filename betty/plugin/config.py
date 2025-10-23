@@ -183,10 +183,6 @@ class PluginConfigurationPluginConfigurationMapping(
         item.load(dump)
         return item
 
-    @classmethod
-    def _create_default_item(cls, configuration_key: str) -> PluginConfiguration:
-        return PluginConfiguration(configuration_key, {})
-
 
 class PluginInstanceConfiguration(
     Generic[_ClassedPluginDefinitionT, _PluginT], Configuration
