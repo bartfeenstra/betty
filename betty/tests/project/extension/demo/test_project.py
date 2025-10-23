@@ -15,10 +15,11 @@ if TYPE_CHECKING:
     from pathlib import Path
 
     from betty.app import App
+    from betty.test_utils.conftest import TemporaryAppFactory
 
 
-async def test_create_project(new_temporary_app: App, tmp_path: Path) -> None:
-    project = await create_project(new_temporary_app, tmp_path)
+async def test_create_project(temporary_app: App, tmp_path: Path) -> None:
+    project = await create_project(temporary_app, tmp_path)
     async with project:
         assert project.configuration.project_directory_path == tmp_path
         assert Demo in await project.extensions
@@ -26,10 +27,12 @@ async def test_create_project(new_temporary_app: App, tmp_path: Path) -> None:
 
 async def test_load_ancestry(
     demo_project_aioresponses: None,  # noqa F811
-    new_temporary_app: App,
+    temporary_app_factory: TemporaryAppFactory,
 ) -> None:
     async with (
-        Project.new_temporary(new_temporary_app) as project,
+        temporary_app_factory() as app,
+        app,
+        Project.new_temporary(app) as project,
         project,
     ):
         context = ProjectContext(project)

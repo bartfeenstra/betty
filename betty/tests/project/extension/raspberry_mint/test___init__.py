@@ -20,23 +20,23 @@ from betty.tests.conftest import check_skip_webpack_entry_point_provider
 if TYPE_CHECKING:
     from betty.app import App
     from betty.project.extension import Extension
-    from betty.test_utils.conftest import NewTemporaryAppFactory
+    from betty.test_utils.conftest import TemporaryAppFactory
 
 
 class TestRaspberryMint(EntryPointProviderTestBase):
     @override
     @pytest.fixture
-    async def sut(self, new_temporary_app: App) -> Extension:
-        async with Project.new_temporary(new_temporary_app) as project, project:
+    async def sut(self, temporary_app: App) -> Extension:
+        async with Project.new_temporary(temporary_app) as project, project:
             return await RaspberryMint.new_for_project(project)
 
     async def test_filters(self, sut: RaspberryMint) -> None:
         assert sut.filters
 
     async def test_bootstrap__should_validate_featured_entities_configuration(
-        self, new_temporary_app: App
+        self, temporary_app: App
     ) -> None:
-        async with Project.new_temporary(new_temporary_app) as project, project:
+        async with Project.new_temporary(temporary_app) as project, project:
             sut = await RaspberryMint.new_for_project(project)
             sut.configuration.featured_entities.replace(
                 EntityReference("non-existent-entity")
@@ -47,10 +47,10 @@ class TestRaspberryMint(EntryPointProviderTestBase):
 
     @check_skip_webpack_entry_point_provider
     async def test_generate__html_list_for_third_party_entity(
-        self, new_temporary_app_factory: NewTemporaryAppFactory
+        self, temporary_app_factory: TemporaryAppFactory
     ) -> None:
         async with (
-            new_temporary_app_factory(
+            temporary_app_factory(
                 entity_type_repository=StaticPluginRepository(
                     EntityDefinition, DummyEntityOne.plugin
                 )

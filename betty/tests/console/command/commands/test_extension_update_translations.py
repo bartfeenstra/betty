@@ -27,7 +27,7 @@ class TestExtensionUpdateTranslations(ExtensionTranslationTestBase):
     async def test_configure__minimal(
         self,
         mocker: MockerFixture,
-        new_temporary_app_with_extensions: App,
+        temporary_app_with_extensions: App,
         tmp_path: Path,
     ) -> None:
         source = tmp_path / "source"
@@ -36,7 +36,7 @@ class TestExtensionUpdateTranslations(ExtensionTranslationTestBase):
             "betty.locale.translation.project.extension.update_extension_translations"
         )
         await run(
-            new_temporary_app_with_extensions,
+            temporary_app_with_extensions,
             "extension-update-translations",
             "dummy-with-assets",
             str(source),
@@ -46,7 +46,7 @@ class TestExtensionUpdateTranslations(ExtensionTranslationTestBase):
     async def test_configure__with_exclude(
         self,
         mocker: MockerFixture,
-        new_temporary_app_with_extensions: App,
+        temporary_app_with_extensions: App,
         tmp_path: Path,
     ) -> None:
         source = tmp_path / "source"
@@ -58,7 +58,7 @@ class TestExtensionUpdateTranslations(ExtensionTranslationTestBase):
             "betty.locale.translation.project.extension.update_extension_translations"
         )
         await run(
-            new_temporary_app_with_extensions,
+            temporary_app_with_extensions,
             "extension-update-translations",
             "dummy-with-assets",
             str(source),
@@ -69,12 +69,12 @@ class TestExtensionUpdateTranslations(ExtensionTranslationTestBase):
         )
 
     async def test_configure__with_unknown_extension(
-        self, new_temporary_app_with_extensions: App, tmp_path: Path
+        self, temporary_app_with_extensions: App, tmp_path: Path
     ) -> None:
         source = tmp_path / "source"
         source.mkdir()
         await run(
-            new_temporary_app_with_extensions,
+            temporary_app_with_extensions,
             "extension-update-translations",
             "unknown-extension-id",
             str(source),
@@ -82,12 +82,12 @@ class TestExtensionUpdateTranslations(ExtensionTranslationTestBase):
         )
 
     async def test_configure__with_extension_without_assets_directory(
-        self, new_temporary_app_with_extensions: App, tmp_path: Path
+        self, temporary_app_with_extensions: App, tmp_path: Path
     ) -> None:
         source = tmp_path / "source"
         source.mkdir()
         await run(
-            new_temporary_app_with_extensions,
+            temporary_app_with_extensions,
             "extension-update-translations",
             "dummy-without-assets-directory-extension",
             str(source),
@@ -95,10 +95,10 @@ class TestExtensionUpdateTranslations(ExtensionTranslationTestBase):
         )
 
     async def test_configure__with_invalid_source_directory(
-        self, new_temporary_app_with_extensions: App, tmp_path: Path
+        self, temporary_app_with_extensions: App, tmp_path: Path
     ) -> None:
         await run(
-            new_temporary_app_with_extensions,
+            temporary_app_with_extensions,
             "extension-update-translations",
             "dummy-with-assets",
             str(tmp_path / "non-existent-source"),

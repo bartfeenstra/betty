@@ -35,7 +35,7 @@ class TestWikipediaContributors(CopyrightNoticeTestBase):
         return WikipediaContributors(request.param)
 
     async def test_new_for_app(
-        self, http_client_mock: aioresponses, new_temporary_app: App
+        self, http_client_mock: aioresponses, temporary_app: App
     ) -> None:
         response_json = {
             "continue": {"llcontinue": "49479|an", "continue": "||"},
@@ -61,5 +61,5 @@ class TestWikipediaContributors(CopyrightNoticeTestBase):
             "https://en.wikipedia.org/w/api.php?action=query&titles=Wikipedia:Copyrights&prop=langlinks&lllimit=500&format=json&formatversion=2",
             body=dumps(response_json),
         )
-        sut = await WikipediaContributors.new_for_app(new_temporary_app)
+        sut = await WikipediaContributors.new_for_app(temporary_app)
         assert sut.url.localize(DEFAULT_LOCALIZER)

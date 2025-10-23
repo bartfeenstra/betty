@@ -18,7 +18,7 @@ if TYPE_CHECKING:
 
 
 async def test_add_project_argument__with_argument(
-    new_temporary_app: App, tmp_path: Path
+    temporary_app: App, tmp_path: Path
 ) -> None:
     configuration: DumpMapping[Dump] = {
         "url": "https://example.com",
@@ -30,7 +30,7 @@ async def test_add_project_argument__with_argument(
         assert project.configuration.configuration_file_path == configuration_file_path
 
     command_function = await add_project_argument(
-        parser, _command_function, new_temporary_app
+        parser, _command_function, temporary_app
     )
     async with aiofiles.open(configuration_file_path, "w") as f:
         await f.write(json.dumps(configuration))
@@ -40,7 +40,7 @@ async def test_add_project_argument__with_argument(
 
 
 async def test_add_project_argument__without_argument_with_file(
-    new_temporary_app: App, tmp_path: Path
+    temporary_app: App, tmp_path: Path
 ) -> None:
     configuration: DumpMapping[Dump] = {
         "url": "https://example.com",
@@ -52,7 +52,7 @@ async def test_add_project_argument__without_argument_with_file(
         assert project.configuration.configuration_file_path == configuration_file_path
 
     command_function = await add_project_argument(
-        parser, _command_function, new_temporary_app
+        parser, _command_function, temporary_app
     )
     async with aiofiles.open(configuration_file_path, "w") as f:
         await f.write(json.dumps(configuration))
@@ -63,7 +63,7 @@ async def test_add_project_argument__without_argument_with_file(
 
 
 async def test_add_project_argument__without_argument_without_file(
-    new_temporary_app: App, tmp_path: Path
+    temporary_app: App, tmp_path: Path
 ) -> None:
     parser = argparse.ArgumentParser()
 
@@ -71,7 +71,7 @@ async def test_add_project_argument__without_argument_without_file(
         pass  # pragma: no cover
 
     command_function = await add_project_argument(
-        parser, _command_function, new_temporary_app
+        parser, _command_function, temporary_app
     )
     namespace = parser.parse_args([])
     assert namespace.project_configuration_file_path is None

@@ -19,12 +19,8 @@ class TestDocsDefinition(CommandDefinitionTestBase):
 
 
 class TestDocs:
-    async def test_configure(
-        self, mocker: MockerFixture, new_temporary_app: App
-    ) -> None:
+    async def test_configure(self, mocker: MockerFixture, temporary_app: App) -> None:
         mocker.patch("asyncio.sleep", side_effect=KeyboardInterrupt)
         mocker.patch("betty.documentation.DocumentationServer", new=NoOpServer)
 
-        await run(
-            new_temporary_app, "docs", expected_exit_code=SystemExitCode.USER_QUIT
-        )
+        await run(temporary_app, "docs", expected_exit_code=SystemExitCode.USER_QUIT)

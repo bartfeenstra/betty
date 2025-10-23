@@ -10,11 +10,11 @@ class TestDeriveAncestry:
     async def test_do(
         self,
         mocker: MockerFixture,
-        new_temporary_app: App,
+        temporary_app: App,
     ) -> None:
         m_derive = mocker.patch("betty.deriver.Deriver.derive")
         async with (
-            Project.new_temporary(new_temporary_app) as project,
+            Project.new_temporary(temporary_app) as project,
             project,
         ):
             await do(ProjectContext(project), DeriveAncestry())

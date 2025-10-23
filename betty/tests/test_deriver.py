@@ -120,12 +120,12 @@ class MayNotCreateComesAfterCreatableDerivable(ComesAfterCreatableDerivable):
 
 class TestDeriver:
     @pytest.fixture
-    def new_project(self, new_temporary_app: App) -> NewProject:
+    def new_project(self, temporary_app: App) -> NewProject:
         @asynccontextmanager
         async def _new_project(
             event_types: Iterable[EventTypeDefinition],
         ) -> AsyncIterator[Project]:
-            async with Project.new_temporary(new_temporary_app) as project, project:
+            async with Project.new_temporary(temporary_app) as project, project:
                 project.event_type_repository = StaticPluginRepository(
                     EventTypeDefinition, *event_types
                 )

@@ -7,13 +7,13 @@ from betty.app import App
 from betty.locale.localizable import Plain
 from betty.plugin.static import StaticPluginRepository
 from betty.project.extension import Extension, ExtensionDefinition
-from betty.test_utils.conftest import NewTemporaryAppFactory
+from betty.test_utils.conftest import TemporaryAppFactory
 
 
 class ExtensionTranslationTestBase:
     @pytest.fixture
-    async def new_temporary_app_with_extensions(
-        self, tmp_path: Path, new_temporary_app_factory: NewTemporaryAppFactory
+    async def temporary_app_with_extensions(
+        self, tmp_path: Path, temporary_app_factory: TemporaryAppFactory
     ) -> AsyncIterator[App]:
         @ExtensionDefinition(
             id="dummy-without-assets",
@@ -31,7 +31,7 @@ class ExtensionTranslationTestBase:
             pass
 
         async with (
-            new_temporary_app_factory(
+            temporary_app_factory(
                 extension_repository=StaticPluginRepository(
                     ExtensionDefinition,
                     _DummyWithoutAssetsDirectoryExtension.plugin,

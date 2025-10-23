@@ -293,20 +293,20 @@ class TestUnidirectionalToZeroOrOne:
         type(owner).associate.resolve(owner)
         assert owner.associate is associate
 
-    async def test_linked_data_schema_for(self, new_temporary_app: App) -> None:
-        async with Project.new_temporary(new_temporary_app) as project, project:
+    async def test_linked_data_schema_for(self, temporary_app: App) -> None:
+        async with Project.new_temporary(temporary_app) as project, project:
             await self._Owner.associate.linked_data_schema_for(project)
 
     async def test_linked_data_schema_for__with_embedded(
-        self, new_temporary_app: App
+        self, temporary_app: App
     ) -> None:
-        async with Project.new_temporary(new_temporary_app) as project, project:
+        async with Project.new_temporary(temporary_app) as project, project:
             await self._OwnerEmbedded.associate.linked_data_schema_for(project)
 
     async def test_dump_linked_data_for__with_publishable(
-        self, new_temporary_app: App
+        self, temporary_app: App
     ) -> None:
-        async with Project.new_temporary(new_temporary_app) as project, project:
+        async with Project.new_temporary(temporary_app) as project, project:
             associate = self._Associate("my-first-associate")
             target = self._Owner(associate)
             actual = await assert_dumps_linked_data_for(type(target).associate, target)
@@ -314,35 +314,35 @@ class TestUnidirectionalToZeroOrOne:
             assert actual == expected
 
     async def test_dump_linked_data_for__with_generated_id(
-        self, new_temporary_app: App
+        self, temporary_app: App
     ) -> None:
-        async with Project.new_temporary(new_temporary_app) as project, project:
+        async with Project.new_temporary(temporary_app) as project, project:
             associate = self._NonPublicFacingAssociate()
             target = self._OwnerWithNonPublicFacingAssociate(associate)
             actual = await assert_dumps_linked_data_for(type(target).associate, target)
             assert actual is None
 
     async def test_dump_linked_data_for__with_non_public_facing(
-        self, new_temporary_app: App
+        self, temporary_app: App
     ) -> None:
-        async with Project.new_temporary(new_temporary_app) as project, project:
+        async with Project.new_temporary(temporary_app) as project, project:
             associate = self._NonPublicFacingAssociate("my-first-associate")
             target = self._OwnerWithNonPublicFacingAssociate(associate)
             actual = await assert_dumps_linked_data_for(type(target).associate, target)
             assert actual is None
 
     async def test_dump_linked_data_for__without_associate(
-        self, new_temporary_app: App
+        self, temporary_app: App
     ) -> None:
-        async with Project.new_temporary(new_temporary_app) as project, project:
+        async with Project.new_temporary(temporary_app) as project, project:
             target = self._Owner()
             actual = await assert_dumps_linked_data_for(type(target).associate, target)
             assert actual is None
 
     async def test_dump_linked_data_for__with_embedded(
-        self, new_temporary_app: App
+        self, temporary_app: App
     ) -> None:
-        async with Project.new_temporary(new_temporary_app) as project, project:
+        async with Project.new_temporary(temporary_app) as project, project:
             associate = self._Associate()
             target = self._OwnerEmbedded(associate)
             actual = await assert_dumps_linked_data_for(type(target).associate, target)
@@ -352,9 +352,9 @@ class TestUnidirectionalToZeroOrOne:
             assert actual == expected
 
     async def test_dump_linked_data_for__with_embedded_without_associate(
-        self, new_temporary_app: App
+        self, temporary_app: App
     ) -> None:
-        async with Project.new_temporary(new_temporary_app) as project, project:
+        async with Project.new_temporary(temporary_app) as project, project:
             target = self._OwnerEmbedded()
             actual = await assert_dumps_linked_data_for(type(target).associate, target)
             assert actual is None
@@ -514,20 +514,20 @@ class TestBidirectionalToZeroOrOne:
         assert owner.associate is associate
         assert associate.owner is owner
 
-    async def test_linked_data_schema_for(self, new_temporary_app: App) -> None:
-        async with Project.new_temporary(new_temporary_app) as project, project:
+    async def test_linked_data_schema_for(self, temporary_app: App) -> None:
+        async with Project.new_temporary(temporary_app) as project, project:
             await self._Owner.associate.linked_data_schema_for(project)
 
     async def test_linked_data_schema_for__with_embedded(
-        self, new_temporary_app: App
+        self, temporary_app: App
     ) -> None:
-        async with Project.new_temporary(new_temporary_app) as project, project:
+        async with Project.new_temporary(temporary_app) as project, project:
             await self._OwnerEmbedded.associate.linked_data_schema_for(project)
 
     async def test_dump_linked_data_for__with_publishable(
-        self, new_temporary_app: App
+        self, temporary_app: App
     ) -> None:
-        async with Project.new_temporary(new_temporary_app) as project, project:
+        async with Project.new_temporary(temporary_app) as project, project:
             associate = self._Associate("my-first-associate")
             target = self._Owner(associate)
             actual = await assert_dumps_linked_data_for(type(target).associate, target)
@@ -535,35 +535,35 @@ class TestBidirectionalToZeroOrOne:
             assert actual == expected
 
     async def test_dump_linked_data_for__with_generated_id(
-        self, new_temporary_app: App
+        self, temporary_app: App
     ) -> None:
-        async with Project.new_temporary(new_temporary_app) as project, project:
+        async with Project.new_temporary(temporary_app) as project, project:
             associate = self._NonPublicFacingAssociate()
             target = self._OwnerWithNonPublicFacingAssociate(associate)
             actual = await assert_dumps_linked_data_for(type(target).associate, target)
             assert actual is None
 
     async def test_dump_linked_data_for__with_non_public_facing(
-        self, new_temporary_app: App
+        self, temporary_app: App
     ) -> None:
-        async with Project.new_temporary(new_temporary_app) as project, project:
+        async with Project.new_temporary(temporary_app) as project, project:
             associate = self._NonPublicFacingAssociate("my-first-associate")
             target = self._OwnerWithNonPublicFacingAssociate(associate)
             actual = await assert_dumps_linked_data_for(type(target).associate, target)
             assert actual is None
 
     async def test_dump_linked_data_for__without_associate(
-        self, new_temporary_app: App
+        self, temporary_app: App
     ) -> None:
-        async with Project.new_temporary(new_temporary_app) as project, project:
+        async with Project.new_temporary(temporary_app) as project, project:
             target = self._Owner()
             actual = await assert_dumps_linked_data_for(type(target).associate, target)
             assert actual is None
 
     async def test_dump_linked_data_for__with_embedded(
-        self, new_temporary_app: App
+        self, temporary_app: App
     ) -> None:
-        async with Project.new_temporary(new_temporary_app) as project, project:
+        async with Project.new_temporary(temporary_app) as project, project:
             associate = self._Associate()
             target = self._OwnerEmbedded(associate)
             actual = await assert_dumps_linked_data_for(type(target).associate, target)
@@ -574,9 +574,9 @@ class TestBidirectionalToZeroOrOne:
             assert actual == expected
 
     async def test_dump_linked_data_for__with_embedded_without_associate(
-        self, new_temporary_app: App
+        self, temporary_app: App
     ) -> None:
-        async with Project.new_temporary(new_temporary_app) as project, project:
+        async with Project.new_temporary(temporary_app) as project, project:
             target = self._OwnerEmbedded()
             actual = await assert_dumps_linked_data_for(type(target).associate, target)
             assert actual is None
@@ -680,20 +680,20 @@ class TestUnidirectionalToOne:
         type(owner).associate.resolve(owner)
         assert owner.associate is associate
 
-    async def test_linked_data_schema_for(self, new_temporary_app: App) -> None:
-        async with Project.new_temporary(new_temporary_app) as project, project:
+    async def test_linked_data_schema_for(self, temporary_app: App) -> None:
+        async with Project.new_temporary(temporary_app) as project, project:
             await self._Owner.associate.linked_data_schema_for(project)
 
     async def test_linked_data_schema_for__with_embedded(
-        self, new_temporary_app: App
+        self, temporary_app: App
     ) -> None:
-        async with Project.new_temporary(new_temporary_app) as project, project:
+        async with Project.new_temporary(temporary_app) as project, project:
             await self._OwnerEmbedded.associate.linked_data_schema_for(project)
 
     async def test_dump_linked_data_for__with_publishable(
-        self, new_temporary_app: App
+        self, temporary_app: App
     ) -> None:
-        async with Project.new_temporary(new_temporary_app) as project, project:
+        async with Project.new_temporary(temporary_app) as project, project:
             associate = self._Associate("my-first-associate")
             target = self._Owner(associate)
             actual = await assert_dumps_linked_data_for(type(target).associate, target)
@@ -701,27 +701,27 @@ class TestUnidirectionalToOne:
             assert actual == expected
 
     async def test_dump_linked_data_for__with_generated_id(
-        self, new_temporary_app: App
+        self, temporary_app: App
     ) -> None:
-        async with Project.new_temporary(new_temporary_app) as project, project:
+        async with Project.new_temporary(temporary_app) as project, project:
             associate = self._NonPublicFacingAssociate()
             target = self._OwnerWithNonPublicFacingAssociate(associate)
             actual = await assert_dumps_linked_data_for(type(target).associate, target)
             assert actual is None
 
     async def test_dump_linked_data_for__with_non_public_facing(
-        self, new_temporary_app: App
+        self, temporary_app: App
     ) -> None:
-        async with Project.new_temporary(new_temporary_app) as project, project:
+        async with Project.new_temporary(temporary_app) as project, project:
             associate = self._NonPublicFacingAssociate("my-first-associate")
             target = self._OwnerWithNonPublicFacingAssociate(associate)
             actual = await assert_dumps_linked_data_for(type(target).associate, target)
             assert actual is None
 
     async def test_dump_linked_data_for__with_embedded(
-        self, new_temporary_app: App
+        self, temporary_app: App
     ) -> None:
-        async with Project.new_temporary(new_temporary_app) as project, project:
+        async with Project.new_temporary(temporary_app) as project, project:
             associate = self._Associate()
             target = self._OwnerEmbedded(associate)
             actual = await assert_dumps_linked_data_for(type(target).associate, target)
@@ -863,20 +863,20 @@ class TestBidirectionalToOne:
         assert owner.associate is associate
         assert associate.owner is owner
 
-    async def test_linked_data_schema_for(self, new_temporary_app: App) -> None:
-        async with Project.new_temporary(new_temporary_app) as project, project:
+    async def test_linked_data_schema_for(self, temporary_app: App) -> None:
+        async with Project.new_temporary(temporary_app) as project, project:
             await self._Owner.associate.linked_data_schema_for(project)
 
     async def test_linked_data_schema_for__with_embedded(
-        self, new_temporary_app: App
+        self, temporary_app: App
     ) -> None:
-        async with Project.new_temporary(new_temporary_app) as project, project:
+        async with Project.new_temporary(temporary_app) as project, project:
             await self._OwnerEmbedded.associate.linked_data_schema_for(project)
 
     async def test_dump_linked_data_for__with_publishable(
-        self, new_temporary_app: App
+        self, temporary_app: App
     ) -> None:
-        async with Project.new_temporary(new_temporary_app) as project, project:
+        async with Project.new_temporary(temporary_app) as project, project:
             associate = self._Associate("my-first-associate")
             target = self._Owner(associate)
             actual = await assert_dumps_linked_data_for(type(target).associate, target)
@@ -884,27 +884,27 @@ class TestBidirectionalToOne:
             assert actual == expected
 
     async def test_dump_linked_data_for__with_generated_id(
-        self, new_temporary_app: App
+        self, temporary_app: App
     ) -> None:
-        async with Project.new_temporary(new_temporary_app) as project, project:
+        async with Project.new_temporary(temporary_app) as project, project:
             associate = self._NonPublicFacingAssociate()
             target = self._OwnerWithNonPublicFacingAssociate(associate)
             actual = await assert_dumps_linked_data_for(type(target).associate, target)
             assert actual is None
 
     async def test_dump_linked_data_for__with_non_public_facing(
-        self, new_temporary_app: App
+        self, temporary_app: App
     ) -> None:
-        async with Project.new_temporary(new_temporary_app) as project, project:
+        async with Project.new_temporary(temporary_app) as project, project:
             associate = self._NonPublicFacingAssociate("my-first-associate")
             target = self._OwnerWithNonPublicFacingAssociate(associate)
             actual = await assert_dumps_linked_data_for(type(target).associate, target)
             assert actual is None
 
     async def test_dump_linked_data_for__with_embedded(
-        self, new_temporary_app: App
+        self, temporary_app: App
     ) -> None:
-        async with Project.new_temporary(new_temporary_app) as project, project:
+        async with Project.new_temporary(temporary_app) as project, project:
             associate = self._AssociateEmbedded()
             target = self._OwnerEmbedded(associate)
             actual = await assert_dumps_linked_data_for(type(target).associate, target)
@@ -986,18 +986,18 @@ class TestUnidirectionalToManySingleType:
         type(owner).associates.resolve(owner)
         assert associate in owner.associates
 
-    async def test_linked_data_schema_for(self, new_temporary_app: App) -> None:
-        async with Project.new_temporary(new_temporary_app) as project, project:
+    async def test_linked_data_schema_for(self, temporary_app: App) -> None:
+        async with Project.new_temporary(temporary_app) as project, project:
             await self._Owner.associates.linked_data_schema_for(project)
 
     async def test_linked_data_schema_for__with_embedded(
-        self, new_temporary_app: App
+        self, temporary_app: App
     ) -> None:
-        async with Project.new_temporary(new_temporary_app) as project, project:
+        async with Project.new_temporary(temporary_app) as project, project:
             await self._OwnerEmbedded.associates.linked_data_schema_for(project)
 
-    async def test_dump_linked_data_for(self, new_temporary_app: App) -> None:
-        async with Project.new_temporary(new_temporary_app) as project, project:
+    async def test_dump_linked_data_for(self, temporary_app: App) -> None:
+        async with Project.new_temporary(temporary_app) as project, project:
             publishable_associate = self._NonPublicFacingAssociate(
                 "my-first-non-public-facing-associate"
             )
@@ -1018,9 +1018,9 @@ class TestUnidirectionalToManySingleType:
             assert actual == expected
 
     async def test_dump_linked_data_for__with_embedded(
-        self, new_temporary_app: App
+        self, temporary_app: App
     ) -> None:
-        async with Project.new_temporary(new_temporary_app) as project, project:
+        async with Project.new_temporary(temporary_app) as project, project:
             associate_one = self._Associate("my-first-publishable-associate")
             associate_two = self._NonPublicFacingAssociate()
             associate_three = self._NonPublicFacingAssociate(
@@ -1237,20 +1237,20 @@ class TestBidirectionalToManySingleType:
         assert associate in owner.associates
         assert associate.owner is owner
 
-    async def test_linked_data_schema_for(self, new_temporary_app: App) -> None:
-        async with Project.new_temporary(new_temporary_app) as project, project:
+    async def test_linked_data_schema_for(self, temporary_app: App) -> None:
+        async with Project.new_temporary(temporary_app) as project, project:
             await self._Owner.associates.linked_data_schema_for(project)
 
     async def test_linked_data_schema_for__with_embedded(
-        self, new_temporary_app: App
+        self, temporary_app: App
     ) -> None:
-        async with Project.new_temporary(new_temporary_app) as project, project:
+        async with Project.new_temporary(temporary_app) as project, project:
             await self._OwnerEmbedded.associates.linked_data_schema_for(project)
 
     async def test_dump_linked_data_for__with_publishable(
-        self, new_temporary_app: App
+        self, temporary_app: App
     ) -> None:
-        async with Project.new_temporary(new_temporary_app) as project, project:
+        async with Project.new_temporary(temporary_app) as project, project:
             associate = self._Associate("my-first-associate")
             target = self._Owner()
             target.associates = [associate]
@@ -1259,9 +1259,9 @@ class TestBidirectionalToManySingleType:
             assert actual == expected
 
     async def test_dump_linked_data_for__with_generated_id(
-        self, new_temporary_app: App
+        self, temporary_app: App
     ) -> None:
-        async with Project.new_temporary(new_temporary_app) as project, project:
+        async with Project.new_temporary(temporary_app) as project, project:
             associate = self._Associate()
             target = self._Owner()
             target.associates = [associate]
@@ -1269,9 +1269,9 @@ class TestBidirectionalToManySingleType:
             assert actual == []
 
     async def test_dump_linked_data_for__with_non_public_facing(
-        self, new_temporary_app: App
+        self, temporary_app: App
     ) -> None:
-        async with Project.new_temporary(new_temporary_app) as project, project:
+        async with Project.new_temporary(temporary_app) as project, project:
             associate = self._NonPublicFacingAssociate("my-first-associate")
             target = self._OwnerWithNonPublicFacingAssociate()
             target.associates = [associate]
@@ -1279,9 +1279,9 @@ class TestBidirectionalToManySingleType:
             assert actual == []
 
     async def test_dump_linked_data_for__with_embedded_with_publishable(
-        self, new_temporary_app: App
+        self, temporary_app: App
     ) -> None:
-        async with Project.new_temporary(new_temporary_app) as project, project:
+        async with Project.new_temporary(temporary_app) as project, project:
             associate = self._AssociateEmbedded("my-first-associate")
             target = self._OwnerEmbedded()
             target.associates = [associate]
@@ -1296,9 +1296,9 @@ class TestBidirectionalToManySingleType:
             assert actual == expected
 
     async def test_dump_linked_data_for__with_embedded_with_generated_id(
-        self, new_temporary_app: App
+        self, temporary_app: App
     ) -> None:
-        async with Project.new_temporary(new_temporary_app) as project, project:
+        async with Project.new_temporary(temporary_app) as project, project:
             associate = self._AssociateEmbedded()
             target = self._OwnerEmbedded()
             target.associates = [associate]
@@ -1312,9 +1312,9 @@ class TestBidirectionalToManySingleType:
             assert actual == expected
 
     async def test_dump_linked_data_for__with_embedded_with_non_public_facing(
-        self, new_temporary_app: App
+        self, temporary_app: App
     ) -> None:
-        async with Project.new_temporary(new_temporary_app) as project, project:
+        async with Project.new_temporary(temporary_app) as project, project:
             associate = self._NonPublicFacingAssociateEmbedded("my-first-associate")
             target = self._OwnerEmbedded()
             target.associates = [associate]

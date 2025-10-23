@@ -14,7 +14,7 @@ from betty.plugin.static import StaticPluginRepository
 from betty.project import Project
 from betty.project.extension import Extension, ExtensionDefinition
 from betty.project.extension.webpack.build import Builder, EntryPointProvider
-from betty.test_utils.conftest import NewTemporaryAppFactory
+from betty.test_utils.conftest import TemporaryAppFactory
 from betty.test_utils.user import StaticUser
 
 
@@ -35,10 +35,10 @@ class DummyEntryPointProviderExtension(EntryPointProvider, Extension):
 
 class TestBuilder:
     async def test_build(
-        self, new_temporary_app_factory: NewTemporaryAppFactory, tmp_path: Path
+        self, temporary_app_factory: TemporaryAppFactory, tmp_path: Path
     ) -> None:
         async with (
-            new_temporary_app_factory(
+            temporary_app_factory(
                 extension_repository=StaticPluginRepository(ExtensionDefinition)
             ) as app,
             app,
@@ -64,13 +64,13 @@ class TestBuilder:
 
     async def _test_build(
         self,
-        new_temporary_app: App,
+        temporary_app: App,
         tmp_path: Path,
         with_entry_point_provider: bool,
         debug: bool,
         root_path: str,
     ) -> None:
-        async with Project.new_temporary(new_temporary_app) as project:
+        async with Project.new_temporary(temporary_app) as project:
             job_context = Context()
             async with project:
                 sut = Builder(

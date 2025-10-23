@@ -54,8 +54,8 @@ class TestJinja2RendererDefinition(RendererDefinitionTestBase):
 
 
 class TestJinja2Renderer:
-    async def test_render_file(self, new_temporary_app: App, tmp_path: Path) -> None:
-        async with Project.new_temporary(new_temporary_app) as project, project:
+    async def test_render_file(self, temporary_app: App, tmp_path: Path) -> None:
+        async with Project.new_temporary(temporary_app) as project, project:
             sut = await Jinja2Renderer.new_for_project(project)
             template = "{% if true %}true{% endif %}"
             template_file_path = tmp_path / "betty.html.j2"
@@ -67,9 +67,9 @@ class TestJinja2Renderer:
             assert not template_file_path.exists()
 
     async def test_render_file_with_job_context(
-        self, new_temporary_app: App, tmp_path: Path
+        self, temporary_app: App, tmp_path: Path
     ) -> None:
-        async with Project.new_temporary(new_temporary_app) as project, project:
+        async with Project.new_temporary(temporary_app) as project, project:
             sut = await Jinja2Renderer.new_for_project(project)
             template = "{{ job_context.start }}"
             template_file_path = tmp_path / "betty.html.j2"
@@ -82,9 +82,9 @@ class TestJinja2Renderer:
             assert not template_file_path.exists()
 
     async def test_render_file_with_localizer(
-        self, new_temporary_app: App, tmp_path: Path
+        self, temporary_app: App, tmp_path: Path
     ) -> None:
-        async with Project.new_temporary(new_temporary_app) as project, project:
+        async with Project.new_temporary(temporary_app) as project, project:
             sut = await Jinja2Renderer.new_for_project(project)
             locale = "nl-NL"
             template = "{{ localizer.locale }}"
@@ -98,9 +98,9 @@ class TestJinja2Renderer:
             assert not template_file_path.exists()
 
     async def test_render_file_in_www_directory_monolingual(
-        self, new_temporary_app: App
+        self, temporary_app: App
     ) -> None:
-        async with Project.new_temporary(new_temporary_app) as project, project:
+        async with Project.new_temporary(temporary_app) as project, project:
             sut = await Jinja2Renderer.new_for_project(project)
             template = "{{ page_resource }}"
             template_file_path = (
@@ -117,9 +117,9 @@ class TestJinja2Renderer:
             assert not template_file_path.exists()
 
     async def test_render_file_in_www_directory_multilingual_with_static_resource(
-        self, new_temporary_app: App
+        self, temporary_app: App
     ) -> None:
-        async with Project.new_temporary(new_temporary_app) as project:
+        async with Project.new_temporary(temporary_app) as project:
             project.configuration.locales.append(LocaleConfiguration("nl-NL"))
             async with project:
                 sut = await Jinja2Renderer.new_for_project(project)
@@ -138,10 +138,10 @@ class TestJinja2Renderer:
                 assert not template_file_path.exists()
 
     async def test_render_file_in_www_directory_multilingual_with_localized_resource(
-        self, new_temporary_app: App
+        self, temporary_app: App
     ) -> None:
         locale_alias = "nl"
-        async with Project.new_temporary(new_temporary_app) as project:
+        async with Project.new_temporary(temporary_app) as project:
             project.configuration.locales.append(
                 LocaleConfiguration("nl-NL", alias=locale_alias)
             )
@@ -165,8 +165,8 @@ class TestJinja2Renderer:
                     assert (await f.read()).strip() == "betty:///betty.html"
                 assert not template_file_path.exists()
 
-    async def test_file_extensions(self, new_temporary_app: App) -> None:
-        async with Project.new_temporary(new_temporary_app) as project, project:
+    async def test_file_extensions(self, temporary_app: App) -> None:
+        async with Project.new_temporary(temporary_app) as project, project:
             sut = await Jinja2Renderer.new_for_project(project)
             sut.file_extensions  # noqa B018
 
@@ -200,30 +200,30 @@ class TestEntityContexts:
 
 
 class TestEnvironment:
-    async def test_context_class(self, new_temporary_app: App) -> None:
-        async with Project.new_temporary(new_temporary_app) as project, project:
+    async def test_context_class(self, temporary_app: App) -> None:
+        async with Project.new_temporary(temporary_app) as project, project:
             sut = await Environment.new_for_project(project)
             context_class = sut.context_class
             context_class(sut, {}, "", {}, {})
 
-    async def test_from_file(self, new_temporary_app: App, tmp_path: Path) -> None:
+    async def test_from_file(self, temporary_app: App, tmp_path: Path) -> None:
         template_string = "{% if true %}true{% endif %}"
         template_file_path = tmp_path / "betty.html.j2"
         async with aiofiles.open(template_file_path, "w") as f:
             await f.write(template_string)
 
-        async with Project.new_temporary(new_temporary_app) as project, project:
+        async with Project.new_temporary(temporary_app) as project, project:
             sut = await Environment.new_for_project(project)
             template = await sut.from_file(template_file_path)
             assert await template.render_async() == "true"
 
-    async def test_project(self, new_temporary_app: App) -> None:
-        async with Project.new_temporary(new_temporary_app) as project, project:
+    async def test_project(self, temporary_app: App) -> None:
+        async with Project.new_temporary(temporary_app) as project, project:
             sut = await Environment.new_for_project(project)
             assert sut.project is project
 
-    async def test_new_for_project_with_debug(self, new_temporary_app: App) -> None:
-        async with Project.new_temporary(new_temporary_app) as project:
+    async def test_new_for_project_with_debug(self, temporary_app: App) -> None:
+        async with Project.new_temporary(temporary_app) as project:
             project.configuration.debug = True
             async with project:
                 sut = await Environment.new_for_project(project)

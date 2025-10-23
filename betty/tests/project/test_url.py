@@ -19,7 +19,7 @@ from betty.project.url import (
     _StaticPathUrlUrlGenerator,
     new_project_url_generator,
 )
-from betty.test_utils.conftest import NewTemporaryAppFactory
+from betty.test_utils.conftest import TemporaryAppFactory
 from betty.test_utils.model import DummyEntityOne
 
 
@@ -108,9 +108,9 @@ class Test_LocalizedPathUrlUrlGenerator:
         ],
     )
     async def test_supports(
-        self, expected: bool, resource: Any, new_temporary_app: App
+        self, expected: bool, resource: Any, temporary_app: App
     ) -> None:
-        async with Project.new_temporary(new_temporary_app) as project, project:
+        async with Project.new_temporary(temporary_app) as project, project:
             sut = await _LocalizedPathUrlUrlGenerator.new_for_project(project)
             assert sut.supports(resource) == expected
 
@@ -187,9 +187,9 @@ class Test_LocalizedPathUrlUrlGenerator:
         absolute: bool,
         locale: LocaleLike | None,
         additional_project_locale: str | None,
-        new_temporary_app: App,
+        temporary_app: App,
     ) -> None:
-        async with Project.new_temporary(new_temporary_app) as project:
+        async with Project.new_temporary(temporary_app) as project:
             if additional_project_locale:
                 project.configuration.locales.append(
                     LocaleConfiguration(additional_project_locale)
@@ -228,9 +228,9 @@ class Test_StaticPathUrlUrlGenerator:
         ],
     )
     async def test_supports(
-        self, expected: bool, resource: Any, new_temporary_app: App
+        self, expected: bool, resource: Any, temporary_app: App
     ) -> None:
-        async with Project.new_temporary(new_temporary_app) as project, project:
+        async with Project.new_temporary(temporary_app) as project, project:
             sut = await _StaticPathUrlUrlGenerator.new_for_project(project)
             assert sut.supports(resource) == expected
 
@@ -290,9 +290,9 @@ class Test_StaticPathUrlUrlGenerator:
         additional_project_locale: str | None,
         fragment: str | None,
         query: Mapping[str, Sequence[str]] | None,
-        new_temporary_app: App,
+        temporary_app: App,
     ) -> None:
-        async with Project.new_temporary(new_temporary_app) as project:
+        async with Project.new_temporary(temporary_app) as project:
             if additional_project_locale:
                 project.configuration.locales.append(
                     LocaleConfiguration(additional_project_locale)
@@ -333,10 +333,10 @@ class Test_StaticPathUrlUrlGenerator:
     ],
 )
 async def test_new_project_url_generator__supports(
-    expected: bool, resource: Any, new_temporary_app_factory: NewTemporaryAppFactory
+    expected: bool, resource: Any, temporary_app_factory: TemporaryAppFactory
 ) -> None:
     async with (
-        new_temporary_app_factory(
+        temporary_app_factory(
             entity_type_repository=StaticPluginRepository(
                 EntityDefinition, DummyEntityOne.plugin
             )
@@ -400,10 +400,10 @@ async def test_new_project_url_generator__generate(
     absolute: bool,
     locale: LocaleLike | None,
     additional_project_locale: str | None,
-    new_temporary_app_factory: NewTemporaryAppFactory,
+    temporary_app_factory: TemporaryAppFactory,
 ) -> None:
     async with (
-        new_temporary_app_factory(
+        temporary_app_factory(
             entity_type_repository=StaticPluginRepository(
                 EntityDefinition, DummyEntityOne.plugin
             )
