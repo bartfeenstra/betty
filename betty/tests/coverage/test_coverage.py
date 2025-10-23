@@ -378,8 +378,7 @@ _BASELINE: Mapping[str, _ModuleIgnore] = {
         "assert_plugin": MissingReason.SHOULD_BE_COVERED,
     },
     "betty/plugin/config.py": {
-        # This is tested as part of PluginConfigurationPluginConfigurationMapping.
-        "PluginConfigurationMapping": MissingReason.COVERED_ELSEWHERE,
+        "PluginDefinitionConfigurationMapping": MissingReason.SHOULD_BE_COVERED,
     },
     "betty/plugin/lazy.py": MissingReason.SHOULD_BE_COVERED,
     "betty/privacy/__init__.py": {
@@ -392,6 +391,12 @@ _BASELINE: Mapping[str, _ModuleIgnore] = {
     },
     "betty/progress/__init__.py": {
         "Progress": MissingReason.ABSTRACT,
+    },
+    "betty/project/config.py": {
+        "EventTypeDefinitionConfiguration": MissingReason.STATIC_CONTENT_ONLY,
+        "GenderDefinitionConfiguration": MissingReason.STATIC_CONTENT_ONLY,
+        "PlaceTypeDefinitionConfiguration": MissingReason.STATIC_CONTENT_ONLY,
+        "PresenceRoleDefinitionConfiguration": MissingReason.STATIC_CONTENT_ONLY,
     },
     "betty/project/extension/__init__.py": {
         "ConfigurableExtension": MissingReason.SHOULD_BE_COVERED,

@@ -549,7 +549,7 @@ class TestDependentPluginDefinition:
     def test_depends_on(self) -> None:
         depends_on = {"depends-on"}
         sut = DependentPluginDefinition(
-            depends_on=depends_on,  # type: ignore[arg-type]
+            depends_on=depends_on,
             id="my-first-plugin",
         )
         assert sut.depends_on == depends_on
@@ -557,7 +557,7 @@ class TestDependentPluginDefinition:
     def test_comes_after(self) -> None:
         depends_on = {"depends-on"}
         sut = DependentPluginDefinition(
-            depends_on=depends_on,  # type: ignore[arg-type]
+            depends_on=depends_on,
             id="my-first-plugin",
         )
         assert sut.comes_after == depends_on
@@ -566,12 +566,12 @@ class TestDependentPluginDefinition:
 class TestOrderedPluginDefinition:
     def test_comes_before(self) -> None:
         comes_before = {"comes-before"}
-        sut = DependentPluginDefinition(comes_before=comes_before, id="my-first-plugin")
+        sut = OrderedPluginDefinition(comes_before=comes_before, id="my-first-plugin")
         assert sut.comes_before == comes_before
 
     def test_comes_after(self) -> None:
         comes_after = {"comes-after"}
-        sut = DependentPluginDefinition(comes_after=comes_after, id="my-first-plugin")
+        sut = OrderedPluginDefinition(comes_after=comes_after, id="my-first-plugin")
         assert sut.comes_after == comes_after
 
 

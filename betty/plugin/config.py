@@ -4,7 +4,7 @@ Provide plugin configuration.
 
 from __future__ import annotations
 
-from collections.abc import Mapping, Sequence
+from collections.abc import Mapping, MutableSet, Sequence, Set
 from typing import TYPE_CHECKING, Any, Generic, TypeVar, cast
 
 from typing_extensions import override
@@ -12,8 +12,11 @@ from typing_extensions import override
 from betty.assertion import (
     OptionalField,
     RequiredField,
+    assert_fields,
+    assert_mapping,
     assert_or,
     assert_record,
+    assert_sequence,
     assert_setattr,
 )
 from betty.config import Configuration, DefaultConfigurable
@@ -21,6 +24,7 @@ from betty.config.collections import ConfigurationKey
 from betty.config.collections.mapping import ConfigurationMapping
 from betty.exception import UserFacingException
 from betty.locale.localizable import _
+from betty.locale.localizable.assertion import assert_static_translations
 from betty.locale.localizable.config import (
     OptionalStaticTranslationsConfigurationAttr,
     RequiredStaticTranslationsConfigurationAttr,
@@ -74,30 +78,22 @@ class PluginIdentifierKeyConfigurationMapping(
         return super().__contains__(resolve_identifier(configuration_key))
 
 
-class PluginConfiguration(Configuration):
+class PluginDefinitionConfiguration(Configuration):
     """
-    Configure a single plugin.
+    Configure a :py:class:`betty.plugin.PluginDefinition`.
     """
-
-    label = RequiredStaticTranslationsConfigurationAttr("label")
-    description = OptionalStaticTranslationsConfigurationAttr("description")
 
     def __init__(
         self,
-        plugin_id: MachineName,
-        label: ShorthandStaticTranslations,
         *,
-        description: ShorthandStaticTranslations | None = None,
+        id: MachineName,  # noqa A002
     ):
         super().__init__()
-        self._id = assert_machine_name()(plugin_id)
-        self.label = label
-        if description is not None:
-            self.description = description
+        self._id = assert_machine_name()(id)
 
     @override
     def __repr__(self) -> str:
-        return repr_instance(self, id=self.id, label=self.label)
+        return repr_instance(self, id=self.id)
 
     @property
     def id(self) -> str:
@@ -111,23 +107,125 @@ class PluginConfiguration(Configuration):
         self.assert_mutable()
         assert_record(
             RequiredField("id", assert_machine_name() | assert_setattr(self, "_id")),
-            RequiredField("label", self.label.load),
-            OptionalField("description", self.description.load),
         )(dump)
 
     @override
     def dump(self) -> DumpMapping[Dump]:
         return {
             "id": self.id,
-            "label": self.label.dump(),
-            "description": self.description.dump(),
         }
 
 
-_PluginConfigurationT = TypeVar("_PluginConfigurationT", bound=PluginConfiguration)
+class HumanFacingPluginDefinitionConfiguration(PluginDefinitionConfiguration):
+    """
+    Configure a :py:class:`betty.plugin.HumanFacingPluginDefinition`.
+    """
+
+    label = RequiredStaticTranslationsConfigurationAttr("label")
+    description = OptionalStaticTranslationsConfigurationAttr("description")
+
+    def __init__(
+        self,
+        *,
+        label: ShorthandStaticTranslations,
+        description: ShorthandStaticTranslations | None = None,
+        **kwargs: Any,
+    ):
+        super().__init__(**kwargs)
+        self.label = label
+        if description is not None:
+            self.description = description
+
+    @override
+    def load(self, dump: Dump) -> None:
+        self.assert_mutable()
+
+        mapping = assert_mapping()(dump)
+        assert_fields(
+            RequiredField(
+                "label",
+                assert_static_translations() | assert_setattr(self, "label"),
+            ),
+            OptionalField(
+                "description",
+                assert_static_translations() | assert_setattr(self, "description"),
+            ),
+        )(mapping)
+        mapping.pop("label", None)
+        mapping.pop("description", None)
+        super().load(mapping)
+
+    @override
+    def dump(self) -> DumpMapping[Dump]:
+        dump = super().dump()
+        dump["label"] = self.label.dump()
+        dump["description"] = self.description.dump()
+        return dump
 
 
-class PluginConfigurationMapping(
+class OrderedPluginDefinitionConfiguration(PluginDefinitionConfiguration):
+    """
+    Configure a :py:class:`betty.plugin.OrderedPluginDefinition`.
+    """
+
+    comes_before: MutableSet[MachineName]
+    comes_after: MutableSet[MachineName]
+
+    def __init__(
+        self,
+        comes_before: Set[PluginIdentifier] | None = None,
+        comes_after: Set[PluginIdentifier] | None = None,
+        **kwargs: Any,
+    ):
+        super().__init__(**kwargs)
+        self.comes_before = (
+            set()
+            if comes_before is None
+            else set(map(resolve_identifier, comes_before))
+        )
+        self.comes_after = (
+            set() if comes_after is None else set(map(resolve_identifier, comes_after))
+        )
+
+    @override
+    def load(self, dump: Dump) -> None:
+        self.assert_mutable()
+
+        mapping = assert_mapping()(dump)
+        assert_fields(
+            OptionalField(
+                "comes_before",
+                assert_sequence(assert_machine_name())
+                | set
+                | assert_setattr(self, "comes_before"),
+            ),
+            OptionalField(
+                "comes_after",
+                assert_sequence(assert_machine_name())
+                | set
+                | assert_setattr(self, "comes_after"),
+            ),
+        )(mapping)
+        mapping.pop("comes_before", None)
+        mapping.pop("comes_after", None)
+        super().load(mapping)
+
+    @override
+    def dump(self) -> DumpMapping[Dump]:
+        dump = super().dump()
+        if self.comes_before:
+            dump["comes_before"] = list(self.comes_before)
+        if self.comes_after:
+            dump["comes_after"] = list(self.comes_after)
+        return dump
+
+
+_PluginConfigurationT = TypeVar(
+    "_PluginConfigurationT", bound=PluginDefinitionConfiguration
+)
+
+
+class PluginDefinitionConfigurationMapping(
     ConfigurationMapping[MachineName, _PluginConfigurationT],
     Generic[_PluginDefinitionT, _PluginConfigurationT],
 ):
@@ -167,21 +265,6 @@ class PluginConfigurationMapping(
     def _dump_key(self, item_dump: Dump) -> tuple[Dump, str]:
         assert isinstance(item_dump, Mapping)
         return item_dump, cast(str, item_dump.pop("id"))
-
-
-class PluginConfigurationPluginConfigurationMapping(
-    PluginConfigurationMapping[_PluginDefinitionT, PluginConfiguration],
-    Generic[_PluginDefinitionT],
-):
-    """
-    Configure a collection of plugins using :py:class:`betty.plugin.config.PluginConfiguration`.
-    """
-
-    @override
-    def _load_item(self, dump: Dump) -> PluginConfiguration:
-        item = PluginConfiguration("-", "")
-        item.load(dump)
-        return item
 
 
 class PluginInstanceConfiguration(

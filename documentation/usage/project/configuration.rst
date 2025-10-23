@@ -195,6 +195,18 @@ The event type's human-readable label. This can be a string or :doc:`multiple tr
 
 The event type's human-readable long description. This can be a string or :doc:`multiple translations </usage/configuration/static-translations-localizable>`.
 
+``event_types{}.comes_before``
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+:sup:`optional`
+
+A collection of the IDs of other event types that this one comes before.
+
+``event_types{}.comes_after``
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+:sup:`optional`
+
+A collection of the IDs of other event types that this one comes after.
+
 ``genders``
 -----------
 :sup:`optional`

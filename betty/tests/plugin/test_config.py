@@ -11,8 +11,9 @@ from betty.locale.localizable import ShorthandStaticTranslations
 from betty.locale.localizer import DEFAULT_LOCALIZER
 from betty.machine_name import MachineName
 from betty.plugin.config import (
-    PluginConfiguration,
-    PluginConfigurationPluginConfigurationMapping,
+    HumanFacingPluginDefinitionConfiguration,
+    OrderedPluginDefinitionConfiguration,
+    PluginDefinitionConfiguration,
     PluginIdentifierKeyConfigurationMapping,
     PluginInstanceConfiguration,
     PluginInstanceConfigurationMapping,
@@ -42,28 +43,41 @@ from betty.test_utils.plugin import (
 )
 
 
-class TestPluginConfiguration:
+class TestPluginDefinitionConfiguration:
     async def test_load(self) -> None:
         plugin_id = "hello-world"
         dump: Dump = {
             "id": plugin_id,
-            "label": "",
         }
-        sut = PluginConfiguration("-", "")
+        sut = PluginDefinitionConfiguration(id="-")
         sut.load(dump)
         assert sut.id == plugin_id
 
-    async def test_load_with_undetermined_label(self) -> None:
+    async def test_dump(self) -> None:
+        plugin_id = "hello-world"
+        sut = PluginDefinitionConfiguration(id=plugin_id)
+        dump = sut.dump()
+        assert isinstance(dump, dict)
+        assert dump["id"] == plugin_id
+
+    async def test_id(self) -> None:
+        plugin_id = "hello-world"
+        sut = PluginDefinitionConfiguration(id=plugin_id)
+        assert sut.id == plugin_id
+
+
+class TestHumanFacingPluginDefinitionConfiguration:
+    async def test_load__with_undetermined_label(self) -> None:
         label = "Hello, world!"
         dump: Dump = {
             "id": "hello-world",
             "label": label,
         }
-        sut = PluginConfiguration("-", "")
+        sut = HumanFacingPluginDefinitionConfiguration(id="-", label="")
         sut.load(dump)
         assert sut.label[UNDETERMINED_LOCALE] == label
 
-    async def test_load_with_expanded_label(self) -> None:
+    async def test_load__with_expanded_label(self) -> None:
         label = "Hello, world!"
         dump: Dump = {
             "id": "hello-world",
@@ -71,22 +85,22 @@ class TestPluginConfiguration:
                 DEFAULT_LOCALIZER.locale: label,
             },
         }
-        sut = PluginConfiguration("-", "")
+        sut = HumanFacingPluginDefinitionConfiguration(id="-", label="")
         sut.load(dump)
         assert sut.label[DEFAULT_LOCALIZER.locale] == label
 
-    async def test_load_with_undetermined_description(self) -> None:
+    async def test_load__with_undetermined_description(self) -> None:
         description = "Hello, world!"
         dump: Dump = {
             "id": "hello-world",
             "label": "",
             "description": description,
         }
-        sut = PluginConfiguration("-", "")
+        sut = HumanFacingPluginDefinitionConfiguration(id="-", label="")
         sut.load(dump)
         assert sut.description[UNDETERMINED_LOCALE] == description
 
-    async def test_load_with_expanded_description(self) -> None:
+    async def test_load__with_expanded_description(self) -> None:
         description = "Hello, world!"
         dump: Dump = {
             "id": "hello-world",
@@ -95,45 +109,42 @@ class TestPluginConfiguration:
                 DEFAULT_LOCALIZER.locale: description,
             },
         }
-        sut = PluginConfiguration("-", "")
+        sut = HumanFacingPluginDefinitionConfiguration(id="-", label="")
         sut.load(dump)
         assert sut.description[DEFAULT_LOCALIZER.locale] == description
 
-    async def test_dump(self) -> None:
-        plugin_id = "hello-world"
-        sut = PluginConfiguration(plugin_id, "")
-        dump = sut.dump()
-        assert isinstance(dump, dict)
-        assert dump["id"] == plugin_id
-
-    async def test_dump_with_undetermined_label(self) -> None:
+    async def test_dump__with_undetermined_label(self) -> None:
         label = "Hello, world!"
-        sut = PluginConfiguration("hello-world", label)
+        sut = HumanFacingPluginDefinitionConfiguration(id="hello-world", label=label)
         dump = sut.dump()
         assert isinstance(dump, dict)
         assert dump["label"] == label
 
-    async def test_dump_with_expanded_label(self) -> None:
+    async def test_dump__with_expanded_label(self) -> None:
         label = "Hello, world!"
-        sut = PluginConfiguration("hello-world", {DEFAULT_LOCALIZER.locale: label})
+        sut = HumanFacingPluginDefinitionConfiguration(
+            id="hello-world", label={DEFAULT_LOCALIZER.locale: label}
+        )
         dump = sut.dump()
         assert isinstance(dump, dict)
         assert dump["label"] == {
             DEFAULT_LOCALIZER.locale: label,
         }
 
-    async def test_dump_with_undetermined_description(self) -> None:
+    async def test_dump__with_undetermined_description(self) -> None:
         description = "Hello, world!"
-        sut = PluginConfiguration("hello-world", "", description=description)
+        sut = HumanFacingPluginDefinitionConfiguration(
+            id="hello-world", label="", description=description
+        )
         dump = sut.dump()
         assert isinstance(dump, dict)
         assert dump["description"] == description
 
-    async def test_dump_with_expanded_description(self) -> None:
+    async def test_dump__with_expanded_description(self) -> None:
         description = "Hello, world!"
-        sut = PluginConfiguration(
-            "hello-world",
-            "",
+        sut = HumanFacingPluginDefinitionConfiguration(
+            id="hello-world",
+            label="",
             description={DEFAULT_LOCALIZER.locale: description},
         )
         dump = sut.dump()
@@ -141,11 +152,6 @@ class TestPluginConfiguration:
         assert dump["description"] == {
             DEFAULT_LOCALIZER.locale: description,
         }
-
-    async def test_id(self) -> None:
-        plugin_id = "hello-world"
-        sut = PluginConfiguration(plugin_id, "")
-        assert sut.id == plugin_id
 
     @pytest.mark.parametrize(
         ("expected_locale", "expected_label", "init_label"),
@@ -165,7 +171,7 @@ class TestPluginConfiguration:
         init_label: ShorthandStaticTranslations,
     ) -> None:
         plugin_id = "hello-world"
-        sut = PluginConfiguration(plugin_id, init_label)
+        sut = HumanFacingPluginDefinitionConfiguration(id=plugin_id, label=init_label)
         assert sut.label[expected_locale] == expected_label
 
     @pytest.mark.parametrize(
@@ -186,46 +192,65 @@ class TestPluginConfiguration:
         init_description: ShorthandStaticTranslations,
     ) -> None:
         plugin_id = "hello-world"
-        sut = PluginConfiguration(plugin_id, "", description=init_description)
+        sut = HumanFacingPluginDefinitionConfiguration(
+            id=plugin_id, label="", description=init_description
+        )
         assert sut.description[expected_locale] == expected_description
 
 
-class TestPluginConfigurationPluginConfigurationMapping(
-    ConfigurationMappingTestBase[MachineName, PluginConfiguration]
-):
-    @override
-    @pytest.fixture
-    def new_sut(
-        self,
-    ) -> ConfigurationCollectionTestBaseNewSut[PluginConfiguration, MachineName]:
-        return PluginConfigurationPluginConfigurationMapping
+class TestOrderedPluginDefinitionConfiguration:
+    async def test_load__minimal(self) -> None:
+        dump: Dump = {"id": "hello-world"}
+        sut = OrderedPluginDefinitionConfiguration(id="-")
+        sut.load(dump)
+        assert not sut.comes_before
+        assert not sut.comes_after
 
-    @override
-    @pytest.fixture
-    def sut_configuration_keys(
-        self,
-    ) -> ConfigurationCollectionTestBaseSutConfigurationKeys[MachineName]:
-        return (
-            "hello-world-1",
-            "hello-world-2",
-            "hello-world-3",
-            "hello-world-4",
-        )
+    async def test_load__with_comes_before(self) -> None:
+        dump: Dump = {
+            "id": "hello-world",
+            "comes_before": ["my-first-plugin"],
+        }
+        sut = OrderedPluginDefinitionConfiguration(id="-")
+        sut.load(dump)
+        assert sut.comes_before == {"my-first-plugin"}
 
-    @override
-    @pytest.fixture
-    def sut_configurations(
-        self,
-        sut_configuration_keys: ConfigurationCollectionTestBaseSutConfigurationKeys[
-            MachineName
-        ],
-    ) -> ConfigurationCollectionTestBaseSutConfigurations[PluginConfiguration]:
-        return (
-            PluginConfiguration(sut_configuration_keys[0], ""),
-            PluginConfiguration(sut_configuration_keys[1], ""),
-            PluginConfiguration(sut_configuration_keys[2], ""),
-            PluginConfiguration(sut_configuration_keys[3], ""),
-        )
+    async def test_load__with_comes_after(self) -> None:
+        dump: Dump = {
+            "id": "hello-world",
+            "comes_after": ["my-first-plugin"],
+        }
+        sut = OrderedPluginDefinitionConfiguration(id="-")
+        sut.load(dump)
+        assert sut.comes_after == {"my-first-plugin"}
+
+    async def test_dump__minimal(self) -> None:
+        sut = OrderedPluginDefinitionConfiguration(id="-")
+        dump = sut.dump()
+        assert "comes_before" not in dump
+        assert "comes_after" not in dump
+
+    async def test_dump__with_comes_before(self) -> None:
+        comes_before = {"my-first-plugin"}
+        sut = OrderedPluginDefinitionConfiguration(id="-", comes_before=comes_before)
+        dump = sut.dump()
+        assert dump["comes_before"] == list(comes_before)
+
+    async def test_dump__with_comes_after(self) -> None:
+        comes_after = {"my-first-plugin"}
+        sut = OrderedPluginDefinitionConfiguration(id="-", comes_after=comes_after)
+        dump = sut.dump()
+        assert dump["comes_after"] == list(comes_after)
+
+    async def test_comes_before(self) -> None:
+        comes_before = {"my-first-plugin"}
+        sut = OrderedPluginDefinitionConfiguration(id="-", comes_before=comes_before)
+        assert sut.comes_before == comes_before
+
+    async def test_comes_after(self) -> None:
+        comes_after = {"my-first-plugin"}
+        sut = OrderedPluginDefinitionConfiguration(id="-", comes_after=comes_after)
+        assert sut.comes_after == comes_after
 
 
 class TestPluginInstanceConfiguration:

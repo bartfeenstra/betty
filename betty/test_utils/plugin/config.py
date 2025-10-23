@@ -6,7 +6,10 @@ from typing import Generic, TypeVar, cast
 
 from betty.machine_name import MachineName
 from betty.plugin import PluginDefinition
-from betty.plugin.config import PluginConfiguration, PluginConfigurationMapping
+from betty.plugin.config import (
+    PluginDefinitionConfiguration,
+    PluginDefinitionConfigurationMapping,
+)
 from betty.test_utils.config.collections import (
     ConfigurationCollectionTestBaseNewSut,
     ConfigurationCollectionTestBaseSutConfigurations,
@@ -14,31 +17,35 @@ from betty.test_utils.config.collections import (
 from betty.test_utils.config.collections.mapping import ConfigurationMappingTestBase
 
 _PluginDefinitionT = TypeVar("_PluginDefinitionT", bound=PluginDefinition)
-_PluginConfigurationT = TypeVar("_PluginConfigurationT", bound=PluginConfiguration)
+_PluginDefinitionConfigurationT = TypeVar(
+    "_PluginDefinitionConfigurationT", bound=PluginDefinitionConfiguration
+)
 
 
-class PluginConfigurationMappingTestBase(
-    ConfigurationMappingTestBase[MachineName, _PluginConfigurationT],
-    Generic[_PluginDefinitionT, _PluginConfigurationT],
+class PluginDefinitionConfigurationMappingTestBase(
+    ConfigurationMappingTestBase[MachineName, _PluginDefinitionConfigurationT],
+    Generic[_PluginDefinitionT, _PluginDefinitionConfigurationT],
 ):
     """
-    A base class for testing :py:class:`betty.plugin.config.PluginConfigurationMapping` implementations.
+    A base class for testing :py:class:`betty.plugin.config.PluginDefinitionConfigurationMapping` implementations.
     """
 
     def test_new_plugins(
         self,
         new_sut: ConfigurationCollectionTestBaseNewSut[
-            _PluginConfigurationT, MachineName
+            _PluginDefinitionConfigurationT, MachineName
         ],
         sut_configurations: ConfigurationCollectionTestBaseSutConfigurations[
-            _PluginConfigurationT
+            _PluginDefinitionConfigurationT
         ],
     ) -> None:
         """
-        Tests :py:meth:`betty.plugin.config.PluginConfigurationMapping.new_plugins` implementations.
+        Tests :py:meth:`betty.plugin.config.PluginDefinitionConfigurationMapping.new_plugins` implementations.
         """
         sut = cast(
-            PluginConfigurationMapping[_PluginDefinitionT, _PluginConfigurationT],
+            PluginDefinitionConfigurationMapping[
+                _PluginDefinitionT, _PluginDefinitionConfigurationT
+            ],
             new_sut(sut_configurations),
         )
         for configuration, plugin in zip(

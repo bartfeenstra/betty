@@ -52,9 +52,9 @@ from betty.plugin import (
     resolve_identifier,
 )
 from betty.plugin.config import (
-    PluginConfiguration,
-    PluginConfigurationMapping,
-    PluginConfigurationPluginConfigurationMapping,
+    HumanFacingPluginDefinitionConfiguration,
+    OrderedPluginDefinitionConfiguration,
+    PluginDefinitionConfigurationMapping,
     PluginIdentifierKeyConfigurationMapping,
     PluginInstanceConfiguration,
     PluginInstanceConfigurationMapping,
@@ -319,9 +319,9 @@ class LocaleConfigurationMapping(OrderedConfigurationMapping[str, LocaleConfigur
         return len(self) > 1
 
 
-class CopyrightNoticeConfiguration(PluginConfiguration):
+class CopyrightNoticeDefinitionConfiguration(HumanFacingPluginDefinitionConfiguration):
     """
-    Configuration to define :py:class:`betty.copyright_notice.CopyrightNotice` plugins.
+    Configure a :py:class:`betty.copyright_notice.CopyrightNoticeDefinition`.
     """
 
     summary = RequiredStaticTranslationsConfigurationAttr("summary")
@@ -329,14 +329,12 @@ class CopyrightNoticeConfiguration(PluginConfiguration):
 
     def __init__(
         self,
-        plugin_id: MachineName,
-        label: ShorthandStaticTranslations,
         *,
         summary: ShorthandStaticTranslations,
         text: ShorthandStaticTranslations,
-        description: ShorthandStaticTranslations | None = None,
+        **kwargs: Any,
     ):
-        super().__init__(plugin_id, label, description=description)
+        super().__init__(**kwargs)
         self.summary = summary
         self.text = text
 
@@ -353,8 +351,8 @@ class CopyrightNoticeConfiguration(PluginConfiguration):
                 assert_static_translations() | assert_setattr(self, "text"),
             ),
         )(mapping)
-        del mapping["summary"]
-        del mapping["text"]
+        mapping.pop("summary", None)
+        mapping.pop("text", None)
         super().load(mapping)
 
     @override
@@ -366,16 +364,26 @@ class CopyrightNoticeConfiguration(PluginConfiguration):
         }
 
 
-class CopyrightNoticeConfigurationMapping(
-    PluginConfigurationMapping[CopyrightNoticeDefinition, CopyrightNoticeConfiguration]
+class CopyrightNoticeDefinitionConfigurationMapping(
+    PluginDefinitionConfigurationMapping[
+        CopyrightNoticeDefinition, CopyrightNoticeDefinitionConfiguration
+    ]
 ):
     """
     A configuration mapping for copyright notices.
     """
 
     @override
+    def _load_item(self, dump: Dump) -> CopyrightNoticeDefinitionConfiguration:
+        item = CopyrightNoticeDefinitionConfiguration(
+            id="-", label="", summary="", text=""
+        )
+        item.load(dump)
+        return item
+
+    @override
     def _new_plugin(
-        self, configuration: CopyrightNoticeConfiguration
+        self, configuration: CopyrightNoticeDefinitionConfiguration
     ) -> CopyrightNoticeDefinition:
         class _ProjectConfigurationCopyrightNotice(CopyrightNotice):
             @override
@@ -395,16 +403,10 @@ class CopyrightNoticeConfigurationMapping(
             cls=_ProjectConfigurationCopyrightNotice,
         )
 
-    @override
-    def _load_item(self, dump: Dump) -> CopyrightNoticeConfiguration:
-        item = CopyrightNoticeConfiguration("-", "", summary="", text="")
-        item.load(dump)
-        return item
 
-
-class LicenseConfiguration(PluginConfiguration):
+class LicenseDefinitionConfiguration(HumanFacingPluginDefinitionConfiguration):
     """
-    Configuration to define :py:class:`betty.license.License` plugins.
+    Configure a :py:class:`betty.license.LicenseDefinition`.
     """
 
     summary = RequiredStaticTranslationsConfigurationAttr("summary")
@@ -412,14 +414,12 @@ class LicenseConfiguration(PluginConfiguration):
 
     def __init__(
         self,
-        plugin_id: MachineName,
-        label: ShorthandStaticTranslations,
         *,
         summary: ShorthandStaticTranslations,
         text: ShorthandStaticTranslations,
-        description: ShorthandStaticTranslations | None = None,
+        **kwargs: Any,
     ):
-        super().__init__(plugin_id, label, description=description)
+        super().__init__(**kwargs)
         self.summary = summary
         self.text = text
 
@@ -436,8 +436,8 @@ class LicenseConfiguration(PluginConfiguration):
                 assert_static_translations() | assert_setattr(self, "text"),
             ),
         )(mapping)
-        del mapping["summary"]
-        del mapping["text"]
+        mapping.pop("summary", None)
+        mapping.pop("text", None)
         super().load(mapping)
 
     @override
@@ -449,15 +449,25 @@ class LicenseConfiguration(PluginConfiguration):
         }
 
 
-class LicenseConfigurationMapping(
-    PluginConfigurationMapping[LicenseDefinition, LicenseConfiguration]
+class LicenseDefinitionConfigurationMapping(
+    PluginDefinitionConfigurationMapping[
+        LicenseDefinition, LicenseDefinitionConfiguration
+    ]
 ):
     """
     A configuration mapping for licenses.
     """
 
     @override
-    def _new_plugin(self, configuration: LicenseConfiguration) -> LicenseDefinition:
+    def _load_item(self, dump: Dump) -> LicenseDefinitionConfiguration:
+        item = LicenseDefinitionConfiguration(id="-", label="", summary="", text="")
+        item.load(dump)
+        return item
+
+    @override
+    def _new_plugin(
+        self, configuration: LicenseDefinitionConfiguration
+    ) -> LicenseDefinition:
         class _ProjectConfigurationLicense(License):
             @override
             @property
@@ -476,22 +486,34 @@ class LicenseConfigurationMapping(
             cls=_ProjectConfigurationLicense,
         )
 
-    @override
-    def _load_item(self, dump: Dump) -> LicenseConfiguration:
-        item = LicenseConfiguration("-", "", summary="", text="")
-        item.load(dump)
-        return item
+
+class EventTypeDefinitionConfiguration(
+    HumanFacingPluginDefinitionConfiguration, OrderedPluginDefinitionConfiguration
+):
+    """
+    Configure a :py:class:`betty.ancestry.event_type.EventTypeDefinition`.
+    """
 
 
-class EventTypeConfigurationMapping(
-    PluginConfigurationPluginConfigurationMapping[EventTypeDefinition]
+class EventTypeDefinitionConfigurationMapping(
+    PluginDefinitionConfigurationMapping[
+        EventTypeDefinition, EventTypeDefinitionConfiguration
+    ]
 ):
     """
     A configuration mapping for event types.
     """
 
     @override
-    def _new_plugin(self, configuration: PluginConfiguration) -> EventTypeDefinition:
+    def _load_item(self, dump: Dump) -> EventTypeDefinitionConfiguration:
+        item = EventTypeDefinitionConfiguration(id="-", label="")
+        item.load(dump)
+        return item
+
+    @override
+    def _new_plugin(
+        self, configuration: EventTypeDefinitionConfiguration
+    ) -> EventTypeDefinition:
         return EventTypeDefinition(
             id=configuration.id,
             label=configuration.label,
@@ -500,15 +522,31 @@ class EventTypeConfigurationMapping(
         )
 
 
-class PlaceTypeConfigurationMapping(
-    PluginConfigurationPluginConfigurationMapping[PlaceTypeDefinition]
+class PlaceTypeDefinitionConfiguration(HumanFacingPluginDefinitionConfiguration):
+    """
+    Configure a :py:class:`betty.ancestry.place_type.PlaceTypeDefinition`.
+    """
+
+
+class PlaceTypeDefinitionConfigurationMapping(
+    PluginDefinitionConfigurationMapping[
+        PlaceTypeDefinition, PlaceTypeDefinitionConfiguration
+    ]
 ):
     """
     A configuration mapping for place types.
     """
 
     @override
-    def _new_plugin(self, configuration: PluginConfiguration) -> PlaceTypeDefinition:
+    def _load_item(self, dump: Dump) -> PlaceTypeDefinitionConfiguration:
+        item = PlaceTypeDefinitionConfiguration(id="-", label="")
+        item.load(dump)
+        return item
+
+    @override
+    def _new_plugin(
+        self, configuration: PlaceTypeDefinitionConfiguration
+    ) -> PlaceTypeDefinition:
         return PlaceTypeDefinition(
             id=configuration.id,
             label=configuration.label,
@@ -517,15 +555,31 @@ class PlaceTypeConfigurationMapping(
         )
 
 
-class PresenceRoleConfigurationMapping(
-    PluginConfigurationPluginConfigurationMapping[PresenceRoleDefinition]
+class PresenceRoleDefinitionConfiguration(HumanFacingPluginDefinitionConfiguration):
+    """
+    Configure a :py:class:`betty.ancestry.presence_role.PresenceRoleDefinition`.
+    """
+
+
+class PresenceRoleDefinitionConfigurationMapping(
+    PluginDefinitionConfigurationMapping[
+        PresenceRoleDefinition, PresenceRoleDefinitionConfiguration
+    ]
 ):
     """
     A configuration mapping for presence roles.
     """
 
     @override
-    def _new_plugin(self, configuration: PluginConfiguration) -> PresenceRoleDefinition:
+    def _load_item(self, dump: Dump) -> PresenceRoleDefinitionConfiguration:
+        item = PresenceRoleDefinitionConfiguration(id="-", label="")
+        item.load(dump)
+        return item
+
+    @override
+    def _new_plugin(
+        self, configuration: PresenceRoleDefinitionConfiguration
+    ) -> PresenceRoleDefinition:
         return PresenceRoleDefinition(
             id=configuration.id,
             label=configuration.label,
@@ -534,15 +588,31 @@ class PresenceRoleConfigurationMapping(
         )
 
 
-class GenderConfigurationMapping(
-    PluginConfigurationPluginConfigurationMapping[GenderDefinition]
+class GenderDefinitionConfiguration(HumanFacingPluginDefinitionConfiguration):
+    """
+    Configure a :py:class:`betty.ancestry.gender.GenderDefinition`.
+    """
+
+
+class GenderDefinitionConfigurationMapping(
+    PluginDefinitionConfigurationMapping[
+        GenderDefinition, GenderDefinitionConfiguration
+    ]
 ):
     """
     A configuration mapping for genders.
     """
 
     @override
-    def _new_plugin(self, configuration: PluginConfiguration) -> GenderDefinition:
+    def _load_item(self, dump: Dump) -> GenderDefinitionConfiguration:
+        item = GenderDefinitionConfiguration(id="-", label="")
+        item.load(dump)
+        return item
+
+    @override
+    def _new_plugin(
+        self, configuration: GenderDefinitionConfiguration
+    ) -> GenderDefinition:
         return GenderDefinition(
             id=configuration.id,
             label=configuration.label,
@@ -569,17 +639,18 @@ class ProjectConfiguration(Configuration):
         title: ShorthandStaticTranslations = "Betty",
         author: ShorthandStaticTranslations | None = None,
         entity_types: Iterable[EntityTypeConfiguration] | None = None,
-        event_types: Iterable[PluginConfiguration] | None = None,
-        place_types: Iterable[PluginConfiguration] | None = None,
-        presence_roles: Iterable[PluginConfiguration] | None = None,
+        event_types: Iterable[EventTypeDefinitionConfiguration] | None = None,
+        place_types: Iterable[PlaceTypeDefinitionConfiguration] | None = None,
+        presence_roles: Iterable[PresenceRoleDefinitionConfiguration] | None = None,
         copyright_notice: PluginInstanceConfiguration[
             CopyrightNoticeDefinition, CopyrightNotice
         ]
         | None = None,
-        copyright_notices: Iterable[CopyrightNoticeConfiguration] | None = None,
+        copyright_notices: Iterable[CopyrightNoticeDefinitionConfiguration]
+        | None = None,
         license: PluginInstanceConfiguration[LicenseDefinition, License] | None = None,  # noqa A002
-        licenses: Iterable[LicenseConfiguration] | None = None,
-        genders: Iterable[PluginConfiguration] | None = None,
+        licenses: Iterable[LicenseDefinitionConfiguration] | None = None,
+        genders: Iterable[GenderDefinitionConfiguration] | None = None,
         extensions: Iterable[
             PluginInstanceConfiguration[ExtensionDefinition, Extension]
         ]
@@ -605,25 +676,25 @@ class ProjectConfiguration(Configuration):
         self.copyright_notice = copyright_notice or PluginInstanceConfiguration[
             CopyrightNoticeDefinition, CopyrightNotice
         ](ProjectAuthor)
-        self._copyright_notices = CopyrightNoticeConfigurationMapping()
+        self._copyright_notices = CopyrightNoticeDefinitionConfigurationMapping()
         if copyright_notices is not None:
             self._copyright_notices.append(*copyright_notices)
         self.license = license or PluginInstanceConfiguration[
             LicenseDefinition, License
         ](AllRightsReserved)
-        self._licenses = LicenseConfigurationMapping()
+        self._licenses = LicenseDefinitionConfigurationMapping()
         if licenses is not None:
             self._licenses.append(*licenses)
-        self._event_types = EventTypeConfigurationMapping()
+        self._event_types = EventTypeDefinitionConfigurationMapping()
         if event_types is not None:
             self._event_types.append(*event_types)
-        self._place_types = PlaceTypeConfigurationMapping()
+        self._place_types = PlaceTypeDefinitionConfigurationMapping()
         if place_types is not None:
             self._place_types.append(*place_types)
-        self._presence_roles = PresenceRoleConfigurationMapping()
+        self._presence_roles = PresenceRoleDefinitionConfigurationMapping()
         if presence_roles is not None:
             self._presence_roles.append(*presence_roles)
-        self._genders = GenderConfigurationMapping()
+        self._genders = GenderDefinitionConfigurationMapping()
         if genders is not None:
             self._genders.append(*genders)
         self._extensions = ExtensionInstanceConfigurationMapping(extensions or ())
@@ -642,17 +713,18 @@ class ProjectConfiguration(Configuration):
         title: ShorthandStaticTranslations = "Betty",
         author: ShorthandStaticTranslations | None = None,
         entity_types: Iterable[EntityTypeConfiguration] | None = None,
-        event_types: Iterable[PluginConfiguration] | None = None,
-        place_types: Iterable[PluginConfiguration] | None = None,
-        presence_roles: Iterable[PluginConfiguration] | None = None,
+        event_types: Iterable[EventTypeDefinitionConfiguration] | None = None,
+        place_types: Iterable[PlaceTypeDefinitionConfiguration] | None = None,
+        presence_roles: Iterable[PresenceRoleDefinitionConfiguration] | None = None,
         copyright_notice: PluginInstanceConfiguration[
             CopyrightNoticeDefinition, CopyrightNotice
         ]
         | None = None,
-        copyright_notices: Iterable[CopyrightNoticeConfiguration] | None = None,
+        copyright_notices: Iterable[CopyrightNoticeDefinitionConfiguration]
+        | None = None,
         license: PluginInstanceConfiguration[LicenseDefinition, License] | None = None,  # noqa A002
-        licenses: Iterable[LicenseConfiguration] | None = None,
-        genders: Iterable[PluginConfiguration] | None = None,
+        licenses: Iterable[LicenseDefinitionConfiguration] | None = None,
+        genders: Iterable[GenderDefinitionConfiguration] | None = None,
         extensions: Iterable[
             PluginInstanceConfiguration[ExtensionDefinition, Extension]
         ]
@@ -883,54 +955,42 @@ class ProjectConfiguration(Configuration):
     @property
     def copyright_notices(
         self,
-    ) -> PluginConfigurationMapping[
-        CopyrightNoticeDefinition, CopyrightNoticeConfiguration
-    ]:
+    ) -> CopyrightNoticeDefinitionConfigurationMapping:
         """
         The :py:class:`betty.copyright_notice.CopyrightNotice` plugins created by this project.
         """
         return self._copyright_notices
 
     @property
-    def licenses(
-        self,
-    ) -> PluginConfigurationMapping[LicenseDefinition, LicenseConfiguration]:
+    def licenses(self) -> LicenseDefinitionConfigurationMapping:
         """
         The :py:class:`betty.license.License` plugins created by this project.
         """
         return self._licenses
 
     @property
-    def event_types(
-        self,
-    ) -> PluginConfigurationMapping[EventTypeDefinition, PluginConfiguration]:
+    def event_types(self) -> EventTypeDefinitionConfigurationMapping:
         """
         The event type plugins created by this project.
         """
         return self._event_types
 
     @property
-    def place_types(
-        self,
-    ) -> PluginConfigurationMapping[PlaceTypeDefinition, PluginConfiguration]:
+    def place_types(self) -> PlaceTypeDefinitionConfigurationMapping:
         """
         The place type plugins created by this project.
         """
         return self._place_types
 
     @property
-    def presence_roles(
-        self,
-    ) -> PluginConfigurationMapping[PresenceRoleDefinition, PluginConfiguration]:
+    def presence_roles(self) -> PresenceRoleDefinitionConfigurationMapping:
         """
         The presence role plugins created by this project.
         """
         return self._presence_roles
 
     @property
-    def genders(
-        self,
-    ) -> PluginConfigurationMapping[GenderDefinition, PluginConfiguration]:
+    def genders(self) -> GenderDefinitionConfigurationMapping:
         """
         The gender plugins created by this project.
         """
