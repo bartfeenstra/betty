@@ -9,6 +9,7 @@ from typing import TYPE_CHECKING, Any, final
 
 from typing_extensions import override
 
+from betty.classtools import Singleton
 from betty.json.schema import String
 
 if TYPE_CHECKING:
@@ -108,7 +109,7 @@ class MediaType:
 
 
 @final
-class MediaTypeSchema(String):
+class MediaTypeSchema(Singleton, String):
     """
     A JSON Schema for :py:class:`betty.media_type.MediaType`.
     """

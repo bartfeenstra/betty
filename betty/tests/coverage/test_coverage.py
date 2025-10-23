@@ -838,6 +838,7 @@ class _ModuleClassCoverageTester:
         yield f"Failed to find the test class {self._test_module_name}.{expected_test_class_name} for the source class {self._src_module_name}.{self._src_class.__name__}."
 
     _EXCLUDE_DUNDER_METHODS = (
+        "__annotate_func__",
         "__init__",
         "__new__",
         "__repr__",

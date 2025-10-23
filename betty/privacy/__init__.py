@@ -5,10 +5,11 @@ The Privacy API.
 from __future__ import annotations
 
 import enum
-from typing import TYPE_CHECKING, Any
+from typing import TYPE_CHECKING, Any, final
 
 from typing_extensions import override
 
+from betty.classtools import Singleton
 from betty.json.linked_data import JsonLdObject, LinkedDataDumpableJsonLdObject
 from betty.json.schema import Boolean
 
@@ -129,7 +130,8 @@ class HasPrivacy(LinkedDataDumpableJsonLdObject):
         return schema
 
 
-class PrivacySchema(Boolean):
+@final
+class PrivacySchema(Singleton, Boolean):
     """
     A JSON Schema for privacy.
     """

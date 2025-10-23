@@ -12,6 +12,7 @@ from typing import TYPE_CHECKING, Any, TypeAlias, final
 
 from typing_extensions import override
 
+from betty.classtools import Singleton
 from betty.json.linked_data import (
     JsonLdObject,
     LinkedDataDumpableJsonLdObject,
@@ -33,7 +34,7 @@ class IncompleteDateError(ValueError):
 
 
 @final
-class DateSchema(JsonLdObject):
+class DateSchema(Singleton, JsonLdObject):
     """
     A JSON Schema for :py:type:`betty.date.Date`.
     """
@@ -198,7 +199,7 @@ def _dump_date_iso8601(date: Date) -> str | None:
 
 
 @final
-class DateRangeSchema(JsonLdObject):
+class DateRangeSchema(Singleton, JsonLdObject):
     """
     A JSON Schema for :py:type:`betty.date.DateRange`.
     """
@@ -471,7 +472,8 @@ class DateRange(LinkedDataDumpableJsonLdObject):
         )
 
 
-class DateLikeSchema(OneOf):
+@final
+class DateLikeSchema(Singleton, OneOf):
     """
     A JSON Schema for :py:type:`betty.date.DateLike`.
     """

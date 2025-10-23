@@ -4,7 +4,7 @@ Provide the Locale API.
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, TypeAlias
+from typing import TYPE_CHECKING, TypeAlias, final
 
 from babel import Locale
 from babel import negotiate_locale as babel_negotiate_locale
@@ -12,6 +12,7 @@ from babel.core import UnknownLocaleError
 from langcodes import Language
 
 import betty
+from betty.classtools import Singleton
 from betty.json.schema import String
 
 if TYPE_CHECKING:
@@ -163,7 +164,8 @@ def _negotiate_locale(
     return None
 
 
-class LocaleSchema(String):
+@final
+class LocaleSchema(Singleton, String):
     """
     The JSON Schema for locales.
     """
