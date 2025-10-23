@@ -15,13 +15,16 @@ from betty.exception import UserFacingException
 from betty.json.schema import JsonSchemaSchema
 from betty.locale.localizable import Localizable, Plain
 from betty.model import EntityDefinition
-from betty.plugin.config import PluginConfiguration
 from betty.plugin.static import StaticPluginRepository
 from betty.project import Project, ProjectContext, ProjectExtensions, ProjectSchema
 from betty.project.config import (
-    CopyrightNoticeConfiguration,
+    CopyrightNoticeDefinitionConfiguration,
     EntityTypeConfiguration,
-    LicenseConfiguration,
+    EventTypeDefinitionConfiguration,
+    GenderDefinitionConfiguration,
+    LicenseDefinitionConfiguration,
+    PlaceTypeDefinitionConfiguration,
+    PresenceRoleDefinitionConfiguration,
     ProjectConfiguration,
 )
 from betty.project.extension import Extension, ExtensionDefinition
@@ -370,7 +373,9 @@ class TestProject:
     async def test_copyright_notice_repository(self, new_temporary_app: App) -> None:
         async with Project.new_temporary(new_temporary_app) as sut:
             sut.configuration.copyright_notices.append(
-                CopyrightNoticeConfiguration("foo", "Foo", summary="", text="")
+                CopyrightNoticeDefinitionConfiguration(
+                    id="foo", label="Foo", summary="", text=""
+                )
             )
             async with sut:
                 sut.copyright_notice_repository.get("foo")
@@ -382,7 +387,9 @@ class TestProject:
     async def test_license_repository(self, new_temporary_app: App) -> None:
         async with Project.new_temporary(new_temporary_app) as sut:
             sut.configuration.licenses.append(
-                LicenseConfiguration("foo", "Foo", summary="", text="")
+                LicenseDefinitionConfiguration(
+                    id="foo", label="Foo", summary="", text=""
+                )
             )
             async with sut:
                 licenses = await sut.license_repository
@@ -390,25 +397,33 @@ class TestProject:
 
     async def test_event_type_repository(self, new_temporary_app: App) -> None:
         async with Project.new_temporary(new_temporary_app) as sut:
-            sut.configuration.event_types.append(PluginConfiguration("foo", "Foo"))
+            sut.configuration.event_types.append(
+                EventTypeDefinitionConfiguration(id="foo", label="Foo")
+            )
             async with sut:
                 sut.event_type_repository.get("foo")
 
     async def test_place_type_repository(self, new_temporary_app: App) -> None:
         async with Project.new_temporary(new_temporary_app) as sut:
-            sut.configuration.place_types.append(PluginConfiguration("foo", "Foo"))
+            sut.configuration.place_types.append(
+                PlaceTypeDefinitionConfiguration(id="foo", label="Foo")
+            )
             async with sut:
                 sut.place_type_repository.get("foo")
 
     async def test_presence_role_repository(self, new_temporary_app: App) -> None:
         async with Project.new_temporary(new_temporary_app) as sut:
-            sut.configuration.presence_roles.append(PluginConfiguration("foo", "Foo"))
+            sut.configuration.presence_roles.append(
+                PresenceRoleDefinitionConfiguration(id="foo", label="Foo")
+            )
             async with sut:
                 sut.presence_role_repository.get("foo")
 
     async def test_gender_repository(self, new_temporary_app: App) -> None:
         async with Project.new_temporary(new_temporary_app) as sut:
-            sut.configuration.genders.append(PluginConfiguration("foo", "Foo"))
+            sut.configuration.genders.append(
+                GenderDefinitionConfiguration(id="foo", label="Foo")
+            )
             async with sut:
                 sut.gender_repository.get("foo")
 

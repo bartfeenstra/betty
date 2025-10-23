@@ -26,7 +26,7 @@ from betty.string import kebab_case_to_lower_camel_case
 
 if TYPE_CHECKING:
     import builtins
-    from collections.abc import Iterable, Iterator, Mapping, Sequence
+    from collections.abc import Iterable, Iterator, Mapping, Sequence, Set
 
     from betty.locale.localizable import Localizable
 
@@ -210,8 +210,8 @@ class OrderedPluginDefinition(PluginDefinition):
     def __init__(
         self,
         *,
-        comes_before: set[PluginIdentifier] | None = None,
-        comes_after: set[PluginIdentifier] | None = None,
+        comes_before: Set[PluginIdentifier] | None = None,
+        comes_after: Set[PluginIdentifier] | None = None,
         **kwargs: Any,
     ):
         super().__init__(**kwargs)
@@ -227,7 +227,7 @@ class OrderedPluginDefinition(PluginDefinition):
         )
 
     @property
-    def comes_before(self) -> set[MachineName]:
+    def comes_before(self) -> Set[MachineName]:
         """
         Get the plugins that this plugin comes before.
 
@@ -236,7 +236,7 @@ class OrderedPluginDefinition(PluginDefinition):
         return self._comes_before
 
     @property
-    def comes_after(self) -> set[MachineName]:
+    def comes_after(self) -> Set[MachineName]:
         """
         Get the plugins that this plugin comes after.
 
@@ -258,7 +258,7 @@ class DependentPluginDefinition(OrderedPluginDefinition):
     def __init__(
         self,
         *,
-        depends_on: set[PluginIdentifier] | None = None,
+        depends_on: Set[PluginIdentifier] | None = None,
         **kwargs: Any,
     ):
         super().__init__(**kwargs)
@@ -270,7 +270,7 @@ class DependentPluginDefinition(OrderedPluginDefinition):
         self._comes_after.update(self._depends_on)
 
     @property
-    def depends_on(self) -> set[MachineName]:
+    def depends_on(self) -> Set[MachineName]:
         """
         The plugins this one depends on.
 
