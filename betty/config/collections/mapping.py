@@ -31,10 +31,7 @@ class _ConfigurationMapping(
     ConfigurationCollection[_ConfigurationKeyT, _ConfigurationT],
     Generic[_ConfigurationKeyT, _ConfigurationT],
 ):
-    def __init__(
-        self,
-        configurations: Iterable[_ConfigurationT] | None = None,
-    ):
+    def __init__(self, configurations: Iterable[_ConfigurationT] | None = None, /):
         self._configurations: MutableMapping[_ConfigurationKeyT, _ConfigurationT] = {}
         super().__init__(configurations)
 

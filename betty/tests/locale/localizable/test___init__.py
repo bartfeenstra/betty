@@ -1,10 +1,10 @@
-from collections.abc import Callable, Sequence
+from collections.abc import Callable, Iterable, Sequence
 from gettext import NullTranslations
+from typing import cast
 
 import pytest
 from typing_extensions import override
 
-from betty.json.schema import Schema
 from betty.locale import DEFAULT_LOCALE, UNDETERMINED_LOCALE
 from betty.locale.localizable import (
     AllEnumeration,
@@ -27,7 +27,7 @@ from betty.locale.localizable import (
 from betty.locale.localizer import DEFAULT_LOCALIZER, Localizer
 from betty.serde.dump import Dump, DumpMapping
 from betty.test_utils.json.linked_data import assert_dumps_linked_data
-from betty.test_utils.json.schema import SchemaTestBase
+from betty.test_utils.json.schema import SchemaTestBase, SchemaTestBaseSut
 
 
 class TestStaticTranslations:
@@ -207,10 +207,8 @@ class TestStaticTranslations:
 
 
 class TestStaticTranslationsSchema(SchemaTestBase):
-    @override
-    async def get_sut_instances(
-        self,
-    ) -> Sequence[tuple[Schema, Sequence[Dump], Sequence[Dump]]]:
+    @staticmethod
+    def _sut_params() -> Iterable[SchemaTestBaseSut]:
         valid_datas: Sequence[Dump] = [
             {DEFAULT_LOCALE: "Hello, world!"},
             {"nl": "Hallo, wereld!", "uk": "Привіт Світ!"},
@@ -235,6 +233,11 @@ class TestStaticTranslationsSchema(SchemaTestBase):
                 invalid_datas,
             ),
         ]
+
+    @override
+    @pytest.fixture(params=_sut_params())
+    def sut(self, request: pytest.FixtureRequest) -> SchemaTestBaseSut:
+        return cast(SchemaTestBaseSut, request.param)
 
 
 class TestPlain:

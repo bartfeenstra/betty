@@ -23,7 +23,7 @@ class TestUnknownAsset:
 
 class TestStaticAssetRepository:
     @pytest.fixture
-    async def sut(self, tmp_path: Path) -> tuple[AssetRepository, Path, Path]:
+    def sut(self, tmp_path: Path) -> tuple[AssetRepository, Path, Path]:
         source_path_1 = tmp_path / "one"
         source_path_1.mkdir()
         (source_path_1 / "apples").touch()

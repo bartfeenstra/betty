@@ -274,10 +274,7 @@ class LocaleConfigurationMapping(OrderedConfigurationMapping[str, LocaleConfigur
     Configure a project's locales.
     """
 
-    def __init__(
-        self,
-        configurations: Iterable[LocaleConfiguration] | None = None,
-    ):
+    def __init__(self, configurations: Iterable[LocaleConfiguration] | None = None, /):
         super().__init__(configurations)
         self._ensure_locale()
 
@@ -404,6 +401,7 @@ class CopyrightNoticeConfigurationMapping(
         item.load(dump)
         return item
 
+    # @todo Do we need this still?
     @classmethod
     def _create_default_item(
         cls, configuration_key: str
@@ -491,6 +489,7 @@ class LicenseConfigurationMapping(
         item.load(dump)
         return item
 
+    # @todo Do we need this still?
     @classmethod
     def _create_default_item(cls, configuration_key: str) -> LicenseConfiguration:
         return LicenseConfiguration(configuration_key, {}, summary="", text="")

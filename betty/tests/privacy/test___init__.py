@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Any
+from typing import TYPE_CHECKING, Any, cast
 
 import pytest
 from typing_extensions import override
@@ -16,13 +16,12 @@ from betty.privacy import (
     resolve_privacy,
 )
 from betty.test_utils.json.linked_data import assert_dumps_linked_data
-from betty.test_utils.json.schema import SchemaTestBase
+from betty.test_utils.json.schema import SchemaTestBase, SchemaTestBaseSut
 from betty.test_utils.privacy import DummyHasPrivacy
 
 if TYPE_CHECKING:
-    from collections.abc import Sequence
+    from collections.abc import Iterable
 
-    from betty.json.schema import Schema
     from betty.serde.dump import Dump, DumpMapping
 
 
@@ -122,11 +121,16 @@ class TestHasPrivacy:
 
 
 class TestPrivacySchema(SchemaTestBase):
+    @staticmethod
+    def _sut_params() -> Iterable[SchemaTestBaseSut]:
+        return [
+            (PrivacySchema(), [True, False], [None, 123, "abc", [], {}]),
+        ]
+
     @override
-    async def get_sut_instances(
-        self,
-    ) -> Sequence[tuple[Schema, Sequence[Dump], Sequence[Dump]]]:
-        return [(PrivacySchema(), [True, False], [None, 123, "abc", [], {}])]
+    @pytest.fixture(params=_sut_params())
+    def sut(self, request: pytest.FixtureRequest) -> SchemaTestBaseSut:
+        return cast(SchemaTestBaseSut, request.param)
 
 
 @pytest.mark.parametrize(

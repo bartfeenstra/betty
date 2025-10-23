@@ -30,7 +30,7 @@ class TestNoteDefinition(EntityDefinitionTestBase):
 class TestNote(EntityTestBase):
     @override
     @pytest.fixture
-    async def sut(self) -> Entity:
+    def sut(self) -> Entity:
         return Note(Plain("Betty wrote this."))
 
     async def test___init____with_entity(self) -> None:

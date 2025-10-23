@@ -291,6 +291,7 @@ class PluginInstanceConfigurationMapping(
             PluginInstanceConfiguration[_ClassedPluginDefinitionT, _PluginT]
         ]
         | None = None,
+        /,
     ):
         super().__init__(configurations)
 

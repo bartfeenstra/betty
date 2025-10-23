@@ -1,9 +1,9 @@
-from collections.abc import Sequence
+from collections.abc import Iterable
+from typing import cast
 
 import pytest
 from typing_extensions import override
 
-from betty.json.schema import Schema
 from betty.locale.localizable import CountablePlain, Plain
 from betty.model import (
     Entity,
@@ -14,8 +14,7 @@ from betty.model import (
     persistent_id,
 )
 from betty.plugin import PluginDefinition
-from betty.serde.dump import Dump
-from betty.test_utils.json.schema import SchemaTestBase
+from betty.test_utils.json.schema import SchemaTestBase, SchemaTestBaseSut
 from betty.test_utils.plugin import PluginDefinitionClassTestBase
 
 
@@ -48,10 +47,8 @@ def test_persistent_id(expected: bool, entity: Entity) -> None:
 
 
 class TestToOneSchema(SchemaTestBase):
-    @override
-    async def get_sut_instances(
-        self,
-    ) -> Sequence[tuple[Schema, Sequence[Dump], Sequence[Dump]]]:
+    @staticmethod
+    def _sut_params() -> Iterable[SchemaTestBaseSut]:
         return [
             (
                 ToOneSchema(),
@@ -62,12 +59,15 @@ class TestToOneSchema(SchemaTestBase):
             ),
         ]
 
+    @override
+    @pytest.fixture(params=_sut_params())
+    def sut(self, request: pytest.FixtureRequest) -> SchemaTestBaseSut:
+        return cast(SchemaTestBaseSut, request.param)
+
 
 class TestToZeroOrOneSchema(SchemaTestBase):
-    @override
-    async def get_sut_instances(
-        self,
-    ) -> Sequence[tuple[Schema, Sequence[Dump], Sequence[Dump]]]:
+    @staticmethod
+    def _sut_params() -> Iterable[SchemaTestBaseSut]:
         return [
             (
                 ToZeroOrOneSchema(),
@@ -79,12 +79,15 @@ class TestToZeroOrOneSchema(SchemaTestBase):
             ),
         ]
 
+    @override
+    @pytest.fixture(params=_sut_params())
+    def sut(self, request: pytest.FixtureRequest) -> SchemaTestBaseSut:
+        return cast(SchemaTestBaseSut, request.param)
+
 
 class TestToManySchema(SchemaTestBase):
-    @override
-    async def get_sut_instances(
-        self,
-    ) -> Sequence[tuple[Schema, Sequence[Dump], Sequence[Dump]]]:
+    @staticmethod
+    def _sut_params() -> Iterable[SchemaTestBaseSut]:
         return [
             (
                 ToManySchema(),
@@ -95,3 +98,8 @@ class TestToManySchema(SchemaTestBase):
                 [True, False, None, "123", 123, {}],
             ),
         ]
+
+    @override
+    @pytest.fixture(params=_sut_params())
+    def sut(self, request: pytest.FixtureRequest) -> SchemaTestBaseSut:
+        return cast(SchemaTestBaseSut, request.param)

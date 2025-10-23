@@ -50,10 +50,7 @@ class ConfigurationCollection(
         | MutableMapping[_ConfigurationKeyT, _ConfigurationT]
     )
 
-    def __init__(
-        self,
-        configurations: Iterable[_ConfigurationT] | None = None,
-    ):
+    def __init__(self, configurations: Iterable[_ConfigurationT] | None = None, /):
         super().__init__()
         if configurations is not None:
             self.append(*configurations)

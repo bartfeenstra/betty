@@ -10,7 +10,12 @@ from typing_extensions import override
 
 from betty.config import Configuration
 from betty.config.collections import ConfigurationKey
-from betty.test_utils.config.collections import ConfigurationCollectionTestBase
+from betty.test_utils.config.collections import (
+    ConfigurationCollectionTestBase,
+    ConfigurationCollectionTestBaseNewSut,
+    ConfigurationCollectionTestBaseSutConfigurationKeys,
+    ConfigurationCollectionTestBaseSutConfigurations,
+)
 
 _ConfigurationT = TypeVar("_ConfigurationT", bound=Configuration)
 _ConfigurationKeyT = TypeVar("_ConfigurationKeyT", bound=ConfigurationKey)
@@ -21,35 +26,54 @@ class _ConfigurationMappingTestBase(
     ConfigurationCollectionTestBase[_ConfigurationKeyT, _ConfigurationT],
 ):
     @override
-    async def test___iter__(self) -> None:
-        configurations = await self.get_configurations()
-        sut = await self.get_sut(
+    async def test___iter__(  # type: ignore[override]
+        self,
+        new_sut: ConfigurationCollectionTestBaseNewSut[
+            _ConfigurationT, _ConfigurationKeyT
+        ],
+        sut_configurations: ConfigurationCollectionTestBaseSutConfigurations[
+            _ConfigurationT
+        ],
+        sut_configuration_keys: ConfigurationCollectionTestBaseSutConfigurationKeys[
+            _ConfigurationKeyT
+        ],
+    ) -> None:
+        sut = new_sut(
             [
-                configurations[0],
-                configurations[1],
+                sut_configurations[0],
+                sut_configurations[1],
             ]
         )
         assert list(iter(sut)) == [
-            self.get_configuration_keys()[0],
-            self.get_configuration_keys()[1],
+            sut_configuration_keys[0],
+            sut_configuration_keys[1],
         ]
 
-    async def test___contains__(self) -> None:
+    async def test___contains__(
+        self,
+        new_sut: ConfigurationCollectionTestBaseNewSut[
+            _ConfigurationT, _ConfigurationKeyT
+        ],
+        sut_configurations: ConfigurationCollectionTestBaseSutConfigurations[
+            _ConfigurationT
+        ],
+        sut_configuration_keys: ConfigurationCollectionTestBaseSutConfigurationKeys[
+            _ConfigurationKeyT
+        ],
+    ) -> None:
         """
         Tests :py:meth:`betty.config.collections.mapping.ConfigurationMapping.__contains__` implementations.
         """
-        configurations = await self.get_configurations()
-        keys = self.get_configuration_keys()
-        sut = await self.get_sut(
+        sut = new_sut(
             [
-                configurations[0],
-                configurations[1],
+                sut_configurations[0],
+                sut_configurations[1],
             ]
         )
-        assert keys[0] in sut
-        assert keys[1] in sut
-        assert keys[2] not in sut
-        assert keys[3] not in sut
+        assert sut_configuration_keys[0] in sut
+        assert sut_configuration_keys[1] in sut
+        assert sut_configuration_keys[2] not in sut
+        assert sut_configuration_keys[3] not in sut
 
 
 class ConfigurationMappingTestBase(

@@ -51,7 +51,7 @@ class TestFile(EntityTestBase):
 
     @override
     @pytest.fixture(params=_sut_params())
-    async def sut(self, request: pytest.FixtureRequest) -> Entity:
+    def sut(self, request: pytest.FixtureRequest) -> Entity:
         return cast(Entity, request.param)
 
     async def test_id(self) -> None:

@@ -50,11 +50,14 @@ from betty.test_utils.project.extension import (
 from betty.typing import Void
 
 if TYPE_CHECKING:
-    from collections.abc import Iterable
     from pathlib import Path
 
-    from betty.config import Configuration
     from betty.serde.dump import Dump, DumpMapping
+    from betty.test_utils.config.collections import (
+        ConfigurationCollectionTestBaseNewSut,
+        ConfigurationCollectionTestBaseSutConfigurationKeys,
+        ConfigurationCollectionTestBaseSutConfigurations,
+    )
 
 
 @ExtensionDefinition(
@@ -132,24 +135,24 @@ class TestLocaleConfigurationMapping(
     ConfigurationMappingTestBase[str, LocaleConfiguration]
 ):
     @override
-    async def get_sut(
-        self, configurations: Iterable[Configuration] | None = None
-    ) -> LocaleConfigurationMapping:
-        return LocaleConfigurationMapping(configurations)  # type: ignore[arg-type]
+    @pytest.fixture
+    def new_sut(
+        self,
+    ) -> ConfigurationCollectionTestBaseNewSut[LocaleConfiguration, MachineName]:
+        return LocaleConfigurationMapping
 
     @override
-    def get_configuration_keys(self) -> tuple[str, str, str, str]:
+    @pytest.fixture
+    def sut_configuration_keys(
+        self,
+    ) -> ConfigurationCollectionTestBaseSutConfigurationKeys[str]:
         return ("en", "nl", "uk", "fr")
 
     @override
-    async def get_configurations(
+    @pytest.fixture
+    def sut_configurations(
         self,
-    ) -> tuple[
-        LocaleConfiguration,
-        LocaleConfiguration,
-        LocaleConfiguration,
-        LocaleConfiguration,
-    ]:
+    ) -> ConfigurationCollectionTestBaseSutConfigurations[LocaleConfiguration]:
         return (
             LocaleConfiguration("en"),
             LocaleConfiguration("nl"),
@@ -158,23 +161,33 @@ class TestLocaleConfigurationMapping(
         )
 
     @override
-    async def test___delitem__(self) -> None:
-        configurations = await self.get_configurations()
-        sut = await self.get_sut([configurations[0]])
-        del sut[configurations[0].locale]
+    def test___delitem__(  # type: ignore[override]
+        self,
+        new_sut: ConfigurationCollectionTestBaseNewSut[LocaleConfiguration, str],
+        sut_configurations: ConfigurationCollectionTestBaseSutConfigurations[
+            LocaleConfiguration
+        ],
+    ) -> None:
+        sut = new_sut([sut_configurations[0]])
+        del sut[sut_configurations[0].locale]
         with pytest.raises(KeyError):
-            sut[configurations[0].locale]
+            sut[sut_configurations[0].locale]
         assert len(sut) == 1
         assert DEFAULT_LOCALE in sut
 
-    async def test___delitem____with_locale(self) -> None:
-        configurations = await self.get_configurations()
-        sut = await self.get_sut([configurations[0], configurations[1]])
-        del sut[configurations[0].locale]
+    def test___delitem____with_locale(
+        self,
+        new_sut: ConfigurationCollectionTestBaseNewSut[LocaleConfiguration, str],
+        sut_configurations: ConfigurationCollectionTestBaseSutConfigurations[
+            LocaleConfiguration
+        ],
+    ) -> None:
+        sut = new_sut([sut_configurations[0], sut_configurations[1]])
+        del sut[sut_configurations[0].locale]
         with pytest.raises(KeyError):
-            sut[configurations[0].locale]
+            sut[sut_configurations[0].locale]
 
-    async def test___delitem____with_one_remaining_locale_configuration(self) -> None:
+    def test___delitem____with_one_remaining_locale_configuration(self) -> None:
         locale_configuration_a = LocaleConfiguration("nl-NL")
         sut = LocaleConfigurationMapping(
             [
@@ -185,11 +198,11 @@ class TestLocaleConfigurationMapping(
         assert len(sut) == 1
         assert DEFAULT_LOCALE in sut
 
-    async def test_default__without_explicit_locale_configurations(self) -> None:
+    def test_default__without_explicit_locale_configurations(self) -> None:
         sut = LocaleConfigurationMapping()
         assert sut.default.locale == DEFAULT_LOCALE
 
-    async def test_default__without_explicit_default(self) -> None:
+    def test_default__without_explicit_default(self) -> None:
         locale_configuration_a = LocaleConfiguration("nl-NL")
         locale_configuration_b = LocaleConfiguration("en-US")
         sut = LocaleConfigurationMapping(
@@ -201,30 +214,41 @@ class TestLocaleConfigurationMapping(
         assert sut.default == locale_configuration_a
 
     @override
-    async def test_replace__without_items(self) -> None:
-        sut = await self.get_sut()
+    def test_replace__without_items(  # type: ignore[override]
+        self,
+        sut: LocaleConfigurationMapping,
+    ) -> None:
         sut.clear()
         assert len(sut) == 1
-        await self.get_configurations()
         sut.replace()
         assert len(sut) == 1
 
     @override
-    async def test_replace__with_items(self) -> None:
-        sut = await self.get_sut()
+    def test_replace__with_items(  # type: ignore[override]
+        self,
+        sut: LocaleConfigurationMapping,
+        sut_configurations: ConfigurationCollectionTestBaseSutConfigurations[
+            LocaleConfiguration
+        ],
+    ) -> None:
         sut.clear()
         assert len(sut) == 1
-        configurations = await self.get_configurations()
-        sut.replace(*configurations)
-        assert len(sut) == len(configurations)
+        sut.replace(*sut_configurations)
+        assert len(sut) == len(sut_configurations)
 
-    async def test_multilingual__with_one_configuration(self) -> None:
-        sut = await self.get_sut()
+    def test_multilingual__with_one_configuration(
+        self, sut: LocaleConfigurationMapping
+    ) -> None:
         assert not sut.multilingual
 
-    async def test_multilingual__with_multiple_configurations(self) -> None:
-        sut = await self.get_sut()
-        sut.replace(*await self.get_configurations())
+    def test_multilingual__with_multiple_configurations(
+        self,
+        sut: LocaleConfigurationMapping,
+        sut_configurations: ConfigurationCollectionTestBaseSutConfigurations[
+            LocaleConfiguration
+        ],
+    ) -> None:
+        sut.replace(*sut_configurations)
         assert sut.multilingual
 
 
@@ -266,9 +290,10 @@ class TestExtensionInstanceConfigurationMapping(
     ]
 ):
     @override
-    def get_configuration_keys(
+    @pytest.fixture
+    def sut_configuration_keys(
         self,
-    ) -> tuple[MachineName, MachineName, MachineName, MachineName]:
+    ) -> ConfigurationCollectionTestBaseSutConfigurationKeys[MachineName]:
         return (
             ExtensionInstanceConfigurationMappingTestExtension0.plugin.id,
             ExtensionInstanceConfigurationMappingTestExtension1.plugin.id,
@@ -277,29 +302,29 @@ class TestExtensionInstanceConfigurationMapping(
         )
 
     @override
-    async def get_sut(
+    @pytest.fixture
+    def new_sut(
         self,
-        configurations: Iterable[
-            PluginInstanceConfiguration[ExtensionDefinition, Extension]
-        ]
-        | None = None,
-    ) -> ExtensionInstanceConfigurationMapping:
-        return ExtensionInstanceConfigurationMapping(configurations)
+    ) -> ConfigurationCollectionTestBaseNewSut[
+        PluginInstanceConfiguration[ExtensionDefinition, Extension], MachineName
+    ]:
+        return ExtensionInstanceConfigurationMapping
 
     @override
-    async def get_configurations(
+    @pytest.fixture
+    def sut_configurations(
         self,
-    ) -> tuple[
-        PluginInstanceConfiguration[ExtensionDefinition, Extension],
-        PluginInstanceConfiguration[ExtensionDefinition, Extension],
-        PluginInstanceConfiguration[ExtensionDefinition, Extension],
-        PluginInstanceConfiguration[ExtensionDefinition, Extension],
+        sut_configuration_keys: ConfigurationCollectionTestBaseSutConfigurationKeys[
+            MachineName
+        ],
+    ) -> ConfigurationCollectionTestBaseSutConfigurations[
+        PluginInstanceConfiguration[ExtensionDefinition, Extension]
     ]:
         return (
-            PluginInstanceConfiguration(self.get_configuration_keys()[0]),
-            PluginInstanceConfiguration(self.get_configuration_keys()[1]),
-            PluginInstanceConfiguration(self.get_configuration_keys()[2]),
-            PluginInstanceConfiguration(self.get_configuration_keys()[3]),
+            PluginInstanceConfiguration(sut_configuration_keys[0]),
+            PluginInstanceConfiguration(sut_configuration_keys[1]),
+            PluginInstanceConfiguration(sut_configuration_keys[2]),
+            PluginInstanceConfiguration(sut_configuration_keys[3]),
         )
 
     def test_enable(self) -> None:
@@ -434,9 +459,10 @@ class TestEntityTypeConfigurationMapping(
     ConfigurationMappingTestBase[MachineName, EntityTypeConfiguration]
 ):
     @override
-    def get_configuration_keys(
+    @pytest.fixture
+    def sut_configuration_keys(
         self,
-    ) -> tuple[MachineName, MachineName, MachineName, MachineName]:
+    ) -> ConfigurationCollectionTestBaseSutConfigurationKeys[MachineName]:
         return (
             EntityTypeConfigurationMappingTestEntity0.plugin.id,
             EntityTypeConfigurationMappingTestEntity1.plugin.id,
@@ -445,25 +471,25 @@ class TestEntityTypeConfigurationMapping(
         )
 
     @override
-    async def get_sut(
-        self, configurations: Iterable[EntityTypeConfiguration] | None = None
-    ) -> EntityTypeConfigurationMapping:
-        return EntityTypeConfigurationMapping(configurations)
+    @pytest.fixture
+    def new_sut(
+        self,
+    ) -> ConfigurationCollectionTestBaseNewSut[EntityTypeConfiguration, MachineName]:
+        return EntityTypeConfigurationMapping
 
     @override
-    async def get_configurations(
+    @pytest.fixture
+    def sut_configurations(
         self,
-    ) -> tuple[
-        EntityTypeConfiguration,
-        EntityTypeConfiguration,
-        EntityTypeConfiguration,
-        EntityTypeConfiguration,
-    ]:
+        sut_configuration_keys: ConfigurationCollectionTestBaseSutConfigurationKeys[
+            MachineName
+        ],
+    ) -> ConfigurationCollectionTestBaseSutConfigurations[EntityTypeConfiguration]:
         return (
-            EntityTypeConfiguration(self.get_configuration_keys()[0]),
-            EntityTypeConfiguration(self.get_configuration_keys()[1]),
-            EntityTypeConfiguration(self.get_configuration_keys()[2]),
-            EntityTypeConfiguration(self.get_configuration_keys()[3]),
+            EntityTypeConfiguration(sut_configuration_keys[0]),
+            EntityTypeConfiguration(sut_configuration_keys[1]),
+            EntityTypeConfiguration(sut_configuration_keys[2]),
+            EntityTypeConfiguration(sut_configuration_keys[3]),
         )
 
     async def test_validate__with_item_error_should_error(self) -> None:
@@ -554,18 +580,17 @@ class TestCopyrightNoticeConfigurationMapping(
     ]
 ):
     @override
-    def get_configuration_keys(self) -> tuple[str, str, str, str]:
+    @pytest.fixture
+    def sut_configuration_keys(
+        self,
+    ) -> ConfigurationCollectionTestBaseSutConfigurationKeys[MachineName]:
         return "foo", "bar", "baz", "qux"
 
     @override
-    async def get_configurations(
+    @pytest.fixture
+    def sut_configurations(
         self,
-    ) -> tuple[
-        CopyrightNoticeConfiguration,
-        CopyrightNoticeConfiguration,
-        CopyrightNoticeConfiguration,
-        CopyrightNoticeConfiguration,
-    ]:
+    ) -> ConfigurationCollectionTestBaseSutConfigurations[CopyrightNoticeConfiguration]:
         return (
             CopyrightNoticeConfiguration("foo", "Foo", summary="", text=""),
             CopyrightNoticeConfiguration("bar", "Bar", summary="", text=""),
@@ -574,10 +599,13 @@ class TestCopyrightNoticeConfigurationMapping(
         )
 
     @override
-    async def get_sut(
-        self, configurations: Iterable[CopyrightNoticeConfiguration] | None = None
-    ) -> CopyrightNoticeConfigurationMapping:
-        return CopyrightNoticeConfigurationMapping(configurations)
+    @pytest.fixture
+    def new_sut(
+        self,
+    ) -> ConfigurationCollectionTestBaseNewSut[
+        CopyrightNoticeConfigurationMapping, MachineName
+    ]:
+        return CopyrightNoticeConfigurationMapping  # type: ignore[return-value]
 
 
 class TestLicenseConfiguration:
@@ -650,18 +678,17 @@ class TestLicenseConfigurationMapping(
     PluginConfigurationMappingTestBase[LicenseDefinition, LicenseConfiguration]
 ):
     @override
-    def get_configuration_keys(self) -> tuple[str, str, str, str]:
+    @pytest.fixture
+    def sut_configuration_keys(
+        self,
+    ) -> ConfigurationCollectionTestBaseSutConfigurationKeys[MachineName]:
         return "foo", "bar", "baz", "qux"
 
     @override
-    async def get_configurations(
+    @pytest.fixture
+    def sut_configurations(
         self,
-    ) -> tuple[
-        LicenseConfiguration,
-        LicenseConfiguration,
-        LicenseConfiguration,
-        LicenseConfiguration,
-    ]:
+    ) -> ConfigurationCollectionTestBaseSutConfigurations[PluginConfiguration]:
         return (
             LicenseConfiguration("foo", "Foo", summary="", text=""),
             LicenseConfiguration("bar", "Bar", summary="", text=""),
@@ -670,28 +697,28 @@ class TestLicenseConfigurationMapping(
         )
 
     @override
-    async def get_sut(
-        self, configurations: Iterable[LicenseConfiguration] | None = None
-    ) -> LicenseConfigurationMapping:
-        return LicenseConfigurationMapping(configurations)
+    @pytest.fixture
+    def new_sut(
+        self,
+    ) -> ConfigurationCollectionTestBaseNewSut[PluginConfiguration, MachineName]:
+        return LicenseConfigurationMapping  # type: ignore[return-value]
 
 
 class TestEventTypeConfigurationMapping(
     PluginConfigurationMappingTestBase[EventTypeDefinition, PluginConfiguration]
 ):
     @override
-    def get_configuration_keys(self) -> tuple[str, str, str, str]:
+    @pytest.fixture
+    def sut_configuration_keys(
+        self,
+    ) -> ConfigurationCollectionTestBaseSutConfigurationKeys[MachineName]:
         return "foo", "bar", "baz", "qux"
 
     @override
-    async def get_configurations(
+    @pytest.fixture
+    def sut_configurations(
         self,
-    ) -> tuple[
-        PluginConfiguration,
-        PluginConfiguration,
-        PluginConfiguration,
-        PluginConfiguration,
-    ]:
+    ) -> ConfigurationCollectionTestBaseSutConfigurations[PluginConfiguration]:
         return (
             PluginConfiguration("foo", "Foo"),
             PluginConfiguration("bar", "Bar"),
@@ -700,28 +727,28 @@ class TestEventTypeConfigurationMapping(
         )
 
     @override
-    async def get_sut(
-        self, configurations: Iterable[PluginConfiguration] | None = None
-    ) -> EventTypeConfigurationMapping:
-        return EventTypeConfigurationMapping(configurations)
+    @pytest.fixture
+    def new_sut(
+        self,
+    ) -> ConfigurationCollectionTestBaseNewSut[PluginConfiguration, MachineName]:
+        return EventTypeConfigurationMapping
 
 
 class TestPlaceTypeConfigurationMapping(
     PluginConfigurationMappingTestBase[PlaceTypeDefinition, PluginConfiguration]
 ):
     @override
-    def get_configuration_keys(self) -> tuple[str, str, str, str]:
+    @pytest.fixture
+    def sut_configuration_keys(
+        self,
+    ) -> ConfigurationCollectionTestBaseSutConfigurationKeys[MachineName]:
         return "foo", "bar", "baz", "qux"
 
     @override
-    async def get_configurations(
+    @pytest.fixture
+    def sut_configurations(
         self,
-    ) -> tuple[
-        PluginConfiguration,
-        PluginConfiguration,
-        PluginConfiguration,
-        PluginConfiguration,
-    ]:
+    ) -> ConfigurationCollectionTestBaseSutConfigurations[PluginConfiguration]:
         return (
             PluginConfiguration("foo", "Foo"),
             PluginConfiguration("bar", "Bar"),
@@ -730,28 +757,28 @@ class TestPlaceTypeConfigurationMapping(
         )
 
     @override
-    async def get_sut(
-        self, configurations: Iterable[PluginConfiguration] | None = None
-    ) -> PlaceTypeConfigurationMapping:
-        return PlaceTypeConfigurationMapping(configurations)
+    @pytest.fixture
+    def new_sut(
+        self,
+    ) -> ConfigurationCollectionTestBaseNewSut[PluginConfiguration, MachineName]:
+        return PlaceTypeConfigurationMapping
 
 
 class TestPresenceRoleConfigurationMapping(
     PluginConfigurationMappingTestBase[PresenceRoleDefinition, PluginConfiguration]
 ):
     @override
-    def get_configuration_keys(self) -> tuple[str, str, str, str]:
+    @pytest.fixture
+    def sut_configuration_keys(
+        self,
+    ) -> ConfigurationCollectionTestBaseSutConfigurationKeys[MachineName]:
         return "foo", "bar", "baz", "qux"
 
     @override
-    async def get_configurations(
+    @pytest.fixture
+    def sut_configurations(
         self,
-    ) -> tuple[
-        PluginConfiguration,
-        PluginConfiguration,
-        PluginConfiguration,
-        PluginConfiguration,
-    ]:
+    ) -> ConfigurationCollectionTestBaseSutConfigurations[PluginConfiguration]:
         return (
             PluginConfiguration("foo", "Foo"),
             PluginConfiguration("bar", "Bar"),
@@ -760,28 +787,28 @@ class TestPresenceRoleConfigurationMapping(
         )
 
     @override
-    async def get_sut(
-        self, configurations: Iterable[PluginConfiguration] | None = None
-    ) -> PresenceRoleConfigurationMapping:
-        return PresenceRoleConfigurationMapping(configurations)
+    @pytest.fixture
+    def new_sut(
+        self,
+    ) -> ConfigurationCollectionTestBaseNewSut[PluginConfiguration, MachineName]:
+        return PresenceRoleConfigurationMapping
 
 
 class TestGenderConfigurationMapping(
     PluginConfigurationMappingTestBase[GenderDefinition, PluginConfiguration]
 ):
     @override
-    def get_configuration_keys(self) -> tuple[str, str, str, str]:
+    @pytest.fixture
+    def sut_configuration_keys(
+        self,
+    ) -> ConfigurationCollectionTestBaseSutConfigurationKeys[MachineName]:
         return "foo", "bar", "baz", "qux"
 
     @override
-    async def get_configurations(
+    @pytest.fixture
+    def sut_configurations(
         self,
-    ) -> tuple[
-        PluginConfiguration,
-        PluginConfiguration,
-        PluginConfiguration,
-        PluginConfiguration,
-    ]:
+    ) -> ConfigurationCollectionTestBaseSutConfigurations[PluginConfiguration]:
         return (
             PluginConfiguration("foo", "Foo"),
             PluginConfiguration("bar", "Bar"),
@@ -790,10 +817,11 @@ class TestGenderConfigurationMapping(
         )
 
     @override
-    async def get_sut(
-        self, configurations: Iterable[PluginConfiguration] | None = None
-    ) -> GenderConfigurationMapping:
-        return GenderConfigurationMapping(configurations)
+    @pytest.fixture
+    def new_sut(
+        self,
+    ) -> ConfigurationCollectionTestBaseNewSut[PluginConfiguration, MachineName]:
+        return GenderConfigurationMapping
 
 
 class TestProjectConfiguration:
