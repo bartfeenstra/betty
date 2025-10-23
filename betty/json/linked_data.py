@@ -11,6 +11,7 @@ from typing import TYPE_CHECKING, Generic, cast, final
 
 from typing_extensions import TypeVar, override
 
+from betty.classtools import Singleton
 from betty.json.schema import Object, Schema
 from betty.serde.dump import Dump, DumpMapping
 from betty.string import snake_case_to_lower_camel_case
@@ -156,7 +157,7 @@ async def dump_link(dump: DumpMapping[Dump], project: Project, *links: Link) -> 
 
 
 @final
-class JsonLdSchema(Schema):
+class JsonLdSchema(Singleton, Schema):
     """
     A `JSON-LD <https://json-ld.org/>`_ JSON Schema reference.
     """

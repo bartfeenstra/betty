@@ -5,6 +5,7 @@ Provide the OpenAPI specification.
 from typing import final
 
 from betty import about
+from betty.classtools import Singleton
 from betty.json.schema import Schema
 from betty.locale.localizer import DEFAULT_LOCALIZER
 from betty.project import Project, ProjectSchema
@@ -174,7 +175,7 @@ class Specification:
 
 
 @final
-class SpecificationSchema(Schema):
+class SpecificationSchema(Singleton, Schema):
     """
     The OpenAPI Specification schema.
     """

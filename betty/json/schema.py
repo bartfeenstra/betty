@@ -11,6 +11,7 @@ from jsonschema.validators import Draft202012Validator
 from referencing import Registry, Resource
 from typing_extensions import override
 
+from betty.classtools import Singleton
 from betty.serde.dump import Dump, DumpMapping
 
 
@@ -401,7 +402,7 @@ class JsonSchemaReference(String):
 
 
 @final
-class JsonSchemaSchema(Schema):
+class JsonSchemaSchema(Singleton, Schema):
     """
     The JSON Schema Draft 2020-12 schema.
     """
