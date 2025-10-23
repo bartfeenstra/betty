@@ -8,6 +8,7 @@ from uuid import uuid4
 
 from typing_extensions import override
 
+from betty.hashid import hashid
 from betty.json.linked_data import (
     JsonLdObject,
     LinkedDataDumpableJsonLdObject,
@@ -68,6 +69,7 @@ class Entity(LinkedDataDumpableJsonLdObject, Mutable, ClassedPlugin):
         **kwargs: Any,
     ):
         self._id = NonPersistentId() if id is None else id
+        self._public_id = self._id if id is None else hashid(id)
         super().__init__(*args, **kwargs)
 
     @override
@@ -87,6 +89,17 @@ class Entity(LinkedDataDumpableJsonLdObject, Mutable, ClassedPlugin):
         This MUST be unique per entity type, per ancestry.
         """
         return self._id
+
+    @property
+    def public_id(self) -> str:
+        """
+        The public entity ID.
+
+        This MUST be unique per entity type, per ancestry.
+
+        A public ID consists of alphanumeric characters only, and can therefore safely be used across file systems.
+        """
+        return self._public_id
 
     @property
     def ancestry_id(self) -> tuple[builtins.type[Self], str]:

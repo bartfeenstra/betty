@@ -37,4 +37,4 @@ async def test_with_public_entities() -> None:
         extensions={RaspberryMint},
         template="entity/list.html.j2",
     ) as (actual, _):
-        assert "/event/E0/index.html" in actual
+        assert f"/event/{entity.public_id}/index.html" in actual

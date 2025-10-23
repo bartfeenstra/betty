@@ -38,7 +38,7 @@ async def test_minimal_with_affiliation_name() -> None:
 async def test_with_person_with_persistent_id() -> None:
     person = Person(id="P0")
     person_name = PersonName(person=person, individual="Jane")
-    expected = '<a href="/person/P0/index.html">Jane</a>'
+    expected = f'<a href="/person/{person.public_id}/index.html">Jane</a>'
     async with assert_template_file(
         data={
             "entity": person_name,
@@ -69,7 +69,7 @@ async def test_embedded() -> None:
 async def test_private() -> None:
     person = Person(id="P0")
     person_name = PersonName(person=person, individual="Jane", private=True)
-    expected = '<a href="/person/P0/index.html"><span class="private" title="This information is unavailable to protect people\'s privacy.">private</span></a>'
+    expected = f'<a href="/person/{person.public_id}/index.html"><span class="private" title="This information is unavailable to protect people\'s privacy.">private</span></a>'
     async with assert_template_file(
         data={
             "entity": person_name,

@@ -26,4 +26,4 @@ async def test_with_events() -> None:
         extensions={RaspberryMint},
         template="section/timeline.html.j2",
     ) as (actual, _):
-        assert event.id in actual
+        assert event.public_id in actual

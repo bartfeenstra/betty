@@ -27,7 +27,7 @@ async def test_with_parents() -> None:
         extensions={RaspberryMint},
         template="section/family.html.j2",
     ) as (actual, _):
-        assert parent.id in actual
+        assert parent.public_id in actual
 
 
 async def test_with_private_parents() -> None:
@@ -56,7 +56,7 @@ async def test_with_siblings() -> None:
         extensions={RaspberryMint},
         template="section/family.html.j2",
     ) as (actual, _):
-        assert sibling.id in actual
+        assert sibling.public_id in actual
 
 
 async def test_with_private_siblings() -> None:
@@ -85,7 +85,7 @@ async def test_with_children() -> None:
         extensions={RaspberryMint},
         template="section/family.html.j2",
     ) as (actual, _):
-        assert child.id in actual
+        assert child.public_id in actual
 
 
 async def test_with_private_children() -> None:
@@ -114,7 +114,7 @@ async def test_with_co_parents() -> None:
         extensions={RaspberryMint},
         template="section/family.html.j2",
     ) as (actual, _):
-        assert co_parent.id in actual
+        assert co_parent.public_id in actual
 
 
 async def test_with_private_co_parents() -> None:

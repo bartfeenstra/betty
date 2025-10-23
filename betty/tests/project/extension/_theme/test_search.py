@@ -82,8 +82,8 @@ class TestIndex:
     @pytest.mark.parametrize(
         ("expected", "locale"),
         [
-            ("/nl/person/P1/index.html", "nl-NL"),
-            ("/en/person/P1/index.html", "en-US"),
+            ("/nl/person/5f2b9323c39ee3c861a7b382d205c3d3/index.html", "nl-NL"),
+            ("/en/person/5f2b9323c39ee3c861a7b382d205c3d3/index.html", "en-US"),
         ],
     )
     async def test_build_person_with_individual_name(
@@ -117,8 +117,8 @@ class TestIndex:
     @pytest.mark.parametrize(
         ("expected", "locale"),
         [
-            ("/nl/person/P1/index.html", "nl-NL"),
-            ("/en/person/P1/index.html", "en-US"),
+            ("/nl/person/5f2b9323c39ee3c861a7b382d205c3d3/index.html", "nl-NL"),
+            ("/en/person/5f2b9323c39ee3c861a7b382d205c3d3/index.html", "en-US"),
         ],
     )
     async def test_build_person_with_affiliation_name(
@@ -156,8 +156,8 @@ class TestIndex:
     @pytest.mark.parametrize(
         ("expected", "locale"),
         [
-            ("/nl/person/P1/index.html", "nl-NL"),
-            ("/en/person/P1/index.html", "en-US"),
+            ("/nl/person/5f2b9323c39ee3c861a7b382d205c3d3/index.html", "nl-NL"),
+            ("/en/person/5f2b9323c39ee3c861a7b382d205c3d3/index.html", "en-US"),
         ],
     )
     async def test_build_person_with_individual_and_affiliation_names(
@@ -193,8 +193,16 @@ class TestIndex:
     @pytest.mark.parametrize(
         ("expected_result", "expected_text", "locale"),
         [
-            ("/nl/place/P1/index.html", {"p1", "nederland"}, "nl-NL"),
-            ("/en/place/P1/index.html", {"p1", "netherlands"}, "en-US"),
+            (
+                "/nl/place/5f2b9323c39ee3c861a7b382d205c3d3/index.html",
+                {"p1", "nederland"},
+                "nl-NL",
+            ),
+            (
+                "/en/place/5f2b9323c39ee3c861a7b382d205c3d3/index.html",
+                {"p1", "netherlands"},
+                "en-US",
+            ),
         ],
     )
     async def test_build_place(
@@ -277,7 +285,7 @@ class TestIndex:
                     '"traffic',
                     'jam"',
                 },
-                "/nl/file/F1/index.html",
+                "/nl/file/e1dffc8709f31a4987c8a88334107e89/index.html",
                 '"file" is Dutch for "traffic jam"',
                 "nl-NL",
             ),
@@ -292,7 +300,7 @@ class TestIndex:
                     '"traffic',
                     'jam"',
                 },
-                "/en/file/F1/index.html",
+                "/en/file/e1dffc8709f31a4987c8a88334107e89/index.html",
                 '"file" is Dutch for "traffic jam"',
                 "en-US",
             ),
@@ -301,7 +309,7 @@ class TestIndex:
                     Path(__file__).name,
                     "f1",
                 },
-                "/nl/file/F1/index.html",
+                "/nl/file/e1dffc8709f31a4987c8a88334107e89/index.html",
                 None,
                 "nl-NL",
             ),
@@ -310,7 +318,7 @@ class TestIndex:
                     Path(__file__).name,
                     "f1",
                 },
-                "/en/file/F1/index.html",
+                "/en/file/e1dffc8709f31a4987c8a88334107e89/index.html",
                 None,
                 "en-US",
             ),

@@ -36,7 +36,7 @@ async def test_with_public_file_references(tmp_path: Path) -> None:
         extensions={RaspberryMint},
         template="section/media.html.j2",
     ) as (actual, _):
-        assert file.id in actual
+        assert file.public_id in actual
 
 
 async def test_without_public_file_references(tmp_path: Path) -> None:

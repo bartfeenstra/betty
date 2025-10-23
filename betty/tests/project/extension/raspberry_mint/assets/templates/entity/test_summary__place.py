@@ -41,4 +41,4 @@ async def test_with_encloser() -> None:
         extensions={RaspberryMint},
         template="entity/summary--place.html.j2",
     ) as (actual, _):
-        assert encloser_place.id in actual
+        assert encloser_place.public_id in actual

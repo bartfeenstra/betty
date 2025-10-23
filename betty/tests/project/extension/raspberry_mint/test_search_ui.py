@@ -66,6 +66,6 @@ class TestSearchUi:
         # Assert we're at the page linked to by the search result.
         person = project.ancestry[Person]["I0001"]
         await expect(page).to_have_url(
-            f"{server.public_url}/person/{person.id}/index.html"
+            f"{server.public_url}/person/{person.public_id}/index.html"
         )
         await page.close()

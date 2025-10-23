@@ -362,7 +362,7 @@ async def test_new_project_url_generator__supports(
     [
         # Entities
         (
-            "https://example.com/dummy-one/E0/index.html",
+            "https://example.com/dummy-one/0e51a87ec173dd9534a056a403c85881/index.html",
             False,
             DummyEntityOne("E0"),
             HTML,
