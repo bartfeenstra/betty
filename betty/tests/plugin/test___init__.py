@@ -554,6 +554,14 @@ class TestDependentPluginDefinition:
         )
         assert sut.depends_on == depends_on
 
+    def test_comes_after(self) -> None:
+        depends_on = {"depends-on"}
+        sut = DependentPluginDefinition(
+            depends_on=depends_on,  # type: ignore[arg-type]
+            id="my-first-plugin",
+        )
+        assert sut.comes_after == depends_on
+
 
 class TestOrderedPluginDefinition:
     def test_comes_before(self) -> None:

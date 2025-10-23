@@ -29,7 +29,6 @@ if TYPE_CHECKING:
     from collections.abc import Sequence
 
     from betty.job.scheduler import Scheduler
-    from betty.plugin import PluginIdentifier
     from betty.project import Project
 
 
@@ -53,22 +52,18 @@ async def generate_with_cleanup(
         raise
 
 
-_DEPENDENCIES: set[PluginIdentifier] = {
-    Deriver.plugin,
-    HttpApiDoc.plugin,
-    Maps.plugin,
-    RaspberryMint.plugin,
-    Trees.plugin,
-    Wiki.plugin,
-}
-
-
 @final
 @ExtensionDefinition(
     id="demo",
     label=Plain("Demo"),
-    depends_on=_DEPENDENCIES,
-    comes_after=_DEPENDENCIES,
+    depends_on={
+        Deriver,
+        HttpApiDoc,
+        Maps,
+        RaspberryMint,
+        Trees,
+        Wiki,
+    },
 )
 class Demo(NavigationLinkProvider, Loader, Extension):
     """
