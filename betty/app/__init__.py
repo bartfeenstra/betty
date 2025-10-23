@@ -45,6 +45,7 @@ from betty.project.extension import ExtensionDefinition
 from betty.render import RendererDefinition
 from betty.service import ServiceFactory, ServiceProvider, StaticService, service
 from betty.typing import threadsafe
+from betty.user.no_op import NoOpUser
 
 if TYPE_CHECKING:
     from collections.abc import AsyncIterator
@@ -147,7 +148,7 @@ class App(Configurable[AppConfiguration], TargetFactory, ServiceProvider):
                 cache_directory_path,
                 cache_factory=cache_factory or StaticService(NoOpCache()),
                 process_pool=process_pool,
-                user=user,
+                user=NoOpUser() if user is None else user,
                 translations=NoOpTranslationRepository()
                 if translations is False
                 else translations,
