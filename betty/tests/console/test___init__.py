@@ -17,7 +17,7 @@ from betty.functools import Result, suppress
 from betty.locale.localizable import Plain
 from betty.plugin.static import StaticPluginRepository
 from betty.project import Project
-from betty.test_utils.conftest import NewTemporaryAppFactory
+from betty.test_utils.conftest import TemporaryAppFactory
 from betty.test_utils.console import run
 from betty.user import Verbosity
 
@@ -55,26 +55,26 @@ def _create_raising_command(exception: BaseException) -> CommandDefinition:
     )
 
 
-async def test_main__without_arguments(new_temporary_app: App) -> None:
-    await run(new_temporary_app, expected_exit_code=SystemExitCode.ERROR_CONSOLE_USAGE)
+async def test_main__without_arguments(temporary_app: App) -> None:
+    await run(temporary_app, expected_exit_code=SystemExitCode.ERROR_CONSOLE_USAGE)
 
 
-async def test_main__help(new_temporary_app: App) -> None:
-    await run(new_temporary_app, "--help")
+async def test_main__help(temporary_app: App) -> None:
+    await run(temporary_app, "--help")
 
 
-async def test_main__version(new_temporary_app: App) -> None:
-    result = await run(new_temporary_app, "--version")
+async def test_main__version(temporary_app: App) -> None:
+    result = await run(temporary_app, "--version")
     assert "Betty" in result.stdout
 
 
-async def test_main__commands(new_temporary_app: App) -> None:
-    await run(new_temporary_app, "--commands")
+async def test_main__commands(temporary_app: App) -> None:
+    await run(temporary_app, "--commands")
 
 
-async def test_main__with_unknown_command(new_temporary_app: App) -> None:
+async def test_main__with_unknown_command(temporary_app: App) -> None:
     await run(
-        new_temporary_app,
+        temporary_app,
         "unknown-command",
         expected_exit_code=SystemExitCode.ERROR_CONSOLE_USAGE,
     )
@@ -96,10 +96,10 @@ async def test_main__with_unknown_command(new_temporary_app: App) -> None:
 async def test_main__with_user_facing_exception(
     expected: SystemExitCode,
     command: CommandDefinition,
-    new_temporary_app_factory: NewTemporaryAppFactory,
+    temporary_app_factory: TemporaryAppFactory,
 ) -> None:
     async with (
-        new_temporary_app_factory(
+        temporary_app_factory(
             command_repository=StaticPluginRepository(CommandDefinition, command)
         ) as app,
         app,
@@ -159,11 +159,11 @@ class TestVerbosity:
     async def test(
         self,
         expected: Verbosity,
-        new_temporary_app_factory: NewTemporaryAppFactory,
+        temporary_app_factory: TemporaryAppFactory,
         verbosity: str | None,
     ) -> None:
         async with (
-            new_temporary_app_factory(
+            temporary_app_factory(
                 command_repository=StaticPluginRepository(
                     CommandDefinition, _NoOpCommand.plugin
                 )

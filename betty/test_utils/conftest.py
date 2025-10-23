@@ -10,10 +10,10 @@ from __future__ import annotations
 __all__ = [
     "binary_file_cache",
     "http_client_mock",
-    "new_temporary_app",
-    "new_temporary_app_factory",
     "page",
     "process_pool",
+    "temporary_app",
+    "temporary_app_factory",
 ]
 
 from contextlib import asynccontextmanager
@@ -73,24 +73,24 @@ async def process_pool() -> AsyncIterator[futures.ProcessPoolExecutor]:
         yield process_pool
 
 
-def _configure_new_temporary_app(app: App) -> None:
+def _configure_temporary_app(app: App) -> None:
     app.user.verbosity = Verbosity.QUIET
 
 
-@pytest.fixture
-async def new_temporary_app(
+@pytest.fixture(scope="session")
+async def temporary_app(
     process_pool: futures.ProcessPoolExecutor,
 ) -> AsyncIterator[App]:
     """
     Create a new, temporary :py:class:`betty.app.App`.
     """
     async with App.new_temporary(process_pool=process_pool) as app:
-        _configure_new_temporary_app(app)
+        _configure_temporary_app(app)
         async with app:
             yield app
 
 
-class NewTemporaryAppFactory(Protocol):
+class TemporaryAppFactory(Protocol):
     def __call__(
         self,
         *,
@@ -105,16 +105,16 @@ class NewTemporaryAppFactory(Protocol):
 
 
 @pytest.fixture
-def new_temporary_app_factory(
+def temporary_app_factory(
     process_pool: futures.ProcessPoolExecutor,
-) -> NewTemporaryAppFactory:
+) -> TemporaryAppFactory:
     """
     Get a factory to create a new, temporary :py:class:`betty.app.App`.
     """
     fixture_process_pool = process_pool
 
     @asynccontextmanager
-    async def _new_temporary_app_factory(
+    async def _temporary_app_factory(
         *,
         cache_factory: ServiceFactory[App, Cache[Any]] | None = None,
         process_pool: futures.ProcessPoolExecutor | None = None,
@@ -133,10 +133,10 @@ def new_temporary_app_factory(
             command_repository=command_repository,
             renderer_repository=renderer_repository,
         ) as app:
-            _configure_new_temporary_app(app)
+            _configure_temporary_app(app)
             yield app
 
-    return _new_temporary_app_factory
+    return _temporary_app_factory
 
 
 @pytest_asyncio.fixture(loop_scope="session")

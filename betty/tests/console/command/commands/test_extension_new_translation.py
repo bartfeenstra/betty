@@ -26,14 +26,14 @@ class TestExtensionNewTranslation(ExtensionTranslationTestBase):
     async def test_configure__minimal(
         self,
         mocker: MockerFixture,
-        new_temporary_app_with_extensions: App,
+        temporary_app_with_extensions: App,
     ) -> None:
         locale = "nl-NL"
         m_new_extension_translation = mocker.patch(
             "betty.locale.translation.project.extension.new_extension_translation"
         )
         await run(
-            new_temporary_app_with_extensions,
+            temporary_app_with_extensions,
             "extension-new-translation",
             "dummy-with-assets",
             locale,
@@ -41,10 +41,10 @@ class TestExtensionNewTranslation(ExtensionTranslationTestBase):
         m_new_extension_translation.assert_awaited_once_with(locale, ANY, user=ANY)
 
     async def test_configure__with_unknown_extension(
-        self, new_temporary_app_with_extensions: App
+        self, temporary_app_with_extensions: App
     ) -> None:
         await run(
-            new_temporary_app_with_extensions,
+            temporary_app_with_extensions,
             "extension-new-translation",
             "unknown-extension-id",
             "nl-NL",
@@ -52,10 +52,10 @@ class TestExtensionNewTranslation(ExtensionTranslationTestBase):
         )
 
     async def test_configure__with_extension_without_assets_directory(
-        self, new_temporary_app_with_extensions: App
+        self, temporary_app_with_extensions: App
     ) -> None:
         await run(
-            new_temporary_app_with_extensions,
+            temporary_app_with_extensions,
             "extension-new-translation",
             "dummy-without-assets",
             "nl-NL",
@@ -63,10 +63,10 @@ class TestExtensionNewTranslation(ExtensionTranslationTestBase):
         )
 
     async def test_configure__with_invalid_locale(
-        self, new_temporary_app_with_extensions: App
+        self, temporary_app_with_extensions: App
     ) -> None:
         await run(
-            new_temporary_app_with_extensions,
+            temporary_app_with_extensions,
             "extension-new-translation",
             "dummy-with-assets",
             "",

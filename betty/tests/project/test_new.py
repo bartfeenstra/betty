@@ -13,7 +13,7 @@ from betty.project.config import ProjectConfiguration
 from betty.project.extension.gramps import Gramps
 from betty.project.new import new
 from betty.requirement import StaticRequirement
-from betty.test_utils.conftest import NewTemporaryAppFactory
+from betty.test_utils.conftest import TemporaryAppFactory
 from betty.test_utils.user import StaticUser
 
 
@@ -24,7 +24,7 @@ async def _assert_new(configuration_file_path: Path) -> ProjectConfiguration:
 
 async def test_new__minimal(
     mocker: MockerFixture,
-    new_temporary_app_factory: NewTemporaryAppFactory,
+    temporary_app_factory: TemporaryAppFactory,
     tmp_path: Path,
 ) -> None:
     requirement = StaticRequirement(True, Plain(""))
@@ -50,7 +50,7 @@ async def test_new__minimal(
             url,
         ],
     )
-    async with new_temporary_app_factory(user=user) as app, app:
+    async with temporary_app_factory(user=user) as app, app:
         await new(app)
         configuration = await _assert_new(configuration_file_path)
     assert configuration.title.localize(DEFAULT_LOCALIZER) == title
@@ -61,7 +61,7 @@ async def test_new__minimal(
 
 async def test_new__without_webpack(
     mocker: MockerFixture,
-    new_temporary_app_factory: NewTemporaryAppFactory,
+    temporary_app_factory: TemporaryAppFactory,
     tmp_path: Path,
 ) -> None:
     requirement = StaticRequirement(False, Plain(""))
@@ -70,14 +70,14 @@ async def test_new__without_webpack(
     ).return_value = requirement
 
     user = StaticUser()
-    async with new_temporary_app_factory(user=user) as app, app:
+    async with temporary_app_factory(user=user) as app, app:
         with pytest.raises(UserFacingException):
             await new(app)
 
 
 async def test_new__with_project_directory(
     mocker: MockerFixture,
-    new_temporary_app_factory: NewTemporaryAppFactory,
+    temporary_app_factory: TemporaryAppFactory,
     tmp_path: Path,
 ) -> None:
     requirement = StaticRequirement(True, Plain(""))
@@ -103,13 +103,13 @@ async def test_new__with_project_directory(
         ],
     )
     configuration_file_path = tmp_path / "betty.yaml"
-    async with new_temporary_app_factory(user=user) as app, app:
+    async with temporary_app_factory(user=user) as app, app:
         await new(app)
         await _assert_new(configuration_file_path)
 
 
 async def test_new__with_single_locale(
-    new_temporary_app_factory: NewTemporaryAppFactory,
+    temporary_app_factory: TemporaryAppFactory,
     tmp_path: Path,
 ) -> None:
     configuration_file_path = tmp_path / "betty.yaml"
@@ -128,7 +128,7 @@ async def test_new__with_single_locale(
             "https://exampleexampleexample.com/example",
         ],
     )
-    async with new_temporary_app_factory(user=user) as app, app:
+    async with temporary_app_factory(user=user) as app, app:
         await new(app)
         configuration = await _assert_new(configuration_file_path)
     assert configuration.name == "mijn-eerste-project"
@@ -138,7 +138,7 @@ async def test_new__with_single_locale(
 
 
 async def test_new__with_multiple_locales(
-    new_temporary_app_factory: NewTemporaryAppFactory,
+    temporary_app_factory: TemporaryAppFactory,
     tmp_path: Path,
 ) -> None:
     configuration_file_path = tmp_path / "betty.yaml"
@@ -162,7 +162,7 @@ async def test_new__with_multiple_locales(
             "https://exampleexampleexample.com/example",
         ],
     )
-    async with new_temporary_app_factory(user=user) as app, app:
+    async with temporary_app_factory(user=user) as app, app:
         await new(app)
         configuration = await _assert_new(configuration_file_path)
     assert configuration.name == "mijn-eerste-project"
@@ -173,7 +173,7 @@ async def test_new__with_multiple_locales(
 
 
 async def test_new__with_name(
-    new_temporary_app_factory: NewTemporaryAppFactory,
+    temporary_app_factory: TemporaryAppFactory,
     tmp_path: Path,
 ) -> None:
     configuration_file_path = tmp_path / "betty.yaml"
@@ -192,14 +192,14 @@ async def test_new__with_name(
             "https://exampleexampleexample.com/example",
         ],
     )
-    async with new_temporary_app_factory(user=user) as app, app:
+    async with temporary_app_factory(user=user) as app, app:
         await new(app)
         configuration = await _assert_new(configuration_file_path)
     assert configuration.name == name
 
 
 async def test_new__with_gramps(
-    new_temporary_app_factory: NewTemporaryAppFactory,
+    temporary_app_factory: TemporaryAppFactory,
     tmp_path: Path,
 ) -> None:
     configuration_file_path = tmp_path / "betty.yaml"
@@ -219,7 +219,7 @@ async def test_new__with_gramps(
             str(gramps_family_tree_file_path),
         ],
     )
-    async with new_temporary_app_factory(user=user) as app, app:
+    async with temporary_app_factory(user=user) as app, app:
         await new(app)
         configuration = await _assert_new(configuration_file_path)
         assert Gramps.plugin in configuration.extensions

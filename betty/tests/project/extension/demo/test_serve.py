@@ -15,7 +15,7 @@ from betty.tests.conftest import check_skip_webpack_entry_point_provider
 if TYPE_CHECKING:
     from pytest_mock import MockerFixture
 
-    from betty.app import App
+    from betty.test_utils.conftest import TemporaryAppFactory
 
 
 class TestDemoServer:
@@ -24,10 +24,10 @@ class TestDemoServer:
         self,
         demo_project_aioresponses: None,  # noqa F811
         mocker: MockerFixture,
-        new_temporary_app: App,
+        temporary_app_factory: TemporaryAppFactory,
     ) -> None:
         mocker.patch("webbrowser.open_new_tab")
-        async with DemoServer(app=new_temporary_app) as server:
+        async with temporary_app_factory() as app, app, DemoServer(app=app) as server:
 
             def _assert_response(response: Response) -> None:
                 assert response.status_code == 200

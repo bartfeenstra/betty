@@ -47,13 +47,11 @@ class ExtensionTestBase:
         """
         raise NotImplementedError
 
-    async def test_new_for_project(
-        self, new_temporary_app: App, sut: Extension
-    ) -> None:
+    async def test_new_for_project(self, temporary_app: App, sut: Extension) -> None:
         """
         Tests :py:meth:`betty.project.extension.Extension.new_for_project` implementations.
         """
-        async with Project.new_temporary(new_temporary_app) as project, project:
+        async with Project.new_temporary(temporary_app) as project, project:
             sut = await type(sut).new_for_project(project)
             assert sut.project == project
 

@@ -19,9 +19,7 @@ class TestNewDefinition(CommandDefinitionTestBase):
 
 
 class TestNew:
-    async def test_configure(
-        self, new_temporary_app: App, mocker: MockerFixture
-    ) -> None:
+    async def test_configure(self, temporary_app: App, mocker: MockerFixture) -> None:
         m_new = mocker.patch("betty.project.new.new")
-        await run(new_temporary_app, "new")
+        await run(temporary_app, "new")
         m_new.assert_awaited_once_with(ANY)

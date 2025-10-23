@@ -44,10 +44,10 @@ class TestBuiltinServer:
 
 
 class TestBuiltinProjectServer:
-    async def test_start(self, mocker: MockerFixture, new_temporary_app: App) -> None:
+    async def test_start(self, mocker: MockerFixture, temporary_app: App) -> None:
         mocker.patch("webbrowser.open_new_tab")
         content = "Hello, and welcome to my site!"
-        async with Project.new_temporary(new_temporary_app) as project, project:
+        async with Project.new_temporary(temporary_app) as project, project:
             await makedirs(project.configuration.www_directory_path)
             async with aiofiles.open(
                 project.configuration.www_directory_path / "index.html", "w"

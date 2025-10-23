@@ -13,10 +13,10 @@ from betty.test_utils.job import do
 
 
 class TestLoadAncestry:
-    async def test_do(self, mocker: MockerFixture, new_temporary_app: App) -> None:
+    async def test_do(self, mocker: MockerFixture, temporary_app: App) -> None:
         m_load_name = mocker.patch("betty.gramps.loader.GrampsLoader.load_name")
         family_tree_name = "my-first-family-tree"
-        async with Project.new_temporary(new_temporary_app) as project:
+        async with Project.new_temporary(temporary_app) as project:
             project.configuration.extensions.append(
                 PluginInstanceConfiguration(
                     Gramps.plugin,

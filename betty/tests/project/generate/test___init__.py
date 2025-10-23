@@ -10,8 +10,8 @@ from betty.project.generate import generate
 from betty.test_utils.jinja2 import assert_betty_html
 
 
-async def test_generate__html_lang(new_temporary_app: App) -> None:
-    async with Project.new_temporary(new_temporary_app) as project:
+async def test_generate__html_lang(temporary_app: App) -> None:
+    async with Project.new_temporary(temporary_app) as project:
         project.configuration.locales["en-US"].alias = "en"
         project.configuration.locales.append(
             LocaleConfiguration(
@@ -28,8 +28,8 @@ async def test_generate__html_lang(new_temporary_app: App) -> None:
                 assert '<html lang="nl-NL"' in html
 
 
-async def test_generate__links(new_temporary_app: App) -> None:
-    async with Project.new_temporary(new_temporary_app) as project:
+async def test_generate__links(temporary_app: App) -> None:
+    async with Project.new_temporary(temporary_app) as project:
         project.configuration.locales.replace(
             LocaleConfiguration(
                 "nl-NL",
@@ -68,8 +68,8 @@ async def test_generate__links(new_temporary_app: App) -> None:
                 )
 
 
-async def test_generate__links_for_entity_pages(new_temporary_app: App) -> None:
-    async with Project.new_temporary(new_temporary_app) as project:
+async def test_generate__links_for_entity_pages(temporary_app: App) -> None:
+    async with Project.new_temporary(temporary_app) as project:
         project.configuration.locales.replace(
             LocaleConfiguration(
                 "nl-NL",
@@ -123,8 +123,8 @@ async def test_generate__links_for_entity_pages(new_temporary_app: App) -> None:
 
 
 class TestResourceOverride:
-    async def test(self, new_temporary_app: App) -> None:
-        async with Project.new_temporary(new_temporary_app) as project:
+    async def test(self, temporary_app: App) -> None:
+        async with Project.new_temporary(temporary_app) as project:
             localized_assets_directory_path = (
                 Path(project.configuration.assets_directory_path)
                 / "public"

@@ -22,7 +22,7 @@ if TYPE_CHECKING:
 
 
 class TestPrivatizeAncestry:
-    async def test_do(self, new_temporary_app: App) -> None:
+    async def test_do(self, temporary_app: App) -> None:
         person = Person(id="P0")
         Presence(person, Subject(), Event(event_type=Birth()))
 
@@ -49,7 +49,7 @@ class TestPrivatizeAncestry:
         )
         FileReference(citation, citation_file)
 
-        async with Project.new_temporary(new_temporary_app) as project:
+        async with Project.new_temporary(temporary_app) as project:
             project.configuration.extensions.enable(Privatizer)
             project.ancestry.add(person, source, citation)
             async with project:

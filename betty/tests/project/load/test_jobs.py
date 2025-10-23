@@ -18,7 +18,7 @@ class TestPopulateLink:
     async def test_do__should_fetch_link_with_unsupported_content_type(
         self,
         http_client_mock: aioresponses,
-        new_temporary_app: App,
+        temporary_app: App,
     ) -> None:
         link_url = "https://example.com"
         link = Link(link_url)
@@ -29,7 +29,7 @@ class TestPopulateLink:
                 "Content-Type": "text/plain",
             },
         )
-        async with Project.new_temporary(new_temporary_app) as project:
+        async with Project.new_temporary(temporary_app) as project:
             project.ancestry.add(DummyHasLinks(links=[link]))
             async with project:
                 await do(ProjectContext(project), PopulateLink(link))
@@ -48,7 +48,7 @@ class TestPopulateLink:
         self,
         link_page_content_type: str,
         http_client_mock: aioresponses,
-        new_temporary_app: App,
+        temporary_app: App,
     ) -> None:
         link_url = "https://example.com"
         link_page_html = "<html></html>"
@@ -58,7 +58,7 @@ class TestPopulateLink:
             body=link_page_html,
             headers={"Content-Type": link_page_content_type},
         )
-        async with Project.new_temporary(new_temporary_app) as project:
+        async with Project.new_temporary(temporary_app) as project:
             project.ancestry.add(DummyHasLinks(links=[link]))
             async with project:
                 await do(ProjectContext(project), PopulateLink(link))
@@ -77,7 +77,7 @@ class TestPopulateLink:
         self,
         link_page_content_type: str,
         http_client_mock: aioresponses,
-        new_temporary_app: App,
+        temporary_app: App,
     ) -> None:
         link_url = "https://example.com"
         link_page_title = "Hello, world!"
@@ -90,7 +90,7 @@ class TestPopulateLink:
             body=link_page_html,
             headers={"Content-Type": link_page_content_type},
         )
-        async with Project.new_temporary(new_temporary_app) as project:
+        async with Project.new_temporary(temporary_app) as project:
             project.ancestry.add(DummyHasLinks(links=[link]))
             async with project:
                 await do(ProjectContext(project), PopulateLink(link))
@@ -108,7 +108,7 @@ class TestPopulateLink:
         self,
         link_page_content_type: str,
         http_client_mock: aioresponses,
-        new_temporary_app: App,
+        temporary_app: App,
     ) -> None:
         link_url = "https://example.com"
         link_page_html = "<html><head></head><body></body></html>"
@@ -118,7 +118,7 @@ class TestPopulateLink:
             body=link_page_html,
             headers={"Content-Type": link_page_content_type},
         )
-        async with Project.new_temporary(new_temporary_app) as project:
+        async with Project.new_temporary(temporary_app) as project:
             project.ancestry.add(DummyHasLinks(links=[link]))
             async with project:
                 await do(ProjectContext(project), PopulateLink(link))
@@ -140,7 +140,7 @@ class TestPopulateLink:
         meta_attr_name: str,
         meta_attr_value: str,
         http_client_mock: aioresponses,
-        new_temporary_app: App,
+        temporary_app: App,
     ) -> None:
         link_url = "https://example.com"
         link_page_meta_description = "'Hello, world!' is a common internet greeting."
@@ -151,7 +151,7 @@ class TestPopulateLink:
             body=link_page_html,
             headers={"Content-Type": link_page_content_type},
         )
-        async with Project.new_temporary(new_temporary_app) as project:
+        async with Project.new_temporary(temporary_app) as project:
             project.ancestry.add(DummyHasLinks(links=[link]))
             async with project:
                 await do(ProjectContext(project), PopulateLink(link))

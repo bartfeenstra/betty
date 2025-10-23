@@ -13,13 +13,13 @@ from betty.tests.conftest import check_skip_webpack_entry_point_provider
 class TestHttpApiDoc(EntryPointProviderTestBase):
     @override
     @pytest.fixture
-    async def sut(self, new_temporary_app: App) -> Extension:
-        async with Project.new_temporary(new_temporary_app) as project, project:
+    async def sut(self, temporary_app: App) -> Extension:
+        async with Project.new_temporary(temporary_app) as project, project:
             return await HttpApiDoc.new_for_project(project)
 
     @check_skip_webpack_entry_point_provider
-    async def test_generate(self, new_temporary_app: App) -> None:
-        async with Project.new_temporary(new_temporary_app) as project:
+    async def test_generate(self, temporary_app: App) -> None:
+        async with Project.new_temporary(temporary_app) as project:
             project.configuration.extensions.enable(HttpApiDoc)
             async with project:
                 await generate(project)
@@ -33,8 +33,8 @@ class TestHttpApiDoc(EntryPointProviderTestBase):
                     / "http-api-doc.js"
                 ).is_file()
 
-    async def test_secondary_navigation_links(self, new_temporary_app: App) -> None:
-        async with Project.new_temporary(new_temporary_app) as project:
+    async def test_secondary_navigation_links(self, temporary_app: App) -> None:
+        async with Project.new_temporary(temporary_app) as project:
             project.configuration.extensions.enable(HttpApiDoc)
             async with project:
                 extensions = await project.extensions
