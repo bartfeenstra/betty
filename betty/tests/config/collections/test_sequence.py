@@ -1,8 +1,9 @@
 from __future__ import annotations
 
-from collections.abc import Iterable, Sequence
+from collections.abc import Sequence
 from typing import TYPE_CHECKING
 
+import pytest
 from typing_extensions import override
 
 from betty.assertion import RequiredField, assert_int, assert_record, assert_setattr
@@ -12,6 +13,11 @@ from betty.test_utils.config.collections.sequence import ConfigurationSequenceTe
 
 if TYPE_CHECKING:
     from betty.serde.dump import Dump
+    from betty.test_utils.config.collections import (
+        ConfigurationCollectionTestBaseNewSut,
+        ConfigurationCollectionTestBaseSutConfigurationKeys,
+        ConfigurationCollectionTestBaseSutConfigurations,
+    )
 
 
 class ConfigurationSequenceTestConfiguration(Configuration):
@@ -34,22 +40,20 @@ class TestConfigurationSequence(
     ConfigurationSequenceTestBase[ConfigurationSequenceTestConfiguration]
 ):
     @override
-    async def get_sut(
+    @pytest.fixture
+    def new_sut(
         self,
-        configurations: (
-            Iterable[ConfigurationSequenceTestConfiguration] | None
-        ) = None,
-    ) -> ConfigurationSequenceTestConfigurationSequence:
-        return ConfigurationSequenceTestConfigurationSequence(configurations)
+    ) -> ConfigurationCollectionTestBaseNewSut[
+        ConfigurationSequenceTestConfiguration, int
+    ]:
+        return ConfigurationSequenceTestConfigurationSequence
 
     @override
-    async def get_configurations(
+    @pytest.fixture
+    def sut_configurations(
         self,
-    ) -> tuple[
-        ConfigurationSequenceTestConfiguration,
-        ConfigurationSequenceTestConfiguration,
-        ConfigurationSequenceTestConfiguration,
-        ConfigurationSequenceTestConfiguration,
+    ) -> ConfigurationCollectionTestBaseSutConfigurations[
+        ConfigurationSequenceTestConfiguration
     ]:
         return (
             ConfigurationSequenceTestConfiguration(123),
@@ -58,30 +62,43 @@ class TestConfigurationSequence(
             ConfigurationSequenceTestConfiguration(0),
         )
 
-    async def test_load__without_items(self) -> None:
-        sut = await self.get_sut()
+    async def test_load__without_items(
+        self, sut: ConfigurationSequence[Configuration]
+    ) -> None:
         sut.load([])
         assert len(sut) == 0
 
-    async def test_load__with_items(self) -> None:
-        sut = await self.get_sut()
-        configurations = await self.get_configurations()
-        sut.load([item.dump() for item in configurations])
-        assert len(sut) == len(configurations)
+    async def test_load__with_items(
+        self,
+        sut: ConfigurationSequence[Configuration],
+        sut_configurations: ConfigurationCollectionTestBaseSutConfigurations[
+            Configuration
+        ],
+    ) -> None:
+        sut.load([item.dump() for item in sut_configurations])
+        assert len(sut) == len(sut_configurations)
 
-    async def test_dump__without_items(self) -> None:
-        sut = await self.get_sut()
+    async def test_dump__without_items(
+        self, sut: ConfigurationSequence[Configuration]
+    ) -> None:
         dump = sut.dump()
         assert dump == []
 
-    async def test_dump__with_items(self) -> None:
-        configurations = await self.get_configurations()
-        sut = await self.get_sut()
-        sut.replace(*configurations)
+    async def test_dump__with_items(
+        self,
+        sut: ConfigurationSequence[Configuration],
+        sut_configurations: ConfigurationCollectionTestBaseSutConfigurations[
+            Configuration
+        ],
+        sut_configuration_keys: ConfigurationCollectionTestBaseSutConfigurationKeys[
+            int
+        ],
+    ) -> None:
+        sut.replace(*sut_configurations)
         dump = sut.dump()
         assert isinstance(dump, Sequence)
-        assert len(dump) == len(configurations)
-        for configuration_key in self.get_configuration_keys():
+        assert len(dump) == len(sut_configurations)
+        for configuration_key in sut_configuration_keys:
             assert configuration_key < len(dump)
 
 

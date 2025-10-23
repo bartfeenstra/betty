@@ -2,6 +2,7 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING
 
+import pytest
 from typing_extensions import override
 
 from betty.ancestry import Ancestry
@@ -52,11 +53,13 @@ class _TestAncestry_OneToOne_Right(Entity):
 
 class TestAncestry(EntityCollectionTestBase[Entity]):
     @override
-    async def get_suts(self) -> Sequence[EntityCollection[Entity]]:
-        return (Ancestry(),)
+    @pytest.fixture
+    def sut(self) -> EntityCollection[Entity]:
+        return Ancestry()
 
     @override
-    async def get_entities(
+    @pytest.fixture
+    async def sut_entities(
         self,
     ) -> Sequence[Entity]:
         return (

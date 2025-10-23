@@ -2,14 +2,15 @@
 Test utilities for :py:mod:`betty.plugin.config`.
 """
 
-from collections.abc import Iterable
-from typing import Generic, TypeVar
-
-from typing_extensions import override
+from typing import Generic, TypeVar, cast
 
 from betty.machine_name import MachineName
 from betty.plugin import PluginDefinition
 from betty.plugin.config import PluginConfiguration, PluginConfigurationMapping
+from betty.test_utils.config.collections import (
+    ConfigurationCollectionTestBaseNewSut,
+    ConfigurationCollectionTestBaseSutConfigurations,
+)
 from betty.test_utils.config.collections.mapping import ConfigurationMappingTestBase
 
 _PluginDefinitionT = TypeVar("_PluginDefinitionT", bound=PluginDefinition)
@@ -24,19 +25,23 @@ class PluginConfigurationMappingTestBase(
     A base class for testing :py:class:`betty.plugin.config.PluginConfigurationMapping` implementations.
     """
 
-    @override
-    async def get_sut(
-        self, configurations: Iterable[_PluginConfigurationT] | None = None
-    ) -> PluginConfigurationMapping[_PluginDefinitionT, _PluginConfigurationT]:
-        raise NotImplementedError
-
-    async def test_new_plugins(self) -> None:
+    def test_new_plugins(
+        self,
+        new_sut: ConfigurationCollectionTestBaseNewSut[
+            _PluginConfigurationT, MachineName
+        ],
+        sut_configurations: ConfigurationCollectionTestBaseSutConfigurations[
+            _PluginConfigurationT
+        ],
+    ) -> None:
         """
         Tests :py:meth:`betty.plugin.config.PluginConfigurationMapping.new_plugins` implementations.
         """
-        configurations = await self.get_configurations()
-        sut = await self.get_sut(configurations)
+        sut = cast(
+            PluginConfigurationMapping[_PluginDefinitionT, _PluginConfigurationT],
+            new_sut(sut_configurations),
+        )
         for configuration, plugin in zip(
-            configurations, sut.new_plugins(), strict=True
+            sut_configurations, sut.new_plugins(), strict=True
         ):
             assert plugin.id == configuration.id

@@ -16,13 +16,10 @@ from betty.locale import (
     negotiate_locale,
     to_locale,
 )
-from betty.test_utils.json.schema import SchemaTestBase
+from betty.test_utils.json.schema import SchemaTestBase, SchemaTestBaseSut
 
 if TYPE_CHECKING:
     from collections.abc import Sequence
-
-    from betty.json.schema import Schema
-    from betty.serde.dump import Dump
 
 
 @pytest.mark.parametrize(
@@ -73,16 +70,13 @@ async def test_negotiate_locale(
 
 class TestLocaleSchema(SchemaTestBase):
     @override
-    async def get_sut_instances(
-        self,
-    ) -> Sequence[tuple[Schema, Sequence[Dump], Sequence[Dump]]]:
-        return [
-            (
-                LocaleSchema(),
-                ["en", "nl", "uk"],
-                [
-                    True,
-                    False,
-                ],
-            )
-        ]
+    @pytest.fixture
+    def sut(self) -> SchemaTestBaseSut:
+        return (
+            LocaleSchema(),
+            ["en", "nl", "uk"],
+            [
+                True,
+                False,
+            ],
+        )

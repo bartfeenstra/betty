@@ -10,7 +10,6 @@ import betty.ancestry.event
 import betty.ancestry.person
 import betty.ancestry.place
 from betty.ancestry import Ancestry
-from betty.app import App
 from betty.app.factory import AppDependentFactory
 from betty.exception import UserFacingException
 from betty.json.schema import JsonSchemaSchema
@@ -28,7 +27,7 @@ from betty.project.config import (
 from betty.project.extension import Extension, ExtensionDefinition
 from betty.project.factory import ProjectDependentFactory
 from betty.requirement import Requirement, RequirementError
-from betty.test_utils.json.schema import SchemaTestBase
+from betty.test_utils.json.schema import SchemaTestBase, SchemaTestBaseSut
 from betty.test_utils.model import DummyNonPublicFacingEntityOne
 from betty.test_utils.project.extension import (
     DummyConfigurableExtension,
@@ -36,10 +35,9 @@ from betty.test_utils.project.extension import (
 )
 
 if TYPE_CHECKING:
-    from collections.abc import MutableSequence, Sequence
+    from collections.abc import Iterable, Sequence
 
-    from betty.json.schema import Schema
-    from betty.serde.dump import Dump
+    from betty.app import App
     from betty.test_utils.conftest import NewTemporaryAppFactory
 
 
@@ -427,43 +425,35 @@ class TestProjectContext:
 
 
 class TestProjectSchema(SchemaTestBase):
-    @override
-    async def get_sut_instances(
-        self,
-    ) -> Sequence[tuple[Schema, Sequence[Dump], Sequence[Dump]]]:
-        schemas: MutableSequence[tuple[Schema, Sequence[Dump], Sequence[Dump]]] = []
+    @staticmethod
+    def _sut_params() -> Iterable[tuple[str, bool]]:
         for url in (
             "http://example.com",
             "https://example.com",
             "https://example.com/root-path",
         ):
             for clean_urls in (True, False):
-                async with (
-                    App.new_temporary() as app,
-                    app,
-                    Project.new_temporary(app) as project,
-                ):
-                    project.configuration.url = url
-                    project.configuration.clean_urls = clean_urls
-                    async with project:
-                        schemas.append(
-                            (
-                                await ProjectSchema.new_for_project(project),
-                                [
-                                    await betty.ancestry.person.Person().dump_linked_data(
-                                        project
-                                    ),
-                                    await betty.ancestry.place.Place().dump_linked_data(
-                                        project
-                                    ),
-                                    await betty.ancestry.event.Event().dump_linked_data(
-                                        project
-                                    ),
-                                ],
-                                [],
-                            )
-                        )
-        return schemas
+                yield url, clean_urls
+
+    @override
+    @pytest.fixture(params=_sut_params())
+    async def sut(
+        self, new_temporary_app: App, request: pytest.FixtureRequest
+    ) -> SchemaTestBaseSut:
+        url, clean_urls = request.param
+        async with Project.new_temporary(new_temporary_app) as project:
+            project.configuration.url = url
+            project.configuration.clean_urls = clean_urls
+            async with project:
+                return (
+                    await ProjectSchema.new_for_project(project),
+                    [
+                        await betty.ancestry.person.Person().dump_linked_data(project),
+                        await betty.ancestry.place.Place().dump_linked_data(project),
+                        await betty.ancestry.event.Event().dump_linked_data(project),
+                    ],
+                    [],
+                )
 
     @pytest.mark.parametrize(
         "clean_urls",

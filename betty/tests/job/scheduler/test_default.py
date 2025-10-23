@@ -33,7 +33,7 @@ class _Progress(Progress):
 class TestDefaultScheduler(SchedulerTestBase[SchedulerTestBaseContext]):
     @pytest.fixture
     @override
-    async def sut(self) -> Scheduler[SchedulerTestBaseContext]:
+    def sut(self) -> Scheduler[SchedulerTestBaseContext]:
         return DefaultScheduler(
             SchedulerTestBaseContext(), progress=NoOpProgress(), user=NoOpUser()
         )

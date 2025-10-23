@@ -1,10 +1,9 @@
-from collections.abc import Iterable, Mapping
+from collections.abc import Mapping
 from typing import cast
 
 import pytest
 from typing_extensions import override
 
-from betty.config.collections import ConfigurationCollection
 from betty.exception import UserFacingException
 from betty.factory import new
 from betty.locale import UNDETERMINED_LOCALE
@@ -21,6 +20,11 @@ from betty.plugin.config import (
 from betty.plugin.static import StaticPluginRepository
 from betty.serde.dump import Dump
 from betty.test_utils.config import DummyConfiguration
+from betty.test_utils.config.collections import (
+    ConfigurationCollectionTestBaseNewSut,
+    ConfigurationCollectionTestBaseSutConfigurationKeys,
+    ConfigurationCollectionTestBaseSutConfigurations,
+)
 from betty.test_utils.config.collections.mapping import ConfigurationMappingTestBase
 from betty.test_utils.exception import raises_error
 from betty.test_utils.plugin import (
@@ -190,15 +194,17 @@ class TestPluginConfigurationPluginConfigurationMapping(
     ConfigurationMappingTestBase[MachineName, PluginConfiguration]
 ):
     @override
-    async def get_sut(
-        self, configurations: Iterable[PluginConfiguration] | None = None
-    ) -> ConfigurationCollection[MachineName, PluginConfiguration]:
-        return PluginConfigurationPluginConfigurationMapping(configurations)
+    @pytest.fixture
+    def new_sut(
+        self,
+    ) -> ConfigurationCollectionTestBaseNewSut[PluginConfiguration, MachineName]:
+        return PluginConfigurationPluginConfigurationMapping
 
     @override
-    def get_configuration_keys(
+    @pytest.fixture
+    def sut_configuration_keys(
         self,
-    ) -> tuple[MachineName, MachineName, MachineName, MachineName]:
+    ) -> ConfigurationCollectionTestBaseSutConfigurationKeys[MachineName]:
         return (
             "hello-world-1",
             "hello-world-2",
@@ -207,19 +213,18 @@ class TestPluginConfigurationPluginConfigurationMapping(
         )
 
     @override
-    async def get_configurations(
+    @pytest.fixture
+    def sut_configurations(
         self,
-    ) -> tuple[
-        PluginConfiguration,
-        PluginConfiguration,
-        PluginConfiguration,
-        PluginConfiguration,
-    ]:
+        sut_configuration_keys: ConfigurationCollectionTestBaseSutConfigurationKeys[
+            MachineName
+        ],
+    ) -> ConfigurationCollectionTestBaseSutConfigurations[PluginConfiguration]:
         return (
-            PluginConfiguration(self.get_configuration_keys()[0], ""),
-            PluginConfiguration(self.get_configuration_keys()[1], ""),
-            PluginConfiguration(self.get_configuration_keys()[2], ""),
-            PluginConfiguration(self.get_configuration_keys()[3], ""),
+            PluginConfiguration(sut_configuration_keys[0], ""),
+            PluginConfiguration(sut_configuration_keys[1], ""),
+            PluginConfiguration(sut_configuration_keys[2], ""),
+            PluginConfiguration(sut_configuration_keys[3], ""),
         )
 
 
@@ -365,9 +370,10 @@ class TestPluginInstanceConfigurationMapping(
     ]
 ):
     @override
-    def get_configuration_keys(
+    @pytest.fixture
+    def sut_configuration_keys(
         self,
-    ) -> tuple[MachineName, MachineName, MachineName, MachineName]:
+    ) -> ConfigurationCollectionTestBaseSutConfigurationKeys[MachineName]:
         return (
             DUMMY_PLUGIN_ONE.id,
             DUMMY_PLUGIN_TWO.id,
@@ -376,33 +382,30 @@ class TestPluginInstanceConfigurationMapping(
         )
 
     @override
-    async def get_sut(
+    @pytest.fixture
+    def new_sut(
         self,
-        configurations: Iterable[
-            PluginInstanceConfiguration[
-                ClassedDummyPluginDefinition, ClassedDummyPlugin
-            ]
-        ]
-        | None = None,
-    ) -> PluginInstanceConfigurationMapping[
-        ClassedDummyPluginDefinition, ClassedDummyPlugin
+    ) -> ConfigurationCollectionTestBaseNewSut[
+        PluginInstanceConfiguration[ClassedDummyPluginDefinition, ClassedDummyPlugin],
+        MachineName,
     ]:
-        return PluginInstanceConfigurationMapping(configurations)
+        return PluginInstanceConfigurationMapping
 
     @override
-    async def get_configurations(
+    @pytest.fixture
+    def sut_configurations(
         self,
-    ) -> tuple[
-        PluginInstanceConfiguration[ClassedDummyPluginDefinition, ClassedDummyPlugin],
-        PluginInstanceConfiguration[ClassedDummyPluginDefinition, ClassedDummyPlugin],
-        PluginInstanceConfiguration[ClassedDummyPluginDefinition, ClassedDummyPlugin],
-        PluginInstanceConfiguration[ClassedDummyPluginDefinition, ClassedDummyPlugin],
+        sut_configuration_keys: ConfigurationCollectionTestBaseSutConfigurationKeys[
+            MachineName
+        ],
+    ) -> ConfigurationCollectionTestBaseSutConfigurations[
+        PluginInstanceConfiguration[ClassedDummyPluginDefinition, ClassedDummyPlugin]
     ]:
         return (
-            PluginInstanceConfiguration(self.get_configuration_keys()[0]),
-            PluginInstanceConfiguration(self.get_configuration_keys()[1]),
-            PluginInstanceConfiguration(self.get_configuration_keys()[2]),
-            PluginInstanceConfiguration(self.get_configuration_keys()[3]),
+            PluginInstanceConfiguration(sut_configuration_keys[0]),
+            PluginInstanceConfiguration(sut_configuration_keys[1]),
+            PluginInstanceConfiguration(sut_configuration_keys[2]),
+            PluginInstanceConfiguration(sut_configuration_keys[3]),
         )
 
 

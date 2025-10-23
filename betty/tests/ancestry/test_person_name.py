@@ -39,7 +39,7 @@ class TestPersonName(EntityTestBase):
 
     @override
     @pytest.fixture(params=_sut_params())
-    async def sut(self, request: pytest.FixtureRequest) -> Entity:
+    def sut(self, request: pytest.FixtureRequest) -> Entity:
         return cast(Entity, request.param)
 
     def test___init___should_require_at_least_one_type_of_name(self) -> None:

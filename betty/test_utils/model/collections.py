@@ -19,15 +19,15 @@ class EntityCollectionTestBase(Generic[_EntityT]):
     A base class for testing :py:class:`betty.model.collections.EntityCollection` implementations.
     """
 
-    async def get_suts(self) -> Sequence[EntityCollection[_EntityT]]:
+    @pytest.fixture
+    def sut(self) -> EntityCollection[_EntityT]:
         """
-        Produce the (empty) collections under test.
-
-        This MUST return at least one entity collection.
+        Provide the system(s) under test.
         """
         raise NotImplementedError
 
-    async def get_entities(self) -> Sequence[_EntityT]:
+    @pytest.fixture
+    async def sut_entities(self) -> Sequence[_EntityT]:
         """
         Produce entities to test the collections with.
 
@@ -35,65 +35,67 @@ class EntityCollectionTestBase(Generic[_EntityT]):
         """
         raise NotImplementedError
 
-    async def test_entity_collection_test_base_get_entities(self) -> None:
+    async def test_entity_collection_test_base_sut_entities(
+        self, sut_entities: Sequence[_EntityT]
+    ) -> None:
         """
-        Tests :py:meth:`betty.test_utils.model.collections.EntityCollectionTestBase.get_entities` implementations.
+        Tests :py:meth:`betty.test_utils.model.collections.EntityCollectionTestBase.sut_entities` implementations.
         """
-        assert len(await self.get_entities()) >= 3
+        assert len(sut_entities) >= 3
 
-    async def test_add(self) -> None:
+    async def test_add(
+        self, sut: EntityCollection[_EntityT], sut_entities: Sequence[_EntityT]
+    ) -> None:
         """
         Tests :py:meth:`betty.model.collections.EntityCollection.add` implementations.
         """
-        for sut in await self.get_suts():
-            entities = await self.get_entities()
-            sut.add(*entities)
-            assert list(sut) == list(entities)
+        sut.add(*sut_entities)
+        assert list(sut) == list(sut_entities)
 
-    async def test_add_with_duplicate_entities(self) -> None:
+    async def test_add_with_duplicate_entities(
+        self, sut: EntityCollection[_EntityT], sut_entities: Sequence[_EntityT]
+    ) -> None:
         """
         Tests :py:meth:`betty.model.collections.EntityCollection.add` implementations.
         """
-        for sut in await self.get_suts():
-            entities = await self.get_entities()
-            sut.add(entities[0], entities[1], entities[0], entities[2])
-            assert list(sut) == list(entities[0:3])
+        sut.add(sut_entities[0], sut_entities[1], sut_entities[0], sut_entities[2])
+        assert list(sut) == list(sut_entities[0:3])
 
-    async def test_remove(self) -> None:
+    async def test_remove(
+        self, sut: EntityCollection[_EntityT], sut_entities: Sequence[_EntityT]
+    ) -> None:
         """
         Tests :py:meth:`betty.model.collections.EntityCollection.remove` implementations.
         """
-        for sut in await self.get_suts():
-            entities = await self.get_entities()
-            sut.add(*entities)
-            first = entities[0]
-            sut.add(*entities)
-            sut.remove(first)
-            assert list(sut) == list(entities[1:])
-            sut.remove(*entities)
-            assert list(sut) == []
+        sut.add(*sut_entities)
+        first = sut_entities[0]
+        sut.add(*sut_entities)
+        sut.remove(first)
+        assert list(sut) == list(sut_entities[1:])
+        sut.remove(*sut_entities)
+        assert list(sut) == []
 
-    async def test___delitem____by_entity(self) -> None:
+    async def test___delitem____by_entity(
+        self, sut: EntityCollection[_EntityT], sut_entities: Sequence[_EntityT]
+    ) -> None:
         """
         Tests :py:meth:`betty.model.collections.EntityCollection.__delitem__` implementations.
         """
-        for sut in await self.get_suts():
-            entities = await self.get_entities()
-            sut.add(*entities)
-            first = entities[0]
-            sut.add(*entities)
-            del sut[first]
-            assert list(sut) == list(entities[1:])
+        sut.add(*sut_entities)
+        first = sut_entities[0]
+        sut.add(*sut_entities)
+        del sut[first]
+        assert list(sut) == list(sut_entities[1:])
 
-    async def test___contains____by_entity(self) -> None:
+    async def test___contains____by_entity(
+        self, sut: EntityCollection[_EntityT], sut_entities: Sequence[_EntityT]
+    ) -> None:
         """
         Tests :py:meth:`betty.model.collections.EntityCollection.__contains__` implementations.
         """
-        for sut in await self.get_suts():
-            entities = await self.get_entities()
-            sut.add(entities[0])
-            assert entities[0] in sut
-            assert entities[1] not in sut
+        sut.add(sut_entities[0])
+        assert sut_entities[0] in sut
+        assert sut_entities[1] not in sut
 
     @pytest.mark.parametrize(
         "value",
@@ -103,62 +105,63 @@ class EntityCollectionTestBase(Generic[_EntityT]):
             [],
         ],
     )
-    async def test___contains____by_unsupported_type(self, value: Any) -> None:
+    async def test___contains____by_unsupported_type(
+        self, value: Any, sut: EntityCollection[_EntityT]
+    ) -> None:
         """
         Tests :py:meth:`betty.model.collections.EntityCollection.__contains__` implementations.
         """
-        for sut in await self.get_suts():
-            assert value not in sut
+        assert value not in sut
 
-    async def test___len__(self) -> None:
+    async def test___len__(
+        self, sut: EntityCollection[_EntityT], sut_entities: Sequence[_EntityT]
+    ) -> None:
         """
         Tests :py:meth:`betty.model.collections.EntityCollection.__len__` implementations.
         """
-        for sut in await self.get_suts():
-            entities = await self.get_entities()
-            assert len(sut) == 0
-            sut.add(*entities)
-            assert len(sut) == len(entities)
+        assert len(sut) == 0
+        sut.add(*sut_entities)
+        assert len(sut) == len(sut_entities)
 
-    async def test___iter__(self) -> None:
+    async def test___iter__(
+        self, sut: EntityCollection[_EntityT], sut_entities: Sequence[_EntityT]
+    ) -> None:
         """
         Tests :py:meth:`betty.model.collections.EntityCollection.__iter__` implementations.
         """
-        for sut in await self.get_suts():
-            entities = await self.get_entities()
-            assert list(iter(sut)) == []
-            sut.add(*entities)
-            assert list(iter(sut)) == list(entities)
+        assert list(iter(sut)) == []
+        sut.add(*sut_entities)
+        assert list(iter(sut)) == list(sut_entities)
 
-    async def test_clear(self) -> None:
+    async def test_clear(
+        self, sut: EntityCollection[_EntityT], sut_entities: Sequence[_EntityT]
+    ) -> None:
         """
         Tests :py:meth:`betty.model.collections.EntityCollection.__iter__` implementations.
         """
-        for sut in await self.get_suts():
-            entities = await self.get_entities()
-            sut.add(*entities)
-            sut.clear()
-            assert list(sut) == []
+        sut.add(*sut_entities)
+        sut.clear()
+        assert list(sut) == []
 
-    async def test_replace(self) -> None:
+    async def test_replace(
+        self, sut: EntityCollection[_EntityT], sut_entities: Sequence[_EntityT]
+    ) -> None:
         """
         Tests :py:meth:`betty.model.collections.EntityCollection.replace` implementations.
         """
-        for sut in await self.get_suts():
-            entities = await self.get_entities()
-            first = entities[0]
-            others = entities[1:]
-            sut.add(first)
-            sut.replace(*others)
-            assert list(sut) == list(others)
+        first = sut_entities[0]
+        others = sut_entities[1:]
+        sut.add(first)
+        sut.replace(*others)
+        assert list(sut) == list(others)
 
-    async def test_get_mutable_instances(self) -> None:
+    async def test_get_mutable_instances(
+        self, sut: EntityCollection[_EntityT], sut_entities: Sequence[_EntityT]
+    ) -> None:
         """
         Tests :py:meth:`betty.model.collections.EntityCollection.get_mutable_instances` implementations.
         """
-        for sut in await self.get_suts():
-            entities = await self.get_entities()
-            sut.add(*entities)
-            sut.immutable()
-            for entity in entities:
-                assert entity.is_immutable
+        sut.add(*sut_entities)
+        sut.immutable()
+        for entity in sut_entities:
+            assert entity.is_immutable

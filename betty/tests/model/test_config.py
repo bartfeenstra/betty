@@ -14,9 +14,11 @@ from betty.test_utils.exception import raises_error
 from betty.test_utils.model import DummyEntityOne, DummyEntityTwo
 
 if TYPE_CHECKING:
-    from collections.abc import Iterable
-
     from betty.serde.dump import Dump
+    from betty.test_utils.config.collections import (
+        ConfigurationCollectionTestBaseNewSut,
+        ConfigurationCollectionTestBaseSutConfigurations,
+    )
 
 
 class TestEntityReference:
@@ -154,20 +156,17 @@ class TestEntityReference:
 
 class TestEntityReferenceSequence(ConfigurationSequenceTestBase[EntityReference]):
     @override
-    async def get_sut(
-        self, configurations: Iterable[EntityReference] | None = None
-    ) -> EntityReferenceSequence:
-        return EntityReferenceSequence(configurations)
+    @pytest.fixture
+    def new_sut(
+        self,
+    ) -> ConfigurationCollectionTestBaseNewSut[EntityReference, int]:
+        return EntityReferenceSequence
 
     @override
-    async def get_configurations(
+    @pytest.fixture
+    def sut_configurations(
         self,
-    ) -> tuple[
-        EntityReference,
-        EntityReference,
-        EntityReference,
-        EntityReference,
-    ]:
+    ) -> ConfigurationCollectionTestBaseSutConfigurations[EntityReference]:
         return (
             EntityReference(),
             EntityReference(DummyEntityOne.plugin),

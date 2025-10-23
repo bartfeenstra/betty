@@ -135,7 +135,7 @@ class SchedulerTestBase(Generic[_SchedulerTestBaseContextCoT]):
     """
 
     @pytest.fixture
-    async def sut(self) -> Scheduler[_SchedulerTestBaseContextCoT]:
+    def sut(self) -> Scheduler[_SchedulerTestBaseContextCoT]:
         """
         Provide the systems under test.
         """

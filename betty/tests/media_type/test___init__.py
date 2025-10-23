@@ -7,13 +7,10 @@ from typing_extensions import override
 
 from betty.media_type import InvalidMediaType, MediaType, MediaTypeSchema
 from betty.media_type.media_types import PLAIN_TEXT
-from betty.test_utils.json.schema import SchemaTestBase
+from betty.test_utils.json.schema import SchemaTestBase, SchemaTestBaseSut
 
 if TYPE_CHECKING:
     from collections.abc import Mapping, Sequence
-
-    from betty.json.schema import Schema
-    from betty.serde.dump import Dump
 
 
 class TestMediaType:
@@ -242,19 +239,16 @@ class TestMediaType:
 
 class TestMediaTypeSchema(SchemaTestBase):
     @override
-    async def get_sut_instances(
-        self,
-    ) -> Sequence[tuple[Schema, Sequence[Dump], Sequence[Dump]]]:
-        return [
-            (
-                MediaTypeSchema(),
-                [
-                    "text/plain",
-                    "multipart/form-data",
-                    "application/vnd.oasis.opendocument.text",
-                    "application/ld+json",
-                    "text/html; charset=UTF-8",
-                ],
-                [True, False, None, 123, [], {}],
-            ),
-        ]
+    @pytest.fixture
+    def sut(self) -> SchemaTestBaseSut:
+        return (
+            MediaTypeSchema(),
+            [
+                "text/plain",
+                "multipart/form-data",
+                "application/vnd.oasis.opendocument.text",
+                "application/ld+json",
+                "text/html; charset=UTF-8",
+            ],
+            [True, False, None, 123, [], {}],
+        )

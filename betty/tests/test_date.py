@@ -15,13 +15,10 @@ from betty.date import (
 )
 from betty.serde.dump import Dump, DumpMapping
 from betty.test_utils.json.linked_data import assert_dumps_linked_data
-from betty.test_utils.json.schema import SchemaTestBase
+from betty.test_utils.json.schema import SchemaTestBase, SchemaTestBaseSut
 
 if TYPE_CHECKING:
     from collections.abc import Sequence
-
-    from betty.json.schema import Schema
-
 
 _DUMMY_DATE_DUMPS: tuple[Sequence[DumpMapping[Dump]], Sequence[DumpMapping[Dump]]] = (
     [
@@ -868,23 +865,20 @@ class TestDateRange:
 
 class TestDateSchema(SchemaTestBase):
     @override
-    async def get_sut_instances(
-        self,
-    ) -> Sequence[tuple[Schema, Sequence[Dump], Sequence[Dump]]]:
-        return [(DateSchema(), *_DUMMY_DATE_DUMPS)]
+    @pytest.fixture
+    def sut(self) -> SchemaTestBaseSut:
+        return (DateSchema(), *_DUMMY_DATE_DUMPS)
 
 
 class TestDateRangeSchema(SchemaTestBase):
     @override
-    async def get_sut_instances(
-        self,
-    ) -> Sequence[tuple[Schema, Sequence[Dump], Sequence[Dump]]]:
-        return [(DateRangeSchema(), *_DUMMY_DATE_RANGE_DUMPS)]
+    @pytest.fixture
+    def sut(self) -> SchemaTestBaseSut:
+        return (DateRangeSchema(), *_DUMMY_DATE_RANGE_DUMPS)
 
 
 class TestDateLikeSchema(SchemaTestBase):
     @override
-    async def get_sut_instances(
-        self,
-    ) -> Sequence[tuple[Schema, Sequence[Dump], Sequence[Dump]]]:
-        return [(DateLikeSchema(), *_DUMMY_DATE_LIKE_DUMPS)]
+    @pytest.fixture
+    def sut(self) -> SchemaTestBaseSut:
+        return (DateLikeSchema(), *_DUMMY_DATE_LIKE_DUMPS)

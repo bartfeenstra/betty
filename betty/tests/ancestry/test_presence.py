@@ -31,7 +31,7 @@ class TestPresenceDefinition(EntityDefinitionTestBase):
 class TestPresence(EntityTestBase):
     @override
     @pytest.fixture
-    async def sut(self) -> Entity:
+    def sut(self) -> Entity:
         return Presence(Person(), UnknownPresenceRole(), Event())
 
     async def test_person(self) -> None:

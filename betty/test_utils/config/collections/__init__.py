@@ -4,16 +4,29 @@ Test utilities for :py:mod:`betty.config.collections`.
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Generic, TypeVar
+from collections.abc import Callable, Iterable
+from typing import Generic, TypeAlias, TypeVar
+
+import pytest
 
 from betty.config import Configuration
 from betty.config.collections import ConfigurationCollection, ConfigurationKey
 
-if TYPE_CHECKING:
-    from collections.abc import Iterable
-
 _ConfigurationT = TypeVar("_ConfigurationT", bound=Configuration)
 _ConfigurationKeyT = TypeVar("_ConfigurationKeyT", bound=ConfigurationKey)
+
+ConfigurationCollectionTestBaseNewSut: TypeAlias = Callable[
+    [Iterable[_ConfigurationT]],
+    ConfigurationCollection[_ConfigurationKeyT, _ConfigurationT],
+]
+
+ConfigurationCollectionTestBaseSutConfigurationKeys: TypeAlias = tuple[
+    _ConfigurationKeyT, _ConfigurationKeyT, _ConfigurationKeyT, _ConfigurationKeyT
+]
+
+ConfigurationCollectionTestBaseSutConfigurations: TypeAlias = tuple[
+    _ConfigurationT, _ConfigurationT, _ConfigurationT, _ConfigurationT
+]
 
 
 class ConfigurationCollectionTestBase(Generic[_ConfigurationKeyT, _ConfigurationT]):
@@ -21,149 +34,233 @@ class ConfigurationCollectionTestBase(Generic[_ConfigurationKeyT, _Configuration
     A base class for testing :py:class:`betty.config.collections.ConfigurationCollection` implementations.
     """
 
-    async def get_sut(
-        self, configurations: Iterable[_ConfigurationT] | None = None
+    @pytest.fixture
+    def new_sut(
+        self,
+    ) -> ConfigurationCollectionTestBaseNewSut[_ConfigurationT, _ConfigurationKeyT]:
+        """
+        Provide a factory for the system(s) under test.
+        """
+        raise NotImplementedError
+
+    @pytest.fixture
+    def sut_configuration_keys(
+        self,
+    ) -> ConfigurationCollectionTestBaseSutConfigurationKeys[_ConfigurationKeyT]:
+        """
+        Provide configuration keys for the system(s) under test.
+        """
+        raise NotImplementedError
+
+    @pytest.fixture
+    def sut_configurations(
+        self,
+    ) -> ConfigurationCollectionTestBaseSutConfigurations[_ConfigurationT]:
+        """
+        Provide configurations for the system(s) under test.
+        """
+        raise NotImplementedError
+
+    @pytest.fixture
+    def sut(
+        self,
+        new_sut: ConfigurationCollectionTestBaseNewSut[
+            _ConfigurationT, _ConfigurationKeyT
+        ],
     ) -> ConfigurationCollection[_ConfigurationKeyT, _ConfigurationT]:
         """
-        Produce the collection under test.
+        Provide the system(s) under test.
         """
-        raise NotImplementedError
+        return new_sut(())
 
-    def get_configuration_keys(
-        self,
-    ) -> tuple[
-        _ConfigurationKeyT, _ConfigurationKeyT, _ConfigurationKeyT, _ConfigurationKeyT
-    ]:
-        """
-        Produce four configuration keys to test the collection with.
-        """
-        raise NotImplementedError
-
-    async def get_configurations(
-        self,
-    ) -> tuple[_ConfigurationT, _ConfigurationT, _ConfigurationT, _ConfigurationT]:
-        """
-        Produce four configuration items to test the collection with.
-        """
-        raise NotImplementedError
-
-    async def test_replace__without_items(self) -> None:
+    def test_replace__without_items(
+        self, sut: ConfigurationCollection[_ConfigurationKeyT, _ConfigurationT]
+    ) -> None:
         """
         Tests :py:meth:`betty.config.collections.ConfigurationCollection.replace` implementations.
         """
-        sut = await self.get_sut()
         sut.clear()
         assert len(sut) == 0
-        await self.get_configurations()
         sut.replace()
         assert len(sut) == 0
 
-    async def test_replace__with_items(self) -> None:
+    def test_replace__with_items(
+        self,
+        sut: ConfigurationCollection[_ConfigurationKeyT, _ConfigurationT],
+        sut_configurations: ConfigurationCollectionTestBaseSutConfigurations[
+            _ConfigurationT
+        ],
+    ) -> None:
         """
         Tests :py:meth:`betty.config.collections.ConfigurationCollection.replace` implementations.
         """
-        sut = await self.get_sut()
         sut.clear()
         assert len(sut) == 0
-        configurations = await self.get_configurations()
-        sut.replace(*configurations)
-        assert len(sut) == len(configurations)
+        sut.replace(*sut_configurations)
+        assert len(sut) == len(sut_configurations)
 
-    async def test___getitem__(self) -> None:
+    def test___getitem__(
+        self,
+        new_sut: ConfigurationCollectionTestBaseNewSut[
+            _ConfigurationT, _ConfigurationKeyT
+        ],
+        sut: ConfigurationCollection[_ConfigurationKeyT, _ConfigurationT],
+        sut_configurations: ConfigurationCollectionTestBaseSutConfigurations[
+            _ConfigurationT
+        ],
+    ) -> None:
         """
         Tests :py:meth:`betty.config.collections.ConfigurationCollection.__getitem__` implementations.
         """
-        configuration = (await self.get_configurations())[0]
-        sut = await self.get_sut([configuration])
+        configuration = sut_configurations[0]
+        sut = new_sut([configuration])
         assert list(sut.values()) == [configuration]
 
-    async def test_keys(self) -> None:
+    def test_keys(
+        self,
+        new_sut: ConfigurationCollectionTestBaseNewSut[
+            _ConfigurationT, _ConfigurationKeyT
+        ],
+        sut_configurations: ConfigurationCollectionTestBaseSutConfigurations[
+            _ConfigurationT
+        ],
+        sut_configuration_keys: ConfigurationCollectionTestBaseSutConfigurationKeys[
+            _ConfigurationKeyT
+        ],
+    ) -> None:
         """
         Tests :py:meth:`betty.config.collections.ConfigurationCollection.keys` implementations.
         """
-        configurations = await self.get_configurations()
-        sut = await self.get_sut(configurations)
-        assert list(sut.keys()) == [*self.get_configuration_keys()]
+        sut = new_sut(sut_configurations)
+        assert list(sut.keys()) == [*sut_configuration_keys]
 
-    async def test_values(self) -> None:
+    def test_values(
+        self,
+        new_sut: ConfigurationCollectionTestBaseNewSut[
+            _ConfigurationT, _ConfigurationKeyT
+        ],
+        sut_configurations: ConfigurationCollectionTestBaseSutConfigurations[
+            _ConfigurationT
+        ],
+    ) -> None:
         """
         Tests :py:meth:`betty.config.collections.ConfigurationCollection.values` implementations.
         """
-        configurations = await self.get_configurations()
-        sut = await self.get_sut(configurations)
-        assert list(sut.values()) == [*configurations]
+        sut = new_sut(sut_configurations)
+        assert list(sut.values()) == [*sut_configurations]
 
-    async def test___delitem__(self) -> None:
+    def test___delitem__(
+        self,
+        new_sut: ConfigurationCollectionTestBaseNewSut[
+            _ConfigurationT, _ConfigurationKeyT
+        ],
+        sut_configurations: ConfigurationCollectionTestBaseSutConfigurations[
+            _ConfigurationT
+        ],
+        sut_configuration_keys: ConfigurationCollectionTestBaseSutConfigurationKeys[
+            _ConfigurationKeyT
+        ],
+    ) -> None:
         """
         Tests :py:meth:`betty.config.collections.ConfigurationCollection.__delitem__` implementations.
         """
-        configuration = (await self.get_configurations())[0]
-        sut = await self.get_sut([configuration])
-        del sut[self.get_configuration_keys()[0]]
+        configuration = sut_configurations[0]
+        sut = new_sut([configuration])
+        del sut[sut_configuration_keys[0]]
         assert list(sut.values()) == []
 
-    async def test___iter__(self) -> None:
+    def test___iter__(self) -> None:
         """
         Tests :py:meth:`betty.config.collections.ConfigurationCollection.__iter__` implementations.
         """
         raise NotImplementedError
 
-    async def test___len__(self) -> None:
+    def test___len__(
+        self,
+        new_sut: ConfigurationCollectionTestBaseNewSut[
+            _ConfigurationT, _ConfigurationKeyT
+        ],
+        sut_configurations: ConfigurationCollectionTestBaseSutConfigurations[
+            _ConfigurationT
+        ],
+    ) -> None:
         """
         Tests :py:meth:`betty.config.collections.ConfigurationCollection.__len__` implementations.
         """
-        configurations = await self.get_configurations()
-        sut = await self.get_sut(
+        sut = new_sut(
             [
-                configurations[0],
-                configurations[1],
+                sut_configurations[0],
+                sut_configurations[1],
             ]
         )
         assert len(sut) == 2
 
-    async def test_prepend(self) -> None:
+    def test_prepend(
+        self,
+        new_sut: ConfigurationCollectionTestBaseNewSut[
+            _ConfigurationT, _ConfigurationKeyT
+        ],
+        sut_configurations: ConfigurationCollectionTestBaseSutConfigurations[
+            _ConfigurationT
+        ],
+    ) -> None:
         """
         Tests :py:meth:`betty.config.collections.ConfigurationCollection.prepend` implementations.
         """
-        configurations = await self.get_configurations()
-        sut = await self.get_sut(
+        sut = new_sut(
             [
-                configurations[1],
+                sut_configurations[1],
             ]
         )
-        sut.prepend(configurations[0])
-        assert list(sut.values()) == [configurations[0], configurations[1]]
+        sut.prepend(sut_configurations[0])
+        assert list(sut.values()) == [sut_configurations[0], sut_configurations[1]]
 
-    async def test_append(self) -> None:
+    def test_append(
+        self,
+        new_sut: ConfigurationCollectionTestBaseNewSut[
+            _ConfigurationT, _ConfigurationKeyT
+        ],
+        sut_configurations: ConfigurationCollectionTestBaseSutConfigurations[
+            _ConfigurationT
+        ],
+    ) -> None:
         """
         Tests :py:meth:`betty.config.collections.ConfigurationCollection.append` implementations.
         """
-        configurations = await self.get_configurations()
-        sut = await self.get_sut(
+        sut = new_sut(
             [
-                configurations[0],
+                sut_configurations[0],
             ]
         )
-        sut.append(configurations[1], configurations[2])
-        assert [configurations[0], configurations[1], configurations[2]] == list(
-            sut.values()
-        )
+        sut.append(sut_configurations[1], sut_configurations[2])
+        assert [
+            sut_configurations[0],
+            sut_configurations[1],
+            sut_configurations[2],
+        ] == list(sut.values())
 
-    async def test_insert(self) -> None:
+    def test_insert(
+        self,
+        new_sut: ConfigurationCollectionTestBaseNewSut[
+            _ConfigurationT, _ConfigurationKeyT
+        ],
+        sut_configurations: ConfigurationCollectionTestBaseSutConfigurations[
+            _ConfigurationT
+        ],
+    ) -> None:
         """
         Tests :py:meth:`betty.config.collections.ConfigurationCollection.insert` implementations.
         """
-        configurations = await self.get_configurations()
-        sut = await self.get_sut(
+        sut = new_sut(
             [
-                configurations[0],
-                configurations[1],
+                sut_configurations[0],
+                sut_configurations[1],
             ]
         )
-        sut.insert(1, configurations[2], configurations[3])
+        sut.insert(1, sut_configurations[2], sut_configurations[3])
         assert list(sut.values()) == [
-            configurations[0],
-            configurations[2],
-            configurations[3],
-            configurations[1],
+            sut_configurations[0],
+            sut_configurations[2],
+            sut_configurations[3],
+            sut_configurations[1],
         ]

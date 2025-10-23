@@ -1,4 +1,4 @@
-from collections.abc import Iterable, Mapping
+from collections.abc import Mapping
 from pathlib import Path
 
 import pytest
@@ -21,6 +21,10 @@ from betty.project.extension.gramps.config import (
     PluginMapping,
 )
 from betty.serde.dump import Dump
+from betty.test_utils.config.collections import (
+    ConfigurationCollectionTestBaseNewSut,
+    ConfigurationCollectionTestBaseSutConfigurations,
+)
 from betty.test_utils.config.collections.sequence import ConfigurationSequenceTestBase
 from betty.test_utils.exception import raises_error
 from betty.test_utils.plugin import ClassedDummyPlugin, ClassedDummyPluginDefinition
@@ -30,20 +34,17 @@ class TestFamilyTreeConfigurationSequence(
     ConfigurationSequenceTestBase[FamilyTreeConfiguration]
 ):
     @override
-    async def get_sut(
-        self, configurations: Iterable[FamilyTreeConfiguration] | None = None
-    ) -> FamilyTreeConfigurationSequence:
-        return FamilyTreeConfigurationSequence(configurations)
+    @pytest.fixture
+    def new_sut(
+        self,
+    ) -> ConfigurationCollectionTestBaseNewSut[FamilyTreeConfiguration, int]:
+        return FamilyTreeConfigurationSequence
 
     @override
-    async def get_configurations(
+    @pytest.fixture
+    def sut_configurations(
         self,
-    ) -> tuple[
-        FamilyTreeConfiguration,
-        FamilyTreeConfiguration,
-        FamilyTreeConfiguration,
-        FamilyTreeConfiguration,
-    ]:
+    ) -> ConfigurationCollectionTestBaseSutConfigurations[FamilyTreeConfiguration]:
         return (
             FamilyTreeConfiguration(Path() / "gramps-1"),
             FamilyTreeConfiguration(Path() / "gramps-2"),

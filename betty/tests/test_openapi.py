@@ -1,14 +1,10 @@
-from collections.abc import Sequence
-
 import pytest
 from typing_extensions import override
 
 from betty.app import App
-from betty.json.schema import Schema
 from betty.openapi import Specification, SpecificationSchema
 from betty.project import Project
-from betty.serde.dump import Dump
-from betty.test_utils.json.schema import SchemaTestBase
+from betty.test_utils.json.schema import SchemaTestBase, SchemaTestBaseSut
 
 
 class TestSpecification:
@@ -30,9 +26,6 @@ class TestSpecification:
 
 class TestSpecificationSchema(SchemaTestBase):
     @override
-    async def get_sut_instances(
-        self,
-    ) -> Sequence[tuple[Schema, Sequence[Dump], Sequence[Dump]]]:
-        return [
-            (SpecificationSchema(), [], []),
-        ]
+    @pytest.fixture
+    def sut(self) -> SchemaTestBaseSut:
+        return (SpecificationSchema(), [], [])
