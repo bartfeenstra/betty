@@ -2,6 +2,7 @@
 Test utilities for :py:mod:`betty.user`.
 """
 
+import logging
 import sys
 from collections.abc import AsyncIterator, Collection, Iterable, MutableSequence
 from contextlib import asynccontextmanager
@@ -40,6 +41,8 @@ class StaticUser(User):  # pragma: no cover
         self._messages_warning: MutableSequence[Localizable] = []
         self._messages_information: MutableSequence[Localizable] = []
         self._messages_debug: MutableSequence[Localizable] = []
+        self._messages_log: MutableSequence[logging.LogRecord] = []
+        self._log_formatter = logging.Formatter()
 
     @override
     async def connect(self) -> None:
@@ -116,6 +119,14 @@ class StaticUser(User):  # pragma: no cover
         """
         self._assert_localizable_message(fragments, "debug")
 
+    def assert_message_log(self, fragments: str | Iterable[str]) -> None:
+        """
+        Assert that a log message was sent.
+        """
+        self._assert_message(
+            fragments, "log", list(map(self._log_formatter.format, self._messages_log))
+        )
+
     def _assert_not_message(
         self,
         fragments: str | Iterable[str],
@@ -174,6 +185,14 @@ class StaticUser(User):  # pragma: no cover
         """
         self._assert_not_localizable_message(fragments, "debug")
 
+    def assert_not_message_log(self, fragments: str | Iterable[str]) -> None:
+        """
+        Assert that no log message was sent.
+        """
+        self._assert_not_message(
+            fragments, "log", list(map(self._log_formatter.format, self._messages_log))
+        )
+
     @override
     async def message_exception(self) -> None:
         exception = sys.exception()
@@ -195,6 +214,10 @@ class StaticUser(User):  # pragma: no cover
     @override
     async def message_debug(self, message: Localizable) -> None:
         self._messages_debug.append(message)
+
+    @override
+    async def message_log(self, message: logging.LogRecord) -> None:
+        self._messages_log.append(message)
 
     @override
     @asynccontextmanager

@@ -33,4 +33,4 @@ class TestUserHandler:
         async with UserHandler(user) as sut:
             logger.addHandler(sut)
             logger.log(log_level, message)
-        getattr(user, f"assert_message_{message_type}")(message)  # type: ignore[operator]
+        user.assert_message_log(message)

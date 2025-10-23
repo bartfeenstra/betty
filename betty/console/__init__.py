@@ -127,7 +127,7 @@ async def _create_command_parser(
         dest="_verbosity",
         action="store_const",
         const=Verbosity.QUIET,
-        help=localizer._("Do not show any output, except errors"),
+        help=localizer._("Do not show any output, except error messages"),
     )
     verbosity_group.add_argument(
         "-v",
@@ -143,7 +143,7 @@ async def _create_command_parser(
         dest="_verbosity",
         action="store_const",
         const=Verbosity.MORE_VERBOSE,
-        help=localizer._("Also show (third-party) log messages"),
+        help=localizer._("Also show log messages"),
     )
 
     return command_parser

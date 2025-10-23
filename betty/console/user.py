@@ -37,9 +37,10 @@ class ConsoleUser(User):
         self._connected = False
         self._exit_stack = AsyncExitStack()
         self._rich_console = Console(theme=ConsoleTheme())
-        self._verbosity = Verbosity.MORE_VERBOSE
+        self._verbosity = Verbosity.DEFAULT
         self._logging_handler = UserHandler(self)
         self._logger = logging.getLogger()
+        self._log_formatter = logging.Formatter()
 
     @override
     async def connect(self) -> None:
@@ -107,6 +108,12 @@ class ConsoleUser(User):
         if self._verbosity < Verbosity.VERBOSE:
             return
         self._rich_console.print(f"[white]{message.localize(self.localizer)}[/]")
+
+    @override
+    async def message_log(self, message: logging.LogRecord) -> None:
+        if self._verbosity < Verbosity.MORE_VERBOSE:
+            return
+        self._rich_console.print(f"[blue]{self._log_formatter.format(message)}[/]")
 
     @override
     @asynccontextmanager

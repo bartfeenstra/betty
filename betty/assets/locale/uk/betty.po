@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Betty 0.4\n"
 "Report-Msgid-Bugs-To: illia@maier.page\n"
-"POT-Creation-Date: 2025-10-22 12:02+0100\n"
+"POT-Creation-Date: 2025-10-23 14:00+0100\n"
 "PO-Revision-Date: 2025-05-13 17:01+0000\n"
 "Last-Translator: Максим Горпиніч <maksimgorpinic4@gmail.com>\n"
 "Language: uk\n"
@@ -91,10 +91,10 @@ msgstr "Усі права захищено"
 msgid "Also known as %(names)s"
 msgstr "Також відомий як %(names)s"
 
-msgid "Also show (third-party) log messages"
+msgid "Also show debug messages"
 msgstr ""
 
-msgid "Also show debug messages"
+msgid "Also show log messages"
 msgstr ""
 
 msgid "An unexpected error occurred:"
@@ -418,7 +418,7 @@ msgstr "Район"
 msgid "Divorce"
 msgstr "Розлучення"
 
-msgid "Do not show any output, except errors"
+msgid "Do not show any output, except error messages"
 msgstr ""
 
 #, python-brace-format

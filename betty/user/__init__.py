@@ -12,6 +12,7 @@ from betty.locale.localizer import DEFAULT_LOCALIZER
 from betty.typing import Void
 
 if TYPE_CHECKING:
+    import logging
     from contextlib import AbstractAsyncContextManager
     from types import TracebackType
 
@@ -57,7 +58,7 @@ class User(ABC):
     """
 
     localizer: Localizer = DEFAULT_LOCALIZER
-    verbosity: Verbosity = Verbosity.MORE_VERBOSE
+    verbosity: Verbosity = Verbosity.DEFAULT
 
     async def connect(self) -> None:
         """
@@ -133,6 +134,14 @@ class User(ABC):
         Send a debugging message to the user.
 
         These messages are shown to users for :py:attr:`betty.user.Verbosity.VERBOSE` and up.
+        """
+
+    @abstractmethod
+    async def message_log(self, message: logging.LogRecord) -> None:
+        """
+        Send a log message to the user.
+
+        These messages are shown to users for :py:attr:`betty.user.Verbosity.MORE_VERBOSE` and up.
         """
 
     @abstractmethod
