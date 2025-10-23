@@ -40,12 +40,12 @@ async def test_with_date() -> None:
 
 
 async def test_with_place() -> None:
-    event = Event(event_type=Birth())
-    event.place = Place(
+    place = Place(
         id="P0",
         names=[Name(Plain("The Place"))],
     )
-    expected = 'in <a href="/place/P0/index.html"><span lang="und" dir="auto">The Place</span></a>'
+    event = Event(event_type=Birth(), place=place)
+    expected = f'in <a href="/place/{place.public_id}/index.html"><span lang="und" dir="auto">The Place</span></a>'
     async with assert_template_file(
         data={
             "event": event,
@@ -75,15 +75,16 @@ async def test_with_place_is_place_context() -> None:
 
 
 async def test_with_date_and_place() -> None:
-    event = Event(
-        event_type=Birth(),
-        date=Date(1970),
-    )
-    event.place = Place(
+    place = Place(
         id="P0",
         names=[Name(Plain("The Place"))],
     )
-    expected = '1970 in <a href="/place/P0/index.html"><span lang="und" dir="auto">The Place</span></a>'
+    event = Event(
+        event_type=Birth(),
+        date=Date(1970),
+        place=place,
+    )
+    expected = f'1970 in <a href="/place/{place.public_id}/index.html"><span lang="und" dir="auto">The Place</span></a>'
     async with assert_template_file(
         data={
             "event": event,

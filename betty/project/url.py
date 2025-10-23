@@ -5,7 +5,7 @@ URL generators for project resources.
 from __future__ import annotations
 
 from typing import TYPE_CHECKING, Any, Self, final
-from urllib.parse import quote, urlparse
+from urllib.parse import urlparse
 
 from typing_extensions import override
 
@@ -103,7 +103,7 @@ class _ProjectUrlGenerator(ProjectDependentFactory):
         return self._generate_from_path(
             pattern.format(
                 entity_type=camel_case_to_kebab_case(entity.plugin.id),
-                entity_id=quote(entity.id),
+                entity_id=entity.public_id,
                 extension=extension,
             ),
             absolute=absolute,

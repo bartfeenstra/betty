@@ -85,35 +85,39 @@ async def test_generate__links_for_entity_pages(new_temporary_app: App) -> None:
         async with project:
             await generate(project)
             async with aiofiles.open(
-                await assert_betty_html(project, f"/nl/person/{person.id}/index.html")
+                await assert_betty_html(
+                    project, f"/nl/person/{person.public_id}/index.html"
+                )
             ) as f:
                 html = await f.read()
             assert (
-                f'<link rel="canonical" href="https://example.com/nl/person/{person.id}/index.html" hreflang="nl-NL" type="text/html">'
+                f'<link rel="canonical" href="https://example.com/nl/person/{person.public_id}/index.html" hreflang="nl-NL" type="text/html">'
                 in html
             )
             assert (
-                f'<link rel="alternate" href="/en/person/{person.id}/index.html" hreflang="en-US" type="text/html">'
+                f'<link rel="alternate" href="/en/person/{person.public_id}/index.html" hreflang="en-US" type="text/html">'
                 in html
             )
             assert (
-                f'<link rel="alternate" href="/person/{person.id}/index.json" hreflang="und" type="application/json">'
+                f'<link rel="alternate" href="/person/{person.public_id}/index.json" hreflang="und" type="application/json">'
                 in html
             )
             async with aiofiles.open(
-                await assert_betty_html(project, f"/en/person/{person.id}/index.html")
+                await assert_betty_html(
+                    project, f"/en/person/{person.public_id}/index.html"
+                )
             ) as f:
                 html = await f.read()
             assert (
-                f'<link rel="canonical" href="https://example.com/en/person/{person.id}/index.html" hreflang="en-US" type="text/html">'
+                f'<link rel="canonical" href="https://example.com/en/person/{person.public_id}/index.html" hreflang="en-US" type="text/html">'
                 in html
             )
             assert (
-                f'<link rel="alternate" href="/nl/person/{person.id}/index.html" hreflang="nl-NL" type="text/html">'
+                f'<link rel="alternate" href="/nl/person/{person.public_id}/index.html" hreflang="nl-NL" type="text/html">'
                 in html
             )
             assert (
-                f'<link rel="alternate" href="/person/{person.id}/index.json" hreflang="und" type="application/json">'
+                f'<link rel="alternate" href="/person/{person.public_id}/index.json" hreflang="und" type="application/json">'
                 in html
             )
 

@@ -39,13 +39,12 @@ async def test_with_name() -> None:
 
 
 async def test_with_persistent_id() -> None:
-    event_id = "EVENT1"
     event = Event(
-        id=event_id,
+        id="EVENT1",
         event_type=Birth(),
         name=Plain("Something happened!"),
     )
-    expected = '<a href="/event/EVENT1/index.html"><span lang="und" dir="auto">Something happened!</span></a>'
+    expected = f'<a href="/event/{event.public_id}/index.html"><span lang="und" dir="auto">Something happened!</span></a>'
     async with assert_template_file(
         data={
             "entity": event,

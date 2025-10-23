@@ -30,7 +30,7 @@ async def test_with_public_referees() -> None:
         template="entity/appearances.html.j2",
     ) as (actual, _):
         assert "/sut.html#appearances" in actual
-        assert "/event/E0/index.html" in actual
+        assert f"/event/{referee.public_id}/index.html" in actual
 
 
 async def test_without_public_referees() -> None:

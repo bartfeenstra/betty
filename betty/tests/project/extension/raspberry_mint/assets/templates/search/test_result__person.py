@@ -14,4 +14,4 @@ async def test_minimal() -> None:
         template="search/result--person.html.j2",
     ) as (actual, _):
         assert person.label.localize(DEFAULT_LOCALIZER) in actual
-        assert person.id in actual
+        assert person.public_id in actual

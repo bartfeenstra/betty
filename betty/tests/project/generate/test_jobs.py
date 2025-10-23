@@ -110,7 +110,7 @@ class TestGenerateEntitiesHtml:
                 await do(ProjectContext(project), GenerateEntitiesHtml())
 
                 await assert_betty_html(
-                    project, f"/{entity.plugin.id}/{entity.id}/index.html"
+                    project, f"/{entity.plugin.id}/{entity.public_id}/index.html"
                 )
 
     @pytest.mark.parametrize(
@@ -146,7 +146,7 @@ class TestGenerateEntitiesHtml:
                 assert not (
                     project.configuration.www_directory_path
                     / entity.plugin.id
-                    / entity.id
+                    / entity.public_id
                     / "index.html"
                 ).exists()
 
@@ -172,7 +172,7 @@ class TestGenerateEntitiesJson:
 
                 await assert_betty_json(
                     project,
-                    f"/{entity.plugin.id}/{entity.id}/index.json",
+                    f"/{entity.plugin.id}/{entity.public_id}/index.json",
                     f"{kebab_case_to_lower_camel_case(entity.plugin.id)}Entity",
                 )
 
@@ -202,7 +202,7 @@ class TestGenerateEntitiesJson:
                 assert not (
                     project.configuration.www_directory_path
                     / entity.plugin.id
-                    / entity.id
+                    / entity.public_id
                     / "index.json"
                 ).exists()
 

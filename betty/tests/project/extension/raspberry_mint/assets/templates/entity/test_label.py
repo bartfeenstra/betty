@@ -20,9 +20,7 @@ async def test_minimal() -> None:
 
 async def test_with_persistent_id() -> None:
     entity = Event(id="E0")
-    expected = (
-        '<a href="/event/E0/index.html"><span lang="und" dir="auto">Unknown</span></a>'
-    )
+    expected = f'<a href="/event/{entity.public_id}/index.html"><span lang="und" dir="auto">Unknown</span></a>'
     async with assert_template_file(
         data={
             "entity": entity,

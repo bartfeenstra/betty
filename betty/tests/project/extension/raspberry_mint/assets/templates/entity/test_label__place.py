@@ -24,9 +24,7 @@ async def test_minimal() -> None:
 
 async def test_with_persistent_id() -> None:
     place = Place(id="P0")
-    expected = (
-        '<a href="/place/P0/index.html"><span lang="und" dir="auto">Place P0</span></a>'
-    )
+    expected = f'<a href="/place/{place.public_id}/index.html"><span lang="und" dir="auto">Place P0</span></a>'
     async with assert_template_file(
         data={
             "entity": place,

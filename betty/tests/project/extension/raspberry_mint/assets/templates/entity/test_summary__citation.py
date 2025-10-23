@@ -14,7 +14,7 @@ async def test_minimal() -> None:
         extensions={RaspberryMint},
         template="entity/summary--citation.html.j2",
     ) as (actual, _):
-        assert source.id in actual
+        assert source.public_id in actual
 
 
 async def test_with_private_source() -> None:

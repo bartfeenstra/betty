@@ -694,7 +694,11 @@ async def test_filter_localize() -> None:
     [
         ("/index.html", "betty:///index.html", False),
         ("/index.html", "betty-static:///index.html", False),
-        ("https://example.com/dummy-one/E0/index.html", DummyEntityOne("E0"), True),
+        (
+            "https://example.com/dummy-one/0e51a87ec173dd9534a056a403c85881/index.html",
+            DummyEntityOne("E0"),
+            True,
+        ),
     ],
 )
 async def test_filter_url(expected: str, data: Any, absolute: bool) -> None:

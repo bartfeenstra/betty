@@ -609,12 +609,12 @@ class _GenerateEntityJson(Job[ProjectContext]):
     @override
     async def do(self, scheduler: Scheduler[ProjectContext], /) -> None:
         project = scheduler.context.project
+        entity = project.ancestry[self._entity_type.cls][self._entity_id]
         entity_path = (
             project.configuration.www_directory_path
             / self._entity_type.id
-            / self._entity_id
+            / entity.public_id
         )
-        entity = project.ancestry[self._entity_type.cls][self._entity_id]
         rendered_json = dumps(await entity.dump_linked_data(project))
         async with create_json_resource(entity_path) as f:
             await f.write(rendered_json)
@@ -674,7 +674,7 @@ class _GenerateEntityHtml(Job[ProjectContext]):
         entity_path = (
             project.configuration.localize_www_directory_path(self._locale)
             / self._entity_type.id
-            / entity.id
+            / entity.public_id
         )
         rendered_html = await jinja2_environment.select_template(
             [

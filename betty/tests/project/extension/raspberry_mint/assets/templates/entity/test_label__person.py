@@ -38,7 +38,7 @@ async def test_with_name() -> None:
 
 async def test_with_persistent_id() -> None:
     person = Person(id="P0")
-    expected = '<a href="/person/P0/index.html"><span title="This person\'s name is unknown.">n.n.</span></a>'
+    expected = f'<a href="/person/{person.public_id}/index.html"><span title="This person\'s name is unknown.">n.n.</span></a>'
     async with assert_template_file(
         data={
             "entity": person,

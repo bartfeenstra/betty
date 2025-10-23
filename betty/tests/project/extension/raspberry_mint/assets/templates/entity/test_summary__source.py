@@ -25,4 +25,4 @@ async def test_with_contained_by() -> None:
         extensions={RaspberryMint},
         template="entity/summary--source.html.j2",
     ) as (actual, _):
-        assert contained_by_source.id in actual
+        assert contained_by_source.public_id in actual
