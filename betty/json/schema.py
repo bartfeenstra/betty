@@ -5,11 +5,8 @@ Provide JSON utilities.
 from __future__ import annotations
 
 import enum
-from json import loads
-from pathlib import Path
-from typing import Any, Self, cast, final
+from typing import Any, cast, final
 
-import aiofiles
 from jsonschema.validators import Draft202012Validator
 from referencing import Registry, Resource
 from typing_extensions import override
@@ -409,18 +406,64 @@ class JsonSchemaSchema(Schema):
     The JSON Schema Draft 2020-12 schema.
     """
 
-    _instance: Self | None = None
+    _SCHEMA: DumpMapping[Dump] = {
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
+        "$id": "https://json-schema.org/draft/2020-12/schema",
+        "$vocabulary": {
+            "https://json-schema.org/draft/2020-12/vocab/core": True,
+            "https://json-schema.org/draft/2020-12/vocab/applicator": True,
+            "https://json-schema.org/draft/2020-12/vocab/unevaluated": True,
+            "https://json-schema.org/draft/2020-12/vocab/validation": True,
+            "https://json-schema.org/draft/2020-12/vocab/meta-data": True,
+            "https://json-schema.org/draft/2020-12/vocab/format-annotation": True,
+            "https://json-schema.org/draft/2020-12/vocab/content": True,
+        },
+        "$dynamicAnchor": "meta",
+        "title": "Core and Validation specifications meta-schema",
+        "allOf": [
+            {"$ref": "meta/core"},
+            {"$ref": "meta/applicator"},
+            {"$ref": "meta/unevaluated"},
+            {"$ref": "meta/validation"},
+            {"$ref": "meta/meta-data"},
+            {"$ref": "meta/format-annotation"},
+            {"$ref": "meta/content"},
+        ],
+        "type": ["object", "boolean"],
+        "$comment": "This meta-schema also defines keywords that have appeared in previous drafts in order to prevent incompatible extensions as they remain in common use.",
+        "properties": {
+            "definitions": {
+                "$comment": '"definitions" has been replaced by "$defs".',
+                "type": "object",
+                "additionalProperties": {"$dynamicRef": "#meta"},
+                "deprecated": True,
+                "default": {},
+            },
+            "dependencies": {
+                "$comment": '"dependencies" has been split and replaced by "dependentSchemas" and "dependentRequired" in order to serve their differing semantics.',
+                "type": "object",
+                "additionalProperties": {
+                    "anyOf": [
+                        {"$dynamicRef": "#meta"},
+                        {"$ref": "meta/validation#/$defs/stringArray"},
+                    ]
+                },
+                "deprecated": True,
+                "default": {},
+            },
+            "$recursiveAnchor": {
+                "$comment": '"$recursiveAnchor" has been replaced by "$dynamicAnchor".',
+                "$ref": "meta/core#/$defs/anchorString",
+                "deprecated": True,
+            },
+            "$recursiveRef": {
+                "$comment": '"$recursiveRef" has been replaced by "$dynamicRef".',
+                "$ref": "meta/core#/$defs/uriReferenceString",
+                "deprecated": True,
+            },
+        },
+    }
 
-    @classmethod
-    async def new(cls) -> Self:
-        """
-        Create a new instance.
-        """
-        if cls._instance is None:
-            async with aiofiles.open(
-                Path(__file__).parent / "schemas" / "json-schema.json"
-            ) as f:
-                raw_schema = await f.read()
-            cls._instance = cls(def_name="jsonSchema", title="JSON Schema")
-            cls._instance._schema = loads(raw_schema)  # type: ignore[assignment]
-        return cls._instance
+    def __init__(self):
+        super().__init__(def_name="jsonSchema", title="JSON Schema")
+        self._schema = self._SCHEMA

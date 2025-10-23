@@ -871,7 +871,7 @@ class TestDateSchema(SchemaTestBase):
     async def get_sut_instances(
         self,
     ) -> Sequence[tuple[Schema, Sequence[Dump], Sequence[Dump]]]:
-        return [(await DateSchema.new(), *_DUMMY_DATE_DUMPS)]
+        return [(DateSchema(), *_DUMMY_DATE_DUMPS)]
 
 
 class TestDateRangeSchema(SchemaTestBase):
@@ -879,7 +879,7 @@ class TestDateRangeSchema(SchemaTestBase):
     async def get_sut_instances(
         self,
     ) -> Sequence[tuple[Schema, Sequence[Dump], Sequence[Dump]]]:
-        return [(await DateRangeSchema.new(), *_DUMMY_DATE_RANGE_DUMPS)]
+        return [(DateRangeSchema(), *_DUMMY_DATE_RANGE_DUMPS)]
 
 
 class TestDateLikeSchema(SchemaTestBase):
@@ -887,4 +887,4 @@ class TestDateLikeSchema(SchemaTestBase):
     async def get_sut_instances(
         self,
     ) -> Sequence[tuple[Schema, Sequence[Dump], Sequence[Dump]]]:
-        return [(await DateLikeSchema.new(), *_DUMMY_DATE_LIKE_DUMPS)]
+        return [(DateLikeSchema(), *_DUMMY_DATE_LIKE_DUMPS)]

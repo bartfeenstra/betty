@@ -55,7 +55,7 @@ class SchemaTestBase:
         """
         for sut, _, __ in await self.get_sut_instances():
             assert isinstance(sut.schema, MutableMapping)
-            (await JsonSchemaSchema.new()).validate(sut.schema)
+            JsonSchemaSchema().validate(sut.schema)
 
     async def test_defs(self) -> None:
         """

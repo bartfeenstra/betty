@@ -25,8 +25,7 @@ class TestSpecification:
             async with project:
                 sut = Specification(project)
                 specification = await sut.build()
-        schema = await SpecificationSchema.new()
-        schema.validate(specification)
+        SpecificationSchema().validate(specification)
 
 
 class TestSpecificationSchema(SchemaTestBase):
@@ -35,8 +34,5 @@ class TestSpecificationSchema(SchemaTestBase):
         self,
     ) -> Sequence[tuple[Schema, Sequence[Dump], Sequence[Dump]]]:
         return [
-            (await SpecificationSchema.new(), [], []),
+            (SpecificationSchema(), [], []),
         ]
-
-    async def test_singleton(self) -> None:
-        assert await SpecificationSchema.new() is await SpecificationSchema.new()
