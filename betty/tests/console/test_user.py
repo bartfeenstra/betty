@@ -1,3 +1,4 @@
+import logging
 from contextlib import redirect_stdout
 from io import StringIO
 
@@ -136,6 +137,33 @@ class TestConsoleUser:
             async with ConsoleUser() as sut:
                 sut.verbosity = verbosity
                 await sut.message_debug(Plain(message))
+        stdout.seek(0)
+        stdout_str = stdout.read().replace("\n", "")
+        if expected:
+            assert message in stdout_str
+        else:
+            assert message not in stdout_str
+
+    @pytest.mark.parametrize(
+        ("expected", "verbosity"),
+        [
+            (False, Verbosity.QUIET),
+            (False, Verbosity.DEFAULT),
+            (False, Verbosity.VERBOSE),
+            (True, Verbosity.MORE_VERBOSE),
+        ],
+    )
+    async def test_message_log(self, expected: bool, verbosity: Verbosity) -> None:
+        message = "Hello, world!"
+        stdout = StringIO()
+        with redirect_stdout(stdout):
+            async with ConsoleUser() as sut:
+                sut.verbosity = verbosity
+                await sut.message_log(
+                    logging.LogRecord(
+                        "name", logging.NOTSET, __file__, 0, message, (), None
+                    )
+                )
         stdout.seek(0)
         stdout_str = stdout.read().replace("\n", "")
         if expected:

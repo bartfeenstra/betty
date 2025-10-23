@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Betty VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2025-10-22 12:02+0100\n"
+"POT-Creation-Date: 2025-10-23 14:00+0100\n"
 "PO-Revision-Date: 2025-03-28 20:02+0000\n"
 "Last-Translator: Ettore Atalan <atalanttore@googlemail.com>\n"
 "Language: de_DE\n"
@@ -88,10 +88,10 @@ msgstr "Alle Rechte vorbehalten"
 msgid "Also known as %(names)s"
 msgstr "Auch bekannt als %(names)s"
 
-msgid "Also show (third-party) log messages"
+msgid "Also show debug messages"
 msgstr ""
 
-msgid "Also show debug messages"
+msgid "Also show log messages"
 msgstr ""
 
 msgid "An unexpected error occurred:"
@@ -400,7 +400,7 @@ msgstr "Bezirk"
 msgid "Divorce"
 msgstr "Scheidung"
 
-msgid "Do not show any output, except errors"
+msgid "Do not show any output, except error messages"
 msgstr ""
 
 #, python-brace-format

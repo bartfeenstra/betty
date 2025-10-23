@@ -60,7 +60,7 @@ class PrivatizeAncestry(Job[ProjectContext]):
                 newly_privatized[entity.plugin.id] += 1
 
         if newly_privatized[Person.plugin.id] > 0:
-            await user.message_information(
+            await user.message_debug(
                 _(
                     "Privatized {count} people because they are likely still alive."
                 ).format(
@@ -69,7 +69,7 @@ class PrivatizeAncestry(Job[ProjectContext]):
             )
         for entity_type_id in set(newly_privatized) - {Person.plugin.id}:
             if newly_privatized[entity_type_id] > 0:
-                await user.message_information(
+                await user.message_debug(
                     ngettext(
                         'Privatized {count} "{entity_type_id}" entity, because it is associated with private information.',
                         'Privatized {count} "{entity_type_id}" entities, because they are associated with private information.',

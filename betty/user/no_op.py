@@ -2,6 +2,7 @@
 User sessions that do nothing.
 """
 
+import logging
 from collections.abc import AsyncIterator
 from contextlib import asynccontextmanager
 from typing import TypeVar, final, overload
@@ -42,6 +43,10 @@ class NoOpUser(User):
 
     @override
     async def message_debug(self, message: Localizable) -> None:
+        pass
+
+    @override
+    async def message_log(self, message: logging.LogRecord) -> None:
         pass
 
     @override

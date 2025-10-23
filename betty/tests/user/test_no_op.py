@@ -1,3 +1,6 @@
+import logging
+from unittest.mock import Mock
+
 import pytest
 
 from betty.locale.localizable import Plain
@@ -34,6 +37,10 @@ class TestNoOpUser:
     async def test_message_debug(self) -> None:
         sut = NoOpUser()
         await sut.message_debug(Plain("Hello, world!"))
+
+    async def test_message_log(self) -> None:
+        sut = NoOpUser()
+        await sut.message_log(Mock(logging.LogRecord))
 
     async def test_message_progress(self) -> None:
         sut = NoOpUser()

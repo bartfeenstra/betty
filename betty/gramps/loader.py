@@ -390,7 +390,7 @@ class GrampsLoader:
         :raises betty.gramps.error.GrampsError:
         """
         file_path = file_path.resolve()
-        await self._user.message_information(
+        await self._user.message_debug(
             _('Loading "{file_path}"...').format(
                 file_path=str(file_path),
             )
@@ -523,13 +523,13 @@ class GrampsLoader:
 
         with self._ancestry.unchecked():
             await self._load_notes(database)
-            await self._user.message_information(
+            await self._user.message_debug(
                 _("Loaded {note_count} notes.").format(
                     note_count=str(self._added_entity_counts[Note])
                 )
             )
             await self._load_objects(database, media_path)
-            await self._user.message_information(
+            await self._user.message_debug(
                 _("Loaded {file_count} files.").format(
                     file_count=str(self._added_entity_counts[File])
                 )
@@ -537,14 +537,14 @@ class GrampsLoader:
 
             await self._load_repositories(database)
             repository_count = self._added_entity_counts[Source]
-            await self._user.message_information(
+            await self._user.message_debug(
                 _("Loaded {repository_count} repositories as sources.").format(
                     repository_count=str(repository_count)
                 )
             )
 
             await self._load_sources(database)
-            await self._user.message_information(
+            await self._user.message_debug(
                 _("Loaded {source_count} sources.").format(
                     source_count=str(
                         self._added_entity_counts[Source] - repository_count
@@ -553,28 +553,28 @@ class GrampsLoader:
             )
 
             await self._load_citations(database)
-            await self._user.message_information(
+            await self._user.message_debug(
                 _("Loaded {citation_count} citations.").format(
                     citation_count=str(self._added_entity_counts[Citation])
                 )
             )
 
             await self._load_places(database)
-            await self._user.message_information(
+            await self._user.message_debug(
                 _("Loaded {place_count} places.").format(
                     place_count=str(self._added_entity_counts[Place])
                 )
             )
 
             await self._load_events(database)
-            await self._user.message_information(
+            await self._user.message_debug(
                 _("Loaded {event_count} events.").format(
                     event_count=str(self._added_entity_counts[Event])
                 )
             )
 
             await self._load_people(database)
-            await self._user.message_information(
+            await self._user.message_debug(
                 _("Loaded {person_count} people.").format(
                     person_count=str(self._added_entity_counts[Person])
                 )

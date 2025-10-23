@@ -21,7 +21,6 @@ from typing import Self, final
 from typing_extensions import override
 
 from betty.functools import Result, ResultUnavailable, suppress
-from betty.locale.localizable import Plain
 from betty.user import User
 
 
@@ -78,12 +77,4 @@ class UserHandler(logging.Handler):
 
     @override
     def emit(self, record: logging.LogRecord) -> None:
-        if record.levelno >= logging.ERROR:
-            message_func = self._user.message_error
-        elif record.levelno >= logging.WARNING:
-            message_func = self._user.message_warning
-        elif record.levelno >= logging.INFO:
-            message_func = self._user.message_information
-        else:
-            message_func = self._user.message_debug
-        self._queue.put_nowait(partial(message_func, Plain(self.format(record))))
+        self._queue.put_nowait(partial(self._user.message_log, record))
