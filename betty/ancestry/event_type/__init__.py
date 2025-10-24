@@ -4,6 +4,7 @@ Provide Betty's ancestry event types.
 
 from __future__ import annotations
 
+from abc import ABC, abstractmethod
 from typing import TYPE_CHECKING, Any, ClassVar, final
 
 from betty.locale.localizable import _
@@ -19,7 +20,9 @@ from betty.plugin import (
 )
 
 if TYPE_CHECKING:
+    from betty.ancestry.person import Person
     from betty.machine_name import MachineName
+    from betty.project import Project
 
 
 class EventType(Mutable, ClassedPlugin):
@@ -28,6 +31,19 @@ class EventType(Mutable, ClassedPlugin):
     """
 
     plugin: ClassVar[EventTypeDefinition]
+
+
+class ShouldExistEventType(EventType, ABC):
+    """
+    An event type that controls whether at least one event of this type should exist for a person.
+    """
+
+    @classmethod
+    @abstractmethod
+    async def should_exist(cls, project: Project, person: Person) -> bool:
+        """
+        Whether at least one event of this type should exist for the given person.
+        """
 
 
 @final

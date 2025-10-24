@@ -12,10 +12,7 @@ from uuid import NAMESPACE_URL, uuid5
 from typing_extensions import override
 
 from betty.ancestry.event import Event
-from betty.ancestry.event_type.event_types import (
-    CreatableDerivableEventType,
-    DerivableEventType,
-)
+from betty.ancestry.event_type import ShouldExistEventType
 from betty.ancestry.person import Person
 from betty.ancestry.presence import Presence
 from betty.ancestry.presence_role.presence_roles import Subject
@@ -69,8 +66,6 @@ class Deriver:
         Derive additional data.
         """
         for derivable_event_type in self._project.event_type_repository:
-            if not issubclass(derivable_event_type.cls, DerivableEventType):
-                continue
             created_derivations = 0
             updated_derivations = 0
             for person in self._project.ancestry[Person]:
@@ -117,8 +112,8 @@ class Deriver:
                 return 0, 0
             if issubclass(
                 derivable_event_type.cls,
-                CreatableDerivableEventType,
-            ) and await derivable_event_type.cls.may_create(self._project, person):
+                ShouldExistEventType,
+            ) and await derivable_event_type.cls.should_exist(self._project, person):
                 derivable_events = [
                     (
                         Event(
@@ -180,8 +175,6 @@ class _DateDeriver(ABC):
         derivable_event: Event,
         reference_event_types: Collection[EventTypeDefinition],
     ) -> bool:
-        assert issubclass(derivable_event.event_type.plugin.cls, DerivableEventType)
-
         if not reference_event_types:
             return False
 
