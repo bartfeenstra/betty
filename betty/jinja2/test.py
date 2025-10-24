@@ -15,7 +15,7 @@ from betty.ancestry.presence_role import PresenceRoleDefinition
 from betty.copyright_notice import CopyrightNoticeDefinition
 from betty.date import DateRange
 from betty.image import is_supported_media_type
-from betty.json.linked_data import LinkedDataDumpable
+from betty.json.linked_data import LinkedDataDumpableWithSchema
 from betty.license import LicenseDefinition
 from betty.model import EntityDefinition, persistent_id
 from betty.plugin import ClassedPluginTypeDefinition, PluginDefinition
@@ -36,7 +36,7 @@ def test_linked_data_dumpable(value: Any) -> bool:
     """
     Test if a value can be dumped to Linked Data.
     """
-    return isinstance(value, LinkedDataDumpable)
+    return isinstance(value, LinkedDataDumpableWithSchema)
 
 
 class PluginTester:

@@ -15,6 +15,7 @@
     <div class="container">
         <div class="row row-gap-3">
             <div class="col col-12 col-sm-9">
+                {% include 'component/breadcrumbs.html.j2' %}
                 <h1 class="page-intro-title">{{ page_title | default(project.configuration.title | localize) | html_lang }}</h1>
                 {% block page_summary %}
                     {% if page_resource is entity_plugin %}

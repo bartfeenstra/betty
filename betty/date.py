@@ -15,7 +15,7 @@ from typing_extensions import override
 from betty.classtools import Singleton
 from betty.json.linked_data import (
     JsonLdObject,
-    LinkedDataDumpableJsonLdObject,
+    LinkedDataDumpableWithSchemaJsonLdObject,
     dump_context,
 )
 from betty.json.schema import Boolean, Null, Number, OneOf, String
@@ -54,7 +54,7 @@ class DateSchema(Singleton, JsonLdObject):
         )
 
 
-class Date(LinkedDataDumpableJsonLdObject):
+class Date(LinkedDataDumpableWithSchemaJsonLdObject):
     """
     A (Gregorian) date.
     """
@@ -213,7 +213,7 @@ class DateRangeSchema(Singleton, JsonLdObject):
 
 
 @total_ordering
-class DateRange(LinkedDataDumpableJsonLdObject):
+class DateRange(LinkedDataDumpableWithSchemaJsonLdObject):
     """
     A date range can describe a period of time between, before, after, or around start and/or end dates.
     """

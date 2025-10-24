@@ -3,11 +3,11 @@
 {% set entity_contexts = entity_contexts(entity) %}
 {% do breadcrumbs.append(
     entity_type.label_plural | localize,
-    entity_type | url(absolute=true)
+    entity_type
 ) %}
 {% do breadcrumbs.append(
     page_title,
-    page_resource | url(absolute=true)
+    page_resource
 ) %}
 {% block page_content %}
 {% endblock %}

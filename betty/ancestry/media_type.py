@@ -8,7 +8,10 @@ from typing import TYPE_CHECKING, Any
 
 from typing_extensions import override
 
-from betty.json.linked_data import JsonLdObject, LinkedDataDumpableJsonLdObject
+from betty.json.linked_data import (
+    JsonLdObject,
+    LinkedDataDumpableWithSchemaJsonLdObject,
+)
 from betty.media_type import MediaType, MediaTypeSchema
 from betty.privacy import is_public
 
@@ -17,7 +20,7 @@ if TYPE_CHECKING:
     from betty.serde.dump import Dump, DumpMapping
 
 
-class HasMediaType(LinkedDataDumpableJsonLdObject):
+class HasMediaType(LinkedDataDumpableWithSchemaJsonLdObject):
     """
     A resource with an `IANA media type <https://www.iana.org/assignments/media-types/media-types.xhtml>`_.
     """

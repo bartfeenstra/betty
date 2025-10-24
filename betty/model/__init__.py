@@ -11,7 +11,7 @@ from typing_extensions import override
 from betty.hashid import hashid
 from betty.json.linked_data import (
     JsonLdObject,
-    LinkedDataDumpableJsonLdObject,
+    LinkedDataDumpableWithSchemaJsonLdObject,
 )
 from betty.json.schema import Array, JsonSchemaReference, Null, OneOf, String
 from betty.locale.localizable import Localizable, _
@@ -51,7 +51,7 @@ class NonPersistentId(str):
         return super().__new__(cls, entity_id or str(uuid4()))
 
 
-class Entity(LinkedDataDumpableJsonLdObject, Mutable, ClassedPlugin):
+class Entity(LinkedDataDumpableWithSchemaJsonLdObject, Mutable, ClassedPlugin):
     """
     An entity is a uniquely identifiable data container.
 

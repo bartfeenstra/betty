@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Betty 0.4\n"
 "Report-Msgid-Bugs-To: illia@maier.page\n"
-"POT-Creation-Date: 2025-10-23 14:00+0100\n"
+"POT-Creation-Date: 2025-10-25 23:51+0100\n"
 "PO-Revision-Date: 2025-05-13 17:01+0000\n"
 "Last-Translator: Максим Горпиніч <maksimgorpinic4@gmail.com>\n"
 "Language: uk\n"
@@ -219,6 +219,9 @@ msgstr "Народження"
 
 msgid "Borough"
 msgstr "Боро"
+
+msgid "Breadcrumbs"
+msgstr ""
 
 msgid "Building"
 msgstr "Будівля"
@@ -549,6 +552,9 @@ msgstr ""
 
 msgid "Hamlet"
 msgstr "Хутір"
+
+msgid "Home"
+msgstr ""
 
 msgid "I'm sorry, dear, but it seems there is nothing to show."
 msgstr "Вибачте, любий, але, здається, нема чого показати."

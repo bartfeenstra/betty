@@ -29,7 +29,7 @@ from warnings import warn
 
 from typing_extensions import override
 
-from betty.json.linked_data import LinkedDataDumpable
+from betty.json.linked_data import LinkedDataDumpableWithSchema
 from betty.json.schema import Object
 from betty.locale import UNDETERMINED_LOCALE, negotiate_locale, to_locale
 from betty.locale.localized import Localized, LocalizedStr
@@ -382,7 +382,7 @@ class StaticTranslationsSchema(Object):
 
 
 class StaticTranslations(
-    Mutable, Localizable, LinkedDataDumpable[Object, DumpMapping[Dump]]
+    Mutable, Localizable, LinkedDataDumpableWithSchema[Object, DumpMapping[Dump]]
 ):
     """
     Provide a :py:class:`betty.locale.localizable.Localizable` backed by static translations.

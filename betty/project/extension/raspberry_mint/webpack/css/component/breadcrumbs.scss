@@ -1,0 +1,16 @@
+.breadcrumbs {
+  display: flex;
+  flex-wrap: wrap;
+  list-style: none;
+  padding: 0;
+}
+
+.breadcrumb {
+  + .breadcrumb {
+    background-image: icon-chevron-right($secondary) #{"/* rtl:"} icon-chevron-left($secondary) #{"*/"};
+    background-position-y: center;
+    background-repeat: no-repeat;
+    background-size: .75lh;
+    padding-left: .75lh;
+  }
+}

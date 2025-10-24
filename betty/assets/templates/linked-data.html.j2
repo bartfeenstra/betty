@@ -1,5 +1,5 @@
 {% set linked_data=[
-    breadcrumbs.dump()
+    breadcrumbs.dump_linked_data(project)
 ] %}
 <script type="application/ld+json">
     {{ linked_data | json | safe }}

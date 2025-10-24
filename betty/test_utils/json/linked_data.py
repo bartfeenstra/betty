@@ -14,14 +14,19 @@ from betty.project import Project
 from betty.serde.dump import Dump
 
 if TYPE_CHECKING:
-    from betty.json.linked_data import LinkedDataDumpable, LinkedDataDumpableProvider
+    from betty.json.linked_data import (
+        LinkedDataDumpableProvider,
+        LinkedDataDumpableWithSchema,
+    )
     from betty.json.schema import Schema
 
 _T = TypeVar("_T")
 _DumpT = TypeVar("_DumpT", bound=Dump, default=Dump)
 
 
-async def assert_dumps_linked_data(sut: LinkedDataDumpable[Schema, _DumpT]) -> _DumpT:
+async def assert_dumps_linked_data(
+    sut: LinkedDataDumpableWithSchema[Schema, _DumpT],
+) -> _DumpT:
     """
     Dump an object's linked data and assert it is valid.
     """
