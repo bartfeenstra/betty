@@ -22,7 +22,7 @@ Built-in plugin types
 The following plugin types are provided by Betty itself. Each plugin type's documentation tells you where to find the
 plugin repository, how to use the plugins, and how to create your own.
 
-- :doc:`CLI commands </development/plugin/command>`
+- :doc:`Console commands </development/plugin/command>`
 - :doc:`Copyright notices </development/plugin/copyright-notice>`
 - :doc:`Entity types </development/plugin/entity-type>`
 - :doc:`Event types </development/plugin/event-type>`
