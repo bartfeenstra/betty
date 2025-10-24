@@ -5,20 +5,24 @@ Provide the HTML API, for generating HTML pages.
 from __future__ import annotations
 
 from abc import ABC, abstractmethod
+from collections.abc import Iterable, Iterator, Sequence, Sized
 from threading import Lock
-from typing import TYPE_CHECKING, final
+from typing import TYPE_CHECKING, Any, final
 
 from typing_extensions import override
 
+from betty.json.linked_data import LinkedDataDumpable
 from betty.link import Link
 from betty.locale.localizable import Plain
-from betty.serde.dump import Dump, Dumpable, DumpMapping
+from betty.media_type.media_types import HTML
+from betty.serde.dump import Dump, DumpMapping
 
 if TYPE_CHECKING:
-    from collections.abc import MutableSequence, Sequence
+    from collections.abc import MutableSequence
 
     from betty.ancestry.citation import Citation
     from betty.locale.localizable import Localizable
+    from betty.project import Project
 
 
 class CssProvider(ABC):
@@ -113,36 +117,67 @@ class Citer:
             return self._cited.index(citation) + 1
 
 
-class _Breadcrumb(Dumpable):
-    def __init__(self, label: str, url: str):
+@final
+class Breadcrumb(LinkedDataDumpable[DumpMapping[Dump]]):
+    """
+    A breadcrumb.
+    """
+
+    def __init__(self, label: str, resource: Any, /):
         self._label = label
-        self._url = url
+        self._resource = resource
+
+    @property
+    def label(self) -> str:
+        """
+        The localized, human-readable label.
+        """
+        return self._label
+
+    @property
+    def resource(self) -> Any:
+        """
+        The resource.
+        """
+        return self._resource
 
     @override
-    def dump(self) -> DumpMapping[Dump]:
+    async def dump_linked_data(self, project: Project) -> DumpMapping[Dump]:
+        url_generator = await project.url_generator
         return {
             "@type": "ListItem",
             "name": self._label,
-            "item": self._url,
+            "item": url_generator.generate(
+                self._resource, absolute=True, media_type=HTML
+            ),
         }
 
 
-class Breadcrumbs(Dumpable):
+@final
+class Breadcrumbs(LinkedDataDumpable[DumpMapping[Dump]], Iterable[Breadcrumb], Sized):
     """
     A trail of navigational breadcrumbs.
     """
 
     def __init__(self):
-        self._breadcrumbs: MutableSequence[_Breadcrumb] = []
+        self._breadcrumbs: MutableSequence[Breadcrumb] = []
 
-    def append(self, label: str, url: str) -> None:
+    @override
+    def __iter__(self) -> Iterator[Breadcrumb]:
+        return iter(self._breadcrumbs)
+
+    @override
+    def __len__(self) -> int:
+        return len(self._breadcrumbs)
+
+    def append(self, label: str, resource: Any, /) -> None:
         """
         Append a breadcrumb to the trail.
         """
-        self._breadcrumbs.append(_Breadcrumb(label, url))
+        self._breadcrumbs.append(Breadcrumb(label, resource))
 
     @override
-    def dump(self) -> Dump:
+    async def dump_linked_data(self, project: Project) -> DumpMapping[Dump]:
         if not self._breadcrumbs:
             return {}
         return {
@@ -151,7 +186,7 @@ class Breadcrumbs(Dumpable):
             "itemListElement": [
                 {
                     "position": position,
-                    **breadcrumb.dump(),
+                    **await breadcrumb.dump_linked_data(project),
                 }
                 for position, breadcrumb in enumerate(self._breadcrumbs, 1)
             ],

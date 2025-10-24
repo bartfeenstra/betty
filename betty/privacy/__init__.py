@@ -10,7 +10,10 @@ from typing import TYPE_CHECKING, Any, final
 from typing_extensions import override
 
 from betty.classtools import Singleton
-from betty.json.linked_data import JsonLdObject, LinkedDataDumpableJsonLdObject
+from betty.json.linked_data import (
+    JsonLdObject,
+    LinkedDataDumpableWithSchemaJsonLdObject,
+)
 from betty.json.schema import Boolean
 
 if TYPE_CHECKING:
@@ -36,7 +39,7 @@ class Privacy(enum.Enum):
     UNDETERMINED = 3
 
 
-class HasPrivacy(LinkedDataDumpableJsonLdObject):
+class HasPrivacy(LinkedDataDumpableWithSchemaJsonLdObject):
     """
     A resource that has privacy.
     """

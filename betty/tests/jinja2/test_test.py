@@ -8,7 +8,7 @@ from betty.ancestry.has_file_references import HasFileReferences
 from betty.ancestry.has_links import HasLinks
 from betty.date import Date, DateRange
 from betty.jinja2.test import PluginTester
-from betty.json.linked_data import LinkedDataDumpableJsonLdObject
+from betty.json.linked_data import LinkedDataDumpableWithSchemaJsonLdObject
 from betty.media_type import MediaType
 from betty.media_type.media_types import PDF, SVG
 from betty.model import Entity
@@ -114,8 +114,8 @@ async def test_test_has_links(expected: str, data: Any) -> None:
 @pytest.mark.parametrize(
     ("expected", "data"),
     [
-        ("true", LinkedDataDumpableJsonLdObject()),
-        ("false", LinkedDataDumpableJsonLdObject),
+        ("true", LinkedDataDumpableWithSchemaJsonLdObject()),
+        ("false", LinkedDataDumpableWithSchemaJsonLdObject),
         ("false", object()),
     ],
 )

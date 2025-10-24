@@ -10,6 +10,14 @@
   @return url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" fill="#{-to-rgb($color)}" class="ionicon" viewBox="0 0 512 512"><path d="M136 208l120-104 120 104M136 304l120 104 120-104" fill="none" stroke="currentColor" stroke-width="48" stroke-linecap="square"/></svg>');
 }
 
+@function icon-chevron-right($color) {
+  @return url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" class="ionicon" viewBox="0 0 512 512"><path fill="none" stroke="#{-to-rgb($color)}" stroke-linecap="square" stroke-miterlimit="10" stroke-width="48" d="M184 112l144 144-144 144"/></svg>');
+}
+
+@function icon-chevron-left($color) {
+  @return url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" class="ionicon" viewBox="0 0 512 512"><path fill="none" stroke="#{-to-rgb($color)}" stroke-linecap="square" stroke-miterlimit="10" stroke-width="48" d="M328 112L184 256l144 144"/></svg>');
+}
+
 @function icon-close($color) {
   @return url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" fill="#{-to-rgb($color)}" class="ionicon" viewBox="0 0 512 512"><path d="M400 145.49L366.51 112 256 222.51 145.49 112 112 145.49 222.51 256 112 366.51 145.49 400 256 289.49 366.51 400 400 366.51 289.49 256 400 145.49z"/></svg>');
 }

@@ -8,7 +8,10 @@ from typing import TYPE_CHECKING, Any
 
 from typing_extensions import override
 
-from betty.json.linked_data import JsonLdObject, LinkedDataDumpableJsonLdObject
+from betty.json.linked_data import (
+    JsonLdObject,
+    LinkedDataDumpableWithSchemaJsonLdObject,
+)
 from betty.json.schema import Null, OneOf
 from betty.locale import UNDETERMINED_LOCALE, LocaleSchema
 from betty.locale.localized import Localized
@@ -19,7 +22,7 @@ if TYPE_CHECKING:
     from betty.serde.dump import Dump, DumpMapping
 
 
-class HasLocale(Localized, LinkedDataDumpableJsonLdObject):
+class HasLocale(Localized, LinkedDataDumpableWithSchemaJsonLdObject):
     """
     A resource that is localized, e.g. contains information in a specific locale.
     """

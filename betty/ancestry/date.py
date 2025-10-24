@@ -9,7 +9,10 @@ from typing import TYPE_CHECKING, Any
 from typing_extensions import override
 
 from betty.date import Date, DateLike, DateLikeSchema
-from betty.json.linked_data import JsonLdObject, LinkedDataDumpableJsonLdObject
+from betty.json.linked_data import (
+    JsonLdObject,
+    LinkedDataDumpableWithSchemaJsonLdObject,
+)
 from betty.privacy import is_public
 
 if TYPE_CHECKING:
@@ -17,7 +20,7 @@ if TYPE_CHECKING:
     from betty.serde.dump import Dump, DumpMapping
 
 
-class HasDate(LinkedDataDumpableJsonLdObject):
+class HasDate(LinkedDataDumpableWithSchemaJsonLdObject):
     """
     A resource with date information.
     """

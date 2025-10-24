@@ -1,0 +1,14 @@
+{% if breadcrumbs %}
+    <nav aria-label="{% trans %}Breadcrumbs{% endtrans %}">
+        <ol class="breadcrumbs mb-3 small">
+            <li class="breadcrumb">
+                <a href="{{ 'betty:///'| url }}">{% trans %}Home{% endtrans %}</a>
+            </li>
+            {% for breadcrumb in breadcrumbs %}
+                <li class="breadcrumb{% if loop.last %} visually-hidden{% endif %}"{% if loop.last %} aria-current="page"{% endif %}>
+                    <a href="{{ breadcrumb.resource | url }}">{{ breadcrumb.label }}</a>
+                </li>
+            {% endfor %}
+        </ol>
+    </nav>
+{% endif %}

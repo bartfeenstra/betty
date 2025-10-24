@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PROJECT VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2025-10-23 14:00+0100\n"
+"POT-Creation-Date: 2025-10-25 23:51+0100\n"
 "PO-Revision-Date: 2025-05-17 01:43+0000\n"
 "Last-Translator: Bart Feenstra <bart@bartfeenstra.com>\n"
 "Language: nl_NL\n"
@@ -222,6 +222,9 @@ msgstr "Geboorte"
 
 msgid "Borough"
 msgstr "Borough"
+
+msgid "Breadcrumbs"
+msgstr ""
 
 msgid "Building"
 msgstr "Gebouw"
@@ -553,6 +556,9 @@ msgstr ""
 
 msgid "Hamlet"
 msgstr "Gehucht"
+
+msgid "Home"
+msgstr ""
 
 msgid "I'm sorry, dear, but it seems there is nothing to show."
 msgstr "Het spijt me, schat, maar het lijkt erop dat er niets is om te laten zien."

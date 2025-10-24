@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Betty VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2025-10-23 14:00+0100\n"
+"POT-Creation-Date: 2025-10-25 23:51+0100\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -187,6 +187,9 @@ msgid "Birth"
 msgstr ""
 
 msgid "Borough"
+msgstr ""
+
+msgid "Breadcrumbs"
 msgstr ""
 
 msgid "Building"
@@ -492,6 +495,9 @@ msgid "HTTP client rate limit"
 msgstr ""
 
 msgid "Hamlet"
+msgstr ""
+
+msgid "Home"
 msgstr ""
 
 msgid "I'm sorry, dear, but it seems there is nothing to show."

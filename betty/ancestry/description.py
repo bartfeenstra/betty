@@ -10,7 +10,7 @@ from typing_extensions import override
 
 from betty.json.linked_data import (
     JsonLdObject,
-    LinkedDataDumpableJsonLdObject,
+    LinkedDataDumpableWithSchemaJsonLdObject,
     dump_context,
 )
 from betty.locale.localizable import StaticTranslations
@@ -22,7 +22,7 @@ if TYPE_CHECKING:
     from betty.serde.dump import Dump, DumpMapping
 
 
-class HasDescription(LinkedDataDumpableJsonLdObject):
+class HasDescription(LinkedDataDumpableWithSchemaJsonLdObject):
     """
     A resource with a description.
     """
