@@ -329,17 +329,7 @@ _BASELINE: Mapping[str, _ModuleIgnore] = {
     },
     "betty/ancestry/event_type/__init__.py": {
         "EventType": MissingReason.STATIC_CONTENT_ONLY,
-    },
-    "betty/ancestry/event_type/event_types.py": {
-        "CreatableDerivableEventType": MissingReason.ABSTRACT,
-        "CreatableEventType": MissingReason.ABSTRACT,
-        "DerivableEventType": MissingReason.ABSTRACT,
-        "DuringLifeEventType": MissingReason.ABSTRACT,
-        "EndOfLifeEventType": MissingReason.ABSTRACT,
-        "FinalDispositionEventType": MissingReason.ABSTRACT,
-        "PostDeathEventType": MissingReason.ABSTRACT,
-        "PreBirthEventType": MissingReason.ABSTRACT,
-        "StartOfLifeEventType": MissingReason.ABSTRACT,
+        "ShouldExistEventType": MissingReason.ABSTRACT,
     },
     "betty/ancestry/gender/__init__.py": {
         "Gender": MissingReason.STATIC_CONTENT_ONLY,

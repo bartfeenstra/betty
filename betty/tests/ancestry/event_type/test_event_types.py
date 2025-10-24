@@ -127,7 +127,7 @@ class TestDeath(EventTypeDefinitionTestBase):
         async with Project.new_temporary(temporary_app) as project, project:
             person = Person(id="P0")
 
-            assert await Death.may_create(project, person) is False
+            assert await Death.should_exist(project, person) is False
 
     async def test_may_create_may_not_within_lifetime_threshold(
         self, temporary_app: App
@@ -143,7 +143,7 @@ class TestDeath(EventTypeDefinitionTestBase):
                 ),
             )
 
-            assert await Death.may_create(project, person) is False
+            assert await Death.should_exist(project, person) is False
 
     async def test_may_create_may_over_lifetime_threshold(
         self, temporary_app: App
@@ -159,7 +159,7 @@ class TestDeath(EventTypeDefinitionTestBase):
                 ),
             )
 
-            assert await Death.may_create(project, person) is True
+            assert await Death.should_exist(project, person) is True
 
 
 class TestDivorce(EventTypeDefinitionTestBase):

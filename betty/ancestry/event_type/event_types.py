@@ -8,7 +8,11 @@ from typing import TYPE_CHECKING, final
 
 from typing_extensions import override
 
-from betty.ancestry.event_type import EventType, EventTypeDefinition
+from betty.ancestry.event_type import (
+    EventType,
+    EventTypeDefinition,
+    ShouldExistEventType,
+)
 from betty.locale.localizable import _
 
 if TYPE_CHECKING:
@@ -27,34 +31,20 @@ class Unknown(EventType):
     """
 
 
-class DerivableEventType(EventType):
-    """
-    Any event that that may be updated by the deriver API.
-    """
-
-
-class CreatableDerivableEventType(DerivableEventType):
-    """
-    Any event type of which the deriver API may create new instances.
-    """
-
-    @classmethod
-    async def may_create(cls, project: Project, person: Person) -> bool:
-        """
-        Whether a new event of this type may be created for the given person.
-        """
-        return True  # pragma: no cover
-
-
 @final
 @EventTypeDefinition(
     id="birth",
     label=_("Birth"),
 )
-class Birth(CreatableDerivableEventType):
+class Birth(ShouldExistEventType):
     """
     Someone was born.
     """
+
+    @override
+    @classmethod
+    async def should_exist(cls, project: Project, person: Person) -> bool:
+        return True
 
 
 @final
@@ -63,14 +53,14 @@ class Birth(CreatableDerivableEventType):
     label=_("Death"),
     comes_after={Birth},
 )
-class Death(CreatableDerivableEventType):
+class Death(ShouldExistEventType):
     """
     Someone died.
     """
 
     @override
     @classmethod
-    async def may_create(cls, project: Project, person: Person) -> bool:
+    async def should_exist(cls, project: Project, person: Person) -> bool:
         return project.privatizer.has_expired(person, 1)
 
 
@@ -136,7 +126,7 @@ class Adoption(EventType):
     comes_after={Death},
     indicates=Death,
 )
-class Funeral(DerivableEventType):
+class Funeral(EventType):
     """
     Someone's funeral took place.
     """
@@ -149,7 +139,7 @@ class Funeral(DerivableEventType):
     comes_after={Death},
     indicates=Death,
 )
-class Cremation(DerivableEventType):
+class Cremation(EventType):
     """
     Someone was cremated.
     """
@@ -162,7 +152,7 @@ class Cremation(DerivableEventType):
     comes_after={Death},
     indicates=Death,
 )
-class Burial(DerivableEventType):
+class Burial(EventType):
     """
     Someone was buried.
     """
