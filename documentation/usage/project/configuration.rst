@@ -18,7 +18,7 @@ structure. Example configuration:
           name: betty-ancestry
           author: Bart Feenstra
           logo: my-ancestry-logo.png
-          lifetime_threshold: 125
+          lifetime_threshold: 123
           locales:
             - locale: en-US
               alias: en
@@ -54,7 +54,7 @@ structure. Example configuration:
             "name": "betty-ancestry",
             "author": "Bart Feenstra",
             "logo": "my-ancestry-logo.png",
-            "lifetime_threshold": 125,
+            "lifetime_threshold": 123,
             "locales": [
               {
                 "locale": "en-US",
@@ -141,7 +141,8 @@ The path to your site's logo file. Defaults to the Betty logo.
 ----------------------
 :sup:`optional`
 
-The number of years people are expected to live at most, e.g. after which they're presumed to have died. Defaults to ``125``.
+The number of years people are expected to live at most, e.g. after which they're presumed to have died.
+:py:const:`Defaults to 123 years <betty.project.config.DEFAULT_LIFETIME_THRESHOLD>`.
 
 ``locales``
 -----------
