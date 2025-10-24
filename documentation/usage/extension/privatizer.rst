@@ -16,8 +16,9 @@ The following entities are processed by the Privatizer. They are marked *private
 conditions are met:
 
 People
-  People are considered dead past the *lifetime threshold*, which defaults to 125 years, but can be changed in your
-  site's :doc:`configuration file </usage/project/configuration>`.
+  People are considered dead past the *lifetime threshold*, which
+  :py:const:`defaults to 123 years <betty.project.config.DEFAULT_LIFETIME_THRESHOLD>`, but can be changed in your site's
+  :doc:`configuration file </usage/project/configuration>`.
 
   * The person has an end-of-life event, such as a death, final disposition, or will.
   * Any event that was at least the *lifetime threshold* ago.
