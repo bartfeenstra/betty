@@ -29,7 +29,7 @@ async def run(
     app: App, *args: str, expected_exit_code: SystemExitCode = SystemExitCode.OK
 ) -> Result:
     """
-    Run a Betty CLI command.
+    Run a Betty console command.
     """
     stderr_f = StringIO()
     stdout_f = StringIO()
