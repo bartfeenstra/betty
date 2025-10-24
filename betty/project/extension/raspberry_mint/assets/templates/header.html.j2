@@ -78,6 +78,7 @@
                 </li>
             {% endfor %}
         </ul>
+        {% if project.configuration.locales.multilingual %}
             {% with attributes = new_attributes(html_aria_controls=["nav-language"],
                 html_aria_expanded=false,
                 html_class=[
@@ -89,17 +90,18 @@
                 {% do attributes.set_data(bs_toggle="modal", bs_target="#nav-language") %}
                 {% include "component/button-language.html.j2" %}
             {% endwith %}
-            {% with attributes = new_attributes(html_aria_controls=["nav-search"],
-                html_aria_expanded=false,
-                html_class=[
-                    "d-none",
-                    "d-md-inline",
-                    "header-entry-point"
-                ]
-            ) %}
-                {% do attributes.set_data(bs_toggle="modal", bs_target="#nav-search") %}
-                {% include "component/button-search.html.j2" %}
-            {% endwith %}
+        {% endif %}
+        {% with attributes = new_attributes(html_aria_controls=["nav-search"],
+            html_aria_expanded=false,
+            html_class=[
+                "d-none",
+                "d-md-inline",
+                "header-entry-point"
+            ]
+        ) %}
+            {% do attributes.set_data(bs_toggle="modal", bs_target="#nav-search") %}
+            {% include "component/button-search.html.j2" %}
+        {% endwith %}
     </div>
 {% endset %}
 {% with attributes = new_attributes(html_id="nav-menu"),
@@ -123,13 +125,15 @@
         {% endfor %}
     </ul>
 {% endset %}
-{% with attributes = new_attributes(html_id="nav-language"),
-    dialog_attributes = new_attributes(html_class=["modal-md", "modal-fullscreen-md-down"]),
-    title = _("Language"),
-    body = nav_language_body
-%}
-    {% include "component/modal.html.j2" %}
-{% endwith %}
+{% if project.configuration.locales.multilingual %}
+    {% with attributes = new_attributes(html_id="nav-language"),
+        dialog_attributes = new_attributes(html_class=["modal-md", "modal-fullscreen-md-down"]),
+        title = _("Language"),
+        body = nav_language_body
+    %}
+        {% include "component/modal.html.j2" %}
+    {% endwith %}
+{% endif %}
 {% set nav_search_body %}
     <div class="container">
         {% set ns = namespace(
