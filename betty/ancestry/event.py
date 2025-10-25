@@ -158,7 +158,7 @@ class Event(
         ]
         if subjects:
             format_kwargs["subjects"] = AllEnumeration(
-                ", ", *(person.label for person in subjects)
+                *(person.label for person in subjects)
             )
 
         if subjects:
