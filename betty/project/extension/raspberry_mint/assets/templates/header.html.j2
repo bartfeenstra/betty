@@ -36,15 +36,17 @@
                     </ul>
                 </div>
             </div>
-            {% with attributes = new_attributes(html_aria_controls=["nav-language"],
-                html_aria_expanded=false,
-                html_class=[
-                    "header-entry-point"
-                ]
-            ) %}
-                {% do attributes.set_data(bs_toggle="modal", bs_target="#nav-language") %}
-                {% include "component/button-language.html.j2" %}
-            {% endwith %}
+            {% if project.configuration.locales.multilingual %}
+                {% with attributes = new_attributes(html_aria_controls=["nav-language"],
+                    html_aria_expanded=false,
+                    html_class=[
+                        "header-entry-point"
+                    ]
+                ) %}
+                    {% do attributes.set_data(bs_toggle="modal", bs_target="#nav-language") %}
+                    {% include "component/button-language.html.j2" %}
+                {% endwith %}
+            {% endif %}
             {% with attributes = new_attributes(html_aria_controls=["nav-search"],
                 html_aria_expanded=false,
                 html_class=[
