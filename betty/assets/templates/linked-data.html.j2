@@ -1,8 +1,11 @@
 {% set linked_data=[
     breadcrumbs.dump_linked_data(project)
 ] %}
+{% if page_resource is linked_data_dumpable %}
+    {% do linked_data.append(page_resource.dump_linked_data(project)) %}
+{% endif %}
 {% if linked_data %}
     <script type="application/ld+json">
-        {{ linked_data | json | safe }}
+        {{ linked_data | tojson }}
     </script>
 {% endif %}
