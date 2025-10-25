@@ -24,7 +24,9 @@
             {% endif %}
         {% endif %}
     {% endif %}
-    <link rel="canonical" href="{{ page_resource | url(absolute=true) }}" hreflang="{{ localizer.locale }}" type="text/html">
+    {% if page_resource is not string or not page_resource.startswith('betty:///.error/') %}
+        <link rel="canonical" href="{{ page_resource | url(absolute=true) }}" hreflang="{{ localizer.locale }}" type="text/html">
+    {% endif %}
     {% for locale in project.configuration.locales %}
         {% if locale != localizer.locale %}
             <link rel="alternate" href="{{ page_resource | url(locale=locale) }}" hreflang="{{ locale }}" type="text/html">
