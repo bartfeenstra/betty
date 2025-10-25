@@ -33,11 +33,6 @@
 
         {% endif %}
     {% endfor %}
-    {% if page_resource is linked_data_dumpable %}
-        <script type="application/ld+json">
-          {{ page_resource.dump_linked_data(project) | tojson }}
-        </script>
-    {% endif %}
     {% if page_resource is entity_plugin and page_resource is persistent_entity_id %}
         <link rel="alternate" href="{{ page_resource | url(media_type='application/json') }}" hreflang="und" type="application/json">
     {% endif %}
