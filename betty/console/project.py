@@ -97,7 +97,7 @@ async def _read_project_configuration_file(
         raise
     else:
         project.configuration.configuration_file_path = configuration_file_path
-        await user.message_information(
+        await user.message_debug(
             _("Loaded the configuration from {configuration_file_path}.").format(
                 configuration_file_path=str(configuration_file_path)
             ),
