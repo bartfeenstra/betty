@@ -22,6 +22,7 @@ if TYPE_CHECKING:
 
     from betty.job import Context
     from betty.locale.localizer import Localizer
+    from betty.media_type import MediaType
 
 
 class Renderer(ABC):
@@ -33,9 +34,9 @@ class Renderer(ABC):
 
     @property
     @abstractmethod
-    def file_extensions(self) -> set[str]:
+    def media_types(self) -> Sequence[MediaType]:
         """
-        The extensions of the files this renderer can render.
+        The media types this renderer can render.
         """
 
     @abstractmethod
@@ -78,16 +79,16 @@ class SequentialRenderer(Renderer):
 
     def __init__(self, renderers: Sequence[Renderer]):
         self._renderers = renderers
-        self._file_extensions = {
-            file_extension
+        self._media_types = [
+            media_type
             for renderer in self._renderers
-            for file_extension in renderer.file_extensions
-        }
+            for media_type in renderer.media_types
+        ]
 
     @override
     @property
-    def file_extensions(self) -> set[str]:
-        return self._file_extensions
+    def media_types(self) -> Sequence[MediaType]:
+        return self._media_types
 
     @override
     async def render_file(
@@ -98,11 +99,12 @@ class SequentialRenderer(Renderer):
         localizer: Localizer | None = None,
     ) -> Path:
         for renderer in self._renderers:
-            for renderer_file_extension in renderer.file_extensions:
-                if file_path.suffix.endswith(renderer_file_extension):
-                    return await renderer.render_file(
-                        file_path,
-                        job_context=job_context,
-                        localizer=localizer,
-                    )
+            for renderer_media_type in renderer.media_types:
+                for extension in renderer_media_type.extensions:
+                    if str(file_path).endswith(extension):
+                        return await renderer.render_file(
+                            file_path,
+                            job_context=job_context,
+                            localizer=localizer,
+                        )
         return file_path

@@ -1,10 +1,13 @@
+from collections.abc import Sequence
 from pathlib import Path
 
 import pytest
 from typing_extensions import override
 
+from betty.functools import unique
 from betty.job import Context
 from betty.locale.localizer import Localizer
+from betty.media_type import MediaType
 from betty.plugin import PluginDefinition
 from betty.render import Renderer, RendererDefinition, SequentialRenderer
 from betty.test_utils.plugin import PluginDefinitionClassTestBase
@@ -18,13 +21,13 @@ class TestRendererDefinition(PluginDefinitionClassTestBase):
 
 
 class _Renderer(Renderer):
-    _file_extensions: set[str]
+    _media_types: Sequence[MediaType]
     _render_file_path: Path
 
     @override
     @property
-    def file_extensions(self) -> set[str]:
-        return self._file_extensions
+    def media_types(self) -> Sequence[MediaType]:
+        return self._media_types
 
     @override
     async def render_file(
@@ -38,23 +41,27 @@ class _Renderer(Renderer):
 
 
 class _RendererOne(_Renderer):
-    _file_extensions = {".one"}
+    _media_types = [MediaType("text/x.betty.test.one", extensions=[".one"])]
     _render_file_path = Path("one.html")
 
 
 class _RendererTwo(_Renderer):
-    _file_extensions = {".two"}
+    _media_types = [MediaType("text/x.betty.test.two", extensions=[".two"])]
     _render_file_path = Path("two.html")
 
 
 class TestSequentialRenderer:
-    def test_file_extensions__without_upstreams(self) -> None:
+    def test_media_types__without_upstreams(self) -> None:
         sut = SequentialRenderer([])
-        assert sut.file_extensions == set()
+        assert sut.media_types == []
 
-    def test_file_extensions__with_upstreams(self) -> None:
-        sut = SequentialRenderer([_RendererOne(), _RendererTwo()])
-        assert sut.file_extensions == {".one", ".two"}
+    def test_media_types__with_upstreams(self) -> None:
+        renderer_one = _RendererOne()
+        renderer_two = _RendererTwo()
+        sut = SequentialRenderer([renderer_one, renderer_two])
+        assert sut.media_types == list(
+            unique(renderer_one.media_types, renderer_two.media_types)
+        )
 
     async def test_render_file__without_upstreams(self) -> None:
         sut = SequentialRenderer([])
