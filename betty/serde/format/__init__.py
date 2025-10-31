@@ -23,6 +23,7 @@ if TYPE_CHECKING:
     from collections.abc import Sequence
 
     from betty.locale.localizer import Localizer
+    from betty.media_type import MediaType
     from betty.serde.dump import Dump
     from betty.typing import Voidable
 
@@ -42,11 +43,9 @@ class Format:
 
     @classmethod
     @abstractmethod
-    def extensions(cls) -> Sequence[str]:
+    def media_type(cls) -> MediaType:
         """
-        The file extensions this format can (de)serialize.
-
-        Extensions must include a leading dot, and are returned in order of decreasing priority.
+        The media type this format can (de)serialize.
         """
 
     @abstractmethod
@@ -88,18 +87,6 @@ class FormatRepository(StaticPluginRepository[FormatDefinition]):
 
         super().__init__(FormatDefinition, Json.plugin, Yaml.plugin)
 
-    def extensions(self) -> Sequence[str]:
-        """
-        All file extensions supported by the formats in this repository.
-
-        Extensions include a leading dot, and are returned in order of decreasing priority.
-        """
-        return [
-            extension
-            for serde_format in self
-            for extension in serde_format.cls.extensions()
-        ]
-
 
 FORMAT_REPOSITORY = FormatRepository()
 """
@@ -123,7 +110,7 @@ class FormatStr(Localizable):
                 [
                     f"{extension} ({serde_format.label.localize(localizer)})"
                     for serde_format in self._serde_formats
-                    for extension in serde_format.cls.extensions()
+                    for extension in serde_format.cls.media_type().extensions
                 ]
             )
         )
@@ -136,7 +123,7 @@ def format_for(
     Get the (de)serialization format for the given file extension.
     """
     for available_format in available_formats:
-        if extension in available_format.cls.extensions():
+        if extension in available_format.cls.media_type().extensions:
             return available_format
     raise FormatError(
         _(
