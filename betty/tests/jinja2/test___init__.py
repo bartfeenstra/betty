@@ -3,8 +3,8 @@ from __future__ import annotations
 from gettext import NullTranslations
 from typing import TYPE_CHECKING
 
-import aiofiles
 import pytest
+from jinja2 import Environment as Jinja2Environment
 from typing_extensions import override
 
 from betty.ancestry.has_file_references import HasFileReferences
@@ -16,8 +16,8 @@ from betty.jinja2 import (
 )
 from betty.job import Context
 from betty.locale.localizer import Localizer
+from betty.media_type.media_types import JINJA2
 from betty.project import Project
-from betty.project.config import LocaleConfiguration
 from betty.test_utils.model import DummyEntityOne
 from betty.test_utils.render import RendererDefinitionTestBase
 
@@ -54,121 +54,37 @@ class TestJinja2RendererDefinition(RendererDefinitionTestBase):
 
 
 class TestJinja2Renderer:
-    async def test_render_file(self, temporary_app: App, tmp_path: Path) -> None:
-        async with Project.new_temporary(temporary_app) as project, project:
-            sut = await Jinja2Renderer.new_for_project(project)
-            template = "{% if true %}true{% endif %}"
-            template_file_path = tmp_path / "betty.html.j2"
-            async with aiofiles.open(template_file_path, "w") as f:
-                await f.write(template)
-            await sut.render_file(template_file_path)
-            async with aiofiles.open(tmp_path / "betty.html") as f:
-                assert (await f.read()).strip() == "true"
-            assert not template_file_path.exists()
+    async def test_render(self) -> None:
+        sut = Jinja2Renderer(Jinja2Environment(enable_async=True))
+        template = "{% if true %}true{% endif %}"
+        rendered = await sut.render(template, JINJA2)
+        assert rendered == "true"
 
-    async def test_render_file_with_job_context(
-        self, temporary_app: App, tmp_path: Path
-    ) -> None:
-        async with Project.new_temporary(temporary_app) as project, project:
-            sut = await Jinja2Renderer.new_for_project(project)
-            template = "{{ job_context.start }}"
-            template_file_path = tmp_path / "betty.html.j2"
-            async with aiofiles.open(template_file_path, "w") as f:
-                await f.write(template)
-            job_context = Context()
-            await sut.render_file(template_file_path, job_context=job_context)
-            async with aiofiles.open(tmp_path / "betty.html") as f:
-                assert (await f.read()).strip() == str(job_context.start)
-            assert not template_file_path.exists()
+    async def test_render__with_data(self, temporary_app: App, tmp_path: Path) -> None:
+        data = "Data"
+        sut = Jinja2Renderer(Jinja2Environment(enable_async=True))
+        template = "{{ data }}"
+        rendered = await sut.render(template, JINJA2, data={"data": data})
+        assert rendered == data
 
-    async def test_render_file_with_localizer(
-        self, temporary_app: App, tmp_path: Path
-    ) -> None:
-        async with Project.new_temporary(temporary_app) as project, project:
-            sut = await Jinja2Renderer.new_for_project(project)
-            locale = "nl-NL"
-            template = "{{ localizer.locale }}"
-            template_file_path = tmp_path / "betty.html.j2"
-            async with aiofiles.open(template_file_path, "w") as f:
-                await f.write(template)
-            localizer = Localizer(locale, NullTranslations())
-            await sut.render_file(template_file_path, localizer=localizer)
-            async with aiofiles.open(tmp_path / "betty.html") as f:
-                assert (await f.read()).strip() == locale
-            assert not template_file_path.exists()
+    async def test_render__with_job_context(self) -> None:
+        sut = Jinja2Renderer(Jinja2Environment(enable_async=True))
+        template = "{{ job_context.start }}"
+        job_context = Context()
+        rendered = await sut.render(template, JINJA2, job_context=job_context)
+        assert rendered == str(job_context.start)
 
-    async def test_render_file_in_www_directory_monolingual(
-        self, temporary_app: App
-    ) -> None:
-        async with Project.new_temporary(temporary_app) as project, project:
-            sut = await Jinja2Renderer.new_for_project(project)
-            template = "{{ page_resource }}"
-            template_file_path = (
-                project.configuration.www_directory_path / "betty.html.j2"
-            )
-            template_file_path.parent.mkdir(parents=True)
-            async with aiofiles.open(template_file_path, "w") as f:
-                await f.write(template)
-            await sut.render_file(template_file_path)
-            async with aiofiles.open(
-                project.configuration.www_directory_path / "betty.html"
-            ) as f:
-                assert (await f.read()).strip() == "betty:///betty.html"
-            assert not template_file_path.exists()
+    async def test_render__with_localizer(self) -> None:
+        sut = Jinja2Renderer(Jinja2Environment(enable_async=True))
+        locale = "nl-NL"
+        template = "{{ localizer.locale }}"
+        localizer = Localizer(locale, NullTranslations())
+        rendered = await sut.render(template, JINJA2, localizer=localizer)
+        assert rendered == locale
 
-    async def test_render_file_in_www_directory_multilingual_with_static_resource(
-        self, temporary_app: App
-    ) -> None:
-        async with Project.new_temporary(temporary_app) as project:
-            project.configuration.locales.append(LocaleConfiguration("nl-NL"))
-            async with project:
-                sut = await Jinja2Renderer.new_for_project(project)
-                template = "{{ page_resource }}"
-                template_file_path = (
-                    project.configuration.www_directory_path / "betty.html.j2"
-                )
-                template_file_path.parent.mkdir(parents=True)
-                async with aiofiles.open(template_file_path, "w") as f:
-                    await f.write(template)
-                await sut.render_file(template_file_path)
-                async with aiofiles.open(
-                    project.configuration.www_directory_path / "betty.html"
-                ) as f:
-                    assert (await f.read()).strip() == "betty:///betty.html"
-                assert not template_file_path.exists()
-
-    async def test_render_file_in_www_directory_multilingual_with_localized_resource(
-        self, temporary_app: App
-    ) -> None:
-        locale_alias = "nl"
-        async with Project.new_temporary(temporary_app) as project:
-            project.configuration.locales.append(
-                LocaleConfiguration("nl-NL", alias=locale_alias)
-            )
-            async with project:
-                sut = await Jinja2Renderer.new_for_project(project)
-                template = "{{ page_resource }}"
-                template_file_path = (
-                    project.configuration.www_directory_path
-                    / locale_alias
-                    / "betty.html.j2"
-                )
-                template_file_path.parent.mkdir(parents=True)
-                async with aiofiles.open(template_file_path, "w") as f:
-                    await f.write(template)
-                await sut.render_file(template_file_path)
-                async with aiofiles.open(
-                    project.configuration.www_directory_path
-                    / locale_alias
-                    / "betty.html"
-                ) as f:
-                    assert (await f.read()).strip() == "betty:///betty.html"
-                assert not template_file_path.exists()
-
-    async def test_media_types(self, temporary_app: App) -> None:
-        async with Project.new_temporary(temporary_app) as project, project:
-            sut = await Jinja2Renderer.new_for_project(project)
-            sut.media_types  # noqa B018
+    async def test_media_types(self) -> None:
+        sut = Jinja2Renderer(Jinja2Environment(enable_async=True))
+        sut.media_types  # noqa B018
 
 
 class DummyHasFileReferencesEntity(HasFileReferences):
@@ -205,17 +121,6 @@ class TestEnvironment:
             sut = await Environment.new_for_project(project)
             context_class = sut.context_class
             context_class(sut, {}, "", {}, {})
-
-    async def test_from_file(self, temporary_app: App, tmp_path: Path) -> None:
-        template_string = "{% if true %}true{% endif %}"
-        template_file_path = tmp_path / "betty.html.j2"
-        async with aiofiles.open(template_file_path, "w") as f:
-            await f.write(template_string)
-
-        async with Project.new_temporary(temporary_app) as project, project:
-            sut = await Environment.new_for_project(project)
-            template = await sut.from_file(template_file_path)
-            assert await template.render_async() == "true"
 
     async def test_project(self, temporary_app: App) -> None:
         async with Project.new_temporary(temporary_app) as project, project:

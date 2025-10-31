@@ -5,7 +5,8 @@ Provide `media type <https://en.wikipedia.org/wiki/Media_type>`_ handling utilit
 from __future__ import annotations
 
 from email.message import EmailMessage
-from typing import TYPE_CHECKING, Any, final
+from pathlib import Path
+from typing import TYPE_CHECKING, Any, Self, TypeAlias, final
 
 from typing_extensions import override
 
@@ -13,13 +14,26 @@ from betty.classtools import Singleton
 from betty.json.schema import String
 
 if TYPE_CHECKING:
-    from collections.abc import Mapping, Sequence
+    from collections.abc import Iterable, Mapping, Sequence
 
 
 class InvalidMediaType(ValueError):
     """
     Raised when an identifier is not a valid media type.
     """
+
+
+class UnsupportedMediaType(RuntimeError):
+    """
+    Raised when a media type is not supported.
+    """
+
+    @classmethod
+    def new(cls, media_type: MediaTypeIndicator) -> Self:
+        """
+        Create a new instance.
+        """
+        return cls(f"Unsupported media type: {media_type}")
 
 
 @final
@@ -118,6 +132,18 @@ class MediaType:
         )
 
 
+ExtensionIndicator: TypeAlias = Path | str
+"""
+A file path or name that includes a file extension.
+"""
+
+
+MediaTypeIndicator: TypeAlias = MediaType | ExtensionIndicator
+"""
+A media type, or a file path or name that indicates a media type through its file extension.
+"""
+
+
 @final
 class MediaTypeSchema(Singleton, String):
     """
@@ -130,3 +156,28 @@ class MediaTypeSchema(Singleton, String):
             title="Media type",
             description="An IANA media type (https://www.iana.org/assignments/media-types/media-types.xhtml).",
         )
+
+
+def match_media_type(source: MediaType, media_types: Iterable[MediaType]) -> MediaType:
+    """
+    Match a media type against available media types.
+    """
+    for media_type in media_types:
+        if source == media_type:
+            return media_type
+    raise UnsupportedMediaType.new(source)
+
+
+def match_extension(
+    source: ExtensionIndicator, media_types: Iterable[MediaType]
+) -> tuple[MediaType, str]:
+    """
+    Match a file extension indicator against available media types.
+    """
+    if isinstance(source, Path):
+        return match_extension(source.name, media_types)
+    for media_type in media_types:
+        for extension in media_type.extensions:
+            if source.endswith(extension):
+                return media_type, extension
+    raise UnsupportedMediaType.new(source)

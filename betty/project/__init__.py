@@ -46,7 +46,7 @@ from betty.project.config import ProjectConfiguration
 from betty.project.extension import Extension, ExtensionDefinition
 from betty.project.factory import ProjectDependentFactory
 from betty.project.url import new_project_url_generator
-from betty.render import Renderer, SequentialRenderer
+from betty.render import ProxyRenderer, Renderer
 from betty.service import ServiceProvider, service
 from betty.string import kebab_case_to_lower_camel_case
 from betty.typing import internal
@@ -230,7 +230,7 @@ class Project(Configurable[ProjectConfiguration], TargetFactory, ServiceProvider
         """
         The (file) content renderer.
         """
-        return SequentialRenderer(
+        return ProxyRenderer(
             [
                 await self.new_target(plugin.cls)
                 for plugin in self.app.renderer_repository

@@ -9,6 +9,7 @@ from abc import abstractmethod
 from asyncio import gather, to_thread
 from collections.abc import Mapping, Sequence
 from json import dumps, loads
+from os import walk
 from pathlib import Path
 from shutil import copy2, copytree
 from typing import TYPE_CHECKING, cast
@@ -18,8 +19,8 @@ from aiofiles.os import makedirs
 
 from betty import ROOT_DIRECTORY_PATH, _npm
 from betty.hashid import hashid, hashid_file_content, hashid_sequence
-from betty.os import copy_tree
 from betty.project.extension import Extension
+from betty.render import make_copy_function
 from betty.serde.dump import Dump, DumpMapping
 
 if TYPE_CHECKING:
@@ -173,20 +174,32 @@ class Builder:
         npm_project_package_json_dependencies: MutableMapping[str, str],
         webpack_entry: MutableMapping[str, str],
     ) -> None:
+        entry_point_directory_path = (
+            entry_point_provider.webpack_entry_point_directory_path()
+        )
         entry_point_provider_working_directory_path = (
             npm_project_directory_path
             / "packages"
             / _package_name_to_path(cast(str, package_json["name"]))
         )
-        await copy_tree(
-            entry_point_provider.webpack_entry_point_directory_path(),
-            entry_point_provider_working_directory_path,
-            file_callback=lambda destination_file_path: self._renderer.render_file(
-                destination_file_path,
-                job_context=self._job_context,
-                localizer=self._user.localizer,
-            ),
+        copy_function = make_copy_function(
+            self._renderer, job_context=self._job_context
         )
+        copies = []
+        for directory_path, _, file_names in walk(entry_point_directory_path):
+            for file_name in file_names:
+                relative_file_path = (
+                    Path(directory_path).relative_to(entry_point_directory_path)
+                    / file_name
+                )
+                copies.append(
+                    copy_function(
+                        entry_point_directory_path / relative_file_path,
+                        entry_point_provider_working_directory_path
+                        / relative_file_path,
+                    )
+                )
+        await gather(*copies)
         npm_project_package_json_dependencies[entry_point_provider.plugin.id] = (
             # Ensure a relative path inside the npm project directory, or else npm
             # will not install our entry points' dependencies.

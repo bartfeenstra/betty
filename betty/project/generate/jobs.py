@@ -4,7 +4,6 @@ Jobs.
 
 from __future__ import annotations
 
-import shutil
 from asyncio import gather, to_thread
 from io import BytesIO
 from json import dumps
@@ -29,6 +28,7 @@ from betty.project.generate.file import (
     create_html_resource,
     create_json_resource,
 )
+from betty.render import CopyFunction, make_copy_function
 from betty.string import kebab_case_to_lower_camel_case
 
 if TYPE_CHECKING:
@@ -57,32 +57,35 @@ class GenerateStaticPublicAssets(Job[ProjectContext]):
     @override
     async def do(self, scheduler: Scheduler[ProjectContext], /) -> None:
         project = scheduler.context.project
-        app = project.app
         assets = await project.assets
-        await app.localizer
+        renderer = await project.renderer
+        copy_function = make_copy_function(
+            renderer,
+            job_context=scheduler.context,
+            www_directory_path=project.configuration.www_directory_path,
+            is_localized_and_multilingual=project.configuration.locales.multilingual,
+        )
         await gather(
             *[
-                self._generate(scheduler, asset_path)
+                self._generate(scheduler, asset_path, copy_function)
                 async for asset_path in assets.walk(Path("public") / "static")
             ]
         )
 
     async def _generate(
-        self, scheduler: Scheduler[ProjectContext], asset_path: Path, /
+        self,
+        scheduler: Scheduler[ProjectContext],
+        asset_path: Path,
+        copy_function: CopyFunction,
     ) -> None:
-        context = scheduler.context
-        project = context.project
+        project = scheduler.context.project
         assets = await project.assets
         file_destination_path = (
             project.configuration.www_directory_path
             / asset_path.relative_to(Path("public") / "static")
         )
         await makedirs(file_destination_path.parent, exist_ok=True)
-        await to_thread(
-            shutil.copy2, await assets.get(asset_path), file_destination_path
-        )
-        renderer = await project.renderer
-        await renderer.render_file(file_destination_path, job_context=context)
+        await copy_function(await assets.get(asset_path), file_destination_path)
 
 
 @final
@@ -283,42 +286,42 @@ class GenerateLocalizedPublicAssets(Job[ProjectContext]):
 
     @override
     async def do(self, scheduler: Scheduler[ProjectContext], /) -> None:
-        context = scheduler.context
-        project = context.project
+        project = scheduler.context.project
         assets = await project.assets
-        async for asset_path in assets.walk(Path("public") / "localized"):
-            await self._generate_localized_public_asset(context, asset_path)
-
-    async def _generate_localized_public_asset(
-        self, context: ProjectContext, asset_path: Path
-    ) -> None:
+        localizers = await project.localizers
+        renderer = await project.renderer
+        copy_functions = {
+            locale: make_copy_function(
+                renderer,
+                job_context=scheduler.context,
+                localizer=localizers.get(locale),
+                www_directory_path=project.configuration.www_directory_path,
+                is_localized_and_multilingual=project.configuration.locales.multilingual,
+            )
+            for locale in project.configuration.locales
+        }
         await gather(
             *[
-                self._generate_localized_public_asset_for_locale(
-                    context, asset_path=asset_path, locale=locale
-                )
-                for locale in context.project.configuration.locales
+                self._generate(scheduler, asset_path, copy_functions[locale], locale)
+                async for asset_path in assets.walk(Path("public") / "localized")
+                for locale in project.configuration.locales
             ]
         )
 
-    async def _generate_localized_public_asset_for_locale(
-        self, context: ProjectContext, *, asset_path: Path, locale: str
+    async def _generate(
+        self,
+        scheduler: Scheduler[ProjectContext],
+        asset_path: Path,
+        copy_function: CopyFunction,
+        locale: str,
     ) -> None:
-        project = context.project
+        project = scheduler.context.project
         assets = await project.assets
-        localizers = await project.localizers
-        www_directory_path = project.configuration.localize_www_directory_path(locale)
-        file_destination_path = www_directory_path / asset_path.relative_to(
-            Path("public") / "localized"
-        )
+        file_destination_path = project.configuration.localize_www_directory_path(
+            locale
+        ) / asset_path.relative_to(Path("public") / "localized")
         await makedirs(file_destination_path.parent, exist_ok=True)
-        await to_thread(
-            shutil.copy2, await assets.get(asset_path), file_destination_path
-        )
-        renderer = await project.renderer
-        await renderer.render_file(
-            file_destination_path, job_context=context, localizer=localizers.get(locale)
-        )
+        await copy_function(await assets.get(asset_path), file_destination_path)
 
 
 @final
