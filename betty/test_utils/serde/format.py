@@ -32,16 +32,6 @@ class FormatTestBase:
         """
         raise NotImplementedError
 
-    def test_extensions(self, sut: Format) -> None:
-        """
-        Tests :py:meth:`betty.serde.format.Format.extensions` implementations.
-        """
-        extensions = type(sut).extensions()
-        assert extensions
-        for extension in extensions:
-            assert len(extension) > 2
-            assert extension.startswith(".")
-
     @pytest.mark.parametrize(
         "dump",
         [

@@ -236,6 +236,11 @@ class TestMediaType:
     ) -> None:
         assert MediaType(media_type).type == expected
 
+    def test_extensions(self) -> None:
+        extensions = [".one", ".two", ".three"]
+        sut = MediaType("text/plain", extensions=extensions)
+        assert sut.extensions == extensions
+
 
 class TestMediaTypeSchema(SchemaTestBase):
     @override

@@ -1,10 +1,9 @@
-from collections.abc import Sequence
-
 import pytest
 from typing_extensions import override
 
 from betty.locale.localizable import Plain
 from betty.locale.localizer import DEFAULT_LOCALIZER
+from betty.media_type import MediaType
 from betty.plugin import PluginDefinition
 from betty.serde.dump import Dump
 from betty.serde.format import (
@@ -43,8 +42,8 @@ class _Format(Format):
 class FormatOne(_Format):
     @override
     @classmethod
-    def extensions(cls) -> Sequence[str]:
-        return [".one"]
+    def media_type(cls) -> MediaType:
+        return MediaType("text/x.betty.test.one", extensions=[".one"])
 
 
 @FormatDefinition(
@@ -54,18 +53,14 @@ class FormatOne(_Format):
 class FormatTwo(_Format):
     @override
     @classmethod
-    def extensions(cls) -> Sequence[str]:
-        return [".two"]
+    def media_type(cls) -> MediaType:
+        return MediaType("text/x.betty.test.two", extensions=[".two"])
 
 
 class TestFormatRepository:
     def test___iter__(self) -> None:
         sut = FormatRepository()
         assert list(sut)
-
-    def test_extensions(self) -> None:
-        sut = FormatRepository()
-        assert sut.extensions() == [".json", ".yaml", ".yml"]
 
 
 class TestFormatStr:

@@ -11,12 +11,12 @@ import yaml
 from typing_extensions import override
 
 from betty.locale.localizable import Plain, _
+from betty.media_type.media_types import JSON, YAML
 from betty.serde.dump import Dump
 from betty.serde.format import Format, FormatDefinition, FormatError
 
 if TYPE_CHECKING:
-    from collections.abc import Sequence
-
+    from betty.media_type import MediaType
     from betty.typing import Voidable
 
 
@@ -32,8 +32,8 @@ class Json(Format):
 
     @override
     @classmethod
-    def extensions(cls) -> Sequence[str]:
-        return [".json"]
+    def media_type(cls) -> MediaType:
+        return JSON
 
     @override
     def load(self, dump: str) -> Dump:
@@ -61,8 +61,8 @@ class Yaml(Format):
 
     @override
     @classmethod
-    def extensions(cls) -> Sequence[str]:
-        return [".yaml", ".yml"]
+    def media_type(cls) -> MediaType:
+        return YAML
 
     @override
     def load(self, dump: str) -> Dump:

@@ -32,7 +32,7 @@ class MediaType:
 
     _suffix: str | None
 
-    def __init__(self, media_type: str):
+    def __init__(self, media_type: str, *, extensions: Sequence[str] | None = None):
         self._str = media_type
         message = EmailMessage()
         message["Content-Type"] = media_type
@@ -52,6 +52,7 @@ class MediaType:
         else:
             self._subtype = type_part_remainder
             self._suffix = None
+        self._extensions = extensions if extensions else ()
 
     @override
     def __hash__(self) -> int:
@@ -91,6 +92,15 @@ class MediaType:
         The parameters, e.g. ``{"charset": "UTF-8"}`` for ``"text/html; charset=UTF-8"``.
         """
         return self._parameters
+
+    @property
+    def extensions(self) -> Sequence[str]:
+        """
+        The file extensions associated with this media type.
+
+        Extensions must include a leading dot, and are returned in order of decreasing priority.
+        """
+        return self._extensions
 
     @override
     def __str__(self) -> str:
