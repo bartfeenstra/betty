@@ -165,10 +165,10 @@ class TestJinja2Renderer:
                     assert (await f.read()).strip() == "betty:///betty.html"
                 assert not template_file_path.exists()
 
-    async def test_file_extensions(self, temporary_app: App) -> None:
+    async def test_media_types(self, temporary_app: App) -> None:
         async with Project.new_temporary(temporary_app) as project, project:
             sut = await Jinja2Renderer.new_for_project(project)
-            sut.file_extensions  # noqa B018
+            sut.media_types  # noqa B018
 
 
 class DummyHasFileReferencesEntity(HasFileReferences):
