@@ -1,16 +1,25 @@
 from __future__ import annotations
 
+from pathlib import Path
 from typing import TYPE_CHECKING, Any
 
 import pytest
 from typing_extensions import override
 
-from betty.media_type import InvalidMediaType, MediaType, MediaTypeSchema
-from betty.media_type.media_types import PLAIN_TEXT
+from betty.media_type import (
+    ExtensionIndicator,
+    InvalidMediaType,
+    MediaType,
+    MediaTypeSchema,
+    UnsupportedMediaType,
+    match_extension,
+    match_media_type,
+)
+from betty.media_type.media_types import HTML, PLAIN_TEXT
 from betty.test_utils.json.schema import SchemaTestBase, SchemaTestBaseSut
 
 if TYPE_CHECKING:
-    from collections.abc import Mapping, Sequence
+    from collections.abc import Iterable, Mapping, Sequence
 
 
 class TestMediaType:
@@ -257,3 +266,67 @@ class TestMediaTypeSchema(SchemaTestBase):
             ],
             [True, False, None, 123, [], {}],
         )
+
+
+@pytest.mark.parametrize(
+    ("expected", "source", "media_types"),
+    [
+        (PLAIN_TEXT, PLAIN_TEXT, [PLAIN_TEXT]),
+        (PLAIN_TEXT, PLAIN_TEXT, [HTML, PLAIN_TEXT]),
+    ],
+)
+def test_match_media_type(
+    expected: MediaType, source: MediaType, media_types: Iterable[MediaType]
+) -> None:
+    assert match_media_type(source, media_types) == expected
+
+
+@pytest.mark.parametrize(
+    ("source", "media_types"),
+    [
+        (PLAIN_TEXT, []),
+        (PLAIN_TEXT, [HTML]),
+    ],
+)
+def test_match_media_type__with_unsupported_media_type(
+    source: MediaType, media_types: Iterable[MediaType]
+) -> None:
+    with pytest.raises(UnsupportedMediaType):
+        match_media_type(source, media_types)
+
+
+@pytest.mark.parametrize(
+    ("expected", "source", "media_types"),
+    [
+        ((PLAIN_TEXT, ".txt"), "my.first.source.txt", [PLAIN_TEXT]),
+        ((PLAIN_TEXT, ".txt"), Path("my.first.source.txt"), [PLAIN_TEXT]),
+        ((PLAIN_TEXT, ".txt"), "my.first.source.txt", [HTML, PLAIN_TEXT]),
+    ],
+)
+def test_match_extension(
+    expected: tuple[MediaType, str],
+    source: ExtensionIndicator,
+    media_types: Iterable[MediaType],
+) -> None:
+    assert match_extension(source, media_types) == expected
+
+
+@pytest.mark.parametrize(
+    ("source", "media_types"),
+    [
+        ("my.first.source.txt", []),
+        ("", [PLAIN_TEXT]),
+        ("my.first.source.txt", [HTML]),
+    ],
+)
+def test_match_extension__with_unsupported_media_type(
+    source: ExtensionIndicator, media_types: Iterable[MediaType]
+) -> None:
+    with pytest.raises(UnsupportedMediaType):
+        match_extension(source, media_types)
+
+
+class TestUnsupportedMediaType:
+    def test_new(self) -> None:
+        sut = UnsupportedMediaType.new(PLAIN_TEXT)
+        assert str(PLAIN_TEXT) in str(sut)

@@ -9,10 +9,8 @@ from collections import defaultdict
 from collections.abc import Callable, Mapping
 from typing import TYPE_CHECKING, Any, ClassVar, Self, TypeAlias, cast, final
 
-import aiofiles
-from aiofiles import os as aiofiles_os
 from jinja2 import Environment as Jinja2Environment
-from jinja2 import FileSystemLoader, Template, pass_context, select_autoescape
+from jinja2 import FileSystemLoader, pass_context, select_autoescape
 from jinja2.runtime import Context, DebugUndefined, StrictUndefined
 from typing_extensions import override
 
@@ -40,14 +38,12 @@ from betty.warnings import deprecate
 
 if TYPE_CHECKING:
     from collections.abc import Iterator, MutableMapping, Sequence
-    from pathlib import Path
 
     from betty.asset import AssetRepository
     from betty.machine_name import MachineName
     from betty.media_type import MediaType
     from betty.model import Entity
     from betty.project import Project
-    from betty.project.config import ProjectConfiguration
     from betty.project.extension import Extension
 
 
@@ -298,20 +294,6 @@ class Environment(ProjectDependentFactory, Jinja2Environment):
 
         return self._context_class
 
-    async def from_file(self, file_path: Path) -> Template:
-        """
-        Create a :py:class:`jinja2.Template` out of the given Jinja2 file path.
-
-        This method is intended for rendering individual files once. It **MUST NOT**
-        be used for reusable templates.
-        """
-        async with aiofiles.open(file_path) as f:
-            template_source = await f.read()
-        template_code = self.compile(
-            template_source, filename=str(file_path.expanduser().resolve())
-        )
-        return self.template_class.from_code(self, template_code, self.globals)
-
     @pass_context
     def _gettext(self, context: Context, message: str) -> str:
         return context_localizer(context).gettext(message)
@@ -382,14 +364,13 @@ class Jinja2Renderer(Renderer, ProjectDependentFactory):
 
     plugin: ClassVar[RendererDefinition]
 
-    def __init__(self, environment: Environment, configuration: ProjectConfiguration):
+    def __init__(self, environment: Jinja2Environment):
         self._environment = environment
-        self._configuration = configuration
 
     @override
     @classmethod
     async def new_for_project(cls, project: Project) -> Self:
-        return cls(await project.jinja2_environment, project.configuration)
+        return cls(await project.jinja2_environment)
 
     @override
     @property
@@ -397,37 +378,23 @@ class Jinja2Renderer(Renderer, ProjectDependentFactory):
         return [JINJA2]
 
     @override
-    async def render_file(
+    async def render(
         self,
-        file_path: Path,
+        content: str,
+        media_type: MediaType,
         *,
+        data: Mapping[str, Any] | None = None,
         job_context: JobContext | None = None,
         localizer: Localizer | None = None,
-    ) -> Path:
-        destination_file_path = file_path.parent / file_path.stem
-        data: MutableMapping[str, Any] = {}
+    ) -> str:
+        data = {} if data is None else dict(data)
         if job_context is not None:
             data["job_context"] = job_context
         if localizer is not None:
             data["localizer"] = localizer
-        try:
-            relative_file_destination_path = destination_file_path.relative_to(
-                self._configuration.www_directory_path
-            )
-        except ValueError:
-            pass
-        else:
-            resource = "/".join(relative_file_destination_path.parts)
-            if self._configuration.locales.multilingual:
-                resource_parts = resource.lstrip("/").split("/")
-                if resource_parts[0] in (
-                    x.alias for x in self._configuration.locales.values()
-                ):
-                    resource = "/".join(resource_parts[1:])
-            data["page_resource"] = f"betty:///{resource}"
-        template = await self._environment.from_file(file_path)
-        rendered = await template.render_async(data)
-        async with aiofiles.open(destination_file_path, "w", encoding="utf-8") as f:
-            await f.write(rendered)
-        await aiofiles_os.remove(file_path)
-        return destination_file_path
+        template = self._environment.template_class.from_code(
+            self._environment,
+            self._environment.compile(content),
+            self._environment.globals,
+        )
+        return await template.render_async(data)
