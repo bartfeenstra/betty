@@ -10,8 +10,8 @@ from betty.media_type import MediaType
 HTML = MediaType("text/html", extensions=[".html"])
 
 
-#: The media type for HTML content as a Jinja2 template file.
-JINJA2_HTML = MediaType("text/x.betty.jinja2-html", extensions=[".html.j2"])
+#: The media type for Jinja2 template files.
+JINJA2 = MediaType("text/x.betty.jinja2", extensions=[".j2"])
 
 
 #: The media type for JSON content.

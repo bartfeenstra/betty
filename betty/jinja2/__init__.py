@@ -31,7 +31,7 @@ from betty.jinja2.globals import HtmlId, generate_html_id
 from betty.jinja2.test import tests
 from betty.job import Context as JobContext
 from betty.locale.localizer import DEFAULT_LOCALIZER, Localizer
-from betty.media_type.media_types import JINJA2_HTML
+from betty.media_type.media_types import JINJA2
 from betty.plugin import PluginIdentifier, resolve_identifier
 from betty.project.factory import ProjectDependentFactory
 from betty.render import Renderer, RendererDefinition
@@ -394,7 +394,7 @@ class Jinja2Renderer(Renderer, ProjectDependentFactory):
     @override
     @property
     def media_types(self) -> Sequence[MediaType]:
-        return [JINJA2_HTML]
+        return [JINJA2]
 
     @override
     async def render_file(
