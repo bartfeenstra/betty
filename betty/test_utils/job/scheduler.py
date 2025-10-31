@@ -72,7 +72,10 @@ class StaticScheduler(Generic[_ContextCoT], Scheduler[_ContextCoT]):
 
     @override
     async def complete(self) -> None:
-        raise NotImplementedError
+        while not isinstance(self._batches, Closed):
+            await sleep(0)
+        if not isinstance(self._batches, Completed):
+            raise self._batches
 
     @override
     @property

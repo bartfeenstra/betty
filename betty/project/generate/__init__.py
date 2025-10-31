@@ -10,13 +10,15 @@ import shutil
 from abc import ABC, abstractmethod
 from asyncio import gather
 from contextlib import suppress
+from math import ceil
+from os import cpu_count
 from pathlib import Path
 from typing import TYPE_CHECKING
 
 from aiofiles.os import makedirs
 
 from betty.concurrent import MAX_STRANDS
-from betty.job.executor.asyncio import AsyncExecutor
+from betty.job.executor.threading import ThreadPoolExecutor
 from betty.job.scheduler.default import DefaultScheduler
 from betty.project import ProjectContext
 from betty.project.generate.jobs import (
@@ -65,10 +67,15 @@ async def generate(
     await _preprocess(project)
     await job_context.progress.done()
 
+    threading_concurrency = cpu_count() or 2
     scheduler = DefaultScheduler(
         job_context, progress=job_context.progress, user=project.app.user
     )
-    async with AsyncExecutor(scheduler, concurrency=MAX_STRANDS):
+    async with ThreadPoolExecutor(
+        scheduler,
+        async_concurrency=ceil(MAX_STRANDS / threading_concurrency),
+        threading_concurrency=threading_concurrency,
+    ):
         await gather(
             *(
                 extension.generate(scheduler)
