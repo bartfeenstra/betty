@@ -8,7 +8,7 @@ msgstr ""
 "Project-Id-Version: Betty VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
 "POT-Creation-Date: 2025-04-24 14:22+0100\n"
-"PO-Revision-Date: 2025-11-01 13:04+0000\n"
+"PO-Revision-Date: 2025-11-01 16:00+0000\n"
 "Last-Translator: Артур Калагов "
 "<artur.kalagov@users.noreply.hosted.weblate.org>\n"
 "Language-Team: Russian <https://hosted.weblate.org/projects/betty/betty/ru/>"
@@ -610,7 +610,7 @@ msgstr "Язык"
 
 #, python-format
 msgid "Last modified on %(last_modified)s"
-msgstr ""
+msgstr "Последнее изменение от %(last_modified)s"
 
 msgid "License"
 msgstr "Лицензия"
@@ -646,7 +646,7 @@ msgstr ""
 
 #, python-brace-format
 msgid "Loaded {place_count} places."
-msgstr ""
+msgstr "Загружено {place_count} мест."
 
 #, python-brace-format
 msgid "Loaded {repository_count} repositories as sources."
@@ -654,7 +654,7 @@ msgstr ""
 
 #, python-brace-format
 msgid "Loaded {source_count} sources."
-msgstr ""
+msgstr "Загружено {source_count} источников."
 
 #, python-brace-format
 msgid "Loading \"{file_path}\"..."
@@ -754,16 +754,16 @@ msgid "Permanent link to this section."
 msgstr "Постоянная ссылка на этот раздел."
 
 msgid "Person"
-msgstr ""
+msgstr "Человек"
 
 msgid "Person name"
-msgstr ""
+msgstr "Имя"
 
 msgid "Person names"
-msgstr ""
+msgstr "Имена"
 
 msgid "Place"
-msgstr ""
+msgstr "Место"
 
 msgid "Places"
 msgstr "Места"
@@ -845,7 +845,7 @@ msgid "Region"
 msgstr ""
 
 msgid "Reset"
-msgstr ""
+msgstr "Сброс"
 
 msgid "Residence"
 msgstr ""
@@ -872,7 +872,7 @@ msgid "Serving your site at {url}..."
 msgstr ""
 
 msgid "Source"
-msgstr ""
+msgstr "Источник"
 
 msgid "Sources"
 msgstr "Источники"
@@ -959,7 +959,7 @@ msgid "They grew up with a sibling."
 msgid_plural "They grew up with %(sibling_count)s siblings."
 msgstr[0] "У них было %(sibling_count)s брат и сестра."
 msgstr[1] "У них было %(sibling_count)s брата и сестры."
-msgstr[2] "У них было %(sibling_count)s братьев и сестер"
+msgstr[2] "У них было %(sibling_count)s братьев и сестер."
 
 #, python-format
 msgid "They had a child with %(co_parent_labels)s."
@@ -1018,7 +1018,7 @@ msgid "This person's name is unavailable to protect their privacy."
 msgstr "Имя этого человека скрыто в целях защиты личных данных."
 
 msgid "This person's name is unknown."
-msgstr ""
+msgstr "Имя неизвестно."
 
 msgid "This source's details are unavailable to protect people's privacy."
 msgstr "Информация из этого источника скрыта в целях защиты личных данных."
@@ -1344,8 +1344,9 @@ msgstr[2] "{count} человек"
 #, python-brace-format
 msgid "{count} person name"
 msgid_plural "{count} person names"
-msgstr[0] ""
-msgstr[1] ""
+msgstr[0] "{count} имя"
+msgstr[1] "{count} имени"
+msgstr[2] "{count} имен"
 
 #, python-brace-format
 msgid "{count} place"
