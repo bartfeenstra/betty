@@ -8,7 +8,7 @@ msgstr ""
 "Project-Id-Version: Betty VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
 "POT-Creation-Date: 2025-04-24 14:22+0100\n"
-"PO-Revision-Date: 2025-11-01 16:00+0000\n"
+"PO-Revision-Date: 2025-11-01 18:08+0000\n"
 "Last-Translator: Артур Калагов "
 "<artur.kalagov@users.noreply.hosted.weblate.org>\n"
 "Language-Team: Russian <https://hosted.weblate.org/projects/betty/betty/ru/>"
@@ -114,7 +114,7 @@ msgstr "Все права защищены"
 
 #, python-format
 msgid "Also known as %(names)s"
-msgstr "Также известен как %(names)s"
+msgstr "Другие имена: %(names)s"
 
 msgid "Ancestral names include"
 msgstr ""
@@ -893,7 +893,7 @@ msgid "Subject"
 msgstr ""
 
 msgid "Subjects"
-msgstr ""
+msgstr "Субъекты"
 
 #, python-format
 msgid "The '%(project_title)s' logo"
@@ -1039,7 +1039,7 @@ msgid "Unauthorized"
 msgstr ""
 
 msgid "Unknown"
-msgstr ""
+msgstr "Неизвестно"
 
 #, python-brace-format
 msgid ""
@@ -1049,7 +1049,7 @@ msgstr ""
 
 #, python-brace-format
 msgid "Unknown key: {unknown_key}."
-msgstr ""
+msgstr "Неизвестный ключ: {unknown_key}."
 
 msgid "Update all existing translations"
 msgstr ""
@@ -1278,7 +1278,7 @@ msgid "sometime between {start_date} and {end_date}"
 msgstr ""
 
 msgid "unknown date"
-msgstr ""
+msgstr "дата неизвестна"
 
 #, python-brace-format
 msgid "until around {end_date}"
@@ -1386,7 +1386,7 @@ msgstr ""
 
 #, python-brace-format
 msgid "{event_type} of {subjects}"
-msgstr ""
+msgstr "{event_type} {subjects}"
 
 #, python-brace-format
 msgid "{extension} does not have an assets directory."
