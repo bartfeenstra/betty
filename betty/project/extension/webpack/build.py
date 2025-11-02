@@ -18,7 +18,6 @@ from aiofiles.os import makedirs
 
 from betty import ROOT_DIRECTORY_PATH, _npm
 from betty.hashid import hashid, hashid_file_content, hashid_sequence
-from betty.os import copy_tree
 from betty.project.extension import Extension
 from betty.serde.dump import Dump, DumpMapping
 
@@ -173,6 +172,9 @@ class Builder:
         npm_project_package_json_dependencies: MutableMapping[str, str],
         webpack_entry: MutableMapping[str, str],
     ) -> None:
+        entry_point_directory_path = (
+            entry_point_provider.webpack_entry_point_directory_path()
+        )
         entry_point_provider_working_directory_path = (
             npm_project_directory_path
             / "packages"
@@ -187,6 +189,32 @@ class Builder:
                 localizer=self._user.localizer,
             ),
         )
+
+
+
+        copies = []
+        for directory_path, _, file_names in walk(entry_point_directory_path):
+            for file_name in file_names:
+                relative_file_path = (
+                    Path(directory_path).relative_to(entry_point_directory_path)
+                    / file_name
+                )
+                copies.append(
+                    self._renderer.render_file(
+                        destination_file_path,
+                        job_context=self._job_context,
+                        localizer=self._user.localizer,
+                    )
+                    copy_function(
+                        entry_point_directory_path / relative_file_path,
+                        entry_point_provider_working_directory_path
+                        / relative_file_path,
+                    )
+                )
+        await gather(*copies)
+
+
+
         npm_project_package_json_dependencies[entry_point_provider.plugin.id] = (
             # Ensure a relative path inside the npm project directory, or else npm
             # will not install our entry points' dependencies.

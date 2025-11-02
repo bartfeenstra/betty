@@ -7,14 +7,12 @@ from __future__ import annotations
 import asyncio
 import os
 import shutil
-from asyncio import gather
 from contextlib import suppress
-from os import walk
-from pathlib import Path
 from typing import TYPE_CHECKING, Any
 
 if TYPE_CHECKING:
-    from collections.abc import Awaitable, Callable
+    from collections.abc import Callable
+    from pathlib import Path
 
 
 async def link_or_copy(source_file_path: Path, destination_file_path: Path) -> None:
@@ -57,39 +55,3 @@ def _retry_link(source_file_path: Path, destination_file_path: Path) -> None:
 def _retry_copyfile(source_file_path: Path, destination_file_path: Path) -> None:
     with suppress(shutil.SameFileError):
         _retry(shutil.copyfile, source_file_path, destination_file_path)
-
-
-async def copy_tree(
-    source_directory_path: Path,
-    destination_directory_path: Path,
-    *,
-    file_callback: Callable[[Path], Awaitable[Any]] | None = None,
-) -> None:
-    """
-    Recursively copy all files in a source directory to a destination.
-    """
-    await gather(
-        *(
-            _copy_tree_file(
-                source_directory_path / file_path,
-                destination_directory_path / file_path,
-                file_callback=file_callback,
-            )
-            for file_path in (
-                Path(directory_path).relative_to(source_directory_path) / file_name
-                for directory_path, _, file_names in walk(str(source_directory_path))
-                for file_name in file_names
-            )
-        )
-    )
-
-
-async def _copy_tree_file(
-    source_file_path: Path,
-    destination_file_path: Path,
-    *,
-    file_callback: Callable[[Path], Awaitable[Any]] | None = None,
-) -> None:
-    await asyncio.to_thread(_retry_copyfile, source_file_path, destination_file_path)
-    if file_callback:
-        await file_callback(destination_file_path)
