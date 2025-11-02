@@ -163,11 +163,18 @@ def filter_format_date_like(
     return context_localizer(context).format_date_like(date_like)
 
 
-def filter_json(data: Any, indent: int | None = None) -> str:
+def filter_json_dump(data: Any, indent: int | None = None) -> str:
     """
-    Convert a value to a JSON string.
+    Dump a value to a JSON string.
     """
     return stdjson.dumps(data, indent=indent)
+
+
+def filter_json_load(data: str) -> Any:
+    """
+    Load a value from a JSON string.
+    """
+    return stdjson.loads(data)
 
 
 async def filter_flatten(values_of_values: Iterable[Iterable[_T]]) -> AsyncIterator[_T]:
@@ -558,7 +565,8 @@ async def filters() -> Mapping[str, Callable[..., Any]]:
         "hashid": hashid,
         "image_resize_cover": filter_image_resize_cover,
         "html_lang": filter_html_lang,
-        "json": filter_json,
+        "json_dump": filter_json_dump,
+        "json_load": filter_json_load,
         "locale_get_data": locale_get_data,
         "localize": filter_localize,
         "map": filter_map,

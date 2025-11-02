@@ -17,7 +17,8 @@ In addition to Jinja2's built-in filters, Betty provides the following:
 - :py:func:`hashid <betty.hashid.hashid>`
 - :py:func:`image_resize_cover <betty.jinja2.filter.filter_image_resize_cover>`
 - :py:func:`html_lang <betty.jinja2.filter.filter_html_lang>`
-- :py:func:`json <betty.jinja2.filter.filter_json>`
+- :py:func:`json_dump <betty.jinja2.filter.filter_json_dump>`
+- :py:func:`json_load <betty.jinja2.filter.filter_json_load>`
 - :py:func:`locale_get_data <betty.locale.get_data>`
 - :py:func:`localize <betty.jinja2.filter.filter_localize>`
 - :py:func:`map <betty.jinja2.filter.filter_map>`
