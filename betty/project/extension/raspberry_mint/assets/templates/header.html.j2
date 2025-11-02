@@ -154,7 +154,7 @@
                 {% do ns.filter_entity_type_html_ids.setdefault(entity_type_html_id, entity_type.id) %}
             {% endif %}
         {% endfor %}
-        <form id="search-form" data-betty-search-form-index="{{ 'betty:///search-index.json' | url }}" data-betty-search-form-filter-entity-type="{{ ns.filter_entity_type_html_ids | json }}">
+        <form id="search-form" data-betty-search-form-index="{{ 'betty:///search-index.json' | url }}" data-betty-search-form-filter-entity-type="{{ ns.filter_entity_type_html_ids | json_dump }}">
             <div class="align-items-end d-flex gap-2">
                 <div class="flex-grow-1 form-control-text">
                     <label for="search-form-query" class="form-label">{% trans %}Keywords{% endtrans %}</label>

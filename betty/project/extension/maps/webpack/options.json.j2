@@ -68,19 +68,19 @@
   {% include ['maps/marker/place-cluster--1000.svg.j2', 'maps/marker/place-cluster--100.svg.j2', 'maps/marker/place-cluster--10.svg.j2', 'maps/marker/place-cluster.svg.j2'] %}
 {% endset %}
 
-{
-  "viewPadding": {{ view_padding.strip() | safe }},
-  "clusterMaximumFeatureDistance": {{ cluster_maximum_feature_distance.strip() | safe }},
-  "clusterMinimumClusterDistance": {{ cluster_minimum_cluster_distance.strip() | safe }},
-  "fullScreenControlButtonHtml": {{ ns.control_full_screen | json | safe }},
-  "zoomInControlButtonHtml": {{ ns.control_zoom_in | json | safe }},
-  "zoomOutControlButtonHtml": {{ ns.control_zoom_out | json | safe }},
-  "selectedPlaceHtml": {{ ns.selected_place | json | safe }},
-  "markerPlaceAnchor": {{ marker_place_anchor.strip() | safe }},
-  "markerPlaceSvg": {{ marker_place.strip() | json | safe }},
-  "markerPlaceSelectedSvg": {{ marker_place_selected.strip() | json | safe }},
-  "markerPlaceCluster1Svg": {{ marker_place_cluster.strip() | json | safe }},
-  "markerPlaceCluster10Svg": {{ marker_place_cluster_10.strip() | json | safe }},
-  "markerPlaceCluster100Svg": {{ marker_place_cluster_100.strip() | json | safe }},
-  "markerPlaceCluster1000Svg": {{ marker_place_cluster_1000.strip() | json | safe }}
-}
+{{ {
+  "viewPadding": view_padding.strip() | json_load,
+  "clusterMaximumFeatureDistance": cluster_maximum_feature_distance.strip() | json_load,
+  "clusterMinimumClusterDistance": cluster_minimum_cluster_distance.strip() | json_load,
+  "fullScreenControlButtonHtml": ns.control_full_screen,
+  "zoomInControlButtonHtml": ns.control_zoom_in,
+  "zoomOutControlButtonHtml": ns.control_zoom_out,
+  "selectedPlaceHtml": ns.selected_place,
+  "markerPlaceAnchor": marker_place_anchor.strip() | json_load,
+  "markerPlaceSvg": marker_place.strip(),
+  "markerPlaceSelectedSvg": marker_place_selected.strip(),
+  "markerPlaceCluster1Svg": marker_place_cluster.strip(),
+  "markerPlaceCluster10Svg": marker_place_cluster_10.strip(),
+  "markerPlaceCluster100Svg": marker_place_cluster_100.strip(),
+  "markerPlaceCluster1000Svg": marker_place_cluster_1000.strip()
+} | json_dump | safe }}

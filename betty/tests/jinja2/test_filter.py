@@ -671,13 +671,23 @@ async def test_filter_hashid() -> None:
         assert actual == "6cd3556deb0da54bca060b4c39479839"
 
 
-async def test_filter_json() -> None:
-    template = "{{ data | json }}"
+async def test_filter_json_dump() -> None:
+    template = "{{ data | json_dump }}"
     async with assert_template_string(
         template=template,
         data={"data": [1, 2, 3]},
     ) as (actual, _):
         assert actual == "[1, 2, 3]"
+
+
+async def test_filter_json_load() -> None:
+    data = "[1, 2, 3]"
+    template = "{{ data | json_load | json_dump }}"
+    async with assert_template_string(
+        template=template,
+        data={"data": data},
+    ) as (actual, _):
+        assert actual == data
 
 
 async def test_filter_localize() -> None:
