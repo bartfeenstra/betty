@@ -85,10 +85,8 @@ Run ``poetry add betty`` to install the latest stable release.
 From source
 ^^^^^^^^^^^
 
-This also requires *Bash*.
-
 Run the following to install the latest unstable version:
 
 #. ``git clone https://github.com/bartfeenstra/betty.git``
 #. ``cd betty``
-#. ``./bin/build-dev``
+#. ``./bin/build-dev.py``

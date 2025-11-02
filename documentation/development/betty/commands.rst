@@ -1,34 +1,29 @@
 Helpful commands
 ================
 
-.. important::
-    These commands require Bash
-
-``./bin/build-dev``
+``./bin/build-dev.py``
     Build the development environment. This **should** be run within a Python virtual environment.
-``./bin/build-dev-npm``
+``./bin/build-dev-npm.py``
     Build the npm components of the development environment.
-``./bin/build-dev-pip``
+``./bin/build-dev-pip.py``
     Build the pip components of the development environment. This **should** be run within a Python virtual environment.
-``./bin/build-setuptools``
+``./bin/build-setuptools.py``
     Build setuptools packages.
-``./bin/clean-build``
+``./bin/clean-build.py``
     Clean build artifacts.
-``./bin/fix``
+``./bin/fix.py``
     Automatically fix as many problems as possible.
-``./bin/test``
+``./bin/test.py``
     Run all tests.
-``./bin/test-build-setuptools``
+``./bin/test-build-setuptools.py``
     Test building setuptools packages.
-``./bin/test-eslint``
+``./bin/test-eslint.py``
     Run `ESLint <https://eslint.org/>`_ tests.
-``./bin/test-mypy``
+``./bin/test-mypy.py``
     Run `mypy <https://www.mypy-lang.org/>`_ tests.
-``./bin/test-pytest``
+``./bin/test-pytest.py``
     Run `pytest <https://docs.pytest.org/en/stable/>`_ tests.
-``./bin/test-ruff``
+``./bin/test-ruff.py``
     Run `Ruff <https://docs.astral.sh/ruff/>`_ tests.
-``./bin/test-shellcheck``
-    Run `ShellCheck <https://www.shellcheck.net/>`_ tests.
-``./bin/test-stylelint``
+``./bin/test-stylelint.py``
     Run `Stylelint <https://stylelint.io/>`_ tests.

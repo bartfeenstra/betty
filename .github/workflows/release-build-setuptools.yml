@@ -54,8 +54,7 @@ jobs:
           node-version: ${{ matrix.nodejs }}
 
       - name: Build the distributions
-        run: ./bin/build-setuptools '${{ github.event.release.tag_name }}'
-        shell: bash
+        run: ./bin/build-setuptools.py '${{ github.event.release.tag_name }}'
 
       - name: Publish the distributions to PyPI
         run: twine upload -u __token__ ./dist/*
