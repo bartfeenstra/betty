@@ -1,8 +1,0 @@
-#!/usr/bin/env bash
-
-set -Eeuo pipefail
-
-cd "$(dirname "$0")/.."
-
-./bin/build-dev-pip
-./bin/build-dev-npm

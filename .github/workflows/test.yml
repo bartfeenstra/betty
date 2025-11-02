@@ -111,13 +111,13 @@ jobs:
       - name: Build the development environment
         run: |
           source '.github/workflows/test-${{ matrix.name }}.sh'
-          ./bin/build-ci
+          ./bin/build-ci.py
         shell: bash
 
       - name: Run the tests
         run: |
           source '.github/workflows/test-${{ matrix.name }}.sh'
-          ./bin/test
+          ./bin/test.py
         shell: bash
 
       - name: Upload code coverage

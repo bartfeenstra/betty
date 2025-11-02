@@ -1,14 +1,14 @@
 Testing Betty's source code
 ===========================
 
-In any existing Python environment, run ``./bin/test`` or any of the ``./bin/test-*`` :doc:`commands </development/betty/commands>`.
+In any existing Python environment, run ``./bin/test.py`` or any of the ``./bin/test-*.py``
+:doc:`commands </development/betty/commands>`.
 
 Environment variables
 ---------------------
 
-These impact the ``./bin/test`` command:
+These impact the ``./bin/test.py`` command:
 
-* ``BETTY_TEST_SKIP_SHELLCHECK=true``: Skip ShellCheck tests.
 * ``BETTY_TEST_SKIP_RUFF=true``: Skip Ruff tests.
 * ``BETTY_TEST_SKIP_MYPY=true``: Skip mypy tests.
 * ``BETTY_TEST_SKIP_STYLELINT=true``: Skip Stylelint tests.
@@ -20,4 +20,4 @@ These impact the ``./bin/test`` command:
 
 Fixing problems automatically
 -----------------------------
-In any existing Python environment, run ``./bin/fix``.
+In any existing Python environment, run ``./bin/fix.py``.
