@@ -37,7 +37,7 @@ from betty.locale.translation import (
     TranslationRepository,
 )
 from betty.model import Entity, ToManySchema
-from betty.plugin import resolve_identifier, sort_dependent_plugin_graph
+from betty.plugin import resolve_id, sort_dependent_plugin_graph
 from betty.plugin.entry_point import EntryPointPluginRepository
 from betty.plugin.proxy import ProxyPluginRepository
 from betty.plugin.static import StaticPluginRepository
@@ -482,7 +482,7 @@ class ProjectExtensions:
     def __getitem__(
         self, extension: PluginIdentifier[ExtensionDefinition, Extension]
     ) -> Extension:
-        extension_id = resolve_identifier(extension)
+        extension_id = resolve_id(extension)
         for project_extension in self.flatten():
             if project_extension.plugin.id == extension_id:
                 return project_extension
@@ -514,7 +514,7 @@ class ProjectExtensions:
         if isinstance(extension, type) and issubclass(extension, Extension):
             extension = extension.plugin
         try:
-            self[resolve_identifier(extension)]
+            self[resolve_id(extension)]
         except KeyError:
             return False
         else:

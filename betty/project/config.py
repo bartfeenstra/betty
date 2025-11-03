@@ -49,7 +49,7 @@ from betty.locale.localizable.config import (
 from betty.machine_name import MachineName, assert_machine_name
 from betty.model import Entity, EntityDefinition
 from betty.plugin import (
-    resolve_identifier,
+    resolve_id,
 )
 from betty.plugin.config import (
     HumanFacingPluginDefinitionConfiguration,
@@ -94,7 +94,7 @@ class ExtensionInstanceConfigurationMapping(
         Enable the given extensions.
         """
         for extension in extensions:
-            extension = resolve_identifier(extension)
+            extension = resolve_id(extension)
             if extension not in self._configurations:
                 self.append(PluginInstanceConfiguration(extension))
 
@@ -112,7 +112,7 @@ class EntityTypeConfiguration(Configuration):
         generate_html_list: bool = False,
     ):
         super().__init__()
-        self._id = resolve_identifier(entity_type)
+        self._id = resolve_id(entity_type)
         self.generate_html_list = generate_html_list
 
     @property

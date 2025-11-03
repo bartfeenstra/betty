@@ -36,7 +36,7 @@ from betty.plugin import (
     PluginDefinition,
     PluginIdentifier,
     PluginRepository,
-    resolve_identifier,
+    resolve_id,
 )
 from betty.repr import repr_instance
 from betty.typing import Void, Voidable, not_void
@@ -69,13 +69,13 @@ class PluginIdentifierKeyConfigurationMapping(
     def __getitem__(
         self, configuration_key: PluginIdentifier[_PluginDefinitionT]
     ) -> _ConfigurationT:
-        return super().__getitem__(resolve_identifier(configuration_key))
+        return super().__getitem__(resolve_id(configuration_key))
 
     @override
     def __contains__(
         self, configuration_key: PluginIdentifier[_PluginDefinitionT]
     ) -> bool:
-        return super().__contains__(resolve_identifier(configuration_key))
+        return super().__contains__(resolve_id(configuration_key))
 
 
 class PluginDefinitionConfiguration(Configuration):
@@ -179,12 +179,10 @@ class OrderedPluginDefinitionConfiguration(PluginDefinitionConfiguration):
     ):
         super().__init__(**kwargs)
         self.comes_before = (
-            set()
-            if comes_before is None
-            else set(map(resolve_identifier, comes_before))
+            set() if comes_before is None else set(map(resolve_id, comes_before))
         )
         self.comes_after = (
-            set() if comes_after is None else set(map(resolve_identifier, comes_after))
+            set() if comes_after is None else set(map(resolve_id, comes_after))
         )
 
     @override
@@ -284,7 +282,7 @@ class PluginInstanceConfiguration(
         configuration: Voidable[Configuration | Dump] = Void,
     ):
         super().__init__()
-        self._id = assert_machine_name()(resolve_identifier(plugin))
+        self._id = assert_machine_name()(resolve_id(plugin))
         self._configuration = (
             configuration.dump()
             if isinstance(configuration, Configuration)

@@ -22,7 +22,7 @@ from betty.config.collections.sequence import ConfigurationSequence
 from betty.exception import UserFacingException
 from betty.locale.localizable import _
 from betty.machine_name import MachineName, assert_machine_name
-from betty.plugin import PluginIdentifier, PluginRepository, resolve_identifier
+from betty.plugin import PluginIdentifier, PluginRepository, resolve_id
 from betty.plugin.assertion import assert_plugin
 
 if TYPE_CHECKING:
@@ -46,9 +46,7 @@ class EntityReference(Configuration):
         entity_type_is_constrained: bool = False,
     ):
         super().__init__()
-        self._entity_type = (
-            None if entity_type is None else resolve_identifier(entity_type)
-        )
+        self._entity_type = None if entity_type is None else resolve_id(entity_type)
         self._entity_id = entity_id
         self._entity_type_is_constrained = entity_type_is_constrained
 
@@ -67,7 +65,7 @@ class EntityReference(Configuration):
             raise AttributeError(
                 f"The entity type cannot be set, as it is already constrained to {self._entity_type}."
             )
-        self._entity_type = resolve_identifier(entity_type)
+        self._entity_type = resolve_id(entity_type)
 
     @property
     def entity_id(self) -> str | None:
@@ -146,7 +144,7 @@ class EntityReferenceSequence(ConfigurationSequence[EntityReference]):
         self._entity_type_constraint = (
             None
             if entity_type_constraint is None
-            else resolve_identifier(entity_type_constraint)
+            else resolve_id(entity_type_constraint)
         )
         super().__init__(entity_references)
 

@@ -12,7 +12,7 @@ from betty.plugin import (
     CyclicDependencyError,
     DependentPluginDefinition,
     HumanFacingPluginDefinition,
-    resolve_identifier,
+    resolve_id,
 )
 from betty.requirement import AllRequirements
 
@@ -43,7 +43,7 @@ async def new_dependencies_requirement(
         dependency_requirements = []
         dependencies = []
         for dependency_identifier in dependent.depends_on:
-            dependency = plugins_by_id[resolve_identifier(dependency_identifier)]
+            dependency = plugins_by_id[resolve_id(dependency_identifier)]
             dependency_requirement = await dependency.cls.requirement(app=app)
             if dependency_requirement is not None:
                 dependency_requirements.append(dependency_requirement)
