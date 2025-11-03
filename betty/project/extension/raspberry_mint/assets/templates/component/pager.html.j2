@@ -1,0 +1,33 @@
+{% if page_count %}
+    <nav aria-label="{% trans %}Page navigation{% endtrans %}">
+        <ol class="pager d-flex justify-content-center">
+            {% set links = [
+                ('pager-link-first', _('First page'), 0),
+                ('pager-link-previous', _('Previous page'), page - 1),
+                ('pager-link-current', None, page),
+                ('pager-link-next', _('Next page'), page + 1),
+                ('pager-link-last', _('Last page'), page_count - 1),
+            ] %}
+            {% for link_class, link_label, link_number in links %}
+                <li>
+                    {% if link_number >= 0 and link_number < page_count %}
+                        {% if link_number == page %}
+                            <span class="pager-link {{ link_class }}" data-pager-link="{{ link_number + 1 }}"></span>
+                        {% else %}
+                            {% set link_url -%}
+                                {% if link_number == 0 %}
+                                    {{ page_entity_type | url }}
+                                {% else %}
+                                    {{ ('betty://' ~ page_entity_type.id ~ '/page-' ~ (link_number + 1)) | url }}
+                                {% endif %}
+                            {%- endset %}
+                            <a class="pager-link {{ link_class }}" href="{{ link_url }}" title="{{ link_label }}">{{ link_label }}</a>
+                        {% endif %}
+                    {% else %}
+                        <span class="pager-link {{ link_class }}"></span>
+                    {% endif %}
+                </li>
+            {% endfor %}
+        </ol>
+    </nav>
+{% endif %}

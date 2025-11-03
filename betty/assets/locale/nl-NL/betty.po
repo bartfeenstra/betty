@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PROJECT VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2025-10-25 23:51+0100\n"
+"POT-Creation-Date: 2025-11-04 00:44+0000\n"
 "PO-Revision-Date: 2025-05-17 01:43+0000\n"
 "Last-Translator: Bart Feenstra <bart@bartfeenstra.com>\n"
 "Language: nl_NL\n"
@@ -520,6 +520,9 @@ msgstr "Vind Betty op GitHub"
 msgid "Find out more about this image on Wikimedia Commons."
 msgstr "Vind meer informatie over deze afbeelding op Wikimedia Commons."
 
+msgid "First page"
+msgstr ""
+
 msgid "Funeral"
 msgstr "Uitvaart"
 
@@ -604,6 +607,9 @@ msgstr "Taal"
 #, python-format
 msgid "Last modified on %(last_modified)s"
 msgstr "Laatst bijgewerkt op %(last_modified)s"
+
+msgid "Last page"
+msgstr ""
 
 msgid "License"
 msgstr "Licentie"
@@ -703,6 +709,9 @@ msgstr "Gemeente"
 msgid "Neighborhood"
 msgstr "Buurt"
 
+msgid "Next page"
+msgstr ""
+
 msgid ""
 "No part may be reproduced or distributed in any form or by any means, "
 "without express written permission from the copyright holder, or unless "
@@ -744,6 +753,13 @@ msgstr "Overige aanwezigen"
 
 msgid "Other places contained by this one"
 msgstr "Overige plaatsen binnen deze"
+
+#, python-format
+msgid "Page %(page)s"
+msgstr ""
+
+msgid "Page navigation"
+msgstr ""
 
 msgid "Page not found"
 msgstr "Pagina niet gevonden"
@@ -794,6 +810,9 @@ msgstr ""
 
 msgid "Presences"
 msgstr "Aanwezigheden"
+
+msgid "Previous page"
+msgstr ""
 
 #, python-brace-format
 msgid ""

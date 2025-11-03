@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Betty 0.4\n"
 "Report-Msgid-Bugs-To: illia@maier.page\n"
-"POT-Creation-Date: 2025-10-25 23:51+0100\n"
+"POT-Creation-Date: 2025-11-04 00:44+0000\n"
 "PO-Revision-Date: 2025-05-13 17:01+0000\n"
 "Last-Translator: Максим Горпиніч <maksimgorpinic4@gmail.com>\n"
 "Language: uk\n"
@@ -517,6 +517,9 @@ msgstr "Знайдіть Betty на GitHub"
 msgid "Find out more about this image on Wikimedia Commons."
 msgstr "Дізнайтеся більше про це зображення на Wikimedia Commons."
 
+msgid "First page"
+msgstr ""
+
 msgid "Funeral"
 msgstr "Похорон"
 
@@ -598,6 +601,9 @@ msgstr "Мова"
 #, python-format
 msgid "Last modified on %(last_modified)s"
 msgstr "Остання зміна %(last_modified)s"
+
+msgid "Last page"
+msgstr ""
 
 msgid "License"
 msgstr "Ліцензія"
@@ -697,6 +703,9 @@ msgstr "Муніципалітет"
 msgid "Neighborhood"
 msgstr "Околиці"
 
+msgid "Next page"
+msgstr ""
+
 msgid ""
 "No part may be reproduced or distributed in any form or by any means, "
 "without express written permission from the copyright holder, or unless "
@@ -738,6 +747,13 @@ msgstr "Інші учасники"
 
 msgid "Other places contained by this one"
 msgstr "Інші місця, які містяться в цьому"
+
+#, python-format
+msgid "Page %(page)s"
+msgstr ""
+
+msgid "Page navigation"
+msgstr ""
 
 msgid "Page not found"
 msgstr "Сторінку не знайдено"
@@ -788,6 +804,9 @@ msgstr ""
 
 msgid "Presences"
 msgstr "Присутності"
+
+msgid "Previous page"
+msgstr ""
 
 #, python-brace-format
 msgid ""

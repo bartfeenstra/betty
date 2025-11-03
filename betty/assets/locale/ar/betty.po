@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Betty VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2025-10-25 23:51+0100\n"
+"POT-Creation-Date: 2025-11-04 00:44+0000\n"
 "PO-Revision-Date: 2024-11-30 19:00+0000\n"
 "Last-Translator: Bart Feenstra <bart@bartfeenstra.com>\n"
 "Language: ar\n"
@@ -470,6 +470,9 @@ msgstr ""
 msgid "Find out more about this image on Wikimedia Commons."
 msgstr ""
 
+msgid "First page"
+msgstr ""
+
 msgid "Funeral"
 msgstr ""
 
@@ -548,6 +551,9 @@ msgstr ""
 
 #, python-format
 msgid "Last modified on %(last_modified)s"
+msgstr ""
+
+msgid "Last page"
 msgstr ""
 
 msgid "License"
@@ -648,6 +654,9 @@ msgstr ""
 msgid "Neighborhood"
 msgstr ""
 
+msgid "Next page"
+msgstr ""
+
 msgid ""
 "No part may be reproduced or distributed in any form or by any means, "
 "without express written permission from the copyright holder, or unless "
@@ -685,6 +694,13 @@ msgid "Other attendees"
 msgstr ""
 
 msgid "Other places contained by this one"
+msgstr ""
+
+#, python-format
+msgid "Page %(page)s"
+msgstr ""
+
+msgid "Page navigation"
 msgstr ""
 
 msgid "Page not found"
@@ -735,6 +751,9 @@ msgid "Presence role"
 msgstr ""
 
 msgid "Presences"
+msgstr ""
+
+msgid "Previous page"
 msgstr ""
 
 #, python-brace-format
