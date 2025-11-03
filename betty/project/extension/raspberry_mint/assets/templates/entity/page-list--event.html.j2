@@ -4,11 +4,25 @@
     {{ super() }}
 
     <div class="container my-5">
-        <div class="row">
+        <div class="row justify-content-center">
             <div class="col col-12">
-                {% set events = entities | select('public') | list %}
-                {% if events | length > 0 %}
-                    {% include 'component/timeline.html.j2' %}
+                {% if page_entities | length > 0 %}
+                    {% set pager | trim %}
+                        {% include 'component/pager.html.j2' %}
+                    {% endset %}
+                    {% if pager %}
+                        <div class="mb-3">
+                            {{ pager }}
+                        </div>
+                    {% endif %}
+                    {% with events = page_entities %}
+                        {% include 'component/timeline.html.j2' %}
+                    {% endwith %}
+                    {% if pager %}
+                        <div class="mt-3">
+                            {{ pager }}
+                        </div>
+                    {% endif %}
                 {% else %}
                     <p>{% trans %}I'm sorry, dear, but it seems there is nothing to show.{% endtrans %}</p>
                 {% endif %}

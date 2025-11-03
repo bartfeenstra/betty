@@ -62,6 +62,19 @@ class TestGenerateEntityTypesHtml:
 
                 await assert_betty_html(project, f"/{entity_type.plugin.id}/index.html")
 
+    async def test_do__with_pager(self, temporary_app: App) -> None:
+        async with Project.new_temporary(temporary_app) as project:
+            project.configuration.entity_types.append(
+                EntityTypeConfiguration(Place, generate_html_list=True)
+            )
+            place_one = Place(id="P1")
+            place_two = Place(id="P2")
+            project.ancestry.add(place_one, place_two)
+            async with project:
+                await do(ProjectContext(project), GenerateEntityTypesHtml(per_page=1))
+
+                await assert_betty_html(project, "/place/page-2/index.html")
+
 
 class TestGenerateEntityTypesJson:
     @pytest.mark.parametrize(

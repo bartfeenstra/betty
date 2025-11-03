@@ -1,5 +1,5 @@
 {% extends 'base.html.j2' %}
-{% set page_title = entity_type.label_plural | localize %}
+{% set page_title = page_entity_type.label_plural | localize %}
 {% do breadcrumbs.append(
     page_title,
     page_resource

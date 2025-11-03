@@ -250,6 +250,7 @@ class Environment(ProjectDependentFactory, Jinja2Environment):
             ngettext=self._ngettext,
             pgettext=self._pgettext,
             npgettext=self._npgettext,
+            newstyle=True,
         )
         self.policies["ext.i18n.trimmed"] = True
 

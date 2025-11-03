@@ -7,6 +7,7 @@ from __future__ import annotations
 from asyncio import gather, to_thread
 from io import BytesIO
 from json import dumps
+from math import ceil
 from pathlib import Path
 from typing import TYPE_CHECKING, cast, final
 
@@ -502,8 +503,9 @@ class GenerateEntityTypesHtml(Job[ProjectContext]):
     Generate HTML pages for entity types.
     """
 
-    def __init__(self):
+    def __init__(self, *, per_page: int = 50):
         super().__init__(self.id_for(), priority=True)
+        self._per_page = per_page
 
     @classmethod
     def id_for(cls) -> str:
@@ -517,9 +519,12 @@ class GenerateEntityTypesHtml(Job[ProjectContext]):
         project = scheduler.context.project
         await gather(
             *[
-                scheduler.add(_GenerateEntityTypeHtml(entity_type, locale))
+                scheduler.add(
+                    _GenerateEntityTypeHtml(
+                        entity_type, locale, page, self._per_page, page_count
+                    )
+                )
                 for entity_type in project.app.entity_type_repository
-                for locale in project.configuration.locales
                 if entity_type.public_facing
                 and (
                     entity_type in project.configuration.entity_types
@@ -527,20 +532,39 @@ class GenerateEntityTypesHtml(Job[ProjectContext]):
                         entity_type.id
                     ].generate_html_list
                 )
+                and (
+                    page_count := ceil(
+                        len(project.ancestry[entity_type]) / self._per_page
+                    )
+                    # Always show at least the first page, even if there are no entities.
+                    or 1
+                )
+                for page in range(page_count)
+                for locale in project.configuration.locales
             ]
         )
 
 
 @final
 class _GenerateEntityTypeHtml(Job[ProjectContext]):
-    def __init__(self, entity_type: EntityDefinition, locale: str):
-        super().__init__(self.id_for(entity_type, locale))
+    def __init__(
+        self,
+        entity_type: EntityDefinition,
+        locale: str,
+        page: int,
+        per_page: int,
+        page_count: int,
+    ):
+        super().__init__(self.id_for(entity_type, locale, page))
         self._entity_type = entity_type
         self._locale = locale
+        self._page = page
+        self._per_page = per_page
+        self._page_count = page_count
 
     @classmethod
-    def id_for(cls, entity_type: EntityDefinition, locale: str) -> str:
-        return f"generate-entity-type-hml:{entity_type.id}:{locale}"
+    def id_for(cls, entity_type: EntityDefinition, locale: str, page: int) -> str:
+        return f"generate-entity-type-html:{entity_type.id}:{locale}:{page}"
 
     @override
     async def do(self, scheduler: Scheduler[ProjectContext], /) -> None:
@@ -548,10 +572,6 @@ class _GenerateEntityTypeHtml(Job[ProjectContext]):
         project = context.project
         localizers = await project.localizers
         jinja2_environment = await project.jinja2_environment
-        entity_type_path = (
-            project.configuration.localize_www_directory_path(self._locale)
-            / self._entity_type.id
-        )
         template = jinja2_environment.select_template(
             [
                 f"entity/page-list--{self._entity_type.id}.html.j2",
@@ -561,11 +581,25 @@ class _GenerateEntityTypeHtml(Job[ProjectContext]):
         rendered_html = await template.render_async(
             job_context=context,
             localizer=localizers.get(self._locale),
+            page=self._page,
+            per_page=self._per_page,
+            page_count=self._page_count,
             page_resource=self._entity_type,
-            entity_type=self._entity_type,
-            entities=project.ancestry[self._entity_type.cls],
+            page_entity_type=self._entity_type,
+            page_entities=list(
+                filter(is_public, project.ancestry[self._entity_type.cls])
+            )[
+                self._per_page * self._page : self._per_page * self._page
+                + self._per_page
+            ],
         )
-        async with create_html_resource(entity_type_path) as f:
+        page_path = (
+            project.configuration.localize_www_directory_path(self._locale)
+            / self._entity_type.id
+        )
+        if self._page > 0:
+            page_path /= f"page-{self._page + 1}"
+        async with create_html_resource(page_path) as f:
             await f.write(rendered_html)
 
 

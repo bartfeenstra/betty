@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Betty VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2025-10-25 23:51+0100\n"
+"POT-Creation-Date: 2025-11-04 00:44+0000\n"
 "PO-Revision-Date: 2025-03-28 20:02+0000\n"
 "Last-Translator: Ettore Atalan <atalanttore@googlemail.com>\n"
 "Language: de_DE\n"
@@ -499,6 +499,9 @@ msgstr ""
 msgid "Find out more about this image on Wikimedia Commons."
 msgstr "Mehr über dieses Bild erfährst du auf Wikimedia Commons."
 
+msgid "First page"
+msgstr ""
+
 msgid "Funeral"
 msgstr "Beerdigung"
 
@@ -578,6 +581,9 @@ msgstr "Sprache"
 #, python-format
 msgid "Last modified on %(last_modified)s"
 msgstr "Zuletzt geändert am %(last_modified)s"
+
+msgid "Last page"
+msgstr ""
 
 msgid "License"
 msgstr "Lizenz"
@@ -677,6 +683,9 @@ msgstr "Gemeinde"
 msgid "Neighborhood"
 msgstr "Nachbarschaft"
 
+msgid "Next page"
+msgstr ""
+
 msgid ""
 "No part may be reproduced or distributed in any form or by any means, "
 "without express written permission from the copyright holder, or unless "
@@ -714,6 +723,13 @@ msgid "Other attendees"
 msgstr "Andere Teilnehmer"
 
 msgid "Other places contained by this one"
+msgstr ""
+
+#, python-format
+msgid "Page %(page)s"
+msgstr ""
+
+msgid "Page navigation"
 msgstr ""
 
 msgid "Page not found"
@@ -765,6 +781,9 @@ msgstr ""
 
 msgid "Presences"
 msgstr "Anwesenheiten"
+
+msgid "Previous page"
+msgstr ""
 
 #, python-brace-format
 msgid ""

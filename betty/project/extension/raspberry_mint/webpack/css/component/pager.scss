@@ -1,0 +1,124 @@
+.pager {
+  li {
+    list-style: none;
+  }
+
+  .pager-link {
+    background-repeat: no-repeat;
+    background-size: 50%;
+    border-color: transparent;
+    border-radius: 100%;
+    border-style: solid;
+    border-width: $border-width;
+    display: block;
+    height: 3rem;
+    margin: 0 .5lh;
+    text-indent: -999rem;
+    width: 3rem;
+  }
+
+  a.pager-link {
+    &:hover {
+      border-color: $secondary-800;
+    }
+
+    &:focus {
+      border-color: $black;
+    }
+  }
+
+  .pager-link-first {
+    background-position: 30%, 70%;
+  }
+
+  a.pager-link-first {
+    background-image: icon-chevron-left($secondary-800), icon-chevron-left($secondary-800) #{"/* rtl:"} icon-chevron-right($secondary-800), icon-chevron-right($secondary-800) #{"*/"};
+
+
+    &:hover {
+      background-image: icon-chevron-left($secondary-900), icon-chevron-left($secondary-900) #{"/* rtl:"} icon-chevron-right($secondary-900), icon-chevron-right($secondary-900) #{"*/"};
+    }
+
+    &:focus {
+      background-image: icon-chevron-left($black), icon-chevron-left($black) #{"/* rtl:"} icon-chevron-right($black), icon-chevron-right($black) #{"*/"};
+    }
+  }
+
+  span.pager-link-first {
+    background-image: icon-chevron-left($gray-200), icon-chevron-left($gray-200) #{"/* rtl:"} icon-chevron-right($gray-200), icon-chevron-right($gray-200) #{"*/"};
+  }
+
+  .pager-link-previous {
+    background-position: center;
+  }
+
+  a.pager-link-previous {
+    background-image: icon-chevron-left($secondary-800) #{"/* rtl:"} icon-chevron-right($secondary-800) #{"*/"};
+
+    &:hover {
+      background-image: icon-chevron-left($secondary-900) #{"/* rtl:"} icon-chevron-right($secondary-900) #{"*/"};
+    }
+
+    &:focus {
+      background-image: icon-chevron-left($black) #{"/* rtl:"} icon-chevron-right($black) #{"*/"};
+    }
+  }
+
+  span.pager-link-previous {
+    background-image: icon-chevron-left($gray-200) #{"/* rtl:"} icon-chevron-right($gray-200) #{"*/"};
+  }
+
+
+  .pager-link-current {
+    border-color: $gray-200;
+    color: $gray-700;
+
+    &::after {
+      content: attr(data-pager-link);
+      display: block;
+      font-size: 1.4em;
+      text-align: center;
+      text-indent: 0;
+    }
+  }
+
+  .pager-link-next {
+    background-position: center;
+  }
+
+  a.pager-link-next {
+    background-image: icon-chevron-right($secondary-800) #{"/* rtl:"} icon-chevron-left($secondary-800) #{"*/"};
+
+    &:hover {
+      background-image: icon-chevron-right($secondary-900) #{"/* rtl:"} icon-chevron-left($secondary-900) #{"*/"};
+    }
+
+    &:focus {
+      background-image: icon-chevron-right($black) #{"/* rtl:"} icon-chevron-left($black) #{"*/"};
+    }
+  }
+
+  span.pager-link-next {
+    background-image: icon-chevron-right($gray-200) #{"/* rtl:"} icon-chevron-left($gray-200) #{"*/"};
+  }
+
+  .pager-link-last {
+    background-position: 30%, 70%;
+  }
+
+  a.pager-link-last {
+    background-image: icon-chevron-right($secondary-800), icon-chevron-right($secondary-800) #{"/* rtl:"} icon-chevron-left($secondary-800), icon-chevron-left($secondary-800) #{"*/"};
+
+    &:hover {
+      background-image: icon-chevron-right($secondary-900), icon-chevron-right($secondary-900) #{"/* rtl:"} icon-chevron-left($secondary-900), icon-chevron-left($secondary-900) #{"*/"};
+    }
+
+    &:focus {
+      background-image: icon-chevron-right($black), icon-chevron-right($black) #{"/* rtl:"} icon-chevron-left($black), icon-chevron-left($black) #{"*/"};
+    }
+  }
+
+  span.pager-link-last {
+    background-image: icon-chevron-right($gray-200), icon-chevron-right($gray-200) #{"/* rtl:"} icon-chevron-left($gray-200), icon-chevron-left($gray-200) #{"*/"};
+  }
+}

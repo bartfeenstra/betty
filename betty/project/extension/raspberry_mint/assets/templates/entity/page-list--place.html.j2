@@ -1,18 +1,32 @@
 {% extends 'entity/page-list-base.html.j2' %}
-{% set entities = entities | select('public') | list %}
 {% block page_content %}
     {{ super() }}
 
     <div class="my-5">
-        {% with places = entities %}
+        {% with places = project.ancestry[app.entity_type_repository.get('place')] %}
             {% include 'section/map.html.j2' %}
         {% endwith %}
 
         <div class="container mt-4">
-            <div class="row">
+            <div class="row justify-content-center">
                 <div class="col col-12 col-lg-8">
-                    {% if entities | length > 0 %}
-                        {% include ['entity/list--' + entity_type.id + '.html.j2', 'entity/list.html.j2'] %}
+                    {% if page_entities | length > 0 %}
+                        {% set pager | trim %}
+                            {% include 'component/pager.html.j2' %}
+                        {% endset %}
+                        {% if pager %}
+                            <div class="mb-3">
+                                {{ pager }}
+                            </div>
+                        {% endif %}
+                        {% with entities = page_entities %}
+                            {% include ['entity/list--' + page_entity_type.id + '.html.j2', 'entity/list.html.j2'] %}
+                        {% endwith %}
+                        {% if pager %}
+                            <div class="mt-3">
+                                {{ pager }}
+                            </div>
+                        {% endif %}
                     {% else %}
                         <p>{% trans %}I'm sorry, dear, but it seems there is nothing to show.{% endtrans %}</p>
                     {% endif %}
