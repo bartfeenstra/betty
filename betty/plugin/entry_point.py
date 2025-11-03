@@ -5,7 +5,7 @@ Integrates the plugin API with `distribution packages <https://packaging.python.
 from importlib import metadata
 from typing import Generic, TypeVar, final
 
-from betty.plugin import PluginDefinition
+from betty.plugin import PluginDefinition, resolve_definition
 from betty.plugin.static import StaticPluginRepository
 
 _PluginDefinitionT = TypeVar("_PluginDefinitionT", bound=PluginDefinition)
@@ -33,16 +33,14 @@ class EntryPointPluginRepository(
 
     def __init__(
         self,
-        plugin: type[_PluginDefinitionT],  # noqa A002
+        definition_cls: type[_PluginDefinitionT],  # noqa A002
         entry_point_group: str,
         /,
     ):
-        super().__init__(
-            plugin,
-            *(
-                entry_point.load()
-                for entry_point in metadata.entry_points(
-                    group=entry_point_group,
-                )
-            ),
-        )
+        plugins = []
+        for entry_point in metadata.entry_points(group=entry_point_group):
+            plugin = resolve_definition(entry_point.load())
+            assert isinstance(plugin, definition_cls)
+            plugins.append(plugin)
+
+        super().__init__(definition_cls, *plugins)

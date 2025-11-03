@@ -30,7 +30,7 @@ from betty.jinja2.test import tests
 from betty.job import Context as JobContext
 from betty.locale.localizer import DEFAULT_LOCALIZER, Localizer
 from betty.media_type.media_types import JINJA2
-from betty.plugin import PluginIdentifier, resolve_identifier
+from betty.plugin import PluginIdentifier, resolve_id
 from betty.project.factory import ProjectDependentFactory
 from betty.render import Renderer, RendererDefinition
 from betty.typing import private
@@ -94,7 +94,7 @@ class EntityContexts:
             self._contexts[entity.plugin.id] = entity
 
     def __getitem__(self, entity_type: PluginIdentifier) -> Entity | None:
-        return self._contexts[resolve_identifier(entity_type)]
+        return self._contexts[resolve_id(entity_type)]
 
     def __call__(self, *entities: Entity) -> EntityContexts:
         """

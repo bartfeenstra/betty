@@ -5,7 +5,7 @@ from pytest_mock import MockerFixture
 
 from betty.plugin import PluginNotFound
 from betty.plugin.entry_point import EntryPointPluginRepository
-from betty.test_utils.plugin import DUMMY_PLUGIN_ONE, DummyPluginDefinition
+from betty.test_utils.plugin import ClassedDummyPluginDefinition, ClassedDummyPluginOne
 
 
 class TestEntryPointPluginRepository:
@@ -16,25 +16,34 @@ class TestEntryPointPluginRepository:
             return_value=EntryPoints(
                 [
                     EntryPoint(
-                        name=DUMMY_PLUGIN_ONE.id,
-                        value="betty.test_utils.plugin:DUMMY_PLUGIN_ONE",
+                        name=ClassedDummyPluginOne.plugin.id,
+                        value="betty.test_utils.plugin:ClassedDummyPluginOne.plugin",
                         group=entry_point_group,
-                    )
+                    ),
+                    EntryPoint(
+                        name=ClassedDummyPluginOne.plugin.id,
+                        value="betty.test_utils.plugin:ClassedDummyPluginTwo",
+                        group=entry_point_group,
+                    ),
                 ]
             ),
         )
-        sut = EntryPointPluginRepository(DummyPluginDefinition, entry_point_group)
+        sut = EntryPointPluginRepository(
+            ClassedDummyPluginDefinition, entry_point_group
+        )
         # Hit the cache.
         for _ in range(2):
-            assert sut[DUMMY_PLUGIN_ONE.id] is DUMMY_PLUGIN_ONE
+            assert sut[ClassedDummyPluginOne.plugin.id] is ClassedDummyPluginOne.plugin
         m_entry_points.assert_called_once_with(group=entry_point_group)
 
     def test_get_not_found(self) -> None:
-        sut = EntryPointPluginRepository(DummyPluginDefinition, "test-entry-point")
+        sut = EntryPointPluginRepository(
+            ClassedDummyPluginDefinition, "test-entry-point"
+        )
         # Hit the cache.
         for _ in range(2):
             with pytest.raises(PluginNotFound):
-                sut.get(DUMMY_PLUGIN_ONE.id)
+                sut.get(ClassedDummyPluginOne.plugin.id)
 
     def test___aiter___with_plugins(self, mocker: MockerFixture) -> None:
         entry_point_group = "test-entry-point"
@@ -43,18 +52,25 @@ class TestEntryPointPluginRepository:
             return_value=EntryPoints(
                 [
                     EntryPoint(
-                        name=DUMMY_PLUGIN_ONE.id,
-                        value="betty.test_utils.plugin:DUMMY_PLUGIN_ONE",
+                        name=ClassedDummyPluginOne.plugin.id,
+                        value="betty.test_utils.plugin:ClassedDummyPluginOne.plugin",
                         group=entry_point_group,
-                    )
+                    ),
+                    EntryPoint(
+                        name=ClassedDummyPluginOne.plugin.id,
+                        value="betty.test_utils.plugin:ClassedDummyPluginTwo",
+                        group=entry_point_group,
+                    ),
                 ]
             ),
         )
-        sut = EntryPointPluginRepository(DummyPluginDefinition, entry_point_group)
+        sut = EntryPointPluginRepository(
+            ClassedDummyPluginDefinition, entry_point_group
+        )
         # Hit the cache.
         for _ in range(2):
             plugin = list(sut)[0]
-            assert plugin is DUMMY_PLUGIN_ONE
+            assert plugin is ClassedDummyPluginOne.plugin
         m_entry_points.assert_called_once_with(group=entry_point_group)
 
     def test___iter___without_plugins(self, mocker: MockerFixture) -> None:
@@ -63,7 +79,9 @@ class TestEntryPointPluginRepository:
             "importlib.metadata.entry_points",
             return_value=EntryPoints([]),
         )
-        sut = EntryPointPluginRepository(DummyPluginDefinition, entry_point_group)
+        sut = EntryPointPluginRepository(
+            ClassedDummyPluginDefinition, entry_point_group
+        )
         # Hit the cache.
         for _ in range(2):
             with pytest.raises(StopIteration):

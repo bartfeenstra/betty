@@ -218,12 +218,12 @@ class OrderedPluginDefinition(PluginDefinition):
         self._comes_before = (
             set()
             if comes_before is None
-            else {resolve_identifier(plugin) for plugin in comes_before}
+            else {resolve_id(plugin) for plugin in comes_before}
         )
         self._comes_after = (
             set()
             if comes_after is None
-            else {resolve_identifier(plugin) for plugin in comes_after}
+            else {resolve_id(plugin) for plugin in comes_after}
         )
 
     @property
@@ -265,7 +265,7 @@ class DependentPluginDefinition(OrderedPluginDefinition):
         self._depends_on = (
             set()
             if depends_on is None
-            else {resolve_identifier(plugin) for plugin in depends_on}
+            else {resolve_id(plugin) for plugin in depends_on}
         )
         self._comes_after.update(self._depends_on)
 
@@ -323,18 +323,28 @@ class ClassedPluginDefinition(Generic[_PluginT], PluginDefinition):
         return cls
 
 
-PluginIdentifier: TypeAlias = MachineName | _PluginDefinitionT | type[_ClassedPluginT]
+ResolvablePluginDefinition: TypeAlias = _PluginDefinitionT | type[_ClassedPluginT]
+PluginIdentifier: TypeAlias = (
+    MachineName | ResolvablePluginDefinition[_PluginDefinitionT, _ClassedPluginT]
+)
 
 
-def resolve_identifier(identifier: PluginIdentifier, /) -> MachineName:
+def resolve_definition(definition: ResolvablePluginDefinition, /) -> PluginDefinition:
+    """
+    Resolve a plugin definition.
+    """
+    if isinstance(definition, PluginDefinition):
+        return definition
+    return definition.plugin
+
+
+def resolve_id(plugin_id: PluginIdentifier, /) -> MachineName:
     """
     Resolve a plugin identifier to a plugin ID.
     """
-    if isinstance(identifier, type) and issubclass(identifier, ClassedPlugin):
-        return identifier.plugin.id
-    if isinstance(identifier, PluginDefinition):
-        return identifier.id
-    return identifier
+    if isinstance(plugin_id, str):
+        return plugin_id
+    return resolve_definition(plugin_id).id
 
 
 class PluginNotFound(PluginError, UserFacingException):
@@ -359,7 +369,7 @@ class PluginNotFound(PluginError, UserFacingException):
                 ),
                 do_you_mean(
                     *[
-                        f'"{resolve_identifier(available_plugin)}"'
+                        f'"{resolve_id(available_plugin)}"'
                         for available_plugin in available_plugins
                     ]
                 ),
@@ -435,11 +445,11 @@ async def sort_ordered_plugin_graph(
     plugins = sorted(plugins, key=lambda plugin: plugin.id)
     for plugin in plugins:
         sorter.add(plugin.id)
-        for before_identifier in map(resolve_identifier, plugin.comes_before):
+        for before_identifier in map(resolve_id, plugin.comes_before):
             before = plugin_repository[before_identifier]
             if before in plugins:
                 sorter.add(before.id, plugin.id)
-        for after_identifier in map(resolve_identifier, plugin.comes_after):
+        for after_identifier in map(resolve_id, plugin.comes_after):
             after = plugin_repository[after_identifier]
             if after in plugins:
                 sorter.add(plugin.id, after.id)

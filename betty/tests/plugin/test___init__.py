@@ -22,7 +22,8 @@ from betty.plugin import (
     expand_plugin_dependencies,
     get_comes_after,
     get_comes_before,
-    resolve_identifier,
+    resolve_definition,
+    resolve_id,
     sort_dependent_plugin_graph,
     sort_ordered_plugin_graph,
 )
@@ -42,7 +43,7 @@ if TYPE_CHECKING:
 _T = TypeVar("_T")
 
 
-def test_resolve_identifier__with_plugin_cls() -> None:
+def test_resolve_definition__with_plugin_cls() -> None:
     plugin_id = "my-first-plugin-id"
 
     class _ClassedPluginCls:
@@ -57,17 +58,40 @@ def test_resolve_identifier__with_plugin_cls() -> None:
     class _ClassedPlugin(_ClassedPluginCls, ClassedPlugin):
         pass
 
-    assert resolve_identifier(_ClassedPlugin) == plugin_id
+    assert resolve_definition(_ClassedPlugin) is _ClassedPlugin.plugin
 
 
-def test_resolve_identifier__with_plugin_definition() -> None:
+def test_resolve_definition__with_plugin_definition() -> None:
+    definition = PluginDefinition(id="my-first-plugin-id")
+    assert resolve_definition(definition) is definition
+
+
+def test_resolve_id__with_plugin_cls() -> None:
     plugin_id = "my-first-plugin-id"
-    assert resolve_identifier(PluginDefinition(id=plugin_id)) == plugin_id
+
+    class _ClassedPluginCls:
+        pass
+
+    class _ClassedPluginDefinition(ClassedPluginDefinition[_ClassedPluginCls]):
+        type: ClassVar[ClassedPluginTypeDefinition] = ClassedPluginTypeDefinition(
+            id="-", cls=_ClassedPluginCls, label=Plain("")
+        )
+
+    @_ClassedPluginDefinition(id=plugin_id)
+    class _ClassedPlugin(_ClassedPluginCls, ClassedPlugin):
+        pass
+
+    assert resolve_id(_ClassedPlugin) == plugin_id
 
 
-def test_resolve_identifier__with_plugin_id() -> None:
+def test_resolve_id__with_plugin_definition() -> None:
     plugin_id = "my-first-plugin-id"
-    assert resolve_identifier(plugin_id) == plugin_id
+    assert resolve_id(PluginDefinition(id=plugin_id)) == plugin_id
+
+
+def test_resolve_id__with_plugin_id() -> None:
+    plugin_id = "my-first-plugin-id"
+    assert resolve_id(plugin_id) == plugin_id
 
 
 class TestPluginNotFound:

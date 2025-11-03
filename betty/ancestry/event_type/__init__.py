@@ -16,7 +16,7 @@ from betty.plugin import (
     HumanFacingPluginDefinition,
     OrderedPluginDefinition,
     PluginIdentifier,
-    resolve_identifier,
+    resolve_id,
 )
 
 if TYPE_CHECKING:
@@ -71,7 +71,7 @@ class EventTypeDefinition(
         **kwargs: Any,
     ):
         super().__init__(**kwargs)
-        self._indicates = None if indicates is None else resolve_identifier(indicates)
+        self._indicates = None if indicates is None else resolve_id(indicates)
 
     @property
     def indicates(self) -> MachineName | None:
