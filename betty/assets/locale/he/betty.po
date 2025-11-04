@@ -69,7 +69,7 @@ msgid "Access denied"
 msgstr "גישה נדחתה"
 
 #, python-format
-msgid "Accessed %(date)s"
+msgid "Accessed: %(date)s"
 msgstr ""
 
 msgid "Adoption"
