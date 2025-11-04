@@ -1,6 +1,8 @@
 from collections.abc import AsyncIterator  # noqa I001
+from pathlib import Path
 
 import pytest
+from aiofiles.tempfile import TemporaryDirectory
 from playwright.async_api import Page, expect
 
 from betty import serve
@@ -16,7 +18,10 @@ class TestSwaggerUi:
     @pytest.fixture(scope="session")
     async def served_project(self) -> AsyncIterator[tuple[Project, Server]]:
         async with (
-            App.new_temporary() as app,
+            TemporaryDirectory() as cache_directory_path_str,
+            App.new_temporary(
+                cache_directory_path=Path(cache_directory_path_str)
+            ) as app,
             app,
             Project.new_temporary(app) as project,
         ):

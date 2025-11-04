@@ -1,6 +1,9 @@
 from collections.abc import AsyncIterator  # noqa I001
+from pathlib import Path
 
 import pytest
+from aiofiles.tempfile import TemporaryDirectory
+from playwright.async_api import Page, expect
 
 from betty import serve
 from betty.ancestry.person import Person
@@ -11,7 +14,6 @@ from betty.project.extension.raspberry_mint import RaspberryMint
 from betty.project.generate import generate
 from betty.serve import Server
 from betty.tests.conftest import check_skip_playwright
-from playwright.async_api import Page, expect
 
 
 class TestSearchUi:
@@ -23,7 +25,10 @@ class TestSearchUi:
         person = Person(id=person_id)
         PersonName(individual=self.INDIVIDUAL_NAME, person=person)
         async with (
-            App.new_temporary() as app,
+            TemporaryDirectory() as cache_directory_path_str,
+            App.new_temporary(
+                cache_directory_path=Path(cache_directory_path_str)
+            ) as app,
             app,
             Project.new_temporary(app) as project,
         ):
