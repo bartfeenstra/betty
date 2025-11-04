@@ -41,9 +41,12 @@ class TestRaspberryMint(EntryPointProviderTestBase):
             sut.configuration.featured_entities.replace(
                 EntityReference("non-existent-entity")
             )
-            with pytest.raises(HumanFacingException):
+            with pytest.raises(HumanFacingException) as exc_info:
                 async with sut:
                     pass  # pragma: nocover
+        assert 'data["extensions"]["raspberry-mint"]["featured_entities"][0]' in str(
+            exc_info.value
+        )
 
     @check_skip_webpack_entry_point_provider
     async def test_generate__html_list_for_third_party_entity(

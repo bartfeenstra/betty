@@ -11,6 +11,8 @@ from typing import TYPE_CHECKING, final
 import aiofiles
 from typing_extensions import override
 
+from betty.data import Key
+from betty.exception import HumanFacingExceptionGroup
 from betty.jinja2 import Filters, Jinja2Provider
 from betty.job import Job
 from betty.locale.localizable import Chain, Plain, _
@@ -130,9 +132,15 @@ class RaspberryMint(
             raise
 
     async def _assert_configuration(self) -> None:
-        await self.configuration.featured_entities.validate(
-            self.project.app.entity_type_repository
-        )
+        with (
+            HumanFacingExceptionGroup().assert_valid() as errors,
+            errors.catch(
+                Key("extensions"), Key("raspberry-mint"), Key("featured_entities")
+            ),
+        ):
+            await self.configuration.featured_entities.validate(
+                self.project.app.entity_type_repository
+            )
 
     @override
     async def generate(self, scheduler: Scheduler[ProjectContext]) -> None:

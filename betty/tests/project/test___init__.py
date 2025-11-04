@@ -160,9 +160,12 @@ class TestProject:
                     DummyNonPublicFacingEntityOne.plugin, generate_html_list=True
                 )
             )
-            with pytest.raises(HumanFacingException):
+            with pytest.raises(HumanFacingException) as exc_info:
                 async with sut:
                     pass
+        assert 'data["entity_types"]["dummy-non-public-facing-one"]' in str(
+            exc_info.value
+        )
 
     async def test_extensions__should_enable_betty_extensions(
         self, temporary_app: App

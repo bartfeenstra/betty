@@ -24,6 +24,8 @@ from betty.ancestry.presence_role import PresenceRoleDefinition
 from betty.asset import AssetRepository, ProxyAssetRepository, StaticAssetRepository
 from betty.config import Configurable
 from betty.copyright_notice import CopyrightNotice, CopyrightNoticeDefinition
+from betty.data import Key
+from betty.exception import HumanFacingExceptionGroup
 from betty.factory import TargetFactory
 from betty.hashid import hashid
 from betty.job import Context
@@ -144,7 +146,13 @@ class Project(Configurable[ProjectConfiguration], TargetFactory, ServiceProvider
             raise
 
     async def _assert_configuration(self) -> None:
-        await self.configuration.entity_types.validate(self.app.entity_type_repository)
+        with (
+            HumanFacingExceptionGroup().assert_valid() as errors,
+            errors.catch(Key("entity_types")),
+        ):
+            await self.configuration.entity_types.validate(
+                self.app.entity_type_repository
+            )
 
     @property
     def app(self) -> App:
