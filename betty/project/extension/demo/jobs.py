@@ -360,6 +360,7 @@ class LoadAncestry(Job[ProjectContext]):
             id="betty-demo-birth-of-liberta-lankester-from-bevolkingsregister-amsterdam",
             source=bevolkingsregister_amsterdam,
             location=StaticTranslations("Amsterdam"),
+            date=DateRange(None, Date(2000, 1, 1), end_is_boundary=True),
         )
         ancestry.add(cite_birth_of_liberta_lankester_from_bevolkingsregister_amsterdam)
 

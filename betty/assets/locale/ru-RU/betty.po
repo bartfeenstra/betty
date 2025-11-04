@@ -67,7 +67,7 @@ msgid "Access denied"
 msgstr ""
 
 #, python-format
-msgid "Accessed %(date)s"
+msgid "Accessed: %(date)s"
 msgstr ""
 
 msgid "Adoption"
