@@ -36,7 +36,8 @@ from betty.config.collections.mapping import (
     OrderedConfigurationMapping,
 )
 from betty.copyright_notice import CopyrightNotice, CopyrightNoticeDefinition
-from betty.exception import HumanFacingException, HumanFacingExceptionGroup, Key
+from betty.data import Key
+from betty.exception import HumanFacingException, HumanFacingExceptionGroup
 from betty.license import License, LicenseDefinition
 from betty.license.licenses import AllRightsReserved
 from betty.locale import DEFAULT_LOCALE, UNDETERMINED_LOCALE

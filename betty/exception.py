@@ -4,20 +4,19 @@ Provide exception handling utilities.
 
 from __future__ import annotations
 
-from abc import ABC, abstractmethod
 from contextlib import contextmanager
-from textwrap import indent
-from typing import TYPE_CHECKING, Never, Self, TypeAlias, TypeVar
+from typing import TYPE_CHECKING, Never, Self
 
 from typing_extensions import override
 
-from betty.locale import UNDETERMINED_LOCALE
-from betty.locale.localizable import Localizable, _
+from betty.data import Selectors
+from betty.locale.localizable import Lines, Localizable, UnorderedList, _
 from betty.locale.localized import Localized, LocalizedStr
 
 if TYPE_CHECKING:
     from collections.abc import Iterator, MutableSequence, Sequence
 
+    from betty.data import Context
     from betty.locale.localizer import Localizer
 
 
@@ -30,96 +29,6 @@ def do_raise(exception: BaseException) -> Never:
     raise exception
 
 
-_AssertionContextValueT = TypeVar("_AssertionContextValueT")
-
-
-class HumanFacingExceptionContext(ABC):
-    """
-    The context in which a human-facing exception is raised.
-    """
-
-    @abstractmethod
-    def format(self) -> str:
-        """
-        Format this context to a string.
-        """
-
-
-class Attr(HumanFacingExceptionContext):
-    """
-    An object attribute context.
-    """
-
-    def __init__(self, attr: str):
-        self._attr = attr
-
-    @override
-    def format(self) -> str:
-        return f".{self._attr}"
-
-
-class Index(HumanFacingExceptionContext):
-    """
-    A sequence index context.
-    """
-
-    def __init__(self, index: int):
-        self._index = index
-
-    @override
-    def format(self) -> str:
-        return f"[{self._index}]"
-
-
-class Key(HumanFacingExceptionContext):
-    """
-    A mapping key context.
-    """
-
-    def __init__(self, key: str):
-        self._key = key
-
-    @override
-    def format(self) -> str:
-        return f'["{self._key}"]'
-
-
-ContextLike: TypeAlias = HumanFacingExceptionContext | Localizable
-
-
-class _Contexts(Localizable):
-    def __init__(self, context: HumanFacingExceptionContext):
-        self.contexts: MutableSequence[HumanFacingExceptionContext] = [context]
-
-    @override
-    def localize(self, localizer: Localizer) -> Localized & str:
-        return LocalizedStr(
-            "data" + "".join(context.format() for context in self.contexts),
-            locale=UNDETERMINED_LOCALE,
-        )
-
-
-def localizable_contexts(*contexts: ContextLike) -> Sequence[Localizable]:
-    """
-    The contexts as :py:class:`betty.locale.localizable.Localizable` instances.
-    """
-    localizable_contexts: MutableSequence[Localizable] = []
-    for context in contexts:
-        if isinstance(context, Localizable):
-            localizable_contexts.append(context)
-        else:
-            try:
-                last_context = localizable_contexts[-1]
-            except IndexError:
-                pass
-            else:
-                if isinstance(last_context, _Contexts):
-                    last_context.contexts.append(context)
-                    continue
-            localizable_contexts.append(_Contexts(context))
-    return localizable_contexts
-
-
 class HumanFacingException(Exception, Localizable):
     """
     A localizable, human-facing exception.
@@ -129,7 +38,7 @@ class HumanFacingException(Exception, Localizable):
     """
 
     def __init__(
-        self, message: Localizable, *, contexts: tuple[ContextLike, ...] | None = None
+        self, message: Localizable, *, contexts: tuple[Context, ...] | None = None
     ):
         from betty.locale.localizer import DEFAULT_LOCALIZER
 
@@ -138,7 +47,7 @@ class HumanFacingException(Exception, Localizable):
             message.localize(DEFAULT_LOCALIZER),
         )
         self._localizable_message = message
-        self._contexts: tuple[ContextLike, ...] = contexts or ()
+        self._contexts: tuple[Context, ...] = contexts or ()
 
     @override
     def __str__(self) -> str:
@@ -148,20 +57,9 @@ class HumanFacingException(Exception, Localizable):
 
     @override
     def localize(self, localizer: Localizer) -> Localized & str:
-        return LocalizedStr(
-            (
-                self._localizable_message.localize(localizer)
-                + "\n"
-                + indent(
-                    "\n".join(
-                        context.localize(localizer)
-                        for context in localizable_contexts(*self.contexts)
-                    ),
-                    "- ",
-                )
-            ).strip(),
-            locale=localizer.locale,
-        )
+        return Lines(
+            self._localizable_message, UnorderedList(*Selectors.reduce(*self.contexts))
+        ).localize(localizer)
 
     def raised(self, error_type: type[HumanFacingException]) -> bool:
         """
@@ -170,13 +68,13 @@ class HumanFacingException(Exception, Localizable):
         return isinstance(self, error_type)
 
     @property
-    def contexts(self) -> tuple[ContextLike, ...]:
+    def contexts(self) -> tuple[Context, ...]:
         """
         Get the human-readable contexts describing where the error occurred in the source data.
         """
         return self._contexts
 
-    def with_context(self, *contexts: ContextLike) -> Self:
+    def with_context(self, *contexts: Context) -> Self:
         """
         Add a message describing the error's context.
         """
@@ -234,7 +132,7 @@ class HumanFacingExceptionGroup(HumanFacingException):
         return not self.valid
 
     @contextmanager
-    def assert_valid(self, *contexts: ContextLike) -> Iterator[Self]:
+    def assert_valid(self, *contexts: Context) -> Iterator[Self]:
         """
         Assert that this collection contains no errors.
         """
@@ -256,7 +154,7 @@ class HumanFacingExceptionGroup(HumanFacingException):
                 self._errors.append(error.with_context(*self._contexts))
 
     @override
-    def with_context(self, *contexts: ContextLike) -> Self:
+    def with_context(self, *contexts: Context) -> Self:
         self_copy = super().with_context(*contexts)
         self_copy._errors = [error.with_context(*contexts) for error in self._errors]
         return self_copy
@@ -266,7 +164,7 @@ class HumanFacingExceptionGroup(HumanFacingException):
         return type(self)()
 
     @contextmanager
-    def catch(self, *contexts: ContextLike) -> Iterator[HumanFacingExceptionGroup]:
+    def catch(self, *contexts: Context) -> Iterator[HumanFacingExceptionGroup]:
         """
         Catch any errors raised within this context manager and add them to the collection.
 
