@@ -22,7 +22,7 @@ from betty.assertion import (
 from betty.config import Configuration, DefaultConfigurable
 from betty.config.collections import ConfigurationKey
 from betty.config.collections.mapping import ConfigurationMapping
-from betty.exception import UserFacingException
+from betty.exception import HumanFacingException
 from betty.locale.localizable import _
 from betty.locale.localizable.assertion import assert_static_translations
 from betty.locale.localizable.config import (
@@ -320,7 +320,7 @@ class PluginInstanceConfiguration(
         plugin = await factory(plugin_definition.cls)
         if not_void(self.configuration):
             if not isinstance(plugin, DefaultConfigurable):
-                raise UserFacingException(
+                raise HumanFacingException(
                     _(
                         'Plugin "{plugin_id}" is not configurable, but configuration was given.'
                     ).format(plugin_id=plugin_definition.id)

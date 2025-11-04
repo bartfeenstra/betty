@@ -16,7 +16,7 @@ from typing_extensions import override
 from betty import about
 from betty.app import App
 from betty.console.command import CommandDefinition, CommandFunction
-from betty.exception import UserFacingException
+from betty.exception import HumanFacingException
 from betty.locale.localizable import _
 from betty.locale.localizer import Localizer
 from betty.user import Verbosity
@@ -262,7 +262,7 @@ async def main(app: App, args: Sequence[str]) -> None:
     try:
         await call_command_func(command_func, namespace)
         raise SystemExit(SystemExitCode.OK) from None
-    except UserFacingException as error:
+    except HumanFacingException as error:
         await app.user.message_error(error)
         raise SystemExit(SystemExitCode.ERROR_UNEXPECTED) from None
     except (CancelledError, KeyboardInterrupt):

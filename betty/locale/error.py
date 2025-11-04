@@ -7,12 +7,12 @@ from __future__ import annotations
 from babel.core import Locale
 from babel.localedata import locale_identifiers
 
-from betty.exception import UserFacingException
+from betty.exception import HumanFacingException
 from betty.locale import to_locale
 from betty.locale.localizable import Paragraph, _, do_you_mean
 
 
-class LocaleError(UserFacingException, Exception):
+class LocaleError(HumanFacingException, Exception):
     """
     A locale API error.
     """

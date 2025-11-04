@@ -2,7 +2,7 @@ from typing import TYPE_CHECKING
 
 import pytest
 
-from betty.exception import UserFacingException
+from betty.exception import HumanFacingException
 from betty.locale import DEFAULT_LOCALE, UNDETERMINED_LOCALE
 from betty.locale.localizable import ShorthandStaticTranslations
 from betty.locale.localizable.config import (
@@ -47,7 +47,7 @@ class TestStaticTranslationsConfiguration:
 
     async def test_set__without_minimum_translations(self) -> None:
         sut = StaticTranslationsConfiguration(required=True)
-        with pytest.raises(UserFacingException):
+        with pytest.raises(HumanFacingException):
             sut.replace({})
 
     @pytest.mark.parametrize(
@@ -75,7 +75,7 @@ class TestStaticTranslationsConfiguration:
 
     async def test_load__without_translations_should_error(self) -> None:
         sut = StaticTranslationsConfiguration()
-        with pytest.raises(UserFacingException):
+        with pytest.raises(HumanFacingException):
             sut.load({})
 
     async def test_load__with_single_undetermined_translation(self) -> None:

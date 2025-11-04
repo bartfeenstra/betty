@@ -2,7 +2,7 @@ from typing import TYPE_CHECKING, Any
 
 import pytest
 
-from betty.exception import UserFacingException
+from betty.exception import HumanFacingException
 from betty.project.extension.wiki.config import WikiConfiguration
 from betty.test_utils.exception import raises_error
 
@@ -19,7 +19,7 @@ class TestWikiConfiguration:
 
     async def test_load__without_dict_should_error(self) -> None:
         dump = None
-        with raises_error(error_type=UserFacingException):
+        with raises_error(error_type=HumanFacingException):
             WikiConfiguration().load(dump)
 
     @pytest.mark.parametrize(

@@ -13,7 +13,7 @@ from betty.config.file import assert_configuration_file
 from betty.console.assertion import assertion_to_argument_type
 from betty.console.command import CommandFunction
 from betty.error import FileNotFound
-from betty.exception import UserFacingException
+from betty.exception import HumanFacingException
 from betty.locale.localizable import _
 from betty.project import Project
 from betty.project.config import ProjectConfiguration
@@ -66,7 +66,7 @@ async def _read_project_configuration(
                 return await _read_project_configuration_file(
                     project, try_configuration_file_path
                 )
-        raise UserFacingException(
+        raise HumanFacingException(
             _(
                 "Could not find any of the following configuration files in {project_directory_path}: {configuration_file_names}."
             ).format(
@@ -93,7 +93,7 @@ async def _read_project_configuration_file(
     assert_configuration = await assert_configuration_file(project.configuration)
     try:
         assert_configuration(configuration_file_path)
-    except UserFacingException as error:
+    except HumanFacingException as error:
         await user.message_debug(error)
         raise
     else:

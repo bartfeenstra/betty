@@ -17,7 +17,7 @@ from aiohttp import ClientError, ClientSession
 from typing_extensions import override
 
 from betty.cache.file import BinaryFileCache
-from betty.exception import UserFacingException
+from betty.exception import HumanFacingException
 from betty.license import License, LicenseDefinition
 from betty.locale.localizable import Localizable, Plain, _
 from betty.machine_name import MachineName
@@ -226,6 +226,6 @@ class SpdxLicenseBuilder:
         try:
             yield
         except (AssertionError, LookupError) as error:
-            raise UserFacingException(
+            raise HumanFacingException(
                 Plain(f"Invalid JSON response received from {self.URL}")
             ) from error

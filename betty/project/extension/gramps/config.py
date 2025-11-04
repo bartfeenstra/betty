@@ -23,7 +23,7 @@ from betty.assertion import (
 )
 from betty.config import Configuration
 from betty.config.collections.sequence import ConfigurationSequence
-from betty.exception import UserFacingException
+from betty.exception import HumanFacingException
 from betty.gramps.loader import (
     DEFAULT_EVENT_TYPES_MAPPING,
     DEFAULT_PLACE_TYPES_MAPPING,
@@ -238,7 +238,7 @@ class FamilyTreeConfiguration(Configuration):
             or "file" not in dump
             and "name" not in dump
         ):
-            raise UserFacingException(
+            raise HumanFacingException(
                 _(
                     'Family tree configuration must contain either a "file" or a "name" key'
                 )

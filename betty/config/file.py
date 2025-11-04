@@ -12,7 +12,7 @@ from aiofiles.os import makedirs
 
 from betty.assertion import AssertionChain, assert_file_path
 from betty.config import Configuration
-from betty.exception import UserFacingExceptionGroup
+from betty.exception import HumanFacingExceptionGroup
 from betty.factory import new
 from betty.locale.localizable import Plain
 from betty.serde.format import FORMAT_REPOSITORY, format_for
@@ -36,7 +36,7 @@ async def assert_configuration_file(
 
     def _assert(configuration_file_path: Path) -> _ConfigurationT:
         with (
-            UserFacingExceptionGroup().assert_valid() as errors,
+            HumanFacingExceptionGroup().assert_valid() as errors,
             # Change the working directory to allow relative paths to be resolved
             # against the configuration file's directory path.
             chdir(configuration_file_path.parent),

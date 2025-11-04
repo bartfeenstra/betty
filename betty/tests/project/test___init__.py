@@ -11,7 +11,7 @@ import betty.ancestry.person
 import betty.ancestry.place
 from betty.ancestry import Ancestry
 from betty.app.factory import AppDependentFactory
-from betty.exception import UserFacingException
+from betty.exception import HumanFacingException
 from betty.json.schema import JsonSchemaSchema
 from betty.locale.localizable import Localizable, Plain
 from betty.model import EntityDefinition
@@ -160,7 +160,7 @@ class TestProject:
                     DummyNonPublicFacingEntityOne.plugin, generate_html_list=True
                 )
             )
-            with pytest.raises(UserFacingException):
+            with pytest.raises(HumanFacingException):
                 async with sut:
                     pass
 

@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING, Any
 
-from betty.exception import UserFacingException
+from betty.exception import HumanFacingException
 from betty.model.config import EntityReference
 from betty.project.extension.raspberry_mint.config import RaspberryMintConfiguration
 from betty.test_utils.exception import raises_error
@@ -41,7 +41,7 @@ class TestRaspberryMintConfiguration:
 
     def test_load__without_dict_should_error(self) -> None:
         dump = None
-        with raises_error(error_type=UserFacingException):
+        with raises_error(error_type=HumanFacingException):
             RaspberryMintConfiguration().load(dump)
 
     def test_load__with_featured_entities(self) -> None:

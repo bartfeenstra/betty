@@ -17,7 +17,7 @@ from typing import TYPE_CHECKING, Any, ClassVar, Generic, Self, TypeAlias
 
 from typing_extensions import TypeVar
 
-from betty.exception import UserFacingException
+from betty.exception import HumanFacingException
 from betty.json.schema import Enum
 from betty.locale.localizable import CountableLocalizable, Paragraph, _, do_you_mean
 from betty.locale.localizer import DEFAULT_LOCALIZER
@@ -347,7 +347,7 @@ def resolve_id(plugin_id: PluginIdentifier, /) -> MachineName:
     return resolve_definition(plugin_id).id
 
 
-class PluginNotFound(PluginError, UserFacingException):
+class PluginNotFound(PluginError, HumanFacingException):
     """
     Raised when a plugin cannot be found.
     """

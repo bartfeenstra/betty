@@ -20,7 +20,7 @@ from betty.ancestry.presence_role.presence_roles import Subject
 from betty.assertion import assert_str
 from betty.config import Configuration
 from betty.date import Date, DateLike
-from betty.exception import UserFacingException
+from betty.exception import HumanFacingException
 from betty.functools import unique
 from betty.locale.localizable import _
 from betty.model import persistent_id
@@ -249,7 +249,7 @@ class ColorConfiguration(Configuration):
 
     def _assert_hex(self, hex_value: str) -> str:
         if not self._HEX_PATTERN.match(hex_value):
-            raise UserFacingException(
+            raise HumanFacingException(
                 _(
                     '"{hex_value}" is not a valid hexadecimal color, such as #ffc0cb.'
                 ).format(
