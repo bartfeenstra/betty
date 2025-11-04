@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Betty VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2025-11-04 00:44+0000\n"
+"POT-Creation-Date: 2025-11-04 14:00+0000\n"
 "PO-Revision-Date: 2025-03-28 20:02+0000\n"
 "Last-Translator: Ettore Atalan <atalanttore@googlemail.com>\n"
 "Language: de_DE\n"
@@ -289,6 +289,10 @@ msgstr "Bestätigung"
 #, python-format
 msgid "Continue reading on <a href=\"%(url)s\">Wikipedia</a>."
 msgstr "Auf <a href=\"%(url)s\">Wikipedia</a> weiterlesen."
+
+#, python-format
+msgid "Coordinates: %(latitude)s, %(longitude)s"
+msgstr ""
 
 msgid "Copyright"
 msgstr "Urheberrecht"
