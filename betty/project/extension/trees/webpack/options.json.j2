@@ -1,0 +1,22 @@
+{% set edge_color | trim %}
+  {% include 'trees/edge-color.txt.j2' %}
+{% endset %}
+
+{% set node_background_color | trim %}
+  {% include 'trees/node-background-color.txt.j2' %}
+{% endset %}
+
+{% set node_color | trim %}
+  {% include 'trees/node-color.txt.j2' %}
+{% endset %}
+
+{% set node_hover_color | trim %}
+  {% include 'trees/node-hover-color.txt.j2' %}
+{% endset %}
+
+{{ {
+  "edgeColor": edge_color,
+  "nodeBackgroundColor": node_background_color,
+  "nodeColor": node_color,
+  "nodeHoverColor": node_hover_color,
+} | json_dump | safe }}

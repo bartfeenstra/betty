@@ -5,15 +5,15 @@ import dagre from "cytoscape-dagre"
 
 cytoscape.use(dagre)
 
-async function initializeAncestryTrees(element) {
+async function initializeAncestryTrees(element, treeOptions) {
     if (!element) {
         element = document
     }
     const trees = element.getElementsByClassName("tree-content")
-    await Promise.allSettled(Array.from(trees).map(tree => initializeAncestryTree(tree, tree.dataset.bettyPerson)))
+    await Promise.allSettled(Array.from(trees).map(tree => initializeAncestryTree(tree, treeOptions, tree.dataset.bettyPerson)))
 }
 
-async function initializeAncestryTree(tree, personId) {
+async function initializeAncestryTree(tree, treeOptions, personId) {
     const response = await fetch(tree.dataset.bettyPeople)
     const people = await response.json()
     const elements = {
@@ -38,7 +38,7 @@ async function initializeAncestryTree(tree, personId) {
                     "shape": "round-rectangle",
                     "text-valign": "center",
                     "text-halign": "center",
-                    "background-color": "#eee",
+                    "background-color": treeOptions.nodeBackgroundColor,
                     "width": "label",
                     "height": "label",
                     "padding": "9px",
@@ -47,13 +47,13 @@ async function initializeAncestryTree(tree, personId) {
             {
                 selector: "node.public",
                 style: {
-                    color: "#149988",
+                    color: treeOptions.nodeColor,
                 },
             },
             {
                 selector: "node.public.hover",
                 style: {
-                    color: "#2a615a",
+                    color: treeOptions.nodeHoverColor,
                 },
             },
             {
@@ -63,8 +63,8 @@ async function initializeAncestryTree(tree, personId) {
                     "taxi-direction": "downward",
                     "width": 4,
                     "target-arrow-shape": "triangle",
-                    "line-color": "#777",
-                    "target-arrow-color": "#777",
+                    "line-color": treeOptions.edgeColor,
+                    "target-arrow-color": treeOptions.edgeColor,
                 },
             },
         ],
