@@ -8,6 +8,7 @@ from pathlib import Path
 from shutil import copytree
 
 import pytest
+from aiofiles.tempfile import TemporaryDirectory
 from geopy import Point
 from playwright.async_api import Page, expect
 
@@ -49,7 +50,10 @@ class MapsTestBase:
         Serve a test page with a map, navigate to it, and return the Playwright Page fixture.
         """
         async with (
-            App.new_temporary() as app,
+            TemporaryDirectory() as cache_directory_path_str,
+            App.new_temporary(
+                cache_directory_path=Path(cache_directory_path_str)
+            ) as app,
             app,
             Project.new_temporary(app) as project,
         ):

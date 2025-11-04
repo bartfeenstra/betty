@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from contextlib import asynccontextmanager
+from contextlib import AsyncExitStack, asynccontextmanager
 from os import environ
 from pathlib import Path
 from typing import TYPE_CHECKING, Any, Self, TypeVar, cast, final
@@ -124,6 +124,7 @@ class App(Configurable[AppConfiguration], TargetFactory, ServiceProvider):
     async def new_temporary(
         cls,
         *,
+        cache_directory_path: Path | None = None,
         cache_factory: ServiceFactory[Self, Cache[Any]] | None = None,
         process_pool: futures.ProcessPoolExecutor | None = None,
         user: User | None = None,
@@ -139,10 +140,11 @@ class App(Configurable[AppConfiguration], TargetFactory, ServiceProvider):
         The application will not use any persistent caches, or leave
         any traces on the system.
         """
-        async with (
-            TemporaryDirectory() as cache_directory_path_str,
-        ):
-            cache_directory_path = Path(cache_directory_path_str)
+        async with AsyncExitStack() as exit_stack:
+            if cache_directory_path is None:
+                cache_directory_path = Path(
+                    await exit_stack.enter_async_context(TemporaryDirectory())
+                )
             yield cls(
                 AppConfiguration(),
                 cache_directory_path,
