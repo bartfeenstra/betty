@@ -35,7 +35,8 @@ from betty.assertion import (
     assert_setattr,
     assert_str,
 )
-from betty.exception import HumanFacingException, Index, Key
+from betty.data import Index, Key
+from betty.exception import HumanFacingException
 from betty.locale import DEFAULT_LOCALE, UNDETERMINED_LOCALE
 from betty.locale.localizable import StaticTranslations
 from betty.test_utils.exception import raises_error

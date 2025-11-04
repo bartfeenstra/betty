@@ -563,6 +563,15 @@ class Paragraph(_Join):
 
 
 @final
+class Lines(_Join):
+    """
+    Represent multiple localizables as multiple lines of text.
+    """
+
+    _SEPARATOR = "\n"
+
+
+@final
 class Paragraphs(_Join):
     """
     Represent multiple localizables as multiple paragraphs of text.

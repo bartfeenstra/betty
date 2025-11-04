@@ -25,8 +25,9 @@ from typing import (
     overload,
 )
 
+from betty.data import Index, Key
 from betty.error import FileNotFound
-from betty.exception import HumanFacingException, HumanFacingExceptionGroup, Index, Key
+from betty.exception import HumanFacingException, HumanFacingExceptionGroup
 from betty.locale import UNDETERMINED_LOCALE, get_data
 from betty.locale.localizable import Localizable, Paragraph, Plain, _, do_you_mean
 from betty.typing import Void, Voidable, internal

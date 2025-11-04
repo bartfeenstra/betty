@@ -141,6 +141,10 @@ _BASELINE: Mapping[str, _ModuleIgnore] = {
             "append": MissingReason.COVERED_ELSEWHERE,
         },
     },
+    "betty/data.py": {
+        "Context": MissingReason.ABSTRACT,
+        "Selector": MissingReason.ABSTRACT,
+    },
     "betty/date.py": {
         "IncompleteDateError": MissingReason.STATIC_CONTENT_ONLY,
     },
@@ -157,7 +161,6 @@ _BASELINE: Mapping[str, _ModuleIgnore] = {
         "FileNotFound": MissingReason.SHOULD_BE_COVERED,
     },
     "betty/exception.py": {
-        "HumanFacingExceptionContext": MissingReason.ABSTRACT,
         "HumanFacingException": {
             "contexts": MissingReason.COVERED_ELSEWHERE,
         },

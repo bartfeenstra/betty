@@ -12,6 +12,7 @@ from betty.locale.localizable import (
     Chain,
     CountableLocalizable,
     CountablePlain,
+    Lines,
     Localizable,
     OrderedList,
     Paragraph,
@@ -358,6 +359,22 @@ class TestCountableLocalizable:
             .localize(DEFAULT_LOCALIZER)
             == "format-value"
         )
+
+
+class TestLines:
+    @pytest.mark.parametrize(
+        ("expected", "localizables"),
+        [
+            ("", []),
+            (
+                "Foo\nBar",
+                [Plain("Foo"), Plain("Bar")],
+            ),
+        ],
+    )
+    def test_localize(self, expected: str, localizables: Sequence[Localizable]) -> None:
+        sut = Lines(*localizables)
+        assert sut.localize(DEFAULT_LOCALIZER) == expected
 
 
 class TestParagraph:
