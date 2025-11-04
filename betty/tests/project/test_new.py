@@ -4,7 +4,7 @@ import pytest
 from pytest_mock import MockerFixture
 
 from betty.config.file import assert_configuration_file
-from betty.exception import UserFacingException
+from betty.exception import HumanFacingException
 from betty.locale import DEFAULT_LOCALE
 from betty.locale.localizable import Plain
 from betty.locale.localizer import DEFAULT_LOCALIZER
@@ -71,7 +71,7 @@ async def test_new__without_webpack(
 
     user = StaticUser()
     async with temporary_app_factory(user=user) as app, app:
-        with pytest.raises(UserFacingException):
+        with pytest.raises(HumanFacingException):
             await new(app)
 
 

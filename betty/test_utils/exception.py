@@ -9,8 +9,8 @@ from typing import TYPE_CHECKING, Any, overload
 
 from betty.exception import (
     ContextLike,
-    UserFacingException,
-    UserFacingExceptionGroup,
+    HumanFacingException,
+    HumanFacingExceptionGroup,
     localizable_contexts,
 )
 from betty.locale.localizer import DEFAULT_LOCALIZER
@@ -21,42 +21,42 @@ if TYPE_CHECKING:
 
 @overload
 def assert_error(
-    actual_error: UserFacingException | UserFacingExceptionGroup,
+    actual_error: HumanFacingException | HumanFacingExceptionGroup,
     *,
-    error: UserFacingException,
-    error_type: type[UserFacingException] = UserFacingException,
+    error: HumanFacingException,
+    error_type: type[HumanFacingException] = HumanFacingException,
     error_message: None = None,
     error_contexts: None = None,
-) -> Sequence[UserFacingException]:
+) -> Sequence[HumanFacingException]:
     pass
 
 
 @overload
 def assert_error(
-    actual_error: UserFacingException | UserFacingExceptionGroup,
+    actual_error: HumanFacingException | HumanFacingExceptionGroup,
     *,
     error: None = None,
-    error_type: type[UserFacingException] = UserFacingException,
+    error_type: type[HumanFacingException] = HumanFacingException,
     error_message: str | None = None,
     error_contexts: Sequence[ContextLike] | None = None,
-) -> Sequence[UserFacingException]:
+) -> Sequence[HumanFacingException]:
     pass
 
 
 def assert_error(
-    actual_error: UserFacingException | UserFacingExceptionGroup,
+    actual_error: HumanFacingException | HumanFacingExceptionGroup,
     *,
-    error: UserFacingException | None = None,
-    error_type: type[UserFacingException] = UserFacingException,
+    error: HumanFacingException | None = None,
+    error_type: type[HumanFacingException] = HumanFacingException,
     error_message: str | None = None,
     error_contexts: Sequence[ContextLike] | None = None,
-) -> Sequence[UserFacingException]:
+) -> Sequence[HumanFacingException]:
     """
     Assert that an error group contains an error matching the given parameters.
     """
     expected_error_contexts: Sequence[str] | None
-    actual_errors: Iterable[UserFacingException]
-    if isinstance(actual_error, UserFacingExceptionGroup):
+    actual_errors: Iterable[HumanFacingException]
+    if isinstance(actual_error, HumanFacingExceptionGroup):
         actual_errors = [*actual_error]
     else:
         actual_errors = [actual_error]
@@ -108,12 +108,12 @@ def assert_error(
 
 
 @contextmanager
-def raises_error(*args: Any, **kwargs: Any) -> Iterator[UserFacingExceptionGroup]:
+def raises_error(*args: Any, **kwargs: Any) -> Iterator[HumanFacingExceptionGroup]:
     """
     Provide a context manager to assert that an error group contains an error matching the given parameters.
     """
     try:
-        with UserFacingExceptionGroup().catch() as errors:
+        with HumanFacingExceptionGroup().catch() as errors:
             yield errors
     finally:
         assert_error(errors, *args, **kwargs)

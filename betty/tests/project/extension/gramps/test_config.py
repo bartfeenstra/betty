@@ -7,7 +7,7 @@ from typing_extensions import override
 from betty.ancestry.event_type.event_types import Birth
 from betty.ancestry.place_type.place_types import Borough
 from betty.ancestry.presence_role.presence_roles import Attendee
-from betty.exception import UserFacingException
+from betty.exception import HumanFacingException
 from betty.gramps.loader import (
     DEFAULT_EVENT_TYPES_MAPPING,
     DEFAULT_PLACE_TYPES_MAPPING,
@@ -160,7 +160,7 @@ class TestFamilyTreeConfiguration:
 
     async def test_load__without_dict_should_error(self, tmp_path: Path) -> None:
         dump = None
-        with raises_error(error_type=UserFacingException):
+        with raises_error(error_type=HumanFacingException):
             FamilyTreeConfiguration(tmp_path).load(dump)
 
     async def test_dump__with_minimal_configuration(self, tmp_path: Path) -> None:
@@ -282,7 +282,7 @@ class TestPluginMapping:
     )
     def test_load__should_error(self, dump: Dump) -> None:
         sut = PluginMapping[ClassedDummyPluginDefinition, ClassedDummyPlugin]({}, {})
-        with pytest.raises(UserFacingException):
+        with pytest.raises(HumanFacingException):
             sut.load(dump)
 
     @pytest.mark.parametrize(
@@ -388,7 +388,7 @@ class TestGrampsConfiguration:
 
     async def test_load__without_dict_should_error(self) -> None:
         dump = None
-        with raises_error(error_type=UserFacingException):
+        with raises_error(error_type=HumanFacingException):
             GrampsConfiguration().load(dump)
 
     async def test_load__with_family_tree(self) -> None:

@@ -5,7 +5,7 @@ Provide plugin assertions.
 from typing import Any, TypeVar
 
 from betty.assertion import AssertionChain, assert_str
-from betty.exception import UserFacingException
+from betty.exception import HumanFacingException
 from betty.locale.localizable import Paragraph, _, do_you_mean
 from betty.plugin import (
     PluginDefinition,
@@ -30,7 +30,7 @@ def assert_plugin(
         try:
             return plugins[plugin_id]
         except PluginNotFound:
-            raise UserFacingException(
+            raise HumanFacingException(
                 Paragraph(
                     _(
                         'Cannot find and import "{plugin_id}".',

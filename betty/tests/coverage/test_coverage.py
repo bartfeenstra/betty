@@ -157,11 +157,11 @@ _BASELINE: Mapping[str, _ModuleIgnore] = {
         "FileNotFound": MissingReason.SHOULD_BE_COVERED,
     },
     "betty/exception.py": {
-        "UserFacingExceptionContext": MissingReason.ABSTRACT,
-        "UserFacingException": {
+        "HumanFacingExceptionContext": MissingReason.ABSTRACT,
+        "HumanFacingException": {
             "contexts": MissingReason.COVERED_ELSEWHERE,
         },
-        "UserFacingExceptionGroup": {
+        "HumanFacingExceptionGroup": {
             "invalid": MissingReason.COVERED_ELSEWHERE,
         },
     },

@@ -9,7 +9,7 @@ from typing import TYPE_CHECKING, ClassVar, final
 
 from typing_extensions import override
 
-from betty.exception import UserFacingException
+from betty.exception import HumanFacingException
 from betty.locale.localizable import Localizable, _
 from betty.locale.localized import Localized, LocalizedStr
 from betty.plugin import (
@@ -28,7 +28,7 @@ if TYPE_CHECKING:
     from betty.typing import Voidable
 
 
-class FormatError(UserFacingException):
+class FormatError(HumanFacingException):
     """
     Raised when data that is being deserialized is provided in an unknown (undeserializable) format.
     """

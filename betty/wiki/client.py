@@ -15,7 +15,7 @@ from urllib.parse import quote, urlparse
 import aiofiles
 from geopy import Point
 
-from betty.exception import UserFacingException
+from betty.exception import HumanFacingException
 from betty.hashid import hashid
 from betty.locale.localizable import Plain
 from betty.media_type import MediaType
@@ -29,7 +29,7 @@ if TYPE_CHECKING:
     from betty.user import User
 
 
-class ClientError(UserFacingException, RuntimeError):
+class ClientError(HumanFacingException, RuntimeError):
     """
     A client error.
     """

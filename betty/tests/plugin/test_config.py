@@ -4,7 +4,7 @@ from typing import cast
 import pytest
 from typing_extensions import override
 
-from betty.exception import UserFacingException
+from betty.exception import HumanFacingException
 from betty.factory import new
 from betty.locale import UNDETERMINED_LOCALE
 from betty.locale.localizable import ShorthandStaticTranslations
@@ -292,7 +292,7 @@ class TestPluginInstanceConfiguration:
         sut = PluginInstanceConfiguration[
             ConfigurableDummyPluginDefinition, ConfigurableDummyPlugin
         ](ConfigurableDummyPluginOne.plugin)
-        with raises_error(error_type=UserFacingException):
+        with raises_error(error_type=HumanFacingException):
             sut.load({})
 
     def test_load__minimal(self) -> None:
@@ -372,7 +372,7 @@ class TestPluginInstanceConfiguration:
         repository = StaticPluginRepository(
             ClassedDummyPluginDefinition, ClassedDummyPluginOne.plugin
         )
-        with pytest.raises(UserFacingException):
+        with pytest.raises(HumanFacingException):
             await sut.new_plugin_instance(repository, factory=new)
 
     async def test_new_plugin_instance__with_non_configurable_plugin_without_configuration(

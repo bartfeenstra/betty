@@ -11,7 +11,7 @@ from betty.ancestry.place_type import PlaceTypeDefinition
 from betty.ancestry.presence_role import PresenceRoleDefinition
 from betty.copyright_notice import CopyrightNoticeDefinition
 from betty.copyright_notice.copyright_notices import ProjectAuthor
-from betty.exception import UserFacingException
+from betty.exception import HumanFacingException
 from betty.license import LicenseDefinition
 from betty.license.licenses import AllRightsReserved
 from betty.locale import DEFAULT_LOCALE, UNDETERMINED_LOCALE
@@ -95,7 +95,7 @@ class TestLocaleConfiguration:
     async def test_invalid_alias(self) -> None:
         locale = "nl-NL"
         alias = "/"
-        with pytest.raises(UserFacingException):
+        with pytest.raises(HumanFacingException):
             LocaleConfiguration(
                 locale,
                 alias=alias,
@@ -104,7 +104,7 @@ class TestLocaleConfiguration:
     async def test_load__with_invalid_dump(self) -> None:
         dump: Dump = {}
         sut = LocaleConfiguration(DEFAULT_LOCALE)
-        with raises_error(error_type=UserFacingException):
+        with raises_error(error_type=HumanFacingException):
             sut.load(dump)
 
     async def test_load__with_locale(self) -> None:
@@ -363,7 +363,7 @@ class TestEntityTypeConfiguration:
     async def test_load__with_empty_configuration(self) -> None:
         dump: Dump = {}
         sut = EntityTypeConfiguration(DummyEntityOne)
-        with raises_error(error_type=UserFacingException):
+        with raises_error(error_type=HumanFacingException):
             sut.load(dump)
 
     def test_load__with_minimal_configuration(self) -> None:
@@ -411,7 +411,7 @@ class TestEntityTypeConfiguration:
         sut = EntityTypeConfiguration(
             DummyNonPublicFacingEntityOne, generate_html_list=True
         )
-        with pytest.raises(UserFacingException):
+        with pytest.raises(HumanFacingException):
             await sut.validate(
                 StaticPluginRepository(
                     EntityDefinition, DummyNonPublicFacingEntityOne.plugin
@@ -504,7 +504,7 @@ class TestEntityTypeConfigurationMapping(
                 )
             ]
         )
-        with pytest.raises(UserFacingException):
+        with pytest.raises(HumanFacingException):
             await sut.validate(
                 StaticPluginRepository(
                     EntityDefinition, DummyNonPublicFacingEntityOne.plugin
@@ -568,7 +568,7 @@ class TestCopyrightNoticeConfiguration:
         sut = CopyrightNoticeDefinitionConfiguration(
             id="-", label="", summary="", text=""
         )
-        with pytest.raises(UserFacingException):
+        with pytest.raises(HumanFacingException):
             sut.load(dump)
 
     async def test_load__with_missing_text(self) -> None:
@@ -580,7 +580,7 @@ class TestCopyrightNoticeConfiguration:
         sut = CopyrightNoticeDefinitionConfiguration(
             id="-", label="", summary="", text=""
         )
-        with pytest.raises(UserFacingException):
+        with pytest.raises(HumanFacingException):
             sut.load(dump)
 
     async def test_dump(self) -> None:
@@ -682,7 +682,7 @@ class TestLicenseConfiguration:
             "text": "",
         }
         sut = LicenseDefinitionConfiguration(id="-", label="", summary="", text="")
-        with pytest.raises(UserFacingException):
+        with pytest.raises(HumanFacingException):
             sut.load(dump)
 
     async def test_load__with_missing_text(self) -> None:
@@ -692,7 +692,7 @@ class TestLicenseConfiguration:
             "summary": "",
         }
         sut = LicenseDefinitionConfiguration(id="-", label="", summary="", text="")
-        with pytest.raises(UserFacingException):
+        with pytest.raises(HumanFacingException):
             sut.load(dump)
 
     async def test_dump(self) -> None:
@@ -980,12 +980,12 @@ class TestProjectConfiguration:
 
     async def test_url__without_scheme_should_error(self, tmp_path: Path) -> None:
         sut = await ProjectConfiguration.new(tmp_path / "betty.json")
-        with pytest.raises(UserFacingException):
+        with pytest.raises(HumanFacingException):
             sut.url = "/"
 
     async def test_url__without_path_should_error(self, tmp_path: Path) -> None:
         sut = await ProjectConfiguration.new(tmp_path / "betty.json")
-        with pytest.raises(UserFacingException):
+        with pytest.raises(HumanFacingException):
             sut.url = "file://"
 
     @pytest.mark.parametrize(
@@ -1220,7 +1220,7 @@ class TestProjectConfiguration:
         dump["extensions"] = {
             DummyConfigurableExtension.plugin.id: 1337,
         }
-        with raises_error(error_type=UserFacingException):
+        with raises_error(error_type=HumanFacingException):
             sut.load(dump)
 
     @pytest.mark.parametrize(
@@ -1306,7 +1306,7 @@ class TestProjectConfiguration:
     async def test_load__should_error_if_invalid_config(self, tmp_path: Path) -> None:
         dump: Dump = {}
         sut = await ProjectConfiguration.new(tmp_path / "betty.json")
-        with raises_error(error_type=UserFacingException):
+        with raises_error(error_type=HumanFacingException):
             sut.load(dump)
 
     async def test_dump__should_dump_minimal(self, tmp_path: Path) -> None:
@@ -1478,7 +1478,7 @@ class TestProjectConfiguration:
     async def test_dump__should_error_if_invalid_config(self, tmp_path: Path) -> None:
         dump: Dump = {}
         sut = await ProjectConfiguration.new(tmp_path / "betty.json")
-        with raises_error(error_type=UserFacingException):
+        with raises_error(error_type=HumanFacingException):
             sut.load(dump)
 
     async def test_dump__should_dump_copyright_notice(self, tmp_path: Path) -> None:

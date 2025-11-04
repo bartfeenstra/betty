@@ -33,9 +33,9 @@ def do_raise(exception: BaseException) -> Never:
 _AssertionContextValueT = TypeVar("_AssertionContextValueT")
 
 
-class UserFacingExceptionContext(ABC):
+class HumanFacingExceptionContext(ABC):
     """
-    The context in which a user-facing exception is raised.
+    The context in which a human-facing exception is raised.
     """
 
     @abstractmethod
@@ -45,7 +45,7 @@ class UserFacingExceptionContext(ABC):
         """
 
 
-class Attr(UserFacingExceptionContext):
+class Attr(HumanFacingExceptionContext):
     """
     An object attribute context.
     """
@@ -58,7 +58,7 @@ class Attr(UserFacingExceptionContext):
         return f".{self._attr}"
 
 
-class Index(UserFacingExceptionContext):
+class Index(HumanFacingExceptionContext):
     """
     A sequence index context.
     """
@@ -71,7 +71,7 @@ class Index(UserFacingExceptionContext):
         return f"[{self._index}]"
 
 
-class Key(UserFacingExceptionContext):
+class Key(HumanFacingExceptionContext):
     """
     A mapping key context.
     """
@@ -84,12 +84,12 @@ class Key(UserFacingExceptionContext):
         return f'["{self._key}"]'
 
 
-ContextLike: TypeAlias = UserFacingExceptionContext | Localizable
+ContextLike: TypeAlias = HumanFacingExceptionContext | Localizable
 
 
 class _Contexts(Localizable):
-    def __init__(self, context: UserFacingExceptionContext):
-        self.contexts: MutableSequence[UserFacingExceptionContext] = [context]
+    def __init__(self, context: HumanFacingExceptionContext):
+        self.contexts: MutableSequence[HumanFacingExceptionContext] = [context]
 
     @override
     def localize(self, localizer: Localizer) -> Localized & str:
@@ -120,9 +120,9 @@ def localizable_contexts(*contexts: ContextLike) -> Sequence[Localizable]:
     return localizable_contexts
 
 
-class UserFacingException(Exception, Localizable):
+class HumanFacingException(Exception, Localizable):
     """
-    A localizable, user-facing exception.
+    A localizable, human-facing exception.
 
     When encountering an exception that extends this base class, Betty will show the localized exception message, and
     no stack trace.
@@ -163,7 +163,7 @@ class UserFacingException(Exception, Localizable):
             locale=localizer.locale,
         )
 
-    def raised(self, error_type: type[UserFacingException]) -> bool:
+    def raised(self, error_type: type[HumanFacingException]) -> bool:
         """
         Check if the error matches the given error type.
         """
@@ -188,21 +188,21 @@ class UserFacingException(Exception, Localizable):
         return type(self)(self._localizable_message)
 
 
-class UserFacingExceptionGroup(UserFacingException):
+class HumanFacingExceptionGroup(HumanFacingException):
     """
-    A group of zero or more assertion failures.
+    A group of zero or more human-facing exceptions.
     """
 
     def __init__(
         self,
-        errors: Sequence[UserFacingException] | None = None,
+        errors: Sequence[HumanFacingException] | None = None,
     ):
         super().__init__(_("The following errors occurred"))
-        self._errors: MutableSequence[UserFacingException] = []
+        self._errors: MutableSequence[HumanFacingException] = []
         if errors is not None:
             self.append(*errors)
 
-    def __iter__(self) -> Iterator[UserFacingException]:
+    def __iter__(self) -> Iterator[HumanFacingException]:
         yield from self._errors
 
     @override
@@ -216,7 +216,7 @@ class UserFacingExceptionGroup(UserFacingException):
         return len(self._errors)
 
     @override
-    def raised(self, error_type: type[UserFacingException]) -> bool:
+    def raised(self, error_type: type[HumanFacingException]) -> bool:
         return any(error.raised(error_type) for error in self._errors)
 
     @property
@@ -245,12 +245,12 @@ class UserFacingExceptionGroup(UserFacingException):
         if self.invalid:  # type: ignore[redundant-expr]
             raise self
 
-    def append(self, *errors: UserFacingException) -> None:
+    def append(self, *errors: HumanFacingException) -> None:
         """
         Append errors to this collection.
         """
         for error in errors:
-            if isinstance(error, UserFacingExceptionGroup):
+            if isinstance(error, HumanFacingExceptionGroup):
                 self.append(*error)
             else:
                 self._errors.append(error.with_context(*self._contexts))
@@ -266,17 +266,17 @@ class UserFacingExceptionGroup(UserFacingException):
         return type(self)()
 
     @contextmanager
-    def catch(self, *contexts: ContextLike) -> Iterator[UserFacingExceptionGroup]:
+    def catch(self, *contexts: ContextLike) -> Iterator[HumanFacingExceptionGroup]:
         """
         Catch any errors raised within this context manager and add them to the collection.
 
         :return: A new collection that will only contain any newly raised errors.
         """
-        context_errors: UserFacingExceptionGroup = UserFacingExceptionGroup()
+        context_errors: HumanFacingExceptionGroup = HumanFacingExceptionGroup()
         if contexts:
             context_errors = context_errors.with_context(*contexts)
         try:
             yield context_errors
-        except UserFacingException as e:
+        except HumanFacingException as e:
             context_errors.append(e)
         self.append(*context_errors)

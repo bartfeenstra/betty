@@ -2,7 +2,7 @@
 Provide Gramps error handling utilities.
 """
 
-from betty.exception import UserFacingException
+from betty.exception import HumanFacingException
 
 
 class GrampsError(Exception):
@@ -11,7 +11,7 @@ class GrampsError(Exception):
     """
 
 
-class UserFacingGrampsError(GrampsError, UserFacingException):
+class UserFacingGrampsError(GrampsError, HumanFacingException):
     """
     A user-facing Gramps API error.
     """

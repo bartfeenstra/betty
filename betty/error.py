@@ -5,11 +5,11 @@ Provide error handling utilities.
 from pathlib import Path
 from typing import Self
 
-from betty.exception import UserFacingException
+from betty.exception import HumanFacingException
 from betty.locale.localizable import _
 
 
-class FileNotFound(UserFacingException, FileNotFoundError):
+class FileNotFound(HumanFacingException, FileNotFoundError):
     """
     Raised when a file cannot be found.
     """

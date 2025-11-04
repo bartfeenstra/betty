@@ -7,7 +7,7 @@ from typing_extensions import override
 
 from betty.config.file import assert_configuration_file, write_configuration_file
 from betty.error import FileNotFound
-from betty.exception import UserFacingException
+from betty.exception import HumanFacingException
 from betty.serde.dump import Dump
 from betty.test_utils.config import DummyConfiguration
 
@@ -36,7 +36,7 @@ async def test_assert_configuration_file__with_invalid_configuration(
     async with aiofiles.open(configuration_file_path, "w") as f:
         await f.write("this is not valid JSON")
     assertion = await assert_configuration_file(configuration)
-    with pytest.raises(UserFacingException):
+    with pytest.raises(HumanFacingException):
         assertion(configuration_file_path)
 
 
