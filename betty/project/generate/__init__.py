@@ -7,6 +7,7 @@ from __future__ import annotations
 import asyncio
 import os
 import shutil
+import time
 from abc import ABC, abstractmethod
 from asyncio import gather
 from contextlib import suppress
@@ -100,6 +101,8 @@ async def generate(
             GenerateEntitiesHtml(),
         )
         await scheduler.complete()
+        print(f"GENERATE SCHEDULER COMPLETE {time.time()-job_context.start_time}")
+    print(f"GENERATE THREAD POOL DONE {time.time()-job_context.start_time}")
 
     await _postprocess(project)
     await job_context.progress.done()

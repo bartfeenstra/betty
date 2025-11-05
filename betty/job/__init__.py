@@ -4,6 +4,7 @@ Provide utilities for running jobs concurrently.
 
 from __future__ import annotations
 
+import time
 from abc import ABC, abstractmethod
 from datetime import datetime
 from typing import TYPE_CHECKING, Any, Generic, TypeAlias, TypeVar
@@ -31,6 +32,8 @@ class Context:
         self._id = str(uuid4())
         self._cache = cache or NoOpCache()
         self._start = datetime.now()
+        # @todo
+        self.start_time = time.time()
         self._progress = progress or NoOpProgress()
 
     @property

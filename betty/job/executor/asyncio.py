@@ -4,6 +4,7 @@ Job execution using async/await.
 
 from __future__ import annotations
 
+import time
 from asyncio import CancelledError, Task, as_completed, get_running_loop
 from contextlib import suppress
 from typing import TYPE_CHECKING, TypeVar, final
@@ -44,13 +45,18 @@ class AsyncExecutor(Executor):
             self._tasks.add(task)
 
     async def _run_job(self) -> None:
-        with suppress(Completed, CancelledError):
-            try:
-                while self._working:
-                    batch = await self._scheduler.get()
-                    await batch()
-            except Cancelled:
-                await self.cancel()
+        # @todo Remove the try
+        try:
+            with suppress(Completed, CancelledError):
+                try:
+                    while self._working:
+                        batch = await self._scheduler.get()
+                        await batch()
+                except Cancelled:
+                    await self.cancel()
+        finally:
+            print(f"ASYNC EXECUTOR RUNNER DONE {time.time() - self._scheduler.context.start_time}")
+
 
     @override
     async def cancel(self) -> None:
@@ -63,9 +69,11 @@ class AsyncExecutor(Executor):
 
     @override
     async def complete(self) -> None:
+        print(f"ASYNC EXECUTOR COMPLETE START {time.time() - self._scheduler.context.start_time}")
         if not self._working:
             return
         for task in as_completed(self._tasks):
             with suppress(CancelledError):
                 await task
         self._working = False
+        print(f"ASYNC EXECUTOR COMPLETE END {time.time() - self._scheduler.context.start_time}")

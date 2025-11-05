@@ -5,6 +5,7 @@ Job execution using thread pools.
 from __future__ import annotations
 
 import asyncio
+import time
 from asyncio import Task, gather, get_running_loop
 from concurrent import futures
 from contextlib import suppress
@@ -86,6 +87,7 @@ class ThreadPoolExecutor(Executor):
 
     @override
     async def complete(self) -> None:
+        print(f"THREAD POOL COMPLETE START {time.time() - self._scheduler.context.start_time}")
         if not self._working:
             return
         await gather(
@@ -99,3 +101,4 @@ class ThreadPoolExecutor(Executor):
                 future.result()
         self._thread_pool.shutdown()
         self._working = False
+        print(f"THREAD POOL COMPLETE END {time.time() - self._scheduler.context.start_time}")

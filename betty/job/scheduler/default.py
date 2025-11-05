@@ -4,6 +4,7 @@ Betty's default job scheduler.
 
 from __future__ import annotations
 
+import time
 from asyncio import sleep
 from collections import defaultdict
 from collections.abc import Iterable
@@ -275,7 +276,13 @@ class DefaultScheduler(Generic[_ContextCoT], Scheduler[_ContextCoT]):
         backoff = 0
         async with self._cancel_on_exception():
             while True:
+                print(f"SCHEDULER COMPLETE TRY {time.time() - self._context.start_time}")
                 async with self._lock:
+                    print(f"SCHEDULER COMPLETE LOCK ACQUIRE {time.time() - self._context.start_time}")
+                    print(self._completed)
+                    print(self._scheduled_jobs)
+                    print(self._releasable_jobs_queue)
+                    print(self._released_jobs)
                     if self._completed:
                         return
                     self._assert_not_cancelled()
@@ -286,5 +293,6 @@ class DefaultScheduler(Generic[_ContextCoT], Scheduler[_ContextCoT]):
                     ):
                         self._completed = True
                         return
+                print(f"SCHEDULER COMPLETE LOCK RELEASE {time.time() - self._context.start_time}")
                 await sleep(0.001 * 2 ** max(backoff, 7))
                 backoff += 1

@@ -6,6 +6,7 @@ This module is internal.
 
 from __future__ import annotations
 
+import time
 from asyncio import to_thread
 from pathlib import Path
 from shutil import copytree
@@ -40,6 +41,7 @@ class _GenerateAssets(Job[ProjectContext]):
 
     @override
     async def do(self, scheduler: Scheduler[ProjectContext], /) -> None:
+        print(f"WEBPACK JOB START: {time.time() - scheduler.context.start_time}")
         context = scheduler.context
         project = context.project
         extensions = await project.extensions
@@ -47,10 +49,12 @@ class _GenerateAssets(Job[ProjectContext]):
         build_directory_path = await webpack._generate_ensure_build_directory(
             job_context=context
         )
+        print(f"WEBPACK JOB BUILDER DONE: {time.time() - scheduler.context.start_time}")
         context._webpack_build_directory_path = build_directory_path  # type: ignore[attr-defined]
         await webpack._copy_build_directory(
             build_directory_path, project.configuration.www_directory_path
         )
+        print(f"WEBPACK JOB DONE: {time.time() - scheduler.context.start_time}")
 
 
 @internal
