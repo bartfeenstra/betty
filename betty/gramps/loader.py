@@ -8,6 +8,7 @@ import gzip
 import re
 import sys
 import tarfile
+from asyncio import to_thread
 from collections import defaultdict
 from contextlib import ExitStack, suppress
 from dataclasses import dataclass
@@ -738,7 +739,7 @@ class GrampsLoader:
                     'Cannot load Gramps file {file_id} with relative path {file_path}, because your family tree does not include a base path. In Gramps, add a "base path for relative media paths" to your family tree, and export it again.'
                 ).format(file_id=file_id, file_path=str(file_path))
             )
-        if not file_path.is_file():
+        if not await to_thread(file_path.is_file):
             raise UserFacingGrampsError(
                 _(
                     "Cannot load Gramps file {file_id}, because {file_path} is not a file."
