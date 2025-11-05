@@ -1,45 +1,92 @@
-{% set ns = namespace(primary_navigation_links = {}) %}
-{% for entity_type_configuration in project.configuration.entity_types.values() | selectattr('generate_html_list') %}
-    {% set entity_type = app.entity_type_repository[entity_type_configuration.id] %}
-    {% set entity_type_label -%}
-        {% if entity_type.id == 'event' %}
-            {% trans %}Timeline{% endtrans %}
-        {% else %}
-            {{ entity_type.label_plural | localize }}
-        {% endif %}
-    {%- endset %}
-    {% do ns.primary_navigation_links.update({entity_type | url: entity_type_label}) %}
-{% endfor %}
+{% cache 'raspberry-mint-template-header:' ~ localizer.locale %}
+    {% set ns = namespace(primary_navigation_links = {}) %}
+    {% for entity_type_configuration in project.configuration.entity_types.values() | selectattr('generate_html_list') %}
+        {% set entity_type = app.entity_type_repository[entity_type_configuration.id] %}
+        {% set entity_type_label -%}
+            {% if entity_type.id == 'event' %}
+                {% trans %}Timeline{% endtrans %}
+            {% else %}
+                {{ entity_type.label_plural | localize }}
+            {% endif %}
+        {%- endset %}
+        {% do ns.primary_navigation_links.update({entity_type | url: entity_type_label}) %}
+    {% endfor %}
 
-<div class="background-embellished" data-bs-theme="dark-secondary">
-    <div class="container">
-        <nav class="d-flex gap-2">
-            <div class="d-flex flex-column flex-grow-1">
-                <div class="d-flex gap-1">
-                    <img src="{{ ('betty-static:///logo' ~ project.logo.suffix) | url }}" alt="{% trans project_title = project.configuration.title | localize %}The '{{ project_title }}' logo{% endtrans %}" class="header-site-logo">
-                    <a class="flex-grow-1 header-site-title no-link" href="{{ 'betty:///index.html' | url }}" title="{% trans %}Go to the front page{% endtrans %}">
-                        {{ project.configuration.title | localize }}
-                    </a>
+    <div class="background-embellished" data-bs-theme="dark-secondary">
+        <div class="container">
+            <nav class="d-flex gap-2">
+                <div class="d-flex flex-column flex-grow-1">
+                    <div class="d-flex gap-1">
+                        <img src="{{ ('betty-static:///logo' ~ project.logo.suffix) | url }}" alt="{% trans project_title = project.configuration.title | localize %}The '{{ project_title }}' logo{% endtrans %}" class="header-site-logo">
+                        <a class="flex-grow-1 header-site-title no-link" href="{{ 'betty:///index.html' | url }}" title="{% trans %}Go to the front page{% endtrans %}">
+                            {{ project.configuration.title | localize }}
+                        </a>
+                    </div>
+                    <div class="d-none d-md-block">
+                        <ul class="d-flex gap-1 header-primary-navigation justify-content-end list-unstyled m-0">
+                            {% for entity_type_url, entity_type_label in ns.primary_navigation_links.items() %}
+                                <li>
+                                    <a href="{{ entity_type_url }}">{{ entity_type_label }}</a>
+                                </li>
+                            {% endfor %}
+                            {% for link in primary_navigation_links %}
+                                <li>
+                                    <a href="{{ link.url | localize | url }}">{{ link.label | localize | html_lang }}</a>
+                                </li>
+                            {% endfor %}
+                        </ul>
+                    </div>
                 </div>
-                <div class="d-none d-md-block">
-                    <ul class="d-flex gap-1 header-primary-navigation justify-content-end list-unstyled m-0">
-                        {% for entity_type_url, entity_type_label in ns.primary_navigation_links.items() %}
-                            <li>
-                                <a href="{{ entity_type_url }}">{{ entity_type_label }}</a>
-                            </li>
-                        {% endfor %}
-                        {% for link in primary_navigation_links %}
-                            <li>
-                                <a href="{{ link.url | localize | url }}">{{ link.label | localize | html_lang }}</a>
-                            </li>
-                        {% endfor %}
-                    </ul>
-                </div>
-            </div>
+                {% if project.configuration.locales.multilingual %}
+                    {% with attributes = new_attributes(html_aria_controls=["nav-language"],
+                        html_aria_expanded=false,
+                        html_class=[
+                            "header-entry-point"
+                        ]
+                    ) %}
+                        {% do attributes.set_data(bs_toggle="modal", bs_target="#nav-language") %}
+                        {% include "component/button-language.html.j2" %}
+                    {% endwith %}
+                {% endif %}
+                {% with attributes = new_attributes(html_aria_controls=["nav-search"],
+                    html_aria_expanded=false,
+                    html_class=[
+                        "header-entry-point",
+                        "header-entry-point-search"
+                    ]
+                ) %}
+                    {% do attributes.set_data(bs_toggle="modal", bs_target="#nav-search") %}
+                    {% include "component/button-search.html.j2" %}
+                {% endwith %}
+                {% with attributes = new_attributes(html_aria_controls=["nav-menu"],
+                    html_aria_expanded=false,
+                    html_class=[
+                        "d-block",
+                        "d-md-none",
+                        "header-entry-point"
+                    ]
+                ) %}
+                    {% do attributes.set_data(bs_toggle="modal", bs_target="#nav-menu") %}
+                    {% include "component/button-menu.html.j2" %}
+                {% endwith %}
+            </nav>
+        </div>
+    </div>
+    {% set nav_menu_body %}
+        <div class="d-flex gap-2">
+            <ul class="flex-grow-1 list-unstyled text-center">
+                {% for entity_type_url, entity_type_label in ns.primary_navigation_links.items() %}
+                    <li class="h6">
+                        <a href="{{ entity_type_url }}">{{ entity_type_label }}</a>
+                    </li>
+                {% endfor %}
+            </ul>
             {% if project.configuration.locales.multilingual %}
                 {% with attributes = new_attributes(html_aria_controls=["nav-language"],
                     html_aria_expanded=false,
                     html_class=[
+                        "d-none",
+                        "d-md-inline",
                         "header-entry-point"
                     ]
                 ) %}
@@ -50,167 +97,122 @@
             {% with attributes = new_attributes(html_aria_controls=["nav-search"],
                 html_aria_expanded=false,
                 html_class=[
-                    "header-entry-point",
-                    "header-entry-point-search"
-                ]
-            ) %}
-                {% do attributes.set_data(bs_toggle="modal", bs_target="#nav-search") %}
-                {% include "component/button-search.html.j2" %}
-            {% endwith %}
-            {% with attributes = new_attributes(html_aria_controls=["nav-menu"],
-                html_aria_expanded=false,
-                html_class=[
-                    "d-block",
-                    "d-md-none",
-                    "header-entry-point"
-                ]
-            ) %}
-                {% do attributes.set_data(bs_toggle="modal", bs_target="#nav-menu") %}
-                {% include "component/button-menu.html.j2" %}
-            {% endwith %}
-        </nav>
-    </div>
-</div>
-{% set nav_menu_body %}
-    <div class="d-flex gap-2">
-        <ul class="flex-grow-1 list-unstyled text-center">
-            {% for entity_type_url, entity_type_label in ns.primary_navigation_links.items() %}
-                <li class="h6">
-                    <a href="{{ entity_type_url }}">{{ entity_type_label }}</a>
-                </li>
-            {% endfor %}
-        </ul>
-        {% if project.configuration.locales.multilingual %}
-            {% with attributes = new_attributes(html_aria_controls=["nav-language"],
-                html_aria_expanded=false,
-                html_class=[
                     "d-none",
                     "d-md-inline",
                     "header-entry-point"
                 ]
             ) %}
-                {% do attributes.set_data(bs_toggle="modal", bs_target="#nav-language") %}
-                {% include "component/button-language.html.j2" %}
+                {% do attributes.set_data(bs_toggle="modal", bs_target="#nav-search") %}
+                {% include "component/button-search.html.j2" %}
             {% endwith %}
-        {% endif %}
-        {% with attributes = new_attributes(html_aria_controls=["nav-search"],
-            html_aria_expanded=false,
-            html_class=[
-                "d-none",
-                "d-md-inline",
-                "header-entry-point"
-            ]
-        ) %}
-            {% do attributes.set_data(bs_toggle="modal", bs_target="#nav-search") %}
-            {% include "component/button-search.html.j2" %}
-        {% endwith %}
-    </div>
-{% endset %}
-{% with attributes = new_attributes(html_id="nav-menu"),
-    dialog_attributes = new_attributes(html_class=["modal-sm", "modal-fullscreen-md-down"]),
-    title = _("Menu"),
-    body = nav_menu_body
-%}
-    {% include "component/modal.html.j2" %}
-{% endwith %}
-{% set nav_language_body %}
-    <ul class="list-unstyled text-center">
-        {% set ns = namespace(available_locales = []) %}
-        {% for available_locale_configuration in project.configuration.locales.values() %}
-            {% set available_locale_data = available_locale_configuration.alias | locale_get_data %}
-            {% do ns.available_locales.append((available_locale_configuration.locale, available_locale_data.get_display_name())) %}
-        {% endfor %}
-        {% for available_locale, available_locale_name in ns.available_locales | sort(attribute='1') %}
-            <li class="h6 header-nav-link">
-                <a href="{{ page_resource | url(locale=available_locale) }}" hreflang="{{ available_locale }}" lang="{{ available_locale }}" rel="alternate">{{ available_locale_name }}</a>
-            </li>
-        {% endfor %}
-    </ul>
-{% endset %}
-{% if project.configuration.locales.multilingual %}
-    {% with attributes = new_attributes(html_id="nav-language"),
-        dialog_attributes = new_attributes(html_class=["modal-md", "modal-fullscreen-md-down"]),
-        title = _("Language"),
-        body = nav_language_body
+        </div>
+    {% endset %}
+    {% with attributes = new_attributes(html_id="nav-menu"),
+        dialog_attributes = new_attributes(html_class=["modal-sm", "modal-fullscreen-md-down"]),
+        title = _("Menu"),
+        body = nav_menu_body
     %}
         {% include "component/modal.html.j2" %}
     {% endwith %}
-{% endif %}
-{% set nav_search_body %}
-    <div class="container">
-        {% set ns = namespace(
-            filter_entity_type_checkboxes = [],
-            filter_entity_type_html_ids = {}
-        ) %}
-        {% for entity_type in app.entity_type_repository %}
-            {% if entity_type.public_facing and project.ancestry[entity_type] | select("public")| list %}
-                {% set entity_type_html_id = 'betty-search-form-filter-entity-type--' + entity_type.id %}
-                {% do ns.filter_entity_type_checkboxes.append({
-                    'attributes': new_attributes(html_checked=true, html_id=entity_type_html_id),
-                    'form_control_attributes': new_attributes(html_class=['search-form-filter-entity-type']),
-                    'label': entity_type.label | localize,
-                    'value': entity_type.id,
-                }) %}
-                {% do ns.filter_entity_type_html_ids.setdefault(entity_type_html_id, entity_type.id) %}
-            {% endif %}
-        {% endfor %}
-        <form id="search-form" data-betty-search-form-index="{{ 'betty:///search-index.json' | url }}" data-betty-search-form-filter-entity-type="{{ ns.filter_entity_type_html_ids | json_dump }}">
-            <div class="align-items-end d-flex gap-2">
-                <div class="flex-grow-1 form-control-text">
-                    <label for="search-form-query" class="form-label">{% trans %}Keywords{% endtrans %}</label>
-                    <input type="text" class="form-control" id="search-form-query">
-                </div>
-                <div>
-                    {% with button_label = _('Search') %}
-                        {% include 'component/submit.html.j2' %}
-                    {% endwith %}
-                </div>
-            </div>
-            <div class="mt-3 row">
-                <div class="col col-12 col-md-4 col-lg-3">
-                    <h3 class="h2 section-heading">{% trans %}Filters{% endtrans %}</h3>
-                    {% set search_form_filter_entity_type %}
-                        {% with checkboxes = ns.filter_entity_type_checkboxes | sort(attribute="label"),
-                            checkboxes_label = _('Entity type'),
-                            checkboxes_label_visually_hidden = true
-                        %}
-                            {% include 'component/checkboxes.html.j2' %}
+    {% set nav_language_body %}
+        <ul class="list-unstyled text-center">
+            {% set ns = namespace(available_locales = []) %}
+            {% for available_locale_configuration in project.configuration.locales.values() %}
+                {% set available_locale_data = available_locale_configuration.alias | locale_get_data %}
+                {% do ns.available_locales.append((available_locale_configuration.locale, available_locale_data.get_display_name())) %}
+            {% endfor %}
+            {% for available_locale, available_locale_name in ns.available_locales | sort(attribute='1') %}
+                <li class="h6 header-nav-link">
+                    <a href="{{ page_resource | url(locale=available_locale) }}" hreflang="{{ available_locale }}" lang="{{ available_locale }}" rel="alternate">{{ available_locale_name }}</a>
+                </li>
+            {% endfor %}
+        </ul>
+    {% endset %}
+    {% if project.configuration.locales.multilingual %}
+        {% with attributes = new_attributes(html_id="nav-language"),
+            dialog_attributes = new_attributes(html_class=["modal-md", "modal-fullscreen-md-down"]),
+            title = _("Language"),
+            body = nav_language_body
+        %}
+            {% include "component/modal.html.j2" %}
+        {% endwith %}
+    {% endif %}
+    {% set nav_search_body %}
+        <div class="container">
+            {% set ns = namespace(
+                filter_entity_type_checkboxes = [],
+                filter_entity_type_html_ids = {}
+            ) %}
+            {% for entity_type in app.entity_type_repository %}
+                {% if entity_type.public_facing and project.ancestry[entity_type] | select("public")| list %}
+                    {% set entity_type_html_id = 'betty-search-form-filter-entity-type--' + entity_type.id %}
+                    {% do ns.filter_entity_type_checkboxes.append({
+                        'attributes': new_attributes(html_checked=true, html_id=entity_type_html_id),
+                        'form_control_attributes': new_attributes(html_class=['search-form-filter-entity-type']),
+                        'label': entity_type.label | localize,
+                        'value': entity_type.id,
+                    }) %}
+                    {% do ns.filter_entity_type_html_ids.setdefault(entity_type_html_id, entity_type.id) %}
+                {% endif %}
+            {% endfor %}
+            <form id="search-form" data-betty-search-form-index="{{ 'betty:///search-index.json' | url }}" data-betty-search-form-filter-entity-type="{{ ns.filter_entity_type_html_ids | json_dump }}">
+                <div class="align-items-end d-flex gap-2">
+                    <div class="flex-grow-1 form-control-text">
+                        <label for="search-form-query" class="form-label">{% trans %}Keywords{% endtrans %}</label>
+                        <input type="text" class="form-control" id="search-form-query">
+                    </div>
+                    <div>
+                        {% with button_label = _('Search') %}
+                            {% include 'component/submit.html.j2' %}
                         {% endwith %}
-                    {% endset %}
-                    {% with accordion_heading_element = 'h4',
-                        accordion_heading_class = 'h3',
-                        accordion_id = 'search-filters',
-                        accordion_items = [
-                            {
-                                'header': _('Entity type'),
-                                'body': search_form_filter_entity_type,
-                            },
-                        ],
-                        html_class = ['mt-2']
-                    %}
-                        {% include 'component/accordion.html.j2' %}
-                    {% endwith %}
-                    {% with button_label = _('Reset'),
-                        button_secondary = True,
-                        attributes=new_attributes(
-                            html_class=['mt-3'],
-                            html_id='search-form-filter-reset'
-                        )
-                    %}
-                        {% include 'component/button.html.j2' %}
-                    {% endwith %}
+                    </div>
                 </div>
-                <div class="col col-12 col-md-8 col-lg-9 mt-3 mt-md-0">
-                    <div id="search-results-container"></div>
+                <div class="mt-3 row">
+                    <div class="col col-12 col-md-4 col-lg-3">
+                        <h3 class="h2 section-heading">{% trans %}Filters{% endtrans %}</h3>
+                        {% set search_form_filter_entity_type %}
+                            {% with checkboxes = ns.filter_entity_type_checkboxes | sort(attribute="label"),
+                                checkboxes_label = _('Entity type'),
+                                checkboxes_label_visually_hidden = true
+                            %}
+                                {% include 'component/checkboxes.html.j2' %}
+                            {% endwith %}
+                        {% endset %}
+                        {% with accordion_heading_element = 'h4',
+                            accordion_heading_class = 'h3',
+                            accordion_id = 'search-filters',
+                            accordion_items = [
+                                {
+                                    'header': _('Entity type'),
+                                    'body': search_form_filter_entity_type,
+                                },
+                            ],
+                            html_class = ['mt-2']
+                        %}
+                            {% include 'component/accordion.html.j2' %}
+                        {% endwith %}
+                        {% with button_label = _('Reset'),
+                            button_secondary = True,
+                            attributes=new_attributes(
+                                html_class=['mt-3'],
+                                html_id='search-form-filter-reset'
+                            )
+                        %}
+                            {% include 'component/button.html.j2' %}
+                        {% endwith %}
+                    </div>
+                    <div class="col col-12 col-md-8 col-lg-9 mt-3 mt-md-0">
+                        <div id="search-results-container"></div>
+                    </div>
                 </div>
-            </div>
-        </form>
-    </div>
-{% endset %}
-{% with attributes = new_attributes(html_id="nav-search"),
-    dialog_attributes = new_attributes(html_class=["modal-fullscreen"]),
-    title = _("Search"),
-    body = nav_search_body
-%}
-    {% include "component/modal.html.j2" %}
-{% endwith %}
+            </form>
+        </div>
+    {% endset %}
+    {% with attributes = new_attributes(html_id="nav-search"),
+        dialog_attributes = new_attributes(html_class=["modal-fullscreen"]),
+        title = _("Search"),
+        body = nav_search_body
+    %}
+        {% include "component/modal.html.j2" %}
+    {% endwith %}
+{% endcache %}
