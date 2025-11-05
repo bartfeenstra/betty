@@ -32,6 +32,6 @@ class TestClearCaches:
         legacy_cache_item_path.touch()
         await temporary_app.cache.set("KeepMeAroundPlease", "")
         await run(temporary_app, "clear-caches")
-        async with temporary_app.cache.get("KeepMeAroundPlease") as cache_item:
-            assert cache_item is None
+        cache_item = await temporary_app.cache.get("KeepMeAroundPlease")
+        assert cache_item is None
         assert not legacy_cache_item_path.exists()

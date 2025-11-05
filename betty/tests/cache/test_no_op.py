@@ -1,3 +1,4 @@
+from betty.cache import CacheItem
 from betty.cache.no_op import NoOpCache
 
 
@@ -6,10 +7,19 @@ class TestNoOpCache:
         sut = NoOpCache()
         sut.with_scope("scopey")
 
+    async def test_has(self) -> None:
+        sut = NoOpCache()
+        assert not await sut.has("id")
+
+    async def test_hasset(self) -> None:
+        sut = NoOpCache()
+        async with sut.hasset("id") as result:
+            assert result is not None
+            await result("value")
+
     async def test_get(self) -> None:
         sut = NoOpCache()
-        async with sut.get("id") as cache_item:
-            assert cache_item is None
+        assert await sut.get("id") is None
 
     async def test_set(self) -> None:
         sut = NoOpCache()
@@ -21,15 +31,9 @@ class TestNoOpCache:
 
     async def test_getset(self) -> None:
         sut = NoOpCache()
-        async with sut.getset("id") as (cache_item, setter):
-            assert cache_item is None
-            await setter(123)
-
-    async def test_getset_without_wait(self) -> None:
-        sut = NoOpCache()
-        async with sut.getset("id", wait=False) as (cache_item, setter):
-            assert cache_item is None
-            assert setter is None
+        async with sut.getset("id") as result:
+            assert not isinstance(result, CacheItem)
+            await result("value")
 
     async def test_delete(self) -> None:
         sut = NoOpCache()

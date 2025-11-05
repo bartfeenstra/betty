@@ -7,18 +7,17 @@ from __future__ import annotations
 import asyncio
 import shutil
 from abc import abstractmethod
-from contextlib import AbstractAsyncContextManager, suppress
+from asyncio import to_thread
+from contextlib import asynccontextmanager, suppress
 from functools import partial
 from os import utime
 from pickle import dumps, loads
 from typing import (
     TYPE_CHECKING,
     Generic,
-    Literal,
     Self,
     TypeVar,
     final,
-    overload,
 )
 
 import aiofiles
@@ -31,7 +30,7 @@ from betty.hashid import hashid
 from betty.typing import threadsafe
 
 if TYPE_CHECKING:
-    from collections.abc import Sequence
+    from collections.abc import AsyncIterator, Sequence
     from pathlib import Path
 
 _CacheItemValueCoT = TypeVar("_CacheItemValueCoT", covariant=True)
@@ -101,7 +100,7 @@ class _FileCache(
         self._root_path = cache_directory_path
 
     @override
-    def with_scope(self, scope: str) -> Self:
+    def with_scope(self, scope: str, /) -> Self:
         return type(self)(
             self._root_path,
             scopes=(*self._scopes, scope),
@@ -124,7 +123,11 @@ class _FileCache(
         pass
 
     @override
-    async def _get(
+    async def has(self, cache_item_id: str, *, suffix: str | None = None) -> bool:
+        return await to_thread(self._cache_item_file_path(cache_item_id, suffix).exists)
+
+    @override
+    async def get(
         self, cache_item_id: str, *, suffix: str | None = None
     ) -> CacheItem[_CacheItemValueContraT] | None:
         try:
@@ -137,7 +140,7 @@ class _FileCache(
             return None
 
     @override
-    async def _set(
+    async def set(
         self,
         cache_item_id: str,
         value: _CacheItemValueContraT,
@@ -165,12 +168,12 @@ class _FileCache(
             await asyncio.to_thread(utime, cache_item_file_path, (modified, modified))
 
     @override
-    async def _delete(self, cache_item_id: str, *, suffix: str | None = None) -> None:
+    async def delete(self, cache_item_id: str, *, suffix: str | None = None) -> None:
         with suppress(FileNotFoundError):
             await aiofiles.os.remove(self._cache_item_file_path(cache_item_id, suffix))
 
     @override
-    async def _clear(self) -> None:
+    async def clear(self) -> None:
         with suppress(FileNotFoundError):
             await asyncio.to_thread(shutil.rmtree, self._path)
 
@@ -178,47 +181,37 @@ class _FileCache(
     def _path(self) -> Path:
         return self._root_path.joinpath(*self._scopes)
 
-    @overload
-    def getset(
+    @override
+    @asynccontextmanager
+    async def hasset(
         self, cache_item_id: str, *, suffix: str | None = None
-    ) -> AbstractAsyncContextManager[
-        tuple[
-            CacheItem[_CacheItemValueContraT] | None,
-            CacheItemValueSetter[_CacheItemValueContraT],
-        ]
-    ]:
-        pass
-
-    @overload
-    def getset(
-        self,
-        cache_item_id: str,
-        *,
-        suffix: str | None = None,
-        wait: Literal[False] = False,
-    ) -> AbstractAsyncContextManager[
-        tuple[
-            CacheItem[_CacheItemValueContraT] | None,
-            CacheItemValueSetter[_CacheItemValueContraT] | None,
-        ]
-    ]:
-        pass
+    ) -> AsyncIterator[CacheItemValueSetter[_CacheItemValueContraT] | None]:
+        if await self.has(cache_item_id, suffix=suffix):
+            yield None
+            return
+        async with self._cache_item_lock_ledger.ledger(cache_item_id):
+            if await self.has(cache_item_id, suffix=suffix):
+                yield None
+                return
+            yield partial(self.set, cache_item_id, suffix=suffix)
+        return
 
     @override
-    def getset(
-        self, cache_item_id: str, *, suffix: str | None = None, wait: bool = True
-    ) -> AbstractAsyncContextManager[
-        tuple[
-            CacheItem[_CacheItemValueContraT] | None,
-            CacheItemValueSetter[_CacheItemValueContraT] | None,
-        ]
+    @asynccontextmanager
+    async def getset(
+        self, cache_item_id: str, *, suffix: str | None = None
+    ) -> AsyncIterator[
+        CacheItemValueSetter[_CacheItemValueContraT] | CacheItem[_CacheItemValueContraT]
     ]:
-        return self._getset(
-            cache_item_id,
-            partial(self._get, suffix=suffix),
-            partial(self._set, suffix=suffix),
-            wait=wait,
-        )
+        if cache_item := await self.get(cache_item_id):
+            yield cache_item
+            return
+        async with self._cache_item_lock_ledger.ledger(cache_item_id):
+            if cache_item := await self.get(cache_item_id, suffix=suffix):
+                yield cache_item
+                return
+            yield partial(self.set, cache_item_id, suffix=suffix)
+        return
 
 
 @final

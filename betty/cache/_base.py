@@ -1,16 +1,8 @@
-from abc import abstractmethod
 from collections.abc import AsyncIterator, Sequence
-from contextlib import AbstractAsyncContextManager, asynccontextmanager
+from contextlib import asynccontextmanager
 from datetime import datetime
-from typing import (
-    Any,
-    Generic,
-    Literal,
-    Protocol,
-    Self,
-    TypeVar,
-    overload,
-)
+from functools import partial
+from typing import Any, Generic, Self, TypeVar
 
 from typing_extensions import override
 
@@ -18,27 +10,10 @@ from betty.cache import Cache, CacheItem, CacheItemValueSetter
 from betty.concurrent import AsynchronizedLock, Ledger
 from betty.typing import threadsafe
 
+_T = TypeVar("_T")
 _CacheT = TypeVar("_CacheT", bound=Cache[Any])
 _CacheItemValueCoT = TypeVar("_CacheItemValueCoT", covariant=True)
 _CacheItemValueContraT = TypeVar("_CacheItemValueContraT", contravariant=True)
-
-
-class _CommonCacheBaseGetter(Generic[_CacheItemValueCoT], Protocol):
-    async def __call__(
-        self, cache_item_id: str
-    ) -> CacheItem[_CacheItemValueCoT] | None:
-        pass
-
-
-class _CommonCacheBaseSetter(Generic[_CacheItemValueContraT], Protocol):
-    async def __call__(
-        self,
-        cache_item_id: str,
-        value: _CacheItemValueContraT,
-        *,
-        modified: int | float | None = None,
-    ) -> None:
-        pass
 
 
 class _StaticCacheItem(CacheItem[_CacheItemValueCoT], Generic[_CacheItemValueCoT]):
@@ -90,113 +65,30 @@ class _CommonCacheBase(Cache[_CacheItemValueContraT], Generic[_CacheItemValueCon
 
     @override
     @asynccontextmanager
-    async def get(
-        self, cache_item_id: str
-    ) -> AsyncIterator[CacheItem[_CacheItemValueContraT] | None]:
+    async def hasset(
+        self, cache_item_id: str, /
+    ) -> AsyncIterator[CacheItemValueSetter[_CacheItemValueContraT] | None]:
+        if await self.has(cache_item_id):
+            yield None
+            return
         async with self._cache_item_lock_ledger.ledger(cache_item_id):
-            yield await self._get(cache_item_id)
-
-    @abstractmethod
-    async def _get(
-        self, cache_item_id: str
-    ) -> CacheItem[_CacheItemValueContraT] | None:
-        pass
+            if await self.has(cache_item_id):
+                yield None
+            yield partial(self.set, cache_item_id)
+        return
 
     @override
-    async def set(
-        self,
-        cache_item_id: str,
-        value: _CacheItemValueContraT,
-        *,
-        modified: int | float | None = None,
-    ) -> None:
-        async with self._cache_item_lock_ledger.ledger(cache_item_id):
-            await self._set(cache_item_id, value, modified=modified)
-
-    @abstractmethod
-    async def _set(
-        self,
-        cache_item_id: str,
-        value: _CacheItemValueContraT,
-        *,
-        modified: int | float | None = None,
-    ) -> None:
-        pass
-
-    @overload
-    def getset(
-        self, cache_item_id: str
-    ) -> AbstractAsyncContextManager[
-        tuple[
-            CacheItem[_CacheItemValueContraT] | None,
-            CacheItemValueSetter[_CacheItemValueContraT],
-        ]
-    ]:
-        pass
-
-    @overload
-    def getset(
-        self, cache_item_id: str, *, wait: Literal[False] = False
-    ) -> AbstractAsyncContextManager[
-        tuple[
-            CacheItem[_CacheItemValueContraT] | None,
-            CacheItemValueSetter[_CacheItemValueContraT] | None,
-        ]
-    ]:
-        pass
-
-    @override
-    def getset(
-        self, cache_item_id: str, *, wait: bool = True
-    ) -> AbstractAsyncContextManager[
-        tuple[
-            CacheItem[_CacheItemValueContraT] | None,
-            CacheItemValueSetter[_CacheItemValueContraT] | None,
-        ]
-    ]:
-        return self._getset(cache_item_id, self._get, self._set, wait=wait)
-
     @asynccontextmanager
-    async def _getset(
-        self,
-        cache_item_id: str,
-        getter: _CommonCacheBaseGetter[_CacheItemValueContraT],
-        setter: _CommonCacheBaseSetter[_CacheItemValueContraT],
-        *,
-        wait: bool = True,
+    async def getset(
+        self, cache_item_id: str, /
     ) -> AsyncIterator[
-        tuple[
-            CacheItem[_CacheItemValueContraT] | None,
-            CacheItemValueSetter[_CacheItemValueContraT] | None,
-        ]
+        CacheItemValueSetter[_CacheItemValueContraT] | CacheItem[_CacheItemValueContraT]
     ]:
-        lock = self._cache_item_lock_ledger.ledger(cache_item_id)
-        if await lock.acquire(wait=wait):
-            try:
-
-                async def _setter(value: _CacheItemValueContraT) -> None:
-                    await setter(cache_item_id, value)
-
-                yield await getter(cache_item_id), _setter
-                return
-            finally:
-                await lock.release()
-        yield None, None
-
-    @override
-    async def delete(self, cache_item_id: str) -> None:
+        if cache_item := await self.get(cache_item_id):
+            yield cache_item
+            return
         async with self._cache_item_lock_ledger.ledger(cache_item_id):
-            await self._delete(cache_item_id)
-
-    @abstractmethod
-    async def _delete(self, cache_item_id: str) -> None:
-        pass
-
-    @override
-    async def clear(self) -> None:
-        async with self._cache_lock:
-            await self._clear()
-
-    @abstractmethod
-    async def _clear(self) -> None:
-        pass
+            if cache_item := await self.get(cache_item_id):
+                yield cache_item
+            yield partial(self.set, cache_item_id)
+        return
