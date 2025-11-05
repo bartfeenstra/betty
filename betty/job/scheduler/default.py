@@ -215,7 +215,7 @@ class DefaultScheduler(Generic[_ContextCoT], Scheduler[_ContextCoT]):
                     batch = await self._get()
                     if batch is not None:
                         return batch
-                await sleep(0.001 * 2 ** max(backoff, 7))
+                await sleep(0.001 * 2 ** min(backoff, 7))
                 backoff += 1
 
     async def _get(self) -> ScheduledJobBatch | None:
@@ -286,5 +286,5 @@ class DefaultScheduler(Generic[_ContextCoT], Scheduler[_ContextCoT]):
                     ):
                         self._completed = True
                         return
-                await sleep(0.001 * 2 ** max(backoff, 7))
+                await sleep(0.001 * 2 ** min(backoff, 7))
                 backoff += 1
