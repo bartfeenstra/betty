@@ -5,7 +5,7 @@ Provide the HTML API, for generating HTML pages.
 from __future__ import annotations
 
 from abc import ABC, abstractmethod
-from collections.abc import MutableMapping, MutableSequence, Sequence
+from collections.abc import Mapping, MutableMapping, MutableSequence, Sequence
 from typing import (
     Any,
     Generic,
@@ -22,7 +22,6 @@ from typing import (
 from typing_extensions import override
 
 from betty.string import (
-    kebab_case_to_lower_camel_case,
     kebab_case_to_snake_case,
     snake_case_to_kebab_case,
 )
@@ -34,7 +33,7 @@ _AttributeSetT = TypeVar("_AttributeSetT")
 class _Attribute(Generic[_AttributeGetT, _AttributeSetT], ABC):
     def __init__(self, html_name: str):
         self._html_name = html_name
-        self._attr_name = f"_{kebab_case_to_lower_camel_case(html_name)}"
+        self._attr_name = f"html_{kebab_case_to_snake_case(html_name)}"
 
     @overload
     def __get__(self, instance: None, owner: type[Attributes]) -> Self:
@@ -53,10 +52,10 @@ class _Attribute(Generic[_AttributeGetT, _AttributeSetT], ABC):
 
     def get(self, instance: Attributes) -> _AttributeGetT:
         try:
-            return cast(_AttributeGetT, getattr(instance, self._attr_name))
-        except AttributeError:
+            return cast(_AttributeGetT, instance._attributes[self._attr_name])
+        except KeyError:
             value = self._new_default()
-            setattr(instance, self._attr_name, value)
+            instance._attributes[self._attr_name] = value
             return value
 
     def __set__(self, instance: Attributes, value: _AttributeSetT) -> None:
@@ -67,35 +66,27 @@ class _Attribute(Generic[_AttributeGetT, _AttributeSetT], ABC):
         pass
 
     def setdefault(self, instance: Attributes, value: _AttributeSetT) -> None:
-        if getattr(instance, self._attr_name, None):
-            return
-        self.set(instance, value)
+        if self._attr_name not in instance._attributes:
+            self.set(instance, value)
 
     @abstractmethod
     def _new_default(self) -> _AttributeGetT:
         pass
 
-    def format(self, instance: Attributes) -> str:
+    @abstractmethod
+    def format(self, value: _AttributeGetT) -> str:
         """
         Format the attribute to a string.
         """
-        value = self.get(instance)
-        if value:
-            return self._format_value(value)
-        return ""
-
-    @abstractmethod
-    def _format_value(self, value: _AttributeGetT) -> str:
-        pass
 
 
 class _BooleanAttribute(_Attribute[bool, bool]):
     @override
     def set(self, instance: Attributes, value: bool) -> None:
-        setattr(instance, self._attr_name, value)
+        instance._attributes[self._attr_name] = value
 
     @override
-    def _format_value(self, value: bool) -> str:
+    def format(self, value: bool) -> str:
         return self._html_name
 
     @override
@@ -106,10 +97,10 @@ class _BooleanAttribute(_Attribute[bool, bool]):
 class _StringAttribute(_Attribute[str, str]):
     @override
     def set(self, instance: Attributes, value: str) -> None:
-        setattr(instance, self._attr_name, value)
+        instance._attributes[self._attr_name] = value
 
     @override
-    def _format_value(self, value: str) -> str:
+    def format(self, value: str) -> str:
         return f'{self._html_name}="{value}"'
 
     @override
@@ -129,7 +120,7 @@ class _MultipleStringAttribute(_Attribute[MutableSequence[str], Sequence[str]]):
         sequence.extend(value)
 
     @override
-    def _format_value(self, value: Sequence[str]) -> str:
+    def format(self, value: Sequence[str]) -> str:
         return f'{self._html_name}="{self._separator.join(value)}"'
 
     @override
@@ -140,10 +131,10 @@ class _MultipleStringAttribute(_Attribute[MutableSequence[str], Sequence[str]]):
 class _BooleanOrStringAttribute(_Attribute[bool | str, bool | str]):
     @override
     def set(self, instance: Attributes, value: bool | str) -> None:
-        setattr(instance, self._attr_name, value)
+        instance._attributes[self._attr_name] = value
 
     @override
-    def _format_value(self, value: bool | str) -> str:
+    def format(self, value: bool | str) -> str:
         if isinstance(value, bool):
             return self._html_name
         return f'{self._html_name}="{value}"'
@@ -275,6 +266,8 @@ class Attributes:
     Manage attributes for an HTML element.
     """
 
+    __slots__ = ("_attributes", "_data_attributes")
+
     # Based on https://developer.mozilla.org/en-US/docs/Web/HTML/Attributes.
     html_accept = _MultipleStringAttribute("accept", ", ")
     html_accept_charset = _StringAttribute("accept-charset")
@@ -395,34 +388,32 @@ class Attributes:
     # Compile all attributes once for this class, so we do not have to keep doing it runtime, which is expensive (e.g.
     # when using inspect.getmembers()).
     _ATTRIBUTES = cast(
-        Sequence[_Attribute[Any, Any]],
-        [
-            attr_value
+        Mapping[str, _Attribute[Any, Any]],
+        {
+            attr_name: attr_value
             for attr_name, attr_value in locals().items()
             if attr_name.startswith("html_")
-        ],
+        },
     )
 
     def __init__(self, **kwargs: Unpack[_AttributesKwargs]):
+        self._attributes: MutableMapping[str, Any] = {}
         self._data_attributes: MutableMapping[str, str] = {}
         self.set(**kwargs)
-
-    def _get_attribute(self, attr_name: str) -> _Attribute[Any, Any]:
-        return cast(_Attribute[Any, Any], getattr(type(self), attr_name))
 
     def set(self, **attributes: Unpack[_AttributesKwargs]) -> None:
         """
         Set values for the given HTML attributes.
         """
         for attribute_name, attribute_value in attributes.items():
-            self._get_attribute(attribute_name).set(self, attribute_value)
+            self._ATTRIBUTES[attribute_name].set(self, attribute_value)
 
     def setdefault(self, **attributes: Unpack[_AttributesKwargs]) -> None:
         """
         Set values for the given HTML attributes, but only for those attributes that do not already have a value set.
         """
         for attribute_name, attribute_value in attributes.items():
-            self._get_attribute(attribute_name).setdefault(self, attribute_value)
+            self._ATTRIBUTES[attribute_name].setdefault(self, attribute_value)
 
     def set_data(self, **attributes: str) -> None:
         """
@@ -448,7 +439,8 @@ class Attributes:
                 *(
                     formatted_attribute
                     for formatted_attribute in (
-                        attribute.format(self) for attribute in self._ATTRIBUTES
+                        self._ATTRIBUTES[attr_name].format(attr_value)
+                        for attr_name, attr_value in self._attributes.items()
                     )
                     if formatted_attribute
                 ),
