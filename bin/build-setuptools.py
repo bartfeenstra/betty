@@ -26,16 +26,17 @@ versioned_pyproject = re.sub(
 with open("pyproject.toml", mode="w") as f:
     f.write(versioned_pyproject)
 
-# Install Python dependencies.
-check_call(["pip", "install", "-e", ".[setuptools]"])
+try:
+    # Install Python dependencies.
+    check_call(["pip", "install", "-e", ".[setuptools]"])
 
-# Prepare the workspace directories.
-check_call(["python", path.join("bin", "clean-build.py")])
+    # Prepare the workspace directories.
+    check_call(["python", path.join("bin", "clean-build.py")])
 
-# Build the package.
-check_call(["python", "-m", "build"])
-check_call(["twine", "check", "dist/*"])
-
-# Clean up.
-with open("pyproject.toml", mode="w") as f:
-    f.write(original_pyproject)
+    # Build the package.
+    check_call(["python", "-m", "build"])
+    check_call(["twine", "check", "dist/*"])
+finally:
+    # Clean up.
+    with open("pyproject.toml", mode="w") as f:
+        f.write(original_pyproject)
