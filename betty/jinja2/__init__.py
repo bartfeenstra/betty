@@ -432,9 +432,5 @@ class Jinja2Renderer(Renderer, ProjectDependentFactory):
             data["job_context"] = job_context
         if localizer is not None:
             data["localizer"] = localizer
-        template = self._environment.template_class.from_code(
-            self._environment,
-            self._environment.compile(content),
-            self._environment.globals,
-        )
+        template = self._environment.from_string(content)
         return await template.render_async(data)
