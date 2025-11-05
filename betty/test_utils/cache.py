@@ -111,6 +111,7 @@ class CacheTestBase(Generic[_CacheItemValueT]):
             async with self._new_sut(scopes=scopes) as sut:
                 async with sut.getset("id") as (cache_item, setter):
                     assert cache_item is None
+                    assert setter is not None
                     await setter(value)
                 async with sut.get("id") as cache_item:
                     assert cache_item is not None

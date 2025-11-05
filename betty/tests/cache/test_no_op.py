@@ -23,7 +23,7 @@ class TestNoOpCache:
         sut = NoOpCache()
         async with sut.getset("id") as (cache_item, setter):
             assert cache_item is None
-            await setter(123)
+            assert setter is None
 
     async def test_getset_without_wait(self) -> None:
         sut = NoOpCache()
