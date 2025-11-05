@@ -4,7 +4,6 @@ Betty's default job scheduler.
 
 from __future__ import annotations
 
-from asyncio import sleep
 from collections import defaultdict
 from collections.abc import Iterable
 from contextlib import asynccontextmanager
@@ -13,7 +12,7 @@ from typing import TYPE_CHECKING, Generic, TypeVar, cast, final
 
 from typing_extensions import override
 
-from betty.concurrent import AsynchronizedLock
+from betty.concurrent import AsynchronizedLock, backoff
 from betty.job import Context, Job
 from betty.job.scheduler import (
     Cancelled,
@@ -206,17 +205,14 @@ class DefaultScheduler(Generic[_ContextCoT], Scheduler[_ContextCoT]):
             ):
                 raise UnknownJobError.new(unknown_job_id)
 
-    @override
-    async def get(self) -> ScheduledJobBatch:
-        backoff = 0
+    @override  # noqa RET503
+    async def get(self) -> ScheduledJobBatch:  # type: ignore[return]
         async with self._cancel_on_exception():
-            while True:
+            async for _ in backoff():
                 async with self._lock:
                     batch = await self._get()
                     if batch is not None:
                         return batch
-                await sleep(0.001 * 2 ** min(backoff, 7))
-                backoff += 1
 
     async def _get(self) -> ScheduledJobBatch | None:
         self._assert_open()
@@ -272,9 +268,8 @@ class DefaultScheduler(Generic[_ContextCoT], Scheduler[_ContextCoT]):
 
     @override
     async def complete(self) -> None:
-        backoff = 0
         async with self._cancel_on_exception():
-            while True:
+            async for _ in backoff():
                 async with self._lock:
                     if self._completed:
                         return
@@ -286,5 +281,3 @@ class DefaultScheduler(Generic[_ContextCoT], Scheduler[_ContextCoT]):
                     ):
                         self._completed = True
                         return
-                await sleep(0.001 * 2 ** min(backoff, 7))
-                backoff += 1

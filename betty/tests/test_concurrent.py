@@ -4,8 +4,10 @@ import time
 from asyncio import create_task, gather, run, sleep, wait_for
 from collections.abc import Iterable
 from typing import TypeVar
+from unittest.mock import call
 
 import pytest
+from pytest_mock import MockerFixture
 from typing_extensions import override
 
 from betty.concurrent import (
@@ -17,6 +19,7 @@ from betty.concurrent import (
     RateLimiter,
     Semaphore,
     asynchronize_acquire,
+    backoff,
 )
 
 _KeyT = TypeVar("_KeyT")
@@ -265,3 +268,25 @@ class TestLedger:
         await lock.acquire()
         assert not await lock.acquire(wait=False)
         await lock.release()
+
+
+async def test_backoff(mocker: MockerFixture) -> None:
+    m_sleep = mocker.patch("asyncio.sleep")
+    async for iteration in backoff():
+        if iteration == 9:
+            break
+
+    assert m_sleep.call_count == 9
+    m_sleep.assert_has_awaits(
+        [
+            call(0.001),
+            call(0.002),
+            call(0.004),
+            call(0.008),
+            call(0.016),
+            call(0.032),
+            call(0.064),
+            call(0.128),
+            call(0.128),
+        ]
+    )
