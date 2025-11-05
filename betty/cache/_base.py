@@ -93,7 +93,7 @@ class _CommonCacheBase(Cache[_CacheItemValueContraT], Generic[_CacheItemValueCon
     async def get(
         self, cache_item_id: str
     ) -> AsyncIterator[CacheItem[_CacheItemValueContraT] | None]:
-        async with self._cache_item_lock_ledger.ledger(cache_item_id):
+        async with self._cache_item_lock_ledger.ledger(cache_item_id, exclusive=False):
             yield await self._get(cache_item_id)
 
     @abstractmethod
@@ -170,6 +170,10 @@ class _CommonCacheBase(Cache[_CacheItemValueContraT], Generic[_CacheItemValueCon
             CacheItemValueSetter[_CacheItemValueContraT] | None,
         ]
     ]:
+        # @todo We probably want to use an exclusive lock here but then downgrade to a non-exclusive lock if a value is found
+        # @todo and the setter is not needed?
+        # @todo
+        # @todo
         lock = self._cache_item_lock_ledger.ledger(cache_item_id)
         if await lock.acquire(wait=wait):
             try:

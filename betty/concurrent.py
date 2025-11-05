@@ -10,7 +10,7 @@ from asyncio import sleep
 from collections.abc import Hashable, MutableMapping
 from math import floor
 from types import TracebackType
-from typing import Self, TypeAlias, TypeVar, Union, final
+from typing import Literal, Self, TypeAlias, TypeVar, Union, final
 
 from typing_extensions import override
 
@@ -227,16 +227,22 @@ class RateLimiter:
             self._available -= 1
 
 
-class _Transaction(Lock):
+# @todo The ledger would have to keep track of read access (a counter) and write access (a boolean)
+_Ledger: TypeAlias = MutableMapping[Hashable, int | Literal[True]]
+
+
+class _LedgerTransaction(Lock):
     def __init__(
         self,
         transaction_id: Hashable,
         ledger_lock: Lock,
-        ledger: MutableMapping[Hashable, bool],
+        ledger: _Ledger,
+        exclusive: bool,
     ):
         self._transaction_id = transaction_id
         self._ledger_lock = ledger_lock
         self._ledger = ledger
+        self._exclusive = exclusive
 
     @override
     async def acquire(self, *, wait: bool = True) -> bool:
@@ -254,9 +260,13 @@ class _Transaction(Lock):
 
     def _can_acquire(self) -> bool:
         try:
-            return not self._ledger[self._transaction_id]
+            lock = self._ledger[self._transaction_id]
+            if isinstance(lock, int):
+                self._ledger[self._transaction_id] += 1
+                return True
+            return False
         except KeyError:
-            self._ledger[self._transaction_id] = False
+            self._ledger[self._transaction_id] = True if self._exclusive else 1
             return True
 
     def _acquire(self) -> bool:
@@ -265,7 +275,11 @@ class _Transaction(Lock):
 
     @override
     async def release(self) -> None:
-        self._ledger[self._transaction_id] = False
+        async with self._ledger_lock:
+            if self._exclusive:
+                self._ledger[self._transaction_id] = 0
+            else:
+                self._ledger[self._transaction_id] -= 1
 
 
 @threadsafe
@@ -278,10 +292,12 @@ class Ledger:
 
     def __init__(self, ledger_lock: Lock):
         self._ledger_lock = ledger_lock
-        self._ledger: MutableMapping[Hashable, bool] = {}
+        self._ledger: _Ledger = {}
 
-    def ledger(self, transaction_id: Hashable) -> Lock:
+    def ledger(self, transaction_id: Hashable, *, exclusive: bool = True) -> Lock:
         """
         Ledger a new lock for the given transaction ID.
         """
-        return _Transaction(transaction_id, self._ledger_lock, self._ledger)
+        return _LedgerTransaction(
+            transaction_id, self._ledger_lock, self._ledger, exclusive
+        )
