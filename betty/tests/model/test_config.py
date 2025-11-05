@@ -10,7 +10,6 @@ from betty.model import EntityDefinition
 from betty.model.config import EntityReference, EntityReferenceSequence
 from betty.plugin.static import StaticPluginRepository
 from betty.test_utils.config.collections.sequence import ConfigurationSequenceTestBase
-from betty.test_utils.exception import raises_error
 from betty.test_utils.model import DummyEntityOne, DummyEntityTwo
 
 if TYPE_CHECKING:

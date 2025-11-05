@@ -44,7 +44,6 @@ from betty.project.config import (
 from betty.project.extension import Extension, ExtensionDefinition
 from betty.test_utils.config import DummyConfiguration
 from betty.test_utils.config.collections.mapping import ConfigurationMappingTestBase
-from betty.test_utils.exception import raises_error
 from betty.test_utils.model import DummyEntityOne, DummyNonPublicFacingEntityOne
 from betty.test_utils.plugin.config import PluginDefinitionConfigurationMappingTestBase
 from betty.test_utils.project.extension import (

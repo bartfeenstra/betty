@@ -166,10 +166,16 @@ def _assert_type(
         value_disallowed_type is None or not isinstance(value, value_disallowed_type)
     ):
         return value
-    raise HumanFacingException(
-        _assert_type_violation_error_message(
-            value_required_type,  # type: ignore[arg-type]
-        )
+    # @todo What to do about the message?
+    raise ExceptionGroup(
+        "",
+        [
+            HumanFacingException(
+                _assert_type_violation_error_message(
+                    value_required_type,  # type: ignore[arg-type]
+                )
+            )
+        ],
     )
 
 

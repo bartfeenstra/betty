@@ -39,7 +39,6 @@ from betty.data import Index, Key
 from betty.exception import HumanFacingException
 from betty.locale import DEFAULT_LOCALE, UNDETERMINED_LOCALE
 from betty.locale.localizable import StaticTranslations
-from betty.test_utils.exception import raises_error
 from betty.typing import Void
 
 if TYPE_CHECKING:

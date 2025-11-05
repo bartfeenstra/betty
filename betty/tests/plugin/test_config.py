@@ -27,7 +27,6 @@ from betty.test_utils.config.collections import (
     ConfigurationCollectionTestBaseSutConfigurations,
 )
 from betty.test_utils.config.collections.mapping import ConfigurationMappingTestBase
-from betty.test_utils.exception import raises_error
 from betty.test_utils.plugin import (
     DUMMY_PLUGIN_FOUR,
     DUMMY_PLUGIN_ONE,

@@ -5,7 +5,6 @@ from typing import TYPE_CHECKING, Any
 from betty.exception import HumanFacingException
 from betty.model.config import EntityReference
 from betty.project.extension.raspberry_mint.config import RaspberryMintConfiguration
-from betty.test_utils.exception import raises_error
 from betty.test_utils.model import DummyEntityOne
 
 if TYPE_CHECKING:

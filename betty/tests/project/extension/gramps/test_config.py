@@ -26,7 +26,6 @@ from betty.test_utils.config.collections import (
     ConfigurationCollectionTestBaseSutConfigurations,
 )
 from betty.test_utils.config.collections.sequence import ConfigurationSequenceTestBase
-from betty.test_utils.exception import raises_error
 from betty.test_utils.plugin import ClassedDummyPlugin, ClassedDummyPluginDefinition
 
 
