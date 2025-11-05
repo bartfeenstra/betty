@@ -14,7 +14,7 @@ from typing import Literal, Self, TypeAlias, TypeVar, Union, final
 
 from typing_extensions import override
 
-from betty.typing import threadsafe
+from betty.typing import internal, threadsafe
 
 _KeyT = TypeVar("_KeyT")
 _ValueT = TypeVar("_ValueT")
@@ -227,11 +227,16 @@ class RateLimiter:
             self._available -= 1
 
 
-# @todo The ledger would have to keep track of read access (a counter) and write access (a boolean)
 _Ledger: TypeAlias = MutableMapping[Hashable, int | Literal[True]]
 
 
-class _LedgerTransaction(Lock):
+@final
+@internal
+class LedgerTransaction(Lock):
+    """
+    A lock for a single ledger transaction.
+    """
+
     def __init__(
         self,
         transaction_id: Hashable,
@@ -250,36 +255,47 @@ class _LedgerTransaction(Lock):
             while True:
                 async with self._ledger_lock:
                     if self._can_acquire():
-                        return self._acquire()
+                        self._acquire()
+                        return True
                 await sleep(0)
         else:
             async with self._ledger_lock:
                 if self._can_acquire():
-                    return self._acquire()
+                    self._acquire()
+                    return True
                 return False
 
     def _can_acquire(self) -> bool:
         try:
-            lock = self._ledger[self._transaction_id]
-            if isinstance(lock, int):
-                self._ledger[self._transaction_id] += 1
-                return True
-            return False
+            return isinstance(self._ledger[self._transaction_id], int)
         except KeyError:
-            self._ledger[self._transaction_id] = True if self._exclusive else 1
             return True
 
-    def _acquire(self) -> bool:
-        self._ledger[self._transaction_id] = True
-        return True
+    def _acquire(self) -> None:
+        self._ledger[self._transaction_id] = True if self._exclusive else 1
+
+    def _release(self) -> None:
+        if self._exclusive:
+            self._ledger[self._transaction_id] = 0
+        else:
+            self._ledger[self._transaction_id] -= 1
 
     @override
     async def release(self) -> None:
         async with self._ledger_lock:
-            if self._exclusive:
-                self._ledger[self._transaction_id] = 0
-            else:
-                self._ledger[self._transaction_id] -= 1
+            self._release()
+
+    async def share(self) -> None:
+        """
+        Relinquish any exclusive acquisition and 'downgrade' to a shared acquisition of this lock.
+
+        This MUST only ever be called by the code who successfully acquired this lock.
+        """
+        if not self._exclusive:
+            return
+        self._release()
+        self._exclusive = False
+        self._acquire()
 
 
 @threadsafe
@@ -294,10 +310,12 @@ class Ledger:
         self._ledger_lock = ledger_lock
         self._ledger: _Ledger = {}
 
-    def ledger(self, transaction_id: Hashable, *, exclusive: bool = True) -> Lock:
+    def ledger(
+        self, transaction_id: Hashable, *, exclusive: bool = True
+    ) -> LedgerTransaction:
         """
         Ledger a new lock for the given transaction ID.
         """
-        return _LedgerTransaction(
+        return LedgerTransaction(
             transaction_id, self._ledger_lock, self._ledger, exclusive
         )

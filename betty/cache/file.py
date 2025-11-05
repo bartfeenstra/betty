@@ -14,18 +14,16 @@ from pickle import dumps, loads
 from typing import (
     TYPE_CHECKING,
     Generic,
-    Literal,
     Self,
     TypeVar,
     final,
-    overload,
 )
 
 import aiofiles
 from aiofiles.ospath import getmtime
 from typing_extensions import override
 
-from betty.cache import CacheItem, CacheItemValueSetter
+from betty.cache import CacheItem, GetSet
 from betty.cache._base import _CommonCacheBase, _CommonCacheBaseState
 from betty.hashid import hashid
 from betty.typing import threadsafe
@@ -178,41 +176,10 @@ class _FileCache(
     def _path(self) -> Path:
         return self._root_path.joinpath(*self._scopes)
 
-    @overload
-    def getset(
-        self, cache_item_id: str, *, suffix: str | None = None
-    ) -> AbstractAsyncContextManager[
-        tuple[
-            CacheItem[_CacheItemValueContraT] | None,
-            CacheItemValueSetter[_CacheItemValueContraT],
-        ]
-    ]:
-        pass
-
-    @overload
-    def getset(
-        self,
-        cache_item_id: str,
-        *,
-        suffix: str | None = None,
-        wait: Literal[False] = False,
-    ) -> AbstractAsyncContextManager[
-        tuple[
-            CacheItem[_CacheItemValueContraT] | None,
-            CacheItemValueSetter[_CacheItemValueContraT] | None,
-        ]
-    ]:
-        pass
-
     @override
     def getset(
         self, cache_item_id: str, *, suffix: str | None = None, wait: bool = True
-    ) -> AbstractAsyncContextManager[
-        tuple[
-            CacheItem[_CacheItemValueContraT] | None,
-            CacheItemValueSetter[_CacheItemValueContraT] | None,
-        ]
-    ]:
+    ) -> AbstractAsyncContextManager[GetSet[_CacheItemValueContraT]]:
         return self._getset(
             cache_item_id,
             partial(self._get, suffix=suffix),

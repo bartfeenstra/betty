@@ -4,49 +4,16 @@ Provide no-op caching.
 
 from __future__ import annotations
 
-from contextlib import AbstractAsyncContextManager, asynccontextmanager
-from typing import (
-    TYPE_CHECKING,
-    Any,
-    Literal,
-    Self,
-    TypeAlias,
-    final,
-    overload,
-)
+from contextlib import asynccontextmanager
+from typing import TYPE_CHECKING, Any, Self, final
 
 from typing_extensions import override
 
-from betty.cache import Cache, CacheItem, CacheItemValueSetter
+from betty.cache import Cache, CacheItem, GetSet
 from betty.typing import threadsafe
 
 if TYPE_CHECKING:
     from collections.abc import AsyncIterator
-    from types import TracebackType
-
-_GetSet: TypeAlias = tuple[
-    CacheItem[Any] | None,
-    CacheItemValueSetter[Any] | None,
-]
-
-
-class _NoOpGetSet:
-    def __init__(self, has_setter: bool):
-        self._has_setter = has_setter
-
-    async def __aenter__(self) -> _GetSet:
-        return None, self._set if self._has_setter else None
-
-    async def _set(self, value: Any) -> None:
-        return
-
-    async def __aexit__(
-        self,
-        exc_type: type[BaseException] | None,
-        exc_val: BaseException | None,
-        exc_tb: TracebackType | None,
-    ) -> None:
-        return
 
 
 @final
@@ -75,33 +42,12 @@ class NoOpCache(Cache[Any]):
     ) -> None:
         return
 
-    @overload
-    def getset(
-        self, cache_item_id: str
-    ) -> AbstractAsyncContextManager[
-        tuple[
-            CacheItem[Any] | None,
-            CacheItemValueSetter[Any],
-        ]
-    ]:
-        pass
-
-    @overload
-    def getset(
-        self, cache_item_id: str, *, wait: Literal[False] = False
-    ) -> AbstractAsyncContextManager[
-        tuple[
-            CacheItem[Any] | None,
-            CacheItemValueSetter[Any] | None,
-        ]
-    ]:
-        pass
-
     @override
-    def getset(
+    @asynccontextmanager
+    async def getset(
         self, cache_item_id: str, *, wait: bool = True
-    ) -> AbstractAsyncContextManager[_GetSet]:
-        return _NoOpGetSet(wait)
+    ) -> AsyncIterator[GetSet[Any]]:
+        yield None, None
 
     @override
     async def delete(self, cache_item_id: str) -> None:

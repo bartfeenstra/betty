@@ -6,7 +6,7 @@ from __future__ import annotations
 
 from abc import ABC, abstractmethod
 from collections.abc import Awaitable, Callable
-from typing import TYPE_CHECKING, Generic, Literal, Self, TypeAlias, overload
+from typing import TYPE_CHECKING, Generic, Self, TypeAlias
 
 from typing_extensions import TypeVar
 
@@ -40,6 +40,11 @@ class CacheItem(Generic[_CacheItemValueCoT], ABC):
 
 
 CacheItemValueSetter: TypeAlias = Callable[[_CacheItemValueT], Awaitable[None]]
+GetSet: TypeAlias = (
+    tuple[CacheItem[_CacheItemValueContraT], None]
+    | tuple[None, CacheItemValueSetter[_CacheItemValueContraT]]
+    | tuple[None, None]
+)
 
 
 @threadsafe
@@ -76,37 +81,10 @@ class Cache(Generic[_CacheItemValueContraT], ABC):
         Add or update a cache item.
         """
 
-    @overload
-    def getset(
-        self, cache_item_id: str
-    ) -> AbstractAsyncContextManager[
-        tuple[
-            CacheItem[_CacheItemValueContraT] | None,
-            CacheItemValueSetter[_CacheItemValueContraT],
-        ]
-    ]:
-        pass
-
-    @overload
-    def getset(
-        self, cache_item_id: str, *, wait: Literal[False] = False
-    ) -> AbstractAsyncContextManager[
-        tuple[
-            CacheItem[_CacheItemValueContraT] | None,
-            CacheItemValueSetter[_CacheItemValueContraT] | None,
-        ]
-    ]:
-        pass
-
     @abstractmethod
     def getset(
         self, cache_item_id: str, *, wait: bool = True
-    ) -> AbstractAsyncContextManager[
-        tuple[
-            CacheItem[_CacheItemValueContraT] | None,
-            CacheItemValueSetter[_CacheItemValueContraT] | None,
-        ]
-    ]:
+    ) -> AbstractAsyncContextManager[GetSet[_CacheItemValueContraT]]:
         """
         Get the cache item with the given ID, and provide a setter to add or update it within the same atomic operation.
 
