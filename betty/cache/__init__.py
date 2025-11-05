@@ -6,7 +6,7 @@ from __future__ import annotations
 
 from abc import ABC, abstractmethod
 from collections.abc import Awaitable, Callable
-from typing import TYPE_CHECKING, Generic, Literal, Self, TypeAlias, overload
+from typing import TYPE_CHECKING, Generic, Self, TypeAlias
 
 from typing_extensions import TypeVar
 
@@ -51,15 +51,32 @@ class Cache(Generic[_CacheItemValueContraT], ABC):
     """
 
     @abstractmethod
-    def with_scope(self, scope: str) -> Self:
+    def with_scope(self, scope: str, /) -> Self:
         """
         Return a new nested cache with the given scope.
         """
 
+    async def has(self, cache_item_id: str, /) -> bool:
+        """
+        Check if a cache item with the given ID exists.
+        """
+        return await self.get(cache_item_id) is not None
+
     @abstractmethod
-    def get(
-        self, cache_item_id: str
-    ) -> AbstractAsyncContextManager[CacheItem[_CacheItemValueContraT] | None]:
+    def hasset(
+        self, cache_item_id: str, /
+    ) -> AbstractAsyncContextManager[
+        CacheItemValueSetter[_CacheItemValueContraT] | None
+    ]:
+        """
+        Check if a cache item with the given ID exists, and if not, provide a setter to add or update it within the same atomic operation.
+        """
+        raise NotImplementedError
+
+    @abstractmethod
+    async def get(
+        self, cache_item_id: str, /
+    ) -> CacheItem[_CacheItemValueContraT] | None:
         """
         Get the cache item with the given ID.
         """
@@ -76,54 +93,28 @@ class Cache(Generic[_CacheItemValueContraT], ABC):
         Add or update a cache item.
         """
 
-    @overload
-    def getset(
-        self, cache_item_id: str
-    ) -> AbstractAsyncContextManager[
-        tuple[
-            CacheItem[_CacheItemValueContraT] | None,
-            CacheItemValueSetter[_CacheItemValueContraT],
-        ]
-    ]:
-        pass
-
-    @overload
-    def getset(
-        self, cache_item_id: str, *, wait: Literal[False] = False
-    ) -> AbstractAsyncContextManager[
-        tuple[
-            CacheItem[_CacheItemValueContraT] | None,
-            CacheItemValueSetter[_CacheItemValueContraT] | None,
-        ]
-    ]:
-        pass
-
     @abstractmethod
     def getset(
-        self, cache_item_id: str, *, wait: bool = True
+        self, cache_item_id: str, /
     ) -> AbstractAsyncContextManager[
-        tuple[
-            CacheItem[_CacheItemValueContraT] | None,
-            CacheItemValueSetter[_CacheItemValueContraT] | None,
-        ]
+        CacheItemValueSetter[_CacheItemValueContraT] | CacheItem[_CacheItemValueContraT]
     ]:
         """
-        Get the cache item with the given ID, and provide a setter to add or update it within the same atomic operation.
-
-        If ``wait`` is ``False`` and no lock can be acquired, return ``None, None``.
-        Otherwise return:
-        0. A cache item if one could be found, or else ``None``.
-        1. An asynchronous setter that takes the cache item's value as its only argument.
+        Get the cache item with the given ID, or provide a setter to add it within the same atomic operation.
         """
 
     @abstractmethod
-    async def delete(self, cache_item_id: str) -> None:
+    async def delete(self, cache_item_id: str, /) -> None:
         """
         Delete the cache item with the given ID.
+
+        This operation s unsafe and MAY cause other concurrent operations on this cache to fail.
         """
 
     @abstractmethod
     async def clear(self) -> None:
         """
         Clear all items from the cache.
+
+        This operation s unsafe and MAY cause other concurrent operations on this cache to fail.
         """

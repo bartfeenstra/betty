@@ -265,12 +265,9 @@ async def filter_file(context: Context, file: File) -> str:
     execute_filter = True
     if job_context:
         job_cache_item_id = f"filter_file:{file.id}"
-        async with job_context.cache.getset(job_cache_item_id, wait=False) as (
-            cache_item,
-            setter,
-        ):
-            if cache_item is None and setter is not None:
-                await setter(None)
+        async with job_context.cache.hasset(job_cache_item_id) as setter:
+            if setter:
+                await setter(True)
             else:
                 execute_filter = False
     if execute_filter:
@@ -351,10 +348,10 @@ async def filter_image_resize_cover(
     cache_item_id = f"{await hashid_file_meta(file.path)}:{destination_name}"
     execute_filter = True
     if job_context:
-        async with job_context.cache.with_scope("filter_image").getset(
-            cache_item_id, wait=False
-        ) as (cache_item, setter):
-            if cache_item is None and setter is not None:
+        async with job_context.cache.with_scope("filter_image").hasset(
+            cache_item_id
+        ) as setter:
+            if setter:
                 await setter(True)
             else:
                 execute_filter = False

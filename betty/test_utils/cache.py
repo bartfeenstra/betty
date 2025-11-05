@@ -2,14 +2,13 @@
 Test utilities for :py:mod:`betty.cache`.
 """
 
-from asyncio import create_task, sleep
 from collections.abc import Iterator, Sequence
 from contextlib import AbstractAsyncContextManager
 from typing import Generic, TypeVar
 
 import pytest
 
-from betty.cache import Cache
+from betty.cache import Cache, CacheItem
 
 _CacheItemValueT = TypeVar("_CacheItemValueT")
 
@@ -29,6 +28,16 @@ class CacheTestBase(Generic[_CacheItemValueT]):
     def _values(self) -> Iterator[_CacheItemValueT]:
         raise NotImplementedError
 
+    @staticmethod
+    def _scopes() -> pytest.MarkDecorator:
+        return pytest.mark.parametrize(
+            "scopes",
+            [
+                (),
+                ("scopey", "dopey"),
+            ],
+        )
+
     async def test_with_scope(self) -> None:
         """
         Test implementations of :py:meth:`betty.cache.Cache.with_scope`.
@@ -41,50 +50,76 @@ class CacheTestBase(Generic[_CacheItemValueT]):
                 assert sut_with_scope_two is not sut
                 cache_item_id = "hello-world"
                 await sut_with_scope_one.set(cache_item_id, value)
-                async with sut_with_scope_two.get(cache_item_id) as cache_item:
-                    assert cache_item
-                    assert await cache_item.value() == value
+                cache_item = await sut_with_scope_two.get(cache_item_id)
+                assert cache_item
+                assert await cache_item.value() == value
 
-    @pytest.mark.parametrize(
-        "scopes",
-        [
-            (),
-            ("scopey", "dopey"),
-        ],
-    )
-    async def test_get_without_hit(self, scopes: Sequence[str]) -> None:
+    @_scopes()
+    async def test_has__without_hit(self, scopes: Sequence[str]) -> None:
+        """
+        Test implementations of :py:meth:`betty.cache.Cache.has`.
+        """
+        async with self._new_sut(scopes=scopes) as sut:
+            assert not await sut.get("id")
+
+    @_scopes()
+    async def test_has__with_hit(self, scopes: Sequence[str]) -> None:
+        """
+        Test implementations of :py:meth:`betty.cache.Cache.has`.
+        """
+        for value in self._values():
+            async with self._new_sut(scopes=scopes) as sut:
+                await sut.set("id", value)
+                assert await sut.has("id")
+
+    @_scopes()
+    async def test_hasset__without_hit(self, scopes: Sequence[str]) -> None:
+        """
+        Test implementations of :py:meth:`betty.cache.Cache.hasset`.
+        """
+        for value in self._values():
+            async with self._new_sut(scopes=scopes) as sut:
+                async with sut.hasset("id") as result:
+                    assert result is not None
+                    await result(value)
+                cache_item = await sut.get("id")
+                assert cache_item is not None
+                assert await cache_item.value() == value
+
+    @_scopes()
+    async def test_hasset__with_hit(self, scopes: Sequence[str]) -> None:
+        """
+        Test implementations of :py:meth:`betty.cache.Cache.hasset`.
+        """
+        for value in self._values():
+            async with self._new_sut(scopes=scopes) as sut:
+                await sut.set("id", value)
+                async with sut.hasset("id") as result:
+                    assert result is None
+
+    @_scopes()
+    async def test_get__without_hit(self, scopes: Sequence[str]) -> None:
         """
         Test implementations of :py:meth:`betty.cache.Cache.get`.
         """
-        async with self._new_sut(scopes=scopes) as sut, sut.get("id") as cache_item:
+        async with self._new_sut(scopes=scopes) as sut:
+            cache_item = await sut.get("id")
             assert cache_item is None
 
-    @pytest.mark.parametrize(
-        "scopes",
-        [
-            (),
-            ("scopey", "dopey"),
-        ],
-    )
-    async def test_set_and_get(self, scopes: Sequence[str]) -> None:
+    @_scopes()
+    async def test_set__and_get(self, scopes: Sequence[str]) -> None:
         """
         Test implementations of :py:meth:`betty.cache.Cache.get` and :py:meth:`betty.cache.Cache.set`.
         """
         for value in self._values():
             async with self._new_sut(scopes=scopes) as sut:
                 await sut.set("id", value)
-                async with sut.get("id") as cache_item:
-                    assert cache_item is not None
-                    assert await cache_item.value() == value
+                cache_item = await sut.get("id")
+                assert cache_item is not None
+                assert await cache_item.value() == value
 
-    @pytest.mark.parametrize(
-        "scopes",
-        [
-            (),
-            ("scopey", "dopey"),
-        ],
-    )
-    async def test_set_and_get_with_modified(self, scopes: Sequence[str]) -> None:
+    @_scopes()
+    async def test_set__and_get_with_modified(self, scopes: Sequence[str]) -> None:
         """
         Test implementations of :py:meth:`betty.cache.Cache.get` and :py:meth:`betty.cache.Cache.set`.
         """
@@ -92,81 +127,37 @@ class CacheTestBase(Generic[_CacheItemValueT]):
         for value in self._values():
             async with self._new_sut(scopes=scopes) as sut:
                 await sut.set("id", value, modified=modified)
-                async with sut.get("id") as cache_item:
-                    assert cache_item is not None
-                    assert cache_item.modified == modified
+                cache_item = await sut.get("id")
+                assert cache_item is not None
+                assert cache_item.modified == modified
 
-    @pytest.mark.parametrize(
-        "scopes",
-        [
-            (),
-            ("scopey", "dopey"),
-        ],
-    )
-    async def test_getset_without_hit(self, scopes: Sequence[str]) -> None:
+    @_scopes()
+    async def test_getset__without_hit(self, scopes: Sequence[str]) -> None:
         """
         Test implementations of :py:meth:`betty.cache.Cache.getset`.
         """
         for value in self._values():
             async with self._new_sut(scopes=scopes) as sut:
-                async with sut.getset("id") as (cache_item, setter):
-                    assert cache_item is None
-                    await setter(value)
-                async with sut.get("id") as cache_item:
-                    assert cache_item is not None
-                    assert await cache_item.value() == value
+                async with sut.getset("id") as result:
+                    assert not isinstance(result, CacheItem)
+                    await result(value)
+                cache_item = await sut.get("id")
+                assert cache_item is not None
+                assert await cache_item.value() == value
 
-    @pytest.mark.parametrize(
-        "scopes",
-        [
-            (),
-            ("scopey", "dopey"),
-        ],
-    )
-    async def test_getset_with_hit(self, scopes: Sequence[str]) -> None:
+    @_scopes()
+    async def test_getset__with_hit(self, scopes: Sequence[str]) -> None:
         """
         Test implementations of :py:meth:`betty.cache.Cache.getset`.
         """
         for value in self._values():
             async with self._new_sut(scopes=scopes) as sut:
                 await sut.set("id", value)
-                async with sut.getset("id") as (cache_item, setter):
-                    assert cache_item is not None
-                    assert await cache_item.value() == value
+                async with sut.getset("id") as result:
+                    assert isinstance(result, CacheItem)
+                    assert await result.value() == value
 
-    @pytest.mark.parametrize(
-        "scopes",
-        [
-            (),
-            ("scopey", "dopey"),
-        ],
-    )
-    async def test_getset_without_lock(self, scopes: Sequence[str]) -> None:
-        """
-        Test implementations of :py:meth:`betty.cache.Cache.getset`.
-        """
-        async with self._new_sut(scopes=scopes) as sut:
-
-            async def _acquire() -> None:
-                async with sut.getset("id"):
-                    await sleep(999)
-
-            task = create_task(_acquire())
-            await sleep(1)
-            try:
-                async with sut.getset("id", wait=False) as (cache_item, setter):
-                    assert cache_item is None
-                    assert setter is None
-            finally:
-                task.cancel()
-
-    @pytest.mark.parametrize(
-        "scopes",
-        [
-            (),
-            ("scopey", "dopey"),
-        ],
-    )
+    @_scopes()
     async def test_delete(self, scopes: Sequence[str]) -> None:
         """
         Test implementations of :py:meth:`betty.cache.Cache.delete`.
@@ -174,16 +165,9 @@ class CacheTestBase(Generic[_CacheItemValueT]):
         async with self._new_sut(scopes=scopes) as sut:
             await sut.set("id", next(self._values()))
             await sut.delete("id")
-            async with sut.get("id") as cache_item:
-                assert cache_item is None
+            assert await sut.get("id") is None
 
-    @pytest.mark.parametrize(
-        "scopes",
-        [
-            (),
-            ("scopey", "dopey"),
-        ],
-    )
+    @_scopes()
     async def test_clear(self, scopes: Sequence[str]) -> None:
         """
         Test implementations of :py:meth:`betty.cache.Cache.clear`.
@@ -191,5 +175,4 @@ class CacheTestBase(Generic[_CacheItemValueT]):
         async with self._new_sut(scopes=scopes) as sut:
             await sut.set("id", next(self._values()))
             await sut.clear()
-            async with sut.get("id") as cache_item:
-                assert cache_item is None
+            assert await sut.get("id") is None

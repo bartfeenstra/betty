@@ -63,7 +63,7 @@ class MemoryCache(
             self._store = state.store
 
     @override
-    def with_scope(self, scope: str) -> Self:
+    def with_scope(self, scope: str, /) -> Self:
         return type(self)(
             scopes=(*self._scopes, scope),
             state=_MemoryCacheState[_CacheItemValueContraT](
@@ -75,8 +75,8 @@ class MemoryCache(
         return *self._scopes, cache_item_id
 
     @override
-    async def _get(
-        self, cache_item_id: str
+    async def get(
+        self, cache_item_id: str, /
     ) -> CacheItem[_CacheItemValueContraT] | None:
         cache_item = self._store.get(self._cache_item_key(cache_item_id), None)
         if isinstance(cache_item, CacheItem):
@@ -84,7 +84,7 @@ class MemoryCache(
         return None
 
     @override
-    async def _set(
+    async def set(
         self,
         cache_item_id: str,
         value: _CacheItemValueContraT,
@@ -96,9 +96,9 @@ class MemoryCache(
         )
 
     @override
-    async def _delete(self, cache_item_id: str) -> None:
+    async def delete(self, cache_item_id: str, /) -> None:
         self._store.pop(self._cache_item_key(cache_item_id), None)
 
     @override
-    async def _clear(self) -> None:
+    async def clear(self) -> None:
         self._store.clear()
