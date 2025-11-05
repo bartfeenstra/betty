@@ -5,13 +5,14 @@ Test the setuptools build.
 
 import sys
 from os import path
-from subprocess import check_call
+from subprocess import check_call, check_output
 from tempfile import TemporaryDirectory
 
 print("Running Setuptools...")  # noqa T201
 
-check_call(["python", path.join("bin", "build-setuptools.py"), "0.0.0"])
-wheel_path = "dist/betty-0.0.0-py3-none-any.whl"
+VERSION = "0.0.0a0"
+check_call(["python", path.join("bin", "build-setuptools.py"), VERSION])
+wheel_path = f"dist/betty-{VERSION}-py3-none-any.whl"
 venv_bin = "Scripts" if sys.platform.startswith("win32") else "bin"
 with TemporaryDirectory() as working_directory_path_str:
     check_call(["python", "-m", "virtualenv", "venv"], cwd=working_directory_path_str)
@@ -22,9 +23,10 @@ with TemporaryDirectory() as working_directory_path_str:
             wheel_path,
         ]
     )
-    check_call(
+    output = check_output(
         [path.join(working_directory_path_str, "venv", venv_bin, "betty"), "--version"]
-    )
+    ).decode()
+    assert VERSION in output
 
 # Remove any stale artifacts.
 check_call(["python", path.join("bin", "clean-build.py")])
