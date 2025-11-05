@@ -18,7 +18,10 @@ VERSION = sys.argv[1]
 with open("pyproject.toml") as f:
     original_pyproject = f.read()
 versioned_pyproject = re.sub(
-    r"^version = '0.0.0'$", f"version = '{VERSION}'", original_pyproject
+    r"^version = '0.0.0'$",
+    f"version = '{VERSION}'",
+    original_pyproject,
+    flags=re.MULTILINE,
 )
 with open("pyproject.toml", mode="w") as f:
     f.write(versioned_pyproject)
