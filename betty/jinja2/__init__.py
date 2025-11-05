@@ -6,15 +6,19 @@ from __future__ import annotations
 
 import datetime
 from collections import defaultdict
-from collections.abc import Callable, Mapping
+from collections.abc import Callable, Mapping, MutableMapping
 from typing import TYPE_CHECKING, Any, ClassVar, Self, TypeAlias, cast, final
 
 from jinja2 import Environment as Jinja2Environment
 from jinja2 import FileSystemLoader, pass_context, select_autoescape
+from jinja2.async_utils import auto_await
+from jinja2.ext import Extension as Jinja2Extension
+from jinja2.nodes import CallBlock, ContextReference, Node
 from jinja2.runtime import Context, DebugUndefined, StrictUndefined
 from typing_extensions import override
 
 from betty import about
+from betty.cache import CacheItem
 from betty.date import Date
 from betty.html import (
     Breadcrumbs,
@@ -37,7 +41,9 @@ from betty.typing import private
 from betty.warnings import deprecate
 
 if TYPE_CHECKING:
-    from collections.abc import Iterator, MutableMapping, Sequence
+    from collections.abc import Iterator, Sequence
+
+    from jinja2.parser import Parser
 
     from betty.asset import AssetRepository
     from betty.machine_name import MachineName
@@ -191,6 +197,7 @@ class Environment(ProjectDependentFactory, Jinja2Environment):
             extensions=[
                 "jinja2.ext.do",
                 "jinja2.ext.i18n",
+                _CacheTagExtension,
             ],
         )
 
@@ -352,6 +359,38 @@ class Environment(ProjectDependentFactory, Jinja2Environment):
                 self.globals.update(extension.globals)
                 self.filters.update(extension.filters)
                 self.tests.update(extension.tests)
+
+
+_CacheExtensionMap: TypeAlias = MutableMapping[str, str]
+
+
+class _CacheTagExtension(Jinja2Extension):
+    tags = {"cache"}
+
+    @override
+    def parse(self, parser: Parser) -> Node | list[Node]:
+        lineno = next(parser.stream).lineno
+        cache_key = parser.parse_expression()
+        body = parser.parse_statements(("name:endcache",), drop_needle=True)
+        return CallBlock(
+            self.call_method("_cache", [cache_key, ContextReference()]),
+            [],
+            [],
+            body,
+        ).set_lineno(lineno)
+
+    async def _cache(
+        self, cache_key: str, context: Context, caller: Callable[[], str]
+    ) -> str:
+        job_context = context_job_context(context)
+        if job_context is None:
+            return await auto_await(caller())
+        async with job_context.cache.getset(f"jinja2_cache_tag:{cache_key}") as result:
+            if isinstance(result, CacheItem):
+                return cast(str, await result.value())
+            rendered = await auto_await(caller())
+            await result(rendered)
+            return rendered
 
 
 @final

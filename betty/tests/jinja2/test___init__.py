@@ -8,6 +8,7 @@ from jinja2 import Environment as Jinja2Environment
 from typing_extensions import override
 
 from betty.ancestry.has_file_references import HasFileReferences
+from betty.cache.memory import MemoryCache
 from betty.jinja2 import (
     EntityContexts,
     Environment,
@@ -18,6 +19,7 @@ from betty.job import Context
 from betty.locale.localizer import Localizer
 from betty.media_type.media_types import JINJA2
 from betty.project import Project
+from betty.test_utils import Counter
 from betty.test_utils.model import DummyEntityOne
 from betty.test_utils.render import RendererDefinitionTestBase
 
@@ -133,3 +135,28 @@ class TestEnvironment:
             async with project:
                 sut = await Environment.new_for_project(project)
                 assert "jinja2.ext.DebugExtension" in sut.extensions
+
+
+class Test_CacheTagExtension:
+    async def test_tag__without_job_context(self, temporary_app: App) -> None:
+        counter = Counter()
+        async with Project.new_temporary(temporary_app) as project, project:
+            sut = await Environment.new_for_project(project)
+            template = sut.from_string(
+                "{% cache 'my-first-cache-key' %}{% do count() %}{% endcache %}"
+            )
+            await template.render_async(count=counter)
+            await template.render_async(count=counter)
+        assert counter.count == 2
+
+    async def test_tag__with_job_context(self, temporary_app: App) -> None:
+        counter = Counter()
+        job_context = Context(cache=MemoryCache())
+        async with Project.new_temporary(temporary_app) as project, project:
+            sut = await Environment.new_for_project(project)
+            template = sut.from_string(
+                "{% cache 'my-first-cache-key' %}{% do count() %}{% endcache %}"
+            )
+            await template.render_async(count=counter, job_context=job_context)
+            await template.render_async(count=counter, job_context=job_context)
+        assert counter.count == 1
