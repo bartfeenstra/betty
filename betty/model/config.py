@@ -20,7 +20,7 @@ from betty.assertion import (
 from betty.config import Configuration
 from betty.config.collections.sequence import ConfigurationSequence
 from betty.data import Index
-from betty.exception import HumanFacingException, HumanFacingExceptionGroup
+from betty.exception import Collector, HumanFacingException, within_context
 from betty.locale.localizable import _
 from betty.machine_name import MachineName, assert_machine_name
 from betty.plugin import PluginIdentifier, PluginRepository, resolve_id
@@ -205,7 +205,10 @@ class EntityReferenceSequence(ConfigurationSequence[EntityReference]):
         """
         Validate the configuration.
         """
-        with HumanFacingExceptionGroup().assert_valid() as errors:
+        with Collector() as collector:
             for index, reference in enumerate(self):
-                with errors.catch(Index(index)):
+                with (
+                    collector.collect(HumanFacingException),
+                    within_context(Index(index)),
+                ):
                     await reference.validate(entity_type_repository)

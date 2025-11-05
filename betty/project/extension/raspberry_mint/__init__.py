@@ -12,7 +12,7 @@ import aiofiles
 from typing_extensions import override
 
 from betty.data import Key
-from betty.exception import HumanFacingExceptionGroup
+from betty.exception import within_context
 from betty.jinja2 import Filters, Jinja2Provider
 from betty.job import Job
 from betty.locale.localizable import Chain, Plain, _
@@ -132,11 +132,8 @@ class RaspberryMint(
             raise
 
     async def _assert_configuration(self) -> None:
-        with (
-            HumanFacingExceptionGroup().assert_valid() as errors,
-            errors.catch(
-                Key("extensions"), Key("raspberry-mint"), Key("featured_entities")
-            ),
+        with within_context(
+            Key("extensions"), Key("raspberry-mint"), Key("featured_entities")
         ):
             await self.configuration.featured_entities.validate(
                 self.project.app.entity_type_repository

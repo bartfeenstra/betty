@@ -27,7 +27,7 @@ from typing import (
 
 from betty.data import Index, Key
 from betty.error import FileNotFound
-from betty.exception import HumanFacingException, HumanFacingExceptionGroup
+from betty.exception import Collector, HumanFacingException, within_context
 from betty.locale import UNDETERMINED_LOCALE, get_data
 from betty.locale.localizable import Localizable, Paragraph, Plain, _, do_you_mean
 from betty.typing import Void, Voidable, internal
@@ -181,15 +181,13 @@ def assert_or(
     Assert that at least one of the given assertions passed.
     """
 
-    def _assert_or(value: Any) -> _AssertionReturnT | _AssertionReturnU:
+    def _assert_or(value: Any) -> _AssertionReturnT | _AssertionReturnU:  # type: ignore[return]
         assertions = (if_assertion, else_assertion)
-        errors = HumanFacingExceptionGroup()
-        for assertion in assertions:
-            try:
-                return assertion(value)
-            except HumanFacingException as e:
-                errors.append(e)
-        raise errors
+        with Collector() as collector:
+            for assertion in assertions:
+                with collector.collect(HumanFacingException):
+                    return assertion(value)
+        return None
 
     return AssertionChain(_assert_or)
 
@@ -302,9 +300,12 @@ def assert_sequence(
         if value_assertion is None:
             return list(sequence)
         asserted_sequence = []
-        with HumanFacingExceptionGroup().assert_valid() as errors:
+        with Collector() as collector:
             for value_index, value_value in enumerate(sequence):
-                with errors.catch(Index(value_index)):
+                with (
+                    collector.collect(HumanFacingException),
+                    within_context(Index(value_index)),
+                ):
                     asserted_sequence.append(value_assertion(value_value))
         return asserted_sequence
 
@@ -362,15 +363,22 @@ def assert_mapping(
         if value_assertion is None and key_assertion is None:
             return dict(mapping)
         asserted_mapping = {}
-        with HumanFacingExceptionGroup().assert_valid() as errors:
+        with Collector() as collector:
             for value_key, value_value in mapping.items():
+                context = Key(value_key)
                 asserted_value_key = value_key
                 if key_assertion:
-                    with errors.catch(Key(value_key)):
+                    with (
+                        collector.collect(HumanFacingException),
+                        within_context(context),
+                    ):
                         asserted_value_key = key_assertion(value_key)
                 asserted_value_value = value_value
                 if value_assertion:
-                    with errors.catch(Key(value_key)):
+                    with (
+                        collector.collect(HumanFacingException),
+                        within_context(context),
+                    ):
                         asserted_value_value = value_assertion(value_value)
                 asserted_mapping[asserted_value_key] = asserted_value_value
         return asserted_mapping
@@ -387,9 +395,12 @@ def assert_fields(
 
     def _assert_fields(value: Mapping[Any, Any]) -> MutableMapping[str, Any]:
         mapping: MutableMapping[str, Any] = {}
-        with HumanFacingExceptionGroup().assert_valid() as errors:
+        with Collector() as collector:
             for field in fields:
-                with errors.catch(Key(field.name)):
+                with (
+                    collector.collect(HumanFacingException),
+                    within_context(Key(field.name)),
+                ):
                     if field.name in value:
                         mapping[field.name] = (
                             field.assertion(value[field.name])
@@ -452,9 +463,12 @@ def assert_record(
     def _assert_record(value: Mapping[Any, Any]) -> MutableMapping[str, Any]:
         known_keys = {x.name for x in fields}
         unknown_keys = set(value.keys()) - known_keys
-        with HumanFacingExceptionGroup().assert_valid() as errors:
+        with Collector() as collector:
             for unknown_key in unknown_keys:
-                with errors.catch(Key(unknown_key)):
+                with (
+                    collector.collect(HumanFacingException),
+                    within_context(Key(unknown_key)),
+                ):
                     raise HumanFacingException(
                         Paragraph(
                             _("Unknown key: {unknown_key}.").format(

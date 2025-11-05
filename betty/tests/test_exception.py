@@ -1,22 +1,10 @@
-from collections.abc import Sequence
 from gettext import NullTranslations
 
-import pytest
-
 from betty.data import Attr
-from betty.exception import HumanFacingException, HumanFacingExceptionGroup, do_raise
+from betty.exception import HumanFacingException
 from betty.locale import DEFAULT_LOCALE
 from betty.locale.localizable import Plain, StaticTranslations
 from betty.locale.localizer import DEFAULT_LOCALIZER, Localizer
-from betty.test_utils.exception import assert_error
-
-
-def test_do_raise() -> None:
-    expected = RuntimeError()
-    try:
-        do_raise(expected)
-    except BaseException as actual:
-        assert actual is expected  # noqa PT017
 
 
 class _DummyHumanFacingException(HumanFacingException):
@@ -46,181 +34,15 @@ class TestHumanFacingException:
 
     def test_localize__with_contexts(self) -> None:
         sut = HumanFacingException(StaticTranslations("Something went wrong!"))
-        sut = sut.with_context(Attr("my_first_context"))
-        sut = sut.with_context(Attr("my_second_context"))
+        sut.within_context(Attr("my_first_context"), Attr("my_second_context"))
         assert (
             sut.localize(DEFAULT_LOCALIZER)
             == "Something went wrong!\n- data.my_second_context.my_first_context"
         )
 
-    def test_with_context__and_contexts(self) -> None:
+    def test_within_context__and_contexts(self) -> None:
         sut = HumanFacingException(StaticTranslations("Something went wrong!"))
-        sut_with_context = sut.with_context(Attr("my_first_context"))
-        assert sut != sut_with_context
-        assert [
-            context.localize(DEFAULT_LOCALIZER) for context in sut_with_context.contexts
-        ] == [".my_first_context"]
-
-    @pytest.mark.parametrize(
-        ("expected", "sut", "error_type"),
-        [
-            (True, HumanFacingException(Plain("")), HumanFacingException),
-            (False, HumanFacingException(Plain("")), _DummyHumanFacingException),
-            (True, _DummyHumanFacingException(Plain("")), HumanFacingException),
-            (True, _DummyHumanFacingException(Plain("")), _DummyHumanFacingException),
-        ],
-    )
-    def test_raised(
-        self,
-        expected: bool,
-        sut: HumanFacingException,
-        error_type: type[HumanFacingException],
-    ) -> None:
-        assert sut.raised(error_type) is expected
-
-
-class TestHumanFacingExceptionGroup:
-    def test_localize__without_errors(self) -> None:
-        sut = HumanFacingExceptionGroup()
-        assert sut.localize(DEFAULT_LOCALIZER) == ""
-
-    def test_localize__with_one_error(self) -> None:
-        sut = HumanFacingExceptionGroup()
-        sut.append(HumanFacingException(StaticTranslations("Something went wrong!")))
-        assert sut.localize(DEFAULT_LOCALIZER) == "Something went wrong!"
-
-    def test_localize__with_multiple_errors(self) -> None:
-        sut = HumanFacingExceptionGroup()
-        sut.append(HumanFacingException(StaticTranslations("Something went wrong!")))
-        sut.append(
-            HumanFacingException(StaticTranslations("Something else went wrong, too!"))
-        )
-        assert (
-            sut.localize(DEFAULT_LOCALIZER)
-            == "Something went wrong!\n\nSomething else went wrong, too!"
-        )
-
-    def test_localize__with_predefined_contexts(self) -> None:
-        sut = HumanFacingExceptionGroup()
-        sut = sut.with_context(Attr("my_first_context"))
-        sut = sut.with_context(Attr("my_second_context"))
-        error_1 = HumanFacingException(StaticTranslations("Something went wrong!"))
-        error_2 = HumanFacingException(
-            StaticTranslations("Something else went wrong, too!")
-        )
-        sut.append(error_1)
-        sut.append(error_2)
-        assert not len(error_1.contexts)
-        assert not len(error_2.contexts)
-        assert (
-            sut.localize(DEFAULT_LOCALIZER)
-            == "Something went wrong!\n- data.my_first_context.my_second_context\n\nSomething else went wrong, too!\n- data.my_first_context.my_second_context"
-        )
-
-    def test_localize__with_postdefined_contexts(self) -> None:
-        sut = HumanFacingExceptionGroup()
-        error_1 = HumanFacingException(StaticTranslations("Something went wrong!"))
-        error_2 = HumanFacingException(
-            StaticTranslations("Something else went wrong, too!")
-        )
-        sut.append(error_1)
-        sut.append(error_2)
-        sut = sut.with_context(Attr("my_first_context"))
-        sut = sut.with_context(Attr("my_second_context"))
-        assert not len(error_1.contexts)
-        assert not len(error_2.contexts)
-        assert (
-            sut.localize(DEFAULT_LOCALIZER)
-            == "Something went wrong!\n- data.my_second_context.my_first_context\n\nSomething else went wrong, too!\n- data.my_second_context.my_first_context"
-        )
-
-    def test_with_context(self) -> None:
-        sut = HumanFacingExceptionGroup()
-        sut_with_context = sut.with_context(Attr("my_first_context"))
-        assert sut is not sut_with_context
-        assert [
-            context.localize(DEFAULT_LOCALIZER) for context in sut_with_context.contexts
-        ] == [".my_first_context"]
-
-    def test_catch__without_contexts(self) -> None:
-        sut = HumanFacingExceptionGroup()
-        error = HumanFacingException(StaticTranslations("Help!"))
-        with sut.catch() as errors:
-            raise error
-        assert_error(errors, error=error)  # type: ignore[unreachable]
-        assert_error(sut, error=error)
-
-    def test_catch__with_contexts(self) -> None:
-        sut = HumanFacingExceptionGroup()
-        error = HumanFacingException(StaticTranslations("Help!"))
-        with sut.catch(Attr("my_first_context")) as errors:
-            raise error
-        assert_error(errors, error=error.with_context(Plain(".my_first_context")))  # type: ignore[unreachable]
-        assert_error(sut, error=error.with_context(Plain(".my_first_context")))
-
-    @pytest.mark.parametrize(
-        ("expected", "errors"),
-        [
-            (True, None),
-            (True, []),
-            (False, [HumanFacingException(Plain(""))]),
-            (True, [HumanFacingExceptionGroup()]),
-        ],
-    )
-    def test_valid__and_invalid(
-        self, expected: bool, errors: Sequence[HumanFacingException] | None
-    ) -> None:
-        sut = HumanFacingExceptionGroup(errors)
-        assert sut.valid is expected
-        assert sut.invalid is not expected
-
-    @pytest.mark.parametrize(
-        ("expected", "errors"),
-        [
-            (False, None),
-            (False, []),
-            (True, [_DummyHumanFacingException(Plain(""))]),
-            (False, [HumanFacingExceptionGroup()]),
-        ],
-    )
-    def test_raised(
-        self, expected: bool, errors: Sequence[HumanFacingException] | None
-    ) -> None:
-        sut = HumanFacingExceptionGroup(errors)
-        assert sut.raised(_DummyHumanFacingException) is expected
-
-    def test_assert_valid__without_errors(self) -> None:
-        with HumanFacingExceptionGroup().assert_valid():
-            pass
-
-    def test_assert_valid__with_prior_error(self) -> None:
-        with (
-            pytest.raises(HumanFacingExceptionGroup),
-            HumanFacingExceptionGroup([HumanFacingException(Plain(""))]).assert_valid(),
-        ):
-            pass
-
-    def test_assert_valid__with_error_during_context_manager(self) -> None:
-        with (
-            pytest.raises(HumanFacingExceptionGroup),
-            HumanFacingExceptionGroup().assert_valid(),
-        ):
-            raise HumanFacingException(Plain(""))
-
-    def test_append(self) -> None:
-        sut = HumanFacingExceptionGroup()
-        sut.append(HumanFacingException(Plain("")))
-        assert len(sut) == 1
-
-    def test_append__with_group(self) -> None:
-        sut = HumanFacingExceptionGroup()
-        sut.append(HumanFacingExceptionGroup([HumanFacingException(Plain(""))]))
-        assert len(sut) == 1
-
-    def test___len__(self) -> None:
-        sut = HumanFacingExceptionGroup([HumanFacingException(Plain(""))])
-        assert len(sut) == 1
-
-    def test___iter__(self) -> None:
-        sut = HumanFacingExceptionGroup([HumanFacingException(Plain(""))])
-        assert len(list(iter(sut))) == 1
+        sut.within_context(Attr("my_first_context"))
+        assert [context.localize(DEFAULT_LOCALIZER) for context in sut.contexts] == [
+            ".my_first_context"
+        ]

@@ -4,21 +4,20 @@ Test utilities for :py:mod:`betty.exception`.
 
 from __future__ import annotations
 
-from contextlib import contextmanager
-from typing import TYPE_CHECKING, Any, overload
+from typing import TYPE_CHECKING, overload
 
-from betty.exception import HumanFacingException, HumanFacingExceptionGroup
+from betty.exception import HumanFacingException
 from betty.locale.localizer import DEFAULT_LOCALIZER
 
 if TYPE_CHECKING:
-    from collections.abc import Iterable, Iterator, Sequence
+    from collections.abc import Iterable, Sequence
 
     from betty.data import Context
 
 
 @overload
 def assert_error(
-    actual_error: HumanFacingException | HumanFacingExceptionGroup,
+    actual_error: HumanFacingException,
     *,
     error: HumanFacingException,
     error_type: type[HumanFacingException] = HumanFacingException,
@@ -30,7 +29,7 @@ def assert_error(
 
 @overload
 def assert_error(
-    actual_error: HumanFacingException | HumanFacingExceptionGroup,
+    actual_error: HumanFacingException,
     *,
     error: None = None,
     error_type: type[HumanFacingException] = HumanFacingException,
@@ -41,7 +40,7 @@ def assert_error(
 
 
 def assert_error(
-    actual_error: HumanFacingException | HumanFacingExceptionGroup,
+    actual_error: HumanFacingException,
     *,
     error: HumanFacingException | None = None,
     error_type: type[HumanFacingException] = HumanFacingException,
@@ -52,11 +51,9 @@ def assert_error(
     Assert that an error group contains an error matching the given parameters.
     """
     expected_error_contexts: Sequence[str] | None
+    # @todo Can we simplify this?
     actual_errors: Iterable[HumanFacingException]
-    if isinstance(actual_error, HumanFacingExceptionGroup):
-        actual_errors = [*actual_error]
-    else:
-        actual_errors = [actual_error]
+    actual_errors = [actual_error]
 
     expected_error_type: type
     expected_error_message = None
@@ -99,16 +96,3 @@ def assert_error(
     if errors:
         return errors
     raise AssertionError("Failed raising UserFacingException.")
-
-
-@contextmanager
-def raises_error(*args: Any, **kwargs: Any) -> Iterator[HumanFacingExceptionGroup]:
-    """
-    Provide a context manager to assert that an error group contains an error matching the given parameters.
-    """
-    try:
-        with HumanFacingExceptionGroup().catch() as errors:
-            yield errors
-    finally:
-        assert_error(errors, *args, **kwargs)
-        errors.assert_valid()

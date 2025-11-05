@@ -5,28 +5,20 @@ Provide exception handling utilities.
 from __future__ import annotations
 
 from contextlib import contextmanager
-from typing import TYPE_CHECKING, Never, Self
+from typing import TYPE_CHECKING, Self, final
 
 from typing_extensions import override
 
 from betty.data import Selectors
-from betty.locale.localizable import Lines, Localizable, UnorderedList, _
-from betty.locale.localized import Localized, LocalizedStr
+from betty.locale.localizable import Lines, Localizable, UnorderedList
 
 if TYPE_CHECKING:
     from collections.abc import Iterator, MutableSequence, Sequence
+    from types import TracebackType
 
     from betty.data import Context
+    from betty.locale.localized import Localized
     from betty.locale.localizer import Localizer
-
-
-def do_raise(exception: BaseException) -> Never:
-    """
-    Raise the given exception.
-
-    This is helpful as a callback.
-    """
-    raise exception
 
 
 class HumanFacingException(Exception, Localizable):
@@ -38,7 +30,7 @@ class HumanFacingException(Exception, Localizable):
     """
 
     def __init__(
-        self, message: Localizable, *, contexts: tuple[Context, ...] | None = None
+        self, message: Localizable, *, contexts: Sequence[Context] | None = None
     ):
         from betty.locale.localizer import DEFAULT_LOCALIZER
 
@@ -47,7 +39,7 @@ class HumanFacingException(Exception, Localizable):
             message.localize(DEFAULT_LOCALIZER),
         )
         self._localizable_message = message
-        self._contexts: tuple[Context, ...] = contexts or ()
+        self._contexts = [] if contexts is None else list(contexts)
 
     @override
     def __str__(self) -> str:
@@ -61,120 +53,59 @@ class HumanFacingException(Exception, Localizable):
             self._localizable_message, UnorderedList(*Selectors.reduce(*self.contexts))
         ).localize(localizer)
 
-    def raised(self, error_type: type[HumanFacingException]) -> bool:
-        """
-        Check if the error matches the given error type.
-        """
-        return isinstance(self, error_type)
-
     @property
-    def contexts(self) -> tuple[Context, ...]:
+    def contexts(self) -> Sequence[Context]:
         """
         Get the human-readable contexts describing where the error occurred in the source data.
         """
         return self._contexts
 
-    def with_context(self, *contexts: Context) -> Self:
+    def within_context(self, *contexts: Context) -> None:
         """
-        Add a message describing the error's context.
+        Adds the given context(s) to the exception.
         """
-        self_copy = self._copy()
-        self_copy._contexts = (*reversed(contexts), *self._contexts)
-        return self_copy
-
-    def _copy(self) -> Self:
-        return type(self)(self._localizable_message)
+        self._contexts.extend(contexts)
 
 
-class HumanFacingExceptionGroup(HumanFacingException):
+@final
+class Collector:
     """
-    A group of zero or more human-facing exceptions.
+    Collect exceptions and raise them as an exception group.
     """
 
-    def __init__(
+    def __init__(self):
+        self._exceptions: MutableSequence[Exception] = []
+
+    def __enter__(self) -> Self:
+        return self
+
+    def __exit__(
         self,
-        errors: Sequence[HumanFacingException] | None = None,
-    ):
-        super().__init__(_("The following errors occurred"))
-        self._errors: MutableSequence[HumanFacingException] = []
-        if errors is not None:
-            self.append(*errors)
-
-    def __iter__(self) -> Iterator[HumanFacingException]:
-        yield from self._errors
-
-    @override
-    def localize(self, localizer: Localizer) -> Localized & str:
-        return LocalizedStr(
-            "\n\n".join(error.localize(localizer) for error in self._errors),
-            locale=localizer.locale,
-        )
-
-    def __len__(self) -> int:
-        return len(self._errors)
-
-    @override
-    def raised(self, error_type: type[HumanFacingException]) -> bool:
-        return any(error.raised(error_type) for error in self._errors)
-
-    @property
-    def valid(self) -> bool:
-        """
-        Check that this collection contains no errors.
-        """
-        return len(self._errors) == 0
-
-    @property
-    def invalid(self) -> bool:
-        """
-        Check that this collection contains at least one error.
-        """
-        return not self.valid
+        exc_type: type[BaseException] | None,
+        exc_val: BaseException | None,
+        exc_tb: TracebackType | None,
+    ) -> None:
+        if self._exceptions:
+            raise ExceptionGroup("Some errors occurred", self._exceptions)
 
     @contextmanager
-    def assert_valid(self, *contexts: Context) -> Iterator[Self]:
+    def collect(self, exception_type: type[Exception] = Exception) -> Iterator[None]:
         """
-        Assert that this collection contains no errors.
+        Collect and suppress exceptions of the given type.
         """
-        if self.invalid:
-            raise self
-        with self.catch(*contexts):
-            yield self
-        if self.invalid:  # type: ignore[redundant-expr]
-            raise self
-
-    def append(self, *errors: HumanFacingException) -> None:
-        """
-        Append errors to this collection.
-        """
-        for error in errors:
-            if isinstance(error, HumanFacingExceptionGroup):
-                self.append(*error)
-            else:
-                self._errors.append(error.with_context(*self._contexts))
-
-    @override
-    def with_context(self, *contexts: Context) -> Self:
-        self_copy = super().with_context(*contexts)
-        self_copy._errors = [error.with_context(*contexts) for error in self._errors]
-        return self_copy
-
-    @override
-    def _copy(self) -> Self:
-        return type(self)()
-
-    @contextmanager
-    def catch(self, *contexts: Context) -> Iterator[HumanFacingExceptionGroup]:
-        """
-        Catch any errors raised within this context manager and add them to the collection.
-
-        :return: A new collection that will only contain any newly raised errors.
-        """
-        context_errors: HumanFacingExceptionGroup = HumanFacingExceptionGroup()
-        if contexts:
-            context_errors = context_errors.with_context(*contexts)
         try:
-            yield context_errors
-        except HumanFacingException as e:
-            context_errors.append(e)
-        self.append(*context_errors)
+            yield None
+        except exception_type as exception:
+            self._exceptions.append(exception)
+
+
+@contextmanager
+def within_context(*contexts: Context) -> Iterator[None]:
+    """
+    Adds the given context(s) to caught :py:class:`betty.exception.HumanFacingException`.
+    """
+    try:
+        yield None
+    except HumanFacingException as exception:
+        exception.within_context(*contexts)
+        raise

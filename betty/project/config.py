@@ -37,7 +37,7 @@ from betty.config.collections.mapping import (
 )
 from betty.copyright_notice import CopyrightNotice, CopyrightNoticeDefinition
 from betty.data import Key
-from betty.exception import HumanFacingException, HumanFacingExceptionGroup
+from betty.exception import Collector, HumanFacingException, within_context
 from betty.license import License, LicenseDefinition
 from betty.license.licenses import AllRightsReserved
 from betty.locale import DEFAULT_LOCALE, UNDETERMINED_LOCALE
@@ -205,9 +205,12 @@ class EntityTypeConfigurationMapping(
         """
         Validate the configuration.
         """
-        with HumanFacingExceptionGroup().assert_valid() as errors:
+        with Collector() as collector:
             for configuration in self.values():
-                with errors.catch(Key(configuration.id)):
+                with (
+                    collector.collect(HumanFacingException),
+                    within_context(Key(configuration.id)),
+                ):
                     await configuration.validate(entity_type_repository)
 
 

@@ -25,7 +25,6 @@ from aioresponses import aioresponses
 
 from betty.app import App
 from betty.cache.file import BinaryFileCache
-from betty.exception import do_raise
 from betty.multiprocessing import ProcessPoolExecutor
 from betty.user import Verbosity
 
@@ -139,11 +138,15 @@ def temporary_app_factory(
     return _temporary_app_factory
 
 
+def _do_raise(exception: BaseException) -> None:
+    raise exception
+
+
 @pytest_asyncio.fixture(loop_scope="session")
 async def page(context: BrowserContext) -> Page:
     """
     A Playwright Page instance.
     """
     page = await context.new_page()
-    page.on("pageerror", do_raise)
+    page.on("pageerror", _do_raise)
     return page
