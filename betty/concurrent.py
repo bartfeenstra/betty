@@ -7,7 +7,7 @@ import threading
 import time
 from abc import ABC, abstractmethod
 from asyncio import sleep
-from collections.abc import Hashable, MutableMapping
+from collections.abc import AsyncIterator, Hashable, MutableMapping
 from math import floor
 from types import TracebackType
 from typing import Self, TypeAlias, TypeVar, Union, final
@@ -285,3 +285,24 @@ class Ledger:
         Ledger a new lock for the given transaction ID.
         """
         return _Transaction(transaction_id, self._ledger_lock, self._ledger)
+
+
+async def backoff() -> AsyncIterator[int]:
+    """
+    Implement `exponential backoff <https://en.wikipedia.org/wiki/Exponential_backoff>`__.
+
+    The returned iterator sleeps after every iteration, increasing the duration with every iteration, up to a limit.
+
+    Usage:
+
+    .. code-block:: python
+
+       async for iteration in backoff():
+         if success:
+            return  # Or break.
+    """
+    iterations = 0
+    while True:
+        yield iterations
+        await asyncio.sleep(0.001 * 2 ** min(iterations, 7))
+        iterations += 1
