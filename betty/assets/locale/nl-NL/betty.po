@@ -1178,7 +1178,7 @@ msgstr ""
 msgid "View Betty's interactive documentation. This will open your web browser."
 msgstr ""
 
-msgid "View original"
+msgid "View original Size"
 msgstr "Bekijk origineel"
 
 msgid "View the documentation"
