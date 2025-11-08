@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Betty 0.4\n"
 "Report-Msgid-Bugs-To: illia@maier.page\n"
-"POT-Creation-Date: 2025-11-08 18:38+0000\n"
+"POT-Creation-Date: 2025-11-08 19:26+0000\n"
 "PO-Revision-Date: 2025-05-13 17:01+0000\n"
 "Last-Translator: Максим Горпиніч <maksimgorpinic4@gmail.com>\n"
 "Language: uk\n"
@@ -71,9 +71,8 @@ msgstr "Про програму"
 msgid "Access denied"
 msgstr "Доступ заборонено"
 
-#, python-format
-msgid "Accessed: %(date)s"
-msgstr "Доступ: %(date)s"
+msgid "Accessed"
+msgstr ""
 
 msgid "Adoption"
 msgstr "Усиновлення"
@@ -307,8 +306,7 @@ msgstr "Миропомазання"
 msgid "Continue reading on <a href=\"%(url)s\">Wikipedia</a>."
 msgstr "Продовжуйте читати у <a href=\"%(url)s\">Вікіпедії</a>."
 
-#, python-format
-msgid "Coordinates: %(latitude)s, %(longitude)s"
+msgid "Coordinates"
 msgstr ""
 
 msgid "Copyright"

@@ -1,9 +1,12 @@
 {%- if entity.coordinates -%}
-    <div class="mt-2 small">
-        <p>
-            {% trans latitude = entity.coordinates.latitude | format_degrees,
-                longitude = entity.coordinates.longitude | format_degrees
-                %}Coordinates: {{ latitude }}, {{ longitude }}{% endtrans %}
-        </p>
-    </div>
+    <dl class="d-table mt-2 small">
+        <div class="d-table-row">
+            <dt class="d-table-cell pe-2">
+                {% trans %}Coordinates{% endtrans %}
+            </dt>
+            <dd class="d-table-cell">
+                {{ entity.coordinates.latitude | format_degrees }}, {{ entity.coordinates.longitude | format_degrees }}
+            </dd>
+        </div>
+    </dl>
 {%- endif -%}

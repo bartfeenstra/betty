@@ -1,7 +1,12 @@
 {%- if entity.public and entity.date -%}
-    <div class="mt-2 small">
-        <p>
-            {% trans date = entity.date | format_date_like %}Accessed: {{ date }}{% endtrans %}
-        </p>
-    </div>
+    <dl class="d-table mt-2 small">
+        <div class="d-table-row">
+            <dt class="d-table-cell pe-2">
+                {% trans %}Accessed{% endtrans %}
+            </dt>
+            <dd class="d-table-cell">
+                {{ entity.date | format_date_like }}
+            </dd>
+        </div>
+    </dl>
 {%- endif -%}
