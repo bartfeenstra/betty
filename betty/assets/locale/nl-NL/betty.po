@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PROJECT VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2025-11-04 14:00+0000\n"
+"POT-Creation-Date: 2025-11-08 18:38+0000\n"
 "PO-Revision-Date: 2025-05-17 01:43+0000\n"
 "Last-Translator: Bart Feenstra <bart@bartfeenstra.com>\n"
 "Language: nl_NL\n"
@@ -127,6 +127,9 @@ msgstr "Op welke URL wordt je site gepubliceerd?"
 
 msgid "Attendee"
 msgstr "Aanwezige"
+
+msgid "Author"
+msgstr ""
 
 msgid "Baptism"
 msgstr "Doping"
@@ -866,6 +869,9 @@ msgstr "Provincie"
 
 msgid "Public domain"
 msgstr "Publiek domein"
+
+msgid "Publisher"
+msgstr ""
 
 msgid "Python packages"
 msgstr ""
