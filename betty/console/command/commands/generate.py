@@ -47,8 +47,13 @@ class Generate(AppDependentFactory, Command):
             project,
             project.app.user.message_progress(_("Generating site...")) as progress,
         ):
+            # Add a phantom value to the progress so it can never jump to 100% before we are entirely done here.
+            await progress.add()
+
             job_context = ProjectContext(
                 project, cache=MemoryCache(), progress=progress
             )
             await load.load(project, job_context=job_context)
             await generate.generate(project, job_context=job_context)
+
+            await progress.done()
