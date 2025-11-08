@@ -213,8 +213,7 @@ setuptools = [
 test = [
     'aioresponses ~= 0.7.8',
     'basedmypy ~= 2.6',
-    # Avoid 7.11.1 for now while https://github.com/nedbat/coveragepy/issues/2077 is being fixed.
-    'coverage ~= 7.6, != 7.11.1',
+    'coverage ~= 7.6',
     'packaging ~= 25.0',
     'puremagic ~= 1.28',
     'pytest ~= 8.3',
