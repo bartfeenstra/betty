@@ -10,13 +10,15 @@ from typing_extensions import override
 
 from betty.assertion import OptionalField, assert_record
 from betty.config import Configuration
-from betty.model.config import EntityReference, EntityReferenceSequence
 from betty.project.extension._theme import ColorConfiguration
+from betty.project.extension.theme.config import RegionalContentConfiguration
 
 if TYPE_CHECKING:
-    from collections.abc import Iterable, Sequence
+    from collections.abc import Iterable, Mapping, Sequence
 
+    from betty.content_provider import ContentProvider, ContentProviderDefinition
     from betty.mutability import Mutable
+    from betty.plugin.config import PluginInstanceConfiguration
     from betty.serde.dump import Dump, DumpMapping
 
 
@@ -32,32 +34,31 @@ class RaspberryMintConfiguration(Configuration):
     def __init__(
         self,
         *,
-        featured_entities: (Sequence[EntityReference] | None) = None,
         primary_color: str = DEFAULT_PRIMARY_COLOR,
         secondary_color: str = DEFAULT_SECONDARY_COLOR,
         tertiary_color: str = DEFAULT_TERTIARY_COLOR,
+        content: Mapping[
+            str,
+            Sequence[
+                PluginInstanceConfiguration[ContentProviderDefinition, ContentProvider]
+            ],
+        ]
+        | None = None,
     ):
         super().__init__()
-        self._featured_entities = EntityReferenceSequence(featured_entities or ())
         self._primary_color = ColorConfiguration(primary_color)
         self._secondary_color = ColorConfiguration(secondary_color)
         self._tertiary_color = ColorConfiguration(tertiary_color)
+        self._content = RegionalContentConfiguration(content or {})
 
     @override
     def get_mutable_instances(self) -> Iterable[Mutable]:
         return (
-            self._featured_entities,
             self._primary_color,
             self._secondary_color,
             self._tertiary_color,
+            self._content,
         )
-
-    @property
-    def featured_entities(self) -> EntityReferenceSequence:
-        """
-        The entities featured on the front page.
-        """
-        return self._featured_entities
 
     @property
     def primary_color(self) -> ColorConfiguration:
@@ -80,21 +81,31 @@ class RaspberryMintConfiguration(Configuration):
         """
         return self._tertiary_color
 
+    @property
+    def regional_content(self) -> RegionalContentConfiguration:
+        """
+        The regional content.
+        """
+        return self._content
+
     @override
     def load(self, dump: Dump) -> None:
         self.assert_mutable()
         assert_record(
-            OptionalField("featured_entities", self.featured_entities.load),
             OptionalField("primary_color", self.primary_color.load),
             OptionalField("secondary_color", self.secondary_color.load),
             OptionalField("tertiary_color", self.tertiary_color.load),
+            OptionalField("regional_content", self.regional_content.load),
         )(dump)
 
     @override
     def dump(self) -> DumpMapping[Dump]:
-        return {
-            "featured_entities": self.featured_entities.dump(),
+        dump = {
             "primary_color": self.primary_color.dump(),
             "secondary_color": self.secondary_color.dump(),
             "tertiary_color": self.tertiary_color.dump(),
         }
+        regional_content_dump = self.regional_content.dump()
+        if regional_content_dump:
+            dump["regional_content"] = regional_content_dump
+        return dump

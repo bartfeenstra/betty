@@ -23,6 +23,7 @@ from betty.ancestry.place_type import PlaceTypeDefinition
 from betty.ancestry.presence_role import PresenceRoleDefinition
 from betty.asset import AssetRepository, ProxyAssetRepository, StaticAssetRepository
 from betty.config import Configurable
+from betty.content_provider import ContentProviderDefinition
 from betty.copyright_notice import CopyrightNotice, CopyrightNoticeDefinition
 from betty.data import Key
 from betty.exception import HumanFacingExceptionGroup
@@ -453,6 +454,19 @@ class Project(Configurable[ProjectConfiguration], TargetFactory, ServiceProvider
             StaticPluginRepository(
                 GenderDefinition, *self.configuration.genders.new_plugins()
             ),
+        )
+
+    @service
+    def content_provider_repository(
+        self,
+    ) -> PluginRepository[ContentProviderDefinition]:
+        """
+        The content providers available to this application.
+
+        Read more about :doc:`/development/plugin/content-provider`.
+        """
+        return EntryPointPluginRepository(
+            ContentProviderDefinition, "betty.content_provider"
         )
 
     @service

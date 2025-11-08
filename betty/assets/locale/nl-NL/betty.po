@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PROJECT VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2025-11-08 20:00+0000\n"
+"POT-Creation-Date: 2025-11-11 00:15+0000\n"
 "PO-Revision-Date: 2025-05-17 01:43+0000\n"
 "Last-Translator: Bart Feenstra <bart@bartfeenstra.com>\n"
 "Language: nl_NL\n"
@@ -303,6 +303,9 @@ msgstr "Configureer Betty"
 msgid "Confirmation"
 msgstr "Geloofsbelijdenis"
 
+msgid "Content provider"
+msgstr ""
+
 #, python-format
 msgid "Continue reading on <a href=\"%(url)s\">Wikipedia</a>."
 msgstr "Lees verder op <a href=\"%(url)s\">Wikipedia</a>."
@@ -501,6 +504,9 @@ msgstr ""
 msgid "Farm"
 msgstr "Boerderij"
 
+msgid "Featured entities"
+msgstr ""
+
 msgid "Female"
 msgstr "Vrouwelijk"
 
@@ -598,6 +604,10 @@ msgstr "Ongeldige YAML: {error}."
 
 #, python-brace-format
 msgid "Invalid argument {argument}: {error}"
+msgstr ""
+
+#, python-brace-format
+msgid "Invalid region {invalid_region}."
 msgstr ""
 
 msgid "It appears you called Betty without a command or arguments"
@@ -795,6 +805,9 @@ msgstr ""
 
 msgid "Places"
 msgstr "Plaatsen"
+
+msgid "Plain text"
+msgstr ""
 
 #, python-brace-format
 msgid "Plugin \"{plugin_id}\" is not configurable, but configuration was given."

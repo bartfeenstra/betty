@@ -17,6 +17,7 @@ from betty.plugin.config import (
     PluginIdentifierKeyConfigurationMapping,
     PluginInstanceConfiguration,
     PluginInstanceConfigurationMapping,
+    PluginInstanceConfigurationSequence,
 )
 from betty.plugin.static import StaticPluginRepository
 from betty.serde.dump import Dump
@@ -27,6 +28,7 @@ from betty.test_utils.config.collections import (
     ConfigurationCollectionTestBaseSutConfigurations,
 )
 from betty.test_utils.config.collections.mapping import ConfigurationMappingTestBase
+from betty.test_utils.config.collections.sequence import ConfigurationSequenceTestBase
 from betty.test_utils.exception import raises_error
 from betty.test_utils.plugin import (
     DUMMY_PLUGIN_FOUR,
@@ -479,3 +481,33 @@ class TestPluginIdentifierKeyConfigurationMapping:
         item = DummyConfiguration(DUMMY_PLUGIN_ONE.id)
         sut = self._Sut([item])
         assert sut[DUMMY_PLUGIN_ONE.id] is item
+
+
+class TestPluginInstanceConfigurationSequence(
+    ConfigurationSequenceTestBase[
+        PluginInstanceConfiguration[ClassedDummyPluginDefinition, ClassedDummyPlugin]
+    ]
+):
+    @override
+    @pytest.fixture
+    def new_sut(
+        self,
+    ) -> ConfigurationCollectionTestBaseNewSut[
+        PluginInstanceConfiguration[ClassedDummyPluginDefinition, ClassedDummyPlugin],
+        int,
+    ]:
+        return PluginInstanceConfigurationSequence
+
+    @override
+    @pytest.fixture
+    def sut_configurations(
+        self,
+    ) -> ConfigurationCollectionTestBaseSutConfigurations[
+        PluginInstanceConfiguration[ClassedDummyPluginDefinition, ClassedDummyPlugin]
+    ]:
+        return (
+            PluginInstanceConfiguration("my-first-plugin"),
+            PluginInstanceConfiguration("my-second-plugin"),
+            PluginInstanceConfiguration("my-third-plugin"),
+            PluginInstanceConfiguration("my-fourth-plugin"),
+        )

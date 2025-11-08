@@ -7,7 +7,6 @@ from typing_extensions import override
 
 from betty.exception import HumanFacingException
 from betty.model import EntityDefinition
-from betty.model.config import EntityReference
 from betty.plugin.static import StaticPluginRepository
 from betty.project import Project
 from betty.project.config import EntityTypeConfiguration
@@ -38,14 +37,13 @@ class TestRaspberryMint(EntryPointProviderTestBase):
     ) -> None:
         async with Project.new_temporary(temporary_app) as project, project:
             sut = await RaspberryMint.new_for_project(project)
-            sut.configuration.featured_entities.replace(
-                EntityReference("non-existent-entity")
-            )
+            sut.configuration.regional_content["unknown-region"] = []
             with pytest.raises(HumanFacingException) as exc_info:
                 async with sut:
                     pass  # pragma: nocover
-        assert 'data["extensions"]["raspberry-mint"]["featured_entities"][0]' in str(
-            exc_info.value
+        assert (
+            'data["extensions"]["raspberry-mint"]["regional_content"]["unknown-region"]'
+            in str(exc_info.value)
         )
 
     @check_skip_webpack_entry_point_provider
@@ -72,3 +70,8 @@ class TestRaspberryMint(EntryPointProviderTestBase):
                 / DummyEntityOne.plugin.id
                 / "index.html"
             ).is_file()
+
+    async def test_regions(self, temporary_app: App) -> None:
+        async with Project.new_temporary(temporary_app) as project, project:
+            sut = await RaspberryMint.new_for_project(project)
+            assert sut.regions

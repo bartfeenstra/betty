@@ -4,11 +4,13 @@ Provide the HTML API, for generating HTML pages.
 
 from __future__ import annotations
 
+import re
 from abc import ABC, abstractmethod
 from collections.abc import Iterable, Iterator, Sequence, Sized
 from threading import Lock
 from typing import TYPE_CHECKING, Any, final
 
+from markupsafe import escape
 from typing_extensions import override
 
 from betty.json.linked_data import LinkedDataDumpable
@@ -191,3 +193,16 @@ class Breadcrumbs(LinkedDataDumpable[DumpMapping[Dump]], Iterable[Breadcrumb], S
                 for position, breadcrumb in enumerate(self._breadcrumbs, 1)
             ],
         }
+
+
+_paragraph_re = re.compile(r"(?:\r\n|\r|\n){2,}")
+
+
+def newlines_to_paragraphs(text: str) -> str:
+    """
+    Convert newlines to <p> and <br> tags.
+    """
+    return "\n\n".join(
+        "<p>{}</p>".format(paragraph.replace("\n", "<br>\n"))
+        for paragraph in _paragraph_re.split(escape(text))
+    )

@@ -2,6 +2,8 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING
 
+import pytest
+
 from betty.ancestry.citation import Citation
 from betty.ancestry.source import Source
 from betty.html import (
@@ -10,6 +12,7 @@ from betty.html import (
     Citer,
     NavigationLink,
     NavigationLinkProvider,
+    newlines_to_paragraphs,
 )
 from betty.locale.localizable import Plain
 from betty.locale.localizer import DEFAULT_LOCALIZER
@@ -131,3 +134,17 @@ class TestBreadcrumbs:
                     }
                 ],
             }
+
+
+@pytest.mark.parametrize(
+    ("expected", "text"),
+    [
+        ("<p></p>", ""),
+        (
+            "<p>Apples <br>\n and <br>\n oranges</p>",
+            "Apples \n and \n oranges",
+        ),
+    ],
+)
+def test_newlines_to_paragraphs(expected: str, text: str) -> None:
+    assert newlines_to_paragraphs(text) == expected

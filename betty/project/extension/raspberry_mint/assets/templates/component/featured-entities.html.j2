@@ -1,0 +1,15 @@
+{% set entities = entities | list %}
+{% if entities %}
+    <div class="container">
+        <div class="justify-content-center my-5 row row-cols-1 row-cols-lg-2 row-cols-xl-3 row-cols-xxl-4 row-gap-3">
+            {% for entity in entities %}
+                <div class="col">
+                    {% include [
+                        'entity/card--' + entity.plugin.id + '.html.j2',
+                        'entity/card.html.j2',
+                    ] %}
+                </div>
+            {% endfor %}
+        </div>
+    </div>
+{% endif %}

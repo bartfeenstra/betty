@@ -121,6 +121,9 @@ _BASELINE: Mapping[str, _ModuleIgnore] = {
         "DefaultConfigurable": MissingReason.ABSTRACT,
     },
     "betty/config/collections/__init__.py": MissingReason.ABSTRACT,
+    "betty/content_provider/__init__.py": {
+        "ContentProvider": MissingReason.ABSTRACT,
+    },
     "betty/contextlib.py": {
         "SynchronizedContextManager": {
             "__enter__": MissingReason.SHOULD_BE_COVERED,
@@ -414,6 +417,9 @@ _BASELINE: Mapping[str, _ModuleIgnore] = {
         "Privatizer": {
             "post_load": MissingReason.SHOULD_BE_COVERED,
         },
+    },
+    "betty/project/extension/raspberry_mint/config.py": {
+        "Region": MissingReason.ENUM,
     },
     "betty/project/extension/webpack/__init__.py": {
         "Webpack": {

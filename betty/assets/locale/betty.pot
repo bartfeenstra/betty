@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Betty VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2025-11-08 20:00+0000\n"
+"POT-Creation-Date: 2025-11-11 00:15+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -263,6 +263,9 @@ msgstr ""
 msgid "Confirmation"
 msgstr ""
 
+msgid "Content provider"
+msgstr ""
+
 #, python-format
 msgid "Continue reading on <a href=\"%(url)s\">Wikipedia</a>."
 msgstr ""
@@ -445,6 +448,9 @@ msgstr ""
 msgid "Farm"
 msgstr ""
 
+msgid "Featured entities"
+msgstr ""
+
 msgid "Female"
 msgstr ""
 
@@ -536,6 +542,10 @@ msgstr ""
 
 #, python-brace-format
 msgid "Invalid argument {argument}: {error}"
+msgstr ""
+
+#, python-brace-format
+msgid "Invalid region {invalid_region}."
 msgstr ""
 
 msgid "It appears you called Betty without a command or arguments"
@@ -729,6 +739,9 @@ msgid "Place type"
 msgstr ""
 
 msgid "Places"
+msgstr ""
+
+msgid "Plain text"
 msgstr ""
 
 #, python-brace-format

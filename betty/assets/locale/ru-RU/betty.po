@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Betty VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2025-11-08 20:00+0000\n"
+"POT-Creation-Date: 2025-11-11 00:15+0000\n"
 "PO-Revision-Date: 2025-11-01 18:08+0000\n"
 "Last-Translator: Артур Калагов "
 "<artur.kalagov@users.noreply.hosted.weblate.org>\n"
@@ -284,6 +284,9 @@ msgstr "Настройка Betty"
 msgid "Confirmation"
 msgstr ""
 
+msgid "Content provider"
+msgstr ""
+
 #, python-format
 msgid "Continue reading on <a href=\"%(url)s\">Wikipedia</a>."
 msgstr "Продолжить чтение на <a href=\"%(url)s\">Wikipedia</a>."
@@ -472,6 +475,9 @@ msgstr ""
 msgid "Farm"
 msgstr "Ферма"
 
+msgid "Featured entities"
+msgstr ""
+
 msgid "Female"
 msgstr "Женщина"
 
@@ -567,6 +573,10 @@ msgstr "Недопустимый YAML: {error}."
 
 #, python-brace-format
 msgid "Invalid argument {argument}: {error}"
+msgstr ""
+
+#, python-brace-format
+msgid "Invalid region {invalid_region}."
 msgstr ""
 
 msgid "It appears you called Betty without a command or arguments"
@@ -764,6 +774,9 @@ msgstr ""
 
 msgid "Places"
 msgstr "Места"
+
+msgid "Plain text"
+msgstr ""
 
 #, python-brace-format
 msgid "Plugin \"{plugin_id}\" is not configurable, but configuration was given."
