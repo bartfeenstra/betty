@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Betty VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2025-11-08 18:38+0000\n"
+"POT-Creation-Date: 2025-11-08 19:26+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: Automatically generated\n"
 "Language: ru\n"
@@ -66,8 +66,7 @@ msgstr ""
 msgid "Access denied"
 msgstr ""
 
-#, python-format
-msgid "Accessed: %(date)s"
+msgid "Accessed"
 msgstr ""
 
 msgid "Adoption"
@@ -271,8 +270,7 @@ msgstr ""
 msgid "Continue reading on <a href=\"%(url)s\">Wikipedia</a>."
 msgstr ""
 
-#, python-format
-msgid "Coordinates: %(latitude)s, %(longitude)s"
+msgid "Coordinates"
 msgstr ""
 
 msgid "Copyright"

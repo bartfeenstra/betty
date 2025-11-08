@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PROJECT VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2025-11-08 18:38+0000\n"
+"POT-Creation-Date: 2025-11-08 19:26+0000\n"
 "PO-Revision-Date: 2025-05-17 01:43+0000\n"
 "Last-Translator: Bart Feenstra <bart@bartfeenstra.com>\n"
 "Language: nl_NL\n"
@@ -72,9 +72,8 @@ msgstr "Over"
 msgid "Access denied"
 msgstr "Toegang geweigerd"
 
-#, python-format
-msgid "Accessed: %(date)s"
-msgstr "Opgevraagd: %(date)s"
+msgid "Accessed"
+msgstr ""
 
 msgid "Adoption"
 msgstr "Adoptie"
@@ -308,8 +307,7 @@ msgstr "Geloofsbelijdenis"
 msgid "Continue reading on <a href=\"%(url)s\">Wikipedia</a>."
 msgstr "Lees verder op <a href=\"%(url)s\">Wikipedia</a>."
 
-#, python-format
-msgid "Coordinates: %(latitude)s, %(longitude)s"
+msgid "Coordinates"
 msgstr ""
 
 msgid "Copyright"
