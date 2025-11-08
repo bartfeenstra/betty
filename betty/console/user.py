@@ -8,7 +8,7 @@ from contextlib import AsyncExitStack, asynccontextmanager
 from typing import TextIO, TypeVar, cast, final, overload
 
 from rich.console import Console
-from rich.progress import BarColumn, MofNCompleteColumn, TextColumn, TimeElapsedColumn
+from rich.progress import BarColumn, TaskProgressColumn, TextColumn, TimeElapsedColumn
 from rich.progress import Progress as RichProgress
 from rich.prompt import Confirm, Prompt
 from typing_extensions import override
@@ -124,7 +124,7 @@ class ConsoleUser(User):
             with RichProgress(
                 TextColumn("[progress.description]{task.description}"),
                 BarColumn(),
-                MofNCompleteColumn(),
+                TaskProgressColumn(),
                 TimeElapsedColumn(),
                 console=self._rich_console,
             ) as rich_progress:

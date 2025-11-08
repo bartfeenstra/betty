@@ -39,6 +39,10 @@ async def generate_with_cleanup(
     """
     Generate a demonstration site, and clean up the project directory on any errors.
     """
+    if job_context:
+        # Add a phantom value to the progress so it can never jump to 100% before we are entirely done here.
+        await job_context.progress.add()
+
     if project.configuration.www_directory_path.exists():
         return
     await load(project, job_context=job_context)
@@ -50,6 +54,9 @@ async def generate_with_cleanup(
         with suppress(FileNotFoundError):
             await to_thread(rmtree, project.configuration.project_directory_path)
         raise
+
+    if job_context:
+        await job_context.progress.done()
 
 
 @final
