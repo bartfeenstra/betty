@@ -116,7 +116,7 @@ def do_you_mean(*available_options: str) -> Localizable:
             )
         case _:
             return _("Do you mean one of {available_options}?").format(
-                available_options=", ".join(sorted(available_options))
+                available_options=AnyEnumeration(*sorted(available_options))
             )
 
 

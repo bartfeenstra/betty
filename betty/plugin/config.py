@@ -23,6 +23,7 @@ from betty.assertion import (
 from betty.config import Configuration, DefaultConfigurable
 from betty.config.collections import ConfigurationKey
 from betty.config.collections.mapping import ConfigurationMapping
+from betty.config.collections.sequence import ConfigurationSequence
 from betty.exception import HumanFacingException
 from betty.locale.localizable import _
 from betty.locale.localizable.assertion import assert_static_translations
@@ -404,3 +405,34 @@ class PluginInstanceConfigurationMapping(
             return {}, item_dump
         assert isinstance(item_dump, Mapping)
         return item_dump, cast(str, item_dump.pop("id"))
+
+
+class PluginInstanceConfigurationSequence(
+    ConfigurationSequence[
+        PluginInstanceConfiguration[_ClassedPluginDefinitionT, _PluginT]
+    ],
+    Generic[_ClassedPluginDefinitionT, _PluginT],
+):
+    """
+    Configure plugin instances.
+    """
+
+    def __init__(
+        self,
+        configurations: Iterable[
+            PluginInstanceConfiguration[_ClassedPluginDefinitionT, _PluginT]
+        ]
+        | None = None,
+        /,
+    ):
+        super().__init__(configurations)
+
+    @override
+    def _load_item(
+        self, dump: Dump
+    ) -> PluginInstanceConfiguration[_ClassedPluginDefinitionT, _PluginT]:
+        configuration = PluginInstanceConfiguration[
+            _ClassedPluginDefinitionT, _PluginT
+        ]("-")
+        configuration.load(dump)
+        return configuration

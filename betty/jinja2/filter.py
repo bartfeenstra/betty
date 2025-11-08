@@ -21,7 +21,7 @@ from jinja2 import pass_context, pass_eval_context
 from jinja2.async_utils import auto_aiter, auto_await
 from jinja2.filters import make_attrgetter, prepare_map
 from jinja2.runtime import Context, Macro
-from markupsafe import Markup, escape
+from markupsafe import Markup
 from pdf2image.pdf2image import convert_from_path
 from PIL import Image
 from PIL.Image import DecompressionBombWarning
@@ -29,6 +29,7 @@ from PIL.Image import DecompressionBombWarning
 from betty.ancestry.file import File
 from betty.ancestry.file_reference import FileReference
 from betty.hashid import hashid, hashid_file_meta
+from betty.html import newlines_to_paragraphs
 from betty.image import (
     FocusArea,
     Size,
@@ -196,10 +197,7 @@ def filter_paragraphs(eval_ctx: EvalContext, text: str) -> str | Markup:
 
     Taken from http://jinja.pocoo.org/docs/2.10/api/#custom-filters.
     """
-    result = "\n\n".join(
-        "<p>{}</p>".format(p.replace("\n", Markup("<br>\n")))
-        for p in _paragraph_re.split(escape(text))
-    )
+    result = newlines_to_paragraphs(text)
     if eval_ctx.autoescape:
         result = Markup(result)
     return result

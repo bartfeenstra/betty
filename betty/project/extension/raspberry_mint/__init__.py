@@ -12,6 +12,7 @@ import aiofiles
 from typing_extensions import override
 
 from betty.data import Key
+from betty.data import Path as DataPath
 from betty.exception import HumanFacingExceptionGroup
 from betty.jinja2 import Filters, Jinja2Provider
 from betty.job import Job
@@ -135,12 +136,13 @@ class RaspberryMint(
         with (
             HumanFacingExceptionGroup().assert_valid() as errors,
             errors.catch(
-                Key("extensions"), Key("raspberry-mint"), Key("featured_entities")
+                DataPath(self.project.configuration.configuration_file_path),
+                Key("extensions"),
+                Key("raspberry-mint"),
+                Key("regional_content"),
             ),
         ):
-            await self.configuration.featured_entities.validate(
-                self.project.app.entity_type_repository
-            )
+            self.configuration.regional_content.validate(self.regions)
 
     @override
     async def generate(self, scheduler: Scheduler[ProjectContext]) -> None:
@@ -173,3 +175,13 @@ class RaspberryMint(
     @property
     def filters(self) -> Filters:
         return jinja2_filters(self._project)
+
+    @property
+    def regions(self) -> set[str]:
+        """
+        The available regions.
+        """
+        return {
+            "front-page-content",
+            "front-page-summary",
+        }

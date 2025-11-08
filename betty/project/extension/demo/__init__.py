@@ -6,6 +6,7 @@ from __future__ import annotations
 
 from asyncio import to_thread
 from contextlib import suppress
+from pathlib import Path
 from shutil import rmtree
 from typing import TYPE_CHECKING, final
 
@@ -71,6 +72,7 @@ async def generate_with_cleanup(
         Trees,
         Wiki,
     },
+    assets_directory_path=Path(__file__).parent / "assets",
 )
 class Demo(NavigationLinkProvider, Loader, Extension):
     """

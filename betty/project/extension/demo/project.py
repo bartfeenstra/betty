@@ -10,7 +10,7 @@ from betty.ancestry.event import Event
 from betty.ancestry.person import Person
 from betty.ancestry.place import Place
 from betty.ancestry.source import Source
-from betty.model.config import EntityReference
+from betty.model.config import EntityReference, EntityReferenceSequence
 from betty.plugin.config import PluginInstanceConfiguration
 from betty.project import Project
 from betty.project.config import (
@@ -18,8 +18,13 @@ from betty.project.config import (
     LocaleConfiguration,
     ProjectConfiguration,
 )
+from betty.project.extension.demo.content_provider import (
+    _FrontPageContent,
+    _FrontPageSummary,
+)
 from betty.project.extension.raspberry_mint import RaspberryMint
 from betty.project.extension.raspberry_mint.config import RaspberryMintConfiguration
+from betty.project.extension.raspberry_mint.content_provider import FeaturedEntities
 
 if TYPE_CHECKING:
     from pathlib import Path
@@ -55,11 +60,29 @@ async def create_project(app: App, project_directory_path: Path) -> Project:
             PluginInstanceConfiguration(
                 RaspberryMint.plugin,
                 configuration=RaspberryMintConfiguration(
-                    featured_entities=[
-                        EntityReference(Place.plugin, "betty-demo-amsterdam"),
-                        EntityReference(Person.plugin, "betty-demo-liberta-lankester"),
-                        EntityReference(Place.plugin, "betty-demo-netherlands"),
-                    ],
+                    content={
+                        "front-page-content": [
+                            PluginInstanceConfiguration(_FrontPageContent),
+                            PluginInstanceConfiguration(
+                                FeaturedEntities,
+                                configuration=EntityReferenceSequence(
+                                    [
+                                        EntityReference(Place, "betty-demo-amsterdam"),
+                                        EntityReference(
+                                            Person,
+                                            "betty-demo-liberta-lankester",
+                                        ),
+                                        EntityReference(
+                                            Place, "betty-demo-netherlands"
+                                        ),
+                                    ],
+                                ),
+                            ),
+                        ],
+                        "front-page-summary": [
+                            PluginInstanceConfiguration(_FrontPageSummary),
+                        ],
+                    },
                 ),
             ),
         ],
