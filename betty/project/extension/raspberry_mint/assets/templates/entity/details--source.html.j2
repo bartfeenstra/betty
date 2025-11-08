@@ -1,0 +1,24 @@
+{%- if entity.public and (entity.author or entity.publisher) -%}
+    <dl class="d-table mt-2 small">
+        {% if entity.author %}
+            <div class="d-table-row">
+                <dt class="d-table-cell pe-2">
+                    {% trans %}Author{% endtrans %}
+                </dt>
+                <dd class="d-table-cell">
+                    {{ entity.author | localize }}
+                </dd>
+            </div>
+        {% endif %}
+        {% if entity.publisher %}
+            <div class="d-table-row">
+                <dt class="d-table-cell pe-2">
+                    {% trans %}Publisher{% endtrans %}
+                </dt>
+                <dd class="d-table-cell">
+                    {{ entity.publisher | localize }}
+                </dd>
+            </div>
+        {% endif %}
+    </dl>
+{%- endif -%}

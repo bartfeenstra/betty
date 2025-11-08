@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Betty 0.4\n"
 "Report-Msgid-Bugs-To: illia@maier.page\n"
-"POT-Creation-Date: 2025-11-04 14:00+0000\n"
+"POT-Creation-Date: 2025-11-08 18:38+0000\n"
 "PO-Revision-Date: 2025-05-13 17:01+0000\n"
 "Last-Translator: Максим Горпиніч <maksimgorpinic4@gmail.com>\n"
 "Language: uk\n"
@@ -122,6 +122,9 @@ msgstr "За якою URL-адресою буде опубліковано ва�
 
 msgid "Attendee"
 msgstr "Відвідувач"
+
+msgid "Author"
+msgstr ""
 
 msgid "Baptism"
 msgstr "Хрещення"
@@ -861,6 +864,9 @@ msgstr "Провінція"
 
 msgid "Public domain"
 msgstr "Публічний домен"
+
+msgid "Publisher"
+msgstr ""
 
 msgid "Python packages"
 msgstr ""
