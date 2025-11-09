@@ -256,7 +256,9 @@ class App(Configurable[AppConfiguration], TargetFactory, ServiceProvider):
         """
         The cache.
         """
-        raise NotImplementedError
+        raise Exception(
+            "This must never happen, because a cache must be set explicitly."
+        )
 
     @service
     def binary_file_cache(self) -> BinaryFileCache:

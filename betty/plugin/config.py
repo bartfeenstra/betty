@@ -4,6 +4,7 @@ Provide plugin configuration.
 
 from __future__ import annotations
 
+from abc import abstractmethod
 from collections.abc import Mapping, MutableSet, Sequence, Set
 from typing import TYPE_CHECKING, Any, Generic, TypeVar, cast
 
@@ -243,11 +244,11 @@ class PluginDefinitionConfigurationMapping(
             for plugin_configuration in self.values()
         )
 
+    @abstractmethod
     def _new_plugin(self, configuration: _PluginConfigurationT) -> _PluginDefinitionT:
         """
         The plugin (class) for the given configuration.
         """
-        raise NotImplementedError
 
     @override
     def _get_key(self, configuration: _PluginConfigurationT) -> str:

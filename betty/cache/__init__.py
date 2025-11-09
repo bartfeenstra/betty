@@ -71,7 +71,6 @@ class Cache(Generic[_CacheItemValueContraT], ABC):
         """
         Check if a cache item with the given ID exists, and if not, provide a setter to add or update it within the same atomic operation.
         """
-        raise NotImplementedError
 
     @abstractmethod
     async def get(
