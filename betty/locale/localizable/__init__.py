@@ -513,7 +513,6 @@ class LocalizableSequence(ABC):
         """
         The localizables.
         """
-        raise NotImplementedError
 
 
 class _LocalizableSequence(LocalizableSequence):
