@@ -60,7 +60,7 @@ async def create_project(app: App, project_directory_path: Path) -> Project:
             PluginInstanceConfiguration(
                 RaspberryMint.plugin,
                 configuration=RaspberryMintConfiguration(
-                    content={
+                    regional_content={
                         "front-page-content": [
                             PluginInstanceConfiguration(_FrontPageContent),
                             PluginInstanceConfiguration(
