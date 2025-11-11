@@ -6,7 +6,6 @@ from betty.typing import (
     internal,
     pickleable,
     private,
-    processsafe,
     public,
     threadsafe,
     unpickleable,
@@ -72,16 +71,6 @@ def test_threadsafe() -> None:
     sentinel = object()
 
     @threadsafe
-    def _target() -> object:
-        return sentinel
-
-    assert _target() is sentinel
-
-
-def test_processsafe() -> None:
-    sentinel = object()
-
-    @processsafe
     def _target() -> object:
         return sentinel
 

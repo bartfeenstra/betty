@@ -107,20 +107,6 @@ def threadsafe(target: _T) -> _T:
     return target
 
 
-def processsafe(target: _T) -> _T:
-    """
-    Mark a target as process-safe.
-    """
-    if _should_mark(target, "processsafe"):
-        target = pickleable(target)
-        target = threadsafe(target)
-        target.__doc__ = append(
-            target.__doc__ or "",
-            "This is process-safe, which means you can safely use this between different processes.",
-        )
-    return target
-
-
 @final
 class Void(Singleton):
     """
