@@ -3,9 +3,31 @@
     {{ super() }}
 
     <div class="my-5">
-        {% with places = project.ancestry[app.plugins('entity')['place']] %}
-            {% include 'section/map.html.j2' %}
-        {% endwith %}
+        {% if "maps" in project.extensions %}
+            {% set map -%}
+                {% with places = project.ancestry[app.plugins('entity')['place']] %}
+                    {% include 'maps/map.html.j2' %}
+                {% endwith %}
+            {%- endset %}
+            {% if map %}
+                <div style="height: 75vh; min-height: 500px; max-height: 1000px;">
+                    {{ map }}
+                </div>
+                <div data-bs-theme="light-contrast">
+                    <div class="container">
+                        <div class="row">
+                            <div class="col-12 col-lg-8">
+                                <p>
+                                    <small>
+                                        {% include 'maps/attribution.html.j2' %}
+                                    </small>
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            {% endif %}
+        {% endif %}
 
         <div class="container mt-4">
             <div class="row justify-content-center">

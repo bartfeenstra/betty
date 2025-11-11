@@ -1,6 +1,5 @@
 from betty.ancestry.has_links import HasLinks
 from betty.ancestry.link import Link
-from betty.document import Document
 from betty.locale import DEFAULT_LOCALE_TAG
 from betty.locale.localizable.static import StaticTranslations
 from betty.model import EntityDefinition
@@ -23,13 +22,12 @@ class DummyEntityWithLinks(HasLinks):
 
 
 async def test_minimal() -> None:
-    entity = DummyEntityWithLinks()
     async with assert_template_file(
         data={
-            "document": Document(entity),
+            "links": [],
         },
         extensions={RaspberryMint},
-        template="section/external-links.html.j2",
+        template="component/external-links.html.j2",
     ) as (actual, _):
         assert actual == ""
 
@@ -38,14 +36,12 @@ async def test_with_link_without_locale() -> None:
     link_url = "https://example.com"
     link_label = "An example site"
     link = Link(link_url, label=link_label)
-    entity = DummyEntityWithLinks()
-    entity.links.add(link)
     async with assert_template_file(
         data={
-            "document": Document(entity),
+            "links": [link],
         },
         extensions={RaspberryMint},
-        template="section/external-links.html.j2",
+        template="component/external-links.html.j2",
     ) as (actual, _):
         assert link_url in actual
         assert link_label in actual
@@ -55,14 +51,12 @@ async def test_with_link() -> None:
     link_url = "https://example.com"
     link_label = "An example site"
     link = Link(StaticTranslations({DEFAULT_LOCALE_TAG: link_url}), label=link_label)
-    entity = DummyEntityWithLinks()
-    entity.links.add(link)
     async with assert_template_file(
         data={
-            "document": Document(entity),
+            "links": [link],
         },
         extensions={RaspberryMint},
-        template="section/external-links.html.j2",
+        template="component/external-links.html.j2",
     ) as (actual, _):
         assert link_url in actual
         assert link_label in actual

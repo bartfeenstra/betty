@@ -12,6 +12,7 @@ from typing_extensions import override
 
 from betty.config.factory import ConfigurationDependentSelfFactory
 from betty.jinja2 import Filters, Jinja2Provider
+from betty.model import EntityDefinition
 from betty.project.extension import ExtensionDefinition
 from betty.project.extension._theme import jinja2_filters
 from betty.project.extension.maps import Maps
@@ -124,13 +125,19 @@ class RaspberryMint(
         return jinja2_filters(self._project)
 
     @property
-    def regions(self) -> set[str]:
+    async def regions(self) -> set[str]:
         """
         The available regions.
         """
         return {
             "front-page-content",
             "front-page-summary",
+            "entity-page-content",
+            *{
+                f"entity-page-content--{entity_type.id}"
+                for entity_type in await self._project.plugins(EntityDefinition)
+                if entity_type.public_facing
+            },
         }
 
 
@@ -192,3 +199,11 @@ class JustifyContent(Enum):
     BETWEEN = "between"
     AROUND = "around"
     EVENLY = "evenly"
+
+
+SINGLE_COLUMN_TEXT_WIDTH = {
+    Breakpoint.XS: 12,
+    Breakpoint.LG: 11,
+    Breakpoint.XL: 10,
+    Breakpoint.XXL: 9,
+}

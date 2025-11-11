@@ -9,6 +9,8 @@ from betty.ancestry.place import Place
 from betty.ancestry.source import Source
 from betty.assertion import assert_str, assert_path, assert_locale
 from betty.locale.localizable.static import StaticTranslations
+from betty.project.extension.raspberry_mint.config.default import regional_content
+from betty.project.extension.theme.config import RegionalContentConfiguration
 from betty.serde.file import dump_file
 from betty.locale import DEFAULT_LOCALE_TAG, to_language_tag
 from betty.locale.localizable.gettext import _
@@ -31,6 +33,7 @@ from betty.project.extension.gramps.config import (
 from betty.project.extension.http_api_doc import HttpApiDoc
 from betty.project.extension.maps import Maps
 from betty.project.extension.privatizer import Privatizer
+from betty.project.extension.raspberry_mint.config import RaspberryMintConfiguration
 from betty.project.extension.raspberry_mint import RaspberryMint
 from betty.project.extension.trees import Trees
 from betty.project.extension.webpack import Webpack
@@ -54,18 +57,6 @@ async def new(app: App) -> None:
     await app.plugins(ExtensionDefinition)
     localizers = await app.localizers
 
-    project_extensions = (
-        Deriver,
-        HttpApiDoc,
-        Maps,
-        Privatizer,
-        RaspberryMint,
-        Trees,
-        # Enable the Webpack extension explicitly for the test's mock to work.
-        Webpack,
-        Wiki,
-    )
-
     configuration_file_path = await app.user.ask_input(
         _("Where do you want to save your project's configuration file?"),
         assertion=_assert_project_configuration_file_path,
@@ -80,8 +71,6 @@ async def new(app: App) -> None:
             ]
         ),
     )
-
-    configuration.extensions.enable(*project_extensions)
 
     configuration.locales.replace(
         LocaleConfiguration(
@@ -106,6 +95,27 @@ async def new(app: App) -> None:
             )
         )
     locales = list(configuration.locales)
+
+    configuration.extensions.enable(Deriver)
+    configuration.extensions.enable(HttpApiDoc)
+    configuration.extensions.enable(Maps)
+    configuration.extensions.enable(Privatizer)
+    configuration.extensions.append(
+        PluginInstanceConfiguration(
+            RaspberryMint,
+            RaspberryMintConfiguration(
+                regional_content=RegionalContentConfiguration(
+                    regional_content(
+                        localizers=[localizers.get(locale) for locale in locales]
+                    )
+                )
+            ),
+        )
+    )
+    configuration.extensions.enable(Trees)
+    # Enable the Webpack extension explicitly for the test's mock to work.
+    configuration.extensions.enable(Webpack)
+    configuration.extensions.enable(Wiki)
 
     configuration.title = await _user_input_static_translations(
         app.user, locales, _("What is your project called in {locale}?")

@@ -73,4 +73,4 @@ class TestRaspberryMint(
     async def test_regions(self, isolated_app: App) -> None:
         async with Project.new_isolated(isolated_app) as project, project:
             sut = await RaspberryMint.new_for_project(project)
-            assert sut.regions
+            assert await sut.regions
