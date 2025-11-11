@@ -41,7 +41,7 @@ from betty.plugin import (
     resolve_id,
 )
 from betty.repr import repr_instance
-from betty.typing import Void, Voidable, not_void
+from betty.typing import Void, Voidable
 
 if TYPE_CHECKING:
     from collections.abc import Iterable
@@ -281,7 +281,7 @@ class PluginInstanceConfiguration(
         self,
         plugin: PluginIdentifier[_ClassedPluginDefinitionT, _PluginT & ClassedPlugin],
         *,
-        configuration: Voidable[Configuration | Dump] = Void,
+        configuration: Voidable[Configuration | Dump] = Void(),  # noqa B008
     ):
         super().__init__()
         self._id = assert_machine_name()(resolve_id(plugin))
@@ -320,7 +320,7 @@ class PluginInstanceConfiguration(
         """
         plugin_definition = cast(ClassedPluginDefinition[_PluginT], repository[self.id])
         plugin = await factory(plugin_definition.cls)
-        if not_void(self.configuration):
+        if not isinstance(self.configuration, Void):
             if not isinstance(plugin, DefaultConfigurable):
                 raise HumanFacingException(
                     _(
@@ -345,11 +345,11 @@ class PluginInstanceConfiguration(
     @override
     def dump(self) -> Dump:
         configuration = self.configuration
-        if configuration is Void:
+        if isinstance(configuration, Void):
             return self.id
         return {
             "id": self.id,
-            "configuration": configuration,  # type: ignore[dict-item]
+            "configuration": configuration,
         }
 
 

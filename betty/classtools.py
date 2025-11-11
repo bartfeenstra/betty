@@ -2,7 +2,7 @@
 Tools to create classes.
 """
 
-from typing import Self
+from typing import Self, final
 
 from typing_extensions import override
 
@@ -14,6 +14,7 @@ class Singleton:
 
     _instance: Self | None = None
 
+    @final
     @override
     def __new__(cls):
         if cls._instance is None:

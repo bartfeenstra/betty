@@ -65,7 +65,7 @@ class NoOpUser(User):
         self,
         question: Localizable,
         *,
-        default: str | type[Void] = Void,
+        default: str | Void = Void(),  # noqa B008
     ) -> str:
         pass
 
@@ -75,7 +75,7 @@ class NoOpUser(User):
         question: Localizable,
         *,
         assertion: Assertion[str, _T],
-        default: str | type[Void] = Void,
+        default: str | Void = Void(),  # noqa B008
     ) -> _T:
         pass
 
@@ -85,6 +85,6 @@ class NoOpUser(User):
         question: Localizable,
         *,
         assertion: Assertion[str, _T] | None = None,
-        default: str | _T | type[Void] = Void,
+        default: str | _T | Void = Void(),  # noqa B008
     ) -> str | _T:
         raise UserTimeoutError

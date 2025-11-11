@@ -6,8 +6,7 @@ from __future__ import annotations
 
 from typing import Any, TypeAlias, TypeVar, final
 
-from typing_extensions import TypeIs
-
+from betty.classtools import Singleton
 from betty.docstring import append
 
 _T = TypeVar("_T")
@@ -122,17 +121,8 @@ def processsafe(target: _T) -> _T:
     return target
 
 
-class Sentinel:
-    """
-    A base class for types that are used as sentinel values.
-    """
-
-    def __new__(cls):  # pragma: no cover  # noqa D102
-        raise TypeError(f"The {cls} sentinel cannot be instantiated.")
-
-
 @final
-class Void(Sentinel):
+class Void(Singleton):
     """
     A sentinel that describes the absence of a value.
 
@@ -141,11 +131,4 @@ class Void(Sentinel):
     """
 
 
-Voidable: TypeAlias = _T | type[Void]
-
-
-def not_void(value: _T | type[Void]) -> TypeIs[_T]:
-    """
-    Test that a value is not :py:class:`betty.typing.Void`.
-    """
-    return value is not Void
+Voidable: TypeAlias = _T | Void

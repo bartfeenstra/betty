@@ -261,7 +261,7 @@ def test_assert_field__required_without_key() -> None:
 
 
 def test_assert_field__optional_without_key() -> None:
-    expected = Void
+    expected = Void()
     actual = assert_field(OptionalField("hello", assert_str()))({})
     assert actual == expected
 

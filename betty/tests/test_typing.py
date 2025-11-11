@@ -3,10 +3,7 @@ import pickle
 import pytest
 
 from betty.typing import (
-    Sentinel,
-    Void,
     internal,
-    not_void,
     pickleable,
     private,
     processsafe,
@@ -89,17 +86,3 @@ def test_processsafe() -> None:
         return sentinel
 
     assert _target() is sentinel
-
-
-class TestSentinel:
-    def test___new__(self) -> None:
-        with pytest.raises(TypeError):
-            Sentinel()
-
-
-def test_not_void__with_void() -> None:
-    assert not not_void(Void)
-
-
-def test_not_void__without_void() -> None:
-    assert not_void(123)
