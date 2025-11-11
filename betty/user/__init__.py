@@ -33,11 +33,13 @@ class Verbosity(IntEnum):
     QUIET = -1
     #: Inform users of errors, but do not show any other output.
     DEFAULT = 0
-    #: Like QUIET, and show warning and information messages.
+    #: Like QUIET, and show warning and information summary messages.
     VERBOSE = 1
-    #: Like DEFAULT, and show debug messages,
+    #: Like DEFAULT, and show information details messages,
     MORE_VERBOSE = 2
-    #: Like VERBOSE, and show all log messages.
+    #: Like VERBOSE, and show debug messages.
+    MOST_VERBOSE = 3
+    #: Like MORE_VERBOSE, and show all log messages.
 
 
 class UserError(Exception):
@@ -120,7 +122,7 @@ class User(ABC):
     @abstractmethod
     async def message_information(self, message: Localizable) -> None:
         """
-        Send an informative message to the user.
+        Send a summarized informative message to the user.
 
         An informative message tells the user that something happened successfully, e.g. the starting or finishing of a
         task.
@@ -129,11 +131,22 @@ class User(ABC):
         """
 
     @abstractmethod
+    async def message_information_details(self, message: Localizable) -> None:
+        """
+        Send a detailed informative message to the user.
+
+        An informative message tells the user that something happened successfully, e.g. the starting or finishing of a
+        task.
+
+        These messages are shown to users for :py:attr:`betty.user.Verbosity.VERBOSE` and up.
+        """
+
+    @abstractmethod
     async def message_debug(self, message: Localizable) -> None:
         """
         Send a debugging message to the user.
 
-        These messages are shown to users for :py:attr:`betty.user.Verbosity.VERBOSE` and up.
+        These messages are shown to users for :py:attr:`betty.user.Verbosity.MORE_VERBOSE` and up.
         """
 
     @abstractmethod
@@ -141,7 +154,7 @@ class User(ABC):
         """
         Send a log message to the user.
 
-        These messages are shown to users for :py:attr:`betty.user.Verbosity.MORE_VERBOSE` and up.
+        These messages are shown to users for :py:attr:`betty.user.Verbosity.MOST_VERBOSE` and up.
         """
 
     @abstractmethod

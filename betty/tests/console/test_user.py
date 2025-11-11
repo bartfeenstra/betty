@@ -38,6 +38,7 @@ class TestConsoleUser:
             (False, Verbosity.DEFAULT),
             (True, Verbosity.VERBOSE),
             (True, Verbosity.MORE_VERBOSE),
+            (True, Verbosity.MOST_VERBOSE),
         ],
     )
     async def test_message_exception(
@@ -80,6 +81,7 @@ class TestConsoleUser:
             (True, Verbosity.DEFAULT),
             (True, Verbosity.VERBOSE),
             (True, Verbosity.MORE_VERBOSE),
+            (True, Verbosity.MOST_VERBOSE),
         ],
     )
     async def test_message_warning(self, expected: bool, verbosity: Verbosity) -> None:
@@ -103,6 +105,7 @@ class TestConsoleUser:
             (True, Verbosity.DEFAULT),
             (True, Verbosity.VERBOSE),
             (True, Verbosity.MORE_VERBOSE),
+            (True, Verbosity.MOST_VERBOSE),
         ],
     )
     async def test_message_information(
@@ -128,6 +131,33 @@ class TestConsoleUser:
             (False, Verbosity.DEFAULT),
             (True, Verbosity.VERBOSE),
             (True, Verbosity.MORE_VERBOSE),
+            (True, Verbosity.MOST_VERBOSE),
+        ],
+    )
+    async def test_message_information_details(
+        self, expected: bool, verbosity: Verbosity
+    ) -> None:
+        message = "Hello, world!"
+        stdout = StringIO()
+        with redirect_stdout(stdout):
+            async with ConsoleUser() as sut:
+                sut.verbosity = verbosity
+                await sut.message_information_details(Plain(message))
+        stdout.seek(0)
+        stdout_str = stdout.read().replace("\n", "")
+        if expected:
+            assert message in stdout_str
+        else:
+            assert message not in stdout_str
+
+    @pytest.mark.parametrize(
+        ("expected", "verbosity"),
+        [
+            (False, Verbosity.QUIET),
+            (False, Verbosity.DEFAULT),
+            (False, Verbosity.VERBOSE),
+            (True, Verbosity.MORE_VERBOSE),
+            (True, Verbosity.MOST_VERBOSE),
         ],
     )
     async def test_message_debug(self, expected: bool, verbosity: Verbosity) -> None:
@@ -150,7 +180,8 @@ class TestConsoleUser:
             (False, Verbosity.QUIET),
             (False, Verbosity.DEFAULT),
             (False, Verbosity.VERBOSE),
-            (True, Verbosity.MORE_VERBOSE),
+            (False, Verbosity.MORE_VERBOSE),
+            (True, Verbosity.MOST_VERBOSE),
         ],
     )
     async def test_message_log(self, expected: bool, verbosity: Verbosity) -> None:
@@ -178,6 +209,7 @@ class TestConsoleUser:
             (True, Verbosity.DEFAULT),
             (True, Verbosity.VERBOSE),
             (True, Verbosity.MORE_VERBOSE),
+            (True, Verbosity.MOST_VERBOSE),
         ],
     )
     async def test_message_progress(self, expected: bool, verbosity: Verbosity) -> None:

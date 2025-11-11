@@ -40,6 +40,7 @@ class StaticUser(User):  # pragma: no cover
         self._messages_error: MutableSequence[Localizable] = []
         self._messages_warning: MutableSequence[Localizable] = []
         self._messages_information: MutableSequence[Localizable] = []
+        self._messages_information_details: MutableSequence[Localizable] = []
         self._messages_debug: MutableSequence[Localizable] = []
         self._messages_log: MutableSequence[logging.LogRecord] = []
         self._log_formatter = logging.Formatter()
@@ -113,6 +114,14 @@ class StaticUser(User):  # pragma: no cover
         """
         self._assert_localizable_message(fragments, "information")
 
+    def assert_message_information_details(
+        self, fragments: str | Iterable[str]
+    ) -> None:
+        """
+        Assert that a detailed information message was sent.
+        """
+        self._assert_localizable_message(fragments, "information_details")
+
     def assert_message_debug(self, fragments: str | Iterable[str]) -> None:
         """
         Assert that a debug message was sent.
@@ -179,6 +188,14 @@ class StaticUser(User):  # pragma: no cover
         """
         self._assert_not_localizable_message(fragments, "information")
 
+    def assert_not_message_information_details(
+        self, fragments: str | Iterable[str]
+    ) -> None:
+        """
+        Assert that no detailed information message was sent.
+        """
+        self._assert_not_localizable_message(fragments, "information_details")
+
     def assert_not_message_debug(self, fragments: str | Iterable[str]) -> None:
         """
         Assert that no debug message was sent.
@@ -210,6 +227,10 @@ class StaticUser(User):  # pragma: no cover
     @override
     async def message_information(self, message: Localizable) -> None:
         self._messages_information.append(message)
+
+    @override
+    async def message_information_details(self, message: Localizable) -> None:
+        self._messages_information_details.append(message)
 
     @override
     async def message_debug(self, message: Localizable) -> None:
