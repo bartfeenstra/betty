@@ -16,7 +16,7 @@ async def test_minimal() -> None:
             "file_references": [],
         },
         extensions={RaspberryMint},
-        template="section/media.html.j2",
+        template="component/media-gallery.html.j2",
     ) as (actual, _):
         assert actual == ""
 
@@ -32,7 +32,7 @@ async def test_with_public_file_references(tmp_path: Path) -> None:
             "file_references": [file_reference],
         },
         extensions={RaspberryMint},
-        template="section/media.html.j2",
+        template="component/media-gallery.html.j2",
     ) as (actual, _):
         assert file.public_id in actual
 
@@ -48,6 +48,6 @@ async def test_without_public_file_references(tmp_path: Path) -> None:
             "file_references": [file_reference],
         },
         extensions={RaspberryMint},
-        template="section/media.html.j2",
+        template="component/media-gallery.html.j2",
     ) as (actual, _):
         assert not actual

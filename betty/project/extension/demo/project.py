@@ -14,6 +14,7 @@ from betty.content_provider.content_providers import Render, RenderConfiguration
 from betty.locale import DEFAULT_LOCALE
 from betty.locale.localizable.gettext import _
 from betty.locale.localizable.markup import Chain
+from betty.locale.localize import LocalizerRepository
 from betty.media_type.media_types import HTML
 from betty.model.config import EntityReference, EntityReferenceSequence
 from betty.plugin.config import (
@@ -30,11 +31,12 @@ from betty.project.config import (
     ProjectConfiguration,
 )
 from betty.project.extension.raspberry_mint import (
-    Breakpoint,
+    SINGLE_COLUMN_TEXT_WIDTH,
     JustifyContent,
     RaspberryMint,
 )
 from betty.project.extension.raspberry_mint.config import RaspberryMintConfiguration
+from betty.project.extension.raspberry_mint.config.default import regional_content
 from betty.project.extension.raspberry_mint.content_provider import (
     Columns,
     ColumnsConfiguration,
@@ -57,6 +59,8 @@ async def create_project(app: App, project_directory_path: Path) -> Project:
     from betty.project.extension.demo import Demo
 
     translations = await app.translations
+    localizer_repository = LocalizerRepository(translations)
+    localizers = [localizer_repository.get(locale) for locale in translations.locales]
 
     configuration = ProjectConfiguration(
         name=Demo.plugin().id,
@@ -71,6 +75,7 @@ async def create_project(app: App, project_directory_path: Path) -> Project:
                     RaspberryMintConfiguration(
                         regional_content=RegionalContentConfiguration(
                             {
+                                **regional_content(localizers=localizers),
                                 "front-page-content": PluginInstanceConfigurationSequence(
                                     [
                                         PluginInstanceConfiguration(
@@ -95,10 +100,7 @@ async def create_project(app: App, project_directory_path: Path) -> Project:
                                                                     HTML,
                                                                 ),
                                                             ),
-                                                            width={
-                                                                Breakpoint.XS: 12,
-                                                                Breakpoint.LG: 8,
-                                                            },
+                                                            width=SINGLE_COLUMN_TEXT_WIDTH,
                                                             justify_content=JustifyContent.CENTER,
                                                         ),
                                                     ),

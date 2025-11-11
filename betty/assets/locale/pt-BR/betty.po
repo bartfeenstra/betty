@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Betty VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2025-12-29 19:04+0000\n"
+"POT-Creation-Date: 2025-12-29 19:35+0000\n"
 "PO-Revision-Date: 2025-12-16 20:00+0000\n"
 "Last-Translator: Mateus Liberale Gomes <sergiogomes209403@gmail.com>\n"
 "Language: pt_BR\n"
@@ -80,9 +80,6 @@ msgstr ""
 
 msgid "API documentation"
 msgstr "Documentação da API"
-
-msgid "About"
-msgstr "Sobre"
 
 msgid "Access denied"
 msgstr "Acesso negado"
@@ -907,9 +904,6 @@ msgstr ""
 msgid "Media gallery"
 msgstr ""
 
-msgid "Media references"
-msgstr ""
-
 msgid "Men"
 msgstr ""
 
@@ -1561,6 +1555,9 @@ msgid ""
 msgstr ""
 
 msgid "Wikipedia contributors"
+msgstr ""
+
+msgid "Wikipedia says..."
 msgstr ""
 
 msgid "Wikipedia summary"

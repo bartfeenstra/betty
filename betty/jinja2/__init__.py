@@ -276,7 +276,6 @@ class Environment(ProjectDependentSelfFactory, Jinja2Environment):
         self.globals["generate_html_id"] = generate_html_id
         self.globals["deprecate"] = deprecate
         self.globals["new_attributes"] = Attributes
-        self.globals["copy_document_context"] = self._copy_document_context
 
     def _init_extensions(self) -> None:
         for extension in self._extensions:
@@ -284,14 +283,6 @@ class Environment(ProjectDependentSelfFactory, Jinja2Environment):
                 self.globals.update(extension.globals)
                 self.filters.update(extension.filters)
                 self.tests.update(extension.tests)
-
-    @pass_context
-    def _copy_document_context(
-        self,
-        context: Jinja2Context,
-        **vars: Any,  # noqa A002
-    ) -> Document:
-        return context_document(context).copy(**vars)
 
     def make_copy_function(
         self,

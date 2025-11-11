@@ -44,9 +44,11 @@ def dump_localizable(localizable: Localizable, /) -> Dump:
         translations = localizable.translations
         if len(translations) == 1:
             with suppress(KeyError):
-                return translations[None]
+                # Explicitly cast to a string because pyyaml cannot dump ``str`` subclasses.
+                return str(translations[None])
         return {
-            to_language_tag(locale): translation
+            # Explicitly cast to a string because pyyaml cannot dump ``str`` subclasses.
+            to_language_tag(locale): str(translation)
             for locale, translation in translations.items()
         }
     raise NotDumpable(

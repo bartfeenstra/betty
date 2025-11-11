@@ -65,7 +65,7 @@ class RaspberryMintConfiguration(Configuration):
                 Key("extensions"),
                 Path(project.configuration_file_path),
             ):
-                self.regional_content.validate(extensions[RaspberryMint].regions)
+                self.regional_content.validate(await extensions[RaspberryMint].regions)
 
         return CallbackProjectDependentFactory(_validate)
 

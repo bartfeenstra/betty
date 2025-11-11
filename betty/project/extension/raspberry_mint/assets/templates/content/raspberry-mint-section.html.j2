@@ -2,10 +2,10 @@
     {{ section_content_provider_configurations | provide_content }}
 {%- endset %}
 {% if section_content %}
-    <div class="container my-5">
-        <div class="row">
-            <div class="col col-12">
-                <section{% if section_name %} id="{{ section_name }}"{% endif %} class="section">
+    <section{% if section_name %} id="{{ section_name }}"{% endif %} class="section my-5">
+        <div class="container">
+            <div class="row">
+                <div class="col col-12">
                     <h2 class="section-heading{% if section_visually_hide_heading | default(false) %} visually-hidden{% endif %}">
                         {{ section_heading | localize }}
                         {% if section_name %}
@@ -14,9 +14,9 @@
                             {% endwith %}
                         {% endif %}
                     </h2>
-                    {{ section_content }}
-                </section>
+                </div>
             </div>
         </div>
-    </div>
+        {{ section_content }}
+    </section>
 {% endif %}

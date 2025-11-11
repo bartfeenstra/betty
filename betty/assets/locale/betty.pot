@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Betty VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2025-12-29 19:04+0000\n"
+"POT-Creation-Date: 2025-12-29 19:35+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -71,9 +71,6 @@ msgid "A single file in a media display"
 msgstr ""
 
 msgid "API documentation"
-msgstr ""
-
-msgid "About"
 msgstr ""
 
 msgid "Access denied"
@@ -858,9 +855,6 @@ msgstr ""
 msgid "Media gallery"
 msgstr ""
 
-msgid "Media references"
-msgstr ""
-
 msgid "Men"
 msgstr ""
 
@@ -1510,6 +1504,9 @@ msgid ""
 msgstr ""
 
 msgid "Wikipedia contributors"
+msgstr ""
+
+msgid "Wikipedia says..."
 msgstr ""
 
 msgid "Wikipedia summary"

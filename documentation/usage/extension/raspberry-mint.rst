@@ -130,6 +130,11 @@ Raspberry Mint provides the following regions content providers may be configure
   The main content for the front page.
 - ``front-page-summary``
   The page summary for the front page.
+- ``entity-page-content``
+  The page content region for entity pages.
+- ``entity-page-content--{entity_type_id}``
+  The page content region for entity pages of a specific public-facing entity type, where ``{entity_type_id}`` is the
+  entity type ID. If no content is assigned to this region for an entity type, ``entity-page-content`` is used instead.
 
 Templating
 ----------

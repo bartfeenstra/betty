@@ -1,5 +1,4 @@
 from betty.ancestry.person import Person
-from betty.document import Document
 from betty.project.extension.raspberry_mint import RaspberryMint
 from betty.test_utils.jinja2 import assert_template_file
 
@@ -8,10 +7,10 @@ async def test_minimal() -> None:
     person = Person()
     async with assert_template_file(
         data={
-            "document": Document(person),
+            "person": person,
         },
         extensions={RaspberryMint},
-        template="section/families.html.j2",
+        template="component/families.html.j2",
     ) as (actual, _):
         assert not actual
 
@@ -21,10 +20,10 @@ async def test_with_parents() -> None:
     person = Person(parents=[parent])
     async with assert_template_file(
         data={
-            "document": Document(person),
+            "person": person,
         },
         extensions={RaspberryMint},
-        template="section/families.html.j2",
+        template="component/families.html.j2",
     ) as (actual, _):
         assert parent.public_id in actual
 
@@ -34,10 +33,10 @@ async def test_with_private_parents() -> None:
     person = Person(parents=[parent])
     async with assert_template_file(
         data={
-            "document": Document(person),
+            "person": person,
         },
         extensions={RaspberryMint},
-        template="section/families.html.j2",
+        template="component/families.html.j2",
     ) as (actual, _):
         assert parent.id not in actual
 
@@ -48,10 +47,10 @@ async def test_with_siblings() -> None:
     person = Person(parents=[parent])
     async with assert_template_file(
         data={
-            "document": Document(person),
+            "person": person,
         },
         extensions={RaspberryMint},
-        template="section/families.html.j2",
+        template="component/families.html.j2",
     ) as (actual, _):
         assert sibling.public_id in actual
 
@@ -62,10 +61,10 @@ async def test_with_private_siblings() -> None:
     person = Person(parents=[parent])
     async with assert_template_file(
         data={
-            "document": Document(person),
+            "person": person,
         },
         extensions={RaspberryMint},
-        template="section/families.html.j2",
+        template="component/families.html.j2",
     ) as (actual, _):
         assert sibling.id not in actual
 
@@ -75,10 +74,10 @@ async def test_with_children() -> None:
     person = Person(children=[child])
     async with assert_template_file(
         data={
-            "document": Document(person),
+            "person": person,
         },
         extensions={RaspberryMint},
-        template="section/families.html.j2",
+        template="component/families.html.j2",
     ) as (actual, _):
         assert child.public_id in actual
 
@@ -88,10 +87,10 @@ async def test_with_private_children() -> None:
     person = Person(children=[child])
     async with assert_template_file(
         data={
-            "document": Document(person),
+            "person": person,
         },
         extensions={RaspberryMint},
-        template="section/families.html.j2",
+        template="component/families.html.j2",
     ) as (actual, _):
         assert child.id not in actual
 
@@ -102,10 +101,10 @@ async def test_with_co_parents() -> None:
     person = Person(children=[child])
     async with assert_template_file(
         data={
-            "document": Document(person),
+            "person": person,
         },
         extensions={RaspberryMint},
-        template="section/families.html.j2",
+        template="component/families.html.j2",
     ) as (actual, _):
         assert co_parent.public_id in actual
 
@@ -116,9 +115,9 @@ async def test_with_private_co_parents() -> None:
     person = Person(children=[child])
     async with assert_template_file(
         data={
-            "document": Document(person),
+            "person": person,
         },
         extensions={RaspberryMint},
-        template="section/families.html.j2",
+        template="component/families.html.j2",
     ) as (actual, _):
         assert co_parent.id not in actual
