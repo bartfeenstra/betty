@@ -9,13 +9,14 @@ from typing import TYPE_CHECKING, final
 from typing_extensions import override
 
 from betty.ancestry.has_links import HasLinks
+from betty.ancestry.media_type import HasMediaType
 from betty.locale.localizable import (
     Localizable,
     StaticTranslations,
     _,
     ngettext,
 )
-from betty.model import Entity, EntityDefinition
+from betty.model import EntityDefinition
 from betty.model.association import BidirectionalToZeroOrOne, ToZeroOrOneAssociate
 from betty.privacy import HasPrivacy, Privacy, is_public
 
@@ -33,7 +34,7 @@ if TYPE_CHECKING:
     label_plural=_("Notes"),
     label_countable=ngettext("{count} note", "{count} notes"),
 )
-class Note(HasPrivacy, HasLinks, Entity):
+class Note(HasPrivacy, HasLinks, HasMediaType):
     """
     A note is a bit of textual information that can be associated with another entity.
     """
