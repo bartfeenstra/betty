@@ -2,18 +2,18 @@
 Dynamic content.
 """
 
+from collections.abc import Mapping
 from typing import TYPE_CHECKING, Any, Self
 
 from typing_extensions import override
 
 from betty.config import DefaultConfigurable
-from betty.content_provider import ContentProvider, ContentProviderDefinition
+from betty.content_provider import ContentProviderDefinition
+from betty.content_provider.content_providers import Jinja2TemplateContentProvider
 from betty.job import Context
 from betty.locale.localizable import _
 from betty.model.config import EntityReferenceSequence
-from betty.plugin import ClassedPlugin
 from betty.project import Project
-from betty.project.factory import ProjectDependentFactory
 
 if TYPE_CHECKING:
     from collections.abc import MutableSequence
@@ -26,18 +26,16 @@ if TYPE_CHECKING:
     label=_("Featured entities"),
 )
 class FeaturedEntities(
-    ContentProvider,
-    ClassedPlugin,
-    DefaultConfigurable[EntityReferenceSequence],
-    ProjectDependentFactory,
+    Jinja2TemplateContentProvider, DefaultConfigurable[EntityReferenceSequence]
 ):
     """
     Featured entities.
     """
 
+    _template = "component/featured-entities.html.j2"
+
     def __init__(self, project: Project, configuration: EntityReferenceSequence):
-        super().__init__(configuration=configuration)
-        self._project = project
+        super().__init__(project, configuration=configuration)
 
     @override
     @classmethod
@@ -50,11 +48,9 @@ class FeaturedEntities(
         return EntityReferenceSequence()
 
     @override
-    async def provide(
-        self, *, locale: str, page_resource: Any, job_context: Context | None = None
-    ) -> str:
-        localizers = await self._project.localizers
-        jinja2_environment = await self._project.jinja2_environment
+    async def _provide_data(
+        self, *, locale: str, job_context: Context | None, page_resource: Any
+    ) -> Mapping[str, Any]:
         entities: MutableSequence[Entity] = []
         for entity in self.configuration:
             assert entity.entity_type is not None
@@ -64,10 +60,6 @@ class FeaturedEntities(
                     self._project.app.entity_type_repository.get(entity.entity_type)
                 ][entity.entity_id]
             )
-        return await jinja2_environment.get_template(
-            "component/featured-entities.html.j2"
-        ).render_async(
-            job_context=job_context,
-            localizer=localizers.get(locale),
-            entities=entities,
-        )
+        return {
+            "entities": entities,
+        }

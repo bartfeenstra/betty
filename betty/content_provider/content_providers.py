@@ -2,6 +2,7 @@
 Dynamic content.
 """
 
+from collections.abc import Mapping
 from typing import Any, Self
 
 from typing_extensions import override
@@ -55,3 +56,42 @@ class PlainText(
         return newlines_to_paragraphs(
             self.configuration.localize(localizers.get(locale))
         )
+
+
+class Jinja2TemplateContentProvider(
+    ContentProvider, ClassedPlugin, ProjectDependentFactory
+):
+    """
+    Provides content by rendering a Jinja2 template.
+    """
+
+    _template: str
+
+    def __init__(self, project: Project, *args: Any, **kwargs: Any):
+        super().__init__(*args, **kwargs)
+        self._project = project
+
+    @override
+    @classmethod
+    async def new_for_project(cls, project: Project) -> Self:
+        return cls(project)
+
+    @override
+    async def provide(
+        self, *, locale: str, page_resource: Any, job_context: Context | None = None
+    ) -> str:
+        localizers = await self._project.localizers
+        jinja2_environment = await self._project.jinja2_environment
+        return await jinja2_environment.get_template(self._template).render_async(
+            job_context=job_context,
+            localizer=localizers.get(locale),
+            page_resource=page_resource,
+            **await self._provide_data(
+                locale=locale, job_context=job_context, page_resource=page_resource
+            ),
+        )
+
+    async def _provide_data(
+        self, *, locale: str, job_context: Context | None, page_resource: Any
+    ) -> Mapping[str, Any]:
+        return {}
