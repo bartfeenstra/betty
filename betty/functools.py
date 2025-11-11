@@ -18,7 +18,7 @@ from typing import (
 )
 
 from betty.asyncio import ensure_await
-from betty.typing import Void, processsafe
+from betty.typing import Void
 
 if TYPE_CHECKING:
     from collections.abc import Awaitable, Callable, Iterable, Iterator
@@ -156,7 +156,6 @@ class ResultUnavailable(RuntimeError):
 
 
 @final
-@processsafe
 class Result(Generic[_P, _T]):
     """
     Decorate a callable and store its return value or raised exception.
