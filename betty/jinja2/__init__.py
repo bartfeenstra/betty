@@ -34,12 +34,12 @@ from betty.media_type.media_types import JINJA2
 from betty.project.factory import ProjectDependentFactory
 from betty.render import Renderer, RendererDefinition
 from betty.resource import Context as ResourceContext
-from betty.resource import ContextProvider, copy_context
+from betty.resource import copy_context
 from betty.typing import private
 from betty.warnings import deprecate
 
 if TYPE_CHECKING:
-    from collections.abc import Iterator, Sequence
+    from collections.abc import Sequence
 
     from jinja2.parser import Parser
 
@@ -169,7 +169,6 @@ class Environment(ProjectDependentFactory, Jinja2Environment):
             ],
         )
 
-        self._context_class: type[Jinja2Context] | None = None
         self._project = project
         self._extensions = extensions
 
@@ -226,44 +225,6 @@ class Environment(ProjectDependentFactory, Jinja2Environment):
             newstyle=True,
         )
         self.policies["ext.i18n.trimmed"] = True
-
-    @override
-    @property
-    def context_class(self) -> type[Jinja2Context]:  # type: ignore[override]
-        if self._context_class is None:
-            resource_context_providers: Sequence[ContextProvider & Extension] = [
-                extension
-                for extension in self._extensions
-                if isinstance(extension, ContextProvider)
-            ]
-
-            class _Jinja2Context(Jinja2Context):
-                def __init__(
-                    self,
-                    environment: Environment,
-                    parent: dict[str, Any],
-                    name: str | None,
-                    blocks: dict[str, Callable[[Jinja2Context], Iterator[str]]],
-                    globals: MutableMapping[str, Any] | None = None,  # noqa A002
-                ):
-                    for resource_context_provider in resource_context_providers:
-                        for (
-                            key,
-                            value,
-                        ) in resource_context_provider.new_resource_context().items():
-                            if key not in parent:
-                                parent[key] = value
-                    super().__init__(
-                        environment,
-                        parent,
-                        name,
-                        blocks,
-                        globals,
-                    )
-
-            self._context_class = _Jinja2Context
-
-        return self._context_class
 
     @pass_context
     def _gettext(self, context: Jinja2Context, message: str) -> str:

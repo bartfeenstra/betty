@@ -428,6 +428,10 @@ class TestProject:
         async with Project.new_temporary(temporary_app) as sut, sut:
             sut.privatizer  # noqa B018
 
+    async def test_new_resource_context(self, temporary_app: App) -> None:
+        async with Project.new_temporary(temporary_app) as sut, sut:
+            assert await sut.new_resource_context()
+
 
 class TestProjectContext:
     async def test_project(self, temporary_app: App) -> None:
