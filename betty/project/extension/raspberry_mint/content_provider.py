@@ -2,23 +2,132 @@
 Dynamic content.
 """
 
-from collections.abc import Mapping
+from collections.abc import Mapping, Sequence
 from typing import TYPE_CHECKING, Any, Self
 
 from typing_extensions import override
 
-from betty.config import DefaultConfigurable
-from betty.content_provider import ContentProviderDefinition
+from betty.assertion import OptionalField, RequiredField, assert_record, assert_setattr
+from betty.config import Configuration, DefaultConfigurable
+from betty.content_provider import ContentProvider, ContentProviderDefinition
 from betty.content_provider.content_providers import Jinja2TemplateContentProvider
 from betty.job import Context
-from betty.locale.localizable import _
+from betty.locale.localizable import (
+    ShorthandStaticTranslations,
+    _,
+)
+from betty.locale.localizable.assertion import assert_static_translations
+from betty.locale.localizable.config import RequiredStaticTranslationsConfigurationAttr
+from betty.machine_name import MachineName, assert_machine_name
 from betty.model.config import EntityReferenceSequence
+from betty.plugin.config import (
+    PluginInstanceConfiguration,
+    PluginInstanceConfigurationSequence,
+)
 from betty.project import Project
+from betty.serde.dump import Dump
 
 if TYPE_CHECKING:
     from collections.abc import MutableSequence
 
     from betty.model import Entity
+
+
+class SectionConfiguration(Configuration):
+    """
+    Configuration for :py:class:`betty.project.extension.raspberry_mint.content_provider.Section`.
+    """
+
+    heading = RequiredStaticTranslationsConfigurationAttr("heading")
+    """
+    The human-readable heading text.
+    """
+
+    def __init__(
+        self,
+        *,
+        heading: ShorthandStaticTranslations,
+        content: Sequence[
+            PluginInstanceConfiguration[ContentProviderDefinition, ContentProvider]
+        ]
+        | None = None,
+        name: MachineName | None = None,
+    ):
+        super().__init__()
+        self.heading = heading
+        self._content = PluginInstanceConfigurationSequence[
+            ContentProviderDefinition, ContentProvider
+        ]()
+        if content:
+            self._content.append(*content)
+        self.name = name
+
+    @property
+    def content(
+        self,
+    ) -> PluginInstanceConfigurationSequence[
+        ContentProviderDefinition, ContentProvider
+    ]:
+        """
+        The content within this section.
+        """
+        return self._content
+
+    @override
+    def load(self, dump: Dump) -> None:
+        assert_record(
+            OptionalField("name", assert_machine_name() | assert_setattr(self, "name")),
+            RequiredField(
+                "heading",
+                assert_static_translations() | assert_setattr(self, "heading"),
+            ),
+            RequiredField("content", self.content.load),
+        )(dump)
+
+    @override
+    def dump(self) -> Dump:
+        dump = {
+            "heading": self.heading.dump(),
+            "content": self.content.dump(),
+        }
+        if self.name:
+            dump["name"] = self.name
+        return dump
+
+
+@ContentProviderDefinition(
+    id="raspberry-mint-section",
+    label=_("Section"),
+)
+class Section(Jinja2TemplateContentProvider, DefaultConfigurable[SectionConfiguration]):
+    """
+    A section on the page with a heading and a permanent link.
+    """
+
+    _template = "component/content-section.html.j2"
+
+    def __init__(self, project: Project, configuration: SectionConfiguration):
+        super().__init__(project, configuration=configuration)
+
+    @override
+    @classmethod
+    async def new_for_project(cls, project: Project) -> Self:
+        return cls(project, configuration=cls.new_default_configuration())
+
+    @override
+    @classmethod
+    def new_default_configuration(cls) -> SectionConfiguration:
+        return SectionConfiguration(name="", heading="")
+
+    @override
+    async def _provide_data(
+        self, *, locale: str, job_context: Context | None, page_resource: Any
+    ) -> Mapping[str, Any]:
+        return {
+            "section_name": self.configuration.name,
+            "section_heading": self.configuration.heading,
+            "section_content_configurations": self.configuration.content,
+        }
 
 
 @ContentProviderDefinition(

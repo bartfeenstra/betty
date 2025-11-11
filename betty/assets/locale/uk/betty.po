@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Betty 0.4\n"
 "Report-Msgid-Bugs-To: illia@maier.page\n"
-"POT-Creation-Date: 2025-11-11 00:15+0000\n"
+"POT-Creation-Date: 2025-11-11 12:56+0000\n"
 "PO-Revision-Date: 2025-05-13 17:01+0000\n"
 "Last-Translator: Максим Горпиніч <maksimgorpinic4@gmail.com>\n"
 "Language: uk\n"
@@ -926,6 +926,9 @@ msgstr "Проєкт збережено у {configuration_file}."
 
 msgid "Search"
 msgstr "Пошук"
+
+msgid "Section"
+msgstr ""
 
 msgid "Serve a generated site"
 msgstr "Запустити згенерований сайт"

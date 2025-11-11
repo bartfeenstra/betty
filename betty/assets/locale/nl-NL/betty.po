@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PROJECT VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2025-11-11 00:15+0000\n"
+"POT-Creation-Date: 2025-11-11 12:56+0000\n"
 "PO-Revision-Date: 2025-05-17 01:43+0000\n"
 "Last-Translator: Bart Feenstra <bart@bartfeenstra.com>\n"
 "Language: nl_NL\n"
@@ -931,6 +931,9 @@ msgstr "Configuratie naar \"{configuration_file}\" opgeslagen."
 
 msgid "Search"
 msgstr "Zoeken"
+
+msgid "Section"
+msgstr ""
 
 msgid "Serve a generated site"
 msgstr "Serveer een gegenereerde site"

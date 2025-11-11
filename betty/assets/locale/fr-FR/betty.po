@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PROJECT VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2025-11-11 00:15+0000\n"
+"POT-Creation-Date: 2025-11-11 12:56+0000\n"
 "PO-Revision-Date: 2025-08-27 20:02+0000\n"
 "Last-Translator: \"David D.\" <dadu042@users.noreply.hosted.weblate.org>\n"
 "Language: fr_FR\n"
@@ -878,6 +878,9 @@ msgstr ""
 
 msgid "Search"
 msgstr "Recherche"
+
+msgid "Section"
+msgstr ""
 
 msgid "Serve a generated site"
 msgstr "Servir un site généré"

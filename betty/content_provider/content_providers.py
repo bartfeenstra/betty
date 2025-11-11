@@ -79,17 +79,22 @@ class Jinja2TemplateContentProvider(
     @override
     async def provide(
         self, *, locale: str, page_resource: Any, job_context: Context | None = None
-    ) -> str:
+    ) -> str | None:
         localizers = await self._project.localizers
         jinja2_environment = await self._project.jinja2_environment
-        return await jinja2_environment.get_template(self._template).render_async(
-            job_context=job_context,
-            localizer=localizers.get(locale),
-            page_resource=page_resource,
-            **await self._provide_data(
-                locale=locale, job_context=job_context, page_resource=page_resource
-            ),
-        )
+        rendered_content = (
+            await jinja2_environment.get_template(self._template).render_async(
+                job_context=job_context,
+                localizer=localizers.get(locale),
+                page_resource=page_resource,
+                **await self._provide_data(
+                    locale=locale, job_context=job_context, page_resource=page_resource
+                ),
+            )
+        ).strip()
+        if rendered_content:
+            return rendered_content
+        return None
 
     async def _provide_data(
         self, *, locale: str, job_context: Context | None, page_resource: Any

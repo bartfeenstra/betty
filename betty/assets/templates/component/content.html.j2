@@ -1,11 +1,11 @@
-{% for content_provider_configuration in content %}
-    {% set content_provider = content_provider_configuration.new_plugin_instance(project.content_provider_repository, factory=project.new_target) %}
-    {% set provided_content = content_provider.provide(
+{% for content_configuration in content_configurations %}
+    {% set content_provider = content_configuration.new_plugin_instance(project.content_provider_repository, factory=project.new_target) %}
+    {% set content = content_provider.provide(
         job_context=job_context,
         locale=localizer.locale,
         page_resource=page_resource
     ) %}
-    {% if provided_content is not none %}
-        {{ provided_content | safe }}
+    {% if content is not none %}
+        {{ content | safe }}
     {% endif %}
 {% endfor %}

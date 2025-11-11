@@ -209,6 +209,7 @@ betty = 'betty.console:main_standalone'
 'demo-front-page-content' = 'betty.project.extension.demo.content_provider:_FrontPageContent'
 'demo-front-page-summary' = 'betty.project.extension.demo.content_provider:_FrontPageSummary'
 'raspberry-mint-featured-entities' = 'betty.project.extension.raspberry_mint.content_provider:FeaturedEntities'
+'raspberry-mint-section' = 'betty.project.extension.raspberry_mint.content_provider:Section'
 
 [project.optional-dependencies]
 setuptools = [
