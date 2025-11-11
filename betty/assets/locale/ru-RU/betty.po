@@ -8,7 +8,7 @@ msgstr ""
 "Project-Id-Version: Betty VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
 "POT-Creation-Date: 2025-04-24 14:22+0100\n"
-"PO-Revision-Date: 2025-11-01 18:08+0000\n"
+"PO-Revision-Date: 2025-11-12 06:51+0000\n"
 "Last-Translator: Артур Калагов "
 "<artur.kalagov@users.noreply.hosted.weblate.org>\n"
 "Language-Team: Russian <https://hosted.weblate.org/projects/betty/betty/ru/>"
@@ -19,7 +19,7 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=3; plural=n%10==1 && n%100!=11 ? 0 : n%10>=2 && "
 "n%10<=4 && (n%100<10 || n%100>=20) ? 1 : 2;\n"
-"X-Generator: Weblate 5.14.1-dev\n"
+"X-Generator: Weblate 5.15-dev\n"
 "Generated-By: Babel 2.17.0\n"
 
 #, python-brace-format
@@ -117,7 +117,7 @@ msgid "Also known as %(names)s"
 msgstr "Другие имена: %(names)s"
 
 msgid "Ancestral names include"
-msgstr ""
+msgstr "Имена предков"
 
 msgid "Announcement of divorce"
 msgstr "Объявление о разводе"
@@ -130,11 +130,11 @@ msgstr "Внешность"
 
 #, python-brace-format
 msgid "At least {expected} items are required, but found {actual}."
-msgstr ""
+msgstr "Требуется как минимум {expected} элементов, но найдено {actual}."
 
 #, python-brace-format
 msgid "At most {expected} items are allowed, but found {actual}."
-msgstr ""
+msgstr "Разрешено не более {expected} элементов, но найдено {actual}."
 
 msgid "At which URL will your site be published?"
 msgstr "По какому адресу (URL) будет опубликован ваш сайт?"
@@ -176,18 +176,26 @@ msgid ""
 "\"{gramps_event_type}\". The event was imported, but its type was set to "
 "\"{betty_event_type}\"."
 msgstr ""
+"Betty не знаком тип Gramps \"{gramps_event_type}\" для события \"{event_id}\""
+". Событие было импортировано, но его тип был изменен на "
+"\"{betty_event_type}\"."
 
 #, python-brace-format
 msgid ""
 "Betty is unfamiliar with Gramps file \"{file_id}\"'s copyright notice ID "
 "of \"{copyright_notice_id}\" and ignored it."
 msgstr ""
+"Betty не знакома с идентификатором уведомления об авторских правах в файле "
+"Gramps \"{file_id}\" со значением \"{copyright_notice_id}\" и "
+"проигнорировала его."
 
 #, python-brace-format
 msgid ""
 "Betty is unfamiliar with Gramps file \"{file_id}\"'s license ID of "
 "\"{license_id}\" and ignored it."
 msgstr ""
+"Betty не знакома с идентификатором лицензии файла Gramps \"{file_id}\" со "
+"значением \"{license_id}\" и проигнорировала его."
 
 #, python-brace-format
 msgid ""
@@ -195,6 +203,8 @@ msgid ""
 "\"{gramps_place_type}\". The place was imported, but its type was set to "
 "\"{betty_place_type}\"."
 msgstr ""
+"Betty не знаком тип Gramps \"{gramps_place_type}\" для места \"{place_id}\". "
+"Место было импортировано, но его тип был изменен на \"{betty_place_type}\"."
 
 #, python-brace-format
 msgid ""
@@ -203,6 +213,9 @@ msgid ""
 "\"{event_handle}\". The role was imported, but set to "
 "\"{betty_presence_role}\"."
 msgstr ""
+"Betty не знакома роль присутствия Gramps \"{gramps_presence_role}\" человека "
+"\"{person_id}\" для события с идентификатором Gramps \"{event_handle}\". "
+"Роль была импортирована, но изменена на \"{betty_presence_role}\"."
 
 #, python-format
 msgid ""
@@ -210,10 +223,14 @@ msgid ""
 "a small sample of her family history. You can browse the pages about her "
 "and some of her family to get an idea of what a Betty site looks like."
 msgstr ""
+"Название Betty происходит от %(liberta_lankester_label)s, а этот вебсайт "
+"показывает небольшую часть ее семейной истории. Вы можете просмотреть "
+"страницы о ней и некоторых ее родственниках, чтобы получить представление о "
+"том, как выглядит сайт Betty."
 
 #, python-brace-format
 msgid "Betty will talk to you in {locale}"
-msgstr ""
+msgstr "Betty будет общаться с вами на языке {locale}"
 
 msgid "Birth"
 msgstr "Рождение"
@@ -222,7 +239,7 @@ msgid "Borough"
 msgstr ""
 
 msgid "Building"
-msgstr ""
+msgstr "Дом"
 
 msgid "Built the Webpack front-end assets."
 msgstr ""
@@ -272,10 +289,10 @@ msgid "Celebrant"
 msgstr ""
 
 msgid "Citation"
-msgstr ""
+msgstr "Цитата"
 
 msgid "Citations"
-msgstr ""
+msgstr "Цитаты"
 
 msgid "City"
 msgstr "Город"
@@ -821,7 +838,7 @@ msgid "Privatizing..."
 msgstr ""
 
 msgid "Project author"
-msgstr ""
+msgstr "Автор проекта"
 
 msgid "Province"
 msgstr ""
@@ -862,7 +879,7 @@ msgid "Saved your project to {configuration_file}."
 msgstr ""
 
 msgid "Search"
-msgstr ""
+msgstr "Поиск"
 
 msgid "Serve a generated site"
 msgstr ""
@@ -887,10 +904,10 @@ msgid "State"
 msgstr ""
 
 msgid "Street"
-msgstr ""
+msgstr "Улица"
 
 msgid "Subject"
-msgstr ""
+msgstr "Тема"
 
 msgid "Subjects"
 msgstr "Субъекты"
@@ -964,7 +981,7 @@ msgstr[2] "У них было %(sibling_count)s братьев и сестер."
 #, python-format
 msgid "They had a child with %(co_parent_labels)s."
 msgid_plural "They had %(child_count)s children with %(co_parent_labels)s."
-msgstr[0] "У них с %(co_parent_labels)s был %(child_count)s ребенок."
+msgstr[0] "У них с %(co_parent_labels)s был один ребенок."
 msgstr[1] "У них с %(co_parent_labels)s было %(child_count)s ребенка."
 msgstr[2] "У них с %(co_parent_labels)s было %(child_count)s детей."
 
