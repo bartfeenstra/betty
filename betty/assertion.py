@@ -433,7 +433,7 @@ def assert_field(
         try:
             return cast(Voidable[_AssertionReturnT], fields[field.name])
         except KeyError:
-            return Void
+            return Void()
 
     return assert_fields(field) | _assert_field
 

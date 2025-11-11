@@ -1210,7 +1210,7 @@ class TestProjectConfiguration:
         }
         sut.load(dump)
         actual = sut.extensions[DummyExtension.plugin]
-        assert actual.configuration is Void
+        assert isinstance(actual.configuration, Void)
 
     async def test_load__extension_with_invalid_configuration_should_raise_error(
         self, tmp_path: Path

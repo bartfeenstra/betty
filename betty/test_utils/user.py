@@ -259,7 +259,7 @@ class StaticUser(User):  # pragma: no cover
         self,
         question: Localizable,
         *,
-        default: str | type[Void] = Void,
+        default: str | Void = Void(),  # noqa B008
     ) -> str:
         pass
 
@@ -269,7 +269,7 @@ class StaticUser(User):  # pragma: no cover
         question: Localizable,
         *,
         assertion: Assertion[str, _T],
-        default: str | type[Void] = Void,
+        default: str | Void = Void(),  # noqa B008
     ) -> _T:
         pass
 
@@ -279,15 +279,15 @@ class StaticUser(User):  # pragma: no cover
         question: Localizable,
         *,
         assertion: Assertion[str, _T] | None = None,
-        default: str | _T | type[Void] = Void,
+        default: str | _T | Void = Void(),  # noqa B008
     ) -> str | _T:
         value = next(self._inputs)
         if value is None:
-            if default is Void:
+            if isinstance(default, Void):
                 raise UserTimeoutError(
                     "Neither a predefined response nor a call default were provided."
                 )
-            return default  # type: ignore[return-value]
+            return default
         if assertion is None:
             return value
         return assertion(value)

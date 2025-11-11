@@ -131,15 +131,15 @@ def passthrough(value: _T) -> _T:
 
 def suppress(
     target: Callable[_P, _T], *exceptions: type[BaseException]
-) -> Callable[_P, _T | type[Void]]:
+) -> Callable[_P, _T | Void]:
     """
     Return the value, but suppress any errors.
     """
 
-    def _suppress(*target_args: _P.args, **target_kwargs: _P.kwargs) -> _T | type[Void]:
+    def _suppress(*target_args: _P.args, **target_kwargs: _P.kwargs) -> _T | Void:
         with contextlib.suppress(*exceptions):
             return target(*target_args, **target_kwargs)
-        return Void
+        return Void()
 
     return _suppress
 

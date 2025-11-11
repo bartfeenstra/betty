@@ -12,6 +12,7 @@ from typing import TYPE_CHECKING, Generic, TypeVar, cast, final
 
 from typing_extensions import override
 
+from betty.classtools import Singleton
 from betty.concurrent import AsynchronizedLock, backoff
 from betty.job import Context, Job
 from betty.job.scheduler import (
@@ -25,7 +26,7 @@ from betty.job.scheduler import (
     UnknownJobError,
 )
 from betty.locale.localizable import Plain
-from betty.typing import Sentinel, threadsafe
+from betty.typing import threadsafe
 
 if TYPE_CHECKING:
     from collections.abc import (
@@ -69,7 +70,7 @@ class _ScheduledJobBatch:
 
 
 @final
-class _UnknownJob(Sentinel):
+class _UnknownJob(Singleton):
     pass
 
 
@@ -95,8 +96,8 @@ class DefaultScheduler(Generic[_ContextCoT], Scheduler[_ContextCoT]):
         self._cancelled = False
         self._cancelled_reason: BaseException | None = None
         self._completed = False
-        self._jobs: MutableMapping[str, Job[_ContextCoT] | type[_UnknownJob]] = (
-            defaultdict(lambda: _UnknownJob)
+        self._jobs: MutableMapping[str, Job[_ContextCoT] | _UnknownJob] = defaultdict(
+            _UnknownJob
         )
         self._job_dependencies: MutableMapping[str, set[str]] = defaultdict(set)
         self._scheduled_jobs: set[str] = set()
@@ -133,7 +134,7 @@ class DefaultScheduler(Generic[_ContextCoT], Scheduler[_ContextCoT]):
             self._assert_open()
             self._releasable_jobs_sorter = None
             for job in jobs:
-                if self._jobs[job.id] is not _UnknownJob:
+                if not isinstance(self._jobs[job.id], _UnknownJob):
                     raise DuplicateJobError.new(job.id)
                 if job.dependents:
                     if self._released:
@@ -175,7 +176,7 @@ class DefaultScheduler(Generic[_ContextCoT], Scheduler[_ContextCoT]):
                     possibly_newly_releasable_job = self._jobs[
                         possibly_newly_releasable_job_id
                     ]
-                    if possibly_newly_releasable_job is _UnknownJob:
+                    if isinstance(possibly_newly_releasable_job, _UnknownJob):
                         unknown_job_id = possibly_newly_releasable_job_id
                         continue
                     self._scheduled_jobs.discard(possibly_newly_releasable_job_id)
@@ -191,7 +192,7 @@ class DefaultScheduler(Generic[_ContextCoT], Scheduler[_ContextCoT]):
                                 *self._releasable_jobs_queue,
                                 *newly_releasable_job_ids,
                             }
-                            if self._jobs[job_id] is not _UnknownJob
+                            if not isinstance(self._jobs[job_id], _UnknownJob)
                         ),
                     ),
                     key=lambda job: job.priority,

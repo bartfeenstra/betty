@@ -27,7 +27,7 @@ from typing_extensions import override
 
 from betty.concurrent import AsynchronizedLock, Lock
 from betty.config import Configurable
-from betty.typing import Void, internal, not_void, public, unpickleable
+from betty.typing import Void, internal, public, unpickleable
 
 if TYPE_CHECKING:
     from types import TracebackType
@@ -273,8 +273,8 @@ class ServiceManager(Generic[_ServiceProviderT, _ServiceGetT, _ServiceT]):
     def _get(self, instance: _ServiceProviderT) -> _ServiceGetT:
         pass
 
-    def _get_attr(self, instance: _ServiceProviderT) -> _ServiceT | type[Void]:
-        return getattr(instance, self._service_attr_name, Void)  # type: ignore[return-value]
+    def _get_attr(self, instance: _ServiceProviderT) -> _ServiceT | Void:
+        return getattr(instance, self._service_attr_name, Void())  # type: ignore[return-value]
 
     def _get_factory(
         self, instance: _ServiceProviderT
@@ -288,7 +288,7 @@ class ServiceManager(Generic[_ServiceProviderT, _ServiceGetT, _ServiceT]):
         return self._factory
 
     def _assert_not_initialized(self, instance: _ServiceProviderT):
-        if not_void(self._get_attr(instance)):
+        if not isinstance(self._get_attr(instance), Void):
             raise ServiceInitializedError(
                 f"{instance}.{self._service_name} was initialized already."
             )
@@ -342,7 +342,7 @@ class _AsynchronousServiceManager(
         async with self._lock(instance):
             service = self._get_attr(instance)
 
-            if not_void(service):
+            if not isinstance(service, Void):
                 return service
 
             new_service = await self._get_factory(instance)(instance)
@@ -357,7 +357,7 @@ class _SynchronousServiceManager(
     @override
     def _get(self, instance: _ServiceProviderT) -> _ServiceT:
         service = self._get_attr(instance)
-        if not_void(service):
+        if not isinstance(service, Void):
             return service
 
         new_service = self._get_factory(instance)(instance)

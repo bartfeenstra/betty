@@ -158,7 +158,7 @@ class ConsoleUser(User):
         self,
         question: Localizable,
         *,
-        default: str | type[Void] = Void,
+        default: str | Void = Void(),  # noqa B008
         stdin: TextIO | None = None,
     ) -> str:
         pass
@@ -169,7 +169,7 @@ class ConsoleUser(User):
         question: Localizable,
         *,
         assertion: Assertion[str, _T],
-        default: str | type[Void] = Void,
+        default: str | Void = Void(),  # noqa B008
         stdin: TextIO | None = None,
     ) -> _T:
         pass
@@ -180,12 +180,12 @@ class ConsoleUser(User):
         question: Localizable,
         *,
         assertion: Assertion[str, _T] | None = None,
-        default: str | type[Void] = Void,
+        default: str | Void = Void(),  # noqa B008
         stdin: TextIO | None = None,
     ) -> str | _T:
         assert self._connected
         ask_kwargs = {}
-        if default is not Void:
+        if not isinstance(default, Void):
             ask_kwargs["default"] = default
         value = cast(
             str,
