@@ -30,7 +30,7 @@ class TestWiki(ExtensionTestBase):
     async def test_filters(self, sut: Wiki) -> None:
         assert sut.filters
 
-    async def test_filter_wikipedia_links(
+    async def test_filter_wikipedia_summary_links(
         self, mocker: MockerFixture, temporary_app: App
     ) -> None:
         language = "en"
@@ -56,7 +56,7 @@ class TestWiki(ExtensionTestBase):
             async with project:
                 jinja2_environment = await project.jinja2_environment
                 actual = await jinja2_environment.from_string(
-                    "{% for entry in (links | wikipedia) %}{{ entry.content }}{% endfor %}"
+                    "{% for entry in (links | wikipedia_summary) %}{{ entry.content }}{% endfor %}"
                 ).render_async(
                     job_context=Context(),
                     links=links,

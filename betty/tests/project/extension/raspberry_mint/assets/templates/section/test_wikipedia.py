@@ -22,11 +22,10 @@ class DummyHasLinks(HasLinks):
 
 
 async def test_minimal() -> None:
-    entity = DummyHasLinks()
+    page_resource = DummyHasLinks()
     async with assert_template_file(
         data={
-            "entity": entity,
-            "page_resource": "betty:///index.html",
+            "page_resource": page_resource,
         },
         extensions={RaspberryMint, Wiki},
         template="section/wikipedia.html.j2",
@@ -40,11 +39,10 @@ async def test_with_summary(mocker: MockerFixture) -> None:
     m_get_summary.return_value = Summary(
         DEFAULT_LOCALE, "Example", "Example", summary_content
     )
-    entity = DummyHasLinks(links=[Link("https://en.wikipedia.org/wiki/Example")])
+    page_resource = DummyHasLinks(links=[Link("https://en.wikipedia.org/wiki/Example")])
     async with assert_template_file(
         data={
-            "entity": entity,
-            "page_resource": "betty:///index.html",
+            "page_resource": page_resource,
         },
         extensions={RaspberryMint, Wiki},
         template="section/wikipedia.html.j2",

@@ -115,11 +115,11 @@ class Wiki(
     @property
     def filters(self) -> Filters:
         return {
-            "wikipedia": self.filter_wikipedia_links,
+            "wikipedia_summary": self.filter_wikipedia_summary_links,
         }
 
     @pass_context
-    async def filter_wikipedia_links(
+    async def filter_wikipedia_summary_links(
         self, context: Context, links: Iterable[Link]
     ) -> Iterable[Summary]:
         """
@@ -129,7 +129,7 @@ class Wiki(
             None,
             await gather(
                 *(
-                    self._filter_wikipedia_link(
+                    self._filter_wikipedia_summary_link(
                         context_localizer(context).locale,
                         link,
                     )
@@ -138,7 +138,9 @@ class Wiki(
             ),
         )
 
-    async def _filter_wikipedia_link(self, locale: str, link: Link) -> Summary | None:
+    async def _filter_wikipedia_summary_link(
+        self, locale: str, link: Link
+    ) -> Summary | None:
         localizers = await self.project.app.localizers
         try:
             page_language, page_name = parse_page_url(
