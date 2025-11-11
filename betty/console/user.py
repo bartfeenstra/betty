@@ -103,15 +103,22 @@ class ConsoleUser(User):
         self._rich_console.print(f"[green]{message.localize(self.localizer)}[/]")
 
     @override
-    async def message_debug(self, message: Localizable) -> None:
+    async def message_information_details(self, message: Localizable) -> None:
         assert self._connected
         if self._verbosity < Verbosity.VERBOSE:
+            return
+        self._rich_console.print(f"[green]{message.localize(self.localizer)}[/]")
+
+    @override
+    async def message_debug(self, message: Localizable) -> None:
+        assert self._connected
+        if self._verbosity < Verbosity.MORE_VERBOSE:
             return
         self._rich_console.print(f"[white]{message.localize(self.localizer)}[/]")
 
     @override
     async def message_log(self, message: logging.LogRecord) -> None:
-        if self._verbosity < Verbosity.MORE_VERBOSE:
+        if self._verbosity < Verbosity.MOST_VERBOSE:
             return
         self._rich_console.print(f"[blue]{self._log_formatter.format(message)}[/]")
 

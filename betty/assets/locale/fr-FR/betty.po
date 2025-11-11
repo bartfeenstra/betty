@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PROJECT VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2025-11-11 12:56+0000\n"
+"POT-Creation-Date: 2025-11-11 14:21+0000\n"
 "PO-Revision-Date: 2025-08-27 20:02+0000\n"
 "Last-Translator: \"David D.\" <dadu042@users.noreply.hosted.weblate.org>\n"
 "Language: fr_FR\n"
@@ -88,6 +88,9 @@ msgid "Also known as %(names)s"
 msgstr "Aussi connu comme %(names)s"
 
 msgid "Also show debug messages"
+msgstr ""
+
+msgid "Also show detailed information messages"
 msgstr ""
 
 msgid "Also show log messages"

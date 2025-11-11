@@ -135,7 +135,7 @@ async def _create_command_parser(
         dest="_verbosity",
         action="store_const",
         const=Verbosity.VERBOSE,
-        help=localizer._("Also show debug messages"),
+        help=localizer._("Also show detailed information messages"),
     )
     verbosity_group.add_argument(
         "-vv",
@@ -143,6 +143,14 @@ async def _create_command_parser(
         dest="_verbosity",
         action="store_const",
         const=Verbosity.MORE_VERBOSE,
+        help=localizer._("Also show debug messages"),
+    )
+    verbosity_group.add_argument(
+        "-vvv",
+        "--most-verbose",
+        dest="_verbosity",
+        action="store_const",
+        const=Verbosity.MOST_VERBOSE,
         help=localizer._("Also show log messages"),
     )
 

@@ -75,7 +75,7 @@ class Deriver:
                 created_derivations += created
                 updated_derivations += updated
             if updated_derivations > 0:
-                await self._project.app.user.message_debug(
+                await self._project.app.user.message_information_details(
                     _(
                         "Updated {updated_derivations} {event_type} events based on existing information."
                     ).format(
@@ -84,7 +84,7 @@ class Deriver:
                     )
                 )
             if created_derivations > 0:
-                await self._project.app.user.message_debug(
+                await self._project.app.user.message_information_details(
                     _(
                         "Created {created_derivations} additional {event_type} events based on existing information."
                     ).format(

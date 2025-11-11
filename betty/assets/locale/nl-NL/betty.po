@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PROJECT VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2025-11-11 12:56+0000\n"
+"POT-Creation-Date: 2025-11-11 14:21+0000\n"
 "PO-Revision-Date: 2025-05-17 01:43+0000\n"
 "Last-Translator: Bart Feenstra <bart@bartfeenstra.com>\n"
 "Language: nl_NL\n"
@@ -92,6 +92,9 @@ msgid "Also known as %(names)s"
 msgstr "Ook bekend als %(names)s"
 
 msgid "Also show debug messages"
+msgstr ""
+
+msgid "Also show detailed information messages"
 msgstr ""
 
 msgid "Also show log messages"

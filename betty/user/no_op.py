@@ -42,6 +42,10 @@ class NoOpUser(User):
         pass
 
     @override
+    async def message_information_details(self, message: Localizable) -> None:
+        pass
+
+    @override
     async def message_debug(self, message: Localizable) -> None:
         pass
 

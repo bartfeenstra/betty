@@ -34,6 +34,10 @@ class TestNoOpUser:
         sut = NoOpUser()
         await sut.message_information(Plain("Hello, world!"))
 
+    async def test_message_information_details(self) -> None:
+        sut = NoOpUser()
+        await sut.message_information_details(Plain("Hello, world!"))
+
     async def test_message_debug(self) -> None:
         sut = NoOpUser()
         await sut.message_debug(Plain("Hello, world!"))
