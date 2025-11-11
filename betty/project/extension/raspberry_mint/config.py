@@ -37,7 +37,7 @@ class RaspberryMintConfiguration(Configuration):
         primary_color: str = DEFAULT_PRIMARY_COLOR,
         secondary_color: str = DEFAULT_SECONDARY_COLOR,
         tertiary_color: str = DEFAULT_TERTIARY_COLOR,
-        content: Mapping[
+        regional_content: Mapping[
             str,
             Sequence[
                 PluginInstanceConfiguration[ContentProviderDefinition, ContentProvider]
@@ -49,7 +49,7 @@ class RaspberryMintConfiguration(Configuration):
         self._primary_color = ColorConfiguration(primary_color)
         self._secondary_color = ColorConfiguration(secondary_color)
         self._tertiary_color = ColorConfiguration(tertiary_color)
-        self._content = RegionalContentConfiguration(content or {})
+        self._regional_content = RegionalContentConfiguration(regional_content or {})
 
     @override
     def get_mutable_instances(self) -> Iterable[Mutable]:
@@ -57,7 +57,7 @@ class RaspberryMintConfiguration(Configuration):
             self._primary_color,
             self._secondary_color,
             self._tertiary_color,
-            self._content,
+            self._regional_content,
         )
 
     @property
@@ -86,7 +86,7 @@ class RaspberryMintConfiguration(Configuration):
         """
         The regional content.
         """
-        return self._content
+        return self._regional_content
 
     @override
     def load(self, dump: Dump) -> None:

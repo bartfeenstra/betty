@@ -34,8 +34,8 @@ class TestRaspberryMintConfiguration:
         content_provider = PluginInstanceConfiguration[
             ContentProviderDefinition, ContentProvider
         ]("my-first-plugin")
-        content = {"front": [content_provider]}
-        sut = RaspberryMintConfiguration(content=content)
+        regional_content = {"front": [content_provider]}
+        sut = RaspberryMintConfiguration(regional_content=regional_content)
         assert sut.regional_content["front"][0] is content_provider
 
     def test_load__with_minimal_configuration(self) -> None:
@@ -74,7 +74,7 @@ class TestRaspberryMintConfiguration:
         sut.load(dump)
         assert sut.tertiary_color.hex == hex_value
 
-    def test_load__with_content(self) -> None:
+    def test_load__with_regional_content(self) -> None:
         sut = RaspberryMintConfiguration()
         sut.load(
             {
@@ -117,7 +117,7 @@ class TestRaspberryMintConfiguration:
         assert isinstance(dump, dict)
         assert hex_value == dump["tertiary_color"]
 
-    def test_dump__with_content(self) -> None:
+    def test_dump__with_regional_content(self) -> None:
         sut = RaspberryMintConfiguration()
         sut.regional_content["front"].append(
             PluginInstanceConfiguration("my-first-plugin")
