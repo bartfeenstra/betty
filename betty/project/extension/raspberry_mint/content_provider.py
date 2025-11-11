@@ -7,7 +7,13 @@ from typing import TYPE_CHECKING, Any, Self
 
 from typing_extensions import override
 
-from betty.assertion import OptionalField, RequiredField, assert_record, assert_setattr
+from betty.assertion import (
+    OptionalField,
+    RequiredField,
+    assert_bool,
+    assert_record,
+    assert_setattr,
+)
 from betty.config import Configuration, DefaultConfigurable
 from betty.content_provider import ContentProvider, ContentProviderDefinition
 from betty.content_provider.content_providers import Jinja2TemplateContentProvider
@@ -52,6 +58,7 @@ class SectionConfiguration(Configuration):
         ]
         | None = None,
         name: MachineName | None = None,
+        visually_hide_heading: bool = False,
     ):
         super().__init__()
         self.heading = heading
@@ -61,6 +68,7 @@ class SectionConfiguration(Configuration):
         if content:
             self._content.append(*content)
         self.name = name
+        self.visually_hide_heading = visually_hide_heading
 
     @property
     def content(
@@ -82,6 +90,10 @@ class SectionConfiguration(Configuration):
                 assert_static_translations() | assert_setattr(self, "heading"),
             ),
             RequiredField("content", self.content.load),
+            OptionalField(
+                "visually_hide_heading",
+                assert_bool() | assert_setattr(self, "visually_hide_heading"),
+            ),
         )(dump)
 
     @override
@@ -92,6 +104,8 @@ class SectionConfiguration(Configuration):
         }
         if self.name:
             dump["name"] = self.name
+        if self.visually_hide_heading:
+            dump["visually_hide_heading"] = True
         return dump
 
 
@@ -126,6 +140,7 @@ class Section(Jinja2TemplateContentProvider, DefaultConfigurable[SectionConfigur
         return {
             "section_name": self.configuration.name,
             "section_heading": self.configuration.heading,
+            "section_visually_hide_heading": self.configuration.visually_hide_heading,
             "section_content_configurations": self.configuration.content,
         }
 

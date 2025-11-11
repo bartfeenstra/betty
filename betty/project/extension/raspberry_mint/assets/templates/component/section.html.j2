@@ -3,7 +3,7 @@
         <div class="row">
             <div class="col col-12">
                 <section{% if section_name %} id="{{ section_name }}"{% endif %} class="section">
-                    <h2 class="section-heading">
+                    <h2 class="section-heading{% if section_visually_hide_heading | default(false) %} visually-hidden{% endif %}">
                         {{ section_heading | localize }}
                         {% if section_name %}
                             {% with url = page_resource | url(fragment=section_name) %}

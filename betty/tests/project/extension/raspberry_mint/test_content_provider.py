@@ -175,3 +175,23 @@ class TestSection:
                 )
                 assert actual is not None
                 assert "my-first-section" in actual
+
+    async def test_provide__with_visually_hide_heading(
+        self, temporary_app: App
+    ) -> None:
+        async with Project.new_temporary(temporary_app) as project:
+            project.configuration.extensions.enable(RaspberryMint)
+            async with project:
+                sut = await Section.new_for_project(project)
+                sut.configuration.heading = "My First Section"
+                sut.configuration.visually_hide_heading = True
+                sut.configuration.content.append(
+                    PluginInstanceConfiguration(
+                        "plain-text", configuration="My First Content"
+                    )
+                )
+                actual = await sut.provide(
+                    locale=DEFAULT_LOCALE, page_resource="betty:///"
+                )
+                assert actual is not None
+                assert "visually-hidden" in actual
