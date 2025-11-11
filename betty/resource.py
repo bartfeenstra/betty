@@ -85,7 +85,7 @@ def new_context(
     }
 
 
-def copy_context(context: Context, **kwargs: Any) -> Context:
+def copy_context(context: Context, **kwargs: object) -> Context:
     """
     Create a copy of a context, with the given fields added.
     """

@@ -29,7 +29,7 @@ from betty.data import Key
 from betty.exception import HumanFacingExceptionGroup
 from betty.factory import TargetFactory
 from betty.hashid import hashid
-from betty.job import Context
+from betty.job import Context as JobContext
 from betty.json.schema import JsonSchemaReference, Schema
 from betty.license import LicenseDefinition
 from betty.locale.localizable import _
@@ -50,6 +50,8 @@ from betty.project.extension import Extension, ExtensionDefinition
 from betty.project.factory import ProjectDependentFactory
 from betty.project.url import new_project_url_generator
 from betty.render import ProxyRenderer, Renderer
+from betty.resource import Context as ResourceContext
+from betty.resource import ContextProvider, new_context
 from betty.service import ServiceProvider, service
 from betty.string import kebab_case_to_lower_camel_case
 from betty.typing import internal
@@ -476,6 +478,28 @@ class Project(Configurable[ProjectConfiguration], TargetFactory, ServiceProvider
         """
         return Privatizer(self.configuration.lifetime_threshold, user=self.app.user)
 
+    async def new_resource_context(
+        self,
+        resource: object = None,
+        resource_url: object = None,
+        **kwargs: object,
+    ) -> ResourceContext:
+        """
+        Create new resource context variables.
+        """
+        extensions = await self.extensions
+        return new_context(
+            resource,
+            resource_url,
+            **{
+                key: value
+                for extension in extensions.flatten()
+                if isinstance(extension, ContextProvider)
+                for (key, value) in extension.new_resource_context().items()
+            },
+            **kwargs,  # type: ignore[arg-type]
+        )
+
 
 _ExtensionT = TypeVar("_ExtensionT", bound=Extension)
 
@@ -543,7 +567,7 @@ class ProjectExtensions:
             return True
 
 
-class ProjectContext(Context):
+class ProjectContext(JobContext):
     """
     A job context for a project.
     """

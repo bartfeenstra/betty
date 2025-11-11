@@ -30,7 +30,6 @@ from betty.project.generate.file import (
     create_json_resource,
 )
 from betty.render import CopyFunction, make_copy_function
-from betty.resource import new_context
 from betty.string import kebab_case_to_lower_camel_case
 
 if TYPE_CHECKING:
@@ -63,7 +62,7 @@ class GenerateStaticPublicAssets(Job[ProjectContext]):
         renderer = await project.renderer
         copy_function = make_copy_function(
             renderer,
-            resource=new_context(job_context=scheduler.context),
+            resource=await project.new_resource_context(job_context=scheduler.context),
             www_directory_path=project.configuration.www_directory_path,
             is_localized_and_multilingual=project.configuration.locales.multilingual,
         )
@@ -295,7 +294,7 @@ class GenerateLocalizedPublicAssets(Job[ProjectContext]):
         copy_functions = {
             locale: make_copy_function(
                 renderer,
-                resource=new_context(
+                resource=await project.new_resource_context(
                     job_context=scheduler.context,
                     localizer=localizers.get(locale),
                 ),
@@ -582,7 +581,7 @@ class _GenerateEntityTypeHtml(Job[ProjectContext]):
             ]
         )
         rendered_html = await template.render_async(
-            resource=new_context(
+            resource=await project.new_resource_context(
                 self._entity_type,
                 self._entity_type,
                 job_context=context,
@@ -724,7 +723,7 @@ class _GenerateEntityHtml(Job[ProjectContext]):
                 "entity/page.html.j2",
             ]
         ).render_async(
-            resource=new_context(
+            resource=await project.new_resource_context(
                 entity,
                 entity,
                 job_context=context,

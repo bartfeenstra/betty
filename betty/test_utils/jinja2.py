@@ -17,7 +17,6 @@ from betty.jinja2 import Environment
 from betty.json.schema import AllOf, Ref
 from betty.plugin import PluginIdentifier
 from betty.project import Project, ProjectSchema
-from betty.resource import new_context
 
 if TYPE_CHECKING:
     from collections.abc import AsyncIterator, Callable, MutableMapping
@@ -50,7 +49,7 @@ async def _assert_template(
             if data is None:
                 data = {}
             if "resource" not in data:
-                data["resource"] = new_context()
+                data["resource"] = await project.new_resource_context()
             if locale is not None:
                 localizers = await project.localizers
                 data["resource"]["localizer"] = localizers.get(locale)
