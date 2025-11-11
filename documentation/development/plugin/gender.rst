@@ -35,7 +35,7 @@ Tell Betty about your gender by registering it as an entry point. Given the gend
 .. code-block:: toml
 
    [project.entry-points.'betty.gender']
-   'my-gender' = 'my_package.my_module.MyGender.plugin'
+   'my-gender' = 'my_package.my_module.MyGender'
 
 See also
 --------

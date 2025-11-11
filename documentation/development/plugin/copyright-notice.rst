@@ -35,7 +35,7 @@ Tell Betty about your copyright notice by registering it as an entry point. Give
 .. code-block:: toml
 
    [project.entry-points.'betty.copyright_notice']
-   'my-copyright-notice' = 'my_package.my_module.MyCopyrightNotice.plugin'
+   'my-copyright-notice' = 'my_package.my_module.MyCopyrightNotice'
 
 See also
 --------

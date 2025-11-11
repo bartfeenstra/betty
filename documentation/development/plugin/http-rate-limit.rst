@@ -34,4 +34,4 @@ Tell Betty about your rate limit by registering it as an entry point. Given the 
 .. code-block:: toml
 
    [project.entry-points.'betty.http_rate_limit']
-   'my-rate limit' = 'my_package.my_module.MyRateLimit.plugin'
+   'my-rate limit' = 'my_package.my_module.MyRateLimit'

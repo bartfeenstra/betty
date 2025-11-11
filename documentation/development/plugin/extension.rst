@@ -37,7 +37,7 @@ Tell Betty about your extension by registering it as an entry point. Given the e
 .. code-block:: toml
 
    [project.entry-points.'betty.extension']
-   'my-extension' = 'my_package.my_module.MyExtension.plugin'
+   'my-extension' = 'my_package.my_module.MyExtension'
 
 Optional functionality
 ----------------------

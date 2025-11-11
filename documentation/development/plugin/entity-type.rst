@@ -38,7 +38,7 @@ Tell Betty about your entity type by registering it as an entry point. Given the
 .. code-block:: toml
 
    [project.entry-points.'betty.entity_type']
-   'my-entity' = 'my_package.my_module.MyEntity.plugin'
+   'my-entity' = 'my_package.my_module.MyEntity'
 
 See also
 --------
