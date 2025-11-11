@@ -64,10 +64,13 @@ class TestJinja2TemplateContentProvider:
                 _template = template_name
 
             sut = await _Jinja2TemplateContentProvider.new_for_project(project)
+            provided_content = await sut.provide(
+                locale="nl-NL",
+                page_resource="my-first-page-resource",
+                job_context=job_context,
+            )
+            assert provided_content is not None
             assert (
-                await sut.provide(
-                    locale="nl-NL",
-                    page_resource="my-first-page-resource",
-                    job_context=job_context,
-                )
-            ).strip() == f"nl-NL\nmy-first-page-resource\n{job_context.id}"
+                provided_content.strip()
+                == f"nl-NL\nmy-first-page-resource\n{job_context.id}"
+            )

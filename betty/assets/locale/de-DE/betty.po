@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Betty VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2025-11-11 00:15+0000\n"
+"POT-Creation-Date: 2025-11-11 12:56+0000\n"
 "PO-Revision-Date: 2025-03-28 20:02+0000\n"
 "Last-Translator: Ettore Atalan <atalanttore@googlemail.com>\n"
 "Language: de_DE\n"
@@ -902,6 +902,9 @@ msgstr ""
 
 msgid "Search"
 msgstr "Suchen"
+
+msgid "Section"
+msgstr ""
 
 msgid "Serve a generated site"
 msgstr ""

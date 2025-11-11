@@ -24,7 +24,11 @@ from betty.project.extension.demo.content_provider import (
 )
 from betty.project.extension.raspberry_mint import RaspberryMint
 from betty.project.extension.raspberry_mint.config import RaspberryMintConfiguration
-from betty.project.extension.raspberry_mint.content_provider import FeaturedEntities
+from betty.project.extension.raspberry_mint.content_provider import (
+    FeaturedEntities,
+    Section,
+    SectionConfiguration,
+)
 
 if TYPE_CHECKING:
     from pathlib import Path
@@ -64,16 +68,29 @@ async def create_project(app: App, project_directory_path: Path) -> Project:
                         "front-page-content": [
                             PluginInstanceConfiguration(_FrontPageContent),
                             PluginInstanceConfiguration(
-                                FeaturedEntities,
-                                configuration=EntityReferenceSequence(
-                                    [
-                                        EntityReference(Place, "betty-demo-amsterdam"),
-                                        EntityReference(
-                                            Person,
-                                            "betty-demo-liberta-lankester",
-                                        ),
-                                        EntityReference(
-                                            Place, "betty-demo-netherlands"
+                                Section,
+                                configuration=SectionConfiguration(
+                                    heading={
+                                        "en-US": "Have a look around...",
+                                        "nl-NL": "Neem gerust een kijkje...",
+                                    },
+                                    content=[
+                                        PluginInstanceConfiguration(
+                                            FeaturedEntities,
+                                            configuration=EntityReferenceSequence(
+                                                [
+                                                    EntityReference(
+                                                        Place, "betty-demo-amsterdam"
+                                                    ),
+                                                    EntityReference(
+                                                        Person,
+                                                        "betty-demo-liberta-lankester",
+                                                    ),
+                                                    EntityReference(
+                                                        Place, "betty-demo-netherlands"
+                                                    ),
+                                                ],
+                                            ),
                                         ),
                                     ],
                                 ),

@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Betty VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2025-11-11 00:15+0000\n"
+"POT-Creation-Date: 2025-11-11 12:56+0000\n"
 "PO-Revision-Date: 2025-11-01 18:08+0000\n"
 "Last-Translator: Артур Калагов "
 "<artur.kalagov@users.noreply.hosted.weblate.org>\n"
@@ -893,6 +893,9 @@ msgid "Saved your project to {configuration_file}."
 msgstr ""
 
 msgid "Search"
+msgstr ""
+
+msgid "Section"
 msgstr ""
 
 msgid "Serve a generated site"
