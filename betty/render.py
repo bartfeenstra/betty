@@ -98,13 +98,13 @@ class RendererDefinition(ClassedPluginDefinition[Renderer]):
 # @todo Type 1 is really the only conversion. Type 2 just resolves templating and leaves the rest intact.
 # @todo Type 3 may cause conflicts but that depends on whether individual renderers act on the same content.
 # @todo
+# @todo Types 1 and 2 are also pretty non-negotiable: given an input and desired output media type, we can either render
+# @todo or reliably error because we do not support that specific conversion.
 # @todo
+# @todo Type 3 is very context-specific. When rendering content from elsewhere, we probably want to run these renderers on it (e.g. Notes or configuration values)
 # @todo
-# @todo
-# @todo
-# @todo
-# @todo
-# @todo
+# @todo Also, we can simplify type 2 by requiring them to work on specific contained media types only, so one
+# @todo Jinja2 renderer for HTML files (*.html.j2), one for JSON files (*.json.j2), etc.
 # @todo
 # @todo
 @final
