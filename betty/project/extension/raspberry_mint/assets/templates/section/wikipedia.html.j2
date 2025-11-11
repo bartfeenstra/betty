@@ -1,8 +1,6 @@
 {% if "wiki" in project.extensions %}
     {% set content -%}
-        {% with resource = entity %}
-            {% include 'wikipedia/summaries.html.j2' %}
-        {% endwith %}
+        {% include 'wiki/wikipedia-summary.html.j2' %}
     {%- endset %}
     {% if content %}
         <div class="container my-5">

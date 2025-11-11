@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Betty VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2025-11-11 14:21+0000\n"
+"POT-Creation-Date: 2025-11-11 16:08+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -1148,6 +1148,9 @@ msgid ""
 msgstr ""
 
 msgid "Wikipedia contributors"
+msgstr ""
+
+msgid "Wikipedia summary"
 msgstr ""
 
 msgid "Will"

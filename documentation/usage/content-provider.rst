@@ -11,6 +11,8 @@ Built-in content providers
     Display one or more entities in cards.
 :py:class:`betty.project.extension.raspberry_mint.content_provider.Section`
     Display other content in a section with a heading and a permanent link.
+:py:class:`betty.project.extension.wiki.content_provider.WikipediaSummary`
+    Display Wikipedia summaries for the current page resource if it is an entity that can have links.
 
 See also
 --------
