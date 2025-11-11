@@ -43,7 +43,7 @@ Tell Betty about your command by registering it as an entry point. Given the com
 .. code-block:: toml
 
    [project.entry-points.'betty.command']
-   'my-command' = 'my_package.my_module.MyCommand.plugin'
+   'my-command' = 'my_package.my_module.MyCommand'
               
 Examples
 ^^^^^^^^

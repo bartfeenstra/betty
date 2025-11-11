@@ -36,7 +36,7 @@ Tell Betty about your event type by registering it as an entry point. Given the 
 .. code-block:: toml
 
    [project.entry-points.'betty.event_type']
-   'my-event-type' = 'my_package.my_module.MyEventType.plugin'
+   'my-event-type' = 'my_package.my_module.MyEventType'
 
 See also
 --------
