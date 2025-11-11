@@ -18,6 +18,7 @@ from betty.test_utils.plugin import (
     ClassedDummyPluginOne,
     ClassedDummyPluginTwo,
 )
+from betty.tests.ancestry.test_has_notes import DummyHasNotes
 
 if TYPE_CHECKING:
     from betty.machine_name import MachineName
@@ -102,6 +103,25 @@ async def test_test_has_file_references(expected: str, data: Any) -> None:
 )
 async def test_test_has_links(expected: str, data: Any) -> None:
     template = "{% if data is has_links %}true{% else %}false{% endif %}"
+    async with assert_template_string(
+        template=template,
+        data={
+            "data": data,
+        },
+    ) as (actual, _):
+        assert actual == expected
+
+
+@pytest.mark.parametrize(
+    ("expected", "data"),
+    [
+        ("true", DummyHasNotes()),
+        ("false", DummyHasNotes),
+        ("false", object()),
+    ],
+)
+async def test_test_has_notes(expected: str, data: Any) -> None:
+    template = "{% if data is has_notes %}true{% else %}false{% endif %}"
     async with assert_template_string(
         template=template,
         data={

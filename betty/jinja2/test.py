@@ -10,6 +10,7 @@ from betty.ancestry.event_type import EventTypeDefinition
 from betty.ancestry.gender import GenderDefinition
 from betty.ancestry.has_file_references import HasFileReferences
 from betty.ancestry.has_links import HasLinks
+from betty.ancestry.has_notes import HasNotes
 from betty.ancestry.place_type import PlaceTypeDefinition
 from betty.ancestry.presence_role import PresenceRoleDefinition
 from betty.copyright_notice import CopyrightNoticeDefinition
@@ -72,6 +73,13 @@ def test_has_links(value: Any) -> bool:
     return isinstance(value, HasLinks)
 
 
+def test_has_notes(value: Any) -> bool:
+    """
+    Test if a value has notes associated with it.
+    """
+    return isinstance(value, HasNotes)
+
+
 def test_has_file_references(value: Any) -> bool:
     """
     Test if a value has :py:class:`betty.ancestry.file_reference.FileReference` entities associated with it.
@@ -105,6 +113,7 @@ async def tests() -> Mapping[str, Callable[..., bool]]:
         "has_file_references": test_has_file_references,
         "persistent_entity_id": persistent_id,
         "has_links": test_has_links,
+        "has_notes": test_has_notes,
         "image_supported_media_type": test_image_supported_media_type,
         "linked_data_dumpable": test_linked_data_dumpable,
         "private": is_private,

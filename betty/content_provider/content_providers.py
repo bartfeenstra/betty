@@ -100,3 +100,15 @@ class Jinja2TemplateContentProvider(
         self, *, locale: str, job_context: Context | None, page_resource: Any
     ) -> Mapping[str, Any]:
         return {}
+
+
+@ContentProviderDefinition(
+    id="notes",
+    label=_("Notes"),
+)
+class Notes(Jinja2TemplateContentProvider):
+    """
+    Render a page resource's notes, if it has any.
+    """
+
+    _template = "component/notes.html.j2"
