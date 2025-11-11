@@ -106,6 +106,17 @@ class RendererDefinition(ClassedPluginDefinition[Renderer]):
 # @todo Also, we can simplify type 2 by requiring them to work on specific contained media types only, so one
 # @todo Jinja2 renderer for HTML files (*.html.j2), one for JSON files (*.json.j2), etc.
 # @todo
+# @todo SHOWER THOUGHTS
+# @todo - Order: type 2 (resolving templates), type 1 (media type conversion), type 3 (post-processing)
+# @todo - As such we can do type 2 in a chain if we want to, no problemo. We keep going until no more type 2s accept the input media type.
+# @todo   This is 'zero or more' so if no type 2 renderers apply, then that is fine
+# @todo - Then we do either no attempt at type 1 (if input and output match already), or exactly one attempt.
+# @todo - Type 3s are still unresolved. Current thoughts are that these should be kept entirely separately.
+# @todo - Also type 1 may need to be done in isolation, or in combination with type 3 but not type 2, e.g. for content
+# @todo   coming from the family tree where we do not want full on templating but need to make sure everything looks
+# @todo   alright on a web page (type 1) and perhaps allow URL resolution for things like notes (type 3).
+# @todo
+# @todo
 # @todo
 @final
 class RendererChain(Renderer):
