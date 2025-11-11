@@ -86,7 +86,7 @@ class TestJinja2Renderer:
 
     async def test_media_types(self) -> None:
         sut = Jinja2Renderer(Jinja2Environment(enable_async=True))
-        sut.media_types  # noqa B018
+        sut.input  # noqa B018
 
 
 class DummyHasFileReferencesEntity(HasFileReferences):

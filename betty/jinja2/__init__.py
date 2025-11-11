@@ -414,7 +414,7 @@ class Jinja2Renderer(Renderer, ProjectDependentFactory):
 
     @override
     @property
-    def media_types(self) -> Sequence[MediaType]:
+    def input(self) -> MediaType:
         return [JINJA2]
 
     @override
