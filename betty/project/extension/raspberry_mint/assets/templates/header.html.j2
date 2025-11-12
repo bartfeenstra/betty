@@ -1,4 +1,4 @@
-{% cache 'raspberry-mint-template-header:' ~ localizer.locale %}
+{% cache 'raspberry-mint-template-header--before:' ~ localizer.locale %}
     {% set ns = namespace(primary_navigation_links = {}) %}
     {% for entity_type_configuration in project.configuration.entity_types.values() | selectattr('generate_html_list') %}
         {% set entity_type = app.entity_type_repository[entity_type_configuration.id] %}
@@ -114,29 +114,33 @@
     %}
         {% include "component/modal.html.j2" %}
     {% endwith %}
-    {% set nav_language_body %}
-        <ul class="list-unstyled text-center">
-            {% set ns = namespace(available_locales = []) %}
-            {% for available_locale_configuration in project.configuration.locales.values() %}
-                {% set available_locale_data = available_locale_configuration.alias | locale_get_data %}
-                {% do ns.available_locales.append((available_locale_configuration.locale, available_locale_data.get_display_name())) %}
-            {% endfor %}
-            {% for available_locale, available_locale_name in ns.available_locales | sort(attribute='1') %}
-                <li class="h6 header-nav-link">
-                    <a href="{{ page_resource | url(locale=available_locale) }}" hreflang="{{ available_locale }}" lang="{{ available_locale }}" rel="alternate">{{ available_locale_name }}</a>
-                </li>
-            {% endfor %}
-        </ul>
-    {% endset %}
-    {% if project.configuration.locales.multilingual %}
-        {% with attributes = new_attributes(html_id="nav-language"),
-            dialog_attributes = new_attributes(html_class=["modal-md", "modal-fullscreen-md-down"]),
-            title = _("Language"),
-            body = nav_language_body
-        %}
-            {% include "component/modal.html.j2" %}
-        {% endwith %}
-    {% endif %}
+{% endcache %}
+
+{% set nav_language_body %}
+    <ul class="list-unstyled text-center">
+        {% set ns = namespace(available_locales = []) %}
+        {% for available_locale_configuration in project.configuration.locales.values() %}
+            {% set available_locale_data = available_locale_configuration.alias | locale_get_data %}
+            {% do ns.available_locales.append((available_locale_configuration.locale, available_locale_data.get_display_name())) %}
+        {% endfor %}
+        {% for available_locale, available_locale_name in ns.available_locales | sort(attribute='1') %}
+            <li class="h6 header-nav-link">
+                <a href="{{ page_resource | url(locale=available_locale) }}" hreflang="{{ available_locale }}" lang="{{ available_locale }}" rel="alternate">{{ available_locale_name }}</a>
+            </li>
+        {% endfor %}
+    </ul>
+{% endset %}
+{% if project.configuration.locales.multilingual %}
+    {% with attributes = new_attributes(html_id="nav-language"),
+        dialog_attributes = new_attributes(html_class=["modal-md", "modal-fullscreen-md-down"]),
+        title = _("Language"),
+        body = nav_language_body
+    %}
+        {% include "component/modal.html.j2" %}
+    {% endwith %}
+{% endif %}
+
+{% cache 'raspberry-mint-template-header--after:' ~ localizer.locale %}
     {% set nav_search_body %}
         <div class="container">
             {% set ns = namespace(
