@@ -16,7 +16,7 @@ In addition to Jinja2's built-in globals, Betty provides the following:
     The ledger of `breadcrumbs <https://en.wikipedia.org/wiki/Breadcrumb_navigation>`_ on the current page.
 ``entity_contexts`` (:py:class:`betty.jinja2.EntityContexts`)
     The ledger of primary entities in the current template context.
-``generate_html_id`` (:py:meth:`betty.jinja2.globals.generate_html_id`)
+``generate_html_id`` (:py:meth:`betty.html.generate_html_id`)
     A function to generate a HTML ID unique within the current render call, such as a page.
 ``localizer`` (:py:class:`betty.locale.localizer.Localizer`)
     The localizer for the current template context.
