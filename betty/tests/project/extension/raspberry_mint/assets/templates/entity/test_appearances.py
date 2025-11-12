@@ -29,7 +29,7 @@ async def test_with_public_referees() -> None:
         extensions={RaspberryMint},
         template="entity/appearances.html.j2",
     ) as (actual, _):
-        assert "/sut.html#appearances" in actual
+        assert "#appearances" in actual
         assert f"/event/{referee.public_id}/index.html" in actual
 
 

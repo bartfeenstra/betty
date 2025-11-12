@@ -7,7 +7,7 @@
                     <section id="notes" class="section">
                         <h2 class="section-heading">
                             {% trans %}Appearances{% endtrans %}
-                            {% with url = page_resource | url(fragment="appearances") %}
+                            {% with url = "#appearances" %}
                                 {% include 'component/permalink.html.j2' %}
                             {% endwith %}
                         </h2>
