@@ -26,10 +26,10 @@ from betty.html import (
     CssProvider,
     JsProvider,
     NavigationLinkProvider,
+    generate_html_id,
 )
 from betty.html.attributes import Attributes
 from betty.jinja2.filter import filters
-from betty.jinja2.globals import HtmlId, generate_html_id
 from betty.jinja2.test import tests
 from betty.job import Context as JobContext
 from betty.locale.localizer import DEFAULT_LOCALIZER, Localizer
@@ -284,8 +284,6 @@ class Environment(ProjectDependentFactory, Jinja2Environment):
                         parent["citer"] = Citer()
                     if "breadcrumbs" not in parent:
                         parent["breadcrumbs"] = Breadcrumbs()
-                    if "_html_id_generator" not in parent:
-                        parent["_html_id_generator"] = HtmlId()
                     for jinja2_provider in jinja2_providers:
                         for key, value in jinja2_provider.new_context_vars().items():
                             if key not in parent:

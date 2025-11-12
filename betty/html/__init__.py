@@ -9,6 +9,7 @@ from abc import ABC, abstractmethod
 from collections.abc import Iterable, Iterator, Sequence, Sized
 from threading import Lock
 from typing import TYPE_CHECKING, Any, final
+from uuid import uuid4
 
 from markupsafe import escape
 from typing_extensions import override
@@ -206,3 +207,10 @@ def newlines_to_paragraphs(text: str) -> str:
         "<p>{}</p>".format(paragraph.replace("\n", "<br>\n"))
         for paragraph in _paragraph_re.split(escape(text))
     )
+
+
+def generate_html_id() -> str:
+    """
+    Generate a unique HTML ID.
+    """
+    return f"betty-generated--{uuid4()}"
