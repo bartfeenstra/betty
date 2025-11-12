@@ -1,18 +1,17 @@
-from collections.abc import Mapping, Sequence
+from collections.abc import Sequence
 from pathlib import Path
-from typing import Any, ClassVar
+from typing import ClassVar
 
 import aiofiles
 import pytest
 from typing_extensions import override
 
 from betty.functools import unique
-from betty.job import Context
 from betty.locale import DEFAULT_LOCALE
-from betty.locale.localizer import Localizer
 from betty.media_type import MediaType, UnsupportedMediaType
 from betty.plugin import PluginDefinition
 from betty.render import ProxyRenderer, Renderer, RendererDefinition, make_copy_function
+from betty.resource import Context, new_context
 from betty.test_utils.plugin import PluginDefinitionClassTestBase
 
 
@@ -24,6 +23,9 @@ class TestRendererDefinition(PluginDefinitionClassTestBase):
 
 
 class _TestRendererRenderer(Renderer):
+    def __init__(self, resource_key: str):
+        self._resource_key = resource_key
+
     @override
     @property
     def media_types(self) -> Sequence[MediaType]:
@@ -35,14 +37,10 @@ class _TestRendererRenderer(Renderer):
         content: str,
         media_type: MediaType,
         *,
-        data: Mapping[str, Any] | None = None,
-        job_context: Context | None = None,
-        localizer: Localizer | None = None,
+        resource: Context | None = None,
     ) -> str:
-        assert data is not None
-        page_resource = data["page_resource"]
-        assert isinstance(page_resource, str)
-        return page_resource
+        assert resource is not None
+        return f"{resource['resource']}\n{resource['resource_url']}"
 
 
 class _StaticRenderer(Renderer):
@@ -60,9 +58,7 @@ class _StaticRenderer(Renderer):
         content: str,
         media_type: MediaType,
         *,
-        data: Mapping[str, Any] | None = None,
-        job_context: Context | None = None,
-        localizer: Localizer | None = None,
+        resource: Context | None = None,
     ) -> str:
         return self.RENDERED_CONTENT
 
@@ -109,30 +105,56 @@ class TestProxyRenderer:
 
 
 async def test_make_copy_function__www_directory(tmp_path: Path) -> None:
-    sut = _TestRendererRenderer()
+    sut = _TestRendererRenderer("resource")
     source_file_path = tmp_path / "source.test"
     source_file_path.touch()
     www_directory_path = tmp_path / "www"
     destination_file_path = www_directory_path / "destination.test"
     rendered_destination_file_path = www_directory_path / "destination"
-    copy_function = make_copy_function(sut, www_directory_path=www_directory_path)
+    copy_function = make_copy_function(
+        sut, www_directory_path=www_directory_path, resource=new_context()
+    )
     await copy_function(source_file_path, destination_file_path)
     async with aiofiles.open(rendered_destination_file_path) as f:
-        assert (await f.read()).strip() == "betty:///destination"
+        assert (
+            await f.read()
+        ).strip() == f"{rendered_destination_file_path}\nbetty:///destination"
+
+
+async def test_make_copy_function__www_directory_with_hidden_file(
+    tmp_path: Path,
+) -> None:
+    sut = _TestRendererRenderer("resource_url")
+    source_file_path = tmp_path / "source.test"
+    source_file_path.touch()
+    www_directory_path = tmp_path / "www"
+    destination_file_path = www_directory_path / ".destination.test"
+    rendered_destination_file_path = www_directory_path / ".destination"
+    copy_function = make_copy_function(
+        sut, www_directory_path=www_directory_path, resource=new_context()
+    )
+    await copy_function(source_file_path, destination_file_path)
+    async with aiofiles.open(rendered_destination_file_path) as f:
+        assert (await f.read()).strip() == f"{rendered_destination_file_path}\nNone"
 
 
 async def test_make_copy_function__www_directory_and_is_localized_and_multilingual(
     tmp_path: Path,
 ) -> None:
-    sut = _TestRendererRenderer()
+    sut = _TestRendererRenderer("resource_url")
     source_file_path = tmp_path / "source.test"
     source_file_path.touch()
     www_directory_path = tmp_path / "www"
     destination_file_path = www_directory_path / DEFAULT_LOCALE / "destination.test"
     rendered_destination_file_path = www_directory_path / DEFAULT_LOCALE / "destination"
     copy_function = make_copy_function(
-        sut, www_directory_path=www_directory_path, is_localized_and_multilingual=True
+        sut,
+        www_directory_path=www_directory_path,
+        is_localized_and_multilingual=True,
+        resource=new_context(),
     )
     await copy_function(source_file_path, destination_file_path)
     async with aiofiles.open(rendered_destination_file_path) as f:
-        assert (await f.read()).strip() == "betty:///destination"
+        assert (
+            await f.read()
+        ).strip() == f"{rendered_destination_file_path}\nbetty:///destination"

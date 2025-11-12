@@ -1,17 +1,17 @@
 {% extends 'base.html.j2' %}
-{% set page_title = page_title | default(page_entity_type.label_plural | localize) %}
-{% do breadcrumbs.append(
+{% set page_title = page_title | default(resource.resource.label_plural | localize) %}
+{% do resource.breadcrumbs.append(
     page_title,
-    page_resource
+    resource.resource
 ) %}
 {% if page > 0 %}
-    {% do breadcrumbs.append(
+    {% do resource.breadcrumbs.append(
         _('Page %(page)s', page=page),
-        ('betty://' ~ page_entity_type.id ~ '/page-' ~ (page + 1))
+        ('betty://' ~ resource.resource.id ~ '/page-' ~ (page + 1))
     ) %}
 {% endif %}
 {% block page_summary %}
     <p>
-        {{ page_entity_type.label_countable.count(project.ancestry[app.entity_type_repository.get(page_entity_type.id)] | length) | localize | html_lang }}
+        {{ resource.resource.label_countable.count(project.ancestry[app.entity_type_repository.get(resource.resource.id)] | length) | localize | html_lang }}
     </p>
 {% endblock %}

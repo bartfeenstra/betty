@@ -1,5 +1,5 @@
-{% set notes = entity.notes | select('public') | list %}
-{% if notes | length > 0 %}
+{% set notes = resource.resource.notes | select('public') | list %}
+{% if notes | length %}
     <div class="container my-5">
         <div class="row">
             <div class="col col-12 col-lg-8">

@@ -1,6 +1,5 @@
 from __future__ import annotations
 
-from gettext import NullTranslations
 from typing import TYPE_CHECKING
 
 import pytest
@@ -10,17 +9,15 @@ from typing_extensions import override
 from betty.ancestry.has_file_references import HasFileReferences
 from betty.cache.memory import MemoryCache
 from betty.jinja2 import (
-    EntityContexts,
     Environment,
     Jinja2Provider,
     Jinja2Renderer,
 )
 from betty.job import Context
-from betty.locale.localizer import Localizer
 from betty.media_type.media_types import JINJA2
 from betty.project import Project
+from betty.resource import new_context
 from betty.test_utils import Counter
-from betty.test_utils.model import DummyEntityOne
 from betty.test_utils.render import RendererDefinitionTestBase
 
 if TYPE_CHECKING:
@@ -43,10 +40,6 @@ class TestJinja2Provider:
         sut = Jinja2Provider()
         assert isinstance(sut.tests, dict)
 
-    async def test_new_context_vars(self) -> None:
-        sut = Jinja2Provider()
-        assert isinstance(sut.new_context_vars(), dict)
-
 
 class TestJinja2RendererDefinition(RendererDefinitionTestBase):
     @override
@@ -62,27 +55,14 @@ class TestJinja2Renderer:
         rendered = await sut.render(template, JINJA2)
         assert rendered == "true"
 
-    async def test_render__with_data(self, temporary_app: App, tmp_path: Path) -> None:
-        data = "Data"
+    async def test_render__with_resource(
+        self, temporary_app: App, tmp_path: Path
+    ) -> None:
+        resource = "betty:///"
         sut = Jinja2Renderer(Jinja2Environment(enable_async=True))
-        template = "{{ data }}"
-        rendered = await sut.render(template, JINJA2, data={"data": data})
-        assert rendered == data
-
-    async def test_render__with_job_context(self) -> None:
-        sut = Jinja2Renderer(Jinja2Environment(enable_async=True))
-        template = "{{ job_context.start }}"
-        job_context = Context()
-        rendered = await sut.render(template, JINJA2, job_context=job_context)
-        assert rendered == str(job_context.start)
-
-    async def test_render__with_localizer(self) -> None:
-        sut = Jinja2Renderer(Jinja2Environment(enable_async=True))
-        locale = "nl-NL"
-        template = "{{ localizer.locale }}"
-        localizer = Localizer(locale, NullTranslations())
-        rendered = await sut.render(template, JINJA2, localizer=localizer)
-        assert rendered == locale
+        template = "{{ resource.resource }}"
+        rendered = await sut.render(template, JINJA2, resource=new_context(resource))
+        assert rendered == resource
 
     async def test_media_types(self) -> None:
         sut = Jinja2Renderer(Jinja2Environment(enable_async=True))
@@ -91,30 +71,6 @@ class TestJinja2Renderer:
 
 class DummyHasFileReferencesEntity(HasFileReferences):
     pass
-
-
-class TestEntityContexts:
-    async def test___getitem__(self) -> None:
-        sut = EntityContexts()
-        assert sut[DummyEntityOne] is None
-
-    async def test___getitem___with___init__(self) -> None:
-        a = DummyEntityOne()
-        sut = EntityContexts(a)
-        assert sut[DummyEntityOne] is a
-
-    async def test___call__(self) -> None:
-        a = DummyEntityOne()
-        contexts = EntityContexts()
-        sut = contexts(a)
-        assert sut[DummyEntityOne] is a
-
-    async def test___call___with___init__(self) -> None:
-        a = DummyEntityOne()
-        b = DummyEntityOne()
-        contexts = EntityContexts(a)
-        sut = contexts(b)
-        assert sut[DummyEntityOne] is b
 
 
 class TestEnvironment:
@@ -157,6 +113,10 @@ class Test_CacheTagExtension:
             template = sut.from_string(
                 "{% cache 'my-first-cache-key' %}{% do count() %}{% endcache %}"
             )
-            await template.render_async(count=counter, job_context=job_context)
-            await template.render_async(count=counter, job_context=job_context)
+            await template.render_async(
+                count=counter, resource=new_context(job_context=job_context)
+            )
+            await template.render_async(
+                count=counter, resource=new_context(job_context=job_context)
+            )
         assert counter.count == 1

@@ -1,7 +1,9 @@
 {% set embedded=True %}
 <div class="flex-grow-1 search-result-description">
-    <span class="link">{% include ['entity/label--' + entity.plugin.id + '.html.j2', 'entity/label.html.j2'] %}</span>
-    {% include 'entity/summary--' + entity.plugin.id + '.html.j2' ignore missing %}
+    {% with entity = entity %}
+        <span class="link">{% include ['entity/label--' + entity.plugin.id + '.html.j2', 'entity/label.html.j2'] %}</span>
+        {% include 'entity/summary--' + entity.plugin.id + '.html.j2' ignore missing %}
+    {% endwith %}
 </div>
 {% set image_reference = entity.file_references | selectattr('file', 'public') | selectattr('file.media_type', 'image_supported_media_type') | first %}
 {% if image_reference is defined %}

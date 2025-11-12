@@ -30,6 +30,7 @@ from betty.project.generate.file import (
     create_json_resource,
 )
 from betty.render import CopyFunction, make_copy_function
+from betty.resource import new_context
 from betty.string import kebab_case_to_lower_camel_case
 
 if TYPE_CHECKING:
@@ -62,7 +63,7 @@ class GenerateStaticPublicAssets(Job[ProjectContext]):
         renderer = await project.renderer
         copy_function = make_copy_function(
             renderer,
-            job_context=scheduler.context,
+            resource=new_context(job_context=scheduler.context),
             www_directory_path=project.configuration.www_directory_path,
             is_localized_and_multilingual=project.configuration.locales.multilingual,
         )
@@ -294,8 +295,10 @@ class GenerateLocalizedPublicAssets(Job[ProjectContext]):
         copy_functions = {
             locale: make_copy_function(
                 renderer,
-                job_context=scheduler.context,
-                localizer=localizers.get(locale),
+                resource=new_context(
+                    job_context=scheduler.context,
+                    localizer=localizers.get(locale),
+                ),
                 www_directory_path=project.configuration.www_directory_path,
                 is_localized_and_multilingual=project.configuration.locales.multilingual,
             )
@@ -579,13 +582,15 @@ class _GenerateEntityTypeHtml(Job[ProjectContext]):
             ]
         )
         rendered_html = await template.render_async(
-            job_context=context,
-            localizer=localizers.get(self._locale),
+            resource=new_context(
+                self._entity_type,
+                self._entity_type,
+                job_context=context,
+                localizer=localizers.get(self._locale),
+            ),
             page=self._page,
             per_page=self._per_page,
             page_count=self._page_count,
-            page_resource=self._entity_type,
-            page_entity_type=self._entity_type,
             page_entities=list(
                 filter(is_public, project.ancestry[self._entity_type.cls])
             )[
@@ -719,11 +724,12 @@ class _GenerateEntityHtml(Job[ProjectContext]):
                 "entity/page.html.j2",
             ]
         ).render_async(
-            job_context=context,
-            localizer=localizers.get(self._locale),
-            page_resource=entity,
-            entity_type=entity.plugin,
-            entity=entity,
+            resource=new_context(
+                entity,
+                entity,
+                job_context=context,
+                localizer=localizers.get(self._locale),
+            )
         )
         async with create_html_resource(entity_path) as f:
             await f.write(rendered_html)

@@ -6,7 +6,7 @@
                     <h2 class="section-heading{% if section_visually_hide_heading | default(false) %} visually-hidden{% endif %}">
                         {{ section_heading | localize }}
                         {% if section_name %}
-                            {% with url = "#" ~ section_name %}
+                            {% with url = '#' ~ section_name %}
                                 {% include 'component/permalink.html.j2' %}
                             {% endwith %}
                         {% endif %}

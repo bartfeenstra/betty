@@ -8,7 +8,6 @@ async def test_minimal() -> None:
     async with assert_template_file(
         data={
             "facts": [],
-            "page_resource": "betty:///index.html",
         },
         extensions={RaspberryMint},
         template="section/facts.html.j2",
@@ -21,7 +20,6 @@ async def test_with_fact() -> None:
     async with assert_template_file(
         data={
             "facts": [fact],
-            "page_resource": "betty:///index.html",
         },
         extensions={RaspberryMint},
         template="section/facts.html.j2",

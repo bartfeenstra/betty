@@ -5,7 +5,7 @@ Content providers.
 from __future__ import annotations
 
 from abc import ABC, abstractmethod
-from typing import TYPE_CHECKING, Any, ClassVar, final
+from typing import TYPE_CHECKING, ClassVar, final
 
 from betty.locale.localizable import _
 from betty.plugin import (
@@ -15,7 +15,7 @@ from betty.plugin import (
 )
 
 if TYPE_CHECKING:
-    from betty.job import Context
+    from betty.resource import Context
 
 
 class ContentProvider(ABC):
@@ -24,9 +24,7 @@ class ContentProvider(ABC):
     """
 
     @abstractmethod
-    async def provide(
-        self, *, locale: str, page_resource: Any, job_context: Context | None = None
-    ) -> str | None:
+    async def provide(self, *, resource: Context) -> str | None:
         """
         Render the content.
         """

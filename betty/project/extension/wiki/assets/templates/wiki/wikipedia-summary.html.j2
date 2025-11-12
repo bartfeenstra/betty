@@ -1,5 +1,5 @@
-{% if page_resource is has_links %}
-    {% set summaries = page_resource.links | wikipedia_summary | list %}
+{% if resource.resource is has_links %}
+    {% set summaries = resource.resource.links | wikipedia_summary | list %}
     {% if summaries | length > 0 %}
         {% for summary in summaries %}
             {{ summary.content | safe }}

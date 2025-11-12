@@ -17,11 +17,7 @@ from betty.assertion import (
 from betty.config import Configuration, DefaultConfigurable
 from betty.content_provider import ContentProvider, ContentProviderDefinition
 from betty.content_provider.content_providers import Jinja2TemplateContentProvider
-from betty.job import Context
-from betty.locale.localizable import (
-    ShorthandStaticTranslations,
-    _,
-)
+from betty.locale.localizable import ShorthandStaticTranslations, _
 from betty.locale.localizable.assertion import assert_static_translations
 from betty.locale.localizable.config import RequiredStaticTranslationsConfigurationAttr
 from betty.machine_name import MachineName, assert_machine_name
@@ -31,6 +27,7 @@ from betty.plugin.config import (
     PluginInstanceConfigurationSequence,
 )
 from betty.project import Project
+from betty.resource import Context
 from betty.serde.dump import Dump
 
 if TYPE_CHECKING:
@@ -134,9 +131,7 @@ class Section(Jinja2TemplateContentProvider, DefaultConfigurable[SectionConfigur
         return SectionConfiguration(name="", heading="")
 
     @override
-    async def _provide_data(
-        self, *, locale: str, job_context: Context | None, page_resource: Any
-    ) -> Mapping[str, Any]:
+    async def _provide_data(self, resource: Context) -> Mapping[str, Any]:
         return {
             "section_name": self.configuration.name,
             "section_heading": self.configuration.heading,
@@ -172,9 +167,7 @@ class FeaturedEntities(
         return EntityReferenceSequence()
 
     @override
-    async def _provide_data(
-        self, *, locale: str, job_context: Context | None, page_resource: Any
-    ) -> Mapping[str, Any]:
+    async def _provide_data(self, resource: Context) -> Mapping[str, Any]:
         entities: MutableSequence[Entity] = []
         for entity in self.configuration:
             assert entity.entity_type is not None

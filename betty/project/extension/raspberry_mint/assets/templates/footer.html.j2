@@ -1,4 +1,4 @@
-{% cache 'raspberry-mint-template-footer:' ~ localizer.locale %}
+{% cache 'raspberry-mint-template-footer:' ~ resource.localizer.locale %}
     <div class="background-embellished py-5" data-bs-theme="dark-secondary">
         <div class="container">
             <div class="row">
@@ -11,9 +11,9 @@
                     </p>
                 </div>
                 <div class="col col-12 col-lg-6 p-3">
-                    {% if job_context is defined %}
+                    {% if resource.job_context %}
                         <p>
-                            {% trans last_modified = localizer.format_datetime_datetime(job_context.start) -%}
+                            {% trans last_modified = resource.localizer.format_datetime_datetime(resource.job_context.start) -%}
                                 Last modified on {{ last_modified }}
                             {%- endtrans %}
                         </p>

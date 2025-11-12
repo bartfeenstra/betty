@@ -20,6 +20,7 @@ from betty.ancestry.person import Person
 from betty.ancestry.place import Place
 from betty.model import Entity
 from betty.privacy import is_private
+from betty.resource import new_context
 from betty.typing import internal
 
 if TYPE_CHECKING:
@@ -230,9 +231,8 @@ class Index:
                 "search/result.html.j2",
             ]
         ).render_async(
-            {
-                "job_context": self._job_context,
-                "localizer": self._localizer,
-                "entity": entity,
-            }
+            resource=new_context(
+                job_context=self._job_context, localizer=self._localizer
+            ),
+            entity=entity,
         )

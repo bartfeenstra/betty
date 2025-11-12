@@ -7,6 +7,7 @@ from betty.locale.localizable import CountablePlain, Plain
 from betty.model import EntityDefinition
 from betty.project.extension.raspberry_mint import RaspberryMint
 from betty.project.extension.wiki import Wiki
+from betty.resource import new_context
 from betty.test_utils.jinja2 import assert_template_file
 from betty.wiki.client import Summary
 
@@ -22,10 +23,10 @@ class DummyHasLinks(HasLinks):
 
 
 async def test_minimal() -> None:
-    page_resource = DummyHasLinks()
+    resource = DummyHasLinks()
     async with assert_template_file(
         data={
-            "page_resource": page_resource,
+            "resource": new_context(resource),
         },
         extensions={RaspberryMint, Wiki},
         template="section/wikipedia.html.j2",
@@ -39,10 +40,10 @@ async def test_with_summary(mocker: MockerFixture) -> None:
     m_get_summary.return_value = Summary(
         DEFAULT_LOCALE, "Example", "Example", summary_content
     )
-    page_resource = DummyHasLinks(links=[Link("https://en.wikipedia.org/wiki/Example")])
+    resource = DummyHasLinks(links=[Link("https://en.wikipedia.org/wiki/Example")])
     async with assert_template_file(
         data={
-            "page_resource": page_resource,
+            "resource": new_context(resource),
         },
         extensions={RaspberryMint, Wiki},
         template="section/wikipedia.html.j2",

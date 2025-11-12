@@ -1,5 +1,5 @@
 {% set embedded = embedded | default(False) %}
-{% set citation_context = entity_contexts['citation'] %}
+{% set citation_context = resource.entity_contexts['citation'] %}
 {% set is_link = not embedded and citation_context != entity and entity is persistent_entity_id %}
 {% if entity.public %}
     {%- if is_link -%}

@@ -16,6 +16,7 @@ from betty.project.extension.webpack import Webpack
 from betty.project.extension.webpack.build import EntryPointProvider
 from betty.project.generate import Generator
 from betty.project.generate.file import create_file
+from betty.resource import new_context
 
 if TYPE_CHECKING:
     from collections.abc import Sequence
@@ -62,7 +63,10 @@ class _GeneratePlacePreview(Job[ProjectContext]):
         rendered_html = await jinja2_environment.get_template(
             "maps/selected-place-preview.html.j2",
         ).render_async(
-            job_context=context, localizer=localizers.get(self._locale), place=place
+            resource=new_context(
+                job_context=context, localizer=localizers.get(self._locale)
+            ),
+            place=place,
         )
         async with create_file(place_path / "-maps-place-preview.html") as f:
             await f.write(rendered_html)

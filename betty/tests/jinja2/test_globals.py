@@ -13,8 +13,5 @@ async def test_deprecate() -> None:
     with pytest.warns(BettyDeprecationWarning, match=deprecation_message):
         async with assert_template_string(
             template=f"{{% do deprecate('{deprecation_message}') %}}"
-        ) as (
-            actual,
-            _,
-        ):
+        ) as (actual, _):
             pass

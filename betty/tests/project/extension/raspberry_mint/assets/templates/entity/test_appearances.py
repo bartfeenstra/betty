@@ -10,7 +10,9 @@ from betty.test_utils.jinja2 import assert_template_file
 async def test_minimal() -> None:
     expected = ""
     async with assert_template_file(
-        data={"file_references": [], "page_resource": "betty:///sut.html"},
+        data={
+            "file_references": [],
+        },
         extensions={RaspberryMint},
         template="entity/appearances.html.j2",
     ) as (actual, _):
@@ -24,7 +26,6 @@ async def test_with_public_referees() -> None:
     async with assert_template_file(
         data={
             "file_references": [file_reference],
-            "page_resource": "betty:///sut.html",
         },
         extensions={RaspberryMint},
         template="entity/appearances.html.j2",
@@ -41,7 +42,6 @@ async def test_without_public_referees() -> None:
     async with assert_template_file(
         data={
             "file_references": [file_reference],
-            "page_resource": "betty:///sut.html",
         },
         extensions={RaspberryMint},
         template="entity/appearances.html.j2",

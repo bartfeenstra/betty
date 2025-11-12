@@ -5,7 +5,6 @@ import pytest
 from betty.ancestry.person import Person
 from betty.app import App
 from betty.exception import HumanFacingException
-from betty.locale import DEFAULT_LOCALE
 from betty.locale.localizer import DEFAULT_LOCALIZER
 from betty.model.config import EntityReference
 from betty.plugin.config import PluginInstanceConfiguration
@@ -16,6 +15,7 @@ from betty.project.extension.raspberry_mint.content_provider import (
     Section,
     SectionConfiguration,
 )
+from betty.resource import new_context
 
 if TYPE_CHECKING:
     from collections.abc import Sequence
@@ -29,9 +29,7 @@ class TestFeaturedEntities:
             project.configuration.extensions.enable(RaspberryMint)
             async with project:
                 sut = await FeaturedEntities.new_for_project(project)
-                assert (
-                    await sut.provide(locale=DEFAULT_LOCALE, page_resource=None) is None
-                )
+                assert await sut.provide(resource=new_context()) is None
 
     async def test_provide__with_entities(self, temporary_app: App) -> None:
         async with Project.new_temporary(temporary_app) as project:
@@ -41,9 +39,7 @@ class TestFeaturedEntities:
             async with project:
                 sut = await FeaturedEntities.new_for_project(project)
                 sut.configuration.append(EntityReference(entity.plugin, entity.id))
-                provided_content = await sut.provide(
-                    locale=DEFAULT_LOCALE, page_resource=None
-                )
+                provided_content = await sut.provide(resource=new_context())
                 assert provided_content is not None
                 assert entity.public_id in provided_content
 
@@ -135,10 +131,7 @@ class TestSection:
             project.configuration.extensions.enable(RaspberryMint)
             async with project:
                 sut = await Section.new_for_project(project)
-                assert (
-                    await sut.provide(locale=DEFAULT_LOCALE, page_resource="betty:///")
-                    is None
-                )
+                assert await sut.provide(resource=new_context()) is None
 
     async def test_provide__with_content(self, temporary_app: App) -> None:
         async with Project.new_temporary(temporary_app) as project:
@@ -151,9 +144,7 @@ class TestSection:
                         "plain-text", configuration="My First Content"
                     )
                 )
-                actual = await sut.provide(
-                    locale=DEFAULT_LOCALE, page_resource="betty:///"
-                )
+                actual = await sut.provide(resource=new_context())
                 assert actual is not None
                 assert "My First Section" in actual
                 assert "My First Content" in actual
@@ -170,9 +161,7 @@ class TestSection:
                         "plain-text", configuration="My First Content"
                     )
                 )
-                actual = await sut.provide(
-                    locale=DEFAULT_LOCALE, page_resource="betty:///"
-                )
+                actual = await sut.provide(resource=new_context())
                 assert actual is not None
                 assert "my-first-section" in actual
 
@@ -190,8 +179,6 @@ class TestSection:
                         "plain-text", configuration="My First Content"
                     )
                 )
-                actual = await sut.provide(
-                    locale=DEFAULT_LOCALE, page_resource="betty:///"
-                )
+                actual = await sut.provide(resource=new_context())
                 assert actual is not None
                 assert "visually-hidden" in actual

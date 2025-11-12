@@ -1,7 +1,7 @@
 from betty.ancestry.person import Person
 from betty.ancestry.person_name import PersonName
-from betty.jinja2 import EntityContexts
 from betty.project.extension.raspberry_mint import RaspberryMint
+from betty.resource import EntityContexts, new_context
 from betty.test_utils.jinja2 import assert_template_file
 
 
@@ -106,7 +106,7 @@ async def test_person_is_context() -> None:
     async with assert_template_file(
         data={
             "entity": person,
-            "entity_contexts": EntityContexts(person),
+            "resource": new_context(entity_contexts=EntityContexts(person)),
         },
         extensions={RaspberryMint},
         template="entity/label--person.html.j2",
