@@ -16,7 +16,7 @@ from betty.locale.localizer import DEFAULT_LOCALIZER
 from betty.progress import Progress
 from betty.progress.no_op import NoOpProgress
 from betty.typing import Void, internal
-from betty.user import User, UserTimeoutError
+from betty.user import User, UserTimeoutError, Verbosity
 
 _T = TypeVar("_T")
 
@@ -26,6 +26,8 @@ class StaticUser(User):  # pragma: no cover
     """
     A static user with predefined responses.
     """
+
+    verbosity = Verbosity.DEFAULT
 
     def __init__(
         self,
@@ -44,6 +46,10 @@ class StaticUser(User):  # pragma: no cover
         self._messages_debug: MutableSequence[Localizable] = []
         self._messages_log: MutableSequence[logging.LogRecord] = []
         self._log_formatter = logging.Formatter()
+
+    @override
+    async def set_verbosity(self, verbosity: Verbosity) -> None:
+        self.verbosity = verbosity
 
     @override
     async def connect(self) -> None:

@@ -266,7 +266,7 @@ async def main(app: App, args: Sequence[str]) -> None:
         )
         parser.print_help()
         raise SystemExit(SystemExitCode.ERROR_CONSOLE_USAGE) from None
-    app.user.verbosity = namespace._verbosity
+    await app.user.set_verbosity(namespace._verbosity)
     try:
         await call_command_func(command_func, namespace)
         raise SystemExit(SystemExitCode.OK) from None

@@ -154,6 +154,7 @@ class TestVerbosity:
             (Verbosity.DEFAULT, None),
             (Verbosity.VERBOSE, "-v"),
             (Verbosity.MORE_VERBOSE, "-vv"),
+            (Verbosity.MOST_VERBOSE, "-vvv"),
         ],
     )
     async def test(

@@ -522,8 +522,8 @@ _BASELINE: Mapping[str, _ModuleIgnore] = {
     },
     "betty/user/logging.py": {
         "UserHandler": {
-            "__aenter__": MissingReason.COVERED_ELSEWHERE,
-            "__aexit__": MissingReason.COVERED_ELSEWHERE,
+            "start": MissingReason.COVERED_ELSEWHERE,
+            "stop": MissingReason.COVERED_ELSEWHERE,
         },
     },
     "betty/warnings.py": {

@@ -4,11 +4,23 @@ from unittest.mock import Mock
 import pytest
 
 from betty.locale.localizable import Plain
-from betty.user import UserTimeoutError
+from betty.user import UserTimeoutError, Verbosity
 from betty.user.no_op import NoOpUser
 
 
 class TestNoOpUser:
+    def test_verbosity(self) -> None:
+        sut = NoOpUser()
+        sut.verbosity  # noqa B018
+
+    @pytest.mark.parametrize(
+        "verbosity",
+        [verbosity.value for verbosity in Verbosity],
+    )
+    async def test_set_verbosity(self, verbosity: Verbosity) -> None:
+        sut = NoOpUser()
+        await sut.set_verbosity(verbosity)
+
     async def test_connect__and_disconnect(self) -> None:
         sut = NoOpUser()
         await sut.connect()
