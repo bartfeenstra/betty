@@ -73,8 +73,8 @@ async def process_pool() -> AsyncIterator[futures.ProcessPoolExecutor]:
         yield process_pool
 
 
-def _configure_temporary_app(app: App) -> None:
-    app.user.verbosity = Verbosity.QUIET
+async def _configure_temporary_app(app: App) -> None:
+    await app.user.set_verbosity(Verbosity.QUIET)
 
 
 @pytest.fixture(scope="session")
@@ -85,7 +85,7 @@ async def temporary_app(
     Create a new, temporary :py:class:`betty.app.App`.
     """
     async with App.new_temporary(process_pool=process_pool) as app:
-        _configure_temporary_app(app)
+        await _configure_temporary_app(app)
         async with app:
             yield app
 
@@ -133,7 +133,7 @@ def temporary_app_factory(
             command_repository=command_repository,
             renderer_repository=renderer_repository,
         ) as app:
-            _configure_temporary_app(app)
+            await _configure_temporary_app(app)
             yield app
 
     return _temporary_app_factory

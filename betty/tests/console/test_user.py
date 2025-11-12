@@ -11,6 +11,19 @@ from betty.user import Verbosity
 
 
 class TestConsoleUser:
+    async def test_verbosity(self) -> None:
+        sut = ConsoleUser()
+        sut.verbosity  # noqa B018
+
+    @pytest.mark.parametrize(
+        "verbosity",
+        [verbosity.value for verbosity in Verbosity],
+    )
+    async def test_set_verbosity(self, verbosity: Verbosity) -> None:
+        async with ConsoleUser() as sut:
+            await sut.set_verbosity(verbosity)
+            assert sut.verbosity is verbosity
+
     async def test_connect__and_disconnect(self) -> None:
         sut = ConsoleUser()
         await sut.connect()
@@ -20,16 +33,29 @@ class TestConsoleUser:
         async with ConsoleUser():
             pass
 
-    async def test_verbosity__before_connect(self) -> None:
-        sut = ConsoleUser()
-        sut.verbosity = Verbosity.MORE_VERBOSE
-        async with sut:
-            assert sut.verbosity is Verbosity.MORE_VERBOSE
-
-    async def test_verbosity__after_connect(self) -> None:
-        async with ConsoleUser() as sut:
-            sut.verbosity = Verbosity.MORE_VERBOSE
-            assert sut.verbosity is Verbosity.MORE_VERBOSE
+    @pytest.mark.parametrize(
+        ("expected", "verbosity"),
+        [
+            (False, Verbosity.QUIET),
+            (False, Verbosity.DEFAULT),
+            (False, Verbosity.VERBOSE),
+            (False, Verbosity.MORE_VERBOSE),
+            (True, Verbosity.MOST_VERBOSE),
+        ],
+    )
+    async def test_log_handler(self, expected: bool, verbosity: Verbosity) -> None:
+        message = "Hello, world!"
+        stdout = StringIO()
+        with redirect_stdout(stdout):
+            async with ConsoleUser() as sut:
+                await sut.set_verbosity(verbosity)
+                logging.getLogger().debug(message)
+        stdout.seek(0)
+        stdout_str = stdout.read().replace("\n", "")
+        if expected:
+            assert message in stdout_str
+        else:
+            assert message not in stdout_str
 
     @pytest.mark.parametrize(
         ("expected", "verbosity"),
@@ -51,7 +77,7 @@ class TestConsoleUser:
         stdout = StringIO()
         with redirect_stdout(stdout):
             async with ConsoleUser() as sut:
-                sut.verbosity = verbosity
+                await sut.set_verbosity(verbosity)
                 try:
                     raise _Exception(message)
                 except _Exception:
@@ -89,7 +115,7 @@ class TestConsoleUser:
         stdout = StringIO()
         with redirect_stdout(stdout):
             async with ConsoleUser() as sut:
-                sut.verbosity = verbosity
+                await sut.set_verbosity(verbosity)
                 await sut.message_warning(Plain(message))
         stdout.seek(0)
         stdout_str = stdout.read().replace("\n", "")
@@ -115,7 +141,7 @@ class TestConsoleUser:
         stdout = StringIO()
         with redirect_stdout(stdout):
             async with ConsoleUser() as sut:
-                sut.verbosity = verbosity
+                await sut.set_verbosity(verbosity)
                 await sut.message_information(Plain(message))
         stdout.seek(0)
         stdout_str = stdout.read().replace("\n", "")
@@ -141,7 +167,7 @@ class TestConsoleUser:
         stdout = StringIO()
         with redirect_stdout(stdout):
             async with ConsoleUser() as sut:
-                sut.verbosity = verbosity
+                await sut.set_verbosity(verbosity)
                 await sut.message_information_details(Plain(message))
         stdout.seek(0)
         stdout_str = stdout.read().replace("\n", "")
@@ -165,7 +191,7 @@ class TestConsoleUser:
         stdout = StringIO()
         with redirect_stdout(stdout):
             async with ConsoleUser() as sut:
-                sut.verbosity = verbosity
+                await sut.set_verbosity(verbosity)
                 await sut.message_debug(Plain(message))
         stdout.seek(0)
         stdout_str = stdout.read().replace("\n", "")
@@ -189,7 +215,7 @@ class TestConsoleUser:
         stdout = StringIO()
         with redirect_stdout(stdout):
             async with ConsoleUser() as sut:
-                sut.verbosity = verbosity
+                await sut.set_verbosity(verbosity)
                 await sut.message_log(
                     logging.LogRecord(
                         "name", logging.NOTSET, __file__, 0, message, (), None
@@ -217,7 +243,7 @@ class TestConsoleUser:
         stdout = StringIO()
         with redirect_stdout(stdout):
             async with ConsoleUser() as sut:
-                sut.verbosity = verbosity
+                await sut.set_verbosity(verbosity)
                 async with sut.message_progress(Plain(message)) as progress:
                     await progress.add(2)
                     await progress.done(2)

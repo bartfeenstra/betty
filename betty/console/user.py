@@ -39,39 +39,41 @@ class ConsoleUser(User):
         self._rich_console = Console(theme=ConsoleTheme())
         self._verbosity = Verbosity.DEFAULT
         self._logging_handler = UserHandler(self)
+        self._exit_stack.push_async_callback(self._logging_handler.stop)
         self._logger = logging.getLogger()
         self._log_formatter = logging.Formatter()
 
     @override
     async def connect(self) -> None:
-        await self._exit_stack.enter_async_context(self._logging_handler)
-        self._logger.addHandler(self._logging_handler)
-        self._propagate_verbosity()
         self._connected = True
+        await self.set_verbosity(self._verbosity)
 
     @override
     async def disconnect(self) -> None:
         assert self._connected
-        self._logger.removeHandler(self._logging_handler)
         await self._exit_stack.aclose()
         self._connected = False
 
-    @override  # type: ignore[explicit-override]
+    @override
     @property
     def verbosity(self) -> Verbosity:
         return self._verbosity
 
-    @verbosity.setter
-    def verbosity(self, verbosity: Verbosity) -> None:
+    @override
+    async def set_verbosity(self, verbosity: Verbosity) -> None:
+        assert self._connected
+        if verbosity is self._verbosity:
+            return
         self._verbosity = verbosity
-        self._propagate_verbosity()
-
-    def _propagate_verbosity(self) -> None:
-        self._logger.setLevel(
-            logging.NOTSET
-            if self.verbosity is Verbosity.MORE_VERBOSE
-            else logging.CRITICAL
-        )
+        if self.verbosity >= Verbosity.MOST_VERBOSE:
+            self._logger.addHandler(self._logging_handler)
+            await self._logging_handler.start()
+            level = logging.NOTSET
+        else:
+            self._logger.removeHandler(self._logging_handler)
+            await self._logging_handler.stop()
+            level = 999999999
+        self._logger.setLevel(level)
 
     @override
     async def message_exception(self) -> None:

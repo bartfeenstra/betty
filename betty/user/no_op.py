@@ -14,7 +14,7 @@ from betty.locale.localizable import Localizable
 from betty.progress import Progress
 from betty.progress.no_op import NoOpProgress
 from betty.typing import Void
-from betty.user import User, UserTimeoutError
+from betty.user import User, UserTimeoutError, Verbosity
 
 _T = TypeVar("_T")
 
@@ -24,6 +24,12 @@ class NoOpUser(User):
     """
     A user session that does nothing.
     """
+
+    verbosity = Verbosity.DEFAULT
+
+    @override
+    async def set_verbosity(self, verbosity: Verbosity) -> None:
+        self.verbosity = verbosity
 
     @override
     async def message_exception(self) -> None:

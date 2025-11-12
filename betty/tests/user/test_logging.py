@@ -30,7 +30,11 @@ class TestUserHandler:
         logger.setLevel(logging.NOTSET)
         user = StaticUser()
         message = "Hello, world!"
-        async with UserHandler(user) as sut:
-            logger.addHandler(sut)
+        sut = UserHandler(user)
+        logger.addHandler(sut)
+        await sut.start()
+        try:
             logger.log(log_level, message)
+        finally:
+            await sut.stop()
         user.assert_message_log(message)

@@ -60,7 +60,6 @@ class User(ABC):
     """
 
     localizer: Localizer = DEFAULT_LOCALIZER
-    verbosity: Verbosity = Verbosity.DEFAULT
 
     async def connect(self) -> None:
         """
@@ -87,6 +86,19 @@ class User(ABC):
         exc_tb: TracebackType | None,
     ) -> None:
         await self.disconnect()
+
+    @property
+    @abstractmethod
+    def verbosity(self) -> Verbosity:
+        """
+        The current verbosity.
+        """
+
+    @abstractmethod
+    async def set_verbosity(self, verbosity: Verbosity) -> None:
+        """
+        Set the new verbosity.
+        """
 
     @abstractmethod
     async def message_exception(self) -> None:
