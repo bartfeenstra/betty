@@ -15,7 +15,7 @@ from typing_extensions import override
 
 from betty._npm import NpmRequirement, NpmUnavailable
 from betty.html import CssProvider, JsProvider
-from betty.jinja2 import ContextVars, Filters, Jinja2Provider
+from betty.jinja2 import Filters, Jinja2Provider
 from betty.job import Job
 from betty.locale.localizable import Plain
 from betty.project import ProjectContext
@@ -25,6 +25,7 @@ from betty.project.extension.webpack.build import EntryPointProvider
 from betty.project.extension.webpack.jinja2.filter import FILTERS
 from betty.project.generate import Generator
 from betty.requirement import AllRequirements, Requirement, RequirementError
+from betty.resource import ContextProvider, ContextVars
 from betty.typing import internal
 
 if TYPE_CHECKING:
@@ -60,7 +61,9 @@ class _GenerateAssets(Job[ProjectContext]):
     label=Plain("Webpack"),
     assets_directory_path=Path(__file__).parent / "assets",
 )
-class Webpack(Generator, Extension, CssProvider, JsProvider, Jinja2Provider):
+class Webpack(
+    Generator, Extension, CssProvider, JsProvider, Jinja2Provider, ContextProvider
+):
     """
     Integrate Betty with `Webpack <https://webpack.js.org/>`_.
     """
@@ -99,7 +102,7 @@ class Webpack(Generator, Extension, CssProvider, JsProvider, Jinja2Provider):
         return ("betty-static:///js/webpack-entry-loader.js",)
 
     @override
-    def new_context_vars(self) -> ContextVars:
+    def new_resource_context(self) -> ContextVars:
         return {
             "webpack_js_entry_points": set(),
         }

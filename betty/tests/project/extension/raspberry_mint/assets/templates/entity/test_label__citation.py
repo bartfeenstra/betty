@@ -2,9 +2,9 @@ from __future__ import annotations
 
 from betty.ancestry.citation import Citation
 from betty.ancestry.source import Source
-from betty.jinja2 import EntityContexts
 from betty.locale.localizable import Plain
 from betty.project.extension.raspberry_mint import RaspberryMint
+from betty.resource import EntityContexts, new_context
 from betty.test_utils.jinja2 import assert_template_file
 
 
@@ -74,7 +74,7 @@ async def test_with_citation_context() -> None:
     async with assert_template_file(
         data={
             "entity": citation,
-            "entity_contexts": EntityContexts(citation),
+            "resource": new_context(entity_contexts=EntityContexts(citation)),
         },
         extensions={RaspberryMint},
         template="entity/label--citation.html.j2",

@@ -1,5 +1,5 @@
 {%- set embedded = embedded | default(False) -%}
-{%- set source_context = entity_contexts['source'] -%}
+{%- set source_context = resource.entity_contexts['source'] -%}
 <div class="small">
     <p class="m-0">{{ entity.plugin.label | localize | html_lang }}</p>
     {%- set source_label -%}

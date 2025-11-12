@@ -5,13 +5,13 @@ from betty.test_utils.jinja2 import assert_template_file
 
 
 async def test_minimal() -> None:
-    place = Place()
+    entity = Place()
     async with assert_template_file(
         data={
-            "entity": place,
+            "entity": entity,
         },
         extensions={RaspberryMint},
         template="search/result--place.html.j2",
     ) as (actual, _):
-        assert place.label.localize(DEFAULT_LOCALIZER) in actual
-        assert place.public_id in actual
+        assert entity.label.localize(DEFAULT_LOCALIZER) in actual
+        assert entity.public_id in actual

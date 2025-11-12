@@ -1,3 +1,5 @@
+from gettext import NullTranslations
+
 import aiofiles
 import pytest
 from aiofiles.os import makedirs
@@ -12,7 +14,9 @@ from betty.content_provider.content_providers import (
 from betty.job import Context
 from betty.locale import DEFAULT_LOCALE
 from betty.locale.localizable import Plain, ShorthandStaticTranslations
+from betty.locale.localizer import Localizer
 from betty.project import Project
+from betty.resource import new_context
 from betty.tests.ancestry.test_has_notes import DummyHasNotes
 
 
@@ -29,16 +33,16 @@ class TestPlainText:
         ],
     )
     async def test_provide(
-        self,
-        expected: str,
-        configuration: ShorthandStaticTranslations,
-        locale: str,
-        temporary_app: App,
+        self, expected: str, configuration: ShorthandStaticTranslations, locale: str
     ) -> None:
-        async with Project.new_temporary(temporary_app) as project, project:
-            sut = await PlainText.new_for_project(project)
-            sut.configuration.replace(configuration)
-            assert await sut.provide(locale=locale, page_resource=None) == expected
+        sut = await PlainText.new()
+        sut.configuration.replace(configuration)
+        assert (
+            await sut.provide(
+                resource=new_context(localizer=Localizer(locale, NullTranslations()))
+            )
+            == expected
+        )
 
 
 class TestJinja2TemplateContentProvider:
@@ -48,9 +52,9 @@ class TestJinja2TemplateContentProvider:
     ) -> None:
         template_name = "my-first-template.html.j2"
         template = """
-{{ localizer.locale }}
-{{ page_resource }}
-{{ job_context.id }}
+{{ resource.localizer.locale }}
+{{ resource.resource }}
+{{ resource.job_context.id }}
 """
         job_context = Context()
         async with Project.new_temporary(temporary_app) as project, project:
@@ -68,9 +72,11 @@ class TestJinja2TemplateContentProvider:
 
             sut = await _Jinja2TemplateContentProvider.new_for_project(project)
             provided_content = await sut.provide(
-                locale="nl-NL",
-                page_resource="my-first-page-resource",
-                job_context=job_context,
+                resource=new_context(
+                    "my-first-page-resource",
+                    localizer=Localizer("nl-NL", NullTranslations()),
+                    job_context=job_context,
+                )
             )
             assert provided_content is not None
             assert (
@@ -80,31 +86,26 @@ class TestJinja2TemplateContentProvider:
 
 
 class TestNotes:
-    async def test_provide__without_has_notes_page_resource(
+    async def test_provide__without_has_notes_resource(
         self, temporary_app: App
     ) -> None:
         async with Project.new_temporary(temporary_app) as project, project:
             sut = await Notes.new_for_project(project)
-            assert await sut.provide(locale=DEFAULT_LOCALE, page_resource=None) is None
+            assert await sut.provide(resource=new_context()) is None
 
     async def test_provide__without_notes(self, temporary_app: App) -> None:
-        page_resource = DummyHasNotes()
+        has_notes = DummyHasNotes()
         async with Project.new_temporary(temporary_app) as project, project:
-            project.ancestry.add(page_resource)
+            project.ancestry.add(has_notes)
             sut = await Notes.new_for_project(project)
-            assert (
-                await sut.provide(locale=DEFAULT_LOCALE, page_resource=page_resource)
-                is None
-            )
+            assert await sut.provide(resource=new_context(has_notes)) is None
 
     async def test_provide__with_notes(self, temporary_app: App) -> None:
         note_text = "Hello, world!"
-        page_resource = DummyHasNotes(notes=[Note(Plain(note_text))])
+        has_notes = DummyHasNotes(notes=[Note(Plain(note_text))])
         async with Project.new_temporary(temporary_app) as project, project:
-            project.ancestry.add(page_resource)
+            project.ancestry.add(has_notes)
             sut = await Notes.new_for_project(project)
-            actual = await sut.provide(
-                locale=DEFAULT_LOCALE, page_resource=page_resource
-            )
+            actual = await sut.provide(resource=new_context(has_notes))
             assert actual is not None
             assert note_text in actual

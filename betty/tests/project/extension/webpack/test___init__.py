@@ -79,3 +79,8 @@ class TestWebpack(ExtensionTestBase):
             with pytest.raises(Cancelled) as exc_info:
                 await generate(project)
             assert isinstance(exc_info.value.__cause__, RequirementError)
+
+    async def test_new_resource_context(self, temporary_app: App) -> None:
+        async with Project.new_temporary(temporary_app) as project, project:
+            sut = await Webpack.new_for_project(project)
+            assert sut.new_resource_context()

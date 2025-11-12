@@ -1,5 +1,5 @@
-{% if page_resource is has_links %}
-    {% if page_resource.links | length > 0 %}
+{% if resource.resource is has_links %}
+    {% if resource.resource.links | length > 0 %}
         <div class="container my-5">
             <section id="external-links" class="section">
                 <h2 class="section-heading">
@@ -9,7 +9,7 @@
                     {% endwith %}
                 </h2>
                 <ul>
-                    {% for link in page_resource.links %}
+                    {% for link in resource.resource.links %}
                         {% set link_url = link.url | localize %}
                         <li>
                             <a href="{{ link_url }}"{% if link_url.locale is not none %}

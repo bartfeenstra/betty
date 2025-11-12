@@ -4,6 +4,7 @@ from betty.locale import DEFAULT_LOCALE
 from betty.locale.localizable import CountablePlain, Plain, StaticTranslations
 from betty.model import EntityDefinition
 from betty.project.extension.raspberry_mint import RaspberryMint
+from betty.resource import new_context
 from betty.test_utils.jinja2 import assert_template_file
 
 
@@ -21,7 +22,7 @@ async def test_minimal() -> None:
     entity = DummyEntityWithLinks()
     async with assert_template_file(
         data={
-            "page_resource": entity,
+            "resource": new_context(entity),
         },
         extensions={RaspberryMint},
         template="section/external-links.html.j2",
@@ -37,7 +38,7 @@ async def test_with_link_without_locale() -> None:
     entity.links.add(link)
     async with assert_template_file(
         data={
-            "page_resource": entity,
+            "resource": new_context(entity),
         },
         extensions={RaspberryMint},
         template="section/external-links.html.j2",
@@ -54,7 +55,7 @@ async def test_with_link() -> None:
     entity.links.add(link)
     async with assert_template_file(
         data={
-            "page_resource": entity,
+            "resource": new_context(entity),
         },
         extensions={RaspberryMint},
         template="section/external-links.html.j2",

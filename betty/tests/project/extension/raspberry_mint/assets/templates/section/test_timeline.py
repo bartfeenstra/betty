@@ -8,7 +8,6 @@ async def test_minimal() -> None:
     async with assert_template_file(
         data={
             "events": [],
-            "page_resource": "betty:///index.html",
         },
         extensions={RaspberryMint},
         template="section/timeline.html.j2",
@@ -21,7 +20,6 @@ async def test_with_events() -> None:
     async with assert_template_file(
         data={
             "events": [event],
-            "page_resource": "betty:///index.html",
         },
         extensions={RaspberryMint},
         template="section/timeline.html.j2",

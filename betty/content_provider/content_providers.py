@@ -2,20 +2,26 @@
 Dynamic content.
 """
 
-from collections.abc import Mapping
-from typing import Any, Self
+from __future__ import annotations
+
+from typing import TYPE_CHECKING, Any, Self
 
 from typing_extensions import override
 
 from betty.config import DefaultConfigurable
 from betty.content_provider import ContentProvider, ContentProviderDefinition
+from betty.factory import IndependentFactory
 from betty.html import newlines_to_paragraphs
-from betty.job import Context
 from betty.locale.localizable import _
 from betty.locale.localizable.config import StaticTranslationsConfiguration
 from betty.plugin import ClassedPlugin
-from betty.project import Project
 from betty.project.factory import ProjectDependentFactory
+
+if TYPE_CHECKING:
+    from collections.abc import Mapping
+
+    from betty.project import Project
+    from betty.resource import Context
 
 
 @ContentProviderDefinition(
@@ -26,22 +32,16 @@ class PlainText(
     ContentProvider,
     ClassedPlugin,
     DefaultConfigurable[StaticTranslationsConfiguration],
-    ProjectDependentFactory,
+    IndependentFactory,
 ):
     """
     Plain text content.
     """
 
-    def __init__(
-        self, project: Project, configuration: StaticTranslationsConfiguration
-    ):
-        super().__init__(configuration=configuration)
-        self._project = project
-
     @override
     @classmethod
-    async def new_for_project(cls, project: Project) -> Self:
-        return cls(project, configuration=cls.new_default_configuration())
+    async def new(cls) -> Self:
+        return cls(configuration=cls.new_default_configuration())
 
     @override
     @classmethod
@@ -49,12 +49,9 @@ class PlainText(
         return StaticTranslationsConfiguration()
 
     @override
-    async def provide(
-        self, *, locale: str, page_resource: Any, job_context: Context | None = None
-    ) -> str:
-        localizers = await self._project.localizers
+    async def provide(self, *, resource: Context) -> str | None:
         return newlines_to_paragraphs(
-            self.configuration.localize(localizers.get(locale))
+            self.configuration.localize(resource["localizer"])
         )
 
 
@@ -77,28 +74,20 @@ class Jinja2TemplateContentProvider(
         return cls(project)
 
     @override
-    async def provide(
-        self, *, locale: str, page_resource: Any, job_context: Context | None = None
-    ) -> str | None:
-        localizers = await self._project.localizers
+    async def provide(self, *, resource: Context) -> str | None:
+        await self._project.localizers
         jinja2_environment = await self._project.jinja2_environment
         rendered_content = (
             await jinja2_environment.get_template(self._template).render_async(
-                job_context=job_context,
-                localizer=localizers.get(locale),
-                page_resource=page_resource,
-                **await self._provide_data(
-                    locale=locale, job_context=job_context, page_resource=page_resource
-                ),
+                resource=resource,
+                **await self._provide_data(resource),
             )
         ).strip()
         if rendered_content:
             return rendered_content
         return None
 
-    async def _provide_data(
-        self, *, locale: str, job_context: Context | None, page_resource: Any
-    ) -> Mapping[str, Any]:
+    async def _provide_data(self, resource: Context) -> Mapping[str, Any]:
         return {}
 
 

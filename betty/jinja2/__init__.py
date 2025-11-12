@@ -5,7 +5,6 @@ Provide rendering utilities using `Jinja2 <https://jinja.palletsprojects.com>`_.
 from __future__ import annotations
 
 import datetime
-from collections import defaultdict
 from collections.abc import Callable, Mapping, MutableMapping
 from typing import TYPE_CHECKING, Any, ClassVar, Self, TypeAlias, cast, final
 
@@ -14,15 +13,15 @@ from jinja2 import FileSystemLoader, pass_context, select_autoescape
 from jinja2.async_utils import auto_await
 from jinja2.ext import Extension as Jinja2Extension
 from jinja2.nodes import CallBlock, ContextReference, Node
-from jinja2.runtime import Context, DebugUndefined, StrictUndefined
+from jinja2.runtime import Context as Jinja2Context
+from jinja2.runtime import DebugUndefined, StrictUndefined
+from jinja2.utils import missing
 from typing_extensions import override
 
 from betty import about
 from betty.cache import CacheItem
 from betty.date import Date
 from betty.html import (
-    Breadcrumbs,
-    Citer,
     CssProvider,
     JsProvider,
     NavigationLinkProvider,
@@ -31,12 +30,11 @@ from betty.html import (
 from betty.html.attributes import Attributes
 from betty.jinja2.filter import filters
 from betty.jinja2.test import tests
-from betty.job import Context as JobContext
-from betty.locale.localizer import DEFAULT_LOCALIZER, Localizer
 from betty.media_type.media_types import JINJA2
-from betty.plugin import PluginIdentifier, resolve_id
 from betty.project.factory import ProjectDependentFactory
 from betty.render import Renderer, RendererDefinition
+from betty.resource import Context as ResourceContext
+from betty.resource import ContextProvider, copy_context
 from betty.typing import private
 from betty.warnings import deprecate
 
@@ -46,78 +44,57 @@ if TYPE_CHECKING:
     from jinja2.parser import Parser
 
     from betty.asset import AssetRepository
-    from betty.machine_name import MachineName
+    from betty.job import Context as JobContext
+    from betty.locale.localizer import Localizer
     from betty.media_type import MediaType
-    from betty.model import Entity
     from betty.project import Project
     from betty.project.extension import Extension
 
 
-def context_project(context: Context) -> Project:
+def context_project(context: Jinja2Context) -> Project:
     """
     Get the current project from the Jinja2 context.
     """
     return cast(Environment, context.environment).project
 
 
-def context_job_context(context: Context) -> JobContext | None:
+def context_resource_context(context: Jinja2Context) -> ResourceContext:
+    """
+    Get the current resource context from the Jinja2 context.
+    """
+    resource: ResourceContext = context.resolve_or_missing("resource")
+    if resource is missing:
+        raise RuntimeError(
+            "No `resource` context variable exists in this Jinja2 template."
+        ) from None
+    return resource
+
+
+def context_job_context(context: Jinja2Context) -> JobContext | None:
     """
     Get the current job context from the Jinja2 context.
     """
-    job_context = context.resolve_or_missing("job_context")
-    return job_context if isinstance(job_context, JobContext) else None
+    try:
+        return context_resource_context(context)["job_context"]
+    except (KeyError, RuntimeError):
+        return None
 
 
-def context_localizer(context: Context) -> Localizer:
+def context_localizer(context: Jinja2Context) -> Localizer:
     """
     Get the current localizer from the Jinja2 context.
     """
-    localizer = context.resolve_or_missing("localizer")
-    if isinstance(localizer, Localizer):
-        return localizer
-    raise RuntimeError(
-        "No `localizer` context variable exists in this Jinja2 template."
-    )
-
-
-class EntityContexts:
-    """
-    Track the current entity contexts.
-
-    To allow templates to respond to their environment, this class allows
-    our templates to set and get one entity per entity type for the current context.
-
-    Use cases include rendering an entity label as plain text if the template is in
-    that entity's context, but as a hyperlink if the template is not in the entity's
-    context.
-    """
-
-    def __init__(self, *entities: Entity) -> None:
-        self._contexts: MutableMapping[MachineName, Entity | None] = defaultdict(
-            lambda: None
-        )
-        for entity in entities:
-            self._contexts[entity.plugin.id] = entity
-
-    def __getitem__(self, entity_type: PluginIdentifier) -> Entity | None:
-        return self._contexts[resolve_id(entity_type)]
-
-    def __call__(self, *entities: Entity) -> EntityContexts:
-        """
-        Create a new context with the given entities.
-        """
-        updated_contexts = EntityContexts(
-            *(entity for entity in self._contexts.values() if entity is not None)
-        )
-        for entity in entities:
-            updated_contexts._contexts[entity.plugin.id] = entity
-        return updated_contexts
+    try:
+        return context_resource_context(context)["localizer"]
+    except KeyError:
+        raise RuntimeError(
+            "No `resource.localizer` context variable exists in this Jinja2 template."
+        ) from None
 
 
 Globals: TypeAlias = Mapping[str, Any]
 Filters: TypeAlias = Mapping[str, Callable[..., Any]]
 Tests: TypeAlias = Mapping[str, Callable[..., bool]]
-ContextVars: TypeAlias = Mapping[str, Any]
 
 
 class Jinja2Provider:
@@ -152,14 +129,6 @@ class Jinja2Provider:
         """
         return {}
 
-    def new_context_vars(self) -> ContextVars:
-        """
-        Create new variables for a new :py:class:`jinja2.runtime.Context`.
-
-        Keys are the variable names, and values are variable values.
-        """
-        return {}
-
 
 class Environment(ProjectDependentFactory, Jinja2Environment):
     """
@@ -176,7 +145,6 @@ class Environment(ProjectDependentFactory, Jinja2Environment):
         project: Project,
         extensions: Sequence[Extension],
         assets: AssetRepository,
-        entity_contexts: EntityContexts,
         globals: Mapping[str, Any],  # noqa A002
         filters: Mapping[str, Callable[..., Any]],
         tests: Mapping[str, Callable[..., bool]],
@@ -201,10 +169,9 @@ class Environment(ProjectDependentFactory, Jinja2Environment):
             ],
         )
 
-        self._context_class: type[Context] | None = None
+        self._context_class: type[Jinja2Context] | None = None
         self._project = project
         self._extensions = extensions
-        self._entity_contexts = entity_contexts
 
         if project.configuration.debug:
             self.add_extension("jinja2.ext.debug")
@@ -224,7 +191,6 @@ class Environment(ProjectDependentFactory, Jinja2Environment):
             project,
             extensions,
             await project.assets,
-            EntityContexts(),
             {
                 # Ideally we would use the Dispatcher for this. However, it is asynchronous only.
                 "public_css_paths": [
@@ -263,29 +229,28 @@ class Environment(ProjectDependentFactory, Jinja2Environment):
 
     @override
     @property
-    def context_class(self) -> type[Context]:  # type: ignore[override]
+    def context_class(self) -> type[Jinja2Context]:  # type: ignore[override]
         if self._context_class is None:
-            jinja2_providers: Sequence[Jinja2Provider & Extension] = [
+            resource_context_providers: Sequence[ContextProvider & Extension] = [
                 extension
                 for extension in self._extensions
-                if isinstance(extension, Jinja2Provider)
+                if isinstance(extension, ContextProvider)
             ]
 
-            class _Context(Context):
+            class _Jinja2Context(Jinja2Context):
                 def __init__(
                     self,
                     environment: Environment,
                     parent: dict[str, Any],
                     name: str | None,
-                    blocks: dict[str, Callable[[Context], Iterator[str]]],
+                    blocks: dict[str, Callable[[Jinja2Context], Iterator[str]]],
                     globals: MutableMapping[str, Any] | None = None,  # noqa A002
                 ):
-                    if "citer" not in parent:
-                        parent["citer"] = Citer()
-                    if "breadcrumbs" not in parent:
-                        parent["breadcrumbs"] = Breadcrumbs()
-                    for jinja2_provider in jinja2_providers:
-                        for key, value in jinja2_provider.new_context_vars().items():
+                    for resource_context_provider in resource_context_providers:
+                        for (
+                            key,
+                            value,
+                        ) in resource_context_provider.new_resource_context().items():
                             if key not in parent:
                                 parent[key] = value
                     super().__init__(
@@ -296,28 +261,30 @@ class Environment(ProjectDependentFactory, Jinja2Environment):
                         globals,
                     )
 
-            self._context_class = _Context
+            self._context_class = _Jinja2Context
 
         return self._context_class
 
     @pass_context
-    def _gettext(self, context: Context, message: str) -> str:
+    def _gettext(self, context: Jinja2Context, message: str) -> str:
         return context_localizer(context).gettext(message)
 
     @pass_context
     def _ngettext(
-        self, context: Context, message_singular: str, message_plural: str, n: int
+        self, context: Jinja2Context, message_singular: str, message_plural: str, n: int
     ) -> str:
         return context_localizer(context).ngettext(message_singular, message_plural, n)
 
     @pass_context
-    def _pgettext(self, context: Context, gettext_context: str, message: str) -> str:
+    def _pgettext(
+        self, context: Jinja2Context, gettext_context: str, message: str
+    ) -> str:
         return context_localizer(context).pgettext(gettext_context, message)
 
     @pass_context
     def _npgettext(
         self,
-        context: Context,
+        context: Jinja2Context,
         gettext_context: str,
         message_singular: str,
         message_plural: str,
@@ -345,11 +312,10 @@ class Environment(ProjectDependentFactory, Jinja2Environment):
             if isinstance(extension, NavigationLinkProvider)
             for link in extension.secondary_navigation_links()
         ]
-        self.globals["entity_contexts"] = self._entity_contexts
-        self.globals["localizer"] = DEFAULT_LOCALIZER
         self.globals["generate_html_id"] = generate_html_id
         self.globals["deprecate"] = deprecate
         self.globals["new_attributes"] = Attributes
+        self.globals["copy_resource_context"] = self._copy_resource_context
 
     def _init_extensions(self) -> None:
         for extension in self._extensions:
@@ -357,6 +323,12 @@ class Environment(ProjectDependentFactory, Jinja2Environment):
                 self.globals.update(extension.globals)
                 self.filters.update(extension.filters)
                 self.tests.update(extension.tests)
+
+    @pass_context
+    def _copy_resource_context(
+        self, context: Jinja2Context, **kwargs: Any
+    ) -> ResourceContext:
+        return copy_context(context_resource_context(context), **kwargs)
 
 
 _CacheExtensionMap: TypeAlias = MutableMapping[str, str]
@@ -378,7 +350,7 @@ class _CacheTagExtension(Jinja2Extension):
         ).set_lineno(lineno)
 
     async def _cache(
-        self, cache_key: str, context: Context, caller: Callable[[], str]
+        self, cache_key: str, context: Jinja2Context, caller: Callable[[], str]
     ) -> str:
         job_context = context_job_context(context)
         if job_context is None:
@@ -421,14 +393,7 @@ class Jinja2Renderer(Renderer, ProjectDependentFactory):
         content: str,
         media_type: MediaType,
         *,
-        data: Mapping[str, Any] | None = None,
-        job_context: JobContext | None = None,
-        localizer: Localizer | None = None,
+        resource: ResourceContext | None = None,
     ) -> str:
-        data = {} if data is None else dict(data)
-        if job_context is not None:
-            data["job_context"] = job_context
-        if localizer is not None:
-            data["localizer"] = localizer
         template = self._environment.from_string(content)
-        return await template.render_async(data)
+        return await template.render_async(resource=resource)

@@ -10,11 +10,11 @@ In addition to Jinja2's built-in globals, Betty provides the following:
 
 ``app`` (:py:class:`betty.app.App`)
     The currently running Betty application.
-``citer`` (:py:class:`betty.html.Citer`)
+``citer`` (:py:class:`betty.resource.Citer`)
     The ledger of citation references on the current page.
-``breadcrumbs`` (:py:class:`betty.html.Breadcrumbs`)
+``breadcrumbs`` (:py:class:`betty.resource.Breadcrumbs`)
     The ledger of `breadcrumbs <https://en.wikipedia.org/wiki/Breadcrumb_navigation>`_ on the current page.
-``entity_contexts`` (:py:class:`betty.jinja2.EntityContexts`)
+``entity_contexts`` (:py:class:`betty.resource.EntityContexts`)
     The ledger of primary entities in the current template context.
 ``generate_html_id`` (:py:meth:`betty.html.generate_html_id`)
     A function to generate a HTML ID unique within the current render call, such as a page.

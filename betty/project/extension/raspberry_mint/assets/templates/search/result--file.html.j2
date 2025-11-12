@@ -1,6 +1,9 @@
+{% set embedded=True %}
 <div class="flex-grow-1 search-result-description">
     <span class="link">{{ entity.label | localize }}</span>
-    {% include 'entity/summary--file.html.j2' %}
+    {% with entity = entity %}
+        {% include 'entity/summary--file.html.j2' %}
+    {% endwith %}
 </div>
 {% if entity.media_type and entity.media_type.type== 'image' %}
     <div class="search-result-preview">

@@ -9,7 +9,7 @@ from collections.abc import Awaitable, Callable
 from contextlib import suppress
 from pathlib import Path
 from shutil import copy2
-from typing import TYPE_CHECKING, Any, ClassVar, TypeAlias, final
+from typing import TYPE_CHECKING, ClassVar, TypeAlias, final
 
 from aiofiles.os import makedirs
 from typing_extensions import override
@@ -17,15 +17,14 @@ from typing_extensions import override
 from betty.locale.localizable import _
 from betty.media_type import UnsupportedMediaType, match_extension, match_media_type
 from betty.plugin import ClassedPluginDefinition, ClassedPluginTypeDefinition
+from betty.resource import copy_context
 from betty.typing import internal
 
 if TYPE_CHECKING:
-    from collections.abc import Mapping, Sequence
+    from collections.abc import Sequence
 
-    from betty.job import Context
-    from betty.locale.localizer import Localizer
     from betty.media_type import MediaType
-
+    from betty.resource import Context
 
 CopyFunction: TypeAlias = Callable[[Path, Path], Awaitable[None]]
 
@@ -50,9 +49,7 @@ class Renderer(ABC):
         content: str,
         media_type: MediaType,
         *,
-        data: Mapping[str, Any] | None = None,
-        job_context: Context | None = None,
-        localizer: Localizer | None = None,
+        resource: Context | None = None,
     ) -> str:
         """
         Render content.
@@ -106,16 +103,10 @@ class ProxyRenderer(Renderer):
         content: str,
         media_type: MediaType,
         *,
-        data: Mapping[str, Any] | None = None,
-        job_context: Context | None = None,
-        localizer: Localizer | None = None,
+        resource: Context | None = None,
     ) -> str:
         return await self._get_renderer(media_type).render(
-            content,
-            media_type,
-            data=data,
-            job_context=job_context,
-            localizer=localizer,
+            content, media_type, resource=resource
         )
 
 
@@ -123,9 +114,7 @@ class ProxyRenderer(Renderer):
 def make_copy_function(
     renderer: Renderer,
     *,
-    data: Mapping[str, Any] | None = None,
-    job_context: Context | None = None,
-    localizer: Localizer | None = None,
+    resource: Context,
     www_directory_path: Path | None = None,
     is_localized_and_multilingual: bool | None = None,
 ) -> CopyFunction:
@@ -134,7 +123,6 @@ def make_copy_function(
     """
 
     async def _copy_function(source_path: Path, destination_path: Path) -> None:
-        nonlocal data
         await makedirs(destination_path.parent, exist_ok=True)
         try:
             media_type, extension = match_extension(source_path, renderer.media_types)
@@ -145,6 +133,7 @@ def make_copy_function(
         destination_path = destination_path.with_name(
             destination_path.name[: -len(extension)]
         )
+        copy_resource = copy_context(resource, resource=destination_path)
 
         if www_directory_path:
             try:
@@ -155,19 +144,18 @@ def make_copy_function(
                 pass
             else:
                 resource_parts = relative_file_destination_path.parts
-                if is_localized_and_multilingual:
-                    resource_parts = resource_parts[1:]
-                resource = "/".join(resource_parts)
-                data = {} if data is None else dict(data)
-                data["page_resource"] = f"betty:///{resource}"
+                if not any(
+                    resource_part.startswith(".") for resource_part in resource_parts
+                ):
+                    if is_localized_and_multilingual:
+                        resource_parts = resource_parts[1:]
+                    copy_resource["resource_url"] = (
+                        f"betty:///{'/'.join(resource_parts)}"
+                    )
         with open(source_path) as f:
             content = f.read()
         rendered_content = await renderer.render(
-            content,
-            media_type,
-            data=data,
-            job_context=job_context,
-            localizer=localizer,
+            content, media_type, resource=copy_resource
         )
         with open(destination_path, "w") as f:
             f.write(rendered_content)

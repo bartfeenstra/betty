@@ -21,6 +21,7 @@ from betty import ROOT_DIRECTORY_PATH, _npm
 from betty.hashid import hashid, hashid_file_content, hashid_sequence
 from betty.project.extension import Extension
 from betty.render import make_copy_function
+from betty.resource import new_context
 from betty.serde.dump import Dump, DumpMapping
 
 if TYPE_CHECKING:
@@ -183,7 +184,8 @@ class Builder:
             / _package_name_to_path(cast(str, package_json["name"]))
         )
         copy_function = make_copy_function(
-            self._renderer, job_context=self._job_context
+            self._renderer,
+            resource=new_context(job_context=self._job_context),
         )
         copies = []
         for directory_path, _, file_names in walk(entry_point_directory_path):

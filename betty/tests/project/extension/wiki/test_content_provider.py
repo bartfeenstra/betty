@@ -3,12 +3,12 @@ from pytest_mock import MockerFixture
 from betty.ancestry.has_links import HasLinks
 from betty.ancestry.link import Link
 from betty.app import App
-from betty.locale import DEFAULT_LOCALE
 from betty.locale.localizable import CountablePlain, Plain
 from betty.model import EntityDefinition
 from betty.project import Project
 from betty.project.extension.wiki import Wiki
 from betty.project.extension.wiki.content_provider import WikipediaSummary
+from betty.resource import new_context
 from betty.wiki.client import Summary
 
 
@@ -23,18 +23,16 @@ class DummyHasLinks(HasLinks):
 
 
 class TestWikipediaSummary:
-    async def test_provide__without_has_links_page_resource(
+    async def test_provide__without_has_links_resource(
         self, temporary_app: App
     ) -> None:
         async with Project.new_temporary(temporary_app) as project:
             project.configuration.extensions.enable(Wiki)
             async with project:
                 sut = await WikipediaSummary.new_for_project(project)
-                assert (
-                    await sut.provide(locale=DEFAULT_LOCALE, page_resource=None) is None
-                )
+                assert await sut.provide(resource=new_context()) is None
 
-    async def test_provide__with_has_links_page_resource(
+    async def test_provide__with_has_links_resource(
         self, mocker: MockerFixture, temporary_app: App
     ) -> None:
         url = "https://en.wikipedia.org/wiki/Amsterdam"
@@ -43,15 +41,13 @@ class TestWikipediaSummary:
         m_get_summary.return_value = Summary(
             "en", "Amsterdam", "My First Summary", summary_content
         )
-        page_resource = DummyHasLinks(links=[Link(url)])
+        resource = DummyHasLinks(links=[Link(url)])
         async with Project.new_temporary(temporary_app) as project:
             project.configuration.extensions.enable(Wiki)
             async with project:
-                project.ancestry.add(page_resource)
+                project.ancestry.add(resource)
                 sut = await WikipediaSummary.new_for_project(project)
-                actual = await sut.provide(
-                    locale=DEFAULT_LOCALE, page_resource=page_resource
-                )
+                actual = await sut.provide(resource=new_context(resource))
         assert actual is not None
         assert url in actual
         assert summary_content in actual
