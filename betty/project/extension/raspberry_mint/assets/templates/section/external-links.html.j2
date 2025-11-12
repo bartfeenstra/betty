@@ -4,7 +4,7 @@
             <section id="external-links" class="section">
                 <h2 class="section-heading">
                     {% trans %}External links{% endtrans %}
-                    {% with url = page_resource | url(fragment="external-links") %}
+                    {% with url = "#external-links" %}
                         {% include 'component/permalink.html.j2' %}
                     {% endwith %}
                 </h2>

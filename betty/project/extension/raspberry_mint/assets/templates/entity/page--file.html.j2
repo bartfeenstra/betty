@@ -82,7 +82,7 @@
                     <section id="media-references">
                         <h2 class="section-heading">
                             {% trans %}Media references{% endtrans %}
-                            {% with url = page_resource | url(fragment="references") %}
+                            {% with url = "#references" %}
                                 {% include 'component/permalink.html.j2' %}
                             {% endwith %}
                         </h2>

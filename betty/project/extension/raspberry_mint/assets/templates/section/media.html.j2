@@ -7,7 +7,7 @@
                     <div class="col col-12 col-lg-8">
                         <h2 class="section-heading">
                             {% trans %}Media{% endtrans %}
-                            {% with url = page_resource | url(fragment="media") %}
+                            {% with url = "#media" %}
                                 {% include 'component/permalink.html.j2' %}
                             {% endwith %}
                         </h2>

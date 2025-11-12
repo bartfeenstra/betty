@@ -9,7 +9,7 @@
                     <section id="wikipedia" class="section">
                         <h2 class="visually-hidden">
                             {% trans %}About{% endtrans %}
-                            {% with url = page_resource | url(fragment="wikipedia") %}
+                            {% with url = "#wikipedia" %}
                                 {% include 'component/permalink.html.j2' %}
                             {% endwith %}
                         </h2>
