@@ -13,11 +13,7 @@
     {%- if is_link -%}
         </a>
     {%- endif -%}
-    , {% with entity = entity.source, embedded = True -%}
-        {% include ['entity/label--source.html.j2', 'entity/label.html.j2'] %}
-    {% endwith %}
 {%- else -%}
-    <span class="citation-location">
-        {%- include 'entity/private.html.j2' -%}
-    </span>
+    {%- include 'entity/private.html.j2' -%}
 {%- endif -%}
+{% with entity = entity.source %} <sup>({% include ['entity/label--source.html.j2', 'entity/label.html.j2'] %})</sup>{% endwith %}
