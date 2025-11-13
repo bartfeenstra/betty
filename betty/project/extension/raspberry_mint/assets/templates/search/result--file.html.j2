@@ -7,7 +7,7 @@
 </div>
 {% if entity.media_type and entity.media_type.type== 'image' %}
     <div class="search-result-preview">
-        <img src="{{ entity | image_resize_cover((100, 100)) | url }}" class="image"{% if entity.description %} alt="{{ entity.description | localize }}"{% endif %} loading="lazy">
+        <img src="{{ entity | image_resize_cover((100, 100)) | url }}" class="image rounded-circle"{% if entity.description %} alt="{{ entity.description | localize }}"{% endif %} loading="lazy">
     </div>
     {% endif %}
 <a href="{{ entity | url }}" class="stretched-link"><span class="visually-hidden">View {{ entity.label | localize | html_lang }}</span></a>
