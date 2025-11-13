@@ -13,6 +13,7 @@ from betty.ancestry.event_type import (
     EventTypeDefinition,
     ShouldExistEventType,
 )
+from betty.classtools import Singleton
 from betty.locale.localizable import _
 
 if TYPE_CHECKING:
@@ -25,7 +26,7 @@ if TYPE_CHECKING:
     id="unknown",
     label=_("Unknown"),
 )
-class Unknown(EventType):
+class Unknown(EventType, Singleton):
     """
     Describe an event for which no more specific type is known.
     """

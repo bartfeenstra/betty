@@ -8,7 +8,6 @@ from abc import ABC, abstractmethod
 from typing import TYPE_CHECKING, Any, ClassVar, final
 
 from betty.locale.localizable import _
-from betty.mutability import Mutable
 from betty.plugin import (
     ClassedPlugin,
     ClassedPluginDefinition,
@@ -25,7 +24,7 @@ if TYPE_CHECKING:
     from betty.project import Project
 
 
-class EventType(Mutable, ClassedPlugin):
+class EventType(ClassedPlugin):
     """
     Define an :py:class:`betty.ancestry.event.Event` type.
     """

@@ -125,14 +125,14 @@ class TestServiceProvider:
         async with _ConfigurableServiceProvider(
             configuration=DummyConfiguration()
         ) as sut:
-            assert sut.configuration.is_immutable
+            assert sut.configuration.immutable
 
     async def test_shutdown__should_mark_configuration_mutable(self) -> None:
         async with _ConfigurableServiceProvider(
             configuration=DummyConfiguration()
         ) as sut:
             pass
-        assert sut.configuration.is_mutable
+        assert sut.configuration.mutable
 
     async def test_shutdown(self) -> None:
         sut = ServiceProvider()

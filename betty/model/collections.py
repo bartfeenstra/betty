@@ -57,7 +57,7 @@ class EntityCollection(Mutable, Generic[_TargetT], ABC):
         pass
 
     @override
-    def get_mutable_instances(self) -> Iterable[Mutable]:
+    def get_mutable_instances(self) -> Iterable[object]:
         return self
 
     @property

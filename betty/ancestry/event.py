@@ -46,7 +46,6 @@ if TYPE_CHECKING:
     from betty.ancestry.file_reference import FileReference
     from betty.ancestry.note import Note
     from betty.date import DateLike
-    from betty.mutability import Mutable
     from betty.project import Project
     from betty.serde.dump import Dump, DumpMapping
 
@@ -126,7 +125,7 @@ class Event(
         self.name = name
 
     @override
-    def get_mutable_instances(self) -> Iterable[Mutable]:
+    def get_mutable_instances(self) -> Iterable[object]:
         return (
             *super().get_mutable_instances(),
             self.event_type,

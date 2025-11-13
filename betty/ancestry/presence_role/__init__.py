@@ -7,15 +7,15 @@ from __future__ import annotations
 from typing import ClassVar, final
 
 from betty.locale.localizable import _
-from betty.mutability import Mutable
 from betty.plugin import (
+    ClassedPlugin,
     ClassedPluginDefinition,
     ClassedPluginTypeDefinition,
     HumanFacingPluginDefinition,
 )
 
 
-class PresenceRole(Mutable):
+class PresenceRole(ClassedPlugin):
     """
     A person's role at an event.
 

@@ -37,7 +37,6 @@ from betty.typing import internal
 if TYPE_CHECKING:
     from collections.abc import Iterable, Iterator, Mapping, MutableMapping
 
-    from betty.mutability import Mutable
     from betty.serde.dump import Dump, DumpMapping
 
 _PluginT = TypeVar("_PluginT")
@@ -180,7 +179,7 @@ class FamilyTreeConfiguration(Configuration):
         )
 
     @override
-    def get_mutable_instances(self) -> Iterable[Mutable]:
+    def get_mutable_instances(self) -> Iterable[object]:
         return (
             self._event_types,
             self._place_types,
@@ -295,7 +294,7 @@ class GrampsConfiguration(Configuration):
         self._executable = executable
 
     @override
-    def get_mutable_instances(self) -> Iterable[Mutable]:
+    def get_mutable_instances(self) -> Iterable[object]:
         return (self._family_trees,)
 
     @property

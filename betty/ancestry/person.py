@@ -31,7 +31,6 @@ if TYPE_CHECKING:
     from betty.ancestry.note import Note
     from betty.ancestry.person_name import PersonName
     from betty.ancestry.presence import Presence
-    from betty.mutability import Mutable
     from betty.project import Project
     from betty.serde.dump import Dump, DumpMapping
 
@@ -118,7 +117,7 @@ class Person(HasFileReferences, HasCitations, HasNotes, HasLinks, HasPrivacy):
         self._gender = gender or UnknownGender()
 
     @override
-    def get_mutable_instances(self) -> Iterable[Mutable]:
+    def get_mutable_instances(self) -> Iterable[object]:
         return (
             *super().get_mutable_instances(),
             self.gender,
