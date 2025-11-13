@@ -12,12 +12,14 @@ from betty.ancestry.event_type.event_types import Birth
 from betty.ancestry.link import Link
 from betty.ancestry.name import Name
 from betty.ancestry.place import Place
+from betty.ancestry.place_type import PlaceType
 from betty.ancestry.place_type.place_types import Hamlet
 from betty.ancestry.place_type.place_types import Unknown as UnknownPlaceType
 from betty.locale import DEFAULT_LOCALE
 from betty.locale.localizable import Plain
 from betty.model import Entity
 from betty.model.association import AssociationRequired, TemporaryToOneResolver
+from betty.mutability import Mutable
 from betty.test_utils.json.linked_data import assert_dumps_linked_data
 from betty.test_utils.model import EntityDefinitionTestBase, EntityTestBase
 
@@ -254,6 +256,10 @@ class TestPlace(EntityTestBase):
         assert actual == expected
 
     def test_get_mutable_instances(self) -> None:
-        sut = Place()
-        sut.immutable()
-        assert sut.place_type.is_immutable
+        class _MutablePlaceType(PlaceType, Mutable):
+            pass
+
+        place_type = _MutablePlaceType()
+        sut = Place(place_type=place_type)
+        sut.immutable = True
+        assert place_type.immutable

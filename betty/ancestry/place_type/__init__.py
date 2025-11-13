@@ -7,15 +7,15 @@ from __future__ import annotations
 from typing import ClassVar, final
 
 from betty.locale.localizable import _
-from betty.mutability import Mutable
 from betty.plugin import (
+    ClassedPlugin,
     ClassedPluginDefinition,
     ClassedPluginTypeDefinition,
     HumanFacingPluginDefinition,
 )
 
 
-class PlaceType(Mutable):
+class PlaceType(ClassedPlugin):
     """
     Define an :py:class:`betty.ancestry.place.Place` type.
 

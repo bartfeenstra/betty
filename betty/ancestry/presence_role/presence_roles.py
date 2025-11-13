@@ -5,6 +5,7 @@ Provide presence role implementations.
 from typing import final
 
 from betty.ancestry.presence_role import PresenceRole, PresenceRoleDefinition
+from betty.classtools import Singleton
 from betty.locale.localizable import _
 
 
@@ -100,7 +101,7 @@ class Subject(PresenceRole):
     id="unknown",
     label=_("Unknown"),
 )
-class Unknown(PresenceRole):
+class Unknown(PresenceRole, Singleton):
     """
     Someone's role in an event is unknown.
     """

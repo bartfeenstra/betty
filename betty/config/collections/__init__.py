@@ -28,7 +28,6 @@ from betty.config import Configuration
 from betty.repr import repr_instance
 
 if TYPE_CHECKING:
-    from betty.mutability import Mutable
     from betty.serde.dump import Dump
 
 _ConfigurationT = TypeVar("_ConfigurationT", bound=Configuration)
@@ -145,5 +144,5 @@ class ConfigurationCollection(
         """
 
     @override
-    def get_mutable_instances(self) -> Iterable[Mutable]:
+    def get_mutable_instances(self) -> Iterable[object]:
         return self.values()

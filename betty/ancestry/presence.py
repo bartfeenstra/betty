@@ -20,7 +20,6 @@ if TYPE_CHECKING:
     from betty.ancestry.person import Person
     from betty.ancestry.presence_role import PresenceRole
     from betty.json.linked_data import JsonLdObject
-    from betty.mutability import Mutable
     from betty.project import Project
     from betty.serde.dump import Dump, DumpMapping
 
@@ -73,7 +72,7 @@ class Presence(HasPrivacy, Entity):
         self.event = event
 
     @override
-    def get_mutable_instances(self) -> Iterable[Mutable]:
+    def get_mutable_instances(self) -> Iterable[object]:
         return (self.role,)
 
     @override

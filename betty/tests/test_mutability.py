@@ -6,16 +6,36 @@ from betty.mutability import ImmutableError, Mutable, MutableError, immutable, m
 def test_immutable() -> None:
     instance = Mutable(mutable=True)
     immutable(instance)
-    assert instance.is_immutable
+    assert instance.immutable
 
 
 def test_mutable() -> None:
     instance = Mutable(mutable=False)
     mutable(instance)
-    assert instance.is_mutable
+    assert instance.mutable
 
 
 class TestMutable:
+    @staticmethod
+    def _immutable() -> pytest.MarkDecorator:
+        return pytest.mark.parametrize(
+            "immutable",
+            [
+                True,
+                False,
+            ],
+        )
+
+    @staticmethod
+    def _mutable() -> pytest.MarkDecorator:
+        return pytest.mark.parametrize(
+            "mutable",
+            [
+                True,
+                False,
+            ],
+        )
+
     def test_assert_immutable(self) -> None:
         Mutable(mutable=False).assert_immutable()
         with pytest.raises(MutableError):
@@ -29,20 +49,22 @@ class TestMutable:
     def test_get_mutable_instances(self) -> None:
         assert not list(Mutable().get_mutable_instances())
 
-    def test_immutable(self) -> None:
-        sut = Mutable(mutable=True)
-        sut.immutable()
-        assert sut.is_immutable
+    @_immutable()
+    def test_is_immutable__get(self, immutable: bool) -> None:
+        assert Mutable(mutable=not immutable).immutable is immutable
 
-    def test_is_immutable(self) -> None:
-        assert Mutable(mutable=False).is_immutable
-        assert not Mutable(mutable=True).is_immutable
+    @_immutable()
+    def test_immutable__set(self, immutable: bool) -> None:
+        sut = Mutable()
+        sut.immutable = immutable
+        assert sut.immutable is immutable
 
-    def test_is_mutable(self) -> None:
-        assert Mutable(mutable=True).is_mutable
-        assert not Mutable(mutable=False).is_mutable
+    @_mutable()
+    def test_mutable__get(self, mutable: bool) -> None:
+        assert Mutable(mutable=mutable).mutable is mutable
 
-    def test_mutable(self) -> None:
-        sut = Mutable(mutable=False)
-        sut.mutable()
-        assert sut.is_mutable
+    @_mutable()
+    def test_mutable__set(self, mutable: bool) -> None:
+        sut = Mutable()
+        sut.mutable = mutable
+        assert sut.mutable is mutable

@@ -30,7 +30,6 @@ if TYPE_CHECKING:
     from betty.json.linked_data import JsonLdObject
     from betty.license import License
     from betty.media_type import MediaType
-    from betty.mutability import Mutable
     from betty.project import Project
     from betty.serde.dump import Dump, DumpMapping
 
@@ -111,7 +110,7 @@ class File(
         self.license = license
 
     @override
-    def get_mutable_instances(self) -> Iterable[Mutable]:
+    def get_mutable_instances(self) -> Iterable[object]:
         if self.copyright_notice is not None:
             yield self.copyright_notice
         if self.license is not None:

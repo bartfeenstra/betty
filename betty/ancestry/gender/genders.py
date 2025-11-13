@@ -5,6 +5,7 @@ Provide concrete gender implementations.
 from typing import final
 
 from betty.ancestry.gender import Gender, GenderDefinition
+from betty.classtools import Singleton
 from betty.locale.localizable import _
 
 
@@ -46,7 +47,7 @@ class NonBinary(Gender):
     id="unknown",
     label=_("Unknown"),
 )
-class Unknown(Gender):
+class Unknown(Gender, Singleton):
     """
     A person of an unknown gender.
     """

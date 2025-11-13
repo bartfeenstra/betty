@@ -162,6 +162,6 @@ class EntityCollectionTestBase(Generic[_EntityT]):
         Tests :py:meth:`betty.model.collections.EntityCollection.get_mutable_instances` implementations.
         """
         sut.add(*sut_entities)
-        sut.immutable()
+        sut.immutable = True
         for entity in sut_entities:
-            assert entity.is_immutable
+            assert entity.immutable

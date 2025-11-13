@@ -175,7 +175,7 @@ class ServiceProvider(Bootstrapped, Shutdownable):
 
     async def _bootstrap(self) -> None:
         if isinstance(self, Configurable):
-            self.configuration.immutable()
+            self.configuration.immutable = True
 
     @classmethod
     def _service_managers(cls) -> Iterable[ServiceManager[Self, Any, Any]]:
@@ -193,7 +193,7 @@ class ServiceProvider(Bootstrapped, Shutdownable):
     async def _shutdown(self, *, wait: bool = True) -> None:
         await self._shutdown_stack.shutdown(wait=wait)
         if isinstance(self, Configurable):
-            self.configuration.mutable()
+            self.configuration.mutable = True
 
     def __del__(self) -> None:
         if self.bootstrapped:

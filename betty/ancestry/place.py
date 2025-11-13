@@ -31,7 +31,6 @@ if TYPE_CHECKING:
     from betty.ancestry.link import Link
     from betty.ancestry.note import Note
     from betty.ancestry.place_type import PlaceType
-    from betty.mutability import Mutable
     from betty.privacy import Privacy
     from betty.project import Project
     from betty.serde.dump import Dump, DumpMapping
@@ -115,7 +114,7 @@ class Place(HasLinks, HasFileReferences, HasNotes, HasPrivacy):
         self._place_type = place_type or UnknownPlaceType()
 
     @override
-    def get_mutable_instances(self) -> Iterable[Mutable]:
+    def get_mutable_instances(self) -> Iterable[object]:
         return (
             *super().get_mutable_instances(),
             self._place_type,

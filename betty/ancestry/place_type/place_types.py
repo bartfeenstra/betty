@@ -7,6 +7,7 @@ from __future__ import annotations
 from typing import final
 
 from betty.ancestry.place_type import PlaceType, PlaceTypeDefinition
+from betty.classtools import Singleton
 from betty.locale.localizable import _
 
 
@@ -235,7 +236,7 @@ class Town(PlaceType):
     id="unknown",
     label=_("Unknown"),
 )
-class Unknown(PlaceType):
+class Unknown(PlaceType, Singleton):
     """
     A place of an unknown type.
     """

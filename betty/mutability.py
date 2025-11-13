@@ -43,41 +43,38 @@ class Mutable:
         super().__init__(*args, **kwargs)
         self._mutable = mutable
 
-    def get_mutable_instances(self) -> Iterable[Mutable]:
+    def get_mutable_instances(self) -> Iterable[Any]:
         """
-        Get any other :py:class:`betty.mutability.Mutable` instances contained by this one.
+        Get any other objects contained by this one that may also be :py:class:`betty.mutability.Mutable`.
         """
         return ()
 
+    def _propagate_mutability(self) -> None:
+        function = mutable if self.mutable else immutable
+        function(*self.get_mutable_instances())
+
     @property
-    def is_mutable(self) -> bool:
+    def mutable(self) -> bool:
         """
         Whether the instance is mutable.
         """
         return self._mutable
 
-    def mutable(self) -> None:
-        """
-        Mark the instance mutable.
-        """
-        self._mutable = True
-        for instance in self.get_mutable_instances():
-            instance.mutable()
+    @mutable.setter
+    def mutable(self, mutable: bool) -> None:
+        self._mutable = mutable
+        self._propagate_mutability()
 
     @property
-    def is_immutable(self) -> bool:
+    def immutable(self) -> bool:
         """
         Whether the instance is immutable.
         """
         return not self._mutable
 
-    def immutable(self) -> None:
-        """
-        Mark the instance immutable.
-        """
-        self._mutable = False
-        for instance in self.get_mutable_instances():
-            instance.immutable()
+    @immutable.setter
+    def immutable(self, immutable: bool) -> None:
+        self.mutable = not immutable
 
     def assert_mutable(self) -> None:
         """
@@ -100,17 +97,19 @@ class Mutable:
             raise MutableError(f"{self} was unexpectedly mutable, and can be modified.")
 
 
-def mutable(*instances: Mutable) -> None:
+def mutable(*instances: Any) -> None:
     """
     Mark the given instances mutable.
     """
     for instance in instances:
-        instance.mutable()
+        if isinstance(instance, Mutable):
+            instance.mutable = True
 
 
-def immutable(*instances: Mutable) -> None:
+def immutable(*instances: Any) -> None:
     """
     Mark the given instances immutable.
     """
     for instance in instances:
-        instance.immutable()
+        if isinstance(instance, Mutable):
+            instance.immutable = True

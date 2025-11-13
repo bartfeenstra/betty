@@ -17,7 +17,6 @@ if TYPE_CHECKING:
     from collections.abc import Iterable, Mapping, Sequence
 
     from betty.content_provider import ContentProvider, ContentProviderDefinition
-    from betty.mutability import Mutable
     from betty.plugin.config import PluginInstanceConfiguration
     from betty.serde.dump import Dump, DumpMapping
 
@@ -52,7 +51,7 @@ class RaspberryMintConfiguration(Configuration):
         self._regional_content = RegionalContentConfiguration(regional_content or {})
 
     @override
-    def get_mutable_instances(self) -> Iterable[Mutable]:
+    def get_mutable_instances(self) -> Iterable[object]:
         return (
             self._primary_color,
             self._secondary_color,

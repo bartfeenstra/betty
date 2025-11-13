@@ -131,8 +131,8 @@ class TestRaspberryMintConfiguration:
 
     def test_get_mutable_instances(self) -> None:
         sut = RaspberryMintConfiguration()
-        sut.immutable()
-        assert sut.primary_color.is_immutable
-        assert sut.secondary_color.is_immutable
-        assert sut.tertiary_color.is_immutable
-        assert sut.regional_content.is_immutable
+        sut.immutable = True
+        assert sut.primary_color.immutable
+        assert sut.secondary_color.immutable
+        assert sut.tertiary_color.immutable
+        assert sut.regional_content.immutable
