@@ -1,3 +1,8 @@
+{% set section_content -%}
+    {% with content_provider_configurations = section_content_provider_configurations %}
+        {% include 'component/content.html.j2' %}
+    {% endwith %}
+{%- endset %}
 {% if section_content %}
     <div class="container my-5">
         <div class="row">

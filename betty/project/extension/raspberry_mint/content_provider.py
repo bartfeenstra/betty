@@ -2,7 +2,7 @@
 Dynamic content.
 """
 
-from collections.abc import Mapping, Sequence
+from collections.abc import Iterable, Mapping
 from typing import TYPE_CHECKING, Any, Self
 
 from typing_extensions import override
@@ -15,15 +15,18 @@ from betty.assertion import (
     assert_setattr,
 )
 from betty.config import Configuration, DefaultConfigurable
-from betty.content_provider import ContentProvider, ContentProviderDefinition
-from betty.content_provider.content_providers import Jinja2TemplateContentProvider
+from betty.content_provider import ContentProviderDefinition
+from betty.content_provider.config import (
+    ContentProviderInstanceConfigurationSequence,
+    ShorthandContentProviderInstanceConfigurationSequence,
+)
+from betty.content_provider.content_providers import Template
 from betty.locale.localizable import ShorthandStaticTranslations, _
 from betty.locale.localizable.assertion import assert_static_translations
 from betty.locale.localizable.config import RequiredStaticTranslationsConfigurationAttr
 from betty.machine_name import MachineName, assert_machine_name
 from betty.model.config import EntityReferenceSequence
 from betty.plugin.config import (
-    PluginInstanceConfiguration,
     PluginInstanceConfigurationSequence,
 )
 from betty.project import Project
@@ -50,29 +53,18 @@ class SectionConfiguration(Configuration):
         self,
         *,
         heading: ShorthandStaticTranslations,
-        content: Sequence[
-            PluginInstanceConfiguration[ContentProviderDefinition, ContentProvider]
-        ]
-        | None = None,
+        content: ShorthandContentProviderInstanceConfigurationSequence = None,
         name: MachineName | None = None,
         visually_hide_heading: bool = False,
     ):
         super().__init__()
         self.heading = heading
-        self._content = PluginInstanceConfigurationSequence[
-            ContentProviderDefinition, ContentProvider
-        ]()
-        if content:
-            self._content.append(*content)
+        self._content = PluginInstanceConfigurationSequence(content)
         self.name = name
         self.visually_hide_heading = visually_hide_heading
 
     @property
-    def content(
-        self,
-    ) -> PluginInstanceConfigurationSequence[
-        ContentProviderDefinition, ContentProvider
-    ]:
+    def content(self) -> ContentProviderInstanceConfigurationSequence:
         """
         The content within this section.
         """
@@ -105,17 +97,19 @@ class SectionConfiguration(Configuration):
             dump["visually_hide_heading"] = True
         return dump
 
+    @override
+    def get_mutables(self) -> Iterable[object]:
+        return self.heading, self._content
+
 
 @ContentProviderDefinition(
     id="raspberry-mint-section",
     label=_("Section"),
 )
-class Section(Jinja2TemplateContentProvider, DefaultConfigurable[SectionConfiguration]):
+class Section(Template, DefaultConfigurable[SectionConfiguration]):
     """
     A section on the page with a heading and a permanent link.
     """
-
-    _template = "component/content-section.html.j2"
 
     def __init__(self, project: Project, configuration: SectionConfiguration):
         super().__init__(project, configuration=configuration)
@@ -136,7 +130,7 @@ class Section(Jinja2TemplateContentProvider, DefaultConfigurable[SectionConfigur
             "section_name": self.configuration.name,
             "section_heading": self.configuration.heading,
             "section_visually_hide_heading": self.configuration.visually_hide_heading,
-            "section_content_configurations": self.configuration.content,
+            "section_content_provider_configurations": self.configuration.content,
         }
 
 
@@ -144,14 +138,10 @@ class Section(Jinja2TemplateContentProvider, DefaultConfigurable[SectionConfigur
     id="raspberry-mint-featured-entities",
     label=_("Featured entities"),
 )
-class FeaturedEntities(
-    Jinja2TemplateContentProvider, DefaultConfigurable[EntityReferenceSequence]
-):
+class FeaturedEntities(Template, DefaultConfigurable[EntityReferenceSequence]):
     """
     Featured entities.
     """
-
-    _template = "component/featured-entities.html.j2"
 
     def __init__(self, project: Project, configuration: EntityReferenceSequence):
         super().__init__(project, configuration=configuration)

@@ -1,0 +1,10 @@
+{% if resource.resource is has_links %}
+    {% set summaries = resource.resource.links | wikipedia_summary | list %}
+    {% if summaries | length %}
+        {% for summary in summaries %}
+            {{ summary.content | safe }}
+            <p>{% trans url = summary.url %}Continue reading on <a href="{{ url }}">Wikipedia</a>.{% endtrans %}</p>
+        {% endfor %}
+        <small><a href="{{ wikipedia_contributors_copyright_notice.url | localize }}">{{ wikipedia_contributors_copyright_notice.summary | localize | html_lang }}</a></small>
+    {% endif %}
+{% endif %}
