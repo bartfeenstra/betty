@@ -115,9 +115,9 @@ class Breadcrumb(LinkedDataDumpable[DumpMapping[Dump]]):
     A breadcrumb.
     """
 
-    def __init__(self, label: str, resource: Any, /):
+    def __init__(self, label: str, resource: object | None, /):
         self._label = label
-        self._resource = resource
+        self._resource_url = resource
 
     @property
     def label(self) -> str:
@@ -127,22 +127,24 @@ class Breadcrumb(LinkedDataDumpable[DumpMapping[Dump]]):
         return self._label
 
     @property
-    def resource(self) -> Any:
+    def resource_url(self) -> object | None:
         """
-        The resource.
+        The resource URL.
         """
-        return self._resource
+        return self._resource_url
 
     @override
     async def dump_linked_data(self, project: Project) -> DumpMapping[Dump]:
-        url_generator = await project.url_generator
-        return {
+        dump: DumpMapping[Dump] = {
             "@type": "ListItem",
             "name": self._label,
-            "item": url_generator.generate(
-                self._resource, absolute=True, media_type=HTML
-            ),
         }
+        if self._resource_url is not None:
+            url_generator = await project.url_generator
+            dump["item"] = url_generator.generate(
+                self._resource_url, absolute=True, media_type=HTML
+            )
+        return dump
 
 
 @final
@@ -162,11 +164,11 @@ class Breadcrumbs(LinkedDataDumpable[DumpMapping[Dump]], Iterable[Breadcrumb], S
     def __len__(self) -> int:
         return len(self._breadcrumbs)
 
-    def append(self, label: str, resource: Any, /) -> None:
+    def append(self, label: str, resource_url: object | None = None, /) -> None:
         """
         Append a breadcrumb to the trail.
         """
-        self._breadcrumbs.append(Breadcrumb(label, resource))
+        self._breadcrumbs.append(Breadcrumb(label, resource_url))
 
     @override
     async def dump_linked_data(self, project: Project) -> DumpMapping[Dump]:

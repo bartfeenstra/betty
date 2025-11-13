@@ -6,7 +6,11 @@
             </li>
             {% for breadcrumb in resource.breadcrumbs %}
                 <li class="breadcrumb{% if loop.last %} visually-hidden{% endif %}"{% if loop.last %} aria-current="page"{% endif %}>
-                    <a href="{{ breadcrumb.resource | url }}"{% if loop.last %} tabindex="-1"{% endif %}>{{ breadcrumb.label }}</a>
+                    {% if breadcrumb.resource_url %}
+                        <a href="{{ breadcrumb.resource_url | url }}"{% if loop.last %} tabindex="-1"{% endif %}>{{ breadcrumb.label }}</a>
+                    {% else %}
+                        <span>{{ breadcrumb.label }}</span>
+                    {% endif %}
                 </li>
             {% endfor %}
         </ol>
