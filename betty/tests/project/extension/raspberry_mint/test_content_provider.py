@@ -124,6 +124,17 @@ class TestSectionConfiguration:
             ],
         }
 
+    def test_get_mutables__minimal(self) -> None:
+        sut = SectionConfiguration(heading="My First Section")
+        assert list(sut.get_mutables())
+
+    def test_get_mutables__with_content(self) -> None:
+        sut = SectionConfiguration(
+            heading="My First Section",
+            content=[PluginInstanceConfiguration("my-first-content")],
+        )
+        assert list(sut.get_mutables())
+
 
 class TestSection:
     async def test_provide__without_content(self, temporary_app: App) -> None:

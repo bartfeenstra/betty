@@ -3,7 +3,7 @@ Dynamic content.
 """
 
 from betty.content_provider import ContentProviderDefinition
-from betty.content_provider.content_providers import Jinja2TemplateContentProvider
+from betty.content_provider.content_providers import Template
 from betty.locale.localizable import _
 
 
@@ -11,9 +11,7 @@ from betty.locale.localizable import _
     id="wiki-wikipedia-summary",
     label=_("Wikipedia summary"),
 )
-class WikipediaSummary(Jinja2TemplateContentProvider):
+class WikipediaSummary(Template):
     """
     A Wikipedia summary.
     """
-
-    _template = "wiki/wikipedia-summary.html.j2"

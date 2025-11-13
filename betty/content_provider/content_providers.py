@@ -55,14 +55,10 @@ class PlainText(
         )
 
 
-class Jinja2TemplateContentProvider(
-    ContentProvider, ClassedPlugin, ProjectDependentFactory
-):
+class Template(ContentProvider, ClassedPlugin, ProjectDependentFactory):
     """
     Provides content by rendering a Jinja2 template.
     """
-
-    _template: str
 
     def __init__(self, project: Project, *args: Any, **kwargs: Any):
         super().__init__(*args, **kwargs)
@@ -75,10 +71,11 @@ class Jinja2TemplateContentProvider(
 
     @override
     async def provide(self, *, resource: Context) -> str | None:
-        await self._project.localizers
         jinja2_environment = await self._project.jinja2_environment
         rendered_content = (
-            await jinja2_environment.get_template(self._template).render_async(
+            await jinja2_environment.get_template(
+                f"content/{self.plugin.id}.html.j2"
+            ).render_async(
                 resource=resource,
                 **await self._provide_data(resource),
             )
@@ -95,9 +92,7 @@ class Jinja2TemplateContentProvider(
     id="notes",
     label=_("Notes"),
 )
-class Notes(Jinja2TemplateContentProvider):
+class Notes(Template):
     """
     Render a page resource's notes, if it has any.
     """
-
-    _template = "component/notes.html.j2"

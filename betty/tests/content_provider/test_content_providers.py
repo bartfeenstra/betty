@@ -1,4 +1,5 @@
 from gettext import NullTranslations
+from pathlib import Path
 
 import aiofiles
 import pytest
@@ -6,10 +7,11 @@ from aiofiles.os import makedirs
 
 from betty.ancestry.note import Note
 from betty.app import App
+from betty.content_provider import ContentProviderDefinition
 from betty.content_provider.content_providers import (
-    Jinja2TemplateContentProvider,
     Notes,
     PlainText,
+    Template,
 )
 from betty.job import Context
 from betty.locale import DEFAULT_LOCALE
@@ -45,12 +47,13 @@ class TestPlainText:
         )
 
 
-class TestJinja2TemplateContentProvider:
+class TestTemplate:
     async def test_provide(
         self,
         temporary_app: App,
     ) -> None:
-        template_name = "my-first-template.html.j2"
+        template_name = "content/my-first-template.html.j2"
+        template_path = Path(*template_name.split("/"))
         template = """
 {{ resource.localizer.locale }}
 {{ resource.resource }}
@@ -62,13 +65,14 @@ class TestJinja2TemplateContentProvider:
                 project.configuration.assets_directory_path / "templates"
             )
             await makedirs(templates_directory_path)
-            async with aiofiles.open(
-                templates_directory_path / template_name, "w"
-            ) as f:
+            template_file_path = templates_directory_path / template_path
+            await makedirs(template_file_path.parent)
+            async with aiofiles.open(template_file_path, "w") as f:
                 await f.write(template)
 
-            class _Jinja2TemplateContentProvider(Jinja2TemplateContentProvider):
-                _template = template_name
+            @ContentProviderDefinition(id="my-first-template", label=Plain(""))
+            class _Jinja2TemplateContentProvider(Template):
+                pass
 
             sut = await _Jinja2TemplateContentProvider.new_for_project(project)
             provided_content = await sut.provide(

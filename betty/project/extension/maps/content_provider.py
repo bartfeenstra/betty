@@ -9,7 +9,7 @@ from typing_extensions import override
 
 from betty.config import DefaultConfigurable
 from betty.content_provider import ContentProviderDefinition
-from betty.content_provider.content_providers import Jinja2TemplateContentProvider
+from betty.content_provider.content_providers import Template
 from betty.locale.localizable import _
 from betty.model.config import EntityReferenceSequence
 from betty.project import Project
@@ -20,12 +20,10 @@ from betty.resource import Context as ResourceContext
     id="maps-map",
     label=_("Map"),
 )
-class Map(Jinja2TemplateContentProvider, DefaultConfigurable[EntityReferenceSequence]):
+class Map(Template, DefaultConfigurable[EntityReferenceSequence]):
     """
     An interactive map.
     """
-
-    _template = "maps/content-map.html.j2"
 
     def __init__(self, project: Project, configuration: EntityReferenceSequence):
         super().__init__(project, configuration=configuration)
