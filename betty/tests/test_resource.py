@@ -73,10 +73,10 @@ class TestBreadcrumb:
         sut = Breadcrumb(label, "betty:///my-first-page")
         assert sut.label == label
 
-    def test_resource(self) -> None:
-        resource = "betty:///my-first-page"
-        sut = Breadcrumb("My First Page", resource)
-        assert sut.resource == resource
+    def test_resource_url(self) -> None:
+        resource_url = "betty:///my-first-page"
+        sut = Breadcrumb("My First Page", resource_url)
+        assert sut.resource_url == resource_url
 
     async def test_dump_linked_data__with_items(self, temporary_app: App) -> None:
         sut = Breadcrumb("My First Page", "betty:///my-first-page")

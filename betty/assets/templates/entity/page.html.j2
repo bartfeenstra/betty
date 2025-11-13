@@ -3,7 +3,7 @@
 {% set resource = copy_resource_context(entity_contexts=resource.entity_contexts(resource.resource)) %}
 {% do resource.breadcrumbs.append(
     resource.resource.plugin.label_plural | localize,
-    resource.resource
+    resource.resource.plugin if resource.resource.plugin.id in project.configuration.entity_types and project.configuration.entity_types[resource.resource.plugin.id].generate_html_list else none
 ) %}
 {% do resource.breadcrumbs.append(
     page_title,
