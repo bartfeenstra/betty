@@ -5,9 +5,9 @@ import pytest
 from typing_extensions import override
 
 from betty.exception import HumanFacingException
-from betty.factory import new
-from betty.locale import UNDETERMINED_LOCALE
-from betty.locale.localizable import ShorthandStaticTranslations
+from betty.factory import new_target
+from betty.locale import DEFAULT_LOCALE
+from betty.locale.localizable import Plain, StaticTranslations
 from betty.locale.localizer import DEFAULT_LOCALIZER
 from betty.machine_name import MachineName
 from betty.plugin.config import (
@@ -78,21 +78,21 @@ class TestHumanFacingPluginDefinitionConfiguration:
             "id": "hello-world",
             "label": label,
         }
-        sut = HumanFacingPluginDefinitionConfiguration(id="-", label="")
+        sut = HumanFacingPluginDefinitionConfiguration(id="-", label=Plain(""))
         sut.load(dump)
-        assert sut.label[UNDETERMINED_LOCALE] == label
+        assert sut.label.localize(DEFAULT_LOCALIZER) == label
 
     async def test_load__with_expanded_label(self) -> None:
         label = "Hello, world!"
         dump: Dump = {
             "id": "hello-world",
             "label": {
-                DEFAULT_LOCALIZER.locale: label,
+                DEFAULT_LOCALE: label,
             },
         }
-        sut = HumanFacingPluginDefinitionConfiguration(id="-", label="")
+        sut = HumanFacingPluginDefinitionConfiguration(id="-", label=Plain(""))
         sut.load(dump)
-        assert sut.label[DEFAULT_LOCALIZER.locale] == label
+        assert sut.label.localize(DEFAULT_LOCALIZER) == label
 
     async def test_load__with_undetermined_description(self) -> None:
         description = "Hello, world!"
@@ -101,9 +101,10 @@ class TestHumanFacingPluginDefinitionConfiguration:
             "label": "",
             "description": description,
         }
-        sut = HumanFacingPluginDefinitionConfiguration(id="-", label="")
+        sut = HumanFacingPluginDefinitionConfiguration(id="-", label=Plain(""))
         sut.load(dump)
-        assert sut.description[UNDETERMINED_LOCALE] == description
+        assert sut.description is not None
+        assert sut.description.localize(DEFAULT_LOCALIZER) == description
 
     async def test_load__with_expanded_description(self) -> None:
         description = "Hello, world!"
@@ -111,16 +112,19 @@ class TestHumanFacingPluginDefinitionConfiguration:
             "id": "hello-world",
             "label": "",
             "description": {
-                DEFAULT_LOCALIZER.locale: description,
+                DEFAULT_LOCALE: description,
             },
         }
-        sut = HumanFacingPluginDefinitionConfiguration(id="-", label="")
+        sut = HumanFacingPluginDefinitionConfiguration(id="-", label=Plain(""))
         sut.load(dump)
-        assert sut.description[DEFAULT_LOCALIZER.locale] == description
+        assert sut.description is not None
+        assert sut.description.localize(DEFAULT_LOCALIZER) == description
 
     async def test_dump__with_undetermined_label(self) -> None:
         label = "Hello, world!"
-        sut = HumanFacingPluginDefinitionConfiguration(id="hello-world", label=label)
+        sut = HumanFacingPluginDefinitionConfiguration(
+            id="hello-world", label=Plain(label)
+        )
         dump = sut.dump()
         assert isinstance(dump, dict)
         assert dump["label"] == label
@@ -128,18 +132,18 @@ class TestHumanFacingPluginDefinitionConfiguration:
     async def test_dump__with_expanded_label(self) -> None:
         label = "Hello, world!"
         sut = HumanFacingPluginDefinitionConfiguration(
-            id="hello-world", label={DEFAULT_LOCALIZER.locale: label}
+            id="hello-world", label=StaticTranslations({DEFAULT_LOCALE: label})
         )
         dump = sut.dump()
         assert isinstance(dump, dict)
         assert dump["label"] == {
-            DEFAULT_LOCALIZER.locale: label,
+            DEFAULT_LOCALE: label,
         }
 
     async def test_dump__with_undetermined_description(self) -> None:
         description = "Hello, world!"
         sut = HumanFacingPluginDefinitionConfiguration(
-            id="hello-world", label="", description=description
+            id="hello-world", label=Plain(""), description=Plain(description)
         )
         dump = sut.dump()
         assert isinstance(dump, dict)
@@ -149,58 +153,26 @@ class TestHumanFacingPluginDefinitionConfiguration:
         description = "Hello, world!"
         sut = HumanFacingPluginDefinitionConfiguration(
             id="hello-world",
-            label="",
-            description={DEFAULT_LOCALIZER.locale: description},
+            label=Plain(""),
+            description=StaticTranslations({DEFAULT_LOCALE: description}),
         )
         dump = sut.dump()
         assert isinstance(dump, dict)
         assert dump["description"] == {
-            DEFAULT_LOCALIZER.locale: description,
+            DEFAULT_LOCALE: description,
         }
 
-    @pytest.mark.parametrize(
-        ("expected_locale", "expected_label", "init_label"),
-        [
-            ("und", "Hello, world!", "Hello, world!"),
-            (
-                DEFAULT_LOCALIZER.locale,
-                "Hello, world!",
-                {DEFAULT_LOCALIZER.locale: "Hello, world!"},
-            ),
-        ],
-    )
-    async def test_label(
-        self,
-        expected_locale: str,
-        expected_label: str,
-        init_label: ShorthandStaticTranslations,
-    ) -> None:
-        plugin_id = "hello-world"
-        sut = HumanFacingPluginDefinitionConfiguration(id=plugin_id, label=init_label)
-        assert sut.label[expected_locale] == expected_label
+    async def test_label(self) -> None:
+        label = Plain("")
+        sut = HumanFacingPluginDefinitionConfiguration(id="hello-world", label=label)
+        assert sut.label is label
 
-    @pytest.mark.parametrize(
-        ("expected_locale", "expected_description", "init_description"),
-        [
-            ("und", "Hello, world!", "Hello, world!"),
-            (
-                DEFAULT_LOCALIZER.locale,
-                "Hello, world!",
-                {DEFAULT_LOCALIZER.locale: "Hello, world!"},
-            ),
-        ],
-    )
-    async def test_description(
-        self,
-        expected_locale: str,
-        expected_description: str,
-        init_description: ShorthandStaticTranslations,
-    ) -> None:
-        plugin_id = "hello-world"
+    async def test_description(self) -> None:
+        description = Plain("")
         sut = HumanFacingPluginDefinitionConfiguration(
-            id=plugin_id, label="", description=init_description
+            id="hello-world", label=Plain(""), description=description
         )
-        assert sut.description[expected_locale] == expected_description
+        assert sut.description is description
 
 
 class TestPluginInstanceConfiguration:
@@ -208,10 +180,7 @@ class TestPluginInstanceConfiguration:
         value = "Hello, world!"
         sut = PluginInstanceConfiguration[
             ConfigurableDummyPluginDefinition, ConfigurableDummyPlugin
-        ](
-            ConfigurableDummyPluginOne.plugin,
-            configuration=DummyConfiguration(value),
-        )
+        ](ConfigurableDummyPluginOne.plugin, DummyConfiguration(value))
         assert sut.configuration == {"value": value}
 
     def test___init____with_configuration_dump(self):
@@ -220,10 +189,7 @@ class TestPluginInstanceConfiguration:
         }
         sut = PluginInstanceConfiguration[
             ConfigurableDummyPluginDefinition, ConfigurableDummyPlugin
-        ](
-            ConfigurableDummyPluginOne.plugin,
-            configuration=configuration,
-        )
+        ](ConfigurableDummyPluginOne.plugin, configuration)
         assert sut.configuration == configuration
 
     def test_id(self) -> None:
@@ -232,11 +198,21 @@ class TestPluginInstanceConfiguration:
         ](ClassedDummyPluginOne.plugin)
         assert sut.id == ClassedDummyPluginOne.plugin.id
 
-    def test_configuration(self) -> None:
+    def test_configuration__with_configuration(self) -> None:
+        configuration = DummyConfiguration()
         sut = PluginInstanceConfiguration[
             ConfigurableDummyPluginDefinition, ConfigurableDummyPlugin
-        ](ConfigurableDummyPluginOne.plugin, configuration=DummyConfiguration())
-        assert sut.configuration is sut.configuration
+        ](ConfigurableDummyPluginOne.plugin, configuration)
+        assert sut.configuration == sut.configuration
+        assert sut.configuration == configuration.dump()
+
+    def test_configuration__with_dump(self) -> None:
+        configuration = DummyConfiguration().dump()
+        sut = PluginInstanceConfiguration[
+            ConfigurableDummyPluginDefinition, ConfigurableDummyPlugin
+        ](ConfigurableDummyPluginOne.plugin, configuration)
+        assert sut.configuration == sut.configuration
+        assert sut.configuration == configuration
 
     def test_load__without_id(self) -> None:
         sut = PluginInstanceConfiguration[
@@ -277,7 +253,7 @@ class TestPluginInstanceConfiguration:
         value = "Hello, world!"
         sut = PluginInstanceConfiguration[
             ConfigurableDummyPluginDefinition, ConfigurableDummyPlugin
-        ](ConfigurableDummyPluginOne.plugin, configuration=DummyConfiguration(value))
+        ](ConfigurableDummyPluginOne.plugin, DummyConfiguration(value))
         expected = {
             "id": ConfigurableDummyPluginOne.plugin.id,
             "configuration": {
@@ -292,11 +268,11 @@ class TestPluginInstanceConfiguration:
         value = "Hello, world!"
         sut = PluginInstanceConfiguration[
             ConfigurableDummyPluginDefinition, ConfigurableDummyPlugin
-        ](ConfigurableDummyPluginOne.plugin, configuration=DummyConfiguration(value))
+        ](ConfigurableDummyPluginOne.plugin, DummyConfiguration(value))
         repository = StaticPluginRepository(
             ConfigurableDummyPluginDefinition, ConfigurableDummyPluginOne.plugin
         )
-        instance = await sut.new_plugin_instance(repository, factory=new)
+        instance = await sut.new_plugin_instance(repository, factory=new_target)
         assert isinstance(instance, ConfigurableDummyPluginOne)
         assert instance.configuration.value == value
 
@@ -309,7 +285,7 @@ class TestPluginInstanceConfiguration:
         repository = StaticPluginRepository(
             ConfigurableDummyPluginDefinition, ConfigurableDummyPluginOne.plugin
         )
-        instance = await sut.new_plugin_instance(repository, factory=new)
+        instance = await sut.new_plugin_instance(repository, factory=new_target)
         assert isinstance(instance, ConfigurableDummyPluginOne)
 
     async def test_new_plugin_instance__with_non_configurable_plugin_with_configuration(
@@ -318,12 +294,12 @@ class TestPluginInstanceConfiguration:
         value = "Hello, world!"
         sut = PluginInstanceConfiguration[
             ClassedDummyPluginDefinition, ClassedDummyPlugin
-        ](ClassedDummyPluginOne.plugin, configuration=DummyConfiguration(value))
+        ](ClassedDummyPluginOne.plugin, DummyConfiguration(value))
         repository = StaticPluginRepository(
             ClassedDummyPluginDefinition, ClassedDummyPluginOne.plugin
         )
         with pytest.raises(HumanFacingException):
-            await sut.new_plugin_instance(repository, factory=new)
+            await sut.new_plugin_instance(repository, factory=new_target)
 
     async def test_new_plugin_instance__with_non_configurable_plugin_without_configuration(
         self,
@@ -334,7 +310,7 @@ class TestPluginInstanceConfiguration:
         repository = StaticPluginRepository(
             ClassedDummyPluginDefinition, ClassedDummyPluginOne.plugin
         )
-        instance = await sut.new_plugin_instance(repository, factory=new)
+        instance = await sut.new_plugin_instance(repository, factory=new_target)
         assert isinstance(instance, ClassedDummyPluginOne)
 
 

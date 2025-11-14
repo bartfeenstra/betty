@@ -72,7 +72,10 @@ _BASELINE: Mapping[str, _ModuleIgnore] = {
             "shutdown": MissingReason.COVERED_ELSEWHERE,
         }
     },
-    "betty/app/factory.py": MissingReason.ABSTRACT,
+    "betty/app/factory.py": {
+        "AppDependentFactory": MissingReason.ABSTRACT,
+        "AppFactory": MissingReason.ABSTRACT,
+    },
     "betty/asset.py": {
         "AssetError": MissingReason.ABSTRACT,
         "AssetRepository": MissingReason.ABSTRACT,
@@ -121,6 +124,7 @@ _BASELINE: Mapping[str, _ModuleIgnore] = {
         },
     },
     "betty/config/collections/__init__.py": MissingReason.ABSTRACT,
+    "betty/config/factory.py": MissingReason.ABSTRACT,
     "betty/content_provider/__init__.py": {
         "ContentProvider": MissingReason.ABSTRACT,
     },
@@ -145,6 +149,8 @@ _BASELINE: Mapping[str, _ModuleIgnore] = {
     "betty/service/container.py": {
         "ServiceInitializedError": MissingReason.ABSTRACT,
     },
+    "betty/service/level/__init__.py": MissingReason.ABSTRACT,
+    "betty/service/level/factory.py": MissingReason.ABSTRACT,
     "betty/data.py": {
         "Context": MissingReason.ABSTRACT,
         "Selector": MissingReason.ABSTRACT,
@@ -174,7 +180,7 @@ _BASELINE: Mapping[str, _ModuleIgnore] = {
     },
     "betty/factory.py": {
         "Factory": MissingReason.PROTOCOL,
-        "IndependentFactory": MissingReason.ABSTRACT,
+        "SelfFactory": MissingReason.ABSTRACT,
         "TargetFactory": MissingReason.ABSTRACT,
     },
     "betty/fetch/__init__.py": {
@@ -298,6 +304,9 @@ _BASELINE: Mapping[str, _ModuleIgnore] = {
         "npgettext": MissingReason.SHOULD_BE_COVERED,
         "pgettext": MissingReason.SHOULD_BE_COVERED,
         "StaticTranslationsAttr": MissingReason.INTERNAL,
+    },
+    "betty/locale/localizable/config.py": {
+        "RequiredLocalizableConfigurationAttrNotInitialized": MissingReason.STATIC_CONTENT_ONLY,
     },
     "betty/media_type/__init__.py": {
         "InvalidMediaType": MissingReason.STATIC_CONTENT_ONLY,
@@ -443,7 +452,10 @@ _BASELINE: Mapping[str, _ModuleIgnore] = {
             "populate_images": MissingReason.SHOULD_BE_COVERED,
         },
     },
-    "betty/project/factory.py": MissingReason.ABSTRACT,
+    "betty/project/factory.py": {
+        "ProjectDependentFactory": MissingReason.ABSTRACT,
+        "ProjectFactory": MissingReason.ABSTRACT,
+    },
     "betty/project/generate/__init__.py": {
         "Generator": MissingReason.ABSTRACT,
     },

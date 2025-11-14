@@ -13,11 +13,3 @@ from betty.locale.localizable import Plain
 )
 class _FrontPageContent(Template):
     pass
-
-
-@ContentProviderDefinition(
-    id="-demo-front-page-summary",
-    label=Plain("Front page summary (demo)"),
-)
-class _FrontPageSummary(Template):
-    pass

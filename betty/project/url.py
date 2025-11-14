@@ -11,7 +11,7 @@ from typing_extensions import override
 
 from betty.media_type.media_types import HTML, JSON, JSON_LD
 from betty.model import Entity, EntityDefinition
-from betty.project.factory import ProjectDependentFactory
+from betty.project.factory import ProjectDependentSelfFactory
 from betty.string import camel_case_to_kebab_case
 from betty.url import (
     InvalidMediaType,
@@ -31,7 +31,7 @@ if TYPE_CHECKING:
     from betty.project import Project
 
 
-class _ProjectUrlGenerator(ProjectDependentFactory):
+class _ProjectUrlGenerator(ProjectDependentSelfFactory):
     def __init__(
         self,
         base_url: str,

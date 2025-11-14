@@ -4,7 +4,7 @@ from typing import TYPE_CHECKING, final, Self
 
 from typing_extensions import override
 
-from betty.app.factory import AppDependentFactory
+from betty.app.factory import AppDependentSelfFactory
 from betty.assertion import (
     assert_or,
     assert_none,
@@ -29,7 +29,7 @@ if TYPE_CHECKING:
     id="update-translations",
     label=_("Update all existing translations"),
 )
-class UpdateTranslations(AppDependentFactory, Command):
+class UpdateTranslations(AppDependentSelfFactory, Command):
     """
     A command to update all of a project's translations.
     """

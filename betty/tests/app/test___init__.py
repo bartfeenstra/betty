@@ -5,7 +5,7 @@ from typing import TYPE_CHECKING, Self
 from typing_extensions import override
 
 from betty.app import App
-from betty.app.factory import AppDependentFactory
+from betty.app.factory import AppDependentFactory, AppDependentSelfFactory
 from betty.locale.localizer import DEFAULT_LOCALIZER
 from betty.project import Project
 from betty.requirement import Requirement
@@ -79,7 +79,18 @@ class TestApp:
     async def test_new_target__with_app_dependent_factory(
         self, temporary_app: App
     ) -> None:
-        class Dependent(AppDependentFactory):
+        class _Factory(AppDependentFactory[App]):
+            @override
+            async def new_for_app(self, app: App, /) -> App:
+                return app
+
+        target = await temporary_app.new_target(_Factory())
+        assert target is temporary_app
+
+    async def test_new_target__with_app_dependent_self_factory(
+        self, temporary_app: App
+    ) -> None:
+        class Dependent(AppDependentSelfFactory):
             def __init__(self, app: App):
                 self.app = app
 

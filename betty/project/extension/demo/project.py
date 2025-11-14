@@ -10,6 +10,8 @@ from betty.ancestry.event import Event
 from betty.ancestry.person import Person
 from betty.ancestry.place import Place
 from betty.ancestry.source import Source
+from betty.content_provider.content_providers import PlainText, PlainTextConfiguration
+from betty.locale.localizable import _
 from betty.model.config import EntityReference, EntityReferenceSequence
 from betty.plugin.config import PluginInstanceConfiguration
 from betty.project import Project
@@ -18,10 +20,7 @@ from betty.project.config import (
     LocaleConfiguration,
     ProjectConfiguration,
 )
-from betty.project.extension.demo.content_provider import (
-    _FrontPageContent,
-    _FrontPageSummary,
-)
+from betty.project.extension.demo.content_provider import _FrontPageContent
 from betty.project.extension.raspberry_mint import RaspberryMint
 from betty.project.extension.raspberry_mint.config import RaspberryMintConfiguration
 from betty.project.extension.raspberry_mint.content_provider import (
@@ -46,38 +45,24 @@ async def create_project(app: App, project_directory_path: Path) -> Project:
         project_directory_path / "betty.json",
         name=Demo.plugin.id,
         license=PluginInstanceConfiguration("spdx-gpl-3--0-or-later"),
-        title={
-            "en-US": "A Betty demonstration",
-            "de-DE": "Eine Betty-Demonstration",
-            "fr-FR": "Une démonstration de Betty",
-            "nl-NL": "Een demonstratie van Betty",
-            "uk": "Демонстрація Betty",
-        },
-        author={
-            "en-US": "Bart Feenstra and contributors",
-            "fr-FR": "Bart Feenstra et contributeurs",
-            "nl-NL": "Bart Feenstra en bijdragers",
-            "uk": "Bart Feenstra і учасники",
-        },
+        title=_("A Betty demonstration"),
+        author=_("Bart Feenstra and contributors"),
         extensions=[
-            PluginInstanceConfiguration(Demo.plugin),
+            PluginInstanceConfiguration(Demo),
             PluginInstanceConfiguration(
-                RaspberryMint.plugin,
-                configuration=RaspberryMintConfiguration(
+                RaspberryMint,
+                RaspberryMintConfiguration(
                     regional_content={
                         "front-page-content": [
                             PluginInstanceConfiguration(_FrontPageContent),
                             PluginInstanceConfiguration(
                                 Section,
-                                configuration=SectionConfiguration(
-                                    heading={
-                                        "en-US": "Have a look around...",
-                                        "nl-NL": "Neem gerust een kijkje...",
-                                    },
+                                SectionConfiguration(
+                                    heading=_("Start exploring..."),
                                     content=[
                                         PluginInstanceConfiguration(
                                             FeaturedEntities,
-                                            configuration=EntityReferenceSequence(
+                                            EntityReferenceSequence(
                                                 [
                                                     EntityReference(
                                                         Place, "betty-demo-amsterdam"
@@ -97,7 +82,14 @@ async def create_project(app: App, project_directory_path: Path) -> Project:
                             ),
                         ],
                         "front-page-summary": [
-                            PluginInstanceConfiguration(_FrontPageSummary),
+                            PluginInstanceConfiguration(
+                                PlainText,
+                                PlainTextConfiguration(
+                                    _(
+                                        "Betty is an application that takes a family tree and builds a website out of it, much like the one you are viewing right now. The more information your genealogical research contains, the more interactivity Betty can add to your site, such as media galleries, maps, and browsable family trees."
+                                    )
+                                ),
+                            ),
                         ],
                     },
                 ),

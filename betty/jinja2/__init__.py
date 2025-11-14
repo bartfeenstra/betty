@@ -31,7 +31,7 @@ from betty.jinja2.filter import filters
 from betty.jinja2.test import tests
 from betty.media_type import UnsupportedMediaType, match_extension
 from betty.media_type.media_types import JINJA2
-from betty.project.factory import ProjectDependentFactory
+from betty.project.factory import ProjectDependentSelfFactory
 from betty.resource import Context, copy_context
 from betty.resource import Context as ResourceContext
 from betty.typing import private
@@ -131,7 +131,7 @@ class Jinja2Provider:
         return {}
 
 
-class Environment(ProjectDependentFactory, Jinja2Environment):
+class Environment(ProjectDependentSelfFactory, Jinja2Environment):
     """
     Betty's Jinja2 environment.
     """

@@ -14,7 +14,8 @@ from betty.assertion import (
     assert_record,
     assert_setattr,
 )
-from betty.config import Configurable, Configuration
+from betty.config import Configuration
+from betty.config.factory import ConfigurationDependentSelfFactory
 from betty.content_provider import ContentProviderDefinition
 from betty.content_provider.config import (
     ContentProviderInstanceConfigurationSequence,
@@ -22,9 +23,8 @@ from betty.content_provider.config import (
 )
 from betty.content_provider.content_providers import Template
 from betty.jinja2 import Environment
-from betty.locale.localizable import ShorthandStaticTranslations, _
-from betty.locale.localizable.assertion import assert_static_translations
-from betty.locale.localizable.config import RequiredStaticTranslationsConfigurationAttr
+from betty.locale.localizable import LocalizableLike, Plain, _, ensure_localizable
+from betty.locale.localizable.config import RequiredLocalizableConfigurationAttr
 from betty.machine_name import MachineName, assert_machine_name
 from betty.model import EntityDefinition
 from betty.model.config import EntityReferenceSequence
@@ -32,10 +32,15 @@ from betty.plugin.classed import ClassedPlugin
 from betty.plugin.config import PluginInstanceConfigurationSequence
 from betty.project import Project
 from betty.project.extension.raspberry_mint import RaspberryMint
+from betty.project.factory import (
+    CallbackProjectDependentFactory,
+    ProjectDependentSelfFactory,
+)
 from betty.requirement import HasRequirement, Requirement
 from betty.resource import Context
 from betty.serde.dump import Dump
 from betty.service.level import ServiceLevel
+from betty.service.level.factory import AnyFactoryTarget
 from betty.typing import private
 
 if TYPE_CHECKING:
@@ -58,21 +63,18 @@ class SectionConfiguration(Configuration):
     Configuration for :py:class:`betty.project.extension.raspberry_mint.content_provider.Section`.
     """
 
-    heading = RequiredStaticTranslationsConfigurationAttr("heading")
-    """
-    The human-readable heading text.
-    """
+    heading = RequiredLocalizableConfigurationAttr("heading")
 
     def __init__(
         self,
         *,
-        heading: ShorthandStaticTranslations,
+        heading: LocalizableLike,
         content: ShorthandContentProviderInstanceConfigurationSequence = None,
         name: MachineName | None = None,
         visually_hide_heading: bool = False,
     ):
         super().__init__()
-        self.heading = heading
+        self.heading = ensure_localizable(heading)
         self._content = PluginInstanceConfigurationSequence(content)
         self.name = name
         self.visually_hide_heading = visually_hide_heading
@@ -88,10 +90,7 @@ class SectionConfiguration(Configuration):
     def load(self, dump: Dump, /) -> None:
         assert_record(
             OptionalField("name", assert_machine_name() | assert_setattr(self, "name")),
-            RequiredField(
-                "heading",
-                assert_static_translations() | assert_setattr(self, "heading"),
-            ),
+            RequiredField("heading", type(self).heading.assert_load(self)),
             RequiredField("content", self.content.load),
             OptionalField(
                 "visually_hide_heading",
@@ -102,7 +101,7 @@ class SectionConfiguration(Configuration):
     @override
     def dump(self) -> Dump:
         dump = {
-            "heading": self.heading.dump(),
+            "heading": type(self).heading.dump(self),
             "content": self.content.dump(),
         }
         if self.name:
@@ -120,7 +119,12 @@ class SectionConfiguration(Configuration):
     id="raspberry-mint-section",
     label=_("Section"),
 )
-class Section(Template, Configurable[SectionConfiguration], _Base):
+class Section(
+    Template,
+    _Base,
+    ProjectDependentSelfFactory,
+    ConfigurationDependentSelfFactory[SectionConfiguration],
+):
     """
     A section on the page with a heading and a permanent link.
     """
@@ -133,11 +137,24 @@ class Section(Template, Configurable[SectionConfiguration], _Base):
         configuration: SectionConfiguration | None = None,
     ):
         super().__init__(
-            configuration=SectionConfiguration(name="", heading="")
+            configuration=SectionConfiguration(name="", heading=Plain(""))
             if configuration is None
             else configuration,
             jinja2_environment=jinja2_environment,
         )
+
+    @override
+    @classmethod
+    def new_for_configuration(
+        cls, configuration: SectionConfiguration
+    ) -> AnyFactoryTarget[Self]:
+        async def _factory(project: Project) -> Self:
+            return cls(
+                configuration=configuration,
+                jinja2_environment=await project.jinja2_environment,
+            )
+
+        return CallbackProjectDependentFactory(_factory)
 
     @override
     async def _provide_data(self, resource: Context) -> Mapping[str, Any]:
@@ -153,7 +170,11 @@ class Section(Template, Configurable[SectionConfiguration], _Base):
     id="raspberry-mint-featured-entities",
     label=_("Featured entities"),
 )
-class FeaturedEntities(Template, Configurable[EntityReferenceSequence], _Base):
+class FeaturedEntities(
+    Template,
+    ConfigurationDependentSelfFactory[EntityReferenceSequence],
+    _Base,
+):
     """
     Featured entities.
     """
@@ -164,7 +185,7 @@ class FeaturedEntities(Template, Configurable[EntityReferenceSequence], _Base):
         *,
         jinja2_environment: Environment,
         project: Project,
-        configuration: SectionConfiguration | None = None,
+        configuration: EntityReferenceSequence | None = None,
     ):
         super().__init__(
             configuration=EntityReferenceSequence()
@@ -178,6 +199,20 @@ class FeaturedEntities(Template, Configurable[EntityReferenceSequence], _Base):
     @classmethod
     async def new_for_project(cls, project: Project, /) -> Self:
         return cls(jinja2_environment=await project.jinja2_environment, project=project)
+
+    @override
+    @classmethod
+    def new_for_configuration(
+        cls, configuration: EntityReferenceSequence
+    ) -> AnyFactoryTarget[Self]:
+        async def _factory(project: Project) -> Self:
+            return cls(
+                configuration=configuration,
+                jinja2_environment=await project.jinja2_environment,
+                project=project,
+            )
+
+        return CallbackProjectDependentFactory(_factory)
 
     @override
     async def _provide_data(self, resource: Context) -> Mapping[str, Any]:

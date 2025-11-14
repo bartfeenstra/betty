@@ -17,7 +17,7 @@ from betty.locale.localizable import Plain, _
 from betty.project.extension import Extension, ExtensionDefinition
 from betty.project.extension.wiki.config import WikiConfiguration
 from betty.project.extension.wiki.jobs import PopulateEntity
-from betty.project.factory import ProjectDependentFactory
+from betty.project.factory import ProjectDependentSelfFactory
 from betty.project.load import PostLoader
 from betty.service.container import service
 from betty.typing import private
@@ -49,7 +49,7 @@ class Wiki(
     Configurable[WikiConfiguration],
     Extension,
     Jinja2Provider,
-    ProjectDependentFactory,
+    ProjectDependentSelfFactory,
 ):
     """
     Integrates Betty with `Wikipedia <https://wikipedia.org>`_.

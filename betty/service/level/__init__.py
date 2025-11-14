@@ -2,10 +2,12 @@
 Service levels.
 """
 
-from typing import TypeAlias
+from typing import TypeAlias, TypeVar
 
 from betty.app import App
 from betty.project import Project
+
+_T = TypeVar("_T")
 
 ServiceLevel: TypeAlias = None | App | Project
 """

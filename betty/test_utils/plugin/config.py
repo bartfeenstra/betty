@@ -4,9 +4,11 @@ Test utilities for :py:mod:`betty.plugin.config`.
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, ClassVar, Generic, TypeVar, cast, final
+from typing import TYPE_CHECKING, ClassVar, Generic, Self, TypeVar, cast, final
 
-from betty.config import Configurable
+from typing_extensions import override
+
+from betty.config.factory import ConfigurationDependentSelfFactory
 from betty.locale.localizable import Plain
 from betty.machine_name import MachineName
 from betty.plugin import PluginDefinition, PluginTypeDefinition
@@ -20,6 +22,7 @@ from betty.test_utils.config import DummyConfiguration
 from betty.test_utils.config.collections.mapping import ConfigurationMappingTestBase
 
 if TYPE_CHECKING:
+    from betty.service.level.factory import AnyFactoryTarget
     from betty.test_utils.config.collections import (
         ConfigurationCollectionTestBaseNewSut,
         ConfigurationCollectionTestBaseSutConfigurations,
@@ -63,15 +66,26 @@ class PluginDefinitionConfigurationMappingTestBase(
             assert plugin.id == configuration.id
 
 
-class ConfigurableDummyPlugin(Configurable[DummyConfiguration]):
+class ConfigurableDummyPlugin(ConfigurationDependentSelfFactory[DummyConfiguration]):
     """
     A configurable dummy plugin.
     """
 
     plugin: ClassVar[ConfigurableDummyPluginDefinition]
 
-    def __init__(self):
-        super().__init__(configuration=DummyConfiguration())
+    def __init__(self, *, configuration: DummyConfiguration | None = None):
+        super().__init__(
+            configuration=DummyConfiguration()
+            if configuration is None
+            else configuration
+        )
+
+    @override
+    @classmethod
+    def new_for_configuration(
+        cls, configuration: DummyConfiguration
+    ) -> AnyFactoryTarget[Self]:
+        return lambda: cls(configuration=configuration)
 
 
 class ConfigurableDummyPluginDefinition(

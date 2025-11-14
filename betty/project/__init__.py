@@ -18,7 +18,7 @@ from typing_extensions import TypeVar, override
 import betty
 import betty.dirs
 from betty.ancestry import Ancestry
-from betty.app.factory import AppFactoryTarget
+from betty.app.factory import AppTarget
 from betty.asset import AssetRepository, ProxyAssetRepository, StaticAssetRepository
 from betty.config import Configurable
 from betty.copyright_notice import CopyrightNotice, CopyrightNoticeDefinition
@@ -46,7 +46,11 @@ from betty.plugin.resolve import ResolvableId, resolve_id
 from betty.privacy.privatizer import Privatizer
 from betty.project.config import ProjectConfiguration
 from betty.project.extension import Extension, ExtensionDefinition
-from betty.project.factory import ProjectDependentFactory, ProjectFactoryTarget
+from betty.project.factory import (
+    ProjectDependentFactory,
+    ProjectDependentSelfFactory,
+    ProjectTarget,
+)
 from betty.project.url import new_project_url_generator
 from betty.render import RenderDispatcher, RendererDefinition
 from betty.requirement import Requirement, StaticRequirement
@@ -338,10 +342,14 @@ class Project(
         return initialized_extensions
 
     @override
-    async def new_target(self, target: ProjectFactoryTarget[_T]) -> _T:
-        if isinstance(target, type) and issubclass(target, ProjectDependentFactory):
+    async def new_target(self, target: ProjectTarget[_T]) -> _T:
+        if (
+            isinstance(target, ProjectDependentFactory)
+            or isinstance(target, type)
+            and issubclass(target, ProjectDependentSelfFactory)
+        ):
             return cast(_T, await target.new_for_project(self))
-        return await self.app.new_target(cast(AppFactoryTarget[_T], target))
+        return await self.app.new_target(cast(AppTarget[_T], target))
 
     @property
     def logo(self) -> Path:

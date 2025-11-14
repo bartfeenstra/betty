@@ -5,14 +5,25 @@ Functionality for creating new instances of types that depend on :py:class:`bett
 from __future__ import annotations
 
 from abc import abstractmethod
-from typing import TYPE_CHECKING, Self, TypeAlias, TypeVar
+from typing import (
+    TYPE_CHECKING,
+    Generic,
+    Protocol,
+    Self,
+    TypeAlias,
+    TypeVar,
+    final,
+)
 
 from typing_extensions import override
 
-from betty.app.factory import AppFactoryTarget
+from betty.app.factory import AppTarget
+from betty.asyncio import ensure_await
 from betty.requirement import HasRequirement, Requirement
 
 if TYPE_CHECKING:
+    from collections.abc import Awaitable, Callable
+
     from betty.project import Project
     from betty.service.level import ServiceLevel
 
@@ -20,7 +31,7 @@ if TYPE_CHECKING:
 _T = TypeVar("_T")
 
 
-class ProjectDependentFactory(HasRequirement):
+class ProjectDependentSelfFactory(HasRequirement):
     """
     Allow this type to be instantiated using a :py:class:`betty.project.Project`.
     """
@@ -40,9 +51,54 @@ class ProjectDependentFactory(HasRequirement):
         return await Project.requirement_for(services, str(cls))
 
 
-ProjectFactoryTarget: TypeAlias = AppFactoryTarget[_T] | ProjectDependentFactory
+class ProjectDependentFactory(Generic[_T]):
+    """
+    Create new instances using a :py:class:`betty.project.Project`.
+    """
+
+    @abstractmethod
+    async def new_for_project(self, project: Project, /) -> _T:
+        """
+        Create a new instance using the given project.
+        """
+
+
+@final
+class CallbackProjectDependentFactory(ProjectDependentFactory[_T], Generic[_T]):
+    """
+    Create new instances using a callback that takes a :py:class:`betty.project.Project`.
+    """
+
+    def __init__(
+        self, callback: Callable[[Project], Awaitable[_T]] | Callable[[Project], _T], /
+    ):
+        self._callback = callback
+
+    @override
+    async def new_for_project(self, project: Project, /) -> _T:
+        return await ensure_await(self._callback(project))
+
+
+ProjectTarget: TypeAlias = (
+    AppTarget[_T] | ProjectDependentSelfFactory | ProjectDependentFactory[_T]
+)
 """
-#. If ``target`` subclasses :py:class:`betty.app.project.ProjectDependentFactory`, this will call return ``target``'s
+#. If ``target`` subclasses :py:class:`betty.app.project.ProjectDependentSelfFactory`, this will return ``target``'s
+   ``new_for_project()``'s return value.
+#. If ``target`` is an instance of :py:class:`betty.app.project.ProjectDependentFactory`, this will return ``target``'s
    ``new_for_project()``'s return value.
 #. Else, ``target`` will be treated as :py:type:`betty.app.factory.AppFactoryTarget`.
 """
+
+
+class ProjectFactory(Protocol):
+    """
+    The project factory.
+    """
+
+    async def __call__(self, target: ProjectTarget[_T]) -> _T:
+        """
+        Create a new instance.
+
+        :raises FactoryError: raised when ``target`` could not be instantiated.
+        """

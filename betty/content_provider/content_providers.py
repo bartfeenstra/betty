@@ -8,14 +8,15 @@ from typing import TYPE_CHECKING, Any, Self
 
 from typing_extensions import override
 
-from betty.config import Configurable
+from betty.assertion import RequiredField, assert_record
+from betty.config import Configuration
+from betty.config.factory import ConfigurationDependentSelfFactory
 from betty.content_provider import ContentProvider, ContentProviderDefinition
-from betty.factory import IndependentFactory
 from betty.html import plain_text_to_html
-from betty.locale.localizable import _
-from betty.locale.localizable.config import StaticTranslationsConfiguration
+from betty.locale.localizable import LocalizableLike, _
+from betty.locale.localizable.config import RequiredLocalizableConfigurationAttr
 from betty.plugin.classed import ClassedPlugin
-from betty.project.factory import ProjectDependentFactory
+from betty.project.factory import ProjectDependentSelfFactory
 from betty.typing import private
 
 if TYPE_CHECKING:
@@ -24,6 +25,32 @@ if TYPE_CHECKING:
     from betty.jinja2 import Environment
     from betty.project import Project
     from betty.resource import Context
+    from betty.serde.dump import Dump
+    from betty.service.level.factory import AnyFactoryTarget
+
+
+class PlainTextConfiguration(Configuration):
+    """
+    Configuration for :py:class:`betty.content_provider.content_providers.PlainText`.
+    """
+
+    text = RequiredLocalizableConfigurationAttr("text")
+
+    def __init__(self, text: LocalizableLike, /):
+        super().__init__()
+        self.text = text
+
+    @override
+    def load(self, dump: Dump, /) -> None:
+        assert_record(
+            RequiredField("text", type(self).text.assert_load(self)),
+        )(dump)
+
+    @override
+    def dump(self) -> Dump:
+        return {
+            "text": type(self).text.dump(self),
+        }
 
 
 @ContentProviderDefinition(
@@ -33,24 +60,35 @@ if TYPE_CHECKING:
 class PlainText(
     ContentProvider,
     ClassedPlugin,
-    Configurable[StaticTranslationsConfiguration],
-    IndependentFactory,
+    ConfigurationDependentSelfFactory[PlainTextConfiguration],
 ):
     """
     Plain text content.
     """
 
+    @private
+    def __init__(self, *, configuration: PlainTextConfiguration | None = None):
+        super().__init__(
+            configuration=PlainTextConfiguration("")
+            if configuration is None
+            else configuration
+        )
+
     @override
     @classmethod
-    async def new(cls) -> Self:
-        return cls(configuration=StaticTranslationsConfiguration())
+    def new_for_configuration(
+        cls, configuration: PlainTextConfiguration
+    ) -> AnyFactoryTarget[Self]:
+        return lambda: cls(configuration=configuration)
 
     @override
     async def provide(self, *, resource: Context) -> str | None:
-        return plain_text_to_html(self.configuration.localize(resource["localizer"]))
+        return plain_text_to_html(
+            self.configuration.text.localize(resource["localizer"])
+        )
 
 
-class Template(ContentProvider, ClassedPlugin, ProjectDependentFactory):
+class Template(ContentProvider, ClassedPlugin, ProjectDependentSelfFactory):
     """
     Provides content by rendering a Jinja2 template.
     """

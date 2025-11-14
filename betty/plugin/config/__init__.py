@@ -23,12 +23,13 @@ from betty.config import Configurable, Configuration
 from betty.config.collections import ConfigurationKey
 from betty.config.collections.mapping import ConfigurationMapping
 from betty.config.collections.sequence import ConfigurationSequence
+from betty.config.factory import ConfigurationDependentSelfFactory
 from betty.exception import HumanFacingException
-from betty.locale.localizable import _
-from betty.locale.localizable.assertion import assert_static_translations
+from betty.importlib import fully_qualified_name
+from betty.locale.localizable import LocalizableLike, Plain, _, ensure_localizable
 from betty.locale.localizable.config import (
-    OptionalStaticTranslationsConfigurationAttr,
-    RequiredStaticTranslationsConfigurationAttr,
+    OptionalLocalizableConfigurationAttr,
+    RequiredLocalizableConfigurationAttr,
 )
 from betty.machine_name import MachineName, assert_machine_name
 from betty.plugin import PluginDefinition
@@ -39,10 +40,9 @@ from betty.typing import Void, Voidable
 if TYPE_CHECKING:
     from collections.abc import Iterable
 
-    from betty.factory import Factory
-    from betty.locale.localizable import ShorthandStaticTranslations
     from betty.plugin.repository import PluginRepository
     from betty.serde.dump import Dump, DumpMapping
+    from betty.service.level.factory import AnyFactory
 
 _PluginT = TypeVar("_PluginT")
 _ConfigurationT = TypeVar("_ConfigurationT", bound=Configuration)
@@ -111,20 +111,20 @@ class HumanFacingPluginDefinitionConfiguration(PluginDefinitionConfiguration):
     Configure a :py:class:`betty.plugin.human_facing.HumanFacingPluginDefinition`.
     """
 
-    label = RequiredStaticTranslationsConfigurationAttr("label")
-    description = OptionalStaticTranslationsConfigurationAttr("description")
+    label = RequiredLocalizableConfigurationAttr("label")
+    description = OptionalLocalizableConfigurationAttr("description")
 
     def __init__(
         self,
         *,
-        label: ShorthandStaticTranslations,
-        description: ShorthandStaticTranslations | None = None,
+        label: LocalizableLike,
+        description: LocalizableLike | None = None,
         **kwargs: Any,
     ):
         super().__init__(**kwargs)
-        self.label = label
+        self.label = ensure_localizable(label)
         if description is not None:
-            self.description = description
+            self.description = ensure_localizable(description)
 
     @override
     def load(self, dump: Dump, /) -> None:
@@ -132,14 +132,8 @@ class HumanFacingPluginDefinitionConfiguration(PluginDefinitionConfiguration):
 
         mapping = assert_mapping()(dump)
         assert_fields(
-            RequiredField(
-                "label",
-                assert_static_translations() | assert_setattr(self, "label"),
-            ),
-            OptionalField(
-                "description",
-                assert_static_translations() | assert_setattr(self, "description"),
-            ),
+            RequiredField("label", type(self).label.assert_load(self)),
+            OptionalField("description", type(self).description.assert_load(self)),
         )(mapping)
         mapping.pop("label", None)
         mapping.pop("description", None)
@@ -148,8 +142,9 @@ class HumanFacingPluginDefinitionConfiguration(PluginDefinitionConfiguration):
     @override
     def dump(self) -> DumpMapping[Dump]:
         dump = super().dump()
-        dump["label"] = self.label.dump()
-        dump["description"] = self.description.dump()
+        dump["label"] = type(self).label.dump(self)
+        if (description := type(self).description.dump(self)) is not None:
+            dump["description"] = description
         return dump
 
 
@@ -207,24 +202,17 @@ class PluginInstanceConfiguration(
 ):
     """
     Configure a single plugin instance.
-
-    Plugins that extend :py:class:`betty.config.Configurable` may receive their configuration from
-    :py:attr:`betty.plugin.config.PluginInstanceConfiguration.configuration` / the `"configuration"` dump key.
     """
 
     def __init__(
         self,
         plugin: ResolvableId[_ClassedPluginDefinitionT, _PluginT & ClassedPlugin],
-        *,
         configuration: Voidable[Configuration | Dump] = Void(),  # noqa B008
+        /,
     ):
         super().__init__()
         self._id = assert_machine_name()(resolve_id(plugin))
-        self._configuration = (
-            configuration.dump()
-            if isinstance(configuration, Configuration)
-            else configuration
-        )
+        self._configuration = configuration
 
     @property
     def id(self) -> MachineName:
@@ -238,28 +226,49 @@ class PluginInstanceConfiguration(
         """
         Get the plugin's own configuration.
         """
-        return self._configuration
+        return (
+            self._configuration.dump()
+            if isinstance(self._configuration, Configuration)
+            else self._configuration
+        )
 
     async def new_plugin_instance(
         self,
         repository: PluginRepository[_ClassedPluginDefinitionT],
         *,
-        factory: Factory,
+        factory: AnyFactory,
     ) -> _PluginT:
         """
         Create a new plugin instance.
         """
-        plugin_definition = cast(ClassedPluginDefinition[_PluginT], repository[self.id])
-        plugin = await factory(plugin_definition.cls)
-        if not isinstance(self.configuration, Void):
-            if not isinstance(plugin, Configurable):
+        plugin_definition = cast(
+            ClassedPluginDefinition[_PluginT], repository[self._id]
+        )
+        if not isinstance(self._configuration, Void):
+            if not issubclass(plugin_definition.cls, Configurable):
                 raise HumanFacingException(
                     _(
                         'Plugin "{plugin_id}" is not configurable, but configuration was given.'
                     ).format(plugin_id=plugin_definition.id)
                 )
-            plugin.configuration.load(self.configuration)
-        return plugin
+            if isinstance(self._configuration, Configuration):
+                if not issubclass(
+                    plugin_definition.cls, ConfigurationDependentSelfFactory
+                ):
+                    raise HumanFacingException(
+                        Plain(
+                            f"Cannot instantiate {fully_qualified_name(plugin_definition.cls)} with configuration because it does not subclass {fully_qualified_name(ConfigurationDependentSelfFactory)}."
+                        )
+                    )
+                return await factory(
+                    plugin_definition.cls.new_for_configuration(self._configuration)  # type: ignore[arg-type]
+                )
+            plugin = await factory(
+                cast(type[Configurable[Configuration]], plugin_definition.cls)
+            )
+            plugin.configuration.load(self._configuration)
+            return plugin  # type: ignore[return-value]
+        return await factory(plugin_definition.cls)
 
     @override
     def load(self, dump: Dump, /) -> None:
@@ -277,9 +286,9 @@ class PluginInstanceConfiguration(
     def dump(self) -> Dump:
         configuration = self.configuration
         if isinstance(configuration, Void):
-            return self.id
+            return self._id
         return {
-            "id": self.id,
+            "id": self._id,
             "configuration": configuration,
         }
 

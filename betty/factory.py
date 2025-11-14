@@ -15,7 +15,7 @@ from betty.asyncio import ensure_await
 _T = TypeVar("_T", default=Any)
 
 
-class IndependentFactory(ABC):
+class SelfFactory(ABC):
     """
     Provide a factory for classes that can instantiate themselves asynchronously.
     """
@@ -29,10 +29,10 @@ class IndependentFactory(ABC):
 
 
 Target: TypeAlias = (
-    type[IndependentFactory] | type[_T] | Callable[[], Awaitable[_T]] | Callable[[], _T]
+    type[SelfFactory] | type[_T] | Callable[[], Awaitable[_T]] | Callable[[], _T]
 )
 """
-#. If ``target`` subclasses :py:class:`betty.factory.IndependentFactory`, this will call return ``target``'s
+#. If ``target`` subclasses :py:class:`betty.factory.SelfFactory`, this will return ``target``'s
    ``new()``'s return value.
 #. Else, if ``target`` is a class, ``target()`` will be called without arguments, and the resulting
    instance will be returned.
@@ -47,10 +47,10 @@ class FactoryError(RuntimeError):
     """
 
     def __init__(self, target: Target, /):
-        super().__init__(f"Could not instantiate {repr(target)}")
+        super().__init__(f"Could not call {repr(target)}")
 
 
-async def new(target: Target[_T], /) -> _T:
+async def new_target(target: Target[_T], /) -> _T:
     """
     Create a new instance.
 
@@ -58,7 +58,7 @@ async def new(target: Target[_T], /) -> _T:
     """
     try:
         if isinstance(target, type):
-            if issubclass(target, IndependentFactory):
+            if issubclass(target, SelfFactory):
                 return cast(_T, await target.new())
             return cast(type[_T], target)()
         return await ensure_await(target())

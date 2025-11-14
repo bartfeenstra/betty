@@ -10,7 +10,14 @@ from typing import TYPE_CHECKING, Never, Self
 from typing_extensions import override
 
 from betty.data import Selectors
-from betty.locale.localizable import Lines, Localizable, UnorderedList, _
+from betty.locale.localizable import (
+    Lines,
+    Localizable,
+    LocalizableLike,
+    UnorderedList,
+    _,
+    ensure_localized,
+)
 from betty.locale.localized import Localized, LocalizedStr
 
 if TYPE_CHECKING:
@@ -38,13 +45,13 @@ class HumanFacingException(Exception, Localizable):
     """
 
     def __init__(
-        self, message: Localizable, *, contexts: tuple[Context, ...] | None = None
+        self, message: LocalizableLike, *, contexts: tuple[Context, ...] | None = None
     ):
         from betty.locale.localizer import DEFAULT_LOCALIZER
 
         super().__init__(
             # Provide a default localization so this exception can be displayed like any other.
-            message.localize(DEFAULT_LOCALIZER),
+            ensure_localized(message, localizer=DEFAULT_LOCALIZER),
         )
         self._localizable_message = message
         self._contexts: tuple[Context, ...] = contexts or ()

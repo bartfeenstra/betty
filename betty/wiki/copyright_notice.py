@@ -10,7 +10,7 @@ from typing import TYPE_CHECKING, Self, final
 import aiohttp
 from typing_extensions import override
 
-from betty.app.factory import AppDependentFactory
+from betty.app.factory import AppDependentSelfFactory
 from betty.copyright_notice import CopyrightNotice, CopyrightNoticeDefinition
 from betty.locale import negotiate_locale, to_babel_identifier
 from betty.locale.localizable import Localizable, _
@@ -31,7 +31,7 @@ if TYPE_CHECKING:
     id="wikipedia-contributors",
     label=_("Wikipedia contributors"),
 )
-class WikipediaContributors(AppDependentFactory, CopyrightNotice):
+class WikipediaContributors(AppDependentSelfFactory, CopyrightNotice):
     """
     The copyright for resources on Wikipedia.
     """

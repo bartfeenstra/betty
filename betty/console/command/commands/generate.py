@@ -4,7 +4,7 @@ from typing import TYPE_CHECKING, final, Self
 
 from typing_extensions import override
 
-from betty.app.factory import AppDependentFactory
+from betty.app.factory import AppDependentSelfFactory
 from betty.cache.memory import MemoryCache
 from betty.console.command import Command, CommandFunction, CommandDefinition
 from betty.console.project import add_project_argument
@@ -23,7 +23,7 @@ if TYPE_CHECKING:
     id="generate",
     label=_("Generate a static site"),
 )
-class Generate(AppDependentFactory, Command):
+class Generate(AppDependentSelfFactory, Command):
     """
     A command to generate a new site.
     """

@@ -7,7 +7,8 @@ import pytest
 from typing_extensions import override
 
 from betty.ancestry import Ancestry
-from betty.app.factory import AppDependentFactory
+from betty.app import App
+from betty.app.factory import AppDependentFactory, AppDependentSelfFactory
 from betty.exception import HumanFacingException
 from betty.locale.localizable import Plain
 from betty.locale.localizer import DEFAULT_LOCALIZER
@@ -15,7 +16,7 @@ from betty.model import EntityDefinition
 from betty.project import Project, ProjectContext, ProjectExtensions
 from betty.project.config import EntityTypeConfiguration, ProjectConfiguration
 from betty.project.extension import Extension, ExtensionDefinition
-from betty.project.factory import ProjectDependentFactory
+from betty.project.factory import ProjectDependentFactory, ProjectDependentSelfFactory
 from betty.requirement import Requirement, StaticRequirement, UnmetRequirement
 from betty.test_utils.model import DummyNonPublicFacingEntityOne
 from betty.test_utils.plugin import DummyPluginDefinition
@@ -24,7 +25,6 @@ from betty.test_utils.project.extension import DummyExtensionOne, DummyExtension
 if TYPE_CHECKING:
     from collections.abc import Sequence
 
-    from betty.app import App
     from betty.service.level import ServiceLevel
 
 
@@ -278,7 +278,19 @@ class TestProject:
     async def test_new_target__with_project_dependent_factory(
         self, temporary_app: App
     ) -> None:
-        class Dependent(ProjectDependentFactory):
+        class _Factory(ProjectDependentFactory[Project]):
+            @override
+            async def new_for_project(self, project: Project, /) -> Project:
+                return project
+
+        async with Project.new_temporary(temporary_app) as sut, sut:
+            target = await sut.new_target(_Factory())
+            assert target is sut
+
+    async def test_new_target__with_project_dependent_self_factory(
+        self, temporary_app: App
+    ) -> None:
+        class Dependent(ProjectDependentSelfFactory):
             def __init__(self, project: Project):
                 self.project = project
 
@@ -294,7 +306,19 @@ class TestProject:
     async def test_new_target__with_app_dependent_factory(
         self, temporary_app: App
     ) -> None:
-        class Dependent(AppDependentFactory):
+        class _Factory(AppDependentFactory[App]):
+            @override
+            async def new_for_app(self, app: App, /) -> App:
+                return app
+
+        async with Project.new_temporary(temporary_app) as sut, sut:
+            target = await sut.new_target(_Factory())
+            assert target is temporary_app
+
+    async def test_new_target__with_app_dependent_self_factory(
+        self, temporary_app: App
+    ) -> None:
+        class Dependent(AppDependentSelfFactory):
             def __init__(self, app: App):
                 self.app = app
 

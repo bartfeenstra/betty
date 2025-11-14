@@ -8,7 +8,7 @@ from typing import TYPE_CHECKING, Self, final
 
 from typing_extensions import override
 
-from betty.app.factory import AppDependentFactory
+from betty.app.factory import AppDependentSelfFactory
 from betty.console.command import Command, CommandFunction, CommandDefinition
 from betty.locale.localizable import _
 
@@ -26,7 +26,7 @@ _LEGACY_CACHE_DIRECTORY_PATH = Path.home() / ".betty" / "cache"
     id="clear-caches",
     label=_("Clear all caches"),
 )
-class ClearCaches(AppDependentFactory, Command):
+class ClearCaches(AppDependentSelfFactory, Command):
     """
     A command to clear all Betty caches.
     """

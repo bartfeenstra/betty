@@ -304,13 +304,27 @@ class Plain(Localizable):
     Turns a plain string into a :py:class:`betty.locale.localizable.Localizable` without any actual translations.
     """
 
-    def __init__(self, string: str, locale: str = UNDETERMINED_LOCALE, /):
-        self._string = string
+    def __init__(self, text: str, locale: str = UNDETERMINED_LOCALE, /):
+        self._text = text
         self._locale = locale
+
+    @property
+    def text(self) -> str:
+        """
+        The plain text.
+        """
+        return self._text
+
+    @property
+    def locale(self) -> str:
+        """
+        The locale the text is in.
+        """
+        return self._locale
 
     @override
     def localize(self, localizer: Localizer, /) -> Localized & str:
-        return LocalizedStr(self._string, locale=self._locale)
+        return LocalizedStr(self._text, locale=self._locale)
 
 
 @final
@@ -356,6 +370,7 @@ See :py:func:`betty.locale.localizable.assertion.assert_static_translations`.
 """
 
 
+@final
 class StaticTranslations(Mutable, Localizable):
     """
     Provide a :py:class:`betty.locale.localizable.Localizable` backed by static translations.
@@ -363,17 +378,11 @@ class StaticTranslations(Mutable, Localizable):
 
     _translations: MutableMapping[str, str]
 
-    def __init__(
-        self,
-        translations: ShorthandStaticTranslations | None = None,
-        *,
-        required: bool = True,
-    ):
+    def __init__(self, translations: ShorthandStaticTranslations | None = None, /):
         """
         :param translations: Keys are locales, values are translations.
         """
         super().__init__()
-        self._required = required
         if translations is not None:
             self.replace(translations)
         else:
@@ -401,7 +410,7 @@ class StaticTranslations(Mutable, Localizable):
             self._translations = translations._translations
         else:
             translations = assert_static_translations()(translations)
-            assert_len(minimum=1 if self._required else 0)(translations)
+            assert_len(minimum=1)(translations)
             self._translations = dict(translations)
 
     @property
@@ -442,8 +451,7 @@ class StaticTranslations(Mutable, Localizable):
         if type(other) is cls:
             return other
         return cls(
-            {localizer.locale: other.localize(localizer) for localizer in localizers},
-            required=required,
+            {localizer.locale: other.localize(localizer) for localizer in localizers}
         )
 
 

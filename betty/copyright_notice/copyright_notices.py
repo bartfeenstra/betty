@@ -9,7 +9,7 @@ from typing_extensions import override
 from betty.copyright_notice import CopyrightNotice, CopyrightNoticeDefinition
 from betty.locale.localizable import Localizable, _
 from betty.project import Project
-from betty.project.factory import ProjectDependentFactory
+from betty.project.factory import ProjectDependentSelfFactory
 
 
 @final
@@ -17,7 +17,7 @@ from betty.project.factory import ProjectDependentFactory
     id="project-author",
     label=_("Project author"),
 )
-class ProjectAuthor(ProjectDependentFactory, CopyrightNotice):
+class ProjectAuthor(ProjectDependentSelfFactory, CopyrightNotice):
     """
     Copyright belonging to a project author.
     """

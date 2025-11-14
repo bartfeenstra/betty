@@ -10,7 +10,7 @@ from betty.ancestry.source import Source
 from betty.assertion import assert_str, assert_path, assert_locale
 from betty.config.file import write_configuration_file
 from betty.locale import get_display_name, DEFAULT_LOCALE
-from betty.locale.localizable import _, StaticTranslationsMapping, Localizable
+from betty.locale.localizable import _, Localizable, StaticTranslations
 from betty.machine_name import machinify, assert_machine_name
 from betty.plugin.config import PluginInstanceConfiguration
 from betty.project.config import (
@@ -130,7 +130,7 @@ async def new(app: App) -> None:
         configuration.extensions.append(
             PluginInstanceConfiguration(
                 Gramps.plugin,
-                configuration=GrampsConfiguration(
+                GrampsConfiguration(
                     family_trees=[
                         FamilyTreeConfiguration(
                             await app.user.ask_input(
@@ -169,10 +169,12 @@ def _assert_url(value: Any) -> str:
 
 async def _user_input_static_translations(
     user: User, locales: Sequence[str], question: Localizable
-) -> StaticTranslationsMapping:
-    return {
-        locale: await user.ask_input(
-            question.format(locale=get_display_name(locale) or locale)
-        )
-        for locale in locales
-    }
+) -> StaticTranslations:
+    return StaticTranslations(
+        {
+            locale: await user.ask_input(
+                question.format(locale=get_display_name(locale) or locale)
+            )
+            for locale in locales
+        }
+    )

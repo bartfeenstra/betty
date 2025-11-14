@@ -7,7 +7,7 @@ from typing import TYPE_CHECKING, final, Self
 from typing_extensions import override
 
 import betty.project.extension.demo as stddemo
-from betty.app.factory import AppDependentFactory
+from betty.app.factory import AppDependentSelfFactory
 from betty.cache.memory import MemoryCache
 from betty.console.command import Command, CommandFunction, CommandDefinition
 from betty.locale.localizable import _
@@ -25,7 +25,7 @@ if TYPE_CHECKING:
     id="demo",
     label=_("Explore a demonstration site"),
 )
-class Demo(AppDependentFactory, Command):
+class Demo(AppDependentSelfFactory, Command):
     """
     A command to run the demonstration site.
     """

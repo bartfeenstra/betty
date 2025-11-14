@@ -15,6 +15,7 @@ from betty.ancestry.place_type.place_types import City
 from betty.ancestry.presence_role.presence_roles import Subject
 from betty.ancestry.source import Source
 from betty.app import App
+from betty.config.factory import ConfigurationDependentSelfFactory
 from betty.plugin.config import PluginInstanceConfiguration
 from betty.project import Project
 from betty.project.extension import Extension
@@ -24,14 +25,33 @@ from betty.project.extension.gramps.config import (
     GrampsConfiguration,
 )
 from betty.project.load import load
+from betty.test_utils.config.factory import (
+    ConfigurationDependentSelfFactoryTestBase,
+)
 from betty.test_utils.project.extension import ExtensionTestBase
 
 
-class TestGramps(ExtensionTestBase):
+class TestGramps(
+    ExtensionTestBase, ConfigurationDependentSelfFactoryTestBase[GrampsConfiguration]
+):
     @override
     @pytest.fixture
     async def sut(self) -> Extension:
         return Gramps()
+
+    @override
+    @pytest.fixture
+    async def configuration_dependent_self_factory_sut(
+        self,
+    ) -> type[ConfigurationDependentSelfFactory[GrampsConfiguration]]:
+        return Gramps
+
+    @override
+    @pytest.fixture
+    def configuration_dependent_self_factory_sut_configuration(
+        self,
+    ) -> GrampsConfiguration:
+        return GrampsConfiguration()
 
     async def test_load__with_event_type_mapping(
         self, temporary_app: App, tmp_path: Path
@@ -62,7 +82,7 @@ class TestGramps(ExtensionTestBase):
             project.configuration.extensions.append(
                 PluginInstanceConfiguration(
                     Gramps.plugin,
-                    configuration=GrampsConfiguration(
+                    GrampsConfiguration(
                         family_trees=[
                             FamilyTreeConfiguration(
                                 gramps_family_tree_path,
@@ -105,7 +125,7 @@ class TestGramps(ExtensionTestBase):
             project.configuration.extensions.append(
                 PluginInstanceConfiguration(
                     Gramps.plugin,
-                    configuration=GrampsConfiguration(
+                    GrampsConfiguration(
                         family_trees=[
                             FamilyTreeConfiguration(
                                 gramps_family_tree_path,
@@ -156,7 +176,7 @@ class TestGramps(ExtensionTestBase):
             project.configuration.extensions.append(
                 PluginInstanceConfiguration(
                     Gramps.plugin,
-                    configuration=GrampsConfiguration(
+                    GrampsConfiguration(
                         family_trees=[
                             FamilyTreeConfiguration(
                                 gramps_family_tree_path,
@@ -285,7 +305,7 @@ class TestGramps(ExtensionTestBase):
                 project.configuration.extensions.append(
                     PluginInstanceConfiguration(
                         Gramps.plugin,
-                        configuration=GrampsConfiguration(
+                        GrampsConfiguration(
                             family_trees=[
                                 FamilyTreeConfiguration(gramps_family_tree_one_path),
                                 FamilyTreeConfiguration(gramps_family_tree_two_path),

@@ -4,7 +4,7 @@ from typing import TYPE_CHECKING, final, Self
 
 from typing_extensions import override
 
-from betty.app.factory import AppDependentFactory
+from betty.app.factory import AppDependentSelfFactory
 from betty.assertion import assert_or, assert_none, assert_directory_path
 from betty.console.assertion import assertion_to_argument_type
 from betty.console.command import Command, CommandFunction, CommandDefinition
@@ -27,7 +27,7 @@ if TYPE_CHECKING:
     id="extension-update-translations",
     label=_("Update all existing translations for an extension"),
 )
-class ExtensionUpdateTranslations(AppDependentFactory, Command):
+class ExtensionUpdateTranslations(AppDependentSelfFactory, Command):
     """
     A command to update all of an extension's translations.
     """

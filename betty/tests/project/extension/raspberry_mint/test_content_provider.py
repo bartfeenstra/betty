@@ -1,14 +1,18 @@
 from typing import TYPE_CHECKING
 
 import pytest
+from typing_extensions import override
 
 from betty.ancestry.event import Event
 from betty.ancestry.person import Person
 from betty.ancestry.place import Place
 from betty.app import App
+from betty.config.factory import ConfigurationDependentSelfFactory
+from betty.content_provider.content_providers import PlainTextConfiguration
 from betty.exception import HumanFacingException
+from betty.locale.localizable import Plain
 from betty.locale.localizer import DEFAULT_LOCALIZER
-from betty.model.config import EntityReference
+from betty.model.config import EntityReference, EntityReferenceSequence
 from betty.plugin.config import PluginInstanceConfiguration
 from betty.project import Project
 from betty.project.extension.raspberry_mint import RaspberryMint
@@ -19,6 +23,7 @@ from betty.project.extension.raspberry_mint.content_provider import (
     SectionConfiguration,
 )
 from betty.resource import new_context
+from betty.test_utils.config.factory import ConfigurationDependentSelfFactoryTestBase
 
 if TYPE_CHECKING:
     from collections.abc import Sequence
@@ -26,7 +31,23 @@ if TYPE_CHECKING:
     from betty.content_provider import ContentProvider, ContentProviderDefinition
 
 
-class TestFeaturedEntities:
+class TestFeaturedEntities(
+    ConfigurationDependentSelfFactoryTestBase[EntityReferenceSequence]
+):
+    @override
+    @pytest.fixture
+    async def configuration_dependent_self_factory_sut(
+        self,
+    ) -> type[ConfigurationDependentSelfFactory[EntityReferenceSequence]]:
+        return FeaturedEntities
+
+    @override
+    @pytest.fixture
+    def configuration_dependent_self_factory_sut_configuration(
+        self,
+    ) -> EntityReferenceSequence:
+        return EntityReferenceSequence()
+
     async def test_provide__without_entities(self, temporary_app: App) -> None:
         async with Project.new_temporary(temporary_app) as project:
             project.configuration.extensions.enable(RaspberryMint)
@@ -52,19 +73,19 @@ class TestSectionConfiguration:
         content: Sequence[
             PluginInstanceConfiguration[ContentProviderDefinition, ContentProvider]
         ] = [PluginInstanceConfiguration("my-first-content")]
-        sut = SectionConfiguration(name="", heading="", content=content)
+        sut = SectionConfiguration(name="", heading=Plain(""), content=content)
         assert sut.content[0].id == "my-first-content"
 
     def test_heading(self) -> None:
-        sut = SectionConfiguration(name="", heading="My First Section")
+        sut = SectionConfiguration(name="", heading=Plain("My First Section"))
         assert sut.heading.localize(DEFAULT_LOCALIZER) == "My First Section"
 
     def test_name(self) -> None:
-        sut = SectionConfiguration(name="my-first-section", heading="")
+        sut = SectionConfiguration(name="my-first-section", heading=Plain(""))
         assert sut.name == "my-first-section"
 
     def test_load__minimal(self) -> None:
-        sut = SectionConfiguration(name="", heading="")
+        sut = SectionConfiguration(name="", heading=Plain(""))
         sut.load(
             {
                 "heading": "My First Section",
@@ -75,7 +96,7 @@ class TestSectionConfiguration:
         assert sut.content[0].id == "my-first-content"
 
     def test_load__with_name(self) -> None:
-        sut = SectionConfiguration(name="", heading="")
+        sut = SectionConfiguration(name="", heading=Plain(""))
         sut.load(
             {
                 "name": "my-first-section",
@@ -86,7 +107,7 @@ class TestSectionConfiguration:
         assert sut.name == "my-first-section"
 
     def test_load__without_heading(self) -> None:
-        sut = SectionConfiguration(name="", heading="")
+        sut = SectionConfiguration(name="", heading=Plain(""))
         with pytest.raises(HumanFacingException):
             sut.load(
                 {
@@ -96,7 +117,7 @@ class TestSectionConfiguration:
             )
 
     def test_load__without_content(self) -> None:
-        sut = SectionConfiguration(name="", heading="")
+        sut = SectionConfiguration(name="", heading=Plain(""))
         with pytest.raises(HumanFacingException):
             sut.load(
                 {
@@ -106,7 +127,9 @@ class TestSectionConfiguration:
             )
 
     def test_dump__minimal(self) -> None:
-        sut = SectionConfiguration(name="my-first-section", heading="My First Section")
+        sut = SectionConfiguration(
+            name="my-first-section", heading=Plain("My First Section")
+        )
         assert sut.dump() == {
             "name": "my-first-section",
             "heading": "My First Section",
@@ -116,7 +139,7 @@ class TestSectionConfiguration:
     def test_dump__full(self) -> None:
         sut = SectionConfiguration(
             name="my-first-section",
-            heading="My First Section",
+            heading=Plain("My First Section"),
             content=[PluginInstanceConfiguration("my-first-content")],
         )
         assert sut.dump() == {
@@ -128,18 +151,32 @@ class TestSectionConfiguration:
         }
 
     def test_get_mutables__minimal(self) -> None:
-        sut = SectionConfiguration(heading="My First Section")
+        sut = SectionConfiguration(heading=Plain("My First Section"))
         assert list(sut.get_mutables())
 
     def test_get_mutables__with_content(self) -> None:
         sut = SectionConfiguration(
-            heading="My First Section",
+            heading=Plain("My First Section"),
             content=[PluginInstanceConfiguration("my-first-content")],
         )
         assert list(sut.get_mutables())
 
 
-class TestSection:
+class TestSection(ConfigurationDependentSelfFactoryTestBase[SectionConfiguration]):
+    @override
+    @pytest.fixture
+    async def configuration_dependent_self_factory_sut(
+        self,
+    ) -> type[ConfigurationDependentSelfFactory[SectionConfiguration]]:
+        return Section
+
+    @override
+    @pytest.fixture
+    def configuration_dependent_self_factory_sut_configuration(
+        self,
+    ) -> SectionConfiguration:
+        return SectionConfiguration(heading="")
+
     async def test_provide__without_content(self, temporary_app: App) -> None:
         async with Project.new_temporary(temporary_app) as project:
             project.configuration.extensions.enable(RaspberryMint)
@@ -152,10 +189,10 @@ class TestSection:
             project.configuration.extensions.enable(RaspberryMint)
             async with project:
                 sut = await Section.new_for_project(project)
-                sut.configuration.heading = "My First Section"
+                sut.configuration.heading = Plain("My First Section")
                 sut.configuration.content.append(
                     PluginInstanceConfiguration(
-                        "plain-text", configuration="My First Content"
+                        "plain-text", PlainTextConfiguration("My First Content")
                     )
                 )
                 actual = await sut.provide(resource=new_context())
@@ -169,10 +206,10 @@ class TestSection:
             async with project:
                 sut = await Section.new_for_project(project)
                 sut.configuration.name = "my-first-section"
-                sut.configuration.heading = "My First Section"
+                sut.configuration.heading = Plain("My First Section")
                 sut.configuration.content.append(
                     PluginInstanceConfiguration(
-                        "plain-text", configuration="My First Content"
+                        "plain-text", PlainTextConfiguration("My First Content")
                     )
                 )
                 actual = await sut.provide(resource=new_context())
@@ -186,11 +223,11 @@ class TestSection:
             project.configuration.extensions.enable(RaspberryMint)
             async with project:
                 sut = await Section.new_for_project(project)
-                sut.configuration.heading = "My First Section"
+                sut.configuration.heading = Plain("My First Section")
                 sut.configuration.visually_hide_heading = True
                 sut.configuration.content.append(
                     PluginInstanceConfiguration(
-                        "plain-text", configuration="My First Content"
+                        "plain-text", PlainTextConfiguration("My First Content")
                     )
                 )
                 actual = await sut.provide(resource=new_context())

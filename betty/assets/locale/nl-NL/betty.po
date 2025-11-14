@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PROJECT VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2025-11-23 01:36+0000\n"
+"POT-Creation-Date: 2025-11-24 13:51+0000\n"
 "PO-Revision-Date: 2025-11-08 23:46+0000\n"
 "Last-Translator: Bart Feenstra <bart@bartfeenstra.com>\n"
 "Language: nl_NL\n"
@@ -62,6 +62,9 @@ msgid "%(event)s with %(subjects)s"
 msgstr "%(event)s met %(subjects)s"
 
 msgid "(De)serialization format"
+msgstr ""
+
+msgid "A Betty demonstration"
 msgstr ""
 
 msgid ""
@@ -152,6 +155,9 @@ msgstr "Doping"
 
 msgid "Bar mitzvah"
 msgstr "Bar mitswa"
+
+msgid "Bart Feenstra and contributors"
+msgstr ""
 
 msgid "Bat mitzvah"
 msgstr "Bat mitswa"
@@ -805,6 +811,12 @@ msgstr "Beroep"
 msgid "One or more of these requirements must be met"
 msgstr "Aan één van deze vereisten moet voldaan worden"
 
+#, python-brace-format
+msgid ""
+"Only plain text and static translations can be dumped to configuration, "
+"not `{localizable}` objects."
+msgstr ""
+
 msgid "Operating system"
 msgstr ""
 
@@ -1027,6 +1039,9 @@ msgstr "Bronnen"
 
 msgid "Speaker"
 msgstr "Spreker"
+
+msgid "Start exploring..."
+msgstr ""
 
 msgid "Starting Python's built-in web server..."
 msgstr "Pythons ingebouwde webserver aan het starten..."
