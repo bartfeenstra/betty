@@ -6,7 +6,6 @@ from __future__ import annotations
 
 from abc import ABC, abstractmethod
 from contextlib import contextmanager
-from reprlib import recursive_repr
 from typing import TYPE_CHECKING, Any, Generic, Self, TypeVar, cast
 
 from typing_extensions import override
@@ -14,7 +13,6 @@ from typing_extensions import override
 from betty.functools import unique
 from betty.model import Entity, EntityDefinition
 from betty.mutability import Mutable
-from betty.repr import repr_instance
 
 if TYPE_CHECKING:
     from collections.abc import (
@@ -24,7 +22,6 @@ if TYPE_CHECKING:
         MutableSequence,
         Sequence,
     )
-
 
 _EntityT = TypeVar("_EntityT", bound=Entity)
 _TargetT = TypeVar("_TargetT")
@@ -134,11 +131,6 @@ class SingleTypeEntityCollection(Generic[_TargetT], EntityCollection[_TargetT]):
         self._entities: MutableSequence[_TargetT & Entity] = [*entities]
         self._target_type = target_type
 
-    @override  # type: ignore[callable-functiontype]
-    @recursive_repr()
-    def __repr__(self) -> str:
-        return repr_instance(self, target_type=self._target_type, length=len(self))
-
     @override
     def add(self, *entities: _TargetT & Entity) -> None:
         added_entities = [*self._unknown(*entities)]
@@ -223,17 +215,6 @@ class MultipleTypesEntityCollection(Generic[_TargetT], EntityCollection[_TargetT
             type[Entity], SingleTypeEntityCollection[Entity]
         ] = {}
         self.add(*entities)
-
-    @override  # type: ignore[callable-functiontype]
-    @recursive_repr()
-    def __repr__(self) -> str:
-        return repr_instance(
-            self,
-            entity_types=", ".join(
-                entity_type.plugin.id for entity_type in self._collections
-            ),
-            length=len(self),
-        )
 
     def _get_collection(
         self, entity_type: type[_EntityT]

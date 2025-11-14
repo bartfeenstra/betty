@@ -35,7 +35,6 @@ from betty.locale import UNDETERMINED_LOCALE, negotiate_locale, to_locale
 from betty.locale.localized import Localized, LocalizedStr
 from betty.locale.localizer import DEFAULT_LOCALIZER, Localizer
 from betty.mutability import Mutable
-from betty.repr import repr_instance
 from betty.serde.dump import Dump, DumpMapping
 
 if TYPE_CHECKING:
@@ -405,10 +404,6 @@ class StaticTranslations(
             self.replace(translations)
         else:
             self._translations = {}
-
-    @override
-    def __repr__(self) -> str:
-        return repr_instance(self, translations=self._translations)
 
     def __getitem__(self, locale: str) -> str:
         return self._translations[locale]

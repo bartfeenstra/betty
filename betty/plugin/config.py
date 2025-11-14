@@ -40,7 +40,6 @@ from betty.plugin import (
     PluginRepository,
     resolve_id,
 )
-from betty.repr import repr_instance
 from betty.typing import Void, Voidable
 
 if TYPE_CHECKING:
@@ -92,10 +91,6 @@ class PluginDefinitionConfiguration(Configuration):
     ):
         super().__init__()
         self._id = assert_machine_name()(id)
-
-    @override
-    def __repr__(self) -> str:
-        return repr_instance(self, id=self.id)
 
     @property
     def id(self) -> str:
@@ -290,10 +285,6 @@ class PluginInstanceConfiguration(
             if isinstance(configuration, Configuration)
             else configuration
         )
-
-    @override
-    def __repr__(self) -> str:
-        return repr_instance(self, id=self.id, configuration=self.configuration)
 
     @property
     def id(self) -> MachineName:
