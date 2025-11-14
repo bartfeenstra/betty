@@ -72,7 +72,7 @@ class Presence(HasPrivacy, Entity):
         self.event = event
 
     @override
-    def get_mutable_instances(self) -> Iterable[object]:
+    def get_mutables(self) -> Iterable[object]:
         return (self.role,)
 
     @override

@@ -51,7 +51,7 @@ class RaspberryMintConfiguration(Configuration):
         self._regional_content = RegionalContentConfiguration(regional_content or {})
 
     @override
-    def get_mutable_instances(self) -> Iterable[object]:
+    def get_mutables(self) -> Iterable[object]:
         return (
             self._primary_color,
             self._secondary_color,

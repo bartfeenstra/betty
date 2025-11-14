@@ -43,7 +43,7 @@ class Mutable:
         super().__init__(*args, **kwargs)
         self._mutable = mutable
 
-    def get_mutable_instances(self) -> Iterable[Any]:
+    def get_mutables(self) -> Iterable[object]:
         """
         Get any other objects contained by this one that may also be :py:class:`betty.mutability.Mutable`.
         """
@@ -51,7 +51,7 @@ class Mutable:
 
     def _propagate_mutability(self) -> None:
         function = mutable if self.mutable else immutable
-        function(*self.get_mutable_instances())
+        function(*self.get_mutables())
 
     @property
     def mutable(self) -> bool:

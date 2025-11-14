@@ -179,7 +179,7 @@ class FamilyTreeConfiguration(Configuration):
         )
 
     @override
-    def get_mutable_instances(self) -> Iterable[object]:
+    def get_mutables(self) -> Iterable[object]:
         return (
             self._event_types,
             self._place_types,
@@ -294,7 +294,7 @@ class GrampsConfiguration(Configuration):
         self._executable = executable
 
     @override
-    def get_mutable_instances(self) -> Iterable[object]:
+    def get_mutables(self) -> Iterable[object]:
         return (self._family_trees,)
 
     @property

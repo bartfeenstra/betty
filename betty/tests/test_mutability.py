@@ -46,8 +46,8 @@ class TestMutable:
         with pytest.raises(ImmutableError):
             Mutable(mutable=False).assert_mutable()
 
-    def test_get_mutable_instances(self) -> None:
-        assert not list(Mutable().get_mutable_instances())
+    def test_get_mutables(self) -> None:
+        assert not list(Mutable().get_mutables())
 
     @_immutable()
     def test_is_immutable__get(self, immutable: bool) -> None:
