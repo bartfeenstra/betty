@@ -6,7 +6,9 @@ from __future__ import annotations
 
 from abc import ABC, abstractmethod
 from collections.abc import MutableMapping, MutableSequence
-from typing import TypeAlias, TypeVar
+from typing import TypeAlias, TypeVar, final
+
+from betty.exception import HumanFacingException
 
 Dump: TypeAlias = (
     bool
@@ -44,3 +46,10 @@ class Dumpable(ABC):
         """
         Produce a serialized data dump of ``self``.
         """
+
+
+@final
+class NotDumpable(HumanFacingException):
+    """
+    Raised when a :py:class:`betty.serde.dump.Dumpable.dump` implementation cannot dump any data due to runtime circumstances.
+    """

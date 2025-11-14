@@ -1,10 +1,12 @@
 import pytest
 
 from betty.app import App
+from betty.content_provider.content_providers import PlainText, PlainTextConfiguration
 from betty.dirs import ROOT_DIRECTORY_PATH
 from betty.plugin.config import PluginInstanceConfiguration
 from betty.project import Project
 from betty.project.extension.raspberry_mint import RaspberryMint
+from betty.project.extension.raspberry_mint.config import RaspberryMintConfiguration
 
 
 @pytest.fixture
@@ -30,13 +32,15 @@ async def test_regional_content_front_page_summary(
         project.configuration.extensions.append(
             PluginInstanceConfiguration(
                 RaspberryMint,
-                configuration={
-                    "regional_content": {
+                RaspberryMintConfiguration(
+                    regional_content={
                         "front-page-summary": [
-                            {"id": "plain-text", "configuration": "Hello, world!"},
+                            PluginInstanceConfiguration(
+                                PlainText, PlainTextConfiguration("Hello, world!")
+                            ),
                         ]
                     }
-                },
+                ),
             )
         )
 
@@ -55,13 +59,15 @@ async def test_regional_content_front_page_content(
         project.configuration.extensions.append(
             PluginInstanceConfiguration(
                 RaspberryMint,
-                configuration={
-                    "regional_content": {
+                RaspberryMintConfiguration(
+                    regional_content={
                         "front-page-content": [
-                            {"id": "plain-text", "configuration": "Hello, world!"},
+                            PluginInstanceConfiguration(
+                                PlainText, PlainTextConfiguration("Hello, world!")
+                            ),
                         ]
                     }
-                },
+                ),
             )
         )
 

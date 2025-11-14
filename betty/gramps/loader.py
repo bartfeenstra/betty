@@ -133,10 +133,10 @@ if TYPE_CHECKING:
     from betty.ancestry.place_type import PlaceType
     from betty.ancestry.presence_role import PresenceRole
     from betty.copyright_notice import CopyrightNoticeDefinition
-    from betty.factory import Factory
     from betty.license import LicenseDefinition
     from betty.machine_name import MachineName
     from betty.plugin.repository import PluginRepository
+    from betty.project.factory import ProjectFactory
     from betty.user import User
 
 _EntityT = TypeVar("_EntityT", bound=Entity)
@@ -317,7 +317,7 @@ class GrampsLoader:
         self,
         ancestry: Ancestry,
         *,
-        factory: Factory,
+        factory: ProjectFactory,
         user: User,
         copyright_notices: PluginRepository[CopyrightNoticeDefinition],
         licenses: PluginRepository[LicenseDefinition],

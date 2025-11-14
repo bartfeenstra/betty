@@ -11,7 +11,7 @@ from typing_extensions import override
 from betty.json.schema import JsonSchemaReference, Schema
 from betty.model import EntityDefinition
 from betty.model.schema import ToManySchema
-from betty.project.factory import ProjectDependentFactory
+from betty.project.factory import ProjectDependentSelfFactory
 from betty.string import kebab_case_to_lower_camel_case
 
 if TYPE_CHECKING:
@@ -21,7 +21,7 @@ if TYPE_CHECKING:
 
 
 @final
-class ProjectSchema(ProjectDependentFactory, Schema):
+class ProjectSchema(ProjectDependentSelfFactory, Schema):
     """
     A JSON Schema for a project.
     """

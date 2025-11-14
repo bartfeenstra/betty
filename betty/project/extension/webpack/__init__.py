@@ -23,7 +23,7 @@ from betty.project.extension import Extension, ExtensionDefinition
 from betty.project.extension.webpack import build
 from betty.project.extension.webpack.build import EntryPointProvider
 from betty.project.extension.webpack.jinja2.filter import FILTERS
-from betty.project.factory import ProjectDependentFactory
+from betty.project.factory import ProjectDependentSelfFactory
 from betty.project.generate import Generator
 from betty.requirement import (
     AllRequirements,
@@ -72,7 +72,7 @@ class Webpack(
     JsProvider,
     Jinja2Provider,
     ContextProvider,
-    ProjectDependentFactory,
+    ProjectDependentSelfFactory,
 ):
     """
     Integrate Betty with `Webpack <https://webpack.js.org/>`_.

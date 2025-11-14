@@ -51,6 +51,7 @@ async def test_new__minimal(
         configuration = await _assert_new(configuration_file_path)
     assert configuration.title.localize(DEFAULT_LOCALIZER) == title
     assert configuration.name == "my-first-project"
+    assert configuration.author is not None
     assert configuration.author.localize(DEFAULT_LOCALIZER) == author
     assert configuration.url == url
 

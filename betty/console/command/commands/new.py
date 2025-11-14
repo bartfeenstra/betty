@@ -4,7 +4,7 @@ from typing import TYPE_CHECKING, final, Self
 
 from typing_extensions import override
 
-from betty.app.factory import AppDependentFactory
+from betty.app.factory import AppDependentSelfFactory
 from betty.console.command import Command, CommandFunction, CommandDefinition
 from betty.locale.localizable import _
 from betty.project import new
@@ -20,7 +20,7 @@ if TYPE_CHECKING:
     id="new",
     label=_("Create a new project"),
 )
-class New(AppDependentFactory, Command):
+class New(AppDependentSelfFactory, Command):
     """
     A command to create a new project.
     """

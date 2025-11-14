@@ -6,7 +6,7 @@ from typing import TYPE_CHECKING, final, Self
 from typing_extensions import override
 
 from betty import documentation
-from betty.app.factory import AppDependentFactory
+from betty.app.factory import AppDependentSelfFactory
 from betty.console.command import Command, CommandFunction, CommandDefinition
 from betty.locale.localizable import _
 
@@ -24,7 +24,7 @@ if TYPE_CHECKING:
         "View Betty's interactive documentation. This will open your web browser."
     ),
 )
-class Docs(AppDependentFactory, Command):
+class Docs(AppDependentSelfFactory, Command):
     """
     A command to view Betty's documentation.
     """

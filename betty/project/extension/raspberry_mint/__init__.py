@@ -11,7 +11,7 @@ from typing import TYPE_CHECKING, Self, final
 import aiofiles
 from typing_extensions import override
 
-from betty.config import Configurable
+from betty.config.factory import ConfigurationDependentSelfFactory
 from betty.data import Key
 from betty.data import Path as DataPath
 from betty.exception import HumanFacingExceptionGroup
@@ -29,7 +29,10 @@ from betty.project.extension.raspberry_mint.config import RaspberryMintConfigura
 from betty.project.extension.trees import Trees
 from betty.project.extension.webpack import Webpack
 from betty.project.extension.webpack.build import EntryPointProvider
-from betty.project.factory import ProjectDependentFactory
+from betty.project.factory import (
+    CallbackProjectDependentFactory,
+    ProjectDependentSelfFactory,
+)
 from betty.project.generate import Generator
 from betty.typing import private
 
@@ -37,6 +40,7 @@ if TYPE_CHECKING:
     from collections.abc import Sequence
 
     from betty.job.scheduler import Scheduler
+    from betty.service.level.factory import AnyFactoryTarget
 
 
 class _GenerateLogo(Job[ProjectContext]):
@@ -120,27 +124,42 @@ class _GenerateWebmanifest(Job[ProjectContext]):
     assets_directory_path=Path(__file__).parent / "assets",
 )
 class RaspberryMint(
-    Configurable[RaspberryMintConfiguration],
     Jinja2Provider,
     Generator,
     EntryPointProvider,
-    ProjectDependentFactory,
+    ProjectDependentSelfFactory,
+    ConfigurationDependentSelfFactory[RaspberryMintConfiguration],
 ):
     """
     The Raspberry Mint theme.
     """
 
     @private
-    def __init__(self, *, configuration: RaspberryMintConfiguration, project: Project):
-        super().__init__(configuration=configuration)
+    def __init__(
+        self,
+        *,
+        project: Project,
+        configuration: RaspberryMintConfiguration | None = None,
+    ):
+        super().__init__(
+            configuration=RaspberryMintConfiguration()
+            if configuration is None
+            else configuration
+        )
         self._project = project
 
     @override
     @classmethod
     async def new_for_project(cls, project: Project, /) -> Self:
-        return cls(
-            configuration=RaspberryMintConfiguration(),
-            project=project,
+        return cls(project=project)
+
+    @override
+    @classmethod
+    def new_for_configuration(
+        cls, configuration: RaspberryMintConfiguration
+    ) -> AnyFactoryTarget[Self]:
+        return CallbackProjectDependentFactory(
+            lambda project: cls(configuration=configuration, project=project)
         )
 
     @override

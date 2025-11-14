@@ -16,14 +16,14 @@ import betty
 import betty.dirs
 from betty.app import config
 from betty.app.config import AppConfiguration
-from betty.app.factory import AppDependentFactory, AppFactoryTarget
+from betty.app.factory import AppDependentFactory, AppDependentSelfFactory, AppTarget
 from betty.asset import AssetRepository, StaticAssetRepository
 from betty.cache.file import BinaryFileCache, PickledFileCache
 from betty.cache.no_op import NoOpCache
 from betty.config import Configurable
 from betty.config.file import assert_configuration_file
 from betty.dirs import CACHE_DIRECTORY_PATH
-from betty.factory import Target, TargetFactory, new
+from betty.factory import Target, TargetFactory, new_target
 from betty.http_client import ClientErrorToUserMessageMiddleware
 from betty.http_client.rate_limit import RateLimitDefinition, RateLimitMiddleware
 from betty.license import LicenseDefinition
@@ -292,10 +292,14 @@ class App(
         return process_pool
 
     @override
-    async def new_target(self, target: AppFactoryTarget[_T]) -> _T:
-        if isinstance(target, type) and issubclass(target, AppDependentFactory):
+    async def new_target(self, target: AppTarget[_T]) -> _T:
+        if (
+            isinstance(target, AppDependentFactory)
+            or isinstance(target, type)
+            and issubclass(target, AppDependentSelfFactory)
+        ):
             return cast(_T, await target.new_for_app(self))
-        return await new(cast(Target[_T], target))
+        return await new_target(cast(Target[_T], target))
 
     @service
     async def _spdx_license_repository(self) -> PluginRepository[LicenseDefinition]:

@@ -6,7 +6,7 @@ from typing_extensions import override
 
 from betty.app import config as app_config
 from betty.app.config import AppConfiguration
-from betty.app.factory import AppDependentFactory
+from betty.app.factory import AppDependentSelfFactory
 from betty.config.file import write_configuration_file
 from betty.console.command import Command, CommandFunction, CommandDefinition
 from betty.locale import DEFAULT_LOCALE, get_display_name
@@ -23,7 +23,7 @@ if TYPE_CHECKING:
     id="config",
     label=_("Configure Betty"),
 )
-class Config(AppDependentFactory, Command):
+class Config(AppDependentSelfFactory, Command):
     """
     A command to manage Betty application configuration.
     """
@@ -51,7 +51,7 @@ class Config(AppDependentFactory, Command):
     async def _command_function(self, *, locale: str) -> None:
         localizers = await self._app.localizers
         updated_configuration = AppConfiguration()
-        updated_configuration.update(self._app.configuration)
+        updated_configuration.load(self._app.configuration.dump())
         updated_configuration.locale = locale
         self._app.user.localizer = localizers.get(locale)
         await self._app.user.message_information(

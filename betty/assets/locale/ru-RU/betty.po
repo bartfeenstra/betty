@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Betty VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2025-11-23 01:36+0000\n"
+"POT-Creation-Date: 2025-11-24 13:51+0000\n"
 "PO-Revision-Date: 2025-11-16 18:38+0000\n"
 "Last-Translator: Артур Калагов "
 "<artur.kalagov@users.noreply.hosted.weblate.org>\n"
@@ -64,6 +64,9 @@ msgid "%(event)s with %(subjects)s"
 msgstr "%(event)s с %(subjects)s"
 
 msgid "(De)serialization format"
+msgstr ""
+
+msgid "A Betty demonstration"
 msgstr ""
 
 msgid ""
@@ -150,6 +153,9 @@ msgstr "Крещение"
 
 msgid "Bar mitzvah"
 msgstr "Бар-мицва"
+
+msgid "Bart Feenstra and contributors"
+msgstr ""
 
 msgid "Bat mitzvah"
 msgstr "Бат-мицва"
@@ -803,6 +809,12 @@ msgstr "Занятие"
 msgid "One or more of these requirements must be met"
 msgstr "Одно или несколько из этих требований должны быть выполнены"
 
+#, python-brace-format
+msgid ""
+"Only plain text and static translations can be dumped to configuration, "
+"not `{localizable}` objects."
+msgstr ""
+
 msgid "Operating system"
 msgstr ""
 
@@ -1019,6 +1031,9 @@ msgstr "Источники"
 
 msgid "Speaker"
 msgstr "Выступавший"
+
+msgid "Start exploring..."
+msgstr ""
 
 msgid "Starting Python's built-in web server..."
 msgstr "Запуск встроенного веб-сервера Python..."

@@ -14,7 +14,7 @@ from betty.assertion import AssertionChain, assert_file_path
 from betty.config import Configuration
 from betty.data import Path as PathContext
 from betty.exception import HumanFacingExceptionGroup
-from betty.factory import new
+from betty.factory import new_target
 from betty.plugin.repository.provider.service import plugins
 from betty.serde.format import FormatDefinition, format_for
 
@@ -31,7 +31,7 @@ async def assert_configuration_file(
     Assert that configuration can be loaded from a file.
     """
     available_formats = {
-        available_format: await new(available_format.cls)
+        available_format: await new_target(available_format.cls)
         for available_format in await plugins(FormatDefinition)
     }
 
@@ -63,7 +63,7 @@ async def write_configuration_file(
     serde_format_type = format_for(
         list(await plugins(FormatDefinition)), configuration_file_path.suffix
     )
-    serde_format = await new(serde_format_type.cls)
+    serde_format = await new_target(serde_format_type.cls)
     dump = serde_format.dump(configuration.dump())
     await makedirs(configuration_file_path.parent, exist_ok=True)
     async with aiofiles.open(configuration_file_path, mode="w") as f:

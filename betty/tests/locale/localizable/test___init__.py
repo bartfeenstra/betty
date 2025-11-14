@@ -95,10 +95,6 @@ class TestStaticTranslations:
         ("expected", "translations"),
         [
             (
-                0,
-                {},
-            ),
-            (
                 1,
                 "Hello, world!",
             ),
@@ -120,16 +116,12 @@ class TestStaticTranslations:
     async def test___len__(
         self, expected: int, translations: ShorthandStaticTranslations
     ) -> None:
-        sut = StaticTranslations(translations, required=False)
+        sut = StaticTranslations(translations)
         assert len(sut) == expected
 
     @pytest.mark.parametrize(
         ("expected", "translations"),
         [
-            (
-                {},
-                {},
-            ),
             (
                 {UNDETERMINED_LOCALE: "Hello, world!"},
                 "Hello, world!",
@@ -159,17 +151,25 @@ class TestStaticTranslations:
         expected: StaticTranslationsMapping,
         translations: ShorthandStaticTranslations,
     ) -> None:
-        sut = StaticTranslations(translations, required=False)
+        sut = StaticTranslations(translations)
         assert sut.translations == expected
 
     def test_replace(self) -> None:
         translation = "Hallo, wereld!"
-        sut = StaticTranslations(required=False)
+        sut = StaticTranslations()
         sut.replace(translation)
         assert sut.localize(DEFAULT_LOCALIZER) == translation
 
 
 class TestPlain:
+    def test_text(self) -> None:
+        text = "Hello, world!"
+        assert Plain(text).text == text
+
+    def test_locale(self) -> None:
+        locale = "nl-NL"
+        assert Plain("", locale).locale == locale
+
     @pytest.mark.parametrize(
         "string",
         [
@@ -177,7 +177,7 @@ class TestPlain:
             "Hallo, wereld!",
         ],
     )
-    async def test_localize(self, string: str) -> None:
+    def test_localize(self, string: str) -> None:
         assert Plain(string).localize(DEFAULT_LOCALIZER) == string
 
 

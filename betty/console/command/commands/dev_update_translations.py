@@ -4,7 +4,7 @@ from typing import TYPE_CHECKING, final, Self
 
 from typing_extensions import override
 
-from betty.app.factory import AppDependentFactory
+from betty.app.factory import AppDependentSelfFactory
 from betty.console.command import Command, CommandFunction, CommandDefinition
 from betty.locale import translation
 from betty.locale.localizable import _
@@ -20,7 +20,7 @@ if TYPE_CHECKING:
     id="dev-update-translations",
     label=_("Update all existing translations for Betty itself"),
 )
-class DevUpdateTranslations(AppDependentFactory, Command):
+class DevUpdateTranslations(AppDependentSelfFactory, Command):
     """
     A command to update all of Betty's translations.
     """

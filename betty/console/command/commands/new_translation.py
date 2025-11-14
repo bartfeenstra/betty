@@ -4,7 +4,7 @@ from typing import TYPE_CHECKING, final, Self
 
 from typing_extensions import override
 
-from betty.app.factory import AppDependentFactory
+from betty.app.factory import AppDependentSelfFactory
 from betty.assertion import assert_locale_identifier
 from betty.console.assertion import assertion_to_argument_type
 from betty.console.command import Command, CommandFunction, CommandDefinition
@@ -24,7 +24,7 @@ if TYPE_CHECKING:
     id="new-translation",
     label=_("Create a new translation"),
 )
-class NewTranslation(AppDependentFactory, Command):
+class NewTranslation(AppDependentSelfFactory, Command):
     """
     A command to create a new translation for a project.
     """

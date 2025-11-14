@@ -515,34 +515,34 @@ class TestEntityTypeConfigurationMapping(
 
 class TestCopyrightNoticeConfiguration:
     def test___init____with_summary(self) -> None:
-        summary = "My First Copyright Summary"
+        summary = Plain("My First Copyright Summary")
         sut = CopyrightNoticeDefinitionConfiguration(
-            id="-", label="", summary=summary, text=""
+            id="-", label="", summary=summary, text=Plain("")
         )
-        assert sut.summary[UNDETERMINED_LOCALE] == summary
+        assert sut.summary is summary
 
     def test___init____with_text(self) -> None:
-        text = "My First Copyright Text"
+        text = Plain("My First Copyright Text")
         sut = CopyrightNoticeDefinitionConfiguration(
-            id="-", label="", summary="", text=text
+            id="-", label="", summary=Plain(""), text=text
         )
-        assert sut.text[UNDETERMINED_LOCALE] == text
+        assert sut.text is text
 
     def test_summary(self) -> None:
         sut = CopyrightNoticeDefinitionConfiguration(
-            id="-", label="", summary="", text=""
+            id="-", label=Plain(""), summary=Plain(""), text=Plain("")
         )
-        summary = "My First Copyright Summary"
+        summary = Plain("My First Copyright Summary")
         sut.summary = summary
-        assert sut.summary[UNDETERMINED_LOCALE] == summary
+        assert sut.summary is summary
 
     def test_text(self) -> None:
         sut = CopyrightNoticeDefinitionConfiguration(
-            id="-", label="", summary="", text=""
+            id="-", label=Plain(""), summary=Plain(""), text=Plain("")
         )
-        text = "My First Copyright Text"
+        text = Plain("My First Copyright Text")
         sut.text = text
-        assert sut.text[UNDETERMINED_LOCALE] == text
+        assert sut.text is text
 
     async def test_load(self) -> None:
         summary = "My First Copyright Summary"
@@ -554,11 +554,11 @@ class TestCopyrightNoticeConfiguration:
             "text": text,
         }
         sut = CopyrightNoticeDefinitionConfiguration(
-            id="-", label="", summary="", text=""
+            id="-", label=Plain(""), summary=Plain(""), text=Plain("")
         )
         sut.load(dump)
-        assert sut.summary[UNDETERMINED_LOCALE] == summary
-        assert sut.text[UNDETERMINED_LOCALE] == text
+        assert sut.summary.localize(DEFAULT_LOCALIZER) == summary
+        assert sut.text.localize(DEFAULT_LOCALIZER) == text
 
     async def test_load__with_missing_summary(self) -> None:
         dump: Dump = {
@@ -567,7 +567,7 @@ class TestCopyrightNoticeConfiguration:
             "text": "",
         }
         sut = CopyrightNoticeDefinitionConfiguration(
-            id="-", label="", summary="", text=""
+            id="-", label=Plain(""), summary=Plain(""), text=Plain("")
         )
         with pytest.raises(HumanFacingException):
             sut.load(dump)
@@ -579,7 +579,7 @@ class TestCopyrightNoticeConfiguration:
             "summary": "",
         }
         sut = CopyrightNoticeDefinitionConfiguration(
-            id="-", label="", summary="", text=""
+            id="-", label=Plain(""), summary=Plain(""), text=Plain("")
         )
         with pytest.raises(HumanFacingException):
             sut.load(dump)
@@ -588,7 +588,7 @@ class TestCopyrightNoticeConfiguration:
         summary = "My First Copyright Summary"
         text = "My First Copyright Text"
         sut = CopyrightNoticeDefinitionConfiguration(
-            id="-", label="", summary=summary, text=text
+            id="-", label="", summary=Plain(summary), text=Plain(text)
         )
         dump = sut.dump()
         assert dump["summary"] == summary
@@ -616,16 +616,16 @@ class TestCopyrightNoticeDefinitionConfigurationMapping(
     ]:
         return (
             CopyrightNoticeDefinitionConfiguration(
-                id="foo", label="Foo", summary="", text=""
+                id="foo", label="Foo", summary=Plain(""), text=Plain("")
             ),
             CopyrightNoticeDefinitionConfiguration(
-                id="bar", label="Bar", summary="", text=""
+                id="bar", label="Bar", summary=Plain(""), text=Plain("")
             ),
             CopyrightNoticeDefinitionConfiguration(
-                id="baz", label="Baz", summary="", text=""
+                id="baz", label="Baz", summary=Plain(""), text=Plain("")
             ),
             CopyrightNoticeDefinitionConfiguration(
-                id="qux", label="Qux", summary="", text=""
+                id="qux", label="Qux", summary=Plain(""), text=Plain("")
             ),
         )
 
@@ -641,26 +641,34 @@ class TestCopyrightNoticeDefinitionConfigurationMapping(
 
 class TestLicenseConfiguration:
     def test___init____with_summary(self) -> None:
-        summary = "My First License Summary"
-        sut = LicenseDefinitionConfiguration(id="-", label="", summary=summary, text="")
-        assert sut.summary[UNDETERMINED_LOCALE] == summary
+        summary = Plain("My First License Summary")
+        sut = LicenseDefinitionConfiguration(
+            id="-", label="", summary=summary, text=Plain("")
+        )
+        assert sut.summary is summary
 
     def test___init____with_text(self) -> None:
-        text = "My First License Text"
-        sut = LicenseDefinitionConfiguration(id="-", label="", summary="", text=text)
-        assert sut.text[UNDETERMINED_LOCALE] == text
+        text = Plain("My First License Text")
+        sut = LicenseDefinitionConfiguration(
+            id="-", label="", summary=Plain(""), text=text
+        )
+        assert sut.text is text
 
     def test_summary(self) -> None:
-        sut = LicenseDefinitionConfiguration(id="-", label="", summary="", text="")
-        summary = "My First License Summary"
+        sut = LicenseDefinitionConfiguration(
+            id="-", label=Plain(""), summary=Plain(""), text=Plain("")
+        )
+        summary = Plain("My First License Summary")
         sut.summary = summary
-        assert sut.summary[UNDETERMINED_LOCALE] == summary
+        assert sut.summary is summary
 
     def test_text(self) -> None:
-        sut = LicenseDefinitionConfiguration(id="-", label="", summary="", text="")
-        text = "My First License Text"
+        sut = LicenseDefinitionConfiguration(
+            id="-", label=Plain(""), summary=Plain(""), text=Plain("")
+        )
+        text = Plain("My First License Text")
         sut.text = text
-        assert sut.text[UNDETERMINED_LOCALE] == text
+        assert sut.text is text
 
     async def test_load(self) -> None:
         summary = "My First License Summary"
@@ -671,10 +679,12 @@ class TestLicenseConfiguration:
             "summary": summary,
             "text": text,
         }
-        sut = LicenseDefinitionConfiguration(id="-", label="", summary="", text="")
+        sut = LicenseDefinitionConfiguration(
+            id="-", label=Plain(""), summary=Plain(""), text=Plain("")
+        )
         sut.load(dump)
-        assert sut.summary[UNDETERMINED_LOCALE] == summary
-        assert sut.text[UNDETERMINED_LOCALE] == text
+        assert sut.summary.localize(DEFAULT_LOCALIZER) == summary
+        assert sut.text.localize(DEFAULT_LOCALIZER) == text
 
     async def test_load__with_missing_summary(self) -> None:
         dump: Dump = {
@@ -682,7 +692,9 @@ class TestLicenseConfiguration:
             "label": "",
             "text": "",
         }
-        sut = LicenseDefinitionConfiguration(id="-", label="", summary="", text="")
+        sut = LicenseDefinitionConfiguration(
+            id="-", label=Plain(""), summary=Plain(""), text=Plain("")
+        )
         with pytest.raises(HumanFacingException):
             sut.load(dump)
 
@@ -692,7 +704,9 @@ class TestLicenseConfiguration:
             "label": "",
             "summary": "",
         }
-        sut = LicenseDefinitionConfiguration(id="-", label="", summary="", text="")
+        sut = LicenseDefinitionConfiguration(
+            id="-", label=Plain(""), summary=Plain(""), text=Plain("")
+        )
         with pytest.raises(HumanFacingException):
             sut.load(dump)
 
@@ -700,7 +714,7 @@ class TestLicenseConfiguration:
         summary = "My First License Summary"
         text = "My First License Text"
         sut = LicenseDefinitionConfiguration(
-            id="-", label="", summary=summary, text=text
+            id="-", label="", summary=Plain(summary), text=Plain(text)
         )
         dump = sut.dump()
         assert dump["summary"] == summary
@@ -727,10 +741,18 @@ class TestLicenseDefinitionConfigurationMapping(
         LicenseDefinitionConfiguration
     ]:
         return (
-            LicenseDefinitionConfiguration(id="foo", label="Foo", summary="", text=""),
-            LicenseDefinitionConfiguration(id="bar", label="Bar", summary="", text=""),
-            LicenseDefinitionConfiguration(id="baz", label="Baz", summary="", text=""),
-            LicenseDefinitionConfiguration(id="qux", label="Qux", summary="", text=""),
+            LicenseDefinitionConfiguration(
+                id="foo", label="Foo", summary=Plain(""), text=Plain("")
+            ),
+            LicenseDefinitionConfiguration(
+                id="bar", label="Bar", summary=Plain(""), text=Plain("")
+            ),
+            LicenseDefinitionConfiguration(
+                id="baz", label="Baz", summary=Plain(""), text=Plain("")
+            ),
+            LicenseDefinitionConfiguration(
+                id="qux", label="Qux", summary=Plain(""), text=Plain("")
+            ),
         )
 
     @override
@@ -763,10 +785,10 @@ class TestEventTypeDefinitionConfigurationMapping(
         EventTypeDefinitionConfiguration
     ]:
         return (
-            EventTypeDefinitionConfiguration(id="foo", label="Foo"),
-            EventTypeDefinitionConfiguration(id="bar", label="Bar"),
-            EventTypeDefinitionConfiguration(id="baz", label="Baz"),
-            EventTypeDefinitionConfiguration(id="qux", label="Qux"),
+            EventTypeDefinitionConfiguration(id="foo", label=Plain("Foo")),
+            EventTypeDefinitionConfiguration(id="bar", label=Plain("Bar")),
+            EventTypeDefinitionConfiguration(id="baz", label=Plain("Baz")),
+            EventTypeDefinitionConfiguration(id="qux", label=Plain("Qux")),
         )
 
     @override
@@ -799,10 +821,10 @@ class TestPlaceTypeDefinitionConfigurationMapping(
         PlaceTypeDefinitionConfiguration
     ]:
         return (
-            PlaceTypeDefinitionConfiguration(id="foo", label="Foo"),
-            PlaceTypeDefinitionConfiguration(id="bar", label="Bar"),
-            PlaceTypeDefinitionConfiguration(id="baz", label="Baz"),
-            PlaceTypeDefinitionConfiguration(id="qux", label="Qux"),
+            PlaceTypeDefinitionConfiguration(id="foo", label=Plain("Foo")),
+            PlaceTypeDefinitionConfiguration(id="bar", label=Plain("Bar")),
+            PlaceTypeDefinitionConfiguration(id="baz", label=Plain("Baz")),
+            PlaceTypeDefinitionConfiguration(id="qux", label=Plain("Qux")),
         )
 
     @override
@@ -835,10 +857,10 @@ class TestPresenceRoleDefinitionConfigurationMapping(
         PresenceRoleDefinitionConfiguration
     ]:
         return (
-            PresenceRoleDefinitionConfiguration(id="foo", label="Foo"),
-            PresenceRoleDefinitionConfiguration(id="bar", label="Bar"),
-            PresenceRoleDefinitionConfiguration(id="baz", label="Baz"),
-            PresenceRoleDefinitionConfiguration(id="qux", label="Qux"),
+            PresenceRoleDefinitionConfiguration(id="foo", label=Plain("Foo")),
+            PresenceRoleDefinitionConfiguration(id="bar", label=Plain("Bar")),
+            PresenceRoleDefinitionConfiguration(id="baz", label=Plain("Baz")),
+            PresenceRoleDefinitionConfiguration(id="qux", label=Plain("Qux")),
         )
 
     @override
@@ -871,10 +893,10 @@ class TestGenderDefinitionConfigurationMapping(
         GenderDefinitionConfiguration
     ]:
         return (
-            GenderDefinitionConfiguration(id="foo", label="Foo"),
-            GenderDefinitionConfiguration(id="bar", label="Bar"),
-            GenderDefinitionConfiguration(id="baz", label="Baz"),
-            GenderDefinitionConfiguration(id="qux", label="Qux"),
+            GenderDefinitionConfiguration(id="foo", label=Plain("Foo")),
+            GenderDefinitionConfiguration(id="bar", label=Plain("Bar")),
+            GenderDefinitionConfiguration(id="baz", label=Plain("Baz")),
+            GenderDefinitionConfiguration(id="qux", label=Plain("Qux")),
         )
 
     @override
@@ -972,9 +994,9 @@ class TestProjectConfiguration:
 
     async def test_title(self, tmp_path: Path) -> None:
         sut = ProjectConfiguration(tmp_path / "betty.json")
-        title = "My First Betty Site"
+        title = Plain("My First Betty Site")
         sut.title = title
-        assert sut.title.localize(DEFAULT_LOCALIZER) == title
+        assert sut.title is title
 
     async def test_name(self, tmp_path: Path) -> None:
         sut = ProjectConfiguration(tmp_path / "betty.json")
@@ -1033,13 +1055,13 @@ class TestProjectConfiguration:
 
     async def test_author__without_author(self, tmp_path: Path) -> None:
         sut = ProjectConfiguration(tmp_path / "betty.json")
-        assert not sut.author
+        assert sut.author is None
 
     async def test_author__with_author(self, tmp_path: Path) -> None:
         sut = ProjectConfiguration(tmp_path / "betty.json")
-        author = "Bart"
+        author = Plain("Bart")
         sut.author = author
-        assert sut.author.localize(DEFAULT_LOCALIZER) == author
+        assert sut.author is author
 
     async def test___init____with_logo(self, tmp_path: Path) -> None:
         logo = tmp_path / "logo.png"
@@ -1081,10 +1103,6 @@ class TestProjectConfiguration:
         dump = sut.dump()
         sut.load(dump)
         assert sut.url == dump["url"]
-        assert sut.title.localize(DEFAULT_LOCALIZER) == "Betty"
-        assert not sut.author
-        assert not sut.debug
-        assert not sut.clean_urls
 
     async def test_load__should_load_name(self, tmp_path: Path) -> None:
         name = "my-first-betty-site"
@@ -1159,6 +1177,7 @@ class TestProjectConfiguration:
         dump = sut.dump()
         dump["author"] = author
         sut.load(dump)
+        assert sut.author is not None
         assert sut.author.localize(DEFAULT_LOCALIZER) == author
 
     async def test_load__should_load_logo(self, tmp_path: Path) -> None:
@@ -1237,7 +1256,7 @@ class TestProjectConfiguration:
         ("expected", "event_types_configuration"),
         [
             ({}, {}),
-            ({"foo": {"label": "Foo", "description": {}}}, {"foo": {"label": "Foo"}}),
+            ({"foo": {"label": "Foo"}}, {"foo": {"label": "Foo"}}),
         ],
     )
     async def test_load__should_load_event_types(
@@ -1257,7 +1276,7 @@ class TestProjectConfiguration:
         ("expected", "place_types_configuration"),
         [
             ({}, {}),
-            ({"foo": {"label": "Foo", "description": {}}}, {"foo": {"label": "Foo"}}),
+            ({"foo": {"label": "Foo"}}, {"foo": {"label": "Foo"}}),
         ],
     )
     async def test_load__should_load_place_types(
@@ -1277,7 +1296,7 @@ class TestProjectConfiguration:
         ("expected", "presence_roles_configuration"),
         [
             ({}, {}),
-            ({"foo": {"label": "Foo", "description": {}}}, {"foo": {"label": "Foo"}}),
+            ({"foo": {"label": "Foo"}}, {"foo": {"label": "Foo"}}),
         ],
     )
     async def test_load__should_load_presence_roles(
@@ -1297,7 +1316,7 @@ class TestProjectConfiguration:
         ("expected", "genders_configuration"),
         [
             ({}, {}),
-            ({"foo": {"label": "Foo", "description": {}}}, {"foo": {"label": "Foo"}}),
+            ({"foo": {"label": "Foo"}}, {"foo": {"label": "Foo"}}),
         ],
     )
     async def test_load__should_load_genders(
@@ -1322,19 +1341,15 @@ class TestProjectConfiguration:
     async def test_dump__should_dump_minimal(self, tmp_path: Path) -> None:
         sut = ProjectConfiguration(tmp_path / "betty.json")
         dump = sut.dump()
-        assert sut.url == dump["url"]
-        assert sut.title.localize(DEFAULT_LOCALIZER) == "Betty"
-        assert not sut.author
-        assert not sut.debug
-        assert sut.root_path == ""
-        assert not sut.clean_urls
+        assert dump["url"] == sut.url
+        assert dump["title"] == "Betty"
 
     async def test_dump__should_dump_title(self, tmp_path: Path) -> None:
         title = "My first Betty site"
         sut = ProjectConfiguration(tmp_path / "betty.json")
-        sut.title = title
+        sut.title = Plain(title)
         dump = sut.dump()
-        assert title == dump["title"]
+        assert dump["title"] == title
 
     async def test_dump__should_dump_name(self, tmp_path: Path) -> None:
         name = "my-first-betty-site"
@@ -1346,9 +1361,9 @@ class TestProjectConfiguration:
     async def test_dump__should_dump_author(self, tmp_path: Path) -> None:
         author = "Bart"
         sut = ProjectConfiguration(tmp_path / "betty.json")
-        sut.author = author
+        sut.author = Plain(author)
         dump = sut.dump()
-        assert author == dump["author"]
+        assert dump["author"] == author
 
     async def test_dump__should_dumpo_logo(self, tmp_path: Path) -> None:
         logo = tmp_path / "logo.png"
@@ -1390,7 +1405,7 @@ class TestProjectConfiguration:
         sut = ProjectConfiguration(tmp_path / "betty.json")
         sut.clean_urls = clean_urls
         dump = sut.dump()
-        assert clean_urls == dump["clean_urls"]
+        assert dump["clean_urls"] == clean_urls
 
     @pytest.mark.parametrize(
         "debug",
@@ -1403,7 +1418,7 @@ class TestProjectConfiguration:
         sut = ProjectConfiguration(tmp_path / "betty.json")
         sut.debug = debug
         dump = sut.dump()
-        assert debug == dump["debug"]
+        assert dump["debug"] == debug
 
     async def test_dump__should_dump_one_extension_with_configuration(
         self, tmp_path: Path
@@ -1412,8 +1427,7 @@ class TestProjectConfiguration:
         value = "Hello, world!"
         sut.extensions.append(
             PluginInstanceConfiguration(
-                DummyConfigurableExtension.plugin,
-                configuration=DummyConfiguration(value=value),
+                DummyConfigurableExtension.plugin, DummyConfiguration(value=value)
             )
         )
         dump = sut.dump()
@@ -1437,24 +1451,26 @@ class TestProjectConfiguration:
 
     async def test_dump__should_dump_event_types(self, tmp_path: Path) -> None:
         sut = ProjectConfiguration(tmp_path / "betty.json")
-        sut.event_types.append(EventTypeDefinitionConfiguration(id="foo", label="Foo"))
+        sut.event_types.append(
+            EventTypeDefinitionConfiguration(id="foo", label=Plain("Foo"))
+        )
         dump = sut.dump()
         expected: DumpMapping[Dump] = {
             "foo": {
                 "label": "Foo",
-                "description": {},
             }
         }
         assert dump["event_types"] == expected
 
     async def test_dump__should_dump_place_types(self, tmp_path: Path) -> None:
         sut = ProjectConfiguration(tmp_path / "betty.json")
-        sut.place_types.append(PlaceTypeDefinitionConfiguration(id="foo", label="Foo"))
+        sut.place_types.append(
+            PlaceTypeDefinitionConfiguration(id="foo", label=Plain("Foo"))
+        )
         dump = sut.dump()
         expected: DumpMapping[Dump] = {
             "foo": {
                 "label": "Foo",
-                "description": {},
             }
         }
         assert dump["place_types"] == expected
@@ -1462,25 +1478,23 @@ class TestProjectConfiguration:
     async def test_dump__should_dump_presence_roles(self, tmp_path: Path) -> None:
         sut = ProjectConfiguration(tmp_path / "betty.json")
         sut.presence_roles.append(
-            PresenceRoleDefinitionConfiguration(id="foo", label="Foo")
+            PresenceRoleDefinitionConfiguration(id="foo", label=Plain("Foo"))
         )
         dump = sut.dump()
         expected: DumpMapping[Dump] = {
             "foo": {
                 "label": "Foo",
-                "description": {},
             }
         }
         assert dump["presence_roles"] == expected
 
     async def test_dump__should_dump_genders(self, tmp_path: Path) -> None:
         sut = ProjectConfiguration(tmp_path / "betty.json")
-        sut.genders.append(GenderDefinitionConfiguration(id="foo", label="Foo"))
+        sut.genders.append(GenderDefinitionConfiguration(id="foo", label=Plain("Foo")))
         dump = sut.dump()
         expected: DumpMapping[Dump] = {
             "foo": {
                 "label": "Foo",
-                "description": {},
             }
         }
         assert dump["genders"] == expected
@@ -1515,8 +1529,8 @@ class TestProjectConfiguration:
             CopyrightNoticeDefinitionConfiguration(
                 id=copyright_notice_id,
                 label=copyright_notice_label,
-                summary=copyright_notice_summary,
-                text=copyright_notice_text,
+                summary=Plain(copyright_notice_summary),
+                text=Plain(copyright_notice_text),
             )
         )
         assert sut.dump()["copyright_notices"] == {
@@ -1524,7 +1538,6 @@ class TestProjectConfiguration:
                 "label": copyright_notice_label,
                 "summary": copyright_notice_summary,
                 "text": copyright_notice_text,
-                "description": {},
             }
         }
 
@@ -1547,9 +1560,9 @@ class TestProjectConfiguration:
         sut.licenses.append(
             LicenseDefinitionConfiguration(
                 id=license_id,
-                label=license_label,
-                summary=license_summary,
-                text=license_text,
+                label=Plain(license_label),
+                summary=Plain(license_summary),
+                text=Plain(license_text),
             )
         )
         assert sut.dump()["licenses"] == {
@@ -1557,7 +1570,6 @@ class TestProjectConfiguration:
                 "label": license_label,
                 "summary": license_summary,
                 "text": license_text,
-                "description": {},
             }
         }
 
@@ -1573,7 +1585,7 @@ class TestCopyrightNoticeDefinitionConfiguration:
             "text": text,
         }
         sut = CopyrightNoticeDefinitionConfiguration(
-            id="-", label="", summary="", text=""
+            id="-", label=Plain(""), summary=Plain(""), text=Plain("")
         )
         sut.load(dump)
         assert sut.summary.localize(DEFAULT_LOCALIZER) == summary
@@ -1583,25 +1595,25 @@ class TestCopyrightNoticeDefinitionConfiguration:
         summary = "My First Summary"
         text = "My First Text"
         sut = CopyrightNoticeDefinitionConfiguration(
-            id="-", label="", summary=summary, text=text
+            id="-", label="", summary=Plain(summary), text=Plain(text)
         )
         dump = sut.dump()
         assert dump["summary"] == summary
         assert dump["text"] == text
 
     def test_summary(self) -> None:
-        summary = "My First Summary"
+        summary = Plain("My First Summary")
         sut = CopyrightNoticeDefinitionConfiguration(
-            id="-", label="", summary=summary, text=""
+            id="-", label="", summary=summary, text=Plain("")
         )
-        assert sut.summary.localize(DEFAULT_LOCALIZER) == summary
+        assert sut.summary is summary
 
     def test_text(self) -> None:
-        text = "My First Summary"
+        text = Plain("My First Summary")
         sut = CopyrightNoticeDefinitionConfiguration(
-            id="-", label="", summary="", text=text
+            id="-", label="", summary=Plain(""), text=text
         )
-        assert sut.text.localize(DEFAULT_LOCALIZER) == text
+        assert sut.text is text
 
 
 class TestLicenseDefinitionConfiguration:
@@ -1614,7 +1626,9 @@ class TestLicenseDefinitionConfiguration:
             "summary": summary,
             "text": text,
         }
-        sut = LicenseDefinitionConfiguration(id="-", label="", summary="", text="")
+        sut = LicenseDefinitionConfiguration(
+            id="-", label=Plain(""), summary=Plain(""), text=Plain("")
+        )
         sut.load(dump)
         assert sut.summary.localize(DEFAULT_LOCALIZER) == summary
         assert sut.text.localize(DEFAULT_LOCALIZER) == text
@@ -1623,18 +1637,22 @@ class TestLicenseDefinitionConfiguration:
         summary = "My First Summary"
         text = "My First Text"
         sut = LicenseDefinitionConfiguration(
-            id="-", label="", summary=summary, text=text
+            id="-", label="", summary=Plain(summary), text=Plain(text)
         )
         dump = sut.dump()
         assert dump["summary"] == summary
         assert dump["text"] == text
 
     def test_summary(self) -> None:
-        summary = "My First Summary"
-        sut = LicenseDefinitionConfiguration(id="-", label="", summary=summary, text="")
-        assert sut.summary.localize(DEFAULT_LOCALIZER) == summary
+        summary = Plain("My First Summary")
+        sut = LicenseDefinitionConfiguration(
+            id="-", label="", summary=summary, text=Plain("")
+        )
+        assert sut.summary is summary
 
     def test_text(self) -> None:
-        text = "My First Summary"
-        sut = LicenseDefinitionConfiguration(id="-", label="", summary="", text=text)
-        assert sut.text.localize(DEFAULT_LOCALIZER) == text
+        text = Plain("My First Summary")
+        sut = LicenseDefinitionConfiguration(
+            id="-", label="", summary=Plain(""), text=text
+        )
+        assert sut.text is text

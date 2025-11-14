@@ -1,44 +1,102 @@
 from gettext import NullTranslations
 from pathlib import Path
+from typing import TYPE_CHECKING
 
 import aiofiles
 import pytest
 from aiofiles.os import makedirs
+from typing_extensions import override
 
 from betty.ancestry.note import Note
 from betty.app import App
+from betty.config.factory import ConfigurationDependentSelfFactory
 from betty.content_provider import ContentProviderDefinition
 from betty.content_provider.content_providers import (
     Notes,
     PlainText,
+    PlainTextConfiguration,
     Template,
 )
+from betty.exception import HumanFacingException
 from betty.job import Context
 from betty.locale import DEFAULT_LOCALE
-from betty.locale.localizable import Plain, ShorthandStaticTranslations
-from betty.locale.localizer import Localizer
+from betty.locale.localizable import LocalizableLike, Plain, StaticTranslations
+from betty.locale.localizer import DEFAULT_LOCALIZER, Localizer
 from betty.project import Project
 from betty.resource import new_context
+from betty.test_utils.config.factory import ConfigurationDependentSelfFactoryTestBase
 from betty.tests.ancestry.test_has_notes import DummyHasNotes
 
+if TYPE_CHECKING:
+    from betty.serde.dump import Dump
 
-class TestPlainText:
+
+class TestPlainTextConfiguration:
+    def test_text(self) -> None:
+        text = Plain("")
+        sut = PlainTextConfiguration(text)
+        assert sut.text is text
+
+    def test_load__without_text(self) -> None:
+        dump: Dump = {}
+        sut = PlainTextConfiguration("")
+        with pytest.raises(HumanFacingException):
+            sut.load(dump)
+
+    def test_load__minimal(self) -> None:
+        text = "Hello, world!"
+        dump: Dump = {
+            "text": text,
+        }
+        sut = PlainTextConfiguration("")
+        sut.load(dump)
+        assert sut.text.localize(DEFAULT_LOCALIZER) == text
+
+    def test_dump(self) -> None:
+        text = "Hello, world!"
+        sut = PlainTextConfiguration(text)
+        assert sut.dump() == {
+            "text": text,
+        }
+
+
+class TestPlainText(ConfigurationDependentSelfFactoryTestBase[PlainTextConfiguration]):
+    @override
+    @pytest.fixture
+    async def configuration_dependent_self_factory_sut(
+        self,
+    ) -> type[ConfigurationDependentSelfFactory[PlainTextConfiguration]]:
+        return PlainText
+
+    @override
+    @pytest.fixture
+    def configuration_dependent_self_factory_sut_configuration(
+        self,
+    ) -> PlainTextConfiguration:
+        return PlainTextConfiguration("")
+
     @pytest.mark.parametrize(
-        ("expected", "configuration", "locale"),
+        ("expected", "text", "locale"),
         [
-            ("<p>One<br>\nTwo<br>\nThree</p>", "One\nTwo\nThree", DEFAULT_LOCALE),
+            (
+                "<p>One<br>\nTwo<br>\nThree</p>",
+                Plain("One\nTwo\nThree"),
+                DEFAULT_LOCALE,
+            ),
             (
                 "<p>Een<br>\nTwee<br>\nDrie</p>",
-                {DEFAULT_LOCALE: "One\nTwo\nThree", "nl": "Een\nTwee\nDrie"},
+                StaticTranslations(
+                    {DEFAULT_LOCALE: "One\nTwo\nThree", "nl": "Een\nTwee\nDrie"}
+                ),
                 "nl",
             ),
         ],
     )
     async def test_provide(
-        self, expected: str, configuration: ShorthandStaticTranslations, locale: str
+        self, expected: str, text: LocalizableLike, locale: str
     ) -> None:
-        sut = await PlainText.new()
-        sut.configuration.replace(configuration)
+        sut = PlainText()
+        sut.configuration.text = text
         assert (
             await sut.provide(
                 resource=new_context(localizer=Localizer(locale, NullTranslations()))

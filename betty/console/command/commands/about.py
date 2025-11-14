@@ -9,7 +9,7 @@ from rich.table import Table
 from typing_extensions import override
 
 from betty import about
-from betty.app.factory import AppDependentFactory
+from betty.app.factory import AppDependentSelfFactory
 from betty.console.command import Command, CommandFunction, CommandDefinition
 from betty.console.project import add_project_argument
 from betty.console.user import ConsoleUser
@@ -31,7 +31,7 @@ if TYPE_CHECKING:
     id="about",
     label=_("Output information about Betty, and optionally your project"),
 )
-class About(AppDependentFactory, Command):
+class About(AppDependentSelfFactory, Command):
     """
     A command to generate a new site.
     """

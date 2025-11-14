@@ -8,6 +8,7 @@ from typing import TYPE_CHECKING, Any
 
 from betty.assertion import (
     AssertionChain,
+    assert_len,
     assert_locale_identifier,
     assert_mapping,
     assert_or,
@@ -23,7 +24,13 @@ def assert_static_translations() -> AssertionChain[Any, StaticTranslationsMappin
     """
     Assert that a value represents static translations.
     """
-    return assert_or(
-        assert_str().chain(lambda translation: {UNDETERMINED_LOCALE: translation}),
-        assert_mapping(assert_str(), assert_locale_identifier()),
-    )
+
+    def _assert_static_translations(value: Any) -> StaticTranslationsMapping:
+        translations = assert_or(
+            assert_str().chain(lambda translation: {UNDETERMINED_LOCALE: translation}),
+            assert_mapping(assert_str(), assert_locale_identifier()),
+        )(value)
+        assert_len(minimum=1)(translations)
+        return translations
+
+    return AssertionChain(_assert_static_translations)

@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Betty VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2025-11-23 01:36+0000\n"
+"POT-Creation-Date: 2025-11-24 13:51+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -56,6 +56,9 @@ msgid "%(event)s with %(subjects)s"
 msgstr ""
 
 msgid "(De)serialization format"
+msgstr ""
+
+msgid "A Betty demonstration"
 msgstr ""
 
 msgid ""
@@ -139,6 +142,9 @@ msgid "Baptism"
 msgstr ""
 
 msgid "Bar mitzvah"
+msgstr ""
+
+msgid "Bart Feenstra and contributors"
 msgstr ""
 
 msgid "Bat mitzvah"
@@ -740,6 +746,12 @@ msgstr ""
 msgid "One or more of these requirements must be met"
 msgstr ""
 
+#, python-brace-format
+msgid ""
+"Only plain text and static translations can be dumped to configuration, "
+"not `{localizable}` objects."
+msgstr ""
+
 msgid "Operating system"
 msgstr ""
 
@@ -954,6 +966,9 @@ msgid "Sources"
 msgstr ""
 
 msgid "Speaker"
+msgstr ""
+
+msgid "Start exploring..."
 msgstr ""
 
 msgid "Starting Python's built-in web server..."

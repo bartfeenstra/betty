@@ -226,7 +226,6 @@ betty = 'betty.console:main_standalone'
 
 [project.entry-points.'betty.content_provider']
 '-demo-front-page-content' = 'betty.project.extension.demo.content_provider:_FrontPageContent'
-'-demo-front-page-summary' = 'betty.project.extension.demo.content_provider:_FrontPageSummary'
 'maps-map' = 'betty.project.extension.maps.content_provider:Map'
 'notes' = 'betty.content_provider.content_providers:Notes'
 'plain-text' = 'betty.content_provider.content_providers:PlainText'

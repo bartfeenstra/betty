@@ -4,7 +4,7 @@ The Configuration API.
 
 from __future__ import annotations
 
-from typing import Any, Generic, Self, TypeVar
+from typing import Any, Generic, TypeVar
 
 from betty.mutability import Mutable
 from betty.serde.dump import Dumpable
@@ -15,13 +15,6 @@ class Configuration(Mutable, Loadable, Dumpable):
     """
     Any configuration object.
     """
-
-    def update(self, other: Self, /) -> None:
-        """
-        Update this configuration with the values from ``other``.
-        """
-        self.assert_mutable()
-        self.load(other.dump())
 
 
 _ConfigurationT = TypeVar("_ConfigurationT", bound=Configuration)

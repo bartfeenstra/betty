@@ -38,11 +38,16 @@ from betty.exception import HumanFacingException, HumanFacingExceptionGroup
 from betty.license import License, LicenseDefinition
 from betty.license.licenses import AllRightsReserved
 from betty.locale import DEFAULT_LOCALE, UNDETERMINED_LOCALE
-from betty.locale.localizable import Localizable, ShorthandStaticTranslations, _
-from betty.locale.localizable.assertion import assert_static_translations
+from betty.locale.localizable import (
+    Localizable,
+    LocalizableLike,
+    Plain,
+    _,
+    ensure_localizable,
+)
 from betty.locale.localizable.config import (
-    OptionalStaticTranslationsConfigurationAttr,
-    RequiredStaticTranslationsConfigurationAttr,
+    OptionalLocalizableConfigurationAttr,
+    RequiredLocalizableConfigurationAttr,
 )
 from betty.machine_name import MachineName, assert_machine_name
 from betty.model import Entity, EntityDefinition
@@ -312,32 +317,22 @@ class CopyrightNoticeDefinitionConfiguration(HumanFacingPluginDefinitionConfigur
     Configure a :py:class:`betty.copyright_notice.CopyrightNoticeDefinition`.
     """
 
-    summary = RequiredStaticTranslationsConfigurationAttr("summary")
-    text = RequiredStaticTranslationsConfigurationAttr("text")
+    summary = RequiredLocalizableConfigurationAttr("summary")
+    text = RequiredLocalizableConfigurationAttr("text")
 
     def __init__(
-        self,
-        *,
-        summary: ShorthandStaticTranslations,
-        text: ShorthandStaticTranslations,
-        **kwargs: Any,
+        self, *, summary: LocalizableLike, text: LocalizableLike, **kwargs: Any
     ):
         super().__init__(**kwargs)
-        self.summary = summary
-        self.text = text
+        self.summary = ensure_localizable(summary)
+        self.text = ensure_localizable(text)
 
     @override
     def load(self, dump: Dump, /) -> None:
         mapping = assert_mapping()(dump)
         assert_fields(
-            RequiredField(
-                "summary",
-                assert_static_translations() | assert_setattr(self, "summary"),
-            ),
-            RequiredField(
-                "text",
-                assert_static_translations() | assert_setattr(self, "text"),
-            ),
+            RequiredField("summary", type(self).summary.assert_load(self)),
+            RequiredField("text", type(self).text.assert_load(self)),
         )(mapping)
         mapping.pop("summary", None)
         mapping.pop("text", None)
@@ -347,8 +342,8 @@ class CopyrightNoticeDefinitionConfiguration(HumanFacingPluginDefinitionConfigur
     def dump(self) -> DumpMapping[Dump]:
         return {
             **super().dump(),
-            "summary": self.summary.dump(),
-            "text": self.text.dump(),
+            "summary": type(self).summary.dump(self),
+            "text": type(self).text.dump(self),
         }
 
 
@@ -364,7 +359,7 @@ class CopyrightNoticeDefinitionConfigurationMapping(
     @override
     def _load_item(self, dump: Dump, /) -> CopyrightNoticeDefinitionConfiguration:
         item = CopyrightNoticeDefinitionConfiguration(
-            id="-", label="", summary="", text=""
+            id="-", label=Plain(""), summary=Plain(""), text=Plain("")
         )
         item.load(dump)
         return item
@@ -397,32 +392,22 @@ class LicenseDefinitionConfiguration(HumanFacingPluginDefinitionConfiguration):
     Configure a :py:class:`betty.license.LicenseDefinition`.
     """
 
-    summary = RequiredStaticTranslationsConfigurationAttr("summary")
-    text = RequiredStaticTranslationsConfigurationAttr("text")
+    summary = RequiredLocalizableConfigurationAttr("summary")
+    text = RequiredLocalizableConfigurationAttr("text")
 
     def __init__(
-        self,
-        *,
-        summary: ShorthandStaticTranslations,
-        text: ShorthandStaticTranslations,
-        **kwargs: Any,
+        self, *, summary: LocalizableLike, text: LocalizableLike, **kwargs: Any
     ):
         super().__init__(**kwargs)
-        self.summary = summary
-        self.text = text
+        self.summary = ensure_localizable(summary)
+        self.text = ensure_localizable(text)
 
     @override
     def load(self, dump: Dump, /) -> None:
         mapping = assert_mapping()(dump)
         assert_fields(
-            RequiredField(
-                "summary",
-                assert_static_translations() | assert_setattr(self, "summary"),
-            ),
-            RequiredField(
-                "text",
-                assert_static_translations() | assert_setattr(self, "text"),
-            ),
+            RequiredField("summary", type(self).summary.assert_load(self)),
+            RequiredField("text", type(self).text.assert_load(self)),
         )(mapping)
         mapping.pop("summary", None)
         mapping.pop("text", None)
@@ -432,8 +417,8 @@ class LicenseDefinitionConfiguration(HumanFacingPluginDefinitionConfiguration):
     def dump(self) -> DumpMapping[Dump]:
         return {
             **super().dump(),
-            "summary": self.summary.dump(),
-            "text": self.text.dump(),
+            "summary": type(self).summary.dump(self),
+            "text": type(self).text.dump(self),
         }
 
 
@@ -448,7 +433,9 @@ class LicenseDefinitionConfigurationMapping(
 
     @override
     def _load_item(self, dump: Dump, /) -> LicenseDefinitionConfiguration:
-        item = LicenseDefinitionConfiguration(id="-", label="", summary="", text="")
+        item = LicenseDefinitionConfiguration(
+            id="-", label=Plain(""), summary=Plain(""), text=Plain("")
+        )
         item.load(dump)
         return item
 
@@ -494,7 +481,7 @@ class EventTypeDefinitionConfigurationMapping(
 
     @override
     def _load_item(self, dump: Dump, /) -> EventTypeDefinitionConfiguration:
-        item = EventTypeDefinitionConfiguration(id="-", label="")
+        item = EventTypeDefinitionConfiguration(id="-", label=Plain(""))
         item.load(dump)
         return item
 
@@ -527,7 +514,7 @@ class PlaceTypeDefinitionConfigurationMapping(
 
     @override
     def _load_item(self, dump: Dump, /) -> PlaceTypeDefinitionConfiguration:
-        item = PlaceTypeDefinitionConfiguration(id="-", label="")
+        item = PlaceTypeDefinitionConfiguration(id="-", label=Plain(""))
         item.load(dump)
         return item
 
@@ -560,7 +547,7 @@ class PresenceRoleDefinitionConfigurationMapping(
 
     @override
     def _load_item(self, dump: Dump, /) -> PresenceRoleDefinitionConfiguration:
-        item = PresenceRoleDefinitionConfiguration(id="-", label="")
+        item = PresenceRoleDefinitionConfiguration(id="-", label=Plain(""))
         item.load(dump)
         return item
 
@@ -593,7 +580,7 @@ class GenderDefinitionConfigurationMapping(
 
     @override
     def _load_item(self, dump: Dump, /) -> GenderDefinitionConfiguration:
-        item = GenderDefinitionConfiguration(id="-", label="")
+        item = GenderDefinitionConfiguration(id="-", label=Plain(""))
         item.load(dump)
         return item
 
@@ -615,8 +602,8 @@ class ProjectConfiguration(Configuration):
     Provide the configuration for a :py:class:`betty.project.Project`.
     """
 
-    title = OptionalStaticTranslationsConfigurationAttr("title")
-    author = OptionalStaticTranslationsConfigurationAttr("author")
+    title = RequiredLocalizableConfigurationAttr("title")
+    author = OptionalLocalizableConfigurationAttr("author")
 
     def __init__(
         self,
@@ -624,8 +611,8 @@ class ProjectConfiguration(Configuration):
         *,
         url: str = "https://example.com",
         clean_urls: bool = False,
-        title: ShorthandStaticTranslations = "Betty",
-        author: ShorthandStaticTranslations | None = None,
+        title: LocalizableLike = "Betty",
+        author: LocalizableLike | None = None,
         entity_types: Iterable[EntityTypeConfiguration] | None = None,
         event_types: Iterable[EventTypeDefinitionConfiguration] | None = None,
         place_types: Iterable[PlaceTypeDefinitionConfiguration] | None = None,
@@ -657,9 +644,9 @@ class ProjectConfiguration(Configuration):
         self._computed_name: str | None = None
         self._url = url
         self._clean_urls = clean_urls
-        self.title = title
+        self.title = ensure_localizable(title)
         if author:
-            self.author = author
+            self.author = ensure_localizable(author)
         self._entity_types = EntityTypeConfigurationMapping(entity_types or ())
         self.copyright_notice = copyright_notice or PluginInstanceConfiguration[
             CopyrightNoticeDefinition, CopyrightNotice
@@ -941,8 +928,8 @@ class ProjectConfiguration(Configuration):
                 assert_or(assert_str() | assert_setattr(self, "name"), assert_none()),
             ),
             RequiredField("url", assert_str() | assert_setattr(self, "url")),
-            OptionalField("title", self.title.load),
-            OptionalField("author", self.author.load),
+            OptionalField("title", type(self).title.assert_load(self)),
+            OptionalField("author", type(self).author.assert_load(self)),
             OptionalField(
                 "logo",
                 assert_or(assert_path() | assert_setattr(self, "logo"), assert_none()),
@@ -974,9 +961,8 @@ class ProjectConfiguration(Configuration):
         dump: DumpMapping[Dump] = {
             "name": self.name,
             "url": self.url,
-            "title": self.title.dump(),
+            "title": type(self).title.dump(self),
             "clean_urls": self.clean_urls,
-            "author": self.author.dump(),
             "logo": str(self._logo) if self._logo else None,
             "debug": self.debug,
             "lifetime_threshold": self.lifetime_threshold,
@@ -992,4 +978,6 @@ class ProjectConfiguration(Configuration):
             "place_types": self.place_types.dump(),
             "presence_roles": self.presence_roles.dump(),
         }
+        if author := type(self).author.dump(self):
+            dump["author"] = author
         return dump

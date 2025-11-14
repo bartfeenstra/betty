@@ -5,14 +5,25 @@ Functionality for creating new instances of types that depend on :py:class:`bett
 from __future__ import annotations
 
 from abc import abstractmethod
-from typing import TYPE_CHECKING, Self, TypeAlias, TypeVar
+from typing import (
+    TYPE_CHECKING,
+    Generic,
+    Protocol,
+    Self,
+    TypeAlias,
+    TypeVar,
+    final,
+)
 
 from typing_extensions import override
 
+from betty.asyncio import ensure_await
 from betty.factory import Target
 from betty.requirement import HasRequirement, Requirement
 
 if TYPE_CHECKING:
+    from collections.abc import Awaitable, Callable
+
     from betty.app import App
     from betty.service.level import ServiceLevel
 
@@ -20,7 +31,7 @@ if TYPE_CHECKING:
 _T = TypeVar("_T")
 
 
-class AppDependentFactory(HasRequirement):
+class AppDependentSelfFactory(HasRequirement):
     """
     Allow this type to be instantiated using a :py:class:`betty.app.App`.
     """
@@ -40,9 +51,52 @@ class AppDependentFactory(HasRequirement):
         return await App.requirement_for(services, str(cls))
 
 
-AppFactoryTarget: TypeAlias = Target[_T] | AppDependentFactory
+class AppDependentFactory(Generic[_T]):
+    """
+    Create new instances using a :py:class:`betty.app.App`.
+    """
+
+    @abstractmethod
+    async def new_for_app(self, app: App, /) -> _T:
+        """
+        Create a new instance using the given app.
+        """
+
+
+@final
+class CallbackAppDependentFactory(AppDependentFactory[_T], Generic[_T]):
+    """
+    Create new instances using a callback that takes a :py:class:`betty.app.App`.
+    """
+
+    def __init__(
+        self, callback: Callable[[App], Awaitable[_T]] | Callable[[App], _T], /
+    ):
+        self._callback = callback
+
+    @override
+    async def new_for_app(self, app: App, /) -> _T:
+        return await ensure_await(self._callback(app))
+
+
+AppTarget: TypeAlias = Target[_T] | AppDependentSelfFactory | AppDependentFactory[_T]
 """
-#. If ``target`` subclasses :py:class:`betty.app.factory.AppDependentFactory`, this will call return ``target``'s
+#. If ``target`` subclasses :py:class:`betty.app.factory.AppDependentSelfFactory`, this will return ``target``'s
+   ``new_for_app()``'s return value.
+#. If ``target`` is an instance of :py:class:`betty.app.factory.AppDependentFactory`, this will return ``target``'s
    ``new_for_app()``'s return value.
 #. Else, ``target`` will be treated as :py:type:`betty.factory.Target`.
 """
+
+
+class AppFactory(Protocol):
+    """
+    The app factory.
+    """
+
+    async def __call__(self, target: AppTarget[_T]) -> _T:
+        """
+        Create a new instance.
+
+        :raises FactoryError: raised when ``target`` could not be instantiated.
+        """

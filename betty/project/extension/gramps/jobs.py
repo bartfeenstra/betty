@@ -21,11 +21,11 @@ from betty.project import ProjectContext
 if TYPE_CHECKING:
     from collections.abc import Awaitable, Callable
 
-    from betty.factory import Factory
     from betty.job.scheduler import Scheduler
     from betty.plugin.classed import ClassedPluginDefinition
     from betty.plugin.config import PluginInstanceConfiguration
     from betty.plugin.repository import PluginRepository
+    from betty.project.factory import ProjectFactory
 
 _PluginT = TypeVar("_PluginT")
 
@@ -36,7 +36,7 @@ def _new_plugin_instance_factory(
     ],
     repository: PluginRepository[ClassedPluginDefinition[_PluginT]],
     *,
-    factory: Factory,
+    factory: ProjectFactory,
 ) -> Callable[[], Awaitable[_PluginT]]:
     async def plugin_instance_factory() -> _PluginT:
         return await configuration.new_plugin_instance(repository, factory=factory)
