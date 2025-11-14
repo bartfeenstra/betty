@@ -218,7 +218,7 @@ class TestFamilyTreeConfiguration:
         assert isinstance(actual, Mapping)
         assert actual["my-first-gramps-type"] == "my-first-betty-plugin-id"
 
-    def test_get_mutable_instances(self) -> None:
+    def test_get_mutables(self) -> None:
         sut = FamilyTreeConfiguration(Path(__file__))
         sut.immutable = True
         assert sut.event_types.immutable
@@ -425,7 +425,7 @@ class TestGrampsConfiguration:
         }
         assert actual == expected
 
-    def test_get_mutable_instances(self) -> None:
+    def test_get_mutables(self) -> None:
         sut = GrampsConfiguration()
         sut.immutable = True
         assert sut.family_trees.immutable

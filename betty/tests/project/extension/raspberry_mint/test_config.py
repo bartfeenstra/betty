@@ -129,7 +129,7 @@ class TestRaspberryMintConfiguration:
             ],
         }
 
-    def test_get_mutable_instances(self) -> None:
+    def test_get_mutables(self) -> None:
         sut = RaspberryMintConfiguration()
         sut.immutable = True
         assert sut.primary_color.immutable

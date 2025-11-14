@@ -114,9 +114,9 @@ class Place(HasLinks, HasFileReferences, HasNotes, HasPrivacy):
         self._place_type = place_type or UnknownPlaceType()
 
     @override
-    def get_mutable_instances(self) -> Iterable[object]:
+    def get_mutables(self) -> Iterable[object]:
         return (
-            *super().get_mutable_instances(),
+            *super().get_mutables(),
             self._place_type,
         )
 

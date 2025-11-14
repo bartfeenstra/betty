@@ -110,7 +110,7 @@ class File(
         self.license = license
 
     @override
-    def get_mutable_instances(self) -> Iterable[object]:
+    def get_mutables(self) -> Iterable[object]:
         if self.copyright_notice is not None:
             yield self.copyright_notice
         if self.license is not None:

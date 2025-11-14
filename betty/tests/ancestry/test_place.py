@@ -255,7 +255,7 @@ class TestPlace(EntityTestBase):
         actual = await assert_dumps_linked_data(place)
         assert actual == expected
 
-    def test_get_mutable_instances(self) -> None:
+    def test_get_mutables(self) -> None:
         class _MutablePlaceType(PlaceType, Mutable):
             pass
 

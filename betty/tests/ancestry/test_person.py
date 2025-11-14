@@ -450,7 +450,7 @@ class TestPerson(EntityTestBase):
         sut.gender = gender
         assert sut.gender is gender
 
-    def test_get_mutable_instances(self) -> None:
+    def test_get_mutables(self) -> None:
         class _MutableGender(Gender, Mutable):
             pass
 

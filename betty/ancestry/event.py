@@ -123,9 +123,9 @@ class Event(
         self.name = name
 
     @override
-    def get_mutable_instances(self) -> Iterable[object]:
+    def get_mutables(self) -> Iterable[object]:
         return (
-            *super().get_mutable_instances(),
+            *super().get_mutables(),
             self.event_type,
         )
 
