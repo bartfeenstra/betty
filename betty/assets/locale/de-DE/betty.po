@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Betty VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2025-11-13 01:42+0000\n"
+"POT-Creation-Date: 2025-11-14 22:07+0000\n"
 "PO-Revision-Date: 2025-03-28 20:02+0000\n"
 "Last-Translator: Ettore Atalan <atalanttore@googlemail.com>\n"
 "Language: de_DE\n"
@@ -94,6 +94,9 @@ msgid "Also show detailed information messages"
 msgstr ""
 
 msgid "Also show log messages"
+msgstr ""
+
+msgid "Amsterdam"
 msgstr ""
 
 msgid "An unexpected error occurred:"
@@ -393,6 +396,14 @@ msgstr ""
 "Stellen Sie fest, ob der Tod von Personen nachgewiesen werden kann. Wenn "
 "nicht, markieren Sie sie und die zugehörigen Entitäten als privat."
 
+msgid "Did you know that Liberta \"Betty\" Lankester is Betty's namesake?"
+msgstr ""
+
+msgid ""
+"Did you know that while Amsterdam is the country's official capital, The "
+"Hague is the Netherlands' administrative center and seat of government?"
+msgstr ""
+
 msgid ""
 "Display interactive family trees using <a "
 "href=\"https://cytoscape.org/\">Cytoscape</a>."
@@ -519,6 +530,9 @@ msgstr ""
 msgid "Funeral"
 msgstr "Beerdigung"
 
+msgid "Gemeente Amsterdam"
+msgstr ""
+
 msgid "Gender"
 msgstr ""
 
@@ -563,6 +577,9 @@ msgid "I'm sorry, dear, but it seems you're not allowed to view this page."
 msgstr ""
 
 msgid "I'm sorry, dear, but it seems you're not logged in."
+msgstr ""
+
+msgid "Ilpendam"
 msgstr ""
 
 msgid "Immigration"
@@ -704,6 +721,9 @@ msgstr "Gemeinde"
 msgid "Neighborhood"
 msgstr "Nachbarschaft"
 
+msgid "Netherlands"
+msgstr ""
+
 msgid "Next page"
 msgstr ""
 
@@ -715,6 +735,9 @@ msgstr ""
 
 msgid "Non-binary"
 msgstr "Divers"
+
+msgid "North Holland"
+msgstr ""
 
 msgid "Note"
 msgstr "Notiz"
@@ -773,6 +796,9 @@ msgstr "Name der Person"
 
 msgid "Person names"
 msgstr "Namen der Personen"
+
+msgid "Personal accounts"
+msgstr ""
 
 msgid "Place"
 msgstr "Ort"
@@ -975,6 +1001,9 @@ msgstr ""
 #, python-format
 msgid "The '%(project_title)s' logo"
 msgstr "Das Logo von '%(project_title)s'"
+
+msgid "The 'birth of the author', so to speak."
+msgstr ""
 
 #, python-brace-format
 msgid ""

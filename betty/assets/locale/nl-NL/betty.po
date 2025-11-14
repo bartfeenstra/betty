@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PROJECT VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2025-11-13 01:42+0000\n"
+"POT-Creation-Date: 2025-11-14 22:07+0000\n"
 "PO-Revision-Date: 2025-05-17 01:43+0000\n"
 "Last-Translator: Bart Feenstra <bart@bartfeenstra.com>\n"
 "Language: nl_NL\n"
@@ -98,6 +98,9 @@ msgid "Also show detailed information messages"
 msgstr ""
 
 msgid "Also show log messages"
+msgstr ""
+
+msgid "Amsterdam"
 msgstr ""
 
 msgid "An unexpected error occurred:"
@@ -414,6 +417,14 @@ msgstr ""
 "Bepaal of bewezen kan worden dat personen overleden zijn. Indien niet, "
 "markeer hen en gerelateerde entiteiten privé."
 
+msgid "Did you know that Liberta \"Betty\" Lankester is Betty's namesake?"
+msgstr ""
+
+msgid ""
+"Did you know that while Amsterdam is the country's official capital, The "
+"Hague is the Netherlands' administrative center and seat of government?"
+msgstr ""
+
 msgid ""
 "Display interactive family trees using <a "
 "href=\"https://cytoscape.org/\">Cytoscape</a>."
@@ -540,6 +551,9 @@ msgstr ""
 msgid "Funeral"
 msgstr "Uitvaart"
 
+msgid "Gemeente Amsterdam"
+msgstr ""
+
 msgid "Gender"
 msgstr ""
 
@@ -590,6 +604,9 @@ msgstr ""
 
 msgid "I'm sorry, dear, but it seems you're not logged in."
 msgstr "Het spijt me, lieverd, maar het lijkt erop dat je niet ingelogd bent."
+
+msgid "Ilpendam"
+msgstr ""
 
 msgid "Immigration"
 msgstr "Immigratie"
@@ -730,6 +747,9 @@ msgstr "Gemeente"
 msgid "Neighborhood"
 msgstr "Buurt"
 
+msgid "Netherlands"
+msgstr ""
+
 msgid "Next page"
 msgstr ""
 
@@ -744,6 +764,9 @@ msgstr ""
 
 msgid "Non-binary"
 msgstr "Non-binair"
+
+msgid "North Holland"
+msgstr ""
 
 msgid "Note"
 msgstr "Aantekening"
@@ -802,6 +825,9 @@ msgstr "Persoonsnaam"
 
 msgid "Person names"
 msgstr "Persoonsnamen"
+
+msgid "Personal accounts"
+msgstr ""
 
 msgid "Place"
 msgstr "Plaats"
@@ -1004,6 +1030,9 @@ msgstr ""
 #, python-format
 msgid "The '%(project_title)s' logo"
 msgstr "Het logo van '%(project_title)s'"
+
+msgid "The 'birth of the author', so to speak."
+msgstr ""
 
 #, python-brace-format
 msgid ""

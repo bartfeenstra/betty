@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Betty VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2025-11-13 01:42+0000\n"
+"POT-Creation-Date: 2025-11-14 22:07+0000\n"
 "PO-Revision-Date: 2024-11-30 19:00+0000\n"
 "Last-Translator: Bart Feenstra <bart@bartfeenstra.com>\n"
 "Language: ar\n"
@@ -93,6 +93,9 @@ msgid "Also show detailed information messages"
 msgstr ""
 
 msgid "Also show log messages"
+msgstr ""
+
+msgid "Amsterdam"
 msgstr ""
 
 msgid "An unexpected error occurred:"
@@ -366,6 +369,14 @@ msgid ""
 "their associated entities private."
 msgstr ""
 
+msgid "Did you know that Liberta \"Betty\" Lankester is Betty's namesake?"
+msgstr ""
+
+msgid ""
+"Did you know that while Amsterdam is the country's official capital, The "
+"Hague is the Netherlands' administrative center and seat of government?"
+msgstr ""
+
 msgid ""
 "Display interactive family trees using <a "
 "href=\"https://cytoscape.org/\">Cytoscape</a>."
@@ -490,6 +501,9 @@ msgstr ""
 msgid "Funeral"
 msgstr ""
 
+msgid "Gemeente Amsterdam"
+msgstr ""
+
 msgid "Gender"
 msgstr ""
 
@@ -534,6 +548,9 @@ msgid "I'm sorry, dear, but it seems you're not allowed to view this page."
 msgstr ""
 
 msgid "I'm sorry, dear, but it seems you're not logged in."
+msgstr ""
+
+msgid "Ilpendam"
 msgstr ""
 
 msgid "Immigration"
@@ -675,6 +692,9 @@ msgstr ""
 msgid "Neighborhood"
 msgstr ""
 
+msgid "Netherlands"
+msgstr ""
+
 msgid "Next page"
 msgstr ""
 
@@ -685,6 +705,9 @@ msgid ""
 msgstr ""
 
 msgid "Non-binary"
+msgstr ""
+
+msgid "North Holland"
 msgstr ""
 
 msgid "Note"
@@ -743,6 +766,9 @@ msgid "Person name"
 msgstr ""
 
 msgid "Person names"
+msgstr ""
+
+msgid "Personal accounts"
 msgstr ""
 
 msgid "Place"
@@ -942,6 +968,9 @@ msgstr ""
 
 #, python-format
 msgid "The '%(project_title)s' logo"
+msgstr ""
+
+msgid "The 'birth of the author', so to speak."
 msgstr ""
 
 #, python-brace-format
