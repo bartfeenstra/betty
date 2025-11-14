@@ -2,7 +2,6 @@
 
 from __future__ import annotations
 
-from reprlib import recursive_repr
 from typing import TYPE_CHECKING, Any, ClassVar, Self, TypeAlias, TypeVar, final
 from uuid import uuid4
 
@@ -23,7 +22,6 @@ from betty.plugin import (
     ClassedPluginTypeDefinition,
     CountableHumanFacingPluginDefinition,
 )
-from betty.repr import repr_instance
 from betty.string import kebab_case_to_lower_camel_case
 
 if TYPE_CHECKING:
@@ -75,11 +73,6 @@ class Entity(LinkedDataDumpableWithSchemaJsonLdObject, Mutable, ClassedPlugin):
     @override
     def __hash__(self) -> int:
         return hash(self.ancestry_id)
-
-    @override  # type: ignore[callable-functiontype]
-    @recursive_repr()
-    def __repr__(self) -> str:
-        return repr_instance(self, id=self._id)
 
     @property
     def id(self) -> str:

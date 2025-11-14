@@ -17,7 +17,6 @@ from betty.locale.localizable import Localizable, _, ngettext
 from betty.model import Entity, EntityDefinition
 from betty.model.association import BidirectionalToOne, ToManyAssociates, ToOneAssociate
 from betty.privacy import HasPrivacy, Privacy, merge_privacies
-from betty.repr import repr_instance
 
 if TYPE_CHECKING:
     from betty.ancestry.citation import Citation
@@ -82,12 +81,6 @@ class PersonName(HasLocale, HasCitations, HasPrivacy, Entity):
     @override
     def _get_effective_privacy(self) -> Privacy:
         return merge_privacies(super()._get_effective_privacy(), self.person)
-
-    @override
-    def __repr__(self) -> str:
-        return repr_instance(
-            self, id=self.id, individual=self.individual, affiliation=self.affiliation
-        )
 
     @property
     def individual(self) -> str | None:

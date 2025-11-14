@@ -4,7 +4,6 @@ Data types to describe events.
 
 from __future__ import annotations
 
-from reprlib import recursive_repr
 from typing import TYPE_CHECKING, final
 
 from typing_extensions import override
@@ -36,7 +35,6 @@ from betty.model.association import (
     ToZeroOrOneAssociate,
 )
 from betty.privacy import HasPrivacy, Privacy
-from betty.repr import repr_instance
 
 if TYPE_CHECKING:
     from collections.abc import Iterable, Mapping
@@ -163,11 +161,6 @@ class Event(
         if subjects:
             return _("{event_type} of {subjects}").format(**format_kwargs)
         return _("{event_type}").format(**format_kwargs)
-
-    @override  # type: ignore[callable-functiontype]
-    @recursive_repr()
-    def __repr__(self) -> str:
-        return repr_instance(self, id=self._id, type=self._event_type)
 
     @property
     def event_type(self) -> EventType:

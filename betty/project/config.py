@@ -5,7 +5,6 @@ Provide project configuration.
 from __future__ import annotations
 
 from collections.abc import Iterable, Mapping
-from reprlib import recursive_repr
 from typing import TYPE_CHECKING, Any, Self, cast, final
 from urllib.parse import urlparse
 
@@ -61,7 +60,6 @@ from betty.plugin.config import (
     PluginInstanceConfigurationMapping,
 )
 from betty.project.extension import Extension, ExtensionDefinition
-from betty.repr import repr_instance
 from betty.serde.format import FORMAT_REPOSITORY, format_for
 
 if TYPE_CHECKING:
@@ -72,7 +70,6 @@ if TYPE_CHECKING:
         PluginRepository,
     )
     from betty.serde.dump import Dump, DumpMapping
-
 
 #: The default age by which people are presumed dead.
 #: This is based on `Jeanne Louise Calment <https://www.guinnessworldrecords.com/world-records/oldest-person/>`_ who is
@@ -228,11 +225,6 @@ class LocaleConfiguration(Configuration):
         if alias is not None and "/" in alias:
             raise HumanFacingException(_("Locale aliases must not contain slashes."))
         self._alias = alias
-
-    @override  # type: ignore[callable-functiontype]
-    @recursive_repr()
-    def __repr__(self) -> str:
-        return repr_instance(self, locale=self.locale, alias=self.alias)
 
     @property
     def locale(self) -> str:

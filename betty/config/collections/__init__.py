@@ -12,7 +12,6 @@ from collections.abc import (
     MutableMapping,
     MutableSequence,
 )
-from reprlib import recursive_repr
 from typing import (
     TYPE_CHECKING,
     Any,
@@ -25,7 +24,6 @@ from typing import (
 from typing_extensions import override
 
 from betty.config import Configuration
-from betty.repr import repr_instance
 
 if TYPE_CHECKING:
     from betty.serde.dump import Dump
@@ -67,11 +65,6 @@ class ConfigurationCollection(
 
     def __len__(self) -> int:
         return len(self._configurations)
-
-    @override  # type: ignore[callable-functiontype]
-    @recursive_repr()
-    def __repr__(self) -> str:
-        return repr_instance(self, configurations=list(self.values()))
 
     @abstractmethod
     def replace(self, *configurations: _ConfigurationT) -> None:
