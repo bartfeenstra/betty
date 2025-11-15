@@ -12,6 +12,7 @@ from betty.plugin import (
     ClassedPluginDefinition,
     HumanFacingPluginDefinition,
     PluginTypeDefinition,
+    ProjectPluginRepositoryDefinition,
 )
 
 if TYPE_CHECKING:
@@ -39,6 +40,9 @@ class ContentProviderDefinition(
     """
 
     plugin_type_cls = ContentProvider
+    repository = ProjectPluginRepositoryDefinition(
+        lambda project: project.content_provider_repository
+    )
     type = PluginTypeDefinition(
         id="content-provider",
         label=_("Content provider"),

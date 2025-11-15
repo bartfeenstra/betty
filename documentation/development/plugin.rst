@@ -23,6 +23,7 @@ The following plugin types are provided by Betty itself. Each plugin type's docu
 plugin repository, how to use the plugins, and how to create your own.
 
 - :doc:`Console commands </development/plugin/command>`
+- :doc:`Content providers </development/plugin/content-provider>`
 - :doc:`Copyright notices </development/plugin/copyright-notice>`
 - :doc:`Entity types </development/plugin/entity-type>`
 - :doc:`Event types </development/plugin/event-type>`
@@ -33,6 +34,7 @@ plugin repository, how to use the plugins, and how to create your own.
 - :doc:`Place types </development/plugin/place-type>`
 - :doc:`Presence roles </development/plugin/presence-role>`
 - :doc:`Renderers </development/plugin/renderer>`
+- :doc:`Serialization formats </development/plugin/format>`
 
 Creating a new plugin type
 --------------------------

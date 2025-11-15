@@ -14,10 +14,12 @@ from betty.locale.localizable import Localizable, _
 from betty.locale.localized import Localized, LocalizedStr
 from betty.plugin import (
     ClassedPluginDefinition,
+    GlobalPluginRepositoryDefinition,
     HumanFacingPluginDefinition,
+    PluginRepository,
     PluginTypeDefinition,
 )
-from betty.plugin.static import StaticPluginRepository
+from betty.plugin.entry_point import EntryPointPluginRepository
 
 if TYPE_CHECKING:
     from collections.abc import Sequence
@@ -63,6 +65,21 @@ class Format:
         """
 
 
+_format_repository: PluginRepository[FormatDefinition] | None = None
+
+
+def format_repository() -> PluginRepository[FormatDefinition]:
+    """
+    Get the format plugin repository.
+    """
+    global _format_repository
+    if _format_repository is None:
+        _format_repository = EntryPointPluginRepository(
+            FormatDefinition, "betty.serde_format"
+        )
+    return _format_repository
+
+
 @final
 class FormatDefinition(HumanFacingPluginDefinition, ClassedPluginDefinition[Format]):
     """
@@ -70,29 +87,11 @@ class FormatDefinition(HumanFacingPluginDefinition, ClassedPluginDefinition[Form
     """
 
     plugin_type_cls = Format
-
+    repository = GlobalPluginRepositoryDefinition(format_repository)
     type = PluginTypeDefinition(
         id="format",
         label=_("(De)serialization format)"),
     )
-
-
-@final
-class FormatRepository(StaticPluginRepository[FormatDefinition]):
-    """
-    Exposes the available (de)serialization formats.
-    """
-
-    def __init__(self):
-        from betty.serde.format.formats import Json, Yaml
-
-        super().__init__(FormatDefinition, Json.plugin, Yaml.plugin)
-
-
-FORMAT_REPOSITORY = FormatRepository()
-"""
-The (de)serialization format plugin repository.
-"""
 
 
 @final

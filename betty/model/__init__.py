@@ -17,6 +17,7 @@ from betty.locale.localizable import Localizable, _
 from betty.locale.localizer import DEFAULT_LOCALIZER
 from betty.mutability import Mutable
 from betty.plugin import (
+    AppPluginRepositoryDefinition,
     ClassedPlugin,
     ClassedPluginDefinition,
     CountableHumanFacingPluginDefinition,
@@ -147,6 +148,7 @@ class EntityDefinition(
     """
 
     plugin_type_cls = Entity
+    repository = AppPluginRepositoryDefinition(lambda app: app.entity_type_repository)
     type = PluginTypeDefinition(
         id="entity",
         label=_("Entity"),

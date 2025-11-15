@@ -1,4 +1,5 @@
 from collections.abc import Iterable
+from pathlib import Path
 from typing import cast
 
 import pytest
@@ -14,6 +15,7 @@ from betty.model import (
     persistent_id,
 )
 from betty.plugin import PluginDefinition
+from betty.test_utils.documentation import PluginDocumentationTestBase
 from betty.test_utils.json.schema import SchemaTestBase, SchemaTestBaseSut
 from betty.test_utils.plugin import ClassedPluginDefinitionClassTestBase
 
@@ -33,6 +35,11 @@ class TestEntityDefinition(ClassedPluginDefinitionClassTestBase):
             label_countable=CountablePlain("", ""),
         )
         assert sut.public_facing
+
+
+class TestEntityDocumentation(PluginDocumentationTestBase[EntityDefinition]):
+    _plugin_type = EntityDefinition
+    _plugin_type_documentation_path = Path("usage") / "ancestry.rst"
 
 
 @pytest.mark.parametrize(

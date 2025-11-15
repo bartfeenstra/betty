@@ -15,6 +15,7 @@ from betty.plugin import (
     OrderedPluginDefinition,
     PluginIdentifier,
     PluginTypeDefinition,
+    ProjectPluginRepositoryDefinition,
     resolve_id,
 )
 
@@ -58,7 +59,9 @@ class EventTypeDefinition(
     """
 
     plugin_type_cls = EventType
-
+    repository = ProjectPluginRepositoryDefinition(
+        lambda project: project.event_type_repository
+    )
     type = PluginTypeDefinition(
         id="event-type",
         label=_("Event type"),

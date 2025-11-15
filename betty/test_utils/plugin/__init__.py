@@ -17,11 +17,13 @@ from betty.plugin import (
     ClassedPluginDefinition,
     CountableHumanFacingPluginDefinition,
     DependentPluginDefinition,
+    GlobalPluginRepositoryDefinition,
     HumanFacingPluginDefinition,
     OrderedPluginDefinition,
     PluginDefinition,
     PluginTypeDefinition,
 )
+from betty.plugin.static import StaticPluginRepository
 from betty.test_utils.config import DummyConfiguration
 
 
@@ -180,6 +182,14 @@ class DummyPluginDefinition(PluginDefinition):
     A definition of a dummy plugin.
     """
 
+    repository = GlobalPluginRepositoryDefinition(
+        lambda: StaticPluginRepository(
+            DummyPluginDefinition,
+            DUMMY_PLUGIN_ONE,  # type: ignore[has-type]
+            DUMMY_PLUGIN_TWO,  # type: ignore[has-type]
+            DUMMY_PLUGIN_THREE,  # type: ignore[has-type]
+        )
+    )
     type = PluginTypeDefinition(
         id="dummy-plugin",
         label=Plain("Dummy plugin"),
@@ -216,7 +226,13 @@ class ClassedDummyPluginDefinition(ClassedPluginDefinition[ClassedDummyPlugin]):
     """
 
     plugin_type_cls = ClassedDummyPlugin
-
+    repository = GlobalPluginRepositoryDefinition(
+        lambda: StaticPluginRepository(
+            ClassedDummyPluginDefinition,
+            ClassedDummyPluginOne.plugin,
+            ClassedDummyPluginTwo.plugin,
+        )
+    )
     type = PluginTypeDefinition(
         id="classed-dummy-plugin",
         label=Plain("Classed dummy plugin"),
@@ -267,6 +283,12 @@ class ConfigurableDummyPluginDefinition(
     """
 
     plugin_type_cls = ConfigurableDummyPlugin
+    repository = GlobalPluginRepositoryDefinition(
+        lambda: StaticPluginRepository(
+            ConfigurableDummyPluginDefinition,
+            ConfigurableDummyPluginOne.plugin,
+        )
+    )
     type = PluginTypeDefinition(
         id="configurable-dummy-plugin",
         label=Plain("Configurable dummy plugin"),

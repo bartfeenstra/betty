@@ -6,31 +6,25 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING, Any, TypeVar
 
-from betty.ancestry.event_type import EventTypeDefinition
-from betty.ancestry.gender import GenderDefinition
 from betty.ancestry.has_file_references import HasFileReferences
 from betty.ancestry.has_links import HasLinks
 from betty.ancestry.has_notes import HasNotes
-from betty.ancestry.place_type import PlaceTypeDefinition
-from betty.ancestry.presence_role import PresenceRoleDefinition
-from betty.copyright_notice import CopyrightNoticeDefinition
 from betty.date import DateRange
 from betty.image import is_supported_media_type
 from betty.json.linked_data import LinkedDataDumpableWithSchema
-from betty.license import LicenseDefinition
-from betty.model import EntityDefinition, persistent_id
-from betty.plugin import ClassedPluginDefinition, PluginDefinition
+from betty.model import persistent_id
+from betty.plugin import ClassedPluginDefinition, PluginDefinition, plugin_types
 from betty.privacy import is_private, is_public
 from betty.string import kebab_case_to_snake_case
 from betty.typing import internal
 
 if TYPE_CHECKING:
-    from collections.abc import Callable, Mapping
+    from collections.abc import Callable, Mapping, MutableMapping
 
     from betty.machine_name import MachineName
     from betty.media_type import MediaType
 
-_PluginDefinitionCoT = TypeVar("_PluginDefinitionCoT", bound=PluginDefinition)
+_PluginDefinitionT = TypeVar("_PluginDefinitionT", bound=PluginDefinition)
 
 
 def test_linked_data_dumpable(value: Any) -> bool:
@@ -58,7 +52,6 @@ class PluginTester:
         """
         :param plugin_id: If given, additionally ensure the value is an instance of this type.
         """
-        assert self._plugin_type.cls is not None
         if not isinstance(value, self._plugin_type.plugin_type_cls):
             return False
         if plugin_id is not None and value.plugin.id != plugin_id:  # type: ignore[attr-defined]
@@ -108,7 +101,7 @@ async def tests() -> Mapping[str, Callable[..., bool]]:
     """
     Define the available tests.
     """
-    return {
+    tests: MutableMapping[str, Callable[..., bool]] = {
         "date_range": test_date_range,
         "has_file_references": test_has_file_references,
         "persistent_entity_id": persistent_id,
@@ -118,11 +111,8 @@ async def tests() -> Mapping[str, Callable[..., bool]]:
         "linked_data_dumpable": test_linked_data_dumpable,
         "private": is_private,
         "public": is_public,
-        **(PluginTester(CopyrightNoticeDefinition)).tests(),
-        **(PluginTester(EntityDefinition)).tests(),
-        **(PluginTester(EventTypeDefinition)).tests(),
-        **(PluginTester(GenderDefinition)).tests(),
-        **(PluginTester(LicenseDefinition)).tests(),
-        **(PluginTester(PlaceTypeDefinition)).tests(),
-        **(PluginTester(PresenceRoleDefinition)).tests(),
     }
+    for plugin in plugin_types().values():
+        if issubclass(plugin, ClassedPluginDefinition):
+            tests.update(PluginTester(plugin).tests())
+    return tests

@@ -12,6 +12,7 @@ from betty.plugin import (
     ClassedPluginDefinition,
     HumanFacingPluginDefinition,
     PluginTypeDefinition,
+    ProjectPluginRepositoryDefinition,
 )
 
 
@@ -36,6 +37,9 @@ class PresenceRoleDefinition(
     """
 
     plugin_type_cls = PresenceRole
+    repository = ProjectPluginRepositoryDefinition(
+        lambda project: project.presence_role_repository
+    )
     type = PluginTypeDefinition(
         id="presence-role",
         label=_("Presence role"),
