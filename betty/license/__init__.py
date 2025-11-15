@@ -14,6 +14,7 @@ from betty.plugin import (
     ClassedPluginDefinition,
     HumanFacingPluginDefinition,
     PluginTypeDefinition,
+    ProjectPluginRepositoryDefinition,
 )
 
 if TYPE_CHECKING:
@@ -62,7 +63,9 @@ class LicenseDefinition(HumanFacingPluginDefinition, ClassedPluginDefinition[Lic
     """
 
     plugin_type_cls = License
-
+    repository = ProjectPluginRepositoryDefinition(
+        lambda project: project.license_repository
+    )
     type = PluginTypeDefinition(
         id="license",
         label=_("License"),

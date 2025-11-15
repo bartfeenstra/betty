@@ -10,6 +10,7 @@ from typing import TYPE_CHECKING, ClassVar, ParamSpec, TypeAlias, TypeVar, final
 
 from betty.locale.localizable import _
 from betty.plugin import (
+    AppPluginRepositoryDefinition,
     ClassedPluginDefinition,
     HumanFacingPluginDefinition,
     PluginTypeDefinition,
@@ -53,7 +54,7 @@ class CommandDefinition(HumanFacingPluginDefinition, ClassedPluginDefinition[Com
     """
 
     plugin_type_cls = Command
-
+    repository = AppPluginRepositoryDefinition(lambda app: app.command_repository)
     type = PluginTypeDefinition(
         id="command",
         label=_("Command"),

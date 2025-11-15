@@ -12,6 +12,7 @@ from betty.plugin import (
     ClassedPluginDefinition,
     HumanFacingPluginDefinition,
     PluginTypeDefinition,
+    ProjectPluginRepositoryDefinition,
 )
 
 
@@ -36,6 +37,9 @@ class PlaceTypeDefinition(
     """
 
     plugin_type_cls = PlaceType
+    repository = ProjectPluginRepositoryDefinition(
+        lambda project: project.place_type_repository
+    )
     type = PluginTypeDefinition(
         id="place-type",
         label=_("Place type"),

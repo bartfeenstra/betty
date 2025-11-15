@@ -16,7 +16,11 @@ from typing_extensions import override
 
 from betty.locale.localizable import _
 from betty.media_type import UnsupportedMediaType, match_extension, match_media_type
-from betty.plugin import ClassedPluginDefinition, PluginTypeDefinition
+from betty.plugin import (
+    AppPluginRepositoryDefinition,
+    ClassedPluginDefinition,
+    PluginTypeDefinition,
+)
 from betty.resource import copy_context
 from betty.typing import internal
 
@@ -65,6 +69,7 @@ class RendererDefinition(ClassedPluginDefinition[Renderer]):
     """
 
     plugin_type_cls = Renderer
+    repository = AppPluginRepositoryDefinition(lambda app: app.renderer_repository)
     type = PluginTypeDefinition(
         id="renderer",
         label=_("Renderer"),

@@ -5,13 +5,17 @@ Content providers inherit from :py:class:`betty.content_provider.ContentProvider
 
 Built-in content providers
 --------------------------
-:py:class:`betty.content_provider.content_providers.PlainText`
+``maps-map`` (:py:class:`betty.project.extension.maps.content_provider.Map`)
+    Display an interactive map for the :doc:`places </usage/ancestry/place.rst>` associated with a resource.
+``notes`` (:py:class:`betty.content_provider.content_providers.Notes`)
+    Display a resource's :doc:`notes </usage/ancestry/note.rst>`
+``plain-text`` (:py:class:`betty.content_provider.content_providers.PlainText`)
     Display plain text.
-:py:class:`betty.project.extension.raspberry_mint.content_provider.FeaturedEntities`
+``raspberry-mint-featured-entities`` (:py:class:`betty.project.extension.raspberry_mint.content_provider.FeaturedEntities`)
     Display one or more entities in cards.
-:py:class:`betty.project.extension.raspberry_mint.content_provider.Section`
+``raspberry-mint-section`` (:py:class:`betty.project.extension.raspberry_mint.content_provider.Section`)
     Display other content in a section with a heading and a permanent link.
-:py:class:`betty.project.extension.wiki.content_provider.WikipediaSummary`
+``wiki-wikipedia-summary`` (:py:class:`betty.project.extension.wiki.content_provider.WikipediaSummary`)
     Display Wikipedia summaries for the current page resource if it is an entity that can have links.
 
 See also

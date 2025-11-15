@@ -10,9 +10,9 @@ from betty.serde.format import (
     Format,
     FormatDefinition,
     FormatError,
-    FormatRepository,
     FormatStr,
     format_for,
+    format_repository,
 )
 from betty.test_utils.plugin import ClassedPluginDefinitionClassTestBase
 from betty.typing import Voidable
@@ -57,12 +57,6 @@ class FormatTwo(_Format):
         return MediaType("text/x.betty.test.two", extensions=[".two"])
 
 
-class TestFormatRepository:
-    def test___iter__(self) -> None:
-        sut = FormatRepository()
-        assert list(sut)
-
-
 class TestFormatStr:
     def test_localize(self) -> None:
         sut = FormatStr([FormatOne.plugin, FormatTwo.plugin])
@@ -76,3 +70,9 @@ def test_format_for__with_known_format() -> None:
 def test_format_for_with_unknown_format() -> None:
     with pytest.raises(FormatError):
         format_for([], ".unknown")
+
+
+def test_format_repository() -> None:
+    sut = format_repository()
+    assert sut is format_repository()
+    assert sut

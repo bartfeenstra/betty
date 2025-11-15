@@ -8,6 +8,7 @@ from betty.locale.localizable import Plain
 from betty.plugin import PluginDefinition
 from betty.project import Project
 from betty.project.extension import ExtensionDefinition
+from betty.test_utils.documentation import PluginDocumentationTestBase
 from betty.test_utils.plugin import ClassedPluginDefinitionClassTestBase
 from betty.test_utils.project.extension import DummyExtension
 
@@ -28,6 +29,11 @@ class TestExtensionDefinition(ClassedPluginDefinitionClassTestBase):
     def test_theme(self) -> None:
         sut = ExtensionDefinition(theme=True, id="-", label=Plain(""))
         assert sut.theme
+
+
+class TestExtensionDocumentation(PluginDocumentationTestBase[ExtensionDefinition]):
+    _plugin_type = ExtensionDefinition
+    _plugin_type_documentation_path = Path("usage") / "extension.rst"
 
 
 class TestExtension:

@@ -10,7 +10,7 @@ from betty.locale.localizable import Plain
 
 
 @ContentProviderDefinition(
-    id="demo-front-page-content",
+    id="-demo-front-page-content",
     label=Plain("Front page content (demo)"),
 )
 class _FrontPageContent(Jinja2TemplateContentProvider):
@@ -18,7 +18,7 @@ class _FrontPageContent(Jinja2TemplateContentProvider):
 
 
 @ContentProviderDefinition(
-    id="demo-front-page-summary",
+    id="-demo-front-page-summary",
     label=Plain("Front page summary (demo)"),
 )
 class _FrontPageSummary(Jinja2TemplateContentProvider):

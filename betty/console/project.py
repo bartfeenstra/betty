@@ -17,7 +17,7 @@ from betty.exception import HumanFacingException
 from betty.locale.localizable import _
 from betty.project import Project
 from betty.project.config import ProjectConfiguration
-from betty.serde.format import FORMAT_REPOSITORY
+from betty.serde.format import format_repository
 
 
 async def add_project_argument(
@@ -34,7 +34,7 @@ async def add_project_argument(
         help=localizer._(
             "The path to a Betty project directory or configuration file. Defaults to {default} in the current working directory."
         ).format(
-            default=f"betty.{'|'.join(extension[1:] for serde_format in FORMAT_REPOSITORY for extension in serde_format.cls.media_type().extensions)}"
+            default=f"betty.{'|'.join(extension[1:] for serde_format in format_repository() for extension in serde_format.cls.media_type().extensions)}"
         ),
         type=assertion_to_argument_type(assert_path(), localizer=localizer),
     )
@@ -58,7 +58,7 @@ async def _read_project_configuration(
     if provided_configuration_file_path_str is None:
         try_configuration_file_paths = [
             project_directory_path / f"betty{extension}"
-            for serde_format in FORMAT_REPOSITORY
+            for serde_format in format_repository()
             for extension in serde_format.cls.media_type().extensions
         ]
         for try_configuration_file_path in try_configuration_file_paths:

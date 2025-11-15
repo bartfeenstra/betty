@@ -10,6 +10,7 @@ from betty.config import Configuration, DefaultConfigurable
 from betty.job import Context
 from betty.locale.localizable import _
 from betty.plugin import (
+    AppPluginRepositoryDefinition,
     ClassedPlugin,
     ClassedPluginDefinition,
     DependentPluginDefinition,
@@ -87,7 +88,7 @@ class ExtensionDefinition(
     """
 
     plugin_type_cls = Extension
-
+    repository = AppPluginRepositoryDefinition(lambda app: app.extension_repository)
     type = PluginTypeDefinition(
         id="extension",
         label=_("Extension"),

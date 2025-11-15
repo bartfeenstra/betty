@@ -14,6 +14,7 @@ from betty.plugin import (
     ClassedPluginDefinition,
     HumanFacingPluginDefinition,
     PluginTypeDefinition,
+    ProjectPluginRepositoryDefinition,
 )
 
 if TYPE_CHECKING:
@@ -64,7 +65,9 @@ class CopyrightNoticeDefinition(
     """
 
     plugin_type_cls = CopyrightNotice
-
+    repository = ProjectPluginRepositoryDefinition(
+        lambda project: project.copyright_notice_repository
+    )
     type = PluginTypeDefinition(
         id="copyright-notice",
         label=_("Copyright notice"),

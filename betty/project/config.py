@@ -60,7 +60,7 @@ from betty.plugin.config import (
     PluginInstanceConfigurationMapping,
 )
 from betty.project.extension import Extension, ExtensionDefinition
-from betty.serde.format import FORMAT_REPOSITORY, format_for
+from betty.serde.format import format_for, format_repository
 
 if TYPE_CHECKING:
     from pathlib import Path
@@ -766,7 +766,7 @@ class ProjectConfiguration(Configuration):
         self.assert_mutable()
         if configuration_file_path == self._configuration_file_path:
             return
-        format_for(list(FORMAT_REPOSITORY), configuration_file_path.suffix)
+        format_for(list(format_repository()), configuration_file_path.suffix)
         self._configuration_file_path = configuration_file_path
 
     @property
