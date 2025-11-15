@@ -8,7 +8,7 @@ msgstr ""
 "Project-Id-Version: Betty VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
 "POT-Creation-Date: 2025-04-24 14:22+0100\n"
-"PO-Revision-Date: 2025-11-15 16:58+0000\n"
+"PO-Revision-Date: 2025-11-15 17:32+0000\n"
 "Last-Translator: Артур Калагов "
 "<artur.kalagov@users.noreply.hosted.weblate.org>\n"
 "Language-Team: Russian <https://hosted.weblate.org/projects/betty/betty/ru/>"
@@ -1203,7 +1203,7 @@ msgstr "когда-то после периода между {start_date} и {en
 
 #, python-brace-format
 msgid "from {start_date}"
-msgstr ""
+msgstr "c {start_date}"
 
 #, python-brace-format
 msgid "from {start_date} until around {end_date}"
@@ -1219,7 +1219,7 @@ msgstr "когда-то в период между {start_date} и {end_date}"
 
 #, python-brace-format
 msgid "from {start_date} until {end_date}"
-msgstr ""
+msgstr "с {start_date} до {end_date}"
 
 #, python-format
 msgid "in %(place)s"
@@ -1303,7 +1303,7 @@ msgstr "до ~ {end_date}"
 
 #, python-brace-format
 msgid "until {end_date}"
-msgstr ""
+msgstr "до {end_date}"
 
 msgid "y"
 msgstr ""
@@ -1387,7 +1387,7 @@ msgstr[2] "{count} источников"
 
 #, python-brace-format
 msgid "{date}"
-msgstr ""
+msgstr "{date}"
 
 #, python-brace-format
 msgid "{dependent_label} requires {dependency_labels}."
