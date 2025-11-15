@@ -8,7 +8,7 @@ msgstr ""
 "Project-Id-Version: Betty VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
 "POT-Creation-Date: 2025-04-24 14:22+0100\n"
-"PO-Revision-Date: 2025-11-12 06:51+0000\n"
+"PO-Revision-Date: 2025-11-15 16:58+0000\n"
 "Last-Translator: Артур Калагов "
 "<artur.kalagov@users.noreply.hosted.weblate.org>\n"
 "Language-Team: Russian <https://hosted.weblate.org/projects/betty/betty/ru/>"
@@ -1163,43 +1163,43 @@ msgstr ""
 
 #, python-brace-format
 msgid "around {date}"
-msgstr ""
+msgstr "~ {date}"
 
 #, python-brace-format
 msgid "from around {start_date}"
-msgstr ""
+msgstr "с ~ {start_date}"
 
 #, python-brace-format
 msgid "from around {start_date} until around {end_date}"
-msgstr ""
+msgstr "с ~ {start_date} до ~ {end_date}"
 
 #, python-brace-format
 msgid "from around {start_date} until sometime before around {end_date}"
-msgstr ""
+msgstr "когда-то в период между ~ {start_date} и ~ {end_date}"
 
 #, python-brace-format
 msgid "from around {start_date} until sometime before {end_date}"
-msgstr ""
+msgstr "когда-то в период между ~ {start_date} и {end_date}"
 
 #, python-brace-format
 msgid "from around {start_date} until {end_date}"
-msgstr ""
+msgstr "с ~ {start_date} до {end_date}"
 
 #, python-brace-format
 msgid "from sometime after around {start_date} until around {end_date}"
-msgstr ""
+msgstr "когда-то после периода между ~ {start_date} и ~ {end_date}"
 
 #, python-brace-format
 msgid "from sometime after around {start_date} until {end_date}"
-msgstr ""
+msgstr "когда-то после периода между ~ {start_date} и {end_date}"
 
 #, python-brace-format
 msgid "from sometime after {start_date} until around {end_date}"
-msgstr ""
+msgstr "когда-то после периода между {start_date} и ~ {end_date}"
 
 #, python-brace-format
 msgid "from sometime after {start_date} until {end_date}"
-msgstr ""
+msgstr "когда-то после периода между {start_date} и {end_date}"
 
 #, python-brace-format
 msgid "from {start_date}"
@@ -1207,15 +1207,15 @@ msgstr ""
 
 #, python-brace-format
 msgid "from {start_date} until around {end_date}"
-msgstr ""
+msgstr "с {start_date} до ~ {end_date}"
 
 #, python-brace-format
 msgid "from {start_date} until sometime before around {end_date}"
-msgstr ""
+msgstr "когда-то в период между {start_date} и ~ {end_date}"
 
 #, python-brace-format
 msgid "from {start_date} until sometime before {end_date}"
-msgstr ""
+msgstr "когда-то в период между {start_date} и {end_date}"
 
 #, python-brace-format
 msgid "from {start_date} until {end_date}"
@@ -1260,46 +1260,46 @@ msgid "show more"
 msgstr ""
 
 msgid "sometime"
-msgstr ""
+msgstr "когда-то"
 
 #, python-brace-format
 msgid "sometime after around {start_date}"
-msgstr ""
+msgstr "когда-то после ~ {start_date}"
 
 #, python-brace-format
 msgid "sometime after {start_date}"
-msgstr ""
+msgstr "когда-то после {start_date}"
 
 #, python-brace-format
 msgid "sometime before around {end_date}"
-msgstr ""
+msgstr "когда-то до ~ {end_date}"
 
 #, python-brace-format
 msgid "sometime before {end_date}"
-msgstr ""
+msgstr "когда-то до {end_date}"
 
 #, python-brace-format
 msgid "sometime between around {start_date} and around {end_date}"
-msgstr ""
+msgstr "когда-то между ~ {start_date} и ~ {end_date}"
 
 #, python-brace-format
 msgid "sometime between around {start_date} and {end_date}"
-msgstr ""
+msgstr "когда-то между ~ {start_date} и {end_date}"
 
 #, python-brace-format
 msgid "sometime between {start_date} and around {end_date}"
-msgstr ""
+msgstr "когда-то между {start_date} и ~ {end_date}"
 
 #, python-brace-format
 msgid "sometime between {start_date} and {end_date}"
-msgstr ""
+msgstr "когда-то между {start_date} и {end_date}"
 
 msgid "unknown date"
 msgstr "дата неизвестна"
 
 #, python-brace-format
 msgid "until around {end_date}"
-msgstr ""
+msgstr "до ~ {end_date}"
 
 #, python-brace-format
 msgid "until {end_date}"
