@@ -5,13 +5,13 @@ Content providers.
 from __future__ import annotations
 
 from abc import ABC, abstractmethod
-from typing import TYPE_CHECKING, ClassVar, final
+from typing import TYPE_CHECKING, final
 
 from betty.locale.localizable import _
 from betty.plugin import (
     ClassedPluginDefinition,
-    ClassedPluginTypeDefinition,
     HumanFacingPluginDefinition,
+    PluginTypeDefinition,
 )
 
 if TYPE_CHECKING:
@@ -38,8 +38,8 @@ class ContentProviderDefinition(
     A content provider definition.
     """
 
-    type: ClassVar[ClassedPluginTypeDefinition] = ClassedPluginTypeDefinition(
+    plugin_type_cls = ContentProvider
+    type = PluginTypeDefinition(
         id="content-provider",
         label=_("Content provider"),
-        cls=ContentProvider,
     )

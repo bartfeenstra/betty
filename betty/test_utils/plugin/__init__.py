@@ -15,7 +15,6 @@ from betty.locale.localizer import DEFAULT_LOCALIZER
 from betty.machine_name import assert_machine_name
 from betty.plugin import (
     ClassedPluginDefinition,
-    ClassedPluginTypeDefinition,
     CountableHumanFacingPluginDefinition,
     DependentPluginDefinition,
     HumanFacingPluginDefinition,
@@ -55,6 +54,18 @@ class PluginDefinitionClassTestBase:
         Tests the :py:class:`betty.plugin.PluginDefinition`'s ``type`` attribute's ``label`` value.
         """
         assert sut.type.label.localize(DEFAULT_LOCALIZER)
+
+
+class ClassedPluginDefinitionClassTestBase(PluginDefinitionClassTestBase):
+    """
+    A base class for testing :py:class:`betty.plugin.ClassedPluginDefinition` subclasses.
+    """
+
+    def test_plugin_type_cls(self, sut: ClassedPluginDefinition[Any]) -> None:
+        """
+        Tests the :py:class:`betty.plugin.ClassedPluginDefinition`'s ``plugin_type_cls`` attribute's value.
+        """
+        _assert_cls_is_public(sut.plugin_type_cls)
 
 
 class PluginDefinitionTestBase:
@@ -157,12 +168,6 @@ class ClassedPluginDefinitionTestBase(PluginDefinitionTestBase):
     A base class for testing :py:class:`betty.plugin.ClassedPluginDefinition` subclasses.
     """
 
-    def test_type__cls(self, sut: ClassedPluginDefinition[Any]) -> None:
-        """
-        Tests the :py:class:`betty.plugin.ClassedPluginDefinition`'s ``type`` attribute's ``cls`` value.
-        """
-        _assert_cls_is_public(sut.type.cls)
-
     def test_cls(self, sut: ClassedPluginDefinition[Any]) -> None:
         """
         Tests the :py:attr:`betty.plugin.ClassedPluginDefinition.cls` value.
@@ -210,10 +215,11 @@ class ClassedDummyPluginDefinition(ClassedPluginDefinition[ClassedDummyPlugin]):
     A definition of a classed dummy plugin.
     """
 
-    type = ClassedPluginTypeDefinition(
+    plugin_type_cls = ClassedDummyPlugin
+
+    type = PluginTypeDefinition(
         id="classed-dummy-plugin",
         label=Plain("Classed dummy plugin"),
-        cls=ClassedDummyPlugin,
     )
 
 
@@ -260,10 +266,10 @@ class ConfigurableDummyPluginDefinition(
     A definition of a configurable dummy plugin.
     """
 
-    type = ClassedPluginTypeDefinition(
+    plugin_type_cls = ConfigurableDummyPlugin
+    type = PluginTypeDefinition(
         id="configurable-dummy-plugin",
         label=Plain("Configurable dummy plugin"),
-        cls=ConfigurableDummyPlugin,
     )
 
 

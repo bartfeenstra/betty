@@ -10,8 +10,8 @@ from betty.locale.localizable import _
 from betty.plugin import (
     ClassedPlugin,
     ClassedPluginDefinition,
-    ClassedPluginTypeDefinition,
     HumanFacingPluginDefinition,
+    PluginTypeDefinition,
 )
 
 
@@ -35,8 +35,8 @@ class PresenceRoleDefinition(
     Read more about :doc:`/development/plugin/presence-role`.
     """
 
-    type: ClassVar[ClassedPluginTypeDefinition] = ClassedPluginTypeDefinition(
+    plugin_type_cls = PresenceRole
+    type = PluginTypeDefinition(
         id="presence-role",
         label=_("Presence role"),
-        cls=PresenceRole,
     )

@@ -10,8 +10,8 @@ from betty.locale.localizable import _
 from betty.plugin import (
     ClassedPlugin,
     ClassedPluginDefinition,
-    ClassedPluginTypeDefinition,
     HumanFacingPluginDefinition,
+    PluginTypeDefinition,
 )
 
 
@@ -33,8 +33,9 @@ class GenderDefinition(HumanFacingPluginDefinition, ClassedPluginDefinition[Gend
     Read more about :doc:`/development/plugin/gender`.
     """
 
-    type: ClassVar[ClassedPluginTypeDefinition] = ClassedPluginTypeDefinition(
+    plugin_type_cls = Gender
+
+    type = PluginTypeDefinition(
         id="gender",
         label=_("Gender"),
-        cls=Gender,
     )

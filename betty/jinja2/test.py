@@ -19,7 +19,7 @@ from betty.image import is_supported_media_type
 from betty.json.linked_data import LinkedDataDumpableWithSchema
 from betty.license import LicenseDefinition
 from betty.model import EntityDefinition, persistent_id
-from betty.plugin import ClassedPluginTypeDefinition, PluginDefinition
+from betty.plugin import ClassedPluginDefinition, PluginDefinition
 from betty.privacy import is_private, is_public
 from betty.string import kebab_case_to_snake_case
 from betty.typing import internal
@@ -45,21 +45,21 @@ class PluginTester:
     Provides tests for a specific plugin type.
     """
 
-    def __init__(self, plugin_type: ClassedPluginTypeDefinition):
+    def __init__(self, plugin_type: type[ClassedPluginDefinition[Any]], /):
         self._plugin_type = plugin_type
 
     def tests(self) -> Mapping[str, Callable[..., bool]]:
         """
         Get the available tests, keyed by test name.
         """
-        return {f"{kebab_case_to_snake_case(self._plugin_type.id)}_plugin": self}
+        return {f"{kebab_case_to_snake_case(self._plugin_type.type.id)}_plugin": self}
 
-    def __call__(self, value: Any, plugin_id: MachineName | None = None) -> bool:
+    def __call__(self, /, value: Any, plugin_id: MachineName | None = None) -> bool:
         """
-        :param entity_type_id: If given, additionally ensure the value is an instance of this type.
+        :param plugin_id: If given, additionally ensure the value is an instance of this type.
         """
         assert self._plugin_type.cls is not None
-        if not isinstance(value, self._plugin_type.cls):
+        if not isinstance(value, self._plugin_type.plugin_type_cls):
             return False
         if plugin_id is not None and value.plugin.id != plugin_id:  # type: ignore[attr-defined]
             return False
@@ -118,11 +118,11 @@ async def tests() -> Mapping[str, Callable[..., bool]]:
         "linked_data_dumpable": test_linked_data_dumpable,
         "private": is_private,
         "public": is_public,
-        **(PluginTester(CopyrightNoticeDefinition.type)).tests(),
-        **(PluginTester(EntityDefinition.type)).tests(),
-        **(PluginTester(EventTypeDefinition.type)).tests(),
-        **(PluginTester(GenderDefinition.type)).tests(),
-        **(PluginTester(LicenseDefinition.type)).tests(),
-        **(PluginTester(PlaceTypeDefinition.type)).tests(),
-        **(PluginTester(PresenceRoleDefinition.type)).tests(),
+        **(PluginTester(CopyrightNoticeDefinition)).tests(),
+        **(PluginTester(EntityDefinition)).tests(),
+        **(PluginTester(EventTypeDefinition)).tests(),
+        **(PluginTester(GenderDefinition)).tests(),
+        **(PluginTester(LicenseDefinition)).tests(),
+        **(PluginTester(PlaceTypeDefinition)).tests(),
+        **(PluginTester(PresenceRoleDefinition)).tests(),
     }

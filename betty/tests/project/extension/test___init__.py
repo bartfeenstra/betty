@@ -8,11 +8,11 @@ from betty.locale.localizable import Plain
 from betty.plugin import PluginDefinition
 from betty.project import Project
 from betty.project.extension import ExtensionDefinition
-from betty.test_utils.plugin import PluginDefinitionClassTestBase
+from betty.test_utils.plugin import ClassedPluginDefinitionClassTestBase
 from betty.test_utils.project.extension import DummyExtension
 
 
-class TestExtensionDefinition(PluginDefinitionClassTestBase):
+class TestExtensionDefinition(ClassedPluginDefinitionClassTestBase):
     @override
     @pytest.fixture
     def sut(self) -> type[PluginDefinition]:

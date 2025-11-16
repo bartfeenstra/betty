@@ -12,10 +12,10 @@ from betty.locale.localizable import _
 from betty.plugin import (
     ClassedPlugin,
     ClassedPluginDefinition,
-    ClassedPluginTypeDefinition,
     DependentPluginDefinition,
     HumanFacingPluginDefinition,
     OrderedPluginDefinition,
+    PluginTypeDefinition,
 )
 from betty.plugin.requirement import new_dependencies_requirement
 from betty.project.factory import ProjectDependentFactory
@@ -86,10 +86,11 @@ class ExtensionDefinition(
     An extension definition.
     """
 
-    type: ClassVar[ClassedPluginTypeDefinition] = ClassedPluginTypeDefinition(
+    plugin_type_cls = Extension
+
+    type = PluginTypeDefinition(
         id="extension",
         label=_("Extension"),
-        cls=Extension,
     )
 
     def __init__(

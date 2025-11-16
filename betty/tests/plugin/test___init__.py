@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, ClassVar, TypeVar
+from typing import TYPE_CHECKING, TypeVar
 
 import pytest
 from typing_extensions import override
@@ -9,7 +9,6 @@ from betty.locale.localizable import CountablePlain, Plain
 from betty.plugin import (
     ClassedPlugin,
     ClassedPluginDefinition,
-    ClassedPluginTypeDefinition,
     CountableHumanFacingPluginDefinition,
     CyclicDependencyError,
     DependentPluginDefinition,
@@ -50,9 +49,8 @@ def test_resolve_definition__with_plugin_cls() -> None:
         pass
 
     class _ClassedPluginDefinition(ClassedPluginDefinition[_ClassedPluginCls]):
-        type: ClassVar[ClassedPluginTypeDefinition] = ClassedPluginTypeDefinition(
-            id="-", cls=_ClassedPluginCls, label=Plain("")
-        )
+        plugin_type_cls = _ClassedPluginCls
+        type = PluginTypeDefinition(id="-", label=Plain(""))
 
     @_ClassedPluginDefinition(id=plugin_id)
     class _ClassedPlugin(_ClassedPluginCls, ClassedPlugin):
@@ -73,9 +71,8 @@ def test_resolve_id__with_plugin_cls() -> None:
         pass
 
     class _ClassedPluginDefinition(ClassedPluginDefinition[_ClassedPluginCls]):
-        type: ClassVar[ClassedPluginTypeDefinition] = ClassedPluginTypeDefinition(
-            id="-", cls=_ClassedPluginCls, label=Plain("")
-        )
+        plugin_type_cls = _ClassedPluginCls
+        type = PluginTypeDefinition(id="-", label=Plain(""))
 
     @_ClassedPluginDefinition(id=plugin_id)
     class _ClassedPlugin(_ClassedPluginCls, ClassedPlugin):
@@ -517,17 +514,6 @@ class TestPluginTypeDefinition:
         label = Plain("my-first-plugin-type")
         sut = PluginTypeDefinition(label=label, id="my-first-plugin-type")
         assert sut.label is label
-
-
-class TestClassedPluginTypeDefinition:
-    def test_cls(self) -> None:
-        class _Cls:
-            pass
-
-        sut = ClassedPluginTypeDefinition(
-            cls=_Cls, id="my-first-plugin-type", label=Plain("")
-        )
-        assert sut.cls is _Cls
 
 
 class TestClassedPluginDefinition:
