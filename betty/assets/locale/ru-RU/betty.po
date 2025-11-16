@@ -8,7 +8,7 @@ msgstr ""
 "Project-Id-Version: Betty VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
 "POT-Creation-Date: 2025-04-24 14:22+0100\n"
-"PO-Revision-Date: 2025-11-16 15:07+0000\n"
+"PO-Revision-Date: 2025-11-16 15:27+0000\n"
 "Last-Translator: Артур Калагов "
 "<artur.kalagov@users.noreply.hosted.weblate.org>\n"
 "Language-Team: Russian <https://hosted.weblate.org/projects/betty/betty/ru/>"
@@ -245,7 +245,7 @@ msgid "Built the Webpack front-end assets."
 msgstr "Созданы интерфейсные ресурсы Webpack."
 
 msgid "Burial"
-msgstr "Захоронение"
+msgstr "Погребение"
 
 msgid "Cannot find an available port to bind the web server to."
 msgstr "Не удается найти доступный порт для веб-сервера."
@@ -638,7 +638,7 @@ msgstr "Язык"
 
 #, python-format
 msgid "Last modified on %(last_modified)s"
-msgstr "Последнее изменение от %(last_modified)s"
+msgstr "Последнее изменение %(last_modified)s"
 
 msgid "License"
 msgstr "Лицензия"
@@ -686,7 +686,7 @@ msgstr "Загружено {source_count} источников."
 
 #, python-brace-format
 msgid "Loading \"{file_path}\"..."
-msgstr ""
+msgstr "Загрузка \"{file_path}\"..."
 
 msgid "Locale aliases must not contain slashes."
 msgstr ""
@@ -695,16 +695,16 @@ msgid "Locality"
 msgstr "Местность"
 
 msgid "MMMM"
-msgstr ""
+msgstr "MMMM"
 
 msgid "MMMM d"
-msgstr ""
+msgstr "d MMMM"
 
 msgid "MMMM d, y"
-msgstr ""
+msgstr "d MMMM y"
 
 msgid "MMMM, y"
-msgstr ""
+msgstr "MMMM y"
 
 msgid "Male"
 msgstr "Мужчина"
@@ -1426,8 +1426,8 @@ msgid "{individual_name} {affiliation_name}"
 msgstr ""
 
 msgid "© Copyright the author, unless otherwise credited"
-msgstr "© Все права принадлежит автору, если не указано иное"
+msgstr "© Все права принадлежат автору, если не указано иное"
 
 #, python-brace-format
 msgid "© Copyright {author}, unless otherwise credited"
-msgstr "© Все права принадлежит{author}, если не указано иное"
+msgstr "© Все права принадлежат {author}, если не указано иное"
