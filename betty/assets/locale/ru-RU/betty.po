@@ -8,7 +8,7 @@ msgstr ""
 "Project-Id-Version: Betty VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
 "POT-Creation-Date: 2025-04-24 14:22+0100\n"
-"PO-Revision-Date: 2025-11-16 16:38+0000\n"
+"PO-Revision-Date: 2025-11-16 17:24+0000\n"
 "Last-Translator: Артур Калагов "
 "<artur.kalagov@users.noreply.hosted.weblate.org>\n"
 "Language-Team: Russian <https://hosted.weblate.org/projects/betty/betty/ru/>"
@@ -405,7 +405,7 @@ msgid ""
 "Created {created_derivations} additional {event_type} events based on "
 "existing information."
 msgstr ""
-"Созданы дополнительные события {created_derivations} типа {event_type} на "
+"Создано {created_derivations} дополнительных событий типа {event_type} на "
 "основе существующей информации."
 
 msgid "Cremation"
@@ -421,7 +421,7 @@ msgid "Deriver"
 msgstr ""
 
 msgid "Deriving..."
-msgstr ""
+msgstr "Создание дополнительных событий..."
 
 msgid "Descendant names include"
 msgstr "Имена потомков"
@@ -570,7 +570,7 @@ msgstr "Создание статических публичных файлов.
 
 #, python-brace-format
 msgid "Generating your site to {output_directory}."
-msgstr ""
+msgstr "Создание Вашего сайта в {output_directory}."
 
 msgid "Go to the front page"
 msgstr "Перейти на главную страницу"
@@ -803,14 +803,14 @@ msgid ""
 msgstr ""
 
 msgid "Presence"
-msgstr ""
+msgstr "Присутствие"
 
 #, python-brace-format
 msgid "Presence of {person} at {event}"
-msgstr ""
+msgstr "Присутствие {person} на {event}"
 
 msgid "Presences"
-msgstr ""
+msgstr "Присутствия"
 
 #, python-brace-format
 msgid ""
@@ -833,7 +833,8 @@ msgid ""
 "Privatized {count} {entity_type}, because they are associated with private"
 " information."
 msgstr ""
-"Скрыто {count} {entity_type}, поскольку они связаны с частной информацией."
+"Скрыто {count} элементов типа {entity_type}, поскольку они связаны с личной "
+"информацией."
 
 #, python-brace-format
 msgid ""
@@ -846,7 +847,7 @@ msgid "Privatizer"
 msgstr ""
 
 msgid "Privatizing..."
-msgstr ""
+msgstr "Сокрытие личной информации..."
 
 msgid "Project author"
 msgstr "Автор проекта"
@@ -1093,6 +1094,8 @@ msgid ""
 "Updated {updated_derivations} {event_type} events based on existing "
 "information."
 msgstr ""
+"Обновлено {updated_derivations} событий типа {event_type} на основе "
+"существующей информации."
 
 msgid ""
 "Use <kbd>↑</kbd> and <kbd>↓</kbd> to navigate results, or <kbd>esc</kbd> "
@@ -1387,8 +1390,9 @@ msgstr[2] "{count} мест"
 #, python-brace-format
 msgid "{count} presence"
 msgid_plural "{count} presences"
-msgstr[0] ""
-msgstr[1] ""
+msgstr[0] "{count} присутствовавший"
+msgstr[1] "{count} присутствовавших"
+msgstr[2] "{count} присутствовавших"
 
 #, python-brace-format
 msgid "{count} source"
