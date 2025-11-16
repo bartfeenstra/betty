@@ -14,11 +14,11 @@ from betty.serde.format import (
     FormatStr,
     format_for,
 )
-from betty.test_utils.plugin import PluginDefinitionClassTestBase
+from betty.test_utils.plugin import ClassedPluginDefinitionClassTestBase
 from betty.typing import Voidable
 
 
-class TestFormatDefinition(PluginDefinitionClassTestBase):
+class TestFormatDefinition(ClassedPluginDefinitionClassTestBase):
     @override
     @pytest.fixture
     def sut(self) -> type[PluginDefinition]:

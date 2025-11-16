@@ -12,8 +12,8 @@ from betty.mutability import Mutable
 from betty.plugin import (
     ClassedPlugin,
     ClassedPluginDefinition,
-    ClassedPluginTypeDefinition,
     HumanFacingPluginDefinition,
+    PluginTypeDefinition,
 )
 
 if TYPE_CHECKING:
@@ -63,8 +63,9 @@ class CopyrightNoticeDefinition(
     Read more about :doc:`/development/plugin/copyright-notice`.
     """
 
-    type: ClassVar[ClassedPluginTypeDefinition] = ClassedPluginTypeDefinition(
+    plugin_type_cls = CopyrightNotice
+
+    type = PluginTypeDefinition(
         id="copyright-notice",
         label=_("Copyright notice"),
-        cls=CopyrightNotice,
     )

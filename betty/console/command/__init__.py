@@ -11,8 +11,8 @@ from typing import TYPE_CHECKING, ClassVar, ParamSpec, TypeAlias, TypeVar, final
 from betty.locale.localizable import _
 from betty.plugin import (
     ClassedPluginDefinition,
-    ClassedPluginTypeDefinition,
     HumanFacingPluginDefinition,
+    PluginTypeDefinition,
 )
 
 if TYPE_CHECKING:
@@ -52,8 +52,9 @@ class CommandDefinition(HumanFacingPluginDefinition, ClassedPluginDefinition[Com
     Read more about :doc:`/development/plugin/command`.
     """
 
-    type: ClassVar[ClassedPluginTypeDefinition] = ClassedPluginTypeDefinition(
+    plugin_type_cls = Command
+
+    type = PluginTypeDefinition(
         id="command",
         label=_("Command"),
-        cls=Command,
     )

@@ -9,14 +9,14 @@ from collections.abc import Awaitable, Callable
 from contextlib import suppress
 from pathlib import Path
 from shutil import copy2
-from typing import TYPE_CHECKING, ClassVar, TypeAlias, final
+from typing import TYPE_CHECKING, TypeAlias, final
 
 from aiofiles.os import makedirs
 from typing_extensions import override
 
 from betty.locale.localizable import _
 from betty.media_type import UnsupportedMediaType, match_extension, match_media_type
-from betty.plugin import ClassedPluginDefinition, ClassedPluginTypeDefinition
+from betty.plugin import ClassedPluginDefinition, PluginTypeDefinition
 from betty.resource import copy_context
 from betty.typing import internal
 
@@ -64,10 +64,10 @@ class RendererDefinition(ClassedPluginDefinition[Renderer]):
     Read more about :doc:`/development/plugin/renderer`.
     """
 
-    type: ClassVar[ClassedPluginTypeDefinition] = ClassedPluginTypeDefinition(
+    plugin_type_cls = Renderer
+    type = PluginTypeDefinition(
         id="renderer",
         label=_("Renderer"),
-        cls=Renderer,
     )
 
 

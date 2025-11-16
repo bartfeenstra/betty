@@ -3,10 +3,10 @@ from typing_extensions import override
 
 from betty.ancestry.presence_role import PresenceRoleDefinition
 from betty.plugin import PluginDefinition
-from betty.test_utils.plugin import PluginDefinitionClassTestBase
+from betty.test_utils.plugin import ClassedPluginDefinitionClassTestBase
 
 
-class TestPresenceRoleDefinition(PluginDefinitionClassTestBase):
+class TestPresenceRoleDefinition(ClassedPluginDefinitionClassTestBase):
     @override
     @pytest.fixture
     def sut(self) -> type[PluginDefinition]:

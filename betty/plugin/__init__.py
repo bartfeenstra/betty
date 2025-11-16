@@ -13,7 +13,7 @@ from abc import ABC, abstractmethod
 from collections import defaultdict
 from collections.abc import Iterable
 from graphlib import TopologicalSorter
-from typing import TYPE_CHECKING, Any, ClassVar, Generic, Self, TypeAlias
+from typing import TYPE_CHECKING, Any, ClassVar, Generic, Self, TypeAlias, final
 
 from typing_extensions import TypeVar
 
@@ -76,6 +76,7 @@ _PluginDefinitionCoT = TypeVar(
 )
 
 
+@final
 class PluginTypeDefinition:
     """
     A plugin type definition.
@@ -116,28 +117,6 @@ class ClassedPlugin:
 
 
 _ClassedPluginT = TypeVar("_ClassedPluginT", bound=ClassedPlugin, default=ClassedPlugin)
-
-
-class ClassedPluginTypeDefinition(PluginTypeDefinition):
-    """
-    A plugin type definition for classed plugins.
-    """
-
-    def __init__(
-        self,
-        *,
-        cls: type,
-        **kwargs: Any,
-    ):
-        super().__init__(**kwargs)
-        self._cls = cls
-
-    @property
-    def cls(self) -> type:
-        """
-        The base class for all plugins of this type.
-        """
-        return self._cls
 
 
 class HumanFacingPluginDefinition(PluginDefinition):
@@ -289,7 +268,7 @@ class ClassedPluginDefinition(Generic[_PluginT], PluginDefinition):
     A definition of a plugin that is based around a class.
     """
 
-    type: ClassVar[ClassedPluginTypeDefinition]
+    plugin_type_cls: ClassVar[type]
 
     def __init__(
         self,

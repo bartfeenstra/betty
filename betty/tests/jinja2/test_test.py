@@ -34,7 +34,7 @@ class DummyHasFileReferences(HasFileReferences, Entity):
 
 class TestPluginTester:
     def test_tests(self):
-        sut = PluginTester(ClassedDummyPluginDefinition.type)
+        sut = PluginTester(ClassedDummyPluginDefinition)
         assert "classed_dummy_plugin_plugin" in sut.tests()
 
     @pytest.mark.parametrize(
@@ -50,7 +50,7 @@ class TestPluginTester:
     async def test___call__(
         self, expected: bool, plugin_identifier: MachineName | None, data: Any
     ) -> None:
-        sut = PluginTester(ClassedDummyPluginDefinition.type)
+        sut = PluginTester(ClassedDummyPluginDefinition)
         assert sut(data, plugin_identifier) == expected
 
 

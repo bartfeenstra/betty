@@ -10,8 +10,8 @@ from betty.locale.localizable import _
 from betty.plugin import (
     ClassedPlugin,
     ClassedPluginDefinition,
-    ClassedPluginTypeDefinition,
     HumanFacingPluginDefinition,
+    PluginTypeDefinition,
 )
 
 
@@ -35,8 +35,8 @@ class PlaceTypeDefinition(
     Read more about :doc:`/development/plugin/place-type`.
     """
 
-    type: ClassVar[ClassedPluginTypeDefinition] = ClassedPluginTypeDefinition(
+    plugin_type_cls = PlaceType
+    type = PluginTypeDefinition(
         id="place-type",
         label=_("Place type"),
-        cls=PlaceType,
     )

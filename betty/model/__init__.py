@@ -19,8 +19,8 @@ from betty.mutability import Mutable
 from betty.plugin import (
     ClassedPlugin,
     ClassedPluginDefinition,
-    ClassedPluginTypeDefinition,
     CountableHumanFacingPluginDefinition,
+    PluginTypeDefinition,
 )
 from betty.string import kebab_case_to_lower_camel_case
 
@@ -146,10 +146,10 @@ class EntityDefinition(
     An entity definition.
     """
 
-    type: ClassVar[ClassedPluginTypeDefinition] = ClassedPluginTypeDefinition(
+    plugin_type_cls = Entity
+    type = PluginTypeDefinition(
         id="entity",
         label=_("Entity"),
-        cls=Entity,
     )
 
     def __init__(

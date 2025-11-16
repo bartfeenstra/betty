@@ -12,10 +12,10 @@ from betty.media_type import MediaType, UnsupportedMediaType
 from betty.plugin import PluginDefinition
 from betty.render import ProxyRenderer, Renderer, RendererDefinition, make_copy_function
 from betty.resource import Context, new_context
-from betty.test_utils.plugin import PluginDefinitionClassTestBase
+from betty.test_utils.plugin import ClassedPluginDefinitionClassTestBase
 
 
-class TestRendererDefinition(PluginDefinitionClassTestBase):
+class TestRendererDefinition(ClassedPluginDefinitionClassTestBase):
     @override
     @pytest.fixture
     def sut(self) -> type[PluginDefinition]:

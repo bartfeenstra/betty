@@ -12,8 +12,8 @@ from betty.mutability import Mutable
 from betty.plugin import (
     ClassedPlugin,
     ClassedPluginDefinition,
-    ClassedPluginTypeDefinition,
     HumanFacingPluginDefinition,
+    PluginTypeDefinition,
 )
 
 if TYPE_CHECKING:
@@ -61,8 +61,9 @@ class LicenseDefinition(HumanFacingPluginDefinition, ClassedPluginDefinition[Lic
     Read more about :doc:`/development/plugin/license`.
     """
 
-    type: ClassVar[ClassedPluginTypeDefinition] = ClassedPluginTypeDefinition(
+    plugin_type_cls = License
+
+    type = PluginTypeDefinition(
         id="license",
         label=_("License"),
-        cls=License,
     )

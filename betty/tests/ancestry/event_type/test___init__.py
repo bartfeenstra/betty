@@ -4,10 +4,10 @@ from typing_extensions import override
 from betty.ancestry.event_type import EventTypeDefinition
 from betty.locale.localizable import Plain
 from betty.plugin import PluginDefinition
-from betty.test_utils.plugin import PluginDefinitionClassTestBase
+from betty.test_utils.plugin import ClassedPluginDefinitionClassTestBase
 
 
-class TestEventTypeDefinition(PluginDefinitionClassTestBase):
+class TestEventTypeDefinition(ClassedPluginDefinitionClassTestBase):
     @override
     @pytest.fixture
     def sut(self) -> type[PluginDefinition]:

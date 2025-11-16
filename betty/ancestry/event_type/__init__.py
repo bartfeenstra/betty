@@ -11,10 +11,10 @@ from betty.locale.localizable import _
 from betty.plugin import (
     ClassedPlugin,
     ClassedPluginDefinition,
-    ClassedPluginTypeDefinition,
     HumanFacingPluginDefinition,
     OrderedPluginDefinition,
     PluginIdentifier,
+    PluginTypeDefinition,
     resolve_id,
 )
 
@@ -57,10 +57,11 @@ class EventTypeDefinition(
     Read more about :doc:`/development/plugin/event-type`.
     """
 
-    type: ClassVar[ClassedPluginTypeDefinition] = ClassedPluginTypeDefinition(
+    plugin_type_cls = EventType
+
+    type = PluginTypeDefinition(
         id="event-type",
         label=_("Event type"),
-        cls=EventType,
     )
 
     def __init__(

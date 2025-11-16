@@ -15,10 +15,10 @@ from betty.model import (
 )
 from betty.plugin import PluginDefinition
 from betty.test_utils.json.schema import SchemaTestBase, SchemaTestBaseSut
-from betty.test_utils.plugin import PluginDefinitionClassTestBase
+from betty.test_utils.plugin import ClassedPluginDefinitionClassTestBase
 
 
-class TestEntityDefinition(PluginDefinitionClassTestBase):
+class TestEntityDefinition(ClassedPluginDefinitionClassTestBase):
     @override
     @pytest.fixture
     def sut(self) -> type[PluginDefinition]:

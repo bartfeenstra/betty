@@ -8,8 +8,8 @@ from betty.locale.localizable import Plain
 from betty.locale.localizer import DEFAULT_LOCALIZER
 from betty.plugin import (
     ClassedPluginDefinition,
-    ClassedPluginTypeDefinition,
     DependentPluginDefinition,
+    PluginTypeDefinition,
 )
 from betty.plugin.requirement import new_dependencies_requirement
 from betty.requirement import HasRequirement, Requirement, StaticRequirement
@@ -19,47 +19,47 @@ if TYPE_CHECKING:
     from betty.app import App
 
 
-class HasRequirementDependentPlugin(HasRequirement):
-    plugin: ClassVar[HasRequirementDependentPluginDefinition]
+class HasRequirementPlugin(HasRequirement):
+    plugin: ClassVar[HasRequirementPluginDefinition]
 
 
-class HasRequirementDependentPluginDefinition(
-    ClassedPluginDefinition[HasRequirementDependentPlugin], DependentPluginDefinition
+class HasRequirementPluginDefinition(
+    ClassedPluginDefinition[HasRequirementPlugin], DependentPluginDefinition
 ):
-    type = ClassedPluginTypeDefinition(
+    plugin_type_cls = ClassedDummyPlugin
+    type = PluginTypeDefinition(
         id="-",
-        label=Plain("HasRequirement & DependentPlugin"),
-        cls=ClassedDummyPlugin,
+        label=Plain("HasRequirement"),
     )
 
 
-@HasRequirementDependentPluginDefinition(
+@HasRequirementPluginDefinition(
     id="upstream-without-requirements",
     depends_on={"downstream-without-requirements"},
 )
-class UpstreamWithoutRequirements(HasRequirementDependentPlugin):
+class UpstreamWithoutRequirements(HasRequirementPlugin):
     pass
 
 
-@HasRequirementDependentPluginDefinition(
+@HasRequirementPluginDefinition(
     id="downstream-without-requirements",
 )
-class DownstreamWithoutRequirements(HasRequirementDependentPlugin):
+class DownstreamWithoutRequirements(HasRequirementPlugin):
     pass
 
 
-@HasRequirementDependentPluginDefinition(
+@HasRequirementPluginDefinition(
     id="upstream-with-unmet-requirements",
     depends_on={"downstream-with-unmet-requirements"},
 )
-class UpstreamWithUnmetRequirements(HasRequirementDependentPlugin):
+class UpstreamWithUnmetRequirements(HasRequirementPlugin):
     pass
 
 
-@HasRequirementDependentPluginDefinition(
+@HasRequirementPluginDefinition(
     id="downstream-with-unmet-requirements",
 )
-class DownstreamWithUnmetRequirements(HasRequirementDependentPlugin):
+class DownstreamWithUnmetRequirements(HasRequirementPlugin):
     @override
     @classmethod
     async def requirement(cls, *, app: App) -> Requirement:
@@ -70,18 +70,18 @@ class DownstreamWithUnmetRequirements(HasRequirementDependentPlugin):
         )
 
 
-@HasRequirementDependentPluginDefinition(
+@HasRequirementPluginDefinition(
     id="upstream-with-met-requirements",
     depends_on={"downstream-with-met-requirements"},
 )
-class UpstreamWithMetRequirements(HasRequirementDependentPlugin):
+class UpstreamWithMetRequirements(HasRequirementPlugin):
     pass
 
 
-@HasRequirementDependentPluginDefinition(
+@HasRequirementPluginDefinition(
     id="downstream-with-met-requirements",
 )
-class DownstreamWithMetRequirements(HasRequirementDependentPlugin):
+class DownstreamWithMetRequirements(HasRequirementPlugin):
     @override
     @classmethod
     async def requirement(cls, *, app: App) -> Requirement:

@@ -3,10 +3,10 @@ from typing_extensions import override
 
 from betty.console.command import CommandDefinition
 from betty.plugin import PluginDefinition
-from betty.test_utils.plugin import PluginDefinitionClassTestBase
+from betty.test_utils.plugin import ClassedPluginDefinitionClassTestBase
 
 
-class TestCommandDefinition(PluginDefinitionClassTestBase):
+class TestCommandDefinition(ClassedPluginDefinitionClassTestBase):
     @override
     @pytest.fixture
     def sut(self) -> type[PluginDefinition]:
