@@ -24,7 +24,12 @@ from betty.project.extension.webpack import build
 from betty.project.extension.webpack.build import EntryPointProvider
 from betty.project.extension.webpack.jinja2.filter import FILTERS
 from betty.project.generate import Generator
-from betty.requirement import AllRequirements, Requirement, RequirementError
+from betty.requirement import (
+    AllRequirements,
+    Requirement,
+    RequirementError,
+    requires_app,
+)
 from betty.resource import ContextProvider, ContextVars
 from betty.typing import internal
 
@@ -76,10 +81,11 @@ class Webpack(
 
     @override
     @classmethod
-    async def requirement(cls, *, app: App) -> Requirement:
+    @requires_app
+    async def requirement(cls, app: App, /) -> Requirement | None:
         if cls._requirement is None:
             cls._requirement = AllRequirements(
-                await super().requirement(app=app),
+                await super().requirement(app),
                 await NpmRequirement.new(user=app.user),
             )
         return cls._requirement
@@ -161,6 +167,6 @@ class Webpack(
             # (Re)build the assets if `npm` is available.
             return await builder.build()
         except NpmUnavailable:
-            raise RequirementError(
-                await self.requirement(app=self._project.app)
-            ) from None
+            requirement = await self.requirement(self._project)
+            assert requirement
+            raise RequirementError(requirement) from None

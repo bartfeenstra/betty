@@ -12,16 +12,21 @@ from betty.plugin import (
     CyclicDependencyError,
     DependentPluginDefinition,
     HumanFacingPluginDefinition,
+    PluginDefinition,
+    PluginRepository,
     resolve_id,
 )
-from betty.requirement import AllRequirements
+from betty.plugin.static import StaticPluginRepository
+from betty.requirement import AllRequirements, HasRequirement
 
 if TYPE_CHECKING:
     from collections.abc import Iterable
 
     from betty.app import App
     from betty.requirement import Requirement
+    from betty.service_level import ServiceLevel
 
+_PluginDefinitionT = TypeVar("_PluginDefinitionT", bound=PluginDefinition)
 _ClassedPluginDefinitionT = TypeVar(
     "_ClassedPluginDefinitionT", bound=ClassedPluginDefinition[Any]
 )
@@ -44,7 +49,7 @@ async def new_dependencies_requirement(
         dependencies = []
         for dependency_identifier in dependent.depends_on:
             dependency = plugins_by_id[resolve_id(dependency_identifier)]
-            dependency_requirement = await dependency.cls.requirement(app=app)
+            dependency_requirement = await dependency.cls.requirement(app)
             if dependency_requirement is not None:
                 dependency_requirements.append(dependency_requirement)
             dependencies.append(dependency)
@@ -72,3 +77,33 @@ async def new_dependencies_requirement(
                 ),
             ),
         )
+
+
+async def get_requirement(
+    plugin: PluginDefinition, service_level: ServiceLevel
+) -> Requirement | None:
+    """
+    Get the requirement for the given plugin.
+    """
+    if isinstance(plugin, ClassedPluginDefinition) and issubclass(
+        plugin.cls, HasRequirement
+    ):
+        return await plugin.cls.requirement(service_level)
+    return None
+
+
+async def new_requirement_met_plugin_repository(
+    upstream: PluginRepository[_PluginDefinitionT], service_level: ServiceLevel, /
+) -> PluginRepository[_PluginDefinitionT]:
+    """
+    Create a new plugin repository with only those plugins from the given repository whose requirements are met.
+    """
+    return StaticPluginRepository(
+        upstream.plugin,
+        *[
+            plugin
+            for plugin in upstream
+            if (requirement := await get_requirement(plugin, service_level))
+            and (requirement is None or requirement.is_met())  # type: ignore[redundant-expr]
+        ],
+    )

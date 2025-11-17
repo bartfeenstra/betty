@@ -3,7 +3,7 @@ from importlib.metadata import EntryPoint, EntryPoints
 import pytest
 from pytest_mock import MockerFixture
 
-from betty.plugin import PluginNotFound
+from betty.plugin import PluginUnavailable
 from betty.plugin.entry_point import EntryPointPluginRepository
 from betty.test_utils.plugin import ClassedDummyPluginDefinition, ClassedDummyPluginOne
 
@@ -42,7 +42,7 @@ class TestEntryPointPluginRepository:
         )
         # Hit the cache.
         for _ in range(2):
-            with pytest.raises(PluginNotFound):
+            with pytest.raises(PluginUnavailable):
                 sut.get(ClassedDummyPluginOne.plugin.id)
 
     def test___aiter___with_plugins(self, mocker: MockerFixture) -> None:

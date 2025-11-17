@@ -10,15 +10,22 @@ from betty.plugin import (
     ClassedPluginDefinition,
     DependentPluginDefinition,
     GlobalPluginRepositoryDefinition,
+    PluginDefinition,
     PluginTypeDefinition,
 )
-from betty.plugin.requirement import new_dependencies_requirement
+from betty.plugin.requirement import get_requirement, new_dependencies_requirement
 from betty.plugin.static import StaticPluginRepository
+from betty.project import Project
 from betty.requirement import HasRequirement, Requirement, StaticRequirement
-from betty.test_utils.plugin import ClassedDummyPlugin, ClassedDummyPluginOne
+from betty.test_utils.plugin import (
+    ClassedDummyPlugin,
+    ClassedDummyPluginDefinition,
+    ClassedDummyPluginOne,
+)
 
 if TYPE_CHECKING:
     from betty.app import App
+    from betty.service_level import ServiceLevel
 
 
 class HasRequirementPlugin(HasRequirement):
@@ -67,7 +74,7 @@ class UpstreamWithUnmetRequirements(HasRequirementPlugin):
 class DownstreamWithUnmetRequirements(HasRequirementPlugin):
     @override
     @classmethod
-    async def requirement(cls, *, app: App) -> Requirement:
+    async def requirement(cls, service_level: ServiceLevel, /) -> Requirement | None:
         return StaticRequirement(
             False,
             Plain("downstream-requirement-summary"),
@@ -89,7 +96,7 @@ class UpstreamWithMetRequirements(HasRequirementPlugin):
 class DownstreamWithMetRequirements(HasRequirementPlugin):
     @override
     @classmethod
-    async def requirement(cls, *, app: App) -> Requirement:
+    async def requirement(cls, service_level: ServiceLevel, /) -> Requirement | None:
         return StaticRequirement(
             True,
             Plain("downstream-requirement-summary"),
@@ -147,3 +154,74 @@ async def test_new_dependencies_requirement__with_met_requirements(
     message = actual.localize(DEFAULT_LOCALIZER)
     assert UpstreamWithMetRequirements.plugin.id in message
     assert DownstreamWithMetRequirements.plugin.id in message
+
+
+async def test_get_requirement__minimal_with_app(temporary_app: App) -> None:
+    assert await get_requirement(PluginDefinition(id="-"), temporary_app) is None
+
+
+async def test_get_requirement__minimal_with_project(temporary_app: App) -> None:
+    async with Project.new_temporary(temporary_app) as project, project:
+        assert await get_requirement(PluginDefinition(id="-"), project) is None
+
+
+async def test_get_requirement__minimal_classed_with_app(temporary_app: App) -> None:
+    @ClassedDummyPluginDefinition(
+        id="-",
+    )
+    class _Plugin(ClassedDummyPlugin):
+        pass
+
+    assert await get_requirement(_Plugin.plugin, temporary_app) is None
+
+
+async def test_get_requirement__minimal_classed_with_project(
+    temporary_app: App,
+) -> None:
+    @ClassedDummyPluginDefinition(
+        id="-",
+    )
+    class _Plugin(ClassedDummyPlugin):
+        pass
+
+    async with Project.new_temporary(temporary_app) as project, project:
+        assert await get_requirement(_Plugin.plugin, project) is None
+
+
+async def test_get_requirement__with_has_requirement_with_app(
+    temporary_app: App,
+) -> None:
+    requirement = StaticRequirement(True, Plain(""))
+
+    @HasRequirementPluginDefinition(
+        id="-",
+    )
+    class _Plugin(HasRequirementPlugin):
+        @override
+        @classmethod
+        async def requirement(
+            cls, service_level: ServiceLevel, /
+        ) -> Requirement | None:
+            return requirement
+
+    assert await get_requirement(_Plugin.plugin, temporary_app) is requirement
+
+
+async def test_get_requirement__with_has_requirement_with_project(
+    temporary_app: App,
+) -> None:
+    requirement = StaticRequirement(True, Plain(""))
+
+    @HasRequirementPluginDefinition(
+        id="-",
+    )
+    class _Plugin(HasRequirementPlugin):
+        @override
+        @classmethod
+        async def requirement(
+            cls, service_level: ServiceLevel, /
+        ) -> Requirement | None:
+            return requirement
+
+    async with Project.new_temporary(temporary_app) as project, project:
+        assert await get_requirement(_Plugin.plugin, project) is requirement

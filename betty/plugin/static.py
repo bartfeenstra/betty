@@ -8,7 +8,11 @@ from typing import Generic, TypeVar
 from typing_extensions import override
 
 from betty.machine_name import MachineName
-from betty.plugin import PluginDefinition, PluginNotFound, PluginRepository
+from betty.plugin import (
+    PluginDefinition,
+    PluginNotFound,
+    PluginRepository,
+)
 
 _PluginDefinitionT = TypeVar("_PluginDefinitionT", bound=PluginDefinition)
 

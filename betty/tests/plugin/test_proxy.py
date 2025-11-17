@@ -1,6 +1,6 @@
 import pytest
 
-from betty.plugin import PluginNotFound
+from betty.plugin import PluginUnavailable
 from betty.plugin.proxy import ProxyPluginRepository
 from betty.plugin.static import StaticPluginRepository
 from betty.test_utils.plugin import (
@@ -21,7 +21,7 @@ class TestProxyPluginRepository:
 
     def test_get__not_found_without_upstreams(self) -> None:
         sut = ProxyPluginRepository(DummyPluginDefinition)
-        with pytest.raises(PluginNotFound):
+        with pytest.raises(PluginUnavailable):
             sut.get(DUMMY_PLUGIN_ONE.id)
 
     def test_get__not_found_with_upstreams(self) -> None:
@@ -30,7 +30,7 @@ class TestProxyPluginRepository:
             StaticPluginRepository(DummyPluginDefinition, DUMMY_PLUGIN_ONE),
             StaticPluginRepository(DummyPluginDefinition, DUMMY_PLUGIN_TWO),
         )
-        with pytest.raises(PluginNotFound):
+        with pytest.raises(PluginUnavailable):
             sut.get(DUMMY_PLUGIN_THREE.id)
 
     def test___iter____without_upstreams(self) -> None:

@@ -41,6 +41,7 @@ if TYPE_CHECKING:
     from collections.abc import Iterable, Sequence
 
     from betty.app import App
+    from betty.service_level import ServiceLevel
     from betty.test_utils.conftest import TemporaryAppFactory
 
 
@@ -72,7 +73,7 @@ class _UnmetRequirement(Requirement):
 class _DummyExtensionWithUnmetRequirement(Extension):
     @override
     @classmethod
-    async def requirement(cls, *, app: App) -> Requirement:
+    async def requirement(cls, service_level: ServiceLevel, /) -> Requirement | None:
         return _UnmetRequirement()
 
 

@@ -20,7 +20,7 @@ from betty.plugin import (
 )
 from betty.plugin.requirement import new_dependencies_requirement
 from betty.project.factory import ProjectDependentFactory
-from betty.requirement import HasRequirement
+from betty.requirement import HasRequirement, requires_app
 from betty.service import ServiceProvider
 
 if TYPE_CHECKING:
@@ -67,7 +67,8 @@ class Extension(
 
     @override
     @classmethod
-    async def requirement(cls, *, app: App) -> Requirement | None:
+    @requires_app
+    async def requirement(cls, app: App, /) -> Requirement | None:
         return await new_dependencies_requirement(
             cls.plugin, app.extension_repository, app=app
         )

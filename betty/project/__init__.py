@@ -279,7 +279,7 @@ class Project(Configurable[ProjectConfiguration], TargetFactory, ServiceProvider
                     enabled_extension_id
                 ]
                 enabled_extension_requirement = (
-                    await enabled_extension_definition.cls.requirement(app=self.app)
+                    await enabled_extension_definition.cls.requirement(self.app)
                 )
                 if enabled_extension_requirement is not None:
                     enabled_extension_requirement.assert_met()

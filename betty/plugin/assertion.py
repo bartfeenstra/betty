@@ -32,9 +32,7 @@ def assert_plugin(
         except PluginNotFound:
             raise HumanFacingException(
                 Paragraph(
-                    _(
-                        'Cannot find and import "{plugin_id}".',
-                    ).format(plugin_id=plugin_id),
+                    _('Unknown plugin "{plugin_id}".').format(plugin_id=plugin_id),
                     do_you_mean(*(f'"{plugin.id}"' for plugin in plugins)),
                 )
             ) from None

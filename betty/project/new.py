@@ -59,7 +59,7 @@ async def new(app: App) -> None:
         Wiki,
     )
     AllRequirements(
-        *[await extension.plugin.cls.requirement(app=app) for extension in extensions]
+        *[await extension.plugin.cls.requirement(app) for extension in extensions]
     ).assert_met()
 
     configuration_file_path = await app.user.ask_input(
@@ -129,7 +129,7 @@ async def new(app: App) -> None:
     )
 
     if await app.user.ask_confirmation(_("Do you want to load a Gramps family tree?")):
-        gramps_requirement = await Gramps.requirement(app=app)
+        gramps_requirement = await Gramps.requirement(app)
         if gramps_requirement is not None:
             gramps_requirement.assert_met()
         configuration.extensions.append(

@@ -146,6 +146,10 @@ class TestPluginRepository:
         def __iter__(self) -> Iterator[DummyPluginDefinition]:
             yield from self._plugins.values()
 
+    def test_plugin(self) -> None:
+        sut = self._Sut()
+        assert sut.plugin is DummyPluginDefinition
+
     def test___len__(self) -> None:
         sut = self._Sut(DUMMY_PLUGIN_ONE, DUMMY_PLUGIN_TWO, DUMMY_PLUGIN_THREE)
         assert len(sut) == 3
@@ -700,14 +704,14 @@ class TestGlobalPluginRepositoryDefinition:
     ) -> None:
         expected, definition = sut_params
         sut = GlobalPluginRepositoryDefinition(definition)
-        assert await sut() is expected
+        assert await sut(unavailable=True) is expected
 
     async def test___call____with_app(
         self, sut_params: GlobalPluginRepositoryDefinitionTestParams, temporary_app: App
     ) -> None:
         expected, definition = sut_params
         sut = GlobalPluginRepositoryDefinition(definition)
-        assert await sut(temporary_app) is expected
+        assert await sut(temporary_app, unavailable=True) is expected
 
     async def test___call____with_project(
         self, sut_params: GlobalPluginRepositoryDefinitionTestParams, temporary_app: App
@@ -715,7 +719,7 @@ class TestGlobalPluginRepositoryDefinition:
         expected, definition = sut_params
         async with Project.new_temporary(temporary_app) as project, project:
             sut = GlobalPluginRepositoryDefinition(definition)
-            assert await sut(project) is expected
+            assert await sut(project, unavailable=True) is expected
 
 
 AppPluginRepositoryDefinitionTestParams: TypeAlias = tuple[
@@ -750,7 +754,7 @@ class TestAppPluginRepositoryDefinition:
         expected, definition = sut_params
         sut = AppPluginRepositoryDefinition(definition)
         with pytest.raises(PluginRepositoryUnavailable):
-            await sut()
+            await sut(unavailable=True)
 
     async def test___call___global_with_fallback(
         self, sut_params: AppPluginRepositoryDefinitionTestParams
@@ -759,14 +763,14 @@ class TestAppPluginRepositoryDefinition:
         sut = AppPluginRepositoryDefinition(
             definition, GlobalPluginRepositoryDefinition(expected)
         )
-        assert await sut() is expected
+        assert await sut(unavailable=True) is expected
 
     async def test___call____with_app(
         self, sut_params: AppPluginRepositoryDefinitionTestParams, temporary_app: App
     ) -> None:
         expected, definition = sut_params
         sut = AppPluginRepositoryDefinition(definition)
-        assert await sut(temporary_app) is expected
+        assert await sut(temporary_app, unavailable=True) is expected
 
     async def test___call____with_project(
         self, sut_params: AppPluginRepositoryDefinitionTestParams, temporary_app: App
@@ -774,7 +778,7 @@ class TestAppPluginRepositoryDefinition:
         expected, definition = sut_params
         async with Project.new_temporary(temporary_app) as project, project:
             sut = AppPluginRepositoryDefinition(definition)
-            assert await sut(project) is expected
+            assert await sut(project, unavailable=True) is expected
 
 
 ProjectPluginRepositoryDefinitionTestParams: TypeAlias = tuple[
@@ -809,7 +813,7 @@ class TestProjectPluginRepositoryDefinition:
         expected, definition = sut_params
         sut = ProjectPluginRepositoryDefinition(definition)
         with pytest.raises(PluginRepositoryUnavailable):
-            await sut()
+            await sut(unavailable=True)
 
     async def test___call___global_with_fallback(
         self, sut_params: ProjectPluginRepositoryDefinitionTestParams
@@ -818,7 +822,7 @@ class TestProjectPluginRepositoryDefinition:
         sut = ProjectPluginRepositoryDefinition(
             definition, GlobalPluginRepositoryDefinition(expected)
         )
-        assert await sut() is expected
+        assert await sut(unavailable=True) is expected
 
     async def test___call____with_app(
         self,
@@ -828,7 +832,7 @@ class TestProjectPluginRepositoryDefinition:
         expected, definition = sut_params
         sut = ProjectPluginRepositoryDefinition(definition)
         with pytest.raises(PluginRepositoryUnavailable):
-            await sut(temporary_app)
+            await sut(temporary_app, unavailable=True)
 
     async def test___call____with_project(
         self,
@@ -838,7 +842,7 @@ class TestProjectPluginRepositoryDefinition:
         expected, definition = sut_params
         async with Project.new_temporary(temporary_app) as project, project:
             sut = ProjectPluginRepositoryDefinition(definition)
-            assert await sut(project) is expected
+            assert await sut(project, unavailable=True) is expected
 
 
 ExtensionPluginRepositoryDefinitionTestParams: TypeAlias = tuple[
@@ -873,7 +877,7 @@ class TestExtensionPluginRepositoryDefinition:
         expected, definition = sut_params
         sut = ExtensionPluginRepositoryDefinition(DummyExtension, definition)
         with pytest.raises(PluginRepositoryUnavailable):
-            await sut()
+            await sut(unavailable=True)
 
     async def test___call___global_with_fallback(
         self, sut_params: ExtensionPluginRepositoryDefinitionTestParams
@@ -882,7 +886,7 @@ class TestExtensionPluginRepositoryDefinition:
         sut = ExtensionPluginRepositoryDefinition(
             DummyExtension, definition, GlobalPluginRepositoryDefinition(expected)
         )
-        assert await sut() is expected
+        assert await sut(unavailable=True) is expected
 
     async def test___call____with_app(
         self,
@@ -892,7 +896,7 @@ class TestExtensionPluginRepositoryDefinition:
         expected, definition = sut_params
         sut = ExtensionPluginRepositoryDefinition(DummyExtension, definition)
         with pytest.raises(PluginRepositoryUnavailable):
-            await sut(temporary_app)
+            await sut(temporary_app, unavailable=True)
 
     async def test___call____with_app_with_fallback(
         self,
@@ -903,7 +907,7 @@ class TestExtensionPluginRepositoryDefinition:
         sut = ExtensionPluginRepositoryDefinition(
             DummyExtension, definition, GlobalPluginRepositoryDefinition(expected)
         )
-        assert await sut(temporary_app) is expected
+        assert await sut(temporary_app, unavailable=True) is expected
 
     async def test___call____with_project_without_extension(
         self,
@@ -914,7 +918,7 @@ class TestExtensionPluginRepositoryDefinition:
         async with Project.new_temporary(temporary_app) as project, project:
             sut = ExtensionPluginRepositoryDefinition(DummyExtension, definition)
             with pytest.raises(PluginRepositoryUnavailable):
-                await sut(project)
+                await sut(project, unavailable=True)
 
     async def test___call____with_project_without_extension_with_fallback(
         self,
@@ -926,7 +930,7 @@ class TestExtensionPluginRepositoryDefinition:
             sut = ExtensionPluginRepositoryDefinition(
                 DummyExtension, definition, GlobalPluginRepositoryDefinition(expected)
             )
-            assert await sut(project) is expected
+            assert await sut(project, unavailable=True) is expected
 
     async def test___call____with_project_with_extension(
         self,
@@ -946,4 +950,4 @@ class TestExtensionPluginRepositoryDefinition:
             project.configuration.extensions.enable(DummyExtension)
             async with project:
                 sut = ExtensionPluginRepositoryDefinition(DummyExtension, definition)
-                assert await sut(project) is expected
+                assert await sut(project, unavailable=True) is expected

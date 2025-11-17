@@ -1,6 +1,6 @@
 import pytest
 
-from betty.plugin import PluginNotFound
+from betty.plugin import PluginUnavailable
 from betty.plugin.static import StaticPluginRepository
 from betty.test_utils.plugin import DUMMY_PLUGIN_ONE, DummyPluginDefinition
 
@@ -12,7 +12,7 @@ class TestStaticPluginRepository:
 
     def test_get_not_found(self) -> None:
         sut = StaticPluginRepository(DummyPluginDefinition)
-        with pytest.raises(PluginNotFound):
+        with pytest.raises(PluginUnavailable):
             sut.get(DUMMY_PLUGIN_ONE.id)
 
     def test___iter__(self) -> None:
