@@ -23,7 +23,7 @@ from typing import Any, Protocol, TypeAlias, cast
 import aiofiles
 import pytest
 
-from betty import ROOT_DIRECTORY_PATH
+from betty.dirs import ROOT_DIRECTORY_PATH
 from betty.html.attributes import Attributes
 from betty.tests.coverage.fixtures import (
     _module_private,

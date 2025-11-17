@@ -17,7 +17,8 @@ from typing import TYPE_CHECKING, cast
 import aiofiles
 from aiofiles.os import makedirs
 
-from betty import ROOT_DIRECTORY_PATH, _npm
+from betty import _npm
+from betty.dirs import ROOT_DIRECTORY_PATH
 from betty.hashid import hashid, hashid_file_content, hashid_sequence
 from betty.project.extension import Extension
 from betty.render import make_copy_function

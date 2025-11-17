@@ -7,16 +7,16 @@ from asyncio import run
 from pathlib import Path
 
 import betty
-from betty import ASSETS_DIRECTORY_PATH
+import betty.dirs
 from betty.asset import StaticAssetRepository
 from betty.cache.file import BinaryFileCache
-from betty.dirs import CACHE_DIRECTORY_PATH
+from betty.dirs import ASSETS_DIRECTORY_PATH, CACHE_DIRECTORY_PATH
 from betty.locale.localizer import LocalizerRepository
 from betty.locale.translation import AssetTranslationRepository
 
 betty_replacements: dict[str, str] = {}
 
-assets = StaticAssetRepository(betty.ASSETS_DIRECTORY_PATH)
+assets = StaticAssetRepository(betty.dirs.ASSETS_DIRECTORY_PATH)
 translations = AssetTranslationRepository(assets, BinaryFileCache(CACHE_DIRECTORY_PATH))
 run(translations.bootstrap())
 localizers = LocalizerRepository(translations)

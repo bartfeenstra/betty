@@ -12,7 +12,8 @@ from typing import final
 from aiofiles.os import makedirs
 from typing_extensions import override
 
-from betty import ROOT_DIRECTORY_PATH, serve
+from betty import serve
+from betty.dirs import ROOT_DIRECTORY_PATH
 from betty.serve import NoPublicUrlBecauseServerNotStartedError, Server
 from betty.subprocess import run_process
 from betty.user import User

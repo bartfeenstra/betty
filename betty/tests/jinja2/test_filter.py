@@ -9,11 +9,11 @@ from PIL import Image
 from puremagic import what
 from typing_extensions import override
 
-from betty import ASSETS_DIRECTORY_PATH
 from betty.ancestry.file import File
 from betty.ancestry.file_reference import FileReference
 from betty.cache.memory import MemoryCache
 from betty.date import Date, DateLike, DateRange
+from betty.dirs import ASSETS_DIRECTORY_PATH
 from betty.job import Context
 from betty.locale import (
     MULTIPLE_LOCALES,

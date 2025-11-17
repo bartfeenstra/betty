@@ -13,6 +13,7 @@ from aiohttp_client_cache.session import CachedSession
 from typing_extensions import override
 
 import betty
+import betty.dirs
 from betty import about
 from betty.app import config
 from betty.app.config import AppConfiguration
@@ -183,7 +184,7 @@ class App(Configurable[AppConfiguration], TargetFactory, ServiceProvider):
         """
         The assets file system.
         """
-        return StaticAssetRepository(betty.ASSETS_DIRECTORY_PATH)
+        return StaticAssetRepository(betty.dirs.ASSETS_DIRECTORY_PATH)
 
     @service
     async def translations(self) -> TranslationRepository:

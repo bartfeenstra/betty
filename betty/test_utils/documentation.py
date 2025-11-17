@@ -8,8 +8,8 @@ from typing import Generic, TypeVar
 
 import aiofiles
 
-from betty import ROOT_DIRECTORY_PATH
 from betty.app import App
+from betty.dirs import ROOT_DIRECTORY_PATH
 from betty.plugin import PluginDefinition
 from betty.project import Project
 

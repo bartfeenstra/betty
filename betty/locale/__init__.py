@@ -12,13 +12,14 @@ from babel.core import UnknownLocaleError
 from langcodes import Language
 
 import betty
+import betty.dirs
 from betty.classtools import Singleton
 from betty.json.schema import String
 
 if TYPE_CHECKING:
     from collections.abc import Sequence
 
-_LOCALE_DIRECTORY_PATH = betty.ASSETS_DIRECTORY_PATH / "locale"
+_LOCALE_DIRECTORY_PATH = betty.dirs.ASSETS_DIRECTORY_PATH / "locale"
 
 NO_LINGUISTIC_CONTENT = "zxx"
 UNDETERMINED_LOCALE = "und"

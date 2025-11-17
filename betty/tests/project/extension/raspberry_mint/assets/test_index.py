@@ -1,7 +1,7 @@
 import pytest
 
-from betty import ROOT_DIRECTORY_PATH
 from betty.app import App
+from betty.dirs import ROOT_DIRECTORY_PATH
 from betty.plugin.config import PluginInstanceConfiguration
 from betty.project import Project
 from betty.project.extension.raspberry_mint import RaspberryMint
