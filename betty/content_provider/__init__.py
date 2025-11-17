@@ -10,6 +10,7 @@ from typing import TYPE_CHECKING, final
 from betty.locale.localizable import _
 from betty.plugin import (
     ClassedPluginDefinition,
+    ExtensionDependentPluginDefinition,
     HumanFacingPluginDefinition,
     PluginTypeDefinition,
     ProjectPluginRepositoryDefinition,
@@ -33,7 +34,9 @@ class ContentProvider(ABC):
 
 @final
 class ContentProviderDefinition(
-    HumanFacingPluginDefinition, ClassedPluginDefinition[ContentProvider]
+    HumanFacingPluginDefinition,
+    ClassedPluginDefinition[ContentProvider],
+    ExtensionDependentPluginDefinition,
 ):
     """
     A content provider definition.

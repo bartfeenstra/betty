@@ -30,6 +30,7 @@ from betty.plugin.config import (
     PluginInstanceConfigurationSequence,
 )
 from betty.project import Project
+from betty.project.extension.raspberry_mint import RaspberryMint
 from betty.resource import Context
 from betty.serde.dump import Dump
 
@@ -105,6 +106,7 @@ class SectionConfiguration(Configuration):
 @ContentProviderDefinition(
     id="raspberry-mint-section",
     label=_("Section"),
+    depends_on_extensions={RaspberryMint},
 )
 class Section(Template, DefaultConfigurable[SectionConfiguration]):
     """
@@ -137,6 +139,7 @@ class Section(Template, DefaultConfigurable[SectionConfiguration]):
 @ContentProviderDefinition(
     id="raspberry-mint-featured-entities",
     label=_("Featured entities"),
+    depends_on_extensions={RaspberryMint},
 )
 class FeaturedEntities(Template, DefaultConfigurable[EntityReferenceSequence]):
     """

@@ -316,6 +316,32 @@ _DependentPluginDefinitionT = TypeVar(
 )
 
 
+class ExtensionDependentPluginDefinition(PluginDefinition):
+    """
+    A definition of a plugin that can declare its dependency on extensions.
+    """
+
+    def __init__(
+        self,
+        *,
+        depends_on_extensions: Set[PluginIdentifier] | None = None,
+        **kwargs: Any,
+    ):
+        super().__init__(**kwargs)
+        self._depends_on_extensions = (
+            set()
+            if depends_on_extensions is None
+            else {resolve_id(extension) for extension in depends_on_extensions}
+        )
+
+    @property
+    def depends_on_extensions(self) -> Set[MachineName]:
+        """
+        The extensions this one depends on.
+        """
+        return self._depends_on_extensions
+
+
 class ClassedPluginDefinition(Generic[_PluginT], PluginDefinition):
     """
     A definition of a plugin that is based around a class.
