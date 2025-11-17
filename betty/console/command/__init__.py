@@ -54,8 +54,8 @@ class CommandDefinition(HumanFacingPluginDefinition, ClassedPluginDefinition[Com
     """
 
     plugin_type_cls = Command
-    repository = AppPluginRepositoryDefinition(lambda app: app.command_repository)
     type = PluginTypeDefinition(
         id="command",
         label=_("Command"),
+        repository=AppPluginRepositoryDefinition(lambda app: app.command_repository),
     )

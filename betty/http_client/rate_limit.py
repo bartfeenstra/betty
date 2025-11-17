@@ -97,10 +97,10 @@ class RateLimitDefinition(OrderedPluginDefinition, ClassedPluginDefinition[RateL
     """
 
     plugin_type_cls = RateLimit
-    repository = AppPluginRepositoryDefinition(
-        lambda app: app.http_rate_limit_repository
-    )
     type = PluginTypeDefinition(
         id="http-rate-limit",
         label=_("HTTP client rate limit"),
+        repository=AppPluginRepositoryDefinition(
+            lambda app: app.http_rate_limit_repository
+        ),
     )

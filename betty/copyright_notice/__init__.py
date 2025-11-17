@@ -65,10 +65,10 @@ class CopyrightNoticeDefinition(
     """
 
     plugin_type_cls = CopyrightNotice
-    repository = ProjectPluginRepositoryDefinition(
-        lambda project: project.copyright_notice_repository
-    )
     type = PluginTypeDefinition(
         id="copyright-notice",
         label=_("Copyright notice"),
+        repository=ProjectPluginRepositoryDefinition(
+            lambda project: project.copyright_notice_repository
+        ),
     )

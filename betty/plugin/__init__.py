@@ -74,8 +74,7 @@ class PluginDefinition:
     A plugin definition.
     """
 
-    type: ClassVar[PluginTypeDefinition]
-    repository: ClassVar[PluginRepositoryDefinition[Self]]
+    type: ClassVar[PluginTypeDefinition[Self]]
 
     def __init__(
         self,
@@ -111,7 +110,7 @@ _PluginDefinitionCoT = TypeVar(
 
 
 @final
-class PluginTypeDefinition:
+class PluginTypeDefinition(Generic[_PluginDefinitionT]):
     """
     A plugin type definition.
     """
@@ -121,11 +120,13 @@ class PluginTypeDefinition:
         *,
         id: MachineName,  # noqa A002
         label: Localizable,
+        repository: PluginRepositoryDefinition[_PluginDefinitionT],
     ):
         if not validate_machine_name(id):  # type: ignore[redundant-expr]
             raise InvalidMachineName.new(id)
         self._id = id
         self._label = label
+        self._repository = repository
 
     @property
     def id(self) -> MachineName:
@@ -140,6 +141,13 @@ class PluginTypeDefinition:
         The plugin type label.
         """
         return self._label
+
+    @property
+    def repository(self) -> PluginRepositoryDefinition[_PluginDefinitionT]:
+        """
+        The plugin repository for this type.
+        """
+        return self._repository
 
 
 def plugin_types() -> Mapping[MachineName, type[PluginDefinition]]:
