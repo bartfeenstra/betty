@@ -18,6 +18,7 @@ from polib import pofile
 from typing_extensions import override
 
 import betty
+import betty.dirs
 from betty.hashid import hashid_file_meta
 from betty.locale import DEFAULT_LOCALE, LocaleLike, get_data, to_locale
 from betty.locale.babel import run_babel
@@ -74,11 +75,11 @@ async def update_dev_translations(
     """
     Update the translations for Betty itself.
     """
-    source_directory_path = betty.ROOT_DIRECTORY_PATH / "betty"
+    source_directory_path = betty.dirs.ROOT_DIRECTORY_PATH / "betty"
     test_directory_path = source_directory_path / "tests"
     await _update_translations(
         set(find_source_files(source_directory_path, test_directory_path)),
-        betty.ASSETS_DIRECTORY_PATH,
+        betty.dirs.ASSETS_DIRECTORY_PATH,
         _output_assets_directory_path_override,
     )
 

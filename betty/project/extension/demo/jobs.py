@@ -9,7 +9,6 @@ from typing import TYPE_CHECKING
 
 from typing_extensions import override
 
-from betty import DATA_DIRECTORY_PATH
 from betty.ancestry.citation import Citation
 from betty.ancestry.enclosure import Enclosure
 from betty.ancestry.event import Event
@@ -33,6 +32,7 @@ from betty.ancestry.presence import Presence
 from betty.ancestry.presence_role.presence_roles import Subject
 from betty.ancestry.source import Source
 from betty.date import Date, DateRange
+from betty.dirs import DATA_DIRECTORY_PATH
 from betty.job import Job
 from betty.license.licenses import spdx_license_id_to_license_id
 from betty.locale.localizable import Plain, _

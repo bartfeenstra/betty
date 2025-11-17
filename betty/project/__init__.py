@@ -16,6 +16,7 @@ from aiofiles.tempfile import TemporaryDirectory
 from typing_extensions import TypeVar, override
 
 import betty
+import betty.dirs
 from betty.ancestry import Ancestry
 from betty.ancestry.event_type import EventTypeDefinition
 from betty.ancestry.gender import GenderDefinition
@@ -340,7 +341,10 @@ class Project(Configurable[ProjectConfiguration], TargetFactory, ServiceProvider
         """
         return (
             self._configuration.logo
-            or betty.ASSETS_DIRECTORY_PATH / "public" / "static" / "betty-512x512.png"
+            or betty.dirs.ASSETS_DIRECTORY_PATH
+            / "public"
+            / "static"
+            / "betty-512x512.png"
         )
 
     @service
