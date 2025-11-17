@@ -40,10 +40,10 @@ class ContentProviderDefinition(
     """
 
     plugin_type_cls = ContentProvider
-    repository = ProjectPluginRepositoryDefinition(
-        lambda project: project.content_provider_repository
-    )
     type = PluginTypeDefinition(
         id="content-provider",
         label=_("Content provider"),
+        repository=ProjectPluginRepositoryDefinition(
+            lambda project: project.content_provider_repository
+        ),
     )

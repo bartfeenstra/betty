@@ -62,12 +62,12 @@ def test_resolve_definition__with_plugin_cls() -> None:
 
     class _ClassedPluginDefinition(ClassedPluginDefinition[_ClassedPluginCls]):
         plugin_type_cls = _ClassedPluginCls
-        repository = GlobalPluginRepositoryDefinition(
-            lambda: StaticPluginRepository(_ClassedPluginDefinition)
-        )
         type = PluginTypeDefinition(
             id="-",
             label=Plain(""),
+            repository=GlobalPluginRepositoryDefinition(
+                lambda: StaticPluginRepository(_ClassedPluginDefinition)
+            ),
         )
 
     @_ClassedPluginDefinition(id=plugin_id)
@@ -90,12 +90,12 @@ def test_resolve_id__with_plugin_cls() -> None:
 
     class _ClassedPluginDefinition(ClassedPluginDefinition[_ClassedPluginCls]):
         plugin_type_cls = _ClassedPluginCls
-        repository = GlobalPluginRepositoryDefinition(
-            lambda: StaticPluginRepository(_ClassedPluginDefinition)
-        )
         type = PluginTypeDefinition(
             id="-",
             label=Plain(""),
+            repository=GlobalPluginRepositoryDefinition(
+                lambda: StaticPluginRepository(_ClassedPluginDefinition)
+            ),
         )
 
     @_ClassedPluginDefinition(id=plugin_id)
@@ -188,12 +188,12 @@ class TestCyclicDependencyError:
 
 
 class _OrderedPluginDefinition(OrderedPluginDefinition):
-    repository = GlobalPluginRepositoryDefinition(
-        lambda: StaticPluginRepository(_OrderedPluginDefinition)
-    )
     type = PluginTypeDefinition(
         id="ordered-plugin",
         label=Plain(""),
+        repository=GlobalPluginRepositoryDefinition(
+            lambda: StaticPluginRepository(_OrderedPluginDefinition)
+        ),
     )
 
 
@@ -289,12 +289,12 @@ async def test_sort_ordered_plugin_graph(
 
 
 class _DependentPluginDefinition(DependentPluginDefinition):
-    repository = GlobalPluginRepositoryDefinition(
-        lambda: StaticPluginRepository(_DependentPluginDefinition)
-    )
     type = PluginTypeDefinition(
         id="dependent",
         label=Plain("_ExpandPluginDependenciesTestPluginDefinition"),
+        repository=GlobalPluginRepositoryDefinition(
+            lambda: StaticPluginRepository(_DependentPluginDefinition)
+        ),
     )
 
 
@@ -544,6 +544,9 @@ class TestPluginTypeDefinition:
         sut = PluginTypeDefinition(
             id=plugin_type_id,
             label=Plain(""),
+            repository=GlobalPluginRepositoryDefinition(
+                StaticPluginRepository(PluginDefinition)
+            ),
         )
         assert sut.id == plugin_type_id
 
@@ -552,8 +555,22 @@ class TestPluginTypeDefinition:
         sut = PluginTypeDefinition(
             label=label,
             id="my-first-plugin-type",
+            repository=GlobalPluginRepositoryDefinition(
+                StaticPluginRepository(PluginDefinition)
+            ),
         )
         assert sut.label is label
+
+    def test_repository(self) -> None:
+        repository = GlobalPluginRepositoryDefinition(
+            StaticPluginRepository(PluginDefinition)
+        )
+        sut = PluginTypeDefinition(
+            label=Plain("my-first-plugin-type"),
+            id="my-first-plugin-type",
+            repository=repository,
+        )
+        assert sut.repository is repository
 
 
 class TestClassedPluginDefinition:

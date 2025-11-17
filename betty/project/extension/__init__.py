@@ -88,10 +88,10 @@ class ExtensionDefinition(
     """
 
     plugin_type_cls = Extension
-    repository = AppPluginRepositoryDefinition(lambda app: app.extension_repository)
     type = PluginTypeDefinition(
         id="extension",
         label=_("Extension"),
+        repository=AppPluginRepositoryDefinition(lambda app: app.extension_repository),
     )
 
     def __init__(

@@ -148,10 +148,12 @@ class EntityDefinition(
     """
 
     plugin_type_cls = Entity
-    repository = AppPluginRepositoryDefinition(lambda app: app.entity_type_repository)
     type = PluginTypeDefinition(
         id="entity",
         label=_("Entity"),
+        repository=AppPluginRepositoryDefinition(
+            lambda app: app.entity_type_repository
+        ),
     )
 
     def __init__(

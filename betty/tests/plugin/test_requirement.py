@@ -29,12 +29,12 @@ class HasRequirementPluginDefinition(
     ClassedPluginDefinition[HasRequirementPlugin], DependentPluginDefinition
 ):
     plugin_type_cls = ClassedDummyPlugin
-    repository = GlobalPluginRepositoryDefinition(
-        lambda: StaticPluginRepository(HasRequirementPluginDefinition)
-    )
     type = PluginTypeDefinition(
         id="-",
         label=Plain("HasRequirement"),
+        repository=GlobalPluginRepositoryDefinition(
+            lambda: StaticPluginRepository(HasRequirementPluginDefinition)
+        ),
     )
 
 

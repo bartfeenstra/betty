@@ -35,10 +35,10 @@ class GenderDefinition(HumanFacingPluginDefinition, ClassedPluginDefinition[Gend
     """
 
     plugin_type_cls = Gender
-    repository = ProjectPluginRepositoryDefinition(
-        lambda project: project.gender_repository
-    )
     type = PluginTypeDefinition(
         id="gender",
         label=_("Gender"),
+        repository=ProjectPluginRepositoryDefinition(
+            lambda project: project.gender_repository
+        ),
     )
