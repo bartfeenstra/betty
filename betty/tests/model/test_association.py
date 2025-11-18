@@ -1403,7 +1403,7 @@ class TestAssociationRequired:
     def test_new(self) -> None:
         association = self._Owner.associate
         owner = self._Owner()
-        AssociationRequired.new(association, owner)
+        AssociationRequired(association, owner)
 
 
 class TestTemporaryToZeroOrOneResolver:

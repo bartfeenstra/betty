@@ -96,7 +96,7 @@ class _ProjectUrlGenerator(ProjectDependentFactory):
         query: Mapping[str, Sequence[str]] | None,
     ) -> str:
         if media_type not in [HTML, JSON_LD, JSON]:
-            raise InvalidMediaType.new(entity, media_type)
+            raise InvalidMediaType(entity, media_type)
         extension, locale = _get_extension_and_locale(
             media_type, self._default_locale, locale=locale
         )
@@ -124,7 +124,7 @@ class _ProjectUrlGenerator(ProjectDependentFactory):
         query: Mapping[str, Sequence[str]] | None,
     ) -> str:
         if media_type not in [HTML, JSON_LD, JSON]:
-            raise InvalidMediaType.new(entity_type, media_type)
+            raise InvalidMediaType(entity_type, media_type)
         extension, locale = _get_extension_and_locale(
             media_type, self._default_locale, locale=locale
         )

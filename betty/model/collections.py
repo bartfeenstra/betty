@@ -6,7 +6,7 @@ from __future__ import annotations
 
 from abc import ABC, abstractmethod
 from contextlib import contextmanager
-from typing import TYPE_CHECKING, Any, Generic, Self, TypeVar, cast
+from typing import TYPE_CHECKING, Any, Generic, TypeVar, cast
 
 from typing_extensions import override
 
@@ -32,12 +32,10 @@ class UnsupportedTarget(RuntimeError):
     Raised when an entity is not supported as a target.
     """
 
-    @classmethod
-    def new(cls, expected_target: type, actual_target: object) -> Self:
-        """
-        Create a new instance.
-        """
-        return cls(f"Expected {expected_target}, but {type(actual_target)} was given.")
+    def __init__(self, expected_target: type, actual_target: object):
+        super().__init__(
+            f"Expected {expected_target}, but {type(actual_target)} was given."
+        )
 
 
 class EntityCollection(Mutable, Generic[_TargetT], ABC):
@@ -136,7 +134,7 @@ class SingleTypeEntityCollection(Generic[_TargetT], EntityCollection[_TargetT]):
         added_entities = [*self._unknown(*entities)]
         for entity in added_entities:
             if not isinstance(entity, self._target_type):
-                raise UnsupportedTarget.new(self._target_type, entity)
+                raise UnsupportedTarget(self._target_type, entity)
             self._entities.append(entity)
         if added_entities:
             self._on_add(*added_entities)
@@ -281,7 +279,7 @@ class MultipleTypesEntityCollection(Generic[_TargetT], EntityCollection[_TargetT
         added_entities = [*self._unknown(*entities)]
         for entity in added_entities:
             if not isinstance(entity, self._target_type):
-                raise UnsupportedTarget.new(self._target_type, entity)
+                raise UnsupportedTarget(self._target_type, entity)
             self[type(entity)].add(entity)
         if added_entities:
             self._on_add(*added_entities)

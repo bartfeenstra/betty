@@ -86,7 +86,7 @@ class PluginDefinition:
         id: MachineName,  # noqa A002
     ):
         if not validate_machine_name(id):  # type: ignore[redundant-expr]
-            raise InvalidMachineName.new(id)
+            raise InvalidMachineName(id)
         self._id = id
 
     @property
@@ -129,7 +129,7 @@ class PluginTypeDefinition(Generic[_PluginDefinitionCoT]):
         | None = None,
     ):
         if not validate_machine_name(id):  # type: ignore[redundant-expr]
-            raise InvalidMachineName.new(id)
+            raise InvalidMachineName(id)
         self._id = id
         self._label = label
         if repositories is None:
@@ -425,18 +425,14 @@ class PluginNotFound(PluginError, HumanFacingException):
     Raised when a plugin cannot be found.
     """
 
-    @classmethod
-    def new(
-        cls,
+    def __init__(
+        self,
         plugin_type: PluginTypeDefinition,
         plugin_not_found: MachineName,
         available_plugins: Sequence[PluginIdentifier],
         /,
-    ) -> Self:
-        """
-        Create a new instance.
-        """
-        return cls(
+    ):
+        super().__init__(
             Paragraph(
                 _('Could not find a(n) {plugin_type} plugin "{plugin_id}".').format(
                     plugin_type=plugin_type.label, plugin_id=plugin_not_found

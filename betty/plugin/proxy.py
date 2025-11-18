@@ -37,7 +37,7 @@ class ProxyPluginRepository(
                 return upstream.get(plugin_id)
             except PluginNotFound:
                 pass
-        raise PluginNotFound.new(self._plugin.type, plugin_id, list(self)) from None
+        raise PluginNotFound(self._plugin.type, plugin_id, list(self)) from None
 
     @override
     def __iter__(self) -> Iterator[_PluginDefinitionT]:

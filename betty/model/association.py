@@ -59,12 +59,8 @@ class AssociationRequired(RuntimeError):
     Raised when an operation cannot be performed because the association in question is required.
     """
 
-    @classmethod
-    def new(cls, association: _Association[_OwnerT, Any], owner: _OwnerT) -> Self:
-        """
-        Create a new instance.
-        """
-        return cls(
+    def __init__(self, association: _Association[_OwnerT, Any], owner: _OwnerT):
+        super().__init__(
             f"Association {association._owner_type_name}.{association.owner_attr_name} is required, but missing for {owner}."
         )
 
@@ -256,10 +252,10 @@ class _ToOneAssociation(
         try:
             value = getattr(instance, self._internal_owner_attr_name)
         except AttributeError:
-            raise AssociationRequired.new(self, instance) from None
+            raise AssociationRequired(self, instance) from None
         else:
             if value is None:
-                raise AssociationRequired.new(self, instance)
+                raise AssociationRequired(self, instance)
             assert not isinstance(value, _Resolver)
             return cast(_AssociateT, value)
 
@@ -538,7 +534,7 @@ class BidirectionalToOne(
     def resolve(self, owner: _OwnerT) -> None:
         value = getattr(owner, self._internal_owner_attr_name, None)
         if value is None:
-            raise AssociationRequired.new(self, owner)
+            raise AssociationRequired(self, owner)
         if isinstance(value, _Resolver):
             associate = value.resolve()
             setattr(owner, self._internal_owner_attr_name, associate)
@@ -627,7 +623,7 @@ class UnidirectionalToOne(
     def resolve(self, owner: _OwnerT) -> None:
         value = getattr(owner, self._internal_owner_attr_name, None)
         if value is None:
-            raise AssociationRequired.new(self, owner)
+            raise AssociationRequired(self, owner)
         if isinstance(value, _Resolver):
             setattr(owner, self._internal_owner_attr_name, value.resolve())
 

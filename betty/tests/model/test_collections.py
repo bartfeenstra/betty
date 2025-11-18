@@ -23,7 +23,7 @@ class TestUnsupportedTarget:
         class _Actual:
             pass
 
-        UnsupportedTarget.new(DummyEntityOne, _Actual())
+        UnsupportedTarget(DummyEntityOne, _Actual())
 
 
 class TestSingleTypeEntityCollection(EntityCollectionTestBase[DummyEntityOne]):

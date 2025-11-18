@@ -15,7 +15,7 @@ class TestUnknownAsset:
     def test_new(self) -> None:
         path = Path("my-first-path")
         assets_directory_paths = (Path("my-first-assets"), Path("my-second-assets"))
-        sut = UnknownAsset.new(path, assets_directory_paths)
+        sut = UnknownAsset(path, assets_directory_paths)
         assert str(path) in str(sut)
         for assets_directory_path in assets_directory_paths:
             assert str(assets_directory_path) in str(sut)

@@ -6,7 +6,7 @@ from __future__ import annotations
 
 from email.message import EmailMessage
 from pathlib import Path
-from typing import TYPE_CHECKING, Any, Self, TypeAlias, final
+from typing import TYPE_CHECKING, Any, TypeAlias, final
 
 from typing_extensions import override
 
@@ -28,12 +28,8 @@ class UnsupportedMediaType(RuntimeError):
     Raised when a media type is not supported.
     """
 
-    @classmethod
-    def new(cls, media_type: MediaTypeIndicator) -> Self:
-        """
-        Create a new instance.
-        """
-        return cls(f"Unsupported media type: {media_type}")
+    def __init__(self, media_type: MediaTypeIndicator):
+        super().__init__(f"Unsupported media type: {media_type}")
 
 
 @final
@@ -165,7 +161,7 @@ def match_media_type(source: MediaType, media_types: Iterable[MediaType]) -> Med
     for media_type in media_types:
         if source == media_type:
             return media_type
-    raise UnsupportedMediaType.new(source)
+    raise UnsupportedMediaType(source)
 
 
 def match_extension(
@@ -180,4 +176,4 @@ def match_extension(
         for extension in media_type.extensions:
             if source.endswith(extension):
                 return media_type, extension
-    raise UnsupportedMediaType.new(source)
+    raise UnsupportedMediaType(source)

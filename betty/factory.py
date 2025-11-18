@@ -7,31 +7,14 @@ from __future__ import annotations
 from abc import ABC, abstractmethod
 from typing import Protocol, Self, TypeVar, cast
 
-from typing_extensions import override
-
 
 class FactoryError(RuntimeError):
     """
     Raised when a class could not be instantiated by a factory API.
     """
 
-    @classmethod
-    def new(cls, new_cls: type) -> Self:
-        """
-        Create a new instance.
-        """
-        return cls(f"Could not instantiate {new_cls}")
-
-
-class InitFactoryError(FactoryError):
-    """
-    Raised when a class could not be instantiated by calling it directly.
-    """
-
-    @override
-    @classmethod
-    def new(cls, new_cls: type) -> Self:
-        return cls(f"Could not instantiate {new_cls} by calling {new_cls.__name__}()")
+    def __init__(self, new_cls: type, /):
+        super().__init__(f"Could not instantiate {new_cls}")
 
 
 class IndependentFactory(ABC):
@@ -66,7 +49,7 @@ async def new(cls: type[_T]) -> _T:
     try:
         return cls()
     except Exception as error:
-        raise InitFactoryError.new(cls) from error
+        raise FactoryError(cls) from error
 
 
 class TargetFactory(ABC):

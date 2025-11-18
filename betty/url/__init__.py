@@ -5,7 +5,7 @@ Provide a URL generation API.
 from __future__ import annotations
 
 from abc import ABC, abstractmethod
-from typing import TYPE_CHECKING, Any, Self
+from typing import TYPE_CHECKING, Any
 from urllib.parse import urlencode, urlparse
 
 from typing_extensions import override
@@ -31,12 +31,8 @@ class UnsupportedResource(GenerationError):
     These are preventable by checking :py:meth:`betty.url.UrlGenerator.supports` first.
     """
 
-    @classmethod
-    def new(cls, resource: Any) -> Self:
-        """
-        Create a new instance.
-        """
-        return cls(f"Unsupported resource: {resource}")
+    def __init__(self, resource: Any):
+        super().__init__(f"Unsupported resource: {resource}")
 
 
 class InvalidMediaType(GenerationError):
@@ -44,14 +40,12 @@ class InvalidMediaType(GenerationError):
     Raised when a URL generator cannot generate a URL for a resource with the given media type.
     """
 
-    @classmethod
-    def new(cls, resource: Any, media_type: MediaType | None) -> Self:
-        """
-        Create a new instance.
-        """
-        if media_type:
-            return cls(f"Unsupported media type '{media_type}' for resource {resource}")
-        return cls(f"Missing media type for resource {resource}")
+    def __init__(self, resource: Any, media_type: MediaType | None):
+        super().__init__(
+            f"Unsupported media type '{media_type}' for resource {resource}"
+            if media_type
+            else f"Missing media type for resource {resource}"
+        )
 
 
 class UrlGenerator(ABC):
