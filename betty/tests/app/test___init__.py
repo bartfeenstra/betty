@@ -38,8 +38,8 @@ class TestApp:
     async def test_cache(self, temporary_app: App) -> None:
         assert temporary_app.cache is temporary_app.cache
 
-    async def test_http_rate_limit_repository(self, temporary_app: App) -> None:
-        assert list(temporary_app.http_rate_limit_repository)
+    async def test__http_rate_limit_repository(self, temporary_app: App) -> None:
+        assert list(temporary_app._http_rate_limit_repository)
 
     async def test_http_client(self, temporary_app: App) -> None:
         assert await temporary_app.http_client is await temporary_app.http_client
@@ -75,5 +75,5 @@ class TestApp:
         dependent = await temporary_app.new_target(Dependent)
         assert dependent.app is temporary_app
 
-    async def test_spdx_license_repository(self, temporary_app: App) -> None:
-        await temporary_app.spdx_license_repository
+    async def test__spdx_license_repository(self, temporary_app: App) -> None:
+        await temporary_app._spdx_license_repository

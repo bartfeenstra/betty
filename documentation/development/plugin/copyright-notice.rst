@@ -1,15 +1,6 @@
 Copyright notice plugins
 ========================
 
-.. list-table::
-   :align: left
-   :stub-columns: 1
-
-   * -  Type
-     -  :py:class:`betty.copyright_notice.CopyrightNotice`
-   * -  Repository
-     -  :py:attr:`betty.project.Project.copyright_notice_repository`
-
 
 Creating a copyright
 --------------------

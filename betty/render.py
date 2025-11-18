@@ -72,7 +72,7 @@ class RendererDefinition(ClassedPluginDefinition[Renderer]):
     type = PluginTypeDefinition(
         id="renderer",
         label=_("Renderer"),
-        repository=AppPluginRepositoryDefinition(lambda app: app.renderer_repository),
+        repository=AppPluginRepositoryDefinition(lambda app: app._renderer_repository),
     )
 
 

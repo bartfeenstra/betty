@@ -10,6 +10,7 @@ from typing_extensions import override
 
 from betty.ancestry.date import HasDate
 from betty.ancestry.description import HasDescription
+from betty.ancestry.event_type import EventTypeDefinition
 from betty.ancestry.event_type.event_types import Unknown as UnknownEventType
 from betty.ancestry.has_citations import HasCitations
 from betty.ancestry.has_file_references import HasFileReferences
@@ -188,12 +189,13 @@ class Event(
     @classmethod
     async def linked_data_schema(cls, project: Project) -> JsonLdObject:
         schema = await super().linked_data_schema(project)
+        event_types = await project.plugins(EventTypeDefinition)
         schema.add_property(
             "name",
             await StaticTranslations.linked_data_schema(project),
             False,
         )
-        schema.add_property("type", project.event_type_repository.plugin_id_schema)
+        schema.add_property("type", event_types.plugin_id_schema)
         schema.add_property("eventStatus", String(title="Event status"))
         schema.add_property(
             "eventAttendanceMode", String(title="Event attendance mode")

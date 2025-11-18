@@ -69,7 +69,7 @@ class Extension(
     @classmethod
     async def requirement(cls, *, app: App) -> Requirement | None:
         return await new_dependencies_requirement(
-            cls.plugin, app.extension_repository, app=app
+            cls.plugin, await app.plugins(ExtensionDefinition), app=app
         )
 
 
@@ -91,7 +91,7 @@ class ExtensionDefinition(
     type = PluginTypeDefinition(
         id="extension",
         label=_("Extension"),
-        repository=AppPluginRepositoryDefinition(lambda app: app.extension_repository),
+        repository=AppPluginRepositoryDefinition(lambda app: app._extension_repository),
     )
 
     def __init__(

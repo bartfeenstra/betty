@@ -14,6 +14,7 @@ from sphinx.errors import ExtensionError
 from sphinx.util import import_object
 
 from betty.app import App
+from betty.console.command import CommandDefinition
 from betty.dirs import ROOT_DIRECTORY_PATH
 from betty.documentation import DocumentationServer
 from betty.functools import Do
@@ -45,7 +46,7 @@ class TestDocumentation:
             ROOT_DIRECTORY_PATH / "documentation" / "usage" / "console.rst"
         ) as f:
             actual = await f.read()
-        for command in temporary_app.command_repository:
+        for command in await temporary_app.plugins(CommandDefinition):
             assert command.id in actual
             assert command.label.localize(DEFAULT_LOCALIZER) in actual
 

@@ -10,6 +10,7 @@ from betty.locale.localizable import Plain
 from betty.locale.localizer import DEFAULT_LOCALIZER
 from betty.project import Project
 from betty.project.config import ProjectConfiguration
+from betty.project.extension import ExtensionDefinition
 from betty.project.extension.gramps import Gramps
 from betty.project.new import new
 from betty.requirement import StaticRequirement
@@ -225,7 +226,8 @@ async def test_new__with_gramps(
         assert Gramps.plugin in configuration.extensions
         async with Project.new_temporary(app) as project, project:
             gramps = await configuration.extensions[Gramps.plugin].new_plugin_instance(
-                project.app.extension_repository, factory=project.new_target
+                await project.plugins(ExtensionDefinition),
+                factory=project.new_target,
             )
             assert isinstance(gramps, Gramps)
             assert (

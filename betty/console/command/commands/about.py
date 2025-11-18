@@ -93,6 +93,7 @@ class About(AppDependentFactory, Command):
         user.console.print(about_project)
 
     async def _about_plugins(self, user: ConsoleUser, project: Project | None) -> None:
+        service_level = self._app if project is None else project
         about_plugins = Table(title=user.localizer._("Plugins"))
         about_plugins.add_column(user.localizer._("Type"), style=self._KEY_STYLE)
         about_plugins.add_column(user.localizer._("ID"))
@@ -102,9 +103,7 @@ class About(AppDependentFactory, Command):
             key=lambda plugin_type: plugin_type.type.label.localize(user.localizer),
         ):
             try:
-                repository = await plugin_type.type.repository(
-                    self._app if project is None else project
-                )
+                repository = await service_level.plugins(plugin_type)
             except PluginRepositoryUnavailable:
                 about_plugins.add_row(
                     plugin_type.type.label.localize(user.localizer),

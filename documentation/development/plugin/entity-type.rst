@@ -1,15 +1,6 @@
 Entity type plugins
 ===================
 
-.. list-table::
-   :align: left
-   :stub-columns: 1
-
-   * -  Type
-     -  :py:class:`betty.model.Entity`
-   * -  Repository
-     -  :py:attr:`betty.app.App.entity_type_repository`
-
 Entity types form the core of a Betty project's ancestry. Each entity type describes a specific type of information,
 such as people or places. Ancestries can be filled with an unlimited number of entities (instances of entity types),
 that together describe a family's history.

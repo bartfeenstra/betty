@@ -67,6 +67,6 @@ class LicenseDefinition(HumanFacingPluginDefinition, ClassedPluginDefinition[Lic
         id="license",
         label=_("License"),
         repository=ProjectPluginRepositoryDefinition(
-            lambda project: project.license_repository
+            lambda project: project._license_repository
         ),
     )

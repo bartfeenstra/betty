@@ -1,15 +1,6 @@
 Gender plugins
 ==============
 
-.. list-table::
-   :align: left
-   :stub-columns: 1
-
-   * -  Type
-     -  :py:class:`betty.ancestry.gender.Gender`
-   * -  Repository
-     -  :py:attr:`betty.project.Project.gender_repository`
-
 
 Creating a gender
 -----------------

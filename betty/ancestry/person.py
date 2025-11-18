@@ -9,6 +9,7 @@ from urllib.parse import quote
 
 from typing_extensions import override
 
+from betty.ancestry.gender import GenderDefinition
 from betty.ancestry.gender.genders import Unknown as UnknownGender
 from betty.ancestry.has_citations import HasCitations
 from betty.ancestry.has_file_references import HasFileReferences
@@ -200,6 +201,7 @@ class Person(HasFileReferences, HasCitations, HasNotes, HasLinks, HasPrivacy):
     @classmethod
     async def linked_data_schema(cls, project: Project) -> JsonLdObject:
         schema = await super().linked_data_schema(project)
-        schema.add_property("gender", project.gender_repository.plugin_id_schema, False)
+        genders = await project.plugins(GenderDefinition)
+        schema.add_property("gender", genders.plugin_id_schema, False)
         schema.add_property("siblings", ToManySchema(title="Siblings"))
         return schema

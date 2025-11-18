@@ -44,6 +44,6 @@ class ContentProviderDefinition(
         id="content-provider",
         label=_("Content provider"),
         repository=ProjectPluginRepositoryDefinition(
-            lambda project: project.content_provider_repository
+            lambda project: project._content_provider_repository
         ),
     )

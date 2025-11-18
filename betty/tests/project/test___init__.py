@@ -173,7 +173,7 @@ class TestProject:
         async with Project.new_temporary(temporary_app) as sut, sut:
             extensions = await sut.extensions
 
-            for betty_extension in temporary_app.extension_repository:
+            for betty_extension in temporary_app._extension_repository:
                 if betty_extension.id.startswith("betty-"):
                     assert betty_extension.id in extensions
 
@@ -367,7 +367,7 @@ class TestProject:
         async with Project.new_temporary(temporary_app) as sut, sut:
             assert await sut.copyright_notice is await sut.copyright_notice
 
-    async def test_copyright_notice_repository(self, temporary_app: App) -> None:
+    async def test__copyright_notice_repository(self, temporary_app: App) -> None:
         async with Project.new_temporary(temporary_app) as sut:
             sut.configuration.copyright_notices.append(
                 CopyrightNoticeDefinitionConfiguration(
@@ -375,13 +375,13 @@ class TestProject:
                 )
             )
             async with sut:
-                sut.copyright_notice_repository.get("foo")
+                sut._copyright_notice_repository.get("foo")
 
     async def test_license(self, temporary_app: App) -> None:
         async with Project.new_temporary(temporary_app) as sut, sut:
             assert await sut.license is await sut.license
 
-    async def test_license_repository(self, temporary_app: App) -> None:
+    async def test__license_repository(self, temporary_app: App) -> None:
         async with Project.new_temporary(temporary_app) as sut:
             sut.configuration.licenses.append(
                 LicenseDefinitionConfiguration(
@@ -389,40 +389,40 @@ class TestProject:
                 )
             )
             async with sut:
-                licenses = await sut.license_repository
+                licenses = await sut._license_repository
                 licenses.get("foo")
 
-    async def test_event_type_repository(self, temporary_app: App) -> None:
+    async def test__event_type_repository(self, temporary_app: App) -> None:
         async with Project.new_temporary(temporary_app) as sut:
             sut.configuration.event_types.append(
                 EventTypeDefinitionConfiguration(id="foo", label="Foo")
             )
             async with sut:
-                sut.event_type_repository.get("foo")
+                sut._event_type_repository.get("foo")
 
-    async def test_place_type_repository(self, temporary_app: App) -> None:
+    async def test__place_type_repository(self, temporary_app: App) -> None:
         async with Project.new_temporary(temporary_app) as sut:
             sut.configuration.place_types.append(
                 PlaceTypeDefinitionConfiguration(id="foo", label="Foo")
             )
             async with sut:
-                sut.place_type_repository.get("foo")
+                sut._place_type_repository.get("foo")
 
-    async def test_presence_role_repository(self, temporary_app: App) -> None:
+    async def test__presence_role_repository(self, temporary_app: App) -> None:
         async with Project.new_temporary(temporary_app) as sut:
             sut.configuration.presence_roles.append(
                 PresenceRoleDefinitionConfiguration(id="foo", label="Foo")
             )
             async with sut:
-                sut.presence_role_repository.get("foo")
+                sut._presence_role_repository.get("foo")
 
-    async def test_gender_repository(self, temporary_app: App) -> None:
+    async def test__gender_repository(self, temporary_app: App) -> None:
         async with Project.new_temporary(temporary_app) as sut:
             sut.configuration.genders.append(
                 GenderDefinitionConfiguration(id="foo", label="Foo")
             )
             async with sut:
-                sut.gender_repository.get("foo")
+                sut._gender_repository.get("foo")
 
     async def test_privatizer(self, temporary_app: App) -> None:
         async with Project.new_temporary(temporary_app) as sut, sut:

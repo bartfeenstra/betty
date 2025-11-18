@@ -34,7 +34,7 @@ class PluginDocumentationTestBase(Generic[_PluginDefinitionT]):
         async with aiofiles.open(documentation_file_path) as f:
             documentation = await f.read()
         async with Project.new_temporary(temporary_app) as project, project:
-            for plugin in await self._plugin_type.type.repository(project):
+            for plugin in await project.plugins(self._plugin_type):
                 if plugin.id.startswith("-"):
                     continue
                 for expected in self._get_expected(plugin):

@@ -374,6 +374,7 @@ _BASELINE: Mapping[str, _ModuleIgnore] = {
             "get": MissingReason.ABSTRACT,
         },
         "PluginRepositoryDefinition": MissingReason.ABSTRACT,
+        "PluginRepositoryProvider": MissingReason.SHOULD_BE_COVERED,
         "PluginRepositoryUnavailable": MissingReason.STATIC_CONTENT_ONLY,
     },
     "betty/plugin/assertion.py": {

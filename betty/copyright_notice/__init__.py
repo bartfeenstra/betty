@@ -69,6 +69,6 @@ class CopyrightNoticeDefinition(
         id="copyright-notice",
         label=_("Copyright notice"),
         repository=ProjectPluginRepositoryDefinition(
-            lambda project: project.copyright_notice_repository
+            lambda project: project._copyright_notice_repository
         ),
     )
