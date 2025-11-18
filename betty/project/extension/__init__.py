@@ -10,14 +10,15 @@ from betty.config import Configuration, DefaultConfigurable
 from betty.job import Context
 from betty.locale.localizable import _
 from betty.plugin import (
-    AppPluginRepositoryDefinition,
     ClassedPlugin,
     ClassedPluginDefinition,
     DependentPluginDefinition,
+    GlobalPluginRepositoryDefinition,
     HumanFacingPluginDefinition,
     OrderedPluginDefinition,
     PluginTypeDefinition,
 )
+from betty.plugin.entry_point import EntryPointPluginRepository
 from betty.plugin.requirement import new_dependencies_requirement
 from betty.project.factory import ProjectDependentFactory
 from betty.requirement import HasRequirement
@@ -91,7 +92,9 @@ class ExtensionDefinition(
     type = PluginTypeDefinition(
         id="extension",
         label=_("Extension"),
-        repository=AppPluginRepositoryDefinition(lambda app: app._extension_repository),
+        repositories=GlobalPluginRepositoryDefinition(
+            lambda: EntryPointPluginRepository(ExtensionDefinition, "betty.extension")
+        ),
     )
 
     def __init__(

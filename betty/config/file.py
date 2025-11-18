@@ -15,7 +15,8 @@ from betty.config import Configuration
 from betty.data import Path as PathContext
 from betty.exception import HumanFacingExceptionGroup
 from betty.factory import new
-from betty.serde.format import format_for, format_repository
+from betty.plugin import plugins
+from betty.serde.format import FormatDefinition, format_for
 
 if TYPE_CHECKING:
     from pathlib import Path
@@ -31,7 +32,7 @@ async def assert_configuration_file(
     """
     available_formats = {
         available_format: await new(available_format.cls)
-        for available_format in format_repository()
+        for available_format in await plugins(FormatDefinition)
     }
 
     def _assert(configuration_file_path: Path) -> _ConfigurationT:
@@ -60,7 +61,7 @@ async def write_configuration_file(
     Write configuration to a file.
     """
     serde_format_type = format_for(
-        list(format_repository()), configuration_file_path.suffix
+        list(await plugins(FormatDefinition)), configuration_file_path.suffix
     )
     serde_format = await new(serde_format_type.cls)
     dump = serde_format.dump(configuration.dump())

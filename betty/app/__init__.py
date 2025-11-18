@@ -14,7 +14,6 @@ from typing_extensions import override
 
 import betty
 import betty.dirs
-from betty import about
 from betty.app import config
 from betty.app.config import AppConfiguration
 from betty.app.factory import AppDependentFactory
@@ -36,14 +35,9 @@ from betty.locale.translation import (
     NoOpTranslationRepository,
     TranslationRepository,
 )
-from betty.model import EntityDefinition
 from betty.multiprocessing import ProcessPoolExecutor
 from betty.plugin import PluginRepositoryProvider, sort_ordered_plugin_graph
-from betty.plugin.entry_point import EntryPointPluginRepository
-from betty.plugin.proxy import ProxyPluginRepository
 from betty.plugin.static import StaticPluginRepository
-from betty.project.extension import ExtensionDefinition
-from betty.render import RendererDefinition
 from betty.service import ServiceFactory, ServiceProvider, StaticService, service
 from betty.typing import threadsafe
 from betty.user.no_op import NoOpUser
@@ -55,7 +49,6 @@ if TYPE_CHECKING:
     import aiohttp
 
     from betty.cache import Cache
-    from betty.console.command import CommandDefinition
     from betty.plugin import PluginRepository
     from betty.user import User
 
@@ -83,28 +76,16 @@ class App(
         cache_factory: ServiceFactory[Self, Cache[Any]],
         process_pool: futures.ProcessPoolExecutor | None = None,
         translations: TranslationRepository | None = None,
-        entity_type_repository: PluginRepository[EntityDefinition] | None = None,
-        extension_repository: PluginRepository[ExtensionDefinition] | None = None,
-        command_repository: PluginRepository[CommandDefinition] | None = None,
-        renderer_repository: PluginRepository[RendererDefinition] | None = None,
     ):
         from betty.console.user import ConsoleUser
 
         cls = type(self)
-        super().__init__(configuration=configuration)
+        super().__init__(configuration=configuration, service_level=self)
         self._user = user or ConsoleUser()
         if process_pool is not None:
             cls.process_pool.override(self, process_pool)
         if translations is not None:
             cls.translations.override(self, translations)
-        if entity_type_repository is not None:
-            cls._entity_type_repository.override(self, entity_type_repository)
-        if extension_repository is not None:
-            cls._extension_repository.override(self, extension_repository)
-        if command_repository is not None:
-            cls._command_repository.override(self, command_repository)
-        if renderer_repository is not None:
-            cls._renderer_repository.override(self, renderer_repository)
         self._cache_directory_path = cache_directory_path
         cls.cache.override_factory(self, cache_factory)
 
@@ -135,10 +116,6 @@ class App(
         process_pool: futures.ProcessPoolExecutor | None = None,
         user: User | None = None,
         translations: TranslationRepository | None | False = False,
-        entity_type_repository: PluginRepository[EntityDefinition] | None = None,
-        extension_repository: PluginRepository[ExtensionDefinition] | None = None,
-        command_repository: PluginRepository[CommandDefinition] | None = None,
-        renderer_repository: PluginRepository[RendererDefinition] | None = None,
     ) -> AsyncIterator[Self]:
         """
         Create a new, temporary, isolated application.
@@ -160,10 +137,6 @@ class App(
                 translations=NoOpTranslationRepository()
                 if translations is False
                 else translations,
-                entity_type_repository=entity_type_repository,
-                extension_repository=extension_repository,
-                command_repository=command_repository,
-                renderer_repository=renderer_repository,
             )
 
     @override
@@ -213,10 +186,6 @@ class App(
         The available localizers.
         """
         return LocalizerRepository(await self.translations)
-
-    @service
-    def _http_rate_limit_repository(self) -> PluginRepository[RateLimitDefinition]:
-        return EntryPointPluginRepository(RateLimitDefinition, "betty.http_rate_limit")
 
     @service
     async def http_client(self) -> aiohttp.ClientSession:
@@ -299,32 +268,6 @@ class App(
         if issubclass(cls, AppDependentFactory):
             return cast(_T, await cls.new_for_app(self))
         return await new(cls)
-
-    @service
-    def _entity_type_repository(self) -> PluginRepository[EntityDefinition]:
-        return EntryPointPluginRepository(EntityDefinition, "betty.entity_type")
-
-    @service
-    def _extension_repository(self) -> PluginRepository[ExtensionDefinition]:
-        return EntryPointPluginRepository(ExtensionDefinition, "betty.extension")
-
-    @service
-    def _command_repository(self) -> PluginRepository[CommandDefinition]:
-        from betty.console.command import CommandDefinition
-
-        return ProxyPluginRepository(
-            CommandDefinition,
-            EntryPointPluginRepository(CommandDefinition, "betty.command"),
-            *(
-                [EntryPointPluginRepository(CommandDefinition, "betty.dev.command")]
-                if about.IS_DEVELOPMENT
-                else []
-            ),
-        )
-
-    @service
-    def _renderer_repository(self) -> PluginRepository[RendererDefinition]:
-        return EntryPointPluginRepository(RendererDefinition, "betty.renderer")
 
     @service
     async def _spdx_license_repository(self) -> PluginRepository[LicenseDefinition]:

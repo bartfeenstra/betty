@@ -16,7 +16,6 @@ from betty.plugin import (
     ClassedPluginDefinition,
     GlobalPluginRepositoryDefinition,
     HumanFacingPluginDefinition,
-    PluginRepository,
     PluginTypeDefinition,
 )
 from betty.plugin.entry_point import EntryPointPluginRepository
@@ -65,21 +64,6 @@ class Format:
         """
 
 
-_format_repository: PluginRepository[FormatDefinition] | None = None
-
-
-def format_repository() -> PluginRepository[FormatDefinition]:
-    """
-    Get the format plugin repository.
-    """
-    global _format_repository
-    if _format_repository is None:
-        _format_repository = EntryPointPluginRepository(
-            FormatDefinition, "betty.serde_format"
-        )
-    return _format_repository
-
-
 @final
 class FormatDefinition(HumanFacingPluginDefinition, ClassedPluginDefinition[Format]):
     """
@@ -90,7 +74,9 @@ class FormatDefinition(HumanFacingPluginDefinition, ClassedPluginDefinition[Form
     type = PluginTypeDefinition(
         id="format",
         label=_("(De)serialization format"),
-        repository=GlobalPluginRepositoryDefinition(format_repository),
+        repositories=GlobalPluginRepositoryDefinition(
+            lambda: EntryPointPluginRepository(FormatDefinition, "betty.serde_format")
+        ),
     )
 
 

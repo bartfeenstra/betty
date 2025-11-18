@@ -42,6 +42,7 @@ from betty.project.config import (
     ProjectConfiguration,
 )
 from betty.project.extension import Extension, ExtensionDefinition
+from betty.serde.format import FormatError
 from betty.test_utils.config import DummyConfiguration
 from betty.test_utils.config.collections.mapping import ConfigurationMappingTestBase
 from betty.test_utils.exception import raises_error
@@ -888,15 +889,24 @@ class TestGenderDefinitionConfigurationMapping(
 
 class TestProjectConfiguration:
     async def test_configuration_file_path(self, tmp_path: Path) -> None:
-        old_configuration_file_path = tmp_path / "betty.json"
-        sut = ProjectConfiguration(old_configuration_file_path)
-        assert sut.configuration_file_path == old_configuration_file_path
-        new_configuration_file_path = tmp_path / "betty.yaml"
-        sut.configuration_file_path = new_configuration_file_path
-        assert sut.configuration_file_path == new_configuration_file_path
+        configuration_file_path = tmp_path / "init.json"
+        sut = ProjectConfiguration(configuration_file_path)
+        assert sut.configuration_file_path == configuration_file_path
+
+    async def test_set_configuration_file_path(self, tmp_path: Path) -> None:
+        sut = ProjectConfiguration(tmp_path / "init.json")
+        configuration_file_path = tmp_path / "set.json"
+        await sut.set_configuration_file_path(configuration_file_path)
         # Assert that setting the path to its existing value is a no-op.
-        sut.configuration_file_path = new_configuration_file_path
-        assert sut.configuration_file_path == new_configuration_file_path
+        await sut.set_configuration_file_path(configuration_file_path)
+
+    async def test_set_configuration_file_path__with_unsupported_format(
+        self, tmp_path: Path
+    ) -> None:
+        sut = ProjectConfiguration(tmp_path / "init")
+        configuration_file_path = tmp_path / "set"
+        with pytest.raises(FormatError):
+            await sut.set_configuration_file_path(configuration_file_path)
 
     async def test_project_directory_path(self, tmp_path: Path) -> None:
         sut = ProjectConfiguration(tmp_path / "betty.json")

@@ -18,13 +18,8 @@ from typing_extensions import TypeVar, override
 import betty
 import betty.dirs
 from betty.ancestry import Ancestry
-from betty.ancestry.event_type import EventTypeDefinition
-from betty.ancestry.gender import GenderDefinition
-from betty.ancestry.place_type import PlaceTypeDefinition
-from betty.ancestry.presence_role import PresenceRoleDefinition
 from betty.asset import AssetRepository, ProxyAssetRepository, StaticAssetRepository
 from betty.config import Configurable
-from betty.content_provider import ContentProviderDefinition
 from betty.copyright_notice import CopyrightNotice, CopyrightNoticeDefinition
 from betty.data import Key
 from betty.exception import HumanFacingExceptionGroup
@@ -46,9 +41,6 @@ from betty.plugin import (
     resolve_id,
     sort_dependent_plugin_graph,
 )
-from betty.plugin.entry_point import EntryPointPluginRepository
-from betty.plugin.proxy import ProxyPluginRepository
-from betty.plugin.static import StaticPluginRepository
 from betty.privacy.privatizer import Privatizer
 from betty.project.config import ProjectConfiguration
 from betty.project.extension import Extension, ExtensionDefinition
@@ -69,7 +61,7 @@ if TYPE_CHECKING:
     from betty.jinja2 import Environment
     from betty.license import License
     from betty.machine_name import MachineName
-    from betty.plugin import PluginIdentifier, PluginRepository
+    from betty.plugin import PluginIdentifier
     from betty.progress import Progress
     from betty.url import UrlGenerator
 
@@ -98,14 +90,10 @@ class Project(
         configuration: ProjectConfiguration,
         *,
         ancestry: Ancestry | None = None,
-        event_type_repository: PluginRepository[EventTypeDefinition] | None = None,
     ):
-        cls = type(self)
-        super().__init__(configuration=configuration)
+        super().__init__(configuration=configuration, service_level=self)
         self._app = app
         self._ancestry = Ancestry() if ancestry is None else ancestry
-        if event_type_repository is not None:
-            cls._event_type_repository.override(self, event_type_repository)
 
     @classmethod
     @asynccontextmanager
@@ -115,7 +103,6 @@ class Project(
         *,
         configuration: ProjectConfiguration | None = None,
         ancestry: Ancestry | None = None,
-        event_type_repository: PluginRepository[EventTypeDefinition] | None = None,
     ) -> AsyncIterator[Self]:
         """
         Creat a new, temporary, isolated project.
@@ -135,7 +122,6 @@ class Project(
                 app,
                 configuration=configuration,
                 ancestry=ancestry,
-                event_type_repository=event_type_repository,
             )
 
     @override
@@ -356,87 +342,12 @@ class Project(
         )
 
     @service
-    def _copyright_notice_repository(
-        self,
-    ) -> PluginRepository[CopyrightNoticeDefinition]:
-        return ProxyPluginRepository(
-            CopyrightNoticeDefinition,
-            EntryPointPluginRepository(
-                CopyrightNoticeDefinition, "betty.copyright_notice"
-            ),
-            StaticPluginRepository(
-                CopyrightNoticeDefinition,
-                *self.configuration.copyright_notices.new_plugins(),
-            ),
-        )
-
-    @service
     async def license(self) -> License:
         """
         The overall project license.
         """
         return await self.configuration.license.new_plugin_instance(
             await self.plugins(LicenseDefinition), factory=self.new_target
-        )
-
-    @service
-    async def _license_repository(self) -> PluginRepository[LicenseDefinition]:
-        return ProxyPluginRepository(
-            LicenseDefinition,
-            EntryPointPluginRepository(LicenseDefinition, "betty.license"),
-            await self._app._spdx_license_repository,
-            StaticPluginRepository(
-                LicenseDefinition, *self.configuration.licenses.new_plugins()
-            ),
-        )
-
-    @service
-    def _event_type_repository(self) -> PluginRepository[EventTypeDefinition]:
-        return ProxyPluginRepository(
-            EventTypeDefinition,
-            EntryPointPluginRepository(EventTypeDefinition, "betty.event_type"),
-            StaticPluginRepository(
-                EventTypeDefinition, *self.configuration.event_types.new_plugins()
-            ),
-        )
-
-    @service
-    def _place_type_repository(self) -> PluginRepository[PlaceTypeDefinition]:
-        return ProxyPluginRepository(
-            PlaceTypeDefinition,
-            EntryPointPluginRepository(PlaceTypeDefinition, "betty.place_type"),
-            StaticPluginRepository(
-                PlaceTypeDefinition, *self.configuration.place_types.new_plugins()
-            ),
-        )
-
-    @service
-    def _presence_role_repository(self) -> PluginRepository[PresenceRoleDefinition]:
-        return ProxyPluginRepository(
-            PresenceRoleDefinition,
-            EntryPointPluginRepository(PresenceRoleDefinition, "betty.presence_role"),
-            StaticPluginRepository(
-                PresenceRoleDefinition,
-                *self.configuration.presence_roles.new_plugins(),
-            ),
-        )
-
-    @service
-    def _gender_repository(self) -> PluginRepository[GenderDefinition]:
-        return ProxyPluginRepository(
-            GenderDefinition,
-            EntryPointPluginRepository(GenderDefinition, "betty.gender"),
-            StaticPluginRepository(
-                GenderDefinition, *self.configuration.genders.new_plugins()
-            ),
-        )
-
-    @service
-    def _content_provider_repository(
-        self,
-    ) -> PluginRepository[ContentProviderDefinition]:
-        return EntryPointPluginRepository(
-            ContentProviderDefinition, "betty.content_provider"
         )
 
     @service

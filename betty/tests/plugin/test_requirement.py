@@ -32,7 +32,7 @@ class HasRequirementPluginDefinition(
     type = PluginTypeDefinition(
         id="-",
         label=Plain("HasRequirement"),
-        repository=GlobalPluginRepositoryDefinition(
+        repositories=GlobalPluginRepositoryDefinition(
             lambda: StaticPluginRepository(HasRequirementPluginDefinition)
         ),
     )

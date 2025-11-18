@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Betty VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2025-11-17 21:03+0000\n"
+"POT-Creation-Date: 2025-11-18 18:10+0000\n"
 "PO-Revision-Date: 2025-11-16 18:38+0000\n"
 "Last-Translator: Артур Калагов "
 "<artur.kalagov@users.noreply.hosted.weblate.org>\n"
@@ -363,8 +363,8 @@ msgid "Could not extract {file_path} as a gzipped tar file  (*.tar.gz)."
 msgstr "Не удалось распаковать {file_path} как сжатый файл tar (*.tar.gz)."
 
 #, python-brace-format
-msgid "Could not find a plugin \"{plugin_id}\"."
-msgstr "Не удалось найти плагин \"{plugin_id}\"."
+msgid "Could not find a(n) {plugin_type} plugin \"{plugin_id}\"."
+msgstr ""
 
 #, python-brace-format
 msgid ""

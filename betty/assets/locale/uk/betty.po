@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Betty 0.4\n"
 "Report-Msgid-Bugs-To: illia@maier.page\n"
-"POT-Creation-Date: 2025-11-17 21:03+0000\n"
+"POT-Creation-Date: 2025-11-18 18:10+0000\n"
 "PO-Revision-Date: 2025-05-13 17:01+0000\n"
 "Last-Translator: Максим Горпиніч <maksimgorpinic4@gmail.com>\n"
 "Language: uk\n"
@@ -356,8 +356,8 @@ msgid "Could not extract {file_path} as a gzipped tar file  (*.tar.gz)."
 msgstr "Не вдалося розпакувати {file_path} як архівований gzip файл (*.tar.gz)."
 
 #, python-brace-format
-msgid "Could not find a plugin \"{plugin_id}\"."
-msgstr "Не вдалося знайти плагін \"{plugin_id}\"."
+msgid "Could not find a(n) {plugin_type} plugin \"{plugin_id}\"."
+msgstr ""
 
 #, python-brace-format
 msgid ""

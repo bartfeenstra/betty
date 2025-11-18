@@ -185,7 +185,7 @@ class DummyPluginDefinition(PluginDefinition):
     type = PluginTypeDefinition(
         id="dummy-plugin",
         label=Plain("Dummy plugin"),
-        repository=GlobalPluginRepositoryDefinition(
+        repositories=GlobalPluginRepositoryDefinition(
             lambda: StaticPluginRepository(
                 DummyPluginDefinition,
                 DUMMY_PLUGIN_ONE,  # type: ignore[has-type]
@@ -229,7 +229,7 @@ class ClassedDummyPluginDefinition(ClassedPluginDefinition[ClassedDummyPlugin]):
     type = PluginTypeDefinition(
         id="classed-dummy-plugin",
         label=Plain("Classed dummy plugin"),
-        repository=GlobalPluginRepositoryDefinition(
+        repositories=GlobalPluginRepositoryDefinition(
             lambda: StaticPluginRepository(
                 ClassedDummyPluginDefinition,
                 ClassedDummyPluginOne.plugin,
@@ -286,7 +286,7 @@ class ConfigurableDummyPluginDefinition(
     type = PluginTypeDefinition(
         id="configurable-dummy-plugin",
         label=Plain("Configurable dummy plugin"),
-        repository=GlobalPluginRepositoryDefinition(
+        repositories=GlobalPluginRepositoryDefinition(
             lambda: StaticPluginRepository(
                 ConfigurableDummyPluginDefinition,
                 ConfigurableDummyPluginOne.plugin,
