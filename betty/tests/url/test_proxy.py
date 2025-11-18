@@ -56,7 +56,7 @@ class TestProxyUrlGenerator:
             media_type: MediaType | None = None,
             query: Mapping[str, Sequence[str]] | None = None,
         ) -> str:
-            raise UnsupportedResource.new(resource)  # pragma: nocover
+            raise UnsupportedResource(resource)  # pragma: nocover
 
     @pytest.mark.parametrize(
         ("expected", "upstreams", "resource"),

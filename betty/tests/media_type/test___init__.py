@@ -328,5 +328,5 @@ def test_match_extension__with_unsupported_media_type(
 
 class TestUnsupportedMediaType:
     def test_new(self) -> None:
-        sut = UnsupportedMediaType.new(PLAIN_TEXT)
+        sut = UnsupportedMediaType(PLAIN_TEXT)
         assert str(PLAIN_TEXT) in str(sut)

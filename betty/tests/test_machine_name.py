@@ -71,7 +71,7 @@ async def test_assert_machine_name__with_invalid_value(
 
 class TestInvalidMachineName:
     async def test_new(self) -> None:
-        InvalidMachineName.new("my-first-machine-name")
+        InvalidMachineName("my-first-machine-name")
 
 
 @pytest.mark.parametrize(

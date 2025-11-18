@@ -46,4 +46,4 @@ class ProxyUrlGenerator(UrlGenerator):
                     media_type=media_type,
                     query=query,
                 )
-        raise UnsupportedResource.new(resource)
+        raise UnsupportedResource(resource)

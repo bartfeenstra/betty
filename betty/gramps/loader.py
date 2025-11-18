@@ -430,7 +430,7 @@ class GrampsLoader:
                 xml = f.read()
             await self._load_xml(xml)
         except FileNotFoundError:
-            raise GrampsFileNotFound.new(gramps_path) from None
+            raise GrampsFileNotFound(gramps_path) from None
         except OSError as error:
             raise UserFacingGrampsError(
                 _("Could not extract {file_path} as a gzip file  (*.gz).").format(
@@ -453,7 +453,7 @@ class GrampsLoader:
                     )
                 )
             except FileNotFoundError:
-                raise GrampsFileNotFound.new(gpkg_path) from None
+                raise GrampsFileNotFound(gpkg_path) from None
             except (OSError, tarfile.ReadError) as error:
                 raise UserFacingGrampsError(
                     _(

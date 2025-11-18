@@ -5,7 +5,7 @@ Define portable machine names.
 from __future__ import annotations
 
 import re
-from typing import Any, Self, TypeAlias, TypeGuard
+from typing import Any, TypeAlias, TypeGuard
 
 from betty.assertion import AssertionChain, assert_str
 from betty.exception import HumanFacingException
@@ -36,12 +36,8 @@ class InvalidMachineName(HumanFacingException, ValueError):
     Raised when something is not a valid machine name.
     """
 
-    @classmethod
-    def new(cls, value: str) -> Self:
-        """
-        Create a new instance.
-        """
-        return cls(
+    def __init__(self, value: str, /):
+        super().__init__(
             _(
                 '"{value}" is not a valid machine name: only lowercase letters, digits, and hyphens (-) are allowed.'
             ).format(value=value)
@@ -55,7 +51,7 @@ def assert_machine_name() -> AssertionChain[Any, MachineName]:
 
     def _assert(value: Any) -> MachineName:
         if not validate_machine_name(value):
-            raise InvalidMachineName.new(value)
+            raise InvalidMachineName(value)
         return value
 
     return assert_str() | _assert

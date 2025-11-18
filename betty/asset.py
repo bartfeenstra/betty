@@ -9,7 +9,7 @@ from asyncio import to_thread
 from contextlib import suppress
 from os import walk
 from pathlib import Path
-from typing import TYPE_CHECKING, Self
+from typing import TYPE_CHECKING
 
 from typing_extensions import override
 
@@ -31,12 +31,8 @@ class UnknownAsset(AssetError):
     Raised when a requested asset cannot be found.
     """
 
-    @classmethod
-    def new(cls, path: Path, assets_directory_paths: Iterable[Path]) -> Self:
-        """
-        Create a new instance.
-        """
-        return cls(
+    def __init__(self, path: Path, assets_directory_paths: Iterable[Path], /):
+        super().__init__(
             f"Asset {path} cannot be found in any of: {', '.join(map(str, assets_directory_paths))}"
         )
 

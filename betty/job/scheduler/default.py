@@ -135,7 +135,7 @@ class DefaultScheduler(Generic[_ContextCoT], Scheduler[_ContextCoT]):
             self._releasable_jobs_sorter = None
             for job in jobs:
                 if not isinstance(self._jobs[job.id], _UnknownJob):
-                    raise DuplicateJobError.new(job.id)
+                    raise DuplicateJobError(job.id)
                 if job.dependents:
                     if self._released:
                         raise Released
@@ -159,7 +159,7 @@ class DefaultScheduler(Generic[_ContextCoT], Scheduler[_ContextCoT]):
             try:
                 self._releasable_jobs_sorter.prepare()
             except CycleError as error:
-                raise CyclicDependencyError.new(error.args[1]) from None
+                raise CyclicDependencyError(error.args[1]) from None
 
         possibly_newly_releasable_job_ids = self._releasable_jobs_sorter.get_ready()
         if possibly_newly_releasable_job_ids:
@@ -204,7 +204,7 @@ class DefaultScheduler(Generic[_ContextCoT], Scheduler[_ContextCoT]):
                 and not self._released_jobs
                 and unknown_job_id is not None
             ):
-                raise UnknownJobError.new(unknown_job_id)
+                raise UnknownJobError(unknown_job_id)
 
     @override  # noqa RET503
     async def get(self) -> ScheduledJobBatch:  # type: ignore[return]

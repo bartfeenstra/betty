@@ -520,7 +520,7 @@ def assert_file_path() -> AssertionChain[Any, Path]:
     def _assert_file_path(file_path: Path) -> Path:
         if file_path.is_file():
             return file_path
-        raise FileNotFound.new(file_path)
+        raise FileNotFound(file_path)
 
     return assert_path() | _assert_file_path
 
