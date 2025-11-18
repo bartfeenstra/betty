@@ -1,9 +1,12 @@
+from pathlib import Path
 from typing import TYPE_CHECKING
 
 import pytest
 from typing_extensions import override
 
 from betty.ancestry.event import Event
+from betty.ancestry.file import File
+from betty.ancestry.file_reference import FileReference
 from betty.ancestry.person import Person
 from betty.ancestry.place import Place
 from betty.app import App
@@ -19,6 +22,7 @@ from betty.project.extension.raspberry_mint import RaspberryMint
 from betty.project.extension.raspberry_mint.content_provider import (
     Family,
     FeaturedEntities,
+    Media,
     Section,
     SectionConfiguration,
 )
@@ -64,8 +68,8 @@ class TestFeaturedEntities(
                 sut = await FeaturedEntities.new_for_project(project)
                 sut.configuration.append(EntityReference(entity.plugin, entity.id))
                 provided_content = await sut.provide(resource=new_context())
-                assert provided_content is not None
-                assert entity.public_id in provided_content
+        assert provided_content is not None
+        assert entity.public_id in provided_content
 
 
 class TestSectionConfiguration:
@@ -181,7 +185,7 @@ class TestSection(ConfigurationDependentSelfFactoryTestBase[SectionConfiguration
             project.configuration.extensions.enable(RaspberryMint)
             async with project:
                 sut = await Section.new_for_project(project)
-                assert await sut.provide(resource=new_context()) is None
+            assert await sut.provide(resource=new_context()) is None
 
     async def test_provide__with_content(self, temporary_app: App) -> None:
         async with Project.new_temporary(temporary_app) as project:
@@ -195,9 +199,9 @@ class TestSection(ConfigurationDependentSelfFactoryTestBase[SectionConfiguration
                     )
                 )
                 actual = await sut.provide(resource=new_context())
-                assert actual is not None
-                assert "My First Section" in actual
-                assert "My First Content" in actual
+        assert actual is not None
+        assert "My First Section" in actual
+        assert "My First Content" in actual
 
     async def test_provide__with_name(self, temporary_app: App) -> None:
         async with Project.new_temporary(temporary_app) as project:
@@ -212,8 +216,8 @@ class TestSection(ConfigurationDependentSelfFactoryTestBase[SectionConfiguration
                     )
                 )
                 actual = await sut.provide(resource=new_context())
-                assert actual is not None
-                assert "my-first-section" in actual
+        assert actual is not None
+        assert "my-first-section" in actual
 
     async def test_provide__with_visually_hide_heading(
         self, temporary_app: App
@@ -230,8 +234,8 @@ class TestSection(ConfigurationDependentSelfFactoryTestBase[SectionConfiguration
                     )
                 )
                 actual = await sut.provide(resource=new_context())
-                assert actual is not None
-                assert "visually-hidden" in actual
+        assert actual is not None
+        assert "visually-hidden" in actual
 
 
 class TestFamily:
@@ -251,7 +255,7 @@ class TestFamily:
             project.configuration.extensions.enable(RaspberryMint)
             async with project:
                 sut = await Family.new_for_project(project)
-                assert await sut.provide(resource=new_context(resource)) is None
+        assert await sut.provide(resource=new_context(resource)) is None
 
     async def test_provide__with_person(self, temporary_app: App) -> None:
         parent = Person(id="parent")
@@ -262,7 +266,43 @@ class TestFamily:
             project.ancestry.add(resource)
             async with project:
                 sut = await Family.new_for_project(project)
-                provided_content = await sut.provide(resource=new_context(resource))
-                assert provided_content is not None
-                assert parent.public_id in provided_content
-                assert child.public_id in provided_content
+                actual = await sut.provide(resource=new_context(resource))
+        assert actual is not None
+        assert parent.public_id in actual
+        assert child.public_id in actual
+
+
+class TestMedia:
+    async def test_provide__without_has_file_references(
+        self, temporary_app: App
+    ) -> None:
+        async with Project.new_temporary(temporary_app) as project:
+            project.configuration.extensions.enable(RaspberryMint)
+            async with project:
+                sut = await Media.new_for_project(project)
+                provided_content = await sut.provide(resource=new_context(object()))
+        assert provided_content is None
+
+    async def test_provide__with_has_file_references_without_file_references(
+        self, temporary_app: App
+    ) -> None:
+        resource = Person()
+        async with Project.new_temporary(temporary_app) as project:
+            project.configuration.extensions.enable(RaspberryMint)
+            async with project:
+                sut = await Media.new_for_project(project)
+                assert await sut.provide(resource=new_context(resource)) is None
+
+    async def test_provide__with_has_file_references_with_file_references(
+        self, temporary_app: App
+    ) -> None:
+        resource = Person()
+        file = File(Path(__file__))
+        FileReference(resource, file)
+        async with Project.new_temporary(temporary_app) as project:
+            project.configuration.extensions.enable(RaspberryMint)
+            async with project:
+                sut = await Media.new_for_project(project)
+                actual = await sut.provide(resource=new_context(resource))
+        assert actual is not None
+        assert file.label.localize(DEFAULT_LOCALIZER) in actual

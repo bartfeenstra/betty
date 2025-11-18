@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PROJECT VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2025-11-24 13:51+0000\n"
+"POT-Creation-Date: 2025-11-25 00:50+0000\n"
 "PO-Revision-Date: 2025-11-08 23:46+0000\n"
 "Last-Translator: Bart Feenstra <bart@bartfeenstra.com>\n"
 "Language: nl_NL\n"
@@ -756,6 +756,9 @@ msgstr "Huwelijk"
 
 msgid "Media"
 msgstr "Media"
+
+msgid "Media gallery"
+msgstr ""
 
 msgid "Media references"
 msgstr "Mediaverwijzingen"
