@@ -15,6 +15,8 @@ Built-in content providers
     Display one or more entities in cards.
 ``raspberry-mint-section`` (:py:class:`betty.project.extension.raspberry_mint.content_provider.Section`)
     Display other content in a section with a heading and a permanent link.
+``trees-tree`` (:py:class:`betty.project.extension.trees.content_provider.Tree`)
+    Display an interactive family tree for the :doc:`places </usage/ancestry/person.rst>` associated with a resource.
 ``wiki-wikipedia-summary`` (:py:class:`betty.project.extension.wiki.content_provider.WikipediaSummary`)
     Display Wikipedia summaries for the current page resource if it is an entity that can have links.
 
