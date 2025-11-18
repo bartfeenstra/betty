@@ -97,34 +97,15 @@ class Project(
         app: App,
         configuration: ProjectConfiguration,
         *,
-        ancestry: Ancestry,
+        ancestry: Ancestry | None = None,
         event_type_repository: PluginRepository[EventTypeDefinition] | None = None,
     ):
         cls = type(self)
         super().__init__(configuration=configuration)
         self._app = app
-        self._ancestry = ancestry
+        self._ancestry = Ancestry() if ancestry is None else ancestry
         if event_type_repository is not None:
             cls._event_type_repository.override(self, event_type_repository)
-
-    @classmethod
-    async def new(
-        cls,
-        app: App,
-        *,
-        configuration: ProjectConfiguration,
-        ancestry: Ancestry | None = None,
-        event_type_repository: PluginRepository[EventTypeDefinition] | None = None,
-    ) -> Self:
-        """
-        Create a new instance.
-        """
-        return cls(
-            app,
-            configuration,
-            ancestry=Ancestry() if ancestry is None else ancestry,
-            event_type_repository=event_type_repository,
-        )
 
     @classmethod
     @asynccontextmanager
@@ -147,10 +128,10 @@ class Project(
                 project_directory_path_str = await stack.enter_async_context(
                     TemporaryDirectory()
                 )
-                configuration = await ProjectConfiguration.new(
+                configuration = ProjectConfiguration(
                     Path(project_directory_path_str) / "betty.json"
                 )
-            yield await cls.new(
+            yield cls(
                 app,
                 configuration=configuration,
                 ancestry=ancestry,

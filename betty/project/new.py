@@ -66,7 +66,7 @@ async def new(app: App) -> None:
         _("Where do you want to save your project's configuration file?"),
         assertion=_assert_project_configuration_file_path,
     )
-    configuration = await ProjectConfiguration.new(
+    configuration = ProjectConfiguration(
         configuration_file_path,
         entity_types=[
             EntityTypeConfiguration(Person, generate_html_list=True),

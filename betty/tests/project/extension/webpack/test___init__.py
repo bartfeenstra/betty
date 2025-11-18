@@ -68,11 +68,9 @@ class TestWebpack(ExtensionTestBase):
         m_build = mocker.patch("betty.project.extension.webpack.build.Builder.build")
         m_build.side_effect = NpmUnavailable()
 
-        project = await Project.new(
+        project = Project(
             temporary_app,
-            configuration=await ProjectConfiguration.new(
-                tmp_path / "project" / "betty.json"
-            ),
+            configuration=ProjectConfiguration(tmp_path / "project" / "betty.json"),
         )
         project.configuration.extensions.enable(Webpack)
         async with project:

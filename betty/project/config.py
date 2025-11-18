@@ -5,7 +5,7 @@ Provide project configuration.
 from __future__ import annotations
 
 from collections.abc import Iterable, Mapping
-from typing import TYPE_CHECKING, Any, Self, cast, final
+from typing import TYPE_CHECKING, Any, cast, final
 from urllib.parse import urlparse
 
 from typing_extensions import override
@@ -695,64 +695,6 @@ class ProjectConfiguration(Configuration):
         self._locales = LocaleConfigurationMapping(locales or ())
         self._lifetime_threshold = lifetime_threshold
         self._logo = logo
-
-    @classmethod
-    async def new(
-        cls,
-        configuration_file_path: Path,
-        *,
-        url: str = "https://example.com",
-        clean_urls: bool = False,
-        title: ShorthandStaticTranslations = "Betty",
-        author: ShorthandStaticTranslations | None = None,
-        entity_types: Iterable[EntityTypeConfiguration] | None = None,
-        event_types: Iterable[EventTypeDefinitionConfiguration] | None = None,
-        place_types: Iterable[PlaceTypeDefinitionConfiguration] | None = None,
-        presence_roles: Iterable[PresenceRoleDefinitionConfiguration] | None = None,
-        copyright_notice: PluginInstanceConfiguration[
-            CopyrightNoticeDefinition, CopyrightNotice
-        ]
-        | None = None,
-        copyright_notices: Iterable[CopyrightNoticeDefinitionConfiguration]
-        | None = None,
-        license: PluginInstanceConfiguration[LicenseDefinition, License] | None = None,  # noqa A002
-        licenses: Iterable[LicenseDefinitionConfiguration] | None = None,
-        genders: Iterable[GenderDefinitionConfiguration] | None = None,
-        extensions: Iterable[
-            PluginInstanceConfiguration[ExtensionDefinition, Extension]
-        ]
-        | None = None,
-        debug: bool = False,
-        locales: Iterable[LocaleConfiguration] | None = None,
-        lifetime_threshold: int = DEFAULT_LIFETIME_THRESHOLD,
-        name: MachineName | None = None,
-        logo: Path | None = None,
-    ) -> Self:
-        """
-        Create a new instance.
-        """
-        return cls(
-            configuration_file_path,
-            url=url,
-            clean_urls=clean_urls,
-            title=title,
-            author=author,
-            entity_types=entity_types,
-            event_types=event_types,
-            place_types=place_types,
-            presence_roles=presence_roles,
-            copyright_notice=copyright_notice,
-            copyright_notices=copyright_notices,
-            license=license,
-            licenses=licenses,
-            genders=genders,
-            extensions=extensions,
-            debug=debug,
-            locales=locales,
-            lifetime_threshold=lifetime_threshold,
-            name=name,
-            logo=logo,
-        )
 
     @property
     def configuration_file_path(self) -> Path:

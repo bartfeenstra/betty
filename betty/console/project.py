@@ -52,8 +52,8 @@ async def add_project_argument(
     async def _command_function_with_project_argument(
         *, project_configuration_file_path: Path | None = None, **kwargs: Any
     ) -> None:
-        project: Project | None = await Project.new(
-            app, configuration=await ProjectConfiguration.new(Path())
+        project: Project | None = Project(
+            app, configuration=ProjectConfiguration(Path())
         )
         try:
             await _read_project_configuration(project, project_configuration_file_path)
