@@ -247,3 +247,13 @@ class Family(Template, _Base):
     """
     A person's family.
     """
+
+
+@ContentProviderDefinition(
+    id="raspberry-mint-media",
+    label=_("Media gallery"),
+)
+class Media(Template):
+    """
+    Media gallery.
+    """

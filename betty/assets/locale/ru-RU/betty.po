@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Betty VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2025-11-24 13:51+0000\n"
+"POT-Creation-Date: 2025-11-25 00:50+0000\n"
 "PO-Revision-Date: 2025-11-16 18:38+0000\n"
 "Last-Translator: Артур Калагов "
 "<artur.kalagov@users.noreply.hosted.weblate.org>\n"
@@ -754,6 +754,9 @@ msgstr "Брак"
 
 msgid "Media"
 msgstr "Медиа"
+
+msgid "Media gallery"
+msgstr ""
 
 msgid "Media references"
 msgstr "Ссылки на медиа"
