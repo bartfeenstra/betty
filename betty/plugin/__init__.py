@@ -11,9 +11,8 @@ from __future__ import annotations
 
 from abc import ABC, abstractmethod
 from collections import defaultdict
-from collections.abc import (
-    Iterable,
-)
+from collections.abc import Iterable
+from contextlib import contextmanager
 from graphlib import TopologicalSorter
 from importlib import metadata
 from typing import (
@@ -44,6 +43,7 @@ if TYPE_CHECKING:
     from collections.abc import (
         Awaitable,
         Callable,
+        Collection,
         Iterable,
         Iterator,
         Mapping,
@@ -114,7 +114,7 @@ _PluginDefinitionCoT = TypeVar(
 
 
 @final
-class PluginTypeDefinition(Generic[_PluginDefinitionT]):
+class PluginTypeDefinition(Generic[_PluginDefinitionCoT]):
     """
     A plugin type definition.
     """
@@ -124,13 +124,22 @@ class PluginTypeDefinition(Generic[_PluginDefinitionT]):
         *,
         id: MachineName,  # noqa A002
         label: Localizable,
-        repository: PluginRepositoryDefinition[_PluginDefinitionT],
+        repositories: Collection[PluginRepositoryDefinition[_PluginDefinitionCoT]]
+        | PluginRepositoryDefinition[_PluginDefinitionCoT]
+        | None = None,
     ):
         if not validate_machine_name(id):  # type: ignore[redundant-expr]
             raise InvalidMachineName.new(id)
         self._id = id
         self._label = label
-        self._repository = repository
+        if repositories is None:
+            repositories = []
+        elif isinstance(repositories, PluginRepositoryDefinition):
+            repositories = [repositories]
+        else:
+            repositories = list(repositories)
+        self._defined_repositories = repositories
+        self._repositories = self._defined_repositories
 
     @property
     def id(self) -> MachineName:
@@ -147,11 +156,39 @@ class PluginTypeDefinition(Generic[_PluginDefinitionT]):
         return self._label
 
     @property
-    def repository(self) -> PluginRepositoryDefinition[_PluginDefinitionT]:
+    def repositories(
+        self,
+    ) -> Collection[PluginRepositoryDefinition[_PluginDefinitionCoT]]:
         """
-        The plugin repository for this type.
+        The plugin repositories for this type.
         """
-        return self._repository
+        return self._repositories
+
+    def add_repository(
+        self, repository: PluginRepositoryDefinition[_PluginDefinitionCoT], /
+    ) -> None:
+        """
+        Add a plugin repository for this type.
+        """
+        return self._defined_repositories.append(repository)
+
+    @contextmanager
+    def override_repositories(
+        self, plugins: PluginRepository[_PluginDefinitionCoT]
+    ) -> Iterator[None]:
+        """
+        Temporarily override the repositories for this plugin type.
+        """
+        self._repositories = [GlobalPluginRepositoryDefinition(lambda: plugins)]
+        yield
+        self._repositories = self._defined_repositories
+
+    @property
+    def repositories_overridden(self) -> bool:
+        """
+        Whether the repositories are currently overridden.
+        """
+        return self._defined_repositories != self._repositories
 
 
 def plugin_types() -> Mapping[MachineName, type[PluginDefinition]]:
@@ -391,6 +428,7 @@ class PluginNotFound(PluginError, HumanFacingException):
     @classmethod
     def new(
         cls,
+        plugin_type: PluginTypeDefinition,
         plugin_not_found: MachineName,
         available_plugins: Sequence[PluginIdentifier],
         /,
@@ -400,8 +438,8 @@ class PluginNotFound(PluginError, HumanFacingException):
         """
         return cls(
             Paragraph(
-                _('Could not find a plugin "{plugin_id}".').format(
-                    plugin_id=plugin_not_found
+                _('Could not find a(n) {plugin_type} plugin "{plugin_id}".').format(
+                    plugin_type=plugin_type.label, plugin_id=plugin_not_found
                 ),
                 do_you_mean(
                     *[
@@ -466,10 +504,21 @@ class PluginRepositoryDefinition(Generic[_PluginDefinitionT], ABC):
     A plugin repository definition.
     """
 
+    # @todo Rename this to resolve() or something. Let's avoid implementing __call__() anywhere
+    # @todo except if an object MUST be used where Callable is expected.
+    # @todo
+    # @todo
+    # @todo
+    # @todo
+    # @todo
+    # @todo
+    # @todo
+    # @todo
+    # @todo
     @abstractmethod
     async def __call__(
-        self, service_level: ServiceLevel = None, /
-    ) -> PluginRepository[_PluginDefinitionT]:
+        self, service_level: ServiceLevel, /
+    ) -> PluginRepository[_PluginDefinitionT] | None:
         """
         Get the repository for this plugin type.
         """
@@ -494,43 +543,17 @@ class GlobalPluginRepositoryDefinition(
 
     @override
     async def __call__(
-        self, service_level: ServiceLevel = None, /
-    ) -> PluginRepository[_PluginDefinitionT]:
+        self, service_level: ServiceLevel, /
+    ) -> PluginRepository[_PluginDefinitionT] | None:
         if isinstance(self._repository, PluginRepository):
             return self._repository
         return await ensure_await(self._repository())
 
 
-class _FallbackPluginRepositoryDefinition(
-    Generic[_PluginDefinitionT], PluginRepositoryDefinition[_PluginDefinitionT]
-):
-    _fallback: PluginRepositoryDefinition[_PluginDefinitionT] | None
-
-    async def _try_fallback(
-        self, service_level: ServiceLevel = None, /
-    ) -> PluginRepository[_PluginDefinitionT]:
-        if self._fallback:
-            try:
-                return await self._fallback(service_level)
-            except PluginRepositoryUnavailable as error:
-                raise self._create_error(service_level) from error
-        raise self._create_error()
-
-    def _create_error(
-        self, service_level: ServiceLevel = None, /
-    ) -> PluginRepositoryUnavailable:
-        message = (
-            f"This plugin type does not provide a plugin repository for {service_level}"
-            if service_level
-            else "This plugin type does not provide a plugin repository without a context."
-        )
-        return PluginRepositoryUnavailable(message)
-
-
 @final
 @internal
 class AppPluginRepositoryDefinition(
-    _FallbackPluginRepositoryDefinition[_PluginDefinitionT], Generic[_PluginDefinitionT]
+    PluginRepositoryDefinition[_PluginDefinitionT], Generic[_PluginDefinitionT]
 ):
     """
     Define a plugin repository that is available when an :py:class:`betty.app.App` is available.
@@ -540,30 +563,27 @@ class AppPluginRepositoryDefinition(
         self,
         repository: Callable[[App], Awaitable[PluginRepository[_PluginDefinitionT]]]
         | Callable[[App], PluginRepository[_PluginDefinitionT]],
-        fallback: GlobalPluginRepositoryDefinition[_PluginDefinitionT] | None = None,
         /,
     ):
         self._repository = repository
-        self._fallback = fallback
 
     @override
     async def __call__(
-        self, service_level: ServiceLevel = None, /
-    ) -> PluginRepository[_PluginDefinitionT]:
-        from betty.app import App
+        self, service_level: ServiceLevel, /
+    ) -> PluginRepository[_PluginDefinitionT] | None:
         from betty.project import Project
 
+        if service_level is None:
+            return None
         if isinstance(service_level, Project):
             service_level = service_level.app
-        if isinstance(service_level, App):
-            return await ensure_await(self._repository(service_level))
-        return await self._try_fallback(service_level)
+        return await ensure_await(self._repository(service_level))
 
 
 @final
 @internal
 class ProjectPluginRepositoryDefinition(
-    _FallbackPluginRepositoryDefinition[_PluginDefinitionT], Generic[_PluginDefinitionT]
+    PluginRepositoryDefinition[_PluginDefinitionT], Generic[_PluginDefinitionT]
 ):
     """
     Define a plugin repository that is available when a :py:class:`betty.project.Project` is available.
@@ -573,28 +593,24 @@ class ProjectPluginRepositoryDefinition(
         self,
         repository: Callable[[Project], Awaitable[PluginRepository[_PluginDefinitionT]]]
         | Callable[[Project], PluginRepository[_PluginDefinitionT]],
-        fallback: AppPluginRepositoryDefinition[_PluginDefinitionT]
-        | GlobalPluginRepositoryDefinition[_PluginDefinitionT]
-        | None = None,
         /,
     ):
         self._repository = repository
-        self._fallback = fallback
 
     @override
     async def __call__(
-        self, service_level: ServiceLevel = None, /
-    ) -> PluginRepository[_PluginDefinitionT]:
+        self, service_level: ServiceLevel, /
+    ) -> PluginRepository[_PluginDefinitionT] | None:
         from betty.project import Project
 
-        if isinstance(service_level, Project):
-            return await ensure_await(self._repository(service_level))
-        return await self._try_fallback(service_level)
+        if not isinstance(service_level, Project):
+            return None
+        return await ensure_await(self._repository(service_level))
 
 
 @final
 class ExtensionPluginRepositoryDefinition(
-    _FallbackPluginRepositoryDefinition[_PluginDefinitionT], Generic[_PluginDefinitionT]
+    PluginRepositoryDefinition[_PluginDefinitionT], Generic[_PluginDefinitionT]
 ):
     """
     Define a plugin repository that is available when a specific :py:class:`betty.project.extension.Extension` is available.
@@ -607,26 +623,23 @@ class ExtensionPluginRepositoryDefinition(
             [Extension], Awaitable[PluginRepository[_PluginDefinitionT]]
         ]
         | Callable[[Extension], PluginRepository[_PluginDefinitionT]],
-        fallback: GlobalPluginRepositoryDefinition[_PluginDefinitionT] | None = None,
         /,
     ):
         self._extension_id = resolve_id(extension)
         self._repository = repository
-        self._fallback = fallback
 
     @override
     async def __call__(
-        self, service_level: ServiceLevel = None, /
-    ) -> PluginRepository[_PluginDefinitionT]:
+        self, service_level: ServiceLevel, /
+    ) -> PluginRepository[_PluginDefinitionT] | None:
         from betty.project import Project
 
-        if isinstance(service_level, Project):
-            extensions = await service_level.extensions
-            if self._extension_id in extensions:
-                return await ensure_await(
-                    self._repository(extensions[self._extension_id])
-                )
-        return await self._try_fallback(service_level)
+        if not isinstance(service_level, Project):
+            return None
+        extensions = await service_level.extensions
+        if self._extension_id not in extensions:
+            return None
+        return await ensure_await(self._repository(extensions[self._extension_id]))
 
 
 @threadsafe
@@ -635,12 +648,9 @@ class PluginRepositoryProvider:
     Provide plugin repositories.
     """
 
-    def __init__(self, *args: Any, **kwargs: Any):
-        from betty.app import App
-        from betty.project import Project
-
-        assert isinstance(self, (App, Project))
+    def __init__(self, *args: Any, service_level: ServiceLevel, **kwargs: Any):
         super().__init__(*args, **kwargs)
+        self._service_level = service_level
         self._plugin_repositories: MutableMapping[
             PluginDefinition, PluginRepository
         ] = {}
@@ -654,13 +664,37 @@ class PluginRepositoryProvider:
         """
         if isinstance(plugin, str):
             plugin = cast(type[_PluginDefinitionT], plugin_types()[plugin])
+        if plugin.type.repositories_overridden:
+            return await self._build(plugin, plugin.type.repositories)
         if plugin not in self._plugin_repositories:  # type: ignore[comparison-overlap]
             async with self._lock:
                 if plugin not in self._plugin_repositories:  # type: ignore[comparison-overlap]
-                    self._plugin_repositories[plugin] = await plugin.type.repository(  # type: ignore[index]
-                        self,  # type: ignore[arg-type]
+                    self._plugin_repositories[plugin] = await self._build(  # type: ignore[index]
+                        plugin,
+                        plugin.type.repositories,  # type: ignore[arg-type]
                     )
         return self._plugin_repositories[plugin]  # type: ignore[index,return-value]
+
+    async def _build(
+        self,
+        plugin: type[_PluginDefinitionT],
+        definitions: Iterable[PluginRepositoryDefinition[_PluginDefinitionT]],
+    ) -> PluginRepository[_PluginDefinitionT]:
+        from betty.plugin.proxy import ProxyPluginRepository
+
+        repositories = [
+            repository
+            for definition in definitions
+            if (repository := await definition(self._service_level))
+            and repository is not None
+        ]
+        if len(repositories) == 1:
+            return repositories[0]
+        return ProxyPluginRepository(plugin, *repositories)
+
+
+_global_plugins = PluginRepositoryProvider(service_level=None)
+plugins = _global_plugins.plugins
 
 
 class CyclicDependencyError(PluginError):

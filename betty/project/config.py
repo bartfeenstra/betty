@@ -31,9 +31,7 @@ from betty.assertion import (
     assert_str,
 )
 from betty.config import Configuration
-from betty.config.collections.mapping import (
-    OrderedConfigurationMapping,
-)
+from betty.config.collections.mapping import OrderedConfigurationMapping
 from betty.copyright_notice import CopyrightNotice, CopyrightNoticeDefinition
 from betty.data import Key
 from betty.exception import HumanFacingException, HumanFacingExceptionGroup
@@ -48,9 +46,7 @@ from betty.locale.localizable.config import (
 )
 from betty.machine_name import MachineName, assert_machine_name
 from betty.model import Entity, EntityDefinition
-from betty.plugin import (
-    resolve_id,
-)
+from betty.plugin import plugins, resolve_id
 from betty.plugin.config import (
     HumanFacingPluginDefinitionConfiguration,
     OrderedPluginDefinitionConfiguration,
@@ -60,15 +56,12 @@ from betty.plugin.config import (
     PluginInstanceConfigurationMapping,
 )
 from betty.project.extension import Extension, ExtensionDefinition
-from betty.serde.format import format_for, format_repository
+from betty.serde.format import FormatDefinition, format_for
 
 if TYPE_CHECKING:
     from pathlib import Path
 
-    from betty.plugin import (
-        PluginIdentifier,
-        PluginRepository,
-    )
+    from betty.plugin import PluginIdentifier, PluginRepository
     from betty.serde.dump import Dump, DumpMapping
 
 #: The default age by which people are presumed dead.
@@ -703,12 +696,16 @@ class ProjectConfiguration(Configuration):
         """
         return self._configuration_file_path
 
-    @configuration_file_path.setter
-    def configuration_file_path(self, configuration_file_path: Path) -> None:
+    async def set_configuration_file_path(self, configuration_file_path: Path) -> None:
+        """
+        Set the path to the configuration's file.
+        """
         self.assert_mutable()
         if configuration_file_path == self._configuration_file_path:
             return
-        format_for(list(format_repository()), configuration_file_path.suffix)
+        format_for(
+            list(await plugins(FormatDefinition)), configuration_file_path.suffix
+        )
         self._configuration_file_path = configuration_file_path
 
     @property

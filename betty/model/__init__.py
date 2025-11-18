@@ -17,12 +17,13 @@ from betty.locale.localizable import Localizable, _
 from betty.locale.localizer import DEFAULT_LOCALIZER
 from betty.mutability import Mutable
 from betty.plugin import (
-    AppPluginRepositoryDefinition,
     ClassedPlugin,
     ClassedPluginDefinition,
     CountableHumanFacingPluginDefinition,
+    GlobalPluginRepositoryDefinition,
     PluginTypeDefinition,
 )
+from betty.plugin.entry_point import EntryPointPluginRepository
 from betty.string import kebab_case_to_lower_camel_case
 
 if TYPE_CHECKING:
@@ -151,8 +152,8 @@ class EntityDefinition(
     type = PluginTypeDefinition(
         id="entity",
         label=_("Entity"),
-        repository=AppPluginRepositoryDefinition(
-            lambda app: app._entity_type_repository
+        repositories=GlobalPluginRepositoryDefinition(
+            lambda: EntryPointPluginRepository(EntityDefinition, "betty.entity_type")
         ),
     )
 

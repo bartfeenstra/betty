@@ -10,10 +10,13 @@ from betty.locale.localizable import _
 from betty.plugin import (
     ClassedPlugin,
     ClassedPluginDefinition,
+    GlobalPluginRepositoryDefinition,
     HumanFacingPluginDefinition,
     PluginTypeDefinition,
     ProjectPluginRepositoryDefinition,
 )
+from betty.plugin.entry_point import EntryPointPluginRepository
+from betty.plugin.static import StaticPluginRepository
 
 
 class PresenceRole(ClassedPlugin):
@@ -40,7 +43,17 @@ class PresenceRoleDefinition(
     type = PluginTypeDefinition(
         id="presence-role",
         label=_("Presence role"),
-        repository=ProjectPluginRepositoryDefinition(
-            lambda project: project._presence_role_repository
+        repositories=(
+            GlobalPluginRepositoryDefinition(
+                lambda: EntryPointPluginRepository(
+                    PresenceRoleDefinition, "betty.presence_role"
+                )
+            ),
+            ProjectPluginRepositoryDefinition(
+                lambda project: StaticPluginRepository(
+                    PresenceRoleDefinition,
+                    *project.configuration.presence_roles.new_plugins(),
+                )
+            ),
         ),
     )

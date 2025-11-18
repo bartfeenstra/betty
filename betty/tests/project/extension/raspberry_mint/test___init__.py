@@ -19,7 +19,6 @@ from betty.tests.conftest import check_skip_webpack_entry_point_provider
 if TYPE_CHECKING:
     from betty.app import App
     from betty.project.extension import Extension
-    from betty.test_utils.conftest import TemporaryAppFactory
 
 
 class TestRaspberryMint(EntryPointProviderTestBase):
@@ -48,28 +47,23 @@ class TestRaspberryMint(EntryPointProviderTestBase):
 
     @check_skip_webpack_entry_point_provider
     async def test_generate__html_list_for_third_party_entity(
-        self, temporary_app_factory: TemporaryAppFactory
+        self, temporary_app: App
     ) -> None:
-        async with (
-            temporary_app_factory(
-                entity_type_repository=StaticPluginRepository(
-                    EntityDefinition, DummyEntityOne.plugin
-                )
-            ) as app,
-            app,
-            Project.new_temporary(app) as project,
+        with EntityDefinition.type.override_repositories(
+            StaticPluginRepository(EntityDefinition, DummyEntityOne.plugin)
         ):
-            project.configuration.extensions.enable(RaspberryMint)
-            project.configuration.entity_types.replace(
-                EntityTypeConfiguration(DummyEntityOne, generate_html_list=True)
-            )
-            async with project:
-                await generate(project)
-            assert (
-                project.configuration.www_directory_path
-                / DummyEntityOne.plugin.id
-                / "index.html"
-            ).is_file()
+            async with Project.new_temporary(temporary_app) as project:
+                project.configuration.extensions.enable(RaspberryMint)
+                project.configuration.entity_types.replace(
+                    EntityTypeConfiguration(DummyEntityOne, generate_html_list=True)
+                )
+                async with project:
+                    await generate(project)
+                assert (
+                    project.configuration.www_directory_path
+                    / DummyEntityOne.plugin.id
+                    / "index.html"
+                ).is_file()
 
     async def test_regions(self, temporary_app: App) -> None:
         async with Project.new_temporary(temporary_app) as project, project:

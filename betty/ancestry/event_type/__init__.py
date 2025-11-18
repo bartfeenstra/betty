@@ -11,6 +11,7 @@ from betty.locale.localizable import _
 from betty.plugin import (
     ClassedPlugin,
     ClassedPluginDefinition,
+    GlobalPluginRepositoryDefinition,
     HumanFacingPluginDefinition,
     OrderedPluginDefinition,
     PluginIdentifier,
@@ -18,6 +19,8 @@ from betty.plugin import (
     ProjectPluginRepositoryDefinition,
     resolve_id,
 )
+from betty.plugin.entry_point import EntryPointPluginRepository
+from betty.plugin.static import StaticPluginRepository
 
 if TYPE_CHECKING:
     from betty.ancestry.person import Person
@@ -62,8 +65,18 @@ class EventTypeDefinition(
     type = PluginTypeDefinition(
         id="event-type",
         label=_("Event type"),
-        repository=ProjectPluginRepositoryDefinition(
-            lambda project: project._event_type_repository
+        repositories=(
+            GlobalPluginRepositoryDefinition(
+                lambda: EntryPointPluginRepository(
+                    EventTypeDefinition, "betty.event_type"
+                )
+            ),
+            ProjectPluginRepositoryDefinition(
+                lambda project: StaticPluginRepository(
+                    EventTypeDefinition,
+                    *project.configuration.event_types.new_plugins(),
+                )
+            ),
         ),
     )
 

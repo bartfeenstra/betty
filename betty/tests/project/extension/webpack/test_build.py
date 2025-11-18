@@ -14,7 +14,6 @@ from betty.plugin.static import StaticPluginRepository
 from betty.project import Project
 from betty.project.extension import Extension, ExtensionDefinition
 from betty.project.extension.webpack.build import Builder, EntryPointProvider
-from betty.test_utils.conftest import TemporaryAppFactory
 from betty.test_utils.user import StaticUser
 
 
@@ -34,14 +33,9 @@ class DummyEntryPointProviderExtension(EntryPointProvider, Extension):
 
 
 class TestBuilder:
-    async def test_build(
-        self, temporary_app_factory: TemporaryAppFactory, tmp_path: Path
-    ) -> None:
-        async with (
-            temporary_app_factory(
-                extension_repository=StaticPluginRepository(ExtensionDefinition)
-            ) as app,
-            app,
+    async def test_build(self, temporary_app: App, tmp_path: Path) -> None:
+        with ExtensionDefinition.type.override_repositories(
+            StaticPluginRepository(ExtensionDefinition)
         ):
             # Loop instead of parameterization, so we can reuse caches.
             for index, (with_entry_point_provider, debug, root_path) in enumerate(
@@ -55,7 +49,7 @@ class TestBuilder:
                 ]
             ):
                 await self._test_build(
-                    app,
+                    temporary_app,
                     tmp_path / str(index),
                     with_entry_point_provider,
                     debug,

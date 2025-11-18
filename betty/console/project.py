@@ -17,7 +17,7 @@ from betty.exception import HumanFacingException
 from betty.locale.localizable import _
 from betty.project import Project
 from betty.project.config import ProjectConfiguration
-from betty.serde.format import format_repository
+from betty.serde.format import FormatDefinition
 
 
 class ConfigurationFileNotFound(HumanFacingException):
@@ -44,7 +44,7 @@ async def add_project_argument(
         help=localizer._(
             "The path to a Betty project directory or configuration file. Defaults to {default} in the current working directory."
         ).format(
-            default=f"betty.{'|'.join(extension[1:] for serde_format in format_repository() for extension in serde_format.cls.media_type().extensions)}"
+            default=f"betty.{'|'.join(extension[1:] for serde_format in await app.plugins(FormatDefinition) for extension in serde_format.cls.media_type().extensions)}"
         ),
         type=assertion_to_argument_type(assert_path(), localizer=localizer),
     )
@@ -73,7 +73,7 @@ async def _read_project_configuration(
     if provided_configuration_file_path_str is None:
         try_configuration_file_paths = [
             project_directory_path / f"betty{extension}"
-            for serde_format in format_repository()
+            for serde_format in await project.plugins(FormatDefinition)
             for extension in serde_format.cls.media_type().extensions
         ]
         for try_configuration_file_path in try_configuration_file_paths:
@@ -112,7 +112,7 @@ async def _read_project_configuration_file(
         await user.message_debug(error)
         raise
     else:
-        project.configuration.configuration_file_path = configuration_file_path
+        await project.configuration.set_configuration_file_path(configuration_file_path)
         await user.message_information_details(
             _("Loaded the configuration from {configuration_file_path}.").format(
                 configuration_file_path=str(configuration_file_path)

@@ -12,10 +12,13 @@ from betty.mutability import Mutable
 from betty.plugin import (
     ClassedPlugin,
     ClassedPluginDefinition,
+    GlobalPluginRepositoryDefinition,
     HumanFacingPluginDefinition,
     PluginTypeDefinition,
     ProjectPluginRepositoryDefinition,
 )
+from betty.plugin.entry_point import EntryPointPluginRepository
+from betty.plugin.static import StaticPluginRepository
 
 if TYPE_CHECKING:
     from betty.locale.localizable import Localizable
@@ -68,7 +71,17 @@ class CopyrightNoticeDefinition(
     type = PluginTypeDefinition(
         id="copyright-notice",
         label=_("Copyright notice"),
-        repository=ProjectPluginRepositoryDefinition(
-            lambda project: project._copyright_notice_repository
+        repositories=(
+            GlobalPluginRepositoryDefinition(
+                lambda: EntryPointPluginRepository(
+                    CopyrightNoticeDefinition, "betty.copyright_notice"
+                )
+            ),
+            ProjectPluginRepositoryDefinition(
+                lambda project: StaticPluginRepository(
+                    CopyrightNoticeDefinition,
+                    *project.configuration.copyright_notices.new_plugins(),
+                )
+            ),
         ),
     )

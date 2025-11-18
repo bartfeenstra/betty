@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PROJECT VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2025-11-17 21:03+0000\n"
+"POT-Creation-Date: 2025-11-18 18:10+0000\n"
 "PO-Revision-Date: 2025-11-08 23:46+0000\n"
 "Last-Translator: Bart Feenstra <bart@bartfeenstra.com>\n"
 "Language: nl_NL\n"
@@ -359,8 +359,8 @@ msgstr ""
 "uitpakken."
 
 #, python-brace-format
-msgid "Could not find a plugin \"{plugin_id}\"."
-msgstr "Kan de plugin \"{plugin_id}\" niet vinden."
+msgid "Could not find a(n) {plugin_type} plugin \"{plugin_id}\"."
+msgstr ""
 
 #, python-brace-format
 msgid ""

@@ -19,7 +19,6 @@ from betty.project.url import (
     _StaticPathUrlUrlGenerator,
     new_project_url_generator,
 )
-from betty.test_utils.conftest import TemporaryAppFactory
 from betty.test_utils.model import DummyEntityOne
 
 
@@ -333,20 +332,14 @@ class Test_StaticPathUrlUrlGenerator:
     ],
 )
 async def test_new_project_url_generator__supports(
-    expected: bool, resource: Any, temporary_app_factory: TemporaryAppFactory
+    expected: bool, resource: Any, temporary_app: App
 ) -> None:
-    async with (
-        temporary_app_factory(
-            entity_type_repository=StaticPluginRepository(
-                EntityDefinition, DummyEntityOne.plugin
-            )
-        ) as app,
-        app,
-        Project.new_temporary(app) as project,
-        project,
+    with EntityDefinition.type.override_repositories(
+        StaticPluginRepository(EntityDefinition, DummyEntityOne.plugin)
     ):
-        sut = await new_project_url_generator(project)
-        assert sut.supports(resource) == expected
+        async with Project.new_temporary(temporary_app) as project, project:
+            sut = await new_project_url_generator(project)
+            assert sut.supports(resource) == expected
 
 
 @pytest.mark.parametrize(
@@ -400,30 +393,25 @@ async def test_new_project_url_generator__generate(
     absolute: bool,
     locale: LocaleLike | None,
     additional_project_locale: str | None,
-    temporary_app_factory: TemporaryAppFactory,
+    temporary_app: App,
 ) -> None:
-    async with (
-        temporary_app_factory(
-            entity_type_repository=StaticPluginRepository(
-                EntityDefinition, DummyEntityOne.plugin
-            )
-        ) as app,
-        app,
-        Project.new_temporary(app) as project,
+    with EntityDefinition.type.override_repositories(
+        StaticPluginRepository(EntityDefinition, DummyEntityOne.plugin)
     ):
-        if additional_project_locale:
-            project.configuration.locales.append(
-                LocaleConfiguration(additional_project_locale)
-            )
-        project.configuration.clean_urls = clean_urls
-        async with project:
-            sut = await new_project_url_generator(project)
-            assert (
-                sut.generate(
-                    resource,
-                    media_type=media_type,
-                    absolute=absolute,
-                    locale=locale,
+        async with Project.new_temporary(temporary_app) as project:
+            if additional_project_locale:
+                project.configuration.locales.append(
+                    LocaleConfiguration(additional_project_locale)
                 )
-                == expected
-            )
+            project.configuration.clean_urls = clean_urls
+            async with project:
+                sut = await new_project_url_generator(project)
+                assert (
+                    sut.generate(
+                        resource,
+                        media_type=media_type,
+                        absolute=absolute,
+                        locale=locale,
+                    )
+                    == expected
+                )

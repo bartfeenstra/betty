@@ -178,16 +178,11 @@ class TestDeriver:
         async def _new_project(
             event_types: Iterable[EventTypeDefinition],
         ) -> AsyncIterator[Project]:
-            async with (
-                Project.new_temporary(
-                    temporary_app,
-                    event_type_repository=StaticPluginRepository(
-                        EventTypeDefinition, *event_types
-                    ),
-                ) as project,
-                project,
+            with EventTypeDefinition.type.override_repositories(
+                StaticPluginRepository(EventTypeDefinition, *event_types)
             ):
-                yield project
+                async with Project.new_temporary(temporary_app) as project, project:
+                    yield project
 
         return _new_project
 

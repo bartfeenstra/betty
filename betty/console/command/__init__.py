@@ -8,13 +8,15 @@ from abc import abstractmethod
 from collections.abc import Awaitable, Callable
 from typing import TYPE_CHECKING, ClassVar, ParamSpec, TypeAlias, TypeVar, final
 
+from betty import about
 from betty.locale.localizable import _
 from betty.plugin import (
-    AppPluginRepositoryDefinition,
     ClassedPluginDefinition,
+    GlobalPluginRepositoryDefinition,
     HumanFacingPluginDefinition,
     PluginTypeDefinition,
 )
+from betty.plugin.entry_point import EntryPointPluginRepository
 
 if TYPE_CHECKING:
     import argparse
@@ -57,5 +59,15 @@ class CommandDefinition(HumanFacingPluginDefinition, ClassedPluginDefinition[Com
     type = PluginTypeDefinition(
         id="command",
         label=_("Command"),
-        repository=AppPluginRepositoryDefinition(lambda app: app._command_repository),
+        repositories=GlobalPluginRepositoryDefinition(
+            lambda: EntryPointPluginRepository(CommandDefinition, "betty.command")
+        ),
+    )
+
+
+if about.IS_DEVELOPMENT:
+    CommandDefinition.type.add_repository(
+        GlobalPluginRepositoryDefinition(
+            lambda: EntryPointPluginRepository(CommandDefinition, "betty.dev.command")
+        )
     )

@@ -8,11 +8,7 @@ from typing import Generic, TypeVar, final
 from typing_extensions import override
 
 from betty.machine_name import MachineName
-from betty.plugin import (
-    PluginDefinition,
-    PluginNotFound,
-    PluginRepository,
-)
+from betty.plugin import PluginDefinition, PluginNotFound, PluginRepository
 
 _T = TypeVar("_T")
 _PluginDefinitionT = TypeVar("_PluginDefinitionT", bound=PluginDefinition)
@@ -41,7 +37,7 @@ class ProxyPluginRepository(
                 return upstream.get(plugin_id)
             except PluginNotFound:
                 pass
-        raise PluginNotFound.new(plugin_id, list(self)) from None
+        raise PluginNotFound.new(self._plugin.type, plugin_id, list(self)) from None
 
     @override
     def __iter__(self) -> Iterator[_PluginDefinitionT]:

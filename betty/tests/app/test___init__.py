@@ -38,9 +38,6 @@ class TestApp:
     async def test_cache(self, temporary_app: App) -> None:
         assert temporary_app.cache is temporary_app.cache
 
-    async def test__http_rate_limit_repository(self, temporary_app: App) -> None:
-        assert list(temporary_app._http_rate_limit_repository)
-
     async def test_http_client(self, temporary_app: App) -> None:
         assert await temporary_app.http_client is await temporary_app.http_client
 

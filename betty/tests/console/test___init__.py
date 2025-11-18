@@ -17,7 +17,6 @@ from betty.functools import Result, suppress
 from betty.locale.localizable import Plain
 from betty.plugin.static import StaticPluginRepository
 from betty.project import Project
-from betty.test_utils.conftest import TemporaryAppFactory
 from betty.test_utils.console import run
 from betty.user import Verbosity
 
@@ -89,18 +88,13 @@ async def test_main__with_unknown_command(temporary_app: App) -> None:
     ],
 )
 async def test_main__with_user_facing_exception(
-    expected: SystemExitCode,
-    command: CommandDefinition,
-    temporary_app_factory: TemporaryAppFactory,
+    expected: SystemExitCode, command: CommandDefinition, temporary_app: App
 ) -> None:
-    async with (
-        temporary_app_factory(
-            command_repository=StaticPluginRepository(CommandDefinition, command)
-        ) as app,
-        app,
+    with CommandDefinition.type.override_repositories(
+        StaticPluginRepository(CommandDefinition, command)
     ):
         await run(
-            app,
+            temporary_app,
             command.id,
             expected_exit_code=expected,
         )
@@ -123,12 +117,11 @@ def test_main_standalone(
     expected: SystemExitCode, command: CommandDefinition, mocker: MockerFixture
 ) -> None:
     def _target() -> None:
-        mocker.patch(
-            "betty.app.App._command_repository",
-            new=StaticPluginRepository(CommandDefinition, command),
-        )
-        (mocker.patch("sys.argv", new=["betty", command.id]),)
-        main_standalone()
+        mocker.patch("sys.argv", new=["betty", command.id])
+        with CommandDefinition.type.override_repositories(
+            StaticPluginRepository(CommandDefinition, command)
+        ):
+            main_standalone()
 
     # Run this in a thread so as not to conflict with pytest-playwright-asyncio's session-scoped event loop.
     result = Result(_target)
@@ -153,28 +146,20 @@ class TestVerbosity:
         ],
     )
     async def test(
-        self,
-        expected: Verbosity,
-        temporary_app_factory: TemporaryAppFactory,
-        verbosity: str | None,
+        self, expected: Verbosity, temporary_app: App, verbosity: str | None
     ) -> None:
-        async with (
-            temporary_app_factory(
-                command_repository=StaticPluginRepository(
-                    CommandDefinition, _NoOpCommand.plugin
-                )
-            ) as app,
-            app,
-            Project.new_temporary(app) as project,
+        with CommandDefinition.type.override_repositories(
+            StaticPluginRepository(CommandDefinition, _NoOpCommand.plugin)
         ):
-            await write_configuration_file(
-                project.configuration, project.configuration.configuration_file_path
-            )
-            args = ["no-op"]
-            if verbosity is not None:
-                args.append(verbosity)
-            await run(app, *args)
-            assert app.user.verbosity is expected
+            async with Project.new_temporary(temporary_app) as project:
+                await write_configuration_file(
+                    project.configuration, project.configuration.configuration_file_path
+                )
+                args = ["no-op"]
+                if verbosity is not None:
+                    args.append(verbosity)
+                await run(temporary_app, *args)
+                assert temporary_app.user.verbosity is expected
 
 
 async def test_call_command_func() -> None:

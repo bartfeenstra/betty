@@ -12,7 +12,6 @@ from betty.serde.format import (
     FormatError,
     FormatStr,
     format_for,
-    format_repository,
 )
 from betty.test_utils.plugin import ClassedPluginDefinitionClassTestBase
 from betty.typing import Voidable
@@ -70,9 +69,3 @@ def test_format_for__with_known_format() -> None:
 def test_format_for_with_unknown_format() -> None:
     with pytest.raises(FormatError):
         format_for([], ".unknown")
-
-
-def test_format_repository() -> None:
-    sut = format_repository()
-    assert sut is format_repository()
-    assert sut
