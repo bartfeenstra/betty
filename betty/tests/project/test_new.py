@@ -8,8 +8,9 @@ from betty.exception import HumanFacingException
 from betty.locale import DEFAULT_LOCALE
 from betty.locale.localizable import Plain
 from betty.locale.localizer import DEFAULT_LOCALIZER
-from betty.project import ExtensionDefinition, Project
+from betty.project import Project
 from betty.project.config import ProjectConfiguration
+from betty.project.extension import ExtensionDefinition
 from betty.project.extension.gramps import Gramps
 from betty.project.new import new
 from betty.requirement import StaticRequirement

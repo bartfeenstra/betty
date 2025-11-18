@@ -51,6 +51,7 @@ if TYPE_CHECKING:
         Iterable,
         Iterator,
         Mapping,
+        MutableMapping,
         Sequence,
         Set,
     )
@@ -673,6 +674,36 @@ class ExtensionPluginRepositoryDefinition(
                     self._repository(extensions[self._extension_id])
                 )
         return await self._try_fallback(service_level, unavailable=True)
+
+
+class PluginRepositoryProvider:
+    """
+    Provide plugin repositories.
+    """
+
+    def __init__(self, *args: Any, **kwargs: Any):
+        super().__init__(*args, **kwargs)
+        # @todo Maybe if we store data as tuples we can keep things type safe?
+        self._plugin_repositories: MutableMapping[
+            MachineName, MutableMapping[bool, PluginRepository]
+        ] = {}
+
+    async def get_plugin_repository(
+        self: PluginRepositoryProvider & ServiceLevel,
+        plugin: _PluginDefinitionT,
+        *,
+        unavailable: bool = False,
+    ) -> PluginRepository[_PluginDefinitionT]:
+        """
+        Get the plugin repository for a plugin type.
+        """
+        try:
+            return self._plugin_repositories[plugin.id][unavailable]
+        except KeyError:
+            self._plugin_repositories[plugin.id][
+                unavailable
+            ] = await plugin.type.repository(self, unavailable=unavailable)
+            return self._plugin_repositories[plugin.id][unavailable]
 
 
 class CyclicDependencyError(PluginError):

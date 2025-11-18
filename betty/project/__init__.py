@@ -41,7 +41,11 @@ from betty.locale.translation import (
     TranslationRepository,
 )
 from betty.model import Entity, ToManySchema
-from betty.plugin import resolve_id, sort_dependent_plugin_graph
+from betty.plugin import (
+    PluginRepositoryProvider,
+    resolve_id,
+    sort_dependent_plugin_graph,
+)
 from betty.plugin.entry_point import EntryPointPluginRepository
 from betty.plugin.proxy import ProxyPluginRepository
 from betty.plugin.static import StaticPluginRepository
@@ -76,7 +80,12 @@ _ProjectDependentT = TypeVar("_ProjectDependentT")
 
 
 @final
-class Project(Configurable[ProjectConfiguration], TargetFactory, ServiceProvider):
+class Project(
+    Configurable[ProjectConfiguration],
+    TargetFactory,
+    ServiceProvider,
+    PluginRepositoryProvider,
+):
     """
     Define a Betty project.
 
@@ -89,6 +98,7 @@ class Project(Configurable[ProjectConfiguration], TargetFactory, ServiceProvider
         configuration: ProjectConfiguration,
         *,
         ancestry: Ancestry,
+        PluginRepositoryProvider,
     ):
         super().__init__(configuration=configuration)
         self._app = app
