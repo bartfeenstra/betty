@@ -1,15 +1,6 @@
 Console command plugins
 =======================
 
-.. list-table::
-   :align: left
-   :stub-columns: 1
-
-   * -  Type
-     -  :py:class:`betty.console.command.Command`
-   * -  Repository
-     -  :py:class:`betty.app.App.command_repository`
-
 Betty's :doc:`console </usage/console>` allows you to run Betty by invoking commands. These commands
 are built using :py:mod:`argparse`.
 

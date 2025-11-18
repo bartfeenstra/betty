@@ -41,6 +41,6 @@ class PlaceTypeDefinition(
         id="place-type",
         label=_("Place type"),
         repository=ProjectPluginRepositoryDefinition(
-            lambda project: project.place_type_repository
+            lambda project: project._place_type_repository
         ),
     )

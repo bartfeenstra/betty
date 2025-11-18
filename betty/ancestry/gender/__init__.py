@@ -39,6 +39,6 @@ class GenderDefinition(HumanFacingPluginDefinition, ClassedPluginDefinition[Gend
         id="gender",
         label=_("Gender"),
         repository=ProjectPluginRepositoryDefinition(
-            lambda project: project.gender_repository
+            lambda project: project._gender_repository
         ),
     )

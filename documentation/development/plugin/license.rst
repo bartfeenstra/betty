@@ -1,15 +1,6 @@
 License plugins
 ===============
 
-.. list-table::
-   :align: left
-   :stub-columns: 1
-
-   * -  Type
-     -  :py:class:`betty.license.License`
-   * -  Repository
-     -  :py:attr:`betty.project.Project.license_repository`
-
 
 Creating a license
 ------------------

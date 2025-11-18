@@ -41,6 +41,6 @@ class PresenceRoleDefinition(
         id="presence-role",
         label=_("Presence role"),
         repository=ProjectPluginRepositoryDefinition(
-            lambda project: project.presence_role_repository
+            lambda project: project._presence_role_repository
         ),
     )

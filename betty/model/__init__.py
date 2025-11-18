@@ -152,7 +152,7 @@ class EntityDefinition(
         id="entity",
         label=_("Entity"),
         repository=AppPluginRepositoryDefinition(
-            lambda app: app.entity_type_repository
+            lambda app: app._entity_type_repository
         ),
     )
 

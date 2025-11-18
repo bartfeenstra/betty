@@ -12,7 +12,7 @@ from uuid import NAMESPACE_URL, uuid5
 from typing_extensions import override
 
 from betty.ancestry.event import Event
-from betty.ancestry.event_type import ShouldExistEventType
+from betty.ancestry.event_type import EventTypeDefinition, ShouldExistEventType
 from betty.ancestry.person import Person
 from betty.ancestry.presence import Presence
 from betty.ancestry.presence_role.presence_roles import Subject
@@ -23,7 +23,6 @@ from betty.plugin import get_comes_after, get_comes_before
 if TYPE_CHECKING:
     from collections.abc import Collection, Iterable, Sequence
 
-    from betty.ancestry.event_type import EventTypeDefinition
     from betty.project import Project
 
 
@@ -65,7 +64,7 @@ class Deriver:
         """
         Derive additional data.
         """
-        for derivable_event_type in self._project.event_type_repository:
+        for derivable_event_type in await self._project.plugins(EventTypeDefinition):
             created_derivations = 0
             updated_derivations = 0
             for person in self._project.ancestry[Person]:
@@ -96,6 +95,7 @@ class Deriver:
     async def _derive_person(
         self, person: Person, derivable_event_type: EventTypeDefinition
     ) -> tuple[int, int]:
+        event_types = await self._project.plugins(EventTypeDefinition)
         # Gather any existing events that could be derived, or create a new derived event if needed.
         derivable_events: Sequence[tuple[Event, Derivation]] = [
             (event, Derivation.UPDATE)
@@ -129,12 +129,8 @@ class Deriver:
                 return 0, 0
 
         # Aggregate event type order from references and backreferences.
-        comes_before_event_types = get_comes_before(
-            self._project.event_type_repository, derivable_event_type
-        )
-        comes_after_event_types = get_comes_after(
-            self._project.event_type_repository, derivable_event_type
-        )
+        comes_before_event_types = get_comes_before(event_types, derivable_event_type)
+        comes_after_event_types = get_comes_after(event_types, derivable_event_type)
 
         created_derivations = 0
         updated_derivations = 0

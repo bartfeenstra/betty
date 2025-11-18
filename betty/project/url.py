@@ -149,7 +149,9 @@ async def new_project_url_generator(project: Project) -> UrlGenerator:
         await _EntityTypeUrlGenerator.new_for_project(project),
         entity_url_generator,
         _EntityUrlUrlGenerator(
-            project.ancestry, entity_url_generator, project.app.entity_type_repository
+            project.ancestry,
+            entity_url_generator,
+            await project.plugins(EntityDefinition),
         ),
         await _LocalizedPathUrlUrlGenerator.new_for_project(project),
         await _StaticPathUrlUrlGenerator.new_for_project(project),

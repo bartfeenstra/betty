@@ -25,6 +25,7 @@ from betty.locale.localizable import ShorthandStaticTranslations, _
 from betty.locale.localizable.assertion import assert_static_translations
 from betty.locale.localizable.config import RequiredStaticTranslationsConfigurationAttr
 from betty.machine_name import MachineName, assert_machine_name
+from betty.model import EntityDefinition
 from betty.model.config import EntityReferenceSequence
 from betty.plugin.config import (
     PluginInstanceConfigurationSequence,
@@ -158,14 +159,15 @@ class FeaturedEntities(Template, DefaultConfigurable[EntityReferenceSequence]):
 
     @override
     async def _provide_data(self, resource: Context) -> Mapping[str, Any]:
+        entity_types = await self._project.plugins(EntityDefinition)
         entities: MutableSequence[Entity] = []
         for entity in self.configuration:
             assert entity.entity_type is not None
             assert entity.entity_id is not None
             entities.append(
-                self._project.ancestry[
-                    self._project.app.entity_type_repository.get(entity.entity_type)
-                ][entity.entity_id]
+                self._project.ancestry[entity_types.get(entity.entity_type)][
+                    entity.entity_id
+                ]
             )
         return {
             "entities": entities,

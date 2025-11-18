@@ -23,19 +23,21 @@ from typing import (
     Generic,
     Self,
     TypeAlias,
+    cast,
     final,
 )
 
 from typing_extensions import TypeVar, override
 
 from betty.asyncio import ensure_await
+from betty.concurrent import AsynchronizedLock
 from betty.exception import HumanFacingException
 from betty.json.schema import Enum
 from betty.locale.localizable import CountableLocalizable, Paragraph, _, do_you_mean
 from betty.locale.localizer import DEFAULT_LOCALIZER
 from betty.machine_name import InvalidMachineName, MachineName, validate_machine_name
 from betty.string import kebab_case_to_lower_camel_case
-from betty.typing import internal
+from betty.typing import internal, threadsafe
 
 if TYPE_CHECKING:
     import builtins
@@ -45,6 +47,7 @@ if TYPE_CHECKING:
         Iterable,
         Iterator,
         Mapping,
+        MutableMapping,
         Sequence,
         Set,
     )
@@ -53,6 +56,7 @@ if TYPE_CHECKING:
     from betty.locale.localizable import Localizable
     from betty.project import Project
     from betty.project.extension import Extension, ExtensionDefinition
+    from betty.service_level import ServiceLevel
 
 _PluginT = TypeVar("_PluginT")
 
@@ -464,7 +468,7 @@ class PluginRepositoryDefinition(Generic[_PluginDefinitionT], ABC):
 
     @abstractmethod
     async def __call__(
-        self, context: App | Project | None = None
+        self, service_level: ServiceLevel = None, /
     ) -> PluginRepository[_PluginDefinitionT]:
         """
         Get the repository for this plugin type.
@@ -490,7 +494,7 @@ class GlobalPluginRepositoryDefinition(
 
     @override
     async def __call__(
-        self, context: App | Project | None = None
+        self, service_level: ServiceLevel = None, /
     ) -> PluginRepository[_PluginDefinitionT]:
         if isinstance(self._repository, PluginRepository):
             return self._repository
@@ -503,21 +507,21 @@ class _FallbackPluginRepositoryDefinition(
     _fallback: PluginRepositoryDefinition[_PluginDefinitionT] | None
 
     async def _try_fallback(
-        self, context: App | Project | None = None
+        self, service_level: ServiceLevel = None, /
     ) -> PluginRepository[_PluginDefinitionT]:
         if self._fallback:
             try:
-                return await self._fallback(context)
+                return await self._fallback(service_level)
             except PluginRepositoryUnavailable as error:
-                raise self._create_error(context) from error
+                raise self._create_error(service_level) from error
         raise self._create_error()
 
     def _create_error(
-        self, context: App | Project | None = None
+        self, service_level: ServiceLevel = None, /
     ) -> PluginRepositoryUnavailable:
         message = (
-            f"This plugin type does not provide a plugin repository for {context}"
-            if context
+            f"This plugin type does not provide a plugin repository for {service_level}"
+            if service_level
             else "This plugin type does not provide a plugin repository without a context."
         )
         return PluginRepositoryUnavailable(message)
@@ -544,16 +548,16 @@ class AppPluginRepositoryDefinition(
 
     @override
     async def __call__(
-        self, context: App | Project | None = None
+        self, service_level: ServiceLevel = None, /
     ) -> PluginRepository[_PluginDefinitionT]:
         from betty.app import App
         from betty.project import Project
 
-        if isinstance(context, Project):
-            context = context.app
-        if isinstance(context, App):
-            return await ensure_await(self._repository(context))
-        return await self._try_fallback(context)
+        if isinstance(service_level, Project):
+            service_level = service_level.app
+        if isinstance(service_level, App):
+            return await ensure_await(self._repository(service_level))
+        return await self._try_fallback(service_level)
 
 
 @final
@@ -579,13 +583,13 @@ class ProjectPluginRepositoryDefinition(
 
     @override
     async def __call__(
-        self, context: App | Project | None = None
+        self, service_level: ServiceLevel = None, /
     ) -> PluginRepository[_PluginDefinitionT]:
         from betty.project import Project
 
-        if isinstance(context, Project):
-            return await ensure_await(self._repository(context))
-        return await self._try_fallback(context)
+        if isinstance(service_level, Project):
+            return await ensure_await(self._repository(service_level))
+        return await self._try_fallback(service_level)
 
 
 @final
@@ -612,17 +616,51 @@ class ExtensionPluginRepositoryDefinition(
 
     @override
     async def __call__(
-        self, context: App | Project | None = None
+        self, service_level: ServiceLevel = None, /
     ) -> PluginRepository[_PluginDefinitionT]:
         from betty.project import Project
 
-        if isinstance(context, Project):
-            extensions = await context.extensions
+        if isinstance(service_level, Project):
+            extensions = await service_level.extensions
             if self._extension_id in extensions:
                 return await ensure_await(
                     self._repository(extensions[self._extension_id])
                 )
-        return await self._try_fallback(context)
+        return await self._try_fallback(service_level)
+
+
+@threadsafe
+class PluginRepositoryProvider:
+    """
+    Provide plugin repositories.
+    """
+
+    def __init__(self, *args: Any, **kwargs: Any):
+        from betty.app import App
+        from betty.project import Project
+
+        assert isinstance(self, (App, Project))
+        super().__init__(*args, **kwargs)
+        self._plugin_repositories: MutableMapping[
+            PluginDefinition, PluginRepository
+        ] = {}
+        self._lock = AsynchronizedLock.new_threadsafe()
+
+    async def plugins(
+        self, plugin: type[_PluginDefinitionT] | MachineName, /
+    ) -> PluginRepository[_PluginDefinitionT]:
+        """
+        Get the plugin repository for a plugin type.
+        """
+        if isinstance(plugin, str):
+            plugin = cast(type[_PluginDefinitionT], plugin_types()[plugin])
+        if plugin not in self._plugin_repositories:  # type: ignore[comparison-overlap]
+            async with self._lock:
+                if plugin not in self._plugin_repositories:  # type: ignore[comparison-overlap]
+                    self._plugin_repositories[plugin] = await plugin.type.repository(  # type: ignore[index]
+                        self,  # type: ignore[arg-type]
+                    )
+        return self._plugin_repositories[plugin]  # type: ignore[index,return-value]
 
 
 class CyclicDependencyError(PluginError):

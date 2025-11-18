@@ -457,7 +457,9 @@ class GenerateEntityTypesJson(Job[ProjectContext]):
         await gather(
             *[
                 scheduler.add(_GenerateEntityTypeJson(entity_type))
-                for entity_type in scheduler.context.project.app.entity_type_repository
+                for entity_type in await scheduler.context.project.plugins(
+                    EntityDefinition
+                )
             ]
         )
 
@@ -526,7 +528,7 @@ class GenerateEntityTypesHtml(Job[ProjectContext]):
                         entity_type, locale, page, self._per_page, page_count
                     )
                 )
-                for entity_type in project.app.entity_type_repository
+                for entity_type in await project.plugins(EntityDefinition)
                 if entity_type.public_facing
                 and (
                     entity_type in project.configuration.entity_types
@@ -629,7 +631,7 @@ class GenerateEntitiesJson(Job[ProjectContext]):
         await gather(
             *[
                 scheduler.add(_GenerateEntityJson(entity_type, entity.id))
-                for entity_type in project.app.entity_type_repository
+                for entity_type in await project.plugins(EntityDefinition)
                 for entity in project.ancestry[entity_type.cls]
                 if persistent_id(entity)
             ]
@@ -684,7 +686,7 @@ class GenerateEntitiesHtml(Job[ProjectContext]):
         await gather(
             *[
                 scheduler.add(_GenerateEntityHtml(entity_type, entity.id, locale))
-                for entity_type in project.app.entity_type_repository
+                for entity_type in await project.plugins(EntityDefinition)
                 if entity_type.public_facing
                 for entity in project.ancestry[entity_type.cls]
                 if persistent_id(entity) and is_public(entity)

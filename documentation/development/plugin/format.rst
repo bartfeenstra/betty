@@ -1,15 +1,6 @@
 Serialization format plugins
 ============================
 
-.. list-table::
-   :align: left
-   :stub-columns: 1
-
-   * -  Type
-     -  :py:class:`betty.serde.format.Format`
-   * -  Repository
-     -  :py:func:`betty.serde.format.format_repository`
-
 Serialization formats allow serializable data, such as project configuration, to be dumped to and loaded from specific
 (file) formats such as JSON and YAML.
 

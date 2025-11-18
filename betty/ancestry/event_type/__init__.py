@@ -63,7 +63,7 @@ class EventTypeDefinition(
         id="event-type",
         label=_("Event type"),
         repository=ProjectPluginRepositoryDefinition(
-            lambda project: project.event_type_repository
+            lambda project: project._event_type_repository
         ),
     )
 

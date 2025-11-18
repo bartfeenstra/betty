@@ -9,6 +9,7 @@ from typing import TYPE_CHECKING, Self, final
 from jinja2 import pass_context
 from typing_extensions import override
 
+from betty.copyright_notice import CopyrightNoticeDefinition
 from betty.jinja2 import Filters, Globals, Jinja2Provider, context_localizer
 from betty.locale import negotiate_locale
 from betty.locale.localizable import Plain, _
@@ -64,11 +65,10 @@ class Wiki(
     @override
     @classmethod
     async def new_for_project(cls, project: Project) -> Self:
+        copyright_notices = await project.plugins(CopyrightNoticeDefinition)
         return cls(
             project,
-            await project.new_target(
-                (project.copyright_notice_repository["wikipedia-contributors"]).cls
-            ),
+            await project.new_target(copyright_notices["wikipedia-contributors"].cls),
             configuration=cls.new_default_configuration(),
         )
 

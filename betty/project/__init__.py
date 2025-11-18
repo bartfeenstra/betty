@@ -40,8 +40,12 @@ from betty.locale.translation import (
     ProxyTranslationRepository,
     TranslationRepository,
 )
-from betty.model import Entity, ToManySchema
-from betty.plugin import resolve_id, sort_dependent_plugin_graph
+from betty.model import Entity, EntityDefinition, ToManySchema
+from betty.plugin import (
+    PluginRepositoryProvider,
+    resolve_id,
+    sort_dependent_plugin_graph,
+)
 from betty.plugin.entry_point import EntryPointPluginRepository
 from betty.plugin.proxy import ProxyPluginRepository
 from betty.plugin.static import StaticPluginRepository
@@ -50,7 +54,7 @@ from betty.project.config import ProjectConfiguration
 from betty.project.extension import Extension, ExtensionDefinition
 from betty.project.factory import ProjectDependentFactory
 from betty.project.url import new_project_url_generator
-from betty.render import ProxyRenderer, Renderer
+from betty.render import ProxyRenderer, Renderer, RendererDefinition
 from betty.resource import Context as ResourceContext
 from betty.resource import ContextProvider, new_context
 from betty.service import ServiceProvider, service
@@ -76,7 +80,12 @@ _ProjectDependentT = TypeVar("_ProjectDependentT")
 
 
 @final
-class Project(Configurable[ProjectConfiguration], TargetFactory, ServiceProvider):
+class Project(
+    Configurable[ProjectConfiguration],
+    TargetFactory,
+    ServiceProvider,
+    PluginRepositoryProvider,
+):
     """
     Define a Betty project.
 
@@ -89,10 +98,14 @@ class Project(Configurable[ProjectConfiguration], TargetFactory, ServiceProvider
         configuration: ProjectConfiguration,
         *,
         ancestry: Ancestry,
+        event_type_repository: PluginRepository[EventTypeDefinition] | None = None,
     ):
+        cls = type(self)
         super().__init__(configuration=configuration)
         self._app = app
         self._ancestry = ancestry
+        if event_type_repository is not None:
+            cls._event_type_repository.override(self, event_type_repository)
 
     @classmethod
     async def new(
@@ -101,6 +114,7 @@ class Project(Configurable[ProjectConfiguration], TargetFactory, ServiceProvider
         *,
         configuration: ProjectConfiguration,
         ancestry: Ancestry | None = None,
+        event_type_repository: PluginRepository[EventTypeDefinition] | None = None,
     ) -> Self:
         """
         Create a new instance.
@@ -109,6 +123,7 @@ class Project(Configurable[ProjectConfiguration], TargetFactory, ServiceProvider
             app,
             configuration,
             ancestry=Ancestry() if ancestry is None else ancestry,
+            event_type_repository=event_type_repository,
         )
 
     @classmethod
@@ -119,6 +134,7 @@ class Project(Configurable[ProjectConfiguration], TargetFactory, ServiceProvider
         *,
         configuration: ProjectConfiguration | None = None,
         ancestry: Ancestry | None = None,
+        event_type_repository: PluginRepository[EventTypeDefinition] | None = None,
     ) -> AsyncIterator[Self]:
         """
         Creat a new, temporary, isolated project.
@@ -134,7 +150,12 @@ class Project(Configurable[ProjectConfiguration], TargetFactory, ServiceProvider
                 configuration = await ProjectConfiguration.new(
                     Path(project_directory_path_str) / "betty.json"
                 )
-            yield await cls.new(app, configuration=configuration, ancestry=ancestry)
+            yield await cls.new(
+                app,
+                configuration=configuration,
+                ancestry=ancestry,
+                event_type_repository=event_type_repository,
+            )
 
     @override
     async def bootstrap(self) -> None:
@@ -155,7 +176,7 @@ class Project(Configurable[ProjectConfiguration], TargetFactory, ServiceProvider
             errors.catch(Key("entity_types")),
         ):
             await self.configuration.entity_types.validate(
-                self.app.entity_type_repository
+                await self.plugins(EntityDefinition)
             )
 
     @property
@@ -245,7 +266,7 @@ class Project(Configurable[ProjectConfiguration], TargetFactory, ServiceProvider
         return ProxyRenderer(
             [
                 await self.new_target(plugin.cls)
-                for plugin in self.app.renderer_repository
+                for plugin in await self.plugins(RendererDefinition)
             ]
         )
 
@@ -254,18 +275,19 @@ class Project(Configurable[ProjectConfiguration], TargetFactory, ServiceProvider
         """
         The enabled extensions.
         """
+        extensions = await self.plugins(ExtensionDefinition)
         configured_extension_definitions = []
         configured_extension_configurations = {}
         for extension_configuration in self.configuration.extensions.values():
             configured_extension_definitions.append(
-                self.app.extension_repository[extension_configuration.id]
+                extensions[extension_configuration.id]
             )
             configured_extension_configurations[extension_configuration.id] = (
                 extension_configuration
             )
 
         extensions_sorter = await sort_dependent_plugin_graph(
-            self.app.extension_repository, configured_extension_definitions
+            extensions, configured_extension_definitions
         )
         extensions_sorter.prepare()
 
@@ -275,9 +297,7 @@ class Project(Configurable[ProjectConfiguration], TargetFactory, ServiceProvider
             enabled_extension_ids_batch = extensions_sorter.get_ready()
             enabled_extension_batch: MutableSequence[Extension] = []
             for enabled_extension_id in enabled_extension_ids_batch:
-                enabled_extension_definition = self.app.extension_repository[
-                    enabled_extension_id
-                ]
+                enabled_extension_definition = extensions[enabled_extension_id]
                 enabled_extension_requirement = (
                     await enabled_extension_definition.cls.requirement(app=self.app)
                 )
@@ -288,9 +308,7 @@ class Project(Configurable[ProjectConfiguration], TargetFactory, ServiceProvider
                 if enabled_extension_id in configured_extension_configurations:
                     extension = await configured_extension_configurations[
                         enabled_extension_id
-                    ].new_plugin_instance(
-                        self.app.extension_repository, factory=self.new_target
-                    )
+                    ].new_plugin_instance(extensions, factory=self.new_target)
                 else:
                     extension = await self.new_target(enabled_extension_definition.cls)
                 enabled_extension_batch.append(extension)
@@ -353,18 +371,13 @@ class Project(Configurable[ProjectConfiguration], TargetFactory, ServiceProvider
         The overall project copyright.
         """
         return await self.configuration.copyright_notice.new_plugin_instance(
-            self.copyright_notice_repository, factory=self.new_target
+            await self.plugins(CopyrightNoticeDefinition), factory=self.new_target
         )
 
     @service
-    def copyright_notice_repository(
+    def _copyright_notice_repository(
         self,
     ) -> PluginRepository[CopyrightNoticeDefinition]:
-        """
-        The copyright notices available to this project.
-
-        Read more about :doc:`/development/plugin/copyright-notice`.
-        """
         return ProxyPluginRepository(
             CopyrightNoticeDefinition,
             EntryPointPluginRepository(
@@ -382,32 +395,22 @@ class Project(Configurable[ProjectConfiguration], TargetFactory, ServiceProvider
         The overall project license.
         """
         return await self.configuration.license.new_plugin_instance(
-            await self.license_repository, factory=self.new_target
+            await self.plugins(LicenseDefinition), factory=self.new_target
         )
 
     @service
-    async def license_repository(self) -> PluginRepository[LicenseDefinition]:
-        """
-        The licenses available to this project.
-
-        Read more about :doc:`/development/plugin/license`.
-        """
+    async def _license_repository(self) -> PluginRepository[LicenseDefinition]:
         return ProxyPluginRepository(
             LicenseDefinition,
             EntryPointPluginRepository(LicenseDefinition, "betty.license"),
-            await self._app.spdx_license_repository,
+            await self._app._spdx_license_repository,
             StaticPluginRepository(
                 LicenseDefinition, *self.configuration.licenses.new_plugins()
             ),
         )
 
     @service
-    def event_type_repository(self) -> PluginRepository[EventTypeDefinition]:
-        """
-        The event types available to this project.
-
-        Read more about :doc:`/development/plugin/event-type`.
-        """
+    def _event_type_repository(self) -> PluginRepository[EventTypeDefinition]:
         return ProxyPluginRepository(
             EventTypeDefinition,
             EntryPointPluginRepository(EventTypeDefinition, "betty.event_type"),
@@ -417,12 +420,7 @@ class Project(Configurable[ProjectConfiguration], TargetFactory, ServiceProvider
         )
 
     @service
-    def place_type_repository(self) -> PluginRepository[PlaceTypeDefinition]:
-        """
-        The place types available to this project.
-
-        Read more about :doc:`/development/plugin/place-type`.
-        """
+    def _place_type_repository(self) -> PluginRepository[PlaceTypeDefinition]:
         return ProxyPluginRepository(
             PlaceTypeDefinition,
             EntryPointPluginRepository(PlaceTypeDefinition, "betty.place_type"),
@@ -432,12 +430,7 @@ class Project(Configurable[ProjectConfiguration], TargetFactory, ServiceProvider
         )
 
     @service
-    def presence_role_repository(self) -> PluginRepository[PresenceRoleDefinition]:
-        """
-        The presence roles available to this project.
-
-        Read more about :doc:`/development/plugin/presence-role`.
-        """
+    def _presence_role_repository(self) -> PluginRepository[PresenceRoleDefinition]:
         return ProxyPluginRepository(
             PresenceRoleDefinition,
             EntryPointPluginRepository(PresenceRoleDefinition, "betty.presence_role"),
@@ -448,12 +441,7 @@ class Project(Configurable[ProjectConfiguration], TargetFactory, ServiceProvider
         )
 
     @service
-    def gender_repository(self) -> PluginRepository[GenderDefinition]:
-        """
-        The genders available to this project.
-
-        Read more about :doc:`/development/plugin/gender`.
-        """
+    def _gender_repository(self) -> PluginRepository[GenderDefinition]:
         return ProxyPluginRepository(
             GenderDefinition,
             EntryPointPluginRepository(GenderDefinition, "betty.gender"),
@@ -463,14 +451,9 @@ class Project(Configurable[ProjectConfiguration], TargetFactory, ServiceProvider
         )
 
     @service
-    def content_provider_repository(
+    def _content_provider_repository(
         self,
     ) -> PluginRepository[ContentProviderDefinition]:
-        """
-        The content providers available to this application.
-
-        Read more about :doc:`/development/plugin/content-provider`.
-        """
         return EntryPointPluginRepository(
             ContentProviderDefinition, "betty.content_provider"
         )
@@ -634,7 +617,7 @@ class ProjectSchema(ProjectDependentFactory, Schema):
         schema._schema["$id"] = await cls.url(project)
 
         # Add entity schemas.
-        for entity_type in project.app.entity_type_repository:
+        for entity_type in await project.plugins(EntityDefinition):
             entity_type_schema = await entity_type.cls.linked_data_schema(project)
             entity_type_schema.embed(schema)
             def_name = f"{kebab_case_to_lower_camel_case(entity_type.id)}EntityCollectionResponse"

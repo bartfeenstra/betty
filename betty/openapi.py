@@ -8,6 +8,7 @@ from betty import about
 from betty.classtools import Singleton
 from betty.json.schema import Schema
 from betty.locale.localizer import DEFAULT_LOCALIZER
+from betty.model import EntityDefinition
 from betty.project import Project, ProjectSchema
 from betty.serde.dump import Dump, DumpMapping
 from betty.string import kebab_case_to_lower_camel_case
@@ -97,7 +98,7 @@ class Specification:
         }
 
         # Add entity operations.
-        for entity_type in self._project.app.entity_type_repository:
+        for entity_type in await self._project.plugins(EntityDefinition):
             if not entity_type.public_facing:
                 continue
             await entity_type.cls.linked_data_schema(self._project)

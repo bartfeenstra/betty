@@ -1,15 +1,6 @@
 Content provider plugins
 ========================
 
-.. list-table::
-   :align: left
-   :stub-columns: 1
-
-   * -  Type
-     -  :py:class:`betty.content_provider.ContentProvider`
-   * -  Repository
-     -  :py:attr:`betty.project.Project.content_provider_repository`
-
 
 Creating a content provider
 ---------------------------

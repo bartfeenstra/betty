@@ -1,15 +1,6 @@
 HTTP rate limit plugins
 =======================
 
-.. list-table::
-   :align: left
-   :stub-columns: 1
-
-   * -  Type
-     -  :py:class:`betty.http_client.rate_limit.RateLimit`
-   * -  Repository
-     -  :py:attr:`betty.app.App.http_rate_limit_repository`
-
 Rate limits ensure that Betty's :py:attr:`HTTP client <betty.app.App.http_client>` does not make more requests to an
 address than that address supports or allows, by enforcing a maximum number of requests per timeframe.
 

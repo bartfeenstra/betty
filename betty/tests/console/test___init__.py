@@ -124,7 +124,7 @@ def test_main_standalone(
 ) -> None:
     def _target() -> None:
         mocker.patch(
-            "betty.app.App.command_repository",
+            "betty.app.App._command_repository",
             new=StaticPluginRepository(CommandDefinition, command),
         )
         (mocker.patch("sys.argv", new=["betty", command.id]),)

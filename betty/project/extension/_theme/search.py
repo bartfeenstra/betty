@@ -18,7 +18,7 @@ from betty.ancestry.file import File
 from betty.ancestry.has_notes import HasNotes
 from betty.ancestry.person import Person
 from betty.ancestry.place import Place
-from betty.model import Entity
+from betty.model import Entity, EntityDefinition
 from betty.privacy import is_private
 from betty.typing import internal
 
@@ -177,6 +177,7 @@ class Index:
         """
         Build the search index.
         """
+        entity_types = await self._project.plugins(EntityDefinition)
         specialized_indexers: Mapping[type[Entity], _EntityTypeIndexer[Entity]] = {
             File: _FileIndexer(self._project),
             Person: _PersonIndexer(self._project),
@@ -193,7 +194,7 @@ class Index:
                     self._build_entities(
                         _FallbackIndexer(self._project), entity_type.cls
                     )
-                    for entity_type in self._project.app.entity_type_repository
+                    for entity_type in entity_types
                     if entity_type.public_facing
                     and entity_type.cls not in specialized_indexers
                 ],
