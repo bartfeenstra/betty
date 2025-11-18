@@ -172,3 +172,13 @@ class FeaturedEntities(Template, DefaultConfigurable[EntityReferenceSequence]):
         return {
             "entities": entities,
         }
+
+
+@ContentProviderDefinition(
+    id="raspberry-mint-family",
+    label=_("Family"),
+)
+class Family(Template):
+    """
+    A person's family.
+    """

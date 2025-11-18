@@ -2,7 +2,9 @@ from typing import TYPE_CHECKING
 
 import pytest
 
+from betty.ancestry.event import Event
 from betty.ancestry.person import Person
+from betty.ancestry.place import Place
 from betty.app import App
 from betty.exception import HumanFacingException
 from betty.locale.localizer import DEFAULT_LOCALIZER
@@ -11,6 +13,7 @@ from betty.plugin.config import PluginInstanceConfiguration
 from betty.project import Project
 from betty.project.extension.raspberry_mint import RaspberryMint
 from betty.project.extension.raspberry_mint.content_provider import (
+    Family,
     FeaturedEntities,
     Section,
     SectionConfiguration,
@@ -193,3 +196,37 @@ class TestSection:
                 actual = await sut.provide(resource=new_context())
                 assert actual is not None
                 assert "visually-hidden" in actual
+
+
+class TestFamily:
+    @pytest.mark.parametrize(
+        "resource",
+        [
+            None,
+            object(),
+            Place(),
+            Event(),
+        ],
+    )
+    async def test_provide__without_person(
+        self, resource: object, temporary_app: App
+    ) -> None:
+        async with Project.new_temporary(temporary_app) as project:
+            project.configuration.extensions.enable(RaspberryMint)
+            async with project:
+                sut = await Family.new_for_project(project)
+                assert await sut.provide(resource=new_context(resource)) is None
+
+    async def test_provide__with_person(self, temporary_app: App) -> None:
+        parent = Person(id="parent")
+        resource = Person(id="resource", parents=[parent])
+        child = Person(id="child", parents=[resource])
+        async with Project.new_temporary(temporary_app) as project:
+            project.configuration.extensions.enable(RaspberryMint)
+            project.ancestry.add(resource)
+            async with project:
+                sut = await Family.new_for_project(project)
+                provided_content = await sut.provide(resource=new_context(resource))
+                assert provided_content is not None
+                assert parent.public_id in provided_content
+                assert child.public_id in provided_content
