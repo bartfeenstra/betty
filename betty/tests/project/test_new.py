@@ -19,7 +19,7 @@ from betty.test_utils.user import StaticUser
 
 
 async def _assert_new(configuration_file_path: Path) -> ProjectConfiguration:
-    configuration = await ProjectConfiguration.new(Path())
+    configuration = ProjectConfiguration(Path())
     return (await assert_configuration_file(configuration))(configuration_file_path)
 
 

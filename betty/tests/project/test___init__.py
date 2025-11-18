@@ -96,16 +96,16 @@ class TestProject:
     async def test_new__without_ancestry(
         self, temporary_app: App, tmp_path: Path
     ) -> None:
-        await Project.new(
+        Project(
             temporary_app,
-            configuration=await ProjectConfiguration.new(tmp_path / "betty.json"),
+            configuration=ProjectConfiguration(tmp_path / "betty.json"),
         )
 
     async def test_new__with_ancestry(self, temporary_app: App, tmp_path: Path) -> None:
         ancestry = Ancestry()
-        sut = await Project.new(
+        sut = Project(
             temporary_app,
-            configuration=await ProjectConfiguration.new(tmp_path / "betty.json"),
+            configuration=ProjectConfiguration(tmp_path / "betty.json"),
             ancestry=ancestry,
         )
         assert sut.ancestry is ancestry
@@ -119,7 +119,7 @@ class TestProject:
     async def test_new_temporary__with_configuration(
         self, temporary_app: App, tmp_path: Path
     ) -> None:
-        configuration = await ProjectConfiguration.new(tmp_path / "betty.json")
+        configuration = ProjectConfiguration(tmp_path / "betty.json")
         async with Project.new_temporary(
             temporary_app, configuration=configuration
         ) as sut:

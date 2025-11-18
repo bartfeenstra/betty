@@ -76,7 +76,7 @@ class TestDocumentation:
         assert match is not None
         dump = match[1]
         assert dump is not None
-        configuration = await ProjectConfiguration.new(tmp_path / "betty.json")
+        configuration = ProjectConfiguration(tmp_path / "betty.json")
         configuration.load(serde_format.load(dump))
 
     async def test_should_contain_builtin_jinja2_filters(self) -> None:

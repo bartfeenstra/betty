@@ -42,7 +42,7 @@ async def create_project(app: App, project_directory_path: Path) -> Project:
     """
     from betty.project.extension.demo import Demo
 
-    configuration = await ProjectConfiguration.new(
+    configuration = ProjectConfiguration(
         project_directory_path / "betty.json",
         name=Demo.plugin.id,
         license=PluginInstanceConfiguration("spdx-gpl-3--0-or-later"),
@@ -133,4 +133,4 @@ async def create_project(app: App, project_directory_path: Path) -> Project:
             LocaleConfiguration("uk"),
         ],
     )
-    return await Project.new(app, configuration=configuration)
+    return Project(app, configuration=configuration)
