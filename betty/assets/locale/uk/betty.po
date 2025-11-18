@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Betty 0.4\n"
 "Report-Msgid-Bugs-To: illia@maier.page\n"
-"POT-Creation-Date: 2025-11-18 18:10+0000\n"
+"POT-Creation-Date: 2025-11-18 22:04+0000\n"
 "PO-Revision-Date: 2025-05-13 17:01+0000\n"
 "Last-Translator: Максим Горпиніч <maksimgorpinic4@gmail.com>\n"
 "Language: uk\n"
@@ -514,6 +514,9 @@ msgstr "Факти"
 
 msgid "Family"
 msgstr "Сім'я"
+
+msgid "Family tree"
+msgstr ""
 
 msgid "Family tree configuration must contain either a \"file\" or a \"name\" key"
 msgstr ""

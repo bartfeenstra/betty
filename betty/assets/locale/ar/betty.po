@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Betty VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2025-11-18 18:10+0000\n"
+"POT-Creation-Date: 2025-11-18 22:04+0000\n"
 "PO-Revision-Date: 2024-11-30 19:00+0000\n"
 "Last-Translator: Bart Feenstra <bart@bartfeenstra.com>\n"
 "Language: ar\n"
@@ -467,6 +467,9 @@ msgstr ""
 
 msgid "Family"
 msgstr "أسرة"
+
+msgid "Family tree"
+msgstr ""
 
 msgid "Family tree configuration must contain either a \"file\" or a \"name\" key"
 msgstr ""
