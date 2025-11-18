@@ -11,11 +11,10 @@ from betty.concurrent import AsynchronizedLock, RateLimiter
 from betty.locale.localizable import _
 from betty.plugin import (
     ClassedPluginDefinition,
-    GlobalPluginRepositoryDefinition,
+    EntryPointDiscovery,
     OrderedPluginDefinition,
     PluginTypeDefinition,
 )
-from betty.plugin.entry_point import EntryPointPluginRepository
 from betty.typing import threadsafe
 
 if TYPE_CHECKING:
@@ -101,9 +100,5 @@ class RateLimitDefinition(OrderedPluginDefinition, ClassedPluginDefinition[RateL
     type = PluginTypeDefinition(
         id="http-rate-limit",
         label=_("HTTP client rate limit"),
-        repositories=GlobalPluginRepositoryDefinition(
-            lambda: EntryPointPluginRepository(
-                RateLimitDefinition, "betty.http_rate_limit"
-            )
-        ),
+        discoveries=EntryPointDiscovery("betty.http_rate_limit"),
     )

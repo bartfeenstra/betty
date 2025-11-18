@@ -10,7 +10,6 @@ from betty._npm import NpmUnavailable
 from betty.app import App
 from betty.job import Context
 from betty.locale.localizable import Plain
-from betty.plugin.static import StaticPluginRepository
 from betty.project import Project
 from betty.project.extension import Extension, ExtensionDefinition
 from betty.project.extension.webpack.build import Builder, EntryPointProvider
@@ -34,9 +33,7 @@ class DummyEntryPointProviderExtension(EntryPointProvider, Extension):
 
 class TestBuilder:
     async def test_build(self, temporary_app: App, tmp_path: Path) -> None:
-        with ExtensionDefinition.type.override_repositories(
-            StaticPluginRepository(ExtensionDefinition)
-        ):
+        with ExtensionDefinition.type.override_discoveries():
             # Loop instead of parameterization, so we can reuse caches.
             for index, (with_entry_point_provider, debug, root_path) in enumerate(
                 [

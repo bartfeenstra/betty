@@ -18,10 +18,9 @@ from betty.locale.localizable import _
 from betty.media_type import UnsupportedMediaType, match_extension, match_media_type
 from betty.plugin import (
     ClassedPluginDefinition,
-    GlobalPluginRepositoryDefinition,
+    EntryPointDiscovery,
     PluginTypeDefinition,
 )
-from betty.plugin.entry_point import EntryPointPluginRepository
 from betty.resource import copy_context
 from betty.typing import internal
 
@@ -73,9 +72,7 @@ class RendererDefinition(ClassedPluginDefinition[Renderer]):
     type = PluginTypeDefinition(
         id="renderer",
         label=_("Renderer"),
-        repositories=GlobalPluginRepositoryDefinition(
-            lambda: EntryPointPluginRepository(RendererDefinition, "betty.renderer")
-        ),
+        discoveries=EntryPointDiscovery("betty.renderer"),
     )
 
 

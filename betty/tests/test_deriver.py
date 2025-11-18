@@ -20,7 +20,6 @@ from betty.date import Date, DateLike, DateRange
 from betty.deriver import Deriver
 from betty.locale.localizable import Plain
 from betty.model.collections import record_added
-from betty.plugin.static import StaticPluginRepository
 from betty.project import Project
 
 if TYPE_CHECKING:
@@ -178,9 +177,7 @@ class TestDeriver:
         async def _new_project(
             event_types: Iterable[EventTypeDefinition],
         ) -> AsyncIterator[Project]:
-            with EventTypeDefinition.type.override_repositories(
-                StaticPluginRepository(EventTypeDefinition, *event_types)
-            ):
+            with EventTypeDefinition.type.override_discoveries(*event_types):
                 async with Project.new_temporary(temporary_app) as project, project:
                     yield project
 

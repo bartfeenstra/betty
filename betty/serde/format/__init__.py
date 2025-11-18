@@ -14,11 +14,10 @@ from betty.locale.localizable import Localizable, _
 from betty.locale.localized import Localized, LocalizedStr
 from betty.plugin import (
     ClassedPluginDefinition,
-    GlobalPluginRepositoryDefinition,
+    EntryPointDiscovery,
     HumanFacingPluginDefinition,
     PluginTypeDefinition,
 )
-from betty.plugin.entry_point import EntryPointPluginRepository
 
 if TYPE_CHECKING:
     from collections.abc import Sequence
@@ -74,9 +73,7 @@ class FormatDefinition(HumanFacingPluginDefinition, ClassedPluginDefinition[Form
     type = PluginTypeDefinition(
         id="format",
         label=_("(De)serialization format"),
-        repositories=GlobalPluginRepositoryDefinition(
-            lambda: EntryPointPluginRepository(FormatDefinition, "betty.serde_format")
-        ),
+        discoveries=EntryPointDiscovery("betty.serde_format"),
     )
 
 

@@ -10,13 +10,11 @@ from betty.locale.localizable import _
 from betty.plugin import (
     ClassedPlugin,
     ClassedPluginDefinition,
-    GlobalPluginRepositoryDefinition,
+    EntryPointDiscovery,
     HumanFacingPluginDefinition,
     PluginTypeDefinition,
-    ProjectPluginRepositoryDefinition,
+    ProjectDiscovery,
 )
-from betty.plugin.entry_point import EntryPointPluginRepository
-from betty.plugin.static import StaticPluginRepository
 
 
 class PlaceType(ClassedPlugin):
@@ -43,17 +41,10 @@ class PlaceTypeDefinition(
     type = PluginTypeDefinition(
         id="place-type",
         label=_("Place type"),
-        repositories=(
-            GlobalPluginRepositoryDefinition(
-                lambda: EntryPointPluginRepository(
-                    PlaceTypeDefinition, "betty.place_type"
-                )
+        discoveries=[
+            EntryPointDiscovery("betty.place_type"),
+            ProjectDiscovery(
+                lambda project: project.configuration.place_types.new_plugins(),
             ),
-            ProjectPluginRepositoryDefinition(
-                lambda project: StaticPluginRepository(
-                    PlaceTypeDefinition,
-                    *project.configuration.place_types.new_plugins(),
-                )
-            ),
-        ),
+        ],
     )

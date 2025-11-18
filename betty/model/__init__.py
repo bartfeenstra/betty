@@ -20,10 +20,9 @@ from betty.plugin import (
     ClassedPlugin,
     ClassedPluginDefinition,
     CountableHumanFacingPluginDefinition,
-    GlobalPluginRepositoryDefinition,
+    EntryPointDiscovery,
     PluginTypeDefinition,
 )
-from betty.plugin.entry_point import EntryPointPluginRepository
 from betty.string import kebab_case_to_lower_camel_case
 
 if TYPE_CHECKING:
@@ -152,9 +151,7 @@ class EntityDefinition(
     type = PluginTypeDefinition(
         id="entity",
         label=_("Entity"),
-        repositories=GlobalPluginRepositoryDefinition(
-            lambda: EntryPointPluginRepository(EntityDefinition, "betty.entity_type")
-        ),
+        discoveries=EntryPointDiscovery("betty.entity_type"),
     )
 
     def __init__(

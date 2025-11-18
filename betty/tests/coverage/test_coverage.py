@@ -369,11 +369,11 @@ _BASELINE: Mapping[str, _ModuleIgnore] = {
     "betty/plugin/__init__.py": {
         "ClassedPlugin": MissingReason.STATIC_CONTENT_ONLY,
         "PluginError": MissingReason.ABSTRACT,
+        "PluginDiscovery": MissingReason.ABSTRACT,
         "PluginRepository": {
             "__aiter__": MissingReason.ABSTRACT,
             "get": MissingReason.ABSTRACT,
         },
-        "PluginRepositoryDefinition": MissingReason.ABSTRACT,
         "PluginRepositoryProvider": MissingReason.SHOULD_BE_COVERED,
         "PluginRepositoryUnavailable": MissingReason.STATIC_CONTENT_ONLY,
     },

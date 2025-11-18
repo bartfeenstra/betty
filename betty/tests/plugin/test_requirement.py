@@ -9,11 +9,9 @@ from betty.locale.localizer import DEFAULT_LOCALIZER
 from betty.plugin import (
     ClassedPluginDefinition,
     DependentPluginDefinition,
-    GlobalPluginRepositoryDefinition,
     PluginTypeDefinition,
 )
 from betty.plugin.requirement import new_dependencies_requirement
-from betty.plugin.static import StaticPluginRepository
 from betty.requirement import HasRequirement, Requirement, StaticRequirement
 from betty.test_utils.plugin import ClassedDummyPlugin, ClassedDummyPluginOne
 
@@ -32,9 +30,6 @@ class HasRequirementPluginDefinition(
     type = PluginTypeDefinition(
         id="-",
         label=Plain("HasRequirement"),
-        repositories=GlobalPluginRepositoryDefinition(
-            lambda: StaticPluginRepository(HasRequirementPluginDefinition)
-        ),
     )
 
 

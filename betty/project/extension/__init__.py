@@ -13,12 +13,11 @@ from betty.plugin import (
     ClassedPlugin,
     ClassedPluginDefinition,
     DependentPluginDefinition,
-    GlobalPluginRepositoryDefinition,
+    EntryPointDiscovery,
     HumanFacingPluginDefinition,
     OrderedPluginDefinition,
     PluginTypeDefinition,
 )
-from betty.plugin.entry_point import EntryPointPluginRepository
 from betty.plugin.requirement import new_dependencies_requirement
 from betty.project.factory import ProjectDependentFactory
 from betty.requirement import HasRequirement
@@ -92,9 +91,7 @@ class ExtensionDefinition(
     type = PluginTypeDefinition(
         id="extension",
         label=_("Extension"),
-        repositories=GlobalPluginRepositoryDefinition(
-            lambda: EntryPointPluginRepository(ExtensionDefinition, "betty.extension")
-        ),
+        discoveries=EntryPointDiscovery("betty.extension"),
     )
 
     def __init__(

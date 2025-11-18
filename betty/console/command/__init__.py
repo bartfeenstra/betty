@@ -12,11 +12,10 @@ from betty import about
 from betty.locale.localizable import _
 from betty.plugin import (
     ClassedPluginDefinition,
-    GlobalPluginRepositoryDefinition,
+    EntryPointDiscovery,
     HumanFacingPluginDefinition,
     PluginTypeDefinition,
 )
-from betty.plugin.entry_point import EntryPointPluginRepository
 
 if TYPE_CHECKING:
     import argparse
@@ -59,15 +58,9 @@ class CommandDefinition(HumanFacingPluginDefinition, ClassedPluginDefinition[Com
     type = PluginTypeDefinition(
         id="command",
         label=_("Command"),
-        repositories=GlobalPluginRepositoryDefinition(
-            lambda: EntryPointPluginRepository(CommandDefinition, "betty.command")
-        ),
+        discoveries=EntryPointDiscovery("betty.command"),
     )
 
 
 if about.IS_DEVELOPMENT:
-    CommandDefinition.type.add_repository(
-        GlobalPluginRepositoryDefinition(
-            lambda: EntryPointPluginRepository(CommandDefinition, "betty.dev.command")
-        )
-    )
+    CommandDefinition.type.add_discovery(EntryPointDiscovery("betty.dev.command"))

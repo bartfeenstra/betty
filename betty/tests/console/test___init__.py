@@ -15,7 +15,6 @@ from betty.console.command import Command, CommandDefinition
 from betty.exception import HumanFacingException
 from betty.functools import Result, suppress
 from betty.locale.localizable import Plain
-from betty.plugin.static import StaticPluginRepository
 from betty.project import Project
 from betty.test_utils.console import run
 from betty.user import Verbosity
@@ -90,9 +89,7 @@ async def test_main__with_unknown_command(temporary_app: App) -> None:
 async def test_main__with_user_facing_exception(
     expected: SystemExitCode, command: CommandDefinition, temporary_app: App
 ) -> None:
-    with CommandDefinition.type.override_repositories(
-        StaticPluginRepository(CommandDefinition, command)
-    ):
+    with CommandDefinition.type.override_discoveries(command):
         await run(
             temporary_app,
             command.id,
@@ -118,9 +115,7 @@ def test_main_standalone(
 ) -> None:
     def _target() -> None:
         mocker.patch("sys.argv", new=["betty", command.id])
-        with CommandDefinition.type.override_repositories(
-            StaticPluginRepository(CommandDefinition, command)
-        ):
+        with CommandDefinition.type.override_discoveries(command):
             main_standalone()
 
     # Run this in a thread so as not to conflict with pytest-playwright-asyncio's session-scoped event loop.
@@ -148,9 +143,7 @@ class TestVerbosity:
     async def test(
         self, expected: Verbosity, temporary_app: App, verbosity: str | None
     ) -> None:
-        with CommandDefinition.type.override_repositories(
-            StaticPluginRepository(CommandDefinition, _NoOpCommand.plugin)
-        ):
+        with CommandDefinition.type.override_discoveries(_NoOpCommand.plugin):
             async with Project.new_temporary(temporary_app) as project:
                 await write_configuration_file(
                     project.configuration, project.configuration.configuration_file_path

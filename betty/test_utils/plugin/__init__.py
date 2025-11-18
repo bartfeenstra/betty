@@ -17,13 +17,12 @@ from betty.plugin import (
     ClassedPluginDefinition,
     CountableHumanFacingPluginDefinition,
     DependentPluginDefinition,
-    GlobalPluginRepositoryDefinition,
+    GlobalDiscovery,
     HumanFacingPluginDefinition,
     OrderedPluginDefinition,
     PluginDefinition,
     PluginTypeDefinition,
 )
-from betty.plugin.static import StaticPluginRepository
 from betty.test_utils.config import DummyConfiguration
 
 
@@ -185,13 +184,12 @@ class DummyPluginDefinition(PluginDefinition):
     type = PluginTypeDefinition(
         id="dummy-plugin",
         label=Plain("Dummy plugin"),
-        repositories=GlobalPluginRepositoryDefinition(
-            lambda: StaticPluginRepository(
-                DummyPluginDefinition,
+        discoveries=GlobalDiscovery(
+            lambda: [
                 DUMMY_PLUGIN_ONE,  # type: ignore[has-type]
                 DUMMY_PLUGIN_TWO,  # type: ignore[has-type]
                 DUMMY_PLUGIN_THREE,  # type: ignore[has-type]
-            )
+            ]
         ),
     )
 
@@ -229,12 +227,11 @@ class ClassedDummyPluginDefinition(ClassedPluginDefinition[ClassedDummyPlugin]):
     type = PluginTypeDefinition(
         id="classed-dummy-plugin",
         label=Plain("Classed dummy plugin"),
-        repositories=GlobalPluginRepositoryDefinition(
-            lambda: StaticPluginRepository(
-                ClassedDummyPluginDefinition,
+        discoveries=GlobalDiscovery(
+            lambda: [
                 ClassedDummyPluginOne.plugin,
                 ClassedDummyPluginTwo.plugin,
-            )
+            ]
         ),
     )
 
@@ -286,11 +283,10 @@ class ConfigurableDummyPluginDefinition(
     type = PluginTypeDefinition(
         id="configurable-dummy-plugin",
         label=Plain("Configurable dummy plugin"),
-        repositories=GlobalPluginRepositoryDefinition(
-            lambda: StaticPluginRepository(
-                ConfigurableDummyPluginDefinition,
+        discoveries=GlobalDiscovery(
+            lambda: [
                 ConfigurableDummyPluginOne.plugin,
-            )
+            ]
         ),
     )
 

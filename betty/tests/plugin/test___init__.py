@@ -1,29 +1,32 @@
 from __future__ import annotations
 
-from collections.abc import Awaitable, Callable, Sequence
+from collections.abc import Awaitable, Callable, Collection, Iterable, Sequence
+from importlib.metadata import EntryPoint, EntryPoints
 from typing import TYPE_CHECKING, TypeAlias, TypeVar, cast
 
 import pytest
-from typing_extensions import override
 
 from betty.app import App
 from betty.locale.localizable import CountablePlain, Plain
 from betty.plugin import (
-    AppPluginRepositoryDefinition,
+    AppDiscovery,
     ClassedPlugin,
     ClassedPluginDefinition,
     CountableHumanFacingPluginDefinition,
     CyclicDependencyError,
     DependentPluginDefinition,
-    ExtensionPluginRepositoryDefinition,
-    GlobalPluginRepositoryDefinition,
+    EntryPointDiscovery,
+    ExtensionDiscovery,
+    GlobalDiscovery,
     HumanFacingPluginDefinition,
     OrderedPluginDefinition,
     PluginDefinition,
     PluginNotFound,
     PluginRepository,
     PluginTypeDefinition,
-    ProjectPluginRepositoryDefinition,
+    ProjectDiscovery,
+    StaticDiscovery,
+    discover,
     expand_plugin_dependencies,
     get_comes_after,
     get_comes_before,
@@ -33,19 +36,20 @@ from betty.plugin import (
     sort_dependent_plugin_graph,
     sort_ordered_plugin_graph,
 )
-from betty.plugin.static import StaticPluginRepository
 from betty.project import Project
 from betty.project.extension import Extension, ExtensionDefinition
 from betty.test_utils.plugin import (
     DUMMY_PLUGIN_ONE,
     DUMMY_PLUGIN_THREE,
     DUMMY_PLUGIN_TWO,
+    ClassedDummyPluginOne,
+    ClassedDummyPluginTwo,
     DummyPluginDefinition,
 )
 from betty.test_utils.project.extension import DummyExtension
 
 if TYPE_CHECKING:
-    from collections.abc import Iterable, Iterator
+    from pytest_mock import MockerFixture
 
     from betty.machine_name import MachineName
 
@@ -63,9 +67,6 @@ def test_resolve_definition__with_plugin_cls() -> None:
         type = PluginTypeDefinition(
             id="-",
             label=Plain(""),
-            repositories=GlobalPluginRepositoryDefinition(
-                lambda: StaticPluginRepository(_ClassedPluginDefinition)
-            ),
         )
 
     @_ClassedPluginDefinition(id=plugin_id)
@@ -91,9 +92,6 @@ def test_resolve_id__with_plugin_cls() -> None:
         type = PluginTypeDefinition(
             id="-",
             label=Plain(""),
-            repositories=GlobalPluginRepositoryDefinition(
-                lambda: StaticPluginRepository(_ClassedPluginDefinition)
-            ),
         )
 
     @_ClassedPluginDefinition(id=plugin_id)
@@ -130,34 +128,22 @@ class TestPluginNotFound:
 
 
 class TestPluginRepository:
-    class _Sut(PluginRepository[DummyPluginDefinition]):
-        def __init__(self, *plugins: DummyPluginDefinition):
-            super().__init__(DummyPluginDefinition)
-            self._plugins = {plugin.id: plugin for plugin in plugins}
-
-        @override
-        def get(self, plugin_id: MachineName) -> DummyPluginDefinition:
-            try:
-                return self._plugins[plugin_id]
-            except KeyError:
-                raise PluginNotFound(
-                    DummyPluginDefinition.type, plugin_id, []
-                ) from None
-
-        @override
-        def __iter__(self) -> Iterator[DummyPluginDefinition]:
-            yield from self._plugins.values()
-
     def test___len__(self) -> None:
-        sut = self._Sut(DUMMY_PLUGIN_ONE, DUMMY_PLUGIN_TWO, DUMMY_PLUGIN_THREE)
+        sut = PluginRepository(
+            DummyPluginDefinition,
+            DUMMY_PLUGIN_ONE,
+            DUMMY_PLUGIN_TWO,
+            DUMMY_PLUGIN_THREE,
+        )
         assert len(sut) == 3
 
     def test___getitem__(self) -> None:
-        sut = self._Sut(DUMMY_PLUGIN_ONE)
+        sut = PluginRepository(DummyPluginDefinition, DUMMY_PLUGIN_ONE)
         assert sut[DUMMY_PLUGIN_ONE.id] is DUMMY_PLUGIN_ONE
 
     def test___iter__(self) -> None:
-        sut = self._Sut(
+        sut = PluginRepository(
+            DummyPluginDefinition,
             DUMMY_PLUGIN_ONE,
             DUMMY_PLUGIN_TWO,
             DUMMY_PLUGIN_THREE,
@@ -169,7 +155,8 @@ class TestPluginRepository:
         ]
 
     def test_plugin_id_schema(self) -> None:
-        sut = self._Sut(
+        sut = PluginRepository(
+            DummyPluginDefinition,
             DUMMY_PLUGIN_ONE,
             DUMMY_PLUGIN_TWO,
             DUMMY_PLUGIN_THREE,
@@ -193,9 +180,6 @@ class _OrderedPluginDefinition(OrderedPluginDefinition):
     type = PluginTypeDefinition(
         id="ordered-plugin",
         label=Plain(""),
-        repositories=GlobalPluginRepositoryDefinition(
-            lambda: StaticPluginRepository(_OrderedPluginDefinition)
-        ),
     )
 
 
@@ -277,7 +261,7 @@ async def test_sort_ordered_plugin_graph(
     plugins: Iterable[_OrderedPluginDefinition],
 ) -> None:
     sorter = await sort_ordered_plugin_graph(
-        StaticPluginRepository(
+        PluginRepository(
             _OrderedPluginDefinition,
             _ORDERED_PLUGIN_COMES_BEFORE_TARGET,
             _ORDERED_PLUGIN_HAS_COMES_BEFORE,
@@ -294,9 +278,6 @@ class _DependentPluginDefinition(DependentPluginDefinition):
     type = PluginTypeDefinition(
         id="dependent",
         label=Plain("_ExpandPluginDependenciesTestPluginDefinition"),
-        repositories=GlobalPluginRepositoryDefinition(
-            lambda: StaticPluginRepository(_DependentPluginDefinition)
-        ),
     )
 
 
@@ -376,7 +357,7 @@ async def test_expand_plugin_dependencies(
     plugins: set[_DependentPluginDefinition],
 ) -> None:
     actual = await expand_plugin_dependencies(
-        StaticPluginRepository(
+        PluginRepository(
             _DependentPluginDefinition,
             _DEPENDENT_PLUGIN_ISOLATED,
             _DEPENDENT_PLUGIN_UPSTREAM_DEPENDENT,
@@ -445,7 +426,7 @@ async def test_expand_plugin_dependencies(
 async def test_sort_dependent_plugin_graph(
     expected: list[MachineName], plugins: Iterable[_DependentPluginDefinition]
 ) -> None:
-    plugin_repository = StaticPluginRepository(
+    plugin_repository = PluginRepository(
         _DependentPluginDefinition,
         _DEPENDENT_PLUGIN_ISOLATED,
         _DEPENDENT_PLUGIN_UPSTREAM_DEPENDENT,
@@ -482,7 +463,7 @@ def test_get_comes_before(
 ) -> None:
     assert (
         get_comes_before(
-            StaticPluginRepository(
+            PluginRepository(
                 _OrderedPluginDefinition,
                 _ORDERED_PLUGIN_COMES_BEFORE_TARGET,
                 _ORDERED_PLUGIN_HAS_COMES_BEFORE,
@@ -524,7 +505,7 @@ def test_get_comes_after(
 ) -> None:
     assert (
         get_comes_after(
-            StaticPluginRepository(
+            PluginRepository(
                 _OrderedPluginDefinition,
                 _ORDERED_PLUGIN_COMES_BEFORE_TARGET,
                 _ORDERED_PLUGIN_HAS_COMES_BEFORE,
@@ -557,63 +538,54 @@ class TestPluginTypeDefinition:
         )
         assert sut.label is label
 
-    def test_repositories(self) -> None:
-        repository = GlobalPluginRepositoryDefinition(
-            StaticPluginRepository(PluginDefinition)
-        )
+    def test_discoveries(self) -> None:
+        discovery = StaticDiscovery()
         sut = PluginTypeDefinition(
             label=Plain("my-first-plugin-type"),
             id="my-first-plugin-type",
-            repositories=repository,
+            discoveries=discovery,
         )
-        assert repository in sut.repositories
+        assert discovery in sut.discoveries
 
-    def test_add_repository(self) -> None:
-        repository = GlobalPluginRepositoryDefinition(
-            StaticPluginRepository(PluginDefinition)
-        )
+    def test_add_discovery(self) -> None:
+        discovery = StaticDiscovery()
         sut = PluginTypeDefinition(
             label=Plain("my-first-plugin-type"),
             id="my-first-plugin-type",
         )
-        sut.add_repository(repository)
-        assert repository in sut.repositories
+        sut.add_discovery(discovery)
+        assert discovery in sut.discoveries
 
-    def test_override_repositories(self) -> None:
+    def test_override_discoveries(self) -> None:
         sut = PluginTypeDefinition(
             label=Plain("my-first-plugin-type"),
             id="my-first-plugin-type",
         )
-        assert not sut.repositories
-        with sut.override_repositories(StaticPluginRepository(PluginDefinition)):
-            assert sut.repositories
-        assert not sut.repositories
+        assert not sut.discoveries
+        with sut.override_discoveries(DUMMY_PLUGIN_ONE):
+            assert sut.discoveries
+        assert not sut.discoveries
 
-    def test_add_repository__during_override_repositories(self) -> None:
-        repository = GlobalPluginRepositoryDefinition(
-            StaticPluginRepository(PluginDefinition)
-        )
+    async def test_add_discovery__during_override_discoveries(self) -> None:
         sut = PluginTypeDefinition(
             label=Plain("my-first-plugin-type"),
             id="my-first-plugin-type",
         )
-        with sut.override_repositories(StaticPluginRepository(PluginDefinition)):
-            overridden_repositories = sut.repositories
-            sut.add_repository(repository)
-            assert repository not in sut.repositories
-        assert repository in sut.repositories
-        for overridden_repository in overridden_repositories:
-            assert overridden_repository not in sut.repositories
+        with sut.override_discoveries(DUMMY_PLUGIN_ONE):
+            sut.add_discovery(StaticDiscovery(DUMMY_PLUGIN_TWO))
+            assert DUMMY_PLUGIN_TWO not in await discover(None, *sut.discoveries)
+        assert DUMMY_PLUGIN_ONE not in await discover(None, *sut.discoveries)
+        assert DUMMY_PLUGIN_TWO in await discover(None, *sut.discoveries)
 
-    def test_repositories_overridden(self) -> None:
+    def test_discoveries_overridden(self) -> None:
         sut = PluginTypeDefinition(
             label=Plain("my-first-plugin-type"),
             id="my-first-plugin-type",
         )
-        assert not sut.repositories_overridden
-        with sut.override_repositories(StaticPluginRepository(PluginDefinition)):
-            assert sut.repositories_overridden
-        assert not sut.repositories_overridden  # type: ignore[unreachable]
+        assert not sut.discoveries_overridden
+        with sut.override_discoveries():
+            assert sut.discoveries_overridden
+        assert not sut.discoveries_overridden  # type: ignore[unreachable]
 
 
 class TestClassedPluginDefinition:
@@ -710,224 +682,240 @@ def test_plugin_types() -> None:
     assert plugin_types()
 
 
-GlobalPluginRepositoryDefinitionTestParams: TypeAlias = tuple[
-    PluginRepository,
-    Callable[[], Awaitable[PluginRepository[PluginDefinition]]]
-    | Callable[[], PluginRepository[PluginDefinition]]
-    | PluginRepository[PluginDefinition],
+class TestStaticDiscovery:
+    async def test_discover(self) -> None:
+        sut = StaticDiscovery(DUMMY_PLUGIN_ONE)
+        plugins = await sut.discover(None)
+        assert DUMMY_PLUGIN_ONE in plugins
+
+
+class TestEntryPointDiscovery:
+    async def test_discover(self, mocker: MockerFixture) -> None:
+        entry_point_group = "test-entry-point"
+        m_entry_points = mocker.patch(
+            "importlib.metadata.entry_points",
+            return_value=EntryPoints(
+                [
+                    EntryPoint(
+                        name=ClassedDummyPluginOne.plugin.id,
+                        value="betty.test_utils.plugin:ClassedDummyPluginOne",
+                        group=entry_point_group,
+                    ),
+                    EntryPoint(
+                        name=ClassedDummyPluginTwo.plugin.id,
+                        value="betty.test_utils.plugin:ClassedDummyPluginTwo",
+                        group=entry_point_group,
+                    ),
+                ]
+            ),
+        )
+        sut = EntryPointDiscovery(entry_point_group)
+        plugins = await sut.discover(None)
+        assert ClassedDummyPluginOne.plugin in plugins
+        assert ClassedDummyPluginTwo.plugin in plugins
+        m_entry_points.assert_called_once_with(group=entry_point_group)
+
+
+GlobalDiscoveryTestParams: TypeAlias = tuple[
+    Collection[PluginDefinition],
+    Callable[[], Awaitable[Iterable[PluginDefinition]]]
+    | Callable[[], Iterable[PluginDefinition]],
 ]
 
 
-class TestGlobalPluginRepositoryDefinition:
+class TestGlobalDiscovery:
     @staticmethod
-    def _sut_params() -> Sequence[GlobalPluginRepositoryDefinitionTestParams]:
-        repository = StaticPluginRepository(DummyPluginDefinition)
-
-        async def _async_repository() -> PluginRepository:
-            return repository
+    def _sut_params() -> Sequence[GlobalDiscoveryTestParams]:
+        async def _async_discovery() -> Iterable[PluginDefinition]:
+            return [DUMMY_PLUGIN_ONE]
 
         return [
-            (repository, repository),
-            (repository, lambda: repository),
-            (repository, _async_repository),
+            ([DUMMY_PLUGIN_ONE], lambda: [DUMMY_PLUGIN_ONE]),
+            ([DUMMY_PLUGIN_ONE], _async_discovery),
+        ]
+
+    @pytest.fixture(params=_sut_params())
+    def sut_params(self, request: pytest.FixtureRequest) -> GlobalDiscoveryTestParams:
+        return cast(GlobalDiscoveryTestParams, request.param)
+
+    async def test_discover__global(
+        self, sut_params: GlobalDiscoveryTestParams
+    ) -> None:
+        expected, discovery = sut_params
+        sut = GlobalDiscovery(discovery)
+        assert await sut.discover(None) == expected
+
+    async def test_discover__with_app(
+        self, sut_params: GlobalDiscoveryTestParams, temporary_app: App
+    ) -> None:
+        expected, discovery = sut_params
+        sut = GlobalDiscovery(discovery)
+        assert await sut.discover(temporary_app) == expected
+
+    async def test_discover__with_project(
+        self, sut_params: GlobalDiscoveryTestParams, temporary_app: App
+    ) -> None:
+        expected, discovery = sut_params
+        async with Project.new_temporary(temporary_app) as project, project:
+            sut = GlobalDiscovery(discovery)
+            assert await sut.discover(project) == expected
+
+
+AppDiscoveryTestParams: TypeAlias = tuple[
+    Collection[PluginDefinition],
+    Callable[[App], Awaitable[Iterable[PluginDefinition]]]
+    | Callable[[App], Iterable[PluginDefinition]],
+]
+
+
+class TestAppDiscovery:
+    @staticmethod
+    def _sut_params() -> Sequence[AppDiscoveryTestParams]:
+        async def _async_discovery(app: App) -> Iterable[PluginDefinition]:
+            return [DUMMY_PLUGIN_ONE]
+
+        return [
+            ([DUMMY_PLUGIN_ONE], lambda app: [DUMMY_PLUGIN_ONE]),
+            ([DUMMY_PLUGIN_ONE], _async_discovery),
+        ]
+
+    @pytest.fixture(params=_sut_params())
+    def sut_params(self, request: pytest.FixtureRequest) -> AppDiscoveryTestParams:
+        return cast(AppDiscoveryTestParams, request.param)
+
+    async def test_discover_global(self, sut_params: AppDiscoveryTestParams) -> None:
+        expected, discovery = sut_params
+        sut = AppDiscovery(discovery)
+        assert not list(await sut.discover(None))
+
+    async def test_discover__with_app(
+        self, sut_params: AppDiscoveryTestParams, temporary_app: App
+    ) -> None:
+        expected, discovery = sut_params
+        sut = AppDiscovery(discovery)
+        assert await sut.discover(temporary_app) == expected
+
+    async def test_discover__with_project(
+        self, sut_params: AppDiscoveryTestParams, temporary_app: App
+    ) -> None:
+        expected, discovery = sut_params
+        async with Project.new_temporary(temporary_app) as project, project:
+            sut = AppDiscovery(discovery)
+            assert await sut.discover(project) == expected
+
+
+ProjectDiscoveryTestParams: TypeAlias = tuple[
+    Collection[PluginDefinition],
+    Callable[[Project], Awaitable[Iterable[PluginDefinition]]]
+    | Callable[[Project], Iterable[PluginDefinition]],
+]
+
+
+class TestProjectDiscovery:
+    @staticmethod
+    def _sut_params() -> Sequence[ProjectDiscoveryTestParams]:
+        async def _async_discovery(project: Project) -> Iterable[PluginDefinition]:
+            return [DUMMY_PLUGIN_ONE]
+
+        return [
+            ([DUMMY_PLUGIN_ONE], lambda project: [DUMMY_PLUGIN_ONE]),
+            ([DUMMY_PLUGIN_ONE], _async_discovery),
+        ]
+
+    @pytest.fixture(params=_sut_params())
+    def sut_params(self, request: pytest.FixtureRequest) -> ProjectDiscoveryTestParams:
+        return cast(ProjectDiscoveryTestParams, request.param)
+
+    async def test_discover_global(
+        self, sut_params: ProjectDiscoveryTestParams
+    ) -> None:
+        expected, discovery = sut_params
+        sut = ProjectDiscovery(discovery)
+        assert not list(await sut.discover(None))
+
+    async def test_discover__with_app(
+        self,
+        sut_params: ProjectDiscoveryTestParams,
+        temporary_app: App,
+    ) -> None:
+        expected, discovery = sut_params
+        sut = ProjectDiscovery(discovery)
+        assert not list(await sut.discover(temporary_app))
+
+    async def test_discover__with_project(
+        self,
+        sut_params: ProjectDiscoveryTestParams,
+        temporary_app: App,
+    ) -> None:
+        expected, discovery = sut_params
+        async with Project.new_temporary(temporary_app) as project, project:
+            sut = ProjectDiscovery(discovery)
+            assert await sut.discover(project) == expected
+
+
+ExtensionDiscoveryTestParams: TypeAlias = tuple[
+    Collection[PluginDefinition],
+    Callable[[Extension], Awaitable[Iterable[PluginDefinition]]]
+    | Callable[[Extension], Iterable[PluginDefinition]],
+]
+
+
+class TestExtensionDiscovery:
+    @staticmethod
+    def _sut_params() -> Sequence[ExtensionDiscoveryTestParams]:
+        async def _async_discovery(project: Extension) -> Iterable[PluginDefinition]:
+            return [DUMMY_PLUGIN_ONE]
+
+        return [
+            ([DUMMY_PLUGIN_ONE], lambda project: [DUMMY_PLUGIN_ONE]),
+            ([DUMMY_PLUGIN_ONE], _async_discovery),
         ]
 
     @pytest.fixture(params=_sut_params())
     def sut_params(
         self, request: pytest.FixtureRequest
-    ) -> GlobalPluginRepositoryDefinitionTestParams:
-        return cast(GlobalPluginRepositoryDefinitionTestParams, request.param)
+    ) -> ExtensionDiscoveryTestParams:
+        return cast(ExtensionDiscoveryTestParams, request.param)
 
-    async def test___call___global(
-        self, sut_params: GlobalPluginRepositoryDefinitionTestParams
+    async def test_discover_global(
+        self, sut_params: ExtensionDiscoveryTestParams
     ) -> None:
-        expected, definition = sut_params
-        sut = GlobalPluginRepositoryDefinition(definition)
-        assert await sut(None) is expected
+        expected, discovery = sut_params
+        sut = ExtensionDiscovery(DummyExtension, discovery)
+        assert not list(await sut.discover(None))
 
-    async def test___call____with_app(
-        self, sut_params: GlobalPluginRepositoryDefinitionTestParams, temporary_app: App
+    async def test_discover__with_app(
+        self,
+        sut_params: ExtensionDiscoveryTestParams,
+        temporary_app: App,
     ) -> None:
-        expected, definition = sut_params
-        sut = GlobalPluginRepositoryDefinition(definition)
-        assert await sut(temporary_app) is expected
+        expected, discovery = sut_params
+        sut = ExtensionDiscovery(DummyExtension, discovery)
+        assert not list(await sut.discover(temporary_app))
 
-    async def test___call____with_project(
-        self, sut_params: GlobalPluginRepositoryDefinitionTestParams, temporary_app: App
+    async def test_discover__with_project_without_extension(
+        self,
+        sut_params: ExtensionDiscoveryTestParams,
+        temporary_app: App,
     ) -> None:
-        expected, definition = sut_params
+        expected, discovery = sut_params
         async with Project.new_temporary(temporary_app) as project, project:
-            sut = GlobalPluginRepositoryDefinition(definition)
-            assert await sut(project) is expected
+            sut = ExtensionDiscovery(DummyExtension, discovery)
+            assert not list(await sut.discover(project))
 
-
-AppPluginRepositoryDefinitionTestParams: TypeAlias = tuple[
-    PluginRepository,
-    Callable[[App], Awaitable[PluginRepository[PluginDefinition]]]
-    | Callable[[App], PluginRepository[PluginDefinition]],
-]
-
-
-class TestAppPluginRepositoryDefinition:
-    @staticmethod
-    def _sut_params() -> Sequence[AppPluginRepositoryDefinitionTestParams]:
-        repository = StaticPluginRepository(DummyPluginDefinition)
-
-        async def _async_repository(app: App) -> PluginRepository:
-            return repository
-
-        return [
-            (repository, lambda app: repository),
-            (repository, _async_repository),
-        ]
-
-    @pytest.fixture(params=_sut_params())
-    def sut_params(
-        self, request: pytest.FixtureRequest
-    ) -> AppPluginRepositoryDefinitionTestParams:
-        return cast(AppPluginRepositoryDefinitionTestParams, request.param)
-
-    async def test___call___global(
-        self, sut_params: AppPluginRepositoryDefinitionTestParams
-    ) -> None:
-        expected, definition = sut_params
-        sut = AppPluginRepositoryDefinition(definition)
-        assert await sut(None) is None
-
-    async def test___call____with_app(
-        self, sut_params: AppPluginRepositoryDefinitionTestParams, temporary_app: App
-    ) -> None:
-        expected, definition = sut_params
-        sut = AppPluginRepositoryDefinition(definition)
-        assert await sut(temporary_app) is expected
-
-    async def test___call____with_project(
-        self, sut_params: AppPluginRepositoryDefinitionTestParams, temporary_app: App
-    ) -> None:
-        expected, definition = sut_params
-        async with Project.new_temporary(temporary_app) as project, project:
-            sut = AppPluginRepositoryDefinition(definition)
-            assert await sut(project) is expected
-
-
-ProjectPluginRepositoryDefinitionTestParams: TypeAlias = tuple[
-    PluginRepository,
-    Callable[[Project], Awaitable[PluginRepository[PluginDefinition]]]
-    | Callable[[Project], PluginRepository[PluginDefinition]],
-]
-
-
-class TestProjectPluginRepositoryDefinition:
-    @staticmethod
-    def _sut_params() -> Sequence[ProjectPluginRepositoryDefinitionTestParams]:
-        repository = StaticPluginRepository(DummyPluginDefinition)
-
-        async def _async_repository(project: Project) -> PluginRepository:
-            return repository
-
-        return [
-            (repository, lambda project: repository),
-            (repository, _async_repository),
-        ]
-
-    @pytest.fixture(params=_sut_params())
-    def sut_params(
-        self, request: pytest.FixtureRequest
-    ) -> ProjectPluginRepositoryDefinitionTestParams:
-        return cast(ProjectPluginRepositoryDefinitionTestParams, request.param)
-
-    async def test___call___global(
-        self, sut_params: ProjectPluginRepositoryDefinitionTestParams
-    ) -> None:
-        expected, definition = sut_params
-        sut = ProjectPluginRepositoryDefinition(definition)
-        assert await sut(None) is None
-
-    async def test___call____with_app(
+    async def test_discover__with_project_with_extension(
         self,
-        sut_params: ProjectPluginRepositoryDefinitionTestParams,
+        sut_params: ExtensionDiscoveryTestParams,
         temporary_app: App,
     ) -> None:
-        expected, definition = sut_params
-        sut = ProjectPluginRepositoryDefinition(definition)
-        assert await sut(temporary_app) is None
-
-    async def test___call____with_project(
-        self,
-        sut_params: ProjectPluginRepositoryDefinitionTestParams,
-        temporary_app: App,
-    ) -> None:
-        expected, definition = sut_params
-        async with Project.new_temporary(temporary_app) as project, project:
-            sut = ProjectPluginRepositoryDefinition(definition)
-            assert await sut(project) is expected
-
-
-ExtensionPluginRepositoryDefinitionTestParams: TypeAlias = tuple[
-    PluginRepository,
-    Callable[[Extension], Awaitable[PluginRepository[PluginDefinition]]]
-    | Callable[[Extension], PluginRepository[PluginDefinition]],
-]
-
-
-class TestExtensionPluginRepositoryDefinition:
-    @staticmethod
-    def _sut_params() -> Sequence[ExtensionPluginRepositoryDefinitionTestParams]:
-        repository = StaticPluginRepository(DummyPluginDefinition)
-
-        async def _async_repository(project: Extension) -> PluginRepository:
-            return repository
-
-        return [
-            (repository, lambda project: repository),
-            (repository, _async_repository),
-        ]
-
-    @pytest.fixture(params=_sut_params())
-    def sut_params(
-        self, request: pytest.FixtureRequest
-    ) -> ExtensionPluginRepositoryDefinitionTestParams:
-        return cast(ExtensionPluginRepositoryDefinitionTestParams, request.param)
-
-    async def test___call___global(
-        self, sut_params: ExtensionPluginRepositoryDefinitionTestParams
-    ) -> None:
-        expected, definition = sut_params
-        sut = ExtensionPluginRepositoryDefinition(DummyExtension, definition)
-        assert await sut(None) is None
-
-    async def test___call____with_app(
-        self,
-        sut_params: ExtensionPluginRepositoryDefinitionTestParams,
-        temporary_app: App,
-    ) -> None:
-        expected, definition = sut_params
-        sut = ExtensionPluginRepositoryDefinition(DummyExtension, definition)
-        assert await sut(temporary_app) is None
-
-    async def test___call____with_project_without_extension(
-        self,
-        sut_params: ExtensionPluginRepositoryDefinitionTestParams,
-        temporary_app: App,
-    ) -> None:
-        expected, definition = sut_params
-        async with Project.new_temporary(temporary_app) as project, project:
-            sut = ExtensionPluginRepositoryDefinition(DummyExtension, definition)
-            assert await sut(project) is None
-
-    async def test___call____with_project_with_extension(
-        self,
-        sut_params: ExtensionPluginRepositoryDefinitionTestParams,
-        temporary_app: App,
-    ) -> None:
-        expected, definition = sut_params
-        with ExtensionDefinition.type.override_repositories(
-            StaticPluginRepository(ExtensionDefinition, DummyExtension.plugin)
-        ):
+        expected, discovery = sut_params
+        with ExtensionDefinition.type.override_discoveries(DummyExtension.plugin):
             async with Project.new_temporary(temporary_app) as project:
                 project.configuration.extensions.enable(DummyExtension)
                 async with project:
-                    sut = ExtensionPluginRepositoryDefinition(
-                        DummyExtension, definition
-                    )
-                    assert await sut(project) is expected
+                    sut = ExtensionDiscovery(DummyExtension, discovery)
+                    assert await sut.discover(project) == expected
+
+
+async def test_discover() -> None:
+    assert DUMMY_PLUGIN_ONE in await discover(None, StaticDiscovery(DUMMY_PLUGIN_ONE))
