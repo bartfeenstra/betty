@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PROJECT VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2025-11-17 21:03+0000\n"
+"POT-Creation-Date: 2025-11-18 02:03+0000\n"
 "PO-Revision-Date: 2025-11-08 23:46+0000\n"
 "Last-Translator: Bart Feenstra <bart@bartfeenstra.com>\n"
 "Language: nl_NL\n"
@@ -245,10 +245,6 @@ msgstr "Begravenis"
 
 msgid "Cannot find an available port to bind the web server to."
 msgstr "Kan geen beschikbare poort voor de webserver vinden."
-
-#, python-brace-format
-msgid "Cannot find and import \"{plugin_id}\"."
-msgstr "Kan plugin \"{plugin_id}\" niet vinden en importeren."
 
 #, python-brace-format
 msgid ""
@@ -1246,6 +1242,10 @@ msgstr "Onbekende sleutel: {unknown_key}."
 msgid "Unknown locale {locale}."
 msgstr ""
 
+#, python-brace-format
+msgid "Unknown plugin \"{plugin_id}\"."
+msgstr ""
+
 msgid "Update all existing translations"
 msgstr "Update alle bestaande vertalingen"
 
@@ -1591,6 +1591,10 @@ msgstr ""
 
 #, python-brace-format
 msgid "{plugin_type_label} {plugin_label} depends on {dependency_labels}."
+msgstr ""
+
+#, python-brace-format
+msgid "{plugin_type} \"{plugin_id}\" has unmet requirements:"
 msgstr ""
 
 msgid "© Copyright the author, unless otherwise credited"

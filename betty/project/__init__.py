@@ -254,18 +254,19 @@ class Project(Configurable[ProjectConfiguration], TargetFactory, ServiceProvider
         """
         The enabled extensions.
         """
+        extension_repository = await ExtensionDefinition.type.repository(self._app)
         configured_extension_definitions = []
         configured_extension_configurations = {}
         for extension_configuration in self.configuration.extensions.values():
             configured_extension_definitions.append(
-                self.app.extension_repository[extension_configuration.id]
+                extension_repository[extension_configuration.id]
             )
             configured_extension_configurations[extension_configuration.id] = (
                 extension_configuration
             )
 
         extensions_sorter = await sort_dependent_plugin_graph(
-            self.app.extension_repository, configured_extension_definitions
+            extension_repository, configured_extension_definitions
         )
         extensions_sorter.prepare()
 
@@ -275,7 +276,7 @@ class Project(Configurable[ProjectConfiguration], TargetFactory, ServiceProvider
             enabled_extension_ids_batch = extensions_sorter.get_ready()
             enabled_extension_batch: MutableSequence[Extension] = []
             for enabled_extension_id in enabled_extension_ids_batch:
-                enabled_extension_definition = self.app.extension_repository[
+                enabled_extension_definition = extension_repository[
                     enabled_extension_id
                 ]
                 enabled_extension_requirement = (
@@ -288,9 +289,7 @@ class Project(Configurable[ProjectConfiguration], TargetFactory, ServiceProvider
                 if enabled_extension_id in configured_extension_configurations:
                     extension = await configured_extension_configurations[
                         enabled_extension_id
-                    ].new_plugin_instance(
-                        self.app.extension_repository, factory=self.new_target
-                    )
+                    ].new_plugin_instance(extension_repository, factory=self.new_target)
                 else:
                     extension = await self.new_target(enabled_extension_definition.cls)
                 enabled_extension_batch.append(extension)

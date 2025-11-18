@@ -10,7 +10,13 @@ from typing import TYPE_CHECKING, Any, TypeVar, cast, final
 from typing_extensions import override
 
 from betty.exception import HumanFacingException
-from betty.locale.localizable import Localizable, Paragraphs, Plain, UnorderedList, _
+from betty.locale.localizable import (
+    Lines,
+    Localizable,
+    Plain,
+    UnorderedList,
+    _,
+)
 from betty.locale.localized import Localized, LocalizedStr
 
 if TYPE_CHECKING:
@@ -115,7 +121,7 @@ class RequirementCollection(Requirement):
 
     @override
     def localize(self, localizer: Localizer) -> Localized & str:
-        return Paragraphs(
+        return Lines(
             super().localize(localizer),
             UnorderedList(*self._requirements),
         ).localize(localizer)

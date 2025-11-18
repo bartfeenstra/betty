@@ -571,7 +571,7 @@ class Paragraphs(_Join):
     Represent multiple localizables as multiple paragraphs of text.
     """
 
-    _SEPARATOR = "\n\n"
+    _SEPARATOR = "\n"
 
 
 class _List(_LocalizableSequence, Localizable):

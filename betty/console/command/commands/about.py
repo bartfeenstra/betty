@@ -21,9 +21,11 @@ from betty.plugin import (
     PluginRepositoryUnavailable,
     HumanFacingPluginDefinition,
 )
+from betty.plugin.requirement import get_requirement
 
 if TYPE_CHECKING:
     import argparse
+    from collections.abc import MutableSequence
 
     from betty.app import App
     from betty.project import Project
@@ -93,6 +95,7 @@ class About(AppDependentFactory, Command):
         user.console.print(about_project)
 
     async def _about_plugins(self, user: ConsoleUser, project: Project | None) -> None:
+        service_level = self._app if project is None else project
         about_plugins = Table(title=user.localizer._("Plugins"))
         about_plugins.add_column(user.localizer._("Type"), style=self._KEY_STYLE)
         about_plugins.add_column(user.localizer._("ID"))
@@ -103,7 +106,7 @@ class About(AppDependentFactory, Command):
         ):
             try:
                 repository = await plugin_type.type.repository(
-                    self._app if project is None else project
+                    service_level, unavailable=True
                 )
             except PluginRepositoryUnavailable:
                 about_plugins.add_row(
@@ -118,6 +121,14 @@ class About(AppDependentFactory, Command):
                 for index, plugin in enumerate(
                     sorted(repository, key=lambda plugin: plugin.id)
                 ):
+                    third_column_lines: MutableSequence[str] = []
+                    if isinstance(plugin, HumanFacingPluginDefinition):
+                        third_column_lines.append(plugin.label.localize(user.localizer))
+                    requirement = await get_requirement(plugin, service_level)
+                    if requirement and not requirement.is_met():
+                        third_column_lines.append(
+                            "[yellow]" + requirement.localize(user.localizer)
+                        )
                     first_column = (
                         plugin_type.type.label.localize(user.localizer)
                         if index == 0
@@ -126,9 +137,7 @@ class About(AppDependentFactory, Command):
                     about_plugins.add_row(
                         first_column,
                         plugin.id,
-                        plugin.label.localize(user.localizer)
-                        if isinstance(plugin, HumanFacingPluginDefinition)
-                        else None,
+                        "\n".join(third_column_lines),
                     )
         user.console.print(about_plugins)
         if project is None:

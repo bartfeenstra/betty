@@ -4,7 +4,9 @@ Requirements for plugins.
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Any, TypeVar
+from typing import TYPE_CHECKING, Any, Generic, Self, TypeVar
+
+from typing_extensions import override
 
 from betty.locale.localizable import AnyEnumeration, _
 from betty.plugin import (
@@ -13,16 +15,18 @@ from betty.plugin import (
     DependentPluginDefinition,
     HumanFacingPluginDefinition,
     PluginDefinition,
+    PluginNotFound,
     PluginRepository,
+    UnmetPluginRequirement,
     resolve_id,
 )
-from betty.plugin.static import StaticPluginRepository
 from betty.requirement import AllRequirements, HasRequirement
 
 if TYPE_CHECKING:
-    from collections.abc import Iterable
+    from collections.abc import Iterable, Iterator, Mapping
 
     from betty.app import App
+    from betty.machine_name import MachineName
     from betty.requirement import Requirement
     from betty.service_level import ServiceLevel
 
@@ -92,18 +96,52 @@ async def get_requirement(
     return None
 
 
-async def new_requirement_met_plugin_repository(
-    upstream: PluginRepository[_PluginDefinitionT], service_level: ServiceLevel, /
-) -> PluginRepository[_PluginDefinitionT]:
+class PluginRequirementRepository(
+    PluginRepository[_PluginDefinitionT], Generic[_PluginDefinitionT]
+):
     """
-    Create a new plugin repository with only those plugins from the given repository whose requirements are met.
+    A plugin repository that checks plugins' requirements.
     """
-    return StaticPluginRepository(
-        upstream.plugin,
-        *[
-            plugin
-            for plugin in upstream
-            if (requirement := await get_requirement(plugin, service_level))
-            and (requirement is None or requirement.is_met())  # type: ignore[redundant-expr]
-        ],
-    )
+
+    def __init__(
+        self,
+        plugin: type[_PluginDefinitionT],
+        plugins: Mapping[MachineName, tuple[_PluginDefinitionT, Requirement | None]],
+        /,
+    ):
+        super().__init__(plugin)
+        self._plugins = plugins
+
+    @classmethod
+    async def new(
+        cls,
+        upstream: PluginRepository[_PluginDefinitionT],
+        service_level: ServiceLevel,
+        /,
+    ) -> Self:
+        """
+        Create a new instance.
+        """
+        return cls(
+            upstream.plugin,
+            {
+                plugin.id: (plugin, await get_requirement(plugin, service_level))
+                for plugin in upstream
+            },
+        )
+
+    @override
+    def get(self, plugin_id: MachineName) -> _PluginDefinitionT:
+        try:
+            plugin, requirement = self._plugins[plugin_id]
+            if requirement and not requirement.is_met():
+                raise UnmetPluginRequirement(plugin, requirement)
+            return plugin
+        except KeyError:
+            raise PluginNotFound.new(plugin_id, list(self)) from None
+
+    @override
+    def __iter__(self) -> Iterator[_PluginDefinitionT]:
+        for plugin, requirement in self._plugins.values():
+            if requirement and requirement.is_met():
+                yield plugin

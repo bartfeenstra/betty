@@ -505,11 +505,11 @@ class PluginRepositoryDefinition(Generic[_PluginDefinitionT], ABC):
         """
         Get the repository for this plugin type.
         """
-        from betty.plugin.requirement import new_requirement_met_plugin_repository
+        from betty.plugin.requirement import PluginRequirementRepository
 
         repository = await self._get(service_level)
         if not unavailable:
-            repository = await new_requirement_met_plugin_repository(
+            repository = await PluginRequirementRepository.new(
                 repository, service_level
             )
         return repository

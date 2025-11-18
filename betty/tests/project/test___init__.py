@@ -174,7 +174,9 @@ class TestProject:
         async with Project.new_temporary(temporary_app) as sut, sut:
             extensions = await sut.extensions
 
-            for betty_extension in temporary_app.extension_repository:
+            for betty_extension in await ExtensionDefinition.type.repository(
+                temporary_app
+            ):
                 if betty_extension.id.startswith("betty-"):
                     assert betty_extension.id in extensions
 

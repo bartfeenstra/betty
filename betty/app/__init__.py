@@ -95,7 +95,7 @@ class App(Configurable[AppConfiguration], TargetFactory, ServiceProvider):
         if entity_type_repository is not None:
             cls.entity_type_repository.override(self, entity_type_repository)
         if extension_repository is not None:
-            cls.extension_repository.override(self, extension_repository)
+            cls._extension_repository.override(self, extension_repository)
         if command_repository is not None:
             cls.command_repository.override(self, command_repository)
         if renderer_repository is not None:
@@ -311,12 +311,7 @@ class App(Configurable[AppConfiguration], TargetFactory, ServiceProvider):
         return EntryPointPluginRepository(EntityDefinition, "betty.entity_type")
 
     @service
-    def extension_repository(self) -> PluginRepository[ExtensionDefinition]:
-        """
-        The extensions available to this application.
-
-        Read more about :doc:`/development/plugin/extension`.
-        """
+    def _extension_repository(self) -> PluginRepository[ExtensionDefinition]:
         return EntryPointPluginRepository(ExtensionDefinition, "betty.extension")
 
     @service
