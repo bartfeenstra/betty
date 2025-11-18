@@ -74,17 +74,3 @@ metadata in its definition:
     To allow plugins to define their dependencies on any other plugins.
 :py:class:`betty.plugin.ClassedPluginDefinition`
     For plugins that have classes that can be instantiated.
-
-Creating a plugin repository
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-
-A plugin repository implements :py:class:`betty.plugin.PluginRepository` and is responsible for discovering all plugins
-of the type it is responsible for, and making them available to other code. Your plugin repository may subclass one of
-the following base classes to get started quickly:
-
-:py:class:`betty.plugin.entry_point.EntryPointPluginRepository`
-    to discover plugins defined as package entry points.
-:py:class:`betty.plugin.proxy.ProxyPluginRepository`
-    to discover plugins via one or more upstream plugin repositories.
-:py:class:`betty.plugin.static.StaticPluginRepository`
-    to discover statically defined plugins.

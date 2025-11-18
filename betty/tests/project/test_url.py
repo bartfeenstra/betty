@@ -10,7 +10,7 @@ from betty.locale import DEFAULT_LOCALE, LocaleLike
 from betty.media_type import MediaType
 from betty.media_type.media_types import HTML, JSON
 from betty.model import EntityDefinition
-from betty.plugin.static import StaticPluginRepository
+from betty.plugin import PluginRepository
 from betty.project import Project
 from betty.project.config import LocaleConfiguration
 from betty.project.url import (
@@ -46,9 +46,7 @@ class Test_EntityUrlUrlGenerator:
     ) -> None:
         m_entity_url_generator = mocker.patch("betty.project.url._EntityUrlGenerator")
         ancestry = Ancestry()
-        entity_repository = StaticPluginRepository(
-            EntityDefinition, DummyEntityOne.plugin
-        )
+        entity_repository = PluginRepository(EntityDefinition, DummyEntityOne.plugin)
         sut = _EntityUrlUrlGenerator(
             ancestry, m_entity_url_generator, entity_repository
         )
@@ -64,9 +62,7 @@ class Test_EntityUrlUrlGenerator:
         entity = DummyEntityOne(self._ENTITY_ID)
         ancestry = Ancestry()
         ancestry.add(entity)
-        entity_repository = StaticPluginRepository(
-            EntityDefinition, DummyEntityOne.plugin
-        )
+        entity_repository = PluginRepository(EntityDefinition, DummyEntityOne.plugin)
         sut = _EntityUrlUrlGenerator(
             ancestry, m_entity_url_generator, entity_repository
         )
@@ -334,9 +330,7 @@ class Test_StaticPathUrlUrlGenerator:
 async def test_new_project_url_generator__supports(
     expected: bool, resource: Any, temporary_app: App
 ) -> None:
-    with EntityDefinition.type.override_repositories(
-        StaticPluginRepository(EntityDefinition, DummyEntityOne.plugin)
-    ):
+    with EntityDefinition.type.override_discoveries(DummyEntityOne.plugin):
         async with Project.new_temporary(temporary_app) as project, project:
             sut = await new_project_url_generator(project)
             assert sut.supports(resource) == expected
@@ -395,9 +389,7 @@ async def test_new_project_url_generator__generate(
     additional_project_locale: str | None,
     temporary_app: App,
 ) -> None:
-    with EntityDefinition.type.override_repositories(
-        StaticPluginRepository(EntityDefinition, DummyEntityOne.plugin)
-    ):
+    with EntityDefinition.type.override_discoveries(DummyEntityOne.plugin):
         async with Project.new_temporary(temporary_app) as project:
             if additional_project_locale:
                 project.configuration.locales.append(

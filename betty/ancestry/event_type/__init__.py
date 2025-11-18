@@ -11,16 +11,14 @@ from betty.locale.localizable import _
 from betty.plugin import (
     ClassedPlugin,
     ClassedPluginDefinition,
-    GlobalPluginRepositoryDefinition,
+    EntryPointDiscovery,
     HumanFacingPluginDefinition,
     OrderedPluginDefinition,
     PluginIdentifier,
     PluginTypeDefinition,
-    ProjectPluginRepositoryDefinition,
+    ProjectDiscovery,
     resolve_id,
 )
-from betty.plugin.entry_point import EntryPointPluginRepository
-from betty.plugin.static import StaticPluginRepository
 
 if TYPE_CHECKING:
     from betty.ancestry.person import Person
@@ -65,19 +63,12 @@ class EventTypeDefinition(
     type = PluginTypeDefinition(
         id="event-type",
         label=_("Event type"),
-        repositories=(
-            GlobalPluginRepositoryDefinition(
-                lambda: EntryPointPluginRepository(
-                    EventTypeDefinition, "betty.event_type"
-                )
+        discoveries=[
+            EntryPointDiscovery("betty.event_type"),
+            ProjectDiscovery(
+                lambda project: project.configuration.event_types.new_plugins(),
             ),
-            ProjectPluginRepositoryDefinition(
-                lambda project: StaticPluginRepository(
-                    EventTypeDefinition,
-                    *project.configuration.event_types.new_plugins(),
-                )
-            ),
-        ),
+        ],
     )
 
     def __init__(

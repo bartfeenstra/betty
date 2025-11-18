@@ -10,13 +10,11 @@ from betty.locale.localizable import _
 from betty.plugin import (
     ClassedPlugin,
     ClassedPluginDefinition,
-    GlobalPluginRepositoryDefinition,
+    EntryPointDiscovery,
     HumanFacingPluginDefinition,
     PluginTypeDefinition,
-    ProjectPluginRepositoryDefinition,
+    ProjectDiscovery,
 )
-from betty.plugin.entry_point import EntryPointPluginRepository
-from betty.plugin.static import StaticPluginRepository
 
 
 class Gender(ClassedPlugin):
@@ -41,14 +39,10 @@ class GenderDefinition(HumanFacingPluginDefinition, ClassedPluginDefinition[Gend
     type = PluginTypeDefinition(
         id="gender",
         label=_("Gender"),
-        repositories=(
-            GlobalPluginRepositoryDefinition(
-                lambda: EntryPointPluginRepository(GenderDefinition, "betty.gender")
+        discoveries=[
+            EntryPointDiscovery("betty.gender"),
+            ProjectDiscovery(
+                lambda project: project.configuration.genders.new_plugins()
             ),
-            ProjectPluginRepositoryDefinition(
-                lambda project: StaticPluginRepository(
-                    GenderDefinition, *project.configuration.genders.new_plugins()
-                )
-            ),
-        ),
+        ],
     )

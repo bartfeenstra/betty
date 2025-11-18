@@ -11,7 +11,6 @@ from __future__ import annotations
 
 from abc import ABC, abstractmethod
 from collections import defaultdict
-from collections.abc import Iterable
 from contextlib import contextmanager
 from graphlib import TopologicalSorter
 from importlib import metadata
@@ -114,7 +113,7 @@ _PluginDefinitionCoT = TypeVar(
 
 
 @final
-class PluginTypeDefinition(Generic[_PluginDefinitionCoT]):
+class PluginTypeDefinition(Generic[_PluginDefinitionT]):
     """
     A plugin type definition.
     """
@@ -124,22 +123,22 @@ class PluginTypeDefinition(Generic[_PluginDefinitionCoT]):
         *,
         id: MachineName,  # noqa A002
         label: Localizable,
-        repositories: Collection[PluginRepositoryDefinition[_PluginDefinitionCoT]]
-        | PluginRepositoryDefinition[_PluginDefinitionCoT]
+        discoveries: Collection[PluginDiscovery[_PluginDefinitionT]]
+        | PluginDiscovery[_PluginDefinitionT]
         | None = None,
     ):
         if not validate_machine_name(id):  # type: ignore[redundant-expr]
             raise InvalidMachineName(id)
         self._id = id
         self._label = label
-        if repositories is None:
-            repositories = []
-        elif isinstance(repositories, PluginRepositoryDefinition):
-            repositories = [repositories]
+        if discoveries is None:
+            discoveries = []
+        elif isinstance(discoveries, PluginDiscovery):
+            discoveries = [discoveries]
         else:
-            repositories = list(repositories)
-        self._defined_repositories = repositories
-        self._repositories = self._defined_repositories
+            discoveries = list(discoveries)
+        self._defined_discoveries = discoveries
+        self._discoveries = self._defined_discoveries
 
     @property
     def id(self) -> MachineName:
@@ -156,39 +155,35 @@ class PluginTypeDefinition(Generic[_PluginDefinitionCoT]):
         return self._label
 
     @property
-    def repositories(
+    def discoveries(
         self,
-    ) -> Collection[PluginRepositoryDefinition[_PluginDefinitionCoT]]:
+    ) -> Collection[PluginDiscovery[_PluginDefinitionT]]:
         """
-        The plugin repositories for this type.
+        The plugin discoveries for this type.
         """
-        return self._repositories
+        return self._discoveries
 
-    def add_repository(
-        self, repository: PluginRepositoryDefinition[_PluginDefinitionCoT], /
-    ) -> None:
+    def add_discovery(self, discovery: PluginDiscovery[_PluginDefinitionT], /) -> None:
         """
-        Add a plugin repository for this type.
+        Add a plugin discovery for this type.
         """
-        return self._defined_repositories.append(repository)
+        return self._defined_discoveries.append(discovery)
 
     @contextmanager
-    def override_repositories(
-        self, plugins: PluginRepository[_PluginDefinitionCoT]
-    ) -> Iterator[None]:
+    def override_discoveries(self, *plugins: _PluginDefinitionT) -> Iterator[None]:
         """
-        Temporarily override the repositories for this plugin type.
+        Temporarily override the discoveries for this plugin type.
         """
-        self._repositories = [GlobalPluginRepositoryDefinition(lambda: plugins)]
+        self._discoveries = [StaticDiscovery(*plugins)]
         yield
-        self._repositories = self._defined_repositories
+        self._discoveries = self._defined_discoveries
 
     @property
-    def repositories_overridden(self) -> bool:
+    def discoveries_overridden(self) -> bool:
         """
-        Whether the repositories are currently overridden.
+        Whether the discoveries are currently overridden.
         """
-        return self._defined_repositories != self._repositories
+        return self._defined_discoveries != self._discoveries
 
 
 def plugin_types() -> Mapping[MachineName, type[PluginDefinition]]:
@@ -427,9 +422,9 @@ class PluginNotFound(PluginError, HumanFacingException):
 
     def __init__(
         self,
-        plugin_type: PluginTypeDefinition,
+        plugin_type: PluginTypeDefinition[_PluginDefinitionT],
         plugin_not_found: MachineName,
-        available_plugins: Sequence[PluginIdentifier],
+        available_plugins: Sequence[PluginIdentifier[_PluginDefinitionT]],
         /,
     ):
         super().__init__(
@@ -447,35 +442,39 @@ class PluginNotFound(PluginError, HumanFacingException):
         )
 
 
-class PluginRepository(Generic[_PluginDefinitionCoT], ABC):
+@final
+class PluginRepository(Generic[_PluginDefinitionT]):
     """
     Discover and manage plugins.
     """
 
     def __init__(
-        self,
-        plugin: type[_PluginDefinitionCoT],
-        /,
+        self, plugin_type: type[_PluginDefinitionT], *plugins: _PluginDefinitionT
     ):
-        self._plugin = plugin
+        self._plugin_type = plugin_type
+        self._plugins = {plugin.id: plugin for plugin in plugins}
         self._plugin_id_schema: Enum | None = None
 
-    @abstractmethod
-    def get(self, plugin_id: MachineName, /) -> _PluginDefinitionCoT:
+    def get(self, plugin_id: MachineName, /) -> _PluginDefinitionT:
         """
         Get a single plugin by its ID.
 
         :raises PluginNotFound: if no plugin can be found for the given ID.
         """
+        try:
+            return self._plugins[plugin_id]
+        except KeyError:
+            raise PluginNotFound(
+                self._plugin_type.type, plugin_id, list(self)
+            ) from None
 
     def __len__(self) -> int:
-        return len(list(self.__iter__()))
+        return len(self._plugins)
 
-    @abstractmethod
-    def __iter__(self) -> Iterator[_PluginDefinitionCoT]:
-        pass
+    def __iter__(self) -> Iterator[_PluginDefinitionT]:
+        yield from self._plugins.values()
 
-    def __getitem__(self, plugin_id: MachineName) -> _PluginDefinitionCoT:
+    def __getitem__(self, plugin_id: MachineName) -> _PluginDefinitionT:
         return self.get(plugin_id)
 
     @property
@@ -484,10 +483,10 @@ class PluginRepository(Generic[_PluginDefinitionCoT], ABC):
         Get the JSON schema for the IDs of the plugins in this repository.
         """
         if self._plugin_id_schema is None:
-            label = self._plugin.type.label.localize(DEFAULT_LOCALIZER)
+            label = self._plugin_type.type.label.localize(DEFAULT_LOCALIZER)
             self._plugin_id_schema = Enum(
                 *[plugin.id for plugin in self],  # noqa A002
-                def_name=kebab_case_to_lower_camel_case(self._plugin.type.id),
+                def_name=kebab_case_to_lower_camel_case(self._plugin_type.type.id),
                 title=label,
                 description=f"A {label} plugin ID",
             )
@@ -495,147 +494,193 @@ class PluginRepository(Generic[_PluginDefinitionCoT], ABC):
 
 
 @internal
-class PluginRepositoryDefinition(Generic[_PluginDefinitionT], ABC):
+class PluginDiscovery(Generic[_PluginDefinitionT], ABC):
     """
-    A plugin repository definition.
+    A plugin discovery definition.
     """
 
-    # @todo Rename this to resolve() or something. Let's avoid implementing __call__() anywhere
-    # @todo except if an object MUST be used where Callable is expected.
-    # @todo
-    # @todo
-    # @todo
-    # @todo
-    # @todo
-    # @todo
-    # @todo
-    # @todo
-    # @todo
     @abstractmethod
-    async def __call__(
+    async def discover(
         self, service_level: ServiceLevel, /
-    ) -> PluginRepository[_PluginDefinitionT] | None:
+    ) -> Iterable[_PluginDefinitionT]:
         """
-        Get the repository for this plugin type.
+        Get the definitions for this plugin type.
         """
 
 
 @final
-class GlobalPluginRepositoryDefinition(
-    PluginRepositoryDefinition[_PluginDefinitionT], Generic[_PluginDefinitionT]
+class StaticDiscovery(PluginDiscovery[_PluginDefinitionT], Generic[_PluginDefinitionT]):
+    """
+    Statically define plugins.
+    """
+
+    def __init__(self, *plugins: _PluginDefinitionT):
+        self._plugins = plugins
+
+    @override
+    async def discover(
+        self, service_level: ServiceLevel, /
+    ) -> Iterable[_PluginDefinitionT]:
+        return self._plugins
+
+
+@final
+class EntryPointDiscovery(
+    PluginDiscovery[_PluginDefinitionT], Generic[_PluginDefinitionT]
 ):
     """
-    Define a plugin repository that is available globally.
+    Discover plugins defined as distribution package `entry points <https://packaging.python.org/en/latest/specifications/entry-points/>`_.
+
+    If you are developing a plugin for an existing plugin type that uses entry points, you'll have
+    to add that plugin to your package metadata. For example, for a plugin type
+
+    - whose entry point group is ``your_entry_point_group``
+    - with a plugin class ``MyPlugin`` in the module ``my_package.my_module``
+    - and a plugin ID ``my-package-plugin``:
+
+    .. code-block:: toml
+
+        [project.entry-points.'betty.your_entry_point_group']
+        'my-package-plugin' = 'my_package.my_module:MyPlugin'
     """
 
     def __init__(
         self,
-        repository: Callable[[], Awaitable[PluginRepository[_PluginDefinitionT]]]
-        | Callable[[], PluginRepository[_PluginDefinitionT]]
-        | PluginRepository[_PluginDefinitionT],
+        entry_point_group: str,
         /,
     ):
-        self._repository = repository
+        self._entry_point_group = entry_point_group
 
     @override
-    async def __call__(
+    async def discover(
         self, service_level: ServiceLevel, /
-    ) -> PluginRepository[_PluginDefinitionT] | None:
-        if isinstance(self._repository, PluginRepository):
-            return self._repository
-        return await ensure_await(self._repository())
+    ) -> Iterable[_PluginDefinitionT]:
+        return [
+            resolve_definition(entry_point.load())  # type: ignore[misc]
+            for entry_point in metadata.entry_points(group=self._entry_point_group)
+        ]
+
+
+@final
+class GlobalDiscovery(PluginDiscovery[_PluginDefinitionT], Generic[_PluginDefinitionT]):
+    """
+    Discover globally defined plugins.
+    """
+
+    def __init__(
+        self,
+        discovery: Callable[[], Awaitable[Iterable[_PluginDefinitionT]]]
+        | Callable[[], Iterable[_PluginDefinitionT]],
+        /,
+    ):
+        self._discovery = discovery
+
+    @override
+    async def discover(
+        self, service_level: ServiceLevel, /
+    ) -> Iterable[_PluginDefinitionT]:
+        return await ensure_await(self._discovery())
 
 
 @final
 @internal
-class AppPluginRepositoryDefinition(
-    PluginRepositoryDefinition[_PluginDefinitionT], Generic[_PluginDefinitionT]
-):
+class AppDiscovery(PluginDiscovery[_PluginDefinitionT], Generic[_PluginDefinitionT]):
     """
-    Define a plugin repository that is available when an :py:class:`betty.app.App` is available.
+    Discover plugins that are defined through an :py:class:`betty.app.App`.
     """
 
     def __init__(
         self,
-        repository: Callable[[App], Awaitable[PluginRepository[_PluginDefinitionT]]]
-        | Callable[[App], PluginRepository[_PluginDefinitionT]],
+        discovery: Callable[[App], Awaitable[Iterable[_PluginDefinitionT]]]
+        | Callable[[App], Iterable[_PluginDefinitionT]],
         /,
     ):
-        self._repository = repository
+        self._discovery = discovery
 
     @override
-    async def __call__(
+    async def discover(
         self, service_level: ServiceLevel, /
-    ) -> PluginRepository[_PluginDefinitionT] | None:
+    ) -> Iterable[_PluginDefinitionT]:
         from betty.project import Project
 
         if service_level is None:
-            return None
+            return ()
         if isinstance(service_level, Project):
             service_level = service_level.app
-        return await ensure_await(self._repository(service_level))
+        return await ensure_await(self._discovery(service_level))
 
 
 @final
 @internal
-class ProjectPluginRepositoryDefinition(
-    PluginRepositoryDefinition[_PluginDefinitionT], Generic[_PluginDefinitionT]
+class ProjectDiscovery(
+    PluginDiscovery[_PluginDefinitionT], Generic[_PluginDefinitionT]
 ):
     """
-    Define a plugin repository that is available when a :py:class:`betty.project.Project` is available.
+    Discover plugins that are defined through a :py:class:`betty.project.Project`.
     """
 
     def __init__(
         self,
-        repository: Callable[[Project], Awaitable[PluginRepository[_PluginDefinitionT]]]
-        | Callable[[Project], PluginRepository[_PluginDefinitionT]],
+        discovery: Callable[[Project], Awaitable[Iterable[_PluginDefinitionT]]]
+        | Callable[[Project], Iterable[_PluginDefinitionT]],
         /,
     ):
-        self._repository = repository
+        self._discovery = discovery
 
     @override
-    async def __call__(
+    async def discover(
         self, service_level: ServiceLevel, /
-    ) -> PluginRepository[_PluginDefinitionT] | None:
+    ) -> Iterable[_PluginDefinitionT]:
         from betty.project import Project
 
         if not isinstance(service_level, Project):
-            return None
-        return await ensure_await(self._repository(service_level))
+            return ()
+        return await ensure_await(self._discovery(service_level))
 
 
 @final
-class ExtensionPluginRepositoryDefinition(
-    PluginRepositoryDefinition[_PluginDefinitionT], Generic[_PluginDefinitionT]
+class ExtensionDiscovery(
+    PluginDiscovery[_PluginDefinitionT], Generic[_PluginDefinitionT]
 ):
     """
-    Define a plugin repository that is available when a specific :py:class:`betty.project.extension.Extension` is available.
+    Discover plugins that are defined through an :py:class:`betty.project.extension.Extension`.
     """
 
     def __init__(
         self,
         extension: PluginIdentifier[ExtensionDefinition, Extension],
-        repository: Callable[
-            [Extension], Awaitable[PluginRepository[_PluginDefinitionT]]
-        ]
-        | Callable[[Extension], PluginRepository[_PluginDefinitionT]],
+        discovery: Callable[[Extension], Awaitable[Iterable[_PluginDefinitionT]]]
+        | Callable[[Extension], Iterable[_PluginDefinitionT]],
         /,
     ):
         self._extension_id = resolve_id(extension)
-        self._repository = repository
+        self._discovery = discovery
 
     @override
-    async def __call__(
+    async def discover(
         self, service_level: ServiceLevel, /
-    ) -> PluginRepository[_PluginDefinitionT] | None:
+    ) -> Iterable[_PluginDefinitionT]:
         from betty.project import Project
 
         if not isinstance(service_level, Project):
-            return None
+            return ()
         extensions = await service_level.extensions
         if self._extension_id not in extensions:
-            return None
-        return await ensure_await(self._repository(extensions[self._extension_id]))
+            return ()
+        return await ensure_await(self._discovery(extensions[self._extension_id]))
+
+
+async def discover(
+    service_level: ServiceLevel, *discoveries: PluginDiscovery[_PluginDefinitionT]
+) -> Collection[_PluginDefinitionT]:
+    """
+    Discover plugins.
+    """
+    return [
+        plugin
+        for discovery in discoveries
+        for plugin in await discovery.discover(service_level)
+    ]
 
 
 @threadsafe
@@ -660,33 +705,25 @@ class PluginRepositoryProvider:
         """
         if isinstance(plugin, str):
             plugin = cast(type[_PluginDefinitionT], plugin_types()[plugin])
-        if plugin.type.repositories_overridden:
-            return await self._build(plugin, plugin.type.repositories)
+        if plugin.type.discoveries_overridden:
+            return await self._build(plugin, plugin.type.discoveries)
         if plugin not in self._plugin_repositories:  # type: ignore[comparison-overlap]
             async with self._lock:
                 if plugin not in self._plugin_repositories:  # type: ignore[comparison-overlap]
                     self._plugin_repositories[plugin] = await self._build(  # type: ignore[index]
                         plugin,
-                        plugin.type.repositories,  # type: ignore[arg-type]
+                        plugin.type.discoveries,  # type: ignore[arg-type]
                     )
         return self._plugin_repositories[plugin]  # type: ignore[index,return-value]
 
     async def _build(
         self,
         plugin: type[_PluginDefinitionT],
-        definitions: Iterable[PluginRepositoryDefinition[_PluginDefinitionT]],
+        discoveries: Iterable[PluginDiscovery[_PluginDefinitionT]],
     ) -> PluginRepository[_PluginDefinitionT]:
-        from betty.plugin.proxy import ProxyPluginRepository
-
-        repositories = [
-            repository
-            for definition in definitions
-            if (repository := await definition(self._service_level))
-            and repository is not None
-        ]
-        if len(repositories) == 1:
-            return repositories[0]
-        return ProxyPluginRepository(plugin, *repositories)
+        return PluginRepository(
+            plugin, *await discover(self._service_level, *discoveries)
+        )
 
 
 _global_plugins = PluginRepositoryProvider(service_level=None)

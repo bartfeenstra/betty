@@ -10,16 +10,14 @@ from typing import TYPE_CHECKING, ClassVar, final
 from betty.locale.localizable import _
 from betty.mutability import Mutable
 from betty.plugin import (
-    AppPluginRepositoryDefinition,
+    AppDiscovery,
     ClassedPlugin,
     ClassedPluginDefinition,
-    GlobalPluginRepositoryDefinition,
+    EntryPointDiscovery,
     HumanFacingPluginDefinition,
     PluginTypeDefinition,
-    ProjectPluginRepositoryDefinition,
+    ProjectDiscovery,
 )
-from betty.plugin.entry_point import EntryPointPluginRepository
-from betty.plugin.static import StaticPluginRepository
 
 if TYPE_CHECKING:
     from betty.locale.localizable import Localizable
@@ -70,15 +68,11 @@ class LicenseDefinition(HumanFacingPluginDefinition, ClassedPluginDefinition[Lic
     type = PluginTypeDefinition(
         id="license",
         label=_("License"),
-        repositories=(
-            GlobalPluginRepositoryDefinition(
-                lambda: EntryPointPluginRepository(LicenseDefinition, "betty.license")
+        discoveries=[
+            EntryPointDiscovery("betty.license"),
+            AppDiscovery(lambda app: app._spdx_license_repository),
+            ProjectDiscovery(
+                lambda project: project.configuration.licenses.new_plugins()
             ),
-            AppPluginRepositoryDefinition(lambda app: app._spdx_license_repository),
-            ProjectPluginRepositoryDefinition(
-                lambda project: StaticPluginRepository(
-                    LicenseDefinition, *project.configuration.licenses.new_plugins()
-                )
-            ),
-        ),
+        ],
     )

@@ -19,8 +19,8 @@ from betty.locale.localizable import CountablePlain, Plain
 from betty.locale.localizer import DEFAULT_LOCALIZER
 from betty.machine_name import MachineName
 from betty.model import Entity, EntityDefinition
+from betty.plugin import PluginRepository
 from betty.plugin.config import PluginInstanceConfiguration
-from betty.plugin.static import StaticPluginRepository
 from betty.project.config import (
     CopyrightNoticeDefinitionConfiguration,
     CopyrightNoticeDefinitionConfigurationMapping,
@@ -414,9 +414,7 @@ class TestEntityTypeConfiguration:
         )
         with pytest.raises(HumanFacingException):
             await sut.validate(
-                StaticPluginRepository(
-                    EntityDefinition, DummyNonPublicFacingEntityOne.plugin
-                )
+                PluginRepository(EntityDefinition, DummyNonPublicFacingEntityOne.plugin)
             )
 
 
@@ -507,9 +505,7 @@ class TestEntityTypeConfigurationMapping(
         )
         with pytest.raises(HumanFacingException):
             await sut.validate(
-                StaticPluginRepository(
-                    EntityDefinition, DummyNonPublicFacingEntityOne.plugin
-                )
+                PluginRepository(EntityDefinition, DummyNonPublicFacingEntityOne.plugin)
             )
 
 

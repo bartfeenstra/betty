@@ -5,7 +5,6 @@ import pytest
 
 from betty.app import App
 from betty.locale.localizable import Plain
-from betty.plugin.static import StaticPluginRepository
 from betty.project.extension import Extension, ExtensionDefinition
 
 
@@ -29,11 +28,8 @@ class ExtensionTranslationTestBase:
         class _DummyWithAssetsDirectoryExtension(Extension):
             pass
 
-        with ExtensionDefinition.type.override_repositories(
-            StaticPluginRepository(
-                ExtensionDefinition,
-                _DummyWithoutAssetsDirectoryExtension.plugin,
-                _DummyWithAssetsDirectoryExtension.plugin,
-            )
+        with ExtensionDefinition.type.override_discoveries(
+            _DummyWithoutAssetsDirectoryExtension.plugin,
+            _DummyWithAssetsDirectoryExtension.plugin,
         ):
             yield temporary_app

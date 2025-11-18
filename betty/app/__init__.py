@@ -36,8 +36,11 @@ from betty.locale.translation import (
     TranslationRepository,
 )
 from betty.multiprocessing import ProcessPoolExecutor
-from betty.plugin import PluginRepositoryProvider, sort_ordered_plugin_graph
-from betty.plugin.static import StaticPluginRepository
+from betty.plugin import (
+    PluginRepository,
+    PluginRepositoryProvider,
+    sort_ordered_plugin_graph,
+)
 from betty.service import ServiceFactory, ServiceProvider, StaticService, service
 from betty.typing import threadsafe
 from betty.user.no_op import NoOpUser
@@ -49,7 +52,6 @@ if TYPE_CHECKING:
     import aiohttp
 
     from betty.cache import Cache
-    from betty.plugin import PluginRepository
     from betty.user import User
 
 _T = TypeVar("_T")
@@ -271,7 +273,7 @@ class App(
 
     @service
     async def _spdx_license_repository(self) -> PluginRepository[LicenseDefinition]:
-        return StaticPluginRepository(
+        return PluginRepository(
             LicenseDefinition,
             *[
                 license

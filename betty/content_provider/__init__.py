@@ -10,11 +10,10 @@ from typing import TYPE_CHECKING, final
 from betty.locale.localizable import _
 from betty.plugin import (
     ClassedPluginDefinition,
-    GlobalPluginRepositoryDefinition,
+    EntryPointDiscovery,
     HumanFacingPluginDefinition,
     PluginTypeDefinition,
 )
-from betty.plugin.entry_point import EntryPointPluginRepository
 
 if TYPE_CHECKING:
     from betty.resource import Context
@@ -44,9 +43,5 @@ class ContentProviderDefinition(
     type = PluginTypeDefinition(
         id="content-provider",
         label=_("Content provider"),
-        repositories=GlobalPluginRepositoryDefinition(
-            lambda: EntryPointPluginRepository(
-                ContentProviderDefinition, "betty.content_provider"
-            )
-        ),
+        discoveries=EntryPointDiscovery("betty.content_provider"),
     )
