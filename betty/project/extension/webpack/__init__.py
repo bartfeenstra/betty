@@ -132,7 +132,7 @@ class Webpack(
             working_directory_path,
             await self._project_entry_point_providers(),
             self._project.configuration.debug,
-            await self._project.renderer,
+            await self._project.jinja2_environment,
             self._project.configuration.root_path,
             job_context=job_context,
             user=self._project.app.user,

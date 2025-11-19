@@ -2,29 +2,21 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING
 
-import pytest
-from jinja2 import Environment as Jinja2Environment
-from typing_extensions import override
+import aiofiles
 
 from betty.ancestry.has_file_references import HasFileReferences
 from betty.cache.memory import MemoryCache
-from betty.jinja2 import (
-    Environment,
-    Jinja2Provider,
-    Jinja2Renderer,
-)
+from betty.jinja2 import Environment, Jinja2Provider
 from betty.job import Context
-from betty.media_type.media_types import JINJA2
+from betty.locale import DEFAULT_LOCALE
 from betty.project import Project
 from betty.resource import new_context
 from betty.test_utils import Counter
-from betty.test_utils.render import RendererDefinitionTestBase
 
 if TYPE_CHECKING:
     from pathlib import Path
 
     from betty.app import App
-    from betty.plugin import PluginDefinition
 
 
 class TestJinja2Provider:
@@ -39,34 +31,6 @@ class TestJinja2Provider:
     async def test_tests(self) -> None:
         sut = Jinja2Provider()
         assert isinstance(sut.tests, dict)
-
-
-class TestJinja2RendererDefinition(RendererDefinitionTestBase):
-    @override
-    @pytest.fixture
-    def sut(self) -> PluginDefinition:
-        return Jinja2Renderer.plugin
-
-
-class TestJinja2Renderer:
-    async def test_render(self) -> None:
-        sut = Jinja2Renderer(Jinja2Environment(enable_async=True))
-        template = "{% if true %}true{% endif %}"
-        rendered = await sut.render(template, JINJA2)
-        assert rendered == "true"
-
-    async def test_render__with_resource(
-        self, temporary_app: App, tmp_path: Path
-    ) -> None:
-        resource = "betty:///"
-        sut = Jinja2Renderer(Jinja2Environment(enable_async=True))
-        template = "{{ resource.resource }}"
-        rendered = await sut.render(template, JINJA2, resource=new_context(resource))
-        assert rendered == resource
-
-    async def test_media_types(self) -> None:
-        sut = Jinja2Renderer(Jinja2Environment(enable_async=True))
-        sut.media_types  # noqa B018
 
 
 class DummyHasFileReferencesEntity(HasFileReferences):
@@ -91,6 +55,74 @@ class TestEnvironment:
             async with project:
                 sut = await Environment.new_for_project(project)
                 assert "jinja2.ext.DebugExtension" in sut.extensions
+
+    async def test_make_copy_function__www_directory(
+        self, temporary_app: App, tmp_path: Path
+    ) -> None:
+        async with Project.new_temporary(temporary_app) as project, project:
+            sut = await Environment.new_for_project(project)
+            source_file_path = tmp_path / "source.test.j2"
+            async with aiofiles.open(source_file_path, "w") as f:
+                await f.write("{{ resource.resource }}\n{{ resource.resource_url }}")
+            www_directory_path = tmp_path / "www"
+            destination_file_path = www_directory_path / "destination.test.j2"
+            rendered_destination_file_path = www_directory_path / "destination.test"
+            copy_function = sut.make_copy_function(
+                www_directory_path=www_directory_path, resource=new_context()
+            )
+            await copy_function(source_file_path, destination_file_path)
+            async with aiofiles.open(rendered_destination_file_path) as f:
+                assert (
+                    (await f.read()).strip()
+                    == f"{rendered_destination_file_path}\nbetty:///destination.test"
+                )
+
+    async def test_make_copy_function__www_directory_with_hidden_file(
+        self, temporary_app: App, tmp_path: Path
+    ) -> None:
+        async with Project.new_temporary(temporary_app) as project, project:
+            sut = await Environment.new_for_project(project)
+            source_file_path = tmp_path / "source.test.j2"
+            async with aiofiles.open(source_file_path, "w") as f:
+                await f.write("{{ resource.resource }}\n{{ resource.resource_url }}")
+            www_directory_path = tmp_path / "www"
+            destination_file_path = www_directory_path / ".destination.test.j2"
+            rendered_destination_file_path = www_directory_path / ".destination.test"
+            copy_function = sut.make_copy_function(
+                www_directory_path=www_directory_path, resource=new_context()
+            )
+            await copy_function(source_file_path, destination_file_path)
+            async with aiofiles.open(rendered_destination_file_path) as f:
+                assert (
+                    await f.read()
+                ).strip() == f"{rendered_destination_file_path}\nNone"
+
+    async def test_make_copy_function__www_directory_and_is_localized_and_multilingual(
+        self, temporary_app: App, tmp_path: Path
+    ) -> None:
+        async with Project.new_temporary(temporary_app) as project, project:
+            sut = await Environment.new_for_project(project)
+            source_file_path = tmp_path / "source.test.j2"
+            async with aiofiles.open(source_file_path, "w") as f:
+                await f.write("{{ resource.resource }}\n{{ resource.resource_url }}")
+            www_directory_path = tmp_path / "www"
+            destination_file_path = (
+                www_directory_path / DEFAULT_LOCALE / "destination.test.j2"
+            )
+            rendered_destination_file_path = (
+                www_directory_path / DEFAULT_LOCALE / "destination.test"
+            )
+            copy_function = sut.make_copy_function(
+                www_directory_path=www_directory_path,
+                is_localized_and_multilingual=True,
+                resource=new_context(),
+            )
+            await copy_function(source_file_path, destination_file_path)
+            async with aiofiles.open(rendered_destination_file_path) as f:
+                assert (
+                    (await f.read()).strip()
+                    == f"{rendered_destination_file_path}\nbetty:///destination.test"
+                )
 
 
 class Test_CacheTagExtension:

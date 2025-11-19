@@ -5,9 +5,13 @@ Provide rendering utilities using `Jinja2 <https://jinja.palletsprojects.com>`_.
 from __future__ import annotations
 
 import datetime
-from collections.abc import Callable, Mapping, MutableMapping
-from typing import TYPE_CHECKING, Any, ClassVar, Self, TypeAlias, cast, final
+from collections.abc import Awaitable, Callable, Mapping, MutableMapping
+from pathlib import Path
+from shutil import copy2
+from typing import TYPE_CHECKING, Any, Self, TypeAlias, cast
 
+import aiofiles
+from aiofiles.os import makedirs
 from jinja2 import Environment as Jinja2Environment
 from jinja2 import FileSystemLoader, pass_context, select_autoescape
 from jinja2.async_utils import auto_await
@@ -21,20 +25,15 @@ from typing_extensions import override
 from betty import about
 from betty.cache import CacheItem
 from betty.date import Date
-from betty.html import (
-    CssProvider,
-    JsProvider,
-    NavigationLinkProvider,
-    generate_html_id,
-)
+from betty.html import CssProvider, JsProvider, NavigationLinkProvider, generate_html_id
 from betty.html.attributes import Attributes
 from betty.jinja2.filter import filters
 from betty.jinja2.test import tests
+from betty.media_type import UnsupportedMediaType, match_extension
 from betty.media_type.media_types import JINJA2
 from betty.project.factory import ProjectDependentFactory
-from betty.render import Renderer, RendererDefinition
+from betty.resource import Context, copy_context
 from betty.resource import Context as ResourceContext
-from betty.resource import copy_context
 from betty.typing import private
 from betty.warnings import deprecate
 
@@ -46,9 +45,11 @@ if TYPE_CHECKING:
     from betty.asset import AssetRepository
     from betty.job import Context as JobContext
     from betty.locale.localizer import Localizer
-    from betty.media_type import MediaType
     from betty.project import Project
     from betty.project.extension import Extension
+
+
+CopyFunction: TypeAlias = Callable[[Path, Path], Awaitable[None]]
 
 
 def context_project(context: Jinja2Context) -> Project:
@@ -291,6 +292,58 @@ class Environment(ProjectDependentFactory, Jinja2Environment):
     ) -> ResourceContext:
         return copy_context(context_resource_context(context), **kwargs)
 
+    def make_copy_function(
+        self,
+        *,
+        resource: Context,
+        www_directory_path: Path | None = None,
+        is_localized_and_multilingual: bool | None = None,
+    ) -> CopyFunction:
+        """
+        Make a copy function for this renderer that renders supported files.
+        """
+
+        async def _copy_function(source_path: Path, destination_path: Path) -> None:
+            await makedirs(destination_path.parent, exist_ok=True)
+            try:
+                media_type, extension = match_extension(source_path, [JINJA2])
+            except UnsupportedMediaType:
+                copy2(source_path, destination_path)
+                return
+
+            destination_path = destination_path.with_name(
+                destination_path.name[: -len(extension)]
+            )
+            copy_resource = copy_context(resource, resource=destination_path)
+
+            if www_directory_path:
+                try:
+                    relative_file_destination_path = destination_path.relative_to(
+                        www_directory_path
+                    )
+                except ValueError:
+                    pass
+                else:
+                    resource_parts = relative_file_destination_path.parts
+                    if not any(
+                        resource_part.startswith(".")
+                        for resource_part in resource_parts
+                    ):
+                        if is_localized_and_multilingual:
+                            resource_parts = resource_parts[1:]
+                        copy_resource["resource_url"] = (
+                            f"betty:///{'/'.join(resource_parts)}"
+                        )
+            async with aiofiles.open(source_path) as f:
+                content = await f.read()
+
+            template = self.from_string(content)
+            rendered_content = await template.render_async(resource=copy_resource)
+            async with aiofiles.open(destination_path, "w") as f:
+                await f.write(rendered_content)
+
+        return _copy_function
+
 
 _CacheExtensionMap: TypeAlias = MutableMapping[str, str]
 
@@ -322,39 +375,3 @@ class _CacheTagExtension(Jinja2Extension):
             rendered = await auto_await(caller())
             await result(rendered)
             return rendered
-
-
-@final
-@RendererDefinition(
-    id="jinja2",
-)
-class Jinja2Renderer(Renderer, ProjectDependentFactory):
-    """
-    Render content as Jinja2 templates.
-    """
-
-    plugin: ClassVar[RendererDefinition]
-
-    def __init__(self, environment: Jinja2Environment):
-        self._environment = environment
-
-    @override
-    @classmethod
-    async def new_for_project(cls, project: Project) -> Self:
-        return cls(await project.jinja2_environment)
-
-    @override
-    @property
-    def media_types(self) -> Sequence[MediaType]:
-        return [JINJA2]
-
-    @override
-    async def render(
-        self,
-        content: str,
-        media_type: MediaType,
-        *,
-        resource: ResourceContext | None = None,
-    ) -> str:
-        template = self._environment.from_string(content)
-        return await template.render_async(resource=resource)

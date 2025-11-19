@@ -21,15 +21,14 @@ from betty import _npm
 from betty.dirs import ROOT_DIRECTORY_PATH
 from betty.hashid import hashid, hashid_file_content, hashid_sequence
 from betty.project.extension import Extension
-from betty.render import make_copy_function
 from betty.resource import new_context
 from betty.serde.dump import Dump, DumpMapping
 
 if TYPE_CHECKING:
     from collections.abc import MutableMapping, Sequence
 
+    from betty.jinja2 import Environment
     from betty.job import Context
-    from betty.render import Renderer
     from betty.user import User
 
 _NPM_PROJECT_DIRECTORIES_PATH = Path(__file__).parent / "webpack"
@@ -125,7 +124,7 @@ class Builder:
         working_directory_path: Path,
         entry_point_providers: Sequence[EntryPointProvider & Extension],
         debug: bool,
-        renderer: Renderer,
+        jinja2_environment: Environment,
         root_path: str,
         *,
         job_context: Context,
@@ -134,7 +133,7 @@ class Builder:
         self._working_directory_path = working_directory_path
         self._entry_point_providers = entry_point_providers
         self._debug = debug
-        self._renderer = renderer
+        self._jinja2_environment = jinja2_environment
         self._root_path = root_path
         self._job_context = job_context
         self._user = user
@@ -184,9 +183,8 @@ class Builder:
             / "packages"
             / _package_name_to_path(cast(str, package_json["name"]))
         )
-        copy_function = make_copy_function(
-            self._renderer,
-            resource=new_context(job_context=self._job_context),
+        copy_function = self._jinja2_environment.make_copy_function(
+            resource=new_context(job_context=self._job_context)
         )
         copies = []
         for directory_path, _, file_names in walk(entry_point_directory_path):

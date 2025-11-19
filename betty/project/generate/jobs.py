@@ -29,12 +29,12 @@ from betty.project.generate.file import (
     create_html_resource,
     create_json_resource,
 )
-from betty.render import CopyFunction, make_copy_function
 from betty.string import kebab_case_to_lower_camel_case
 
 if TYPE_CHECKING:
     from collections.abc import MutableSequence
 
+    from betty.jinja2 import CopyFunction
     from betty.job.scheduler import Scheduler
     from betty.serde.dump import Dump, DumpMapping
 
@@ -59,9 +59,8 @@ class GenerateStaticPublicAssets(Job[ProjectContext]):
     async def do(self, scheduler: Scheduler[ProjectContext], /) -> None:
         project = scheduler.context.project
         assets = await project.assets
-        renderer = await project.renderer
-        copy_function = make_copy_function(
-            renderer,
+        jinja2_environment = await project.jinja2_environment
+        copy_function = jinja2_environment.make_copy_function(
             resource=await project.new_resource_context(job_context=scheduler.context),
             www_directory_path=project.configuration.www_directory_path,
             is_localized_and_multilingual=project.configuration.locales.multilingual,
@@ -290,10 +289,9 @@ class GenerateLocalizedPublicAssets(Job[ProjectContext]):
         project = scheduler.context.project
         assets = await project.assets
         localizers = await project.localizers
-        renderer = await project.renderer
+        jinja2_environment = await project.jinja2_environment
         copy_functions = {
-            locale: make_copy_function(
-                renderer,
+            locale: jinja2_environment.make_copy_function(
                 resource=await project.new_resource_context(
                     job_context=scheduler.context,
                     localizer=localizers.get(locale),
