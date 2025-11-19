@@ -5,7 +5,7 @@ Provide plugin configuration.
 from __future__ import annotations
 
 from abc import abstractmethod
-from collections.abc import Mapping, MutableSet, Sequence, Set
+from collections.abc import Mapping, Sequence
 from typing import TYPE_CHECKING, Any, Generic, TypeVar, cast
 
 from typing_extensions import override
@@ -17,7 +17,6 @@ from betty.assertion import (
     assert_mapping,
     assert_or,
     assert_record,
-    assert_sequence,
     assert_setattr,
 )
 from betty.config import Configuration, DefaultConfigurable
@@ -157,61 +156,6 @@ class HumanFacingPluginDefinitionConfiguration(PluginDefinitionConfiguration):
         dump = super().dump()
         dump["label"] = self.label.dump()
         dump["description"] = self.description.dump()
-        return dump
-
-
-class OrderedPluginDefinitionConfiguration(PluginDefinitionConfiguration):
-    """
-    Configure a :py:class:`betty.plugin.OrderedPluginDefinition`.
-    """
-
-    comes_before: MutableSet[MachineName]
-    comes_after: MutableSet[MachineName]
-
-    def __init__(
-        self,
-        comes_before: Set[PluginIdentifier] | None = None,
-        comes_after: Set[PluginIdentifier] | None = None,
-        **kwargs: Any,
-    ):
-        super().__init__(**kwargs)
-        self.comes_before = (
-            set() if comes_before is None else set(map(resolve_id, comes_before))
-        )
-        self.comes_after = (
-            set() if comes_after is None else set(map(resolve_id, comes_after))
-        )
-
-    @override
-    def load(self, dump: Dump) -> None:
-        self.assert_mutable()
-
-        mapping = assert_mapping()(dump)
-        assert_fields(
-            OptionalField(
-                "comes_before",
-                assert_sequence(assert_machine_name())
-                | set
-                | assert_setattr(self, "comes_before"),
-            ),
-            OptionalField(
-                "comes_after",
-                assert_sequence(assert_machine_name())
-                | set
-                | assert_setattr(self, "comes_after"),
-            ),
-        )(mapping)
-        mapping.pop("comes_before", None)
-        mapping.pop("comes_after", None)
-        super().load(mapping)
-
-    @override
-    def dump(self) -> DumpMapping[Dump]:
-        dump = super().dump()
-        if self.comes_before:
-            dump["comes_before"] = list(self.comes_before)
-        if self.comes_after:
-            dump["comes_after"] = list(self.comes_after)
         return dump
 
 

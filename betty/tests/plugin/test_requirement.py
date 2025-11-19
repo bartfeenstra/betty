@@ -6,11 +6,8 @@ from typing_extensions import override
 
 from betty.locale.localizable import Plain
 from betty.locale.localizer import DEFAULT_LOCALIZER
-from betty.plugin import (
-    ClassedPluginDefinition,
-    DependentPluginDefinition,
-    PluginTypeDefinition,
-)
+from betty.plugin import ClassedPluginDefinition, PluginTypeDefinition
+from betty.plugin.dependent import DependentPluginDefinition
 from betty.plugin.requirement import new_dependencies_requirement
 from betty.requirement import HasRequirement, Requirement, StaticRequirement
 from betty.test_utils.plugin import ClassedDummyPlugin, ClassedDummyPluginOne

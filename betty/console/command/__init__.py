@@ -12,10 +12,10 @@ from betty import about
 from betty.locale.localizable import _
 from betty.plugin import (
     ClassedPluginDefinition,
-    EntryPointDiscovery,
     HumanFacingPluginDefinition,
     PluginTypeDefinition,
 )
+from betty.plugin.discovery.entry_point import EntryPointDiscovery
 
 if TYPE_CHECKING:
     import argparse

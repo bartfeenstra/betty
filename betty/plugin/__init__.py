@@ -9,10 +9,7 @@ Read more at :doc:`/development/plugin`.
 
 from __future__ import annotations
 
-from abc import ABC, abstractmethod
-from collections import defaultdict
 from contextlib import contextmanager
-from graphlib import TopologicalSorter
 from importlib import metadata
 from typing import (
     TYPE_CHECKING,
@@ -25,9 +22,8 @@ from typing import (
     final,
 )
 
-from typing_extensions import TypeVar, override
+from typing_extensions import TypeVar
 
-from betty.asyncio import ensure_await
 from betty.concurrent import AsynchronizedLock
 from betty.exception import HumanFacingException
 from betty.json.schema import Enum
@@ -35,26 +31,21 @@ from betty.locale.localizable import CountableLocalizable, Paragraph, _, do_you_
 from betty.locale.localizer import DEFAULT_LOCALIZER
 from betty.machine_name import InvalidMachineName, MachineName, validate_machine_name
 from betty.string import kebab_case_to_lower_camel_case
-from betty.typing import internal, threadsafe
+from betty.typing import threadsafe
 
 if TYPE_CHECKING:
     import builtins
     from collections.abc import (
-        Awaitable,
-        Callable,
         Collection,
         Iterable,
         Iterator,
         Mapping,
         MutableMapping,
         Sequence,
-        Set,
     )
 
-    from betty.app import App
     from betty.locale.localizable import Localizable
-    from betty.project import Project
-    from betty.project.extension import Extension, ExtensionDefinition
+    from betty.plugin.discovery import PluginDiscovery
     from betty.service_level import ServiceLevel
 
 _PluginT = TypeVar("_PluginT")
@@ -127,6 +118,8 @@ class PluginTypeDefinition(Generic[_PluginDefinitionT]):
         | PluginDiscovery[_PluginDefinitionT]
         | None = None,
     ):
+        from betty.plugin.discovery import PluginDiscovery
+
         if not validate_machine_name(id):  # type: ignore[redundant-expr]
             raise InvalidMachineName(id)
         self._id = id
@@ -174,6 +167,8 @@ class PluginTypeDefinition(Generic[_PluginDefinitionT]):
         """
         Temporarily override the discoveries for this plugin type.
         """
+        from betty.plugin.discovery.static import StaticDiscovery
+
         self._discoveries = [StaticDiscovery(*plugins)]
         yield
         self._discoveries = self._defined_discoveries
@@ -268,88 +263,6 @@ class CountableHumanFacingPluginDefinition(HumanFacingPluginDefinition):
         The human-readable short plugin label (countable).
         """
         return self._label_countable
-
-
-class OrderedPluginDefinition(PluginDefinition):
-    """
-    A definition of plugin that can declare its order with respect to other plugins.
-    """
-
-    def __init__(
-        self,
-        *,
-        comes_before: Set[PluginIdentifier] | None = None,
-        comes_after: Set[PluginIdentifier] | None = None,
-        **kwargs: Any,
-    ):
-        super().__init__(**kwargs)
-        self._comes_before = (
-            set()
-            if comes_before is None
-            else {resolve_id(plugin) for plugin in comes_before}
-        )
-        self._comes_after = (
-            set()
-            if comes_after is None
-            else {resolve_id(plugin) for plugin in comes_after}
-        )
-
-    @property
-    def comes_before(self) -> Set[MachineName]:
-        """
-        Get the plugins that this plugin comes before.
-
-        The returned plugins come after this plugin.
-        """
-        return self._comes_before
-
-    @property
-    def comes_after(self) -> Set[MachineName]:
-        """
-        Get the plugins that this plugin comes after.
-
-        The returned plugins come before this plugin.
-        """
-        return self._comes_after
-
-
-_OrderedPluginDefinitionT = TypeVar(
-    "_OrderedPluginDefinitionT", bound=OrderedPluginDefinition
-)
-
-
-class DependentPluginDefinition(OrderedPluginDefinition):
-    """
-    A definition of a plugin that can declare its dependency on other plugins.
-    """
-
-    def __init__(
-        self,
-        *,
-        depends_on: Set[PluginIdentifier] | None = None,
-        **kwargs: Any,
-    ):
-        super().__init__(**kwargs)
-        self._depends_on = (
-            set()
-            if depends_on is None
-            else {resolve_id(plugin) for plugin in depends_on}
-        )
-        self._comes_after.update(self._depends_on)
-
-    @property
-    def depends_on(self) -> Set[MachineName]:
-        """
-        The plugins this one depends on.
-
-        All plugins will automatically be added to :py:meth:`betty.plugin.OrderedPluginDefinition.comes_after`.
-        """
-        return self._depends_on
-
-
-_DependentPluginDefinitionT = TypeVar(
-    "_DependentPluginDefinitionT", bound=DependentPluginDefinition
-)
 
 
 class ClassedPluginDefinition(Generic[_PluginT], PluginDefinition):
@@ -493,196 +406,6 @@ class PluginRepository(Generic[_PluginDefinitionT]):
         return self._plugin_id_schema
 
 
-@internal
-class PluginDiscovery(Generic[_PluginDefinitionT], ABC):
-    """
-    A plugin discovery definition.
-    """
-
-    @abstractmethod
-    async def discover(
-        self, service_level: ServiceLevel, /
-    ) -> Iterable[_PluginDefinitionT]:
-        """
-        Get the definitions for this plugin type.
-        """
-
-
-@final
-class StaticDiscovery(PluginDiscovery[_PluginDefinitionT], Generic[_PluginDefinitionT]):
-    """
-    Statically define plugins.
-    """
-
-    def __init__(self, *plugins: _PluginDefinitionT):
-        self._plugins = plugins
-
-    @override
-    async def discover(
-        self, service_level: ServiceLevel, /
-    ) -> Iterable[_PluginDefinitionT]:
-        return self._plugins
-
-
-@final
-class EntryPointDiscovery(
-    PluginDiscovery[_PluginDefinitionT], Generic[_PluginDefinitionT]
-):
-    """
-    Discover plugins defined as distribution package `entry points <https://packaging.python.org/en/latest/specifications/entry-points/>`_.
-
-    If you are developing a plugin for an existing plugin type that uses entry points, you'll have
-    to add that plugin to your package metadata. For example, for a plugin type
-
-    - whose entry point group is ``your_entry_point_group``
-    - with a plugin class ``MyPlugin`` in the module ``my_package.my_module``
-    - and a plugin ID ``my-package-plugin``:
-
-    .. code-block:: toml
-
-        [project.entry-points.'betty.your_entry_point_group']
-        'my-package-plugin' = 'my_package.my_module:MyPlugin'
-    """
-
-    def __init__(
-        self,
-        entry_point_group: str,
-        /,
-    ):
-        self._entry_point_group = entry_point_group
-
-    @override
-    async def discover(
-        self, service_level: ServiceLevel, /
-    ) -> Iterable[_PluginDefinitionT]:
-        return [
-            resolve_definition(entry_point.load())  # type: ignore[misc]
-            for entry_point in metadata.entry_points(group=self._entry_point_group)
-        ]
-
-
-@final
-class GlobalDiscovery(PluginDiscovery[_PluginDefinitionT], Generic[_PluginDefinitionT]):
-    """
-    Discover globally defined plugins.
-    """
-
-    def __init__(
-        self,
-        discovery: Callable[[], Awaitable[Iterable[_PluginDefinitionT]]]
-        | Callable[[], Iterable[_PluginDefinitionT]],
-        /,
-    ):
-        self._discovery = discovery
-
-    @override
-    async def discover(
-        self, service_level: ServiceLevel, /
-    ) -> Iterable[_PluginDefinitionT]:
-        return await ensure_await(self._discovery())
-
-
-@final
-@internal
-class AppDiscovery(PluginDiscovery[_PluginDefinitionT], Generic[_PluginDefinitionT]):
-    """
-    Discover plugins that are defined through an :py:class:`betty.app.App`.
-    """
-
-    def __init__(
-        self,
-        discovery: Callable[[App], Awaitable[Iterable[_PluginDefinitionT]]]
-        | Callable[[App], Iterable[_PluginDefinitionT]],
-        /,
-    ):
-        self._discovery = discovery
-
-    @override
-    async def discover(
-        self, service_level: ServiceLevel, /
-    ) -> Iterable[_PluginDefinitionT]:
-        from betty.project import Project
-
-        if service_level is None:
-            return ()
-        if isinstance(service_level, Project):
-            service_level = service_level.app
-        return await ensure_await(self._discovery(service_level))
-
-
-@final
-@internal
-class ProjectDiscovery(
-    PluginDiscovery[_PluginDefinitionT], Generic[_PluginDefinitionT]
-):
-    """
-    Discover plugins that are defined through a :py:class:`betty.project.Project`.
-    """
-
-    def __init__(
-        self,
-        discovery: Callable[[Project], Awaitable[Iterable[_PluginDefinitionT]]]
-        | Callable[[Project], Iterable[_PluginDefinitionT]],
-        /,
-    ):
-        self._discovery = discovery
-
-    @override
-    async def discover(
-        self, service_level: ServiceLevel, /
-    ) -> Iterable[_PluginDefinitionT]:
-        from betty.project import Project
-
-        if not isinstance(service_level, Project):
-            return ()
-        return await ensure_await(self._discovery(service_level))
-
-
-@final
-class ExtensionDiscovery(
-    PluginDiscovery[_PluginDefinitionT], Generic[_PluginDefinitionT]
-):
-    """
-    Discover plugins that are defined through an :py:class:`betty.project.extension.Extension`.
-    """
-
-    def __init__(
-        self,
-        extension: PluginIdentifier[ExtensionDefinition, Extension],
-        discovery: Callable[[Extension], Awaitable[Iterable[_PluginDefinitionT]]]
-        | Callable[[Extension], Iterable[_PluginDefinitionT]],
-        /,
-    ):
-        self._extension_id = resolve_id(extension)
-        self._discovery = discovery
-
-    @override
-    async def discover(
-        self, service_level: ServiceLevel, /
-    ) -> Iterable[_PluginDefinitionT]:
-        from betty.project import Project
-
-        if not isinstance(service_level, Project):
-            return ()
-        extensions = await service_level.extensions
-        if self._extension_id not in extensions:
-            return ()
-        return await ensure_await(self._discovery(extensions[self._extension_id]))
-
-
-async def discover(
-    service_level: ServiceLevel, *discoveries: PluginDiscovery[_PluginDefinitionT]
-) -> Collection[_PluginDefinitionT]:
-    """
-    Discover plugins.
-    """
-    return [
-        plugin
-        for discovery in discoveries
-        for plugin in await discovery.discover(service_level)
-    ]
-
-
 @threadsafe
 class PluginRepositoryProvider:
     """
@@ -721,6 +444,8 @@ class PluginRepositoryProvider:
         plugin: type[_PluginDefinitionT],
         discoveries: Iterable[PluginDiscovery[_PluginDefinitionT]],
     ) -> PluginRepository[_PluginDefinitionT]:
+        from betty.plugin.discovery import discover
+
         return PluginRepository(
             plugin, *await discover(self._service_level, *discoveries)
         )
@@ -740,106 +465,3 @@ class CyclicDependencyError(PluginError):
         super().__init__(
             f"The following plugins have cyclic dependencies: {plugin_names}"
         )
-
-
-async def sort_ordered_plugin_graph(
-    plugin_repository: PluginRepository[_OrderedPluginDefinitionT],
-    plugins: Iterable[_OrderedPluginDefinitionT],
-    /,
-) -> TopologicalSorter[MachineName]:
-    """
-    Build a graph of the given plugins.
-    """
-    sorter = TopologicalSorter[MachineName]()
-    plugins = sorted(plugins, key=lambda plugin: plugin.id)
-    for plugin in plugins:
-        sorter.add(plugin.id)
-        for before_identifier in map(resolve_id, plugin.comes_before):
-            before = plugin_repository[before_identifier]
-            if before in plugins:
-                sorter.add(before.id, plugin.id)
-        for after_identifier in map(resolve_id, plugin.comes_after):
-            after = plugin_repository[after_identifier]
-            if after in plugins:
-                sorter.add(plugin.id, after.id)
-    return sorter
-
-
-async def expand_plugin_dependencies(
-    plugin_repository: PluginRepository[_DependentPluginDefinitionT],
-    plugins: Iterable[_DependentPluginDefinitionT],
-    /,
-) -> set[_DependentPluginDefinitionT]:
-    """
-    Expand a collection of plugins to include their dependencies.
-    """
-    dependencies = set()
-    for plugin in plugins:
-        dependencies.add(plugin)
-        dependencies.update(
-            await expand_plugin_dependencies(
-                plugin_repository,
-                [plugin_repository.get(depends_on) for depends_on in plugin.depends_on],
-            )
-        )
-    return dependencies
-
-
-async def sort_dependent_plugin_graph(
-    plugin_repository: PluginRepository[_DependentPluginDefinitionT],
-    plugins: Iterable[_DependentPluginDefinitionT],
-    /,
-) -> TopologicalSorter[MachineName]:
-    """
-    Sort a dependent plugin graph.
-    """
-    return await sort_ordered_plugin_graph(
-        plugin_repository, await expand_plugin_dependencies(plugin_repository, plugins)
-    )
-
-
-def _collect_plugin_graph(
-    graph: Mapping[_PluginDefinitionT, set[_PluginDefinitionT]],
-    origin: _PluginDefinitionT,
-) -> Iterator[_PluginDefinitionT]:
-    yield from graph[origin]
-    for target in graph[origin]:
-        yield from _collect_plugin_graph(graph, target)
-
-
-def get_comes_before(
-    plugin_repository: PluginRepository[_OrderedPluginDefinitionT],
-    origin: _OrderedPluginDefinitionT,
-    /,
-) -> set[_OrderedPluginDefinitionT]:
-    """
-    Get all other plugins the given plugin comes before.
-    """
-    graph = defaultdict(set)
-    for plugin in plugin_repository:
-        for comes_before_id in plugin.comes_before:
-            comes_before = plugin_repository[comes_before_id]
-            graph[plugin].add(comes_before)
-        for comes_after_id in plugin.comes_after:
-            comes_after = plugin_repository[comes_after_id]
-            graph[comes_after].add(plugin)
-    return set(_collect_plugin_graph(graph, origin))
-
-
-def get_comes_after(
-    plugin_repository: PluginRepository[_OrderedPluginDefinitionT],
-    origin: _OrderedPluginDefinitionT,
-    /,
-) -> set[_OrderedPluginDefinitionT]:
-    """
-    Get all other plugins the given plugin comes after.
-    """
-    graph = defaultdict(set)
-    for plugin in plugin_repository:
-        for comes_after_id in plugin.comes_after:
-            comes_after = plugin_repository[comes_after_id]
-            graph[plugin].add(comes_after)
-        for comes_before_id in plugin.comes_before:
-            comes_before = plugin_repository[comes_before_id]
-            graph[comes_before].add(plugin)
-    return set(_collect_plugin_graph(graph, origin))

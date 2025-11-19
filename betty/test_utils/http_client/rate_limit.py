@@ -4,8 +4,8 @@ Test utilities for :py:mod:`betty.http_client.rate_limit`.
 
 from betty.test_utils.plugin import (
     ClassedPluginDefinitionTestBase,
-    OrderedPluginDefinitionTestBase,
 )
+from betty.test_utils.plugin.ordered import OrderedPluginDefinitionTestBase
 
 
 class RateLimitDefinitionTestBase(

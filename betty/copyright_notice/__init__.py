@@ -12,11 +12,11 @@ from betty.mutability import Mutable
 from betty.plugin import (
     ClassedPlugin,
     ClassedPluginDefinition,
-    EntryPointDiscovery,
     HumanFacingPluginDefinition,
     PluginTypeDefinition,
-    ProjectDiscovery,
 )
+from betty.plugin.discovery.entry_point import EntryPointDiscovery
+from betty.plugin.discovery.project import ProjectDiscovery
 
 if TYPE_CHECKING:
     from betty.locale.localizable import Localizable

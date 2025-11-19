@@ -16,13 +16,11 @@ from betty.machine_name import assert_machine_name
 from betty.plugin import (
     ClassedPluginDefinition,
     CountableHumanFacingPluginDefinition,
-    DependentPluginDefinition,
-    GlobalDiscovery,
     HumanFacingPluginDefinition,
-    OrderedPluginDefinition,
     PluginDefinition,
     PluginTypeDefinition,
 )
+from betty.plugin.discovery.callback import CallbackDiscovery
 from betty.test_utils.config import DummyConfiguration
 
 
@@ -131,39 +129,6 @@ class CountableHumanFacingPluginDefinitionTestBase(HumanFacingPluginDefinitionTe
         assert sut.label_countable.count(count).localize(DEFAULT_LOCALIZER)
 
 
-class OrderedPluginDefinitionTestBase(PluginDefinitionTestBase):
-    """
-    A base class for testing :py:class:`betty.plugin.OrderedPluginDefinition` subclasses.
-    """
-
-    def test_comes_after(self, sut: OrderedPluginDefinition) -> None:
-        """
-        Tests the :py:attr:`betty.plugin.OrderedPluginDefinition.comes_after` value.
-        """
-        for plugin_id in sut.comes_after:
-            assert_machine_name()(plugin_id)
-
-    def test_comes_before(self, sut: OrderedPluginDefinition) -> None:
-        """
-        Tests the :py:attr:`betty.plugin.OrderedPluginDefinition.comes_before` value.
-        """
-        for plugin_id in sut.comes_before:
-            assert_machine_name()(plugin_id)
-
-
-class DependentPluginDefinitionTestBase(PluginDefinitionTestBase):
-    """
-    A base class for testing :py:class:`betty.plugin.DependentPluginDefinition` subclasses.
-    """
-
-    def test_depends_on(self, sut: DependentPluginDefinition) -> None:
-        """
-        Tests the :py:attr:`betty.plugin.DependentPluginDefinition.depends_on` value.
-        """
-        for plugin_id in sut.depends_on:
-            assert_machine_name()(plugin_id)
-
-
 class ClassedPluginDefinitionTestBase(PluginDefinitionTestBase):
     """
     A base class for testing :py:class:`betty.plugin.ClassedPluginDefinition` subclasses.
@@ -184,7 +149,7 @@ class DummyPluginDefinition(PluginDefinition):
     type = PluginTypeDefinition(
         id="dummy-plugin",
         label=Plain("Dummy plugin"),
-        discoveries=GlobalDiscovery(
+        discoveries=CallbackDiscovery(
             lambda: [
                 DUMMY_PLUGIN_ONE,  # type: ignore[has-type]
                 DUMMY_PLUGIN_TWO,  # type: ignore[has-type]
@@ -227,7 +192,7 @@ class ClassedDummyPluginDefinition(ClassedPluginDefinition[ClassedDummyPlugin]):
     type = PluginTypeDefinition(
         id="classed-dummy-plugin",
         label=Plain("Classed dummy plugin"),
-        discoveries=GlobalDiscovery(
+        discoveries=CallbackDiscovery(
             lambda: [
                 ClassedDummyPluginOne.plugin,
                 ClassedDummyPluginTwo.plugin,
@@ -283,7 +248,7 @@ class ConfigurableDummyPluginDefinition(
     type = PluginTypeDefinition(
         id="configurable-dummy-plugin",
         label=Plain("Configurable dummy plugin"),
-        discoveries=GlobalDiscovery(
+        discoveries=CallbackDiscovery(
             lambda: [
                 ConfigurableDummyPluginOne.plugin,
             ]

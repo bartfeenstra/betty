@@ -11,14 +11,14 @@ from betty.locale.localizable import _
 from betty.plugin import (
     ClassedPlugin,
     ClassedPluginDefinition,
-    EntryPointDiscovery,
     HumanFacingPluginDefinition,
-    OrderedPluginDefinition,
     PluginIdentifier,
     PluginTypeDefinition,
-    ProjectDiscovery,
     resolve_id,
 )
+from betty.plugin.discovery.entry_point import EntryPointDiscovery
+from betty.plugin.discovery.project import ProjectDiscovery
+from betty.plugin.ordered import OrderedPluginDefinition
 
 if TYPE_CHECKING:
     from betty.ancestry.person import Person

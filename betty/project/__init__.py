@@ -39,8 +39,8 @@ from betty.model import Entity, EntityDefinition, ToManySchema
 from betty.plugin import (
     PluginRepositoryProvider,
     resolve_id,
-    sort_dependent_plugin_graph,
 )
+from betty.plugin.dependent import sort_dependent_plugin_graph
 from betty.privacy.privatizer import Privatizer
 from betty.project.config import ProjectConfiguration
 from betty.project.extension import Extension, ExtensionDefinition

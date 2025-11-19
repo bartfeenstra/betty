@@ -68,9 +68,9 @@ metadata in its definition:
     To add human-readable labels and descriptions to plugins.
 :py:class:`betty.plugin.CountableHumanFacingPluginDefinition`
     To add countable human-readable labels and descriptions to plugins.
-:py:class:`betty.plugin.OrderedPluginDefinition`
+:py:class:`betty.plugin.ordered.OrderedPluginDefinition`
     To allow plugins to define if they come before or after any other plugins.
-:py:class:`betty.plugin.DependentPluginDefinition`
+:py:class:`betty.plugin.dependent.DependentPluginDefinition`
     To allow plugins to define their dependencies on any other plugins.
 :py:class:`betty.plugin.ClassedPluginDefinition`
     For plugins that have classes that can be instantiated.

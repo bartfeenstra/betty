@@ -18,10 +18,10 @@ from betty.project.extension import (
 from betty.test_utils.config import DummyConfiguration
 from betty.test_utils.plugin import (
     ClassedPluginDefinitionTestBase,
-    DependentPluginDefinitionTestBase,
     HumanFacingPluginDefinitionTestBase,
-    OrderedPluginDefinitionTestBase,
 )
+from betty.test_utils.plugin.dependent import DependentPluginDefinitionTestBase
+from betty.test_utils.plugin.ordered import OrderedPluginDefinitionTestBase
 
 
 class ExtensionDefinitionTestBase(

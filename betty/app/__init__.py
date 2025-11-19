@@ -36,11 +36,8 @@ from betty.locale.translation import (
     TranslationRepository,
 )
 from betty.multiprocessing import ProcessPoolExecutor
-from betty.plugin import (
-    PluginRepository,
-    PluginRepositoryProvider,
-    sort_ordered_plugin_graph,
-)
+from betty.plugin import PluginRepository, PluginRepositoryProvider
+from betty.plugin.ordered import sort_ordered_plugin_graph
 from betty.service import ServiceFactory, ServiceProvider, StaticService, service
 from betty.typing import threadsafe
 from betty.user.no_op import NoOpUser
