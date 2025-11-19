@@ -6,6 +6,7 @@ import pytest
 from typing_extensions import override
 
 from betty.exception import HumanFacingException
+from betty.factory import new
 from betty.model import EntityDefinition
 from betty.model.config import EntityReference, EntityReferenceSequence
 from betty.plugin import PluginRepository
@@ -151,7 +152,7 @@ class TestEntityReference:
     ) -> None:
         sut = EntityReference("betty.non_existent.Entity")
         with raises_error(error_type=HumanFacingException):
-            await sut.validate(PluginRepository(EntityDefinition))
+            await sut.validate(PluginRepository(EntityDefinition, factory=new))
 
 
 class TestEntityReferenceSequence(ConfigurationSequenceTestBase[EntityReference]):
@@ -197,4 +198,4 @@ class TestEntityReferenceSequence(ConfigurationSequenceTestBase[EntityReference]
     ) -> None:
         sut = EntityReferenceSequence([EntityReference("betty.non_existent.Entity")])
         with raises_error(error_type=HumanFacingException):
-            await sut.validate(PluginRepository(EntityDefinition))
+            await sut.validate(PluginRepository(EntityDefinition, factory=new))

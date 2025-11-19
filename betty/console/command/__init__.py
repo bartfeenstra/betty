@@ -11,6 +11,7 @@ from typing import TYPE_CHECKING, ClassVar, ParamSpec, TypeAlias, TypeVar, final
 from betty import about
 from betty.locale.localizable import _
 from betty.plugin import (
+    ClassedPlugin,
     ClassedPluginDefinition,
     EntryPointDiscovery,
     HumanFacingPluginDefinition,
@@ -27,7 +28,7 @@ _P = ParamSpec("_P")
 CommandFunction: TypeAlias = Callable[..., Awaitable[None]]
 
 
-class Command:
+class Command(ClassedPlugin):
     """
     A console command plugin.
 

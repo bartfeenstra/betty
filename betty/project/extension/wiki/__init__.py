@@ -68,7 +68,7 @@ class Wiki(
         copyright_notices = await project.plugins(CopyrightNoticeDefinition)
         return cls(
             project,
-            await project.new_target(copyright_notices["wikipedia-contributors"].cls),
+            await copyright_notices.new("wikipedia-contributors"),
             configuration=cls.new_default_configuration(),
         )
 

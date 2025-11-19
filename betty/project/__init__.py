@@ -230,12 +230,8 @@ class Project(
         """
         The (file) content renderer.
         """
-        return ProxyRenderer(
-            [
-                await self.new_target(plugin.cls)
-                for plugin in await self.plugins(RendererDefinition)
-            ]
-        )
+        renderers = await self.plugins(RendererDefinition)
+        return ProxyRenderer([await renderers.new(plugin) for plugin in renderers])
 
     @service
     async def extensions(self) -> ProjectExtensions:
@@ -277,7 +273,7 @@ class Project(
                         enabled_extension_id
                     ].new_plugin_instance(extensions, factory=self.new_target)
                 else:
-                    extension = await self.new_target(enabled_extension_definition.cls)
+                    extension = await extensions.new(enabled_extension_definition)
                 enabled_extension_batch.append(extension)
                 extensions_sorter.done(enabled_extension_id)
             enabled_extensions.append(

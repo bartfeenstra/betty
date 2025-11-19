@@ -23,6 +23,7 @@ from typing import (
     TypeAlias,
     cast,
     final,
+    overload,
 )
 
 from typing_extensions import TypeVar, override
@@ -52,6 +53,7 @@ if TYPE_CHECKING:
     )
 
     from betty.app import App
+    from betty.factory import Factory
     from betty.locale.localizable import Localizable
     from betty.project import Project
     from betty.project.extension import Extension, ExtensionDefinition
@@ -397,6 +399,18 @@ PluginIdentifier: TypeAlias = (
 )
 
 
+@overload
+def resolve_definition(definition: _PluginDefinitionT, /) -> _PluginDefinitionT:
+    pass
+
+
+@overload
+def resolve_definition(
+    definition: type[_ClassedPluginT], /
+) -> ClassedPluginDefinition[_ClassedPluginT]:
+    pass
+
+
 def resolve_definition(definition: ResolvablePluginDefinition, /) -> PluginDefinition:
     """
     Resolve a plugin definition.
@@ -449,11 +463,28 @@ class PluginRepository(Generic[_PluginDefinitionT]):
     """
 
     def __init__(
-        self, plugin_type: type[_PluginDefinitionT], *plugins: _PluginDefinitionT
+        self,
+        plugin_type: type[_PluginDefinitionT],
+        *plugins: _PluginDefinitionT,
+        factory: Factory,
     ):
         self._plugin_type = plugin_type
         self._plugins = {plugin.id: plugin for plugin in plugins}
         self._plugin_id_schema: Enum | None = None
+        self._factory = factory
+
+    # @todo Narrow this down somewhat so we can type it explicitly
+    # @todo
+    # @todo
+    async def new(
+        self, plugin: ClassedPluginDefinition[_ClassedPluginT] | type[_ClassedPluginT]
+    ) -> _ClassedPluginT:
+        """
+        Create a new plugin instance.
+        """
+        plugin = resolve_definition(plugin)
+        assert isinstance(plugin, ClassedPluginDefinition)
+        return await self._factory(plugin.cls)
 
     def get(self, plugin_id: MachineName, /) -> _PluginDefinitionT:
         """
@@ -556,7 +587,7 @@ class EntryPointDiscovery(
         self, service_level: ServiceLevel, /
     ) -> Iterable[_PluginDefinitionT]:
         return [
-            resolve_definition(entry_point.load())  # type: ignore[misc]
+            resolve_definition(entry_point.load())
             for entry_point in metadata.entry_points(group=self._entry_point_group)
         ]
 
@@ -722,7 +753,9 @@ class PluginRepositoryProvider:
         discoveries: Iterable[PluginDiscovery[_PluginDefinitionT]],
     ) -> PluginRepository[_PluginDefinitionT]:
         return PluginRepository(
-            plugin, *await discover(self._service_level, *discoveries)
+            plugin,
+            *await discover(self._service_level, *discoveries),
+            factory=self.new_target,  # type: ignore[attr-defined]
         )
 
 

@@ -18,6 +18,7 @@ from betty.console.command import CommandDefinition, CommandFunction
 from betty.exception import HumanFacingException
 from betty.locale.localizable import _
 from betty.locale.localizer import Localizer
+from betty.plugin import plugins
 from betty.user import Verbosity
 
 _T = TypeVar("_T")
@@ -108,7 +109,8 @@ async def _create_command_parser(
     formatter_class: type[argparse.HelpFormatter],
 ) -> argparse.ArgumentParser:
     localizer = await app.localizer
-    command = await app.new_target(command_plugin.cls)
+    commands = await plugins(CommandDefinition)
+    command = await commands.new(command_plugin)
     command_parser: argparse.ArgumentParser = subparsers.add_parser(
         command.plugin.id,
         description=command.plugin.label.localize(localizer),

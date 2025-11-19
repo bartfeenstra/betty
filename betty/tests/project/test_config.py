@@ -12,6 +12,7 @@ from betty.ancestry.presence_role import PresenceRoleDefinition
 from betty.copyright_notice import CopyrightNoticeDefinition
 from betty.copyright_notice.copyright_notices import ProjectAuthor
 from betty.exception import HumanFacingException
+from betty.factory import new
 from betty.license import LicenseDefinition
 from betty.license.licenses import AllRightsReserved
 from betty.locale import DEFAULT_LOCALE, UNDETERMINED_LOCALE
@@ -414,7 +415,9 @@ class TestEntityTypeConfiguration:
         )
         with pytest.raises(HumanFacingException):
             await sut.validate(
-                PluginRepository(EntityDefinition, DummyNonPublicFacingEntityOne.plugin)
+                PluginRepository(
+                    EntityDefinition, DummyNonPublicFacingEntityOne.plugin, factory=new
+                )
             )
 
 
@@ -505,7 +508,9 @@ class TestEntityTypeConfigurationMapping(
         )
         with pytest.raises(HumanFacingException):
             await sut.validate(
-                PluginRepository(EntityDefinition, DummyNonPublicFacingEntityOne.plugin)
+                PluginRepository(
+                    EntityDefinition, DummyNonPublicFacingEntityOne.plugin, factory=new
+                )
             )
 
 

@@ -7,6 +7,7 @@ from typing import TYPE_CHECKING, TypeAlias, TypeVar, cast
 import pytest
 
 from betty.app import App
+from betty.factory import new
 from betty.locale.localizable import CountablePlain, Plain
 from betty.plugin import (
     AppDiscovery,
@@ -134,11 +135,12 @@ class TestPluginRepository:
             DUMMY_PLUGIN_ONE,
             DUMMY_PLUGIN_TWO,
             DUMMY_PLUGIN_THREE,
+            factory=new,
         )
         assert len(sut) == 3
 
     def test___getitem__(self) -> None:
-        sut = PluginRepository(DummyPluginDefinition, DUMMY_PLUGIN_ONE)
+        sut = PluginRepository(DummyPluginDefinition, DUMMY_PLUGIN_ONE, factory=new)
         assert sut[DUMMY_PLUGIN_ONE.id] is DUMMY_PLUGIN_ONE
 
     def test___iter__(self) -> None:
@@ -147,6 +149,7 @@ class TestPluginRepository:
             DUMMY_PLUGIN_ONE,
             DUMMY_PLUGIN_TWO,
             DUMMY_PLUGIN_THREE,
+            factory=new,
         )
         assert list(iter(sut)) == [
             DUMMY_PLUGIN_ONE,
@@ -160,6 +163,7 @@ class TestPluginRepository:
             DUMMY_PLUGIN_ONE,
             DUMMY_PLUGIN_TWO,
             DUMMY_PLUGIN_THREE,
+            factory=new,
         )
         actual = sut.plugin_id_schema
         assert actual.schema["enum"] == [
@@ -268,6 +272,7 @@ async def test_sort_ordered_plugin_graph(
             _ORDERED_PLUGIN_COMES_AFTER_TARGET,
             _ORDERED_PLUGIN_HAS_COMES_AFTER,
             _ORDERED_PLUGIN_ISOLATED,
+            factory=new,
         ),
         plugins,
     )
@@ -363,6 +368,7 @@ async def test_expand_plugin_dependencies(
             _DEPENDENT_PLUGIN_UPSTREAM_DEPENDENT,
             _DEPENDENT_PLUGIN_UPSTREAM_AND_DOWNSTREAM_DEPENDENT,
             _DEPENDENT_PLUGIN_DOWNSTREAM_DEPENDENT,
+            factory=new,
         ),
         plugins,
     )
@@ -432,6 +438,7 @@ async def test_sort_dependent_plugin_graph(
         _DEPENDENT_PLUGIN_UPSTREAM_DEPENDENT,
         _DEPENDENT_PLUGIN_UPSTREAM_AND_DOWNSTREAM_DEPENDENT,
         _DEPENDENT_PLUGIN_DOWNSTREAM_DEPENDENT,
+        factory=new,
     )
     sorter = await sort_dependent_plugin_graph(plugin_repository, plugins)
     assert list(sorter.static_order()) == expected
@@ -472,6 +479,7 @@ def test_get_comes_before(
                 _ORDERED_PLUGIN_ISOLATED,
                 _ORDERED_PLUGIN_HAS_COMES_BEFORE_BIDIRECTIONAL,
                 _ORDERED_PLUGIN_HAS_COMES_AFTER_BIDIRECTIONAL,
+                factory=new,
             ),
             origin,
         )
@@ -514,6 +522,7 @@ def test_get_comes_after(
                 _ORDERED_PLUGIN_ISOLATED,
                 _ORDERED_PLUGIN_HAS_COMES_AFTER_BIDIRECTIONAL,
                 _ORDERED_PLUGIN_HAS_COMES_BEFORE_BIDIRECTIONAL,
+                factory=new,
             ),
             origin,
         )

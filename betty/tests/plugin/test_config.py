@@ -346,7 +346,9 @@ class TestPluginInstanceConfiguration:
             ConfigurableDummyPluginDefinition, ConfigurableDummyPlugin
         ](ConfigurableDummyPluginOne.plugin, configuration=DummyConfiguration(value))
         repository = PluginRepository(
-            ConfigurableDummyPluginDefinition, ConfigurableDummyPluginOne.plugin
+            ConfigurableDummyPluginDefinition,
+            ConfigurableDummyPluginOne.plugin,
+            factory=new,
         )
         instance = await sut.new_plugin_instance(repository, factory=new)
         assert isinstance(instance, ConfigurableDummyPluginOne)
@@ -359,7 +361,9 @@ class TestPluginInstanceConfiguration:
             ConfigurableDummyPluginDefinition, ConfigurableDummyPlugin
         ](ConfigurableDummyPluginOne.plugin)
         repository = PluginRepository(
-            ConfigurableDummyPluginDefinition, ConfigurableDummyPluginOne.plugin
+            ConfigurableDummyPluginDefinition,
+            ConfigurableDummyPluginOne.plugin,
+            factory=new,
         )
         instance = await sut.new_plugin_instance(repository, factory=new)
         assert isinstance(instance, ConfigurableDummyPluginOne)
@@ -372,7 +376,7 @@ class TestPluginInstanceConfiguration:
             ClassedDummyPluginDefinition, ClassedDummyPlugin
         ](ClassedDummyPluginOne.plugin, configuration=DummyConfiguration(value))
         repository = PluginRepository(
-            ClassedDummyPluginDefinition, ClassedDummyPluginOne.plugin
+            ClassedDummyPluginDefinition, ClassedDummyPluginOne.plugin, factory=new
         )
         with pytest.raises(HumanFacingException):
             await sut.new_plugin_instance(repository, factory=new)
@@ -384,7 +388,7 @@ class TestPluginInstanceConfiguration:
             ClassedDummyPluginDefinition, ClassedDummyPlugin
         ](ClassedDummyPluginOne.plugin.id)
         repository = PluginRepository(
-            ClassedDummyPluginDefinition, ClassedDummyPluginOne.plugin
+            ClassedDummyPluginDefinition, ClassedDummyPluginOne.plugin, factory=new
         )
         instance = await sut.new_plugin_instance(repository, factory=new)
         assert isinstance(instance, ClassedDummyPluginOne)

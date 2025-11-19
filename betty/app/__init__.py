@@ -26,7 +26,6 @@ from betty.dirs import CACHE_DIRECTORY_PATH
 from betty.factory import TargetFactory, new
 from betty.http_client import ClientErrorToUserMessageMiddleware
 from betty.http_client.rate_limit import RateLimitDefinition, RateLimitMiddleware
-from betty.license import LicenseDefinition
 from betty.license.licenses import SpdxLicenseBuilder
 from betty.locale import DEFAULT_LOCALE
 from betty.locale.localizer import Localizer, LocalizerRepository
@@ -37,7 +36,6 @@ from betty.locale.translation import (
 )
 from betty.multiprocessing import ProcessPoolExecutor
 from betty.plugin import (
-    PluginRepository,
     PluginRepositoryProvider,
     sort_ordered_plugin_graph,
 )
@@ -46,12 +44,13 @@ from betty.typing import threadsafe
 from betty.user.no_op import NoOpUser
 
 if TYPE_CHECKING:
-    from collections.abc import AsyncIterator
+    from collections.abc import AsyncIterator, Iterable
     from concurrent import futures
 
     import aiohttp
 
     from betty.cache import Cache
+    from betty.license import LicenseDefinition
     from betty.user import User
 
 _T = TypeVar("_T")
@@ -208,7 +207,7 @@ class App(
                 ClientErrorToUserMessageMiddleware(self.user),
                 RateLimitMiddleware(
                     [
-                        await self.new_target(http_rate_limits[rate_limit_id].cls)
+                        await http_rate_limits.new(rate_limit_id)
                         for rate_limit_id in rate_limit_sorter.static_order()
                     ]
                 ),
@@ -272,15 +271,12 @@ class App(
         return await new(cls)
 
     @service
-    async def _spdx_license_repository(self) -> PluginRepository[LicenseDefinition]:
-        return PluginRepository(
-            LicenseDefinition,
-            *[
-                license
-                async for license in SpdxLicenseBuilder(  # noqa A001
-                    binary_file_cache=self.binary_file_cache.with_scope("spdx"),
-                    http_client=await self.http_client,
-                    user=self.user,
-                ).build()
-            ],
-        )
+    async def _spdx_license_repository(self) -> Iterable[LicenseDefinition]:
+        return [
+            license
+            async for license in SpdxLicenseBuilder(  # noqa A001
+                binary_file_cache=self.binary_file_cache.with_scope("spdx"),
+                http_client=await self.http_client,
+                user=self.user,
+            ).build()
+        ]

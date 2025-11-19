@@ -6,6 +6,7 @@ from pytest_mock import MockerFixture
 
 from betty.ancestry import Ancestry
 from betty.app import App
+from betty.factory import new
 from betty.locale import DEFAULT_LOCALE, LocaleLike
 from betty.media_type import MediaType
 from betty.media_type.media_types import HTML, JSON
@@ -46,7 +47,9 @@ class Test_EntityUrlUrlGenerator:
     ) -> None:
         m_entity_url_generator = mocker.patch("betty.project.url._EntityUrlGenerator")
         ancestry = Ancestry()
-        entity_repository = PluginRepository(EntityDefinition, DummyEntityOne.plugin)
+        entity_repository = PluginRepository(
+            EntityDefinition, DummyEntityOne.plugin, factory=new
+        )
         sut = _EntityUrlUrlGenerator(
             ancestry, m_entity_url_generator, entity_repository
         )
@@ -62,7 +65,9 @@ class Test_EntityUrlUrlGenerator:
         entity = DummyEntityOne(self._ENTITY_ID)
         ancestry = Ancestry()
         ancestry.add(entity)
-        entity_repository = PluginRepository(EntityDefinition, DummyEntityOne.plugin)
+        entity_repository = PluginRepository(
+            EntityDefinition, DummyEntityOne.plugin, factory=new
+        )
         sut = _EntityUrlUrlGenerator(
             ancestry, m_entity_url_generator, entity_repository
         )

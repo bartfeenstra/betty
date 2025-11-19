@@ -31,6 +31,7 @@ from betty.ancestry.place_type.place_types import (
 from betty.ancestry.presence import Presence
 from betty.ancestry.presence_role.presence_roles import Subject
 from betty.ancestry.source import Source
+from betty.copyright_notice import CopyrightNoticeDefinition
 from betty.date import Date, DateRange
 from betty.dirs import DATA_DIRECTORY_PATH
 from betty.job import Job
@@ -475,10 +476,11 @@ class LoadAncestry(Job[ProjectContext]):
         project: Project,
     ) -> tuple[Mapping[MachineName, Sequence[File]], Sequence[File]]:
         licenses = await project.plugins(LicenseDefinition)
-        license = await project.new_target(  # noqa A001
-            licenses[spdx_license_id_to_license_id("AGPL-3.0-or-later")].cls
+        license = await licenses.new(  # noqa A001
+            spdx_license_id_to_license_id("AGPL-3.0-or-later")
         )
-        copyright_notice = await project.new_target(Streetmix)
+        copyright_notices = await project.plugins(CopyrightNoticeDefinition)
+        copyright_notice = await copyright_notices.new(Streetmix)
         streetmix_image_directory_path = DATA_DIRECTORY_PATH / "images" / "streetmix"
         masculine: Sequence[File] = []
         feminine: Sequence[File] = []
