@@ -18,9 +18,9 @@ from betty.locale.localizable import _
 from betty.media_type import UnsupportedMediaType, match_extension, match_media_type
 from betty.plugin import (
     ClassedPluginDefinition,
-    EntryPointDiscovery,
     PluginTypeDefinition,
 )
+from betty.plugin.discovery.entry_point import EntryPointDiscovery
 from betty.resource import copy_context
 from betty.typing import internal
 

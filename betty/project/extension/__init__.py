@@ -12,12 +12,12 @@ from betty.locale.localizable import _
 from betty.plugin import (
     ClassedPlugin,
     ClassedPluginDefinition,
-    DependentPluginDefinition,
-    EntryPointDiscovery,
     HumanFacingPluginDefinition,
-    OrderedPluginDefinition,
     PluginTypeDefinition,
 )
+from betty.plugin.dependent import DependentPluginDefinition
+from betty.plugin.discovery.entry_point import EntryPointDiscovery
+from betty.plugin.ordered import OrderedPluginDefinition
 from betty.plugin.requirement import new_dependencies_requirement
 from betty.project.factory import ProjectDependentFactory
 from betty.requirement import HasRequirement

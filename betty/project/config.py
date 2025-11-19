@@ -49,12 +49,12 @@ from betty.model import Entity, EntityDefinition
 from betty.plugin import plugins, resolve_id
 from betty.plugin.config import (
     HumanFacingPluginDefinitionConfiguration,
-    OrderedPluginDefinitionConfiguration,
     PluginDefinitionConfigurationMapping,
     PluginIdentifierKeyConfigurationMapping,
     PluginInstanceConfiguration,
     PluginInstanceConfigurationMapping,
 )
+from betty.plugin.config.ordered import OrderedPluginDefinitionConfiguration
 from betty.project.extension import Extension, ExtensionDefinition
 from betty.serde.format import FormatDefinition, format_for
 

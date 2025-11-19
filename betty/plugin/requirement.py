@@ -10,10 +10,10 @@ from betty.locale.localizable import AnyEnumeration, _
 from betty.plugin import (
     ClassedPluginDefinition,
     CyclicDependencyError,
-    DependentPluginDefinition,
     HumanFacingPluginDefinition,
     resolve_id,
 )
+from betty.plugin.dependent import DependentPluginDefinition
 from betty.requirement import AllRequirements
 
 if TYPE_CHECKING:

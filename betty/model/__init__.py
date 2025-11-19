@@ -20,9 +20,9 @@ from betty.plugin import (
     ClassedPlugin,
     ClassedPluginDefinition,
     CountableHumanFacingPluginDefinition,
-    EntryPointDiscovery,
     PluginTypeDefinition,
 )
+from betty.plugin.discovery.entry_point import EntryPointDiscovery
 from betty.string import kebab_case_to_lower_camel_case
 
 if TYPE_CHECKING:

@@ -9,12 +9,9 @@ from typing import TYPE_CHECKING, final
 
 from betty.concurrent import AsynchronizedLock, RateLimiter
 from betty.locale.localizable import _
-from betty.plugin import (
-    ClassedPluginDefinition,
-    EntryPointDiscovery,
-    OrderedPluginDefinition,
-    PluginTypeDefinition,
-)
+from betty.plugin import ClassedPluginDefinition, PluginTypeDefinition
+from betty.plugin.discovery.entry_point import EntryPointDiscovery
+from betty.plugin.ordered import OrderedPluginDefinition
 from betty.typing import threadsafe
 
 if TYPE_CHECKING:

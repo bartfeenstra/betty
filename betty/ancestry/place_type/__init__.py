@@ -10,11 +10,11 @@ from betty.locale.localizable import _
 from betty.plugin import (
     ClassedPlugin,
     ClassedPluginDefinition,
-    EntryPointDiscovery,
     HumanFacingPluginDefinition,
     PluginTypeDefinition,
-    ProjectDiscovery,
 )
+from betty.plugin.discovery.entry_point import EntryPointDiscovery
+from betty.plugin.discovery.project import ProjectDiscovery
 
 
 class PlaceType(ClassedPlugin):

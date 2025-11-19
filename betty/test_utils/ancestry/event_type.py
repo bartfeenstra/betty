@@ -7,8 +7,8 @@ from __future__ import annotations
 from betty.test_utils.plugin import (
     ClassedPluginDefinitionTestBase,
     HumanFacingPluginDefinitionTestBase,
-    OrderedPluginDefinitionTestBase,
 )
+from betty.test_utils.plugin.ordered import OrderedPluginDefinitionTestBase
 
 
 class EventTypeDefinitionTestBase(

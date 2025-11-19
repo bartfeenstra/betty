@@ -14,10 +14,10 @@ from betty.locale.localizable import Localizable, _
 from betty.locale.localized import Localized, LocalizedStr
 from betty.plugin import (
     ClassedPluginDefinition,
-    EntryPointDiscovery,
     HumanFacingPluginDefinition,
     PluginTypeDefinition,
 )
+from betty.plugin.discovery.entry_point import EntryPointDiscovery
 
 if TYPE_CHECKING:
     from collections.abc import Sequence
