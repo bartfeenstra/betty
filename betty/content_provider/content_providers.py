@@ -11,7 +11,7 @@ from typing_extensions import override
 from betty.config import DefaultConfigurable
 from betty.content_provider import ContentProvider, ContentProviderDefinition
 from betty.factory import IndependentFactory
-from betty.html import newlines_to_paragraphs
+from betty.html import plain_text_to_html
 from betty.locale.localizable import _
 from betty.locale.localizable.config import StaticTranslationsConfiguration
 from betty.plugin import ClassedPlugin
@@ -50,9 +50,7 @@ class PlainText(
 
     @override
     async def provide(self, *, resource: Context) -> str | None:
-        return newlines_to_paragraphs(
-            self.configuration.localize(resource["localizer"])
-        )
+        return plain_text_to_html(self.configuration.localize(resource["localizer"]))
 
 
 class Template(ContentProvider, ClassedPlugin, ProjectDependentFactory):
