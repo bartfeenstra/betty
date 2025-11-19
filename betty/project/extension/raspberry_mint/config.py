@@ -4,7 +4,7 @@ Provide configuration for the Raspberry Mint extension.
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, final
 
 from typing_extensions import override
 
@@ -21,6 +21,7 @@ if TYPE_CHECKING:
     from betty.serde.dump import Dump, DumpMapping
 
 
+@final
 class RaspberryMintConfiguration(Configuration):
     """
     Provide configuration for the :py:class:`betty.project.extension.raspberry_mint.RaspberryMint` extension.

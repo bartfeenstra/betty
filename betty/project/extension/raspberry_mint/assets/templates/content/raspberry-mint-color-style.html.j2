@@ -1,0 +1,10 @@
+{% set color_style_content -%}
+    {% with content_provider_configurations = color_style_content_provider_configurations %}
+        {% include 'component/content.html.j2' %}
+    {% endwith %}
+{%- endset %}
+{% if color_style_content %}
+    <div data-bs-theme="{{ color_style }}">
+        {{ color_style_content | safe }}
+    </div>
+{% endif %}

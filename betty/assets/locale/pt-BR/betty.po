@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Betty VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2025-11-25 00:50+0000\n"
+"POT-Creation-Date: 2025-11-25 02:03+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: Automatically generated\n"
 "Language: pt_BR\n"
@@ -270,6 +270,9 @@ msgid "Clear all caches"
 msgstr ""
 
 msgid "Close"
+msgstr ""
+
+msgid "Color style"
 msgstr ""
 
 msgid "Command"
@@ -589,6 +592,10 @@ msgstr ""
 
 #, python-brace-format
 msgid "Invalid argument {argument}: {error}"
+msgstr ""
+
+#, python-brace-format
+msgid "Invalid option {value}."
 msgstr ""
 
 #, python-brace-format

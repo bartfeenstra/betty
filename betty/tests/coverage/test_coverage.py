@@ -435,8 +435,8 @@ _BASELINE: Mapping[str, _ModuleIgnore] = {
             "post_load": MissingReason.SHOULD_BE_COVERED,
         },
     },
-    "betty/project/extension/raspberry_mint/config.py": {
-        "Region": MissingReason.ENUM,
+    "betty/project/extension/raspberry_mint/__init__.py": {
+        "ColorStyle": MissingReason.ENUM,
     },
     "betty/project/extension/webpack/build.py": {
         "EntryPointProvider": MissingReason.ABSTRACT,
