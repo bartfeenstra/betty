@@ -473,12 +473,23 @@ class PluginRepository(Generic[_PluginDefinitionT]):
         self._plugin_id_schema: Enum | None = None
         self._factory = factory
 
-    # @todo Narrow this down somewhat so we can type it explicitly
+    @overload
+    async def new(self, plugin: type[_ClassedPluginT]) -> _ClassedPluginT:
+        pass
+
+    @overload
+    async def new(self, plugin: ClassedPluginDefinition[_PluginT]) -> _PluginT:
+        pass
+
+    @overload
+    async def new(self, plugin: MachineName) -> object:
+        pass
+
+    # @todo The problem here, again, is that not all plugin types are classed.
+    # @todo Without PluginRepository itself being generic over _ClassedPluginDefinitionT, we cannot accurately
+    # @todo type our factory method (we've got to get the base class type from somewjere)
     # @todo
-    # @todo
-    async def new(
-        self, plugin: ClassedPluginDefinition[_ClassedPluginT] | type[_ClassedPluginT]
-    ) -> _ClassedPluginT:
+    async def new(self, plugin):
         """
         Create a new plugin instance.
         """
