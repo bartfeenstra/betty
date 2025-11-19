@@ -457,7 +457,7 @@ _BASELINE: Mapping[str, _ModuleIgnore] = {
             "__init_subclass__": MissingReason.INHERITED,
         },
     },
-    "betty/render.py": {
+    "betty/render/__init__.py": {
         "Renderer": MissingReason.ABSTRACT,
     },
     "betty/repr.py": MissingReason.SHOULD_BE_COVERED,

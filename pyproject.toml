@@ -221,6 +221,9 @@ betty = 'betty.console:main_standalone'
 'json' = 'betty.serde.format.formats:Json.plugin'
 'yaml' = 'betty.serde.format.formats:Yaml.plugin'
 
+[project.entry-points.'betty.renderer']
+'plain-text' = 'betty.render.plain_text:PlainText'
+
 [project.entry-points.'betty.content_provider']
 '-demo-front-page-content' = 'betty.project.extension.demo.content_provider:_FrontPageContent'
 '-demo-front-page-summary' = 'betty.project.extension.demo.content_provider:_FrontPageSummary'

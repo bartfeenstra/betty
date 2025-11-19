@@ -7,6 +7,7 @@ from betty.html import (
     NavigationLinkProvider,
     generate_html_id,
     newlines_to_paragraphs,
+    plain_text_to_html,
 )
 from betty.locale.localizable import Plain
 from betty.locale.localizer import DEFAULT_LOCALIZER
@@ -51,3 +52,10 @@ def test_newlines_to_paragraphs(expected: str, text: str) -> None:
 def test_generate_html_id() -> None:
     assert generate_html_id()
     assert generate_html_id() != generate_html_id()
+
+
+def test_plain_text_to_html() -> None:
+    assert (
+        plain_text_to_html("Hello...\n~!@#$%^&*()_+\n...world!")
+        == "<p>Hello...<br>\n~!@#$%^&amp;amp;*()_+<br>\n...world!</p>"
+    )

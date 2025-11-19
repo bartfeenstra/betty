@@ -46,7 +46,7 @@ from betty.project.config import ProjectConfiguration
 from betty.project.extension import Extension, ExtensionDefinition
 from betty.project.factory import ProjectDependentFactory
 from betty.project.url import new_project_url_generator
-from betty.render import ProxyRenderer, Renderer, RendererDefinition
+from betty.render import RenderDispatcher, RendererDefinition
 from betty.resource import Context as ResourceContext
 from betty.resource import ContextProvider, new_context
 from betty.service import ServiceProvider, service
@@ -226,12 +226,12 @@ class Project(
         return await Environment.new_for_project(self)
 
     @service
-    async def renderer(self) -> Renderer:
+    async def renderer(self) -> RenderDispatcher:
         """
-        The (file) content renderer.
+        The  content renderer.
         """
-        return ProxyRenderer(
-            [
+        return RenderDispatcher(
+            *[
                 await self.new_target(plugin.cls)
                 for plugin in await self.plugins(RendererDefinition)
             ]
