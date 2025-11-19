@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+from enum import Enum
 from pathlib import Path
 from tempfile import NamedTemporaryFile
 from typing import TYPE_CHECKING, Any, TypeVar
@@ -15,6 +16,7 @@ from betty.assertion import (
     RequiredField,
     assert_bool,
     assert_directory_path,
+    assert_enum,
     assert_field,
     assert_fields,
     assert_file_path,
@@ -604,3 +606,36 @@ def test_assert_setattr() -> None:
     instance = _Instance()
     assert assert_setattr(instance, "attr")(value) == value
     assert instance.attr == value
+
+
+class _Enum(Enum):
+    STRING = "string"
+    INT = 123
+
+
+@pytest.mark.parametrize(
+    ("expected", "value"),
+    [
+        (_Enum.STRING, "string"),
+        (_Enum.INT, 123),
+    ],
+)
+def test_assert_enum(expected: _Enum, value: Any) -> None:
+    assert assert_enum(_Enum)(value) == expected
+
+
+@pytest.mark.parametrize(
+    "value",
+    [
+        True,
+        False,
+        456,
+        "",
+        object(),
+        [],
+        {},
+    ],
+)
+def test_assert_enum__with_invalid_value(value: Any) -> None:
+    with pytest.raises(HumanFacingException):
+        assert_enum(_Enum)(value)

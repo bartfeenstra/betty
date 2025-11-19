@@ -11,15 +11,18 @@ from betty.ancestry.person import Person
 from betty.ancestry.place import Place
 from betty.app import App
 from betty.config.factory import ConfigurationDependentSelfFactory
-from betty.content_provider.content_providers import PlainTextConfiguration
+from betty.content_provider.content_providers import PlainText, PlainTextConfiguration
 from betty.exception import HumanFacingException
 from betty.locale.localizable import Plain
 from betty.locale.localizer import DEFAULT_LOCALIZER
 from betty.model.config import EntityReference, EntityReferenceSequence
 from betty.plugin.config import PluginInstanceConfiguration
 from betty.project import Project
+from betty.project.extension.raspberry_mint import ColorStyle as ColorStyleOption
 from betty.project.extension.raspberry_mint import RaspberryMint
 from betty.project.extension.raspberry_mint.content_provider import (
+    ColorStyle,
+    ColorStyleConfiguration,
     Family,
     FeaturedEntities,
     Media,
@@ -280,8 +283,7 @@ class TestMedia:
             project.configuration.extensions.enable(RaspberryMint)
             async with project:
                 sut = await Media.new_for_project(project)
-                provided_content = await sut.provide(resource=new_context(object()))
-        assert provided_content is None
+                assert await sut.provide(resource=new_context(object())) is None
 
     async def test_provide__with_has_file_references_without_file_references(
         self, temporary_app: App
@@ -306,3 +308,86 @@ class TestMedia:
                 actual = await sut.provide(resource=new_context(resource))
         assert actual is not None
         assert file.label.localize(DEFAULT_LOCALIZER) in actual
+
+
+class TestColorStyleConfiguration:
+    def test_content(self) -> None:
+        content: Sequence[
+            PluginInstanceConfiguration[ContentProviderDefinition, ContentProvider]
+        ] = [PluginInstanceConfiguration("my-first-content")]
+        sut = ColorStyleConfiguration(content=content)
+        assert sut.content[0].id == "my-first-content"
+
+    def test_style(self) -> None:
+        style = ColorStyleOption.DARK_SECONDARY
+        sut = ColorStyleConfiguration(style=style)
+        assert sut.style == style
+
+    def test_load__minimal(self) -> None:
+        sut = ColorStyleConfiguration()
+        sut.load(
+            {
+                "content": ["my-first-content"],
+            }
+        )
+        assert sut.content[0].id == "my-first-content"
+
+    def test_load__with_style(self) -> None:
+        sut = ColorStyleConfiguration()
+        sut.load(
+            {
+                "style": "dark-secondary",
+                "content": ["my-first-content"],
+            }
+        )
+        assert sut.style is ColorStyleOption.DARK_SECONDARY
+
+    def test_load__without_content(self) -> None:
+        sut = ColorStyleConfiguration()
+        with pytest.raises(HumanFacingException):
+            sut.load({})
+
+    def test_dump(self) -> None:
+        sut = ColorStyleConfiguration(
+            content=[PluginInstanceConfiguration("my-first-content")],
+            style=ColorStyleOption.DARK_SECONDARY,
+        )
+        assert sut.dump() == {
+            "style": "dark-secondary",
+            "content": [
+                "my-first-content",
+            ],
+        }
+
+    def test_get_mutables__minimal(self) -> None:
+        sut = ColorStyleConfiguration()
+        assert not list(sut.get_mutables())
+
+    def test_get_mutables__with_content(self) -> None:
+        sut = ColorStyleConfiguration(
+            content=[PluginInstanceConfiguration("my-first-content")]
+        )
+        assert list(sut.get_mutables())
+
+
+class TestColorStyle:
+    async def test_provide__without_content(self, temporary_app: App) -> None:
+        async with Project.new_temporary(temporary_app) as project:
+            project.configuration.extensions.enable(RaspberryMint)
+            async with project:
+                sut = await ColorStyle.new_for_project(project)
+                assert await sut.provide(resource=new_context()) is None
+
+    async def test_provide__with_content(self, temporary_app: App) -> None:
+        async with Project.new_temporary(temporary_app) as project:
+            project.configuration.extensions.enable(RaspberryMint)
+            async with project:
+                sut = await ColorStyle.new_for_project(project)
+                sut.configuration.content.append(
+                    PluginInstanceConfiguration(
+                        PlainText, PlainTextConfiguration("My First Content")
+                    )
+                )
+                actual = await sut.provide(resource=new_context())
+        assert actual is not None
+        assert "My First Content" in actual

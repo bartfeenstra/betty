@@ -13,6 +13,7 @@ from collections.abc import (
     Sized,
 )
 from dataclasses import dataclass
+from enum import Enum
 from pathlib import Path
 from types import NoneType
 from typing import (
@@ -35,6 +36,7 @@ from betty.typing import Void, Voidable, internal
 Number: TypeAlias = int | float
 
 
+_EnumT = TypeVar("_EnumT", bound=Enum)
 _AssertionValueT = TypeVar("_AssertionValueT")
 _AssertionReturnT = TypeVar("_AssertionReturnT")
 _AssertionReturnU = TypeVar("_AssertionReturnU")
@@ -619,3 +621,22 @@ def assert_len(
         return value
 
     return AssertionChain(_assert_len)
+
+
+def assert_enum(options: type[_EnumT]) -> AssertionChain[Any, _EnumT]:
+    """
+    Assert that a value is allowed by an enum, and return the enum value.
+    """
+
+    def _assert_enum(value: Any) -> Any:
+        try:
+            return options(value)
+        except ValueError:
+            raise HumanFacingException(
+                Paragraph(
+                    _("Invalid option {value}.").format(value=str(value)),
+                    do_you_mean(*[option.value for option in options]),
+                )
+            ) from None
+
+    return AssertionChain(_assert_enum)

@@ -4,6 +4,7 @@ Provide the Raspberry Mint theme.
 
 from __future__ import annotations
 
+from enum import Enum
 from pathlib import Path
 from typing import TYPE_CHECKING, Self, final
 
@@ -150,3 +151,30 @@ class RaspberryMint(
             "front-page-content",
             "front-page-summary",
         }
+
+
+@final
+class ColorStyle(Enum):
+    """
+    The available color styles.
+    """
+
+    LIGHT = "light"
+    """
+    A light style with a white background.
+    """
+
+    LIGHT_SECONDARY = "light-secondary"
+    """
+    A light style with a light shade of the secondary color for the background.
+    """
+
+    DARK = "dark"
+    """
+    A dark style with a black background.
+    """
+
+    DARK_SECONDARY = "dark-secondary"
+    """
+    A dark style with a dark shade of the secondary color for the background.
+    """
