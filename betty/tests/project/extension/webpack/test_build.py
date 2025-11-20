@@ -33,7 +33,7 @@ class DummyEntryPointProviderExtension(EntryPointProvider, Extension):
 
 class TestBuilder:
     async def test_build(self, temporary_app: App, tmp_path: Path) -> None:
-        with ExtensionDefinition.type.override_discoveries():
+        with ExtensionDefinition.type.override_discovery():
             # Loop instead of parameterization, so we can reuse caches.
             for index, (with_entry_point_provider, debug, root_path) in enumerate(
                 [

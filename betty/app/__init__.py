@@ -5,12 +5,12 @@ from __future__ import annotations
 from contextlib import AsyncExitStack, asynccontextmanager
 from os import environ
 from pathlib import Path
-from typing import TYPE_CHECKING, Any, Self, TypeVar, cast, final
+from typing import TYPE_CHECKING, Any, Self, cast, final
 
 from aiofiles.tempfile import TemporaryDirectory
 from aiohttp_client_cache.backends.filesystem import FileBackend
 from aiohttp_client_cache.session import CachedSession
-from typing_extensions import override
+from typing_extensions import TypeVar, override
 
 import betty
 import betty.dirs
@@ -36,8 +36,13 @@ from betty.locale.translation import (
     TranslationRepository,
 )
 from betty.multiprocessing import ProcessPoolExecutor
-from betty.plugin import PluginRepository, PluginRepositoryProvider
+from betty.plugin import PluginDefinition
 from betty.plugin.ordered import sort_ordered_plugin_graph
+from betty.plugin.repository.provider import PluginRepositoryProvider
+from betty.plugin.repository.provider.service_level import (
+    ServiceLevelPluginRepositoryProvider,
+)
+from betty.plugin.repository.static import StaticPluginRepository
 from betty.service import ServiceFactory, ServiceProvider, StaticService, service
 from betty.typing import threadsafe
 from betty.user.no_op import NoOpUser
@@ -49,9 +54,14 @@ if TYPE_CHECKING:
     import aiohttp
 
     from betty.cache import Cache
+    from betty.machine_name import MachineName
+    from betty.plugin.repository import PluginRepository
     from betty.user import User
 
 _T = TypeVar("_T")
+_PluginDefinitionT = TypeVar(
+    "_PluginDefinitionT", bound=PluginDefinition, default=PluginDefinition
+)
 
 
 @final
@@ -79,7 +89,7 @@ class App(
         from betty.console.user import ConsoleUser
 
         cls = type(self)
-        super().__init__(configuration=configuration, service_level=self)
+        super().__init__(configuration=configuration)
         self._user = user or ConsoleUser()
         if process_pool is not None:
             cls.process_pool.override(self, process_pool)
@@ -87,6 +97,13 @@ class App(
             cls.translations.override(self, translations)
         self._cache_directory_path = cache_directory_path
         cls.cache.override_factory(self, cache_factory)
+        self._plugin_repository_provider = ServiceLevelPluginRepositoryProvider(self)
+
+    @override
+    async def plugins(
+        self, plugin: type[_PluginDefinitionT] | MachineName, /
+    ) -> PluginRepository[_PluginDefinitionT]:
+        return await self._plugin_repository_provider.plugins(plugin)
 
     @classmethod
     @asynccontextmanager
@@ -270,7 +287,7 @@ class App(
 
     @service
     async def _spdx_license_repository(self) -> PluginRepository[LicenseDefinition]:
-        return PluginRepository(
+        return StaticPluginRepository(
             LicenseDefinition,
             *[
                 license

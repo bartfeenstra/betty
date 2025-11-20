@@ -170,6 +170,7 @@ DUMMY_PLUGIN_TWO = DummyPluginDefinition(
 DUMMY_PLUGIN_THREE = DummyPluginDefinition(
     id="dummy-plugin-three",
 )
+
 DUMMY_PLUGIN_FOUR = DummyPluginDefinition(
     id="dummy-plugin-four",
 )

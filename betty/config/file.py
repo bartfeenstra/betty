@@ -15,7 +15,7 @@ from betty.config import Configuration
 from betty.data import Path as PathContext
 from betty.exception import HumanFacingExceptionGroup
 from betty.factory import new
-from betty.plugin import plugins
+from betty.plugin.repository.provider.service_level import plugins
 from betty.serde.format import FormatDefinition, format_for
 
 if TYPE_CHECKING:

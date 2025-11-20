@@ -48,7 +48,7 @@ class TestRaspberryMint(EntryPointProviderTestBase):
     async def test_generate__html_list_for_third_party_entity(
         self, temporary_app: App
     ) -> None:
-        with EntityDefinition.type.override_discoveries(DummyEntityOne.plugin):
+        with EntityDefinition.type.override_discovery(DummyEntityOne.plugin):
             async with Project.new_temporary(temporary_app) as project:
                 project.configuration.extensions.enable(RaspberryMint)
                 project.configuration.entity_types.replace(

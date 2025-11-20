@@ -177,7 +177,7 @@ class TestDeriver:
         async def _new_project(
             event_types: Iterable[EventTypeDefinition],
         ) -> AsyncIterator[Project]:
-            with EventTypeDefinition.type.override_discoveries(*event_types):
+            with EventTypeDefinition.type.override_discovery(*event_types):
                 async with Project.new_temporary(temporary_app) as project, project:
                     yield project
 

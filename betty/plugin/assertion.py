@@ -7,11 +7,8 @@ from typing import Any, TypeVar
 from betty.assertion import AssertionChain, assert_str
 from betty.exception import HumanFacingException
 from betty.locale.localizable import Paragraph, _, do_you_mean
-from betty.plugin import (
-    PluginDefinition,
-    PluginNotFound,
-    PluginRepository,
-)
+from betty.plugin import PluginDefinition, PluginNotFound
+from betty.plugin.repository import PluginRepository
 
 _PluginDefinitionT = TypeVar("_PluginDefinitionT", bound=PluginDefinition)
 

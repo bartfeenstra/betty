@@ -23,13 +23,14 @@ from betty.data import Index
 from betty.exception import HumanFacingException, HumanFacingExceptionGroup
 from betty.locale.localizable import _
 from betty.machine_name import MachineName, assert_machine_name
-from betty.plugin import PluginIdentifier, PluginRepository, resolve_id
+from betty.plugin import PluginIdentifier, resolve_id
 from betty.plugin.assertion import assert_plugin
 
 if TYPE_CHECKING:
     from collections.abc import Iterable
 
     from betty.model import Entity, EntityDefinition
+    from betty.plugin.repository import PluginRepository
     from betty.serde.dump import Dump, DumpMapping
 
 

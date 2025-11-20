@@ -27,7 +27,7 @@ if TYPE_CHECKING:
     from betty.ancestry import Ancestry
     from betty.locale import LocaleLike
     from betty.media_type import MediaType
-    from betty.plugin import PluginRepository
+    from betty.plugin.repository import PluginRepository
     from betty.project import Project
 
 

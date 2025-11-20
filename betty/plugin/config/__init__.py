@@ -36,7 +36,6 @@ from betty.plugin import (
     ClassedPluginDefinition,
     PluginDefinition,
     PluginIdentifier,
-    PluginRepository,
     resolve_id,
 )
 from betty.typing import Void, Voidable
@@ -46,6 +45,7 @@ if TYPE_CHECKING:
 
     from betty.factory import Factory
     from betty.locale.localizable import ShorthandStaticTranslations
+    from betty.plugin.repository import PluginRepository
     from betty.serde.dump import Dump, DumpMapping
 
 _PluginT = TypeVar("_PluginT")

@@ -11,6 +11,7 @@ from unittest.mock import ANY
 import pytest
 from aiofiles.tempfile import AiofilesContextManagerTempDir
 
+import betty.plugin.repository.provider.service_level
 from betty.ancestry.citation import Citation
 from betty.ancestry.event import Event
 from betty.ancestry.event_type.event_types import (
@@ -122,9 +123,15 @@ class TestGrampsLoader:
                 project.ancestry,
                 factory=project.new_target,
                 user=StaticUser(),
-                copyright_notices=await project.plugins(CopyrightNoticeDefinition),
-                licenses=await project.plugins(LicenseDefinition),
-                genders=await project.plugins(GenderDefinition),
+                copyright_notices=await betty.plugin.repository.provider.service_level.plugins(
+                    CopyrightNoticeDefinition
+                ),
+                licenses=await betty.plugin.repository.provider.service_level.plugins(
+                    LicenseDefinition
+                ),
+                genders=await betty.plugin.repository.provider.service_level.plugins(
+                    GenderDefinition
+                ),
                 attribute_prefix_key=self.ATTRIBUTE_PREFIX_KEY,
             )
             await sut.load_gramps(gramps_file_path)
@@ -137,9 +144,15 @@ class TestGrampsLoader:
                 project.ancestry,
                 factory=project.new_target,
                 user=StaticUser(),
-                copyright_notices=await project.plugins(CopyrightNoticeDefinition),
-                licenses=await project.plugins(LicenseDefinition),
-                genders=await project.plugins(GenderDefinition),
+                copyright_notices=await betty.plugin.repository.provider.service_level.plugins(
+                    CopyrightNoticeDefinition
+                ),
+                licenses=await betty.plugin.repository.provider.service_level.plugins(
+                    LicenseDefinition
+                ),
+                genders=await betty.plugin.repository.provider.service_level.plugins(
+                    GenderDefinition
+                ),
                 attribute_prefix_key=self.ATTRIBUTE_PREFIX_KEY,
             )
             with pytest.raises(GrampsFileNotFound):
@@ -159,9 +172,15 @@ class TestGrampsLoader:
                 project.ancestry,
                 factory=project.new_target,
                 user=StaticUser(),
-                copyright_notices=await project.plugins(CopyrightNoticeDefinition),
-                licenses=await project.plugins(LicenseDefinition),
-                genders=await project.plugins(GenderDefinition),
+                copyright_notices=await betty.plugin.repository.provider.service_level.plugins(
+                    CopyrightNoticeDefinition
+                ),
+                licenses=await betty.plugin.repository.provider.service_level.plugins(
+                    LicenseDefinition
+                ),
+                genders=await betty.plugin.repository.provider.service_level.plugins(
+                    GenderDefinition
+                ),
                 attribute_prefix_key=self.ATTRIBUTE_PREFIX_KEY,
             )
             await sut.load_gpkg(gpkg_file_path)
@@ -174,9 +193,15 @@ class TestGrampsLoader:
                 project.ancestry,
                 factory=project.new_target,
                 user=StaticUser(),
-                copyright_notices=await project.plugins(CopyrightNoticeDefinition),
-                licenses=await project.plugins(LicenseDefinition),
-                genders=await project.plugins(GenderDefinition),
+                copyright_notices=await betty.plugin.repository.provider.service_level.plugins(
+                    CopyrightNoticeDefinition
+                ),
+                licenses=await betty.plugin.repository.provider.service_level.plugins(
+                    LicenseDefinition
+                ),
+                genders=await betty.plugin.repository.provider.service_level.plugins(
+                    GenderDefinition
+                ),
                 attribute_prefix_key=self.ATTRIBUTE_PREFIX_KEY,
             )
             with pytest.raises(GrampsFileNotFound):
@@ -193,9 +218,15 @@ class TestGrampsLoader:
                 project.ancestry,
                 factory=project.new_target,
                 user=StaticUser(),
-                copyright_notices=await project.plugins(CopyrightNoticeDefinition),
-                licenses=await project.plugins(LicenseDefinition),
-                genders=await project.plugins(GenderDefinition),
+                copyright_notices=await betty.plugin.repository.provider.service_level.plugins(
+                    CopyrightNoticeDefinition
+                ),
+                licenses=await betty.plugin.repository.provider.service_level.plugins(
+                    LicenseDefinition
+                ),
+                genders=await betty.plugin.repository.provider.service_level.plugins(
+                    GenderDefinition
+                ),
                 attribute_prefix_key=self.ATTRIBUTE_PREFIX_KEY,
             )
             await sut.load_file(gramps_file_path)
@@ -218,9 +249,15 @@ class TestGrampsLoader:
                 project.ancestry,
                 factory=project.new_target,
                 user=StaticUser(),
-                copyright_notices=await project.plugins(CopyrightNoticeDefinition),
-                licenses=await project.plugins(LicenseDefinition),
-                genders=await project.plugins(GenderDefinition),
+                copyright_notices=await betty.plugin.repository.provider.service_level.plugins(
+                    CopyrightNoticeDefinition
+                ),
+                licenses=await betty.plugin.repository.provider.service_level.plugins(
+                    LicenseDefinition
+                ),
+                genders=await betty.plugin.repository.provider.service_level.plugins(
+                    GenderDefinition
+                ),
                 attribute_prefix_key=self.ATTRIBUTE_PREFIX_KEY,
             )
             await sut.load_file(gpkg_file_path)
@@ -250,9 +287,15 @@ class TestGrampsLoader:
                 project.ancestry,
                 factory=project.new_target,
                 user=StaticUser(),
-                copyright_notices=await project.plugins(CopyrightNoticeDefinition),
-                licenses=await project.plugins(LicenseDefinition),
-                genders=await project.plugins(GenderDefinition),
+                copyright_notices=await betty.plugin.repository.provider.service_level.plugins(
+                    CopyrightNoticeDefinition
+                ),
+                licenses=await betty.plugin.repository.provider.service_level.plugins(
+                    LicenseDefinition
+                ),
+                genders=await betty.plugin.repository.provider.service_level.plugins(
+                    GenderDefinition
+                ),
                 attribute_prefix_key=self.ATTRIBUTE_PREFIX_KEY,
                 executable=gramps_executable,
             )
@@ -267,9 +310,15 @@ class TestGrampsLoader:
                 project.ancestry,
                 factory=project.new_target,
                 user=StaticUser(),
-                copyright_notices=await project.plugins(CopyrightNoticeDefinition),
-                licenses=await project.plugins(LicenseDefinition),
-                genders=await project.plugins(GenderDefinition),
+                copyright_notices=await betty.plugin.repository.provider.service_level.plugins(
+                    CopyrightNoticeDefinition
+                ),
+                licenses=await betty.plugin.repository.provider.service_level.plugins(
+                    LicenseDefinition
+                ),
+                genders=await betty.plugin.repository.provider.service_level.plugins(
+                    GenderDefinition
+                ),
                 attribute_prefix_key=self.ATTRIBUTE_PREFIX_KEY,
             )
             with pytest.raises(UserFacingGrampsError):
@@ -283,9 +332,15 @@ class TestGrampsLoader:
                 project.ancestry,
                 factory=project.new_target,
                 user=StaticUser(),
-                copyright_notices=await project.plugins(CopyrightNoticeDefinition),
-                licenses=await project.plugins(LicenseDefinition),
-                genders=await project.plugins(GenderDefinition),
+                copyright_notices=await betty.plugin.repository.provider.service_level.plugins(
+                    CopyrightNoticeDefinition
+                ),
+                licenses=await betty.plugin.repository.provider.service_level.plugins(
+                    LicenseDefinition
+                ),
+                genders=await betty.plugin.repository.provider.service_level.plugins(
+                    GenderDefinition
+                ),
                 attribute_prefix_key=self.ATTRIBUTE_PREFIX_KEY,
             )
             with pytest.raises(UserFacingGrampsError):
@@ -316,9 +371,15 @@ class TestGrampsLoader:
                 project.ancestry,
                 factory=project.new_target,
                 user=StaticUser(),
-                copyright_notices=await project.plugins(CopyrightNoticeDefinition),
-                licenses=await project.plugins(LicenseDefinition),
-                genders=await project.plugins(GenderDefinition),
+                copyright_notices=await betty.plugin.repository.provider.service_level.plugins(
+                    CopyrightNoticeDefinition
+                ),
+                licenses=await betty.plugin.repository.provider.service_level.plugins(
+                    LicenseDefinition
+                ),
+                genders=await betty.plugin.repository.provider.service_level.plugins(
+                    GenderDefinition
+                ),
                 attribute_prefix_key=self.ATTRIBUTE_PREFIX_KEY,
                 executable=gramps_executable,
             )
@@ -349,9 +410,15 @@ class TestGrampsLoader:
                 project.ancestry,
                 factory=project.new_target,
                 user=StaticUser(),
-                copyright_notices=await project.plugins(CopyrightNoticeDefinition),
-                licenses=await project.plugins(LicenseDefinition),
-                genders=await project.plugins(GenderDefinition),
+                copyright_notices=await betty.plugin.repository.provider.service_level.plugins(
+                    CopyrightNoticeDefinition
+                ),
+                licenses=await betty.plugin.repository.provider.service_level.plugins(
+                    LicenseDefinition
+                ),
+                genders=await betty.plugin.repository.provider.service_level.plugins(
+                    GenderDefinition
+                ),
                 attribute_prefix_key=self.ATTRIBUTE_PREFIX_KEY,
                 executable=gramps_executable,
             )
@@ -386,9 +453,15 @@ class TestGrampsLoader:
                     project.ancestry,
                     factory=project.new_target,
                     user=StaticUser(),
-                    copyright_notices=await project.plugins(CopyrightNoticeDefinition),
-                    licenses=await project.plugins(LicenseDefinition),
-                    genders=await project.plugins(GenderDefinition),
+                    copyright_notices=await betty.plugin.repository.provider.service_level.plugins(
+                        CopyrightNoticeDefinition
+                    ),
+                    licenses=await betty.plugin.repository.provider.service_level.plugins(
+                        LicenseDefinition
+                    ),
+                    genders=await betty.plugin.repository.provider.service_level.plugins(
+                        GenderDefinition
+                    ),
                     attribute_prefix_key=self.ATTRIBUTE_PREFIX_KEY,
                     event_type_mapping=event_type_mapping,
                     place_type_mapping=place_type_mapping,
@@ -438,9 +511,15 @@ class TestGrampsLoader:
                 project.ancestry,
                 factory=project.new_target,
                 user=StaticUser(),
-                copyright_notices=await project.plugins(CopyrightNoticeDefinition),
-                licenses=await project.plugins(LicenseDefinition),
-                genders=await project.plugins(GenderDefinition),
+                copyright_notices=await betty.plugin.repository.provider.service_level.plugins(
+                    CopyrightNoticeDefinition
+                ),
+                licenses=await betty.plugin.repository.provider.service_level.plugins(
+                    LicenseDefinition
+                ),
+                genders=await betty.plugin.repository.provider.service_level.plugins(
+                    GenderDefinition
+                ),
                 attribute_prefix_key=self.ATTRIBUTE_PREFIX_KEY,
             )
             await sut.load_xml(_minimal_xml())
@@ -461,9 +540,15 @@ class TestGrampsLoader:
                 project.ancestry,
                 factory=project.new_target,
                 user=StaticUser(),
-                copyright_notices=await project.plugins(CopyrightNoticeDefinition),
-                licenses=await project.plugins(LicenseDefinition),
-                genders=await project.plugins(GenderDefinition),
+                copyright_notices=await betty.plugin.repository.provider.service_level.plugins(
+                    CopyrightNoticeDefinition
+                ),
+                licenses=await betty.plugin.repository.provider.service_level.plugins(
+                    LicenseDefinition
+                ),
+                genders=await betty.plugin.repository.provider.service_level.plugins(
+                    GenderDefinition
+                ),
                 attribute_prefix_key=self.ATTRIBUTE_PREFIX_KEY,
             )
             with pytest.raises(UserFacingGrampsError):
@@ -488,9 +573,15 @@ class TestGrampsLoader:
                 project.ancestry,
                 factory=project.new_target,
                 user=StaticUser(),
-                copyright_notices=await project.plugins(CopyrightNoticeDefinition),
-                licenses=await project.plugins(LicenseDefinition),
-                genders=await project.plugins(GenderDefinition),
+                copyright_notices=await betty.plugin.repository.provider.service_level.plugins(
+                    CopyrightNoticeDefinition
+                ),
+                licenses=await betty.plugin.repository.provider.service_level.plugins(
+                    LicenseDefinition
+                ),
+                genders=await betty.plugin.repository.provider.service_level.plugins(
+                    GenderDefinition
+                ),
                 attribute_prefix_key=self.ATTRIBUTE_PREFIX_KEY,
             )
             with pytest.raises(UserFacingGrampsError):

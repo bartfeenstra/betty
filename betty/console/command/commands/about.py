@@ -1,11 +1,11 @@
 from __future__ import annotations  # noqa D100
 
-from importlib import metadata
+import platform
 import sys
-
-from rich.table import Table
+from importlib import metadata
 from typing import TYPE_CHECKING, final, Self
 
+from rich.table import Table
 from typing_extensions import override
 
 from betty import about
@@ -14,11 +14,8 @@ from betty.console.command import Command, CommandFunction, CommandDefinition
 from betty.console.project import add_project_argument
 from betty.console.user import ConsoleUser
 from betty.locale.localizable import _
-import platform
-
 from betty.plugin import (
     plugin_types,
-    PluginRepositoryUnavailable,
     HumanFacingPluginDefinition,
 )
 
@@ -102,33 +99,22 @@ class About(AppDependentFactory, Command):
             plugin_types().values(),
             key=lambda plugin_type: plugin_type.type.label.localize(user.localizer),
         ):
-            try:
-                repository = await service_level.plugins(plugin_type)
-            except PluginRepositoryUnavailable:
-                about_plugins.add_row(
-                    plugin_type.type.label.localize(user.localizer),
-                    "[grey50]" + user.localizer._("N/A"),
-                    "[yellow]"
-                    + user.localizer._(
-                        "Plugins of this type are only available for projects."
-                    ),
+            repository = await service_level.plugins(plugin_type)
+            for index, plugin in enumerate(
+                sorted(repository, key=lambda plugin: plugin.id)
+            ):
+                first_column = (
+                    plugin_type.type.label.localize(user.localizer)
+                    if index == 0
+                    else ""
                 )
-            else:
-                for index, plugin in enumerate(
-                    sorted(repository, key=lambda plugin: plugin.id)
-                ):
-                    first_column = (
-                        plugin_type.type.label.localize(user.localizer)
-                        if index == 0
-                        else ""
-                    )
-                    about_plugins.add_row(
-                        first_column,
-                        plugin.id,
-                        plugin.label.localize(user.localizer)
-                        if isinstance(plugin, HumanFacingPluginDefinition)
-                        else None,
-                    )
+                about_plugins.add_row(
+                    first_column,
+                    plugin.id,
+                    plugin.label.localize(user.localizer)
+                    if isinstance(plugin, HumanFacingPluginDefinition)
+                    else None,
+                )
         user.console.print(about_plugins)
         if project is None:
             user.console.print(

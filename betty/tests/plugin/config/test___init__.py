@@ -10,7 +10,6 @@ from betty.locale import UNDETERMINED_LOCALE
 from betty.locale.localizable import ShorthandStaticTranslations
 from betty.locale.localizer import DEFAULT_LOCALIZER
 from betty.machine_name import MachineName
-from betty.plugin import PluginRepository
 from betty.plugin.config import (
     HumanFacingPluginDefinitionConfiguration,
     PluginDefinitionConfiguration,
@@ -19,6 +18,7 @@ from betty.plugin.config import (
     PluginInstanceConfigurationMapping,
     PluginInstanceConfigurationSequence,
 )
+from betty.plugin.repository.static import StaticPluginRepository
 from betty.serde.dump import Dump
 from betty.test_utils.config import DummyConfiguration
 from betty.test_utils.config.collections import (
@@ -289,7 +289,7 @@ class TestPluginInstanceConfiguration:
         sut = PluginInstanceConfiguration[
             ConfigurableDummyPluginDefinition, ConfigurableDummyPlugin
         ](ConfigurableDummyPluginOne.plugin, configuration=DummyConfiguration(value))
-        repository = PluginRepository(
+        repository = StaticPluginRepository(
             ConfigurableDummyPluginDefinition, ConfigurableDummyPluginOne.plugin
         )
         instance = await sut.new_plugin_instance(repository, factory=new)
@@ -302,7 +302,7 @@ class TestPluginInstanceConfiguration:
         sut = PluginInstanceConfiguration[
             ConfigurableDummyPluginDefinition, ConfigurableDummyPlugin
         ](ConfigurableDummyPluginOne.plugin)
-        repository = PluginRepository(
+        repository = StaticPluginRepository(
             ConfigurableDummyPluginDefinition, ConfigurableDummyPluginOne.plugin
         )
         instance = await sut.new_plugin_instance(repository, factory=new)
@@ -315,7 +315,7 @@ class TestPluginInstanceConfiguration:
         sut = PluginInstanceConfiguration[
             ClassedDummyPluginDefinition, ClassedDummyPlugin
         ](ClassedDummyPluginOne.plugin, configuration=DummyConfiguration(value))
-        repository = PluginRepository(
+        repository = StaticPluginRepository(
             ClassedDummyPluginDefinition, ClassedDummyPluginOne.plugin
         )
         with pytest.raises(HumanFacingException):
@@ -327,7 +327,7 @@ class TestPluginInstanceConfiguration:
         sut = PluginInstanceConfiguration[
             ClassedDummyPluginDefinition, ClassedDummyPlugin
         ](ClassedDummyPluginOne.plugin.id)
-        repository = PluginRepository(
+        repository = StaticPluginRepository(
             ClassedDummyPluginDefinition, ClassedDummyPluginOne.plugin
         )
         instance = await sut.new_plugin_instance(repository, factory=new)

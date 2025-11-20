@@ -89,7 +89,7 @@ async def test_main__with_unknown_command(temporary_app: App) -> None:
 async def test_main__with_user_facing_exception(
     expected: SystemExitCode, command: CommandDefinition, temporary_app: App
 ) -> None:
-    with CommandDefinition.type.override_discoveries(command):
+    with CommandDefinition.type.override_discovery(command):
         await run(
             temporary_app,
             command.id,
@@ -115,7 +115,7 @@ def test_main_standalone(
 ) -> None:
     def _target() -> None:
         mocker.patch("sys.argv", new=["betty", command.id])
-        with CommandDefinition.type.override_discoveries(command):
+        with CommandDefinition.type.override_discovery(command):
             main_standalone()
 
     # Run this in a thread so as not to conflict with pytest-playwright-asyncio's session-scoped event loop.
@@ -143,7 +143,7 @@ class TestVerbosity:
     async def test(
         self, expected: Verbosity, temporary_app: App, verbosity: str | None
     ) -> None:
-        with CommandDefinition.type.override_discoveries(_NoOpCommand.plugin):
+        with CommandDefinition.type.override_discovery(_NoOpCommand.plugin):
             async with Project.new_temporary(temporary_app) as project:
                 await write_configuration_file(
                     project.configuration, project.configuration.configuration_file_path

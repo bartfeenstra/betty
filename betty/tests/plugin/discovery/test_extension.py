@@ -71,7 +71,7 @@ class TestExtensionDiscovery:
         temporary_app: App,
     ) -> None:
         expected, discovery = sut_params
-        with ExtensionDefinition.type.override_discoveries(DummyExtension.plugin):
+        with ExtensionDefinition.type.override_discovery(DummyExtension.plugin):
             async with Project.new_temporary(temporary_app) as project:
                 project.configuration.extensions.enable(DummyExtension)
                 async with project:
