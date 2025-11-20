@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Betty VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2025-11-21 12:40+0000\n"
+"POT-Creation-Date: 2025-11-21 14:18+0000\n"
 "PO-Revision-Date: 2025-03-28 20:02+0000\n"
 "Last-Translator: Ettore Atalan <atalanttore@googlemail.com>\n"
 "Language: de_DE\n"
@@ -234,10 +234,6 @@ msgid "Cannot find an available port to bind the web server to."
 msgstr ""
 "Es wurde kein verfügbarer Port gefunden, an den der Webserver gebunden "
 "werden kann."
-
-#, python-brace-format
-msgid "Cannot find and import \"{plugin_id}\"."
-msgstr ""
 
 #, python-brace-format
 msgid ""
@@ -1210,6 +1206,10 @@ msgstr "Unbekannter Schlüssel: {unknown_key}."
 msgid "Unknown locale {locale}."
 msgstr ""
 
+#, python-brace-format
+msgid "Unknown plugin \"{plugin_id}\"."
+msgstr ""
+
 msgid "Update all existing translations"
 msgstr "Alle vorhandenen Übersetzungen aktualisieren"
 
@@ -1544,6 +1544,10 @@ msgstr ""
 
 #, python-brace-format
 msgid "{plugin_type_label} {plugin_label} depends on {dependency_labels}."
+msgstr ""
+
+#, python-brace-format
+msgid "{plugin_type} \"{plugin_id}\" has unmet requirements"
 msgstr ""
 
 msgid "© Copyright the author, unless otherwise credited"

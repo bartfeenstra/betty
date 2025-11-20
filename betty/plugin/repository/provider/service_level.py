@@ -4,16 +4,18 @@ Provide plugin repositories for service levels.
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, cast, final
+from collections import defaultdict
+from typing import TYPE_CHECKING, Any, cast, final
 
 from typing_extensions import TypeVar, override
 
 from betty import plugin
-from betty.concurrent import AsynchronizedLock
+from betty.concurrent import AsynchronizedLock, Ledger
 from betty.plugin import PluginDefinition
 from betty.plugin.discovery import discover
 from betty.plugin.repository.provider import PluginRepositoryProvider
 from betty.plugin.repository.static import StaticPluginRepository
+from betty.plugin.requirement import CheckRequirementRepository
 from betty.typing import internal
 
 if TYPE_CHECKING:
@@ -38,13 +40,21 @@ class ServiceLevelPluginRepositoryProvider(PluginRepositoryProvider):
     def __init__(self, service_level: ServiceLevel, /):
         self._service_level = service_level
         self._plugin_repositories: MutableMapping[
-            PluginDefinition, PluginRepository
-        ] = {}
-        self._lock = AsynchronizedLock.new_threadsafe()
+            type[PluginDefinition], MutableMapping[bool, PluginRepository[Any] | None]
+        ] = defaultdict(
+            lambda: {
+                True: None,
+                False: None,
+            }
+        )
+        self._ledger = Ledger(AsynchronizedLock.new_threadsafe())
 
     @override
     async def plugins(
-        self, plugin_type: type[_PluginDefinitionT] | MachineName, /
+        self,
+        plugin_type: type[_PluginDefinitionT] | MachineName,
+        *,
+        check_requirements: bool = True,
     ) -> PluginRepository[_PluginDefinitionT]:
         """
         Get the plugin repository for a plugin type.
@@ -53,17 +63,42 @@ class ServiceLevelPluginRepositoryProvider(PluginRepositoryProvider):
             plugin_type = cast(
                 type[_PluginDefinitionT], plugin.plugin_types()[plugin_type]
             )
+        repository: PluginRepository[_PluginDefinitionT] | None
         if plugin_type.type.discovery_overridden:
-            return await self._build(plugin_type)
-        if plugin_type not in self._plugin_repositories:  # type: ignore[comparison-overlap]
-            async with self._lock:
-                if plugin_type not in self._plugin_repositories:  # type: ignore[comparison-overlap]
-                    self._plugin_repositories[plugin_type] = await self._build(  # type: ignore[index]
-                        plugin_type
-                    )
-        return self._plugin_repositories[plugin_type]  # type: ignore[index,return-value]
+            repository = await self._new(plugin_type)
+            if check_requirements:
+                repository = await CheckRequirementRepository.new(
+                    plugin_type, repository, self._service_level
+                )
+            return repository
+        # If the repository exists already, return it immediately so we avoid acquiring locks.
+        repository = self._get(plugin_type, check_requirements)
+        if repository:
+            return repository
+        async with self._ledger.ledger(f"{plugin_type.type.id}:{check_requirements}"):
+            # The repository may have been created since we first checked.
+            repository = self._get(plugin_type, check_requirements)
+            if repository:
+                return repository
+            if check_requirements:
+                repository = await CheckRequirementRepository.new(
+                    plugin_type,
+                    await self.plugins(plugin_type, check_requirements=False),
+                    self._service_level,
+                )
+            else:
+                repository = await self._new(plugin_type)
+            self._plugin_repositories[plugin_type][check_requirements] = repository
+            return repository
 
-    async def _build(
+    def _get(
+        self, plugin_type: type[_PluginDefinitionT], check_requirements: bool = True
+    ) -> PluginRepository[_PluginDefinitionT] | None:
+        if plugin_type not in self._plugin_repositories:
+            return None
+        return self._plugin_repositories[plugin_type][check_requirements]
+
+    async def _new(
         self, plugin_type: type[_PluginDefinitionT]
     ) -> PluginRepository[_PluginDefinitionT]:
         return StaticPluginRepository(

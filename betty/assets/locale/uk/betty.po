@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Betty 0.4\n"
 "Report-Msgid-Bugs-To: illia@maier.page\n"
-"POT-Creation-Date: 2025-11-21 12:40+0000\n"
+"POT-Creation-Date: 2025-11-21 14:18+0000\n"
 "PO-Revision-Date: 2025-05-13 17:01+0000\n"
 "Last-Translator: Максим Горпиніч <maksimgorpinic4@gmail.com>\n"
 "Language: uk\n"
@@ -242,10 +242,6 @@ msgstr "Поховання"
 
 msgid "Cannot find an available port to bind the web server to."
 msgstr "Не вдалося знайти доступний порт для прив'язки вебсерверу."
-
-#, python-brace-format
-msgid "Cannot find and import \"{plugin_id}\"."
-msgstr "Не вдалося знайти та імпортувати \"{plugin_id}\"."
 
 #, python-brace-format
 msgid ""
@@ -1242,6 +1238,10 @@ msgstr "Невідомий ключ: {unknown_key}."
 msgid "Unknown locale {locale}."
 msgstr ""
 
+#, python-brace-format
+msgid "Unknown plugin \"{plugin_id}\"."
+msgstr ""
+
 msgid "Update all existing translations"
 msgstr "Оновити всі наявні переклади"
 
@@ -1594,6 +1594,10 @@ msgstr ""
 
 #, python-brace-format
 msgid "{plugin_type_label} {plugin_label} depends on {dependency_labels}."
+msgstr ""
+
+#, python-brace-format
+msgid "{plugin_type} \"{plugin_id}\" has unmet requirements"
 msgstr ""
 
 msgid "© Copyright the author, unless otherwise credited"

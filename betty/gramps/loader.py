@@ -108,7 +108,7 @@ from betty.locale.localizable import (
 from betty.media_type import InvalidMediaType, MediaType
 from betty.model import Entity
 from betty.model.association import ToManyResolver, ToOneResolver, resolve
-from betty.plugin.error import PluginNotFound
+from betty.plugin.error import PluginUnavailable
 from betty.privacy import HasPrivacy
 from betty.typing import internal
 
@@ -772,7 +772,7 @@ class GrampsLoader:
                 file.copyright_notice = await self._factory(
                     self._copyright_notices[copyright_notice_id].cls
                 )
-            except PluginNotFound:
+            except PluginUnavailable:
                 await self._user.message_warning(
                     _(
                         'Betty is unfamiliar with Gramps file "{file_id}"\'s copyright notice ID of "{copyright_notice_id}" and ignored it.',
@@ -782,7 +782,7 @@ class GrampsLoader:
         if license_id:
             try:
                 file.license = await self._factory(self._licenses[license_id].cls)
-            except PluginNotFound:
+            except PluginUnavailable:
                 await self._user.message_warning(
                     _(
                         'Betty is unfamiliar with Gramps file "{file_id}"\'s license ID of "{license_id}" and ignored it.',

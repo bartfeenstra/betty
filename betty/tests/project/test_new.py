@@ -1,20 +1,15 @@
 from pathlib import Path
 
-import pytest
 from pytest_mock import MockerFixture
 
-import betty.plugin.repository.provider.service_level
 from betty.config.file import assert_configuration_file
-from betty.exception import HumanFacingException
 from betty.locale import DEFAULT_LOCALE
-from betty.locale.localizable import Plain
 from betty.locale.localizer import DEFAULT_LOCALIZER
 from betty.project import Project
 from betty.project.config import ProjectConfiguration
 from betty.project.extension import ExtensionDefinition
 from betty.project.extension.gramps import Gramps
 from betty.project.new import new
-from betty.requirement import StaticRequirement
 from betty.test_utils.conftest import TemporaryAppFactory
 from betty.test_utils.user import StaticUser
 
@@ -58,22 +53,6 @@ async def test_new__minimal(
     assert configuration.name == "my-first-project"
     assert configuration.author.localize(DEFAULT_LOCALIZER) == author
     assert configuration.url == url
-
-
-async def test_new__without_webpack(
-    mocker: MockerFixture,
-    temporary_app_factory: TemporaryAppFactory,
-    tmp_path: Path,
-) -> None:
-    requirement = StaticRequirement(Plain(""))
-    mocker.patch(
-        "betty.project.extension.webpack.Webpack.requirement"
-    ).return_value = requirement
-
-    user = StaticUser()
-    async with temporary_app_factory(user=user) as app, app:
-        with pytest.raises(HumanFacingException):
-            await new(app)
 
 
 async def test_new__with_project_directory(
@@ -225,10 +204,7 @@ async def test_new__with_gramps(
         assert Gramps.plugin in configuration.extensions
         async with Project.new_temporary(app) as project, project:
             gramps = await configuration.extensions[Gramps.plugin].new_plugin_instance(
-                await betty.plugin.repository.provider.service_level.plugins(
-                    ExtensionDefinition
-                ),
-                factory=project.new_target,
+                await project.plugins(ExtensionDefinition), factory=project.new_target
             )
             assert isinstance(gramps, Gramps)
             assert (

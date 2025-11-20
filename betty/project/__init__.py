@@ -42,14 +42,13 @@ from betty.plugin.repository.provider import PluginRepositoryProvider
 from betty.plugin.repository.provider.service_level import (
     ServiceLevelPluginRepositoryProvider,
 )
-from betty.plugin.resolve import ResolvablePluginId, resolve_id
+from betty.plugin.resolve import ResolvableId, resolve_id
 from betty.privacy.privatizer import Privatizer
 from betty.project.config import ProjectConfiguration
 from betty.project.extension import Extension, ExtensionDefinition
 from betty.project.factory import ProjectDependentFactory
 from betty.project.url import new_project_url_generator
 from betty.render import RenderDispatcher, RendererDefinition
-from betty.requirement import RequirementError
 from betty.resource import Context as ResourceContext
 from betty.resource import ContextProvider, new_context
 from betty.service import ServiceProvider, service
@@ -104,9 +103,14 @@ class Project(
 
     @override
     async def plugins(
-        self, plugin: type[_PluginDefinitionT] | MachineName, /
+        self,
+        plugin_type: type[_PluginDefinitionT] | MachineName,
+        *,
+        check_requirements: bool = True,
     ) -> PluginRepository[_PluginDefinitionT]:
-        return await self._plugin_repository_provider.plugins(plugin)
+        return await self._plugin_repository_provider.plugins(
+            plugin_type, check_requirements=check_requirements
+        )
 
     @classmethod
     @asynccontextmanager
@@ -278,11 +282,6 @@ class Project(
             enabled_extension_batch: MutableSequence[Extension] = []
             for enabled_extension_id in enabled_extension_ids_batch:
                 enabled_extension_definition = extensions[enabled_extension_id]
-                enabled_extension_requirement = (
-                    await enabled_extension_definition.cls.requirement(app=self.app)
-                )
-                if enabled_extension_requirement is not None:
-                    raise RequirementError(enabled_extension_requirement)
                 if enabled_extension_definition.theme:
                     theme_count += 1
                 if enabled_extension_id in configured_extension_configurations:
@@ -413,12 +412,12 @@ class ProjectExtensions:
 
     @overload
     def __getitem__(
-        self, extension: ResolvablePluginId[ExtensionDefinition, Extension]
+        self, extension: ResolvableId[ExtensionDefinition, Extension]
     ) -> Extension:
         pass
 
     def __getitem__(
-        self, extension: ResolvablePluginId[ExtensionDefinition, Extension]
+        self, extension: ResolvableId[ExtensionDefinition, Extension]
     ) -> Extension:
         extension_id = resolve_id(extension)
         for project_extension in self.flatten():
@@ -447,7 +446,7 @@ class ProjectExtensions:
             yield from batch
 
     def __contains__(
-        self, extension: ResolvablePluginId[ExtensionDefinition, Extension]
+        self, extension: ResolvableId[ExtensionDefinition, Extension]
     ) -> bool:
         if isinstance(extension, type) and issubclass(extension, Extension):
             extension = extension.plugin

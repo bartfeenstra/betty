@@ -16,9 +16,11 @@ from betty.console.user import ConsoleUser
 from betty.locale.localizable import _
 from betty.plugin import plugin_types
 from betty.plugin.human_facing import HumanFacingPluginDefinition
+from betty.plugin.requirement import get_requirement
 
 if TYPE_CHECKING:
     import argparse
+    from collections.abc import MutableSequence
 
     from betty.app import App
     from betty.project import Project
@@ -97,7 +99,9 @@ class About(AppDependentFactory, Command):
             plugin_types().values(),
             key=lambda plugin_type: plugin_type.type.label.localize(user.localizer),
         ):
-            repository = await service_level.plugins(plugin_type)
+            repository = await service_level.plugins(
+                plugin_type, check_requirements=False
+            )
             for index, plugin in enumerate(
                 sorted(repository, key=lambda plugin: plugin.id)
             ):
@@ -106,12 +110,18 @@ class About(AppDependentFactory, Command):
                     if index == 0
                     else ""
                 )
+                third_column_lines: MutableSequence[str] = []
+                if isinstance(plugin, HumanFacingPluginDefinition):
+                    third_column_lines.append(plugin.label.localize(user.localizer))
+                requirement = await get_requirement(plugin, service_level)
+                if requirement:
+                    third_column_lines.append(
+                        "[yellow]" + requirement.localize(user.localizer)
+                    )
                 about_plugins.add_row(
                     first_column,
                     plugin.id,
-                    plugin.label.localize(user.localizer)
-                    if isinstance(plugin, HumanFacingPluginDefinition)
-                    else None,
+                    "\n".join(third_column_lines),
                 )
         user.console.print(about_plugins)
         if project is None:

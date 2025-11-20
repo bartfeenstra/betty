@@ -33,7 +33,7 @@ from betty.locale.localizable.config import (
 from betty.machine_name import MachineName, assert_machine_name
 from betty.plugin import PluginDefinition
 from betty.plugin.classed import ClassedPlugin, ClassedPluginDefinition
-from betty.plugin.resolve import ResolvablePluginId, resolve_id
+from betty.plugin.resolve import ResolvableId, resolve_id
 from betty.typing import Void, Voidable
 
 if TYPE_CHECKING:
@@ -63,14 +63,12 @@ class PluginIdentifierKeyConfigurationMapping(
 
     @override
     def __getitem__(
-        self, configuration_key: ResolvablePluginId[_PluginDefinitionT]
+        self, configuration_key: ResolvableId[_PluginDefinitionT]
     ) -> _ConfigurationT:
         return super().__getitem__(resolve_id(configuration_key))
 
     @override
-    def __contains__(
-        self, configuration_key: ResolvablePluginId[_PluginDefinitionT]
-    ) -> bool:
+    def __contains__(self, configuration_key: ResolvableId[_PluginDefinitionT]) -> bool:
         return super().__contains__(resolve_id(configuration_key))
 
 
@@ -214,7 +212,7 @@ class PluginInstanceConfiguration(
 
     def __init__(
         self,
-        plugin: ResolvablePluginId[_ClassedPluginDefinitionT, _PluginT & ClassedPlugin],
+        plugin: ResolvableId[_ClassedPluginDefinitionT, _PluginT & ClassedPlugin],
         *,
         configuration: Voidable[Configuration | Dump] = Void(),  # noqa B008
     ):

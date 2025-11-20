@@ -7,10 +7,11 @@ from typing import Generic, TypeVar, final
 
 from typing_extensions import override
 
-from betty.machine_name import MachineName
 from betty.plugin import PluginDefinition
+from betty.plugin.classed import ClassedPlugin
 from betty.plugin.error import PluginNotFound
 from betty.plugin.repository import PluginRepository
+from betty.plugin.resolve import ResolvableId, resolve_id
 
 _PluginDefinitionT = TypeVar("_PluginDefinitionT", bound=PluginDefinition)
 
@@ -32,7 +33,10 @@ class StaticPluginRepository(
         self._plugins = {plugin.id: plugin for plugin in plugins}
 
     @override
-    def get(self, plugin_id: MachineName) -> _PluginDefinitionT:
+    def get(
+        self, plugin_id: ResolvableId[_PluginDefinitionT, ClassedPlugin], /
+    ) -> _PluginDefinitionT:
+        plugin_id = resolve_id(plugin_id)
         try:
             return self._plugins[plugin_id]
         except KeyError:

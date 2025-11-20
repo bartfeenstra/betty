@@ -101,9 +101,14 @@ class App(
 
     @override
     async def plugins(
-        self, plugin: type[_PluginDefinitionT] | MachineName, /
+        self,
+        plugin_type: type[_PluginDefinitionT] | MachineName,
+        *,
+        check_requirements: bool = True,
     ) -> PluginRepository[_PluginDefinitionT]:
-        return await self._plugin_repository_provider.plugins(plugin)
+        return await self._plugin_repository_provider.plugins(
+            plugin_type, check_requirements=check_requirements
+        )
 
     @classmethod
     @asynccontextmanager

@@ -8,7 +8,7 @@ from typing import Any, ClassVar, final
 
 from betty.locale.localizable import Plain
 from betty.plugin import PluginTypeDefinition
-from betty.plugin.classed import ClassedPluginDefinition
+from betty.plugin.classed import ClassedPlugin, ClassedPluginDefinition
 from betty.plugin.discovery.callback import CallbackDiscovery
 from betty.test_utils.plugin import (
     PluginDefinitionClassTestBase,
@@ -16,7 +16,7 @@ from betty.test_utils.plugin import (
 )
 
 
-class ClassedDummyPlugin:
+class ClassedDummyPlugin(ClassedPlugin):
     """
     A classed dummy plugin.
     """
