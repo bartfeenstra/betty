@@ -18,20 +18,23 @@ from betty.html import CssProvider, JsProvider
 from betty.jinja2 import Filters, Jinja2Provider
 from betty.job import Job
 from betty.locale.localizable import Plain
-from betty.project import ProjectContext
+from betty.project import Project, ProjectContext
 from betty.project.extension import Extension, ExtensionDefinition
 from betty.project.extension.webpack import build
 from betty.project.extension.webpack.build import EntryPointProvider
 from betty.project.extension.webpack.jinja2.filter import FILTERS
 from betty.project.generate import Generator
-from betty.requirement import AllRequirements, Requirement
+from betty.requirement import (
+    AllRequirements,
+    Requirement,
+    requires_project,
+)
 from betty.resource import ContextProvider, ContextVars
 from betty.typing import internal
 
 if TYPE_CHECKING:
     from collections.abc import Sequence
 
-    from betty.app import App
     from betty.job.scheduler import Scheduler
 
 
@@ -76,11 +79,12 @@ class Webpack(
 
     @override
     @classmethod
-    async def requirement(cls, *, app: App) -> Requirement | None:
+    @requires_project
+    async def requirement(cls, project: Project, /) -> Requirement | None:
         if cls._requirement is False:
             cls._requirement = AllRequirements.new(
-                await super().requirement(app=app),
-                await new_npm_requirement(user=app.user),
+                await super().requirement(project),
+                await new_npm_requirement(user=project.app.user),
             )
         return cls._requirement
 

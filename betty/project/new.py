@@ -18,6 +18,7 @@ from betty.project.config import (
     ProjectConfiguration,
     EntityTypeConfiguration,
 )
+from betty.project.extension import ExtensionDefinition
 from betty.project.extension.deriver import Deriver
 from betty.project.extension.gramps import Gramps
 from betty.project.extension.gramps.config import (
@@ -31,7 +32,6 @@ from betty.project.extension.raspberry_mint import RaspberryMint
 from betty.project.extension.trees import Trees
 from betty.project.extension.webpack import Webpack
 from betty.project.extension.wiki import Wiki
-from betty.requirement import AllRequirements, RequirementError
 
 if TYPE_CHECKING:
     from collections.abc import Sequence
@@ -45,9 +45,10 @@ async def new(app: App) -> None:
     """
     Create a new project.
     """
+    await app.plugins(ExtensionDefinition)
     localizers = await app.localizers
 
-    extensions = (
+    project_extensions = (
         Deriver,
         HttpApiDoc,
         Maps,
@@ -58,11 +59,6 @@ async def new(app: App) -> None:
         Webpack,
         Wiki,
     )
-    requirement = AllRequirements.new(
-        *[await extension.plugin.cls.requirement(app=app) for extension in extensions]
-    )
-    if requirement is not None:
-        raise RequirementError(requirement)
 
     configuration_file_path = await app.user.ask_input(
         _("Where do you want to save your project's configuration file?"),
@@ -78,7 +74,7 @@ async def new(app: App) -> None:
         ],
     )
 
-    configuration.extensions.enable(*extensions)
+    configuration.extensions.enable(*project_extensions)
 
     configuration.locales.replace(
         LocaleConfiguration(
@@ -131,9 +127,6 @@ async def new(app: App) -> None:
     )
 
     if await app.user.ask_confirmation(_("Do you want to load a Gramps family tree?")):
-        gramps_requirement = await Gramps.requirement(app=app)
-        if gramps_requirement is not None:
-            raise RequirementError(gramps_requirement)
         configuration.extensions.append(
             PluginInstanceConfiguration(
                 Gramps.plugin,

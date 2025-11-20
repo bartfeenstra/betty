@@ -18,6 +18,7 @@ if TYPE_CHECKING:
     from collections.abc import Iterator
 
     from betty.machine_name import MachineName
+    from betty.plugin.resolve import ResolvableId
 
 _PluginDefinitionT = TypeVar(
     "_PluginDefinitionT", bound=PluginDefinition, default=PluginDefinition
@@ -41,7 +42,7 @@ class PluginRepository(Generic[_PluginDefinitionT], ABC):
         return self._type
 
     @abstractmethod
-    def get(self, plugin_id: MachineName, /) -> _PluginDefinitionT:
+    def get(self, plugin_id: ResolvableId[_PluginDefinitionT], /) -> _PluginDefinitionT:
         """
         Get a single plugin by its ID.
 

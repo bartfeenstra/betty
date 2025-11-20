@@ -19,7 +19,7 @@ from betty.project import Project, ProjectContext, ProjectExtensions, ProjectSch
 from betty.project.config import EntityTypeConfiguration, ProjectConfiguration
 from betty.project.extension import Extension, ExtensionDefinition
 from betty.project.factory import ProjectDependentFactory
-from betty.requirement import Requirement, RequirementError, StaticRequirement
+from betty.requirement import Requirement, StaticRequirement, UnmetRequirement
 from betty.test_utils.json.schema import SchemaTestBase, SchemaTestBaseSut
 from betty.test_utils.model import DummyNonPublicFacingEntityOne
 from betty.test_utils.plugin import DummyPluginDefinition
@@ -32,6 +32,7 @@ if TYPE_CHECKING:
     from collections.abc import Iterable, Sequence
 
     from betty.app import App
+    from betty.service_level import ServiceLevel
 
 
 @ExtensionDefinition(
@@ -52,7 +53,7 @@ class _DummyExtensionWithAssetsDirectory(Extension):
 class _DummyExtensionWithUnmetRequirement(Extension):
     @override
     @classmethod
-    async def requirement(cls, *, app: App) -> Requirement:
+    async def requirement(cls, service_level: ServiceLevel, /) -> Requirement | None:
         return StaticRequirement(Plain(""))
 
 
@@ -157,7 +158,7 @@ class TestProject:
         ):
             async with Project.new_temporary(temporary_app) as sut:
                 sut.configuration.extensions.enable(_DummyExtensionWithUnmetRequirement)
-                with pytest.raises(RequirementError):
+                with pytest.raises(UnmetRequirement):
                     async with sut:
                         pass
 

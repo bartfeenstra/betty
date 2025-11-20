@@ -42,7 +42,9 @@ class ExtensionUpdateTranslations(AppDependentFactory, Command):
 
     @override
     async def configure(self, parser: argparse.ArgumentParser) -> CommandFunction:
-        extensions = await self._app.plugins(ExtensionDefinition)
+        extensions = await self._app.plugins(
+            ExtensionDefinition, check_requirements=False
+        )
         localizer = await self._app.localizer
 
         parser.add_argument(

@@ -55,7 +55,7 @@ from betty.plugin.config import (
 )
 from betty.plugin.config.ordered import OrderedPluginDefinitionConfiguration
 from betty.plugin.repository.provider.service_level import plugins
-from betty.plugin.resolve import ResolvablePluginId, resolve_id
+from betty.plugin.resolve import ResolvableId, resolve_id
 from betty.project.extension import Extension, ExtensionDefinition
 from betty.serde.format import FormatDefinition, format_for
 
@@ -79,9 +79,7 @@ class ExtensionInstanceConfigurationMapping(
     Configure a project's enabled extensions.
     """
 
-    def enable(
-        self, *extensions: ResolvablePluginId[ExtensionDefinition, Extension]
-    ) -> None:
+    def enable(self, *extensions: ResolvableId[ExtensionDefinition, Extension]) -> None:
         """
         Enable the given extensions.
         """
@@ -99,7 +97,7 @@ class EntityTypeConfiguration(Configuration):
 
     def __init__(
         self,
-        entity_type: ResolvablePluginId[EntityDefinition, Entity],
+        entity_type: ResolvableId[EntityDefinition, Entity],
         *,
         generate_html_list: bool = False,
     ):

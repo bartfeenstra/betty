@@ -55,6 +55,6 @@ class EntryPointDiscovery(
         self, service_level: ServiceLevel, /
     ) -> Iterable[_PluginDefinitionT]:
         return [
-            resolve_definition(entry_point.load())  # type: ignore[misc]
+            resolve_definition(entry_point.load())
             for entry_point in metadata.entry_points(group=self._entry_point_group)
         ]

@@ -14,7 +14,7 @@ from betty.plugin.discovery.entry_point import EntryPointDiscovery
 from betty.plugin.discovery.project import ProjectDiscovery
 from betty.plugin.human_facing import HumanFacingPluginDefinition
 from betty.plugin.ordered import OrderedPluginDefinition
-from betty.plugin.resolve import ResolvablePluginId, resolve_id
+from betty.plugin.resolve import ResolvableId, resolve_id
 
 if TYPE_CHECKING:
     from betty.ancestry.person import Person
@@ -70,7 +70,7 @@ class EventTypeDefinition(
     def __init__(
         self,
         *,
-        indicates: ResolvablePluginId[EventTypeDefinition, EventType] | None = None,
+        indicates: ResolvableId[EventTypeDefinition, EventType] | None = None,
         **kwargs: Any,
     ):
         super().__init__(**kwargs)

@@ -24,7 +24,7 @@ from betty.exception import HumanFacingException, HumanFacingExceptionGroup
 from betty.locale.localizable import _
 from betty.machine_name import MachineName, assert_machine_name
 from betty.plugin.assertion import assert_plugin
-from betty.plugin.resolve import ResolvablePluginId, resolve_id
+from betty.plugin.resolve import ResolvableId, resolve_id
 
 if TYPE_CHECKING:
     from collections.abc import Iterable
@@ -42,7 +42,7 @@ class EntityReference(Configuration):
 
     def __init__(
         self,
-        entity_type: ResolvablePluginId[EntityDefinition, Entity] | None = None,
+        entity_type: ResolvableId[EntityDefinition, Entity] | None = None,
         entity_id: str | None = None,
         *,
         entity_type_is_constrained: bool = False,
@@ -60,9 +60,7 @@ class EntityReference(Configuration):
         return self._entity_type
 
     @entity_type.setter
-    def entity_type(
-        self, entity_type: ResolvablePluginId[EntityDefinition, Entity]
-    ) -> None:
+    def entity_type(self, entity_type: ResolvableId[EntityDefinition, Entity]) -> None:
         if self._entity_type_is_constrained:
             raise AttributeError(
                 f"The entity type cannot be set, as it is already constrained to {self._entity_type}."
@@ -140,8 +138,7 @@ class EntityReferenceSequence(ConfigurationSequence[EntityReference]):
         self,
         entity_references: Iterable[EntityReference] | None = None,
         *,
-        entity_type_constraint: ResolvablePluginId[EntityDefinition, Entity]
-        | None = None,
+        entity_type_constraint: ResolvableId[EntityDefinition, Entity] | None = None,
     ):
         self._entity_type_constraint = (
             None

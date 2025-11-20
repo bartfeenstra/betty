@@ -29,7 +29,10 @@ class PluginRepositoryProvider(ABC):
 
     @abstractmethod
     async def plugins(
-        self, plugin: type[_PluginDefinitionT] | MachineName, /
+        self,
+        plugin_type: type[_PluginDefinitionT] | MachineName,
+        *,
+        check_requirements: bool = True,
     ) -> PluginRepository[_PluginDefinitionT]:
         """
         Get the plugin repository for a plugin type.

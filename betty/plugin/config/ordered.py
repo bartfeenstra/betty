@@ -17,7 +17,7 @@ from betty.assertion import (
 )
 from betty.machine_name import MachineName, assert_machine_name
 from betty.plugin.config import PluginDefinitionConfiguration
-from betty.plugin.resolve import ResolvablePluginId, resolve_id
+from betty.plugin.resolve import ResolvableId, resolve_id
 
 if TYPE_CHECKING:
     from collections.abc import MutableSet, Set
@@ -35,8 +35,8 @@ class OrderedPluginDefinitionConfiguration(PluginDefinitionConfiguration):
 
     def __init__(
         self,
-        comes_before: Set[ResolvablePluginId] | None = None,
-        comes_after: Set[ResolvablePluginId] | None = None,
+        comes_before: Set[ResolvableId] | None = None,
+        comes_after: Set[ResolvableId] | None = None,
         **kwargs: Any,
     ):
         super().__init__(**kwargs)

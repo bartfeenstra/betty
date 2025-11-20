@@ -11,7 +11,7 @@ from typing_extensions import TypeVar, override
 from betty.asyncio import ensure_await
 from betty.plugin import PluginDefinition
 from betty.plugin.discovery import PluginDiscovery
-from betty.plugin.resolve import ResolvablePluginId, resolve_id
+from betty.plugin.resolve import ResolvableId, resolve_id
 
 if TYPE_CHECKING:
     from collections.abc import Awaitable, Callable, Iterable
@@ -35,7 +35,7 @@ class ExtensionDiscovery(
 
     def __init__(
         self,
-        extension: ResolvablePluginId[ExtensionDefinition, Extension],
+        extension: ResolvableId[ExtensionDefinition, Extension],
         discovery: Callable[[Extension], Awaitable[Iterable[_PluginDefinitionT]]]
         | Callable[[Extension], Iterable[_PluginDefinitionT]],
         /,

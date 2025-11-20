@@ -5,19 +5,32 @@ Provide an API that lets code express arbitrary requirements.
 from __future__ import annotations
 
 from abc import ABC, abstractmethod
-from typing import TYPE_CHECKING, final
+from typing import TYPE_CHECKING, Any, TypeVar, final
 
 from typing_extensions import override
 
 from betty.exception import HumanFacingException
-from betty.locale.localizable import Localizable, Paragraphs, UnorderedList, _
+from betty.locale.localizable import (
+    Lines,
+    Localizable,
+    Plain,
+    UnorderedList,
+    _,
+)
 from betty.locale.localized import Localized, LocalizedStr
 
 if TYPE_CHECKING:
-    from collections.abc import MutableSequence, Sequence
+    from collections.abc import (
+        Callable,
+        Coroutine,
+        MutableSequence,
+        Sequence,
+    )
 
     from betty.app import App
     from betty.locale.localizer import Localizer
+    from betty.project import Project
+    from betty.service_level import ServiceLevel
 
 
 class Requirement(Localizable):
@@ -50,14 +63,14 @@ class Requirement(Localizable):
         return LocalizedStr(localized, locale=super_localized.locale)
 
 
-@final
-class RequirementError(HumanFacingException, RuntimeError):
+class UnmetRequirement(HumanFacingException, RuntimeError):
     """
     Raised when a requirement is not met.
     """
 
-    def __init__(self, requirement: Requirement):
-        super().__init__(requirement)
+    def __init__(self, requirement: Requirement, *, summary: Localizable | None = None):
+        message = requirement if summary is None else Lines(requirement, summary)
+        super().__init__(message)
         self._requirement = requirement
 
     def requirement(self) -> Requirement:
@@ -107,7 +120,7 @@ class _RequirementCollection(Requirement, ABC):
 
     @override
     def localize(self, localizer: Localizer) -> Localized & str:
-        return Paragraphs(
+        return Lines(
             super().localize(localizer),
             UnorderedList(*self._requirements),
         ).localize(localizer)
@@ -178,8 +191,57 @@ class HasRequirement(ABC):
 
     @classmethod
     @abstractmethod
-    async def requirement(cls, *, app: App) -> Requirement | None:
+    async def requirement(cls, service_level: ServiceLevel, /) -> Requirement | None:
         """
         Define the requirement for this class to be used.
         """
         return None
+
+
+_HasRequirementT = TypeVar("_HasRequirementT", bound=HasRequirement)
+
+
+def requires_app(
+    f: Callable[[type[_HasRequirementT], App], Coroutine[Any, Any, Requirement | None]],
+) -> Callable[
+    [type[_HasRequirementT], ServiceLevel], Coroutine[Any, Any, Requirement | None]
+]:
+    """
+    Decorate a :py:meth:`betty.requirement.HasRequirement.requirement` implementation to require an :py:class:`betty.app.App`.
+    """
+
+    async def _requires_app(
+        cls: type[_HasRequirementT], service_level: ServiceLevel
+    ) -> Requirement | None:
+        from betty.app import App
+
+        if service_level is None:
+            return StaticRequirement(Plain("An App is required."))
+        return await f(
+            cls, service_level if isinstance(service_level, App) else service_level.app
+        )
+
+    return _requires_app
+
+
+def requires_project(
+    f: Callable[
+        [type[_HasRequirementT], Project], Coroutine[Any, Any, Requirement | None]
+    ],
+) -> Callable[
+    [type[_HasRequirementT], ServiceLevel], Coroutine[Any, Any, Requirement | None]
+]:
+    """
+    Decorate a :py:meth:`betty.requirement.HasRequirement.requirement` implementation to require an :py:class:`betty.project.Project`.
+    """
+
+    async def _requires_project(
+        cls: type[_HasRequirementT], service_level: ServiceLevel
+    ) -> Requirement | None:
+        from betty.project import Project
+
+        if not isinstance(service_level, Project):
+            return StaticRequirement(Plain("A Project is required."))
+        return await f(cls, service_level)
+
+    return _requires_project
