@@ -11,15 +11,12 @@ from typing import TYPE_CHECKING, Any
 from typing_extensions import TypeVar
 
 from betty.machine_name import MachineName
-from betty.plugin import (
-    PluginDefinition,
-    PluginIdentifier,
-    PluginRepository,
-    resolve_id,
-)
+from betty.plugin import PluginDefinition, PluginIdentifier, resolve_id
 
 if TYPE_CHECKING:
     from collections.abc import Iterable, Iterator, Mapping, Set
+
+    from betty.plugin.repository import PluginRepository
 
 _PluginDefinitionT = TypeVar(
     "_PluginDefinitionT", bound=PluginDefinition, default=PluginDefinition

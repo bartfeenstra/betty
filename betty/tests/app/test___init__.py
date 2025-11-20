@@ -6,6 +6,7 @@ from typing_extensions import override
 
 from betty.app import App
 from betty.app.factory import AppDependentFactory
+from betty.test_utils.plugin import DummyPluginDefinition
 from betty.test_utils.user import StaticUser
 
 if TYPE_CHECKING:
@@ -13,9 +14,11 @@ if TYPE_CHECKING:
 
 
 class TestApp:
+    async def test_plugins(self, temporary_app: App) -> None:
+        await temporary_app.plugins(DummyPluginDefinition)
+
     async def test_new_from_environment(self, temporary_app: App) -> None:
-        async with App.new_from_environment() as sut, sut:
-            assert sut.cache is sut.cache
+        assert temporary_app.cache is temporary_app.cache
 
     async def test_bootstrap__should_set_user_localizer(
         self, mocker: MockerFixture, temporary_app: App

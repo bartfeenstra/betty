@@ -6,7 +6,7 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING, Any, TypeVar
 
-from betty.plugin import PluginIdentifier, PluginRepository, resolve_id
+from betty.plugin import PluginIdentifier, resolve_id
 from betty.plugin.ordered import OrderedPluginDefinition, sort_ordered_plugin_graph
 
 if TYPE_CHECKING:
@@ -14,6 +14,7 @@ if TYPE_CHECKING:
     from graphlib import TopologicalSorter
 
     from betty.machine_name import MachineName
+    from betty.plugin.repository import PluginRepository
 
 
 class DependentPluginDefinition(OrderedPluginDefinition):

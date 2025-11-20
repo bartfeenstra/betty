@@ -136,7 +136,7 @@ if TYPE_CHECKING:
     from betty.factory import Factory
     from betty.license import LicenseDefinition
     from betty.machine_name import MachineName
-    from betty.plugin import PluginRepository
+    from betty.plugin.repository import PluginRepository
     from betty.user import User
 
 _EntityT = TypeVar("_EntityT", bound=Entity)

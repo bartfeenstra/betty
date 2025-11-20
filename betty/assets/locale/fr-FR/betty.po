@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PROJECT VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2025-11-18 22:04+0000\n"
+"POT-Creation-Date: 2025-11-20 11:17+0000\n"
 "PO-Revision-Date: 2025-08-27 20:02+0000\n"
 "Last-Translator: \"David D.\" <dadu042@users.noreply.hosted.weblate.org>\n"
 "Language: fr_FR\n"
@@ -719,9 +719,6 @@ msgstr ""
 msgid "Municipality"
 msgstr "Municipalité"
 
-msgid "N/A"
-msgstr ""
-
 msgid "Neighborhood"
 msgstr "Voisinage"
 
@@ -830,9 +827,6 @@ msgid "Plugin \"{plugin_id}\" is not configurable, but configuration was given."
 msgstr ""
 
 msgid "Plugins"
-msgstr ""
-
-msgid "Plugins of this type are only available for projects."
 msgstr ""
 
 msgid "Positional arguments"

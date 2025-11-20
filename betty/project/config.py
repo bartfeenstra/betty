@@ -46,7 +46,7 @@ from betty.locale.localizable.config import (
 )
 from betty.machine_name import MachineName, assert_machine_name
 from betty.model import Entity, EntityDefinition
-from betty.plugin import plugins, resolve_id
+from betty.plugin import resolve_id
 from betty.plugin.config import (
     HumanFacingPluginDefinitionConfiguration,
     PluginDefinitionConfigurationMapping,
@@ -55,13 +55,15 @@ from betty.plugin.config import (
     PluginInstanceConfigurationMapping,
 )
 from betty.plugin.config.ordered import OrderedPluginDefinitionConfiguration
+from betty.plugin.repository.provider.service_level import plugins
 from betty.project.extension import Extension, ExtensionDefinition
 from betty.serde.format import FormatDefinition, format_for
 
 if TYPE_CHECKING:
     from pathlib import Path
 
-    from betty.plugin import PluginIdentifier, PluginRepository
+    from betty.plugin import PluginIdentifier
+    from betty.plugin.repository import PluginRepository
     from betty.serde.dump import Dump, DumpMapping
 
 #: The default age by which people are presumed dead.

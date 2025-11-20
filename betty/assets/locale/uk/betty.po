@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Betty 0.4\n"
 "Report-Msgid-Bugs-To: illia@maier.page\n"
-"POT-Creation-Date: 2025-11-18 22:04+0000\n"
+"POT-Creation-Date: 2025-11-20 11:17+0000\n"
 "PO-Revision-Date: 2025-05-13 17:01+0000\n"
 "Last-Translator: Максим Горпиніч <maksimgorpinic4@gmail.com>\n"
 "Language: uk\n"
@@ -756,9 +756,6 @@ msgstr ""
 msgid "Municipality"
 msgstr "Муніципалітет"
 
-msgid "N/A"
-msgstr ""
-
 msgid "Neighborhood"
 msgstr "Околиці"
 
@@ -870,9 +867,6 @@ msgid "Plugin \"{plugin_id}\" is not configurable, but configuration was given."
 msgstr ""
 
 msgid "Plugins"
-msgstr ""
-
-msgid "Plugins of this type are only available for projects."
 msgstr ""
 
 msgid "Positional arguments"

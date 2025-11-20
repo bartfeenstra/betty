@@ -36,11 +36,14 @@ from betty.locale.translation import (
     TranslationRepository,
 )
 from betty.model import Entity, EntityDefinition, ToManySchema
-from betty.plugin import (
-    PluginRepositoryProvider,
-    resolve_id,
-)
+from betty.plugin import PluginDefinition, resolve_id
 from betty.plugin.dependent import sort_dependent_plugin_graph
+from betty.plugin.repository.provider import (
+    PluginRepositoryProvider,
+)
+from betty.plugin.repository.provider.service_level import (
+    ServiceLevelPluginRepositoryProvider,
+)
 from betty.privacy.privatizer import Privatizer
 from betty.project.config import ProjectConfiguration
 from betty.project.extension import Extension, ExtensionDefinition
@@ -62,10 +65,14 @@ if TYPE_CHECKING:
     from betty.license import License
     from betty.machine_name import MachineName
     from betty.plugin import PluginIdentifier
+    from betty.plugin.repository import PluginRepository
     from betty.progress import Progress
     from betty.url import UrlGenerator
 
 _T = TypeVar("_T")
+_PluginDefinitionT = TypeVar(
+    "_PluginDefinitionT", bound=PluginDefinition, default=PluginDefinition
+)
 _EntityT = TypeVar("_EntityT", bound=Entity)
 
 _ProjectDependentT = TypeVar("_ProjectDependentT")
@@ -91,9 +98,16 @@ class Project(
         *,
         ancestry: Ancestry | None = None,
     ):
-        super().__init__(configuration=configuration, service_level=self)
+        super().__init__(configuration=configuration)
         self._app = app
         self._ancestry = Ancestry() if ancestry is None else ancestry
+        self._plugin_repository_provider = ServiceLevelPluginRepositoryProvider(self)
+
+    @override
+    async def plugins(
+        self, plugin: type[_PluginDefinitionT] | MachineName, /
+    ) -> PluginRepository[_PluginDefinitionT]:
+        return await self._plugin_repository_provider.plugins(plugin)
 
     @classmethod
     @asynccontextmanager

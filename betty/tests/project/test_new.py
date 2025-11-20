@@ -3,6 +3,7 @@ from pathlib import Path
 import pytest
 from pytest_mock import MockerFixture
 
+import betty.plugin.repository.provider.service_level
 from betty.config.file import assert_configuration_file
 from betty.exception import HumanFacingException
 from betty.locale import DEFAULT_LOCALE
@@ -226,7 +227,9 @@ async def test_new__with_gramps(
         assert Gramps.plugin in configuration.extensions
         async with Project.new_temporary(app) as project, project:
             gramps = await configuration.extensions[Gramps.plugin].new_plugin_instance(
-                await project.plugins(ExtensionDefinition),
+                await betty.plugin.repository.provider.service_level.plugins(
+                    ExtensionDefinition
+                ),
                 factory=project.new_target,
             )
             assert isinstance(gramps, Gramps)

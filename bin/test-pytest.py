@@ -11,7 +11,7 @@ print("Running pytest...")  # noqa T201
 
 check_call(["coverage", "erase"])
 check_call(
-    ["coverage", "run", "--module", "pytest", *sys.argv[2:]],
+    ["coverage", "run", "--module", "pytest", *sys.argv[1:]],
     env={
         **environ,
         "COVERAGE_PROCESS_START": path.join(getcwd(), ".coveragerc"),

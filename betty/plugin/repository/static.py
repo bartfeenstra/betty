@@ -1,0 +1,42 @@
+"""
+Provide static plugin management.
+"""
+
+from collections.abc import Iterator
+from typing import Generic, TypeVar, final
+
+from typing_extensions import override
+
+from betty.machine_name import MachineName
+from betty.plugin import PluginDefinition, PluginNotFound
+from betty.plugin.repository import PluginRepository
+
+_PluginDefinitionT = TypeVar("_PluginDefinitionT", bound=PluginDefinition)
+
+
+@final
+class StaticPluginRepository(
+    PluginRepository[_PluginDefinitionT], Generic[_PluginDefinitionT]
+):
+    """
+    A repository that is given a static collection of plugins, and exposes those.
+    """
+
+    def __init__(
+        self,
+        plugin_type: type[_PluginDefinitionT],  # noqa A002
+        *plugins: _PluginDefinitionT,
+    ):
+        super().__init__(plugin_type)
+        self._plugins = {plugin.id: plugin for plugin in plugins}
+
+    @override
+    def get(self, plugin_id: MachineName) -> _PluginDefinitionT:
+        try:
+            return self._plugins[plugin_id]
+        except KeyError:
+            raise PluginNotFound(self.type.type, plugin_id, list(self)) from None
+
+    @override
+    def __iter__(self) -> Iterator[_PluginDefinitionT]:
+        yield from self._plugins.values()

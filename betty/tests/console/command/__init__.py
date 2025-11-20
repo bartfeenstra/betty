@@ -28,7 +28,7 @@ class ExtensionTranslationTestBase:
         class _DummyWithAssetsDirectoryExtension(Extension):
             pass
 
-        with ExtensionDefinition.type.override_discoveries(
+        with ExtensionDefinition.type.override_discovery(
             _DummyWithoutAssetsDirectoryExtension.plugin,
             _DummyWithAssetsDirectoryExtension.plugin,
         ):

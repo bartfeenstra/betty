@@ -11,23 +11,17 @@ from betty.plugin import (
     HumanFacingPluginDefinition,
     PluginDefinition,
     PluginNotFound,
-    PluginRepository,
     PluginTypeDefinition,
     plugin_types,
     resolve_definition,
     resolve_id,
 )
-from betty.plugin.dependent import (
-    DependentPluginDefinition,
-)
+from betty.plugin.dependent import DependentPluginDefinition
 from betty.plugin.discovery import discover
 from betty.plugin.discovery.static import StaticDiscovery
-from betty.plugin.ordered import (
-    OrderedPluginDefinition,
-)
+from betty.plugin.ordered import OrderedPluginDefinition
 from betty.test_utils.plugin import (
     DUMMY_PLUGIN_ONE,
-    DUMMY_PLUGIN_THREE,
     DUMMY_PLUGIN_TWO,
     DummyPluginDefinition,
 )
@@ -104,48 +98,6 @@ class TestPluginNotFound:
         )
         assert unknown_plugin in str(sut)
         assert available_plugin in str(sut)
-
-
-class TestPluginRepository:
-    def test___len__(self) -> None:
-        sut = PluginRepository(
-            DummyPluginDefinition,
-            DUMMY_PLUGIN_ONE,
-            DUMMY_PLUGIN_TWO,
-            DUMMY_PLUGIN_THREE,
-        )
-        assert len(sut) == 3
-
-    def test___getitem__(self) -> None:
-        sut = PluginRepository(DummyPluginDefinition, DUMMY_PLUGIN_ONE)
-        assert sut[DUMMY_PLUGIN_ONE.id] is DUMMY_PLUGIN_ONE
-
-    def test___iter__(self) -> None:
-        sut = PluginRepository(
-            DummyPluginDefinition,
-            DUMMY_PLUGIN_ONE,
-            DUMMY_PLUGIN_TWO,
-            DUMMY_PLUGIN_THREE,
-        )
-        assert list(iter(sut)) == [
-            DUMMY_PLUGIN_ONE,
-            DUMMY_PLUGIN_TWO,
-            DUMMY_PLUGIN_THREE,
-        ]
-
-    def test_plugin_id_schema(self) -> None:
-        sut = PluginRepository(
-            DummyPluginDefinition,
-            DUMMY_PLUGIN_ONE,
-            DUMMY_PLUGIN_TWO,
-            DUMMY_PLUGIN_THREE,
-        )
-        actual = sut.plugin_id_schema
-        assert actual.schema["enum"] == [
-            "dummy-plugin-one",
-            "dummy-plugin-two",
-            "dummy-plugin-three",
-        ]
 
 
 class TestCyclicDependencyError:
@@ -253,36 +205,36 @@ class TestPluginTypeDefinition:
         sut.add_discovery(discovery)
         assert discovery in sut.discoveries
 
-    def test_override_discoveries(self) -> None:
+    def test_override_discovery(self) -> None:
         sut = PluginTypeDefinition(
             label=Plain("my-first-plugin-type"),
             id="my-first-plugin-type",
         )
         assert not sut.discoveries
-        with sut.override_discoveries(DUMMY_PLUGIN_ONE):
+        with sut.override_discovery(DUMMY_PLUGIN_ONE):
             assert sut.discoveries
         assert not sut.discoveries
 
-    async def test_add_discovery__during_override_discoveries(self) -> None:
+    async def test_add_discovery__during_override_discovery(self) -> None:
         sut = PluginTypeDefinition(
             label=Plain("my-first-plugin-type"),
             id="my-first-plugin-type",
         )
-        with sut.override_discoveries(DUMMY_PLUGIN_ONE):
+        with sut.override_discovery(DUMMY_PLUGIN_ONE):
             sut.add_discovery(StaticDiscovery(DUMMY_PLUGIN_TWO))
             assert DUMMY_PLUGIN_TWO not in await discover(None, *sut.discoveries)
         assert DUMMY_PLUGIN_ONE not in await discover(None, *sut.discoveries)
         assert DUMMY_PLUGIN_TWO in await discover(None, *sut.discoveries)
 
-    def test_discoveries_overridden(self) -> None:
+    def test_discovery_overridden(self) -> None:
         sut = PluginTypeDefinition(
             label=Plain("my-first-plugin-type"),
             id="my-first-plugin-type",
         )
-        assert not sut.discoveries_overridden
-        with sut.override_discoveries():
-            assert sut.discoveries_overridden
-        assert not sut.discoveries_overridden  # type: ignore[unreachable]
+        assert not sut.discovery_overridden
+        with sut.override_discovery():
+            assert sut.discovery_overridden
+        assert not sut.discovery_overridden  # type: ignore[unreachable]
 
 
 class TestClassedPluginDefinition:

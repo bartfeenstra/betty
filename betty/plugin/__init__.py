@@ -18,20 +18,14 @@ from typing import (
     Generic,
     Self,
     TypeAlias,
-    cast,
     final,
 )
 
 from typing_extensions import TypeVar
 
-from betty.concurrent import AsynchronizedLock
 from betty.exception import HumanFacingException
-from betty.json.schema import Enum
 from betty.locale.localizable import CountableLocalizable, Paragraph, _, do_you_mean
-from betty.locale.localizer import DEFAULT_LOCALIZER
 from betty.machine_name import InvalidMachineName, MachineName, validate_machine_name
-from betty.string import kebab_case_to_lower_camel_case
-from betty.typing import threadsafe
 
 if TYPE_CHECKING:
     import builtins
@@ -40,13 +34,11 @@ if TYPE_CHECKING:
         Iterable,
         Iterator,
         Mapping,
-        MutableMapping,
         Sequence,
     )
 
     from betty.locale.localizable import Localizable
     from betty.plugin.discovery import PluginDiscovery
-    from betty.service_level import ServiceLevel
 
 _PluginT = TypeVar("_PluginT")
 
@@ -54,12 +46,6 @@ _PluginT = TypeVar("_PluginT")
 class PluginError(Exception):
     """
     Any error originating from the Plugin API.
-    """
-
-
-class PluginRepositoryUnavailable(PluginError):
-    """
-    The requested plugin repository is not available.
     """
 
 
@@ -94,12 +80,6 @@ class PluginDefinition:
 
 _PluginDefinitionT = TypeVar(
     "_PluginDefinitionT", bound=PluginDefinition, default=PluginDefinition
-)
-_PluginDefinitionCoT = TypeVar(
-    "_PluginDefinitionCoT",
-    bound=PluginDefinition,
-    default=PluginDefinition,
-    covariant=True,
 )
 
 
@@ -163,9 +143,9 @@ class PluginTypeDefinition(Generic[_PluginDefinitionT]):
         return self._defined_discoveries.append(discovery)
 
     @contextmanager
-    def override_discoveries(self, *plugins: _PluginDefinitionT) -> Iterator[None]:
+    def override_discovery(self, *plugins: _PluginDefinitionT) -> Iterator[None]:
         """
-        Temporarily override the discoveries for this plugin type.
+        Temporarily override the discoveries for this plugin type with the given plugins.
         """
         from betty.plugin.discovery.static import StaticDiscovery
 
@@ -174,7 +154,7 @@ class PluginTypeDefinition(Generic[_PluginDefinitionT]):
         self._discoveries = self._defined_discoveries
 
     @property
-    def discoveries_overridden(self) -> bool:
+    def discovery_overridden(self) -> bool:
         """
         Whether the discoveries are currently overridden.
         """
@@ -353,106 +333,6 @@ class PluginNotFound(PluginError, HumanFacingException):
                 ),
             )
         )
-
-
-@final
-class PluginRepository(Generic[_PluginDefinitionT]):
-    """
-    Discover and manage plugins.
-    """
-
-    def __init__(
-        self, plugin_type: type[_PluginDefinitionT], *plugins: _PluginDefinitionT
-    ):
-        self._plugin_type = plugin_type
-        self._plugins = {plugin.id: plugin for plugin in plugins}
-        self._plugin_id_schema: Enum | None = None
-
-    def get(self, plugin_id: MachineName, /) -> _PluginDefinitionT:
-        """
-        Get a single plugin by its ID.
-
-        :raises PluginNotFound: if no plugin can be found for the given ID.
-        """
-        try:
-            return self._plugins[plugin_id]
-        except KeyError:
-            raise PluginNotFound(
-                self._plugin_type.type, plugin_id, list(self)
-            ) from None
-
-    def __len__(self) -> int:
-        return len(self._plugins)
-
-    def __iter__(self) -> Iterator[_PluginDefinitionT]:
-        yield from self._plugins.values()
-
-    def __getitem__(self, plugin_id: MachineName) -> _PluginDefinitionT:
-        return self.get(plugin_id)
-
-    @property
-    def plugin_id_schema(self) -> Enum:
-        """
-        Get the JSON schema for the IDs of the plugins in this repository.
-        """
-        if self._plugin_id_schema is None:
-            label = self._plugin_type.type.label.localize(DEFAULT_LOCALIZER)
-            self._plugin_id_schema = Enum(
-                *[plugin.id for plugin in self],  # noqa A002
-                def_name=kebab_case_to_lower_camel_case(self._plugin_type.type.id),
-                title=label,
-                description=f"A {label} plugin ID",
-            )
-        return self._plugin_id_schema
-
-
-@threadsafe
-class PluginRepositoryProvider:
-    """
-    Provide plugin repositories.
-    """
-
-    def __init__(self, *args: Any, service_level: ServiceLevel, **kwargs: Any):
-        super().__init__(*args, **kwargs)
-        self._service_level = service_level
-        self._plugin_repositories: MutableMapping[
-            PluginDefinition, PluginRepository
-        ] = {}
-        self._lock = AsynchronizedLock.new_threadsafe()
-
-    async def plugins(
-        self, plugin: type[_PluginDefinitionT] | MachineName, /
-    ) -> PluginRepository[_PluginDefinitionT]:
-        """
-        Get the plugin repository for a plugin type.
-        """
-        if isinstance(plugin, str):
-            plugin = cast(type[_PluginDefinitionT], plugin_types()[plugin])
-        if plugin.type.discoveries_overridden:
-            return await self._build(plugin, plugin.type.discoveries)
-        if plugin not in self._plugin_repositories:  # type: ignore[comparison-overlap]
-            async with self._lock:
-                if plugin not in self._plugin_repositories:  # type: ignore[comparison-overlap]
-                    self._plugin_repositories[plugin] = await self._build(  # type: ignore[index]
-                        plugin,
-                        plugin.type.discoveries,  # type: ignore[arg-type]
-                    )
-        return self._plugin_repositories[plugin]  # type: ignore[index,return-value]
-
-    async def _build(
-        self,
-        plugin: type[_PluginDefinitionT],
-        discoveries: Iterable[PluginDiscovery[_PluginDefinitionT]],
-    ) -> PluginRepository[_PluginDefinitionT]:
-        from betty.plugin.discovery import discover
-
-        return PluginRepository(
-            plugin, *await discover(self._service_level, *discoveries)
-        )
-
-
-_global_plugins = PluginRepositoryProvider(service_level=None)
-plugins = _global_plugins.plugins
 
 
 class CyclicDependencyError(PluginError):
