@@ -108,8 +108,11 @@ class _GenerateWebmanifest(Job[ProjectContext]):
 @ExtensionDefinition(
     id="raspberry-mint",
     label=Plain("Raspberry Mint"),
-    depends_on={Webpack.plugin},
-    comes_before={Maps.plugin, Trees.plugin},
+    depends_on={Webpack},
+    comes_before={
+        Maps,
+        Trees,
+    },
     theme=True,
     assets_directory_path=Path(__file__).parent / "assets",
 )

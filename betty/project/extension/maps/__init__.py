@@ -77,7 +77,7 @@ class _GeneratePlacePreview(Job[ProjectContext]):
     id="maps",
     label=Plain("Maps"),
     description=_("Display interactive maps"),
-    depends_on={Webpack.plugin},
+    depends_on={Webpack},
     assets_directory_path=Path(__file__).parent / "assets",
 )
 class Maps(Generator, EntryPointProvider):
