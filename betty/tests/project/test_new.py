@@ -29,10 +29,9 @@ async def test_new__minimal(
     temporary_app_factory: TemporaryAppFactory,
     tmp_path: Path,
 ) -> None:
-    requirement = StaticRequirement(True, Plain(""))
     mocker.patch(
         "betty.project.extension.webpack.Webpack.requirement"
-    ).return_value = requirement
+    ).return_value = None
     configuration_file_path = tmp_path / "betty.json"
     title = "My First Project"
     machine_name = "my-first-project"
@@ -66,7 +65,7 @@ async def test_new__without_webpack(
     temporary_app_factory: TemporaryAppFactory,
     tmp_path: Path,
 ) -> None:
-    requirement = StaticRequirement(False, Plain(""))
+    requirement = StaticRequirement(Plain(""))
     mocker.patch(
         "betty.project.extension.webpack.Webpack.requirement"
     ).return_value = requirement
@@ -82,10 +81,9 @@ async def test_new__with_project_directory(
     temporary_app_factory: TemporaryAppFactory,
     tmp_path: Path,
 ) -> None:
-    requirement = StaticRequirement(True, Plain(""))
     mocker.patch(
         "betty.project.extension.webpack.Webpack.requirement"
-    ).return_value = requirement
+    ).return_value = None
     title = "My First Project"
     machine_name = "my-first-project"
     author = "My First Author"

@@ -8,14 +8,12 @@ from __future__ import annotations
 
 import sys
 from subprocess import CalledProcessError
-from typing import TYPE_CHECKING, Self, final
-
-from typing_extensions import override
+from typing import TYPE_CHECKING
 
 from betty import subprocess
 from betty.exception import HumanFacingException
-from betty.locale.localizable import Localizable, _
-from betty.requirement import Requirement
+from betty.locale.localizable import Paragraph, _
+from betty.requirement import Requirement, StaticRequirement
 
 if TYPE_CHECKING:
     from asyncio import subprocess as aiosubprocess
@@ -24,16 +22,15 @@ if TYPE_CHECKING:
 
     from betty.user import User
 
-_NPM_SUMMARY_AVAILABLE = _("npm is available")
-_NPM_SUMMARY_UNAVAILABLE = _("npm is not available")
-_NPM_DETAILS = _(
+_NPM_REQUIREMENT_SUMMARY = _("npm is not available")
+_NPM_REQUIREMENT_DETAILS = _(
     "npm (https://www.npmjs.com/) must be available for features that require Node.js packages to be installed. Ensure that the `npm` executable is available in your `PATH`."
 )
 
 
 class NpmUnavailable(HumanFacingException, RuntimeError):
     def __init__(self):
-        super().__init__(_NPM_DETAILS)
+        super().__init__(_NPM_REQUIREMENT_DETAILS)
 
 
 async def npm(
@@ -55,37 +52,21 @@ async def npm(
         raise NpmUnavailable() from None
 
 
-@final
-class NpmRequirement(Requirement):
-    def __init__(self, met: bool):
-        super().__init__()
-        self._met = met
+async def is_available(*, user: User) -> bool:
+    try:
+        await npm(["--version"], user=user)
+        return True
+    except NpmUnavailable:
+        pass
+    except CalledProcessError:
+        await user.message_exception()
+    await user.message_debug(
+        Paragraph(_NPM_REQUIREMENT_SUMMARY, _NPM_REQUIREMENT_DETAILS)
+    )
+    return False
 
-    @classmethod
-    async def new(cls, *, user: User) -> Self:
-        try:
-            await npm(["--version"], user=user)
-        except NpmUnavailable:
-            await user.message_debug(_NPM_SUMMARY_UNAVAILABLE)
-            await user.message_debug(_NPM_DETAILS)
-            return cls(False)
-        except CalledProcessError:
-            await user.message_exception()
-            await user.message_debug(_NPM_DETAILS)
-            return cls(False)
-        else:
-            return cls(True)
 
-    @override
-    def is_met(self) -> bool:
-        return self._met
-
-    @override
-    def summary(self) -> Localizable:
-        if self.is_met():
-            return _NPM_SUMMARY_AVAILABLE
-        return _NPM_SUMMARY_UNAVAILABLE
-
-    @override
-    def details(self) -> Localizable:
-        return _NPM_DETAILS
+async def new_npm_requirement(*, user: User) -> Requirement | None:
+    if await is_available(user=user):
+        return None
+    return StaticRequirement(_NPM_REQUIREMENT_SUMMARY, _NPM_REQUIREMENT_DETAILS)
