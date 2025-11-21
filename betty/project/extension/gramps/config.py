@@ -30,7 +30,7 @@ from betty.gramps.loader import (
     DEFAULT_PRESENCE_ROLES_MAPPING,
 )
 from betty.locale.localizable import _
-from betty.plugin import ClassedPluginDefinition
+from betty.plugin.classed import ClassedPluginDefinition
 from betty.plugin.config import PluginInstanceConfiguration
 from betty.typing import internal
 

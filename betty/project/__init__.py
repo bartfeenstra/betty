@@ -36,14 +36,13 @@ from betty.locale.translation import (
     TranslationRepository,
 )
 from betty.model import Entity, EntityDefinition, ToManySchema
-from betty.plugin import PluginDefinition, resolve_id
+from betty.plugin import PluginDefinition
 from betty.plugin.dependent import sort_dependent_plugin_graph
-from betty.plugin.repository.provider import (
-    PluginRepositoryProvider,
-)
+from betty.plugin.repository.provider import PluginRepositoryProvider
 from betty.plugin.repository.provider.service_level import (
     ServiceLevelPluginRepositoryProvider,
 )
+from betty.plugin.resolve import ResolvablePluginId, resolve_id
 from betty.privacy.privatizer import Privatizer
 from betty.project.config import ProjectConfiguration
 from betty.project.extension import Extension, ExtensionDefinition
@@ -64,7 +63,6 @@ if TYPE_CHECKING:
     from betty.jinja2 import Environment
     from betty.license import License
     from betty.machine_name import MachineName
-    from betty.plugin import PluginIdentifier
     from betty.plugin.repository import PluginRepository
     from betty.progress import Progress
     from betty.url import UrlGenerator
@@ -414,12 +412,12 @@ class ProjectExtensions:
 
     @overload
     def __getitem__(
-        self, extension: PluginIdentifier[ExtensionDefinition, Extension]
+        self, extension: ResolvablePluginId[ExtensionDefinition, Extension]
     ) -> Extension:
         pass
 
     def __getitem__(
-        self, extension: PluginIdentifier[ExtensionDefinition, Extension]
+        self, extension: ResolvablePluginId[ExtensionDefinition, Extension]
     ) -> Extension:
         extension_id = resolve_id(extension)
         for project_extension in self.flatten():
@@ -448,7 +446,7 @@ class ProjectExtensions:
             yield from batch
 
     def __contains__(
-        self, extension: PluginIdentifier[ExtensionDefinition, Extension]
+        self, extension: ResolvablePluginId[ExtensionDefinition, Extension]
     ) -> bool:
         if isinstance(extension, type) and issubclass(extension, Extension):
             extension = extension.plugin

@@ -3,7 +3,7 @@ from typing_extensions import override
 
 from betty.ancestry.place_type import PlaceTypeDefinition
 from betty.plugin import PluginDefinition
-from betty.test_utils.plugin import ClassedPluginDefinitionClassTestBase
+from betty.test_utils.plugin.classed import ClassedPluginDefinitionClassTestBase
 
 
 class TestPlaceTypeDefinition(ClassedPluginDefinitionClassTestBase):

@@ -15,7 +15,7 @@ from betty.http_client.rate_limit import (
     RateLimitMiddleware,
 )
 from betty.plugin import PluginDefinition
-from betty.test_utils.plugin import ClassedPluginDefinitionClassTestBase
+from betty.test_utils.plugin.classed import ClassedPluginDefinitionClassTestBase
 
 
 class _LowRateLimit(RateLimit):

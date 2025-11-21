@@ -13,7 +13,7 @@ from betty.media_type import MediaType
 from betty.media_type.media_types import PDF, SVG
 from betty.model import Entity
 from betty.test_utils.jinja2 import assert_template_string
-from betty.test_utils.plugin import (
+from betty.test_utils.plugin.classed import (
     ClassedDummyPluginDefinition,
     ClassedDummyPluginOne,
     ClassedDummyPluginTwo,

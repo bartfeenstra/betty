@@ -4,7 +4,7 @@ from importlib.metadata import EntryPoint, EntryPoints
 from typing import TYPE_CHECKING
 
 from betty.plugin.discovery.entry_point import EntryPointDiscovery
-from betty.test_utils.plugin import ClassedDummyPluginOne, ClassedDummyPluginTwo
+from betty.test_utils.plugin.classed import ClassedDummyPluginOne, ClassedDummyPluginTwo
 
 if TYPE_CHECKING:
     from pytest_mock import MockerFixture
@@ -19,12 +19,12 @@ class TestEntryPointDiscovery:
                 [
                     EntryPoint(
                         name=ClassedDummyPluginOne.plugin.id,
-                        value="betty.test_utils.plugin:ClassedDummyPluginOne",
+                        value="betty.test_utils.plugin.classed:ClassedDummyPluginOne",
                         group=entry_point_group,
                     ),
                     EntryPoint(
                         name=ClassedDummyPluginTwo.plugin.id,
-                        value="betty.test_utils.plugin:ClassedDummyPluginTwo",
+                        value="betty.test_utils.plugin.classed:ClassedDummyPluginTwo",
                         group=entry_point_group,
                     ),
                 ]

@@ -6,8 +6,8 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING, Any, TypeVar
 
-from betty.plugin import PluginIdentifier, resolve_id
 from betty.plugin.ordered import OrderedPluginDefinition, sort_ordered_plugin_graph
+from betty.plugin.resolve import ResolvablePluginId, resolve_id
 
 if TYPE_CHECKING:
     from collections.abc import Iterable, Set
@@ -25,7 +25,7 @@ class DependentPluginDefinition(OrderedPluginDefinition):
     def __init__(
         self,
         *,
-        depends_on: Set[PluginIdentifier] | None = None,
+        depends_on: Set[ResolvablePluginId] | None = None,
         **kwargs: Any,
     ):
         super().__init__(**kwargs)

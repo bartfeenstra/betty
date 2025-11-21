@@ -1,6 +1,6 @@
 import pytest
 
-from betty.plugin import PluginNotFound
+from betty.plugin.error import PluginNotFound
 from betty.plugin.repository.static import StaticPluginRepository
 from betty.test_utils.plugin import DUMMY_PLUGIN_ONE, DummyPluginDefinition
 

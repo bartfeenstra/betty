@@ -6,11 +6,12 @@ from typing_extensions import override
 
 from betty.locale.localizable import Plain
 from betty.locale.localizer import DEFAULT_LOCALIZER
-from betty.plugin import ClassedPluginDefinition, PluginTypeDefinition
+from betty.plugin import PluginTypeDefinition
+from betty.plugin.classed import ClassedPluginDefinition
 from betty.plugin.dependent import DependentPluginDefinition
-from betty.plugin.requirement import new_dependencies_requirement
+from betty.plugin.requirement import CyclicDependencyError, new_dependencies_requirement
 from betty.requirement import HasRequirement, Requirement, StaticRequirement
-from betty.test_utils.plugin import ClassedDummyPlugin, ClassedDummyPluginOne
+from betty.test_utils.plugin.classed import ClassedDummyPlugin, ClassedDummyPluginOne
 
 if TYPE_CHECKING:
     from betty.app import App
@@ -139,3 +140,10 @@ async def test_new_dependencies_requirement__with_met_requirements(
     message = actual.localize(DEFAULT_LOCALIZER)
     assert UpstreamWithMetRequirements.plugin.id in message
     assert DownstreamWithMetRequirements.plugin.id in message
+
+
+class TestCyclicDependencyError:
+    def test(self) -> None:
+        plugin_id = "my-first-plugin"
+        sut = CyclicDependencyError([plugin_id])
+        assert plugin_id in str(sut)

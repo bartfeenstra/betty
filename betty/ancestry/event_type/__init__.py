@@ -8,17 +8,13 @@ from abc import ABC, abstractmethod
 from typing import TYPE_CHECKING, Any, ClassVar, final
 
 from betty.locale.localizable import _
-from betty.plugin import (
-    ClassedPlugin,
-    ClassedPluginDefinition,
-    HumanFacingPluginDefinition,
-    PluginIdentifier,
-    PluginTypeDefinition,
-    resolve_id,
-)
+from betty.plugin import PluginTypeDefinition
+from betty.plugin.classed import ClassedPlugin, ClassedPluginDefinition
 from betty.plugin.discovery.entry_point import EntryPointDiscovery
 from betty.plugin.discovery.project import ProjectDiscovery
+from betty.plugin.human_facing import HumanFacingPluginDefinition
 from betty.plugin.ordered import OrderedPluginDefinition
+from betty.plugin.resolve import ResolvablePluginId, resolve_id
 
 if TYPE_CHECKING:
     from betty.ancestry.person import Person
@@ -74,7 +70,7 @@ class EventTypeDefinition(
     def __init__(
         self,
         *,
-        indicates: PluginIdentifier[EventTypeDefinition, EventType] | None = None,
+        indicates: ResolvablePluginId[EventTypeDefinition, EventType] | None = None,
         **kwargs: Any,
     ):
         super().__init__(**kwargs)

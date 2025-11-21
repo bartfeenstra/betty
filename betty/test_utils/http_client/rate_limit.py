@@ -2,9 +2,7 @@
 Test utilities for :py:mod:`betty.http_client.rate_limit`.
 """
 
-from betty.test_utils.plugin import (
-    ClassedPluginDefinitionTestBase,
-)
+from betty.test_utils.plugin.classed import ClassedPluginDefinitionTestBase
 from betty.test_utils.plugin.ordered import OrderedPluginDefinitionTestBase
 
 

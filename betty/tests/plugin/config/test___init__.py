@@ -34,13 +34,17 @@ from betty.test_utils.plugin import (
     DUMMY_PLUGIN_ONE,
     DUMMY_PLUGIN_THREE,
     DUMMY_PLUGIN_TWO,
+    DummyPluginDefinition,
+)
+from betty.test_utils.plugin.classed import (
     ClassedDummyPlugin,
     ClassedDummyPluginDefinition,
     ClassedDummyPluginOne,
+)
+from betty.test_utils.plugin.config import (
     ConfigurableDummyPlugin,
     ConfigurableDummyPluginDefinition,
     ConfigurableDummyPluginOne,
-    DummyPluginDefinition,
 )
 
 

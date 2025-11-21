@@ -4,22 +4,22 @@ Requirements for plugins.
 
 from __future__ import annotations
 
+from collections.abc import Iterable
 from typing import TYPE_CHECKING, Any, TypeVar
 
 from betty.locale.localizable import AnyEnumeration, _
-from betty.plugin import (
-    ClassedPluginDefinition,
-    CyclicDependencyError,
-    HumanFacingPluginDefinition,
-    resolve_id,
-)
+from betty.plugin.classed import ClassedPluginDefinition
 from betty.plugin.dependent import DependentPluginDefinition
+from betty.plugin.error import PluginError
+from betty.plugin.human_facing import HumanFacingPluginDefinition
+from betty.plugin.resolve import resolve_id
 from betty.requirement import AllRequirements
 
 if TYPE_CHECKING:
     from collections.abc import Iterable
 
     from betty.app import App
+    from betty.machine_name import MachineName
     from betty.requirement import Requirement
 
 _ClassedPluginDefinitionT = TypeVar(
@@ -71,4 +71,16 @@ async def new_dependencies_requirement(
                     ),
                 ),
             ),
+        )
+
+
+class CyclicDependencyError(PluginError):
+    """
+    Raised when plugins define a cyclic dependency, e.g. two plugins depend on each other.
+    """
+
+    def __init__(self, plugin_ids: Iterable[MachineName], /):
+        plugin_names = ", ".join(plugin_ids)
+        super().__init__(
+            f"The following plugins have cyclic dependencies: {plugin_names}"
         )

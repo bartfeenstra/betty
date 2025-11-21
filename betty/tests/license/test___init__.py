@@ -6,7 +6,7 @@ from typing_extensions import override
 from betty.license import LicenseDefinition
 from betty.plugin import PluginDefinition
 from betty.test_utils.documentation import PluginDocumentationTestBase
-from betty.test_utils.plugin import ClassedPluginDefinitionClassTestBase
+from betty.test_utils.plugin.classed import ClassedPluginDefinitionClassTestBase
 
 
 class TestLicenseDefinition(ClassedPluginDefinitionClassTestBase):

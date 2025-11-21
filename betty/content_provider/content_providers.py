@@ -14,7 +14,7 @@ from betty.factory import IndependentFactory
 from betty.html import plain_text_to_html
 from betty.locale.localizable import _
 from betty.locale.localizable.config import StaticTranslationsConfiguration
-from betty.plugin import ClassedPlugin
+from betty.plugin.classed import ClassedPlugin
 from betty.project.factory import ProjectDependentFactory
 
 if TYPE_CHECKING:

@@ -9,7 +9,8 @@ from typing import TYPE_CHECKING, final
 
 from betty.html import plain_text_to_html
 from betty.locale.localizable import _
-from betty.plugin import ClassedPluginDefinition, PluginTypeDefinition
+from betty.plugin import PluginTypeDefinition
+from betty.plugin.classed import ClassedPluginDefinition
 from betty.plugin.discovery.entry_point import EntryPointDiscovery
 
 if TYPE_CHECKING:

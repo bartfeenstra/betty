@@ -366,8 +366,10 @@ _BASELINE: Mapping[str, _ModuleIgnore] = {
     "betty/openapi.py": {
         "SpecificationSchema": {"__annotate_func__": MissingReason.DATACLASS},
     },
-    "betty/plugin/__init__.py": {
+    "betty/plugin/classed.py": {
         "ClassedPlugin": MissingReason.STATIC_CONTENT_ONLY,
+    },
+    "betty/plugin/error.py": {
         "PluginError": MissingReason.ABSTRACT,
     },
     "betty/plugin/repository/__init__.py": {
@@ -388,7 +390,6 @@ _BASELINE: Mapping[str, _ModuleIgnore] = {
     "betty/plugin/config/__init__.py": {
         "PluginDefinitionConfigurationMapping": MissingReason.SHOULD_BE_COVERED,
     },
-    "betty/plugin/lazy.py": MissingReason.SHOULD_BE_COVERED,
     "betty/privacy/__init__.py": {
         "Privacy": MissingReason.ENUM,
     },

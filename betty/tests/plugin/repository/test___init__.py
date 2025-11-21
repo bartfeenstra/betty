@@ -4,7 +4,7 @@ from typing import TYPE_CHECKING
 
 from typing_extensions import override
 
-from betty.plugin import PluginNotFound
+from betty.plugin.error import PluginNotFound
 from betty.plugin.repository import PluginRepository
 from betty.test_utils.plugin import (
     DUMMY_PLUGIN_ONE,

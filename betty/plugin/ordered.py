@@ -11,7 +11,8 @@ from typing import TYPE_CHECKING, Any
 from typing_extensions import TypeVar
 
 from betty.machine_name import MachineName
-from betty.plugin import PluginDefinition, PluginIdentifier, resolve_id
+from betty.plugin import PluginDefinition
+from betty.plugin.resolve import ResolvablePluginId, resolve_id
 
 if TYPE_CHECKING:
     from collections.abc import Iterable, Iterator, Mapping, Set
@@ -31,8 +32,8 @@ class OrderedPluginDefinition(PluginDefinition):
     def __init__(
         self,
         *,
-        comes_before: Set[PluginIdentifier] | None = None,
-        comes_after: Set[PluginIdentifier] | None = None,
+        comes_before: Set[ResolvablePluginId] | None = None,
+        comes_after: Set[ResolvablePluginId] | None = None,
         **kwargs: Any,
     ):
         super().__init__(**kwargs)

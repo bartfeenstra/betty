@@ -46,7 +46,6 @@ from betty.locale.localizable.config import (
 )
 from betty.machine_name import MachineName, assert_machine_name
 from betty.model import Entity, EntityDefinition
-from betty.plugin import resolve_id
 from betty.plugin.config import (
     HumanFacingPluginDefinitionConfiguration,
     PluginDefinitionConfigurationMapping,
@@ -56,13 +55,13 @@ from betty.plugin.config import (
 )
 from betty.plugin.config.ordered import OrderedPluginDefinitionConfiguration
 from betty.plugin.repository.provider.service_level import plugins
+from betty.plugin.resolve import ResolvablePluginId, resolve_id
 from betty.project.extension import Extension, ExtensionDefinition
 from betty.serde.format import FormatDefinition, format_for
 
 if TYPE_CHECKING:
     from pathlib import Path
 
-    from betty.plugin import PluginIdentifier
     from betty.plugin.repository import PluginRepository
     from betty.serde.dump import Dump, DumpMapping
 
@@ -81,7 +80,7 @@ class ExtensionInstanceConfigurationMapping(
     """
 
     def enable(
-        self, *extensions: PluginIdentifier[ExtensionDefinition, Extension]
+        self, *extensions: ResolvablePluginId[ExtensionDefinition, Extension]
     ) -> None:
         """
         Enable the given extensions.
@@ -100,7 +99,7 @@ class EntityTypeConfiguration(Configuration):
 
     def __init__(
         self,
-        entity_type: PluginIdentifier[EntityDefinition, Entity],
+        entity_type: ResolvablePluginId[EntityDefinition, Entity],
         *,
         generate_html_list: bool = False,
     ):

@@ -64,13 +64,13 @@ This creates a new plugin type, for which plugins are defined using ``MyFirstPlu
 Your plugin definition class may subclass any of the following base classes, so each plugin can provide additional
 metadata in its definition:
 
-:py:class:`betty.plugin.HumanFacingPluginDefinition`
+:py:class:`betty.plugin.human_facing.HumanFacingPluginDefinition`
     To add human-readable labels and descriptions to plugins.
-:py:class:`betty.plugin.CountableHumanFacingPluginDefinition`
+:py:class:`betty.plugin.human_facing.CountableHumanFacingPluginDefinition`
     To add countable human-readable labels and descriptions to plugins.
 :py:class:`betty.plugin.ordered.OrderedPluginDefinition`
     To allow plugins to define if they come before or after any other plugins.
 :py:class:`betty.plugin.dependent.DependentPluginDefinition`
     To allow plugins to define their dependencies on any other plugins.
-:py:class:`betty.plugin.ClassedPluginDefinition`
+:py:class:`betty.plugin.classed.ClassedPluginDefinition`
     For plugins that have classes that can be instantiated.

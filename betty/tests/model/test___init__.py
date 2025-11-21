@@ -17,7 +17,7 @@ from betty.model import (
 from betty.plugin import PluginDefinition
 from betty.test_utils.documentation import PluginDocumentationTestBase
 from betty.test_utils.json.schema import SchemaTestBase, SchemaTestBaseSut
-from betty.test_utils.plugin import ClassedPluginDefinitionClassTestBase
+from betty.test_utils.plugin.classed import ClassedPluginDefinitionClassTestBase
 
 
 class TestEntityDefinition(ClassedPluginDefinitionClassTestBase):

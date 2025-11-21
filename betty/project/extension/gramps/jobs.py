@@ -23,7 +23,7 @@ if TYPE_CHECKING:
 
     from betty.factory import Factory
     from betty.job.scheduler import Scheduler
-    from betty.plugin import ClassedPluginDefinition
+    from betty.plugin.classed import ClassedPluginDefinition
     from betty.plugin.config import PluginInstanceConfiguration
     from betty.plugin.repository import PluginRepository
 

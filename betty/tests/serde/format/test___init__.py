@@ -13,7 +13,7 @@ from betty.serde.format import (
     FormatStr,
     format_for,
 )
-from betty.test_utils.plugin import ClassedPluginDefinitionClassTestBase
+from betty.test_utils.plugin.classed import ClassedPluginDefinitionClassTestBase
 from betty.typing import Voidable
 
 

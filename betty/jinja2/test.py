@@ -13,7 +13,8 @@ from betty.date import DateRange
 from betty.image import is_supported_media_type
 from betty.json.linked_data import LinkedDataDumpableWithSchema
 from betty.model import persistent_id
-from betty.plugin import ClassedPluginDefinition, PluginDefinition, plugin_types
+from betty.plugin import PluginDefinition, plugin_types
+from betty.plugin.classed import ClassedPluginDefinition
 from betty.privacy import is_private, is_public
 from betty.string import kebab_case_to_snake_case
 from betty.typing import internal
