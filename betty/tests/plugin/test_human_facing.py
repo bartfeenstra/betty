@@ -1,6 +1,8 @@
 from __future__ import annotations
 
 from betty.locale.localizable import CountablePlain, Plain
+from betty.locale.localizer import DEFAULT_LOCALIZER
+from betty.plugin import PluginTypeDefinition
 from betty.plugin.human_facing import (
     CountableHumanFacingPluginDefinition,
     HumanFacingPluginDefinition,
@@ -8,6 +10,30 @@ from betty.plugin.human_facing import (
 
 
 class TestHumanFacingPluginDefinition:
+    def test_reference_label(self) -> None:
+        id = "my-first-plugin"  # noqa A001
+        plugin_label = "My First Plugin"
+        sut = HumanFacingPluginDefinition(id=id, label=Plain(plugin_label))
+        actual = sut.reference_label.localize(DEFAULT_LOCALIZER)
+        assert id in actual
+        assert plugin_label in actual
+
+    def test_reference_label_with_type(self) -> None:
+        plugin_type_label = "My First Plugin Type"
+
+        class _HumanFacingPluginDefinition(HumanFacingPluginDefinition):
+            type = PluginTypeDefinition(
+                id="my-first-plugin-type", label=Plain(plugin_type_label)
+            )
+
+        id = "my-first-plugin"  # noqa A001
+        plugin_label = "My First Plugin"
+        sut = _HumanFacingPluginDefinition(id=id, label=Plain(plugin_label))
+        actual = sut.reference_label_with_type.localize(DEFAULT_LOCALIZER)
+        assert id in actual
+        assert plugin_label in actual
+        assert plugin_type_label in actual
+
     def test_label(self) -> None:
         label = Plain("")
         sut = HumanFacingPluginDefinition(label=label, id="my-first-plugin")

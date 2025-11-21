@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 from betty.locale.localizable import Plain
+from betty.locale.localizer import DEFAULT_LOCALIZER
 from betty.plugin import PluginDefinition, PluginTypeDefinition, plugin_types
 from betty.plugin.dependent import DependentPluginDefinition
 from betty.plugin.discovery import discover
@@ -144,6 +145,26 @@ class TestPluginDefinition:
         id = "my-first-plugin"  # noqa A001
         sut = PluginDefinition(id=id)
         assert sut.id == id
+
+    def test_reference_label(self) -> None:
+        id = "my-first-plugin"  # noqa A001
+        sut = PluginDefinition(id=id)
+        actual = sut.reference_label.localize(DEFAULT_LOCALIZER)
+        assert id in actual
+
+    def test_reference_label_with_type(self) -> None:
+        plugin_type_label = "My First Plugin Type"
+
+        class _PluginDefinition(PluginDefinition):
+            type = PluginTypeDefinition(
+                id="my-first-plugin-type", label=Plain(plugin_type_label)
+            )
+
+        id = "my-first-plugin"  # noqa A001
+        sut = _PluginDefinition(id=id)
+        actual = sut.reference_label_with_type.localize(DEFAULT_LOCALIZER)
+        assert id in actual
+        assert plugin_type_label in actual
 
 
 def test_plugin_types() -> None:

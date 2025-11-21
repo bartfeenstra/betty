@@ -16,7 +16,6 @@ import betty
 import betty.dirs
 from betty.app import config
 from betty.app.config import AppConfiguration
-from betty.app.factory import AppDependentFactory
 from betty.asset import AssetRepository, StaticAssetRepository
 from betty.cache.file import BinaryFileCache, PickledFileCache
 from betty.cache.no_op import NoOpCache
@@ -29,6 +28,7 @@ from betty.http_client.rate_limit import RateLimitDefinition, RateLimitMiddlewar
 from betty.license import LicenseDefinition
 from betty.license.licenses import SpdxLicenseBuilder
 from betty.locale import DEFAULT_LOCALE
+from betty.locale.localizable import Localizable, _
 from betty.locale.localizer import Localizer, LocalizerRepository
 from betty.locale.translation import (
     AssetTranslationRepository,
@@ -43,6 +43,7 @@ from betty.plugin.repository.provider.service import (
     ServicesPluginRepositoryProvider,
 )
 from betty.plugin.repository.static import StaticPluginRepository
+from betty.requirement import Requirement, StaticRequirement
 from betty.service.provider import (
     ServiceFactory,
     ServiceProvider,
@@ -61,6 +62,7 @@ if TYPE_CHECKING:
     from betty.cache import Cache
     from betty.machine_name import MachineName
     from betty.plugin.repository import PluginRepository
+    from betty.service.level import ServiceProviderLevel
     from betty.user import User
 
 _T = TypeVar("_T")
@@ -103,6 +105,17 @@ class App(
         self._cache_directory_path = cache_directory_path
         cls.cache.override_factory(self, cache_factory)
         self._plugin_repository_provider = ServicesPluginRepositoryProvider(self)
+
+    @override
+    @classmethod
+    async def requires(
+        cls, services: ServiceProviderLevel, subject: Localizable | str, /
+    ) -> Requirement | Self:
+        if services is None:
+            return StaticRequirement(
+                _("{subject} requires a running app.").format(subject=subject)
+            )
+        return services if isinstance(services, App) else services.app
 
     @override
     async def plugins(
@@ -291,6 +304,8 @@ class App(
 
         :raises FactoryError: raised when ``cls`` could not be instantiated.
         """
+        from betty.app.factory import AppDependentFactory
+
         if issubclass(cls, AppDependentFactory):
             return cast(_T, await cls.new_for_app(self))
         return await new(cls)

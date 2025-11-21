@@ -4,14 +4,19 @@ Functionality for creating new instances of types that depend on :py:class:`bett
 
 from __future__ import annotations
 
-from abc import ABC, abstractmethod
+from abc import abstractmethod
 from typing import TYPE_CHECKING, Self
+
+from typing_extensions import override
+
+from betty.requirement import HasRequirement, Requirement
 
 if TYPE_CHECKING:
     from betty.app import App
+    from betty.service.level import ServiceProviderLevel
 
 
-class AppDependentFactory(ABC):
+class AppDependentFactory(HasRequirement):
     """
     Allow this type to be instantiated using a :py:class:`betty.app.App`.
     """
@@ -22,3 +27,10 @@ class AppDependentFactory(ABC):
         """
         Create a new instance using the given app.
         """
+
+    @override
+    @classmethod
+    async def requirement(cls, services: ServiceProviderLevel, /) -> Requirement | None:
+        from betty.app import App
+
+        return await App.requirement_for(services, str(cls))

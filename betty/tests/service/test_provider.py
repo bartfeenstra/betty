@@ -1,11 +1,14 @@
 from collections.abc import Awaitable
-from typing import Any
+from typing import Any, Self
 
 import pytest
 from typing_extensions import override
 
 from betty.config import Configurable
+from betty.locale.localizable import Localizable, Plain
+from betty.requirement import Requirement, StaticRequirement
 from betty.service.bootstrap import NotBootstrappedError
+from betty.service.level import ServiceProviderLevel
 from betty.service.provider import (
     ServiceFactory,
     ServiceInitializedError,
@@ -19,11 +22,20 @@ from betty.service.provider import (
 from betty.test_utils.config import DummyConfiguration
 
 
-class _ConfigurableServiceProvider(Configurable[DummyConfiguration], ServiceProvider):
+class _ServiceProvider(ServiceProvider):
+    @override
+    @classmethod
+    async def requires(
+        cls, services: ServiceProviderLevel, subject: Localizable | str, /
+    ) -> Requirement | Self:
+        return StaticRequirement(Plain(""))
+
+
+class _ConfigurableServiceProvider(Configurable[DummyConfiguration], _ServiceProvider):
     pass
 
 
-class _AsynchronousServiceProvider(ServiceProvider):
+class _AsynchronousServiceProvider(_ServiceProvider):
     def __init__(self, service: object):
         super().__init__()
         self._init_service = service
@@ -33,7 +45,7 @@ class _AsynchronousServiceProvider(ServiceProvider):
         return self._init_service
 
 
-class _SynchronousServiceProvider(ServiceProvider):
+class _SynchronousServiceProvider(_ServiceProvider):
     def __init__(self, service: object):
         super().__init__()
         self._init_service = service
@@ -43,7 +55,7 @@ class _SynchronousServiceProvider(ServiceProvider):
         return self._init_service
 
 
-class _AsynchronousServiceProviderWithOverride(ServiceProvider):
+class _AsynchronousServiceProviderWithOverride(_ServiceProvider):
     def __init__(self, service: object):
         super().__init__()
         type(self).my_first_asynchronous_service.override(self, service)
@@ -53,7 +65,7 @@ class _AsynchronousServiceProviderWithOverride(ServiceProvider):
         raise NotImplementedError
 
 
-class _SynchronousServiceProviderWithOverride(ServiceProvider):
+class _SynchronousServiceProviderWithOverride(_ServiceProvider):
     def __init__(self, service: object):
         super().__init__()
         type(self).my_first_synchronous_service.override(self, service)
@@ -63,7 +75,7 @@ class _SynchronousServiceProviderWithOverride(ServiceProvider):
         raise NotImplementedError
 
 
-class _AsynchronousServiceProviderWithOverrideFactory(ServiceProvider):
+class _AsynchronousServiceProviderWithOverrideFactory(_ServiceProvider):
     def __init__(
         self,
         service_factory: ServiceFactory[
@@ -78,7 +90,7 @@ class _AsynchronousServiceProviderWithOverrideFactory(ServiceProvider):
         raise NotImplementedError
 
 
-class _SynchronousServiceProviderWithOverrideFactory(ServiceProvider):
+class _SynchronousServiceProviderWithOverrideFactory(_ServiceProvider):
     def __init__(
         self,
         service_factory: ServiceFactory[
@@ -101,22 +113,22 @@ class _DummyServiceManager(ServiceManager[Any, None, None]):
 
 class TestServiceProvider:
     async def test___aenter__(self) -> None:
-        async with ServiceProvider() as sut:
+        async with _ServiceProvider() as sut:
             assert sut.bootstrapped
 
     async def test___aexit__(self) -> None:
-        async with ServiceProvider() as sut:
+        async with _ServiceProvider() as sut:
             pass
         assert not sut.bootstrapped
 
     async def test___del__(self) -> None:
-        sut = ServiceProvider()
+        sut = _ServiceProvider()
         await sut.bootstrap()
         with pytest.warns():
             del sut
 
     async def test_bootstrap(self) -> None:
-        sut = ServiceProvider()
+        sut = _ServiceProvider()
         await sut.bootstrap()
         try:
             assert sut.bootstrapped
@@ -137,7 +149,7 @@ class TestServiceProvider:
         assert sut.configuration.mutable
 
     async def test_shutdown(self) -> None:
-        sut = ServiceProvider()
+        sut = _ServiceProvider()
         await sut.bootstrap()
         await sut.shutdown()
         assert not sut.bootstrapped
@@ -146,7 +158,7 @@ class TestServiceProvider:
 class TestStaticService:
     def test___call__(self) -> None:
         service = object()
-        services = ServiceProvider()
+        services = _ServiceProvider()
         sut = StaticService[ServiceProvider, object](service)
         assert sut(services) is service
 

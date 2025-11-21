@@ -27,7 +27,6 @@ from betty.project.generate import Generator
 from betty.requirement import (
     AllRequirements,
     Requirement,
-    requires_project,
 )
 from betty.resource import ContextProvider, ContextVars
 from betty.typing import internal
@@ -36,6 +35,7 @@ if TYPE_CHECKING:
     from collections.abc import Sequence
 
     from betty.job.scheduler import Scheduler
+    from betty.service.level import ServiceProviderLevel
 
 
 class _GenerateAssets(Job[ProjectContext]):
@@ -71,7 +71,7 @@ class Webpack(
     Integrate Betty with `Webpack <https://webpack.js.org/>`_.
     """
 
-    _requirement: ClassVar[Requirement | None | Literal[False]] = False
+    _npm_requirement: ClassVar[Requirement | None | Literal[False]] = False
 
     @override
     async def generate(self, scheduler: Scheduler[ProjectContext]) -> None:
@@ -79,14 +79,19 @@ class Webpack(
 
     @override
     @classmethod
-    @requires_project
-    async def requirement(cls, project: Project, /) -> Requirement | None:
-        if cls._requirement is False:
-            cls._requirement = AllRequirements.new(
-                await super().requirement(project),
-                await new_npm_requirement(user=project.app.user),
+    async def requirement(cls, services: ServiceProviderLevel, /) -> Requirement | None:
+        project = await Project.requires(services, cls.plugin.reference_label_with_type)
+        if isinstance(project, Requirement):
+            return project
+        npm_requirement = cls._npm_requirement
+        if npm_requirement is False:
+            npm_requirement = cls._npm_requirement = await new_npm_requirement(
+                user=project.app.user
             )
-        return cls._requirement
+        return AllRequirements.new(
+            await super().requirement(project),
+            npm_requirement,
+        )
 
     @override
     async def get_public_css_paths(self) -> Sequence[str]:

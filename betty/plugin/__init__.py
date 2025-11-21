@@ -15,6 +15,7 @@ from typing import TYPE_CHECKING, ClassVar, Generic, Self, final
 
 from typing_extensions import TypeVar
 
+from betty.locale.localizable import _
 from betty.machine_name import InvalidMachineName, MachineName, validate_machine_name
 
 if TYPE_CHECKING:
@@ -51,6 +52,23 @@ class PluginDefinition:
         - Different plugin repositories **MAY** each have a plugin with the same ID.
         """
         return self._id
+
+    @property
+    def reference_label(self) -> Localizable:
+        """
+        The label to reference this plugin with.
+        """
+        return _('"{plugin_id}"').format(plugin_id=self.id)
+
+    @property
+    def reference_label_with_type(self) -> Localizable:
+        """
+        The label to reference this plugin with, including the plugin type.
+        """
+        return _('{plugin_type} "{plugin_id}"').format(
+            plugin_type=self.type.label,
+            plugin_id=self.id,
+        )
 
 
 _PluginDefinitionT = TypeVar(

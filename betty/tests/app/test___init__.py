@@ -6,6 +6,9 @@ from typing_extensions import override
 
 from betty.app import App
 from betty.app.factory import AppDependentFactory
+from betty.locale.localizer import DEFAULT_LOCALIZER
+from betty.project import Project
+from betty.requirement import Requirement
 from betty.test_utils.plugin import DummyPluginDefinition
 from betty.test_utils.user import StaticUser
 
@@ -14,6 +17,19 @@ if TYPE_CHECKING:
 
 
 class TestApp:
+    async def test_requires__with_global(self) -> None:
+        subject = "My First Subject"
+        requires = await App.requires(None, subject)
+        assert isinstance(requires, Requirement)
+        assert subject in requires.localize(DEFAULT_LOCALIZER)
+
+    async def test_requires__with_app(self, temporary_app: App) -> None:
+        assert await App.requires(temporary_app, "") is temporary_app
+
+    async def test_requires__with_project(self, temporary_app: App) -> None:
+        async with Project.new_temporary(temporary_app) as project, project:
+            assert await App.requires(project, "") is temporary_app
+
     async def test_plugins(self, temporary_app: App) -> None:
         await temporary_app.plugins(DummyPluginDefinition)
 
