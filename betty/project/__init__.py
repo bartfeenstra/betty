@@ -49,6 +49,7 @@ from betty.project.extension import Extension, ExtensionDefinition
 from betty.project.factory import ProjectDependentFactory
 from betty.project.url import new_project_url_generator
 from betty.render import RenderDispatcher, RendererDefinition
+from betty.requirement import RequirementError
 from betty.resource import Context as ResourceContext
 from betty.resource import ContextProvider, new_context
 from betty.service import ServiceProvider, service
@@ -281,7 +282,7 @@ class Project(
                     await enabled_extension_definition.cls.requirement(app=self.app)
                 )
                 if enabled_extension_requirement is not None:
-                    enabled_extension_requirement.assert_met()
+                    raise RequirementError(enabled_extension_requirement)
                 if enabled_extension_definition.theme:
                     theme_count += 1
                 if enabled_extension_id in configured_extension_configurations:

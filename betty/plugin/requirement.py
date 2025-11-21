@@ -53,7 +53,7 @@ async def new_dependencies_requirement(
     else:
         if not dependency_requirements:
             return None
-        return AllRequirements(
+        return AllRequirements.new(
             *dependency_requirements,
             summary=_(
                 "{plugin_type_label} {plugin_label} depends on {dependency_labels}."

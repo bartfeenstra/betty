@@ -51,7 +51,13 @@ class DownstreamWithoutRequirements(HasRequirementPlugin):
     depends_on={"downstream-with-unmet-requirements"},
 )
 class UpstreamWithUnmetRequirements(HasRequirementPlugin):
-    pass
+    @override
+    @classmethod
+    async def requirement(cls, *, app: App) -> Requirement | None:
+        return StaticRequirement(
+            Plain("upstream-requirement-summary"),
+            Plain("upstream-requirement-details"),
+        )
 
 
 @HasRequirementPluginDefinition(
@@ -60,9 +66,8 @@ class UpstreamWithUnmetRequirements(HasRequirementPlugin):
 class DownstreamWithUnmetRequirements(HasRequirementPlugin):
     @override
     @classmethod
-    async def requirement(cls, *, app: App) -> Requirement:
+    async def requirement(cls, *, app: App) -> Requirement | None:
         return StaticRequirement(
-            False,
             Plain("downstream-requirement-summary"),
             Plain("downstream-requirement-details"),
         )
@@ -82,12 +87,8 @@ class UpstreamWithMetRequirements(HasRequirementPlugin):
 class DownstreamWithMetRequirements(HasRequirementPlugin):
     @override
     @classmethod
-    async def requirement(cls, *, app: App) -> Requirement:
-        return StaticRequirement(
-            True,
-            Plain("downstream-requirement-summary"),
-            Plain("downstream-requirement-details"),
-        )
+    async def requirement(cls, *, app: App) -> Requirement | None:
+        return None
 
 
 async def test_new_dependencies_requirement__without_dependent_plugin(
@@ -122,10 +123,8 @@ async def test_new_dependencies_requirement__with_unmet_requirements(
         UpstreamWithUnmetRequirements.plugin, plugins, app=temporary_app
     )
     assert actual is not None
-    assert not actual.is_met()
     message = actual.localize(DEFAULT_LOCALIZER)
-    assert UpstreamWithUnmetRequirements.plugin.id in message
-    assert DownstreamWithUnmetRequirements.plugin.id in message
+    assert "downstream-requirement-summary" in message
 
 
 async def test_new_dependencies_requirement__with_met_requirements(
@@ -135,11 +134,7 @@ async def test_new_dependencies_requirement__with_met_requirements(
     actual = await new_dependencies_requirement(
         UpstreamWithMetRequirements.plugin, plugins, app=temporary_app
     )
-    assert actual is not None
-    assert actual.is_met()
-    message = actual.localize(DEFAULT_LOCALIZER)
-    assert UpstreamWithMetRequirements.plugin.id in message
-    assert DownstreamWithMetRequirements.plugin.id in message
+    assert actual is None
 
 
 class TestCyclicDependencyError:

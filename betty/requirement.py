@@ -5,7 +5,7 @@ Provide an API that lets code express arbitrary requirements.
 from __future__ import annotations
 
 from abc import ABC, abstractmethod
-from typing import TYPE_CHECKING, Any, cast, final
+from typing import TYPE_CHECKING, final
 
 from typing_extensions import override
 
@@ -25,26 +25,14 @@ class Requirement(Localizable):
     Express a requirement.
     """
 
-    @abstractmethod
-    def is_met(self) -> bool:
-        """
-        Check if the requirement is met.
-        """
-
-    def assert_met(self) -> None:
-        """
-        Assert that the requirement is met.
-        """
-        if not self.is_met():
-            raise RequirementError(self)
-        return
-
+    @property
     @abstractmethod
     def summary(self) -> Localizable:
         """
         Get the requirement's human-readable summary.
         """
 
+    @property
     def details(self) -> Localizable | None:
         """
         Get the requirement's human-readable additional details.
@@ -53,24 +41,13 @@ class Requirement(Localizable):
 
     @override
     def localize(self, localizer: Localizer) -> Localized & str:
-        super_localized = self.summary().localize(localizer)
-        details = self.details()
+        super_localized = self.summary.localize(localizer)
+        details = self.details
         localized: str = super_localized
         if details is not None:
             localized += f"\n{'-' * len(localized)}"
             localized += f"\n{details.localize(localizer)}"
         return LocalizedStr(localized, locale=super_localized.locale)
-
-    def reduce(self) -> Requirement | None:
-        """
-        Remove unnecessary components of this requirement.
-
-        - Collections can flatten unnecessary hierarchies.
-        - Empty decorators or collections can 'dissolve' themselves and return None.
-
-        This function MUST NOT modify self.
-        """
-        return self
 
 
 @final
@@ -90,22 +67,43 @@ class RequirementError(HumanFacingException, RuntimeError):
         return self._requirement
 
 
-class RequirementCollection(Requirement):
-    """
-    Provide a collection of zero or more requirements.
-    """
+class _RequirementCollection(Requirement, ABC):
+    _DEFAULT_SUMMARY: Localizable
 
-    def __init__(self, *requirements: Requirement | None):
+    def __init__(self, *requirements: Requirement, summary: Localizable | None = None):
         super().__init__()
-        self._requirements: Sequence[Requirement] = [
-            requirement for requirement in requirements if requirement
-        ]
+        assert len(requirements)
+        self._requirements: MutableSequence[Requirement] = []
+        for requirement in requirements:
+            if isinstance(requirement, type(self)):
+                for nested_requirement in requirement._requirements:
+                    self._requirements.append(nested_requirement)
+            else:
+                self._requirements.append(requirement)
+        self._summary = summary if summary else self._DEFAULT_SUMMARY
+
+    @classmethod
+    @abstractmethod
+    def _filter(
+        cls, requirements: Sequence[Requirement | None]
+    ) -> Sequence[Requirement]:
+        pass
+
+    @classmethod
+    def new(
+        cls, *requirements: Requirement | None, summary: Localizable | None = None
+    ) -> Requirement | None:
+        requirements = cls._filter(requirements)
+        if not requirements:
+            return None
+        if len(requirements) == 1:
+            return requirements[0]
+        return cls(*requirements, summary=summary)
 
     @override
-    def __eq__(self, other: Any) -> bool:
-        if not isinstance(other, type(self)):
-            return False
-        return self._requirements == other._requirements
+    @property
+    def summary(self) -> Localizable:
+        return self._summary
 
     @override
     def localize(self, localizer: Localizer) -> Localized & str:
@@ -114,91 +112,63 @@ class RequirementCollection(Requirement):
             UnorderedList(*self._requirements),
         ).localize(localizer)
 
+
+@final
+class AnyRequirement(_RequirementCollection):
+    """
+    A requirement that requires any of the contained requirements to be met.
+    """
+
+    _DEFAULT_SUMMARY = _("One or more of these requirements must be met")
+
     @override
-    def reduce(self) -> Requirement | None:
-        reduced_requirements: MutableSequence[Requirement] = []
-        for requirement in self._requirements:
-            reduced_requirement = requirement.reduce()
-            if reduced_requirement:
-                if type(reduced_requirement) is type(self):
-                    reduced_requirements.extend(
-                        cast(RequirementCollection, reduced_requirement)._requirements
-                    )
-                else:
-                    reduced_requirements.append(reduced_requirement)
-        if len(reduced_requirements) == 1:
-            return reduced_requirements[0]
-        if reduced_requirements:
-            return type(self)(*reduced_requirements)
-        return None
+    @classmethod
+    def _filter(
+        cls, requirements: Sequence[Requirement | None]
+    ) -> Sequence[Requirement]:
+        if None in requirements:
+            return []
+        return list(filter(None, requirements))
+
+
+@final
+class AllRequirements(_RequirementCollection):
+    """
+    A requirement that requires all of the contained requirements to be met.
+    """
+
+    _DEFAULT_SUMMARY = _("All of these requirements must be met")
+
+    @override
+    @classmethod
+    def _filter(
+        cls, requirements: Sequence[Requirement | None]
+    ) -> Sequence[Requirement]:
+        for requirement in requirements:
+            if requirement is not None:
+                return list(filter(None, requirements))
+        return []
 
 
 @final
 class StaticRequirement(Requirement):
     """
-    A requirement that is met or unmet upon creation.
+    A simple unmet requirement with static information.
     """
 
-    def __init__(
-        self, met: bool, summary: Localizable, details: Localizable | None = None
-    ):
-        self._met = met
+    def __init__(self, summary: Localizable, details: Localizable | None = None, /):
         self._summary = summary
         self._details = details
 
-    @override
-    def is_met(self) -> bool:
-        return self._met
-
+    @property
     @override
     def summary(self) -> Localizable:
         return self._summary
 
+    @property
     @override
     def details(self) -> Localizable | None:
         return self._details
-
-
-@final
-class AnyRequirement(RequirementCollection):
-    """
-    A requirement that is met if any of the given requirements are met.
-    """
-
-    def __init__(self, *requirements: Requirement | None):
-        super().__init__(*requirements)
-        self._summary = _("One or more of these requirements must be met")
-
-    @override
-    def is_met(self) -> bool:
-        return any(requirement.is_met() for requirement in self._requirements)
-
-    @override
-    def summary(self) -> Localizable:
-        return self._summary
-
-
-@final
-class AllRequirements(RequirementCollection):
-    """
-    A requirement that is met if all of the given requirements are met.
-    """
-
-    def __init__(
-        self, *requirements: Requirement | None, summary: Localizable | None = None
-    ):
-        super().__init__(*requirements)
-        self._summary = (
-            _("All of these requirements must be met") if summary is None else summary
-        )
-
-    @override
-    def is_met(self) -> bool:
-        return all(requirement.is_met() for requirement in self._requirements)
-
-    @override
-    def summary(self) -> Localizable:
-        return self._summary
 
 
 class HasRequirement(ABC):
@@ -210,8 +180,6 @@ class HasRequirement(ABC):
     @abstractmethod
     async def requirement(cls, *, app: App) -> Requirement | None:
         """
-        Define the requirement for this extension to be enabled.
-
-        This defaults to the extension's dependencies.
+        Define the requirement for this class to be used.
         """
         return None

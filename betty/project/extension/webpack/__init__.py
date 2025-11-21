@@ -9,11 +9,11 @@ from __future__ import annotations
 from asyncio import to_thread
 from pathlib import Path
 from shutil import copytree
-from typing import TYPE_CHECKING, ClassVar, final
+from typing import TYPE_CHECKING, ClassVar, Literal, final
 
 from typing_extensions import override
 
-from betty._npm import NpmRequirement, NpmUnavailable
+from betty._npm import new_npm_requirement
 from betty.html import CssProvider, JsProvider
 from betty.jinja2 import Filters, Jinja2Provider
 from betty.job import Job
@@ -24,7 +24,7 @@ from betty.project.extension.webpack import build
 from betty.project.extension.webpack.build import EntryPointProvider
 from betty.project.extension.webpack.jinja2.filter import FILTERS
 from betty.project.generate import Generator
-from betty.requirement import AllRequirements, Requirement, RequirementError
+from betty.requirement import AllRequirements, Requirement
 from betty.resource import ContextProvider, ContextVars
 from betty.typing import internal
 
@@ -68,7 +68,7 @@ class Webpack(
     Integrate Betty with `Webpack <https://webpack.js.org/>`_.
     """
 
-    _requirement: ClassVar[Requirement | None] = None
+    _requirement: ClassVar[Requirement | None | Literal[False]] = False
 
     @override
     async def generate(self, scheduler: Scheduler[ProjectContext]) -> None:
@@ -76,11 +76,11 @@ class Webpack(
 
     @override
     @classmethod
-    async def requirement(cls, *, app: App) -> Requirement:
-        if cls._requirement is None:
-            cls._requirement = AllRequirements(
+    async def requirement(cls, *, app: App) -> Requirement | None:
+        if cls._requirement is False:
+            cls._requirement = AllRequirements.new(
                 await super().requirement(app=app),
-                await NpmRequirement.new(user=app.user),
+                await new_npm_requirement(user=app.user),
             )
         return cls._requirement
 
@@ -157,10 +157,4 @@ class Webpack(
             self._project.app.binary_file_cache.with_scope("webpack").path,
             job_context=job_context,
         )
-        try:
-            # (Re)build the assets if `npm` is available.
-            return await builder.build()
-        except NpmUnavailable:
-            raise RequirementError(
-                await self.requirement(app=self._project.app)
-            ) from None
+        return await builder.build()

@@ -13,13 +13,13 @@ from betty.ancestry import Ancestry
 from betty.app.factory import AppDependentFactory
 from betty.exception import HumanFacingException
 from betty.json.schema import JsonSchemaSchema
-from betty.locale.localizable import Localizable, Plain
+from betty.locale.localizable import Plain
 from betty.model import EntityDefinition
 from betty.project import Project, ProjectContext, ProjectExtensions, ProjectSchema
 from betty.project.config import EntityTypeConfiguration, ProjectConfiguration
 from betty.project.extension import Extension, ExtensionDefinition
 from betty.project.factory import ProjectDependentFactory
-from betty.requirement import Requirement, RequirementError
+from betty.requirement import Requirement, RequirementError, StaticRequirement
 from betty.test_utils.json.schema import SchemaTestBase, SchemaTestBaseSut
 from betty.test_utils.model import DummyNonPublicFacingEntityOne
 from betty.test_utils.plugin import DummyPluginDefinition
@@ -45,16 +45,6 @@ class _DummyExtensionWithAssetsDirectory(Extension):
     pass
 
 
-class _UnmetRequirement(Requirement):
-    @override
-    def is_met(self) -> bool:
-        return False
-
-    @override
-    def summary(self) -> Localizable:
-        return Plain("")
-
-
 @ExtensionDefinition(
     id="dummy-unmet-requirement",
     label=Plain(""),
@@ -63,7 +53,7 @@ class _DummyExtensionWithUnmetRequirement(Extension):
     @override
     @classmethod
     async def requirement(cls, *, app: App) -> Requirement:
-        return _UnmetRequirement()
+        return StaticRequirement(Plain(""))
 
 
 @ExtensionDefinition(
