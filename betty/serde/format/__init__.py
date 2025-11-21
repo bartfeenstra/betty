@@ -12,12 +12,10 @@ from typing_extensions import override
 from betty.exception import HumanFacingException
 from betty.locale.localizable import Localizable, _
 from betty.locale.localized import Localized, LocalizedStr
-from betty.plugin import (
-    ClassedPluginDefinition,
-    HumanFacingPluginDefinition,
-    PluginTypeDefinition,
-)
+from betty.plugin import PluginTypeDefinition
+from betty.plugin.classed import ClassedPluginDefinition
 from betty.plugin.discovery.entry_point import EntryPointDiscovery
+from betty.plugin.human_facing import HumanFacingPluginDefinition
 
 if TYPE_CHECKING:
     from collections.abc import Sequence

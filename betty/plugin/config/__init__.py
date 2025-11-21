@@ -31,13 +31,9 @@ from betty.locale.localizable.config import (
     RequiredStaticTranslationsConfigurationAttr,
 )
 from betty.machine_name import MachineName, assert_machine_name
-from betty.plugin import (
-    ClassedPlugin,
-    ClassedPluginDefinition,
-    PluginDefinition,
-    PluginIdentifier,
-    resolve_id,
-)
+from betty.plugin import PluginDefinition
+from betty.plugin.classed import ClassedPlugin, ClassedPluginDefinition
+from betty.plugin.resolve import ResolvablePluginId, resolve_id
 from betty.typing import Void, Voidable
 
 if TYPE_CHECKING:
@@ -67,13 +63,13 @@ class PluginIdentifierKeyConfigurationMapping(
 
     @override
     def __getitem__(
-        self, configuration_key: PluginIdentifier[_PluginDefinitionT]
+        self, configuration_key: ResolvablePluginId[_PluginDefinitionT]
     ) -> _ConfigurationT:
         return super().__getitem__(resolve_id(configuration_key))
 
     @override
     def __contains__(
-        self, configuration_key: PluginIdentifier[_PluginDefinitionT]
+        self, configuration_key: ResolvablePluginId[_PluginDefinitionT]
     ) -> bool:
         return super().__contains__(resolve_id(configuration_key))
 
@@ -114,7 +110,7 @@ class PluginDefinitionConfiguration(Configuration):
 
 class HumanFacingPluginDefinitionConfiguration(PluginDefinitionConfiguration):
     """
-    Configure a :py:class:`betty.plugin.HumanFacingPluginDefinition`.
+    Configure a :py:class:`betty.plugin.human_facing.HumanFacingPluginDefinition`.
     """
 
     label = RequiredStaticTranslationsConfigurationAttr("label")
@@ -218,7 +214,7 @@ class PluginInstanceConfiguration(
 
     def __init__(
         self,
-        plugin: PluginIdentifier[_ClassedPluginDefinitionT, _PluginT & ClassedPlugin],
+        plugin: ResolvablePluginId[_ClassedPluginDefinitionT, _PluginT & ClassedPlugin],
         *,
         configuration: Voidable[Configuration | Dump] = Void(),  # noqa B008
     ):

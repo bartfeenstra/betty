@@ -9,14 +9,11 @@ from typing_extensions import override
 from betty.config import Configuration, DefaultConfigurable
 from betty.job import Context
 from betty.locale.localizable import _
-from betty.plugin import (
-    ClassedPlugin,
-    ClassedPluginDefinition,
-    HumanFacingPluginDefinition,
-    PluginTypeDefinition,
-)
+from betty.plugin import PluginTypeDefinition
+from betty.plugin.classed import ClassedPlugin, ClassedPluginDefinition
 from betty.plugin.dependent import DependentPluginDefinition
 from betty.plugin.discovery.entry_point import EntryPointDiscovery
+from betty.plugin.human_facing import HumanFacingPluginDefinition
 from betty.plugin.ordered import OrderedPluginDefinition
 from betty.plugin.requirement import new_dependencies_requirement
 from betty.project.factory import ProjectDependentFactory

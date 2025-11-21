@@ -16,13 +16,10 @@ from betty.json.schema import Array, JsonSchemaReference, Null, OneOf, String
 from betty.locale.localizable import Localizable, _
 from betty.locale.localizer import DEFAULT_LOCALIZER
 from betty.mutability import Mutable
-from betty.plugin import (
-    ClassedPlugin,
-    ClassedPluginDefinition,
-    CountableHumanFacingPluginDefinition,
-    PluginTypeDefinition,
-)
+from betty.plugin import PluginTypeDefinition
+from betty.plugin.classed import ClassedPlugin, ClassedPluginDefinition
 from betty.plugin.discovery.entry_point import EntryPointDiscovery
+from betty.plugin.human_facing import CountableHumanFacingPluginDefinition
 from betty.string import kebab_case_to_lower_camel_case
 
 if TYPE_CHECKING:

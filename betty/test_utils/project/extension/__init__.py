@@ -16,11 +16,9 @@ from betty.project.extension import (
     ExtensionDefinition,
 )
 from betty.test_utils.config import DummyConfiguration
-from betty.test_utils.plugin import (
-    ClassedPluginDefinitionTestBase,
-    HumanFacingPluginDefinitionTestBase,
-)
+from betty.test_utils.plugin.classed import ClassedPluginDefinitionTestBase
 from betty.test_utils.plugin.dependent import DependentPluginDefinitionTestBase
+from betty.test_utils.plugin.human_facing import HumanFacingPluginDefinitionTestBase
 from betty.test_utils.plugin.ordered import OrderedPluginDefinitionTestBase
 
 

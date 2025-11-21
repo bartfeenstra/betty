@@ -4,7 +4,7 @@ Test utilities for :py:mod:`betty.render`.
 
 from __future__ import annotations
 
-from betty.test_utils.plugin import ClassedPluginDefinitionTestBase
+from betty.test_utils.plugin.classed import ClassedPluginDefinitionTestBase
 
 
 class RendererDefinitionTestBase(ClassedPluginDefinitionTestBase):

@@ -1,0 +1,56 @@
+"""
+Generic plugin API errors.
+"""
+
+from __future__ import annotations
+
+from typing import TYPE_CHECKING
+
+from typing_extensions import TypeVar
+
+from betty.exception import HumanFacingException
+from betty.locale.localizable import Paragraph, _, do_you_mean
+from betty.plugin import PluginDefinition, PluginTypeDefinition
+from betty.plugin.resolve import ResolvablePluginId, resolve_id
+
+if TYPE_CHECKING:
+    from collections.abc import Sequence
+
+    from betty.machine_name import MachineName
+
+_PluginDefinitionT = TypeVar(
+    "_PluginDefinitionT", bound=PluginDefinition, default=PluginDefinition
+)
+
+
+class PluginError(Exception):
+    """
+    Any error originating from the Plugin API.
+    """
+
+
+class PluginNotFound(PluginError, HumanFacingException):
+    """
+    Raised when a plugin cannot be found.
+    """
+
+    def __init__(
+        self,
+        plugin_type: PluginTypeDefinition[_PluginDefinitionT],
+        plugin_not_found: MachineName,
+        available_plugins: Sequence[ResolvablePluginId[_PluginDefinitionT]],
+        /,
+    ):
+        super().__init__(
+            Paragraph(
+                _('Could not find a(n) {plugin_type} plugin "{plugin_id}".').format(
+                    plugin_type=plugin_type.label, plugin_id=plugin_not_found
+                ),
+                do_you_mean(
+                    *[
+                        f'"{resolve_id(available_plugin)}"'
+                        for available_plugin in available_plugins
+                    ]
+                ),
+            )
+        )

@@ -108,7 +108,7 @@ from betty.locale.localizable import (
 from betty.media_type import InvalidMediaType, MediaType
 from betty.model import Entity
 from betty.model.association import ToManyResolver, ToOneResolver, resolve
-from betty.plugin import PluginNotFound
+from betty.plugin.error import PluginNotFound
 from betty.privacy import HasPrivacy
 from betty.typing import internal
 

@@ -27,7 +27,10 @@ from betty.test_utils.config.collections import (
 )
 from betty.test_utils.config.collections.sequence import ConfigurationSequenceTestBase
 from betty.test_utils.exception import raises_error
-from betty.test_utils.plugin import ClassedDummyPlugin, ClassedDummyPluginDefinition
+from betty.test_utils.plugin.classed import (
+    ClassedDummyPlugin,
+    ClassedDummyPluginDefinition,
+)
 
 
 class TestFamilyTreeConfigurationSequence(

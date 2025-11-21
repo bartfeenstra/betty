@@ -9,7 +9,7 @@ from betty.plugin import PluginDefinition
 from betty.project import Project
 from betty.project.extension import ExtensionDefinition
 from betty.test_utils.documentation import PluginDocumentationTestBase
-from betty.test_utils.plugin import ClassedPluginDefinitionClassTestBase
+from betty.test_utils.plugin.classed import ClassedPluginDefinitionClassTestBase
 from betty.test_utils.project.extension import DummyExtension
 
 

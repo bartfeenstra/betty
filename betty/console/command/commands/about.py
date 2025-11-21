@@ -14,10 +14,8 @@ from betty.console.command import Command, CommandFunction, CommandDefinition
 from betty.console.project import add_project_argument
 from betty.console.user import ConsoleUser
 from betty.locale.localizable import _
-from betty.plugin import (
-    plugin_types,
-    HumanFacingPluginDefinition,
-)
+from betty.plugin import plugin_types
+from betty.plugin.human_facing import HumanFacingPluginDefinition
 
 if TYPE_CHECKING:
     import argparse

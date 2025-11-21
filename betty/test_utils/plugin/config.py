@@ -2,19 +2,30 @@
 Test utilities for :py:mod:`betty.plugin.config`.
 """
 
-from typing import Generic, TypeVar, cast
+from __future__ import annotations
 
+from typing import TYPE_CHECKING, ClassVar, Generic, TypeVar, cast, final
+
+from typing_extensions import override
+
+from betty.config import DefaultConfigurable
+from betty.locale.localizable import Plain
 from betty.machine_name import MachineName
-from betty.plugin import PluginDefinition
+from betty.plugin import PluginDefinition, PluginTypeDefinition
+from betty.plugin.classed import ClassedPluginDefinition
 from betty.plugin.config import (
     PluginDefinitionConfiguration,
     PluginDefinitionConfigurationMapping,
 )
-from betty.test_utils.config.collections import (
-    ConfigurationCollectionTestBaseNewSut,
-    ConfigurationCollectionTestBaseSutConfigurations,
-)
+from betty.plugin.discovery.callback import CallbackDiscovery
+from betty.test_utils.config import DummyConfiguration
 from betty.test_utils.config.collections.mapping import ConfigurationMappingTestBase
+
+if TYPE_CHECKING:
+    from betty.test_utils.config.collections import (
+        ConfigurationCollectionTestBaseNewSut,
+        ConfigurationCollectionTestBaseSutConfigurations,
+    )
 
 _PluginDefinitionT = TypeVar("_PluginDefinitionT", bound=PluginDefinition)
 _PluginDefinitionConfigurationT = TypeVar(
@@ -52,3 +63,48 @@ class PluginDefinitionConfigurationMappingTestBase(
             sut_configurations, sut.new_plugins(), strict=True
         ):
             assert plugin.id == configuration.id
+
+
+class ConfigurableDummyPlugin(DefaultConfigurable[DummyConfiguration]):
+    """
+    A configurable dummy plugin.
+    """
+
+    plugin: ClassVar[ConfigurableDummyPluginDefinition]
+
+    def __init__(self):
+        super().__init__(configuration=self.new_default_configuration())
+
+    @override
+    @classmethod
+    def new_default_configuration(cls) -> DummyConfiguration:
+        return DummyConfiguration()
+
+
+class ConfigurableDummyPluginDefinition(
+    ClassedPluginDefinition[ConfigurableDummyPlugin]
+):
+    """
+    A definition of a configurable dummy plugin.
+    """
+
+    plugin_type_cls = ConfigurableDummyPlugin
+    type = PluginTypeDefinition(
+        id="configurable-dummy-plugin",
+        label=Plain("Configurable dummy plugin"),
+        discoveries=CallbackDiscovery(
+            lambda: [
+                ConfigurableDummyPluginOne.plugin,
+            ]
+        ),
+    )
+
+
+@final
+@ConfigurableDummyPluginDefinition(
+    id="configurable-dummy-plugin-one",
+)
+class ConfigurableDummyPluginOne(ConfigurableDummyPlugin):
+    """
+    A configurable dummy plugin (one).
+    """

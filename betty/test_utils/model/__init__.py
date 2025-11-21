@@ -11,8 +11,8 @@ import pytest
 from betty.locale.localizable import CountablePlain, Plain
 from betty.locale.localizer import DEFAULT_LOCALIZER
 from betty.model import Entity, EntityDefinition
-from betty.test_utils.plugin import (
-    ClassedPluginDefinitionTestBase,
+from betty.test_utils.plugin.classed import ClassedPluginDefinitionTestBase
+from betty.test_utils.plugin.human_facing import (
     CountableHumanFacingPluginDefinitionTestBase,
 )
 

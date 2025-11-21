@@ -6,7 +6,7 @@ from aiohttp.client_reqrep import ClientRequest
 from typing_extensions import override
 
 from betty.http_client.rate_limit import RateLimit, RateLimitDefinition
-from betty.plugin import ClassedPlugin
+from betty.plugin.classed import ClassedPlugin
 
 
 @RateLimitDefinition(id="wikipedia-action-api")

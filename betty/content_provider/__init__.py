@@ -8,12 +8,10 @@ from abc import ABC, abstractmethod
 from typing import TYPE_CHECKING, final
 
 from betty.locale.localizable import _
-from betty.plugin import (
-    ClassedPluginDefinition,
-    HumanFacingPluginDefinition,
-    PluginTypeDefinition,
-)
+from betty.plugin import PluginTypeDefinition
+from betty.plugin.classed import ClassedPluginDefinition
 from betty.plugin.discovery.entry_point import EntryPointDiscovery
+from betty.plugin.human_facing import HumanFacingPluginDefinition
 
 if TYPE_CHECKING:
     from betty.resource import Context

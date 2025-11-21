@@ -1,110 +1,12 @@
 from __future__ import annotations
 
-from typing import TypeVar
-
-from betty.locale.localizable import CountablePlain, Plain
-from betty.plugin import (
-    ClassedPlugin,
-    ClassedPluginDefinition,
-    CountableHumanFacingPluginDefinition,
-    CyclicDependencyError,
-    HumanFacingPluginDefinition,
-    PluginDefinition,
-    PluginNotFound,
-    PluginTypeDefinition,
-    plugin_types,
-    resolve_definition,
-    resolve_id,
-)
+from betty.locale.localizable import Plain
+from betty.plugin import PluginDefinition, PluginTypeDefinition, plugin_types
 from betty.plugin.dependent import DependentPluginDefinition
 from betty.plugin.discovery import discover
 from betty.plugin.discovery.static import StaticDiscovery
 from betty.plugin.ordered import OrderedPluginDefinition
-from betty.test_utils.plugin import (
-    DUMMY_PLUGIN_ONE,
-    DUMMY_PLUGIN_TWO,
-    DummyPluginDefinition,
-)
-
-_T = TypeVar("_T")
-
-
-def test_resolve_definition__with_plugin_cls() -> None:
-    plugin_id = "my-first-plugin-id"
-
-    class _ClassedPluginCls:
-        pass
-
-    class _ClassedPluginDefinition(ClassedPluginDefinition[_ClassedPluginCls]):
-        plugin_type_cls = _ClassedPluginCls
-        type = PluginTypeDefinition(
-            id="-",
-            label=Plain(""),
-        )
-
-    @_ClassedPluginDefinition(id=plugin_id)
-    class _ClassedPlugin(_ClassedPluginCls, ClassedPlugin):
-        pass
-
-    assert resolve_definition(_ClassedPlugin) is _ClassedPlugin.plugin
-
-
-def test_resolve_definition__with_plugin_definition() -> None:
-    definition = PluginDefinition(id="my-first-plugin-id")
-    assert resolve_definition(definition) is definition
-
-
-def test_resolve_id__with_plugin_cls() -> None:
-    plugin_id = "my-first-plugin-id"
-
-    class _ClassedPluginCls:
-        pass
-
-    class _ClassedPluginDefinition(ClassedPluginDefinition[_ClassedPluginCls]):
-        plugin_type_cls = _ClassedPluginCls
-        type = PluginTypeDefinition(
-            id="-",
-            label=Plain(""),
-        )
-
-    @_ClassedPluginDefinition(id=plugin_id)
-    class _ClassedPlugin(_ClassedPluginCls, ClassedPlugin):
-        pass
-
-    assert resolve_id(_ClassedPlugin) == plugin_id
-
-
-def test_resolve_id__with_plugin_definition() -> None:
-    plugin_id = "my-first-plugin-id"
-    assert resolve_id(PluginDefinition(id=plugin_id)) == plugin_id
-
-
-def test_resolve_id__with_plugin_id() -> None:
-    plugin_id = "my-first-plugin-id"
-    assert resolve_id(plugin_id) == plugin_id
-
-
-class TestPluginNotFound:
-    async def test_new__without_available_plugins(self) -> None:
-        unknown_plugin = "my-first-plugin-id"
-        sut = PluginNotFound(DummyPluginDefinition.type, unknown_plugin, [])
-        assert unknown_plugin in str(sut)
-
-    async def test_new__with_available_plugins(self) -> None:
-        unknown_plugin = "my-first-plugin-id"
-        available_plugin = "my-first-available-plugin-id"
-        sut = PluginNotFound(
-            DummyPluginDefinition.type, unknown_plugin, [available_plugin]
-        )
-        assert unknown_plugin in str(sut)
-        assert available_plugin in str(sut)
-
-
-class TestCyclicDependencyError:
-    def test(self) -> None:
-        plugin_id = "my-first-plugin"
-        sut = CyclicDependencyError([plugin_id])
-        assert plugin_id in str(sut)
+from betty.test_utils.plugin import DUMMY_PLUGIN_ONE, DUMMY_PLUGIN_TWO
 
 
 class _OrderedPluginDefinition(OrderedPluginDefinition):
@@ -237,64 +139,11 @@ class TestPluginTypeDefinition:
         assert not sut.discovery_overridden  # type: ignore[unreachable]
 
 
-class TestClassedPluginDefinition:
-    def test_cls(self) -> None:
-        class _Cls:
-            pass
-
-        sut = ClassedPluginDefinition(cls=_Cls, id="my-first-plugin")
-        assert sut.cls is _Cls
-
-    def test___call__(self) -> None:
-        class _Cls:
-            pass
-
-        sut = ClassedPluginDefinition[_Cls](id="my-first-plugin")
-        sut(_Cls)
-        assert sut.cls is _Cls
-
-
-class TestCountableHumanFacingPluginDefinition:
-    def test_label_plural(self) -> None:
-        label_plural = Plain("")
-        sut = CountableHumanFacingPluginDefinition(
-            label_plural=label_plural,
-            label_countable=CountablePlain("", ""),
-            id="my-first-plugin",
-            label=Plain(""),
-        )
-        assert sut.label_plural is label_plural
-
-    def test_label_countable(self) -> None:
-        label_countable = CountablePlain("", "")
-        sut = CountableHumanFacingPluginDefinition(
-            label_countable=label_countable,
-            label_plural=Plain(""),
-            id="my-first-plugin",
-            label=Plain(""),
-        )
-        assert sut.label_countable is label_countable
-
-
 class TestPluginDefinition:
     def test_id(self) -> None:
         id = "my-first-plugin"  # noqa A001
         sut = PluginDefinition(id=id)
         assert sut.id == id
-
-
-class TestHumanFacingPluginDefinition:
-    def test_label(self) -> None:
-        label = Plain("")
-        sut = HumanFacingPluginDefinition(label=label, id="my-first-plugin")
-        assert sut.label is label
-
-    def test_description(self) -> None:
-        description = Plain("")
-        sut = HumanFacingPluginDefinition(
-            description=description, id="my-first-plugin", label=Plain("")
-        )
-        assert sut.description is description
 
 
 def test_plugin_types() -> None:
