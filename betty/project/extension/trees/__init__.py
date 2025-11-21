@@ -79,7 +79,7 @@ class _GeneratePeopleJson(Job[ProjectContext]):
     description=_(
         'Display interactive family trees using <a href="https://cytoscape.org/">Cytoscape</a>.'
     ),
-    depends_on={Webpack.plugin},
+    depends_on={Webpack},
     assets_directory_path=Path(__file__).parent / "assets",
 )
 class Trees(Generator, EntryPointProvider):
