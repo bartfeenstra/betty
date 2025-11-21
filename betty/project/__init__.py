@@ -28,7 +28,7 @@ from betty.hashid import hashid
 from betty.job import Context as JobContext
 from betty.json.schema import JsonSchemaReference, Schema
 from betty.license import LicenseDefinition
-from betty.locale.localizable import _
+from betty.locale.localizable import Localizable, _
 from betty.locale.localizer import LocalizerRepository
 from betty.locale.translation import (
     AssetTranslationRepository,
@@ -49,6 +49,7 @@ from betty.project.extension import Extension, ExtensionDefinition
 from betty.project.factory import ProjectDependentFactory
 from betty.project.url import new_project_url_generator
 from betty.render import RenderDispatcher, RendererDefinition
+from betty.requirement import Requirement, StaticRequirement
 from betty.resource import Context as ResourceContext
 from betty.resource import ContextProvider, new_context
 from betty.service.provider import ServiceProvider, service
@@ -65,6 +66,7 @@ if TYPE_CHECKING:
     from betty.machine_name import MachineName
     from betty.plugin.repository import PluginRepository
     from betty.progress import Progress
+    from betty.service.level import ServiceProviderLevel
     from betty.url import UrlGenerator
 
 _T = TypeVar("_T")
@@ -100,6 +102,17 @@ class Project(
         self._app = app
         self._ancestry = Ancestry() if ancestry is None else ancestry
         self._plugin_repository_provider = ServicesPluginRepositoryProvider(self)
+
+    @override
+    @classmethod
+    async def requires(
+        cls, services: ServiceProviderLevel, subject: Localizable | str, /
+    ) -> Requirement | Self:
+        if not isinstance(services, cls):
+            return StaticRequirement(
+                _("{subject} requires a project.").format(subject=subject)
+            )
+        return services
 
     @override
     async def plugins(
@@ -479,11 +492,6 @@ class ProjectContext(JobContext):
         The Betty project this job context is run within.
         """
         return self._project
-
-
-_ProjectContextT = TypeVar(
-    "_ProjectContextT", bound=ProjectContext, default=ProjectContext
-)
 
 
 @final

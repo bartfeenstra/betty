@@ -26,6 +26,7 @@ from typing_extensions import override
 
 from betty.concurrent import AsynchronizedLock, Lock
 from betty.config import Configurable
+from betty.requirement import Requirement
 from betty.service import ServiceError
 from betty.service.bootstrap import Bootstrapped, Shutdownable, ShutdownStack
 from betty.typing import Void, internal, public
@@ -33,6 +34,9 @@ from betty.typing import Void, internal, public
 if TYPE_CHECKING:
     from collections.abc import Iterable
     from types import TracebackType
+
+    from betty.locale.localizable import Localizable
+    from betty.service.level import ServiceProviderLevel
 
 
 _ServiceT = TypeVar("_ServiceT")
@@ -102,6 +106,27 @@ class ServiceProvider(Bootstrapped, Shutdownable):
         exc_tb: TracebackType | None,
     ) -> None:
         await self.shutdown(wait=exc_val is None)
+
+    @classmethod
+    @abstractmethod
+    async def requires(
+        cls, services: ServiceProviderLevel, subject: Localizable | str, /
+    ) -> Requirement | Self:
+        """
+        Check that a service provider is an instance of ``cls``.
+        """
+
+    @classmethod
+    async def requirement_for(
+        cls, services: ServiceProviderLevel, subject: Localizable | str, /
+    ) -> Requirement | None:
+        """
+        Check that a service provider is an instance of ``cls``.
+        """
+        requires = await cls.requires(services, subject)
+        if isinstance(requires, Requirement):
+            return requires
+        return None
 
 
 _ServiceProviderT = TypeVar("_ServiceProviderT", bound=ServiceProvider)

@@ -27,17 +27,30 @@ from betty.locale.localizable.config import RequiredStaticTranslationsConfigurat
 from betty.machine_name import MachineName, assert_machine_name
 from betty.model import EntityDefinition
 from betty.model.config import EntityReferenceSequence
+from betty.plugin.classed import ClassedPlugin
 from betty.plugin.config import (
     PluginInstanceConfigurationSequence,
 )
 from betty.project import Project
+from betty.project.extension.raspberry_mint import RaspberryMint
+from betty.requirement import HasRequirement, Requirement
 from betty.resource import Context
 from betty.serde.dump import Dump
+from betty.service.level import ServiceProviderLevel
 
 if TYPE_CHECKING:
     from collections.abc import MutableSequence
 
     from betty.model import Entity
+
+
+class _Base(ClassedPlugin, HasRequirement):
+    @override
+    @classmethod
+    async def requirement(cls, services: ServiceProviderLevel, /) -> Requirement | None:
+        return await RaspberryMint.requirement_for(
+            services, cls.plugin.reference_label_with_type
+        )
 
 
 class SectionConfiguration(Configuration):
@@ -107,7 +120,7 @@ class SectionConfiguration(Configuration):
     id="raspberry-mint-section",
     label=_("Section"),
 )
-class Section(Template, DefaultConfigurable[SectionConfiguration]):
+class Section(Template, DefaultConfigurable[SectionConfiguration], _Base):
     """
     A section on the page with a heading and a permanent link.
     """
@@ -139,7 +152,7 @@ class Section(Template, DefaultConfigurable[SectionConfiguration]):
     id="raspberry-mint-featured-entities",
     label=_("Featured entities"),
 )
-class FeaturedEntities(Template, DefaultConfigurable[EntityReferenceSequence]):
+class FeaturedEntities(Template, DefaultConfigurable[EntityReferenceSequence], _Base):
     """
     Featured entities.
     """
@@ -178,7 +191,7 @@ class FeaturedEntities(Template, DefaultConfigurable[EntityReferenceSequence]):
     id="raspberry-mint-family",
     label=_("Family"),
 )
-class Family(Template):
+class Family(Template, _Base):
     """
     A person's family.
     """

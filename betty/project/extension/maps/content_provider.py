@@ -10,14 +10,17 @@ from typing_extensions import override
 from betty.content_provider import ContentProviderDefinition
 from betty.content_provider.content_providers import Template
 from betty.locale.localizable import _
+from betty.project.extension.maps import Maps
+from betty.requirement import HasRequirement, Requirement
 from betty.resource import Context as ResourceContext
+from betty.service.level import ServiceProviderLevel
 
 
 @ContentProviderDefinition(
     id="maps-map",
     label=_("Map"),
 )
-class Map(Template):
+class Map(Template, HasRequirement):
     """
     An interactive map.
     """
@@ -27,3 +30,10 @@ class Map(Template):
         return {
             "entity": resource["resource"],
         }
+
+    @override
+    @classmethod
+    async def requirement(cls, services: ServiceProviderLevel, /) -> Requirement | None:
+        return await Maps.requirement_for(
+            services, cls.plugin.reference_label_with_type
+        )

@@ -6,6 +6,9 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING, Any
 
+from typing_extensions import override
+
+from betty.locale.localizable import _
 from betty.plugin import PluginDefinition
 
 if TYPE_CHECKING:
@@ -27,6 +30,23 @@ class HumanFacingPluginDefinition(PluginDefinition):
         super().__init__(*args, **kwargs)
         self._label = label
         self._description = description
+
+    @override
+    @property
+    def reference_label(self) -> Localizable:
+        return _('"{plugin_id}" ({plugin_label})').format(
+            plugin_id=self.id,
+            plugin_label=self.label,
+        )
+
+    @override
+    @property
+    def reference_label_with_type(self) -> Localizable:
+        return _('{plugin_type} "{plugin_id}" ({plugin_label})').format(
+            plugin_type=self.type.label,
+            plugin_id=self.id,
+            plugin_label=self.label,
+        )
 
     @property
     def label(self) -> Localizable:

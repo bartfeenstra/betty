@@ -6,14 +6,13 @@ from typing import TYPE_CHECKING, Self
 import pytest
 from typing_extensions import override
 
-import betty.ancestry.event
-import betty.ancestry.person
-import betty.ancestry.place
+import betty
 from betty.ancestry import Ancestry
 from betty.app.factory import AppDependentFactory
 from betty.exception import HumanFacingException
 from betty.json.schema import JsonSchemaSchema
 from betty.locale.localizable import Plain
+from betty.locale.localizer import DEFAULT_LOCALIZER
 from betty.model import EntityDefinition
 from betty.project import Project, ProjectContext, ProjectExtensions, ProjectSchema
 from betty.project.config import EntityTypeConfiguration, ProjectConfiguration
@@ -74,6 +73,22 @@ class _DummyExtensionB(Extension):
 
 
 class TestProject:
+    async def test_requires_project__with_global(self) -> None:
+        subject = "My First Subject"
+        requires = await Project.requires(None, subject)
+        assert isinstance(requires, Requirement)
+        assert subject in requires.localize(DEFAULT_LOCALIZER)
+
+    async def test_requires_project__with_app(self, temporary_app: App) -> None:
+        subject = "My First Subject"
+        requires = await Project.requires(temporary_app, subject)
+        assert isinstance(requires, Requirement)
+        assert subject in requires.localize(DEFAULT_LOCALIZER)
+
+    async def test_requires_project__with_project(self, temporary_app: App) -> None:
+        async with Project.new_temporary(temporary_app) as project, project:
+            assert await Project.requires(project, "") is project
+
     async def test_plugins(self, temporary_app: App) -> None:
         async with Project.new_temporary(temporary_app) as sut, sut:
             await sut.plugins(DummyPluginDefinition)

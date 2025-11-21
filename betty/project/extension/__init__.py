@@ -8,7 +8,7 @@ from typing_extensions import override
 
 from betty.config import Configuration, DefaultConfigurable
 from betty.job import Context
-from betty.locale.localizable import _
+from betty.locale.localizable import Localizable, _
 from betty.plugin import PluginTypeDefinition
 from betty.plugin.classed import ClassedPlugin, ClassedPluginDefinition
 from betty.plugin.dependent import DependentPluginDefinition
@@ -17,23 +17,21 @@ from betty.plugin.human_facing import HumanFacingPluginDefinition
 from betty.plugin.ordered import OrderedPluginDefinition
 from betty.plugin.requirement import new_dependencies_requirement
 from betty.project.factory import ProjectDependentFactory
-from betty.requirement import HasRequirement, requires_project
+from betty.requirement import Requirement, StaticRequirement
 from betty.service.provider import ServiceProvider
 
 if TYPE_CHECKING:
     from pathlib import Path
 
     from betty.project import Project
-    from betty.requirement import Requirement
+    from betty.service.level import ServiceProviderLevel
 
 _T = TypeVar("_T")
 _ConfigurationT = TypeVar("_ConfigurationT", bound=Configuration)
 _ContextT = TypeVar("_ContextT", bound=Context)
 
 
-class Extension(
-    HasRequirement, ServiceProvider, ProjectDependentFactory, ClassedPlugin
-):
+class Extension(ServiceProvider, ProjectDependentFactory, ClassedPlugin):
     """
     Integrate optional functionality with Betty :py:class:`betty.project.Project`s.
 
@@ -51,6 +49,26 @@ class Extension(
 
     @override
     @classmethod
+    async def requires(
+        cls, services: ServiceProviderLevel, subject: Localizable | str, /
+    ) -> Requirement | Self:
+        from betty.project import Project
+
+        project = await Project.requires(services, subject)
+        if isinstance(project, Requirement):
+            return project
+
+        extensions = await project.extensions
+        if cls.plugin.id not in extensions:
+            return StaticRequirement(
+                _(
+                    "{subject} requires the {extension} extension. Enable it in your project configuration, and try again."
+                ).format(subject=subject, extension=cls.plugin.reference_label)
+            )
+        return extensions[cls]
+
+    @override
+    @classmethod
     async def new_for_project(cls, project: Project) -> Self:
         return cls(project)
 
@@ -63,8 +81,12 @@ class Extension(
 
     @override
     @classmethod
-    @requires_project
-    async def requirement(cls, project: Project, /) -> Requirement | None:
+    async def requirement(cls, services: ServiceProviderLevel, /) -> Requirement | None:
+        from betty.project import Project
+
+        project = await Project.requires(services, cls.plugin.reference_label_with_type)
+        if isinstance(project, Requirement):
+            return project
         return await new_dependencies_requirement(
             cls.plugin,
             await project.plugins(ExtensionDefinition, check_requirements=False),
