@@ -39,11 +39,16 @@ from betty.multiprocessing import ProcessPoolExecutor
 from betty.plugin import PluginDefinition
 from betty.plugin.ordered import sort_ordered_plugin_graph
 from betty.plugin.repository.provider import PluginRepositoryProvider
-from betty.plugin.repository.provider.service_level import (
-    ServiceLevelPluginRepositoryProvider,
+from betty.plugin.repository.provider.service import (
+    ServicesPluginRepositoryProvider,
 )
 from betty.plugin.repository.static import StaticPluginRepository
-from betty.service import ServiceFactory, ServiceProvider, StaticService, service
+from betty.service.provider import (
+    ServiceFactory,
+    ServiceProvider,
+    StaticService,
+    service,
+)
 from betty.typing import threadsafe
 from betty.user.no_op import NoOpUser
 
@@ -97,7 +102,7 @@ class App(
             cls.translations.override(self, translations)
         self._cache_directory_path = cache_directory_path
         cls.cache.override_factory(self, cache_factory)
-        self._plugin_repository_provider = ServiceLevelPluginRepositoryProvider(self)
+        self._plugin_repository_provider = ServicesPluginRepositoryProvider(self)
 
     @override
     async def plugins(

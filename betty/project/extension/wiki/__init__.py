@@ -17,7 +17,7 @@ from betty.project.extension import ConfigurableExtension, ExtensionDefinition
 from betty.project.extension.wiki.config import WikiConfiguration
 from betty.project.extension.wiki.jobs import PopulateEntity
 from betty.project.load import PostLoader
-from betty.service import service
+from betty.service.provider import service
 from betty.wiki import NotAPageError, parse_page_url, populator
 from betty.wiki.client import Client, ClientError, Summary
 

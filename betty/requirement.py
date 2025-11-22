@@ -30,7 +30,7 @@ if TYPE_CHECKING:
     from betty.app import App
     from betty.locale.localizer import Localizer
     from betty.project import Project
-    from betty.service_level import ServiceLevel
+    from betty.service.level import ServiceProviderLevel
 
 
 class Requirement(Localizable):
@@ -191,7 +191,7 @@ class HasRequirement(ABC):
 
     @classmethod
     @abstractmethod
-    async def requirement(cls, service_level: ServiceLevel, /) -> Requirement | None:
+    async def requirement(cls, services: ServiceProviderLevel, /) -> Requirement | None:
         """
         Define the requirement for this class to be used.
         """
@@ -204,22 +204,21 @@ _HasRequirementT = TypeVar("_HasRequirementT", bound=HasRequirement)
 def requires_app(
     f: Callable[[type[_HasRequirementT], App], Coroutine[Any, Any, Requirement | None]],
 ) -> Callable[
-    [type[_HasRequirementT], ServiceLevel], Coroutine[Any, Any, Requirement | None]
+    [type[_HasRequirementT], ServiceProviderLevel],
+    Coroutine[Any, Any, Requirement | None],
 ]:
     """
     Decorate a :py:meth:`betty.requirement.HasRequirement.requirement` implementation to require an :py:class:`betty.app.App`.
     """
 
     async def _requires_app(
-        cls: type[_HasRequirementT], service_level: ServiceLevel
+        cls: type[_HasRequirementT], services: ServiceProviderLevel
     ) -> Requirement | None:
         from betty.app import App
 
-        if service_level is None:
+        if services is None:
             return StaticRequirement(Plain("An App is required."))
-        return await f(
-            cls, service_level if isinstance(service_level, App) else service_level.app
-        )
+        return await f(cls, services if isinstance(services, App) else services.app)
 
     return _requires_app
 
@@ -229,19 +228,20 @@ def requires_project(
         [type[_HasRequirementT], Project], Coroutine[Any, Any, Requirement | None]
     ],
 ) -> Callable[
-    [type[_HasRequirementT], ServiceLevel], Coroutine[Any, Any, Requirement | None]
+    [type[_HasRequirementT], ServiceProviderLevel],
+    Coroutine[Any, Any, Requirement | None],
 ]:
     """
     Decorate a :py:meth:`betty.requirement.HasRequirement.requirement` implementation to require an :py:class:`betty.project.Project`.
     """
 
     async def _requires_project(
-        cls: type[_HasRequirementT], service_level: ServiceLevel
+        cls: type[_HasRequirementT], services: ServiceProviderLevel
     ) -> Requirement | None:
         from betty.project import Project
 
-        if not isinstance(service_level, Project):
+        if not isinstance(services, Project):
             return StaticRequirement(Plain("A Project is required."))
-        return await f(cls, service_level)
+        return await f(cls, services)
 
     return _requires_project

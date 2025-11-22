@@ -66,35 +66,6 @@ def private(target: _T) -> _T:
     return target
 
 
-def pickleable(target: _T) -> _T:
-    """
-    Mark a target as pickleable.
-    """
-    if _should_mark(target, "pickleable"):
-        target.__doc__ = append(
-            target.__doc__ or "",
-            "This can be pickled.",
-        )
-    return target
-
-
-def unpickleable(target: _T) -> _T:
-    """
-    Mark a target as unpickleable.
-    """
-    if _should_mark(target, "unpickleable"):
-        target.__doc__ = append(
-            target.__doc__ or "",
-            "This can NOT be pickled, and MUST NOT be used between different processes.",
-        )
-
-        def _reduce_ex(*_) -> None:
-            raise RuntimeError(f"{target} is not pickleable.")
-
-        target.__reduce_ex__ = _reduce_ex  # type: ignore[assignment, method-assign]
-    return target
-
-
 def threadsafe(target: _T) -> _T:
     """
     Mark a target as thread-safe.

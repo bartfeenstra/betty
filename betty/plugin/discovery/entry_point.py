@@ -16,7 +16,7 @@ from betty.plugin.resolve import resolve_definition
 if TYPE_CHECKING:
     from collections.abc import Iterable
 
-    from betty.service_level import ServiceLevel
+    from betty.service.level import ServiceProviderLevel
 
 _PluginDefinitionT = TypeVar(
     "_PluginDefinitionT", bound=PluginDefinition, default=PluginDefinition
@@ -52,7 +52,7 @@ class EntryPointDiscovery(
 
     @override
     async def discover(
-        self, service_level: ServiceLevel, /
+        self, services: ServiceProviderLevel, /
     ) -> Iterable[_PluginDefinitionT]:
         return [
             resolve_definition(entry_point.load())

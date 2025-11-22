@@ -29,7 +29,7 @@ if TYPE_CHECKING:
 
     from betty.machine_name import MachineName
     from betty.requirement import Requirement
-    from betty.service_level import ServiceLevel
+    from betty.service.level import ServiceProviderLevel
 
 _PluginDefinitionT = TypeVar("_PluginDefinitionT", bound=PluginDefinition)
 _ClassedPluginDefinitionT = TypeVar(
@@ -41,7 +41,7 @@ async def new_dependencies_requirement(
     dependent: _ClassedPluginDefinitionT,
     plugins: Iterable[_ClassedPluginDefinitionT],
     *,
-    service_level: ServiceLevel,
+    services: ServiceProviderLevel,
 ) -> Requirement | None:
     """
     Check a dependent's dependency requirements.
@@ -54,7 +54,7 @@ async def new_dependencies_requirement(
         dependencies = []
         for dependency_identifier in dependent.depends_on:
             dependency = plugins_by_id[resolve_id(dependency_identifier)]
-            dependency_requirement = await dependency.cls.requirement(service_level)
+            dependency_requirement = await dependency.cls.requirement(services)
             if dependency_requirement is not None:
                 dependency_requirements.append(dependency_requirement)
             dependencies.append(dependency)
@@ -97,7 +97,7 @@ class CyclicDependencyError(PluginError):
 
 
 async def get_requirement(
-    plugin: ResolvableDefinition, service_level: ServiceLevel
+    plugin: ResolvableDefinition, services: ServiceProviderLevel
 ) -> Requirement | None:
     """
     Get the requirement for the given plugin.
@@ -106,7 +106,7 @@ async def get_requirement(
     if isinstance(plugin, ClassedPluginDefinition) and issubclass(
         plugin.cls, HasRequirement
     ):
-        return await plugin.cls.requirement(service_level)
+        return await plugin.cls.requirement(services)
     return None
 
 
@@ -137,7 +137,7 @@ class CheckRequirementRepository(
         cls,
         plugin_type: type[_PluginDefinitionT],
         plugins: Iterable[ResolvableDefinition[_PluginDefinitionT]],
-        service_level: ServiceLevel,
+        services: ServiceProviderLevel,
         /,
     ) -> Self:
         """
@@ -146,7 +146,7 @@ class CheckRequirementRepository(
         return cls(
             plugin_type,
             [
-                (plugin, await get_requirement(plugin, service_level))  # type: ignore[misc]
+                (plugin, await get_requirement(plugin, services))  # type: ignore[misc]
                 for plugin in list(map(resolve_definition, plugins))  # type: ignore[arg-type]
             ],
         )

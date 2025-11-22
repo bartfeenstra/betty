@@ -54,7 +54,7 @@ from betty.plugin.config import (
     PluginInstanceConfigurationMapping,
 )
 from betty.plugin.config.ordered import OrderedPluginDefinitionConfiguration
-from betty.plugin.repository.provider.service_level import plugins
+from betty.plugin.repository.provider.service import plugins
 from betty.plugin.resolve import ResolvableId, resolve_id
 from betty.project.extension import Extension, ExtensionDefinition
 from betty.serde.format import FormatDefinition, format_for

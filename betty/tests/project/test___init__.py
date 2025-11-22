@@ -32,7 +32,7 @@ if TYPE_CHECKING:
     from collections.abc import Iterable, Sequence
 
     from betty.app import App
-    from betty.service_level import ServiceLevel
+    from betty.service.level import ServiceProviderLevel
 
 
 @ExtensionDefinition(
@@ -53,7 +53,7 @@ class _DummyExtensionWithAssetsDirectory(Extension):
 class _DummyExtensionWithUnmetRequirement(Extension):
     @override
     @classmethod
-    async def requirement(cls, service_level: ServiceLevel, /) -> Requirement | None:
+    async def requirement(cls, level: ServiceProviderLevel, /) -> Requirement | None:
         return StaticRequirement(Plain(""))
 
 

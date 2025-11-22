@@ -23,7 +23,7 @@ if TYPE_CHECKING:
 
     from betty.machine_name import MachineName
     from betty.plugin.repository import PluginRepository
-    from betty.service_level import ServiceLevel
+    from betty.service.level import ServiceProviderLevel
 
 _PluginDefinitionT = TypeVar(
     "_PluginDefinitionT", bound=PluginDefinition, default=PluginDefinition
@@ -32,13 +32,13 @@ _PluginDefinitionT = TypeVar(
 
 @internal
 @final
-class ServiceLevelPluginRepositoryProvider(PluginRepositoryProvider):
+class ServicesPluginRepositoryProvider(PluginRepositoryProvider):
     """
-    Provide plugin repositories for service levels.
+    Provide plugin repositories for service providers.
     """
 
-    def __init__(self, service_level: ServiceLevel, /):
-        self._service_level = service_level
+    def __init__(self, services: ServiceProviderLevel, /):
+        self._services = services
         self._plugin_repositories: MutableMapping[
             type[PluginDefinition], MutableMapping[bool, PluginRepository[Any] | None]
         ] = defaultdict(
@@ -68,7 +68,7 @@ class ServiceLevelPluginRepositoryProvider(PluginRepositoryProvider):
             repository = await self._new(plugin_type)
             if check_requirements:
                 repository = await CheckRequirementRepository.new(
-                    plugin_type, repository, self._service_level
+                    plugin_type, repository, self._services
                 )
             return repository
         # If the repository exists already, return it immediately so we avoid acquiring locks.
@@ -84,7 +84,7 @@ class ServiceLevelPluginRepositoryProvider(PluginRepositoryProvider):
                 repository = await CheckRequirementRepository.new(
                     plugin_type,
                     await self.plugins(plugin_type, check_requirements=False),
-                    self._service_level,
+                    self._services,
                 )
             else:
                 repository = await self._new(plugin_type)
@@ -103,12 +103,12 @@ class ServiceLevelPluginRepositoryProvider(PluginRepositoryProvider):
     ) -> PluginRepository[_PluginDefinitionT]:
         return StaticPluginRepository(
             plugin_type,
-            *await discover(self._service_level, *plugin_type.type.discoveries),
+            *await discover(self._services, *plugin_type.type.discoveries),
         )
 
 
-_global_plugins = ServiceLevelPluginRepositoryProvider(None)
+_global_plugins = ServicesPluginRepositoryProvider(None)
 plugins = _global_plugins.plugins
 """
-Get the plugin repository for a plugin type, for the global service level.
+Get the plugin repository for a plugin type, for the global service provider level.
 """

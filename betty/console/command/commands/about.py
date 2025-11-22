@@ -90,7 +90,7 @@ class About(AppDependentFactory, Command):
         user.console.print(about_project)
 
     async def _about_plugins(self, user: ConsoleUser, project: Project | None) -> None:
-        service_level = self._app if project is None else project
+        services = self._app if project is None else project
         about_plugins = Table(title=user.localizer._("Plugins"))
         about_plugins.add_column(user.localizer._("Type"), style=self._KEY_STYLE)
         about_plugins.add_column(user.localizer._("ID"))
@@ -99,9 +99,7 @@ class About(AppDependentFactory, Command):
             plugin_types().values(),
             key=lambda plugin_type: plugin_type.type.label.localize(user.localizer),
         ):
-            repository = await service_level.plugins(
-                plugin_type, check_requirements=False
-            )
+            repository = await services.plugins(plugin_type, check_requirements=False)
             for index, plugin in enumerate(
                 sorted(repository, key=lambda plugin: plugin.id)
             ):
@@ -113,7 +111,7 @@ class About(AppDependentFactory, Command):
                 third_column_lines: MutableSequence[str] = []
                 if isinstance(plugin, HumanFacingPluginDefinition):
                     third_column_lines.append(plugin.label.localize(user.localizer))
-                requirement = await get_requirement(plugin, service_level)
+                requirement = await get_requirement(plugin, services)
                 if requirement:
                     third_column_lines.append(
                         "[yellow]" + requirement.localize(user.localizer)

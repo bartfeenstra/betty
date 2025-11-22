@@ -6,15 +6,15 @@ from betty.app import App
 from betty.locale.localizable import Plain
 from betty.plugin import PluginDefinition, PluginTypeDefinition
 from betty.plugin.discovery.app import AppDiscovery
-from betty.plugin.repository.provider.service_level import (
-    ServiceLevelPluginRepositoryProvider,
+from betty.plugin.repository.provider.service import (
+    ServicesPluginRepositoryProvider,
 )
 from betty.test_utils.plugin import DUMMY_PLUGIN_ONE, DummyPluginDefinition
 
 
-class TestServiceLevelPluginRepositoryProvider:
+class TestServicesPluginRepositoryProvider:
     async def test_plugins__with_plugin_type(self) -> None:
-        sut = ServiceLevelPluginRepositoryProvider(None)
+        sut = ServicesPluginRepositoryProvider(None)
         assert await sut.plugins(DummyPluginDefinition) is await sut.plugins(
             DummyPluginDefinition
         )
@@ -27,12 +27,10 @@ class TestServiceLevelPluginRepositoryProvider:
                 DummyPluginDefinition.type.id: DummyPluginDefinition,
             },
         )
-        sut = ServiceLevelPluginRepositoryProvider(None)
+        sut = ServicesPluginRepositoryProvider(None)
         assert DUMMY_PLUGIN_ONE in await sut.plugins(DummyPluginDefinition.type.id)
 
-    async def test_plugins__should_forward_service_level(
-        self, temporary_app: App
-    ) -> None:
+    async def test_plugins__should_forward_services(self, temporary_app: App) -> None:
         async def _discovery(app: App) -> Iterable["_PluginDefinition"]:
             assert app is temporary_app
             return ()
@@ -44,14 +42,14 @@ class TestServiceLevelPluginRepositoryProvider:
                 discoveries=AppDiscovery(_discovery),
             )
 
-        sut = ServiceLevelPluginRepositoryProvider(temporary_app)
+        sut = ServicesPluginRepositoryProvider(temporary_app)
         await sut.plugins(_PluginDefinition)
 
     async def test_plugins__with_overridden_discoveries(self) -> None:
         plugin = DummyPluginDefinition(
             id="dummy-plugin-four",
         )
-        sut = ServiceLevelPluginRepositoryProvider(None)
+        sut = ServicesPluginRepositoryProvider(None)
         with DummyPluginDefinition.type.override_discovery(plugin):
             assert plugin in await sut.plugins(DummyPluginDefinition)
         assert plugin not in await sut.plugins(DummyPluginDefinition)
