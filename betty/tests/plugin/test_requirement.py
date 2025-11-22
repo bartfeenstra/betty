@@ -27,7 +27,7 @@ from betty.test_utils.plugin.classed import (
 
 if TYPE_CHECKING:
     from betty.app import App
-    from betty.service_level import ServiceLevel
+    from betty.service.level import ServiceProviderLevel
 
 
 class HasRequirementPlugin(HasRequirement, ClassedPlugin):
@@ -66,7 +66,7 @@ class DownstreamWithoutRequirements(HasRequirementPlugin):
 class UpstreamWithUnmetRequirements(HasRequirementPlugin):
     @override
     @classmethod
-    async def requirement(cls, service_level: ServiceLevel, /) -> Requirement | None:
+    async def requirement(cls, level: ServiceProviderLevel, /) -> Requirement | None:
         return StaticRequirement(
             Plain("upstream-requirement-summary"),
             Plain("upstream-requirement-details"),
@@ -79,7 +79,7 @@ class UpstreamWithUnmetRequirements(HasRequirementPlugin):
 class DownstreamWithUnmetRequirements(HasRequirementPlugin):
     @override
     @classmethod
-    async def requirement(cls, service_level: ServiceLevel, /) -> Requirement | None:
+    async def requirement(cls, level: ServiceProviderLevel, /) -> Requirement | None:
         return StaticRequirement(
             Plain("downstream-requirement-summary"),
             Plain("downstream-requirement-details"),
@@ -107,7 +107,7 @@ async def test_new_dependencies_requirement__without_dependent_plugin(
     actual = await new_dependencies_requirement(
         ClassedDummyPluginOne.plugin,
         [ClassedDummyPluginOne.plugin],
-        service_level=temporary_app,
+        services=temporary_app,
     )
     assert actual is None
 
@@ -117,7 +117,7 @@ async def test_new_dependencies_requirement__without_requirements(
 ) -> None:
     plugins = [UpstreamWithoutRequirements.plugin, DownstreamWithoutRequirements.plugin]
     actual = await new_dependencies_requirement(
-        UpstreamWithoutRequirements.plugin, plugins, service_level=temporary_app
+        UpstreamWithoutRequirements.plugin, plugins, services=temporary_app
     )
     assert actual is None
 
@@ -130,7 +130,7 @@ async def test_new_dependencies_requirement__with_unmet_requirements(
         DownstreamWithUnmetRequirements.plugin,
     ]
     actual = await new_dependencies_requirement(
-        UpstreamWithUnmetRequirements.plugin, plugins, service_level=temporary_app
+        UpstreamWithUnmetRequirements.plugin, plugins, services=temporary_app
     )
     assert actual is not None
     message = actual.localize(DEFAULT_LOCALIZER)
@@ -142,7 +142,7 @@ async def test_new_dependencies_requirement__with_met_requirements(
 ) -> None:
     plugins = [UpstreamWithMetRequirements.plugin, DownstreamWithMetRequirements.plugin]
     actual = await new_dependencies_requirement(
-        UpstreamWithMetRequirements.plugin, plugins, service_level=temporary_app
+        UpstreamWithMetRequirements.plugin, plugins, services=temporary_app
     )
     assert actual is None
 
@@ -182,7 +182,7 @@ async def test_get_requirement__with_requirement() -> None:
         @override
         @classmethod
         async def requirement(
-            cls, service_level: ServiceLevel, /
+            cls, level: ServiceProviderLevel, /
         ) -> Requirement | None:
             return requirement
 

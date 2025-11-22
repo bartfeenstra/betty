@@ -39,8 +39,8 @@ from betty.model import Entity, EntityDefinition, ToManySchema
 from betty.plugin import PluginDefinition
 from betty.plugin.dependent import sort_dependent_plugin_graph
 from betty.plugin.repository.provider import PluginRepositoryProvider
-from betty.plugin.repository.provider.service_level import (
-    ServiceLevelPluginRepositoryProvider,
+from betty.plugin.repository.provider.service import (
+    ServicesPluginRepositoryProvider,
 )
 from betty.plugin.resolve import ResolvableId, resolve_id
 from betty.privacy.privatizer import Privatizer
@@ -51,7 +51,7 @@ from betty.project.url import new_project_url_generator
 from betty.render import RenderDispatcher, RendererDefinition
 from betty.resource import Context as ResourceContext
 from betty.resource import ContextProvider, new_context
-from betty.service import ServiceProvider, service
+from betty.service.provider import ServiceProvider, service
 from betty.string import kebab_case_to_lower_camel_case
 from betty.typing import internal
 
@@ -99,7 +99,7 @@ class Project(
         super().__init__(configuration=configuration)
         self._app = app
         self._ancestry = Ancestry() if ancestry is None else ancestry
-        self._plugin_repository_provider = ServiceLevelPluginRepositoryProvider(self)
+        self._plugin_repository_provider = ServicesPluginRepositoryProvider(self)
 
     @override
     async def plugins(

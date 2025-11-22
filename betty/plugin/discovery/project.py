@@ -17,7 +17,7 @@ if TYPE_CHECKING:
     from collections.abc import Awaitable, Callable, Iterable
 
     from betty.project import Project
-    from betty.service_level import ServiceLevel
+    from betty.service.level import ServiceProviderLevel
 
 _PluginDefinitionT = TypeVar(
     "_PluginDefinitionT", bound=PluginDefinition, default=PluginDefinition
@@ -43,10 +43,10 @@ class ProjectDiscovery(
 
     @override
     async def discover(
-        self, service_level: ServiceLevel, /
+        self, services: ServiceProviderLevel, /
     ) -> Iterable[_PluginDefinitionT]:
         from betty.project import Project
 
-        if not isinstance(service_level, Project):
+        if not isinstance(services, Project):
             return ()
-        return await ensure_await(self._discovery(service_level))
+        return await ensure_await(self._discovery(services))

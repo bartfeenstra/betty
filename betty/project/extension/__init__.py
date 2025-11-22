@@ -18,7 +18,7 @@ from betty.plugin.ordered import OrderedPluginDefinition
 from betty.plugin.requirement import new_dependencies_requirement
 from betty.project.factory import ProjectDependentFactory
 from betty.requirement import HasRequirement, requires_project
-from betty.service import ServiceProvider
+from betty.service.provider import ServiceProvider
 
 if TYPE_CHECKING:
     from pathlib import Path
@@ -68,7 +68,7 @@ class Extension(
         return await new_dependencies_requirement(
             cls.plugin,
             await project.plugins(ExtensionDefinition, check_requirements=False),
-            service_level=project,
+            services=project,
         )
 
 

@@ -15,7 +15,7 @@ from betty.plugin.discovery import PluginDiscovery
 if TYPE_CHECKING:
     from collections.abc import Awaitable, Callable, Iterable
 
-    from betty.service_level import ServiceLevel
+    from betty.service.level import ServiceProviderLevel
 
 _PluginDefinitionT = TypeVar(
     "_PluginDefinitionT", bound=PluginDefinition, default=PluginDefinition
@@ -40,6 +40,6 @@ class CallbackDiscovery(
 
     @override
     async def discover(
-        self, service_level: ServiceLevel, /
+        self, services: ServiceProviderLevel, /
     ) -> Iterable[_PluginDefinitionT]:
         return await ensure_await(self._discovery())
