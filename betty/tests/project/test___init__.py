@@ -409,91 +409,71 @@ class TestProjectExtensions:
         sut = ProjectExtensions([])
         assert DummyExtensionOne not in sut
 
-    async def test___contains____with_unknown_extension(
-        self, temporary_app: App
-    ) -> None:
-        async with Project.new_temporary(temporary_app) as project, project:
-            sut = ProjectExtensions([[]])
-            assert DummyExtensionOne not in sut
+    async def test___contains____with_unknown_extension(self) -> None:
+        sut = ProjectExtensions([[]])
+        assert DummyExtensionOne not in sut
 
-    async def test___contains____with_known_extension(self, temporary_app: App) -> None:
-        async with Project.new_temporary(temporary_app) as project, project:
-            sut = ProjectExtensions([[DummyExtensionOne(project)]])
-            assert DummyExtensionOne in sut
+    async def test___contains____with_known_extension(self) -> None:
+        sut = ProjectExtensions([[DummyExtensionOne()]])
+        assert DummyExtensionOne in sut
 
     async def test___getitem____without_extensions(self) -> None:
         sut = ProjectExtensions([])
         with pytest.raises(KeyError):
             sut[DummyExtensionOne]
 
-    async def test___getitem____with_unknown_extension(
-        self, temporary_app: App
-    ) -> None:
-        async with Project.new_temporary(temporary_app) as project, project:
-            sut = ProjectExtensions([[]])
-            with pytest.raises(KeyError):
-                sut[DummyExtensionOne]
-
-    async def test___getitem____with_known_extension(self, temporary_app: App) -> None:
-        async with Project.new_temporary(temporary_app) as project, project:
-            sut = ProjectExtensions([[DummyExtensionOne(project)]])
+    async def test___getitem____with_unknown_extension(self) -> None:
+        sut = ProjectExtensions([[]])
+        with pytest.raises(KeyError):
             sut[DummyExtensionOne]
+
+    async def test___getitem____with_known_extension(self) -> None:
+        sut = ProjectExtensions([[DummyExtensionOne()]])
+        sut[DummyExtensionOne]
 
     async def test___iter____without_extensions(self) -> None:
         sut = ProjectExtensions([])
         assert list(iter(sut)) == []
 
-    async def test___iter____with_extensions_in_a_single_batch(
-        self, temporary_app: App
-    ) -> None:
-        async with Project.new_temporary(temporary_app) as project, project:
-            extension_one = DummyExtensionOne(project)
-            extension_two = DummyExtensionTwo(project)
-            sut = ProjectExtensions([[extension_one, extension_two]])
-            actual = [list(batch) for batch in iter(sut)]
-            assert len(actual) == 1
-            assert len(actual[0]) == 2
-            assert actual[0][0] is extension_one
-            assert actual[0][1] is extension_two
+    async def test___iter____with_extensions_in_a_single_batch(self) -> None:
+        extension_one = DummyExtensionOne()
+        extension_two = DummyExtensionTwo()
+        sut = ProjectExtensions([[extension_one, extension_two]])
+        actual = [list(batch) for batch in iter(sut)]
+        assert len(actual) == 1
+        assert len(actual[0]) == 2
+        assert actual[0][0] is extension_one
+        assert actual[0][1] is extension_two
 
-    async def test___iter____with_extensions_in_multiple_batches(
-        self, temporary_app: App
-    ) -> None:
-        async with Project.new_temporary(temporary_app) as project, project:
-            extension_one = DummyExtensionOne(project)
-            extension_two = DummyExtensionTwo(project)
-            sut = ProjectExtensions([[extension_one], [extension_two]])
-            actual = [list(batch) for batch in iter(sut)]
-            assert len(actual) == 2
-            assert len(actual[0]) == 1
-            assert len(actual[1]) == 1
-            assert actual[0][0] is extension_one
-            assert actual[1][0] is extension_two
+    async def test___iter____with_extensions_in_multiple_batches(self) -> None:
+        extension_one = DummyExtensionOne()
+        extension_two = DummyExtensionTwo()
+        sut = ProjectExtensions([[extension_one], [extension_two]])
+        actual = [list(batch) for batch in iter(sut)]
+        assert len(actual) == 2
+        assert len(actual[0]) == 1
+        assert len(actual[1]) == 1
+        assert actual[0][0] is extension_one
+        assert actual[1][0] is extension_two
 
     async def test_flatten__without_extensions(self) -> None:
         sut = ProjectExtensions([])
         assert list(sut.flatten()) == []
 
-    async def test_flatten__with_extensions_in_a_single_batch(
-        self, temporary_app: App
-    ) -> None:
-        async with Project.new_temporary(temporary_app) as project, project:
-            extension_one = DummyExtensionOne(project)
-            extension_two = DummyExtensionTwo(project)
-            sut = ProjectExtensions([[extension_one, extension_two]])
-            actual = list(sut.flatten())
-            assert len(actual) == 2
-            assert actual[0] is extension_one
-            assert actual[1] is extension_two
+    async def test_flatten__with_extensions_in_a_single_batch(self) -> None:
+        extension_one = DummyExtensionOne()
+        extension_two = DummyExtensionTwo()
+        sut = ProjectExtensions([[extension_one, extension_two]])
+        actual = list(sut.flatten())
+        assert len(actual) == 2
+        assert actual[0] is extension_one
+        assert actual[1] is extension_two
 
-    async def test_flatten__with_extensions_in_multiple_batches(
-        self, temporary_app: App
-    ) -> None:
-        async with Project.new_temporary(temporary_app) as project, project:
-            extension_one = DummyExtensionOne(project)
-            extension_two = DummyExtensionTwo(project)
-            sut = ProjectExtensions([[extension_one], [extension_two]])
-            actual = list(sut.flatten())
-            assert len(actual) == 2
-            assert actual[0] is extension_one
-            assert actual[1] is extension_two
+    async def test_flatten__with_extensions_in_multiple_batches(self) -> None:
+        extension_one = DummyExtensionOne()
+        extension_two = DummyExtensionTwo()
+        sut = ProjectExtensions([[extension_one], [extension_two]])
+        actual = list(sut.flatten())
+        assert len(actual) == 2
+        assert actual[0] is extension_one
+        assert actual[1] is extension_two

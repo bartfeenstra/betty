@@ -17,8 +17,10 @@ from betty.locale.localizable import Plain, _
 from betty.project.extension import Extension, ExtensionDefinition
 from betty.project.extension.wiki.config import WikiConfiguration
 from betty.project.extension.wiki.jobs import PopulateEntity
+from betty.project.factory import ProjectDependentFactory
 from betty.project.load import PostLoader
 from betty.service.container import service
+from betty.typing import private
 from betty.wiki import NotAPageError, parse_page_url, populator
 from betty.wiki.client import Client, ClientError, Summary
 
@@ -47,19 +49,22 @@ class Wiki(
     Configurable[WikiConfiguration],
     Extension,
     Jinja2Provider,
+    ProjectDependentFactory,
 ):
     """
     Integrates Betty with `Wikipedia <https://wikipedia.org>`_.
     """
 
+    @private
     def __init__(
         self,
-        project: Project,
-        wikipedia_contributors_copyright_notice: CopyrightNotice,
         *,
         configuration: WikiConfiguration,
+        project: Project,
+        wikipedia_contributors_copyright_notice: CopyrightNotice,
     ):
-        super().__init__(project, configuration=configuration)
+        super().__init__(configuration=configuration)
+        self._project = project
         self._wikipedia_contributors_copyright_notice = (
             wikipedia_contributors_copyright_notice
         )
@@ -69,9 +74,11 @@ class Wiki(
     async def new_for_project(cls, project: Project, /) -> Self:
         copyright_notices = await project.plugins(CopyrightNoticeDefinition)
         return cls(
-            project,
-            await project.new_target(copyright_notices["wikipedia-contributors"].cls),
             configuration=WikiConfiguration(),
+            project=project,
+            wikipedia_contributors_copyright_notice=await project.new_target(
+                copyright_notices["wikipedia-contributors"].cls
+            ),
         )
 
     @override
@@ -86,11 +93,11 @@ class Wiki(
         The API client.
         """
         return Client(
-            download_directory_path=self.project.app.binary_file_cache.with_scope(
+            download_directory_path=self._project.app.binary_file_cache.with_scope(
                 "wiki-client"
             ).path,
-            http_client=await self.project.app.http_client,
-            user=self.project.app.user,
+            http_client=await self._project.app.http_client,
+            user=self._project.app.user,
         )
 
     @service
@@ -99,9 +106,9 @@ class Wiki(
         The ancestry populator.
         """
         return populator.Populator(
-            self.project.ancestry,
-            list(self.project.configuration.locales),
-            await self.project.localizers,
+            self._project.ancestry,
+            list(self._project.configuration.locales),
+            await self._project.localizers,
             await self.client,
             self._wikipedia_contributors_copyright_notice,
         )
@@ -143,7 +150,7 @@ class Wiki(
     async def _filter_wikipedia_summary_link(
         self, locale: str, link: Link
     ) -> Summary | None:
-        localizers = await self.project.app.localizers
+        localizers = await self._project.app.localizers
         try:
             page_language, page_name = parse_page_url(
                 link.url.localize(localizers.get(locale))

@@ -30,9 +30,8 @@ from betty.test_utils.project.extension import ExtensionTestBase
 class TestGramps(ExtensionTestBase):
     @override
     @pytest.fixture
-    async def sut(self, temporary_app: App) -> Extension:
-        async with Project.new_temporary(temporary_app) as project, project:
-            return await Gramps.new_for_project(project)
+    async def sut(self) -> Extension:
+        return Gramps()
 
     async def test_load__with_event_type_mapping(
         self, temporary_app: App, tmp_path: Path

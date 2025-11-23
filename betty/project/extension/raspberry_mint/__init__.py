@@ -29,7 +29,9 @@ from betty.project.extension.raspberry_mint.config import RaspberryMintConfigura
 from betty.project.extension.trees import Trees
 from betty.project.extension.webpack import Webpack
 from betty.project.extension.webpack.build import EntryPointProvider
+from betty.project.factory import ProjectDependentFactory
 from betty.project.generate import Generator
+from betty.typing import private
 
 if TYPE_CHECKING:
     from collections.abc import Sequence
@@ -122,15 +124,24 @@ class RaspberryMint(
     Jinja2Provider,
     Generator,
     EntryPointProvider,
+    ProjectDependentFactory,
 ):
     """
     The Raspberry Mint theme.
     """
 
+    @private
+    def __init__(self, *, configuration: RaspberryMintConfiguration, project: Project):
+        super().__init__(configuration=configuration)
+        self._project = project
+
     @override
     @classmethod
     async def new_for_project(cls, project: Project, /) -> Self:
-        return cls(project, configuration=RaspberryMintConfiguration())
+        return cls(
+            configuration=RaspberryMintConfiguration(),
+            project=project,
+        )
 
     @override
     async def bootstrap(self) -> None:
@@ -145,7 +156,7 @@ class RaspberryMint(
         with (
             HumanFacingExceptionGroup().assert_valid() as errors,
             errors.catch(
-                DataPath(self.project.configuration.configuration_file_path),
+                DataPath(self._project.configuration.configuration_file_path),
                 Key("extensions"),
                 Key("raspberry-mint"),
                 Key("regional_content"),
@@ -169,7 +180,7 @@ class RaspberryMint(
     @override
     def webpack_entry_point_cache_keys(self) -> Sequence[str]:
         return (
-            self.project.configuration.root_path,
+            self._project.configuration.root_path,
             self._configuration.primary_color.hex,
             self._configuration.secondary_color.hex,
             self._configuration.tertiary_color.hex,

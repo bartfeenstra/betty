@@ -14,6 +14,9 @@ _PluginT = TypeVar("_PluginT")
 class ClassedPlugin:
     """
     A plugin class that can expose its plugin.
+
+    ``__init__()`` is considered private to the :py:mod:`factory <betty.factory>` API. That means you MUST use the
+    factory API to create new instances.
     """
 
     plugin: ClassVar[ClassedPluginDefinition[Self]]
