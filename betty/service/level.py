@@ -2,10 +2,13 @@
 Service levels.
 """
 
-from typing import TypeAlias
+from typing import TypeAlias, TypeVar
 
 from betty.app import App
 from betty.project import Project
+from betty.project.factory import ProjectFactoryTarget
+
+_T = TypeVar("_T")
 
 ServiceLevel: TypeAlias = None | App | Project
 """
@@ -22,4 +25,9 @@ leaving us with three levels:
 - global (``None``)
 - app (:py:class:`betty.app.App`)
 - project (:py:class:`betty.project.Project`)
+"""
+
+AnyFactoryTarget: TypeAlias = ProjectFactoryTarget[_T]
+"""
+A factory target for any service level.
 """

@@ -121,6 +121,9 @@ _BASELINE: Mapping[str, _ModuleIgnore] = {
         },
     },
     "betty/config/collections/__init__.py": MissingReason.ABSTRACT,
+    "betty/config/factory.py": {
+        "ConfigurationDependentFactory": MissingReason.ABSTRACT,
+    },
     "betty/content_provider/__init__.py": {
         "ContentProvider": MissingReason.ABSTRACT,
     },
