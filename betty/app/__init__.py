@@ -16,13 +16,14 @@ import betty
 import betty.dirs
 from betty.app import config
 from betty.app.config import AppConfiguration
+from betty.app.factory import AppDependentFactory, AppFactoryTarget
 from betty.asset import AssetRepository, StaticAssetRepository
 from betty.cache.file import BinaryFileCache, PickledFileCache
 from betty.cache.no_op import NoOpCache
 from betty.config import Configurable
 from betty.config.file import assert_configuration_file
 from betty.dirs import CACHE_DIRECTORY_PATH
-from betty.factory import TargetFactory, new
+from betty.factory import Target, TargetFactory, new
 from betty.http_client import ClientErrorToUserMessageMiddleware
 from betty.http_client.rate_limit import RateLimitDefinition, RateLimitMiddleware
 from betty.license import LicenseDefinition
@@ -291,24 +292,10 @@ class App(
         return process_pool
 
     @override
-    async def new_target(self, cls: type[_T]) -> _T:
-        """
-        Create a new instance.
-
-        :return:
-            #. If ``cls`` extends :py:class:`betty.app.factory.AppDependentFactory`, this will call return ``cls``'s
-                ``new()``'s return value.
-            #. If ``cls`` extends :py:class:`betty.factory.IndependentFactory`, this will call return ``cls``'s
-                ``new()``'s return value.
-            #. Otherwise ``cls()`` will be called without arguments, and the resulting instance will be returned.
-
-        :raises FactoryError: raised when ``cls`` could not be instantiated.
-        """
-        from betty.app.factory import AppDependentFactory
-
-        if issubclass(cls, AppDependentFactory):
-            return cast(_T, await cls.new_for_app(self))
-        return await new(cls)
+    async def new_target(self, target: AppFactoryTarget[_T]) -> _T:
+        if isinstance(target, type) and issubclass(target, AppDependentFactory):
+            return cast(_T, await target.new_for_app(self))
+        return await new(cast(Target[_T], target))
 
     @service
     async def _spdx_license_repository(self) -> PluginRepository[LicenseDefinition]:
