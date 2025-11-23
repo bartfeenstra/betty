@@ -34,7 +34,7 @@ Optional functionality
 ----------------------
 Extensions can optionally provide the following functionality:
 
-:py:class:`betty.project.extension.ConfigurableExtension`
+:py:class:`betty.config.Configurable`
     Enable configuration management for the extension.
 :py:class:`betty.html.CssProvider`
     Add additional CSS files to generated pages.

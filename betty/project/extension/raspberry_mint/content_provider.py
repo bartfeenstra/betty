@@ -14,7 +14,7 @@ from betty.assertion import (
     assert_record,
     assert_setattr,
 )
-from betty.config import Configuration, DefaultConfigurable
+from betty.config import Configurable, Configuration
 from betty.content_provider import ContentProviderDefinition
 from betty.content_provider.config import (
     ContentProviderInstanceConfigurationSequence,
@@ -28,9 +28,7 @@ from betty.machine_name import MachineName, assert_machine_name
 from betty.model import EntityDefinition
 from betty.model.config import EntityReferenceSequence
 from betty.plugin.classed import ClassedPlugin
-from betty.plugin.config import (
-    PluginInstanceConfigurationSequence,
-)
+from betty.plugin.config import PluginInstanceConfigurationSequence
 from betty.project import Project
 from betty.project.extension.raspberry_mint import RaspberryMint
 from betty.requirement import HasRequirement, Requirement
@@ -120,7 +118,7 @@ class SectionConfiguration(Configuration):
     id="raspberry-mint-section",
     label=_("Section"),
 )
-class Section(Template, DefaultConfigurable[SectionConfiguration], _Base):
+class Section(Template, Configurable[SectionConfiguration], _Base):
     """
     A section on the page with a heading and a permanent link.
     """
@@ -131,12 +129,7 @@ class Section(Template, DefaultConfigurable[SectionConfiguration], _Base):
     @override
     @classmethod
     async def new_for_project(cls, project: Project, /) -> Self:
-        return cls(project, configuration=cls.new_default_configuration())
-
-    @override
-    @classmethod
-    def new_default_configuration(cls) -> SectionConfiguration:
-        return SectionConfiguration(name="", heading="")
+        return cls(project, configuration=SectionConfiguration(name="", heading=""))
 
     @override
     async def _provide_data(self, resource: Context) -> Mapping[str, Any]:
@@ -152,7 +145,7 @@ class Section(Template, DefaultConfigurable[SectionConfiguration], _Base):
     id="raspberry-mint-featured-entities",
     label=_("Featured entities"),
 )
-class FeaturedEntities(Template, DefaultConfigurable[EntityReferenceSequence], _Base):
+class FeaturedEntities(Template, Configurable[EntityReferenceSequence], _Base):
     """
     Featured entities.
     """
@@ -163,12 +156,7 @@ class FeaturedEntities(Template, DefaultConfigurable[EntityReferenceSequence], _
     @override
     @classmethod
     async def new_for_project(cls, project: Project, /) -> Self:
-        return cls(project, configuration=cls.new_default_configuration())
-
-    @override
-    @classmethod
-    def new_default_configuration(cls) -> EntityReferenceSequence:
-        return EntityReferenceSequence()
+        return cls(project, configuration=EntityReferenceSequence())
 
     @override
     async def _provide_data(self, resource: Context) -> Mapping[str, Any]:

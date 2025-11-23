@@ -10,7 +10,7 @@ from betty.plugin.discovery.extension import ExtensionDiscovery
 from betty.project import Project
 from betty.project.extension import Extension, ExtensionDefinition
 from betty.test_utils.plugin import DUMMY_PLUGIN_ONE
-from betty.test_utils.project.extension import DummyExtension
+from betty.test_utils.project.extension import DummyExtensionOne
 
 if TYPE_CHECKING:
     from betty.app import App
@@ -43,7 +43,7 @@ class TestExtensionDiscovery:
         self, sut_params: ExtensionDiscoveryTestParams
     ) -> None:
         expected, discovery = sut_params
-        sut = ExtensionDiscovery(DummyExtension, discovery)
+        sut = ExtensionDiscovery(DummyExtensionOne, discovery)
         assert not list(await sut.discover(None))
 
     async def test_discover__with_app(
@@ -52,7 +52,7 @@ class TestExtensionDiscovery:
         temporary_app: App,
     ) -> None:
         expected, discovery = sut_params
-        sut = ExtensionDiscovery(DummyExtension, discovery)
+        sut = ExtensionDiscovery(DummyExtensionOne, discovery)
         assert not list(await sut.discover(temporary_app))
 
     async def test_discover__with_project_without_extension(
@@ -62,7 +62,7 @@ class TestExtensionDiscovery:
     ) -> None:
         expected, discovery = sut_params
         async with Project.new_temporary(temporary_app) as project, project:
-            sut = ExtensionDiscovery(DummyExtension, discovery)
+            sut = ExtensionDiscovery(DummyExtensionOne, discovery)
             assert not list(await sut.discover(project))
 
     async def test_discover__with_project_with_extension(
@@ -71,9 +71,9 @@ class TestExtensionDiscovery:
         temporary_app: App,
     ) -> None:
         expected, discovery = sut_params
-        with ExtensionDefinition.type.override_discovery(DummyExtension.plugin):
+        with ExtensionDefinition.type.override_discovery(DummyExtensionOne.plugin):
             async with Project.new_temporary(temporary_app) as project:
-                project.configuration.extensions.enable(DummyExtension)
+                project.configuration.extensions.enable(DummyExtensionOne)
                 async with project:
-                    sut = ExtensionDiscovery(DummyExtension, discovery)
+                    sut = ExtensionDiscovery(DummyExtensionOne, discovery)
                     assert await sut.discover(project) == expected

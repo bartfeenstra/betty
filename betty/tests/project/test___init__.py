@@ -22,10 +22,7 @@ from betty.requirement import Requirement, StaticRequirement, UnmetRequirement
 from betty.test_utils.json.schema import SchemaTestBase, SchemaTestBaseSut
 from betty.test_utils.model import DummyNonPublicFacingEntityOne
 from betty.test_utils.plugin import DummyPluginDefinition
-from betty.test_utils.project.extension import (
-    DummyConfigurableExtension,
-    DummyExtension,
-)
+from betty.test_utils.project.extension import DummyExtensionOne, DummyExtensionTwo
 
 if TYPE_CHECKING:
     from collections.abc import Iterable, Sequence
@@ -128,12 +125,12 @@ class TestProject:
     async def test_bootstrap__should_initialize_extensions(
         self, temporary_app: App
     ) -> None:
-        with ExtensionDefinition.type.override_discovery(DummyExtension.plugin):
+        with ExtensionDefinition.type.override_discovery(DummyExtensionOne.plugin):
             async with Project.new_temporary(temporary_app) as sut:
-                sut.configuration.extensions.enable(DummyExtension)
+                sut.configuration.extensions.enable(DummyExtensionOne)
                 async with sut:
                     extensions = await sut.extensions
-                    extension = extensions[DummyExtension]
+                    extension = extensions[DummyExtensionOne]
                     assert extension.bootstrapped
 
     async def test_bootstrap__should_validate_entity_type_configuration(
@@ -227,9 +224,9 @@ class TestProject:
     async def test_assets__with_extension_without_assets_directory(
         self, temporary_app: App
     ) -> None:
-        with ExtensionDefinition.type.override_discovery(DummyExtension.plugin):
+        with ExtensionDefinition.type.override_discovery(DummyExtensionOne.plugin):
             async with Project.new_temporary(temporary_app) as sut:
-                sut.configuration.extensions.enable(DummyExtension)
+                sut.configuration.extensions.enable(DummyExtensionOne)
                 async with sut:
                     assets = await sut.assets
                     assert len(assets.assets_directory_paths) == 2
@@ -410,37 +407,37 @@ class TestProjectSchema(SchemaTestBase):
 class TestProjectExtensions:
     async def test___contains____without_extensions(self) -> None:
         sut = ProjectExtensions([])
-        assert DummyExtension not in sut
+        assert DummyExtensionOne not in sut
 
     async def test___contains____with_unknown_extension(
         self, temporary_app: App
     ) -> None:
         async with Project.new_temporary(temporary_app) as project, project:
-            sut = ProjectExtensions([[DummyExtension(project)]])
-            assert DummyConfigurableExtension not in sut
+            sut = ProjectExtensions([[]])
+            assert DummyExtensionOne not in sut
 
     async def test___contains____with_known_extension(self, temporary_app: App) -> None:
         async with Project.new_temporary(temporary_app) as project, project:
-            sut = ProjectExtensions([[DummyExtension(project)]])
-            assert DummyExtension in sut
+            sut = ProjectExtensions([[DummyExtensionOne(project)]])
+            assert DummyExtensionOne in sut
 
     async def test___getitem____without_extensions(self) -> None:
         sut = ProjectExtensions([])
         with pytest.raises(KeyError):
-            sut[DummyExtension]
+            sut[DummyExtensionOne]
 
     async def test___getitem____with_unknown_extension(
         self, temporary_app: App
     ) -> None:
         async with Project.new_temporary(temporary_app) as project, project:
-            sut = ProjectExtensions([[DummyExtension(project)]])
+            sut = ProjectExtensions([[]])
             with pytest.raises(KeyError):
-                sut[DummyConfigurableExtension]
+                sut[DummyExtensionOne]
 
     async def test___getitem____with_known_extension(self, temporary_app: App) -> None:
         async with Project.new_temporary(temporary_app) as project, project:
-            sut = ProjectExtensions([[DummyExtension(project)]])
-            sut[DummyExtension]
+            sut = ProjectExtensions([[DummyExtensionOne(project)]])
+            sut[DummyExtensionOne]
 
     async def test___iter____without_extensions(self) -> None:
         sut = ProjectExtensions([])
@@ -450,8 +447,8 @@ class TestProjectExtensions:
         self, temporary_app: App
     ) -> None:
         async with Project.new_temporary(temporary_app) as project, project:
-            extension_one = DummyExtension(project)
-            extension_two = await DummyConfigurableExtension.new_for_project(project)
+            extension_one = DummyExtensionOne(project)
+            extension_two = DummyExtensionTwo(project)
             sut = ProjectExtensions([[extension_one, extension_two]])
             actual = [list(batch) for batch in iter(sut)]
             assert len(actual) == 1
@@ -463,8 +460,8 @@ class TestProjectExtensions:
         self, temporary_app: App
     ) -> None:
         async with Project.new_temporary(temporary_app) as project, project:
-            extension_one = DummyExtension(project)
-            extension_two = await DummyConfigurableExtension.new_for_project(project)
+            extension_one = DummyExtensionOne(project)
+            extension_two = DummyExtensionTwo(project)
             sut = ProjectExtensions([[extension_one], [extension_two]])
             actual = [list(batch) for batch in iter(sut)]
             assert len(actual) == 2
@@ -481,8 +478,8 @@ class TestProjectExtensions:
         self, temporary_app: App
     ) -> None:
         async with Project.new_temporary(temporary_app) as project, project:
-            extension_one = DummyExtension(project)
-            extension_two = await DummyConfigurableExtension.new_for_project(project)
+            extension_one = DummyExtensionOne(project)
+            extension_two = DummyExtensionTwo(project)
             sut = ProjectExtensions([[extension_one, extension_two]])
             actual = list(sut.flatten())
             assert len(actual) == 2
@@ -493,8 +490,8 @@ class TestProjectExtensions:
         self, temporary_app: App
     ) -> None:
         async with Project.new_temporary(temporary_app) as project, project:
-            extension_one = DummyExtension(project)
-            extension_two = await DummyConfigurableExtension.new_for_project(project)
+            extension_one = DummyExtensionOne(project)
+            extension_two = DummyExtensionTwo(project)
             sut = ProjectExtensions([[extension_one], [extension_two]])
             actual = list(sut.flatten())
             assert len(actual) == 2

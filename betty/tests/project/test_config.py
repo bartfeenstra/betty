@@ -50,7 +50,7 @@ from betty.test_utils.model import DummyEntityOne, DummyNonPublicFacingEntityOne
 from betty.test_utils.plugin.config import PluginDefinitionConfigurationMappingTestBase
 from betty.test_utils.project.extension import (
     DummyConfigurableExtension,
-    DummyExtension,
+    DummyExtensionOne,
 )
 from betty.typing import Void
 
@@ -334,8 +334,8 @@ class TestExtensionInstanceConfigurationMapping(
 
     def test_enable(self) -> None:
         sut = ExtensionInstanceConfigurationMapping()
-        sut.enable(DummyExtension)
-        assert DummyExtension.plugin in sut
+        sut.enable(DummyExtensionOne)
+        assert DummyExtensionOne.plugin in sut
 
 
 class TestEntityTypeConfiguration:
@@ -1216,10 +1216,10 @@ class TestProjectConfiguration:
         sut = ProjectConfiguration(tmp_path / "betty.json")
         dump = sut.dump()
         dump["extensions"] = {
-            DummyExtension.plugin.id: {},
+            DummyExtensionOne.plugin.id: {},
         }
         sut.load(dump)
-        actual = sut.extensions[DummyExtension.plugin]
+        actual = sut.extensions[DummyExtensionOne.plugin]
         assert isinstance(actual.configuration, Void)
 
     async def test_load__extension_with_invalid_configuration_should_raise_error(

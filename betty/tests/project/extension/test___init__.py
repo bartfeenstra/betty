@@ -12,7 +12,7 @@ from betty.project.extension import ExtensionDefinition
 from betty.requirement import Requirement
 from betty.test_utils.documentation import PluginDocumentationTestBase
 from betty.test_utils.plugin.classed import ClassedPluginDefinitionClassTestBase
-from betty.test_utils.project.extension import DummyExtension
+from betty.test_utils.project.extension import DummyExtensionOne
 
 
 class TestExtensionDefinition(ClassedPluginDefinitionClassTestBase):
@@ -41,13 +41,13 @@ class TestExtensionDocumentation(PluginDocumentationTestBase[ExtensionDefinition
 class TestExtension:
     async def test_requires__with_global(self) -> None:
         subject = "My First Subject"
-        requires = await DummyExtension.requires(None, subject)
+        requires = await DummyExtensionOne.requires(None, subject)
         assert isinstance(requires, Requirement)
         assert subject in requires.localize(DEFAULT_LOCALIZER)
 
     async def test_requires__with_app(self, temporary_app: App) -> None:
         subject = "My First Subject"
-        requires = await DummyExtension.requires(temporary_app, subject)
+        requires = await DummyExtensionOne.requires(temporary_app, subject)
         assert isinstance(requires, Requirement)
         assert subject in requires.localize(DEFAULT_LOCALIZER)
 
@@ -56,26 +56,26 @@ class TestExtension:
     ) -> None:
         subject = "My First Subject"
         async with Project.new_temporary(temporary_app) as project, project:
-            requires = await DummyExtension.requires(project, subject)
+            requires = await DummyExtensionOne.requires(project, subject)
         assert isinstance(requires, Requirement)
         assert subject in requires.localize(DEFAULT_LOCALIZER)
 
     async def test_requires__with_project_with_extension(
         self, temporary_app: App
     ) -> None:
-        with ExtensionDefinition.type.override_discovery(DummyExtension.plugin):
+        with ExtensionDefinition.type.override_discovery(DummyExtensionOne.plugin):
             async with Project.new_temporary(temporary_app) as project:
-                project.configuration.extensions.enable(DummyExtension)
+                project.configuration.extensions.enable(DummyExtensionOne)
                 async with project:
-                    requires = await DummyExtension.requires(project, "")
-        assert isinstance(requires, DummyExtension)
+                    requires = await DummyExtensionOne.requires(project, "")
+        assert isinstance(requires, DummyExtensionOne)
 
     async def test_project__with___init__(self, temporary_app: App) -> None:
         async with Project.new_temporary(temporary_app) as project:
-            sut = DummyExtension(project)
+            sut = DummyExtensionOne(project)
             assert sut.project is project
 
     async def test_project__with_new(self, temporary_app: App) -> None:
         async with Project.new_temporary(temporary_app) as project:
-            sut = await DummyExtension.new_for_project(project)
+            sut = await DummyExtensionOne.new_for_project(project)
             assert sut.project is project

@@ -9,11 +9,12 @@ from typing import TYPE_CHECKING, Self, final
 from jinja2 import pass_context
 from typing_extensions import override
 
+from betty.config import Configurable
 from betty.copyright_notice import CopyrightNoticeDefinition
 from betty.jinja2 import Filters, Globals, Jinja2Provider, context_localizer
 from betty.locale import negotiate_locale
 from betty.locale.localizable import Plain, _
-from betty.project.extension import ConfigurableExtension, ExtensionDefinition
+from betty.project.extension import Extension, ExtensionDefinition
 from betty.project.extension.wiki.config import WikiConfiguration
 from betty.project.extension.wiki.jobs import PopulateEntity
 from betty.project.load import PostLoader
@@ -43,7 +44,8 @@ if TYPE_CHECKING:
 )
 class Wiki(
     PostLoader,
-    ConfigurableExtension[WikiConfiguration],
+    Configurable[WikiConfiguration],
+    Extension,
     Jinja2Provider,
 ):
     """
@@ -69,7 +71,7 @@ class Wiki(
         return cls(
             project,
             await project.new_target(copyright_notices["wikipedia-contributors"].cls),
-            configuration=cls.new_default_configuration(),
+            configuration=WikiConfiguration(),
         )
 
     @override
@@ -155,8 +157,3 @@ class Wiki(
             return await client.get_summary(page_language, page_name)
         except ClientError:
             return None
-
-    @override
-    @classmethod
-    def new_default_configuration(cls) -> WikiConfiguration:
-        return WikiConfiguration()

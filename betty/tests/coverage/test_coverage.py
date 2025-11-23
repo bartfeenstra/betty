@@ -120,9 +120,6 @@ _BASELINE: Mapping[str, _ModuleIgnore] = {
             "release": MissingReason.ABSTRACT,
         },
     },
-    "betty/config/__init__.py": {
-        "DefaultConfigurable": MissingReason.ABSTRACT,
-    },
     "betty/config/collections/__init__.py": MissingReason.ABSTRACT,
     "betty/content_provider/__init__.py": {
         "ContentProvider": MissingReason.ABSTRACT,
@@ -410,7 +407,6 @@ _BASELINE: Mapping[str, _ModuleIgnore] = {
         "PresenceRoleDefinitionConfiguration": MissingReason.STATIC_CONTENT_ONLY,
     },
     "betty/project/extension/__init__.py": {
-        "ConfigurableExtension": MissingReason.SHOULD_BE_COVERED,
         "ExtensionError": MissingReason.STATIC_CONTENT_ONLY,
         "ExtensionTypeError": MissingReason.STATIC_CONTENT_ONLY,
         "ExtensionTypeInvalidError": MissingReason.SHOULD_BE_COVERED,

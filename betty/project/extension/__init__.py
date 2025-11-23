@@ -2,12 +2,10 @@
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Any, ClassVar, Generic, Self, TypeVar, final
+from typing import TYPE_CHECKING, Any, ClassVar, Self, TypeVar, final
 
 from typing_extensions import override
 
-from betty.config import Configuration, DefaultConfigurable
-from betty.job import Context
 from betty.locale.localizable import Localizable, _
 from betty.plugin import PluginTypeDefinition
 from betty.plugin.classed import ClassedPlugin, ClassedPluginDefinition
@@ -25,10 +23,6 @@ if TYPE_CHECKING:
 
     from betty.project import Project
     from betty.service.level import ServiceLevel
-
-_T = TypeVar("_T")
-_ConfigurationT = TypeVar("_ConfigurationT", bound=Configuration)
-_ContextT = TypeVar("_ContextT", bound=Context)
 
 
 class Extension(ServiceContainer, ProjectDependentFactory, ClassedPlugin):
@@ -139,16 +133,3 @@ class ExtensionDefinition(
         Whether this extension is a theme.
         """
         return self._theme
-
-
-class ConfigurableExtension(
-    DefaultConfigurable[_ConfigurationT], Extension, Generic[_ConfigurationT]
-):
-    """
-    A configurable extension.
-    """
-
-    @override
-    @classmethod
-    async def new_for_project(cls, project: Project, /) -> Self:
-        return cls(project, configuration=cls.new_default_configuration())
