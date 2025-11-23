@@ -204,7 +204,7 @@ class Citer:
     def __len__(self) -> int:
         return len(self._cited)
 
-    def cite(self, citation: Citation) -> int:
+    def cite(self, citation: Citation, /) -> int:
         """
         Reference a citation.
 
