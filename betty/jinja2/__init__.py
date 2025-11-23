@@ -185,7 +185,7 @@ class Environment(ProjectDependentFactory, Jinja2Environment):
 
     @override
     @classmethod
-    async def new_for_project(cls, project: Project) -> Self:
+    async def new_for_project(cls, project: Project, /) -> Self:
         extensions = list((await project.extensions).flatten())
         return cls(
             project,

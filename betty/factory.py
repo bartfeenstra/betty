@@ -33,7 +33,7 @@ class IndependentFactory(ABC):
 _T = TypeVar("_T")
 
 
-async def new(cls: type[_T]) -> _T:
+async def new(cls: type[_T], /) -> _T:
     """
     Create a new instance.
 
@@ -58,7 +58,7 @@ class TargetFactory(ABC):
     """
 
     @abstractmethod
-    async def new_target(self, cls: type[_T]) -> _T:
+    async def new_target(self, cls: type[_T], /) -> _T:
         """
         Create a new instance.
 
@@ -71,7 +71,7 @@ class Factory(Protocol):
     A callable to create a new instance.
     """
 
-    async def __call__(self, cls: type[_T]) -> _T:
+    async def __call__(self, cls: type[_T], /) -> _T:
         """
         Create a new instance.
 

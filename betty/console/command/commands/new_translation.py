@@ -34,7 +34,7 @@ class NewTranslation(AppDependentFactory, Command):
 
     @override
     @classmethod
-    async def new_for_app(cls, app: App) -> Self:
+    async def new_for_app(cls, app: App, /) -> Self:
         return cls(app)
 
     @override

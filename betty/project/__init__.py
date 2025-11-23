@@ -524,7 +524,7 @@ class ProjectSchema(ProjectDependentFactory, Schema):
 
     @override
     @classmethod
-    async def new_for_project(cls, project: Project) -> Self:
+    async def new_for_project(cls, project: Project, /) -> Self:
         schema = cls()
         schema._schema["$id"] = await cls.url(project)
 
