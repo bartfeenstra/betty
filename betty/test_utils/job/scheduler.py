@@ -67,7 +67,7 @@ class StaticScheduler(Generic[_ContextCoT], Scheduler[_ContextCoT]):
         raise NotImplementedError
 
     @override
-    async def cancel(self, reason: BaseException | None = None) -> None:
+    async def cancel(self, reason: BaseException | None = None, /) -> None:
         raise NotImplementedError
 
     @override
