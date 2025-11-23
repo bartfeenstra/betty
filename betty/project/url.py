@@ -140,7 +140,7 @@ class _ProjectUrlGenerator(ProjectDependentFactory):
         )
 
 
-async def new_project_url_generator(project: Project) -> UrlGenerator:
+async def new_project_url_generator(project: Project, /) -> UrlGenerator:
     """
     Generate URLs for all resources provided by a Betty project.
     """
@@ -172,7 +172,7 @@ def _get_extension_and_locale(
 class __EntityTypeUrlGenerator(_ProjectUrlGenerator):
     _pattern = "/{entity_type}/index.{extension}"
 
-    def supports(self, resource: Any) -> bool:
+    def supports(self, resource: Any, /) -> bool:
         return isinstance(resource, EntityDefinition)
 
 
@@ -204,7 +204,7 @@ class _EntityTypeUrlGenerator(__EntityTypeUrlGenerator, UrlGenerator):
 class __EntityUrlGenerator(_ProjectUrlGenerator):
     _pattern = "/{entity_type}/{entity_id}/index.{extension}"
 
-    def supports(self, resource: Any) -> bool:
+    def supports(self, resource: Any, /) -> bool:
         return isinstance(resource, Entity)
 
 
@@ -239,13 +239,14 @@ class _EntityUrlUrlGenerator(UrlGenerator):
         ancestry: Ancestry,
         entity_url_generator: _EntityUrlGenerator,
         entity_types: PluginRepository[EntityDefinition],
+        /,
     ):
         self._ancestry = ancestry
         self._entity_url_generator = entity_url_generator
         self._entity_types = entity_types
 
     @override
-    def supports(self, resource: Any) -> bool:
+    def supports(self, resource: Any, /) -> bool:
         if not isinstance(resource, str):
             return False
         try:
@@ -287,7 +288,7 @@ class _EntityUrlUrlGenerator(UrlGenerator):
 
 class _LocalizedPathUrlUrlGenerator(_ProjectUrlGenerator, UrlGenerator):
     @override
-    def supports(self, resource: Any) -> bool:
+    def supports(self, resource: Any, /) -> bool:
         if not isinstance(resource, str):
             return False
         try:
@@ -325,7 +326,7 @@ class _LocalizedPathUrlUrlGenerator(_ProjectUrlGenerator, UrlGenerator):
 
 class _StaticPathUrlUrlGenerator(_ProjectUrlGenerator, UrlGenerator):
     @override
-    def supports(self, resource: Any) -> bool:
+    def supports(self, resource: Any, /) -> bool:
         if not isinstance(resource, str):
             return False
         try:
