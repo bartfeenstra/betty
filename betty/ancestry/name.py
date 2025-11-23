@@ -38,7 +38,7 @@ class Name(HasDate):
 
     @override
     @classmethod
-    async def linked_data_schema(cls, project: Project) -> JsonLdObject:
+    async def linked_data_schema(cls, project: Project, /) -> JsonLdObject:
         schema = await super().linked_data_schema(project)
         schema.add_property(
             "name", await StaticTranslations.linked_data_schema(project)
@@ -46,7 +46,7 @@ class Name(HasDate):
         return schema
 
     @override
-    async def dump_linked_data(self, project: Project) -> DumpMapping[Dump]:
+    async def dump_linked_data(self, project: Project, /) -> DumpMapping[Dump]:
         dump = await super().dump_linked_data(project)
         dump["name"] = await StaticTranslations.dump_linked_data_for(project, self.name)
         return dump

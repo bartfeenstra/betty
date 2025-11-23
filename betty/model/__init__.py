@@ -111,7 +111,7 @@ class Entity(LinkedDataDumpableWithSchemaJsonLdObject, Mutable, ClassedPlugin):
         )
 
     @override
-    async def dump_linked_data(self, project: Project) -> DumpMapping[Dump]:
+    async def dump_linked_data(self, project: Project, /) -> DumpMapping[Dump]:
         dump = await super().dump_linked_data(project)
 
         if persistent_id(self) and self.plugin.public_facing:
@@ -126,7 +126,7 @@ class Entity(LinkedDataDumpableWithSchemaJsonLdObject, Mutable, ClassedPlugin):
 
     @override
     @classmethod
-    async def linked_data_schema(cls, project: Project) -> JsonLdObject:
+    async def linked_data_schema(cls, project: Project, /) -> JsonLdObject:
         schema = await super().linked_data_schema(project)
         schema._def_name = f"{kebab_case_to_lower_camel_case(cls.plugin.id)}Entity"
         schema.title = cls.plugin.label.localize(DEFAULT_LOCALIZER)

@@ -459,12 +459,12 @@ class StaticTranslations(
         return LocalizedStr(translation, locale=locale)
 
     @override
-    async def dump_linked_data(self, project: Project) -> DumpMapping[Dump]:
+    async def dump_linked_data(self, project: Project, /) -> DumpMapping[Dump]:
         return {**self._translations}
 
     @override
     @classmethod
-    async def linked_data_schema(cls, project: Project) -> Object:
+    async def linked_data_schema(cls, project: Project, /) -> Object:
         return StaticTranslationsSchema()
 
     @classmethod

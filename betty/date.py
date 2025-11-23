@@ -185,7 +185,7 @@ class Date(LinkedDataDumpableWithSchemaJsonLdObject):
 
     @override
     @classmethod
-    async def linked_data_schema(cls, project: Project) -> DateSchema:
+    async def linked_data_schema(cls, project: Project, /) -> DateSchema:
         return DateSchema()
 
 
@@ -316,7 +316,7 @@ class DateRange(LinkedDataDumpableWithSchemaJsonLdObject):
 
     @override
     @classmethod
-    async def linked_data_schema(cls, project: Project) -> DateRangeSchema:
+    async def linked_data_schema(cls, project: Project, /) -> DateRangeSchema:
         return DateRangeSchema()
 
     def _get_comparable_date(self, date: Date | None) -> Date | None:

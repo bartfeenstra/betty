@@ -46,14 +46,14 @@ class HasLocale(Localized, LinkedDataDumpableWithSchemaJsonLdObject):
         self._locale = locale
 
     @override
-    async def dump_linked_data(self, project: Project) -> DumpMapping[Dump]:
+    async def dump_linked_data(self, project: Project, /) -> DumpMapping[Dump]:
         dump = await super().dump_linked_data(project)
         dump["locale"] = self.locale if is_public(self) else None
         return dump
 
     @override
     @classmethod
-    async def linked_data_schema(cls, project: Project) -> JsonLdObject:
+    async def linked_data_schema(cls, project: Project, /) -> JsonLdObject:
         schema = await super().linked_data_schema(project)
         schema.add_property("locale", OneOf(LocaleSchema(), Null()))
         return schema

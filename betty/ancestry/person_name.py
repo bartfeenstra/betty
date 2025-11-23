@@ -115,7 +115,7 @@ class PersonName(HasLocale, HasCitations, HasPrivacy, Entity):
         )
 
     @override
-    async def dump_linked_data(self, project: Project) -> DumpMapping[Dump]:
+    async def dump_linked_data(self, project: Project, /) -> DumpMapping[Dump]:
         dump = await super().dump_linked_data(project)
         if self.public:
             if self.individual is not None:
@@ -128,7 +128,7 @@ class PersonName(HasLocale, HasCitations, HasPrivacy, Entity):
 
     @override
     @classmethod
-    async def linked_data_schema(cls, project: Project) -> JsonLdObject:
+    async def linked_data_schema(cls, project: Project, /) -> JsonLdObject:
         schema = await super().linked_data_schema(project)
         schema.add_property(
             "individual",
