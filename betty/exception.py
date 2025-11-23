@@ -56,7 +56,7 @@ class HumanFacingException(Exception, Localizable):
         return self.localize(DEFAULT_LOCALIZER)
 
     @override
-    def localize(self, localizer: Localizer) -> Localized & str:
+    def localize(self, localizer: Localizer, /) -> Localized & str:
         return Lines(
             self._localizable_message, UnorderedList(*Selectors.reduce(*self.contexts))
         ).localize(localizer)
@@ -104,7 +104,7 @@ class HumanFacingExceptionGroup(HumanFacingException):
         yield from self._errors
 
     @override
-    def localize(self, localizer: Localizer) -> Localized & str:
+    def localize(self, localizer: Localizer, /) -> Localized & str:
         return LocalizedStr(
             "\n\n".join(error.localize(localizer) for error in self._errors),
             locale=localizer.locale,

@@ -348,7 +348,7 @@ async def test_do_you_mean(expected: str, available_options: Sequence[str]) -> N
 class TestCountableLocalizable:
     class _Sut(CountableLocalizable):
         @override
-        def count(self, count: int) -> Localizable:
+        def count(self, count: int, /) -> Localizable:
             return Plain("{format_placeholder}")
 
     def test_format(self) -> None:

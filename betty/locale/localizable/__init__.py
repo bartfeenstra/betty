@@ -65,7 +65,7 @@ class Localizable(_Localizable["Localizable"]):
     """
 
     @abstractmethod
-    def localize(self, localizer: Localizer) -> Localized & str:
+    def localize(self, localizer: Localizer, /) -> Localized & str:
         """
         Localize ``self`` to a human-readable string.
         """
@@ -90,7 +90,7 @@ class CountableLocalizable(_Localizable["CountableLocalizable"]):
     """
 
     @abstractmethod
-    def count(self, count: int) -> Localizable:
+    def count(self, count: int, /) -> Localizable:
         """
         Create a localizable for the given count (number of things).
 
@@ -129,7 +129,7 @@ class _GettextLocalizable(Localizable):
         self._gettext_args = gettext_args
 
     @override
-    def localize(self, localizer: Localizer) -> Localized & str:
+    def localize(self, localizer: Localizer, /) -> Localized & str:
         return LocalizedStr(
             cast(
                 "str",
@@ -149,13 +149,13 @@ class _CountableGettextLocalizable(CountableLocalizable):
         self._gettext_args = gettext_args
 
     @override
-    def count(self, count: int) -> Localizable:
+    def count(self, count: int, /) -> Localizable:
         return _GettextLocalizable(
             self._gettext_method_name, *self._gettext_args, count
         ).format(count=str(count))
 
 
-def gettext(message: str) -> Localizable:
+def gettext(message: str, /) -> Localizable:
     """
     Like :py:meth:`gettext.gettext`.
 
@@ -167,7 +167,7 @@ def gettext(message: str) -> Localizable:
     return _GettextLocalizable("gettext", message)
 
 
-def _(message: str) -> Localizable:
+def _(message: str, /) -> Localizable:
     """
     Like :py:meth:`betty.locale.localizable.gettext`.
 
@@ -180,19 +180,19 @@ def _(message: str) -> Localizable:
 
 
 @overload
-def ngettext(message_singular: str, message_plural: str, n: int) -> Localizable:
+def ngettext(message_singular: str, message_plural: str, n: int, /) -> Localizable:
     pass
 
 
 @overload
 def ngettext(
-    message_singular: str, message_plural: str, n: None = None
+    message_singular: str, message_plural: str, n: None = None, /
 ) -> CountableLocalizable:
     pass
 
 
 def ngettext(
-    message_singular: str, message_plural: str, n: int | None = None
+    message_singular: str, message_plural: str, n: int | None = None, /
 ) -> Localizable | CountableLocalizable:
     """
     Like :py:meth:`gettext.ngettext`.
@@ -213,7 +213,7 @@ def ngettext(
     )
 
 
-def pgettext(context: str, message: str) -> Localizable:
+def pgettext(context: str, message: str, /) -> Localizable:
     """
     Like :py:meth:`gettext.pgettext`.
 
@@ -227,20 +227,20 @@ def pgettext(context: str, message: str) -> Localizable:
 
 @overload
 def npgettext(
-    context: str, message_singular: str, message_plural: str, n: int
+    context: str, message_singular: str, message_plural: str, n: int, /
 ) -> Localizable:
     pass
 
 
 @overload
 def npgettext(
-    context: str, message_singular: str, message_plural: str, n: None = None
+    context: str, message_singular: str, message_plural: str, n: None = None, /
 ) -> CountableLocalizable:
     pass
 
 
 def npgettext(
-    context: str, message_singular: str, message_plural: str, n: int | None = None
+    context: str, message_singular: str, message_plural: str, n: int | None = None, /
 ) -> Localizable | CountableLocalizable:
     """
     Like :py:meth:`gettext.npgettext`.
@@ -261,7 +261,10 @@ def npgettext(
 
 class _FormattedLocalizable(Localizable):
     def __init__(
-        self, localizable: Localizable, format_kwargs: Mapping[str, str | Localizable]
+        self,
+        localizable: Localizable,
+        format_kwargs: Mapping[str, str | Localizable],
+        /,
     ):
         self._localizable = localizable
         self._format_kwargs = dict(format_kwargs)
@@ -272,7 +275,7 @@ class _FormattedLocalizable(Localizable):
         return self
 
     @override
-    def localize(self, localizer: Localizer) -> Localized & str:
+    def localize(self, localizer: Localizer, /) -> Localized & str:
         return LocalizedStr(
             self._localizable.localize(localizer).format(
                 **{
@@ -290,12 +293,13 @@ class _FormattedCountableLocalizable(CountableLocalizable):
         self,
         localizable: CountableLocalizable,
         format_kwargs: Mapping[str, str | Localizable],
+        /,
     ):
         self._localizable = localizable
         self._format_kwargs = format_kwargs
 
     @override
-    def count(self, count: int) -> Localizable:
+    def count(self, count: int, /) -> Localizable:
         return _FormattedLocalizable(
             self._localizable.count(count),
             {**self._format_kwargs, "count": str(count)},
@@ -308,12 +312,12 @@ class Plain(Localizable):
     Turns a plain string into a :py:class:`betty.locale.localizable.Localizable` without any actual translations.
     """
 
-    def __init__(self, string: str, locale: str = UNDETERMINED_LOCALE):
+    def __init__(self, string: str, locale: str = UNDETERMINED_LOCALE, /):
         self._string = string
         self._locale = locale
 
     @override
-    def localize(self, localizer: Localizer) -> Localized & str:
+    def localize(self, localizer: Localizer, /) -> Localized & str:
         return LocalizedStr(self._string, locale=self._locale)
 
 
@@ -323,7 +327,7 @@ class CountablePlain(CountableLocalizable):
     Turn plain strings into a :py:class:`betty.locale.localizable.CountableLocalizable` without any actual translations.
     """
 
-    def _default_is_plural(self, count: int) -> bool:
+    def _default_is_plural(self, count: int, /) -> bool:
         # This mimics Python's built-in gettext module.
         return count != 1
 
@@ -335,12 +339,12 @@ class CountablePlain(CountableLocalizable):
         locale: str = UNDETERMINED_LOCALE,
         is_plural: Callable[[int], bool] | None = None,
     ):
-        self._string_singular = Plain(string_singular, locale=locale)
-        self._string_plural = Plain(string_plural, locale=locale)
+        self._string_singular = Plain(string_singular, locale)
+        self._string_plural = Plain(string_plural, locale)
         self._is_plural = is_plural or self._default_is_plural
 
     @override
-    def count(self, count: int) -> Localizable:
+    def count(self, count: int, /) -> Localizable:
         return self._string_plural if self._is_plural(count) else self._string_singular
 
 
@@ -415,7 +419,7 @@ class StaticTranslations(
     def __len__(self) -> int:
         return len(self._translations)
 
-    def replace(self, translations: Self | ShorthandStaticTranslations) -> None:
+    def replace(self, translations: Self | ShorthandStaticTranslations, /) -> None:
         """
         Replace the translations.
         """
@@ -438,7 +442,7 @@ class StaticTranslations(
         return dict(self._translations)
 
     @override
-    def localize(self, localizer: Localizer) -> Localized & str:
+    def localize(self, localizer: Localizer, /) -> Localized & str:
         if len(self._translations) > 1:
             available_locales = tuple(self._translations.keys())
             requested_locale = to_locale(
@@ -477,10 +481,7 @@ class StaticTranslations(
         if type(other) is cls:
             return other
         return cls(
-            {
-                localizer.locale: other.localize(localizer=localizer)
-                for localizer in localizers
-            },
+            {localizer.locale: other.localize(localizer) for localizer in localizers},
             required=required,
         )
 
@@ -527,7 +528,7 @@ class _Join(_LocalizableSequence, Localizable):
     _SEPARATOR: ClassVar[str]
 
     @override
-    def localize(self, localizer: Localizer) -> Localized & str:
+    def localize(self, localizer: Localizer, /) -> Localized & str:
         return LocalizedStr(
             self._SEPARATOR.join(
                 localized
@@ -579,7 +580,7 @@ class _List(_LocalizableSequence, Localizable):
     _TEMPLATE_RIGHT_TO_LEFT = "{localized} {prefix}"
 
     @override
-    def localize(self, localizer: Localizer) -> Localized & str:
+    def localize(self, localizer: Localizer, /) -> Localized & str:
         if not self.localizables:
             return LocalizedStr("")
         localizeds = []
@@ -608,7 +609,7 @@ class _List(_LocalizableSequence, Localizable):
         )
 
     @abstractmethod
-    def _get_prefix(self, localizer: Localizer, index: int) -> str:
+    def _get_prefix(self, localizer: Localizer, index: int, /) -> str:
         pass
 
 
@@ -622,7 +623,7 @@ class OrderedList(_List):
     _PREFIX_TEMPLATE_RIGHT_TO_LEFT = ".{index}"
 
     @override
-    def _get_prefix(self, localizer: Localizer, index: int) -> str:
+    def _get_prefix(self, localizer: Localizer, index: int, /) -> str:
         if localizer.locale_data.character_order == "right-to-left":
             template = self._PREFIX_TEMPLATE_RIGHT_TO_LEFT
         else:
@@ -637,7 +638,7 @@ class UnorderedList(_List):
     """
 
     @override
-    def _get_prefix(self, localizer: Localizer, index: int) -> str:
+    def _get_prefix(self, localizer: Localizer, index: int, /) -> str:
         return "-"
 
 
@@ -645,7 +646,7 @@ class _Enumeration(_LocalizableSequence, Localizable):
     _LOCALIZABLE: ClassVar[Localizable]
 
     @override
-    def localize(self, localizer: Localizer) -> Localized & str:
+    def localize(self, localizer: Localizer, /) -> Localized & str:
         if len(self.localizables) == 0:
             return LocalizedStr("")
         if len(self.localizables) == 1:

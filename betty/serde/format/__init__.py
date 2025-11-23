@@ -85,7 +85,7 @@ class FormatStr(Localizable):
         self._serde_formats = serde_formats
 
     @override
-    def localize(self, localizer: Localizer) -> Localized & str:
+    def localize(self, localizer: Localizer, /) -> Localized & str:
         return LocalizedStr(
             ", ".join(
                 [
