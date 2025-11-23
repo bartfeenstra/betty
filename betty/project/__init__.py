@@ -18,6 +18,7 @@ from typing_extensions import TypeVar, override
 import betty
 import betty.dirs
 from betty.ancestry import Ancestry
+from betty.app.factory import AppFactoryTarget
 from betty.asset import AssetRepository, ProxyAssetRepository, StaticAssetRepository
 from betty.config import Configurable
 from betty.copyright_notice import CopyrightNotice, CopyrightNoticeDefinition
@@ -46,7 +47,7 @@ from betty.plugin.resolve import ResolvableId, resolve_id
 from betty.privacy.privatizer import Privatizer
 from betty.project.config import ProjectConfiguration
 from betty.project.extension import Extension, ExtensionDefinition
-from betty.project.factory import ProjectDependentFactory
+from betty.project.factory import ProjectDependentFactory, ProjectFactoryTarget
 from betty.project.url import new_project_url_generator
 from betty.render import RenderDispatcher, RendererDefinition
 from betty.requirement import Requirement, StaticRequirement
@@ -325,24 +326,10 @@ class Project(
         return initialized_extensions
 
     @override
-    async def new_target(self, cls: type[_T]) -> _T:
-        """
-        Create a new instance.
-
-        :return:
-            #. If ``cls`` extends :py:class:`betty.project.factory.ProjectDependentFactory`, this will call return
-                ``cls``'s ``new()``'s return value.
-            #. If ``cls`` extends :py:class:`betty.app.factory.AppDependentFactory`, this will call return ``cls``'s
-                ``new()``'s return value.
-            #. If ``cls`` extends :py:class:`betty.factory.IndependentFactory`, this will call return ``cls``'s
-                ``new()``'s return value.
-            #. Otherwise ``cls()`` will be called without arguments, and the resulting instance will be returned.
-
-        :raises FactoryError: raised when ``cls`` could not be instantiated.
-        """
-        if issubclass(cls, ProjectDependentFactory):
-            return cast(_T, await cls.new_for_project(self))
-        return await self.app.new_target(cls)
+    async def new_target(self, target: ProjectFactoryTarget[_T]) -> _T:
+        if isinstance(target, type) and issubclass(target, ProjectDependentFactory):
+            return cast(_T, await target.new_for_project(self))
+        return await self.app.new_target(cast(AppFactoryTarget[_T], target))
 
     @property
     def logo(self) -> Path:

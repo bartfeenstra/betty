@@ -4,15 +4,11 @@ The Configuration API.
 
 from __future__ import annotations
 
-from collections.abc import Callable
-from typing import Any, Generic, Self, TypeAlias, TypeVar
+from typing import Any, Generic, Self, TypeVar
 
 from betty.mutability import Mutable
 from betty.serde.dump import Dumpable
 from betty.serde.load import Loadable
-
-_ConfigurationListener: TypeAlias = Callable[[], None]
-ConfigurationListener: TypeAlias = "Configuration | _ConfigurationListener"
 
 
 class Configuration(Mutable, Loadable, Dumpable):
