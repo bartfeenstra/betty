@@ -22,11 +22,11 @@ class _Progress(Progress):
         self.total = 0
 
     @override
-    async def add(self, add: int = 1) -> None:
+    async def add(self, add: int = 1, /) -> None:
         self.total += add
 
     @override
-    async def done(self, done: int = 1) -> None:
+    async def done(self, done: int = 1, /) -> None:
         self.total -= done
 
 

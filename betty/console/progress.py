@@ -29,12 +29,12 @@ class ConsoleProgress(Progress):
         self._total = 0
 
     @override
-    async def add(self, add: int = 1) -> None:
+    async def add(self, add: int = 1, /) -> None:
         async with self._lock:
             self._total += add
             self._rich_progress.update(self._rich_task, total=self._total)
 
     @override
-    async def done(self, done: int = 1) -> None:
+    async def done(self, done: int = 1, /) -> None:
         async with self._lock:
             self._rich_progress.update(self._rich_task, advance=done)
