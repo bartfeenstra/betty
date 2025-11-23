@@ -19,7 +19,7 @@ from betty.assertion import (
     assert_record,
     assert_setattr,
 )
-from betty.config import Configuration, DefaultConfigurable
+from betty.config import Configurable, Configuration
 from betty.config.collections import ConfigurationKey
 from betty.config.collections.mapping import ConfigurationMapping
 from betty.config.collections.sequence import ConfigurationSequence
@@ -208,7 +208,7 @@ class PluginInstanceConfiguration(
     """
     Configure a single plugin instance.
 
-    Plugins that extend :py:class:`betty.config.DefaultConfigurable` may receive their configuration from
+    Plugins that extend :py:class:`betty.config.Configurable` may receive their configuration from
     :py:attr:`betty.plugin.config.PluginInstanceConfiguration.configuration` / the `"configuration"` dump key.
     """
 
@@ -252,7 +252,7 @@ class PluginInstanceConfiguration(
         plugin_definition = cast(ClassedPluginDefinition[_PluginT], repository[self.id])
         plugin = await factory(plugin_definition.cls)
         if not isinstance(self.configuration, Void):
-            if not isinstance(plugin, DefaultConfigurable):
+            if not isinstance(plugin, Configurable):
                 raise HumanFacingException(
                     _(
                         'Plugin "{plugin_id}" is not configurable, but configuration was given.'

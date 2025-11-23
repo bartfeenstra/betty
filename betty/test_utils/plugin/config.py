@@ -6,9 +6,7 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING, ClassVar, Generic, TypeVar, cast, final
 
-from typing_extensions import override
-
-from betty.config import DefaultConfigurable
+from betty.config import Configurable
 from betty.locale.localizable import Plain
 from betty.machine_name import MachineName
 from betty.plugin import PluginDefinition, PluginTypeDefinition
@@ -65,7 +63,7 @@ class PluginDefinitionConfigurationMappingTestBase(
             assert plugin.id == configuration.id
 
 
-class ConfigurableDummyPlugin(DefaultConfigurable[DummyConfiguration]):
+class ConfigurableDummyPlugin(Configurable[DummyConfiguration]):
     """
     A configurable dummy plugin.
     """
@@ -73,12 +71,7 @@ class ConfigurableDummyPlugin(DefaultConfigurable[DummyConfiguration]):
     plugin: ClassVar[ConfigurableDummyPluginDefinition]
 
     def __init__(self):
-        super().__init__(configuration=self.new_default_configuration())
-
-    @override
-    @classmethod
-    def new_default_configuration(cls) -> DummyConfiguration:
-        return DummyConfiguration()
+        super().__init__(configuration=DummyConfiguration())
 
 
 class ConfigurableDummyPluginDefinition(

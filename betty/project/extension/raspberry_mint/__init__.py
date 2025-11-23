@@ -6,11 +6,12 @@ from __future__ import annotations
 
 import json
 from pathlib import Path
-from typing import TYPE_CHECKING, final
+from typing import TYPE_CHECKING, Self, final
 
 import aiofiles
 from typing_extensions import override
 
+from betty.config import Configurable
 from betty.data import Key
 from betty.data import Path as DataPath
 from betty.exception import HumanFacingExceptionGroup
@@ -19,8 +20,8 @@ from betty.job import Job
 from betty.locale.localizable import Chain, Plain, _
 from betty.locale.localizer import DEFAULT_LOCALIZER
 from betty.os import link_or_copy
-from betty.project import ProjectContext
-from betty.project.extension import ConfigurableExtension, ExtensionDefinition
+from betty.project import Project, ProjectContext
+from betty.project.extension import ExtensionDefinition
 from betty.project.extension._theme import jinja2_filters
 from betty.project.extension._theme.search import generate_search_index
 from betty.project.extension.maps import Maps
@@ -117,7 +118,7 @@ class _GenerateWebmanifest(Job[ProjectContext]):
     assets_directory_path=Path(__file__).parent / "assets",
 )
 class RaspberryMint(
-    ConfigurableExtension[RaspberryMintConfiguration],
+    Configurable[RaspberryMintConfiguration],
     Jinja2Provider,
     Generator,
     EntryPointProvider,
@@ -125,6 +126,11 @@ class RaspberryMint(
     """
     The Raspberry Mint theme.
     """
+
+    @override
+    @classmethod
+    async def new_for_project(cls, project: Project, /) -> Self:
+        return cls(project, configuration=RaspberryMintConfiguration())
 
     @override
     async def bootstrap(self) -> None:
@@ -168,11 +174,6 @@ class RaspberryMint(
             self._configuration.secondary_color.hex,
             self._configuration.tertiary_color.hex,
         )
-
-    @override
-    @classmethod
-    def new_default_configuration(cls) -> RaspberryMintConfiguration:
-        return RaspberryMintConfiguration()
 
     @override
     @property

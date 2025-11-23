@@ -2,19 +2,16 @@
 Test utilities for :py:mod:`betty.project.extension`.
 """
 
-from typing import final
+from typing import Self, final
 
 import pytest
 from typing_extensions import override
 
 from betty.app import App
+from betty.config import Configurable
 from betty.locale.localizable import Plain
 from betty.project import Project
-from betty.project.extension import (
-    ConfigurableExtension,
-    Extension,
-    ExtensionDefinition,
-)
+from betty.project.extension import Extension, ExtensionDefinition
 from betty.test_utils.config import DummyConfiguration
 from betty.test_utils.plugin.classed import ClassedPluginDefinitionTestBase
 from betty.test_utils.plugin.dependent import DependentPluginDefinitionTestBase
@@ -56,10 +53,21 @@ class ExtensionTestBase:
 
 @final
 @ExtensionDefinition(
-    id="dummy",
+    id="dummy-one",
     label=Plain(""),
 )
-class DummyExtension(Extension):
+class DummyExtensionOne(Extension):
+    """
+    A dummy :py:class:`betty.project.extension.Extension` implementation.
+    """
+
+
+@final
+@ExtensionDefinition(
+    id="dummy-two",
+    label=Plain(""),
+)
+class DummyExtensionTwo(Extension):
     """
     A dummy :py:class:`betty.project.extension.Extension` implementation.
     """
@@ -70,12 +78,12 @@ class DummyExtension(Extension):
     id="dummy-configurable",
     label=Plain(""),
 )
-class DummyConfigurableExtension(ConfigurableExtension[DummyConfiguration]):
+class DummyConfigurableExtension(Configurable[DummyConfiguration], Extension):
     """
-    A dummy :py:class:`betty.project.extension.ConfigurableExtension` implementation.
+    A dummy :py:class:`betty.config.Configurable` and :py:class:`betty.project.extension.Extension` implementation.
     """
 
     @override
     @classmethod
-    def new_default_configuration(cls) -> DummyConfiguration:
-        return DummyConfiguration()
+    async def new_for_project(cls, project: Project, /) -> Self:
+        return cls(project, configuration=DummyConfiguration())

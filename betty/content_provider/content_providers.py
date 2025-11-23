@@ -8,7 +8,7 @@ from typing import TYPE_CHECKING, Any, Self
 
 from typing_extensions import override
 
-from betty.config import DefaultConfigurable
+from betty.config import Configurable
 from betty.content_provider import ContentProvider, ContentProviderDefinition
 from betty.factory import IndependentFactory
 from betty.html import plain_text_to_html
@@ -31,7 +31,7 @@ if TYPE_CHECKING:
 class PlainText(
     ContentProvider,
     ClassedPlugin,
-    DefaultConfigurable[StaticTranslationsConfiguration],
+    Configurable[StaticTranslationsConfiguration],
     IndependentFactory,
 ):
     """
@@ -41,12 +41,7 @@ class PlainText(
     @override
     @classmethod
     async def new(cls) -> Self:
-        return cls(configuration=cls.new_default_configuration())
-
-    @override
-    @classmethod
-    def new_default_configuration(cls) -> StaticTranslationsConfiguration:
-        return StaticTranslationsConfiguration()
+        return cls(configuration=StaticTranslationsConfiguration())
 
     @override
     async def provide(self, *, resource: Context) -> str | None:
