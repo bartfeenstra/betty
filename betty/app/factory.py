@@ -23,7 +23,7 @@ class AppDependentFactory(HasRequirement):
 
     @classmethod
     @abstractmethod
-    async def new_for_app(cls, app: App) -> Self:
+    async def new_for_app(cls, app: App, /) -> Self:
         """
         Create a new instance using the given app.
         """

@@ -69,7 +69,7 @@ class Extension(ServiceContainer, ProjectDependentFactory, ClassedPlugin):
 
     @override
     @classmethod
-    async def new_for_project(cls, project: Project) -> Self:
+    async def new_for_project(cls, project: Project, /) -> Self:
         return cls(project)
 
     @property
@@ -150,5 +150,5 @@ class ConfigurableExtension(
 
     @override
     @classmethod
-    async def new_for_project(cls, project: Project) -> Self:
+    async def new_for_project(cls, project: Project, /) -> Self:
         return cls(project, configuration=cls.new_default_configuration())

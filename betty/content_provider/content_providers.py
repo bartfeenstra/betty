@@ -64,7 +64,7 @@ class Template(ContentProvider, ClassedPlugin, ProjectDependentFactory):
 
     @override
     @classmethod
-    async def new_for_project(cls, project: Project) -> Self:
+    async def new_for_project(cls, project: Project, /) -> Self:
         return cls(project)
 
     @override

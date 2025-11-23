@@ -147,7 +147,7 @@ class ProjectServer(ProjectDependentFactory, Server):
 
     @override
     @classmethod
-    async def new_for_project(cls, project: Project) -> Self:
+    async def new_for_project(cls, project: Project, /) -> Self:
         return cls(project)
 
 

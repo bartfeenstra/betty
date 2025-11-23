@@ -62,7 +62,7 @@ class WikipediaContributors(AppDependentFactory, CopyrightNotice):
 
     @override
     @classmethod
-    async def new_for_app(cls, app: App) -> Self:
+    async def new_for_app(cls, app: App, /) -> Self:
         return await cls.new(http_client=await app.http_client)
 
     @override
