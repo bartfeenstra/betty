@@ -24,7 +24,7 @@ See :py:func:`betty.machine_name.validate_machine_name`.
 _MACHINE_NAME_PATTERN = re.compile(r"^[a-z0-9\-]{1,250}$")
 
 
-def validate_machine_name(alleged_machine_name: str) -> TypeGuard[MachineName]:
+def validate_machine_name(alleged_machine_name: str, /) -> TypeGuard[MachineName]:
     """
     Validate that a string is a machine name.
     """
@@ -49,7 +49,7 @@ def assert_machine_name() -> AssertionChain[Any, MachineName]:
     Assert that something is a machine name.
     """
 
-    def _assert(value: Any) -> MachineName:
+    def _assert(value: Any, /) -> MachineName:
         if not validate_machine_name(value):
             raise InvalidMachineName(value)
         return value
@@ -61,7 +61,7 @@ _MACHINIFY_DISALLOWED_CHARACTER_PATTERN = re.compile(r"[^a-z0-9\-]")
 _MACHINIFY_HYPHEN_PATTERN = re.compile(r"-{2,}")
 
 
-def machinify(source: str) -> MachineName | None:
+def machinify(source: str, /) -> MachineName | None:
     """
     Attempt to convert a source string into a valid machine name.
     """
