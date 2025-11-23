@@ -36,10 +36,13 @@ jobs:
             os: ubuntu-latest
             nodejs: 24.x
             python: '3.11'
-          - name: 'macOS'
-            os: macos-latest
-            nodejs: 24.x
-            python: '3.14'
+# @todo Temporarily disable macOS builds, because they started failing with "The template is not valid.
+# @todo .github/workflows/test.yml (Line: 60, Col: 16): hashFiles('./pyproject.toml') failed. Fail to hash files under
+# @todo directory '/Users/runner/work/betty/betty'" on 2025-11-23.
+#          - name: 'macOS'
+#            os: macos-latest
+#            nodejs: 24.x
+#            python: '3.14'
           - name: 'Windows'
             os: windows-latest
             nodejs: 24.x
