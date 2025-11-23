@@ -143,7 +143,7 @@ class EntityTypeConfiguration(Configuration):
         }
 
     async def validate(
-        self, entity_type_repository: PluginRepository[EntityDefinition]
+        self, entity_type_repository: PluginRepository[EntityDefinition], /
     ) -> None:
         """
         Validate the configuration.
@@ -166,22 +166,22 @@ class EntityTypeConfigurationMapping(
     """
 
     @override
-    def _get_key(self, configuration: EntityTypeConfiguration) -> MachineName:
+    def _get_key(self, configuration: EntityTypeConfiguration, /) -> MachineName:
         return configuration.id
 
     @override
-    def _load_key(self, item_dump: Dump, key_dump: str) -> Dump:
+    def _load_key(self, item_dump: Dump, key_dump: str, /) -> Dump:
         assert isinstance(item_dump, Mapping)
         item_dump["id"] = key_dump
         return item_dump
 
     @override
-    def _dump_key(self, item_dump: Dump) -> tuple[Dump, str]:
+    def _dump_key(self, item_dump: Dump, /) -> tuple[Dump, str]:
         assert isinstance(item_dump, Mapping)
         return item_dump, cast(str, item_dump.pop("id"))
 
     @override
-    def _load_item(self, dump: Dump) -> EntityTypeConfiguration:
+    def _load_item(self, dump: Dump, /) -> EntityTypeConfiguration:
         # Use a dummy entity type for now to satisfy the initializer.
         # It will be overridden when loading the dump.
         configuration = EntityTypeConfiguration("-")
@@ -189,7 +189,7 @@ class EntityTypeConfigurationMapping(
         return configuration
 
     async def validate(
-        self, entity_type_repository: PluginRepository[EntityDefinition]
+        self, entity_type_repository: PluginRepository[EntityDefinition], /
     ) -> None:
         """
         Validate the configuration.
@@ -264,7 +264,7 @@ class LocaleConfigurationMapping(OrderedConfigurationMapping[str, LocaleConfigur
         self._ensure_locale()
 
     @override
-    def _post_remove(self, configuration: LocaleConfiguration) -> None:
+    def _post_remove(self, configuration: LocaleConfiguration, /) -> None:
         super()._post_remove(configuration)
         self._ensure_locale()
 
@@ -280,13 +280,13 @@ class LocaleConfigurationMapping(OrderedConfigurationMapping[str, LocaleConfigur
         self._ensure_locale()
 
     @override
-    def _load_item(self, dump: Dump) -> LocaleConfiguration:
+    def _load_item(self, dump: Dump, /) -> LocaleConfiguration:
         item = LocaleConfiguration(UNDETERMINED_LOCALE)
         item.load(dump)
         return item
 
     @override
-    def _get_key(self, configuration: LocaleConfiguration) -> str:
+    def _get_key(self, configuration: LocaleConfiguration, /) -> str:
         return configuration.locale
 
     @property
@@ -359,7 +359,7 @@ class CopyrightNoticeDefinitionConfigurationMapping(
     """
 
     @override
-    def _load_item(self, dump: Dump) -> CopyrightNoticeDefinitionConfiguration:
+    def _load_item(self, dump: Dump, /) -> CopyrightNoticeDefinitionConfiguration:
         item = CopyrightNoticeDefinitionConfiguration(
             id="-", label="", summary="", text=""
         )
@@ -368,7 +368,7 @@ class CopyrightNoticeDefinitionConfigurationMapping(
 
     @override
     def _new_plugin(
-        self, configuration: CopyrightNoticeDefinitionConfiguration
+        self, configuration: CopyrightNoticeDefinitionConfiguration, /
     ) -> CopyrightNoticeDefinition:
         class _ProjectConfigurationCopyrightNotice(CopyrightNotice):
             @override
@@ -444,14 +444,14 @@ class LicenseDefinitionConfigurationMapping(
     """
 
     @override
-    def _load_item(self, dump: Dump) -> LicenseDefinitionConfiguration:
+    def _load_item(self, dump: Dump, /) -> LicenseDefinitionConfiguration:
         item = LicenseDefinitionConfiguration(id="-", label="", summary="", text="")
         item.load(dump)
         return item
 
     @override
     def _new_plugin(
-        self, configuration: LicenseDefinitionConfiguration
+        self, configuration: LicenseDefinitionConfiguration, /
     ) -> LicenseDefinition:
         class _ProjectConfigurationLicense(License):
             @override
@@ -490,14 +490,14 @@ class EventTypeDefinitionConfigurationMapping(
     """
 
     @override
-    def _load_item(self, dump: Dump) -> EventTypeDefinitionConfiguration:
+    def _load_item(self, dump: Dump, /) -> EventTypeDefinitionConfiguration:
         item = EventTypeDefinitionConfiguration(id="-", label="")
         item.load(dump)
         return item
 
     @override
     def _new_plugin(
-        self, configuration: EventTypeDefinitionConfiguration
+        self, configuration: EventTypeDefinitionConfiguration, /
     ) -> EventTypeDefinition:
         return EventTypeDefinition(
             id=configuration.id,
@@ -523,14 +523,14 @@ class PlaceTypeDefinitionConfigurationMapping(
     """
 
     @override
-    def _load_item(self, dump: Dump) -> PlaceTypeDefinitionConfiguration:
+    def _load_item(self, dump: Dump, /) -> PlaceTypeDefinitionConfiguration:
         item = PlaceTypeDefinitionConfiguration(id="-", label="")
         item.load(dump)
         return item
 
     @override
     def _new_plugin(
-        self, configuration: PlaceTypeDefinitionConfiguration
+        self, configuration: PlaceTypeDefinitionConfiguration, /
     ) -> PlaceTypeDefinition:
         return PlaceTypeDefinition(
             id=configuration.id,
@@ -556,14 +556,14 @@ class PresenceRoleDefinitionConfigurationMapping(
     """
 
     @override
-    def _load_item(self, dump: Dump) -> PresenceRoleDefinitionConfiguration:
+    def _load_item(self, dump: Dump, /) -> PresenceRoleDefinitionConfiguration:
         item = PresenceRoleDefinitionConfiguration(id="-", label="")
         item.load(dump)
         return item
 
     @override
     def _new_plugin(
-        self, configuration: PresenceRoleDefinitionConfiguration
+        self, configuration: PresenceRoleDefinitionConfiguration, /
     ) -> PresenceRoleDefinition:
         return PresenceRoleDefinition(
             id=configuration.id,
@@ -589,14 +589,14 @@ class GenderDefinitionConfigurationMapping(
     """
 
     @override
-    def _load_item(self, dump: Dump) -> GenderDefinitionConfiguration:
+    def _load_item(self, dump: Dump, /) -> GenderDefinitionConfiguration:
         item = GenderDefinitionConfiguration(id="-", label="")
         item.load(dump)
         return item
 
     @override
     def _new_plugin(
-        self, configuration: GenderDefinitionConfiguration
+        self, configuration: GenderDefinitionConfiguration, /
     ) -> GenderDefinition:
         return GenderDefinition(
             id=configuration.id,
@@ -695,7 +695,9 @@ class ProjectConfiguration(Configuration):
         """
         return self._configuration_file_path
 
-    async def set_configuration_file_path(self, configuration_file_path: Path) -> None:
+    async def set_configuration_file_path(
+        self, configuration_file_path: Path, /
+    ) -> None:
         """
         Set the path to the configuration's file.
         """

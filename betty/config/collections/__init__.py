@@ -92,14 +92,14 @@ class ConfigurationCollection(
         """
         self.remove(*self.keys())
 
-    def _pre_add(self, configuration: _ConfigurationT) -> None:
+    def _pre_add(self, configuration: _ConfigurationT, /) -> None:
         pass
 
-    def _post_remove(self, configuration: _ConfigurationT) -> None:
+    def _post_remove(self, configuration: _ConfigurationT, /) -> None:
         pass
 
     @abstractmethod
-    def _load_item(self, dump: Dump) -> _ConfigurationT:
+    def _load_item(self, dump: Dump, /) -> _ConfigurationT:
         """
         Create and load a new item from the given dump, or raise an assertion error.
 

@@ -179,23 +179,25 @@ class PluginDefinitionConfigurationMapping(
         )
 
     @abstractmethod
-    def _new_plugin(self, configuration: _PluginConfigurationT) -> _PluginDefinitionT:
+    def _new_plugin(
+        self, configuration: _PluginConfigurationT, /
+    ) -> _PluginDefinitionT:
         """
         The plugin (class) for the given configuration.
         """
 
     @override
-    def _get_key(self, configuration: _PluginConfigurationT) -> str:
+    def _get_key(self, configuration: _PluginConfigurationT, /) -> str:
         return configuration.id
 
     @override
-    def _load_key(self, item_dump: Dump, key_dump: str) -> Dump:
+    def _load_key(self, item_dump: Dump, key_dump: str, /) -> Dump:
         assert isinstance(item_dump, Mapping)
         item_dump["id"] = key_dump
         return item_dump
 
     @override
-    def _dump_key(self, item_dump: Dump) -> tuple[Dump, str]:
+    def _dump_key(self, item_dump: Dump, /) -> tuple[Dump, str]:
         assert isinstance(item_dump, Mapping)
         return item_dump, cast(str, item_dump.pop("id"))
 
@@ -317,11 +319,12 @@ class PluginInstanceConfigurationMapping(
     def _get_key(
         self,
         configuration: PluginInstanceConfiguration[_ClassedPluginDefinitionT, _PluginT],
+        /,
     ) -> MachineName:
         return configuration.id
 
     @override
-    def _load_key(self, item_dump: Dump, key_dump: str) -> Dump:
+    def _load_key(self, item_dump: Dump, key_dump: str, /) -> Dump:
         if not item_dump:
             return key_dump
         assert isinstance(item_dump, Mapping)
@@ -329,7 +332,7 @@ class PluginInstanceConfigurationMapping(
         return item_dump
 
     @override
-    def _dump_key(self, item_dump: Dump) -> tuple[Dump, str]:
+    def _dump_key(self, item_dump: Dump, /) -> tuple[Dump, str]:
         if isinstance(item_dump, str):
             return {}, item_dump
         assert isinstance(item_dump, Mapping)
