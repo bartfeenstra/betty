@@ -175,7 +175,7 @@ class Person(HasFileReferences, HasCitations, HasNotes, HasLinks, HasPrivacy):
         return super().label
 
     @override
-    async def dump_linked_data(self, project: Project) -> DumpMapping[Dump]:
+    async def dump_linked_data(self, project: Project, /) -> DumpMapping[Dump]:
         dump = await super().dump_linked_data(project)
         url_generator = await project.url_generator
         dump_context(
@@ -199,7 +199,7 @@ class Person(HasFileReferences, HasCitations, HasNotes, HasLinks, HasPrivacy):
 
     @override
     @classmethod
-    async def linked_data_schema(cls, project: Project) -> JsonLdObject:
+    async def linked_data_schema(cls, project: Project, /) -> JsonLdObject:
         schema = await super().linked_data_schema(project)
         genders = await project.plugins(GenderDefinition)
         schema.add_property("gender", genders.plugin_id_schema, False)

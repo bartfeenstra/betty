@@ -267,7 +267,7 @@ class _ToOneAssociation(
         yield self.__get__(owner, type(owner))
 
     @override
-    async def linked_data_schema_for(self, project: Project) -> Schema:
+    async def linked_data_schema_for(self, project: Project, /) -> Schema:
         if self._linked_data_embedded:
             return await self.associate_type.linked_data_schema(project)
         # We must allow for the associate to be missing, for example if it has a generated entity ID and the linked data
@@ -276,7 +276,7 @@ class _ToOneAssociation(
 
     @override
     async def dump_linked_data_for(
-        self, project: Project, target: _OwnerT & Entity
+        self, project: Project, target: _OwnerT & Entity, /
     ) -> Dump:
         associate = self.__get__(target, type(target))
         if self._linked_data_embedded:
@@ -331,7 +331,7 @@ class _ToZeroOrOneAssociation(
             yield associate
 
     @override
-    async def linked_data_schema_for(self, project: Project) -> Schema:
+    async def linked_data_schema_for(self, project: Project, /) -> Schema:
         if self._linked_data_embedded:
             return OneOf(
                 await self.associate_type.linked_data_schema(project),
@@ -343,7 +343,7 @@ class _ToZeroOrOneAssociation(
 
     @override
     async def dump_linked_data_for(
-        self, project: Project, target: _OwnerT & Entity
+        self, project: Project, target: _OwnerT & Entity, /
     ) -> Dump:
         associate = self.__get__(target, type(target))
         if associate is None:
@@ -412,7 +412,7 @@ class _ToManyAssociation(
             collection.add(*value.resolve())
 
     @override
-    async def linked_data_schema_for(self, project: Project) -> Schema:
+    async def linked_data_schema_for(self, project: Project, /) -> Schema:
         if self._linked_data_embedded:
             return Array(
                 await self.associate_type.linked_data_schema(project),
@@ -423,7 +423,7 @@ class _ToManyAssociation(
 
     @override
     async def dump_linked_data_for(
-        self, project: Project, target: _OwnerT & Entity
+        self, project: Project, target: _OwnerT & Entity, /
     ) -> Dump:
         associates = self.__get__(target, type(target))
         if self._linked_data_embedded:

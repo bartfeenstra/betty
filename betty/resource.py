@@ -134,7 +134,7 @@ class Breadcrumb(LinkedDataDumpable[DumpMapping[Dump]]):
         return self._resource_url
 
     @override
-    async def dump_linked_data(self, project: Project) -> DumpMapping[Dump]:
+    async def dump_linked_data(self, project: Project, /) -> DumpMapping[Dump]:
         dump: DumpMapping[Dump] = {
             "@type": "ListItem",
             "name": self._label,
@@ -171,7 +171,7 @@ class Breadcrumbs(LinkedDataDumpable[DumpMapping[Dump]], Iterable[Breadcrumb], S
         self._breadcrumbs.append(Breadcrumb(label, resource_url))
 
     @override
-    async def dump_linked_data(self, project: Project) -> DumpMapping[Dump]:
+    async def dump_linked_data(self, project: Project, /) -> DumpMapping[Dump]:
         if not self._breadcrumbs:
             return {}
         return {

@@ -75,7 +75,7 @@ class Note(HasPrivacy, HasLinks, HasMediaType):
         return self.text
 
     @override
-    async def dump_linked_data(self, project: Project) -> DumpMapping[Dump]:
+    async def dump_linked_data(self, project: Project, /) -> DumpMapping[Dump]:
         dump = await super().dump_linked_data(project)
         dump["@type"] = "https://schema.org/Thing"
         if is_public(self):
@@ -86,7 +86,7 @@ class Note(HasPrivacy, HasLinks, HasMediaType):
 
     @override
     @classmethod
-    async def linked_data_schema(cls, project: Project) -> JsonLdObject:
+    async def linked_data_schema(cls, project: Project, /) -> JsonLdObject:
         schema = await super().linked_data_schema(project)
         schema.add_property(
             "text",

@@ -171,7 +171,7 @@ class Event(
         return self._event_type
 
     @override
-    async def dump_linked_data(self, project: Project) -> DumpMapping[Dump]:
+    async def dump_linked_data(self, project: Project, /) -> DumpMapping[Dump]:
         dump = await super().dump_linked_data(project)
         dump_context(dump, place="https://schema.org/location")
         dump_context(dump, presences="https://schema.org/performer")
@@ -187,7 +187,7 @@ class Event(
 
     @override
     @classmethod
-    async def linked_data_schema(cls, project: Project) -> JsonLdObject:
+    async def linked_data_schema(cls, project: Project, /) -> JsonLdObject:
         schema = await super().linked_data_schema(project)
         event_types = await project.plugins(EventTypeDefinition)
         schema.add_property(

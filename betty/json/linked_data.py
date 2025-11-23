@@ -30,6 +30,7 @@ async def dump_schema(
     project: Project,
     dump: DumpMapping[Dump],
     linked_data_dumpable: LinkedDataDumpableWithSchema[Object, DumpMapping[Dump]],
+    /,
 ) -> None:
     """
     Add the $schema item to a JSON-LD dump.
@@ -47,7 +48,7 @@ class LinkedDataDumpable(Generic[_DumpT]):
     """
 
     @abstractmethod
-    async def dump_linked_data(self, project: Project) -> _DumpT:
+    async def dump_linked_data(self, project: Project, /) -> _DumpT:
         """
         Dump this instance to `JSON-LD <https://json-ld.org/>`_.
         """
@@ -62,7 +63,7 @@ class LinkedDataDumpableWithSchema(
 
     @classmethod
     @abstractmethod
-    async def linked_data_schema(cls, project: Project) -> _SchemaTypeT:
+    async def linked_data_schema(cls, project: Project, /) -> _SchemaTypeT:
         """
         Define the `JSON Schema <https://json-schema.org/>`_ for :py:meth:`betty.json.linked_data.LinkedDataDumpable.dump_linked_data`.
         """
@@ -101,7 +102,7 @@ class LinkedDataDumpableWithSchemaJsonLdObject(
 
     @override
     @classmethod
-    async def linked_data_schema(cls, project: Project) -> JsonLdObject:
+    async def linked_data_schema(cls, project: Project, /) -> JsonLdObject:
         schema = JsonLdObject()
         for attr_name, class_attr_value in getmembers(cls):
             if isinstance(class_attr_value, LinkedDataDumpableProvider):
@@ -114,7 +115,7 @@ class LinkedDataDumpableWithSchemaJsonLdObject(
         return schema
 
     @override
-    async def dump_linked_data(self, project: Project) -> DumpMapping[Dump]:
+    async def dump_linked_data(self, project: Project, /) -> DumpMapping[Dump]:
         dump: DumpMapping[Dump] = {}
 
         await dump_schema(project, dump, self)
@@ -134,13 +135,13 @@ class LinkedDataDumpableProvider(Generic[_T, _SchemaTypeT, _DumpT], ABC):
     """
 
     @abstractmethod
-    async def linked_data_schema_for(self, project: Project) -> _SchemaTypeT:
+    async def linked_data_schema_for(self, project: Project, /) -> _SchemaTypeT:
         """
         Define the `JSON Schema <https://json-schema.org/>`_ for :py:meth:`betty.json.linked_data.LinkedDataDumpableProvider.dump_linked_data_for`.
         """
 
     @abstractmethod
-    async def dump_linked_data_for(self, project: Project, target: _T) -> _DumpT:
+    async def dump_linked_data_for(self, project: Project, target: _T, /) -> _DumpT:
         """
         Dump the given target to `JSON-LD <https://json-ld.org/>`_.
         """

@@ -170,7 +170,7 @@ class Place(HasLinks, HasFileReferences, HasNotes, HasPrivacy):
         return super().label
 
     @override
-    async def dump_linked_data(self, project: Project) -> DumpMapping[Dump]:
+    async def dump_linked_data(self, project: Project, /) -> DumpMapping[Dump]:
         dump = await super().dump_linked_data(project)
         dump_context(
             dump,
@@ -200,7 +200,7 @@ class Place(HasLinks, HasFileReferences, HasNotes, HasPrivacy):
 
     @override
     @classmethod
-    async def linked_data_schema(cls, project: Project) -> JsonLdObject:
+    async def linked_data_schema(cls, project: Project, /) -> JsonLdObject:
         schema = await super().linked_data_schema(project)
         schema.add_property(
             "names", Array(await Name.linked_data_schema(project), title="Names")

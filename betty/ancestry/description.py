@@ -38,7 +38,7 @@ class HasDescription(LinkedDataDumpableWithSchemaJsonLdObject):
 
     @override
     @classmethod
-    async def linked_data_schema(cls, project: Project) -> JsonLdObject:
+    async def linked_data_schema(cls, project: Project, /) -> JsonLdObject:
         schema = await super().linked_data_schema(project)
         schema.add_property(
             "description",
@@ -48,7 +48,7 @@ class HasDescription(LinkedDataDumpableWithSchemaJsonLdObject):
         return schema
 
     @override
-    async def dump_linked_data(self, project: Project) -> DumpMapping[Dump]:
+    async def dump_linked_data(self, project: Project, /) -> DumpMapping[Dump]:
         dump = await super().dump_linked_data(project)
         dump_context(dump, description="https://schema.org/description")
         if self.description is not None and is_public(self):

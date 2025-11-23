@@ -35,7 +35,7 @@ class HasMediaType(LinkedDataDumpableWithSchemaJsonLdObject):
         self.media_type = media_type
 
     @override
-    async def dump_linked_data(self, project: Project) -> DumpMapping[Dump]:
+    async def dump_linked_data(self, project: Project, /) -> DumpMapping[Dump]:
         dump = await super().dump_linked_data(project)
         if is_public(self) and self.media_type is not None:
             dump["mediaType"] = str(self.media_type)
@@ -43,7 +43,7 @@ class HasMediaType(LinkedDataDumpableWithSchemaJsonLdObject):
 
     @override
     @classmethod
-    async def linked_data_schema(cls, project: Project) -> JsonLdObject:
+    async def linked_data_schema(cls, project: Project, /) -> JsonLdObject:
         schema = await super().linked_data_schema(project)
         schema.add_property("mediaType", MediaTypeSchema(), False)
         return schema
