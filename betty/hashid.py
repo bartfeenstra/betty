@@ -11,11 +11,11 @@ import aiofiles
 from aiofiles.os import stat
 
 
-def _hashid_bytes(key: bytes) -> str:
+def _hashid_bytes(key: bytes, /) -> str:
     return md5(key, usedforsecurity=False).hexdigest()
 
 
-def hashid(key: bytes | str) -> str:
+def hashid(key: bytes | str, /) -> str:
     """
     Create a hash ID for a key.
     """
@@ -31,7 +31,7 @@ def hashid_sequence(*keys: bytes | str) -> str:
     return hashid(":".join(map(hashid, keys)))
 
 
-async def hashid_file_meta(file_path: Path) -> str:
+async def hashid_file_meta(file_path: Path, /) -> str:
     """
     Create a hash ID for a file based on its metadata.
 
@@ -45,7 +45,7 @@ async def hashid_file_meta(file_path: Path) -> str:
     )
 
 
-async def hashid_file_content(file_path: Path) -> str:
+async def hashid_file_content(file_path: Path, /) -> str:
     """
     Create a hash ID for a file based on its contents.
 
