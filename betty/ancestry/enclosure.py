@@ -31,7 +31,6 @@ class Enclosure(HasDate, HasCitations, Entity):
     Enclosures describe the outer (```encloser`) and inner(``enclosee``) places, and their relationship.
     """
 
-    #: The outer place.
     encloser = BidirectionalToOne["Enclosure", "Place"](
         "betty.ancestry.enclosure:Enclosure",
         "encloser",
@@ -40,7 +39,10 @@ class Enclosure(HasDate, HasCitations, Entity):
         title="Encloser",
         description="The place that encloses or contains the enclosee",
     )
-    #: The inner place.
+    """
+    The outer place.
+    """
+
     enclosee = BidirectionalToOne["Enclosure", "Place"](
         "betty.ancestry.enclosure:Enclosure",
         "enclosee",
@@ -49,6 +51,9 @@ class Enclosure(HasDate, HasCitations, Entity):
         title="Enclosee",
         description="The place that is enclosed or contained by the encloser",
     )
+    """
+    The inner place.
+    """
 
     def __init__(
         self, enclosee: ToOneAssociate[Place], encloser: ToOneAssociate[Place]

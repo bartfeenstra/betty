@@ -26,17 +26,23 @@ class Privacy(enum.Enum):
     The available privacy modes.
     """
 
-    #: The resource is explicitly made public.
     PUBLIC = 1
+    """
+    The resource is explicitly made public.
+    """
 
-    #: The resource is explicitly made private.
     PRIVATE = 2
+    """
+    The resource is explicitly made private.
+    """
 
-    #: The resource has no explicit privacy. This means that:
-    #:
-    #: - it may be changed at will
-    #: - when checking access, UNDETERMINED evaluates to PUBLIC.
     UNDETERMINED = 3
+    """
+    The resource has no explicit privacy. This means that:
+    
+    - it may be changed at will
+    - when checking access, UNDETERMINED evaluates to PUBLIC.
+    """
 
 
 class HasPrivacy(LinkedDataDumpableWithSchemaJsonLdObject):

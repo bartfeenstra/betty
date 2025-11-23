@@ -80,8 +80,10 @@ class ShutdownCallbackKwargs(TypedDict):
     The keyword arguments to a shutdown callback.
     """
 
-    #: ``True`` to wait for the component to shut down gracefully, or ``False`` to attempt an immediate forced shutdown.
     wait: bool
+    """
+    ``True`` to wait for the component to shut down gracefully, or ``False`` to attempt an immediate forced shutdown.
+    """
 
 
 ShutdownCallback: TypeAlias = Callable[

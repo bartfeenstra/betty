@@ -38,7 +38,6 @@ class PersonName(HasLocale, HasCitations, HasPrivacy, Entity):
     A name for a :py:class:`betty.ancestry.person.Person`.
     """
 
-    #: The person whose name this is.
     person = BidirectionalToOne["PersonName", "Person"](
         "betty.ancestry.person_name:PersonName",
         "person",
@@ -46,6 +45,9 @@ class PersonName(HasLocale, HasCitations, HasPrivacy, Entity):
         "names",
         title="Person",
     )
+    """
+    The person whose name this is.
+    """
 
     def __init__(
         self,

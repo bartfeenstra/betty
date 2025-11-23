@@ -52,6 +52,10 @@ class Citation(HasDate, HasFileReferences, HasPrivacy, HasLinks):
         title="Facts",
         description="The other entities that reference these citations to back up their claims.",
     )
+    """
+    The other entities that reference these citations to back up their claims.
+    """
+
     source = BidirectionalToOne["Citation", Source](
         "betty.ancestry.citation:Citation",
         "source",
@@ -60,6 +64,9 @@ class Citation(HasDate, HasFileReferences, HasPrivacy, HasLinks):
         title="Source",
         description="The source this citation references.",
     )
+    """
+    The source this citation references.
+    """
 
     def __init__(
         self,

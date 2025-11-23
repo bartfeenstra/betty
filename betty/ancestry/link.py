@@ -45,10 +45,11 @@ class Link(StdLink, HasMediaType, HasDescription, HasPrivacy, Entity):
     An external link.
     """
 
-    #: The link's `IANA link relationship <https://www.iana.org/assignments/link-relations/link-relations.xhtml>`_.
     relationship: str | None
+    """
+    The link's `IANA link relationship <https://www.iana.org/assignments/link-relations/link-relations.xhtml>`_.
+    """
 
-    #: The entity hat owns the link.
     owner = BidirectionalToZeroOrOne["Link", "HasLinks"](
         "betty.ancestry.link:Link",
         "owner",
@@ -56,6 +57,9 @@ class Link(StdLink, HasMediaType, HasDescription, HasPrivacy, Entity):
         "links",
         title="Owner",
     )
+    """
+    The entity hat owns the link.
+    """
 
     def __init__(
         self,

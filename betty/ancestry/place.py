@@ -60,6 +60,10 @@ class Place(HasLinks, HasFileReferences, HasNotes, HasPrivacy):
         title="Events",
         description="The events that happened in this place",
     )
+    """
+    The events that happened here.
+    """
+
     enclosers = BidirectionalToManySingleType["Place", "Enclosure"](
         "betty.ancestry.place:Place",
         "encloser",
@@ -69,6 +73,10 @@ class Place(HasLinks, HasFileReferences, HasNotes, HasPrivacy):
         description="The places this place is enclosed or contained by",
         linked_data_embedded=True,
     )
+    """
+    Other places containing this one.
+    """
+
     enclosees = BidirectionalToManySingleType["Place", "Enclosure"](
         "betty.ancestry.place:Place",
         "enclosee",
@@ -78,6 +86,9 @@ class Place(HasLinks, HasFileReferences, HasNotes, HasPrivacy):
         description="The places this place encloses or contains",
         linked_data_embedded=True,
     )
+    """
+    Other places contained by this one.
+    """
 
     def __init__(
         self,

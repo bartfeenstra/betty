@@ -38,7 +38,6 @@ class Presence(HasPrivacy, Entity):
     The presence of a :py:class:`betty.ancestry.person.Person` at an :py:class:`betty.ancestry.event.Event`.
     """
 
-    #: The person whose presence is described.
     person = BidirectionalToOne["Presence", "Person"](
         "betty.ancestry.presence:Presence",
         "person",
@@ -46,7 +45,10 @@ class Presence(HasPrivacy, Entity):
         "presences",
         title="Person",
     )
-    #: The event the person was present at.
+    """
+    The person whose presence is described.
+    """
+
     event = BidirectionalToOne["Presence", "Event"](
         "betty.ancestry.presence:Presence",
         "event",
@@ -54,8 +56,14 @@ class Presence(HasPrivacy, Entity):
         "presences",
         title="Event",
     )
-    #: The role the person performed at the event.
+    """
+    The event the person was present at.
+    """
+
     role: PresenceRole
+    """
+    The role the person performed at the event.
+    """
 
     def __init__(
         self,

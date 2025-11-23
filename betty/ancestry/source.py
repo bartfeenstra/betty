@@ -52,7 +52,6 @@ class Source(HasDate, HasFileReferences, HasNotes, HasLinks, HasPrivacy, Entity)
     A source of information.
     """
 
-    #: The source this one is directly contained by.
     contained_by = BidirectionalToZeroOrOne["Source", "Source"](
         "betty.ancestry.source:Source",
         "contained_by",
@@ -61,6 +60,9 @@ class Source(HasDate, HasFileReferences, HasNotes, HasLinks, HasPrivacy, Entity)
         title="Contained by",
         description="Another source this source may be contained by",
     )
+    """
+    Another source this source may be contained by
+    """
     contains = BidirectionalToManySingleType["Source", "Source"](
         "betty.ancestry.source:Source",
         "contains",
@@ -69,6 +71,9 @@ class Source(HasDate, HasFileReferences, HasNotes, HasLinks, HasPrivacy, Entity)
         title="Contains",
         description="Other sources this source may contain",
     )
+    """
+    Other sources this source may contain
+    """
     citations = BidirectionalToManySingleType["Source", "Citation"](
         "betty.ancestry.source:Source",
         "citations",
@@ -77,6 +82,9 @@ class Source(HasDate, HasFileReferences, HasNotes, HasLinks, HasPrivacy, Entity)
         title="Citations",
         description="The citations referencing this source",
     )
+    """
+    The citations referencing this source
+    """
 
     def __init__(
         self,
