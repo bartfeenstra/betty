@@ -26,7 +26,7 @@ class ConfigurationSequenceTestConfiguration(Configuration):
         self.value = configuration_value
 
     @override
-    def load(self, dump: Dump) -> None:
+    def load(self, dump: Dump, /) -> None:
         assert_record(
             RequiredField("value", assert_int() | assert_setattr(self, "value")),
         )(dump)

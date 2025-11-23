@@ -93,7 +93,7 @@ class PluginDefinitionConfiguration(Configuration):
         return self._id
 
     @override
-    def load(self, dump: Dump) -> None:
+    def load(self, dump: Dump, /) -> None:
         self.assert_mutable()
         assert_record(
             RequiredField("id", assert_machine_name() | assert_setattr(self, "_id")),
@@ -127,7 +127,7 @@ class HumanFacingPluginDefinitionConfiguration(PluginDefinitionConfiguration):
             self.description = description
 
     @override
-    def load(self, dump: Dump) -> None:
+    def load(self, dump: Dump, /) -> None:
         self.assert_mutable()
 
         mapping = assert_mapping()(dump)
@@ -260,7 +260,7 @@ class PluginInstanceConfiguration(
         return plugin
 
     @override
-    def load(self, dump: Dump) -> None:
+    def load(self, dump: Dump, /) -> None:
         self.assert_mutable()
         id_assertion = assert_machine_name() | assert_setattr(self, "_id")
         assert_or(

@@ -77,7 +77,7 @@ class PluginMapping(Generic[_ClassedPluginDefinitionT, _PluginT], Configuration)
         }
 
     @override
-    def load(self, dump: Dump) -> None:
+    def load(self, dump: Dump, /) -> None:
         self.assert_mutable()
         self._mapping = {
             **self._default_mapping,
@@ -228,7 +228,7 @@ class FamilyTreeConfiguration(Configuration):
         return self._presence_roles
 
     @override
-    def load(self, dump: Dump) -> None:
+    def load(self, dump: Dump, /) -> None:
         self.assert_mutable()
         dump = assert_mapping()(dump)
         if (
@@ -322,7 +322,7 @@ class GrampsConfiguration(Configuration):
         self._executable = executable
 
     @override
-    def load(self, dump: Dump) -> None:
+    def load(self, dump: Dump, /) -> None:
         self.assert_mutable()
         assert_record(
             OptionalField("family_trees", self.family_trees.load),

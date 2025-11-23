@@ -17,7 +17,7 @@ class Loadable(ABC):
     """
 
     @abstractmethod
-    def load(self, dump: Dump) -> None:
+    def load(self, dump: Dump, /) -> None:
         """
         Load a serialized data dump into ``self``.
 

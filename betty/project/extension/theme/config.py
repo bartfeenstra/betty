@@ -75,7 +75,7 @@ class RegionalContentConfiguration(Configuration):
         self._content[region].append(*content)
 
     @override
-    def load(self, dump: Dump) -> None:
+    def load(self, dump: Dump, /) -> None:
         self._content.clear()
         dump = assert_mapping(None, assert_str())(dump)
         assert_len(minimum=1)(dump)

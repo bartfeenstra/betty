@@ -29,7 +29,7 @@ class StaticTranslationsConfiguration(Configuration, StaticTranslations):
     """
 
     @override
-    def load(self, dump: Dump) -> None:
+    def load(self, dump: Dump, /) -> None:
         self._translations.clear()
 
         translations = assert_static_translations()(dump)

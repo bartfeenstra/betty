@@ -88,7 +88,7 @@ class RaspberryMintConfiguration(Configuration):
         return self._regional_content
 
     @override
-    def load(self, dump: Dump) -> None:
+    def load(self, dump: Dump, /) -> None:
         self.assert_mutable()
         assert_record(
             OptionalField("primary_color", self.primary_color.load),

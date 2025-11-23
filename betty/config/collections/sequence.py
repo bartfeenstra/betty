@@ -76,7 +76,7 @@ class ConfigurationSequence(
         self.append(*configurations)
 
     @override
-    def load(self, dump: Dump) -> None:
+    def load(self, dump: Dump, /) -> None:
         self.assert_mutable()
         self.replace(*assert_sequence(self._load_item)(dump))
 

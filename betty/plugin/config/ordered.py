@@ -48,7 +48,7 @@ class OrderedPluginDefinitionConfiguration(PluginDefinitionConfiguration):
         )
 
     @override
-    def load(self, dump: Dump) -> None:
+    def load(self, dump: Dump, /) -> None:
         self.assert_mutable()
 
         mapping = assert_mapping()(dump)
