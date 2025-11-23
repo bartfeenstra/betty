@@ -29,7 +29,7 @@ class UserHandler(logging.Handler):
     Output log records through a :py:class`betty.user.User`.
     """
 
-    def __init__(self, user: User):
+    def __init__(self, user: User, /):
         super().__init__()
         self._started = False
         self._user = user

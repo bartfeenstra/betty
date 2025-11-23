@@ -95,7 +95,7 @@ class User(ABC):
         """
 
     @abstractmethod
-    async def set_verbosity(self, verbosity: Verbosity) -> None:
+    async def set_verbosity(self, verbosity: Verbosity, /) -> None:
         """
         Set the new verbosity.
         """
@@ -111,7 +111,7 @@ class User(ABC):
         """
 
     @abstractmethod
-    async def message_error(self, message: Localizable) -> None:
+    async def message_error(self, message: Localizable, /) -> None:
         """
         Send an error message to the user.
 
@@ -121,7 +121,7 @@ class User(ABC):
         """
 
     @abstractmethod
-    async def message_warning(self, message: Localizable) -> None:
+    async def message_warning(self, message: Localizable, /) -> None:
         """
         Send a warning message to the user.
 
@@ -132,7 +132,7 @@ class User(ABC):
         """
 
     @abstractmethod
-    async def message_information(self, message: Localizable) -> None:
+    async def message_information(self, message: Localizable, /) -> None:
         """
         Send a summarized informative message to the user.
 
@@ -143,7 +143,7 @@ class User(ABC):
         """
 
     @abstractmethod
-    async def message_information_details(self, message: Localizable) -> None:
+    async def message_information_details(self, message: Localizable, /) -> None:
         """
         Send a detailed informative message to the user.
 
@@ -154,7 +154,7 @@ class User(ABC):
         """
 
     @abstractmethod
-    async def message_debug(self, message: Localizable) -> None:
+    async def message_debug(self, message: Localizable, /) -> None:
         """
         Send a debugging message to the user.
 
@@ -162,7 +162,7 @@ class User(ABC):
         """
 
     @abstractmethod
-    async def message_log(self, message: logging.LogRecord) -> None:
+    async def message_log(self, message: logging.LogRecord, /) -> None:
         """
         Send a log message to the user.
 
@@ -171,7 +171,7 @@ class User(ABC):
 
     @abstractmethod
     def message_progress(
-        self, message: Localizable
+        self, message: Localizable, /
     ) -> AbstractAsyncContextManager[Progress]:
         """
         Send information about a progressing activity to the user.

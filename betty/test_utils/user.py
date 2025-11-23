@@ -48,7 +48,7 @@ class StaticUser(User):  # pragma: no cover
         self._log_formatter = logging.Formatter()
 
     @override
-    async def set_verbosity(self, verbosity: Verbosity) -> None:
+    async def set_verbosity(self, verbosity: Verbosity, /) -> None:
         self.verbosity = verbosity
 
     @override
@@ -223,32 +223,34 @@ class StaticUser(User):  # pragma: no cover
         self._messages_exception.append(exception)
 
     @override
-    async def message_error(self, message: Localizable) -> None:
+    async def message_error(self, message: Localizable, /) -> None:
         self._messages_error.append(message)
 
     @override
-    async def message_warning(self, message: Localizable) -> None:
+    async def message_warning(self, message: Localizable, /) -> None:
         self._messages_warning.append(message)
 
     @override
-    async def message_information(self, message: Localizable) -> None:
+    async def message_information(self, message: Localizable, /) -> None:
         self._messages_information.append(message)
 
     @override
-    async def message_information_details(self, message: Localizable) -> None:
+    async def message_information_details(self, message: Localizable, /) -> None:
         self._messages_information_details.append(message)
 
     @override
-    async def message_debug(self, message: Localizable) -> None:
+    async def message_debug(self, message: Localizable, /) -> None:
         self._messages_debug.append(message)
 
     @override
-    async def message_log(self, message: logging.LogRecord) -> None:
+    async def message_log(self, message: logging.LogRecord, /) -> None:
         self._messages_log.append(message)
 
     @override
     @asynccontextmanager
-    async def message_progress(self, message: Localizable) -> AsyncIterator[Progress]:
+    async def message_progress(
+        self, message: Localizable, /
+    ) -> AsyncIterator[Progress]:
         yield NoOpProgress()
 
     @override

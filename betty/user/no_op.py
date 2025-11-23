@@ -28,7 +28,7 @@ class NoOpUser(User):
     verbosity = Verbosity.DEFAULT
 
     @override
-    async def set_verbosity(self, verbosity: Verbosity) -> None:
+    async def set_verbosity(self, verbosity: Verbosity, /) -> None:
         self.verbosity = verbosity
 
     @override
@@ -36,32 +36,34 @@ class NoOpUser(User):
         pass
 
     @override
-    async def message_error(self, message: Localizable) -> None:
+    async def message_error(self, message: Localizable, /) -> None:
         pass
 
     @override
-    async def message_warning(self, message: Localizable) -> None:
+    async def message_warning(self, message: Localizable, /) -> None:
         pass
 
     @override
-    async def message_information(self, message: Localizable) -> None:
+    async def message_information(self, message: Localizable, /) -> None:
         pass
 
     @override
-    async def message_information_details(self, message: Localizable) -> None:
+    async def message_information_details(self, message: Localizable, /) -> None:
         pass
 
     @override
-    async def message_debug(self, message: Localizable) -> None:
+    async def message_debug(self, message: Localizable, /) -> None:
         pass
 
     @override
-    async def message_log(self, message: logging.LogRecord) -> None:
+    async def message_log(self, message: logging.LogRecord, /) -> None:
         pass
 
     @override
     @asynccontextmanager
-    async def message_progress(self, message: Localizable) -> AsyncIterator[Progress]:
+    async def message_progress(
+        self, message: Localizable, /
+    ) -> AsyncIterator[Progress]:
         yield NoOpProgress()
 
     @override
