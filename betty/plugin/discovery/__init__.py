@@ -15,7 +15,7 @@ from betty.typing import internal
 if TYPE_CHECKING:
     from collections.abc import Collection, Iterable
 
-    from betty.service.level import ServiceProviderLevel
+    from betty.service.level import ServiceLevel
 
 _PluginDefinitionT = TypeVar(
     "_PluginDefinitionT", bound=PluginDefinition, default=PluginDefinition
@@ -29,16 +29,14 @@ class PluginDiscovery(Generic[_PluginDefinitionT], ABC):
     """
 
     @abstractmethod
-    async def discover(
-        self, services: ServiceProviderLevel, /
-    ) -> Iterable[_PluginDefinitionT]:
+    async def discover(self, services: ServiceLevel, /) -> Iterable[_PluginDefinitionT]:
         """
         Get the definitions for this plugin type.
         """
 
 
 async def discover(
-    services: ServiceProviderLevel,
+    services: ServiceLevel,
     *discoveries: PluginDiscovery[_PluginDefinitionT],
 ) -> Collection[_PluginDefinitionT]:
     """

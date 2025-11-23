@@ -145,7 +145,7 @@ _BASELINE: Mapping[str, _ModuleIgnore] = {
             "append": MissingReason.COVERED_ELSEWHERE,
         },
     },
-    "betty/service/provider.py": {
+    "betty/service/container.py": {
         "ServiceInitializedError": MissingReason.ABSTRACT,
     },
     "betty/data.py": {

@@ -13,7 +13,7 @@ from betty.requirement import HasRequirement, Requirement
 
 if TYPE_CHECKING:
     from betty.project import Project
-    from betty.service.level import ServiceProviderLevel
+    from betty.service.level import ServiceLevel
 
 
 class ProjectDependentFactory(HasRequirement):
@@ -30,7 +30,7 @@ class ProjectDependentFactory(HasRequirement):
 
     @override
     @classmethod
-    async def requirement(cls, services: ServiceProviderLevel, /) -> Requirement | None:
+    async def requirement(cls, services: ServiceLevel, /) -> Requirement | None:
         from betty.project import Project
 
         return await Project.requirement_for(services, str(cls))

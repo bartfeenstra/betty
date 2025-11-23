@@ -1,5 +1,5 @@
 """
-Service provider levels.
+Service levels.
 """
 
 from typing import TypeAlias
@@ -7,11 +7,11 @@ from typing import TypeAlias
 from betty.app import App
 from betty.project import Project
 
-ServiceProviderLevel: TypeAlias = None | App | Project
+ServiceLevel: TypeAlias = None | App | Project
 """
-A service provider level.
+A service level.
 
-A runtime Betty application consists of three types of service providers:
+A runtime Betty application consists of three types of service containers:
 
 - :py:class:`betty.app.App`
 - :py:class:`betty.project.Project`

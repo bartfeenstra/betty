@@ -18,20 +18,20 @@ from betty.plugin.ordered import OrderedPluginDefinition
 from betty.plugin.requirement import new_dependencies_requirement
 from betty.project.factory import ProjectDependentFactory
 from betty.requirement import Requirement, StaticRequirement
-from betty.service.provider import ServiceProvider
+from betty.service.container import ServiceContainer
 
 if TYPE_CHECKING:
     from pathlib import Path
 
     from betty.project import Project
-    from betty.service.level import ServiceProviderLevel
+    from betty.service.level import ServiceLevel
 
 _T = TypeVar("_T")
 _ConfigurationT = TypeVar("_ConfigurationT", bound=Configuration)
 _ContextT = TypeVar("_ContextT", bound=Context)
 
 
-class Extension(ServiceProvider, ProjectDependentFactory, ClassedPlugin):
+class Extension(ServiceContainer, ProjectDependentFactory, ClassedPlugin):
     """
     Integrate optional functionality with Betty :py:class:`betty.project.Project`s.
 
@@ -50,7 +50,7 @@ class Extension(ServiceProvider, ProjectDependentFactory, ClassedPlugin):
     @override
     @classmethod
     async def requires(
-        cls, services: ServiceProviderLevel, subject: Localizable | str, /
+        cls, services: ServiceLevel, subject: Localizable | str, /
     ) -> Requirement | Self:
         from betty.project import Project
 
@@ -81,7 +81,7 @@ class Extension(ServiceProvider, ProjectDependentFactory, ClassedPlugin):
 
     @override
     @classmethod
-    async def requirement(cls, services: ServiceProviderLevel, /) -> Requirement | None:
+    async def requirement(cls, services: ServiceLevel, /) -> Requirement | None:
         from betty.project import Project
 
         project = await Project.requires(services, cls.plugin.reference_label_with_type)

@@ -40,13 +40,13 @@ from betty.plugin import PluginDefinition
 from betty.plugin.ordered import sort_ordered_plugin_graph
 from betty.plugin.repository.provider import PluginRepositoryProvider
 from betty.plugin.repository.provider.service import (
-    ServicesPluginRepositoryProvider,
+    ServiceLevelPluginRepositoryProvider,
 )
 from betty.plugin.repository.static import StaticPluginRepository
 from betty.requirement import Requirement, StaticRequirement
-from betty.service.provider import (
+from betty.service.container import (
+    ServiceContainer,
     ServiceFactory,
-    ServiceProvider,
     StaticService,
     service,
 )
@@ -62,7 +62,7 @@ if TYPE_CHECKING:
     from betty.cache import Cache
     from betty.machine_name import MachineName
     from betty.plugin.repository import PluginRepository
-    from betty.service.level import ServiceProviderLevel
+    from betty.service.level import ServiceLevel
     from betty.user import User
 
 _T = TypeVar("_T")
@@ -76,7 +76,7 @@ _PluginDefinitionT = TypeVar(
 class App(
     Configurable[AppConfiguration],
     TargetFactory,
-    ServiceProvider,
+    ServiceContainer,
     PluginRepositoryProvider,
 ):
     """
@@ -104,12 +104,12 @@ class App(
             cls.translations.override(self, translations)
         self._cache_directory_path = cache_directory_path
         cls.cache.override_factory(self, cache_factory)
-        self._plugin_repository_provider = ServicesPluginRepositoryProvider(self)
+        self._plugin_repository_provider = ServiceLevelPluginRepositoryProvider(self)
 
     @override
     @classmethod
     async def requires(
-        cls, services: ServiceProviderLevel, subject: Localizable | str, /
+        cls, services: ServiceLevel, subject: Localizable | str, /
     ) -> Requirement | Self:
         if services is None:
             return StaticRequirement(

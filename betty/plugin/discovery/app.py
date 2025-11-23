@@ -17,7 +17,7 @@ if TYPE_CHECKING:
     from collections.abc import Awaitable, Callable, Iterable
 
     from betty.app import App
-    from betty.service.level import ServiceProviderLevel
+    from betty.service.level import ServiceLevel
 
 
 _PluginDefinitionT = TypeVar(
@@ -41,9 +41,7 @@ class AppDiscovery(PluginDiscovery[_PluginDefinitionT], Generic[_PluginDefinitio
         self._discovery = discovery
 
     @override
-    async def discover(
-        self, services: ServiceProviderLevel, /
-    ) -> Iterable[_PluginDefinitionT]:
+    async def discover(self, services: ServiceLevel, /) -> Iterable[_PluginDefinitionT]:
         from betty.project import Project
 
         if services is None:

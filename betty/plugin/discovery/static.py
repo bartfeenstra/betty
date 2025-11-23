@@ -14,7 +14,7 @@ from betty.plugin.discovery import PluginDiscovery
 if TYPE_CHECKING:
     from collections.abc import Iterable
 
-    from betty.service.level import ServiceProviderLevel
+    from betty.service.level import ServiceLevel
 
 
 _PluginDefinitionT = TypeVar(
@@ -32,7 +32,5 @@ class StaticDiscovery(PluginDiscovery[_PluginDefinitionT], Generic[_PluginDefini
         self._plugins = plugins
 
     @override
-    async def discover(
-        self, services: ServiceProviderLevel, /
-    ) -> Iterable[_PluginDefinitionT]:
+    async def discover(self, services: ServiceLevel, /) -> Iterable[_PluginDefinitionT]:
         return self._plugins

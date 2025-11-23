@@ -40,7 +40,7 @@ from betty.plugin import PluginDefinition
 from betty.plugin.dependent import sort_dependent_plugin_graph
 from betty.plugin.repository.provider import PluginRepositoryProvider
 from betty.plugin.repository.provider.service import (
-    ServicesPluginRepositoryProvider,
+    ServiceLevelPluginRepositoryProvider,
 )
 from betty.plugin.resolve import ResolvableId, resolve_id
 from betty.privacy.privatizer import Privatizer
@@ -52,7 +52,7 @@ from betty.render import RenderDispatcher, RendererDefinition
 from betty.requirement import Requirement, StaticRequirement
 from betty.resource import Context as ResourceContext
 from betty.resource import ContextProvider, new_context
-from betty.service.provider import ServiceProvider, service
+from betty.service.container import ServiceContainer, service
 from betty.string import kebab_case_to_lower_camel_case
 from betty.typing import internal
 
@@ -66,7 +66,7 @@ if TYPE_CHECKING:
     from betty.machine_name import MachineName
     from betty.plugin.repository import PluginRepository
     from betty.progress import Progress
-    from betty.service.level import ServiceProviderLevel
+    from betty.service.level import ServiceLevel
     from betty.url import UrlGenerator
 
 _T = TypeVar("_T")
@@ -82,7 +82,7 @@ _ProjectDependentT = TypeVar("_ProjectDependentT")
 class Project(
     Configurable[ProjectConfiguration],
     TargetFactory,
-    ServiceProvider,
+    ServiceContainer,
     PluginRepositoryProvider,
 ):
     """
@@ -101,12 +101,12 @@ class Project(
         super().__init__(configuration=configuration)
         self._app = app
         self._ancestry = Ancestry() if ancestry is None else ancestry
-        self._plugin_repository_provider = ServicesPluginRepositoryProvider(self)
+        self._plugin_repository_provider = ServiceLevelPluginRepositoryProvider(self)
 
     @override
     @classmethod
     async def requires(
-        cls, services: ServiceProviderLevel, subject: Localizable | str, /
+        cls, services: ServiceLevel, subject: Localizable | str, /
     ) -> Requirement | Self:
         if not isinstance(services, cls):
             return StaticRequirement(

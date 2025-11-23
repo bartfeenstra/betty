@@ -13,7 +13,7 @@ from betty.locale.localizable import _
 from betty.project.extension.maps import Maps
 from betty.requirement import HasRequirement, Requirement
 from betty.resource import Context as ResourceContext
-from betty.service.level import ServiceProviderLevel
+from betty.service.level import ServiceLevel
 
 
 @ContentProviderDefinition(
@@ -33,7 +33,7 @@ class Map(Template, HasRequirement):
 
     @override
     @classmethod
-    async def requirement(cls, services: ServiceProviderLevel, /) -> Requirement | None:
+    async def requirement(cls, services: ServiceLevel, /) -> Requirement | None:
         return await Maps.requirement_for(
             services, cls.plugin.reference_label_with_type
         )

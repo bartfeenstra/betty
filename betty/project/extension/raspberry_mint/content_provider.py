@@ -36,7 +36,7 @@ from betty.project.extension.raspberry_mint import RaspberryMint
 from betty.requirement import HasRequirement, Requirement
 from betty.resource import Context
 from betty.serde.dump import Dump
-from betty.service.level import ServiceProviderLevel
+from betty.service.level import ServiceLevel
 
 if TYPE_CHECKING:
     from collections.abc import MutableSequence
@@ -47,7 +47,7 @@ if TYPE_CHECKING:
 class _Base(ClassedPlugin, HasRequirement):
     @override
     @classmethod
-    async def requirement(cls, services: ServiceProviderLevel, /) -> Requirement | None:
+    async def requirement(cls, services: ServiceLevel, /) -> Requirement | None:
         return await RaspberryMint.requirement_for(
             services, cls.plugin.reference_label_with_type
         )

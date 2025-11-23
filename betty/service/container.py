@@ -1,5 +1,5 @@
 """
-Service providers.
+Service containers.
 """
 
 from __future__ import annotations
@@ -36,7 +36,7 @@ if TYPE_CHECKING:
     from types import TracebackType
 
     from betty.locale.localizable import Localizable
-    from betty.service.level import ServiceProviderLevel
+    from betty.service.level import ServiceLevel
 
 
 _ServiceT = TypeVar("_ServiceT")
@@ -44,12 +44,12 @@ _ServiceGetT = TypeVar("_ServiceGetT")
 
 
 @internal
-class ServiceProvider(Bootstrapped, Shutdownable):
+class ServiceContainer(Bootstrapped, Shutdownable):
     """
-    A service provider.
+    A service container.
 
-    Service providers make up a running Betty 'application'. They can provide services through
-    :py:func:`betty.service.provider.service`, and manage their resources by being bootstrapped and shut down.
+    Service containers make up a running Betty 'application'. They can provide services through
+    :py:func:`betty.service.container.service`, and manage their resources by being bootstrapped and shut down.
     """
 
     def __init__(self, *args: Any, **kwargs: Any):
@@ -110,18 +110,18 @@ class ServiceProvider(Bootstrapped, Shutdownable):
     @classmethod
     @abstractmethod
     async def requires(
-        cls, services: ServiceProviderLevel, subject: Localizable | str, /
+        cls, services: ServiceLevel, subject: Localizable | str, /
     ) -> Requirement | Self:
         """
-        Check that a service provider is an instance of ``cls``.
+        Check that a service level is an instance of ``cls``.
         """
 
     @classmethod
     async def requirement_for(
-        cls, services: ServiceProviderLevel, subject: Localizable | str, /
+        cls, services: ServiceLevel, subject: Localizable | str, /
     ) -> Requirement | None:
         """
-        Check that a service provider is an instance of ``cls``.
+        Check that a service level is an instance of ``cls``.
         """
         requires = await cls.requires(services, subject)
         if isinstance(requires, Requirement):
@@ -129,7 +129,7 @@ class ServiceProvider(Bootstrapped, Shutdownable):
         return None
 
 
-_ServiceProviderT = TypeVar("_ServiceProviderT", bound=ServiceProvider)
+_ServiceProviderT = TypeVar("_ServiceProviderT", bound=ServiceContainer)
 
 
 ServiceFactory: TypeAlias = Callable[[_ServiceProviderT], _ServiceT]
@@ -174,7 +174,7 @@ def service(
     """
     Decorate a service factory method.
 
-    The factory method is replaced with a :py:class:`service manager <betty.service.provider.ServiceManager>` which
+    The factory method is replaced with a :py:class:`service manager <betty.service.container.ServiceManager>` which
     handles lazy service instantiation, caching, and multiprocessing support.
 
     The decorated factory method should return a new service instance.
@@ -211,7 +211,7 @@ class StaticService(Generic[_ServiceProviderT, _ServiceT]):
 @internal
 class ServiceManager(Generic[_ServiceProviderT, _ServiceGetT, _ServiceT]):
     """
-    Manages a single service for a service provider.
+    Manages a single service for a service container.
     """
 
     def __init__(self, factory: ServiceFactory[_ServiceProviderT, _ServiceGetT]):
