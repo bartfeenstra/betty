@@ -52,6 +52,7 @@ class _ScheduledJobBatch:
         user: User,
         done: Callable[[Sequence[str]], Awaitable[None]],
         jobs: Sequence[Job[_ContextCoT]],
+        /,
     ):
         self._scheduler = scheduler
         self._user = user
@@ -237,7 +238,7 @@ class DefaultScheduler(Generic[_ContextCoT], Scheduler[_ContextCoT]):
             return _ScheduledJobBatch(self, self._user, self._done, jobs)
         return None
 
-    async def _done(self, job_ids: Sequence[str]) -> None:
+    async def _done(self, job_ids: Sequence[str], /) -> None:
         async with self._cancel_on_exception():
             async with self._lock:
                 for job_id in job_ids:
@@ -259,7 +260,7 @@ class DefaultScheduler(Generic[_ContextCoT], Scheduler[_ContextCoT]):
             raise
 
     @override
-    async def cancel(self, reason: BaseException | None = None) -> None:
+    async def cancel(self, reason: BaseException | None = None, /) -> None:
         async with self._lock:
             if not self._is_open():
                 return

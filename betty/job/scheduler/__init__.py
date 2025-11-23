@@ -66,7 +66,7 @@ class DuplicateJobError(Cancelled):
     Raised when a scheduler cannot add the same job (ID) more than once.
     """
 
-    def __init__(self, job_id: str):
+    def __init__(self, job_id: str, /):
         super().__init__(
             f'Job "{job_id}" was added already, and cannot be added again.'
         )
@@ -125,7 +125,7 @@ class Scheduler(Generic[_ContextCoT], ABC):
         return self
 
     @abstractmethod
-    async def cancel(self, reason: BaseException | None = None) -> None:
+    async def cancel(self, reason: BaseException | None = None, /) -> None:
         """
         Close the scheduler and cancel any pending jobs.
         """
