@@ -17,7 +17,7 @@ if TYPE_CHECKING:
     from collections.abc import MutableSequence, Sequence
 
     from betty.locale.localizer import Localizer
-    from betty.service.level import ServiceProviderLevel
+    from betty.service.level import ServiceLevel
 
 
 class Requirement(Localizable):
@@ -178,7 +178,7 @@ class HasRequirement(ABC):
 
     @classmethod
     @abstractmethod
-    async def requirement(cls, services: ServiceProviderLevel, /) -> Requirement | None:
+    async def requirement(cls, services: ServiceLevel, /) -> Requirement | None:
         """
         Define the requirement for this class to be used.
         """

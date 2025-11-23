@@ -27,7 +27,7 @@ from betty.test_utils.plugin.classed import (
 
 if TYPE_CHECKING:
     from betty.app import App
-    from betty.service.level import ServiceProviderLevel
+    from betty.service.level import ServiceLevel
 
 
 class HasRequirementPlugin(HasRequirement, ClassedPlugin):
@@ -66,7 +66,7 @@ class DownstreamWithoutRequirements(HasRequirementPlugin):
 class UpstreamWithUnmetRequirements(HasRequirementPlugin):
     @override
     @classmethod
-    async def requirement(cls, level: ServiceProviderLevel, /) -> Requirement | None:
+    async def requirement(cls, level: ServiceLevel, /) -> Requirement | None:
         return StaticRequirement(
             Plain("upstream-requirement-summary"),
             Plain("upstream-requirement-details"),
@@ -79,7 +79,7 @@ class UpstreamWithUnmetRequirements(HasRequirementPlugin):
 class DownstreamWithUnmetRequirements(HasRequirementPlugin):
     @override
     @classmethod
-    async def requirement(cls, level: ServiceProviderLevel, /) -> Requirement | None:
+    async def requirement(cls, level: ServiceLevel, /) -> Requirement | None:
         return StaticRequirement(
             Plain("downstream-requirement-summary"),
             Plain("downstream-requirement-details"),
@@ -181,9 +181,7 @@ async def test_get_requirement__with_requirement() -> None:
     class _Plugin(HasRequirement, ClassedDummyPlugin):
         @override
         @classmethod
-        async def requirement(
-            cls, level: ServiceProviderLevel, /
-        ) -> Requirement | None:
+        async def requirement(cls, level: ServiceLevel, /) -> Requirement | None:
             return requirement
 
     assert await get_requirement(_Plugin, None) is requirement

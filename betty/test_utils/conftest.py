@@ -38,7 +38,7 @@ if TYPE_CHECKING:
     from playwright.async_api import BrowserContext, Page
 
     from betty.cache import Cache
-    from betty.service.provider import ServiceFactory
+    from betty.service.container import ServiceFactory
     from betty.user import User
 
 

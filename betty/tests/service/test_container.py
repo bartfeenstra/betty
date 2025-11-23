@@ -8,25 +8,25 @@ from betty.config import Configurable
 from betty.locale.localizable import Localizable, Plain
 from betty.requirement import Requirement, StaticRequirement
 from betty.service.bootstrap import NotBootstrappedError
-from betty.service.level import ServiceProviderLevel
-from betty.service.provider import (
+from betty.service.container import (
+    ServiceContainer,
     ServiceFactory,
     ServiceInitializedError,
     ServiceManager,
-    ServiceProvider,
     StaticService,
     _AsynchronousServiceManager,
     _SynchronousServiceManager,
     service,
 )
+from betty.service.level import ServiceLevel
 from betty.test_utils.config import DummyConfiguration
 
 
-class _ServiceProvider(ServiceProvider):
+class _ServiceProvider(ServiceContainer):
     @override
     @classmethod
     async def requires(
-        cls, services: ServiceProviderLevel, subject: Localizable | str, /
+        cls, services: ServiceLevel, subject: Localizable | str, /
     ) -> Requirement | Self:
         return StaticRequirement(Plain(""))
 
@@ -111,7 +111,7 @@ class _DummyServiceManager(ServiceManager[Any, None, None]):
         return None
 
 
-class TestServiceProvider:
+class TestServiceContainer:
     async def test___aenter__(self) -> None:
         async with _ServiceProvider() as sut:
             assert sut.bootstrapped
@@ -159,7 +159,7 @@ class TestStaticService:
     def test___call__(self) -> None:
         service = object()
         services = _ServiceProvider()
-        sut = StaticService[ServiceProvider, object](service)
+        sut = StaticService[ServiceContainer, object](service)
         assert sut(services) is service
 
 

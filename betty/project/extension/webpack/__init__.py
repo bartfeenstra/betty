@@ -35,7 +35,7 @@ if TYPE_CHECKING:
     from collections.abc import Sequence
 
     from betty.job.scheduler import Scheduler
-    from betty.service.level import ServiceProviderLevel
+    from betty.service.level import ServiceLevel
 
 
 class _GenerateAssets(Job[ProjectContext]):
@@ -79,7 +79,7 @@ class Webpack(
 
     @override
     @classmethod
-    async def requirement(cls, services: ServiceProviderLevel, /) -> Requirement | None:
+    async def requirement(cls, services: ServiceLevel, /) -> Requirement | None:
         project = await Project.requires(services, cls.plugin.reference_label_with_type)
         if isinstance(project, Requirement):
             return project

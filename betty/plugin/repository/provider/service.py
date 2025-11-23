@@ -23,7 +23,7 @@ if TYPE_CHECKING:
 
     from betty.machine_name import MachineName
     from betty.plugin.repository import PluginRepository
-    from betty.service.level import ServiceProviderLevel
+    from betty.service.level import ServiceLevel
 
 _PluginDefinitionT = TypeVar(
     "_PluginDefinitionT", bound=PluginDefinition, default=PluginDefinition
@@ -32,12 +32,12 @@ _PluginDefinitionT = TypeVar(
 
 @internal
 @final
-class ServicesPluginRepositoryProvider(PluginRepositoryProvider):
+class ServiceLevelPluginRepositoryProvider(PluginRepositoryProvider):
     """
-    Provide plugin repositories for service providers.
+    Provide plugin repositories for service levels.
     """
 
-    def __init__(self, services: ServiceProviderLevel, /):
+    def __init__(self, services: ServiceLevel, /):
         self._services = services
         self._plugin_repositories: MutableMapping[
             type[PluginDefinition], MutableMapping[bool, PluginRepository[Any] | None]
@@ -107,8 +107,8 @@ class ServicesPluginRepositoryProvider(PluginRepositoryProvider):
         )
 
 
-_global_plugins = ServicesPluginRepositoryProvider(None)
+_global_plugins = ServiceLevelPluginRepositoryProvider(None)
 plugins = _global_plugins.plugins
 """
-Get the plugin repository for a plugin type, for the global service provider level.
+Get the plugin repository for a plugin type, for the global service level.
 """

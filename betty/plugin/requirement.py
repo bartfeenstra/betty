@@ -29,7 +29,7 @@ if TYPE_CHECKING:
 
     from betty.machine_name import MachineName
     from betty.requirement import Requirement
-    from betty.service.level import ServiceProviderLevel
+    from betty.service.level import ServiceLevel
 
 _PluginDefinitionT = TypeVar("_PluginDefinitionT", bound=PluginDefinition)
 _ClassedPluginDefinitionT = TypeVar(
@@ -41,7 +41,7 @@ async def new_dependencies_requirement(
     dependent: _ClassedPluginDefinitionT,
     plugins: Iterable[_ClassedPluginDefinitionT],
     *,
-    services: ServiceProviderLevel,
+    services: ServiceLevel,
 ) -> Requirement | None:
     """
     Check a dependent's dependency requirements.
@@ -97,7 +97,7 @@ class CyclicDependencyError(PluginError):
 
 
 async def get_requirement(
-    plugin: ResolvableDefinition, services: ServiceProviderLevel
+    plugin: ResolvableDefinition, services: ServiceLevel
 ) -> Requirement | None:
     """
     Get the requirement for the given plugin.
@@ -137,7 +137,7 @@ class CheckRequirementRepository(
         cls,
         plugin_type: type[_PluginDefinitionT],
         plugins: Iterable[ResolvableDefinition[_PluginDefinitionT]],
-        services: ServiceProviderLevel,
+        services: ServiceLevel,
         /,
     ) -> Self:
         """
