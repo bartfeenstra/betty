@@ -115,7 +115,7 @@ class ConfigurationMapping(
         return self._load_key(value_dump, key_dump)
 
     @override
-    def load(self, dump: Dump) -> None:
+    def load(self, dump: Dump, /) -> None:
         self.assert_mutable()
         self.clear()
         self.replace(
@@ -150,7 +150,7 @@ class OrderedConfigurationMapping(
     """
 
     @override
-    def load(self, dump: Dump) -> None:
+    def load(self, dump: Dump, /) -> None:
         self.assert_mutable()
         self.replace(*assert_sequence(self._load_item)(dump))
 

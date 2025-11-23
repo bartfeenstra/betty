@@ -26,11 +26,11 @@ class TestFormatDefinition(ClassedPluginDefinitionClassTestBase):
 
 class _Format(Format):
     @override
-    def load(self, dump: str) -> Dump:
+    def load(self, dump: str, /) -> Dump:
         return None  # pragma: nocover
 
     @override
-    def dump(self, dump: Voidable[Dump]) -> str:
+    def dump(self, dump: Voidable[Dump], /) -> str:
         return ""  # pragma: nocover
 
 

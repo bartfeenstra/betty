@@ -16,7 +16,7 @@ class TestConfiguration:
             self.value = value
 
         @override
-        def load(self, dump: Dump) -> None:
+        def load(self, dump: Dump, /) -> None:
             self.value = assert_int()(dump)
 
         @override

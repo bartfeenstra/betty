@@ -47,7 +47,7 @@ class Format:
         """
 
     @abstractmethod
-    def load(self, dump: str) -> Dump:
+    def load(self, dump: str, /) -> Dump:
         """
         Deserialize data.
 
@@ -55,7 +55,7 @@ class Format:
         """
 
     @abstractmethod
-    def dump(self, dump: Voidable[Dump]) -> str:
+    def dump(self, dump: Voidable[Dump], /) -> str:
         """
         Serialize data.
         """
@@ -81,7 +81,7 @@ class FormatStr(Localizable):
     Localize and format a sequence of (de)serialization formats.
     """
 
-    def __init__(self, serde_formats: Sequence[FormatDefinition]):
+    def __init__(self, serde_formats: Sequence[FormatDefinition], /):
         self._serde_formats = serde_formats
 
     @override
@@ -98,7 +98,7 @@ class FormatStr(Localizable):
 
 
 def format_for(
-    available_formats: Sequence[FormatDefinition], extension: str
+    available_formats: Sequence[FormatDefinition], extension: str, /
 ) -> FormatDefinition:
     """
     Get the (de)serialization format for the given file extension.

@@ -36,7 +36,7 @@ class Json(Format):
         return JSON
 
     @override
-    def load(self, dump: str) -> Dump:
+    def load(self, dump: str, /) -> Dump:
         try:
             return cast(Dump, json.loads(dump))
         except json.JSONDecodeError as e:
@@ -45,7 +45,7 @@ class Json(Format):
             ) from None
 
     @override
-    def dump(self, dump: Voidable[Dump]) -> str:
+    def dump(self, dump: Voidable[Dump], /) -> str:
         return json.dumps(dump)
 
 
@@ -65,7 +65,7 @@ class Yaml(Format):
         return YAML
 
     @override
-    def load(self, dump: str) -> Dump:
+    def load(self, dump: str, /) -> Dump:
         try:
             return cast(Dump, yaml.safe_load(dump))
         except yaml.YAMLError as e:
@@ -74,5 +74,5 @@ class Yaml(Format):
             ) from None
 
     @override
-    def dump(self, dump: Voidable[Dump]) -> str:
+    def dump(self, dump: Voidable[Dump], /) -> str:
         return yaml.safe_dump(dump)

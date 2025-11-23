@@ -124,7 +124,7 @@ class EntityTypeConfiguration(Configuration):
         self._generate_html_list = generate_html_list
 
     @override
-    def load(self, dump: Dump) -> None:
+    def load(self, dump: Dump, /) -> None:
         assert_record(
             RequiredField[Any, type[Entity]](
                 "id", assert_machine_name() | assert_setattr(self, "_id")
@@ -239,7 +239,7 @@ class LocaleConfiguration(Configuration):
         self._alias = alias
 
     @override
-    def load(self, dump: Dump) -> None:
+    def load(self, dump: Dump, /) -> None:
         assert_record(
             RequiredField("locale", assert_locale() | assert_setattr(self, "_locale")),
             OptionalField(
@@ -324,7 +324,7 @@ class CopyrightNoticeDefinitionConfiguration(HumanFacingPluginDefinitionConfigur
         self.text = text
 
     @override
-    def load(self, dump: Dump) -> None:
+    def load(self, dump: Dump, /) -> None:
         mapping = assert_mapping()(dump)
         assert_fields(
             RequiredField(
@@ -409,7 +409,7 @@ class LicenseDefinitionConfiguration(HumanFacingPluginDefinitionConfiguration):
         self.text = text
 
     @override
-    def load(self, dump: Dump) -> None:
+    def load(self, dump: Dump, /) -> None:
         mapping = assert_mapping()(dump)
         assert_fields(
             RequiredField(
@@ -928,7 +928,7 @@ class ProjectConfiguration(Configuration):
         return self._genders
 
     @override
-    def load(self, dump: Dump) -> None:
+    def load(self, dump: Dump, /) -> None:
         self.assert_mutable()
         assert_record(
             OptionalField(

@@ -90,7 +90,7 @@ class EntityReference(Configuration):
         return self._entity_type_is_constrained
 
     @override
-    def load(self, dump: Dump) -> None:
+    def load(self, dump: Dump, /) -> None:
         if self.entity_type_is_constrained:
             assert_str()(dump)
             assert_setattr(self, "entity_id")(dump)

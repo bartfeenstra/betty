@@ -51,7 +51,7 @@ class AppConfiguration(Configuration):
         self._locale = assert_locale()(locale)
 
     @override
-    def load(self, dump: Dump) -> None:
+    def load(self, dump: Dump, /) -> None:
         self.assert_mutable()
         assert_record(
             OptionalField("locale", assert_str() | assert_setattr(self, "locale"))

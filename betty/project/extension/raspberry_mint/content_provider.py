@@ -85,7 +85,7 @@ class SectionConfiguration(Configuration):
         return self._content
 
     @override
-    def load(self, dump: Dump) -> None:
+    def load(self, dump: Dump, /) -> None:
         assert_record(
             OptionalField("name", assert_machine_name() | assert_setattr(self, "name")),
             RequiredField(

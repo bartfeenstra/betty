@@ -36,7 +36,7 @@ class ConfigurationMappingTestConfiguration(Configuration):
         self.value = configuration_value
 
     @override
-    def load(self, dump: Dump) -> None:
+    def load(self, dump: Dump, /) -> None:
         assert_record(
             RequiredField("key", assert_str() | assert_setattr(self, "key")),
             RequiredField("value", assert_int() | assert_setattr(self, "value")),
