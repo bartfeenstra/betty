@@ -32,7 +32,7 @@ class Renderer(ABC):
         """
 
     @abstractmethod
-    async def render(self, content: str) -> str:
+    async def render(self, content: str, /) -> str:
         """
         Render content.
         """
@@ -65,7 +65,7 @@ class RenderDispatcher:
     def __init__(self, *renderers: Renderer):
         self._renderers = {renderer.media_type: renderer for renderer in renderers}
 
-    async def render(self, content: str, media_type: MediaType) -> str:
+    async def render(self, content: str, media_type: MediaType, /) -> str:
         """
         Render the content.
         """

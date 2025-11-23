@@ -27,7 +27,7 @@ class _StaticRenderer(Renderer):
         return self.MEDIA_TYPE
 
     @override
-    async def render(self, content: str) -> str:
+    async def render(self, content: str, /) -> str:
         return self.RENDERED_CONTENT
 
 
@@ -56,7 +56,7 @@ class TestRenderDispatcher:
                 return media_type
 
             @override
-            async def render(self, content: str) -> str:
+            async def render(self, content: str, /) -> str:
                 return "~!@#$%^&*()_+"
 
         sut = RenderDispatcher(_Renderer())
