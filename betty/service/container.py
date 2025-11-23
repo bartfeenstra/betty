@@ -138,38 +138,38 @@ ServiceFactory: TypeAlias = Callable[[_ServiceProviderT], _ServiceT]
 class _ServiceDecorator(Protocol):
     @overload
     def __call__(
-        self, factory: Callable[[_ServiceProviderT], _ServiceT]
+        self, factory: Callable[[_ServiceProviderT], _ServiceT], /
     ) -> _SynchronousServiceManager[_ServiceProviderT, _ServiceT]:
         pass
 
     @overload
     def __call__(
-        self, factory: Callable[[_ServiceProviderT], Awaitable[_ServiceT]]
+        self, factory: Callable[[_ServiceProviderT], Awaitable[_ServiceT]], /
     ) -> _AsynchronousServiceManager[_ServiceProviderT, _ServiceT]:
         pass
 
 
 @overload
 def service(  # type: ignore[overload-overlap]
-    factory: Callable[[_ServiceProviderT], Awaitable[_ServiceT]],
+    factory: Callable[[_ServiceProviderT], Awaitable[_ServiceT]], /
 ) -> _AsynchronousServiceManager[_ServiceProviderT, _ServiceT]:
     pass
 
 
 @overload
 def service(
-    factory: Callable[[_ServiceProviderT], _ServiceT],
+    factory: Callable[[_ServiceProviderT], _ServiceT], /
 ) -> _SynchronousServiceManager[_ServiceProviderT, _ServiceT]:
     pass
 
 
 @overload
-def service(factory: None = None) -> _ServiceDecorator:
+def service(factory: None = None, /) -> _ServiceDecorator:
     pass
 
 
 def service(
-    factory: Callable[[_ServiceProviderT], _ServiceGetT] | None = None,
+    factory: Callable[[_ServiceProviderT], _ServiceGetT] | None = None, /
 ) -> ServiceManager[_ServiceProviderT, _ServiceGetT, Any] | _ServiceDecorator:
     """
     Decorate a service factory method.
@@ -181,7 +181,7 @@ def service(
     """
 
     def _service(
-        factory: Callable[[_ServiceProviderT], _ServiceGetT],
+        factory: Callable[[_ServiceProviderT], _ServiceGetT], /
     ) -> ServiceManager[_ServiceProviderT, _ServiceGetT, Any]:
         if iscoroutinefunction(factory):
             return _AsynchronousServiceManager(factory)  # type: ignore[return-value]
@@ -198,10 +198,10 @@ class StaticService(Generic[_ServiceProviderT, _ServiceT]):
     A service factory that returns a static, predefined service.
     """
 
-    def __init__(self, service: _ServiceT):
+    def __init__(self, service: _ServiceT, /):
         self._service = service
 
-    def __call__(self, services: _ServiceProviderT) -> _ServiceT:
+    def __call__(self, services: _ServiceProviderT, /) -> _ServiceT:
         """
         Return the service.
         """
@@ -214,7 +214,7 @@ class ServiceManager(Generic[_ServiceProviderT, _ServiceGetT, _ServiceT]):
     Manages a single service for a service container.
     """
 
-    def __init__(self, factory: ServiceFactory[_ServiceProviderT, _ServiceGetT]):
+    def __init__(self, factory: ServiceFactory[_ServiceProviderT, _ServiceGetT], /):
         update_wrapper(  # type: ignore[type-var]
             self,
             factory,
@@ -250,7 +250,7 @@ class ServiceManager(Generic[_ServiceProviderT, _ServiceGetT, _ServiceT]):
 
         return self.get(instance)
 
-    def get(self, instance: _ServiceProviderT) -> _ServiceGetT:
+    def get(self, instance: _ServiceProviderT, /) -> _ServiceGetT:
         """
         Get the service from an instance.
         """
@@ -259,14 +259,14 @@ class ServiceManager(Generic[_ServiceProviderT, _ServiceGetT, _ServiceT]):
         return self._get(instance)
 
     @abstractmethod
-    def _get(self, instance: _ServiceProviderT) -> _ServiceGetT:
+    def _get(self, instance: _ServiceProviderT, /) -> _ServiceGetT:
         pass
 
-    def _get_attr(self, instance: _ServiceProviderT) -> _ServiceT | Void:
+    def _get_attr(self, instance: _ServiceProviderT, /) -> _ServiceT | Void:
         return getattr(instance, self._service_attr_name, Void())  # type: ignore[return-value]
 
     def _get_factory(
-        self, instance: _ServiceProviderT
+        self, instance: _ServiceProviderT, /
     ) -> ServiceFactory[_ServiceProviderT, _ServiceGetT]:
         factory = cast(
             "ServiceFactory[_ServiceProviderT, _ServiceGetT] | None",
@@ -276,13 +276,13 @@ class ServiceManager(Generic[_ServiceProviderT, _ServiceGetT, _ServiceT]):
             return factory
         return self._factory
 
-    def _assert_not_initialized(self, instance: _ServiceProviderT):
+    def _assert_not_initialized(self, instance: _ServiceProviderT, /):
         if not isinstance(self._get_attr(instance), Void):
             raise ServiceInitializedError(
                 f"{instance}.{self._service_name} was initialized already."
             )
 
-    def override(self, instance: _ServiceProviderT, service: _ServiceT) -> None:
+    def override(self, instance: _ServiceProviderT, service: _ServiceT, /) -> None:
         """
         Override the service for the given instance.
 
@@ -300,6 +300,7 @@ class ServiceManager(Generic[_ServiceProviderT, _ServiceGetT, _ServiceT]):
         self,
         instance: _ServiceProviderT,
         factory: ServiceFactory[_ServiceProviderT, _ServiceGetT],
+        /,
     ) -> None:
         """
         Override the default service factory for the given instance.
@@ -317,7 +318,7 @@ class _AsynchronousServiceManager(
     Generic[_ServiceProviderT, _ServiceT],
     ServiceManager[_ServiceProviderT, Awaitable[_ServiceT], _ServiceT],
 ):
-    def _lock(self, instance: _ServiceProviderT) -> Lock:
+    def _lock(self, instance: _ServiceProviderT, /) -> Lock:
         lock_attr_name = f"_{self._service_attr_name}_lock"
         try:
             return cast(Lock, getattr(instance, lock_attr_name))
@@ -327,7 +328,7 @@ class _AsynchronousServiceManager(
             return lock
 
     @override
-    async def _get(self, instance: _ServiceProviderT) -> _ServiceT:
+    async def _get(self, instance: _ServiceProviderT, /) -> _ServiceT:
         async with self._lock(instance):
             service = self._get_attr(instance)
 
@@ -344,7 +345,7 @@ class _SynchronousServiceManager(
     ServiceManager[_ServiceProviderT, _ServiceT, _ServiceT],
 ):
     @override
-    def _get(self, instance: _ServiceProviderT) -> _ServiceT:
+    def _get(self, instance: _ServiceProviderT, /) -> _ServiceT:
         service = self._get_attr(instance)
         if not isinstance(service, Void):
             return service
