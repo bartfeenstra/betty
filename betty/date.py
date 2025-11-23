@@ -69,6 +69,7 @@ class Date(LinkedDataDumpableWithSchemaJsonLdObject):
         year: int | None = None,
         month: int | None = None,
         day: int | None = None,
+        *,
         fuzzy: bool = False,
     ):
         self.year = year
@@ -123,7 +124,7 @@ class Date(LinkedDataDumpableWithSchemaJsonLdObject):
         )
 
     def _compare(
-        self, other: Any, comparator: Callable[[Any, Any], bool]
+        self, other: Any, comparator: Callable[[Any, Any], bool], /
     ) -> bool | NotImplementedType:
         if not isinstance(other, Date):
             return NotImplemented  # type: ignore[no-any-return]
@@ -163,9 +164,7 @@ class Date(LinkedDataDumpableWithSchemaJsonLdObject):
 
     @override
     async def dump_linked_data(
-        self,
-        project: Project,
-        context_definition: str | None = None,
+        self, project: Project, context_definition: str | None = None, /
     ) -> DumpMapping[Dump]:
         dump = await super().dump_linked_data(project)
         dump["fuzzy"] = self.fuzzy
@@ -189,7 +188,7 @@ class Date(LinkedDataDumpableWithSchemaJsonLdObject):
         return DateSchema()
 
 
-def _dump_date_iso8601(date: Date) -> str | None:
+def _dump_date_iso8601(date: Date, /) -> str | None:
     if not date.complete:
         return None
     assert date.year
@@ -227,6 +226,7 @@ class DateRange(LinkedDataDumpableWithSchemaJsonLdObject):
         self,
         start: Date | None = None,
         end: Date | None = None,
+        *,
         start_is_boundary: bool = False,
         end_is_boundary: bool = False,
     ):
@@ -302,6 +302,7 @@ class DateRange(LinkedDataDumpableWithSchemaJsonLdObject):
         project: Project,
         start_context_definition: str | None = None,
         end_context_definition: str | None = None,
+        /,
     ) -> DumpMapping[Dump]:
         return {
             "start": await self.start.dump_linked_data(
@@ -319,7 +320,7 @@ class DateRange(LinkedDataDumpableWithSchemaJsonLdObject):
     async def linked_data_schema(cls, project: Project, /) -> DateRangeSchema:
         return DateRangeSchema()
 
-    def _get_comparable_date(self, date: Date | None) -> Date | None:
+    def _get_comparable_date(self, date: Date | None, /) -> Date | None:
         if date and date.comparable:
             return date
         return None

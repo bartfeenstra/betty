@@ -279,13 +279,13 @@ class TestDate:
                     "iso8601": "1970-01-01",
                     "fuzzy": True,
                 },
-                Date(1970, 1, 1, True),
+                Date(1970, 1, 1, fuzzy=True),
             ),
             (
                 {
                     "fuzzy": True,
                 },
-                Date(None, None, None, True),
+                Date(None, None, None, fuzzy=True),
             ),
         ],
     )
