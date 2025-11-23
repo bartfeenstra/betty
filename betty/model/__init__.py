@@ -43,7 +43,7 @@ class NonPersistentId(str):
 
     __slots__ = ()
 
-    def __new__(cls, entity_id: str | None = None):  # noqa D102
+    def __new__(cls, entity_id: str | None = None, /):  # noqa D102
         return super().__new__(cls, entity_id or str(uuid4()))
 
 
@@ -171,7 +171,7 @@ class EntityDefinition(
 AncestryEntityId: TypeAlias = tuple[type[Entity], str]
 
 
-def persistent_id(entity_or_id: Entity | str) -> bool:
+def persistent_id(entity_or_id: Entity | str, /) -> bool:
     """
     Test if an entity ID is persistent.
 
