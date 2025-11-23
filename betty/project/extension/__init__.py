@@ -14,18 +14,16 @@ from betty.plugin.discovery.entry_point import EntryPointDiscovery
 from betty.plugin.human_facing import HumanFacingPluginDefinition
 from betty.plugin.ordered import OrderedPluginDefinition
 from betty.plugin.requirement import new_dependencies_requirement
-from betty.project.factory import ProjectDependentFactory
-from betty.requirement import Requirement, StaticRequirement
+from betty.requirement import HasRequirement, Requirement, StaticRequirement
 from betty.service.container import ServiceContainer
 
 if TYPE_CHECKING:
     from pathlib import Path
 
-    from betty.project import Project
     from betty.service.level import ServiceLevel
 
 
-class Extension(ServiceContainer, ProjectDependentFactory, ClassedPlugin):
+class Extension(ServiceContainer, ClassedPlugin, HasRequirement):
     """
     Integrate optional functionality with Betty :py:class:`betty.project.Project`s.
 
@@ -35,11 +33,6 @@ class Extension(ServiceContainer, ProjectDependentFactory, ClassedPlugin):
     """
 
     plugin: ClassVar[ExtensionDefinition]
-
-    def __init__(self, project: Project):
-        assert type(self) is not Extension
-        super().__init__()
-        self._project = project
 
     @override
     @classmethod
@@ -60,18 +53,6 @@ class Extension(ServiceContainer, ProjectDependentFactory, ClassedPlugin):
                 ).format(subject=subject, extension=cls.plugin.reference_label)
             )
         return extensions[cls]
-
-    @override
-    @classmethod
-    async def new_for_project(cls, project: Project, /) -> Self:
-        return cls(project)
-
-    @property
-    def project(self) -> Project:
-        """
-        The project this extension runs within.
-        """
-        return self._project
 
     @override
     @classmethod

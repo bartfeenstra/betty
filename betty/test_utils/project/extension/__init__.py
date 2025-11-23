@@ -2,21 +2,19 @@
 Test utilities for :py:mod:`betty.project.extension`.
 """
 
-from typing import Self, final
+from typing import final
 
 import pytest
-from typing_extensions import override
 
-from betty.app import App
 from betty.config import Configurable
 from betty.locale.localizable import Plain
-from betty.project import Project
 from betty.project.extension import Extension, ExtensionDefinition
 from betty.test_utils.config import DummyConfiguration
 from betty.test_utils.plugin.classed import ClassedPluginDefinitionTestBase
 from betty.test_utils.plugin.dependent import DependentPluginDefinitionTestBase
 from betty.test_utils.plugin.human_facing import HumanFacingPluginDefinitionTestBase
 from betty.test_utils.plugin.ordered import OrderedPluginDefinitionTestBase
+from betty.typing import private
 
 
 class ExtensionDefinitionTestBase(
@@ -41,14 +39,6 @@ class ExtensionTestBase:
         Provide the system(s) under test.
         """
         raise NotImplementedError
-
-    async def test_new_for_project(self, temporary_app: App, sut: Extension) -> None:
-        """
-        Tests :py:meth:`betty.project.extension.Extension.new_for_project` implementations.
-        """
-        async with Project.new_temporary(temporary_app) as project, project:
-            sut = await type(sut).new_for_project(project)
-            assert sut.project == project
 
 
 @final
@@ -83,7 +73,6 @@ class DummyConfigurableExtension(Configurable[DummyConfiguration], Extension):
     A dummy :py:class:`betty.config.Configurable` and :py:class:`betty.project.extension.Extension` implementation.
     """
 
-    @override
-    @classmethod
-    async def new_for_project(cls, project: Project, /) -> Self:
-        return cls(project, configuration=DummyConfiguration())
+    @private
+    def __init__(self):
+        super().__init__(configuration=DummyConfiguration())

@@ -9,7 +9,7 @@ from __future__ import annotations
 from asyncio import to_thread
 from pathlib import Path
 from shutil import copytree
-from typing import TYPE_CHECKING, ClassVar, Literal, final
+from typing import TYPE_CHECKING, ClassVar, Literal, Self, final
 
 from typing_extensions import override
 
@@ -23,13 +23,14 @@ from betty.project.extension import Extension, ExtensionDefinition
 from betty.project.extension.webpack import build
 from betty.project.extension.webpack.build import EntryPointProvider
 from betty.project.extension.webpack.jinja2.filter import FILTERS
+from betty.project.factory import ProjectDependentFactory
 from betty.project.generate import Generator
 from betty.requirement import (
     AllRequirements,
     Requirement,
 )
 from betty.resource import ContextProvider, ContextVars
-from betty.typing import internal
+from betty.typing import internal, private
 
 if TYPE_CHECKING:
     from collections.abc import Sequence
@@ -65,13 +66,29 @@ class _GenerateAssets(Job[ProjectContext]):
     assets_directory_path=Path(__file__).parent / "assets",
 )
 class Webpack(
-    Generator, Extension, CssProvider, JsProvider, Jinja2Provider, ContextProvider
+    Generator,
+    Extension,
+    CssProvider,
+    JsProvider,
+    Jinja2Provider,
+    ContextProvider,
+    ProjectDependentFactory,
 ):
     """
     Integrate Betty with `Webpack <https://webpack.js.org/>`_.
     """
 
     _npm_requirement: ClassVar[Requirement | None | Literal[False]] = False
+
+    @private
+    def __init__(self, *, project: Project):
+        super().__init__()
+        self._project = project
+
+    @override
+    @classmethod
+    async def new_for_project(cls, project: Project, /) -> Self:
+        return cls(project=project)
 
     @override
     async def generate(self, scheduler: Scheduler[ProjectContext]) -> None:
