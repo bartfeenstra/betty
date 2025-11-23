@@ -15,7 +15,7 @@ from betty.url.proxy import ProxyUrlGenerator
 class TestProxyUrlGenerator:
     class _SupportedUrlGenerator(UrlGenerator):
         @override
-        def supports(self, resource: Any) -> bool:
+        def supports(self, resource: Any, /) -> bool:
             return True
 
         @override
@@ -42,7 +42,7 @@ class TestProxyUrlGenerator:
 
     class _UnsupportedUrlGenerator(UrlGenerator):
         @override
-        def supports(self, resource: Any) -> bool:
+        def supports(self, resource: Any, /) -> bool:
             return False
 
         @override

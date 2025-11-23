@@ -31,7 +31,7 @@ class UnsupportedResource(GenerationError):
     These are preventable by checking :py:meth:`betty.url.UrlGenerator.supports` first.
     """
 
-    def __init__(self, resource: Any):
+    def __init__(self, resource: Any, /):
         super().__init__(f"Unsupported resource: {resource}")
 
 
@@ -40,7 +40,7 @@ class InvalidMediaType(GenerationError):
     Raised when a URL generator cannot generate a URL for a resource with the given media type.
     """
 
-    def __init__(self, resource: Any, media_type: MediaType | None):
+    def __init__(self, resource: Any, media_type: MediaType | None, /):
         super().__init__(
             f"Unsupported media type '{media_type}' for resource {resource}"
             if media_type
@@ -54,7 +54,7 @@ class UrlGenerator(ABC):
     """
 
     @abstractmethod
-    def supports(self, resource: Any) -> bool:
+    def supports(self, resource: Any, /) -> bool:
         """
         Whether the given resource is supported by this URL generator.
         """
@@ -84,7 +84,7 @@ class PassthroughUrlGenerator(UrlGenerator):
     """
 
     @override
-    def supports(self, resource: Any) -> bool:
+    def supports(self, resource: Any, /) -> bool:
         if not isinstance(resource, str):
             return False
         try:

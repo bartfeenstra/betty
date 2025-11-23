@@ -22,7 +22,7 @@ class ProxyUrlGenerator(UrlGenerator):
         self._upstreams = upstreams
 
     @override
-    def supports(self, resource: Any) -> bool:
+    def supports(self, resource: Any, /) -> bool:
         return any(upstream.supports(resource) for upstream in self._upstreams)
 
     @override
