@@ -40,7 +40,7 @@ class Requirement(Localizable):
         return None
 
     @override
-    def localize(self, localizer: Localizer) -> Localized & str:
+    def localize(self, localizer: Localizer, /) -> Localized & str:
         super_localized = self.summary.localize(localizer)
         details = self.details
         localized: str = super_localized
@@ -106,7 +106,7 @@ class _RequirementCollection(Requirement, ABC):
         return self._summary
 
     @override
-    def localize(self, localizer: Localizer) -> Localized & str:
+    def localize(self, localizer: Localizer, /) -> Localized & str:
         return Lines(
             super().localize(localizer),
             UnorderedList(*self._requirements),

@@ -88,7 +88,7 @@ class _WikipediaContributorsUrl(Localizable):
         self._urls = urls
 
     @override
-    def localize(self, localizer: Localizer) -> Localized & str:
+    def localize(self, localizer: Localizer, /) -> Localized & str:
         locale = negotiate_locale([localizer.locale, "en"], list(self._urls))
         # We know there's always "en" (English).
         assert locale is not None

@@ -41,7 +41,7 @@ class Selectors(Context):
         self._selectors = list(selectors)
 
     @override
-    def localize(self, localizer: Localizer) -> Localized & str:
+    def localize(self, localizer: Localizer, /) -> Localized & str:
         return Chain("data", *self._selectors).localize(localizer)
 
     @classmethod
@@ -78,7 +78,7 @@ class Attr(Selector):
         self._attr = attr
 
     @override
-    def localize(self, localizer: Localizer) -> Localized & str:
+    def localize(self, localizer: Localizer, /) -> Localized & str:
         return LocalizedStr(f".{self._attr}")
 
 
@@ -92,7 +92,7 @@ class Index(Selector):
         self._index = index
 
     @override
-    def localize(self, localizer: Localizer) -> Localized & str:
+    def localize(self, localizer: Localizer, /) -> Localized & str:
         return LocalizedStr(f"[{self._index}]")
 
 
@@ -106,7 +106,7 @@ class Key(Selector):
         self._key = key
 
     @override
-    def localize(self, localizer: Localizer) -> Localized & str:
+    def localize(self, localizer: Localizer, /) -> Localized & str:
         return LocalizedStr(f'["{self._key}"]')
 
 
@@ -120,5 +120,5 @@ class Path(Context):
         self._path = path
 
     @override
-    def localize(self, localizer: Localizer) -> Localized & str:
+    def localize(self, localizer: Localizer, /) -> Localized & str:
         return LocalizedStr(str(self._path))
