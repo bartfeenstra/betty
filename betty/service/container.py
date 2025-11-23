@@ -289,8 +289,6 @@ class ServiceManager(Generic[_ServiceProviderT, _ServiceGetT, _ServiceT]):
         Calling this will prevent any existing factory from being called.
 
         This MUST only be called from ``instance.__init__()``.
-
-        The provided service MUST be pickleable.
         """
         self._assert_not_initialized(instance)
         setattr(instance, self._service_attr_name, service)
@@ -307,8 +305,6 @@ class ServiceManager(Generic[_ServiceProviderT, _ServiceGetT, _ServiceT]):
 
         This MUST only be called from ``instance.__init__()``. It will override the existing service factory method
         defined on the instance.
-
-        The provided factory MUST be pickleable.
         """
         self._assert_not_initialized(instance)
         setattr(instance, self._factory_override_attr_name, factory)
