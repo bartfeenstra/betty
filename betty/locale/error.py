@@ -23,7 +23,7 @@ class InvalidLocale(LocaleError):
     Raised when a value is not a valid locale.
     """
 
-    def __init__(self, invalid_locale: str) -> None:
+    def __init__(self, invalid_locale: str, /) -> None:
         super().__init__(
             _('"{invalid_locale}" is not a valid IETF BCP 47 language tag.').format(
                 invalid_locale=invalid_locale
@@ -37,7 +37,7 @@ class UnknownLocale(LocaleError):
     Raised when a locale is unknown.
     """
 
-    def __init__(self, locale: str):
+    def __init__(self, locale: str, /):
         super().__init__(_("Unknown locale {locale}.").format(locale=locale))
 
 
@@ -46,7 +46,7 @@ class UnsupportedLocale(LocaleError):
     Raised when a locale is not supported by the system.
     """
 
-    def __init__(self, locale: str) -> None:
+    def __init__(self, locale: str, /) -> None:
         locale_chars = {char for char in locale[: locale.find("-")] if char.isalpha()}
         available_locales = sorted(
             to_locale(Locale.parse(identifier))
