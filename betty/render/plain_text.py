@@ -24,5 +24,5 @@ class PlainText(Renderer):
         return PLAIN_TEXT
 
     @override
-    async def render(self, content: str) -> str:
+    async def render(self, content: str, /) -> str:
         return plain_text_to_html(content)
