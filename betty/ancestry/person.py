@@ -55,6 +55,10 @@ class Person(HasFileReferences, HasCitations, HasNotes, HasLinks, HasPrivacy):
         "children",
         title="Parents",
     )
+    """
+    The person's parents.
+    """
+
     children = BidirectionalToManySingleType["Person", "Person"](
         "betty.ancestry.person:Person",
         "children",
@@ -62,6 +66,10 @@ class Person(HasFileReferences, HasCitations, HasNotes, HasLinks, HasPrivacy):
         "parents",
         title="Children",
     )
+    """
+    The person's children.
+    """
+
     presences = BidirectionalToManySingleType["Person", "Presence"](
         "betty.ancestry.person:Person",
         "presences",
@@ -71,6 +79,10 @@ class Person(HasFileReferences, HasCitations, HasNotes, HasLinks, HasPrivacy):
         description="This person's presences at events",
         linked_data_embedded=True,
     )
+    """
+    The person's presences at events.
+    """
+
     names = BidirectionalToManySingleType["Person", "PersonName"](
         "betty.ancestry.person:Person",
         "names",
@@ -79,6 +91,9 @@ class Person(HasFileReferences, HasCitations, HasNotes, HasLinks, HasPrivacy):
         title="Names",
         linked_data_embedded=True,
     )
+    """
+    The person's names.
+    """
 
     def __init__(
         self,

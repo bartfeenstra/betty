@@ -65,10 +65,13 @@ if TYPE_CHECKING:
     from betty.plugin.repository import PluginRepository
     from betty.serde.dump import Dump, DumpMapping
 
-#: The default age by which people are presumed dead.
-#: This is based on `Jeanne Louise Calment <https://www.guinnessworldrecords.com/world-records/oldest-person/>`_ who is
-#: the oldest verified person to ever have lived.
 DEFAULT_LIFETIME_THRESHOLD = 123
+"""
+The default age by which people are presumed dead.
+
+This is based on `Jeanne Louise Calment <https://www.guinnessworldrecords.com/world-records/oldest-person/>`_ who is
+the oldest verified person to ever have lived.
+"""
 
 
 @final

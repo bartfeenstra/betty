@@ -69,7 +69,6 @@ class Event(
     An event that took place.
     """
 
-    #: The place the event happened.
     place = BidirectionalToZeroOrOne["Event", Place](
         "betty.ancestry.event:Event",
         "place",
@@ -78,6 +77,9 @@ class Event(
         title="Place",
         description="The location of the event",
     )
+    """
+    The place the event happened.
+    """
     presences = BidirectionalToManySingleType["Event", Presence](
         "betty.ancestry.event:Event",
         "presences",
@@ -87,6 +89,9 @@ class Event(
         description="People's presences at this event",
         linked_data_embedded=True,
     )
+    """
+    People's presences at this event.
+    """
 
     def __init__(
         self,

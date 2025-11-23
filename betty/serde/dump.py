@@ -8,7 +8,6 @@ from abc import ABC, abstractmethod
 from collections.abc import MutableMapping, MutableSequence
 from typing import TypeAlias, TypeVar
 
-#: A serialized dump.
 Dump: TypeAlias = (
     bool
     | int
@@ -18,13 +17,21 @@ Dump: TypeAlias = (
     | MutableSequence["Dump"]
     | MutableMapping[str, "Dump"]
 )
+"""
+A serialized dump.
+"""
+
 _DumpT = TypeVar("_DumpT", bound=Dump)
 
-#: A dump which is a sequence whose values are serialized dumps.
 DumpSequence: TypeAlias = MutableSequence[_DumpT]
+"""
+A dump which is a sequence whose values are serialized dumps.
+"""
 
-#: A dump which is a mapping whose keys are strings and values are serialized dumps.
 DumpMapping: TypeAlias = MutableMapping[str, _DumpT]
+"""
+A dump which is a mapping whose keys are strings and values are serialized dumps.
+"""
 
 
 class Dumpable(ABC):

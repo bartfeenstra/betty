@@ -15,9 +15,11 @@ if TYPE_CHECKING:
     from types import TracebackType
 
 ScheduledJobBatch: TypeAlias = Callable[[], Awaitable[None]]
-#: A callable to call one or more jobs.
-#:
-#: The callable MUST cancel the scheduler if an error is raised.
+"""
+A callable to call one or more jobs.
+
+The callable MUST cancel the scheduler if an error is raised.
+"""
 
 
 class Closed(Exception):

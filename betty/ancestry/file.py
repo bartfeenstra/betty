@@ -71,12 +71,19 @@ class File(
         description="The entities referencing this file",
         linked_data_embedded=True,
     )
+    """
+    Other entities referencing this file.
+    """
 
-    #: The copyright notice for this file.
     copyright_notice: CopyrightNotice | None
+    """
+    The copyright notice for this file.
+    """
 
-    #: The license for this file.
     license: License | None
+    """
+    The license for this file.
+    """
 
     def __init__(
         self,

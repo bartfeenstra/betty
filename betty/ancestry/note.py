@@ -39,7 +39,6 @@ class Note(HasPrivacy, HasLinks, HasMediaType):
     A note is a bit of textual information that can be associated with another entity.
     """
 
-    #: The entity the note belongs to.
     entity = BidirectionalToZeroOrOne["Note", "HasNotes"](
         "betty.ancestry.note:Note",
         "entity",
@@ -48,6 +47,9 @@ class Note(HasPrivacy, HasLinks, HasMediaType):
         title="Entity",
         description="The entity the note belongs to",
     )
+    """
+    The entity the note belongs to.
+    """
 
     def __init__(
         self,

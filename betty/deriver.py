@@ -31,14 +31,20 @@ class Derivation(Enum):
     Derivation types.
     """
 
-    #: No derivation took place.
     NONE = 1
+    """
+    No derivation took place.
+    """
 
-    #: The derivation created new data.
     CREATE = 2
+    """
+    The derivation created new data.
+    """
 
-    #: The derivation updated existing data.
     UPDATE = 3
+    """
+    The derivation updated existing data.
+    """
 
 
 def _derive_event_id(derivable_event_type: EventTypeDefinition, person: Person) -> str:

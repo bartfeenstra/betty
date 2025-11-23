@@ -31,15 +31,29 @@ class Verbosity(IntEnum):
     """
 
     QUIET = -1
-    #: Inform users of errors, but do not show any other output.
+    """
+    Inform users of errors, but do not show any other output.
+    """
+
     DEFAULT = 0
-    #: Like QUIET, and show warning and information summary messages.
+    """
+    Like QUIET, and show warning and information summary messages.
+    """
+
     VERBOSE = 1
-    #: Like DEFAULT, and show information details messages,
+    """
+    Like DEFAULT, and show information details messages,
+    """
+
     MORE_VERBOSE = 2
-    #: Like VERBOSE, and show debug messages.
+    """
+    Like VERBOSE, and show debug messages.
+    """
+
     MOST_VERBOSE = 3
-    #: Like MORE_VERBOSE, and show all log messages.
+    """
+    Like MORE_VERBOSE, and show all log messages.
+    """
 
 
 class UserError(Exception):
