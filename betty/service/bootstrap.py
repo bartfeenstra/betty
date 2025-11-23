@@ -108,7 +108,7 @@ class ShutdownStack(Bootstrapped, Shutdownable):
         for callback in reversed(self._callbacks):
             await callback(wait=wait)
 
-    def append(self, callback: ShutdownCallback | Shutdownable) -> None:
+    def append(self, callback: ShutdownCallback | Shutdownable, /) -> None:
         """
         Append a callback or another component to the stack.
         """
