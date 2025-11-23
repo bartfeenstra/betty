@@ -13,9 +13,9 @@ class NoOpProgress(Progress):
     """
 
     @override
-    async def add(self, add: int = 1) -> None:
+    async def add(self, add: int = 1, /) -> None:
         pass
 
     @override
-    async def done(self, done: int = 1) -> None:
+    async def done(self, done: int = 1, /) -> None:
         pass
