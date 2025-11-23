@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PROJECT VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2025-11-22 23:46+0000\n"
+"POT-Creation-Date: 2025-11-23 01:36+0000\n"
 "PO-Revision-Date: 2025-11-08 23:46+0000\n"
 "Last-Translator: Bart Feenstra <bart@bartfeenstra.com>\n"
 "Language: nl_NL\n"
@@ -1564,6 +1564,10 @@ msgid "{date}"
 msgstr "{date}"
 
 #, python-brace-format
+msgid "{dependent} depends on {dependencies}."
+msgstr ""
+
+#, python-brace-format
 msgid "{entity_type} {entity_id}"
 msgstr "{entity_type} {entity_id}"
 
@@ -1589,10 +1593,6 @@ msgstr ""
 
 #, python-brace-format
 msgid "{most}, or {last}"
-msgstr ""
-
-#, python-brace-format
-msgid "{plugin_type_label} {plugin_label} depends on {dependency_labels}."
 msgstr ""
 
 #, python-brace-format

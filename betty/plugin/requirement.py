@@ -9,6 +9,7 @@ from typing import TYPE_CHECKING, Any, Generic, Self, TypeVar, final
 
 from typing_extensions import override
 
+from betty.functools import unique
 from betty.locale.localizable import AllEnumeration, _
 from betty.plugin import PluginDefinition
 from betty.plugin.classed import ClassedPluginDefinition
@@ -25,7 +26,7 @@ from betty.plugin.resolve import (
 from betty.requirement import AllRequirements, HasRequirement
 
 if TYPE_CHECKING:
-    from collections.abc import Iterable, Iterator
+    from collections.abc import Iterable, Iterator, MutableSequence
 
     from betty.machine_name import MachineName
     from betty.requirement import Requirement
@@ -50,33 +51,28 @@ async def new_dependencies_requirement(
         return None
     plugins_by_id = {plugin.id: plugin for plugin in plugins}  # type: ignore[unreachable]
     try:
-        dependency_requirements = []
-        dependencies = []
+        dependencies: MutableSequence[
+            tuple[_ClassedPluginDefinitionT, Requirement]
+        ] = []
         for dependency_identifier in dependent.depends_on:
             dependency = plugins_by_id[resolve_id(dependency_identifier)]
             dependency_requirement = await dependency.cls.requirement(services)
             if dependency_requirement is not None:
-                dependency_requirements.append(dependency_requirement)
-            dependencies.append(dependency)
+                dependencies.append((dependency, dependency_requirement))
     except RecursionError:
         raise CyclicDependencyError([dependent.id]) from None
     else:
-        if not dependency_requirements:
+        if not dependencies:
             return None
         return AllRequirements.new(
-            *dependency_requirements,
-            summary=_(
-                "{plugin_type_label} {plugin_label} depends on {dependency_labels}."
-            ).format(
-                plugin_type_label=dependent.type.label,
-                plugin_label=dependent.label
-                if isinstance(dependent, HumanFacingPluginDefinition)
-                else dependent.id,
-                dependency_labels=AllEnumeration(
+            *unique(dependency[1] for dependency in dependencies),
+            summary=_("{dependent} depends on {dependencies}.").format(
+                dependent=dependent.reference_label_with_type,
+                dependencies=AllEnumeration(
                     *(
                         dependency.label
                         if isinstance(dependency, HumanFacingPluginDefinition)
-                        else dependency.id
+                        else dependency[0].id
                         for dependency in dependencies
                     ),
                 ),
