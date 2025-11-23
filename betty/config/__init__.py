@@ -21,7 +21,7 @@ class Configuration(Mutable, Loadable, Dumpable):
     Any configuration object.
     """
 
-    def update(self, other: Self) -> None:
+    def update(self, other: Self, /) -> None:
         """
         Update this configuration with the values from ``other``.
         """

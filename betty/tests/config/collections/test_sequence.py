@@ -106,7 +106,7 @@ class ConfigurationSequenceTestConfigurationSequence(
     ConfigurationSequence[ConfigurationSequenceTestConfiguration]
 ):
     @override
-    def _load_item(self, dump: Dump) -> ConfigurationSequenceTestConfiguration:
+    def _load_item(self, dump: Dump, /) -> ConfigurationSequenceTestConfiguration:
         configuration = ConfigurationSequenceTestConfiguration(0)
         configuration.load(dump)
         return configuration

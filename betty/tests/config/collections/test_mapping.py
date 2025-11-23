@@ -130,23 +130,23 @@ class ConfigurationMappingTestConfigurationMapping(
     ConfigurationMapping[str, ConfigurationMappingTestConfiguration]
 ):
     @override
-    def _load_item(self, dump: Dump) -> ConfigurationMappingTestConfiguration:
+    def _load_item(self, dump: Dump, /) -> ConfigurationMappingTestConfiguration:
         configuration = ConfigurationMappingTestConfiguration("", 0)
         configuration.load(dump)
         return configuration
 
     @override
-    def _get_key(self, configuration: ConfigurationMappingTestConfiguration) -> str:
+    def _get_key(self, configuration: ConfigurationMappingTestConfiguration, /) -> str:
         return configuration.key
 
     @override
-    def _load_key(self, item_dump: Dump, key_dump: str) -> Dump:
+    def _load_key(self, item_dump: Dump, key_dump: str, /) -> Dump:
         assert isinstance(item_dump, Mapping)
         item_dump["key"] = key_dump
         return item_dump
 
     @override
-    def _dump_key(self, item_dump: Dump) -> tuple[Dump, str]:
+    def _dump_key(self, item_dump: Dump, /) -> tuple[Dump, str]:
         assert isinstance(item_dump, Mapping)
         return item_dump, cast(str, item_dump.pop("key"))
 
@@ -226,11 +226,11 @@ class OrderedConfigurationMappingTestOrderedConfigurationMapping(
     OrderedConfigurationMapping[str, ConfigurationMappingTestConfiguration]
 ):
     @override
-    def _load_item(self, dump: Dump) -> ConfigurationMappingTestConfiguration:
+    def _load_item(self, dump: Dump, /) -> ConfigurationMappingTestConfiguration:
         configuration = ConfigurationMappingTestConfiguration("", 0)
         configuration.load(dump)
         return configuration
 
     @override
-    def _get_key(self, configuration: ConfigurationMappingTestConfiguration) -> str:
+    def _get_key(self, configuration: ConfigurationMappingTestConfiguration, /) -> str:
         return configuration.key

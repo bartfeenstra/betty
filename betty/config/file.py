@@ -25,7 +25,7 @@ _ConfigurationT = TypeVar("_ConfigurationT", bound=Configuration)
 
 
 async def assert_configuration_file(
-    configuration: _ConfigurationT,
+    configuration: _ConfigurationT, /
 ) -> AssertionChain[Path, _ConfigurationT]:
     """
     Assert that configuration can be loaded from a file.
@@ -55,7 +55,7 @@ async def assert_configuration_file(
 
 
 async def write_configuration_file(
-    configuration: Configuration, configuration_file_path: Path
+    configuration: Configuration, configuration_file_path: Path, /
 ) -> None:
     """
     Write configuration to a file.

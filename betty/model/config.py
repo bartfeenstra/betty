@@ -148,7 +148,7 @@ class EntityReferenceSequence(ConfigurationSequence[EntityReference]):
         super().__init__(entity_references)
 
     @override
-    def _load_item(self, dump: Dump) -> EntityReference:
+    def _load_item(self, dump: Dump, /) -> EntityReference:
         configuration = EntityReference(
             # Use a dummy entity type for now to satisfy the initializer.
             # It will be overridden when loading the dump.
@@ -161,7 +161,7 @@ class EntityReferenceSequence(ConfigurationSequence[EntityReference]):
         return configuration
 
     @override
-    def _pre_add(self, configuration: EntityReference) -> None:
+    def _pre_add(self, configuration: EntityReference, /) -> None:
         super()._pre_add(configuration)
 
         entity_type_constraint = self._entity_type_constraint

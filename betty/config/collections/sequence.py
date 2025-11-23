@@ -4,12 +4,7 @@ Define and provide sequences of :py:class:`betty.config.Configuration` instances
 
 from __future__ import annotations
 
-from typing import (
-    TYPE_CHECKING,
-    Generic,
-    TypeVar,
-    overload,
-)
+from typing import TYPE_CHECKING, Generic, TypeVar, overload
 
 from typing_extensions import override
 

@@ -391,23 +391,23 @@ class TestPluginIdentifierKeyConfigurationMapping:
         ]
     ):
         @override
-        def _dump_key(self, item_dump: Dump) -> tuple[Dump, str]:
+        def _dump_key(self, item_dump: Dump, /) -> tuple[Dump, str]:
             if isinstance(item_dump, str):
                 return None, item_dump
             assert isinstance(item_dump, Mapping)
             return None, cast(str, item_dump["value"])
 
         @override
-        def _get_key(self, configuration: DummyConfiguration) -> MachineName:
+        def _get_key(self, configuration: DummyConfiguration, /) -> MachineName:
             assert configuration.value
             return configuration.value
 
         @override
-        def _load_key(self, item_dump: Dump, key_dump: str) -> Dump:
+        def _load_key(self, item_dump: Dump, key_dump: str, /) -> Dump:
             return {"value": key_dump}
 
         @override
-        def _load_item(self, dump: Dump) -> DummyConfiguration:
+        def _load_item(self, dump: Dump, /) -> DummyConfiguration:
             raise NotImplementedError
 
     def test___contains____with_plugin(self) -> None:

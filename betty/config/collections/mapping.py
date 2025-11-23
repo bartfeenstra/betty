@@ -6,11 +6,7 @@ from __future__ import annotations
 
 from abc import abstractmethod
 from contextlib import suppress
-from typing import (
-    TYPE_CHECKING,
-    Generic,
-    TypeVar,
-)
+from typing import TYPE_CHECKING, Generic, TypeVar
 
 from typing_extensions import override
 
@@ -89,7 +85,7 @@ class _ConfigurationMapping(
         }
 
     @abstractmethod
-    def _get_key(self, configuration: _ConfigurationT) -> _ConfigurationKeyT:
+    def _get_key(self, configuration: _ConfigurationT, /) -> _ConfigurationKeyT:
         pass
 
 
@@ -104,14 +100,14 @@ class ConfigurationMapping(
     """
 
     @abstractmethod
-    def _load_key(self, item_dump: Dump, key_dump: str) -> Dump:
+    def _load_key(self, item_dump: Dump, key_dump: str, /) -> Dump:
         pass
 
     @abstractmethod
-    def _dump_key(self, item_dump: Dump) -> tuple[Dump, str]:
+    def _dump_key(self, item_dump: Dump, /) -> tuple[Dump, str]:
         pass
 
-    def __load_item_key(self, value_dump: DumpMapping[Dump], key_dump: str) -> Dump:
+    def __load_item_key(self, value_dump: DumpMapping[Dump], key_dump: str, /) -> Dump:
         return self._load_key(value_dump, key_dump)
 
     @override
