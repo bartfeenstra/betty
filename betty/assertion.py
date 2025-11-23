@@ -67,11 +67,11 @@ class AssertionChain(Generic[_AssertionValueT, _AssertionReturnT]):
     like mypy can confirm that all assertions in any given chain are compatible with each other.
     """
 
-    def __init__(self, _assertion: Assertion[_AssertionValueT, _AssertionReturnT]):
+    def __init__(self, _assertion: Assertion[_AssertionValueT, _AssertionReturnT], /):
         self._assertion = _assertion
 
     def chain(
-        self, assertion: Assertion[_AssertionReturnT, _AssertionsExtendReturnT]
+        self, assertion: Assertion[_AssertionReturnT, _AssertionsExtendReturnT], /
     ) -> AssertionChain[_AssertionValueT, _AssertionsExtendReturnT]:
         """
         Extend the chain with the given assertion.
@@ -143,7 +143,7 @@ _AssertTypeTypeT = TypeVar("_AssertTypeTypeT", bound=_AssertTypeType)
 
 
 def _assert_type_violation_error_message(
-    asserted_type: type[_AssertTypeType],
+    asserted_type: type[_AssertTypeType], /
 ) -> Localizable:
     messages: Mapping[type[_AssertTypeType], Localizable] = {
         bool: _("This must be a boolean."),
@@ -161,6 +161,7 @@ def _assert_type(
     value: Any,
     value_required_type: type[_AssertTypeTypeT],
     value_disallowed_type: type[_AssertTypeType] | None = None,
+    /,
 ) -> _AssertTypeTypeT:
     if isinstance(value, value_required_type) and (
         value_disallowed_type is None or not isinstance(value, value_disallowed_type)
@@ -176,12 +177,13 @@ def _assert_type(
 def assert_or(
     if_assertion: Assertion[_AssertionValueT, _AssertionReturnT],
     else_assertion: Assertion[_AssertionValueT, _AssertionReturnU],
+    /,
 ) -> AssertionChain[_AssertionValueT, _AssertionReturnT | _AssertionReturnU]:
     """
     Assert that at least one of the given assertions passed.
     """
 
-    def _assert_or(value: Any) -> _AssertionReturnT | _AssertionReturnU:
+    def _assert_or(value: Any, /) -> _AssertionReturnT | _AssertionReturnU:
         assertions = (if_assertion, else_assertion)
         errors = HumanFacingExceptionGroup()
         for assertion in assertions:
@@ -199,7 +201,7 @@ def assert_none() -> AssertionChain[Any, None]:
     Assert that a value is ``None``.
     """
 
-    def _assert_none(value: Any) -> None:
+    def _assert_none(value: Any, /) -> None:
         _assert_type(value, NoneType)
 
     return AssertionChain(_assert_none)
@@ -210,7 +212,7 @@ def assert_bool() -> AssertionChain[Any, bool]:
     Assert that a value is a Python ``bool``.
     """
 
-    def _assert_bool(value: Any) -> bool:
+    def _assert_bool(value: Any, /) -> bool:
         return _assert_type(value, bool)
 
     return AssertionChain(_assert_bool)
@@ -221,7 +223,7 @@ def assert_int() -> AssertionChain[Any, int]:
     Assert that a value is a Python ``int``.
     """
 
-    def _assert_int(value: Any) -> int:
+    def _assert_int(value: Any, /) -> int:
         return _assert_type(value, int, bool)
 
     return AssertionChain(_assert_int)
@@ -232,7 +234,7 @@ def assert_float() -> AssertionChain[Any, float]:
     Assert that a value is a Python ``float``.
     """
 
-    def _assert_float(value: Any) -> float:
+    def _assert_float(value: Any, /) -> float:
         return _assert_type(value, float)
 
     return AssertionChain(_assert_float)
@@ -247,12 +249,10 @@ def assert_number() -> AssertionChain[Any, Number]:
 
 def assert_positive_number() -> AssertionChain[Any, Number]:
     """
-    Assert that a vaue is a positive nu,ber.
+    Assert that a value is a positive nu,ber.
     """
 
-    def _assert_positive_number(
-        number: int | float,
-    ) -> Number:
+    def _assert_positive_number(number: int | float, /) -> Number:
         if number <= 0:
             raise HumanFacingException(_("This must be a positive number."))
         return number
@@ -265,7 +265,7 @@ def assert_str() -> AssertionChain[Any, str]:
     Assert that a value is a Python ``str``.
     """
 
-    def _assert_str(value: Any) -> str:
+    def _assert_str(value: Any, /) -> str:
         return _assert_type(value, str)
 
     return AssertionChain(_assert_str)
@@ -294,7 +294,7 @@ def assert_sequence(
     Optionally assert that values are of a given type.
     """
 
-    def _assert_sequence(value: Any) -> MutableSequence[_AssertionReturnT]:
+    def _assert_sequence(value: Any, /) -> MutableSequence[_AssertionReturnT]:
         sequence = _assert_type(
             value,
             Sequence,  # type: ignore[type-abstract]
@@ -353,7 +353,7 @@ def assert_mapping(
     """
 
     def _assert_mapping(
-        value: Any,
+        value: Any, /
     ) -> MutableMapping[_AssertionKeyT, _AssertionReturnT]:
         mapping = _assert_type(
             value,
@@ -385,7 +385,7 @@ def assert_fields(
     Assert that a value is a key-value mapping of arbitrary value types, and assert several of its values.
     """
 
-    def _assert_fields(value: Mapping[Any, Any]) -> MutableMapping[str, Any]:
+    def _assert_fields(value: Mapping[Any, Any], /) -> MutableMapping[str, Any]:
         mapping: MutableMapping[str, Any] = {}
         with HumanFacingExceptionGroup().assert_valid() as errors:
             for field in fields:
@@ -405,20 +405,20 @@ def assert_fields(
 
 @overload
 def assert_field(
-    field: RequiredField[_AssertionValueT, _AssertionReturnT],
+    field: RequiredField[_AssertionValueT, _AssertionReturnT], /
 ) -> AssertionChain[_AssertionValueT, _AssertionReturnT]:
     pass
 
 
 @overload
 def assert_field(
-    field: OptionalField[_AssertionValueT, _AssertionReturnT],
+    field: OptionalField[_AssertionValueT, _AssertionReturnT], /
 ) -> AssertionChain[_AssertionValueT, Voidable[_AssertionReturnT]]:
     pass
 
 
 def assert_field(
-    field: Field[_AssertionValueT, _AssertionReturnT],
+    field: Field[_AssertionValueT, _AssertionReturnT], /
 ) -> (
     AssertionChain[_AssertionValueT, _AssertionReturnT]
     | AssertionChain[_AssertionValueT, Voidable[_AssertionReturnT]]
@@ -428,7 +428,7 @@ def assert_field(
     """
 
     def _assert_field(
-        fields: MutableMapping[str, Any],
+        fields: MutableMapping[str, Any], /
     ) -> Voidable[_AssertionReturnT]:
         try:
             return cast(Voidable[_AssertionReturnT], fields[field.name])
@@ -449,7 +449,7 @@ def assert_record(
     are provided will cause the entire record assertion to fail.
     """
 
-    def _assert_record(value: Mapping[Any, Any]) -> MutableMapping[str, Any]:
+    def _assert_record(value: Mapping[Any, Any], /) -> MutableMapping[str, Any]:
         known_keys = {x.name for x in fields}
         unknown_keys = set(value.keys()) - known_keys
         with HumanFacingExceptionGroup().assert_valid() as errors:
@@ -469,7 +469,7 @@ def assert_record(
 
 
 def assert_isinstance(
-    alleged_type: type[_AssertionValueT],
+    alleged_type: type[_AssertionValueT], /
 ) -> Assertion[Any, _AssertionValueT]:
     """
     Assert that a value is an instance of the given type.
@@ -478,7 +478,7 @@ def assert_isinstance(
     because Python types are not user-facing.
     """
 
-    def _assert(value: Any) -> _AssertionValueT:
+    def _assert(value: Any, /) -> _AssertionValueT:
         if isinstance(value, alleged_type):
             return value
         raise HumanFacingException(
@@ -502,7 +502,7 @@ def assert_directory_path() -> AssertionChain[Any, Path]:
     Assert that a value is a path to an existing directory.
     """
 
-    def _assert_directory_path(directory_path: Path) -> Path:
+    def _assert_directory_path(directory_path: Path, /) -> Path:
         if directory_path.is_dir():
             return directory_path
         raise HumanFacingException(
@@ -517,7 +517,7 @@ def assert_file_path() -> AssertionChain[Any, Path]:
     Assert that a value is a path to an existing file.
     """
 
-    def _assert_file_path(file_path: Path) -> Path:
+    def _assert_file_path(file_path: Path, /) -> Path:
         if file_path.is_file():
             return file_path
         raise FileNotFound(file_path)
@@ -530,9 +530,7 @@ def assert_locale() -> AssertionChain[Any, str]:
     Assert that a value is a valid `IETF BCP 47 language tag <https://en.wikipedia.org/wiki/IETF_language_tag>`_.
     """
 
-    def _assert_locale(
-        value: str,
-    ) -> str:
+    def _assert_locale(value: str, /) -> str:
         # Allow locales for which no system information usually exists.
         if value == UNDETERMINED_LOCALE:
             return value
@@ -553,15 +551,12 @@ def assert_locale_identifier() -> AssertionChain[Any, str]:
     return assert_str() | assert_len(minimum=1) | str
 
 
-def assert_setattr(
-    instance: object,
-    attr_name: str,
-) -> AssertionChain[Any, Any]:
+def assert_setattr(instance: object, attr_name: str, /) -> AssertionChain[Any, Any]:
     """
     Set a value for the given object's attribute.
     """
 
-    def _assert_setattr(value: Any) -> Any:
+    def _assert_setattr(value: Any, /) -> Any:
         setattr(instance, attr_name, value)
         # Return the getter's return value rather than the assertion value, just
         # in case the setter and/or getter perform changes to the value.
@@ -574,7 +569,7 @@ _SizedT = TypeVar("_SizedT", bound=Sized)
 
 
 @overload
-def assert_len(exact: int) -> AssertionChain[Sized, Sized]:
+def assert_len(exact: int, /) -> AssertionChain[Sized, Sized]:
     pass
 
 
@@ -603,7 +598,7 @@ def assert_len(
     - with minimum and/or maximum bounds (inclusive)
     """
 
-    def _assert_len(value: _SizedT) -> _SizedT:
+    def _assert_len(value: _SizedT, /) -> _SizedT:
         actual = len(value)
         if exact is not None and actual != exact:
             raise HumanFacingException(
