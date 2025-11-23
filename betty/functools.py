@@ -8,14 +8,7 @@ import contextlib
 from asyncio import sleep
 from itertools import chain
 from time import time
-from typing import (
-    TYPE_CHECKING,
-    Any,
-    Generic,
-    ParamSpec,
-    TypeVar,
-    final,
-)
+from typing import TYPE_CHECKING, Any, Generic, ParamSpec, TypeVar, final
 
 from betty.asyncio import ensure_await
 from betty.typing import Void
@@ -31,6 +24,7 @@ def filter_suppress(
     raising_filter: Callable[[_T], Any],
     exception_type: type[BaseException],
     items: Iterable[_T],
+    /,
 ) -> Iterator[_T]:
     """
     Filter values, skipping those for which the application of `raising_filter` raises errors.
@@ -122,7 +116,7 @@ def unique(
             yield value
 
 
-def passthrough(value: _T) -> _T:
+def passthrough(value: _T, /) -> _T:
     """
     Return the value.
     """
@@ -165,7 +159,7 @@ class Result(Generic[_P, _T]):
     _error: BaseException
     _result: _T
 
-    def __init__(self, target: Callable[_P, _T]):
+    def __init__(self, target: Callable[_P, _T], /):
         self._target = target
 
     def __call__(self, *args: _P.args, **kwargs: _P.kwargs) -> _T:
