@@ -67,7 +67,7 @@ class ConsoleUser(User):
         return self._verbosity
 
     @override
-    async def set_verbosity(self, verbosity: Verbosity) -> None:
+    async def set_verbosity(self, verbosity: Verbosity, /) -> None:
         if verbosity is self._verbosity:
             return
         self._verbosity = verbosity
@@ -91,7 +91,7 @@ class ConsoleUser(User):
         self._console.print_exception(show_locals=self.verbosity >= Verbosity.VERBOSE)
 
     @override
-    async def message_error(self, message: Localizable) -> None:
+    async def message_error(self, message: Localizable, /) -> None:
         self._message_error(message.localize(self.localizer))
 
     def _message_error(self, message: str) -> None:
@@ -99,42 +99,44 @@ class ConsoleUser(User):
         self._console.print(f"[red]{message}[/]")
 
     @override
-    async def message_warning(self, message: Localizable) -> None:
+    async def message_warning(self, message: Localizable, /) -> None:
         assert self._connected
         if self._verbosity < Verbosity.DEFAULT:
             return
         self._console.print(f"[yellow]{message.localize(self.localizer)}[/]")
 
     @override
-    async def message_information(self, message: Localizable) -> None:
+    async def message_information(self, message: Localizable, /) -> None:
         assert self._connected
         if self._verbosity < Verbosity.DEFAULT:
             return
         self._console.print(f"[green]{message.localize(self.localizer)}[/]")
 
     @override
-    async def message_information_details(self, message: Localizable) -> None:
+    async def message_information_details(self, message: Localizable, /) -> None:
         assert self._connected
         if self._verbosity < Verbosity.VERBOSE:
             return
         self._console.print(f"[green]{message.localize(self.localizer)}[/]")
 
     @override
-    async def message_debug(self, message: Localizable) -> None:
+    async def message_debug(self, message: Localizable, /) -> None:
         assert self._connected
         if self._verbosity < Verbosity.MORE_VERBOSE:
             return
         self._console.print(f"[white]{message.localize(self.localizer)}[/]")
 
     @override
-    async def message_log(self, message: logging.LogRecord) -> None:
+    async def message_log(self, message: logging.LogRecord, /) -> None:
         if self._verbosity < Verbosity.MOST_VERBOSE:
             return
         self._console.print(f"[blue]{self._log_formatter.format(message)}[/]")
 
     @override
     @asynccontextmanager
-    async def message_progress(self, message: Localizable) -> AsyncIterator[Progress]:
+    async def message_progress(
+        self, message: Localizable, /
+    ) -> AsyncIterator[Progress]:
         if self.verbosity < Verbosity.DEFAULT:
             yield NoOpProgress()
         else:
