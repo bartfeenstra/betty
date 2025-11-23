@@ -120,7 +120,7 @@ class EntityReference(Configuration):
         return dump
 
     async def validate(
-        self, entity_type_repository: PluginRepository[EntityDefinition]
+        self, entity_type_repository: PluginRepository[EntityDefinition], /
     ) -> None:
         """
         Validate the configuration.
@@ -198,7 +198,7 @@ class EntityReferenceSequence(ConfigurationSequence[EntityReference]):
         )
 
     async def validate(
-        self, entity_type_repository: PluginRepository[EntityDefinition]
+        self, entity_type_repository: PluginRepository[EntityDefinition], /
     ) -> None:
         """
         Validate the configuration.
