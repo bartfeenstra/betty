@@ -16,13 +16,13 @@ from betty.locale.localizer import DEFAULT_LOCALIZER
 class TestNavigationLink:
     def test_url(self) -> None:
         url = "https://example.com"
-        sut = NavigationLink(url, Plain("Hello, world!"))
+        sut = NavigationLink(url, "Hello, world!")
         assert sut.url.localize(DEFAULT_LOCALIZER) == url
 
     def test_label(self) -> None:
         label = Plain("Hello, world!")
         sut = NavigationLink("https://example.com", label)
-        assert sut.label == label
+        assert sut.label is label
 
 
 class TestNavigationLinkProvider:

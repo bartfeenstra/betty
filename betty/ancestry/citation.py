@@ -12,7 +12,13 @@ from betty.ancestry.date import HasDate
 from betty.ancestry.has_file_references import HasFileReferences
 from betty.ancestry.has_links import HasLinks
 from betty.ancestry.source import Source
-from betty.locale.localizable import Localizable, _, ngettext
+from betty.locale.localizable import (
+    Localizable,
+    LocalizableLike,
+    OptionalLocalizableAttr,
+    _,
+    ngettext,
+)
 from betty.locale.localizable.linked_data import dump_linked_data
 from betty.locale.localizable.schema import StaticTranslationsSchema
 from betty.model import EntityDefinition
@@ -46,6 +52,11 @@ class Citation(HasDate, HasFileReferences, HasPrivacy, HasLinks):
     A citation (a reference to a source).
     """
 
+    location = OptionalLocalizableAttr("location")
+    """
+    The location within the source this citation references.
+    """
+
     facts = BidirectionalToManyMultipleTypes["Citation", "HasCitations"](
         "betty.ancestry.citation:Citation",
         "facts",
@@ -76,7 +87,7 @@ class Citation(HasDate, HasFileReferences, HasPrivacy, HasLinks):
         source: ToOneAssociate[Source],
         id: str | None = None,  # noqa A002  # noqa A002
         facts: ToManyAssociates[HasCitations & Entity] | None = None,
-        location: Localizable | None = None,
+        location: LocalizableLike | None = None,
         date: DateLike | None = None,
         file_references: ToManyAssociates[FileReference] | None = None,
         privacy: Privacy | None = None,

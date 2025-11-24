@@ -10,7 +10,6 @@ from betty.ancestry import Ancestry
 from betty.app import App
 from betty.app.factory import AppDependentFactory, AppDependentSelfFactory
 from betty.exception import HumanFacingException
-from betty.locale.localizable import Plain
 from betty.locale.localizer import DEFAULT_LOCALIZER
 from betty.model import EntityDefinition
 from betty.project import Project, ProjectContext, ProjectExtensions
@@ -30,7 +29,7 @@ if TYPE_CHECKING:
 
 @ExtensionDefinition(
     id="dummy-with-assets-directory",
-    label=Plain(""),
+    label="",
     assets_directory_path=Path(__file__).parent
     / "dummy-with-assets-directory"
     / "assets",
@@ -41,18 +40,18 @@ class _DummyExtensionWithAssetsDirectory(Extension):
 
 @ExtensionDefinition(
     id="dummy-unmet-requirement",
-    label=Plain(""),
+    label="",
 )
 class _DummyExtensionWithUnmetRequirement(Extension):
     @override
     @classmethod
     async def requirement(cls, level: ServiceLevel, /) -> Requirement | None:
-        return StaticRequirement(Plain(""))
+        return StaticRequirement("")
 
 
 @ExtensionDefinition(
     id="dummy-a",
-    label=Plain(""),
+    label="",
 )
 class _DummyExtensionA(Extension):
     pass
@@ -60,7 +59,7 @@ class _DummyExtensionA(Extension):
 
 @ExtensionDefinition(
     id="dummy-b",
-    label=Plain(""),
+    label="",
 )
 class _DummyExtensionB(Extension):
     pass

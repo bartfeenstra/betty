@@ -3,7 +3,6 @@ from collections.abc import Iterable
 from pytest_mock import MockerFixture
 
 from betty.app import App
-from betty.locale.localizable import Plain
 from betty.plugin import PluginDefinition, PluginTypeDefinition
 from betty.plugin.discovery.app import AppDiscovery
 from betty.plugin.repository.provider.service import (
@@ -38,7 +37,7 @@ class TestServiceLevelPluginRepositoryProvider:
         class _PluginDefinition(PluginDefinition):
             type = PluginTypeDefinition(
                 id="-",
-                label=Plain(""),
+                label="",
                 discoveries=AppDiscovery(_discovery),
             )
 

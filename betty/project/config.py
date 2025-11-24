@@ -42,7 +42,6 @@ from betty.locale.localizable import (
     Localizable,
     LocalizableLike,
     OptionalLocalizableAttr,
-    Plain,
     RequiredLocalizableAttr,
     _,
     ensure_localizable,
@@ -363,7 +362,7 @@ class CopyrightNoticeDefinitionConfigurationMapping(
     @override
     def _load_item(self, dump: Dump, /) -> CopyrightNoticeDefinitionConfiguration:
         item = CopyrightNoticeDefinitionConfiguration(
-            id="-", label=Plain(""), summary=Plain(""), text=Plain("")
+            id="-", label="", summary="", text=""
         )
         item.load(dump)
         return item
@@ -441,9 +440,7 @@ class LicenseDefinitionConfigurationMapping(
 
     @override
     def _load_item(self, dump: Dump, /) -> LicenseDefinitionConfiguration:
-        item = LicenseDefinitionConfiguration(
-            id="-", label=Plain(""), summary=Plain(""), text=Plain("")
-        )
+        item = LicenseDefinitionConfiguration(id="-", label="", summary="", text="")
         item.load(dump)
         return item
 
@@ -489,7 +486,7 @@ class EventTypeDefinitionConfigurationMapping(
 
     @override
     def _load_item(self, dump: Dump, /) -> EventTypeDefinitionConfiguration:
-        item = EventTypeDefinitionConfiguration(id="-", label=Plain(""))
+        item = EventTypeDefinitionConfiguration(id="-", label="")
         item.load(dump)
         return item
 
@@ -522,7 +519,7 @@ class PlaceTypeDefinitionConfigurationMapping(
 
     @override
     def _load_item(self, dump: Dump, /) -> PlaceTypeDefinitionConfiguration:
-        item = PlaceTypeDefinitionConfiguration(id="-", label=Plain(""))
+        item = PlaceTypeDefinitionConfiguration(id="-", label="")
         item.load(dump)
         return item
 
@@ -555,7 +552,7 @@ class PresenceRoleDefinitionConfigurationMapping(
 
     @override
     def _load_item(self, dump: Dump, /) -> PresenceRoleDefinitionConfiguration:
-        item = PresenceRoleDefinitionConfiguration(id="-", label=Plain(""))
+        item = PresenceRoleDefinitionConfiguration(id="-", label="")
         item.load(dump)
         return item
 
@@ -588,7 +585,7 @@ class GenderDefinitionConfigurationMapping(
 
     @override
     def _load_item(self, dump: Dump, /) -> GenderDefinitionConfiguration:
-        item = GenderDefinitionConfiguration(id="-", label=Plain(""))
+        item = GenderDefinitionConfiguration(id="-", label="")
         item.load(dump)
         return item
 

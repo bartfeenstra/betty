@@ -7,7 +7,7 @@ import pytest
 from betty.ancestry.citation import Citation
 from betty.ancestry.has_citations import HasCitations
 from betty.ancestry.source import Source
-from betty.locale.localizable import CountablePlain, Plain
+from betty.locale.localizable import CountablePlain
 from betty.model import EntityDefinition
 from betty.test_utils.json.linked_data import assert_dumps_linked_data
 
@@ -18,8 +18,8 @@ if TYPE_CHECKING:
 
 @EntityDefinition(
     id="dummy-has-citations",
-    label=Plain(""),
-    label_plural=Plain(""),
+    label="",
+    label_plural="",
     label_countable=CountablePlain("", ""),
 )
 class DummyHasCitations(HasCitations):

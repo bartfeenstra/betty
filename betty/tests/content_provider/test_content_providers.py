@@ -80,7 +80,7 @@ class TestPlainText(ConfigurationDependentSelfFactoryTestBase[PlainTextConfigura
         [
             (
                 "<p>One<br>\nTwo<br>\nThree</p>",
-                Plain("One\nTwo\nThree"),
+                "One\nTwo\nThree",
                 DEFAULT_LOCALE,
             ),
             (
@@ -128,7 +128,7 @@ class TestTemplate:
             async with aiofiles.open(template_file_path, "w") as f:
                 await f.write(template)
 
-            @ContentProviderDefinition(id="my-first-template", label=Plain(""))
+            @ContentProviderDefinition(id="my-first-template", label="")
             class _Jinja2TemplateContentProvider(Template):
                 pass
 
@@ -164,7 +164,7 @@ class TestNotes:
 
     async def test_provide__with_notes(self, temporary_app: App) -> None:
         note_text = "Hello, world!"
-        has_notes = DummyHasNotes(notes=[Note(Plain(note_text))])
+        has_notes = DummyHasNotes(notes=[Note(note_text)])
         async with Project.new_temporary(temporary_app) as project, project:
             project.ancestry.add(has_notes)
             sut = await Notes.new_for_project(project)

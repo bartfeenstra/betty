@@ -5,7 +5,7 @@ from typing import TYPE_CHECKING, TypeVar
 import pytest
 from typing_extensions import override
 
-from betty.locale.localizable import CountablePlain, Plain
+from betty.locale.localizable import CountablePlain
 from betty.model import Entity, EntityDefinition
 from betty.model.association import (
     AssociationRegistry,
@@ -167,8 +167,8 @@ class TestAssociationRegistry:
 class TestUnidirectionalToZeroOrOne:
     @EntityDefinition(
         id="owner",
-        label=Plain(""),
-        label_plural=Plain(""),
+        label="",
+        label_plural="",
         label_countable=CountablePlain("", ""),
     )
     class _Owner(Entity):
@@ -192,8 +192,8 @@ class TestUnidirectionalToZeroOrOne:
 
     @EntityDefinition(
         id="owner-embedded",
-        label=Plain(""),
-        label_plural=Plain(""),
+        label="",
+        label_plural="",
         label_countable=CountablePlain("", ""),
     )
     class _OwnerEmbedded(Entity):
@@ -215,8 +215,8 @@ class TestUnidirectionalToZeroOrOne:
 
     @EntityDefinition(
         id="owner-with-non-public-facing-associate",
-        label=Plain(""),
-        label_plural=Plain(""),
+        label="",
+        label_plural="",
         label_countable=CountablePlain("", ""),
     )
     class _OwnerWithNonPublicFacingAssociate(Entity):
@@ -239,8 +239,8 @@ class TestUnidirectionalToZeroOrOne:
 
     @EntityDefinition(
         id="associate",
-        label=Plain(""),
-        label_plural=Plain(""),
+        label="",
+        label_plural="",
         label_countable=CountablePlain("", ""),
     )
     class _Associate(Entity):
@@ -248,8 +248,8 @@ class TestUnidirectionalToZeroOrOne:
 
     @EntityDefinition(
         id="non-public-facing-associate",
-        label=Plain(""),
-        label_plural=Plain(""),
+        label="",
+        label_plural="",
         label_countable=CountablePlain("", ""),
         public_facing=False,
     )
@@ -363,8 +363,8 @@ class TestUnidirectionalToZeroOrOne:
 class TestBidirectionalToZeroOrOne:
     @EntityDefinition(
         id="owner",
-        label=Plain(""),
-        label_plural=Plain(""),
+        label="",
+        label_plural="",
         label_countable=CountablePlain("", ""),
     )
     class _Owner(Entity):
@@ -389,8 +389,8 @@ class TestBidirectionalToZeroOrOne:
 
     @EntityDefinition(
         id="owner-embedded",
-        label=Plain(""),
-        label_plural=Plain(""),
+        label="",
+        label_plural="",
         label_countable=CountablePlain("", ""),
     )
     class _OwnerEmbedded(Entity):
@@ -414,8 +414,8 @@ class TestBidirectionalToZeroOrOne:
 
     @EntityDefinition(
         id="owner-with-non-public-facing-associate",
-        label=Plain(""),
-        label_plural=Plain(""),
+        label="",
+        label_plural="",
         label_countable=CountablePlain("", ""),
     )
     class _OwnerWithNonPublicFacingAssociate(Entity):
@@ -439,8 +439,8 @@ class TestBidirectionalToZeroOrOne:
 
     @EntityDefinition(
         id="associate",
-        label=Plain(""),
-        label_plural=Plain(""),
+        label="",
+        label_plural="",
         label_countable=CountablePlain("", ""),
     )
     class _Associate(Entity):
@@ -456,8 +456,8 @@ class TestBidirectionalToZeroOrOne:
 
     @EntityDefinition(
         id="non-public-facing-associate",
-        label=Plain(""),
-        label_plural=Plain(""),
+        label="",
+        label_plural="",
         label_countable=CountablePlain("", ""),
         public_facing=False,
     )
@@ -585,8 +585,8 @@ class TestBidirectionalToZeroOrOne:
 class TestUnidirectionalToOne:
     @EntityDefinition(
         id="owner",
-        label=Plain(""),
-        label_plural=Plain(""),
+        label="",
+        label_plural="",
         label_countable=CountablePlain("", ""),
     )
     class _Owner(Entity):
@@ -606,8 +606,8 @@ class TestUnidirectionalToOne:
 
     @EntityDefinition(
         id="owner-embedded",
-        label=Plain(""),
-        label_plural=Plain(""),
+        label="",
+        label_plural="",
         label_countable=CountablePlain("", ""),
     )
     class _OwnerEmbedded(Entity):
@@ -627,8 +627,8 @@ class TestUnidirectionalToOne:
 
     @EntityDefinition(
         id="owner-with-non-public-facing-associate",
-        label=Plain(""),
-        label_plural=Plain(""),
+        label="",
+        label_plural="",
         label_countable=CountablePlain("", ""),
     )
     class _OwnerWithNonPublicFacingAssociate(Entity):
@@ -649,8 +649,8 @@ class TestUnidirectionalToOne:
 
     @EntityDefinition(
         id="associate",
-        label=Plain(""),
-        label_plural=Plain(""),
+        label="",
+        label_plural="",
         label_countable=CountablePlain("", ""),
     )
     class _Associate(Entity):
@@ -658,8 +658,8 @@ class TestUnidirectionalToOne:
 
     @EntityDefinition(
         id="non-public-facing-associate",
-        label=Plain(""),
-        label_plural=Plain(""),
+        label="",
+        label_plural="",
         label_countable=CountablePlain("", ""),
         public_facing=False,
     )
@@ -734,8 +734,8 @@ class TestUnidirectionalToOne:
 class TestBidirectionalToOne:
     @EntityDefinition(
         id="owner",
-        label=Plain(""),
-        label_plural=Plain(""),
+        label="",
+        label_plural="",
         label_countable=CountablePlain("", ""),
     )
     class _Owner(Entity):
@@ -756,8 +756,8 @@ class TestBidirectionalToOne:
 
     @EntityDefinition(
         id="associate",
-        label=Plain(""),
-        label_plural=Plain(""),
+        label="",
+        label_plural="",
         label_countable=CountablePlain("", ""),
     )
     class _Associate(Entity):
@@ -772,8 +772,8 @@ class TestBidirectionalToOne:
 
     @EntityDefinition(
         id="owner-embedded",
-        label=Plain(""),
-        label_plural=Plain(""),
+        label="",
+        label_plural="",
         label_countable=CountablePlain("", ""),
     )
     class _OwnerEmbedded(Entity):
@@ -794,8 +794,8 @@ class TestBidirectionalToOne:
 
     @EntityDefinition(
         id="associate-embedded",
-        label=Plain(""),
-        label_plural=Plain(""),
+        label="",
+        label_plural="",
         label_countable=CountablePlain("", ""),
     )
     class _AssociateEmbedded(Entity):
@@ -811,8 +811,8 @@ class TestBidirectionalToOne:
 
     @EntityDefinition(
         id="owner-with-non-public-facing-associate",
-        label=Plain(""),
-        label_plural=Plain(""),
+        label="",
+        label_plural="",
         label_countable=CountablePlain("", ""),
     )
     class _OwnerWithNonPublicFacingAssociate(Entity):
@@ -832,8 +832,8 @@ class TestBidirectionalToOne:
 
     @EntityDefinition(
         id="non-public-facing-associate",
-        label=Plain(""),
-        label_plural=Plain(""),
+        label="",
+        label_plural="",
         label_countable=CountablePlain("", ""),
         public_facing=False,
     )
@@ -918,8 +918,8 @@ class TestBidirectionalToOne:
 class TestUnidirectionalToManySingleType:
     @EntityDefinition(
         id="owner",
-        label=Plain(""),
-        label_plural=Plain(""),
+        label="",
+        label_plural="",
         label_countable=CountablePlain("", ""),
     )
     class _Owner(Entity):
@@ -934,8 +934,8 @@ class TestUnidirectionalToManySingleType:
 
     @EntityDefinition(
         id="owner-embedded",
-        label=Plain(""),
-        label_plural=Plain(""),
+        label="",
+        label_plural="",
         label_countable=CountablePlain("", ""),
     )
     class _OwnerEmbedded(Entity):
@@ -951,8 +951,8 @@ class TestUnidirectionalToManySingleType:
 
     @EntityDefinition(
         id="associate",
-        label=Plain(""),
-        label_plural=Plain(""),
+        label="",
+        label_plural="",
         label_countable=CountablePlain("", ""),
     )
     class _Associate(Entity):
@@ -960,8 +960,8 @@ class TestUnidirectionalToManySingleType:
 
     @EntityDefinition(
         id="non-public-facing-associate",
-        label=Plain(""),
-        label_plural=Plain(""),
+        label="",
+        label_plural="",
         label_countable=CountablePlain("", ""),
         public_facing=False,
     )
@@ -1104,8 +1104,8 @@ class TestUnidirectionalToManyMultipleTypes:
 class TestBidirectionalToManySingleType:
     @EntityDefinition(
         id="owner",
-        label=Plain(""),
-        label_plural=Plain(""),
+        label="",
+        label_plural="",
         label_countable=CountablePlain("", ""),
     )
     class _Owner(Entity):
@@ -1121,8 +1121,8 @@ class TestBidirectionalToManySingleType:
 
     @EntityDefinition(
         id="associate",
-        label=Plain(""),
-        label_plural=Plain(""),
+        label="",
+        label_plural="",
         label_countable=CountablePlain("", ""),
     )
     class _Associate(Entity):
@@ -1138,8 +1138,8 @@ class TestBidirectionalToManySingleType:
 
     @EntityDefinition(
         id="owner-embedded",
-        label=Plain(""),
-        label_plural=Plain(""),
+        label="",
+        label_plural="",
         label_countable=CountablePlain("", ""),
     )
     class _OwnerEmbedded(Entity):
@@ -1156,8 +1156,8 @@ class TestBidirectionalToManySingleType:
 
     @EntityDefinition(
         id="associate-embedded",
-        label=Plain(""),
-        label_plural=Plain(""),
+        label="",
+        label_plural="",
         label_countable=CountablePlain("", ""),
     )
     class _AssociateEmbedded(Entity):
@@ -1173,8 +1173,8 @@ class TestBidirectionalToManySingleType:
 
     @EntityDefinition(
         id="non-public-facing-associate-embedded",
-        label=Plain(""),
-        label_plural=Plain(""),
+        label="",
+        label_plural="",
         label_countable=CountablePlain("", ""),
         public_facing=False,
     )
@@ -1183,8 +1183,8 @@ class TestBidirectionalToManySingleType:
 
     @EntityDefinition(
         id="owner-with-non-public-facing-associate",
-        label=Plain(""),
-        label_plural=Plain(""),
+        label="",
+        label_plural="",
         label_countable=CountablePlain("", ""),
     )
     class _OwnerWithNonPublicFacingAssociate(Entity):
@@ -1200,8 +1200,8 @@ class TestBidirectionalToManySingleType:
 
     @EntityDefinition(
         id="non-public-facing-associate",
-        label=Plain(""),
-        label_plural=Plain(""),
+        label="",
+        label_plural="",
         label_countable=CountablePlain("", ""),
         public_facing=False,
     )

@@ -9,7 +9,6 @@ from typing_extensions import override
 from betty._npm import NpmUnavailable
 from betty.app import App
 from betty.job import Context
-from betty.locale.localizable import Plain
 from betty.project import Project
 from betty.project.extension import Extension, ExtensionDefinition
 from betty.project.extension.webpack.build import Builder, EntryPointProvider
@@ -18,7 +17,7 @@ from betty.test_utils.user import StaticUser
 
 @ExtensionDefinition(
     id="dummy",
-    label=Plain(""),
+    label="",
 )
 class DummyEntryPointProviderExtension(EntryPointProvider, Extension):
     @override

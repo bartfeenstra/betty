@@ -11,9 +11,7 @@ from typing import TYPE_CHECKING, final
 from uuid import uuid4
 
 from markupsafe import escape
-from typing_extensions import override
 
-from betty.link import Link
 from betty.locale.localizable import LocalizableLike, ensure_localizable
 
 if TYPE_CHECKING:
@@ -47,7 +45,7 @@ class JsProvider(ABC):
 
 
 @final
-class NavigationLink(Link):
+class NavigationLink:
     """
     A navigation link.
     """
@@ -56,14 +54,18 @@ class NavigationLink(Link):
         self._url = ensure_localizable(url)
         self._label = ensure_localizable(label)
 
-    @override
     @property
     def url(self) -> Localizable:
+        """
+        The URL the link points to.
+        """
         return self._url
 
-    @override
     @property
     def label(self) -> Localizable:
+        """
+        The human-readable short link label.
+        """
         return self._label
 
 

@@ -4,7 +4,6 @@ from pathlib import Path
 import pytest
 
 from betty.app import App
-from betty.locale.localizable import Plain
 from betty.project.extension import Extension, ExtensionDefinition
 
 
@@ -15,14 +14,14 @@ class ExtensionTranslationTestBase:
     ) -> AsyncIterator[App]:
         @ExtensionDefinition(
             id="dummy-without-assets",
-            label=Plain("Dummy without assets"),
+            label="Dummy without assets",
         )
         class _DummyWithoutAssetsDirectoryExtension(Extension):
             pass
 
         @ExtensionDefinition(
             id="dummy-with-assets",
-            label=Plain("Dummy with assets"),
+            label="Dummy with assets",
             assets_directory_path=tmp_path / "assets",
         )
         class _DummyWithAssetsDirectoryExtension(Extension):

@@ -18,7 +18,6 @@ from betty.ancestry.presence import Presence
 from betty.ancestry.presence_role.presence_roles import Subject
 from betty.ancestry.source import Source
 from betty.locale import DEFAULT_LOCALE
-from betty.locale.localizable import Plain
 from betty.model import Entity
 from betty.model.association import AssociationRequired, TemporaryToOneResolver
 from betty.mutability import Mutable
@@ -255,7 +254,7 @@ class TestPerson(EntityTestBase):
         person.children.add(child)
         link = Link(
             "https://example.com/the-person",
-            label=Plain("The Person Online"),
+            label="The Person Online",
         )
         person.links.add(link)
         person.citations.add(
@@ -263,7 +262,7 @@ class TestPerson(EntityTestBase):
                 id="the_citation",
                 source=Source(
                     id="the_source",
-                    name=Plain("The Source"),
+                    name="The Source",
                 ),
             )
         )
@@ -370,14 +369,14 @@ class TestPerson(EntityTestBase):
         person.parents.add(parent)
         person.children.add(child)
         link = Link("https://example.com/the-person")
-        link.label = Plain("The Person Online")
+        link.label = "The Person Online"  # type: ignore[assignment]
         person.links.add(link)
         person.citations.add(
             Citation(
                 id="the_citation",
                 source=Source(
                     id="the_source",
-                    name=Plain("The Source"),
+                    name="The Source",
                 ),
             )
         )

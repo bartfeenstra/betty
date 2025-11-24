@@ -17,7 +17,6 @@ from betty.ancestry.presence_role.presence_roles import Subject
 from betty.ancestry.source import Source
 from betty.date import Date, DateRange
 from betty.locale import DEFAULT_LOCALE
-from betty.locale.localizable import Plain
 from betty.locale.localizer import DEFAULT_LOCALIZER
 from betty.model import Entity
 from betty.model.association import AssociationRequired, TemporaryToOneResolver
@@ -46,9 +45,9 @@ class TestEvent(EntityTestBase):
     def _sut_params() -> Sequence[Entity]:
         return [
             Event(),
-            Event(description=Plain("My First Event")),
+            Event(description="My First Event"),
             Event(
-                description=Plain("My First Event"),
+                description="My First Event",
                 presences=[Presence(Person(), Subject(), TemporaryToOneResolver())],
             ),
         ]
@@ -71,7 +70,7 @@ class TestEvent(EntityTestBase):
 
     def test___init____with_name(self) -> None:
         name = "The Event"
-        sut = Event(name=Plain(name))
+        sut = Event(name=name)
         assert sut.name is not None
         assert sut.name.localize(DEFAULT_LOCALIZER) == name
 
@@ -86,7 +85,7 @@ class TestEvent(EntityTestBase):
     async def test_place(self) -> None:
         place = Place(
             id="1",
-            names=[Name(Plain("one"))],
+            names=[Name("one")],
         )
         sut = Event(event_type=UnknownEventType())
         sut.place = place
@@ -139,7 +138,7 @@ class TestEvent(EntityTestBase):
     async def test_name(self) -> None:
         name = "The Event"
         sut = Event()
-        sut.name = Plain(name)
+        sut.name = name
         assert sut.name is not None
         assert sut.name.localize(DEFAULT_LOCALIZER) == name
 
@@ -178,10 +177,10 @@ class TestEvent(EntityTestBase):
             date=DateRange(Date(2000, 1, 1), Date(2019, 12, 31)),
             place=Place(
                 id="the_place",
-                names=[Name(Plain("The Place"))],
+                names=[Name("The Place")],
             ),
-            name=Plain("The Event"),
-            description=Plain("The Event Description"),
+            name="The Event",
+            description="The Event Description",
         )
         presence = Presence(Person(id="the_person"), Subject(), event)
         event.citations.add(
@@ -189,7 +188,7 @@ class TestEvent(EntityTestBase):
                 id="the_citation",
                 source=Source(
                     id="the_source",
-                    name=Plain("The Source"),
+                    name="The Source",
                 ),
             )
         )
@@ -258,7 +257,7 @@ class TestEvent(EntityTestBase):
             date=DateRange(Date(2000, 1, 1), Date(2019, 12, 31)),
             place=Place(
                 id="the_place",
-                names=[Name(Plain("The Place"))],
+                names=[Name("The Place")],
             ),
         )
         presence = Presence(Person(id="the_person"), Subject(), event)
@@ -267,7 +266,7 @@ class TestEvent(EntityTestBase):
                 id="the_citation",
                 source=Source(
                     id="the_source",
-                    name=Plain("The Source"),
+                    name="The Source",
                 ),
             )
         )

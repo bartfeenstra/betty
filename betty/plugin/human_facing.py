@@ -8,7 +8,13 @@ from typing import TYPE_CHECKING, Any
 
 from typing_extensions import override
 
-from betty.locale.localizable import _
+from betty.locale.localizable import (
+    LocalizableLike,
+    OptionalLocalizableAttr,
+    RequiredLocalizableAttr,
+    _,
+    ensure_localizable,
+)
 from betty.plugin import PluginDefinition
 
 if TYPE_CHECKING:
@@ -20,11 +26,14 @@ class HumanFacingPluginDefinition(PluginDefinition):
     A definition of a plugin that is human-facing.
     """
 
+    _label = RequiredLocalizableAttr("_label")
+    _description = OptionalLocalizableAttr("_description")
+
     def __init__(
         self,
         *args: Any,
-        label: Localizable,
-        description: Localizable | None = None,
+        label: LocalizableLike,
+        description: LocalizableLike | None = None,
         **kwargs: Any,
     ):
         super().__init__(*args, **kwargs)
@@ -71,12 +80,12 @@ class CountableHumanFacingPluginDefinition(HumanFacingPluginDefinition):
     def __init__(
         self,
         *args: Any,
-        label_plural: Localizable,
+        label_plural: LocalizableLike,
         label_countable: CountableLocalizable,
         **kwargs: Any,
     ):
         super().__init__(*args, **kwargs)
-        self._label_plural = label_plural
+        self._label_plural = ensure_localizable(label_plural)
         self._label_countable = label_countable
 
     @property

@@ -5,7 +5,6 @@ from pathlib import Path
 import pytest
 
 from betty.exception import HumanFacingException
-from betty.locale.localizable import Plain
 from betty.locale.translation.project.extension import (
     assert_extension_assets_directory_path,
     assert_extension_has_assets_directory_path,
@@ -16,7 +15,7 @@ from betty.test_utils.project.extension import DummyExtensionOne
 
 @ExtensionDefinition(
     id="dummy-with-assets-directory",
-    label=Plain(""),
+    label="",
     assets_directory_path=Path(__file__),
 )
 class _DummyExtensionWithAssetsDirectory(Extension):

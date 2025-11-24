@@ -6,7 +6,6 @@ from __future__ import annotations
 
 from typing import Any, ClassVar, final
 
-from betty.locale.localizable import Plain
 from betty.plugin import PluginTypeDefinition
 from betty.plugin.classed import ClassedPlugin, ClassedPluginDefinition
 from betty.plugin.discovery.callback import CallbackDiscovery
@@ -32,7 +31,7 @@ class ClassedDummyPluginDefinition(ClassedPluginDefinition[ClassedDummyPlugin]):
     plugin_type_cls = ClassedDummyPlugin
     type = PluginTypeDefinition(
         id="classed-dummy-plugin",
-        label=Plain("Classed dummy plugin"),
+        label="Classed dummy plugin",
         discoveries=CallbackDiscovery(
             lambda: [
                 ClassedDummyPluginOne.plugin,

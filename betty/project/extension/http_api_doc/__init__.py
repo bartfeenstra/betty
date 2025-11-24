@@ -8,7 +8,7 @@ from typing import TYPE_CHECKING, final
 from typing_extensions import override
 
 from betty.html import NavigationLink, NavigationLinkProvider
-from betty.locale.localizable import Plain, _
+from betty.locale.localizable import _
 from betty.project.extension import ExtensionDefinition
 from betty.project.extension.webpack import Webpack
 from betty.project.extension.webpack.build import EntryPointProvider
@@ -20,7 +20,7 @@ if TYPE_CHECKING:
 @final
 @ExtensionDefinition(
     id="http-api-doc",
-    label=Plain("HTTP API Documentation"),
+    label="HTTP API Documentation",
     description=_(
         "Display the HTTP API documentation in a user-friendly way using Swagger UI."
     ),

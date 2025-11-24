@@ -18,7 +18,6 @@ from betty.ancestry.presence import Presence
 from betty.ancestry.presence_role.presence_roles import Subject
 from betty.date import Date, DateLike, DateRange
 from betty.deriver import Deriver
-from betty.locale.localizable import Plain
 from betty.model.collections import record_added
 from betty.project import Project
 
@@ -35,7 +34,7 @@ NewProject: TypeAlias = Callable[
 @final
 @EventTypeDefinition(
     id="isolated",
-    label=Plain(""),
+    label="",
 )
 class Isolated(EventType):
     pass
@@ -44,7 +43,7 @@ class Isolated(EventType):
 @final
 @EventTypeDefinition(
     id="comes-before-reference",
-    label=Plain(""),
+    label="",
 )
 class ComesBeforeReference(EventType):
     pass
@@ -53,7 +52,7 @@ class ComesBeforeReference(EventType):
 @final
 @EventTypeDefinition(
     id="comes-after-reference",
-    label=Plain(""),
+    label="",
 )
 class ComesAfterReference(EventType):
     pass
@@ -62,7 +61,7 @@ class ComesAfterReference(EventType):
 @final
 @EventTypeDefinition(
     id="comes-before",
-    label=Plain(""),
+    label="",
     comes_before={ComesBeforeReference.plugin},
 )
 class ComesBefore(EventType):
@@ -72,7 +71,7 @@ class ComesBefore(EventType):
 @final
 @EventTypeDefinition(
     id="comes-before-should-exist",
-    label=Plain(""),
+    label="",
     comes_before={ComesBeforeReference.plugin},
 )
 class ComesBeforeShouldExist(ShouldExistEventType):
@@ -85,7 +84,7 @@ class ComesBeforeShouldExist(ShouldExistEventType):
 @final
 @EventTypeDefinition(
     id="comes-before-should-not-exist",
-    label=Plain(""),
+    label="",
     comes_before={ComesBeforeReference.plugin},
 )
 class ComesBeforeShouldNotExist(ShouldExistEventType):
@@ -98,7 +97,7 @@ class ComesBeforeShouldNotExist(ShouldExistEventType):
 @final
 @EventTypeDefinition(
     id="comes-before-and-after",
-    label=Plain(""),
+    label="",
     comes_before={ComesBeforeReference.plugin},
     comes_after={ComesAfterReference.plugin},
 )
@@ -109,7 +108,7 @@ class ComesBeforeAndAfter(EventType):
 @final
 @EventTypeDefinition(
     id="comes-before-and-after-should-exist",
-    label=Plain(""),
+    label="",
     comes_before={ComesBeforeReference.plugin},
     comes_after={ComesAfterReference.plugin},
 )
@@ -123,7 +122,7 @@ class ComesBeforeAndAfterShouldExist(ShouldExistEventType):
 @final
 @EventTypeDefinition(
     id="comes-before-and-after-should-not-exist",
-    label=Plain(""),
+    label="",
     comes_before={ComesBeforeReference.plugin},
     comes_after={ComesAfterReference.plugin},
 )
@@ -137,7 +136,7 @@ class ComesBeforeAndAfterShouldNotExist(ShouldExistEventType):
 @final
 @EventTypeDefinition(
     id="comes-after",
-    label=Plain(""),
+    label="",
     comes_after={ComesAfterReference.plugin},
 )
 class ComesAfter(EventType):
@@ -147,7 +146,7 @@ class ComesAfter(EventType):
 @final
 @EventTypeDefinition(
     id="comes-after-should-exist",
-    label=Plain(""),
+    label="",
     comes_after={ComesAfterReference.plugin},
 )
 class ComesAfterShouldExist(ShouldExistEventType):
@@ -160,7 +159,7 @@ class ComesAfterShouldExist(ShouldExistEventType):
 @final
 @EventTypeDefinition(
     id="comes-after-should-not-exist",
-    label=Plain(""),
+    label="",
     comes_after={ComesAfterReference.plugin},
 )
 class ComesAfterShouldNotExist(ShouldExistEventType):

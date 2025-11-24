@@ -36,7 +36,7 @@ class TestSource(EntityTestBase):
     def _sut_params() -> Sequence[Entity]:
         return [
             Source(),
-            Source(name=Plain("My First Source")),
+            Source(name="My First Source"),
         ]
 
     @override
@@ -46,19 +46,19 @@ class TestSource(EntityTestBase):
 
     def test___init____with_name(self) -> None:
         name = "The Source"
-        sut = Source(name=Plain(name))
+        sut = Source(name=name)
         assert sut.name is not None
         assert sut.name.localize(DEFAULT_LOCALIZER) == name
 
     def test___init____with_author(self) -> None:
         author = "Me"
-        sut = Source(author=Plain(author))
+        sut = Source(author=author)
         assert sut.author is not None
         assert sut.author.localize(DEFAULT_LOCALIZER) == author
 
     def test___init____with_publisher(self) -> None:
         publisher = "Me"
-        sut = Source(publisher=Plain(publisher))
+        sut = Source(publisher=publisher)
         assert sut.publisher is not None
         assert sut.publisher.localize(DEFAULT_LOCALIZER) == publisher
 
@@ -81,9 +81,9 @@ class TestSource(EntityTestBase):
     async def test_name(self) -> None:
         sut = Source()
         assert sut.name is None
-        name = "The Source"
-        sut.name = Plain(name)
-        assert sut.name.localize(DEFAULT_LOCALIZER) == name
+        name = Plain("The Source")
+        sut.name = name
+        assert sut.name is name
 
     async def test_contained_by(self) -> None:
         contained_by_source = Source()
@@ -116,17 +116,16 @@ class TestSource(EntityTestBase):
     async def test_author(self) -> None:
         sut = Source()
         assert not sut.author
-        author = "Me"
-        sut.author = Plain(author)
-        assert sut.author.localize(DEFAULT_LOCALIZER) == author
+        author = Plain("Me")
+        sut.author = author
+        assert sut.author is author
 
     async def test_publisher(self) -> None:
         sut = Source()
         assert not sut.publisher
-        publisher = "Me"
-        sut.publisher = Plain(publisher)
-        assert sut.publisher is not None
-        assert sut.publisher.localize(DEFAULT_LOCALIZER) == publisher
+        publisher = Plain("Me")
+        sut.publisher = publisher
+        assert sut.publisher is publisher
 
     async def test_date(self) -> None:
         sut = Source()
@@ -149,7 +148,7 @@ class TestSource(EntityTestBase):
     async def test_dump_linked_data__should_dump_minimal(self) -> None:
         source = Source(
             id="the_source",
-            name=Plain("The Source"),
+            name="The Source",
         )
         expected: Mapping[str, Any] = {
             "@context": {
@@ -172,21 +171,21 @@ class TestSource(EntityTestBase):
 
     async def test_dump_linked_data__should_dump_full(self) -> None:
         link = Link("https://example.com/the-source")
-        link.label = Plain("The Source Online")
+        link.label = "The Source Online"  # type: ignore[assignment]
         source = Source(
             id="the_source",
-            name=Plain("The Source"),
-            author=Plain("The Author"),
-            publisher=Plain("The Publisher"),
+            name="The Source",
+            author="The Author",
+            publisher="The Publisher",
             date=Date(2000, 1, 1),
             contained_by=Source(
                 id="the_containing_source",
-                name=Plain("The Containing Source"),
+                name="The Containing Source",
             ),
             contains=[
                 Source(
                     id="the_contained_source",
-                    name=Plain("The Contained Source"),
+                    name="The Contained Source",
                 )
             ],
             links=[link],
@@ -242,21 +241,21 @@ class TestSource(EntityTestBase):
 
     async def test_dump_linked_data__should_dump_private(self) -> None:
         link = Link("https://example.com/the-source")
-        link.label = Plain("The Source Online")
+        link.label = "The Source Online"  # type: ignore[assignment]
         source = Source(
             id="the_source",
-            name=Plain("The Source"),
-            author=Plain("The Author"),
-            publisher=Plain("The Publisher"),
+            name="The Source",
+            author="The Author",
+            publisher="The Publisher",
             date=Date(2000, 1, 1),
             contained_by=Source(
                 id="the_containing_source",
-                name=Plain("The Containing Source"),
+                name="The Containing Source",
             ),
             contains=[
                 Source(
                     id="the_contained_source",
-                    name=Plain("The Contained Source"),
+                    name="The Contained Source",
                 )
             ],
             links=[link],
@@ -294,11 +293,11 @@ class TestSource(EntityTestBase):
     ) -> None:
         contained_by_source = Source(
             id="the_containing_source",
-            name=Plain("The Containing Source"),
+            name="The Containing Source",
         )
         contains_source = Source(
             id="the_contained_source",
-            name=Plain("The Contained Source"),
+            name="The Contained Source",
             private=True,
         )
         source = Source(

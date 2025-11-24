@@ -10,7 +10,7 @@ from typing import TypeVar, final, overload
 from typing_extensions import override
 
 from betty.assertion import Assertion
-from betty.locale.localizable import Localizable
+from betty.locale.localizable import LocalizableLike
 from betty.progress import Progress
 from betty.progress.no_op import NoOpProgress
 from betty.typing import Void
@@ -36,23 +36,23 @@ class NoOpUser(User):
         pass
 
     @override
-    async def message_error(self, message: Localizable, /) -> None:
+    async def message_error(self, message: LocalizableLike, /) -> None:
         pass
 
     @override
-    async def message_warning(self, message: Localizable, /) -> None:
+    async def message_warning(self, message: LocalizableLike, /) -> None:
         pass
 
     @override
-    async def message_information(self, message: Localizable, /) -> None:
+    async def message_information(self, message: LocalizableLike, /) -> None:
         pass
 
     @override
-    async def message_information_details(self, message: Localizable, /) -> None:
+    async def message_information_details(self, message: LocalizableLike, /) -> None:
         pass
 
     @override
-    async def message_debug(self, message: Localizable, /) -> None:
+    async def message_debug(self, message: LocalizableLike, /) -> None:
         pass
 
     @override
@@ -62,20 +62,20 @@ class NoOpUser(User):
     @override
     @asynccontextmanager
     async def message_progress(
-        self, message: Localizable, /
+        self, message: LocalizableLike, /
     ) -> AsyncIterator[Progress]:
         yield NoOpProgress()
 
     @override
     async def ask_confirmation(
-        self, statement: Localizable, *, default: bool = False
+        self, statement: LocalizableLike, *, default: bool = False
     ) -> bool:
         raise UserTimeoutError
 
     @overload
     async def ask_input(
         self,
-        question: Localizable,
+        question: LocalizableLike,
         *,
         default: str | Void = Void(),  # noqa B008
     ) -> str:
@@ -84,7 +84,7 @@ class NoOpUser(User):
     @overload
     async def ask_input(
         self,
-        question: Localizable,
+        question: LocalizableLike,
         *,
         assertion: Assertion[str, _T],
         default: str | Void = Void(),  # noqa B008
@@ -94,7 +94,7 @@ class NoOpUser(User):
     @override
     async def ask_input(
         self,
-        question: Localizable,
+        question: LocalizableLike,
         *,
         assertion: Assertion[str, _T] | None = None,
         default: str | _T | Void = Void(),  # noqa B008

@@ -46,7 +46,7 @@ class TestAnyRequirement:
         assert AnyRequirement.new(None, None, None) is None
 
     async def test_new__with_partial_met(self) -> None:
-        assert AnyRequirement.new(None, None, StaticRequirement(Plain(""))) is None
+        assert AnyRequirement.new(None, None, StaticRequirement("")) is None
 
     async def test_new__with_all_met(self) -> None:
         assert AnyRequirement.new(None, None, None) is None
@@ -54,8 +54,8 @@ class TestAnyRequirement:
     async def test_new__with_nested(self) -> None:
         sut = AnyRequirement.new(
             AnyRequirement.new(
-                StaticRequirement(Plain("My first nested requirement")),
-                StaticRequirement(Plain("My second nested requirement")),
+                StaticRequirement("My first nested requirement"),
+                StaticRequirement("My second nested requirement"),
             )
         )
         assert sut is not None
@@ -65,17 +65,15 @@ class TestAnyRequirement:
         )
 
     async def test_summary(self) -> None:
-        summary = Plain("")
+        summary = "My First Summary"
         requirement = AnyRequirement.new(
-            StaticRequirement(Plain("")), StaticRequirement(Plain("")), summary=summary
+            StaticRequirement(""), StaticRequirement(""), summary=summary
         )
         assert requirement is not None
-        assert requirement.summary is summary
+        assert requirement.summary.localize(DEFAULT_LOCALIZER) == summary
 
     async def test_summary__default(self) -> None:
-        assert AnyRequirement(StaticRequirement(Plain(""))).summary.localize(
-            DEFAULT_LOCALIZER
-        )
+        assert AnyRequirement(StaticRequirement("")).summary.localize(DEFAULT_LOCALIZER)
 
 
 class TestAllRequirements:
@@ -83,7 +81,7 @@ class TestAllRequirements:
         assert AllRequirements.new(None, None, None) is None
 
     async def test_new__with_partial_met(self) -> None:
-        assert AllRequirements.new(None, None, StaticRequirement(Plain(""))) is not None
+        assert AllRequirements.new(None, None, StaticRequirement("")) is not None
 
     async def test_new__with_all_met(self) -> None:
         assert AllRequirements.new(None, None, None) is None
@@ -91,8 +89,8 @@ class TestAllRequirements:
     async def test_new__with_nested(self) -> None:
         sut = AllRequirements.new(
             AllRequirements.new(
-                StaticRequirement(Plain("My first nested requirement")),
-                StaticRequirement(Plain("My second nested requirement")),
+                StaticRequirement("My first nested requirement"),
+                StaticRequirement("My second nested requirement"),
             )
         )
         assert sut is not None
@@ -102,22 +100,22 @@ class TestAllRequirements:
         )
 
     async def test_summary(self) -> None:
-        summary = Plain("")
+        summary = "My First Summary"
         requirement = AllRequirements.new(
-            StaticRequirement(Plain("")), StaticRequirement(Plain("")), summary=summary
+            StaticRequirement(""), StaticRequirement(""), summary=summary
         )
         assert requirement is not None
-        assert requirement.summary is summary
+        assert requirement.summary.localize(DEFAULT_LOCALIZER) == summary
 
     async def test_summary__default(self) -> None:
-        assert AllRequirements(StaticRequirement(Plain(""))).summary.localize(
+        assert AllRequirements(StaticRequirement("")).summary.localize(
             DEFAULT_LOCALIZER
         )
 
 
 class TestUnmetRequirement:
     def test_requirement(self) -> None:
-        requirement = StaticRequirement(Plain(""))
+        requirement = StaticRequirement("")
         sut = UnmetRequirement(requirement)
         assert sut.requirement() is requirement
 
@@ -129,4 +127,4 @@ class TestStaticRequirement:
 
     def test_details(self) -> None:
         details = Plain("Hello, world!")
-        assert StaticRequirement(Plain(""), details).details is details
+        assert StaticRequirement("", details).details is details

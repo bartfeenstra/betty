@@ -2,7 +2,6 @@ from __future__ import annotations
 
 from betty.ancestry.citation import Citation
 from betty.ancestry.source import Source
-from betty.locale.localizable import Plain
 from betty.project.extension.raspberry_mint import RaspberryMint
 from betty.resource import EntityContexts, new_context
 from betty.test_utils.jinja2 import assert_template_file
@@ -53,7 +52,7 @@ async def test_embedded() -> None:
 
 async def test_with_location() -> None:
     source = Source()
-    citation = Citation(source=source, location=Plain("Somewhere"))
+    citation = Citation(source=source, location="Somewhere")
     expected = (
         f'Somewhere <sup>(<span lang="und" dir="auto">Source {source.id}</span>)</sup>'
     )

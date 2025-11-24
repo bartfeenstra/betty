@@ -25,7 +25,6 @@ from betty.content_provider.content_providers import Template
 from betty.jinja2 import Environment
 from betty.locale.localizable import (
     LocalizableLike,
-    Plain,
     RequiredLocalizableAttr,
     _,
     ensure_localizable,
@@ -146,7 +145,7 @@ class Section(
         configuration: SectionConfiguration | None = None,
     ):
         super().__init__(
-            configuration=SectionConfiguration(name="", heading=Plain(""))
+            configuration=SectionConfiguration(name="", heading="")
             if configuration is None
             else configuration,
             jinja2_environment=jinja2_environment,

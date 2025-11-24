@@ -13,7 +13,7 @@ from betty.config import Configurable
 from betty.copyright_notice import CopyrightNoticeDefinition
 from betty.jinja2 import Filters, Globals, Jinja2Provider, context_localizer
 from betty.locale import negotiate_locale
-from betty.locale.localizable import Plain, _
+from betty.locale.localizable import _
 from betty.project.extension import Extension, ExtensionDefinition
 from betty.project.extension.wiki.config import WikiConfiguration
 from betty.project.extension.wiki.jobs import PopulateEntity
@@ -38,7 +38,7 @@ if TYPE_CHECKING:
 @final
 @ExtensionDefinition(
     id="wiki",
-    label=Plain("Wiki"),
+    label="Wiki",
     description=_(
         "Enrich your ancestry with information from Wikipedia and Wikimedia Commons"
     ),

@@ -13,7 +13,13 @@ from betty.ancestry.has_file_references import HasFileReferences
 from betty.ancestry.has_links import HasLinks
 from betty.ancestry.has_notes import HasNotes
 from betty.json.linked_data import JsonLdObject, dump_context
-from betty.locale.localizable import Localizable, _, ngettext
+from betty.locale.localizable import (
+    Localizable,
+    LocalizableLike,
+    OptionalLocalizableAttr,
+    _,
+    ngettext,
+)
 from betty.locale.localizable.linked_data import dump_linked_data
 from betty.locale.localizable.schema import StaticTranslationsSchema
 from betty.model import Entity, EntityDefinition
@@ -49,6 +55,21 @@ class Source(HasDate, HasFileReferences, HasNotes, HasLinks, HasPrivacy, Entity)
     A source of information.
     """
 
+    name = OptionalLocalizableAttr("name")
+    """
+    The source's name.
+    """
+
+    author = OptionalLocalizableAttr("author")
+    """
+    The source's author.
+    """
+
+    publisher = OptionalLocalizableAttr("publisher")
+    """
+    The source's publisher.
+    """
+
     contained_by = BidirectionalToZeroOrOne["Source", "Source"](
         "betty.ancestry.source:Source",
         "contained_by",
@@ -60,6 +81,7 @@ class Source(HasDate, HasFileReferences, HasNotes, HasLinks, HasPrivacy, Entity)
     """
     Another source this source may be contained by
     """
+
     contains = BidirectionalToManySingleType["Source", "Source"](
         "betty.ancestry.source:Source",
         "contains",
@@ -71,6 +93,7 @@ class Source(HasDate, HasFileReferences, HasNotes, HasLinks, HasPrivacy, Entity)
     """
     Other sources this source may contain
     """
+
     citations = BidirectionalToManySingleType["Source", "Citation"](
         "betty.ancestry.source:Source",
         "citations",
@@ -85,11 +108,11 @@ class Source(HasDate, HasFileReferences, HasNotes, HasLinks, HasPrivacy, Entity)
 
     def __init__(
         self,
-        name: Localizable | None = None,
+        name: LocalizableLike | None = None,
         *,
         id: str | None = None,  # noqa A002  # noqa A002
-        author: Localizable | None = None,
-        publisher: Localizable | None = None,
+        author: LocalizableLike | None = None,
+        publisher: LocalizableLike | None = None,
         contained_by: ToZeroOrOneAssociate[Source] = None,
         contains: ToManyAssociates[Source] | None = None,
         notes: ToManyAssociates[Note] | None = None,

@@ -13,7 +13,7 @@ class TestHumanFacingPluginDefinition:
     def test_reference_label(self) -> None:
         id = "my-first-plugin"  # noqa A001
         plugin_label = "My First Plugin"
-        sut = HumanFacingPluginDefinition(id=id, label=Plain(plugin_label))
+        sut = HumanFacingPluginDefinition(id=id, label=plugin_label)
         actual = sut.reference_label.localize(DEFAULT_LOCALIZER)
         assert id in actual
         assert plugin_label in actual
@@ -23,12 +23,12 @@ class TestHumanFacingPluginDefinition:
 
         class _HumanFacingPluginDefinition(HumanFacingPluginDefinition):
             type = PluginTypeDefinition(
-                id="my-first-plugin-type", label=Plain(plugin_type_label)
+                id="my-first-plugin-type", label=plugin_type_label
             )
 
         id = "my-first-plugin"  # noqa A001
         plugin_label = "My First Plugin"
-        sut = _HumanFacingPluginDefinition(id=id, label=Plain(plugin_label))
+        sut = _HumanFacingPluginDefinition(id=id, label=plugin_label)
         actual = sut.reference_label_with_type.localize(DEFAULT_LOCALIZER)
         assert id in actual
         assert plugin_label in actual
@@ -42,7 +42,7 @@ class TestHumanFacingPluginDefinition:
     def test_description(self) -> None:
         description = Plain("")
         sut = HumanFacingPluginDefinition(
-            description=description, id="my-first-plugin", label=Plain("")
+            description=description, id="my-first-plugin", label=""
         )
         assert sut.description is description
 
@@ -54,7 +54,7 @@ class TestCountableHumanFacingPluginDefinition:
             label_plural=label_plural,
             label_countable=CountablePlain("", ""),
             id="my-first-plugin",
-            label=Plain(""),
+            label="",
         )
         assert sut.label_plural is label_plural
 
@@ -62,8 +62,8 @@ class TestCountableHumanFacingPluginDefinition:
         label_countable = CountablePlain("", "")
         sut = CountableHumanFacingPluginDefinition(
             label_countable=label_countable,
-            label_plural=Plain(""),
+            label_plural="",
             id="my-first-plugin",
-            label=Plain(""),
+            label="",
         )
         assert sut.label_countable is label_countable

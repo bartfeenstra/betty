@@ -17,7 +17,6 @@ from betty.ancestry.place_type import PlaceType, PlaceTypeDefinition
 from betty.ancestry.place_type.place_types import Hamlet
 from betty.ancestry.place_type.place_types import Unknown as UnknownPlaceType
 from betty.locale import DEFAULT_LOCALE
-from betty.locale.localizable import Plain
 from betty.model import Entity
 from betty.model.association import AssociationRequired, TemporaryToOneResolver
 from betty.mutability import Mutable
@@ -48,7 +47,7 @@ class TestPlace(EntityTestBase):
     def _sut_params() -> Sequence[Entity]:
         return [
             Place(),
-            Place(names=[Name(Plain("My First Place"))]),
+            Place(names=[Name("My First Place")]),
         ]
 
     @override
@@ -186,10 +185,10 @@ class TestPlace(EntityTestBase):
         longitude = -54.321
         coordinates = Point(latitude, longitude)
         link = Link("https://example.com/the-place")
-        link.label = Plain("The Place Online")
+        link.label = "The Place Online"  # type: ignore[assignment]
         place = Place(
             id=place_id,
-            names=[Name(Plain(name))],
+            names=[Name(name)],
             events=[
                 Event(
                     id="E1",

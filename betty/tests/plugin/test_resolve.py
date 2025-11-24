@@ -1,4 +1,3 @@
-from betty.locale.localizable import Plain
 from betty.plugin import PluginDefinition, PluginTypeDefinition
 from betty.plugin.classed import ClassedPlugin, ClassedPluginDefinition
 from betty.plugin.resolve import resolve_definition, resolve_id
@@ -14,7 +13,7 @@ def test_resolve_definition__with_plugin_cls() -> None:
         plugin_type_cls = _ClassedPluginCls
         type = PluginTypeDefinition(
             id="-",
-            label=Plain(""),
+            label="",
         )
 
     @_ClassedPluginDefinition(id=plugin_id)
@@ -39,7 +38,7 @@ def test_resolve_id__with_plugin_cls() -> None:
         plugin_type_cls = _ClassedPluginCls
         type = PluginTypeDefinition(
             id="-",
-            label=Plain(""),
+            label="",
         )
 
     @_ClassedPluginDefinition(id=plugin_id)

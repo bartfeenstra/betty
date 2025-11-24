@@ -9,7 +9,7 @@ from typing_extensions import override
 
 from betty.ancestry.place import Place
 from betty.job import Job
-from betty.locale.localizable import Plain, _
+from betty.locale.localizable import _
 from betty.project import ProjectContext
 from betty.project.extension import ExtensionDefinition
 from betty.project.extension.webpack import Webpack
@@ -75,7 +75,7 @@ class _GeneratePlacePreview(Job[ProjectContext]):
 @final
 @ExtensionDefinition(
     id="maps",
-    label=Plain("Maps"),
+    label="Maps",
     description=_("Display interactive maps"),
     depends_on={Webpack},
     assets_directory_path=Path(__file__).parent / "assets",
