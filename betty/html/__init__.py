@@ -14,7 +14,7 @@ from markupsafe import escape
 from typing_extensions import override
 
 from betty.link import Link
-from betty.locale.localizable import Plain
+from betty.locale.localizable import LocalizableLike, ensure_localizable
 
 if TYPE_CHECKING:
     from collections.abc import Sequence
@@ -52,9 +52,9 @@ class NavigationLink(Link):
     A navigation link.
     """
 
-    def __init__(self, url: Localizable | str, label: Localizable):
-        self._url = Plain(url) if isinstance(url, str) else url
-        self._label = label
+    def __init__(self, url: LocalizableLike, label: LocalizableLike):
+        self._url = ensure_localizable(url)
+        self._label = ensure_localizable(label)
 
     @override
     @property

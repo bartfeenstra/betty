@@ -29,7 +29,7 @@ from betty.hashid import hashid
 from betty.job import Context as JobContext
 from betty.json.schema import JsonSchemaReference, Schema
 from betty.license import LicenseDefinition
-from betty.locale.localizable import Localizable, _
+from betty.locale.localizable import LocalizableLike, _
 from betty.locale.localizer import LocalizerRepository
 from betty.locale.translation import (
     AssetTranslationRepository,
@@ -107,7 +107,7 @@ class Project(
     @override
     @classmethod
     async def requires(
-        cls, services: ServiceLevel, subject: Localizable | str, /
+        cls, services: ServiceLevel, subject: LocalizableLike, /
     ) -> Requirement | Self:
         if not isinstance(services, cls):
             return StaticRequirement(
