@@ -8,13 +8,14 @@ from typing import TYPE_CHECKING, Any, Self
 
 from typing_extensions import override
 
-from betty.assertion import RequiredField, assert_record
+from betty.assertion import RequiredField, assert_record, assert_setattr
 from betty.config import Configuration
 from betty.config.factory import ConfigurationDependentSelfFactory
 from betty.content_provider import ContentProvider, ContentProviderDefinition
 from betty.html import plain_text_to_html
-from betty.locale.localizable import LocalizableLike, _
-from betty.locale.localizable.config import RequiredLocalizableConfigurationAttr
+from betty.locale.localizable import LocalizableLike, RequiredLocalizableAttr, _
+from betty.locale.localizable.assertion import assert_load_localizable
+from betty.locale.localizable.config import dump_localizable
 from betty.plugin.classed import ClassedPlugin
 from betty.project.factory import ProjectDependentSelfFactory
 from betty.typing import private
@@ -34,7 +35,7 @@ class PlainTextConfiguration(Configuration):
     Configuration for :py:class:`betty.content_provider.content_providers.PlainText`.
     """
 
-    text = RequiredLocalizableConfigurationAttr("text")
+    text = RequiredLocalizableAttr("text")
 
     def __init__(self, text: LocalizableLike, /):
         super().__init__()
@@ -43,13 +44,15 @@ class PlainTextConfiguration(Configuration):
     @override
     def load(self, dump: Dump, /) -> None:
         assert_record(
-            RequiredField("text", type(self).text.assert_load(self)),
+            RequiredField(
+                "text", assert_load_localizable | assert_setattr(self, "text")
+            ),
         )(dump)
 
     @override
     def dump(self) -> Dump:
         return {
-            "text": type(self).text.dump(self),
+            "text": dump_localizable(self.text),
         }
 
 

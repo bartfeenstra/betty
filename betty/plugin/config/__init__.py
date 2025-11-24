@@ -26,11 +26,16 @@ from betty.config.collections.sequence import ConfigurationSequence
 from betty.config.factory import ConfigurationDependentSelfFactory
 from betty.exception import HumanFacingException
 from betty.importlib import fully_qualified_name
-from betty.locale.localizable import LocalizableLike, Plain, _, ensure_localizable
-from betty.locale.localizable.config import (
-    OptionalLocalizableConfigurationAttr,
-    RequiredLocalizableConfigurationAttr,
+from betty.locale.localizable import (
+    LocalizableLike,
+    OptionalLocalizableAttr,
+    Plain,
+    RequiredLocalizableAttr,
+    _,
+    ensure_localizable,
 )
+from betty.locale.localizable.assertion import assert_load_localizable
+from betty.locale.localizable.config import dump_localizable
 from betty.machine_name import MachineName, assert_machine_name
 from betty.plugin import PluginDefinition
 from betty.plugin.classed import ClassedPlugin, ClassedPluginDefinition
@@ -111,8 +116,8 @@ class HumanFacingPluginDefinitionConfiguration(PluginDefinitionConfiguration):
     Configure a :py:class:`betty.plugin.human_facing.HumanFacingPluginDefinition`.
     """
 
-    label = RequiredLocalizableConfigurationAttr("label")
-    description = OptionalLocalizableConfigurationAttr("description")
+    label = RequiredLocalizableAttr("label")
+    description = OptionalLocalizableAttr("description")
 
     def __init__(
         self,
@@ -132,8 +137,13 @@ class HumanFacingPluginDefinitionConfiguration(PluginDefinitionConfiguration):
 
         mapping = assert_mapping()(dump)
         assert_fields(
-            RequiredField("label", type(self).label.assert_load(self)),
-            OptionalField("description", type(self).description.assert_load(self)),
+            RequiredField(
+                "label", assert_load_localizable | assert_setattr(self, "label")
+            ),
+            OptionalField(
+                "description",
+                assert_load_localizable | assert_setattr(self, "description"),
+            ),
         )(mapping)
         mapping.pop("label", None)
         mapping.pop("description", None)
@@ -142,9 +152,9 @@ class HumanFacingPluginDefinitionConfiguration(PluginDefinitionConfiguration):
     @override
     def dump(self) -> DumpMapping[Dump]:
         dump = super().dump()
-        dump["label"] = type(self).label.dump(self)
-        if (description := type(self).description.dump(self)) is not None:
-            dump["description"] = description
+        dump["label"] = dump_localizable(self.label)
+        if self.description is not None:
+            dump["description"] = dump_localizable(self.description)
         return dump
 
 

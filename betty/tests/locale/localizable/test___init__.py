@@ -13,10 +13,13 @@ from betty.locale.localizable import (
     CountablePlain,
     Lines,
     Localizable,
+    OptionalLocalizableAttr,
     OrderedList,
     Paragraph,
     Paragraphs,
     Plain,
+    RequiredLocalizableAttr,
+    RequiredLocalizableAttrNotInitialized,
     ShorthandStaticTranslations,
     StaticTranslations,
     StaticTranslationsMapping,
@@ -474,3 +477,83 @@ def test_ensure_localized__with_static_translations_mapping() -> None:
         locale: localized,
     }
     assert ensure_localized(localizable, localizer=localizer) == localized
+
+
+class TestRequiredLocalizableAttr:
+    class _Instance:
+        attr = RequiredLocalizableAttr("attr")
+
+    def test___get____not_initialized(self) -> None:
+        instance = self._Instance()
+        with pytest.raises(RequiredLocalizableAttrNotInitialized):
+            instance.attr  # noqa B018
+
+    def test___set____with_str(self) -> None:
+        instance = self._Instance()
+        translation = "Hello, world!"
+        instance.attr = translation
+        assert instance.attr.localize(DEFAULT_LOCALIZER) == translation
+
+    def test___set____with_static_translations_mapping(self) -> None:
+        instance = self._Instance()
+        translation = "Hello, world!"
+        locale = "nl-NL"
+        instance.attr = {
+            DEFAULT_LOCALE: "Hello, world!",
+            locale: translation,
+        }
+        assert (
+            instance.attr.localize(Localizer(locale, NullTranslations())) == translation
+        )
+
+    def test___set____with_localizable(self) -> None:
+        instance = self._Instance()
+        localizable = Plain("Hello, world!")
+        instance.attr = localizable
+        assert instance.attr is localizable
+
+
+class TestOptionalLocalizableAttr:
+    class _Instance:
+        attr = OptionalLocalizableAttr("attr")
+
+    def test___get____not_initialized(self) -> None:
+        instance = self._Instance()
+        assert instance.attr is None
+
+    def test___set____with_str(self) -> None:
+        translation = "Hello, world!"
+        instance = self._Instance()
+        instance.attr = translation
+        assert instance.attr is not None
+        assert instance.attr.localize(DEFAULT_LOCALIZER) == translation
+
+    def test___set____with_static_translations_mapping(self) -> None:
+        instance = self._Instance()
+        translation = "Hello, world!"
+        locale = "nl-NL"
+        instance.attr = {
+            DEFAULT_LOCALE: "Hello, world!",
+            locale: translation,
+        }
+        assert instance.attr is not None
+        assert (
+            instance.attr.localize(Localizer(locale, NullTranslations())) == translation
+        )
+
+    def test___set____with_localizable(self) -> None:
+        instance = self._Instance()
+        localizable = Plain("Hello, world!")
+        instance.attr = localizable
+        assert instance.attr is localizable
+
+    def test___delete____without_value(self) -> None:
+        instance = self._Instance()
+        del instance.attr
+        assert instance.attr is None
+
+    def test___delete____with_value(self) -> None:
+        instance = self._Instance()
+        instance.attr = "Hello, world!"
+        del instance.attr
+        assert instance.attr is None

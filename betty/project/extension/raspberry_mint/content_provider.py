@@ -23,8 +23,15 @@ from betty.content_provider.config import (
 )
 from betty.content_provider.content_providers import Template
 from betty.jinja2 import Environment
-from betty.locale.localizable import LocalizableLike, Plain, _, ensure_localizable
-from betty.locale.localizable.config import RequiredLocalizableConfigurationAttr
+from betty.locale.localizable import (
+    LocalizableLike,
+    Plain,
+    RequiredLocalizableAttr,
+    _,
+    ensure_localizable,
+)
+from betty.locale.localizable.assertion import assert_load_localizable
+from betty.locale.localizable.config import dump_localizable
 from betty.machine_name import MachineName, assert_machine_name
 from betty.model import EntityDefinition
 from betty.model.config import EntityReferenceSequence
@@ -63,7 +70,7 @@ class SectionConfiguration(Configuration):
     Configuration for :py:class:`betty.project.extension.raspberry_mint.content_provider.Section`.
     """
 
-    heading = RequiredLocalizableConfigurationAttr("heading")
+    heading = RequiredLocalizableAttr("heading")
 
     def __init__(
         self,
@@ -90,7 +97,9 @@ class SectionConfiguration(Configuration):
     def load(self, dump: Dump, /) -> None:
         assert_record(
             OptionalField("name", assert_machine_name() | assert_setattr(self, "name")),
-            RequiredField("heading", type(self).heading.assert_load(self)),
+            RequiredField(
+                "heading", assert_load_localizable | assert_setattr(self, "heading")
+            ),
             RequiredField("content", self.content.load),
             OptionalField(
                 "visually_hide_heading",
@@ -101,7 +110,7 @@ class SectionConfiguration(Configuration):
     @override
     def dump(self) -> Dump:
         dump = {
-            "heading": type(self).heading.dump(self),
+            "heading": dump_localizable(self.heading),
             "content": self.content.dump(),
         }
         if self.name:
