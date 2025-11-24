@@ -24,6 +24,8 @@ from betty.locale.localizable import (
     StaticTranslationsSchema,
     UnorderedList,
     do_you_mean,
+    ensure_localizable,
+    ensure_localized,
 )
 from betty.locale.localizer import DEFAULT_LOCALIZER, Localizer
 from betty.serde.dump import Dump, DumpMapping
@@ -554,3 +556,47 @@ class TestAllEnumeration:
     def test(self, expected: str, localizables: Sequence[Localizable]) -> None:
         sut = AllEnumeration(*localizables)
         assert sut.localize(DEFAULT_LOCALIZER) == expected
+
+
+def test_ensure_localizable__with_localizable() -> None:
+    localizable = Plain("My First Localizable")
+    assert ensure_localizable(localizable) is localizable
+
+
+def test_ensure_localizable__with_str() -> None:
+    localizable = "My First Localizable"
+    assert ensure_localizable(localizable).localize(DEFAULT_LOCALIZER) == localizable
+
+
+def test_ensure_localizable__with_static_translations_mapping() -> None:
+    locale = "nl-NL"
+    localizer = Localizer(locale, NullTranslations())
+    localized = "Mijn Eerste, Ja, Wat Eigenlijk?"
+    localizable: StaticTranslationsMapping = {
+        DEFAULT_LOCALE: "My First Localizable",
+        locale: localized,
+    }
+    assert ensure_localizable(localizable).localize(localizer) == localized
+
+
+def test_ensure_localized__with_localizable() -> None:
+    localizable = "My First Localizable"
+    assert (
+        ensure_localized(Plain(localizable), localizer=DEFAULT_LOCALIZER) == localizable
+    )
+
+
+def test_ensure_localized__with_str() -> None:
+    localizable = "My First Localizable"
+    assert ensure_localized(localizable, localizer=DEFAULT_LOCALIZER) == localizable
+
+
+def test_ensure_localized__with_static_translations_mapping() -> None:
+    locale = "nl-NL"
+    localizer = Localizer(locale, NullTranslations())
+    localized = "Mijn Eerste, Ja, Wat Eigenlijk?"
+    localizable: StaticTranslationsMapping = {
+        DEFAULT_LOCALE: "My First Localizable",
+        locale: localized,
+    }
+    assert ensure_localized(localizable, localizer=localizer) == localized

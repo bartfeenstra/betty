@@ -46,7 +46,7 @@ _T = TypeVar("_T")
 
 class _Localizable(Generic[_T], ABC):
     @abstractmethod
-    def format(self, **format_kwargs: str | Localizable) -> _T:
+    def format(self, **format_kwargs: LocalizableLike) -> _T:
         """
         Apply string formatting to the eventual localized string.
 
@@ -71,7 +71,7 @@ class Localizable(_Localizable["Localizable"]):
         """
 
     @override
-    def format(self, **format_kwargs: str | Localizable) -> Localizable:
+    def format(self, **format_kwargs: LocalizableLike) -> Localizable:
         return _FormattedLocalizable(self, format_kwargs)
 
     @override
@@ -98,7 +98,7 @@ class CountableLocalizable(_Localizable["CountableLocalizable"]):
         """
 
     @override
-    def format(self, **format_kwargs: str | Localizable) -> CountableLocalizable:
+    def format(self, **format_kwargs: LocalizableLike) -> CountableLocalizable:
         return _FormattedCountableLocalizable(self, format_kwargs)
 
 
@@ -263,14 +263,14 @@ class _FormattedLocalizable(Localizable):
     def __init__(
         self,
         localizable: Localizable,
-        format_kwargs: Mapping[str, str | Localizable],
+        format_kwargs: Mapping[str, LocalizableLike],
         /,
     ):
         self._localizable = localizable
         self._format_kwargs = dict(format_kwargs)
 
     @override
-    def format(self, **format_kwargs: str | Localizable) -> Localizable:
+    def format(self, **format_kwargs: LocalizableLike) -> Localizable:
         self._format_kwargs.update(format_kwargs)
         return self
 
@@ -292,7 +292,7 @@ class _FormattedCountableLocalizable(CountableLocalizable):
     def __init__(
         self,
         localizable: CountableLocalizable,
-        format_kwargs: Mapping[str, str | Localizable],
+        format_kwargs: Mapping[str, LocalizableLike],
         /,
     ):
         self._localizable = localizable
@@ -512,11 +512,8 @@ class LocalizableSequence(ABC):
 
 
 class _LocalizableSequence(LocalizableSequence):
-    def __init__(self, *localizables: Localizable | str):
-        self._localizables = tuple(
-            localizable if isinstance(localizable, Localizable) else Plain(localizable)
-            for localizable in localizables
-        )
+    def __init__(self, *localizables: LocalizableLike):
+        self._localizables = tuple(map(ensure_localizable, localizables))
 
     @override
     @property
@@ -675,3 +672,31 @@ class AllEnumeration(_Enumeration):
     """
 
     _LOCALIZABLE = _("{most}, and {last}")
+
+
+LocalizableLike: TypeAlias = Localizable | ShorthandStaticTranslations
+"""
+A localizable, or a type that can be converted into a localizable with :py:func:`betty.locale.localizable.ensure_localizable`.
+"""
+
+
+def ensure_localizable(localizable: LocalizableLike) -> Localizable:
+    """
+    Ensure that a localizable-like value is or is made to be an actual localizable.
+    """
+    if isinstance(localizable, Localizable):
+        return localizable
+    if isinstance(localizable, str):
+        return Plain(localizable)
+    return StaticTranslations(localizable)
+
+
+def ensure_localized(localizable: LocalizableLike, *, localizer: Localizer) -> str:
+    """
+    Ensure that a localizable-like value is or is made to be localized.
+    """
+    if isinstance(localizable, str):
+        return localizable
+    if not isinstance(localizable, Localizable):
+        localizable = StaticTranslations(localizable)
+    return localizable.localize(localizer)

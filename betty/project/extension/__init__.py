@@ -6,7 +6,7 @@ from typing import TYPE_CHECKING, Any, ClassVar, Self, TypeVar, final
 
 from typing_extensions import override
 
-from betty.locale.localizable import Localizable, _
+from betty.locale.localizable import LocalizableLike, _
 from betty.plugin import PluginTypeDefinition
 from betty.plugin.classed import ClassedPlugin, ClassedPluginDefinition
 from betty.plugin.dependent import DependentPluginDefinition
@@ -37,7 +37,7 @@ class Extension(ServiceContainer, ClassedPlugin, HasRequirement):
     @override
     @classmethod
     async def requires(
-        cls, services: ServiceLevel, subject: Localizable | str, /
+        cls, services: ServiceLevel, subject: LocalizableLike, /
     ) -> Requirement | Self:
         from betty.project import Project
 

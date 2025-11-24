@@ -29,7 +29,7 @@ from betty.http_client.rate_limit import RateLimitDefinition, RateLimitMiddlewar
 from betty.license import LicenseDefinition
 from betty.license.licenses import SpdxLicenseBuilder
 from betty.locale import DEFAULT_LOCALE
-from betty.locale.localizable import Localizable, _
+from betty.locale.localizable import LocalizableLike, _
 from betty.locale.localizer import Localizer, LocalizerRepository
 from betty.locale.translation import (
     AssetTranslationRepository,
@@ -110,7 +110,7 @@ class App(
     @override
     @classmethod
     async def requires(
-        cls, services: ServiceLevel, subject: Localizable | str, /
+        cls, services: ServiceLevel, subject: LocalizableLike, /
     ) -> Requirement | Self:
         if services is None:
             return StaticRequirement(

@@ -14,10 +14,11 @@ from betty.json.schema import String
 from betty.link import Link as StdLink
 from betty.locale.localizable import (
     Localizable,
-    Plain,
+    LocalizableLike,
     StaticTranslations,
     StaticTranslationsSchema,
     _,
+    ensure_localizable,
     ngettext,
 )
 from betty.model import Entity, EntityDefinition
@@ -63,7 +64,7 @@ class Link(StdLink, HasMediaType, HasDescription, HasPrivacy, Entity):
 
     def __init__(
         self,
-        url: Localizable | str,
+        url: LocalizableLike,
         *,
         relationship: str | None = None,
         label: Localizable | None = None,
@@ -81,7 +82,7 @@ class Link(StdLink, HasMediaType, HasDescription, HasPrivacy, Entity):
             public=public,
             private=private,
         )
-        self._url = Plain(url) if isinstance(url, str) else url
+        self._url = ensure_localizable(url)
         self._label = label
         self.relationship = relationship
         if owner is not None:

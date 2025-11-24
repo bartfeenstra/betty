@@ -24,6 +24,7 @@ from betty.json.schema import String
 from betty.locale.localizable import (
     AllEnumeration,
     Localizable,
+    LocalizableLike,
     StaticTranslations,
     _,
     ngettext,
@@ -149,7 +150,7 @@ class Event(
         if self.name:
             return self.name
 
-        format_kwargs: Mapping[str, str | Localizable] = {
+        format_kwargs: Mapping[str, LocalizableLike] = {
             "event_type": self._event_type.plugin.label,
         }
         subjects = [

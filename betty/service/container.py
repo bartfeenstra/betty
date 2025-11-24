@@ -35,7 +35,7 @@ if TYPE_CHECKING:
     from collections.abc import Iterable
     from types import TracebackType
 
-    from betty.locale.localizable import Localizable
+    from betty.locale.localizable import LocalizableLike
     from betty.service.level import ServiceLevel
 
 
@@ -110,7 +110,7 @@ class ServiceContainer(Bootstrapped, Shutdownable):
     @classmethod
     @abstractmethod
     async def requires(
-        cls, services: ServiceLevel, subject: Localizable | str, /
+        cls, services: ServiceLevel, subject: LocalizableLike, /
     ) -> Requirement | Self:
         """
         Check that a service level is an instance of ``cls``.
@@ -118,7 +118,7 @@ class ServiceContainer(Bootstrapped, Shutdownable):
 
     @classmethod
     async def requirement_for(
-        cls, services: ServiceLevel, subject: Localizable | str, /
+        cls, services: ServiceLevel, subject: LocalizableLike, /
     ) -> Requirement | None:
         """
         Check that a service level is an instance of ``cls``.
