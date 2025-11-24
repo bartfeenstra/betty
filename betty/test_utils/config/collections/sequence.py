@@ -21,7 +21,7 @@ _ConfigurationT = TypeVar("_ConfigurationT", bound=Configuration)
 
 
 class ConfigurationSequenceTestBase(
-    Generic[_ConfigurationT], ConfigurationCollectionTestBase[int, _ConfigurationT]
+    ConfigurationCollectionTestBase[int, _ConfigurationT], Generic[_ConfigurationT]
 ):
     """
     A base class for testing :py:class:`betty.config.collections.sequence.ConfigurationSequence` implementations.

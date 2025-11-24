@@ -26,8 +26,8 @@ _MemoryCacheStore: TypeAlias = MutableMapping[
 
 @final
 class _MemoryCacheState(
-    Generic[_CacheItemValueContraT],
     _CommonCacheBaseState["MemoryCache[_CacheItemValueContraT]"],
+    Generic[_CacheItemValueContraT],
 ):
     def __init__(
         self,

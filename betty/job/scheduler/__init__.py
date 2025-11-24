@@ -81,7 +81,7 @@ class Completed(Closed):
     """
 
 
-class Scheduler(Generic[_ContextCoT], ABC):
+class Scheduler(ABC, Generic[_ContextCoT]):
     """
     A job scheduler.
     """

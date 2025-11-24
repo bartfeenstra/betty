@@ -77,7 +77,7 @@ class _UnknownJob(Singleton):
 
 @final
 @threadsafe
-class DefaultScheduler(Generic[_ContextCoT], Scheduler[_ContextCoT]):
+class DefaultScheduler(Scheduler[_ContextCoT], Generic[_ContextCoT]):
     """
     Betty's default job scheduler.
     """

@@ -44,7 +44,7 @@ if TYPE_CHECKING:
 _T = TypeVar("_T")
 
 
-class _Localizable(Generic[_T], ABC):
+class _Localizable(ABC, Generic[_T]):
     @abstractmethod
     def format(self, **format_kwargs: LocalizableLike) -> _T:
         """

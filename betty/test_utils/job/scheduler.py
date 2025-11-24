@@ -32,7 +32,7 @@ if TYPE_CHECKING:
 _ContextCoT = TypeVar("_ContextCoT", bound=Context, covariant=True)
 
 
-class StaticScheduler(Generic[_ContextCoT], Scheduler[_ContextCoT]):
+class StaticScheduler(Scheduler[_ContextCoT], Generic[_ContextCoT]):
     """
     A scheduler that issues static job batches.
     """
