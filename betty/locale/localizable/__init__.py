@@ -32,6 +32,7 @@ from typing_extensions import override
 from betty.json.linked_data import LinkedDataDumpableWithSchema
 from betty.json.schema import Object
 from betty.locale import UNDETERMINED_LOCALE, negotiate_locale, to_locale
+from betty.locale.localizable.schema import StaticTranslationsSchema
 from betty.locale.localized import Localized, LocalizedStr
 from betty.locale.localizer import DEFAULT_LOCALIZER, Localizer
 from betty.mutability import Mutable
@@ -362,26 +363,6 @@ ShorthandStaticTranslations: TypeAlias = StaticTranslationsMapping | str
 
 See :py:func:`betty.locale.localizable.assertion.assert_static_translations`.
 """
-
-
-class StaticTranslationsSchema(Object):
-    """
-    A JSON Schema for :py:class:`betty.locale.localizable.StaticTranslations`.
-    """
-
-    def __init__(
-        self, *, title: str = "Static translations", description: str | None = None
-    ):
-        super().__init__(
-            title=title,
-            description=(
-                (description or "") + "Keys are IETF BCP-47 language tags."
-            ).strip(),
-        )
-        self._schema["additionalProperties"] = {
-            "type": "string",
-            "description": "A human-readable translation.",
-        }
 
 
 class StaticTranslations(

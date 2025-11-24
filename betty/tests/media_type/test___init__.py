@@ -4,19 +4,16 @@ from pathlib import Path
 from typing import TYPE_CHECKING, Any
 
 import pytest
-from typing_extensions import override
 
 from betty.media_type import (
     ExtensionIndicator,
     InvalidMediaType,
     MediaType,
-    MediaTypeSchema,
     UnsupportedMediaType,
     match_extension,
     match_media_type,
 )
 from betty.media_type.media_types import HTML, PLAIN_TEXT
-from betty.test_utils.json.schema import SchemaTestBase, SchemaTestBaseSut
 
 if TYPE_CHECKING:
     from collections.abc import Iterable, Mapping, Sequence
@@ -249,23 +246,6 @@ class TestMediaType:
         extensions = [".one", ".two", ".three"]
         sut = MediaType("text/plain", extensions=extensions)
         assert sut.extensions == extensions
-
-
-class TestMediaTypeSchema(SchemaTestBase):
-    @override
-    @pytest.fixture
-    def sut(self) -> SchemaTestBaseSut:
-        return (
-            MediaTypeSchema(),
-            [
-                "text/plain",
-                "multipart/form-data",
-                "application/vnd.oasis.opendocument.text",
-                "application/ld+json",
-                "text/html; charset=UTF-8",
-            ],
-            [True, False, None, 123, [], {}],
-        )
 
 
 @pytest.mark.parametrize(

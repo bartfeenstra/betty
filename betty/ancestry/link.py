@@ -16,11 +16,11 @@ from betty.locale.localizable import (
     Localizable,
     LocalizableLike,
     StaticTranslations,
-    StaticTranslationsSchema,
     _,
     ensure_localizable,
     ngettext,
 )
+from betty.locale.localizable.schema import StaticTranslationsSchema
 from betty.model import Entity, EntityDefinition
 from betty.model.association import BidirectionalToZeroOrOne
 from betty.privacy import HasPrivacy, Privacy, merge_privacies

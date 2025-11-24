@@ -27,7 +27,6 @@ from betty.exception import HumanFacingExceptionGroup
 from betty.factory import TargetFactory
 from betty.hashid import hashid
 from betty.job import Context as JobContext
-from betty.json.schema import JsonSchemaReference, Schema
 from betty.license import LicenseDefinition
 from betty.locale.localizable import LocalizableLike, _
 from betty.locale.localizer import LocalizerRepository
@@ -36,7 +35,7 @@ from betty.locale.translation import (
     ProxyTranslationRepository,
     TranslationRepository,
 )
-from betty.model import Entity, EntityDefinition, ToManySchema
+from betty.model import Entity, EntityDefinition
 from betty.plugin import PluginDefinition
 from betty.plugin.dependent import sort_dependent_plugin_graph
 from betty.plugin.repository.provider import PluginRepositoryProvider
@@ -54,7 +53,6 @@ from betty.requirement import Requirement, StaticRequirement
 from betty.resource import Context as ResourceContext
 from betty.resource import ContextProvider, new_context
 from betty.service.container import ServiceContainer, service
-from betty.string import kebab_case_to_lower_camel_case
 from betty.typing import internal
 
 if TYPE_CHECKING:
@@ -479,72 +477,3 @@ class ProjectContext(JobContext):
         The Betty project this job context is run within.
         """
         return self._project
-
-
-@final
-class ProjectSchema(ProjectDependentFactory, Schema):
-    """
-    A JSON Schema for a project.
-    """
-
-    @classmethod
-    async def def_url(cls, project: Project, def_name: str) -> str:
-        """
-        Get the URL to a project's JSON Schema definition.
-        """
-        return f"{await cls.url(project)}#/$defs/{def_name}"
-
-    @classmethod
-    async def url(cls, project: Project) -> str:
-        """
-        Get the URL to a project's JSON Schema.
-        """
-        url_generator = await project.url_generator
-        return url_generator.generate("betty-static:///schema.json", absolute=True)
-
-    @classmethod
-    def www_path(cls, project: Project) -> Path:
-        """
-        Get the path to the schema file in a site's public WWW directory.
-        """
-        return project.configuration.www_directory_path / "schema.json"
-
-    @override
-    @classmethod
-    async def new_for_project(cls, project: Project, /) -> Self:
-        schema = cls()
-        schema._schema["$id"] = await cls.url(project)
-
-        # Add entity schemas.
-        for entity_type in await project.plugins(EntityDefinition):
-            entity_type_schema = await entity_type.cls.linked_data_schema(project)
-            entity_type_schema.embed(schema)
-            def_name = f"{kebab_case_to_lower_camel_case(entity_type.id)}EntityCollectionResponse"
-            schema.defs[def_name] = {
-                "type": "object",
-                "properties": {
-                    "collection": ToManySchema().embed(schema),
-                },
-            }
-
-        # Add the HTTP error response.
-        schema.defs["errorResponse"] = {
-            "type": "object",
-            "properties": {
-                "$schema": JsonSchemaReference().embed(schema),
-                "message": {
-                    "type": "string",
-                },
-            },
-            "required": [
-                "$schema",
-                "message",
-            ],
-            "additionalProperties": False,
-        }
-
-        schema._schema["anyOf"] = [
-            {"$ref": f"#/$defs/{def_name}"} for def_name in schema.defs
-        ]
-
-        return schema

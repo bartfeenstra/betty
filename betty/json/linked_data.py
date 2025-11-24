@@ -35,7 +35,7 @@ async def dump_schema(
     """
     Add the $schema item to a JSON-LD dump.
     """
-    from betty.project import ProjectSchema
+    from betty.project.schema import ProjectSchema
 
     schema = await linked_data_dumpable.linked_data_schema(project)
     if schema.def_name:

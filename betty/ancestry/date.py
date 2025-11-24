@@ -8,7 +8,8 @@ from typing import TYPE_CHECKING, Any
 
 from typing_extensions import override
 
-from betty.date import Date, DateLike, DateLikeSchema
+from betty.date import Date, DateLike
+from betty.date.schema import DateLikeSchema
 from betty.json.linked_data import (
     JsonLdObject,
     LinkedDataDumpableWithSchemaJsonLdObject,

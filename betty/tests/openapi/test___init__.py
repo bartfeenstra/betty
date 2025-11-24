@@ -1,10 +1,9 @@
 import pytest
-from typing_extensions import override
 
 from betty.app import App
-from betty.openapi import Specification, SpecificationSchema
+from betty.openapi import Specification
+from betty.openapi.schema import SpecificationSchema
 from betty.project import Project
-from betty.test_utils.json.schema import SchemaTestBase, SchemaTestBaseSut
 
 
 class TestSpecification:
@@ -22,10 +21,3 @@ class TestSpecification:
                 sut = Specification(project)
                 specification = await sut.build()
         SpecificationSchema().validate(specification)
-
-
-class TestSpecificationSchema(SchemaTestBase):
-    @override
-    @pytest.fixture
-    def sut(self) -> SchemaTestBaseSut:
-        return (SpecificationSchema(), [], [])

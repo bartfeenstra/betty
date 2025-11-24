@@ -8,17 +8,15 @@ import calendar
 import operator
 from collections.abc import Callable, Mapping
 from functools import total_ordering
-from typing import TYPE_CHECKING, Any, TypeAlias, final
+from typing import TYPE_CHECKING, Any, TypeAlias
 
 from typing_extensions import override
 
-from betty.classtools import Singleton
+from betty.date.schema import DateRangeSchema, DateSchema
 from betty.json.linked_data import (
-    JsonLdObject,
     LinkedDataDumpableWithSchemaJsonLdObject,
     dump_context,
 )
-from betty.json.schema import Boolean, Null, Number, OneOf, String
 
 if TYPE_CHECKING:
     from types import NotImplementedType
@@ -31,27 +29,6 @@ class IncompleteDateError(ValueError):
     """
     Raised when a date-like was unexpectedly incomplete.
     """
-
-
-@final
-class DateSchema(Singleton, JsonLdObject):
-    """
-    A JSON Schema for :py:type:`betty.date.Date`.
-    """
-
-    def __init__(self):
-        super().__init__(def_name="date", title="Date")
-        self.add_property("fuzzy", Boolean(title="Fuzzy"))
-        self.add_property("year", Number(title="Year"), False)
-        self.add_property("month", Number(title="Month"), False)
-        self.add_property("day", Number(title="Day"), False)
-        self.add_property(
-            "iso8601",
-            String(
-                pattern="^\\d\\d\\d\\d-\\d\\d-\\d\\d$", description="An ISO 8601 date."
-            ),
-            False,
-        )
 
 
 class Date(LinkedDataDumpableWithSchemaJsonLdObject):
@@ -195,20 +172,6 @@ def _dump_date_iso8601(date: Date, /) -> str | None:
     assert date.month
     assert date.day
     return f"{date.year:04d}-{date.month:02d}-{date.day:02d}"
-
-
-@final
-class DateRangeSchema(Singleton, JsonLdObject):
-    """
-    A JSON Schema for :py:type:`betty.date.DateRange`.
-    """
-
-    def __init__(self):
-        super().__init__(def_name="dateRange", title="Date range")
-        date_schema = DateSchema()
-        self._schema["additionalProperties"] = False
-        self.add_property("start", OneOf(date_schema, Null(), title="Start date"))
-        self.add_property("end", OneOf(date_schema, Null(), title="End date"))
 
 
 @total_ordering
@@ -470,21 +433,6 @@ class DateRange(LinkedDataDumpableWithSchemaJsonLdObject):
             other.end,
             other.start_is_boundary,
             other.end_is_boundary,
-        )
-
-
-@final
-class DateLikeSchema(Singleton, OneOf):
-    """
-    A JSON Schema for :py:type:`betty.date.DateLike`.
-    """
-
-    def __init__(self):
-        super().__init__(
-            DateSchema(),
-            DateRangeSchema(),
-            def_name="dateLike",
-            title="Date or date range",
         )
 
 

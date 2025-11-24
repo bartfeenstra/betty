@@ -4,19 +4,16 @@ from collections.abc import Sequence
 from typing import TYPE_CHECKING
 
 import pytest
-from typing_extensions import override
 
 from betty.locale import (
     MULTIPLE_LOCALES,
     NO_LINGUISTIC_CONTENT,
     SPECIAL_LOCALES,
     LocaleLike,
-    LocaleSchema,
     merge_locales,
     negotiate_locale,
     to_locale,
 )
-from betty.test_utils.json.schema import SchemaTestBase, SchemaTestBaseSut
 
 if TYPE_CHECKING:
     from collections.abc import Sequence
@@ -66,17 +63,3 @@ async def test_negotiate_locale(
 ) -> None:
     actual = negotiate_locale(preferred_locale, available_locales)
     assert expected == (to_locale(actual) if actual else actual)
-
-
-class TestLocaleSchema(SchemaTestBase):
-    @override
-    @pytest.fixture
-    def sut(self) -> SchemaTestBaseSut:
-        return (
-            LocaleSchema(),
-            ["en", "nl", "uk"],
-            [
-                True,
-                False,
-            ],
-        )

@@ -149,7 +149,7 @@ _BASELINE: Mapping[str, _ModuleIgnore] = {
         "Context": MissingReason.ABSTRACT,
         "Selector": MissingReason.ABSTRACT,
     },
-    "betty/date.py": {
+    "betty/date/__init__.py": {
         "IncompleteDateError": MissingReason.STATIC_CONTENT_ONLY,
     },
     "betty/deriver.py": {"Derivation": MissingReason.ENUM},
