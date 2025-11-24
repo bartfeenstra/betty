@@ -15,7 +15,7 @@ from typing import TYPE_CHECKING, ClassVar, Generic, Self, final
 
 from typing_extensions import TypeVar
 
-from betty.locale.localizable import _
+from betty.locale.localizable import LocalizableLike, _, ensure_localizable
 from betty.machine_name import InvalidMachineName, MachineName, validate_machine_name
 
 if TYPE_CHECKING:
@@ -86,7 +86,7 @@ class PluginTypeDefinition(Generic[_PluginDefinitionT]):
         self,
         *,
         id: MachineName,  # noqa A002
-        label: Localizable,
+        label: LocalizableLike,
         discoveries: Collection[PluginDiscovery[_PluginDefinitionT]]
         | PluginDiscovery[_PluginDefinitionT]
         | None = None,
@@ -96,7 +96,7 @@ class PluginTypeDefinition(Generic[_PluginDefinitionT]):
         if not validate_machine_name(id):  # type: ignore[redundant-expr]
             raise InvalidMachineName(id)
         self._id = id
-        self._label = label
+        self._label = ensure_localizable(label)
         if discoveries is None:
             discoveries = []
         elif isinstance(discoveries, PluginDiscovery):

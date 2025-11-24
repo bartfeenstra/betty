@@ -17,7 +17,6 @@ from geopy import Point
 
 from betty.exception import HumanFacingException
 from betty.hashid import hashid
-from betty.locale.localizable import Plain
 from betty.media_type import MediaType
 from betty.typing import internal
 
@@ -89,9 +88,7 @@ class Client:
             yield
         except (LookupError, TypeError) as error:
             raise ClientError(
-                Plain(
-                    f"Could not successfully parse the JSON content returned by {url}: {error}"
-                )
+                f"Could not successfully parse the JSON content returned by {url}: {error}"
             ) from error
 
     async def _fetch_json(self, url: str, *selectors: str | int) -> Any:
@@ -99,9 +96,7 @@ class Client:
         try:
             data = await response.json()
         except JSONDecodeError as error:
-            raise ClientError(
-                Plain(f"Invalid JSON returned by {url}: {error}")
-            ) from error
+            raise ClientError(f"Invalid JSON returned by {url}: {error}") from error
 
         with self._catch_json_lookup_errors(url):
             for selector in selectors:

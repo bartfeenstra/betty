@@ -29,7 +29,6 @@ from betty.importlib import fully_qualified_name
 from betty.locale.localizable import (
     LocalizableLike,
     OptionalLocalizableAttr,
-    Plain,
     RequiredLocalizableAttr,
     _,
     ensure_localizable,
@@ -266,9 +265,7 @@ class PluginInstanceConfiguration(
                     plugin_definition.cls, ConfigurationDependentSelfFactory
                 ):
                     raise HumanFacingException(
-                        Plain(
-                            f"Cannot instantiate {fully_qualified_name(plugin_definition.cls)} with configuration because it does not subclass {fully_qualified_name(ConfigurationDependentSelfFactory)}."
-                        )
+                        f"Cannot instantiate {fully_qualified_name(plugin_definition.cls)} with configuration because it does not subclass {fully_qualified_name(ConfigurationDependentSelfFactory)}."
                     )
                 return await factory(
                     plugin_definition.cls.new_for_configuration(self._configuration)  # type: ignore[arg-type]

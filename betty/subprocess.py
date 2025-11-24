@@ -10,7 +10,7 @@ from collections.abc import Sequence
 from pathlib import Path
 from subprocess import PIPE
 
-from betty.locale.localizable import Plain, _
+from betty.locale.localizable import _
 from betty.user import User
 
 
@@ -56,7 +56,7 @@ async def run_process(
             )
         stdout, stderr = await process.communicate()
     except FileNotFoundError as error:
-        await user.message_debug(Plain(str(error)))
+        await user.message_debug(str(error))
         raise FileNotFound(str(error)) from None
 
     if process.returncode == 0:

@@ -193,7 +193,7 @@ class SpdxLicenseBuilder:
 
             return LicenseDefinition(
                 id=spdx_license_id_to_license_id(license_id),
-                label=Plain(license_name),
+                label=license_name,
                 cls=_SpdxLicense,
             )
 

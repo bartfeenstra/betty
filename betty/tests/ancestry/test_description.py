@@ -5,7 +5,6 @@ from typing import TYPE_CHECKING
 import pytest
 
 from betty.locale import DEFAULT_LOCALE
-from betty.locale.localizable import Plain
 from betty.locale.localizer import DEFAULT_LOCALIZER
 from betty.test_utils.ancestry.description import DummyHasDescription
 from betty.test_utils.json.linked_data import assert_dumps_linked_data
@@ -18,7 +17,7 @@ if TYPE_CHECKING:
 class TestHasDescription:
     async def test___init___with_description(self) -> None:
         description = "Hello, world!"
-        sut = DummyHasDescription(description=Plain(description))
+        sut = DummyHasDescription(description=description)
         assert sut.description is not None
         assert sut.description.localize(DEFAULT_LOCALIZER) == description
 
@@ -40,7 +39,7 @@ class TestHasDescription:
                     "@context": {"description": "https://schema.org/description"},
                     "description": {DEFAULT_LOCALE: "Hello, world!"},
                 },
-                DummyHasDescription(description=Plain("Hello, world!")),
+                DummyHasDescription(description="Hello, world!"),
             ),
         ],
     )

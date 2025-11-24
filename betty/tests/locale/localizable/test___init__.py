@@ -13,6 +13,7 @@ from betty.locale.localizable import (
     CountablePlain,
     Lines,
     Localizable,
+    LocalizableLike,
     OptionalLocalizableAttr,
     OrderedList,
     Paragraph,
@@ -247,11 +248,13 @@ class TestLines:
             ("", []),
             (
                 "Foo\nBar",
-                [Plain("Foo"), Plain("Bar")],
+                ["Foo", "Bar"],
             ),
         ],
     )
-    def test_localize(self, expected: str, localizables: Sequence[Localizable]) -> None:
+    def test_localize(
+        self, expected: str, localizables: Sequence[LocalizableLike]
+    ) -> None:
         sut = Lines(*localizables)
         assert sut.localize(DEFAULT_LOCALIZER) == expected
 
@@ -263,11 +266,13 @@ class TestParagraph:
             ("", []),
             (
                 "Foo Bar",
-                [Plain("Foo"), Plain("Bar")],
+                ["Foo", "Bar"],
             ),
         ],
     )
-    def test_localize(self, expected: str, localizables: Sequence[Localizable]) -> None:
+    def test_localize(
+        self, expected: str, localizables: Sequence[LocalizableLike]
+    ) -> None:
         sut = Paragraph(*localizables)
         assert sut.localize(DEFAULT_LOCALIZER) == expected
 
@@ -279,11 +284,13 @@ class TestParagraphs:
             ("", []),
             (
                 "Foo\n\nBar",
-                [Plain("Foo"), Plain("Bar")],
+                ["Foo", "Bar"],
             ),
         ],
     )
-    def test_localize(self, expected: str, localizables: Sequence[Localizable]) -> None:
+    def test_localize(
+        self, expected: str, localizables: Sequence[LocalizableLike]
+    ) -> None:
         sut = Paragraphs(*localizables)
         assert sut.localize(DEFAULT_LOCALIZER) == expected
 
@@ -300,12 +307,12 @@ class TestOrderedList:
             (
                 "1. Foo\n2. Bar",
                 DEFAULT_LOCALIZER,
-                [Plain("Foo"), Plain("Bar")],
+                ["Foo", "Bar"],
             ),
             (
                 "Foo .1\nBar .2",
                 Localizer("ar", NullTranslations()),
-                [Plain("Foo"), Plain("Bar")],
+                ["Foo", "Bar"],
             ),
             (
                 "1. Foo\n   Foo2\n2. Bar\n   Bar2",
@@ -331,7 +338,10 @@ class TestOrderedList:
         ],
     )
     def test_localize(
-        self, expected: str, localizer: Localizer, localizables: Sequence[Localizable]
+        self,
+        expected: str,
+        localizer: Localizer,
+        localizables: Sequence[LocalizableLike],
     ) -> None:
         sut = OrderedList(*localizables)
         assert sut.localize(localizer) == expected
@@ -373,7 +383,10 @@ class TestUnorderedList:
         ],
     )
     def test_localize(
-        self, expected: str, localizer: Localizer, localizables: Sequence[Localizable]
+        self,
+        expected: str,
+        localizer: Localizer,
+        localizables: Sequence[LocalizableLike],
     ) -> None:
         sut = UnorderedList(*localizables)
         assert sut.localize(localizer) == expected
@@ -386,11 +399,11 @@ class TestChain:
             ("", []),
             (
                 "FooBar",
-                [Plain("Foo"), Plain("Bar")],
+                ["Foo", "Bar"],
             ),
         ],
     )
-    def test(self, expected: str, localizables: Sequence[Localizable]) -> None:
+    def test(self, expected: str, localizables: Sequence[LocalizableLike]) -> None:
         sut = Chain(*localizables)
         assert sut.localize(DEFAULT_LOCALIZER) == expected
 
@@ -402,15 +415,15 @@ class TestAnyEnumeration:
             ("", []),
             (
                 "Foo",
-                [Plain("Foo")],
+                ["Foo"],
             ),
             (
                 "Foo, or Bar",
-                [Plain("Foo"), Plain("Bar")],
+                ["Foo", "Bar"],
             ),
         ],
     )
-    def test(self, expected: str, localizables: Sequence[Localizable]) -> None:
+    def test(self, expected: str, localizables: Sequence[LocalizableLike]) -> None:
         sut = AnyEnumeration(*localizables)
         assert sut.localize(DEFAULT_LOCALIZER) == expected
 
@@ -422,15 +435,15 @@ class TestAllEnumeration:
             ("", []),
             (
                 "Foo",
-                [Plain("Foo")],
+                ["Foo"],
             ),
             (
                 "Foo, and Bar",
-                [Plain("Foo"), Plain("Bar")],
+                ["Foo", "Bar"],
             ),
         ],
     )
-    def test(self, expected: str, localizables: Sequence[Localizable]) -> None:
+    def test(self, expected: str, localizables: Sequence[LocalizableLike]) -> None:
         sut = AllEnumeration(*localizables)
         assert sut.localize(DEFAULT_LOCALIZER) == expected
 

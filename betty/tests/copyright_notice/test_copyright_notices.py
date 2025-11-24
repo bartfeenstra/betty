@@ -3,7 +3,6 @@ from typing_extensions import override
 
 from betty.copyright_notice import CopyrightNotice
 from betty.copyright_notice.copyright_notices import ProjectAuthor, PublicDomain
-from betty.locale.localizable import Plain
 from betty.plugin import PluginDefinition
 from betty.test_utils.copyright_notice import (
     CopyrightNoticeDefinitionTestBase,
@@ -23,7 +22,7 @@ class TestProjectAuthor(CopyrightNoticeTestBase):
     @pytest.fixture(
         params=[
             None,
-            Plain("My First Author"),
+            "My First Author",
         ]
     )
     def sut(self, request: pytest.FixtureRequest) -> CopyrightNotice:

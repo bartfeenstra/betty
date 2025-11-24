@@ -4,7 +4,6 @@ import pytest
 from typing_extensions import override
 
 from betty.app import App
-from betty.locale.localizable import Plain
 from betty.locale.localizer import DEFAULT_LOCALIZER
 from betty.plugin import PluginDefinition
 from betty.project import Project
@@ -24,12 +23,12 @@ class TestExtensionDefinition(ClassedPluginDefinitionClassTestBase):
     def test_assets_directory_path(self) -> None:
         assets_directory_path = Path(__file__)
         sut = ExtensionDefinition(
-            assets_directory_path=assets_directory_path, id="-", label=Plain("")
+            assets_directory_path=assets_directory_path, id="-", label=""
         )
         assert sut.assets_directory_path == assets_directory_path
 
     def test_theme(self) -> None:
-        sut = ExtensionDefinition(theme=True, id="-", label=Plain(""))
+        sut = ExtensionDefinition(theme=True, id="-", label="")
         assert sut.theme
 
 

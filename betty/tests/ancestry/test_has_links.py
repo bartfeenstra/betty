@@ -5,7 +5,7 @@ from typing import TYPE_CHECKING
 from betty.ancestry.has_links import HasLinks
 from betty.ancestry.link import Link
 from betty.locale import DEFAULT_LOCALE
-from betty.locale.localizable import CountablePlain, Plain
+from betty.locale.localizable import CountablePlain
 from betty.model import EntityDefinition
 from betty.test_utils.json.linked_data import assert_dumps_linked_data
 
@@ -15,8 +15,8 @@ if TYPE_CHECKING:
 
 @EntityDefinition(
     id="dummy-has-links",
-    label=Plain(""),
-    label_plural=Plain(""),
+    label="",
+    label_plural="",
     label_countable=CountablePlain("", ""),
 )
 class DummyHasLinks(HasLinks):

@@ -17,7 +17,7 @@ if TYPE_CHECKING:
     from types import TracebackType
 
     from betty.assertion import Assertion
-    from betty.locale.localizable import Localizable
+    from betty.locale.localizable import LocalizableLike
     from betty.locale.localizer import Localizer
     from betty.progress import Progress
 
@@ -125,7 +125,7 @@ class User(ABC):
         """
 
     @abstractmethod
-    async def message_error(self, message: Localizable, /) -> None:
+    async def message_error(self, message: LocalizableLike, /) -> None:
         """
         Send an error message to the user.
 
@@ -135,7 +135,7 @@ class User(ABC):
         """
 
     @abstractmethod
-    async def message_warning(self, message: Localizable, /) -> None:
+    async def message_warning(self, message: LocalizableLike, /) -> None:
         """
         Send a warning message to the user.
 
@@ -146,7 +146,7 @@ class User(ABC):
         """
 
     @abstractmethod
-    async def message_information(self, message: Localizable, /) -> None:
+    async def message_information(self, message: LocalizableLike, /) -> None:
         """
         Send a summarized informative message to the user.
 
@@ -157,7 +157,7 @@ class User(ABC):
         """
 
     @abstractmethod
-    async def message_information_details(self, message: Localizable, /) -> None:
+    async def message_information_details(self, message: LocalizableLike, /) -> None:
         """
         Send a detailed informative message to the user.
 
@@ -168,7 +168,7 @@ class User(ABC):
         """
 
     @abstractmethod
-    async def message_debug(self, message: Localizable, /) -> None:
+    async def message_debug(self, message: LocalizableLike, /) -> None:
         """
         Send a debugging message to the user.
 
@@ -185,7 +185,7 @@ class User(ABC):
 
     @abstractmethod
     def message_progress(
-        self, message: Localizable, /
+        self, message: LocalizableLike, /
     ) -> AbstractAsyncContextManager[Progress]:
         """
         Send information about a progressing activity to the user.
@@ -195,7 +195,7 @@ class User(ABC):
 
     @abstractmethod
     async def ask_confirmation(
-        self, statement: Localizable, *, default: bool = False
+        self, statement: LocalizableLike, *, default: bool = False
     ) -> bool:
         """
         Ask the user to confirm a statement.
@@ -206,7 +206,7 @@ class User(ABC):
     @overload
     async def ask_input(
         self,
-        question: Localizable,
+        question: LocalizableLike,
         *,
         default: str | Void = Void(),  # noqa B008
     ) -> str:
@@ -215,7 +215,7 @@ class User(ABC):
     @overload
     async def ask_input(
         self,
-        question: Localizable,
+        question: LocalizableLike,
         *,
         assertion: Assertion[str, _T],
         default: str | Void = Void(),  # noqa B008
@@ -225,7 +225,7 @@ class User(ABC):
     @abstractmethod
     async def ask_input(
         self,
-        question: Localizable,
+        question: LocalizableLike,
         *,
         assertion: Assertion[str, _T] | None = None,
         default: str | _T | Void = Void(),  # noqa B008

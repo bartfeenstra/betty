@@ -36,7 +36,7 @@ from betty.dirs import DATA_DIRECTORY_PATH
 from betty.job import Job
 from betty.license import LicenseDefinition
 from betty.license.licenses import spdx_license_id_to_license_id
-from betty.locale.localizable import Plain, _
+from betty.locale.localizable import _
 from betty.media_type.media_types import SVG
 from betty.project import Project, ProjectContext
 from betty.project.extension.demo.copyright_notice import Streetmix
@@ -142,20 +142,20 @@ class LoadAncestry(Job[ProjectContext]):
         cite_first_person_account = Citation(
             id="betty-demo-first-person-account",
             source=personal_accounts,
-            location=Plain("Bart Feenstra"),
+            location="Bart Feenstra",
         )
         ancestry.add(cite_first_person_account)
 
         noord_hollands_archief = Source(
             id="betty-demo-noord-hollands-archief",
-            name=Plain("Noord-Hollands Archief"),
+            name="Noord-Hollands Archief",
             links=[Link("https://noord-hollandsarchief.nl/")],
         )
         ancestry.add(noord_hollands_archief)
 
         bevolkingsregister_amsterdam = Source(
             id="betty-demo-bevolkingsregister-amsterdam",
-            name=Plain("Bevolkingsregister Amsterdam"),
+            name="Bevolkingsregister Amsterdam",
             author=_("Gemeente Amsterdam"),
             publisher=_("Gemeente Amsterdam"),
             contained_by=noord_hollands_archief,

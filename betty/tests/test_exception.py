@@ -26,7 +26,7 @@ class _DummyHumanFacingException(HumanFacingException):
 class TestHumanFacingException:
     def test___str__(self) -> None:
         message = "Hello, world!"
-        sut = HumanFacingException(Plain(message))
+        sut = HumanFacingException(message)
         assert str(sut) == message
 
     def test_localize(self) -> None:
@@ -64,10 +64,10 @@ class TestHumanFacingException:
     @pytest.mark.parametrize(
         ("expected", "sut", "error_type"),
         [
-            (True, HumanFacingException(Plain("")), HumanFacingException),
-            (False, HumanFacingException(Plain("")), _DummyHumanFacingException),
-            (True, _DummyHumanFacingException(Plain("")), HumanFacingException),
-            (True, _DummyHumanFacingException(Plain("")), _DummyHumanFacingException),
+            (True, HumanFacingException(""), HumanFacingException),
+            (False, HumanFacingException(""), _DummyHumanFacingException),
+            (True, _DummyHumanFacingException(""), HumanFacingException),
+            (True, _DummyHumanFacingException(""), _DummyHumanFacingException),
         ],
     )
     def test_raised(
@@ -163,7 +163,7 @@ class TestHumanFacingExceptionGroup:
         [
             (True, None),
             (True, []),
-            (False, [HumanFacingException(Plain(""))]),
+            (False, [HumanFacingException("")]),
             (True, [HumanFacingExceptionGroup()]),
         ],
     )
@@ -179,7 +179,7 @@ class TestHumanFacingExceptionGroup:
         [
             (False, None),
             (False, []),
-            (True, [_DummyHumanFacingException(Plain(""))]),
+            (True, [_DummyHumanFacingException("")]),
             (False, [HumanFacingExceptionGroup()]),
         ],
     )
@@ -196,7 +196,7 @@ class TestHumanFacingExceptionGroup:
     def test_assert_valid__with_prior_error(self) -> None:
         with (
             pytest.raises(HumanFacingExceptionGroup),
-            HumanFacingExceptionGroup([HumanFacingException(Plain(""))]).assert_valid(),
+            HumanFacingExceptionGroup([HumanFacingException("")]).assert_valid(),
         ):
             pass
 
@@ -205,22 +205,22 @@ class TestHumanFacingExceptionGroup:
             pytest.raises(HumanFacingExceptionGroup),
             HumanFacingExceptionGroup().assert_valid(),
         ):
-            raise HumanFacingException(Plain(""))
+            raise HumanFacingException("")
 
     def test_append(self) -> None:
         sut = HumanFacingExceptionGroup()
-        sut.append(HumanFacingException(Plain("")))
+        sut.append(HumanFacingException(""))
         assert len(sut) == 1
 
     def test_append__with_group(self) -> None:
         sut = HumanFacingExceptionGroup()
-        sut.append(HumanFacingExceptionGroup([HumanFacingException(Plain(""))]))
+        sut.append(HumanFacingExceptionGroup([HumanFacingException("")]))
         assert len(sut) == 1
 
     def test___len__(self) -> None:
-        sut = HumanFacingExceptionGroup([HumanFacingException(Plain(""))])
+        sut = HumanFacingExceptionGroup([HumanFacingException("")])
         assert len(sut) == 1
 
     def test___iter__(self) -> None:
-        sut = HumanFacingExceptionGroup([HumanFacingException(Plain(""))])
+        sut = HumanFacingExceptionGroup([HumanFacingException("")])
         assert len(list(iter(sut))) == 1

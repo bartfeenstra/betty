@@ -13,7 +13,7 @@ from betty.test_utils.plugin import DUMMY_PLUGIN_ONE, DUMMY_PLUGIN_TWO
 class _OrderedPluginDefinition(OrderedPluginDefinition):
     type = PluginTypeDefinition(
         id="ordered-plugin",
-        label=Plain(""),
+        label="",
     )
 
 
@@ -52,7 +52,7 @@ _ORDERED_PLUGIN_HAS_COMES_AFTER_BIDIRECTIONAL = _OrderedPluginDefinition(
 class _DependentPluginDefinition(DependentPluginDefinition):
     type = PluginTypeDefinition(
         id="dependent",
-        label=Plain("_ExpandPluginDependenciesTestPluginDefinition"),
+        label="_ExpandPluginDependenciesTestPluginDefinition",
     )
 
 
@@ -78,7 +78,7 @@ class TestPluginTypeDefinition:
         plugin_type_id = "my-first-plugin-type"
         sut = PluginTypeDefinition(
             id=plugin_type_id,
-            label=Plain(""),
+            label="",
         )
         assert sut.id == plugin_type_id
 
@@ -93,7 +93,7 @@ class TestPluginTypeDefinition:
     def test_discoveries(self) -> None:
         discovery = StaticDiscovery()
         sut = PluginTypeDefinition(
-            label=Plain("my-first-plugin-type"),
+            label="my-first-plugin-type",
             id="my-first-plugin-type",
             discoveries=discovery,
         )
@@ -102,7 +102,7 @@ class TestPluginTypeDefinition:
     def test_add_discovery(self) -> None:
         discovery = StaticDiscovery()
         sut = PluginTypeDefinition(
-            label=Plain("my-first-plugin-type"),
+            label="my-first-plugin-type",
             id="my-first-plugin-type",
         )
         sut.add_discovery(discovery)
@@ -110,7 +110,7 @@ class TestPluginTypeDefinition:
 
     def test_override_discovery(self) -> None:
         sut = PluginTypeDefinition(
-            label=Plain("my-first-plugin-type"),
+            label="my-first-plugin-type",
             id="my-first-plugin-type",
         )
         assert not sut.discoveries
@@ -120,7 +120,7 @@ class TestPluginTypeDefinition:
 
     async def test_add_discovery__during_override_discovery(self) -> None:
         sut = PluginTypeDefinition(
-            label=Plain("my-first-plugin-type"),
+            label="my-first-plugin-type",
             id="my-first-plugin-type",
         )
         with sut.override_discovery(DUMMY_PLUGIN_ONE):
@@ -131,7 +131,7 @@ class TestPluginTypeDefinition:
 
     def test_discovery_overridden(self) -> None:
         sut = PluginTypeDefinition(
-            label=Plain("my-first-plugin-type"),
+            label="my-first-plugin-type",
             id="my-first-plugin-type",
         )
         assert not sut.discovery_overridden
@@ -157,7 +157,7 @@ class TestPluginDefinition:
 
         class _PluginDefinition(PluginDefinition):
             type = PluginTypeDefinition(
-                id="my-first-plugin-type", label=Plain(plugin_type_label)
+                id="my-first-plugin-type", label=plugin_type_label
             )
 
         id = "my-first-plugin"  # noqa A001

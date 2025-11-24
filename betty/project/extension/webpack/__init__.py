@@ -17,7 +17,6 @@ from betty._npm import new_npm_requirement
 from betty.html import CssProvider, JsProvider
 from betty.jinja2 import Filters, Jinja2Provider
 from betty.job import Job
-from betty.locale.localizable import Plain
 from betty.project import Project, ProjectContext
 from betty.project.extension import Extension, ExtensionDefinition
 from betty.project.extension.webpack import build
@@ -62,7 +61,7 @@ class _GenerateAssets(Job[ProjectContext]):
 @final
 @ExtensionDefinition(
     id="webpack",
-    label=Plain("Webpack"),
+    label="Webpack",
     assets_directory_path=Path(__file__).parent / "assets",
 )
 class Webpack(

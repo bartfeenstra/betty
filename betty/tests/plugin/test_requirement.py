@@ -5,7 +5,6 @@ from typing import TYPE_CHECKING, ClassVar
 import pytest
 from typing_extensions import override
 
-from betty.locale.localizable import Plain
 from betty.locale.localizer import DEFAULT_LOCALIZER
 from betty.plugin import PluginTypeDefinition
 from betty.plugin.classed import ClassedPlugin, ClassedPluginDefinition
@@ -40,7 +39,7 @@ class HasRequirementPluginDefinition(
     plugin_type_cls = ClassedDummyPlugin
     type = PluginTypeDefinition(
         id="-",
-        label=Plain("HasRequirement"),
+        label="HasRequirement",
     )
 
 
@@ -68,8 +67,8 @@ class UpstreamWithUnmetRequirements(HasRequirementPlugin):
     @classmethod
     async def requirement(cls, level: ServiceLevel, /) -> Requirement | None:
         return StaticRequirement(
-            Plain("upstream-requirement-summary"),
-            Plain("upstream-requirement-details"),
+            "upstream-requirement-summary",
+            "upstream-requirement-details",
         )
 
 
@@ -81,8 +80,8 @@ class DownstreamWithUnmetRequirements(HasRequirementPlugin):
     @classmethod
     async def requirement(cls, level: ServiceLevel, /) -> Requirement | None:
         return StaticRequirement(
-            Plain("downstream-requirement-summary"),
-            Plain("downstream-requirement-details"),
+            "downstream-requirement-summary",
+            "downstream-requirement-details",
         )
 
 
@@ -173,7 +172,7 @@ async def test_get_requirement__without_requirement() -> None:
 
 
 async def test_get_requirement__with_requirement() -> None:
-    requirement = StaticRequirement(Plain(""))
+    requirement = StaticRequirement("")
 
     @ClassedDummyPluginDefinition(
         id="-",

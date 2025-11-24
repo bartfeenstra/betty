@@ -25,6 +25,7 @@ from betty.locale.localizable import (
     AllEnumeration,
     Localizable,
     LocalizableLike,
+    OptionalLocalizableAttr,
     _,
     ngettext,
 )
@@ -71,6 +72,11 @@ class Event(
     An event that took place.
     """
 
+    name = OptionalLocalizableAttr("required")
+    """
+    The event's name, if it has any.
+    """
+
     place = BidirectionalToZeroOrOne["Event", Place](
         "betty.ancestry.event:Event",
         "place",
@@ -108,9 +114,9 @@ class Event(
         public: bool | None = None,
         private: bool | None = None,
         place: ToZeroOrOneAssociate[Place] = None,
-        description: Localizable | None = None,
+        description: LocalizableLike | None = None,
         presences: ToManyAssociates[Presence] | None = None,
-        name: Localizable | None = None,
+        name: LocalizableLike | None = None,
     ):
         super().__init__(
             id,

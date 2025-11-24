@@ -16,7 +16,7 @@ from typing_extensions import override
 from betty.assertion import Assertion
 from betty.console.progress import ConsoleProgress
 from betty.console.rich import ConsoleTheme
-from betty.locale.localizable import Localizable
+from betty.locale.localizable import LocalizableLike, ensure_localized
 from betty.progress import Progress
 from betty.progress.no_op import NoOpProgress
 from betty.typing import Void, internal
@@ -91,40 +91,48 @@ class ConsoleUser(User):
         self._console.print_exception(show_locals=self.verbosity >= Verbosity.VERBOSE)
 
     @override
-    async def message_error(self, message: Localizable, /) -> None:
-        self._message_error(message.localize(self.localizer))
+    async def message_error(self, message: LocalizableLike, /) -> None:
+        self._message_error(ensure_localized(message, localizer=self.localizer))
 
     def _message_error(self, message: str) -> None:
         assert self._connected
         self._console.print(f"[red]{message}[/]")
 
     @override
-    async def message_warning(self, message: Localizable, /) -> None:
+    async def message_warning(self, message: LocalizableLike, /) -> None:
         assert self._connected
         if self._verbosity < Verbosity.DEFAULT:
             return
-        self._console.print(f"[yellow]{message.localize(self.localizer)}[/]")
+        self._console.print(
+            f"[yellow]{ensure_localized(message, localizer=self.localizer)}[/]"
+        )
 
     @override
-    async def message_information(self, message: Localizable, /) -> None:
+    async def message_information(self, message: LocalizableLike, /) -> None:
         assert self._connected
         if self._verbosity < Verbosity.DEFAULT:
             return
-        self._console.print(f"[green]{message.localize(self.localizer)}[/]")
+        self._console.print(
+            f"[green]{ensure_localized(message, localizer=self.localizer)}[/]"
+        )
 
     @override
-    async def message_information_details(self, message: Localizable, /) -> None:
+    async def message_information_details(self, message: LocalizableLike, /) -> None:
         assert self._connected
         if self._verbosity < Verbosity.VERBOSE:
             return
-        self._console.print(f"[green]{message.localize(self.localizer)}[/]")
+        self._console.print(
+            f"[green]{ensure_localized(message, localizer=self.localizer)}[/]"
+        )
 
     @override
-    async def message_debug(self, message: Localizable, /) -> None:
+    async def message_debug(self, message: LocalizableLike, /) -> None:
         assert self._connected
         if self._verbosity < Verbosity.MORE_VERBOSE:
             return
-        self._console.print(f"[white]{message.localize(self.localizer)}[/]")
+        self._console.print(
+            f"[white]{ensure_localized(message, localizer=self.localizer)}[/]"
+        )
 
     @override
     async def message_log(self, message: logging.LogRecord, /) -> None:
@@ -135,7 +143,7 @@ class ConsoleUser(User):
     @override
     @asynccontextmanager
     async def message_progress(
-        self, message: Localizable, /
+        self, message: LocalizableLike, /
     ) -> AsyncIterator[Progress]:
         if self.verbosity < Verbosity.DEFAULT:
             yield NoOpProgress()
@@ -147,19 +155,21 @@ class ConsoleUser(User):
                 TimeElapsedColumn(),
                 console=self._console,
             ) as rich_progress:
-                yield ConsoleProgress(rich_progress, message.localize(self.localizer))
+                yield ConsoleProgress(
+                    rich_progress, ensure_localized(message, localizer=self.localizer)
+                )
 
     @override
     async def ask_confirmation(
         self,
-        statement: Localizable,
+        statement: LocalizableLike,
         *,
         default: bool = False,
         stdin: TextIO | None = None,
     ) -> bool:
         assert self._connected
         return Confirm.ask(
-            statement.localize(self.localizer),
+            ensure_localized(statement, localizer=self.localizer),
             console=self._console,
             default=default,
             stream=stdin,
@@ -168,7 +178,7 @@ class ConsoleUser(User):
     @overload
     async def ask_input(
         self,
-        question: Localizable,
+        question: LocalizableLike,
         *,
         default: str | Void = Void(),  # noqa B008
         stdin: TextIO | None = None,
@@ -178,7 +188,7 @@ class ConsoleUser(User):
     @overload
     async def ask_input(
         self,
-        question: Localizable,
+        question: LocalizableLike,
         *,
         assertion: Assertion[str, _T],
         default: str | Void = Void(),  # noqa B008
@@ -189,7 +199,7 @@ class ConsoleUser(User):
     @override
     async def ask_input(
         self,
-        question: Localizable,
+        question: LocalizableLike,
         *,
         assertion: Assertion[str, _T] | None = None,
         default: str | Void = Void(),  # noqa B008
@@ -202,7 +212,7 @@ class ConsoleUser(User):
         value = cast(
             str,
             Prompt.ask(  # type: ignore[call-overload]
-                question.localize(self.localizer),
+                ensure_localized(question, localizer=self.localizer),
                 console=self._console,
                 stream=stdin,
                 **ask_kwargs,

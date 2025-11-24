@@ -3,7 +3,7 @@ from pathlib import Path
 import pytest
 from typing_extensions import override
 
-from betty.locale.localizable import CountablePlain, Plain
+from betty.locale.localizable import CountablePlain
 from betty.model import (
     Entity,
     EntityDefinition,
@@ -24,8 +24,8 @@ class TestEntityDefinition(ClassedPluginDefinitionClassTestBase):
         sut = EntityDefinition(
             public_facing=True,
             id="-",
-            label=Plain(""),
-            label_plural=Plain(""),
+            label="",
+            label_plural="",
             label_countable=CountablePlain("", ""),
         )
         assert sut.public_facing

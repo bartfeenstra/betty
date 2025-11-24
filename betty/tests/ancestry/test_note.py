@@ -6,7 +6,6 @@ from typing_extensions import override
 
 from betty.ancestry.note import Note
 from betty.locale import DEFAULT_LOCALE
-from betty.locale.localizable import Plain
 from betty.locale.localizer import DEFAULT_LOCALIZER
 from betty.test_utils.json.linked_data import assert_dumps_linked_data
 from betty.test_utils.model import EntityDefinitionTestBase, EntityTestBase
@@ -31,31 +30,31 @@ class TestNote(EntityTestBase):
     @override
     @pytest.fixture
     def sut(self) -> Entity:
-        return Note(Plain("Betty wrote this."))
+        return Note("Betty wrote this.")
 
     async def test___init____with_entity(self) -> None:
         entity = DummyHasNotes()
-        sut = Note(Plain("Betty wrote this."), entity=entity)
+        sut = Note("Betty wrote this.", entity=entity)
         assert sut.entity is entity
 
     async def test_id(self) -> None:
         note_id = "N1"
-        sut = Note(Plain("Betty wrote this."), id=note_id)
+        sut = Note("Betty wrote this.", id=note_id)
         assert sut.id == note_id
 
     async def test_text(self) -> None:
         text = "Betty wrote this."
-        sut = Note(Plain(text))
+        sut = Note(text)
         assert sut.text.localize(DEFAULT_LOCALIZER) == text
 
     async def test_entity(self) -> None:
         entity = DummyHasNotes()
-        sut = Note(Plain(""))
+        sut = Note("")
         sut.entity = entity
         assert sut.entity is entity
 
     async def test_dump_linked_data__should_dump_full(self) -> None:
-        note = Note(Plain("The Note"), id="the_note")
+        note = Note("The Note", id="the_note")
         expected: Mapping[str, Any] = {
             "@id": "https://example.com/note/the_note/index.json",
             "@type": "https://schema.org/Thing",
@@ -70,7 +69,7 @@ class TestNote(EntityTestBase):
 
     async def test_dump_linked_data__should_dump_private(self) -> None:
         note = Note(
-            Plain("The Note"),
+            "The Note",
             id="the_note",
             private=True,
         )

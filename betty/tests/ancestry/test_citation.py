@@ -10,7 +10,7 @@ from betty.ancestry.event_type.event_types import Birth
 from betty.ancestry.has_citations import HasCitations
 from betty.ancestry.source import Source
 from betty.locale import DEFAULT_LOCALE
-from betty.locale.localizable import CountablePlain, Plain
+from betty.locale.localizable import CountablePlain
 from betty.locale.localizer import DEFAULT_LOCALIZER
 from betty.model import Entity, EntityDefinition
 from betty.privacy import Privacy
@@ -33,8 +33,8 @@ class TestCitationDefinition(EntityDefinitionTestBase):
 
 @EntityDefinition(
     id="dummy-has-citations",
-    label=Plain(""),
-    label_plural=Plain(""),
+    label="",
+    label_plural="",
     label_countable=CountablePlain("", ""),
 )
 class DummyHasCitations(HasCitations):
@@ -46,7 +46,7 @@ class TestCitation(EntityTestBase):
     def _sut_params() -> Sequence[Entity]:
         return [
             Citation(source=Source()),
-            Citation(source=Source(), location=Plain("My First Location")),
+            Citation(source=Source(), location="My First Location"),
         ]
 
     @override
@@ -61,7 +61,7 @@ class TestCitation(EntityTestBase):
 
     async def test___init____with_location(self) -> None:
         location = "Somewhere"
-        sut = Citation(source=Source(), location=Plain(location))
+        sut = Citation(source=Source(), location=location)
         assert sut.location is not None
         assert sut.location.localize(DEFAULT_LOCALIZER) == location
 
@@ -89,7 +89,7 @@ class TestCitation(EntityTestBase):
         sut = Citation(source=Source())
         assert not sut.location
         location = "Somewhere"
-        sut.location = Plain(location)
+        sut.location = location
         assert sut.location is not None
         assert sut.location.localize(DEFAULT_LOCALIZER) == location
 
@@ -110,7 +110,7 @@ class TestCitation(EntityTestBase):
     async def test_dump_linked_data__should_dump_minimal(self) -> None:
         citation = Citation(
             id="the_citation",
-            source=Source(name=Plain("The Source")),
+            source=Source(name="The Source"),
         )
         expected: Mapping[str, Any] = {
             "@id": "https://example.com/citation/the_citation/index.json",
@@ -130,9 +130,9 @@ class TestCitation(EntityTestBase):
             id="the_citation",
             source=Source(
                 id="the_source",
-                name=Plain("The Source"),
+                name="The Source",
             ),
-            location=Plain("My First Location"),
+            location="My First Location",
         )
         citation.facts.add(
             Event(
@@ -159,7 +159,7 @@ class TestCitation(EntityTestBase):
             id="the_citation",
             source=Source(
                 id="the_source",
-                name=Plain("The Source"),
+                name="The Source",
             ),
             private=True,
         )

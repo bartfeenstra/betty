@@ -7,7 +7,6 @@ from typing import final
 import pytest
 
 from betty.config import Configurable
-from betty.locale.localizable import Plain
 from betty.project.extension import Extension, ExtensionDefinition
 from betty.test_utils.config import DummyConfiguration
 from betty.test_utils.plugin.classed import ClassedPluginDefinitionTestBase
@@ -44,7 +43,7 @@ class ExtensionTestBase:
 @final
 @ExtensionDefinition(
     id="dummy-one",
-    label=Plain(""),
+    label="Dummy One",
 )
 class DummyExtensionOne(Extension):
     """
@@ -55,7 +54,7 @@ class DummyExtensionOne(Extension):
 @final
 @ExtensionDefinition(
     id="dummy-two",
-    label=Plain(""),
+    label="Dummy Two",
 )
 class DummyExtensionTwo(Extension):
     """
@@ -66,7 +65,7 @@ class DummyExtensionTwo(Extension):
 @final
 @ExtensionDefinition(
     id="dummy-configurable",
-    label=Plain(""),
+    label="Dummy Configurable",
 )
 class DummyConfigurableExtension(Configurable[DummyConfiguration], Extension):
     """

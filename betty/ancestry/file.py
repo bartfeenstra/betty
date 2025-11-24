@@ -15,7 +15,7 @@ from betty.ancestry.has_notes import HasNotes
 from betty.ancestry.media_type import HasMediaType
 from betty.copyright_notice import CopyrightNoticeDefinition
 from betty.license import LicenseDefinition
-from betty.locale.localizable import Localizable, _, ngettext
+from betty.locale.localizable import Localizable, LocalizableLike, _, ngettext
 from betty.model import EntityDefinition
 from betty.model.association import BidirectionalToManyMultipleTypes, ToManyAssociates
 from betty.privacy import HasPrivacy, Privacy
@@ -92,7 +92,7 @@ class File(
         id: str | None = None,  # noqa A002  # noqa A002
         name: str | None = None,
         media_type: MediaType | None = None,
-        description: Localizable | None = None,
+        description: LocalizableLike | None = None,
         notes: ToManyAssociates[Note] | None = None,
         citations: ToManyAssociates[Citation] | None = None,
         privacy: Privacy | None = None,

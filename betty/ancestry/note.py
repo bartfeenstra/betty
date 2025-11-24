@@ -10,7 +10,13 @@ from typing_extensions import override
 
 from betty.ancestry.has_links import HasLinks
 from betty.ancestry.media_type import HasMediaType
-from betty.locale.localizable import Localizable, _, ngettext
+from betty.locale.localizable import (
+    Localizable,
+    LocalizableLike,
+    _,
+    ensure_localizable,
+    ngettext,
+)
 from betty.locale.localizable.linked_data import dump_linked_data
 from betty.locale.localizable.schema import StaticTranslationsSchema
 from betty.model import EntityDefinition
@@ -50,7 +56,7 @@ class Note(HasPrivacy, HasLinks, HasMediaType):
 
     def __init__(
         self,
-        text: Localizable,
+        text: LocalizableLike,
         *,
         id: str | None = None,  # noqa A002  # noqa A002
         entity: ToZeroOrOneAssociate[HasNotes] | None = None,
@@ -64,7 +70,7 @@ class Note(HasPrivacy, HasLinks, HasMediaType):
             public=public,
             private=private,
         )
-        self.text = text
+        self.text = ensure_localizable(text)
         if entity is not None:
             self.entity = entity
 

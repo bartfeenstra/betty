@@ -5,7 +5,7 @@ import pytest
 from typing_extensions import override
 
 from betty.config import Configurable
-from betty.locale.localizable import LocalizableLike, Plain
+from betty.locale.localizable import LocalizableLike
 from betty.requirement import Requirement, StaticRequirement
 from betty.service.bootstrap import NotBootstrappedError
 from betty.service.container import (
@@ -28,7 +28,7 @@ class _ServiceProvider(ServiceContainer):
     async def requires(
         cls, services: ServiceLevel, subject: LocalizableLike, /
     ) -> Requirement | Self:
-        return StaticRequirement(Plain(""))
+        return StaticRequirement("")
 
 
 class _ConfigurableServiceProvider(Configurable[DummyConfiguration], _ServiceProvider):

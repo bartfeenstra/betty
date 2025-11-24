@@ -6,7 +6,6 @@ from __future__ import annotations
 
 import pytest
 
-from betty.locale.localizable import Plain
 from betty.locale.localizer import DEFAULT_LOCALIZER
 from betty.machine_name import assert_machine_name
 from betty.plugin import PluginDefinition, PluginTypeDefinition
@@ -64,7 +63,7 @@ class DummyPluginDefinition(PluginDefinition):
 
     type = PluginTypeDefinition(
         id="dummy-plugin",
-        label=Plain("Dummy plugin"),
+        label="Dummy plugin",
         discoveries=CallbackDiscovery(
             lambda: [
                 DUMMY_PLUGIN_ONE,  # type: ignore[has-type]

@@ -14,7 +14,6 @@ from betty.console import SystemExitCode, call_command_func, main_standalone
 from betty.console.command import Command, CommandDefinition
 from betty.exception import HumanFacingException
 from betty.functools import Result, suppress
-from betty.locale.localizable import Plain
 from betty.project import Project
 from betty.test_utils.console import run
 from betty.user import Verbosity
@@ -22,7 +21,7 @@ from betty.user import Verbosity
 
 @CommandDefinition(
     id="no-op",
-    label=Plain("No-op"),
+    label="No-op",
 )
 class _NoOpCommand(Command):
     @override
@@ -48,7 +47,7 @@ def _create_raising_command(exception: BaseException) -> CommandDefinition:
 
     return CommandDefinition(
         id="raising",
-        label=Plain("Raising"),
+        label="Raising",
         cls=_RaisingCommand,
     )
 
@@ -79,7 +78,7 @@ async def test_main__with_unknown_command(temporary_app: App) -> None:
         (SystemExitCode.OK, _NoOpCommand.plugin),
         (
             SystemExitCode.ERROR_UNEXPECTED,
-            _create_raising_command(HumanFacingException(Plain(""))),
+            _create_raising_command(HumanFacingException("")),
         ),
         (SystemExitCode.USER_QUIT, _create_raising_command(CancelledError())),
         (SystemExitCode.USER_QUIT, _create_raising_command(KeyboardInterrupt())),
@@ -103,7 +102,7 @@ async def test_main__with_user_facing_exception(
         (SystemExitCode.OK, _NoOpCommand.plugin),
         (
             SystemExitCode.ERROR_UNEXPECTED,
-            _create_raising_command(HumanFacingException(Plain(""))),
+            _create_raising_command(HumanFacingException("")),
         ),
         (SystemExitCode.USER_QUIT, _create_raising_command(CancelledError())),
         (SystemExitCode.USER_QUIT, _create_raising_command(KeyboardInterrupt())),

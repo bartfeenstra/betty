@@ -16,7 +16,6 @@ from betty import serve
 from betty.ancestry.name import Name
 from betty.ancestry.place import Place
 from betty.app import App
-from betty.locale.localizable import Plain
 from betty.plugin.resolve import ResolvableId
 from betty.project import Project
 from betty.project.extension import ExtensionDefinition, Extension
@@ -62,7 +61,7 @@ class MapsTestBase:
                 Place(
                     id=_PLACE_ID,
                     coordinates=Point(52.37277778, 4.89361111),
-                    names=[Name(Plain(_PLACE_NAME))],
+                    names=[Name(_PLACE_NAME)],
                 ),
             )
             copytree(

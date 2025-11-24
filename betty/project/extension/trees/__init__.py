@@ -13,7 +13,7 @@ from typing_extensions import override
 
 from betty.ancestry.person import Person
 from betty.job import Job
-from betty.locale.localizable import Plain, _
+from betty.locale.localizable import _
 from betty.media_type.media_types import HTML
 from betty.project import ProjectContext
 from betty.project.extension import ExtensionDefinition
@@ -75,7 +75,7 @@ class _GeneratePeopleJson(Job[ProjectContext]):
 @final
 @ExtensionDefinition(
     id="trees",
-    label=Plain("Trees"),
+    label="Trees",
     description=_(
         'Display interactive family trees using <a href="https://cytoscape.org/">Cytoscape</a>.'
     ),

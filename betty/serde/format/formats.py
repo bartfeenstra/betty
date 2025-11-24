@@ -10,7 +10,7 @@ from typing import TYPE_CHECKING, cast, final
 import yaml
 from typing_extensions import override
 
-from betty.locale.localizable import Plain, _
+from betty.locale.localizable import _
 from betty.media_type.media_types import JSON, YAML
 from betty.serde.dump import Dump
 from betty.serde.format import Format, FormatDefinition, FormatError
@@ -23,7 +23,7 @@ if TYPE_CHECKING:
 @final
 @FormatDefinition(
     id="json",
-    label=Plain("JSON"),
+    label="JSON",
 )
 class Json(Format):
     """
@@ -52,7 +52,7 @@ class Json(Format):
 @final
 @FormatDefinition(
     id="yaml",
-    label=Plain("YAML"),
+    label="YAML",
 )
 class Yaml(Format):
     """

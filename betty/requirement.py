@@ -10,7 +10,14 @@ from typing import TYPE_CHECKING, final
 from typing_extensions import override
 
 from betty.exception import HumanFacingException
-from betty.locale.localizable import Lines, Localizable, UnorderedList, _
+from betty.locale.localizable import (
+    Lines,
+    Localizable,
+    LocalizableLike,
+    UnorderedList,
+    _,
+    ensure_localizable,
+)
 from betty.locale.localized import Localized, LocalizedStr
 
 if TYPE_CHECKING:
@@ -70,7 +77,9 @@ class UnmetRequirement(HumanFacingException, RuntimeError):
 class _RequirementCollection(Requirement, ABC):
     _DEFAULT_SUMMARY: Localizable
 
-    def __init__(self, *requirements: Requirement, summary: Localizable | None = None):
+    def __init__(
+        self, *requirements: Requirement, summary: LocalizableLike | None = None
+    ):
         super().__init__()
         assert len(requirements)
         self._requirements: MutableSequence[Requirement] = []
@@ -80,7 +89,9 @@ class _RequirementCollection(Requirement, ABC):
                     self._requirements.append(nested_requirement)
             else:
                 self._requirements.append(requirement)
-        self._summary = summary if summary else self._DEFAULT_SUMMARY
+        self._summary = (
+            self._DEFAULT_SUMMARY if summary is None else ensure_localizable(summary)
+        )
 
     @classmethod
     @abstractmethod
@@ -91,7 +102,7 @@ class _RequirementCollection(Requirement, ABC):
 
     @classmethod
     def new(
-        cls, *requirements: Requirement | None, summary: Localizable | None = None
+        cls, *requirements: Requirement | None, summary: LocalizableLike | None = None
     ) -> Requirement | None:
         requirements = cls._filter(requirements)
         if not requirements:
@@ -156,9 +167,11 @@ class StaticRequirement(Requirement):
     A simple unmet requirement with static information.
     """
 
-    def __init__(self, summary: Localizable, details: Localizable | None = None, /):
-        self._summary = summary
-        self._details = details
+    def __init__(
+        self, summary: LocalizableLike, details: LocalizableLike | None = None, /
+    ):
+        self._summary = ensure_localizable(summary)
+        self._details = None if details is None else ensure_localizable(details)
 
     @property
     @override

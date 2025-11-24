@@ -11,12 +11,12 @@ from typing_extensions import override
 from betty.ancestry.description import HasDescription
 from betty.ancestry.media_type import HasMediaType
 from betty.json.schema import String
-from betty.link import Link as StdLink
 from betty.locale.localizable import (
     Localizable,
     LocalizableLike,
+    OptionalLocalizableAttr,
+    RequiredLocalizableAttr,
     _,
-    ensure_localizable,
     ngettext,
 )
 from betty.locale.localizable.linked_data import dump_linked_data
@@ -41,10 +41,13 @@ if TYPE_CHECKING:
     label_countable=ngettext("{count} link", "{count} links"),
     public_facing=False,
 )
-class Link(StdLink, HasMediaType, HasDescription, HasPrivacy, Entity):
+class Link(HasMediaType, HasDescription, HasPrivacy, Entity):
     """
     An external link.
     """
+
+    _url = RequiredLocalizableAttr("_url")
+    _label = OptionalLocalizableAttr("_label")
 
     relationship: str | None
     """
@@ -67,8 +70,8 @@ class Link(StdLink, HasMediaType, HasDescription, HasPrivacy, Entity):
         url: LocalizableLike,
         *,
         relationship: str | None = None,
-        label: Localizable | None = None,
-        description: Localizable | None = None,
+        label: LocalizableLike | None = None,
+        description: LocalizableLike | None = None,
         media_type: MediaType | None = None,
         owner: HasLinks | None = None,
         privacy: Privacy | None = None,
@@ -82,28 +85,31 @@ class Link(StdLink, HasMediaType, HasDescription, HasPrivacy, Entity):
             public=public,
             private=private,
         )
-        self._url = ensure_localizable(url)
+        self._url = url
         self._label = label
         self.relationship = relationship
         if owner is not None:
             self.owner = owner
 
-    @override  # type: ignore[explicit-override]
+    @override
     @property
     def url(self) -> Localizable:
         return self._url
 
     @url.setter
-    def url(self, url: Localizable) -> None:
+    def url(self, url: LocalizableLike) -> None:
         self._url = url
 
     @override  # type: ignore[explicit-override]
     @property
     def label(self) -> Localizable:
+        """
+        The human-readable short link label.
+        """
         return self.url if self._label is None else self._label
 
     @label.setter
-    def label(self, label: Localizable | None) -> None:
+    def label(self, label: LocalizableLike | None) -> None:
         self._label = label
 
     @label.deleter
@@ -122,7 +128,7 @@ class Link(StdLink, HasMediaType, HasDescription, HasPrivacy, Entity):
         public_localizers = await project.public_localizers
         dump = await super().dump_linked_data(project)
         if self.public:
-            dump["url"] = dump_linked_data(self._url, localizers=public_localizers)
+            dump["url"] = dump_linked_data(self.url, localizers=public_localizers)
             if self._label is not None:
                 dump["label"] = dump_linked_data(
                     self._label, localizers=public_localizers

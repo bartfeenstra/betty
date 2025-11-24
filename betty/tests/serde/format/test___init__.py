@@ -1,7 +1,6 @@
 import pytest
 from typing_extensions import override
 
-from betty.locale.localizable import Plain
 from betty.locale.localizer import DEFAULT_LOCALIZER
 from betty.media_type import MediaType
 from betty.plugin import PluginDefinition
@@ -36,7 +35,7 @@ class _Format(Format):
 
 @FormatDefinition(
     id="one",
-    label=Plain("One"),
+    label="One",
 )
 class FormatOne(_Format):
     @override
@@ -47,7 +46,7 @@ class FormatOne(_Format):
 
 @FormatDefinition(
     id="two",
-    label=Plain("Two"),
+    label="Two",
 )
 class FormatTwo(_Format):
     @override

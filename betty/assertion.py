@@ -29,7 +29,7 @@ from betty.data import Index, Key
 from betty.error import FileNotFound
 from betty.exception import HumanFacingException, HumanFacingExceptionGroup
 from betty.locale import UNDETERMINED_LOCALE, get_data
-from betty.locale.localizable import Localizable, Paragraph, Plain, _, do_you_mean
+from betty.locale.localizable import Localizable, Paragraph, _, do_you_mean
 from betty.typing import Void, Voidable, internal
 
 Number: TypeAlias = int | float
@@ -481,9 +481,7 @@ def assert_isinstance(
     def _assert(value: Any, /) -> _AssertionValueT:
         if isinstance(value, alleged_type):
             return value
-        raise HumanFacingException(
-            Plain(f"{value} must be an instance of {alleged_type}.")
-        )
+        raise HumanFacingException(f"{value} must be an instance of {alleged_type}.")
 
     return _assert
 

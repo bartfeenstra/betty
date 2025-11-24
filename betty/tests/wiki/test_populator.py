@@ -10,7 +10,6 @@ from betty.ancestry import Ancestry
 from betty.ancestry.link import Link
 from betty.ancestry.place import Place
 from betty.ancestry.source import Source
-from betty.locale.localizable import Plain
 from betty.locale.localizer import LocalizerRepository
 from betty.locale.translation import NoOpTranslationRepository
 from betty.media_type import MediaType
@@ -138,7 +137,7 @@ class TestPopulator:
         tmp_path: Path,
     ) -> None:
         m_client = mocker.patch("betty.wiki.client.Client")
-        Source(Plain("The Source"))
+        Source("The Source")
         entity = DummyEntityOne()
         ancestry = Ancestry(entity)
         sut = Populator(

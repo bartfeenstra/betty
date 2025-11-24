@@ -13,12 +13,13 @@ from betty.json.linked_data import (
     LinkedDataDumpableWithSchemaJsonLdObject,
     dump_context,
 )
+from betty.locale.localizable import OptionalLocalizableAttr
 from betty.locale.localizable.linked_data import dump_linked_data
 from betty.locale.localizable.schema import StaticTranslationsSchema
 from betty.privacy import is_public
 
 if TYPE_CHECKING:
-    from betty.locale.localizable import Localizable
+    from betty.locale.localizable import LocalizableLike
     from betty.project import Project
     from betty.serde.dump import Dump, DumpMapping
 
@@ -28,10 +29,15 @@ class HasDescription(LinkedDataDumpableWithSchemaJsonLdObject):
     A resource with a description.
     """
 
+    description = OptionalLocalizableAttr("description")
+    """
+    The description.
+    """
+
     def __init__(
         self,
         *args: Any,
-        description: Localizable | None = None,
+        description: LocalizableLike | None = None,
         **kwargs: Any,
     ):
         super().__init__(*args, **kwargs)

@@ -78,7 +78,7 @@ class TestHumanFacingPluginDefinitionConfiguration:
             "id": "hello-world",
             "label": label,
         }
-        sut = HumanFacingPluginDefinitionConfiguration(id="-", label=Plain(""))
+        sut = HumanFacingPluginDefinitionConfiguration(id="-", label="")
         sut.load(dump)
         assert sut.label.localize(DEFAULT_LOCALIZER) == label
 
@@ -90,7 +90,7 @@ class TestHumanFacingPluginDefinitionConfiguration:
                 DEFAULT_LOCALE: label,
             },
         }
-        sut = HumanFacingPluginDefinitionConfiguration(id="-", label=Plain(""))
+        sut = HumanFacingPluginDefinitionConfiguration(id="-", label="")
         sut.load(dump)
         assert sut.label.localize(DEFAULT_LOCALIZER) == label
 
@@ -101,7 +101,7 @@ class TestHumanFacingPluginDefinitionConfiguration:
             "label": "",
             "description": description,
         }
-        sut = HumanFacingPluginDefinitionConfiguration(id="-", label=Plain(""))
+        sut = HumanFacingPluginDefinitionConfiguration(id="-", label="")
         sut.load(dump)
         assert sut.description is not None
         assert sut.description.localize(DEFAULT_LOCALIZER) == description
@@ -115,16 +115,14 @@ class TestHumanFacingPluginDefinitionConfiguration:
                 DEFAULT_LOCALE: description,
             },
         }
-        sut = HumanFacingPluginDefinitionConfiguration(id="-", label=Plain(""))
+        sut = HumanFacingPluginDefinitionConfiguration(id="-", label="")
         sut.load(dump)
         assert sut.description is not None
         assert sut.description.localize(DEFAULT_LOCALIZER) == description
 
     async def test_dump__with_undetermined_label(self) -> None:
         label = "Hello, world!"
-        sut = HumanFacingPluginDefinitionConfiguration(
-            id="hello-world", label=Plain(label)
-        )
+        sut = HumanFacingPluginDefinitionConfiguration(id="hello-world", label=label)
         dump = sut.dump()
         assert isinstance(dump, dict)
         assert dump["label"] == label
@@ -143,7 +141,7 @@ class TestHumanFacingPluginDefinitionConfiguration:
     async def test_dump__with_undetermined_description(self) -> None:
         description = "Hello, world!"
         sut = HumanFacingPluginDefinitionConfiguration(
-            id="hello-world", label=Plain(""), description=Plain(description)
+            id="hello-world", label="", description=description
         )
         dump = sut.dump()
         assert isinstance(dump, dict)
@@ -153,7 +151,7 @@ class TestHumanFacingPluginDefinitionConfiguration:
         description = "Hello, world!"
         sut = HumanFacingPluginDefinitionConfiguration(
             id="hello-world",
-            label=Plain(""),
+            label="",
             description=StaticTranslations({DEFAULT_LOCALE: description}),
         )
         dump = sut.dump()
@@ -170,7 +168,7 @@ class TestHumanFacingPluginDefinitionConfiguration:
     async def test_description(self) -> None:
         description = Plain("")
         sut = HumanFacingPluginDefinitionConfiguration(
-            id="hello-world", label=Plain(""), description=description
+            id="hello-world", label="", description=description
         )
         assert sut.description is description
 

@@ -9,7 +9,7 @@ from typing import TYPE_CHECKING, Self, final
 from typing_extensions import override
 
 from betty.config.factory import ConfigurationDependentSelfFactory
-from betty.locale.localizable import Plain, _
+from betty.locale.localizable import _
 from betty.project.extension import Extension, ExtensionDefinition
 from betty.project.extension.gramps.config import GrampsConfiguration
 from betty.project.extension.gramps.jobs import LoadAncestry
@@ -25,7 +25,7 @@ if TYPE_CHECKING:
 @final
 @ExtensionDefinition(
     id="gramps",
-    label=Plain("Gramps"),
+    label="Gramps",
     description=_("Load Gramps family trees."),
 )
 class Gramps(Loader, ConfigurationDependentSelfFactory[GrampsConfiguration], Extension):

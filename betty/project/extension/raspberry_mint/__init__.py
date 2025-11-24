@@ -114,7 +114,7 @@ class _GenerateWebmanifest(Job[ProjectContext]):
 @final
 @ExtensionDefinition(
     id="raspberry-mint",
-    label=Plain("Raspberry Mint"),
+    label="Raspberry Mint",
     depends_on={Webpack},
     comes_before={
         Maps,

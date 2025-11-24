@@ -3,7 +3,7 @@ from pytest_mock import MockerFixture
 from betty.ancestry.has_links import HasLinks
 from betty.ancestry.link import Link
 from betty.app import App
-from betty.locale.localizable import CountablePlain, Plain
+from betty.locale.localizable import CountablePlain
 from betty.model import EntityDefinition
 from betty.project import Project
 from betty.project.extension.wiki import Wiki
@@ -14,8 +14,8 @@ from betty.wiki.client import Summary
 
 @EntityDefinition(
     id="dummy-has-links",
-    label=Plain(""),
-    label_plural=Plain(""),
+    label="",
+    label_plural="",
     label_countable=CountablePlain("", ""),
 )
 class DummyHasLinks(HasLinks):
