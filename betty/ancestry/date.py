@@ -9,6 +9,10 @@ from typing import TYPE_CHECKING, Any
 from typing_extensions import override
 
 from betty.date import Date, DateLike
+from betty.date.linked_data import (
+    dump_linked_data_for_date,
+    dump_linked_data_for_date_range,
+)
 from betty.date.schema import DateLikeSchema
 from betty.json.linked_data import (
     JsonLdObject,
@@ -53,14 +57,14 @@ class HasDate(LinkedDataDumpableWithSchemaJsonLdObject):
                 schema_org_end_date_definition,
             ) = self.dated_linked_data_contexts()
             if isinstance(self.date, Date):
-                dump["date"] = await self.date.dump_linked_data(
-                    project, schema_org_date_definition
+                dump["date"] = dump_linked_data_for_date(
+                    self.date, context_definition=schema_org_date_definition
                 )
             else:
-                dump["date"] = await self.date.dump_linked_data(
-                    project,
-                    schema_org_start_date_definition,
-                    schema_org_end_date_definition,
+                dump["date"] = dump_linked_data_for_date_range(
+                    self.date,
+                    start_context_definition=schema_org_start_date_definition,
+                    end_context_definition=schema_org_end_date_definition,
                 )
         return dump
 

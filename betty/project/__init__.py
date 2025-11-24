@@ -29,7 +29,7 @@ from betty.hashid import hashid
 from betty.job import Context as JobContext
 from betty.license import LicenseDefinition
 from betty.locale.localizable import LocalizableLike, _
-from betty.locale.localizer import LocalizerRepository
+from betty.locale.localizer import Localizer, LocalizerRepository
 from betty.locale.translation import (
     AssetTranslationRepository,
     ProxyTranslationRepository,
@@ -56,7 +56,13 @@ from betty.service.container import ServiceContainer, service
 from betty.typing import internal
 
 if TYPE_CHECKING:
-    from collections.abc import AsyncIterator, Iterator, MutableSequence, Sequence
+    from collections.abc import (
+        AsyncIterator,
+        Collection,
+        Iterator,
+        MutableSequence,
+        Sequence,
+    )
 
     from betty.app import App
     from betty.cache import Cache
@@ -237,6 +243,14 @@ class Project(
         The available localizers.
         """
         return LocalizerRepository(await self.translations)
+
+    @service
+    async def public_localizers(self) -> Collection[Localizer]:
+        """
+        The public localizers.
+        """
+        localizers = await self.localizers
+        return [localizers.get(locale) for locale in self.configuration.locales]
 
     @service
     async def url_generator(self) -> UrlGenerator:

@@ -25,10 +25,11 @@ from betty.locale.localizable import (
     AllEnumeration,
     Localizable,
     LocalizableLike,
-    StaticTranslations,
     _,
     ngettext,
 )
+from betty.locale.localizable.linked_data import dump_linked_data
+from betty.locale.localizable.schema import StaticTranslationsSchema
 from betty.model import EntityDefinition
 from betty.model.association import (
     BidirectionalToManySingleType,
@@ -186,8 +187,8 @@ class Event(
         dump["eventAttendanceMode"] = "https://schema.org/OfflineEventAttendanceMode"
         dump["eventStatus"] = "https://schema.org/EventScheduled"
         if self.name is not None:
-            dump["name"] = await StaticTranslations.dump_linked_data_for(
-                project, self.name
+            dump["name"] = dump_linked_data(
+                self.name, localizers=await project.public_localizers
             )
         return dump
 
@@ -198,7 +199,7 @@ class Event(
         event_types = await project.plugins(EventTypeDefinition)
         schema.add_property(
             "name",
-            await StaticTranslations.linked_data_schema(project),
+            StaticTranslationsSchema(),
             False,
         )
         schema.add_property("type", event_types.plugin_id_schema)
