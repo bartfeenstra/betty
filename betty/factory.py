@@ -66,20 +66,6 @@ async def new_target(target: Target[_T], /) -> _T:
         raise FactoryError(target) from error
 
 
-class TargetFactory(ABC):
-    """
-    Provide a factory for classes that depend on ``self``.
-    """
-
-    @abstractmethod
-    async def new_target(self, target: Target[_T], /) -> _T:
-        """
-        Create a new instance.
-
-        :raises FactoryError: raised when ``target`` could not be called.
-        """
-
-
 class Factory(Protocol):
     """
     A callable to create a new instance.

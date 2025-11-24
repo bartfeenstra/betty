@@ -23,7 +23,7 @@ from betty.cache.no_op import NoOpCache
 from betty.config import Configurable
 from betty.config.file import assert_configuration_file
 from betty.dirs import CACHE_DIRECTORY_PATH
-from betty.factory import Target, TargetFactory, new_target
+from betty.factory import Target, new_target
 from betty.http_client import ClientErrorToUserMessageMiddleware
 from betty.http_client.rate_limit import RateLimitDefinition, RateLimitMiddleware
 from betty.license import LicenseDefinition
@@ -74,12 +74,7 @@ _PluginDefinitionT = TypeVar(
 
 @final
 @threadsafe
-class App(
-    Configurable[AppConfiguration],
-    TargetFactory,
-    ServiceContainer,
-    PluginRepositoryProvider,
-):
+class App(Configurable[AppConfiguration], ServiceContainer, PluginRepositoryProvider):
     """
     The Betty application.
     """
@@ -291,8 +286,12 @@ class App(
         self._shutdown_stack.append(_shutdown)
         return process_pool
 
-    @override
     async def new_target(self, target: AppTarget[_T]) -> _T:
+        """
+        Create a new instance.
+
+        :raises FactoryError: raised when ``target`` could not be called.
+        """
         if (
             isinstance(target, AppDependentFactory)
             or isinstance(target, type)

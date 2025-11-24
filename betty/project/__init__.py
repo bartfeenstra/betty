@@ -24,7 +24,6 @@ from betty.config import Configurable
 from betty.copyright_notice import CopyrightNotice, CopyrightNoticeDefinition
 from betty.data import Key
 from betty.exception import HumanFacingExceptionGroup
-from betty.factory import TargetFactory
 from betty.hashid import hashid
 from betty.job import Context as JobContext
 from betty.license import LicenseDefinition
@@ -89,10 +88,7 @@ _ProjectDependentT = TypeVar("_ProjectDependentT")
 
 @final
 class Project(
-    Configurable[ProjectConfiguration],
-    TargetFactory,
-    ServiceContainer,
-    PluginRepositoryProvider,
+    Configurable[ProjectConfiguration], ServiceContainer, PluginRepositoryProvider
 ):
     """
     Define a Betty project.
@@ -341,8 +337,12 @@ class Project(
 
         return initialized_extensions
 
-    @override
     async def new_target(self, target: ProjectTarget[_T]) -> _T:
+        """
+        Create a new instance.
+
+        :raises FactoryError: raised when ``target`` could not be called.
+        """
         if (
             isinstance(target, ProjectDependentFactory)
             or isinstance(target, type)
