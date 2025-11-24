@@ -85,7 +85,7 @@ async def _generate_search_index_for_locale(
         await f.write(search_index_json)
 
 
-class _EntityTypeIndexer(Generic[_EntityCoT], ABC):
+class _EntityTypeIndexer(ABC, Generic[_EntityCoT]):
     def __init__(self, project: Project):
         self._project = project
 

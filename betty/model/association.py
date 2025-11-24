@@ -65,7 +65,7 @@ class AssociationRequired(RuntimeError):
         )
 
 
-class _Resolver(Generic[_T], ABC):
+class _Resolver(ABC, Generic[_T]):
     @abstractmethod
     def resolve(self) -> _T:
         """
@@ -75,25 +75,25 @@ class _Resolver(Generic[_T], ABC):
         """
 
 
-class ToZeroOrOneResolver(Generic[_EntityT], _Resolver[_EntityT | None]):
+class ToZeroOrOneResolver(_Resolver[_EntityT | None], Generic[_EntityT]):
     """
     An object that can optionally resolve to an entity.
     """
 
 
-class ToOneResolver(Generic[_EntityT], _Resolver[_EntityT]):
+class ToOneResolver(_Resolver[_EntityT], Generic[_EntityT]):
     """
     An object that can resolve to an entity.
     """
 
 
-class ToManyResolver(Generic[_EntityT], _Resolver[Iterable[_EntityT]]):
+class ToManyResolver(_Resolver[Iterable[_EntityT]], Generic[_EntityT]):
     """
     An object that can resolve to a collection of entities.
     """
 
 
-class _TemporaryResolver(Generic[_T], _Resolver[_T]):
+class _TemporaryResolver(_Resolver[_T], Generic[_T]):
     @override
     def resolve(self) -> _T:
         raise RuntimeError(
@@ -102,7 +102,7 @@ class _TemporaryResolver(Generic[_T], _Resolver[_T]):
 
 
 class TemporaryToZeroOrOneResolver(
-    Generic[_EntityT], _TemporaryResolver[_EntityT], ToZeroOrOneResolver[_EntityT]
+    _TemporaryResolver[_EntityT], ToZeroOrOneResolver[_EntityT], Generic[_EntityT]
 ):
     """
     A 'temporary' to-zero-or-one resolver.
@@ -113,7 +113,7 @@ class TemporaryToZeroOrOneResolver(
 
 
 class TemporaryToOneResolver(
-    Generic[_EntityT], _TemporaryResolver[_EntityT], ToOneResolver[_EntityT]
+    _TemporaryResolver[_EntityT], ToOneResolver[_EntityT], Generic[_EntityT]
 ):
     """
     A 'temporary' to-one resolver.
@@ -124,7 +124,7 @@ class TemporaryToOneResolver(
 
 
 class TemporaryToManyResolver(
-    Generic[_EntityT], _TemporaryResolver[_EntityT], ToManyResolver[_EntityT]
+    _TemporaryResolver[_EntityT], ToManyResolver[_EntityT], Generic[_EntityT]
 ):
     """
     A 'temporary' to-many resolver.

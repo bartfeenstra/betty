@@ -25,7 +25,7 @@ _PluginDefinitionT = TypeVar(
 )
 
 
-class PluginRepository(Generic[_PluginDefinitionT], ABC):
+class PluginRepository(ABC, Generic[_PluginDefinitionT]):
     """
     Access discovered plugins.
     """

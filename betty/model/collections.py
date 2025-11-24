@@ -38,7 +38,7 @@ class UnsupportedTarget(RuntimeError):
         )
 
 
-class EntityCollection(Mutable, Generic[_TargetT], ABC):
+class EntityCollection(Mutable, ABC, Generic[_TargetT]):
     """
     Provide a collection of entities.
 
@@ -117,7 +117,7 @@ class EntityCollection(Mutable, Generic[_TargetT], ABC):
 _EntityCollectionT = TypeVar("_EntityCollectionT", bound=EntityCollection[_EntityT])
 
 
-class SingleTypeEntityCollection(Generic[_TargetT], EntityCollection[_TargetT]):
+class SingleTypeEntityCollection(EntityCollection[_TargetT], Generic[_TargetT]):
     """
     Collect entities of a single type.
     """
@@ -183,7 +183,7 @@ class SingleTypeEntityCollection(Generic[_TargetT], EntityCollection[_TargetT]):
         return any(entity is value for entity in self._entities)
 
 
-class MultipleTypesEntityCollection(Generic[_TargetT], EntityCollection[_TargetT]):
+class MultipleTypesEntityCollection(EntityCollection[_TargetT], Generic[_TargetT]):
     """
     Collect entities of multiple types.
     """

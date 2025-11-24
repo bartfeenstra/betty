@@ -68,7 +68,7 @@ _ContextCoT = TypeVar("_ContextCoT", bound=Context, covariant=True)
 JobFunction: TypeAlias = "Callable[[Job[_ContextCoT]], Awaitable[None]]"
 
 
-class Job(Generic[_ContextCoT], ABC):
+class Job(ABC, Generic[_ContextCoT]):
     """
     A job.
     """

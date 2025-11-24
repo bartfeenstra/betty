@@ -187,7 +187,7 @@ class GrampsEntityReference:
         return f"{self.entity_type.value} ({self.entity_id})"
 
 
-class _ToOneResolver(Generic[_EntityT], ToOneResolver[_EntityT]):
+class _ToOneResolver(ToOneResolver[_EntityT], Generic[_EntityT]):
     def __init__(self, handles_to_entities: Mapping[str, Entity], handle: str):
         self._handles_to_entities = handles_to_entities
         self._handle = handle
@@ -197,7 +197,7 @@ class _ToOneResolver(Generic[_EntityT], ToOneResolver[_EntityT]):
         return cast(_EntityT, self._handles_to_entities[self._handle])
 
 
-class _ToManyResolver(Generic[_EntityT], ToManyResolver[_EntityT]):
+class _ToManyResolver(ToManyResolver[_EntityT], Generic[_EntityT]):
     def __init__(self, handles_to_entities: Mapping[str, Entity], *handles: str):
         self._handles_to_entities = handles_to_entities
         self._handles = handles

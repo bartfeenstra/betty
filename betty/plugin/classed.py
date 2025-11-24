@@ -22,7 +22,7 @@ class ClassedPlugin:
     plugin: ClassVar[ClassedPluginDefinition[Self]]
 
 
-class ClassedPluginDefinition(Generic[_PluginT], PluginDefinition):
+class ClassedPluginDefinition(PluginDefinition, Generic[_PluginT]):
     """
     A definition of a plugin that is based around a class.
     """

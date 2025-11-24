@@ -23,7 +23,7 @@ _PluginDefinitionT = TypeVar(
 
 
 @internal
-class PluginDiscovery(Generic[_PluginDefinitionT], ABC):
+class PluginDiscovery(ABC, Generic[_PluginDefinitionT]):
     """
     A plugin discovery definition.
     """
