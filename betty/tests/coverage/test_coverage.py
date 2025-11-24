@@ -303,10 +303,7 @@ _BASELINE: Mapping[str, _ModuleIgnore] = {
         "ngettext": MissingReason.SHOULD_BE_COVERED,
         "npgettext": MissingReason.SHOULD_BE_COVERED,
         "pgettext": MissingReason.SHOULD_BE_COVERED,
-        "StaticTranslationsAttr": MissingReason.INTERNAL,
-    },
-    "betty/locale/localizable/config.py": {
-        "RequiredLocalizableConfigurationAttrNotInitialized": MissingReason.STATIC_CONTENT_ONLY,
+        "RequiredLocalizableAttrNotInitialized": MissingReason.STATIC_CONTENT_ONLY,
     },
     "betty/media_type/__init__.py": {
         "InvalidMediaType": MissingReason.STATIC_CONTENT_ONLY,

@@ -12,6 +12,7 @@ from collections.abc import (
     MutableMapping,
     Sequence,
 )
+from contextlib import suppress
 from textwrap import indent
 from typing import (
     Any,
@@ -28,6 +29,7 @@ from warnings import warn
 
 from typing_extensions import override
 
+from betty.importlib import fully_qualified_name
 from betty.locale import UNDETERMINED_LOCALE, negotiate_locale, to_locale
 from betty.locale.localized import Localized, LocalizedStr
 from betty.locale.localizer import DEFAULT_LOCALIZER, Localizer
@@ -630,3 +632,90 @@ def ensure_localized(localizable: LocalizableLike, *, localizer: Localizer) -> s
     if not isinstance(localizable, Localizable):
         localizable = StaticTranslations(localizable)
     return localizable.localize(localizer)
+
+
+_LocalizableAttrLocalizableT = TypeVar("_LocalizableAttrLocalizableT")
+
+
+class _LocalizableAttr(Generic[_LocalizableAttrLocalizableT]):
+    def __init__(self, attr_name: str, /):
+        self._attr_name = f"_{attr_name}"
+
+    def __set__(self, instance: object, localizable: LocalizableLike, /) -> None:
+        setattr(instance, self._attr_name, ensure_localizable(localizable))
+
+    @overload
+    def __get__(self, instance: None, owner: type[object], /) -> Self:
+        pass
+
+    @overload
+    def __get__(self, instance: _T, owner: type[_T], /) -> _LocalizableAttrLocalizableT:
+        pass
+
+    def __get__(
+        self, instance: object | None, owner: type[object], /
+    ) -> _LocalizableAttrLocalizableT | Self:
+        if instance is None:
+            return self  # type: ignore[return-value]
+        return self._check_get(instance, self._get(instance))
+
+    def _get(self, instance: object, /) -> Localizable | None:
+        return cast(Localizable | None, getattr(instance, self._attr_name, None))
+
+    @abstractmethod
+    def _check_get(
+        self, instance: object, localizable: Localizable | None, /
+    ) -> _LocalizableAttrLocalizableT:
+        pass
+
+
+@final
+class RequiredLocalizableAttrNotInitialized(ValueError):
+    """
+    Raised when a class failed to initialize a value for its :py:class:`betty.locale.localizable.RequiredLocalizableAttr`.
+    """
+
+
+@final
+class RequiredLocalizableAttr(_LocalizableAttr[Localizable]):
+    """
+    An attribute for a required :py:class:`betty.locale.localizable.Localizable`.
+    """
+
+    @override
+    def _check_get(
+        self, instance: object, localizable: Localizable | None, /
+    ) -> Localizable:
+        if localizable is None:
+            instance_name = fully_qualified_name(type(instance))
+            raise RequiredLocalizableAttrNotInitialized(
+                f"{instance_name}.{self._attr_name[1:]} was never initialized. {instance_name}.__init__() MUST set a value."
+            )
+        return localizable
+
+
+@final
+class OptionalLocalizableAttr(_LocalizableAttr[Localizable | None]):
+    """
+    An attribute for an optional :py:class:`betty.locale.localizable.Localizable`.
+    """
+
+    @override
+    def _check_get(
+        self, instance: object, localizable: Localizable | None, /
+    ) -> Localizable | None:
+        return localizable
+
+    def _delete(self, instance: object, /) -> None:
+        with suppress(AttributeError):
+            delattr(instance, self._attr_name)
+
+    @override
+    def __set__(self, instance: object, value: LocalizableLike | None, /) -> None:
+        if value is None:
+            self._delete(instance)
+        else:
+            super().__set__(instance, value)
+
+    def __delete__(self, instance: object) -> None:
+        self._delete(instance)

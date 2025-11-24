@@ -41,14 +41,14 @@ from betty.locale import DEFAULT_LOCALE, UNDETERMINED_LOCALE
 from betty.locale.localizable import (
     Localizable,
     LocalizableLike,
+    OptionalLocalizableAttr,
     Plain,
+    RequiredLocalizableAttr,
     _,
     ensure_localizable,
 )
-from betty.locale.localizable.config import (
-    OptionalLocalizableConfigurationAttr,
-    RequiredLocalizableConfigurationAttr,
-)
+from betty.locale.localizable.assertion import assert_load_localizable
+from betty.locale.localizable.config import dump_localizable
 from betty.machine_name import MachineName, assert_machine_name
 from betty.model import Entity, EntityDefinition
 from betty.plugin.config import (
@@ -317,8 +317,8 @@ class CopyrightNoticeDefinitionConfiguration(HumanFacingPluginDefinitionConfigur
     Configure a :py:class:`betty.copyright_notice.CopyrightNoticeDefinition`.
     """
 
-    summary = RequiredLocalizableConfigurationAttr("summary")
-    text = RequiredLocalizableConfigurationAttr("text")
+    summary = RequiredLocalizableAttr("summary")
+    text = RequiredLocalizableAttr("text")
 
     def __init__(
         self, *, summary: LocalizableLike, text: LocalizableLike, **kwargs: Any
@@ -331,8 +331,12 @@ class CopyrightNoticeDefinitionConfiguration(HumanFacingPluginDefinitionConfigur
     def load(self, dump: Dump, /) -> None:
         mapping = assert_mapping()(dump)
         assert_fields(
-            RequiredField("summary", type(self).summary.assert_load(self)),
-            RequiredField("text", type(self).text.assert_load(self)),
+            RequiredField(
+                "summary", assert_load_localizable | assert_setattr(self, "summary")
+            ),
+            RequiredField(
+                "text", assert_load_localizable | assert_setattr(self, "text")
+            ),
         )(mapping)
         mapping.pop("summary", None)
         mapping.pop("text", None)
@@ -342,8 +346,8 @@ class CopyrightNoticeDefinitionConfiguration(HumanFacingPluginDefinitionConfigur
     def dump(self) -> DumpMapping[Dump]:
         return {
             **super().dump(),
-            "summary": type(self).summary.dump(self),
-            "text": type(self).text.dump(self),
+            "summary": dump_localizable(self.summary),
+            "text": dump_localizable(self.text),
         }
 
 
@@ -392,8 +396,8 @@ class LicenseDefinitionConfiguration(HumanFacingPluginDefinitionConfiguration):
     Configure a :py:class:`betty.license.LicenseDefinition`.
     """
 
-    summary = RequiredLocalizableConfigurationAttr("summary")
-    text = RequiredLocalizableConfigurationAttr("text")
+    summary = RequiredLocalizableAttr("summary")
+    text = RequiredLocalizableAttr("text")
 
     def __init__(
         self, *, summary: LocalizableLike, text: LocalizableLike, **kwargs: Any
@@ -406,8 +410,12 @@ class LicenseDefinitionConfiguration(HumanFacingPluginDefinitionConfiguration):
     def load(self, dump: Dump, /) -> None:
         mapping = assert_mapping()(dump)
         assert_fields(
-            RequiredField("summary", type(self).summary.assert_load(self)),
-            RequiredField("text", type(self).text.assert_load(self)),
+            RequiredField(
+                "summary", assert_load_localizable | assert_setattr(self, "summary")
+            ),
+            RequiredField(
+                "text", assert_load_localizable | assert_setattr(self, "text")
+            ),
         )(mapping)
         mapping.pop("summary", None)
         mapping.pop("text", None)
@@ -417,8 +425,8 @@ class LicenseDefinitionConfiguration(HumanFacingPluginDefinitionConfiguration):
     def dump(self) -> DumpMapping[Dump]:
         return {
             **super().dump(),
-            "summary": type(self).summary.dump(self),
-            "text": type(self).text.dump(self),
+            "summary": dump_localizable(self.summary),
+            "text": dump_localizable(self.text),
         }
 
 
@@ -602,8 +610,8 @@ class ProjectConfiguration(Configuration):
     Provide the configuration for a :py:class:`betty.project.Project`.
     """
 
-    title = RequiredLocalizableConfigurationAttr("title")
-    author = OptionalLocalizableConfigurationAttr("author")
+    title = RequiredLocalizableAttr("title")
+    author = OptionalLocalizableAttr("author")
 
     def __init__(
         self,
@@ -928,8 +936,12 @@ class ProjectConfiguration(Configuration):
                 assert_or(assert_str() | assert_setattr(self, "name"), assert_none()),
             ),
             RequiredField("url", assert_str() | assert_setattr(self, "url")),
-            OptionalField("title", type(self).title.assert_load(self)),
-            OptionalField("author", type(self).author.assert_load(self)),
+            OptionalField(
+                "title", assert_load_localizable | assert_setattr(self, "title")
+            ),
+            OptionalField(
+                "author", assert_load_localizable | assert_setattr(self, "author")
+            ),
             OptionalField(
                 "logo",
                 assert_or(assert_path() | assert_setattr(self, "logo"), assert_none()),
@@ -961,7 +973,7 @@ class ProjectConfiguration(Configuration):
         dump: DumpMapping[Dump] = {
             "name": self.name,
             "url": self.url,
-            "title": type(self).title.dump(self),
+            "title": dump_localizable(self.title),
             "clean_urls": self.clean_urls,
             "logo": str(self._logo) if self._logo else None,
             "debug": self.debug,
@@ -978,6 +990,6 @@ class ProjectConfiguration(Configuration):
             "place_types": self.place_types.dump(),
             "presence_roles": self.presence_roles.dump(),
         }
-        if author := type(self).author.dump(self):
-            dump["author"] = author
+        if self.author is not None:
+            dump["author"] = dump_localizable(self.author)
         return dump
