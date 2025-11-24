@@ -21,6 +21,7 @@ from betty.content_provider.config import (
     ShorthandContentProviderInstanceConfigurationSequence,
 )
 from betty.content_provider.content_providers import Template
+from betty.jinja2 import Environment
 from betty.locale.localizable import ShorthandStaticTranslations, _
 from betty.locale.localizable.assertion import assert_static_translations
 from betty.locale.localizable.config import RequiredStaticTranslationsConfigurationAttr
@@ -35,6 +36,7 @@ from betty.requirement import HasRequirement, Requirement
 from betty.resource import Context
 from betty.serde.dump import Dump
 from betty.service.level import ServiceLevel
+from betty.typing import private
 
 if TYPE_CHECKING:
     from collections.abc import MutableSequence
@@ -123,13 +125,19 @@ class Section(Template, Configurable[SectionConfiguration], _Base):
     A section on the page with a heading and a permanent link.
     """
 
-    def __init__(self, project: Project, configuration: SectionConfiguration):
-        super().__init__(project, configuration=configuration)
-
-    @override
-    @classmethod
-    async def new_for_project(cls, project: Project, /) -> Self:
-        return cls(project, configuration=SectionConfiguration(name="", heading=""))
+    @private
+    def __init__(
+        self,
+        *,
+        jinja2_environment: Environment,
+        configuration: SectionConfiguration | None = None,
+    ):
+        super().__init__(
+            configuration=SectionConfiguration(name="", heading="")
+            if configuration is None
+            else configuration,
+            jinja2_environment=jinja2_environment,
+        )
 
     @override
     async def _provide_data(self, resource: Context) -> Mapping[str, Any]:
@@ -150,13 +158,26 @@ class FeaturedEntities(Template, Configurable[EntityReferenceSequence], _Base):
     Featured entities.
     """
 
-    def __init__(self, project: Project, configuration: EntityReferenceSequence):
-        super().__init__(project, configuration=configuration)
+    @private
+    def __init__(
+        self,
+        *,
+        jinja2_environment: Environment,
+        project: Project,
+        configuration: SectionConfiguration | None = None,
+    ):
+        super().__init__(
+            configuration=EntityReferenceSequence()
+            if configuration is None
+            else configuration,
+            jinja2_environment=jinja2_environment,
+        )
+        self._project = project
 
     @override
     @classmethod
     async def new_for_project(cls, project: Project, /) -> Self:
-        return cls(project, configuration=EntityReferenceSequence())
+        return cls(jinja2_environment=await project.jinja2_environment, project=project)
 
     @override
     async def _provide_data(self, resource: Context) -> Mapping[str, Any]:

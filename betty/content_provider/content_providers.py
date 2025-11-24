@@ -16,10 +16,12 @@ from betty.locale.localizable import _
 from betty.locale.localizable.config import StaticTranslationsConfiguration
 from betty.plugin.classed import ClassedPlugin
 from betty.project.factory import ProjectDependentFactory
+from betty.typing import private
 
 if TYPE_CHECKING:
     from collections.abc import Mapping
 
+    from betty.jinja2 import Environment
     from betty.project import Project
     from betty.resource import Context
 
@@ -53,18 +55,19 @@ class Template(ContentProvider, ClassedPlugin, ProjectDependentFactory):
     Provides content by rendering a Jinja2 template.
     """
 
-    def __init__(self, project: Project, *args: Any, **kwargs: Any):
+    @private
+    def __init__(self, *args: Any, jinja2_environment: Environment, **kwargs: Any):
         super().__init__(*args, **kwargs)
-        self._project = project
+        self._jinja2_environment = jinja2_environment
 
     @override
     @classmethod
     async def new_for_project(cls, project: Project, /) -> Self:
-        return cls(project)
+        return cls(jinja2_environment=await project.jinja2_environment)
 
     @override
     async def provide(self, *, resource: Context) -> str | None:
-        jinja2_environment = await self._project.jinja2_environment
+        jinja2_environment = self._jinja2_environment
         rendered_content = (
             await jinja2_environment.get_template(
                 f"content/{self.plugin.id}.html.j2"
