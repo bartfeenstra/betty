@@ -26,8 +26,6 @@ from betty.locale.localizable import (
     ensure_localized,
 )
 from betty.locale.localizer import DEFAULT_LOCALIZER, Localizer
-from betty.serde.dump import Dump, DumpMapping
-from betty.test_utils.json.linked_data import assert_dumps_linked_data
 
 
 class TestStaticTranslations:
@@ -169,41 +167,6 @@ class TestStaticTranslations:
         sut = StaticTranslations(required=False)
         sut.replace(translation)
         assert sut.localize(DEFAULT_LOCALIZER) == translation
-
-    @pytest.mark.parametrize(
-        ("expected", "translations"),
-        [
-            (
-                {},
-                {},
-            ),
-            (
-                {UNDETERMINED_LOCALE: "Hello, world!"},
-                "Hello, world!",
-            ),
-            (
-                {"en-US": "Hello, world!"},
-                {
-                    "en-US": "Hello, world!",
-                },
-            ),
-            (
-                {"nl-NL": "Hallo, wereld!", "en": "Hello, world!"},
-                {
-                    "nl-NL": "Hallo, wereld!",
-                    "en": "Hello, world!",
-                },
-            ),
-        ],
-    )
-    async def test_dump_linked_data(
-        self,
-        expected: DumpMapping[Dump],
-        translations: ShorthandStaticTranslations,
-    ) -> None:
-        sut = StaticTranslations(translations, required=False)
-        actual = await assert_dumps_linked_data(sut)
-        assert actual == expected
 
 
 class TestPlain:

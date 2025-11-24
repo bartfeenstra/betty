@@ -12,7 +12,9 @@ from betty.ancestry.date import HasDate
 from betty.ancestry.has_file_references import HasFileReferences
 from betty.ancestry.has_links import HasLinks
 from betty.ancestry.source import Source
-from betty.locale.localizable import Localizable, StaticTranslations, _, ngettext
+from betty.locale.localizable import Localizable, _, ngettext
+from betty.locale.localizable.linked_data import dump_linked_data
+from betty.locale.localizable.schema import StaticTranslationsSchema
 from betty.model import EntityDefinition
 from betty.model.association import (
     BidirectionalToManyMultipleTypes,
@@ -108,8 +110,8 @@ class Citation(HasDate, HasFileReferences, HasPrivacy, HasLinks):
         dump = await super().dump_linked_data(project)
         dump["@type"] = "https://schema.org/Thing"
         if is_public(self) and self.location is not None:
-            dump["location"] = await StaticTranslations.dump_linked_data_for(
-                project, self.location
+            dump["location"] = dump_linked_data(
+                self.location, localizers=await project.public_localizers
             )
         return dump
 
@@ -119,7 +121,7 @@ class Citation(HasDate, HasFileReferences, HasPrivacy, HasLinks):
         schema = await super().linked_data_schema(project)
         schema.add_property(
             "location",
-            await StaticTranslations.linked_data_schema(project),
+            StaticTranslationsSchema(),
             False,
         )
         return schema

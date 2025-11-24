@@ -4,13 +4,8 @@ from typing import TYPE_CHECKING, cast
 
 import pytest
 
-from betty.date import (
-    Date,
-    DateLike,
-    DateRange,
-)
+from betty.date import Date, DateLike, DateRange
 from betty.serde.dump import Dump, DumpMapping
-from betty.test_utils.json.linked_data import assert_dumps_linked_data
 
 if TYPE_CHECKING:
     from collections.abc import Sequence
@@ -262,32 +257,6 @@ class TestDate:
     )
     def test___gt__(self, expected: bool, sut: Date, other: DateLike) -> None:
         assert (sut > other) == expected
-
-    @pytest.mark.parametrize(
-        ("expected", "sut"),
-        [
-            (
-                {
-                    "year": 1970,
-                    "month": 1,
-                    "day": 1,
-                    "iso8601": "1970-01-01",
-                    "fuzzy": True,
-                },
-                Date(1970, 1, 1, fuzzy=True),
-            ),
-            (
-                {
-                    "fuzzy": True,
-                },
-                Date(None, None, None, fuzzy=True),
-            ),
-        ],
-    )
-    async def test_dump_linked_data(
-        self, expected: DumpMapping[Dump], sut: Date
-    ) -> None:
-        assert await assert_dumps_linked_data(sut) == expected
 
 
 class TestDateRange:
@@ -801,58 +770,3 @@ class TestDateRange:
     )
     def test___gt__(self, expected: bool, other: DateLike) -> None:
         assert (DateRange(Date(1970, 2, 2)) > other) == expected
-
-    @pytest.mark.parametrize(
-        ("expected", "sut"),
-        [
-            (
-                {
-                    "start": {
-                        "year": 1970,
-                        "month": 1,
-                        "day": 1,
-                        "iso8601": "1970-01-01",
-                        "fuzzy": False,
-                    },
-                    "end": None,
-                },
-                DateRange(Date(1970, 1, 1)),
-            ),
-            (
-                {
-                    "start": None,
-                    "end": {
-                        "year": 2000,
-                        "month": 12,
-                        "day": 31,
-                        "iso8601": "2000-12-31",
-                        "fuzzy": False,
-                    },
-                },
-                DateRange(None, Date(2000, 12, 31)),
-            ),
-            (
-                {
-                    "start": {
-                        "year": 1970,
-                        "month": 1,
-                        "day": 1,
-                        "iso8601": "1970-01-01",
-                        "fuzzy": False,
-                    },
-                    "end": {
-                        "year": 2000,
-                        "month": 12,
-                        "day": 31,
-                        "iso8601": "2000-12-31",
-                        "fuzzy": False,
-                    },
-                },
-                DateRange(Date(1970, 1, 1), Date(2000, 12, 31)),
-            ),
-        ],
-    )
-    async def test_dump_linked_data(
-        self, expected: DumpMapping[Dump], sut: DateRange
-    ) -> None:
-        assert await assert_dumps_linked_data(sut) == expected

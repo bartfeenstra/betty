@@ -15,11 +15,11 @@ from betty.link import Link as StdLink
 from betty.locale.localizable import (
     Localizable,
     LocalizableLike,
-    StaticTranslations,
     _,
     ensure_localizable,
     ngettext,
 )
+from betty.locale.localizable.linked_data import dump_linked_data
 from betty.locale.localizable.schema import StaticTranslationsSchema
 from betty.model import Entity, EntityDefinition
 from betty.model.association import BidirectionalToZeroOrOne
@@ -119,15 +119,13 @@ class Link(StdLink, HasMediaType, HasDescription, HasPrivacy, Entity):
 
     @override
     async def dump_linked_data(self, project: Project, /) -> DumpMapping[Dump]:
+        public_localizers = await project.public_localizers
         dump = await super().dump_linked_data(project)
         if self.public:
-            dump["url"] = await StaticTranslations.dump_linked_data_for(
-                project, self._url
-            )
+            dump["url"] = dump_linked_data(self._url, localizers=public_localizers)
             if self._label is not None:
-                await project.localizers
-                dump["label"] = await StaticTranslations.dump_linked_data_for(
-                    project, self._label
+                dump["label"] = dump_linked_data(
+                    self._label, localizers=public_localizers
                 )
             if self.relationship is not None:
                 dump["relationship"] = self.relationship

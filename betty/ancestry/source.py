@@ -13,12 +13,9 @@ from betty.ancestry.has_file_references import HasFileReferences
 from betty.ancestry.has_links import HasLinks
 from betty.ancestry.has_notes import HasNotes
 from betty.json.linked_data import JsonLdObject, dump_context
-from betty.locale.localizable import (
-    Localizable,
-    StaticTranslations,
-    _,
-    ngettext,
-)
+from betty.locale.localizable import Localizable, _, ngettext
+from betty.locale.localizable.linked_data import dump_linked_data
+from betty.locale.localizable.schema import StaticTranslationsSchema
 from betty.model import Entity, EntityDefinition
 from betty.model.association import (
     BidirectionalToManySingleType,
@@ -146,9 +143,7 @@ class Source(HasDate, HasFileReferences, HasNotes, HasLinks, HasPrivacy, Entity)
     @classmethod
     async def linked_data_schema(cls, project: Project, /) -> JsonLdObject:
         schema = await super().linked_data_schema(project)
-        static_translations_schema = await StaticTranslations.linked_data_schema(
-            project
-        )
+        static_translations_schema = StaticTranslationsSchema()
         schema.add_property("author", static_translations_schema, False)
         schema.add_property("name", static_translations_schema, False)
         schema.add_property("publisher", static_translations_schema, False)
@@ -160,16 +155,15 @@ class Source(HasDate, HasFileReferences, HasNotes, HasLinks, HasPrivacy, Entity)
         dump["@type"] = "https://schema.org/Thing"
         dump_context(dump, name="https://schema.org/name")
         if is_public(self):
+            public_localizers = await project.public_localizers
             if self.author is not None:
-                dump["author"] = await StaticTranslations.dump_linked_data_for(
-                    project, self.author
+                dump["author"] = dump_linked_data(
+                    self.author, localizers=public_localizers
                 )
             if self.name is not None:
-                dump["name"] = await StaticTranslations.dump_linked_data_for(
-                    project, self.name
-                )
+                dump["name"] = dump_linked_data(self.name, localizers=public_localizers)
             if self.publisher is not None:
-                dump["publisher"] = await StaticTranslations.dump_linked_data_for(
-                    project, self.publisher
+                dump["publisher"] = dump_linked_data(
+                    self.publisher, localizers=public_localizers
                 )
         return dump

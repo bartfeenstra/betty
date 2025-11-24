@@ -12,17 +12,8 @@ from typing import TYPE_CHECKING, Any, TypeAlias
 
 from typing_extensions import override
 
-from betty.date.schema import DateRangeSchema, DateSchema
-from betty.json.linked_data import (
-    LinkedDataDumpableWithSchemaJsonLdObject,
-    dump_context,
-)
-
 if TYPE_CHECKING:
     from types import NotImplementedType
-
-    from betty.project import Project
-    from betty.serde.dump import Dump, DumpMapping
 
 
 class IncompleteDateError(ValueError):
@@ -31,7 +22,7 @@ class IncompleteDateError(ValueError):
     """
 
 
-class Date(LinkedDataDumpableWithSchemaJsonLdObject):
+class Date:
     """
     A (Gregorian) date.
     """
@@ -139,31 +130,6 @@ class Date(LinkedDataDumpableWithSchemaJsonLdObject):
     def __gt__(self, other: Any) -> bool:
         return self._compare(other, operator.gt)
 
-    @override
-    async def dump_linked_data(
-        self, project: Project, context_definition: str | None = None, /
-    ) -> DumpMapping[Dump]:
-        dump = await super().dump_linked_data(project)
-        dump["fuzzy"] = self.fuzzy
-        if self.year:
-            dump["year"] = self.year
-        if self.month:
-            dump["month"] = self.month
-        if self.day:
-            dump["day"] = self.day
-        if self.comparable:
-            dump["iso8601"] = _dump_date_iso8601(self)
-            # Set a single term definition because JSON-LD does not let us apply multiple
-            # for the same term (key).
-            if context_definition:
-                dump_context(dump, iso8601=context_definition)
-        return dump
-
-    @override
-    @classmethod
-    async def linked_data_schema(cls, project: Project, /) -> DateSchema:
-        return DateSchema()
-
 
 def _dump_date_iso8601(date: Date, /) -> str | None:
     if not date.complete:
@@ -175,7 +141,7 @@ def _dump_date_iso8601(date: Date, /) -> str | None:
 
 
 @total_ordering
-class DateRange(LinkedDataDumpableWithSchemaJsonLdObject):
+class DateRange:
     """
     A date range can describe a period of time between, before, after, or around start and/or end dates.
     """
@@ -258,30 +224,6 @@ class DateRange(LinkedDataDumpableWithSchemaJsonLdObject):
                 if other <= self.end:
                     return True
         return False
-
-    @override
-    async def dump_linked_data(
-        self,
-        project: Project,
-        start_context_definition: str | None = None,
-        end_context_definition: str | None = None,
-        /,
-    ) -> DumpMapping[Dump]:
-        return {
-            "start": await self.start.dump_linked_data(
-                project, start_context_definition
-            )
-            if self.start
-            else None,
-            "end": await self.end.dump_linked_data(project, end_context_definition)
-            if self.end
-            else None,
-        }
-
-    @override
-    @classmethod
-    async def linked_data_schema(cls, project: Project, /) -> DateRangeSchema:
-        return DateRangeSchema()
 
     def _get_comparable_date(self, date: Date | None, /) -> Date | None:
         if date and date.comparable:

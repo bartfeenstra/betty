@@ -10,12 +10,9 @@ from typing_extensions import override
 
 from betty.ancestry.has_links import HasLinks
 from betty.ancestry.media_type import HasMediaType
-from betty.locale.localizable import (
-    Localizable,
-    StaticTranslations,
-    _,
-    ngettext,
-)
+from betty.locale.localizable import Localizable, _, ngettext
+from betty.locale.localizable.linked_data import dump_linked_data
+from betty.locale.localizable.schema import StaticTranslationsSchema
 from betty.model import EntityDefinition
 from betty.model.association import BidirectionalToZeroOrOne, ToZeroOrOneAssociate
 from betty.privacy import HasPrivacy, Privacy, is_public
@@ -81,8 +78,8 @@ class Note(HasPrivacy, HasLinks, HasMediaType):
         dump = await super().dump_linked_data(project)
         dump["@type"] = "https://schema.org/Thing"
         if is_public(self):
-            dump["text"] = await StaticTranslations.dump_linked_data_for(
-                project, self.text
+            dump["text"] = dump_linked_data(
+                self.text, localizers=await project.public_localizers
             )
         return dump
 
@@ -92,7 +89,7 @@ class Note(HasPrivacy, HasLinks, HasMediaType):
         schema = await super().linked_data_schema(project)
         schema.add_property(
             "text",
-            await StaticTranslations.linked_data_schema(project),
+            StaticTranslationsSchema(),
             False,
         )
         return schema

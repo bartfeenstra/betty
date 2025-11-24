@@ -13,7 +13,8 @@ from betty.json.linked_data import (
     LinkedDataDumpableWithSchemaJsonLdObject,
     dump_context,
 )
-from betty.locale.localizable import StaticTranslations
+from betty.locale.localizable.linked_data import dump_linked_data
+from betty.locale.localizable.schema import StaticTranslationsSchema
 from betty.privacy import is_public
 
 if TYPE_CHECKING:
@@ -42,7 +43,7 @@ class HasDescription(LinkedDataDumpableWithSchemaJsonLdObject):
         schema = await super().linked_data_schema(project)
         schema.add_property(
             "description",
-            await StaticTranslations.linked_data_schema(project),
+            StaticTranslationsSchema(),
             False,
         )
         return schema
@@ -52,7 +53,7 @@ class HasDescription(LinkedDataDumpableWithSchemaJsonLdObject):
         dump = await super().dump_linked_data(project)
         dump_context(dump, description="https://schema.org/description")
         if self.description is not None and is_public(self):
-            dump["description"] = await StaticTranslations.dump_linked_data_for(
-                project, self.description
+            dump["description"] = dump_linked_data(
+                self.description, localizers=await project.public_localizers
             )
         return dump

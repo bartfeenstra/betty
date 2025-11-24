@@ -14,7 +14,6 @@ from collections.abc import (
 )
 from textwrap import indent
 from typing import (
-    TYPE_CHECKING,
     Any,
     ClassVar,
     Generic,
@@ -29,18 +28,10 @@ from warnings import warn
 
 from typing_extensions import override
 
-from betty.json.linked_data import LinkedDataDumpableWithSchema
-from betty.json.schema import Object
 from betty.locale import UNDETERMINED_LOCALE, negotiate_locale, to_locale
-from betty.locale.localizable.schema import StaticTranslationsSchema
 from betty.locale.localized import Localized, LocalizedStr
 from betty.locale.localizer import DEFAULT_LOCALIZER, Localizer
 from betty.mutability import Mutable
-from betty.serde.dump import Dump, DumpMapping
-
-if TYPE_CHECKING:
-    from betty.project import Project
-
 
 _T = TypeVar("_T")
 
@@ -365,9 +356,7 @@ See :py:func:`betty.locale.localizable.assertion.assert_static_translations`.
 """
 
 
-class StaticTranslations(
-    Mutable, Localizable, LinkedDataDumpableWithSchema[Object, DumpMapping[Dump]]
-):
+class StaticTranslations(Mutable, Localizable):
     """
     Provide a :py:class:`betty.locale.localizable.Localizable` backed by static translations.
     """
@@ -439,15 +428,6 @@ class StaticTranslations(
         locale, translation = next(iter(self._translations.items()))
         return LocalizedStr(translation, locale=locale)
 
-    @override
-    async def dump_linked_data(self, project: Project, /) -> DumpMapping[Dump]:
-        return {**self._translations}
-
-    @override
-    @classmethod
-    async def linked_data_schema(cls, project: Project, /) -> Object:
-        return StaticTranslationsSchema()
-
     @classmethod
     def from_localizable(
         cls,
@@ -465,18 +445,6 @@ class StaticTranslations(
             {localizer.locale: other.localize(localizer) for localizer in localizers},
             required=required,
         )
-
-    @classmethod
-    async def dump_linked_data_for(
-        cls, project: Project, other: Localizable
-    ) -> DumpMapping[Dump]:
-        """
-        Dump a :py:class:`betty.locale.localizable.Localizable` to `JSON-LD <https://json-ld.org/>`_.
-        """
-        localizers = await project.localizers
-        return await StaticTranslations.from_localizable(
-            other, [localizers.get(locale) for locale in project.configuration.locales]
-        ).dump_linked_data(project)
 
 
 class LocalizableSequence(ABC):
