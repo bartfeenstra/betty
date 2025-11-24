@@ -20,7 +20,7 @@ from betty.app import App
 from betty.json.schema import JsonSchemaSchema
 from betty.locale.localizable import Plain
 from betty.model import Entity
-from betty.openapi import SpecificationSchema
+from betty.openapi.schema import SpecificationSchema
 from betty.project import Project, ProjectContext
 from betty.project.config import EntityTypeConfiguration, LocaleConfiguration
 from betty.project.generate.jobs import (

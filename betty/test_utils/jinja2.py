@@ -16,7 +16,8 @@ from betty.app import App
 from betty.jinja2 import Environment
 from betty.json.schema import AllOf, Ref
 from betty.plugin.resolve import ResolvableId
-from betty.project import Project, ProjectSchema
+from betty.project import Project
+from betty.project.schema import ProjectSchema
 
 if TYPE_CHECKING:
     from collections.abc import AsyncIterator, Callable, MutableMapping

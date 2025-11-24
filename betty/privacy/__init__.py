@@ -5,16 +5,15 @@ The Privacy API.
 from __future__ import annotations
 
 import enum
-from typing import TYPE_CHECKING, Any, final
+from typing import TYPE_CHECKING, Any
 
 from typing_extensions import override
 
-from betty.classtools import Singleton
 from betty.json.linked_data import (
     JsonLdObject,
     LinkedDataDumpableWithSchemaJsonLdObject,
 )
-from betty.json.schema import Boolean
+from betty.privacy.schema import PrivacySchema
 
 if TYPE_CHECKING:
     from betty.project import Project
@@ -137,20 +136,6 @@ class HasPrivacy(LinkedDataDumpableWithSchemaJsonLdObject):
         schema = await super().linked_data_schema(project)
         schema.add_property("private", PrivacySchema())
         return schema
-
-
-@final
-class PrivacySchema(Singleton, Boolean):
-    """
-    A JSON Schema for privacy.
-    """
-
-    def __init__(self):
-        super().__init__(
-            def_name="privacy",
-            title="Privacy",
-            description="Whether this entity is private (true), or public (false).",
-        )
 
 
 def is_private(target: Any) -> bool:

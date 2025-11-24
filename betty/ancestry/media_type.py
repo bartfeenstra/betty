@@ -12,10 +12,11 @@ from betty.json.linked_data import (
     JsonLdObject,
     LinkedDataDumpableWithSchemaJsonLdObject,
 )
-from betty.media_type import MediaType, MediaTypeSchema
+from betty.media_type.schema import MediaTypeSchema
 from betty.privacy import is_public
 
 if TYPE_CHECKING:
+    from betty.media_type import MediaType
     from betty.project import Project
     from betty.serde.dump import Dump, DumpMapping
 

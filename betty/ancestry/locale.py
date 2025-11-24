@@ -13,8 +13,9 @@ from betty.json.linked_data import (
     LinkedDataDumpableWithSchemaJsonLdObject,
 )
 from betty.json.schema import Null, OneOf
-from betty.locale import UNDETERMINED_LOCALE, LocaleSchema
+from betty.locale import UNDETERMINED_LOCALE
 from betty.locale.localized import Localized
+from betty.locale.schema import LocaleSchema
 from betty.privacy import is_public
 
 if TYPE_CHECKING:

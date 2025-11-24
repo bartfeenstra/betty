@@ -4,17 +4,14 @@ Provide the Locale API.
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, TypeAlias, final
+from typing import TYPE_CHECKING, TypeAlias
 
 from babel import Locale
 from babel import negotiate_locale as babel_negotiate_locale
 from babel.core import UnknownLocaleError
 from langcodes import Language
 
-import betty
 import betty.dirs
-from betty.classtools import Singleton
-from betty.json.schema import String
 
 if TYPE_CHECKING:
     from collections.abc import Sequence
@@ -165,17 +162,3 @@ def _negotiate_locale(
             True,
         )
     return None
-
-
-@final
-class LocaleSchema(Singleton, String):
-    """
-    The JSON Schema for locales.
-    """
-
-    def __init__(self):
-        super().__init__(
-            def_name="locale",
-            title="Locale",
-            description="A BCP 47 locale identifier (https://www.ietf.org/rfc/bcp/bcp47.txt).",
-        )

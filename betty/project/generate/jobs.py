@@ -23,12 +23,13 @@ from betty.media_type.media_types import HTML, JSON
 from betty.model import EntityDefinition, persistent_id
 from betty.openapi import Specification
 from betty.privacy import is_public
-from betty.project import ProjectContext, ProjectSchema
+from betty.project import ProjectContext
 from betty.project.generate.file import (
     create_file,
     create_html_resource,
     create_json_resource,
 )
+from betty.project.schema import ProjectSchema
 from betty.string import kebab_case_to_lower_camel_case
 
 if TYPE_CHECKING:

@@ -10,9 +10,6 @@ from typing import TYPE_CHECKING, Any, TypeAlias, final
 
 from typing_extensions import override
 
-from betty.classtools import Singleton
-from betty.json.schema import String
-
 if TYPE_CHECKING:
     from collections.abc import Iterable, Mapping, Sequence
 
@@ -138,20 +135,6 @@ MediaTypeIndicator: TypeAlias = MediaType | ExtensionIndicator
 """
 A media type, or a file path or name that indicates a media type through its file extension.
 """
-
-
-@final
-class MediaTypeSchema(Singleton, String):
-    """
-    A JSON Schema for :py:class:`betty.media_type.MediaType`.
-    """
-
-    def __init__(self):
-        super().__init__(
-            def_name="mediaType",
-            title="Media type",
-            description="An IANA media type (https://www.iana.org/assignments/media-types/media-types.xhtml).",
-        )
 
 
 def match_media_type(source: MediaType, media_types: Iterable[MediaType]) -> MediaType:

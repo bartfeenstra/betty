@@ -3,19 +3,14 @@ from __future__ import annotations
 from typing import TYPE_CHECKING, cast
 
 import pytest
-from typing_extensions import override
 
 from betty.date import (
     Date,
     DateLike,
-    DateLikeSchema,
     DateRange,
-    DateRangeSchema,
-    DateSchema,
 )
 from betty.serde.dump import Dump, DumpMapping
 from betty.test_utils.json.linked_data import assert_dumps_linked_data
-from betty.test_utils.json.schema import SchemaTestBase, SchemaTestBaseSut
 
 if TYPE_CHECKING:
     from collections.abc import Sequence
@@ -861,24 +856,3 @@ class TestDateRange:
         self, expected: DumpMapping[Dump], sut: DateRange
     ) -> None:
         assert await assert_dumps_linked_data(sut) == expected
-
-
-class TestDateSchema(SchemaTestBase):
-    @override
-    @pytest.fixture
-    def sut(self) -> SchemaTestBaseSut:
-        return (DateSchema(), *_DUMMY_DATE_DUMPS)
-
-
-class TestDateRangeSchema(SchemaTestBase):
-    @override
-    @pytest.fixture
-    def sut(self) -> SchemaTestBaseSut:
-        return (DateRangeSchema(), *_DUMMY_DATE_RANGE_DUMPS)
-
-
-class TestDateLikeSchema(SchemaTestBase):
-    @override
-    @pytest.fixture
-    def sut(self) -> SchemaTestBaseSut:
-        return (DateLikeSchema(), *_DUMMY_DATE_LIKE_DUMPS)

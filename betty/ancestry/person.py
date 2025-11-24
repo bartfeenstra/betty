@@ -18,8 +18,9 @@ from betty.ancestry.has_notes import HasNotes
 from betty.functools import unique
 from betty.json.linked_data import JsonLdObject, dump_context
 from betty.locale.localizable import Localizable, _, ngettext
-from betty.model import EntityDefinition, ToManySchema, persistent_id
+from betty.model import EntityDefinition, persistent_id
 from betty.model.association import BidirectionalToManySingleType, ToManyAssociates
+from betty.model.schema import ToManySchema
 from betty.privacy import HasPrivacy, Privacy
 
 if TYPE_CHECKING:

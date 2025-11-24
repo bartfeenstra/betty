@@ -6,26 +6,23 @@ from typing import TYPE_CHECKING, Self
 import pytest
 from typing_extensions import override
 
-import betty
 from betty.ancestry import Ancestry
 from betty.app.factory import AppDependentFactory
 from betty.exception import HumanFacingException
-from betty.json.schema import JsonSchemaSchema
 from betty.locale.localizable import Plain
 from betty.locale.localizer import DEFAULT_LOCALIZER
 from betty.model import EntityDefinition
-from betty.project import Project, ProjectContext, ProjectExtensions, ProjectSchema
+from betty.project import Project, ProjectContext, ProjectExtensions
 from betty.project.config import EntityTypeConfiguration, ProjectConfiguration
 from betty.project.extension import Extension, ExtensionDefinition
 from betty.project.factory import ProjectDependentFactory
 from betty.requirement import Requirement, StaticRequirement, UnmetRequirement
-from betty.test_utils.json.schema import SchemaTestBase, SchemaTestBaseSut
 from betty.test_utils.model import DummyNonPublicFacingEntityOne
 from betty.test_utils.plugin import DummyPluginDefinition
 from betty.test_utils.project.extension import DummyExtensionOne, DummyExtensionTwo
 
 if TYPE_CHECKING:
-    from collections.abc import Iterable, Sequence
+    from collections.abc import Sequence
 
     from betty.app import App
     from betty.service.level import ServiceLevel
@@ -345,63 +342,6 @@ class TestProjectContext:
         async with Project.new_temporary(temporary_app) as project, project:
             sut = ProjectContext(project)
             assert sut.project is project
-
-
-class TestProjectSchema(SchemaTestBase):
-    @staticmethod
-    def _sut_params() -> Iterable[tuple[str, bool]]:
-        for url in (
-            "http://example.com",
-            "https://example.com",
-            "https://example.com/root-path",
-        ):
-            for clean_urls in (True, False):
-                yield url, clean_urls
-
-    @override
-    @pytest.fixture(params=_sut_params())
-    async def sut(
-        self, temporary_app: App, request: pytest.FixtureRequest
-    ) -> SchemaTestBaseSut:
-        url, clean_urls = request.param
-        async with Project.new_temporary(temporary_app) as project:
-            project.configuration.url = url
-            project.configuration.clean_urls = clean_urls
-            async with project:
-                return (
-                    await ProjectSchema.new_for_project(project),
-                    [
-                        await betty.ancestry.person.Person().dump_linked_data(project),
-                        await betty.ancestry.place.Place().dump_linked_data(project),
-                        await betty.ancestry.event.Event().dump_linked_data(project),
-                    ],
-                    [],
-                )
-
-    @pytest.mark.parametrize(
-        "clean_urls",
-        [
-            True,
-            False,
-        ],
-    )
-    async def test_new_for_project(self, clean_urls: bool, temporary_app: App) -> None:
-        async with Project.new_temporary(temporary_app) as project, project:
-            sut = await ProjectSchema.new_for_project(project)
-        JsonSchemaSchema().validate(sut.schema)
-
-    async def test_def_url(self, temporary_app: App) -> None:
-        async with Project.new_temporary(temporary_app) as project, project:
-            def_name = "myFirstDefinition"
-            assert def_name in await ProjectSchema.def_url(project, def_name)
-
-    async def test_url(self, temporary_app: App) -> None:
-        async with Project.new_temporary(temporary_app) as project, project:
-            assert "http" in await ProjectSchema.url(project)
-
-    async def test_www_path(self, temporary_app: App) -> None:
-        async with Project.new_temporary(temporary_app) as project, project:
-            assert str(ProjectSchema.www_path(project))
 
 
 class TestProjectExtensions:

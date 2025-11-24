@@ -25,12 +25,13 @@ from typing_extensions import override
 from betty.importlib import import_any
 from betty.json.linked_data import LinkedDataDumpableProvider
 from betty.json.schema import Array, Null, OneOf, Schema
-from betty.model import Entity, ToManySchema, ToZeroOrOneSchema, persistent_id
+from betty.model import Entity, persistent_id
 from betty.model.collections import (
     EntityCollection,
     MultipleTypesEntityCollection,
     SingleTypeEntityCollection,
 )
+from betty.model.schema import ToManySchema, ToZeroOrOneSchema
 
 if TYPE_CHECKING:
     from betty.project import Project
