@@ -378,40 +378,17 @@ class StaticTranslations(Mutable, Localizable):
 
     _translations: MutableMapping[str, str]
 
-    def __init__(self, translations: ShorthandStaticTranslations | None = None, /):
+    def __init__(self, translations: ShorthandStaticTranslations, /):
         """
         :param translations: Keys are locales, values are translations.
         """
         super().__init__()
-        if translations is not None:
-            self.replace(translations)
-        else:
-            self._translations = {}
-
-    def __getitem__(self, locale: str) -> str:
-        return self._translations[locale]
-
-    def __setitem__(self, locale: str, translation: str) -> None:
-        self.assert_mutable()
-        self._translations[locale] = translation
-
-    def __len__(self) -> int:
-        return len(self._translations)
-
-    def replace(self, translations: Self | ShorthandStaticTranslations, /) -> None:
-        """
-        Replace the translations.
-        """
-        from betty.assertion import assert_len
-        from betty.locale.localizable.assertion import assert_static_translations
-
-        self.assert_mutable()
-        if isinstance(translations, StaticTranslations):
-            self._translations = translations._translations
-        else:
-            translations = assert_static_translations()(translations)
-            assert_len(minimum=1)(translations)
-            self._translations = dict(translations)
+        self._translations = (
+            {UNDETERMINED_LOCALE: translations}
+            if isinstance(translations, str)
+            else dict(translations)
+        )
+        assert len(self._translations) > 0
 
     @property
     def translations(self) -> StaticTranslationsMapping:
@@ -439,11 +416,7 @@ class StaticTranslations(Mutable, Localizable):
 
     @classmethod
     def from_localizable(
-        cls,
-        other: Localizable,
-        localizers: Iterable[Localizer],
-        *,
-        required: bool = True,
+        cls, other: Localizable, localizers: Iterable[Localizer], /
     ) -> Self:
         """
         Create a new instance from another :py:class`betty.locale.localizable.Localizable`.

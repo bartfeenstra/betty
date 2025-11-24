@@ -73,52 +73,6 @@ class TestStaticTranslations:
         localizer = Localizer(locale, NullTranslations())
         assert sut.localize(localizer) == expected
 
-    def test___getitem__(self) -> None:
-        locale = "nl-NL"
-        translation = "Hallo, wereld!"
-        sut = StaticTranslations(
-            {
-                DEFAULT_LOCALE: "Hello, world!",
-                locale: translation,
-            }
-        )
-        assert sut[locale] == translation
-
-    def test___setitem__(self) -> None:
-        locale = "nl-NL"
-        translation = "Hallo, wereld!"
-        sut = StaticTranslations({DEFAULT_LOCALE: "Hello, world!"})
-        sut[locale] = translation
-        assert sut[locale] == translation
-
-    @pytest.mark.parametrize(
-        ("expected", "translations"),
-        [
-            (
-                1,
-                "Hello, world!",
-            ),
-            (
-                1,
-                {
-                    "en-US": "Hello, world!",
-                },
-            ),
-            (
-                2,
-                {
-                    "nl-NL": "Hallo, wereld!",
-                    "en": "Hello, world!",
-                },
-            ),
-        ],
-    )
-    async def test___len__(
-        self, expected: int, translations: ShorthandStaticTranslations
-    ) -> None:
-        sut = StaticTranslations(translations)
-        assert len(sut) == expected
-
     @pytest.mark.parametrize(
         ("expected", "translations"),
         [
@@ -153,12 +107,6 @@ class TestStaticTranslations:
     ) -> None:
         sut = StaticTranslations(translations)
         assert sut.translations == expected
-
-    def test_replace(self) -> None:
-        translation = "Hallo, wereld!"
-        sut = StaticTranslations()
-        sut.replace(translation)
-        assert sut.localize(DEFAULT_LOCALIZER) == translation
 
 
 class TestPlain:
