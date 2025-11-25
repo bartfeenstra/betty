@@ -10,8 +10,7 @@ from typing_extensions import override
 
 from betty.config.factory import ConfigurationDependentSelfFactory
 from betty.machine_name import MachineName
-from betty.plugin import PluginDefinition, PluginTypeDefinition
-from betty.plugin.classed import ClassedPluginDefinition
+from betty.plugin import Plugin, PluginDefinition, PluginTypeDefinition
 from betty.plugin.config import (
     PluginDefinitionConfiguration,
     PluginDefinitionConfigurationMapping,
@@ -65,7 +64,9 @@ class PluginDefinitionConfigurationMappingTestBase(
             assert plugin.id == configuration.id
 
 
-class ConfigurableDummyPlugin(ConfigurationDependentSelfFactory[DummyConfiguration]):
+class ConfigurableDummyPlugin(
+    ConfigurationDependentSelfFactory[DummyConfiguration], Plugin
+):
     """
     A configurable dummy plugin.
     """
@@ -87,17 +88,15 @@ class ConfigurableDummyPlugin(ConfigurationDependentSelfFactory[DummyConfigurati
         return lambda: cls(configuration=configuration)
 
 
-class ConfigurableDummyPluginDefinition(
-    ClassedPluginDefinition[ConfigurableDummyPlugin]
-):
+class ConfigurableDummyPluginDefinition(PluginDefinition[ConfigurableDummyPlugin]):
     """
     A definition of a configurable dummy plugin.
     """
 
-    plugin_type_cls = ConfigurableDummyPlugin
     type = PluginTypeDefinition(
-        id="configurable-dummy-plugin",
-        label="Configurable dummy plugin",
+        "configurable-dummy-plugin",
+        ConfigurableDummyPlugin,
+        "Configurable dummy plugin",
         discoveries=CallbackDiscovery(
             lambda: [
                 ConfigurableDummyPluginOne.plugin,

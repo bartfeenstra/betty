@@ -5,14 +5,13 @@ Requirements for plugins.
 from __future__ import annotations
 
 from collections.abc import Iterable
-from typing import TYPE_CHECKING, Any, Generic, Self, TypeVar, final
+from typing import TYPE_CHECKING, Generic, Self, TypeVar, final
 
 from typing_extensions import override
 
 from betty.functools import unique
 from betty.locale.localizable import AllEnumeration, _
 from betty.plugin import PluginDefinition
-from betty.plugin.classed import ClassedPluginDefinition
 from betty.plugin.dependent import DependentPluginDefinition
 from betty.plugin.error import PluginError, PluginNotFound, UnmetRequirement
 from betty.plugin.human_facing import HumanFacingPluginDefinition
@@ -33,14 +32,11 @@ if TYPE_CHECKING:
     from betty.service.level import ServiceLevel
 
 _PluginDefinitionT = TypeVar("_PluginDefinitionT", bound=PluginDefinition)
-_ClassedPluginDefinitionT = TypeVar(
-    "_ClassedPluginDefinitionT", bound=ClassedPluginDefinition[Any]
-)
 
 
 async def new_dependencies_requirement(
-    dependent: _ClassedPluginDefinitionT,
-    plugins: Iterable[_ClassedPluginDefinitionT],
+    dependent: _PluginDefinitionT,
+    plugins: Iterable[_PluginDefinitionT],
     *,
     services: ServiceLevel,
 ) -> Requirement | None:
@@ -51,9 +47,7 @@ async def new_dependencies_requirement(
         return None
     plugins_by_id = {plugin.id: plugin for plugin in plugins}  # type: ignore[unreachable]
     try:
-        dependencies: MutableSequence[
-            tuple[_ClassedPluginDefinitionT, Requirement]
-        ] = []
+        dependencies: MutableSequence[tuple[_PluginDefinitionT, Requirement]] = []
         for dependency_identifier in dependent.depends_on:
             dependency = plugins_by_id[resolve_id(dependency_identifier)]
             dependency_requirement = await dependency.cls.requirement(services)
@@ -93,15 +87,13 @@ class CyclicDependencyError(PluginError):
 
 
 async def get_requirement(
-    plugin: ResolvableDefinition, services: ServiceLevel
+    plugin: ResolvableDefinition, services: ServiceLevel, /
 ) -> Requirement | None:
     """
     Get the requirement for the given plugin.
     """
     plugin = resolve_definition(plugin)
-    if isinstance(plugin, ClassedPluginDefinition) and issubclass(
-        plugin.cls, HasRequirement
-    ):
+    if issubclass(plugin.cls, HasRequirement):
         return await plugin.cls.requirement(services)
     return None
 

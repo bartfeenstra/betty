@@ -36,8 +36,7 @@ from betty.locale.localizable import (
 from betty.locale.localizable.assertion import assert_load_localizable
 from betty.locale.localizable.config import dump_localizable
 from betty.machine_name import MachineName, assert_machine_name
-from betty.plugin import PluginDefinition
-from betty.plugin.classed import ClassedPlugin, ClassedPluginDefinition
+from betty.plugin import Plugin, PluginDefinition
 from betty.plugin.resolve import ResolvableId, resolve_id
 from betty.typing import Void, Voidable
 
@@ -48,13 +47,10 @@ if TYPE_CHECKING:
     from betty.serde.dump import Dump, DumpMapping
     from betty.service.level.factory import AnyFactory
 
-_PluginT = TypeVar("_PluginT")
+_PluginT = TypeVar("_PluginT", bound=Plugin)
 _ConfigurationT = TypeVar("_ConfigurationT", bound=Configuration)
 _ConfigurationKeyT = TypeVar("_ConfigurationKeyT", bound=ConfigurationKey)
 _PluginDefinitionT = TypeVar("_PluginDefinitionT", bound=PluginDefinition)
-_ClassedPluginDefinitionT = TypeVar(
-    "_ClassedPluginDefinitionT", bound=ClassedPluginDefinition[Any]
-)
 
 
 class PluginIdentifierKeyConfigurationMapping(
@@ -206,16 +202,14 @@ class PluginDefinitionConfigurationMapping(
         return item_dump, cast(str, item_dump.pop("id"))
 
 
-class PluginInstanceConfiguration(
-    Generic[_ClassedPluginDefinitionT, _PluginT], Configuration
-):
+class PluginInstanceConfiguration(Generic[_PluginDefinitionT, _PluginT], Configuration):
     """
     Configure a single plugin instance.
     """
 
     def __init__(
         self,
-        plugin: ResolvableId[_ClassedPluginDefinitionT, _PluginT & ClassedPlugin],
+        plugin: ResolvableId[_PluginDefinitionT, _PluginT & Plugin],
         configuration: Voidable[Configuration | Dump] = Void(),  # noqa B008
         /,
     ):
@@ -243,16 +237,14 @@ class PluginInstanceConfiguration(
 
     async def new_plugin_instance(
         self,
-        repository: PluginRepository[_ClassedPluginDefinitionT],
+        repository: PluginRepository[_PluginDefinitionT],
         *,
         factory: AnyFactory,
     ) -> _PluginT:
         """
         Create a new plugin instance.
         """
-        plugin_definition = cast(
-            ClassedPluginDefinition[_PluginT], repository[self._id]
-        )
+        plugin_definition = repository[self._id]
         if not isinstance(self._configuration, Void):
             if not issubclass(plugin_definition.cls, Configurable):
                 raise HumanFacingException(
@@ -302,10 +294,10 @@ class PluginInstanceConfiguration(
 
 class PluginInstanceConfigurationMapping(
     PluginIdentifierKeyConfigurationMapping[
-        _ClassedPluginDefinitionT,
-        PluginInstanceConfiguration[_ClassedPluginDefinitionT, _PluginT],
+        _PluginDefinitionT,
+        PluginInstanceConfiguration[_PluginDefinitionT, _PluginT],
     ],
-    Generic[_ClassedPluginDefinitionT, _PluginT],
+    Generic[_PluginDefinitionT, _PluginT],
 ):
     """
     Configure plugin instances, keyed by their plugin IDs.
@@ -314,7 +306,7 @@ class PluginInstanceConfigurationMapping(
     def __init__(
         self,
         configurations: Iterable[
-            PluginInstanceConfiguration[_ClassedPluginDefinitionT, _PluginT]
+            PluginInstanceConfiguration[_PluginDefinitionT, _PluginT]
         ]
         | None = None,
         /,
@@ -324,17 +316,15 @@ class PluginInstanceConfigurationMapping(
     @override
     def _load_item(
         self, dump: Dump
-    ) -> PluginInstanceConfiguration[_ClassedPluginDefinitionT, _PluginT]:
-        configuration = PluginInstanceConfiguration[
-            _ClassedPluginDefinitionT, _PluginT
-        ]("-")
+    ) -> PluginInstanceConfiguration[_PluginDefinitionT, _PluginT]:
+        configuration = PluginInstanceConfiguration[_PluginDefinitionT, _PluginT]("-")
         configuration.load(dump)
         return configuration
 
     @override
     def _get_key(
         self,
-        configuration: PluginInstanceConfiguration[_ClassedPluginDefinitionT, _PluginT],
+        configuration: PluginInstanceConfiguration[_PluginDefinitionT, _PluginT],
         /,
     ) -> MachineName:
         return configuration.id
@@ -356,10 +346,8 @@ class PluginInstanceConfigurationMapping(
 
 
 class PluginInstanceConfigurationSequence(
-    ConfigurationSequence[
-        PluginInstanceConfiguration[_ClassedPluginDefinitionT, _PluginT]
-    ],
-    Generic[_ClassedPluginDefinitionT, _PluginT],
+    ConfigurationSequence[PluginInstanceConfiguration[_PluginDefinitionT, _PluginT]],
+    Generic[_PluginDefinitionT, _PluginT],
 ):
     """
     Configure plugin instances.
@@ -368,7 +356,7 @@ class PluginInstanceConfigurationSequence(
     def __init__(
         self,
         configurations: Iterable[
-            PluginInstanceConfiguration[_ClassedPluginDefinitionT, _PluginT]
+            PluginInstanceConfiguration[_PluginDefinitionT, _PluginT]
         ]
         | None = None,
         /,
@@ -378,9 +366,7 @@ class PluginInstanceConfigurationSequence(
     @override
     def _load_item(
         self, dump: Dump
-    ) -> PluginInstanceConfiguration[_ClassedPluginDefinitionT, _PluginT]:
-        configuration = PluginInstanceConfiguration[
-            _ClassedPluginDefinitionT, _PluginT
-        ]("-")
+    ) -> PluginInstanceConfiguration[_PluginDefinitionT, _PluginT]:
+        configuration = PluginInstanceConfiguration[_PluginDefinitionT, _PluginT]("-")
         configuration.load(dump)
         return configuration

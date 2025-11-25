@@ -4,8 +4,11 @@ Plugins that can declare dependencies on other plugins.
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Any, TypeVar
+from typing import TYPE_CHECKING, Any
 
+from typing_extensions import TypeVar
+
+from betty.plugin import Plugin
 from betty.plugin.ordered import OrderedPluginDefinition, sort_ordered_plugin_graph
 from betty.plugin.resolve import ResolvableId, resolve_id
 
@@ -16,19 +19,21 @@ if TYPE_CHECKING:
     from betty.machine_name import MachineName
     from betty.plugin.repository import PluginRepository
 
+_PluginT = TypeVar("_PluginT", bound=Plugin, default=Plugin)
 
-class DependentPluginDefinition(OrderedPluginDefinition):
+
+class DependentPluginDefinition(OrderedPluginDefinition[_PluginT]):
     """
     A definition of a plugin that can declare its dependency on other plugins.
     """
 
     def __init__(
         self,
-        *,
+        *args: Any,
         depends_on: Set[ResolvableId] | None = None,
         **kwargs: Any,
     ):
-        super().__init__(**kwargs)
+        super().__init__(*args, **kwargs)
         self._depends_on = (
             set()
             if depends_on is None

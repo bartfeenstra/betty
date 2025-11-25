@@ -9,21 +9,20 @@ from typing import TypeAlias, overload
 from typing_extensions import TypeVar
 
 from betty.machine_name import MachineName
-from betty.plugin import PluginDefinition
-from betty.plugin.classed import ClassedPlugin, ClassedPluginDefinition
+from betty.plugin import Plugin, PluginDefinition
 
 _PluginDefinitionT = TypeVar(
     "_PluginDefinitionT", bound=PluginDefinition, default=PluginDefinition
 )
-_ClassedPluginT = TypeVar("_ClassedPluginT", bound=ClassedPlugin, default=ClassedPlugin)
+_PluginT = TypeVar("_PluginT", bound=Plugin, default=Plugin)
 
-ResolvableDefinition: TypeAlias = _PluginDefinitionT | type[_ClassedPluginT]
+ResolvableDefinition: TypeAlias = _PluginDefinitionT | type[_PluginT]
 """
 Use :py:func:`betty.plugin.resolve.resolve_definition` to resolve this to a :py:class:`betty.plugin.PluginDefinition`
 """
 
 ResolvableId: TypeAlias = (
-    MachineName | ResolvableDefinition[_PluginDefinitionT, _ClassedPluginT]
+    MachineName | ResolvableDefinition[_PluginDefinitionT, _PluginT]
 )
 """
 Use :py:func:`betty.plugin.resolve.resolve_id` to resolve this to a plugin ID.
@@ -36,9 +35,7 @@ def resolve_definition(definition: _PluginDefinitionT, /) -> _PluginDefinitionT:
 
 
 @overload
-def resolve_definition(
-    definition: type[_ClassedPluginT], /
-) -> ClassedPluginDefinition[_ClassedPluginT]:
+def resolve_definition(definition: type[_PluginT], /) -> PluginDefinition[_PluginT]:
     pass
 
 

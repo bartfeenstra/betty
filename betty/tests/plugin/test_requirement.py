@@ -6,8 +6,7 @@ import pytest
 from typing_extensions import override
 
 from betty.locale.localizer import DEFAULT_LOCALIZER
-from betty.plugin import PluginTypeDefinition
-from betty.plugin.classed import ClassedPlugin, ClassedPluginDefinition
+from betty.plugin import Plugin, PluginTypeDefinition
 from betty.plugin.dependent import DependentPluginDefinition
 from betty.plugin.error import PluginNotFound
 from betty.plugin.requirement import (
@@ -17,49 +16,36 @@ from betty.plugin.requirement import (
     new_dependencies_requirement,
 )
 from betty.requirement import HasRequirement, Requirement, StaticRequirement
-from betty.test_utils.plugin import DUMMY_PLUGIN_ONE, DummyPluginDefinition
-from betty.test_utils.plugin.classed import (
-    ClassedDummyPlugin,
-    ClassedDummyPluginDefinition,
-    ClassedDummyPluginOne,
-)
+from betty.test_utils.plugin import DummyPlugin, DummyPluginDefinition, DummyPluginOne
 
 if TYPE_CHECKING:
     from betty.app import App
     from betty.service.level import ServiceLevel
 
 
-class HasRequirementPlugin(HasRequirement, ClassedPlugin):
+class HasRequirementPlugin(HasRequirement, Plugin):
     plugin: ClassVar[HasRequirementPluginDefinition]
 
 
-class HasRequirementPluginDefinition(
-    ClassedPluginDefinition[HasRequirementPlugin], DependentPluginDefinition
-):
-    plugin_type_cls = ClassedDummyPlugin
-    type = PluginTypeDefinition(
-        id="-",
-        label="HasRequirement",
-    )
+class HasRequirementPluginDefinition(DependentPluginDefinition[HasRequirementPlugin]):
+    type = PluginTypeDefinition("-", HasRequirementPlugin, "HasRequirement")
 
 
 @HasRequirementPluginDefinition(
-    id="upstream-without-requirements",
+    "upstream-without-requirements",
     depends_on={"downstream-without-requirements"},
 )
 class UpstreamWithoutRequirements(HasRequirementPlugin):
     pass
 
 
-@HasRequirementPluginDefinition(
-    id="downstream-without-requirements",
-)
+@HasRequirementPluginDefinition("downstream-without-requirements")
 class DownstreamWithoutRequirements(HasRequirementPlugin):
     pass
 
 
 @HasRequirementPluginDefinition(
-    id="upstream-with-unmet-requirements",
+    "upstream-with-unmet-requirements",
     depends_on={"downstream-with-unmet-requirements"},
 )
 class UpstreamWithUnmetRequirements(HasRequirementPlugin):
@@ -72,9 +58,7 @@ class UpstreamWithUnmetRequirements(HasRequirementPlugin):
         )
 
 
-@HasRequirementPluginDefinition(
-    id="downstream-with-unmet-requirements",
-)
+@HasRequirementPluginDefinition("downstream-with-unmet-requirements")
 class DownstreamWithUnmetRequirements(HasRequirementPlugin):
     @override
     @classmethod
@@ -86,16 +70,14 @@ class DownstreamWithUnmetRequirements(HasRequirementPlugin):
 
 
 @HasRequirementPluginDefinition(
-    id="upstream-with-met-requirements",
+    "upstream-with-met-requirements",
     depends_on={"downstream-with-met-requirements"},
 )
 class UpstreamWithMetRequirements(HasRequirementPlugin):
     pass
 
 
-@HasRequirementPluginDefinition(
-    id="downstream-with-met-requirements",
-)
+@HasRequirementPluginDefinition("downstream-with-met-requirements")
 class DownstreamWithMetRequirements(HasRequirementPlugin):
     pass
 
@@ -104,8 +86,8 @@ async def test_new_dependencies_requirement__without_dependent_plugin(
     temporary_app: App,
 ) -> None:
     actual = await new_dependencies_requirement(
-        ClassedDummyPluginOne.plugin,
-        [ClassedDummyPluginOne.plugin],
+        DummyPluginOne.plugin,
+        [DummyPluginOne.plugin],
         services=temporary_app,
     )
     assert actual is None
@@ -153,19 +135,13 @@ class TestCyclicDependencyError:
         assert plugin_id in str(sut)
 
 
-async def test_get_requirement__without_classed_plugin() -> None:
-    assert await get_requirement(DUMMY_PLUGIN_ONE, None) is None
-
-
 async def test_get_requirement__without_has_requirement() -> None:
-    assert await get_requirement(ClassedDummyPluginOne, None) is None
+    assert await get_requirement(DummyPluginOne, None) is None
 
 
 async def test_get_requirement__without_requirement() -> None:
-    @ClassedDummyPluginDefinition(
-        id="-",
-    )
-    class _Plugin(HasRequirement, ClassedDummyPlugin):
+    @DummyPluginDefinition("-")
+    class _Plugin(HasRequirement, DummyPlugin):
         pass
 
     assert await get_requirement(_Plugin, None) is None
@@ -174,10 +150,8 @@ async def test_get_requirement__without_requirement() -> None:
 async def test_get_requirement__with_requirement() -> None:
     requirement = StaticRequirement("")
 
-    @ClassedDummyPluginDefinition(
-        id="-",
-    )
-    class _Plugin(HasRequirement, ClassedDummyPlugin):
+    @DummyPluginDefinition("-")
+    class _Plugin(HasRequirement, DummyPlugin):
         @override
         @classmethod
         async def requirement(cls, level: ServiceLevel, /) -> Requirement | None:
@@ -189,9 +163,9 @@ async def test_get_requirement__with_requirement() -> None:
 class TestCheckRequirementRepository:
     async def test_get__without_requirement(self) -> None:
         sut = await CheckRequirementRepository.new(
-            DummyPluginDefinition, [DUMMY_PLUGIN_ONE], None
+            DummyPluginDefinition, [DummyPluginOne], None
         )
-        assert sut.get(DUMMY_PLUGIN_ONE.id) is DUMMY_PLUGIN_ONE
+        assert sut.get(DummyPluginOne.id) is DummyPluginOne
 
     async def test_get__with_plugin_not_found(self) -> None:
         sut = await CheckRequirementRepository.new(DummyPluginDefinition, [], None)
@@ -207,9 +181,9 @@ class TestCheckRequirementRepository:
 
     async def test___iter____without_requirement(self) -> None:
         sut = await CheckRequirementRepository.new(
-            DummyPluginDefinition, [DUMMY_PLUGIN_ONE], None
+            DummyPluginDefinition, [DummyPluginOne], None
         )
-        assert list(iter(sut)) == [DUMMY_PLUGIN_ONE]
+        assert list(iter(sut)) == [DummyPluginOne]
 
     async def test___iter____without_plugins(self) -> None:
         sut = await CheckRequirementRepository.new(DummyPluginDefinition, [], None)

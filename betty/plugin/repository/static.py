@@ -7,8 +7,7 @@ from typing import Generic, TypeVar, final
 
 from typing_extensions import override
 
-from betty.plugin import PluginDefinition
-from betty.plugin.classed import ClassedPlugin
+from betty.plugin import Plugin, PluginDefinition
 from betty.plugin.error import PluginNotFound
 from betty.plugin.repository import PluginRepository
 from betty.plugin.resolve import ResolvableId, resolve_id
@@ -34,7 +33,7 @@ class StaticPluginRepository(
 
     @override
     def get(
-        self, plugin_id: ResolvableId[_PluginDefinitionT, ClassedPlugin], /
+        self, plugin_id: ResolvableId[_PluginDefinitionT, Plugin], /
     ) -> _PluginDefinitionT:
         plugin_id = resolve_id(plugin_id)
         try:

@@ -7,8 +7,7 @@ from typing import TYPE_CHECKING, Any, ClassVar, Self, TypeVar, final
 from typing_extensions import override
 
 from betty.locale.localizable import LocalizableLike, _
-from betty.plugin import PluginTypeDefinition
-from betty.plugin.classed import ClassedPlugin, ClassedPluginDefinition
+from betty.plugin import Plugin, PluginTypeDefinition
 from betty.plugin.dependent import DependentPluginDefinition
 from betty.plugin.discovery.entry_point import EntryPointDiscovery
 from betty.plugin.human_facing import HumanFacingPluginDefinition
@@ -23,7 +22,7 @@ if TYPE_CHECKING:
     from betty.service.level import ServiceLevel
 
 
-class Extension(ServiceContainer, ClassedPlugin, HasRequirement):
+class Extension(ServiceContainer, Plugin, HasRequirement):
     """
     Integrate optional functionality with Betty :py:class:`betty.project.Project`s.
 
@@ -74,19 +73,18 @@ _ExtensionT = TypeVar("_ExtensionT", bound=Extension)
 
 @final
 class ExtensionDefinition(
-    HumanFacingPluginDefinition,
-    ClassedPluginDefinition[Extension],
-    DependentPluginDefinition,
-    OrderedPluginDefinition,
+    HumanFacingPluginDefinition[Extension],
+    DependentPluginDefinition[Extension],
+    OrderedPluginDefinition[Extension],
 ):
     """
     An extension definition.
     """
 
-    plugin_type_cls = Extension
     type = PluginTypeDefinition(
-        id="extension",
-        label=_("Extension"),
+        "extension",
+        Extension,
+        _("Extension"),
         discoveries=EntryPointDiscovery("betty.extension"),
     )
 

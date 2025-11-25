@@ -8,7 +8,7 @@ from betty.plugin.discovery.app import AppDiscovery
 from betty.plugin.repository.provider.service import (
     ServiceLevelPluginRepositoryProvider,
 )
-from betty.test_utils.plugin import DUMMY_PLUGIN_ONE, DummyPluginDefinition
+from betty.test_utils.plugin import DummyPluginDefinition, DummyPluginOne
 
 
 class TestServiceLevelPluginRepositoryProvider:
@@ -17,7 +17,7 @@ class TestServiceLevelPluginRepositoryProvider:
         assert await sut.plugins(DummyPluginDefinition) is await sut.plugins(
             DummyPluginDefinition
         )
-        assert DUMMY_PLUGIN_ONE in await sut.plugins(DummyPluginDefinition)
+        assert DummyPluginOne in await sut.plugins(DummyPluginDefinition)
 
     async def test_plugins__with_plugin_type_id(self, mocker: MockerFixture) -> None:
         mocker.patch(
@@ -27,7 +27,7 @@ class TestServiceLevelPluginRepositoryProvider:
             },
         )
         sut = ServiceLevelPluginRepositoryProvider(None)
-        assert DUMMY_PLUGIN_ONE in await sut.plugins(DummyPluginDefinition.type.id)
+        assert DummyPluginOne in await sut.plugins(DummyPluginDefinition.type.id)
 
     async def test_plugins__should_forward_services(self, temporary_app: App) -> None:
         async def _discovery(app: App) -> Iterable["_PluginDefinition"]:

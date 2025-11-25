@@ -14,7 +14,6 @@ from betty.image import is_supported_media_type
 from betty.json.linked_data import LinkedDataDumpableWithSchema
 from betty.model import persistent_id
 from betty.plugin import PluginDefinition, plugin_types
-from betty.plugin.classed import ClassedPluginDefinition
 from betty.privacy import is_private, is_public
 from betty.string import kebab_case_to_snake_case
 from betty.typing import internal
@@ -40,7 +39,7 @@ class PluginTester:
     Provides tests for a specific plugin type.
     """
 
-    def __init__(self, plugin_type: type[ClassedPluginDefinition[Any]], /):
+    def __init__(self, plugin_type: type[PluginDefinition], /):
         self._plugin_type = plugin_type
 
     def tests(self) -> Mapping[str, Callable[..., bool]]:
@@ -53,7 +52,7 @@ class PluginTester:
         """
         :param plugin_id: If given, additionally ensure the value is an instance of this type.
         """
-        if not isinstance(value, self._plugin_type.plugin_type_cls):
+        if not isinstance(value, self._plugin_type.type.cls):
             return False
         if plugin_id is not None and value.plugin.id != plugin_id:  # type: ignore[attr-defined]
             return False
@@ -114,6 +113,5 @@ async def tests() -> Mapping[str, Callable[..., bool]]:
         "public": is_public,
     }
     for plugin in plugin_types().values():
-        if issubclass(plugin, ClassedPluginDefinition):
-            tests.update(PluginTester(plugin).tests())
+        tests.update(PluginTester(plugin).tests())
     return tests

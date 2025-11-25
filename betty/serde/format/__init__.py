@@ -12,8 +12,7 @@ from typing_extensions import override
 from betty.exception import HumanFacingException
 from betty.locale.localizable import Localizable, _
 from betty.locale.localized import Localized, LocalizedStr
-from betty.plugin import PluginTypeDefinition
-from betty.plugin.classed import ClassedPluginDefinition
+from betty.plugin import Plugin, PluginTypeDefinition
 from betty.plugin.discovery.entry_point import EntryPointDiscovery
 from betty.plugin.human_facing import HumanFacingPluginDefinition
 
@@ -32,7 +31,7 @@ class FormatError(HumanFacingException):
     """
 
 
-class Format:
+class Format(Plugin):
     """
     Defines a (de)serialization format.
     """
@@ -62,15 +61,15 @@ class Format:
 
 
 @final
-class FormatDefinition(HumanFacingPluginDefinition, ClassedPluginDefinition[Format]):
+class FormatDefinition(HumanFacingPluginDefinition[Format]):
     """
     A (de)serialization format definition.
     """
 
-    plugin_type_cls = Format
     type = PluginTypeDefinition(
-        id="format",
-        label=_("(De)serialization format"),
+        "format",
+        Format,
+        _("(De)serialization format"),
         discoveries=EntryPointDiscovery("betty.serde_format"),
     )
 

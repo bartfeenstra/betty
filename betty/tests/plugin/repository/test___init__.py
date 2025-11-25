@@ -8,10 +8,10 @@ from betty.plugin.error import PluginNotFound
 from betty.plugin.repository import PluginRepository
 from betty.plugin.resolve import resolve_id
 from betty.test_utils.plugin import (
-    DUMMY_PLUGIN_ONE,
-    DUMMY_PLUGIN_THREE,
-    DUMMY_PLUGIN_TWO,
     DummyPluginDefinition,
+    DummyPluginOne,
+    DummyPluginThree,
+    DummyPluginTwo,
 )
 
 if TYPE_CHECKING:
@@ -46,15 +46,15 @@ class TestPluginRepository:
         assert self._Sut().type is DummyPluginDefinition
 
     def test___len__(self) -> None:
-        sut = self._Sut(DUMMY_PLUGIN_ONE, DUMMY_PLUGIN_TWO, DUMMY_PLUGIN_THREE)
+        sut = self._Sut(DummyPluginOne, DummyPluginTwo, DummyPluginThree)
         assert len(sut) == 3
 
     def test___getitem__(self) -> None:
-        sut = self._Sut(DUMMY_PLUGIN_ONE)
-        assert sut[DUMMY_PLUGIN_ONE.id] is DUMMY_PLUGIN_ONE
+        sut = self._Sut(DummyPluginOne)
+        assert sut[DummyPluginOne.id] is DummyPluginOne
 
     def test_plugin_id_schema(self) -> None:
-        sut = self._Sut(DUMMY_PLUGIN_ONE, DUMMY_PLUGIN_TWO, DUMMY_PLUGIN_THREE)
+        sut = self._Sut(DummyPluginOne, DummyPluginTwo, DummyPluginThree)
         actual = sut.plugin_id_schema
         assert actual.schema["enum"] == [
             "dummy-plugin-one",

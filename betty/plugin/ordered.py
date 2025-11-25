@@ -11,7 +11,7 @@ from typing import TYPE_CHECKING, Any
 from typing_extensions import TypeVar
 
 from betty.machine_name import MachineName
-from betty.plugin import PluginDefinition
+from betty.plugin import Plugin, PluginDefinition
 from betty.plugin.resolve import ResolvableId, resolve_id
 
 if TYPE_CHECKING:
@@ -19,24 +19,25 @@ if TYPE_CHECKING:
 
     from betty.plugin.repository import PluginRepository
 
+_PluginT = TypeVar("_PluginT", bound=Plugin, default=Plugin)
 _PluginDefinitionT = TypeVar(
     "_PluginDefinitionT", bound=PluginDefinition, default=PluginDefinition
 )
 
 
-class OrderedPluginDefinition(PluginDefinition):
+class OrderedPluginDefinition(PluginDefinition[_PluginT]):
     """
     A definition of plugin that can declare its order with respect to other plugins.
     """
 
     def __init__(
         self,
-        *,
+        *args: Any,
         comes_before: Set[ResolvableId] | None = None,
         comes_after: Set[ResolvableId] | None = None,
         **kwargs: Any,
     ):
-        super().__init__(**kwargs)
+        super().__init__(*args, **kwargs)
         self._comes_before = (
             set()
             if comes_before is None

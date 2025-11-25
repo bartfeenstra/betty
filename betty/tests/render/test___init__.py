@@ -7,10 +7,10 @@ from betty.media_type import MediaType
 from betty.media_type.media_types import HTML
 from betty.plugin import PluginDefinition
 from betty.render import RenderDispatcher, Renderer, RendererDefinition
-from betty.test_utils.plugin.classed import ClassedPluginDefinitionClassTestBase
+from betty.test_utils.plugin import PluginDefinitionClassTestBase
 
 
-class TestRendererDefinition(ClassedPluginDefinitionClassTestBase):
+class TestRendererDefinition(PluginDefinitionClassTestBase):
     @override
     @pytest.fixture
     def sut(self) -> type[PluginDefinition]:

@@ -16,7 +16,7 @@ from betty.html import plain_text_to_html
 from betty.locale.localizable import LocalizableLike, RequiredLocalizableAttr, _
 from betty.locale.localizable.assertion import assert_load_localizable
 from betty.locale.localizable.config import dump_localizable
-from betty.plugin.classed import ClassedPlugin
+from betty.plugin import Plugin
 from betty.project.factory import ProjectDependentSelfFactory
 from betty.typing import private
 
@@ -62,7 +62,7 @@ class PlainTextConfiguration(Configuration):
 )
 class PlainText(
     ContentProvider,
-    ClassedPlugin,
+    Plugin,
     ConfigurationDependentSelfFactory[PlainTextConfiguration],
 ):
     """
@@ -91,7 +91,7 @@ class PlainText(
         )
 
 
-class Template(ContentProvider, ClassedPlugin, ProjectDependentSelfFactory):
+class Template(ContentProvider, Plugin, ProjectDependentSelfFactory):
     """
     Provides content by rendering a Jinja2 template.
     """

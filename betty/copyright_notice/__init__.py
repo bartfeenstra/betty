@@ -9,8 +9,7 @@ from typing import TYPE_CHECKING, ClassVar, final
 
 from betty.locale.localizable import _
 from betty.mutability import Mutable
-from betty.plugin import PluginTypeDefinition
-from betty.plugin.classed import ClassedPlugin, ClassedPluginDefinition
+from betty.plugin import Plugin, PluginTypeDefinition
 from betty.plugin.discovery.entry_point import EntryPointDiscovery
 from betty.plugin.discovery.project import ProjectDiscovery
 from betty.plugin.human_facing import HumanFacingPluginDefinition
@@ -19,7 +18,7 @@ if TYPE_CHECKING:
     from betty.locale.localizable import Localizable
 
 
-class CopyrightNotice(Mutable, ClassedPlugin):
+class CopyrightNotice(Mutable, Plugin):
     """
     A copyright notice.
 
@@ -53,19 +52,17 @@ class CopyrightNotice(Mutable, ClassedPlugin):
 
 
 @final
-class CopyrightNoticeDefinition(
-    HumanFacingPluginDefinition, ClassedPluginDefinition[CopyrightNotice]
-):
+class CopyrightNoticeDefinition(HumanFacingPluginDefinition[CopyrightNotice]):
     """
     A copyright notice definition.
 
     Read more about :doc:`/development/plugin/copyright-notice`.
     """
 
-    plugin_type_cls = CopyrightNotice
     type = PluginTypeDefinition(
-        id="copyright-notice",
-        label=_("Copyright notice"),
+        "copyright-notice",
+        CopyrightNotice,
+        _("Copyright notice"),
         discoveries=[
             EntryPointDiscovery("betty.copyright_notice"),
             ProjectDiscovery(

@@ -7,10 +7,10 @@ from typing_extensions import override
 from betty.content_provider import ContentProviderDefinition
 from betty.plugin import PluginDefinition
 from betty.test_utils.documentation import PluginDocumentationTestBase
-from betty.test_utils.plugin.classed import ClassedPluginDefinitionClassTestBase
+from betty.test_utils.plugin import PluginDefinitionClassTestBase
 
 
-class TestContentProviderDefinition(ClassedPluginDefinitionClassTestBase):
+class TestContentProviderDefinition(PluginDefinitionClassTestBase):
     @override
     @pytest.fixture
     def sut(self) -> type[PluginDefinition]:

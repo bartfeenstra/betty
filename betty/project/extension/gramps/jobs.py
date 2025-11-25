@@ -6,6 +6,7 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING, TypeVar
 
+from mypy.plugins.default import Plugin
 from typing_extensions import override
 
 from betty.ancestry.event_type import EventTypeDefinition
@@ -22,19 +23,17 @@ if TYPE_CHECKING:
     from collections.abc import Awaitable, Callable
 
     from betty.job.scheduler import Scheduler
-    from betty.plugin.classed import ClassedPluginDefinition
+    from betty.plugin import PluginDefinition
     from betty.plugin.config import PluginInstanceConfiguration
     from betty.plugin.repository import PluginRepository
     from betty.project.factory import ProjectFactory
 
-_PluginT = TypeVar("_PluginT")
+_PluginT = TypeVar("_PluginT", bound=Plugin)
 
 
 def _new_plugin_instance_factory(
-    configuration: PluginInstanceConfiguration[
-        ClassedPluginDefinition[_PluginT], _PluginT
-    ],
-    repository: PluginRepository[ClassedPluginDefinition[_PluginT]],
+    configuration: PluginInstanceConfiguration[PluginDefinition[_PluginT], _PluginT],
+    repository: PluginRepository[PluginDefinition[_PluginT]],
     *,
     factory: ProjectFactory,
 ) -> Callable[[], Awaitable[_PluginT]]:

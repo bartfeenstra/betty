@@ -8,7 +8,7 @@ import pytest
 from betty.plugin import PluginDefinition
 from betty.plugin.discovery.callback import CallbackDiscovery
 from betty.project import Project
-from betty.test_utils.plugin import DUMMY_PLUGIN_ONE
+from betty.test_utils.plugin import DummyPluginOne
 
 if TYPE_CHECKING:
     from betty.app import App
@@ -24,11 +24,11 @@ class TestCallbackDiscovery:
     @staticmethod
     def _sut_params() -> Sequence[CallbackResultDiscoveryTestParams]:
         async def _async_discovery() -> Iterable[PluginDefinition]:
-            return [DUMMY_PLUGIN_ONE]
+            return [DummyPluginOne]
 
         return [
-            ([DUMMY_PLUGIN_ONE], lambda: [DUMMY_PLUGIN_ONE]),
-            ([DUMMY_PLUGIN_ONE], _async_discovery),
+            ([DummyPluginOne], lambda: [DummyPluginOne]),
+            ([DummyPluginOne], _async_discovery),
         ]
 
     @pytest.fixture(params=_sut_params())

@@ -7,7 +7,7 @@ from betty.plugin.dependent import DependentPluginDefinition
 from betty.plugin.discovery import discover
 from betty.plugin.discovery.static import StaticDiscovery
 from betty.plugin.ordered import OrderedPluginDefinition
-from betty.test_utils.plugin import DUMMY_PLUGIN_ONE, DUMMY_PLUGIN_TWO
+from betty.test_utils.plugin import DummyPluginOne, DummyPluginTwo
 
 
 class _OrderedPluginDefinition(OrderedPluginDefinition):
@@ -114,7 +114,7 @@ class TestPluginTypeDefinition:
             id="my-first-plugin-type",
         )
         assert not sut.discoveries
-        with sut.override_discovery(DUMMY_PLUGIN_ONE):
+        with sut.override_discovery(DummyPluginOne):
             assert sut.discoveries
         assert not sut.discoveries
 
@@ -123,11 +123,11 @@ class TestPluginTypeDefinition:
             label="my-first-plugin-type",
             id="my-first-plugin-type",
         )
-        with sut.override_discovery(DUMMY_PLUGIN_ONE):
-            sut.add_discovery(StaticDiscovery(DUMMY_PLUGIN_TWO))
-            assert DUMMY_PLUGIN_TWO not in await discover(None, *sut.discoveries)
-        assert DUMMY_PLUGIN_ONE not in await discover(None, *sut.discoveries)
-        assert DUMMY_PLUGIN_TWO in await discover(None, *sut.discoveries)
+        with sut.override_discovery(DummyPluginOne):
+            sut.add_discovery(StaticDiscovery(DummyPluginTwo))
+            assert DummyPluginTwo not in await discover(None, *sut.discoveries)
+        assert DummyPluginOne not in await discover(None, *sut.discoveries)
+        assert DummyPluginTwo in await discover(None, *sut.discoveries)
 
     def test_discovery_overridden(self) -> None:
         sut = PluginTypeDefinition(

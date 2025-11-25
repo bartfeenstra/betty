@@ -9,7 +9,7 @@ from betty.app import App
 from betty.plugin import PluginDefinition
 from betty.plugin.discovery.app import AppDiscovery
 from betty.project import Project
-from betty.test_utils.plugin import DUMMY_PLUGIN_ONE
+from betty.test_utils.plugin import DummyPluginOne
 
 AppDiscoveryTestParams: TypeAlias = tuple[
     Collection[PluginDefinition],
@@ -22,11 +22,11 @@ class TestAppDiscovery:
     @staticmethod
     def _sut_params() -> Sequence[AppDiscoveryTestParams]:
         async def _async_discovery(app: App) -> Iterable[PluginDefinition]:
-            return [DUMMY_PLUGIN_ONE]
+            return [DummyPluginOne]
 
         return [
-            ([DUMMY_PLUGIN_ONE], lambda app: [DUMMY_PLUGIN_ONE]),
-            ([DUMMY_PLUGIN_ONE], _async_discovery),
+            ([DummyPluginOne], lambda app: [DummyPluginOne]),
+            ([DummyPluginOne], _async_discovery),
         ]
 
     @pytest.fixture(params=_sut_params())

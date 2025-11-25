@@ -72,5 +72,3 @@ metadata in its definition:
     To allow plugins to define if they come before or after any other plugins.
 :py:class:`betty.plugin.dependent.DependentPluginDefinition`
     To allow plugins to define their dependencies on any other plugins.
-:py:class:`betty.plugin.classed.ClassedPluginDefinition`
-    For plugins that have classes that can be instantiated.

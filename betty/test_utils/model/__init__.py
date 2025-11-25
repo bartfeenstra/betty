@@ -11,7 +11,6 @@ import pytest
 from betty.locale.localizable import CountablePlain
 from betty.locale.localizer import DEFAULT_LOCALIZER
 from betty.model import Entity, EntityDefinition
-from betty.test_utils.plugin.classed import ClassedPluginDefinitionTestBase
 from betty.test_utils.plugin.human_facing import (
     CountableHumanFacingPluginDefinitionTestBase,
 )
@@ -36,10 +35,7 @@ class EntityTestBase:
         assert sut.label.localize(DEFAULT_LOCALIZER)
 
 
-class EntityDefinitionTestBase(
-    CountableHumanFacingPluginDefinitionTestBase,
-    ClassedPluginDefinitionTestBase,
-):
+class EntityDefinitionTestBase(CountableHumanFacingPluginDefinitionTestBase):
     """
     A base class for testing :py:class:`betty.model.EntityDefinition` implementations.
     """

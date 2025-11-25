@@ -6,7 +6,7 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING, Any
 
-from typing_extensions import override
+from typing_extensions import TypeVar, override
 
 from betty.locale.localizable import (
     LocalizableLike,
@@ -15,13 +15,15 @@ from betty.locale.localizable import (
     _,
     ensure_localizable,
 )
-from betty.plugin import PluginDefinition
+from betty.plugin import Plugin, PluginDefinition
 
 if TYPE_CHECKING:
     from betty.locale.localizable import CountableLocalizable, Localizable
 
+_PluginT = TypeVar("_PluginT", bound=Plugin, default=Plugin)
 
-class HumanFacingPluginDefinition(PluginDefinition):
+
+class HumanFacingPluginDefinition(PluginDefinition[_PluginT]):
     """
     A definition of a plugin that is human-facing.
     """

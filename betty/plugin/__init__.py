@@ -19,13 +19,28 @@ from betty.locale.localizable import LocalizableLike, _, ensure_localizable
 from betty.machine_name import InvalidMachineName, MachineName, validate_machine_name
 
 if TYPE_CHECKING:
+    import builtins
     from collections.abc import Collection, Iterator, Mapping
 
     from betty.locale.localizable import Localizable
     from betty.plugin.discovery import PluginDiscovery
 
 
-class PluginDefinition:
+class Plugin:
+    """
+    A plugin class that can expose its plugin.
+
+    ``__init__()`` is considered private except to the :py:mod:`factory <betty.factory>` API. That means you MUST use the
+    factory API to create new instances, unless you are the owner of the class.
+    """
+
+    plugin: ClassVar[PluginDefinition[Self]]
+
+
+_PluginT = TypeVar("_PluginT", bound=Plugin, default=Plugin)
+
+
+class PluginDefinition(Generic[_PluginT]):
     """
     A plugin definition.
     """
@@ -34,12 +49,16 @@ class PluginDefinition:
 
     def __init__(
         self,
-        *,
         id: MachineName,  # noqa A002
+        cls: builtins.type[_PluginT] | None = None,
+        /,
     ):
         if not validate_machine_name(id):  # type: ignore[redundant-expr]
             raise InvalidMachineName(id)
         self._id = id
+        self._cls = cls
+        if cls is not None:
+            self._set_cls(cls)
 
     @property
     def id(self) -> MachineName:
@@ -52,6 +71,26 @@ class PluginDefinition:
         - Different plugin repositories **MAY** each have a plugin with the same ID.
         """
         return self._id
+
+    @property
+    def cls(self) -> type[_PluginT]:
+        """
+        The plugin class.
+        """
+        assert self._cls is not None
+        return self._cls
+
+    def _set_cls(self, cls: type[_PluginT]) -> None:
+        cls.plugin = self  # type: ignore[attr-defined]
+
+    def __call__(self, cls: type[_PluginT]) -> type[_PluginT]:
+        """
+        Set the plugin's class.
+        """
+        assert self._cls is None
+        self._set_cls(cls)
+        self._cls = cls
+        return cls
 
     @property
     def reference_label(self) -> Localizable:
@@ -77,16 +116,17 @@ _PluginDefinitionT = TypeVar(
 
 
 @final
-class PluginTypeDefinition(Generic[_PluginDefinitionT]):
+class PluginTypeDefinition(Generic[_PluginDefinitionT, _PluginT]):
     """
     A plugin type definition.
     """
 
     def __init__(
         self,
-        *,
         id: MachineName,  # noqa A002
+        cls: type[_PluginT],
         label: LocalizableLike,
+        *,
         discoveries: Collection[PluginDiscovery[_PluginDefinitionT]]
         | PluginDiscovery[_PluginDefinitionT]
         | None = None,
@@ -96,6 +136,7 @@ class PluginTypeDefinition(Generic[_PluginDefinitionT]):
         if not validate_machine_name(id):  # type: ignore[redundant-expr]
             raise InvalidMachineName(id)
         self._id = id
+        self._cls = cls
         self._label = ensure_localizable(label)
         if discoveries is None:
             discoveries = []
@@ -112,6 +153,13 @@ class PluginTypeDefinition(Generic[_PluginDefinitionT]):
         The plugin type ID.
         """
         return self._id
+
+    @property
+    def cls(self) -> type[_PluginT]:
+        """
+        The plugin type's shared base class'.
+        """
+        return self._cls
 
     @property
     def label(self) -> Localizable:
