@@ -21,7 +21,7 @@ from betty.locale.localizable import (
 )
 from betty.locale.localizable.linked_data import dump_linked_data
 from betty.locale.localizable.schema import StaticTranslationsSchema
-from betty.model import EntityDefinition
+from betty.model import EntityPlugin
 from betty.model.association import (
     BidirectionalToManyMultipleTypes,
     BidirectionalToOne,
@@ -41,7 +41,7 @@ if TYPE_CHECKING:
 
 
 @final
-@EntityDefinition(
+@EntityPlugin(
     id="citation",
     label=_("Citation"),
     label_plural=_("Citations"),

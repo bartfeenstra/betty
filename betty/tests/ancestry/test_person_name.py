@@ -12,7 +12,7 @@ from betty.ancestry.source import Source
 from betty.locale import UNDETERMINED_LOCALE
 from betty.model import Entity
 from betty.test_utils.json.linked_data import assert_dumps_linked_data
-from betty.test_utils.model import EntityDefinitionTestBase, EntityTestBase
+from betty.test_utils.model import EntityPluginTestBase, EntityTestBase
 
 if TYPE_CHECKING:
     from collections.abc import Sequence
@@ -21,7 +21,7 @@ if TYPE_CHECKING:
     from betty.serde.dump import Dump, DumpMapping
 
 
-class TestPersonNameDefinition(EntityDefinitionTestBase):
+class TestPersonNameDefinition(EntityPluginTestBase):
     @override
     @pytest.fixture
     def sut(self) -> PluginDefinition:

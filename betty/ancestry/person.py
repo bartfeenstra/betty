@@ -9,7 +9,7 @@ from urllib.parse import quote
 
 from typing_extensions import override
 
-from betty.ancestry.gender import GenderDefinition
+from betty.ancestry.gender import GenderPlugin
 from betty.ancestry.gender.genders import Unknown as UnknownGender
 from betty.ancestry.has_citations import HasCitations
 from betty.ancestry.has_file_references import HasFileReferences
@@ -18,7 +18,7 @@ from betty.ancestry.has_notes import HasNotes
 from betty.functools import unique
 from betty.json.linked_data import JsonLdObject, dump_context
 from betty.locale.localizable import Localizable, _, ngettext
-from betty.model import EntityDefinition, persistent_id
+from betty.model import EntityPlugin, persistent_id
 from betty.model.association import BidirectionalToManySingleType, ToManyAssociates
 from betty.model.schema import ToManySchema
 from betty.privacy import HasPrivacy, Privacy
@@ -38,7 +38,7 @@ if TYPE_CHECKING:
 
 
 @final
-@EntityDefinition(
+@EntityPlugin(
     id="person",
     label=_("Person"),
     label_plural=_("People"),
@@ -217,7 +217,7 @@ class Person(HasFileReferences, HasCitations, HasNotes, HasLinks, HasPrivacy):
     @classmethod
     async def linked_data_schema(cls, project: Project, /) -> JsonLdObject:
         schema = await super().linked_data_schema(project)
-        genders = await project.plugins(GenderDefinition)
+        genders = await project.plugins(GenderPlugin)
         schema.add_property("gender", genders.plugin_id_schema, False)
         schema.add_property("siblings", ToManySchema(title="Siblings"))
         return schema

@@ -10,10 +10,10 @@ from betty.config.file import assert_configuration_file
 from betty.console.command.commands.config import Config
 from betty.plugin import PluginDefinition
 from betty.test_utils.console import run
-from betty.test_utils.console.command import CommandDefinitionTestBase
+from betty.test_utils.console.command import CommandPluginTestBase
 
 
-class TestConfigDefinition(CommandDefinitionTestBase):
+class TestConfigDefinition(CommandPluginTestBase):
     @override
     @pytest.fixture
     def sut(self) -> PluginDefinition:

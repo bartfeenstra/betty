@@ -21,12 +21,12 @@ from betty.ancestry import Ancestry
 from betty.app.factory import AppTarget
 from betty.asset import AssetRepository, ProxyAssetRepository, StaticAssetRepository
 from betty.config import Configurable
-from betty.copyright_notice import CopyrightNotice, CopyrightNoticeDefinition
+from betty.copyright_notice import CopyrightNotice, CopyrightNoticePlugin
 from betty.data import Key
 from betty.exception import HumanFacingExceptionGroup
 from betty.hashid import hashid
 from betty.job import Context as JobContext
-from betty.license import LicenseDefinition
+from betty.license import LicensePlugin
 from betty.locale.localizable import LocalizableLike, _
 from betty.locale.localizer import Localizer, LocalizerRepository
 from betty.locale.translation import (
@@ -34,7 +34,7 @@ from betty.locale.translation import (
     ProxyTranslationRepository,
     TranslationRepository,
 )
-from betty.model import Entity, EntityDefinition
+from betty.model import Entity, EntityPlugin
 from betty.plugin import PluginDefinition
 from betty.plugin.dependent import sort_dependent_plugin_graph
 from betty.plugin.repository.provider import PluginRepositoryProvider
@@ -44,14 +44,14 @@ from betty.plugin.repository.provider.service import (
 from betty.plugin.resolve import ResolvableId, resolve_id
 from betty.privacy.privatizer import Privatizer
 from betty.project.config import ProjectConfiguration
-from betty.project.extension import Extension, ExtensionDefinition
+from betty.project.extension import Extension, ExtensionPlugin
 from betty.project.factory import (
     ProjectDependentFactory,
     ProjectDependentSelfFactory,
     ProjectTarget,
 )
 from betty.project.url import new_project_url_generator
-from betty.render import RenderDispatcher, RendererDefinition
+from betty.render import RenderDispatcher, RendererPlugin
 from betty.requirement import Requirement, StaticRequirement
 from betty.resource import Context as ResourceContext
 from betty.resource import ContextProvider, new_context
@@ -178,7 +178,7 @@ class Project(
             errors.catch(Key("entity_types")),
         ):
             await self.configuration.entity_types.validate(
-                await self.plugins(EntityDefinition)
+                await self.plugins(EntityPlugin)
             )
 
     @property
@@ -276,7 +276,7 @@ class Project(
         return RenderDispatcher(
             *[
                 await self.new_target(plugin.cls)
-                for plugin in await self.plugins(RendererDefinition)
+                for plugin in await self.plugins(RendererPlugin)
             ]
         )
 
@@ -285,7 +285,7 @@ class Project(
         """
         The enabled extensions.
         """
-        extensions = await self.plugins(ExtensionDefinition)
+        extensions = await self.plugins(ExtensionPlugin)
         configured_extension_definitions = []
         configured_extension_configurations = {}
         for extension_configuration in self.configuration.extensions.values():
@@ -370,7 +370,7 @@ class Project(
         The overall project copyright.
         """
         return await self.configuration.copyright_notice.new_plugin_instance(
-            await self.plugins(CopyrightNoticeDefinition), factory=self.new_target
+            await self.plugins(CopyrightNoticePlugin), factory=self.new_target
         )
 
     @service
@@ -379,7 +379,7 @@ class Project(
         The overall project license.
         """
         return await self.configuration.license.new_plugin_instance(
-            await self.plugins(LicenseDefinition), factory=self.new_target
+            await self.plugins(LicensePlugin), factory=self.new_target
         )
 
     @service
@@ -432,12 +432,12 @@ class ProjectExtensions:
 
     @overload
     def __getitem__(
-        self, extension: ResolvableId[ExtensionDefinition, Extension]
+        self, extension: ResolvableId[ExtensionPlugin, Extension]
     ) -> Extension:
         pass
 
     def __getitem__(
-        self, extension: ResolvableId[ExtensionDefinition, Extension]
+        self, extension: ResolvableId[ExtensionPlugin, Extension]
     ) -> Extension:
         extension_id = resolve_id(extension)
         for project_extension in self.flatten():
@@ -465,9 +465,7 @@ class ProjectExtensions:
         for batch in self:
             yield from batch
 
-    def __contains__(
-        self, extension: ResolvableId[ExtensionDefinition, Extension]
-    ) -> bool:
+    def __contains__(self, extension: ResolvableId[ExtensionPlugin, Extension]) -> bool:
         if isinstance(extension, type) and issubclass(extension, Extension):
             extension = extension.plugin
         try:

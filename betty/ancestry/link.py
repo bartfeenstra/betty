@@ -21,7 +21,7 @@ from betty.locale.localizable import (
 )
 from betty.locale.localizable.linked_data import dump_linked_data
 from betty.locale.localizable.schema import StaticTranslationsSchema
-from betty.model import Entity, EntityDefinition
+from betty.model import Entity, EntityPlugin
 from betty.model.association import BidirectionalToZeroOrOne
 from betty.privacy import HasPrivacy, Privacy, merge_privacies
 
@@ -34,7 +34,7 @@ if TYPE_CHECKING:
 
 
 @final
-@EntityDefinition(
+@EntityPlugin(
     id="link",
     label=_("Link"),
     label_plural=_("Links"),

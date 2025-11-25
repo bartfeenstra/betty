@@ -12,10 +12,10 @@ from betty.ancestry.source import Source
 from betty.locale import DEFAULT_LOCALE
 from betty.locale.localizable import CountablePlain
 from betty.locale.localizer import DEFAULT_LOCALIZER
-from betty.model import Entity, EntityDefinition
+from betty.model import Entity, EntityPlugin
 from betty.privacy import Privacy
 from betty.test_utils.json.linked_data import assert_dumps_linked_data
-from betty.test_utils.model import EntityDefinitionTestBase, EntityTestBase
+from betty.test_utils.model import EntityPluginTestBase, EntityTestBase
 
 if TYPE_CHECKING:
     from collections.abc import Mapping, Sequence
@@ -24,14 +24,14 @@ if TYPE_CHECKING:
 import pytest
 
 
-class TestCitationDefinition(EntityDefinitionTestBase):
+class TestCitationDefinition(EntityPluginTestBase):
     @override
     @pytest.fixture
     def sut(self) -> PluginDefinition:
         return Citation.plugin
 
 
-@EntityDefinition(
+@EntityPlugin(
     id="dummy-has-citations",
     label="",
     label_plural="",

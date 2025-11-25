@@ -8,7 +8,7 @@ from betty.ancestry.citation import Citation
 from betty.ancestry.has_citations import HasCitations
 from betty.ancestry.source import Source
 from betty.locale.localizable import CountablePlain
-from betty.model import EntityDefinition
+from betty.model import EntityPlugin
 from betty.test_utils.json.linked_data import assert_dumps_linked_data
 
 if TYPE_CHECKING:
@@ -16,7 +16,7 @@ if TYPE_CHECKING:
     from betty.serde.dump import Dump, DumpMapping
 
 
-@EntityDefinition(
+@EntityPlugin(
     id="dummy-has-citations",
     label="",
     label_plural="",

@@ -30,7 +30,7 @@ class ContentProvider(ABC):
 
 
 @final
-class ContentProviderDefinition(
+class ContentProviderPlugin(
     HumanFacingPluginDefinition, ClassedPluginDefinition[ContentProvider]
 ):
     """

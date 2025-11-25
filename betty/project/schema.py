@@ -9,7 +9,7 @@ from typing import TYPE_CHECKING, Self, final
 from typing_extensions import override
 
 from betty.json.schema import JsonSchemaReference, Schema
-from betty.model import EntityDefinition
+from betty.model import EntityPlugin
 from betty.model.schema import ToManySchema
 from betty.project.factory import ProjectDependentSelfFactory
 from betty.string import kebab_case_to_lower_camel_case
@@ -55,7 +55,7 @@ class ProjectSchema(ProjectDependentSelfFactory, Schema):
         schema._schema["$id"] = await cls.url(project)
 
         # Add entity schemas.
-        for entity_type in await project.plugins(EntityDefinition):
+        for entity_type in await project.plugins(EntityPlugin):
             entity_type_schema = await entity_type.cls.linked_data_schema(project)
             entity_type_schema.embed(schema)
             def_name = f"{kebab_case_to_lower_camel_case(entity_type.id)}EntityCollectionResponse"

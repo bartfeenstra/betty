@@ -10,11 +10,11 @@ from betty.test_utils.plugin.classed import ClassedPluginDefinitionTestBase
 from betty.test_utils.plugin.human_facing import HumanFacingPluginDefinitionTestBase
 
 
-class FormatDefinitionTestBase(
+class FormatPluginTestBase(
     HumanFacingPluginDefinitionTestBase, ClassedPluginDefinitionTestBase
 ):
     """
-    A base class for testing :py:class:`betty.serde.format.FormatDefinition` subclasses.
+    A base class for testing :py:class:`betty.serde.format.FormatPlugin` subclasses.
     """
 
 

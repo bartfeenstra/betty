@@ -18,7 +18,7 @@ from betty.project.config import (
     ProjectConfiguration,
     EntityTypeConfiguration,
 )
-from betty.project.extension import ExtensionDefinition
+from betty.project.extension import ExtensionPlugin
 from betty.project.extension.deriver import Deriver
 from betty.project.extension.gramps import Gramps
 from betty.project.extension.gramps.config import (
@@ -45,7 +45,7 @@ async def new(app: App) -> None:
     """
     Create a new project.
     """
-    await app.plugins(ExtensionDefinition)
+    await app.plugins(ExtensionPlugin)
     localizers = await app.localizers
 
     project_extensions = (

@@ -7,7 +7,7 @@ from typing import final
 import pytest
 
 from betty.config import Configurable
-from betty.project.extension import Extension, ExtensionDefinition
+from betty.project.extension import Extension, ExtensionPlugin
 from betty.test_utils.config import DummyConfiguration
 from betty.test_utils.plugin.classed import ClassedPluginDefinitionTestBase
 from betty.test_utils.plugin.dependent import DependentPluginDefinitionTestBase
@@ -16,14 +16,14 @@ from betty.test_utils.plugin.ordered import OrderedPluginDefinitionTestBase
 from betty.typing import private
 
 
-class ExtensionDefinitionTestBase(
+class ExtensionPluginTestBase(
     HumanFacingPluginDefinitionTestBase,
     ClassedPluginDefinitionTestBase,
     DependentPluginDefinitionTestBase,
     OrderedPluginDefinitionTestBase,
 ):
     """
-    A base class for testing :py:class:`betty.project.extension.ExtensionDefinition` implementations.
+    A base class for testing :py:class:`betty.project.extension.ExtensionPlugin` implementations.
     """
 
 
@@ -41,7 +41,7 @@ class ExtensionTestBase:
 
 
 @final
-@ExtensionDefinition(
+@ExtensionPlugin(
     id="dummy-one",
     label="Dummy One",
 )
@@ -52,7 +52,7 @@ class DummyExtensionOne(Extension):
 
 
 @final
-@ExtensionDefinition(
+@ExtensionPlugin(
     id="dummy-two",
     label="Dummy Two",
 )
@@ -63,7 +63,7 @@ class DummyExtensionTwo(Extension):
 
 
 @final
-@ExtensionDefinition(
+@ExtensionPlugin(
     id="dummy-configurable",
     label="Dummy Configurable",
 )

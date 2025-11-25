@@ -7,7 +7,7 @@ from __future__ import annotations
 from betty.test_utils.plugin.classed import ClassedPluginDefinitionTestBase
 
 
-class RendererDefinitionTestBase(ClassedPluginDefinitionTestBase):
+class RendererPluginTestBase(ClassedPluginDefinitionTestBase):
     """
-    A base class for testing :py:class:`betty.render.RendererDefinition` implementations.
+    A base class for testing :py:class:`betty.render.RendererPlugin` implementations.
     """

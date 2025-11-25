@@ -37,7 +37,7 @@ class Format:
     Defines a (de)serialization format.
     """
 
-    plugin: ClassVar[FormatDefinition]
+    plugin: ClassVar[FormatPlugin]
 
     @classmethod
     @abstractmethod
@@ -62,7 +62,7 @@ class Format:
 
 
 @final
-class FormatDefinition(HumanFacingPluginDefinition, ClassedPluginDefinition[Format]):
+class FormatPlugin(HumanFacingPluginDefinition, ClassedPluginDefinition[Format]):
     """
     A (de)serialization format definition.
     """
@@ -81,7 +81,7 @@ class FormatStr(Localizable):
     Localize and format a sequence of (de)serialization formats.
     """
 
-    def __init__(self, serde_formats: Sequence[FormatDefinition], /):
+    def __init__(self, serde_formats: Sequence[FormatPlugin], /):
         self._serde_formats = serde_formats
 
     @override
@@ -98,8 +98,8 @@ class FormatStr(Localizable):
 
 
 def format_for(
-    available_formats: Sequence[FormatDefinition], extension: str, /
-) -> FormatDefinition:
+    available_formats: Sequence[FormatPlugin], extension: str, /
+) -> FormatPlugin:
     """
     Get the (de)serialization format for the given file extension.
     """

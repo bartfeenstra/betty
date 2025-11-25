@@ -14,7 +14,7 @@ import rich_argparse
 from typing_extensions import override
 
 from betty.app import App
-from betty.console.command import CommandDefinition, CommandFunction
+from betty.console.command import CommandFunction, CommandPlugin
 from betty.exception import HumanFacingException
 from betty.locale.localizable import _
 from betty.locale.localizer import Localizer
@@ -104,7 +104,7 @@ def _create_formatter_class(*, localizer: Localizer) -> type[argparse.HelpFormat
 async def _create_command_parser(
     app: App,
     subparsers: argparse._SubParsersAction,  # type: ignore[type-arg]
-    command_plugin: CommandDefinition,
+    command_plugin: CommandPlugin,
     formatter_class: type[argparse.HelpFormatter],
 ) -> argparse.ArgumentParser:
     localizer = await app.localizer
@@ -160,7 +160,7 @@ async def _create_list_commands_action_class(
     app: App, *, localizer: Localizer
 ) -> type[argparse.Action]:
     command_definitions = sorted(
-        await app.plugins(CommandDefinition),
+        await app.plugins(CommandPlugin),
         key=lambda command_definition: command_definition.id,
     )
 
@@ -228,7 +228,7 @@ async def _create_parser(app: App) -> argparse.ArgumentParser:
         help=localizer._("Show all available commands"),
     )
     subparsers = parser.add_subparsers(title=localizer._("Subcommands"))
-    for command_plugin in await app.plugins(CommandDefinition):
+    for command_plugin in await app.plugins(CommandPlugin):
         await _create_command_parser(app, subparsers, command_plugin, formatter_class)
     return parser
 

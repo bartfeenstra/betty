@@ -10,9 +10,9 @@ for example:
 
 .. code-block:: python
 
-   from betty.content_provider import ContentProvider, ContentProviderDefinition
+   from betty.content_provider import ContentProvider, ContentProviderPlugin
 
-   @ContentProviderDefinition(
+   @ContentProviderPlugin(
        id="my-content-provider",
        label=_("My Content Provider"),
    )

@@ -9,13 +9,13 @@ from betty.copyright_notice import CopyrightNotice
 from betty.locale.localizer import DEFAULT_LOCALIZER
 from betty.plugin import PluginDefinition
 from betty.test_utils.copyright_notice import (
-    CopyrightNoticeDefinitionTestBase,
+    CopyrightNoticePluginTestBase,
     CopyrightNoticeTestBase,
 )
 from betty.wiki.copyright_notice import WikipediaContributors
 
 
-class TestWikipediaContributorsDefinition(CopyrightNoticeDefinitionTestBase):
+class TestWikipediaContributorsDefinition(CopyrightNoticePluginTestBase):
     @override
     @pytest.fixture
     def sut(self) -> PluginDefinition:

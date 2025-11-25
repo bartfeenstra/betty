@@ -8,10 +8,10 @@ from betty.plugin import PluginDefinition
 from betty.project import Project
 from betty.test_utils.conftest import TemporaryAppFactory
 from betty.test_utils.console import run
-from betty.test_utils.console.command import CommandDefinitionTestBase
+from betty.test_utils.console.command import CommandPluginTestBase
 
 
-class TestAboutDefinition(CommandDefinitionTestBase):
+class TestAboutDefinition(CommandPluginTestBase):
     @override
     @pytest.fixture
     def sut(self) -> PluginDefinition:

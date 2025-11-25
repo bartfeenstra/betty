@@ -10,9 +10,9 @@ for example:
 
 .. code-block:: python
 
-   from betty.copyright import CopyrightNotice, CopyrightNoticeDefinition
+   from betty.copyright import CopyrightNotice, CopyrightNoticePlugin
 
-   @CopyrightNoticeDefinition(
+   @CopyrightNoticePlugin(
        id="my-copyright-notice",
        label=_("My Copyright Notice"),
    )

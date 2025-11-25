@@ -16,12 +16,12 @@ if TYPE_CHECKING:
     from betty.copyright_notice import CopyrightNotice
 
 
-class CopyrightNoticeDefinitionTestBase(
+class CopyrightNoticePluginTestBase(
     HumanFacingPluginDefinitionTestBase,
     ClassedPluginDefinitionTestBase,
 ):
     """
-    A base class for testing :py:class:`betty.copyright_notice.CopyrightNoticeDefinition` implementations.
+    A base class for testing :py:class:`betty.copyright_notice.CopyrightNoticePlugin` implementations.
     """
 
 

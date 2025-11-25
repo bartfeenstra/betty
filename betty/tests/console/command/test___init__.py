@@ -3,19 +3,19 @@ from pathlib import Path
 import pytest
 from typing_extensions import override
 
-from betty.console.command import CommandDefinition
+from betty.console.command import CommandPlugin
 from betty.plugin import PluginDefinition
 from betty.test_utils.documentation import PluginDocumentationTestBase
 from betty.test_utils.plugin.classed import ClassedPluginDefinitionClassTestBase
 
 
-class TestCommandDefinition(ClassedPluginDefinitionClassTestBase):
+class TestCommandPlugin(ClassedPluginDefinitionClassTestBase):
     @override
     @pytest.fixture
     def sut(self) -> type[PluginDefinition]:
-        return CommandDefinition
+        return CommandPlugin
 
 
-class TestCommandDocumentation(PluginDocumentationTestBase[CommandDefinition]):
-    _plugin_type = CommandDefinition
+class TestCommandDocumentation(PluginDocumentationTestBase[CommandPlugin]):
+    _plugin_type = CommandPlugin
     _plugin_type_documentation_path = Path("usage") / "console.rst"

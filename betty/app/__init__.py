@@ -25,8 +25,8 @@ from betty.config.file import assert_configuration_file
 from betty.dirs import CACHE_DIRECTORY_PATH
 from betty.factory import Target, new_target
 from betty.http_client import ClientErrorToUserMessageMiddleware
-from betty.http_client.rate_limit import RateLimitDefinition, RateLimitMiddleware
-from betty.license import LicenseDefinition
+from betty.http_client.rate_limit import RateLimitMiddleware, RateLimitPlugin
+from betty.license import LicensePlugin
 from betty.license.licenses import SpdxLicenseBuilder
 from betty.locale import DEFAULT_LOCALE
 from betty.locale.localizable import LocalizableLike, _
@@ -227,7 +227,7 @@ class App(Configurable[AppConfiguration], ServiceContainer, PluginRepositoryProv
         """
         The HTTP client.
         """
-        http_rate_limits = await self.plugins(RateLimitDefinition)
+        http_rate_limits = await self.plugins(RateLimitPlugin)
         rate_limit_sorter = await sort_ordered_plugin_graph(
             http_rate_limits, http_rate_limits
         )
@@ -301,9 +301,9 @@ class App(Configurable[AppConfiguration], ServiceContainer, PluginRepositoryProv
         return await new_target(cast(Target[_T], target))
 
     @service
-    async def _spdx_license_repository(self) -> PluginRepository[LicenseDefinition]:
+    async def _spdx_license_repository(self) -> PluginRepository[LicensePlugin]:
         return StaticPluginRepository(
-            LicenseDefinition,
+            LicensePlugin,
             *[
                 license
                 async for license in SpdxLicenseBuilder(  # noqa A001

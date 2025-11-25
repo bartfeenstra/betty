@@ -7,7 +7,7 @@ from typing_extensions import override
 
 from betty import documentation
 from betty.app.factory import AppDependentSelfFactory
-from betty.console.command import Command, CommandFunction, CommandDefinition
+from betty.console.command import Command, CommandFunction, CommandPlugin
 from betty.locale.localizable import _
 
 if TYPE_CHECKING:
@@ -17,7 +17,7 @@ if TYPE_CHECKING:
 
 
 @final
-@CommandDefinition(
+@CommandPlugin(
     id="docs",
     label=_("View the documentation"),
     description=_(

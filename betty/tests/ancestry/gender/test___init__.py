@@ -3,19 +3,19 @@ from pathlib import Path
 import pytest
 from typing_extensions import override
 
-from betty.ancestry.gender import GenderDefinition
+from betty.ancestry.gender import GenderPlugin
 from betty.plugin import PluginDefinition
 from betty.test_utils.documentation import PluginDocumentationTestBase
 from betty.test_utils.plugin.classed import ClassedPluginDefinitionClassTestBase
 
 
-class TestGenderDefinition(ClassedPluginDefinitionClassTestBase):
+class TestGenderPlugin(ClassedPluginDefinitionClassTestBase):
     @override
     @pytest.fixture
     def sut(self) -> type[PluginDefinition]:
-        return GenderDefinition
+        return GenderPlugin
 
 
-class TestGenderDocumentation(PluginDocumentationTestBase[GenderDefinition]):
-    _plugin_type = GenderDefinition
+class TestGenderDocumentation(PluginDocumentationTestBase[GenderPlugin]):
+    _plugin_type = GenderPlugin
     _plugin_type_documentation_path = Path("usage") / "ancestry" / "gender.rst"

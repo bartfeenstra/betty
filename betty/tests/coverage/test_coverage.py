@@ -407,10 +407,10 @@ _BASELINE: Mapping[str, _ModuleIgnore] = {
         "Progress": MissingReason.ABSTRACT,
     },
     "betty/project/config.py": {
-        "EventTypeDefinitionConfiguration": MissingReason.STATIC_CONTENT_ONLY,
-        "GenderDefinitionConfiguration": MissingReason.STATIC_CONTENT_ONLY,
-        "PlaceTypeDefinitionConfiguration": MissingReason.STATIC_CONTENT_ONLY,
-        "PresenceRoleDefinitionConfiguration": MissingReason.STATIC_CONTENT_ONLY,
+        "EventTypePluginConfiguration": MissingReason.STATIC_CONTENT_ONLY,
+        "GenderPluginConfiguration": MissingReason.STATIC_CONTENT_ONLY,
+        "PlaceTypePluginConfiguration": MissingReason.STATIC_CONTENT_ONLY,
+        "PresenceRolePluginConfiguration": MissingReason.STATIC_CONTENT_ONLY,
     },
     "betty/project/extension/__init__.py": {
         "ExtensionError": MissingReason.STATIC_CONTENT_ONLY,

@@ -37,7 +37,7 @@ from betty.test_utils.config.factory import ConfigurationDependentSelfFactoryTes
 if TYPE_CHECKING:
     from collections.abc import Sequence
 
-    from betty.content_provider import ContentProvider, ContentProviderDefinition
+    from betty.content_provider import ContentProvider, ContentProviderPlugin
 
 
 class TestFeaturedEntities(
@@ -80,7 +80,7 @@ class TestFeaturedEntities(
 class TestSectionConfiguration:
     def test_content(self) -> None:
         content: Sequence[
-            PluginInstanceConfiguration[ContentProviderDefinition, ContentProvider]
+            PluginInstanceConfiguration[ContentProviderPlugin, ContentProvider]
         ] = [PluginInstanceConfiguration("my-first-content")]
         sut = SectionConfiguration(name="", heading="", content=content)
         assert sut.content[0].id == "my-first-content"
@@ -315,7 +315,7 @@ class TestMedia:
 class TestColorStyleConfiguration:
     def test_content(self) -> None:
         content: Sequence[
-            PluginInstanceConfiguration[ContentProviderDefinition, ContentProvider]
+            PluginInstanceConfiguration[ContentProviderPlugin, ContentProvider]
         ] = [PluginInstanceConfiguration("my-first-content")]
         sut = ColorStyleConfiguration(content=content)
         assert sut.content[0].id == "my-first-content"

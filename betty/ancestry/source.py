@@ -22,7 +22,7 @@ from betty.locale.localizable import (
 )
 from betty.locale.localizable.linked_data import dump_linked_data
 from betty.locale.localizable.schema import StaticTranslationsSchema
-from betty.model import Entity, EntityDefinition
+from betty.model import Entity, EntityPlugin
 from betty.model.association import (
     BidirectionalToManySingleType,
     BidirectionalToZeroOrOne,
@@ -44,7 +44,7 @@ if TYPE_CHECKING:
 
 
 @final
-@EntityDefinition(
+@EntityPlugin(
     id="source",
     label=_("Source"),
     label_plural=_("Sources"),

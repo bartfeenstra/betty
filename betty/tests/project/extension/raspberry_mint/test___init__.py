@@ -6,7 +6,7 @@ import pytest
 from typing_extensions import override
 
 from betty.exception import HumanFacingException
-from betty.model import EntityDefinition
+from betty.model import EntityPlugin
 from betty.project import Project
 from betty.project.config import EntityTypeConfiguration
 from betty.project.extension.raspberry_mint import RaspberryMint
@@ -68,7 +68,7 @@ class TestRaspberryMint(
     async def test_generate__html_list_for_third_party_entity(
         self, temporary_app: App
     ) -> None:
-        with EntityDefinition.type.override_discovery(DummyEntityOne.plugin):
+        with EntityPlugin.type.override_discovery(DummyEntityOne.plugin):
             async with Project.new_temporary(temporary_app) as project:
                 project.configuration.extensions.enable(RaspberryMint)
                 project.configuration.entity_types.replace(

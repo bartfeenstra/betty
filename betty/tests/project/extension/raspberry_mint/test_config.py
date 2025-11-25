@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING, Any
 
-from betty.content_provider import ContentProvider, ContentProviderDefinition
+from betty.content_provider import ContentProvider, ContentProviderPlugin
 from betty.exception import HumanFacingException
 from betty.plugin.config import PluginInstanceConfiguration
 from betty.project.extension.raspberry_mint.config import RaspberryMintConfiguration
@@ -32,7 +32,7 @@ class TestRaspberryMintConfiguration:
 
     def test_regional_content__from___init__(self) -> None:
         content_provider = PluginInstanceConfiguration[
-            ContentProviderDefinition, ContentProvider
+            ContentProviderPlugin, ContentProvider
         ]("my-first-plugin")
         regional_content = {"front": [content_provider]}
         sut = RaspberryMintConfiguration(regional_content=regional_content)

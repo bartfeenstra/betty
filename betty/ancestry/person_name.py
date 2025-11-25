@@ -14,7 +14,7 @@ from betty.json.linked_data import JsonLdObject, dump_context
 from betty.json.schema import String
 from betty.locale import UNDETERMINED_LOCALE
 from betty.locale.localizable import Localizable, _, ngettext
-from betty.model import Entity, EntityDefinition
+from betty.model import Entity, EntityPlugin
 from betty.model.association import BidirectionalToOne, ToManyAssociates, ToOneAssociate
 from betty.privacy import HasPrivacy, Privacy, merge_privacies
 
@@ -26,7 +26,7 @@ if TYPE_CHECKING:
 
 
 @final
-@EntityDefinition(
+@EntityPlugin(
     id="person-name",
     label=_("Person name"),
     label_plural=_("Person names"),

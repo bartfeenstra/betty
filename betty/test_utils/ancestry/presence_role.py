@@ -8,10 +8,10 @@ from betty.test_utils.plugin.classed import ClassedPluginDefinitionTestBase
 from betty.test_utils.plugin.human_facing import HumanFacingPluginDefinitionTestBase
 
 
-class PresenceRoleDefinitionTestBase(
+class PresenceRolePluginTestBase(
     HumanFacingPluginDefinitionTestBase,
     ClassedPluginDefinitionTestBase,
 ):
     """
-    A base class for testing :py:class:`betty.ancestry.presence_role.PresenceRoleDefinition` implementations.
+    A base class for testing :py:class:`betty.ancestry.presence_role.PresenceRolePlugin` implementations.
     """

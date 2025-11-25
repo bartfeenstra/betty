@@ -6,13 +6,13 @@ from __future__ import annotations
 
 from typing import final
 
-from betty.ancestry.place_type import PlaceType, PlaceTypeDefinition
+from betty.ancestry.place_type import PlaceType, PlaceTypePlugin
 from betty.classtools import Singleton
 from betty.locale.localizable import _
 
 
 @final
-@PlaceTypeDefinition(
+@PlaceTypePlugin(
     id="borough",
     label=_("Borough"),
 )
@@ -23,7 +23,7 @@ class Borough(PlaceType):
 
 
 @final
-@PlaceTypeDefinition(
+@PlaceTypePlugin(
     id="building",
     label=_("Building"),
 )
@@ -34,7 +34,7 @@ class Building(PlaceType):
 
 
 @final
-@PlaceTypeDefinition(
+@PlaceTypePlugin(
     id="cemetery",
     label=_("Cemetery"),
 )
@@ -45,7 +45,7 @@ class Cemetery(PlaceType):
 
 
 @final
-@PlaceTypeDefinition(
+@PlaceTypePlugin(
     id="city",
     label=_("City"),
 )
@@ -56,7 +56,7 @@ class City(PlaceType):
 
 
 @final
-@PlaceTypeDefinition(
+@PlaceTypePlugin(
     id="country",
     label=_("Country"),
 )
@@ -67,7 +67,7 @@ class Country(PlaceType):
 
 
 @final
-@PlaceTypeDefinition(
+@PlaceTypePlugin(
     id="county",
     label=_("County"),
 )
@@ -78,7 +78,7 @@ class County(PlaceType):
 
 
 @final
-@PlaceTypeDefinition(
+@PlaceTypePlugin(
     id="department",
     label=_("Department"),
 )
@@ -89,7 +89,7 @@ class Department(PlaceType):
 
 
 @final
-@PlaceTypeDefinition(
+@PlaceTypePlugin(
     id="district",
     label=_("District"),
 )
@@ -100,7 +100,7 @@ class District(PlaceType):
 
 
 @final
-@PlaceTypeDefinition(
+@PlaceTypePlugin(
     id="farm",
     label=_("Farm"),
 )
@@ -111,7 +111,7 @@ class Farm(PlaceType):
 
 
 @final
-@PlaceTypeDefinition(
+@PlaceTypePlugin(
     id="hamlet",
     label=_("Hamlet"),
 )
@@ -122,7 +122,7 @@ class Hamlet(PlaceType):
 
 
 @final
-@PlaceTypeDefinition(
+@PlaceTypePlugin(
     id="locality",
     label=_("Locality"),
 )
@@ -133,7 +133,7 @@ class Locality(PlaceType):
 
 
 @final
-@PlaceTypeDefinition(
+@PlaceTypePlugin(
     id="municipality",
     label=_("Municipality"),
 )
@@ -144,7 +144,7 @@ class Municipality(PlaceType):
 
 
 @final
-@PlaceTypeDefinition(
+@PlaceTypePlugin(
     id="neighborhood",
     label=_("Neighborhood"),
 )
@@ -155,7 +155,7 @@ class Neighborhood(PlaceType):
 
 
 @final
-@PlaceTypeDefinition(
+@PlaceTypePlugin(
     id="number",
     label=_("Number"),
 )
@@ -166,7 +166,7 @@ class Number(PlaceType):
 
 
 @final
-@PlaceTypeDefinition(
+@PlaceTypePlugin(
     id="parish",
     label=_("Parish"),
 )
@@ -177,7 +177,7 @@ class Parish(PlaceType):
 
 
 @final
-@PlaceTypeDefinition(
+@PlaceTypePlugin(
     id="province",
     label=_("Province"),
 )
@@ -188,7 +188,7 @@ class Province(PlaceType):
 
 
 @final
-@PlaceTypeDefinition(
+@PlaceTypePlugin(
     id="region",
     label=_("Region"),
 )
@@ -199,7 +199,7 @@ class Region(PlaceType):
 
 
 @final
-@PlaceTypeDefinition(
+@PlaceTypePlugin(
     id="state",
     label=_("State"),
 )
@@ -210,7 +210,7 @@ class State(PlaceType):
 
 
 @final
-@PlaceTypeDefinition(
+@PlaceTypePlugin(
     id="street",
     label=_("Street"),
 )
@@ -221,7 +221,7 @@ class Street(PlaceType):
 
 
 @final
-@PlaceTypeDefinition(
+@PlaceTypePlugin(
     id="town",
     label=_("Town"),
 )
@@ -232,7 +232,7 @@ class Town(PlaceType):
 
 
 @final
-@PlaceTypeDefinition(
+@PlaceTypePlugin(
     id="unknown",
     label=_("Unknown"),
 )
@@ -243,7 +243,7 @@ class Unknown(PlaceType, Singleton):
 
 
 @final
-@PlaceTypeDefinition(
+@PlaceTypePlugin(
     id="village",
     label=_("Village"),
 )

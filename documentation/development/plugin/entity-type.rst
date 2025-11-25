@@ -12,9 +12,9 @@ Create a new class that extends :py:class:`betty.model.Entity` and implements th
 
 .. code-block:: python
 
-   from betty.model import Entity, EntityDefinition
+   from betty.model import Entity, EntityPlugin
 
-   @EntityDefinition(
+   @EntityPlugin(
        id="my-entity",
        label=_("My Entity"),
    )

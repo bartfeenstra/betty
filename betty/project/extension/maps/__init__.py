@@ -8,7 +8,7 @@ from typing import TYPE_CHECKING, final
 from typing_extensions import override
 
 from betty.locale.localizable import _
-from betty.project.extension import ExtensionDefinition
+from betty.project.extension import ExtensionPlugin
 from betty.project.extension.maps.jobs import _GeneratePlacePreviews
 from betty.project.extension.webpack import Webpack
 from betty.project.extension.webpack.build import EntryPointProvider
@@ -22,7 +22,7 @@ if TYPE_CHECKING:
 
 
 @final
-@ExtensionDefinition(
+@ExtensionPlugin(
     id="maps",
     label="Maps",
     description=_("Display interactive maps"),

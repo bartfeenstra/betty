@@ -15,7 +15,7 @@ from betty.data import Key
 from betty.data import Path as DataPath
 from betty.exception import HumanFacingExceptionGroup
 from betty.jinja2 import Filters, Jinja2Provider
-from betty.project.extension import ExtensionDefinition
+from betty.project.extension import ExtensionPlugin
 from betty.project.extension._theme import jinja2_filters
 from betty.project.extension.maps import Maps
 from betty.project.extension.raspberry_mint.config import RaspberryMintConfiguration
@@ -38,7 +38,7 @@ if TYPE_CHECKING:
 
 
 @final
-@ExtensionDefinition(
+@ExtensionPlugin(
     id="raspberry-mint",
     label="Raspberry Mint",
     depends_on={Webpack},

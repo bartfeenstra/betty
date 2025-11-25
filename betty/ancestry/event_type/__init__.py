@@ -27,7 +27,7 @@ class EventType(ClassedPlugin):
     Define an :py:class:`betty.ancestry.event.Event` type.
     """
 
-    plugin: ClassVar[EventTypeDefinition]
+    plugin: ClassVar[EventTypePlugin]
 
 
 class ShouldExistEventType(EventType, ABC):
@@ -44,7 +44,7 @@ class ShouldExistEventType(EventType, ABC):
 
 
 @final
-class EventTypeDefinition(
+class EventTypePlugin(
     HumanFacingPluginDefinition,
     OrderedPluginDefinition,
     ClassedPluginDefinition[EventType],
@@ -70,7 +70,7 @@ class EventTypeDefinition(
     def __init__(
         self,
         *,
-        indicates: ResolvableId[EventTypeDefinition, EventType] | None = None,
+        indicates: ResolvableId[EventTypePlugin, EventType] | None = None,
         **kwargs: Any,
     ):
         super().__init__(**kwargs)

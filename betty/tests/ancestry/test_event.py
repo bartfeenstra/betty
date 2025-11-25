@@ -23,7 +23,7 @@ from betty.model.association import AssociationRequired, TemporaryToOneResolver
 from betty.mutability import Mutable
 from betty.privacy import Privacy
 from betty.test_utils.json.linked_data import assert_dumps_linked_data
-from betty.test_utils.model import EntityDefinitionTestBase, EntityTestBase
+from betty.test_utils.model import EntityPluginTestBase, EntityTestBase
 
 if TYPE_CHECKING:
     from collections.abc import Mapping, Sequence
@@ -33,7 +33,7 @@ if TYPE_CHECKING:
 import pytest
 
 
-class TestEventDefinition(EntityDefinitionTestBase):
+class TestEventDefinition(EntityPluginTestBase):
     @override
     @pytest.fixture
     def sut(self) -> PluginDefinition:

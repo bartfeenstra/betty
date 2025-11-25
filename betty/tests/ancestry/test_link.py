@@ -10,9 +10,9 @@ from betty.locale import DEFAULT_LOCALE
 from betty.locale.localizable import CountablePlain
 from betty.locale.localizer import DEFAULT_LOCALIZER
 from betty.media_type.media_types import HTML
-from betty.model import EntityDefinition
+from betty.model import EntityPlugin
 from betty.test_utils.json.linked_data import assert_dumps_linked_data
-from betty.test_utils.model import EntityDefinitionTestBase
+from betty.test_utils.model import EntityPluginTestBase
 
 if TYPE_CHECKING:
     from collections.abc import Mapping
@@ -22,7 +22,7 @@ if TYPE_CHECKING:
 import pytest
 
 
-@EntityDefinition(
+@EntityPlugin(
     id="dummy-has-links",
     label="",
     label_plural="",
@@ -32,7 +32,7 @@ class DummyHasLinks(HasLinks):
     pass
 
 
-class TestLinkDefinition(EntityDefinitionTestBase):
+class TestLinkDefinition(EntityPluginTestBase):
     @override
     @pytest.fixture
     def sut(self) -> PluginDefinition:

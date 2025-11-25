@@ -11,10 +11,10 @@ from betty.console.command.commands.new_translation import NewTranslation
 from betty.plugin import PluginDefinition
 from betty.project import Project
 from betty.test_utils.console import run
-from betty.test_utils.console.command import CommandDefinitionTestBase
+from betty.test_utils.console.command import CommandPluginTestBase
 
 
-class TestNewTranslationsDefinition(CommandDefinitionTestBase):
+class TestNewTranslationsDefinition(CommandPluginTestBase):
     @override
     @pytest.fixture
     def sut(self) -> PluginDefinition:

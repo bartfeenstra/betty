@@ -11,7 +11,7 @@ from typing_extensions import override
 from betty.app import App
 from betty.config.file import write_configuration_file
 from betty.console import SystemExitCode, call_command_func, main_standalone
-from betty.console.command import Command, CommandDefinition
+from betty.console.command import Command, CommandPlugin
 from betty.exception import HumanFacingException
 from betty.functools import Result, suppress
 from betty.project import Project
@@ -19,7 +19,7 @@ from betty.test_utils.console import run
 from betty.user import Verbosity
 
 
-@CommandDefinition(
+@CommandPlugin(
     id="no-op",
     label="No-op",
 )
@@ -34,7 +34,7 @@ class _NoOpCommand(Command):
         pass
 
 
-def _create_raising_command(exception: BaseException) -> CommandDefinition:
+def _create_raising_command(exception: BaseException) -> CommandPlugin:
     class _RaisingCommand(Command):
         @override
         async def configure(
@@ -45,7 +45,7 @@ def _create_raising_command(exception: BaseException) -> CommandDefinition:
         async def _invoke(self) -> None:
             raise exception
 
-    return CommandDefinition(
+    return CommandPlugin(
         id="raising",
         label="Raising",
         cls=_RaisingCommand,
@@ -86,9 +86,9 @@ async def test_main__with_unknown_command(temporary_app: App) -> None:
     ],
 )
 async def test_main__with_user_facing_exception(
-    expected: SystemExitCode, command: CommandDefinition, temporary_app: App
+    expected: SystemExitCode, command: CommandPlugin, temporary_app: App
 ) -> None:
-    with CommandDefinition.type.override_discovery(command):
+    with CommandPlugin.type.override_discovery(command):
         await run(
             temporary_app,
             command.id,
@@ -110,11 +110,11 @@ async def test_main__with_user_facing_exception(
     ],
 )
 def test_main_standalone(
-    expected: SystemExitCode, command: CommandDefinition, mocker: MockerFixture
+    expected: SystemExitCode, command: CommandPlugin, mocker: MockerFixture
 ) -> None:
     def _target() -> None:
         mocker.patch("sys.argv", new=["betty", command.id])
-        with CommandDefinition.type.override_discovery(command):
+        with CommandPlugin.type.override_discovery(command):
             main_standalone()
 
     # Run this in a thread so as not to conflict with pytest-playwright-asyncio's session-scoped event loop.
@@ -142,7 +142,7 @@ class TestVerbosity:
     async def test(
         self, expected: Verbosity, temporary_app: App, verbosity: str | None
     ) -> None:
-        with CommandDefinition.type.override_discovery(_NoOpCommand.plugin):
+        with CommandPlugin.type.override_discovery(_NoOpCommand.plugin):
             async with Project.new_temporary(temporary_app) as project:
                 await write_configuration_file(
                     project.configuration, project.configuration.configuration_file_path

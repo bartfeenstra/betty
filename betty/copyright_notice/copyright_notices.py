@@ -6,14 +6,14 @@ from typing import Self, final
 
 from typing_extensions import override
 
-from betty.copyright_notice import CopyrightNotice, CopyrightNoticeDefinition
+from betty.copyright_notice import CopyrightNotice, CopyrightNoticePlugin
 from betty.locale.localizable import Localizable, LocalizableLike, _, ensure_localizable
 from betty.project import Project
 from betty.project.factory import ProjectDependentSelfFactory
 
 
 @final
-@CopyrightNoticeDefinition(
+@CopyrightNoticePlugin(
     id="project-author",
     label=_("Project author"),
 )
@@ -47,7 +47,7 @@ class ProjectAuthor(ProjectDependentSelfFactory, CopyrightNotice):
 
 
 @final
-@CopyrightNoticeDefinition(
+@CopyrightNoticePlugin(
     id="public-domain",
     label=_("Public domain"),
 )

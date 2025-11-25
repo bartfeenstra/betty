@@ -21,14 +21,14 @@ from betty.license.licenses import (
 )
 from betty.locale.localizer import DEFAULT_LOCALIZER
 from betty.plugin import PluginDefinition
-from betty.test_utils.license import LicenseDefinitionTestBase, LicenseTestBase
+from betty.test_utils.license import LicensePluginTestBase, LicenseTestBase
 from betty.test_utils.user import StaticUser
 
 if TYPE_CHECKING:
     from betty.serde.dump import Dump, DumpMapping
 
 
-class TestAllRightsReservedDefinition(LicenseDefinitionTestBase):
+class TestAllRightsReservedDefinition(LicensePluginTestBase):
     @override
     @pytest.fixture
     def sut(self) -> PluginDefinition:
@@ -42,7 +42,7 @@ class TestAllRightsReserved(LicenseTestBase):
         return AllRightsReserved()
 
 
-class TestPublicDomainDefinition(LicenseDefinitionTestBase):
+class TestPublicDomainDefinition(LicensePluginTestBase):
     @override
     @pytest.fixture
     def sut(self) -> PluginDefinition:

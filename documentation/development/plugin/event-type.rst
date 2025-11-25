@@ -11,9 +11,9 @@ example:
 
 .. code-block:: python
 
-   from betty.ancestry.event_type import EventType, EventTypeDefinition
+   from betty.ancestry.event_type import EventType, EventTypePlugin
 
-   @EventTypeDefinition(
+   @EventTypePlugin(
        id="my-event-type",
        label=_("My Event Type"),
    )

@@ -7,14 +7,14 @@ import pytest
 from betty.ancestry.has_notes import HasNotes
 from betty.ancestry.note import Note
 from betty.locale.localizable import CountablePlain
-from betty.model import EntityDefinition
+from betty.model import EntityPlugin
 from betty.test_utils.json.linked_data import assert_dumps_linked_data
 
 if TYPE_CHECKING:
     from betty.serde.dump import Dump, DumpMapping
 
 
-@EntityDefinition(
+@EntityPlugin(
     id="dummy-has-notes",
     label="",
     label_plural="",

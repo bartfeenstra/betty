@@ -4,7 +4,7 @@ from pathlib import Path
 import pytest
 
 from betty.app import App
-from betty.project.extension import Extension, ExtensionDefinition
+from betty.project.extension import Extension, ExtensionPlugin
 
 
 class ExtensionTranslationTestBase:
@@ -12,14 +12,14 @@ class ExtensionTranslationTestBase:
     async def temporary_app_with_extensions(
         self, tmp_path: Path, temporary_app: App
     ) -> AsyncIterator[App]:
-        @ExtensionDefinition(
+        @ExtensionPlugin(
             id="dummy-without-assets",
             label="Dummy without assets",
         )
         class _DummyWithoutAssetsDirectoryExtension(Extension):
             pass
 
-        @ExtensionDefinition(
+        @ExtensionPlugin(
             id="dummy-with-assets",
             label="Dummy with assets",
             assets_directory_path=tmp_path / "assets",
@@ -27,7 +27,7 @@ class ExtensionTranslationTestBase:
         class _DummyWithAssetsDirectoryExtension(Extension):
             pass
 
-        with ExtensionDefinition.type.override_discovery(
+        with ExtensionPlugin.type.override_discovery(
             _DummyWithoutAssetsDirectoryExtension.plugin,
             _DummyWithAssetsDirectoryExtension.plugin,
         ):

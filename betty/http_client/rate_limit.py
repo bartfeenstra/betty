@@ -87,7 +87,7 @@ class RateLimit:
 
 
 @final
-class RateLimitDefinition(OrderedPluginDefinition, ClassedPluginDefinition[RateLimit]):
+class RateLimitPlugin(OrderedPluginDefinition, ClassedPluginDefinition[RateLimit]):
     """
     A rate limit definition.
 

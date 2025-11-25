@@ -18,14 +18,14 @@ from typing_extensions import override
 
 from betty.cache.file import BinaryFileCache
 from betty.exception import HumanFacingException
-from betty.license import License, LicenseDefinition
+from betty.license import License, LicensePlugin
 from betty.locale.localizable import Localizable, Plain, _
 from betty.machine_name import MachineName
 from betty.user import User
 
 
 @final
-@LicenseDefinition(
+@LicensePlugin(
     id="all-rights-reserved",
     label=_("All rights reserved"),
 )
@@ -48,7 +48,7 @@ class AllRightsReserved(License):
 
 
 @final
-@LicenseDefinition(
+@LicensePlugin(
     id="public-domain",
     label=_("Public domain"),
 )
@@ -103,7 +103,7 @@ class SpdxLicenseBuilder:
             binary_file_cache.with_scope("spdx-licenses").with_scope(self.VERSION).path
         )
 
-    async def build(self) -> AsyncIterable[LicenseDefinition]:
+    async def build(self) -> AsyncIterable[LicensePlugin]:
         """
         Build the licenses.
         """
@@ -152,7 +152,7 @@ class SpdxLicenseBuilder:
 
             yield await self._build_license(spdx_license_id, spdx_reference)
 
-    async def _build_license(self, license_id: str, url: str) -> LicenseDefinition:
+    async def _build_license(self, license_id: str, url: str) -> LicensePlugin:
         async with aiofiles.open(
             self._cache_directory_path
             / f"license-list-data-{self.VERSION}"
@@ -191,7 +191,7 @@ class SpdxLicenseBuilder:
                 def url(self) -> Localizable | None:
                     return Plain(url)
 
-            return LicenseDefinition(
+            return LicensePlugin(
                 id=spdx_license_id_to_license_id(license_id),
                 label=license_name,
                 cls=_SpdxLicense,

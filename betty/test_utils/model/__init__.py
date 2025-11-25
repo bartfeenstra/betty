@@ -10,7 +10,7 @@ import pytest
 
 from betty.locale.localizable import CountablePlain
 from betty.locale.localizer import DEFAULT_LOCALIZER
-from betty.model import Entity, EntityDefinition
+from betty.model import Entity, EntityPlugin
 from betty.test_utils.plugin.classed import ClassedPluginDefinitionTestBase
 from betty.test_utils.plugin.human_facing import (
     CountableHumanFacingPluginDefinitionTestBase,
@@ -36,17 +36,17 @@ class EntityTestBase:
         assert sut.label.localize(DEFAULT_LOCALIZER)
 
 
-class EntityDefinitionTestBase(
+class EntityPluginTestBase(
     CountableHumanFacingPluginDefinitionTestBase,
     ClassedPluginDefinitionTestBase,
 ):
     """
-    A base class for testing :py:class:`betty.model.EntityDefinition` implementations.
+    A base class for testing :py:class:`betty.model.EntityPlugin` implementations.
     """
 
 
 @final
-@EntityDefinition(
+@EntityPlugin(
     id="dummy-one",
     label="Dummy (one)",
     label_plural="Dummies (one)",
@@ -59,7 +59,7 @@ class DummyEntityOne(Entity):
 
 
 @final
-@EntityDefinition(
+@EntityPlugin(
     id="dummy",
     label="Dummy (two)",
     label_plural="Dummies (two)",
@@ -72,7 +72,7 @@ class DummyEntityTwo(Entity):
 
 
 @final
-@EntityDefinition(
+@EntityPlugin(
     id="dummy-non-public-facing-one",
     label="Dummy non-public-facing (two)",
     label_plural="Dummies non-public-facing (two)",

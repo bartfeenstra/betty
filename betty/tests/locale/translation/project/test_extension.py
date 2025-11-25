@@ -9,11 +9,11 @@ from betty.locale.translation.project.extension import (
     assert_extension_assets_directory_path,
     assert_extension_has_assets_directory_path,
 )
-from betty.project.extension import Extension, ExtensionDefinition
+from betty.project.extension import Extension, ExtensionPlugin
 from betty.test_utils.project.extension import DummyExtensionOne
 
 
-@ExtensionDefinition(
+@ExtensionPlugin(
     id="dummy-with-assets-directory",
     label="",
     assets_directory_path=Path(__file__),
