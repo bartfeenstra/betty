@@ -7,6 +7,7 @@ from typing_extensions import override
 from betty.ancestry.event import Event
 from betty.ancestry.file import File
 from betty.ancestry.file_reference import FileReference
+from betty.ancestry.link import Link
 from betty.ancestry.person import Person
 from betty.ancestry.place import Place
 from betty.app import App
@@ -23,6 +24,7 @@ from betty.project.extension.raspberry_mint import RaspberryMint
 from betty.project.extension.raspberry_mint.content_provider import (
     ColorStyle,
     ColorStyleConfiguration,
+    ExternalLinks,
     Family,
     FeaturedEntities,
     Media,
@@ -391,3 +393,34 @@ class TestColorStyle:
                 actual = await sut.provide(resource=new_context())
         assert actual is not None
         assert "My First Content" in actual
+
+
+class TestExternalLinks:
+    async def test_provide__without_has_links(self, temporary_app: App) -> None:
+        async with Project.new_temporary(temporary_app) as project:
+            project.configuration.extensions.enable(RaspberryMint)
+            async with project:
+                sut = await ExternalLinks.new_for_project(project)
+                provided_content = await sut.provide(resource=new_context(object()))
+        assert provided_content is None
+
+    async def test_provide__with_has_links_without_links(
+        self, temporary_app: App
+    ) -> None:
+        resource = Person()
+        async with Project.new_temporary(temporary_app) as project:
+            project.configuration.extensions.enable(RaspberryMint)
+            async with project:
+                sut = await ExternalLinks.new_for_project(project)
+                assert await sut.provide(resource=new_context(resource)) is None
+
+    async def test_provide__with_has_links_with_links(self, temporary_app: App) -> None:
+        url = "betty:///my-first-page"
+        resource = Person(links=[Link(url)])
+        async with Project.new_temporary(temporary_app) as project:
+            project.configuration.extensions.enable(RaspberryMint)
+            async with project:
+                sut = await ExternalLinks.new_for_project(project)
+                actual = await sut.provide(resource=new_context(resource))
+        assert actual is not None
+        assert url in actual
