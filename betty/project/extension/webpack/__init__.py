@@ -16,7 +16,6 @@ from typing_extensions import override
 from betty._npm import new_npm_requirement
 from betty.html import CssProvider, JsProvider
 from betty.jinja2 import Filters, Jinja2Provider
-from betty.job import Job
 from betty.project import Project, ProjectContext
 from betty.project.extension import Extension, ExtensionDefinition
 from betty.project.extension.webpack import build
@@ -36,25 +35,6 @@ if TYPE_CHECKING:
 
     from betty.job.scheduler import Scheduler
     from betty.service.level import ServiceLevel
-
-
-class _GenerateAssets(Job[ProjectContext]):
-    def __init__(self):
-        super().__init__("webpack:generate-assets", priority=True)
-
-    @override
-    async def do(self, scheduler: Scheduler[ProjectContext], /) -> None:
-        context = scheduler.context
-        project = context.project
-        extensions = await project.extensions
-        webpack = extensions[Webpack]
-        build_directory_path = await webpack._generate_ensure_build_directory(
-            job_context=context
-        )
-        context._webpack_build_directory_path = build_directory_path  # type: ignore[attr-defined]
-        await webpack._copy_build_directory(
-            build_directory_path, project.configuration.www_directory_path
-        )
 
 
 @internal
@@ -91,6 +71,8 @@ class Webpack(
 
     @override
     async def generate(self, scheduler: Scheduler[ProjectContext]) -> None:
+        from betty.project.extension.webpack.jobs import _GenerateAssets
+
         await scheduler.add(_GenerateAssets())
 
     @override
