@@ -4,12 +4,20 @@ Test utilities for :py:mod:`betty.plugin`.
 
 from __future__ import annotations
 
+from typing import ClassVar, final
+
 import pytest
 
 from betty.locale.localizer import DEFAULT_LOCALIZER
 from betty.machine_name import assert_machine_name
-from betty.plugin import PluginDefinition, PluginTypeDefinition
+from betty.plugin import Plugin, PluginDefinition, PluginTypeDefinition
 from betty.plugin.discovery.callback import CallbackDiscovery
+
+
+def _assert_cls_is_public(cls: type) -> None:
+    assert not cls.__name__.startswith("_"), (
+        f"Failed asserting that plugin class {cls} is public (its name must not start with an underscore)"
+    )
 
 
 class PluginDefinitionClassTestBase:
@@ -23,6 +31,12 @@ class PluginDefinitionClassTestBase:
         Provide the system(s) under test.
         """
         raise NotImplementedError
+
+    def test_plugin_type_cls(self, sut: PluginDefinition) -> None:
+        """
+        Tests the :py:class:`betty.plugin.PluginDefinition`'s ``plugin_type_cls`` attribute's value.
+        """
+        _assert_cls_is_public(sut.plugin_type_cls)
 
     def test_type__id(self, sut: PluginDefinition) -> None:
         """
@@ -55,37 +69,76 @@ class PluginDefinitionTestBase:
         """
         assert_machine_name()(sut.id)
 
+    def test_cls(self, sut: PluginDefinition) -> None:
+        """
+        Tests the :py:attr:`betty.plugin.PluginDefinition.cls` value.
+        """
+        _assert_cls_is_public(sut.cls)
+
+
+class DummyPlugin(Plugin):
+    """
+    A dummy plugin.
+    """
+
+    plugin: ClassVar[DummyPluginDefinition]
+
 
 class DummyPluginDefinition(PluginDefinition):
     """
     A definition of a dummy plugin.
     """
 
+    plugin_type_cls = DummyPlugin
     type = PluginTypeDefinition(
         id="dummy-plugin",
-        label="Dummy plugin",
+        label=" dummy plugin",
         discoveries=CallbackDiscovery(
             lambda: [
-                DUMMY_PLUGIN_ONE,  # type: ignore[has-type]
-                DUMMY_PLUGIN_TWO,  # type: ignore[has-type]
-                DUMMY_PLUGIN_THREE,  # type: ignore[has-type]
+                DummyPluginOne.plugin,
+                DummyPluginTwo.plugin,
+                DummyPluginThree.plugin,
+                DummyPluginFour.plugin,
             ]
         ),
     )
 
 
-DUMMY_PLUGIN_ONE = DummyPluginDefinition(
+@final
+@DummyPluginDefinition(
     id="dummy-plugin-one",
 )
+class DummyPluginOne(DummyPlugin):
+    """
+    A dummy plugin (one).
+    """
 
-DUMMY_PLUGIN_TWO = DummyPluginDefinition(
+
+@final
+@DummyPluginDefinition(
     id="dummy-plugin-two",
 )
+class DummyPluginTwo(DummyPlugin):
+    """
+    A dummy plugin (two).
+    """
 
-DUMMY_PLUGIN_THREE = DummyPluginDefinition(
+
+@final
+@DummyPluginDefinition(
     id="dummy-plugin-three",
 )
+class DummyPluginThree(DummyPlugin):
+    """
+    A dummy plugin (three).
+    """
 
-DUMMY_PLUGIN_FOUR = DummyPluginDefinition(
+
+@final
+@DummyPluginDefinition(
     id="dummy-plugin-four",
 )
+class DummyPluginFour(DummyPlugin):
+    """
+    A dummy plugin (four).
+    """

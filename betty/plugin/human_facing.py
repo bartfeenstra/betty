@@ -4,9 +4,9 @@ Plugins that are human-facing and have localizable attributes.
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Any
+from typing import TYPE_CHECKING, Any, Generic
 
-from typing_extensions import override
+from typing_extensions import TypeVar, override
 
 from betty.locale.localizable import (
     LocalizableLike,
@@ -15,13 +15,15 @@ from betty.locale.localizable import (
     _,
     ensure_localizable,
 )
-from betty.plugin import PluginDefinition
+from betty.plugin import Plugin, PluginDefinition
 
 if TYPE_CHECKING:
     from betty.locale.localizable import CountableLocalizable, Localizable
 
+_PluginT = TypeVar("_PluginT", bound=Plugin, default=Plugin)
 
-class HumanFacingPluginDefinition(PluginDefinition):
+
+class HumanFacingPluginDefinition(PluginDefinition[_PluginT], Generic[_PluginT]):
     """
     A definition of a plugin that is human-facing.
     """
@@ -72,7 +74,7 @@ class HumanFacingPluginDefinition(PluginDefinition):
         return self._description
 
 
-class CountableHumanFacingPluginDefinition(HumanFacingPluginDefinition):
+class CountableHumanFacingPluginDefinition(HumanFacingPluginDefinition[_PluginT]):
     """
     A definition of a plugin that is human-facing, and of which instances are countable.
     """

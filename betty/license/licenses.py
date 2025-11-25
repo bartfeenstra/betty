@@ -173,6 +173,10 @@ class SpdxLicenseBuilder:
             license_text = spdx_license_data["licenseText"]
             assert isinstance(license_text, str)
 
+            @LicensePlugin(
+                id=spdx_license_id_to_license_id(license_id),
+                label=license_name,
+            )
             class _SpdxLicense(License):
                 @override
                 @property
@@ -191,11 +195,7 @@ class SpdxLicenseBuilder:
                 def url(self) -> Localizable | None:
                     return Plain(url)
 
-            return LicensePlugin(
-                id=spdx_license_id_to_license_id(license_id),
-                label=license_name,
-                cls=_SpdxLicense,
-            )
+            return _SpdxLicense.plugin
 
     @classmethod
     def _extract_licenses(

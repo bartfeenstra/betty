@@ -11,7 +11,7 @@ from __future__ import annotations
 
 from contextlib import contextmanager
 from importlib import metadata
-from typing import TYPE_CHECKING, ClassVar, Generic, Self, final
+from typing import TYPE_CHECKING, ClassVar, Generic, final
 
 from typing_extensions import TypeVar
 
@@ -19,18 +19,35 @@ from betty.locale.localizable import LocalizableLike, _, ensure_localizable
 from betty.machine_name import InvalidMachineName, MachineName, validate_machine_name
 
 if TYPE_CHECKING:
+    import builtins
     from collections.abc import Collection, Iterator, Mapping
 
     from betty.locale.localizable import Localizable
     from betty.plugin.discovery import PluginDiscovery
 
 
-class PluginDefinition:
+class Plugin:
+    """
+    A plugin class that can expose its plugin.
+
+    ``__init__()`` is considered private to the :py:mod:`factory <betty.factory>` API. That means you MUST use the
+    factory API to create new instances.
+    """
+
+    plugin: ClassVar[PluginDefinition]
+
+
+_PluginCoT = TypeVar("_PluginCoT", bound=Plugin, default=Plugin, covariant=True)
+
+
+class PluginDefinition(Generic[_PluginCoT]):
     """
     A plugin definition.
     """
 
-    type: ClassVar[PluginTypeDefinition[Self]]
+    plugin_type_cls: ClassVar[type[Plugin]]
+
+    type: ClassVar[PluginTypeDefinition]
 
     def __init__(
         self,
@@ -40,6 +57,7 @@ class PluginDefinition:
         if not validate_machine_name(id):  # type: ignore[redundant-expr]
             raise InvalidMachineName(id)
         self._id = id
+        self._cls: type[_PluginCoT] | None = None
 
     @property
     def id(self) -> MachineName:
@@ -52,6 +70,31 @@ class PluginDefinition:
         - Different plugin repositories **MAY** each have a plugin with the same ID.
         """
         return self._id
+
+    @property
+    def cls(self) -> builtins.type[_PluginCoT]:
+        """
+        The plugin class.
+
+        :raises ValueError: Raised if the definition was not yet used to decorate a class.
+        """
+        if self._cls is None:
+            raise ValueError("This definition was not yet used to decorate a class.")
+        assert self._cls is not None
+        return self._cls
+
+    def __call__(self, cls: builtins.type[_PluginCoT]) -> builtins.type[_PluginCoT]:
+        """
+        Set the plugin's class.
+
+        :raises ValueError: Raised if the definition was already used to decorate a class.
+        """
+        if self._cls is not None:
+            raise ValueError("This definition was already used to decorate a class.")
+        assert self._cls is None
+        cls.plugin = self
+        self._cls = cls
+        return cls
 
     @property
     def reference_label(self) -> Localizable:

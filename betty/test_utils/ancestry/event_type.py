@@ -4,15 +4,12 @@ Test utilities for :py:mod:`betty.ancestry.event_type`.
 
 from __future__ import annotations
 
-from betty.test_utils.plugin.classed import ClassedPluginDefinitionTestBase
 from betty.test_utils.plugin.human_facing import HumanFacingPluginDefinitionTestBase
 from betty.test_utils.plugin.ordered import OrderedPluginDefinitionTestBase
 
 
 class EventTypePluginTestBase(
-    HumanFacingPluginDefinitionTestBase,
-    OrderedPluginDefinitionTestBase,
-    ClassedPluginDefinitionTestBase,
+    HumanFacingPluginDefinitionTestBase, OrderedPluginDefinitionTestBase
 ):
     """
     A base class for testing :py:class:`betty.ancestry.event_type.EventTypePlugin` implementations.

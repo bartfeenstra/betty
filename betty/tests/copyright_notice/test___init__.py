@@ -6,10 +6,10 @@ from typing_extensions import override
 from betty.copyright_notice import CopyrightNoticePlugin
 from betty.plugin import PluginDefinition
 from betty.test_utils.documentation import PluginDocumentationTestBase
-from betty.test_utils.plugin.classed import ClassedPluginDefinitionClassTestBase
+from betty.test_utils.plugin import PluginDefinitionClassTestBase
 
 
-class TestCopyrightNoticePlugin(ClassedPluginDefinitionClassTestBase):
+class TestCopyrightNoticePlugin(PluginDefinitionClassTestBase):
     @override
     @pytest.fixture
     def sut(self) -> type[PluginDefinition]:

@@ -9,16 +9,13 @@ from typing import TYPE_CHECKING
 import pytest
 
 from betty.locale.localizer import DEFAULT_LOCALIZER
-from betty.test_utils.plugin.classed import ClassedPluginDefinitionTestBase
 from betty.test_utils.plugin.human_facing import HumanFacingPluginDefinitionTestBase
 
 if TYPE_CHECKING:
     from betty.license import License
 
 
-class LicensePluginTestBase(
-    HumanFacingPluginDefinitionTestBase, ClassedPluginDefinitionTestBase
-):
+class LicensePluginTestBase(HumanFacingPluginDefinitionTestBase):
     """
     A base class for testing :py:class:`betty.license.LicensePlugin` implementations.
     """

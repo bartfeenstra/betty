@@ -5,14 +5,13 @@ Requirements for plugins.
 from __future__ import annotations
 
 from collections.abc import Iterable
-from typing import TYPE_CHECKING, Any, Generic, Self, TypeVar, final
+from typing import TYPE_CHECKING, Generic, Self, TypeVar, final
 
 from typing_extensions import override
 
 from betty.functools import unique
 from betty.locale.localizable import AllEnumeration, _
 from betty.plugin import PluginDefinition
-from betty.plugin.classed import ClassedPluginDefinition
 from betty.plugin.dependent import DependentPluginDefinition
 from betty.plugin.error import PluginError, PluginNotFound, UnmetRequirement
 from betty.plugin.human_facing import HumanFacingPluginDefinition
@@ -33,32 +32,28 @@ if TYPE_CHECKING:
     from betty.service.level import ServiceLevel
 
 _PluginDefinitionT = TypeVar("_PluginDefinitionT", bound=PluginDefinition)
-_ClassedPluginDefinitionT = TypeVar(
-    "_ClassedPluginDefinitionT", bound=ClassedPluginDefinition[Any]
-)
 
 
 async def new_dependencies_requirement(
-    dependent: _ClassedPluginDefinitionT,
-    plugins: Iterable[_ClassedPluginDefinitionT],
+    dependent: _PluginDefinitionT,
+    plugins: Iterable[_PluginDefinitionT],
     *,
     services: ServiceLevel,
 ) -> Requirement | None:
     """
     Check a dependent's dependency requirements.
     """
-    if not isinstance(dependent, DependentPluginDefinition):  # type: ignore[redundant-expr]
+    if not isinstance(dependent, DependentPluginDefinition):
         return None
-    plugins_by_id = {plugin.id: plugin for plugin in plugins}  # type: ignore[unreachable]
+    plugins_by_id = {plugin.id: plugin for plugin in plugins}
     try:
-        dependencies: MutableSequence[
-            tuple[_ClassedPluginDefinitionT, Requirement]
-        ] = []
+        dependencies: MutableSequence[tuple[_PluginDefinitionT, Requirement]] = []
         for dependency_identifier in dependent.depends_on:
             dependency = plugins_by_id[resolve_id(dependency_identifier)]
-            dependency_requirement = await dependency.cls.requirement(services)
-            if dependency_requirement is not None:
-                dependencies.append((dependency, dependency_requirement))
+            if issubclass(dependency.cls, HasRequirement):
+                dependency_requirement = await dependency.cls.requirement(services)
+                if dependency_requirement is not None:
+                    dependencies.append((dependency, dependency_requirement))
     except RecursionError:
         raise CyclicDependencyError([dependent.id]) from None
     else:
@@ -71,7 +66,7 @@ async def new_dependencies_requirement(
                 dependencies=AllEnumeration(
                     *(
                         dependency.label
-                        if isinstance(dependency, HumanFacingPluginDefinition)
+                        if isinstance(dependency, HumanFacingPluginDefinition)  # type: ignore[redundant-expr]
                         else dependency[0].id
                         for dependency in dependencies
                     ),
@@ -99,9 +94,7 @@ async def get_requirement(
     Get the requirement for the given plugin.
     """
     plugin = resolve_definition(plugin)
-    if isinstance(plugin, ClassedPluginDefinition) and issubclass(
-        plugin.cls, HasRequirement
-    ):
+    if issubclass(plugin.cls, HasRequirement):
         return await plugin.cls.requirement(services)
     return None
 
@@ -143,7 +136,7 @@ class CheckRequirementRepository(
             plugin_type,
             [
                 (plugin, await get_requirement(plugin, services))  # type: ignore[misc]
-                for plugin in list(map(resolve_definition, plugins))  # type: ignore[arg-type]
+                for plugin in list(map(resolve_definition, plugins))
             ],
         )
 

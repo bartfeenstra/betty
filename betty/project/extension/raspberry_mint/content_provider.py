@@ -31,7 +31,7 @@ from betty.locale.localizable.config import dump_localizable
 from betty.machine_name import MachineName, assert_machine_name
 from betty.model import EntityPlugin
 from betty.model.config import EntityReferenceSequence
-from betty.plugin.classed import ClassedPlugin
+from betty.plugin import Plugin
 from betty.plugin.config import PluginInstanceConfigurationSequence
 from betty.project.extension.raspberry_mint import ColorStyle as RaspberryMintColorStyle
 from betty.project.extension.raspberry_mint import RaspberryMint
@@ -58,7 +58,7 @@ if TYPE_CHECKING:
     from betty.service.level.factory import AnyFactoryTarget
 
 
-class _Base(ClassedPlugin, HasRequirement):
+class _Base(Plugin, HasRequirement):
     @override
     @classmethod
     async def requirement(cls, services: ServiceLevel, /) -> Requirement | None:

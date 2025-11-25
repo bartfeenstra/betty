@@ -4,7 +4,7 @@ Discover plugins using your own callbacks.
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Generic, final
+from typing import TYPE_CHECKING, final
 
 from typing_extensions import TypeVar, override
 
@@ -23,9 +23,7 @@ _PluginDefinitionT = TypeVar(
 
 
 @final
-class CallbackDiscovery(
-    PluginDiscovery[_PluginDefinitionT], Generic[_PluginDefinitionT]
-):
+class CallbackDiscovery(PluginDiscovery[_PluginDefinitionT]):
     """
     Discover plugins using your own callbacks.
     """

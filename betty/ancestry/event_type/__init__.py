@@ -8,8 +8,7 @@ from abc import ABC, abstractmethod
 from typing import TYPE_CHECKING, Any, ClassVar, final
 
 from betty.locale.localizable import _
-from betty.plugin import PluginTypeDefinition
-from betty.plugin.classed import ClassedPlugin, ClassedPluginDefinition
+from betty.plugin import Plugin, PluginTypeDefinition
 from betty.plugin.discovery.entry_point import EntryPointDiscovery
 from betty.plugin.discovery.project import ProjectDiscovery
 from betty.plugin.human_facing import HumanFacingPluginDefinition
@@ -22,7 +21,7 @@ if TYPE_CHECKING:
     from betty.project import Project
 
 
-class EventType(ClassedPlugin):
+class EventType(Plugin):
     """
     Define an :py:class:`betty.ancestry.event.Event` type.
     """
@@ -45,9 +44,7 @@ class ShouldExistEventType(EventType, ABC):
 
 @final
 class EventTypePlugin(
-    HumanFacingPluginDefinition,
-    OrderedPluginDefinition,
-    ClassedPluginDefinition[EventType],
+    HumanFacingPluginDefinition[EventType], OrderedPluginDefinition[EventType]
 ):
     """
     An event type definition.

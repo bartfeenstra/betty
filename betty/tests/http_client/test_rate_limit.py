@@ -15,7 +15,7 @@ from betty.http_client.rate_limit import (
     RateLimitPlugin,
 )
 from betty.plugin import PluginDefinition
-from betty.test_utils.plugin.classed import ClassedPluginDefinitionClassTestBase
+from betty.test_utils.plugin import PluginDefinitionClassTestBase
 
 
 class _LowRateLimit(RateLimit):
@@ -135,7 +135,7 @@ class TestRateLimitMiddleware:
         )
 
 
-class TestRateLimitPlugin(ClassedPluginDefinitionClassTestBase):
+class TestRateLimitPlugin(PluginDefinitionClassTestBase):
     @override
     @pytest.fixture
     def sut(self) -> type[PluginDefinition]:
