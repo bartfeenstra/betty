@@ -355,3 +355,13 @@ class ColorStyle(Template, ConfigurationDependentSelfFactory[ColorStyleConfigura
             "color_style": self.configuration.style.value,
             "color_style_content_provider_configurations": self.configuration.content,
         }
+
+
+@ContentProviderDefinition(
+    id="raspberry-mint-external-links",
+    label=_("External links"),
+)
+class ExternalLinks(Template):
+    """
+    External links.
+    """

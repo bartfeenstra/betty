@@ -11,6 +11,8 @@ Built-in content providers
     Display a resource's :doc:`notes </usage/ancestry/note.rst>`
 ``plain-text`` (:py:class:`betty.content_provider.content_providers.PlainText`)
     Display plain text.
+``raspberry-mint-external-links`` (:py:class:`betty.project.extension.raspberry_mint.content_provider.ExternalLinks`)
+    A resource's external links.
 ``raspberry-mint-family`` (:py:class:`betty.project.extension.raspberry_mint.content_provider.Family`)
     Display a person's families.
 ``raspberry-mint-featured-entities`` (:py:class:`betty.project.extension.raspberry_mint.content_provider.FeaturedEntities`)
