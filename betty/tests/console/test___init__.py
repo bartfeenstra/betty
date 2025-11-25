@@ -35,6 +35,10 @@ class _NoOpCommand(Command):
 
 
 def _create_raising_command(exception: BaseException) -> CommandPlugin:
+    @CommandPlugin(
+        id="raising",
+        label="Raising",
+    )
     class _RaisingCommand(Command):
         @override
         async def configure(
@@ -45,11 +49,7 @@ def _create_raising_command(exception: BaseException) -> CommandPlugin:
         async def _invoke(self) -> None:
             raise exception
 
-    return CommandPlugin(
-        id="raising",
-        label="Raising",
-        cls=_RaisingCommand,
-    )
+    return _RaisingCommand.plugin
 
 
 async def test_main__without_arguments(temporary_app: App) -> None:

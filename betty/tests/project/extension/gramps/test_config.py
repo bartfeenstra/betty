@@ -27,9 +27,9 @@ from betty.test_utils.config.collections import (
 )
 from betty.test_utils.config.collections.sequence import ConfigurationSequenceTestBase
 from betty.test_utils.exception import raises_error
-from betty.test_utils.plugin.classed import (
-    ClassedDummyPlugin,
-    ClassedDummyPluginDefinition,
+from betty.test_utils.plugin import (
+    DummyPlugin,
+    DummyPluginDefinition,
 )
 
 
@@ -231,7 +231,7 @@ class TestFamilyTreeConfiguration:
 
 class TestPluginMapping:
     def test___init____with_values(self) -> None:
-        sut = PluginMapping[ClassedDummyPluginDefinition, ClassedDummyPlugin](
+        sut = PluginMapping[DummyPluginDefinition, DummyPlugin](
             {
                 "my-first-gramps-type": PluginInstanceConfiguration(
                     "some-elses-betty-plugin-id"
@@ -250,7 +250,7 @@ class TestPluginMapping:
         assert sut["my-second-gramps-type"].id == "my-second-betty-plugin-id"
 
     def test_load__without_values(self) -> None:
-        sut = PluginMapping[ClassedDummyPluginDefinition, ClassedDummyPlugin]({}, {})
+        sut = PluginMapping[DummyPluginDefinition, DummyPlugin]({}, {})
         sut.load({})
         assert sut.dump() == {}
 
@@ -259,7 +259,7 @@ class TestPluginMapping:
             "my-first-gramps-type": "my-first-betty-plugin-id",
             "my-second-gramps-type": "my-second-betty-plugin-id",
         }
-        sut = PluginMapping[ClassedDummyPluginDefinition, ClassedDummyPlugin](
+        sut = PluginMapping[DummyPluginDefinition, DummyPlugin](
             {
                 "my-first-gramps-type": PluginInstanceConfiguration(
                     "some-elses-betty-plugin-id"
@@ -284,7 +284,7 @@ class TestPluginMapping:
         ],
     )
     def test_load__should_error(self, dump: Dump) -> None:
-        sut = PluginMapping[ClassedDummyPluginDefinition, ClassedDummyPlugin]({}, {})
+        sut = PluginMapping[DummyPluginDefinition, DummyPlugin]({}, {})
         with pytest.raises(HumanFacingException):
             sut.load(dump)
 
@@ -293,7 +293,7 @@ class TestPluginMapping:
         [
             (
                 {},
-                PluginMapping[ClassedDummyPluginDefinition, ClassedDummyPlugin]({}, {}),
+                PluginMapping[DummyPluginDefinition, DummyPlugin]({}, {}),
             ),
             (
                 {"my-first-gramps-type": "my-first-betty-plugin-id"},
@@ -311,12 +311,12 @@ class TestPluginMapping:
     def test_dump(
         self,
         expected: Dump,
-        sut: PluginMapping[ClassedDummyPluginDefinition, ClassedDummyPlugin],
+        sut: PluginMapping[DummyPluginDefinition, DummyPlugin],
     ) -> None:
         assert sut.dump() == expected
 
     def test___getitem__(self) -> None:
-        sut = PluginMapping[ClassedDummyPluginDefinition, ClassedDummyPlugin](
+        sut = PluginMapping[DummyPluginDefinition, DummyPlugin](
             {},
             {
                 "my-first-gramps-type": PluginInstanceConfiguration(
@@ -327,14 +327,14 @@ class TestPluginMapping:
         assert sut["my-first-gramps-type"].id == "my-first-betty-plugin-id"
 
     def test___setitem__(self) -> None:
-        sut = PluginMapping[ClassedDummyPluginDefinition, ClassedDummyPlugin]({}, {})
+        sut = PluginMapping[DummyPluginDefinition, DummyPlugin]({}, {})
         sut["my-first-gramps-type"] = PluginInstanceConfiguration(
             "my-first-betty-plugin-id"
         )
         assert sut["my-first-gramps-type"].id == "my-first-betty-plugin-id"
 
     def test___delitem__(self) -> None:
-        sut = PluginMapping[ClassedDummyPluginDefinition, ClassedDummyPlugin](
+        sut = PluginMapping[DummyPluginDefinition, DummyPlugin](
             {},
             {
                 "my-first-gramps-type": PluginInstanceConfiguration(
@@ -347,11 +347,11 @@ class TestPluginMapping:
             sut["my-first-gramps-type"]
 
     def test___iter____without_items(self) -> None:
-        sut = PluginMapping[ClassedDummyPluginDefinition, ClassedDummyPlugin]({}, {})
+        sut = PluginMapping[DummyPluginDefinition, DummyPlugin]({}, {})
         assert list(iter(sut)) == []
 
     def test___iter____with_items(self) -> None:
-        sut = PluginMapping[ClassedDummyPluginDefinition, ClassedDummyPlugin](
+        sut = PluginMapping[DummyPluginDefinition, DummyPlugin](
             {},
             {
                 "my-first-gramps-type": PluginInstanceConfiguration(

@@ -9,8 +9,7 @@ from typing import TYPE_CHECKING, ClassVar, final
 
 from betty.locale.localizable import _
 from betty.mutability import Mutable
-from betty.plugin import PluginTypeDefinition
-from betty.plugin.classed import ClassedPlugin, ClassedPluginDefinition
+from betty.plugin import Plugin, PluginTypeDefinition
 from betty.plugin.discovery.app import AppDiscovery
 from betty.plugin.discovery.entry_point import EntryPointDiscovery
 from betty.plugin.discovery.project import ProjectDiscovery
@@ -20,7 +19,7 @@ if TYPE_CHECKING:
     from betty.locale.localizable import Localizable
 
 
-class License(Mutable, ClassedPlugin):
+class License(Mutable, Plugin):
     """
     A license.
 
@@ -54,7 +53,7 @@ class License(Mutable, ClassedPlugin):
 
 
 @final
-class LicensePlugin(HumanFacingPluginDefinition, ClassedPluginDefinition[License]):
+class LicensePlugin(HumanFacingPluginDefinition[License]):
     """
     A license definition.
 

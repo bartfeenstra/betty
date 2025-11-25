@@ -1,26 +1,25 @@
-from betty.plugin import PluginDefinition, PluginTypeDefinition
-from betty.plugin.classed import ClassedPlugin, ClassedPluginDefinition
+from betty.plugin import Plugin, PluginDefinition, PluginTypeDefinition
 from betty.plugin.resolve import resolve_definition, resolve_id
 
 
 def test_resolve_definition__with_plugin_cls() -> None:
     plugin_id = "my-first-plugin-id"
 
-    class _ClassedPluginCls:
+    class _PluginCls(Plugin):
         pass
 
-    class _ClassedPluginDefinition(ClassedPluginDefinition[_ClassedPluginCls]):
-        plugin_type_cls = _ClassedPluginCls
+    class _PluginDefinition(PluginDefinition):
+        plugin_type_cls = _PluginCls
         type = PluginTypeDefinition(
             id="-",
             label="",
         )
 
-    @_ClassedPluginDefinition(id=plugin_id)
-    class _ClassedPlugin(_ClassedPluginCls, ClassedPlugin):
+    @_PluginDefinition(id=plugin_id)
+    class _Plugin(_PluginCls, Plugin):
         pass
 
-    assert resolve_definition(_ClassedPlugin) is _ClassedPlugin.plugin
+    assert resolve_definition(_Plugin) is _Plugin.plugin
 
 
 def test_resolve_definition__with_plugin_definition() -> None:
@@ -31,21 +30,21 @@ def test_resolve_definition__with_plugin_definition() -> None:
 def test_resolve_id__with_plugin_cls() -> None:
     plugin_id = "my-first-plugin-id"
 
-    class _ClassedPluginCls:
+    class _PluginCls(Plugin):
         pass
 
-    class _ClassedPluginDefinition(ClassedPluginDefinition[_ClassedPluginCls]):
-        plugin_type_cls = _ClassedPluginCls
+    class _PluginDefinition(PluginDefinition):
+        plugin_type_cls = _PluginCls
         type = PluginTypeDefinition(
             id="-",
             label="",
         )
 
-    @_ClassedPluginDefinition(id=plugin_id)
-    class _ClassedPlugin(_ClassedPluginCls, ClassedPlugin):
+    @_PluginDefinition(id=plugin_id)
+    class _Plugin(_PluginCls, Plugin):
         pass
 
-    assert resolve_id(_ClassedPlugin) == plugin_id
+    assert resolve_id(_Plugin) == plugin_id
 
 
 def test_resolve_id__with_plugin_definition() -> None:

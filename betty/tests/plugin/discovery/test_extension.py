@@ -9,7 +9,7 @@ from betty.plugin import PluginDefinition
 from betty.plugin.discovery.extension import ExtensionDiscovery
 from betty.project import Project
 from betty.project.extension import Extension, ExtensionPlugin
-from betty.test_utils.plugin import DUMMY_PLUGIN_ONE
+from betty.test_utils.plugin import DummyPluginOne
 from betty.test_utils.project.extension import DummyExtensionOne
 
 if TYPE_CHECKING:
@@ -26,11 +26,11 @@ class TestExtensionDiscovery:
     @staticmethod
     def _sut_params() -> Sequence[ExtensionDiscoveryTestParams]:
         async def _async_discovery(project: Extension) -> Iterable[PluginDefinition]:
-            return [DUMMY_PLUGIN_ONE]
+            return [DummyPluginOne.plugin]
 
         return [
-            ([DUMMY_PLUGIN_ONE], lambda project: [DUMMY_PLUGIN_ONE]),
-            ([DUMMY_PLUGIN_ONE], _async_discovery),
+            ([DummyPluginOne.plugin], lambda project: [DummyPluginOne.plugin]),
+            ([DummyPluginOne.plugin], _async_discovery),
         ]
 
     @pytest.fixture(params=_sut_params())

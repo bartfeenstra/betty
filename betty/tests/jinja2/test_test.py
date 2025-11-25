@@ -13,10 +13,10 @@ from betty.media_type import MediaType
 from betty.media_type.media_types import PDF, SVG
 from betty.model import Entity
 from betty.test_utils.jinja2 import assert_template_string
-from betty.test_utils.plugin.classed import (
-    ClassedDummyPluginDefinition,
-    ClassedDummyPluginOne,
-    ClassedDummyPluginTwo,
+from betty.test_utils.plugin import (
+    DummyPluginDefinition,
+    DummyPluginOne,
+    DummyPluginTwo,
 )
 from betty.tests.ancestry.test_has_notes import DummyHasNotes
 
@@ -34,15 +34,15 @@ class DummyHasFileReferences(HasFileReferences, Entity):
 
 class TestPluginTester:
     def test_tests(self):
-        sut = PluginTester(ClassedDummyPluginDefinition)
-        assert "classed_dummy_plugin_plugin" in sut.tests()
+        sut = PluginTester(DummyPluginDefinition)
+        assert "dummy_plugin_plugin" in sut.tests()
 
     @pytest.mark.parametrize(
         ("expected", "plugin_identifier", "data"),
         [
-            (True, None, ClassedDummyPluginOne()),
-            (True, ClassedDummyPluginOne.plugin.id, ClassedDummyPluginOne()),
-            (False, ClassedDummyPluginOne.plugin.id, ClassedDummyPluginTwo()),
+            (True, None, DummyPluginOne()),
+            (True, DummyPluginOne.plugin.id, DummyPluginOne()),
+            (False, DummyPluginOne.plugin.id, DummyPluginTwo()),
             (False, None, None),
             (False, None, object()),
         ],
@@ -50,7 +50,7 @@ class TestPluginTester:
     async def test___call__(
         self, expected: bool, plugin_identifier: MachineName | None, data: Any
     ) -> None:
-        sut = PluginTester(ClassedDummyPluginDefinition)
+        sut = PluginTester(DummyPluginDefinition)
         assert sut(data, plugin_identifier) == expected
 
 

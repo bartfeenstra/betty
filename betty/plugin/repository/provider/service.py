@@ -103,7 +103,7 @@ class ServiceLevelPluginRepositoryProvider(PluginRepositoryProvider):
     ) -> PluginRepository[_PluginDefinitionT]:
         return StaticPluginRepository(
             plugin_type,
-            *await discover(self._services, *plugin_type.type.discoveries),
+            *await discover(self._services, *plugin_type.type.discoveries),  # type: ignore[arg-type]
         )
 
 

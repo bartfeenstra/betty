@@ -296,7 +296,7 @@ class Project(
                 extension_configuration
             )
 
-        extensions_sorter = await sort_dependent_plugin_graph(
+        extensions_sorter = await sort_dependent_plugin_graph(  # type: ignore[type-var]
             extensions, configured_extension_definitions
         )
         extensions_sorter.prepare()

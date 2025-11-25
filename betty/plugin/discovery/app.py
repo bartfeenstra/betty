@@ -4,7 +4,7 @@ Discover plugins that are defined through an :py:class:`betty.app.App`.
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Generic, final
+from typing import TYPE_CHECKING, final
 
 from typing_extensions import TypeVar, override
 
@@ -27,7 +27,7 @@ _PluginDefinitionT = TypeVar(
 
 @final
 @internal
-class AppDiscovery(PluginDiscovery[_PluginDefinitionT], Generic[_PluginDefinitionT]):
+class AppDiscovery(PluginDiscovery[_PluginDefinitionT]):
     """
     Discover plugins that are defined through an :py:class:`betty.app.App`.
     """

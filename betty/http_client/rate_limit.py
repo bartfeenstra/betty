@@ -9,8 +9,7 @@ from typing import TYPE_CHECKING, final
 
 from betty.concurrent import AsynchronizedLock, RateLimiter
 from betty.locale.localizable import _
-from betty.plugin import PluginTypeDefinition
-from betty.plugin.classed import ClassedPluginDefinition
+from betty.plugin import Plugin, PluginTypeDefinition
 from betty.plugin.discovery.entry_point import EntryPointDiscovery
 from betty.plugin.ordered import OrderedPluginDefinition
 from betty.typing import threadsafe
@@ -67,7 +66,7 @@ class RateLimitMiddleware:
                 return request_limiter
 
 
-class RateLimit:
+class RateLimit(Plugin):
     """
     A rate limit for HTTP requests.
     """
@@ -87,7 +86,7 @@ class RateLimit:
 
 
 @final
-class RateLimitPlugin(OrderedPluginDefinition, ClassedPluginDefinition[RateLimit]):
+class RateLimitPlugin(OrderedPluginDefinition[RateLimit]):
     """
     A rate limit definition.
 

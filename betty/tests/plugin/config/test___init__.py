@@ -30,16 +30,12 @@ from betty.test_utils.config.collections.mapping import ConfigurationMappingTest
 from betty.test_utils.config.collections.sequence import ConfigurationSequenceTestBase
 from betty.test_utils.exception import raises_error
 from betty.test_utils.plugin import (
-    DUMMY_PLUGIN_FOUR,
-    DUMMY_PLUGIN_ONE,
-    DUMMY_PLUGIN_THREE,
-    DUMMY_PLUGIN_TWO,
+    DummyPlugin,
     DummyPluginDefinition,
-)
-from betty.test_utils.plugin.classed import (
-    ClassedDummyPlugin,
-    ClassedDummyPluginDefinition,
-    ClassedDummyPluginOne,
+    DummyPluginFour,
+    DummyPluginOne,
+    DummyPluginThree,
+    DummyPluginTwo,
 )
 from betty.test_utils.plugin.config import (
     ConfigurableDummyPlugin,
@@ -191,10 +187,10 @@ class TestPluginInstanceConfiguration:
         assert sut.configuration == configuration
 
     def test_id(self) -> None:
-        sut = PluginInstanceConfiguration[
-            ClassedDummyPluginDefinition, ClassedDummyPlugin
-        ](ClassedDummyPluginOne.plugin)
-        assert sut.id == ClassedDummyPluginOne.plugin.id
+        sut = PluginInstanceConfiguration[DummyPluginDefinition, DummyPlugin](
+            DummyPluginOne.plugin
+        )
+        assert sut.id == DummyPluginOne.plugin.id
 
     def test_configuration__with_configuration(self) -> None:
         configuration = DummyConfiguration()
@@ -220,11 +216,11 @@ class TestPluginInstanceConfiguration:
             sut.load({})
 
     def test_load__minimal(self) -> None:
-        sut = PluginInstanceConfiguration[
-            ClassedDummyPluginDefinition, ClassedDummyPlugin
-        ](ClassedDummyPluginOne.plugin)
-        sut.load({"id": ClassedDummyPluginOne.plugin.id})
-        assert sut.id == ClassedDummyPluginOne.plugin.id
+        sut = PluginInstanceConfiguration[DummyPluginDefinition, DummyPlugin](
+            DummyPluginOne.plugin
+        )
+        sut.load({"id": DummyPluginOne.plugin.id})
+        assert sut.id == DummyPluginOne.plugin.id
 
     def test_load__with_configuration(self) -> None:
         sut = PluginInstanceConfiguration[
@@ -243,7 +239,7 @@ class TestPluginInstanceConfiguration:
 
     def test_dump__should_dump_minimal(self) -> None:
         sut = PluginInstanceConfiguration[
-            ConfigurableDummyPluginDefinition, ClassedDummyPlugin
+            ConfigurableDummyPluginDefinition, DummyPlugin
         ](ConfigurableDummyPluginOne.plugin)
         assert sut.dump() == ConfigurableDummyPluginOne.plugin.id
 
@@ -290,11 +286,11 @@ class TestPluginInstanceConfiguration:
         self,
     ) -> None:
         value = "Hello, world!"
-        sut = PluginInstanceConfiguration[
-            ClassedDummyPluginDefinition, ClassedDummyPlugin
-        ](ClassedDummyPluginOne.plugin, DummyConfiguration(value))
+        sut = PluginInstanceConfiguration[DummyPluginDefinition, DummyPlugin](
+            DummyPluginOne.plugin, DummyConfiguration(value)
+        )
         repository = StaticPluginRepository(
-            ClassedDummyPluginDefinition, ClassedDummyPluginOne.plugin
+            DummyPluginDefinition, DummyPluginOne.plugin
         )
         with pytest.raises(HumanFacingException):
             await sut.new_plugin_instance(repository, factory=new_target)
@@ -302,20 +298,20 @@ class TestPluginInstanceConfiguration:
     async def test_new_plugin_instance__with_non_configurable_plugin_without_configuration(
         self,
     ) -> None:
-        sut = PluginInstanceConfiguration[
-            ClassedDummyPluginDefinition, ClassedDummyPlugin
-        ](ClassedDummyPluginOne.plugin.id)
+        sut = PluginInstanceConfiguration[DummyPluginDefinition, DummyPlugin](
+            DummyPluginOne.plugin.id
+        )
         repository = StaticPluginRepository(
-            ClassedDummyPluginDefinition, ClassedDummyPluginOne.plugin
+            DummyPluginDefinition, DummyPluginOne.plugin
         )
         instance = await sut.new_plugin_instance(repository, factory=new_target)
-        assert isinstance(instance, ClassedDummyPluginOne)
+        assert isinstance(instance, DummyPluginOne)
 
 
 class TestPluginInstanceConfigurationMapping(
     ConfigurationMappingTestBase[
         MachineName,
-        PluginInstanceConfiguration[ClassedDummyPluginDefinition, ClassedDummyPlugin],
+        PluginInstanceConfiguration[DummyPluginDefinition, DummyPlugin],
     ]
 ):
     @override
@@ -324,10 +320,10 @@ class TestPluginInstanceConfigurationMapping(
         self,
     ) -> ConfigurationCollectionTestBaseSutConfigurationKeys[MachineName]:
         return (
-            DUMMY_PLUGIN_ONE.id,
-            DUMMY_PLUGIN_TWO.id,
-            DUMMY_PLUGIN_THREE.id,
-            DUMMY_PLUGIN_FOUR.id,
+            DummyPluginOne.plugin.id,
+            DummyPluginTwo.plugin.id,
+            DummyPluginThree.plugin.id,
+            DummyPluginFour.plugin.id,
         )
 
     @override
@@ -335,7 +331,7 @@ class TestPluginInstanceConfigurationMapping(
     def new_sut(
         self,
     ) -> ConfigurationCollectionTestBaseNewSut[
-        PluginInstanceConfiguration[ClassedDummyPluginDefinition, ClassedDummyPlugin],
+        PluginInstanceConfiguration[DummyPluginDefinition, DummyPlugin],
         MachineName,
     ]:
         return PluginInstanceConfigurationMapping
@@ -348,7 +344,7 @@ class TestPluginInstanceConfigurationMapping(
             MachineName
         ],
     ) -> ConfigurationCollectionTestBaseSutConfigurations[
-        PluginInstanceConfiguration[ClassedDummyPluginDefinition, ClassedDummyPlugin]
+        PluginInstanceConfiguration[DummyPluginDefinition, DummyPlugin]
     ]:
         return (
             PluginInstanceConfiguration(sut_configuration_keys[0]),
@@ -385,29 +381,29 @@ class TestPluginIdentifierKeyConfigurationMapping:
             raise NotImplementedError
 
     def test___contains____with_plugin(self) -> None:
-        item = DummyConfiguration(DUMMY_PLUGIN_ONE.id)
+        item = DummyConfiguration(DummyPluginOne.plugin.id)
         sut = self._Sut([item])
-        assert DUMMY_PLUGIN_ONE in sut
+        assert DummyPluginOne.plugin in sut
 
     def test___contains____with_plugin_id(self) -> None:
-        item = DummyConfiguration(DUMMY_PLUGIN_ONE.id)
+        item = DummyConfiguration(DummyPluginOne.plugin.id)
         sut = self._Sut([item])
-        assert DUMMY_PLUGIN_ONE.id in sut
+        assert DummyPluginOne.plugin.id in sut
 
     def test___getitem____with_plugin(self) -> None:
-        item = DummyConfiguration(DUMMY_PLUGIN_ONE.id)
+        item = DummyConfiguration(DummyPluginOne.plugin.id)
         sut = self._Sut([item])
-        assert sut[DUMMY_PLUGIN_ONE] is item
+        assert sut[DummyPluginOne.plugin] is item
 
     def test___getitem____with_plugin_id(self) -> None:
-        item = DummyConfiguration(DUMMY_PLUGIN_ONE.id)
+        item = DummyConfiguration(DummyPluginOne.plugin.id)
         sut = self._Sut([item])
-        assert sut[DUMMY_PLUGIN_ONE.id] is item
+        assert sut[DummyPluginOne.plugin.id] is item
 
 
 class TestPluginInstanceConfigurationSequence(
     ConfigurationSequenceTestBase[
-        PluginInstanceConfiguration[ClassedDummyPluginDefinition, ClassedDummyPlugin]
+        PluginInstanceConfiguration[DummyPluginDefinition, DummyPlugin]
     ]
 ):
     @override
@@ -415,7 +411,7 @@ class TestPluginInstanceConfigurationSequence(
     def new_sut(
         self,
     ) -> ConfigurationCollectionTestBaseNewSut[
-        PluginInstanceConfiguration[ClassedDummyPluginDefinition, ClassedDummyPlugin],
+        PluginInstanceConfiguration[DummyPluginDefinition, DummyPlugin],
         int,
     ]:
         return PluginInstanceConfigurationSequence
@@ -425,7 +421,7 @@ class TestPluginInstanceConfigurationSequence(
     def sut_configurations(
         self,
     ) -> ConfigurationCollectionTestBaseSutConfigurations[
-        PluginInstanceConfiguration[ClassedDummyPluginDefinition, ClassedDummyPlugin]
+        PluginInstanceConfiguration[DummyPluginDefinition, DummyPlugin]
     ]:
         return (
             PluginInstanceConfiguration("my-first-plugin"),

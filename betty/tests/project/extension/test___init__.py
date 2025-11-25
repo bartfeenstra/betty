@@ -10,11 +10,11 @@ from betty.project import Project
 from betty.project.extension import ExtensionPlugin
 from betty.requirement import Requirement
 from betty.test_utils.documentation import PluginDocumentationTestBase
-from betty.test_utils.plugin.classed import ClassedPluginDefinitionClassTestBase
+from betty.test_utils.plugin import PluginDefinitionClassTestBase
 from betty.test_utils.project.extension import DummyExtensionOne
 
 
-class TestExtensionPlugin(ClassedPluginDefinitionClassTestBase):
+class TestExtensionPlugin(PluginDefinitionClassTestBase):
     @override
     @pytest.fixture
     def sut(self) -> type[PluginDefinition]:

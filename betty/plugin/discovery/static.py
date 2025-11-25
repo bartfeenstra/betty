@@ -4,7 +4,7 @@ Statically define and discover plugins.
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Generic, final
+from typing import TYPE_CHECKING, final
 
 from typing_extensions import TypeVar, override
 
@@ -23,7 +23,7 @@ _PluginDefinitionT = TypeVar(
 
 
 @final
-class StaticDiscovery(PluginDiscovery[_PluginDefinitionT], Generic[_PluginDefinitionT]):
+class StaticDiscovery(PluginDiscovery[_PluginDefinitionT]):
     """
     Statically define and discover plugins.
     """

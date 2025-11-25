@@ -5,7 +5,7 @@ Discover plugins defined as distribution package entry points.
 from __future__ import annotations
 
 from importlib import metadata
-from typing import TYPE_CHECKING, Generic, final
+from typing import TYPE_CHECKING, cast, final
 
 from typing_extensions import TypeVar, override
 
@@ -24,9 +24,7 @@ _PluginDefinitionT = TypeVar(
 
 
 @final
-class EntryPointDiscovery(
-    PluginDiscovery[_PluginDefinitionT], Generic[_PluginDefinitionT]
-):
+class EntryPointDiscovery(PluginDiscovery[_PluginDefinitionT]):
     """
     Discover plugins defined as distribution package `entry points <https://packaging.python.org/en/latest/specifications/entry-points/>`_.
 
@@ -53,6 +51,6 @@ class EntryPointDiscovery(
     @override
     async def discover(self, services: ServiceLevel, /) -> Iterable[_PluginDefinitionT]:
         return [
-            resolve_definition(entry_point.load())
+            cast(_PluginDefinitionT, resolve_definition(entry_point.load()))
             for entry_point in metadata.entry_points(group=self._entry_point_group)
         ]

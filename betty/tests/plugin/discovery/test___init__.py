@@ -2,8 +2,10 @@ from __future__ import annotations
 
 from betty.plugin.discovery import discover
 from betty.plugin.discovery.static import StaticDiscovery
-from betty.test_utils.plugin import DUMMY_PLUGIN_ONE
+from betty.test_utils.plugin import DummyPluginOne
 
 
 async def test_discover() -> None:
-    assert DUMMY_PLUGIN_ONE in await discover(None, StaticDiscovery(DUMMY_PLUGIN_ONE))
+    assert DummyPluginOne.plugin in await discover(
+        None, StaticDiscovery(DummyPluginOne.plugin)
+    )

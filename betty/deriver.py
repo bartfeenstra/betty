@@ -135,8 +135,8 @@ class Deriver:
                 return 0, 0
 
         # Aggregate event type order from references and backreferences.
-        comes_before_event_types = get_comes_before(event_types, derivable_event_type)
-        comes_after_event_types = get_comes_after(event_types, derivable_event_type)
+        comes_before_event_types = get_comes_before(event_types, derivable_event_type)  # type: ignore[type-var]
+        comes_after_event_types = get_comes_after(event_types, derivable_event_type)  # type: ignore[type-var]
 
         created_derivations = 0
         updated_derivations = 0

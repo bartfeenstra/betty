@@ -369,6 +369,11 @@ class CopyrightNoticePluginConfigurationMapping(
     def _new_plugin(
         self, configuration: CopyrightNoticePluginConfiguration, /
     ) -> CopyrightNoticePlugin:
+        @CopyrightNoticePlugin(
+            id=configuration.id,
+            label=configuration.label,
+            description=configuration.description,
+        )
         class _ProjectConfigurationCopyrightNotice(CopyrightNotice):
             @override
             @property
@@ -380,12 +385,7 @@ class CopyrightNoticePluginConfigurationMapping(
             def text(self) -> Localizable:
                 return configuration.text
 
-        return CopyrightNoticePlugin(
-            id=configuration.id,
-            label=configuration.label,
-            description=configuration.description,
-            cls=_ProjectConfigurationCopyrightNotice,
-        )
+        return _ProjectConfigurationCopyrightNotice.plugin
 
 
 class LicensePluginConfiguration(HumanFacingPluginDefinitionConfiguration):
@@ -444,6 +444,11 @@ class LicensePluginConfigurationMapping(
     def _new_plugin(
         self, configuration: LicensePluginConfiguration, /
     ) -> LicensePlugin:
+        @LicensePlugin(
+            id=configuration.id,
+            label=configuration.label,
+            description=configuration.description,
+        )
         class _ProjectConfigurationLicense(License):
             @override
             @property
@@ -455,12 +460,7 @@ class LicensePluginConfigurationMapping(
             def text(self) -> Localizable:
                 return configuration.text
 
-        return LicensePlugin(
-            id=configuration.id,
-            label=configuration.label,
-            description=configuration.description,
-            cls=_ProjectConfigurationLicense,
-        )
+        return _ProjectConfigurationLicense.plugin
 
 
 class EventTypePluginConfiguration(
@@ -488,12 +488,15 @@ class EventTypePluginConfigurationMapping(
     def _new_plugin(
         self, configuration: EventTypePluginConfiguration, /
     ) -> EventTypePlugin:
-        return EventTypePlugin(
+        @EventTypePlugin(
             id=configuration.id,
             label=configuration.label,
             description=configuration.description,
-            cls=EventType,
         )
+        class _ProjectConfigurationEventType(EventType):
+            pass
+
+        return _ProjectConfigurationEventType.plugin
 
 
 class PlaceTypePluginConfiguration(HumanFacingPluginDefinitionConfiguration):
@@ -519,12 +522,15 @@ class PlaceTypePluginConfigurationMapping(
     def _new_plugin(
         self, configuration: PlaceTypePluginConfiguration, /
     ) -> PlaceTypePlugin:
-        return PlaceTypePlugin(
+        @PlaceTypePlugin(
             id=configuration.id,
             label=configuration.label,
             description=configuration.description,
-            cls=PlaceType,
         )
+        class _ProjectConfigurationPlaceType(PlaceType):
+            pass
+
+        return _ProjectConfigurationPlaceType.plugin
 
 
 class PresenceRolePluginConfiguration(HumanFacingPluginDefinitionConfiguration):
@@ -552,12 +558,15 @@ class PresenceRolePluginConfigurationMapping(
     def _new_plugin(
         self, configuration: PresenceRolePluginConfiguration, /
     ) -> PresenceRolePlugin:
-        return PresenceRolePlugin(
+        @PresenceRolePlugin(
             id=configuration.id,
             label=configuration.label,
             description=configuration.description,
-            cls=PresenceRole,
         )
+        class _ProjectConfigurationPresenceRole(PresenceRole):
+            pass
+
+        return _ProjectConfigurationPresenceRole.plugin
 
 
 class GenderPluginConfiguration(HumanFacingPluginDefinitionConfiguration):
@@ -581,12 +590,15 @@ class GenderPluginConfigurationMapping(
 
     @override
     def _new_plugin(self, configuration: GenderPluginConfiguration, /) -> GenderPlugin:
-        return GenderPlugin(
+        @GenderPlugin(
             id=configuration.id,
             label=configuration.label,
             description=configuration.description,
-            cls=Gender,
         )
+        class _ProjectConfigurationGender(Gender):
+            pass
+
+        return _ProjectConfigurationGender.plugin
 
 
 @final

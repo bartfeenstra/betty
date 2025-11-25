@@ -228,7 +228,7 @@ class App(Configurable[AppConfiguration], ServiceContainer, PluginRepositoryProv
         The HTTP client.
         """
         http_rate_limits = await self.plugins(RateLimitPlugin)
-        rate_limit_sorter = await sort_ordered_plugin_graph(
+        rate_limit_sorter = await sort_ordered_plugin_graph(  # type: ignore[type-var]
             http_rate_limits, http_rate_limits
         )
 

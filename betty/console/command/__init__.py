@@ -10,8 +10,7 @@ from typing import TYPE_CHECKING, ClassVar, TypeAlias, final
 
 from betty import about
 from betty.locale.localizable import _
-from betty.plugin import PluginTypeDefinition
-from betty.plugin.classed import ClassedPluginDefinition
+from betty.plugin import Plugin, PluginTypeDefinition
 from betty.plugin.discovery.entry_point import EntryPointDiscovery
 from betty.plugin.human_facing import HumanFacingPluginDefinition
 
@@ -22,7 +21,7 @@ if TYPE_CHECKING:
 CommandFunction: TypeAlias = Callable[..., Awaitable[None]]
 
 
-class Command:
+class Command(Plugin):
     """
     A console command plugin.
 
@@ -42,7 +41,7 @@ class Command:
 
 
 @final
-class CommandPlugin(HumanFacingPluginDefinition, ClassedPluginDefinition[Command]):
+class CommandPlugin(HumanFacingPluginDefinition[Command]):
     """
     A console command definition.
 

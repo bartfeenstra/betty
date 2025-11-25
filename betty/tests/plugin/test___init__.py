@@ -1,13 +1,15 @@
 from __future__ import annotations
 
+import pytest
+
 from betty.locale.localizable import Plain
 from betty.locale.localizer import DEFAULT_LOCALIZER
-from betty.plugin import PluginDefinition, PluginTypeDefinition, plugin_types
+from betty.plugin import Plugin, PluginDefinition, PluginTypeDefinition, plugin_types
 from betty.plugin.dependent import DependentPluginDefinition
 from betty.plugin.discovery import discover
 from betty.plugin.discovery.static import StaticDiscovery
 from betty.plugin.ordered import OrderedPluginDefinition
-from betty.test_utils.plugin import DUMMY_PLUGIN_ONE, DUMMY_PLUGIN_TWO
+from betty.test_utils.plugin import DummyPluginOne, DummyPluginTwo
 
 
 class _OrderedPluginDefinition(OrderedPluginDefinition):
@@ -114,7 +116,7 @@ class TestPluginTypeDefinition:
             id="my-first-plugin-type",
         )
         assert not sut.discoveries
-        with sut.override_discovery(DUMMY_PLUGIN_ONE):
+        with sut.override_discovery(DummyPluginOne.plugin):
             assert sut.discoveries
         assert not sut.discoveries
 
@@ -123,11 +125,11 @@ class TestPluginTypeDefinition:
             label="my-first-plugin-type",
             id="my-first-plugin-type",
         )
-        with sut.override_discovery(DUMMY_PLUGIN_ONE):
-            sut.add_discovery(StaticDiscovery(DUMMY_PLUGIN_TWO))
-            assert DUMMY_PLUGIN_TWO not in await discover(None, *sut.discoveries)
-        assert DUMMY_PLUGIN_ONE not in await discover(None, *sut.discoveries)
-        assert DUMMY_PLUGIN_TWO in await discover(None, *sut.discoveries)
+        with sut.override_discovery(DummyPluginOne.plugin):
+            sut.add_discovery(StaticDiscovery(DummyPluginTwo.plugin))
+            assert DummyPluginTwo.plugin not in await discover(None, *sut.discoveries)
+        assert DummyPluginOne.plugin not in await discover(None, *sut.discoveries)
+        assert DummyPluginTwo.plugin in await discover(None, *sut.discoveries)
 
     def test_discovery_overridden(self) -> None:
         sut = PluginTypeDefinition(
@@ -145,6 +147,21 @@ class TestPluginDefinition:
         id = "my-first-plugin"  # noqa A001
         sut = PluginDefinition(id=id)
         assert sut.id == id
+
+    def test_cls(self) -> None:
+        sut = PluginDefinition(id="my-first-plugin")
+        with pytest.raises(ValueError):  # noqa PT011
+            sut.cls  # noqa B018
+
+    def test___call__(self) -> None:
+        class _Plugin(Plugin):
+            pass
+
+        sut = PluginDefinition(id="my-first-plugin")
+        cls = sut(_Plugin)
+        assert sut.cls is cls
+        with pytest.raises(ValueError):  # noqa PT011
+            sut(_Plugin)
 
     def test_reference_label(self) -> None:
         id = "my-first-plugin"  # noqa A001

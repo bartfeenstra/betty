@@ -9,15 +9,14 @@ from typing import TYPE_CHECKING, final
 
 from betty.html import plain_text_to_html
 from betty.locale.localizable import _
-from betty.plugin import PluginTypeDefinition
-from betty.plugin.classed import ClassedPluginDefinition
+from betty.plugin import Plugin, PluginDefinition, PluginTypeDefinition
 from betty.plugin.discovery.entry_point import EntryPointDiscovery
 
 if TYPE_CHECKING:
     from betty.media_type import MediaType
 
 
-class Renderer(ABC):
+class Renderer(Plugin, ABC):
     """
     Render content in a different media type to HTML.
 
@@ -39,7 +38,7 @@ class Renderer(ABC):
 
 
 @final
-class RendererPlugin(ClassedPluginDefinition[Renderer]):
+class RendererPlugin(PluginDefinition[Renderer]):
     """
     A renderer definition.
 

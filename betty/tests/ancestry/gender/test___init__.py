@@ -6,10 +6,10 @@ from typing_extensions import override
 from betty.ancestry.gender import GenderPlugin
 from betty.plugin import PluginDefinition
 from betty.test_utils.documentation import PluginDocumentationTestBase
-from betty.test_utils.plugin.classed import ClassedPluginDefinitionClassTestBase
+from betty.test_utils.plugin import PluginDefinitionClassTestBase
 
 
-class TestGenderPlugin(ClassedPluginDefinitionClassTestBase):
+class TestGenderPlugin(PluginDefinitionClassTestBase):
     @override
     @pytest.fixture
     def sut(self) -> type[PluginDefinition]:
