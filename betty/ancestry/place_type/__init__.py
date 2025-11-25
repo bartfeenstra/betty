@@ -21,13 +21,11 @@ class PlaceType(ClassedPlugin):
     Read more about :doc:`/development/plugin/place-type`.
     """
 
-    plugin: ClassVar[PlaceTypeDefinition]
+    plugin: ClassVar[PlaceTypePlugin]
 
 
 @final
-class PlaceTypeDefinition(
-    HumanFacingPluginDefinition, ClassedPluginDefinition[PlaceType]
-):
+class PlaceTypePlugin(HumanFacingPluginDefinition, ClassedPluginDefinition[PlaceType]):
     """
     A place type definition.
 

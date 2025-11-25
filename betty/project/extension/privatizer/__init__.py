@@ -7,7 +7,7 @@ from typing import TYPE_CHECKING, final
 from typing_extensions import override
 
 from betty.locale.localizable import _
-from betty.project.extension import Extension, ExtensionDefinition
+from betty.project.extension import Extension, ExtensionPlugin
 from betty.project.extension.deriver import Deriver
 from betty.project.extension.deriver.jobs import DeriveAncestry
 from betty.project.extension.privatizer.jobs import PrivatizeAncestry
@@ -19,7 +19,7 @@ if TYPE_CHECKING:
 
 
 @final
-@ExtensionDefinition(
+@ExtensionPlugin(
     id="privatizer",
     label="Privatizer",
     description=_(

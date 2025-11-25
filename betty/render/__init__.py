@@ -39,7 +39,7 @@ class Renderer(ABC):
 
 
 @final
-class RendererDefinition(ClassedPluginDefinition[Renderer]):
+class RendererPlugin(ClassedPluginDefinition[Renderer]):
     """
     A renderer definition.
 

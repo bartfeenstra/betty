@@ -10,12 +10,12 @@ from betty._npm import NpmUnavailable
 from betty.app import App
 from betty.job import Context
 from betty.project import Project
-from betty.project.extension import Extension, ExtensionDefinition
+from betty.project.extension import Extension, ExtensionPlugin
 from betty.project.extension.webpack.build import Builder, EntryPointProvider
 from betty.test_utils.user import StaticUser
 
 
-@ExtensionDefinition(
+@ExtensionPlugin(
     id="dummy",
     label="",
 )
@@ -32,7 +32,7 @@ class DummyEntryPointProviderExtension(EntryPointProvider, Extension):
 
 class TestBuilder:
     async def test_build(self, temporary_app: App, tmp_path: Path) -> None:
-        with ExtensionDefinition.type.override_discovery():
+        with ExtensionPlugin.type.override_discovery():
             # Loop instead of parameterization, so we can reuse caches.
             for index, (with_entry_point_provider, debug, root_path) in enumerate(
                 [

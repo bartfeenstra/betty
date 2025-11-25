@@ -4,13 +4,13 @@ Provide concrete gender implementations.
 
 from typing import final
 
-from betty.ancestry.gender import Gender, GenderDefinition
+from betty.ancestry.gender import Gender, GenderPlugin
 from betty.classtools import Singleton
 from betty.locale.localizable import _
 
 
 @final
-@GenderDefinition(
+@GenderPlugin(
     id="female",
     label=_("Female"),
 )
@@ -21,7 +21,7 @@ class Female(Gender):
 
 
 @final
-@GenderDefinition(
+@GenderPlugin(
     id="male",
     label=_("Male"),
 )
@@ -32,7 +32,7 @@ class Male(Gender):
 
 
 @final
-@GenderDefinition(
+@GenderPlugin(
     id="non-binary",
     label=_("Non-binary"),
 )
@@ -43,7 +43,7 @@ class NonBinary(Gender):
 
 
 @final
-@GenderDefinition(
+@GenderPlugin(
     id="unknown",
     label=_("Unknown"),
 )

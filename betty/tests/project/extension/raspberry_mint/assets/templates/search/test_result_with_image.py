@@ -8,12 +8,12 @@ from betty.ancestry.has_file_references import HasFileReferences
 from betty.locale.localizable import CountablePlain
 from betty.locale.localizer import DEFAULT_LOCALIZER
 from betty.media_type import MediaType
-from betty.model import EntityDefinition
+from betty.model import EntityPlugin
 from betty.project.extension.raspberry_mint import RaspberryMint
 from betty.test_utils.jinja2 import assert_template_file
 
 
-@EntityDefinition(
+@EntityPlugin(
     id="dummy-has-file-references",
     label="",
     label_plural="",

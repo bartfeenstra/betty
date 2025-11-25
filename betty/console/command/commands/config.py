@@ -8,7 +8,7 @@ from betty.app import config as app_config
 from betty.app.config import AppConfiguration
 from betty.app.factory import AppDependentSelfFactory
 from betty.config.file import write_configuration_file
-from betty.console.command import Command, CommandFunction, CommandDefinition
+from betty.console.command import Command, CommandFunction, CommandPlugin
 from betty.locale import DEFAULT_LOCALE, get_display_name
 from betty.locale.localizable import _
 
@@ -19,7 +19,7 @@ if TYPE_CHECKING:
 
 
 @final
-@CommandDefinition(
+@CommandPlugin(
     id="config",
     label=_("Configure Betty"),
 )

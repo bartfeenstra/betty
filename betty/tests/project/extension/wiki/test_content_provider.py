@@ -4,7 +4,7 @@ from betty.ancestry.has_links import HasLinks
 from betty.ancestry.link import Link
 from betty.app import App
 from betty.locale.localizable import CountablePlain
-from betty.model import EntityDefinition
+from betty.model import EntityPlugin
 from betty.project import Project
 from betty.project.extension.wiki import Wiki
 from betty.project.extension.wiki.content_provider import WikipediaSummary
@@ -12,7 +12,7 @@ from betty.resource import new_context
 from betty.wiki.client import Summary
 
 
-@EntityDefinition(
+@EntityPlugin(
     id="dummy-has-links",
     label="",
     label_plural="",

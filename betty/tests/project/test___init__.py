@@ -11,10 +11,10 @@ from betty.app import App
 from betty.app.factory import AppDependentFactory, AppDependentSelfFactory
 from betty.exception import HumanFacingException
 from betty.locale.localizer import DEFAULT_LOCALIZER
-from betty.model import EntityDefinition
+from betty.model import EntityPlugin
 from betty.project import Project, ProjectContext, ProjectExtensions
 from betty.project.config import EntityTypeConfiguration, ProjectConfiguration
-from betty.project.extension import Extension, ExtensionDefinition
+from betty.project.extension import Extension, ExtensionPlugin
 from betty.project.factory import ProjectDependentFactory, ProjectDependentSelfFactory
 from betty.requirement import Requirement, StaticRequirement, UnmetRequirement
 from betty.test_utils.model import DummyNonPublicFacingEntityOne
@@ -27,7 +27,7 @@ if TYPE_CHECKING:
     from betty.service.level import ServiceLevel
 
 
-@ExtensionDefinition(
+@ExtensionPlugin(
     id="dummy-with-assets-directory",
     label="",
     assets_directory_path=Path(__file__).parent
@@ -38,7 +38,7 @@ class _DummyExtensionWithAssetsDirectory(Extension):
     pass
 
 
-@ExtensionDefinition(
+@ExtensionPlugin(
     id="dummy-unmet-requirement",
     label="",
 )
@@ -49,7 +49,7 @@ class _DummyExtensionWithUnmetRequirement(Extension):
         return StaticRequirement("")
 
 
-@ExtensionDefinition(
+@ExtensionPlugin(
     id="dummy-a",
     label="",
 )
@@ -57,7 +57,7 @@ class _DummyExtensionA(Extension):
     pass
 
 
-@ExtensionDefinition(
+@ExtensionPlugin(
     id="dummy-b",
     label="",
 )
@@ -121,7 +121,7 @@ class TestProject:
     async def test_bootstrap__should_initialize_extensions(
         self, temporary_app: App
     ) -> None:
-        with ExtensionDefinition.type.override_discovery(DummyExtensionOne.plugin):
+        with ExtensionPlugin.type.override_discovery(DummyExtensionOne.plugin):
             async with Project.new_temporary(temporary_app) as sut:
                 sut.configuration.extensions.enable(DummyExtensionOne)
                 async with sut:
@@ -132,9 +132,7 @@ class TestProject:
     async def test_bootstrap__should_validate_entity_type_configuration(
         self, temporary_app: App
     ) -> None:
-        with EntityDefinition.type.override_discovery(
-            DummyNonPublicFacingEntityOne.plugin
-        ):
+        with EntityPlugin.type.override_discovery(DummyNonPublicFacingEntityOne.plugin):
             async with Project.new_temporary(temporary_app) as sut:
                 sut.configuration.entity_types.replace(
                     EntityTypeConfiguration(
@@ -154,14 +152,14 @@ class TestProject:
         async with Project.new_temporary(temporary_app) as sut, sut:
             extensions = await sut.extensions
 
-            for betty_extension in await temporary_app.plugins(ExtensionDefinition):
+            for betty_extension in await temporary_app.plugins(ExtensionPlugin):
                 if betty_extension.id.startswith("betty-"):
                     assert betty_extension.id in extensions
 
     async def test_extensions__should_assert_requirement(
         self, temporary_app: App
     ) -> None:
-        with ExtensionDefinition.type.override_discovery(
+        with ExtensionPlugin.type.override_discovery(
             _DummyExtensionWithUnmetRequirement.plugin
         ):
             async with Project.new_temporary(temporary_app) as sut:
@@ -180,7 +178,7 @@ class TestProject:
     async def test_extensions__should_sort_by_plugin_id(
         self, enable: Sequence[type[Extension]], temporary_app: App
     ) -> None:
-        with ExtensionDefinition.type.override_discovery(
+        with ExtensionPlugin.type.override_discovery(
             _DummyExtensionA.plugin, _DummyExtensionB.plugin
         ):
             async with Project.new_temporary(temporary_app) as sut:
@@ -220,7 +218,7 @@ class TestProject:
     async def test_assets__with_extension_without_assets_directory(
         self, temporary_app: App
     ) -> None:
-        with ExtensionDefinition.type.override_discovery(DummyExtensionOne.plugin):
+        with ExtensionPlugin.type.override_discovery(DummyExtensionOne.plugin):
             async with Project.new_temporary(temporary_app) as sut:
                 sut.configuration.extensions.enable(DummyExtensionOne)
                 async with sut:
@@ -230,7 +228,7 @@ class TestProject:
     async def test_assets__with_extension_with_assets_directory(
         self, temporary_app: App, tmp_path: Path
     ) -> None:
-        with ExtensionDefinition.type.override_discovery(
+        with ExtensionPlugin.type.override_discovery(
             _DummyExtensionWithAssetsDirectory.plugin
         ):
             async with Project.new_temporary(temporary_app) as sut:

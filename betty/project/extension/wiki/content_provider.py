@@ -4,7 +4,7 @@ Dynamic content.
 
 from typing_extensions import override
 
-from betty.content_provider import ContentProviderDefinition
+from betty.content_provider import ContentProviderPlugin
 from betty.content_provider.content_providers import Template
 from betty.locale.localizable import _
 from betty.project.extension.wiki import Wiki
@@ -12,7 +12,7 @@ from betty.requirement import HasRequirement, Requirement
 from betty.service.level import ServiceLevel
 
 
-@ContentProviderDefinition(
+@ContentProviderPlugin(
     id="wiki-wikipedia-summary",
     label=_("Wikipedia summary"),
 )

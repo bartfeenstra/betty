@@ -10,11 +10,11 @@ from betty.console.command.commands.serve import Serve
 from betty.plugin import PluginDefinition
 from betty.project import Project
 from betty.test_utils.console import run
-from betty.test_utils.console.command import CommandDefinitionTestBase
+from betty.test_utils.console.command import CommandPluginTestBase
 from betty.test_utils.serve import NoOpProjectServer
 
 
-class TestServeDefinition(CommandDefinitionTestBase):
+class TestServeDefinition(CommandPluginTestBase):
     @override
     @pytest.fixture
     def sut(self) -> PluginDefinition:

@@ -15,7 +15,7 @@ from betty.locale.localizer import DEFAULT_LOCALIZER
 from betty.model import Entity
 from betty.privacy import Privacy
 from betty.test_utils.json.linked_data import assert_dumps_linked_data
-from betty.test_utils.model import EntityDefinitionTestBase, EntityTestBase
+from betty.test_utils.model import EntityPluginTestBase, EntityTestBase
 
 if TYPE_CHECKING:
     from betty.plugin import PluginDefinition
@@ -24,7 +24,7 @@ if TYPE_CHECKING:
 import pytest
 
 
-class TestSourceDefinition(EntityDefinitionTestBase):
+class TestSourceDefinition(EntityPluginTestBase):
     @override
     @pytest.fixture
     def sut(self) -> PluginDefinition:

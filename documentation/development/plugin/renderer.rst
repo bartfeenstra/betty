@@ -11,9 +11,9 @@ Create a new class that extends :py:class:`betty.render.Renderer` and implements
 
 .. code-block:: python
 
-   from betty.render import Renderer, RendererDefinition
+   from betty.render import Renderer, RendererPlugin
 
-   @RendererDefinition(
+   @RendererPlugin(
        id="my-renderer",
        label=_("My Renderer"),
    )

@@ -7,14 +7,14 @@ address than that address supports or allows, by enforcing a maximum number of r
 Creating a rate limit
 ---------------------
 
-Create a new class decorated with :py:class:`betty.http_client.rate_limit.RateLimitDefinition`, and that implements the
+Create a new class decorated with :py:class:`betty.http_client.rate_limit.RateLimitPlugin`, and that implements the
 abstract methods, for example:
 
 .. code-block:: python
 
-   from betty.http_client.rate_limit import RateLimit, RateLimitDefinition
+   from betty.http_client.rate_limit import RateLimit, RateLimitPlugin
 
-   @RateLimitDefinition(id="my-rate-limit")
+   @RateLimitPlugin(id="my-rate-limit")
    class MyRateLimit(RateLimit):
        # Implement remaining abstract methods...
        ...

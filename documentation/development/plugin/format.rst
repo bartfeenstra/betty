@@ -11,9 +11,9 @@ Create a new class that extends :py:class:`betty.serde.format.Format` and implem
 
 .. code-block:: python
 
-   from betty.serde.format import Format, FormatDefinition
+   from betty.serde.format import Format, FormatPlugin
 
-   @FormatDefinition(
+   @FormatPlugin(
        id="my-format",
        label=_("My Format"),
    )

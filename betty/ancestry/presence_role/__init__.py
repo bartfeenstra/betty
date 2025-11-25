@@ -21,11 +21,11 @@ class PresenceRole(ClassedPlugin):
     Read more about :doc:`/development/plugin/presence-role`.
     """
 
-    plugin: ClassVar[PresenceRoleDefinition]
+    plugin: ClassVar[PresenceRolePlugin]
 
 
 @final
-class PresenceRoleDefinition(
+class PresenceRolePlugin(
     HumanFacingPluginDefinition, ClassedPluginDefinition[PresenceRole]
 ):
     """

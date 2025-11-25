@@ -28,7 +28,7 @@ class CopyrightNotice(Mutable, ClassedPlugin):
     To test your own subclasses, use :py:class:`betty.test_utils.copyright_notice.CopyrightNoticeTestBase`.
     """
 
-    plugin: ClassVar[CopyrightNoticeDefinition]
+    plugin: ClassVar[CopyrightNoticePlugin]
 
     @property
     @abstractmethod
@@ -53,7 +53,7 @@ class CopyrightNotice(Mutable, ClassedPlugin):
 
 
 @final
-class CopyrightNoticeDefinition(
+class CopyrightNoticePlugin(
     HumanFacingPluginDefinition, ClassedPluginDefinition[CopyrightNotice]
 ):
     """

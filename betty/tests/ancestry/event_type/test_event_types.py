@@ -38,84 +38,84 @@ from betty.ancestry.presence import Presence
 from betty.ancestry.presence_role.presence_roles import Subject
 from betty.date import Date
 from betty.project import Project
-from betty.test_utils.ancestry.event_type import EventTypeDefinitionTestBase
+from betty.test_utils.ancestry.event_type import EventTypePluginTestBase
 
 if TYPE_CHECKING:
     from betty.app import App
     from betty.plugin import PluginDefinition
 
 
-class TestAdoption(EventTypeDefinitionTestBase):
+class TestAdoption(EventTypePluginTestBase):
     @override
     @pytest.fixture
     def sut(self) -> PluginDefinition:
         return Adoption.plugin
 
 
-class TestBaptism(EventTypeDefinitionTestBase):
+class TestBaptism(EventTypePluginTestBase):
     @override
     @pytest.fixture
     def sut(self) -> PluginDefinition:
         return Baptism.plugin
 
 
-class TestBarMitzvah(EventTypeDefinitionTestBase):
+class TestBarMitzvah(EventTypePluginTestBase):
     @override
     @pytest.fixture
     def sut(self) -> PluginDefinition:
         return BarMitzvah.plugin
 
 
-class TestBatMitzvah(EventTypeDefinitionTestBase):
+class TestBatMitzvah(EventTypePluginTestBase):
     @override
     @pytest.fixture
     def sut(self) -> PluginDefinition:
         return BatMitzvah.plugin
 
 
-class TestBirth(EventTypeDefinitionTestBase):
+class TestBirth(EventTypePluginTestBase):
     @override
     @pytest.fixture
     def sut(self) -> PluginDefinition:
         return Birth.plugin
 
 
-class TestBurial(EventTypeDefinitionTestBase):
+class TestBurial(EventTypePluginTestBase):
     @override
     @pytest.fixture
     def sut(self) -> PluginDefinition:
         return Burial.plugin
 
 
-class TestConference(EventTypeDefinitionTestBase):
+class TestConference(EventTypePluginTestBase):
     @override
     @pytest.fixture
     def sut(self) -> PluginDefinition:
         return Conference.plugin
 
 
-class TestConfirmation(EventTypeDefinitionTestBase):
+class TestConfirmation(EventTypePluginTestBase):
     @override
     @pytest.fixture
     def sut(self) -> PluginDefinition:
         return Confirmation.plugin
 
 
-class TestCorrespondence(EventTypeDefinitionTestBase):
+class TestCorrespondence(EventTypePluginTestBase):
     @override
     @pytest.fixture
     def sut(self) -> PluginDefinition:
         return Correspondence.plugin
 
 
-class TestCremation(EventTypeDefinitionTestBase):
+class TestCremation(EventTypePluginTestBase):
     @override
     @pytest.fixture
     def sut(self) -> PluginDefinition:
         return Cremation.plugin
 
 
-class TestDeath(EventTypeDefinitionTestBase):
+class TestDeath(EventTypePluginTestBase):
     @override
     @pytest.fixture
     def sut(self) -> PluginDefinition:
@@ -162,98 +162,98 @@ class TestDeath(EventTypeDefinitionTestBase):
             assert await Death.should_exist(project, person) is True
 
 
-class TestDivorce(EventTypeDefinitionTestBase):
+class TestDivorce(EventTypePluginTestBase):
     @override
     @pytest.fixture
     def sut(self) -> PluginDefinition:
         return Divorce.plugin
 
 
-class TestDivorceAnnouncement(EventTypeDefinitionTestBase):
+class TestDivorceAnnouncement(EventTypePluginTestBase):
     @override
     @pytest.fixture
     def sut(self) -> PluginDefinition:
         return DivorceAnnouncement.plugin
 
 
-class TestEmigration(EventTypeDefinitionTestBase):
+class TestEmigration(EventTypePluginTestBase):
     @override
     @pytest.fixture
     def sut(self) -> PluginDefinition:
         return Emigration.plugin
 
 
-class TestEngagement(EventTypeDefinitionTestBase):
+class TestEngagement(EventTypePluginTestBase):
     @override
     @pytest.fixture
     def sut(self) -> PluginDefinition:
         return Engagement.plugin
 
 
-class TestFuneral(EventTypeDefinitionTestBase):
+class TestFuneral(EventTypePluginTestBase):
     @override
     @pytest.fixture
     def sut(self) -> PluginDefinition:
         return Funeral.plugin
 
 
-class TestImmigration(EventTypeDefinitionTestBase):
+class TestImmigration(EventTypePluginTestBase):
     @override
     @pytest.fixture
     def sut(self) -> PluginDefinition:
         return Immigration.plugin
 
 
-class TestMarriage(EventTypeDefinitionTestBase):
+class TestMarriage(EventTypePluginTestBase):
     @override
     @pytest.fixture
     def sut(self) -> PluginDefinition:
         return Marriage.plugin
 
 
-class TestMarriageAnnouncement(EventTypeDefinitionTestBase):
+class TestMarriageAnnouncement(EventTypePluginTestBase):
     @override
     @pytest.fixture
     def sut(self) -> PluginDefinition:
         return MarriageAnnouncement.plugin
 
 
-class TestMissing(EventTypeDefinitionTestBase):
+class TestMissing(EventTypePluginTestBase):
     @override
     @pytest.fixture
     def sut(self) -> PluginDefinition:
         return Missing.plugin
 
 
-class TestOccupation(EventTypeDefinitionTestBase):
+class TestOccupation(EventTypePluginTestBase):
     @override
     @pytest.fixture
     def sut(self) -> PluginDefinition:
         return Occupation.plugin
 
 
-class TestResidence(EventTypeDefinitionTestBase):
+class TestResidence(EventTypePluginTestBase):
     @override
     @pytest.fixture
     def sut(self) -> PluginDefinition:
         return Residence.plugin
 
 
-class TestRetirement(EventTypeDefinitionTestBase):
+class TestRetirement(EventTypePluginTestBase):
     @override
     @pytest.fixture
     def sut(self) -> PluginDefinition:
         return Retirement.plugin
 
 
-class TestUnknown(EventTypeDefinitionTestBase):
+class TestUnknown(EventTypePluginTestBase):
     @override
     @pytest.fixture
     def sut(self) -> PluginDefinition:
         return Unknown.plugin
 
 
-class TestWill(EventTypeDefinitionTestBase):
+class TestWill(EventTypePluginTestBase):
     @override
     @pytest.fixture
     def sut(self) -> PluginDefinition:

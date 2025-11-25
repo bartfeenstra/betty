@@ -10,7 +10,7 @@ from typing_extensions import override
 
 from betty.ancestry.date import HasDate
 from betty.ancestry.description import HasDescription
-from betty.ancestry.event_type import EventTypeDefinition
+from betty.ancestry.event_type import EventTypePlugin
 from betty.ancestry.event_type.event_types import Unknown as UnknownEventType
 from betty.ancestry.has_citations import HasCitations
 from betty.ancestry.has_file_references import HasFileReferences
@@ -31,7 +31,7 @@ from betty.locale.localizable import (
 )
 from betty.locale.localizable.linked_data import dump_linked_data
 from betty.locale.localizable.schema import StaticTranslationsSchema
-from betty.model import EntityDefinition
+from betty.model import EntityPlugin
 from betty.model.association import (
     BidirectionalToManySingleType,
     BidirectionalToZeroOrOne,
@@ -53,7 +53,7 @@ if TYPE_CHECKING:
 
 
 @final
-@EntityDefinition(
+@EntityPlugin(
     id="event",
     label=_("Event"),
     label_plural=_("Events"),
@@ -202,7 +202,7 @@ class Event(
     @classmethod
     async def linked_data_schema(cls, project: Project, /) -> JsonLdObject:
         schema = await super().linked_data_schema(project)
-        event_types = await project.plugins(EventTypeDefinition)
+        event_types = await project.plugins(EventTypePlugin)
         schema.add_property(
             "name",
             StaticTranslationsSchema(),

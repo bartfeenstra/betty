@@ -11,7 +11,7 @@ import aiohttp
 from typing_extensions import override
 
 from betty.app.factory import AppDependentSelfFactory
-from betty.copyright_notice import CopyrightNotice, CopyrightNoticeDefinition
+from betty.copyright_notice import CopyrightNotice, CopyrightNoticePlugin
 from betty.locale import negotiate_locale, to_babel_identifier
 from betty.locale.localizable import Localizable, _
 from betty.locale.localized import LocalizedStr
@@ -27,7 +27,7 @@ if TYPE_CHECKING:
 
 
 @final
-@CopyrightNoticeDefinition(
+@CopyrightNoticePlugin(
     id="wikipedia-contributors",
     label=_("Wikipedia contributors"),
 )

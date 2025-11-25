@@ -34,7 +34,7 @@ from betty.ancestry.source import Source
 from betty.date import Date, DateRange
 from betty.dirs import DATA_DIRECTORY_PATH
 from betty.job import Job
-from betty.license import LicenseDefinition
+from betty.license import LicensePlugin
 from betty.license.licenses import spdx_license_id_to_license_id
 from betty.locale.localizable import _
 from betty.media_type.media_types import SVG
@@ -474,7 +474,7 @@ class LoadAncestry(Job[ProjectContext]):
         self,
         project: Project,
     ) -> tuple[Mapping[MachineName, Sequence[File]], Sequence[File]]:
-        licenses = await project.plugins(LicenseDefinition)
+        licenses = await project.plugins(LicensePlugin)
         license = await project.new_target(  # noqa A001
             licenses[spdx_license_id_to_license_id("AGPL-3.0-or-later")].cls
         )

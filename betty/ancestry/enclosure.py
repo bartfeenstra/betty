@@ -9,7 +9,7 @@ from typing import TYPE_CHECKING, final
 from betty.ancestry.date import HasDate
 from betty.ancestry.has_citations import HasCitations
 from betty.locale.localizable import _, ngettext
-from betty.model import Entity, EntityDefinition
+from betty.model import Entity, EntityPlugin
 from betty.model.association import BidirectionalToOne, ToOneAssociate
 
 if TYPE_CHECKING:
@@ -17,7 +17,7 @@ if TYPE_CHECKING:
 
 
 @final
-@EntityDefinition(
+@EntityPlugin(
     id="enclosure",
     label=_("Enclosure"),
     label_plural=_("Enclosures"),

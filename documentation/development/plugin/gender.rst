@@ -10,9 +10,9 @@ example:
 
 .. code-block:: python
 
-   from betty.ancestry.gender import Gender, GenderDefinition
+   from betty.ancestry.gender import Gender, GenderPlugin
 
-   @GenderDefinition(
+   @GenderPlugin(
        id="my-gender",
        label=_("My Gender"),
    )

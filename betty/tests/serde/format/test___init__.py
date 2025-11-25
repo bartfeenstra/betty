@@ -7,8 +7,8 @@ from betty.plugin import PluginDefinition
 from betty.serde.dump import Dump
 from betty.serde.format import (
     Format,
-    FormatDefinition,
     FormatError,
+    FormatPlugin,
     FormatStr,
     format_for,
 )
@@ -16,11 +16,11 @@ from betty.test_utils.plugin.classed import ClassedPluginDefinitionClassTestBase
 from betty.typing import Voidable
 
 
-class TestFormatDefinition(ClassedPluginDefinitionClassTestBase):
+class TestFormatPlugin(ClassedPluginDefinitionClassTestBase):
     @override
     @pytest.fixture
     def sut(self) -> type[PluginDefinition]:
-        return FormatDefinition
+        return FormatPlugin
 
 
 class _Format(Format):
@@ -33,7 +33,7 @@ class _Format(Format):
         return ""  # pragma: nocover
 
 
-@FormatDefinition(
+@FormatPlugin(
     id="one",
     label="One",
 )
@@ -44,7 +44,7 @@ class FormatOne(_Format):
         return MediaType("text/x.betty.test.one", extensions=[".one"])
 
 
-@FormatDefinition(
+@FormatPlugin(
     id="two",
     label="Two",
 )

@@ -12,9 +12,9 @@ example:
 
 .. code-block:: python
 
-   from betty.ancestry.place_type import PlaceType, PlaceTypeDefinition
+   from betty.ancestry.place_type import PlaceType, PlaceTypePlugin
 
-   @PlaceTypeDefinition(
+   @PlaceTypePlugin(
        id="my-place-type",
        label=_("My Place Type"),
    )

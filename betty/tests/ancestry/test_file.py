@@ -22,7 +22,7 @@ from betty.media_type.media_types import PLAIN_TEXT
 from betty.model import Entity
 from betty.privacy import Privacy
 from betty.test_utils.json.linked_data import assert_dumps_linked_data
-from betty.test_utils.model import EntityDefinitionTestBase, EntityTestBase
+from betty.test_utils.model import EntityPluginTestBase, EntityTestBase
 from betty.tests.ancestry.test___init__ import DummyHasFileReferences
 
 if TYPE_CHECKING:
@@ -33,7 +33,7 @@ if TYPE_CHECKING:
 import pytest
 
 
-class TestFileDefinition(EntityDefinitionTestBase):
+class TestFileDefinition(EntityPluginTestBase):
     @override
     @pytest.fixture
     def sut(self) -> PluginDefinition:

@@ -9,9 +9,9 @@ Create a new class that extends :py:class:`betty.license.License` and implements
 
 .. code-block:: python
 
-   from betty.license import License, LicenseDefinition
+   from betty.license import License, LicensePlugin
 
-   @LicenseDefinition(
+   @LicensePlugin(
        id="my-license",
        label=_("My License"),
    )

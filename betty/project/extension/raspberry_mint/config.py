@@ -16,7 +16,7 @@ from betty.project.extension.theme.config import RegionalContentConfiguration
 if TYPE_CHECKING:
     from collections.abc import Iterable, Mapping, Sequence
 
-    from betty.content_provider import ContentProvider, ContentProviderDefinition
+    from betty.content_provider import ContentProvider, ContentProviderPlugin
     from betty.plugin.config import PluginInstanceConfiguration
     from betty.serde.dump import Dump, DumpMapping
 
@@ -40,7 +40,7 @@ class RaspberryMintConfiguration(Configuration):
         regional_content: Mapping[
             str,
             Sequence[
-                PluginInstanceConfiguration[ContentProviderDefinition, ContentProvider]
+                PluginInstanceConfiguration[ContentProviderPlugin, ContentProvider]
             ],
         ]
         | None = None,

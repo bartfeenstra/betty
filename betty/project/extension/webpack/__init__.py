@@ -17,7 +17,7 @@ from betty._npm import new_npm_requirement
 from betty.html import CssProvider, JsProvider
 from betty.jinja2 import Filters, Jinja2Provider
 from betty.project import Project, ProjectContext
-from betty.project.extension import Extension, ExtensionDefinition
+from betty.project.extension import Extension, ExtensionPlugin
 from betty.project.extension.webpack import build
 from betty.project.extension.webpack.build import EntryPointProvider
 from betty.project.extension.webpack.jinja2.filter import FILTERS
@@ -39,7 +39,7 @@ if TYPE_CHECKING:
 
 @internal
 @final
-@ExtensionDefinition(
+@ExtensionPlugin(
     id="webpack",
     label="Webpack",
     assets_directory_path=Path(__file__).parent / "assets",

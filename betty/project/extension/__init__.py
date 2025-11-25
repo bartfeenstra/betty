@@ -32,7 +32,7 @@ class Extension(ServiceContainer, ClassedPlugin, HasRequirement):
     To test your own subclasses, use :py:class:`betty.test_utils.project.extension.ExtensionTestBase`.
     """
 
-    plugin: ClassVar[ExtensionDefinition]
+    plugin: ClassVar[ExtensionPlugin]
 
     @override
     @classmethod
@@ -64,7 +64,7 @@ class Extension(ServiceContainer, ClassedPlugin, HasRequirement):
             return project
         return await new_dependencies_requirement(
             cls.plugin,
-            await project.plugins(ExtensionDefinition, check_requirements=False),
+            await project.plugins(ExtensionPlugin, check_requirements=False),
             services=project,
         )
 
@@ -73,7 +73,7 @@ _ExtensionT = TypeVar("_ExtensionT", bound=Extension)
 
 
 @final
-class ExtensionDefinition(
+class ExtensionPlugin(
     HumanFacingPluginDefinition,
     ClassedPluginDefinition[Extension],
     DependentPluginDefinition,

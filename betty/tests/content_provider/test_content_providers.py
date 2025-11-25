@@ -10,7 +10,7 @@ from typing_extensions import override
 from betty.ancestry.note import Note
 from betty.app import App
 from betty.config.factory import ConfigurationDependentSelfFactory
-from betty.content_provider import ContentProviderDefinition
+from betty.content_provider import ContentProviderPlugin
 from betty.content_provider.content_providers import (
     Notes,
     PlainText,
@@ -128,7 +128,7 @@ class TestTemplate:
             async with aiofiles.open(template_file_path, "w") as f:
                 await f.write(template)
 
-            @ContentProviderDefinition(id="my-first-template", label="")
+            @ContentProviderPlugin(id="my-first-template", label="")
             class _Jinja2TemplateContentProvider(Template):
                 pass
 

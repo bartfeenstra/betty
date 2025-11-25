@@ -21,11 +21,11 @@ class Gender(ClassedPlugin):
     Read more about :doc:`/development/plugin/gender`.
     """
 
-    plugin: ClassVar[GenderDefinition]
+    plugin: ClassVar[GenderPlugin]
 
 
 @final
-class GenderDefinition(HumanFacingPluginDefinition, ClassedPluginDefinition[Gender]):
+class GenderPlugin(HumanFacingPluginDefinition, ClassedPluginDefinition[Gender]):
     """
     A gender definition.
 

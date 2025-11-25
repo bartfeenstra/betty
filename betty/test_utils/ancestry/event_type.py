@@ -9,11 +9,11 @@ from betty.test_utils.plugin.human_facing import HumanFacingPluginDefinitionTest
 from betty.test_utils.plugin.ordered import OrderedPluginDefinitionTestBase
 
 
-class EventTypeDefinitionTestBase(
+class EventTypePluginTestBase(
     HumanFacingPluginDefinitionTestBase,
     OrderedPluginDefinitionTestBase,
     ClassedPluginDefinitionTestBase,
 ):
     """
-    A base class for testing :py:class:`betty.ancestry.event_type.EventTypeDefinition` implementations.
+    A base class for testing :py:class:`betty.ancestry.event_type.EventTypePlugin` implementations.
     """

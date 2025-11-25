@@ -11,7 +11,7 @@ from typing_extensions import override
 from betty.assertion import RequiredField, assert_record, assert_setattr
 from betty.config import Configuration
 from betty.config.factory import ConfigurationDependentSelfFactory
-from betty.content_provider import ContentProvider, ContentProviderDefinition
+from betty.content_provider import ContentProvider, ContentProviderPlugin
 from betty.html import plain_text_to_html
 from betty.locale.localizable import LocalizableLike, RequiredLocalizableAttr, _
 from betty.locale.localizable.assertion import assert_load_localizable
@@ -56,7 +56,7 @@ class PlainTextConfiguration(Configuration):
         }
 
 
-@ContentProviderDefinition(
+@ContentProviderPlugin(
     id="plain-text",
     label=_("Plain text"),
 )
@@ -125,7 +125,7 @@ class Template(ContentProvider, ClassedPlugin, ProjectDependentSelfFactory):
         return {}
 
 
-@ContentProviderDefinition(
+@ContentProviderPlugin(
     id="notes",
     label=_("Notes"),
 )

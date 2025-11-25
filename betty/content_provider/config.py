@@ -5,17 +5,16 @@ Content provider configuration.
 from collections.abc import Sequence
 from typing import TypeAlias
 
-from betty.content_provider import ContentProvider, ContentProviderDefinition
+from betty.content_provider import ContentProvider, ContentProviderPlugin
 from betty.plugin.config import (
     PluginInstanceConfiguration,
     PluginInstanceConfigurationSequence,
 )
 
 ShorthandContentProviderInstanceConfigurationSequence: TypeAlias = (
-    Sequence[PluginInstanceConfiguration[ContentProviderDefinition, ContentProvider]]
-    | None
+    Sequence[PluginInstanceConfiguration[ContentProviderPlugin, ContentProvider]] | None
 )
 
 ContentProviderInstanceConfigurationSequence: TypeAlias = (
-    PluginInstanceConfigurationSequence[ContentProviderDefinition, ContentProvider]
+    PluginInstanceConfigurationSequence[ContentProviderPlugin, ContentProvider]
 )

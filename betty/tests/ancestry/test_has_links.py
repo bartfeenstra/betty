@@ -6,14 +6,14 @@ from betty.ancestry.has_links import HasLinks
 from betty.ancestry.link import Link
 from betty.locale import DEFAULT_LOCALE
 from betty.locale.localizable import CountablePlain
-from betty.model import EntityDefinition
+from betty.model import EntityPlugin
 from betty.test_utils.json.linked_data import assert_dumps_linked_data
 
 if TYPE_CHECKING:
     from betty.serde.dump import Dump, DumpMapping
 
 
-@EntityDefinition(
+@EntityPlugin(
     id="dummy-has-links",
     label="",
     label_plural="",

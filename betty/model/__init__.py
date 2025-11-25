@@ -56,7 +56,7 @@ class Entity(LinkedDataDumpableWithSchemaJsonLdObject, Mutable, ClassedPlugin):
     To test your own subclasses, use :py:class:`betty.test_utils.model.EntityTestBase`.
     """
 
-    plugin: ClassVar[EntityDefinition]
+    plugin: ClassVar[EntityPlugin]
 
     def __init__(
         self,
@@ -137,7 +137,7 @@ class Entity(LinkedDataDumpableWithSchemaJsonLdObject, Mutable, ClassedPlugin):
 
 
 @final
-class EntityDefinition(
+class EntityPlugin(
     CountableHumanFacingPluginDefinition, ClassedPluginDefinition[Entity]
 ):
     """

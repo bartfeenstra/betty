@@ -12,9 +12,9 @@ methods, for example:
 
 .. code-block:: python
 
-   from betty.ancestry.presence_role import PresenceRole, PresenceRoleDefinition
+   from betty.ancestry.presence_role import PresenceRole, PresenceRolePlugin
 
-   @PresenceRoleDefinition(
+   @PresenceRolePlugin(
        id="my-presence-role",
        label=_("My Presence Role"),
    )

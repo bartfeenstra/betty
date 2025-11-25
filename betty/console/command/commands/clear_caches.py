@@ -9,7 +9,7 @@ from typing import TYPE_CHECKING, Self, final
 from typing_extensions import override
 
 from betty.app.factory import AppDependentSelfFactory
-from betty.console.command import Command, CommandFunction, CommandDefinition
+from betty.console.command import Command, CommandFunction, CommandPlugin
 from betty.locale.localizable import _
 
 if TYPE_CHECKING:
@@ -22,7 +22,7 @@ _LEGACY_CACHE_DIRECTORY_PATH = Path.home() / ".betty" / "cache"
 
 
 @final
-@CommandDefinition(
+@CommandPlugin(
     id="clear-caches",
     label=_("Clear all caches"),
 )

@@ -22,7 +22,7 @@ from betty.plugin.config import (
 if TYPE_CHECKING:
     from collections.abc import Collection, Mapping, MutableMapping, Sequence
 
-    from betty.content_provider import ContentProvider, ContentProviderDefinition
+    from betty.content_provider import ContentProvider, ContentProviderPlugin
     from betty.serde.dump import Dump
 
 
@@ -37,7 +37,7 @@ class RegionalContentConfiguration(Configuration):
         content: Mapping[
             str,
             Sequence[
-                PluginInstanceConfiguration[ContentProviderDefinition, ContentProvider]
+                PluginInstanceConfiguration[ContentProviderPlugin, ContentProvider]
             ],
         ]
         | None = None,
@@ -45,9 +45,7 @@ class RegionalContentConfiguration(Configuration):
         super().__init__()
         self._content: MutableMapping[
             str,
-            PluginInstanceConfigurationSequence[
-                ContentProviderDefinition, ContentProvider
-            ],
+            PluginInstanceConfigurationSequence[ContentProviderPlugin, ContentProvider],
         ] = defaultdict(PluginInstanceConfigurationSequence)
         if content:
             self._content.update(
@@ -59,16 +57,14 @@ class RegionalContentConfiguration(Configuration):
 
     def __getitem__(
         self, region: str
-    ) -> PluginInstanceConfigurationSequence[
-        ContentProviderDefinition, ContentProvider
-    ]:
+    ) -> PluginInstanceConfigurationSequence[ContentProviderPlugin, ContentProvider]:
         return self._content[region]
 
     def __setitem__(
         self,
         region: str,
         content: Sequence[
-            PluginInstanceConfiguration[ContentProviderDefinition, ContentProvider]
+            PluginInstanceConfiguration[ContentProviderPlugin, ContentProvider]
         ],
     ) -> None:
         self._content[region].clear()

@@ -29,7 +29,7 @@ class License(Mutable, ClassedPlugin):
     To test your own subclasses, use :py:class:`betty.test_utils.license.LicenseTestBase`.
     """
 
-    plugin: ClassVar[LicenseDefinition]
+    plugin: ClassVar[LicensePlugin]
 
     @property
     @abstractmethod
@@ -54,7 +54,7 @@ class License(Mutable, ClassedPlugin):
 
 
 @final
-class LicenseDefinition(HumanFacingPluginDefinition, ClassedPluginDefinition[License]):
+class LicensePlugin(HumanFacingPluginDefinition, ClassedPluginDefinition[License]):
     """
     A license definition.
 

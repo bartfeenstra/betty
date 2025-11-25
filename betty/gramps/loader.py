@@ -125,14 +125,14 @@ if TYPE_CHECKING:
 
     from betty.ancestry import Ancestry
     from betty.ancestry.event_type import EventType
-    from betty.ancestry.gender import GenderDefinition
+    from betty.ancestry.gender import GenderPlugin
     from betty.ancestry.has_citations import HasCitations
     from betty.ancestry.has_file_references import HasFileReferences
     from betty.ancestry.has_notes import HasNotes
     from betty.ancestry.place_type import PlaceType
     from betty.ancestry.presence_role import PresenceRole
-    from betty.copyright_notice import CopyrightNoticeDefinition
-    from betty.license import LicenseDefinition
+    from betty.copyright_notice import CopyrightNoticePlugin
+    from betty.license import LicensePlugin
     from betty.machine_name import MachineName
     from betty.plugin.repository import PluginRepository
     from betty.project.factory import ProjectFactory
@@ -318,12 +318,12 @@ class GrampsLoader:
         *,
         factory: ProjectFactory,
         user: User,
-        copyright_notices: PluginRepository[CopyrightNoticeDefinition],
-        licenses: PluginRepository[LicenseDefinition],
+        copyright_notices: PluginRepository[CopyrightNoticePlugin],
+        licenses: PluginRepository[LicensePlugin],
         attribute_prefix_key: str | None = None,
         event_type_mapping: Mapping[str, Callable[[], EventType | Awaitable[EventType]]]
         | None = None,
-        genders: PluginRepository[GenderDefinition],
+        genders: PluginRepository[GenderPlugin],
         place_type_mapping: Mapping[str, Callable[[], PlaceType | Awaitable[PlaceType]]]
         | None = None,
         presence_role_mapping: Mapping[

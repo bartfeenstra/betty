@@ -5,10 +5,10 @@ from yarl import URL
 
 from betty.http_client.rate_limits import WikipediaActionApi, WikipediaRestApi
 from betty.plugin import PluginDefinition
-from betty.test_utils.http_client.rate_limit import RateLimitDefinitionTestBase
+from betty.test_utils.http_client.rate_limit import RateLimitPluginTestBase
 
 
-class TestWikipediaActionApiDefinition(RateLimitDefinitionTestBase):
+class TestWikipediaActionApiDefinition(RateLimitPluginTestBase):
     @override
     @pytest.fixture
     def sut(self) -> PluginDefinition:
@@ -43,7 +43,7 @@ class TestWikipediaActionApi:
         assert sut.limit[1]
 
 
-class TestWikipediaRestApiDefinition(RateLimitDefinitionTestBase):
+class TestWikipediaRestApiDefinition(RateLimitPluginTestBase):
     @override
     @pytest.fixture
     def sut(self) -> PluginDefinition:

@@ -5,11 +5,11 @@ Rate limit implementations.
 from aiohttp.client_reqrep import ClientRequest
 from typing_extensions import override
 
-from betty.http_client.rate_limit import RateLimit, RateLimitDefinition
+from betty.http_client.rate_limit import RateLimit, RateLimitPlugin
 from betty.plugin.classed import ClassedPlugin
 
 
-@RateLimitDefinition(id="wikipedia-action-api")
+@RateLimitPlugin(id="wikipedia-action-api")
 class WikipediaActionApi(RateLimit, ClassedPlugin):
     """
     The Wikipedia Action API rate limit.
@@ -35,7 +35,7 @@ class WikipediaActionApi(RateLimit, ClassedPlugin):
         return 200, 1
 
 
-@RateLimitDefinition(id="wikipedia-rest-api")
+@RateLimitPlugin(id="wikipedia-rest-api")
 class WikipediaRestApi(RateLimit, ClassedPlugin):
     """
     The Wikipedia REST API rate limit.

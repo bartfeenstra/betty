@@ -4,13 +4,13 @@ Provide presence role implementations.
 
 from typing import final
 
-from betty.ancestry.presence_role import PresenceRole, PresenceRoleDefinition
+from betty.ancestry.presence_role import PresenceRole, PresenceRolePlugin
 from betty.classtools import Singleton
 from betty.locale.localizable import _
 
 
 @final
-@PresenceRoleDefinition(
+@PresenceRolePlugin(
     id="attendee",
     label=_("Attendee"),
 )
@@ -21,7 +21,7 @@ class Attendee(PresenceRole):
 
 
 @final
-@PresenceRoleDefinition(
+@PresenceRolePlugin(
     id="beneficiary",
     label=_("Beneficiary"),
 )
@@ -32,7 +32,7 @@ class Beneficiary(PresenceRole):
 
 
 @final
-@PresenceRoleDefinition(
+@PresenceRolePlugin(
     id="celebrant",
     label=_("Celebrant"),
 )
@@ -49,7 +49,7 @@ class Celebrant(PresenceRole):
 
 
 @final
-@PresenceRoleDefinition(
+@PresenceRolePlugin(
     id="informant",
     label=_("Informant"),
 )
@@ -60,7 +60,7 @@ class Informant(PresenceRole):
 
 
 @final
-@PresenceRoleDefinition(
+@PresenceRolePlugin(
     id="organizer",
     label=_("Organizer"),
 )
@@ -71,7 +71,7 @@ class Organizer(PresenceRole):
 
 
 @final
-@PresenceRoleDefinition(
+@PresenceRolePlugin(
     id="speaker",
     label=_("Speaker"),
 )
@@ -82,7 +82,7 @@ class Speaker(PresenceRole):
 
 
 @final
-@PresenceRoleDefinition(
+@PresenceRolePlugin(
     id="subject",
     label=_("Subject"),
 )
@@ -97,7 +97,7 @@ class Subject(PresenceRole):
 
 
 @final
-@PresenceRoleDefinition(
+@PresenceRolePlugin(
     id="unknown",
     label=_("Unknown"),
 )
@@ -108,7 +108,7 @@ class Unknown(PresenceRole, Singleton):
 
 
 @final
-@PresenceRoleDefinition(
+@PresenceRolePlugin(
     id="witness",
     label=_("Witness"),
 )

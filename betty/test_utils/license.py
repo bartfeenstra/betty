@@ -16,11 +16,11 @@ if TYPE_CHECKING:
     from betty.license import License
 
 
-class LicenseDefinitionTestBase(
+class LicensePluginTestBase(
     HumanFacingPluginDefinitionTestBase, ClassedPluginDefinitionTestBase
 ):
     """
-    A base class for testing :py:class:`betty.license.LicenseDefinition` implementations.
+    A base class for testing :py:class:`betty.license.LicensePlugin` implementations.
     """
 
 

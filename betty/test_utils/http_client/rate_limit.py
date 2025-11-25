@@ -6,9 +6,9 @@ from betty.test_utils.plugin.classed import ClassedPluginDefinitionTestBase
 from betty.test_utils.plugin.ordered import OrderedPluginDefinitionTestBase
 
 
-class RateLimitDefinitionTestBase(
+class RateLimitPluginTestBase(
     OrderedPluginDefinitionTestBase, ClassedPluginDefinitionTestBase
 ):
     """
-    A base class for testing :py:class:`betty.http_client.rate_limit.RateLimitDefinition` subclasses.
+    A base class for testing :py:class:`betty.http_client.rate_limit.RateLimitPlugin` subclasses.
     """

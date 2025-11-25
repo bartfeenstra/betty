@@ -11,7 +11,7 @@ from typing import TYPE_CHECKING, Any, Generic, TypeVar, cast
 from typing_extensions import override
 
 from betty.functools import unique
-from betty.model import Entity, EntityDefinition
+from betty.model import Entity, EntityPlugin
 from betty.mutability import Mutable
 
 if TYPE_CHECKING:
@@ -216,9 +216,9 @@ class MultipleTypesEntityCollection(EntityCollection[_TargetT], Generic[_TargetT
 
     def __getitem__(
         self,
-        key: EntityDefinition | type[_EntityT],
+        key: EntityPlugin | type[_EntityT],
     ) -> SingleTypeEntityCollection[_EntityT]:
-        if isinstance(key, EntityDefinition):
+        if isinstance(key, EntityPlugin):
             return self._get_collection(
                 key.cls  # type: ignore[arg-type]
             )

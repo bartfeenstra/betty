@@ -10,7 +10,7 @@ from typing_extensions import override
 from betty.ancestry.event import Event
 from betty.ancestry.event_type import (
     EventType,
-    EventTypeDefinition,
+    EventTypePlugin,
     ShouldExistEventType,
 )
 from betty.ancestry.person import Person
@@ -27,12 +27,12 @@ if TYPE_CHECKING:
     from betty.app import App
 
 NewProject: TypeAlias = Callable[
-    [Iterable[EventTypeDefinition]], AbstractAsyncContextManager[Project]
+    [Iterable[EventTypePlugin]], AbstractAsyncContextManager[Project]
 ]
 
 
 @final
-@EventTypeDefinition(
+@EventTypePlugin(
     id="isolated",
     label="",
 )
@@ -41,7 +41,7 @@ class Isolated(EventType):
 
 
 @final
-@EventTypeDefinition(
+@EventTypePlugin(
     id="comes-before-reference",
     label="",
 )
@@ -50,7 +50,7 @@ class ComesBeforeReference(EventType):
 
 
 @final
-@EventTypeDefinition(
+@EventTypePlugin(
     id="comes-after-reference",
     label="",
 )
@@ -59,7 +59,7 @@ class ComesAfterReference(EventType):
 
 
 @final
-@EventTypeDefinition(
+@EventTypePlugin(
     id="comes-before",
     label="",
     comes_before={ComesBeforeReference.plugin},
@@ -69,7 +69,7 @@ class ComesBefore(EventType):
 
 
 @final
-@EventTypeDefinition(
+@EventTypePlugin(
     id="comes-before-should-exist",
     label="",
     comes_before={ComesBeforeReference.plugin},
@@ -82,7 +82,7 @@ class ComesBeforeShouldExist(ShouldExistEventType):
 
 
 @final
-@EventTypeDefinition(
+@EventTypePlugin(
     id="comes-before-should-not-exist",
     label="",
     comes_before={ComesBeforeReference.plugin},
@@ -95,7 +95,7 @@ class ComesBeforeShouldNotExist(ShouldExistEventType):
 
 
 @final
-@EventTypeDefinition(
+@EventTypePlugin(
     id="comes-before-and-after",
     label="",
     comes_before={ComesBeforeReference.plugin},
@@ -106,7 +106,7 @@ class ComesBeforeAndAfter(EventType):
 
 
 @final
-@EventTypeDefinition(
+@EventTypePlugin(
     id="comes-before-and-after-should-exist",
     label="",
     comes_before={ComesBeforeReference.plugin},
@@ -120,7 +120,7 @@ class ComesBeforeAndAfterShouldExist(ShouldExistEventType):
 
 
 @final
-@EventTypeDefinition(
+@EventTypePlugin(
     id="comes-before-and-after-should-not-exist",
     label="",
     comes_before={ComesBeforeReference.plugin},
@@ -134,7 +134,7 @@ class ComesBeforeAndAfterShouldNotExist(ShouldExistEventType):
 
 
 @final
-@EventTypeDefinition(
+@EventTypePlugin(
     id="comes-after",
     label="",
     comes_after={ComesAfterReference.plugin},
@@ -144,7 +144,7 @@ class ComesAfter(EventType):
 
 
 @final
-@EventTypeDefinition(
+@EventTypePlugin(
     id="comes-after-should-exist",
     label="",
     comes_after={ComesAfterReference.plugin},
@@ -157,7 +157,7 @@ class ComesAfterShouldExist(ShouldExistEventType):
 
 
 @final
-@EventTypeDefinition(
+@EventTypePlugin(
     id="comes-after-should-not-exist",
     label="",
     comes_after={ComesAfterReference.plugin},
@@ -174,9 +174,9 @@ class TestDeriver:
     def new_project(self, temporary_app: App) -> NewProject:
         @asynccontextmanager
         async def _new_project(
-            event_types: Iterable[EventTypeDefinition],
+            event_types: Iterable[EventTypePlugin],
         ) -> AsyncIterator[Project]:
-            with EventTypeDefinition.type.override_discovery(*event_types):
+            with EventTypePlugin.type.override_discovery(*event_types):
                 async with Project.new_temporary(temporary_app) as project, project:
                     yield project
 

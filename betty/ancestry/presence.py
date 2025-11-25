@@ -8,9 +8,9 @@ from typing import TYPE_CHECKING, final
 
 from typing_extensions import override
 
-from betty.ancestry.presence_role import PresenceRoleDefinition
+from betty.ancestry.presence_role import PresenceRolePlugin
 from betty.locale.localizable import Localizable, _, ngettext
-from betty.model import Entity, EntityDefinition
+from betty.model import Entity, EntityPlugin
 from betty.model.association import BidirectionalToOne, ToOneAssociate
 from betty.privacy import HasPrivacy, Privacy, is_public, merge_secondary_privacies
 
@@ -26,7 +26,7 @@ if TYPE_CHECKING:
 
 
 @final
-@EntityDefinition(
+@EntityPlugin(
     id="presence",
     label=_("Presence"),
     label_plural=_("Presences"),
@@ -104,7 +104,7 @@ class Presence(HasPrivacy, Entity):
     @classmethod
     async def linked_data_schema(cls, project: Project, /) -> JsonLdObject:
         schema = await super().linked_data_schema(project)
-        presence_roles = await project.plugins(PresenceRoleDefinition)
+        presence_roles = await project.plugins(PresenceRolePlugin)
         schema.add_property("role", presence_roles.plugin_id_schema, False)
         return schema
 

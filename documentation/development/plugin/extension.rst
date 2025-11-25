@@ -13,9 +13,9 @@ example:
 
 .. code-block:: python
 
-   from betty.project.extension import Extension, ExtensionDefinition
+   from betty.project.extension import Extension, ExtensionPlugin
 
-   @ExtensionDefinition(
+   @ExtensionPlugin(
        id="my-extension",
        label=_("My Extension"),
    )

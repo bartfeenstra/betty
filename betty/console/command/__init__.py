@@ -29,7 +29,7 @@ class Command:
     Read more about :doc:`/development/plugin/command`.
     """
 
-    plugin: ClassVar[CommandDefinition]
+    plugin: ClassVar[CommandPlugin]
 
     @abstractmethod
     async def configure(self, parser: argparse.ArgumentParser) -> CommandFunction:
@@ -42,7 +42,7 @@ class Command:
 
 
 @final
-class CommandDefinition(HumanFacingPluginDefinition, ClassedPluginDefinition[Command]):
+class CommandPlugin(HumanFacingPluginDefinition, ClassedPluginDefinition[Command]):
     """
     A console command definition.
 
@@ -58,4 +58,4 @@ class CommandDefinition(HumanFacingPluginDefinition, ClassedPluginDefinition[Com
 
 
 if about.IS_DEVELOPMENT:
-    CommandDefinition.type.add_discovery(EntryPointDiscovery("betty.dev.command"))
+    CommandPlugin.type.add_discovery(EntryPointDiscovery("betty.dev.command"))

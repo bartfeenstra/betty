@@ -7,13 +7,13 @@ from typing_extensions import override
 from betty.app.factory import AppDependentSelfFactory
 from betty.assertion import assert_or, assert_none, assert_directory_path
 from betty.console.assertion import assertion_to_argument_type
-from betty.console.command import Command, CommandFunction, CommandDefinition
+from betty.console.command import Command, CommandFunction, CommandPlugin
 from betty.locale.localizable import _
 from betty.locale.translation.project import extension as extension_translation
 from betty.locale.translation.project.extension import (
     assert_extension_has_assets_directory_path,
 )
-from betty.project.extension import ExtensionDefinition
+from betty.project.extension import ExtensionPlugin
 
 if TYPE_CHECKING:
     import argparse
@@ -23,7 +23,7 @@ if TYPE_CHECKING:
 
 
 @final
-@CommandDefinition(
+@CommandPlugin(
     id="extension-update-translations",
     label=_("Update all existing translations for an extension"),
 )
@@ -42,9 +42,7 @@ class ExtensionUpdateTranslations(AppDependentSelfFactory, Command):
 
     @override
     async def configure(self, parser: argparse.ArgumentParser) -> CommandFunction:
-        extensions = await self._app.plugins(
-            ExtensionDefinition, check_requirements=False
-        )
+        extensions = await self._app.plugins(ExtensionPlugin, check_requirements=False)
         localizer = await self._app.localizer
 
         parser.add_argument(
@@ -72,7 +70,7 @@ class ExtensionUpdateTranslations(AppDependentSelfFactory, Command):
         return self._command_function
 
     async def _command_function(
-        self, extension: ExtensionDefinition, source: Path, exclude: tuple[Path] | None
+        self, extension: ExtensionPlugin, source: Path, exclude: tuple[Path] | None
     ) -> None:
         await extension_translation.update_extension_translations(
             extension, source, None if exclude is None else set(exclude)

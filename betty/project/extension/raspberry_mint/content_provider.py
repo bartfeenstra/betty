@@ -18,7 +18,7 @@ from betty.assertion import (
 )
 from betty.config import Configuration
 from betty.config.factory import ConfigurationDependentSelfFactory
-from betty.content_provider import ContentProviderDefinition
+from betty.content_provider import ContentProviderPlugin
 from betty.content_provider.content_providers import Template
 from betty.locale.localizable import (
     LocalizableLike,
@@ -29,7 +29,7 @@ from betty.locale.localizable import (
 from betty.locale.localizable.assertion import assert_load_localizable
 from betty.locale.localizable.config import dump_localizable
 from betty.machine_name import MachineName, assert_machine_name
-from betty.model import EntityDefinition
+from betty.model import EntityPlugin
 from betty.model.config import EntityReferenceSequence
 from betty.plugin.classed import ClassedPlugin
 from betty.plugin.config import PluginInstanceConfigurationSequence
@@ -126,7 +126,7 @@ class SectionConfiguration(Configuration):
         return self.heading, self._content
 
 
-@ContentProviderDefinition(
+@ContentProviderPlugin(
     id="raspberry-mint-section",
     label=_("Section"),
 )
@@ -177,7 +177,7 @@ class Section(
         }
 
 
-@ContentProviderDefinition(
+@ContentProviderPlugin(
     id="raspberry-mint-featured-entities",
     label=_("Featured entities"),
 )
@@ -227,7 +227,7 @@ class FeaturedEntities(
 
     @override
     async def _provide_data(self, resource: Context) -> Mapping[str, Any]:
-        entity_types = await self._project.plugins(EntityDefinition)
+        entity_types = await self._project.plugins(EntityPlugin)
         entities: MutableSequence[Entity] = []
         for entity in self.configuration:
             assert entity.entity_type is not None
@@ -242,7 +242,7 @@ class FeaturedEntities(
         }
 
 
-@ContentProviderDefinition(
+@ContentProviderPlugin(
     id="raspberry-mint-family",
     label=_("Family"),
 )
@@ -252,7 +252,7 @@ class Family(Template, _Base):
     """
 
 
-@ContentProviderDefinition(
+@ContentProviderPlugin(
     id="raspberry-mint-media",
     label=_("Media gallery"),
 )
@@ -308,7 +308,7 @@ class ColorStyleConfiguration(Configuration):
         return self.content
 
 
-@ContentProviderDefinition(
+@ContentProviderPlugin(
     id="raspberry-mint-color-style",
     label=_("Color style"),
 )
@@ -357,7 +357,7 @@ class ColorStyle(Template, ConfigurationDependentSelfFactory[ColorStyleConfigura
         }
 
 
-@ContentProviderDefinition(
+@ContentProviderPlugin(
     id="raspberry-mint-external-links",
     label=_("External links"),
 )

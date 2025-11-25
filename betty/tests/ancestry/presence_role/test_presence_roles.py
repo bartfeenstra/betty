@@ -13,66 +13,66 @@ from betty.ancestry.presence_role.presence_roles import (
     Witness,
 )
 from betty.plugin import PluginDefinition
-from betty.test_utils.ancestry.presence_role import PresenceRoleDefinitionTestBase
+from betty.test_utils.ancestry.presence_role import PresenceRolePluginTestBase
 
 
-class TestAttendee(PresenceRoleDefinitionTestBase):
+class TestAttendee(PresenceRolePluginTestBase):
     @override
     @pytest.fixture
     def sut(self) -> PluginDefinition:
         return Attendee.plugin
 
 
-class TestBeneficiary(PresenceRoleDefinitionTestBase):
+class TestBeneficiary(PresenceRolePluginTestBase):
     @override
     @pytest.fixture
     def sut(self) -> PluginDefinition:
         return Beneficiary.plugin
 
 
-class TestCelebrant(PresenceRoleDefinitionTestBase):
+class TestCelebrant(PresenceRolePluginTestBase):
     @override
     @pytest.fixture
     def sut(self) -> PluginDefinition:
         return Celebrant.plugin
 
 
-class TestInformant(PresenceRoleDefinitionTestBase):
+class TestInformant(PresenceRolePluginTestBase):
     @override
     @pytest.fixture
     def sut(self) -> PluginDefinition:
         return Informant.plugin
 
 
-class TestOrganizer(PresenceRoleDefinitionTestBase):
+class TestOrganizer(PresenceRolePluginTestBase):
     @override
     @pytest.fixture
     def sut(self) -> PluginDefinition:
         return Organizer.plugin
 
 
-class TestSpeaker(PresenceRoleDefinitionTestBase):
+class TestSpeaker(PresenceRolePluginTestBase):
     @override
     @pytest.fixture
     def sut(self) -> PluginDefinition:
         return Speaker.plugin
 
 
-class TestSubject(PresenceRoleDefinitionTestBase):
+class TestSubject(PresenceRolePluginTestBase):
     @override
     @pytest.fixture
     def sut(self) -> PluginDefinition:
         return Subject.plugin
 
 
-class TestUnknown(PresenceRoleDefinitionTestBase):
+class TestUnknown(PresenceRolePluginTestBase):
     @override
     @pytest.fixture
     def sut(self) -> PluginDefinition:
         return Unknown.plugin
 
 
-class TestWitness(PresenceRoleDefinitionTestBase):
+class TestWitness(PresenceRolePluginTestBase):
     @override
     @pytest.fixture
     def sut(self) -> PluginDefinition:

@@ -7,10 +7,10 @@ from typing_extensions import override
 from betty.html import plain_text_to_html
 from betty.media_type import MediaType
 from betty.media_type.media_types import PLAIN_TEXT
-from betty.render import Renderer, RendererDefinition
+from betty.render import Renderer, RendererPlugin
 
 
-@RendererDefinition(
+@RendererPlugin(
     id="plain-text",
 )
 class PlainText(Renderer):

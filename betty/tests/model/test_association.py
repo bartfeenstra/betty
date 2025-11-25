@@ -6,7 +6,7 @@ import pytest
 from typing_extensions import override
 
 from betty.locale.localizable import CountablePlain
-from betty.model import Entity, EntityDefinition
+from betty.model import Entity, EntityPlugin
 from betty.model.association import (
     AssociationRegistry,
     AssociationRequired,
@@ -165,7 +165,7 @@ class TestAssociationRegistry:
 
 
 class TestUnidirectionalToZeroOrOne:
-    @EntityDefinition(
+    @EntityPlugin(
         id="owner",
         label="",
         label_plural="",
@@ -190,7 +190,7 @@ class TestUnidirectionalToZeroOrOne:
             "betty.tests.model.test_association:TestUnidirectionalToZeroOrOne._Associate",
         )
 
-    @EntityDefinition(
+    @EntityPlugin(
         id="owner-embedded",
         label="",
         label_plural="",
@@ -213,7 +213,7 @@ class TestUnidirectionalToZeroOrOne:
             linked_data_embedded=True,
         )
 
-    @EntityDefinition(
+    @EntityPlugin(
         id="owner-with-non-public-facing-associate",
         label="",
         label_plural="",
@@ -237,7 +237,7 @@ class TestUnidirectionalToZeroOrOne:
             "betty.tests.model.test_association:TestUnidirectionalToZeroOrOne._NonPublicFacingAssociate",
         )
 
-    @EntityDefinition(
+    @EntityPlugin(
         id="associate",
         label="",
         label_plural="",
@@ -246,7 +246,7 @@ class TestUnidirectionalToZeroOrOne:
     class _Associate(Entity):
         pass
 
-    @EntityDefinition(
+    @EntityPlugin(
         id="non-public-facing-associate",
         label="",
         label_plural="",
@@ -361,7 +361,7 @@ class TestUnidirectionalToZeroOrOne:
 
 
 class TestBidirectionalToZeroOrOne:
-    @EntityDefinition(
+    @EntityPlugin(
         id="owner",
         label="",
         label_plural="",
@@ -387,7 +387,7 @@ class TestBidirectionalToZeroOrOne:
             "owner",
         )
 
-    @EntityDefinition(
+    @EntityPlugin(
         id="owner-embedded",
         label="",
         label_plural="",
@@ -412,7 +412,7 @@ class TestBidirectionalToZeroOrOne:
             linked_data_embedded=True,
         )
 
-    @EntityDefinition(
+    @EntityPlugin(
         id="owner-with-non-public-facing-associate",
         label="",
         label_plural="",
@@ -437,7 +437,7 @@ class TestBidirectionalToZeroOrOne:
             "owner",
         )
 
-    @EntityDefinition(
+    @EntityPlugin(
         id="associate",
         label="",
         label_plural="",
@@ -454,7 +454,7 @@ class TestBidirectionalToZeroOrOne:
             "associate",
         )
 
-    @EntityDefinition(
+    @EntityPlugin(
         id="non-public-facing-associate",
         label="",
         label_plural="",
@@ -583,7 +583,7 @@ class TestBidirectionalToZeroOrOne:
 
 
 class TestUnidirectionalToOne:
-    @EntityDefinition(
+    @EntityPlugin(
         id="owner",
         label="",
         label_plural="",
@@ -604,7 +604,7 @@ class TestUnidirectionalToOne:
             "betty.tests.model.test_association:TestUnidirectionalToOne._Associate",
         )
 
-    @EntityDefinition(
+    @EntityPlugin(
         id="owner-embedded",
         label="",
         label_plural="",
@@ -625,7 +625,7 @@ class TestUnidirectionalToOne:
             linked_data_embedded=True,
         )
 
-    @EntityDefinition(
+    @EntityPlugin(
         id="owner-with-non-public-facing-associate",
         label="",
         label_plural="",
@@ -647,7 +647,7 @@ class TestUnidirectionalToOne:
             "betty.tests.model.test_association:TestUnidirectionalToOne._NonPublicFacingAssociate",
         )
 
-    @EntityDefinition(
+    @EntityPlugin(
         id="associate",
         label="",
         label_plural="",
@@ -656,7 +656,7 @@ class TestUnidirectionalToOne:
     class _Associate(Entity):
         pass
 
-    @EntityDefinition(
+    @EntityPlugin(
         id="non-public-facing-associate",
         label="",
         label_plural="",
@@ -732,7 +732,7 @@ class TestUnidirectionalToOne:
 
 
 class TestBidirectionalToOne:
-    @EntityDefinition(
+    @EntityPlugin(
         id="owner",
         label="",
         label_plural="",
@@ -754,7 +754,7 @@ class TestBidirectionalToOne:
             "owner",
         )
 
-    @EntityDefinition(
+    @EntityPlugin(
         id="associate",
         label="",
         label_plural="",
@@ -770,7 +770,7 @@ class TestBidirectionalToOne:
             "associate",
         )
 
-    @EntityDefinition(
+    @EntityPlugin(
         id="owner-embedded",
         label="",
         label_plural="",
@@ -792,7 +792,7 @@ class TestBidirectionalToOne:
             linked_data_embedded=True,
         )
 
-    @EntityDefinition(
+    @EntityPlugin(
         id="associate-embedded",
         label="",
         label_plural="",
@@ -809,7 +809,7 @@ class TestBidirectionalToOne:
             "associate",
         )
 
-    @EntityDefinition(
+    @EntityPlugin(
         id="owner-with-non-public-facing-associate",
         label="",
         label_plural="",
@@ -830,7 +830,7 @@ class TestBidirectionalToOne:
             "owner",
         )
 
-    @EntityDefinition(
+    @EntityPlugin(
         id="non-public-facing-associate",
         label="",
         label_plural="",
@@ -916,7 +916,7 @@ class TestBidirectionalToOne:
 
 
 class TestUnidirectionalToManySingleType:
-    @EntityDefinition(
+    @EntityPlugin(
         id="owner",
         label="",
         label_plural="",
@@ -932,7 +932,7 @@ class TestUnidirectionalToManySingleType:
             "betty.tests.model.test_association:TestUnidirectionalToManySingleType._Associate",
         )
 
-    @EntityDefinition(
+    @EntityPlugin(
         id="owner-embedded",
         label="",
         label_plural="",
@@ -949,7 +949,7 @@ class TestUnidirectionalToManySingleType:
             linked_data_embedded=True,
         )
 
-    @EntityDefinition(
+    @EntityPlugin(
         id="associate",
         label="",
         label_plural="",
@@ -958,7 +958,7 @@ class TestUnidirectionalToManySingleType:
     class _Associate(Entity):
         pass
 
-    @EntityDefinition(
+    @EntityPlugin(
         id="non-public-facing-associate",
         label="",
         label_plural="",
@@ -1102,7 +1102,7 @@ class TestUnidirectionalToManyMultipleTypes:
 
 
 class TestBidirectionalToManySingleType:
-    @EntityDefinition(
+    @EntityPlugin(
         id="owner",
         label="",
         label_plural="",
@@ -1119,7 +1119,7 @@ class TestBidirectionalToManySingleType:
             "owner",
         )
 
-    @EntityDefinition(
+    @EntityPlugin(
         id="associate",
         label="",
         label_plural="",
@@ -1136,7 +1136,7 @@ class TestBidirectionalToManySingleType:
             "associates",
         )
 
-    @EntityDefinition(
+    @EntityPlugin(
         id="owner-embedded",
         label="",
         label_plural="",
@@ -1154,7 +1154,7 @@ class TestBidirectionalToManySingleType:
             linked_data_embedded=True,
         )
 
-    @EntityDefinition(
+    @EntityPlugin(
         id="associate-embedded",
         label="",
         label_plural="",
@@ -1171,7 +1171,7 @@ class TestBidirectionalToManySingleType:
             "associates",
         )
 
-    @EntityDefinition(
+    @EntityPlugin(
         id="non-public-facing-associate-embedded",
         label="",
         label_plural="",
@@ -1181,7 +1181,7 @@ class TestBidirectionalToManySingleType:
     class _NonPublicFacingAssociateEmbedded(_AssociateEmbedded):
         pass
 
-    @EntityDefinition(
+    @EntityPlugin(
         id="owner-with-non-public-facing-associate",
         label="",
         label_plural="",
@@ -1198,7 +1198,7 @@ class TestBidirectionalToManySingleType:
             "owner",
         )
 
-    @EntityDefinition(
+    @EntityPlugin(
         id="non-public-facing-associate",
         label="",
         label_plural="",
