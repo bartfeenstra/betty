@@ -18,7 +18,7 @@ if TYPE_CHECKING:
 
 @final
 @EntityDefinition(
-    id="file-reference",
+    "file-reference",
     label=_("File reference"),
     label_plural=_("File references"),
     label_countable=ngettext("{count} file reference", "{count} file references"),

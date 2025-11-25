@@ -10,10 +10,7 @@ from betty.locale.localizable import _
 
 
 @final
-@PresenceRoleDefinition(
-    id="attendee",
-    label=_("Attendee"),
-)
+@PresenceRoleDefinition("attendee", label=_("Attendee"))
 class Attendee(PresenceRole):
     """
     Someone attended the event (further details unknown).
@@ -21,10 +18,7 @@ class Attendee(PresenceRole):
 
 
 @final
-@PresenceRoleDefinition(
-    id="beneficiary",
-    label=_("Beneficiary"),
-)
+@PresenceRoleDefinition("beneficiary", label=_("Beneficiary"))
 class Beneficiary(PresenceRole):
     """
     Someone was a `benificiary <https://en.wikipedia.org/wiki/Beneficiary>`_ in the event, such as a :py:class:`betty.ancestry.event_type.event_types.Will`.
@@ -32,10 +26,7 @@ class Beneficiary(PresenceRole):
 
 
 @final
-@PresenceRoleDefinition(
-    id="celebrant",
-    label=_("Celebrant"),
-)
+@PresenceRoleDefinition("celebrant", label=_("Celebrant"))
 class Celebrant(PresenceRole):
     """
     Someone was the `celebrant <https://en.wikipedia.org/wiki/Officiant>`_ at the event.
@@ -49,10 +40,7 @@ class Celebrant(PresenceRole):
 
 
 @final
-@PresenceRoleDefinition(
-    id="informant",
-    label=_("Informant"),
-)
+@PresenceRoleDefinition("informant", label=_("Informant"))
 class Informant(PresenceRole):
     """
     Someone was the informant of an event, e.g. they reported it with a record-keeping institution.
@@ -60,10 +48,7 @@ class Informant(PresenceRole):
 
 
 @final
-@PresenceRoleDefinition(
-    id="organizer",
-    label=_("Organizer"),
-)
+@PresenceRoleDefinition("organizer", label=_("Organizer"))
 class Organizer(PresenceRole):
     """
     Someone organized the event.
@@ -71,10 +56,7 @@ class Organizer(PresenceRole):
 
 
 @final
-@PresenceRoleDefinition(
-    id="speaker",
-    label=_("Speaker"),
-)
+@PresenceRoleDefinition("speaker", label=_("Speaker"))
 class Speaker(PresenceRole):
     """
     Someone performed public speaking at the event.
@@ -82,10 +64,7 @@ class Speaker(PresenceRole):
 
 
 @final
-@PresenceRoleDefinition(
-    id="subject",
-    label=_("Subject"),
-)
+@PresenceRoleDefinition("subject", label=_("Subject"))
 class Subject(PresenceRole):
     """
     Someone was the subject of the event.
@@ -97,10 +76,7 @@ class Subject(PresenceRole):
 
 
 @final
-@PresenceRoleDefinition(
-    id="unknown",
-    label=_("Unknown"),
-)
+@PresenceRoleDefinition("unknown", label=_("Unknown"))
 class Unknown(PresenceRole, Singleton):
     """
     Someone's role in an event is unknown.
@@ -108,10 +84,7 @@ class Unknown(PresenceRole, Singleton):
 
 
 @final
-@PresenceRoleDefinition(
-    id="witness",
-    label=_("Witness"),
-)
+@PresenceRoleDefinition("witness", label=_("Witness"))
 class Witness(PresenceRole):
     """
     Someone `witnessed <https://en.wikipedia.org/wiki/Witness>`_ the event.

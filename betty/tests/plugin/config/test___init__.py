@@ -320,8 +320,8 @@ class TestPluginInstanceConfigurationMapping(
         self,
     ) -> ConfigurationCollectionTestBaseSutConfigurationKeys[MachineName]:
         return (
-            DummyPluginOne.id,
-            DummyPluginTwo.id,
+            DummyPluginOne.plugin.id,
+            DummyPluginTwo.plugin.id,
             DummyPluginThree.id,
             DummyPluginFour.id,
         )
@@ -381,24 +381,24 @@ class TestPluginIdentifierKeyConfigurationMapping:
             raise NotImplementedError
 
     def test___contains____with_plugin(self) -> None:
-        item = DummyConfiguration(DummyPluginOne.id)
+        item = DummyConfiguration(DummyPluginOne.plugin.id)
         sut = self._Sut([item])
         assert DummyPluginOne in sut
 
     def test___contains____with_plugin_id(self) -> None:
-        item = DummyConfiguration(DummyPluginOne.id)
+        item = DummyConfiguration(DummyPluginOne.plugin.id)
         sut = self._Sut([item])
-        assert DummyPluginOne.id in sut
+        assert DummyPluginOne.plugin.id in sut
 
     def test___getitem____with_plugin(self) -> None:
-        item = DummyConfiguration(DummyPluginOne.id)
+        item = DummyConfiguration(DummyPluginOne.plugin.id)
         sut = self._Sut([item])
         assert sut[DummyPluginOne] is item
 
     def test___getitem____with_plugin_id(self) -> None:
-        item = DummyConfiguration(DummyPluginOne.id)
+        item = DummyConfiguration(DummyPluginOne.plugin.id)
         sut = self._Sut([item])
-        assert sut[DummyPluginOne.id] is item
+        assert sut[DummyPluginOne.plugin.id] is item
 
 
 class TestPluginInstanceConfigurationSequence(

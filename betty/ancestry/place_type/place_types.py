@@ -12,10 +12,7 @@ from betty.locale.localizable import _
 
 
 @final
-@PlaceTypeDefinition(
-    id="borough",
-    label=_("Borough"),
-)
+@PlaceTypeDefinition("borough", label=_("Borough"))
 class Borough(PlaceType):
     """
     A borough.
@@ -23,10 +20,7 @@ class Borough(PlaceType):
 
 
 @final
-@PlaceTypeDefinition(
-    id="building",
-    label=_("Building"),
-)
+@PlaceTypeDefinition("building", label=_("Building"))
 class Building(PlaceType):
     """
     A building.
@@ -34,10 +28,7 @@ class Building(PlaceType):
 
 
 @final
-@PlaceTypeDefinition(
-    id="cemetery",
-    label=_("Cemetery"),
-)
+@PlaceTypeDefinition("cemetery", label=_("Cemetery"))
 class Cemetery(PlaceType):
     """
     A cemetery.
@@ -45,10 +36,7 @@ class Cemetery(PlaceType):
 
 
 @final
-@PlaceTypeDefinition(
-    id="city",
-    label=_("City"),
-)
+@PlaceTypeDefinition("city", label=_("City"))
 class City(PlaceType):
     """
     A city.
@@ -56,10 +44,7 @@ class City(PlaceType):
 
 
 @final
-@PlaceTypeDefinition(
-    id="country",
-    label=_("Country"),
-)
+@PlaceTypeDefinition("country", label=_("Country"))
 class Country(PlaceType):
     """
     A country.
@@ -67,10 +52,7 @@ class Country(PlaceType):
 
 
 @final
-@PlaceTypeDefinition(
-    id="county",
-    label=_("County"),
-)
+@PlaceTypeDefinition("county", label=_("County"))
 class County(PlaceType):
     """
     A county.
@@ -78,10 +60,7 @@ class County(PlaceType):
 
 
 @final
-@PlaceTypeDefinition(
-    id="department",
-    label=_("Department"),
-)
+@PlaceTypeDefinition("department", label=_("Department"))
 class Department(PlaceType):
     """
     A department.
@@ -89,10 +68,7 @@ class Department(PlaceType):
 
 
 @final
-@PlaceTypeDefinition(
-    id="district",
-    label=_("District"),
-)
+@PlaceTypeDefinition("district", label=_("District"))
 class District(PlaceType):
     """
     A district.
@@ -100,10 +76,7 @@ class District(PlaceType):
 
 
 @final
-@PlaceTypeDefinition(
-    id="farm",
-    label=_("Farm"),
-)
+@PlaceTypeDefinition("farm", label=_("Farm"))
 class Farm(PlaceType):
     """
     A farm.
@@ -111,10 +84,7 @@ class Farm(PlaceType):
 
 
 @final
-@PlaceTypeDefinition(
-    id="hamlet",
-    label=_("Hamlet"),
-)
+@PlaceTypeDefinition("hamlet", label=_("Hamlet"))
 class Hamlet(PlaceType):
     """
     A hamlet.
@@ -122,10 +92,7 @@ class Hamlet(PlaceType):
 
 
 @final
-@PlaceTypeDefinition(
-    id="locality",
-    label=_("Locality"),
-)
+@PlaceTypeDefinition("locality", label=_("Locality"))
 class Locality(PlaceType):
     """
     A locality.
@@ -133,10 +100,7 @@ class Locality(PlaceType):
 
 
 @final
-@PlaceTypeDefinition(
-    id="municipality",
-    label=_("Municipality"),
-)
+@PlaceTypeDefinition("municipality", label=_("Municipality"))
 class Municipality(PlaceType):
     """
     A municipality.
@@ -144,10 +108,7 @@ class Municipality(PlaceType):
 
 
 @final
-@PlaceTypeDefinition(
-    id="neighborhood",
-    label=_("Neighborhood"),
-)
+@PlaceTypeDefinition("neighborhood", label=_("Neighborhood"))
 class Neighborhood(PlaceType):
     """
     A neighborhood.
@@ -155,10 +116,7 @@ class Neighborhood(PlaceType):
 
 
 @final
-@PlaceTypeDefinition(
-    id="number",
-    label=_("Number"),
-)
+@PlaceTypeDefinition("number", label=_("Number"))
 class Number(PlaceType):
     """
     A place number, e.g. a house or flat number.
@@ -166,10 +124,7 @@ class Number(PlaceType):
 
 
 @final
-@PlaceTypeDefinition(
-    id="parish",
-    label=_("Parish"),
-)
+@PlaceTypeDefinition("parish", label=_("Parish"))
 class Parish(PlaceType):
     """
     A parish.
@@ -177,10 +132,7 @@ class Parish(PlaceType):
 
 
 @final
-@PlaceTypeDefinition(
-    id="province",
-    label=_("Province"),
-)
+@PlaceTypeDefinition("province", label=_("Province"))
 class Province(PlaceType):
     """
     A province.
@@ -188,10 +140,7 @@ class Province(PlaceType):
 
 
 @final
-@PlaceTypeDefinition(
-    id="region",
-    label=_("Region"),
-)
+@PlaceTypeDefinition("region", label=_("Region"))
 class Region(PlaceType):
     """
     A region.
@@ -199,10 +148,7 @@ class Region(PlaceType):
 
 
 @final
-@PlaceTypeDefinition(
-    id="state",
-    label=_("State"),
-)
+@PlaceTypeDefinition("state", label=_("State"))
 class State(PlaceType):
     """
     A state.
@@ -210,10 +156,7 @@ class State(PlaceType):
 
 
 @final
-@PlaceTypeDefinition(
-    id="street",
-    label=_("Street"),
-)
+@PlaceTypeDefinition("street", label=_("Street"))
 class Street(PlaceType):
     """
     A street.
@@ -221,10 +164,7 @@ class Street(PlaceType):
 
 
 @final
-@PlaceTypeDefinition(
-    id="town",
-    label=_("Town"),
-)
+@PlaceTypeDefinition("town", label=_("Town"))
 class Town(PlaceType):
     """
     A town.
@@ -232,10 +172,7 @@ class Town(PlaceType):
 
 
 @final
-@PlaceTypeDefinition(
-    id="unknown",
-    label=_("Unknown"),
-)
+@PlaceTypeDefinition("unknown", label=_("Unknown"))
 class Unknown(PlaceType, Singleton):
     """
     A place of an unknown type.
@@ -243,10 +180,7 @@ class Unknown(PlaceType, Singleton):
 
 
 @final
-@PlaceTypeDefinition(
-    id="village",
-    label=_("Village"),
-)
+@PlaceTypeDefinition("village", label=_("Village"))
 class Village(PlaceType):
     """
     A village.

@@ -44,7 +44,7 @@ def resolve_definition(definition):
     Resolve a plugin definition.
     """
     if isinstance(definition, PluginDefinition):
-        return definition  # type: ignore[return-value]
+        return definition
     return definition.plugin
 
 

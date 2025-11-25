@@ -66,11 +66,11 @@ class EventTypeDefinition(
 
     def __init__(
         self,
-        *,
+        *args: Any,
         indicates: ResolvableId[EventTypeDefinition, EventType] | None = None,
         **kwargs: Any,
     ):
-        super().__init__(**kwargs)
+        super().__init__(*args, **kwargs)
         self._indicates = None if indicates is None else resolve_id(indicates)
 
     @property

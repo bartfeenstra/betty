@@ -54,7 +54,7 @@ class PluginTester:
         """
         if not isinstance(value, self._plugin_type.type.cls):
             return False
-        if plugin_id is not None and value.plugin.id != plugin_id:  # type: ignore[attr-defined]
+        if plugin_id is not None and value.plugin.id != plugin_id:
             return False
         return True
 

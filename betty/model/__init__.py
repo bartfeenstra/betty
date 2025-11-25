@@ -150,11 +150,11 @@ class EntityDefinition(CountableHumanFacingPluginDefinition[Entity]):
 
     def __init__(
         self,
-        *,
+        *args: Any,
         public_facing: bool = True,
         **kwargs: Any,
     ):
-        super().__init__(**kwargs)
+        super().__init__(*args, **kwargs)
         self._public_facing = public_facing
 
     @property

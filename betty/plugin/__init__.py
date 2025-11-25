@@ -38,19 +38,20 @@ class Plugin:
 
 
 _PluginT = TypeVar("_PluginT", bound=Plugin, default=Plugin)
+_PluginCoT = TypeVar("_PluginCoT", bound=Plugin, default=Plugin, covariant=True)
 
 
-class PluginDefinition(Generic[_PluginT]):
+class PluginDefinition(Generic[_PluginCoT]):
     """
     A plugin definition.
     """
 
-    type: ClassVar[PluginTypeDefinition[Self]]
+    type: ClassVar[PluginTypeDefinition[PluginDefinition]]
 
     def __init__(
         self,
         id: MachineName,  # noqa A002
-        cls: builtins.type[_PluginT] | None = None,
+        cls: builtins.type[_PluginCoT] | None = None,
         /,
     ):
         if not validate_machine_name(id):  # type: ignore[redundant-expr]
@@ -73,17 +74,17 @@ class PluginDefinition(Generic[_PluginT]):
         return self._id
 
     @property
-    def cls(self) -> type[_PluginT]:
+    def cls(self) -> builtins.type[_PluginCoT]:
         """
         The plugin class.
         """
         assert self._cls is not None
         return self._cls
 
-    def _set_cls(self, cls: type[_PluginT]) -> None:
-        cls.plugin = self  # type: ignore[attr-defined]
+    def _set_cls(self, cls: builtins.type[_PluginCoT]) -> None:
+        cls.plugin = self
 
-    def __call__(self, cls: type[_PluginT]) -> type[_PluginT]:
+    def __call__(self, cls: builtins.type[_PluginCoT]) -> builtins.type[_PluginCoT]:
         """
         Set the plugin's class.
         """

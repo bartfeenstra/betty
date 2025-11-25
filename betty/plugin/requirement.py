@@ -43,9 +43,9 @@ async def new_dependencies_requirement(
     """
     Check a dependent's dependency requirements.
     """
-    if not isinstance(dependent, DependentPluginDefinition):  # type: ignore[redundant-expr]
+    if not isinstance(dependent, DependentPluginDefinition):
         return None
-    plugins_by_id = {plugin.id: plugin for plugin in plugins}  # type: ignore[unreachable]
+    plugins_by_id = {plugin.id: plugin for plugin in plugins}
     try:
         dependencies: MutableSequence[tuple[_PluginDefinitionT, Requirement]] = []
         for dependency_identifier in dependent.depends_on:

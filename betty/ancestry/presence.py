@@ -27,7 +27,7 @@ if TYPE_CHECKING:
 
 @final
 @EntityDefinition(
-    id="presence",
+    "presence",
     label=_("Presence"),
     label_plural=_("Presences"),
     label_countable=ngettext("{count} presence", "{count} presences"),

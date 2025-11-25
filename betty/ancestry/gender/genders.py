@@ -10,10 +10,7 @@ from betty.locale.localizable import _
 
 
 @final
-@GenderDefinition(
-    id="female",
-    label=_("Female"),
-)
+@GenderDefinition("female", label=_("Female"))
 class Female(Gender):
     """
     A female person.
@@ -21,10 +18,7 @@ class Female(Gender):
 
 
 @final
-@GenderDefinition(
-    id="male",
-    label=_("Male"),
-)
+@GenderDefinition("male", label=_("Male"))
 class Male(Gender):
     """
     A male person.
@@ -32,10 +26,7 @@ class Male(Gender):
 
 
 @final
-@GenderDefinition(
-    id="non-binary",
-    label=_("Non-binary"),
-)
+@GenderDefinition("non-binary", label=_("Non-binary"))
 class NonBinary(Gender):
     """
     A non-binary person.
@@ -43,10 +34,7 @@ class NonBinary(Gender):
 
 
 @final
-@GenderDefinition(
-    id="unknown",
-    label=_("Unknown"),
-)
+@GenderDefinition("unknown", label=_("Unknown"))
 class Unknown(Gender, Singleton):
     """
     A person of an unknown gender.

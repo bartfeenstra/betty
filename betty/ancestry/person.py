@@ -39,7 +39,7 @@ if TYPE_CHECKING:
 
 @final
 @EntityDefinition(
-    id="person",
+    "person",
     label=_("Person"),
     label_plural=_("People"),
     label_countable=ngettext("{count} person", "{count} people"),

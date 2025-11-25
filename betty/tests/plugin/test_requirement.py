@@ -165,7 +165,7 @@ class TestCheckRequirementRepository:
         sut = await CheckRequirementRepository.new(
             DummyPluginDefinition, [DummyPluginOne], None
         )
-        assert sut.get(DummyPluginOne.id) is DummyPluginOne
+        assert sut.get(DummyPluginOne.plugin.id) is DummyPluginOne
 
     async def test_get__with_plugin_not_found(self) -> None:
         sut = await CheckRequirementRepository.new(DummyPluginDefinition, [], None)

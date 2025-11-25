@@ -51,7 +51,7 @@ class TestPluginRepository:
 
     def test___getitem__(self) -> None:
         sut = self._Sut(DummyPluginOne)
-        assert sut[DummyPluginOne.id] is DummyPluginOne
+        assert sut[DummyPluginOne.plugin.id] is DummyPluginOne
 
     def test_plugin_id_schema(self) -> None:
         sut = self._Sut(DummyPluginOne, DummyPluginTwo, DummyPluginThree)

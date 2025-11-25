@@ -54,7 +54,7 @@ if TYPE_CHECKING:
 
 @final
 @EntityDefinition(
-    id="event",
+    "event",
     label=_("Event"),
     label_plural=_("Events"),
     label_countable=ngettext("{count} event", "{count} events"),
