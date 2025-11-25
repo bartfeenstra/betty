@@ -12,10 +12,7 @@ for example:
 
    from betty.content_provider import ContentProvider, ContentProviderDefinition
 
-   @ContentProviderDefinition(
-       id="my-content-provider",
-       label=_("My Content Provider"),
-   )
+   @ContentProviderDefinition("my-content-provider", _("My Content Provider"))
    class MyContentProvider(ContentProvider):
        # Implement remaining abstract methods...
        ...

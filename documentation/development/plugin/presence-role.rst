@@ -14,10 +14,7 @@ methods, for example:
 
    from betty.ancestry.presence_role import PresenceRole, PresenceRoleDefinition
 
-   @PresenceRoleDefinition(
-       id="my-presence-role",
-       label=_("My Presence Role"),
-   )
+   @PresenceRoleDefinition("my-presence-role", _("My Presence Role"))
    class MyPresenceRole(PresenceRole):
        pass
 

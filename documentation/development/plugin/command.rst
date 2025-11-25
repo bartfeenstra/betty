@@ -17,10 +17,7 @@ abstract methods, for example:
 
    from betty.console.command import Command, CommandDefinition, CommandFunction
 
-   @CommandDefinition(
-       id="my-command",
-       label=_("My Command"),
-   )
+   @CommandDefinition("my-command", label=_("My Command"))
    class MyCommand(Command):
        @override
        async def configure(

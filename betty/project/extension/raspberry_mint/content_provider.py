@@ -126,10 +126,7 @@ class SectionConfiguration(Configuration):
         return self.heading, self._content
 
 
-@ContentProviderDefinition(
-    id="raspberry-mint-section",
-    label=_("Section"),
-)
+@ContentProviderDefinition("raspberry-mint-section", label=_("Section"))
 class Section(
     Template,
     _Base,
@@ -178,8 +175,7 @@ class Section(
 
 
 @ContentProviderDefinition(
-    id="raspberry-mint-featured-entities",
-    label=_("Featured entities"),
+    "raspberry-mint-featured-entities", label=_("Featured entities")
 )
 class FeaturedEntities(
     Template,
@@ -242,20 +238,14 @@ class FeaturedEntities(
         }
 
 
-@ContentProviderDefinition(
-    id="raspberry-mint-family",
-    label=_("Family"),
-)
+@ContentProviderDefinition("raspberry-mint-family", label=_("Family"))
 class Family(Template, _Base):
     """
     A person's family.
     """
 
 
-@ContentProviderDefinition(
-    id="raspberry-mint-media",
-    label=_("Media gallery"),
-)
+@ContentProviderDefinition("raspberry-mint-media", label=_("Media gallery"))
 class Media(Template):
     """
     Media gallery.
@@ -308,10 +298,7 @@ class ColorStyleConfiguration(Configuration):
         return self.content
 
 
-@ContentProviderDefinition(
-    id="raspberry-mint-color-style",
-    label=_("Color style"),
-)
+@ContentProviderDefinition("raspberry-mint-color-style", label=_("Color style"))
 class ColorStyle(Template, ConfigurationDependentSelfFactory[ColorStyleConfiguration]):
     """
     Change the color style for all containing content.
@@ -357,10 +344,7 @@ class ColorStyle(Template, ConfigurationDependentSelfFactory[ColorStyleConfigura
         }
 
 
-@ContentProviderDefinition(
-    id="raspberry-mint-external-links",
-    label=_("External links"),
-)
+@ContentProviderDefinition("raspberry-mint-external-links", label=_("External links"))
 class ExternalLinks(Template):
     """
     External links.

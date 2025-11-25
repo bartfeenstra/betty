@@ -4,10 +4,10 @@ Jobs.
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, TypeVar
+from typing import TYPE_CHECKING
 
 from mypy.plugins.default import Plugin
-from typing_extensions import override
+from typing_extensions import TypeVar, override
 
 from betty.ancestry.event_type import EventTypeDefinition
 from betty.ancestry.gender import GenderDefinition
@@ -28,16 +28,19 @@ if TYPE_CHECKING:
     from betty.plugin.repository import PluginRepository
     from betty.project.factory import ProjectFactory
 
-_PluginT = TypeVar("_PluginT", bound=Plugin)
+
+_PluginCoT = TypeVar("_PluginCoT", bound=Plugin, default=Plugin, covariant=True)
 
 
 def _new_plugin_instance_factory(
-    configuration: PluginInstanceConfiguration[PluginDefinition[_PluginT], _PluginT],
-    repository: PluginRepository[PluginDefinition[_PluginT]],
+    configuration: PluginInstanceConfiguration[
+        PluginDefinition[_PluginCoT], _PluginCoT
+    ],
+    repository: PluginRepository[PluginDefinition[_PluginCoT]],
     *,
     factory: ProjectFactory,
-) -> Callable[[], Awaitable[_PluginT]]:
-    async def plugin_instance_factory() -> _PluginT:
+) -> Callable[[], Awaitable[_PluginCoT]]:
+    async def plugin_instance_factory() -> _PluginCoT:
         return await configuration.new_plugin_instance(repository, factory=factory)
 
     return plugin_instance_factory

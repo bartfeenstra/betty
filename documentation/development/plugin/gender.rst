@@ -12,10 +12,7 @@ example:
 
    from betty.ancestry.gender import Gender, GenderDefinition
 
-   @GenderDefinition(
-       id="my-gender",
-       label=_("My Gender"),
-   )
+   @GenderDefinition("my-gender", _("My Gender"))
      class MyGender(Gender):
          pass
 

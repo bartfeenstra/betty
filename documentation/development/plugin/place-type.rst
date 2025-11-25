@@ -14,10 +14,7 @@ example:
 
    from betty.ancestry.place_type import PlaceType, PlaceTypeDefinition
 
-   @PlaceTypeDefinition(
-       id="my-place-type",
-       label=_("My Place Type"),
-   )
+   @PlaceTypeDefinition("my-place-type", _("My Place Type"))
    class MyPlaceType(PlaceType):
        pass
 

@@ -11,10 +11,7 @@ Create a new class that extends :py:class:`betty.license.License` and implements
 
    from betty.license import License, LicenseDefinition
 
-   @LicenseDefinition(
-       id="my-license",
-       label=_("My License"),
-   )
+   @LicenseDefinition("my-license", _("My License"))
    class MyLicense(License):
        # Implement remaining abstract methods...
        ...

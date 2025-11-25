@@ -14,7 +14,7 @@ abstract methods, for example:
 
    from betty.http_client.rate_limit import RateLimit, RateLimitDefinition
 
-   @RateLimitDefinition(id="my-rate-limit")
+   @RateLimitDefinition("my-rate-limit")
    class MyRateLimit(RateLimit):
        # Implement remaining abstract methods...
        ...

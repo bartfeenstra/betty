@@ -7,8 +7,7 @@ from betty.content_provider.content_providers import Template
 
 
 @ContentProviderDefinition(
-    id="-demo-front-page-content",
-    label="Demo site front page content (private)",
+    "-demo-front-page-content", label="Demo site front page content (private)"
 )
 class _FrontPageContent(Template):
     pass

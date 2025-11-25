@@ -12,10 +12,7 @@ from betty.requirement import HasRequirement, Requirement
 from betty.service.level import ServiceLevel
 
 
-@ContentProviderDefinition(
-    id="wiki-wikipedia-summary",
-    label=_("Wikipedia summary"),
-)
+@ContentProviderDefinition("wiki-wikipedia-summary", label=_("Wikipedia summary"))
 class WikipediaSummary(Template, HasRequirement):
     """
     A Wikipedia summary.

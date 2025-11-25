@@ -15,10 +15,7 @@ example:
 
    from betty.project.extension import Extension, ExtensionDefinition
 
-   @ExtensionDefinition(
-       id="my-extension",
-       label=_("My Extension"),
-   )
+   @ExtensionDefinition("my-extension", _("My Extension"))
    class MyExtension(Extension):
        pass
 

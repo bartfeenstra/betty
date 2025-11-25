@@ -13,10 +13,7 @@ Create a new class that extends :py:class:`betty.render.Renderer` and implements
 
    from betty.render import Renderer, RendererDefinition
 
-   @RendererDefinition(
-       id="my-renderer",
-       label=_("My Renderer"),
-   )
+   @RendererDefinition("my-renderer", _("My Renderer"))
    class MyRenderer(Renderer):
        # Implement remaining abstract methods...
        ...

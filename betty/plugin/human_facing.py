@@ -74,7 +74,7 @@ class HumanFacingPluginDefinition(PluginDefinition[_PluginT]):
         return self._description
 
 
-class CountableHumanFacingPluginDefinition(HumanFacingPluginDefinition):
+class CountableHumanFacingPluginDefinition(HumanFacingPluginDefinition[_PluginT]):
     """
     A definition of a plugin that is human-facing, and of which instances are countable.
     """

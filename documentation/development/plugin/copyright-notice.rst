@@ -12,10 +12,7 @@ for example:
 
    from betty.copyright import CopyrightNotice, CopyrightNoticeDefinition
 
-   @CopyrightNoticeDefinition(
-       id="my-copyright-notice",
-       label=_("My Copyright Notice"),
-   )
+   @CopyrightNoticeDefinition("my-copyright-notice", _("My Copyright Notice"))
    class MyCopyrightNotice(CopyrightNotice):
        # Implement remaining abstract methods...
        ...

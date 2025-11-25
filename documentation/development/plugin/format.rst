@@ -13,10 +13,7 @@ Create a new class that extends :py:class:`betty.serde.format.Format` and implem
 
    from betty.serde.format import Format, FormatDefinition
 
-   @FormatDefinition(
-       id="my-format",
-       label=_("My Format"),
-   )
+   @FormatDefinition("my-format", _("My Format"))
    class MyFormat(Format, Plugin):
        # Implement remaining abstract methods...
        ...

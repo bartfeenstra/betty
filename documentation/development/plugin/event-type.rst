@@ -13,10 +13,7 @@ example:
 
    from betty.ancestry.event_type import EventType, EventTypeDefinition
 
-   @EventTypeDefinition(
-       id="my-event-type",
-       label=_("My Event Type"),
-   )
+   @EventTypeDefinition("my-event-type", _("My Event Type"))
    class MyEventType(EventType):
        pass
 

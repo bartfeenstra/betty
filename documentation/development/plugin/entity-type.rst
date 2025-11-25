@@ -14,10 +14,7 @@ Create a new class that extends :py:class:`betty.model.Entity` and implements th
 
    from betty.model import Entity, EntityDefinition
 
-   @EntityDefinition(
-       id="my-entity",
-       label=_("My Entity"),
-   )
+   @EntityDefinition("my-entity", _("My Entity"))
    class MyEntity(Entity):
        # Implement remaining abstract methods...
        ...

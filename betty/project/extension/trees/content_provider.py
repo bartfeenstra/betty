@@ -12,10 +12,7 @@ from betty.requirement import HasRequirement, Requirement
 from betty.service.level import ServiceLevel
 
 
-@ContentProviderDefinition(
-    id="trees-tree",
-    label=_("Family tree"),
-)
+@ContentProviderDefinition("trees-tree", label=_("Family tree"))
 class Tree(Template, HasRequirement):
     """
     An interactive family tree.
