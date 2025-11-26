@@ -10,9 +10,7 @@ from betty.media_type.media_types import PLAIN_TEXT
 from betty.render import Renderer, RendererPlugin
 
 
-@RendererPlugin(
-    id="plain-text",
-)
+@RendererPlugin("plain-text")
 class PlainText(Renderer):
     """
     Render plain text to HTML.

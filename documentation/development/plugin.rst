@@ -55,8 +55,8 @@ A plugin definition class must subclass :py:class:`betty.plugin.PluginDefinition
 
      class MyFirstPluginDefinition(PluginDefinition):
         type: ClassVar[PluginTypeDefinition] = PluginTypeDefinition(
-            id="my-first-plugin-type",
-            Label=_("My First Plugin Type"),
+            "my-first-plugin-type",
+            _("My First Plugin Type"),
         )
 
 This creates a new plugin type, for which plugins are defined using ``MyFirstPluginDefinition``, and only have an ID.

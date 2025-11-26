@@ -15,7 +15,7 @@ if TYPE_CHECKING:
 
 
 @EntityPlugin(
-    id="dummy-has-notes",
+    "dummy-has-notes",
     label="",
     label_plural="",
     label_countable=CountablePlain("", ""),

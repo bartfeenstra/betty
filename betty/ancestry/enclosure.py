@@ -18,7 +18,7 @@ if TYPE_CHECKING:
 
 @final
 @EntityPlugin(
-    id="enclosure",
+    "enclosure",
     label=_("Enclosure"),
     label_plural=_("Enclosures"),
     label_countable=ngettext("{count} enclosure", "{count} enclosures"),

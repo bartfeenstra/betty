@@ -33,8 +33,8 @@ class GenderPlugin(HumanFacingPluginDefinition[Gender]):
 
     plugin_type_cls = Gender
     type = PluginTypeDefinition(
-        id="gender",
-        label=_("Gender"),
+        "gender",
+        _("Gender"),
         discoveries=[
             EntryPointDiscovery("betty.gender"),
             ProjectDiscovery(

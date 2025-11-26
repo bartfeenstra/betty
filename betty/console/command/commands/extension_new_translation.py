@@ -21,8 +21,7 @@ if TYPE_CHECKING:
 
 @final
 @CommandPlugin(
-    id="extension-new-translation",
-    label=_("Create a new translation for an extension"),
+    "extension-new-translation", label=_("Create a new translation for an extension")
 )
 class ExtensionNewTranslation(AppDependentSelfFactory, Command):
     """

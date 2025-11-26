@@ -14,9 +14,7 @@ from betty.test_utils.project.extension import DummyExtensionOne
 
 
 @ExtensionPlugin(
-    id="dummy-with-assets-directory",
-    label="",
-    assets_directory_path=Path(__file__),
+    "dummy-with-assets-directory", label="", assets_directory_path=Path(__file__)
 )
 class _DummyExtensionWithAssetsDirectory(Extension):
     pass

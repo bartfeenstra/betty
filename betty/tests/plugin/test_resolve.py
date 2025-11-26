@@ -10,12 +10,9 @@ def test_resolve_definition__with_plugin_cls() -> None:
 
     class _PluginDefinition(PluginDefinition):
         plugin_type_cls = _PluginCls
-        type = PluginTypeDefinition(
-            id="-",
-            label="",
-        )
+        type = PluginTypeDefinition("-", "")
 
-    @_PluginDefinition(id=plugin_id)
+    @_PluginDefinition(plugin_id)
     class _Plugin(_PluginCls, Plugin):
         pass
 
@@ -23,7 +20,7 @@ def test_resolve_definition__with_plugin_cls() -> None:
 
 
 def test_resolve_definition__with_plugin_definition() -> None:
-    definition = PluginDefinition(id="my-first-plugin-id")
+    definition = PluginDefinition("my-first-plugin-id")
     assert resolve_definition(definition) is definition
 
 
@@ -35,12 +32,9 @@ def test_resolve_id__with_plugin_cls() -> None:
 
     class _PluginDefinition(PluginDefinition):
         plugin_type_cls = _PluginCls
-        type = PluginTypeDefinition(
-            id="-",
-            label="",
-        )
+        type = PluginTypeDefinition("-", "")
 
-    @_PluginDefinition(id=plugin_id)
+    @_PluginDefinition(plugin_id)
     class _Plugin(_PluginCls, Plugin):
         pass
 
@@ -49,7 +43,7 @@ def test_resolve_id__with_plugin_cls() -> None:
 
 def test_resolve_id__with_plugin_definition() -> None:
     plugin_id = "my-first-plugin-id"
-    assert resolve_id(PluginDefinition(id=plugin_id)) == plugin_id
+    assert resolve_id(PluginDefinition(plugin_id)) == plugin_id
 
 
 def test_resolve_id__with_plugin_id() -> None:

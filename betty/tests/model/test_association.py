@@ -166,7 +166,7 @@ class TestAssociationRegistry:
 
 class TestUnidirectionalToZeroOrOne:
     @EntityPlugin(
-        id="owner",
+        "owner",
         label="",
         label_plural="",
         label_countable=CountablePlain("", ""),
@@ -191,7 +191,7 @@ class TestUnidirectionalToZeroOrOne:
         )
 
     @EntityPlugin(
-        id="owner-embedded",
+        "owner-embedded",
         label="",
         label_plural="",
         label_countable=CountablePlain("", ""),
@@ -214,7 +214,7 @@ class TestUnidirectionalToZeroOrOne:
         )
 
     @EntityPlugin(
-        id="owner-with-non-public-facing-associate",
+        "owner-with-non-public-facing-associate",
         label="",
         label_plural="",
         label_countable=CountablePlain("", ""),
@@ -238,7 +238,7 @@ class TestUnidirectionalToZeroOrOne:
         )
 
     @EntityPlugin(
-        id="associate",
+        "associate",
         label="",
         label_plural="",
         label_countable=CountablePlain("", ""),
@@ -247,7 +247,7 @@ class TestUnidirectionalToZeroOrOne:
         pass
 
     @EntityPlugin(
-        id="non-public-facing-associate",
+        "non-public-facing-associate",
         label="",
         label_plural="",
         label_countable=CountablePlain("", ""),
@@ -362,7 +362,7 @@ class TestUnidirectionalToZeroOrOne:
 
 class TestBidirectionalToZeroOrOne:
     @EntityPlugin(
-        id="owner",
+        "owner",
         label="",
         label_plural="",
         label_countable=CountablePlain("", ""),
@@ -388,7 +388,7 @@ class TestBidirectionalToZeroOrOne:
         )
 
     @EntityPlugin(
-        id="owner-embedded",
+        "owner-embedded",
         label="",
         label_plural="",
         label_countable=CountablePlain("", ""),
@@ -413,7 +413,7 @@ class TestBidirectionalToZeroOrOne:
         )
 
     @EntityPlugin(
-        id="owner-with-non-public-facing-associate",
+        "owner-with-non-public-facing-associate",
         label="",
         label_plural="",
         label_countable=CountablePlain("", ""),
@@ -438,7 +438,7 @@ class TestBidirectionalToZeroOrOne:
         )
 
     @EntityPlugin(
-        id="associate",
+        "associate",
         label="",
         label_plural="",
         label_countable=CountablePlain("", ""),
@@ -455,7 +455,7 @@ class TestBidirectionalToZeroOrOne:
         )
 
     @EntityPlugin(
-        id="non-public-facing-associate",
+        "non-public-facing-associate",
         label="",
         label_plural="",
         label_countable=CountablePlain("", ""),
@@ -584,7 +584,7 @@ class TestBidirectionalToZeroOrOne:
 
 class TestUnidirectionalToOne:
     @EntityPlugin(
-        id="owner",
+        "owner",
         label="",
         label_plural="",
         label_countable=CountablePlain("", ""),
@@ -605,7 +605,7 @@ class TestUnidirectionalToOne:
         )
 
     @EntityPlugin(
-        id="owner-embedded",
+        "owner-embedded",
         label="",
         label_plural="",
         label_countable=CountablePlain("", ""),
@@ -626,7 +626,7 @@ class TestUnidirectionalToOne:
         )
 
     @EntityPlugin(
-        id="owner-with-non-public-facing-associate",
+        "owner-with-non-public-facing-associate",
         label="",
         label_plural="",
         label_countable=CountablePlain("", ""),
@@ -648,7 +648,7 @@ class TestUnidirectionalToOne:
         )
 
     @EntityPlugin(
-        id="associate",
+        "associate",
         label="",
         label_plural="",
         label_countable=CountablePlain("", ""),
@@ -657,7 +657,7 @@ class TestUnidirectionalToOne:
         pass
 
     @EntityPlugin(
-        id="non-public-facing-associate",
+        "non-public-facing-associate",
         label="",
         label_plural="",
         label_countable=CountablePlain("", ""),
@@ -733,7 +733,7 @@ class TestUnidirectionalToOne:
 
 class TestBidirectionalToOne:
     @EntityPlugin(
-        id="owner",
+        "owner",
         label="",
         label_plural="",
         label_countable=CountablePlain("", ""),
@@ -755,7 +755,7 @@ class TestBidirectionalToOne:
         )
 
     @EntityPlugin(
-        id="associate",
+        "associate",
         label="",
         label_plural="",
         label_countable=CountablePlain("", ""),
@@ -771,7 +771,7 @@ class TestBidirectionalToOne:
         )
 
     @EntityPlugin(
-        id="owner-embedded",
+        "owner-embedded",
         label="",
         label_plural="",
         label_countable=CountablePlain("", ""),
@@ -793,7 +793,7 @@ class TestBidirectionalToOne:
         )
 
     @EntityPlugin(
-        id="associate-embedded",
+        "associate-embedded",
         label="",
         label_plural="",
         label_countable=CountablePlain("", ""),
@@ -810,7 +810,7 @@ class TestBidirectionalToOne:
         )
 
     @EntityPlugin(
-        id="owner-with-non-public-facing-associate",
+        "owner-with-non-public-facing-associate",
         label="",
         label_plural="",
         label_countable=CountablePlain("", ""),
@@ -831,7 +831,7 @@ class TestBidirectionalToOne:
         )
 
     @EntityPlugin(
-        id="non-public-facing-associate",
+        "non-public-facing-associate",
         label="",
         label_plural="",
         label_countable=CountablePlain("", ""),
@@ -917,7 +917,7 @@ class TestBidirectionalToOne:
 
 class TestUnidirectionalToManySingleType:
     @EntityPlugin(
-        id="owner",
+        "owner",
         label="",
         label_plural="",
         label_countable=CountablePlain("", ""),
@@ -933,7 +933,7 @@ class TestUnidirectionalToManySingleType:
         )
 
     @EntityPlugin(
-        id="owner-embedded",
+        "owner-embedded",
         label="",
         label_plural="",
         label_countable=CountablePlain("", ""),
@@ -950,7 +950,7 @@ class TestUnidirectionalToManySingleType:
         )
 
     @EntityPlugin(
-        id="associate",
+        "associate",
         label="",
         label_plural="",
         label_countable=CountablePlain("", ""),
@@ -959,7 +959,7 @@ class TestUnidirectionalToManySingleType:
         pass
 
     @EntityPlugin(
-        id="non-public-facing-associate",
+        "non-public-facing-associate",
         label="",
         label_plural="",
         label_countable=CountablePlain("", ""),
@@ -1103,7 +1103,7 @@ class TestUnidirectionalToManyMultipleTypes:
 
 class TestBidirectionalToManySingleType:
     @EntityPlugin(
-        id="owner",
+        "owner",
         label="",
         label_plural="",
         label_countable=CountablePlain("", ""),
@@ -1120,7 +1120,7 @@ class TestBidirectionalToManySingleType:
         )
 
     @EntityPlugin(
-        id="associate",
+        "associate",
         label="",
         label_plural="",
         label_countable=CountablePlain("", ""),
@@ -1137,7 +1137,7 @@ class TestBidirectionalToManySingleType:
         )
 
     @EntityPlugin(
-        id="owner-embedded",
+        "owner-embedded",
         label="",
         label_plural="",
         label_countable=CountablePlain("", ""),
@@ -1155,7 +1155,7 @@ class TestBidirectionalToManySingleType:
         )
 
     @EntityPlugin(
-        id="associate-embedded",
+        "associate-embedded",
         label="",
         label_plural="",
         label_countable=CountablePlain("", ""),
@@ -1172,7 +1172,7 @@ class TestBidirectionalToManySingleType:
         )
 
     @EntityPlugin(
-        id="non-public-facing-associate-embedded",
+        "non-public-facing-associate-embedded",
         label="",
         label_plural="",
         label_countable=CountablePlain("", ""),
@@ -1182,7 +1182,7 @@ class TestBidirectionalToManySingleType:
         pass
 
     @EntityPlugin(
-        id="owner-with-non-public-facing-associate",
+        "owner-with-non-public-facing-associate",
         label="",
         label_plural="",
         label_countable=CountablePlain("", ""),
@@ -1199,7 +1199,7 @@ class TestBidirectionalToManySingleType:
         )
 
     @EntityPlugin(
-        id="non-public-facing-associate",
+        "non-public-facing-associate",
         label="",
         label_plural="",
         label_countable=CountablePlain("", ""),

@@ -20,7 +20,7 @@ if TYPE_CHECKING:
 
 @final
 @ExtensionPlugin(
-    id="privatizer",
+    "privatizer",
     label="Privatizer",
     description=_(
         "Determine if people can be proven to have died. If not, mark them and their associated entities private."

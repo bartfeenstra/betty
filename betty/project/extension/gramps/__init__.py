@@ -24,7 +24,7 @@ if TYPE_CHECKING:
 
 @final
 @ExtensionPlugin(
-    id="gramps",
+    "gramps",
     label="Gramps",
     description=_("Load Gramps family trees."),
 )

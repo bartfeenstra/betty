@@ -33,8 +33,8 @@ class PresenceRolePlugin(HumanFacingPluginDefinition[PresenceRole]):
 
     plugin_type_cls = PresenceRole
     type = PluginTypeDefinition(
-        id="presence-role",
-        label=_("Presence role"),
+        "presence-role",
+        _("Presence role"),
         discoveries=[
             EntryPointDiscovery("betty.presence_role"),
             ProjectDiscovery(

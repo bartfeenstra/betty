@@ -29,11 +29,16 @@ class DependentPluginDefinition(OrderedPluginDefinition[_PluginT]):
 
     def __init__(
         self,
+        plugin_id: MachineName,
         *,
+        comes_before: Set[ResolvableId] | None = None,
+        comes_after: Set[ResolvableId] | None = None,
         depends_on: Set[ResolvableId] | None = None,
         **kwargs: Any,
     ):
-        super().__init__(**kwargs)
+        super().__init__(
+            plugin_id, comes_before=comes_before, comes_after=comes_after, **kwargs
+        )
         self._depends_on = (
             set()
             if depends_on is None

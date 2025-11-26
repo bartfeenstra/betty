@@ -17,7 +17,7 @@ if TYPE_CHECKING:
 
 @final
 @CommandPlugin(
-    id="dev-update-translations",
+    "dev-update-translations",
     label=_("Update all existing translations for Betty itself"),
 )
 class DevUpdateTranslations(AppDependentSelfFactory, Command):

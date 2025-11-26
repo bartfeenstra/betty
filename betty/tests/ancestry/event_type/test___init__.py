@@ -17,7 +17,7 @@ class TestEventTypePlugin(PluginDefinitionClassTestBase):
 
     def test_indicates(self) -> None:
         indicates = "my-other-event-type"
-        sut = EventTypePlugin(indicates=indicates, id="-", label="")
+        sut = EventTypePlugin("-", indicates=indicates, label="")
         assert sut.indicates == indicates
 
 

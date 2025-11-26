@@ -33,8 +33,8 @@ class PlaceTypePlugin(HumanFacingPluginDefinition[PlaceType]):
 
     plugin_type_cls = PlaceType
     type = PluginTypeDefinition(
-        id="place-type",
-        label=_("Place type"),
+        "place-type",
+        _("Place type"),
         discoveries=[
             EntryPointDiscovery("betty.place_type"),
             ProjectDiscovery(

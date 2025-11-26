@@ -13,7 +13,7 @@ from betty.wiki.client import Summary
 
 
 @EntityPlugin(
-    id="dummy-has-links",
+    "dummy-has-links",
     label="",
     label_plural="",
     label_countable=CountablePlain("", ""),

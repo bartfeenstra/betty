@@ -49,14 +49,10 @@ class PluginDefinition(Generic[_PluginCoT]):
 
     type: ClassVar[PluginTypeDefinition]
 
-    def __init__(
-        self,
-        *,
-        id: MachineName,  # noqa A002
-    ):
-        if not validate_machine_name(id):  # type: ignore[redundant-expr]
-            raise InvalidMachineName(id)
-        self._id = id
+    def __init__(self, plugin_id: MachineName, /):
+        if not validate_machine_name(plugin_id):  # type: ignore[redundant-expr]
+            raise InvalidMachineName(plugin_id)
+        self._id = plugin_id
         self._cls: type[_PluginCoT] | None = None
 
     @property
@@ -127,9 +123,9 @@ class PluginTypeDefinition(Generic[_PluginDefinitionT]):
 
     def __init__(
         self,
-        *,
         id: MachineName,  # noqa A002
         label: LocalizableLike,
+        *,
         discoveries: Collection[PluginDiscovery[_PluginDefinitionT]]
         | PluginDiscovery[_PluginDefinitionT]
         | None = None,

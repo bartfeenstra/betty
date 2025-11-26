@@ -25,10 +25,7 @@ from betty.user import User
 
 
 @final
-@LicensePlugin(
-    id="all-rights-reserved",
-    label=_("All rights reserved"),
-)
+@LicensePlugin("all-rights-reserved", label=_("All rights reserved"))
 class AllRightsReserved(License):
     """
     A license that does not permit the public any rights.
@@ -48,10 +45,7 @@ class AllRightsReserved(License):
 
 
 @final
-@LicensePlugin(
-    id="public-domain",
-    label=_("Public domain"),
-)
+@LicensePlugin("public-domain", label=_("Public domain"))
 class PublicDomain(License):
     """
     A work is in the `public domain <https://en.wikipedia.org/wiki/Public_domain>`.
@@ -174,8 +168,7 @@ class SpdxLicenseBuilder:
             assert isinstance(license_text, str)
 
             @LicensePlugin(
-                id=spdx_license_id_to_license_id(license_id),
-                label=license_name,
+                spdx_license_id_to_license_id(license_id), label=license_name
             )
             class _SpdxLicense(License):
                 @override

@@ -23,7 +23,7 @@ if TYPE_CHECKING:
 
 @final
 @ExtensionPlugin(
-    id="trees",
+    "trees",
     label="Trees",
     description=_(
         'Display interactive family trees using <a href="https://cytoscape.org/">Cytoscape</a>.'

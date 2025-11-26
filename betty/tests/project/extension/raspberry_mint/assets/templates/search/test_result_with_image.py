@@ -14,7 +14,7 @@ from betty.test_utils.jinja2 import assert_template_file
 
 
 @EntityPlugin(
-    id="dummy-has-file-references",
+    "dummy-has-file-references",
     label="",
     label_plural="",
     label_countable=CountablePlain("", ""),

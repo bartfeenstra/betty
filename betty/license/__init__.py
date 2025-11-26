@@ -62,8 +62,8 @@ class LicensePlugin(HumanFacingPluginDefinition[License]):
 
     plugin_type_cls = License
     type = PluginTypeDefinition(
-        id="license",
-        label=_("License"),
+        "license",
+        _("License"),
         discoveries=[
             EntryPointDiscovery("betty.license"),
             AppDiscovery(lambda app: app._spdx_license_repository),

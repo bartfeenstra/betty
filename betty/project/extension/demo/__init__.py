@@ -62,7 +62,7 @@ async def generate_with_cleanup(
 
 @final
 @ExtensionPlugin(
-    id="demo",
+    "demo",
     label="Demo",
     depends_on={
         Deriver,

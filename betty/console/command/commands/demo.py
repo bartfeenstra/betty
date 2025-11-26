@@ -21,10 +21,7 @@ if TYPE_CHECKING:
 
 
 @final
-@CommandPlugin(
-    id="demo",
-    label=_("Explore a demonstration site"),
-)
+@CommandPlugin("demo", label=_("Explore a demonstration site"))
 class Demo(AppDependentSelfFactory, Command):
     """
     A command to run the demonstration site.

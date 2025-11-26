@@ -47,8 +47,8 @@ class RendererPlugin(PluginDefinition[Renderer]):
 
     plugin_type_cls = Renderer
     type = PluginTypeDefinition(
-        id="renderer",
-        label=_("Renderer"),
+        "renderer",
+        _("Renderer"),
         discoveries=EntryPointDiscovery("betty.renderer"),
     )
 

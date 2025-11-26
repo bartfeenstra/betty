@@ -15,10 +15,7 @@ from betty.project.extension.webpack.build import Builder, EntryPointProvider
 from betty.test_utils.user import StaticUser
 
 
-@ExtensionPlugin(
-    id="dummy",
-    label="",
-)
+@ExtensionPlugin("dummy", label="")
 class DummyEntryPointProviderExtension(EntryPointProvider, Extension):
     @override
     @classmethod

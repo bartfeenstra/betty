@@ -43,7 +43,7 @@ class EntityPluginTestBase(CountableHumanFacingPluginDefinitionTestBase):
 
 @final
 @EntityPlugin(
-    id="dummy-one",
+    "dummy-one",
     label="Dummy (one)",
     label_plural="Dummies (one)",
     label_countable=CountablePlain("{count} dummy (one)", "{count} dummies (one)"),
@@ -56,7 +56,7 @@ class DummyEntityOne(Entity):
 
 @final
 @EntityPlugin(
-    id="dummy",
+    "dummy",
     label="Dummy (two)",
     label_plural="Dummies (two)",
     label_countable=CountablePlain("{count} dummy (two)", "{count} dummies (two)"),
@@ -69,7 +69,7 @@ class DummyEntityTwo(Entity):
 
 @final
 @EntityPlugin(
-    id="dummy-non-public-facing-one",
+    "dummy-non-public-facing-one",
     label="Dummy non-public-facing (two)",
     label_plural="Dummies non-public-facing (two)",
     label_countable=CountablePlain(

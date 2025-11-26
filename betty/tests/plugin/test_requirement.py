@@ -29,29 +29,23 @@ class HasRequirementPlugin(HasRequirement, Plugin):
 
 class HasRequirementPluginDefinition(DependentPluginDefinition):
     plugin_type_cls = DummyPlugin
-    type = PluginTypeDefinition(
-        id="-",
-        label="HasRequirement",
-    )
+    type = PluginTypeDefinition("-", "HasRequirement")
 
 
 @HasRequirementPluginDefinition(
-    id="upstream-without-requirements",
-    depends_on={"downstream-without-requirements"},
+    "upstream-without-requirements", depends_on={"downstream-without-requirements"}
 )
 class UpstreamWithoutRequirements(HasRequirementPlugin):
     pass
 
 
-@HasRequirementPluginDefinition(
-    id="downstream-without-requirements",
-)
+@HasRequirementPluginDefinition("downstream-without-requirements")
 class DownstreamWithoutRequirements(HasRequirementPlugin):
     pass
 
 
 @HasRequirementPluginDefinition(
-    id="upstream-with-unmet-requirements",
+    "upstream-with-unmet-requirements",
     depends_on={"downstream-with-unmet-requirements"},
 )
 class UpstreamWithUnmetRequirements(HasRequirementPlugin):
@@ -64,9 +58,7 @@ class UpstreamWithUnmetRequirements(HasRequirementPlugin):
         )
 
 
-@HasRequirementPluginDefinition(
-    id="downstream-with-unmet-requirements",
-)
+@HasRequirementPluginDefinition("downstream-with-unmet-requirements")
 class DownstreamWithUnmetRequirements(HasRequirementPlugin):
     @override
     @classmethod
@@ -78,16 +70,13 @@ class DownstreamWithUnmetRequirements(HasRequirementPlugin):
 
 
 @HasRequirementPluginDefinition(
-    id="upstream-with-met-requirements",
-    depends_on={"downstream-with-met-requirements"},
+    "upstream-with-met-requirements", depends_on={"downstream-with-met-requirements"}
 )
 class UpstreamWithMetRequirements(HasRequirementPlugin):
     pass
 
 
-@HasRequirementPluginDefinition(
-    id="downstream-with-met-requirements",
-)
+@HasRequirementPluginDefinition("downstream-with-met-requirements")
 class DownstreamWithMetRequirements(HasRequirementPlugin):
     pass
 
@@ -154,9 +143,7 @@ async def test_get_requirement__without_has_requirement() -> None:
 
 
 async def test_get_requirement__without_requirement() -> None:
-    @DummyPluginDefinition(
-        id="-",
-    )
+    @DummyPluginDefinition("-")
     class _Plugin(HasRequirement, DummyPlugin):
         pass
 
@@ -166,9 +153,7 @@ async def test_get_requirement__without_requirement() -> None:
 async def test_get_requirement__with_requirement() -> None:
     requirement = StaticRequirement("")
 
-    @DummyPluginDefinition(
-        id="-",
-    )
+    @DummyPluginDefinition("-")
     class _Plugin(HasRequirement, DummyPlugin):
         @override
         @classmethod

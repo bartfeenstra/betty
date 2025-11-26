@@ -56,10 +56,7 @@ class PlainTextConfiguration(Configuration):
         }
 
 
-@ContentProviderPlugin(
-    id="plain-text",
-    label=_("Plain text"),
-)
+@ContentProviderPlugin("plain-text", label=_("Plain text"))
 class PlainText(
     ContentProvider,
     Plugin,
@@ -125,10 +122,7 @@ class Template(ContentProvider, Plugin, ProjectDependentSelfFactory):
         return {}
 
 
-@ContentProviderPlugin(
-    id="notes",
-    label=_("Notes"),
-)
+@ContentProviderPlugin("notes", label=_("Notes"))
 class Notes(Template):
     """
     Render a page resource's notes, if it has any.

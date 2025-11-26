@@ -19,7 +19,7 @@ if TYPE_CHECKING:
 
 @final
 @CommandPlugin(
-    id="serve",
+    "serve",
     label=_("Serve a generated site"),
     description=_("This will open your web browser."),
 )

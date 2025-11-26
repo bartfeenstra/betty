@@ -19,10 +19,7 @@ if TYPE_CHECKING:
 
 
 @final
-@CommandPlugin(
-    id="config",
-    label=_("Configure Betty"),
-)
+@CommandPlugin("config", label=_("Configure Betty"))
 class Config(AppDependentSelfFactory, Command):
     """
     A command to manage Betty application configuration.

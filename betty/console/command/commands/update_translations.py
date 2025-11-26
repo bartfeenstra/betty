@@ -25,10 +25,7 @@ if TYPE_CHECKING:
 
 
 @final
-@CommandPlugin(
-    id="update-translations",
-    label=_("Update all existing translations"),
-)
+@CommandPlugin("update-translations", label=_("Update all existing translations"))
 class UpdateTranslations(AppDependentSelfFactory, Command):
     """
     A command to update all of a project's translations.

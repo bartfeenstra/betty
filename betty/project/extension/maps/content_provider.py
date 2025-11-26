@@ -16,10 +16,7 @@ from betty.resource import Context as ResourceContext
 from betty.service.level import ServiceLevel
 
 
-@ContentProviderPlugin(
-    id="maps-map",
-    label=_("Map"),
-)
+@ContentProviderPlugin("maps-map", label=_("Map"))
 class Map(Template, HasRequirement):
     """
     An interactive map.

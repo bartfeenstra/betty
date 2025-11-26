@@ -95,7 +95,7 @@ class RateLimitPlugin(OrderedPluginDefinition[RateLimit]):
 
     plugin_type_cls = RateLimit
     type = PluginTypeDefinition(
-        id="http-rate-limit",
-        label=_("HTTP client rate limit"),
+        "http-rate-limit",
+        _("HTTP client rate limit"),
         discoveries=EntryPointDiscovery("betty.http_rate_limit"),
     )

@@ -370,7 +370,7 @@ class CopyrightNoticePluginConfigurationMapping(
         self, configuration: CopyrightNoticePluginConfiguration, /
     ) -> CopyrightNoticePlugin:
         @CopyrightNoticePlugin(
-            id=configuration.id,
+            configuration.id,
             label=configuration.label,
             description=configuration.description,
         )
@@ -445,7 +445,7 @@ class LicensePluginConfigurationMapping(
         self, configuration: LicensePluginConfiguration, /
     ) -> LicensePlugin:
         @LicensePlugin(
-            id=configuration.id,
+            configuration.id,
             label=configuration.label,
             description=configuration.description,
         )
@@ -489,7 +489,7 @@ class EventTypePluginConfigurationMapping(
         self, configuration: EventTypePluginConfiguration, /
     ) -> EventTypePlugin:
         @EventTypePlugin(
-            id=configuration.id,
+            configuration.id,
             label=configuration.label,
             description=configuration.description,
         )
@@ -523,7 +523,7 @@ class PlaceTypePluginConfigurationMapping(
         self, configuration: PlaceTypePluginConfiguration, /
     ) -> PlaceTypePlugin:
         @PlaceTypePlugin(
-            id=configuration.id,
+            configuration.id,
             label=configuration.label,
             description=configuration.description,
         )
@@ -559,7 +559,7 @@ class PresenceRolePluginConfigurationMapping(
         self, configuration: PresenceRolePluginConfiguration, /
     ) -> PresenceRolePlugin:
         @PresenceRolePlugin(
-            id=configuration.id,
+            configuration.id,
             label=configuration.label,
             description=configuration.description,
         )
@@ -591,7 +591,7 @@ class GenderPluginConfigurationMapping(
     @override
     def _new_plugin(self, configuration: GenderPluginConfiguration, /) -> GenderPlugin:
         @GenderPlugin(
-            id=configuration.id,
+            configuration.id,
             label=configuration.label,
             description=configuration.description,
         )

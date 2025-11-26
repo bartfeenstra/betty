@@ -39,7 +39,7 @@ if TYPE_CHECKING:
 
 @final
 @ExtensionPlugin(
-    id="raspberry-mint",
+    "raspberry-mint",
     label="Raspberry Mint",
     depends_on={Webpack},
     comes_before={

@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Any, ClassVar, Self, TypeVar, final
+from typing import TYPE_CHECKING, ClassVar, Self, TypeVar, final
 
 from typing_extensions import override
 
@@ -11,14 +11,16 @@ from betty.plugin import Plugin, PluginTypeDefinition
 from betty.plugin.dependent import DependentPluginDefinition
 from betty.plugin.discovery.entry_point import EntryPointDiscovery
 from betty.plugin.human_facing import HumanFacingPluginDefinition
-from betty.plugin.ordered import OrderedPluginDefinition
 from betty.plugin.requirement import new_dependencies_requirement
 from betty.requirement import HasRequirement, Requirement, StaticRequirement
 from betty.service.container import ServiceContainer
 
 if TYPE_CHECKING:
+    from collections.abc import Set
     from pathlib import Path
 
+    from betty.machine_name import MachineName
+    from betty.plugin.resolve import ResolvableId
     from betty.service.level import ServiceLevel
 
 
@@ -73,9 +75,7 @@ _ExtensionT = TypeVar("_ExtensionT", bound=Extension)
 
 @final
 class ExtensionPlugin(
-    HumanFacingPluginDefinition[Extension],
-    DependentPluginDefinition[Extension],
-    OrderedPluginDefinition[Extension],
+    HumanFacingPluginDefinition[Extension], DependentPluginDefinition[Extension]
 ):
     """
     An extension definition.
@@ -83,19 +83,31 @@ class ExtensionPlugin(
 
     plugin_type_cls = Extension
     type = PluginTypeDefinition(
-        id="extension",
-        label=_("Extension"),
+        "extension",
+        _("Extension"),
         discoveries=EntryPointDiscovery("betty.extension"),
     )
 
     def __init__(
         self,
+        plugin_id: MachineName,
         *,
+        label: LocalizableLike,
+        description: LocalizableLike | None = None,
+        comes_before: Set[ResolvableId] | None = None,
+        comes_after: Set[ResolvableId] | None = None,
+        depends_on: Set[ResolvableId] | None = None,
         assets_directory_path: Path | None = None,
         theme: bool = False,
-        **kwargs: Any,
     ):
-        super().__init__(**kwargs)
+        super().__init__(
+            plugin_id,
+            label=label,
+            description=description,
+            comes_before=comes_before,
+            comes_after=comes_after,
+            depends_on=depends_on,
+        )
         self._assets_directory_path = assets_directory_path
         self._theme = theme
 

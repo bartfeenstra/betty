@@ -31,12 +31,12 @@ if TYPE_CHECKING:
 class TestOrderedPluginDefinition:
     def test_comes_before(self) -> None:
         comes_before = {"comes-before"}
-        sut = OrderedPluginDefinition(comes_before=comes_before, id="my-first-plugin")
+        sut = OrderedPluginDefinition("my-first-plugin", comes_before=comes_before)
         assert sut.comes_before == comes_before
 
     def test_comes_after(self) -> None:
         comes_after = {"comes-after"}
-        sut = OrderedPluginDefinition(comes_after=comes_after, id="my-first-plugin")
+        sut = OrderedPluginDefinition("my-first-plugin", comes_after=comes_after)
         assert sut.comes_after == comes_after
 
 

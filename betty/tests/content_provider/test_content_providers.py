@@ -128,7 +128,7 @@ class TestTemplate:
             async with aiofiles.open(template_file_path, "w") as f:
                 await f.write(template)
 
-            @ContentProviderPlugin(id="my-first-template", label="")
+            @ContentProviderPlugin("my-first-template", label="")
             class _Jinja2TemplateContentProvider(Template):
                 pass
 

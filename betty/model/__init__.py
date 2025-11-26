@@ -13,7 +13,12 @@ from betty.json.linked_data import (
     LinkedDataDumpableWithSchemaJsonLdObject,
 )
 from betty.json.schema import JsonSchemaReference, String
-from betty.locale.localizable import Localizable, _
+from betty.locale.localizable import (
+    CountableLocalizable,
+    Localizable,
+    LocalizableLike,
+    _,
+)
 from betty.locale.localizer import DEFAULT_LOCALIZER
 from betty.mutability import Mutable
 from betty.plugin import Plugin, PluginTypeDefinition
@@ -24,6 +29,7 @@ from betty.string import kebab_case_to_lower_camel_case
 if TYPE_CHECKING:
     import builtins
 
+    from betty.machine_name import MachineName
     from betty.project import Project
     from betty.serde.dump import Dump, DumpMapping
 
@@ -143,18 +149,28 @@ class EntityPlugin(CountableHumanFacingPluginDefinition[Entity]):
 
     plugin_type_cls = Entity
     type = PluginTypeDefinition(
-        id="entity",
-        label=_("Entity"),
+        "entity",
+        _("Entity"),
         discoveries=EntryPointDiscovery("betty.entity_type"),
     )
 
     def __init__(
         self,
+        plugin_id: MachineName,
         *,
+        label: LocalizableLike,
+        label_plural: LocalizableLike,
+        label_countable: CountableLocalizable,
+        description: LocalizableLike | None = None,
         public_facing: bool = True,
-        **kwargs: Any,
     ):
-        super().__init__(**kwargs)
+        super().__init__(
+            plugin_id,
+            label=label,
+            label_plural=label_plural,
+            label_countable=label_countable,
+            description=description,
+        )
         self._public_facing = public_facing
 
     @property

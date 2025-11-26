@@ -19,10 +19,7 @@ from betty.test_utils.console import run
 from betty.user import Verbosity
 
 
-@CommandPlugin(
-    id="no-op",
-    label="No-op",
-)
+@CommandPlugin("no-op", label="No-op")
 class _NoOpCommand(Command):
     @override
     async def configure(
@@ -35,10 +32,7 @@ class _NoOpCommand(Command):
 
 
 def _create_raising_command(exception: BaseException) -> CommandPlugin:
-    @CommandPlugin(
-        id="raising",
-        label="Raising",
-    )
+    @CommandPlugin("raising", label="Raising")
     class _RaisingCommand(Command):
         @override
         async def configure(

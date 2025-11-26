@@ -95,8 +95,8 @@ class ConfigurableDummyPluginDefinition(PluginDefinition):
 
     plugin_type_cls = ConfigurableDummyPlugin
     type = PluginTypeDefinition(
-        id="configurable-dummy-plugin",
-        label="Configurable dummy plugin",
+        "configurable-dummy-plugin",
+        "Configurable dummy plugin",
         discoveries=CallbackDiscovery(
             lambda: [
                 ConfigurableDummyPluginOne.plugin,
@@ -106,9 +106,7 @@ class ConfigurableDummyPluginDefinition(PluginDefinition):
 
 
 @final
-@ConfigurableDummyPluginDefinition(
-    id="configurable-dummy-plugin-one",
-)
+@ConfigurableDummyPluginDefinition("configurable-dummy-plugin-one")
 class ConfigurableDummyPluginOne(ConfigurableDummyPlugin):
     """
     A configurable dummy plugin (one).

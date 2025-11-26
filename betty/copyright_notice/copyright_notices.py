@@ -13,10 +13,7 @@ from betty.project.factory import ProjectDependentSelfFactory
 
 
 @final
-@CopyrightNoticePlugin(
-    id="project-author",
-    label=_("Project author"),
-)
+@CopyrightNoticePlugin("project-author", label=_("Project author"))
 class ProjectAuthor(ProjectDependentSelfFactory, CopyrightNotice):
     """
     Copyright belonging to a project author.
@@ -47,10 +44,7 @@ class ProjectAuthor(ProjectDependentSelfFactory, CopyrightNotice):
 
 
 @final
-@CopyrightNoticePlugin(
-    id="public-domain",
-    label=_("Public domain"),
-)
+@CopyrightNoticePlugin("public-domain", label=_("Public domain"))
 class PublicDomain(CopyrightNotice):
     """
     A work is in the `public domain <https://en.wikipedia.org/wiki/Public_domain>`.

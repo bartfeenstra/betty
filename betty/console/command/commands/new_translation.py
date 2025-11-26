@@ -20,10 +20,7 @@ if TYPE_CHECKING:
 
 
 @final
-@CommandPlugin(
-    id="new-translation",
-    label=_("Create a new translation"),
-)
+@CommandPlugin("new-translation", label=_("Create a new translation"))
 class NewTranslation(AppDependentSelfFactory, Command):
     """
     A command to create a new translation for a project.

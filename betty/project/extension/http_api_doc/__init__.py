@@ -19,7 +19,7 @@ if TYPE_CHECKING:
 
 @final
 @ExtensionPlugin(
-    id="http-api-doc",
+    "http-api-doc",
     label="HTTP API Documentation",
     description=_(
         "Display the HTTP API documentation in a user-friendly way using Swagger UI."

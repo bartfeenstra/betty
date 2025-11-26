@@ -32,7 +32,7 @@ class TestCitationDefinition(EntityPluginTestBase):
 
 
 @EntityPlugin(
-    id="dummy-has-citations",
+    "dummy-has-citations",
     label="",
     label_plural="",
     label_countable=CountablePlain("", ""),
