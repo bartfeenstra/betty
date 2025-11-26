@@ -6,9 +6,9 @@ from __future__ import annotations
 
 from abc import abstractmethod
 from collections.abc import Mapping, Sequence
-from typing import TYPE_CHECKING, Any, Generic, TypeVar, cast
+from typing import TYPE_CHECKING, Any, Generic, cast
 
-from typing_extensions import override
+from typing_extensions import TypeVar, override
 
 from betty.assertion import (
     OptionalField,
@@ -54,22 +54,20 @@ _PluginDefinitionT = TypeVar("_PluginDefinitionT", bound=PluginDefinition)
 
 
 class PluginIdentifierKeyConfigurationMapping(
-    ConfigurationMapping[MachineName, _ConfigurationT],
-    Generic[_PluginDefinitionT, _ConfigurationT],
+    ConfigurationMapping[
+        MachineName, ResolvableId[_PluginDefinitionT, _PluginT], _ConfigurationT
+    ],
+    Generic[_PluginDefinitionT, _PluginT, _ConfigurationT],
 ):
     """
     A mapping of configuration, keyed by a plugin identifier.
     """
 
     @override
-    def __getitem__(
-        self, configuration_key: ResolvableId[_PluginDefinitionT]
-    ) -> _ConfigurationT:
-        return super().__getitem__(resolve_id(configuration_key))
-
-    @override
-    def __contains__(self, configuration_key: ResolvableId[_PluginDefinitionT]) -> bool:
-        return super().__contains__(resolve_id(configuration_key))
+    def _resolve_key(
+        self, configuration_key: ResolvableId[_PluginDefinitionT, Plugin], /
+    ) -> MachineName:
+        return resolve_id(configuration_key)
 
 
 class PluginDefinitionConfiguration(Configuration):
@@ -159,12 +157,20 @@ _PluginConfigurationT = TypeVar(
 
 
 class PluginDefinitionConfigurationMapping(
-    ConfigurationMapping[MachineName, _PluginConfigurationT],
-    Generic[_PluginDefinitionT, _PluginConfigurationT],
+    ConfigurationMapping[
+        MachineName, ResolvableId[_PluginDefinitionT, _PluginT], _PluginConfigurationT
+    ],
+    Generic[_PluginDefinitionT, _PluginT, _PluginConfigurationT],
 ):
     """
     Configure a collection of plugins.
     """
+
+    @override
+    def _resolve_key(
+        self, configuration_key: ResolvableId[_PluginDefinitionT, _PluginT], /
+    ) -> MachineName:
+        return resolve_id(configuration_key)
 
     def new_plugins(self) -> Sequence[_PluginDefinitionT]:
         """
@@ -209,7 +215,7 @@ class PluginInstanceConfiguration(Generic[_PluginDefinitionT, _PluginT], Configu
 
     def __init__(
         self,
-        plugin: ResolvableId[_PluginDefinitionT, _PluginT & Plugin],
+        plugin: ResolvableId[_PluginDefinitionT, _PluginT],
         configuration: Voidable[Configuration | Dump] = Void(),  # noqa B008
         /,
     ):
@@ -297,6 +303,7 @@ class PluginInstanceConfiguration(Generic[_PluginDefinitionT, _PluginT], Configu
 class PluginInstanceConfigurationMapping(
     PluginIdentifierKeyConfigurationMapping[
         _PluginDefinitionT,
+        _PluginT,
         PluginInstanceConfiguration[_PluginDefinitionT, _PluginT],
     ],
     Generic[_PluginDefinitionT, _PluginT],

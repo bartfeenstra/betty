@@ -3,20 +3,21 @@ Provide static plugin management.
 """
 
 from collections.abc import Iterator
-from typing import TypeVar, final
+from typing import final
 
-from typing_extensions import override
+from typing_extensions import TypeVar, override
 
 from betty.plugin import Plugin, PluginDefinition
 from betty.plugin.error import PluginNotFound
 from betty.plugin.repository import PluginRepository
 from betty.plugin.resolve import ResolvableId, resolve_id
 
+_PluginT = TypeVar("_PluginT", bound=Plugin, default=Plugin)
 _PluginDefinitionT = TypeVar("_PluginDefinitionT", bound=PluginDefinition)
 
 
 @final
-class StaticPluginRepository(PluginRepository[_PluginDefinitionT]):
+class StaticPluginRepository(PluginRepository[_PluginDefinitionT, _PluginT]):
     """
     A repository that is given a static collection of plugins, and exposes those.
     """
@@ -31,7 +32,7 @@ class StaticPluginRepository(PluginRepository[_PluginDefinitionT]):
 
     @override
     def get(
-        self, plugin_id: ResolvableId[_PluginDefinitionT, Plugin], /
+        self, plugin_id: ResolvableId[_PluginDefinitionT, _PluginT], /
     ) -> _PluginDefinitionT:
         plugin_id = resolve_id(plugin_id)
         try:

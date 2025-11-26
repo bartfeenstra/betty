@@ -12,16 +12,9 @@ from collections.abc import (
     MutableMapping,
     MutableSequence,
 )
-from typing import (
-    TYPE_CHECKING,
-    Any,
-    Generic,
-    SupportsIndex,
-    TypeAlias,
-    TypeVar,
-)
+from typing import TYPE_CHECKING, Any, Generic, SupportsIndex, TypeAlias
 
-from typing_extensions import override
+from typing_extensions import TypeVar, override
 
 from betty.config import Configuration
 
@@ -31,10 +24,12 @@ if TYPE_CHECKING:
 _ConfigurationT = TypeVar("_ConfigurationT", bound=Configuration)
 ConfigurationKey: TypeAlias = SupportsIndex | Hashable | type[Any]
 _ConfigurationKeyT = TypeVar("_ConfigurationKeyT", bound=ConfigurationKey)
+_ResolvableConfigurationKeyT = TypeVar("_ResolvableConfigurationKeyT")
 
 
 class ConfigurationCollection(
-    Configuration, Generic[_ConfigurationKeyT, _ConfigurationT]
+    Configuration,
+    Generic[_ConfigurationKeyT, _ResolvableConfigurationKeyT, _ConfigurationT],
 ):
     """
     Any collection of :py:class:`betty.config.Configuration` values.
@@ -53,14 +48,28 @@ class ConfigurationCollection(
             self.append(*configurations)
 
     @abstractmethod
-    def __iter__(self) -> Iterator[_ConfigurationKeyT] | Iterator[_ConfigurationT]:
+    def _resolve_key(
+        self, configuration_key: _ConfigurationKeyT | _ResolvableConfigurationKeyT, /
+    ) -> _ConfigurationKeyT:
+        """
+        Resolve a configuration key.
+        """
+
+    @abstractmethod
+    def __iter__(
+        self,
+    ) -> Iterator[_ConfigurationKeyT] | Iterator[_ConfigurationT]:
         pass
 
     @abstractmethod
-    def __getitem__(self, configuration_key: _ConfigurationKeyT) -> _ConfigurationT:
+    def __getitem__(
+        self, configuration_key: _ConfigurationKeyT | _ResolvableConfigurationKeyT
+    ) -> _ConfigurationT:
         pass
 
-    def __delitem__(self, configuration_key: _ConfigurationKeyT) -> None:
+    def __delitem__(
+        self, configuration_key: _ConfigurationKeyT | _ResolvableConfigurationKeyT
+    ) -> None:
         self.remove(configuration_key)
 
     def __len__(self) -> int:
@@ -72,12 +81,16 @@ class ConfigurationCollection(
         Replace any existing values with the given ones.
         """
 
-    def remove(self, *configuration_keys: _ConfigurationKeyT) -> None:
+    def remove(
+        self, *configuration_keys: _ConfigurationKeyT | _ResolvableConfigurationKeyT
+    ) -> None:
         """
         Remove the given keys from the collection.
         """
         self.assert_mutable()
         for configuration_key in configuration_keys:
+            configuration_key = self._resolve_key(configuration_key)
+            configuration_key = self._resolve_key(configuration_key)
             try:
                 configuration = self._configurations[configuration_key]  # type: ignore[call-overload]
             except LookupError:

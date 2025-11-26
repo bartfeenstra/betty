@@ -166,7 +166,9 @@ class EntityTypeConfiguration(Configuration):
 
 @final
 class EntityTypeConfigurationMapping(
-    PluginIdentifierKeyConfigurationMapping[EntityPlugin, EntityTypeConfiguration]
+    PluginIdentifierKeyConfigurationMapping[
+        EntityPlugin, Entity, EntityTypeConfiguration
+    ]
 ):
     """
     Configure the entity types for a project.
@@ -261,7 +263,9 @@ class LocaleConfiguration(Configuration):
 
 
 @final
-class LocaleConfigurationMapping(OrderedConfigurationMapping[str, LocaleConfiguration]):
+class LocaleConfigurationMapping(
+    OrderedConfigurationMapping[str, str, LocaleConfiguration]
+):
     """
     Configure a project's locales.
     """
@@ -269,6 +273,10 @@ class LocaleConfigurationMapping(OrderedConfigurationMapping[str, LocaleConfigur
     def __init__(self, configurations: Iterable[LocaleConfiguration] | None = None, /):
         super().__init__(configurations)
         self._ensure_locale()
+
+    @override
+    def _resolve_key(self, configuration_key: str, /) -> str:
+        return configuration_key
 
     @override
     def _post_remove(self, configuration: LocaleConfiguration, /) -> None:
@@ -352,7 +360,7 @@ class CopyrightNoticePluginConfiguration(HumanFacingPluginDefinitionConfiguratio
 
 class CopyrightNoticePluginConfigurationMapping(
     PluginDefinitionConfigurationMapping[
-        CopyrightNoticePlugin, CopyrightNoticePluginConfiguration
+        CopyrightNoticePlugin, CopyrightNotice, CopyrightNoticePluginConfiguration
     ]
 ):
     """
@@ -428,7 +436,9 @@ class LicensePluginConfiguration(HumanFacingPluginDefinitionConfiguration):
 
 
 class LicensePluginConfigurationMapping(
-    PluginDefinitionConfigurationMapping[LicensePlugin, LicensePluginConfiguration]
+    PluginDefinitionConfigurationMapping[
+        LicensePlugin, License, LicensePluginConfiguration
+    ]
 ):
     """
     A configuration mapping for licenses.
@@ -472,7 +482,9 @@ class EventTypePluginConfiguration(
 
 
 class EventTypePluginConfigurationMapping(
-    PluginDefinitionConfigurationMapping[EventTypePlugin, EventTypePluginConfiguration]
+    PluginDefinitionConfigurationMapping[
+        EventTypePlugin, EventType, EventTypePluginConfiguration
+    ]
 ):
     """
     A configuration mapping for event types.
@@ -506,7 +518,9 @@ class PlaceTypePluginConfiguration(HumanFacingPluginDefinitionConfiguration):
 
 
 class PlaceTypePluginConfigurationMapping(
-    PluginDefinitionConfigurationMapping[PlaceTypePlugin, PlaceTypePluginConfiguration]
+    PluginDefinitionConfigurationMapping[
+        PlaceTypePlugin, PlaceType, PlaceTypePluginConfiguration
+    ]
 ):
     """
     A configuration mapping for place types.
@@ -541,7 +555,7 @@ class PresenceRolePluginConfiguration(HumanFacingPluginDefinitionConfiguration):
 
 class PresenceRolePluginConfigurationMapping(
     PluginDefinitionConfigurationMapping[
-        PresenceRolePlugin, PresenceRolePluginConfiguration
+        PresenceRolePlugin, PresenceRole, PresenceRolePluginConfiguration
     ]
 ):
     """
@@ -576,7 +590,9 @@ class GenderPluginConfiguration(HumanFacingPluginDefinitionConfiguration):
 
 
 class GenderPluginConfigurationMapping(
-    PluginDefinitionConfigurationMapping[GenderPlugin, GenderPluginConfiguration]
+    PluginDefinitionConfigurationMapping[
+        GenderPlugin, Gender, GenderPluginConfiguration
+    ]
 ):
     """
     A configuration mapping for genders.

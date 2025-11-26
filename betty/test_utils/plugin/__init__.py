@@ -84,7 +84,7 @@ class DummyPlugin(Plugin):
     plugin: ClassVar[DummyPluginDefinition]
 
 
-class DummyPluginDefinition(PluginDefinition):
+class DummyPluginDefinition(PluginDefinition[DummyPlugin]):
     """
     A definition of a dummy plugin.
     """

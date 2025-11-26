@@ -10,7 +10,7 @@ from typing_extensions import TypeVar
 
 from betty.exception import HumanFacingException
 from betty.locale.localizable import Paragraph, _, do_you_mean
-from betty.plugin import PluginDefinition, PluginTypeDefinition
+from betty.plugin import Plugin, PluginDefinition, PluginTypeDefinition
 from betty.plugin.resolve import (
     ResolvableDefinition,
     ResolvableId,
@@ -52,7 +52,7 @@ class PluginNotFound(PluginUnavailable):
         self,
         plugin_type: PluginTypeDefinition[_PluginDefinitionT],
         plugin_not_found: MachineName,
-        available_plugins: Sequence[ResolvableId[_PluginDefinitionT]],
+        available_plugins: Sequence[ResolvableId[_PluginDefinitionT, Plugin]],
         /,
     ):
         super().__init__(

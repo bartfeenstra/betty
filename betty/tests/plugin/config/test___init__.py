@@ -19,6 +19,7 @@ from betty.plugin.config import (
     PluginInstanceConfigurationSequence,
 )
 from betty.plugin.repository.static import StaticPluginRepository
+from betty.plugin.resolve import ResolvableId
 from betty.serde.dump import Dump
 from betty.test_utils.config import DummyConfiguration
 from betty.test_utils.config.collections import (
@@ -311,6 +312,7 @@ class TestPluginInstanceConfiguration:
 class TestPluginInstanceConfigurationMapping(
     ConfigurationMappingTestBase[
         MachineName,
+        ResolvableId[DummyPluginDefinition, DummyPlugin],
         PluginInstanceConfiguration[DummyPluginDefinition, DummyPlugin],
     ]
 ):
@@ -333,6 +335,7 @@ class TestPluginInstanceConfigurationMapping(
     ) -> ConfigurationCollectionTestBaseNewSut[
         PluginInstanceConfiguration[DummyPluginDefinition, DummyPlugin],
         MachineName,
+        ResolvableId[DummyPluginDefinition, DummyPlugin],
     ]:
         return PluginInstanceConfigurationMapping
 
@@ -357,7 +360,7 @@ class TestPluginInstanceConfigurationMapping(
 class TestPluginIdentifierKeyConfigurationMapping:
     class _Sut(
         PluginIdentifierKeyConfigurationMapping[
-            DummyPluginDefinition, DummyConfiguration
+            DummyPluginDefinition, DummyPlugin, DummyConfiguration
         ]
     ):
         @override
@@ -411,8 +414,7 @@ class TestPluginInstanceConfigurationSequence(
     def new_sut(
         self,
     ) -> ConfigurationCollectionTestBaseNewSut[
-        PluginInstanceConfiguration[DummyPluginDefinition, DummyPlugin],
-        int,
+        PluginInstanceConfiguration[DummyPluginDefinition, DummyPlugin], int, int
     ]:
         return PluginInstanceConfigurationSequence
 

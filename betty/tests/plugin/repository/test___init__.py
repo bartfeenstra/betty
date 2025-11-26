@@ -8,6 +8,7 @@ from betty.plugin.error import PluginNotFound
 from betty.plugin.repository import PluginRepository
 from betty.plugin.resolve import resolve_id
 from betty.test_utils.plugin import (
+    DummyPlugin,
     DummyPluginDefinition,
     DummyPluginOne,
     DummyPluginThree,
@@ -21,14 +22,14 @@ if TYPE_CHECKING:
 
 
 class TestPluginRepository:
-    class _Sut(PluginRepository[DummyPluginDefinition]):
+    class _Sut(PluginRepository[DummyPluginDefinition, DummyPlugin]):
         def __init__(self, *plugins: DummyPluginDefinition):
             super().__init__(DummyPluginDefinition)
             self._plugins = {plugin.id: plugin for plugin in plugins}
 
         @override
         def get(
-            self, plugin_id: ResolvableId[DummyPluginDefinition], /
+            self, plugin_id: ResolvableId[DummyPluginDefinition, DummyPlugin], /
         ) -> DummyPluginDefinition:
             plugin_id = resolve_id(plugin_id)
             try:

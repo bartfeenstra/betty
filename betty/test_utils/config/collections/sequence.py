@@ -21,7 +21,7 @@ _ConfigurationT = TypeVar("_ConfigurationT", bound=Configuration)
 
 
 class ConfigurationSequenceTestBase(
-    ConfigurationCollectionTestBase[int, _ConfigurationT], Generic[_ConfigurationT]
+    ConfigurationCollectionTestBase[int, int, _ConfigurationT], Generic[_ConfigurationT]
 ):
     """
     A base class for testing :py:class:`betty.config.collections.sequence.ConfigurationSequence` implementations.
@@ -37,7 +37,7 @@ class ConfigurationSequenceTestBase(
     @override
     def test___iter__(  # type: ignore[override]
         self,
-        new_sut: ConfigurationCollectionTestBaseNewSut[_ConfigurationT, int],
+        new_sut: ConfigurationCollectionTestBaseNewSut[_ConfigurationT, int, int],
         sut_configurations: ConfigurationCollectionTestBaseSutConfigurations[
             _ConfigurationT
         ],
@@ -52,7 +52,7 @@ class ConfigurationSequenceTestBase(
 
     def test___contains__(
         self,
-        new_sut: ConfigurationCollectionTestBaseNewSut[_ConfigurationT, int],
+        new_sut: ConfigurationCollectionTestBaseNewSut[_ConfigurationT, int, int],
         sut_configurations: ConfigurationCollectionTestBaseSutConfigurations[
             _ConfigurationT
         ],
