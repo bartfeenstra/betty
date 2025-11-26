@@ -109,6 +109,7 @@ betty = 'betty.console:main_standalone'
 'update-translations' = 'betty.console.command.commands.update_translations:UpdateTranslations'
 
 [project.entry-points.'betty.dev.command']
+'dev-profile-demo' = 'betty.console.command.commands.dev_profile_demo:DevProfileDemo'
 'dev-update-translations' = 'betty.console.command.commands.dev_update_translations:DevUpdateTranslations'
 
 [project.entry-points.'betty.copyright_notice']
@@ -272,6 +273,7 @@ test = [
 ]
 development = [
     'pytest-repeat ~= 0.9.4',
+    'yappi ~= 1.7',
     'betty[test]',
 ]
 ci = [

@@ -43,6 +43,7 @@ class MissingReason(Enum):
     Reasons why test coverage is missing.
     """
 
+    DEVELOPMENT = "This testable is for Betty development purposes only"
     ABSTRACT = "This testable is abstract"
     INTERNAL = "This testable is internal to Betty itself"
     SHOULD_BE_COVERED = "This testable should be covered by a test but isn't yet"
@@ -96,6 +97,7 @@ _BASELINE: Mapping[str, _ModuleIgnore] = {
     "betty/console/command/__init__.py": {
         "Command": MissingReason.SHOULD_BE_COVERED,
     },
+    "betty/console/command/commands/dev_profile_demo.py": MissingReason.DEVELOPMENT,
     "betty/console/project.py": {
         "ConfigurationFileNotFound": MissingReason.STATIC_CONTENT_ONLY,
     },
