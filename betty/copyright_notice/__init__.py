@@ -61,8 +61,8 @@ class CopyrightNoticePlugin(HumanFacingPluginDefinition[CopyrightNotice]):
 
     plugin_type_cls = CopyrightNotice
     type = PluginTypeDefinition(
-        id="copyright-notice",
-        label=_("Copyright notice"),
+        "copyright-notice",
+        _("Copyright notice"),
         discoveries=[
             EntryPointDiscovery("betty.copyright_notice"),
             ProjectDiscovery(

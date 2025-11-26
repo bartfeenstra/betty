@@ -16,10 +16,7 @@ if TYPE_CHECKING:
 
 
 @final
-@CommandPlugin(
-    id="new",
-    label=_("Create a new project"),
-)
+@CommandPlugin("new", label=_("Create a new project"))
 class New(AppDependentSelfFactory, Command):
     """
     A command to create a new project.

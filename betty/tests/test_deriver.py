@@ -32,47 +32,32 @@ NewProject: TypeAlias = Callable[
 
 
 @final
-@EventTypePlugin(
-    id="isolated",
-    label="",
-)
+@EventTypePlugin("isolated", label="")
 class Isolated(EventType):
     pass
 
 
 @final
-@EventTypePlugin(
-    id="comes-before-reference",
-    label="",
-)
+@EventTypePlugin("comes-before-reference", label="")
 class ComesBeforeReference(EventType):
     pass
 
 
 @final
-@EventTypePlugin(
-    id="comes-after-reference",
-    label="",
-)
+@EventTypePlugin("comes-after-reference", label="")
 class ComesAfterReference(EventType):
     pass
 
 
 @final
-@EventTypePlugin(
-    id="comes-before",
-    label="",
-    comes_before={ComesBeforeReference.plugin},
-)
+@EventTypePlugin("comes-before", label="", comes_before={ComesBeforeReference.plugin})
 class ComesBefore(EventType):
     pass
 
 
 @final
 @EventTypePlugin(
-    id="comes-before-should-exist",
-    label="",
-    comes_before={ComesBeforeReference.plugin},
+    "comes-before-should-exist", label="", comes_before={ComesBeforeReference.plugin}
 )
 class ComesBeforeShouldExist(ShouldExistEventType):
     @override
@@ -83,7 +68,7 @@ class ComesBeforeShouldExist(ShouldExistEventType):
 
 @final
 @EventTypePlugin(
-    id="comes-before-should-not-exist",
+    "comes-before-should-not-exist",
     label="",
     comes_before={ComesBeforeReference.plugin},
 )
@@ -96,7 +81,7 @@ class ComesBeforeShouldNotExist(ShouldExistEventType):
 
 @final
 @EventTypePlugin(
-    id="comes-before-and-after",
+    "comes-before-and-after",
     label="",
     comes_before={ComesBeforeReference.plugin},
     comes_after={ComesAfterReference.plugin},
@@ -107,7 +92,7 @@ class ComesBeforeAndAfter(EventType):
 
 @final
 @EventTypePlugin(
-    id="comes-before-and-after-should-exist",
+    "comes-before-and-after-should-exist",
     label="",
     comes_before={ComesBeforeReference.plugin},
     comes_after={ComesAfterReference.plugin},
@@ -121,7 +106,7 @@ class ComesBeforeAndAfterShouldExist(ShouldExistEventType):
 
 @final
 @EventTypePlugin(
-    id="comes-before-and-after-should-not-exist",
+    "comes-before-and-after-should-not-exist",
     label="",
     comes_before={ComesBeforeReference.plugin},
     comes_after={ComesAfterReference.plugin},
@@ -134,20 +119,14 @@ class ComesBeforeAndAfterShouldNotExist(ShouldExistEventType):
 
 
 @final
-@EventTypePlugin(
-    id="comes-after",
-    label="",
-    comes_after={ComesAfterReference.plugin},
-)
+@EventTypePlugin("comes-after", label="", comes_after={ComesAfterReference.plugin})
 class ComesAfter(EventType):
     pass
 
 
 @final
 @EventTypePlugin(
-    id="comes-after-should-exist",
-    label="",
-    comes_after={ComesAfterReference.plugin},
+    "comes-after-should-exist", label="", comes_after={ComesAfterReference.plugin}
 )
 class ComesAfterShouldExist(ShouldExistEventType):
     @override
@@ -158,9 +137,7 @@ class ComesAfterShouldExist(ShouldExistEventType):
 
 @final
 @EventTypePlugin(
-    id="comes-after-should-not-exist",
-    label="",
-    comes_after={ComesAfterReference.plugin},
+    "comes-after-should-not-exist", label="", comes_after={ComesAfterReference.plugin}
 )
 class ComesAfterShouldNotExist(ShouldExistEventType):
     @override

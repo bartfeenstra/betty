@@ -12,15 +12,12 @@ class ExtensionTranslationTestBase:
     async def temporary_app_with_extensions(
         self, tmp_path: Path, temporary_app: App
     ) -> AsyncIterator[App]:
-        @ExtensionPlugin(
-            id="dummy-without-assets",
-            label="Dummy without assets",
-        )
+        @ExtensionPlugin("dummy-without-assets", label="Dummy without assets")
         class _DummyWithoutAssetsDirectoryExtension(Extension):
             pass
 
         @ExtensionPlugin(
-            id="dummy-with-assets",
+            "dummy-with-assets",
             label="Dummy with assets",
             assets_directory_path=tmp_path / "assets",
         )

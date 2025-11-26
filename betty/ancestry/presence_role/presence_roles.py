@@ -10,10 +10,7 @@ from betty.locale.localizable import _
 
 
 @final
-@PresenceRolePlugin(
-    id="attendee",
-    label=_("Attendee"),
-)
+@PresenceRolePlugin("attendee", label=_("Attendee"))
 class Attendee(PresenceRole):
     """
     Someone attended the event (further details unknown).
@@ -21,10 +18,7 @@ class Attendee(PresenceRole):
 
 
 @final
-@PresenceRolePlugin(
-    id="beneficiary",
-    label=_("Beneficiary"),
-)
+@PresenceRolePlugin("beneficiary", label=_("Beneficiary"))
 class Beneficiary(PresenceRole):
     """
     Someone was a `benificiary <https://en.wikipedia.org/wiki/Beneficiary>`_ in the event, such as a :py:class:`betty.ancestry.event_type.event_types.Will`.
@@ -32,10 +26,7 @@ class Beneficiary(PresenceRole):
 
 
 @final
-@PresenceRolePlugin(
-    id="celebrant",
-    label=_("Celebrant"),
-)
+@PresenceRolePlugin("celebrant", label=_("Celebrant"))
 class Celebrant(PresenceRole):
     """
     Someone was the `celebrant <https://en.wikipedia.org/wiki/Officiant>`_ at the event.
@@ -49,10 +40,7 @@ class Celebrant(PresenceRole):
 
 
 @final
-@PresenceRolePlugin(
-    id="informant",
-    label=_("Informant"),
-)
+@PresenceRolePlugin("informant", label=_("Informant"))
 class Informant(PresenceRole):
     """
     Someone was the informant of an event, e.g. they reported it with a record-keeping institution.
@@ -60,10 +48,7 @@ class Informant(PresenceRole):
 
 
 @final
-@PresenceRolePlugin(
-    id="organizer",
-    label=_("Organizer"),
-)
+@PresenceRolePlugin("organizer", label=_("Organizer"))
 class Organizer(PresenceRole):
     """
     Someone organized the event.
@@ -71,10 +56,7 @@ class Organizer(PresenceRole):
 
 
 @final
-@PresenceRolePlugin(
-    id="speaker",
-    label=_("Speaker"),
-)
+@PresenceRolePlugin("speaker", label=_("Speaker"))
 class Speaker(PresenceRole):
     """
     Someone performed public speaking at the event.
@@ -82,10 +64,7 @@ class Speaker(PresenceRole):
 
 
 @final
-@PresenceRolePlugin(
-    id="subject",
-    label=_("Subject"),
-)
+@PresenceRolePlugin("subject", label=_("Subject"))
 class Subject(PresenceRole):
     """
     Someone was the subject of the event.
@@ -97,10 +76,7 @@ class Subject(PresenceRole):
 
 
 @final
-@PresenceRolePlugin(
-    id="unknown",
-    label=_("Unknown"),
-)
+@PresenceRolePlugin("unknown", label=_("Unknown"))
 class Unknown(PresenceRole, Singleton):
     """
     Someone's role in an event is unknown.
@@ -108,10 +84,7 @@ class Unknown(PresenceRole, Singleton):
 
 
 @final
-@PresenceRolePlugin(
-    id="witness",
-    label=_("Witness"),
-)
+@PresenceRolePlugin("witness", label=_("Witness"))
 class Witness(PresenceRole):
     """
     Someone `witnessed <https://en.wikipedia.org/wiki/Witness>`_ the event.

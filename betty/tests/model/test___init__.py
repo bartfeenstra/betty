@@ -22,8 +22,8 @@ class TestEntityPlugin(PluginDefinitionClassTestBase):
 
     def test_public_facing(self) -> None:
         sut = EntityPlugin(
+            "-",
             public_facing=True,
-            id="-",
             label="",
             label_plural="",
             label_countable=CountablePlain("", ""),

@@ -33,10 +33,7 @@ class _Format(Format):
         return ""  # pragma: nocover
 
 
-@FormatPlugin(
-    id="one",
-    label="One",
-)
+@FormatPlugin("one", label="One")
 class FormatOne(_Format):
     @override
     @classmethod
@@ -44,10 +41,7 @@ class FormatOne(_Format):
         return MediaType("text/x.betty.test.one", extensions=[".one"])
 
 
-@FormatPlugin(
-    id="two",
-    label="Two",
-)
+@FormatPlugin("two", label="Two")
 class FormatTwo(_Format):
     @override
     @classmethod

@@ -39,7 +39,7 @@ if TYPE_CHECKING:
 
 @final
 @EntityPlugin(
-    id="person",
+    "person",
     label=_("Person"),
     label_plural=_("People"),
     label_countable=ngettext("{count} person", "{count} people"),
@@ -98,8 +98,8 @@ class Person(HasFileReferences, HasCitations, HasNotes, HasLinks, HasPrivacy):
 
     def __init__(
         self,
-        *,
         id: str | None = None,  # noqa A002
+        *,
         file_references: ToManyAssociates[FileReference] | None = None,
         citations: ToManyAssociates[Citation] | None = None,
         links: MutableSequence[Link] | None = None,

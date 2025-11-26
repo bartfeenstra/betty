@@ -40,7 +40,7 @@ if TYPE_CHECKING:
 @internal
 @final
 @ExtensionPlugin(
-    id="webpack",
+    "webpack",
     label="Webpack",
     assets_directory_path=Path(__file__).parent / "assets",
 )

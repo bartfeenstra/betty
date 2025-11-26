@@ -65,10 +65,7 @@ if TYPE_CHECKING:
     )
 
 
-@ExtensionPlugin(
-    id="dummy-non-configurable",
-    label="",
-)
+@ExtensionPlugin("dummy-non-configurable", label="")
 class _DummyNonConfigurableExtension(Extension):
     pass
 
@@ -257,34 +254,22 @@ class TestLocaleConfigurationMapping(
         assert sut.multilingual
 
 
-@ExtensionPlugin(
-    id="extension-instance-configuration-mapping-test-extension-0",
-    label="",
-)
+@ExtensionPlugin("extension-instance-configuration-mapping-test-extension-0", label="")
 class ExtensionInstanceConfigurationMappingTestExtension0(Extension):
     pass
 
 
-@ExtensionPlugin(
-    id="extension-instance-configuration-mapping-test-extension-1",
-    label="",
-)
+@ExtensionPlugin("extension-instance-configuration-mapping-test-extension-1", label="")
 class ExtensionInstanceConfigurationMappingTestExtension1(Extension):
     pass
 
 
-@ExtensionPlugin(
-    id="extension-instance-configuration-mapping-test-extension-2",
-    label="",
-)
+@ExtensionPlugin("extension-instance-configuration-mapping-test-extension-2", label="")
 class ExtensionInstanceConfigurationMappingTestExtension2(Extension):
     pass
 
 
-@ExtensionPlugin(
-    id="extension-instance-configuration-mapping-test-extension-3",
-    label="",
-)
+@ExtensionPlugin("extension-instance-configuration-mapping-test-extension-3", label="")
 class ExtensionInstanceConfigurationMappingTestExtension3(Extension):
     pass
 
@@ -421,7 +406,7 @@ class TestEntityTypeConfiguration:
 
 
 @EntityPlugin(
-    id="zero",
+    "zero",
     label="",
     label_plural="",
     label_countable=CountablePlain("", ""),
@@ -431,7 +416,7 @@ class EntityTypeConfigurationMappingTestEntity0(Entity):
 
 
 @EntityPlugin(
-    id="one",
+    "one",
     label="",
     label_plural="",
     label_countable=CountablePlain("", ""),
@@ -441,7 +426,7 @@ class EntityTypeConfigurationMappingTestEntity1(Entity):
 
 
 @EntityPlugin(
-    id="two",
+    "two",
     label="",
     label_plural="",
     label_countable=CountablePlain("", ""),
@@ -451,7 +436,7 @@ class EntityTypeConfigurationMappingTestEntity2(Entity):
 
 
 @EntityPlugin(
-    id="three",
+    "three",
     label="",
     label_plural="",
     label_countable=CountablePlain("", ""),

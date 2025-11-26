@@ -33,12 +33,13 @@ class OrderedPluginDefinition(PluginDefinition[_PluginT]):
 
     def __init__(
         self,
+        plugin_id: MachineName,
         *,
         comes_before: Set[ResolvableId] | None = None,
         comes_after: Set[ResolvableId] | None = None,
         **kwargs: Any,
     ):
-        super().__init__(**kwargs)
+        super().__init__(plugin_id, **kwargs)
         self._comes_before = (
             set()
             if comes_before is None

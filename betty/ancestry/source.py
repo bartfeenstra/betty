@@ -45,7 +45,7 @@ if TYPE_CHECKING:
 
 @final
 @EntityPlugin(
-    id="source",
+    "source",
     label=_("Source"),
     label_plural=_("Sources"),
     label_countable=ngettext("{count} source", "{count} sources"),

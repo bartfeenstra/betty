@@ -20,7 +20,7 @@ if TYPE_CHECKING:
 
 @final
 @ExtensionPlugin(
-    id="deriver",
+    "deriver",
     label="Deriver",
     description=_(
         "Create events such as births and deaths by deriving their details from existing information."

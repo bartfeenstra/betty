@@ -23,7 +23,7 @@ if TYPE_CHECKING:
 
 @final
 @ExtensionPlugin(
-    id="maps",
+    "maps",
     label="Maps",
     description=_("Display interactive maps"),
     depends_on={Webpack},

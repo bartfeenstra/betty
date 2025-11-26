@@ -68,8 +68,8 @@ class FormatPlugin(HumanFacingPluginDefinition[Format]):
 
     plugin_type_cls = Format
     type = PluginTypeDefinition(
-        id="format",
-        label=_("(De)serialization format"),
+        "format",
+        _("(De)serialization format"),
         discoveries=EntryPointDiscovery("betty.serde_format"),
     )
 

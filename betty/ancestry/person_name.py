@@ -27,7 +27,7 @@ if TYPE_CHECKING:
 
 @final
 @EntityPlugin(
-    id="person-name",
+    "person-name",
     label=_("Person name"),
     label_plural=_("Person names"),
     label_countable=ngettext("{count} person name", "{count} person names"),

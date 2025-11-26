@@ -5,9 +5,9 @@ Provide Betty's ancestry event types.
 from __future__ import annotations
 
 from abc import ABC, abstractmethod
-from typing import TYPE_CHECKING, Any, ClassVar, final
+from typing import TYPE_CHECKING, ClassVar, final
 
-from betty.locale.localizable import _
+from betty.locale.localizable import LocalizableLike, _
 from betty.plugin import Plugin, PluginTypeDefinition
 from betty.plugin.discovery.entry_point import EntryPointDiscovery
 from betty.plugin.discovery.project import ProjectDiscovery
@@ -16,6 +16,8 @@ from betty.plugin.ordered import OrderedPluginDefinition
 from betty.plugin.resolve import ResolvableId, resolve_id
 
 if TYPE_CHECKING:
+    from collections.abc import Set
+
     from betty.ancestry.person import Person
     from betty.machine_name import MachineName
     from betty.project import Project
@@ -54,8 +56,8 @@ class EventTypePlugin(
 
     plugin_type_cls = EventType
     type = PluginTypeDefinition(
-        id="event-type",
-        label=_("Event type"),
+        "event-type",
+        _("Event type"),
         discoveries=[
             EntryPointDiscovery("betty.event_type"),
             ProjectDiscovery(
@@ -66,11 +68,21 @@ class EventTypePlugin(
 
     def __init__(
         self,
+        plugin_id: MachineName,
         *,
+        label: LocalizableLike,
+        description: LocalizableLike | None = None,
+        comes_before: Set[ResolvableId] | None = None,
+        comes_after: Set[ResolvableId] | None = None,
         indicates: ResolvableId[EventTypePlugin, EventType] | None = None,
-        **kwargs: Any,
     ):
-        super().__init__(**kwargs)
+        super().__init__(
+            plugin_id,
+            label=label,
+            description=description,
+            comes_before=comes_before,
+            comes_after=comes_after,
+        )
         self._indicates = None if indicates is None else resolve_id(indicates)
 
     @property

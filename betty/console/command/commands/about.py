@@ -28,8 +28,7 @@ if TYPE_CHECKING:
 
 @final
 @CommandPlugin(
-    id="about",
-    label=_("Output information about Betty, and optionally your project"),
+    "about", label=_("Output information about Betty, and optionally your project")
 )
 class About(AppDependentSelfFactory, Command):
     """

@@ -9,7 +9,7 @@ from betty.http_client.rate_limit import RateLimit, RateLimitPlugin
 from betty.plugin import Plugin
 
 
-@RateLimitPlugin(id="wikipedia-action-api")
+@RateLimitPlugin("wikipedia-action-api")
 class WikipediaActionApi(RateLimit, Plugin):
     """
     The Wikipedia Action API rate limit.
@@ -35,7 +35,7 @@ class WikipediaActionApi(RateLimit, Plugin):
         return 200, 1
 
 
-@RateLimitPlugin(id="wikipedia-rest-api")
+@RateLimitPlugin("wikipedia-rest-api")
 class WikipediaRestApi(RateLimit, Plugin):
     """
     The Wikipedia REST API rate limit.

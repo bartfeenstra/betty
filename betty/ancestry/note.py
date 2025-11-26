@@ -32,7 +32,7 @@ if TYPE_CHECKING:
 
 @final
 @EntityPlugin(
-    id="note",
+    "note",
     label=_("Note"),
     label_plural=_("Notes"),
     label_countable=ngettext("{count} note", "{count} notes"),

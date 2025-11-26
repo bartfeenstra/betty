@@ -11,10 +11,7 @@ from betty.locale.localizable import Localizable, StaticTranslations
 
 
 @final
-@CopyrightNoticePlugin(
-    id="streetmix",
-    label=StaticTranslations("Streetmix LLC"),
-)
+@CopyrightNoticePlugin("streetmix", label=StaticTranslations("Streetmix LLC"))
 class Streetmix(CopyrightNotice):
     """
     The copyright for Streetmix resources.

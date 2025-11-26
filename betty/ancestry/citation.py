@@ -42,7 +42,7 @@ if TYPE_CHECKING:
 
 @final
 @EntityPlugin(
-    id="citation",
+    "citation",
     label=_("Citation"),
     label_plural=_("Citations"),
     label_countable=ngettext("{count} citation", "{count} citations"),

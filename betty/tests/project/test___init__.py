@@ -28,7 +28,7 @@ if TYPE_CHECKING:
 
 
 @ExtensionPlugin(
-    id="dummy-with-assets-directory",
+    "dummy-with-assets-directory",
     label="",
     assets_directory_path=Path(__file__).parent
     / "dummy-with-assets-directory"
@@ -38,10 +38,7 @@ class _DummyExtensionWithAssetsDirectory(Extension):
     pass
 
 
-@ExtensionPlugin(
-    id="dummy-unmet-requirement",
-    label="",
-)
+@ExtensionPlugin("dummy-unmet-requirement", label="")
 class _DummyExtensionWithUnmetRequirement(Extension):
     @override
     @classmethod
@@ -49,18 +46,12 @@ class _DummyExtensionWithUnmetRequirement(Extension):
         return StaticRequirement("")
 
 
-@ExtensionPlugin(
-    id="dummy-a",
-    label="",
-)
+@ExtensionPlugin("dummy-a", label="")
 class _DummyExtensionA(Extension):
     pass
 
 
-@ExtensionPlugin(
-    id="dummy-b",
-    label="",
-)
+@ExtensionPlugin("dummy-b", label="")
 class _DummyExtensionB(Extension):
     pass
 

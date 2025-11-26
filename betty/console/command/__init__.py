@@ -50,8 +50,8 @@ class CommandPlugin(HumanFacingPluginDefinition[Command]):
 
     plugin_type_cls = Command
     type = PluginTypeDefinition(
-        id="command",
-        label=_("Command"),
+        "command",
+        _("Command"),
         discoveries=EntryPointDiscovery("betty.command"),
     )
 

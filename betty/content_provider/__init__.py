@@ -36,7 +36,7 @@ class ContentProviderPlugin(HumanFacingPluginDefinition[ContentProvider]):
 
     plugin_type_cls = ContentProvider
     type = PluginTypeDefinition(
-        id="content-provider",
-        label=_("Content provider"),
+        "content-provider",
+        _("Content provider"),
         discoveries=EntryPointDiscovery("betty.content_provider"),
     )

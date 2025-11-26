@@ -9,7 +9,7 @@ from betty.test_utils.jinja2 import assert_template_file
 
 
 @EntityPlugin(
-    id="dummy-has-links",
+    "dummy-has-links",
     label="",
     label_plural="",
     label_countable=CountablePlain("", ""),

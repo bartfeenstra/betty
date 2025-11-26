@@ -38,7 +38,7 @@ if TYPE_CHECKING:
 
 @final
 @EntityPlugin(
-    id="file",
+    "file",
     label=_("File"),
     label_plural=_("Files"),
     label_countable=ngettext("{count} file", "{count} files"),

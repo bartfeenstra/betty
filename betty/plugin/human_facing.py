@@ -19,6 +19,7 @@ from betty.plugin import Plugin, PluginDefinition
 
 if TYPE_CHECKING:
     from betty.locale.localizable import CountableLocalizable, Localizable
+    from betty.machine_name import MachineName
 
 _PluginT = TypeVar("_PluginT", bound=Plugin, default=Plugin)
 
@@ -33,12 +34,13 @@ class HumanFacingPluginDefinition(PluginDefinition[_PluginT], Generic[_PluginT])
 
     def __init__(
         self,
-        *args: Any,
+        plugin_id: MachineName,
+        *,
         label: LocalizableLike,
         description: LocalizableLike | None = None,
         **kwargs: Any,
     ):
-        super().__init__(*args, **kwargs)
+        super().__init__(plugin_id, **kwargs)
         self._label = label
         self._description = description
 
@@ -81,12 +83,15 @@ class CountableHumanFacingPluginDefinition(HumanFacingPluginDefinition[_PluginT]
 
     def __init__(
         self,
-        *args: Any,
+        plugin_id: MachineName,
+        *,
+        label: LocalizableLike,
         label_plural: LocalizableLike,
         label_countable: CountableLocalizable,
+        description: LocalizableLike | None = None,
         **kwargs: Any,
     ):
-        super().__init__(*args, **kwargs)
+        super().__init__(plugin_id, label=label, description=description, **kwargs)
         self._label_plural = ensure_localizable(label_plural)
         self._label_countable = label_countable
 

@@ -28,17 +28,14 @@ class TestDependentPluginDefinition:
     def test_depends_on(self) -> None:
         depends_on = {"depends-on"}
         sut = DependentPluginDefinition(
+            "my-first-plugin",
             depends_on=depends_on,
-            id="my-first-plugin",
         )
         assert sut.depends_on == depends_on
 
     def test_comes_after(self) -> None:
         depends_on = {"depends-on"}
-        sut = DependentPluginDefinition(
-            depends_on=depends_on,
-            id="my-first-plugin",
-        )
+        sut = DependentPluginDefinition("my-first-plugin", depends_on=depends_on)
         assert sut.comes_after == depends_on
 
 

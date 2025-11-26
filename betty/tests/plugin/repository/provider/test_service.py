@@ -35,19 +35,13 @@ class TestServiceLevelPluginRepositoryProvider:
             return ()
 
         class _PluginDefinition(PluginDefinition):
-            type = PluginTypeDefinition(
-                id="-",
-                label="",
-                discoveries=AppDiscovery(_discovery),
-            )
+            type = PluginTypeDefinition("-", "", discoveries=AppDiscovery(_discovery))
 
         sut = ServiceLevelPluginRepositoryProvider(temporary_app)
         await sut.plugins(_PluginDefinition)
 
     async def test_plugins__with_overridden_discoveries(self) -> None:
-        @DummyPluginDefinition(
-            id="dummy-plugin-override",
-        )
+        @DummyPluginDefinition("dummy-plugin-override")
         class _Plugin(DummyPlugin):
             pass
 

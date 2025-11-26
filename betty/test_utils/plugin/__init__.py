@@ -91,8 +91,8 @@ class DummyPluginDefinition(PluginDefinition):
 
     plugin_type_cls = DummyPlugin
     type = PluginTypeDefinition(
-        id="dummy-plugin",
-        label=" dummy plugin",
+        "dummy-plugin",
+        " dummy plugin",
         discoveries=CallbackDiscovery(
             lambda: [
                 DummyPluginOne.plugin,
@@ -105,9 +105,7 @@ class DummyPluginDefinition(PluginDefinition):
 
 
 @final
-@DummyPluginDefinition(
-    id="dummy-plugin-one",
-)
+@DummyPluginDefinition("dummy-plugin-one")
 class DummyPluginOne(DummyPlugin):
     """
     A dummy plugin (one).
@@ -115,9 +113,7 @@ class DummyPluginOne(DummyPlugin):
 
 
 @final
-@DummyPluginDefinition(
-    id="dummy-plugin-two",
-)
+@DummyPluginDefinition("dummy-plugin-two")
 class DummyPluginTwo(DummyPlugin):
     """
     A dummy plugin (two).
@@ -125,9 +121,7 @@ class DummyPluginTwo(DummyPlugin):
 
 
 @final
-@DummyPluginDefinition(
-    id="dummy-plugin-three",
-)
+@DummyPluginDefinition("dummy-plugin-three")
 class DummyPluginThree(DummyPlugin):
     """
     A dummy plugin (three).
@@ -135,9 +129,7 @@ class DummyPluginThree(DummyPlugin):
 
 
 @final
-@DummyPluginDefinition(
-    id="dummy-plugin-four",
-)
+@DummyPluginDefinition("dummy-plugin-four")
 class DummyPluginFour(DummyPlugin):
     """
     A dummy plugin (four).

@@ -22,10 +22,7 @@ _LEGACY_CACHE_DIRECTORY_PATH = Path.home() / ".betty" / "cache"
 
 
 @final
-@CommandPlugin(
-    id="clear-caches",
-    label=_("Clear all caches"),
-)
+@CommandPlugin("clear-caches", label=_("Clear all caches"))
 class ClearCaches(AppDependentSelfFactory, Command):
     """
     A command to clear all Betty caches.

@@ -39,10 +39,7 @@ class ExtensionTestBase:
 
 
 @final
-@ExtensionPlugin(
-    id="dummy-one",
-    label="Dummy One",
-)
+@ExtensionPlugin("dummy-one", label="Dummy One")
 class DummyExtensionOne(Extension):
     """
     A dummy :py:class:`betty.project.extension.Extension` implementation.
@@ -50,10 +47,7 @@ class DummyExtensionOne(Extension):
 
 
 @final
-@ExtensionPlugin(
-    id="dummy-two",
-    label="Dummy Two",
-)
+@ExtensionPlugin("dummy-two", label="Dummy Two")
 class DummyExtensionTwo(Extension):
     """
     A dummy :py:class:`betty.project.extension.Extension` implementation.
@@ -61,10 +55,7 @@ class DummyExtensionTwo(Extension):
 
 
 @final
-@ExtensionPlugin(
-    id="dummy-configurable",
-    label="Dummy Configurable",
-)
+@ExtensionPlugin("dummy-configurable", label="Dummy Configurable")
 class DummyConfigurableExtension(Configurable[DummyConfiguration], Extension):
     """
     A dummy :py:class:`betty.config.Configurable` and :py:class:`betty.project.extension.Extension` implementation.

@@ -24,7 +24,7 @@ if TYPE_CHECKING:
 
 @final
 @CommandPlugin(
-    id="extension-update-translations",
+    "extension-update-translations",
     label=_("Update all existing translations for an extension"),
 )
 class ExtensionUpdateTranslations(AppDependentSelfFactory, Command):

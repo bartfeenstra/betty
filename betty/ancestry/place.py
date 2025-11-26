@@ -38,7 +38,7 @@ if TYPE_CHECKING:
 
 @final
 @EntityPlugin(
-    id="place",
+    "place",
     label=_("Place"),
     label_plural=_("Places"),
     label_countable=ngettext("{count} place", "{count} places"),

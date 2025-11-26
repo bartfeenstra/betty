@@ -21,10 +21,7 @@ if TYPE_CHECKING:
 
 
 @final
-@FormatPlugin(
-    id="json",
-    label="JSON",
-)
+@FormatPlugin("json", label="JSON")
 class Json(Format):
     """
     Defines the `JSON <https://json.org/>`_ (de)serialization format.
@@ -50,10 +47,7 @@ class Json(Format):
 
 
 @final
-@FormatPlugin(
-    id="yaml",
-    label="YAML",
-)
+@FormatPlugin("yaml", label="YAML")
 class Yaml(Format):
     """
     Defines the `YAML <https://yaml.org/>`_ (de)serialization format.

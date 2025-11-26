@@ -37,7 +37,7 @@ if TYPE_CHECKING:
 
 @final
 @ExtensionPlugin(
-    id="wiki",
+    "wiki",
     label="Wiki",
     description=_(
         "Enrich your ancestry with information from Wikipedia and Wikimedia Commons"

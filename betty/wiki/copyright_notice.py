@@ -27,10 +27,7 @@ if TYPE_CHECKING:
 
 
 @final
-@CopyrightNoticePlugin(
-    id="wikipedia-contributors",
-    label=_("Wikipedia contributors"),
-)
+@CopyrightNoticePlugin("wikipedia-contributors", label=_("Wikipedia contributors"))
 class WikipediaContributors(AppDependentSelfFactory, CopyrightNotice):
     """
     The copyright for resources on Wikipedia.

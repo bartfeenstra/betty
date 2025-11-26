@@ -35,7 +35,7 @@ if TYPE_CHECKING:
 
 @final
 @EntityPlugin(
-    id="link",
+    "link",
     label=_("Link"),
     label_plural=_("Links"),
     label_countable=ngettext("{count} link", "{count} links"),

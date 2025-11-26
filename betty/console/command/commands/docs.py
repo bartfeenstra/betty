@@ -18,7 +18,7 @@ if TYPE_CHECKING:
 
 @final
 @CommandPlugin(
-    id="docs",
+    "docs",
     label=_("View the documentation"),
     description=_(
         "View Betty's interactive documentation. This will open your web browser."
