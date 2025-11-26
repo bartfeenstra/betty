@@ -5,7 +5,6 @@ from typing import TYPE_CHECKING
 import aiofiles
 
 from betty.ancestry.has_file_references import HasFileReferences
-from betty.cache.memory import MemoryCache
 from betty.jinja2 import Environment, Jinja2Provider
 from betty.job import Context
 from betty.locale import DEFAULT_LOCALE
@@ -139,7 +138,7 @@ class Test_CacheTagExtension:
 
     async def test_tag__with_job_context(self, temporary_app: App) -> None:
         counter = Counter()
-        job_context = Context(cache=MemoryCache())
+        job_context = Context()
         async with Project.new_temporary(temporary_app) as project, project:
             sut = await Environment.new_for_project(project)
             template = sut.from_string(

@@ -8,7 +8,6 @@ from typing_extensions import override
 
 import betty.project.extension.demo as stddemo
 from betty.app.factory import AppDependentSelfFactory
-from betty.cache.memory import MemoryCache
 from betty.console.command import Command, CommandFunction, CommandPlugin
 from betty.locale.localizable import _
 from betty.project import ProjectContext
@@ -63,7 +62,5 @@ class Demo(AppDependentSelfFactory, Command):
                 project,
                 project.app.user.message_progress(_("Generating site...")) as progress,
             ):
-                job_context = ProjectContext(
-                    project, cache=MemoryCache(), progress=progress
-                )
+                job_context = ProjectContext(project, progress=progress)
                 await stddemo.generate_with_cleanup(project, job_context=job_context)
