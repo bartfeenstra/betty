@@ -34,5 +34,7 @@ Commands
     Serve a generated site
 ``update-translations``
     Update all existing translations
+``dev-profile-demo``
+    Profile the generation of the demonstration site
 ``dev-update-translations``
     Update all existing translations for Betty itself
