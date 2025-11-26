@@ -9,7 +9,7 @@ from betty.ancestry.event import Event
 from betty.ancestry.event_type.event_types import Birth
 from betty.ancestry.has_citations import HasCitations
 from betty.ancestry.source import Source
-from betty.locale import DEFAULT_LOCALE
+from betty.locale import DEFAULT_LOCALE_TAG
 from betty.locale.localizable import CountablePlain
 from betty.locale.localizer import DEFAULT_LOCALIZER
 from betty.model import Entity, EntityPlugin
@@ -145,7 +145,7 @@ class TestCitation(EntityTestBase):
             "@type": "https://schema.org/Thing",
             "id": "the_citation",
             "private": False,
-            "location": {DEFAULT_LOCALE: "My First Location"},
+            "location": {DEFAULT_LOCALE_TAG: "My First Location"},
             "source": "/source/the_source/index.json",
             "facts": ["/event/the_event/index.json"],
             "links": [],

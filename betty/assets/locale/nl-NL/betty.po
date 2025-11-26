@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PROJECT VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2025-11-25 02:03+0000\n"
+"POT-Creation-Date: 2025-11-27 01:37+0000\n"
 "PO-Revision-Date: 2025-11-08 23:46+0000\n"
 "Last-Translator: Bart Feenstra <bart@bartfeenstra.com>\n"
 "Language: nl_NL\n"
@@ -734,7 +734,7 @@ msgid "Locale aliases must not contain slashes."
 msgstr "Taalregioaliassen mogen geen schuine streep bevatten."
 
 #, python-brace-format
-msgid "Locale {locale} is not supported by your system."
+msgid "Locale {locale} is not known by your system."
 msgstr ""
 
 msgid "Locality"
@@ -1269,11 +1269,11 @@ msgid "Unknown key: {unknown_key}."
 msgstr "Onbekende sleutel: {unknown_key}."
 
 #, python-brace-format
-msgid "Unknown locale {locale}."
+msgid "Unknown plugin \"{plugin_id}\"."
 msgstr ""
 
 #, python-brace-format
-msgid "Unknown plugin \"{plugin_id}\"."
+msgid "Untranslated locale {locale}."
 msgstr ""
 
 msgid "Update all existing translations"
@@ -1333,11 +1333,9 @@ msgid "Where do you want to save your project's configuration file?"
 msgstr "Waar wil je je projectconfiguratiebestand opslaan?"
 
 msgid ""
-"Which language should your project site be generated in? Enter an IETF "
-"BCP 47 language code."
+"Which language should your project site be generated in? Enter a language"
+" code."
 msgstr ""
-"In welke taal moet je projectsite gegenereerd worden? Voer een IETF BCP "
-"47-taalcode in."
 
 msgid "Wikipedia contributors"
 msgstr "Wikipedia-bijdragers"

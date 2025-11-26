@@ -262,20 +262,11 @@ _BASELINE: Mapping[str, _ModuleIgnore] = {
         },
     },
     "betty/link.py": MissingReason.ABSTRACT,
-    "betty/locale/__init__.py": {
-        "get_data": MissingReason.SHOULD_BE_COVERED,
-        "get_display_name": MissingReason.SHOULD_BE_COVERED,
-        "LocaleNotFoundError": MissingReason.SHOULD_BE_COVERED,
-        "to_babel_identifier": MissingReason.SHOULD_BE_COVERED,
-        "to_locale": MissingReason.SHOULD_BE_COVERED,
-    },
-    "betty/locale/error.py": {
-        "InvalidLocale": MissingReason.SHOULD_BE_COVERED,
-        "LocaleError": MissingReason.ABSTRACT,
-        "UnsupportedLocale": MissingReason.SHOULD_BE_COVERED,
-    },
     "betty/locale/babel.py": {
         "run_babel": MissingReason.SHOULD_BE_COVERED,
+    },
+    "betty/locale/error.py": {
+        "LocaleError": MissingReason.ABSTRACT,
     },
     "betty/locale/translation/__init__.py": {
         "find_source_files": MissingReason.SHOULD_BE_COVERED,

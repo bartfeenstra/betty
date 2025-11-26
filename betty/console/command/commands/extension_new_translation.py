@@ -5,7 +5,7 @@ from typing import TYPE_CHECKING, final, Self
 from typing_extensions import override
 
 from betty.app.factory import AppDependentSelfFactory
-from betty.assertion import assert_locale_identifier
+from betty.assertion import assert_locale
 from betty.console.assertion import assertion_to_argument_type
 from betty.console.command import Command, CommandFunction, CommandPlugin
 from betty.locale import translation
@@ -15,6 +15,8 @@ from betty.project.extension import ExtensionPlugin
 
 if TYPE_CHECKING:
     import argparse
+
+    from babel import Locale
 
     from betty.app import App
 
@@ -51,13 +53,13 @@ class ExtensionNewTranslation(AppDependentSelfFactory, Command):
         )
         parser.add_argument(
             "locale",
-            type=assertion_to_argument_type(
-                assert_locale_identifier(), localizer=localizer
-            ),
+            type=assertion_to_argument_type(assert_locale(), localizer=localizer),
         )
         return self._command_function
 
-    async def _command_function(self, extension: ExtensionPlugin, locale: str) -> None:
+    async def _command_function(
+        self, extension: ExtensionPlugin, locale: Locale
+    ) -> None:
         await extension_translation.new_extension_translation(
             locale, extension, user=self._app.user
         )

@@ -10,10 +10,12 @@ from urllib.parse import urlencode, urlparse
 
 from typing_extensions import override
 
-from betty.locale import LocaleLike, negotiate_locale, to_locale
+from betty.locale import LocaleLike, ensure_locale, negotiate_locale, to_language_tag
 
 if TYPE_CHECKING:
     from collections.abc import Mapping, Sequence
+
+    from babel import Locale
 
     from betty.media_type import MediaType
 
@@ -116,7 +118,7 @@ def generate_from_path(
     absolute: bool = False,
     fragment: str | None = None,
     locale: LocaleLike | None = None,
-    locale_aliases: Mapping[str, str],
+    locale_aliases: Mapping[Locale, str],
     query: Mapping[str, Sequence[str]] | None = None,
 ) -> str:
     """
@@ -129,15 +131,15 @@ def generate_from_path(
     )
     path = path.strip("/")
     if locale and len(locale_aliases) > 1:
-        locale = to_locale(locale)
+        locale = ensure_locale(locale)
         try:
-            negotiated_locale_data = negotiate_locale(locale, list(locale_aliases))
-            if negotiated_locale_data is None:
+            negotiated_locale = negotiate_locale(locale, list(locale_aliases))
+            if negotiated_locale is None:
                 raise KeyError
-            locale_alias = locale_aliases[to_locale(negotiated_locale_data)]
+            locale_alias = locale_aliases[negotiated_locale]
         except KeyError:
             raise ValueError(
-                f'Cannot generate URLs in "{locale}", because it cannot be resolved to any of the available locales: {", ".join(locale_aliases)}'
+                f'Cannot generate URLs in "{locale}", because it cannot be resolved to any of the available locales: {", ".join(map(to_language_tag, locale_aliases))}'
             ) from None
         url += f"/{locale_alias}"
     if path:

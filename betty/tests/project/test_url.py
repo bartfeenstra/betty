@@ -2,11 +2,12 @@ from collections.abc import Mapping, Sequence
 from typing import Any
 
 import pytest
+from babel import Locale
 from pytest_mock import MockerFixture
 
 from betty.ancestry import Ancestry
 from betty.app import App
-from betty.locale import DEFAULT_LOCALE, LocaleLike
+from betty.locale import DEFAULT_LOCALE_TAG, LocaleLike
 from betty.media_type import MediaType
 from betty.media_type.media_types import HTML, JSON
 from betty.model import EntityPlugin
@@ -150,7 +151,7 @@ class Test_LocalizedPathUrlUrlGenerator:
             ],
             *[
                 (
-                    f"/{DEFAULT_LOCALE}/some/path/index.html",
+                    f"/{DEFAULT_LOCALE_TAG}/some/path/index.html",
                     resource,
                     media_type,
                     False,
@@ -181,7 +182,7 @@ class Test_LocalizedPathUrlUrlGenerator:
         media_type: MediaType,
         absolute: bool,
         locale: LocaleLike | None,
-        additional_project_locale: str | None,
+        additional_project_locale: Locale | None,
         temporary_app: App,
     ) -> None:
         async with Project.new_temporary(temporary_app) as project:
@@ -282,7 +283,7 @@ class Test_StaticPathUrlUrlGenerator:
         media_type: MediaType,
         absolute: bool,
         locale: LocaleLike | None,
-        additional_project_locale: str | None,
+        additional_project_locale: Locale | None,
         fragment: str | None,
         query: Mapping[str, Sequence[str]] | None,
         temporary_app: App,
@@ -386,7 +387,7 @@ async def test_new_project_url_generator__generate(
     media_type: MediaType,
     absolute: bool,
     locale: LocaleLike | None,
-    additional_project_locale: str | None,
+    additional_project_locale: Locale | None,
     temporary_app: App,
 ) -> None:
     with EntityPlugin.type.override_discovery(DummyEntityOne.plugin):

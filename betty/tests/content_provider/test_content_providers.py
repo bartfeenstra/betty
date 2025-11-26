@@ -19,7 +19,7 @@ from betty.content_provider.content_providers import (
 )
 from betty.exception import HumanFacingException
 from betty.job import Context
-from betty.locale import DEFAULT_LOCALE
+from betty.locale import DEFAULT_LOCALE, DEFAULT_LOCALE_TAG
 from betty.locale.localizable import LocalizableLike, Plain, StaticTranslations
 from betty.locale.localizer import DEFAULT_LOCALIZER, Localizer
 from betty.project import Project
@@ -86,7 +86,7 @@ class TestPlainText(ConfigurationDependentSelfFactoryTestBase[PlainTextConfigura
             (
                 "<p>Een<br>\nTwee<br>\nDrie</p>",
                 StaticTranslations(
-                    {DEFAULT_LOCALE: "One\nTwo\nThree", "nl": "Een\nTwee\nDrie"}
+                    {DEFAULT_LOCALE_TAG: "One\nTwo\nThree", "nl": "Een\nTwee\nDrie"}
                 ),
                 "nl",
             ),
@@ -143,7 +143,7 @@ class TestTemplate:
             assert provided_content is not None
             assert (
                 provided_content.strip()
-                == f"nl-NL\nmy-first-page-resource\n{job_context.id}"
+                == f"nl_NL\nmy-first-page-resource\n{job_context.id}"
             )
 
 

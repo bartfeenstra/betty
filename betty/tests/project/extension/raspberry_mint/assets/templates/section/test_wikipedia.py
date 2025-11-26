@@ -2,7 +2,7 @@ from pytest_mock import MockerFixture
 
 from betty.ancestry.has_links import HasLinks
 from betty.ancestry.link import Link
-from betty.locale import DEFAULT_LOCALE
+from betty.locale import DEFAULT_LOCALE_TAG
 from betty.locale.localizable import CountablePlain
 from betty.model import EntityPlugin
 from betty.project.extension.raspberry_mint import RaspberryMint
@@ -38,7 +38,7 @@ async def test_with_summary(mocker: MockerFixture) -> None:
     summary_content = "Hello, world!"
     m_get_summary = mocker.patch("betty.wiki.client.Client.get_summary")
     m_get_summary.return_value = Summary(
-        DEFAULT_LOCALE, "Example", "Example", summary_content
+        DEFAULT_LOCALE_TAG, "Example", "Example", summary_content
     )
     resource = DummyHasLinks(links=[Link("https://en.wikipedia.org/wiki/Example")])
     async with assert_template_file(

@@ -10,6 +10,7 @@ from unittest.mock import ANY
 
 import pytest
 from aiofiles.tempfile import AiofilesContextManagerTempDir
+from babel import Locale
 
 import betty.plugin.repository.provider.service
 from betty.ancestry.citation import Citation
@@ -44,6 +45,7 @@ from betty.license import LicensePlugin
 from betty.license.licenses import PublicDomain as PublicDomainLicense
 from betty.locale.localizer import DEFAULT_LOCALIZER, Localizer
 from betty.media_type import MediaType
+from betty.plugin.repository.static import StaticPluginRepository
 from betty.privacy import Privacy
 from betty.project import Project
 from betty.subprocess import CalledSubprocessError
@@ -643,7 +645,7 @@ class TestGrampsLoader:
         place = ancestry[Place]["P0000"]
         names = place.names
         name = names[0]
-        assert name.name.localize(DEFAULT_LOCALIZER).locale == "nl"
+        assert name.name.localize(DEFAULT_LOCALIZER).locale == Locale("nl")
 
     async def test_place_should_include_note(self) -> None:
         ancestry = await self._load_partial(
@@ -2323,3 +2325,30 @@ class TestGrampsLoader:
         assert len(links) == 1
         link = list(links)[0]
         assert link.relationship == "external"
+
+    @pytest.mark.parametrize(
+        ("expected", "locale"),
+        [
+            (None, ""),
+            (None, "nl_NL"),
+            (Locale("nl"), "nl"),
+            (Locale("nl", "NL"), "nl-NL"),
+        ],
+    )
+    async def test_load_locale(
+        self, expected: Locale | None, locale: str, temporary_app: App
+    ) -> None:
+        user = StaticUser()
+        async with Project.new_temporary(temporary_app) as project, project:
+            sut = GrampsLoader(
+                project.ancestry,
+                factory=project.new_target,
+                user=user,
+                copyright_notices=StaticPluginRepository(CopyrightNoticePlugin),
+                licenses=StaticPluginRepository(LicensePlugin),
+                genders=StaticPluginRepository(GenderPlugin),
+                attribute_prefix_key=self.ATTRIBUTE_PREFIX_KEY,
+            )
+            assert await sut.load_locale(locale) == expected
+        if expected is None:
+            user.assert_message_warning(locale)

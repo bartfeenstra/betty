@@ -16,7 +16,7 @@ from betty.ancestry.place import Place
 from betty.ancestry.place_type import PlaceType, PlaceTypePlugin
 from betty.ancestry.place_type.place_types import Hamlet
 from betty.ancestry.place_type.place_types import Unknown as UnknownPlaceType
-from betty.locale import DEFAULT_LOCALE
+from betty.locale import DEFAULT_LOCALE, DEFAULT_LOCALE_TAG, to_language_tag
 from betty.model import Entity
 from betty.model.association import AssociationRequired, TemporaryToOneResolver
 from betty.mutability import Mutable
@@ -211,7 +211,7 @@ class TestPlace(EntityTestBase):
             "@id": "https://example.com/place/the_place/index.json",
             "@type": "https://schema.org/Place",
             "id": place_id,
-            "names": [{"name": {DEFAULT_LOCALE: name}}],
+            "names": [{"name": {DEFAULT_LOCALE_TAG: name}}],
             "events": [
                 "/event/E1/index.json",
             ],
@@ -221,10 +221,12 @@ class TestPlace(EntityTestBase):
                     "@context": {"description": "https://schema.org/description"},
                     "id": link.id,
                     "url": {
-                        DEFAULT_LOCALE: "https://example.com/the-place",
+                        to_language_tag(
+                            DEFAULT_LOCALE
+                        ): "https://example.com/the-place",
                     },
                     "label": {
-                        DEFAULT_LOCALE: "The Place Online",
+                        DEFAULT_LOCALE_TAG: "The Place Online",
                     },
                     "owner": "/place/the_place/index.json",
                     "private": False,

@@ -1,7 +1,7 @@
 import pytest
 
 from betty.exception import HumanFacingException
-from betty.locale import DEFAULT_LOCALE
+from betty.locale import DEFAULT_LOCALE_TAG
 from betty.locale.localizable import Paragraph, Plain, StaticTranslations
 from betty.locale.localizable.config import dump_localizable, load_localizable
 from betty.locale.localizer import DEFAULT_LOCALIZER
@@ -30,7 +30,7 @@ async def test_dump_localizable__with_static_translations_single_undetermined() 
 
 async def test_dump_localizable__with_static_translations() -> None:
     localizable = {
-        DEFAULT_LOCALE: "Hello, world!",
+        DEFAULT_LOCALE_TAG: "Hello, world!",
         "nl-NL": "Hallo, wereld!",
     }
 

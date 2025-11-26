@@ -17,6 +17,7 @@ from enum import Enum
 from pathlib import Path
 from types import NoneType
 from typing import (
+    TYPE_CHECKING,
     Any,
     Generic,
     TypeAlias,
@@ -29,9 +30,12 @@ from typing import (
 from betty.data import Index, Key
 from betty.error import FileNotFound
 from betty.exception import HumanFacingException, HumanFacingExceptionGroup
-from betty.locale import UNDETERMINED_LOCALE, get_data
+from betty.locale import from_language_tag
 from betty.locale.localizable import Localizable, Paragraph, _, do_you_mean
 from betty.typing import Void, Voidable, internal
+
+if TYPE_CHECKING:
+    from babel import Locale
 
 Number: TypeAlias = int | float
 
@@ -525,30 +529,11 @@ def assert_file_path() -> AssertionChain[Any, Path]:
     return assert_path() | _assert_file_path
 
 
-def assert_locale() -> AssertionChain[Any, str]:
+def assert_locale() -> AssertionChain[Any, Locale]:
     """
     Assert that a value is a valid `IETF BCP 47 language tag <https://en.wikipedia.org/wiki/IETF_language_tag>`_.
     """
-
-    def _assert_locale(value: str, /) -> str:
-        # Allow locales for which no system information usually exists.
-        if value == UNDETERMINED_LOCALE:
-            return value
-
-        try:
-            get_data(value)
-        except HumanFacingException as error:
-            raise HumanFacingException(error) from error
-        return value
-
-    return assert_locale_identifier() | _assert_locale
-
-
-def assert_locale_identifier() -> AssertionChain[Any, str]:
-    """
-    Assert that a value could be a valid `IETF BCP 47 language tag <https://en.wikipedia.org/wiki/IETF_language_tag>`_.
-    """
-    return assert_str() | assert_len(minimum=1) | str
+    return assert_str() | from_language_tag
 
 
 def assert_setattr(instance: object, attr_name: str, /) -> AssertionChain[Any, Any]:

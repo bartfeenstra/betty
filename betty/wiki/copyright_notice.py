@@ -4,15 +4,16 @@ Wikipedia copyright notices.
 
 from __future__ import annotations
 
+from contextlib import suppress
 from typing import TYPE_CHECKING, Self, final
 
 import aiohttp
-from langcodes.tag_parser import LanguageTagError
 from typing_extensions import override
 
 from betty.app.factory import AppDependentSelfFactory
 from betty.copyright_notice import CopyrightNotice, CopyrightNoticePlugin
-from betty.locale import DEFAULT_LOCALE, get_data
+from betty.locale import DEFAULT_LOCALE, ensure_locale
+from betty.locale.error import LocaleError
 from betty.locale.localizable import (
     Localizable,
     LocalizableLike,
@@ -47,7 +48,9 @@ class WikipediaContributors(AppDependentSelfFactory, CopyrightNotice):
         """
         Create a new instance.
         """
-        urls = {}
+        urls = {
+            DEFAULT_LOCALE: _copyright_url("en", "Wikipedia:Copyrights"),
+        }
         try:
             response = await http_client.get(
                 "https://en.wikipedia.org/w/api.php?action=query&titles=Wikipedia:Copyrights&prop=langlinks&lllimit=500&format=json&formatversion=2"
@@ -59,17 +62,12 @@ class WikipediaContributors(AppDependentSelfFactory, CopyrightNotice):
             for link in response_json["query"]["pages"][0][
                 "langlinks"
             ]:  # typing: ignore[index]
-                try:
-                    get_data(link["lang"])
-                except LanguageTagError:
-                    # Wikipedia uses some languages that are not valid ISO codes, such as "simple".
-                    continue
-                urls[link["lang"]] = _copyright_url(link["lang"], link["title"])
-        return cls(
-            StaticTranslations(
-                {DEFAULT_LOCALE: _copyright_url("en", "Wikipedia:Copyrights"), **urls}
-            )
-        )
+                # Wikipedia uses some languages that are not valid ISO codes, such as "simple".
+                with suppress(LocaleError):
+                    urls[ensure_locale(link["lang"])] = _copyright_url(
+                        link["lang"], link["title"]
+                    )
+        return cls(StaticTranslations(urls))
 
     @override
     @classmethod

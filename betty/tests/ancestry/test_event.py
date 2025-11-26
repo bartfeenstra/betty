@@ -16,7 +16,7 @@ from betty.ancestry.presence import Presence
 from betty.ancestry.presence_role.presence_roles import Subject
 from betty.ancestry.source import Source
 from betty.date import Date, DateRange
-from betty.locale import DEFAULT_LOCALE
+from betty.locale import DEFAULT_LOCALE_TAG
 from betty.locale.localizer import DEFAULT_LOCALIZER
 from betty.model import Entity
 from betty.model.association import AssociationRequired, TemporaryToOneResolver
@@ -242,8 +242,8 @@ class TestEvent(EntityTestBase):
             },
             "place": "/place/the_place/index.json",
             "links": [],
-            "name": {DEFAULT_LOCALE: "The Event"},
-            "description": {DEFAULT_LOCALE: "The Event Description"},
+            "name": {DEFAULT_LOCALE_TAG: "The Event"},
+            "description": {DEFAULT_LOCALE_TAG: "The Event Description"},
             "fileReferences": [],
         }
         actual = await assert_dumps_linked_data(event)

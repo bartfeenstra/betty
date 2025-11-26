@@ -98,7 +98,8 @@ from betty.asyncio import ensure_await
 from betty.date import Date, DateLike, DateRange
 from betty.error import FileNotFound
 from betty.gramps.error import GrampsError, UserFacingGrampsError
-from betty.locale import UNDETERMINED_LOCALE
+from betty.locale import from_language_tag
+from betty.locale.error import LocaleError
 from betty.locale.localizable import (
     StaticTranslations,
     StaticTranslationsMapping,
@@ -109,7 +110,7 @@ from betty.model import Entity
 from betty.model.association import ToManyResolver, ToOneResolver, resolve
 from betty.plugin.error import PluginUnavailable
 from betty.privacy import HasPrivacy
-from betty.typing import internal
+from betty.typing import internal, private
 
 if TYPE_CHECKING:
     from asyncio.subprocess import Process
@@ -122,6 +123,8 @@ if TYPE_CHECKING:
         Sequence,
     )
     from xml.etree import ElementTree
+
+    from babel import Locale
 
     from betty.ancestry import Ancestry
     from betty.ancestry.event_type import EventType
@@ -319,11 +322,11 @@ class GrampsLoader:
         factory: ProjectFactory,
         user: User,
         copyright_notices: PluginRepository[CopyrightNoticePlugin],
+        genders: PluginRepository[GenderPlugin],
         licenses: PluginRepository[LicensePlugin],
         attribute_prefix_key: str | None = None,
         event_type_mapping: Mapping[str, Callable[[], EventType | Awaitable[EventType]]]
         | None = None,
-        genders: PluginRepository[GenderPlugin],
         place_type_mapping: Mapping[str, Callable[[], PlaceType | Awaitable[PlaceType]]]
         | None = None,
         presence_role_mapping: Mapping[
@@ -959,7 +962,7 @@ class GrampsLoader:
             assert name is not None
             names.append(
                 Name(
-                    StaticTranslations({language or UNDETERMINED_LOCALE: name}),
+                    StaticTranslations({language or None: name}),
                     date=date,
                 )
             )
@@ -1084,7 +1087,7 @@ class GrampsLoader:
             element,
             "attribute",
         )
-        event_name_translations = self._parse_attribute_static_translations(
+        event_name_translations = await self._parse_attribute_static_translations(
             element, "attribute", "name"
         )
         if event_name_translations:
@@ -1270,24 +1273,37 @@ class GrampsLoader:
 
     _STATIC_TRANSLATION_ATTRIBUTE_SUFFIX_PATTERN = re.compile(r"^:[^:]+$")
 
-    def _parse_attribute_static_translations(
+    async def _parse_attribute_static_translations(
         self, element: ElementTree.Element, tag: str, name: str
     ) -> StaticTranslationsMapping:
-        translations = {}
+        translations: StaticTranslationsMapping = {}
         name_length = len(name)
         for attribute_key, attribute_value in self._load_attributes(
             element, tag
         ).items():
             if attribute_key == name:
-                translations[UNDETERMINED_LOCALE] = attribute_value
+                translations[None] = attribute_value
             elif (
                 self._STATIC_TRANSLATION_ATTRIBUTE_SUFFIX_PATTERN.fullmatch(
                     attribute_key[name_length:]
                 )
                 is not None
             ):
-                translations[attribute_key[name_length + 1 :]] = attribute_value
+                translations[
+                    await self.load_locale(attribute_key[name_length + 1 :])
+                ] = attribute_value
         return translations
+
+    @private
+    async def load_locale(self, locale: str) -> Locale | None:
+        """
+        Load a locale.
+        """
+        try:
+            return from_language_tag(locale)
+        except LocaleError as error:
+            await self._user.message_warning(error)
+            return None
 
     _LINK_ATTRIBUTE_PATTERN = re.compile(r"^link-([^:]+?):(.+?)$")
 
@@ -1322,7 +1338,7 @@ class GrampsLoader:
                 continue
             link = Link(
                 StaticTranslations(
-                    self._parse_attribute_static_translations(
+                    await self._parse_attribute_static_translations(
                         element, tag, f"link-{link_name}:url"
                     )
                 )
@@ -1330,13 +1346,13 @@ class GrampsLoader:
             entity.links.add(link)
             if "description" in link_attributes:
                 link.description = StaticTranslations(
-                    self._parse_attribute_static_translations(
+                    await self._parse_attribute_static_translations(
                         element, tag, f"link-{link_name}:description"
                     )
                 )
             if "label" in link_attributes:
                 link.label = StaticTranslations(
-                    self._parse_attribute_static_translations(
+                    await self._parse_attribute_static_translations(
                         element, tag, f"link-{link_name}:label"
                     )
                 )

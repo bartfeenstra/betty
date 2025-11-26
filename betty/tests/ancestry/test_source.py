@@ -9,7 +9,7 @@ from betty.ancestry.citation import Citation
 from betty.ancestry.link import Link
 from betty.ancestry.source import Source
 from betty.date import Date
-from betty.locale import DEFAULT_LOCALE
+from betty.locale import DEFAULT_LOCALE, DEFAULT_LOCALE_TAG, to_language_tag
 from betty.locale.localizable import Plain
 from betty.locale.localizer import DEFAULT_LOCALIZER
 from betty.model import Entity
@@ -158,7 +158,7 @@ class TestSource(EntityTestBase):
             "@type": "https://schema.org/Thing",
             "id": "the_source",
             "private": False,
-            "name": {DEFAULT_LOCALE: "The Source"},
+            "name": {DEFAULT_LOCALE_TAG: "The Source"},
             "fileReferences": [],
             "contains": [],
             "containedBy": None,
@@ -202,9 +202,9 @@ class TestSource(EntityTestBase):
             "@type": "https://schema.org/Thing",
             "id": "the_source",
             "private": False,
-            "name": {DEFAULT_LOCALE: "The Source"},
-            "author": {DEFAULT_LOCALE: "The Author"},
-            "publisher": {DEFAULT_LOCALE: "The Publisher"},
+            "name": {DEFAULT_LOCALE_TAG: "The Source"},
+            "author": {DEFAULT_LOCALE_TAG: "The Author"},
+            "publisher": {DEFAULT_LOCALE_TAG: "The Publisher"},
             "fileReferences": [],
             "contains": [
                 "/source/the_contained_source/index.json",
@@ -226,10 +226,12 @@ class TestSource(EntityTestBase):
                     "@context": {"description": "https://schema.org/description"},
                     "id": link.id,
                     "url": {
-                        DEFAULT_LOCALE: "https://example.com/the-source",
+                        to_language_tag(
+                            DEFAULT_LOCALE
+                        ): "https://example.com/the-source",
                     },
                     "label": {
-                        DEFAULT_LOCALE: "The Source Online",
+                        DEFAULT_LOCALE_TAG: "The Source Online",
                     },
                     "owner": "/source/the_source/index.json",
                     "private": False,

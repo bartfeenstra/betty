@@ -3,8 +3,9 @@ from __future__ import annotations
 from typing import TYPE_CHECKING, Any
 
 import pytest
+from babel import Locale
 
-from betty.locale import DEFAULT_LOCALE, LocaleLike
+from betty.locale import DEFAULT_LOCALE, DEFAULT_LOCALE_TAG, LocaleLike
 from betty.media_type.media_types import HTML
 from betty.url import PassthroughUrlGenerator, generate_from_path
 
@@ -53,7 +54,7 @@ class TestPassthroughUrlGenerator:
             (
                 expected,
                 "/",
-                {DEFAULT_LOCALE: DEFAULT_LOCALE},
+                {DEFAULT_LOCALE: DEFAULT_LOCALE_TAG},
                 False,
                 path,
                 False,
@@ -74,7 +75,7 @@ class TestPassthroughUrlGenerator:
             (
                 expected,
                 "/",
-                {DEFAULT_LOCALE: DEFAULT_LOCALE},
+                {DEFAULT_LOCALE: DEFAULT_LOCALE_TAG},
                 False,
                 path,
                 True,
@@ -95,7 +96,7 @@ class TestPassthroughUrlGenerator:
             (
                 expected,
                 "/",
-                {DEFAULT_LOCALE: DEFAULT_LOCALE},
+                {DEFAULT_LOCALE: DEFAULT_LOCALE_TAG},
                 True,
                 path,
                 False,
@@ -116,7 +117,7 @@ class TestPassthroughUrlGenerator:
             (
                 expected,
                 "/",
-                {DEFAULT_LOCALE: DEFAULT_LOCALE, "nl-NL": "nl"},
+                {DEFAULT_LOCALE: DEFAULT_LOCALE_TAG, Locale("nl", "NL"): "nl"},
                 False,
                 path,
                 False,
@@ -137,7 +138,7 @@ class TestPassthroughUrlGenerator:
             (
                 expected,
                 "/",
-                {DEFAULT_LOCALE: DEFAULT_LOCALE},
+                {DEFAULT_LOCALE: DEFAULT_LOCALE_TAG},
                 False,
                 path,
                 False,
@@ -158,7 +159,7 @@ class TestPassthroughUrlGenerator:
             (
                 expected,
                 "/",
-                {DEFAULT_LOCALE: DEFAULT_LOCALE},
+                {DEFAULT_LOCALE: DEFAULT_LOCALE_TAG},
                 False,
                 path,
                 False,
@@ -182,7 +183,7 @@ class TestPassthroughUrlGenerator:
 async def test_generate_from_path(
     expected: str,
     root_path: str,
-    locales: Mapping[str, str],
+    locales: Mapping[Locale, str],
     clean_urls: bool,
     path: str,
     absolute: bool,

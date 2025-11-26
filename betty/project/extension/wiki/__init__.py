@@ -12,7 +12,7 @@ from typing_extensions import override
 from betty.config import Configurable
 from betty.copyright_notice import CopyrightNoticePlugin
 from betty.jinja2 import Filters, Globals, Jinja2Provider, context_localizer
-from betty.locale import negotiate_locale
+from betty.locale import ensure_locale, negotiate_locale
 from betty.locale.localizable import _
 from betty.project.extension import Extension, ExtensionPlugin
 from betty.project.extension.wiki.config import WikiConfiguration
@@ -27,6 +27,7 @@ from betty.wiki.client import Client, ClientError, Summary
 if TYPE_CHECKING:
     from collections.abc import Iterable
 
+    from babel import Locale
     from jinja2.runtime import Context
 
     from betty.ancestry.link import Link
@@ -148,7 +149,7 @@ class Wiki(
         )
 
     async def _filter_wikipedia_summary_link(
-        self, locale: str, link: Link
+        self, locale: Locale, link: Link
     ) -> Summary | None:
         localizers = await self._project.app.localizers
         try:
@@ -157,7 +158,10 @@ class Wiki(
             )
         except NotAPageError:
             return None
-        if negotiate_locale(locale, [page_language]) is None:
+        if (
+            negotiate_locale(locale, list(filter(None, [ensure_locale(page_language)])))
+            is None
+        ):
             return None
         try:
             client = await self.client

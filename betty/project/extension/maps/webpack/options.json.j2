@@ -25,22 +25,22 @@
     {% set control_full_screen %}
       {% include 'maps/control/full-screen.html.j2' %}
     {% endset %}
-    {% do ns.control_full_screen.setdefault(locale, control_full_screen.strip()) %}
+    {% do ns.control_full_screen.setdefault(locale | to_language_tag, control_full_screen.strip()) %}
 
     {% set control_zoom_in %}
       {% include 'maps/control/zoom-in.html.j2' %}
     {% endset %}
-    {% do ns.control_zoom_in.setdefault(locale, control_zoom_in.strip()) %}
+    {% do ns.control_zoom_in.setdefault(locale | to_language_tag, control_zoom_in.strip()) %}
 
     {% set control_zoom_out %}
       {% include 'maps/control/zoom-out.html.j2' %}
     {% endset %}
-    {% do ns.control_zoom_out.setdefault(locale, control_zoom_out.strip()) %}
+    {% do ns.control_zoom_out.setdefault(locale | to_language_tag, control_zoom_out.strip()) %}
 
     {% set selected_place %}
       {% include 'maps/selected-place.html.j2' %}
     {% endset %}
-    {% do ns.selected_place.setdefault(locale, selected_place.strip()) %}
+    {% do ns.selected_place.setdefault(locale | to_language_tag, selected_place.strip()) %}
   {% endwith %}
 {% endfor %}
 

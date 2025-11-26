@@ -24,6 +24,8 @@ from betty.url.proxy import ProxyUrlGenerator
 if TYPE_CHECKING:
     from collections.abc import Mapping, Sequence
 
+    from babel import Locale
+
     from betty.ancestry import Ancestry
     from betty.locale import LocaleLike
     from betty.media_type import MediaType
@@ -36,7 +38,7 @@ class _ProjectUrlGenerator(ProjectDependentSelfFactory):
         self,
         base_url: str,
         root_path: str,
-        locales_to_aliases: Mapping[str, str],
+        locales_to_aliases: Mapping[Locale, str],
         clean_urls: bool,
         /,
     ):
@@ -160,7 +162,7 @@ async def new_project_url_generator(project: Project, /) -> UrlGenerator:
 
 
 def _get_extension_and_locale(
-    media_type: MediaType, default_locale: str, *, locale: LocaleLike | None
+    media_type: MediaType, default_locale: Locale, *, locale: LocaleLike | None
 ) -> tuple[str, LocaleLike | None]:
     if media_type == HTML:
         return "html", locale or default_locale

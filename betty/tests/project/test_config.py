@@ -3,6 +3,7 @@ from __future__ import annotations
 from typing import TYPE_CHECKING
 
 import pytest
+from babel import Locale
 from typing_extensions import override
 
 from betty.ancestry.event_type import EventType, EventTypePlugin
@@ -14,7 +15,7 @@ from betty.copyright_notice.copyright_notices import ProjectAuthor
 from betty.exception import HumanFacingException
 from betty.license import License, LicensePlugin
 from betty.license.licenses import AllRightsReserved
-from betty.locale import DEFAULT_LOCALE, UNDETERMINED_LOCALE
+from betty.locale import DEFAULT_LOCALE, DEFAULT_LOCALE_TAG, LocaleLike
 from betty.locale.localizable import CountablePlain, Plain
 from betty.locale.localizer import DEFAULT_LOCALIZER
 from betty.machine_name import MachineName
@@ -45,6 +46,9 @@ from betty.project.config import (
 from betty.project.extension import Extension, ExtensionPlugin
 from betty.serde.format import FormatError
 from betty.test_utils.config import DummyConfiguration
+from betty.test_utils.config.collections import (
+    ConfigurationCollectionTestBaseNewSut,
+)
 from betty.test_utils.config.collections.mapping import ConfigurationMappingTestBase
 from betty.test_utils.exception import raises_error
 from betty.test_utils.model import DummyEntityOne, DummyNonPublicFacingEntityOne
@@ -60,7 +64,6 @@ if TYPE_CHECKING:
 
     from betty.serde.dump import Dump, DumpMapping
     from betty.test_utils.config.collections import (
-        ConfigurationCollectionTestBaseNewSut,
         ConfigurationCollectionTestBaseSutConfigurationKeys,
         ConfigurationCollectionTestBaseSutConfigurations,
     )
@@ -73,9 +76,9 @@ class _DummyNonConfigurableExtension(Extension):
 
 class TestLocaleConfiguration:
     async def test_locale(self) -> None:
-        locale = "nl-NL"
+        locale = Locale("nl")
         sut = LocaleConfiguration(locale)
-        assert sut.locale == locale
+        assert sut.locale is locale
 
     async def test_alias__implicit(self) -> None:
         locale = "nl-NL"
@@ -108,20 +111,20 @@ class TestLocaleConfiguration:
 
     async def test_load__with_locale(self) -> None:
         dump: Dump = {
-            "locale": UNDETERMINED_LOCALE,
+            "locale": None,
         }
         sut = LocaleConfiguration(DEFAULT_LOCALE)
         sut.load(dump)
-        assert sut.locale == UNDETERMINED_LOCALE
+        assert sut.locale is None
 
     async def test_load__with_alias(self) -> None:
         dump: Dump = {
-            "locale": UNDETERMINED_LOCALE,
-            "alias": "UNDETERMINED_LOCALE",
+            "locale": "nl-NL",
+            "alias": "my-first-alias",
         }
         sut = LocaleConfiguration(DEFAULT_LOCALE)
         sut.load(dump)
-        assert sut.alias == "UNDETERMINED_LOCALE"
+        assert sut.alias == "my-first-alias"
 
     async def test_dump__should_dump_minimal(self) -> None:
         sut = LocaleConfiguration("nl-NL")
@@ -134,22 +137,30 @@ class TestLocaleConfiguration:
         assert sut.dump() == expected
 
 
+LocaleConfigurationMappingTestNewSut = ConfigurationCollectionTestBaseNewSut[
+    LocaleConfiguration, Locale, LocaleLike
+]
+
+
 class TestLocaleConfigurationMapping(
-    ConfigurationMappingTestBase[str, str, LocaleConfiguration]
+    ConfigurationMappingTestBase[Locale, LocaleLike, LocaleConfiguration]
 ):
     @override
     @pytest.fixture
-    def new_sut(
-        self,
-    ) -> ConfigurationCollectionTestBaseNewSut[LocaleConfiguration, MachineName, str]:
+    def new_sut(self) -> LocaleConfigurationMappingTestNewSut:
         return LocaleConfigurationMapping
 
     @override
     @pytest.fixture
     def sut_configuration_keys(
         self,
-    ) -> ConfigurationCollectionTestBaseSutConfigurationKeys[str]:
-        return ("en", "nl", "uk", "fr")
+    ) -> ConfigurationCollectionTestBaseSutConfigurationKeys[Locale]:
+        return (
+            Locale("en"),
+            Locale("nl"),
+            Locale("uk"),
+            Locale("fr"),
+        )
 
     @override
     @pytest.fixture
@@ -166,7 +177,7 @@ class TestLocaleConfigurationMapping(
     @override
     def test___delitem__(  # type: ignore[override]
         self,
-        new_sut: ConfigurationCollectionTestBaseNewSut[LocaleConfiguration, str, str],
+        new_sut: LocaleConfigurationMappingTestNewSut,
         sut_configurations: ConfigurationCollectionTestBaseSutConfigurations[
             LocaleConfiguration
         ],
@@ -180,7 +191,7 @@ class TestLocaleConfigurationMapping(
 
     def test___delitem____with_locale(
         self,
-        new_sut: ConfigurationCollectionTestBaseNewSut[LocaleConfiguration, str, str],
+        new_sut: LocaleConfigurationMappingTestNewSut,
         sut_configurations: ConfigurationCollectionTestBaseSutConfigurations[
             LocaleConfiguration
         ],
@@ -912,7 +923,7 @@ class TestProjectConfiguration:
         sut = ProjectConfiguration(tmp_path / "betty.json")
         actual = sut.localize_www_directory_path(DEFAULT_LOCALE)
         assert tmp_path in actual.parents
-        assert DEFAULT_LOCALE not in str(actual)
+        assert DEFAULT_LOCALE_TAG not in str(actual)
 
     async def test_localize_www_directory_path__multilingual(
         self, tmp_path: Path
@@ -921,7 +932,7 @@ class TestProjectConfiguration:
         sut.locales.append(LocaleConfiguration("nl-NL"))
         actual = sut.localize_www_directory_path(DEFAULT_LOCALE)
         assert tmp_path in actual.parents
-        assert DEFAULT_LOCALE in str(actual)
+        assert DEFAULT_LOCALE_TAG in str(actual)
 
     async def test_lifetime_threshold(self, tmp_path: Path) -> None:
         sut = ProjectConfiguration(tmp_path / "betty.json")

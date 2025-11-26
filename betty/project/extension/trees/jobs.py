@@ -18,6 +18,8 @@ from betty.media_type.media_types import HTML
 from betty.project import ProjectContext
 
 if TYPE_CHECKING:
+    from babel import Locale
+
     from betty.job.scheduler import Scheduler
 
 
@@ -35,7 +37,7 @@ class _GeneratePeopleJson(Job[ProjectContext]):
         )
 
     async def _generate_people_json_for_locale(
-        self, scheduler: Scheduler[ProjectContext], locale: str
+        self, scheduler: Scheduler[ProjectContext], locale: Locale
     ) -> None:
         project = scheduler.context.project
         url_generator = await project.url_generator

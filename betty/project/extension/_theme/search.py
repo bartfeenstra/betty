@@ -25,6 +25,8 @@ from betty.typing import internal
 if TYPE_CHECKING:
     from collections.abc import Iterable, Mapping, Sequence
 
+    from babel import Locale
+
     from betty.job import Context
     from betty.locale.localizable import Localizable
     from betty.locale.localizer import Localizer
@@ -60,7 +62,7 @@ async def _generate_search_index_for_locale(
     project: Project,
     result_container_template: Localizable,
     results_container_template: Localizable,
-    locale: str,
+    locale: Locale,
     *,
     job_context: Context,
 ) -> None:
@@ -105,9 +107,6 @@ class _EntityTypeIndexer(ABC, Generic[_EntityCoT]):
 
 
 class _FallbackIndexer(_EntityTypeIndexer[Entity]):
-    def __init__(self, project: Project):
-        self._project = project
-
     @override
     async def text(self, localizer: Localizer, entity: Entity) -> set[str]:
         text = await super().text(localizer, entity)
@@ -116,9 +115,6 @@ class _FallbackIndexer(_EntityTypeIndexer[Entity]):
 
 
 class _PersonIndexer(_EntityTypeIndexer[Person]):
-    def __init__(self, project: Project):
-        self._project = project
-
     @override
     async def text(self, localizer: Localizer, entity: Person) -> set[str]:
         text = await super().text(localizer, entity)

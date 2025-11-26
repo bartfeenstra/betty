@@ -121,12 +121,11 @@
         <ul class="list-unstyled text-center">
             {% set ns = namespace(available_locales = []) %}
             {% for available_locale_configuration in project.configuration.locales.values() %}
-                {% set available_locale_data = available_locale_configuration.alias | locale_get_data %}
-                {% do ns.available_locales.append((available_locale_configuration.locale, available_locale_data.get_display_name())) %}
+                {% do ns.available_locales.append((available_locale_configuration.locale, available_locale_configuration.locale.get_display_name())) %}
             {% endfor %}
             {% for available_locale, available_locale_name in ns.available_locales | sort(attribute='1') %}
                 <li class="h6 header-nav-link">
-                    <a href="{{ resource.resource_url | url(locale=available_locale) }}" hreflang="{{ available_locale }}" lang="{{ available_locale }}" rel="alternate">{{ available_locale_name }}</a>
+                    <a href="{{ resource.resource_url | url(locale=available_locale) }}" hreflang="{{ available_locale | to_language_tag }}" lang="{{ available_locale }}" rel="alternate">{{ available_locale_name }}</a>
                 </li>
             {% endfor %}
         </ul>

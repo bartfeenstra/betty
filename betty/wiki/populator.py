@@ -17,8 +17,8 @@ from betty.ancestry.has_links import HasLinks
 from betty.ancestry.link import Link
 from betty.ancestry.place import Place
 from betty.concurrent import AsynchronizedLock, Lock
-from betty.functools import filter_suppress
-from betty.locale import get_data, negotiate_locale
+from betty.functools import map_suppress
+from betty.locale import ensure_locale, negotiate_locale
 from betty.locale.error import LocaleError
 from betty.locale.localizable import StaticTranslations, _
 from betty.media_type.media_types import HTML
@@ -27,6 +27,8 @@ from betty.wiki import NotAPageError, parse_page_link
 
 if TYPE_CHECKING:
     from collections.abc import Mapping, MutableMapping, Sequence
+
+    from babel import Locale
 
     from betty.ancestry import Ancestry
     from betty.copyright_notice import CopyrightNotice
@@ -44,7 +46,7 @@ class Populator:
     def __init__(
         self,
         ancestry: Ancestry,
-        locales: Sequence[str],
+        locales: Sequence[Locale],
         localizers: LocalizerRepository,
         client: Client,
         copyright_notice: CopyrightNotice,
@@ -97,14 +99,14 @@ class Populator:
 
             # Most Wikipedia languages are based on ISO 639-1 and ISO 639-3
             # (https://en.wikipedia.org/wiki/List_of_Wikipedias). However, some languages such as "simple" are not.
-            translation_page_locale_datas = list(
-                filter_suppress(get_data, LocaleError, page_translations)
+            translation_page_locales = list(
+                map_suppress(ensure_locale, LocaleError, page_translations)
             )
 
             locales_to_page_languages = {}
             for locale in self._locales:
                 negotiated_page_language = negotiate_locale(
-                    locale, translation_page_locale_datas
+                    locale, translation_page_locales
                 )
                 locales_to_page_languages[locale] = (
                     page_language

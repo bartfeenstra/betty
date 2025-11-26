@@ -6,7 +6,7 @@ from typing_extensions import override
 
 from betty.exception import HumanFacingException
 from betty.factory import new_target
-from betty.locale import DEFAULT_LOCALE
+from betty.locale import DEFAULT_LOCALE_TAG
 from betty.locale.localizable import Plain, StaticTranslations
 from betty.locale.localizer import DEFAULT_LOCALIZER
 from betty.machine_name import MachineName
@@ -84,7 +84,7 @@ class TestHumanFacingPluginDefinitionConfiguration:
         dump: Dump = {
             "id": "hello-world",
             "label": {
-                DEFAULT_LOCALE: label,
+                DEFAULT_LOCALE_TAG: label,
             },
         }
         sut = HumanFacingPluginDefinitionConfiguration(id="-", label="")
@@ -109,7 +109,7 @@ class TestHumanFacingPluginDefinitionConfiguration:
             "id": "hello-world",
             "label": "",
             "description": {
-                DEFAULT_LOCALE: description,
+                DEFAULT_LOCALE_TAG: description,
             },
         }
         sut = HumanFacingPluginDefinitionConfiguration(id="-", label="")
@@ -127,12 +127,12 @@ class TestHumanFacingPluginDefinitionConfiguration:
     async def test_dump__with_expanded_label(self) -> None:
         label = "Hello, world!"
         sut = HumanFacingPluginDefinitionConfiguration(
-            id="hello-world", label=StaticTranslations({DEFAULT_LOCALE: label})
+            id="hello-world", label=StaticTranslations({DEFAULT_LOCALE_TAG: label})
         )
         dump = sut.dump()
         assert isinstance(dump, dict)
         assert dump["label"] == {
-            DEFAULT_LOCALE: label,
+            DEFAULT_LOCALE_TAG: label,
         }
 
     async def test_dump__with_undetermined_description(self) -> None:
@@ -149,12 +149,12 @@ class TestHumanFacingPluginDefinitionConfiguration:
         sut = HumanFacingPluginDefinitionConfiguration(
             id="hello-world",
             label="",
-            description=StaticTranslations({DEFAULT_LOCALE: description}),
+            description=StaticTranslations({DEFAULT_LOCALE_TAG: description}),
         )
         dump = sut.dump()
         assert isinstance(dump, dict)
         assert dump["description"] == {
-            DEFAULT_LOCALE: description,
+            DEFAULT_LOCALE_TAG: description,
         }
 
     async def test_label(self) -> None:

@@ -9,7 +9,6 @@ from collections.abc import (
     Callable,
     Iterable,
     Mapping,
-    MutableMapping,
     Sequence,
 )
 from contextlib import suppress
@@ -27,10 +26,11 @@ from typing import (
 )
 from warnings import warn
 
+from babel import Locale
 from typing_extensions import override
 
 from betty.importlib import fully_qualified_name
-from betty.locale import UNDETERMINED_LOCALE, negotiate_locale, to_locale
+from betty.locale import LocaleLike, ensure_locale, negotiate_locale
 from betty.locale.localized import Localized, LocalizedStr
 from betty.locale.localizer import DEFAULT_LOCALIZER, Localizer
 from betty.mutability import Mutable
@@ -306,9 +306,9 @@ class Plain(Localizable):
     Turns a plain string into a :py:class:`betty.locale.localizable.Localizable` without any actual translations.
     """
 
-    def __init__(self, text: str, locale: str = UNDETERMINED_LOCALE, /):
+    def __init__(self, text: str, locale: LocaleLike | None = None, /):
         self._text = text
-        self._locale = locale
+        self._locale = None if locale is None else ensure_locale(locale)
 
     @property
     def text(self) -> str:
@@ -318,7 +318,7 @@ class Plain(Localizable):
         return self._text
 
     @property
-    def locale(self) -> str:
+    def locale(self) -> Locale | None:
         """
         The locale the text is in.
         """
@@ -344,7 +344,7 @@ class CountablePlain(CountableLocalizable):
         string_singular: str,
         string_plural: str,
         *,
-        locale: str = UNDETERMINED_LOCALE,
+        locale: Locale | None = None,
         is_plural: Callable[[int], bool] | None = None,
     ):
         self._string_singular = Plain(string_singular, locale)
@@ -356,7 +356,7 @@ class CountablePlain(CountableLocalizable):
         return self._string_plural if self._is_plural(count) else self._string_singular
 
 
-StaticTranslationsMapping: TypeAlias = Mapping[str, str]
+StaticTranslationsMapping: TypeAlias = Mapping[Locale | None, str]
 """
 Keys are locales, values are translations.
 
@@ -364,7 +364,7 @@ See :py:func:`betty.locale.localizable.assertion.assert_static_translations`.
 """
 
 
-ShorthandStaticTranslations: TypeAlias = StaticTranslationsMapping | str
+ShorthandStaticTranslations: TypeAlias = Mapping[LocaleLike | None, str] | str
 """
 :py:const:`StaticTranslations` or a string which is the translation for the undetermined locale.
 
@@ -378,7 +378,7 @@ class StaticTranslations(Mutable, Localizable):
     Provide a :py:class:`betty.locale.localizable.Localizable` backed by static translations.
     """
 
-    _translations: MutableMapping[str, str]
+    _translations: StaticTranslationsMapping
 
     def __init__(self, translations: ShorthandStaticTranslations, /):
         """
@@ -386,9 +386,12 @@ class StaticTranslations(Mutable, Localizable):
         """
         super().__init__()
         self._translations = (
-            {UNDETERMINED_LOCALE: translations}
+            {None: translations}
             if isinstance(translations, str)
-            else dict(translations)
+            else {
+                None if locale is None else ensure_locale(locale): translation
+                for locale, translation in translations.items()
+            }
         )
         assert len(self._translations) > 0
 
@@ -402,17 +405,12 @@ class StaticTranslations(Mutable, Localizable):
     @override
     def localize(self, localizer: Localizer, /) -> Localized & str:
         if len(self._translations) > 1:
-            available_locales = tuple(self._translations.keys())
-            requested_locale = to_locale(
-                negotiate_locale(localizer.locale, available_locales)
-                or available_locales[0]
-            )
-            if requested_locale:
+            available_locales = tuple(filter(None, self._translations.keys()))
+            negotiated_locale = negotiate_locale(localizer.locale, available_locales)
+            if negotiated_locale is not None:
                 return LocalizedStr(
-                    self._translations[requested_locale], locale=requested_locale
+                    self._translations[negotiated_locale], locale=negotiated_locale
                 )
-        elif not self._translations:
-            return LocalizedStr("")
         locale, translation = next(iter(self._translations.items()))
         return LocalizedStr(translation, locale=locale)
 
@@ -515,7 +513,7 @@ class _List(_LocalizableSequence, Localizable):
         localizeds = []
         prefixes = []
         prefix_lengths = []
-        if localizer.locale_data.character_order == "right-to-left":
+        if localizer.locale.character_order == "right-to-left":
             template = self._TEMPLATE_RIGHT_TO_LEFT
         else:
             template = self._TEMPLATE_LEFT_TO_RIGHT
@@ -553,7 +551,7 @@ class OrderedList(_List):
 
     @override
     def _get_prefix(self, localizer: Localizer, index: int, /) -> str:
-        if localizer.locale_data.character_order == "right-to-left":
+        if localizer.locale.character_order == "right-to-left":
             template = self._PREFIX_TEMPLATE_RIGHT_TO_LEFT
         else:
             template = self._PREFIX_TEMPLATE_LEFT_TO_RIGHT

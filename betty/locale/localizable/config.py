@@ -6,13 +6,13 @@ from contextlib import suppress
 
 from betty.assertion import (
     assert_len,
-    assert_locale_identifier,
+    assert_locale,
     assert_mapping,
     assert_or,
     assert_str,
 )
 from betty.importlib import fully_qualified_name
-from betty.locale import UNDETERMINED_LOCALE
+from betty.locale import to_language_tag
 from betty.locale.localizable import Localizable, Plain, StaticTranslations, _
 from betty.serde.dump import Dump, NotDumpable
 
@@ -22,8 +22,8 @@ def load_localizable(dump: Dump, /) -> Localizable:
     Load a localizable from configuration.
     """
     translations = assert_or(
-        assert_str().chain(lambda translation: {UNDETERMINED_LOCALE: translation}),
-        assert_mapping(assert_str(), assert_locale_identifier()),
+        assert_str().chain(lambda translation: {None: translation}),
+        assert_mapping(assert_str(), assert_locale()),
     )(dump)
     assert_len(minimum=1)(translations)
     return StaticTranslations(translations)
@@ -45,8 +45,11 @@ def dump_localizable(localizable: Localizable, /) -> Dump:
         translations = localizable.translations
         if len(translations) == 1:
             with suppress(KeyError):
-                return translations[UNDETERMINED_LOCALE]
-        return dict(translations)
+                return translations[None]
+        return {
+            to_language_tag(locale): translation
+            for locale, translation in translations.items()
+        }
     raise NotDumpable(
         _(
             "Only plain text and static translations can be dumped to configuration, not `{localizable}` objects."

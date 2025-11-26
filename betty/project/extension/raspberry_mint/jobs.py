@@ -11,6 +11,7 @@ import aiofiles
 from typing_extensions import override
 
 from betty.job import Job
+from betty.locale import to_language_tag
 from betty.locale.localizable import Chain, Plain, _
 from betty.locale.localizer import DEFAULT_LOCALIZER
 from betty.os import link_or_copy
@@ -76,7 +77,7 @@ class _GenerateWebmanifest(Job[ProjectContext]):
                 "icons": [
                     {"src": "/logo" + project.logo.suffix},
                 ],
-                "lang": project.configuration.locales.default.locale,
+                "lang": to_language_tag(project.configuration.locales.default.locale),
                 "theme_color": extensions[
                     RaspberryMint
                 ].configuration.secondary_color.hex,

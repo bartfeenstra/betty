@@ -41,7 +41,7 @@ class Summary:
     A Wikipedia page summary.
     """
 
-    locale: str
+    language: str
     name: str
     title: str
     content: str
@@ -51,7 +51,7 @@ class Summary:
         """
         The URL to the web page.
         """
-        return f"https://{self.locale}.wikipedia.org/wiki/{self.name}"
+        return f"https://{self.language}.wikipedia.org/wiki/{self.name}"
 
 
 @final

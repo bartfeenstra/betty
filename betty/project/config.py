@@ -8,6 +8,7 @@ from collections.abc import Iterable, Mapping
 from typing import TYPE_CHECKING, Any, cast, final
 from urllib.parse import urlparse
 
+from babel import Locale
 from typing_extensions import override
 
 from betty.ancestry.event_type import EventType, EventTypePlugin
@@ -37,7 +38,7 @@ from betty.data import Key
 from betty.exception import HumanFacingException, HumanFacingExceptionGroup
 from betty.license import License, LicensePlugin
 from betty.license.licenses import AllRightsReserved
-from betty.locale import DEFAULT_LOCALE, UNDETERMINED_LOCALE
+from betty.locale import DEFAULT_LOCALE, LocaleLike, ensure_locale, to_language_tag
 from betty.locale.localizable import (
     Localizable,
     LocalizableLike,
@@ -217,20 +218,20 @@ class LocaleConfiguration(Configuration):
 
     def __init__(
         self,
-        locale: str,
+        locale: LocaleLike,
         *,
         alias: str | None = None,
     ):
         super().__init__()
-        self._locale = locale
+        self._locale = ensure_locale(locale)
         if alias is not None and "/" in alias:
             raise HumanFacingException(_("Locale aliases must not contain slashes."))
         self._alias = alias
 
     @property
-    def locale(self) -> str:
+    def locale(self) -> Locale:
         """
-        An `IETF BCP 47 <https://tools.ietf.org/html/bcp47>`_ language tag.
+        A locale.
         """
         return self._locale
 
@@ -240,7 +241,7 @@ class LocaleConfiguration(Configuration):
         A shorthand alias to use instead of the full language tag, such as when rendering URLs.
         """
         if self._alias is None:
-            return self.locale
+            return to_language_tag(self.locale)
         return self._alias
 
     @alias.setter
@@ -250,7 +251,11 @@ class LocaleConfiguration(Configuration):
     @override
     def load(self, dump: Dump, /) -> None:
         assert_record(
-            RequiredField("locale", assert_locale() | assert_setattr(self, "_locale")),
+            RequiredField(
+                "locale",
+                assert_or(assert_locale(), assert_none())
+                | assert_setattr(self, "_locale"),
+            ),
             OptionalField(
                 "alias",
                 assert_or(assert_str() | assert_setattr(self, "alias"), assert_none()),
@@ -259,12 +264,12 @@ class LocaleConfiguration(Configuration):
 
     @override
     def dump(self) -> Dump:
-        return {"locale": self.locale, "alias": self._alias}
+        return {"locale": to_language_tag(self.locale), "alias": self._alias}
 
 
 @final
 class LocaleConfigurationMapping(
-    OrderedConfigurationMapping[str, str, LocaleConfiguration]
+    OrderedConfigurationMapping[Locale, LocaleLike, LocaleConfiguration]
 ):
     """
     Configure a project's locales.
@@ -275,8 +280,8 @@ class LocaleConfigurationMapping(
         self._ensure_locale()
 
     @override
-    def _resolve_key(self, configuration_key: str, /) -> str:
-        return configuration_key
+    def _resolve_key(self, configuration_key: LocaleLike, /) -> Locale:
+        return ensure_locale(configuration_key)
 
     @override
     def _post_remove(self, configuration: LocaleConfiguration, /) -> None:
@@ -296,12 +301,12 @@ class LocaleConfigurationMapping(
 
     @override
     def _load_item(self, dump: Dump, /) -> LocaleConfiguration:
-        item = LocaleConfiguration(UNDETERMINED_LOCALE)
+        item = LocaleConfiguration(DEFAULT_LOCALE)
         item.load(dump)
         return item
 
     @override
-    def _get_key(self, configuration: LocaleConfiguration, /) -> str:
+    def _get_key(self, configuration: LocaleConfiguration, /) -> Locale:
         return configuration.locale
 
     @property
@@ -758,7 +763,7 @@ class ProjectConfiguration(Configuration):
         """
         return self.output_directory_path / "www"
 
-    def localize_www_directory_path(self, locale: str) -> Path:
+    def localize_www_directory_path(self, locale: Locale) -> Path:
         """
         Get the WWW directory path for a locale.
         """

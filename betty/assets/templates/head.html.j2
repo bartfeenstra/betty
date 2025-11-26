@@ -25,10 +25,10 @@
         {% endif %}
     {% endif %}
     {% if resource.resource_url %}
-        <link rel="canonical" href="{{ resource.resource_url | url(absolute=true) }}" hreflang="{{ resource.localizer.locale }}" type="text/html">
+        <link rel="canonical" href="{{ resource.resource_url | url(absolute=true) }}" hreflang="{{ resource.localizer.locale | to_language_tag }}" type="text/html">
         {% for locale in project.configuration.locales %}
             {% if locale != resource.localizer.locale %}
-                <link rel="alternate" href="{{ resource.resource_url | url(locale=locale) }}" hreflang="{{ locale }}" type="text/html">
+                <link rel="alternate" href="{{ resource.resource_url | url(locale=locale) }}" hreflang="{{ locale | to_language_tag }}" type="text/html">
             {% endif %}
         {% endfor %}
         {% if resource.resource is entity_plugin and resource.resource is persistent_entity_id %}

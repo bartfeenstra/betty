@@ -1,6 +1,6 @@
 from betty.ancestry.has_links import HasLinks
 from betty.ancestry.link import Link
-from betty.locale import DEFAULT_LOCALE
+from betty.locale import DEFAULT_LOCALE_TAG
 from betty.locale.localizable import CountablePlain, StaticTranslations
 from betty.model import EntityPlugin
 from betty.project.extension.raspberry_mint import RaspberryMint
@@ -50,7 +50,7 @@ async def test_with_link_without_locale() -> None:
 async def test_with_link() -> None:
     link_url = "https://example.com"
     link_label = "An example site"
-    link = Link(StaticTranslations({DEFAULT_LOCALE: link_url}), label=link_label)
+    link = Link(StaticTranslations({DEFAULT_LOCALE_TAG: link_url}), label=link_label)
     entity = DummyEntityWithLinks()
     entity.links.add(link)
     async with assert_template_file(

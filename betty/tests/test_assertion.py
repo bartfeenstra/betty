@@ -25,7 +25,6 @@ from betty.assertion import (
     assert_isinstance,
     assert_len,
     assert_locale,
-    assert_locale_identifier,
     assert_mapping,
     assert_none,
     assert_number,
@@ -39,7 +38,7 @@ from betty.assertion import (
 )
 from betty.data import Index, Key
 from betty.exception import HumanFacingException
-from betty.locale import DEFAULT_LOCALE, UNDETERMINED_LOCALE
+from betty.locale import DEFAULT_LOCALE_TAG, to_language_tag
 from betty.locale.localizable import StaticTranslations
 from betty.test_utils.exception import raises_error
 from betty.typing import Void
@@ -538,14 +537,13 @@ def test_assert_none__with_invalid_value(value: Any) -> None:
 @pytest.mark.parametrize(
     "value",
     [
-        UNDETERMINED_LOCALE,
-        DEFAULT_LOCALE,
+        DEFAULT_LOCALE_TAG,
         "nl-NL",
         "uk",
     ],
 )
 def test_assert_locale__with_valid_value(value: str) -> None:
-    assert assert_locale()(value) == value
+    assert to_language_tag(assert_locale()(value)) == value
 
 
 @pytest.mark.parametrize(
@@ -564,37 +562,6 @@ def test_assert_locale__with_valid_value(value: str) -> None:
 def test_assert_locale__with_invalid_value(value: Any) -> None:
     with pytest.raises(HumanFacingException):
         assert_locale()(value)
-
-
-@pytest.mark.parametrize(
-    "value",
-    [
-        UNDETERMINED_LOCALE,
-        DEFAULT_LOCALE,
-        "nl-NL",
-        "uk",
-        "non-existent-locale",
-    ],
-)
-def test_assert_locale_identifier__with_valid_value(value: str) -> None:
-    assert assert_locale_identifier()(value) == value
-
-
-@pytest.mark.parametrize(
-    "value",
-    [
-        True,
-        False,
-        123,
-        "",
-        object(),
-        [],
-        {},
-    ],
-)
-def test_assert_locale_identifier__with_invalid_value(value: Any) -> None:
-    with pytest.raises(HumanFacingException):
-        assert_locale_identifier()(value)
 
 
 class _Instance:

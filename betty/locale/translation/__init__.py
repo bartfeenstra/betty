@@ -20,14 +20,22 @@ from typing_extensions import override
 import betty
 import betty.dirs
 from betty.hashid import hashid_file_meta
-from betty.locale import DEFAULT_LOCALE, LocaleLike, get_data, to_locale
+from betty.locale import (
+    DEFAULT_LOCALE,
+    LocaleLike,
+    ensure_locale,
+    from_language_tag,
+    to_language_tag,
+)
 from betty.locale.babel import run_babel
-from betty.locale.error import UnknownLocale
+from betty.locale.error import LocaleError
 from betty.locale.localizable import _
 from betty.typing import threadsafe
 
 if TYPE_CHECKING:
     from collections.abc import AsyncIterator, Iterable, Mapping, MutableMapping
+
+    from babel import Locale
 
     from betty.asset import AssetRepository
     from betty.cache.file import BinaryFileCache
@@ -35,19 +43,20 @@ if TYPE_CHECKING:
 
 
 async def _new_translation(
-    locale: str, assets_directory_path: Path, *, user: User
+    locale: Locale, assets_directory_path: Path, *, user: User
 ) -> None:
-    po_file_path = assets_directory_path / "locale" / locale / "betty.po"
+    po_file_path = (
+        assets_directory_path / "locale" / to_language_tag(locale) / "betty.po"
+    )
     with redirect_stdout(StringIO()):
         if await exists(po_file_path):
             await user.message_information(
                 _("Translations for {locale} already exist at {po_file_path}.").format(
-                    locale=locale, po_file_path=str(po_file_path)
+                    locale=to_language_tag(locale), po_file_path=str(po_file_path)
                 )
             )
             return
 
-        locale_data = get_data(locale)
         await run_babel(
             "",
             "init",
@@ -57,13 +66,13 @@ async def _new_translation(
             "-o",
             str(po_file_path),
             "-l",
-            str(locale_data),
+            str(locale),
             "-D",
             "betty",
         )
         await user.message_information(
             _("Translations for {locale} initialized at {po_file_path}.").format(
-                locale=locale, po_file_path=str(po_file_path)
+                locale=to_language_tag(locale), po_file_path=str(po_file_path)
             )
         )
 
@@ -128,8 +137,7 @@ async def _update_translations(
         await makedirs(output_po_file_path.parent, exist_ok=True)
         output_po_file_path.touch()
 
-        locale = output_po_file_path.parent.name
-        locale_data = get_data(locale)
+        locale = ensure_locale(output_po_file_path.parent.name)
         await run_babel(
             "",
             "update",
@@ -139,7 +147,7 @@ async def _update_translations(
             str(pot_file_path),
             "--ignore-obsolete",
             "--locale",
-            str(locale_data),
+            str(locale),
             "--no-fuzzy-matching",
             "--output-file",
             str(output_po_file_path),
@@ -171,7 +179,7 @@ class TranslationRepository(ABC):
 
     @property
     @abstractmethod
-    def locales(self) -> Iterable[str]:
+    def locales(self) -> Iterable[Locale]:
         """
         The available locales.
         """
@@ -194,7 +202,7 @@ class NoOpTranslationRepository(TranslationRepository):
 
     @override
     @property
-    def locales(self) -> Iterable[str]:
+    def locales(self) -> Iterable[Locale]:
         return ()
 
     @override
@@ -208,21 +216,21 @@ class StaticTranslationRepository(TranslationRepository):
     Provide static translations.
     """
 
-    def __init__(self, translations: Mapping[str, gettext.NullTranslations]):
+    def __init__(self, translations: Mapping[Locale, gettext.NullTranslations]):
         self._translations = translations
 
     @override
     @property
-    def locales(self) -> Iterable[str]:
+    def locales(self) -> Iterable[Locale]:
         return self._translations.keys()
 
     @override
     def get(self, locale: LocaleLike) -> gettext.NullTranslations:
-        locale = to_locale(locale)
+        locale = ensure_locale(locale)
         try:
             return self._translations[locale]
         except KeyError:
-            raise UnknownLocale(locale) from None
+            raise UntranslatedLocale(locale) from None
 
 
 @final
@@ -233,17 +241,17 @@ class ProxyTranslationRepository(TranslationRepository):
 
     def __init__(self, *upstreams: TranslationRepository):
         self._upstreams = upstreams
-        self._translations: MutableMapping[str, gettext.NullTranslations] = {}
+        self._translations: MutableMapping[Locale, gettext.NullTranslations] = {}
 
     @override
     @property
-    def locales(self) -> Iterable[str]:
+    def locales(self) -> Iterable[Locale]:
         for upstream in self._upstreams:
             yield from upstream.locales
 
     @override
     def get(self, locale: LocaleLike) -> gettext.NullTranslations:
-        locale = to_locale(locale)
+        locale = ensure_locale(locale)
         try:
             return self._translations[locale]
         except KeyError:
@@ -251,7 +259,7 @@ class ProxyTranslationRepository(TranslationRepository):
             for upstream in self._upstreams:
                 try:
                     upstream_translations = upstream.get(locale)
-                except UnknownLocale:
+                except UntranslatedLocale:
                     pass
                 else:
                     if translations is None:
@@ -259,7 +267,7 @@ class ProxyTranslationRepository(TranslationRepository):
                     else:
                         translations.add_fallback(upstream_translations)
             if translations is None:
-                raise UnknownLocale(locale) from None
+                raise UntranslatedLocale(locale) from None
             self._translations[locale] = translations
             return translations
 
@@ -274,8 +282,8 @@ class AssetTranslationRepository(TranslationRepository):
     def __init__(self, assets: AssetRepository, cache: BinaryFileCache):
         self._assets = assets
         self._cache = cache
-        self._translations: MutableMapping[str, gettext.NullTranslations] = {}
-        self._locales: set[str] = {DEFAULT_LOCALE}
+        self._translations: MutableMapping[Locale, gettext.NullTranslations] = {}
+        self._locales: set[Locale] = {DEFAULT_LOCALE}
         self._bootstrapped = False
 
     async def bootstrap(self) -> None:
@@ -285,28 +293,27 @@ class AssetTranslationRepository(TranslationRepository):
         assert not self._bootstrapped
         for assets_directory_path in reversed(self._assets.assets_directory_paths):
             for po_file_path in assets_directory_path.glob("locale/*/betty.po"):
-                locale = po_file_path.parent.name
-                self._locales.add(locale)
+                self._locales.add(from_language_tag(po_file_path.parent.name))
         for locale in self._locales:
             await self._build_translation(locale)
         self._bootstrapped = True
 
     @override
     @property
-    def locales(self) -> Iterable[str]:
+    def locales(self) -> Iterable[Locale]:
         assert self._bootstrapped
         return self._locales
 
     @override
     def get(self, locale: LocaleLike) -> gettext.NullTranslations:
-        locale = to_locale(locale)
+        locale = ensure_locale(locale)
         try:
             return self._translations[locale]
         except KeyError:
             self._translations[locale] = gettext.NullTranslations()
             return self._translations[locale]
 
-    async def _build_translation(self, locale: str) -> gettext.NullTranslations:
+    async def _build_translation(self, locale: Locale) -> gettext.NullTranslations:
         translations = gettext.NullTranslations()
         for assets_directory_path in reversed(self._assets.assets_directory_paths):
             opened_translations = await self._open_translations(
@@ -319,9 +326,11 @@ class AssetTranslationRepository(TranslationRepository):
         return self._translations[locale]
 
     async def _open_translations(
-        self, locale: str, assets_directory_path: Path
+        self, locale: Locale, assets_directory_path: Path
     ) -> gettext.GNUTranslations | None:
-        po_file_path = assets_directory_path / "locale" / locale / "betty.po"
+        po_file_path = (
+            assets_directory_path / "locale" / to_language_tag(locale) / "betty.po"
+        )
         try:
             translation_version = await hashid_file_meta(po_file_path)
         except FileNotFoundError:
@@ -343,7 +352,7 @@ class AssetTranslationRepository(TranslationRepository):
             "-o",
             str(mo_file_path),
             "-l",
-            str(get_data(locale)),
+            str(ensure_locale(locale)),
             "-D",
             "betty",
         )
@@ -360,7 +369,7 @@ class AssetTranslationRepository(TranslationRepository):
         translatables = {
             translatable async for translatable in self._get_translatables()
         }
-        locale = to_locale(locale)
+        locale = ensure_locale(locale)
         if locale == DEFAULT_LOCALE:
             return len(translatables), len(translatables)
         translations = {
@@ -378,14 +387,29 @@ class AssetTranslationRepository(TranslationRepository):
                     for entry in pofile(pot_data):
                         yield entry.msgid_with_context
 
-    async def _get_translations(self, locale: str) -> AsyncIterator[str]:
+    async def _get_translations(self, locale: Locale) -> AsyncIterator[str]:
         for assets_directory_path in reversed(self._assets.assets_directory_paths):
             with suppress(FileNotFoundError):
                 async with aiofiles.open(
-                    assets_directory_path / "locale" / locale / "betty.po",
+                    assets_directory_path
+                    / "locale"
+                    / to_language_tag(locale)
+                    / "betty.po",
                     encoding="utf-8",
                 ) as po_data_f:
                     po_data = await po_data_f.read()
                 for entry in pofile(po_data):
                     if entry.translated():
                         yield entry.msgid_with_context
+
+
+@final
+class UntranslatedLocale(LocaleError):
+    """
+    Raised when no translations exist for a locale.
+    """
+
+    def __init__(self, locale: Locale, /):
+        super().__init__(
+            _("Untranslated locale {locale}.").format(locale=to_language_tag(locale))
+        )

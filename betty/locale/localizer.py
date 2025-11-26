@@ -24,16 +24,12 @@ from betty.date import (
 from betty.locale import (
     DEFAULT_LOCALE,
     LocaleLike,
-    get_data,
-    to_babel_identifier,
-    to_locale,
+    ensure_locale,
 )
 from betty.typing import threadsafe
 
 if TYPE_CHECKING:
-    from collections.abc import (
-        MutableMapping,
-    )
+    from collections.abc import MutableMapping
 
     from betty.locale.translation import TranslationRepository
 
@@ -44,27 +40,20 @@ class Localizer:
     Localize a variety of data into a specific locale.
     """
 
-    def __init__(self, locale: str, translations: gettext.NullTranslations, /):
-        self._locale = locale
-        self._locale_data = get_data(locale)
+    def __init__(self, locale: LocaleLike, translations: gettext.NullTranslations, /):
+        self._locale = ensure_locale(locale)
+        self._locale = ensure_locale(locale)
         self._translations = translations
         self.__date_parts_formatters: DatePartsFormatters | None = None
         self.__date_formatters: DateFormatters | None = None
         self.__date_range_formatters: DateRangeFormatters | None = None
 
     @property
-    def locale(self) -> str:
+    def locale(self) -> Locale:
         """
         The locale.
         """
         return self._locale
-
-    @property
-    def locale_data(self) -> Locale:
-        """
-        The locale data.
-        """
-        return self._locale_data
 
     def _(self, message: str, /) -> str:
         """
@@ -227,9 +216,7 @@ class Localizer:
                 "This date does not have enough parts to be rendered."
             ) from None
         parts = (1 if x is None else x for x in date.parts)
-        return dates.format_date(
-            datetime.date(*parts), date_parts_format, self._locale_data
-        )
+        return dates.format_date(datetime.date(*parts), date_parts_format, self._locale)
 
     def format_date_range(self, date_range: DateRange, /) -> str:
         """
@@ -273,9 +260,7 @@ class Localizer:
         """
         Format a datetime date to a human-readable string.
         """
-        return format_date(
-            datetime_datetime, "long", locale=to_babel_identifier(self.locale)
-        )
+        return format_date(datetime_datetime, "long", locale=self.locale)
 
 
 DEFAULT_LOCALIZER = Localizer(DEFAULT_LOCALE, gettext.NullTranslations())
@@ -290,13 +275,13 @@ class LocalizerRepository:
 
     def __init__(self, translations: TranslationRepository, /):
         self._translations = translations
-        self._localizers: MutableMapping[str, Localizer] = {}
+        self._localizers: MutableMapping[Locale, Localizer] = {}
 
     def get(self, locale: LocaleLike, /) -> Localizer:
         """
         Get the localizer for the given locale.
         """
-        locale = to_locale(locale)
+        locale = ensure_locale(locale)
         try:
             return self._localizers[locale]
         except KeyError:

@@ -16,7 +16,7 @@ from betty.copyright_notice.copyright_notices import (
     PublicDomain as PublicDomainCopyrightNotice,
 )
 from betty.license.licenses import PublicDomain as PublicDomainLicense
-from betty.locale import DEFAULT_LOCALE
+from betty.locale import DEFAULT_LOCALE_TAG
 from betty.locale.localizer import DEFAULT_LOCALIZER
 from betty.media_type.media_types import PLAIN_TEXT
 from betty.model import Entity
@@ -229,7 +229,7 @@ class TestFile(EntityTestBase):
                         "file": "/file/the_file/index.json",
                     },
                 ],
-                "description": {DEFAULT_LOCALE: "The Description"},
+                "description": {DEFAULT_LOCALE_TAG: "The Description"},
                 "copyrightNotice": "public-domain",
                 "license": "public-domain",
             }

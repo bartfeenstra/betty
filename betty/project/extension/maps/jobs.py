@@ -14,6 +14,8 @@ from betty.project import ProjectContext
 from betty.project.generate.file import create_file
 
 if TYPE_CHECKING:
+    from babel import Locale
+
     from betty.job.scheduler import Scheduler
 
 
@@ -35,7 +37,7 @@ class _GeneratePlacePreviews(Job[ProjectContext]):
 
 
 class _GeneratePlacePreview(Job[ProjectContext]):
-    def __init__(self, place_id: str, locale: str):
+    def __init__(self, place_id: str, locale: Locale):
         super().__init__(f"maps:generate-place-preview:{place_id}:{locale}")
         self._place_id = place_id
         self._locale = locale

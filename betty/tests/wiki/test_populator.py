@@ -4,6 +4,7 @@ from pathlib import Path
 from typing import TYPE_CHECKING
 from unittest.mock import AsyncMock, call
 
+from babel import Locale
 from geopy import Point
 
 from betty.ancestry import Ancestry
@@ -44,7 +45,7 @@ class TestPopulator:
         localizers = LocalizerRepository(NoOpTranslationRepository())
         sut = Populator(
             ancestry,
-            ["en", "nl", "uk"],
+            [Locale("en"), Locale("nl"), Locale("uk")],
             localizers,
             m_client,
             WikipediaContributors(""),
@@ -96,7 +97,7 @@ class TestPopulator:
         localizers = LocalizerRepository(NoOpTranslationRepository())
         sut = Populator(
             ancestry,
-            ["en", "nl", "uk"],
+            [Locale("en"), Locale("nl"), Locale("uk")],
             localizers,
             m_client,
             WikipediaContributors(""),
@@ -124,7 +125,7 @@ class TestPopulator:
         localizers = LocalizerRepository(NoOpTranslationRepository())
         sut = Populator(
             ancestry,
-            ["en", "nl", "uk"],
+            [Locale("en"), Locale("nl"), Locale("uk")],
             localizers,
             m_client,
             WikipediaContributors(""),
@@ -171,7 +172,7 @@ class TestPopulator:
         ancestry = Ancestry(place)
         sut = Populator(
             ancestry,
-            ["en"],
+            [Locale("en")],
             LocalizerRepository(NoOpTranslationRepository()),
             m_client,
             WikipediaContributors(""),
@@ -206,7 +207,7 @@ class TestPopulator:
         ancestry = Ancestry(has_file_references_and_links)
         sut = Populator(
             ancestry,
-            ["en"],
+            [Locale("en")],
             LocalizerRepository(NoOpTranslationRepository()),
             m_client,
             WikipediaContributors(""),
