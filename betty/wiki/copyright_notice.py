@@ -4,26 +4,31 @@ Wikipedia copyright notices.
 
 from __future__ import annotations
 
-from contextlib import suppress
 from typing import TYPE_CHECKING, Self, final
 
 import aiohttp
+from langcodes.tag_parser import LanguageTagError
 from typing_extensions import override
 
 from betty.app.factory import AppDependentSelfFactory
 from betty.copyright_notice import CopyrightNotice, CopyrightNoticePlugin
-from betty.locale import negotiate_locale, to_babel_identifier
-from betty.locale.localizable import Localizable, _
-from betty.locale.localized import LocalizedStr
+from betty.locale import DEFAULT_LOCALE, get_data
+from betty.locale.localizable import (
+    Localizable,
+    LocalizableLike,
+    StaticTranslations,
+    _,
+    ensure_localizable,
+)
 
 if TYPE_CHECKING:
-    from collections.abc import Mapping
-
     from aiohttp import ClientSession
 
     from betty.app import App
-    from betty.locale.localized import Localized
-    from betty.locale.localizer import Localizer
+
+
+def _copyright_url(language: str, page: str) -> str:
+    return f"https://{language}.wikipedia.org/wiki/{page}"
 
 
 @final
@@ -33,8 +38,9 @@ class WikipediaContributors(AppDependentSelfFactory, CopyrightNotice):
     The copyright for resources on Wikipedia.
     """
 
-    def __init__(self, urls: Mapping[str, str]):
-        self._url = _WikipediaContributorsUrl({"en": "Wikipedia:Copyrights", **urls})
+    def __init__(self, url: LocalizableLike):
+        super().__init__()
+        self._url = ensure_localizable(url)
 
     @classmethod
     async def new(cls, *, http_client: ClientSession) -> Self:
@@ -53,9 +59,17 @@ class WikipediaContributors(AppDependentSelfFactory, CopyrightNotice):
             for link in response_json["query"]["pages"][0][
                 "langlinks"
             ]:  # typing: ignore[index]
-                with suppress(ValueError):
-                    urls[to_babel_identifier(link["lang"])] = link["title"]
-        return cls(urls)
+                try:
+                    get_data(link["lang"])
+                except LanguageTagError:
+                    # Wikipedia uses some languages that are not valid ISO codes, such as "simple".
+                    continue
+                urls[link["lang"]] = _copyright_url(link["lang"], link["title"])
+        return cls(
+            StaticTranslations(
+                {DEFAULT_LOCALE: _copyright_url("en", "Wikipedia:Copyrights"), **urls}
+            )
+        )
 
     @override
     @classmethod
@@ -78,18 +92,3 @@ class WikipediaContributors(AppDependentSelfFactory, CopyrightNotice):
     @property
     def url(self) -> Localizable:
         return self._url
-
-
-class _WikipediaContributorsUrl(Localizable):
-    def __init__(self, urls: Mapping[str, str]):
-        self._urls = urls
-
-    @override
-    def localize(self, localizer: Localizer, /) -> Localized & str:
-        locale = negotiate_locale([localizer.locale, "en"], list(self._urls))
-        # We know there's always "en" (English).
-        assert locale is not None
-        return LocalizedStr(
-            f"https://{locale}.wikipedia.org/wiki/{self._urls[locale.language]}",
-            locale=locale.language,
-        )

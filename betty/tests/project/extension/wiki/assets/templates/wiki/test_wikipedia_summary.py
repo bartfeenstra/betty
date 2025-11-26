@@ -86,7 +86,7 @@ async def test_with_summary_should_render(mocker: MockerFixture) -> None:
         template="wiki/wikipedia-summary.html.j2",
     ) as (actual, _):
         assert summary.content in actual
-        wikipedia_contributors_copyright_notice = WikipediaContributors({})
+        wikipedia_contributors_copyright_notice = WikipediaContributors("")
         assert (
             wikipedia_contributors_copyright_notice.summary.localize(DEFAULT_LOCALIZER)
             in actual

@@ -47,7 +47,7 @@ class TestPopulator:
             ["en", "nl", "uk"],
             localizers,
             m_client,
-            WikipediaContributors({}),
+            WikipediaContributors(""),
         )
         await sut.populate(link)
         localizer_en = localizers.get("en")
@@ -99,7 +99,7 @@ class TestPopulator:
             ["en", "nl", "uk"],
             localizers,
             m_client,
-            WikipediaContributors({}),
+            WikipediaContributors(""),
         )
         await sut.populate(link)
         localizer_en = localizers.get("en")
@@ -127,7 +127,7 @@ class TestPopulator:
             ["en", "nl", "uk"],
             localizers,
             m_client,
-            WikipediaContributors({}),
+            WikipediaContributors(""),
         )
         await sut.populate(link)
 
@@ -145,7 +145,7 @@ class TestPopulator:
             [],
             LocalizerRepository(NoOpTranslationRepository()),
             m_client,
-            WikipediaContributors({}),
+            WikipediaContributors(""),
         )
         await sut.populate(entity)
 
@@ -174,7 +174,7 @@ class TestPopulator:
             ["en"],
             LocalizerRepository(NoOpTranslationRepository()),
             m_client,
-            WikipediaContributors({}),
+            WikipediaContributors(""),
         )
         await sut.populate(place)
 
@@ -209,7 +209,7 @@ class TestPopulator:
             ["en"],
             LocalizerRepository(NoOpTranslationRepository()),
             m_client,
-            WikipediaContributors({}),
+            WikipediaContributors(""),
         )
         await sut.populate(has_file_references_and_links)
 
