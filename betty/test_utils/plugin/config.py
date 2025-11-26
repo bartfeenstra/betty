@@ -16,6 +16,7 @@ from betty.plugin.config import (
     PluginDefinitionConfigurationMapping,
 )
 from betty.plugin.discovery.callback import CallbackDiscovery
+from betty.plugin.resolve import ResolvableId
 from betty.test_utils.config import DummyConfiguration
 from betty.test_utils.config.collections.mapping import ConfigurationMappingTestBase
 
@@ -26,6 +27,7 @@ if TYPE_CHECKING:
         ConfigurationCollectionTestBaseSutConfigurations,
     )
 
+_PluginT = TypeVar("_PluginT", bound=Plugin)
 _PluginDefinitionT = TypeVar("_PluginDefinitionT", bound=PluginDefinition)
 _PluginDefinitionConfigurationT = TypeVar(
     "_PluginDefinitionConfigurationT", bound=PluginDefinitionConfiguration
@@ -33,8 +35,12 @@ _PluginDefinitionConfigurationT = TypeVar(
 
 
 class PluginDefinitionConfigurationMappingTestBase(
-    ConfigurationMappingTestBase[MachineName, _PluginDefinitionConfigurationT],
-    Generic[_PluginDefinitionT, _PluginDefinitionConfigurationT],
+    ConfigurationMappingTestBase[
+        MachineName,
+        ResolvableId[_PluginDefinitionT, _PluginT],
+        _PluginDefinitionConfigurationT,
+    ],
+    Generic[_PluginDefinitionT, _PluginT, _PluginDefinitionConfigurationT],
 ):
     """
     A base class for testing :py:class:`betty.plugin.config.PluginDefinitionConfigurationMapping` implementations.
@@ -43,7 +49,9 @@ class PluginDefinitionConfigurationMappingTestBase(
     def test_new_plugins(
         self,
         new_sut: ConfigurationCollectionTestBaseNewSut[
-            _PluginDefinitionConfigurationT, MachineName
+            _PluginDefinitionConfigurationT,
+            MachineName,
+            ResolvableId[_PluginDefinitionT, _PluginT],
         ],
         sut_configurations: ConfigurationCollectionTestBaseSutConfigurations[
             _PluginDefinitionConfigurationT
@@ -54,7 +62,7 @@ class PluginDefinitionConfigurationMappingTestBase(
         """
         sut = cast(
             PluginDefinitionConfigurationMapping[
-                _PluginDefinitionT, _PluginDefinitionConfigurationT
+                _PluginDefinitionT, _PluginT, _PluginDefinitionConfigurationT
             ],
             new_sut(sut_configurations),
         )

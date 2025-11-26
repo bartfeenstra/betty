@@ -51,7 +51,7 @@ class ConfigurationMappingTestConfiguration(Configuration):
 
 
 class TestConfigurationMapping(
-    ConfigurationMappingTestBase[str, ConfigurationMappingTestConfiguration]
+    ConfigurationMappingTestBase[str, str, ConfigurationMappingTestConfiguration]
 ):
     @override
     @pytest.fixture
@@ -65,7 +65,7 @@ class TestConfigurationMapping(
     def new_sut(
         self,
     ) -> ConfigurationCollectionTestBaseNewSut[
-        ConfigurationMappingTestConfiguration, str
+        ConfigurationMappingTestConfiguration, str, str
     ]:
         return ConfigurationMappingTestConfigurationMapping
 
@@ -87,14 +87,14 @@ class TestConfigurationMapping(
         )
 
     async def test_load__without_items(
-        self, sut: ConfigurationMapping[str, Configuration]
+        self, sut: ConfigurationMapping[str, str, Configuration]
     ) -> None:
         sut.load({})
         assert len(sut) == 0
 
     async def test_load__with_items(
         self,
-        sut: ConfigurationMapping[str, Configuration],
+        sut: ConfigurationMapping[str, str, Configuration],
         sut_configurations: ConfigurationCollectionTestBaseSutConfigurations[
             ConfigurationMappingTestConfiguration
         ],
@@ -103,14 +103,14 @@ class TestConfigurationMapping(
         assert len(sut) == len(sut_configurations)
 
     async def test_dump__without_items(
-        self, sut: ConfigurationMapping[str, Configuration]
+        self, sut: ConfigurationMapping[str, str, Configuration]
     ) -> None:
         dump = sut.dump()
         assert dump == {}
 
     async def test_dump__with_items(
         self,
-        sut: ConfigurationMapping[str, Configuration],
+        sut: ConfigurationMapping[str, str, Configuration],
         sut_configurations: ConfigurationCollectionTestBaseSutConfigurations[
             ConfigurationMappingTestConfiguration
         ],
@@ -127,8 +127,12 @@ class TestConfigurationMapping(
 
 
 class ConfigurationMappingTestConfigurationMapping(
-    ConfigurationMapping[str, ConfigurationMappingTestConfiguration]
+    ConfigurationMapping[str, str, ConfigurationMappingTestConfiguration]
 ):
+    @override
+    def _resolve_key(self, configuration_key: str, /) -> str:
+        return configuration_key
+
     @override
     def _load_item(self, dump: Dump, /) -> ConfigurationMappingTestConfiguration:
         configuration = ConfigurationMappingTestConfiguration("", 0)
@@ -152,7 +156,7 @@ class ConfigurationMappingTestConfigurationMapping(
 
 
 class TestOrderedConfigurationMapping(
-    ConfigurationMappingTestBase[str, ConfigurationMappingTestConfiguration]
+    ConfigurationMappingTestBase[str, str, ConfigurationMappingTestConfiguration]
 ):
     @override
     @pytest.fixture
@@ -166,7 +170,7 @@ class TestOrderedConfigurationMapping(
     def new_sut(
         self,
     ) -> ConfigurationCollectionTestBaseNewSut[
-        ConfigurationMappingTestConfiguration, str
+        ConfigurationMappingTestConfiguration, str, str
     ]:
         return OrderedConfigurationMappingTestOrderedConfigurationMapping
 
@@ -188,14 +192,14 @@ class TestOrderedConfigurationMapping(
         )
 
     async def test_load__without_items(
-        self, sut: OrderedConfigurationMapping[str, Configuration]
+        self, sut: OrderedConfigurationMapping[str, str, Configuration]
     ) -> None:
         sut.load([])
         assert len(sut) == 0
 
     async def test_load__with_items(
         self,
-        sut: OrderedConfigurationMapping[str, Configuration],
+        sut: OrderedConfigurationMapping[str, str, Configuration],
         sut_configurations: ConfigurationCollectionTestBaseSutConfigurations[
             ConfigurationMappingTestConfiguration
         ],
@@ -204,14 +208,14 @@ class TestOrderedConfigurationMapping(
         assert len(sut) == len(sut_configurations)
 
     async def test_dump__without_items(
-        self, sut: OrderedConfigurationMapping[str, Configuration]
+        self, sut: OrderedConfigurationMapping[str, str, Configuration]
     ) -> None:
         dump = sut.dump()
         assert dump == []
 
     async def test_dump__with_items(
         self,
-        sut: OrderedConfigurationMapping[str, Configuration],
+        sut: OrderedConfigurationMapping[str, str, Configuration],
         sut_configurations: ConfigurationCollectionTestBaseSutConfigurations[
             ConfigurationMappingTestConfiguration
         ],
@@ -223,8 +227,12 @@ class TestOrderedConfigurationMapping(
 
 
 class OrderedConfigurationMappingTestOrderedConfigurationMapping(
-    OrderedConfigurationMapping[str, ConfigurationMappingTestConfiguration]
+    OrderedConfigurationMapping[str, str, ConfigurationMappingTestConfiguration]
 ):
+    @override
+    def _resolve_key(self, configuration_key: str, /) -> str:
+        return configuration_key
+
     @override
     def _load_item(self, dump: Dump, /) -> ConfigurationMappingTestConfiguration:
         configuration = ConfigurationMappingTestConfiguration("", 0)

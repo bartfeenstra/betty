@@ -5,14 +5,14 @@ from typing import TYPE_CHECKING
 import pytest
 from typing_extensions import override
 
-from betty.ancestry.event_type import EventTypePlugin
-from betty.ancestry.gender import GenderPlugin
-from betty.ancestry.place_type import PlaceTypePlugin
-from betty.ancestry.presence_role import PresenceRolePlugin
-from betty.copyright_notice import CopyrightNoticePlugin
+from betty.ancestry.event_type import EventType, EventTypePlugin
+from betty.ancestry.gender import Gender, GenderPlugin
+from betty.ancestry.place_type import PlaceType, PlaceTypePlugin
+from betty.ancestry.presence_role import PresenceRole, PresenceRolePlugin
+from betty.copyright_notice import CopyrightNotice, CopyrightNoticePlugin
 from betty.copyright_notice.copyright_notices import ProjectAuthor
 from betty.exception import HumanFacingException
-from betty.license import LicensePlugin
+from betty.license import License, LicensePlugin
 from betty.license.licenses import AllRightsReserved
 from betty.locale import DEFAULT_LOCALE, UNDETERMINED_LOCALE
 from betty.locale.localizable import CountablePlain, Plain
@@ -21,6 +21,7 @@ from betty.machine_name import MachineName
 from betty.model import Entity, EntityPlugin
 from betty.plugin.config import PluginInstanceConfiguration
 from betty.plugin.repository.static import StaticPluginRepository
+from betty.plugin.resolve import ResolvableId
 from betty.project.config import (
     CopyrightNoticePluginConfiguration,
     CopyrightNoticePluginConfigurationMapping,
@@ -134,13 +135,13 @@ class TestLocaleConfiguration:
 
 
 class TestLocaleConfigurationMapping(
-    ConfigurationMappingTestBase[str, LocaleConfiguration]
+    ConfigurationMappingTestBase[str, str, LocaleConfiguration]
 ):
     @override
     @pytest.fixture
     def new_sut(
         self,
-    ) -> ConfigurationCollectionTestBaseNewSut[LocaleConfiguration, MachineName]:
+    ) -> ConfigurationCollectionTestBaseNewSut[LocaleConfiguration, MachineName, str]:
         return LocaleConfigurationMapping
 
     @override
@@ -165,7 +166,7 @@ class TestLocaleConfigurationMapping(
     @override
     def test___delitem__(  # type: ignore[override]
         self,
-        new_sut: ConfigurationCollectionTestBaseNewSut[LocaleConfiguration, str],
+        new_sut: ConfigurationCollectionTestBaseNewSut[LocaleConfiguration, str, str],
         sut_configurations: ConfigurationCollectionTestBaseSutConfigurations[
             LocaleConfiguration
         ],
@@ -179,7 +180,7 @@ class TestLocaleConfigurationMapping(
 
     def test___delitem____with_locale(
         self,
-        new_sut: ConfigurationCollectionTestBaseNewSut[LocaleConfiguration, str],
+        new_sut: ConfigurationCollectionTestBaseNewSut[LocaleConfiguration, str, str],
         sut_configurations: ConfigurationCollectionTestBaseSutConfigurations[
             LocaleConfiguration
         ],
@@ -276,7 +277,9 @@ class ExtensionInstanceConfigurationMappingTestExtension3(Extension):
 
 class TestExtensionInstanceConfigurationMapping(
     ConfigurationMappingTestBase[
-        MachineName, PluginInstanceConfiguration[ExtensionPlugin, Extension]
+        MachineName,
+        ResolvableId[ExtensionPlugin, Extension],
+        PluginInstanceConfiguration[ExtensionPlugin, Extension],
     ]
 ):
     @override
@@ -296,7 +299,9 @@ class TestExtensionInstanceConfigurationMapping(
     def new_sut(
         self,
     ) -> ConfigurationCollectionTestBaseNewSut[
-        PluginInstanceConfiguration[ExtensionPlugin, Extension], MachineName
+        PluginInstanceConfiguration[ExtensionPlugin, Extension],
+        MachineName,
+        ResolvableId[ExtensionPlugin, Extension],
     ]:
         return ExtensionInstanceConfigurationMapping
 
@@ -446,7 +451,9 @@ class EntityTypeConfigurationMappingTestEntity3(Entity):
 
 
 class TestEntityTypeConfigurationMapping(
-    ConfigurationMappingTestBase[MachineName, EntityTypeConfiguration]
+    ConfigurationMappingTestBase[
+        MachineName, ResolvableId[EntityPlugin, Entity], EntityTypeConfiguration
+    ]
 ):
     @override
     @pytest.fixture
@@ -464,7 +471,9 @@ class TestEntityTypeConfigurationMapping(
     @pytest.fixture
     def new_sut(
         self,
-    ) -> ConfigurationCollectionTestBaseNewSut[EntityTypeConfiguration, MachineName]:
+    ) -> ConfigurationCollectionTestBaseNewSut[
+        EntityTypeConfiguration, MachineName, ResolvableId[EntityPlugin, Entity]
+    ]:
         return EntityTypeConfigurationMapping
 
     @override
@@ -572,7 +581,7 @@ class TestCopyrightNoticeConfiguration:
 
 class TestCopyrightNoticePluginConfigurationMapping(
     PluginDefinitionConfigurationMappingTestBase[
-        CopyrightNoticePlugin, CopyrightNoticePluginConfiguration
+        CopyrightNoticePlugin, CopyrightNotice, CopyrightNoticePluginConfiguration
     ]
 ):
     @override
@@ -609,7 +618,9 @@ class TestCopyrightNoticePluginConfigurationMapping(
     def new_sut(
         self,
     ) -> ConfigurationCollectionTestBaseNewSut[
-        CopyrightNoticePluginConfigurationMapping, MachineName
+        CopyrightNoticePluginConfigurationMapping,
+        MachineName,
+        ResolvableId[CopyrightNoticePlugin, CopyrightNotice],
     ]:
         return CopyrightNoticePluginConfigurationMapping  # type: ignore[return-value]
 
@@ -682,7 +693,7 @@ class TestLicenseConfiguration:
 
 class TestLicensePluginConfigurationMapping(
     PluginDefinitionConfigurationMappingTestBase[
-        LicensePlugin, LicensePluginConfiguration
+        LicensePlugin, License, LicensePluginConfiguration
     ]
 ):
     @override
@@ -708,13 +719,15 @@ class TestLicensePluginConfigurationMapping(
     @pytest.fixture
     def new_sut(
         self,
-    ) -> ConfigurationCollectionTestBaseNewSut[LicensePluginConfiguration, MachineName]:
+    ) -> ConfigurationCollectionTestBaseNewSut[
+        LicensePluginConfiguration, MachineName, ResolvableId[LicensePlugin, License]
+    ]:
         return LicensePluginConfigurationMapping
 
 
 class TestEventTypePluginConfigurationMapping(
     PluginDefinitionConfigurationMappingTestBase[
-        EventTypePlugin, EventTypePluginConfiguration
+        EventTypePlugin, EventType, EventTypePluginConfiguration
     ]
 ):
     @override
@@ -741,14 +754,16 @@ class TestEventTypePluginConfigurationMapping(
     def new_sut(
         self,
     ) -> ConfigurationCollectionTestBaseNewSut[
-        EventTypePluginConfiguration, MachineName
+        EventTypePluginConfiguration,
+        MachineName,
+        ResolvableId[EventTypePlugin, EventType],
     ]:
         return EventTypePluginConfigurationMapping
 
 
 class TestPlaceTypePluginConfigurationMapping(
     PluginDefinitionConfigurationMappingTestBase[
-        PlaceTypePlugin, PlaceTypePluginConfiguration
+        PlaceTypePlugin, PlaceType, PlaceTypePluginConfiguration
     ]
 ):
     @override
@@ -775,14 +790,16 @@ class TestPlaceTypePluginConfigurationMapping(
     def new_sut(
         self,
     ) -> ConfigurationCollectionTestBaseNewSut[
-        PlaceTypePluginConfiguration, MachineName
+        PlaceTypePluginConfiguration,
+        MachineName,
+        ResolvableId[PlaceTypePlugin, PlaceType],
     ]:
         return PlaceTypePluginConfigurationMapping
 
 
 class TestPresenceRolePluginConfigurationMapping(
     PluginDefinitionConfigurationMappingTestBase[
-        PresenceRolePlugin, PresenceRolePluginConfiguration
+        PresenceRolePlugin, PresenceRole, PresenceRolePluginConfiguration
     ]
 ):
     @override
@@ -811,14 +828,16 @@ class TestPresenceRolePluginConfigurationMapping(
     def new_sut(
         self,
     ) -> ConfigurationCollectionTestBaseNewSut[
-        PresenceRolePluginConfiguration, MachineName
+        PresenceRolePluginConfiguration,
+        MachineName,
+        ResolvableId[PresenceRolePlugin, PresenceRole],
     ]:
         return PresenceRolePluginConfigurationMapping
 
 
 class TestGenderPluginConfigurationMapping(
     PluginDefinitionConfigurationMappingTestBase[
-        GenderPlugin, GenderPluginConfiguration
+        GenderPlugin, Gender, GenderPluginConfiguration
     ]
 ):
     @override
@@ -844,7 +863,9 @@ class TestGenderPluginConfigurationMapping(
     @pytest.fixture
     def new_sut(
         self,
-    ) -> ConfigurationCollectionTestBaseNewSut[GenderPluginConfiguration, MachineName]:
+    ) -> ConfigurationCollectionTestBaseNewSut[
+        GenderPluginConfiguration, MachineName, ResolvableId[GenderPlugin, Gender]
+    ]:
         return GenderPluginConfigurationMapping
 
 

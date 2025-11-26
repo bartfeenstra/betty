@@ -44,7 +44,7 @@ class TestConfigurationSequence(
     def new_sut(
         self,
     ) -> ConfigurationCollectionTestBaseNewSut[
-        ConfigurationSequenceTestConfiguration, int
+        ConfigurationSequenceTestConfiguration, int, int
     ]:
         return ConfigurationSequenceTestConfigurationSequence
 

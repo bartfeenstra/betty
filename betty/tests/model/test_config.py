@@ -159,7 +159,7 @@ class TestEntityReferenceSequence(ConfigurationSequenceTestBase[EntityReference]
     @pytest.fixture
     def new_sut(
         self,
-    ) -> ConfigurationCollectionTestBaseNewSut[EntityReference, int]:
+    ) -> ConfigurationCollectionTestBaseNewSut[EntityReference, int, int]:
         return EntityReferenceSequence
 
     @override

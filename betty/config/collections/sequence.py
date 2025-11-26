@@ -4,9 +4,9 @@ Define and provide sequences of :py:class:`betty.config.Configuration` instances
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Generic, TypeVar, overload
+from typing import TYPE_CHECKING, overload
 
-from typing_extensions import override
+from typing_extensions import TypeVar, override
 
 from betty.assertion import assert_sequence
 from betty.config import Configuration
@@ -20,9 +20,7 @@ if TYPE_CHECKING:
 _ConfigurationT = TypeVar("_ConfigurationT", bound=Configuration)
 
 
-class ConfigurationSequence(
-    ConfigurationCollection[int, _ConfigurationT], Generic[_ConfigurationT]
-):
+class ConfigurationSequence(ConfigurationCollection[int, int, _ConfigurationT]):
     """
     A sequence of configuration values.
 
@@ -32,6 +30,10 @@ class ConfigurationSequence(
     def __init__(self, configurations: Iterable[_ConfigurationT] | None = None, /):
         self._configurations: MutableSequence[_ConfigurationT] = []
         super().__init__(configurations)
+
+    @override
+    def _resolve_key(self, configuration_key: int, /) -> int:
+        return configuration_key
 
     def __contains__(self, configuration: _ConfigurationT) -> bool:
         return configuration in self._configurations

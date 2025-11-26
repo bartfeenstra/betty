@@ -40,7 +40,7 @@ class TestFamilyTreeConfigurationSequence(
     @pytest.fixture
     def new_sut(
         self,
-    ) -> ConfigurationCollectionTestBaseNewSut[FamilyTreeConfiguration, int]:
+    ) -> ConfigurationCollectionTestBaseNewSut[FamilyTreeConfiguration, int, int]:
         return FamilyTreeConfigurationSequence
 
     @override
