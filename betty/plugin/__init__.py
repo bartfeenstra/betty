@@ -193,12 +193,19 @@ class PluginTypeDefinition(Generic[_PluginDefinitionT]):
         return self._defined_discoveries != self._discoveries
 
 
+_plugin_types: Mapping[MachineName, type[PluginDefinition]] | None = None
+
+
 def plugin_types() -> Mapping[MachineName, type[PluginDefinition]]:
     """
     Get the available plugin types.
     """
-    return {
-        plugin.type.id: plugin
-        for entry_point in metadata.entry_points(group="betty.plugin")
-        if (plugin := entry_point.load())
-    }
+    global _plugin_types
+
+    if _plugin_types is None:
+        _plugin_types = {
+            plugin.type.id: plugin
+            for entry_point in metadata.entry_points(group="betty.plugin")
+            if (plugin := entry_point.load())
+        }
+    return _plugin_types
