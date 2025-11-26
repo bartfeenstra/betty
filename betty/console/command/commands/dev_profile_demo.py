@@ -10,28 +10,30 @@ from typing_extensions import override
 from betty.app.factory import AppDependentSelfFactory
 from betty.console.command import Command, CommandFunction, CommandPlugin
 from betty.dirs import DEV_OUTPUT_DIRECTORY_PATH
-from betty.locale.localizable import _
 from betty.project import ProjectContext
 from betty.project.extension.demo import generate_with_cleanup
 from betty.project.extension.demo.project import create_project
+from betty.app import App
 
 if TYPE_CHECKING:
     import argparse
 
     from yappi import YFuncStats
 
-    from betty.app import App
+    from betty.user import User
 
 
-async def _target(app: App) -> None:
-    async with TemporaryDirectory() as tmp_path_str:
-        project = await create_project(app, Path(tmp_path_str))
-        async with (
-            project,
-            project.app.user.message_progress(_("Generating site...")) as progress,
-        ):
-            job_context = ProjectContext(project, progress=progress)
-            await generate_with_cleanup(project, job_context=job_context)
+async def _target(user: User) -> None:
+    async with (
+        App.new_temporary() as app,
+        app,
+        TemporaryDirectory() as project_directory_path_str,
+    ):
+        project = await create_project(app, Path(project_directory_path_str))
+        async with project, user.message_progress("Generating site...") as progress:
+            await generate_with_cleanup(
+                project, job_context=ProjectContext(project, progress=progress)
+            )
 
 
 def _print(stats: YFuncStats, sort_column: str, sort_direction: str) -> None:
@@ -166,7 +168,7 @@ class DevProfileDemo(AppDependentSelfFactory, Command):
             await makedirs(stats_file_path.parent, exist_ok=True)
             yappi.set_clock_type(clock_type)  # Use set_clock_type("wall") for wall time
             yappi.start()
-            await _target(self._app)
+            await _target(self._app.user)
             yappi.stop()
             stats = yappi.get_func_stats()
             stats.save(stats_file_path)
