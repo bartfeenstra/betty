@@ -35,6 +35,8 @@ from betty.string import kebab_case_to_lower_camel_case
 if TYPE_CHECKING:
     from collections.abc import MutableSequence
 
+    from babel import Locale
+
     from betty.jinja2 import CopyFunction
     from betty.job.scheduler import Scheduler
     from betty.serde.dump import Dump, DumpMapping
@@ -315,7 +317,7 @@ class GenerateLocalizedPublicAssets(Job[ProjectContext]):
         scheduler: Scheduler[ProjectContext],
         asset_path: Path,
         copy_function: CopyFunction,
-        locale: str,
+        locale: Locale,
     ) -> None:
         project = scheduler.context.project
         assets = await project.assets
@@ -551,7 +553,7 @@ class _GenerateEntityTypeHtml(Job[ProjectContext]):
     def __init__(
         self,
         entity_type: EntityPlugin,
-        locale: str,
+        locale: Locale,
         page: int,
         per_page: int,
         page_count: int,
@@ -564,7 +566,7 @@ class _GenerateEntityTypeHtml(Job[ProjectContext]):
         self._page_count = page_count
 
     @classmethod
-    def id_for(cls, entity_type: EntityPlugin, locale: str, page: int) -> str:
+    def id_for(cls, entity_type: EntityPlugin, locale: Locale, page: int) -> str:
         return f"generate-entity-type-html:{entity_type.id}:{locale}:{page}"
 
     @override
@@ -694,14 +696,14 @@ class GenerateEntitiesHtml(Job[ProjectContext]):
 
 @final
 class _GenerateEntityHtml(Job[ProjectContext]):
-    def __init__(self, entity_type: EntityPlugin, entity_id: str, locale: str):
+    def __init__(self, entity_type: EntityPlugin, entity_id: str, locale: Locale):
         super().__init__(self.id_for(entity_type, entity_id, locale))
         self._entity_type = entity_type
         self._entity_id = entity_id
         self._locale = locale
 
     @classmethod
-    def id_for(cls, entity_type: EntityPlugin, entity_id: str, locale: str) -> str:
+    def id_for(cls, entity_type: EntityPlugin, entity_id: str, locale: Locale) -> str:
         return f"generate-entity-html:{entity_type.id}:{entity_id}:{locale}"
 
     @override

@@ -1,14 +1,16 @@
 """
-Provide Locale API errors.
+Locale API errors.
 """
 
 from __future__ import annotations
 
-from babel.core import Locale
+from typing import final
+
+from babel import Locale
 from babel.localedata import locale_identifiers
 
 from betty.exception import HumanFacingException
-from betty.locale import to_locale
+from betty.locale import to_language_tag
 from betty.locale.localizable import Paragraph, _, do_you_mean
 
 
@@ -18,6 +20,7 @@ class LocaleError(HumanFacingException, Exception):
     """
 
 
+@final
 class InvalidLocale(LocaleError):
     """
     Raised when a value is not a valid locale.
@@ -29,36 +32,24 @@ class InvalidLocale(LocaleError):
                 invalid_locale=invalid_locale
             )
         )
-        self.invalid_locale = invalid_locale
 
 
+@final
 class UnknownLocale(LocaleError):
     """
-    Raised when a locale is unknown.
-    """
-
-    def __init__(self, locale: str, /):
-        super().__init__(_("Unknown locale {locale}.").format(locale=locale))
-
-
-class UnsupportedLocale(LocaleError):
-    """
-    Raised when a locale is not supported by the system.
+    Raised when a locale is not known by the system.
     """
 
     def __init__(self, locale: str, /) -> None:
         locale_chars = {char for char in locale[: locale.find("-")] if char.isalpha()}
         available_locales = sorted(
-            to_locale(Locale.parse(identifier))
+            to_language_tag(Locale.parse(identifier))
             for identifier in locale_identifiers()
             if set(identifier[: identifier.find("_")]) & locale_chars
         )
         super().__init__(
             Paragraph(
-                _("Locale {locale} is not supported by your system.").format(
-                    locale=locale
-                ),
+                _("Locale {locale} is not known by your system.").format(locale=locale),
                 do_you_mean(*available_locales),
             )
         )
-        self.locale = locale

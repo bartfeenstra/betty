@@ -17,7 +17,7 @@ from betty.ancestry.person_name import PersonName
 from betty.ancestry.presence import Presence
 from betty.ancestry.presence_role.presence_roles import Subject
 from betty.ancestry.source import Source
-from betty.locale import DEFAULT_LOCALE
+from betty.locale import DEFAULT_LOCALE, DEFAULT_LOCALE_TAG, to_language_tag
 from betty.model import Entity
 from betty.model.association import AssociationRequired, TemporaryToOneResolver
 from betty.mutability import Mutable
@@ -329,10 +329,12 @@ class TestPerson(EntityTestBase):
                     "@context": {"description": "https://schema.org/description"},
                     "id": link.id,
                     "url": {
-                        DEFAULT_LOCALE: "https://example.com/the-person",
+                        to_language_tag(
+                            DEFAULT_LOCALE
+                        ): "https://example.com/the-person",
                     },
                     "label": {
-                        DEFAULT_LOCALE: "The Person Online",
+                        DEFAULT_LOCALE_TAG: "The Person Online",
                     },
                     "owner": "/person/the_person/index.json",
                     "private": False,

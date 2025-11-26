@@ -7,13 +7,17 @@ from typing_extensions import override
 from betty.app import config as app_config
 from betty.app.config import AppConfiguration
 from betty.app.factory import AppDependentSelfFactory
+from betty.assertion import assert_locale
 from betty.config.file import write_configuration_file
+from betty.console.assertion import assertion_to_argument_type
 from betty.console.command import Command, CommandFunction, CommandPlugin
-from betty.locale import DEFAULT_LOCALE, get_display_name
+from betty.locale import DEFAULT_LOCALE, to_language_tag
 from betty.locale.localizable import _
 
 if TYPE_CHECKING:
     import argparse
+
+    from babel import Locale
 
     from betty.app import App
 
@@ -42,10 +46,11 @@ class Config(AppDependentSelfFactory, Command):
             help=localizer._(
                 "Set the locale for Betty's user interface. This must be an IETF BCP 47 language tag."
             ),
+            type=assertion_to_argument_type(assert_locale(), localizer=localizer),
         )
         return self._command_function
 
-    async def _command_function(self, *, locale: str) -> None:
+    async def _command_function(self, *, locale: Locale) -> None:
         localizers = await self._app.localizers
         updated_configuration = AppConfiguration()
         updated_configuration.load(self._app.configuration.dump())
@@ -53,7 +58,7 @@ class Config(AppDependentSelfFactory, Command):
         self._app.user.localizer = localizers.get(locale)
         await self._app.user.message_information(
             _("Betty will talk to you in {locale}").format(
-                locale=str(get_display_name(locale))
+                locale=locale.get_display_name() or to_language_tag(locale)
             )
         )
 

@@ -18,6 +18,8 @@ from betty.project.extension import ExtensionPlugin
 if TYPE_CHECKING:
     from pathlib import Path
 
+    from babel import Locale
+
     from betty.user import User
 
 _ExtensionPluginT = TypeVar("_ExtensionPluginT", bound=ExtensionPlugin)
@@ -48,7 +50,7 @@ def assert_extension_has_assets_directory_path(
 
 
 async def new_extension_translation(
-    locale: str, extension: ExtensionPlugin, *, user: User
+    locale: Locale, extension: ExtensionPlugin, *, user: User
 ) -> None:
     """
     Create a new translation for the given extension.

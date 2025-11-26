@@ -7,7 +7,7 @@ import aiofiles
 from betty.ancestry.has_file_references import HasFileReferences
 from betty.jinja2 import Environment, Jinja2Provider
 from betty.job import Context
-from betty.locale import DEFAULT_LOCALE
+from betty.locale import DEFAULT_LOCALE_TAG
 from betty.project import Project
 from betty.resource import new_context
 from betty.test_utils import Counter
@@ -106,10 +106,10 @@ class TestEnvironment:
                 await f.write("{{ resource.resource }}\n{{ resource.resource_url }}")
             www_directory_path = tmp_path / "www"
             destination_file_path = (
-                www_directory_path / DEFAULT_LOCALE / "destination.test.j2"
+                www_directory_path / DEFAULT_LOCALE_TAG / "destination.test.j2"
             )
             rendered_destination_file_path = (
-                www_directory_path / DEFAULT_LOCALE / "destination.test"
+                www_directory_path / DEFAULT_LOCALE_TAG / "destination.test"
             )
             copy_function = sut.make_copy_function(
                 www_directory_path=www_directory_path,

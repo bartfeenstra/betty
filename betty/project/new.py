@@ -9,7 +9,7 @@ from betty.ancestry.place import Place
 from betty.ancestry.source import Source
 from betty.assertion import assert_str, assert_path, assert_locale
 from betty.config.file import write_configuration_file
-from betty.locale import get_display_name, DEFAULT_LOCALE
+from betty.locale import DEFAULT_LOCALE_TAG, to_language_tag
 from betty.locale.localizable import _, Localizable, StaticTranslations
 from betty.machine_name import machinify, assert_machine_name
 from betty.plugin.config import PluginInstanceConfiguration
@@ -36,6 +36,8 @@ from betty.project.extension.wiki import Wiki
 if TYPE_CHECKING:
     from collections.abc import Sequence
     from pathlib import Path
+
+    from babel import Locale
 
     from betty.app import App
     from betty.user import User
@@ -80,9 +82,9 @@ async def new(app: App) -> None:
         LocaleConfiguration(
             await app.user.ask_input(
                 _(
-                    "Which language should your project site be generated in? Enter an IETF BCP 47 language code."
+                    "Which language should your project site be generated in? Enter a language code."
                 ),
-                default=DEFAULT_LOCALE,
+                default=DEFAULT_LOCALE_TAG,
                 assertion=assert_locale(),
             )
         )
@@ -92,7 +94,7 @@ async def new(app: App) -> None:
             LocaleConfiguration(
                 await app.user.ask_input(
                     _(
-                        "Which language should your project site be generated in? Enter an IETF BCP 47 language code."
+                        "Which language should your project site be generated in? Enter a language code."
                     ),
                     assertion=assert_locale(),
                 )
@@ -168,12 +170,14 @@ def _assert_url(value: Any) -> str:
 
 
 async def _user_input_static_translations(
-    user: User, locales: Sequence[str], question: Localizable
+    user: User, locales: Sequence[Locale], question: Localizable
 ) -> StaticTranslations:
     return StaticTranslations(
         {
             locale: await user.ask_input(
-                question.format(locale=get_display_name(locale) or locale)
+                question.format(
+                    locale=locale.get_display_name() or to_language_tag(locale)
+                )
             )
             for locale in locales
         }

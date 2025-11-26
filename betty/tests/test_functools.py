@@ -7,7 +7,7 @@ from betty.functools import (
     Do,
     Result,
     ResultUnavailable,
-    filter_suppress,
+    map_suppress,
     passthrough,
     suppress,
     unique,
@@ -127,14 +127,15 @@ def test_passthrough() -> None:
     assert passthrough(value) is value
 
 
-def test_filter_suppress() -> None:
-    def _raising_filter(value: int) -> None:
+def test_map_suppress() -> None:
+    def _raising_map(value: int) -> int:
         if value % 2 > 0:
             raise ValueError
+        return value * 2
 
     assert list(
-        filter_suppress(_raising_filter, ValueError, [0, 1, 2, 3, 4, 5, 6, 7, 8, 9])
-    ) == [0, 2, 4, 6, 8]
+        map_suppress(_raising_map, ValueError, [0, 1, 2, 3, 4, 5, 6, 7, 8, 9])
+    ) == [0, 4, 8, 12, 16]
 
 
 class TestResult:

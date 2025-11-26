@@ -1,6 +1,5 @@
 import pytest
 
-from betty.locale import UNDETERMINED_LOCALE
 from betty.locale.localizable import ShorthandStaticTranslations, StaticTranslations
 from betty.locale.localizable.linked_data import dump_linked_data
 from betty.locale.localizable.schema import StaticTranslationsSchema
@@ -12,10 +11,6 @@ from betty.test_utils.json.linked_data import assert_linked_data_dump
 @pytest.mark.parametrize(
     ("expected", "translations"),
     [
-        (
-            {UNDETERMINED_LOCALE: "Hello, world!"},
-            "Hello, world!",
-        ),
         (
             {"en-US": "Hello, world!"},
             {

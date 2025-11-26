@@ -4,7 +4,7 @@ from typing import TYPE_CHECKING
 
 import pytest
 
-from betty.locale import DEFAULT_LOCALE
+from betty.locale import DEFAULT_LOCALE_TAG
 from betty.locale.localizer import DEFAULT_LOCALIZER
 from betty.test_utils.ancestry.description import DummyHasDescription
 from betty.test_utils.json.linked_data import assert_dumps_linked_data
@@ -37,7 +37,7 @@ class TestHasDescription:
             (
                 {
                     "@context": {"description": "https://schema.org/description"},
-                    "description": {DEFAULT_LOCALE: "Hello, world!"},
+                    "description": {DEFAULT_LOCALE_TAG: "Hello, world!"},
                 },
                 DummyHasDescription(description="Hello, world!"),
             ),

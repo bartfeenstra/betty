@@ -1,5 +1,7 @@
 from typing import TYPE_CHECKING
 
+from babel import Locale
+
 from betty.app.config import AppConfiguration
 
 if TYPE_CHECKING:
@@ -12,15 +14,15 @@ class TestAppConfiguration:
         assert sut.locale is None
 
     def test___init____with_locale(self) -> None:
-        locale = "nl-NL"
+        locale = Locale("nl", "NL")
         sut = AppConfiguration(locale=locale)
-        assert sut.locale == locale
+        assert sut.locale is locale
 
     def test_locale(self) -> None:
         sut = AppConfiguration()
-        locale = "nl-NL"
+        locale = Locale("nl", "NL")
         sut.locale = locale
-        assert sut.locale == locale
+        assert sut.locale is locale
 
     def test_load__minimal(self) -> None:
         sut = AppConfiguration()
@@ -28,11 +30,11 @@ class TestAppConfiguration:
         sut.load(dump)
 
     def test_load__with_locale(self) -> None:
-        locale = "nl-NL"
+        locale = "nl"
         sut = AppConfiguration()
         dump: DumpMapping[Dump] = {"locale": locale}
         sut.load(dump)
-        assert sut.locale == locale
+        assert sut.locale == Locale(locale)
 
     def test_dump__minimal(self) -> None:
         sut = AppConfiguration()
@@ -40,7 +42,7 @@ class TestAppConfiguration:
         assert actual == {}
 
     def test_dump__with_locale(self) -> None:
-        locale = "nl-NL"
-        sut = AppConfiguration(locale=locale)
+        locale = "nl"
+        sut = AppConfiguration(locale=Locale(locale))
         actual = sut.dump()
         assert actual == {"locale": locale}

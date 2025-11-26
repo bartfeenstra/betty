@@ -1,9 +1,10 @@
 from pathlib import Path
 
+from babel import Locale
 from pytest_mock import MockerFixture
 
 from betty.config.file import assert_configuration_file
-from betty.locale import DEFAULT_LOCALE
+from betty.locale import DEFAULT_LOCALE_TAG, to_language_tag
 from betty.locale.localizer import DEFAULT_LOCALIZER
 from betty.project import Project
 from betty.project.config import ProjectConfiguration
@@ -39,7 +40,7 @@ async def test_new__minimal(
         ],
         inputs=[
             str(configuration_file_path),
-            DEFAULT_LOCALE,
+            DEFAULT_LOCALE_TAG,
             title,
             machine_name,
             author,
@@ -75,7 +76,7 @@ async def test_new__with_project_directory(
         ],
         inputs=[
             str(tmp_path),
-            DEFAULT_LOCALE,
+            DEFAULT_LOCALE_TAG,
             title,
             machine_name,
             author,
@@ -122,8 +123,8 @@ async def test_new__with_multiple_locales(
     tmp_path: Path,
 ) -> None:
     configuration_file_path = tmp_path / "betty.yaml"
-    default_locale = "nl-NL"
-    other_locale = "en-US"
+    default_locale = Locale("nl", "NL")
+    other_locale = Locale("en", "US")
     user = StaticUser(
         confirmations=[
             True,
@@ -132,8 +133,8 @@ async def test_new__with_multiple_locales(
         ],
         inputs=[
             str(configuration_file_path),
-            default_locale,
-            other_locale,
+            to_language_tag(default_locale),
+            to_language_tag(other_locale),
             "Mijn Eerste Project",
             "My First Project",
             "mijn-eerste-project",
@@ -165,7 +166,7 @@ async def test_new__with_name(
         ],
         inputs=[
             str(configuration_file_path),
-            DEFAULT_LOCALE,
+            DEFAULT_LOCALE_TAG,
             "My First Project",
             name,
             "My First Author",
@@ -191,7 +192,7 @@ async def test_new__with_gramps(
         ],
         inputs=[
             str(configuration_file_path),
-            DEFAULT_LOCALE,
+            DEFAULT_LOCALE_TAG,
             "My First Project",
             "my-first-project",
             "My First Author",

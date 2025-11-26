@@ -6,7 +6,7 @@ from typing_extensions import override
 
 from betty.ancestry.has_links import HasLinks
 from betty.ancestry.link import Link
-from betty.locale import DEFAULT_LOCALE
+from betty.locale import DEFAULT_LOCALE_TAG
 from betty.locale.localizable import CountablePlain
 from betty.locale.localizer import DEFAULT_LOCALIZER
 from betty.media_type.media_types import HTML
@@ -94,7 +94,7 @@ class TestLink:
             "@context": {"description": "https://schema.org/description"},
             "id": link.id,
             "url": {
-                DEFAULT_LOCALE: "https://example.com",
+                DEFAULT_LOCALE_TAG: "https://example.com",
             },
             "owner": None,
             "private": False,
@@ -116,14 +116,14 @@ class TestLink:
             "@context": {"description": "https://schema.org/description"},
             "id": link.id,
             "url": {
-                DEFAULT_LOCALE: "https://example.com",
+                DEFAULT_LOCALE_TAG: "https://example.com",
             },
             "relationship": "external",
             "label": {
-                DEFAULT_LOCALE: "The Label",
+                DEFAULT_LOCALE_TAG: "The Label",
             },
             "description": {
-                DEFAULT_LOCALE: "The Description",
+                DEFAULT_LOCALE_TAG: "The Description",
             },
             "mediaType": "text/html",
             "owner": "/dummy-has-links/O1/index.json",

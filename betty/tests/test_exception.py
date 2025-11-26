@@ -5,7 +5,7 @@ import pytest
 
 from betty.data import Attr
 from betty.exception import HumanFacingException, HumanFacingExceptionGroup, do_raise
-from betty.locale import DEFAULT_LOCALE
+from betty.locale import DEFAULT_LOCALE_TAG
 from betty.locale.localizable import Plain, StaticTranslations
 from betty.locale.localizer import DEFAULT_LOCALIZER, Localizer
 from betty.test_utils.exception import assert_error
@@ -33,7 +33,7 @@ class TestHumanFacingException:
         locale = "nl"
         localized_message = "Hallo, wereld!"
         message = {
-            DEFAULT_LOCALE: "Hello, world!",
+            DEFAULT_LOCALE_TAG: "Hello, world!",
             locale: localized_message,
         }
         sut = HumanFacingException(StaticTranslations(message))

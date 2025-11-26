@@ -15,11 +15,15 @@ from betty.locale.translation import (
 if TYPE_CHECKING:
     from pathlib import Path
 
+    from babel import Locale
+
     from betty.project import Project
     from betty.user import User
 
 
-async def new_project_translation(locale: str, project: Project, *, user: User) -> None:
+async def new_project_translation(
+    locale: Locale, project: Project, *, user: User
+) -> None:
     """
     Create a new translation for the given project.
     """

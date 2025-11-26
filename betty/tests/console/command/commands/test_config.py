@@ -1,6 +1,7 @@
 from pathlib import Path
 
 import pytest
+from babel import Locale
 from pytest_mock import MockerFixture
 from typing_extensions import override
 
@@ -30,7 +31,7 @@ class TestConfig:
             new=configuration_file_path,
         )
 
-        locale = "nl-NL"
+        locale = "nl"
         await run(
             temporary_app,
             "config",
@@ -39,4 +40,4 @@ class TestConfig:
         )
         configuration = AppConfiguration()
         (await assert_configuration_file(configuration))(configuration_file_path)
-        assert configuration.locale == locale
+        assert configuration.locale == Locale(locale)

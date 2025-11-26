@@ -5,18 +5,19 @@ from typing import TYPE_CHECKING
 
 import aiofiles
 import pytest
+from babel import Locale
 from typing_extensions import override
 
 from betty.asset import StaticAssetRepository
 from betty.cache.file import BinaryFileCache
 from betty.dirs import ASSETS_DIRECTORY_PATH
 from betty.locale import DEFAULT_LOCALE
-from betty.locale.error import UnknownLocale
 from betty.locale.translation import (
     AssetTranslationRepository,
     NoOpTranslationRepository,
     ProxyTranslationRepository,
     StaticTranslationRepository,
+    UntranslatedLocale,
     update_dev_translations,
 )
 from betty.test_utils.locale import PotFileTestBase
@@ -96,7 +97,7 @@ class TestPotFile(PotFileTestBase):
 
 class TestAssetTranslationRepository:
     async def test_get__with_known_translations(self, tmp_path: Path) -> None:
-        locale = "nl-NL"
+        locale = "nl"
         assets_directory_path = tmp_path / "assets"
         po_file_path = assets_directory_path / "locale" / locale / "betty.po"
         po_file_path.parent.mkdir(parents=True)
@@ -114,7 +115,7 @@ class TestAssetTranslationRepository:
             assert actual == "Onderwerp"
 
     async def test_get__with_unknown_translations(self, tmp_path: Path) -> None:
-        locale = "nl-NL"
+        locale = "nl"
         sut = AssetTranslationRepository(
             StaticAssetRepository(tmp_path / "assets"),
             BinaryFileCache(tmp_path / "cache"),
@@ -139,7 +140,7 @@ class TestAssetTranslationRepository:
         assert translated_count == translatable_count
 
     async def test_coverage__with_untranslated_locale(self, tmp_path: Path) -> None:
-        locale = "nl-NL"
+        locale = "nl"
         assets_directory_path = tmp_path / "assets"
         pot_file_path = assets_directory_path / "locale" / "betty.pot"
         pot_file_path.parent.mkdir(parents=True)
@@ -155,7 +156,7 @@ class TestAssetTranslationRepository:
         assert translated_count == 0
 
     async def test_coverage__with_translated_locale(self, tmp_path: Path) -> None:
-        locale = "nl-NL"
+        locale = "nl"
         assets_directory_path = tmp_path / "assets"
         pot_file_path = assets_directory_path / "locale" / "betty.pot"
         pot_file_path.parent.mkdir(parents=True)
@@ -191,7 +192,7 @@ class TestAssetTranslationRepository:
         assert set(sut.locales) == {DEFAULT_LOCALE}
 
     async def test_locales__with_available_translation(self, tmp_path: Path) -> None:
-        locale = "nl-NL"
+        locale = "nl"
         assets_directory_path = tmp_path / "assets"
         lc_messages_directory_path = assets_directory_path / "locale" / locale
         lc_messages_directory_path.mkdir(parents=True)
@@ -203,7 +204,7 @@ class TestAssetTranslationRepository:
             BinaryFileCache(tmp_path / "cache"),
         )
         await sut.bootstrap()
-        assert set(sut.locales) == {DEFAULT_LOCALE, locale}
+        assert set(sut.locales) == {DEFAULT_LOCALE, Locale(locale)}
 
 
 class TestNoOpTranslationRepository:
@@ -213,31 +214,31 @@ class TestNoOpTranslationRepository:
 
     def test_get(self) -> None:
         sut = NoOpTranslationRepository()
-        sut.get("nl-NL")
+        sut.get("nl")
 
 
 class TestStaticTranslationRepository:
     def test_locales(self) -> None:
-        locale = "nl-NL"
+        locale = Locale("nl")
         sut = StaticTranslationRepository({locale: gettext.NullTranslations()})
         assert list(sut.locales) == [locale]
 
     def test_get(self) -> None:
         translation = gettext.NullTranslations()
-        locale = "nl-NL"
-        sut = StaticTranslationRepository({locale: translation})
+        locale = "nl"
+        sut = StaticTranslationRepository({Locale(locale): translation})
         assert sut.get(locale) is translation
 
     def test_get__with_unknown_locale(self) -> None:
         sut = StaticTranslationRepository({})
-        with pytest.raises(UnknownLocale):
-            sut.get("nl-NL")
+        with pytest.raises(UntranslatedLocale):
+            sut.get("nl")
 
 
 class TestProxyTranslationRepository:
     def test_locales(self) -> None:
-        locale_one = "nl-NL"
-        locale_two = "uk"
+        locale_one = Locale("nl")
+        locale_two = Locale("uk")
         upstream_one = StaticTranslationRepository(
             {locale_one: gettext.NullTranslations()}
         )
@@ -252,8 +253,8 @@ class TestProxyTranslationRepository:
         assert not list(sut.locales)
 
     def test_get(self) -> None:
-        locale_one = "nl-NL"
-        locale_two = "uk"
+        locale_one = Locale("nl")
+        locale_two = Locale("uk")
         translation_one = gettext.NullTranslations()
         translation_two = gettext.NullTranslations()
         upstream_one = StaticTranslationRepository({locale_one: translation_one})
@@ -264,5 +265,12 @@ class TestProxyTranslationRepository:
 
     def test_get__without_upstreams(self) -> None:
         sut = ProxyTranslationRepository()
-        with pytest.raises(UnknownLocale):
-            sut.get("nl-NL")
+        with pytest.raises(UntranslatedLocale):
+            sut.get("nl")
+
+
+class TestUntranslatedLocale:
+    def test(self) -> None:
+        locale = "nl"
+        sut = UntranslatedLocale(Locale(locale))
+        assert locale in str(sut)

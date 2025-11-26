@@ -4,7 +4,7 @@ from typing import TYPE_CHECKING, cast
 import pytest
 from typing_extensions import override
 
-from betty.locale import DEFAULT_LOCALE
+from betty.locale import DEFAULT_LOCALE_TAG
 from betty.locale.localizable.schema import StaticTranslationsSchema
 from betty.test_utils.json.schema import SchemaTestBase, SchemaTestBaseSut
 
@@ -16,7 +16,7 @@ class TestStaticTranslationsSchema(SchemaTestBase):
     @staticmethod
     def _sut_params() -> Iterable[SchemaTestBaseSut]:
         valid_datas: Sequence[Dump] = [
-            {DEFAULT_LOCALE: "Hello, world!"},
+            {DEFAULT_LOCALE_TAG: "Hello, world!"},
             {"nl": "Hallo, wereld!", "uk": "Привіт Світ!"},
         ]
         invalid_datas: Sequence[Dump] = [
@@ -25,12 +25,12 @@ class TestStaticTranslationsSchema(SchemaTestBase):
             None,
             123,
             [],
-            {DEFAULT_LOCALE: True},
-            {DEFAULT_LOCALE: False},
-            {DEFAULT_LOCALE: None},
-            {DEFAULT_LOCALE: 123},
-            {DEFAULT_LOCALE: []},
-            {DEFAULT_LOCALE: {}},
+            {DEFAULT_LOCALE_TAG: True},
+            {DEFAULT_LOCALE_TAG: False},
+            {DEFAULT_LOCALE_TAG: None},
+            {DEFAULT_LOCALE_TAG: 123},
+            {DEFAULT_LOCALE_TAG: []},
+            {DEFAULT_LOCALE_TAG: {}},
         ]
         return [
             (

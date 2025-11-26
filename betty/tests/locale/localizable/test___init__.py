@@ -2,9 +2,10 @@ from collections.abc import Callable, Sequence
 from gettext import NullTranslations
 
 import pytest
+from babel import Locale
 from typing_extensions import override
 
-from betty.locale import DEFAULT_LOCALE, UNDETERMINED_LOCALE
+from betty.locale import DEFAULT_LOCALE, DEFAULT_LOCALE_TAG
 from betty.locale.localizable import (
     AllEnumeration,
     AnyEnumeration,
@@ -81,12 +82,12 @@ class TestStaticTranslations:
         ("expected", "translations"),
         [
             (
-                {UNDETERMINED_LOCALE: "Hello, world!"},
+                {None: "Hello, world!"},
                 "Hello, world!",
             ),
             (
                 {
-                    "en-US": "Hello, world!",
+                    Locale("en", "US"): "Hello, world!",
                 },
                 {
                     "en-US": "Hello, world!",
@@ -94,8 +95,8 @@ class TestStaticTranslations:
             ),
             (
                 {
-                    "nl-NL": "Hallo, wereld!",
-                    "en": "Hello, world!",
+                    Locale("nl", "NL"): "Hallo, wereld!",
+                    Locale("en"): "Hello, world!",
                 },
                 {
                     "nl-NL": "Hallo, wereld!",
@@ -119,8 +120,8 @@ class TestPlain:
         assert Plain(text).text == text
 
     def test_locale(self) -> None:
-        locale = "nl-NL"
-        assert Plain("", locale).locale == locale
+        locale = Locale("nl")
+        assert Plain("", locale).locale is locale
 
     @pytest.mark.parametrize(
         "string",
@@ -199,7 +200,7 @@ class TestCountablePlain:
         expected: str,
         string_singular: str,
         string_plural: str,
-        locale: str,
+        locale: Locale,
         is_plural: Callable[[int], bool] | None,
         count: int,
     ) -> None:
@@ -459,7 +460,7 @@ def test_ensure_localizable__with_str() -> None:
 
 
 def test_ensure_localizable__with_static_translations_mapping() -> None:
-    locale = "nl-NL"
+    locale = Locale("nl", "NL")
     localizer = Localizer(locale, NullTranslations())
     localized = "Mijn Eerste, Ja, Wat Eigenlijk?"
     localizable: StaticTranslationsMapping = {
@@ -482,11 +483,22 @@ def test_ensure_localized__with_str() -> None:
 
 
 def test_ensure_localized__with_static_translations_mapping() -> None:
-    locale = "nl-NL"
+    locale = "nl"
     localizer = Localizer(locale, NullTranslations())
     localized = "Mijn Eerste, Ja, Wat Eigenlijk?"
     localizable: StaticTranslationsMapping = {
         DEFAULT_LOCALE: "My First Localizable",
+        Locale(locale): localized,
+    }
+    assert ensure_localized(localizable, localizer=localizer) == localized
+
+
+def test_ensure_localized__with_shorthand_static_translations_mapping() -> None:
+    locale = "nl-NL"
+    localizer = Localizer(locale, NullTranslations())
+    localized = "Mijn Eerste, Ja, Wat Eigenlijk?"
+    localizable: ShorthandStaticTranslations = {
+        DEFAULT_LOCALE_TAG: "My First Localizable",
         locale: localized,
     }
     assert ensure_localized(localizable, localizer=localizer) == localized
@@ -512,7 +524,7 @@ class TestRequiredLocalizableAttr:
         translation = "Hello, world!"
         locale = "nl-NL"
         instance.attr = {
-            DEFAULT_LOCALE: "Hello, world!",
+            DEFAULT_LOCALE_TAG: "Hello, world!",
             locale: translation,
         }
         assert (
@@ -546,7 +558,7 @@ class TestOptionalLocalizableAttr:
         translation = "Hello, world!"
         locale = "nl-NL"
         instance.attr = {
-            DEFAULT_LOCALE: "Hello, world!",
+            DEFAULT_LOCALE_TAG: "Hello, world!",
             locale: translation,
         }
         assert instance.attr is not None

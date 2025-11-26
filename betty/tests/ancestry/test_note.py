@@ -5,7 +5,7 @@ from typing import TYPE_CHECKING, Any
 from typing_extensions import override
 
 from betty.ancestry.note import Note
-from betty.locale import DEFAULT_LOCALE
+from betty.locale import DEFAULT_LOCALE_TAG
 from betty.locale.localizer import DEFAULT_LOCALIZER
 from betty.test_utils.json.linked_data import assert_dumps_linked_data
 from betty.test_utils.model import EntityPluginTestBase, EntityTestBase
@@ -60,7 +60,7 @@ class TestNote(EntityTestBase):
             "@type": "https://schema.org/Thing",
             "id": "the_note",
             "private": False,
-            "text": {DEFAULT_LOCALE: "The Note"},
+            "text": {DEFAULT_LOCALE_TAG: "The Note"},
             "entity": None,
             "links": [],
         }

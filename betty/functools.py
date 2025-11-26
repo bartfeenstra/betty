@@ -17,22 +17,22 @@ if TYPE_CHECKING:
     from collections.abc import Awaitable, Callable, Iterable, Iterator
 
 _T = TypeVar("_T")
+_U = TypeVar("_U")
 _P = ParamSpec("_P")
 
 
-def filter_suppress(
-    raising_filter: Callable[[_T], Any],
+def map_suppress(
+    raising_map: Callable[[_T], _U],
     exception_type: type[BaseException],
     items: Iterable[_T],
     /,
-) -> Iterator[_T]:
+) -> Iterator[_U]:
     """
-    Filter values, skipping those for which the application of `raising_filter` raises errors.
+    Map values, skipping those for which the application of `raising_map` raises errors.
     """
     for item in items:
         try:
-            raising_filter(item)
-            yield item
+            yield raising_map(item)
         except exception_type:
             continue
 
