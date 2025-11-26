@@ -11,7 +11,6 @@ from typing_extensions import override
 
 from betty.ancestry.file import File
 from betty.ancestry.file_reference import FileReference
-from betty.cache.memory import MemoryCache
 from betty.date import Date, DateLike, DateRange
 from betty.dirs import ASSETS_DIRECTORY_PATH
 from betty.job import Context
@@ -97,7 +96,7 @@ async def test_filter_file__with_job_context(
         template=template,
         data={
             "file": file,
-            "job_context": Context(cache=MemoryCache()),
+            "job_context": Context(),
         },
     ) as (actual, project):
         assert actual == expected
@@ -313,7 +312,7 @@ async def test_filter_image_resize_cover__with_job_context(
         template=template,
         data={
             "filey": filey,
-            "job_context": Context(cache=MemoryCache()),
+            "job_context": Context(),
         },
     ) as (actual, project):
         assert actual == expected

@@ -8,7 +8,6 @@ from aiofiles.tempfile import TemporaryDirectory
 from typing_extensions import override
 
 from betty.app.factory import AppDependentSelfFactory
-from betty.cache.memory import MemoryCache
 from betty.console.command import Command, CommandFunction, CommandPlugin
 from betty.dirs import DEV_OUTPUT_DIRECTORY_PATH
 from betty.locale.localizable import _
@@ -31,9 +30,7 @@ async def _target(app: App) -> None:
             project,
             project.app.user.message_progress(_("Generating site...")) as progress,
         ):
-            job_context = ProjectContext(
-                project, cache=MemoryCache(), progress=progress
-            )
+            job_context = ProjectContext(project, progress=progress)
             await generate_with_cleanup(project, job_context=job_context)
 
 
