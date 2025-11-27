@@ -15,9 +15,11 @@ if TYPE_CHECKING:
     from types import TracebackType
 
 ScheduledJobBatch: TypeAlias = Callable[[], Awaitable[None]]
-#: A callable to call one or more jobs.
-#:
-#: The callable MUST cancel the scheduler if an error is raised.
+"""
+A callable to call one or more jobs.
+
+The callable MUST cancel the scheduler if an error is raised.
+"""
 
 
 class Closed(Exception):
@@ -44,14 +46,10 @@ class CyclicDependencyError(Cancelled):
     Raised when a scheduler has cancelled due to a cyclic dependency.
     """
 
-    @classmethod
-    def new(cls, job_ids: Sequence[str]) -> Self:
-        """
-        Create a new instance.
-        """
+    def __init__(self, job_ids: Sequence[str], /):
         assert job_ids
         cycle = " -> ".join(f'"{job_id}"' for job_id in job_ids)
-        return cls(f'Job "{job_ids[0]}" has cyclic dependencies: {cycle}.')
+        super().__init__(f'Job "{job_ids[0]}" has cyclic dependencies: {cycle}.')
 
 
 @final
@@ -60,12 +58,8 @@ class UnknownJobError(Cancelled):
     Raised when a scheduler has cancelled due to an unknown job.
     """
 
-    @classmethod
-    def new(cls, job_id: str) -> Self:
-        """
-        Create a new instance.
-        """
-        return cls(f'Job "{job_id}" was never added.')
+    def __init__(self, job_id: str, /):
+        super().__init__(f'Job "{job_id}" was never added.')
 
 
 @final
@@ -74,12 +68,10 @@ class DuplicateJobError(Cancelled):
     Raised when a scheduler cannot add the same job (ID) more than once.
     """
 
-    @classmethod
-    def new(cls, job_id: str) -> Self:
-        """
-        Create a new instance.
-        """
-        return cls(f'Job "{job_id}" was added already, and cannot be added again.')
+    def __init__(self, job_id: str, /):
+        super().__init__(
+            f'Job "{job_id}" was added already, and cannot be added again.'
+        )
 
 
 @final
@@ -89,7 +81,7 @@ class Completed(Closed):
     """
 
 
-class Scheduler(Generic[_ContextCoT], ABC):
+class Scheduler(ABC, Generic[_ContextCoT]):
     """
     A job scheduler.
     """
@@ -135,7 +127,7 @@ class Scheduler(Generic[_ContextCoT], ABC):
         return self
 
     @abstractmethod
-    async def cancel(self, reason: BaseException | None = None) -> None:
+    async def cancel(self, reason: BaseException | None = None, /) -> None:
         """
         Close the scheduler and cancel any pending jobs.
         """

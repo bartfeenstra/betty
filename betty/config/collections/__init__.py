@@ -12,32 +12,24 @@ from collections.abc import (
     MutableMapping,
     MutableSequence,
 )
-from reprlib import recursive_repr
-from typing import (
-    TYPE_CHECKING,
-    Any,
-    Generic,
-    SupportsIndex,
-    TypeAlias,
-    TypeVar,
-)
+from typing import TYPE_CHECKING, Any, Generic, SupportsIndex, TypeAlias
 
-from typing_extensions import override
+from typing_extensions import TypeVar, override
 
 from betty.config import Configuration
-from betty.repr import repr_instance
 
 if TYPE_CHECKING:
-    from betty.mutability import Mutable
     from betty.serde.dump import Dump
 
 _ConfigurationT = TypeVar("_ConfigurationT", bound=Configuration)
 ConfigurationKey: TypeAlias = SupportsIndex | Hashable | type[Any]
 _ConfigurationKeyT = TypeVar("_ConfigurationKeyT", bound=ConfigurationKey)
+_ResolvableConfigurationKeyT = TypeVar("_ResolvableConfigurationKeyT")
 
 
 class ConfigurationCollection(
-    Configuration, Generic[_ConfigurationKeyT, _ConfigurationT]
+    Configuration,
+    Generic[_ConfigurationKeyT, _ResolvableConfigurationKeyT, _ConfigurationT],
 ):
     """
     Any collection of :py:class:`betty.config.Configuration` values.
@@ -56,23 +48,32 @@ class ConfigurationCollection(
             self.append(*configurations)
 
     @abstractmethod
-    def __iter__(self) -> Iterator[_ConfigurationKeyT] | Iterator[_ConfigurationT]:
+    def _resolve_key(
+        self, configuration_key: _ConfigurationKeyT | _ResolvableConfigurationKeyT, /
+    ) -> _ConfigurationKeyT:
+        """
+        Resolve a configuration key.
+        """
+
+    @abstractmethod
+    def __iter__(
+        self,
+    ) -> Iterator[_ConfigurationKeyT] | Iterator[_ConfigurationT]:
         pass
 
     @abstractmethod
-    def __getitem__(self, configuration_key: _ConfigurationKeyT) -> _ConfigurationT:
+    def __getitem__(
+        self, configuration_key: _ConfigurationKeyT | _ResolvableConfigurationKeyT
+    ) -> _ConfigurationT:
         pass
 
-    def __delitem__(self, configuration_key: _ConfigurationKeyT) -> None:
+    def __delitem__(
+        self, configuration_key: _ConfigurationKeyT | _ResolvableConfigurationKeyT
+    ) -> None:
         self.remove(configuration_key)
 
     def __len__(self) -> int:
         return len(self._configurations)
-
-    @override  # type: ignore[callable-functiontype]
-    @recursive_repr()
-    def __repr__(self) -> str:
-        return repr_instance(self, configurations=list(self.values()))
 
     @abstractmethod
     def replace(self, *configurations: _ConfigurationT) -> None:
@@ -80,12 +81,16 @@ class ConfigurationCollection(
         Replace any existing values with the given ones.
         """
 
-    def remove(self, *configuration_keys: _ConfigurationKeyT) -> None:
+    def remove(
+        self, *configuration_keys: _ConfigurationKeyT | _ResolvableConfigurationKeyT
+    ) -> None:
         """
         Remove the given keys from the collection.
         """
         self.assert_mutable()
         for configuration_key in configuration_keys:
+            configuration_key = self._resolve_key(configuration_key)
+            configuration_key = self._resolve_key(configuration_key)
             try:
                 configuration = self._configurations[configuration_key]  # type: ignore[call-overload]
             except LookupError:
@@ -100,14 +105,14 @@ class ConfigurationCollection(
         """
         self.remove(*self.keys())
 
-    def _pre_add(self, configuration: _ConfigurationT) -> None:
+    def _pre_add(self, configuration: _ConfigurationT, /) -> None:
         pass
 
-    def _post_remove(self, configuration: _ConfigurationT) -> None:
+    def _post_remove(self, configuration: _ConfigurationT, /) -> None:
         pass
 
     @abstractmethod
-    def _load_item(self, dump: Dump) -> _ConfigurationT:
+    def _load_item(self, dump: Dump, /) -> _ConfigurationT:
         """
         Create and load a new item from the given dump, or raise an assertion error.
 
@@ -145,5 +150,5 @@ class ConfigurationCollection(
         """
 
     @override
-    def get_mutable_instances(self) -> Iterable[Mutable]:
+    def get_mutables(self) -> Iterable[object]:
         return self.values()

@@ -7,11 +7,11 @@ from betty.console import SystemExitCode
 from betty.console.command.commands.docs import Docs
 from betty.plugin import PluginDefinition
 from betty.test_utils.console import run
-from betty.test_utils.console.command import CommandDefinitionTestBase
+from betty.test_utils.console.command import CommandPluginTestBase
 from betty.test_utils.serve import NoOpServer
 
 
-class TestDocsDefinition(CommandDefinitionTestBase):
+class TestDocsDefinition(CommandPluginTestBase):
     @override
     @pytest.fixture
     def sut(self) -> PluginDefinition:

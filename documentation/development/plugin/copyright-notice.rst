@@ -1,15 +1,6 @@
 Copyright notice plugins
 ========================
 
-.. list-table::
-   :align: left
-   :stub-columns: 1
-
-   * -  Type
-     -  :py:class:`betty.copyright_notice.CopyrightNotice`
-   * -  Repository
-     -  :py:attr:`betty.project.Project.copyright_notice_repository`
-
 
 Creating a copyright
 --------------------
@@ -19,9 +10,9 @@ for example:
 
 .. code-block:: python
 
-   from betty.copyright import CopyrightNotice, CopyrightNoticeDefinition
+   from betty.copyright import CopyrightNotice, CopyrightNoticePlugin
 
-   @CopyrightNoticeDefinition(
+   @CopyrightNoticePlugin(
        id="my-copyright-notice",
        label=_("My Copyright Notice"),
    )
@@ -35,7 +26,7 @@ Tell Betty about your copyright notice by registering it as an entry point. Give
 .. code-block:: toml
 
    [project.entry-points.'betty.copyright_notice']
-   'my-copyright-notice' = 'my_package.my_module.MyCopyrightNotice.plugin'
+   'my-copyright-notice' = 'my_package.my_module.MyCopyrightNotice'
 
 See also
 --------

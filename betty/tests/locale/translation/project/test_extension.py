@@ -5,19 +5,16 @@ from pathlib import Path
 import pytest
 
 from betty.exception import HumanFacingException
-from betty.locale.localizable import Plain
 from betty.locale.translation.project.extension import (
     assert_extension_assets_directory_path,
     assert_extension_has_assets_directory_path,
 )
-from betty.project.extension import Extension, ExtensionDefinition
-from betty.test_utils.project.extension import DummyExtension
+from betty.project.extension import Extension, ExtensionPlugin
+from betty.test_utils.project.extension import DummyExtensionOne
 
 
-@ExtensionDefinition(
-    id="dummy-with-assets-directory",
-    label=Plain(""),
-    assets_directory_path=Path(__file__),
+@ExtensionPlugin(
+    "dummy-with-assets-directory", label="", assets_directory_path=Path(__file__)
 )
 class _DummyExtensionWithAssetsDirectory(Extension):
     pass
@@ -25,7 +22,7 @@ class _DummyExtensionWithAssetsDirectory(Extension):
 
 def test_assert_extension_assets_directory_path__without_assets_directory() -> None:
     with pytest.raises(HumanFacingException):
-        assert_extension_assets_directory_path(DummyExtension.plugin)
+        assert_extension_assets_directory_path(DummyExtensionOne.plugin)
 
 
 def test_assert_extension_assets_directory_path__with_assets_directory() -> None:
@@ -39,7 +36,7 @@ def test_assert_extension_assets_directory_path__with_assets_directory() -> None
 
 def test_assert_extension_has_assets_directory_path__without_assets_directory() -> None:
     with pytest.raises(HumanFacingException):
-        assert_extension_has_assets_directory_path(DummyExtension.plugin)
+        assert_extension_has_assets_directory_path(DummyExtensionOne.plugin)
 
 
 def test_assert_extension_has_assets_directory_path__with_assets_directory() -> None:

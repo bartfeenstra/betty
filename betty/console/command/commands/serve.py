@@ -5,8 +5,8 @@ from typing import TYPE_CHECKING, final, Self
 
 from typing_extensions import override
 
-from betty.app.factory import AppDependentFactory
-from betty.console.command import Command, CommandFunction, CommandDefinition
+from betty.app.factory import AppDependentSelfFactory
+from betty.console.command import Command, CommandFunction, CommandPlugin
 from betty.console.project import add_project_argument
 from betty.locale.localizable import _
 
@@ -18,12 +18,12 @@ if TYPE_CHECKING:
 
 
 @final
-@CommandDefinition(
-    id="serve",
+@CommandPlugin(
+    "serve",
     label=_("Serve a generated site"),
     description=_("This will open your web browser."),
 )
-class Serve(AppDependentFactory, Command):
+class Serve(AppDependentSelfFactory, Command):
     """
     A command to serve a generated site.
     """
@@ -33,7 +33,7 @@ class Serve(AppDependentFactory, Command):
 
     @override
     @classmethod
-    async def new_for_app(cls, app: App) -> Self:
+    async def new_for_app(cls, app: App, /) -> Self:
         return cls(app)
 
     @override

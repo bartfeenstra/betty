@@ -28,7 +28,7 @@ class DummyConfiguration(Configuration):
         self.value = value
 
     @override
-    def load(self, dump: Dump) -> None:
+    def load(self, dump: Dump, /) -> None:
         assert_record(
             OptionalField(
                 "value",

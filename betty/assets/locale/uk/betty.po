@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Betty 0.4\n"
 "Report-Msgid-Bugs-To: illia@maier.page\n"
-"POT-Creation-Date: 2025-11-04 14:00+0000\n"
+"POT-Creation-Date: 2025-11-27 01:37+0000\n"
 "PO-Revision-Date: 2025-05-13 17:01+0000\n"
 "Last-Translator: Максим Горпиніч <maksimgorpinic4@gmail.com>\n"
 "Language: uk\n"
@@ -33,6 +33,14 @@ msgid "\"{path}\" is not a directory."
 msgstr "\"{path}\" не є каталогом."
 
 #, python-brace-format
+msgid "\"{plugin_id}\""
+msgstr ""
+
+#, python-brace-format
+msgid "\"{plugin_id}\" ({plugin_label})"
+msgstr ""
+
+#, python-brace-format
 msgid ""
 "\"{value}\" is not a valid machine name: only lowercase letters, digits, "
 "and hyphens (-) are allowed."
@@ -52,7 +60,10 @@ msgstr "%(event)s %(subjects)s"
 msgid "%(event)s with %(subjects)s"
 msgstr "%(event)s з %(subjects)s"
 
-msgid "(De)serialization format)"
+msgid "(De)serialization format"
+msgstr ""
+
+msgid "A Betty demonstration"
 msgstr ""
 
 msgid ""
@@ -71,9 +82,8 @@ msgstr "Про програму"
 msgid "Access denied"
 msgstr "Доступ заборонено"
 
-#, python-format
-msgid "Accessed: %(date)s"
-msgstr "Доступ: %(date)s"
+msgid "Accessed"
+msgstr ""
 
 msgid "Adoption"
 msgstr "Усиновлення"
@@ -94,7 +104,13 @@ msgstr "Також відомий як %(names)s"
 msgid "Also show debug messages"
 msgstr ""
 
+msgid "Also show detailed information messages"
+msgstr ""
+
 msgid "Also show log messages"
+msgstr ""
+
+msgid "Amsterdam"
 msgstr ""
 
 msgid "An unexpected error occurred:"
@@ -108,6 +124,9 @@ msgstr "Оголошення шлюбу"
 
 msgid "Appearances"
 msgstr "Знайдено в"
+
+msgid "Assets directory"
+msgstr ""
 
 #, python-brace-format
 msgid "At least {expected} items are required, but found {actual}."
@@ -123,11 +142,17 @@ msgstr "За якою URL-адресою буде опубліковано ва�
 msgid "Attendee"
 msgstr "Відвідувач"
 
+msgid "Author"
+msgstr ""
+
 msgid "Baptism"
 msgstr "Хрещення"
 
 msgid "Bar mitzvah"
 msgstr "Бар-міцва"
+
+msgid "Bart Feenstra and contributors"
+msgstr ""
 
 msgid "Bat mitzvah"
 msgstr "Бат-міцва"
@@ -233,10 +258,6 @@ msgid "Cannot find an available port to bind the web server to."
 msgstr "Не вдалося знайти доступний порт для прив'язки вебсерверу."
 
 #, python-brace-format
-msgid "Cannot find and import \"{plugin_id}\"."
-msgstr "Не вдалося знайти та імпортувати \"{plugin_id}\"."
-
-#, python-brace-format
 msgid ""
 "Cannot generate pages for {entity_type}, because it is not a public-"
 "facing entity type."
@@ -288,11 +309,17 @@ msgstr "Очистити всі кеші"
 msgid "Close"
 msgstr "Закрити"
 
+msgid "Color style"
+msgstr ""
+
 msgid "Command"
 msgstr ""
 
 msgid "Conference"
 msgstr "Конференція"
+
+msgid "Configuration file"
+msgstr ""
 
 msgid "Configure Betty"
 msgstr "Налаштувати Betty"
@@ -300,12 +327,14 @@ msgstr "Налаштувати Betty"
 msgid "Confirmation"
 msgstr "Миропомазання"
 
+msgid "Content provider"
+msgstr ""
+
 #, python-format
 msgid "Continue reading on <a href=\"%(url)s\">Wikipedia</a>."
 msgstr "Продовжуйте читати у <a href=\"%(url)s\">Вікіпедії</a>."
 
-#, python-format
-msgid "Coordinates: %(latitude)s, %(longitude)s"
+msgid "Coordinates"
 msgstr ""
 
 msgid "Copyright"
@@ -340,8 +369,8 @@ msgid "Could not extract {file_path} as a gzipped tar file  (*.tar.gz)."
 msgstr "Не вдалося розпакувати {file_path} як архівований gzip файл (*.tar.gz)."
 
 #, python-brace-format
-msgid "Could not find a plugin \"{plugin_id}\"."
-msgstr "Не вдалося знайти плагін \"{plugin_id}\"."
+msgid "Could not find a(n) {plugin_type} plugin \"{plugin_id}\"."
+msgstr ""
 
 #, python-brace-format
 msgid ""
@@ -403,6 +432,14 @@ msgid ""
 msgstr ""
 "Визначте, чи можна довести, що людина померла. Якщо ні, позначте її та "
 "пов'язані з нею сутності як приватні."
+
+msgid "Did you know that Liberta \"Betty\" Lankester is Betty's namesake?"
+msgstr ""
+
+msgid ""
+"Did you know that while Amsterdam is the country's official capital, The "
+"Hague is the Netherlands' administrative center and seat of government?"
+msgstr ""
 
 msgid ""
 "Display interactive family trees using <a "
@@ -491,11 +528,17 @@ msgstr "Факти"
 msgid "Family"
 msgstr "Сім'я"
 
+msgid "Family tree"
+msgstr ""
+
 msgid "Family tree configuration must contain either a \"file\" or a \"name\" key"
 msgstr ""
 
 msgid "Farm"
 msgstr "Ферма"
+
+msgid "Featured entities"
+msgstr ""
 
 msgid "Female"
 msgstr "Жінка"
@@ -526,6 +569,9 @@ msgstr ""
 
 msgid "Funeral"
 msgstr "Похорон"
+
+msgid "Gemeente Amsterdam"
+msgstr ""
 
 msgid "Gender"
 msgstr ""
@@ -575,6 +621,12 @@ msgstr "Вибачте, любий, але, здається, вам не доз
 msgid "I'm sorry, dear, but it seems you're not logged in."
 msgstr "Вибачте, любий, але, здається, ви не увійшли в систему."
 
+msgid "ID"
+msgstr ""
+
+msgid "Ilpendam"
+msgstr ""
+
 msgid "Immigration"
 msgstr "Імміграція"
 
@@ -593,11 +645,22 @@ msgstr "Недійсний YAML: {error}."
 msgid "Invalid argument {argument}: {error}"
 msgstr ""
 
+#, python-brace-format
+msgid "Invalid option {value}."
+msgstr ""
+
+#, python-brace-format
+msgid "Invalid region {invalid_region}."
+msgstr ""
+
 msgid "It appears you called Betty without a command or arguments"
 msgstr ""
 
 msgid "Keywords"
 msgstr "Ключові слова"
+
+msgid "Label"
+msgstr ""
 
 msgid "Language"
 msgstr "Мова"
@@ -665,7 +728,7 @@ msgid "Locale aliases must not contain slashes."
 msgstr "Аліаси локалей не повинні містити слешів."
 
 #, python-brace-format
-msgid "Locale {locale} is not supported by your system."
+msgid "Locale {locale} is not known by your system."
 msgstr ""
 
 msgid "Locality"
@@ -686,11 +749,17 @@ msgstr "MMMM y року"
 msgid "Male"
 msgstr "Чоловік"
 
+msgid "Map"
+msgstr ""
+
 msgid "Marriage"
 msgstr "Шлюб"
 
 msgid "Media"
 msgstr "Медіа"
+
+msgid "Media gallery"
+msgstr ""
 
 msgid "Media references"
 msgstr "Медіа посилання"
@@ -701,11 +770,17 @@ msgstr "Меню"
 msgid "Missing"
 msgstr "Відсутній"
 
+msgid "More plugins may be available when running this command with --project."
+msgstr ""
+
 msgid "Municipality"
 msgstr "Муніципалітет"
 
 msgid "Neighborhood"
 msgstr "Околиці"
+
+msgid "Netherlands"
+msgstr ""
 
 msgid "Next page"
 msgstr ""
@@ -722,6 +797,9 @@ msgstr ""
 msgid "Non-binary"
 msgstr "Небінарний"
 
+msgid "North Holland"
+msgstr ""
+
 msgid "Note"
 msgstr "Нотатка"
 
@@ -737,6 +815,12 @@ msgstr "Праця"
 msgid "One or more of these requirements must be met"
 msgstr "Потрібно виконати одну або кілька з цих вимог"
 
+#, python-brace-format
+msgid ""
+"Only plain text and static translations can be dumped to configuration, "
+"not `{localizable}` objects."
+msgstr ""
+
 msgid "Operating system"
 msgstr ""
 
@@ -751,6 +835,15 @@ msgstr "Інші учасники"
 
 msgid "Other places contained by this one"
 msgstr "Інші місця, які містяться в цьому"
+
+msgid "Output directory"
+msgstr ""
+
+msgid "Output information about Betty, and optionally your project"
+msgstr ""
+
+msgid "Package"
+msgstr ""
 
 #, python-format
 msgid "Page %(page)s"
@@ -780,6 +873,9 @@ msgstr "Ім'я особи"
 msgid "Person names"
 msgstr "Імена осіб"
 
+msgid "Personal accounts"
+msgstr ""
+
 msgid "Place"
 msgstr "Місце"
 
@@ -789,8 +885,14 @@ msgstr ""
 msgid "Places"
 msgstr "Місця"
 
+msgid "Plain text"
+msgstr ""
+
 #, python-brace-format
 msgid "Plugin \"{plugin_id}\" is not configurable, but configuration was given."
+msgstr ""
+
+msgid "Plugins"
 msgstr ""
 
 msgid "Positional arguments"
@@ -862,6 +964,9 @@ msgstr "Провінція"
 msgid "Public domain"
 msgstr "Публічний домен"
 
+msgid "Publisher"
+msgstr ""
+
 msgid "Python packages"
 msgstr ""
 
@@ -910,6 +1015,9 @@ msgstr "Проєкт збережено у {configuration_file}."
 msgid "Search"
 msgstr "Пошук"
 
+msgid "Section"
+msgstr ""
+
 msgid "Serve a generated site"
 msgstr "Запустити згенерований сайт"
 
@@ -925,9 +1033,6 @@ msgstr ""
 msgid "Show all available commands"
 msgstr ""
 
-msgid "Show information about the current Betty version and environment"
-msgstr ""
-
 msgid "Show this help message"
 msgstr ""
 
@@ -939,6 +1044,9 @@ msgstr "Джерела"
 
 msgid "Speaker"
 msgstr "Доповідач"
+
+msgid "Start exploring..."
+msgstr ""
 
 msgid "Starting Python's built-in web server..."
 msgstr "Запуск вбудованого вебсерверу Python..."
@@ -970,9 +1078,15 @@ msgid ""
 "{stdout}"
 msgstr ""
 
+msgid "System"
+msgstr ""
+
 #, python-format
 msgid "The '%(project_title)s' logo"
 msgstr "Логотип «%(project_title)s»"
+
+msgid "The 'birth of the author', so to speak."
+msgstr ""
 
 #, python-brace-format
 msgid ""
@@ -1132,6 +1246,9 @@ msgstr ""
 msgid "Translations for {locale} initialized at {po_file_path}."
 msgstr ""
 
+msgid "Type"
+msgstr ""
+
 msgid "Unauthorized"
 msgstr "Неавторизовано"
 
@@ -1151,7 +1268,11 @@ msgid "Unknown key: {unknown_key}."
 msgstr "Невідомий ключ: {unknown_key}."
 
 #, python-brace-format
-msgid "Unknown locale {locale}."
+msgid "Unknown plugin \"{plugin_id}\"."
+msgstr ""
+
+#, python-brace-format
+msgid "Untranslated locale {locale}."
 msgstr ""
 
 msgid "Update all existing translations"
@@ -1172,6 +1293,9 @@ msgstr ""
 "інформації."
 
 msgid "Usage: "
+msgstr ""
+
+msgid "Version"
 msgstr ""
 
 msgid "View Betty's interactive documentation. This will open your web browser."
@@ -1208,14 +1332,15 @@ msgid "Where do you want to save your project's configuration file?"
 msgstr "Де ви хочете зберегти файл конфігурації вашого проєкту?"
 
 msgid ""
-"Which language should your project site be generated in? Enter an IETF "
-"BCP 47 language code."
+"Which language should your project site be generated in? Enter a language"
+" code."
 msgstr ""
-"Якою мовою має бути згенеровано ваш сайт проєкту? Введіть мовний код IETF"
-" BCP 47."
 
 msgid "Wikipedia contributors"
 msgstr "Учасники Вікіпедії"
+
+msgid "Wikipedia summary"
+msgstr ""
 
 msgid "Will"
 msgstr "Заповіт"
@@ -1232,6 +1357,10 @@ msgid ""
 msgstr ""
 "Твори в публічному домені можна використовувати або посилатися на них без"
 " дозволу, оскільки ніхто більше не має виключних прав на ці твори."
+
+#, python-brace-format
+msgid "Your project at {file}"
+msgstr ""
 
 msgid ""
 "Your project has no theme enabled. This means your site's pages may look "
@@ -1322,9 +1451,6 @@ msgstr ""
 "npm (https://www.npmjs.com/) має бути доступним для функцій, які "
 "вимагають встановлення пакетів Node.js. Переконайтеся, що виконуваний "
 "файл `npm` доступний у вашому `PATH`."
-
-msgid "npm is available"
-msgstr "npm доступний"
 
 msgid "npm is not available"
 msgstr "npm недоступний"
@@ -1470,6 +1596,10 @@ msgid "{date}"
 msgstr "{date}"
 
 #, python-brace-format
+msgid "{dependent} depends on {dependencies}."
+msgstr ""
+
+#, python-brace-format
 msgid "{entity_type} {entity_id}"
 msgstr "{entity_type} {entity_id}"
 
@@ -1498,7 +1628,29 @@ msgid "{most}, or {last}"
 msgstr ""
 
 #, python-brace-format
-msgid "{plugin_type_label} {plugin_label} depends on {dependency_labels}."
+msgid "{plugin_type} \"{plugin_id}\""
+msgstr ""
+
+#, python-brace-format
+msgid "{plugin_type} \"{plugin_id}\" ({plugin_label})"
+msgstr ""
+
+#, python-brace-format
+msgid "{plugin_type} \"{plugin_id}\" has unmet requirements"
+msgstr ""
+
+#, python-brace-format
+msgid "{subject} requires a project."
+msgstr ""
+
+#, python-brace-format
+msgid "{subject} requires a running app."
+msgstr ""
+
+#, python-brace-format
+msgid ""
+"{subject} requires the {extension} extension. Enable it in your project "
+"configuration, and try again."
 msgstr ""
 
 msgid "© Copyright the author, unless otherwise credited"

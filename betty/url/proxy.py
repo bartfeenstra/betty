@@ -22,7 +22,7 @@ class ProxyUrlGenerator(UrlGenerator):
         self._upstreams = upstreams
 
     @override
-    def supports(self, resource: Any) -> bool:
+    def supports(self, resource: Any, /) -> bool:
         return any(upstream.supports(resource) for upstream in self._upstreams)
 
     @override
@@ -46,4 +46,4 @@ class ProxyUrlGenerator(UrlGenerator):
                     media_type=media_type,
                     query=query,
                 )
-        raise UnsupportedResource.new(resource)
+        raise UnsupportedResource(resource)

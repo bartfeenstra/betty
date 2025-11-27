@@ -13,9 +13,8 @@ import rich  # noqa F401
 import rich_argparse
 from typing_extensions import override
 
-from betty import about
 from betty.app import App
-from betty.console.command import CommandDefinition, CommandFunction
+from betty.console.command import CommandFunction, CommandPlugin
 from betty.exception import HumanFacingException
 from betty.locale.localizable import _
 from betty.locale.localizer import Localizer
@@ -105,7 +104,7 @@ def _create_formatter_class(*, localizer: Localizer) -> type[argparse.HelpFormat
 async def _create_command_parser(
     app: App,
     subparsers: argparse._SubParsersAction,  # type: ignore[type-arg]
-    command_plugin: CommandDefinition,
+    command_plugin: CommandPlugin,
     formatter_class: type[argparse.HelpFormatter],
 ) -> argparse.ArgumentParser:
     localizer = await app.localizer
@@ -135,7 +134,7 @@ async def _create_command_parser(
         dest="_verbosity",
         action="store_const",
         const=Verbosity.VERBOSE,
-        help=localizer._("Also show debug messages"),
+        help=localizer._("Also show detailed information messages"),
     )
     verbosity_group.add_argument(
         "-vv",
@@ -143,6 +142,14 @@ async def _create_command_parser(
         dest="_verbosity",
         action="store_const",
         const=Verbosity.MORE_VERBOSE,
+        help=localizer._("Also show debug messages"),
+    )
+    verbosity_group.add_argument(
+        "-vvv",
+        "--most-verbose",
+        dest="_verbosity",
+        action="store_const",
+        const=Verbosity.MOST_VERBOSE,
         help=localizer._("Also show log messages"),
     )
 
@@ -153,7 +160,7 @@ async def _create_list_commands_action_class(
     app: App, *, localizer: Localizer
 ) -> type[argparse.Action]:
     command_definitions = sorted(
-        app.command_repository,
+        await app.plugins(CommandPlugin),
         key=lambda command_definition: command_definition.id,
     )
 
@@ -220,16 +227,8 @@ async def _create_parser(app: App) -> argparse.ArgumentParser:
         default=argparse.SUPPRESS,
         help=localizer._("Show all available commands"),
     )
-    parser.add_argument(
-        "--version",
-        action="version",
-        version=about.report(localizer=localizer),
-        help=localizer._(
-            "Show information about the current Betty version and environment"
-        ),
-    )
     subparsers = parser.add_subparsers(title=localizer._("Subcommands"))
-    for command_plugin in app.command_repository:
+    for command_plugin in await app.plugins(CommandPlugin):
         await _create_command_parser(app, subparsers, command_plugin, formatter_class)
     return parser
 
@@ -258,7 +257,7 @@ async def main(app: App, args: Sequence[str]) -> None:
         )
         parser.print_help()
         raise SystemExit(SystemExitCode.ERROR_CONSOLE_USAGE) from None
-    app.user.verbosity = namespace._verbosity
+    await app.user.set_verbosity(namespace._verbosity)
     try:
         await call_command_func(command_func, namespace)
         raise SystemExit(SystemExitCode.OK) from None

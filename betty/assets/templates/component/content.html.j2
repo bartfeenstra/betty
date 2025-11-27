@@ -1,0 +1,7 @@
+{% for content_provider_configuration in content_provider_configurations %}
+    {% set content_provider = content_provider_configuration.new_plugin_instance(project.plugins('content-provider'), factory=project.new_target) %}
+    {% set content = content_provider.provide(resource=resource) %}
+    {% if content is not none %}
+        {{ content | safe }}
+    {% endif %}
+{% endfor %}

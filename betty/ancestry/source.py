@@ -15,11 +15,14 @@ from betty.ancestry.has_notes import HasNotes
 from betty.json.linked_data import JsonLdObject, dump_context
 from betty.locale.localizable import (
     Localizable,
-    StaticTranslations,
+    LocalizableLike,
+    OptionalLocalizableAttr,
     _,
     ngettext,
 )
-from betty.model import Entity, EntityDefinition
+from betty.locale.localizable.linked_data import dump_linked_data
+from betty.locale.localizable.schema import StaticTranslationsSchema
+from betty.model import Entity, EntityPlugin
 from betty.model.association import (
     BidirectionalToManySingleType,
     BidirectionalToZeroOrOne,
@@ -41,8 +44,8 @@ if TYPE_CHECKING:
 
 
 @final
-@EntityDefinition(
-    id="source",
+@EntityPlugin(
+    "source",
     label=_("Source"),
     label_plural=_("Sources"),
     label_countable=ngettext("{count} source", "{count} sources"),
@@ -52,7 +55,21 @@ class Source(HasDate, HasFileReferences, HasNotes, HasLinks, HasPrivacy, Entity)
     A source of information.
     """
 
-    #: The source this one is directly contained by.
+    name = OptionalLocalizableAttr("name")
+    """
+    The source's name.
+    """
+
+    author = OptionalLocalizableAttr("author")
+    """
+    The source's author.
+    """
+
+    publisher = OptionalLocalizableAttr("publisher")
+    """
+    The source's publisher.
+    """
+
     contained_by = BidirectionalToZeroOrOne["Source", "Source"](
         "betty.ancestry.source:Source",
         "contained_by",
@@ -61,6 +78,10 @@ class Source(HasDate, HasFileReferences, HasNotes, HasLinks, HasPrivacy, Entity)
         title="Contained by",
         description="Another source this source may be contained by",
     )
+    """
+    Another source this source may be contained by
+    """
+
     contains = BidirectionalToManySingleType["Source", "Source"](
         "betty.ancestry.source:Source",
         "contains",
@@ -69,6 +90,10 @@ class Source(HasDate, HasFileReferences, HasNotes, HasLinks, HasPrivacy, Entity)
         title="Contains",
         description="Other sources this source may contain",
     )
+    """
+    Other sources this source may contain
+    """
+
     citations = BidirectionalToManySingleType["Source", "Citation"](
         "betty.ancestry.source:Source",
         "citations",
@@ -77,14 +102,17 @@ class Source(HasDate, HasFileReferences, HasNotes, HasLinks, HasPrivacy, Entity)
         title="Citations",
         description="The citations referencing this source",
     )
+    """
+    The citations referencing this source
+    """
 
     def __init__(
         self,
-        name: Localizable | None = None,
+        name: LocalizableLike | None = None,
         *,
         id: str | None = None,  # noqa A002  # noqa A002
-        author: Localizable | None = None,
-        publisher: Localizable | None = None,
+        author: LocalizableLike | None = None,
+        publisher: LocalizableLike | None = None,
         contained_by: ToZeroOrOneAssociate[Source] = None,
         contains: ToManyAssociates[Source] | None = None,
         notes: ToManyAssociates[Note] | None = None,
@@ -136,32 +164,29 @@ class Source(HasDate, HasFileReferences, HasNotes, HasLinks, HasPrivacy, Entity)
 
     @override
     @classmethod
-    async def linked_data_schema(cls, project: Project) -> JsonLdObject:
+    async def linked_data_schema(cls, project: Project, /) -> JsonLdObject:
         schema = await super().linked_data_schema(project)
-        static_translations_schema = await StaticTranslations.linked_data_schema(
-            project
-        )
+        static_translations_schema = StaticTranslationsSchema()
         schema.add_property("author", static_translations_schema, False)
         schema.add_property("name", static_translations_schema, False)
         schema.add_property("publisher", static_translations_schema, False)
         return schema
 
     @override
-    async def dump_linked_data(self, project: Project) -> DumpMapping[Dump]:
+    async def dump_linked_data(self, project: Project, /) -> DumpMapping[Dump]:
         dump = await super().dump_linked_data(project)
         dump["@type"] = "https://schema.org/Thing"
         dump_context(dump, name="https://schema.org/name")
         if is_public(self):
+            public_localizers = await project.public_localizers
             if self.author is not None:
-                dump["author"] = await StaticTranslations.dump_linked_data_for(
-                    project, self.author
+                dump["author"] = dump_linked_data(
+                    self.author, localizers=public_localizers
                 )
             if self.name is not None:
-                dump["name"] = await StaticTranslations.dump_linked_data_for(
-                    project, self.name
-                )
+                dump["name"] = dump_linked_data(self.name, localizers=public_localizers)
             if self.publisher is not None:
-                dump["publisher"] = await StaticTranslations.dump_linked_data_for(
-                    project, self.publisher
+                dump["publisher"] = dump_linked_data(
+                    self.publisher, localizers=public_localizers
                 )
         return dump

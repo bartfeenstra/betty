@@ -18,12 +18,14 @@ from betty.ancestry.file import File
 from betty.ancestry.has_notes import HasNotes
 from betty.ancestry.person import Person
 from betty.ancestry.place import Place
-from betty.model import Entity
+from betty.model import Entity, EntityPlugin
 from betty.privacy import is_private
 from betty.typing import internal
 
 if TYPE_CHECKING:
     from collections.abc import Iterable, Mapping, Sequence
+
+    from babel import Locale
 
     from betty.job import Context
     from betty.locale.localizable import Localizable
@@ -60,7 +62,7 @@ async def _generate_search_index_for_locale(
     project: Project,
     result_container_template: Localizable,
     results_container_template: Localizable,
-    locale: str,
+    locale: Locale,
     *,
     job_context: Context,
 ) -> None:
@@ -85,7 +87,7 @@ async def _generate_search_index_for_locale(
         await f.write(search_index_json)
 
 
-class _EntityTypeIndexer(Generic[_EntityCoT], ABC):
+class _EntityTypeIndexer(ABC, Generic[_EntityCoT]):
     def __init__(self, project: Project):
         self._project = project
 
@@ -105,9 +107,6 @@ class _EntityTypeIndexer(Generic[_EntityCoT], ABC):
 
 
 class _FallbackIndexer(_EntityTypeIndexer[Entity]):
-    def __init__(self, project: Project):
-        self._project = project
-
     @override
     async def text(self, localizer: Localizer, entity: Entity) -> set[str]:
         text = await super().text(localizer, entity)
@@ -116,9 +115,6 @@ class _FallbackIndexer(_EntityTypeIndexer[Entity]):
 
 
 class _PersonIndexer(_EntityTypeIndexer[Person]):
-    def __init__(self, project: Project):
-        self._project = project
-
     @override
     async def text(self, localizer: Localizer, entity: Person) -> set[str]:
         text = await super().text(localizer, entity)
@@ -177,6 +173,7 @@ class Index:
         """
         Build the search index.
         """
+        entity_types = await self._project.plugins(EntityPlugin)
         specialized_indexers: Mapping[type[Entity], _EntityTypeIndexer[Entity]] = {
             File: _FileIndexer(self._project),
             Person: _PersonIndexer(self._project),
@@ -193,7 +190,7 @@ class Index:
                     self._build_entities(
                         _FallbackIndexer(self._project), entity_type.cls
                     )
-                    for entity_type in self._project.app.entity_type_repository
+                    for entity_type in entity_types
                     if entity_type.public_facing
                     and entity_type.cls not in specialized_indexers
                 ],
@@ -230,9 +227,9 @@ class Index:
                 "search/result.html.j2",
             ]
         ).render_async(
-            {
-                "job_context": self._job_context,
-                "localizer": self._localizer,
-                "entity": entity,
-            }
+            resource=await self._project.new_resource_context(
+                job_context=self._job_context,
+                localizer=self._localizer,
+            ),
+            entity=entity,
         )

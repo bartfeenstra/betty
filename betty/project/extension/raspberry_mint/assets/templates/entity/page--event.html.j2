@@ -1,25 +1,25 @@
 {% extends 'entity/page.html.j2' %}
 {% block page_content %}
-    {% if entity.description %}
+    {% if resource.resource.description %}
         <div class="container my-5">
             <div class="row">
                 <div class="col col-12 col-lg-8">
                     <p>
-                        {{ entity.description | localize | html_lang }}
+                        {{ resource.resource.description | localize | html_lang }}
                     </p>
                 </div>
             </div>
         </div>
     {% endif %}
 
-    {% if entity.place is not none %}
-        {% with places = [entity.place] %}
+    {% if resource.resource.place is not none %}
+        {% with places = [resource.resource.place] %}
             {% include 'section/map.html.j2' %}
         {% endwith %}
     {% endif %}
 
     {% set ns = namespace(subjects = [], witnesses = [], other_attendees = []) %}
-    {% for presence in entity.presences | select('public') %}
+    {% for presence in resource.resource.presences | select('public') %}
         {% if presence.role is presence_role_plugin('subject') %}
             {% set ns.subjects = ns.subjects + [presence.person] %}
         {% endif %}
@@ -31,7 +31,7 @@
                     <section id="attendees--subject" class="section">
                         <h2 class="section-heading">
                             {% trans %}Subjects{% endtrans %}
-                            {% with url = page_resource | url(fragment="attendees-subject") %}
+                            {% with url = "#attendees-subject" %}
                                 {% include 'component/permalink.html.j2' %}
                             {% endwith %}
                         </h2>
@@ -44,7 +44,7 @@
         </div>
     {% endif %}
 
-    {% for presence in entity.presences | select('public') %}
+    {% for presence in resource.resource.presences | select('public') %}
         {% if presence.role is presence_role_plugin('witness') %}
             {% set ns.witnesses = ns.witnesses + [presence.person] %}
         {% endif %}
@@ -56,7 +56,7 @@
                     <section id="attendees--witness" class="section">
                         <h2 class="section-heading">
                             {% trans %}Witnesses{% endtrans %}
-                            {% with url = page_resource | url(fragment="attendees-witness") %}
+                            {% with url = "#attendees-witness" %}
                                 {% include 'component/permalink.html.j2' %}
                             {% endwith %}
                         </h2>
@@ -69,7 +69,7 @@
         </div>
     {% endif %}
 
-    {% for presence in entity.presences | select('public') %}
+    {% for presence in resource.resource.presences | select('public') %}
         {% if not presence.role is presence_role_plugin('subject') and not presence.role is presence_role_plugin('witness') %}
             {% set ns.other_attendees = ns.other_attendees + [presence.person] %}
         {% endif %}
@@ -81,7 +81,7 @@
                     <section id="attendees-other" class="section">
                         <h2 class="section-heading">
                             {% trans %}Other attendees{% endtrans %}
-                            {% with url = page_resource | url(fragment="attendees-other") %}
+                            {% with url = "#attendees-other" %}
                                 {% include 'component/permalink.html.j2' %}
                             {% endwith %}
                         </h2>
@@ -94,7 +94,7 @@
         </div>
     {% endif %}
 
-    {% with file_references = entity | associated_file_references %}
+    {% with file_references = resource.resource | associated_file_references %}
         {% include 'section/media.html.j2' %}
     {% endwith %}
 {% endblock %}

@@ -18,17 +18,14 @@ from typing_extensions import override
 
 from betty.cache.file import BinaryFileCache
 from betty.exception import HumanFacingException
-from betty.license import License, LicenseDefinition
+from betty.license import License, LicensePlugin
 from betty.locale.localizable import Localizable, Plain, _
 from betty.machine_name import MachineName
 from betty.user import User
 
 
 @final
-@LicenseDefinition(
-    id="all-rights-reserved",
-    label=_("All rights reserved"),
-)
+@LicensePlugin("all-rights-reserved", label=_("All rights reserved"))
 class AllRightsReserved(License):
     """
     A license that does not permit the public any rights.
@@ -48,10 +45,7 @@ class AllRightsReserved(License):
 
 
 @final
-@LicenseDefinition(
-    id="public-domain",
-    label=_("Public domain"),
-)
+@LicensePlugin("public-domain", label=_("Public domain"))
 class PublicDomain(License):
     """
     A work is in the `public domain <https://en.wikipedia.org/wiki/Public_domain>`.
@@ -103,7 +97,7 @@ class SpdxLicenseBuilder:
             binary_file_cache.with_scope("spdx-licenses").with_scope(self.VERSION).path
         )
 
-    async def build(self) -> AsyncIterable[LicenseDefinition]:
+    async def build(self) -> AsyncIterable[LicensePlugin]:
         """
         Build the licenses.
         """
@@ -152,7 +146,7 @@ class SpdxLicenseBuilder:
 
             yield await self._build_license(spdx_license_id, spdx_reference)
 
-    async def _build_license(self, license_id: str, url: str) -> LicenseDefinition:
+    async def _build_license(self, license_id: str, url: str) -> LicensePlugin:
         async with aiofiles.open(
             self._cache_directory_path
             / f"license-list-data-{self.VERSION}"
@@ -173,6 +167,9 @@ class SpdxLicenseBuilder:
             license_text = spdx_license_data["licenseText"]
             assert isinstance(license_text, str)
 
+            @LicensePlugin(
+                spdx_license_id_to_license_id(license_id), label=license_name
+            )
             class _SpdxLicense(License):
                 @override
                 @property
@@ -191,11 +188,7 @@ class SpdxLicenseBuilder:
                 def url(self) -> Localizable | None:
                     return Plain(url)
 
-            return LicenseDefinition(
-                id=spdx_license_id_to_license_id(license_id),
-                label=Plain(license_name),
-                cls=_SpdxLicense,
-            )
+            return _SpdxLicense.plugin
 
     @classmethod
     def _extract_licenses(

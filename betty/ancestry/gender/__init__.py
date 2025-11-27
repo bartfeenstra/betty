@@ -7,34 +7,38 @@ from __future__ import annotations
 from typing import ClassVar, final
 
 from betty.locale.localizable import _
-from betty.mutability import Mutable
-from betty.plugin import (
-    ClassedPluginDefinition,
-    ClassedPluginTypeDefinition,
-    HumanFacingPluginDefinition,
-)
+from betty.plugin import Plugin, PluginTypeDefinition
+from betty.plugin.discovery.entry_point import EntryPointDiscovery
+from betty.plugin.discovery.project import ProjectDiscovery
+from betty.plugin.human_facing import HumanFacingPluginDefinition
 
 
-class Gender(Mutable):
+class Gender(Plugin):
     """
     Define a gender.
 
     Read more about :doc:`/development/plugin/gender`.
     """
 
-    plugin: ClassVar[GenderDefinition]
+    plugin: ClassVar[GenderPlugin]
 
 
 @final
-class GenderDefinition(HumanFacingPluginDefinition, ClassedPluginDefinition[Gender]):
+class GenderPlugin(HumanFacingPluginDefinition[Gender]):
     """
     A gender definition.
 
     Read more about :doc:`/development/plugin/gender`.
     """
 
-    type: ClassVar[ClassedPluginTypeDefinition] = ClassedPluginTypeDefinition(
-        id="gender",
-        label=_("Gender"),
-        cls=Gender,
+    plugin_type_cls = Gender
+    type = PluginTypeDefinition(
+        "gender",
+        _("Gender"),
+        discoveries=[
+            EntryPointDiscovery("betty.gender"),
+            ProjectDiscovery(
+                lambda project: project.configuration.genders.new_plugins()
+            ),
+        ],
     )

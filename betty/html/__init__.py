@@ -4,25 +4,20 @@ Provide the HTML API, for generating HTML pages.
 
 from __future__ import annotations
 
+import html
+import re
 from abc import ABC, abstractmethod
-from collections.abc import Iterable, Iterator, Sequence, Sized
-from threading import Lock
-from typing import TYPE_CHECKING, Any, final
+from typing import TYPE_CHECKING, final
+from uuid import uuid4
 
-from typing_extensions import override
+from markupsafe import escape
 
-from betty.json.linked_data import LinkedDataDumpable
-from betty.link import Link
-from betty.locale.localizable import Plain
-from betty.media_type.media_types import HTML
-from betty.serde.dump import Dump, DumpMapping
+from betty.locale.localizable import LocalizableLike, ensure_localizable
 
 if TYPE_CHECKING:
-    from collections.abc import MutableSequence
+    from collections.abc import Sequence
 
-    from betty.ancestry.citation import Citation
     from betty.locale.localizable import Localizable
-    from betty.project import Project
 
 
 class CssProvider(ABC):
@@ -50,23 +45,27 @@ class JsProvider(ABC):
 
 
 @final
-class NavigationLink(Link):
+class NavigationLink:
     """
     A navigation link.
     """
 
-    def __init__(self, url: Localizable | str, label: Localizable):
-        self._url = Plain(url) if isinstance(url, str) else url
-        self._label = label
+    def __init__(self, url: LocalizableLike, label: LocalizableLike):
+        self._url = ensure_localizable(url)
+        self._label = ensure_localizable(label)
 
-    @override
     @property
     def url(self) -> Localizable:
+        """
+        The URL the link points to.
+        """
         return self._url
 
-    @override
     @property
     def label(self) -> Localizable:
+        """
+        The human-readable short link label.
+        """
         return self._label
 
 
@@ -88,106 +87,28 @@ class NavigationLinkProvider:
         return ()
 
 
-class Citer:
+_paragraph_re = re.compile(r"(?:\r\n|\r|\n){2,}")
+
+
+def newlines_to_paragraphs(text: str) -> str:
     """
-    Track citations when they are first used.
+    Convert newlines to <p> and <br> tags.
     """
-
-    __slots__ = "_lock", "_cited"
-
-    def __init__(self):
-        self._lock = Lock()
-        self._cited: MutableSequence[Citation] = []
-
-    def __iter__(self) -> enumerate[Citation]:
-        return enumerate(self._cited, 1)
-
-    def __len__(self) -> int:
-        return len(self._cited)
-
-    def cite(self, citation: Citation) -> int:
-        """
-        Reference a citation.
-
-        :returns: The citation's sequential reference number.
-        """
-        with self._lock:
-            if citation not in self._cited:
-                self._cited.append(citation)
-            return self._cited.index(citation) + 1
+    return "\n\n".join(
+        "<p>{}</p>".format(paragraph.replace("\n", "<br>\n"))
+        for paragraph in _paragraph_re.split(escape(text))
+    )
 
 
-@final
-class Breadcrumb(LinkedDataDumpable[DumpMapping[Dump]]):
+def plain_text_to_html(text: str) -> str:
     """
-    A breadcrumb.
+    Convert plain text to HTML.
     """
-
-    def __init__(self, label: str, resource: Any, /):
-        self._label = label
-        self._resource = resource
-
-    @property
-    def label(self) -> str:
-        """
-        The localized, human-readable label.
-        """
-        return self._label
-
-    @property
-    def resource(self) -> Any:
-        """
-        The resource.
-        """
-        return self._resource
-
-    @override
-    async def dump_linked_data(self, project: Project) -> DumpMapping[Dump]:
-        url_generator = await project.url_generator
-        return {
-            "@type": "ListItem",
-            "name": self._label,
-            "item": url_generator.generate(
-                self._resource, absolute=True, media_type=HTML
-            ),
-        }
+    return newlines_to_paragraphs(html.escape(text))
 
 
-@final
-class Breadcrumbs(LinkedDataDumpable[DumpMapping[Dump]], Iterable[Breadcrumb], Sized):
+def generate_html_id() -> str:
     """
-    A trail of navigational breadcrumbs.
+    Generate a unique HTML ID.
     """
-
-    def __init__(self):
-        self._breadcrumbs: MutableSequence[Breadcrumb] = []
-
-    @override
-    def __iter__(self) -> Iterator[Breadcrumb]:
-        return iter(self._breadcrumbs)
-
-    @override
-    def __len__(self) -> int:
-        return len(self._breadcrumbs)
-
-    def append(self, label: str, resource: Any, /) -> None:
-        """
-        Append a breadcrumb to the trail.
-        """
-        self._breadcrumbs.append(Breadcrumb(label, resource))
-
-    @override
-    async def dump_linked_data(self, project: Project) -> DumpMapping[Dump]:
-        if not self._breadcrumbs:
-            return {}
-        return {
-            "@context": "https://schema.org",
-            "@type": "BreadcrumbList",
-            "itemListElement": [
-                {
-                    "position": position,
-                    **await breadcrumb.dump_linked_data(project),
-                }
-                for position, breadcrumb in enumerate(self._breadcrumbs, 1)
-            ],
-        }
+    return f"betty-generated--{uuid4()}"

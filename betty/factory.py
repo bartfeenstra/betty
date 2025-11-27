@@ -5,36 +5,17 @@ Functionality for creating new class instances.
 from __future__ import annotations
 
 from abc import ABC, abstractmethod
-from typing import Protocol, Self, TypeVar, cast
+from collections.abc import Awaitable, Callable
+from typing import Any, Protocol, Self, TypeAlias, cast
 
-from typing_extensions import override
+from typing_extensions import TypeVar
 
+from betty.asyncio import ensure_await
 
-class FactoryError(RuntimeError):
-    """
-    Raised when a class could not be instantiated by a factory API.
-    """
-
-    @classmethod
-    def new(cls, new_cls: type) -> Self:
-        """
-        Create a new instance.
-        """
-        return cls(f"Could not instantiate {new_cls}")
+_T = TypeVar("_T", default=Any)
 
 
-class InitFactoryError(FactoryError):
-    """
-    Raised when a class could not be instantiated by calling it directly.
-    """
-
-    @override
-    @classmethod
-    def new(cls, new_cls: type) -> Self:
-        return cls(f"Could not instantiate {new_cls} by calling {new_cls.__name__}()")
-
-
-class IndependentFactory(ABC):
+class SelfFactory(ABC):
     """
     Provide a factory for classes that can instantiate themselves asynchronously.
     """
@@ -47,40 +28,42 @@ class IndependentFactory(ABC):
         """
 
 
-_T = TypeVar("_T")
+Target: TypeAlias = (
+    type[SelfFactory] | type[_T] | Callable[[], Awaitable[_T]] | Callable[[], _T]
+)
+"""
+#. If ``target`` subclasses :py:class:`betty.factory.SelfFactory`, this will return ``target``'s
+   ``new()``'s return value.
+#. Else, if ``target`` is a class, ``target()`` will be called without arguments, and the resulting
+   instance will be returned.
+#. Else, ``target`` is called as a function. If its return value is an :py:class:`collections.Awaitable`,
+   it is awaited and then returned. Otherwise, the return value is returned directly.
+"""
 
 
-async def new(cls: type[_T]) -> _T:
+class FactoryError(RuntimeError):
+    """
+    Raised when a class could not be instantiated by a factory API.
+    """
+
+    def __init__(self, target: Target, /):
+        super().__init__(f"Could not call {repr(target)}")
+
+
+async def new_target(target: Target[_T], /) -> _T:
     """
     Create a new instance.
 
-    :return:
-            #. If ``cls`` extends :py:class:`betty.factory.IndependentFactory`, this will call return ``cls``'s
-                ``new()``'s return value.
-            #. Otherwise ``cls()`` will be called without arguments, and the resulting instance will be returned.
-
-    :raises FactoryError: raised when ``cls`` could not be instantiated.
+    :raises FactoryError: raised when ``target`` could not be instantiated.
     """
-    if issubclass(cls, IndependentFactory):
-        return cast(_T, await cls.new())
     try:
-        return cls()
+        if isinstance(target, type):
+            if issubclass(target, SelfFactory):
+                return cast(_T, await target.new())
+            return cast(type[_T], target)()
+        return await ensure_await(target())
     except Exception as error:
-        raise InitFactoryError.new(cls) from error
-
-
-class TargetFactory(ABC):
-    """
-    Provide a factory for classes that depend on ``self``.
-    """
-
-    @abstractmethod
-    async def new_target(self, cls: type[_T]) -> _T:
-        """
-        Create a new instance.
-
-        :raises FactoryError: raised when ``cls`` could not be instantiated.
-        """
+        raise FactoryError(target) from error
 
 
 class Factory(Protocol):
@@ -88,9 +71,9 @@ class Factory(Protocol):
     A callable to create a new instance.
     """
 
-    async def __call__(self, cls: type[_T]) -> _T:
+    async def __call__(self, target: Target[_T], /) -> _T:
         """
         Create a new instance.
 
-        :raises FactoryError: raised when ``cls`` could not be instantiated.
+        :raises FactoryError: raised when ``target`` could not be instantiated.
         """

@@ -9,8 +9,8 @@ from betty.ancestry.place import Place
 from betty.ancestry.source import Source
 from betty.assertion import assert_str, assert_path, assert_locale
 from betty.config.file import write_configuration_file
-from betty.locale import get_display_name, DEFAULT_LOCALE
-from betty.locale.localizable import _, StaticTranslationsMapping, Localizable
+from betty.locale import DEFAULT_LOCALE_TAG, to_language_tag
+from betty.locale.localizable import _, Localizable, StaticTranslations
 from betty.machine_name import machinify, assert_machine_name
 from betty.plugin.config import PluginInstanceConfiguration
 from betty.project.config import (
@@ -18,6 +18,7 @@ from betty.project.config import (
     ProjectConfiguration,
     EntityTypeConfiguration,
 )
+from betty.project.extension import ExtensionPlugin
 from betty.project.extension.deriver import Deriver
 from betty.project.extension.gramps import Gramps
 from betty.project.extension.gramps.config import (
@@ -31,11 +32,12 @@ from betty.project.extension.raspberry_mint import RaspberryMint
 from betty.project.extension.trees import Trees
 from betty.project.extension.webpack import Webpack
 from betty.project.extension.wiki import Wiki
-from betty.requirement import AllRequirements
 
 if TYPE_CHECKING:
     from collections.abc import Sequence
     from pathlib import Path
+
+    from babel import Locale
 
     from betty.app import App
     from betty.user import User
@@ -45,9 +47,10 @@ async def new(app: App) -> None:
     """
     Create a new project.
     """
+    await app.plugins(ExtensionPlugin)
     localizers = await app.localizers
 
-    extensions = (
+    project_extensions = (
         Deriver,
         HttpApiDoc,
         Maps,
@@ -58,15 +61,12 @@ async def new(app: App) -> None:
         Webpack,
         Wiki,
     )
-    AllRequirements(
-        *[await extension.plugin.cls.requirement(app=app) for extension in extensions]
-    ).assert_met()
 
     configuration_file_path = await app.user.ask_input(
         _("Where do you want to save your project's configuration file?"),
         assertion=_assert_project_configuration_file_path,
     )
-    configuration = await ProjectConfiguration.new(
+    configuration = ProjectConfiguration(
         configuration_file_path,
         entity_types=[
             EntityTypeConfiguration(Person, generate_html_list=True),
@@ -76,15 +76,15 @@ async def new(app: App) -> None:
         ],
     )
 
-    configuration.extensions.enable(*extensions)
+    configuration.extensions.enable(*project_extensions)
 
     configuration.locales.replace(
         LocaleConfiguration(
             await app.user.ask_input(
                 _(
-                    "Which language should your project site be generated in? Enter an IETF BCP 47 language code."
+                    "Which language should your project site be generated in? Enter a language code."
                 ),
-                default=DEFAULT_LOCALE,
+                default=DEFAULT_LOCALE_TAG,
                 assertion=assert_locale(),
             )
         )
@@ -94,7 +94,7 @@ async def new(app: App) -> None:
             LocaleConfiguration(
                 await app.user.ask_input(
                     _(
-                        "Which language should your project site be generated in? Enter an IETF BCP 47 language code."
+                        "Which language should your project site be generated in? Enter a language code."
                     ),
                     assertion=assert_locale(),
                 )
@@ -129,13 +129,10 @@ async def new(app: App) -> None:
     )
 
     if await app.user.ask_confirmation(_("Do you want to load a Gramps family tree?")):
-        gramps_requirement = await Gramps.requirement(app=app)
-        if gramps_requirement is not None:
-            gramps_requirement.assert_met()
         configuration.extensions.append(
             PluginInstanceConfiguration(
                 Gramps.plugin,
-                configuration=GrampsConfiguration(
+                GrampsConfiguration(
                     family_trees=[
                         FamilyTreeConfiguration(
                             await app.user.ask_input(
@@ -173,11 +170,15 @@ def _assert_url(value: Any) -> str:
 
 
 async def _user_input_static_translations(
-    user: User, locales: Sequence[str], question: Localizable
-) -> StaticTranslationsMapping:
-    return {
-        locale: await user.ask_input(
-            question.format(locale=get_display_name(locale) or locale)
-        )
-        for locale in locales
-    }
+    user: User, locales: Sequence[Locale], question: Localizable
+) -> StaticTranslations:
+    return StaticTranslations(
+        {
+            locale: await user.ask_input(
+                question.format(
+                    locale=locale.get_display_name() or to_language_tag(locale)
+                )
+            )
+            for locale in locales
+        }
+    )

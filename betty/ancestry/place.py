@@ -17,7 +17,7 @@ from betty.ancestry.place_type.place_types import Unknown as UnknownPlaceType
 from betty.json.linked_data import JsonLdObject, dump_context
 from betty.json.schema import Array, Number, Object
 from betty.locale.localizable import Localizable, _, ngettext
-from betty.model import EntityDefinition
+from betty.model import EntityPlugin
 from betty.model.association import BidirectionalToManySingleType, ToManyAssociates
 from betty.privacy import HasPrivacy
 
@@ -31,15 +31,14 @@ if TYPE_CHECKING:
     from betty.ancestry.link import Link
     from betty.ancestry.note import Note
     from betty.ancestry.place_type import PlaceType
-    from betty.mutability import Mutable
     from betty.privacy import Privacy
     from betty.project import Project
     from betty.serde.dump import Dump, DumpMapping
 
 
 @final
-@EntityDefinition(
-    id="place",
+@EntityPlugin(
+    "place",
     label=_("Place"),
     label_plural=_("Places"),
     label_countable=ngettext("{count} place", "{count} places"),
@@ -61,6 +60,10 @@ class Place(HasLinks, HasFileReferences, HasNotes, HasPrivacy):
         title="Events",
         description="The events that happened in this place",
     )
+    """
+    The events that happened here.
+    """
+
     enclosers = BidirectionalToManySingleType["Place", "Enclosure"](
         "betty.ancestry.place:Place",
         "encloser",
@@ -70,6 +73,10 @@ class Place(HasLinks, HasFileReferences, HasNotes, HasPrivacy):
         description="The places this place is enclosed or contained by",
         linked_data_embedded=True,
     )
+    """
+    Other places containing this one.
+    """
+
     enclosees = BidirectionalToManySingleType["Place", "Enclosure"](
         "betty.ancestry.place:Place",
         "enclosee",
@@ -79,6 +86,9 @@ class Place(HasLinks, HasFileReferences, HasNotes, HasPrivacy):
         description="The places this place encloses or contains",
         linked_data_embedded=True,
     )
+    """
+    Other places contained by this one.
+    """
 
     def __init__(
         self,
@@ -115,9 +125,9 @@ class Place(HasLinks, HasFileReferences, HasNotes, HasPrivacy):
         self._place_type = place_type or UnknownPlaceType()
 
     @override
-    def get_mutable_instances(self) -> Iterable[Mutable]:
+    def get_mutables(self) -> Iterable[object]:
         return (
-            *super().get_mutable_instances(),
+            *super().get_mutables(),
             self._place_type,
         )
 
@@ -171,7 +181,7 @@ class Place(HasLinks, HasFileReferences, HasNotes, HasPrivacy):
         return super().label
 
     @override
-    async def dump_linked_data(self, project: Project) -> DumpMapping[Dump]:
+    async def dump_linked_data(self, project: Project, /) -> DumpMapping[Dump]:
         dump = await super().dump_linked_data(project)
         dump_context(
             dump,
@@ -201,7 +211,7 @@ class Place(HasLinks, HasFileReferences, HasNotes, HasPrivacy):
 
     @override
     @classmethod
-    async def linked_data_schema(cls, project: Project) -> JsonLdObject:
+    async def linked_data_schema(cls, project: Project, /) -> JsonLdObject:
         schema = await super().linked_data_schema(project)
         schema.add_property(
             "names", Array(await Name.linked_data_schema(project), title="Names")

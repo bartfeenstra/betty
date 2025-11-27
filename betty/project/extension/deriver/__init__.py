@@ -8,8 +8,8 @@ from typing import TYPE_CHECKING, final
 
 from typing_extensions import override
 
-from betty.locale.localizable import Plain, _
-from betty.project.extension import Extension, ExtensionDefinition
+from betty.locale.localizable import _
+from betty.project.extension import Extension, ExtensionPlugin
 from betty.project.extension.deriver.jobs import DeriveAncestry
 from betty.project.load import PostLoader
 
@@ -19,9 +19,9 @@ if TYPE_CHECKING:
 
 
 @final
-@ExtensionDefinition(
-    id="deriver",
-    label=Plain("Deriver"),
+@ExtensionPlugin(
+    "deriver",
+    label="Deriver",
     description=_(
         "Create events such as births and deaths by deriving their details from existing information."
     ),

@@ -93,7 +93,7 @@ class Schema:
         """
         return cast(DumpMapping[Dump], self._schema.setdefault("$defs", {}))
 
-    def embed(self, into: Schema) -> DumpMapping[Dump]:
+    def embed(self, into: Schema, /) -> DumpMapping[Dump]:
         """
         Embed this schema.
 
@@ -111,7 +111,7 @@ class Schema:
         into.defs[self._def_name] = schema
         return Ref(self._def_name).embed(into)
 
-    def validate(self, data: Any) -> None:
+    def validate(self, data: Any, /) -> None:
         """
         Validate data against this schema.
         """
@@ -257,6 +257,7 @@ class Object(_Type):
         property_name: str,
         property_schema: Schema,
         property_required: bool = True,
+        /,
     ) -> None:
         """
         Add a property to the object schema.
@@ -373,7 +374,7 @@ class Def(str):
     __slots__ = ()
 
     @override
-    def __new__(cls, def_name: str):
+    def __new__(cls, def_name: str, /):
         return super().__new__(cls, f"#/$defs/{def_name}")
 
 
@@ -382,7 +383,7 @@ class Ref(Schema):
     A JSON Schema that references a named Betty schema.
     """
 
-    def __init__(self, def_name: str):
+    def __init__(self, def_name: str, /):
         super().__init__()
         self._schema["$ref"] = Def(def_name)
 

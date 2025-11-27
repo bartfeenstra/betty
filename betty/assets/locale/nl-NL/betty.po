@@ -7,8 +7,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PROJECT VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2025-11-04 14:00+0000\n"
-"PO-Revision-Date: 2025-05-17 01:43+0000\n"
+"POT-Creation-Date: 2025-11-27 01:37+0000\n"
+"PO-Revision-Date: 2025-11-08 23:46+0000\n"
 "Last-Translator: Bart Feenstra <bart@bartfeenstra.com>\n"
 "Language: nl_NL\n"
 "Language-Team: Dutch "
@@ -34,6 +34,14 @@ msgid "\"{path}\" is not a directory."
 msgstr "\"{path}\" is geen directory."
 
 #, python-brace-format
+msgid "\"{plugin_id}\""
+msgstr ""
+
+#, python-brace-format
+msgid "\"{plugin_id}\" ({plugin_label})"
+msgstr ""
+
+#, python-brace-format
 msgid ""
 "\"{value}\" is not a valid machine name: only lowercase letters, digits, "
 "and hyphens (-) are allowed."
@@ -53,7 +61,10 @@ msgstr "%(event)s van %(subjects)s"
 msgid "%(event)s with %(subjects)s"
 msgstr "%(event)s met %(subjects)s"
 
-msgid "(De)serialization format)"
+msgid "(De)serialization format"
+msgstr ""
+
+msgid "A Betty demonstration"
 msgstr ""
 
 msgid ""
@@ -72,9 +83,8 @@ msgstr "Over"
 msgid "Access denied"
 msgstr "Toegang geweigerd"
 
-#, python-format
-msgid "Accessed: %(date)s"
-msgstr "Opgevraagd: %(date)s"
+msgid "Accessed"
+msgstr ""
 
 msgid "Adoption"
 msgstr "Adoptie"
@@ -95,7 +105,13 @@ msgstr "Ook bekend als %(names)s"
 msgid "Also show debug messages"
 msgstr ""
 
+msgid "Also show detailed information messages"
+msgstr ""
+
 msgid "Also show log messages"
+msgstr ""
+
+msgid "Amsterdam"
 msgstr ""
 
 msgid "An unexpected error occurred:"
@@ -109,6 +125,9 @@ msgstr "Huwelijksaankondiging"
 
 msgid "Appearances"
 msgstr "Verschijningen"
+
+msgid "Assets directory"
+msgstr ""
 
 #, python-brace-format
 msgid "At least {expected} items are required, but found {actual}."
@@ -128,11 +147,17 @@ msgstr "Op welke URL wordt je site gepubliceerd?"
 msgid "Attendee"
 msgstr "Aanwezige"
 
+msgid "Author"
+msgstr ""
+
 msgid "Baptism"
 msgstr "Doping"
 
 msgid "Bar mitzvah"
 msgstr "Bar mitswa"
+
+msgid "Bart Feenstra and contributors"
+msgstr ""
 
 msgid "Bat mitzvah"
 msgstr "Bat mitswa"
@@ -236,10 +261,6 @@ msgid "Cannot find an available port to bind the web server to."
 msgstr "Kan geen beschikbare poort voor de webserver vinden."
 
 #, python-brace-format
-msgid "Cannot find and import \"{plugin_id}\"."
-msgstr "Kan plugin \"{plugin_id}\" niet vinden en importeren."
-
-#, python-brace-format
 msgid ""
 "Cannot generate pages for {entity_type}, because it is not a public-"
 "facing entity type."
@@ -289,11 +310,17 @@ msgstr "Leeg alle caches"
 msgid "Close"
 msgstr "Sluiten"
 
+msgid "Color style"
+msgstr ""
+
 msgid "Command"
 msgstr ""
 
 msgid "Conference"
 msgstr "Conferentie"
+
+msgid "Configuration file"
+msgstr ""
 
 msgid "Configure Betty"
 msgstr "Configureer Betty"
@@ -301,12 +328,14 @@ msgstr "Configureer Betty"
 msgid "Confirmation"
 msgstr "Geloofsbelijdenis"
 
+msgid "Content provider"
+msgstr ""
+
 #, python-format
 msgid "Continue reading on <a href=\"%(url)s\">Wikipedia</a>."
 msgstr "Lees verder op <a href=\"%(url)s\">Wikipedia</a>."
 
-#, python-format
-msgid "Coordinates: %(latitude)s, %(longitude)s"
+msgid "Coordinates"
 msgstr ""
 
 msgid "Copyright"
@@ -343,8 +372,8 @@ msgstr ""
 "uitpakken."
 
 #, python-brace-format
-msgid "Could not find a plugin \"{plugin_id}\"."
-msgstr "Kan de plugin \"{plugin_id}\" niet vinden."
+msgid "Could not find a(n) {plugin_type} plugin \"{plugin_id}\"."
+msgstr ""
 
 #, python-brace-format
 msgid ""
@@ -406,6 +435,14 @@ msgid ""
 msgstr ""
 "Bepaal of bewezen kan worden dat personen overleden zijn. Indien niet, "
 "markeer hen en gerelateerde entiteiten privé."
+
+msgid "Did you know that Liberta \"Betty\" Lankester is Betty's namesake?"
+msgstr ""
+
+msgid ""
+"Did you know that while Amsterdam is the country's official capital, The "
+"Hague is the Netherlands' administrative center and seat of government?"
+msgstr ""
 
 msgid ""
 "Display interactive family trees using <a "
@@ -494,14 +531,20 @@ msgstr "Feiten"
 msgid "Family"
 msgstr "Familie"
 
+msgid "Family tree"
+msgstr ""
+
 msgid "Family tree configuration must contain either a \"file\" or a \"name\" key"
 msgstr ""
 
 msgid "Farm"
 msgstr "Boerderij"
 
+msgid "Featured entities"
+msgstr ""
+
 msgid "Female"
-msgstr "Vrouwelijk"
+msgstr "Vrouw"
 
 msgid "File"
 msgstr "Bestand"
@@ -529,6 +572,9 @@ msgstr ""
 
 msgid "Funeral"
 msgstr "Uitvaart"
+
+msgid "Gemeente Amsterdam"
+msgstr ""
 
 msgid "Gender"
 msgstr ""
@@ -581,6 +627,12 @@ msgstr ""
 msgid "I'm sorry, dear, but it seems you're not logged in."
 msgstr "Het spijt me, lieverd, maar het lijkt erop dat je niet ingelogd bent."
 
+msgid "ID"
+msgstr ""
+
+msgid "Ilpendam"
+msgstr ""
+
 msgid "Immigration"
 msgstr "Immigratie"
 
@@ -599,11 +651,22 @@ msgstr "Ongeldige YAML: {error}."
 msgid "Invalid argument {argument}: {error}"
 msgstr ""
 
+#, python-brace-format
+msgid "Invalid option {value}."
+msgstr ""
+
+#, python-brace-format
+msgid "Invalid region {invalid_region}."
+msgstr ""
+
 msgid "It appears you called Betty without a command or arguments"
 msgstr ""
 
 msgid "Keywords"
 msgstr "Zoekwoorden"
+
+msgid "Label"
+msgstr ""
 
 msgid "Language"
 msgstr "Taal"
@@ -671,7 +734,7 @@ msgid "Locale aliases must not contain slashes."
 msgstr "Taalregioaliassen mogen geen schuine streep bevatten."
 
 #, python-brace-format
-msgid "Locale {locale} is not supported by your system."
+msgid "Locale {locale} is not known by your system."
 msgstr ""
 
 msgid "Locality"
@@ -690,13 +753,19 @@ msgid "MMMM, y"
 msgstr "MMMM y"
 
 msgid "Male"
-msgstr "Mannelijk"
+msgstr "Man"
+
+msgid "Map"
+msgstr ""
 
 msgid "Marriage"
 msgstr "Huwelijk"
 
 msgid "Media"
 msgstr "Media"
+
+msgid "Media gallery"
+msgstr ""
 
 msgid "Media references"
 msgstr "Mediaverwijzingen"
@@ -707,11 +776,17 @@ msgstr "Menu"
 msgid "Missing"
 msgstr "Vermist"
 
+msgid "More plugins may be available when running this command with --project."
+msgstr ""
+
 msgid "Municipality"
 msgstr "Gemeente"
 
 msgid "Neighborhood"
 msgstr "Buurt"
+
+msgid "Netherlands"
+msgstr ""
 
 msgid "Next page"
 msgstr ""
@@ -728,6 +803,9 @@ msgstr ""
 msgid "Non-binary"
 msgstr "Non-binair"
 
+msgid "North Holland"
+msgstr ""
+
 msgid "Note"
 msgstr "Aantekening"
 
@@ -743,6 +821,12 @@ msgstr "Beroep"
 msgid "One or more of these requirements must be met"
 msgstr "Aan één van deze vereisten moet voldaan worden"
 
+#, python-brace-format
+msgid ""
+"Only plain text and static translations can be dumped to configuration, "
+"not `{localizable}` objects."
+msgstr ""
+
 msgid "Operating system"
 msgstr ""
 
@@ -757,6 +841,15 @@ msgstr "Overige aanwezigen"
 
 msgid "Other places contained by this one"
 msgstr "Overige plaatsen binnen deze"
+
+msgid "Output directory"
+msgstr ""
+
+msgid "Output information about Betty, and optionally your project"
+msgstr ""
+
+msgid "Package"
+msgstr ""
 
 #, python-format
 msgid "Page %(page)s"
@@ -786,6 +879,9 @@ msgstr "Persoonsnaam"
 msgid "Person names"
 msgstr "Persoonsnamen"
 
+msgid "Personal accounts"
+msgstr ""
+
 msgid "Place"
 msgstr "Plaats"
 
@@ -795,8 +891,14 @@ msgstr ""
 msgid "Places"
 msgstr "Plaatsen"
 
+msgid "Plain text"
+msgstr ""
+
 #, python-brace-format
 msgid "Plugin \"{plugin_id}\" is not configurable, but configuration was given."
+msgstr ""
+
+msgid "Plugins"
 msgstr ""
 
 msgid "Positional arguments"
@@ -867,6 +969,9 @@ msgstr "Provincie"
 msgid "Public domain"
 msgstr "Publiek domein"
 
+msgid "Publisher"
+msgstr ""
+
 msgid "Python packages"
 msgstr ""
 
@@ -915,6 +1020,9 @@ msgstr "Configuratie naar \"{configuration_file}\" opgeslagen."
 msgid "Search"
 msgstr "Zoeken"
 
+msgid "Section"
+msgstr ""
+
 msgid "Serve a generated site"
 msgstr "Serveer een gegenereerde site"
 
@@ -930,9 +1038,6 @@ msgstr ""
 msgid "Show all available commands"
 msgstr ""
 
-msgid "Show information about the current Betty version and environment"
-msgstr ""
-
 msgid "Show this help message"
 msgstr ""
 
@@ -944,6 +1049,9 @@ msgstr "Bronnen"
 
 msgid "Speaker"
 msgstr "Spreker"
+
+msgid "Start exploring..."
+msgstr ""
 
 msgid "Starting Python's built-in web server..."
 msgstr "Pythons ingebouwde webserver aan het starten..."
@@ -975,9 +1083,15 @@ msgid ""
 "{stdout}"
 msgstr ""
 
+msgid "System"
+msgstr ""
+
 #, python-format
 msgid "The '%(project_title)s' logo"
 msgstr "Het logo van '%(project_title)s'"
+
+msgid "The 'birth of the author', so to speak."
+msgstr ""
 
 #, python-brace-format
 msgid ""
@@ -1133,6 +1247,9 @@ msgstr ""
 msgid "Translations for {locale} initialized at {po_file_path}."
 msgstr ""
 
+msgid "Type"
+msgstr ""
+
 msgid "Unauthorized"
 msgstr "Onbevoegd"
 
@@ -1152,7 +1269,11 @@ msgid "Unknown key: {unknown_key}."
 msgstr "Onbekende sleutel: {unknown_key}."
 
 #, python-brace-format
-msgid "Unknown locale {locale}."
+msgid "Unknown plugin \"{plugin_id}\"."
+msgstr ""
+
+#, python-brace-format
+msgid "Untranslated locale {locale}."
 msgstr ""
 
 msgid "Update all existing translations"
@@ -1173,6 +1294,9 @@ msgstr ""
 " bestaande informatie."
 
 msgid "Usage: "
+msgstr ""
+
+msgid "Version"
 msgstr ""
 
 msgid "View Betty's interactive documentation. This will open your web browser."
@@ -1209,14 +1333,15 @@ msgid "Where do you want to save your project's configuration file?"
 msgstr "Waar wil je je projectconfiguratiebestand opslaan?"
 
 msgid ""
-"Which language should your project site be generated in? Enter an IETF "
-"BCP 47 language code."
+"Which language should your project site be generated in? Enter a language"
+" code."
 msgstr ""
-"In welke taal moet je projectsite gegenereerd worden? Voer een IETF BCP "
-"47-taalcode in."
 
 msgid "Wikipedia contributors"
 msgstr "Wikipedia-bijdragers"
+
+msgid "Wikipedia summary"
+msgstr ""
 
 msgid "Will"
 msgstr "Testament"
@@ -1234,6 +1359,10 @@ msgstr ""
 "Werken in het publieke domein mogen gebruikt of naar verwezen worden "
 "zonder toestemming, omdat niemand (meer) exclusieve rechten over deze "
 "werken heeft."
+
+#, python-brace-format
+msgid "Your project at {file}"
+msgstr ""
 
 msgid ""
 "Your project has no theme enabled. This means your site's pages may look "
@@ -1325,9 +1454,6 @@ msgstr ""
 "npm (https://www.npmjs.com/) moet beschikbaar zijn voor functionaliteit "
 "waarvoor Node.js packages geïnstalleerd moeten worden. Zorg ervoor dat "
 "het `npm`-programma beschikbaar is in je `PATH`."
-
-msgid "npm is available"
-msgstr "npm is beschikbaar"
 
 msgid "npm is not available"
 msgstr "npm is niet beschikbaar"
@@ -1461,6 +1587,10 @@ msgid "{date}"
 msgstr "{date}"
 
 #, python-brace-format
+msgid "{dependent} depends on {dependencies}."
+msgstr ""
+
+#, python-brace-format
 msgid "{entity_type} {entity_id}"
 msgstr "{entity_type} {entity_id}"
 
@@ -1489,7 +1619,29 @@ msgid "{most}, or {last}"
 msgstr ""
 
 #, python-brace-format
-msgid "{plugin_type_label} {plugin_label} depends on {dependency_labels}."
+msgid "{plugin_type} \"{plugin_id}\""
+msgstr ""
+
+#, python-brace-format
+msgid "{plugin_type} \"{plugin_id}\" ({plugin_label})"
+msgstr ""
+
+#, python-brace-format
+msgid "{plugin_type} \"{plugin_id}\" has unmet requirements"
+msgstr ""
+
+#, python-brace-format
+msgid "{subject} requires a project."
+msgstr ""
+
+#, python-brace-format
+msgid "{subject} requires a running app."
+msgstr ""
+
+#, python-brace-format
+msgid ""
+"{subject} requires the {extension} extension. Enable it in your project "
+"configuration, and try again."
 msgstr ""
 
 msgid "© Copyright the author, unless otherwise credited"

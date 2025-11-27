@@ -1,0 +1,24 @@
+{% set section_content -%}
+    {% with content_provider_configurations = section_content_provider_configurations %}
+        {% include 'component/content.html.j2' %}
+    {% endwith %}
+{%- endset %}
+{% if section_content %}
+    <div class="container my-5">
+        <div class="row">
+            <div class="col col-12">
+                <section{% if section_name %} id="{{ section_name }}"{% endif %} class="section">
+                    <h2 class="section-heading{% if section_visually_hide_heading | default(false) %} visually-hidden{% endif %}">
+                        {{ section_heading | localize }}
+                        {% if section_name %}
+                            {% with url = '#' ~ section_name %}
+                                {% include 'component/permalink.html.j2' %}
+                            {% endwith %}
+                        {% endif %}
+                    </h2>
+                    {{ section_content }}
+                </section>
+            </div>
+        </div>
+    </div>
+{% endif %}

@@ -13,11 +13,13 @@ from betty.json.linked_data import (
     LinkedDataDumpableWithSchemaJsonLdObject,
     dump_context,
 )
-from betty.locale.localizable import StaticTranslations
+from betty.locale.localizable import OptionalLocalizableAttr
+from betty.locale.localizable.linked_data import dump_linked_data
+from betty.locale.localizable.schema import StaticTranslationsSchema
 from betty.privacy import is_public
 
 if TYPE_CHECKING:
-    from betty.locale.localizable import Localizable
+    from betty.locale.localizable import LocalizableLike
     from betty.project import Project
     from betty.serde.dump import Dump, DumpMapping
 
@@ -27,10 +29,15 @@ class HasDescription(LinkedDataDumpableWithSchemaJsonLdObject):
     A resource with a description.
     """
 
+    description = OptionalLocalizableAttr("description")
+    """
+    The description.
+    """
+
     def __init__(
         self,
         *args: Any,
-        description: Localizable | None = None,
+        description: LocalizableLike | None = None,
         **kwargs: Any,
     ):
         super().__init__(*args, **kwargs)
@@ -38,21 +45,21 @@ class HasDescription(LinkedDataDumpableWithSchemaJsonLdObject):
 
     @override
     @classmethod
-    async def linked_data_schema(cls, project: Project) -> JsonLdObject:
+    async def linked_data_schema(cls, project: Project, /) -> JsonLdObject:
         schema = await super().linked_data_schema(project)
         schema.add_property(
             "description",
-            await StaticTranslations.linked_data_schema(project),
+            StaticTranslationsSchema(),
             False,
         )
         return schema
 
     @override
-    async def dump_linked_data(self, project: Project) -> DumpMapping[Dump]:
+    async def dump_linked_data(self, project: Project, /) -> DumpMapping[Dump]:
         dump = await super().dump_linked_data(project)
         dump_context(dump, description="https://schema.org/description")
         if self.description is not None and is_public(self):
-            dump["description"] = await StaticTranslations.dump_linked_data_for(
-                project, self.description
+            dump["description"] = dump_linked_data(
+                self.description, localizers=await project.public_localizers
             )
         return dump

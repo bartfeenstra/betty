@@ -3,53 +3,59 @@ from __future__ import annotations
 from typing import TYPE_CHECKING
 
 import pytest
+from babel import Locale
 from typing_extensions import override
 
-from betty.ancestry.event_type import EventTypeDefinition
-from betty.ancestry.gender import GenderDefinition
-from betty.ancestry.place_type import PlaceTypeDefinition
-from betty.ancestry.presence_role import PresenceRoleDefinition
-from betty.copyright_notice import CopyrightNoticeDefinition
+from betty.ancestry.event_type import EventType, EventTypePlugin
+from betty.ancestry.gender import Gender, GenderPlugin
+from betty.ancestry.place_type import PlaceType, PlaceTypePlugin
+from betty.ancestry.presence_role import PresenceRole, PresenceRolePlugin
+from betty.copyright_notice import CopyrightNotice, CopyrightNoticePlugin
 from betty.copyright_notice.copyright_notices import ProjectAuthor
 from betty.exception import HumanFacingException
-from betty.license import LicenseDefinition
+from betty.license import License, LicensePlugin
 from betty.license.licenses import AllRightsReserved
-from betty.locale import DEFAULT_LOCALE, UNDETERMINED_LOCALE
+from betty.locale import DEFAULT_LOCALE, DEFAULT_LOCALE_TAG, LocaleLike
 from betty.locale.localizable import CountablePlain, Plain
 from betty.locale.localizer import DEFAULT_LOCALIZER
 from betty.machine_name import MachineName
-from betty.model import Entity, EntityDefinition
+from betty.model import Entity, EntityPlugin
 from betty.plugin.config import PluginInstanceConfiguration
-from betty.plugin.static import StaticPluginRepository
+from betty.plugin.repository.static import StaticPluginRepository
+from betty.plugin.resolve import ResolvableId
 from betty.project.config import (
-    CopyrightNoticeDefinitionConfiguration,
-    CopyrightNoticeDefinitionConfigurationMapping,
+    CopyrightNoticePluginConfiguration,
+    CopyrightNoticePluginConfigurationMapping,
     EntityTypeConfiguration,
     EntityTypeConfigurationMapping,
-    EventTypeDefinitionConfiguration,
-    EventTypeDefinitionConfigurationMapping,
+    EventTypePluginConfiguration,
+    EventTypePluginConfigurationMapping,
     ExtensionInstanceConfigurationMapping,
-    GenderDefinitionConfiguration,
-    GenderDefinitionConfigurationMapping,
-    LicenseDefinitionConfiguration,
-    LicenseDefinitionConfigurationMapping,
+    GenderPluginConfiguration,
+    GenderPluginConfigurationMapping,
+    LicensePluginConfiguration,
+    LicensePluginConfigurationMapping,
     LocaleConfiguration,
     LocaleConfigurationMapping,
-    PlaceTypeDefinitionConfiguration,
-    PlaceTypeDefinitionConfigurationMapping,
-    PresenceRoleDefinitionConfiguration,
-    PresenceRoleDefinitionConfigurationMapping,
+    PlaceTypePluginConfiguration,
+    PlaceTypePluginConfigurationMapping,
+    PresenceRolePluginConfiguration,
+    PresenceRolePluginConfigurationMapping,
     ProjectConfiguration,
 )
-from betty.project.extension import Extension, ExtensionDefinition
+from betty.project.extension import Extension, ExtensionPlugin
+from betty.serde.format import FormatError
 from betty.test_utils.config import DummyConfiguration
+from betty.test_utils.config.collections import (
+    ConfigurationCollectionTestBaseNewSut,
+)
 from betty.test_utils.config.collections.mapping import ConfigurationMappingTestBase
 from betty.test_utils.exception import raises_error
 from betty.test_utils.model import DummyEntityOne, DummyNonPublicFacingEntityOne
 from betty.test_utils.plugin.config import PluginDefinitionConfigurationMappingTestBase
 from betty.test_utils.project.extension import (
     DummyConfigurableExtension,
-    DummyExtension,
+    DummyExtensionOne,
 )
 from betty.typing import Void
 
@@ -58,25 +64,21 @@ if TYPE_CHECKING:
 
     from betty.serde.dump import Dump, DumpMapping
     from betty.test_utils.config.collections import (
-        ConfigurationCollectionTestBaseNewSut,
         ConfigurationCollectionTestBaseSutConfigurationKeys,
         ConfigurationCollectionTestBaseSutConfigurations,
     )
 
 
-@ExtensionDefinition(
-    id="dummy-non-configurable",
-    label=Plain(""),
-)
+@ExtensionPlugin("dummy-non-configurable", label="")
 class _DummyNonConfigurableExtension(Extension):
     pass
 
 
 class TestLocaleConfiguration:
     async def test_locale(self) -> None:
-        locale = "nl-NL"
+        locale = Locale("nl")
         sut = LocaleConfiguration(locale)
-        assert sut.locale == locale
+        assert sut.locale is locale
 
     async def test_alias__implicit(self) -> None:
         locale = "nl-NL"
@@ -109,20 +111,20 @@ class TestLocaleConfiguration:
 
     async def test_load__with_locale(self) -> None:
         dump: Dump = {
-            "locale": UNDETERMINED_LOCALE,
+            "locale": None,
         }
         sut = LocaleConfiguration(DEFAULT_LOCALE)
         sut.load(dump)
-        assert sut.locale == UNDETERMINED_LOCALE
+        assert sut.locale is None
 
     async def test_load__with_alias(self) -> None:
         dump: Dump = {
-            "locale": UNDETERMINED_LOCALE,
-            "alias": "UNDETERMINED_LOCALE",
+            "locale": "nl-NL",
+            "alias": "my-first-alias",
         }
         sut = LocaleConfiguration(DEFAULT_LOCALE)
         sut.load(dump)
-        assert sut.alias == "UNDETERMINED_LOCALE"
+        assert sut.alias == "my-first-alias"
 
     async def test_dump__should_dump_minimal(self) -> None:
         sut = LocaleConfiguration("nl-NL")
@@ -135,22 +137,30 @@ class TestLocaleConfiguration:
         assert sut.dump() == expected
 
 
+LocaleConfigurationMappingTestNewSut = ConfigurationCollectionTestBaseNewSut[
+    LocaleConfiguration, Locale, LocaleLike
+]
+
+
 class TestLocaleConfigurationMapping(
-    ConfigurationMappingTestBase[str, LocaleConfiguration]
+    ConfigurationMappingTestBase[Locale, LocaleLike, LocaleConfiguration]
 ):
     @override
     @pytest.fixture
-    def new_sut(
-        self,
-    ) -> ConfigurationCollectionTestBaseNewSut[LocaleConfiguration, MachineName]:
+    def new_sut(self) -> LocaleConfigurationMappingTestNewSut:
         return LocaleConfigurationMapping
 
     @override
     @pytest.fixture
     def sut_configuration_keys(
         self,
-    ) -> ConfigurationCollectionTestBaseSutConfigurationKeys[str]:
-        return ("en", "nl", "uk", "fr")
+    ) -> ConfigurationCollectionTestBaseSutConfigurationKeys[Locale]:
+        return (
+            Locale("en"),
+            Locale("nl"),
+            Locale("uk"),
+            Locale("fr"),
+        )
 
     @override
     @pytest.fixture
@@ -167,7 +177,7 @@ class TestLocaleConfigurationMapping(
     @override
     def test___delitem__(  # type: ignore[override]
         self,
-        new_sut: ConfigurationCollectionTestBaseNewSut[LocaleConfiguration, str],
+        new_sut: LocaleConfigurationMappingTestNewSut,
         sut_configurations: ConfigurationCollectionTestBaseSutConfigurations[
             LocaleConfiguration
         ],
@@ -181,7 +191,7 @@ class TestLocaleConfigurationMapping(
 
     def test___delitem____with_locale(
         self,
-        new_sut: ConfigurationCollectionTestBaseNewSut[LocaleConfiguration, str],
+        new_sut: LocaleConfigurationMappingTestNewSut,
         sut_configurations: ConfigurationCollectionTestBaseSutConfigurations[
             LocaleConfiguration
         ],
@@ -256,41 +266,31 @@ class TestLocaleConfigurationMapping(
         assert sut.multilingual
 
 
-@ExtensionDefinition(
-    id="extension-instance-configuration-mapping-test-extension-0",
-    label=Plain(""),
-)
+@ExtensionPlugin("extension-instance-configuration-mapping-test-extension-0", label="")
 class ExtensionInstanceConfigurationMappingTestExtension0(Extension):
     pass
 
 
-@ExtensionDefinition(
-    id="extension-instance-configuration-mapping-test-extension-1",
-    label=Plain(""),
-)
+@ExtensionPlugin("extension-instance-configuration-mapping-test-extension-1", label="")
 class ExtensionInstanceConfigurationMappingTestExtension1(Extension):
     pass
 
 
-@ExtensionDefinition(
-    id="extension-instance-configuration-mapping-test-extension-2",
-    label=Plain(""),
-)
+@ExtensionPlugin("extension-instance-configuration-mapping-test-extension-2", label="")
 class ExtensionInstanceConfigurationMappingTestExtension2(Extension):
     pass
 
 
-@ExtensionDefinition(
-    id="extension-instance-configuration-mapping-test-extension-3",
-    label=Plain(""),
-)
+@ExtensionPlugin("extension-instance-configuration-mapping-test-extension-3", label="")
 class ExtensionInstanceConfigurationMappingTestExtension3(Extension):
     pass
 
 
 class TestExtensionInstanceConfigurationMapping(
     ConfigurationMappingTestBase[
-        MachineName, PluginInstanceConfiguration[ExtensionDefinition, Extension]
+        MachineName,
+        ResolvableId[ExtensionPlugin, Extension],
+        PluginInstanceConfiguration[ExtensionPlugin, Extension],
     ]
 ):
     @override
@@ -310,7 +310,9 @@ class TestExtensionInstanceConfigurationMapping(
     def new_sut(
         self,
     ) -> ConfigurationCollectionTestBaseNewSut[
-        PluginInstanceConfiguration[ExtensionDefinition, Extension], MachineName
+        PluginInstanceConfiguration[ExtensionPlugin, Extension],
+        MachineName,
+        ResolvableId[ExtensionPlugin, Extension],
     ]:
         return ExtensionInstanceConfigurationMapping
 
@@ -322,7 +324,7 @@ class TestExtensionInstanceConfigurationMapping(
             MachineName
         ],
     ) -> ConfigurationCollectionTestBaseSutConfigurations[
-        PluginInstanceConfiguration[ExtensionDefinition, Extension]
+        PluginInstanceConfiguration[ExtensionPlugin, Extension]
     ]:
         return (
             PluginInstanceConfiguration(sut_configuration_keys[0]),
@@ -333,8 +335,8 @@ class TestExtensionInstanceConfigurationMapping(
 
     def test_enable(self) -> None:
         sut = ExtensionInstanceConfigurationMapping()
-        sut.enable(DummyExtension)
-        assert DummyExtension.plugin in sut
+        sut.enable(DummyExtensionOne)
+        assert DummyExtensionOne.plugin in sut
 
 
 class TestEntityTypeConfiguration:
@@ -414,45 +416,45 @@ class TestEntityTypeConfiguration:
         with pytest.raises(HumanFacingException):
             await sut.validate(
                 StaticPluginRepository(
-                    EntityDefinition, DummyNonPublicFacingEntityOne.plugin
+                    EntityPlugin, DummyNonPublicFacingEntityOne.plugin
                 )
             )
 
 
-@EntityDefinition(
-    id="zero",
-    label=Plain(""),
-    label_plural=Plain(""),
+@EntityPlugin(
+    "zero",
+    label="",
+    label_plural="",
     label_countable=CountablePlain("", ""),
 )
 class EntityTypeConfigurationMappingTestEntity0(Entity):
     pass
 
 
-@EntityDefinition(
-    id="one",
-    label=Plain(""),
-    label_plural=Plain(""),
+@EntityPlugin(
+    "one",
+    label="",
+    label_plural="",
     label_countable=CountablePlain("", ""),
 )
 class EntityTypeConfigurationMappingTestEntity1(Entity):
     pass
 
 
-@EntityDefinition(
-    id="two",
-    label=Plain(""),
-    label_plural=Plain(""),
+@EntityPlugin(
+    "two",
+    label="",
+    label_plural="",
     label_countable=CountablePlain("", ""),
 )
 class EntityTypeConfigurationMappingTestEntity2(Entity):
     pass
 
 
-@EntityDefinition(
-    id="three",
-    label=Plain(""),
-    label_plural=Plain(""),
+@EntityPlugin(
+    "three",
+    label="",
+    label_plural="",
     label_countable=CountablePlain("", ""),
 )
 class EntityTypeConfigurationMappingTestEntity3(Entity):
@@ -460,7 +462,9 @@ class EntityTypeConfigurationMappingTestEntity3(Entity):
 
 
 class TestEntityTypeConfigurationMapping(
-    ConfigurationMappingTestBase[MachineName, EntityTypeConfiguration]
+    ConfigurationMappingTestBase[
+        MachineName, ResolvableId[EntityPlugin, Entity], EntityTypeConfiguration
+    ]
 ):
     @override
     @pytest.fixture
@@ -478,7 +482,9 @@ class TestEntityTypeConfigurationMapping(
     @pytest.fixture
     def new_sut(
         self,
-    ) -> ConfigurationCollectionTestBaseNewSut[EntityTypeConfiguration, MachineName]:
+    ) -> ConfigurationCollectionTestBaseNewSut[
+        EntityTypeConfiguration, MachineName, ResolvableId[EntityPlugin, Entity]
+    ]:
         return EntityTypeConfigurationMapping
 
     @override
@@ -507,41 +513,37 @@ class TestEntityTypeConfigurationMapping(
         with pytest.raises(HumanFacingException):
             await sut.validate(
                 StaticPluginRepository(
-                    EntityDefinition, DummyNonPublicFacingEntityOne.plugin
+                    EntityPlugin, DummyNonPublicFacingEntityOne.plugin
                 )
             )
 
 
 class TestCopyrightNoticeConfiguration:
     def test___init____with_summary(self) -> None:
-        summary = "My First Copyright Summary"
-        sut = CopyrightNoticeDefinitionConfiguration(
+        summary = Plain("My First Copyright Summary")
+        sut = CopyrightNoticePluginConfiguration(
             id="-", label="", summary=summary, text=""
         )
-        assert sut.summary[UNDETERMINED_LOCALE] == summary
+        assert sut.summary is summary
 
     def test___init____with_text(self) -> None:
-        text = "My First Copyright Text"
-        sut = CopyrightNoticeDefinitionConfiguration(
+        text = Plain("My First Copyright Text")
+        sut = CopyrightNoticePluginConfiguration(
             id="-", label="", summary="", text=text
         )
-        assert sut.text[UNDETERMINED_LOCALE] == text
+        assert sut.text is text
 
     def test_summary(self) -> None:
-        sut = CopyrightNoticeDefinitionConfiguration(
-            id="-", label="", summary="", text=""
-        )
-        summary = "My First Copyright Summary"
+        sut = CopyrightNoticePluginConfiguration(id="-", label="", summary="", text="")
+        summary = Plain("My First Copyright Summary")
         sut.summary = summary
-        assert sut.summary[UNDETERMINED_LOCALE] == summary
+        assert sut.summary is summary
 
     def test_text(self) -> None:
-        sut = CopyrightNoticeDefinitionConfiguration(
-            id="-", label="", summary="", text=""
-        )
-        text = "My First Copyright Text"
+        sut = CopyrightNoticePluginConfiguration(id="-", label="", summary="", text="")
+        text = Plain("My First Copyright Text")
         sut.text = text
-        assert sut.text[UNDETERMINED_LOCALE] == text
+        assert sut.text is text
 
     async def test_load(self) -> None:
         summary = "My First Copyright Summary"
@@ -552,12 +554,10 @@ class TestCopyrightNoticeConfiguration:
             "summary": summary,
             "text": text,
         }
-        sut = CopyrightNoticeDefinitionConfiguration(
-            id="-", label="", summary="", text=""
-        )
+        sut = CopyrightNoticePluginConfiguration(id="-", label="", summary="", text="")
         sut.load(dump)
-        assert sut.summary[UNDETERMINED_LOCALE] == summary
-        assert sut.text[UNDETERMINED_LOCALE] == text
+        assert sut.summary.localize(DEFAULT_LOCALIZER) == summary
+        assert sut.text.localize(DEFAULT_LOCALIZER) == text
 
     async def test_load__with_missing_summary(self) -> None:
         dump: Dump = {
@@ -565,9 +565,7 @@ class TestCopyrightNoticeConfiguration:
             "label": "",
             "text": "",
         }
-        sut = CopyrightNoticeDefinitionConfiguration(
-            id="-", label="", summary="", text=""
-        )
+        sut = CopyrightNoticePluginConfiguration(id="-", label="", summary="", text="")
         with pytest.raises(HumanFacingException):
             sut.load(dump)
 
@@ -577,16 +575,14 @@ class TestCopyrightNoticeConfiguration:
             "label": "",
             "summary": "",
         }
-        sut = CopyrightNoticeDefinitionConfiguration(
-            id="-", label="", summary="", text=""
-        )
+        sut = CopyrightNoticePluginConfiguration(id="-", label="", summary="", text="")
         with pytest.raises(HumanFacingException):
             sut.load(dump)
 
     async def test_dump(self) -> None:
         summary = "My First Copyright Summary"
         text = "My First Copyright Text"
-        sut = CopyrightNoticeDefinitionConfiguration(
+        sut = CopyrightNoticePluginConfiguration(
             id="-", label="", summary=summary, text=text
         )
         dump = sut.dump()
@@ -594,9 +590,9 @@ class TestCopyrightNoticeConfiguration:
         assert dump["text"] == text
 
 
-class TestCopyrightNoticeDefinitionConfigurationMapping(
+class TestCopyrightNoticePluginConfigurationMapping(
     PluginDefinitionConfigurationMappingTestBase[
-        CopyrightNoticeDefinition, CopyrightNoticeDefinitionConfiguration
+        CopyrightNoticePlugin, CopyrightNotice, CopyrightNoticePluginConfiguration
     ]
 ):
     @override
@@ -611,19 +607,19 @@ class TestCopyrightNoticeDefinitionConfigurationMapping(
     def sut_configurations(
         self,
     ) -> ConfigurationCollectionTestBaseSutConfigurations[
-        CopyrightNoticeDefinitionConfiguration
+        CopyrightNoticePluginConfiguration
     ]:
         return (
-            CopyrightNoticeDefinitionConfiguration(
+            CopyrightNoticePluginConfiguration(
                 id="foo", label="Foo", summary="", text=""
             ),
-            CopyrightNoticeDefinitionConfiguration(
+            CopyrightNoticePluginConfiguration(
                 id="bar", label="Bar", summary="", text=""
             ),
-            CopyrightNoticeDefinitionConfiguration(
+            CopyrightNoticePluginConfiguration(
                 id="baz", label="Baz", summary="", text=""
             ),
-            CopyrightNoticeDefinitionConfiguration(
+            CopyrightNoticePluginConfiguration(
                 id="qux", label="Qux", summary="", text=""
             ),
         )
@@ -633,33 +629,35 @@ class TestCopyrightNoticeDefinitionConfigurationMapping(
     def new_sut(
         self,
     ) -> ConfigurationCollectionTestBaseNewSut[
-        CopyrightNoticeDefinitionConfigurationMapping, MachineName
+        CopyrightNoticePluginConfigurationMapping,
+        MachineName,
+        ResolvableId[CopyrightNoticePlugin, CopyrightNotice],
     ]:
-        return CopyrightNoticeDefinitionConfigurationMapping  # type: ignore[return-value]
+        return CopyrightNoticePluginConfigurationMapping  # type: ignore[return-value]
 
 
 class TestLicenseConfiguration:
     def test___init____with_summary(self) -> None:
-        summary = "My First License Summary"
-        sut = LicenseDefinitionConfiguration(id="-", label="", summary=summary, text="")
-        assert sut.summary[UNDETERMINED_LOCALE] == summary
+        summary = Plain("My First License Summary")
+        sut = LicensePluginConfiguration(id="-", label="", summary=summary, text="")
+        assert sut.summary is summary
 
     def test___init____with_text(self) -> None:
-        text = "My First License Text"
-        sut = LicenseDefinitionConfiguration(id="-", label="", summary="", text=text)
-        assert sut.text[UNDETERMINED_LOCALE] == text
+        text = Plain("My First License Text")
+        sut = LicensePluginConfiguration(id="-", label="", summary="", text=text)
+        assert sut.text is text
 
     def test_summary(self) -> None:
-        sut = LicenseDefinitionConfiguration(id="-", label="", summary="", text="")
-        summary = "My First License Summary"
+        sut = LicensePluginConfiguration(id="-", label="", summary="", text="")
+        summary = Plain("My First License Summary")
         sut.summary = summary
-        assert sut.summary[UNDETERMINED_LOCALE] == summary
+        assert sut.summary is summary
 
     def test_text(self) -> None:
-        sut = LicenseDefinitionConfiguration(id="-", label="", summary="", text="")
-        text = "My First License Text"
+        sut = LicensePluginConfiguration(id="-", label="", summary="", text="")
+        text = Plain("My First License Text")
         sut.text = text
-        assert sut.text[UNDETERMINED_LOCALE] == text
+        assert sut.text is text
 
     async def test_load(self) -> None:
         summary = "My First License Summary"
@@ -670,10 +668,10 @@ class TestLicenseConfiguration:
             "summary": summary,
             "text": text,
         }
-        sut = LicenseDefinitionConfiguration(id="-", label="", summary="", text="")
+        sut = LicensePluginConfiguration(id="-", label="", summary="", text="")
         sut.load(dump)
-        assert sut.summary[UNDETERMINED_LOCALE] == summary
-        assert sut.text[UNDETERMINED_LOCALE] == text
+        assert sut.summary.localize(DEFAULT_LOCALIZER) == summary
+        assert sut.text.localize(DEFAULT_LOCALIZER) == text
 
     async def test_load__with_missing_summary(self) -> None:
         dump: Dump = {
@@ -681,7 +679,7 @@ class TestLicenseConfiguration:
             "label": "",
             "text": "",
         }
-        sut = LicenseDefinitionConfiguration(id="-", label="", summary="", text="")
+        sut = LicensePluginConfiguration(id="-", label="", summary="", text="")
         with pytest.raises(HumanFacingException):
             sut.load(dump)
 
@@ -691,24 +689,128 @@ class TestLicenseConfiguration:
             "label": "",
             "summary": "",
         }
-        sut = LicenseDefinitionConfiguration(id="-", label="", summary="", text="")
+        sut = LicensePluginConfiguration(id="-", label="", summary="", text="")
         with pytest.raises(HumanFacingException):
             sut.load(dump)
 
     async def test_dump(self) -> None:
         summary = "My First License Summary"
         text = "My First License Text"
-        sut = LicenseDefinitionConfiguration(
-            id="-", label="", summary=summary, text=text
-        )
+        sut = LicensePluginConfiguration(id="-", label="", summary=summary, text=text)
         dump = sut.dump()
         assert dump["summary"] == summary
         assert dump["text"] == text
 
 
-class TestLicenseDefinitionConfigurationMapping(
+class TestLicensePluginConfigurationMapping(
     PluginDefinitionConfigurationMappingTestBase[
-        LicenseDefinition, LicenseDefinitionConfiguration
+        LicensePlugin, License, LicensePluginConfiguration
+    ]
+):
+    @override
+    @pytest.fixture
+    def sut_configuration_keys(
+        self,
+    ) -> ConfigurationCollectionTestBaseSutConfigurationKeys[MachineName]:
+        return "foo", "bar", "baz", "qux"
+
+    @override
+    @pytest.fixture
+    def sut_configurations(
+        self,
+    ) -> ConfigurationCollectionTestBaseSutConfigurations[LicensePluginConfiguration]:
+        return (
+            LicensePluginConfiguration(id="foo", label="Foo", summary="", text=""),
+            LicensePluginConfiguration(id="bar", label="Bar", summary="", text=""),
+            LicensePluginConfiguration(id="baz", label="Baz", summary="", text=""),
+            LicensePluginConfiguration(id="qux", label="Qux", summary="", text=""),
+        )
+
+    @override
+    @pytest.fixture
+    def new_sut(
+        self,
+    ) -> ConfigurationCollectionTestBaseNewSut[
+        LicensePluginConfiguration, MachineName, ResolvableId[LicensePlugin, License]
+    ]:
+        return LicensePluginConfigurationMapping
+
+
+class TestEventTypePluginConfigurationMapping(
+    PluginDefinitionConfigurationMappingTestBase[
+        EventTypePlugin, EventType, EventTypePluginConfiguration
+    ]
+):
+    @override
+    @pytest.fixture
+    def sut_configuration_keys(
+        self,
+    ) -> ConfigurationCollectionTestBaseSutConfigurationKeys[MachineName]:
+        return "foo", "bar", "baz", "qux"
+
+    @override
+    @pytest.fixture
+    def sut_configurations(
+        self,
+    ) -> ConfigurationCollectionTestBaseSutConfigurations[EventTypePluginConfiguration]:
+        return (
+            EventTypePluginConfiguration(id="foo", label="Foo"),
+            EventTypePluginConfiguration(id="bar", label="Bar"),
+            EventTypePluginConfiguration(id="baz", label="Baz"),
+            EventTypePluginConfiguration(id="qux", label="Qux"),
+        )
+
+    @override
+    @pytest.fixture
+    def new_sut(
+        self,
+    ) -> ConfigurationCollectionTestBaseNewSut[
+        EventTypePluginConfiguration,
+        MachineName,
+        ResolvableId[EventTypePlugin, EventType],
+    ]:
+        return EventTypePluginConfigurationMapping
+
+
+class TestPlaceTypePluginConfigurationMapping(
+    PluginDefinitionConfigurationMappingTestBase[
+        PlaceTypePlugin, PlaceType, PlaceTypePluginConfiguration
+    ]
+):
+    @override
+    @pytest.fixture
+    def sut_configuration_keys(
+        self,
+    ) -> ConfigurationCollectionTestBaseSutConfigurationKeys[MachineName]:
+        return "foo", "bar", "baz", "qux"
+
+    @override
+    @pytest.fixture
+    def sut_configurations(
+        self,
+    ) -> ConfigurationCollectionTestBaseSutConfigurations[PlaceTypePluginConfiguration]:
+        return (
+            PlaceTypePluginConfiguration(id="foo", label="Foo"),
+            PlaceTypePluginConfiguration(id="bar", label="Bar"),
+            PlaceTypePluginConfiguration(id="baz", label="Baz"),
+            PlaceTypePluginConfiguration(id="qux", label="Qux"),
+        )
+
+    @override
+    @pytest.fixture
+    def new_sut(
+        self,
+    ) -> ConfigurationCollectionTestBaseNewSut[
+        PlaceTypePluginConfiguration,
+        MachineName,
+        ResolvableId[PlaceTypePlugin, PlaceType],
+    ]:
+        return PlaceTypePluginConfigurationMapping
+
+
+class TestPresenceRolePluginConfigurationMapping(
+    PluginDefinitionConfigurationMappingTestBase[
+        PresenceRolePlugin, PresenceRole, PresenceRolePluginConfiguration
     ]
 ):
     @override
@@ -723,13 +825,13 @@ class TestLicenseDefinitionConfigurationMapping(
     def sut_configurations(
         self,
     ) -> ConfigurationCollectionTestBaseSutConfigurations[
-        LicenseDefinitionConfiguration
+        PresenceRolePluginConfiguration
     ]:
         return (
-            LicenseDefinitionConfiguration(id="foo", label="Foo", summary="", text=""),
-            LicenseDefinitionConfiguration(id="bar", label="Bar", summary="", text=""),
-            LicenseDefinitionConfiguration(id="baz", label="Baz", summary="", text=""),
-            LicenseDefinitionConfiguration(id="qux", label="Qux", summary="", text=""),
+            PresenceRolePluginConfiguration(id="foo", label="Foo"),
+            PresenceRolePluginConfiguration(id="bar", label="Bar"),
+            PresenceRolePluginConfiguration(id="baz", label="Baz"),
+            PresenceRolePluginConfiguration(id="qux", label="Qux"),
         )
 
     @override
@@ -737,14 +839,16 @@ class TestLicenseDefinitionConfigurationMapping(
     def new_sut(
         self,
     ) -> ConfigurationCollectionTestBaseNewSut[
-        LicenseDefinitionConfiguration, MachineName
+        PresenceRolePluginConfiguration,
+        MachineName,
+        ResolvableId[PresenceRolePlugin, PresenceRole],
     ]:
-        return LicenseDefinitionConfigurationMapping
+        return PresenceRolePluginConfigurationMapping
 
 
-class TestEventTypeDefinitionConfigurationMapping(
+class TestGenderPluginConfigurationMapping(
     PluginDefinitionConfigurationMappingTestBase[
-        EventTypeDefinition, EventTypeDefinitionConfiguration
+        GenderPlugin, Gender, GenderPluginConfiguration
     ]
 ):
     @override
@@ -758,14 +862,12 @@ class TestEventTypeDefinitionConfigurationMapping(
     @pytest.fixture
     def sut_configurations(
         self,
-    ) -> ConfigurationCollectionTestBaseSutConfigurations[
-        EventTypeDefinitionConfiguration
-    ]:
+    ) -> ConfigurationCollectionTestBaseSutConfigurations[GenderPluginConfiguration]:
         return (
-            EventTypeDefinitionConfiguration(id="foo", label="Foo"),
-            EventTypeDefinitionConfiguration(id="bar", label="Bar"),
-            EventTypeDefinitionConfiguration(id="baz", label="Baz"),
-            EventTypeDefinitionConfiguration(id="qux", label="Qux"),
+            GenderPluginConfiguration(id="foo", label="Foo"),
+            GenderPluginConfiguration(id="bar", label="Bar"),
+            GenderPluginConfiguration(id="baz", label="Baz"),
+            GenderPluginConfiguration(id="qux", label="Qux"),
         )
 
     @override
@@ -773,179 +875,80 @@ class TestEventTypeDefinitionConfigurationMapping(
     def new_sut(
         self,
     ) -> ConfigurationCollectionTestBaseNewSut[
-        EventTypeDefinitionConfiguration, MachineName
+        GenderPluginConfiguration, MachineName, ResolvableId[GenderPlugin, Gender]
     ]:
-        return EventTypeDefinitionConfigurationMapping
-
-
-class TestPlaceTypeDefinitionConfigurationMapping(
-    PluginDefinitionConfigurationMappingTestBase[
-        PlaceTypeDefinition, PlaceTypeDefinitionConfiguration
-    ]
-):
-    @override
-    @pytest.fixture
-    def sut_configuration_keys(
-        self,
-    ) -> ConfigurationCollectionTestBaseSutConfigurationKeys[MachineName]:
-        return "foo", "bar", "baz", "qux"
-
-    @override
-    @pytest.fixture
-    def sut_configurations(
-        self,
-    ) -> ConfigurationCollectionTestBaseSutConfigurations[
-        PlaceTypeDefinitionConfiguration
-    ]:
-        return (
-            PlaceTypeDefinitionConfiguration(id="foo", label="Foo"),
-            PlaceTypeDefinitionConfiguration(id="bar", label="Bar"),
-            PlaceTypeDefinitionConfiguration(id="baz", label="Baz"),
-            PlaceTypeDefinitionConfiguration(id="qux", label="Qux"),
-        )
-
-    @override
-    @pytest.fixture
-    def new_sut(
-        self,
-    ) -> ConfigurationCollectionTestBaseNewSut[
-        PlaceTypeDefinitionConfiguration, MachineName
-    ]:
-        return PlaceTypeDefinitionConfigurationMapping
-
-
-class TestPresenceRoleDefinitionConfigurationMapping(
-    PluginDefinitionConfigurationMappingTestBase[
-        PresenceRoleDefinition, PresenceRoleDefinitionConfiguration
-    ]
-):
-    @override
-    @pytest.fixture
-    def sut_configuration_keys(
-        self,
-    ) -> ConfigurationCollectionTestBaseSutConfigurationKeys[MachineName]:
-        return "foo", "bar", "baz", "qux"
-
-    @override
-    @pytest.fixture
-    def sut_configurations(
-        self,
-    ) -> ConfigurationCollectionTestBaseSutConfigurations[
-        PresenceRoleDefinitionConfiguration
-    ]:
-        return (
-            PresenceRoleDefinitionConfiguration(id="foo", label="Foo"),
-            PresenceRoleDefinitionConfiguration(id="bar", label="Bar"),
-            PresenceRoleDefinitionConfiguration(id="baz", label="Baz"),
-            PresenceRoleDefinitionConfiguration(id="qux", label="Qux"),
-        )
-
-    @override
-    @pytest.fixture
-    def new_sut(
-        self,
-    ) -> ConfigurationCollectionTestBaseNewSut[
-        PresenceRoleDefinitionConfiguration, MachineName
-    ]:
-        return PresenceRoleDefinitionConfigurationMapping
-
-
-class TestGenderDefinitionConfigurationMapping(
-    PluginDefinitionConfigurationMappingTestBase[
-        GenderDefinition, GenderDefinitionConfiguration
-    ]
-):
-    @override
-    @pytest.fixture
-    def sut_configuration_keys(
-        self,
-    ) -> ConfigurationCollectionTestBaseSutConfigurationKeys[MachineName]:
-        return "foo", "bar", "baz", "qux"
-
-    @override
-    @pytest.fixture
-    def sut_configurations(
-        self,
-    ) -> ConfigurationCollectionTestBaseSutConfigurations[
-        GenderDefinitionConfiguration
-    ]:
-        return (
-            GenderDefinitionConfiguration(id="foo", label="Foo"),
-            GenderDefinitionConfiguration(id="bar", label="Bar"),
-            GenderDefinitionConfiguration(id="baz", label="Baz"),
-            GenderDefinitionConfiguration(id="qux", label="Qux"),
-        )
-
-    @override
-    @pytest.fixture
-    def new_sut(
-        self,
-    ) -> ConfigurationCollectionTestBaseNewSut[
-        GenderDefinitionConfiguration, MachineName
-    ]:
-        return GenderDefinitionConfigurationMapping
+        return GenderPluginConfigurationMapping
 
 
 class TestProjectConfiguration:
     async def test_configuration_file_path(self, tmp_path: Path) -> None:
-        old_configuration_file_path = tmp_path / "betty.json"
-        sut = await ProjectConfiguration.new(old_configuration_file_path)
-        assert sut.configuration_file_path == old_configuration_file_path
-        new_configuration_file_path = tmp_path / "betty.yaml"
-        sut.configuration_file_path = new_configuration_file_path
-        assert sut.configuration_file_path == new_configuration_file_path
+        configuration_file_path = tmp_path / "init.json"
+        sut = ProjectConfiguration(configuration_file_path)
+        assert sut.configuration_file_path == configuration_file_path
+
+    async def test_set_configuration_file_path(self, tmp_path: Path) -> None:
+        sut = ProjectConfiguration(tmp_path / "init.json")
+        configuration_file_path = tmp_path / "set.json"
+        await sut.set_configuration_file_path(configuration_file_path)
         # Assert that setting the path to its existing value is a no-op.
-        sut.configuration_file_path = new_configuration_file_path
-        assert sut.configuration_file_path == new_configuration_file_path
+        await sut.set_configuration_file_path(configuration_file_path)
+
+    async def test_set_configuration_file_path__with_unsupported_format(
+        self, tmp_path: Path
+    ) -> None:
+        sut = ProjectConfiguration(tmp_path / "init")
+        configuration_file_path = tmp_path / "set"
+        with pytest.raises(FormatError):
+            await sut.set_configuration_file_path(configuration_file_path)
 
     async def test_project_directory_path(self, tmp_path: Path) -> None:
-        sut = await ProjectConfiguration.new(tmp_path / "betty.json")
+        sut = ProjectConfiguration(tmp_path / "betty.json")
         assert sut.project_directory_path == tmp_path
 
     async def test_output_directory_path(self, tmp_path: Path) -> None:
-        sut = await ProjectConfiguration.new(tmp_path / "betty.json")
+        sut = ProjectConfiguration(tmp_path / "betty.json")
         assert tmp_path in sut.output_directory_path.parents
 
     async def test_assets_directory_path(self, tmp_path: Path) -> None:
-        sut = await ProjectConfiguration.new(tmp_path / "betty.json")
+        sut = ProjectConfiguration(tmp_path / "betty.json")
         assert tmp_path in sut.assets_directory_path.parents
 
     async def test_www_directory_path(self, tmp_path: Path) -> None:
-        sut = await ProjectConfiguration.new(tmp_path / "betty.json")
+        sut = ProjectConfiguration(tmp_path / "betty.json")
         assert tmp_path in sut.www_directory_path.parents
 
     async def test_localize_www_directory_path__monolingual(
         self, tmp_path: Path
     ) -> None:
-        sut = await ProjectConfiguration.new(tmp_path / "betty.json")
+        sut = ProjectConfiguration(tmp_path / "betty.json")
         actual = sut.localize_www_directory_path(DEFAULT_LOCALE)
         assert tmp_path in actual.parents
-        assert DEFAULT_LOCALE not in str(actual)
+        assert DEFAULT_LOCALE_TAG not in str(actual)
 
     async def test_localize_www_directory_path__multilingual(
         self, tmp_path: Path
     ) -> None:
-        sut = await ProjectConfiguration.new(tmp_path / "betty.json")
+        sut = ProjectConfiguration(tmp_path / "betty.json")
         sut.locales.append(LocaleConfiguration("nl-NL"))
         actual = sut.localize_www_directory_path(DEFAULT_LOCALE)
         assert tmp_path in actual.parents
-        assert DEFAULT_LOCALE in str(actual)
+        assert DEFAULT_LOCALE_TAG in str(actual)
 
     async def test_lifetime_threshold(self, tmp_path: Path) -> None:
-        sut = await ProjectConfiguration.new(tmp_path / "betty.json")
+        sut = ProjectConfiguration(tmp_path / "betty.json")
         sut.lifetime_threshold = 999
         assert sut.lifetime_threshold == 999
 
     async def test_locales(self, tmp_path: Path) -> None:
-        sut = await ProjectConfiguration.new(tmp_path / "betty.json")
+        sut = ProjectConfiguration(tmp_path / "betty.json")
         assert DEFAULT_LOCALE in sut.locales
 
     async def test_extensions(self, tmp_path: Path) -> None:
-        sut = await ProjectConfiguration.new(tmp_path / "betty.json")
+        sut = ProjectConfiguration(tmp_path / "betty.json")
         assert len(sut.extensions) == 0
 
     async def test_entity_types(self, tmp_path: Path) -> None:
-        sut = await ProjectConfiguration.new(tmp_path / "betty.json")
+        sut = ProjectConfiguration(tmp_path / "betty.json")
         sut.entity_types  # noqa B018
 
     @pytest.mark.parametrize(
@@ -956,35 +959,35 @@ class TestProjectConfiguration:
         ],
     )
     async def test_debug(self, debug: bool, tmp_path: Path) -> None:
-        sut = await ProjectConfiguration.new(tmp_path / "betty.json")
+        sut = ProjectConfiguration(tmp_path / "betty.json")
         sut.debug = debug
         assert sut.debug == debug
 
     async def test_title(self, tmp_path: Path) -> None:
-        sut = await ProjectConfiguration.new(tmp_path / "betty.json")
-        title = "My First Betty Site"
+        sut = ProjectConfiguration(tmp_path / "betty.json")
+        title = Plain("My First Betty Site")
         sut.title = title
-        assert sut.title.localize(DEFAULT_LOCALIZER) == title
+        assert sut.title is title
 
     async def test_name(self, tmp_path: Path) -> None:
-        sut = await ProjectConfiguration.new(tmp_path / "betty.json")
+        sut = ProjectConfiguration(tmp_path / "betty.json")
         name = "my-first-betty-site"
         sut.name = name
         assert sut.name == name
 
     async def test_url(self, tmp_path: Path) -> None:
-        sut = await ProjectConfiguration.new(tmp_path / "betty.json")
+        sut = ProjectConfiguration(tmp_path / "betty.json")
         url = "https://example.com/example"
         sut.url = url
         assert sut.url == url
 
     async def test_url__without_scheme_should_error(self, tmp_path: Path) -> None:
-        sut = await ProjectConfiguration.new(tmp_path / "betty.json")
+        sut = ProjectConfiguration(tmp_path / "betty.json")
         with pytest.raises(HumanFacingException):
             sut.url = "/"
 
     async def test_url__without_path_should_error(self, tmp_path: Path) -> None:
-        sut = await ProjectConfiguration.new(tmp_path / "betty.json")
+        sut = ProjectConfiguration(tmp_path / "betty.json")
         with pytest.raises(HumanFacingException):
             sut.url = "file://"
 
@@ -997,7 +1000,7 @@ class TestProjectConfiguration:
         ],
     )
     async def test_base_url(self, expected: str, tmp_path: Path, url: str) -> None:
-        sut = await ProjectConfiguration.new(tmp_path / "betty.json")
+        sut = ProjectConfiguration(tmp_path / "betty.json")
         sut.url = url
         assert sut.base_url == expected
 
@@ -1011,74 +1014,70 @@ class TestProjectConfiguration:
         ],
     )
     async def test_root_path(self, expected: str, tmp_path: Path, url: str) -> None:
-        sut = await ProjectConfiguration.new(tmp_path / "betty.json")
+        sut = ProjectConfiguration(tmp_path / "betty.json")
         sut.url = url
         assert sut.root_path == expected
 
     async def test_clean_urls(self, tmp_path: Path) -> None:
-        sut = await ProjectConfiguration.new(tmp_path / "betty.json")
+        sut = ProjectConfiguration(tmp_path / "betty.json")
         clean_urls = True
         sut.clean_urls = clean_urls
         assert sut.clean_urls == clean_urls
 
     async def test_author__without_author(self, tmp_path: Path) -> None:
-        sut = await ProjectConfiguration.new(tmp_path / "betty.json")
-        assert not sut.author
+        sut = ProjectConfiguration(tmp_path / "betty.json")
+        assert sut.author is None
 
     async def test_author__with_author(self, tmp_path: Path) -> None:
-        sut = await ProjectConfiguration.new(tmp_path / "betty.json")
-        author = "Bart"
+        sut = ProjectConfiguration(tmp_path / "betty.json")
+        author = Plain("Bart")
         sut.author = author
-        assert sut.author.localize(DEFAULT_LOCALIZER) == author
+        assert sut.author is author
 
     async def test___init____with_logo(self, tmp_path: Path) -> None:
         logo = tmp_path / "logo.png"
-        sut = await ProjectConfiguration.new(tmp_path / "betty.json", logo=logo)
+        sut = ProjectConfiguration(tmp_path / "betty.json", logo=logo)
         assert sut.logo == logo
 
     async def test_logo(self, tmp_path: Path) -> None:
         logo = tmp_path / "logo.png"
-        sut = await ProjectConfiguration.new(tmp_path / "betty.json")
+        sut = ProjectConfiguration(tmp_path / "betty.json")
         sut.logo = logo
         assert sut.logo == logo
 
     async def test_copyright_notices(self, tmp_path: Path) -> None:
-        sut = await ProjectConfiguration.new(tmp_path / "betty.json")
+        sut = ProjectConfiguration(tmp_path / "betty.json")
         assert sut.copyright_notices is sut.copyright_notices
 
     async def test_licenses(self, tmp_path: Path) -> None:
-        sut = await ProjectConfiguration.new(tmp_path / "betty.json")
+        sut = ProjectConfiguration(tmp_path / "betty.json")
         assert sut.licenses is sut.licenses
 
     async def test_event_types(self, tmp_path: Path) -> None:
-        sut = await ProjectConfiguration.new(tmp_path / "betty.json")
+        sut = ProjectConfiguration(tmp_path / "betty.json")
         assert sut.event_types is sut.event_types
 
     async def test_place_types(self, tmp_path: Path) -> None:
-        sut = await ProjectConfiguration.new(tmp_path / "betty.json")
+        sut = ProjectConfiguration(tmp_path / "betty.json")
         assert sut.place_types is sut.place_types
 
     async def test_presence_roles(self, tmp_path: Path) -> None:
-        sut = await ProjectConfiguration.new(tmp_path / "betty.json")
+        sut = ProjectConfiguration(tmp_path / "betty.json")
         assert sut.presence_roles is sut.presence_roles
 
     async def test_genders(self, tmp_path: Path) -> None:
-        sut = await ProjectConfiguration.new(tmp_path / "betty.json")
+        sut = ProjectConfiguration(tmp_path / "betty.json")
         assert sut.genders is sut.genders
 
     async def test_load__should_load_minimal(self, tmp_path: Path) -> None:
-        sut = await ProjectConfiguration.new(tmp_path / "betty.json")
+        sut = ProjectConfiguration(tmp_path / "betty.json")
         dump = sut.dump()
         sut.load(dump)
         assert sut.url == dump["url"]
-        assert sut.title.localize(DEFAULT_LOCALIZER) == "Betty"
-        assert not sut.author
-        assert not sut.debug
-        assert not sut.clean_urls
 
     async def test_load__should_load_name(self, tmp_path: Path) -> None:
         name = "my-first-betty-site"
-        sut = await ProjectConfiguration.new(tmp_path / "betty.json")
+        sut = ProjectConfiguration(tmp_path / "betty.json")
         dump = sut.dump()
         dump["name"] = name
         sut.load(dump)
@@ -1086,14 +1085,14 @@ class TestProjectConfiguration:
 
     async def test_load__should_load_title(self, tmp_path: Path) -> None:
         title = "My first Betty site"
-        sut = await ProjectConfiguration.new(tmp_path / "betty.json")
+        sut = ProjectConfiguration(tmp_path / "betty.json")
         dump = sut.dump()
         dump["title"] = title
         sut.load(dump)
         assert sut.title.localize(DEFAULT_LOCALIZER) == title
 
     async def test_load__should_load_copyright_notice(self, tmp_path: Path) -> None:
-        sut = await ProjectConfiguration.new(tmp_path / "betty.json")
+        sut = ProjectConfiguration(tmp_path / "betty.json")
         dump = sut.dump()
         copyright_notice_id = "my-first-copyright-notice"
         dump["copyright_notice"] = copyright_notice_id
@@ -1101,7 +1100,7 @@ class TestProjectConfiguration:
         assert sut.copyright_notice.id == copyright_notice_id
 
     async def test_load__should_load_copyright_notices(self, tmp_path: Path) -> None:
-        sut = await ProjectConfiguration.new(tmp_path / "betty.json")
+        sut = ProjectConfiguration(tmp_path / "betty.json")
         dump = sut.dump()
         copyright_notice_id = "my-first-copyright-notice"
         copyright_notice_label = "My First Copyright Notice"
@@ -1119,7 +1118,7 @@ class TestProjectConfiguration:
         )
 
     async def test_load__should_load_license(self, tmp_path: Path) -> None:
-        sut = await ProjectConfiguration.new(tmp_path / "betty.json")
+        sut = ProjectConfiguration(tmp_path / "betty.json")
         dump = sut.dump()
         license_id = "my-first-license"
         dump["license"] = license_id
@@ -1127,7 +1126,7 @@ class TestProjectConfiguration:
         assert sut.license.id == license_id
 
     async def test_load__should_load_licenses(self, tmp_path: Path) -> None:
-        sut = await ProjectConfiguration.new(tmp_path / "betty.json")
+        sut = ProjectConfiguration(tmp_path / "betty.json")
         dump = sut.dump()
         license_id = "my-first-license"
         license_label = "My First License"
@@ -1145,15 +1144,16 @@ class TestProjectConfiguration:
 
     async def test_load__should_load_author(self, tmp_path: Path) -> None:
         author = "Bart"
-        sut = await ProjectConfiguration.new(tmp_path / "betty.json")
+        sut = ProjectConfiguration(tmp_path / "betty.json")
         dump = sut.dump()
         dump["author"] = author
         sut.load(dump)
+        assert sut.author is not None
         assert sut.author.localize(DEFAULT_LOCALIZER) == author
 
     async def test_load__should_load_logo(self, tmp_path: Path) -> None:
         logo = tmp_path / "logo.png"
-        sut = await ProjectConfiguration.new(tmp_path / "betty.json")
+        sut = ProjectConfiguration(tmp_path / "betty.json")
         dump = sut.dump()
         dump["logo"] = str(logo)
         sut.load(dump)
@@ -1161,7 +1161,7 @@ class TestProjectConfiguration:
 
     async def test_load__should_load_locale_locale(self, tmp_path: Path) -> None:
         locale = "nl-NL"
-        sut = await ProjectConfiguration.new(tmp_path / "betty.json")
+        sut = ProjectConfiguration(tmp_path / "betty.json")
         dump = sut.dump()
         dump["locales"] = [{"locale": locale}]
         sut.load(dump)
@@ -1171,7 +1171,7 @@ class TestProjectConfiguration:
     async def test_load__should_load_locale_alias(self, tmp_path: Path) -> None:
         locale = "nl-NL"
         alias = "nl"
-        sut = await ProjectConfiguration.new(tmp_path / "betty.json")
+        sut = ProjectConfiguration(tmp_path / "betty.json")
         dump = sut.dump()
         dump["locales"] = [{"locale": locale, "alias": alias}]
         sut.load(dump)
@@ -1182,7 +1182,7 @@ class TestProjectConfiguration:
 
     async def test_load__should_clean_urls(self, tmp_path: Path) -> None:
         clean_urls = True
-        sut = await ProjectConfiguration.new(tmp_path / "betty.json")
+        sut = ProjectConfiguration(tmp_path / "betty.json")
         dump = sut.dump()
         dump["clean_urls"] = clean_urls
         sut.load(dump)
@@ -1196,26 +1196,26 @@ class TestProjectConfiguration:
         ],
     )
     async def test_load__should_load_debug(self, debug: bool, tmp_path: Path) -> None:
-        sut = await ProjectConfiguration.new(tmp_path / "betty.json")
+        sut = ProjectConfiguration(tmp_path / "betty.json")
         dump = sut.dump()
         dump["debug"] = debug
         sut.load(dump)
         assert sut.debug == debug
 
     async def test_load__should_load_extension(self, tmp_path: Path) -> None:
-        sut = await ProjectConfiguration.new(tmp_path / "betty.json")
+        sut = ProjectConfiguration(tmp_path / "betty.json")
         dump = sut.dump()
         dump["extensions"] = {
-            DummyExtension.plugin.id: {},
+            DummyExtensionOne.plugin.id: {},
         }
         sut.load(dump)
-        actual = sut.extensions[DummyExtension.plugin]
-        assert actual.configuration is Void
+        actual = sut.extensions[DummyExtensionOne.plugin]
+        assert isinstance(actual.configuration, Void)
 
     async def test_load__extension_with_invalid_configuration_should_raise_error(
         self, tmp_path: Path
     ) -> None:
-        sut = await ProjectConfiguration.new(tmp_path / "betty.json")
+        sut = ProjectConfiguration(tmp_path / "betty.json")
         dump = sut.dump()
         dump["extensions"] = {
             DummyConfigurableExtension.plugin.id: 1337,
@@ -1227,7 +1227,7 @@ class TestProjectConfiguration:
         ("expected", "event_types_configuration"),
         [
             ({}, {}),
-            ({"foo": {"label": "Foo", "description": {}}}, {"foo": {"label": "Foo"}}),
+            ({"foo": {"label": "Foo"}}, {"foo": {"label": "Foo"}}),
         ],
     )
     async def test_load__should_load_event_types(
@@ -1236,7 +1236,7 @@ class TestProjectConfiguration:
         event_types_configuration: DumpMapping[Dump],
         tmp_path: Path,
     ) -> None:
-        sut = await ProjectConfiguration.new(tmp_path / "betty.json")
+        sut = ProjectConfiguration(tmp_path / "betty.json")
         dump = sut.dump()
         dump["event_types"] = event_types_configuration
         sut.load(dump)
@@ -1247,7 +1247,7 @@ class TestProjectConfiguration:
         ("expected", "place_types_configuration"),
         [
             ({}, {}),
-            ({"foo": {"label": "Foo", "description": {}}}, {"foo": {"label": "Foo"}}),
+            ({"foo": {"label": "Foo"}}, {"foo": {"label": "Foo"}}),
         ],
     )
     async def test_load__should_load_place_types(
@@ -1256,7 +1256,7 @@ class TestProjectConfiguration:
         place_types_configuration: DumpMapping[Dump],
         tmp_path: Path,
     ) -> None:
-        sut = await ProjectConfiguration.new(tmp_path / "betty.json")
+        sut = ProjectConfiguration(tmp_path / "betty.json")
         dump = sut.dump()
         dump["place_types"] = place_types_configuration
         sut.load(dump)
@@ -1267,7 +1267,7 @@ class TestProjectConfiguration:
         ("expected", "presence_roles_configuration"),
         [
             ({}, {}),
-            ({"foo": {"label": "Foo", "description": {}}}, {"foo": {"label": "Foo"}}),
+            ({"foo": {"label": "Foo"}}, {"foo": {"label": "Foo"}}),
         ],
     )
     async def test_load__should_load_presence_roles(
@@ -1276,7 +1276,7 @@ class TestProjectConfiguration:
         presence_roles_configuration: DumpMapping[Dump],
         tmp_path: Path,
     ) -> None:
-        sut = await ProjectConfiguration.new(tmp_path / "betty.json")
+        sut = ProjectConfiguration(tmp_path / "betty.json")
         dump = sut.dump()
         dump["presence_roles"] = presence_roles_configuration
         sut.load(dump)
@@ -1287,7 +1287,7 @@ class TestProjectConfiguration:
         ("expected", "genders_configuration"),
         [
             ({}, {}),
-            ({"foo": {"label": "Foo", "description": {}}}, {"foo": {"label": "Foo"}}),
+            ({"foo": {"label": "Foo"}}, {"foo": {"label": "Foo"}}),
         ],
     )
     async def test_load__should_load_genders(
@@ -1296,7 +1296,7 @@ class TestProjectConfiguration:
         genders_configuration: DumpMapping[Dump],
         tmp_path: Path,
     ) -> None:
-        sut = await ProjectConfiguration.new(tmp_path / "betty.json")
+        sut = ProjectConfiguration(tmp_path / "betty.json")
         dump = sut.dump()
         dump["genders"] = genders_configuration
         sut.load(dump)
@@ -1305,44 +1305,40 @@ class TestProjectConfiguration:
 
     async def test_load__should_error_if_invalid_config(self, tmp_path: Path) -> None:
         dump: Dump = {}
-        sut = await ProjectConfiguration.new(tmp_path / "betty.json")
+        sut = ProjectConfiguration(tmp_path / "betty.json")
         with raises_error(error_type=HumanFacingException):
             sut.load(dump)
 
     async def test_dump__should_dump_minimal(self, tmp_path: Path) -> None:
-        sut = await ProjectConfiguration.new(tmp_path / "betty.json")
+        sut = ProjectConfiguration(tmp_path / "betty.json")
         dump = sut.dump()
-        assert sut.url == dump["url"]
-        assert sut.title.localize(DEFAULT_LOCALIZER) == "Betty"
-        assert not sut.author
-        assert not sut.debug
-        assert sut.root_path == ""
-        assert not sut.clean_urls
+        assert dump["url"] == sut.url
+        assert dump["title"] == "Betty"
 
     async def test_dump__should_dump_title(self, tmp_path: Path) -> None:
         title = "My first Betty site"
-        sut = await ProjectConfiguration.new(tmp_path / "betty.json")
+        sut = ProjectConfiguration(tmp_path / "betty.json")
         sut.title = title
         dump = sut.dump()
-        assert title == dump["title"]
+        assert dump["title"] == title
 
     async def test_dump__should_dump_name(self, tmp_path: Path) -> None:
         name = "my-first-betty-site"
-        sut = await ProjectConfiguration.new(tmp_path / "betty.json")
+        sut = ProjectConfiguration(tmp_path / "betty.json")
         sut.name = name
         dump = sut.dump()
         assert dump["name"] == name
 
     async def test_dump__should_dump_author(self, tmp_path: Path) -> None:
         author = "Bart"
-        sut = await ProjectConfiguration.new(tmp_path / "betty.json")
+        sut = ProjectConfiguration(tmp_path / "betty.json")
         sut.author = author
         dump = sut.dump()
-        assert author == dump["author"]
+        assert dump["author"] == author
 
     async def test_dump__should_dumpo_logo(self, tmp_path: Path) -> None:
         logo = tmp_path / "logo.png"
-        sut = await ProjectConfiguration.new(tmp_path / "betty.json")
+        sut = ProjectConfiguration(tmp_path / "betty.json")
         sut.logo = logo
         dump = sut.dump()
         assert isinstance(dump, dict)
@@ -1351,7 +1347,7 @@ class TestProjectConfiguration:
     async def test_dump__should_dump_locale_locale(self, tmp_path: Path) -> None:
         locale = "nl-NL"
         locale_configuration = LocaleConfiguration(locale)
-        sut = await ProjectConfiguration.new(tmp_path / "betty.json")
+        sut = ProjectConfiguration(tmp_path / "betty.json")
         sut.locales.replace(locale_configuration)
         dump = sut.dump()
         assert dump["locales"] == [
@@ -1368,7 +1364,7 @@ class TestProjectConfiguration:
             locale,
             alias=alias,
         )
-        sut = await ProjectConfiguration.new(tmp_path / "betty.json")
+        sut = ProjectConfiguration(tmp_path / "betty.json")
         sut.locales.replace(locale_configuration)
         dump = sut.dump()
         assert dump["locales"] == [
@@ -1377,10 +1373,10 @@ class TestProjectConfiguration:
 
     async def test_dump__should_dump_clean_urls(self, tmp_path: Path) -> None:
         clean_urls = True
-        sut = await ProjectConfiguration.new(tmp_path / "betty.json")
+        sut = ProjectConfiguration(tmp_path / "betty.json")
         sut.clean_urls = clean_urls
         dump = sut.dump()
-        assert clean_urls == dump["clean_urls"]
+        assert dump["clean_urls"] == clean_urls
 
     @pytest.mark.parametrize(
         "debug",
@@ -1390,20 +1386,19 @@ class TestProjectConfiguration:
         ],
     )
     async def test_dump__should_dump_debug(self, debug: bool, tmp_path: Path) -> None:
-        sut = await ProjectConfiguration.new(tmp_path / "betty.json")
+        sut = ProjectConfiguration(tmp_path / "betty.json")
         sut.debug = debug
         dump = sut.dump()
-        assert debug == dump["debug"]
+        assert dump["debug"] == debug
 
     async def test_dump__should_dump_one_extension_with_configuration(
         self, tmp_path: Path
     ) -> None:
-        sut = await ProjectConfiguration.new(tmp_path / "betty.json")
+        sut = ProjectConfiguration(tmp_path / "betty.json")
         value = "Hello, world!"
         sut.extensions.append(
             PluginInstanceConfiguration(
-                DummyConfigurableExtension.plugin,
-                configuration=DummyConfiguration(value=value),
+                DummyConfigurableExtension.plugin, DummyConfiguration(value=value)
             )
         )
         dump = sut.dump()
@@ -1419,82 +1414,78 @@ class TestProjectConfiguration:
     async def test_dump__should_dump_one_extension_without_configuration(
         self, tmp_path: Path
     ) -> None:
-        sut = await ProjectConfiguration.new(tmp_path / "betty.json")
+        sut = ProjectConfiguration(tmp_path / "betty.json")
         sut.extensions.enable(_DummyNonConfigurableExtension)
         dump = sut.dump()
         expected: Dump = {_DummyNonConfigurableExtension.plugin.id: {}}
         assert dump["extensions"] == expected
 
     async def test_dump__should_dump_event_types(self, tmp_path: Path) -> None:
-        sut = await ProjectConfiguration.new(tmp_path / "betty.json")
-        sut.event_types.append(EventTypeDefinitionConfiguration(id="foo", label="Foo"))
+        sut = ProjectConfiguration(tmp_path / "betty.json")
+        sut.event_types.append(EventTypePluginConfiguration(id="foo", label="Foo"))
         dump = sut.dump()
         expected: DumpMapping[Dump] = {
             "foo": {
                 "label": "Foo",
-                "description": {},
             }
         }
         assert dump["event_types"] == expected
 
     async def test_dump__should_dump_place_types(self, tmp_path: Path) -> None:
-        sut = await ProjectConfiguration.new(tmp_path / "betty.json")
-        sut.place_types.append(PlaceTypeDefinitionConfiguration(id="foo", label="Foo"))
+        sut = ProjectConfiguration(tmp_path / "betty.json")
+        sut.place_types.append(PlaceTypePluginConfiguration(id="foo", label="Foo"))
         dump = sut.dump()
         expected: DumpMapping[Dump] = {
             "foo": {
                 "label": "Foo",
-                "description": {},
             }
         }
         assert dump["place_types"] == expected
 
     async def test_dump__should_dump_presence_roles(self, tmp_path: Path) -> None:
-        sut = await ProjectConfiguration.new(tmp_path / "betty.json")
+        sut = ProjectConfiguration(tmp_path / "betty.json")
         sut.presence_roles.append(
-            PresenceRoleDefinitionConfiguration(id="foo", label="Foo")
+            PresenceRolePluginConfiguration(id="foo", label="Foo")
         )
         dump = sut.dump()
         expected: DumpMapping[Dump] = {
             "foo": {
                 "label": "Foo",
-                "description": {},
             }
         }
         assert dump["presence_roles"] == expected
 
     async def test_dump__should_dump_genders(self, tmp_path: Path) -> None:
-        sut = await ProjectConfiguration.new(tmp_path / "betty.json")
-        sut.genders.append(GenderDefinitionConfiguration(id="foo", label="Foo"))
+        sut = ProjectConfiguration(tmp_path / "betty.json")
+        sut.genders.append(GenderPluginConfiguration(id="foo", label="Foo"))
         dump = sut.dump()
         expected: DumpMapping[Dump] = {
             "foo": {
                 "label": "Foo",
-                "description": {},
             }
         }
         assert dump["genders"] == expected
 
     async def test_dump__should_error_if_invalid_config(self, tmp_path: Path) -> None:
         dump: Dump = {}
-        sut = await ProjectConfiguration.new(tmp_path / "betty.json")
+        sut = ProjectConfiguration(tmp_path / "betty.json")
         with raises_error(error_type=HumanFacingException):
             sut.load(dump)
 
     async def test_dump__should_dump_copyright_notice(self, tmp_path: Path) -> None:
-        sut = await ProjectConfiguration.new(tmp_path / "betty.json")
+        sut = ProjectConfiguration(tmp_path / "betty.json")
         assert sut.dump()["copyright_notice"] == ProjectAuthor.plugin.id
 
     async def test_dump__should_dump_copyright_notices_without_items(
         self, tmp_path: Path
     ) -> None:
-        sut = await ProjectConfiguration.new(tmp_path / "betty.json")
+        sut = ProjectConfiguration(tmp_path / "betty.json")
         assert sut.dump()["copyright_notices"] == {}
 
     async def test_dump__should_dump_copyright_notices_with_items(
         self, tmp_path: Path
     ) -> None:
-        sut = await ProjectConfiguration.new(tmp_path / "betty.json")
+        sut = ProjectConfiguration(tmp_path / "betty.json")
         copyright_notice_id = "my-first-copyright-notice"
         copyright_notice_label = "My First Copyright Notice"
         copyright_notice_summary = "This is My First Copyright Notice."
@@ -1502,7 +1493,7 @@ class TestProjectConfiguration:
             "My First Copyright Notice is the best copyright notice."
         )
         sut.copyright_notices.append(
-            CopyrightNoticeDefinitionConfiguration(
+            CopyrightNoticePluginConfiguration(
                 id=copyright_notice_id,
                 label=copyright_notice_label,
                 summary=copyright_notice_summary,
@@ -1514,28 +1505,27 @@ class TestProjectConfiguration:
                 "label": copyright_notice_label,
                 "summary": copyright_notice_summary,
                 "text": copyright_notice_text,
-                "description": {},
             }
         }
 
     async def test_dump__should_dump_license(self, tmp_path: Path) -> None:
-        sut = await ProjectConfiguration.new(tmp_path / "betty.json")
+        sut = ProjectConfiguration(tmp_path / "betty.json")
         assert sut.dump()["license"] == AllRightsReserved.plugin.id
 
     async def test_dump__should_dump_licenses_without_items(
         self, tmp_path: Path
     ) -> None:
-        sut = await ProjectConfiguration.new(tmp_path / "betty.json")
+        sut = ProjectConfiguration(tmp_path / "betty.json")
         assert sut.dump()["licenses"] == {}
 
     async def test_dump__should_dump_licenses_with_items(self, tmp_path: Path) -> None:
-        sut = await ProjectConfiguration.new(tmp_path / "betty.json")
+        sut = ProjectConfiguration(tmp_path / "betty.json")
         license_id = "my-first-license"
         license_label = "My First License"
         license_summary = "This is My First License."
         license_text = "My First License is the best license."
         sut.licenses.append(
-            LicenseDefinitionConfiguration(
+            LicensePluginConfiguration(
                 id=license_id,
                 label=license_label,
                 summary=license_summary,
@@ -1547,12 +1537,11 @@ class TestProjectConfiguration:
                 "label": license_label,
                 "summary": license_summary,
                 "text": license_text,
-                "description": {},
             }
         }
 
 
-class TestCopyrightNoticeDefinitionConfiguration:
+class TestCopyrightNoticePluginConfiguration:
     def test_load(self) -> None:
         summary = "My First Summary"
         text = "My First Text"
@@ -1562,9 +1551,7 @@ class TestCopyrightNoticeDefinitionConfiguration:
             "summary": summary,
             "text": text,
         }
-        sut = CopyrightNoticeDefinitionConfiguration(
-            id="-", label="", summary="", text=""
-        )
+        sut = CopyrightNoticePluginConfiguration(id="-", label="", summary="", text="")
         sut.load(dump)
         assert sut.summary.localize(DEFAULT_LOCALIZER) == summary
         assert sut.text.localize(DEFAULT_LOCALIZER) == text
@@ -1572,7 +1559,7 @@ class TestCopyrightNoticeDefinitionConfiguration:
     def test_dump(self) -> None:
         summary = "My First Summary"
         text = "My First Text"
-        sut = CopyrightNoticeDefinitionConfiguration(
+        sut = CopyrightNoticePluginConfiguration(
             id="-", label="", summary=summary, text=text
         )
         dump = sut.dump()
@@ -1580,21 +1567,21 @@ class TestCopyrightNoticeDefinitionConfiguration:
         assert dump["text"] == text
 
     def test_summary(self) -> None:
-        summary = "My First Summary"
-        sut = CopyrightNoticeDefinitionConfiguration(
+        summary = Plain("My First Summary")
+        sut = CopyrightNoticePluginConfiguration(
             id="-", label="", summary=summary, text=""
         )
-        assert sut.summary.localize(DEFAULT_LOCALIZER) == summary
+        assert sut.summary is summary
 
     def test_text(self) -> None:
-        text = "My First Summary"
-        sut = CopyrightNoticeDefinitionConfiguration(
+        text = Plain("My First Summary")
+        sut = CopyrightNoticePluginConfiguration(
             id="-", label="", summary="", text=text
         )
-        assert sut.text.localize(DEFAULT_LOCALIZER) == text
+        assert sut.text is text
 
 
-class TestLicenseDefinitionConfiguration:
+class TestLicensePluginConfiguration:
     def test_load(self) -> None:
         summary = "My First Summary"
         text = "My First Text"
@@ -1604,7 +1591,7 @@ class TestLicenseDefinitionConfiguration:
             "summary": summary,
             "text": text,
         }
-        sut = LicenseDefinitionConfiguration(id="-", label="", summary="", text="")
+        sut = LicensePluginConfiguration(id="-", label="", summary="", text="")
         sut.load(dump)
         assert sut.summary.localize(DEFAULT_LOCALIZER) == summary
         assert sut.text.localize(DEFAULT_LOCALIZER) == text
@@ -1612,19 +1599,17 @@ class TestLicenseDefinitionConfiguration:
     def test_dump(self) -> None:
         summary = "My First Summary"
         text = "My First Text"
-        sut = LicenseDefinitionConfiguration(
-            id="-", label="", summary=summary, text=text
-        )
+        sut = LicensePluginConfiguration(id="-", label="", summary=summary, text=text)
         dump = sut.dump()
         assert dump["summary"] == summary
         assert dump["text"] == text
 
     def test_summary(self) -> None:
-        summary = "My First Summary"
-        sut = LicenseDefinitionConfiguration(id="-", label="", summary=summary, text="")
-        assert sut.summary.localize(DEFAULT_LOCALIZER) == summary
+        summary = Plain("My First Summary")
+        sut = LicensePluginConfiguration(id="-", label="", summary=summary, text="")
+        assert sut.summary is summary
 
     def test_text(self) -> None:
-        text = "My First Summary"
-        sut = LicenseDefinitionConfiguration(id="-", label="", summary="", text=text)
-        assert sut.text.localize(DEFAULT_LOCALIZER) == text
+        text = Plain("My First Summary")
+        sut = LicensePluginConfiguration(id="-", label="", summary="", text=text)
+        assert sut.text is text

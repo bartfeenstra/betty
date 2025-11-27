@@ -1,5 +1,6 @@
 from betty.ancestry.person import Person
 from betty.project.extension.raspberry_mint import RaspberryMint
+from betty.resource import new_context
 from betty.test_utils.jinja2 import assert_template_file
 
 
@@ -7,8 +8,7 @@ async def test_minimal() -> None:
     person = Person()
     async with assert_template_file(
         data={
-            "entity": person,
-            "page_resource": "betty:///index.html",
+            "resource": new_context(person),
         },
         extensions={RaspberryMint},
         template="section/family.html.j2",
@@ -21,8 +21,7 @@ async def test_with_parents() -> None:
     person = Person(parents=[parent])
     async with assert_template_file(
         data={
-            "entity": person,
-            "page_resource": "betty:///index.html",
+            "resource": new_context(person),
         },
         extensions={RaspberryMint},
         template="section/family.html.j2",
@@ -35,8 +34,7 @@ async def test_with_private_parents() -> None:
     person = Person(parents=[parent])
     async with assert_template_file(
         data={
-            "entity": person,
-            "page_resource": "betty:///index.html",
+            "resource": new_context(person),
         },
         extensions={RaspberryMint},
         template="section/family.html.j2",
@@ -50,8 +48,7 @@ async def test_with_siblings() -> None:
     person = Person(parents=[parent])
     async with assert_template_file(
         data={
-            "entity": person,
-            "page_resource": "betty:///index.html",
+            "resource": new_context(person),
         },
         extensions={RaspberryMint},
         template="section/family.html.j2",
@@ -65,8 +62,7 @@ async def test_with_private_siblings() -> None:
     person = Person(parents=[parent])
     async with assert_template_file(
         data={
-            "entity": person,
-            "page_resource": "betty:///index.html",
+            "resource": new_context(person),
         },
         extensions={RaspberryMint},
         template="section/family.html.j2",
@@ -79,8 +75,7 @@ async def test_with_children() -> None:
     person = Person(children=[child])
     async with assert_template_file(
         data={
-            "entity": person,
-            "page_resource": "betty:///index.html",
+            "resource": new_context(person),
         },
         extensions={RaspberryMint},
         template="section/family.html.j2",
@@ -93,8 +88,7 @@ async def test_with_private_children() -> None:
     person = Person(children=[child])
     async with assert_template_file(
         data={
-            "entity": person,
-            "page_resource": "betty:///index.html",
+            "resource": new_context(person),
         },
         extensions={RaspberryMint},
         template="section/family.html.j2",
@@ -108,8 +102,7 @@ async def test_with_co_parents() -> None:
     person = Person(children=[child])
     async with assert_template_file(
         data={
-            "entity": person,
-            "page_resource": "betty:///index.html",
+            "resource": new_context(person),
         },
         extensions={RaspberryMint},
         template="section/family.html.j2",
@@ -123,8 +116,7 @@ async def test_with_private_co_parents() -> None:
     person = Person(children=[child])
     async with assert_template_file(
         data={
-            "entity": person,
-            "page_resource": "betty:///index.html",
+            "resource": new_context(person),
         },
         extensions={RaspberryMint},
         template="section/family.html.j2",

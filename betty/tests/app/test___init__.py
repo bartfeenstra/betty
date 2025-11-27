@@ -5,7 +5,11 @@ from typing import TYPE_CHECKING, Self
 from typing_extensions import override
 
 from betty.app import App
-from betty.app.factory import AppDependentFactory
+from betty.app.factory import AppDependentFactory, AppDependentSelfFactory
+from betty.locale.localizer import DEFAULT_LOCALIZER
+from betty.project import Project
+from betty.requirement import Requirement
+from betty.test_utils.plugin import DummyPluginDefinition
 from betty.test_utils.user import StaticUser
 
 if TYPE_CHECKING:
@@ -13,9 +17,24 @@ if TYPE_CHECKING:
 
 
 class TestApp:
+    async def test_requires__with_global(self) -> None:
+        subject = "My First Subject"
+        requires = await App.requires(None, subject)
+        assert isinstance(requires, Requirement)
+        assert subject in requires.localize(DEFAULT_LOCALIZER)
+
+    async def test_requires__with_app(self, temporary_app: App) -> None:
+        assert await App.requires(temporary_app, "") is temporary_app
+
+    async def test_requires__with_project(self, temporary_app: App) -> None:
+        async with Project.new_temporary(temporary_app) as project, project:
+            assert await App.requires(project, "") is temporary_app
+
+    async def test_plugins(self, temporary_app: App) -> None:
+        await temporary_app.plugins(DummyPluginDefinition)
+
     async def test_new_from_environment(self, temporary_app: App) -> None:
-        async with App.new_from_environment() as sut, sut:
-            assert sut.cache is sut.cache
+        assert temporary_app.cache is temporary_app.cache
 
     async def test_bootstrap__should_set_user_localizer(
         self, mocker: MockerFixture, temporary_app: App
@@ -37,9 +56,6 @@ class TestApp:
 
     async def test_cache(self, temporary_app: App) -> None:
         assert temporary_app.cache is temporary_app.cache
-
-    async def test_http_rate_limit_repository(self, temporary_app: App) -> None:
-        assert list(temporary_app.http_rate_limit_repository)
 
     async def test_http_client(self, temporary_app: App) -> None:
         assert await temporary_app.http_client is await temporary_app.http_client
@@ -63,17 +79,28 @@ class TestApp:
     async def test_new_target__with_app_dependent_factory(
         self, temporary_app: App
     ) -> None:
-        class Dependent(AppDependentFactory):
+        class _Factory(AppDependentFactory[App]):
+            @override
+            async def new_for_app(self, app: App, /) -> App:
+                return app
+
+        target = await temporary_app.new_target(_Factory())
+        assert target is temporary_app
+
+    async def test_new_target__with_app_dependent_self_factory(
+        self, temporary_app: App
+    ) -> None:
+        class Dependent(AppDependentSelfFactory):
             def __init__(self, app: App):
                 self.app = app
 
             @override
             @classmethod
-            async def new_for_app(cls, app: App) -> Self:
+            async def new_for_app(cls, app: App, /) -> Self:
                 return cls(app)
 
         dependent = await temporary_app.new_target(Dependent)
         assert dependent.app is temporary_app
 
-    async def test_spdx_license_repository(self, temporary_app: App) -> None:
-        await temporary_app.spdx_license_repository
+    async def test__spdx_license_repository(self, temporary_app: App) -> None:
+        await temporary_app._spdx_license_repository

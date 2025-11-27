@@ -5,9 +5,8 @@ from betty.ancestry.name import Name
 from betty.ancestry.place import Place
 from betty.ancestry.source import Source
 from betty.date import Date
-from betty.jinja2 import EntityContexts
-from betty.locale.localizable import Plain
 from betty.project.extension.raspberry_mint import RaspberryMint
+from betty.resource import EntityContexts, new_context
 from betty.test_utils.jinja2 import assert_template_file
 
 
@@ -42,7 +41,7 @@ async def test_with_date() -> None:
 async def test_with_place() -> None:
     place = Place(
         id="P0",
-        names=[Name(Plain("The Place"))],
+        names=[Name("The Place")],
     )
     event = Event(event_type=Birth(), place=place)
     expected = f'in <a href="/place/{place.public_id}/index.html"><span lang="und" dir="auto">The Place</span></a>'
@@ -60,13 +59,13 @@ async def test_with_place_is_place_context() -> None:
     event = Event(event_type=Birth())
     place = Place(
         id="P0",
-        names=[Name(Plain("The Place"))],
+        names=[Name("The Place")],
     )
     event.place = place
     async with assert_template_file(
         data={
             "event": event,
-            "entity_contexts": EntityContexts(place),
+            "resource": new_context(entity_contexts=EntityContexts(place)),
         },
         extensions={RaspberryMint},
         template="entity/event-dimensions.html.j2",
@@ -77,7 +76,7 @@ async def test_with_place_is_place_context() -> None:
 async def test_with_date_and_place() -> None:
     place = Place(
         id="P0",
-        names=[Name(Plain("The Place"))],
+        names=[Name("The Place")],
     )
     event = Event(
         event_type=Birth(),
@@ -97,7 +96,7 @@ async def test_with_date_and_place() -> None:
 
 async def test_with_citation() -> None:
     event = Event(event_type=Birth())
-    event.citations.add(Citation(source=Source(name=Plain("The Source"))))
+    event.citations.add(Citation(source=Source(name="The Source")))
     expected = 'sometime <sup><a href="#reference-1">[1]</a></sup>'
     async with assert_template_file(
         data={
@@ -116,9 +115,9 @@ async def test_embedded() -> None:
     )
     event.place = Place(
         id="P0",
-        names=[Name(Plain("The Place"))],
+        names=[Name("The Place")],
     )
-    event.citations.add(Citation(source=Source(name=Plain("The Source"))))
+    event.citations.add(Citation(source=Source(name="The Source")))
     expected = '1970 in <span lang="und" dir="auto">The Place</span>'
     async with assert_template_file(
         data={

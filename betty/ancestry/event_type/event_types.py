@@ -10,9 +10,10 @@ from typing_extensions import override
 
 from betty.ancestry.event_type import (
     EventType,
-    EventTypeDefinition,
+    EventTypePlugin,
     ShouldExistEventType,
 )
+from betty.classtools import Singleton
 from betty.locale.localizable import _
 
 if TYPE_CHECKING:
@@ -21,21 +22,15 @@ if TYPE_CHECKING:
 
 
 @final
-@EventTypeDefinition(
-    id="unknown",
-    label=_("Unknown"),
-)
-class Unknown(EventType):
+@EventTypePlugin("unknown", label=_("Unknown"))
+class Unknown(EventType, Singleton):
     """
     Describe an event for which no more specific type is known.
     """
 
 
 @final
-@EventTypeDefinition(
-    id="birth",
-    label=_("Birth"),
-)
+@EventTypePlugin("birth", label=_("Birth"))
 class Birth(ShouldExistEventType):
     """
     Someone was born.
@@ -48,11 +43,7 @@ class Birth(ShouldExistEventType):
 
 
 @final
-@EventTypeDefinition(
-    id="death",
-    label=_("Death"),
-    comes_after={Birth},
-)
+@EventTypePlugin("death", label=_("Death"), comes_after={Birth})
 class Death(ShouldExistEventType):
     """
     Someone died.
@@ -65,8 +56,8 @@ class Death(ShouldExistEventType):
 
 
 @final
-@EventTypeDefinition(
-    id="baptism",
+@EventTypePlugin(
+    "baptism",
     label=_("Baptism"),
     comes_before={Death},
     comes_after={Birth},
@@ -79,8 +70,8 @@ class Baptism(EventType):
 
 
 @final
-@EventTypeDefinition(
-    id="bar-mitzvah",
+@EventTypePlugin(
+    "bar-mitzvah",
     label=_("Bar mitzvah"),
     comes_before={Death},
     comes_after={Birth},
@@ -93,8 +84,8 @@ class BarMitzvah(EventType):
 
 
 @final
-@EventTypeDefinition(
-    id="ba-mitzvah",
+@EventTypePlugin(
+    "ba-mitzvah",
     label=_("Bat mitzvah"),
     comes_before={Death},
     comes_after={Birth},
@@ -107,11 +98,8 @@ class BatMitzvah(EventType):
 
 
 @final
-@EventTypeDefinition(
-    id="adoption",
-    label=_("Adoption"),
-    comes_before={Death},
-    comes_after={Birth},
+@EventTypePlugin(
+    "adoption", label=_("Adoption"), comes_before={Death}, comes_after={Birth}
 )
 class Adoption(EventType):
     """
@@ -120,12 +108,7 @@ class Adoption(EventType):
 
 
 @final
-@EventTypeDefinition(
-    id="funeral",
-    label=_("Funeral"),
-    comes_after={Death},
-    indicates=Death,
-)
+@EventTypePlugin("funeral", label=_("Funeral"), comes_after={Death}, indicates=Death)
 class Funeral(EventType):
     """
     Someone's funeral took place.
@@ -133,11 +116,8 @@ class Funeral(EventType):
 
 
 @final
-@EventTypeDefinition(
-    id="cremation",
-    label=_("Cremation"),
-    comes_after={Death},
-    indicates=Death,
+@EventTypePlugin(
+    "cremation", label=_("Cremation"), comes_after={Death}, indicates=Death
 )
 class Cremation(EventType):
     """
@@ -146,12 +126,7 @@ class Cremation(EventType):
 
 
 @final
-@EventTypeDefinition(
-    id="burial",
-    label=_("Burial"),
-    comes_after={Death},
-    indicates=Death,
-)
+@EventTypePlugin("burial", label=_("Burial"), comes_after={Death}, indicates=Death)
 class Burial(EventType):
     """
     Someone was buried.
@@ -159,11 +134,7 @@ class Burial(EventType):
 
 
 @final
-@EventTypeDefinition(
-    id="will",
-    label=_("Will"),
-    comes_after={Death},
-)
+@EventTypePlugin("will", label=_("Will"), comes_after={Death})
 class Will(EventType):
     """
     Someone's `will and testament <https://en.wikipedia.org/wiki/Will_and_testament>`_ came into effect.
@@ -171,11 +142,8 @@ class Will(EventType):
 
 
 @final
-@EventTypeDefinition(
-    id="engagement",
-    label=_("Engagement"),
-    comes_after={Birth},
-    comes_before={Death},
+@EventTypePlugin(
+    "engagement", label=_("Engagement"), comes_after={Birth}, comes_before={Death}
 )
 class Engagement(EventType):
     """
@@ -184,8 +152,8 @@ class Engagement(EventType):
 
 
 @final
-@EventTypeDefinition(
-    id="marriage",
+@EventTypePlugin(
+    "marriage",
     label=_("Marriage"),
     comes_after={Birth, Engagement},
     comes_before={Death},
@@ -197,8 +165,8 @@ class Marriage(EventType):
 
 
 @final
-@EventTypeDefinition(
-    id="marriage-announcement",
+@EventTypePlugin(
+    "marriage-announcement",
     label=_("Announcement of marriage"),
     comes_after={Birth},
     comes_before={Death, Marriage},
@@ -210,11 +178,8 @@ class MarriageAnnouncement(EventType):
 
 
 @final
-@EventTypeDefinition(
-    id="divorce",
-    label=_("Divorce"),
-    comes_after={Birth, Marriage},
-    comes_before={Death},
+@EventTypePlugin(
+    "divorce", label=_("Divorce"), comes_after={Birth, Marriage}, comes_before={Death}
 )
 class Divorce(EventType):
     """
@@ -223,8 +188,8 @@ class Divorce(EventType):
 
 
 @final
-@EventTypeDefinition(
-    id="divorce-announcement",
+@EventTypePlugin(
+    "divorce-announcement",
     label=_("Announcement of divorce"),
     comes_after={Birth, Marriage},
     comes_before={Death, Divorce},
@@ -236,11 +201,8 @@ class DivorceAnnouncement(EventType):
 
 
 @final
-@EventTypeDefinition(
-    id="residence",
-    label=_("Residence"),
-    comes_after={Birth},
-    comes_before={Death},
+@EventTypePlugin(
+    "residence", label=_("Residence"), comes_after={Birth}, comes_before={Death}
 )
 class Residence(EventType):
     """
@@ -249,11 +211,8 @@ class Residence(EventType):
 
 
 @final
-@EventTypeDefinition(
-    id="immigration",
-    label=_("Immigration"),
-    comes_after={Birth},
-    comes_before={Death},
+@EventTypePlugin(
+    "immigration", label=_("Immigration"), comes_after={Birth}, comes_before={Death}
 )
 class Immigration(EventType):
     """
@@ -262,11 +221,8 @@ class Immigration(EventType):
 
 
 @final
-@EventTypeDefinition(
-    id="emigration",
-    label=_("Emigration"),
-    comes_after={Birth},
-    comes_before={Death},
+@EventTypePlugin(
+    "emigration", label=_("Emigration"), comes_after={Birth}, comes_before={Death}
 )
 class Emigration(EventType):
     """
@@ -275,11 +231,8 @@ class Emigration(EventType):
 
 
 @final
-@EventTypeDefinition(
-    id="occupation",
-    label=_("Occupation"),
-    comes_after={Birth},
-    comes_before={Death},
+@EventTypePlugin(
+    "occupation", label=_("Occupation"), comes_after={Birth}, comes_before={Death}
 )
 class Occupation(EventType):
     """
@@ -290,11 +243,8 @@ class Occupation(EventType):
 
 
 @final
-@EventTypeDefinition(
-    id="retirement",
-    label=_("Retirement"),
-    comes_after={Birth},
-    comes_before={Death},
+@EventTypePlugin(
+    "retirement", label=_("Retirement"), comes_after={Birth}, comes_before={Death}
 )
 class Retirement(EventType):
     """
@@ -303,10 +253,7 @@ class Retirement(EventType):
 
 
 @final
-@EventTypeDefinition(
-    id="correspondence",
-    label=_("Correspondence"),
-)
+@EventTypePlugin("correspondence", label=_("Correspondence"))
 class Correspondence(EventType):
     """
     People corresponded with each other.
@@ -314,11 +261,8 @@ class Correspondence(EventType):
 
 
 @final
-@EventTypeDefinition(
-    id="confirmation",
-    label=_("Confirmation"),
-    comes_after={Birth},
-    comes_before={Death},
+@EventTypePlugin(
+    "confirmation", label=_("Confirmation"), comes_after={Birth}, comes_before={Death}
 )
 class Confirmation(EventType):
     """
@@ -327,11 +271,8 @@ class Confirmation(EventType):
 
 
 @final
-@EventTypeDefinition(
-    id="missing",
-    label=_("Missing"),
-    comes_after={Birth},
-    comes_before={Death},
+@EventTypePlugin(
+    "missing", label=_("Missing"), comes_after={Birth}, comes_before={Death}
 )
 class Missing(EventType):
     """
@@ -340,11 +281,8 @@ class Missing(EventType):
 
 
 @final
-@EventTypeDefinition(
-    id="conference",
-    label=_("Conference"),
-    comes_before={Death},
-    comes_after={Birth},
+@EventTypePlugin(
+    "conference", label=_("Conference"), comes_before={Death}, comes_after={Birth}
 )
 class Conference(EventType):
     """

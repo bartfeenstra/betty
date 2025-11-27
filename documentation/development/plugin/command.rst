@@ -1,22 +1,13 @@
 Console command plugins
 =======================
 
-.. list-table::
-   :align: left
-   :stub-columns: 1
-
-   * -  Type
-     -  :py:class:`betty.console.command.Command`
-   * -  Repository
-     -  :py:class:`betty.app.App.command_repository`
-
 Betty's :doc:`console </usage/console>` allows you to run Betty by invoking commands. These commands
 are built using :py:mod:`argparse`.
 
 Creating a command
 ------------------
 
-Create a new class decorated with :py:class:`betty.console.command.CommandDefinition`, and that implements the
+Create a new class decorated with :py:class:`betty.console.command.CommandPlugin`, and that implements the
 abstract methods, for example:
 
 .. code-block:: python
@@ -24,9 +15,9 @@ abstract methods, for example:
    import argparse
    from typing import override
 
-   from betty.console.command import Command, CommandDefinition, CommandFunction
+   from betty.console.command import Command, CommandPlugin, CommandFunction
 
-   @CommandDefinition(
+   @CommandPlugin(
        id="my-command",
        label=_("My Command"),
    )
@@ -43,7 +34,7 @@ Tell Betty about your command by registering it as an entry point. Given the com
 .. code-block:: toml
 
    [project.entry-points.'betty.command']
-   'my-command' = 'my_package.my_module.MyCommand.plugin'
+   'my-command' = 'my_package.my_module.MyCommand'
               
 Examples
 ^^^^^^^^

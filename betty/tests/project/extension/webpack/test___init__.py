@@ -6,15 +6,11 @@ import pytest
 from pytest_mock import MockerFixture
 from typing_extensions import override
 
-from betty._npm import NpmUnavailable
 from betty.app import App
-from betty.job.scheduler import Cancelled
 from betty.project import Project
-from betty.project.config import ProjectConfiguration
 from betty.project.extension import Extension
 from betty.project.extension.webpack import Webpack
 from betty.project.generate import generate
-from betty.requirement import RequirementError
 from betty.test_utils.project.extension import ExtensionTestBase
 
 
@@ -62,20 +58,7 @@ class TestWebpack(ExtensionTestBase):
                 ) as f:
                     assert await f.read() == self._SENTINEL
 
-    async def test_generate__without_npm(
-        self, mocker: MockerFixture, temporary_app: App, tmp_path: Path
-    ) -> None:
-        m_build = mocker.patch("betty.project.extension.webpack.build.Builder.build")
-        m_build.side_effect = NpmUnavailable()
-
-        project = await Project.new(
-            temporary_app,
-            configuration=await ProjectConfiguration.new(
-                tmp_path / "project" / "betty.json"
-            ),
-        )
-        project.configuration.extensions.enable(Webpack)
-        async with project:
-            with pytest.raises(Cancelled) as exc_info:
-                await generate(project)
-            assert isinstance(exc_info.value.__cause__, RequirementError)
+    async def test_new_resource_context(self, temporary_app: App) -> None:
+        async with Project.new_temporary(temporary_app) as project, project:
+            sut = await Webpack.new_for_project(project)
+            assert sut.new_resource_context()

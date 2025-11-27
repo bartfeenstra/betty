@@ -4,10 +4,10 @@ Test utilities for :py:mod:`betty.render`.
 
 from __future__ import annotations
 
-from betty.test_utils.plugin import ClassedPluginDefinitionTestBase
+from betty.test_utils.plugin import PluginDefinitionTestBase
 
 
-class RendererDefinitionTestBase(ClassedPluginDefinitionTestBase):
+class RendererPluginTestBase(PluginDefinitionTestBase):
     """
-    A base class for testing :py:class:`betty.render.RendererDefinition` implementations.
+    A base class for testing :py:class:`betty.render.RendererPlugin` implementations.
     """

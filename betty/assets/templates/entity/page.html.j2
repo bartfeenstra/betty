@@ -1,13 +1,13 @@
 {% extends 'base.html.j2' %}
-{% set page_title = entity.label | localize %}
-{% set entity_contexts = entity_contexts(entity) %}
-{% do breadcrumbs.append(
-    entity_type.label_plural | localize,
-    entity_type
+{% set page_title = resource.resource.label | localize %}
+{% set resource = copy_resource_context(entity_contexts=resource.entity_contexts(resource.resource)) %}
+{% do resource.breadcrumbs.append(
+    resource.resource.plugin.label_plural | localize,
+    resource.resource.plugin if resource.resource.plugin.id in project.configuration.entity_types and project.configuration.entity_types[resource.resource.plugin.id].generate_html_list else none
 ) %}
-{% do breadcrumbs.append(
+{% do resource.breadcrumbs.append(
     page_title,
-    page_resource
+    resource.resource
 ) %}
 {% block page_content %}
 {% endblock %}

@@ -10,8 +10,8 @@ from urllib.parse import urlparse
 from typing_extensions import override
 
 from betty.media_type.media_types import HTML, JSON, JSON_LD
-from betty.model import Entity, EntityDefinition
-from betty.project.factory import ProjectDependentFactory
+from betty.model import Entity, EntityPlugin
+from betty.project.factory import ProjectDependentSelfFactory
 from betty.string import camel_case_to_kebab_case
 from betty.url import (
     InvalidMediaType,
@@ -24,19 +24,21 @@ from betty.url.proxy import ProxyUrlGenerator
 if TYPE_CHECKING:
     from collections.abc import Mapping, Sequence
 
+    from babel import Locale
+
     from betty.ancestry import Ancestry
     from betty.locale import LocaleLike
     from betty.media_type import MediaType
-    from betty.plugin import PluginRepository
+    from betty.plugin.repository import PluginRepository
     from betty.project import Project
 
 
-class _ProjectUrlGenerator(ProjectDependentFactory):
+class _ProjectUrlGenerator(ProjectDependentSelfFactory):
     def __init__(
         self,
         base_url: str,
         root_path: str,
-        locales_to_aliases: Mapping[str, str],
+        locales_to_aliases: Mapping[Locale, str],
         clean_urls: bool,
         /,
     ):
@@ -49,7 +51,7 @@ class _ProjectUrlGenerator(ProjectDependentFactory):
 
     @override
     @classmethod
-    async def new_for_project(cls, project: Project) -> Self:
+    async def new_for_project(cls, project: Project, /) -> Self:
         """
         Create a new instance using the given project.
         """
@@ -96,7 +98,7 @@ class _ProjectUrlGenerator(ProjectDependentFactory):
         query: Mapping[str, Sequence[str]] | None,
     ) -> str:
         if media_type not in [HTML, JSON_LD, JSON]:
-            raise InvalidMediaType.new(entity, media_type)
+            raise InvalidMediaType(entity, media_type)
         extension, locale = _get_extension_and_locale(
             media_type, self._default_locale, locale=locale
         )
@@ -114,7 +116,7 @@ class _ProjectUrlGenerator(ProjectDependentFactory):
 
     def _generate_from_entity_type(
         self,
-        entity_type: EntityDefinition,
+        entity_type: EntityPlugin,
         pattern: str,
         *,
         absolute: bool,
@@ -124,7 +126,7 @@ class _ProjectUrlGenerator(ProjectDependentFactory):
         query: Mapping[str, Sequence[str]] | None,
     ) -> str:
         if media_type not in [HTML, JSON_LD, JSON]:
-            raise InvalidMediaType.new(entity_type, media_type)
+            raise InvalidMediaType(entity_type, media_type)
         extension, locale = _get_extension_and_locale(
             media_type, self._default_locale, locale=locale
         )
@@ -140,7 +142,7 @@ class _ProjectUrlGenerator(ProjectDependentFactory):
         )
 
 
-async def new_project_url_generator(project: Project) -> UrlGenerator:
+async def new_project_url_generator(project: Project, /) -> UrlGenerator:
     """
     Generate URLs for all resources provided by a Betty project.
     """
@@ -149,7 +151,9 @@ async def new_project_url_generator(project: Project) -> UrlGenerator:
         await _EntityTypeUrlGenerator.new_for_project(project),
         entity_url_generator,
         _EntityUrlUrlGenerator(
-            project.ancestry, entity_url_generator, project.app.entity_type_repository
+            project.ancestry,
+            entity_url_generator,
+            await project.plugins(EntityPlugin),
         ),
         await _LocalizedPathUrlUrlGenerator.new_for_project(project),
         await _StaticPathUrlUrlGenerator.new_for_project(project),
@@ -158,7 +162,7 @@ async def new_project_url_generator(project: Project) -> UrlGenerator:
 
 
 def _get_extension_and_locale(
-    media_type: MediaType, default_locale: str, *, locale: LocaleLike | None
+    media_type: MediaType, default_locale: Locale, *, locale: LocaleLike | None
 ) -> tuple[str, LocaleLike | None]:
     if media_type == HTML:
         return "html", locale or default_locale
@@ -170,8 +174,8 @@ def _get_extension_and_locale(
 class __EntityTypeUrlGenerator(_ProjectUrlGenerator):
     _pattern = "/{entity_type}/index.{extension}"
 
-    def supports(self, resource: Any) -> bool:
-        return isinstance(resource, EntityDefinition)
+    def supports(self, resource: Any, /) -> bool:
+        return isinstance(resource, EntityPlugin)
 
 
 @final
@@ -179,7 +183,7 @@ class _EntityTypeUrlGenerator(__EntityTypeUrlGenerator, UrlGenerator):
     @override
     def generate(
         self,
-        resource: EntityDefinition,
+        resource: EntityPlugin,
         *,
         absolute: bool = False,
         fragment: str | None = None,
@@ -202,7 +206,7 @@ class _EntityTypeUrlGenerator(__EntityTypeUrlGenerator, UrlGenerator):
 class __EntityUrlGenerator(_ProjectUrlGenerator):
     _pattern = "/{entity_type}/{entity_id}/index.{extension}"
 
-    def supports(self, resource: Any) -> bool:
+    def supports(self, resource: Any, /) -> bool:
         return isinstance(resource, Entity)
 
 
@@ -236,14 +240,15 @@ class _EntityUrlUrlGenerator(UrlGenerator):
         self,
         ancestry: Ancestry,
         entity_url_generator: _EntityUrlGenerator,
-        entity_types: PluginRepository[EntityDefinition],
+        entity_types: PluginRepository[EntityPlugin],
+        /,
     ):
         self._ancestry = ancestry
         self._entity_url_generator = entity_url_generator
         self._entity_types = entity_types
 
     @override
-    def supports(self, resource: Any) -> bool:
+    def supports(self, resource: Any, /) -> bool:
         if not isinstance(resource, str):
             return False
         try:
@@ -285,7 +290,7 @@ class _EntityUrlUrlGenerator(UrlGenerator):
 
 class _LocalizedPathUrlUrlGenerator(_ProjectUrlGenerator, UrlGenerator):
     @override
-    def supports(self, resource: Any) -> bool:
+    def supports(self, resource: Any, /) -> bool:
         if not isinstance(resource, str):
             return False
         try:
@@ -323,7 +328,7 @@ class _LocalizedPathUrlUrlGenerator(_ProjectUrlGenerator, UrlGenerator):
 
 class _StaticPathUrlUrlGenerator(_ProjectUrlGenerator, UrlGenerator):
     @override
-    def supports(self, resource: Any) -> bool:
+    def supports(self, resource: Any, /) -> bool:
         if not isinstance(resource, str):
             return False
         try:

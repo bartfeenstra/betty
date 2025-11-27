@@ -20,7 +20,7 @@ _CacheItemValueCoT = TypeVar("_CacheItemValueCoT", covariant=True)
 _CacheItemValueContraT = TypeVar("_CacheItemValueContraT", contravariant=True)
 
 
-class CacheItem(Generic[_CacheItemValueCoT], ABC):
+class CacheItem(ABC, Generic[_CacheItemValueCoT]):
     """
     A cache item.
     """
@@ -43,7 +43,7 @@ CacheItemValueSetter: TypeAlias = Callable[[_CacheItemValueT], Awaitable[None]]
 
 
 @threadsafe
-class Cache(Generic[_CacheItemValueContraT], ABC):
+class Cache(ABC, Generic[_CacheItemValueContraT]):
     """
     A cache.
 
@@ -71,7 +71,6 @@ class Cache(Generic[_CacheItemValueContraT], ABC):
         """
         Check if a cache item with the given ID exists, and if not, provide a setter to add or update it within the same atomic operation.
         """
-        raise NotImplementedError
 
     @abstractmethod
     async def get(

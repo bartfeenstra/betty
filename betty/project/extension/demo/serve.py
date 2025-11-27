@@ -10,7 +10,6 @@ from typing import TYPE_CHECKING, final
 from typing_extensions import override
 
 from betty import serve
-from betty.cache.memory import MemoryCache
 from betty.locale.localizable import _
 from betty.project import ProjectContext
 from betty.project.extension.demo import generate_with_cleanup
@@ -50,9 +49,7 @@ class DemoServer(Server):
             async with project.app.user.message_progress(
                 _("Generating site...")
             ) as progress:
-                job_context = ProjectContext(
-                    project, cache=MemoryCache(), progress=progress
-                )
+                job_context = ProjectContext(project, progress=progress)
                 await generate_with_cleanup(project, job_context=job_context)
             self._server = await serve.BuiltinProjectServer.new_for_project(project)
             await self._exit_stack.enter_async_context(self._server)

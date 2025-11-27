@@ -1,15 +1,6 @@
 Event type plugins
 ==================
 
-.. list-table::
-   :align: left
-   :stub-columns: 1
-
-   * -  Type
-     -  :py:class:`betty.ancestry.event_type.EventType`
-   * -  Repository
-     -  :py:attr:`betty.project.Project.event_type_repository`
-
 Event types are used to indicate the **type** of an :doc:`/usage/ancestry/event`, such as a birth, a death, or an marriage.
 
 Creating an event type
@@ -20,9 +11,9 @@ example:
 
 .. code-block:: python
 
-   from betty.ancestry.event_type import EventType, EventTypeDefinition
+   from betty.ancestry.event_type import EventType, EventTypePlugin
 
-   @EventTypeDefinition(
+   @EventTypePlugin(
        id="my-event-type",
        label=_("My Event Type"),
    )
@@ -36,7 +27,7 @@ Tell Betty about your event type by registering it as an entry point. Given the 
 .. code-block:: toml
 
    [project.entry-points.'betty.event_type']
-   'my-event-type' = 'my_package.my_module.MyEventType.plugin'
+   'my-event-type' = 'my_package.my_module.MyEventType'
 
 See also
 --------

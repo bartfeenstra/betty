@@ -61,10 +61,10 @@ class TestSelectors:
             (
                 "my-first-path\ndata.my_first_attr.my_second_attr\nmy-second-path\ndata.my_third_attr.my_fourth_attr",
                 [
-                    pathlib.Path("my-first-path"),
+                    Path(pathlib.Path("my-first-path")),
                     Attr("my_first_attr"),
                     Attr("my_second_attr"),
-                    pathlib.Path("my-second-path"),
+                    Path(pathlib.Path("my-second-path")),
                     Attr("my_third_attr"),
                     Attr("my_fourth_attr"),
                 ],

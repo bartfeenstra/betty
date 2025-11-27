@@ -17,7 +17,7 @@ if TYPE_CHECKING:
     from types import TracebackType
 
     from betty.assertion import Assertion
-    from betty.locale.localizable import Localizable
+    from betty.locale.localizable import LocalizableLike
     from betty.locale.localizer import Localizer
     from betty.progress import Progress
 
@@ -31,13 +31,29 @@ class Verbosity(IntEnum):
     """
 
     QUIET = -1
-    #: Inform users of errors, but do not show any other output.
+    """
+    Inform users of errors, but do not show any other output.
+    """
+
     DEFAULT = 0
-    #: Like QUIET, and show warning and information messages.
+    """
+    Like QUIET, and show warning and information summary messages.
+    """
+
     VERBOSE = 1
-    #: Like DEFAULT, and show debug messages,
+    """
+    Like DEFAULT, and show information details messages,
+    """
+
     MORE_VERBOSE = 2
-    #: Like VERBOSE, and show all log messages.
+    """
+    Like VERBOSE, and show debug messages.
+    """
+
+    MOST_VERBOSE = 3
+    """
+    Like MORE_VERBOSE, and show all log messages.
+    """
 
 
 class UserError(Exception):
@@ -58,7 +74,6 @@ class User(ABC):
     """
 
     localizer: Localizer = DEFAULT_LOCALIZER
-    verbosity: Verbosity = Verbosity.DEFAULT
 
     async def connect(self) -> None:
         """
@@ -86,6 +101,19 @@ class User(ABC):
     ) -> None:
         await self.disconnect()
 
+    @property
+    @abstractmethod
+    def verbosity(self) -> Verbosity:
+        """
+        The current verbosity.
+        """
+
+    @abstractmethod
+    async def set_verbosity(self, verbosity: Verbosity, /) -> None:
+        """
+        Set the new verbosity.
+        """
+
     @abstractmethod
     async def message_exception(self) -> None:
         """
@@ -97,7 +125,7 @@ class User(ABC):
         """
 
     @abstractmethod
-    async def message_error(self, message: Localizable) -> None:
+    async def message_error(self, message: LocalizableLike, /) -> None:
         """
         Send an error message to the user.
 
@@ -107,7 +135,7 @@ class User(ABC):
         """
 
     @abstractmethod
-    async def message_warning(self, message: Localizable) -> None:
+    async def message_warning(self, message: LocalizableLike, /) -> None:
         """
         Send a warning message to the user.
 
@@ -118,9 +146,9 @@ class User(ABC):
         """
 
     @abstractmethod
-    async def message_information(self, message: Localizable) -> None:
+    async def message_information(self, message: LocalizableLike, /) -> None:
         """
-        Send an informative message to the user.
+        Send a summarized informative message to the user.
 
         An informative message tells the user that something happened successfully, e.g. the starting or finishing of a
         task.
@@ -129,24 +157,35 @@ class User(ABC):
         """
 
     @abstractmethod
-    async def message_debug(self, message: Localizable) -> None:
+    async def message_information_details(self, message: LocalizableLike, /) -> None:
         """
-        Send a debugging message to the user.
+        Send a detailed informative message to the user.
+
+        An informative message tells the user that something happened successfully, e.g. the starting or finishing of a
+        task.
 
         These messages are shown to users for :py:attr:`betty.user.Verbosity.VERBOSE` and up.
         """
 
     @abstractmethod
-    async def message_log(self, message: logging.LogRecord) -> None:
+    async def message_debug(self, message: LocalizableLike, /) -> None:
         """
-        Send a log message to the user.
+        Send a debugging message to the user.
 
         These messages are shown to users for :py:attr:`betty.user.Verbosity.MORE_VERBOSE` and up.
         """
 
     @abstractmethod
+    async def message_log(self, message: logging.LogRecord, /) -> None:
+        """
+        Send a log message to the user.
+
+        These messages are shown to users for :py:attr:`betty.user.Verbosity.MOST_VERBOSE` and up.
+        """
+
+    @abstractmethod
     def message_progress(
-        self, message: Localizable
+        self, message: LocalizableLike, /
     ) -> AbstractAsyncContextManager[Progress]:
         """
         Send information about a progressing activity to the user.
@@ -156,7 +195,7 @@ class User(ABC):
 
     @abstractmethod
     async def ask_confirmation(
-        self, statement: Localizable, *, default: bool = False
+        self, statement: LocalizableLike, *, default: bool = False
     ) -> bool:
         """
         Ask the user to confirm a statement.
@@ -167,29 +206,29 @@ class User(ABC):
     @overload
     async def ask_input(
         self,
-        question: Localizable,
+        question: LocalizableLike,
         *,
-        default: str | type[Void] = Void,
+        default: str | Void = Void(),  # noqa B008
     ) -> str:
         pass
 
     @overload
     async def ask_input(
         self,
-        question: Localizable,
+        question: LocalizableLike,
         *,
         assertion: Assertion[str, _T],
-        default: str | type[Void] = Void,
+        default: str | Void = Void(),  # noqa B008
     ) -> _T:
         pass
 
     @abstractmethod
     async def ask_input(
         self,
-        question: Localizable,
+        question: LocalizableLike,
         *,
         assertion: Assertion[str, _T] | None = None,
-        default: str | _T | type[Void] = Void,
+        default: str | _T | Void = Void(),  # noqa B008
     ) -> str | _T:
         """
         Ask the user to input text.

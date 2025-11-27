@@ -6,15 +6,12 @@ from typing import final
 
 from typing_extensions import override
 
-from betty.copyright_notice import CopyrightNotice, CopyrightNoticeDefinition
+from betty.copyright_notice import CopyrightNotice, CopyrightNoticePlugin
 from betty.locale.localizable import Localizable, StaticTranslations
 
 
 @final
-@CopyrightNoticeDefinition(
-    id="streetmix",
-    label=StaticTranslations("Streetmix LLC"),
-)
+@CopyrightNoticePlugin("streetmix", label=StaticTranslations("Streetmix LLC"))
 class Streetmix(CopyrightNotice):
     """
     The copyright for Streetmix resources.

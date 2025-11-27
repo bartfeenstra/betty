@@ -12,11 +12,11 @@ from betty.console.command.commands.extension_update_translations import (
 )
 from betty.plugin import PluginDefinition
 from betty.test_utils.console import run
-from betty.test_utils.console.command import CommandDefinitionTestBase
+from betty.test_utils.console.command import CommandPluginTestBase
 from betty.tests.console.command import ExtensionTranslationTestBase
 
 
-class TestExtensionUpdateTranslationsDefinition(CommandDefinitionTestBase):
+class TestExtensionUpdateTranslationsDefinition(CommandPluginTestBase):
     @override
     @pytest.fixture
     def sut(self) -> PluginDefinition:

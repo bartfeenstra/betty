@@ -2,9 +2,9 @@
 {% block page_content %}
     {% include 'section/wikipedia.html.j2' %}
 
-    {% set enclosees = entity.walk_enclosees | map(attribute='enclosee') | select('entity_plugin', 'place') | select('public') | list %}
+    {% set enclosees = resource.resource.walk_enclosees | map(attribute='enclosee') | select('entity_plugin', 'place') | select('public') | list %}
 
-    {% with places = enclosees + [entity] %}
+    {% with places = enclosees + [resource.resource] %}
         {% include 'section/map.html.j2' %}
     {% endwith %}
 
@@ -39,7 +39,7 @@
 
 
     {% set ns = namespace(events = []) %}
-    {% do ns.events.extend(entity.events) %}
+    {% do ns.events.extend(resource.resource.events) %}
     {% for enclosee in enclosees %}
         {% do ns.events.extend(enclosee.events) %}
     {% endfor %}
@@ -47,7 +47,7 @@
         {% include 'section/timeline.html.j2' %}
     {% endwith %}
 
-    {% with file_references = entity | associated_file_references %}
+    {% with file_references = resource.resource | associated_file_references %}
         {% include 'section/media.html.j2' %}
     {% endwith %}
 {% endblock %}

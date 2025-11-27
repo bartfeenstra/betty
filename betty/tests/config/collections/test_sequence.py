@@ -26,7 +26,7 @@ class ConfigurationSequenceTestConfiguration(Configuration):
         self.value = configuration_value
 
     @override
-    def load(self, dump: Dump) -> None:
+    def load(self, dump: Dump, /) -> None:
         assert_record(
             RequiredField("value", assert_int() | assert_setattr(self, "value")),
         )(dump)
@@ -44,7 +44,7 @@ class TestConfigurationSequence(
     def new_sut(
         self,
     ) -> ConfigurationCollectionTestBaseNewSut[
-        ConfigurationSequenceTestConfiguration, int
+        ConfigurationSequenceTestConfiguration, int, int
     ]:
         return ConfigurationSequenceTestConfigurationSequence
 
@@ -106,7 +106,7 @@ class ConfigurationSequenceTestConfigurationSequence(
     ConfigurationSequence[ConfigurationSequenceTestConfiguration]
 ):
     @override
-    def _load_item(self, dump: Dump) -> ConfigurationSequenceTestConfiguration:
+    def _load_item(self, dump: Dump, /) -> ConfigurationSequenceTestConfiguration:
         configuration = ConfigurationSequenceTestConfiguration(0)
         configuration.load(dump)
         return configuration

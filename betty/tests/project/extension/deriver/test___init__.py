@@ -27,7 +27,7 @@ class TestDeriver(ExtensionTestBase):
     @pytest.fixture
     async def sut(self, temporary_app: App) -> Extension:
         async with Project.new_temporary(temporary_app) as project, project:
-            return await Deriver.new_for_project(project)
+            return Deriver(project)
 
     async def test_post_load(self, temporary_app: App) -> None:
         person = Person(id="P0")

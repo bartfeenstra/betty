@@ -10,6 +10,7 @@ from betty.job import Context
 from betty.project import Project
 from betty.project.extension.wiki import Wiki
 from betty.project.load import load
+from betty.resource import new_context
 from betty.test_utils.project.extension import ExtensionTestBase
 from betty.wiki.client import Summary
 
@@ -30,7 +31,7 @@ class TestWiki(ExtensionTestBase):
     async def test_filters(self, sut: Wiki) -> None:
         assert sut.filters
 
-    async def test_filter_wikipedia_links(
+    async def test_filter_wikipedia_summary_links(
         self, mocker: MockerFixture, temporary_app: App
     ) -> None:
         language = "en"
@@ -56,11 +57,8 @@ class TestWiki(ExtensionTestBase):
             async with project:
                 jinja2_environment = await project.jinja2_environment
                 actual = await jinja2_environment.from_string(
-                    "{% for entry in (links | wikipedia) %}{{ entry.content }}{% endfor %}"
-                ).render_async(
-                    job_context=Context(),
-                    links=links,
-                )
+                    "{% for entry in (links | wikipedia_summary) %}{{ entry.content }}{% endfor %}"
+                ).render_async(resource=new_context(job_context=Context()), links=links)
 
             m_get_summary.assert_called_once()
             assert actual == extract

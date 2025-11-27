@@ -5,15 +5,13 @@ HTTP client rate limiting.
 from __future__ import annotations
 
 from abc import abstractmethod
-from typing import TYPE_CHECKING, ClassVar, final
+from typing import TYPE_CHECKING, final
 
 from betty.concurrent import AsynchronizedLock, RateLimiter
 from betty.locale.localizable import _
-from betty.plugin import (
-    ClassedPluginDefinition,
-    ClassedPluginTypeDefinition,
-    OrderedPluginDefinition,
-)
+from betty.plugin import Plugin, PluginTypeDefinition
+from betty.plugin.discovery.entry_point import EntryPointDiscovery
+from betty.plugin.ordered import OrderedPluginDefinition
 from betty.typing import threadsafe
 
 if TYPE_CHECKING:
@@ -68,7 +66,7 @@ class RateLimitMiddleware:
                 return request_limiter
 
 
-class RateLimit:
+class RateLimit(Plugin):
     """
     A rate limit for HTTP requests.
     """
@@ -88,15 +86,16 @@ class RateLimit:
 
 
 @final
-class RateLimitDefinition(OrderedPluginDefinition, ClassedPluginDefinition[RateLimit]):
+class RateLimitPlugin(OrderedPluginDefinition[RateLimit]):
     """
     A rate limit definition.
 
     Read more about :doc:`/development/plugin/http-rate-limit`.
     """
 
-    type: ClassVar[ClassedPluginTypeDefinition] = ClassedPluginTypeDefinition(
-        id="http-rate-limit",
-        label=_("HTTP client rate limit"),
-        cls=RateLimit,
+    plugin_type_cls = RateLimit
+    type = PluginTypeDefinition(
+        "http-rate-limit",
+        _("HTTP client rate limit"),
+        discoveries=EntryPointDiscovery("betty.http_rate_limit"),
     )

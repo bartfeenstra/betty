@@ -1,6 +1,7 @@
 from unittest.mock import ANY
 
 import pytest
+from babel import Locale
 from pytest_mock import MockerFixture
 from typing_extensions import override
 
@@ -11,10 +12,10 @@ from betty.console.command.commands.new_translation import NewTranslation
 from betty.plugin import PluginDefinition
 from betty.project import Project
 from betty.test_utils.console import run
-from betty.test_utils.console.command import CommandDefinitionTestBase
+from betty.test_utils.console.command import CommandPluginTestBase
 
 
-class TestNewTranslationsDefinition(CommandDefinitionTestBase):
+class TestNewTranslationsDefinition(CommandPluginTestBase):
     @override
     @pytest.fixture
     def sut(self) -> PluginDefinition:
@@ -29,7 +30,7 @@ class TestNewTranslation:
             await write_configuration_file(
                 project.configuration, project.configuration.configuration_file_path
             )
-            locale = "nl-NL"
+            locale = "nl"
             m_new_translation = mocker.patch(
                 "betty.locale.translation.project.new_project_translation"
             )
@@ -40,7 +41,7 @@ class TestNewTranslation:
                 str(project.configuration.configuration_file_path),
                 locale,
             )
-            m_new_translation.assert_awaited_once_with(locale, ANY, user=ANY)
+            m_new_translation.assert_awaited_once_with(Locale(locale), ANY, user=ANY)
 
     async def test_configure__with_invalid_locale(self, temporary_app: App) -> None:
         await run(

@@ -2,7 +2,6 @@
 
 from __future__ import annotations
 
-from reprlib import recursive_repr
 from typing import TYPE_CHECKING, Any, ClassVar, Self, TypeAlias, TypeVar, final
 from uuid import uuid4
 
@@ -13,22 +12,24 @@ from betty.json.linked_data import (
     JsonLdObject,
     LinkedDataDumpableWithSchemaJsonLdObject,
 )
-from betty.json.schema import Array, JsonSchemaReference, Null, OneOf, String
-from betty.locale.localizable import Localizable, _
+from betty.json.schema import JsonSchemaReference, String
+from betty.locale.localizable import (
+    CountableLocalizable,
+    Localizable,
+    LocalizableLike,
+    _,
+)
 from betty.locale.localizer import DEFAULT_LOCALIZER
 from betty.mutability import Mutable
-from betty.plugin import (
-    ClassedPlugin,
-    ClassedPluginDefinition,
-    ClassedPluginTypeDefinition,
-    CountableHumanFacingPluginDefinition,
-)
-from betty.repr import repr_instance
+from betty.plugin import Plugin, PluginTypeDefinition
+from betty.plugin.discovery.entry_point import EntryPointDiscovery
+from betty.plugin.human_facing import CountableHumanFacingPluginDefinition
 from betty.string import kebab_case_to_lower_camel_case
 
 if TYPE_CHECKING:
     import builtins
 
+    from betty.machine_name import MachineName
     from betty.project import Project
     from betty.serde.dump import Dump, DumpMapping
 
@@ -47,11 +48,11 @@ class NonPersistentId(str):
 
     __slots__ = ()
 
-    def __new__(cls, entity_id: str | None = None):  # noqa D102
+    def __new__(cls, entity_id: str | None = None, /):  # noqa D102
         return super().__new__(cls, entity_id or str(uuid4()))
 
 
-class Entity(LinkedDataDumpableWithSchemaJsonLdObject, Mutable, ClassedPlugin):
+class Entity(LinkedDataDumpableWithSchemaJsonLdObject, Mutable, Plugin):
     """
     An entity is a uniquely identifiable data container.
 
@@ -60,7 +61,7 @@ class Entity(LinkedDataDumpableWithSchemaJsonLdObject, Mutable, ClassedPlugin):
     To test your own subclasses, use :py:class:`betty.test_utils.model.EntityTestBase`.
     """
 
-    plugin: ClassVar[EntityDefinition]
+    plugin: ClassVar[EntityPlugin]
 
     def __init__(
         self,
@@ -75,11 +76,6 @@ class Entity(LinkedDataDumpableWithSchemaJsonLdObject, Mutable, ClassedPlugin):
     @override
     def __hash__(self) -> int:
         return hash(self.ancestry_id)
-
-    @override  # type: ignore[callable-functiontype]
-    @recursive_repr()
-    def __repr__(self) -> str:
-        return repr_instance(self, id=self._id)
 
     @property
     def id(self) -> str:
@@ -120,7 +116,7 @@ class Entity(LinkedDataDumpableWithSchemaJsonLdObject, Mutable, ClassedPlugin):
         )
 
     @override
-    async def dump_linked_data(self, project: Project) -> DumpMapping[Dump]:
+    async def dump_linked_data(self, project: Project, /) -> DumpMapping[Dump]:
         dump = await super().dump_linked_data(project)
 
         if persistent_id(self) and self.plugin.public_facing:
@@ -135,7 +131,7 @@ class Entity(LinkedDataDumpableWithSchemaJsonLdObject, Mutable, ClassedPlugin):
 
     @override
     @classmethod
-    async def linked_data_schema(cls, project: Project) -> JsonLdObject:
+    async def linked_data_schema(cls, project: Project, /) -> JsonLdObject:
         schema = await super().linked_data_schema(project)
         schema._def_name = f"{kebab_case_to_lower_camel_case(cls.plugin.id)}Entity"
         schema.title = cls.plugin.label.localize(DEFAULT_LOCALIZER)
@@ -146,26 +142,35 @@ class Entity(LinkedDataDumpableWithSchemaJsonLdObject, Mutable, ClassedPlugin):
 
 
 @final
-class EntityDefinition(
-    CountableHumanFacingPluginDefinition, ClassedPluginDefinition[Entity]
-):
+class EntityPlugin(CountableHumanFacingPluginDefinition[Entity]):
     """
     An entity definition.
     """
 
-    type: ClassVar[ClassedPluginTypeDefinition] = ClassedPluginTypeDefinition(
-        id="entity",
-        label=_("Entity"),
-        cls=Entity,
+    plugin_type_cls = Entity
+    type = PluginTypeDefinition(
+        "entity",
+        _("Entity"),
+        discoveries=EntryPointDiscovery("betty.entity_type"),
     )
 
     def __init__(
         self,
+        plugin_id: MachineName,
         *,
+        label: LocalizableLike,
+        label_plural: LocalizableLike,
+        label_countable: CountableLocalizable,
+        description: LocalizableLike | None = None,
         public_facing: bool = True,
-        **kwargs: Any,
     ):
-        super().__init__(**kwargs)
+        super().__init__(
+            plugin_id,
+            label=label,
+            label_plural=label_plural,
+            label_countable=label_countable,
+            description=description,
+        )
         self._public_facing = public_facing
 
     @property
@@ -179,7 +184,7 @@ class EntityDefinition(
 AncestryEntityId: TypeAlias = tuple[type[Entity], str]
 
 
-def persistent_id(entity_or_id: Entity | str) -> bool:
+def persistent_id(entity_or_id: Entity | str, /) -> bool:
     """
     Test if an entity ID is persistent.
 
@@ -192,48 +197,3 @@ def persistent_id(entity_or_id: Entity | str) -> bool:
 
 
 _EntityT = TypeVar("_EntityT", bound=Entity)
-
-
-class ToZeroOrOneSchema(OneOf):
-    """
-    A schema for a to-zero-or-one entity association.
-    """
-
-    def __init__(self, *, title: str | None = None, description: str | None = None):
-        super().__init__(
-            String(
-                title=title or "Optional associate entity",
-                description=description
-                or "An optional reference to an associate entity's JSON resource",
-                format=String.Format.URI,
-            ),
-            Null(),
-        )
-
-
-class ToOneSchema(String):
-    """
-    A schema for a to-one entity association.
-    """
-
-    def __init__(self, *, title: str | None = None, description: str | None = None):
-        super().__init__(
-            title=title or "Associate entity",
-            description=description
-            or "A reference to an associate entity's JSON resource",
-            format=String.Format.URI,
-        )
-
-
-class ToManySchema(Array):
-    """
-    A schema for a to-many entity association.
-    """
-
-    def __init__(self, *, title: str | None = None, description: str | None = None):
-        super().__init__(
-            ToOneSchema(),
-            title=title or "Associate entities",
-            description=description
-            or "References to associate entities' JSON resources",
-        )

@@ -3,7 +3,7 @@
     {{ super() }}
 
     <div class="my-5">
-        {% with places = project.ancestry[app.entity_type_repository.get('place')] %}
+        {% with places = project.ancestry[app.plugins('entity')['place']] %}
             {% include 'section/map.html.j2' %}
         {% endwith %}
 
@@ -20,7 +20,7 @@
                             </div>
                         {% endif %}
                         {% with entities = page_entities %}
-                            {% include ['entity/list--' + page_entity_type.id + '.html.j2', 'entity/list.html.j2'] %}
+                            {% include ['entity/list--' + resource.resource.id + '.html.j2', 'entity/list.html.j2'] %}
                         {% endwith %}
                         {% if pager %}
                             <div class="mt-3">

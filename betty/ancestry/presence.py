@@ -8,8 +8,9 @@ from typing import TYPE_CHECKING, final
 
 from typing_extensions import override
 
+from betty.ancestry.presence_role import PresenceRolePlugin
 from betty.locale.localizable import Localizable, _, ngettext
-from betty.model import Entity, EntityDefinition
+from betty.model import Entity, EntityPlugin
 from betty.model.association import BidirectionalToOne, ToOneAssociate
 from betty.privacy import HasPrivacy, Privacy, is_public, merge_secondary_privacies
 
@@ -20,14 +21,13 @@ if TYPE_CHECKING:
     from betty.ancestry.person import Person
     from betty.ancestry.presence_role import PresenceRole
     from betty.json.linked_data import JsonLdObject
-    from betty.mutability import Mutable
     from betty.project import Project
     from betty.serde.dump import Dump, DumpMapping
 
 
 @final
-@EntityDefinition(
-    id="presence",
+@EntityPlugin(
+    "presence",
     label=_("Presence"),
     label_plural=_("Presences"),
     label_countable=ngettext("{count} presence", "{count} presences"),
@@ -38,7 +38,6 @@ class Presence(HasPrivacy, Entity):
     The presence of a :py:class:`betty.ancestry.person.Person` at an :py:class:`betty.ancestry.event.Event`.
     """
 
-    #: The person whose presence is described.
     person = BidirectionalToOne["Presence", "Person"](
         "betty.ancestry.presence:Presence",
         "person",
@@ -46,7 +45,10 @@ class Presence(HasPrivacy, Entity):
         "presences",
         title="Person",
     )
-    #: The event the person was present at.
+    """
+    The person whose presence is described.
+    """
+
     event = BidirectionalToOne["Presence", "Event"](
         "betty.ancestry.presence:Presence",
         "event",
@@ -54,8 +56,14 @@ class Presence(HasPrivacy, Entity):
         "presences",
         title="Event",
     )
-    #: The role the person performed at the event.
+    """
+    The event the person was present at.
+    """
+
     role: PresenceRole
+    """
+    The role the person performed at the event.
+    """
 
     def __init__(
         self,
@@ -73,7 +81,7 @@ class Presence(HasPrivacy, Entity):
         self.event = event
 
     @override
-    def get_mutable_instances(self) -> Iterable[Mutable]:
+    def get_mutables(self) -> Iterable[object]:
         return (self.role,)
 
     @override
@@ -94,15 +102,14 @@ class Presence(HasPrivacy, Entity):
 
     @override
     @classmethod
-    async def linked_data_schema(cls, project: Project) -> JsonLdObject:
+    async def linked_data_schema(cls, project: Project, /) -> JsonLdObject:
         schema = await super().linked_data_schema(project)
-        schema.add_property(
-            "role", project.presence_role_repository.plugin_id_schema, False
-        )
+        presence_roles = await project.plugins(PresenceRolePlugin)
+        schema.add_property("role", presence_roles.plugin_id_schema, False)
         return schema
 
     @override
-    async def dump_linked_data(self, project: Project) -> DumpMapping[Dump]:
+    async def dump_linked_data(self, project: Project, /) -> DumpMapping[Dump]:
         dump = await super().dump_linked_data(project)
         if is_public(self):
             dump["role"] = self.role.plugin.id

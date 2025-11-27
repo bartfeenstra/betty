@@ -12,23 +12,22 @@ from betty.ancestry.has_citations import HasCitations
 from betty.ancestry.locale import HasLocale
 from betty.json.linked_data import JsonLdObject, dump_context
 from betty.json.schema import String
-from betty.locale import UNDETERMINED_LOCALE
 from betty.locale.localizable import Localizable, _, ngettext
-from betty.model import Entity, EntityDefinition
+from betty.model import Entity, EntityPlugin
 from betty.model.association import BidirectionalToOne, ToManyAssociates, ToOneAssociate
 from betty.privacy import HasPrivacy, Privacy, merge_privacies
-from betty.repr import repr_instance
 
 if TYPE_CHECKING:
     from betty.ancestry.citation import Citation
     from betty.ancestry.person import Person
+    from betty.locale import LocaleLike
     from betty.project import Project
     from betty.serde.dump import Dump, DumpMapping
 
 
 @final
-@EntityDefinition(
-    id="person-name",
+@EntityPlugin(
+    "person-name",
     label=_("Person name"),
     label_plural=_("Person names"),
     label_countable=ngettext("{count} person name", "{count} person names"),
@@ -39,7 +38,6 @@ class PersonName(HasLocale, HasCitations, HasPrivacy, Entity):
     A name for a :py:class:`betty.ancestry.person.Person`.
     """
 
-    #: The person whose name this is.
     person = BidirectionalToOne["PersonName", "Person"](
         "betty.ancestry.person_name:PersonName",
         "person",
@@ -47,6 +45,9 @@ class PersonName(HasLocale, HasCitations, HasPrivacy, Entity):
         "names",
         title="Person",
     )
+    """
+    The person whose name this is.
+    """
 
     def __init__(
         self,
@@ -58,7 +59,7 @@ class PersonName(HasLocale, HasCitations, HasPrivacy, Entity):
         privacy: Privacy | None = None,
         public: bool | None = None,
         private: bool | None = None,
-        locale: str = UNDETERMINED_LOCALE,
+        locale: LocaleLike | None = None,
         citations: ToManyAssociates[Citation] | None = None,
     ):
         if not individual and not affiliation:
@@ -82,12 +83,6 @@ class PersonName(HasLocale, HasCitations, HasPrivacy, Entity):
     @override
     def _get_effective_privacy(self) -> Privacy:
         return merge_privacies(super()._get_effective_privacy(), self.person)
-
-    @override
-    def __repr__(self) -> str:
-        return repr_instance(
-            self, id=self.id, individual=self.individual, affiliation=self.affiliation
-        )
 
     @property
     def individual(self) -> str | None:
@@ -122,7 +117,7 @@ class PersonName(HasLocale, HasCitations, HasPrivacy, Entity):
         )
 
     @override
-    async def dump_linked_data(self, project: Project) -> DumpMapping[Dump]:
+    async def dump_linked_data(self, project: Project, /) -> DumpMapping[Dump]:
         dump = await super().dump_linked_data(project)
         if self.public:
             if self.individual is not None:
@@ -135,7 +130,7 @@ class PersonName(HasLocale, HasCitations, HasPrivacy, Entity):
 
     @override
     @classmethod
-    async def linked_data_schema(cls, project: Project) -> JsonLdObject:
+    async def linked_data_schema(cls, project: Project, /) -> JsonLdObject:
         schema = await super().linked_data_schema(project)
         schema.add_property(
             "individual",

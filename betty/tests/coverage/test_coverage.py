@@ -23,7 +23,7 @@ from typing import Any, Protocol, TypeAlias, cast
 import aiofiles
 import pytest
 
-from betty import ROOT_DIRECTORY_PATH
+from betty.dirs import ROOT_DIRECTORY_PATH
 from betty.html.attributes import Attributes
 from betty.tests.coverage.fixtures import (
     _module_private,
@@ -43,6 +43,7 @@ class MissingReason(Enum):
     Reasons why test coverage is missing.
     """
 
+    DEVELOPMENT = "This testable is for Betty development purposes only"
     ABSTRACT = "This testable is abstract"
     INTERNAL = "This testable is internal to Betty itself"
     SHOULD_BE_COVERED = "This testable should be covered by a test but isn't yet"
@@ -72,7 +73,10 @@ _BASELINE: Mapping[str, _ModuleIgnore] = {
             "shutdown": MissingReason.COVERED_ELSEWHERE,
         }
     },
-    "betty/app/factory.py": MissingReason.ABSTRACT,
+    "betty/app/factory.py": {
+        "AppDependentFactory": MissingReason.ABSTRACT,
+        "AppFactory": MissingReason.ABSTRACT,
+    },
     "betty/asset.py": {
         "AssetError": MissingReason.ABSTRACT,
         "AssetRepository": MissingReason.ABSTRACT,
@@ -90,13 +94,17 @@ _BASELINE: Mapping[str, _ModuleIgnore] = {
     "betty/console/__init__.py": {
         "SystemExitCode": MissingReason.ENUM,
     },
+    "betty/console/command/__init__.py": {
+        "Command": MissingReason.SHOULD_BE_COVERED,
+    },
+    "betty/console/command/commands/dev_profile_demo.py": MissingReason.DEVELOPMENT,
+    "betty/console/project.py": {
+        "ConfigurationFileNotFound": MissingReason.STATIC_CONTENT_ONLY,
+    },
     "betty/console/user.py": {
         "ConsoleUser": {
             "disconnect": MissingReason.COVERED_ELSEWHERE,
         },
-    },
-    "betty/console/command/__init__.py": {
-        "Command": MissingReason.SHOULD_BE_COVERED,
     },
     "betty/concurrent.py": {
         "AsynchronizedLock": {
@@ -117,35 +125,39 @@ _BASELINE: Mapping[str, _ModuleIgnore] = {
             "release": MissingReason.ABSTRACT,
         },
     },
-    "betty/config/__init__.py": {
-        "DefaultConfigurable": MissingReason.ABSTRACT,
-    },
     "betty/config/collections/__init__.py": MissingReason.ABSTRACT,
+    "betty/config/factory.py": MissingReason.ABSTRACT,
+    "betty/content_provider/__init__.py": {
+        "ContentProvider": MissingReason.ABSTRACT,
+    },
     "betty/contextlib.py": {
         "SynchronizedContextManager": {
             "__enter__": MissingReason.SHOULD_BE_COVERED,
             "__exit__": MissingReason.SHOULD_BE_COVERED,
         },
     },
-    "betty/service.py": {
+    "betty/service/__init__.py": {
+        "ServiceError": MissingReason.ABSTRACT,
+    },
+    "betty/service/bootstrap.py": {
         "BootstrappedError": MissingReason.ABSTRACT,
         "NotBootstrappedError": MissingReason.ABSTRACT,
-        "ServiceError": MissingReason.ABSTRACT,
-        "ServiceInitializedError": MissingReason.ABSTRACT,
-        "ServiceProvider": {
-            "__reduce_ex__": MissingReason.SHOULD_BE_COVERED,
-        },
         "Shutdownable": MissingReason.ABSTRACT,
         "ShutdownCallbackKwargs": MissingReason.TYPED_DICT,
         "ShutdownStack": {
             "append": MissingReason.COVERED_ELSEWHERE,
         },
     },
+    "betty/service/container.py": {
+        "ServiceInitializedError": MissingReason.ABSTRACT,
+    },
+    "betty/service/level/__init__.py": MissingReason.ABSTRACT,
+    "betty/service/level/factory.py": MissingReason.ABSTRACT,
     "betty/data.py": {
         "Context": MissingReason.ABSTRACT,
         "Selector": MissingReason.ABSTRACT,
     },
-    "betty/date.py": {
+    "betty/date/__init__.py": {
         "IncompleteDateError": MissingReason.STATIC_CONTENT_ONLY,
     },
     "betty/deriver.py": {"Derivation": MissingReason.ENUM},
@@ -170,7 +182,7 @@ _BASELINE: Mapping[str, _ModuleIgnore] = {
     },
     "betty/factory.py": {
         "Factory": MissingReason.PROTOCOL,
-        "IndependentFactory": MissingReason.ABSTRACT,
+        "SelfFactory": MissingReason.ABSTRACT,
         "TargetFactory": MissingReason.ABSTRACT,
     },
     "betty/fetch/__init__.py": {
@@ -216,6 +228,7 @@ _BASELINE: Mapping[str, _ModuleIgnore] = {
         "context_job_context": MissingReason.SHOULD_BE_COVERED,
         "context_localizer": MissingReason.SHOULD_BE_COVERED,
         "context_project": MissingReason.SHOULD_BE_COVERED,
+        "context_resource_context": MissingReason.SHOULD_BE_COVERED,
         "Environment": {},
     },
     "betty/jinja2/filter.py": {
@@ -249,20 +262,11 @@ _BASELINE: Mapping[str, _ModuleIgnore] = {
         },
     },
     "betty/link.py": MissingReason.ABSTRACT,
-    "betty/locale/__init__.py": {
-        "get_data": MissingReason.SHOULD_BE_COVERED,
-        "get_display_name": MissingReason.SHOULD_BE_COVERED,
-        "LocaleNotFoundError": MissingReason.SHOULD_BE_COVERED,
-        "to_babel_identifier": MissingReason.SHOULD_BE_COVERED,
-        "to_locale": MissingReason.SHOULD_BE_COVERED,
-    },
-    "betty/locale/error.py": {
-        "InvalidLocale": MissingReason.SHOULD_BE_COVERED,
-        "LocaleError": MissingReason.ABSTRACT,
-        "UnsupportedLocale": MissingReason.SHOULD_BE_COVERED,
-    },
     "betty/locale/babel.py": {
         "run_babel": MissingReason.SHOULD_BE_COVERED,
+    },
+    "betty/locale/error.py": {
+        "LocaleError": MissingReason.ABSTRACT,
     },
     "betty/locale/translation/__init__.py": {
         "find_source_files": MissingReason.SHOULD_BE_COVERED,
@@ -292,7 +296,7 @@ _BASELINE: Mapping[str, _ModuleIgnore] = {
         "ngettext": MissingReason.SHOULD_BE_COVERED,
         "npgettext": MissingReason.SHOULD_BE_COVERED,
         "pgettext": MissingReason.SHOULD_BE_COVERED,
-        "StaticTranslationsAttr": MissingReason.INTERNAL,
+        "RequiredLocalizableAttrNotInitialized": MissingReason.STATIC_CONTENT_ONLY,
     },
     "betty/media_type/__init__.py": {
         "InvalidMediaType": MissingReason.STATIC_CONTENT_ONLY,
@@ -360,20 +364,30 @@ _BASELINE: Mapping[str, _ModuleIgnore] = {
         "SpecificationSchema": {"__annotate_func__": MissingReason.DATACLASS},
     },
     "betty/plugin/__init__.py": {
-        "ClassedPlugin": MissingReason.STATIC_CONTENT_ONLY,
+        "Plugin": MissingReason.ABSTRACT,
+    },
+    "betty/plugin/error.py": {
         "PluginError": MissingReason.ABSTRACT,
+        "PluginUnavailable": MissingReason.ABSTRACT,
+    },
+    "betty/plugin/repository/__init__.py": {
         "PluginRepository": {
-            "__aiter__": MissingReason.ABSTRACT,
+            "__iter__": MissingReason.ABSTRACT,
             "get": MissingReason.ABSTRACT,
         },
+    },
+    "betty/plugin/repository/provider/__init__.py": {
+        "PluginRepositoryProvider": MissingReason.ABSTRACT,
+    },
+    "betty/plugin/discovery/__init__.py": {
+        "PluginDiscovery": MissingReason.ABSTRACT,
     },
     "betty/plugin/assertion.py": {
         "assert_plugin": MissingReason.SHOULD_BE_COVERED,
     },
-    "betty/plugin/config.py": {
+    "betty/plugin/config/__init__.py": {
         "PluginDefinitionConfigurationMapping": MissingReason.SHOULD_BE_COVERED,
     },
-    "betty/plugin/lazy.py": MissingReason.SHOULD_BE_COVERED,
     "betty/privacy/__init__.py": {
         "Privacy": MissingReason.ENUM,
     },
@@ -386,13 +400,12 @@ _BASELINE: Mapping[str, _ModuleIgnore] = {
         "Progress": MissingReason.ABSTRACT,
     },
     "betty/project/config.py": {
-        "EventTypeDefinitionConfiguration": MissingReason.STATIC_CONTENT_ONLY,
-        "GenderDefinitionConfiguration": MissingReason.STATIC_CONTENT_ONLY,
-        "PlaceTypeDefinitionConfiguration": MissingReason.STATIC_CONTENT_ONLY,
-        "PresenceRoleDefinitionConfiguration": MissingReason.STATIC_CONTENT_ONLY,
+        "EventTypePluginConfiguration": MissingReason.STATIC_CONTENT_ONLY,
+        "GenderPluginConfiguration": MissingReason.STATIC_CONTENT_ONLY,
+        "PlaceTypePluginConfiguration": MissingReason.STATIC_CONTENT_ONLY,
+        "PresenceRolePluginConfiguration": MissingReason.STATIC_CONTENT_ONLY,
     },
     "betty/project/extension/__init__.py": {
-        "ConfigurableExtension": MissingReason.SHOULD_BE_COVERED,
         "ExtensionError": MissingReason.STATIC_CONTENT_ONLY,
         "ExtensionTypeError": MissingReason.STATIC_CONTENT_ONLY,
         "ExtensionTypeInvalidError": MissingReason.SHOULD_BE_COVERED,
@@ -415,10 +428,8 @@ _BASELINE: Mapping[str, _ModuleIgnore] = {
             "post_load": MissingReason.SHOULD_BE_COVERED,
         },
     },
-    "betty/project/extension/webpack/__init__.py": {
-        "Webpack": {
-            "new_context_vars": MissingReason.SHOULD_BE_COVERED,
-        },
+    "betty/project/extension/raspberry_mint/__init__.py": {
+        "ColorStyle": MissingReason.ENUM,
     },
     "betty/project/extension/webpack/build.py": {
         "EntryPointProvider": MissingReason.ABSTRACT,
@@ -431,7 +442,10 @@ _BASELINE: Mapping[str, _ModuleIgnore] = {
             "populate_images": MissingReason.SHOULD_BE_COVERED,
         },
     },
-    "betty/project/factory.py": MissingReason.ABSTRACT,
+    "betty/project/factory.py": {
+        "ProjectDependentFactory": MissingReason.ABSTRACT,
+        "ProjectFactory": MissingReason.ABSTRACT,
+    },
     "betty/project/generate/__init__.py": {
         "Generator": MissingReason.ABSTRACT,
     },
@@ -447,7 +461,7 @@ _BASELINE: Mapping[str, _ModuleIgnore] = {
             "__init_subclass__": MissingReason.INHERITED,
         },
     },
-    "betty/render.py": {
+    "betty/render/__init__.py": {
         "Renderer": MissingReason.ABSTRACT,
     },
     "betty/repr.py": MissingReason.SHOULD_BE_COVERED,
@@ -459,6 +473,10 @@ _BASELINE: Mapping[str, _ModuleIgnore] = {
             "reduce": MissingReason.ABSTRACT,
             "summary": MissingReason.ABSTRACT,
         },
+    },
+    "betty/resource.py": {
+        "Context": MissingReason.STATIC_CONTENT_ONLY,
+        "ContextProvider": MissingReason.STATIC_CONTENT_ONLY,
     },
     "betty/serde/dump.py": MissingReason.SHOULD_BE_COVERED,
     "betty/serde/format/__init__.py": {
@@ -516,8 +534,8 @@ _BASELINE: Mapping[str, _ModuleIgnore] = {
     },
     "betty/user/logging.py": {
         "UserHandler": {
-            "__aenter__": MissingReason.COVERED_ELSEWHERE,
-            "__aexit__": MissingReason.COVERED_ELSEWHERE,
+            "start": MissingReason.COVERED_ELSEWHERE,
+            "stop": MissingReason.COVERED_ELSEWHERE,
         },
     },
     "betty/warnings.py": {

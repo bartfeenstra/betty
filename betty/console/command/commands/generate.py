@@ -4,9 +4,8 @@ from typing import TYPE_CHECKING, final, Self
 
 from typing_extensions import override
 
-from betty.app.factory import AppDependentFactory
-from betty.cache.memory import MemoryCache
-from betty.console.command import Command, CommandFunction, CommandDefinition
+from betty.app.factory import AppDependentSelfFactory
+from betty.console.command import Command, CommandFunction, CommandPlugin
 from betty.console.project import add_project_argument
 from betty.locale.localizable import _
 from betty.project import ProjectContext
@@ -19,11 +18,8 @@ if TYPE_CHECKING:
 
 
 @final
-@CommandDefinition(
-    id="generate",
-    label=_("Generate a static site"),
-)
-class Generate(AppDependentFactory, Command):
+@CommandPlugin("generate", label=_("Generate a static site"))
+class Generate(AppDependentSelfFactory, Command):
     """
     A command to generate a new site.
     """
@@ -33,7 +29,7 @@ class Generate(AppDependentFactory, Command):
 
     @override
     @classmethod
-    async def new_for_app(cls, app: App) -> Self:
+    async def new_for_app(cls, app: App, /) -> Self:
         return cls(app)
 
     @override
@@ -47,8 +43,11 @@ class Generate(AppDependentFactory, Command):
             project,
             project.app.user.message_progress(_("Generating site...")) as progress,
         ):
-            job_context = ProjectContext(
-                project, cache=MemoryCache(), progress=progress
-            )
+            # Add a phantom value to the progress so it can never jump to 100% before we are entirely done here.
+            await progress.add()
+
+            job_context = ProjectContext(project, progress=progress)
             await load.load(project, job_context=job_context)
             await generate.generate(project, job_context=job_context)
+
+            await progress.done()

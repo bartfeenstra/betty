@@ -9,18 +9,17 @@ from typing import TYPE_CHECKING, ClassVar, final
 
 from betty.locale.localizable import _
 from betty.mutability import Mutable
-from betty.plugin import (
-    ClassedPlugin,
-    ClassedPluginDefinition,
-    ClassedPluginTypeDefinition,
-    HumanFacingPluginDefinition,
-)
+from betty.plugin import Plugin, PluginTypeDefinition
+from betty.plugin.discovery.app import AppDiscovery
+from betty.plugin.discovery.entry_point import EntryPointDiscovery
+from betty.plugin.discovery.project import ProjectDiscovery
+from betty.plugin.human_facing import HumanFacingPluginDefinition
 
 if TYPE_CHECKING:
     from betty.locale.localizable import Localizable
 
 
-class License(Mutable, ClassedPlugin):
+class License(Mutable, Plugin):
     """
     A license.
 
@@ -29,7 +28,7 @@ class License(Mutable, ClassedPlugin):
     To test your own subclasses, use :py:class:`betty.test_utils.license.LicenseTestBase`.
     """
 
-    plugin: ClassVar[LicenseDefinition]
+    plugin: ClassVar[LicensePlugin]
 
     @property
     @abstractmethod
@@ -54,15 +53,22 @@ class License(Mutable, ClassedPlugin):
 
 
 @final
-class LicenseDefinition(HumanFacingPluginDefinition, ClassedPluginDefinition[License]):
+class LicensePlugin(HumanFacingPluginDefinition[License]):
     """
     A license definition.
 
     Read more about :doc:`/development/plugin/license`.
     """
 
-    type: ClassVar[ClassedPluginTypeDefinition] = ClassedPluginTypeDefinition(
-        id="license",
-        label=_("License"),
-        cls=License,
+    plugin_type_cls = License
+    type = PluginTypeDefinition(
+        "license",
+        _("License"),
+        discoveries=[
+            EntryPointDiscovery("betty.license"),
+            AppDiscovery(lambda app: app._spdx_license_repository),
+            ProjectDiscovery(
+                lambda project: project.configuration.licenses.new_plugins()
+            ),
+        ],
     )

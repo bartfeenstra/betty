@@ -8,28 +8,34 @@ from typing import TYPE_CHECKING, TypeVar
 
 from typing_extensions import override
 
+from betty.ancestry.event_type import EventTypePlugin
+from betty.ancestry.gender import GenderPlugin
+from betty.ancestry.place_type import PlaceTypePlugin
+from betty.ancestry.presence_role import PresenceRolePlugin
+from betty.copyright_notice import CopyrightNoticePlugin
 from betty.gramps.loader import GrampsLoader
 from betty.job import Job
+from betty.license import LicensePlugin
+from betty.plugin import Plugin
 from betty.project import ProjectContext
 
 if TYPE_CHECKING:
     from collections.abc import Awaitable, Callable
 
-    from betty.factory import Factory
     from betty.job.scheduler import Scheduler
-    from betty.plugin import ClassedPluginDefinition, PluginRepository
+    from betty.plugin import PluginDefinition
     from betty.plugin.config import PluginInstanceConfiguration
+    from betty.plugin.repository import PluginRepository
+    from betty.project.factory import ProjectFactory
 
-_PluginT = TypeVar("_PluginT")
+_PluginT = TypeVar("_PluginT", bound=Plugin)
 
 
 def _new_plugin_instance_factory(
-    configuration: PluginInstanceConfiguration[
-        ClassedPluginDefinition[_PluginT], _PluginT
-    ],
-    repository: PluginRepository[ClassedPluginDefinition[_PluginT]],
+    configuration: PluginInstanceConfiguration[PluginDefinition, _PluginT],
+    repository: PluginRepository[PluginDefinition],
     *,
-    factory: Factory,
+    factory: ProjectFactory,
 ) -> Callable[[], Awaitable[_PluginT]]:
     async def plugin_instance_factory() -> _PluginT:
         return await configuration.new_plugin_instance(repository, factory=factory)
@@ -60,21 +66,21 @@ class LoadAncestry(Job[ProjectContext]):
                 factory=project.new_target,
                 attribute_prefix_key=project.configuration.name,
                 user=project.app.user,
-                copyright_notices=project.copyright_notice_repository,
-                licenses=await project.license_repository,
+                copyright_notices=await project.plugins(CopyrightNoticePlugin),
+                licenses=await project.plugins(LicensePlugin),
                 event_type_mapping={
                     gramps_type: _new_plugin_instance_factory(
                         family_tree_configuration.event_types[gramps_type],
-                        project.event_type_repository,
+                        await project.plugins(EventTypePlugin),
                         factory=project.new_target,
                     )
                     for gramps_type in family_tree_configuration.event_types
                 },
-                genders=project.gender_repository,
+                genders=await project.plugins(GenderPlugin),
                 place_type_mapping={
                     gramps_type: _new_plugin_instance_factory(
                         family_tree_configuration.place_types[gramps_type],
-                        project.place_type_repository,
+                        await project.plugins(PlaceTypePlugin),
                         factory=project.new_target,
                     )
                     for gramps_type in family_tree_configuration.place_types
@@ -82,7 +88,7 @@ class LoadAncestry(Job[ProjectContext]):
                 presence_role_mapping={
                     gramps_type: _new_plugin_instance_factory(
                         family_tree_configuration.presence_roles[gramps_type],
-                        project.presence_role_repository,
+                        await project.plugins(PresenceRolePlugin),
                         factory=project.new_target,
                     )
                     for gramps_type in family_tree_configuration.presence_roles

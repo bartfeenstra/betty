@@ -10,6 +10,7 @@ from typing import TYPE_CHECKING
 from typing_extensions import TypeVar
 
 from betty.app import App
+from betty.json.schema import Schema
 from betty.project import Project
 from betty.serde.dump import Dump
 
@@ -18,7 +19,6 @@ if TYPE_CHECKING:
         LinkedDataDumpableProvider,
         LinkedDataDumpableWithSchema,
     )
-    from betty.json.schema import Schema
 
 _T = TypeVar("_T")
 _DumpT = TypeVar("_DumpT", bound=Dump, default=Dump)
@@ -30,7 +30,7 @@ async def assert_dumps_linked_data(
     """
     Dump an object's linked data and assert it is valid.
     """
-    return await _assert_linked_data_dump(sut.linked_data_schema, sut.dump_linked_data)
+    return await assert_linked_data_dump(sut.linked_data_schema, sut.dump_linked_data)
 
 
 async def assert_dumps_linked_data_for(
@@ -43,23 +43,26 @@ async def assert_dumps_linked_data_for(
     async def _dump(project: Project) -> _DumpT:
         return await sut.dump_linked_data_for(project, target)
 
-    return await _assert_linked_data_dump(sut.linked_data_schema_for, _dump)
+    return await assert_linked_data_dump(sut.linked_data_schema_for, _dump)
 
 
-async def _assert_linked_data_dump(
-    schema: Callable[[Project], Awaitable[Schema]],
-    dump: Callable[[Project], Awaitable[_DumpT]],
+async def assert_linked_data_dump(
+    schema: Callable[[Project], Awaitable[Schema]] | Schema,
+    dump: Callable[[Project], Awaitable[_DumpT]] | _DumpT,
 ) -> _DumpT:
+    """
+    Assert that dumped linked data is valid against a schema.
+    """
     async with (
         App.new_temporary() as app,
         app,
         Project.new_temporary(app) as project,
         project,
     ):
-        actual = await dump(project)
+        actual = await dump(project) if callable(dump) else dump
 
         # Validate the raw dump.
-        sut_schema = await schema(project)
+        sut_schema = schema if isinstance(schema, Schema) else await schema(project)
         sut_schema.validate(actual)
 
         # Normalize the dump after validation (so we are assured it is absolutely valid),

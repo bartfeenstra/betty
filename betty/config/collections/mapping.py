@@ -6,13 +6,9 @@ from __future__ import annotations
 
 from abc import abstractmethod
 from contextlib import suppress
-from typing import (
-    TYPE_CHECKING,
-    Generic,
-    TypeVar,
-)
+from typing import TYPE_CHECKING
 
-from typing_extensions import override
+from typing_extensions import TypeVar, override
 
 from betty.assertion import assert_mapping, assert_sequence
 from betty.config import Configuration
@@ -25,22 +21,28 @@ if TYPE_CHECKING:
 
 _ConfigurationT = TypeVar("_ConfigurationT", bound=Configuration)
 _ConfigurationKeyT = TypeVar("_ConfigurationKeyT", bound=ConfigurationKey)
+_ResolvableConfigurationKeyT = TypeVar("_ResolvableConfigurationKeyT")
 
 
 class _ConfigurationMapping(
-    ConfigurationCollection[_ConfigurationKeyT, _ConfigurationT],
-    Generic[_ConfigurationKeyT, _ConfigurationT],
+    ConfigurationCollection[
+        _ConfigurationKeyT, _ResolvableConfigurationKeyT, _ConfigurationT
+    ]
 ):
     def __init__(self, configurations: Iterable[_ConfigurationT] | None = None, /):
         self._configurations: MutableMapping[_ConfigurationKeyT, _ConfigurationT] = {}
         super().__init__(configurations)
 
-    def __contains__(self, configuration_key: _ConfigurationKeyT) -> bool:
-        return configuration_key in self._configurations
+    def __contains__(
+        self, configuration_key: _ConfigurationKeyT | _ResolvableConfigurationKeyT
+    ) -> bool:
+        return self._resolve_key(configuration_key) in self._configurations
 
     @override
-    def __getitem__(self, configuration_key: _ConfigurationKeyT) -> _ConfigurationT:
-        return self._configurations[configuration_key]
+    def __getitem__(
+        self, configuration_key: _ConfigurationKeyT | _ResolvableConfigurationKeyT
+    ) -> _ConfigurationT:
+        return self._configurations[self._resolve_key(configuration_key)]
 
     @override
     def __iter__(self) -> Iterator[_ConfigurationKeyT]:
@@ -89,13 +91,14 @@ class _ConfigurationMapping(
         }
 
     @abstractmethod
-    def _get_key(self, configuration: _ConfigurationT) -> _ConfigurationKeyT:
+    def _get_key(self, configuration: _ConfigurationT, /) -> _ConfigurationKeyT:
         pass
 
 
 class ConfigurationMapping(
-    _ConfigurationMapping[_ConfigurationKeyT, _ConfigurationT],
-    Generic[_ConfigurationKeyT, _ConfigurationT],
+    _ConfigurationMapping[
+        _ConfigurationKeyT, _ResolvableConfigurationKeyT, _ConfigurationT
+    ]
 ):
     """
     A key-value mapping where values are :py:class:`betty.config.Configuration`.
@@ -104,18 +107,18 @@ class ConfigurationMapping(
     """
 
     @abstractmethod
-    def _load_key(self, item_dump: Dump, key_dump: str) -> Dump:
+    def _load_key(self, item_dump: Dump, key_dump: str, /) -> Dump:
         pass
 
     @abstractmethod
-    def _dump_key(self, item_dump: Dump) -> tuple[Dump, str]:
+    def _dump_key(self, item_dump: Dump, /) -> tuple[Dump, str]:
         pass
 
-    def __load_item_key(self, value_dump: DumpMapping[Dump], key_dump: str) -> Dump:
+    def __load_item_key(self, value_dump: DumpMapping[Dump], key_dump: str, /) -> Dump:
         return self._load_key(value_dump, key_dump)
 
     @override
-    def load(self, dump: Dump) -> None:
+    def load(self, dump: Dump, /) -> None:
         self.assert_mutable()
         self.clear()
         self.replace(
@@ -140,8 +143,9 @@ class ConfigurationMapping(
 
 
 class OrderedConfigurationMapping(
-    _ConfigurationMapping[_ConfigurationKeyT, _ConfigurationT],
-    Generic[_ConfigurationKeyT, _ConfigurationT],
+    _ConfigurationMapping[
+        _ConfigurationKeyT, _ResolvableConfigurationKeyT, _ConfigurationT
+    ]
 ):
     """
     An ordered key-value mapping where values are :py:class:`betty.config.Configuration`.
@@ -150,7 +154,7 @@ class OrderedConfigurationMapping(
     """
 
     @override
-    def load(self, dump: Dump) -> None:
+    def load(self, dump: Dump, /) -> None:
         self.assert_mutable()
         self.replace(*assert_sequence(self._load_item)(dump))
 

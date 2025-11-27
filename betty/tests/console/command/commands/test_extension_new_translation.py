@@ -1,6 +1,7 @@
 from unittest.mock import ANY
 
 import pytest
+from babel import Locale
 from pytest_mock import MockerFixture
 from typing_extensions import override
 
@@ -11,11 +12,11 @@ from betty.console.command.commands.extension_new_translation import (
 )
 from betty.plugin import PluginDefinition
 from betty.test_utils.console import run
-from betty.test_utils.console.command import CommandDefinitionTestBase
+from betty.test_utils.console.command import CommandPluginTestBase
 from betty.tests.console.command import ExtensionTranslationTestBase
 
 
-class TestExtensionNewTranslationsDefinition(CommandDefinitionTestBase):
+class TestExtensionNewTranslationsDefinition(CommandPluginTestBase):
     @override
     @pytest.fixture
     def sut(self) -> PluginDefinition:
@@ -28,7 +29,7 @@ class TestExtensionNewTranslation(ExtensionTranslationTestBase):
         mocker: MockerFixture,
         temporary_app_with_extensions: App,
     ) -> None:
-        locale = "nl-NL"
+        locale = "nl"
         m_new_extension_translation = mocker.patch(
             "betty.locale.translation.project.extension.new_extension_translation"
         )
@@ -38,7 +39,9 @@ class TestExtensionNewTranslation(ExtensionTranslationTestBase):
             "dummy-with-assets",
             locale,
         )
-        m_new_extension_translation.assert_awaited_once_with(locale, ANY, user=ANY)
+        m_new_extension_translation.assert_awaited_once_with(
+            Locale(locale), ANY, user=ANY
+        )
 
     async def test_configure__with_unknown_extension(
         self, temporary_app_with_extensions: App

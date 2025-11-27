@@ -6,17 +6,12 @@ import pytest
 
 from betty.serde.dump import Dump
 from betty.serde.format import Format
-from betty.test_utils.plugin import (
-    ClassedPluginDefinitionTestBase,
-    HumanFacingPluginDefinitionTestBase,
-)
+from betty.test_utils.plugin.human_facing import HumanFacingPluginDefinitionTestBase
 
 
-class FormatDefinitionTestBase(
-    HumanFacingPluginDefinitionTestBase, ClassedPluginDefinitionTestBase
-):
+class FormatPluginTestBase(HumanFacingPluginDefinitionTestBase):
     """
-    A base class for testing :py:class:`betty.serde.format.FormatDefinition` subclasses.
+    A base class for testing :py:class:`betty.serde.format.FormatPlugin` subclasses.
     """
 
 

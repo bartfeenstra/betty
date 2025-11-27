@@ -7,9 +7,8 @@ from typing import TYPE_CHECKING, final, Self
 from typing_extensions import override
 
 import betty.project.extension.demo as stddemo
-from betty.app.factory import AppDependentFactory
-from betty.cache.memory import MemoryCache
-from betty.console.command import Command, CommandFunction, CommandDefinition
+from betty.app.factory import AppDependentSelfFactory
+from betty.console.command import Command, CommandFunction, CommandPlugin
 from betty.locale.localizable import _
 from betty.project import ProjectContext
 from betty.project.extension.demo.project import create_project
@@ -21,11 +20,8 @@ if TYPE_CHECKING:
 
 
 @final
-@CommandDefinition(
-    id="demo",
-    label=_("Explore a demonstration site"),
-)
-class Demo(AppDependentFactory, Command):
+@CommandPlugin("demo", label=_("Explore a demonstration site"))
+class Demo(AppDependentSelfFactory, Command):
     """
     A command to run the demonstration site.
     """
@@ -35,7 +31,7 @@ class Demo(AppDependentFactory, Command):
 
     @override
     @classmethod
-    async def new_for_app(cls, app: App) -> Self:
+    async def new_for_app(cls, app: App, /) -> Self:
         return cls(app)
 
     @override
@@ -66,7 +62,5 @@ class Demo(AppDependentFactory, Command):
                 project,
                 project.app.user.message_progress(_("Generating site...")) as progress,
             ):
-                job_context = ProjectContext(
-                    project, cache=MemoryCache(), progress=progress
-                )
+                job_context = ProjectContext(project, progress=progress)
                 await stddemo.generate_with_cleanup(project, job_context=job_context)

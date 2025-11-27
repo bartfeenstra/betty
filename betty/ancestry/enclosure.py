@@ -9,7 +9,7 @@ from typing import TYPE_CHECKING, final
 from betty.ancestry.date import HasDate
 from betty.ancestry.has_citations import HasCitations
 from betty.locale.localizable import _, ngettext
-from betty.model import Entity, EntityDefinition
+from betty.model import Entity, EntityPlugin
 from betty.model.association import BidirectionalToOne, ToOneAssociate
 
 if TYPE_CHECKING:
@@ -17,8 +17,8 @@ if TYPE_CHECKING:
 
 
 @final
-@EntityDefinition(
-    id="enclosure",
+@EntityPlugin(
+    "enclosure",
     label=_("Enclosure"),
     label_plural=_("Enclosures"),
     label_countable=ngettext("{count} enclosure", "{count} enclosures"),
@@ -31,7 +31,6 @@ class Enclosure(HasDate, HasCitations, Entity):
     Enclosures describe the outer (```encloser`) and inner(``enclosee``) places, and their relationship.
     """
 
-    #: The outer place.
     encloser = BidirectionalToOne["Enclosure", "Place"](
         "betty.ancestry.enclosure:Enclosure",
         "encloser",
@@ -40,7 +39,10 @@ class Enclosure(HasDate, HasCitations, Entity):
         title="Encloser",
         description="The place that encloses or contains the enclosee",
     )
-    #: The inner place.
+    """
+    The outer place.
+    """
+
     enclosee = BidirectionalToOne["Enclosure", "Place"](
         "betty.ancestry.enclosure:Enclosure",
         "enclosee",
@@ -49,6 +51,9 @@ class Enclosure(HasDate, HasCitations, Entity):
         title="Enclosee",
         description="The place that is enclosed or contained by the encloser",
     )
+    """
+    The inner place.
+    """
 
     def __init__(
         self, enclosee: ToOneAssociate[Place], encloser: ToOneAssociate[Place]

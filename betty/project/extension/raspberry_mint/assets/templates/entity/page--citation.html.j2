@@ -2,11 +2,11 @@
 {% block page_content %}
     {% include 'section/wikipedia.html.j2' %}
 
-    {% with facts = entity.facts %}
+    {% with facts = resource.resource.facts %}
         {% include 'section/facts.html.j2' %}
     {% endwith %}
 
-    {% with file_references = entity.file_references %}
+    {% with file_references = resource.resource.file_references %}
         {% include 'section/media.html.j2' %}
     {% endwith %}
 {% endblock %}

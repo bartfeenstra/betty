@@ -23,7 +23,12 @@ if TYPE_CHECKING:
 
 class TestSummary:
     async def test_url(self) -> None:
-        sut = Summary("nl", "Amsterdam", "Title for Amsterdam", "Content for Amsterdam")
+        sut = Summary(
+            "nl",
+            "Amsterdam",
+            "Title for Amsterdam",
+            "Content for Amsterdam",
+        )
         assert sut.url == "https://nl.wikipedia.org/wiki/Amsterdam"
 
 

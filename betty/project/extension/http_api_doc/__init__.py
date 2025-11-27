@@ -8,8 +8,8 @@ from typing import TYPE_CHECKING, final
 from typing_extensions import override
 
 from betty.html import NavigationLink, NavigationLinkProvider
-from betty.locale.localizable import Plain, _
-from betty.project.extension import ExtensionDefinition
+from betty.locale.localizable import _
+from betty.project.extension import ExtensionPlugin
 from betty.project.extension.webpack import Webpack
 from betty.project.extension.webpack.build import EntryPointProvider
 
@@ -18,13 +18,13 @@ if TYPE_CHECKING:
 
 
 @final
-@ExtensionDefinition(
-    id="http-api-doc",
-    label=Plain("HTTP API Documentation"),
+@ExtensionPlugin(
+    "http-api-doc",
+    label="HTTP API Documentation",
     description=_(
         "Display the HTTP API documentation in a user-friendly way using Swagger UI."
     ),
-    depends_on={Webpack.plugin},
+    depends_on={Webpack},
     assets_directory_path=Path(__file__).parent / "assets",
 )
 class HttpApiDoc(EntryPointProvider, NavigationLinkProvider):

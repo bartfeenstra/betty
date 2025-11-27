@@ -5,16 +5,16 @@ Provide project configuration.
 from __future__ import annotations
 
 from collections.abc import Iterable, Mapping
-from reprlib import recursive_repr
-from typing import TYPE_CHECKING, Any, Self, cast, final
+from typing import TYPE_CHECKING, Any, cast, final
 from urllib.parse import urlparse
 
+from babel import Locale
 from typing_extensions import override
 
-from betty.ancestry.event_type import EventType, EventTypeDefinition
-from betty.ancestry.gender import Gender, GenderDefinition
-from betty.ancestry.place_type import PlaceType, PlaceTypeDefinition
-from betty.ancestry.presence_role import PresenceRole, PresenceRoleDefinition
+from betty.ancestry.event_type import EventType, EventTypePlugin
+from betty.ancestry.gender import Gender, GenderPlugin
+from betty.ancestry.place_type import PlaceType, PlaceTypePlugin
+from betty.ancestry.presence_role import PresenceRole, PresenceRolePlugin
 from betty.assertion import (
     OptionalField,
     RequiredField,
@@ -32,65 +32,62 @@ from betty.assertion import (
     assert_str,
 )
 from betty.config import Configuration
-from betty.config.collections.mapping import (
-    OrderedConfigurationMapping,
-)
-from betty.copyright_notice import CopyrightNotice, CopyrightNoticeDefinition
+from betty.config.collections.mapping import OrderedConfigurationMapping
+from betty.copyright_notice import CopyrightNotice, CopyrightNoticePlugin
 from betty.data import Key
 from betty.exception import HumanFacingException, HumanFacingExceptionGroup
-from betty.license import License, LicenseDefinition
+from betty.license import License, LicensePlugin
 from betty.license.licenses import AllRightsReserved
-from betty.locale import DEFAULT_LOCALE, UNDETERMINED_LOCALE
-from betty.locale.localizable import Localizable, ShorthandStaticTranslations, _
-from betty.locale.localizable.assertion import assert_static_translations
-from betty.locale.localizable.config import (
-    OptionalStaticTranslationsConfigurationAttr,
-    RequiredStaticTranslationsConfigurationAttr,
+from betty.locale import DEFAULT_LOCALE, LocaleLike, ensure_locale, to_language_tag
+from betty.locale.localizable import (
+    Localizable,
+    LocalizableLike,
+    OptionalLocalizableAttr,
+    RequiredLocalizableAttr,
+    _,
+    ensure_localizable,
 )
+from betty.locale.localizable.assertion import assert_load_localizable
+from betty.locale.localizable.config import dump_localizable
 from betty.machine_name import MachineName, assert_machine_name
-from betty.model import Entity, EntityDefinition
-from betty.plugin import (
-    resolve_id,
-)
+from betty.model import Entity, EntityPlugin
 from betty.plugin.config import (
     HumanFacingPluginDefinitionConfiguration,
-    OrderedPluginDefinitionConfiguration,
     PluginDefinitionConfigurationMapping,
     PluginIdentifierKeyConfigurationMapping,
     PluginInstanceConfiguration,
     PluginInstanceConfigurationMapping,
 )
-from betty.project.extension import Extension, ExtensionDefinition
-from betty.repr import repr_instance
-from betty.serde.format import FORMAT_REPOSITORY, format_for
+from betty.plugin.config.ordered import OrderedPluginDefinitionConfiguration
+from betty.plugin.repository.provider.service import plugins
+from betty.plugin.resolve import ResolvableId, resolve_id
+from betty.project.extension import Extension, ExtensionPlugin
+from betty.serde.format import FormatPlugin, format_for
 
 if TYPE_CHECKING:
     from pathlib import Path
 
-    from betty.plugin import (
-        PluginIdentifier,
-        PluginRepository,
-    )
+    from betty.plugin.repository import PluginRepository
     from betty.serde.dump import Dump, DumpMapping
 
-
-#: The default age by which people are presumed dead.
-#: This is based on `Jeanne Louise Calment <https://www.guinnessworldrecords.com/world-records/oldest-person/>`_ who is
-#: the oldest verified person to ever have lived.
 DEFAULT_LIFETIME_THRESHOLD = 123
+"""
+The default age by which people are presumed dead.
+
+This is based on `Jeanne Louise Calment <https://www.guinnessworldrecords.com/world-records/oldest-person/>`_ who is
+the oldest verified person to ever have lived.
+"""
 
 
 @final
 class ExtensionInstanceConfigurationMapping(
-    PluginInstanceConfigurationMapping[ExtensionDefinition, Extension]
+    PluginInstanceConfigurationMapping[ExtensionPlugin, Extension]
 ):
     """
     Configure a project's enabled extensions.
     """
 
-    def enable(
-        self, *extensions: PluginIdentifier[ExtensionDefinition, Extension]
-    ) -> None:
+    def enable(self, *extensions: ResolvableId[ExtensionPlugin, Extension]) -> None:
         """
         Enable the given extensions.
         """
@@ -108,7 +105,7 @@ class EntityTypeConfiguration(Configuration):
 
     def __init__(
         self,
-        entity_type: PluginIdentifier[EntityDefinition, Entity],
+        entity_type: ResolvableId[EntityPlugin, Entity],
         *,
         generate_html_list: bool = False,
     ):
@@ -135,7 +132,7 @@ class EntityTypeConfiguration(Configuration):
         self._generate_html_list = generate_html_list
 
     @override
-    def load(self, dump: Dump) -> None:
+    def load(self, dump: Dump, /) -> None:
         assert_record(
             RequiredField[Any, type[Entity]](
                 "id", assert_machine_name() | assert_setattr(self, "_id")
@@ -154,7 +151,7 @@ class EntityTypeConfiguration(Configuration):
         }
 
     async def validate(
-        self, entity_type_repository: PluginRepository[EntityDefinition]
+        self, entity_type_repository: PluginRepository[EntityPlugin], /
     ) -> None:
         """
         Validate the configuration.
@@ -170,29 +167,31 @@ class EntityTypeConfiguration(Configuration):
 
 @final
 class EntityTypeConfigurationMapping(
-    PluginIdentifierKeyConfigurationMapping[EntityDefinition, EntityTypeConfiguration]
+    PluginIdentifierKeyConfigurationMapping[
+        EntityPlugin, Entity, EntityTypeConfiguration
+    ]
 ):
     """
     Configure the entity types for a project.
     """
 
     @override
-    def _get_key(self, configuration: EntityTypeConfiguration) -> MachineName:
+    def _get_key(self, configuration: EntityTypeConfiguration, /) -> MachineName:
         return configuration.id
 
     @override
-    def _load_key(self, item_dump: Dump, key_dump: str) -> Dump:
+    def _load_key(self, item_dump: Dump, key_dump: str, /) -> Dump:
         assert isinstance(item_dump, Mapping)
         item_dump["id"] = key_dump
         return item_dump
 
     @override
-    def _dump_key(self, item_dump: Dump) -> tuple[Dump, str]:
+    def _dump_key(self, item_dump: Dump, /) -> tuple[Dump, str]:
         assert isinstance(item_dump, Mapping)
         return item_dump, cast(str, item_dump.pop("id"))
 
     @override
-    def _load_item(self, dump: Dump) -> EntityTypeConfiguration:
+    def _load_item(self, dump: Dump, /) -> EntityTypeConfiguration:
         # Use a dummy entity type for now to satisfy the initializer.
         # It will be overridden when loading the dump.
         configuration = EntityTypeConfiguration("-")
@@ -200,7 +199,7 @@ class EntityTypeConfigurationMapping(
         return configuration
 
     async def validate(
-        self, entity_type_repository: PluginRepository[EntityDefinition]
+        self, entity_type_repository: PluginRepository[EntityPlugin], /
     ) -> None:
         """
         Validate the configuration.
@@ -219,25 +218,20 @@ class LocaleConfiguration(Configuration):
 
     def __init__(
         self,
-        locale: str,
+        locale: LocaleLike,
         *,
         alias: str | None = None,
     ):
         super().__init__()
-        self._locale = locale
+        self._locale = ensure_locale(locale)
         if alias is not None and "/" in alias:
             raise HumanFacingException(_("Locale aliases must not contain slashes."))
         self._alias = alias
 
-    @override  # type: ignore[callable-functiontype]
-    @recursive_repr()
-    def __repr__(self) -> str:
-        return repr_instance(self, locale=self.locale, alias=self.alias)
-
     @property
-    def locale(self) -> str:
+    def locale(self) -> Locale:
         """
-        An `IETF BCP 47 <https://tools.ietf.org/html/bcp47>`_ language tag.
+        A locale.
         """
         return self._locale
 
@@ -247,7 +241,7 @@ class LocaleConfiguration(Configuration):
         A shorthand alias to use instead of the full language tag, such as when rendering URLs.
         """
         if self._alias is None:
-            return self.locale
+            return to_language_tag(self.locale)
         return self._alias
 
     @alias.setter
@@ -255,9 +249,13 @@ class LocaleConfiguration(Configuration):
         self._alias = alias
 
     @override
-    def load(self, dump: Dump) -> None:
+    def load(self, dump: Dump, /) -> None:
         assert_record(
-            RequiredField("locale", assert_locale() | assert_setattr(self, "_locale")),
+            RequiredField(
+                "locale",
+                assert_or(assert_locale(), assert_none())
+                | assert_setattr(self, "_locale"),
+            ),
             OptionalField(
                 "alias",
                 assert_or(assert_str() | assert_setattr(self, "alias"), assert_none()),
@@ -266,11 +264,13 @@ class LocaleConfiguration(Configuration):
 
     @override
     def dump(self) -> Dump:
-        return {"locale": self.locale, "alias": self._alias}
+        return {"locale": to_language_tag(self.locale), "alias": self._alias}
 
 
 @final
-class LocaleConfigurationMapping(OrderedConfigurationMapping[str, LocaleConfiguration]):
+class LocaleConfigurationMapping(
+    OrderedConfigurationMapping[Locale, LocaleLike, LocaleConfiguration]
+):
     """
     Configure a project's locales.
     """
@@ -280,7 +280,11 @@ class LocaleConfigurationMapping(OrderedConfigurationMapping[str, LocaleConfigur
         self._ensure_locale()
 
     @override
-    def _post_remove(self, configuration: LocaleConfiguration) -> None:
+    def _resolve_key(self, configuration_key: LocaleLike, /) -> Locale:
+        return ensure_locale(configuration_key)
+
+    @override
+    def _post_remove(self, configuration: LocaleConfiguration, /) -> None:
         super()._post_remove(configuration)
         self._ensure_locale()
 
@@ -296,13 +300,13 @@ class LocaleConfigurationMapping(OrderedConfigurationMapping[str, LocaleConfigur
         self._ensure_locale()
 
     @override
-    def _load_item(self, dump: Dump) -> LocaleConfiguration:
-        item = LocaleConfiguration(UNDETERMINED_LOCALE)
+    def _load_item(self, dump: Dump, /) -> LocaleConfiguration:
+        item = LocaleConfiguration(DEFAULT_LOCALE)
         item.load(dump)
         return item
 
     @override
-    def _get_key(self, configuration: LocaleConfiguration) -> str:
+    def _get_key(self, configuration: LocaleConfiguration, /) -> Locale:
         return configuration.locale
 
     @property
@@ -320,36 +324,30 @@ class LocaleConfigurationMapping(OrderedConfigurationMapping[str, LocaleConfigur
         return len(self) > 1
 
 
-class CopyrightNoticeDefinitionConfiguration(HumanFacingPluginDefinitionConfiguration):
+class CopyrightNoticePluginConfiguration(HumanFacingPluginDefinitionConfiguration):
     """
-    Configure a :py:class:`betty.copyright_notice.CopyrightNoticeDefinition`.
+    Configure a :py:class:`betty.copyright_notice.CopyrightNoticePlugin`.
     """
 
-    summary = RequiredStaticTranslationsConfigurationAttr("summary")
-    text = RequiredStaticTranslationsConfigurationAttr("text")
+    summary = RequiredLocalizableAttr("summary")
+    text = RequiredLocalizableAttr("text")
 
     def __init__(
-        self,
-        *,
-        summary: ShorthandStaticTranslations,
-        text: ShorthandStaticTranslations,
-        **kwargs: Any,
+        self, *, summary: LocalizableLike, text: LocalizableLike, **kwargs: Any
     ):
         super().__init__(**kwargs)
-        self.summary = summary
-        self.text = text
+        self.summary = ensure_localizable(summary)
+        self.text = ensure_localizable(text)
 
     @override
-    def load(self, dump: Dump) -> None:
+    def load(self, dump: Dump, /) -> None:
         mapping = assert_mapping()(dump)
         assert_fields(
             RequiredField(
-                "summary",
-                assert_static_translations() | assert_setattr(self, "summary"),
+                "summary", assert_load_localizable | assert_setattr(self, "summary")
             ),
             RequiredField(
-                "text",
-                assert_static_translations() | assert_setattr(self, "text"),
+                "text", assert_load_localizable | assert_setattr(self, "text")
             ),
         )(mapping)
         mapping.pop("summary", None)
@@ -360,14 +358,14 @@ class CopyrightNoticeDefinitionConfiguration(HumanFacingPluginDefinitionConfigur
     def dump(self) -> DumpMapping[Dump]:
         return {
             **super().dump(),
-            "summary": self.summary.dump(),
-            "text": self.text.dump(),
+            "summary": dump_localizable(self.summary),
+            "text": dump_localizable(self.text),
         }
 
 
-class CopyrightNoticeDefinitionConfigurationMapping(
+class CopyrightNoticePluginConfigurationMapping(
     PluginDefinitionConfigurationMapping[
-        CopyrightNoticeDefinition, CopyrightNoticeDefinitionConfiguration
+        CopyrightNoticePlugin, CopyrightNotice, CopyrightNoticePluginConfiguration
     ]
 ):
     """
@@ -375,17 +373,20 @@ class CopyrightNoticeDefinitionConfigurationMapping(
     """
 
     @override
-    def _load_item(self, dump: Dump) -> CopyrightNoticeDefinitionConfiguration:
-        item = CopyrightNoticeDefinitionConfiguration(
-            id="-", label="", summary="", text=""
-        )
+    def _load_item(self, dump: Dump, /) -> CopyrightNoticePluginConfiguration:
+        item = CopyrightNoticePluginConfiguration(id="-", label="", summary="", text="")
         item.load(dump)
         return item
 
     @override
     def _new_plugin(
-        self, configuration: CopyrightNoticeDefinitionConfiguration
-    ) -> CopyrightNoticeDefinition:
+        self, configuration: CopyrightNoticePluginConfiguration, /
+    ) -> CopyrightNoticePlugin:
+        @CopyrightNoticePlugin(
+            configuration.id,
+            label=configuration.label,
+            description=configuration.description,
+        )
         class _ProjectConfigurationCopyrightNotice(CopyrightNotice):
             @override
             @property
@@ -397,44 +398,33 @@ class CopyrightNoticeDefinitionConfigurationMapping(
             def text(self) -> Localizable:
                 return configuration.text
 
-        return CopyrightNoticeDefinition(
-            id=configuration.id,
-            label=configuration.label,
-            description=configuration.description,
-            cls=_ProjectConfigurationCopyrightNotice,
-        )
+        return _ProjectConfigurationCopyrightNotice.plugin
 
 
-class LicenseDefinitionConfiguration(HumanFacingPluginDefinitionConfiguration):
+class LicensePluginConfiguration(HumanFacingPluginDefinitionConfiguration):
     """
-    Configure a :py:class:`betty.license.LicenseDefinition`.
+    Configure a :py:class:`betty.license.LicensePlugin`.
     """
 
-    summary = RequiredStaticTranslationsConfigurationAttr("summary")
-    text = RequiredStaticTranslationsConfigurationAttr("text")
+    summary = RequiredLocalizableAttr("summary")
+    text = RequiredLocalizableAttr("text")
 
     def __init__(
-        self,
-        *,
-        summary: ShorthandStaticTranslations,
-        text: ShorthandStaticTranslations,
-        **kwargs: Any,
+        self, *, summary: LocalizableLike, text: LocalizableLike, **kwargs: Any
     ):
         super().__init__(**kwargs)
-        self.summary = summary
-        self.text = text
+        self.summary = ensure_localizable(summary)
+        self.text = ensure_localizable(text)
 
     @override
-    def load(self, dump: Dump) -> None:
+    def load(self, dump: Dump, /) -> None:
         mapping = assert_mapping()(dump)
         assert_fields(
             RequiredField(
-                "summary",
-                assert_static_translations() | assert_setattr(self, "summary"),
+                "summary", assert_load_localizable | assert_setattr(self, "summary")
             ),
             RequiredField(
-                "text",
-                assert_static_translations() | assert_setattr(self, "text"),
+                "text", assert_load_localizable | assert_setattr(self, "text")
             ),
         )(mapping)
         mapping.pop("summary", None)
@@ -445,14 +435,14 @@ class LicenseDefinitionConfiguration(HumanFacingPluginDefinitionConfiguration):
     def dump(self) -> DumpMapping[Dump]:
         return {
             **super().dump(),
-            "summary": self.summary.dump(),
-            "text": self.text.dump(),
+            "summary": dump_localizable(self.summary),
+            "text": dump_localizable(self.text),
         }
 
 
-class LicenseDefinitionConfigurationMapping(
+class LicensePluginConfigurationMapping(
     PluginDefinitionConfigurationMapping[
-        LicenseDefinition, LicenseDefinitionConfiguration
+        LicensePlugin, License, LicensePluginConfiguration
     ]
 ):
     """
@@ -460,15 +450,20 @@ class LicenseDefinitionConfigurationMapping(
     """
 
     @override
-    def _load_item(self, dump: Dump) -> LicenseDefinitionConfiguration:
-        item = LicenseDefinitionConfiguration(id="-", label="", summary="", text="")
+    def _load_item(self, dump: Dump, /) -> LicensePluginConfiguration:
+        item = LicensePluginConfiguration(id="-", label="", summary="", text="")
         item.load(dump)
         return item
 
     @override
     def _new_plugin(
-        self, configuration: LicenseDefinitionConfiguration
-    ) -> LicenseDefinition:
+        self, configuration: LicensePluginConfiguration, /
+    ) -> LicensePlugin:
+        @LicensePlugin(
+            configuration.id,
+            label=configuration.label,
+            description=configuration.description,
+        )
         class _ProjectConfigurationLicense(License):
             @override
             @property
@@ -480,25 +475,20 @@ class LicenseDefinitionConfigurationMapping(
             def text(self) -> Localizable:
                 return configuration.text
 
-        return LicenseDefinition(
-            id=configuration.id,
-            label=configuration.label,
-            description=configuration.description,
-            cls=_ProjectConfigurationLicense,
-        )
+        return _ProjectConfigurationLicense.plugin
 
 
-class EventTypeDefinitionConfiguration(
+class EventTypePluginConfiguration(
     HumanFacingPluginDefinitionConfiguration, OrderedPluginDefinitionConfiguration
 ):
     """
-    Configure a :py:class:`betty.ancestry.event_type.EventTypeDefinition`.
+    Configure a :py:class:`betty.ancestry.event_type.EventTypePlugin`.
     """
 
 
-class EventTypeDefinitionConfigurationMapping(
+class EventTypePluginConfigurationMapping(
     PluginDefinitionConfigurationMapping[
-        EventTypeDefinition, EventTypeDefinitionConfiguration
+        EventTypePlugin, EventType, EventTypePluginConfiguration
     ]
 ):
     """
@@ -506,32 +496,35 @@ class EventTypeDefinitionConfigurationMapping(
     """
 
     @override
-    def _load_item(self, dump: Dump) -> EventTypeDefinitionConfiguration:
-        item = EventTypeDefinitionConfiguration(id="-", label="")
+    def _load_item(self, dump: Dump, /) -> EventTypePluginConfiguration:
+        item = EventTypePluginConfiguration(id="-", label="")
         item.load(dump)
         return item
 
     @override
     def _new_plugin(
-        self, configuration: EventTypeDefinitionConfiguration
-    ) -> EventTypeDefinition:
-        return EventTypeDefinition(
-            id=configuration.id,
+        self, configuration: EventTypePluginConfiguration, /
+    ) -> EventTypePlugin:
+        @EventTypePlugin(
+            configuration.id,
             label=configuration.label,
             description=configuration.description,
-            cls=EventType,
         )
+        class _ProjectConfigurationEventType(EventType):
+            pass
+
+        return _ProjectConfigurationEventType.plugin
 
 
-class PlaceTypeDefinitionConfiguration(HumanFacingPluginDefinitionConfiguration):
+class PlaceTypePluginConfiguration(HumanFacingPluginDefinitionConfiguration):
     """
-    Configure a :py:class:`betty.ancestry.place_type.PlaceTypeDefinition`.
+    Configure a :py:class:`betty.ancestry.place_type.PlaceTypePlugin`.
     """
 
 
-class PlaceTypeDefinitionConfigurationMapping(
+class PlaceTypePluginConfigurationMapping(
     PluginDefinitionConfigurationMapping[
-        PlaceTypeDefinition, PlaceTypeDefinitionConfiguration
+        PlaceTypePlugin, PlaceType, PlaceTypePluginConfiguration
     ]
 ):
     """
@@ -539,32 +532,35 @@ class PlaceTypeDefinitionConfigurationMapping(
     """
 
     @override
-    def _load_item(self, dump: Dump) -> PlaceTypeDefinitionConfiguration:
-        item = PlaceTypeDefinitionConfiguration(id="-", label="")
+    def _load_item(self, dump: Dump, /) -> PlaceTypePluginConfiguration:
+        item = PlaceTypePluginConfiguration(id="-", label="")
         item.load(dump)
         return item
 
     @override
     def _new_plugin(
-        self, configuration: PlaceTypeDefinitionConfiguration
-    ) -> PlaceTypeDefinition:
-        return PlaceTypeDefinition(
-            id=configuration.id,
+        self, configuration: PlaceTypePluginConfiguration, /
+    ) -> PlaceTypePlugin:
+        @PlaceTypePlugin(
+            configuration.id,
             label=configuration.label,
             description=configuration.description,
-            cls=PlaceType,
         )
+        class _ProjectConfigurationPlaceType(PlaceType):
+            pass
+
+        return _ProjectConfigurationPlaceType.plugin
 
 
-class PresenceRoleDefinitionConfiguration(HumanFacingPluginDefinitionConfiguration):
+class PresenceRolePluginConfiguration(HumanFacingPluginDefinitionConfiguration):
     """
-    Configure a :py:class:`betty.ancestry.presence_role.PresenceRoleDefinition`.
+    Configure a :py:class:`betty.ancestry.presence_role.PresenceRolePlugin`.
     """
 
 
-class PresenceRoleDefinitionConfigurationMapping(
+class PresenceRolePluginConfigurationMapping(
     PluginDefinitionConfigurationMapping[
-        PresenceRoleDefinition, PresenceRoleDefinitionConfiguration
+        PresenceRolePlugin, PresenceRole, PresenceRolePluginConfiguration
     ]
 ):
     """
@@ -572,32 +568,35 @@ class PresenceRoleDefinitionConfigurationMapping(
     """
 
     @override
-    def _load_item(self, dump: Dump) -> PresenceRoleDefinitionConfiguration:
-        item = PresenceRoleDefinitionConfiguration(id="-", label="")
+    def _load_item(self, dump: Dump, /) -> PresenceRolePluginConfiguration:
+        item = PresenceRolePluginConfiguration(id="-", label="")
         item.load(dump)
         return item
 
     @override
     def _new_plugin(
-        self, configuration: PresenceRoleDefinitionConfiguration
-    ) -> PresenceRoleDefinition:
-        return PresenceRoleDefinition(
-            id=configuration.id,
+        self, configuration: PresenceRolePluginConfiguration, /
+    ) -> PresenceRolePlugin:
+        @PresenceRolePlugin(
+            configuration.id,
             label=configuration.label,
             description=configuration.description,
-            cls=PresenceRole,
         )
+        class _ProjectConfigurationPresenceRole(PresenceRole):
+            pass
+
+        return _ProjectConfigurationPresenceRole.plugin
 
 
-class GenderDefinitionConfiguration(HumanFacingPluginDefinitionConfiguration):
+class GenderPluginConfiguration(HumanFacingPluginDefinitionConfiguration):
     """
-    Configure a :py:class:`betty.ancestry.gender.GenderDefinition`.
+    Configure a :py:class:`betty.ancestry.gender.GenderPlugin`.
     """
 
 
-class GenderDefinitionConfigurationMapping(
+class GenderPluginConfigurationMapping(
     PluginDefinitionConfigurationMapping[
-        GenderDefinition, GenderDefinitionConfiguration
+        GenderPlugin, Gender, GenderPluginConfiguration
     ]
 ):
     """
@@ -605,21 +604,22 @@ class GenderDefinitionConfigurationMapping(
     """
 
     @override
-    def _load_item(self, dump: Dump) -> GenderDefinitionConfiguration:
-        item = GenderDefinitionConfiguration(id="-", label="")
+    def _load_item(self, dump: Dump, /) -> GenderPluginConfiguration:
+        item = GenderPluginConfiguration(id="-", label="")
         item.load(dump)
         return item
 
     @override
-    def _new_plugin(
-        self, configuration: GenderDefinitionConfiguration
-    ) -> GenderDefinition:
-        return GenderDefinition(
-            id=configuration.id,
+    def _new_plugin(self, configuration: GenderPluginConfiguration, /) -> GenderPlugin:
+        @GenderPlugin(
+            configuration.id,
             label=configuration.label,
             description=configuration.description,
-            cls=Gender,
         )
+        class _ProjectConfigurationGender(Gender):
+            pass
+
+        return _ProjectConfigurationGender.plugin
 
 
 @final
@@ -628,8 +628,8 @@ class ProjectConfiguration(Configuration):
     Provide the configuration for a :py:class:`betty.project.Project`.
     """
 
-    title = OptionalStaticTranslationsConfigurationAttr("title")
-    author = OptionalStaticTranslationsConfigurationAttr("author")
+    title = RequiredLocalizableAttr("title")
+    author = OptionalLocalizableAttr("author")
 
     def __init__(
         self,
@@ -637,24 +637,21 @@ class ProjectConfiguration(Configuration):
         *,
         url: str = "https://example.com",
         clean_urls: bool = False,
-        title: ShorthandStaticTranslations = "Betty",
-        author: ShorthandStaticTranslations | None = None,
+        title: LocalizableLike = "Betty",
+        author: LocalizableLike | None = None,
         entity_types: Iterable[EntityTypeConfiguration] | None = None,
-        event_types: Iterable[EventTypeDefinitionConfiguration] | None = None,
-        place_types: Iterable[PlaceTypeDefinitionConfiguration] | None = None,
-        presence_roles: Iterable[PresenceRoleDefinitionConfiguration] | None = None,
+        event_types: Iterable[EventTypePluginConfiguration] | None = None,
+        place_types: Iterable[PlaceTypePluginConfiguration] | None = None,
+        presence_roles: Iterable[PresenceRolePluginConfiguration] | None = None,
         copyright_notice: PluginInstanceConfiguration[
-            CopyrightNoticeDefinition, CopyrightNotice
+            CopyrightNoticePlugin, CopyrightNotice
         ]
         | None = None,
-        copyright_notices: Iterable[CopyrightNoticeDefinitionConfiguration]
-        | None = None,
-        license: PluginInstanceConfiguration[LicenseDefinition, License] | None = None,  # noqa A002
-        licenses: Iterable[LicenseDefinitionConfiguration] | None = None,
-        genders: Iterable[GenderDefinitionConfiguration] | None = None,
-        extensions: Iterable[
-            PluginInstanceConfiguration[ExtensionDefinition, Extension]
-        ]
+        copyright_notices: Iterable[CopyrightNoticePluginConfiguration] | None = None,
+        license: PluginInstanceConfiguration[LicensePlugin, License] | None = None,  # noqa A002
+        licenses: Iterable[LicensePluginConfiguration] | None = None,
+        genders: Iterable[GenderPluginConfiguration] | None = None,
+        extensions: Iterable[PluginInstanceConfiguration[ExtensionPlugin, Extension]]
         | None = None,
         debug: bool = False,
         locales: Iterable[LocaleConfiguration] | None = None,
@@ -670,32 +667,32 @@ class ProjectConfiguration(Configuration):
         self._computed_name: str | None = None
         self._url = url
         self._clean_urls = clean_urls
-        self.title = title
+        self.title = ensure_localizable(title)
         if author:
-            self.author = author
+            self.author = ensure_localizable(author)
         self._entity_types = EntityTypeConfigurationMapping(entity_types or ())
         self.copyright_notice = copyright_notice or PluginInstanceConfiguration[
-            CopyrightNoticeDefinition, CopyrightNotice
+            CopyrightNoticePlugin, CopyrightNotice
         ](ProjectAuthor)
-        self._copyright_notices = CopyrightNoticeDefinitionConfigurationMapping()
+        self._copyright_notices = CopyrightNoticePluginConfigurationMapping()
         if copyright_notices is not None:
             self._copyright_notices.append(*copyright_notices)
-        self.license = license or PluginInstanceConfiguration[
-            LicenseDefinition, License
-        ](AllRightsReserved)
-        self._licenses = LicenseDefinitionConfigurationMapping()
+        self.license = license or PluginInstanceConfiguration[LicensePlugin, License](
+            AllRightsReserved
+        )
+        self._licenses = LicensePluginConfigurationMapping()
         if licenses is not None:
             self._licenses.append(*licenses)
-        self._event_types = EventTypeDefinitionConfigurationMapping()
+        self._event_types = EventTypePluginConfigurationMapping()
         if event_types is not None:
             self._event_types.append(*event_types)
-        self._place_types = PlaceTypeDefinitionConfigurationMapping()
+        self._place_types = PlaceTypePluginConfigurationMapping()
         if place_types is not None:
             self._place_types.append(*place_types)
-        self._presence_roles = PresenceRoleDefinitionConfigurationMapping()
+        self._presence_roles = PresenceRolePluginConfigurationMapping()
         if presence_roles is not None:
             self._presence_roles.append(*presence_roles)
-        self._genders = GenderDefinitionConfigurationMapping()
+        self._genders = GenderPluginConfigurationMapping()
         if genders is not None:
             self._genders.append(*genders)
         self._extensions = ExtensionInstanceConfigurationMapping(extensions or ())
@@ -704,64 +701,6 @@ class ProjectConfiguration(Configuration):
         self._lifetime_threshold = lifetime_threshold
         self._logo = logo
 
-    @classmethod
-    async def new(
-        cls,
-        configuration_file_path: Path,
-        *,
-        url: str = "https://example.com",
-        clean_urls: bool = False,
-        title: ShorthandStaticTranslations = "Betty",
-        author: ShorthandStaticTranslations | None = None,
-        entity_types: Iterable[EntityTypeConfiguration] | None = None,
-        event_types: Iterable[EventTypeDefinitionConfiguration] | None = None,
-        place_types: Iterable[PlaceTypeDefinitionConfiguration] | None = None,
-        presence_roles: Iterable[PresenceRoleDefinitionConfiguration] | None = None,
-        copyright_notice: PluginInstanceConfiguration[
-            CopyrightNoticeDefinition, CopyrightNotice
-        ]
-        | None = None,
-        copyright_notices: Iterable[CopyrightNoticeDefinitionConfiguration]
-        | None = None,
-        license: PluginInstanceConfiguration[LicenseDefinition, License] | None = None,  # noqa A002
-        licenses: Iterable[LicenseDefinitionConfiguration] | None = None,
-        genders: Iterable[GenderDefinitionConfiguration] | None = None,
-        extensions: Iterable[
-            PluginInstanceConfiguration[ExtensionDefinition, Extension]
-        ]
-        | None = None,
-        debug: bool = False,
-        locales: Iterable[LocaleConfiguration] | None = None,
-        lifetime_threshold: int = DEFAULT_LIFETIME_THRESHOLD,
-        name: MachineName | None = None,
-        logo: Path | None = None,
-    ) -> Self:
-        """
-        Create a new instance.
-        """
-        return cls(
-            configuration_file_path,
-            url=url,
-            clean_urls=clean_urls,
-            title=title,
-            author=author,
-            entity_types=entity_types,
-            event_types=event_types,
-            place_types=place_types,
-            presence_roles=presence_roles,
-            copyright_notice=copyright_notice,
-            copyright_notices=copyright_notices,
-            license=license,
-            licenses=licenses,
-            genders=genders,
-            extensions=extensions,
-            debug=debug,
-            locales=locales,
-            lifetime_threshold=lifetime_threshold,
-            name=name,
-            logo=logo,
-        )
-
     @property
     def configuration_file_path(self) -> Path:
         """
@@ -769,12 +708,16 @@ class ProjectConfiguration(Configuration):
         """
         return self._configuration_file_path
 
-    @configuration_file_path.setter
-    def configuration_file_path(self, configuration_file_path: Path) -> None:
+    async def set_configuration_file_path(
+        self, configuration_file_path: Path, /
+    ) -> None:
+        """
+        Set the path to the configuration's file.
+        """
         self.assert_mutable()
         if configuration_file_path == self._configuration_file_path:
             return
-        format_for(list(FORMAT_REPOSITORY), configuration_file_path.suffix)
+        format_for(list(await plugins(FormatPlugin)), configuration_file_path.suffix)
         self._configuration_file_path = configuration_file_path
 
     @property
@@ -820,7 +763,7 @@ class ProjectConfiguration(Configuration):
         """
         return self.output_directory_path / "www"
 
-    def localize_www_directory_path(self, locale: str) -> Path:
+    def localize_www_directory_path(self, locale: Locale) -> Path:
         """
         Get the WWW directory path for a locale.
         """
@@ -956,49 +899,49 @@ class ProjectConfiguration(Configuration):
     @property
     def copyright_notices(
         self,
-    ) -> CopyrightNoticeDefinitionConfigurationMapping:
+    ) -> CopyrightNoticePluginConfigurationMapping:
         """
         The :py:class:`betty.copyright_notice.CopyrightNotice` plugins created by this project.
         """
         return self._copyright_notices
 
     @property
-    def licenses(self) -> LicenseDefinitionConfigurationMapping:
+    def licenses(self) -> LicensePluginConfigurationMapping:
         """
         The :py:class:`betty.license.License` plugins created by this project.
         """
         return self._licenses
 
     @property
-    def event_types(self) -> EventTypeDefinitionConfigurationMapping:
+    def event_types(self) -> EventTypePluginConfigurationMapping:
         """
         The event type plugins created by this project.
         """
         return self._event_types
 
     @property
-    def place_types(self) -> PlaceTypeDefinitionConfigurationMapping:
+    def place_types(self) -> PlaceTypePluginConfigurationMapping:
         """
         The place type plugins created by this project.
         """
         return self._place_types
 
     @property
-    def presence_roles(self) -> PresenceRoleDefinitionConfigurationMapping:
+    def presence_roles(self) -> PresenceRolePluginConfigurationMapping:
         """
         The presence role plugins created by this project.
         """
         return self._presence_roles
 
     @property
-    def genders(self) -> GenderDefinitionConfigurationMapping:
+    def genders(self) -> GenderPluginConfigurationMapping:
         """
         The gender plugins created by this project.
         """
         return self._genders
 
     @override
-    def load(self, dump: Dump) -> None:
+    def load(self, dump: Dump, /) -> None:
         self.assert_mutable()
         assert_record(
             OptionalField(
@@ -1006,8 +949,12 @@ class ProjectConfiguration(Configuration):
                 assert_or(assert_str() | assert_setattr(self, "name"), assert_none()),
             ),
             RequiredField("url", assert_str() | assert_setattr(self, "url")),
-            OptionalField("title", self.title.load),
-            OptionalField("author", self.author.load),
+            OptionalField(
+                "title", assert_load_localizable | assert_setattr(self, "title")
+            ),
+            OptionalField(
+                "author", assert_load_localizable | assert_setattr(self, "author")
+            ),
             OptionalField(
                 "logo",
                 assert_or(assert_path() | assert_setattr(self, "logo"), assert_none()),
@@ -1039,9 +986,8 @@ class ProjectConfiguration(Configuration):
         dump: DumpMapping[Dump] = {
             "name": self.name,
             "url": self.url,
-            "title": self.title.dump(),
+            "title": dump_localizable(self.title),
             "clean_urls": self.clean_urls,
-            "author": self.author.dump(),
             "logo": str(self._logo) if self._logo else None,
             "debug": self.debug,
             "lifetime_threshold": self.lifetime_threshold,
@@ -1057,4 +1003,6 @@ class ProjectConfiguration(Configuration):
             "place_types": self.place_types.dump(),
             "presence_roles": self.presence_roles.dump(),
         }
+        if self.author is not None:
+            dump["author"] = dump_localizable(self.author)
         return dump

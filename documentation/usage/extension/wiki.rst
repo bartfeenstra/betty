@@ -83,4 +83,4 @@ Globals
 Filters
 ^^^^^^^
 
-- :py:meth:`wikipedia <betty.project.extension.wiki.Wiki.filter_wikipedia_links>`
+- :py:meth:`wikipedia_summary <betty.project.extension.wiki.Wiki.filter_wikipedia_summary_links>`

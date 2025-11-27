@@ -7,11 +7,9 @@ from typing import Any, TypeVar
 from betty.assertion import AssertionChain, assert_str
 from betty.exception import HumanFacingException
 from betty.locale.localizable import Paragraph, _, do_you_mean
-from betty.plugin import (
-    PluginDefinition,
-    PluginNotFound,
-    PluginRepository,
-)
+from betty.plugin import PluginDefinition
+from betty.plugin.error import PluginNotFound
+from betty.plugin.repository import PluginRepository
 
 _PluginDefinitionT = TypeVar("_PluginDefinitionT", bound=PluginDefinition)
 
@@ -32,9 +30,7 @@ def assert_plugin(
         except PluginNotFound:
             raise HumanFacingException(
                 Paragraph(
-                    _(
-                        'Cannot find and import "{plugin_id}".',
-                    ).format(plugin_id=plugin_id),
+                    _('Unknown plugin "{plugin_id}".').format(plugin_id=plugin_id),
                     do_you_mean(*(f'"{plugin.id}"' for plugin in plugins)),
                 )
             ) from None

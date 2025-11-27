@@ -14,9 +14,10 @@ __pycache__
 *.pyc
 *.pyc.*
 
-# Test artifacts.
+# Test and development artifacts.
 /.coverage
 /.coverage.*
+/dev-output/
 /playwright/.cache/
 /playwright/results/
 /playwright/report/

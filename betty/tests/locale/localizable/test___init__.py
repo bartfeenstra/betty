@@ -1,11 +1,11 @@
-from collections.abc import Callable, Iterable, Sequence
+from collections.abc import Callable, Sequence
 from gettext import NullTranslations
-from typing import cast
 
 import pytest
+from babel import Locale
 from typing_extensions import override
 
-from betty.locale import DEFAULT_LOCALE, UNDETERMINED_LOCALE
+from betty.locale import DEFAULT_LOCALE, DEFAULT_LOCALE_TAG
 from betty.locale.localizable import (
     AllEnumeration,
     AnyEnumeration,
@@ -14,21 +14,23 @@ from betty.locale.localizable import (
     CountablePlain,
     Lines,
     Localizable,
+    LocalizableLike,
+    OptionalLocalizableAttr,
     OrderedList,
     Paragraph,
     Paragraphs,
     Plain,
+    RequiredLocalizableAttr,
+    RequiredLocalizableAttrNotInitialized,
     ShorthandStaticTranslations,
     StaticTranslations,
     StaticTranslationsMapping,
-    StaticTranslationsSchema,
     UnorderedList,
     do_you_mean,
+    ensure_localizable,
+    ensure_localized,
 )
 from betty.locale.localizer import DEFAULT_LOCALIZER, Localizer
-from betty.serde.dump import Dump, DumpMapping
-from betty.test_utils.json.linked_data import assert_dumps_linked_data
-from betty.test_utils.json.schema import SchemaTestBase, SchemaTestBaseSut
 
 
 class TestStaticTranslations:
@@ -76,70 +78,16 @@ class TestStaticTranslations:
         localizer = Localizer(locale, NullTranslations())
         assert sut.localize(localizer) == expected
 
-    def test___getitem__(self) -> None:
-        locale = "nl-NL"
-        translation = "Hallo, wereld!"
-        sut = StaticTranslations(
-            {
-                DEFAULT_LOCALE: "Hello, world!",
-                locale: translation,
-            }
-        )
-        assert sut[locale] == translation
-
-    def test___setitem__(self) -> None:
-        locale = "nl-NL"
-        translation = "Hallo, wereld!"
-        sut = StaticTranslations({DEFAULT_LOCALE: "Hello, world!"})
-        sut[locale] = translation
-        assert sut[locale] == translation
-
     @pytest.mark.parametrize(
         ("expected", "translations"),
         [
             (
-                0,
-                {},
-            ),
-            (
-                1,
-                "Hello, world!",
-            ),
-            (
-                1,
-                {
-                    "en-US": "Hello, world!",
-                },
-            ),
-            (
-                2,
-                {
-                    "nl-NL": "Hallo, wereld!",
-                    "en": "Hello, world!",
-                },
-            ),
-        ],
-    )
-    async def test___len__(
-        self, expected: int, translations: ShorthandStaticTranslations
-    ) -> None:
-        sut = StaticTranslations(translations, required=False)
-        assert len(sut) == expected
-
-    @pytest.mark.parametrize(
-        ("expected", "translations"),
-        [
-            (
-                {},
-                {},
-            ),
-            (
-                {UNDETERMINED_LOCALE: "Hello, world!"},
+                {None: "Hello, world!"},
                 "Hello, world!",
             ),
             (
                 {
-                    "en-US": "Hello, world!",
+                    Locale("en", "US"): "Hello, world!",
                 },
                 {
                     "en-US": "Hello, world!",
@@ -147,8 +95,8 @@ class TestStaticTranslations:
             ),
             (
                 {
-                    "nl-NL": "Hallo, wereld!",
-                    "en": "Hello, world!",
+                    Locale("nl", "NL"): "Hallo, wereld!",
+                    Locale("en"): "Hello, world!",
                 },
                 {
                     "nl-NL": "Hallo, wereld!",
@@ -162,86 +110,19 @@ class TestStaticTranslations:
         expected: StaticTranslationsMapping,
         translations: ShorthandStaticTranslations,
     ) -> None:
-        sut = StaticTranslations(translations, required=False)
+        sut = StaticTranslations(translations)
         assert sut.translations == expected
-
-    def test_replace(self) -> None:
-        translation = "Hallo, wereld!"
-        sut = StaticTranslations(required=False)
-        sut.replace(translation)
-        assert sut.localize(DEFAULT_LOCALIZER) == translation
-
-    @pytest.mark.parametrize(
-        ("expected", "translations"),
-        [
-            (
-                {},
-                {},
-            ),
-            (
-                {UNDETERMINED_LOCALE: "Hello, world!"},
-                "Hello, world!",
-            ),
-            (
-                {"en-US": "Hello, world!"},
-                {
-                    "en-US": "Hello, world!",
-                },
-            ),
-            (
-                {"nl-NL": "Hallo, wereld!", "en": "Hello, world!"},
-                {
-                    "nl-NL": "Hallo, wereld!",
-                    "en": "Hello, world!",
-                },
-            ),
-        ],
-    )
-    async def test_dump_linked_data(
-        self,
-        expected: DumpMapping[Dump],
-        translations: ShorthandStaticTranslations,
-    ) -> None:
-        sut = StaticTranslations(translations, required=False)
-        actual = await assert_dumps_linked_data(sut)
-        assert actual == expected
-
-
-class TestStaticTranslationsSchema(SchemaTestBase):
-    @staticmethod
-    def _sut_params() -> Iterable[SchemaTestBaseSut]:
-        valid_datas: Sequence[Dump] = [
-            {DEFAULT_LOCALE: "Hello, world!"},
-            {"nl": "Hallo, wereld!", "uk": "Привіт Світ!"},
-        ]
-        invalid_datas: Sequence[Dump] = [
-            True,
-            False,
-            None,
-            123,
-            [],
-            {DEFAULT_LOCALE: True},
-            {DEFAULT_LOCALE: False},
-            {DEFAULT_LOCALE: None},
-            {DEFAULT_LOCALE: 123},
-            {DEFAULT_LOCALE: []},
-            {DEFAULT_LOCALE: {}},
-        ]
-        return [
-            (
-                StaticTranslationsSchema(),
-                valid_datas,
-                invalid_datas,
-            ),
-        ]
-
-    @override
-    @pytest.fixture(params=_sut_params())
-    def sut(self, request: pytest.FixtureRequest) -> SchemaTestBaseSut:
-        return cast(SchemaTestBaseSut, request.param)
 
 
 class TestPlain:
+    def test_text(self) -> None:
+        text = "Hello, world!"
+        assert Plain(text).text == text
+
+    def test_locale(self) -> None:
+        locale = Locale("nl")
+        assert Plain("", locale).locale is locale
+
     @pytest.mark.parametrize(
         "string",
         [
@@ -249,7 +130,7 @@ class TestPlain:
             "Hallo, wereld!",
         ],
     )
-    async def test_localize(self, string: str) -> None:
+    def test_localize(self, string: str) -> None:
         assert Plain(string).localize(DEFAULT_LOCALIZER) == string
 
 
@@ -319,7 +200,7 @@ class TestCountablePlain:
         expected: str,
         string_singular: str,
         string_plural: str,
-        locale: str,
+        locale: Locale,
         is_plural: Callable[[int], bool] | None,
         count: int,
     ) -> None:
@@ -338,7 +219,7 @@ class TestCountablePlain:
     [
         ("There are no available options.", []),
         ("Do you mean foo?", ["foo"]),
-        ("Do you mean one of bar, baz, foo?", ["foo", "bar", "baz"]),
+        ("Do you mean one of bar, baz, or foo?", ["foo", "bar", "baz"]),
     ],
 )
 async def test_do_you_mean(expected: str, available_options: Sequence[str]) -> None:
@@ -348,7 +229,7 @@ async def test_do_you_mean(expected: str, available_options: Sequence[str]) -> N
 class TestCountableLocalizable:
     class _Sut(CountableLocalizable):
         @override
-        def count(self, count: int) -> Localizable:
+        def count(self, count: int, /) -> Localizable:
             return Plain("{format_placeholder}")
 
     def test_format(self) -> None:
@@ -368,11 +249,13 @@ class TestLines:
             ("", []),
             (
                 "Foo\nBar",
-                [Plain("Foo"), Plain("Bar")],
+                ["Foo", "Bar"],
             ),
         ],
     )
-    def test_localize(self, expected: str, localizables: Sequence[Localizable]) -> None:
+    def test_localize(
+        self, expected: str, localizables: Sequence[LocalizableLike]
+    ) -> None:
         sut = Lines(*localizables)
         assert sut.localize(DEFAULT_LOCALIZER) == expected
 
@@ -384,11 +267,13 @@ class TestParagraph:
             ("", []),
             (
                 "Foo Bar",
-                [Plain("Foo"), Plain("Bar")],
+                ["Foo", "Bar"],
             ),
         ],
     )
-    def test_localize(self, expected: str, localizables: Sequence[Localizable]) -> None:
+    def test_localize(
+        self, expected: str, localizables: Sequence[LocalizableLike]
+    ) -> None:
         sut = Paragraph(*localizables)
         assert sut.localize(DEFAULT_LOCALIZER) == expected
 
@@ -400,11 +285,13 @@ class TestParagraphs:
             ("", []),
             (
                 "Foo\n\nBar",
-                [Plain("Foo"), Plain("Bar")],
+                ["Foo", "Bar"],
             ),
         ],
     )
-    def test_localize(self, expected: str, localizables: Sequence[Localizable]) -> None:
+    def test_localize(
+        self, expected: str, localizables: Sequence[LocalizableLike]
+    ) -> None:
         sut = Paragraphs(*localizables)
         assert sut.localize(DEFAULT_LOCALIZER) == expected
 
@@ -421,12 +308,12 @@ class TestOrderedList:
             (
                 "1. Foo\n2. Bar",
                 DEFAULT_LOCALIZER,
-                [Plain("Foo"), Plain("Bar")],
+                ["Foo", "Bar"],
             ),
             (
                 "Foo .1\nBar .2",
                 Localizer("ar", NullTranslations()),
-                [Plain("Foo"), Plain("Bar")],
+                ["Foo", "Bar"],
             ),
             (
                 "1. Foo\n   Foo2\n2. Bar\n   Bar2",
@@ -452,7 +339,10 @@ class TestOrderedList:
         ],
     )
     def test_localize(
-        self, expected: str, localizer: Localizer, localizables: Sequence[Localizable]
+        self,
+        expected: str,
+        localizer: Localizer,
+        localizables: Sequence[LocalizableLike],
     ) -> None:
         sut = OrderedList(*localizables)
         assert sut.localize(localizer) == expected
@@ -494,7 +384,10 @@ class TestUnorderedList:
         ],
     )
     def test_localize(
-        self, expected: str, localizer: Localizer, localizables: Sequence[Localizable]
+        self,
+        expected: str,
+        localizer: Localizer,
+        localizables: Sequence[LocalizableLike],
     ) -> None:
         sut = UnorderedList(*localizables)
         assert sut.localize(localizer) == expected
@@ -507,11 +400,11 @@ class TestChain:
             ("", []),
             (
                 "FooBar",
-                [Plain("Foo"), Plain("Bar")],
+                ["Foo", "Bar"],
             ),
         ],
     )
-    def test(self, expected: str, localizables: Sequence[Localizable]) -> None:
+    def test(self, expected: str, localizables: Sequence[LocalizableLike]) -> None:
         sut = Chain(*localizables)
         assert sut.localize(DEFAULT_LOCALIZER) == expected
 
@@ -523,15 +416,15 @@ class TestAnyEnumeration:
             ("", []),
             (
                 "Foo",
-                [Plain("Foo")],
+                ["Foo"],
             ),
             (
                 "Foo, or Bar",
-                [Plain("Foo"), Plain("Bar")],
+                ["Foo", "Bar"],
             ),
         ],
     )
-    def test(self, expected: str, localizables: Sequence[Localizable]) -> None:
+    def test(self, expected: str, localizables: Sequence[LocalizableLike]) -> None:
         sut = AnyEnumeration(*localizables)
         assert sut.localize(DEFAULT_LOCALIZER) == expected
 
@@ -543,14 +436,149 @@ class TestAllEnumeration:
             ("", []),
             (
                 "Foo",
-                [Plain("Foo")],
+                ["Foo"],
             ),
             (
                 "Foo, and Bar",
-                [Plain("Foo"), Plain("Bar")],
+                ["Foo", "Bar"],
             ),
         ],
     )
-    def test(self, expected: str, localizables: Sequence[Localizable]) -> None:
+    def test(self, expected: str, localizables: Sequence[LocalizableLike]) -> None:
         sut = AllEnumeration(*localizables)
         assert sut.localize(DEFAULT_LOCALIZER) == expected
+
+
+def test_ensure_localizable__with_localizable() -> None:
+    localizable = Plain("My First Localizable")
+    assert ensure_localizable(localizable) is localizable
+
+
+def test_ensure_localizable__with_str() -> None:
+    localizable = "My First Localizable"
+    assert ensure_localizable(localizable).localize(DEFAULT_LOCALIZER) == localizable
+
+
+def test_ensure_localizable__with_static_translations_mapping() -> None:
+    locale = Locale("nl", "NL")
+    localizer = Localizer(locale, NullTranslations())
+    localized = "Mijn Eerste, Ja, Wat Eigenlijk?"
+    localizable: StaticTranslationsMapping = {
+        DEFAULT_LOCALE: "My First Localizable",
+        locale: localized,
+    }
+    assert ensure_localizable(localizable).localize(localizer) == localized
+
+
+def test_ensure_localized__with_localizable() -> None:
+    localizable = "My First Localizable"
+    assert (
+        ensure_localized(Plain(localizable), localizer=DEFAULT_LOCALIZER) == localizable
+    )
+
+
+def test_ensure_localized__with_str() -> None:
+    localizable = "My First Localizable"
+    assert ensure_localized(localizable, localizer=DEFAULT_LOCALIZER) == localizable
+
+
+def test_ensure_localized__with_static_translations_mapping() -> None:
+    locale = "nl"
+    localizer = Localizer(locale, NullTranslations())
+    localized = "Mijn Eerste, Ja, Wat Eigenlijk?"
+    localizable: StaticTranslationsMapping = {
+        DEFAULT_LOCALE: "My First Localizable",
+        Locale(locale): localized,
+    }
+    assert ensure_localized(localizable, localizer=localizer) == localized
+
+
+def test_ensure_localized__with_shorthand_static_translations_mapping() -> None:
+    locale = "nl-NL"
+    localizer = Localizer(locale, NullTranslations())
+    localized = "Mijn Eerste, Ja, Wat Eigenlijk?"
+    localizable: ShorthandStaticTranslations = {
+        DEFAULT_LOCALE_TAG: "My First Localizable",
+        locale: localized,
+    }
+    assert ensure_localized(localizable, localizer=localizer) == localized
+
+
+class TestRequiredLocalizableAttr:
+    class _Instance:
+        attr = RequiredLocalizableAttr("attr")
+
+    def test___get____not_initialized(self) -> None:
+        instance = self._Instance()
+        with pytest.raises(RequiredLocalizableAttrNotInitialized):
+            instance.attr  # noqa B018
+
+    def test___set____with_str(self) -> None:
+        instance = self._Instance()
+        translation = "Hello, world!"
+        instance.attr = translation
+        assert instance.attr.localize(DEFAULT_LOCALIZER) == translation
+
+    def test___set____with_static_translations_mapping(self) -> None:
+        instance = self._Instance()
+        translation = "Hello, world!"
+        locale = "nl-NL"
+        instance.attr = {
+            DEFAULT_LOCALE_TAG: "Hello, world!",
+            locale: translation,
+        }
+        assert (
+            instance.attr.localize(Localizer(locale, NullTranslations())) == translation
+        )
+
+    def test___set____with_localizable(self) -> None:
+        instance = self._Instance()
+        localizable = Plain("Hello, world!")
+        instance.attr = localizable
+        assert instance.attr is localizable
+
+
+class TestOptionalLocalizableAttr:
+    class _Instance:
+        attr = OptionalLocalizableAttr("attr")
+
+    def test___get____not_initialized(self) -> None:
+        instance = self._Instance()
+        assert instance.attr is None
+
+    def test___set____with_str(self) -> None:
+        translation = "Hello, world!"
+        instance = self._Instance()
+        instance.attr = translation
+        assert instance.attr is not None
+        assert instance.attr.localize(DEFAULT_LOCALIZER) == translation
+
+    def test___set____with_static_translations_mapping(self) -> None:
+        instance = self._Instance()
+        translation = "Hello, world!"
+        locale = "nl-NL"
+        instance.attr = {
+            DEFAULT_LOCALE_TAG: "Hello, world!",
+            locale: translation,
+        }
+        assert instance.attr is not None
+        assert (
+            instance.attr.localize(Localizer(locale, NullTranslations())) == translation
+        )
+
+    def test___set____with_localizable(self) -> None:
+        instance = self._Instance()
+        localizable = Plain("Hello, world!")
+        instance.attr = localizable
+        assert instance.attr is localizable
+
+    def test___delete____without_value(self) -> None:
+        instance = self._Instance()
+        del instance.attr
+        assert instance.attr is None
+
+    def test___delete____with_value(self) -> None:
+        instance = self._Instance()
+        instance.attr = "Hello, world!"
+        del instance.attr
+        assert instance.attr is None

@@ -13,13 +13,15 @@ from requests import Response
 from sphinx.errors import ExtensionError
 from sphinx.util import import_object
 
-from betty import ROOT_DIRECTORY_PATH
 from betty.app import App
+from betty.console.command import CommandPlugin
+from betty.dirs import ROOT_DIRECTORY_PATH
 from betty.documentation import DocumentationServer
 from betty.functools import Do
 from betty.jinja2.filter import filters
 from betty.jinja2.test import tests
 from betty.locale.localizer import DEFAULT_LOCALIZER
+from betty.plugin import plugin_types
 from betty.project.config import ProjectConfiguration
 from betty.serde.format import Format
 from betty.serde.format.formats import Json, Yaml
@@ -44,7 +46,7 @@ class TestDocumentation:
             ROOT_DIRECTORY_PATH / "documentation" / "usage" / "console.rst"
         ) as f:
             actual = await f.read()
-        for command in temporary_app.command_repository:
+        for command in await temporary_app.plugins(CommandPlugin):
             assert command.id in actual
             assert command.label.localize(DEFAULT_LOCALIZER) in actual
 
@@ -74,7 +76,7 @@ class TestDocumentation:
         assert match is not None
         dump = match[1]
         assert dump is not None
-        configuration = await ProjectConfiguration.new(tmp_path / "betty.json")
+        configuration = ProjectConfiguration(tmp_path / "betty.json")
         configuration.load(serde_format.load(dump))
 
     async def test_should_contain_builtin_jinja2_filters(self) -> None:
@@ -96,6 +98,16 @@ class TestDocumentation:
             documentation = f.read()
         for test_name in await tests():
             assert f":`{test_name} <" in documentation
+
+
+class TestPluginTypeDocumentation:
+    async def test_should_contain_plugin_types(self) -> None:
+        async with aiofiles.open(
+            ROOT_DIRECTORY_PATH / "documentation" / "development" / "plugin.rst"
+        ) as f:
+            documentation = await f.read()
+        for plugin_type_id in plugin_types():
+            assert f"/development/plugin/{plugin_type_id}" in documentation
 
 
 class TestDocstringSphinxReferences:

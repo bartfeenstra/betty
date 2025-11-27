@@ -12,8 +12,16 @@ from betty.ancestry.date import HasDate
 from betty.ancestry.has_file_references import HasFileReferences
 from betty.ancestry.has_links import HasLinks
 from betty.ancestry.source import Source
-from betty.locale.localizable import Localizable, StaticTranslations, _, ngettext
-from betty.model import EntityDefinition
+from betty.locale.localizable import (
+    Localizable,
+    LocalizableLike,
+    OptionalLocalizableAttr,
+    _,
+    ngettext,
+)
+from betty.locale.localizable.linked_data import dump_linked_data
+from betty.locale.localizable.schema import StaticTranslationsSchema
+from betty.model import EntityPlugin
 from betty.model.association import (
     BidirectionalToManyMultipleTypes,
     BidirectionalToOne,
@@ -33,8 +41,8 @@ if TYPE_CHECKING:
 
 
 @final
-@EntityDefinition(
-    id="citation",
+@EntityPlugin(
+    "citation",
     label=_("Citation"),
     label_plural=_("Citations"),
     label_countable=ngettext("{count} citation", "{count} citations"),
@@ -42,6 +50,11 @@ if TYPE_CHECKING:
 class Citation(HasDate, HasFileReferences, HasPrivacy, HasLinks):
     """
     A citation (a reference to a source).
+    """
+
+    location = OptionalLocalizableAttr("location")
+    """
+    The location within the source this citation references.
     """
 
     facts = BidirectionalToManyMultipleTypes["Citation", "HasCitations"](
@@ -52,6 +65,10 @@ class Citation(HasDate, HasFileReferences, HasPrivacy, HasLinks):
         title="Facts",
         description="The other entities that reference these citations to back up their claims.",
     )
+    """
+    The other entities that reference these citations to back up their claims.
+    """
+
     source = BidirectionalToOne["Citation", Source](
         "betty.ancestry.citation:Citation",
         "source",
@@ -60,6 +77,9 @@ class Citation(HasDate, HasFileReferences, HasPrivacy, HasLinks):
         title="Source",
         description="The source this citation references.",
     )
+    """
+    The source this citation references.
+    """
 
     def __init__(
         self,
@@ -67,7 +87,7 @@ class Citation(HasDate, HasFileReferences, HasPrivacy, HasLinks):
         source: ToOneAssociate[Source],
         id: str | None = None,  # noqa A002  # noqa A002
         facts: ToManyAssociates[HasCitations & Entity] | None = None,
-        location: Localizable | None = None,
+        location: LocalizableLike | None = None,
         date: DateLike | None = None,
         file_references: ToManyAssociates[FileReference] | None = None,
         privacy: Privacy | None = None,
@@ -97,22 +117,22 @@ class Citation(HasDate, HasFileReferences, HasPrivacy, HasLinks):
         return self.location or super().label
 
     @override
-    async def dump_linked_data(self, project: Project) -> DumpMapping[Dump]:
+    async def dump_linked_data(self, project: Project, /) -> DumpMapping[Dump]:
         dump = await super().dump_linked_data(project)
         dump["@type"] = "https://schema.org/Thing"
         if is_public(self) and self.location is not None:
-            dump["location"] = await StaticTranslations.dump_linked_data_for(
-                project, self.location
+            dump["location"] = dump_linked_data(
+                self.location, localizers=await project.public_localizers
             )
         return dump
 
     @override
     @classmethod
-    async def linked_data_schema(cls, project: Project) -> JsonLdObject:
+    async def linked_data_schema(cls, project: Project, /) -> JsonLdObject:
         schema = await super().linked_data_schema(project)
         schema.add_property(
             "location",
-            await StaticTranslations.linked_data_schema(project),
+            StaticTranslationsSchema(),
             False,
         )
         return schema

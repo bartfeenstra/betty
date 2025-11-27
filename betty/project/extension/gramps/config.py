@@ -30,20 +30,17 @@ from betty.gramps.loader import (
     DEFAULT_PRESENCE_ROLES_MAPPING,
 )
 from betty.locale.localizable import _
-from betty.plugin import ClassedPluginDefinition
+from betty.plugin import Plugin, PluginDefinition
 from betty.plugin.config import PluginInstanceConfiguration
 from betty.typing import internal
 
 if TYPE_CHECKING:
     from collections.abc import Iterable, Iterator, Mapping, MutableMapping
 
-    from betty.mutability import Mutable
     from betty.serde.dump import Dump, DumpMapping
 
-_PluginT = TypeVar("_PluginT")
-_ClassedPluginDefinitionT = TypeVar(
-    "_ClassedPluginDefinitionT", bound=ClassedPluginDefinition[Any]
-)
+_PluginT = TypeVar("_PluginT", bound=Plugin)
+_PluginDefinitionT = TypeVar("_PluginDefinitionT", bound=PluginDefinition)
 
 
 def _assert_gramps_type(value: Any) -> str:
@@ -54,7 +51,7 @@ def _assert_gramps_type(value: Any) -> str:
 
 @internal
 @final
-class PluginMapping(Generic[_ClassedPluginDefinitionT, _PluginT], Configuration):
+class PluginMapping(Generic[_PluginDefinitionT, _PluginT], Configuration):
     """
     Map Gramps types to Betty plugin instances.
     """
@@ -62,23 +59,23 @@ class PluginMapping(Generic[_ClassedPluginDefinitionT, _PluginT], Configuration)
     def __init__(
         self,
         default_mapping: Mapping[
-            str, PluginInstanceConfiguration[_ClassedPluginDefinitionT, _PluginT]
+            str, PluginInstanceConfiguration[_PluginDefinitionT, _PluginT]
         ],
         mapping: Mapping[
-            str, PluginInstanceConfiguration[_ClassedPluginDefinitionT, _PluginT]
+            str, PluginInstanceConfiguration[_PluginDefinitionT, _PluginT]
         ],
     ):
         super().__init__()
         self._default_mapping = default_mapping
         self._mapping: MutableMapping[
-            str, PluginInstanceConfiguration[_ClassedPluginDefinitionT, _PluginT]
+            str, PluginInstanceConfiguration[_PluginDefinitionT, _PluginT]
         ] = {
             **default_mapping,
             **mapping,
         }
 
     @override
-    def load(self, dump: Dump) -> None:
+    def load(self, dump: Dump, /) -> None:
         self.assert_mutable()
         self._mapping = {
             **self._default_mapping,
@@ -87,10 +84,8 @@ class PluginMapping(Generic[_ClassedPluginDefinitionT, _PluginT], Configuration)
 
     def _load_item(
         self, dump: Dump
-    ) -> PluginInstanceConfiguration[_ClassedPluginDefinitionT, _PluginT]:
-        configuration = PluginInstanceConfiguration[
-            _ClassedPluginDefinitionT, _PluginT
-        ]("-")
+    ) -> PluginInstanceConfiguration[_PluginDefinitionT, _PluginT]:
+        configuration = PluginInstanceConfiguration[_PluginDefinitionT, _PluginT]("-")
         configuration.load(dump)
         return configuration
 
@@ -103,13 +98,13 @@ class PluginMapping(Generic[_ClassedPluginDefinitionT, _PluginT], Configuration)
 
     def __getitem__(
         self, gramps_type: str
-    ) -> PluginInstanceConfiguration[_ClassedPluginDefinitionT, _PluginT]:
+    ) -> PluginInstanceConfiguration[_PluginDefinitionT, _PluginT]:
         return self._mapping[gramps_type]
 
     def __setitem__(
         self,
         gramps_type: str,
-        configuration: PluginInstanceConfiguration[_ClassedPluginDefinitionT, _PluginT],
+        configuration: PluginInstanceConfiguration[_PluginDefinitionT, _PluginT],
     ) -> None:
         self.assert_mutable()
         self._mapping[gramps_type] = configuration
@@ -133,45 +128,37 @@ class FamilyTreeConfiguration(Configuration):
         *,
         event_types: Mapping[
             str,
-            PluginInstanceConfiguration[ClassedPluginDefinition[EventType], EventType],
+            PluginInstanceConfiguration[PluginDefinition, EventType],
         ]
         | None = None,
         place_types: Mapping[
             str,
-            PluginInstanceConfiguration[ClassedPluginDefinition[PlaceType], PlaceType],
+            PluginInstanceConfiguration[PluginDefinition, PlaceType],
         ]
         | None = None,
         presence_roles: Mapping[
             str,
-            PluginInstanceConfiguration[
-                ClassedPluginDefinition[PresenceRole], PresenceRole
-            ],
+            PluginInstanceConfiguration[PluginDefinition, PresenceRole],
         ]
         | None = None,
     ):
         super().__init__()
         self._source = source
-        self._event_types = PluginMapping[
-            ClassedPluginDefinition[EventType], EventType
-        ](
+        self._event_types = PluginMapping[PluginDefinition, EventType](
             {
                 gramps_value: PluginInstanceConfiguration(event_type)
                 for gramps_value, event_type in DEFAULT_EVENT_TYPES_MAPPING.items()
             },
             event_types or {},
         )
-        self._place_types = PluginMapping[
-            ClassedPluginDefinition[PlaceType], PlaceType
-        ](
+        self._place_types = PluginMapping[PluginDefinition, PlaceType](
             {
                 gramps_value: PluginInstanceConfiguration(event_type)
                 for gramps_value, event_type in DEFAULT_PLACE_TYPES_MAPPING.items()
             },
             place_types or {},
         )
-        self._presence_roles = PluginMapping[
-            ClassedPluginDefinition[PresenceRole], PresenceRole
-        ](
+        self._presence_roles = PluginMapping[PluginDefinition, PresenceRole](
             {
                 gramps_value: PluginInstanceConfiguration(event_type)
                 for gramps_value, event_type in DEFAULT_PRESENCE_ROLES_MAPPING.items()
@@ -180,7 +167,7 @@ class FamilyTreeConfiguration(Configuration):
         )
 
     @override
-    def get_mutable_instances(self) -> Iterable[Mutable]:
+    def get_mutables(self) -> Iterable[object]:
         return (
             self._event_types,
             self._place_types,
@@ -204,7 +191,7 @@ class FamilyTreeConfiguration(Configuration):
     @property
     def event_types(
         self,
-    ) -> PluginMapping[ClassedPluginDefinition[EventType], EventType]:
+    ) -> PluginMapping[PluginDefinition, EventType]:
         """
         How to map event types.
         """
@@ -213,7 +200,7 @@ class FamilyTreeConfiguration(Configuration):
     @property
     def place_types(
         self,
-    ) -> PluginMapping[ClassedPluginDefinition[PlaceType], PlaceType]:
+    ) -> PluginMapping[PluginDefinition, PlaceType]:
         """
         How to map place types.
         """
@@ -222,14 +209,14 @@ class FamilyTreeConfiguration(Configuration):
     @property
     def presence_roles(
         self,
-    ) -> PluginMapping[ClassedPluginDefinition[PresenceRole], PresenceRole]:
+    ) -> PluginMapping[PluginDefinition, PresenceRole]:
         """
         How to map presence roles.
         """
         return self._presence_roles
 
     @override
-    def load(self, dump: Dump) -> None:
+    def load(self, dump: Dump, /) -> None:
         self.assert_mutable()
         dump = assert_mapping()(dump)
         if (
@@ -271,7 +258,7 @@ class FamilyTreeConfigurationSequence(ConfigurationSequence[FamilyTreeConfigurat
     """
 
     @override
-    def _load_item(self, dump: Dump) -> FamilyTreeConfiguration:
+    def _load_item(self, dump: Dump, /) -> FamilyTreeConfiguration:
         # Use a dummy path to satisfy initializer arguments.
         # It will be overridden when loading the dump.
         item = FamilyTreeConfiguration(Path())
@@ -295,7 +282,7 @@ class GrampsConfiguration(Configuration):
         self._executable = executable
 
     @override
-    def get_mutable_instances(self) -> Iterable[Mutable]:
+    def get_mutables(self) -> Iterable[object]:
         return (self._family_trees,)
 
     @property
@@ -323,7 +310,7 @@ class GrampsConfiguration(Configuration):
         self._executable = executable
 
     @override
-    def load(self, dump: Dump) -> None:
+    def load(self, dump: Dump, /) -> None:
         self.assert_mutable()
         assert_record(
             OptionalField("family_trees", self.family_trees.load),

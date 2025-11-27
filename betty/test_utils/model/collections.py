@@ -155,13 +155,13 @@ class EntityCollectionTestBase(Generic[_EntityT]):
         sut.replace(*others)
         assert list(sut) == list(others)
 
-    async def test_get_mutable_instances(
+    async def test_get_mutables(
         self, sut: EntityCollection[_EntityT], sut_entities: Sequence[_EntityT]
     ) -> None:
         """
-        Tests :py:meth:`betty.model.collections.EntityCollection.get_mutable_instances` implementations.
+        Tests :py:meth:`betty.model.collections.EntityCollection.get_mutables` implementations.
         """
         sut.add(*sut_entities)
-        sut.immutable()
+        sut.immutable = True
         for entity in sut_entities:
-            assert entity.is_immutable
+            assert entity.immutable

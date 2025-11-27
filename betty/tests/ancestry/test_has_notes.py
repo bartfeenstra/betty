@@ -6,18 +6,18 @@ import pytest
 
 from betty.ancestry.has_notes import HasNotes
 from betty.ancestry.note import Note
-from betty.locale.localizable import CountablePlain, Plain
-from betty.model import EntityDefinition
+from betty.locale.localizable import CountablePlain
+from betty.model import EntityPlugin
 from betty.test_utils.json.linked_data import assert_dumps_linked_data
 
 if TYPE_CHECKING:
     from betty.serde.dump import Dump, DumpMapping
 
 
-@EntityDefinition(
-    id="dummy-has-notes",
-    label=Plain(""),
-    label_plural=Plain(""),
+@EntityPlugin(
+    "dummy-has-notes",
+    label="",
+    label_plural="",
     label_countable=CountablePlain("", ""),
 )
 class DummyHasNotes(HasNotes):
@@ -26,14 +26,14 @@ class DummyHasNotes(HasNotes):
 
 class TestHasNotes:
     async def test___init___with_notes(self) -> None:
-        note = Note(Plain(""))
+        note = Note("")
         sut = DummyHasNotes(notes=[note])
         assert list(sut.notes) == [note]
 
     async def test_notes(self) -> None:
         sut = DummyHasNotes()
         assert list(sut.notes) == []
-        note = Note(Plain(""))
+        note = Note("")
         sut.notes = [note]
         assert list(sut.notes) == [note]
 
@@ -54,9 +54,7 @@ class TestHasNotes:
                     "id": "my-first-has-notes",
                     "notes": [],
                 },
-                DummyHasNotes(
-                    notes=[Note(Plain("Hello, world!"))], id="my-first-has-notes"
-                ),
+                DummyHasNotes(notes=[Note("Hello, world!")], id="my-first-has-notes"),
             ),
             (
                 {
@@ -65,7 +63,7 @@ class TestHasNotes:
                     "notes": ["/note/my-first-note/index.json"],
                 },
                 DummyHasNotes(
-                    notes=[Note(Plain("Hello, world!"), id="my-first-note")],
+                    notes=[Note("Hello, world!", id="my-first-note")],
                     id="my-first-has-notes",
                 ),
             ),

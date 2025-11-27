@@ -1,0 +1,5 @@
+{% if resource.resource is entity_plugin('person') %}
+    {% with person = resource.resource %}
+        {% include 'section/family.html.j2' %}
+    {% endwith %}
+{% endif %}

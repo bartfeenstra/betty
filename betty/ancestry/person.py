@@ -9,6 +9,7 @@ from urllib.parse import quote
 
 from typing_extensions import override
 
+from betty.ancestry.gender import GenderPlugin
 from betty.ancestry.gender.genders import Unknown as UnknownGender
 from betty.ancestry.has_citations import HasCitations
 from betty.ancestry.has_file_references import HasFileReferences
@@ -17,8 +18,9 @@ from betty.ancestry.has_notes import HasNotes
 from betty.functools import unique
 from betty.json.linked_data import JsonLdObject, dump_context
 from betty.locale.localizable import Localizable, _, ngettext
-from betty.model import EntityDefinition, ToManySchema, persistent_id
+from betty.model import EntityPlugin, persistent_id
 from betty.model.association import BidirectionalToManySingleType, ToManyAssociates
+from betty.model.schema import ToManySchema
 from betty.privacy import HasPrivacy, Privacy
 
 if TYPE_CHECKING:
@@ -31,14 +33,13 @@ if TYPE_CHECKING:
     from betty.ancestry.note import Note
     from betty.ancestry.person_name import PersonName
     from betty.ancestry.presence import Presence
-    from betty.mutability import Mutable
     from betty.project import Project
     from betty.serde.dump import Dump, DumpMapping
 
 
 @final
-@EntityDefinition(
-    id="person",
+@EntityPlugin(
+    "person",
     label=_("Person"),
     label_plural=_("People"),
     label_countable=ngettext("{count} person", "{count} people"),
@@ -55,6 +56,10 @@ class Person(HasFileReferences, HasCitations, HasNotes, HasLinks, HasPrivacy):
         "children",
         title="Parents",
     )
+    """
+    The person's parents.
+    """
+
     children = BidirectionalToManySingleType["Person", "Person"](
         "betty.ancestry.person:Person",
         "children",
@@ -62,6 +67,10 @@ class Person(HasFileReferences, HasCitations, HasNotes, HasLinks, HasPrivacy):
         "parents",
         title="Children",
     )
+    """
+    The person's children.
+    """
+
     presences = BidirectionalToManySingleType["Person", "Presence"](
         "betty.ancestry.person:Person",
         "presences",
@@ -71,6 +80,10 @@ class Person(HasFileReferences, HasCitations, HasNotes, HasLinks, HasPrivacy):
         description="This person's presences at events",
         linked_data_embedded=True,
     )
+    """
+    The person's presences at events.
+    """
+
     names = BidirectionalToManySingleType["Person", "PersonName"](
         "betty.ancestry.person:Person",
         "names",
@@ -79,11 +92,14 @@ class Person(HasFileReferences, HasCitations, HasNotes, HasLinks, HasPrivacy):
         title="Names",
         linked_data_embedded=True,
     )
+    """
+    The person's names.
+    """
 
     def __init__(
         self,
-        *,
         id: str | None = None,  # noqa A002
+        *,
         file_references: ToManyAssociates[FileReference] | None = None,
         citations: ToManyAssociates[Citation] | None = None,
         links: MutableSequence[Link] | None = None,
@@ -118,9 +134,9 @@ class Person(HasFileReferences, HasCitations, HasNotes, HasLinks, HasPrivacy):
         self._gender = gender or UnknownGender()
 
     @override
-    def get_mutable_instances(self) -> Iterable[Mutable]:
+    def get_mutables(self) -> Iterable[object]:
         return (
-            *super().get_mutable_instances(),
+            *super().get_mutables(),
             self.gender,
         )
 
@@ -175,7 +191,7 @@ class Person(HasFileReferences, HasCitations, HasNotes, HasLinks, HasPrivacy):
         return super().label
 
     @override
-    async def dump_linked_data(self, project: Project) -> DumpMapping[Dump]:
+    async def dump_linked_data(self, project: Project, /) -> DumpMapping[Dump]:
         dump = await super().dump_linked_data(project)
         url_generator = await project.url_generator
         dump_context(
@@ -199,8 +215,9 @@ class Person(HasFileReferences, HasCitations, HasNotes, HasLinks, HasPrivacy):
 
     @override
     @classmethod
-    async def linked_data_schema(cls, project: Project) -> JsonLdObject:
+    async def linked_data_schema(cls, project: Project, /) -> JsonLdObject:
         schema = await super().linked_data_schema(project)
-        schema.add_property("gender", project.gender_repository.plugin_id_schema, False)
+        genders = await project.plugins(GenderPlugin)
+        schema.add_property("gender", genders.plugin_id_schema, False)
         schema.add_property("siblings", ToManySchema(title="Siblings"))
         return schema

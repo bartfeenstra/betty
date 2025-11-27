@@ -9,19 +9,13 @@ from typing_extensions import override
 from betty._npm import NpmUnavailable
 from betty.app import App
 from betty.job import Context
-from betty.locale.localizable import Plain
-from betty.plugin.static import StaticPluginRepository
 from betty.project import Project
-from betty.project.extension import Extension, ExtensionDefinition
+from betty.project.extension import Extension, ExtensionPlugin
 from betty.project.extension.webpack.build import Builder, EntryPointProvider
-from betty.test_utils.conftest import TemporaryAppFactory
 from betty.test_utils.user import StaticUser
 
 
-@ExtensionDefinition(
-    id="dummy",
-    label=Plain(""),
-)
+@ExtensionPlugin("dummy", label="")
 class DummyEntryPointProviderExtension(EntryPointProvider, Extension):
     @override
     @classmethod
@@ -34,15 +28,8 @@ class DummyEntryPointProviderExtension(EntryPointProvider, Extension):
 
 
 class TestBuilder:
-    async def test_build(
-        self, temporary_app_factory: TemporaryAppFactory, tmp_path: Path
-    ) -> None:
-        async with (
-            temporary_app_factory(
-                extension_repository=StaticPluginRepository(ExtensionDefinition)
-            ) as app,
-            app,
-        ):
+    async def test_build(self, temporary_app: App, tmp_path: Path) -> None:
+        with ExtensionPlugin.type.override_discovery():
             # Loop instead of parameterization, so we can reuse caches.
             for index, (with_entry_point_provider, debug, root_path) in enumerate(
                 [
@@ -55,7 +42,7 @@ class TestBuilder:
                 ]
             ):
                 await self._test_build(
-                    app,
+                    temporary_app,
                     tmp_path / str(index),
                     with_entry_point_provider,
                     debug,
@@ -76,16 +63,12 @@ class TestBuilder:
                 sut = Builder(
                     tmp_path,
                     (
-                        [
-                            await DummyEntryPointProviderExtension.new_for_project(
-                                project
-                            )
-                        ]
+                        [DummyEntryPointProviderExtension()]
                         if with_entry_point_provider
                         else []
                     ),
                     debug,
-                    await project.renderer,
+                    await project.jinja2_environment,
                     root_path,
                     job_context=job_context,
                     user=StaticUser(),
@@ -123,12 +106,12 @@ class TestBuilder:
         m_npm.side_effect = NpmUnavailable()
 
         job_context = Context()
-        m_renderer = mocker.AsyncMock()
+        m_jinja2_environment = mocker.AsyncMock()
         sut = Builder(
             tmp_path,
             [],
             False,
-            m_renderer,
+            m_jinja2_environment,
             "",
             job_context=job_context,
             user=StaticUser(),

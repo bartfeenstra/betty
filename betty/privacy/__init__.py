@@ -5,16 +5,15 @@ The Privacy API.
 from __future__ import annotations
 
 import enum
-from typing import TYPE_CHECKING, Any, final
+from typing import TYPE_CHECKING, Any
 
 from typing_extensions import override
 
-from betty.classtools import Singleton
 from betty.json.linked_data import (
     JsonLdObject,
     LinkedDataDumpableWithSchemaJsonLdObject,
 )
-from betty.json.schema import Boolean
+from betty.privacy.schema import PrivacySchema
 
 if TYPE_CHECKING:
     from betty.project import Project
@@ -26,17 +25,23 @@ class Privacy(enum.Enum):
     The available privacy modes.
     """
 
-    #: The resource is explicitly made public.
     PUBLIC = 1
+    """
+    The resource is explicitly made public.
+    """
 
-    #: The resource is explicitly made private.
     PRIVATE = 2
+    """
+    The resource is explicitly made private.
+    """
 
-    #: The resource has no explicit privacy. This means that:
-    #:
-    #: - it may be changed at will
-    #: - when checking access, UNDETERMINED evaluates to PUBLIC.
     UNDETERMINED = 3
+    """
+    The resource has no explicit privacy. This means that:
+    
+    - it may be changed at will
+    - when checking access, UNDETERMINED evaluates to PUBLIC.
+    """
 
 
 class HasPrivacy(LinkedDataDumpableWithSchemaJsonLdObject):
@@ -120,31 +125,17 @@ class HasPrivacy(LinkedDataDumpableWithSchemaJsonLdObject):
         self.privacy = Privacy.PUBLIC
 
     @override
-    async def dump_linked_data(self, project: Project) -> DumpMapping[Dump]:
+    async def dump_linked_data(self, project: Project, /) -> DumpMapping[Dump]:
         dump = await super().dump_linked_data(project)
         dump["private"] = self.private
         return dump
 
     @override
     @classmethod
-    async def linked_data_schema(cls, project: Project) -> JsonLdObject:
+    async def linked_data_schema(cls, project: Project, /) -> JsonLdObject:
         schema = await super().linked_data_schema(project)
         schema.add_property("private", PrivacySchema())
         return schema
-
-
-@final
-class PrivacySchema(Singleton, Boolean):
-    """
-    A JSON Schema for privacy.
-    """
-
-    def __init__(self):
-        super().__init__(
-            def_name="privacy",
-            title="Privacy",
-            description="Whether this entity is private (true), or public (false).",
-        )
 
 
 def is_private(target: Any) -> bool:

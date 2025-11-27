@@ -38,12 +38,7 @@ if TYPE_CHECKING:
     from playwright.async_api import BrowserContext, Page
 
     from betty.cache import Cache
-    from betty.console.command import CommandDefinition
-    from betty.model import EntityDefinition
-    from betty.plugin import PluginRepository
-    from betty.project.extension import ExtensionDefinition
-    from betty.render import RendererDefinition
-    from betty.service import ServiceFactory
+    from betty.service.container import ServiceFactory
     from betty.user import User
 
 
@@ -73,8 +68,8 @@ async def process_pool() -> AsyncIterator[futures.ProcessPoolExecutor]:
         yield process_pool
 
 
-def _configure_temporary_app(app: App) -> None:
-    app.user.verbosity = Verbosity.QUIET
+async def _configure_temporary_app(app: App) -> None:
+    await app.user.set_verbosity(Verbosity.QUIET)
 
 
 @pytest.fixture(scope="session")
@@ -85,7 +80,7 @@ async def temporary_app(
     Create a new, temporary :py:class:`betty.app.App`.
     """
     async with App.new_temporary(process_pool=process_pool) as app:
-        _configure_temporary_app(app)
+        await _configure_temporary_app(app)
         async with app:
             yield app
 
@@ -96,10 +91,6 @@ class TemporaryAppFactory(Protocol):
         *,
         process_pool: futures.ProcessPoolExecutor | None = None,
         user: User | None = None,
-        entity_type_repository: PluginRepository[EntityDefinition] | None = None,
-        extension_repository: PluginRepository[ExtensionDefinition] | None = None,
-        command_repository: PluginRepository[CommandDefinition] | None = None,
-        renderer_repository: PluginRepository[RendererDefinition] | None = None,
     ) -> AbstractAsyncContextManager[App]:
         pass
 
@@ -119,21 +110,13 @@ def temporary_app_factory(
         cache_factory: ServiceFactory[App, Cache[Any]] | None = None,
         process_pool: futures.ProcessPoolExecutor | None = None,
         user: User | None = None,
-        entity_type_repository: PluginRepository[EntityDefinition] | None = None,
-        extension_repository: PluginRepository[ExtensionDefinition] | None = None,
-        command_repository: PluginRepository[CommandDefinition] | None = None,
-        renderer_repository: PluginRepository[RendererDefinition] | None = None,
     ) -> AsyncIterator[App]:
         async with App.new_temporary(
             cache_factory=cache_factory,
             process_pool=process_pool or fixture_process_pool,
             user=user,
-            entity_type_repository=entity_type_repository,
-            extension_repository=extension_repository,
-            command_repository=command_repository,
-            renderer_repository=renderer_repository,
         ) as app:
-            _configure_temporary_app(app)
+            await _configure_temporary_app(app)
             yield app
 
     return _temporary_app_factory

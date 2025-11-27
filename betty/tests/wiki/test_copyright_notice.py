@@ -6,16 +6,17 @@ from typing_extensions import override
 
 from betty.app import App
 from betty.copyright_notice import CopyrightNotice
+from betty.locale.localizable import StaticTranslations
 from betty.locale.localizer import DEFAULT_LOCALIZER
 from betty.plugin import PluginDefinition
 from betty.test_utils.copyright_notice import (
-    CopyrightNoticeDefinitionTestBase,
+    CopyrightNoticePluginTestBase,
     CopyrightNoticeTestBase,
 )
 from betty.wiki.copyright_notice import WikipediaContributors
 
 
-class TestWikipediaContributorsDefinition(CopyrightNoticeDefinitionTestBase):
+class TestWikipediaContributorsDefinition(CopyrightNoticePluginTestBase):
     @override
     @pytest.fixture
     def sut(self) -> PluginDefinition:
@@ -26,9 +27,11 @@ class TestWikipediaContributors(CopyrightNoticeTestBase):
     @override
     @pytest.fixture(
         params=[
-            {},
-            {"en": "Wikipedia:Copyrights"},
-            {"en": "Wikipedia:Copyrights", "nl": "Wikipedia:Auteursrechten"},
+            "https://example/com/en",
+            StaticTranslations({"en": "https://example/com/en"}),
+            StaticTranslations(
+                {"en": "https://example/com/en", "nl": "https://example/com/en"}
+            ),
         ]
     )
     def sut(self, request: pytest.FixtureRequest) -> CopyrightNotice:

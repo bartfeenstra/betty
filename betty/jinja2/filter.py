@@ -21,7 +21,7 @@ from jinja2 import pass_context, pass_eval_context
 from jinja2.async_utils import auto_aiter, auto_await
 from jinja2.filters import make_attrgetter, prepare_map
 from jinja2.runtime import Context, Macro
-from markupsafe import Markup, escape
+from markupsafe import Markup
 from pdf2image.pdf2image import convert_from_path
 from PIL import Image
 from PIL.Image import DecompressionBombWarning
@@ -29,20 +29,14 @@ from PIL.Image import DecompressionBombWarning
 from betty.ancestry.file import File
 from betty.ancestry.file_reference import FileReference
 from betty.hashid import hashid, hashid_file_meta
+from betty.html import newlines_to_paragraphs
 from betty.image import (
     FocusArea,
     Size,
     image_file_path_format,
     resize_cover,
 )
-from betty.locale import (
-    SPECIAL_LOCALES,
-    UNDETERMINED_LOCALE,
-    LocaleLike,
-    get_data,
-    negotiate_locale,
-)
-from betty.locale.error import LocaleError
+from betty.locale import LocaleLike, negotiate_locale, to_language_tag
 from betty.locale.localized import LocalizedStr
 from betty.media_type import MediaType
 from betty.media_type.media_types import HTML, SVG
@@ -129,22 +123,19 @@ def filter_html_lang(context: Context, localized: str) -> str | Markup:
     localizer = context_localizer(context)
     result: str | Markup = localized
     if localized.locale != localizer.locale:
-        localizer_locale_data = get_data(localizer.locale)
         localizer_dir = _CHARACTER_ORDER_TO_HTML_LANG_MAP[
-            localizer_locale_data.character_order
+            localizer.locale.character_order
         ]
-        try:
-            localized_locale_data = get_data(localized.locale)
-        except LocaleError:
+        if localized.locale is None:
             localized_dir = "auto"
         else:
             localized_dir = _CHARACTER_ORDER_TO_HTML_LANG_MAP[
-                localized_locale_data.character_order
+                localized.locale.character_order
             ]
         dir_attribute = (
             f' dir="{localized_dir}"' if localized_dir != localizer_dir else ""
         )
-        result = f'<span lang="{localized.locale}"{dir_attribute}>{localized}</span>'
+        result = f'<span lang="{to_language_tag(localized.locale)}"{dir_attribute}>{localized}</span>'
     if context.eval_ctx.autoescape:
         result = Markup(result)
     return result
@@ -196,10 +187,7 @@ def filter_paragraphs(eval_ctx: EvalContext, text: str) -> str | Markup:
 
     Taken from http://jinja.pocoo.org/docs/2.10/api/#custom-filters.
     """
-    result = "\n\n".join(
-        "<p>{}</p>".format(p.replace("\n", Markup("<br>\n")))
-        for p in _paragraph_re.split(escape(text))
-    )
+    result = newlines_to_paragraphs(text)
     if eval_ctx.autoescape:
         result = Markup(result)
     return result
@@ -488,7 +476,10 @@ def filter_sort_localizeds(
 
 @pass_context
 def filter_select_localizeds(
-    context: Context, localizeds: Iterable[Localized], include_unspecified: bool = False
+    context: Context,
+    localizeds: Iterable[Localized],
+    *,
+    include_unspecified: bool = False,
 ) -> Iterable[Localized]:
     """
     Select all objects whose locale matches the context's current locale.
@@ -497,15 +488,14 @@ def filter_select_localizeds(
     """
     from betty.jinja2 import context_localizer
 
+    localizer = context_localizer(context)
     for localized in localizeds:
-        if include_unspecified and localized.locale in {
-            None,
-            *SPECIAL_LOCALES,
-        }:
-            yield localized
         if (
-            localized.locale is not UNDETERMINED_LOCALE
-            and negotiate_locale(context_localizer(context).locale, [localized.locale])
+            localized.locale is None
+            and include_unspecified
+            or negotiate_locale(
+                localizer.locale, [] if localized.locale is None else [localized.locale]
+            )
             is not None
         ):
             yield localized
@@ -544,9 +534,6 @@ def filter_select_has_dates(
     )
 
 
-locale_get_data = get_data
-
-
 @internal
 async def filters() -> Mapping[str, Callable[..., Any]]:
     """
@@ -564,7 +551,6 @@ async def filters() -> Mapping[str, Callable[..., Any]]:
         "html_lang": filter_html_lang,
         "json_dump": filter_json_dump,
         "json_load": filter_json_load,
-        "locale_get_data": locale_get_data,
         "localize": filter_localize,
         "map": filter_map,
         "negotiate_has_dates": filter_negotiate_has_dates,
@@ -574,6 +560,7 @@ async def filters() -> Mapping[str, Callable[..., Any]]:
         "select_localizeds": filter_select_localizeds,
         "sort_localizeds": filter_sort_localizeds,
         "str": str,
+        "to_language_tag": to_language_tag,
         "unique": filter_unique,
         "upper_camel_case_to_lower_camel_case": upper_camel_case_to_lower_camel_case,
         "url": filter_url,

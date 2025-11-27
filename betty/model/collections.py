@@ -6,15 +6,13 @@ from __future__ import annotations
 
 from abc import ABC, abstractmethod
 from contextlib import contextmanager
-from reprlib import recursive_repr
-from typing import TYPE_CHECKING, Any, Generic, Self, TypeVar, cast
+from typing import TYPE_CHECKING, Any, Generic, TypeVar, cast
 
 from typing_extensions import override
 
 from betty.functools import unique
-from betty.model import Entity, EntityDefinition
+from betty.model import Entity, EntityPlugin
 from betty.mutability import Mutable
-from betty.repr import repr_instance
 
 if TYPE_CHECKING:
     from collections.abc import (
@@ -25,7 +23,6 @@ if TYPE_CHECKING:
         Sequence,
     )
 
-
 _EntityT = TypeVar("_EntityT", bound=Entity)
 _TargetT = TypeVar("_TargetT")
 
@@ -35,15 +32,13 @@ class UnsupportedTarget(RuntimeError):
     Raised when an entity is not supported as a target.
     """
 
-    @classmethod
-    def new(cls, expected_target: type, actual_target: object) -> Self:
-        """
-        Create a new instance.
-        """
-        return cls(f"Expected {expected_target}, but {type(actual_target)} was given.")
+    def __init__(self, expected_target: type, actual_target: object, /):
+        super().__init__(
+            f"Expected {expected_target}, but {type(actual_target)} was given."
+        )
 
 
-class EntityCollection(Mutable, Generic[_TargetT], ABC):
+class EntityCollection(Mutable, ABC, Generic[_TargetT]):
     """
     Provide a collection of entities.
 
@@ -57,7 +52,7 @@ class EntityCollection(Mutable, Generic[_TargetT], ABC):
         pass
 
     @override
-    def get_mutable_instances(self) -> Iterable[Mutable]:
+    def get_mutables(self) -> Iterable[object]:
         return self
 
     @property
@@ -122,7 +117,7 @@ class EntityCollection(Mutable, Generic[_TargetT], ABC):
 _EntityCollectionT = TypeVar("_EntityCollectionT", bound=EntityCollection[_EntityT])
 
 
-class SingleTypeEntityCollection(Generic[_TargetT], EntityCollection[_TargetT]):
+class SingleTypeEntityCollection(EntityCollection[_TargetT], Generic[_TargetT]):
     """
     Collect entities of a single type.
     """
@@ -134,17 +129,12 @@ class SingleTypeEntityCollection(Generic[_TargetT], EntityCollection[_TargetT]):
         self._entities: MutableSequence[_TargetT & Entity] = [*entities]
         self._target_type = target_type
 
-    @override  # type: ignore[callable-functiontype]
-    @recursive_repr()
-    def __repr__(self) -> str:
-        return repr_instance(self, target_type=self._target_type, length=len(self))
-
     @override
     def add(self, *entities: _TargetT & Entity) -> None:
         added_entities = [*self._unknown(*entities)]
         for entity in added_entities:
             if not isinstance(entity, self._target_type):
-                raise UnsupportedTarget.new(self._target_type, entity)
+                raise UnsupportedTarget(self._target_type, entity)
             self._entities.append(entity)
         if added_entities:
             self._on_add(*added_entities)
@@ -179,37 +169,21 @@ class SingleTypeEntityCollection(Generic[_TargetT], EntityCollection[_TargetT]):
 
     @override
     def __delitem__(self, key: str | _TargetT & Entity) -> None:
-        if isinstance(key, self._target_type):
-            return self._delitem_by_entity(cast("_TargetT & Entity", key))
         if isinstance(key, str):
-            return self._delitem_by_entity_id(key)
-        raise TypeError(f"Cannot find entities by {repr(key)}.")
-
-    def _delitem_by_entity(self, entity: _TargetT & Entity) -> None:
-        self.remove(entity)
-
-    def _delitem_by_entity_id(self, entity_id: str) -> None:
-        for entity in self._entities:
-            if entity_id == entity.id:
-                self.remove(entity)
-                return
+            for entity in self._entities:
+                if entity.id == key:
+                    self.remove(entity)
+        else:
+            self.remove(key)
 
     @override
     def __contains__(self, value: Any) -> bool:
-        if isinstance(value, self._target_type):
-            return self._contains_by_entity(cast("_TargetT & Entity", value))
         if isinstance(value, str):
-            return self._contains_by_entity_id(value)
-        return False
-
-    def _contains_by_entity(self, other_entity: _TargetT & Entity) -> bool:
-        return any(other_entity is entity for entity in self._entities)
-
-    def _contains_by_entity_id(self, entity_id: str) -> bool:
-        return any(entity.id == entity_id for entity in self._entities)
+            return any(entity.id == value for entity in self._entities)
+        return any(entity is value for entity in self._entities)
 
 
-class MultipleTypesEntityCollection(Generic[_TargetT], EntityCollection[_TargetT]):
+class MultipleTypesEntityCollection(EntityCollection[_TargetT], Generic[_TargetT]):
     """
     Collect entities of multiple types.
     """
@@ -224,19 +198,8 @@ class MultipleTypesEntityCollection(Generic[_TargetT], EntityCollection[_TargetT
         ] = {}
         self.add(*entities)
 
-    @override  # type: ignore[callable-functiontype]
-    @recursive_repr()
-    def __repr__(self) -> str:
-        return repr_instance(
-            self,
-            entity_types=", ".join(
-                entity_type.plugin.id for entity_type in self._collections
-            ),
-            length=len(self),
-        )
-
     def _get_collection(
-        self, entity_type: type[_EntityT]
+        self, entity_type: type[_EntityT], /
     ) -> SingleTypeEntityCollection[_EntityT]:
         assert issubclass(entity_type, Entity), f"{entity_type} is not an entity type."
         try:
@@ -253,9 +216,9 @@ class MultipleTypesEntityCollection(Generic[_TargetT], EntityCollection[_TargetT
 
     def __getitem__(
         self,
-        key: EntityDefinition | type[_EntityT],
+        key: EntityPlugin | type[_EntityT],
     ) -> SingleTypeEntityCollection[_EntityT]:
-        if isinstance(key, EntityDefinition):
+        if isinstance(key, EntityPlugin):
             return self._get_collection(
                 key.cls  # type: ignore[arg-type]
             )
@@ -264,17 +227,12 @@ class MultipleTypesEntityCollection(Generic[_TargetT], EntityCollection[_TargetT
     @override
     def __delitem__(self, key: type[_TargetT & Entity] | _TargetT & Entity) -> None:
         if isinstance(key, type):
-            return self._delitem_by_entity_type(key)
-        return self._delitem_by_entity(key)
-
-    def _delitem_by_entity_type(self, entity_type: type[_TargetT & Entity]) -> None:
-        removed_entities = [*self._get_collection(entity_type)]
-        self._get_collection(entity_type).clear()
-        if removed_entities:
-            self._on_remove(*removed_entities)
-
-    def _delitem_by_entity(self, entity: _TargetT & Entity) -> None:
-        self.remove(entity)
+            removed_entities = [*self._get_collection(key)]
+            self._get_collection(key).clear()
+            if removed_entities:
+                self._on_remove(*removed_entities)
+        else:
+            self.remove(key)
 
     @override
     def __iter__(self) -> Iterator[_TargetT & Entity]:
@@ -289,18 +247,15 @@ class MultipleTypesEntityCollection(Generic[_TargetT], EntityCollection[_TargetT
     @override
     def __contains__(self, value: Any) -> bool:
         if isinstance(value, Entity):
-            return self._contains_by_entity(value)
+            return any(entity is value for entity in self)
         return False
-
-    def _contains_by_entity(self, other_entity: Any) -> bool:
-        return any(other_entity is entity for entity in self)
 
     @override
     def add(self, *entities: _TargetT & Entity) -> None:
         added_entities = [*self._unknown(*entities)]
         for entity in added_entities:
             if not isinstance(entity, self._target_type):
-                raise UnsupportedTarget.new(self._target_type, entity)
+                raise UnsupportedTarget(self._target_type, entity)
             self[type(entity)].add(entity)
         if added_entities:
             self._on_add(*added_entities)
@@ -324,7 +279,7 @@ class MultipleTypesEntityCollection(Generic[_TargetT], EntityCollection[_TargetT
 
 @contextmanager
 def record_added(
-    entities: EntityCollection[_EntityT],
+    entities: EntityCollection[_EntityT], /
 ) -> Iterator[MultipleTypesEntityCollection[_EntityT]]:
     """
     Record all entities that are added to a collection.

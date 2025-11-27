@@ -4,13 +4,13 @@ Data types to describe events.
 
 from __future__ import annotations
 
-from reprlib import recursive_repr
 from typing import TYPE_CHECKING, final
 
 from typing_extensions import override
 
 from betty.ancestry.date import HasDate
 from betty.ancestry.description import HasDescription
+from betty.ancestry.event_type import EventTypePlugin
 from betty.ancestry.event_type.event_types import Unknown as UnknownEventType
 from betty.ancestry.has_citations import HasCitations
 from betty.ancestry.has_file_references import HasFileReferences
@@ -24,11 +24,14 @@ from betty.json.schema import String
 from betty.locale.localizable import (
     AllEnumeration,
     Localizable,
-    StaticTranslations,
+    LocalizableLike,
+    OptionalLocalizableAttr,
     _,
     ngettext,
 )
-from betty.model import EntityDefinition
+from betty.locale.localizable.linked_data import dump_linked_data
+from betty.locale.localizable.schema import StaticTranslationsSchema
+from betty.model import EntityPlugin
 from betty.model.association import (
     BidirectionalToManySingleType,
     BidirectionalToZeroOrOne,
@@ -36,7 +39,6 @@ from betty.model.association import (
     ToZeroOrOneAssociate,
 )
 from betty.privacy import HasPrivacy, Privacy
-from betty.repr import repr_instance
 
 if TYPE_CHECKING:
     from collections.abc import Iterable, Mapping
@@ -46,14 +48,13 @@ if TYPE_CHECKING:
     from betty.ancestry.file_reference import FileReference
     from betty.ancestry.note import Note
     from betty.date import DateLike
-    from betty.mutability import Mutable
     from betty.project import Project
     from betty.serde.dump import Dump, DumpMapping
 
 
 @final
-@EntityDefinition(
-    id="event",
+@EntityPlugin(
+    "event",
     label=_("Event"),
     label_plural=_("Events"),
     label_countable=ngettext("{count} event", "{count} events"),
@@ -71,7 +72,11 @@ class Event(
     An event that took place.
     """
 
-    #: The place the event happened.
+    name = OptionalLocalizableAttr("required")
+    """
+    The event's name, if it has any.
+    """
+
     place = BidirectionalToZeroOrOne["Event", Place](
         "betty.ancestry.event:Event",
         "place",
@@ -80,6 +85,9 @@ class Event(
         title="Place",
         description="The location of the event",
     )
+    """
+    The place the event happened.
+    """
     presences = BidirectionalToManySingleType["Event", Presence](
         "betty.ancestry.event:Event",
         "presences",
@@ -89,6 +97,9 @@ class Event(
         description="People's presences at this event",
         linked_data_embedded=True,
     )
+    """
+    People's presences at this event.
+    """
 
     def __init__(
         self,
@@ -103,9 +114,9 @@ class Event(
         public: bool | None = None,
         private: bool | None = None,
         place: ToZeroOrOneAssociate[Place] = None,
-        description: Localizable | None = None,
+        description: LocalizableLike | None = None,
         presences: ToManyAssociates[Presence] | None = None,
-        name: Localizable | None = None,
+        name: LocalizableLike | None = None,
     ):
         super().__init__(
             id,
@@ -126,9 +137,9 @@ class Event(
         self.name = name
 
     @override
-    def get_mutable_instances(self) -> Iterable[Mutable]:
+    def get_mutables(self) -> Iterable[object]:
         return (
-            *super().get_mutable_instances(),
+            *super().get_mutables(),
             self.event_type,
         )
 
@@ -146,7 +157,7 @@ class Event(
         if self.name:
             return self.name
 
-        format_kwargs: Mapping[str, str | Localizable] = {
+        format_kwargs: Mapping[str, LocalizableLike] = {
             "event_type": self._event_type.plugin.label,
         }
         subjects = [
@@ -165,11 +176,6 @@ class Event(
             return _("{event_type} of {subjects}").format(**format_kwargs)
         return _("{event_type}").format(**format_kwargs)
 
-    @override  # type: ignore[callable-functiontype]
-    @recursive_repr()
-    def __repr__(self) -> str:
-        return repr_instance(self, id=self._id, type=self._event_type)
-
     @property
     def event_type(self) -> EventType:
         """
@@ -178,7 +184,7 @@ class Event(
         return self._event_type
 
     @override
-    async def dump_linked_data(self, project: Project) -> DumpMapping[Dump]:
+    async def dump_linked_data(self, project: Project, /) -> DumpMapping[Dump]:
         dump = await super().dump_linked_data(project)
         dump_context(dump, place="https://schema.org/location")
         dump_context(dump, presences="https://schema.org/performer")
@@ -187,21 +193,22 @@ class Event(
         dump["eventAttendanceMode"] = "https://schema.org/OfflineEventAttendanceMode"
         dump["eventStatus"] = "https://schema.org/EventScheduled"
         if self.name is not None:
-            dump["name"] = await StaticTranslations.dump_linked_data_for(
-                project, self.name
+            dump["name"] = dump_linked_data(
+                self.name, localizers=await project.public_localizers
             )
         return dump
 
     @override
     @classmethod
-    async def linked_data_schema(cls, project: Project) -> JsonLdObject:
+    async def linked_data_schema(cls, project: Project, /) -> JsonLdObject:
         schema = await super().linked_data_schema(project)
+        event_types = await project.plugins(EventTypePlugin)
         schema.add_property(
             "name",
-            await StaticTranslations.linked_data_schema(project),
+            StaticTranslationsSchema(),
             False,
         )
-        schema.add_property("type", project.event_type_repository.plugin_id_schema)
+        schema.add_property("type", event_types.plugin_id_schema)
         schema.add_property("eventStatus", String(title="Event status"))
         schema.add_property(
             "eventAttendanceMode", String(title="Event attendance mode")

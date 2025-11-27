@@ -5,22 +5,16 @@ from typing import TYPE_CHECKING, Any
 
 import aiofiles
 import pytest
+from babel import Locale
 from PIL import Image
 from puremagic import what
 from typing_extensions import override
 
-from betty import ASSETS_DIRECTORY_PATH
 from betty.ancestry.file import File
 from betty.ancestry.file_reference import FileReference
-from betty.cache.memory import MemoryCache
 from betty.date import Date, DateLike, DateRange
+from betty.dirs import ASSETS_DIRECTORY_PATH
 from betty.job import Context
-from betty.locale import (
-    MULTIPLE_LOCALES,
-    NO_LINGUISTIC_CONTENT,
-    UNCODED_LOCALE,
-    UNDETERMINED_LOCALE,
-)
 from betty.locale.localizable import Plain
 from betty.locale.localized import Localized, LocalizedStr
 from betty.media_type import MediaType
@@ -97,7 +91,7 @@ async def test_filter_file__with_job_context(
         template=template,
         data={
             "file": file,
-            "job_context": Context(cache=MemoryCache()),
+            "job_context": Context(),
         },
     ) as (actual, project):
         assert actual == expected
@@ -313,7 +307,7 @@ async def test_filter_image_resize_cover__with_job_context(
         template=template,
         data={
             "filey": filey,
-            "job_context": Context(cache=MemoryCache()),
+            "job_context": Context(),
         },
     ) as (actual, project):
         assert actual == expected
@@ -485,7 +479,7 @@ async def test_filter_select_has_dates(
             [DummyLocalized(locale="en")],
         ),
         (
-            "en-US",
+            "en_US",
             "en",
             [DummyLocalized(locale="en-US")],
         ),
@@ -523,12 +517,7 @@ async def test_filter_select_localizeds(
 
 async def test_filter_select_localizeds__include_unspecified() -> None:
     template = '{{ data | select_localizeds(include_unspecified=true) | map(attribute="locale") | join(", ") }}'
-    data = [
-        DummyLocalized(locale=NO_LINGUISTIC_CONTENT),
-        DummyLocalized(locale=UNDETERMINED_LOCALE),
-        DummyLocalized(locale=MULTIPLE_LOCALES),
-        DummyLocalized(locale=UNCODED_LOCALE),
-    ]
+    data = [DummyLocalized()]
 
     async with assert_template_string(
         template=template,
@@ -537,7 +526,7 @@ async def test_filter_select_localizeds__include_unspecified() -> None:
         },
         locale="en-US",
     ) as (actual, _):
-        assert actual == "zxx, und, mul, mis"
+        assert actual == "None"
 
 
 class WithLocalizedDummyLocalizeds:
@@ -611,35 +600,40 @@ async def test_filter_format_date_like() -> None:
     [
         ("Hallo, wereld!", True, "Hallo, wereld!", "nl"),
         ("Hallo, wereld!", True, "Hallo, wereld!", "ar"),
-        ("Hallo, wereld!", True, LocalizedStr("Hallo, wereld!", locale="nl"), "nl"),
+        (
+            "Hallo, wereld!",
+            True,
+            LocalizedStr("Hallo, wereld!", locale=Locale("nl")),
+            "nl",
+        ),
         (
             "Hallo, wereld!",
             False,
-            LocalizedStr("Hallo, wereld!", locale="nl"),
+            LocalizedStr("Hallo, wereld!", locale=Locale("nl")),
             "nl",
         ),
         (
             '<span lang="nl">Hallo, wereld!</span>',
             True,
-            LocalizedStr("Hallo, wereld!", locale="nl"),
+            LocalizedStr("Hallo, wereld!", locale=Locale("nl")),
             "en",
         ),
         (
             '<span lang="nl">Hallo, wereld!</span>',
             False,
-            LocalizedStr("Hallo, wereld!", locale="nl"),
+            LocalizedStr("Hallo, wereld!", locale=Locale("nl")),
             "en",
         ),
         (
             '<span lang="nl" dir="ltr">Hallo, wereld!</span>',
             True,
-            LocalizedStr("Hallo, wereld!", locale="nl"),
+            LocalizedStr("Hallo, wereld!", locale=Locale("nl")),
             "ar",
         ),
         (
             '<span lang="nl" dir="ltr">Hallo, wereld!</span>',
             False,
-            LocalizedStr("Hallo, wereld!", locale="nl"),
+            LocalizedStr("Hallo, wereld!", locale=Locale("nl")),
             "ar",
         ),
     ],
@@ -806,13 +800,13 @@ async def test_filter_negotiate_has_dates(
 
 
 class _Localized(Localized):
-    def __init__(self, locale: str):
+    def __init__(self, locale: Locale):
         self._locale = locale
 
 
 async def test_filter_negotiate_localizeds() -> None:
-    localized_en = _Localized("en")
-    localized_nl = _Localized("nl")
+    localized_en = _Localized(Locale("en"))
+    localized_nl = _Localized(Locale("nl"))
     localizeds = [localized_en, localized_nl]
     template = "{{ (data | negotiate_localizeds).locale }}"
     async with assert_template_string(

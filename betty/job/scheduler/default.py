@@ -12,6 +12,7 @@ from typing import TYPE_CHECKING, Generic, TypeVar, cast, final
 
 from typing_extensions import override
 
+from betty.classtools import Singleton
 from betty.concurrent import AsynchronizedLock, backoff
 from betty.job import Context, Job
 from betty.job.scheduler import (
@@ -24,8 +25,7 @@ from betty.job.scheduler import (
     Scheduler,
     UnknownJobError,
 )
-from betty.locale.localizable import Plain
-from betty.typing import Sentinel, threadsafe
+from betty.typing import threadsafe
 
 if TYPE_CHECKING:
     from collections.abc import (
@@ -51,6 +51,7 @@ class _ScheduledJobBatch:
         user: User,
         done: Callable[[Sequence[str]], Awaitable[None]],
         jobs: Sequence[Job[_ContextCoT]],
+        /,
     ):
         self._scheduler = scheduler
         self._user = user
@@ -60,7 +61,7 @@ class _ScheduledJobBatch:
     async def __call__(self) -> None:
         try:
             for job in self._jobs:
-                await self._user.message_debug(Plain(f'Doing job "{job.id}"...'))
+                await self._user.message_debug(f'Doing job "{job.id}"...')
                 await job.do(self._scheduler)
         except BaseException as reason:
             await self._scheduler.cancel(reason)
@@ -69,13 +70,13 @@ class _ScheduledJobBatch:
 
 
 @final
-class _UnknownJob(Sentinel):
+class _UnknownJob(Singleton):
     pass
 
 
 @final
 @threadsafe
-class DefaultScheduler(Generic[_ContextCoT], Scheduler[_ContextCoT]):
+class DefaultScheduler(Scheduler[_ContextCoT], Generic[_ContextCoT]):
     """
     Betty's default job scheduler.
     """
@@ -95,8 +96,8 @@ class DefaultScheduler(Generic[_ContextCoT], Scheduler[_ContextCoT]):
         self._cancelled = False
         self._cancelled_reason: BaseException | None = None
         self._completed = False
-        self._jobs: MutableMapping[str, Job[_ContextCoT] | type[_UnknownJob]] = (
-            defaultdict(lambda: _UnknownJob)
+        self._jobs: MutableMapping[str, Job[_ContextCoT] | _UnknownJob] = defaultdict(
+            _UnknownJob
         )
         self._job_dependencies: MutableMapping[str, set[str]] = defaultdict(set)
         self._scheduled_jobs: set[str] = set()
@@ -133,8 +134,8 @@ class DefaultScheduler(Generic[_ContextCoT], Scheduler[_ContextCoT]):
             self._assert_open()
             self._releasable_jobs_sorter = None
             for job in jobs:
-                if self._jobs[job.id] is not _UnknownJob:
-                    raise DuplicateJobError.new(job.id)
+                if not isinstance(self._jobs[job.id], _UnknownJob):
+                    raise DuplicateJobError(job.id)
                 if job.dependents:
                     if self._released:
                         raise Released
@@ -158,7 +159,7 @@ class DefaultScheduler(Generic[_ContextCoT], Scheduler[_ContextCoT]):
             try:
                 self._releasable_jobs_sorter.prepare()
             except CycleError as error:
-                raise CyclicDependencyError.new(error.args[1]) from None
+                raise CyclicDependencyError(error.args[1]) from None
 
         possibly_newly_releasable_job_ids = self._releasable_jobs_sorter.get_ready()
         if possibly_newly_releasable_job_ids:
@@ -175,7 +176,7 @@ class DefaultScheduler(Generic[_ContextCoT], Scheduler[_ContextCoT]):
                     possibly_newly_releasable_job = self._jobs[
                         possibly_newly_releasable_job_id
                     ]
-                    if possibly_newly_releasable_job is _UnknownJob:
+                    if isinstance(possibly_newly_releasable_job, _UnknownJob):
                         unknown_job_id = possibly_newly_releasable_job_id
                         continue
                     self._scheduled_jobs.discard(possibly_newly_releasable_job_id)
@@ -191,7 +192,7 @@ class DefaultScheduler(Generic[_ContextCoT], Scheduler[_ContextCoT]):
                                 *self._releasable_jobs_queue,
                                 *newly_releasable_job_ids,
                             }
-                            if self._jobs[job_id] is not _UnknownJob
+                            if not isinstance(self._jobs[job_id], _UnknownJob)
                         ),
                     ),
                     key=lambda job: job.priority,
@@ -203,7 +204,7 @@ class DefaultScheduler(Generic[_ContextCoT], Scheduler[_ContextCoT]):
                 and not self._released_jobs
                 and unknown_job_id is not None
             ):
-                raise UnknownJobError.new(unknown_job_id)
+                raise UnknownJobError(unknown_job_id)
 
     @override  # noqa RET503
     async def get(self) -> ScheduledJobBatch:  # type: ignore[return]
@@ -236,7 +237,7 @@ class DefaultScheduler(Generic[_ContextCoT], Scheduler[_ContextCoT]):
             return _ScheduledJobBatch(self, self._user, self._done, jobs)
         return None
 
-    async def _done(self, job_ids: Sequence[str]) -> None:
+    async def _done(self, job_ids: Sequence[str], /) -> None:
         async with self._cancel_on_exception():
             async with self._lock:
                 for job_id in job_ids:
@@ -258,7 +259,7 @@ class DefaultScheduler(Generic[_ContextCoT], Scheduler[_ContextCoT]):
             raise
 
     @override
-    async def cancel(self, reason: BaseException | None = None) -> None:
+    async def cancel(self, reason: BaseException | None = None, /) -> None:
         async with self._lock:
             if not self._is_open():
                 return

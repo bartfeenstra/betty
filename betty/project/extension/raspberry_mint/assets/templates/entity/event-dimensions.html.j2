@@ -1,6 +1,6 @@
 {%- set embedded = embedded | default(False) -%}
-{%- set citation_context = entity_contexts['citation'] -%}
-{%- set place_context = entity_contexts['place'] -%}
+{%- set citation_context = resource.entity_contexts['citation'] -%}
+{%- set place_context = resource.entity_contexts['place'] -%}
 {%- set formatted_date = '' -%}
 {%- if event.date -%}
     {%- set formatted_date = event.date | format_date_like -%}

@@ -14,8 +14,9 @@ from betty.assertion import AssertionChain, assert_file_path
 from betty.config import Configuration
 from betty.data import Path as PathContext
 from betty.exception import HumanFacingExceptionGroup
-from betty.factory import new
-from betty.serde.format import FORMAT_REPOSITORY, format_for
+from betty.factory import new_target
+from betty.plugin.repository.provider.service import plugins
+from betty.serde.format import FormatPlugin, format_for
 
 if TYPE_CHECKING:
     from pathlib import Path
@@ -24,14 +25,14 @@ _ConfigurationT = TypeVar("_ConfigurationT", bound=Configuration)
 
 
 async def assert_configuration_file(
-    configuration: _ConfigurationT,
+    configuration: _ConfigurationT, /
 ) -> AssertionChain[Path, _ConfigurationT]:
     """
     Assert that configuration can be loaded from a file.
     """
     available_formats = {
-        available_format: await new(available_format.cls)
-        for available_format in FORMAT_REPOSITORY
+        available_format: await new_target(available_format.cls)
+        for available_format in await plugins(FormatPlugin)
     }
 
     def _assert(configuration_file_path: Path) -> _ConfigurationT:
@@ -54,15 +55,15 @@ async def assert_configuration_file(
 
 
 async def write_configuration_file(
-    configuration: Configuration, configuration_file_path: Path
+    configuration: Configuration, configuration_file_path: Path, /
 ) -> None:
     """
     Write configuration to a file.
     """
     serde_format_type = format_for(
-        list(FORMAT_REPOSITORY), configuration_file_path.suffix
+        list(await plugins(FormatPlugin)), configuration_file_path.suffix
     )
-    serde_format = await new(serde_format_type.cls)
+    serde_format = await new_target(serde_format_type.cls)
     dump = serde_format.dump(configuration.dump())
     await makedirs(configuration_file_path.parent, exist_ok=True)
     async with aiofiles.open(configuration_file_path, mode="w") as f:

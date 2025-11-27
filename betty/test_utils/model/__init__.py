@@ -8,11 +8,10 @@ from typing import final
 
 import pytest
 
-from betty.locale.localizable import CountablePlain, Plain
+from betty.locale.localizable import CountablePlain
 from betty.locale.localizer import DEFAULT_LOCALIZER
-from betty.model import Entity, EntityDefinition
-from betty.test_utils.plugin import (
-    ClassedPluginDefinitionTestBase,
+from betty.model import Entity, EntityPlugin
+from betty.test_utils.plugin.human_facing import (
     CountableHumanFacingPluginDefinitionTestBase,
 )
 
@@ -36,20 +35,17 @@ class EntityTestBase:
         assert sut.label.localize(DEFAULT_LOCALIZER)
 
 
-class EntityDefinitionTestBase(
-    CountableHumanFacingPluginDefinitionTestBase,
-    ClassedPluginDefinitionTestBase,
-):
+class EntityPluginTestBase(CountableHumanFacingPluginDefinitionTestBase):
     """
-    A base class for testing :py:class:`betty.model.EntityDefinition` implementations.
+    A base class for testing :py:class:`betty.model.EntityPlugin` implementations.
     """
 
 
 @final
-@EntityDefinition(
-    id="dummy-one",
-    label=Plain("Dummy (one)"),
-    label_plural=Plain("Dummies (one)"),
+@EntityPlugin(
+    "dummy-one",
+    label="Dummy (one)",
+    label_plural="Dummies (one)",
     label_countable=CountablePlain("{count} dummy (one)", "{count} dummies (one)"),
 )
 class DummyEntityOne(Entity):
@@ -59,10 +55,10 @@ class DummyEntityOne(Entity):
 
 
 @final
-@EntityDefinition(
-    id="dummy",
-    label=Plain("Dummy (two)"),
-    label_plural=Plain("Dummies (two)"),
+@EntityPlugin(
+    "dummy",
+    label="Dummy (two)",
+    label_plural="Dummies (two)",
     label_countable=CountablePlain("{count} dummy (two)", "{count} dummies (two)"),
 )
 class DummyEntityTwo(Entity):
@@ -72,10 +68,10 @@ class DummyEntityTwo(Entity):
 
 
 @final
-@EntityDefinition(
-    id="dummy-non-public-facing-one",
-    label=Plain("Dummy non-public-facing (two)"),
-    label_plural=Plain("Dummies non-public-facing (two)"),
+@EntityPlugin(
+    "dummy-non-public-facing-one",
+    label="Dummy non-public-facing (two)",
+    label_plural="Dummies non-public-facing (two)",
     label_countable=CountablePlain(
         "{count} dummy non-public-facing (two)",
         "{count} dummies non-public-facing (two)",

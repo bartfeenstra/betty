@@ -2,41 +2,29 @@
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Any, ClassVar, Generic, Self, TypeVar, final
+from typing import TYPE_CHECKING, ClassVar, Self, TypeVar, final
 
 from typing_extensions import override
 
-from betty.config import Configuration, DefaultConfigurable
-from betty.job import Context
-from betty.locale.localizable import _
-from betty.plugin import (
-    ClassedPlugin,
-    ClassedPluginDefinition,
-    ClassedPluginTypeDefinition,
-    DependentPluginDefinition,
-    HumanFacingPluginDefinition,
-    OrderedPluginDefinition,
-)
+from betty.locale.localizable import LocalizableLike, _
+from betty.plugin import Plugin, PluginTypeDefinition
+from betty.plugin.dependent import DependentPluginDefinition
+from betty.plugin.discovery.entry_point import EntryPointDiscovery
+from betty.plugin.human_facing import HumanFacingPluginDefinition
 from betty.plugin.requirement import new_dependencies_requirement
-from betty.project.factory import ProjectDependentFactory
-from betty.requirement import HasRequirement
-from betty.service import ServiceProvider
+from betty.requirement import HasRequirement, Requirement, StaticRequirement
+from betty.service.container import ServiceContainer
 
 if TYPE_CHECKING:
+    from collections.abc import Set
     from pathlib import Path
 
-    from betty.app import App
-    from betty.project import Project
-    from betty.requirement import Requirement
-
-_T = TypeVar("_T")
-_ConfigurationT = TypeVar("_ConfigurationT", bound=Configuration)
-_ContextT = TypeVar("_ContextT", bound=Context)
+    from betty.machine_name import MachineName
+    from betty.plugin.resolve import ResolvableId
+    from betty.service.level import ServiceLevel
 
 
-class Extension(
-    HasRequirement, ServiceProvider, ProjectDependentFactory, ClassedPlugin
-):
+class Extension(ServiceContainer, Plugin, HasRequirement):
     """
     Integrate optional functionality with Betty :py:class:`betty.project.Project`s.
 
@@ -45,30 +33,40 @@ class Extension(
     To test your own subclasses, use :py:class:`betty.test_utils.project.extension.ExtensionTestBase`.
     """
 
-    plugin: ClassVar[ExtensionDefinition]
-
-    def __init__(self, project: Project):
-        assert type(self) is not Extension
-        super().__init__()
-        self._project = project
+    plugin: ClassVar[ExtensionPlugin]
 
     @override
     @classmethod
-    async def new_for_project(cls, project: Project) -> Self:
-        return cls(project)
+    async def requires(
+        cls, services: ServiceLevel, subject: LocalizableLike, /
+    ) -> Requirement | Self:
+        from betty.project import Project
 
-    @property
-    def project(self) -> Project:
-        """
-        The project this extension runs within.
-        """
-        return self._project
+        project = await Project.requires(services, subject)
+        if isinstance(project, Requirement):
+            return project
+
+        extensions = await project.extensions
+        if cls.plugin.id not in extensions:
+            return StaticRequirement(
+                _(
+                    "{subject} requires the {extension} extension. Enable it in your project configuration, and try again."
+                ).format(subject=subject, extension=cls.plugin.reference_label)
+            )
+        return extensions[cls]
 
     @override
     @classmethod
-    async def requirement(cls, *, app: App) -> Requirement | None:
+    async def requirement(cls, services: ServiceLevel, /) -> Requirement | None:
+        from betty.project import Project
+
+        project = await Project.requires(services, cls.plugin.reference_label_with_type)
+        if isinstance(project, Requirement):
+            return project
         return await new_dependencies_requirement(
-            cls.plugin, app.extension_repository, app=app
+            cls.plugin,
+            await project.plugins(ExtensionPlugin, check_requirements=False),
+            services=project,
         )
 
 
@@ -76,30 +74,40 @@ _ExtensionT = TypeVar("_ExtensionT", bound=Extension)
 
 
 @final
-class ExtensionDefinition(
-    HumanFacingPluginDefinition,
-    ClassedPluginDefinition[Extension],
-    DependentPluginDefinition,
-    OrderedPluginDefinition,
+class ExtensionPlugin(
+    HumanFacingPluginDefinition[Extension], DependentPluginDefinition[Extension]
 ):
     """
     An extension definition.
     """
 
-    type: ClassVar[ClassedPluginTypeDefinition] = ClassedPluginTypeDefinition(
-        id="extension",
-        label=_("Extension"),
-        cls=Extension,
+    plugin_type_cls = Extension
+    type = PluginTypeDefinition(
+        "extension",
+        _("Extension"),
+        discoveries=EntryPointDiscovery("betty.extension"),
     )
 
     def __init__(
         self,
+        plugin_id: MachineName,
         *,
+        label: LocalizableLike,
+        description: LocalizableLike | None = None,
+        comes_before: Set[ResolvableId] | None = None,
+        comes_after: Set[ResolvableId] | None = None,
+        depends_on: Set[ResolvableId] | None = None,
         assets_directory_path: Path | None = None,
         theme: bool = False,
-        **kwargs: Any,
     ):
-        super().__init__(**kwargs)
+        super().__init__(
+            plugin_id,
+            label=label,
+            description=description,
+            comes_before=comes_before,
+            comes_after=comes_after,
+            depends_on=depends_on,
+        )
         self._assets_directory_path = assets_directory_path
         self._theme = theme
 
@@ -116,16 +124,3 @@ class ExtensionDefinition(
         Whether this extension is a theme.
         """
         return self._theme
-
-
-class ConfigurableExtension(
-    DefaultConfigurable[_ConfigurationT], Extension, Generic[_ConfigurationT]
-):
-    """
-    A configurable extension.
-    """
-
-    @override
-    @classmethod
-    async def new_for_project(cls, project: Project) -> Self:
-        return cls(project, configuration=cls.new_default_configuration())

@@ -9,7 +9,7 @@ from betty.ancestry.enclosure import Enclosure
 from betty.ancestry.place import Place
 from betty.ancestry.source import Source
 from betty.date import Date
-from betty.test_utils.model import EntityDefinitionTestBase
+from betty.test_utils.model import EntityPluginTestBase
 
 if TYPE_CHECKING:
     from betty.plugin import PluginDefinition
@@ -17,7 +17,7 @@ if TYPE_CHECKING:
 import pytest
 
 
-class TestEnclosureDefinition(EntityDefinitionTestBase):
+class TestEnclosureDefinition(EntityPluginTestBase):
     @override
     @pytest.fixture
     def sut(self) -> PluginDefinition:

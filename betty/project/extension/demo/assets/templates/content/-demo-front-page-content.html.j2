@@ -1,0 +1,14 @@
+<div class="container my-5">
+    <div class="justify-content-center row">
+        <div class="col col-12 col-lg-8">
+            <p>
+                {% set liberta_lankester_label -%}
+                    <a href="{{ project.ancestry[app.plugins('entity')['person']]['betty-demo-liberta-lankester'] | url }}">Liberta 'Betty' Lankester</a>
+                {%- endset %}
+                {% trans liberta_lankester_label = liberta_lankester_label -%}
+                    Betty was named after {{ liberta_lankester_label }}, and this website shows a small sample of her family history. You can browse the pages about her and some of her family to get an idea of what a Betty site looks like.
+                {%- endtrans %}
+            </p>
+        </div>
+    </div>
+</div>

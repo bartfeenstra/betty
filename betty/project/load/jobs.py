@@ -21,6 +21,8 @@ if TYPE_CHECKING:
     from collections.abc import Iterable, MutableMapping
     from xml.etree.ElementTree import Element
 
+    from babel import Locale
+
     from betty.ancestry.link import Link
     from betty.job.scheduler import Scheduler
 
@@ -57,8 +59,8 @@ class PopulateLink(Job[ProjectContext]):
         urls_to_locales = defaultdict(set)
         for locale, url in urls.translations.items():
             urls_to_locales[url].add(locale)
-        labels: MutableMapping[str, str] = {}
-        descriptions: MutableMapping[str, str] = {}
+        labels: MutableMapping[Locale, str] = {}
+        descriptions: MutableMapping[Locale, str] = {}
         await gather(
             *(
                 self._populate_link_from_url(
@@ -80,9 +82,9 @@ class PopulateLink(Job[ProjectContext]):
         self,
         project: Project,
         url: str,
-        locales: Iterable[str],
-        labels: MutableMapping[str, str],
-        descriptions: MutableMapping[str, str],
+        locales: Iterable[Locale],
+        labels: MutableMapping[Locale, str],
+        descriptions: MutableMapping[Locale, str],
     ) -> None:
         http_client = await project.app.http_client
         try:

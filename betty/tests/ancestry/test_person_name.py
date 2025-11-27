@@ -9,10 +9,9 @@ from betty.ancestry.citation import Citation
 from betty.ancestry.person import Person
 from betty.ancestry.person_name import PersonName
 from betty.ancestry.source import Source
-from betty.locale import UNDETERMINED_LOCALE
 from betty.model import Entity
 from betty.test_utils.json.linked_data import assert_dumps_linked_data
-from betty.test_utils.model import EntityDefinitionTestBase, EntityTestBase
+from betty.test_utils.model import EntityPluginTestBase, EntityTestBase
 
 if TYPE_CHECKING:
     from collections.abc import Sequence
@@ -21,7 +20,7 @@ if TYPE_CHECKING:
     from betty.serde.dump import Dump, DumpMapping
 
 
-class TestPersonNameDefinition(EntityDefinitionTestBase):
+class TestPersonNameDefinition(EntityPluginTestBase):
     @override
     @pytest.fixture
     def sut(self) -> PluginDefinition:
@@ -68,7 +67,7 @@ class TestPersonName(EntityTestBase):
             individual="Janet",
             affiliation="Not a Girl",
         )
-        assert sut.locale is UNDETERMINED_LOCALE
+        assert sut.locale is None
 
     async def test_citations(self) -> None:
         person = Person(id="1")
@@ -108,7 +107,7 @@ class TestPersonName(EntityTestBase):
             },
             "id": sut.id,
             "individual": "Jane",
-            "locale": UNDETERMINED_LOCALE,
+            "locale": "und",
             "private": False,
             "citations": [],
             "person": None,
@@ -124,7 +123,7 @@ class TestPersonName(EntityTestBase):
             },
             "id": sut.id,
             "affiliation": "Doe",
-            "locale": UNDETERMINED_LOCALE,
+            "locale": "und",
             "private": False,
             "citations": [],
             "person": None,

@@ -10,7 +10,7 @@ from typing_extensions import override
 from betty.ancestry.event import Event
 from betty.ancestry.event_type import (
     EventType,
-    EventTypeDefinition,
+    EventTypePlugin,
     ShouldExistEventType,
 )
 from betty.ancestry.person import Person
@@ -18,9 +18,7 @@ from betty.ancestry.presence import Presence
 from betty.ancestry.presence_role.presence_roles import Subject
 from betty.date import Date, DateLike, DateRange
 from betty.deriver import Deriver
-from betty.locale.localizable import Plain
 from betty.model.collections import record_added
-from betty.plugin.static import StaticPluginRepository
 from betty.project import Project
 
 if TYPE_CHECKING:
@@ -29,52 +27,37 @@ if TYPE_CHECKING:
     from betty.app import App
 
 NewProject: TypeAlias = Callable[
-    [Iterable[EventTypeDefinition]], AbstractAsyncContextManager[Project]
+    [Iterable[EventTypePlugin]], AbstractAsyncContextManager[Project]
 ]
 
 
 @final
-@EventTypeDefinition(
-    id="isolated",
-    label=Plain(""),
-)
+@EventTypePlugin("isolated", label="")
 class Isolated(EventType):
     pass
 
 
 @final
-@EventTypeDefinition(
-    id="comes-before-reference",
-    label=Plain(""),
-)
+@EventTypePlugin("comes-before-reference", label="")
 class ComesBeforeReference(EventType):
     pass
 
 
 @final
-@EventTypeDefinition(
-    id="comes-after-reference",
-    label=Plain(""),
-)
+@EventTypePlugin("comes-after-reference", label="")
 class ComesAfterReference(EventType):
     pass
 
 
 @final
-@EventTypeDefinition(
-    id="comes-before",
-    label=Plain(""),
-    comes_before={ComesBeforeReference.plugin},
-)
+@EventTypePlugin("comes-before", label="", comes_before={ComesBeforeReference.plugin})
 class ComesBefore(EventType):
     pass
 
 
 @final
-@EventTypeDefinition(
-    id="comes-before-should-exist",
-    label=Plain(""),
-    comes_before={ComesBeforeReference.plugin},
+@EventTypePlugin(
+    "comes-before-should-exist", label="", comes_before={ComesBeforeReference.plugin}
 )
 class ComesBeforeShouldExist(ShouldExistEventType):
     @override
@@ -84,9 +67,9 @@ class ComesBeforeShouldExist(ShouldExistEventType):
 
 
 @final
-@EventTypeDefinition(
-    id="comes-before-should-not-exist",
-    label=Plain(""),
+@EventTypePlugin(
+    "comes-before-should-not-exist",
+    label="",
     comes_before={ComesBeforeReference.plugin},
 )
 class ComesBeforeShouldNotExist(ShouldExistEventType):
@@ -97,9 +80,9 @@ class ComesBeforeShouldNotExist(ShouldExistEventType):
 
 
 @final
-@EventTypeDefinition(
-    id="comes-before-and-after",
-    label=Plain(""),
+@EventTypePlugin(
+    "comes-before-and-after",
+    label="",
     comes_before={ComesBeforeReference.plugin},
     comes_after={ComesAfterReference.plugin},
 )
@@ -108,9 +91,9 @@ class ComesBeforeAndAfter(EventType):
 
 
 @final
-@EventTypeDefinition(
-    id="comes-before-and-after-should-exist",
-    label=Plain(""),
+@EventTypePlugin(
+    "comes-before-and-after-should-exist",
+    label="",
     comes_before={ComesBeforeReference.plugin},
     comes_after={ComesAfterReference.plugin},
 )
@@ -122,9 +105,9 @@ class ComesBeforeAndAfterShouldExist(ShouldExistEventType):
 
 
 @final
-@EventTypeDefinition(
-    id="comes-before-and-after-should-not-exist",
-    label=Plain(""),
+@EventTypePlugin(
+    "comes-before-and-after-should-not-exist",
+    label="",
     comes_before={ComesBeforeReference.plugin},
     comes_after={ComesAfterReference.plugin},
 )
@@ -136,20 +119,14 @@ class ComesBeforeAndAfterShouldNotExist(ShouldExistEventType):
 
 
 @final
-@EventTypeDefinition(
-    id="comes-after",
-    label=Plain(""),
-    comes_after={ComesAfterReference.plugin},
-)
+@EventTypePlugin("comes-after", label="", comes_after={ComesAfterReference.plugin})
 class ComesAfter(EventType):
     pass
 
 
 @final
-@EventTypeDefinition(
-    id="comes-after-should-exist",
-    label=Plain(""),
-    comes_after={ComesAfterReference.plugin},
+@EventTypePlugin(
+    "comes-after-should-exist", label="", comes_after={ComesAfterReference.plugin}
 )
 class ComesAfterShouldExist(ShouldExistEventType):
     @override
@@ -159,10 +136,8 @@ class ComesAfterShouldExist(ShouldExistEventType):
 
 
 @final
-@EventTypeDefinition(
-    id="comes-after-should-not-exist",
-    label=Plain(""),
-    comes_after={ComesAfterReference.plugin},
+@EventTypePlugin(
+    "comes-after-should-not-exist", label="", comes_after={ComesAfterReference.plugin}
 )
 class ComesAfterShouldNotExist(ShouldExistEventType):
     @override
@@ -176,13 +151,11 @@ class TestDeriver:
     def new_project(self, temporary_app: App) -> NewProject:
         @asynccontextmanager
         async def _new_project(
-            event_types: Iterable[EventTypeDefinition],
+            event_types: Iterable[EventTypePlugin],
         ) -> AsyncIterator[Project]:
-            async with Project.new_temporary(temporary_app) as project, project:
-                project.event_type_repository = StaticPluginRepository(
-                    EventTypeDefinition, *event_types
-                )
-                yield project
+            with EventTypePlugin.type.override_discovery(*event_types):
+                async with Project.new_temporary(temporary_app) as project, project:
+                    yield project
 
         return _new_project
 

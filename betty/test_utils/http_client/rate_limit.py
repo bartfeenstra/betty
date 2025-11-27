@@ -2,15 +2,10 @@
 Test utilities for :py:mod:`betty.http_client.rate_limit`.
 """
 
-from betty.test_utils.plugin import (
-    ClassedPluginDefinitionTestBase,
-    OrderedPluginDefinitionTestBase,
-)
+from betty.test_utils.plugin.ordered import OrderedPluginDefinitionTestBase
 
 
-class RateLimitDefinitionTestBase(
-    OrderedPluginDefinitionTestBase, ClassedPluginDefinitionTestBase
-):
+class RateLimitPluginTestBase(OrderedPluginDefinitionTestBase):
     """
-    A base class for testing :py:class:`betty.http_client.rate_limit.RateLimitDefinition` subclasses.
+    A base class for testing :py:class:`betty.http_client.rate_limit.RateLimitPlugin` subclasses.
     """

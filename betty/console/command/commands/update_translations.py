@@ -4,14 +4,14 @@ from typing import TYPE_CHECKING, final, Self
 
 from typing_extensions import override
 
-from betty.app.factory import AppDependentFactory
+from betty.app.factory import AppDependentSelfFactory
 from betty.assertion import (
     assert_or,
     assert_none,
     assert_directory_path,
 )
 from betty.console.assertion import assertion_to_argument_type
-from betty.console.command import Command, CommandFunction, CommandDefinition
+from betty.console.command import Command, CommandFunction, CommandPlugin
 from betty.console.project import add_project_argument
 from betty.locale import translation
 from betty.locale.localizable import _
@@ -25,11 +25,8 @@ if TYPE_CHECKING:
 
 
 @final
-@CommandDefinition(
-    id="update-translations",
-    label=_("Update all existing translations"),
-)
-class UpdateTranslations(AppDependentFactory, Command):
+@CommandPlugin("update-translations", label=_("Update all existing translations"))
+class UpdateTranslations(AppDependentSelfFactory, Command):
     """
     A command to update all of a project's translations.
     """
@@ -39,7 +36,7 @@ class UpdateTranslations(AppDependentFactory, Command):
 
     @override
     @classmethod
-    async def new_for_app(cls, app: App) -> Self:
+    async def new_for_app(cls, app: App, /) -> Self:
         return cls(app)
 
     @override

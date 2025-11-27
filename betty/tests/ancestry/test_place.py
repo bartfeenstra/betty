@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+from pathlib import Path
 from typing import TYPE_CHECKING, Any, cast
 
 import pytest
@@ -12,14 +13,16 @@ from betty.ancestry.event_type.event_types import Birth
 from betty.ancestry.link import Link
 from betty.ancestry.name import Name
 from betty.ancestry.place import Place
+from betty.ancestry.place_type import PlaceType, PlaceTypePlugin
 from betty.ancestry.place_type.place_types import Hamlet
 from betty.ancestry.place_type.place_types import Unknown as UnknownPlaceType
-from betty.locale import DEFAULT_LOCALE
-from betty.locale.localizable import Plain
+from betty.locale import DEFAULT_LOCALE, DEFAULT_LOCALE_TAG, to_language_tag
 from betty.model import Entity
 from betty.model.association import AssociationRequired, TemporaryToOneResolver
+from betty.mutability import Mutable
+from betty.test_utils.documentation import PluginDocumentationTestBase
 from betty.test_utils.json.linked_data import assert_dumps_linked_data
-from betty.test_utils.model import EntityDefinitionTestBase, EntityTestBase
+from betty.test_utils.model import EntityPluginTestBase, EntityTestBase
 
 if TYPE_CHECKING:
     from collections.abc import Mapping, Sequence
@@ -27,11 +30,16 @@ if TYPE_CHECKING:
     from betty.plugin import PluginDefinition
 
 
-class TestPlaceDefinition(EntityDefinitionTestBase):
+class TestPlaceDefinition(EntityPluginTestBase):
     @override
     @pytest.fixture
     def sut(self) -> PluginDefinition:
         return Place.plugin
+
+
+class TestPlaceTypeDocumentation(PluginDocumentationTestBase[PlaceTypePlugin]):
+    _plugin_type = PlaceTypePlugin
+    _plugin_type_documentation_path = Path("usage") / "ancestry" / "place-type.rst"
 
 
 class TestPlace(EntityTestBase):
@@ -39,7 +47,7 @@ class TestPlace(EntityTestBase):
     def _sut_params() -> Sequence[Entity]:
         return [
             Place(),
-            Place(names=[Name(Plain("My First Place"))]),
+            Place(names=[Name("My First Place")]),
         ]
 
     @override
@@ -177,10 +185,10 @@ class TestPlace(EntityTestBase):
         longitude = -54.321
         coordinates = Point(latitude, longitude)
         link = Link("https://example.com/the-place")
-        link.label = Plain("The Place Online")
+        link.label = "The Place Online"  # type: ignore[assignment]
         place = Place(
             id=place_id,
-            names=[Name(Plain(name))],
+            names=[Name(name)],
             events=[
                 Event(
                     id="E1",
@@ -203,7 +211,7 @@ class TestPlace(EntityTestBase):
             "@id": "https://example.com/place/the_place/index.json",
             "@type": "https://schema.org/Place",
             "id": place_id,
-            "names": [{"name": {DEFAULT_LOCALE: name}}],
+            "names": [{"name": {DEFAULT_LOCALE_TAG: name}}],
             "events": [
                 "/event/E1/index.json",
             ],
@@ -213,10 +221,12 @@ class TestPlace(EntityTestBase):
                     "@context": {"description": "https://schema.org/description"},
                     "id": link.id,
                     "url": {
-                        DEFAULT_LOCALE: "https://example.com/the-place",
+                        to_language_tag(
+                            DEFAULT_LOCALE
+                        ): "https://example.com/the-place",
                     },
                     "label": {
-                        DEFAULT_LOCALE: "The Place Online",
+                        DEFAULT_LOCALE_TAG: "The Place Online",
                     },
                     "owner": "/place/the_place/index.json",
                     "private": False,
@@ -253,7 +263,11 @@ class TestPlace(EntityTestBase):
         actual = await assert_dumps_linked_data(place)
         assert actual == expected
 
-    def test_get_mutable_instances(self) -> None:
-        sut = Place()
-        sut.immutable()
-        assert sut.place_type.is_immutable
+    def test_get_mutables(self) -> None:
+        class _MutablePlaceType(PlaceType, Mutable):
+            pass
+
+        place_type = _MutablePlaceType()
+        sut = Place(place_type=place_type)
+        sut.immutable = True
+        assert place_type.immutable

@@ -12,18 +12,17 @@ from uuid import NAMESPACE_URL, uuid5
 from typing_extensions import override
 
 from betty.ancestry.event import Event
-from betty.ancestry.event_type import ShouldExistEventType
+from betty.ancestry.event_type import EventTypePlugin, ShouldExistEventType
 from betty.ancestry.person import Person
 from betty.ancestry.presence import Presence
 from betty.ancestry.presence_role.presence_roles import Subject
 from betty.date import Date, DateRange
 from betty.locale.localizable import _
-from betty.plugin import get_comes_after, get_comes_before
+from betty.plugin.ordered import get_comes_after, get_comes_before
 
 if TYPE_CHECKING:
     from collections.abc import Collection, Iterable, Sequence
 
-    from betty.ancestry.event_type import EventTypeDefinition
     from betty.project import Project
 
 
@@ -32,17 +31,23 @@ class Derivation(Enum):
     Derivation types.
     """
 
-    #: No derivation took place.
     NONE = 1
+    """
+    No derivation took place.
+    """
 
-    #: The derivation created new data.
     CREATE = 2
+    """
+    The derivation created new data.
+    """
 
-    #: The derivation updated existing data.
     UPDATE = 3
+    """
+    The derivation updated existing data.
+    """
 
 
-def _derive_event_id(derivable_event_type: EventTypeDefinition, person: Person) -> str:
+def _derive_event_id(derivable_event_type: EventTypePlugin, person: Person) -> str:
     return str(
         uuid5(
             NAMESPACE_URL,
@@ -65,7 +70,7 @@ class Deriver:
         """
         Derive additional data.
         """
-        for derivable_event_type in self._project.event_type_repository:
+        for derivable_event_type in await self._project.plugins(EventTypePlugin):
             created_derivations = 0
             updated_derivations = 0
             for person in self._project.ancestry[Person]:
@@ -75,7 +80,7 @@ class Deriver:
                 created_derivations += created
                 updated_derivations += updated
             if updated_derivations > 0:
-                await self._project.app.user.message_debug(
+                await self._project.app.user.message_information_details(
                     _(
                         "Updated {updated_derivations} {event_type} events based on existing information."
                     ).format(
@@ -84,7 +89,7 @@ class Deriver:
                     )
                 )
             if created_derivations > 0:
-                await self._project.app.user.message_debug(
+                await self._project.app.user.message_information_details(
                     _(
                         "Created {created_derivations} additional {event_type} events based on existing information."
                     ).format(
@@ -94,8 +99,9 @@ class Deriver:
                 )
 
     async def _derive_person(
-        self, person: Person, derivable_event_type: EventTypeDefinition
+        self, person: Person, derivable_event_type: EventTypePlugin
     ) -> tuple[int, int]:
+        event_types = await self._project.plugins(EventTypePlugin)
         # Gather any existing events that could be derived, or create a new derived event if needed.
         derivable_events: Sequence[tuple[Event, Derivation]] = [
             (event, Derivation.UPDATE)
@@ -129,12 +135,8 @@ class Deriver:
                 return 0, 0
 
         # Aggregate event type order from references and backreferences.
-        comes_before_event_types = get_comes_before(
-            self._project.event_type_repository, derivable_event_type
-        )
-        comes_after_event_types = get_comes_after(
-            self._project.event_type_repository, derivable_event_type
-        )
+        comes_before_event_types = get_comes_before(event_types, derivable_event_type)  # type: ignore[type-var]
+        comes_after_event_types = get_comes_after(event_types, derivable_event_type)  # type: ignore[type-var]
 
         created_derivations = 0
         updated_derivations = 0
@@ -173,7 +175,7 @@ class _DateDeriver(ABC):
         cls,
         person: Person,
         derivable_event: Event,
-        reference_event_types: Collection[EventTypeDefinition],
+        reference_event_types: Collection[EventTypePlugin],
     ) -> bool:
         if not reference_event_types:
             return False
@@ -301,7 +303,7 @@ class _ComesAfterDateDeriver(_DateDeriver):
 
 
 def _get_derivable_events(
-    person: Person, derivable_event_type: EventTypeDefinition
+    person: Person, derivable_event_type: EventTypePlugin
 ) -> Iterable[Event]:
     for presence in person.presences:
         event = presence.event
@@ -327,8 +329,8 @@ def _get_derivable_events(
 
 def _get_reference_events(
     person: Person,
-    reference_event_types: Collection[EventTypeDefinition],
-    derivable_event_type: EventTypeDefinition,
+    reference_event_types: Collection[EventTypePlugin],
+    derivable_event_type: EventTypePlugin,
 ) -> Iterable[Event]:
     reference_event_type_ids = [
         reference_event_type.id for reference_event_type in reference_event_types

@@ -1,0 +1,11 @@
+{% if entity is entity_plugin('event') %}
+    {% set places = [entity.place] if entity.place else [] %}
+{% elif entity is entity_plugin('person') %}
+    {% set places = entity.presences | select('public') | selectattr('event', 'public') | map(attribute='event.place') | reject('none') | unique | list %}
+{% elif entity is entity_plugin('place') %}
+    {% set enclosees = entity.walk_enclosees | map(attribute='enclosee') | select('entity_plugin', 'place') | select('public') | list %}
+    {% set places = enclosees + [entity] %}
+{% endif %}
+{% if places is defined %}
+    {% include 'maps/map.html.j2' %}
+{% endif %}

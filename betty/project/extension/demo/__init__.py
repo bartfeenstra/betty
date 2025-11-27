@@ -6,15 +6,16 @@ from __future__ import annotations
 
 from asyncio import to_thread
 from contextlib import suppress
+from pathlib import Path
 from shutil import rmtree
 from typing import TYPE_CHECKING, final
 
 from typing_extensions import override
 
 from betty.html import NavigationLink, NavigationLinkProvider
-from betty.locale.localizable import Plain, _
+from betty.locale.localizable import _
 from betty.project import ProjectContext, generate
-from betty.project.extension import Extension, ExtensionDefinition
+from betty.project.extension import Extension, ExtensionPlugin
 from betty.project.extension.demo.jobs import LoadAncestry
 from betty.project.extension.deriver import Deriver
 from betty.project.extension.http_api_doc import HttpApiDoc
@@ -39,6 +40,10 @@ async def generate_with_cleanup(
     """
     Generate a demonstration site, and clean up the project directory on any errors.
     """
+    if job_context:
+        # Add a phantom value to the progress so it can never jump to 100% before we are entirely done here.
+        await job_context.progress.add()
+
     if project.configuration.www_directory_path.exists():
         return
     await load(project, job_context=job_context)
@@ -51,11 +56,14 @@ async def generate_with_cleanup(
             await to_thread(rmtree, project.configuration.project_directory_path)
         raise
 
+    if job_context:
+        await job_context.progress.done()
+
 
 @final
-@ExtensionDefinition(
-    id="demo",
-    label=Plain("Demo"),
+@ExtensionPlugin(
+    "demo",
+    label="Demo",
     depends_on={
         Deriver,
         HttpApiDoc,
@@ -64,6 +72,7 @@ async def generate_with_cleanup(
         Trees,
         Wiki,
     },
+    assets_directory_path=Path(__file__).parent / "assets",
 )
 class Demo(NavigationLinkProvider, Loader, Extension):
     """

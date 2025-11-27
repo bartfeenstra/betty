@@ -19,17 +19,20 @@ from betty.test_utils.config.collections import (
 
 _ConfigurationT = TypeVar("_ConfigurationT", bound=Configuration)
 _ConfigurationKeyT = TypeVar("_ConfigurationKeyT", bound=ConfigurationKey)
+_ResolvableConfigurationKeyT = TypeVar("_ResolvableConfigurationKeyT")
 
 
 class _ConfigurationMappingTestBase(
-    Generic[_ConfigurationKeyT, _ConfigurationT],
-    ConfigurationCollectionTestBase[_ConfigurationKeyT, _ConfigurationT],
+    Generic[_ConfigurationKeyT, _ResolvableConfigurationKeyT, _ConfigurationT],
+    ConfigurationCollectionTestBase[
+        _ConfigurationKeyT, _ResolvableConfigurationKeyT, _ConfigurationT
+    ],
 ):
     @override
     async def test___iter__(  # type: ignore[override]
         self,
         new_sut: ConfigurationCollectionTestBaseNewSut[
-            _ConfigurationT, _ConfigurationKeyT
+            _ConfigurationT, _ConfigurationKeyT, _ResolvableConfigurationKeyT
         ],
         sut_configurations: ConfigurationCollectionTestBaseSutConfigurations[
             _ConfigurationT
@@ -52,7 +55,7 @@ class _ConfigurationMappingTestBase(
     async def test___contains__(
         self,
         new_sut: ConfigurationCollectionTestBaseNewSut[
-            _ConfigurationT, _ConfigurationKeyT
+            _ConfigurationT, _ConfigurationKeyT, _ResolvableConfigurationKeyT
         ],
         sut_configurations: ConfigurationCollectionTestBaseSutConfigurations[
             _ConfigurationT
@@ -77,8 +80,10 @@ class _ConfigurationMappingTestBase(
 
 
 class ConfigurationMappingTestBase(
-    Generic[_ConfigurationKeyT, _ConfigurationT],
-    _ConfigurationMappingTestBase[_ConfigurationKeyT, _ConfigurationT],
+    Generic[_ConfigurationKeyT, _ResolvableConfigurationKeyT, _ConfigurationT],
+    _ConfigurationMappingTestBase[
+        _ConfigurationKeyT, _ResolvableConfigurationKeyT, _ConfigurationT
+    ],
 ):
     """
     A base class for testing :py:class:`betty.config.collections.mapping.ConfigurationMapping` implementations.
@@ -86,8 +91,10 @@ class ConfigurationMappingTestBase(
 
 
 class OrderedConfigurationMappingTestBase(
-    Generic[_ConfigurationKeyT, _ConfigurationT],
-    _ConfigurationMappingTestBase[_ConfigurationKeyT, _ConfigurationT],
+    Generic[_ConfigurationKeyT, _ResolvableConfigurationKeyT, _ConfigurationT],
+    _ConfigurationMappingTestBase[
+        _ConfigurationKeyT, _ResolvableConfigurationKeyT, _ConfigurationT
+    ],
 ):
     """
     A base class for testing :py:class:`betty.config.collections.mapping.OrderedConfigurationMapping` implementations.

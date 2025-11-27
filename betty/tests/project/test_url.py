@@ -2,15 +2,16 @@ from collections.abc import Mapping, Sequence
 from typing import Any
 
 import pytest
+from babel import Locale
 from pytest_mock import MockerFixture
 
 from betty.ancestry import Ancestry
 from betty.app import App
-from betty.locale import DEFAULT_LOCALE, LocaleLike
+from betty.locale import DEFAULT_LOCALE_TAG, LocaleLike
 from betty.media_type import MediaType
 from betty.media_type.media_types import HTML, JSON
-from betty.model import EntityDefinition
-from betty.plugin.static import StaticPluginRepository
+from betty.model import EntityPlugin
+from betty.plugin.repository.static import StaticPluginRepository
 from betty.project import Project
 from betty.project.config import LocaleConfiguration
 from betty.project.url import (
@@ -19,7 +20,6 @@ from betty.project.url import (
     _StaticPathUrlUrlGenerator,
     new_project_url_generator,
 )
-from betty.test_utils.conftest import TemporaryAppFactory
 from betty.test_utils.model import DummyEntityOne
 
 
@@ -47,9 +47,7 @@ class Test_EntityUrlUrlGenerator:
     ) -> None:
         m_entity_url_generator = mocker.patch("betty.project.url._EntityUrlGenerator")
         ancestry = Ancestry()
-        entity_repository = StaticPluginRepository(
-            EntityDefinition, DummyEntityOne.plugin
-        )
+        entity_repository = StaticPluginRepository(EntityPlugin, DummyEntityOne.plugin)
         sut = _EntityUrlUrlGenerator(
             ancestry, m_entity_url_generator, entity_repository
         )
@@ -65,9 +63,7 @@ class Test_EntityUrlUrlGenerator:
         entity = DummyEntityOne(self._ENTITY_ID)
         ancestry = Ancestry()
         ancestry.add(entity)
-        entity_repository = StaticPluginRepository(
-            EntityDefinition, DummyEntityOne.plugin
-        )
+        entity_repository = StaticPluginRepository(EntityPlugin, DummyEntityOne.plugin)
         sut = _EntityUrlUrlGenerator(
             ancestry, m_entity_url_generator, entity_repository
         )
@@ -155,7 +151,7 @@ class Test_LocalizedPathUrlUrlGenerator:
             ],
             *[
                 (
-                    f"/{DEFAULT_LOCALE}/some/path/index.html",
+                    f"/{DEFAULT_LOCALE_TAG}/some/path/index.html",
                     resource,
                     media_type,
                     False,
@@ -186,7 +182,7 @@ class Test_LocalizedPathUrlUrlGenerator:
         media_type: MediaType,
         absolute: bool,
         locale: LocaleLike | None,
-        additional_project_locale: str | None,
+        additional_project_locale: Locale | None,
         temporary_app: App,
     ) -> None:
         async with Project.new_temporary(temporary_app) as project:
@@ -287,7 +283,7 @@ class Test_StaticPathUrlUrlGenerator:
         media_type: MediaType,
         absolute: bool,
         locale: LocaleLike | None,
-        additional_project_locale: str | None,
+        additional_project_locale: Locale | None,
         fragment: str | None,
         query: Mapping[str, Sequence[str]] | None,
         temporary_app: App,
@@ -333,20 +329,12 @@ class Test_StaticPathUrlUrlGenerator:
     ],
 )
 async def test_new_project_url_generator__supports(
-    expected: bool, resource: Any, temporary_app_factory: TemporaryAppFactory
+    expected: bool, resource: Any, temporary_app: App
 ) -> None:
-    async with (
-        temporary_app_factory(
-            entity_type_repository=StaticPluginRepository(
-                EntityDefinition, DummyEntityOne.plugin
-            )
-        ) as app,
-        app,
-        Project.new_temporary(app) as project,
-        project,
-    ):
-        sut = await new_project_url_generator(project)
-        assert sut.supports(resource) == expected
+    with EntityPlugin.type.override_discovery(DummyEntityOne.plugin):
+        async with Project.new_temporary(temporary_app) as project, project:
+            sut = await new_project_url_generator(project)
+            assert sut.supports(resource) == expected
 
 
 @pytest.mark.parametrize(
@@ -399,31 +387,24 @@ async def test_new_project_url_generator__generate(
     media_type: MediaType,
     absolute: bool,
     locale: LocaleLike | None,
-    additional_project_locale: str | None,
-    temporary_app_factory: TemporaryAppFactory,
+    additional_project_locale: Locale | None,
+    temporary_app: App,
 ) -> None:
-    async with (
-        temporary_app_factory(
-            entity_type_repository=StaticPluginRepository(
-                EntityDefinition, DummyEntityOne.plugin
-            )
-        ) as app,
-        app,
-        Project.new_temporary(app) as project,
-    ):
-        if additional_project_locale:
-            project.configuration.locales.append(
-                LocaleConfiguration(additional_project_locale)
-            )
-        project.configuration.clean_urls = clean_urls
-        async with project:
-            sut = await new_project_url_generator(project)
-            assert (
-                sut.generate(
-                    resource,
-                    media_type=media_type,
-                    absolute=absolute,
-                    locale=locale,
+    with EntityPlugin.type.override_discovery(DummyEntityOne.plugin):
+        async with Project.new_temporary(temporary_app) as project:
+            if additional_project_locale:
+                project.configuration.locales.append(
+                    LocaleConfiguration(additional_project_locale)
                 )
-                == expected
-            )
+            project.configuration.clean_urls = clean_urls
+            async with project:
+                sut = await new_project_url_generator(project)
+                assert (
+                    sut.generate(
+                        resource,
+                        media_type=media_type,
+                        absolute=absolute,
+                        locale=locale,
+                    )
+                    == expected
+                )

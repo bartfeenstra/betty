@@ -1,15 +1,6 @@
 Gender plugins
 ==============
 
-.. list-table::
-   :align: left
-   :stub-columns: 1
-
-   * -  Type
-     -  :py:class:`betty.ancestry.gender.Gender`
-   * -  Repository
-     -  :py:attr:`betty.project.Project.gender_repository`
-
 
 Creating a gender
 -----------------
@@ -19,9 +10,9 @@ example:
 
 .. code-block:: python
 
-   from betty.ancestry.gender import Gender, GenderDefinition
+   from betty.ancestry.gender import Gender, GenderPlugin
 
-   @GenderDefinition(
+   @GenderPlugin(
        id="my-gender",
        label=_("My Gender"),
    )
@@ -35,7 +26,7 @@ Tell Betty about your gender by registering it as an entry point. Given the gend
 .. code-block:: toml
 
    [project.entry-points.'betty.gender']
-   'my-gender' = 'my_package.my_module.MyGender.plugin'
+   'my-gender' = 'my_package.my_module.MyGender'
 
 See also
 --------

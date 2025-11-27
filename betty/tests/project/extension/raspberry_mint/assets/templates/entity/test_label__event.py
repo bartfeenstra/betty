@@ -3,9 +3,8 @@ from betty.ancestry.event_type.event_types import Birth, Marriage
 from betty.ancestry.person import Person
 from betty.ancestry.presence import Presence
 from betty.ancestry.presence_role.presence_roles import Subject
-from betty.jinja2 import EntityContexts
-from betty.locale.localizable import Plain
 from betty.project.extension.raspberry_mint import RaspberryMint
+from betty.resource import EntityContexts, new_context
 from betty.test_utils.jinja2 import assert_template_file
 
 
@@ -25,7 +24,7 @@ async def test_minimal() -> None:
 async def test_with_name() -> None:
     event = Event(
         event_type=Birth(),
-        name=Plain("Something happened!"),
+        name="Something happened!",
     )
     expected = '<span lang="und" dir="auto">Something happened!</span>'
     async with assert_template_file(
@@ -42,7 +41,7 @@ async def test_with_persistent_id() -> None:
     event = Event(
         id="EVENT1",
         event_type=Birth(),
-        name=Plain("Something happened!"),
+        name="Something happened!",
     )
     expected = f'<a href="/event/{event.public_id}/index.html"><span lang="und" dir="auto">Something happened!</span></a>'
     async with assert_template_file(
@@ -60,7 +59,7 @@ async def test_with_embedded() -> None:
     event = Event(
         id=event_id,
         event_type=Birth(),
-        name=Plain("Something happened!"),
+        name="Something happened!",
     )
     expected = '<span lang="und" dir="auto">Something happened!</span>'
     async with assert_template_file(
@@ -82,7 +81,7 @@ async def test_with_single_subject_as_person_context() -> None:
     async with assert_template_file(
         data={
             "entity": event,
-            "entity_contexts": EntityContexts(context_subject),
+            "resource": new_context(entity_contexts=EntityContexts(context_subject)),
         },
         extensions={RaspberryMint},
         template="entity/label--event.html.j2",
@@ -100,7 +99,7 @@ async def test_with_subjects_and_subject_as_person_context() -> None:
     async with assert_template_file(
         data={
             "entity": event,
-            "entity_contexts": EntityContexts(context_subject),
+            "resource": new_context(entity_contexts=EntityContexts(context_subject)),
         },
         extensions={RaspberryMint},
         template="entity/label--event.html.j2",

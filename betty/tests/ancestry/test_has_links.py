@@ -4,19 +4,19 @@ from typing import TYPE_CHECKING
 
 from betty.ancestry.has_links import HasLinks
 from betty.ancestry.link import Link
-from betty.locale import DEFAULT_LOCALE
-from betty.locale.localizable import CountablePlain, Plain
-from betty.model import EntityDefinition
+from betty.locale import DEFAULT_LOCALE_TAG
+from betty.locale.localizable import CountablePlain
+from betty.model import EntityPlugin
 from betty.test_utils.json.linked_data import assert_dumps_linked_data
 
 if TYPE_CHECKING:
     from betty.serde.dump import Dump, DumpMapping
 
 
-@EntityDefinition(
-    id="dummy-has-links",
-    label=Plain(""),
-    label_plural=Plain(""),
+@EntityPlugin(
+    "dummy-has-links",
+    label="",
+    label_plural="",
     label_countable=CountablePlain("", ""),
 )
 class DummyHasLinks(HasLinks):
@@ -51,7 +51,7 @@ class TestHasLinks:
                     "@context": {"description": "https://schema.org/description"},
                     "id": link.id,
                     "url": {
-                        DEFAULT_LOCALE: "https://example.com",
+                        DEFAULT_LOCALE_TAG: "https://example.com",
                     },
                     "owner": None,
                     "private": False,

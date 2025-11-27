@@ -14,9 +14,8 @@ from betty.tests.conftest import check_skip_webpack_entry_point_provider
 class TestTrees(EntryPointProviderTestBase):
     @override
     @pytest.fixture
-    async def sut(self, temporary_app: App) -> Extension:
-        async with Project.new_temporary(temporary_app) as project, project:
-            return await Trees.new_for_project(project)
+    async def sut(self) -> Extension:
+        return Trees()
 
     @check_skip_webpack_entry_point_provider
     async def test_generate(self, temporary_app: App) -> None:

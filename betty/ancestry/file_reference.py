@@ -8,7 +8,7 @@ from typing import TYPE_CHECKING, final
 
 from betty.ancestry.file import File
 from betty.locale.localizable import _, ngettext
-from betty.model import Entity, EntityDefinition
+from betty.model import Entity, EntityPlugin
 from betty.model.association import BidirectionalToOne, ToOneAssociate
 
 if TYPE_CHECKING:
@@ -17,8 +17,8 @@ if TYPE_CHECKING:
 
 
 @final
-@EntityDefinition(
-    id="file-reference",
+@EntityPlugin(
+    "file-reference",
     label=_("File reference"),
     label_plural=_("File references"),
     label_countable=ngettext("{count} file reference", "{count} file references"),
@@ -31,7 +31,6 @@ class FileReference(Entity):
     This reference holds additional information specific to the relationship between the two entities.
     """
 
-    #: The entity that references the file.
     referee = BidirectionalToOne["FileReference", "HasFileReferences"](
         "betty.ancestry.file_reference:FileReference",
         "referee",
@@ -40,7 +39,10 @@ class FileReference(Entity):
         title="Referee",
         description="The entity referencing the file",
     )
-    #: The referenced file.
+    """
+    The entity that references the file.
+    """
+
     file = BidirectionalToOne["FileReference", File](
         "betty.ancestry.file_reference:FileReference",
         "file",
@@ -49,6 +51,9 @@ class FileReference(Entity):
         title="File",
         description="The file being referenced",
     )
+    """
+    The referenced file.
+    """
 
     def __init__(
         self,

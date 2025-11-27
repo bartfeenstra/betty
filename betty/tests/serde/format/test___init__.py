@@ -1,16 +1,14 @@
 import pytest
 from typing_extensions import override
 
-from betty.locale.localizable import Plain
 from betty.locale.localizer import DEFAULT_LOCALIZER
 from betty.media_type import MediaType
 from betty.plugin import PluginDefinition
 from betty.serde.dump import Dump
 from betty.serde.format import (
     Format,
-    FormatDefinition,
     FormatError,
-    FormatRepository,
+    FormatPlugin,
     FormatStr,
     format_for,
 )
@@ -18,27 +16,24 @@ from betty.test_utils.plugin import PluginDefinitionClassTestBase
 from betty.typing import Voidable
 
 
-class TestFormatDefinition(PluginDefinitionClassTestBase):
+class TestFormatPlugin(PluginDefinitionClassTestBase):
     @override
     @pytest.fixture
     def sut(self) -> type[PluginDefinition]:
-        return FormatDefinition
+        return FormatPlugin
 
 
 class _Format(Format):
     @override
-    def load(self, dump: str) -> Dump:
+    def load(self, dump: str, /) -> Dump:
         return None  # pragma: nocover
 
     @override
-    def dump(self, dump: Voidable[Dump]) -> str:
+    def dump(self, dump: Voidable[Dump], /) -> str:
         return ""  # pragma: nocover
 
 
-@FormatDefinition(
-    id="one",
-    label=Plain("One"),
-)
+@FormatPlugin("one", label="One")
 class FormatOne(_Format):
     @override
     @classmethod
@@ -46,21 +41,12 @@ class FormatOne(_Format):
         return MediaType("text/x.betty.test.one", extensions=[".one"])
 
 
-@FormatDefinition(
-    id="two",
-    label=Plain("Two"),
-)
+@FormatPlugin("two", label="Two")
 class FormatTwo(_Format):
     @override
     @classmethod
     def media_type(cls) -> MediaType:
         return MediaType("text/x.betty.test.two", extensions=[".two"])
-
-
-class TestFormatRepository:
-    def test___iter__(self) -> None:
-        sut = FormatRepository()
-        assert list(sut)
 
 
 class TestFormatStr:

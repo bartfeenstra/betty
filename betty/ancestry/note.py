@@ -9,13 +9,17 @@ from typing import TYPE_CHECKING, final
 from typing_extensions import override
 
 from betty.ancestry.has_links import HasLinks
+from betty.ancestry.media_type import HasMediaType
 from betty.locale.localizable import (
     Localizable,
-    StaticTranslations,
+    LocalizableLike,
     _,
+    ensure_localizable,
     ngettext,
 )
-from betty.model import Entity, EntityDefinition
+from betty.locale.localizable.linked_data import dump_linked_data
+from betty.locale.localizable.schema import StaticTranslationsSchema
+from betty.model import EntityPlugin
 from betty.model.association import BidirectionalToZeroOrOne, ToZeroOrOneAssociate
 from betty.privacy import HasPrivacy, Privacy, is_public
 
@@ -27,18 +31,17 @@ if TYPE_CHECKING:
 
 
 @final
-@EntityDefinition(
-    id="note",
+@EntityPlugin(
+    "note",
     label=_("Note"),
     label_plural=_("Notes"),
     label_countable=ngettext("{count} note", "{count} notes"),
 )
-class Note(HasPrivacy, HasLinks, Entity):
+class Note(HasPrivacy, HasLinks, HasMediaType):
     """
     A note is a bit of textual information that can be associated with another entity.
     """
 
-    #: The entity the note belongs to.
     entity = BidirectionalToZeroOrOne["Note", "HasNotes"](
         "betty.ancestry.note:Note",
         "entity",
@@ -47,10 +50,13 @@ class Note(HasPrivacy, HasLinks, Entity):
         title="Entity",
         description="The entity the note belongs to",
     )
+    """
+    The entity the note belongs to.
+    """
 
     def __init__(
         self,
-        text: Localizable,
+        text: LocalizableLike,
         *,
         id: str | None = None,  # noqa A002  # noqa A002
         entity: ToZeroOrOneAssociate[HasNotes] | None = None,
@@ -64,7 +70,7 @@ class Note(HasPrivacy, HasLinks, Entity):
             public=public,
             private=private,
         )
-        self.text = text
+        self.text = ensure_localizable(text)
         if entity is not None:
             self.entity = entity
 
@@ -74,22 +80,22 @@ class Note(HasPrivacy, HasLinks, Entity):
         return self.text
 
     @override
-    async def dump_linked_data(self, project: Project) -> DumpMapping[Dump]:
+    async def dump_linked_data(self, project: Project, /) -> DumpMapping[Dump]:
         dump = await super().dump_linked_data(project)
         dump["@type"] = "https://schema.org/Thing"
         if is_public(self):
-            dump["text"] = await StaticTranslations.dump_linked_data_for(
-                project, self.text
+            dump["text"] = dump_linked_data(
+                self.text, localizers=await project.public_localizers
             )
         return dump
 
     @override
     @classmethod
-    async def linked_data_schema(cls, project: Project) -> JsonLdObject:
+    async def linked_data_schema(cls, project: Project, /) -> JsonLdObject:
         schema = await super().linked_data_schema(project)
         schema.add_property(
             "text",
-            await StaticTranslations.linked_data_schema(project),
+            StaticTranslationsSchema(),
             False,
         )
         return schema

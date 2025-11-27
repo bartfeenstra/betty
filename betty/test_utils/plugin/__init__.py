@@ -4,26 +4,14 @@ Test utilities for :py:mod:`betty.plugin`.
 
 from __future__ import annotations
 
-from typing import Any, ClassVar, final
+from typing import ClassVar, final
 
 import pytest
-from typing_extensions import override
 
-from betty.config import DefaultConfigurable
-from betty.locale.localizable import Plain
 from betty.locale.localizer import DEFAULT_LOCALIZER
 from betty.machine_name import assert_machine_name
-from betty.plugin import (
-    ClassedPluginDefinition,
-    ClassedPluginTypeDefinition,
-    CountableHumanFacingPluginDefinition,
-    DependentPluginDefinition,
-    HumanFacingPluginDefinition,
-    OrderedPluginDefinition,
-    PluginDefinition,
-    PluginTypeDefinition,
-)
-from betty.test_utils.config import DummyConfiguration
+from betty.plugin import Plugin, PluginDefinition, PluginTypeDefinition
+from betty.plugin.discovery.callback import CallbackDiscovery
 
 
 def _assert_cls_is_public(cls: type) -> None:
@@ -43,6 +31,12 @@ class PluginDefinitionClassTestBase:
         Provide the system(s) under test.
         """
         raise NotImplementedError
+
+    def test_plugin_type_cls(self, sut: PluginDefinition) -> None:
+        """
+        Tests the :py:class:`betty.plugin.PluginDefinition`'s ``plugin_type_cls`` attribute's value.
+        """
+        _assert_cls_is_public(sut.plugin_type_cls)
 
     def test_type__id(self, sut: PluginDefinition) -> None:
         """
@@ -75,203 +69,68 @@ class PluginDefinitionTestBase:
         """
         assert_machine_name()(sut.id)
 
-
-class HumanFacingPluginDefinitionTestBase(PluginDefinitionTestBase):
-    """
-    A base class for testing :py:class:`betty.plugin.HumanFacingPluginDefinition` subclasses.
-    """
-
-    def test_label(self, sut: HumanFacingPluginDefinition) -> None:
+    def test_cls(self, sut: PluginDefinition) -> None:
         """
-        Tests the :py:attr:`betty.plugin.HumanFacingPluginDefinition.label` value.
-        """
-        assert sut.label.localize(DEFAULT_LOCALIZER)
-
-    def test_description(self, sut: HumanFacingPluginDefinition) -> None:
-        """
-        Tests the :py:attr:`betty.plugin.HumanFacingPluginDefinition.label` value.
-        """
-        if sut.description is not None:
-            assert sut.description.localize(DEFAULT_LOCALIZER)
-
-
-class CountableHumanFacingPluginDefinitionTestBase(HumanFacingPluginDefinitionTestBase):
-    """
-    A base class for testing :py:class:`betty.plugin.CountableHumanFacingPluginDefinition` subclasses.
-    """
-
-    def test_label_plural(self, sut: CountableHumanFacingPluginDefinition) -> None:
-        """
-        Tests the :py:attr:`betty.plugin.CountableHumanFacingPluginDefinition.label_plural` value.
-        """
-        assert sut.label_plural.localize(DEFAULT_LOCALIZER)
-
-    @pytest.mark.parametrize(
-        "count",
-        range(9),
-    )
-    def test_label_countable(
-        self, sut: CountableHumanFacingPluginDefinition, count: int
-    ) -> None:
-        """
-        Tests the :py:attr:`betty.plugin.CountableHumanFacingPluginDefinition.label_countable` value.
-        """
-        assert sut.label_countable.count(count).localize(DEFAULT_LOCALIZER)
-
-
-class OrderedPluginDefinitionTestBase(PluginDefinitionTestBase):
-    """
-    A base class for testing :py:class:`betty.plugin.OrderedPluginDefinition` subclasses.
-    """
-
-    def test_comes_after(self, sut: OrderedPluginDefinition) -> None:
-        """
-        Tests the :py:attr:`betty.plugin.OrderedPluginDefinition.comes_after` value.
-        """
-        for plugin_id in sut.comes_after:
-            assert_machine_name()(plugin_id)
-
-    def test_comes_before(self, sut: OrderedPluginDefinition) -> None:
-        """
-        Tests the :py:attr:`betty.plugin.OrderedPluginDefinition.comes_before` value.
-        """
-        for plugin_id in sut.comes_before:
-            assert_machine_name()(plugin_id)
-
-
-class DependentPluginDefinitionTestBase(PluginDefinitionTestBase):
-    """
-    A base class for testing :py:class:`betty.plugin.DependentPluginDefinition` subclasses.
-    """
-
-    def test_depends_on(self, sut: DependentPluginDefinition) -> None:
-        """
-        Tests the :py:attr:`betty.plugin.DependentPluginDefinition.depends_on` value.
-        """
-        for plugin_id in sut.depends_on:
-            assert_machine_name()(plugin_id)
-
-
-class ClassedPluginDefinitionTestBase(PluginDefinitionTestBase):
-    """
-    A base class for testing :py:class:`betty.plugin.ClassedPluginDefinition` subclasses.
-    """
-
-    def test_type__cls(self, sut: ClassedPluginDefinition[Any]) -> None:
-        """
-        Tests the :py:class:`betty.plugin.ClassedPluginDefinition`'s ``type`` attribute's ``cls`` value.
-        """
-        _assert_cls_is_public(sut.type.cls)
-
-    def test_cls(self, sut: ClassedPluginDefinition[Any]) -> None:
-        """
-        Tests the :py:attr:`betty.plugin.ClassedPluginDefinition.cls` value.
+        Tests the :py:attr:`betty.plugin.PluginDefinition.cls` value.
         """
         _assert_cls_is_public(sut.cls)
 
 
-class DummyPluginDefinition(PluginDefinition):
+class DummyPlugin(Plugin):
+    """
+    A dummy plugin.
+    """
+
+    plugin: ClassVar[DummyPluginDefinition]
+
+
+class DummyPluginDefinition(PluginDefinition[DummyPlugin]):
     """
     A definition of a dummy plugin.
     """
 
+    plugin_type_cls = DummyPlugin
     type = PluginTypeDefinition(
-        id="dummy-plugin",
-        label=Plain("Dummy plugin"),
-    )
-
-
-DUMMY_PLUGIN_ONE = DummyPluginDefinition(
-    id="dummy-plugin-one",
-)
-
-DUMMY_PLUGIN_TWO = DummyPluginDefinition(
-    id="dummy-plugin-two",
-)
-
-DUMMY_PLUGIN_THREE = DummyPluginDefinition(
-    id="dummy-plugin-three",
-)
-DUMMY_PLUGIN_FOUR = DummyPluginDefinition(
-    id="dummy-plugin-four",
-)
-
-
-class ClassedDummyPlugin:
-    """
-    A classed dummy plugin.
-    """
-
-    plugin: ClassVar[ClassedDummyPluginDefinition]
-
-
-class ClassedDummyPluginDefinition(ClassedPluginDefinition[ClassedDummyPlugin]):
-    """
-    A definition of a classed dummy plugin.
-    """
-
-    type = ClassedPluginTypeDefinition(
-        id="classed-dummy-plugin",
-        label=Plain("Classed dummy plugin"),
-        cls=ClassedDummyPlugin,
+        "dummy-plugin",
+        " dummy plugin",
+        discoveries=CallbackDiscovery(
+            lambda: [
+                DummyPluginOne.plugin,
+                DummyPluginTwo.plugin,
+                DummyPluginThree.plugin,
+                DummyPluginFour.plugin,
+            ]
+        ),
     )
 
 
 @final
-@ClassedDummyPluginDefinition(
-    id="classed-dummy-plugin-one",
-)
-class ClassedDummyPluginOne(ClassedDummyPlugin):
+@DummyPluginDefinition("dummy-plugin-one")
+class DummyPluginOne(DummyPlugin):
     """
-    A classed dummy plugin (one).
+    A dummy plugin (one).
     """
 
 
 @final
-@ClassedDummyPluginDefinition(
-    id="classed-dummy-plugin-two",
-)
-class ClassedDummyPluginTwo(ClassedDummyPlugin):
+@DummyPluginDefinition("dummy-plugin-two")
+class DummyPluginTwo(DummyPlugin):
     """
-    A classed dummy plugin (two).
+    A dummy plugin (two).
     """
-
-
-class ConfigurableDummyPlugin(DefaultConfigurable[DummyConfiguration]):
-    """
-    A configurable dummy plugin.
-    """
-
-    plugin: ClassVar[ConfigurableDummyPluginDefinition]
-
-    def __init__(self):
-        super().__init__(configuration=self.new_default_configuration())
-
-    @override
-    @classmethod
-    def new_default_configuration(cls) -> DummyConfiguration:
-        return DummyConfiguration()
-
-
-class ConfigurableDummyPluginDefinition(
-    ClassedPluginDefinition[ConfigurableDummyPlugin]
-):
-    """
-    A definition of a configurable dummy plugin.
-    """
-
-    type = ClassedPluginTypeDefinition(
-        id="configurable-dummy-plugin",
-        label=Plain("Configurable dummy plugin"),
-        cls=ConfigurableDummyPlugin,
-    )
 
 
 @final
-@ConfigurableDummyPluginDefinition(
-    id="configurable-dummy-plugin-one",
-)
-class ConfigurableDummyPluginOne(ConfigurableDummyPlugin):
+@DummyPluginDefinition("dummy-plugin-three")
+class DummyPluginThree(DummyPlugin):
     """
-    A configurable dummy plugin (one).
+    A dummy plugin (three).
+    """
+
+
+@final
+@DummyPluginDefinition("dummy-plugin-four")
+class DummyPluginFour(DummyPlugin):
+    """
+    A dummy plugin (four).
     """

@@ -14,7 +14,6 @@ async def test_minimal() -> None:
     async with assert_template_file(
         data={
             "file_references": [],
-            "page_resource": "betty:///index.html",
         },
         extensions={RaspberryMint},
         template="section/media.html.j2",
@@ -31,7 +30,6 @@ async def test_with_public_file_references(tmp_path: Path) -> None:
     async with assert_template_file(
         data={
             "file_references": [file_reference],
-            "page_resource": "betty:///index.html",
         },
         extensions={RaspberryMint},
         template="section/media.html.j2",
@@ -48,7 +46,6 @@ async def test_without_public_file_references(tmp_path: Path) -> None:
     async with assert_template_file(
         data={
             "file_references": [file_reference],
-            "page_resource": "betty:///index.html",
         },
         extensions={RaspberryMint},
         template="section/media.html.j2",

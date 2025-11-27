@@ -2,12 +2,13 @@
 An API for linking to web resources.
 """
 
-from abc import ABC, abstractmethod
+from abc import abstractmethod
+from typing import Protocol
 
 from betty.locale.localizable import Localizable
 
 
-class Link(ABC):
+class Link(Protocol):
     """
     A link to a web resource.
     """
@@ -16,7 +17,7 @@ class Link(ABC):
     @abstractmethod
     def url(self) -> Localizable:
         """
-        The absolute URL the link points to.
+        The URL the link points to.
         """
 
     @property

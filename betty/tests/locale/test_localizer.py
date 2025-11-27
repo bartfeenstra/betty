@@ -4,9 +4,9 @@ import datetime
 from typing import TYPE_CHECKING
 
 import pytest
+from babel import Locale
 
 from betty.date import Date, DateLike, DateRange, IncompleteDateError
-from betty.locale import DEFAULT_LOCALE
 from betty.locale.localizer import DEFAULT_LOCALIZER, LocalizerRepository
 from betty.locale.translation import TranslationRepository
 
@@ -212,11 +212,7 @@ class TestLocalizer:
 
     async def test_locale(self) -> None:
         sut = DEFAULT_LOCALIZER
-        assert sut.locale == DEFAULT_LOCALE
-
-    async def test_locale_data(self) -> None:
-        sut = DEFAULT_LOCALIZER
-        assert sut.locale_data.language == "en"
+        assert sut.locale.language == "en"
 
     async def test__(self) -> None:
         sut = DEFAULT_LOCALIZER
@@ -281,9 +277,9 @@ class TestLocalizer:
 
 class TestLocalizerRepository:
     async def test_get(self, mocker: MockerFixture, tmp_path: Path) -> None:
-        locale = "nl-NL"
+        locale = "nl"
         m_translations = mocker.MagicMock(spec=TranslationRepository)
         sut = LocalizerRepository(m_translations)
         localizer = sut.get(locale)
-        assert localizer.locale == locale
+        assert localizer.locale == Locale(locale)
         assert sut.get(locale) is localizer

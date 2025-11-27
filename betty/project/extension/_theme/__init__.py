@@ -151,7 +151,7 @@ def _person_timeline_events(person: Person, lifetime_threshold: int) -> Iterable
             start_date_reference.year - lifetime_threshold,
             start_date_reference.month,
             start_date_reference.day,
-            start_date_reference.fuzzy,
+            fuzzy=start_date_reference.fuzzy,
         )
 
     # If a start-of-life event exists, but no end-of-life event, create an end-of-life date based on the start date,
@@ -170,7 +170,7 @@ def _person_timeline_events(person: Person, lifetime_threshold: int) -> Iterable
             end_date_reference.year + lifetime_threshold,
             end_date_reference.month,
             end_date_reference.day,
-            end_date_reference.fuzzy,
+            fuzzy=end_date_reference.fuzzy,
         )
 
     if start_date is None or end_date is None:
@@ -272,7 +272,7 @@ class ColorConfiguration(Configuration):
         self._hex = hex_value
 
     @override
-    def load(self, dump: Dump) -> None:
+    def load(self, dump: Dump, /) -> None:
         self.assert_mutable()
         self._hex = (assert_str() | self._assert_hex)(dump)
 

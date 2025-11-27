@@ -1,5 +1,5 @@
 {% set embedded = embedded | default(False) %}
-{% set citation_context = entity_contexts['citation'] %}
+{% set citation_context = resource.entity_contexts['citation'] %}
 {% set is_link = not embedded and citation_context != entity and entity is persistent_entity_id %}
 {% if entity.public %}
     {%- if is_link -%}
@@ -13,11 +13,7 @@
     {%- if is_link -%}
         </a>
     {%- endif -%}
-    , {% with entity = entity.source, embedded = True -%}
-        {% include ['entity/label--source.html.j2', 'entity/label.html.j2'] %}
-    {% endwith %}
 {%- else -%}
-    <span class="citation-location">
-        {%- include 'entity/private.html.j2' -%}
-    </span>
+    {%- include 'entity/private.html.j2' -%}
 {%- endif -%}
+{% with entity = entity.source %} <sup>({% include ['entity/label--source.html.j2', 'entity/label.html.j2'] %})</sup>{% endwith %}

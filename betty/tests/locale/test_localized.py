@@ -3,6 +3,7 @@ from __future__ import annotations
 from typing import TYPE_CHECKING
 
 import pytest
+from babel import Locale
 
 from betty.locale.localized import Localized, LocalizedStr, negotiate_localizeds
 from betty.test_utils.locale.localized import DummyLocalized
@@ -13,29 +14,29 @@ if TYPE_CHECKING:
 
 class TestLocalized:
     def test_locale(self) -> None:
-        locale = "nl"
+        locale = Locale("nl")
         sut = DummyLocalized(locale)
-        assert sut.locale == locale
+        assert sut.locale is locale
 
 
 class TestLocalizedStr:
     def test_with_locale(self) -> None:
         string = "Hallo, wereld!"
-        locale = "nl"
+        locale = Locale("nl")
         sut = LocalizedStr(string, locale=locale)
         assert sut == string
-        assert sut.locale == locale
+        assert sut.locale is locale
 
 
 @pytest.mark.parametrize(
     ("expected", "preferred_locale", "localizeds"),
     [
-        ("nl", "nl", [DummyLocalized("nl")]),
-        ("nl-NL", "nl", [DummyLocalized("nl-NL")]),
-        ("nl", "nl-NL", [DummyLocalized("nl")]),
+        (Locale("nl"), Locale("nl"), [DummyLocalized("nl")]),
+        (Locale("nl", "NL"), Locale("nl"), [DummyLocalized("nl-NL")]),
+        (Locale("nl"), Locale("nl", "NL"), [DummyLocalized("nl")]),
         (
-            "nl-NL",
-            "nl-NL",
+            Locale("nl", "NL"),
+            Locale("nl", "NL"),
             [
                 DummyLocalized("nl"),
                 DummyLocalized("nl-BE"),
@@ -43,22 +44,22 @@ class TestLocalizedStr:
             ],
         ),
         (
-            "nl",
-            "nl",
+            Locale("nl"),
+            Locale("nl"),
             [DummyLocalized("nl"), DummyLocalized("en")],
         ),
         (
-            "nl",
-            "nl",
+            Locale("nl"),
+            Locale("nl"),
             [DummyLocalized("en"), DummyLocalized("nl")],
         ),
-        ("nl-NL", "nl-BE", [DummyLocalized("nl-NL")]),
-        (None, "nl", []),
+        (Locale("nl", "NL"), Locale("nl", "BE"), [DummyLocalized("nl-NL")]),
+        (None, Locale("nl"), []),
     ],
 )
 async def test_negotiate_localizeds__with_match_should_return_match(
-    expected: str | None,
-    preferred_locale: str,
+    expected: Locale | None,
+    preferred_locale: Locale,
     localizeds: Sequence[Localized],
 ) -> None:
     actual = negotiate_localizeds(preferred_locale, localizeds)
@@ -70,12 +71,11 @@ async def test_negotiate_localizeds__with_match_should_return_match(
 
 
 async def test_negotiate_localizeds__without_match_should_return_default() -> None:
-    preferred_locale = "de"
     localizeds = [
         DummyLocalized("nl"),
         DummyLocalized("en"),
         DummyLocalized("uk"),
     ]
-    actual = negotiate_localizeds(preferred_locale, localizeds)
+    actual = negotiate_localizeds(Locale("de"), localizeds)
     assert actual is not None
-    assert actual.locale == "nl"
+    assert actual.locale == Locale("nl")

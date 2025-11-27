@@ -6,13 +6,13 @@ from typing_extensions import override
 
 from betty.ancestry.has_links import HasLinks
 from betty.ancestry.link import Link
-from betty.locale import DEFAULT_LOCALE
-from betty.locale.localizable import CountablePlain, Plain
+from betty.locale import DEFAULT_LOCALE_TAG
+from betty.locale.localizable import CountablePlain
 from betty.locale.localizer import DEFAULT_LOCALIZER
 from betty.media_type.media_types import HTML
-from betty.model import EntityDefinition
+from betty.model import EntityPlugin
 from betty.test_utils.json.linked_data import assert_dumps_linked_data
-from betty.test_utils.model import EntityDefinitionTestBase
+from betty.test_utils.model import EntityPluginTestBase
 
 if TYPE_CHECKING:
     from collections.abc import Mapping
@@ -22,17 +22,17 @@ if TYPE_CHECKING:
 import pytest
 
 
-@EntityDefinition(
-    id="dummy-has-links",
-    label=Plain(""),
-    label_plural=Plain(""),
+@EntityPlugin(
+    "dummy-has-links",
+    label="",
+    label_plural="",
     label_countable=CountablePlain("", ""),
 )
 class DummyHasLinks(HasLinks):
     pass
 
 
-class TestLinkDefinition(EntityDefinitionTestBase):
+class TestLinkDefinition(EntityPluginTestBase):
     @override
     @pytest.fixture
     def sut(self) -> PluginDefinition:
@@ -43,7 +43,7 @@ class TestLink:
     async def test___init____with_label(self) -> None:
         url = "https://example.com"
         label = "Hello, world!"
-        sut = Link(url, label=Plain(label))
+        sut = Link(url, label=label)
         assert sut.label.localize(DEFAULT_LOCALIZER) == label
 
     def test_owner__without_owner(self) -> None:
@@ -85,7 +85,7 @@ class TestLink:
         assert not sut.has_label
 
     async def test_has_label__with_label(self) -> None:
-        sut = Link("https://example.com", label=Plain(""))
+        sut = Link("https://example.com", label="")
         assert sut.has_label
 
     async def test_dump_linked_data__should_dump_minimal(self) -> None:
@@ -94,7 +94,7 @@ class TestLink:
             "@context": {"description": "https://schema.org/description"},
             "id": link.id,
             "url": {
-                DEFAULT_LOCALE: "https://example.com",
+                DEFAULT_LOCALE_TAG: "https://example.com",
             },
             "owner": None,
             "private": False,
@@ -106,8 +106,8 @@ class TestLink:
         owner = DummyHasLinks(id="O1")
         link = Link(
             "https://example.com",
-            label=Plain("The Label"),
-            description=Plain("The Description"),
+            label="The Label",
+            description="The Description",
             relationship="external",
             media_type=HTML,
             owner=owner,
@@ -116,14 +116,14 @@ class TestLink:
             "@context": {"description": "https://schema.org/description"},
             "id": link.id,
             "url": {
-                DEFAULT_LOCALE: "https://example.com",
+                DEFAULT_LOCALE_TAG: "https://example.com",
             },
             "relationship": "external",
             "label": {
-                DEFAULT_LOCALE: "The Label",
+                DEFAULT_LOCALE_TAG: "The Label",
             },
             "description": {
-                DEFAULT_LOCALE: "The Description",
+                DEFAULT_LOCALE_TAG: "The Description",
             },
             "mediaType": "text/html",
             "owner": "/dummy-has-links/O1/index.json",
@@ -136,8 +136,8 @@ class TestLink:
         owner = DummyHasLinks(id="O1")
         link = Link(
             "https://example.com",
-            label=Plain("The Label"),
-            description=Plain("The Description"),
+            label="The Label",
+            description="The Description",
             relationship="external",
             media_type=HTML,
             owner=owner,

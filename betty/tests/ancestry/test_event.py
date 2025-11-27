@@ -6,6 +6,7 @@ from typing_extensions import override
 
 from betty.ancestry.citation import Citation
 from betty.ancestry.event import Event
+from betty.ancestry.event_type import EventType
 from betty.ancestry.event_type.event_types import Birth
 from betty.ancestry.event_type.event_types import Unknown as UnknownEventType
 from betty.ancestry.name import Name
@@ -15,14 +16,14 @@ from betty.ancestry.presence import Presence
 from betty.ancestry.presence_role.presence_roles import Subject
 from betty.ancestry.source import Source
 from betty.date import Date, DateRange
-from betty.locale import DEFAULT_LOCALE
-from betty.locale.localizable import Plain
+from betty.locale import DEFAULT_LOCALE_TAG
 from betty.locale.localizer import DEFAULT_LOCALIZER
 from betty.model import Entity
 from betty.model.association import AssociationRequired, TemporaryToOneResolver
+from betty.mutability import Mutable
 from betty.privacy import Privacy
 from betty.test_utils.json.linked_data import assert_dumps_linked_data
-from betty.test_utils.model import EntityDefinitionTestBase, EntityTestBase
+from betty.test_utils.model import EntityPluginTestBase, EntityTestBase
 
 if TYPE_CHECKING:
     from collections.abc import Mapping, Sequence
@@ -32,7 +33,7 @@ if TYPE_CHECKING:
 import pytest
 
 
-class TestEventDefinition(EntityDefinitionTestBase):
+class TestEventDefinition(EntityPluginTestBase):
     @override
     @pytest.fixture
     def sut(self) -> PluginDefinition:
@@ -44,9 +45,9 @@ class TestEvent(EntityTestBase):
     def _sut_params() -> Sequence[Entity]:
         return [
             Event(),
-            Event(description=Plain("My First Event")),
+            Event(description="My First Event"),
             Event(
-                description=Plain("My First Event"),
+                description="My First Event",
                 presences=[Presence(Person(), Subject(), TemporaryToOneResolver())],
             ),
         ]
@@ -69,7 +70,7 @@ class TestEvent(EntityTestBase):
 
     def test___init____with_name(self) -> None:
         name = "The Event"
-        sut = Event(name=Plain(name))
+        sut = Event(name=name)
         assert sut.name is not None
         assert sut.name.localize(DEFAULT_LOCALIZER) == name
 
@@ -84,7 +85,7 @@ class TestEvent(EntityTestBase):
     async def test_place(self) -> None:
         place = Place(
             id="1",
-            names=[Name(Plain("one"))],
+            names=[Name("one")],
         )
         sut = Event(event_type=UnknownEventType())
         sut.place = place
@@ -137,7 +138,7 @@ class TestEvent(EntityTestBase):
     async def test_name(self) -> None:
         name = "The Event"
         sut = Event()
-        sut.name = Plain(name)
+        sut.name = name
         assert sut.name is not None
         assert sut.name.localize(DEFAULT_LOCALIZER) == name
 
@@ -176,10 +177,10 @@ class TestEvent(EntityTestBase):
             date=DateRange(Date(2000, 1, 1), Date(2019, 12, 31)),
             place=Place(
                 id="the_place",
-                names=[Name(Plain("The Place"))],
+                names=[Name("The Place")],
             ),
-            name=Plain("The Event"),
-            description=Plain("The Event Description"),
+            name="The Event",
+            description="The Event Description",
         )
         presence = Presence(Person(id="the_person"), Subject(), event)
         event.citations.add(
@@ -187,7 +188,7 @@ class TestEvent(EntityTestBase):
                 id="the_citation",
                 source=Source(
                     id="the_source",
-                    name=Plain("The Source"),
+                    name="The Source",
                 ),
             )
         )
@@ -241,8 +242,8 @@ class TestEvent(EntityTestBase):
             },
             "place": "/place/the_place/index.json",
             "links": [],
-            "name": {DEFAULT_LOCALE: "The Event"},
-            "description": {DEFAULT_LOCALE: "The Event Description"},
+            "name": {DEFAULT_LOCALE_TAG: "The Event"},
+            "description": {DEFAULT_LOCALE_TAG: "The Event Description"},
             "fileReferences": [],
         }
         actual = await assert_dumps_linked_data(event)
@@ -256,7 +257,7 @@ class TestEvent(EntityTestBase):
             date=DateRange(Date(2000, 1, 1), Date(2019, 12, 31)),
             place=Place(
                 id="the_place",
-                names=[Name(Plain("The Place"))],
+                names=[Name("The Place")],
             ),
         )
         presence = Presence(Person(id="the_person"), Subject(), event)
@@ -265,7 +266,7 @@ class TestEvent(EntityTestBase):
                 id="the_citation",
                 source=Source(
                     id="the_source",
-                    name=Plain("The Source"),
+                    name="The Source",
                 ),
             )
         )
@@ -301,7 +302,11 @@ class TestEvent(EntityTestBase):
         actual = await assert_dumps_linked_data(event)
         assert actual == expected
 
-    def test_get_mutable_instances(self) -> None:
-        sut = Event()
-        sut.immutable()
-        assert sut.event_type.is_immutable
+    def test_get_mutables(self) -> None:
+        class _MutableEventType(EventType, Mutable):
+            pass
+
+        event_type = _MutableEventType()
+        sut = Event(event_type=event_type)
+        sut.immutable = True
+        assert event_type.immutable

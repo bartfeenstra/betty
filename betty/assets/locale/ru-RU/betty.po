@@ -1,4 +1,4 @@
-# Russian translations for Betty.
+# Russian (Russia) translations for Betty.
 # Copyright (C) 2025 Bart Feenstra & contributors
 # This file is distributed under the same license as the Betty project.
 # FIRST AUTHOR <EMAIL@ADDRESS>, 2025.
@@ -7,13 +7,15 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Betty VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2025-11-04 14:00+0000\n"
-"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
-"Last-Translator: Automatically generated\n"
-"Language: ru\n"
-"Language-Team: none\n"
-"Plural-Forms: nplurals=3; plural=(n%10==1 && n%100!=11 ? 0 : n%10>=2 && "
-"n%10<=4 && (n%100<10 || n%100>=20) ? 1 : 2);\n"
+"POT-Creation-Date: 2025-11-27 01:37+0000\n"
+"PO-Revision-Date: 2025-11-16 18:38+0000\n"
+"Last-Translator: Артур Калагов "
+"<artur.kalagov@users.noreply.hosted.weblate.org>\n"
+"Language: ru_RU\n"
+"Language-Team: Russian "
+"<https://hosted.weblate.org/projects/betty/betty/ru/>\n"
+"Plural-Forms: nplurals=3; plural=n%10==1 && n%100!=11 ? 0 : n%10>=2 && "
+"n%10<=4 && (n%100<10 || n%100>=20) ? 1 : 2;\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=utf-8\n"
 "Content-Transfer-Encoding: 8bit\n"
@@ -22,13 +24,23 @@ msgstr ""
 #, python-brace-format
 msgid "\"{hex_value}\" is not a valid hexadecimal color, such as #ffc0cb."
 msgstr ""
+"«{hex_value}» не является допустимым шестнадцатеричным цветом, например "
+"#ffc0cb."
 
 #, python-brace-format
 msgid "\"{invalid_locale}\" is not a valid IETF BCP 47 language tag."
-msgstr ""
+msgstr "«{invalid_locale}» не является допустимым языковым тегом IETF BCP 47."
 
 #, python-brace-format
 msgid "\"{path}\" is not a directory."
+msgstr "«{path}» не является каталогом."
+
+#, python-brace-format
+msgid "\"{plugin_id}\""
+msgstr ""
+
+#, python-brace-format
+msgid "\"{plugin_id}\" ({plugin_label})"
 msgstr ""
 
 #, python-brace-format
@@ -36,102 +48,123 @@ msgid ""
 "\"{value}\" is not a valid machine name: only lowercase letters, digits, "
 "and hyphens (-) are allowed."
 msgstr ""
+"{value} не является допустимым именем машины: разрешены только строчные "
+"буквы, цифры и дефисы (-)."
 
 #, python-format
 msgid "%(date)s in %(place)s"
-msgstr ""
+msgstr "%(date)s в %(place)s"
 
 #, python-format
 msgid "%(event)s of %(subjects)s"
-msgstr ""
+msgstr "%(event)s %(subjects)s"
 
 #, python-format
 msgid "%(event)s with %(subjects)s"
+msgstr "%(event)s с %(subjects)s"
+
+msgid "(De)serialization format"
 msgstr ""
 
-msgid "(De)serialization format)"
+msgid "A Betty demonstration"
 msgstr ""
 
 msgid ""
 "A family history as told by <a "
 "href=\"https://betty.readthedocs.io\">Betty👵</a>"
 msgstr ""
+"Семейную историю рассказала <a "
+"href=\"https://betty.readthedocs.io\">Betty👵</a>"
 
 msgid "API documentation"
-msgstr ""
+msgstr "Документация API"
 
 msgid "About"
-msgstr ""
+msgstr "О программе"
 
 msgid "Access denied"
-msgstr ""
+msgstr "Доступ запрещен"
 
-#, python-format
-msgid "Accessed: %(date)s"
+msgid "Accessed"
 msgstr ""
 
 msgid "Adoption"
-msgstr ""
+msgstr "Принятие"
 
 msgid "All caches cleared."
-msgstr ""
+msgstr "Все кэши очищены."
 
 msgid "All of these requirements must be met"
-msgstr ""
+msgstr "Все эти требования должны быть выполнены"
 
 msgid "All rights reserved"
-msgstr ""
+msgstr "Все права защищены"
 
 #, python-format
 msgid "Also known as %(names)s"
-msgstr ""
+msgstr "Другие имена: %(names)s"
 
 msgid "Also show debug messages"
 msgstr ""
 
+msgid "Also show detailed information messages"
+msgstr ""
+
 msgid "Also show log messages"
+msgstr ""
+
+msgid "Amsterdam"
 msgstr ""
 
 msgid "An unexpected error occurred:"
 msgstr ""
 
 msgid "Announcement of divorce"
-msgstr ""
+msgstr "Объявление о разводе"
 
 msgid "Announcement of marriage"
-msgstr ""
+msgstr "Объявление о браке"
 
 msgid "Appearances"
+msgstr "Внешность"
+
+msgid "Assets directory"
 msgstr ""
 
 #, python-brace-format
 msgid "At least {expected} items are required, but found {actual}."
-msgstr ""
+msgstr "Требуется как минимум {expected} элементов, но найдено {actual}."
 
 #, python-brace-format
 msgid "At most {expected} items are allowed, but found {actual}."
-msgstr ""
+msgstr "Разрешено не более {expected} элементов, но найдено {actual}."
 
 msgid "At which URL will your site be published?"
-msgstr ""
+msgstr "По какому адресу (URL) будет опубликован ваш сайт?"
 
 msgid "Attendee"
+msgstr "Участники"
+
+msgid "Author"
 msgstr ""
 
 msgid "Baptism"
-msgstr ""
+msgstr "Крещение"
 
 msgid "Bar mitzvah"
+msgstr "Бар-мицва"
+
+msgid "Bart Feenstra and contributors"
 msgstr ""
 
 msgid "Bat mitzvah"
-msgstr ""
+msgstr "Бат-мицва"
 
 msgid "Beneficiary"
-msgstr ""
+msgstr "Бенефициары"
 
 msgid "Betty could not load the SPDX licenses"
-msgstr ""
+msgstr "Betty не удалось загрузить лицензии SPDX"
 
 msgid ""
 "Betty is an application that takes a family tree and builds a website out"
@@ -140,6 +173,12 @@ msgid ""
 "add to your site, such as media galleries, maps, and browsable family "
 "trees."
 msgstr ""
+"Betty - это приложение, которое использует генеалогическое древо и "
+"создает на его основе веб-сайт, очень похожий на тот, который вы сейчас "
+"просматриваете. Чем больше информации содержит ваше генеалогическое "
+"исследование, тем больше интерактивности Бетти может добавить на ваш "
+"сайт, например, медиагалереи, карты и доступные для просмотра "
+"генеалогические древа."
 
 #, python-brace-format
 msgid ""
@@ -147,18 +186,26 @@ msgid ""
 "\"{gramps_event_type}\". The event was imported, but its type was set to "
 "\"{betty_event_type}\"."
 msgstr ""
+"Betty не знаком тип Gramps \"{gramps_event_type}\" для события "
+"\"{event_id}\". Событие было импортировано, но его тип был изменен на "
+"\"{betty_event_type}\"."
 
 #, python-brace-format
 msgid ""
 "Betty is unfamiliar with Gramps file \"{file_id}\"'s copyright notice ID "
 "of \"{copyright_notice_id}\" and ignored it."
 msgstr ""
+"Betty не знакома с идентификатором уведомления об авторских правах в "
+"файле Gramps \"{file_id}\" со значением \"{copyright_notice_id}\" и "
+"проигнорировала его."
 
 #, python-brace-format
 msgid ""
 "Betty is unfamiliar with Gramps file \"{file_id}\"'s license ID of "
 "\"{license_id}\" and ignored it."
 msgstr ""
+"Betty не знакома с идентификатором лицензии файла Gramps \"{file_id}\" со"
+" значением \"{license_id}\" и проигнорировала его."
 
 #, python-brace-format
 msgid ""
@@ -166,6 +213,9 @@ msgid ""
 "\"{gramps_place_type}\". The place was imported, but its type was set to "
 "\"{betty_place_type}\"."
 msgstr ""
+"Betty не знаком тип Gramps \"{gramps_place_type}\" для места "
+"\"{place_id}\". Место было импортировано, но его тип был изменен на "
+"\"{betty_place_type}\"."
 
 #, python-brace-format
 msgid ""
@@ -174,6 +224,10 @@ msgid ""
 "\"{event_handle}\". The role was imported, but set to "
 "\"{betty_presence_role}\"."
 msgstr ""
+"Betty не знакома роль присутствия Gramps \"{gramps_presence_role}\" "
+"человека \"{person_id}\" для события с идентификатором Gramps "
+"\"{event_handle}\". Роль была импортирована, но изменена на "
+"\"{betty_presence_role}\"."
 
 #, python-format
 msgid ""
@@ -181,13 +235,17 @@ msgid ""
 " a small sample of her family history. You can browse the pages about her"
 " and some of her family to get an idea of what a Betty site looks like."
 msgstr ""
+"Название Betty происходит от %(liberta_lankester_label)s, а этот вебсайт "
+"показывает небольшую часть ее семейной истории. Вы можете просмотреть "
+"страницы о ней и некоторых ее родственниках, чтобы получить представление"
+" о том, как выглядит сайт Betty."
 
 #, python-brace-format
 msgid "Betty will talk to you in {locale}"
-msgstr ""
+msgstr "Betty будет общаться с вами на языке {locale}"
 
 msgid "Birth"
-msgstr ""
+msgstr "Рождение"
 
 msgid "Borough"
 msgstr ""
@@ -196,17 +254,13 @@ msgid "Breadcrumbs"
 msgstr ""
 
 msgid "Building"
-msgstr ""
+msgstr "Дом"
 
 msgid "Burial"
-msgstr ""
+msgstr "Погребение"
 
 msgid "Cannot find an available port to bind the web server to."
-msgstr ""
-
-#, python-brace-format
-msgid "Cannot find and import \"{plugin_id}\"."
-msgstr ""
+msgstr "Не удается найти доступный порт для веб-сервера."
 
 #, python-brace-format
 msgid ""
@@ -220,67 +274,85 @@ msgid ""
 " your family tree does not include a base path. In Gramps, add a \"base "
 "path for relative media paths\" to your family tree, and export it again."
 msgstr ""
+"Не удается загрузить файл Gramps {file_id} с относительным путем "
+"{file_path}, поскольку в вашем генеалогическом древе отсутствует базовый "
+"путь. В Gramps добавьте \"базовый путь для относительных путей к "
+"мультимедиа\" к вашему генеалогическому древу и экспортируйте его снова."
 
 #, python-brace-format
 msgid "Cannot load Gramps file {file_id}, because {file_path} is not a file."
 msgstr ""
+"Не удается загрузить файл Gramps {file_id}, потому что {file_path} не "
+"является файлом."
 
 #, python-brace-format
 msgid ""
 "Cannot load coordinates \"{coordinates}\", because they are in an unknown"
 " format."
 msgstr ""
+"Не удается загрузить координаты \"{coordinates}\", поскольку их формат "
+"неизвестен."
 
 msgid "Celebrant"
-msgstr ""
+msgstr "Ведущий церемонии"
 
 msgid "Cemetery"
 msgstr ""
 
 msgid "Citation"
-msgstr ""
+msgstr "Цитата"
 
 msgid "Citations"
-msgstr ""
+msgstr "Цитаты"
 
 msgid "City"
-msgstr ""
+msgstr "Город"
 
 msgid "Clear all caches"
-msgstr ""
+msgstr "Очистить все кэши"
 
 msgid "Close"
+msgstr "Закрыть"
+
+msgid "Color style"
 msgstr ""
 
 msgid "Command"
 msgstr ""
 
 msgid "Conference"
+msgstr "Конференция"
+
+msgid "Configuration file"
 msgstr ""
 
 msgid "Configure Betty"
-msgstr ""
+msgstr "Настройка Betty"
 
 msgid "Confirmation"
+msgstr "Миропомазание"
+
+msgid "Content provider"
 msgstr ""
 
 #, python-format
 msgid "Continue reading on <a href=\"%(url)s\">Wikipedia</a>."
-msgstr ""
+msgstr "Продолжить чтение на <a href=\"%(url)s\">Wikipedia</a>."
 
-#, python-format
-msgid "Coordinates: %(latitude)s, %(longitude)s"
+msgid "Coordinates"
 msgstr ""
 
 msgid "Copyright"
-msgstr ""
+msgstr "Авторское право"
 
 #, python-format
 msgid "Copyright <a href=\"%(url)s\">OpenStreetMap</a> contributors"
 msgstr ""
+"Авторские права принадлежат участникам <a "
+"href=\"%(url)s\">OpenStreetMap</a>"
 
 msgid "Copyright Wikipedia contributors"
-msgstr ""
+msgstr "Авторские права принадлежат участникам Wikipedia"
 
 msgid "Copyright notice"
 msgstr ""
@@ -289,20 +361,22 @@ msgid ""
 "Copyright of these works lies with the original authors who contributed "
 "them to Wikipedia."
 msgstr ""
+"Авторские права на эти работы принадлежат первоначальным авторам, которые"
+" разместили их в Wikipedia."
 
 msgid "Correspondence"
-msgstr ""
+msgstr "Переписка"
 
 #, python-brace-format
 msgid "Could not extract {file_path} as a gzip file  (*.gz)."
-msgstr ""
+msgstr "Не удалось распаковать {file_path} как файл gzip (*.gz)."
 
 #, python-brace-format
 msgid "Could not extract {file_path} as a gzipped tar file  (*.tar.gz)."
-msgstr ""
+msgstr "Не удалось распаковать {file_path} как сжатый файл tar (*.tar.gz)."
 
 #, python-brace-format
-msgid "Could not find a plugin \"{plugin_id}\"."
+msgid "Could not find a(n) {plugin_type} plugin \"{plugin_id}\"."
 msgstr ""
 
 #, python-brace-format
@@ -310,52 +384,66 @@ msgid ""
 "Could not find any of the following configuration files in "
 "{project_directory_path}: {configuration_file_names}."
 msgstr ""
+"Не удалось найти ни одного из следующих файлов конфигурации в "
+"{project_directory_path}: {configuration_file_names}."
 
 #, python-brace-format
 msgid "Could not find the file \"{file_path}\"."
-msgstr ""
+msgstr "Не удалось найти файл \"{file_path}\"."
 
 msgid "Country"
-msgstr ""
+msgstr "Страна"
 
 msgid "County"
-msgstr ""
+msgstr "Округ"
 
 msgid "Create a new project"
-msgstr ""
+msgstr "Создать новый проект"
 
 msgid "Create a new translation"
-msgstr ""
+msgstr "Создать новый перевод"
 
 msgid "Create a new translation for an extension"
-msgstr ""
+msgstr "Создать новый перевод для расширения"
 
 msgid ""
 "Create events such as births and deaths by deriving their details from "
 "existing information."
 msgstr ""
+"Создание таких событий, как рождения и смерть, на основе существующей "
+"информации."
 
 #, python-brace-format
 msgid ""
 "Created {created_derivations} additional {event_type} events based on "
 "existing information."
 msgstr ""
+"Создано {created_derivations} производных событий типа {event_type} на "
+"основе существующей информации."
 
 msgid "Cremation"
-msgstr ""
+msgstr "Кремация"
 
 msgid "Death"
-msgstr ""
+msgstr "Смерть"
 
 msgid "Department"
-msgstr ""
+msgstr "Отдел"
 
 msgid "Description, licensing, and image history"
-msgstr ""
+msgstr "Описание, лицензирование и история изображения"
 
 msgid ""
 "Determine if people can be proven to have died. If not, mark them and "
 "their associated entities private."
+msgstr ""
+
+msgid "Did you know that Liberta \"Betty\" Lankester is Betty's namesake?"
+msgstr ""
+
+msgid ""
+"Did you know that while Amsterdam is the country's official capital, The "
+"Hague is the Netherlands' administrative center and seat of government?"
 msgstr ""
 
 msgid ""
@@ -372,10 +460,10 @@ msgid ""
 msgstr ""
 
 msgid "District"
-msgstr ""
+msgstr "Район"
 
 msgid "Divorce"
-msgstr ""
+msgstr "Развод"
 
 msgid "Do not show any output, except error messages"
 msgstr ""
@@ -389,22 +477,22 @@ msgid "Do you mean {available_option}?"
 msgstr ""
 
 msgid "Do you want to add another locale?"
-msgstr ""
+msgstr "Вы хотите добавить еще один язык?"
 
 msgid "Do you want to load a Gramps family tree?"
-msgstr ""
+msgstr "Вы хотите загрузить генеалогическое древо Gramps?"
 
 msgid "Emigration"
-msgstr ""
+msgstr "Эмиграция"
 
 msgid "Enclosure"
-msgstr ""
+msgstr "Приложение"
 
 msgid "Enclosures"
-msgstr ""
+msgstr "Приложения"
 
 msgid "Engagement"
-msgstr ""
+msgstr "Помолвка"
 
 msgid "Enrich your ancestry with information from Wikipedia and Wikimedia Commons"
 msgstr ""
@@ -413,83 +501,92 @@ msgid "Entity"
 msgstr ""
 
 msgid "Entity type"
-msgstr ""
+msgstr "Тип сущности"
 
 msgid "Event"
-msgstr ""
+msgstr "Событие"
 
 msgid "Event type"
 msgstr ""
 
 msgid "Events"
-msgstr ""
+msgstr "События"
 
 #, python-brace-format
 msgid "Exactly {expected} items are required, but found {actual}."
 msgstr ""
 
 msgid "Explore a demonstration site"
-msgstr ""
+msgstr "Ознакомьтесь с демонстрационным сайтом"
 
 msgid "Extension"
 msgstr ""
 
 msgid "External links"
-msgstr ""
+msgstr "Внешние ссылки"
 
 msgid "Facts"
-msgstr ""
+msgstr "Факты"
 
 msgid "Family"
+msgstr "Семья"
+
+msgid "Family tree"
 msgstr ""
 
 msgid "Family tree configuration must contain either a \"file\" or a \"name\" key"
 msgstr ""
 
 msgid "Farm"
+msgstr "Ферма"
+
+msgid "Featured entities"
 msgstr ""
 
 msgid "Female"
-msgstr ""
+msgstr "Женщина"
 
 msgid "File"
-msgstr ""
+msgstr "Файл"
 
 msgid "File reference"
-msgstr ""
+msgstr "Ссылка на файл"
 
 msgid "File references"
-msgstr ""
+msgstr "Ссылки на файлы"
 
 msgid "Files"
-msgstr ""
+msgstr "Файлы"
 
 msgid "Filters"
-msgstr ""
+msgstr "Фильтры"
 
 msgid "Find Betty on GitHub"
-msgstr ""
+msgstr "Найти Betty на GitHub"
 
 msgid "Find out more about this image on Wikimedia Commons."
-msgstr ""
+msgstr "Узнайте больше об этом изображении на Wikimedia Commons."
 
 msgid "First page"
 msgstr ""
 
 msgid "Funeral"
+msgstr "Похороны"
+
+msgid "Gemeente Amsterdam"
 msgstr ""
 
 msgid "Gender"
 msgstr ""
 
 msgid "Generate a static site"
-msgstr ""
+msgstr "Создание статического сайта"
 
 msgid "Generating site..."
 msgstr ""
 
 msgid "Go to the front page"
-msgstr ""
+msgstr "Перейти на главную страницу"
 
 #, python-brace-format
 msgid ""
@@ -497,6 +594,9 @@ msgid ""
 "{supported_gramps_xml_version}. Gramps XML {loaded_gramps_xml_version} is"
 " not supported."
 msgstr ""
+"Gramps XML должен быть совместим с версией "
+"{supported_gramps_xml_version}. Gramps XML версии "
+"{loaded_gramps_xml_version} не поддерживается."
 
 #, python-brace-format
 msgid ""
@@ -508,59 +608,76 @@ msgid "HTTP client rate limit"
 msgstr ""
 
 msgid "Hamlet"
-msgstr ""
+msgstr "Деревня"
 
 msgid "Home"
 msgstr ""
 
 msgid "I'm sorry, dear, but it seems there is nothing to show."
-msgstr ""
+msgstr "Данных для отображения не найдено."
 
 msgid "I'm sorry, dear, but it seems this page does not exist."
-msgstr ""
+msgstr "Страница не существует."
 
 msgid "I'm sorry, dear, but it seems you're not allowed to view this page."
-msgstr ""
+msgstr "Просмотр страницы запрещен."
 
 msgid "I'm sorry, dear, but it seems you're not logged in."
+msgstr "Вы не вошли в систему."
+
+msgid "ID"
+msgstr ""
+
+msgid "Ilpendam"
 msgstr ""
 
 msgid "Immigration"
-msgstr ""
+msgstr "Иммиграция"
 
 msgid "Informant"
-msgstr ""
+msgstr "Информатор"
 
 #, python-brace-format
 msgid "Invalid JSON: {error}."
-msgstr ""
+msgstr "Недопустимый JSON: {error}."
 
 #, python-brace-format
 msgid "Invalid YAML: {error}."
-msgstr ""
+msgstr "Недопустимый YAML: {error}."
 
 #, python-brace-format
 msgid "Invalid argument {argument}: {error}"
+msgstr ""
+
+#, python-brace-format
+msgid "Invalid option {value}."
+msgstr ""
+
+#, python-brace-format
+msgid "Invalid region {invalid_region}."
 msgstr ""
 
 msgid "It appears you called Betty without a command or arguments"
 msgstr ""
 
 msgid "Keywords"
+msgstr "Ключевые слова"
+
+msgid "Label"
 msgstr ""
 
 msgid "Language"
-msgstr ""
+msgstr "Язык"
 
 #, python-format
 msgid "Last modified on %(last_modified)s"
-msgstr ""
+msgstr "Последнее изменение %(last_modified)s"
 
 msgid "Last page"
 msgstr ""
 
 msgid "License"
-msgstr ""
+msgstr "Лицензия"
 
 msgid "Link"
 msgstr ""
@@ -573,88 +690,100 @@ msgstr ""
 
 #, python-brace-format
 msgid "Loaded the configuration from {configuration_file_path}."
-msgstr ""
+msgstr "Загружена конфигурация из {configuration_file_path}."
 
 #, python-brace-format
 msgid "Loaded {citation_count} citations."
-msgstr ""
+msgstr "Загружено {citation_count} цитат."
 
 #, python-brace-format
 msgid "Loaded {event_count} events."
-msgstr ""
+msgstr "Загружено {event_count} событий."
 
 #, python-brace-format
 msgid "Loaded {file_count} files."
-msgstr ""
+msgstr "Загружено {file_count} файлов."
 
 #, python-brace-format
 msgid "Loaded {note_count} notes."
-msgstr ""
+msgstr "Загружено {note_count} заметок."
 
 #, python-brace-format
 msgid "Loaded {person_count} people."
-msgstr ""
+msgstr "Загружено {person_count} человек."
 
 #, python-brace-format
 msgid "Loaded {place_count} places."
-msgstr ""
+msgstr "Загружено {place_count} мест."
 
 #, python-brace-format
 msgid "Loaded {repository_count} repositories as sources."
-msgstr ""
+msgstr "Загружено {repository_count} репозиториев в качестве источников."
 
 #, python-brace-format
 msgid "Loaded {source_count} sources."
-msgstr ""
+msgstr "Загружено {source_count} источников."
 
 #, python-brace-format
 msgid "Loading \"{file_path}\"..."
-msgstr ""
+msgstr "Загрузка \"{file_path}\"..."
 
 msgid "Locale aliases must not contain slashes."
 msgstr ""
 
 #, python-brace-format
-msgid "Locale {locale} is not supported by your system."
+msgid "Locale {locale} is not known by your system."
 msgstr ""
 
 msgid "Locality"
-msgstr ""
+msgstr "Местность"
 
 msgid "MMMM"
-msgstr ""
+msgstr "MMMM"
 
 msgid "MMMM d"
-msgstr ""
+msgstr "d MMMM"
 
 msgid "MMMM d, y"
-msgstr ""
+msgstr "d MMMM y г."
 
 msgid "MMMM, y"
-msgstr ""
+msgstr "MMMM y г."
 
 msgid "Male"
+msgstr "Мужчина"
+
+msgid "Map"
 msgstr ""
 
 msgid "Marriage"
-msgstr ""
+msgstr "Брак"
 
 msgid "Media"
+msgstr "Медиа"
+
+msgid "Media gallery"
 msgstr ""
 
 msgid "Media references"
-msgstr ""
+msgstr "Ссылки на медиа"
 
 msgid "Menu"
-msgstr ""
+msgstr "Меню"
 
 msgid "Missing"
 msgstr ""
 
-msgid "Municipality"
+msgid "More plugins may be available when running this command with --project."
 msgstr ""
 
+msgid "Municipality"
+msgstr "Муниципалитет"
+
 msgid "Neighborhood"
+msgstr "Окрестности"
+
+msgid "Netherlands"
 msgstr ""
 
 msgid "Next page"
@@ -665,23 +794,35 @@ msgid ""
 "without express written permission from the copyright holder, or unless "
 "permitted by copyright law."
 msgstr ""
+"Никакая часть не может быть воспроизведена или распространена в любой "
+"форме или любыми средствами без явного письменного разрешения "
+"правообладателя или если это не разрешено законом об авторском праве."
 
 msgid "Non-binary"
+msgstr "Небинарный"
+
+msgid "North Holland"
 msgstr ""
 
 msgid "Note"
-msgstr ""
+msgstr "Заметка"
 
 msgid "Notes"
-msgstr ""
+msgstr "Заметки"
 
 msgid "Number"
-msgstr ""
+msgstr "Номер"
 
 msgid "Occupation"
-msgstr ""
+msgstr "Занятие"
 
 msgid "One or more of these requirements must be met"
+msgstr "Одно или несколько из этих требований должны быть выполнены"
+
+#, python-brace-format
+msgid ""
+"Only plain text and static translations can be dumped to configuration, "
+"not `{localizable}` objects."
 msgstr ""
 
 msgid "Operating system"
@@ -691,12 +832,21 @@ msgid "Options"
 msgstr ""
 
 msgid "Organizer"
-msgstr ""
+msgstr "Организатор"
 
 msgid "Other attendees"
-msgstr ""
+msgstr "Другие участники"
 
 msgid "Other places contained by this one"
+msgstr "Другие места, содержащиеся в этом"
+
+msgid "Output directory"
+msgstr ""
+
+msgid "Output information about Betty, and optionally your project"
+msgstr ""
+
+msgid "Package"
 msgstr ""
 
 #, python-format
@@ -707,54 +857,63 @@ msgid "Page navigation"
 msgstr ""
 
 msgid "Page not found"
-msgstr ""
+msgstr "Страница не найдена"
 
 msgid "Parish"
-msgstr ""
+msgstr "Приход"
 
 msgid "People"
-msgstr ""
+msgstr "Люди"
 
 msgid "Permanent link to this section."
-msgstr ""
+msgstr "Постоянная ссылка на этот раздел."
 
 msgid "Person"
-msgstr ""
+msgstr "Человек"
 
 msgid "Person name"
-msgstr ""
+msgstr "Имя"
 
 msgid "Person names"
+msgstr "Имена"
+
+msgid "Personal accounts"
 msgstr ""
 
 msgid "Place"
-msgstr ""
+msgstr "Место"
 
 msgid "Place type"
 msgstr ""
 
 msgid "Places"
+msgstr "Места"
+
+msgid "Plain text"
 msgstr ""
 
 #, python-brace-format
 msgid "Plugin \"{plugin_id}\" is not configurable, but configuration was given."
 msgstr ""
 
+msgid "Plugins"
+msgstr ""
+
 msgid "Positional arguments"
 msgstr ""
 
 msgid "Presence"
-msgstr ""
+msgstr "Присутствие"
 
 #, python-brace-format
 msgid "Presence of {person} at {event}"
-msgstr ""
+msgstr "Присутствие {person} на {event}"
 
 msgid "Presence role"
 msgstr ""
 
 msgid "Presences"
-msgstr ""
+msgstr "Присутствия"
 
 msgid "Previous page"
 msgstr ""
@@ -794,12 +953,15 @@ msgid ""
 msgstr ""
 
 msgid "Project author"
-msgstr ""
+msgstr "Автор проекта"
 
 msgid "Province"
 msgstr ""
 
 msgid "Public domain"
+msgstr "Публичный домен"
+
+msgid "Publisher"
 msgstr ""
 
 msgid "Python packages"
@@ -809,16 +971,16 @@ msgid "Quitting..."
 msgstr ""
 
 msgid "Read more"
-msgstr ""
+msgstr "Подробнее"
 
 msgid "Read more on Wikipedia."
-msgstr ""
+msgstr "Подробнее на Wikipedia."
 
 msgid "Read the Betty documentation"
 msgstr ""
 
 msgid "References"
-msgstr ""
+msgstr "Ссылки"
 
 msgid "Region"
 msgstr ""
@@ -827,17 +989,17 @@ msgid "Renderer"
 msgstr ""
 
 msgid "Reset"
-msgstr ""
+msgstr "Сброс"
 
 msgid "Residence"
-msgstr ""
+msgstr "Проживание"
 
 #, python-brace-format
 msgid "Results ({{{ betty-search-results-count }}})"
-msgstr ""
+msgstr "Найдено ({{{ betty-search-results-count }}})"
 
 msgid "Retirement"
-msgstr ""
+msgstr "Выход на пенсию"
 
 #, python-brace-format
 msgid "Running subprocess `{command}`..."
@@ -845,9 +1007,12 @@ msgstr ""
 
 #, python-brace-format
 msgid "Saved your project to {configuration_file}."
-msgstr ""
+msgstr "Проект сохранен в {configuration_file}."
 
 msgid "Search"
+msgstr "Поиск"
+
+msgid "Section"
 msgstr ""
 
 msgid "Serve a generated site"
@@ -865,38 +1030,38 @@ msgstr ""
 msgid "Show all available commands"
 msgstr ""
 
-msgid "Show information about the current Betty version and environment"
-msgstr ""
-
 msgid "Show this help message"
 msgstr ""
 
 msgid "Source"
-msgstr ""
+msgstr "Источник"
 
 msgid "Sources"
-msgstr ""
+msgstr "Источники"
 
 msgid "Speaker"
+msgstr "Выступавший"
+
+msgid "Start exploring..."
 msgstr ""
 
 msgid "Starting Python's built-in web server..."
-msgstr ""
+msgstr "Запуск встроенного веб-сервера Python..."
 
 msgid "State"
 msgstr ""
 
 msgid "Street"
-msgstr ""
+msgstr "Улица"
 
 msgid "Subcommands"
 msgstr ""
 
 msgid "Subject"
-msgstr ""
+msgstr "Тема"
 
 msgid "Subjects"
-msgstr ""
+msgstr "Субъекты"
 
 #, python-brace-format
 msgid ""
@@ -910,8 +1075,14 @@ msgid ""
 "{stdout}"
 msgstr ""
 
+msgid "System"
+msgstr ""
+
 #, python-format
 msgid "The '%(project_title)s' logo"
+msgstr "Логотип проекта '%(project_title)s'"
+
+msgid "The 'birth of the author', so to speak."
 msgstr ""
 
 #, python-brace-format
@@ -935,10 +1106,10 @@ msgid ""
 msgstr ""
 
 msgid "The URL must include a host."
-msgstr ""
+msgstr "URL-адрес должен содержать имя хоста."
 
 msgid "The URL must start with a scheme such as https:// or http://."
-msgstr ""
+msgstr "URL-адрес должен начинаться с указания протокола https:// или http://."
 
 #, python-brace-format
 msgid ""
@@ -962,7 +1133,7 @@ msgid ""
 msgstr ""
 
 msgid "The following errors occurred"
-msgstr ""
+msgstr "Произошли следующие ошибки"
 
 #, python-brace-format
 msgid ""
@@ -979,34 +1150,34 @@ msgstr ""
 
 #, python-format
 msgid "They are the child of %(parent_labels)s."
-msgstr ""
+msgstr "Они дети %(parent_labels)s."
 
 #, python-format
 msgid "They grew up with a sibling."
 msgid_plural "They grew up with %(sibling_count)s siblings."
-msgstr[0] ""
-msgstr[1] ""
-msgstr[2] ""
+msgstr[0] "У них было %(sibling_count)s брат и сестра."
+msgstr[1] "У них было %(sibling_count)s брата и сестры."
+msgstr[2] "У них было %(sibling_count)s братьев и сестер."
 
 #, python-format
 msgid "They had a child with %(co_parent_labels)s."
 msgid_plural "They had %(child_count)s children with %(co_parent_labels)s."
-msgstr[0] ""
-msgstr[1] ""
-msgstr[2] ""
+msgstr[0] "У них с %(co_parent_labels)s был один ребенок."
+msgstr[1] "У них с %(co_parent_labels)s было %(child_count)s ребенка."
+msgstr[2] "У них с %(co_parent_labels)s было %(child_count)s детей."
 
 #, python-format
 msgid "They had a child."
 msgid_plural "They had %(child_count)s children."
-msgstr[0] ""
-msgstr[1] ""
-msgstr[2] ""
+msgstr[0] "У них был %(child_count)s ребенок."
+msgstr[1] "У них было %(child_count)s ребенка."
+msgstr[2] "У них было %(child_count)s детей."
 
 msgid "This field is required."
 msgstr ""
 
 msgid "This information is unavailable to protect people's privacy."
-msgstr ""
+msgstr "Эта информация скрыта в целях защиты личных данных."
 
 msgid "This is not valid Gramps XML."
 msgstr ""
@@ -1036,16 +1207,16 @@ msgid "This must be none/null."
 msgstr ""
 
 msgid "This person's name is unknown."
-msgstr ""
+msgstr "Имя неизвестно."
 
 msgid "This will open your web browser."
 msgstr ""
 
 msgid "Timeline"
-msgstr ""
+msgstr "Хронология"
 
 msgid "Toggle full screen"
-msgstr ""
+msgstr "Переключить режим отображения"
 
 msgid "Town"
 msgstr ""
@@ -1058,11 +1229,14 @@ msgstr ""
 msgid "Translations for {locale} initialized at {po_file_path}."
 msgstr ""
 
-msgid "Unauthorized"
+msgid "Type"
 msgstr ""
 
+msgid "Unauthorized"
+msgstr "Неавторизован"
+
 msgid "Unknown"
-msgstr ""
+msgstr "Неизвестно"
 
 #, python-brace-format
 msgid ""
@@ -1072,28 +1246,37 @@ msgstr ""
 
 #, python-brace-format
 msgid "Unknown key: {unknown_key}."
+msgstr "Неизвестный ключ: {unknown_key}."
+
+#, python-brace-format
+msgid "Unknown plugin \"{plugin_id}\"."
 msgstr ""
 
 #, python-brace-format
-msgid "Unknown locale {locale}."
+msgid "Untranslated locale {locale}."
 msgstr ""
 
 msgid "Update all existing translations"
-msgstr ""
+msgstr "Обновление всех существующих переводов"
 
 msgid "Update all existing translations for Betty itself"
-msgstr ""
+msgstr "Обновление всех собственных существующих переводов Betty"
 
 msgid "Update all existing translations for an extension"
-msgstr ""
+msgstr "Обновление всех существующих переводов расширения"
 
 #, python-brace-format
 msgid ""
 "Updated {updated_derivations} {event_type} events based on existing "
 "information."
 msgstr ""
+"Обновлено {updated_derivations} событий типа {event_type} на основе "
+"существующей информации."
 
 msgid "Usage: "
+msgstr ""
+
+msgid "Version"
 msgstr ""
 
 msgid "View Betty's interactive documentation. This will open your web browser."
@@ -1110,196 +1293,209 @@ msgstr ""
 
 #, python-format
 msgid "Welcome to %(project_title)s"
-msgstr ""
+msgstr "Добро пожаловать в %(project_title)s"
 
 msgid "What is the path to your exported Gramps family tree file?"
-msgstr ""
+msgstr "Каков путь к вашему экспортированному файлу генеалогического древа Gramps?"
 
 #, python-brace-format
 msgid "What is the project author called in {locale}?"
-msgstr ""
+msgstr "Как называется автор проекта для языка {locale}?"
 
 #, python-brace-format
 msgid "What is your project called in {locale}?"
-msgstr ""
+msgstr "Как называется ваш проект на языке {locale}?"
 
 msgid "What is your project's machine name?"
-msgstr ""
+msgstr "Каково машиночитаемое имя вашего проекта?"
 
 msgid "Where do you want to save your project's configuration file?"
-msgstr ""
+msgstr "Где вы хотите сохранить конфигурационный файл вашего проекта?"
 
 msgid ""
-"Which language should your project site be generated in? Enter an IETF "
-"BCP 47 language code."
+"Which language should your project site be generated in? Enter a language"
+" code."
 msgstr ""
 
 msgid "Wikipedia contributors"
+msgstr "Участники Wikipedia"
+
+msgid "Wikipedia summary"
 msgstr ""
 
 msgid "Will"
-msgstr ""
+msgstr "Завещание"
 
 msgid "Witness"
-msgstr ""
+msgstr "Свидетель"
 
 msgid "Witnesses"
-msgstr ""
+msgstr "Свидетели"
 
 msgid ""
 "Works in the public domain can be used or referenced without permission, "
 "because nobody holds any exclusive rights over these works (anymore)."
+msgstr ""
+"Произведения, находящиеся в общественном достоянии, которые можно "
+"использовать или на которые можно ссылаться без разрешения, поскольку "
+"(больше) никто не обладает никакими исключительными правами на эти "
+"произведения."
+
+#, python-brace-format
+msgid "Your project at {file}"
 msgstr ""
 
 msgid ""
 "Your project has no theme enabled. This means your site's pages may look "
 "bare. Try the \"raspberry-mint\" extension."
 msgstr ""
+"В вашем проекте не включена тема. Это означает, что страницы вашего сайта"
+" могут выглядеть пустыми. Попробуйте расширение \"raspberry-mint\"."
 
 msgid "Zoom in"
-msgstr ""
+msgstr "Увеличить масштаб"
 
 msgid "Zoom out"
-msgstr ""
+msgstr "Уменьшить масштаб"
 
 #, python-brace-format
 msgid "around {date}"
-msgstr ""
+msgstr "~ {date}"
 
 #, python-brace-format
 msgid "from around {start_date}"
-msgstr ""
+msgstr "с ~ {start_date}"
 
 #, python-brace-format
 msgid "from around {start_date} until around {end_date}"
-msgstr ""
+msgstr "с ~ {start_date} до ~ {end_date}"
 
 #, python-brace-format
 msgid "from around {start_date} until sometime before around {end_date}"
-msgstr ""
+msgstr "когда-то в период между ~ {start_date} и ~ {end_date}"
 
 #, python-brace-format
 msgid "from around {start_date} until sometime before {end_date}"
-msgstr ""
+msgstr "когда-то в период между ~ {start_date} и {end_date}"
 
 #, python-brace-format
 msgid "from around {start_date} until {end_date}"
-msgstr ""
+msgstr "с ~ {start_date} до {end_date}"
 
 #, python-brace-format
 msgid "from sometime after around {start_date} until around {end_date}"
-msgstr ""
+msgstr "когда-то после периода между ~ {start_date} и ~ {end_date}"
 
 #, python-brace-format
 msgid "from sometime after around {start_date} until {end_date}"
-msgstr ""
+msgstr "когда-то после периода между ~ {start_date} и {end_date}"
 
 #, python-brace-format
 msgid "from sometime after {start_date} until around {end_date}"
-msgstr ""
+msgstr "когда-то после периода между {start_date} и ~ {end_date}"
 
 #, python-brace-format
 msgid "from sometime after {start_date} until {end_date}"
-msgstr ""
+msgstr "когда-то после периода между {start_date} и {end_date}"
 
 #, python-brace-format
 msgid "from {start_date}"
-msgstr ""
+msgstr "c {start_date}"
 
 #, python-brace-format
 msgid "from {start_date} until around {end_date}"
-msgstr ""
+msgstr "с {start_date} до ~ {end_date}"
 
 #, python-brace-format
 msgid "from {start_date} until sometime before around {end_date}"
-msgstr ""
+msgstr "когда-то в период между {start_date} и ~ {end_date}"
 
 #, python-brace-format
 msgid "from {start_date} until sometime before {end_date}"
-msgstr ""
+msgstr "когда-то в период между {start_date} и {end_date}"
 
 #, python-brace-format
 msgid "from {start_date} until {end_date}"
-msgstr ""
+msgstr "с {start_date} до {end_date}"
 
 #, python-format
 msgid "in %(place)s"
-msgstr ""
+msgstr "в %(place)s"
 
 #, python-format
 msgid "in %(source)s"
-msgstr ""
+msgstr "в %(source)s"
 
 msgid ""
 "npm (https://www.npmjs.com/) must be available for features that require "
 "Node.js packages to be installed. Ensure that the `npm` executable is "
 "available in your `PATH`."
 msgstr ""
-
-msgid "npm is available"
-msgstr ""
+"npm (https://www.npmjs.com/) должен быть доступен для функций, требующих "
+"установки пакетов Node.js. Убедитесь, что исполняемый файл \"npm\" "
+"доступен в вашем `PATH`."
 
 msgid "npm is not available"
-msgstr ""
+msgstr "npm не доступен"
 
 msgid "private"
-msgstr ""
+msgstr "скрыто"
 
 msgid "sometime"
-msgstr ""
+msgstr "когда-то"
 
 #, python-brace-format
 msgid "sometime after around {start_date}"
-msgstr ""
+msgstr "когда-то после ~ {start_date}"
 
 #, python-brace-format
 msgid "sometime after {start_date}"
-msgstr ""
+msgstr "когда-то после {start_date}"
 
 #, python-brace-format
 msgid "sometime before around {end_date}"
-msgstr ""
+msgstr "когда-то до ~ {end_date}"
 
 #, python-brace-format
 msgid "sometime before {end_date}"
-msgstr ""
+msgstr "когда-то до {end_date}"
 
 #, python-brace-format
 msgid "sometime between around {start_date} and around {end_date}"
-msgstr ""
+msgstr "когда-то между ~ {start_date} и ~ {end_date}"
 
 #, python-brace-format
 msgid "sometime between around {start_date} and {end_date}"
-msgstr ""
+msgstr "когда-то между ~ {start_date} и {end_date}"
 
 #, python-brace-format
 msgid "sometime between {start_date} and around {end_date}"
-msgstr ""
+msgstr "когда-то между {start_date} и ~ {end_date}"
 
 #, python-brace-format
 msgid "sometime between {start_date} and {end_date}"
-msgstr ""
+msgstr "когда-то между {start_date} и {end_date}"
 
 msgid "unknown date"
-msgstr ""
+msgstr "дата неизвестна"
 
 #, python-brace-format
 msgid "until around {end_date}"
-msgstr ""
+msgstr "до ~ {end_date}"
 
 #, python-brace-format
 msgid "until {end_date}"
-msgstr ""
+msgstr "до {end_date}"
 
 msgid "y"
-msgstr ""
+msgstr "y г."
 
 #, python-brace-format
 msgid "{count} citation"
 msgid_plural "{count} citations"
-msgstr[0] ""
-msgstr[1] ""
-msgstr[2] ""
+msgstr[0] "{count} цитирование"
+msgstr[1] "{count} цитирования"
+msgstr[2] "{count} цитирований"
 
 #, python-brace-format
 msgid "{count} enclosure"
@@ -1311,23 +1507,23 @@ msgstr[2] ""
 #, python-brace-format
 msgid "{count} event"
 msgid_plural "{count} events"
-msgstr[0] ""
-msgstr[1] ""
-msgstr[2] ""
+msgstr[0] "{count} событие"
+msgstr[1] "{count} события"
+msgstr[2] "{count} событий"
 
 #, python-brace-format
 msgid "{count} file"
 msgid_plural "{count} files"
-msgstr[0] ""
-msgstr[1] ""
-msgstr[2] ""
+msgstr[0] "{count} файл"
+msgstr[1] "{count} файла"
+msgstr[2] "{count} файлов"
 
 #, python-brace-format
 msgid "{count} file reference"
 msgid_plural "{count} file references"
-msgstr[0] ""
-msgstr[1] ""
-msgstr[2] ""
+msgstr[0] "{count} ссылка на файлы"
+msgstr[1] "{count} ссылки на файлы"
+msgstr[2] "{count} ссылок на файлы"
 
 #, python-brace-format
 msgid "{count} link"
@@ -1339,60 +1535,64 @@ msgstr[2] ""
 #, python-brace-format
 msgid "{count} note"
 msgid_plural "{count} notes"
-msgstr[0] ""
-msgstr[1] ""
-msgstr[2] ""
+msgstr[0] "{count} заметка"
+msgstr[1] "{count} заметки"
+msgstr[2] "{count} заметок"
 
 #, python-brace-format
 msgid "{count} person"
 msgid_plural "{count} people"
-msgstr[0] ""
-msgstr[1] ""
-msgstr[2] ""
+msgstr[0] "{count} человек"
+msgstr[1] "{count} человека"
+msgstr[2] "{count} человек"
 
 #, python-brace-format
 msgid "{count} person name"
 msgid_plural "{count} person names"
-msgstr[0] ""
-msgstr[1] ""
-msgstr[2] ""
+msgstr[0] "{count} имя"
+msgstr[1] "{count} имени"
+msgstr[2] "{count} имен"
 
 #, python-brace-format
 msgid "{count} place"
 msgid_plural "{count} places"
-msgstr[0] ""
-msgstr[1] ""
-msgstr[2] ""
+msgstr[0] "{count} место"
+msgstr[1] "{count} места"
+msgstr[2] "{count} мест"
 
 #, python-brace-format
 msgid "{count} presence"
 msgid_plural "{count} presences"
-msgstr[0] ""
-msgstr[1] ""
-msgstr[2] ""
+msgstr[0] "{count} присутствовавший"
+msgstr[1] "{count} присутствовавших"
+msgstr[2] "{count} присутствовавших"
 
 #, python-brace-format
 msgid "{count} source"
 msgid_plural "{count} sources"
-msgstr[0] ""
-msgstr[1] ""
-msgstr[2] ""
+msgstr[0] "{count} источник"
+msgstr[1] "{count} источника"
+msgstr[2] "{count} источников"
 
 #, python-brace-format
 msgid "{date}"
+msgstr "{date}"
+
+#, python-brace-format
+msgid "{dependent} depends on {dependencies}."
 msgstr ""
 
 #, python-brace-format
 msgid "{entity_type} {entity_id}"
-msgstr ""
+msgstr "{entity_type} {entity_id}"
 
 #, python-brace-format
 msgid "{event_type}"
-msgstr ""
+msgstr "{event_type}"
 
 #, python-brace-format
 msgid "{event_type} of {subjects}"
-msgstr ""
+msgstr "{event_type} {subjects}"
 
 #, python-brace-format
 msgid "{extension} does not have an assets directory."
@@ -1400,7 +1600,7 @@ msgstr ""
 
 #, python-brace-format
 msgid "{individual_name} {affiliation_name}"
-msgstr ""
+msgstr "{individual_name} {affiliation_name}"
 
 #, python-brace-format
 msgid "{most}, and {last}"
@@ -1411,13 +1611,35 @@ msgid "{most}, or {last}"
 msgstr ""
 
 #, python-brace-format
-msgid "{plugin_type_label} {plugin_label} depends on {dependency_labels}."
-msgstr ""
-
-msgid "© Copyright the author, unless otherwise credited"
+msgid "{plugin_type} \"{plugin_id}\""
 msgstr ""
 
 #, python-brace-format
-msgid "© Copyright {author}, unless otherwise credited"
+msgid "{plugin_type} \"{plugin_id}\" ({plugin_label})"
 msgstr ""
+
+#, python-brace-format
+msgid "{plugin_type} \"{plugin_id}\" has unmet requirements"
+msgstr ""
+
+#, python-brace-format
+msgid "{subject} requires a project."
+msgstr ""
+
+#, python-brace-format
+msgid "{subject} requires a running app."
+msgstr ""
+
+#, python-brace-format
+msgid ""
+"{subject} requires the {extension} extension. Enable it in your project "
+"configuration, and try again."
+msgstr ""
+
+msgid "© Copyright the author, unless otherwise credited"
+msgstr "© Авторские права принадлежат владельцу сайта, если не указано иное"
+
+#, python-brace-format
+msgid "© Copyright {author}, unless otherwise credited"
+msgstr "© Авторские права принадлежат {author}, если не указано иное"
 

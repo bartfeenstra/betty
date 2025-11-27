@@ -10,10 +10,10 @@ from typing import TYPE_CHECKING, cast, final
 import yaml
 from typing_extensions import override
 
-from betty.locale.localizable import Plain, _
+from betty.locale.localizable import _
 from betty.media_type.media_types import JSON, YAML
 from betty.serde.dump import Dump
-from betty.serde.format import Format, FormatDefinition, FormatError
+from betty.serde.format import Format, FormatError, FormatPlugin
 
 if TYPE_CHECKING:
     from betty.media_type import MediaType
@@ -21,10 +21,7 @@ if TYPE_CHECKING:
 
 
 @final
-@FormatDefinition(
-    id="json",
-    label=Plain("JSON"),
-)
+@FormatPlugin("json", label="JSON")
 class Json(Format):
     """
     Defines the `JSON <https://json.org/>`_ (de)serialization format.
@@ -36,7 +33,7 @@ class Json(Format):
         return JSON
 
     @override
-    def load(self, dump: str) -> Dump:
+    def load(self, dump: str, /) -> Dump:
         try:
             return cast(Dump, json.loads(dump))
         except json.JSONDecodeError as e:
@@ -45,15 +42,12 @@ class Json(Format):
             ) from None
 
     @override
-    def dump(self, dump: Voidable[Dump]) -> str:
+    def dump(self, dump: Voidable[Dump], /) -> str:
         return json.dumps(dump)
 
 
 @final
-@FormatDefinition(
-    id="yaml",
-    label=Plain("YAML"),
-)
+@FormatPlugin("yaml", label="YAML")
 class Yaml(Format):
     """
     Defines the `YAML <https://yaml.org/>`_ (de)serialization format.
@@ -65,7 +59,7 @@ class Yaml(Format):
         return YAML
 
     @override
-    def load(self, dump: str) -> Dump:
+    def load(self, dump: str, /) -> Dump:
         try:
             return cast(Dump, yaml.safe_load(dump))
         except yaml.YAMLError as e:
@@ -74,5 +68,5 @@ class Yaml(Format):
             ) from None
 
     @override
-    def dump(self, dump: Voidable[Dump]) -> str:
+    def dump(self, dump: Voidable[Dump], /) -> str:
         return yaml.safe_dump(dump)

@@ -1,15 +1,15 @@
-{% if citer | length > 0 %}
+{% if resource.citer | length %}
     <div class="background-embellished mt-5 py-5" data-bs-theme="light-secondary">
         <div class="container">
             <section id="references" class="section">
                 <h2 class="section-heading">
                     {% trans %}References{% endtrans %}
-                    {% with url = page_resource | url(fragment="references") %}
+                    {% with url = "#references" %}
                         {% include 'component/permalink.html.j2' %}
                     {% endwith %}
                 </h2>
                 <ol>
-                    {% for number, entity in citer %}
+                    {% for number, entity in resource.citer %}
                         <li id="reference-{{ number }}" class="reference">
                             {% include 'entity/label--citation.html.j2' %}
                         </li>

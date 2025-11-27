@@ -20,7 +20,7 @@ class TestLoadAncestry:
             project.configuration.extensions.append(
                 PluginInstanceConfiguration(
                     Gramps.plugin,
-                    configuration=GrampsConfiguration(
+                    GrampsConfiguration(
                         family_trees=[FamilyTreeConfiguration(family_tree_name)],
                     ),
                 )

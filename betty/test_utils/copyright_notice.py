@@ -9,21 +9,15 @@ from typing import TYPE_CHECKING
 import pytest
 
 from betty.locale.localizer import DEFAULT_LOCALIZER
-from betty.test_utils.plugin import (
-    ClassedPluginDefinitionTestBase,
-    HumanFacingPluginDefinitionTestBase,
-)
+from betty.test_utils.plugin.human_facing import HumanFacingPluginDefinitionTestBase
 
 if TYPE_CHECKING:
     from betty.copyright_notice import CopyrightNotice
 
 
-class CopyrightNoticeDefinitionTestBase(
-    HumanFacingPluginDefinitionTestBase,
-    ClassedPluginDefinitionTestBase,
-):
+class CopyrightNoticePluginTestBase(HumanFacingPluginDefinitionTestBase):
     """
-    A base class for testing :py:class:`betty.copyright_notice.CopyrightNoticeDefinition` implementations.
+    A base class for testing :py:class:`betty.copyright_notice.CopyrightNoticePlugin` implementations.
     """
 
 

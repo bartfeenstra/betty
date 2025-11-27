@@ -11,16 +11,17 @@ from typing_extensions import override
 from betty.ancestry.description import HasDescription
 from betty.ancestry.media_type import HasMediaType
 from betty.json.schema import String
-from betty.link import Link as StdLink
 from betty.locale.localizable import (
     Localizable,
-    Plain,
-    StaticTranslations,
-    StaticTranslationsSchema,
+    LocalizableLike,
+    OptionalLocalizableAttr,
+    RequiredLocalizableAttr,
     _,
     ngettext,
 )
-from betty.model import Entity, EntityDefinition
+from betty.locale.localizable.linked_data import dump_linked_data
+from betty.locale.localizable.schema import StaticTranslationsSchema
+from betty.model import Entity, EntityPlugin
 from betty.model.association import BidirectionalToZeroOrOne
 from betty.privacy import HasPrivacy, Privacy, merge_privacies
 
@@ -33,22 +34,26 @@ if TYPE_CHECKING:
 
 
 @final
-@EntityDefinition(
-    id="link",
+@EntityPlugin(
+    "link",
     label=_("Link"),
     label_plural=_("Links"),
     label_countable=ngettext("{count} link", "{count} links"),
     public_facing=False,
 )
-class Link(StdLink, HasMediaType, HasDescription, HasPrivacy, Entity):
+class Link(HasMediaType, HasDescription, HasPrivacy, Entity):
     """
     An external link.
     """
 
-    #: The link's `IANA link relationship <https://www.iana.org/assignments/link-relations/link-relations.xhtml>`_.
-    relationship: str | None
+    _url = RequiredLocalizableAttr("_url")
+    _label = OptionalLocalizableAttr("_label")
 
-    #: The entity hat owns the link.
+    relationship: str | None
+    """
+    The link's `IANA link relationship <https://www.iana.org/assignments/link-relations/link-relations.xhtml>`_.
+    """
+
     owner = BidirectionalToZeroOrOne["Link", "HasLinks"](
         "betty.ancestry.link:Link",
         "owner",
@@ -56,14 +61,17 @@ class Link(StdLink, HasMediaType, HasDescription, HasPrivacy, Entity):
         "links",
         title="Owner",
     )
+    """
+    The entity hat owns the link.
+    """
 
     def __init__(
         self,
-        url: Localizable | str,
+        url: LocalizableLike,
         *,
         relationship: str | None = None,
-        label: Localizable | None = None,
-        description: Localizable | None = None,
+        label: LocalizableLike | None = None,
+        description: LocalizableLike | None = None,
         media_type: MediaType | None = None,
         owner: HasLinks | None = None,
         privacy: Privacy | None = None,
@@ -77,28 +85,31 @@ class Link(StdLink, HasMediaType, HasDescription, HasPrivacy, Entity):
             public=public,
             private=private,
         )
-        self._url = Plain(url) if isinstance(url, str) else url
+        self._url = url
         self._label = label
         self.relationship = relationship
         if owner is not None:
             self.owner = owner
 
-    @override  # type: ignore[explicit-override]
+    @override
     @property
     def url(self) -> Localizable:
         return self._url
 
     @url.setter
-    def url(self, url: Localizable) -> None:
+    def url(self, url: LocalizableLike) -> None:
         self._url = url
 
     @override  # type: ignore[explicit-override]
     @property
     def label(self) -> Localizable:
+        """
+        The human-readable short link label.
+        """
         return self.url if self._label is None else self._label
 
     @label.setter
-    def label(self, label: Localizable | None) -> None:
+    def label(self, label: LocalizableLike | None) -> None:
         self._label = label
 
     @label.deleter
@@ -113,16 +124,14 @@ class Link(StdLink, HasMediaType, HasDescription, HasPrivacy, Entity):
         return self._label is not None
 
     @override
-    async def dump_linked_data(self, project: Project) -> DumpMapping[Dump]:
+    async def dump_linked_data(self, project: Project, /) -> DumpMapping[Dump]:
+        public_localizers = await project.public_localizers
         dump = await super().dump_linked_data(project)
         if self.public:
-            dump["url"] = await StaticTranslations.dump_linked_data_for(
-                project, self._url
-            )
+            dump["url"] = dump_linked_data(self.url, localizers=public_localizers)
             if self._label is not None:
-                await project.localizers
-                dump["label"] = await StaticTranslations.dump_linked_data_for(
-                    project, self._label
+                dump["label"] = dump_linked_data(
+                    self._label, localizers=public_localizers
                 )
             if self.relationship is not None:
                 dump["relationship"] = self.relationship
@@ -130,7 +139,7 @@ class Link(StdLink, HasMediaType, HasDescription, HasPrivacy, Entity):
 
     @override
     @classmethod
-    async def linked_data_schema(cls, project: Project) -> JsonLdObject:
+    async def linked_data_schema(cls, project: Project, /) -> JsonLdObject:
         schema = await super().linked_data_schema(project)
         schema.add_property(
             "url",

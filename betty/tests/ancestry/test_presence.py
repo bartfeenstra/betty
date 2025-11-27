@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+from pathlib import Path
 from typing import TYPE_CHECKING
 
 import pytest
@@ -9,11 +10,14 @@ from betty.ancestry.event import Event
 from betty.ancestry.event_type.event_types import Unknown as UnknownEventType
 from betty.ancestry.person import Person
 from betty.ancestry.presence import Presence
+from betty.ancestry.presence_role import PresenceRole, PresenceRolePlugin
 from betty.ancestry.presence_role.presence_roles import Subject
 from betty.ancestry.presence_role.presence_roles import Unknown as UnknownPresenceRole
+from betty.mutability import Mutable
 from betty.privacy import Privacy
+from betty.test_utils.documentation import PluginDocumentationTestBase
 from betty.test_utils.json.linked_data import assert_dumps_linked_data
-from betty.test_utils.model import EntityDefinitionTestBase, EntityTestBase
+from betty.test_utils.model import EntityPluginTestBase, EntityTestBase
 
 if TYPE_CHECKING:
     from betty.model import Entity
@@ -21,11 +25,16 @@ if TYPE_CHECKING:
     from betty.serde.dump import Dump, DumpMapping
 
 
-class TestPresenceDefinition(EntityDefinitionTestBase):
+class TestPresenceDefinition(EntityPluginTestBase):
     @override
     @pytest.fixture
     def sut(self) -> PluginDefinition:
         return Presence.plugin
+
+
+class TestPresenceRoleDocumentation(PluginDocumentationTestBase[PresenceRolePlugin]):
+    _plugin_type = PresenceRolePlugin
+    _plugin_type_documentation_path = Path("usage") / "ancestry" / "presence-role.rst"
 
 
 class TestPresence(EntityTestBase):
@@ -102,8 +111,11 @@ class TestPresence(EntityTestBase):
         actual = await assert_dumps_linked_data(sut)
         assert actual == expected
 
-    def test_get_mutable_instances(self) -> None:
-        role = Subject()
+    def test_get_mutables(self) -> None:
+        class _MutablePresenceRole(PresenceRole, Mutable):
+            pass
+
+        role = _MutablePresenceRole()
         sut = Presence(Person(), role, Event())
-        sut.immutable()
-        assert sut.role.is_immutable
+        sut.immutable = True
+        assert role.immutable

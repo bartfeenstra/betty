@@ -8,10 +8,10 @@ from betty.app import App
 from betty.console.command.commands.clear_caches import ClearCaches
 from betty.plugin import PluginDefinition
 from betty.test_utils.console import run
-from betty.test_utils.console.command import CommandDefinitionTestBase
+from betty.test_utils.console.command import CommandPluginTestBase
 
 
-class TestClearCachesDefinition(CommandDefinitionTestBase):
+class TestClearCachesDefinition(CommandPluginTestBase):
     @override
     @pytest.fixture
     def sut(self) -> PluginDefinition:

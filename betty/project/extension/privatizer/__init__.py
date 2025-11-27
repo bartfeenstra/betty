@@ -6,8 +6,8 @@ from typing import TYPE_CHECKING, final
 
 from typing_extensions import override
 
-from betty.locale.localizable import Plain, _
-from betty.project.extension import Extension, ExtensionDefinition
+from betty.locale.localizable import _
+from betty.project.extension import Extension, ExtensionPlugin
 from betty.project.extension.deriver import Deriver
 from betty.project.extension.deriver.jobs import DeriveAncestry
 from betty.project.extension.privatizer.jobs import PrivatizeAncestry
@@ -19,9 +19,9 @@ if TYPE_CHECKING:
 
 
 @final
-@ExtensionDefinition(
-    id="privatizer",
-    label=Plain("Privatizer"),
+@ExtensionPlugin(
+    "privatizer",
+    label="Privatizer",
     description=_(
         "Determine if people can be proven to have died. If not, mark them and their associated entities private."
     ),

@@ -8,37 +8,31 @@ import contextlib
 from asyncio import sleep
 from itertools import chain
 from time import time
-from typing import (
-    TYPE_CHECKING,
-    Any,
-    Generic,
-    ParamSpec,
-    TypeVar,
-    final,
-)
+from typing import TYPE_CHECKING, Any, Generic, ParamSpec, TypeVar, final
 
 from betty.asyncio import ensure_await
-from betty.typing import Void, processsafe
+from betty.typing import Void
 
 if TYPE_CHECKING:
     from collections.abc import Awaitable, Callable, Iterable, Iterator
 
 _T = TypeVar("_T")
+_U = TypeVar("_U")
 _P = ParamSpec("_P")
 
 
-def filter_suppress(
-    raising_filter: Callable[[_T], Any],
+def map_suppress(
+    raising_map: Callable[[_T], _U],
     exception_type: type[BaseException],
     items: Iterable[_T],
-) -> Iterator[_T]:
+    /,
+) -> Iterator[_U]:
     """
-    Filter values, skipping those for which the application of `raising_filter` raises errors.
+    Map values, skipping those for which the application of `raising_map` raises errors.
     """
     for item in items:
         try:
-            raising_filter(item)
-            yield item
+            yield raising_map(item)
         except exception_type:
             continue
 
@@ -122,7 +116,7 @@ def unique(
             yield value
 
 
-def passthrough(value: _T) -> _T:
+def passthrough(value: _T, /) -> _T:
     """
     Return the value.
     """
@@ -131,15 +125,15 @@ def passthrough(value: _T) -> _T:
 
 def suppress(
     target: Callable[_P, _T], *exceptions: type[BaseException]
-) -> Callable[_P, _T | type[Void]]:
+) -> Callable[_P, _T | Void]:
     """
     Return the value, but suppress any errors.
     """
 
-    def _suppress(*target_args: _P.args, **target_kwargs: _P.kwargs) -> _T | type[Void]:
+    def _suppress(*target_args: _P.args, **target_kwargs: _P.kwargs) -> _T | Void:
         with contextlib.suppress(*exceptions):
             return target(*target_args, **target_kwargs)
-        return Void
+        return Void()
 
     return _suppress
 
@@ -156,7 +150,6 @@ class ResultUnavailable(RuntimeError):
 
 
 @final
-@processsafe
 class Result(Generic[_P, _T]):
     """
     Decorate a callable and store its return value or raised exception.
@@ -166,7 +159,7 @@ class Result(Generic[_P, _T]):
     _error: BaseException
     _result: _T
 
-    def __init__(self, target: Callable[_P, _T]):
+    def __init__(self, target: Callable[_P, _T], /):
         self._target = target
 
     def __call__(self, *args: _P.args, **kwargs: _P.kwargs) -> _T:

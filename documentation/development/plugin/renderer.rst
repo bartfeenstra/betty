@@ -1,15 +1,6 @@
 Renderer plugins
 ================
 
-.. list-table::
-   :align: left
-   :stub-columns: 1
-
-   * -  Type
-     -  :py:class:`betty.render.Renderer`
-   * -  Repository
-     -  :py:class:`betty.app.App.renderer_repository`
-
 Renderers convert textual content to HTML. A renderer is often built to support one or more related source content
 types.
 
@@ -20,9 +11,9 @@ Create a new class that extends :py:class:`betty.render.Renderer` and implements
 
 .. code-block:: python
 
-   from betty.render import Renderer, RendererDefinition
+   from betty.render import Renderer, RendererPlugin
 
-   @RendererDefinition(
+   @RendererPlugin(
        id="my-renderer",
        label=_("My Renderer"),
    )

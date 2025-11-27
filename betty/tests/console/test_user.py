@@ -6,11 +6,27 @@ import pytest
 
 from betty.assertion import assert_int
 from betty.console.user import ConsoleUser
-from betty.locale.localizable import Plain
 from betty.user import Verbosity
 
 
 class TestConsoleUser:
+    async def test_console(self) -> None:
+        sut = ConsoleUser()
+        sut.console  # noqa B018
+
+    async def test_verbosity(self) -> None:
+        sut = ConsoleUser()
+        sut.verbosity  # noqa B018
+
+    @pytest.mark.parametrize(
+        "verbosity",
+        [verbosity.value for verbosity in Verbosity],
+    )
+    async def test_set_verbosity(self, verbosity: Verbosity) -> None:
+        async with ConsoleUser() as sut:
+            await sut.set_verbosity(verbosity)
+            assert sut.verbosity is verbosity
+
     async def test_connect__and_disconnect(self) -> None:
         sut = ConsoleUser()
         await sut.connect()
@@ -20,16 +36,29 @@ class TestConsoleUser:
         async with ConsoleUser():
             pass
 
-    async def test_verbosity__before_connect(self) -> None:
-        sut = ConsoleUser()
-        sut.verbosity = Verbosity.MORE_VERBOSE
-        async with sut:
-            assert sut.verbosity is Verbosity.MORE_VERBOSE
-
-    async def test_verbosity__after_connect(self) -> None:
-        async with ConsoleUser() as sut:
-            sut.verbosity = Verbosity.MORE_VERBOSE
-            assert sut.verbosity is Verbosity.MORE_VERBOSE
+    @pytest.mark.parametrize(
+        ("expected", "verbosity"),
+        [
+            (False, Verbosity.QUIET),
+            (False, Verbosity.DEFAULT),
+            (False, Verbosity.VERBOSE),
+            (False, Verbosity.MORE_VERBOSE),
+            (True, Verbosity.MOST_VERBOSE),
+        ],
+    )
+    async def test_log_handler(self, expected: bool, verbosity: Verbosity) -> None:
+        message = "Hello, world!"
+        stdout = StringIO()
+        with redirect_stdout(stdout):
+            async with ConsoleUser() as sut:
+                await sut.set_verbosity(verbosity)
+                logging.getLogger().debug(message)
+        stdout.seek(0)
+        stdout_str = stdout.read().replace("\n", "")
+        if expected:
+            assert message in stdout_str
+        else:
+            assert message not in stdout_str
 
     @pytest.mark.parametrize(
         ("expected", "verbosity"),
@@ -38,6 +67,7 @@ class TestConsoleUser:
             (False, Verbosity.DEFAULT),
             (True, Verbosity.VERBOSE),
             (True, Verbosity.MORE_VERBOSE),
+            (True, Verbosity.MOST_VERBOSE),
         ],
     )
     async def test_message_exception(
@@ -50,7 +80,7 @@ class TestConsoleUser:
         stdout = StringIO()
         with redirect_stdout(stdout):
             async with ConsoleUser() as sut:
-                sut.verbosity = verbosity
+                await sut.set_verbosity(verbosity)
                 try:
                     raise _Exception(message)
                 except _Exception:
@@ -68,7 +98,7 @@ class TestConsoleUser:
         stdout = StringIO()
         with redirect_stdout(stdout):
             async with ConsoleUser() as sut:
-                await sut.message_error(Plain(message))
+                await sut.message_error(message)
         stdout.seek(0)
         stdout_str = stdout.read().replace("\n", "")
         assert message in stdout_str
@@ -80,6 +110,7 @@ class TestConsoleUser:
             (True, Verbosity.DEFAULT),
             (True, Verbosity.VERBOSE),
             (True, Verbosity.MORE_VERBOSE),
+            (True, Verbosity.MOST_VERBOSE),
         ],
     )
     async def test_message_warning(self, expected: bool, verbosity: Verbosity) -> None:
@@ -87,8 +118,8 @@ class TestConsoleUser:
         stdout = StringIO()
         with redirect_stdout(stdout):
             async with ConsoleUser() as sut:
-                sut.verbosity = verbosity
-                await sut.message_warning(Plain(message))
+                await sut.set_verbosity(verbosity)
+                await sut.message_warning(message)
         stdout.seek(0)
         stdout_str = stdout.read().replace("\n", "")
         if expected:
@@ -103,6 +134,7 @@ class TestConsoleUser:
             (True, Verbosity.DEFAULT),
             (True, Verbosity.VERBOSE),
             (True, Verbosity.MORE_VERBOSE),
+            (True, Verbosity.MOST_VERBOSE),
         ],
     )
     async def test_message_information(
@@ -112,8 +144,8 @@ class TestConsoleUser:
         stdout = StringIO()
         with redirect_stdout(stdout):
             async with ConsoleUser() as sut:
-                sut.verbosity = verbosity
-                await sut.message_information(Plain(message))
+                await sut.set_verbosity(verbosity)
+                await sut.message_information(message)
         stdout.seek(0)
         stdout_str = stdout.read().replace("\n", "")
         if expected:
@@ -128,15 +160,18 @@ class TestConsoleUser:
             (False, Verbosity.DEFAULT),
             (True, Verbosity.VERBOSE),
             (True, Verbosity.MORE_VERBOSE),
+            (True, Verbosity.MOST_VERBOSE),
         ],
     )
-    async def test_message_debug(self, expected: bool, verbosity: Verbosity) -> None:
+    async def test_message_information_details(
+        self, expected: bool, verbosity: Verbosity
+    ) -> None:
         message = "Hello, world!"
         stdout = StringIO()
         with redirect_stdout(stdout):
             async with ConsoleUser() as sut:
-                sut.verbosity = verbosity
-                await sut.message_debug(Plain(message))
+                await sut.set_verbosity(verbosity)
+                await sut.message_information_details(message)
         stdout.seek(0)
         stdout_str = stdout.read().replace("\n", "")
         if expected:
@@ -151,6 +186,31 @@ class TestConsoleUser:
             (False, Verbosity.DEFAULT),
             (False, Verbosity.VERBOSE),
             (True, Verbosity.MORE_VERBOSE),
+            (True, Verbosity.MOST_VERBOSE),
+        ],
+    )
+    async def test_message_debug(self, expected: bool, verbosity: Verbosity) -> None:
+        message = "Hello, world!"
+        stdout = StringIO()
+        with redirect_stdout(stdout):
+            async with ConsoleUser() as sut:
+                await sut.set_verbosity(verbosity)
+                await sut.message_debug(message)
+        stdout.seek(0)
+        stdout_str = stdout.read().replace("\n", "")
+        if expected:
+            assert message in stdout_str
+        else:
+            assert message not in stdout_str
+
+    @pytest.mark.parametrize(
+        ("expected", "verbosity"),
+        [
+            (False, Verbosity.QUIET),
+            (False, Verbosity.DEFAULT),
+            (False, Verbosity.VERBOSE),
+            (False, Verbosity.MORE_VERBOSE),
+            (True, Verbosity.MOST_VERBOSE),
         ],
     )
     async def test_message_log(self, expected: bool, verbosity: Verbosity) -> None:
@@ -158,7 +218,7 @@ class TestConsoleUser:
         stdout = StringIO()
         with redirect_stdout(stdout):
             async with ConsoleUser() as sut:
-                sut.verbosity = verbosity
+                await sut.set_verbosity(verbosity)
                 await sut.message_log(
                     logging.LogRecord(
                         "name", logging.NOTSET, __file__, 0, message, (), None
@@ -178,6 +238,7 @@ class TestConsoleUser:
             (True, Verbosity.DEFAULT),
             (True, Verbosity.VERBOSE),
             (True, Verbosity.MORE_VERBOSE),
+            (True, Verbosity.MOST_VERBOSE),
         ],
     )
     async def test_message_progress(self, expected: bool, verbosity: Verbosity) -> None:
@@ -185,8 +246,8 @@ class TestConsoleUser:
         stdout = StringIO()
         with redirect_stdout(stdout):
             async with ConsoleUser() as sut:
-                sut.verbosity = verbosity
-                async with sut.message_progress(Plain(message)) as progress:
+                await sut.set_verbosity(verbosity)
+                async with sut.message_progress(message) as progress:
                     await progress.add(2)
                     await progress.done(2)
         stdout.seek(0)
@@ -207,7 +268,7 @@ class TestConsoleUser:
     async def test_ask_confirmation(self, expected: bool, stdin: str) -> None:
         stdin = StringIO(stdin)
         async with ConsoleUser() as sut:
-            assert await sut.ask_confirmation(Plain(""), stdin=stdin) is expected
+            assert await sut.ask_confirmation("", stdin=stdin) is expected
 
     @pytest.mark.parametrize(
         "confirmation",
@@ -217,7 +278,7 @@ class TestConsoleUser:
         stdin = StringIO("")
         async with ConsoleUser() as sut:
             assert (
-                await sut.ask_confirmation(Plain(""), stdin=stdin, default=confirmation)
+                await sut.ask_confirmation("", stdin=stdin, default=confirmation)
                 is confirmation
             )
 
@@ -225,7 +286,7 @@ class TestConsoleUser:
         value = "Hello, world!"
         stdin = StringIO(f"{value}")
         async with ConsoleUser() as sut:
-            assert await sut.ask_input(Plain(""), stdin=stdin) == value
+            assert await sut.ask_input("", stdin=stdin) == value
 
     async def test_ask_input__with_assertion(self) -> None:
         def _assertion(value: str) -> int:
@@ -233,17 +294,13 @@ class TestConsoleUser:
 
         stdin = StringIO("123")
         async with ConsoleUser() as sut:
-            assert (
-                await sut.ask_input(Plain(""), stdin=stdin, assertion=_assertion) == 123
-            )
+            assert await sut.ask_input("", stdin=stdin, assertion=_assertion) == 123
 
     async def test_ask_input__with_default(self) -> None:
         default = "Hello, world!"
         stdin = StringIO("")
         async with ConsoleUser() as sut:
-            assert (
-                await sut.ask_input(Plain(""), stdin=stdin, default=default) == default
-            )
+            assert await sut.ask_input("", stdin=stdin, default=default) == default
 
     async def test_ask_input__with_assertion_and_default(self) -> None:
         def _assertion(value: str) -> int:
@@ -253,7 +310,7 @@ class TestConsoleUser:
         async with ConsoleUser() as sut:
             assert (
                 await sut.ask_input(
-                    Plain(""), stdin=stdin, assertion=_assertion, default="123"
+                    "", stdin=stdin, assertion=_assertion, default="123"
                 )
                 == 123
             )

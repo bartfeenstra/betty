@@ -5,15 +5,17 @@ Provide a URL generation API.
 from __future__ import annotations
 
 from abc import ABC, abstractmethod
-from typing import TYPE_CHECKING, Any, Self
+from typing import TYPE_CHECKING, Any
 from urllib.parse import urlencode, urlparse
 
 from typing_extensions import override
 
-from betty.locale import LocaleLike, negotiate_locale, to_locale
+from betty.locale import LocaleLike, ensure_locale, negotiate_locale, to_language_tag
 
 if TYPE_CHECKING:
     from collections.abc import Mapping, Sequence
+
+    from babel import Locale
 
     from betty.media_type import MediaType
 
@@ -31,12 +33,8 @@ class UnsupportedResource(GenerationError):
     These are preventable by checking :py:meth:`betty.url.UrlGenerator.supports` first.
     """
 
-    @classmethod
-    def new(cls, resource: Any) -> Self:
-        """
-        Create a new instance.
-        """
-        return cls(f"Unsupported resource: {resource}")
+    def __init__(self, resource: Any, /):
+        super().__init__(f"Unsupported resource: {resource}")
 
 
 class InvalidMediaType(GenerationError):
@@ -44,14 +42,12 @@ class InvalidMediaType(GenerationError):
     Raised when a URL generator cannot generate a URL for a resource with the given media type.
     """
 
-    @classmethod
-    def new(cls, resource: Any, media_type: MediaType | None) -> Self:
-        """
-        Create a new instance.
-        """
-        if media_type:
-            return cls(f"Unsupported media type '{media_type}' for resource {resource}")
-        return cls(f"Missing media type for resource {resource}")
+    def __init__(self, resource: Any, media_type: MediaType | None, /):
+        super().__init__(
+            f"Unsupported media type '{media_type}' for resource {resource}"
+            if media_type
+            else f"Missing media type for resource {resource}"
+        )
 
 
 class UrlGenerator(ABC):
@@ -60,7 +56,7 @@ class UrlGenerator(ABC):
     """
 
     @abstractmethod
-    def supports(self, resource: Any) -> bool:
+    def supports(self, resource: Any, /) -> bool:
         """
         Whether the given resource is supported by this URL generator.
         """
@@ -90,7 +86,7 @@ class PassthroughUrlGenerator(UrlGenerator):
     """
 
     @override
-    def supports(self, resource: Any) -> bool:
+    def supports(self, resource: Any, /) -> bool:
         if not isinstance(resource, str):
             return False
         try:
@@ -122,7 +118,7 @@ def generate_from_path(
     absolute: bool = False,
     fragment: str | None = None,
     locale: LocaleLike | None = None,
-    locale_aliases: Mapping[str, str],
+    locale_aliases: Mapping[Locale, str],
     query: Mapping[str, Sequence[str]] | None = None,
 ) -> str:
     """
@@ -135,15 +131,15 @@ def generate_from_path(
     )
     path = path.strip("/")
     if locale and len(locale_aliases) > 1:
-        locale = to_locale(locale)
+        locale = ensure_locale(locale)
         try:
-            negotiated_locale_data = negotiate_locale(locale, list(locale_aliases))
-            if negotiated_locale_data is None:
+            negotiated_locale = negotiate_locale(locale, list(locale_aliases))
+            if negotiated_locale is None:
                 raise KeyError
-            locale_alias = locale_aliases[to_locale(negotiated_locale_data)]
+            locale_alias = locale_aliases[negotiated_locale]
         except KeyError:
             raise ValueError(
-                f'Cannot generate URLs in "{locale}", because it cannot be resolved to any of the available locales: {", ".join(locale_aliases)}'
+                f'Cannot generate URLs in "{locale}", because it cannot be resolved to any of the available locales: {", ".join(map(to_language_tag, locale_aliases))}'
             ) from None
         url += f"/{locale_alias}"
     if path:

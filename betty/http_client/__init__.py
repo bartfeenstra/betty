@@ -6,7 +6,6 @@ from aiohttp import ClientError
 from aiohttp.client_middlewares import ClientHandlerType
 from aiohttp.client_reqrep import ClientRequest, ClientResponse
 
-from betty.locale.localizable import Plain
 from betty.user import User
 
 
@@ -27,5 +26,5 @@ class ClientErrorToUserMessageMiddleware:
         try:
             return await handler(request)
         except ClientError as error:
-            await self._user.message_debug(Plain(str(error)))
+            await self._user.message_debug(str(error))
             raise

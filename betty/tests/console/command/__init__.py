@@ -4,40 +4,28 @@ from pathlib import Path
 import pytest
 
 from betty.app import App
-from betty.locale.localizable import Plain
-from betty.plugin.static import StaticPluginRepository
-from betty.project.extension import Extension, ExtensionDefinition
-from betty.test_utils.conftest import TemporaryAppFactory
+from betty.project.extension import Extension, ExtensionPlugin
 
 
 class ExtensionTranslationTestBase:
     @pytest.fixture
     async def temporary_app_with_extensions(
-        self, tmp_path: Path, temporary_app_factory: TemporaryAppFactory
+        self, tmp_path: Path, temporary_app: App
     ) -> AsyncIterator[App]:
-        @ExtensionDefinition(
-            id="dummy-without-assets",
-            label=Plain("Dummy without assets"),
-        )
+        @ExtensionPlugin("dummy-without-assets", label="Dummy without assets")
         class _DummyWithoutAssetsDirectoryExtension(Extension):
             pass
 
-        @ExtensionDefinition(
-            id="dummy-with-assets",
-            label=Plain("Dummy with assets"),
+        @ExtensionPlugin(
+            "dummy-with-assets",
+            label="Dummy with assets",
             assets_directory_path=tmp_path / "assets",
         )
         class _DummyWithAssetsDirectoryExtension(Extension):
             pass
 
-        async with (
-            temporary_app_factory(
-                extension_repository=StaticPluginRepository(
-                    ExtensionDefinition,
-                    _DummyWithoutAssetsDirectoryExtension.plugin,
-                    _DummyWithAssetsDirectoryExtension.plugin,
-                )
-            ) as app,
-            app,
+        with ExtensionPlugin.type.override_discovery(
+            _DummyWithoutAssetsDirectoryExtension.plugin,
+            _DummyWithAssetsDirectoryExtension.plugin,
         ):
-            yield app
+            yield temporary_app

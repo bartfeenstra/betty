@@ -4,10 +4,10 @@ from typing import TYPE_CHECKING, final, Self
 
 from typing_extensions import override
 
-from betty.app.factory import AppDependentFactory
-from betty.assertion import assert_locale_identifier
+from betty.app.factory import AppDependentSelfFactory
+from betty.assertion import assert_locale
 from betty.console.assertion import assertion_to_argument_type
-from betty.console.command import Command, CommandFunction, CommandDefinition
+from betty.console.command import Command, CommandFunction, CommandPlugin
 from betty.console.project import add_project_argument
 from betty.locale import translation
 from betty.locale.localizable import _
@@ -15,16 +15,15 @@ from betty.locale.localizable import _
 if TYPE_CHECKING:
     import argparse
 
+    from babel import Locale
+
     from betty.app import App
     from betty.project import Project
 
 
 @final
-@CommandDefinition(
-    id="new-translation",
-    label=_("Create a new translation"),
-)
-class NewTranslation(AppDependentFactory, Command):
+@CommandPlugin("new-translation", label=_("Create a new translation"))
+class NewTranslation(AppDependentSelfFactory, Command):
     """
     A command to create a new translation for a project.
     """
@@ -34,7 +33,7 @@ class NewTranslation(AppDependentFactory, Command):
 
     @override
     @classmethod
-    async def new_for_app(cls, app: App) -> Self:
+    async def new_for_app(cls, app: App, /) -> Self:
         return cls(app)
 
     @override
@@ -45,13 +44,11 @@ class NewTranslation(AppDependentFactory, Command):
         )
         parser.add_argument(
             "locale",
-            type=assertion_to_argument_type(
-                assert_locale_identifier(), localizer=localizer
-            ),
+            type=assertion_to_argument_type(assert_locale(), localizer=localizer),
         )
         return command_function
 
-    async def _command_function(self, project: Project, locale: str) -> None:
+    async def _command_function(self, project: Project, locale: Locale) -> None:
         async with project:
             await translation.project.new_project_translation(
                 locale, project, user=self._app.user

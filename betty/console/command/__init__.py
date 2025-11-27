@@ -6,33 +6,29 @@ from __future__ import annotations
 
 from abc import abstractmethod
 from collections.abc import Awaitable, Callable
-from typing import TYPE_CHECKING, ClassVar, ParamSpec, TypeAlias, TypeVar, final
+from typing import TYPE_CHECKING, ClassVar, TypeAlias, final
 
+from betty import about
 from betty.locale.localizable import _
-from betty.plugin import (
-    ClassedPluginDefinition,
-    ClassedPluginTypeDefinition,
-    HumanFacingPluginDefinition,
-)
+from betty.plugin import Plugin, PluginTypeDefinition
+from betty.plugin.discovery.entry_point import EntryPointDiscovery
+from betty.plugin.human_facing import HumanFacingPluginDefinition
 
 if TYPE_CHECKING:
     import argparse
-
-_T = TypeVar("_T")
-_P = ParamSpec("_P")
 
 
 CommandFunction: TypeAlias = Callable[..., Awaitable[None]]
 
 
-class Command:
+class Command(Plugin):
     """
     A console command plugin.
 
     Read more about :doc:`/development/plugin/command`.
     """
 
-    plugin: ClassVar[CommandDefinition]
+    plugin: ClassVar[CommandPlugin]
 
     @abstractmethod
     async def configure(self, parser: argparse.ArgumentParser) -> CommandFunction:
@@ -45,15 +41,20 @@ class Command:
 
 
 @final
-class CommandDefinition(HumanFacingPluginDefinition, ClassedPluginDefinition[Command]):
+class CommandPlugin(HumanFacingPluginDefinition[Command]):
     """
     A console command definition.
 
     Read more about :doc:`/development/plugin/command`.
     """
 
-    type: ClassVar[ClassedPluginTypeDefinition] = ClassedPluginTypeDefinition(
-        id="command",
-        label=_("Command"),
-        cls=Command,
+    plugin_type_cls = Command
+    type = PluginTypeDefinition(
+        "command",
+        _("Command"),
+        discoveries=EntryPointDiscovery("betty.command"),
     )
+
+
+if about.IS_DEVELOPMENT:
+    CommandPlugin.type.add_discovery(EntryPointDiscovery("betty.dev.command"))

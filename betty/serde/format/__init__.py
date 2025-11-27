@@ -4,7 +4,7 @@ Provide serialization formats.
 
 from __future__ import annotations
 
-from abc import abstractmethod
+from abc import ABC, abstractmethod
 from typing import TYPE_CHECKING, ClassVar, final
 
 from typing_extensions import override
@@ -12,12 +12,9 @@ from typing_extensions import override
 from betty.exception import HumanFacingException
 from betty.locale.localizable import Localizable, _
 from betty.locale.localized import Localized, LocalizedStr
-from betty.plugin import (
-    ClassedPluginDefinition,
-    ClassedPluginTypeDefinition,
-    HumanFacingPluginDefinition,
-)
-from betty.plugin.static import StaticPluginRepository
+from betty.plugin import Plugin, PluginTypeDefinition
+from betty.plugin.discovery.entry_point import EntryPointDiscovery
+from betty.plugin.human_facing import HumanFacingPluginDefinition
 
 if TYPE_CHECKING:
     from collections.abc import Sequence
@@ -34,12 +31,12 @@ class FormatError(HumanFacingException):
     """
 
 
-class Format:
+class Format(Plugin, ABC):
     """
     Defines a (de)serialization format.
     """
 
-    plugin: ClassVar[FormatDefinition]
+    plugin: ClassVar[FormatPlugin]
 
     @classmethod
     @abstractmethod
@@ -49,7 +46,7 @@ class Format:
         """
 
     @abstractmethod
-    def load(self, dump: str) -> Dump:
+    def load(self, dump: str, /) -> Dump:
         """
         Deserialize data.
 
@@ -57,41 +54,24 @@ class Format:
         """
 
     @abstractmethod
-    def dump(self, dump: Voidable[Dump]) -> str:
+    def dump(self, dump: Voidable[Dump], /) -> str:
         """
         Serialize data.
         """
 
 
 @final
-class FormatDefinition(HumanFacingPluginDefinition, ClassedPluginDefinition[Format]):
+class FormatPlugin(HumanFacingPluginDefinition[Format]):
     """
     A (de)serialization format definition.
     """
 
-    type: ClassVar[ClassedPluginTypeDefinition] = ClassedPluginTypeDefinition(
-        id="format",
-        label=_("(De)serialization format)"),
-        cls=Format,
+    plugin_type_cls = Format
+    type = PluginTypeDefinition(
+        "format",
+        _("(De)serialization format"),
+        discoveries=EntryPointDiscovery("betty.serde_format"),
     )
-
-
-@final
-class FormatRepository(StaticPluginRepository[FormatDefinition]):
-    """
-    Exposes the available (de)serialization formats.
-    """
-
-    def __init__(self):
-        from betty.serde.format.formats import Json, Yaml
-
-        super().__init__(FormatDefinition, Json.plugin, Yaml.plugin)
-
-
-FORMAT_REPOSITORY = FormatRepository()
-"""
-The (de)serialization format plugin repository.
-"""
 
 
 @final
@@ -100,11 +80,11 @@ class FormatStr(Localizable):
     Localize and format a sequence of (de)serialization formats.
     """
 
-    def __init__(self, serde_formats: Sequence[FormatDefinition]):
+    def __init__(self, serde_formats: Sequence[FormatPlugin], /):
         self._serde_formats = serde_formats
 
     @override
-    def localize(self, localizer: Localizer) -> Localized & str:
+    def localize(self, localizer: Localizer, /) -> Localized & str:
         return LocalizedStr(
             ", ".join(
                 [
@@ -117,8 +97,8 @@ class FormatStr(Localizable):
 
 
 def format_for(
-    available_formats: Sequence[FormatDefinition], extension: str
-) -> FormatDefinition:
+    available_formats: Sequence[FormatPlugin], extension: str, /
+) -> FormatPlugin:
     """
     Get the (de)serialization format for the given file extension.
     """

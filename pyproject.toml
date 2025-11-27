@@ -79,7 +79,23 @@ X = 'https://twitter.com/BettyProject'
 [project.entry-points.'console_scripts']
 betty = 'betty.console:main_standalone'
 
+[project.entry-points.'betty.plugin']
+'command' = 'betty.console.command:CommandPlugin'
+'content-provider' = 'betty.content_provider:ContentProviderPlugin'
+'copyright-notice' = 'betty.copyright_notice:CopyrightNoticePlugin'
+'entity' = 'betty.model:EntityPlugin'
+'event-type' = 'betty.ancestry.event_type:EventTypePlugin'
+'extension' = 'betty.project.extension:ExtensionPlugin'
+'format' = 'betty.serde.format:FormatPlugin'
+'gender' = 'betty.ancestry.gender:GenderPlugin'
+'http-rate-limit' = 'betty.http_client.rate_limit:RateLimitPlugin'
+'license' = 'betty.license:LicensePlugin'
+'place-type' = 'betty.ancestry.place_type:PlaceTypePlugin'
+'presence-role' = 'betty.ancestry.presence_role:PresenceRolePlugin'
+'renderer' = 'betty.render:RendererPlugin'
+
 [project.entry-points.'betty.command']
+'about' = 'betty.console.command.commands.about:About'
 'clear-caches' = 'betty.console.command.commands.clear_caches:ClearCaches'
 'config' = 'betty.console.command.commands.config:Config'
 'demo' = 'betty.console.command.commands.demo:Demo'
@@ -93,6 +109,7 @@ betty = 'betty.console:main_standalone'
 'update-translations' = 'betty.console.command.commands.update_translations:UpdateTranslations'
 
 [project.entry-points.'betty.dev.command']
+'dev-profile-demo' = 'betty.console.command.commands.dev_profile_demo:DevProfileDemo'
 'dev-update-translations' = 'betty.console.command.commands.dev_update_translations:DevUpdateTranslations'
 
 [project.entry-points.'betty.copyright_notice']
@@ -201,8 +218,26 @@ betty = 'betty.console:main_standalone'
 'wikipedia-action-api' = 'betty.http_client.rate_limits:WikipediaActionApi'
 'wikipedia-rest-api' = 'betty.http_client.rate_limits:WikipediaRestApi'
 
+[project.entry-points.'betty.serde_format']
+'json' = 'betty.serde.format.formats:Json.plugin'
+'yaml' = 'betty.serde.format.formats:Yaml.plugin'
+
 [project.entry-points.'betty.renderer']
-'jinja2' = 'betty.jinja2:Jinja2Renderer'
+'plain-text' = 'betty.render.plain_text:PlainText'
+
+[project.entry-points.'betty.content_provider']
+'-demo-front-page-content' = 'betty.project.extension.demo.content_provider:_FrontPageContent'
+'maps-map' = 'betty.project.extension.maps.content_provider:Map'
+'notes' = 'betty.content_provider.content_providers:Notes'
+'plain-text' = 'betty.content_provider.content_providers:PlainText'
+'raspberry-mint-color-style' = 'betty.project.extension.raspberry_mint.content_provider:ColorStyle'
+'raspberry-mint-external-links' = 'betty.project.extension.raspberry_mint.content_provider:ExternalLinks'
+'raspberry-mint-family' = 'betty.project.extension.raspberry_mint.content_provider:Family'
+'raspberry-mint-featured-entities' = 'betty.project.extension.raspberry_mint.content_provider:FeaturedEntities'
+'raspberry-mint-media' = 'betty.project.extension.raspberry_mint.content_provider:Media'
+'raspberry-mint-section' = 'betty.project.extension.raspberry_mint.content_provider:Section'
+'trees-tree' = 'betty.project.extension.trees.content_provider:Tree'
+'wiki-wikipedia-summary' = 'betty.project.extension.wiki.content_provider:WikipediaSummary'
 
 [project.optional-dependencies]
 setuptools = [
@@ -216,7 +251,7 @@ test = [
     'coverage ~= 7.6',
     'packaging ~= 25.0',
     'puremagic ~= 1.28',
-    'pytest ~= 8.3',
+    'pytest ~= 9.0',
     'pytest-aioresponses ~= 0.3.0',
     'pytest-asyncio ~= 1.0',
     'pytest-mock ~= 3.14',
@@ -238,6 +273,7 @@ test = [
 ]
 development = [
     'pytest-repeat ~= 0.9.4',
+    'yappi ~= 1.7',
     'betty[test]',
 ]
 ci = [

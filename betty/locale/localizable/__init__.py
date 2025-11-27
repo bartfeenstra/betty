@@ -9,12 +9,11 @@ from collections.abc import (
     Callable,
     Iterable,
     Mapping,
-    MutableMapping,
     Sequence,
 )
+from contextlib import suppress
 from textwrap import indent
 from typing import (
-    TYPE_CHECKING,
     Any,
     ClassVar,
     Generic,
@@ -27,27 +26,21 @@ from typing import (
 )
 from warnings import warn
 
+from babel import Locale
 from typing_extensions import override
 
-from betty.json.linked_data import LinkedDataDumpableWithSchema
-from betty.json.schema import Object
-from betty.locale import UNDETERMINED_LOCALE, negotiate_locale, to_locale
+from betty.importlib import fully_qualified_name
+from betty.locale import LocaleLike, ensure_locale, negotiate_locale
 from betty.locale.localized import Localized, LocalizedStr
 from betty.locale.localizer import DEFAULT_LOCALIZER, Localizer
 from betty.mutability import Mutable
-from betty.repr import repr_instance
-from betty.serde.dump import Dump, DumpMapping
-
-if TYPE_CHECKING:
-    from betty.project import Project
-
 
 _T = TypeVar("_T")
 
 
-class _Localizable(Generic[_T], ABC):
+class _Localizable(ABC, Generic[_T]):
     @abstractmethod
-    def format(self, **format_kwargs: str | Localizable) -> _T:
+    def format(self, **format_kwargs: LocalizableLike) -> _T:
         """
         Apply string formatting to the eventual localized string.
 
@@ -66,13 +59,13 @@ class Localizable(_Localizable["Localizable"]):
     """
 
     @abstractmethod
-    def localize(self, localizer: Localizer) -> Localized & str:
+    def localize(self, localizer: Localizer, /) -> Localized & str:
         """
         Localize ``self`` to a human-readable string.
         """
 
     @override
-    def format(self, **format_kwargs: str | Localizable) -> Localizable:
+    def format(self, **format_kwargs: LocalizableLike) -> Localizable:
         return _FormattedLocalizable(self, format_kwargs)
 
     @override
@@ -91,7 +84,7 @@ class CountableLocalizable(_Localizable["CountableLocalizable"]):
     """
 
     @abstractmethod
-    def count(self, count: int) -> Localizable:
+    def count(self, count: int, /) -> Localizable:
         """
         Create a localizable for the given count (number of things).
 
@@ -99,7 +92,7 @@ class CountableLocalizable(_Localizable["CountableLocalizable"]):
         """
 
     @override
-    def format(self, **format_kwargs: str | Localizable) -> CountableLocalizable:
+    def format(self, **format_kwargs: LocalizableLike) -> CountableLocalizable:
         return _FormattedCountableLocalizable(self, format_kwargs)
 
 
@@ -116,7 +109,7 @@ def do_you_mean(*available_options: str) -> Localizable:
             )
         case _:
             return _("Do you mean one of {available_options}?").format(
-                available_options=", ".join(sorted(available_options))
+                available_options=AnyEnumeration(*sorted(map(str, available_options)))
             )
 
 
@@ -130,7 +123,7 @@ class _GettextLocalizable(Localizable):
         self._gettext_args = gettext_args
 
     @override
-    def localize(self, localizer: Localizer) -> Localized & str:
+    def localize(self, localizer: Localizer, /) -> Localized & str:
         return LocalizedStr(
             cast(
                 "str",
@@ -150,13 +143,13 @@ class _CountableGettextLocalizable(CountableLocalizable):
         self._gettext_args = gettext_args
 
     @override
-    def count(self, count: int) -> Localizable:
+    def count(self, count: int, /) -> Localizable:
         return _GettextLocalizable(
             self._gettext_method_name, *self._gettext_args, count
         ).format(count=str(count))
 
 
-def gettext(message: str) -> Localizable:
+def gettext(message: str, /) -> Localizable:
     """
     Like :py:meth:`gettext.gettext`.
 
@@ -168,7 +161,7 @@ def gettext(message: str) -> Localizable:
     return _GettextLocalizable("gettext", message)
 
 
-def _(message: str) -> Localizable:
+def _(message: str, /) -> Localizable:
     """
     Like :py:meth:`betty.locale.localizable.gettext`.
 
@@ -181,19 +174,19 @@ def _(message: str) -> Localizable:
 
 
 @overload
-def ngettext(message_singular: str, message_plural: str, n: int) -> Localizable:
+def ngettext(message_singular: str, message_plural: str, n: int, /) -> Localizable:
     pass
 
 
 @overload
 def ngettext(
-    message_singular: str, message_plural: str, n: None = None
+    message_singular: str, message_plural: str, n: None = None, /
 ) -> CountableLocalizable:
     pass
 
 
 def ngettext(
-    message_singular: str, message_plural: str, n: int | None = None
+    message_singular: str, message_plural: str, n: int | None = None, /
 ) -> Localizable | CountableLocalizable:
     """
     Like :py:meth:`gettext.ngettext`.
@@ -214,7 +207,7 @@ def ngettext(
     )
 
 
-def pgettext(context: str, message: str) -> Localizable:
+def pgettext(context: str, message: str, /) -> Localizable:
     """
     Like :py:meth:`gettext.pgettext`.
 
@@ -228,20 +221,20 @@ def pgettext(context: str, message: str) -> Localizable:
 
 @overload
 def npgettext(
-    context: str, message_singular: str, message_plural: str, n: int
+    context: str, message_singular: str, message_plural: str, n: int, /
 ) -> Localizable:
     pass
 
 
 @overload
 def npgettext(
-    context: str, message_singular: str, message_plural: str, n: None = None
+    context: str, message_singular: str, message_plural: str, n: None = None, /
 ) -> CountableLocalizable:
     pass
 
 
 def npgettext(
-    context: str, message_singular: str, message_plural: str, n: int | None = None
+    context: str, message_singular: str, message_plural: str, n: int | None = None, /
 ) -> Localizable | CountableLocalizable:
     """
     Like :py:meth:`gettext.npgettext`.
@@ -262,18 +255,21 @@ def npgettext(
 
 class _FormattedLocalizable(Localizable):
     def __init__(
-        self, localizable: Localizable, format_kwargs: Mapping[str, str | Localizable]
+        self,
+        localizable: Localizable,
+        format_kwargs: Mapping[str, LocalizableLike],
+        /,
     ):
         self._localizable = localizable
         self._format_kwargs = dict(format_kwargs)
 
     @override
-    def format(self, **format_kwargs: str | Localizable) -> Localizable:
+    def format(self, **format_kwargs: LocalizableLike) -> Localizable:
         self._format_kwargs.update(format_kwargs)
         return self
 
     @override
-    def localize(self, localizer: Localizer) -> Localized & str:
+    def localize(self, localizer: Localizer, /) -> Localized & str:
         return LocalizedStr(
             self._localizable.localize(localizer).format(
                 **{
@@ -290,13 +286,14 @@ class _FormattedCountableLocalizable(CountableLocalizable):
     def __init__(
         self,
         localizable: CountableLocalizable,
-        format_kwargs: Mapping[str, str | Localizable],
+        format_kwargs: Mapping[str, LocalizableLike],
+        /,
     ):
         self._localizable = localizable
         self._format_kwargs = format_kwargs
 
     @override
-    def count(self, count: int) -> Localizable:
+    def count(self, count: int, /) -> Localizable:
         return _FormattedLocalizable(
             self._localizable.count(count),
             {**self._format_kwargs, "count": str(count)},
@@ -309,13 +306,27 @@ class Plain(Localizable):
     Turns a plain string into a :py:class:`betty.locale.localizable.Localizable` without any actual translations.
     """
 
-    def __init__(self, string: str, locale: str = UNDETERMINED_LOCALE):
-        self._string = string
-        self._locale = locale
+    def __init__(self, text: str, locale: LocaleLike | None = None, /):
+        self._text = text
+        self._locale = None if locale is None else ensure_locale(locale)
+
+    @property
+    def text(self) -> str:
+        """
+        The plain text.
+        """
+        return self._text
+
+    @property
+    def locale(self) -> Locale | None:
+        """
+        The locale the text is in.
+        """
+        return self._locale
 
     @override
-    def localize(self, localizer: Localizer) -> Localized & str:
-        return LocalizedStr(self._string, locale=self._locale)
+    def localize(self, localizer: Localizer, /) -> Localized & str:
+        return LocalizedStr(self._text, locale=self._locale)
 
 
 @final
@@ -324,7 +335,7 @@ class CountablePlain(CountableLocalizable):
     Turn plain strings into a :py:class:`betty.locale.localizable.CountableLocalizable` without any actual translations.
     """
 
-    def _default_is_plural(self, count: int) -> bool:
+    def _default_is_plural(self, count: int, /) -> bool:
         # This mimics Python's built-in gettext module.
         return count != 1
 
@@ -333,19 +344,19 @@ class CountablePlain(CountableLocalizable):
         string_singular: str,
         string_plural: str,
         *,
-        locale: str = UNDETERMINED_LOCALE,
+        locale: Locale | None = None,
         is_plural: Callable[[int], bool] | None = None,
     ):
-        self._string_singular = Plain(string_singular, locale=locale)
-        self._string_plural = Plain(string_plural, locale=locale)
+        self._string_singular = Plain(string_singular, locale)
+        self._string_plural = Plain(string_plural, locale)
         self._is_plural = is_plural or self._default_is_plural
 
     @override
-    def count(self, count: int) -> Localizable:
+    def count(self, count: int, /) -> Localizable:
         return self._string_plural if self._is_plural(count) else self._string_singular
 
 
-StaticTranslationsMapping: TypeAlias = Mapping[str, str]
+StaticTranslationsMapping: TypeAlias = Mapping[Locale | None, str]
 """
 Keys are locales, values are translations.
 
@@ -353,7 +364,7 @@ See :py:func:`betty.locale.localizable.assertion.assert_static_translations`.
 """
 
 
-ShorthandStaticTranslations: TypeAlias = StaticTranslationsMapping | str
+ShorthandStaticTranslations: TypeAlias = Mapping[LocaleLike | None, str] | str
 """
 :py:const:`StaticTranslations` or a string which is the translation for the undetermined locale.
 
@@ -361,79 +372,28 @@ See :py:func:`betty.locale.localizable.assertion.assert_static_translations`.
 """
 
 
-class StaticTranslationsSchema(Object):
-    """
-    A JSON Schema for :py:class:`betty.locale.localizable.StaticTranslations`.
-    """
-
-    def __init__(
-        self, *, title: str = "Static translations", description: str | None = None
-    ):
-        super().__init__(
-            title=title,
-            description=(
-                (description or "") + "Keys are IETF BCP-47 language tags."
-            ).strip(),
-        )
-        self._schema["additionalProperties"] = {
-            "type": "string",
-            "description": "A human-readable translation.",
-        }
-
-
-class StaticTranslations(
-    Mutable, Localizable, LinkedDataDumpableWithSchema[Object, DumpMapping[Dump]]
-):
+@final
+class StaticTranslations(Mutable, Localizable):
     """
     Provide a :py:class:`betty.locale.localizable.Localizable` backed by static translations.
     """
 
-    _translations: MutableMapping[str, str]
+    _translations: StaticTranslationsMapping
 
-    def __init__(
-        self,
-        translations: ShorthandStaticTranslations | None = None,
-        *,
-        required: bool = True,
-    ):
+    def __init__(self, translations: ShorthandStaticTranslations, /):
         """
         :param translations: Keys are locales, values are translations.
         """
         super().__init__()
-        self._required = required
-        if translations is not None:
-            self.replace(translations)
-        else:
-            self._translations = {}
-
-    @override
-    def __repr__(self) -> str:
-        return repr_instance(self, translations=self._translations)
-
-    def __getitem__(self, locale: str) -> str:
-        return self._translations[locale]
-
-    def __setitem__(self, locale: str, translation: str) -> None:
-        self.assert_mutable()
-        self._translations[locale] = translation
-
-    def __len__(self) -> int:
-        return len(self._translations)
-
-    def replace(self, translations: Self | ShorthandStaticTranslations) -> None:
-        """
-        Replace the translations.
-        """
-        from betty.assertion import assert_len
-        from betty.locale.localizable.assertion import assert_static_translations
-
-        self.assert_mutable()
-        if isinstance(translations, StaticTranslations):
-            self._translations = translations._translations
-        else:
-            translations = assert_static_translations()(translations)
-            assert_len(minimum=1 if self._required else 0)(translations)
-            self._translations = dict(translations)
+        self._translations = (
+            {None: translations}
+            if isinstance(translations, str)
+            else {
+                None if locale is None else ensure_locale(locale): translation
+                for locale, translation in translations.items()
+            }
+        )
+        assert len(self._translations) > 0
 
     @property
     def translations(self) -> StaticTranslationsMapping:
@@ -443,38 +403,20 @@ class StaticTranslations(
         return dict(self._translations)
 
     @override
-    def localize(self, localizer: Localizer) -> Localized & str:
+    def localize(self, localizer: Localizer, /) -> Localized & str:
         if len(self._translations) > 1:
-            available_locales = tuple(self._translations.keys())
-            requested_locale = to_locale(
-                negotiate_locale(localizer.locale, available_locales)
-                or available_locales[0]
-            )
-            if requested_locale:
+            available_locales = tuple(filter(None, self._translations.keys()))
+            negotiated_locale = negotiate_locale(localizer.locale, available_locales)
+            if negotiated_locale is not None:
                 return LocalizedStr(
-                    self._translations[requested_locale], locale=requested_locale
+                    self._translations[negotiated_locale], locale=negotiated_locale
                 )
-        elif not self._translations:
-            return LocalizedStr("")
         locale, translation = next(iter(self._translations.items()))
         return LocalizedStr(translation, locale=locale)
 
-    @override
-    async def dump_linked_data(self, project: Project) -> DumpMapping[Dump]:
-        return {**self._translations}
-
-    @override
-    @classmethod
-    async def linked_data_schema(cls, project: Project) -> Object:
-        return StaticTranslationsSchema()
-
     @classmethod
     def from_localizable(
-        cls,
-        other: Localizable,
-        localizers: Iterable[Localizer],
-        *,
-        required: bool = True,
+        cls, other: Localizable, localizers: Iterable[Localizer], /
     ) -> Self:
         """
         Create a new instance from another :py:class`betty.locale.localizable.Localizable`.
@@ -482,24 +424,8 @@ class StaticTranslations(
         if type(other) is cls:
             return other
         return cls(
-            {
-                localizer.locale: other.localize(localizer=localizer)
-                for localizer in localizers
-            },
-            required=required,
+            {localizer.locale: other.localize(localizer) for localizer in localizers}
         )
-
-    @classmethod
-    async def dump_linked_data_for(
-        cls, project: Project, other: Localizable
-    ) -> DumpMapping[Dump]:
-        """
-        Dump a :py:class:`betty.locale.localizable.Localizable` to `JSON-LD <https://json-ld.org/>`_.
-        """
-        localizers = await project.localizers
-        return await StaticTranslations.from_localizable(
-            other, [localizers.get(locale) for locale in project.configuration.locales]
-        ).dump_linked_data(project)
 
 
 class LocalizableSequence(ABC):
@@ -513,15 +439,11 @@ class LocalizableSequence(ABC):
         """
         The localizables.
         """
-        raise NotImplementedError
 
 
 class _LocalizableSequence(LocalizableSequence):
-    def __init__(self, *localizables: Localizable | str):
-        self._localizables = tuple(
-            localizable if isinstance(localizable, Localizable) else Plain(localizable)
-            for localizable in localizables
-        )
+    def __init__(self, *localizables: LocalizableLike):
+        self._localizables = tuple(map(ensure_localizable, localizables))
 
     @override
     @property
@@ -533,7 +455,7 @@ class _Join(_LocalizableSequence, Localizable):
     _SEPARATOR: ClassVar[str]
 
     @override
-    def localize(self, localizer: Localizer) -> Localized & str:
+    def localize(self, localizer: Localizer, /) -> Localized & str:
         return LocalizedStr(
             self._SEPARATOR.join(
                 localized
@@ -585,13 +507,13 @@ class _List(_LocalizableSequence, Localizable):
     _TEMPLATE_RIGHT_TO_LEFT = "{localized} {prefix}"
 
     @override
-    def localize(self, localizer: Localizer) -> Localized & str:
+    def localize(self, localizer: Localizer, /) -> Localized & str:
         if not self.localizables:
             return LocalizedStr("")
         localizeds = []
         prefixes = []
         prefix_lengths = []
-        if localizer.locale_data.character_order == "right-to-left":
+        if localizer.locale.character_order == "right-to-left":
             template = self._TEMPLATE_RIGHT_TO_LEFT
         else:
             template = self._TEMPLATE_LEFT_TO_RIGHT
@@ -614,7 +536,7 @@ class _List(_LocalizableSequence, Localizable):
         )
 
     @abstractmethod
-    def _get_prefix(self, localizer: Localizer, index: int) -> str:
+    def _get_prefix(self, localizer: Localizer, index: int, /) -> str:
         pass
 
 
@@ -628,8 +550,8 @@ class OrderedList(_List):
     _PREFIX_TEMPLATE_RIGHT_TO_LEFT = ".{index}"
 
     @override
-    def _get_prefix(self, localizer: Localizer, index: int) -> str:
-        if localizer.locale_data.character_order == "right-to-left":
+    def _get_prefix(self, localizer: Localizer, index: int, /) -> str:
+        if localizer.locale.character_order == "right-to-left":
             template = self._PREFIX_TEMPLATE_RIGHT_TO_LEFT
         else:
             template = self._PREFIX_TEMPLATE_LEFT_TO_RIGHT
@@ -643,7 +565,7 @@ class UnorderedList(_List):
     """
 
     @override
-    def _get_prefix(self, localizer: Localizer, index: int) -> str:
+    def _get_prefix(self, localizer: Localizer, index: int, /) -> str:
         return "-"
 
 
@@ -651,7 +573,7 @@ class _Enumeration(_LocalizableSequence, Localizable):
     _LOCALIZABLE: ClassVar[Localizable]
 
     @override
-    def localize(self, localizer: Localizer) -> Localized & str:
+    def localize(self, localizer: Localizer, /) -> Localized & str:
         if len(self.localizables) == 0:
             return LocalizedStr("")
         if len(self.localizables) == 1:
@@ -680,3 +602,118 @@ class AllEnumeration(_Enumeration):
     """
 
     _LOCALIZABLE = _("{most}, and {last}")
+
+
+LocalizableLike: TypeAlias = Localizable | ShorthandStaticTranslations
+"""
+A localizable, or a type that can be converted into a localizable with :py:func:`betty.locale.localizable.ensure_localizable`.
+"""
+
+
+def ensure_localizable(localizable: LocalizableLike) -> Localizable:
+    """
+    Ensure that a localizable-like value is or is made to be an actual localizable.
+    """
+    if isinstance(localizable, Localizable):
+        return localizable
+    if isinstance(localizable, str):
+        return Plain(localizable)
+    return StaticTranslations(localizable)
+
+
+def ensure_localized(localizable: LocalizableLike, *, localizer: Localizer) -> str:
+    """
+    Ensure that a localizable-like value is or is made to be localized.
+    """
+    if isinstance(localizable, str):
+        return localizable
+    if not isinstance(localizable, Localizable):
+        localizable = StaticTranslations(localizable)
+    return localizable.localize(localizer)
+
+
+_LocalizableAttrLocalizableT = TypeVar("_LocalizableAttrLocalizableT")
+
+
+class _LocalizableAttr(Generic[_LocalizableAttrLocalizableT]):
+    def __init__(self, attr_name: str, /):
+        self._attr_name = f"_{attr_name}"
+
+    def __set__(self, instance: object, localizable: LocalizableLike, /) -> None:
+        setattr(instance, self._attr_name, ensure_localizable(localizable))
+
+    @overload
+    def __get__(self, instance: None, owner: type[object], /) -> Self:
+        pass
+
+    @overload
+    def __get__(self, instance: _T, owner: type[_T], /) -> _LocalizableAttrLocalizableT:
+        pass
+
+    def __get__(
+        self, instance: object | None, owner: type[object], /
+    ) -> _LocalizableAttrLocalizableT | Self:
+        if instance is None:
+            return self  # type: ignore[return-value]
+        return self._check_get(instance, self._get(instance))
+
+    def _get(self, instance: object, /) -> Localizable | None:
+        return cast(Localizable | None, getattr(instance, self._attr_name, None))
+
+    @abstractmethod
+    def _check_get(
+        self, instance: object, localizable: Localizable | None, /
+    ) -> _LocalizableAttrLocalizableT:
+        pass
+
+
+@final
+class RequiredLocalizableAttrNotInitialized(ValueError):
+    """
+    Raised when a class failed to initialize a value for its :py:class:`betty.locale.localizable.RequiredLocalizableAttr`.
+    """
+
+
+@final
+class RequiredLocalizableAttr(_LocalizableAttr[Localizable]):
+    """
+    An attribute for a required :py:class:`betty.locale.localizable.Localizable`.
+    """
+
+    @override
+    def _check_get(
+        self, instance: object, localizable: Localizable | None, /
+    ) -> Localizable:
+        if localizable is None:
+            instance_name = fully_qualified_name(type(instance))
+            raise RequiredLocalizableAttrNotInitialized(
+                f"{instance_name}.{self._attr_name[1:]} was never initialized. {instance_name}.__init__() MUST set a value."
+            )
+        return localizable
+
+
+@final
+class OptionalLocalizableAttr(_LocalizableAttr[Localizable | None]):
+    """
+    An attribute for an optional :py:class:`betty.locale.localizable.Localizable`.
+    """
+
+    @override
+    def _check_get(
+        self, instance: object, localizable: Localizable | None, /
+    ) -> Localizable | None:
+        return localizable
+
+    def _delete(self, instance: object, /) -> None:
+        with suppress(AttributeError):
+            delattr(instance, self._attr_name)
+
+    @override
+    def __set__(self, instance: object, value: LocalizableLike | None, /) -> None:
+        if value is None:
+            self._delete(instance)
+        else:
+            super().__set__(instance, value)
+
+    def __delete__(self, instance: object) -> None:
+        self._delete(instance)

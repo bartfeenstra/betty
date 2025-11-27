@@ -8,6 +8,7 @@ from typing_extensions import override
 from betty.ancestry.citation import Citation
 from betty.ancestry.event import Event
 from betty.ancestry.event_type.event_types import Birth
+from betty.ancestry.gender import Gender
 from betty.ancestry.gender.genders import NonBinary
 from betty.ancestry.gender.genders import Unknown as UnknownGender
 from betty.ancestry.link import Link
@@ -16,13 +17,13 @@ from betty.ancestry.person_name import PersonName
 from betty.ancestry.presence import Presence
 from betty.ancestry.presence_role.presence_roles import Subject
 from betty.ancestry.source import Source
-from betty.locale import DEFAULT_LOCALE
-from betty.locale.localizable import Plain
+from betty.locale import DEFAULT_LOCALE, DEFAULT_LOCALE_TAG, to_language_tag
 from betty.model import Entity
 from betty.model.association import AssociationRequired, TemporaryToOneResolver
+from betty.mutability import Mutable
 from betty.privacy import Privacy
 from betty.test_utils.json.linked_data import assert_dumps_linked_data
-from betty.test_utils.model import EntityDefinitionTestBase, EntityTestBase
+from betty.test_utils.model import EntityPluginTestBase, EntityTestBase
 
 if TYPE_CHECKING:
     from collections.abc import Mapping, Sequence
@@ -30,7 +31,7 @@ if TYPE_CHECKING:
     from betty.plugin import PluginDefinition
 
 
-class TestPersonDefinition(EntityDefinitionTestBase):
+class TestPersonDefinition(EntityPluginTestBase):
     @override
     @pytest.fixture
     def sut(self) -> PluginDefinition:
@@ -253,7 +254,7 @@ class TestPerson(EntityTestBase):
         person.children.add(child)
         link = Link(
             "https://example.com/the-person",
-            label=Plain("The Person Online"),
+            label="The Person Online",
         )
         person.links.add(link)
         person.citations.add(
@@ -261,7 +262,7 @@ class TestPerson(EntityTestBase):
                 id="the_citation",
                 source=Source(
                     id="the_source",
-                    name=Plain("The Source"),
+                    name="The Source",
                 ),
             )
         )
@@ -328,10 +329,12 @@ class TestPerson(EntityTestBase):
                     "@context": {"description": "https://schema.org/description"},
                     "id": link.id,
                     "url": {
-                        DEFAULT_LOCALE: "https://example.com/the-person",
+                        to_language_tag(
+                            DEFAULT_LOCALE
+                        ): "https://example.com/the-person",
                     },
                     "label": {
-                        DEFAULT_LOCALE: "The Person Online",
+                        DEFAULT_LOCALE_TAG: "The Person Online",
                     },
                     "owner": "/person/the_person/index.json",
                     "private": False,
@@ -368,14 +371,14 @@ class TestPerson(EntityTestBase):
         person.parents.add(parent)
         person.children.add(child)
         link = Link("https://example.com/the-person")
-        link.label = Plain("The Person Online")
+        link.label = "The Person Online"  # type: ignore[assignment]
         person.links.add(link)
         person.citations.add(
             Citation(
                 id="the_citation",
                 source=Source(
                     id="the_source",
-                    name=Plain("The Source"),
+                    name="The Source",
                 ),
             )
         )
@@ -448,7 +451,11 @@ class TestPerson(EntityTestBase):
         sut.gender = gender
         assert sut.gender is gender
 
-    def test_get_mutable_instances(self) -> None:
-        sut = Person()
-        sut.immutable()
-        assert sut.gender.is_immutable
+    def test_get_mutables(self) -> None:
+        class _MutableGender(Gender, Mutable):
+            pass
+
+        gender = _MutableGender()
+        sut = Person(gender=gender)
+        sut.immutable = True
+        assert gender.immutable

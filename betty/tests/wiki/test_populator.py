@@ -4,13 +4,13 @@ from pathlib import Path
 from typing import TYPE_CHECKING
 from unittest.mock import AsyncMock, call
 
+from babel import Locale
 from geopy import Point
 
 from betty.ancestry import Ancestry
 from betty.ancestry.link import Link
 from betty.ancestry.place import Place
 from betty.ancestry.source import Source
-from betty.locale.localizable import Plain
 from betty.locale.localizer import LocalizerRepository
 from betty.locale.translation import NoOpTranslationRepository
 from betty.media_type import MediaType
@@ -45,10 +45,10 @@ class TestPopulator:
         localizers = LocalizerRepository(NoOpTranslationRepository())
         sut = Populator(
             ancestry,
-            ["en", "nl", "uk"],
+            [Locale("en"), Locale("nl"), Locale("uk")],
             localizers,
             m_client,
-            WikipediaContributors({}),
+            WikipediaContributors(""),
         )
         await sut.populate(link)
         localizer_en = localizers.get("en")
@@ -97,10 +97,10 @@ class TestPopulator:
         localizers = LocalizerRepository(NoOpTranslationRepository())
         sut = Populator(
             ancestry,
-            ["en", "nl", "uk"],
+            [Locale("en"), Locale("nl"), Locale("uk")],
             localizers,
             m_client,
-            WikipediaContributors({}),
+            WikipediaContributors(""),
         )
         await sut.populate(link)
         localizer_en = localizers.get("en")
@@ -125,10 +125,10 @@ class TestPopulator:
         localizers = LocalizerRepository(NoOpTranslationRepository())
         sut = Populator(
             ancestry,
-            ["en", "nl", "uk"],
+            [Locale("en"), Locale("nl"), Locale("uk")],
             localizers,
             m_client,
-            WikipediaContributors({}),
+            WikipediaContributors(""),
         )
         await sut.populate(link)
 
@@ -138,7 +138,7 @@ class TestPopulator:
         tmp_path: Path,
     ) -> None:
         m_client = mocker.patch("betty.wiki.client.Client")
-        Source(Plain("The Source"))
+        Source("The Source")
         entity = DummyEntityOne()
         ancestry = Ancestry(entity)
         sut = Populator(
@@ -146,7 +146,7 @@ class TestPopulator:
             [],
             LocalizerRepository(NoOpTranslationRepository()),
             m_client,
-            WikipediaContributors({}),
+            WikipediaContributors(""),
         )
         await sut.populate(entity)
 
@@ -172,10 +172,10 @@ class TestPopulator:
         ancestry = Ancestry(place)
         sut = Populator(
             ancestry,
-            ["en"],
+            [Locale("en")],
             LocalizerRepository(NoOpTranslationRepository()),
             m_client,
-            WikipediaContributors({}),
+            WikipediaContributors(""),
         )
         await sut.populate(place)
 
@@ -207,10 +207,10 @@ class TestPopulator:
         ancestry = Ancestry(has_file_references_and_links)
         sut = Populator(
             ancestry,
-            ["en"],
+            [Locale("en")],
             LocalizerRepository(NoOpTranslationRepository()),
             m_client,
-            WikipediaContributors({}),
+            WikipediaContributors(""),
         )
         await sut.populate(has_file_references_and_links)
 

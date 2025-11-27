@@ -98,9 +98,9 @@ from betty.asyncio import ensure_await
 from betty.date import Date, DateLike, DateRange
 from betty.error import FileNotFound
 from betty.gramps.error import GrampsError, UserFacingGrampsError
-from betty.locale import UNDETERMINED_LOCALE
+from betty.locale import from_language_tag
+from betty.locale.error import LocaleError
 from betty.locale.localizable import (
-    Plain,
     StaticTranslations,
     StaticTranslationsMapping,
     _,
@@ -108,9 +108,9 @@ from betty.locale.localizable import (
 from betty.media_type import InvalidMediaType, MediaType
 from betty.model import Entity
 from betty.model.association import ToManyResolver, ToOneResolver, resolve
-from betty.plugin import PluginNotFound
+from betty.plugin.error import PluginUnavailable
 from betty.privacy import HasPrivacy
-from betty.typing import internal
+from betty.typing import internal, private
 
 if TYPE_CHECKING:
     from asyncio.subprocess import Process
@@ -124,19 +124,21 @@ if TYPE_CHECKING:
     )
     from xml.etree import ElementTree
 
+    from babel import Locale
+
     from betty.ancestry import Ancestry
     from betty.ancestry.event_type import EventType
-    from betty.ancestry.gender import GenderDefinition
+    from betty.ancestry.gender import GenderPlugin
     from betty.ancestry.has_citations import HasCitations
     from betty.ancestry.has_file_references import HasFileReferences
     from betty.ancestry.has_notes import HasNotes
     from betty.ancestry.place_type import PlaceType
     from betty.ancestry.presence_role import PresenceRole
-    from betty.copyright_notice import CopyrightNoticeDefinition
-    from betty.factory import Factory
-    from betty.license import LicenseDefinition
+    from betty.copyright_notice import CopyrightNoticePlugin
+    from betty.license import LicensePlugin
     from betty.machine_name import MachineName
-    from betty.plugin import PluginRepository
+    from betty.plugin.repository import PluginRepository
+    from betty.project.factory import ProjectFactory
     from betty.user import User
 
 _EntityT = TypeVar("_EntityT", bound=Entity)
@@ -187,7 +189,7 @@ class GrampsEntityReference:
         return f"{self.entity_type.value} ({self.entity_id})"
 
 
-class _ToOneResolver(Generic[_EntityT], ToOneResolver[_EntityT]):
+class _ToOneResolver(ToOneResolver[_EntityT], Generic[_EntityT]):
     def __init__(self, handles_to_entities: Mapping[str, Entity], handle: str):
         self._handles_to_entities = handles_to_entities
         self._handle = handle
@@ -197,7 +199,7 @@ class _ToOneResolver(Generic[_EntityT], ToOneResolver[_EntityT]):
         return cast(_EntityT, self._handles_to_entities[self._handle])
 
 
-class _ToManyResolver(Generic[_EntityT], ToManyResolver[_EntityT]):
+class _ToManyResolver(ToManyResolver[_EntityT], Generic[_EntityT]):
     def __init__(self, handles_to_entities: Mapping[str, Entity], *handles: str):
         self._handles_to_entities = handles_to_entities
         self._handles = handles
@@ -317,14 +319,14 @@ class GrampsLoader:
         self,
         ancestry: Ancestry,
         *,
-        factory: Factory,
+        factory: ProjectFactory,
         user: User,
-        copyright_notices: PluginRepository[CopyrightNoticeDefinition],
-        licenses: PluginRepository[LicenseDefinition],
+        copyright_notices: PluginRepository[CopyrightNoticePlugin],
+        genders: PluginRepository[GenderPlugin],
+        licenses: PluginRepository[LicensePlugin],
         attribute_prefix_key: str | None = None,
         event_type_mapping: Mapping[str, Callable[[], EventType | Awaitable[EventType]]]
         | None = None,
-        genders: PluginRepository[GenderDefinition],
         place_type_mapping: Mapping[str, Callable[[], PlaceType | Awaitable[PlaceType]]]
         | None = None,
         presence_role_mapping: Mapping[
@@ -391,7 +393,7 @@ class GrampsLoader:
         :raises betty.gramps.error.GrampsError:
         """
         file_path = file_path.resolve()
-        await self._user.message_debug(
+        await self._user.message_information_details(
             _('Loading "{file_path}"...').format(
                 file_path=str(file_path),
             )
@@ -430,7 +432,7 @@ class GrampsLoader:
                 xml = f.read()
             await self._load_xml(xml)
         except FileNotFoundError:
-            raise GrampsFileNotFound.new(gramps_path) from None
+            raise GrampsFileNotFound(gramps_path) from None
         except OSError as error:
             raise UserFacingGrampsError(
                 _("Could not extract {file_path} as a gzip file  (*.gz).").format(
@@ -453,7 +455,7 @@ class GrampsLoader:
                     )
                 )
             except FileNotFoundError:
-                raise GrampsFileNotFound.new(gpkg_path) from None
+                raise GrampsFileNotFound(gpkg_path) from None
             except (OSError, tarfile.ReadError) as error:
                 raise UserFacingGrampsError(
                     _(
@@ -478,7 +480,7 @@ class GrampsLoader:
                 "ElementTree.ElementTree", etree.ElementTree(etree.fromstring(xml))
             )
         except etree.ParseError as error:
-            raise UserFacingGrampsError(Plain(str(error))) from error
+            raise UserFacingGrampsError(str(error)) from error
         await self._load_tree(tree)
 
     async def _load_tree(self, tree: ElementTree.ElementTree) -> None:
@@ -524,13 +526,13 @@ class GrampsLoader:
 
         with self._ancestry.unchecked():
             await self._load_notes(database)
-            await self._user.message_debug(
+            await self._user.message_information_details(
                 _("Loaded {note_count} notes.").format(
                     note_count=str(self._added_entity_counts[Note])
                 )
             )
             await self._load_objects(database, media_path)
-            await self._user.message_debug(
+            await self._user.message_information_details(
                 _("Loaded {file_count} files.").format(
                     file_count=str(self._added_entity_counts[File])
                 )
@@ -538,14 +540,14 @@ class GrampsLoader:
 
             await self._load_repositories(database)
             repository_count = self._added_entity_counts[Source]
-            await self._user.message_debug(
+            await self._user.message_information_details(
                 _("Loaded {repository_count} repositories as sources.").format(
                     repository_count=str(repository_count)
                 )
             )
 
             await self._load_sources(database)
-            await self._user.message_debug(
+            await self._user.message_information_details(
                 _("Loaded {source_count} sources.").format(
                     source_count=str(
                         self._added_entity_counts[Source] - repository_count
@@ -554,28 +556,28 @@ class GrampsLoader:
             )
 
             await self._load_citations(database)
-            await self._user.message_debug(
+            await self._user.message_information_details(
                 _("Loaded {citation_count} citations.").format(
                     citation_count=str(self._added_entity_counts[Citation])
                 )
             )
 
             await self._load_places(database)
-            await self._user.message_debug(
+            await self._user.message_information_details(
                 _("Loaded {place_count} places.").format(
                     place_count=str(self._added_entity_counts[Place])
                 )
             )
 
             await self._load_events(database)
-            await self._user.message_debug(
+            await self._user.message_information_details(
                 _("Loaded {event_count} events.").format(
                     event_count=str(self._added_entity_counts[Event])
                 )
             )
 
             await self._load_people(database)
-            await self._user.message_debug(
+            await self._user.message_information_details(
                 _("Loaded {person_count} people.").format(
                     person_count=str(self._added_entity_counts[Person])
                 )
@@ -704,7 +706,7 @@ class GrampsLoader:
         text = str(text_element.text)
         note = Note(
             id=note_id,
-            text=Plain(text),
+            text=text,
         )
         if element.get("priv") == "1":
             note.private = True
@@ -754,7 +756,7 @@ class GrampsLoader:
         file.media_type = MediaType(mime)
         description = file_element.get("description")
         if description:
-            file.description = Plain(description)
+            file.description = description
         if element.get("priv") == "1":
             file.private = True
 
@@ -772,7 +774,7 @@ class GrampsLoader:
                 file.copyright_notice = await self._factory(
                     self._copyright_notices[copyright_notice_id].cls
                 )
-            except PluginNotFound:
+            except PluginUnavailable:
                 await self._user.message_warning(
                     _(
                         'Betty is unfamiliar with Gramps file "{file_id}"\'s copyright notice ID of "{copyright_notice_id}" and ignored it.',
@@ -782,7 +784,7 @@ class GrampsLoader:
         if license_id:
             try:
                 file.license = await self._factory(self._licenses[license_id].cls)
-            except PluginNotFound:
+            except PluginUnavailable:
                 await self._user.message_warning(
                     _(
                         'Betty is unfamiliar with Gramps file "{file_id}"\'s license ID of "{license_id}" and ignored it.',
@@ -960,7 +962,7 @@ class GrampsLoader:
             assert name is not None
             names.append(
                 Name(
-                    StaticTranslations({language or UNDETERMINED_LOCALE: name}),
+                    StaticTranslations({language or None: name}),
                     date=date,
                 )
             )
@@ -1070,7 +1072,7 @@ class GrampsLoader:
         with suppress(XPathError):
             description = self._xpath1(element, "./ns:description").text
             if description:
-                event.description = Plain(description)
+                event.description = description
 
         if element.get("priv") == "1":
             event.private = True
@@ -1085,7 +1087,7 @@ class GrampsLoader:
             element,
             "attribute",
         )
-        event_name_translations = self._parse_attribute_static_translations(
+        event_name_translations = await self._parse_attribute_static_translations(
             element, "attribute", "name"
         )
         if event_name_translations:
@@ -1102,7 +1104,7 @@ class GrampsLoader:
         source_name = self._xpath1(element, "./ns:rname").text
         source = Source(
             id=element.get("id"),
-            name=None if source_name is None else Plain(source_name),
+            name=source_name,
         )
 
         self._load_urls(source, element)
@@ -1122,7 +1124,7 @@ class GrampsLoader:
 
         source = Source(
             id=element.get("id"),
-            name=None if source_name is None else Plain(source_name),
+            name=source_name,
         )
 
         repository_source_handle = self._load_handle("reporef", element)
@@ -1133,13 +1135,13 @@ class GrampsLoader:
         with suppress(XPathError):
             author = self._xpath1(element, "./ns:sauthor").text
             if author:
-                source.author = Plain(author)
+                source.author = author
 
         # Load the publication info.
         with suppress(XPathError):
             publisher = self._xpath1(element, "./ns:spubinfo").text
             if publisher:
-                source.publisher = Plain(publisher)
+                source.publisher = publisher
 
         if element.get("priv") == "1":
             source.private = True
@@ -1175,7 +1177,7 @@ class GrampsLoader:
         with suppress(XPathError):
             page = self._xpath1(element, "./ns:page").text
             if page:
-                citation.location = Plain(page)
+                citation.location = page
 
         self._load_objref(citation, element)
 
@@ -1243,7 +1245,7 @@ class GrampsLoader:
             link.relationship = "external"
             description = url_element.get("description")
             if description:
-                link.label = Plain(description)
+                link.label = description  # type: ignore[assignment]
             owner.links.add(link)
 
     async def _load_attribute_privacy(
@@ -1271,24 +1273,37 @@ class GrampsLoader:
 
     _STATIC_TRANSLATION_ATTRIBUTE_SUFFIX_PATTERN = re.compile(r"^:[^:]+$")
 
-    def _parse_attribute_static_translations(
+    async def _parse_attribute_static_translations(
         self, element: ElementTree.Element, tag: str, name: str
     ) -> StaticTranslationsMapping:
-        translations = {}
+        translations: StaticTranslationsMapping = {}
         name_length = len(name)
         for attribute_key, attribute_value in self._load_attributes(
             element, tag
         ).items():
             if attribute_key == name:
-                translations[UNDETERMINED_LOCALE] = attribute_value
+                translations[None] = attribute_value
             elif (
                 self._STATIC_TRANSLATION_ATTRIBUTE_SUFFIX_PATTERN.fullmatch(
                     attribute_key[name_length:]
                 )
                 is not None
             ):
-                translations[attribute_key[name_length + 1 :]] = attribute_value
+                translations[
+                    await self.load_locale(attribute_key[name_length + 1 :])
+                ] = attribute_value
         return translations
+
+    @private
+    async def load_locale(self, locale: str) -> Locale | None:
+        """
+        Load a locale.
+        """
+        try:
+            return from_language_tag(locale)
+        except LocaleError as error:
+            await self._user.message_warning(error)
+            return None
 
     _LINK_ATTRIBUTE_PATTERN = re.compile(r"^link-([^:]+?):(.+?)$")
 
@@ -1323,7 +1338,7 @@ class GrampsLoader:
                 continue
             link = Link(
                 StaticTranslations(
-                    self._parse_attribute_static_translations(
+                    await self._parse_attribute_static_translations(
                         element, tag, f"link-{link_name}:url"
                     )
                 )
@@ -1331,13 +1346,13 @@ class GrampsLoader:
             entity.links.add(link)
             if "description" in link_attributes:
                 link.description = StaticTranslations(
-                    self._parse_attribute_static_translations(
+                    await self._parse_attribute_static_translations(
                         element, tag, f"link-{link_name}:description"
                     )
                 )
             if "label" in link_attributes:
                 link.label = StaticTranslations(
-                    self._parse_attribute_static_translations(
+                    await self._parse_attribute_static_translations(
                         element, tag, f"link-{link_name}:label"
                     )
                 )

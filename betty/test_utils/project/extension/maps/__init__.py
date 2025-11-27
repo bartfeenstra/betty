@@ -16,10 +16,9 @@ from betty import serve
 from betty.ancestry.name import Name
 from betty.ancestry.place import Place
 from betty.app import App
-from betty.locale.localizable import Plain
-from betty.plugin import PluginIdentifier
+from betty.plugin.resolve import ResolvableId
 from betty.project import Project
-from betty.project.extension import ExtensionDefinition, Extension
+from betty.project.extension import ExtensionPlugin, Extension
 from betty.project.extension.maps import Maps
 from betty.project.generate import generate
 from betty.serve import Server
@@ -36,7 +35,7 @@ class MapsTestBase:
 
     def get_other_extensions(
         self,
-    ) -> Iterable[PluginIdentifier[ExtensionDefinition, Extension]]:
+    ) -> Iterable[ResolvableId[ExtensionPlugin, Extension]]:
         """
         Get the other extensions to enable while performing the tests.
 
@@ -62,7 +61,7 @@ class MapsTestBase:
                 Place(
                     id=_PLACE_ID,
                     coordinates=Point(52.37277778, 4.89361111),
-                    names=[Name(Plain(_PLACE_NAME))],
+                    names=[Name(_PLACE_NAME)],
                 ),
             )
             copytree(

@@ -11,21 +11,15 @@ from typing_extensions import override
 from betty.app import App
 from betty.config.file import write_configuration_file
 from betty.console import SystemExitCode, call_command_func, main_standalone
-from betty.console.command import Command, CommandDefinition
+from betty.console.command import Command, CommandPlugin
 from betty.exception import HumanFacingException
 from betty.functools import Result, suppress
-from betty.locale.localizable import Plain
-from betty.plugin.static import StaticPluginRepository
 from betty.project import Project
-from betty.test_utils.conftest import TemporaryAppFactory
 from betty.test_utils.console import run
 from betty.user import Verbosity
 
 
-@CommandDefinition(
-    id="no-op",
-    label=Plain("No-op"),
-)
+@CommandPlugin("no-op", label="No-op")
 class _NoOpCommand(Command):
     @override
     async def configure(
@@ -37,7 +31,8 @@ class _NoOpCommand(Command):
         pass
 
 
-def _create_raising_command(exception: BaseException) -> CommandDefinition:
+def _create_raising_command(exception: BaseException) -> CommandPlugin:
+    @CommandPlugin("raising", label="Raising")
     class _RaisingCommand(Command):
         @override
         async def configure(
@@ -48,11 +43,7 @@ def _create_raising_command(exception: BaseException) -> CommandDefinition:
         async def _invoke(self) -> None:
             raise exception
 
-    return CommandDefinition(
-        id="raising",
-        label=Plain("Raising"),
-        cls=_RaisingCommand,
-    )
+    return _RaisingCommand.plugin
 
 
 async def test_main__without_arguments(temporary_app: App) -> None:
@@ -61,11 +52,6 @@ async def test_main__without_arguments(temporary_app: App) -> None:
 
 async def test_main__help(temporary_app: App) -> None:
     await run(temporary_app, "--help")
-
-
-async def test_main__version(temporary_app: App) -> None:
-    result = await run(temporary_app, "--version")
-    assert "Betty" in result.stdout
 
 
 async def test_main__commands(temporary_app: App) -> None:
@@ -86,7 +72,7 @@ async def test_main__with_unknown_command(temporary_app: App) -> None:
         (SystemExitCode.OK, _NoOpCommand.plugin),
         (
             SystemExitCode.ERROR_UNEXPECTED,
-            _create_raising_command(HumanFacingException(Plain(""))),
+            _create_raising_command(HumanFacingException("")),
         ),
         (SystemExitCode.USER_QUIT, _create_raising_command(CancelledError())),
         (SystemExitCode.USER_QUIT, _create_raising_command(KeyboardInterrupt())),
@@ -94,18 +80,11 @@ async def test_main__with_unknown_command(temporary_app: App) -> None:
     ],
 )
 async def test_main__with_user_facing_exception(
-    expected: SystemExitCode,
-    command: CommandDefinition,
-    temporary_app_factory: TemporaryAppFactory,
+    expected: SystemExitCode, command: CommandPlugin, temporary_app: App
 ) -> None:
-    async with (
-        temporary_app_factory(
-            command_repository=StaticPluginRepository(CommandDefinition, command)
-        ) as app,
-        app,
-    ):
+    with CommandPlugin.type.override_discovery(command):
         await run(
-            app,
+            temporary_app,
             command.id,
             expected_exit_code=expected,
         )
@@ -117,7 +96,7 @@ async def test_main__with_user_facing_exception(
         (SystemExitCode.OK, _NoOpCommand.plugin),
         (
             SystemExitCode.ERROR_UNEXPECTED,
-            _create_raising_command(HumanFacingException(Plain(""))),
+            _create_raising_command(HumanFacingException("")),
         ),
         (SystemExitCode.USER_QUIT, _create_raising_command(CancelledError())),
         (SystemExitCode.USER_QUIT, _create_raising_command(KeyboardInterrupt())),
@@ -125,15 +104,12 @@ async def test_main__with_user_facing_exception(
     ],
 )
 def test_main_standalone(
-    expected: SystemExitCode, command: CommandDefinition, mocker: MockerFixture
+    expected: SystemExitCode, command: CommandPlugin, mocker: MockerFixture
 ) -> None:
     def _target() -> None:
-        mocker.patch(
-            "betty.app.App.command_repository",
-            new=StaticPluginRepository(CommandDefinition, command),
-        )
-        (mocker.patch("sys.argv", new=["betty", command.id]),)
-        main_standalone()
+        mocker.patch("sys.argv", new=["betty", command.id])
+        with CommandPlugin.type.override_discovery(command):
+            main_standalone()
 
     # Run this in a thread so as not to conflict with pytest-playwright-asyncio's session-scoped event loop.
     result = Result(_target)
@@ -154,31 +130,22 @@ class TestVerbosity:
             (Verbosity.DEFAULT, None),
             (Verbosity.VERBOSE, "-v"),
             (Verbosity.MORE_VERBOSE, "-vv"),
+            (Verbosity.MOST_VERBOSE, "-vvv"),
         ],
     )
     async def test(
-        self,
-        expected: Verbosity,
-        temporary_app_factory: TemporaryAppFactory,
-        verbosity: str | None,
+        self, expected: Verbosity, temporary_app: App, verbosity: str | None
     ) -> None:
-        async with (
-            temporary_app_factory(
-                command_repository=StaticPluginRepository(
-                    CommandDefinition, _NoOpCommand.plugin
+        with CommandPlugin.type.override_discovery(_NoOpCommand.plugin):
+            async with Project.new_temporary(temporary_app) as project:
+                await write_configuration_file(
+                    project.configuration, project.configuration.configuration_file_path
                 )
-            ) as app,
-            app,
-            Project.new_temporary(app) as project,
-        ):
-            await write_configuration_file(
-                project.configuration, project.configuration.configuration_file_path
-            )
-            args = ["no-op"]
-            if verbosity is not None:
-                args.append(verbosity)
-            await run(app, *args)
-            assert app.user.verbosity is expected
+                args = ["no-op"]
+                if verbosity is not None:
+                    args.append(verbosity)
+                await run(temporary_app, *args)
+                assert temporary_app.user.verbosity is expected
 
 
 async def test_call_command_func() -> None:

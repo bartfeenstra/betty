@@ -90,5 +90,6 @@ class _CommonCacheBase(Cache[_CacheItemValueContraT], Generic[_CacheItemValueCon
         async with self._cache_item_lock_ledger.ledger(cache_item_id):
             if cache_item := await self.get(cache_item_id):
                 yield cache_item
+                return
             yield partial(self.set, cache_item_id)
         return

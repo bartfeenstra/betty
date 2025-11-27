@@ -1,21 +1,15 @@
-{%- set parents = entity.parents | list -%}
-{%- set siblings = entity.siblings | list -%}
-{%- set children = entity.children | list -%}
+{%- set parents = resource.resource.parents | list -%}
+{%- set siblings = resource.resource.siblings | list -%}
+{%- set children = resource.resource.children | list -%}
 
 {%- set has_family =  parents | length > 0 or siblings | length > 0 or children | length > 0 -%}
-
-{% macro person_label(person) -%}
-    {%- with entity = person, entity_contexts=entity_contexts(entity) -%}
-        {%- include 'entity/label--person.html.j2' -%}
-    {%- endwith -%}
-{%- endmacro %}
 
 {%- if has_family -%}
     <div class="container my-5">
         <section id="family" class="section">
             <h2 class="section-heading">
                 {% trans %}Family{% endtrans %}
-                {% with url = page_resource | url(fragment="family") %}
+                {% with url = "#family" %}
                     {% include 'component/permalink.html.j2' %}
                 {% endwith %}
             </h2>
@@ -25,8 +19,17 @@
                 <div class="mt-2 row row-cols-1 row-cols-lg-2 row-cols-xxl-3 row-gap-3">
                     <div class="col d-flex flex-column justify-content-center">
                         <p>
-                            {% if parents | length > 0 %}
-                                {% trans parent_labels = parents | map(person_label) | join(', ') %}They are the child of {{ parent_labels }}.{% endtrans %}
+                            {% if parents | length  %}
+                                {% set ns = namespace(parents_labels=[]) %}
+                                {% for parent in parents %}
+                                    {% set parent_label %}
+                                        {%- with entity = parent -%}
+                                            {%- include 'entity/label--person.html.j2' -%}
+                                        {%- endwith -%}
+                                    {% endset %}
+                                    {% do ns.parents_labels.append(parent_label) %}
+                                {% endfor %}
+                                {% trans parent_labels = ns.parents_labels | join(', ') %}They are the child of {{ parent_labels }}.{% endtrans %}
                             {% endif %}
 
                             {% if siblings | length > 0 %}
@@ -43,7 +46,7 @@
                         <div class="col">
                             <div class="card">
                                 <div class="card-body">
-                                    {%- with entity = public_sibling, entity_contexts=entity_contexts(entity) -%}
+                                    {%- with entity = public_sibling -%}
                                         {%- include 'entity/label--person.html.j2' -%}
                                         {%- include 'entity/summary--person.html.j2' -%}
                                     {%- endwith -%}
@@ -55,17 +58,26 @@
             {% endif %}
 
             {% if children | length > 0 %}
-                {% for family_parents, family_children in entity | person_descendant_families %}
+                {% for family_parents, family_children in resource.resource | person_descendant_families %}
                     {% set family_section_count = family_section_count + 1 %}
                     {% if family_section_count > 1 %}
                         <hr>
                     {% endif %}
                     <div class="mt-2 row row-cols-1 row-cols-lg-2 row-cols-xxl-3 row-gap-3{% if loop.index0 % 2 == 0 %} flex-row-reverse{% endif %}">
-                        {% set family_parents = family_parents | reject('eq', entity) | list %}
+                        {% set family_parents = family_parents | reject('eq', resource.resource) | list %}
                         <div class="col d-flex flex-column justify-content-center">
                             <p>
                                 {%- if family_parents | length > 0 -%}
-                                    {%- trans child_count = family_children | length, co_parent_labels = family_parents | map(person_label) | join(', ') -%}
+                                    {% set ns = namespace(family_parent_labels=[]) %}
+                                    {% for family_parent in family_parents %}
+                                        {% set family_parent_label %}
+                                            {%- with entity = family_parent -%}
+                                                {%- include 'entity/label--person.html.j2' -%}
+                                            {%- endwith -%}
+                                        {% endset %}
+                                        {% do ns.family_parent_labels.append(family_parent_label) %}
+                                    {% endfor %}
+                                    {%- trans child_count = family_children | length, co_parent_labels = ns.family_parent_labels | join(', ') -%}
                                         They had a child with {{ co_parent_labels }}.
                                     {%- pluralize -%}
                                         They had {{ child_count }} children with {{ co_parent_labels }}.
@@ -84,7 +96,7 @@
                             <div class="col">
                                 <div class="card">
                                     <div class="card-body">
-                                        {%- with entity = public_family_child, entity_contexts=entity_contexts(entity) -%}
+                                        {%- with entity = public_family_child, resource=copy_resource_context(entity_contexts=resource.entity_contexts(resource.resource)) -%}
                                             {%- include 'entity/label--person.html.j2' -%}
                                             {%- include 'entity/summary--person.html.j2' -%}
                                         {%- endwith -%}
@@ -98,7 +110,7 @@
         </section>
     </div>
 
-    {% with person = entity %}
+    {% with person = resource.resource %}
         {% include 'section/tree.html.j2' %}
     {% endwith %}
 {%- endif -%}

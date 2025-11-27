@@ -9,7 +9,7 @@ from betty.ancestry.person_name import PersonName
 from betty.ancestry.place import Place
 from betty.app import App
 from betty.job import Context
-from betty.locale.localizable import Plain, StaticTranslations
+from betty.locale.localizable import StaticTranslations
 from betty.locale.localizer import DEFAULT_LOCALIZER
 from betty.project import Project
 from betty.project.config import LocaleConfiguration
@@ -336,7 +336,7 @@ class TestIndex:
         file = File(
             id=file_id,
             path=Path(__file__),
-            description=None if description is None else Plain(description),
+            description=description,
         )
 
         async with Project.new_temporary(temporary_app) as project:
@@ -365,7 +365,7 @@ class TestIndex:
         file = File(
             id=file_id,
             path=Path(__file__),
-            description=Plain('"file" is Dutch for "traffic jam"'),
+            description='"file" is Dutch for "traffic jam"',
             private=True,
         )
 

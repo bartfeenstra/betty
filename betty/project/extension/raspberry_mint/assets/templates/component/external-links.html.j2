@@ -1,0 +1,18 @@
+{% set links= links | list %}
+{% if links | length > 0 %}
+    <ul>
+        {% for link in links %}
+            {% set link_url = link.url | localize %}
+            <li>
+                <a href="{{ link_url }}"{% if link_url.locale is not none %}
+                   hreflang="{{ link_url.locale | to_language_tag }}"{% endif %}
+                        {% if link.relationship is not none %} rel="{{ link.relationship }}"{% endif %}
+                        {% if link.media_type is not none %}
+                   type="{{ link.media_type }}"{% endif %}>{{ link.label | localize or link.url }}</a>
+                {% if link.description %}
+                    <p class="small">{{ link.description | localize }}</p>
+                {% endif %}
+            </li>
+        {% endfor %}
+    </ul>
+{% endif %}

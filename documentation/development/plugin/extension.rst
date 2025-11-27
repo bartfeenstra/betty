@@ -1,15 +1,6 @@
 Extension plugins
 =================
 
-.. list-table::
-   :align: left
-   :stub-columns: 1
-
-   * -  Type
-     -  :py:class:`betty.project.extension.Extension`
-   * -  Repository
-     -  :py:class:`betty.app.App.extension_repository`
-
 Extensions are core application components, and can be enabled and configured per project. An extension
 can do many things, such as loading new or expanding existing ancestry data, or generating additional
 content for your site.
@@ -22,9 +13,9 @@ example:
 
 .. code-block:: python
 
-   from betty.project.extension import Extension, ExtensionDefinition
+   from betty.project.extension import Extension, ExtensionPlugin
 
-   @ExtensionDefinition(
+   @ExtensionPlugin(
        id="my-extension",
        label=_("My Extension"),
    )
@@ -37,13 +28,13 @@ Tell Betty about your extension by registering it as an entry point. Given the e
 .. code-block:: toml
 
    [project.entry-points.'betty.extension']
-   'my-extension' = 'my_package.my_module.MyExtension.plugin'
+   'my-extension' = 'my_package.my_module.MyExtension'
 
 Optional functionality
 ----------------------
 Extensions can optionally provide the following functionality:
 
-:py:class:`betty.project.extension.ConfigurableExtension`
+:py:class:`betty.config.Configurable`
     Enable configuration management for the extension.
 :py:class:`betty.html.CssProvider`
     Add additional CSS files to generated pages.

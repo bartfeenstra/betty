@@ -42,11 +42,14 @@ This extension is configurable:
                 primary_color: '#b3446c'
                 secondary_color: '#3eb489'
                 tertiary_color: '#ffbd22'
-                featured_entities:
-                  - entity_type: person
-                    entity: P123
-                  - entity_type: place
-                    entity: Amsterdam
+                regional_content:
+                  front-page-content:
+                    - id: raspberry-mint-featured-entities
+                      configuration:
+                        - entity_type: person
+                          entity: P123
+                        - entity_type: place
+                          entity: Amsterdam
 
    .. tab-item:: JSON
 
@@ -59,16 +62,23 @@ This extension is configurable:
                   "primary_color": "#b3446c",
                   "secondary_color": "#3eb489",
                   "tertiary_color": "#ffbd22",
-                  "featured_entities": [
-                    {
-                      "entity_type": "person",
-                      "entity": "P123"
-                    },
-                    {
-                      "entity_type": "place",
-                      "entity": "Amsterdam"
-                    }
-                  ],
+                  "regional_content": {
+                    "front-page-content":[
+                      {
+                        "id": "raspberry-mint-featured-entities":
+                        "configuration": [
+                          {
+                            "entity_type": "person",
+                            "entity": "P123"
+                          },
+                          {
+                            "entity_type": "place",
+                            "entity": "Amsterdam"
+                          }
+                        ]
+                      }
+                    ]
+                  ]
                 }
               }
             }
@@ -92,23 +102,34 @@ The case-insensitive hexadecimal code for the secondary color. Defaults to ``#3e
 
 The case-insensitive hexadecimal code for the tertiary color. Defaults to ``#ffbd22``.
 
-``featured_entities``
+``regional_content``
 ^^^^^^^^^^^^^^^^^^^^^
 :sup:`optional`
 
-A list of entities to feature on the front page. Each item has the following configuration:
+Assign content to regions within this theme. Keys are theme regions, and values are sequences of
+:doc:`content provider </usage/content-provider>` instance configurations.
 
-``featured_entities[].entity_type``
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+``regional_content[][].id``
+~~~~~~~~~~~~~~~~~~~~~~~~~~~
 :sup:`required`
 
-The **entity type ID** of the entity (type) to feature, e.g. ``person``.
+The plugin ID of the content provider to assign to this region.
 
-``featured_entities[].entity``
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-:sup:`required`
+``regional_content[][].configuration``
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+:sup:`optional`
 
-The **entity ID** of the entity to feature, e.g. ``P123``.
+The configuration for the content provider, if needed.
+
+Regions
+-------
+
+Raspberry Mint provides the following regions content providers may be configured for:
+
+- ``front-page-content``
+  The main content for the front page.
+- ``front-page-summary``
+  The page summary for the front page.
 
 Templating
 ----------

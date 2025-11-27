@@ -9,7 +9,7 @@ from datetime import datetime
 from typing import TYPE_CHECKING, Any, Generic, TypeAlias, TypeVar
 from uuid import uuid4
 
-from betty.cache.no_op import NoOpCache
+from betty.cache.memory import MemoryCache
 from betty.progress.no_op import NoOpProgress
 
 if TYPE_CHECKING:
@@ -29,7 +29,7 @@ class Context:
         self, *, cache: Cache[Any] | None = None, progress: Progress | None = None
     ):
         self._id = str(uuid4())
-        self._cache = cache or NoOpCache()
+        self._cache = cache or MemoryCache()
         self._start = datetime.now()
         self._progress = progress or NoOpProgress()
 
@@ -68,7 +68,7 @@ _ContextCoT = TypeVar("_ContextCoT", bound=Context, covariant=True)
 JobFunction: TypeAlias = "Callable[[Job[_ContextCoT]], Awaitable[None]]"
 
 
-class Job(Generic[_ContextCoT], ABC):
+class Job(ABC, Generic[_ContextCoT]):
     """
     A job.
     """

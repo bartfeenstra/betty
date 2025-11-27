@@ -25,12 +25,13 @@ from typing_extensions import override
 from betty.importlib import import_any
 from betty.json.linked_data import LinkedDataDumpableProvider
 from betty.json.schema import Array, Null, OneOf, Schema
-from betty.model import Entity, ToManySchema, ToZeroOrOneSchema, persistent_id
+from betty.model import Entity, persistent_id
 from betty.model.collections import (
     EntityCollection,
     MultipleTypesEntityCollection,
     SingleTypeEntityCollection,
 )
+from betty.model.schema import ToManySchema, ToZeroOrOneSchema
 
 if TYPE_CHECKING:
     from betty.project import Project
@@ -43,7 +44,7 @@ _AssociateT = TypeVar("_AssociateT", bound=Entity)
 _EntityCollectionT = TypeVar("_EntityCollectionT", bound=EntityCollection[_AssociateT])
 
 
-async def _generate_associate_url(project: Project, associate: Entity) -> str | None:
+async def _generate_associate_url(project: Project, associate: Entity, /) -> str | None:
     if not persistent_id(associate):
         return None
     if not associate.plugin.public_facing:
@@ -59,17 +60,13 @@ class AssociationRequired(RuntimeError):
     Raised when an operation cannot be performed because the association in question is required.
     """
 
-    @classmethod
-    def new(cls, association: _Association[_OwnerT, Any], owner: _OwnerT) -> Self:
-        """
-        Create a new instance.
-        """
-        return cls(
+    def __init__(self, association: _Association[_OwnerT, Any], owner: _OwnerT, /):
+        super().__init__(
             f"Association {association._owner_type_name}.{association.owner_attr_name} is required, but missing for {owner}."
         )
 
 
-class _Resolver(Generic[_T], ABC):
+class _Resolver(ABC, Generic[_T]):
     @abstractmethod
     def resolve(self) -> _T:
         """
@@ -79,25 +76,25 @@ class _Resolver(Generic[_T], ABC):
         """
 
 
-class ToZeroOrOneResolver(Generic[_EntityT], _Resolver[_EntityT | None]):
+class ToZeroOrOneResolver(_Resolver[_EntityT | None], Generic[_EntityT]):
     """
     An object that can optionally resolve to an entity.
     """
 
 
-class ToOneResolver(Generic[_EntityT], _Resolver[_EntityT]):
+class ToOneResolver(_Resolver[_EntityT], Generic[_EntityT]):
     """
     An object that can resolve to an entity.
     """
 
 
-class ToManyResolver(Generic[_EntityT], _Resolver[Iterable[_EntityT]]):
+class ToManyResolver(_Resolver[Iterable[_EntityT]], Generic[_EntityT]):
     """
     An object that can resolve to a collection of entities.
     """
 
 
-class _TemporaryResolver(Generic[_T], _Resolver[_T]):
+class _TemporaryResolver(_Resolver[_T], Generic[_T]):
     @override
     def resolve(self) -> _T:
         raise RuntimeError(
@@ -106,7 +103,7 @@ class _TemporaryResolver(Generic[_T], _Resolver[_T]):
 
 
 class TemporaryToZeroOrOneResolver(
-    Generic[_EntityT], _TemporaryResolver[_EntityT], ToZeroOrOneResolver[_EntityT]
+    _TemporaryResolver[_EntityT], ToZeroOrOneResolver[_EntityT], Generic[_EntityT]
 ):
     """
     A 'temporary' to-zero-or-one resolver.
@@ -117,7 +114,7 @@ class TemporaryToZeroOrOneResolver(
 
 
 class TemporaryToOneResolver(
-    Generic[_EntityT], _TemporaryResolver[_EntityT], ToOneResolver[_EntityT]
+    _TemporaryResolver[_EntityT], ToOneResolver[_EntityT], Generic[_EntityT]
 ):
     """
     A 'temporary' to-one resolver.
@@ -128,7 +125,7 @@ class TemporaryToOneResolver(
 
 
 class TemporaryToManyResolver(
-    Generic[_EntityT], _TemporaryResolver[_EntityT], ToManyResolver[_EntityT]
+    _TemporaryResolver[_EntityT], ToManyResolver[_EntityT], Generic[_EntityT]
 ):
     """
     A 'temporary' to-many resolver.
@@ -204,19 +201,19 @@ class _Association(LinkedDataDumpableProvider[_OwnerT], Generic[_OwnerT, _Associ
         )
 
     @abstractmethod
-    def resolve(self, owner: _OwnerT) -> None:
+    def resolve(self, owner: _OwnerT, /) -> None:
         """
         Resolve any associates the owner may have for this association.
         """
 
     @abstractmethod
-    def associate(self, owner: _OwnerT, associate: _AssociateT) -> None:
+    def associate(self, owner: _OwnerT, associate: _AssociateT, /) -> None:
         """
         Associate two entities.
         """
 
     @abstractmethod
-    def disassociate(self, owner: _OwnerT, associate: _AssociateT) -> None:
+    def disassociate(self, owner: _OwnerT, associate: _AssociateT, /) -> None:
         """
         Disassociate two entities.
 
@@ -225,7 +222,7 @@ class _Association(LinkedDataDumpableProvider[_OwnerT], Generic[_OwnerT, _Associ
         """
 
     @abstractmethod
-    def get_associates(self, owner: _OwnerT) -> Iterable[_AssociateT]:
+    def get_associates(self, owner: _OwnerT, /) -> Iterable[_AssociateT]:
         """
         Get the associates for the given owner.
         """
@@ -235,11 +232,11 @@ class _ToOneAssociation(
     Generic[_OwnerT, _AssociateT], _Association[_OwnerT, _AssociateT]
 ):
     @override
-    def associate(self, owner: _OwnerT, associate: _AssociateT) -> None:
+    def associate(self, owner: _OwnerT, associate: _AssociateT, /) -> None:
         self.__set__(owner, associate)
 
     @override
-    def disassociate(self, owner: _OwnerT, associate: _AssociateT) -> None:
+    def disassociate(self, owner: _OwnerT, associate: _AssociateT, /) -> None:
         setattr(owner, self._internal_owner_attr_name, None)
 
     @overload
@@ -256,10 +253,10 @@ class _ToOneAssociation(
         try:
             value = getattr(instance, self._internal_owner_attr_name)
         except AttributeError:
-            raise AssociationRequired.new(self, instance) from None
+            raise AssociationRequired(self, instance) from None
         else:
             if value is None:
-                raise AssociationRequired.new(self, instance)
+                raise AssociationRequired(self, instance)
             assert not isinstance(value, _Resolver)
             return cast(_AssociateT, value)
 
@@ -267,11 +264,11 @@ class _ToOneAssociation(
         setattr(instance, self._internal_owner_attr_name, value)
 
     @override
-    def get_associates(self, owner: _OwnerT) -> Iterable[_AssociateT]:
+    def get_associates(self, owner: _OwnerT, /) -> Iterable[_AssociateT]:
         yield self.__get__(owner, type(owner))
 
     @override
-    async def linked_data_schema_for(self, project: Project) -> Schema:
+    async def linked_data_schema_for(self, project: Project, /) -> Schema:
         if self._linked_data_embedded:
             return await self.associate_type.linked_data_schema(project)
         # We must allow for the associate to be missing, for example if it has a generated entity ID and the linked data
@@ -280,7 +277,7 @@ class _ToOneAssociation(
 
     @override
     async def dump_linked_data_for(
-        self, project: Project, target: _OwnerT & Entity
+        self, project: Project, target: _OwnerT & Entity, /
     ) -> Dump:
         associate = self.__get__(target, type(target))
         if self._linked_data_embedded:
@@ -292,11 +289,11 @@ class _ToZeroOrOneAssociation(
     Generic[_OwnerT, _AssociateT], _Association[_OwnerT, _AssociateT]
 ):
     @override
-    def associate(self, owner: _OwnerT, associate: _AssociateT) -> None:
+    def associate(self, owner: _OwnerT, associate: _AssociateT, /) -> None:
         self.__set__(owner, associate)
 
     @override
-    def disassociate(self, owner: _OwnerT, associate: _AssociateT) -> None:
+    def disassociate(self, owner: _OwnerT, associate: _AssociateT, /) -> None:
         if associate == self.__get__(owner, type(owner)):
             self.__delete__(owner)
 
@@ -329,13 +326,13 @@ class _ToZeroOrOneAssociation(
         self.__set__(instance, None)
 
     @override
-    def get_associates(self, owner: _OwnerT) -> Iterable[_AssociateT]:
+    def get_associates(self, owner: _OwnerT, /) -> Iterable[_AssociateT]:
         associate = self.__get__(owner, type(owner))
         if associate is not None:
             yield associate
 
     @override
-    async def linked_data_schema_for(self, project: Project) -> Schema:
+    async def linked_data_schema_for(self, project: Project, /) -> Schema:
         if self._linked_data_embedded:
             return OneOf(
                 await self.associate_type.linked_data_schema(project),
@@ -347,7 +344,7 @@ class _ToZeroOrOneAssociation(
 
     @override
     async def dump_linked_data_for(
-        self, project: Project, target: _OwnerT & Entity
+        self, project: Project, target: _OwnerT & Entity, /
     ) -> Dump:
         associate = self.__get__(target, type(target))
         if associate is None:
@@ -362,7 +359,7 @@ class _ToManyAssociation(
     _Association[_OwnerT, _AssociateT],
 ):
     @abstractmethod
-    def _new_collection(self, instance: _OwnerT) -> _EntityCollectionT:
+    def _new_collection(self, instance: _OwnerT, /) -> _EntityCollectionT:
         pass
 
     @overload
@@ -396,19 +393,19 @@ class _ToManyAssociation(
         self.__get__(instance, type(instance)).clear()
 
     @override
-    def associate(self, owner: _OwnerT, associate: _AssociateT) -> None:
+    def associate(self, owner: _OwnerT, associate: _AssociateT, /) -> None:
         self.__get__(owner, type(owner)).add(associate)
 
     @override
-    def disassociate(self, owner: _OwnerT, associate: _AssociateT) -> None:
+    def disassociate(self, owner: _OwnerT, associate: _AssociateT, /) -> None:
         self.__get__(owner, type(owner)).remove(associate)
 
     @override
-    def get_associates(self, owner: _OwnerT) -> Iterable[_AssociateT]:
+    def get_associates(self, owner: _OwnerT, /) -> Iterable[_AssociateT]:
         yield from self.__get__(owner, type(owner))
 
     @override
-    def resolve(self, owner: _OwnerT) -> None:
+    def resolve(self, owner: _OwnerT, /) -> None:
         value = getattr(owner, self._internal_owner_attr_name, None)
         if isinstance(value, _Resolver):
             collection = self._new_collection(owner)
@@ -416,7 +413,7 @@ class _ToManyAssociation(
             collection.add(*value.resolve())
 
     @override
-    async def linked_data_schema_for(self, project: Project) -> Schema:
+    async def linked_data_schema_for(self, project: Project, /) -> Schema:
         if self._linked_data_embedded:
             return Array(
                 await self.associate_type.linked_data_schema(project),
@@ -427,7 +424,7 @@ class _ToManyAssociation(
 
     @override
     async def dump_linked_data_for(
-        self, project: Project, target: _OwnerT & Entity
+        self, project: Project, target: _OwnerT & Entity, /
     ) -> Dump:
         associates = self.__get__(target, type(target))
         if self._linked_data_embedded:
@@ -515,7 +512,7 @@ class BidirectionalToZeroOrOne(
             self.inverse().associate(value, instance)
 
     @override
-    def resolve(self, owner: _OwnerT) -> None:
+    def resolve(self, owner: _OwnerT, /) -> None:
         value = getattr(owner, self._internal_owner_attr_name, None)
         if isinstance(value, _Resolver):
             associate = value.resolve()
@@ -535,10 +532,10 @@ class BidirectionalToOne(
     """
 
     @override
-    def resolve(self, owner: _OwnerT) -> None:
+    def resolve(self, owner: _OwnerT, /) -> None:
         value = getattr(owner, self._internal_owner_attr_name, None)
         if value is None:
-            raise AssociationRequired.new(self, owner)
+            raise AssociationRequired(self, owner)
         if isinstance(value, _Resolver):
             associate = value.resolve()
             setattr(owner, self._internal_owner_attr_name, associate)
@@ -573,7 +570,7 @@ class BidirectionalToManySingleType(
 
     @override
     def _new_collection(
-        self, instance: _OwnerT
+        self, instance: _OwnerT, /
     ) -> SingleTypeEntityCollection[_AssociateT]:
         return _BidirectionalSingleTypeAssociateCollection(instance, self)
 
@@ -592,7 +589,7 @@ class BidirectionalToManyMultipleTypes(
 
     @override
     def _new_collection(
-        self, instance: _OwnerT
+        self, instance: _OwnerT, /
     ) -> MultipleTypesEntityCollection[_AssociateT]:
         return _BidirectionalMultipleTypesAssociateCollection(
             instance,
@@ -609,7 +606,7 @@ class UnidirectionalToZeroOrOne(
     """
 
     @override
-    def resolve(self, owner: _OwnerT) -> None:
+    def resolve(self, owner: _OwnerT, /) -> None:
         value = getattr(owner, self._internal_owner_attr_name, None)
         if isinstance(value, _Resolver):
             setattr(owner, self._internal_owner_attr_name, value.resolve())
@@ -624,10 +621,10 @@ class UnidirectionalToOne(
     """
 
     @override
-    def resolve(self, owner: _OwnerT) -> None:
+    def resolve(self, owner: _OwnerT, /) -> None:
         value = getattr(owner, self._internal_owner_attr_name, None)
         if value is None:
-            raise AssociationRequired.new(self, owner)
+            raise AssociationRequired(self, owner)
         if isinstance(value, _Resolver):
             setattr(owner, self._internal_owner_attr_name, value.resolve())
 
@@ -643,7 +640,7 @@ class UnidirectionalToManySingleType(
 
     @override
     def _new_collection(
-        self, instance: _OwnerT
+        self, instance: _OwnerT, /
     ) -> SingleTypeEntityCollection[_AssociateT]:
         return SingleTypeEntityCollection[_AssociateT](target_type=self.associate_type)
 
@@ -661,7 +658,7 @@ class UnidirectionalToManyMultipleTypes(
 
     @override
     def _new_collection(
-        self, instance: _OwnerT
+        self, instance: _OwnerT, /
     ) -> MultipleTypesEntityCollection[_AssociateT]:
         return MultipleTypesEntityCollection[_AssociateT](
             target_type=self.associate_type
@@ -677,7 +674,9 @@ class AssociationRegistry:
     _associations = set[_Association[Any, Any]]()
 
     @classmethod
-    def get_all_associations(cls, owner: type | object) -> set[_Association[Any, Any]]:
+    def get_all_associations(
+        cls, owner: type | object, /
+    ) -> set[_Association[Any, Any]]:
         """
         Get all associations for an owner.
         """
@@ -690,7 +689,7 @@ class AssociationRegistry:
 
     @classmethod
     def get_association(
-        cls, owner: type[_OwnerT] | _OwnerT, owner_attr_name: str
+        cls, owner: type[_OwnerT] | _OwnerT, owner_attr_name: str, /
     ) -> _Association[_OwnerT, Any]:
         """
         Get the association for a given owner and attribute name.
@@ -703,7 +702,7 @@ class AssociationRegistry:
         )
 
     @classmethod
-    def _register(cls, association: _Association[Any, Any]) -> None:
+    def _register(cls, association: _Association[Any, Any], /) -> None:
         cls._associations.add(association)
 
 
@@ -714,6 +713,7 @@ class _BidirectionalAssociateCollection(
         self,
         owner: _OwnerT,
         association: _BidirectionalAssociation[_OwnerT, _AssociateT],
+        /,
     ):
         super().__init__(target_type=association.associate_type)
         self._association = association

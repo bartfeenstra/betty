@@ -13,8 +13,10 @@ from betty.ancestry.has_citations import HasCitations
 from betty.ancestry.has_links import HasLinks
 from betty.ancestry.has_notes import HasNotes
 from betty.ancestry.media_type import HasMediaType
-from betty.locale.localizable import Localizable, _, ngettext
-from betty.model import EntityDefinition
+from betty.copyright_notice import CopyrightNoticePlugin
+from betty.license import LicensePlugin
+from betty.locale.localizable import Localizable, LocalizableLike, _, ngettext
+from betty.model import EntityPlugin
 from betty.model.association import BidirectionalToManyMultipleTypes, ToManyAssociates
 from betty.privacy import HasPrivacy, Privacy
 
@@ -30,14 +32,13 @@ if TYPE_CHECKING:
     from betty.json.linked_data import JsonLdObject
     from betty.license import License
     from betty.media_type import MediaType
-    from betty.mutability import Mutable
     from betty.project import Project
     from betty.serde.dump import Dump, DumpMapping
 
 
 @final
-@EntityDefinition(
-    id="file",
+@EntityPlugin(
+    "file",
     label=_("File"),
     label_plural=_("Files"),
     label_countable=ngettext("{count} file", "{count} files"),
@@ -70,12 +71,19 @@ class File(
         description="The entities referencing this file",
         linked_data_embedded=True,
     )
+    """
+    Other entities referencing this file.
+    """
 
-    #: The copyright notice for this file.
     copyright_notice: CopyrightNotice | None
+    """
+    The copyright notice for this file.
+    """
 
-    #: The license for this file.
     license: License | None
+    """
+    The license for this file.
+    """
 
     def __init__(
         self,
@@ -84,7 +92,7 @@ class File(
         id: str | None = None,  # noqa A002  # noqa A002
         name: str | None = None,
         media_type: MediaType | None = None,
-        description: Localizable | None = None,
+        description: LocalizableLike | None = None,
         notes: ToManyAssociates[Note] | None = None,
         citations: ToManyAssociates[Citation] | None = None,
         privacy: Privacy | None = None,
@@ -111,7 +119,7 @@ class File(
         self.license = license
 
     @override
-    def get_mutable_instances(self) -> Iterable[Mutable]:
+    def get_mutables(self) -> Iterable[object]:
         if self.copyright_notice is not None:
             yield self.copyright_notice
         if self.license is not None:
@@ -138,20 +146,18 @@ class File(
 
     @override
     @classmethod
-    async def linked_data_schema(cls, project: Project) -> JsonLdObject:
+    async def linked_data_schema(cls, project: Project, /) -> JsonLdObject:
+        copyright_notices = await project.plugins(CopyrightNoticePlugin)
+        licenses = await project.plugins(LicensePlugin)
         schema = await super().linked_data_schema(project)
         schema.add_property(
-            "copyrightNotice",
-            project.copyright_notice_repository.plugin_id_schema,
-            False,
+            "copyrightNotice", copyright_notices.plugin_id_schema, False
         )
-        schema.add_property(
-            "license", (await project.license_repository).plugin_id_schema, False
-        )
+        schema.add_property("license", licenses.plugin_id_schema, False)
         return schema
 
     @override
-    async def dump_linked_data(self, project: Project) -> DumpMapping[Dump]:
+    async def dump_linked_data(self, project: Project, /) -> DumpMapping[Dump]:
         dump = await super().dump_linked_data(project)
         if self.copyright_notice:
             dump["copyrightNotice"] = self.copyright_notice.plugin.id

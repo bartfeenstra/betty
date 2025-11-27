@@ -11,12 +11,12 @@ from typing import TypeVar, overload
 from typing_extensions import override
 
 from betty.assertion import Assertion
-from betty.locale.localizable import Localizable
+from betty.locale.localizable import LocalizableLike, ensure_localized
 from betty.locale.localizer import DEFAULT_LOCALIZER
 from betty.progress import Progress
 from betty.progress.no_op import NoOpProgress
 from betty.typing import Void, internal
-from betty.user import User, UserTimeoutError
+from betty.user import User, UserTimeoutError, Verbosity
 
 _T = TypeVar("_T")
 
@@ -26,6 +26,8 @@ class StaticUser(User):  # pragma: no cover
     """
     A static user with predefined responses.
     """
+
+    verbosity = Verbosity.DEFAULT
 
     def __init__(
         self,
@@ -37,12 +39,17 @@ class StaticUser(User):  # pragma: no cover
         self._inputs = iter([] if inputs is None else inputs)
         self.connected = False
         self._messages_exception: MutableSequence[BaseException] = []
-        self._messages_error: MutableSequence[Localizable] = []
-        self._messages_warning: MutableSequence[Localizable] = []
-        self._messages_information: MutableSequence[Localizable] = []
-        self._messages_debug: MutableSequence[Localizable] = []
+        self._messages_error: MutableSequence[LocalizableLike] = []
+        self._messages_warning: MutableSequence[LocalizableLike] = []
+        self._messages_information: MutableSequence[LocalizableLike] = []
+        self._messages_information_details: MutableSequence[LocalizableLike] = []
+        self._messages_debug: MutableSequence[LocalizableLike] = []
         self._messages_log: MutableSequence[logging.LogRecord] = []
         self._log_formatter = logging.Formatter()
+
+    @override
+    async def set_verbosity(self, verbosity: Verbosity, /) -> None:
+        self.verbosity = verbosity
 
     @override
     async def connect(self) -> None:
@@ -82,7 +89,7 @@ class StaticUser(User):  # pragma: no cover
             fragments,
             message_type,
             [
-                message.localize(DEFAULT_LOCALIZER)
+                ensure_localized(message, localizer=DEFAULT_LOCALIZER)
                 for message in getattr(self, f"_messages_{message_type}")  # type: ignore[attr-defined]
             ],
         )
@@ -112,6 +119,14 @@ class StaticUser(User):  # pragma: no cover
         Assert that an information message was sent.
         """
         self._assert_localizable_message(fragments, "information")
+
+    def assert_message_information_details(
+        self, fragments: str | Iterable[str]
+    ) -> None:
+        """
+        Assert that a detailed information message was sent.
+        """
+        self._assert_localizable_message(fragments, "information_details")
 
     def assert_message_debug(self, fragments: str | Iterable[str]) -> None:
         """
@@ -148,7 +163,7 @@ class StaticUser(User):  # pragma: no cover
             fragments,
             message_type,
             [
-                message.localize(DEFAULT_LOCALIZER)
+                ensure_localized(message, localizer=DEFAULT_LOCALIZER)
                 for message in getattr(self, f"_messages_{message_type}")  # type: ignore[attr-defined]
             ],
         )
@@ -179,6 +194,14 @@ class StaticUser(User):  # pragma: no cover
         """
         self._assert_not_localizable_message(fragments, "information")
 
+    def assert_not_message_information_details(
+        self, fragments: str | Iterable[str]
+    ) -> None:
+        """
+        Assert that no detailed information message was sent.
+        """
+        self._assert_not_localizable_message(fragments, "information_details")
+
     def assert_not_message_debug(self, fragments: str | Iterable[str]) -> None:
         """
         Assert that no debug message was sent.
@@ -200,33 +223,39 @@ class StaticUser(User):  # pragma: no cover
         self._messages_exception.append(exception)
 
     @override
-    async def message_error(self, message: Localizable) -> None:
+    async def message_error(self, message: LocalizableLike, /) -> None:
         self._messages_error.append(message)
 
     @override
-    async def message_warning(self, message: Localizable) -> None:
+    async def message_warning(self, message: LocalizableLike, /) -> None:
         self._messages_warning.append(message)
 
     @override
-    async def message_information(self, message: Localizable) -> None:
+    async def message_information(self, message: LocalizableLike, /) -> None:
         self._messages_information.append(message)
 
     @override
-    async def message_debug(self, message: Localizable) -> None:
+    async def message_information_details(self, message: LocalizableLike, /) -> None:
+        self._messages_information_details.append(message)
+
+    @override
+    async def message_debug(self, message: LocalizableLike, /) -> None:
         self._messages_debug.append(message)
 
     @override
-    async def message_log(self, message: logging.LogRecord) -> None:
+    async def message_log(self, message: logging.LogRecord, /) -> None:
         self._messages_log.append(message)
 
     @override
     @asynccontextmanager
-    async def message_progress(self, message: Localizable) -> AsyncIterator[Progress]:
+    async def message_progress(
+        self, message: LocalizableLike, /
+    ) -> AsyncIterator[Progress]:
         yield NoOpProgress()
 
     @override
     async def ask_confirmation(
-        self, statement: Localizable, *, default: bool = False
+        self, statement: LocalizableLike, *, default: bool = False
     ) -> bool:
         confirmation = next(self._confirmations)
         if confirmation is None:
@@ -236,37 +265,37 @@ class StaticUser(User):  # pragma: no cover
     @overload
     async def ask_input(
         self,
-        question: Localizable,
+        question: LocalizableLike,
         *,
-        default: str | type[Void] = Void,
+        default: str | Void = Void(),  # noqa B008
     ) -> str:
         pass
 
     @overload
     async def ask_input(
         self,
-        question: Localizable,
+        question: LocalizableLike,
         *,
         assertion: Assertion[str, _T],
-        default: str | type[Void] = Void,
+        default: str | Void = Void(),  # noqa B008
     ) -> _T:
         pass
 
     @override
     async def ask_input(
         self,
-        question: Localizable,
+        question: LocalizableLike,
         *,
         assertion: Assertion[str, _T] | None = None,
-        default: str | _T | type[Void] = Void,
+        default: str | _T | Void = Void(),  # noqa B008
     ) -> str | _T:
         value = next(self._inputs)
         if value is None:
-            if default is Void:
+            if isinstance(default, Void):
                 raise UserTimeoutError(
                     "Neither a predefined response nor a call default were provided."
                 )
-            return default  # type: ignore[return-value]
+            return default
         if assertion is None:
             return value
         return assertion(value)

@@ -16,7 +16,7 @@ class _LoadingDummyConfiguration(DummyConfiguration):
     loaded_dump: Dump
 
     @override
-    def load(self, dump: Dump) -> None:
+    def load(self, dump: Dump, /) -> None:
         self.loaded_dump = dump
 
 

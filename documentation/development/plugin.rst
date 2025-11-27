@@ -23,6 +23,7 @@ The following plugin types are provided by Betty itself. Each plugin type's docu
 plugin repository, how to use the plugins, and how to create your own.
 
 - :doc:`Console commands </development/plugin/command>`
+- :doc:`Content providers </development/plugin/content-provider>`
 - :doc:`Copyright notices </development/plugin/copyright-notice>`
 - :doc:`Entity types </development/plugin/entity-type>`
 - :doc:`Event types </development/plugin/event-type>`
@@ -33,6 +34,7 @@ plugin repository, how to use the plugins, and how to create your own.
 - :doc:`Place types </development/plugin/place-type>`
 - :doc:`Presence roles </development/plugin/presence-role>`
 - :doc:`Renderers </development/plugin/renderer>`
+- :doc:`Serialization formats </development/plugin/format>`
 
 Creating a new plugin type
 --------------------------
@@ -53,8 +55,8 @@ A plugin definition class must subclass :py:class:`betty.plugin.PluginDefinition
 
      class MyFirstPluginDefinition(PluginDefinition):
         type: ClassVar[PluginTypeDefinition] = PluginTypeDefinition(
-            id="my-first-plugin-type",
-            Label=_("My First Plugin Type"),
+            "my-first-plugin-type",
+            _("My First Plugin Type"),
         )
 
 This creates a new plugin type, for which plugins are defined using ``MyFirstPluginDefinition``, and only have an ID.
@@ -62,27 +64,11 @@ This creates a new plugin type, for which plugins are defined using ``MyFirstPlu
 Your plugin definition class may subclass any of the following base classes, so each plugin can provide additional
 metadata in its definition:
 
-:py:class:`betty.plugin.HumanFacingPluginDefinition`
+:py:class:`betty.plugin.human_facing.HumanFacingPluginDefinition`
     To add human-readable labels and descriptions to plugins.
-:py:class:`betty.plugin.CountableHumanFacingPluginDefinition`
+:py:class:`betty.plugin.human_facing.CountableHumanFacingPluginDefinition`
     To add countable human-readable labels and descriptions to plugins.
-:py:class:`betty.plugin.OrderedPluginDefinition`
+:py:class:`betty.plugin.ordered.OrderedPluginDefinition`
     To allow plugins to define if they come before or after any other plugins.
-:py:class:`betty.plugin.DependentPluginDefinition`
+:py:class:`betty.plugin.dependent.DependentPluginDefinition`
     To allow plugins to define their dependencies on any other plugins.
-:py:class:`betty.plugin.ClassedPluginDefinition`
-    For plugins that have classes that can be instantiated.
-
-Creating a plugin repository
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-
-A plugin repository implements :py:class:`betty.plugin.PluginRepository` and is responsible for discovering all plugins
-of the type it is responsible for, and making them available to other code. Your plugin repository may subclass one of
-the following base classes to get started quickly:
-
-:py:class:`betty.plugin.entry_point.EntryPointPluginRepository`
-    to discover plugins defined as package entry points.
-:py:class:`betty.plugin.proxy.ProxyPluginRepository`
-    to discover plugins via one or more upstream plugin repositories.
-:py:class:`betty.plugin.static.StaticPluginRepository`
-    to discover statically defined plugins.

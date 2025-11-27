@@ -6,28 +6,26 @@ from typing import Self, final
 
 from typing_extensions import override
 
-from betty.copyright_notice import CopyrightNotice, CopyrightNoticeDefinition
-from betty.locale.localizable import Localizable, _
+from betty.copyright_notice import CopyrightNotice, CopyrightNoticePlugin
+from betty.locale.localizable import Localizable, LocalizableLike, _, ensure_localizable
 from betty.project import Project
-from betty.project.factory import ProjectDependentFactory
+from betty.project.factory import ProjectDependentSelfFactory
 
 
 @final
-@CopyrightNoticeDefinition(
-    id="project-author",
-    label=_("Project author"),
-)
-class ProjectAuthor(ProjectDependentFactory, CopyrightNotice):
+@CopyrightNoticePlugin("project-author", label=_("Project author"))
+class ProjectAuthor(ProjectDependentSelfFactory, CopyrightNotice):
     """
     Copyright belonging to a project author.
     """
 
-    def __init__(self, author: Localizable | None):
-        self._author = author
+    def __init__(self, author: LocalizableLike | None):
+        super().__init__()
+        self._author = None if author is None else ensure_localizable(author)
 
     @override
     @classmethod
-    async def new_for_project(cls, project: Project) -> Self:
+    async def new_for_project(cls, project: Project, /) -> Self:
         return cls(project.configuration.author)
 
     @property
@@ -46,10 +44,7 @@ class ProjectAuthor(ProjectDependentFactory, CopyrightNotice):
 
 
 @final
-@CopyrightNoticeDefinition(
-    id="public-domain",
-    label=_("Public domain"),
-)
+@CopyrightNoticePlugin("public-domain", label=_("Public domain"))
 class PublicDomain(CopyrightNotice):
     """
     A work is in the `public domain <https://en.wikipedia.org/wiki/Public_domain>`.

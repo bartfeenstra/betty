@@ -15,8 +15,9 @@ from html5lib.html5parser import ParseError
 from betty.app import App
 from betty.jinja2 import Environment
 from betty.json.schema import AllOf, Ref
-from betty.plugin import PluginIdentifier
-from betty.project import Project, ProjectSchema
+from betty.plugin.resolve import ResolvableId
+from betty.project import Project
+from betty.project.schema import ProjectSchema
 
 if TYPE_CHECKING:
     from collections.abc import AsyncIterator, Callable, MutableMapping
@@ -24,7 +25,7 @@ if TYPE_CHECKING:
     from jinja2 import Template
 
     from betty.locale import LocaleLike
-    from betty.project.extension import Extension, ExtensionDefinition
+    from betty.project.extension import Extension, ExtensionPlugin
 
 
 @asynccontextmanager
@@ -35,7 +36,7 @@ async def _assert_template(
     data: MutableMapping[str, Any] | None = None,
     locale: LocaleLike | None = None,
     autoescape: bool | None = None,
-    extensions: set[PluginIdentifier[ExtensionDefinition, Extension]] | None = None,
+    extensions: set[ResolvableId[ExtensionPlugin, Extension]] | None = None,
 ) -> AsyncIterator[tuple[str, Project]]:
     async with (
         App.new_temporary() as app,
@@ -46,11 +47,13 @@ async def _assert_template(
         if extensions is not None:
             project.configuration.extensions.enable(*extensions)
         async with project:
-            localizers = await project.localizers
             if data is None:
                 data = {}
+            if "resource" not in data:
+                data["resource"] = await project.new_resource_context()
             if locale is not None:
-                data["localizer"] = localizers.get(locale)
+                localizers = await project.localizers
+                data["resource"]["localizer"] = localizers.get(locale)
             jinja2_environment = await project.jinja2_environment
             if autoescape is not None:
                 jinja2_environment.autoescape = autoescape
@@ -66,7 +69,7 @@ def assert_template_string(
     data: MutableMapping[str, Any] | None = None,
     locale: LocaleLike | None = None,
     autoescape: bool | None = None,
-    extensions: set[PluginIdentifier[ExtensionDefinition, Extension]] | None = None,
+    extensions: set[ResolvableId[ExtensionPlugin, Extension]] | None = None,
 ) -> AbstractAsyncContextManager[tuple[str, Project]]:
     """
     Assert that a template string can be rendered.
@@ -87,7 +90,7 @@ def assert_template_file(
     data: MutableMapping[str, Any] | None = None,
     locale: LocaleLike | None = None,
     autoescape: bool | None = None,
-    extensions: set[PluginIdentifier[ExtensionDefinition, Extension]] | None = None,
+    extensions: set[ResolvableId[ExtensionPlugin, Extension]] | None = None,
 ) -> AbstractAsyncContextManager[tuple[str, Project]]:
     """
     Assert that a template file can be rendered.
@@ -103,7 +106,7 @@ def assert_template_file(
 
 
 class _TemplateTestBase:
-    extensions = set[PluginIdentifier]()
+    extensions = set[ResolvableId]()
     """
     The extensions to enable before rendering the template.
     """
