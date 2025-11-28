@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PROJECT VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2025-11-28 02:50+0000\n"
+"POT-Creation-Date: 2025-11-28 13:13+0000\n"
 "PO-Revision-Date: 2025-11-08 23:46+0000\n"
 "Last-Translator: Bart Feenstra <bart@bartfeenstra.com>\n"
 "Language: nl_NL\n"
@@ -60,9 +60,6 @@ msgstr "%(event)s van %(subjects)s"
 #, python-format
 msgid "%(event)s with %(subjects)s"
 msgstr "%(event)s met %(subjects)s"
-
-msgid "(De)serialization format"
-msgstr ""
 
 msgid "A Betty demonstration"
 msgstr ""
@@ -316,6 +313,9 @@ msgstr ""
 msgid "Command"
 msgstr ""
 
+msgid "Commands"
+msgstr ""
+
 msgid "Conference"
 msgstr "Conferentie"
 
@@ -329,6 +329,9 @@ msgid "Confirmation"
 msgstr "Geloofsbelijdenis"
 
 msgid "Content provider"
+msgstr ""
+
+msgid "Content providers"
 msgstr ""
 
 #, python-format
@@ -349,6 +352,9 @@ msgid "Copyright Wikipedia contributors"
 msgstr "Copyright Wikipedia-bijdragers"
 
 msgid "Copyright notice"
+msgstr ""
+
+msgid "Copyright notices"
 msgstr ""
 
 msgid ""
@@ -497,6 +503,9 @@ msgstr "Verloving"
 msgid "Enrich your ancestry with information from Wikipedia and Wikimedia Commons"
 msgstr ""
 
+msgid "Entities"
+msgstr ""
+
 msgid "Entity"
 msgstr ""
 
@@ -507,6 +516,9 @@ msgid "Event"
 msgstr "Gebeurtenis"
 
 msgid "Event type"
+msgstr ""
+
+msgid "Event types"
 msgstr ""
 
 msgid "Events"
@@ -520,6 +532,9 @@ msgid "Explore a demonstration site"
 msgstr "Verken een demonstratiesite"
 
 msgid "Extension"
+msgstr ""
+
+msgid "Extensions"
 msgstr ""
 
 msgid "External links"
@@ -579,6 +594,9 @@ msgstr ""
 msgid "Gender"
 msgstr ""
 
+msgid "Genders"
+msgstr ""
+
 msgid "Generate a static site"
 msgstr "Genereer een statische site"
 
@@ -605,6 +623,9 @@ msgid ""
 msgstr ""
 
 msgid "HTTP client rate limit"
+msgstr ""
+
+msgid "HTTP client rate limits"
 msgstr ""
 
 #, python-brace-format
@@ -684,6 +705,9 @@ msgstr ""
 
 msgid "License"
 msgstr "Licentie"
+
+msgid "Licenses"
+msgstr ""
 
 msgid "Link"
 msgstr ""
@@ -892,6 +916,9 @@ msgstr "Plaats"
 msgid "Place type"
 msgstr ""
 
+msgid "Place types"
+msgstr ""
+
 msgid "Places"
 msgstr "Plaatsen"
 
@@ -916,6 +943,9 @@ msgid "Presence of {person} at {event}"
 msgstr "Aanwezigheid van {person} bij {event}"
 
 msgid "Presence role"
+msgstr ""
+
+msgid "Presence roles"
 msgstr ""
 
 msgid "Presences"
@@ -1000,6 +1030,9 @@ msgstr "Regio"
 msgid "Renderer"
 msgstr ""
 
+msgid "Renderers"
+msgstr ""
+
 msgid "Reset"
 msgstr "Reset"
 
@@ -1025,6 +1058,12 @@ msgid "Search"
 msgstr "Zoeken"
 
 msgid "Section"
+msgstr ""
+
+msgid "Serialization format"
+msgstr ""
+
+msgid "Serialization formats"
 msgstr ""
 
 msgid "Serve a generated site"
@@ -1515,10 +1554,34 @@ msgid "y"
 msgstr "y"
 
 #, python-brace-format
+msgid "{count} HTTP client rate limit"
+msgid_plural "{count} HTTP client rate limits"
+msgstr[0] ""
+msgstr[1] ""
+
+#, python-brace-format
 msgid "{count} citation"
 msgid_plural "{count} citations"
 msgstr[0] "{count} citaat"
 msgstr[1] "{count} citaten"
+
+#, python-brace-format
+msgid "{count} command"
+msgid_plural "{count} commands"
+msgstr[0] ""
+msgstr[1] ""
+
+#, python-brace-format
+msgid "{count} content provider"
+msgid_plural "{count} content providers"
+msgstr[0] ""
+msgstr[1] ""
+
+#, python-brace-format
+msgid "{count} copyright notice"
+msgid_plural "{count} copyright notices"
+msgstr[0] ""
+msgstr[1] ""
 
 #, python-brace-format
 msgid "{count} enclosure"
@@ -1527,10 +1590,28 @@ msgstr[0] "{count} omsluiting"
 msgstr[1] "{count} omsluitingen"
 
 #, python-brace-format
+msgid "{count} entity"
+msgid_plural "{count} entities"
+msgstr[0] ""
+msgstr[1] ""
+
+#, python-brace-format
 msgid "{count} event"
 msgid_plural "{count} events"
 msgstr[0] "{count} gebeurtenis"
 msgstr[1] "{count} gebeurtenissen"
+
+#, python-brace-format
+msgid "{count} event type"
+msgid_plural "{count} event types"
+msgstr[0] ""
+msgstr[1] ""
+
+#, python-brace-format
+msgid "{count} extension"
+msgid_plural "{count} extensions"
+msgstr[0] ""
+msgstr[1] ""
 
 #, python-brace-format
 msgid "{count} file"
@@ -1543,6 +1624,18 @@ msgid "{count} file reference"
 msgid_plural "{count} file references"
 msgstr[0] "{count} bestandsverwijzing"
 msgstr[1] "{count} bestandsverwijzingen"
+
+#, python-brace-format
+msgid "{count} gender"
+msgid_plural "{count} genders"
+msgstr[0] ""
+msgstr[1] ""
+
+#, python-brace-format
+msgid "{count} license"
+msgid_plural "{count} licenses"
+msgstr[0] ""
+msgstr[1] ""
 
 #, python-brace-format
 msgid "{count} link"
@@ -1575,10 +1668,34 @@ msgstr[0] "{count} plaats"
 msgstr[1] "{count} plaatsen"
 
 #, python-brace-format
+msgid "{count} place type"
+msgid_plural "{count} place types"
+msgstr[0] ""
+msgstr[1] ""
+
+#, python-brace-format
 msgid "{count} presence"
 msgid_plural "{count} presences"
 msgstr[0] "{count} aanwezigheid"
 msgstr[1] "{count} aanwezigheden"
+
+#, python-brace-format
+msgid "{count} presence role"
+msgid_plural "{count} presence roles"
+msgstr[0] ""
+msgstr[1] ""
+
+#, python-brace-format
+msgid "{count} renderer"
+msgid_plural "{count} renderers"
+msgstr[0] ""
+msgstr[1] ""
+
+#, python-brace-format
+msgid "{count} serialization format"
+msgid_plural "{count} serialization formats"
+msgstr[0] ""
+msgstr[1] ""
 
 #, python-brace-format
 msgid "{count} source"

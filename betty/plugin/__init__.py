@@ -15,7 +15,12 @@ from typing import TYPE_CHECKING, ClassVar, Generic, final
 
 from typing_extensions import TypeVar
 
-from betty.locale.localizable import LocalizableLike, _, ensure_localizable
+from betty.locale.localizable import (
+    CountableLocalizable,
+    LocalizableLike,
+    _,
+    ensure_localizable,
+)
 from betty.machine_name import InvalidMachineName, MachineName, validate_machine_name
 
 if TYPE_CHECKING:
@@ -125,7 +130,10 @@ class PluginTypeDefinition(Generic[_PluginDefinitionT]):
         self,
         id: MachineName,  # noqa A002
         label: LocalizableLike,
+        label_plural: LocalizableLike,
+        label_countable: CountableLocalizable,
         *,
+        description: LocalizableLike | None = None,
         discoveries: Collection[PluginDiscovery[_PluginDefinitionT]]
         | PluginDiscovery[_PluginDefinitionT]
         | None = None,
@@ -136,6 +144,11 @@ class PluginTypeDefinition(Generic[_PluginDefinitionT]):
             raise InvalidMachineName(id)
         self._id = id
         self._label = ensure_localizable(label)
+        self._label_plural = ensure_localizable(label_plural)
+        self._label_countable = label_countable
+        self._description = (
+            None if description is None else ensure_localizable(description)
+        )
         if discoveries is None:
             discoveries = []
         elif isinstance(discoveries, PluginDiscovery):
@@ -158,6 +171,27 @@ class PluginTypeDefinition(Generic[_PluginDefinitionT]):
         The plugin type label.
         """
         return self._label
+
+    @property
+    def label_plural(self) -> Localizable:
+        """
+        The human-readable short plugin type label (plural).
+        """
+        return self._label_plural
+
+    @property
+    def label_countable(self) -> CountableLocalizable:
+        """
+        The human-readable short plugin type label (countable).
+        """
+        return self._label_countable
+
+    @property
+    def description(self) -> Localizable | None:
+        """
+        The human-readable long plugin type description.
+        """
+        return self._description
 
     @property
     def discoveries(

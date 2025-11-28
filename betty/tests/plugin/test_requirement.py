@@ -5,6 +5,7 @@ from typing import TYPE_CHECKING, ClassVar
 import pytest
 from typing_extensions import override
 
+from betty.locale.localizable import CountablePlain
 from betty.locale.localizer import DEFAULT_LOCALIZER
 from betty.plugin import Plugin, PluginTypeDefinition
 from betty.plugin.dependent import DependentPluginDefinition
@@ -29,7 +30,12 @@ class HasRequirementPlugin(HasRequirement, Plugin):
 
 class HasRequirementPluginDefinition(DependentPluginDefinition):
     plugin_type_cls = DummyPlugin
-    type = PluginTypeDefinition("-", "HasRequirement")
+    type = PluginTypeDefinition(
+        "-",
+        "HasRequirement",
+        "HasRequirement",
+        CountablePlain("{count} HasRequirement", "{count} HasRequirements"),
+    )
 
 
 @HasRequirementPluginDefinition(

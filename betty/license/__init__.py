@@ -7,7 +7,7 @@ from __future__ import annotations
 from abc import abstractmethod
 from typing import TYPE_CHECKING, ClassVar, final
 
-from betty.locale.localizable import _
+from betty.locale.localizable import _, ngettext
 from betty.mutability import Mutable
 from betty.plugin import Plugin, PluginTypeDefinition
 from betty.plugin.discovery.app import AppDiscovery
@@ -64,6 +64,8 @@ class LicensePlugin(HumanFacingPluginDefinition[License]):
     type = PluginTypeDefinition(
         "license",
         _("License"),
+        _("Licenses"),
+        ngettext("{count} license", "{count} licenses"),
         discoveries=[
             EntryPointDiscovery("betty.license"),
             AppDiscovery(lambda app: app._spdx_license_repository),

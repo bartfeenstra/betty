@@ -6,7 +6,7 @@ from typing import TYPE_CHECKING, ClassVar, Self, TypeVar, final
 
 from typing_extensions import override
 
-from betty.locale.localizable import LocalizableLike, _
+from betty.locale.localizable import LocalizableLike, _, ngettext
 from betty.plugin import Plugin, PluginTypeDefinition
 from betty.plugin.dependent import DependentPluginDefinition
 from betty.plugin.discovery.entry_point import EntryPointDiscovery
@@ -85,6 +85,8 @@ class ExtensionPlugin(
     type = PluginTypeDefinition(
         "extension",
         _("Extension"),
+        _("Extensions"),
+        ngettext("{count} extension", "{count} extensions"),
         discoveries=EntryPointDiscovery("betty.extension"),
     )
 

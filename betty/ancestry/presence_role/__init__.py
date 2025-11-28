@@ -6,7 +6,7 @@ from __future__ import annotations
 
 from typing import ClassVar, final
 
-from betty.locale.localizable import _
+from betty.locale.localizable import _, ngettext
 from betty.plugin import Plugin, PluginTypeDefinition
 from betty.plugin.discovery.entry_point import EntryPointDiscovery
 from betty.plugin.discovery.project import ProjectDiscovery
@@ -35,6 +35,8 @@ class PresenceRolePlugin(HumanFacingPluginDefinition[PresenceRole]):
     type = PluginTypeDefinition(
         "presence-role",
         _("Presence role"),
+        _("Presence roles"),
+        ngettext("{count} presence role", "{count} presence roles"),
         discoveries=[
             EntryPointDiscovery("betty.presence_role"),
             ProjectDiscovery(

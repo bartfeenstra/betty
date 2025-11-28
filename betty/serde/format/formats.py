@@ -24,7 +24,7 @@ if TYPE_CHECKING:
 @FormatPlugin("json", label="JSON")
 class Json(Format):
     """
-    Defines the `JSON <https://json.org/>`_ (de)serialization format.
+    Defines the `JSON <https://json.org/>`_ serialization format.
     """
 
     @override
@@ -50,7 +50,7 @@ class Json(Format):
 @FormatPlugin("yaml", label="YAML")
 class Yaml(Format):
     """
-    Defines the `YAML <https://yaml.org/>`_ (de)serialization format.
+    Defines the `YAML <https://yaml.org/>`_ serialization format.
     """
 
     @override

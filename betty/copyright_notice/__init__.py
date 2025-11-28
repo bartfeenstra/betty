@@ -7,7 +7,7 @@ from __future__ import annotations
 from abc import abstractmethod
 from typing import TYPE_CHECKING, ClassVar, final
 
-from betty.locale.localizable import _
+from betty.locale.localizable import _, ngettext
 from betty.mutability import Mutable
 from betty.plugin import Plugin, PluginTypeDefinition
 from betty.plugin.discovery.entry_point import EntryPointDiscovery
@@ -63,6 +63,8 @@ class CopyrightNoticePlugin(HumanFacingPluginDefinition[CopyrightNotice]):
     type = PluginTypeDefinition(
         "copyright-notice",
         _("Copyright notice"),
+        _("Copyright notices"),
+        ngettext("{count} copyright notice", "{count} copyright notices"),
         discoveries=[
             EntryPointDiscovery("betty.copyright_notice"),
             ProjectDiscovery(

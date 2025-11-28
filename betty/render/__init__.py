@@ -8,7 +8,7 @@ from abc import ABC, abstractmethod
 from typing import TYPE_CHECKING, final
 
 from betty.html import plain_text_to_html
-from betty.locale.localizable import _
+from betty.locale.localizable import _, ngettext
 from betty.plugin import Plugin, PluginDefinition, PluginTypeDefinition
 from betty.plugin.discovery.entry_point import EntryPointDiscovery
 
@@ -49,6 +49,8 @@ class RendererPlugin(PluginDefinition[Renderer]):
     type = PluginTypeDefinition(
         "renderer",
         _("Renderer"),
+        _("Renderers"),
+        ngettext("{count} renderer", "{count} renderers"),
         discoveries=EntryPointDiscovery("betty.renderer"),
     )
 

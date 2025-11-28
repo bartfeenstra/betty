@@ -3,6 +3,7 @@ from collections.abc import Iterable
 from pytest_mock import MockerFixture
 
 from betty.app import App
+from betty.locale.localizable import CountablePlain
 from betty.plugin import PluginDefinition, PluginTypeDefinition
 from betty.plugin.discovery.app import AppDiscovery
 from betty.plugin.repository.provider.service import (
@@ -35,7 +36,13 @@ class TestServiceLevelPluginRepositoryProvider:
             return ()
 
         class _PluginDefinition(PluginDefinition):
-            type = PluginTypeDefinition("-", "", discoveries=AppDiscovery(_discovery))
+            type = PluginTypeDefinition(
+                "-",
+                "",
+                "",
+                CountablePlain("", ""),
+                discoveries=AppDiscovery(_discovery),
+            )
 
         sut = ServiceLevelPluginRepositoryProvider(temporary_app)
         await sut.plugins(_PluginDefinition)
