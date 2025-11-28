@@ -13,8 +13,8 @@ from betty.ancestry.media_type import HasMediaType
 from betty.locale.localizable import (
     Localizable,
     LocalizableLike,
+    RequiredLocalizableAttr,
     _,
-    ensure_localizable,
     ngettext,
 )
 from betty.locale.localizable.linked_data import dump_linked_data
@@ -40,6 +40,11 @@ if TYPE_CHECKING:
 class Note(HasPrivacy, HasLinks, HasMediaType):
     """
     A note is a bit of textual information that can be associated with another entity.
+    """
+
+    text = RequiredLocalizableAttr("text")
+    """
+    The note text.
     """
 
     entity = BidirectionalToZeroOrOne["Note", "HasNotes"](
@@ -70,7 +75,7 @@ class Note(HasPrivacy, HasLinks, HasMediaType):
             public=public,
             private=private,
         )
-        self.text = ensure_localizable(text)
+        self.text = text
         if entity is not None:
             self.entity = entity
 
