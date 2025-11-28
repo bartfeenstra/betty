@@ -27,14 +27,20 @@ from betty.config.factory import ConfigurationDependentSelfFactory
 from betty.exception import HumanFacingException
 from betty.importlib import fully_qualified_name
 from betty.locale.localizable import (
+    CountableLocalizableLike,
     LocalizableLike,
     OptionalLocalizableAttr,
+    RequiredCountableLocalizableAttr,
     RequiredLocalizableAttr,
     _,
+    ensure_countable_localizable,
     ensure_localizable,
 )
-from betty.locale.localizable.assertion import assert_load_localizable
-from betty.locale.localizable.config import dump_localizable
+from betty.locale.localizable.assertion import (
+    assert_load_countable_localizable,
+    assert_load_localizable,
+)
+from betty.locale.localizable.config import dump_countable_localizable, dump_localizable
 from betty.machine_name import MachineName, assert_machine_name
 from betty.plugin import Plugin, PluginDefinition
 from betty.plugin.resolve import ResolvableId, resolve_id
@@ -148,6 +154,55 @@ class HumanFacingPluginDefinitionConfiguration(PluginDefinitionConfiguration):
         dump["label"] = dump_localizable(self.label)
         if self.description is not None:
             dump["description"] = dump_localizable(self.description)
+        return dump
+
+
+class CountableHumanFacingPluginDefinitionConfiguration(
+    HumanFacingPluginDefinitionConfiguration
+):
+    """
+    Configure a :py:class:`betty.plugin.human_facing.CountableHumanFacingPluginDefinition`.
+    """
+
+    label_plural = RequiredLocalizableAttr("label_plural")
+    label_countable = RequiredCountableLocalizableAttr("label_countable")
+
+    def __init__(
+        self,
+        *,
+        label_plural: LocalizableLike,
+        label_countable: CountableLocalizableLike,
+        **kwargs: Any,
+    ):
+        super().__init__(**kwargs)
+        self.label_plural = ensure_localizable(label_plural)
+        self.label_countable = ensure_countable_localizable(label_countable)
+
+    @override
+    def load(self, dump: Dump, /) -> None:
+        self.assert_mutable()
+
+        mapping = assert_mapping()(dump)
+        assert_fields(
+            RequiredField(
+                "label_plural",
+                assert_load_localizable | assert_setattr(self, "label_plural"),
+            ),
+            OptionalField(
+                "label_countable",
+                assert_load_countable_localizable
+                | assert_setattr(self, "label_countable"),
+            ),
+        )(mapping)
+        mapping.pop("label_plural", None)
+        mapping.pop("label_countable", None)
+        super().load(mapping)
+
+    @override
+    def dump(self) -> DumpMapping[Dump]:
+        dump = super().dump()
+        dump["label_plural"] = dump_localizable(self.label_plural)
+        dump["label_countable"] = dump_countable_localizable(self.label_countable)
         return dump
 
 

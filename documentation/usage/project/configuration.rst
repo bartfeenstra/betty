@@ -40,6 +40,11 @@ structure. Example configuration:
           presence_roles:
             astronaut:
               label: Astronaut
+              label_plural: Astronauts
+              label_countable:
+                en-US:
+                  one: "{count} astronaut"
+                  other: "{count} astronauts"
           extensions: {}
 
    .. tab-item:: JSON
@@ -89,7 +94,14 @@ structure. Example configuration:
             },
             "presence_roles": {
               "astronaut": {
-                "label": "Astronaut"
+                "label": "Astronaut",
+                "label_plural": "Astronauts",
+                "label_countable": {
+                  "en-US": {
+                    "one": "{count} astronaut",
+                    "other": "{count} astronauts"
+                  }
+                }
               }
             },
             "extensions": {}

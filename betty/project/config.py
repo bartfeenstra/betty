@@ -52,6 +52,7 @@ from betty.locale.localizable.config import dump_localizable
 from betty.machine_name import MachineName, assert_machine_name
 from betty.model import Entity, EntityPlugin
 from betty.plugin.config import (
+    CountableHumanFacingPluginDefinitionConfiguration,
     HumanFacingPluginDefinitionConfiguration,
     PluginDefinitionConfigurationMapping,
     PluginIdentifierKeyConfigurationMapping,
@@ -63,6 +64,7 @@ from betty.plugin.repository.provider.service import plugins
 from betty.plugin.resolve import ResolvableId, resolve_id
 from betty.project.extension import Extension, ExtensionPlugin
 from betty.serde.format import FormatPlugin, format_for
+from betty.test_utils.locale.localizable import DUMMY_COUNTABLE_LOCALIZABLE
 
 if TYPE_CHECKING:
     from pathlib import Path
@@ -554,7 +556,9 @@ class PlaceTypePluginConfigurationMapping(
         return _ProjectConfigurationPlaceType.plugin
 
 
-class PresenceRolePluginConfiguration(HumanFacingPluginDefinitionConfiguration):
+class PresenceRolePluginConfiguration(
+    CountableHumanFacingPluginDefinitionConfiguration
+):
     """
     Configure a :py:class:`betty.ancestry.presence_role.PresenceRolePlugin`.
     """
@@ -571,7 +575,12 @@ class PresenceRolePluginConfigurationMapping(
 
     @override
     def _load_item(self, dump: Dump, /) -> PresenceRolePluginConfiguration:
-        item = PresenceRolePluginConfiguration(id="-", label="-")
+        item = PresenceRolePluginConfiguration(
+            id="-",
+            label="-",
+            label_plural="-",
+            label_countable=DUMMY_COUNTABLE_LOCALIZABLE,
+        )
         item.load(dump)
         return item
 
@@ -582,6 +591,8 @@ class PresenceRolePluginConfigurationMapping(
         @PresenceRolePlugin(
             configuration.id,
             label=configuration.label,
+            label_plural=configuration.label_plural,
+            label_countable=configuration.label_countable,
             description=configuration.description,
         )
         class _ProjectConfigurationPresenceRole(PresenceRole):

@@ -10,7 +10,7 @@ from betty.locale.localizable import _, ngettext
 from betty.plugin import Plugin, PluginTypeDefinition
 from betty.plugin.discovery.entry_point import EntryPointDiscovery
 from betty.plugin.discovery.project import ProjectDiscovery
-from betty.plugin.human_facing import HumanFacingPluginDefinition
+from betty.plugin.human_facing import CountableHumanFacingPluginDefinition
 
 
 class PresenceRole(Plugin):
@@ -24,7 +24,7 @@ class PresenceRole(Plugin):
 
 
 @final
-class PresenceRolePlugin(HumanFacingPluginDefinition[PresenceRole]):
+class PresenceRolePlugin(CountableHumanFacingPluginDefinition[PresenceRole]):
     """
     A presence role definition.
 

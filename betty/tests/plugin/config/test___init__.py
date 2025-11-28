@@ -11,6 +11,7 @@ from betty.locale.localizable import StaticTranslations
 from betty.locale.localizer import DEFAULT_LOCALIZER
 from betty.machine_name import MachineName
 from betty.plugin.config import (
+    CountableHumanFacingPluginDefinitionConfiguration,
     HumanFacingPluginDefinitionConfiguration,
     PluginDefinitionConfiguration,
     PluginIdentifierKeyConfigurationMapping,
@@ -29,7 +30,10 @@ from betty.test_utils.config.collections import (
 )
 from betty.test_utils.config.collections.mapping import ConfigurationMappingTestBase
 from betty.test_utils.config.collections.sequence import ConfigurationSequenceTestBase
-from betty.test_utils.locale.localizable import DUMMY_LOCALIZABLE
+from betty.test_utils.locale.localizable import (
+    DUMMY_COUNTABLE_LOCALIZABLE,
+    DUMMY_LOCALIZABLE,
+)
 from betty.test_utils.plugin import (
     DummyPlugin,
     DummyPluginDefinition,
@@ -168,6 +172,67 @@ class TestHumanFacingPluginDefinitionConfiguration:
             id="hello-world", label=DUMMY_LOCALIZABLE, description=description
         )
         assert sut.description is description
+
+
+class TestCountableHumanFacingPluginDefinitionConfiguration:
+    async def test_load__with_undetermined_label(self) -> None:
+        label_plural = "Hello, world!"
+        label_countable = {
+            DEFAULT_LOCALE_TAG: {
+                "one": "{count} world",
+                "other": "{count} worlds",
+            }
+        }
+        dump: Dump = {
+            "id": "hello-world",
+            "label": "-",
+            "label_plural": label_plural,
+            "label_countable": label_countable,  # type: ignore[dict-item]
+        }
+        sut = CountableHumanFacingPluginDefinitionConfiguration(
+            id="-",
+            label=DUMMY_LOCALIZABLE,
+            label_plural=label_plural,
+            label_countable=label_countable,
+        )
+        sut.load(dump)
+        assert sut.dump() == dump
+
+    async def test_dump__with_undetermined_label(self) -> None:
+        label_plural = "Hello, world!"
+        label_countable = {
+            DEFAULT_LOCALE_TAG: {
+                "one": "{count} world",
+                "other": "{count} worlds",
+            }
+        }
+        sut = CountableHumanFacingPluginDefinitionConfiguration(
+            id="-",
+            label="-",
+            label_plural=label_plural,
+            label_countable=label_countable,
+        )
+        dump = sut.dump()
+        assert isinstance(dump, dict)
+        assert dump["label_plural"] == label_plural
+        assert dump["label_countable"] == label_countable
+
+    async def test_label_plural(self) -> None:
+        label_plural = DUMMY_LOCALIZABLE
+        sut = CountableHumanFacingPluginDefinitionConfiguration(
+            id="-",
+            label="-",
+            label_plural=label_plural,
+            label_countable=DUMMY_COUNTABLE_LOCALIZABLE,
+        )
+        assert sut.label_plural is label_plural
+
+    async def test_label_countable(self) -> None:
+        label_countable = DUMMY_COUNTABLE_LOCALIZABLE
+        sut = CountableHumanFacingPluginDefinitionConfiguration(
+            id="-", label="-", label_plural="-", label_countable=label_countable
+        )
+        assert sut.label_countable is label_countable
 
 
 class TestPluginInstanceConfiguration:
