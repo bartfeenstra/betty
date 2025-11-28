@@ -112,6 +112,7 @@ class Wiki(
             await self._project.localizers,
             await self.client,
             self._wikipedia_contributors_copyright_notice,
+            user=self._project.app.user,
         )
 
     @override
