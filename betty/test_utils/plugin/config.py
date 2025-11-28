@@ -9,6 +9,7 @@ from typing import TYPE_CHECKING, ClassVar, Generic, Self, TypeVar, cast, final
 from typing_extensions import override
 
 from betty.config.factory import ConfigurationDependentSelfFactory
+from betty.locale.localizable import CountablePlain
 from betty.machine_name import MachineName
 from betty.plugin import Plugin, PluginDefinition, PluginTypeDefinition
 from betty.plugin.config import (
@@ -105,6 +106,10 @@ class ConfigurableDummyPluginDefinition(PluginDefinition):
     type = PluginTypeDefinition(
         "configurable-dummy-plugin",
         "Configurable dummy plugin",
+        "Configurable dummy plugins",
+        CountablePlain(
+            "{count} configurable dummy plugin", "{count} configurable dummy plugins"
+        ),
         discoveries=CallbackDiscovery(
             lambda: [
                 ConfigurableDummyPluginOne.plugin,

@@ -18,6 +18,7 @@ from betty.locale.localizable import (
     Localizable,
     LocalizableLike,
     _,
+    ngettext,
 )
 from betty.locale.localizer import DEFAULT_LOCALIZER
 from betty.mutability import Mutable
@@ -151,6 +152,8 @@ class EntityPlugin(CountableHumanFacingPluginDefinition[Entity]):
     type = PluginTypeDefinition(
         "entity",
         _("Entity"),
+        _("Entities"),
+        ngettext("{count} entity", "{count} entities"),
         discoveries=EntryPointDiscovery("betty.entity_type"),
     )
 

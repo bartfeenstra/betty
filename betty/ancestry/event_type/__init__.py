@@ -7,7 +7,7 @@ from __future__ import annotations
 from abc import ABC, abstractmethod
 from typing import TYPE_CHECKING, ClassVar, final
 
-from betty.locale.localizable import LocalizableLike, _
+from betty.locale.localizable import LocalizableLike, _, ngettext
 from betty.plugin import Plugin, PluginTypeDefinition
 from betty.plugin.discovery.entry_point import EntryPointDiscovery
 from betty.plugin.discovery.project import ProjectDiscovery
@@ -58,6 +58,8 @@ class EventTypePlugin(
     type = PluginTypeDefinition(
         "event-type",
         _("Event type"),
+        _("Event types"),
+        ngettext("{count} event type", "{count} event types"),
         discoveries=[
             EntryPointDiscovery("betty.event_type"),
             ProjectDiscovery(

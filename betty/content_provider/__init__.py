@@ -7,7 +7,7 @@ from __future__ import annotations
 from abc import ABC, abstractmethod
 from typing import TYPE_CHECKING, final
 
-from betty.locale.localizable import _
+from betty.locale.localizable import _, ngettext
 from betty.plugin import Plugin, PluginTypeDefinition
 from betty.plugin.discovery.entry_point import EntryPointDiscovery
 from betty.plugin.human_facing import HumanFacingPluginDefinition
@@ -38,5 +38,7 @@ class ContentProviderPlugin(HumanFacingPluginDefinition[ContentProvider]):
     type = PluginTypeDefinition(
         "content-provider",
         _("Content provider"),
+        _("Content providers"),
+        ngettext("{count} content provider", "{count} content providers"),
         discoveries=EntryPointDiscovery("betty.content_provider"),
     )

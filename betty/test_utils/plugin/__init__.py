@@ -8,6 +8,7 @@ from typing import ClassVar, final
 
 import pytest
 
+from betty.locale.localizable import CountablePlain
 from betty.locale.localizer import DEFAULT_LOCALIZER
 from betty.machine_name import assert_machine_name
 from betty.plugin import Plugin, PluginDefinition, PluginTypeDefinition
@@ -93,6 +94,8 @@ class DummyPluginDefinition(PluginDefinition[DummyPlugin]):
     type = PluginTypeDefinition(
         "dummy-plugin",
         " dummy plugin",
+        " dummy plugin",
+        CountablePlain("{count} dummy plugin", "{count} dummy plugins"),
         discoveries=CallbackDiscovery(
             lambda: [
                 DummyPluginOne.plugin,

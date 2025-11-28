@@ -22,7 +22,9 @@ class TestHumanFacingPluginDefinition:
         plugin_type_label = "My First Plugin Type"
 
         class _HumanFacingPluginDefinition(HumanFacingPluginDefinition):
-            type = PluginTypeDefinition("-", label=plugin_type_label)
+            type = PluginTypeDefinition(
+                "-", plugin_type_label, "", CountablePlain("", "")
+            )
 
         id = "my-first-plugin"  # noqa A001
         plugin_label = "My First Plugin"

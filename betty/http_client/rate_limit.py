@@ -8,7 +8,7 @@ from abc import abstractmethod
 from typing import TYPE_CHECKING, final
 
 from betty.concurrent import AsynchronizedLock, RateLimiter
-from betty.locale.localizable import _
+from betty.locale.localizable import _, ngettext
 from betty.plugin import Plugin, PluginTypeDefinition
 from betty.plugin.discovery.entry_point import EntryPointDiscovery
 from betty.plugin.ordered import OrderedPluginDefinition
@@ -97,5 +97,7 @@ class RateLimitPlugin(OrderedPluginDefinition[RateLimit]):
     type = PluginTypeDefinition(
         "http-rate-limit",
         _("HTTP client rate limit"),
+        _("HTTP client rate limits"),
+        ngettext("{count} HTTP client rate limit", "{count} HTTP client rate limits"),
         discoveries=EntryPointDiscovery("betty.http_rate_limit"),
     )

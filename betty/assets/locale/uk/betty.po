@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Betty 0.4\n"
 "Report-Msgid-Bugs-To: illia@maier.page\n"
-"POT-Creation-Date: 2025-11-28 02:50+0000\n"
+"POT-Creation-Date: 2025-11-28 13:13+0000\n"
 "PO-Revision-Date: 2025-05-13 17:01+0000\n"
 "Last-Translator: Максим Горпиніч <maksimgorpinic4@gmail.com>\n"
 "Language: uk\n"
@@ -59,9 +59,6 @@ msgstr "%(event)s %(subjects)s"
 #, python-format
 msgid "%(event)s with %(subjects)s"
 msgstr "%(event)s з %(subjects)s"
-
-msgid "(De)serialization format"
-msgstr ""
 
 msgid "A Betty demonstration"
 msgstr ""
@@ -315,6 +312,9 @@ msgstr ""
 msgid "Command"
 msgstr ""
 
+msgid "Commands"
+msgstr ""
+
 msgid "Conference"
 msgstr "Конференція"
 
@@ -328,6 +328,9 @@ msgid "Confirmation"
 msgstr "Миропомазання"
 
 msgid "Content provider"
+msgstr ""
+
+msgid "Content providers"
 msgstr ""
 
 #, python-format
@@ -348,6 +351,9 @@ msgid "Copyright Wikipedia contributors"
 msgstr "Авторське право належить учасникам Wikipedia"
 
 msgid "Copyright notice"
+msgstr ""
+
+msgid "Copyright notices"
 msgstr ""
 
 msgid ""
@@ -494,6 +500,9 @@ msgstr "Заручини"
 msgid "Enrich your ancestry with information from Wikipedia and Wikimedia Commons"
 msgstr ""
 
+msgid "Entities"
+msgstr ""
+
 msgid "Entity"
 msgstr ""
 
@@ -504,6 +513,9 @@ msgid "Event"
 msgstr "Подія"
 
 msgid "Event type"
+msgstr ""
+
+msgid "Event types"
 msgstr ""
 
 msgid "Events"
@@ -517,6 +529,9 @@ msgid "Explore a demonstration site"
 msgstr "Ознайомтеся з демонстраційним сайтом"
 
 msgid "Extension"
+msgstr ""
+
+msgid "Extensions"
 msgstr ""
 
 msgid "External links"
@@ -576,6 +591,9 @@ msgstr ""
 msgid "Gender"
 msgstr ""
 
+msgid "Genders"
+msgstr ""
+
 msgid "Generate a static site"
 msgstr "Згенерувати статичний сайт"
 
@@ -601,6 +619,9 @@ msgid ""
 msgstr ""
 
 msgid "HTTP client rate limit"
+msgstr ""
+
+msgid "HTTP client rate limits"
 msgstr ""
 
 #, python-brace-format
@@ -678,6 +699,9 @@ msgstr ""
 
 msgid "License"
 msgstr "Ліцензія"
+
+msgid "Licenses"
+msgstr ""
 
 msgid "Link"
 msgstr ""
@@ -886,6 +910,9 @@ msgstr "Місце"
 msgid "Place type"
 msgstr ""
 
+msgid "Place types"
+msgstr ""
+
 msgid "Places"
 msgstr "Місця"
 
@@ -910,6 +937,9 @@ msgid "Presence of {person} at {event}"
 msgstr "Присутність {person} на {event}"
 
 msgid "Presence role"
+msgstr ""
+
+msgid "Presence roles"
 msgstr ""
 
 msgid "Presences"
@@ -995,6 +1025,9 @@ msgstr "Регіон"
 msgid "Renderer"
 msgstr ""
 
+msgid "Renderers"
+msgstr ""
+
 msgid "Reset"
 msgstr "Скинути"
 
@@ -1020,6 +1053,12 @@ msgid "Search"
 msgstr "Пошук"
 
 msgid "Section"
+msgstr ""
+
+msgid "Serialization format"
+msgstr ""
+
+msgid "Serialization formats"
 msgstr ""
 
 msgid "Serve a generated site"
@@ -1512,11 +1551,39 @@ msgid "y"
 msgstr "y року"
 
 #, python-brace-format
+msgid "{count} HTTP client rate limit"
+msgid_plural "{count} HTTP client rate limits"
+msgstr[0] ""
+msgstr[1] ""
+msgstr[2] ""
+
+#, python-brace-format
 msgid "{count} citation"
 msgid_plural "{count} citations"
 msgstr[0] "{count} цитата"
 msgstr[1] "{count} цитати"
 msgstr[2] "{count} цитаті"
+
+#, python-brace-format
+msgid "{count} command"
+msgid_plural "{count} commands"
+msgstr[0] ""
+msgstr[1] ""
+msgstr[2] ""
+
+#, python-brace-format
+msgid "{count} content provider"
+msgid_plural "{count} content providers"
+msgstr[0] ""
+msgstr[1] ""
+msgstr[2] ""
+
+#, python-brace-format
+msgid "{count} copyright notice"
+msgid_plural "{count} copyright notices"
+msgstr[0] ""
+msgstr[1] ""
+msgstr[2] ""
 
 #, python-brace-format
 msgid "{count} enclosure"
@@ -1526,11 +1593,32 @@ msgstr[1] "{count} корпуси"
 msgstr[2] "{count} корпуси"
 
 #, python-brace-format
+msgid "{count} entity"
+msgid_plural "{count} entities"
+msgstr[0] ""
+msgstr[1] ""
+msgstr[2] ""
+
+#, python-brace-format
 msgid "{count} event"
 msgid_plural "{count} events"
 msgstr[0] "{count} подія"
 msgstr[1] "{count} події"
 msgstr[2] "{count} події"
+
+#, python-brace-format
+msgid "{count} event type"
+msgid_plural "{count} event types"
+msgstr[0] ""
+msgstr[1] ""
+msgstr[2] ""
+
+#, python-brace-format
+msgid "{count} extension"
+msgid_plural "{count} extensions"
+msgstr[0] ""
+msgstr[1] ""
+msgstr[2] ""
 
 #, python-brace-format
 msgid "{count} file"
@@ -1545,6 +1633,20 @@ msgid_plural "{count} file references"
 msgstr[0] "{count} посилання на файл"
 msgstr[1] "{count} посилання на файли"
 msgstr[2] "{count} посилання на файлів"
+
+#, python-brace-format
+msgid "{count} gender"
+msgid_plural "{count} genders"
+msgstr[0] ""
+msgstr[1] ""
+msgstr[2] ""
+
+#, python-brace-format
+msgid "{count} license"
+msgid_plural "{count} licenses"
+msgstr[0] ""
+msgstr[1] ""
+msgstr[2] ""
 
 #, python-brace-format
 msgid "{count} link"
@@ -1582,11 +1684,39 @@ msgstr[1] "{count} місць"
 msgstr[2] "{count} місць"
 
 #, python-brace-format
+msgid "{count} place type"
+msgid_plural "{count} place types"
+msgstr[0] ""
+msgstr[1] ""
+msgstr[2] ""
+
+#, python-brace-format
 msgid "{count} presence"
 msgid_plural "{count} presences"
 msgstr[0] "{count} присутні"
 msgstr[1] "{count} присутність"
 msgstr[2] "{count} присутність"
+
+#, python-brace-format
+msgid "{count} presence role"
+msgid_plural "{count} presence roles"
+msgstr[0] ""
+msgstr[1] ""
+msgstr[2] ""
+
+#, python-brace-format
+msgid "{count} renderer"
+msgid_plural "{count} renderers"
+msgstr[0] ""
+msgstr[1] ""
+msgstr[2] ""
+
+#, python-brace-format
+msgid "{count} serialization format"
+msgid_plural "{count} serialization formats"
+msgstr[0] ""
+msgstr[1] ""
+msgstr[2] ""
 
 #, python-brace-format
 msgid "{count} source"

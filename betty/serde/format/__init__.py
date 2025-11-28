@@ -10,7 +10,7 @@ from typing import TYPE_CHECKING, ClassVar, final
 from typing_extensions import override
 
 from betty.exception import HumanFacingException
-from betty.locale.localizable import Localizable, _
+from betty.locale.localizable import Localizable, _, ngettext
 from betty.locale.localized import Localized, LocalizedStr
 from betty.plugin import Plugin, PluginTypeDefinition
 from betty.plugin.discovery.entry_point import EntryPointDiscovery
@@ -33,7 +33,7 @@ class FormatError(HumanFacingException):
 
 class Format(Plugin, ABC):
     """
-    Defines a (de)serialization format.
+    Defines a serialization format.
     """
 
     plugin: ClassVar[FormatPlugin]
@@ -42,7 +42,7 @@ class Format(Plugin, ABC):
     @abstractmethod
     def media_type(cls) -> MediaType:
         """
-        The media type this format can (de)serialize.
+        The media type this format can serialize.
         """
 
     @abstractmethod
@@ -63,13 +63,15 @@ class Format(Plugin, ABC):
 @final
 class FormatPlugin(HumanFacingPluginDefinition[Format]):
     """
-    A (de)serialization format definition.
+    A serialization format definition.
     """
 
     plugin_type_cls = Format
     type = PluginTypeDefinition(
         "format",
-        _("(De)serialization format"),
+        _("Serialization format"),
+        _("Serialization formats"),
+        ngettext("{count} serialization format", "{count} serialization formats"),
         discoveries=EntryPointDiscovery("betty.serde_format"),
     )
 
@@ -77,7 +79,7 @@ class FormatPlugin(HumanFacingPluginDefinition[Format]):
 @final
 class FormatStr(Localizable):
     """
-    Localize and format a sequence of (de)serialization formats.
+    Localize and format a sequence of serialization formats.
     """
 
     def __init__(self, serde_formats: Sequence[FormatPlugin], /):
@@ -100,7 +102,7 @@ def format_for(
     available_formats: Sequence[FormatPlugin], extension: str, /
 ) -> FormatPlugin:
     """
-    Get the (de)serialization format for the given file extension.
+    Get the serialization format for the given file extension.
     """
     for available_format in available_formats:
         if extension in available_format.cls.media_type().extensions:
