@@ -5,7 +5,7 @@ Interact with the Wikipedia Query API.
 from __future__ import annotations
 
 from asyncio import to_thread
-from contextlib import contextmanager
+from contextlib import asynccontextmanager, contextmanager
 from dataclasses import dataclass
 from json import JSONDecodeError
 from pathlib import Path
@@ -17,13 +17,14 @@ from geopy import Point
 
 from betty.exception import HumanFacingException
 from betty.hashid import hashid
+from betty.locale.localizable import _
 from betty.media_type import MediaType
 from betty.typing import internal
 
 if TYPE_CHECKING:
-    from collections.abc import Iterator, Mapping, MutableMapping
+    from collections.abc import AsyncIterator, Iterator, Mapping, MutableMapping
 
-    from aiohttp import ClientSession
+    from aiohttp import ClientResponse, ClientSession
 
     from betty.user import User
 
@@ -91,12 +92,23 @@ class Client:
                 f"Could not successfully parse the JSON content returned by {url}: {error}"
             ) from error
 
-    async def _fetch_json(self, url: str, *selectors: str | int) -> Any:
-        response = await self._http_client.get(url)
-        try:
-            data = await response.json()
-        except JSONDecodeError as error:
-            raise ClientError(f"Invalid JSON returned by {url}: {error}") from error
+    @asynccontextmanager
+    async def _get(self, url: str) -> AsyncIterator[ClientResponse]:
+        async with self._http_client.get(url) as response:
+            if response.status != 200:
+                raise ClientError(
+                    _("HTTP {http_status_code} response returned by {url}").format(
+                        http_status_code=str(response.status), url=url
+                    )
+                )
+            yield response
+
+    async def _get_json(self, url: str, *selectors: str | int) -> Any:
+        async with self._get(url) as response:
+            try:
+                data = await response.json()
+            except JSONDecodeError as error:
+                raise ClientError(f"Invalid JSON returned by {url}: {error}") from error
 
         with self._catch_json_lookup_errors(url):
             for selector in selectors:
@@ -104,9 +116,7 @@ class Client:
         return data
 
     async def _get_query_api_data(self, url: str) -> Mapping[str, Any]:
-        return cast(
-            "Mapping[str, Any]", await self._fetch_json(url, "query", "pages", 0)
-        )
+        return cast("Mapping[str, Any]", await self._get_json(url, "query", "pages", 0))
 
     async def _get_page_query_api_data(
         self, page_language: str, page_name: str
@@ -136,7 +146,7 @@ class Client:
         Get a summary for a page.
         """
         url = f"https://{page_language}.wikipedia.org/api/rest_v1/page/summary/{page_name}"
-        api_data = await self._fetch_json(url)
+        api_data = await self._get_json(url)
         with self._catch_json_lookup_errors(url):
             title = api_data["titles"]["normalized"]
             extract = (
@@ -170,7 +180,8 @@ class Client:
 
         with self._catch_json_lookup_errors(url):
             image_info = image_info_api_data["imageinfo"][0]
-        image_response = await self._http_client.get(image_info["url"])
+        async with self._get(image_info["url"]) as image_response:
+            image_data = await image_response.read()
         image_path = (
             self._download_directory_path
             / "image"
@@ -179,7 +190,6 @@ class Client:
                 + Path(urlparse(image_info["url"]).path).suffix.lower()
             )
         )
-        image_data = await image_response.read()
         await to_thread(image_path.parent.mkdir, exist_ok=True, parents=True)
         async with aiofiles.open(image_path, mode="wb") as image_f:
             await image_f.write(image_data)

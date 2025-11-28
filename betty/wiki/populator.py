@@ -8,8 +8,6 @@ from asyncio import gather
 from collections import defaultdict
 from typing import TYPE_CHECKING
 
-from aiohttp import ClientError
-
 from betty.ancestry.file import File
 from betty.ancestry.file_reference import FileReference
 from betty.ancestry.has_file_references import HasFileReferences
@@ -22,8 +20,9 @@ from betty.locale import ensure_locale, negotiate_locale
 from betty.locale.error import LocaleError
 from betty.locale.localizable import StaticTranslations, _
 from betty.media_type.media_types import HTML
-from betty.typing import threadsafe
+from betty.typing import private, threadsafe
 from betty.wiki import NotAPageError, parse_page_link
+from betty.wiki.client import ClientError
 
 if TYPE_CHECKING:
     from collections.abc import Mapping, MutableMapping, Sequence
@@ -34,6 +33,7 @@ if TYPE_CHECKING:
     from betty.copyright_notice import CopyrightNotice
     from betty.locale.localizer import LocalizerRepository
     from betty.model import Entity
+    from betty.user import User
     from betty.wiki.client import Client, Image
 
 
@@ -43,6 +43,7 @@ class Populator:
     Populate an ancestry with information from Wikipedia and Wikimedia.
     """
 
+    @private
     def __init__(
         self,
         ancestry: Ancestry,
@@ -50,6 +51,8 @@ class Populator:
         localizers: LocalizerRepository,
         client: Client,
         copyright_notice: CopyrightNotice,
+        *,
+        user: User,
     ):
         self._ancestry = ancestry
         self._locales = locales
@@ -60,6 +63,7 @@ class Populator:
             AsynchronizedLock.new_threadsafe
         )
         self._copyright_notice = copyright_notice
+        self._user = user
 
     async def populate(self, entity: Entity) -> None:
         """
@@ -91,7 +95,8 @@ class Populator:
             page_translations = dict(
                 await self._client.get_translations(page_language, page_name)
             )
-        except ClientError:
+        except ClientError as error:
+            await self._user.message_warning(error)
             return
         if page_translations:
             # For convenience, we add the original page language and name to the available translations.
@@ -134,7 +139,11 @@ class Populator:
     async def _fetch_link_label_from_page(
         self, page_language: str, page_name: str
     ) -> str | None:
-        summary = await self._client.get_summary(page_language, page_name)
+        try:
+            summary = await self._client.get_summary(page_language, page_name)
+        except ClientError as error:
+            await self._user.message_warning(error)
+            return None
         return summary.title
 
     async def _populate_place(self, place: Place) -> None:
@@ -156,9 +165,13 @@ class Populator:
         except NotAPageError:
             return
         else:
-            coordinates = await self._client.get_place_coordinates(
-                page_language, page_name
-            )
+            try:
+                coordinates = await self._client.get_place_coordinates(
+                    page_language, page_name
+                )
+            except ClientError as error:
+                await self._user.message_warning(error)
+                return
             if coordinates:
                 place.coordinates = coordinates
 
@@ -184,7 +197,11 @@ class Populator:
         except NotAPageError:
             return
         else:
-            image = await self._client.get_image(page_language, page_name)
+            try:
+                image = await self._client.get_image(page_language, page_name)
+            except ClientError as error:
+                await self._user.message_warning(error)
+                return
             if not image:
                 return
             await self._image_file_reference(has_file_references, image)
