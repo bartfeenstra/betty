@@ -931,10 +931,30 @@ class TestPresenceRolePluginConfigurationMapping(
         PresenceRolePluginConfiguration
     ]:
         return (
-            PresenceRolePluginConfiguration(id="foo", label="Foo"),
-            PresenceRolePluginConfiguration(id="bar", label="Bar"),
-            PresenceRolePluginConfiguration(id="baz", label="Baz"),
-            PresenceRolePluginConfiguration(id="qux", label="Qux"),
+            PresenceRolePluginConfiguration(
+                id="foo",
+                label="Foo",
+                label_plural="Foo",
+                label_countable=DUMMY_COUNTABLE_LOCALIZABLE,
+            ),
+            PresenceRolePluginConfiguration(
+                id="bar",
+                label="Bar",
+                label_plural="Bar",
+                label_countable=DUMMY_COUNTABLE_LOCALIZABLE,
+            ),
+            PresenceRolePluginConfiguration(
+                id="baz",
+                label="Baz",
+                label_plural="Baz",
+                label_countable=DUMMY_COUNTABLE_LOCALIZABLE,
+            ),
+            PresenceRolePluginConfiguration(
+                id="qux",
+                label="Qux",
+                label_plural="Qux",
+                label_countable=DUMMY_COUNTABLE_LOCALIZABLE,
+            ),
         )
 
     @override
@@ -1370,7 +1390,32 @@ class TestProjectConfiguration:
         ("expected", "presence_roles_configuration"),
         [
             ({}, {}),
-            ({"foo": {"label": "Foo"}}, {"foo": {"label": "Foo"}}),
+            (
+                {
+                    "foo": {
+                        "label": "Foo",
+                        "label_countable": {
+                            "en-US": {
+                                "one": "{count} DUMMY_COUNTABLE_LOCALIZABLE",
+                                "other": "{count} DUMMY_COUNTABLE_LOCALIZABLES",
+                            },
+                        },
+                        "label_plural": "Foo",
+                    }
+                },
+                {
+                    "foo": {
+                        "label": "Foo",
+                        "label_countable": {
+                            "en-US": {
+                                "one": "{count} DUMMY_COUNTABLE_LOCALIZABLE",
+                                "other": "{count} DUMMY_COUNTABLE_LOCALIZABLES",
+                            },
+                        },
+                        "label_plural": "Foo",
+                    }
+                },
+            ),
         ],
     )
     async def test_load__should_load_presence_roles(
@@ -1548,12 +1593,24 @@ class TestProjectConfiguration:
     async def test_dump__should_dump_presence_roles(self, tmp_path: Path) -> None:
         sut = ProjectConfiguration(tmp_path / "betty.json")
         sut.presence_roles.append(
-            PresenceRolePluginConfiguration(id="foo", label="Foo")
+            PresenceRolePluginConfiguration(
+                id="foo",
+                label="Foo",
+                label_plural="Foo",
+                label_countable=DUMMY_COUNTABLE_LOCALIZABLE,
+            ),
         )
         dump = sut.dump()
         expected: DumpMapping[Dump] = {
             "foo": {
                 "label": "Foo",
+                "label_countable": {
+                    "en-US": {
+                        "one": "{count} DUMMY_COUNTABLE_LOCALIZABLE",
+                        "other": "{count} DUMMY_COUNTABLE_LOCALIZABLES",
+                    },
+                },
+                "label_plural": "Foo",
             }
         }
         assert dump["presence_roles"] == expected

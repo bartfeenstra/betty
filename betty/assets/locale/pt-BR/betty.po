@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Betty VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2025-12-05 20:48+0000\n"
+"POT-Creation-Date: 2025-12-05 21:26+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: Automatically generated\n"
 "Language: pt_BR\n"
@@ -133,6 +133,9 @@ msgstr ""
 msgid "Attendee"
 msgstr ""
 
+msgid "Attendees"
+msgstr ""
+
 msgid "Author"
 msgstr ""
 
@@ -146,6 +149,9 @@ msgid "Bart Feenstra and contributors"
 msgstr ""
 
 msgid "Bat mitzvah"
+msgstr ""
+
+msgid "Beneficiaries"
 msgstr ""
 
 msgid "Beneficiary"
@@ -249,6 +255,9 @@ msgid ""
 msgstr ""
 
 msgid "Celebrant"
+msgstr ""
+
+msgid "Celebrants"
 msgstr ""
 
 msgid "Cemetery"
@@ -607,6 +616,9 @@ msgstr ""
 msgid "Informant"
 msgstr ""
 
+msgid "Informants"
+msgstr ""
+
 #, python-brace-format
 msgid "Invalid JSON: {error}."
 msgstr ""
@@ -820,6 +832,9 @@ msgid "Options"
 msgstr ""
 
 msgid "Organizer"
+msgstr ""
+
+msgid "Organizers"
 msgstr ""
 
 msgid "Other attendees"
@@ -1048,6 +1063,9 @@ msgstr ""
 msgid "Speaker"
 msgstr ""
 
+msgid "Speakers"
+msgstr ""
+
 msgid "Start exploring..."
 msgstr ""
 
@@ -1253,6 +1271,9 @@ msgstr ""
 
 #, python-brace-format
 msgid "Unknown plugin \"{plugin_id}\"."
+msgstr ""
+
+msgid "Unknowns"
 msgstr ""
 
 #, python-brace-format
@@ -1489,6 +1510,24 @@ msgstr[0] ""
 msgstr[1] ""
 
 #, python-brace-format
+msgid "{count} attendee"
+msgid_plural "{count} attendees"
+msgstr[0] ""
+msgstr[1] ""
+
+#, python-brace-format
+msgid "{count} beneficiary"
+msgid_plural "{count} beneficiaries"
+msgstr[0] ""
+msgstr[1] ""
+
+#, python-brace-format
+msgid "{count} celebrant"
+msgid_plural "{count} celebrants"
+msgstr[0] ""
+msgstr[1] ""
+
+#, python-brace-format
 msgid "{count} citation"
 msgid_plural "{count} citations"
 msgstr[0] ""
@@ -1561,6 +1600,12 @@ msgstr[0] ""
 msgstr[1] ""
 
 #, python-brace-format
+msgid "{count} informant"
+msgid_plural "{count} informants"
+msgstr[0] ""
+msgstr[1] ""
+
+#, python-brace-format
 msgid "{count} license"
 msgid_plural "{count} licenses"
 msgstr[0] ""
@@ -1575,6 +1620,12 @@ msgstr[1] ""
 #, python-brace-format
 msgid "{count} note"
 msgid_plural "{count} notes"
+msgstr[0] ""
+msgstr[1] ""
+
+#, python-brace-format
+msgid "{count} organizer"
+msgid_plural "{count} organizers"
 msgstr[0] ""
 msgstr[1] ""
 
@@ -1629,6 +1680,30 @@ msgstr[1] ""
 #, python-brace-format
 msgid "{count} source"
 msgid_plural "{count} sources"
+msgstr[0] ""
+msgstr[1] ""
+
+#, python-brace-format
+msgid "{count} speaker"
+msgid_plural "{count} speakers"
+msgstr[0] ""
+msgstr[1] ""
+
+#, python-brace-format
+msgid "{count} subjects"
+msgid_plural "{count} subjects"
+msgstr[0] ""
+msgstr[1] ""
+
+#, python-brace-format
+msgid "{count} unknown"
+msgid_plural "{count} unknowns"
+msgstr[0] ""
+msgstr[1] ""
+
+#, python-brace-format
+msgid "{count} witness"
+msgid_plural "{count} witnesses"
 msgstr[0] ""
 msgstr[1] ""
 
