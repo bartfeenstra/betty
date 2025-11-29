@@ -7,10 +7,12 @@ import pytest
 from babel import Locale
 
 from betty.locale import (
+    DEFAULT_LOCALE,
     LocaleLike,
     ensure_locale,
     from_language_tag,
     negotiate_locale,
+    plural_tags,
     to_language_tag,
 )
 from betty.locale.error import InvalidLocale, UnknownLocale
@@ -118,3 +120,7 @@ def test_from_language_tag__with_unknown_locale() -> None:
 )
 def test_to_language_tag(expected: str, locale: Locale | None) -> None:
     assert to_language_tag(locale) == expected
+
+
+def test_plural_tags() -> None:
+    assert "other" in plural_tags(DEFAULT_LOCALE)

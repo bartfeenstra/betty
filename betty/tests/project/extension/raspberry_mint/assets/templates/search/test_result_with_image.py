@@ -11,8 +11,8 @@ from betty.model import EntityPlugin
 from betty.project.extension.raspberry_mint import RaspberryMint
 from betty.test_utils.jinja2 import assert_template_file
 from betty.test_utils.locale.localizable import (
+    DUMMY_COUNTABLE_LOCALIZABLE,
     DUMMY_LOCALIZABLE,
-    _DummyCountableLocalizable,
 )
 
 
@@ -20,7 +20,7 @@ from betty.test_utils.locale.localizable import (
     "dummy-has-file-references",
     label=DUMMY_LOCALIZABLE,
     label_plural=DUMMY_LOCALIZABLE,
-    label_countable=_DummyCountableLocalizable(),
+    label_countable=DUMMY_COUNTABLE_LOCALIZABLE,
 )
 class DummyEntityWithFileReferences(HasFileReferences):
     pass

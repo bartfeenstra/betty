@@ -8,7 +8,8 @@ from typing import final
 
 import pytest
 
-from betty.locale.localizable import CountablePlain
+from betty.locale import DEFAULT_LOCALE
+from betty.locale.localizable import CountableStaticTranslations
 from betty.locale.localizer import DEFAULT_LOCALIZER
 from betty.model import Entity, EntityPlugin
 from betty.test_utils.plugin.human_facing import (
@@ -46,7 +47,14 @@ class EntityPluginTestBase(CountableHumanFacingPluginDefinitionTestBase):
     "dummy-one",
     label="Dummy (one)",
     label_plural="Dummies (one)",
-    label_countable=CountablePlain("{count} dummy (one)", "{count} dummies (one)"),
+    label_countable=CountableStaticTranslations(
+        {
+            DEFAULT_LOCALE: {
+                "one": "{count} dummy (one)",
+                "other": "{count} dummies (one)",
+            }
+        }
+    ),
 )
 class DummyEntityOne(Entity):
     """
@@ -59,7 +67,14 @@ class DummyEntityOne(Entity):
     "dummy",
     label="Dummy (two)",
     label_plural="Dummies (two)",
-    label_countable=CountablePlain("{count} dummy (two)", "{count} dummies (two)"),
+    label_countable=CountableStaticTranslations(
+        {
+            DEFAULT_LOCALE: {
+                "one": "{count} dummy (two)",
+                "other": "{count} dummies (two)",
+            }
+        }
+    ),
 )
 class DummyEntityTwo(Entity):
     """
@@ -72,9 +87,13 @@ class DummyEntityTwo(Entity):
     "dummy-non-public-facing-one",
     label="Dummy non-public-facing (two)",
     label_plural="Dummies non-public-facing (two)",
-    label_countable=CountablePlain(
-        "{count} dummy non-public-facing (two)",
-        "{count} dummies non-public-facing (two)",
+    label_countable=CountableStaticTranslations(
+        {
+            DEFAULT_LOCALE: {
+                "one": "{count} dummy non-public-facing (one)",
+                "other": "{count} dummies non-public-facing (one)",
+            }
+        }
     ),
     public_facing=False,
 )

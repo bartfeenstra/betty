@@ -4,16 +4,12 @@ The localizable API allows objects to be localized at the point of use.
 
 from __future__ import annotations
 
+import decimal
 from abc import ABC, abstractmethod
-from collections.abc import (
-    Callable,
-    Iterable,
-    Mapping,
-    Sequence,
-)
-from contextlib import suppress
+from collections.abc import Iterable, Mapping, Sequence
 from textwrap import indent
 from typing import (
+    TYPE_CHECKING,
     Any,
     ClassVar,
     Generic,
@@ -29,11 +25,21 @@ from warnings import warn
 from babel import Locale
 from typing_extensions import override
 
-from betty.importlib import fully_qualified_name
-from betty.locale import LocaleLike, ensure_locale, negotiate_locale
+from betty.attr import OptionalAttr, RequiredAttr
+from betty.data import Key
+from betty.locale import (
+    LocaleLike,
+    ensure_locale,
+    negotiate_locale,
+    plural_tags,
+    to_language_tag,
+)
 from betty.locale.localized import Localized, LocalizedStr
 from betty.locale.localizer import DEFAULT_LOCALIZER, Localizer
 from betty.mutability import Mutable
+
+if TYPE_CHECKING:
+    from betty.exception import HumanFacingExceptionGroup
 
 _T = TypeVar("_T")
 
@@ -78,13 +84,21 @@ class Localizable(_Localizable["Localizable"]):
         return localized
 
 
+LocalizableCount: TypeAlias = int | float | decimal.Decimal
+"""
+A count to localize strings for.
+
+Based on :py:meth:`babel.plural.PluralRule.__call__`.
+"""
+
+
 class CountableLocalizable(_Localizable["CountableLocalizable"]):
     """
     An object that can be localized for a specific count (number of things).
     """
 
     @abstractmethod
-    def count(self, count: int, /) -> Localizable:
+    def count(self, count: LocalizableCount, /) -> Localizable:
         """
         Create a localizable for the given count (number of things).
 
@@ -143,7 +157,7 @@ class _CountableGettextLocalizable(CountableLocalizable):
         self._gettext_args = gettext_args
 
     @override
-    def count(self, count: int, /) -> Localizable:
+    def count(self, count: LocalizableCount, /) -> Localizable:
         return _GettextLocalizable(
             self._gettext_method_name, *self._gettext_args, count
         ).format(count=str(count))
@@ -293,7 +307,7 @@ class _FormattedCountableLocalizable(CountableLocalizable):
         self._format_kwargs = format_kwargs
 
     @override
-    def count(self, count: int, /) -> Localizable:
+    def count(self, count: LocalizableCount, /) -> Localizable:
         return _FormattedLocalizable(
             self._localizable.count(count),
             {**self._format_kwargs, "count": str(count)},
@@ -332,36 +346,153 @@ class Plain(Localizable):
         return LocalizedStr(self._text, locale=self._locale)
 
 
+CountableStaticTranslationsMapping: TypeAlias = Mapping[Locale, Mapping[str, str]]
+"""
+Countable static translations for :py:class:`betty.locale.localizable.CountableStaticTranslations`.
+
+Values are mappings of locales to mappings of CLDR plural tags to translations.
+
+See :py:func:`betty.locale.localizable.assertion.assert_countable_static_translations`.
+"""
+
+ShorthandCountableStaticTranslations: TypeAlias = Mapping[LocaleLike, Mapping[str, str]]
+"""
+Static translations for :py:class:`betty.locale.localizable.StaticTranslations`.
+
+Values are mappings of locales or language tags to mappings of CLDR plural tags to translations.
+
+See :py:func:`betty.locale.localizable.assertion.assert_static_translations`.
+"""
+
+
 @final
-class CountablePlain(CountableLocalizable):
+class CountableStaticTranslations(CountableLocalizable):
     """
-    Turn plain strings into a :py:class:`betty.locale.localizable.CountableLocalizable` without any actual translations.
+    A countable localizable backed by static translations.
     """
 
-    def _default_is_plural(self, count: int, /) -> bool:
-        # This mimics Python's built-in gettext module.
-        return count != 1
+    _translations: CountableStaticTranslationsMapping
 
-    def __init__(
+    def __init__(self, translations: ShorthandCountableStaticTranslations, /):
+        from betty.assertion import assert_len
+        from betty.exception import HumanFacingExceptionGroup
+
+        assert_len(minimum=1)(translations)
+        with HumanFacingExceptionGroup() as errors:
+            self._translations = {
+                self._ensure_locale(
+                    locale, locale_translations, errors
+                ): locale_translations
+                for locale, locale_translations in translations.items()
+            }
+
+    @property
+    def translations(self) -> CountableStaticTranslationsMapping:
+        """
+        The translations.
+        """
+        return dict(self._translations)
+
+    def _ensure_locale(
         self,
-        string_singular: str,
-        string_plural: str,
-        *,
-        locale: Locale | None = None,
-        is_plural: Callable[[int], bool] | None = None,
-    ):
-        self._string_singular = Plain(string_singular, locale)
-        self._string_plural = Plain(string_plural, locale)
-        self._is_plural = is_plural or self._default_is_plural
+        locale: LocaleLike,
+        translations: Mapping[str, str],
+        errors: HumanFacingExceptionGroup,
+    ) -> Locale:
+        from betty.assertion import assert_len
+
+        locale = ensure_locale(locale)
+        with errors.absorb(Key(to_language_tag(locale))):
+            for plural_tag, translation in translations.items():
+                plural_tag_key = Key(plural_tag)
+                with errors.absorb(plural_tag_key):
+                    assert_len(minimum=1)(translations)
+                with errors.absorb(plural_tag_key):
+                    if "{count}" not in translation:
+                        from betty.locale.localizable.error import (
+                            MissingPluralPlaceholder,
+                        )
+
+                        raise MissingPluralPlaceholder(
+                            Paragraphs(
+                                _(
+                                    "Missing `{{count}}` placeholder in {locale} plural translations"
+                                ).format(locale=to_language_tag(locale)),
+                                self._format_translations(translations),
+                            )
+                        )
+            provided_plural_tags = set(translations.keys())
+            locale_plural_tags = set(plural_tags(locale))
+            invalid_plural_tags = provided_plural_tags - locale_plural_tags
+            missing_plural_tags = locale_plural_tags - provided_plural_tags
+            if invalid_plural_tags:
+                from betty.locale.localizable.error import InvalidPluralTag
+
+                raise InvalidPluralTag(
+                    Paragraphs(
+                        _(
+                            "Invalid plural tag(s) {plural_tags} for {locale} translations."
+                        ).format(
+                            locale=to_language_tag(locale),
+                            plural_tags=AllEnumeration(
+                                *self._format_plural_tags(invalid_plural_tags)
+                            ),
+                        ),
+                        do_you_mean(*self._format_plural_tags(locale_plural_tags)),
+                        self._format_translations(translations),
+                        self._format_plural_rules_link(locale),
+                    )
+                )
+            if missing_plural_tags:
+                from betty.locale.localizable.error import MissingPluralTag
+
+                raise MissingPluralTag(
+                    Paragraphs(
+                        _(
+                            "Missing plural tag(s) {plural_tags} for {locale} translations."
+                        ).format(
+                            locale=to_language_tag(locale),
+                            plural_tags=AllEnumeration(
+                                *self._format_plural_tags(missing_plural_tags)
+                            ),
+                        ),
+                        self._format_translations(translations),
+                        self._format_plural_rules_link(locale),
+                    )
+                )
+            return locale
+
+    def _format_plural_tags(self, plural_tags: Iterable[str]) -> Iterable[str]:
+        return [f'"{plural_tag}"' for plural_tag in sorted(plural_tags)]
+
+    def _format_plural_rules_link(self, locale: Locale) -> Localizable:
+        return _("Read more at {url}").format(
+            url=f"https://www.unicode.org/cldr/charts/latest/supplemental/language_plural_rules.html#{locale}"
+        )
+
+    def _format_translations(self, translations: Mapping[str, str]) -> Localizable:
+        return UnorderedList(
+            *[
+                f"{plural_tag}: {translation}"
+                for plural_tag, translation in translations.items()
+            ]
+        )
 
     @override
-    def count(self, count: int, /) -> Localizable:
-        return self._string_plural if self._is_plural(count) else self._string_singular
+    def count(self, count: LocalizableCount, /) -> Localizable:
+        return StaticTranslations(
+            {
+                locale: self._translations[locale][locale.plural_form(count)]
+                for locale in self._translations
+            }
+        ).format(count=str(count))
 
 
 StaticTranslationsMapping: TypeAlias = Mapping[Locale | None, str]
 """
-Keys are locales, values are translations.
+Static translations for :py:class:`betty.locale.localizable.StaticTranslations`.
+
+Values are a string, or a mapping of locales to translations.
 
 See :py:func:`betty.locale.localizable.assertion.assert_static_translations`.
 """
@@ -369,7 +500,9 @@ See :py:func:`betty.locale.localizable.assertion.assert_static_translations`.
 
 ShorthandStaticTranslations: TypeAlias = Mapping[LocaleLike | None, str] | str
 """
-:py:const:`StaticTranslations` or a string which is the translation for the undetermined locale.
+Static translations for :py:class:`betty.locale.localizable.StaticTranslations`.
+
+Values are a string, or a mapping of locales or language tags to translations.
 
 See :py:func:`betty.locale.localizable.assertion.assert_static_translations`.
 """
@@ -378,7 +511,7 @@ See :py:func:`betty.locale.localizable.assertion.assert_static_translations`.
 @final
 class StaticTranslations(Mutable, Localizable):
     """
-    Provide a :py:class:`betty.locale.localizable.Localizable` backed by static translations.
+    A localizable backed by static translations.
     """
 
     _translations: StaticTranslationsMapping
@@ -612,6 +745,13 @@ LocalizableLike: TypeAlias = Localizable | ShorthandStaticTranslations
 A localizable, or a type that can be converted into a localizable with :py:func:`betty.locale.localizable.ensure_localizable`.
 """
 
+CountableLocalizableLike: TypeAlias = (
+    CountableLocalizable | ShorthandCountableStaticTranslations
+)
+"""
+A countable localizable, or a type that can be converted into a countable localizable with :py:func:`betty.locale.localizable.ensure_countable_localizable`.
+"""
+
 
 def ensure_localizable(localizable: LocalizableLike) -> Localizable:
     """
@@ -624,88 +764,55 @@ def ensure_localizable(localizable: LocalizableLike) -> Localizable:
     return StaticTranslations(localizable)
 
 
-_LocalizableAttrLocalizableT = TypeVar("_LocalizableAttrLocalizableT")
-
-
-class _LocalizableAttr(Generic[_LocalizableAttrLocalizableT]):
-    def __init__(self, attr_name: str, /):
-        self._attr_name = f"_{attr_name}"
-
-    def __set__(self, instance: object, localizable: LocalizableLike, /) -> None:
-        setattr(instance, self._attr_name, ensure_localizable(localizable))
-
-    @overload
-    def __get__(self, instance: None, owner: type[object], /) -> Self:
-        pass
-
-    @overload
-    def __get__(self, instance: _T, owner: type[_T], /) -> _LocalizableAttrLocalizableT:
-        pass
-
-    def __get__(
-        self, instance: object | None, owner: type[object], /
-    ) -> _LocalizableAttrLocalizableT | Self:
-        if instance is None:
-            return self  # type: ignore[return-value]
-        return self._check_get(instance, self._get(instance))
-
-    def _get(self, instance: object, /) -> Localizable | None:
-        return cast(Localizable | None, getattr(instance, self._attr_name, None))
-
-    @abstractmethod
-    def _check_get(
-        self, instance: object, localizable: Localizable | None, /
-    ) -> _LocalizableAttrLocalizableT:
-        pass
+def ensure_countable_localizable(
+    localizable: CountableLocalizableLike,
+) -> CountableLocalizable:
+    """
+    Ensure that a countable-localizable-like value is or is made to be an actual countable localizable.
+    """
+    if isinstance(localizable, CountableLocalizable):
+        return localizable
+    return CountableStaticTranslations(localizable)
 
 
 @final
-class RequiredLocalizableAttrNotInitialized(ValueError):
-    """
-    Raised when a class failed to initialize a value for its :py:class:`betty.locale.localizable.RequiredLocalizableAttr`.
-    """
-
-
-@final
-class RequiredLocalizableAttr(_LocalizableAttr[Localizable]):
+class RequiredLocalizableAttr(RequiredAttr[Localizable]):
     """
     An attribute for a required :py:class:`betty.locale.localizable.Localizable`.
     """
 
-    @override
-    def _check_get(
-        self, instance: object, localizable: Localizable | None, /
-    ) -> Localizable:
-        if localizable is None:
-            instance_name = fully_qualified_name(type(instance))
-            raise RequiredLocalizableAttrNotInitialized(
-                f"{instance_name}.{self._attr_name[1:]} was never initialized. {instance_name}.__init__() MUST set a value."
-            )
-        return localizable
+    def __set__(self, instance: object, value: LocalizableLike, /) -> None:
+        setattr(instance, self._attr_name, ensure_localizable(value))
 
 
 @final
-class OptionalLocalizableAttr(_LocalizableAttr[Localizable | None]):
+class OptionalLocalizableAttr(OptionalAttr[Localizable | None]):
     """
     An attribute for an optional :py:class:`betty.locale.localizable.Localizable`.
     """
 
-    @override
-    def _check_get(
-        self, instance: object, localizable: Localizable | None, /
-    ) -> Localizable | None:
-        return localizable
-
-    def _delete(self, instance: object, /) -> None:
-        with suppress(AttributeError):
-            delattr(instance, self._attr_name)
-
-    @override
     def __set__(self, instance: object, value: LocalizableLike | None, /) -> None:
-        if value is None:
-            self._delete(instance)
-        else:
-            super().__set__(instance, value)
+        setattr(
+            instance,
+            self._attr_name,
+            None if value is None else ensure_localizable(value),
+        )
 
     def __delete__(self, instance: object) -> None:
-        self._delete(instance)
+        setattr(instance, self._attr_name, None)
+
+
+@final
+class RequiredCountableLocalizableAttr(RequiredAttr[CountableLocalizable]):
+    """
+    An attribute for a required :py:class:`betty.locale.localizable.CountableLocalizable`.
+    """
+
+    def __set__(
+        self, instance: object, value: CountableLocalizableLike | None, /
+    ) -> None:
+        setattr(
+            instance,
+            self._attr_name,
+            None if value is None else ensure_countable_localizable(value),
+        )

@@ -8,11 +8,11 @@ from typing import ClassVar, final
 
 import pytest
 
-from betty.locale.localizable import CountablePlain
 from betty.locale.localizer import DEFAULT_LOCALIZER
 from betty.machine_name import assert_machine_name
 from betty.plugin import Plugin, PluginDefinition, PluginTypeDefinition
 from betty.plugin.discovery.callback import CallbackDiscovery
+from betty.test_utils.locale.localizable import DUMMY_COUNTABLE_LOCALIZABLE
 
 
 def _assert_cls_is_public(cls: type) -> None:
@@ -95,7 +95,7 @@ class DummyPluginDefinition(PluginDefinition[DummyPlugin]):
         "dummy-plugin",
         " dummy plugin",
         " dummy plugin",
-        CountablePlain("{count} dummy plugin", "{count} dummy plugins"),
+        DUMMY_COUNTABLE_LOCALIZABLE,
         discoveries=CallbackDiscovery(
             lambda: [
                 DummyPluginOne.plugin,

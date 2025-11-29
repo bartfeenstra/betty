@@ -1,8 +1,8 @@
 from betty.plugin import Plugin, PluginDefinition, PluginTypeDefinition
 from betty.plugin.resolve import resolve_definition, resolve_id
 from betty.test_utils.locale.localizable import (
+    DUMMY_COUNTABLE_LOCALIZABLE,
     DUMMY_LOCALIZABLE,
-    _DummyCountableLocalizable,
 )
 
 
@@ -15,7 +15,7 @@ def test_resolve_definition__with_plugin_cls() -> None:
     class _PluginDefinition(PluginDefinition):
         plugin_type_cls = _PluginCls
         type = PluginTypeDefinition(
-            "-", DUMMY_LOCALIZABLE, DUMMY_LOCALIZABLE, _DummyCountableLocalizable()
+            "-", DUMMY_LOCALIZABLE, DUMMY_LOCALIZABLE, DUMMY_COUNTABLE_LOCALIZABLE
         )
 
     @_PluginDefinition(plugin_id)
@@ -39,7 +39,7 @@ def test_resolve_id__with_plugin_cls() -> None:
     class _PluginDefinition(PluginDefinition):
         plugin_type_cls = _PluginCls
         type = PluginTypeDefinition(
-            "-", DUMMY_LOCALIZABLE, DUMMY_LOCALIZABLE, _DummyCountableLocalizable()
+            "-", DUMMY_LOCALIZABLE, DUMMY_LOCALIZABLE, DUMMY_COUNTABLE_LOCALIZABLE
         )
 
     @_PluginDefinition(plugin_id)

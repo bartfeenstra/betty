@@ -7,8 +7,8 @@ from betty.plugin.human_facing import (
     HumanFacingPluginDefinition,
 )
 from betty.test_utils.locale.localizable import (
+    DUMMY_COUNTABLE_LOCALIZABLE,
     DUMMY_LOCALIZABLE,
-    _DummyCountableLocalizable,
 )
 
 
@@ -26,7 +26,7 @@ class TestHumanFacingPluginDefinition:
 
         class _HumanFacingPluginDefinition(HumanFacingPluginDefinition):
             type = PluginTypeDefinition(
-                "-", plugin_type_label, DUMMY_LOCALIZABLE, _DummyCountableLocalizable()
+                "-", plugin_type_label, DUMMY_LOCALIZABLE, DUMMY_COUNTABLE_LOCALIZABLE
             )
 
         id = "my-first-plugin"  # noqa A001
@@ -56,13 +56,13 @@ class TestCountableHumanFacingPluginDefinition:
         sut = CountableHumanFacingPluginDefinition(
             "my-first-plugin",
             label_plural=label_plural,
-            label_countable=_DummyCountableLocalizable(),
+            label_countable=DUMMY_COUNTABLE_LOCALIZABLE,
             label=DUMMY_LOCALIZABLE,
         )
         assert sut.label_plural is label_plural
 
     def test_label_countable(self) -> None:
-        label_countable = _DummyCountableLocalizable()
+        label_countable = DUMMY_COUNTABLE_LOCALIZABLE
         sut = CountableHumanFacingPluginDefinition(
             "my-first-plugin",
             label_countable=label_countable,

@@ -11,8 +11,8 @@ from betty.model import (
 from betty.plugin import PluginDefinition
 from betty.test_utils.documentation import PluginDocumentationTestBase
 from betty.test_utils.locale.localizable import (
+    DUMMY_COUNTABLE_LOCALIZABLE,
     DUMMY_LOCALIZABLE,
-    _DummyCountableLocalizable,
 )
 from betty.test_utils.plugin import PluginDefinitionClassTestBase
 
@@ -29,7 +29,7 @@ class TestEntityPlugin(PluginDefinitionClassTestBase):
             public_facing=True,
             label=DUMMY_LOCALIZABLE,
             label_plural=DUMMY_LOCALIZABLE,
-            label_countable=_DummyCountableLocalizable(),
+            label_countable=DUMMY_COUNTABLE_LOCALIZABLE,
         )
         assert sut.public_facing
 

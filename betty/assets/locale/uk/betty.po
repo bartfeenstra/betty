@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Betty 0.4\n"
 "Report-Msgid-Bugs-To: illia@maier.page\n"
-"POT-Creation-Date: 2025-11-28 13:13+0000\n"
+"POT-Creation-Date: 2025-12-05 20:48+0000\n"
 "PO-Revision-Date: 2025-05-13 17:01+0000\n"
 "Last-Translator: Максим Горпиніч <maksimgorpinic4@gmail.com>\n"
 "Language: uk\n"
@@ -675,6 +675,10 @@ msgid "Invalid option {value}."
 msgstr ""
 
 #, python-brace-format
+msgid "Invalid plural tag(s) {plural_tags} for {locale} translations."
+msgstr ""
+
+#, python-brace-format
 msgid "Invalid region {invalid_region}."
 msgstr ""
 
@@ -798,6 +802,14 @@ msgstr "Меню"
 msgid "Missing"
 msgstr "Відсутній"
 
+#, python-brace-format
+msgid "Missing `{{count}}` placeholder in {locale} plural translations"
+msgstr ""
+
+#, python-brace-format
+msgid "Missing plural tag(s) {plural_tags} for {locale} translations."
+msgstr ""
+
 msgid "More plugins may be available when running this command with --project."
 msgstr ""
 
@@ -842,6 +854,12 @@ msgstr "Праця"
 
 msgid "One or more of these requirements must be met"
 msgstr "Потрібно виконати одну або кілька з цих вимог"
+
+#, python-brace-format
+msgid ""
+"Only countable static translations can be dumped to configuration, not "
+"`{localizable}` objects."
+msgstr ""
 
 #, python-brace-format
 msgid ""
@@ -1009,6 +1027,10 @@ msgstr ""
 
 msgid "Read more"
 msgstr "Читати далі"
+
+#, python-brace-format
+msgid "Read more at {url}"
+msgstr ""
 
 msgid "Read more on Wikipedia."
 msgstr "Детальніше читайте у Вікіпедії."

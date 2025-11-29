@@ -10,8 +10,8 @@ from betty.ancestry.source import Source
 from betty.model import EntityPlugin
 from betty.test_utils.json.linked_data import assert_dumps_linked_data
 from betty.test_utils.locale.localizable import (
+    DUMMY_COUNTABLE_LOCALIZABLE,
     DUMMY_LOCALIZABLE,
-    _DummyCountableLocalizable,
 )
 
 if TYPE_CHECKING:
@@ -23,7 +23,7 @@ if TYPE_CHECKING:
     "dummy-has-citations",
     label=DUMMY_LOCALIZABLE,
     label_plural=DUMMY_LOCALIZABLE,
-    label_countable=_DummyCountableLocalizable(),
+    label_countable=DUMMY_COUNTABLE_LOCALIZABLE,
 )
 class DummyHasCitations(HasCitations):
     pass

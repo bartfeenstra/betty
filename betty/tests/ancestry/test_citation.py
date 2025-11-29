@@ -15,8 +15,8 @@ from betty.model import Entity, EntityPlugin
 from betty.privacy import Privacy
 from betty.test_utils.json.linked_data import assert_dumps_linked_data
 from betty.test_utils.locale.localizable import (
+    DUMMY_COUNTABLE_LOCALIZABLE,
     DUMMY_LOCALIZABLE,
-    _DummyCountableLocalizable,
 )
 from betty.test_utils.model import EntityPluginTestBase, EntityTestBase
 
@@ -38,7 +38,7 @@ class TestCitationDefinition(EntityPluginTestBase):
     "dummy-has-citations",
     label=DUMMY_LOCALIZABLE,
     label_plural=DUMMY_LOCALIZABLE,
-    label_countable=_DummyCountableLocalizable(),
+    label_countable=DUMMY_COUNTABLE_LOCALIZABLE,
 )
 class DummyHasCitations(HasCitations):
     pass
