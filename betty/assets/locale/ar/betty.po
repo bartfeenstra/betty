@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Betty VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2025-11-28 13:13+0000\n"
+"POT-Creation-Date: 2025-12-05 20:48+0000\n"
 "PO-Revision-Date: 2024-11-30 19:00+0000\n"
 "Last-Translator: Bart Feenstra <bart@bartfeenstra.com>\n"
 "Language: ar\n"
@@ -626,6 +626,10 @@ msgid "Invalid option {value}."
 msgstr ""
 
 #, python-brace-format
+msgid "Invalid plural tag(s) {plural_tags} for {locale} translations."
+msgstr ""
+
+#, python-brace-format
 msgid "Invalid region {invalid_region}."
 msgstr ""
 
@@ -749,6 +753,14 @@ msgstr ""
 msgid "Missing"
 msgstr ""
 
+#, python-brace-format
+msgid "Missing `{{count}}` placeholder in {locale} plural translations"
+msgstr ""
+
+#, python-brace-format
+msgid "Missing plural tag(s) {plural_tags} for {locale} translations."
+msgstr ""
+
 msgid "More plugins may be available when running this command with --project."
 msgstr ""
 
@@ -789,6 +801,12 @@ msgid "Occupation"
 msgstr ""
 
 msgid "One or more of these requirements must be met"
+msgstr ""
+
+#, python-brace-format
+msgid ""
+"Only countable static translations can be dumped to configuration, not "
+"`{localizable}` objects."
 msgstr ""
 
 #, python-brace-format
@@ -952,6 +970,10 @@ msgid "Quitting..."
 msgstr ""
 
 msgid "Read more"
+msgstr ""
+
+#, python-brace-format
+msgid "Read more at {url}"
 msgstr ""
 
 msgid "Read more on Wikipedia."

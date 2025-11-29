@@ -86,6 +86,11 @@ _BASELINE: Mapping[str, _ModuleIgnore] = {
         "OptionalField": MissingReason.DATACLASS,
         "RequiredField": MissingReason.DATACLASS,
     },
+    "betty/attr.py": {
+        "AttrNotInitialized": MissingReason.STATIC_CONTENT_ONLY,
+        "OptionalAttr": MissingReason.SHOULD_BE_COVERED,
+        "RequiredAttr": MissingReason.SHOULD_BE_COVERED,
+    },
     "betty/cache/__init__.py": {
         "Cache": MissingReason.ABSTRACT,
         "CacheItem": MissingReason.SHOULD_BE_COVERED,
@@ -296,7 +301,11 @@ _BASELINE: Mapping[str, _ModuleIgnore] = {
         "ngettext": MissingReason.SHOULD_BE_COVERED,
         "npgettext": MissingReason.SHOULD_BE_COVERED,
         "pgettext": MissingReason.SHOULD_BE_COVERED,
-        "RequiredLocalizableAttrNotInitialized": MissingReason.STATIC_CONTENT_ONLY,
+    },
+    "betty/locale/localizable/error.py": {
+        "InvalidPluralTag": MissingReason.STATIC_CONTENT_ONLY,
+        "MissingPluralPlaceholder": MissingReason.STATIC_CONTENT_ONLY,
+        "MissingPluralTag": MissingReason.STATIC_CONTENT_ONLY,
     },
     "betty/media_type/__init__.py": {
         "InvalidMediaType": MissingReason.STATIC_CONTENT_ONLY,

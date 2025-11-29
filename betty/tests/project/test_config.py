@@ -51,8 +51,8 @@ from betty.test_utils.config.collections import (
 )
 from betty.test_utils.config.collections.mapping import ConfigurationMappingTestBase
 from betty.test_utils.locale.localizable import (
+    DUMMY_COUNTABLE_LOCALIZABLE,
     DUMMY_LOCALIZABLE,
-    _DummyCountableLocalizable,
 )
 from betty.test_utils.model import DummyEntityOne, DummyNonPublicFacingEntityOne
 from betty.test_utils.plugin.config import PluginDefinitionConfigurationMappingTestBase
@@ -440,7 +440,7 @@ class TestEntityTypeConfiguration:
     "zero",
     label=DUMMY_LOCALIZABLE,
     label_plural=DUMMY_LOCALIZABLE,
-    label_countable=_DummyCountableLocalizable(),
+    label_countable=DUMMY_COUNTABLE_LOCALIZABLE,
 )
 class EntityTypeConfigurationMappingTestEntity0(Entity):
     pass
@@ -450,7 +450,7 @@ class EntityTypeConfigurationMappingTestEntity0(Entity):
     "one",
     label=DUMMY_LOCALIZABLE,
     label_plural=DUMMY_LOCALIZABLE,
-    label_countable=_DummyCountableLocalizable(),
+    label_countable=DUMMY_COUNTABLE_LOCALIZABLE,
 )
 class EntityTypeConfigurationMappingTestEntity1(Entity):
     pass
@@ -460,7 +460,7 @@ class EntityTypeConfigurationMappingTestEntity1(Entity):
     "two",
     label=DUMMY_LOCALIZABLE,
     label_plural=DUMMY_LOCALIZABLE,
-    label_countable=_DummyCountableLocalizable(),
+    label_countable=DUMMY_COUNTABLE_LOCALIZABLE,
 )
 class EntityTypeConfigurationMappingTestEntity2(Entity):
     pass
@@ -470,7 +470,7 @@ class EntityTypeConfigurationMappingTestEntity2(Entity):
     "three",
     label=DUMMY_LOCALIZABLE,
     label_plural=DUMMY_LOCALIZABLE,
-    label_countable=_DummyCountableLocalizable(),
+    label_countable=DUMMY_COUNTABLE_LOCALIZABLE,
 )
 class EntityTypeConfigurationMappingTestEntity3(Entity):
     pass

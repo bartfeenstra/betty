@@ -12,8 +12,8 @@ from betty.media_type.media_types import HTML
 from betty.model import EntityPlugin
 from betty.test_utils.json.linked_data import assert_dumps_linked_data
 from betty.test_utils.locale.localizable import (
+    DUMMY_COUNTABLE_LOCALIZABLE,
     DUMMY_LOCALIZABLE,
-    _DummyCountableLocalizable,
 )
 from betty.test_utils.model import EntityPluginTestBase
 
@@ -29,7 +29,7 @@ import pytest
     "dummy-has-links",
     label=DUMMY_LOCALIZABLE,
     label_plural=DUMMY_LOCALIZABLE,
-    label_countable=_DummyCountableLocalizable(),
+    label_countable=DUMMY_COUNTABLE_LOCALIZABLE,
 )
 class DummyHasLinks(HasLinks):
     pass

@@ -9,8 +9,8 @@ from betty.plugin.repository.provider.service import (
     ServiceLevelPluginRepositoryProvider,
 )
 from betty.test_utils.locale.localizable import (
+    DUMMY_COUNTABLE_LOCALIZABLE,
     DUMMY_LOCALIZABLE,
-    _DummyCountableLocalizable,
 )
 from betty.test_utils.plugin import DummyPlugin, DummyPluginDefinition, DummyPluginOne
 
@@ -43,7 +43,7 @@ class TestServiceLevelPluginRepositoryProvider:
                 "-",
                 DUMMY_LOCALIZABLE,
                 DUMMY_LOCALIZABLE,
-                _DummyCountableLocalizable(),
+                DUMMY_COUNTABLE_LOCALIZABLE,
                 discoveries=AppDiscovery(_discovery),
             )
 

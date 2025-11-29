@@ -4,6 +4,7 @@ Provide the Locale API.
 
 from __future__ import annotations
 
+from collections.abc import Sequence
 from typing import TYPE_CHECKING, TypeAlias
 
 from babel import Locale
@@ -111,3 +112,13 @@ def negotiate_locale(
         ],
         available_locale_babel_identifiers,
     )
+
+
+def plural_tags(locale: Locale) -> Sequence[str]:
+    """
+    Get a locale's plural tags.
+    """
+    tags = list(locale.plural_form.tags)
+    if "other" not in tags:
+        tags.append("other")
+    return tags

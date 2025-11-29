@@ -5,7 +5,6 @@ from typing import TYPE_CHECKING, ClassVar
 import pytest
 from typing_extensions import override
 
-from betty.locale.localizable import CountablePlain
 from betty.locale.localizer import DEFAULT_LOCALIZER
 from betty.plugin import Plugin, PluginTypeDefinition
 from betty.plugin.dependent import DependentPluginDefinition
@@ -17,7 +16,10 @@ from betty.plugin.requirement import (
     new_dependencies_requirement,
 )
 from betty.requirement import HasRequirement, Requirement, StaticRequirement
-from betty.test_utils.locale.localizable import DUMMY_LOCALIZABLE
+from betty.test_utils.locale.localizable import (
+    DUMMY_COUNTABLE_LOCALIZABLE,
+    DUMMY_LOCALIZABLE,
+)
 from betty.test_utils.plugin import DummyPlugin, DummyPluginDefinition, DummyPluginOne
 
 if TYPE_CHECKING:
@@ -35,7 +37,7 @@ class HasRequirementPluginDefinition(DependentPluginDefinition):
         "-",
         "HasRequirement",
         "HasRequirement",
-        CountablePlain("{count} HasRequirement", "{count} HasRequirements"),
+        DUMMY_COUNTABLE_LOCALIZABLE,
     )
 
 

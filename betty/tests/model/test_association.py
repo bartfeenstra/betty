@@ -29,8 +29,8 @@ from betty.model.association import (
 from betty.project import Project
 from betty.test_utils.json.linked_data import assert_dumps_linked_data_for
 from betty.test_utils.locale.localizable import (
+    DUMMY_COUNTABLE_LOCALIZABLE,
     DUMMY_LOCALIZABLE,
-    _DummyCountableLocalizable,
 )
 
 if TYPE_CHECKING:
@@ -172,7 +172,7 @@ class TestUnidirectionalToZeroOrOne:
         "owner",
         label=DUMMY_LOCALIZABLE,
         label_plural=DUMMY_LOCALIZABLE,
-        label_countable=_DummyCountableLocalizable(),
+        label_countable=DUMMY_COUNTABLE_LOCALIZABLE,
     )
     class _Owner(Entity):
         def __init__(
@@ -197,7 +197,7 @@ class TestUnidirectionalToZeroOrOne:
         "owner-embedded",
         label=DUMMY_LOCALIZABLE,
         label_plural=DUMMY_LOCALIZABLE,
-        label_countable=_DummyCountableLocalizable(),
+        label_countable=DUMMY_COUNTABLE_LOCALIZABLE,
     )
     class _OwnerEmbedded(Entity):
         def __init__(
@@ -220,7 +220,7 @@ class TestUnidirectionalToZeroOrOne:
         "owner-with-non-public-facing-associate",
         label=DUMMY_LOCALIZABLE,
         label_plural=DUMMY_LOCALIZABLE,
-        label_countable=_DummyCountableLocalizable(),
+        label_countable=DUMMY_COUNTABLE_LOCALIZABLE,
     )
     class _OwnerWithNonPublicFacingAssociate(Entity):
         def __init__(
@@ -244,7 +244,7 @@ class TestUnidirectionalToZeroOrOne:
         "associate",
         label=DUMMY_LOCALIZABLE,
         label_plural=DUMMY_LOCALIZABLE,
-        label_countable=_DummyCountableLocalizable(),
+        label_countable=DUMMY_COUNTABLE_LOCALIZABLE,
     )
     class _Associate(Entity):
         pass
@@ -253,7 +253,7 @@ class TestUnidirectionalToZeroOrOne:
         "non-public-facing-associate",
         label=DUMMY_LOCALIZABLE,
         label_plural=DUMMY_LOCALIZABLE,
-        label_countable=_DummyCountableLocalizable(),
+        label_countable=DUMMY_COUNTABLE_LOCALIZABLE,
         public_facing=False,
     )
     class _NonPublicFacingAssociate(Entity):
@@ -368,7 +368,7 @@ class TestBidirectionalToZeroOrOne:
         "owner",
         label=DUMMY_LOCALIZABLE,
         label_plural=DUMMY_LOCALIZABLE,
-        label_countable=_DummyCountableLocalizable(),
+        label_countable=DUMMY_COUNTABLE_LOCALIZABLE,
     )
     class _Owner(Entity):
         def __init__(
@@ -394,7 +394,7 @@ class TestBidirectionalToZeroOrOne:
         "owner-embedded",
         label=DUMMY_LOCALIZABLE,
         label_plural=DUMMY_LOCALIZABLE,
-        label_countable=_DummyCountableLocalizable(),
+        label_countable=DUMMY_COUNTABLE_LOCALIZABLE,
     )
     class _OwnerEmbedded(Entity):
         def __init__(
@@ -419,7 +419,7 @@ class TestBidirectionalToZeroOrOne:
         "owner-with-non-public-facing-associate",
         label=DUMMY_LOCALIZABLE,
         label_plural=DUMMY_LOCALIZABLE,
-        label_countable=_DummyCountableLocalizable(),
+        label_countable=DUMMY_COUNTABLE_LOCALIZABLE,
     )
     class _OwnerWithNonPublicFacingAssociate(Entity):
         def __init__(
@@ -444,7 +444,7 @@ class TestBidirectionalToZeroOrOne:
         "associate",
         label=DUMMY_LOCALIZABLE,
         label_plural=DUMMY_LOCALIZABLE,
-        label_countable=_DummyCountableLocalizable(),
+        label_countable=DUMMY_COUNTABLE_LOCALIZABLE,
     )
     class _Associate(Entity):
         owner = BidirectionalToZeroOrOne[
@@ -461,7 +461,7 @@ class TestBidirectionalToZeroOrOne:
         "non-public-facing-associate",
         label=DUMMY_LOCALIZABLE,
         label_plural=DUMMY_LOCALIZABLE,
-        label_countable=_DummyCountableLocalizable(),
+        label_countable=DUMMY_COUNTABLE_LOCALIZABLE,
         public_facing=False,
     )
     class _NonPublicFacingAssociate(Entity):
@@ -590,7 +590,7 @@ class TestUnidirectionalToOne:
         "owner",
         label=DUMMY_LOCALIZABLE,
         label_plural=DUMMY_LOCALIZABLE,
-        label_countable=_DummyCountableLocalizable(),
+        label_countable=DUMMY_COUNTABLE_LOCALIZABLE,
     )
     class _Owner(Entity):
         def __init__(
@@ -611,7 +611,7 @@ class TestUnidirectionalToOne:
         "owner-embedded",
         label=DUMMY_LOCALIZABLE,
         label_plural=DUMMY_LOCALIZABLE,
-        label_countable=_DummyCountableLocalizable(),
+        label_countable=DUMMY_COUNTABLE_LOCALIZABLE,
     )
     class _OwnerEmbedded(Entity):
         def __init__(self, associate: TestUnidirectionalToOne._Associate):
@@ -632,7 +632,7 @@ class TestUnidirectionalToOne:
         "owner-with-non-public-facing-associate",
         label=DUMMY_LOCALIZABLE,
         label_plural=DUMMY_LOCALIZABLE,
-        label_countable=_DummyCountableLocalizable(),
+        label_countable=DUMMY_COUNTABLE_LOCALIZABLE,
     )
     class _OwnerWithNonPublicFacingAssociate(Entity):
         def __init__(
@@ -654,7 +654,7 @@ class TestUnidirectionalToOne:
         "associate",
         label=DUMMY_LOCALIZABLE,
         label_plural=DUMMY_LOCALIZABLE,
-        label_countable=_DummyCountableLocalizable(),
+        label_countable=DUMMY_COUNTABLE_LOCALIZABLE,
     )
     class _Associate(Entity):
         pass
@@ -663,7 +663,7 @@ class TestUnidirectionalToOne:
         "non-public-facing-associate",
         label=DUMMY_LOCALIZABLE,
         label_plural=DUMMY_LOCALIZABLE,
-        label_countable=_DummyCountableLocalizable(),
+        label_countable=DUMMY_COUNTABLE_LOCALIZABLE,
         public_facing=False,
     )
     class _NonPublicFacingAssociate(Entity):
@@ -739,7 +739,7 @@ class TestBidirectionalToOne:
         "owner",
         label=DUMMY_LOCALIZABLE,
         label_plural=DUMMY_LOCALIZABLE,
-        label_countable=_DummyCountableLocalizable(),
+        label_countable=DUMMY_COUNTABLE_LOCALIZABLE,
     )
     class _Owner(Entity):
         def __init__(
@@ -761,7 +761,7 @@ class TestBidirectionalToOne:
         "associate",
         label=DUMMY_LOCALIZABLE,
         label_plural=DUMMY_LOCALIZABLE,
-        label_countable=_DummyCountableLocalizable(),
+        label_countable=DUMMY_COUNTABLE_LOCALIZABLE,
     )
     class _Associate(Entity):
         owner = BidirectionalToZeroOrOne[
@@ -777,7 +777,7 @@ class TestBidirectionalToOne:
         "owner-embedded",
         label=DUMMY_LOCALIZABLE,
         label_plural=DUMMY_LOCALIZABLE,
-        label_countable=_DummyCountableLocalizable(),
+        label_countable=DUMMY_COUNTABLE_LOCALIZABLE,
     )
     class _OwnerEmbedded(Entity):
         def __init__(self, associate: TestBidirectionalToOne._AssociateEmbedded):
@@ -799,7 +799,7 @@ class TestBidirectionalToOne:
         "associate-embedded",
         label=DUMMY_LOCALIZABLE,
         label_plural=DUMMY_LOCALIZABLE,
-        label_countable=_DummyCountableLocalizable(),
+        label_countable=DUMMY_COUNTABLE_LOCALIZABLE,
     )
     class _AssociateEmbedded(Entity):
         owner = BidirectionalToZeroOrOne[
@@ -816,7 +816,7 @@ class TestBidirectionalToOne:
         "owner-with-non-public-facing-associate",
         label=DUMMY_LOCALIZABLE,
         label_plural=DUMMY_LOCALIZABLE,
-        label_countable=_DummyCountableLocalizable(),
+        label_countable=DUMMY_COUNTABLE_LOCALIZABLE,
     )
     class _OwnerWithNonPublicFacingAssociate(Entity):
         def __init__(self, associate: TestBidirectionalToOne._NonPublicFacingAssociate):
@@ -837,7 +837,7 @@ class TestBidirectionalToOne:
         "non-public-facing-associate",
         label=DUMMY_LOCALIZABLE,
         label_plural=DUMMY_LOCALIZABLE,
-        label_countable=_DummyCountableLocalizable(),
+        label_countable=DUMMY_COUNTABLE_LOCALIZABLE,
         public_facing=False,
     )
     class _NonPublicFacingAssociate(Entity):
@@ -923,7 +923,7 @@ class TestUnidirectionalToManySingleType:
         "owner",
         label=DUMMY_LOCALIZABLE,
         label_plural=DUMMY_LOCALIZABLE,
-        label_countable=_DummyCountableLocalizable(),
+        label_countable=DUMMY_COUNTABLE_LOCALIZABLE,
     )
     class _Owner(Entity):
         associates = UnidirectionalToManySingleType[
@@ -939,7 +939,7 @@ class TestUnidirectionalToManySingleType:
         "owner-embedded",
         label=DUMMY_LOCALIZABLE,
         label_plural=DUMMY_LOCALIZABLE,
-        label_countable=_DummyCountableLocalizable(),
+        label_countable=DUMMY_COUNTABLE_LOCALIZABLE,
     )
     class _OwnerEmbedded(Entity):
         associates = UnidirectionalToManySingleType[
@@ -956,7 +956,7 @@ class TestUnidirectionalToManySingleType:
         "associate",
         label=DUMMY_LOCALIZABLE,
         label_plural=DUMMY_LOCALIZABLE,
-        label_countable=_DummyCountableLocalizable(),
+        label_countable=DUMMY_COUNTABLE_LOCALIZABLE,
     )
     class _Associate(Entity):
         pass
@@ -965,7 +965,7 @@ class TestUnidirectionalToManySingleType:
         "non-public-facing-associate",
         label=DUMMY_LOCALIZABLE,
         label_plural=DUMMY_LOCALIZABLE,
-        label_countable=_DummyCountableLocalizable(),
+        label_countable=DUMMY_COUNTABLE_LOCALIZABLE,
         public_facing=False,
     )
     class _NonPublicFacingAssociate(_Associate):
@@ -1109,7 +1109,7 @@ class TestBidirectionalToManySingleType:
         "owner",
         label=DUMMY_LOCALIZABLE,
         label_plural=DUMMY_LOCALIZABLE,
-        label_countable=_DummyCountableLocalizable(),
+        label_countable=DUMMY_COUNTABLE_LOCALIZABLE,
     )
     class _Owner(Entity):
         associates = BidirectionalToManySingleType[
@@ -1126,7 +1126,7 @@ class TestBidirectionalToManySingleType:
         "associate",
         label=DUMMY_LOCALIZABLE,
         label_plural=DUMMY_LOCALIZABLE,
-        label_countable=_DummyCountableLocalizable(),
+        label_countable=DUMMY_COUNTABLE_LOCALIZABLE,
     )
     class _Associate(Entity):
         owner = BidirectionalToZeroOrOne[
@@ -1143,7 +1143,7 @@ class TestBidirectionalToManySingleType:
         "owner-embedded",
         label=DUMMY_LOCALIZABLE,
         label_plural=DUMMY_LOCALIZABLE,
-        label_countable=_DummyCountableLocalizable(),
+        label_countable=DUMMY_COUNTABLE_LOCALIZABLE,
     )
     class _OwnerEmbedded(Entity):
         associates = BidirectionalToManySingleType[
@@ -1161,7 +1161,7 @@ class TestBidirectionalToManySingleType:
         "associate-embedded",
         label=DUMMY_LOCALIZABLE,
         label_plural=DUMMY_LOCALIZABLE,
-        label_countable=_DummyCountableLocalizable(),
+        label_countable=DUMMY_COUNTABLE_LOCALIZABLE,
     )
     class _AssociateEmbedded(Entity):
         owner = BidirectionalToZeroOrOne[
@@ -1178,7 +1178,7 @@ class TestBidirectionalToManySingleType:
         "non-public-facing-associate-embedded",
         label=DUMMY_LOCALIZABLE,
         label_plural=DUMMY_LOCALIZABLE,
-        label_countable=_DummyCountableLocalizable(),
+        label_countable=DUMMY_COUNTABLE_LOCALIZABLE,
         public_facing=False,
     )
     class _NonPublicFacingAssociateEmbedded(_AssociateEmbedded):
@@ -1188,7 +1188,7 @@ class TestBidirectionalToManySingleType:
         "owner-with-non-public-facing-associate",
         label=DUMMY_LOCALIZABLE,
         label_plural=DUMMY_LOCALIZABLE,
-        label_countable=_DummyCountableLocalizable(),
+        label_countable=DUMMY_COUNTABLE_LOCALIZABLE,
     )
     class _OwnerWithNonPublicFacingAssociate(Entity):
         associates = BidirectionalToManySingleType[
@@ -1205,7 +1205,7 @@ class TestBidirectionalToManySingleType:
         "non-public-facing-associate",
         label=DUMMY_LOCALIZABLE,
         label_plural=DUMMY_LOCALIZABLE,
-        label_countable=_DummyCountableLocalizable(),
+        label_countable=DUMMY_COUNTABLE_LOCALIZABLE,
         public_facing=False,
     )
     class _NonPublicFacingAssociate(Entity):

@@ -9,8 +9,8 @@ from betty.project.extension.wiki import Wiki
 from betty.project.extension.wiki.content_provider import WikipediaSummary
 from betty.resource import new_context
 from betty.test_utils.locale.localizable import (
+    DUMMY_COUNTABLE_LOCALIZABLE,
     DUMMY_LOCALIZABLE,
-    _DummyCountableLocalizable,
 )
 from betty.wiki.client import Summary
 
@@ -19,7 +19,7 @@ from betty.wiki.client import Summary
     "dummy-has-links",
     label=DUMMY_LOCALIZABLE,
     label_plural=DUMMY_LOCALIZABLE,
-    label_countable=_DummyCountableLocalizable(),
+    label_countable=DUMMY_COUNTABLE_LOCALIZABLE,
 )
 class DummyHasLinks(HasLinks):
     pass

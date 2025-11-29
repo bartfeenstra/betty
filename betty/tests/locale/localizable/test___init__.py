@@ -1,35 +1,47 @@
-from collections.abc import Callable, Sequence
+from collections.abc import Sequence
 from gettext import NullTranslations
 
 import pytest
 from babel import Locale
 from typing_extensions import override
 
-from betty.locale import DEFAULT_LOCALE, DEFAULT_LOCALE_TAG
+from betty.attr import AttrNotInitialized
+from betty.exception import HumanFacingException
+from betty.locale import DEFAULT_LOCALE, DEFAULT_LOCALE_TAG, ensure_locale
 from betty.locale.localizable import (
     AllEnumeration,
     AnyEnumeration,
     Chain,
     CountableLocalizable,
-    CountablePlain,
+    CountableStaticTranslations,
     Lines,
     Localizable,
+    LocalizableCount,
     LocalizableLike,
     OptionalLocalizableAttr,
     OrderedList,
     Paragraph,
     Paragraphs,
     Plain,
+    RequiredCountableLocalizableAttr,
     RequiredLocalizableAttr,
-    RequiredLocalizableAttrNotInitialized,
+    ShorthandCountableStaticTranslations,
     ShorthandStaticTranslations,
     StaticTranslations,
     StaticTranslationsMapping,
     UnorderedList,
     do_you_mean,
+    ensure_countable_localizable,
     ensure_localizable,
 )
+from betty.locale.localizable.error import (
+    InvalidPluralTag,
+    MissingPluralPlaceholder,
+    MissingPluralTag,
+)
+from betty.locale.localized import ensure_localized
 from betty.locale.localizer import DEFAULT_LOCALIZER, Localizer
+from betty.test_utils.exception import assert_error
 
 
 class TestStaticTranslations:
@@ -113,6 +125,106 @@ class TestStaticTranslations:
         assert sut.translations == expected
 
 
+class TestCountableStaticTranslations:
+    async def test___init____with_missing_placeholder(self) -> None:
+        with pytest.raises(HumanFacingException) as exc_info:
+            CountableStaticTranslations(
+                {
+                    "en-US": {
+                        "one": "hello, world!",
+                        "other": "hello, worlds!",
+                    },
+                }
+            )
+        assert_error(exc_info.value, error_type=MissingPluralPlaceholder)
+
+    async def test___init____with_invalid_plural_tag(self) -> None:
+        invalid_plural_tag = "invalid-tag"
+
+        with pytest.raises(HumanFacingException) as exc_info:
+            CountableStaticTranslations(
+                {
+                    "en-US": {
+                        invalid_plural_tag: "???",
+                        "one": "{count} hello, world!",
+                        "other": "{count} hello, worlds!",
+                    },
+                }
+            )
+        for error in assert_error(exc_info.value, error_type=InvalidPluralTag):
+            assert invalid_plural_tag in str(error)
+
+    async def test___init____with_missing_plural_tag(self) -> None:
+        with pytest.raises(HumanFacingException) as exc_info:
+            CountableStaticTranslations(
+                {
+                    "en-US": {
+                        "one": "{count} hello, world!",
+                    },
+                }
+            )
+        for error in assert_error(exc_info.value, error_type=MissingPluralTag):
+            assert "other" in str(error)
+
+    async def test_translations(self) -> None:
+        sut = CountableStaticTranslations(
+            {
+                DEFAULT_LOCALE_TAG: {
+                    "one": "{count} hello, world!",
+                    "other": "{count} hello, worlds!",
+                },
+            }
+        )
+        assert sut.translations == {
+            DEFAULT_LOCALE: {
+                "one": "{count} hello, world!",
+                "other": "{count} hello, worlds!",
+            },
+        }
+
+    @pytest.mark.parametrize(
+        ("expected", "count", "locale", "translations"),
+        [
+            (
+                "1 hello, world!",
+                1,
+                "en-US",
+                {
+                    "en-US": {
+                        "one": "{count} hello, world!",
+                        "other": "{count} hello, worlds!",
+                    },
+                },
+            ),
+            (
+                "2 hello, worlds!",
+                2,
+                "en-US",
+                {
+                    "en-US": {
+                        "one": "{count} hello, world!",
+                        "other": "{count} hello, worlds!",
+                    },
+                },
+            ),
+        ],
+    )
+    async def test_count(
+        self,
+        expected: str,
+        count: LocalizableCount,
+        locale: str,
+        translations: ShorthandCountableStaticTranslations,
+    ) -> None:
+        sut = CountableStaticTranslations(translations)
+        assert (
+            sut.count(count).localize(
+                Localizer(ensure_locale(locale), NullTranslations())
+            )
+            == expected
+        )
+
+
 class TestPlain:
     def test_text(self) -> None:
         text = "Hello, world!"
@@ -133,86 +245,6 @@ class TestPlain:
         assert Plain(string).localize(DEFAULT_LOCALIZER) == string
 
 
-class TestCountablePlain:
-    @pytest.mark.parametrize(
-        (
-            "expected",
-            "string_singular",
-            "string_plural",
-            "locale",
-            "is_plural",
-            "count",
-        ),
-        [
-            (
-                "Hello, worlds!",
-                "Hello, world!",
-                "Hello, worlds!",
-                DEFAULT_LOCALE,
-                None,
-                0,
-            ),
-            (
-                "Hello, world!",
-                "Hello, world!",
-                "Hello, worlds!",
-                DEFAULT_LOCALE,
-                None,
-                1,
-            ),
-            (
-                "Hello, worlds!",
-                "Hello, world!",
-                "Hello, worlds!",
-                DEFAULT_LOCALE,
-                None,
-                2,
-            ),
-            (
-                "Hello, world!",
-                "Hello, world!",
-                "Hello, worlds!",
-                DEFAULT_LOCALE,
-                lambda count: count > 1,
-                0,
-            ),
-            (
-                "Hello, world!",
-                "Hello, world!",
-                "Hello, worlds!",
-                DEFAULT_LOCALE,
-                lambda count: count > 1,
-                1,
-            ),
-            (
-                "Hello, worlds!",
-                "Hello, world!",
-                "Hello, worlds!",
-                DEFAULT_LOCALE,
-                lambda count: count > 1,
-                2,
-            ),
-        ],
-    )
-    async def test_count(
-        self,
-        expected: str,
-        string_singular: str,
-        string_plural: str,
-        locale: Locale,
-        is_plural: Callable[[int], bool] | None,
-        count: int,
-    ) -> None:
-        assert (
-            CountablePlain(
-                string_singular, string_plural, locale=locale, is_plural=is_plural
-            )
-            .count(count)
-            .localize(DEFAULT_LOCALIZER)
-            == expected
-        )
-
-
 @pytest.mark.parametrize(
     ("expected", "available_options"),
     [
@@ -228,7 +260,7 @@ async def test_do_you_mean(expected: str, available_options: Sequence[str]) -> N
 class TestCountableLocalizable:
     class _Sut(CountableLocalizable):
         @override
-        def count(self, count: int, /) -> Localizable:
+        def count(self, count: LocalizableCount, /) -> Localizable:
             return Plain("{format_placeholder}")
 
     def test_format(self) -> None:
@@ -458,7 +490,7 @@ def test_ensure_localizable__with_str() -> None:
     assert ensure_localizable(localizable).localize(DEFAULT_LOCALIZER) == localizable
 
 
-def test_ensure_localizable__with_static_translations_mapping() -> None:
+def test_ensure_localizable__with_mapping() -> None:
     locale = Locale("nl", "NL")
     localizer = Localizer(locale, NullTranslations())
     localized = "Mijn Eerste, Ja, Wat Eigenlijk?"
@@ -469,13 +501,72 @@ def test_ensure_localizable__with_static_translations_mapping() -> None:
     assert ensure_localizable(localizable).localize(localizer) == localized
 
 
+def test_ensure_countable_localizable__with_localizable() -> None:
+    localizable = CountableStaticTranslations(
+        {
+            DEFAULT_LOCALE: {
+                "one": "{count} world",
+                "other": "{count} worlds",
+            },
+        }
+    )
+    assert ensure_countable_localizable(localizable) is localizable
+
+
+def test_ensure_countable_localizable__with_mapping() -> None:
+    localizable: ShorthandCountableStaticTranslations = {
+        DEFAULT_LOCALE_TAG: {
+            "one": "{count} world",
+            "other": "{count} worlds",
+        },
+    }
+    assert (
+        ensure_countable_localizable(localizable).count(2).localize(DEFAULT_LOCALIZER)
+        == "2 worlds"
+    )
+
+
+def test_ensure_localized__with_localizable() -> None:
+    localizable = "My First Localizable"
+    assert (
+        ensure_localized(Plain(localizable), localizer=DEFAULT_LOCALIZER) == localizable
+    )
+
+
+def test_ensure_localized__with_str() -> None:
+    localizable = "My First Localizable"
+    assert ensure_localized(localizable, localizer=DEFAULT_LOCALIZER) == localizable
+
+
+def test_ensure_localized__with_mapping() -> None:
+    locale = "nl"
+    localizer = Localizer(locale, NullTranslations())
+    localized = "Mijn Eerste, Ja, Wat Eigenlijk?"
+    localizable: StaticTranslationsMapping = {
+        DEFAULT_LOCALE: "My First Localizable",
+        Locale(locale): localized,
+    }
+    assert ensure_localized(localizable, localizer=localizer) == localized
+
+
+def test_ensure_localized__with_shorthand_mapping() -> None:
+    locale = "nl-NL"
+    localizer = Localizer(locale, NullTranslations())
+    localized = "Mijn Eerste, Ja, Wat Eigenlijk?"
+    localizable: ShorthandStaticTranslations = {
+        DEFAULT_LOCALE_TAG: "My First Localizable",
+        locale: localized,
+    }
+    assert ensure_localized(localizable, localizer=localizer) == localized
+
+
 class TestRequiredLocalizableAttr:
     class _Instance:
         attr = RequiredLocalizableAttr("attr")
 
     def test___get____not_initialized(self) -> None:
         instance = self._Instance()
-        with pytest.raises(RequiredLocalizableAttrNotInitialized):
+        with pytest.raises(AttrNotInitialized):
             instance.attr  # noqa B018
 
     def test___set____with_str(self) -> None:
@@ -484,7 +575,7 @@ class TestRequiredLocalizableAttr:
         instance.attr = translation
         assert instance.attr.localize(DEFAULT_LOCALIZER) == translation
 
-    def test___set____with_static_translations_mapping(self) -> None:
+    def test___set____with_mapping(self) -> None:
         instance = self._Instance()
         translation = "Hello, world!"
         locale = "nl-NL"
@@ -518,7 +609,7 @@ class TestOptionalLocalizableAttr:
         assert instance.attr is not None
         assert instance.attr.localize(DEFAULT_LOCALIZER) == translation
 
-    def test___set____with_static_translations_mapping(self) -> None:
+    def test___set____with_mapping(self) -> None:
         instance = self._Instance()
         translation = "Hello, world!"
         locale = "nl-NL"
@@ -547,3 +638,35 @@ class TestOptionalLocalizableAttr:
         instance.attr = "Hello, world!"
         del instance.attr
         assert instance.attr is None
+
+
+class TestRequiredCountableLocalizableAttr:
+    class _Instance:
+        attr = RequiredCountableLocalizableAttr("attr")
+
+    def test___get____not_initialized(self) -> None:
+        instance = self._Instance()
+        with pytest.raises(AttrNotInitialized):
+            instance.attr  # noqa B018
+
+    def test___set____with_shorthand(self) -> None:
+        instance = self._Instance()
+        translation = {
+            DEFAULT_LOCALE_TAG: {
+                "one": "{count} world",
+                "other": "{count} worlds",
+            },
+        }
+        instance.attr = translation
+        assert instance.attr.count(2).localize(DEFAULT_LOCALIZER) == "2 worlds"
+
+    def test___set____with_mapping(self) -> None:
+        instance = self._Instance()
+        translation = {
+            DEFAULT_LOCALE: {
+                "one": "{count} world",
+                "other": "{count} worlds",
+            },
+        }
+        instance.attr = translation
+        assert instance.attr.count(2).localize(DEFAULT_LOCALIZER) == "2 worlds"

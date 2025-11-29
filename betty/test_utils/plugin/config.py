@@ -9,7 +9,6 @@ from typing import TYPE_CHECKING, ClassVar, Generic, Self, TypeVar, cast, final
 from typing_extensions import override
 
 from betty.config.factory import ConfigurationDependentSelfFactory
-from betty.locale.localizable import CountablePlain
 from betty.machine_name import MachineName
 from betty.plugin import Plugin, PluginDefinition, PluginTypeDefinition
 from betty.plugin.config import (
@@ -20,6 +19,7 @@ from betty.plugin.discovery.callback import CallbackDiscovery
 from betty.plugin.resolve import ResolvableId
 from betty.test_utils.config import DummyConfiguration
 from betty.test_utils.config.collections.mapping import ConfigurationMappingTestBase
+from betty.test_utils.locale.localizable import DUMMY_COUNTABLE_LOCALIZABLE
 
 if TYPE_CHECKING:
     from betty.service.level.factory import AnyFactoryTarget
@@ -107,9 +107,7 @@ class ConfigurableDummyPluginDefinition(PluginDefinition):
         "configurable-dummy-plugin",
         "Configurable dummy plugin",
         "Configurable dummy plugins",
-        CountablePlain(
-            "{count} configurable dummy plugin", "{count} configurable dummy plugins"
-        ),
+        DUMMY_COUNTABLE_LOCALIZABLE,
         discoveries=CallbackDiscovery(
             lambda: [
                 ConfigurableDummyPluginOne.plugin,
