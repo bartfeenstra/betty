@@ -6,7 +6,7 @@ import pytest
 from betty.data import Attr
 from betty.exception import HumanFacingException, HumanFacingExceptionGroup, do_raise
 from betty.locale import DEFAULT_LOCALE_TAG
-from betty.locale.localizable import Plain, StaticTranslations
+from betty.locale.localizable import StaticTranslations
 from betty.locale.localizer import DEFAULT_LOCALIZER, Localizer
 from betty.test_utils.exception import assert_error
 
@@ -57,9 +57,9 @@ class TestHumanFacingException:
         sut = HumanFacingException(StaticTranslations("Something went wrong!"))
         sut_with_context = sut.with_context(Attr("my_first_context"))
         assert sut != sut_with_context
-        assert [
-            context.localize(DEFAULT_LOCALIZER) for context in sut_with_context.contexts
-        ] == [".my_first_context"]
+        assert [context.format() for context in sut_with_context.contexts] == [
+            ".my_first_context"
+        ]
 
     @pytest.mark.parametrize(
         ("expected", "sut", "error_type"),
@@ -138,9 +138,9 @@ class TestHumanFacingExceptionGroup:
         sut = HumanFacingExceptionGroup()
         sut_with_context = sut.with_context(Attr("my_first_context"))
         assert sut is not sut_with_context
-        assert [
-            context.localize(DEFAULT_LOCALIZER) for context in sut_with_context.contexts
-        ] == [".my_first_context"]
+        assert [context.format() for context in sut_with_context.contexts] == [
+            ".my_first_context"
+        ]
 
     def test_catch__without_contexts(self) -> None:
         sut = HumanFacingExceptionGroup()
@@ -153,10 +153,11 @@ class TestHumanFacingExceptionGroup:
     def test_catch__with_contexts(self) -> None:
         sut = HumanFacingExceptionGroup()
         error = HumanFacingException(StaticTranslations("Help!"))
-        with sut.catch(Attr("my_first_context")) as errors:
+        context = Attr("my_first_context")
+        with sut.catch(context) as errors:
             raise error
-        assert_error(errors, error=error.with_context(Plain(".my_first_context")))  # type: ignore[unreachable]
-        assert_error(sut, error=error.with_context(Plain(".my_first_context")))
+        assert_error(errors, error=error.with_context(context))  # type: ignore[unreachable]
+        assert_error(sut, error=error.with_context(context))
 
     @pytest.mark.parametrize(
         ("expected", "errors"),

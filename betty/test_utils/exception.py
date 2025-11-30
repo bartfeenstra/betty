@@ -8,7 +8,6 @@ from contextlib import contextmanager
 from typing import TYPE_CHECKING, Any, overload
 
 from betty.exception import HumanFacingException, HumanFacingExceptionGroup
-from betty.locale.localizer import DEFAULT_LOCALIZER
 
 if TYPE_CHECKING:
     from collections.abc import Iterable, Iterator, Sequence
@@ -64,17 +63,13 @@ def assert_error(
     if error:
         expected_error_type = type(error)
         expected_error_message = str(error)
-        expected_error_contexts = [
-            context.localize(DEFAULT_LOCALIZER) for context in error.contexts
-        ]
+        expected_error_contexts = [context.format() for context in error.contexts]
     else:
         expected_error_type = error_type
         if error_message is not None:
             expected_error_message = error_message
         if error_contexts is not None:
-            expected_error_contexts = [
-                context.localize(DEFAULT_LOCALIZER) for context in error_contexts
-            ]
+            expected_error_contexts = [context.format() for context in error_contexts]
 
     errors = [
         actual_error
@@ -92,9 +87,7 @@ def assert_error(
             actual_error
             for actual_error in actual_errors
             if expected_error_contexts
-            == [
-                context.localize(DEFAULT_LOCALIZER) for context in actual_error.contexts
-            ]
+            == [context.format() for context in actual_error.contexts]
         ]
     if errors:
         return errors
