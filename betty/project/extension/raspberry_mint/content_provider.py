@@ -145,7 +145,7 @@ class Section(
         configuration: SectionConfiguration | None = None,
     ):
         super().__init__(
-            configuration=SectionConfiguration(name="", heading="")
+            configuration=SectionConfiguration(name="", heading="-")
             if configuration is None
             else configuration,
             jinja2_environment=jinja2_environment,

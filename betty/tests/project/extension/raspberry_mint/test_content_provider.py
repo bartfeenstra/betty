@@ -33,6 +33,7 @@ from betty.project.extension.raspberry_mint.content_provider import (
 )
 from betty.resource import new_context
 from betty.test_utils.config.factory import ConfigurationDependentSelfFactoryTestBase
+from betty.test_utils.locale.localizable import DUMMY_LOCALIZABLE
 
 if TYPE_CHECKING:
     from collections.abc import Sequence
@@ -82,7 +83,7 @@ class TestSectionConfiguration:
         content: Sequence[
             PluginInstanceConfiguration[ContentProviderPlugin, ContentProvider]
         ] = [PluginInstanceConfiguration("my-first-content")]
-        sut = SectionConfiguration(name="", heading="", content=content)
+        sut = SectionConfiguration(name="", heading=DUMMY_LOCALIZABLE, content=content)
         assert sut.content[0].id == "my-first-content"
 
     def test_heading(self) -> None:
@@ -91,11 +92,11 @@ class TestSectionConfiguration:
         assert sut.heading is heading
 
     def test_name(self) -> None:
-        sut = SectionConfiguration(name="my-first-section", heading="")
+        sut = SectionConfiguration(name="my-first-section", heading=DUMMY_LOCALIZABLE)
         assert sut.name == "my-first-section"
 
     def test_load__minimal(self) -> None:
-        sut = SectionConfiguration(name="", heading="")
+        sut = SectionConfiguration(name="", heading=DUMMY_LOCALIZABLE)
         sut.load(
             {
                 "heading": "My First Section",
@@ -106,7 +107,7 @@ class TestSectionConfiguration:
         assert sut.content[0].id == "my-first-content"
 
     def test_load__with_name(self) -> None:
-        sut = SectionConfiguration(name="", heading="")
+        sut = SectionConfiguration(name="", heading=DUMMY_LOCALIZABLE)
         sut.load(
             {
                 "name": "my-first-section",
@@ -117,7 +118,7 @@ class TestSectionConfiguration:
         assert sut.name == "my-first-section"
 
     def test_load__without_heading(self) -> None:
-        sut = SectionConfiguration(name="", heading="")
+        sut = SectionConfiguration(name="", heading=DUMMY_LOCALIZABLE)
         with pytest.raises(HumanFacingException):
             sut.load(
                 {
@@ -127,7 +128,7 @@ class TestSectionConfiguration:
             )
 
     def test_load__without_content(self) -> None:
-        sut = SectionConfiguration(name="", heading="")
+        sut = SectionConfiguration(name="", heading=DUMMY_LOCALIZABLE)
         with pytest.raises(HumanFacingException):
             sut.load(
                 {
@@ -183,7 +184,7 @@ class TestSection(ConfigurationDependentSelfFactoryTestBase[SectionConfiguration
     def configuration_dependent_self_factory_sut_configuration(
         self,
     ) -> SectionConfiguration:
-        return SectionConfiguration(heading="")
+        return SectionConfiguration(heading=DUMMY_LOCALIZABLE)
 
     async def test_provide__without_content(self, temporary_app: App) -> None:
         async with Project.new_temporary(temporary_app) as project:

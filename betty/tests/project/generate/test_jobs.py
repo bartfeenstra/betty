@@ -39,6 +39,7 @@ from betty.project.generate.jobs import (
 from betty.string import kebab_case_to_lower_camel_case
 from betty.test_utils.jinja2 import assert_betty_html, assert_betty_json
 from betty.test_utils.job import do
+from betty.test_utils.locale.localizable import DUMMY_LOCALIZABLE
 
 
 class TestGenerateEntityTypesHtml:
@@ -109,7 +110,7 @@ class TestGenerateEntitiesHtml:
             Citation(source=Source(), id="ID"),
             Event(id="ID"),
             File(Path(__file__), id="ID"),
-            Note("", id="ID"),
+            Note(DUMMY_LOCALIZABLE, id="ID"),
             Person(id="ID"),
             Place(id="ID"),
             Source(id="ID"),
@@ -135,8 +136,8 @@ class TestGenerateEntitiesHtml:
             Event(id="ID", private=True),
             File(Path(__file__)),
             File(Path(__file__), id="ID", private=True),
-            Note(""),
-            Note("", id="ID", private=True),
+            Note(DUMMY_LOCALIZABLE),
+            Note(DUMMY_LOCALIZABLE, id="ID", private=True),
             Person(),
             Person(id="ID", private=True),
             PersonName(individual="Jane", person=Person()),
@@ -170,7 +171,7 @@ class TestGenerateEntitiesJson:
             Citation(source=Source(), id="ID"),
             Event(id="ID"),
             File(Path(__file__), id="ID"),
-            Note("", id="ID"),
+            Note(DUMMY_LOCALIZABLE, id="ID"),
             Person(id="ID"),
             Place(id="ID"),
             Source(id="ID"),
@@ -195,7 +196,7 @@ class TestGenerateEntitiesJson:
             Enclosure(enclosee=Place(), encloser=Place()),
             Event(),
             File(Path(__file__)),
-            Note(""),
+            Note(DUMMY_LOCALIZABLE),
             Person(),
             PersonName(individual="Jane", person=Person()),
             Presence(Person(), UnknownPresenceRole(), Event()),

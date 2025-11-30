@@ -20,6 +20,7 @@ from betty.service.container import (
 )
 from betty.service.level import ServiceLevel
 from betty.test_utils.config import DummyConfiguration
+from betty.test_utils.locale.localizable import DUMMY_LOCALIZABLE
 
 
 class _ServiceProvider(ServiceContainer):
@@ -28,7 +29,7 @@ class _ServiceProvider(ServiceContainer):
     async def requires(
         cls, services: ServiceLevel, subject: LocalizableLike, /
     ) -> Requirement | Self:
-        return StaticRequirement("")
+        return StaticRequirement(DUMMY_LOCALIZABLE)
 
 
 class _ConfigurableServiceProvider(Configurable[DummyConfiguration], _ServiceProvider):

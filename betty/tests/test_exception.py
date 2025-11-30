@@ -9,6 +9,7 @@ from betty.locale import DEFAULT_LOCALE_TAG
 from betty.locale.localizable import StaticTranslations
 from betty.locale.localizer import DEFAULT_LOCALIZER, Localizer
 from betty.test_utils.exception import assert_error
+from betty.test_utils.locale.localizable import DUMMY_LOCALIZABLE
 
 
 def test_do_raise() -> None:
@@ -64,10 +65,22 @@ class TestHumanFacingException:
     @pytest.mark.parametrize(
         ("expected", "sut", "error_type"),
         [
-            (True, HumanFacingException(""), HumanFacingException),
-            (False, HumanFacingException(""), _DummyHumanFacingException),
-            (True, _DummyHumanFacingException(""), HumanFacingException),
-            (True, _DummyHumanFacingException(""), _DummyHumanFacingException),
+            (True, HumanFacingException(DUMMY_LOCALIZABLE), HumanFacingException),
+            (
+                False,
+                HumanFacingException(DUMMY_LOCALIZABLE),
+                _DummyHumanFacingException,
+            ),
+            (
+                True,
+                _DummyHumanFacingException(DUMMY_LOCALIZABLE),
+                HumanFacingException,
+            ),
+            (
+                True,
+                _DummyHumanFacingException(DUMMY_LOCALIZABLE),
+                _DummyHumanFacingException,
+            ),
         ],
     )
     def test_raised(
@@ -164,7 +177,7 @@ class TestHumanFacingExceptionGroup:
         [
             (True, None),
             (True, []),
-            (False, [HumanFacingException("")]),
+            (False, [HumanFacingException(DUMMY_LOCALIZABLE)]),
             (True, [HumanFacingExceptionGroup()]),
         ],
     )
@@ -180,7 +193,7 @@ class TestHumanFacingExceptionGroup:
         [
             (False, None),
             (False, []),
-            (True, [_DummyHumanFacingException("")]),
+            (True, [_DummyHumanFacingException(DUMMY_LOCALIZABLE)]),
             (False, [HumanFacingExceptionGroup()]),
         ],
     )
@@ -197,7 +210,9 @@ class TestHumanFacingExceptionGroup:
     def test_assert_valid__with_prior_error(self) -> None:
         with (
             pytest.raises(HumanFacingExceptionGroup),
-            HumanFacingExceptionGroup([HumanFacingException("")]).assert_valid(),
+            HumanFacingExceptionGroup(
+                [HumanFacingException(DUMMY_LOCALIZABLE)]
+            ).assert_valid(),
         ):
             pass
 
@@ -206,22 +221,22 @@ class TestHumanFacingExceptionGroup:
             pytest.raises(HumanFacingExceptionGroup),
             HumanFacingExceptionGroup().assert_valid(),
         ):
-            raise HumanFacingException("")
+            raise HumanFacingException(DUMMY_LOCALIZABLE)
 
     def test_append(self) -> None:
         sut = HumanFacingExceptionGroup()
-        sut.append(HumanFacingException(""))
+        sut.append(HumanFacingException(DUMMY_LOCALIZABLE))
         assert len(sut) == 1
 
     def test_append__with_group(self) -> None:
         sut = HumanFacingExceptionGroup()
-        sut.append(HumanFacingExceptionGroup([HumanFacingException("")]))
+        sut.append(HumanFacingExceptionGroup([HumanFacingException(DUMMY_LOCALIZABLE)]))
         assert len(sut) == 1
 
     def test___len__(self) -> None:
-        sut = HumanFacingExceptionGroup([HumanFacingException("")])
+        sut = HumanFacingExceptionGroup([HumanFacingException(DUMMY_LOCALIZABLE)])
         assert len(sut) == 1
 
     def test___iter__(self) -> None:
-        sut = HumanFacingExceptionGroup([HumanFacingException("")])
+        sut = HumanFacingExceptionGroup([HumanFacingException(DUMMY_LOCALIZABLE)])
         assert len(list(iter(sut))) == 1

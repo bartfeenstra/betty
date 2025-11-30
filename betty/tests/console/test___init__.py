@@ -16,6 +16,7 @@ from betty.exception import HumanFacingException
 from betty.functools import Result, suppress
 from betty.project import Project
 from betty.test_utils.console import run
+from betty.test_utils.locale.localizable import DUMMY_LOCALIZABLE
 from betty.user import Verbosity
 
 
@@ -72,7 +73,7 @@ async def test_main__with_unknown_command(temporary_app: App) -> None:
         (SystemExitCode.OK, _NoOpCommand.plugin),
         (
             SystemExitCode.ERROR_UNEXPECTED,
-            _create_raising_command(HumanFacingException("")),
+            _create_raising_command(HumanFacingException(DUMMY_LOCALIZABLE)),
         ),
         (SystemExitCode.USER_QUIT, _create_raising_command(CancelledError())),
         (SystemExitCode.USER_QUIT, _create_raising_command(KeyboardInterrupt())),
@@ -96,7 +97,7 @@ async def test_main__with_user_facing_exception(
         (SystemExitCode.OK, _NoOpCommand.plugin),
         (
             SystemExitCode.ERROR_UNEXPECTED,
-            _create_raising_command(HumanFacingException("")),
+            _create_raising_command(HumanFacingException(DUMMY_LOCALIZABLE)),
         ),
         (SystemExitCode.USER_QUIT, _create_raising_command(CancelledError())),
         (SystemExitCode.USER_QUIT, _create_raising_command(KeyboardInterrupt())),

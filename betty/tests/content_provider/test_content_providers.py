@@ -20,11 +20,12 @@ from betty.content_provider.content_providers import (
 from betty.exception import HumanFacingException
 from betty.job import Context
 from betty.locale import DEFAULT_LOCALE, DEFAULT_LOCALE_TAG
-from betty.locale.localizable import LocalizableLike, Plain, StaticTranslations
+from betty.locale.localizable import LocalizableLike, StaticTranslations
 from betty.locale.localizer import DEFAULT_LOCALIZER, Localizer
 from betty.project import Project
 from betty.resource import new_context
 from betty.test_utils.config.factory import ConfigurationDependentSelfFactoryTestBase
+from betty.test_utils.locale.localizable import DUMMY_LOCALIZABLE
 from betty.tests.ancestry.test_has_notes import DummyHasNotes
 
 if TYPE_CHECKING:
@@ -33,13 +34,13 @@ if TYPE_CHECKING:
 
 class TestPlainTextConfiguration:
     def test_text(self) -> None:
-        text = Plain("")
+        text = DUMMY_LOCALIZABLE
         sut = PlainTextConfiguration(text)
         assert sut.text is text
 
     def test_load__without_text(self) -> None:
         dump: Dump = {}
-        sut = PlainTextConfiguration("")
+        sut = PlainTextConfiguration(DUMMY_LOCALIZABLE)
         with pytest.raises(HumanFacingException):
             sut.load(dump)
 
@@ -48,7 +49,7 @@ class TestPlainTextConfiguration:
         dump: Dump = {
             "text": text,
         }
-        sut = PlainTextConfiguration("")
+        sut = PlainTextConfiguration(DUMMY_LOCALIZABLE)
         sut.load(dump)
         assert sut.text.localize(DEFAULT_LOCALIZER) == text
 
@@ -73,7 +74,7 @@ class TestPlainText(ConfigurationDependentSelfFactoryTestBase[PlainTextConfigura
     def configuration_dependent_self_factory_sut_configuration(
         self,
     ) -> PlainTextConfiguration:
-        return PlainTextConfiguration("")
+        return PlainTextConfiguration(DUMMY_LOCALIZABLE)
 
     @pytest.mark.parametrize(
         ("expected", "text", "locale"),
@@ -128,7 +129,7 @@ class TestTemplate:
             async with aiofiles.open(template_file_path, "w") as f:
                 await f.write(template)
 
-            @ContentProviderPlugin("my-first-template", label="")
+            @ContentProviderPlugin("my-first-template", label=DUMMY_LOCALIZABLE)
             class _Jinja2TemplateContentProvider(Template):
                 pass
 

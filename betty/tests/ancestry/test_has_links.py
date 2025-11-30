@@ -5,9 +5,12 @@ from typing import TYPE_CHECKING
 from betty.ancestry.has_links import HasLinks
 from betty.ancestry.link import Link
 from betty.locale import DEFAULT_LOCALE_TAG
-from betty.locale.localizable import CountablePlain
 from betty.model import EntityPlugin
 from betty.test_utils.json.linked_data import assert_dumps_linked_data
+from betty.test_utils.locale.localizable import (
+    DUMMY_LOCALIZABLE,
+    _DummyCountableLocalizable,
+)
 
 if TYPE_CHECKING:
     from betty.serde.dump import Dump, DumpMapping
@@ -15,9 +18,9 @@ if TYPE_CHECKING:
 
 @EntityPlugin(
     "dummy-has-links",
-    label="",
-    label_plural="",
-    label_countable=CountablePlain("", ""),
+    label=DUMMY_LOCALIZABLE,
+    label_plural=DUMMY_LOCALIZABLE,
+    label_countable=_DummyCountableLocalizable(),
 )
 class DummyHasLinks(HasLinks):
     pass

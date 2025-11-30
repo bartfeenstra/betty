@@ -3,11 +3,14 @@ from collections.abc import Iterable
 from pytest_mock import MockerFixture
 
 from betty.app import App
-from betty.locale.localizable import CountablePlain
 from betty.plugin import PluginDefinition, PluginTypeDefinition
 from betty.plugin.discovery.app import AppDiscovery
 from betty.plugin.repository.provider.service import (
     ServiceLevelPluginRepositoryProvider,
+)
+from betty.test_utils.locale.localizable import (
+    DUMMY_LOCALIZABLE,
+    _DummyCountableLocalizable,
 )
 from betty.test_utils.plugin import DummyPlugin, DummyPluginDefinition, DummyPluginOne
 
@@ -38,9 +41,9 @@ class TestServiceLevelPluginRepositoryProvider:
         class _PluginDefinition(PluginDefinition):
             type = PluginTypeDefinition(
                 "-",
-                "",
-                "",
-                CountablePlain("", ""),
+                DUMMY_LOCALIZABLE,
+                DUMMY_LOCALIZABLE,
+                _DummyCountableLocalizable(),
                 discoveries=AppDiscovery(_discovery),
             )
 

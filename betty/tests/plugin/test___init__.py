@@ -2,13 +2,17 @@ from __future__ import annotations
 
 import pytest
 
-from betty.locale.localizable import CountablePlain, Plain
+from betty.locale.localizable import CountablePlain
 from betty.locale.localizer import DEFAULT_LOCALIZER
 from betty.plugin import Plugin, PluginDefinition, PluginTypeDefinition, plugin_types
 from betty.plugin.dependent import DependentPluginDefinition
 from betty.plugin.discovery import discover
 from betty.plugin.discovery.static import StaticDiscovery
 from betty.plugin.ordered import OrderedPluginDefinition
+from betty.test_utils.locale.localizable import (
+    DUMMY_LOCALIZABLE,
+    _DummyCountableLocalizable,
+)
 from betty.test_utils.plugin import DummyPluginOne, DummyPluginTwo
 
 
@@ -83,53 +87,78 @@ _DEPENDENT_PLUGIN_ISOLATED = _DependentPluginDefinition(
 class TestPluginTypeDefinition:
     def test_id(self) -> None:
         plugin_type_id = "my-first-plugin-type"
-        sut = PluginTypeDefinition(plugin_type_id, "", "", CountablePlain("", ""))
+        sut = PluginTypeDefinition(
+            plugin_type_id,
+            DUMMY_LOCALIZABLE,
+            DUMMY_LOCALIZABLE,
+            _DummyCountableLocalizable(),
+        )
         assert sut.id == plugin_type_id
 
     def test_label(self) -> None:
-        label = Plain("")
-        sut = PluginTypeDefinition("-", label, "", CountablePlain("", ""))
+        label = DUMMY_LOCALIZABLE
+        sut = PluginTypeDefinition(
+            "-", label, DUMMY_LOCALIZABLE, _DummyCountableLocalizable()
+        )
         assert sut.label is label
 
     def test_label_plural(self) -> None:
-        label_plural = Plain("")
-        sut = PluginTypeDefinition("-", "", label_plural, CountablePlain("", ""))
+        label_plural = DUMMY_LOCALIZABLE
+        sut = PluginTypeDefinition(
+            "-", DUMMY_LOCALIZABLE, label_plural, _DummyCountableLocalizable()
+        )
         assert sut.label_plural is label_plural
 
     def test_label_countable(self) -> None:
-        label_countable = CountablePlain("", "")
-        sut = PluginTypeDefinition("-", "", "", label_countable)
+        label_countable = _DummyCountableLocalizable()
+        sut = PluginTypeDefinition(
+            "-", DUMMY_LOCALIZABLE, DUMMY_LOCALIZABLE, label_countable
+        )
         assert sut.label_countable is label_countable
 
     def test_description(self) -> None:
-        description = Plain("")
+        description = DUMMY_LOCALIZABLE
         sut = PluginTypeDefinition(
-            "-", "", "", CountablePlain("", ""), description=description
+            "-",
+            DUMMY_LOCALIZABLE,
+            DUMMY_LOCALIZABLE,
+            _DummyCountableLocalizable(),
+            description=description,
         )
         assert sut.description is description
 
     def test_discoveries(self) -> None:
         discovery = StaticDiscovery()
         sut = PluginTypeDefinition(
-            "-", "", "", CountablePlain("", ""), discoveries=discovery
+            "-",
+            DUMMY_LOCALIZABLE,
+            DUMMY_LOCALIZABLE,
+            _DummyCountableLocalizable(),
+            discoveries=discovery,
         )
         assert discovery in sut.discoveries
 
     def test_add_discovery(self) -> None:
         discovery = StaticDiscovery()
-        sut = PluginTypeDefinition("-", "", "", CountablePlain("", ""))
+        sut = PluginTypeDefinition(
+            "-", DUMMY_LOCALIZABLE, DUMMY_LOCALIZABLE, _DummyCountableLocalizable()
+        )
         sut.add_discovery(discovery)
         assert discovery in sut.discoveries
 
     def test_override_discovery(self) -> None:
-        sut = PluginTypeDefinition("-", "", "", CountablePlain("", ""))
+        sut = PluginTypeDefinition(
+            "-", DUMMY_LOCALIZABLE, DUMMY_LOCALIZABLE, _DummyCountableLocalizable()
+        )
         assert not sut.discoveries
         with sut.override_discovery(DummyPluginOne.plugin):
             assert sut.discoveries
         assert not sut.discoveries
 
     async def test_add_discovery__during_override_discovery(self) -> None:
-        sut = PluginTypeDefinition("-", "", "", CountablePlain("", ""))
+        sut = PluginTypeDefinition(
+            "-", DUMMY_LOCALIZABLE, DUMMY_LOCALIZABLE, _DummyCountableLocalizable()
+        )
         with sut.override_discovery(DummyPluginOne.plugin):
             sut.add_discovery(StaticDiscovery(DummyPluginTwo.plugin))
             assert DummyPluginTwo.plugin not in await discover(None, *sut.discoveries)
@@ -137,7 +166,9 @@ class TestPluginTypeDefinition:
         assert DummyPluginTwo.plugin in await discover(None, *sut.discoveries)
 
     def test_discovery_overridden(self) -> None:
-        sut = PluginTypeDefinition("-", "", "", CountablePlain("", ""))
+        sut = PluginTypeDefinition(
+            "-", DUMMY_LOCALIZABLE, DUMMY_LOCALIZABLE, _DummyCountableLocalizable()
+        )
         assert not sut.discovery_overridden
         with sut.override_discovery():
             assert sut.discovery_overridden
@@ -178,8 +209,8 @@ class TestPluginDefinition:
             type = PluginTypeDefinition(
                 "my-first-plugin-type",
                 plugin_type_label,
-                Plain(""),
-                CountablePlain("", ""),
+                DUMMY_LOCALIZABLE,
+                _DummyCountableLocalizable(),
             )
 
         id = "my-first-plugin"  # noqa A001

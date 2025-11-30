@@ -6,6 +6,7 @@ from typing_extensions import override
 from betty.ancestry.event_type import EventTypePlugin
 from betty.plugin import PluginDefinition
 from betty.test_utils.documentation import PluginDocumentationTestBase
+from betty.test_utils.locale.localizable import DUMMY_LOCALIZABLE
 from betty.test_utils.plugin import PluginDefinitionClassTestBase
 
 
@@ -17,7 +18,7 @@ class TestEventTypePlugin(PluginDefinitionClassTestBase):
 
     def test_indicates(self) -> None:
         indicates = "my-other-event-type"
-        sut = EventTypePlugin("-", indicates=indicates, label="")
+        sut = EventTypePlugin("-", indicates=indicates, label=DUMMY_LOCALIZABLE)
         assert sut.indicates == indicates
 
 

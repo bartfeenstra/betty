@@ -11,6 +11,7 @@ from betty.requirement import (
     StaticRequirement,
     UnmetRequirement,
 )
+from betty.test_utils.locale.localizable import DUMMY_LOCALIZABLE
 
 
 class TestRequirement:
@@ -46,7 +47,9 @@ class TestAnyRequirement:
         assert AnyRequirement.new(None, None, None) is None
 
     async def test_new__with_partial_met(self) -> None:
-        assert AnyRequirement.new(None, None, StaticRequirement("")) is None
+        assert (
+            AnyRequirement.new(None, None, StaticRequirement(DUMMY_LOCALIZABLE)) is None
+        )
 
     async def test_new__with_all_met(self) -> None:
         assert AnyRequirement.new(None, None, None) is None
@@ -67,13 +70,17 @@ class TestAnyRequirement:
     async def test_summary(self) -> None:
         summary = "My First Summary"
         requirement = AnyRequirement.new(
-            StaticRequirement(""), StaticRequirement(""), summary=summary
+            StaticRequirement(DUMMY_LOCALIZABLE),
+            StaticRequirement(DUMMY_LOCALIZABLE),
+            summary=summary,
         )
         assert requirement is not None
         assert requirement.summary.localize(DEFAULT_LOCALIZER) == summary
 
     async def test_summary__default(self) -> None:
-        assert AnyRequirement(StaticRequirement("")).summary.localize(DEFAULT_LOCALIZER)
+        assert AnyRequirement(StaticRequirement(DUMMY_LOCALIZABLE)).summary.localize(
+            DEFAULT_LOCALIZER
+        )
 
 
 class TestAllRequirements:
@@ -81,7 +88,10 @@ class TestAllRequirements:
         assert AllRequirements.new(None, None, None) is None
 
     async def test_new__with_partial_met(self) -> None:
-        assert AllRequirements.new(None, None, StaticRequirement("")) is not None
+        assert (
+            AllRequirements.new(None, None, StaticRequirement(DUMMY_LOCALIZABLE))
+            is not None
+        )
 
     async def test_new__with_all_met(self) -> None:
         assert AllRequirements.new(None, None, None) is None
@@ -102,20 +112,22 @@ class TestAllRequirements:
     async def test_summary(self) -> None:
         summary = "My First Summary"
         requirement = AllRequirements.new(
-            StaticRequirement(""), StaticRequirement(""), summary=summary
+            StaticRequirement(DUMMY_LOCALIZABLE),
+            StaticRequirement(DUMMY_LOCALIZABLE),
+            summary=summary,
         )
         assert requirement is not None
         assert requirement.summary.localize(DEFAULT_LOCALIZER) == summary
 
     async def test_summary__default(self) -> None:
-        assert AllRequirements(StaticRequirement("")).summary.localize(
+        assert AllRequirements(StaticRequirement(DUMMY_LOCALIZABLE)).summary.localize(
             DEFAULT_LOCALIZER
         )
 
 
 class TestUnmetRequirement:
     def test_requirement(self) -> None:
-        requirement = StaticRequirement("")
+        requirement = StaticRequirement(DUMMY_LOCALIZABLE)
         sut = UnmetRequirement(requirement)
         assert sut.requirement() is requirement
 
@@ -127,4 +139,4 @@ class TestStaticRequirement:
 
     def test_details(self) -> None:
         details = Plain("Hello, world!")
-        assert StaticRequirement("", details).details is details
+        assert StaticRequirement(DUMMY_LOCALIZABLE, details).details is details

@@ -307,6 +307,9 @@ class Plain(Localizable):
     """
 
     def __init__(self, text: str, locale: LocaleLike | None = None, /):
+        from betty.assertion import assert_len
+
+        assert_len(minimum=1)(text)
         self._text = text
         self._locale = None if locale is None else ensure_locale(locale)
 

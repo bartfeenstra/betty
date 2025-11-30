@@ -7,11 +7,14 @@ from typing_extensions import override
 from betty.ancestry.has_links import HasLinks
 from betty.ancestry.link import Link
 from betty.locale import DEFAULT_LOCALE_TAG
-from betty.locale.localizable import CountablePlain
 from betty.locale.localizer import DEFAULT_LOCALIZER
 from betty.media_type.media_types import HTML
 from betty.model import EntityPlugin
 from betty.test_utils.json.linked_data import assert_dumps_linked_data
+from betty.test_utils.locale.localizable import (
+    DUMMY_LOCALIZABLE,
+    _DummyCountableLocalizable,
+)
 from betty.test_utils.model import EntityPluginTestBase
 
 if TYPE_CHECKING:
@@ -24,9 +27,9 @@ import pytest
 
 @EntityPlugin(
     "dummy-has-links",
-    label="",
-    label_plural="",
-    label_countable=CountablePlain("", ""),
+    label=DUMMY_LOCALIZABLE,
+    label_plural=DUMMY_LOCALIZABLE,
+    label_countable=_DummyCountableLocalizable(),
 )
 class DummyHasLinks(HasLinks):
     pass
@@ -85,7 +88,7 @@ class TestLink:
         assert not sut.has_label
 
     async def test_has_label__with_label(self) -> None:
-        sut = Link("https://example.com", label="")
+        sut = Link("https://example.com", label=DUMMY_LOCALIZABLE)
         assert sut.has_label
 
     async def test_dump_linked_data__should_dump_minimal(self) -> None:

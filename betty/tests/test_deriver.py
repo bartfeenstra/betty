@@ -20,6 +20,7 @@ from betty.date import Date, DateLike, DateRange
 from betty.deriver import Deriver
 from betty.model.collections import record_added
 from betty.project import Project
+from betty.test_utils.locale.localizable import DUMMY_LOCALIZABLE
 
 if TYPE_CHECKING:
     from collections.abc import AsyncIterator
@@ -32,32 +33,36 @@ NewProject: TypeAlias = Callable[
 
 
 @final
-@EventTypePlugin("isolated", label="")
+@EventTypePlugin("isolated", label=DUMMY_LOCALIZABLE)
 class Isolated(EventType):
     pass
 
 
 @final
-@EventTypePlugin("comes-before-reference", label="")
+@EventTypePlugin("comes-before-reference", label=DUMMY_LOCALIZABLE)
 class ComesBeforeReference(EventType):
     pass
 
 
 @final
-@EventTypePlugin("comes-after-reference", label="")
+@EventTypePlugin("comes-after-reference", label=DUMMY_LOCALIZABLE)
 class ComesAfterReference(EventType):
     pass
 
 
 @final
-@EventTypePlugin("comes-before", label="", comes_before={ComesBeforeReference.plugin})
+@EventTypePlugin(
+    "comes-before", label=DUMMY_LOCALIZABLE, comes_before={ComesBeforeReference.plugin}
+)
 class ComesBefore(EventType):
     pass
 
 
 @final
 @EventTypePlugin(
-    "comes-before-should-exist", label="", comes_before={ComesBeforeReference.plugin}
+    "comes-before-should-exist",
+    label=DUMMY_LOCALIZABLE,
+    comes_before={ComesBeforeReference.plugin},
 )
 class ComesBeforeShouldExist(ShouldExistEventType):
     @override
@@ -69,7 +74,7 @@ class ComesBeforeShouldExist(ShouldExistEventType):
 @final
 @EventTypePlugin(
     "comes-before-should-not-exist",
-    label="",
+    label=DUMMY_LOCALIZABLE,
     comes_before={ComesBeforeReference.plugin},
 )
 class ComesBeforeShouldNotExist(ShouldExistEventType):
@@ -82,7 +87,7 @@ class ComesBeforeShouldNotExist(ShouldExistEventType):
 @final
 @EventTypePlugin(
     "comes-before-and-after",
-    label="",
+    label=DUMMY_LOCALIZABLE,
     comes_before={ComesBeforeReference.plugin},
     comes_after={ComesAfterReference.plugin},
 )
@@ -93,7 +98,7 @@ class ComesBeforeAndAfter(EventType):
 @final
 @EventTypePlugin(
     "comes-before-and-after-should-exist",
-    label="",
+    label=DUMMY_LOCALIZABLE,
     comes_before={ComesBeforeReference.plugin},
     comes_after={ComesAfterReference.plugin},
 )
@@ -107,7 +112,7 @@ class ComesBeforeAndAfterShouldExist(ShouldExistEventType):
 @final
 @EventTypePlugin(
     "comes-before-and-after-should-not-exist",
-    label="",
+    label=DUMMY_LOCALIZABLE,
     comes_before={ComesBeforeReference.plugin},
     comes_after={ComesAfterReference.plugin},
 )
@@ -119,14 +124,18 @@ class ComesBeforeAndAfterShouldNotExist(ShouldExistEventType):
 
 
 @final
-@EventTypePlugin("comes-after", label="", comes_after={ComesAfterReference.plugin})
+@EventTypePlugin(
+    "comes-after", label=DUMMY_LOCALIZABLE, comes_after={ComesAfterReference.plugin}
+)
 class ComesAfter(EventType):
     pass
 
 
 @final
 @EventTypePlugin(
-    "comes-after-should-exist", label="", comes_after={ComesAfterReference.plugin}
+    "comes-after-should-exist",
+    label=DUMMY_LOCALIZABLE,
+    comes_after={ComesAfterReference.plugin},
 )
 class ComesAfterShouldExist(ShouldExistEventType):
     @override
@@ -137,7 +146,9 @@ class ComesAfterShouldExist(ShouldExistEventType):
 
 @final
 @EventTypePlugin(
-    "comes-after-should-not-exist", label="", comes_after={ComesAfterReference.plugin}
+    "comes-after-should-not-exist",
+    label=DUMMY_LOCALIZABLE,
+    comes_after={ComesAfterReference.plugin},
 )
 class ComesAfterShouldNotExist(ShouldExistEventType):
     @override

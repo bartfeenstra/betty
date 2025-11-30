@@ -10,6 +10,7 @@ from betty.project import Project
 from betty.project.extension import ExtensionPlugin
 from betty.requirement import Requirement
 from betty.test_utils.documentation import PluginDocumentationTestBase
+from betty.test_utils.locale.localizable import DUMMY_LOCALIZABLE
 from betty.test_utils.plugin import PluginDefinitionClassTestBase
 from betty.test_utils.project.extension import DummyExtensionOne
 
@@ -23,12 +24,12 @@ class TestExtensionPlugin(PluginDefinitionClassTestBase):
     def test_assets_directory_path(self) -> None:
         assets_directory_path = Path(__file__)
         sut = ExtensionPlugin(
-            "-", assets_directory_path=assets_directory_path, label=""
+            "-", assets_directory_path=assets_directory_path, label=DUMMY_LOCALIZABLE
         )
         assert sut.assets_directory_path == assets_directory_path
 
     def test_theme(self) -> None:
-        sut = ExtensionPlugin("-", theme=True, label="")
+        sut = ExtensionPlugin("-", theme=True, label=DUMMY_LOCALIZABLE)
         assert sut.theme
 
 
