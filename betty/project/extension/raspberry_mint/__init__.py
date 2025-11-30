@@ -13,7 +13,7 @@ from typing_extensions import override
 from betty.config.factory import ConfigurationDependentSelfFactory
 from betty.data import Key
 from betty.data import Path as DataPath
-from betty.exception import HumanFacingExceptionGroup
+from betty.exception import reraise_within_context
 from betty.jinja2 import Filters, Jinja2Provider
 from betty.project.extension import ExtensionPlugin
 from betty.project.extension._theme import jinja2_filters
@@ -98,14 +98,11 @@ class RaspberryMint(
             raise
 
     async def _assert_configuration(self) -> None:
-        with (
-            HumanFacingExceptionGroup().assert_valid() as errors,
-            errors.catch(
-                DataPath(self._project.configuration.configuration_file_path),
-                Key("extensions"),
-                Key("raspberry-mint"),
-                Key("regional_content"),
-            ),
+        with reraise_within_context(
+            Key("regional_content"),
+            Key("raspberry-mint"),
+            Key("extensions"),
+            DataPath(self._project.configuration.configuration_file_path),
         ):
             self.configuration.regional_content.validate(self.regions)
 

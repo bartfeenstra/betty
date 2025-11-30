@@ -26,7 +26,6 @@ from betty.test_utils.config.collections import (
     ConfigurationCollectionTestBaseSutConfigurations,
 )
 from betty.test_utils.config.collections.sequence import ConfigurationSequenceTestBase
-from betty.test_utils.exception import raises_error
 from betty.test_utils.plugin import (
     DummyPlugin,
     DummyPluginDefinition,
@@ -163,7 +162,7 @@ class TestFamilyTreeConfiguration:
 
     async def test_load__without_dict_should_error(self, tmp_path: Path) -> None:
         dump = None
-        with raises_error(error_type=HumanFacingException):
+        with pytest.raises(HumanFacingException):
             FamilyTreeConfiguration(tmp_path).load(dump)
 
     async def test_dump__with_minimal_configuration(self, tmp_path: Path) -> None:
@@ -391,7 +390,7 @@ class TestGrampsConfiguration:
 
     async def test_load__without_dict_should_error(self) -> None:
         dump = None
-        with raises_error(error_type=HumanFacingException):
+        with pytest.raises(HumanFacingException):
             GrampsConfiguration().load(dump)
 
     async def test_load__with_family_tree(self) -> None:

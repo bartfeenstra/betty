@@ -204,9 +204,9 @@ class EntityTypeConfigurationMapping(
         """
         Validate the configuration.
         """
-        with HumanFacingExceptionGroup().assert_valid() as errors:
+        with HumanFacingExceptionGroup() as errors:
             for configuration in self.values():
-                with errors.catch(Key(configuration.id)):
+                with errors.absorb(Key(configuration.id)):
                     await configuration.validate(entity_type_repository)
 
 

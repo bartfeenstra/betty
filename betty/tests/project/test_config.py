@@ -50,7 +50,6 @@ from betty.test_utils.config.collections import (
     ConfigurationCollectionTestBaseNewSut,
 )
 from betty.test_utils.config.collections.mapping import ConfigurationMappingTestBase
-from betty.test_utils.exception import raises_error
 from betty.test_utils.locale.localizable import (
     DUMMY_LOCALIZABLE,
     _DummyCountableLocalizable,
@@ -110,7 +109,7 @@ class TestLocaleConfiguration:
     async def test_load__with_invalid_dump(self) -> None:
         dump: Dump = {}
         sut = LocaleConfiguration(DEFAULT_LOCALE)
-        with raises_error(error_type=HumanFacingException):
+        with pytest.raises(HumanFacingException):
             sut.load(dump)
 
     async def test_load__with_locale(self) -> None:
@@ -381,7 +380,7 @@ class TestEntityTypeConfiguration:
     async def test_load__with_empty_configuration(self) -> None:
         dump: Dump = {}
         sut = EntityTypeConfiguration(DummyEntityOne)
-        with raises_error(error_type=HumanFacingException):
+        with pytest.raises(HumanFacingException):
             sut.load(dump)
 
     def test_load__with_minimal_configuration(self) -> None:
@@ -1324,7 +1323,7 @@ class TestProjectConfiguration:
         dump["extensions"] = {
             DummyConfigurableExtension.plugin.id: 1337,
         }
-        with raises_error(error_type=HumanFacingException):
+        with pytest.raises(HumanFacingException):
             sut.load(dump)
 
     @pytest.mark.parametrize(
@@ -1410,7 +1409,7 @@ class TestProjectConfiguration:
     async def test_load__should_error_if_invalid_config(self, tmp_path: Path) -> None:
         dump: Dump = {}
         sut = ProjectConfiguration(tmp_path / "betty.json")
-        with raises_error(error_type=HumanFacingException):
+        with pytest.raises(HumanFacingException):
             sut.load(dump)
 
     async def test_dump__should_dump_minimal(self, tmp_path: Path) -> None:
@@ -1573,7 +1572,7 @@ class TestProjectConfiguration:
     async def test_dump__should_error_if_invalid_config(self, tmp_path: Path) -> None:
         dump: Dump = {}
         sut = ProjectConfiguration(tmp_path / "betty.json")
-        with raises_error(error_type=HumanFacingException):
+        with pytest.raises(HumanFacingException):
             sut.load(dump)
 
     async def test_dump__should_dump_copyright_notice(self, tmp_path: Path) -> None:

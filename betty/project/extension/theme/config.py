@@ -75,9 +75,9 @@ class RegionalContentConfiguration(Configuration):
         self._content.clear()
         dump = assert_mapping(None, assert_str())(dump)
         assert_len(minimum=1)(dump)
-        with HumanFacingExceptionGroup().assert_valid() as errors:
+        with HumanFacingExceptionGroup() as errors:
             for region, region_dump in dump.items():
-                with errors.catch(Key(region)):
+                with errors.absorb(Key(region)):
                     assert_len(minimum=1)(region_dump)
                     self._content[region].load(region_dump)
 
@@ -93,9 +93,9 @@ class RegionalContentConfiguration(Configuration):
         """
         Validate the configuration against runtime information.
         """
-        with HumanFacingExceptionGroup().assert_valid() as errors:
+        with HumanFacingExceptionGroup() as errors:
             for region in self._content:
-                with errors.catch(Key(region)):
+                with errors.absorb(Key(region)):
                     if region not in available_regions:
                         raise HumanFacingException(
                             Paragraph(
