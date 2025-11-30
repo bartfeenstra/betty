@@ -308,9 +308,9 @@ def assert_sequence(
         if value_assertion is None:
             return list(sequence)
         asserted_sequence = []
-        with HumanFacingExceptionGroup().assert_valid() as errors:
+        with HumanFacingExceptionGroup() as errors:
             for value_index, value_value in enumerate(sequence):
-                with errors.catch(Index(value_index)):
+                with errors.absorb(Index(value_index)):
                     asserted_sequence.append(value_assertion(value_value))
         return asserted_sequence
 
@@ -368,15 +368,15 @@ def assert_mapping(
         if value_assertion is None and key_assertion is None:
             return dict(mapping)
         asserted_mapping = {}
-        with HumanFacingExceptionGroup().assert_valid() as errors:
+        with HumanFacingExceptionGroup() as errors:
             for value_key, value_value in mapping.items():
                 asserted_value_key = value_key
                 if key_assertion:
-                    with errors.catch(Key(value_key)):
+                    with errors.absorb(Key(value_key)):
                         asserted_value_key = key_assertion(value_key)
                 asserted_value_value = value_value
                 if value_assertion:
-                    with errors.catch(Key(value_key)):
+                    with errors.absorb(Key(value_key)):
                         asserted_value_value = value_assertion(value_value)
                 asserted_mapping[asserted_value_key] = asserted_value_value
         return asserted_mapping
@@ -393,9 +393,9 @@ def assert_fields(
 
     def _assert_fields(value: Mapping[Any, Any], /) -> MutableMapping[str, Any]:
         mapping: MutableMapping[str, Any] = {}
-        with HumanFacingExceptionGroup().assert_valid() as errors:
+        with HumanFacingExceptionGroup() as errors:
             for field in fields:
-                with errors.catch(Key(field.name)):
+                with errors.absorb(Key(field.name)):
                     if field.name in value:
                         mapping[field.name] = (
                             field.assertion(value[field.name])
@@ -458,9 +458,9 @@ def assert_record(
     def _assert_record(value: Mapping[Any, Any], /) -> MutableMapping[str, Any]:
         known_keys = {x.name for x in fields}
         unknown_keys = set(value.keys()) - known_keys
-        with HumanFacingExceptionGroup().assert_valid() as errors:
+        with HumanFacingExceptionGroup() as errors:
             for unknown_key in unknown_keys:
-                with errors.catch(Key(unknown_key)):
+                with errors.absorb(Key(unknown_key)):
                     raise HumanFacingException(
                         Paragraph(
                             _("Unknown key: {unknown_key}.").format(

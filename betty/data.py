@@ -118,7 +118,7 @@ class Path(Context):
     """
 
     def __init__(self, path: pathlib.Path):
-        self._path = path
+        self._path = path.resolve().absolute()
 
     @override
     def format(self) -> str:

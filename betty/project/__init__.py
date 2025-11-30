@@ -23,7 +23,7 @@ from betty.asset import AssetRepository, ProxyAssetRepository, StaticAssetReposi
 from betty.config import Configurable
 from betty.copyright_notice import CopyrightNotice, CopyrightNoticePlugin
 from betty.data import Key
-from betty.exception import HumanFacingExceptionGroup
+from betty.exception import reraise_within_context
 from betty.hashid import hashid
 from betty.job import Context as JobContext
 from betty.license import LicensePlugin
@@ -173,10 +173,7 @@ class Project(
             raise
 
     async def _assert_configuration(self) -> None:
-        with (
-            HumanFacingExceptionGroup().assert_valid() as errors,
-            errors.catch(Key("entity_types")),
-        ):
+        with reraise_within_context(Key("entity_types")):
             await self.configuration.entity_types.validate(
                 await self.plugins(EntityPlugin)
             )

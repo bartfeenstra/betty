@@ -4,13 +4,12 @@ Test utilities for :py:mod:`betty.exception`.
 
 from __future__ import annotations
 
-from contextlib import contextmanager
-from typing import TYPE_CHECKING, Any, overload
+from typing import TYPE_CHECKING, overload
 
 from betty.exception import HumanFacingException, HumanFacingExceptionGroup
 
 if TYPE_CHECKING:
-    from collections.abc import Iterable, Iterator, Sequence
+    from collections.abc import Iterable, Sequence
 
     from betty.data import Context
 
@@ -92,16 +91,3 @@ def assert_error(
     if errors:
         return errors
     raise AssertionError("Failed raising UserFacingException.")
-
-
-@contextmanager
-def raises_error(*args: Any, **kwargs: Any) -> Iterator[HumanFacingExceptionGroup]:
-    """
-    Provide a context manager to assert that an error group contains an error matching the given parameters.
-    """
-    try:
-        with HumanFacingExceptionGroup().catch() as errors:
-            yield errors
-    finally:
-        assert_error(errors, *args, **kwargs)
-        errors.assert_valid()

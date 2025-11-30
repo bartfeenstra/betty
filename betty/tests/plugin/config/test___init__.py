@@ -29,7 +29,6 @@ from betty.test_utils.config.collections import (
 )
 from betty.test_utils.config.collections.mapping import ConfigurationMappingTestBase
 from betty.test_utils.config.collections.sequence import ConfigurationSequenceTestBase
-from betty.test_utils.exception import raises_error
 from betty.test_utils.locale.localizable import DUMMY_LOCALIZABLE
 from betty.test_utils.plugin import (
     DummyPlugin,
@@ -214,7 +213,7 @@ class TestPluginInstanceConfiguration:
         sut = PluginInstanceConfiguration[
             ConfigurableDummyPluginDefinition, ConfigurableDummyPlugin
         ](ConfigurableDummyPluginOne.plugin)
-        with raises_error(error_type=HumanFacingException):
+        with pytest.raises(HumanFacingException):
             sut.load({})
 
     def test_load__minimal(self) -> None:

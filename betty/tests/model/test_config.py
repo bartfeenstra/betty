@@ -10,7 +10,6 @@ from betty.model import EntityPlugin
 from betty.model.config import EntityReference, EntityReferenceSequence
 from betty.plugin.repository.static import StaticPluginRepository
 from betty.test_utils.config.collections.sequence import ConfigurationSequenceTestBase
-from betty.test_utils.exception import raises_error
 from betty.test_utils.model import DummyEntityOne, DummyEntityTwo
 
 if TYPE_CHECKING:
@@ -77,7 +76,7 @@ class TestEntityReference:
         self, dump: Dump
     ) -> None:
         sut = EntityReference(DummyEntityOne.plugin, entity_type_is_constrained=True)
-        with raises_error(error_type=HumanFacingException):
+        with pytest.raises(HumanFacingException):
             sut.load(dump)
 
     async def test_load__without_constraint(self) -> None:
@@ -100,7 +99,7 @@ class TestEntityReference:
             "entity": entity_id,
         }
         sut = EntityReference()
-        with raises_error(error_type=HumanFacingException):
+        with pytest.raises(HumanFacingException):
             sut.load(dump)
 
     async def test_load__without_constraint_without_string_entity_type_should_error(
@@ -112,7 +111,7 @@ class TestEntityReference:
             "entity": entity_id,
         }
         sut = EntityReference()
-        with raises_error(error_type=HumanFacingException):
+        with pytest.raises(HumanFacingException):
             sut.load(dump)
 
     async def test_load__without_constraint_without_string_entity_id_should_error(
@@ -123,7 +122,7 @@ class TestEntityReference:
             "entity": None,
         }
         sut = EntityReference()
-        with raises_error(error_type=HumanFacingException):
+        with pytest.raises(HumanFacingException):
             sut.load(dump)
 
     async def test_dump__with_constraint(self) -> None:
@@ -150,7 +149,7 @@ class TestEntityReference:
         self,
     ) -> None:
         sut = EntityReference("betty.non_existent.Entity")
-        with raises_error(error_type=HumanFacingException):
+        with pytest.raises(HumanFacingException):
             await sut.validate(StaticPluginRepository(EntityPlugin))
 
 
@@ -196,5 +195,5 @@ class TestEntityReferenceSequence(ConfigurationSequenceTestBase[EntityReference]
         self,
     ) -> None:
         sut = EntityReferenceSequence([EntityReference("betty.non_existent.Entity")])
-        with raises_error(error_type=HumanFacingException):
+        with pytest.raises(HumanFacingException):
             await sut.validate(StaticPluginRepository(EntityPlugin))

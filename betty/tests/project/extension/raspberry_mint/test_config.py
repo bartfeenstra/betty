@@ -2,11 +2,12 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING, Any
 
+import pytest
+
 from betty.content_provider import ContentProvider, ContentProviderPlugin
 from betty.exception import HumanFacingException
 from betty.plugin.config import PluginInstanceConfiguration
 from betty.project.extension.raspberry_mint.config import RaspberryMintConfiguration
-from betty.test_utils.exception import raises_error
 
 if TYPE_CHECKING:
     from collections.abc import Mapping
@@ -44,7 +45,7 @@ class TestRaspberryMintConfiguration:
 
     def test_load__without_dict_should_error(self) -> None:
         dump = None
-        with raises_error(error_type=HumanFacingException):
+        with pytest.raises(HumanFacingException):
             RaspberryMintConfiguration().load(dump)
 
     def test_load__with_primary_color(self) -> None:

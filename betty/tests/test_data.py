@@ -2,8 +2,15 @@ import pathlib
 from collections.abc import Sequence
 
 import pytest
+from typing_extensions import override
 
 from betty.data import Attr, Context, Index, Key, Path, Selector, Selectors
+
+
+class DummyContext(Context):
+    @override
+    def format(self) -> str:
+        return "DUMMY"
 
 
 class TestAttr:
@@ -23,7 +30,7 @@ class TestKey:
 
 class TestPath:
     def test_format(self) -> None:
-        assert Path(pathlib.Path("my-first-path")).format() == "my-first-path"
+        assert Path(pathlib.Path("my-first-path")).format().endswith("my-first-path")
 
 
 class TestSelectors:
@@ -54,12 +61,12 @@ class TestSelectors:
                 [],
             ),
             (
-                "my-first-path\ndata.my_first_attr.my_second_attr\nmy-second-path\ndata.my_third_attr.my_fourth_attr",
+                "DUMMY\ndata.my_first_attr.my_second_attr\nDUMMY\ndata.my_third_attr.my_fourth_attr",
                 [
-                    Path(pathlib.Path("my-first-path")),
+                    DummyContext(),
                     Attr("my_first_attr"),
                     Attr("my_second_attr"),
-                    Path(pathlib.Path("my-second-path")),
+                    DummyContext(),
                     Attr("my_third_attr"),
                     Attr("my_fourth_attr"),
                 ],

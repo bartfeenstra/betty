@@ -203,7 +203,7 @@ class EntityReferenceSequence(ConfigurationSequence[EntityReference]):
         """
         Validate the configuration.
         """
-        with HumanFacingExceptionGroup().assert_valid() as errors:
+        with HumanFacingExceptionGroup() as errors:
             for index, reference in enumerate(self):
-                with errors.catch(Index(index)):
+                with errors.absorb(Index(index)):
                     await reference.validate(entity_type_repository)
