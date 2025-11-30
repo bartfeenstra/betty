@@ -10,11 +10,14 @@ from betty.locale.translation.project.extension import (
     assert_extension_has_assets_directory_path,
 )
 from betty.project.extension import Extension, ExtensionPlugin
+from betty.test_utils.locale.localizable import DUMMY_LOCALIZABLE
 from betty.test_utils.project.extension import DummyExtensionOne
 
 
 @ExtensionPlugin(
-    "dummy-with-assets-directory", label="", assets_directory_path=Path(__file__)
+    "dummy-with-assets-directory",
+    label=DUMMY_LOCALIZABLE,
+    assets_directory_path=Path(__file__),
 )
 class _DummyExtensionWithAssetsDirectory(Extension):
     pass

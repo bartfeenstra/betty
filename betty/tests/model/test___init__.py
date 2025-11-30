@@ -3,7 +3,6 @@ from pathlib import Path
 import pytest
 from typing_extensions import override
 
-from betty.locale.localizable import CountablePlain
 from betty.model import (
     Entity,
     EntityPlugin,
@@ -11,6 +10,10 @@ from betty.model import (
 )
 from betty.plugin import PluginDefinition
 from betty.test_utils.documentation import PluginDocumentationTestBase
+from betty.test_utils.locale.localizable import (
+    DUMMY_LOCALIZABLE,
+    _DummyCountableLocalizable,
+)
 from betty.test_utils.plugin import PluginDefinitionClassTestBase
 
 
@@ -24,9 +27,9 @@ class TestEntityPlugin(PluginDefinitionClassTestBase):
         sut = EntityPlugin(
             "-",
             public_facing=True,
-            label="",
-            label_plural="",
-            label_countable=CountablePlain("", ""),
+            label=DUMMY_LOCALIZABLE,
+            label_plural=DUMMY_LOCALIZABLE,
+            label_countable=_DummyCountableLocalizable(),
         )
         assert sut.public_facing
 

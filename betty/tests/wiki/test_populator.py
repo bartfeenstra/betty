@@ -15,6 +15,7 @@ from betty.locale.localizer import LocalizerRepository
 from betty.locale.translation import NoOpTranslationRepository
 from betty.media_type import MediaType
 from betty.media_type.media_types import HTML
+from betty.test_utils.locale.localizable import DUMMY_LOCALIZABLE
 from betty.test_utils.model import DummyEntityOne
 from betty.user.no_op import NoOpUser
 from betty.wiki.client import Client, Image, Summary
@@ -49,7 +50,7 @@ class TestPopulator:
             [Locale("en"), Locale("nl"), Locale("uk")],
             localizers,
             m_client,
-            WikipediaContributors(""),
+            WikipediaContributors(DUMMY_LOCALIZABLE),
             user=NoOpUser(),
         )
         await sut.populate(link)
@@ -102,7 +103,7 @@ class TestPopulator:
             [Locale("en"), Locale("nl"), Locale("uk")],
             localizers,
             m_client,
-            WikipediaContributors(""),
+            WikipediaContributors(DUMMY_LOCALIZABLE),
             user=NoOpUser(),
         )
         await sut.populate(link)
@@ -131,7 +132,7 @@ class TestPopulator:
             [Locale("en"), Locale("nl"), Locale("uk")],
             localizers,
             m_client,
-            WikipediaContributors(""),
+            WikipediaContributors(DUMMY_LOCALIZABLE),
             user=NoOpUser(),
         )
         await sut.populate(link)
@@ -150,7 +151,7 @@ class TestPopulator:
             [],
             LocalizerRepository(NoOpTranslationRepository()),
             m_client,
-            WikipediaContributors(""),
+            WikipediaContributors(DUMMY_LOCALIZABLE),
             user=NoOpUser(),
         )
         await sut.populate(entity)
@@ -180,7 +181,7 @@ class TestPopulator:
             [Locale("en")],
             LocalizerRepository(NoOpTranslationRepository()),
             m_client,
-            WikipediaContributors(""),
+            WikipediaContributors(DUMMY_LOCALIZABLE),
             user=NoOpUser(),
         )
         await sut.populate(place)
@@ -216,7 +217,7 @@ class TestPopulator:
             [Locale("en")],
             LocalizerRepository(NoOpTranslationRepository()),
             m_client,
-            WikipediaContributors(""),
+            WikipediaContributors(DUMMY_LOCALIZABLE),
             user=NoOpUser(),
         )
         await sut.populate(has_file_references_and_links)

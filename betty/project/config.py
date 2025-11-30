@@ -374,7 +374,9 @@ class CopyrightNoticePluginConfigurationMapping(
 
     @override
     def _load_item(self, dump: Dump, /) -> CopyrightNoticePluginConfiguration:
-        item = CopyrightNoticePluginConfiguration(id="-", label="", summary="", text="")
+        item = CopyrightNoticePluginConfiguration(
+            id="-", label="-", summary="-", text="-"
+        )
         item.load(dump)
         return item
 
@@ -451,7 +453,7 @@ class LicensePluginConfigurationMapping(
 
     @override
     def _load_item(self, dump: Dump, /) -> LicensePluginConfiguration:
-        item = LicensePluginConfiguration(id="-", label="", summary="", text="")
+        item = LicensePluginConfiguration(id="-", label="-", summary="-", text="-")
         item.load(dump)
         return item
 
@@ -497,7 +499,7 @@ class EventTypePluginConfigurationMapping(
 
     @override
     def _load_item(self, dump: Dump, /) -> EventTypePluginConfiguration:
-        item = EventTypePluginConfiguration(id="-", label="")
+        item = EventTypePluginConfiguration(id="-", label="-")
         item.load(dump)
         return item
 
@@ -533,7 +535,7 @@ class PlaceTypePluginConfigurationMapping(
 
     @override
     def _load_item(self, dump: Dump, /) -> PlaceTypePluginConfiguration:
-        item = PlaceTypePluginConfiguration(id="-", label="")
+        item = PlaceTypePluginConfiguration(id="-", label="-")
         item.load(dump)
         return item
 
@@ -569,7 +571,7 @@ class PresenceRolePluginConfigurationMapping(
 
     @override
     def _load_item(self, dump: Dump, /) -> PresenceRolePluginConfiguration:
-        item = PresenceRolePluginConfiguration(id="-", label="")
+        item = PresenceRolePluginConfiguration(id="-", label="-")
         item.load(dump)
         return item
 
@@ -605,7 +607,7 @@ class GenderPluginConfigurationMapping(
 
     @override
     def _load_item(self, dump: Dump, /) -> GenderPluginConfiguration:
-        item = GenderPluginConfiguration(id="-", label="")
+        item = GenderPluginConfiguration(id="-", label="-")
         item.load(dump)
         return item
 

@@ -17,6 +17,7 @@ from betty.project.config import EntityTypeConfiguration, ProjectConfiguration
 from betty.project.extension import Extension, ExtensionPlugin
 from betty.project.factory import ProjectDependentFactory, ProjectDependentSelfFactory
 from betty.requirement import Requirement, StaticRequirement, UnmetRequirement
+from betty.test_utils.locale.localizable import DUMMY_LOCALIZABLE
 from betty.test_utils.model import DummyNonPublicFacingEntityOne
 from betty.test_utils.plugin import DummyPluginDefinition
 from betty.test_utils.project.extension import DummyExtensionOne, DummyExtensionTwo
@@ -29,7 +30,7 @@ if TYPE_CHECKING:
 
 @ExtensionPlugin(
     "dummy-with-assets-directory",
-    label="",
+    label=DUMMY_LOCALIZABLE,
     assets_directory_path=Path(__file__).parent
     / "dummy-with-assets-directory"
     / "assets",
@@ -38,20 +39,20 @@ class _DummyExtensionWithAssetsDirectory(Extension):
     pass
 
 
-@ExtensionPlugin("dummy-unmet-requirement", label="")
+@ExtensionPlugin("dummy-unmet-requirement", label=DUMMY_LOCALIZABLE)
 class _DummyExtensionWithUnmetRequirement(Extension):
     @override
     @classmethod
     async def requirement(cls, level: ServiceLevel, /) -> Requirement | None:
-        return StaticRequirement("")
+        return StaticRequirement(DUMMY_LOCALIZABLE)
 
 
-@ExtensionPlugin("dummy-a", label="")
+@ExtensionPlugin("dummy-a", label=DUMMY_LOCALIZABLE)
 class _DummyExtensionA(Extension):
     pass
 
 
-@ExtensionPlugin("dummy-b", label="")
+@ExtensionPlugin("dummy-b", label=DUMMY_LOCALIZABLE)
 class _DummyExtensionB(Extension):
     pass
 

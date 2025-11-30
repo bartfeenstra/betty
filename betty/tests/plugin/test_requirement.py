@@ -17,6 +17,7 @@ from betty.plugin.requirement import (
     new_dependencies_requirement,
 )
 from betty.requirement import HasRequirement, Requirement, StaticRequirement
+from betty.test_utils.locale.localizable import DUMMY_LOCALIZABLE
 from betty.test_utils.plugin import DummyPlugin, DummyPluginDefinition, DummyPluginOne
 
 if TYPE_CHECKING:
@@ -157,7 +158,7 @@ async def test_get_requirement__without_requirement() -> None:
 
 
 async def test_get_requirement__with_requirement() -> None:
-    requirement = StaticRequirement("")
+    requirement = StaticRequirement(DUMMY_LOCALIZABLE)
 
     @DummyPluginDefinition("-")
     class _Plugin(HasRequirement, DummyPlugin):

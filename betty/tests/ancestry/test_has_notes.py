@@ -6,9 +6,12 @@ import pytest
 
 from betty.ancestry.has_notes import HasNotes
 from betty.ancestry.note import Note
-from betty.locale.localizable import CountablePlain
 from betty.model import EntityPlugin
 from betty.test_utils.json.linked_data import assert_dumps_linked_data
+from betty.test_utils.locale.localizable import (
+    DUMMY_LOCALIZABLE,
+    _DummyCountableLocalizable,
+)
 
 if TYPE_CHECKING:
     from betty.serde.dump import Dump, DumpMapping
@@ -16,9 +19,9 @@ if TYPE_CHECKING:
 
 @EntityPlugin(
     "dummy-has-notes",
-    label="",
-    label_plural="",
-    label_countable=CountablePlain("", ""),
+    label=DUMMY_LOCALIZABLE,
+    label_plural=DUMMY_LOCALIZABLE,
+    label_countable=_DummyCountableLocalizable(),
 )
 class DummyHasNotes(HasNotes):
     pass
@@ -26,14 +29,14 @@ class DummyHasNotes(HasNotes):
 
 class TestHasNotes:
     async def test___init___with_notes(self) -> None:
-        note = Note("")
+        note = Note(DUMMY_LOCALIZABLE)
         sut = DummyHasNotes(notes=[note])
         assert list(sut.notes) == [note]
 
     async def test_notes(self) -> None:
         sut = DummyHasNotes()
         assert list(sut.notes) == []
-        note = Note("")
+        note = Note(DUMMY_LOCALIZABLE)
         sut.notes = [note]
         assert list(sut.notes) == [note]
 

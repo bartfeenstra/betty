@@ -12,10 +12,11 @@ from betty.job import Context
 from betty.project import Project
 from betty.project.extension import Extension, ExtensionPlugin
 from betty.project.extension.webpack.build import Builder, EntryPointProvider
+from betty.test_utils.locale.localizable import DUMMY_LOCALIZABLE
 from betty.test_utils.user import StaticUser
 
 
-@ExtensionPlugin("dummy", label="")
+@ExtensionPlugin("dummy", label=DUMMY_LOCALIZABLE)
 class DummyEntryPointProviderExtension(EntryPointProvider, Extension):
     @override
     @classmethod

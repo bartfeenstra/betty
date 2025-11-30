@@ -1,11 +1,14 @@
 from __future__ import annotations
 
-from betty.locale.localizable import CountablePlain, Plain
 from betty.locale.localizer import DEFAULT_LOCALIZER
 from betty.plugin import PluginTypeDefinition
 from betty.plugin.human_facing import (
     CountableHumanFacingPluginDefinition,
     HumanFacingPluginDefinition,
+)
+from betty.test_utils.locale.localizable import (
+    DUMMY_LOCALIZABLE,
+    _DummyCountableLocalizable,
 )
 
 
@@ -23,7 +26,7 @@ class TestHumanFacingPluginDefinition:
 
         class _HumanFacingPluginDefinition(HumanFacingPluginDefinition):
             type = PluginTypeDefinition(
-                "-", plugin_type_label, "", CountablePlain("", "")
+                "-", plugin_type_label, DUMMY_LOCALIZABLE, _DummyCountableLocalizable()
             )
 
         id = "my-first-plugin"  # noqa A001
@@ -35,35 +38,35 @@ class TestHumanFacingPluginDefinition:
         assert plugin_type_label in actual
 
     def test_label(self) -> None:
-        label = Plain("")
+        label = DUMMY_LOCALIZABLE
         sut = HumanFacingPluginDefinition("my-first-plugin", label=label)
         assert sut.label is label
 
     def test_description(self) -> None:
-        description = Plain("")
+        description = DUMMY_LOCALIZABLE
         sut = HumanFacingPluginDefinition(
-            "my-first-plugin", description=description, label=""
+            "my-first-plugin", description=description, label=DUMMY_LOCALIZABLE
         )
         assert sut.description is description
 
 
 class TestCountableHumanFacingPluginDefinition:
     def test_label_plural(self) -> None:
-        label_plural = Plain("")
+        label_plural = DUMMY_LOCALIZABLE
         sut = CountableHumanFacingPluginDefinition(
             "my-first-plugin",
             label_plural=label_plural,
-            label_countable=CountablePlain("", ""),
-            label="",
+            label_countable=_DummyCountableLocalizable(),
+            label=DUMMY_LOCALIZABLE,
         )
         assert sut.label_plural is label_plural
 
     def test_label_countable(self) -> None:
-        label_countable = CountablePlain("", "")
+        label_countable = _DummyCountableLocalizable()
         sut = CountableHumanFacingPluginDefinition(
             "my-first-plugin",
             label_countable=label_countable,
-            label_plural="",
-            label="",
+            label_plural=DUMMY_LOCALIZABLE,
+            label=DUMMY_LOCALIZABLE,
         )
         assert sut.label_countable is label_countable

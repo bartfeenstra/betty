@@ -7,7 +7,6 @@ from betty.project.extension.wiki import Wiki
 from betty.resource import new_context
 from betty.test_utils.jinja2 import assert_template_file
 from betty.wiki.client import Summary
-from betty.wiki.copyright_notice import WikipediaContributors
 
 
 class DummyResource(HasLinks):
@@ -84,13 +83,17 @@ async def test_with_summary_should_render(mocker: MockerFixture) -> None:
         },
         extensions={Wiki},
         template="wiki/wikipedia-summary.html.j2",
-    ) as (actual, _):
+    ) as (actual, project):
+        extensions = await project.extensions
+        wikipedia_contributors_copyright_notice = extensions[
+            Wiki
+        ]._wikipedia_contributors_copyright_notice
         assert summary.content in actual
-        wikipedia_contributors_copyright_notice = WikipediaContributors("")
         assert (
             wikipedia_contributors_copyright_notice.summary.localize(DEFAULT_LOCALIZER)
             in actual
         )
+        assert wikipedia_contributors_copyright_notice.url is not None
         assert (
             wikipedia_contributors_copyright_notice.url.localize(DEFAULT_LOCALIZER)
             in actual

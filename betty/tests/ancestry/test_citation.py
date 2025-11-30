@@ -10,11 +10,14 @@ from betty.ancestry.event_type.event_types import Birth
 from betty.ancestry.has_citations import HasCitations
 from betty.ancestry.source import Source
 from betty.locale import DEFAULT_LOCALE_TAG
-from betty.locale.localizable import CountablePlain
 from betty.locale.localizer import DEFAULT_LOCALIZER
 from betty.model import Entity, EntityPlugin
 from betty.privacy import Privacy
 from betty.test_utils.json.linked_data import assert_dumps_linked_data
+from betty.test_utils.locale.localizable import (
+    DUMMY_LOCALIZABLE,
+    _DummyCountableLocalizable,
+)
 from betty.test_utils.model import EntityPluginTestBase, EntityTestBase
 
 if TYPE_CHECKING:
@@ -33,9 +36,9 @@ class TestCitationDefinition(EntityPluginTestBase):
 
 @EntityPlugin(
     "dummy-has-citations",
-    label="",
-    label_plural="",
-    label_countable=CountablePlain("", ""),
+    label=DUMMY_LOCALIZABLE,
+    label_plural=DUMMY_LOCALIZABLE,
+    label_countable=_DummyCountableLocalizable(),
 )
 class DummyHasCitations(HasCitations):
     pass

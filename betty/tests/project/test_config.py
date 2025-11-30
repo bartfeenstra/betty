@@ -16,7 +16,7 @@ from betty.exception import HumanFacingException
 from betty.license import License, LicensePlugin
 from betty.license.licenses import AllRightsReserved
 from betty.locale import DEFAULT_LOCALE, DEFAULT_LOCALE_TAG, LocaleLike
-from betty.locale.localizable import CountablePlain, Plain
+from betty.locale.localizable import Plain
 from betty.locale.localizer import DEFAULT_LOCALIZER
 from betty.machine_name import MachineName
 from betty.model import Entity, EntityPlugin
@@ -51,6 +51,10 @@ from betty.test_utils.config.collections import (
 )
 from betty.test_utils.config.collections.mapping import ConfigurationMappingTestBase
 from betty.test_utils.exception import raises_error
+from betty.test_utils.locale.localizable import (
+    DUMMY_LOCALIZABLE,
+    _DummyCountableLocalizable,
+)
 from betty.test_utils.model import DummyEntityOne, DummyNonPublicFacingEntityOne
 from betty.test_utils.plugin.config import PluginDefinitionConfigurationMappingTestBase
 from betty.test_utils.project.extension import (
@@ -69,7 +73,7 @@ if TYPE_CHECKING:
     )
 
 
-@ExtensionPlugin("dummy-non-configurable", label="")
+@ExtensionPlugin("dummy-non-configurable", label=DUMMY_LOCALIZABLE)
 class _DummyNonConfigurableExtension(Extension):
     pass
 
@@ -266,22 +270,34 @@ class TestLocaleConfigurationMapping(
         assert sut.multilingual
 
 
-@ExtensionPlugin("extension-instance-configuration-mapping-test-extension-0", label="")
+@ExtensionPlugin(
+    "extension-instance-configuration-mapping-test-extension-0",
+    label=DUMMY_LOCALIZABLE,
+)
 class ExtensionInstanceConfigurationMappingTestExtension0(Extension):
     pass
 
 
-@ExtensionPlugin("extension-instance-configuration-mapping-test-extension-1", label="")
+@ExtensionPlugin(
+    "extension-instance-configuration-mapping-test-extension-1",
+    label=DUMMY_LOCALIZABLE,
+)
 class ExtensionInstanceConfigurationMappingTestExtension1(Extension):
     pass
 
 
-@ExtensionPlugin("extension-instance-configuration-mapping-test-extension-2", label="")
+@ExtensionPlugin(
+    "extension-instance-configuration-mapping-test-extension-2",
+    label=DUMMY_LOCALIZABLE,
+)
 class ExtensionInstanceConfigurationMappingTestExtension2(Extension):
     pass
 
 
-@ExtensionPlugin("extension-instance-configuration-mapping-test-extension-3", label="")
+@ExtensionPlugin(
+    "extension-instance-configuration-mapping-test-extension-3",
+    label=DUMMY_LOCALIZABLE,
+)
 class ExtensionInstanceConfigurationMappingTestExtension3(Extension):
     pass
 
@@ -423,9 +439,9 @@ class TestEntityTypeConfiguration:
 
 @EntityPlugin(
     "zero",
-    label="",
-    label_plural="",
-    label_countable=CountablePlain("", ""),
+    label=DUMMY_LOCALIZABLE,
+    label_plural=DUMMY_LOCALIZABLE,
+    label_countable=_DummyCountableLocalizable(),
 )
 class EntityTypeConfigurationMappingTestEntity0(Entity):
     pass
@@ -433,9 +449,9 @@ class EntityTypeConfigurationMappingTestEntity0(Entity):
 
 @EntityPlugin(
     "one",
-    label="",
-    label_plural="",
-    label_countable=CountablePlain("", ""),
+    label=DUMMY_LOCALIZABLE,
+    label_plural=DUMMY_LOCALIZABLE,
+    label_countable=_DummyCountableLocalizable(),
 )
 class EntityTypeConfigurationMappingTestEntity1(Entity):
     pass
@@ -443,9 +459,9 @@ class EntityTypeConfigurationMappingTestEntity1(Entity):
 
 @EntityPlugin(
     "two",
-    label="",
-    label_plural="",
-    label_countable=CountablePlain("", ""),
+    label=DUMMY_LOCALIZABLE,
+    label_plural=DUMMY_LOCALIZABLE,
+    label_countable=_DummyCountableLocalizable(),
 )
 class EntityTypeConfigurationMappingTestEntity2(Entity):
     pass
@@ -453,9 +469,9 @@ class EntityTypeConfigurationMappingTestEntity2(Entity):
 
 @EntityPlugin(
     "three",
-    label="",
-    label_plural="",
-    label_countable=CountablePlain("", ""),
+    label=DUMMY_LOCALIZABLE,
+    label_plural=DUMMY_LOCALIZABLE,
+    label_countable=_DummyCountableLocalizable(),
 )
 class EntityTypeConfigurationMappingTestEntity3(Entity):
     pass
@@ -522,25 +538,35 @@ class TestCopyrightNoticeConfiguration:
     def test___init____with_summary(self) -> None:
         summary = Plain("My First Copyright Summary")
         sut = CopyrightNoticePluginConfiguration(
-            id="-", label="", summary=summary, text=""
+            id="-", label=DUMMY_LOCALIZABLE, summary=summary, text=DUMMY_LOCALIZABLE
         )
         assert sut.summary is summary
 
     def test___init____with_text(self) -> None:
         text = Plain("My First Copyright Text")
         sut = CopyrightNoticePluginConfiguration(
-            id="-", label="", summary="", text=text
+            id="-", label=DUMMY_LOCALIZABLE, summary=DUMMY_LOCALIZABLE, text=text
         )
         assert sut.text is text
 
     def test_summary(self) -> None:
-        sut = CopyrightNoticePluginConfiguration(id="-", label="", summary="", text="")
+        sut = CopyrightNoticePluginConfiguration(
+            id="-",
+            label=DUMMY_LOCALIZABLE,
+            summary=DUMMY_LOCALIZABLE,
+            text=DUMMY_LOCALIZABLE,
+        )
         summary = Plain("My First Copyright Summary")
         sut.summary = summary
         assert sut.summary is summary
 
     def test_text(self) -> None:
-        sut = CopyrightNoticePluginConfiguration(id="-", label="", summary="", text="")
+        sut = CopyrightNoticePluginConfiguration(
+            id="-",
+            label=DUMMY_LOCALIZABLE,
+            summary=DUMMY_LOCALIZABLE,
+            text=DUMMY_LOCALIZABLE,
+        )
         text = Plain("My First Copyright Text")
         sut.text = text
         assert sut.text is text
@@ -554,7 +580,12 @@ class TestCopyrightNoticeConfiguration:
             "summary": summary,
             "text": text,
         }
-        sut = CopyrightNoticePluginConfiguration(id="-", label="", summary="", text="")
+        sut = CopyrightNoticePluginConfiguration(
+            id="-",
+            label=DUMMY_LOCALIZABLE,
+            summary=DUMMY_LOCALIZABLE,
+            text=DUMMY_LOCALIZABLE,
+        )
         sut.load(dump)
         assert sut.summary.localize(DEFAULT_LOCALIZER) == summary
         assert sut.text.localize(DEFAULT_LOCALIZER) == text
@@ -565,7 +596,12 @@ class TestCopyrightNoticeConfiguration:
             "label": "",
             "text": "",
         }
-        sut = CopyrightNoticePluginConfiguration(id="-", label="", summary="", text="")
+        sut = CopyrightNoticePluginConfiguration(
+            id="-",
+            label=DUMMY_LOCALIZABLE,
+            summary=DUMMY_LOCALIZABLE,
+            text=DUMMY_LOCALIZABLE,
+        )
         with pytest.raises(HumanFacingException):
             sut.load(dump)
 
@@ -575,7 +611,12 @@ class TestCopyrightNoticeConfiguration:
             "label": "",
             "summary": "",
         }
-        sut = CopyrightNoticePluginConfiguration(id="-", label="", summary="", text="")
+        sut = CopyrightNoticePluginConfiguration(
+            id="-",
+            label=DUMMY_LOCALIZABLE,
+            summary=DUMMY_LOCALIZABLE,
+            text=DUMMY_LOCALIZABLE,
+        )
         with pytest.raises(HumanFacingException):
             sut.load(dump)
 
@@ -583,7 +624,7 @@ class TestCopyrightNoticeConfiguration:
         summary = "My First Copyright Summary"
         text = "My First Copyright Text"
         sut = CopyrightNoticePluginConfiguration(
-            id="-", label="", summary=summary, text=text
+            id="-", label=DUMMY_LOCALIZABLE, summary=summary, text=text
         )
         dump = sut.dump()
         assert dump["summary"] == summary
@@ -611,16 +652,28 @@ class TestCopyrightNoticePluginConfigurationMapping(
     ]:
         return (
             CopyrightNoticePluginConfiguration(
-                id="foo", label="Foo", summary="", text=""
+                id="foo",
+                label="Foo",
+                summary=DUMMY_LOCALIZABLE,
+                text=DUMMY_LOCALIZABLE,
             ),
             CopyrightNoticePluginConfiguration(
-                id="bar", label="Bar", summary="", text=""
+                id="bar",
+                label="Bar",
+                summary=DUMMY_LOCALIZABLE,
+                text=DUMMY_LOCALIZABLE,
             ),
             CopyrightNoticePluginConfiguration(
-                id="baz", label="Baz", summary="", text=""
+                id="baz",
+                label="Baz",
+                summary=DUMMY_LOCALIZABLE,
+                text=DUMMY_LOCALIZABLE,
             ),
             CopyrightNoticePluginConfiguration(
-                id="qux", label="Qux", summary="", text=""
+                id="qux",
+                label="Qux",
+                summary=DUMMY_LOCALIZABLE,
+                text=DUMMY_LOCALIZABLE,
             ),
         )
 
@@ -639,22 +692,36 @@ class TestCopyrightNoticePluginConfigurationMapping(
 class TestLicenseConfiguration:
     def test___init____with_summary(self) -> None:
         summary = Plain("My First License Summary")
-        sut = LicensePluginConfiguration(id="-", label="", summary=summary, text="")
+        sut = LicensePluginConfiguration(
+            id="-", label=DUMMY_LOCALIZABLE, summary=summary, text=DUMMY_LOCALIZABLE
+        )
         assert sut.summary is summary
 
     def test___init____with_text(self) -> None:
         text = Plain("My First License Text")
-        sut = LicensePluginConfiguration(id="-", label="", summary="", text=text)
+        sut = LicensePluginConfiguration(
+            id="-", label=DUMMY_LOCALIZABLE, summary=DUMMY_LOCALIZABLE, text=text
+        )
         assert sut.text is text
 
     def test_summary(self) -> None:
-        sut = LicensePluginConfiguration(id="-", label="", summary="", text="")
+        sut = LicensePluginConfiguration(
+            id="-",
+            label=DUMMY_LOCALIZABLE,
+            summary=DUMMY_LOCALIZABLE,
+            text=DUMMY_LOCALIZABLE,
+        )
         summary = Plain("My First License Summary")
         sut.summary = summary
         assert sut.summary is summary
 
     def test_text(self) -> None:
-        sut = LicensePluginConfiguration(id="-", label="", summary="", text="")
+        sut = LicensePluginConfiguration(
+            id="-",
+            label=DUMMY_LOCALIZABLE,
+            summary=DUMMY_LOCALIZABLE,
+            text=DUMMY_LOCALIZABLE,
+        )
         text = Plain("My First License Text")
         sut.text = text
         assert sut.text is text
@@ -668,7 +735,12 @@ class TestLicenseConfiguration:
             "summary": summary,
             "text": text,
         }
-        sut = LicensePluginConfiguration(id="-", label="", summary="", text="")
+        sut = LicensePluginConfiguration(
+            id="-",
+            label=DUMMY_LOCALIZABLE,
+            summary=DUMMY_LOCALIZABLE,
+            text=DUMMY_LOCALIZABLE,
+        )
         sut.load(dump)
         assert sut.summary.localize(DEFAULT_LOCALIZER) == summary
         assert sut.text.localize(DEFAULT_LOCALIZER) == text
@@ -679,7 +751,12 @@ class TestLicenseConfiguration:
             "label": "",
             "text": "",
         }
-        sut = LicensePluginConfiguration(id="-", label="", summary="", text="")
+        sut = LicensePluginConfiguration(
+            id="-",
+            label=DUMMY_LOCALIZABLE,
+            summary=DUMMY_LOCALIZABLE,
+            text=DUMMY_LOCALIZABLE,
+        )
         with pytest.raises(HumanFacingException):
             sut.load(dump)
 
@@ -689,14 +766,21 @@ class TestLicenseConfiguration:
             "label": "",
             "summary": "",
         }
-        sut = LicensePluginConfiguration(id="-", label="", summary="", text="")
+        sut = LicensePluginConfiguration(
+            id="-",
+            label=DUMMY_LOCALIZABLE,
+            summary=DUMMY_LOCALIZABLE,
+            text=DUMMY_LOCALIZABLE,
+        )
         with pytest.raises(HumanFacingException):
             sut.load(dump)
 
     async def test_dump(self) -> None:
         summary = "My First License Summary"
         text = "My First License Text"
-        sut = LicensePluginConfiguration(id="-", label="", summary=summary, text=text)
+        sut = LicensePluginConfiguration(
+            id="-", label=DUMMY_LOCALIZABLE, summary=summary, text=text
+        )
         dump = sut.dump()
         assert dump["summary"] == summary
         assert dump["text"] == text
@@ -720,10 +804,30 @@ class TestLicensePluginConfigurationMapping(
         self,
     ) -> ConfigurationCollectionTestBaseSutConfigurations[LicensePluginConfiguration]:
         return (
-            LicensePluginConfiguration(id="foo", label="Foo", summary="", text=""),
-            LicensePluginConfiguration(id="bar", label="Bar", summary="", text=""),
-            LicensePluginConfiguration(id="baz", label="Baz", summary="", text=""),
-            LicensePluginConfiguration(id="qux", label="Qux", summary="", text=""),
+            LicensePluginConfiguration(
+                id="foo",
+                label="Foo",
+                summary=DUMMY_LOCALIZABLE,
+                text=DUMMY_LOCALIZABLE,
+            ),
+            LicensePluginConfiguration(
+                id="bar",
+                label="Bar",
+                summary=DUMMY_LOCALIZABLE,
+                text=DUMMY_LOCALIZABLE,
+            ),
+            LicensePluginConfiguration(
+                id="baz",
+                label="Baz",
+                summary=DUMMY_LOCALIZABLE,
+                text=DUMMY_LOCALIZABLE,
+            ),
+            LicensePluginConfiguration(
+                id="qux",
+                label="Qux",
+                summary=DUMMY_LOCALIZABLE,
+                text=DUMMY_LOCALIZABLE,
+            ),
         )
 
     @override
@@ -1551,7 +1655,12 @@ class TestCopyrightNoticePluginConfiguration:
             "summary": summary,
             "text": text,
         }
-        sut = CopyrightNoticePluginConfiguration(id="-", label="", summary="", text="")
+        sut = CopyrightNoticePluginConfiguration(
+            id="-",
+            label=DUMMY_LOCALIZABLE,
+            summary=DUMMY_LOCALIZABLE,
+            text=DUMMY_LOCALIZABLE,
+        )
         sut.load(dump)
         assert sut.summary.localize(DEFAULT_LOCALIZER) == summary
         assert sut.text.localize(DEFAULT_LOCALIZER) == text
@@ -1560,7 +1669,7 @@ class TestCopyrightNoticePluginConfiguration:
         summary = "My First Summary"
         text = "My First Text"
         sut = CopyrightNoticePluginConfiguration(
-            id="-", label="", summary=summary, text=text
+            id="-", label=DUMMY_LOCALIZABLE, summary=summary, text=text
         )
         dump = sut.dump()
         assert dump["summary"] == summary
@@ -1569,14 +1678,14 @@ class TestCopyrightNoticePluginConfiguration:
     def test_summary(self) -> None:
         summary = Plain("My First Summary")
         sut = CopyrightNoticePluginConfiguration(
-            id="-", label="", summary=summary, text=""
+            id="-", label=DUMMY_LOCALIZABLE, summary=summary, text=DUMMY_LOCALIZABLE
         )
         assert sut.summary is summary
 
     def test_text(self) -> None:
         text = Plain("My First Summary")
         sut = CopyrightNoticePluginConfiguration(
-            id="-", label="", summary="", text=text
+            id="-", label=DUMMY_LOCALIZABLE, summary=DUMMY_LOCALIZABLE, text=text
         )
         assert sut.text is text
 
@@ -1591,7 +1700,12 @@ class TestLicensePluginConfiguration:
             "summary": summary,
             "text": text,
         }
-        sut = LicensePluginConfiguration(id="-", label="", summary="", text="")
+        sut = LicensePluginConfiguration(
+            id="-",
+            label=DUMMY_LOCALIZABLE,
+            summary=DUMMY_LOCALIZABLE,
+            text=DUMMY_LOCALIZABLE,
+        )
         sut.load(dump)
         assert sut.summary.localize(DEFAULT_LOCALIZER) == summary
         assert sut.text.localize(DEFAULT_LOCALIZER) == text
@@ -1599,17 +1713,23 @@ class TestLicensePluginConfiguration:
     def test_dump(self) -> None:
         summary = "My First Summary"
         text = "My First Text"
-        sut = LicensePluginConfiguration(id="-", label="", summary=summary, text=text)
+        sut = LicensePluginConfiguration(
+            id="-", label=DUMMY_LOCALIZABLE, summary=summary, text=text
+        )
         dump = sut.dump()
         assert dump["summary"] == summary
         assert dump["text"] == text
 
     def test_summary(self) -> None:
         summary = Plain("My First Summary")
-        sut = LicensePluginConfiguration(id="-", label="", summary=summary, text="")
+        sut = LicensePluginConfiguration(
+            id="-", label=DUMMY_LOCALIZABLE, summary=summary, text=DUMMY_LOCALIZABLE
+        )
         assert sut.summary is summary
 
     def test_text(self) -> None:
         text = Plain("My First Summary")
-        sut = LicensePluginConfiguration(id="-", label="", summary="", text=text)
+        sut = LicensePluginConfiguration(
+            id="-", label=DUMMY_LOCALIZABLE, summary=DUMMY_LOCALIZABLE, text=text
+        )
         assert sut.text is text

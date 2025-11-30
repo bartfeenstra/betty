@@ -121,7 +121,7 @@ class TestPlain:
 
     def test_locale(self) -> None:
         locale = Locale("nl")
-        assert Plain("", locale).locale is locale
+        assert Plain("-", locale).locale is locale
 
     @pytest.mark.parametrize(
         "string",

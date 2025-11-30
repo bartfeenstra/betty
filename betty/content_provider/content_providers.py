@@ -69,7 +69,7 @@ class PlainText(
     @private
     def __init__(self, *, configuration: PlainTextConfiguration | None = None):
         super().__init__(
-            configuration=PlainTextConfiguration("")
+            configuration=PlainTextConfiguration("-")
             if configuration is None
             else configuration
         )

@@ -7,7 +7,7 @@ from typing_extensions import override
 from betty.exception import HumanFacingException
 from betty.factory import new_target
 from betty.locale import DEFAULT_LOCALE_TAG
-from betty.locale.localizable import Plain, StaticTranslations
+from betty.locale.localizable import StaticTranslations
 from betty.locale.localizer import DEFAULT_LOCALIZER
 from betty.machine_name import MachineName
 from betty.plugin.config import (
@@ -30,6 +30,7 @@ from betty.test_utils.config.collections import (
 from betty.test_utils.config.collections.mapping import ConfigurationMappingTestBase
 from betty.test_utils.config.collections.sequence import ConfigurationSequenceTestBase
 from betty.test_utils.exception import raises_error
+from betty.test_utils.locale.localizable import DUMMY_LOCALIZABLE
 from betty.test_utils.plugin import (
     DummyPlugin,
     DummyPluginDefinition,
@@ -75,7 +76,7 @@ class TestHumanFacingPluginDefinitionConfiguration:
             "id": "hello-world",
             "label": label,
         }
-        sut = HumanFacingPluginDefinitionConfiguration(id="-", label="")
+        sut = HumanFacingPluginDefinitionConfiguration(id="-", label=DUMMY_LOCALIZABLE)
         sut.load(dump)
         assert sut.label.localize(DEFAULT_LOCALIZER) == label
 
@@ -87,7 +88,7 @@ class TestHumanFacingPluginDefinitionConfiguration:
                 DEFAULT_LOCALE_TAG: label,
             },
         }
-        sut = HumanFacingPluginDefinitionConfiguration(id="-", label="")
+        sut = HumanFacingPluginDefinitionConfiguration(id="-", label=DUMMY_LOCALIZABLE)
         sut.load(dump)
         assert sut.label.localize(DEFAULT_LOCALIZER) == label
 
@@ -98,7 +99,7 @@ class TestHumanFacingPluginDefinitionConfiguration:
             "label": "",
             "description": description,
         }
-        sut = HumanFacingPluginDefinitionConfiguration(id="-", label="")
+        sut = HumanFacingPluginDefinitionConfiguration(id="-", label=DUMMY_LOCALIZABLE)
         sut.load(dump)
         assert sut.description is not None
         assert sut.description.localize(DEFAULT_LOCALIZER) == description
@@ -112,7 +113,7 @@ class TestHumanFacingPluginDefinitionConfiguration:
                 DEFAULT_LOCALE_TAG: description,
             },
         }
-        sut = HumanFacingPluginDefinitionConfiguration(id="-", label="")
+        sut = HumanFacingPluginDefinitionConfiguration(id="-", label=DUMMY_LOCALIZABLE)
         sut.load(dump)
         assert sut.description is not None
         assert sut.description.localize(DEFAULT_LOCALIZER) == description
@@ -138,7 +139,7 @@ class TestHumanFacingPluginDefinitionConfiguration:
     async def test_dump__with_undetermined_description(self) -> None:
         description = "Hello, world!"
         sut = HumanFacingPluginDefinitionConfiguration(
-            id="hello-world", label="", description=description
+            id="hello-world", label=DUMMY_LOCALIZABLE, description=description
         )
         dump = sut.dump()
         assert isinstance(dump, dict)
@@ -148,7 +149,7 @@ class TestHumanFacingPluginDefinitionConfiguration:
         description = "Hello, world!"
         sut = HumanFacingPluginDefinitionConfiguration(
             id="hello-world",
-            label="",
+            label=DUMMY_LOCALIZABLE,
             description=StaticTranslations({DEFAULT_LOCALE_TAG: description}),
         )
         dump = sut.dump()
@@ -158,14 +159,14 @@ class TestHumanFacingPluginDefinitionConfiguration:
         }
 
     async def test_label(self) -> None:
-        label = Plain("")
+        label = DUMMY_LOCALIZABLE
         sut = HumanFacingPluginDefinitionConfiguration(id="hello-world", label=label)
         assert sut.label is label
 
     async def test_description(self) -> None:
-        description = Plain("")
+        description = DUMMY_LOCALIZABLE
         sut = HumanFacingPluginDefinitionConfiguration(
-            id="hello-world", label="", description=description
+            id="hello-world", label=DUMMY_LOCALIZABLE, description=description
         )
         assert sut.description is description
 
