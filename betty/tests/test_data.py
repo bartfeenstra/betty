@@ -4,31 +4,26 @@ from collections.abc import Sequence
 import pytest
 
 from betty.data import Attr, Context, Index, Key, Path, Selector, Selectors
-from betty.locale.localizable import Lines
-from betty.locale.localizer import DEFAULT_LOCALIZER
 
 
 class TestAttr:
-    def test_localize(self) -> None:
-        assert Attr("attr").localize(DEFAULT_LOCALIZER) == ".attr"
+    def test_format(self) -> None:
+        assert Attr("attr").format() == ".attr"
 
 
 class TestIndex:
-    def test_localize(self) -> None:
-        assert Index(0).localize(DEFAULT_LOCALIZER) == "[0]"
+    def test_format(self) -> None:
+        assert Index(0).format() == "[0]"
 
 
 class TestKey:
-    def test_localize(self) -> None:
-        assert Key("key").localize(DEFAULT_LOCALIZER) == '["key"]'
+    def test_format(self) -> None:
+        assert Key("key").format() == '["key"]'
 
 
 class TestPath:
-    def test_localize(self) -> None:
-        assert (
-            Path(pathlib.Path("my-first-path")).localize(DEFAULT_LOCALIZER)
-            == "my-first-path"
-        )
+    def test_format(self) -> None:
+        assert Path(pathlib.Path("my-first-path")).format() == "my-first-path"
 
 
 class TestSelectors:
@@ -48,8 +43,8 @@ class TestSelectors:
             ),
         ],
     )
-    def test_localize(self, expected: str, selectors: Sequence[Selector]) -> None:
-        assert Selectors(*selectors).localize(DEFAULT_LOCALIZER) == expected
+    def test_format(self, expected: str, selectors: Sequence[Selector]) -> None:
+        assert Selectors(*selectors).format() == expected
 
     @pytest.mark.parametrize(
         ("expected", "contexts"),
@@ -73,5 +68,8 @@ class TestSelectors:
     )
     def test_reduce(self, expected: str, contexts: Sequence[Context]) -> None:
         assert (
-            Lines(*Selectors.reduce(*contexts)).localize(DEFAULT_LOCALIZER) == expected
+            "\n".join(
+                [selector.format() for selector in Selectors.reduce(*contexts)]
+            ).format()
+            == expected
         )

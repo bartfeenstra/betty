@@ -65,7 +65,10 @@ class HumanFacingException(Exception, Localizable):
     @override
     def localize(self, localizer: Localizer, /) -> Localized & str:
         return Lines(
-            self._localizable_message, UnorderedList(*Selectors.reduce(*self.contexts))
+            self._localizable_message,
+            UnorderedList(
+                *[selector.format() for selector in Selectors.reduce(*self.contexts)]
+            ),
         ).localize(localizer)
 
     def raised(self, error_type: type[HumanFacingException]) -> bool:

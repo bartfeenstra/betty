@@ -4,25 +4,26 @@ Data management and description.
 
 from __future__ import annotations
 
+from abc import ABC, abstractmethod
 from typing import TYPE_CHECKING, final
 
 from typing_extensions import override
-
-from betty.locale.localizable import Chain, Localizable
-from betty.locale.localized import LocalizedStr
 
 if TYPE_CHECKING:
     import pathlib
     from collections.abc import MutableSequence, Sequence
 
-    from betty.locale.localized import Localized
-    from betty.locale.localizer import Localizer
 
-
-class Context(Localizable):
+class Context(ABC):
     """
     Describe a location of a piece of data.
     """
+
+    @abstractmethod
+    def format(self) -> str:
+        """
+        Format the context to a string.schema.
+        """
 
 
 class Selector(Context):
@@ -41,8 +42,8 @@ class Selectors(Context):
         self._selectors = list(selectors)
 
     @override
-    def localize(self, localizer: Localizer, /) -> Localized & str:
-        return Chain("data", *self._selectors).localize(localizer)
+    def format(self) -> str:
+        return "".join(["data", *[selector.format() for selector in self._selectors]])
 
     @classmethod
     def reduce(cls, *contexts: Context) -> Sequence[Context]:
@@ -78,8 +79,8 @@ class Attr(Selector):
         self._attr = attr
 
     @override
-    def localize(self, localizer: Localizer, /) -> Localized & str:
-        return LocalizedStr(f".{self._attr}")
+    def format(self) -> str:
+        return f".{self._attr}"
 
 
 @final
@@ -92,8 +93,8 @@ class Index(Selector):
         self._index = index
 
     @override
-    def localize(self, localizer: Localizer, /) -> Localized & str:
-        return LocalizedStr(f"[{self._index}]")
+    def format(self) -> str:
+        return f"[{self._index}]"
 
 
 @final
@@ -106,8 +107,8 @@ class Key(Selector):
         self._key = key
 
     @override
-    def localize(self, localizer: Localizer, /) -> Localized & str:
-        return LocalizedStr(f'["{self._key}"]')
+    def format(self) -> str:
+        return f'["{self._key}"]'
 
 
 @final
@@ -120,5 +121,5 @@ class Path(Context):
         self._path = path
 
     @override
-    def localize(self, localizer: Localizer, /) -> Localized & str:
-        return LocalizedStr(str(self._path))
+    def format(self) -> str:
+        return str(self._path)
