@@ -44,8 +44,7 @@ async def _build(output_directory: Path, cache_directory: Path, *, user: User) -
         verbosity=9 if user.verbosity is Verbosity.MOST_VERBOSE else 0,
         warningiserror=True,
     )
-    # Work around a bug in Sphinx where MethodDocumenter.can_document_member would erroneously consider our descriptors
-    # as methods resulting in errors being raised because said descriptors are not callable and do not have a signature.
+
     original_can_document_member = MethodDocumenter.can_document_member
     MethodDocumenter.can_document_member = (  # ty:ignore[invalid-assignment]
         lambda member, membername, isattr, parent: (

@@ -37,7 +37,7 @@ dependencies = [
     'rich ~= 15.0',
     'rich-argparse ~= 1.7',
     'shibuya == 2026.5.19',
-    'sphinx ~= 8.2',
+    'sphinx ~= 9.0',
     'sphinx-design ~= 0.7.0',
 ]
 classifiers = [
