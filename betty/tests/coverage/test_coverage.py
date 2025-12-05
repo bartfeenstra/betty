@@ -101,11 +101,6 @@ _BASELINE: Mapping[str, _ModuleIgnore] = {
     "betty/console/project.py": {
         "ConfigurationFileNotFound": MissingReason.STATIC_CONTENT_ONLY,
     },
-    "betty/console/user.py": {
-        "ConsoleUser": {
-            "disconnect": MissingReason.COVERED_ELSEWHERE,
-        },
-    },
     "betty/concurrent.py": {
         "AsynchronizedLock": {
             "release": MissingReason.SHOULD_BE_COVERED,
@@ -477,6 +472,11 @@ _BASELINE: Mapping[str, _ModuleIgnore] = {
     "betty/resource.py": {
         "Context": MissingReason.STATIC_CONTENT_ONLY,
         "ContextProvider": MissingReason.STATIC_CONTENT_ONLY,
+    },
+    "betty/rich/user.py": {
+        "RichUser": {
+            "disconnect": MissingReason.COVERED_ELSEWHERE,
+        },
     },
     "betty/serde/dump.py": MissingReason.SHOULD_BE_COVERED,
     "betty/serde/format/__init__.py": {

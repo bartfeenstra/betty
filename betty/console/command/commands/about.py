@@ -12,7 +12,7 @@ from betty import about
 from betty.app.factory import AppDependentSelfFactory
 from betty.console.command import Command, CommandFunction, CommandPlugin
 from betty.console.project import add_project_argument
-from betty.console.user import ConsoleUser
+from betty.rich.user import RichUser
 from betty.locale.localizable import _
 from betty.plugin import plugin_types
 from betty.plugin.human_facing import HumanFacingPluginDefinition
@@ -53,7 +53,7 @@ class About(AppDependentSelfFactory, Command):
 
     async def _command_function(self, project: Project | None) -> None:
         user = self._app.user
-        assert isinstance(user, ConsoleUser)
+        assert isinstance(user, RichUser)
         try:
             if project:
                 await project.bootstrap()
@@ -65,7 +65,7 @@ class About(AppDependentSelfFactory, Command):
             if project:
                 await project.shutdown()
 
-    async def _about_project(self, user: ConsoleUser, project: Project) -> None:
+    async def _about_project(self, user: RichUser, project: Project) -> None:
         about_project = Table(
             title=user.localizer._("Your project at {file}").format(
                 file=str(project.configuration.configuration_file_path.parent)
@@ -88,7 +88,7 @@ class About(AppDependentSelfFactory, Command):
         )
         user.console.print(about_project)
 
-    async def _about_plugins(self, user: ConsoleUser, project: Project | None) -> None:
+    async def _about_plugins(self, user: RichUser, project: Project | None) -> None:
         services = self._app if project is None else project
         about_plugins = Table(title=user.localizer._("Plugins"))
         about_plugins.add_column(user.localizer._("Type"), style=self._KEY_STYLE)
@@ -129,7 +129,7 @@ class About(AppDependentSelfFactory, Command):
                 )
             )
 
-    async def _about_system(self, user: ConsoleUser) -> None:
+    async def _about_system(self, user: RichUser) -> None:
         about_system = Table(title=user.localizer._("System"), show_header=False)
         about_system.add_column("", style=self._KEY_STYLE)
         about_system.add_column("")
@@ -138,7 +138,7 @@ class About(AppDependentSelfFactory, Command):
         about_system.add_row("Python", sys.version)
         user.console.print(about_system)
 
-    async def _about_python_packages(self, user: ConsoleUser) -> None:
+    async def _about_python_packages(self, user: RichUser) -> None:
         about_python_packages = Table(title=user.localizer._("Python packages"))
         about_python_packages.add_column(
             user.localizer._("Package"), style=self._KEY_STYLE

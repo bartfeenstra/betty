@@ -1,0 +1,3 @@
+"""
+Rich integration.
+"""
