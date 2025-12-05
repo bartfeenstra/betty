@@ -1,4 +1,4 @@
-from betty.console.rich import ConsoleTheme
+from betty.rich import ConsoleTheme
 
 
 class TestConsoleTheme:
