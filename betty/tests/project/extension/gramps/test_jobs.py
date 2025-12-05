@@ -6,6 +6,7 @@ from betty.project import Project, ProjectContext
 from betty.project.extension.gramps import Gramps
 from betty.project.extension.gramps.config import (
     FamilyTreeConfiguration,
+    FamilyTreeConfigurationSequence,
     GrampsConfiguration,
 )
 from betty.project.extension.gramps.jobs import LoadAncestry
@@ -21,7 +22,9 @@ class TestLoadAncestry:
                 PluginInstanceConfiguration(
                     Gramps.plugin,
                     GrampsConfiguration(
-                        family_trees=[FamilyTreeConfiguration(family_tree_name)],
+                        family_trees=FamilyTreeConfigurationSequence(
+                            [FamilyTreeConfiguration(family_tree_name)]
+                        ),
                     ),
                 )
             )

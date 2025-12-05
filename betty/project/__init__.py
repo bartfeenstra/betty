@@ -38,6 +38,7 @@ from betty.plugin.dependent import sort_dependent_plugin_graph
 from betty.plugin.repository.provider import PluginRepositoryProvider
 from betty.plugin.repository.provider.service import (
     ServiceLevelPluginRepositoryProvider,
+    plugins,
 )
 from betty.plugin.resolve import ResolvableId, resolve_id
 from betty.privacy.privatizer import Privatizer
@@ -49,6 +50,7 @@ from betty.render import RenderDispatcher, RendererPlugin
 from betty.requirement import Requirement, StaticRequirement
 from betty.resource import Context as ResourceContext
 from betty.resource import ContextProvider, new_context
+from betty.serde.format import FormatPlugin, format_for
 from betty.service.container import ServiceContainer, service
 from betty.typing import internal
 
@@ -60,6 +62,8 @@ if TYPE_CHECKING:
         MutableSequence,
         Sequence,
     )
+
+    from babel import Locale
 
     from betty.app import App
     from betty.cache import Cache
@@ -94,14 +98,26 @@ class Project(
     def __init__(
         self,
         app: App,
-        configuration: ProjectConfiguration,
+        configuration_file_path: Path,
+        /,
         *,
         ancestry: Ancestry | None = None,
+        configuration: ProjectConfiguration | None = None,
     ):
-        super().__init__(configuration=configuration)
+        super().__init__(
+            configuration=ProjectConfiguration()
+            if configuration is None
+            else configuration
+        )
         self._app = app
+        self._configuration_file_path = configuration_file_path
         self._ancestry = Ancestry() if ancestry is None else ancestry
         self._plugin_repository_provider = ServiceLevelPluginRepositoryProvider(self)
+
+    @override
+    @classmethod
+    def configuration_cls(cls) -> type[ProjectConfiguration]:
+        return ProjectConfiguration
 
     @override
     @classmethod
@@ -131,8 +147,9 @@ class Project(
         cls,
         app: App,
         *,
-        configuration: ProjectConfiguration | None = None,
         ancestry: Ancestry | None = None,
+        configuration: ProjectConfiguration | None = None,
+        configuration_file_path: Path | None = None,
     ) -> AsyncIterator[Self]:
         """
         Creat a new, isolated, temporary project.
@@ -141,15 +158,14 @@ class Project(
         global Betty functionality such as caches.
         """
         async with AsyncExitStack() as stack:
-            if configuration is None:
-                project_directory_path_str = await stack.enter_async_context(
-                    TemporaryDirectory()
-                )
-                configuration = ProjectConfiguration(
-                    Path(project_directory_path_str) / "betty.json"
+            if configuration_file_path is None:
+                configuration_file_path = (
+                    Path(await stack.enter_async_context(TemporaryDirectory()))
+                    / "betty.json"
                 )
             yield cls(
                 app,
+                configuration_file_path,
                 configuration=configuration,
                 ancestry=ancestry,
             )
@@ -167,6 +183,63 @@ class Project(
             raise
 
     @property
+    def configuration_file_path(self) -> Path:
+        """
+        The path to the configuration's file.
+        """
+        return self._configuration_file_path
+
+    async def set_configuration_file_path(
+        self, configuration_file_path: Path, /
+    ) -> None:
+        """
+        Set the path to the configuration's file.
+        """
+        if configuration_file_path == self._configuration_file_path:
+            return
+        format_for(list(await plugins(FormatPlugin)), configuration_file_path.suffix)
+        self._configuration_file_path = configuration_file_path
+
+    @property
+    def project_directory_path(self) -> Path:
+        """
+        The project directory path.
+
+        Betty will look for resources in this directory, and place generated artifacts there. It is expected
+        that no other applications or projects share this same directory.
+        """
+        return self.configuration_file_path.parent
+
+    @property
+    def output_directory_path(self) -> Path:
+        """
+        The output directory path.
+        """
+        return self.project_directory_path / "output"
+
+    @property
+    def assets_directory_path(self) -> Path:
+        """
+        The :doc:`assets directory path </usage/assets>`.
+        """
+        return self.project_directory_path / "assets"
+
+    @property
+    def www_directory_path(self) -> Path:
+        """
+        The WWW directory path.
+        """
+        return self.output_directory_path / "www"
+
+    def localize_www_directory_path(self, locale: Locale) -> Path:
+        """
+        Get the WWW directory path for a locale.
+        """
+        if self.configuration.locales.multilingual:
+            return self.www_directory_path / self.configuration.locales[locale].alias
+        return self.www_directory_path
+
+    @property
     def app(self) -> App:
         """
         The application this project is run within.
@@ -181,7 +254,7 @@ class Project(
         If no project name was configured, this defaults to the hash of the configuration file path.
         """
         if self._configuration.name is None:
-            return hashid(str(self._configuration.configuration_file_path))
+            return hashid(str(self.configuration_file_path))
         return self._configuration.name
 
     @property
@@ -193,7 +266,7 @@ class Project(
 
     @service
     async def _project_assets(self) -> AssetRepository:
-        asset_paths = [self.configuration.assets_directory_path]
+        asset_paths = [self.assets_directory_path]
         extensions = await self.extensions
         for project_extension in extensions.flatten():
             extension_assets_directory_path = (

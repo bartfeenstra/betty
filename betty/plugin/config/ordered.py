@@ -9,18 +9,16 @@ from typing import TYPE_CHECKING, Any
 from typing_extensions import override
 
 from betty.assertion import (
+    Field,
     OptionalField,
-    assert_fields,
-    assert_mapping,
     assert_sequence,
-    assert_setattr,
 )
 from betty.machine_name import MachineName, assert_machine_name
 from betty.plugin.config import PluginDefinitionConfiguration
 from betty.plugin.resolve import ResolvableId, resolve_id
 
 if TYPE_CHECKING:
-    from collections.abc import MutableSet, Set
+    from collections.abc import Collection, MutableSet, Set
 
     from betty.serde.dump import Dump, DumpMapping
 
@@ -48,27 +46,13 @@ class OrderedPluginDefinitionConfiguration(PluginDefinitionConfiguration):
         )
 
     @override
-    def load(self, dump: Dump, /) -> None:
-        self.assert_mutable()
-
-        mapping = assert_mapping()(dump)
-        assert_fields(
-            OptionalField(
-                "comes_before",
-                assert_sequence(assert_machine_name())
-                | set
-                | assert_setattr(self, "comes_before"),
-            ),
-            OptionalField(
-                "comes_after",
-                assert_sequence(assert_machine_name())
-                | set
-                | assert_setattr(self, "comes_after"),
-            ),
-        )(mapping)
-        mapping.pop("comes_before", None)
-        mapping.pop("comes_after", None)
-        super().load(mapping)
+    @classmethod
+    def fields(cls) -> Collection[Field[Any, Any]]:
+        return [
+            *super().fields(),
+            OptionalField("comes_before", assert_sequence(assert_machine_name()) | set),
+            OptionalField("comes_after", assert_sequence(assert_machine_name()) | set),
+        ]
 
     @override
     def dump(self) -> DumpMapping[Dump]:

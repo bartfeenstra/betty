@@ -5,19 +5,17 @@ Provide plugin configuration.
 from __future__ import annotations
 
 from abc import abstractmethod
-from collections.abc import Mapping, Sequence
-from typing import TYPE_CHECKING, Any, Generic, cast
+from collections.abc import Collection, Mapping, Sequence
+from typing import TYPE_CHECKING, Any, Generic, Self, cast
 
 from typing_extensions import TypeVar, override
 
 from betty.assertion import (
+    Field,
     OptionalField,
     RequiredField,
-    assert_fields,
-    assert_mapping,
     assert_or,
     assert_record,
-    assert_setattr,
 )
 from betty.config import Configurable, Configuration
 from betty.config.collections import ConfigurationKey
@@ -97,11 +95,18 @@ class PluginDefinitionConfiguration(Configuration):
         return self._id
 
     @override
-    def load(self, dump: Dump, /) -> None:
-        self.assert_mutable()
-        assert_record(
-            RequiredField("id", assert_machine_name() | assert_setattr(self, "_id")),
-        )(dump)
+    @classmethod
+    def load(cls, dump: Dump, /) -> Self:
+        return cls(**assert_record(*cls.fields())(dump))
+
+    @classmethod
+    def fields(cls) -> Collection[Field[Any, Any]]:
+        """
+        The configuration fields.
+        """
+        return [
+            RequiredField("id", assert_machine_name()),
+        ]
 
     @override
     def dump(self) -> DumpMapping[Dump]:
@@ -131,22 +136,13 @@ class HumanFacingPluginDefinitionConfiguration(PluginDefinitionConfiguration):
             self.description = ensure_localizable(description)
 
     @override
-    def load(self, dump: Dump, /) -> None:
-        self.assert_mutable()
-
-        mapping = assert_mapping()(dump)
-        assert_fields(
-            RequiredField(
-                "label", assert_load_localizable | assert_setattr(self, "label")
-            ),
-            OptionalField(
-                "description",
-                assert_load_localizable | assert_setattr(self, "description"),
-            ),
-        )(mapping)
-        mapping.pop("label", None)
-        mapping.pop("description", None)
-        super().load(mapping)
+    @classmethod
+    def fields(cls) -> Collection[Field[Any, Any]]:
+        return [
+            *super().fields(),
+            RequiredField("label", assert_load_localizable),
+            OptionalField("description", assert_load_localizable),
+        ]
 
     @override
     def dump(self) -> DumpMapping[Dump]:
@@ -179,24 +175,13 @@ class CountableHumanFacingPluginDefinitionConfiguration(
         self.label_countable = ensure_countable_localizable(label_countable)
 
     @override
-    def load(self, dump: Dump, /) -> None:
-        self.assert_mutable()
-
-        mapping = assert_mapping()(dump)
-        assert_fields(
-            RequiredField(
-                "label_plural",
-                assert_load_localizable | assert_setattr(self, "label_plural"),
-            ),
-            OptionalField(
-                "label_countable",
-                assert_load_countable_localizable
-                | assert_setattr(self, "label_countable"),
-            ),
-        )(mapping)
-        mapping.pop("label_plural", None)
-        mapping.pop("label_countable", None)
-        super().load(mapping)
+    @classmethod
+    def fields(cls) -> Collection[Field[Any, Any]]:
+        return [
+            *super().fields(),
+            RequiredField("label_plural", assert_load_localizable),
+            OptionalField("label_countable", assert_load_countable_localizable),
+        ]
 
     @override
     def dump(self) -> DumpMapping[Dump]:
@@ -252,7 +237,8 @@ class PluginDefinitionConfigurationMapping(
         return configuration.id
 
     @override
-    def _load_key(self, item_dump: Dump, key_dump: str, /) -> Dump:
+    @classmethod
+    def _load_key(cls, item_dump: Dump, key_dump: str, /) -> Dump:
         assert isinstance(item_dump, Mapping)
         item_dump["id"] = key_dump
         return item_dump
@@ -270,12 +256,12 @@ class PluginInstanceConfiguration(Generic[_PluginDefinitionT, _PluginT], Configu
 
     def __init__(
         self,
-        plugin: ResolvableId[_PluginDefinitionT, _PluginT],
+        id: ResolvableId[_PluginDefinitionT, _PluginT],  # noqa A002
         configuration: Voidable[Configuration | Dump] = Void(),  # noqa B008
         /,
     ):
         super().__init__()
-        self._id = assert_machine_name()(resolve_id(plugin))
+        self._id = assert_machine_name()(resolve_id(id))
         self._configuration = configuration
 
     @property
@@ -313,36 +299,35 @@ class PluginInstanceConfiguration(Generic[_PluginDefinitionT, _PluginT], Configu
                         'Plugin "{plugin_id}" is not configurable, but configuration was given.'
                     ).format(plugin_id=plugin_definition.id)
                 )
-            if isinstance(self._configuration, Configuration):
-                if not issubclass(
-                    plugin_definition.cls, ConfigurationDependentSelfFactory
-                ):
-                    raise HumanFacingException(
-                        f"Cannot instantiate {fully_qualified_name(plugin_definition.cls)} with configuration because it does not subclass {fully_qualified_name(ConfigurationDependentSelfFactory)}."
-                    )
-                return await factory(
-                    plugin_definition.cls.new_for_configuration(self._configuration)  # type: ignore[arg-type]
+            if not issubclass(plugin_definition.cls, ConfigurationDependentSelfFactory):
+                raise HumanFacingException(
+                    f"Cannot instantiate {fully_qualified_name(plugin_definition.cls)} with configuration because it does not subclass {fully_qualified_name(ConfigurationDependentSelfFactory)}."
                 )
-            plugin = await factory(
-                cast(type[Configurable[Configuration]], plugin_definition.cls)
+            if isinstance(self._configuration, Configuration):
+                configuration = self._configuration
+            else:
+                configuration = plugin_definition.cls.configuration_cls().load(
+                    self._configuration
+                )
+            return await factory(
+                plugin_definition.cls.new_for_configuration(configuration)  # type: ignore[arg-type]
             )
-            plugin.configuration.load(self._configuration)
-            return plugin  # type: ignore[return-value]
         return await factory(
             plugin_definition.cls,  # type: ignore[arg-type]
         )
 
     @override
-    def load(self, dump: Dump, /) -> None:
-        self.assert_mutable()
-        id_assertion = assert_machine_name() | assert_setattr(self, "_id")
-        assert_or(
-            id_assertion,
+    @classmethod
+    def load(cls, dump: Dump, /) -> Self:
+        id_assertion = assert_machine_name()
+        record = assert_or(
+            id_assertion | (lambda plugin_id: {"id": plugin_id}),
             assert_record(
                 RequiredField("id", id_assertion),
-                OptionalField("configuration", assert_setattr(self, "_configuration")),
+                OptionalField("configuration"),
             ),
         )(dump)
+        return cls(record["id"], record.get("configuration", Void()))
 
     @override
     def dump(self) -> Dump:
@@ -378,12 +363,11 @@ class PluginInstanceConfigurationMapping(
         super().__init__(configurations)
 
     @override
+    @classmethod
     def _load_item(
-        self, dump: Dump
+        cls, dump: Dump
     ) -> PluginInstanceConfiguration[_PluginDefinitionT, _PluginT]:
-        configuration = PluginInstanceConfiguration[_PluginDefinitionT, _PluginT]("-")
-        configuration.load(dump)
-        return configuration
+        return PluginInstanceConfiguration.load(dump)
 
     @override
     def _get_key(
@@ -394,7 +378,8 @@ class PluginInstanceConfigurationMapping(
         return configuration.id
 
     @override
-    def _load_key(self, item_dump: Dump, key_dump: str, /) -> Dump:
+    @classmethod
+    def _load_key(cls, item_dump: Dump, key_dump: str, /) -> Dump:
         if not item_dump:
             return key_dump
         assert isinstance(item_dump, Mapping)
@@ -428,9 +413,8 @@ class PluginInstanceConfigurationSequence(
         super().__init__(configurations)
 
     @override
+    @classmethod
     def _load_item(
-        self, dump: Dump
+        cls, dump: Dump
     ) -> PluginInstanceConfiguration[_PluginDefinitionT, _PluginT]:
-        configuration = PluginInstanceConfiguration[_PluginDefinitionT, _PluginT]("-")
-        configuration.load(dump)
-        return configuration
+        return PluginInstanceConfiguration.load(dump)

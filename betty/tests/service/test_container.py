@@ -4,7 +4,6 @@ from typing import Any, Self, TypeVar
 import pytest
 from typing_extensions import override
 
-from betty.config import Configurable
 from betty.factory import new_target
 from betty.locale.localizable import LocalizableLike
 from betty.requirement import Requirement, StaticRequirement
@@ -21,7 +20,7 @@ from betty.service.container import (
 )
 from betty.service.level import ServiceLevel
 from betty.service.level.factory import AnyFactoryTarget
-from betty.test_utils.config import DummyConfiguration
+from betty.test_utils.config import DummyConfigurable, DummyConfiguration
 from betty.test_utils.locale.localizable import DUMMY_LOCALIZABLE
 
 _T = TypeVar("_T")
@@ -42,7 +41,7 @@ class _ServiceContainer(ServiceContainer):
         )
 
 
-class _ConfigurableServiceProvider(Configurable[DummyConfiguration], _ServiceContainer):
+class _ConfigurableServiceProvider(DummyConfigurable, _ServiceContainer):
     pass
 
 

@@ -9,12 +9,14 @@ from typing_extensions import override
 from betty.ancestry import Ancestry
 from betty.app import App
 from betty.app.factory import AppDependentFactory, AppDependentSelfFactory
+from betty.locale import DEFAULT_LOCALE, DEFAULT_LOCALE_TAG
 from betty.locale.localizer import DEFAULT_LOCALIZER
 from betty.project import Project, ProjectContext, ProjectExtensions
-from betty.project.config import ProjectConfiguration
+from betty.project.config import LocaleConfiguration, ProjectConfiguration
 from betty.project.extension import Extension, ExtensionPlugin
 from betty.project.factory import ProjectDependentFactory, ProjectDependentSelfFactory
 from betty.requirement import Requirement, StaticRequirement, UnmetRequirement
+from betty.serde.format import FormatError
 from betty.test_utils.locale.localizable import DUMMY_LOCALIZABLE
 from betty.test_utils.plugin import DummyPluginDefinition
 from betty.test_utils.project.extension import DummyExtensionOne, DummyExtensionTwo
@@ -85,16 +87,13 @@ class TestProject:
     async def test_new__without_ancestry(
         self, isolated_app: App, tmp_path: Path
     ) -> None:
-        Project(
-            isolated_app,
-            configuration=ProjectConfiguration(tmp_path / "betty.json"),
-        )
+        Project(isolated_app, tmp_path / "betty.json")
 
     async def test_new__with_ancestry(self, isolated_app: App, tmp_path: Path) -> None:
         ancestry = Ancestry()
         sut = Project(
             isolated_app,
-            configuration=ProjectConfiguration(tmp_path / "betty.json"),
+            tmp_path / "betty.json",
             ancestry=ancestry,
         )
         assert sut.ancestry is ancestry
@@ -108,7 +107,7 @@ class TestProject:
     async def test_new_temporary__with_configuration(
         self, isolated_app: App, tmp_path: Path
     ) -> None:
-        configuration = ProjectConfiguration(tmp_path / "betty.json")
+        configuration = ProjectConfiguration()
         async with Project.new_isolated(
             isolated_app, configuration=configuration
         ) as sut:
@@ -333,6 +332,69 @@ class TestProject:
     async def test_new_resource_context(self, isolated_app: App) -> None:
         async with Project.new_isolated(isolated_app) as sut, sut:
             assert await sut.new_resource_context()
+
+    async def test_configuration_file_path(
+        self, isolated_app: App, tmp_path: Path
+    ) -> None:
+        configuration_file_path = tmp_path / "init.json"
+        sut = Project(isolated_app, configuration_file_path)
+        assert sut.configuration_file_path == configuration_file_path
+
+    async def test_set_configuration_file_path(
+        self, isolated_app: App, tmp_path: Path
+    ) -> None:
+        sut = Project(isolated_app, tmp_path / "init.json")
+        configuration_file_path = tmp_path / "set.json"
+        await sut.set_configuration_file_path(configuration_file_path)
+        # Assert that setting the path to its existing value is a no-op.
+        await sut.set_configuration_file_path(configuration_file_path)
+
+    async def test_set_configuration_file_path__with_unsupported_format(
+        self, isolated_app: App, tmp_path: Path
+    ) -> None:
+        sut = Project(isolated_app, tmp_path / "init")
+        configuration_file_path = tmp_path / "set"
+        with pytest.raises(FormatError):
+            await sut.set_configuration_file_path(configuration_file_path)
+
+    async def test_project_directory_path(
+        self, isolated_app: App, tmp_path: Path
+    ) -> None:
+        sut = Project(isolated_app, tmp_path / "betty.json")
+        assert sut.project_directory_path == tmp_path
+
+    async def test_output_directory_path(
+        self, isolated_app: App, tmp_path: Path
+    ) -> None:
+        sut = Project(isolated_app, tmp_path / "betty.json")
+        assert tmp_path in sut.output_directory_path.parents
+
+    async def test_assets_directory_path(
+        self, isolated_app: App, tmp_path: Path
+    ) -> None:
+        sut = Project(isolated_app, tmp_path / "betty.json")
+        assert tmp_path in sut.assets_directory_path.parents
+
+    async def test_www_directory_path(self, isolated_app: App, tmp_path: Path) -> None:
+        sut = Project(isolated_app, tmp_path / "betty.json")
+        assert tmp_path in sut.www_directory_path.parents
+
+    async def test_localize_www_directory_path__monolingual(
+        self, isolated_app: App, tmp_path: Path
+    ) -> None:
+        sut = Project(isolated_app, tmp_path / "betty.json")
+        actual = sut.localize_www_directory_path(DEFAULT_LOCALE)
+        assert tmp_path in actual.parents
+        assert DEFAULT_LOCALE_TAG not in str(actual)
+
+    async def test_localize_www_directory_path__multilingual(
+        self, isolated_app: App, tmp_path: Path
+    ) -> None:
+        sut = Project(isolated_app, tmp_path / "betty.json")
+        sut.configuration.locales.append(LocaleConfiguration("nl-NL"))
+        actual = sut.localize_www_directory_path(DEFAULT_LOCALE)
+        assert tmp_path in actual.parents
+        assert DEFAULT_LOCALE_TAG in str(actual)
 
 
 class TestProjectContext:

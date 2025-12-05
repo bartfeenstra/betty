@@ -106,8 +106,8 @@ async def generate(
 
 
 async def _preprocess(project: Project) -> None:
-    await _preprocess_output_directory(project.configuration.output_directory_path)
-    await _preprocess_www_directory(project.configuration.www_directory_path)
+    await _preprocess_output_directory(project.output_directory_path)
+    await _preprocess_www_directory(project.www_directory_path)
 
 
 async def _preprocess_output_directory(output_directory_path: Path) -> None:
@@ -121,7 +121,7 @@ async def _preprocess_www_directory(www_directory_path: Path) -> None:
 
 
 async def _postprocess(project: Project) -> None:
-    await _postprocess_output_directory(project.configuration.output_directory_path)
+    await _postprocess_output_directory(project.output_directory_path)
 
 
 async def _postprocess_output_directory(output_directory_path: Path) -> None:

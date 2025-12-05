@@ -55,8 +55,7 @@ class TestPluginDefinitionConfiguration:
         dump: Dump = {
             "id": plugin_id,
         }
-        sut = PluginDefinitionConfiguration(id="-")
-        sut.load(dump)
+        sut = PluginDefinitionConfiguration.load(dump)
         assert sut.id == plugin_id
 
     async def test_dump(self) -> None:
@@ -79,8 +78,7 @@ class TestHumanFacingPluginDefinitionConfiguration:
             "id": "hello-world",
             "label": label,
         }
-        sut = HumanFacingPluginDefinitionConfiguration(id="-", label=DUMMY_LOCALIZABLE)
-        sut.load(dump)
+        sut = HumanFacingPluginDefinitionConfiguration.load(dump)
         assert sut.label.localize(DEFAULT_LOCALIZER) == label
 
     async def test_load__with_expanded_label(self) -> None:
@@ -91,8 +89,7 @@ class TestHumanFacingPluginDefinitionConfiguration:
                 DEFAULT_LOCALE_TAG: label,
             },
         }
-        sut = HumanFacingPluginDefinitionConfiguration(id="-", label=DUMMY_LOCALIZABLE)
-        sut.load(dump)
+        sut = HumanFacingPluginDefinitionConfiguration.load(dump)
         assert sut.label.localize(DEFAULT_LOCALIZER) == label
 
     async def test_load__with_undetermined_description(self) -> None:
@@ -102,8 +99,7 @@ class TestHumanFacingPluginDefinitionConfiguration:
             "label": "",
             "description": description,
         }
-        sut = HumanFacingPluginDefinitionConfiguration(id="-", label=DUMMY_LOCALIZABLE)
-        sut.load(dump)
+        sut = HumanFacingPluginDefinitionConfiguration.load(dump)
         assert sut.description is not None
         assert sut.description.localize(DEFAULT_LOCALIZER) == description
 
@@ -116,8 +112,7 @@ class TestHumanFacingPluginDefinitionConfiguration:
                 DEFAULT_LOCALE_TAG: description,
             },
         }
-        sut = HumanFacingPluginDefinitionConfiguration(id="-", label=DUMMY_LOCALIZABLE)
-        sut.load(dump)
+        sut = HumanFacingPluginDefinitionConfiguration.load(dump)
         assert sut.description is not None
         assert sut.description.localize(DEFAULT_LOCALIZER) == description
 
@@ -189,13 +184,7 @@ class TestCountableHumanFacingPluginDefinitionConfiguration:
             "label_plural": label_plural,
             "label_countable": label_countable,  # type: ignore[dict-item]
         }
-        sut = CountableHumanFacingPluginDefinitionConfiguration(
-            id="-",
-            label=DUMMY_LOCALIZABLE,
-            label_plural=label_plural,
-            label_countable=label_countable,
-        )
-        sut.load(dump)
+        sut = CountableHumanFacingPluginDefinitionConfiguration.load(dump)
         assert sut.dump() == dump
 
     async def test_dump__with_undetermined_label(self) -> None:
@@ -275,27 +264,22 @@ class TestPluginInstanceConfiguration:
         assert sut.configuration == configuration
 
     def test_load__without_id(self) -> None:
-        sut = PluginInstanceConfiguration[
-            ConfigurableDummyPluginDefinition, ConfigurableDummyPlugin
-        ](ConfigurableDummyPluginOne.plugin)
         with pytest.raises(HumanFacingException):
-            sut.load({})
+            PluginInstanceConfiguration.load({})
 
     def test_load__minimal(self) -> None:
-        sut = PluginInstanceConfiguration[DummyPluginDefinition, DummyPlugin](
-            DummyPluginOne.plugin
+        sut = PluginInstanceConfiguration[DummyPluginDefinition, DummyPlugin].load(
+            {"id": DummyPluginOne.plugin.id}
         )
-        sut.load({"id": DummyPluginOne.plugin.id})
         assert sut.id == DummyPluginOne.plugin.id
 
     def test_load__with_configuration(self) -> None:
-        sut = PluginInstanceConfiguration[
-            ConfigurableDummyPluginDefinition, ConfigurableDummyPlugin
-        ](ConfigurableDummyPluginOne.plugin)
         configuration: Dump = {
             "check": True,
         }
-        sut.load(
+        sut = PluginInstanceConfiguration[
+            ConfigurableDummyPluginDefinition, ConfigurableDummyPlugin
+        ].load(
             {
                 "id": ConfigurableDummyPluginOne.plugin.id,
                 "configuration": configuration,
@@ -441,11 +425,13 @@ class TestPluginIdentifierKeyConfigurationMapping:
             return configuration.value
 
         @override
-        def _load_key(self, item_dump: Dump, key_dump: str, /) -> Dump:
+        @classmethod
+        def _load_key(cls, item_dump: Dump, key_dump: str, /) -> Dump:
             return {"value": key_dump}
 
         @override
-        def _load_item(self, dump: Dump, /) -> DummyConfiguration:
+        @classmethod
+        def _load_item(cls, dump: Dump, /) -> DummyConfiguration:
             raise NotImplementedError
 
     def test___contains____with_plugin(self) -> None:

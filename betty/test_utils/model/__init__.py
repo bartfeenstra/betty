@@ -84,6 +84,46 @@ class DummyEntityTwo(Entity):
 
 @final
 @EntityPlugin(
+    "dummy",
+    label="Dummy (three)",
+    label_plural="Dummies (three)",
+    label_countable=CountableStaticTranslations(
+        {
+            DEFAULT_LOCALE: {
+                "one": "{count} dummy (three)",
+                "other": "{count} dummies (three)",
+            }
+        }
+    ),
+)
+class DummyEntityThree(Entity):
+    """
+    A dummy entity.
+    """
+
+
+@final
+@EntityPlugin(
+    "dummy",
+    label="Dummy (four)",
+    label_plural="Dummies (four)",
+    label_countable=CountableStaticTranslations(
+        {
+            DEFAULT_LOCALE: {
+                "one": "{count} dummy (four)",
+                "other": "{count} dummies (four)",
+            }
+        }
+    ),
+)
+class DummyEntityFour(Entity):
+    """
+    A dummy entity.
+    """
+
+
+@final
+@EntityPlugin(
     "dummy-non-public-facing-one",
     label="Dummy non-public-facing (two)",
     label_plural="Dummies non-public-facing (two)",

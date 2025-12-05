@@ -4,11 +4,11 @@ Provide application configuration.
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, final
+from typing import TYPE_CHECKING, Self, final
 
 from typing_extensions import override
 
-from betty.assertion import OptionalField, assert_locale, assert_record, assert_setattr
+from betty.assertion import OptionalField, assert_locale, assert_record
 from betty.config import Configuration
 from betty.dirs import APP_CONFIG_DIRECTORY_PATH
 from betty.locale import to_language_tag
@@ -48,11 +48,9 @@ class AppConfiguration(Configuration):
         self._locale = locale
 
     @override
-    def load(self, dump: Dump, /) -> None:
-        self.assert_mutable()
-        assert_record(
-            OptionalField("locale", assert_locale() | assert_setattr(self, "locale"))
-        )(dump)
+    @classmethod
+    def load(cls, dump: Dump, /) -> Self:
+        return cls(**assert_record(OptionalField("locale", assert_locale()))(dump))
 
     @override
     def dump(self) -> DumpMapping[Dump]:

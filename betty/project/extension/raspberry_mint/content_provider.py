@@ -14,7 +14,6 @@ from betty.assertion import (
     assert_bool,
     assert_enum,
     assert_record,
-    assert_setattr,
 )
 from betty.config import Configuration
 from betty.config.factory import ConfigurationDependentSelfFactory
@@ -96,18 +95,19 @@ class SectionConfiguration(Configuration):
         return self._content
 
     @override
-    def load(self, dump: Dump, /) -> None:
-        assert_record(
-            OptionalField("name", assert_machine_name() | assert_setattr(self, "name")),
-            RequiredField(
-                "heading", assert_load_localizable | assert_setattr(self, "heading")
-            ),
-            RequiredField("content", self.content.load),
-            OptionalField(
-                "visually_hide_heading",
-                assert_bool() | assert_setattr(self, "visually_hide_heading"),
-            ),
-        )(dump)
+    @classmethod
+    def load(cls, dump: Dump, /) -> Self:
+        return cls(
+            **assert_record(
+                OptionalField("name", assert_machine_name()),
+                RequiredField("heading", assert_load_localizable),
+                RequiredField("content", PluginInstanceConfigurationSequence.load),
+                OptionalField(
+                    "visually_hide_heading",
+                    assert_bool(),
+                ),
+            )(dump)
+        )
 
     @override
     def dump(self) -> Dump:
@@ -150,6 +150,11 @@ class Section(
             else configuration,
             jinja2_environment=jinja2_environment,
         )
+
+    @override
+    @classmethod
+    def configuration_cls(cls) -> type[SectionConfiguration]:
+        return SectionConfiguration
 
     @override
     @classmethod
@@ -199,6 +204,11 @@ class FeaturedEntities(
             jinja2_environment=jinja2_environment,
         )
         self._project = project
+
+    @override
+    @classmethod
+    def configuration_cls(cls) -> type[EntityReferenceSequence]:
+        return EntityReferenceSequence
 
     @override
     @classmethod
@@ -274,15 +284,14 @@ class ColorStyleConfiguration(Configuration):
         return self._content
 
     @override
-    def load(self, dump: Dump) -> None:
-        self.assert_mutable()
-        assert_record(
-            OptionalField(
-                "style",
-                assert_enum(RaspberryMintColorStyle) | assert_setattr(self, "style"),
-            ),
-            RequiredField("content", self.content.load),
-        )(dump)
+    @classmethod
+    def load(cls, dump: Dump, /) -> Self:
+        return cls(
+            **assert_record(
+                OptionalField("style", assert_enum(RaspberryMintColorStyle)),
+                RequiredField("content", PluginInstanceConfigurationSequence.load),
+            )(dump)
+        )
 
     @override
     def dump(self) -> DumpMapping[Dump]:
@@ -315,6 +324,11 @@ class ColorStyle(Template, ConfigurationDependentSelfFactory[ColorStyleConfigura
             else configuration,
             jinja2_environment=jinja2_environment,
         )
+
+    @override
+    @classmethod
+    def configuration_cls(cls) -> type[ColorStyleConfiguration]:
+        return ColorStyleConfiguration
 
     @override
     @classmethod

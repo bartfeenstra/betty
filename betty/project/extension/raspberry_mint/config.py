@@ -4,7 +4,7 @@ Provide configuration for the Raspberry Mint extension.
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, final
+from typing import TYPE_CHECKING, Self, final
 
 from typing_extensions import override
 
@@ -17,10 +17,8 @@ from betty.project.extension.theme.config import RegionalContentConfiguration
 from betty.project.factory import CallbackProjectDependentFactory
 
 if TYPE_CHECKING:
-    from collections.abc import Iterable, Mapping, Sequence
+    from collections.abc import Iterable
 
-    from betty.content_provider import ContentProvider, ContentProviderPlugin
-    from betty.plugin.config import PluginInstanceConfiguration
     from betty.project import Project
     from betty.serde.dump import Dump, DumpMapping
     from betty.service.level.factory import AnyFactoryTarget
@@ -32,29 +30,27 @@ class RaspberryMintConfiguration(Configuration):
     Provide configuration for the :py:class:`betty.project.extension.raspberry_mint.RaspberryMint` extension.
     """
 
-    DEFAULT_PRIMARY_COLOR = "#b3446c"
-    DEFAULT_SECONDARY_COLOR = "#3eb489"
-    DEFAULT_TERTIARY_COLOR = "#ffbd22"
+    DEFAULT_PRIMARY_COLOR = ColorConfiguration("#b3446c")
+    DEFAULT_SECONDARY_COLOR = ColorConfiguration("#3eb489")
+    DEFAULT_TERTIARY_COLOR = ColorConfiguration("#ffbd22")
 
     def __init__(
         self,
         *,
-        primary_color: str = DEFAULT_PRIMARY_COLOR,
-        secondary_color: str = DEFAULT_SECONDARY_COLOR,
-        tertiary_color: str = DEFAULT_TERTIARY_COLOR,
-        regional_content: Mapping[
-            str,
-            Sequence[
-                PluginInstanceConfiguration[ContentProviderPlugin, ContentProvider]
-            ],
-        ]
-        | None = None,
+        primary_color: ColorConfiguration = DEFAULT_PRIMARY_COLOR,
+        secondary_color: ColorConfiguration = DEFAULT_SECONDARY_COLOR,
+        tertiary_color: ColorConfiguration = DEFAULT_TERTIARY_COLOR,
+        regional_content: RegionalContentConfiguration | None = None,
     ):
         super().__init__()
-        self._primary_color = ColorConfiguration(primary_color)
-        self._secondary_color = ColorConfiguration(secondary_color)
-        self._tertiary_color = ColorConfiguration(tertiary_color)
-        self._regional_content = RegionalContentConfiguration(regional_content or {})
+        self._primary_color = primary_color
+        self._secondary_color = secondary_color
+        self._tertiary_color = tertiary_color
+        self._regional_content = (
+            RegionalContentConfiguration()
+            if regional_content is None
+            else regional_content
+        )
 
     @override
     @property
@@ -67,7 +63,7 @@ class RaspberryMintConfiguration(Configuration):
                 Key("regional_content"),
                 Key("raspberry-mint"),
                 Key("extensions"),
-                Path(project.configuration.configuration_file_path),
+                Path(project.configuration_file_path),
             ):
                 self.regional_content.validate(extensions[RaspberryMint].regions)
 
@@ -111,14 +107,16 @@ class RaspberryMintConfiguration(Configuration):
         return self._regional_content
 
     @override
-    def load(self, dump: Dump, /) -> None:
-        self.assert_mutable()
-        assert_record(
-            OptionalField("primary_color", self.primary_color.load),
-            OptionalField("secondary_color", self.secondary_color.load),
-            OptionalField("tertiary_color", self.tertiary_color.load),
-            OptionalField("regional_content", self.regional_content.load),
-        )(dump)
+    @classmethod
+    def load(cls, dump: Dump, /) -> Self:
+        return cls(
+            **assert_record(
+                OptionalField("primary_color", ColorConfiguration.load),
+                OptionalField("secondary_color", ColorConfiguration.load),
+                OptionalField("tertiary_color", ColorConfiguration.load),
+                OptionalField("regional_content", RegionalContentConfiguration.load),
+            )(dump)
+        )
 
     @override
     def dump(self) -> DumpMapping[Dump]:

@@ -4,6 +4,7 @@ The Configuration API.
 
 from __future__ import annotations
 
+from abc import ABC, abstractmethod
 from typing import TYPE_CHECKING, Any, Generic, TypeVar
 
 from betty.mutability import Mutable
@@ -32,7 +33,7 @@ class Configuration(Mutable, Loadable, Dumpable):
 _ConfigurationT = TypeVar("_ConfigurationT", bound=Configuration)
 
 
-class Configurable(Generic[_ConfigurationT]):
+class Configurable(ABC, Generic[_ConfigurationT]):
     """
     Any configurable object.
     """
@@ -47,3 +48,10 @@ class Configurable(Generic[_ConfigurationT]):
         The object's configuration.
         """
         return self._configuration
+
+    @classmethod
+    @abstractmethod
+    def configuration_cls(cls) -> type[_ConfigurationT]:
+        """
+        The object's configuration class.
+        """

@@ -78,7 +78,7 @@ async def test_filter_file(expected: str, template: str, file: File) -> None:
     ) as (actual, project):
         assert actual == expected
         for file_path in actual.split("#"):
-            assert (project.configuration.www_directory_path / file_path[16:]).exists()
+            assert (project.www_directory_path / file_path[16:]).exists()
 
 
 @pytest.mark.parametrize(
@@ -96,7 +96,7 @@ async def test_filter_file__with_job_context(
     ) as (actual, project):
         assert actual == expected
         for file_path in actual.split("#"):
-            assert (project.configuration.www_directory_path / file_path[16:]).exists()
+            assert (project.www_directory_path / file_path[16:]).exists()
 
 
 @pytest.mark.parametrize(
@@ -293,7 +293,7 @@ async def test_filter_image_resize_cover(
     ) as (actual, project):
         assert actual == expected
         for file_path in actual.split("#"):
-            assert (project.configuration.www_directory_path / file_path[16:]).exists()
+            assert (project.www_directory_path / file_path[16:]).exists()
 
 
 @pytest.mark.parametrize(
@@ -312,7 +312,7 @@ async def test_filter_image_resize_cover__with_job_context(
     ) as (actual, project):
         assert actual == expected
         for file_path in actual.split("#"):
-            assert (project.configuration.www_directory_path / file_path[16:]).exists()
+            assert (project.www_directory_path / file_path[16:]).exists()
 
 
 async def test_filter_image_resize_cover__with_svg(tmp_path: Path) -> None:
@@ -333,7 +333,7 @@ async def test_filter_image_resize_cover__with_svg(tmp_path: Path) -> None:
     ) as (actual, project):
         assert actual == "betty-static:///file/F1/file/image.svg"
         for file_path in actual.split("#"):
-            assert (project.configuration.www_directory_path / file_path[16:]).exists()
+            assert (project.www_directory_path / file_path[16:]).exists()
 
 
 async def test_filter_image_resize_cover__with_pdf(tmp_path: Path) -> None:
@@ -352,7 +352,7 @@ async def test_filter_image_resize_cover__with_pdf(tmp_path: Path) -> None:
     ) as (actual, project):
         assert actual == "betty-static:///file/F1-.jpg"
         for public_file_path in actual.split("#"):
-            file_path = project.configuration.www_directory_path / public_file_path[16:]
+            file_path = project.www_directory_path / public_file_path[16:]
             assert (file_path).exists()
             assert what(file_path) == "jpeg"
 

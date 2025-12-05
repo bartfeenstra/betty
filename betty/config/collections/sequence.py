@@ -4,7 +4,7 @@ Define and provide sequences of :py:class:`betty.config.Configuration` instances
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, overload
+from typing import TYPE_CHECKING, Self, overload
 
 from typing_extensions import TypeVar, override
 
@@ -38,12 +38,10 @@ class ConfigurationSequence(ConfigurationCollection[int, int, _ConfigurationT]):
     def __contains__(self, configuration: _ConfigurationT) -> bool:
         return configuration in self._configurations
 
-    @override
     @overload
     def __getitem__(self, configuration_key: int) -> _ConfigurationT:
         pass
 
-    @override
     @overload
     def __getitem__(self, configuration_key: slice) -> Sequence[_ConfigurationT]:
         pass
@@ -73,9 +71,9 @@ class ConfigurationSequence(ConfigurationCollection[int, int, _ConfigurationT]):
         self.append(*configurations)
 
     @override
-    def load(self, dump: Dump, /) -> None:
-        self.assert_mutable()
-        self.replace(*assert_sequence(self._load_item)(dump))
+    @classmethod
+    def load(cls, dump: Dump, /) -> Self:
+        return cls(assert_sequence(cls._load_item)(dump))
 
     @override
     def dump(self) -> DumpSequence[Dump]:

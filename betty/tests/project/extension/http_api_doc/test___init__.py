@@ -23,14 +23,9 @@ class TestHttpApiDoc(EntryPointProviderTestBase):
             project.configuration.extensions.enable(HttpApiDoc)
             async with project:
                 await generate(project)
+                assert (project.www_directory_path / "api" / "index.html").is_file()
                 assert (
-                    project.configuration.www_directory_path / "api" / "index.html"
-                ).is_file()
-                assert (
-                    project.configuration.www_directory_path
-                    / "js"
-                    / "webpack"
-                    / "http-api-doc.js"
+                    project.www_directory_path / "js" / "webpack" / "http-api-doc.js"
                 ).is_file()
 
     async def test_secondary_navigation_links(self, isolated_app: App) -> None:

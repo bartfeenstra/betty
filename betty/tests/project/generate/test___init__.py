@@ -126,9 +126,7 @@ class TestResourceOverride:
     async def test(self, isolated_app: App) -> None:
         async with Project.new_isolated(isolated_app) as project:
             localized_assets_directory_path = (
-                Path(project.configuration.assets_directory_path)
-                / "public"
-                / "localized"
+                Path(project.assets_directory_path) / "public" / "localized"
             )
             localized_assets_directory_path.mkdir(parents=True)
             async with aiofiles.open(
@@ -138,6 +136,6 @@ class TestResourceOverride:
             async with project:
                 await generate(project)
                 async with aiofiles.open(
-                    project.configuration.www_directory_path / "index.html"
+                    project.www_directory_path / "index.html"
                 ) as f:
                     assert "Betty was here" in await f.read()

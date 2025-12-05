@@ -8,7 +8,7 @@ from typing import TYPE_CHECKING, Any, Self
 
 from typing_extensions import override
 
-from betty.assertion import RequiredField, assert_record, assert_setattr
+from betty.assertion import RequiredField, assert_record
 from betty.config import Configuration
 from betty.config.factory import ConfigurationDependentSelfFactory
 from betty.content_provider import ContentProvider, ContentProviderPlugin
@@ -42,12 +42,12 @@ class PlainTextConfiguration(Configuration):
         self.text = text
 
     @override
-    def load(self, dump: Dump, /) -> None:
-        assert_record(
-            RequiredField(
-                "text", assert_load_localizable | assert_setattr(self, "text")
-            ),
+    @classmethod
+    def load(cls, dump: Dump, /) -> Self:
+        record = assert_record(
+            RequiredField("text", assert_load_localizable),
         )(dump)
+        return cls(record["text"])
 
     @override
     def dump(self) -> Dump:
@@ -73,6 +73,11 @@ class PlainText(
             if configuration is None
             else configuration
         )
+
+    @override
+    @classmethod
+    def configuration_cls(cls) -> type[PlainTextConfiguration]:
+        return PlainTextConfiguration
 
     @override
     @classmethod

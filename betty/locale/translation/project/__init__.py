@@ -27,9 +27,7 @@ async def new_project_translation(
     """
     Create a new translation for the given project.
     """
-    await _new_translation(
-        locale, project.configuration.assets_directory_path, user=user
-    )
+    await _new_translation(locale, project.assets_directory_path, user=user)
 
 
 async def update_project_translations(

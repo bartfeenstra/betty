@@ -116,9 +116,7 @@ async def assert_betty_html(project: Project, url_path: str) -> Path:
     """
     Assert that an entity's HTML resource exists and is valid.
     """
-    betty_html_file_path = project.configuration.www_directory_path / Path(
-        url_path.lstrip("/")
-    )
+    betty_html_file_path = project.www_directory_path / Path(url_path.lstrip("/"))
     async with aiofiles.open(betty_html_file_path) as f:
         betty_html = await f.read()
     try:
@@ -137,9 +135,7 @@ async def assert_betty_json(project: Project, url_path: str, def_name: str) -> P
     """
     import json
 
-    betty_json_file_path = project.configuration.www_directory_path / Path(
-        url_path.lstrip("/")
-    )
+    betty_json_file_path = project.www_directory_path / Path(url_path.lstrip("/"))
     async with aiofiles.open(betty_json_file_path) as f:
         betty_json = await f.read()
     betty_json_data = json.loads(betty_json)

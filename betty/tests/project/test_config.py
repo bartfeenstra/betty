@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+from pathlib import Path
 from typing import TYPE_CHECKING
 
 import pytest
@@ -45,7 +46,6 @@ from betty.project.config import (
     ProjectConfiguration,
 )
 from betty.project.extension import Extension, ExtensionPlugin
-from betty.serde.format import FormatError
 from betty.test_utils.config import DummyConfiguration
 from betty.test_utils.config.collections import (
     ConfigurationCollectionTestBaseNewSut,
@@ -64,8 +64,6 @@ from betty.test_utils.project.extension import (
 from betty.typing import Void
 
 if TYPE_CHECKING:
-    from pathlib import Path
-
     from betty.app import App
     from betty.serde.dump import Dump, DumpMapping
     from betty.test_utils.config.collections import (
@@ -110,30 +108,29 @@ class TestLocaleConfiguration:
 
     async def test_load__with_invalid_dump(self) -> None:
         dump: Dump = {}
-        sut = LocaleConfiguration(DEFAULT_LOCALE)
         with pytest.raises(HumanFacingException):
-            sut.load(dump)
+            LocaleConfiguration.load(dump)
 
     async def test_load__with_locale(self) -> None:
         dump: Dump = {
-            "locale": None,
+            "locale": DEFAULT_LOCALE_TAG,
         }
-        sut = LocaleConfiguration(DEFAULT_LOCALE)
-        sut.load(dump)
-        assert sut.locale is None
+        sut = LocaleConfiguration.load(dump)
+        assert sut.locale == DEFAULT_LOCALE
 
     async def test_load__with_alias(self) -> None:
         dump: Dump = {
             "locale": "nl-NL",
             "alias": "my-first-alias",
         }
-        sut = LocaleConfiguration(DEFAULT_LOCALE)
-        sut.load(dump)
+        sut = LocaleConfiguration.load(dump)
         assert sut.alias == "my-first-alias"
 
     async def test_dump__should_dump_minimal(self) -> None:
         sut = LocaleConfiguration("nl-NL")
-        expected = {"locale": "nl-NL", "alias": None}
+        expected = {
+            "locale": "nl-NL",
+        }
         assert sut.dump() == expected
 
     async def test_dump__should_dump_alias(self) -> None:
@@ -381,16 +378,14 @@ class TestEntityTypeConfiguration:
 
     async def test_load__with_empty_configuration(self) -> None:
         dump: Dump = {}
-        sut = EntityTypeConfiguration(DummyEntityOne)
         with pytest.raises(HumanFacingException):
-            sut.load(dump)
+            EntityTypeConfiguration.load(dump)
 
     def test_load__with_minimal_configuration(self) -> None:
         dump: Dump = {
-            "id": DummyEntityOne.plugin.id,
+            "entity_type": DummyEntityOne.plugin.id,
         }
-        sut = EntityTypeConfiguration(DummyEntityOne)
-        sut.load(dump)
+        EntityTypeConfiguration.load(dump)
 
     @pytest.mark.parametrize(
         "generate_html_list,",
@@ -401,17 +396,16 @@ class TestEntityTypeConfiguration:
     )
     def test_load__with_generate_html_list(self, generate_html_list: bool) -> None:
         dump: Dump = {
-            "id": DummyEntityOne.plugin.id,
+            "entity_type": DummyEntityOne.plugin.id,
             "generate_html_list": generate_html_list,
         }
-        sut = EntityTypeConfiguration(DummyEntityOne)
-        sut.load(dump)
+        sut = EntityTypeConfiguration.load(dump)
         assert sut.generate_html_list == generate_html_list
 
     async def test_dump__with_minimal_configuration(self) -> None:
         sut = EntityTypeConfiguration(DummyEntityOne)
         expected = {
-            "id": DummyEntityOne.plugin.id,
+            "entity_type": DummyEntityOne.plugin.id,
             "generate_html_list": False,
         }
         assert sut.dump() == expected
@@ -419,7 +413,7 @@ class TestEntityTypeConfiguration:
     async def test_dump__with_generate_html_list(self) -> None:
         sut = EntityTypeConfiguration(DummyEntityOne, generate_html_list=False)
         expected = {
-            "id": DummyEntityOne.plugin.id,
+            "entity_type": DummyEntityOne.plugin.id,
             "generate_html_list": False,
         }
         assert sut.dump() == expected
@@ -581,13 +575,7 @@ class TestCopyrightNoticeConfiguration:
             "summary": summary,
             "text": text,
         }
-        sut = CopyrightNoticePluginConfiguration(
-            id="-",
-            label=DUMMY_LOCALIZABLE,
-            summary=DUMMY_LOCALIZABLE,
-            text=DUMMY_LOCALIZABLE,
-        )
-        sut.load(dump)
+        sut = CopyrightNoticePluginConfiguration.load(dump)
         assert sut.summary.localize(DEFAULT_LOCALIZER) == summary
         assert sut.text.localize(DEFAULT_LOCALIZER) == text
 
@@ -597,14 +585,8 @@ class TestCopyrightNoticeConfiguration:
             "label": "",
             "text": "",
         }
-        sut = CopyrightNoticePluginConfiguration(
-            id="-",
-            label=DUMMY_LOCALIZABLE,
-            summary=DUMMY_LOCALIZABLE,
-            text=DUMMY_LOCALIZABLE,
-        )
         with pytest.raises(HumanFacingException):
-            sut.load(dump)
+            CopyrightNoticePluginConfiguration.load(dump)
 
     async def test_load__with_missing_text(self) -> None:
         dump: Dump = {
@@ -612,14 +594,8 @@ class TestCopyrightNoticeConfiguration:
             "label": "",
             "summary": "",
         }
-        sut = CopyrightNoticePluginConfiguration(
-            id="-",
-            label=DUMMY_LOCALIZABLE,
-            summary=DUMMY_LOCALIZABLE,
-            text=DUMMY_LOCALIZABLE,
-        )
         with pytest.raises(HumanFacingException):
-            sut.load(dump)
+            CopyrightNoticePluginConfiguration.load(dump)
 
     async def test_dump(self) -> None:
         summary = "My First Copyright Summary"
@@ -736,13 +712,7 @@ class TestLicenseConfiguration:
             "summary": summary,
             "text": text,
         }
-        sut = LicensePluginConfiguration(
-            id="-",
-            label=DUMMY_LOCALIZABLE,
-            summary=DUMMY_LOCALIZABLE,
-            text=DUMMY_LOCALIZABLE,
-        )
-        sut.load(dump)
+        sut = LicensePluginConfiguration.load(dump)
         assert sut.summary.localize(DEFAULT_LOCALIZER) == summary
         assert sut.text.localize(DEFAULT_LOCALIZER) == text
 
@@ -752,14 +722,8 @@ class TestLicenseConfiguration:
             "label": "",
             "text": "",
         }
-        sut = LicensePluginConfiguration(
-            id="-",
-            label=DUMMY_LOCALIZABLE,
-            summary=DUMMY_LOCALIZABLE,
-            text=DUMMY_LOCALIZABLE,
-        )
         with pytest.raises(HumanFacingException):
-            sut.load(dump)
+            LicensePluginConfiguration.load(dump)
 
     async def test_load__with_missing_text(self) -> None:
         dump: Dump = {
@@ -767,14 +731,8 @@ class TestLicenseConfiguration:
             "label": "",
             "summary": "",
         }
-        sut = LicensePluginConfiguration(
-            id="-",
-            label=DUMMY_LOCALIZABLE,
-            summary=DUMMY_LOCALIZABLE,
-            text=DUMMY_LOCALIZABLE,
-        )
         with pytest.raises(HumanFacingException):
-            sut.load(dump)
+            LicensePluginConfiguration.load(dump)
 
     async def test_dump(self) -> None:
         summary = "My First License Summary"
@@ -1007,9 +965,9 @@ class TestGenderPluginConfigurationMapping(
 
 class TestProjectConfiguration:
     async def test_validator__should_validate_entity_type_configuration(
-        self, isolated_app: App, tmp_path: Path
+        self, isolated_app: App
     ) -> None:
-        sut = ProjectConfiguration(tmp_path)
+        sut = ProjectConfiguration()
         sut.entity_types.replace(
             EntityTypeConfiguration(
                 DummyNonPublicFacingEntityOne.plugin, generate_html_list=True
@@ -1024,74 +982,21 @@ class TestProjectConfiguration:
             exc_info.value
         )
 
-    async def test_configuration_file_path(self, tmp_path: Path) -> None:
-        configuration_file_path = tmp_path / "init.json"
-        sut = ProjectConfiguration(configuration_file_path)
-        assert sut.configuration_file_path == configuration_file_path
-
-    async def test_set_configuration_file_path(self, tmp_path: Path) -> None:
-        sut = ProjectConfiguration(tmp_path / "init.json")
-        configuration_file_path = tmp_path / "set.json"
-        await sut.set_configuration_file_path(configuration_file_path)
-        # Assert that setting the path to its existing value is a no-op.
-        await sut.set_configuration_file_path(configuration_file_path)
-
-    async def test_set_configuration_file_path__with_unsupported_format(
-        self, tmp_path: Path
-    ) -> None:
-        sut = ProjectConfiguration(tmp_path / "init")
-        configuration_file_path = tmp_path / "set"
-        with pytest.raises(FormatError):
-            await sut.set_configuration_file_path(configuration_file_path)
-
-    async def test_project_directory_path(self, tmp_path: Path) -> None:
-        sut = ProjectConfiguration(tmp_path / "betty.json")
-        assert sut.project_directory_path == tmp_path
-
-    async def test_output_directory_path(self, tmp_path: Path) -> None:
-        sut = ProjectConfiguration(tmp_path / "betty.json")
-        assert tmp_path in sut.output_directory_path.parents
-
-    async def test_assets_directory_path(self, tmp_path: Path) -> None:
-        sut = ProjectConfiguration(tmp_path / "betty.json")
-        assert tmp_path in sut.assets_directory_path.parents
-
-    async def test_www_directory_path(self, tmp_path: Path) -> None:
-        sut = ProjectConfiguration(tmp_path / "betty.json")
-        assert tmp_path in sut.www_directory_path.parents
-
-    async def test_localize_www_directory_path__monolingual(
-        self, tmp_path: Path
-    ) -> None:
-        sut = ProjectConfiguration(tmp_path / "betty.json")
-        actual = sut.localize_www_directory_path(DEFAULT_LOCALE)
-        assert tmp_path in actual.parents
-        assert DEFAULT_LOCALE_TAG not in str(actual)
-
-    async def test_localize_www_directory_path__multilingual(
-        self, tmp_path: Path
-    ) -> None:
-        sut = ProjectConfiguration(tmp_path / "betty.json")
-        sut.locales.append(LocaleConfiguration("nl-NL"))
-        actual = sut.localize_www_directory_path(DEFAULT_LOCALE)
-        assert tmp_path in actual.parents
-        assert DEFAULT_LOCALE_TAG in str(actual)
-
-    async def test_lifetime_threshold(self, tmp_path: Path) -> None:
-        sut = ProjectConfiguration(tmp_path / "betty.json")
+    async def test_lifetime_threshold(self) -> None:
+        sut = ProjectConfiguration()
         sut.lifetime_threshold = 999
         assert sut.lifetime_threshold == 999
 
-    async def test_locales(self, tmp_path: Path) -> None:
-        sut = ProjectConfiguration(tmp_path / "betty.json")
+    async def test_locales(self) -> None:
+        sut = ProjectConfiguration()
         assert DEFAULT_LOCALE in sut.locales
 
-    async def test_extensions(self, tmp_path: Path) -> None:
-        sut = ProjectConfiguration(tmp_path / "betty.json")
+    async def test_extensions(self) -> None:
+        sut = ProjectConfiguration()
         assert len(sut.extensions) == 0
 
-    async def test_entity_types(self, tmp_path: Path) -> None:
-        sut = ProjectConfiguration(tmp_path / "betty.json")
+    async def test_entity_types(self) -> None:
+        sut = ProjectConfiguration()
         sut.entity_types  # noqa B018
 
     @pytest.mark.parametrize(
@@ -1101,36 +1006,36 @@ class TestProjectConfiguration:
             False,
         ],
     )
-    async def test_debug(self, debug: bool, tmp_path: Path) -> None:
-        sut = ProjectConfiguration(tmp_path / "betty.json")
+    async def test_debug(self, debug: bool) -> None:
+        sut = ProjectConfiguration()
         sut.debug = debug
         assert sut.debug == debug
 
-    async def test_title(self, tmp_path: Path) -> None:
-        sut = ProjectConfiguration(tmp_path / "betty.json")
+    async def test_title(self) -> None:
+        sut = ProjectConfiguration()
         title = Plain("My First Betty Site")
         sut.title = title
         assert sut.title is title
 
-    async def test_name(self, tmp_path: Path) -> None:
-        sut = ProjectConfiguration(tmp_path / "betty.json")
+    async def test_name(self) -> None:
+        sut = ProjectConfiguration()
         name = "my-first-betty-site"
         sut.name = name
         assert sut.name == name
 
-    async def test_url(self, tmp_path: Path) -> None:
-        sut = ProjectConfiguration(tmp_path / "betty.json")
+    async def test_url(self) -> None:
+        sut = ProjectConfiguration()
         url = "https://example.com/example"
         sut.url = url
         assert sut.url == url
 
-    async def test_url__without_scheme_should_error(self, tmp_path: Path) -> None:
-        sut = ProjectConfiguration(tmp_path / "betty.json")
+    async def test_url__without_scheme_should_error(self) -> None:
+        sut = ProjectConfiguration()
         with pytest.raises(HumanFacingException):
             sut.url = "/"
 
-    async def test_url__without_path_should_error(self, tmp_path: Path) -> None:
-        sut = ProjectConfiguration(tmp_path / "betty.json")
+    async def test_url__without_path_should_error(self) -> None:
+        sut = ProjectConfiguration()
         with pytest.raises(HumanFacingException):
             sut.url = "file://"
 
@@ -1142,8 +1047,8 @@ class TestProjectConfiguration:
             ("https://example.com", "https://example.com/root-path"),
         ],
     )
-    async def test_base_url(self, expected: str, tmp_path: Path, url: str) -> None:
-        sut = ProjectConfiguration(tmp_path / "betty.json")
+    async def test_base_url(self, expected: str, url: str) -> None:
+        sut = ProjectConfiguration()
         sut.url = url
         assert sut.base_url == expected
 
@@ -1156,95 +1061,90 @@ class TestProjectConfiguration:
             ("/root-path", "https://example.com/root-path/"),
         ],
     )
-    async def test_root_path(self, expected: str, tmp_path: Path, url: str) -> None:
-        sut = ProjectConfiguration(tmp_path / "betty.json")
+    async def test_root_path(self, expected: str, url: str) -> None:
+        sut = ProjectConfiguration()
         sut.url = url
         assert sut.root_path == expected
 
-    async def test_clean_urls(self, tmp_path: Path) -> None:
-        sut = ProjectConfiguration(tmp_path / "betty.json")
+    async def test_clean_urls(self) -> None:
+        sut = ProjectConfiguration()
         clean_urls = True
         sut.clean_urls = clean_urls
         assert sut.clean_urls == clean_urls
 
-    async def test_author__without_author(self, tmp_path: Path) -> None:
-        sut = ProjectConfiguration(tmp_path / "betty.json")
+    async def test_author__without_author(self) -> None:
+        sut = ProjectConfiguration()
         assert sut.author is None
 
-    async def test_author__with_author(self, tmp_path: Path) -> None:
-        sut = ProjectConfiguration(tmp_path / "betty.json")
+    async def test_author__with_author(self) -> None:
+        sut = ProjectConfiguration()
         author = Plain("Bart")
         sut.author = author
         assert sut.author is author
 
-    async def test___init____with_logo(self, tmp_path: Path) -> None:
-        logo = tmp_path / "logo.png"
-        sut = ProjectConfiguration(tmp_path / "betty.json", logo=logo)
+    async def test___init____with_logo(self) -> None:
+        logo = Path("logo.png")
+        sut = ProjectConfiguration(logo=logo)
         assert sut.logo == logo
 
-    async def test_logo(self, tmp_path: Path) -> None:
-        logo = tmp_path / "logo.png"
-        sut = ProjectConfiguration(tmp_path / "betty.json")
+    async def test_logo(self) -> None:
+        logo = Path("logo.png")
+        sut = ProjectConfiguration()
         sut.logo = logo
         assert sut.logo == logo
 
-    async def test_copyright_notices(self, tmp_path: Path) -> None:
-        sut = ProjectConfiguration(tmp_path / "betty.json")
+    async def test_copyright_notices(self) -> None:
+        sut = ProjectConfiguration()
         assert sut.copyright_notices is sut.copyright_notices
 
-    async def test_licenses(self, tmp_path: Path) -> None:
-        sut = ProjectConfiguration(tmp_path / "betty.json")
+    async def test_licenses(self) -> None:
+        sut = ProjectConfiguration()
         assert sut.licenses is sut.licenses
 
-    async def test_event_types(self, tmp_path: Path) -> None:
-        sut = ProjectConfiguration(tmp_path / "betty.json")
+    async def test_event_types(self) -> None:
+        sut = ProjectConfiguration()
         assert sut.event_types is sut.event_types
 
-    async def test_place_types(self, tmp_path: Path) -> None:
-        sut = ProjectConfiguration(tmp_path / "betty.json")
+    async def test_place_types(self) -> None:
+        sut = ProjectConfiguration()
         assert sut.place_types is sut.place_types
 
-    async def test_presence_roles(self, tmp_path: Path) -> None:
-        sut = ProjectConfiguration(tmp_path / "betty.json")
+    async def test_presence_roles(self) -> None:
+        sut = ProjectConfiguration()
         assert sut.presence_roles is sut.presence_roles
 
-    async def test_genders(self, tmp_path: Path) -> None:
-        sut = ProjectConfiguration(tmp_path / "betty.json")
+    async def test_genders(self) -> None:
+        sut = ProjectConfiguration()
         assert sut.genders is sut.genders
 
-    async def test_load__should_load_minimal(self, tmp_path: Path) -> None:
-        sut = ProjectConfiguration(tmp_path / "betty.json")
-        dump = sut.dump()
-        sut.load(dump)
+    async def test_load__should_load_minimal(self) -> None:
+        dump = ProjectConfiguration().dump()
+        sut = ProjectConfiguration.load(dump)
         assert sut.url == dump["url"]
 
-    async def test_load__should_load_name(self, tmp_path: Path) -> None:
+    async def test_load__should_load_name(self) -> None:
         name = "my-first-betty-site"
-        sut = ProjectConfiguration(tmp_path / "betty.json")
-        dump = sut.dump()
+        dump = ProjectConfiguration().dump()
         dump["name"] = name
-        sut.load(dump)
+        sut = ProjectConfiguration.load(dump)
         assert sut.name == name
 
-    async def test_load__should_load_title(self, tmp_path: Path) -> None:
+    async def test_load__should_load_title(self) -> None:
         title = "My first Betty site"
-        sut = ProjectConfiguration(tmp_path / "betty.json")
-        dump = sut.dump()
+        dump = ProjectConfiguration().dump()
         dump["title"] = title
-        sut.load(dump)
+        sut = ProjectConfiguration.load(dump)
         assert sut.title.localize(DEFAULT_LOCALIZER) == title
 
-    async def test_load__should_load_copyright_notice(self, tmp_path: Path) -> None:
-        sut = ProjectConfiguration(tmp_path / "betty.json")
-        dump = sut.dump()
+    async def test_load__should_load_copyright_notice(self) -> None:
+        dump = ProjectConfiguration().dump()
         copyright_notice_id = "my-first-copyright-notice"
         dump["copyright_notice"] = copyright_notice_id
-        sut.load(dump)
+        sut = ProjectConfiguration.load(dump)
         assert sut.copyright_notice.id == copyright_notice_id
 
-    async def test_load__should_load_copyright_notices(self, tmp_path: Path) -> None:
-        sut = ProjectConfiguration(tmp_path / "betty.json")
-        dump = sut.dump()
+    async def test_load__should_load_copyright_notices(self) -> None:
+        dump = ProjectConfiguration().dump()
         copyright_notice_id = "my-first-copyright-notice"
         copyright_notice_label = "My First Copyright Notice"
         dump["copyright_notices"] = {
@@ -1254,23 +1154,21 @@ class TestProjectConfiguration:
                 "text": "My First Copyright Notice is the best copyright notice.",
             }
         }
-        sut.load(dump)
+        sut = ProjectConfiguration.load(dump)
         assert (
             sut.copyright_notices[copyright_notice_id].label.localize(DEFAULT_LOCALIZER)
             == copyright_notice_label
         )
 
-    async def test_load__should_load_license(self, tmp_path: Path) -> None:
-        sut = ProjectConfiguration(tmp_path / "betty.json")
-        dump = sut.dump()
+    async def test_load__should_load_license(self) -> None:
+        dump = ProjectConfiguration().dump()
         license_id = "my-first-license"
         dump["license"] = license_id
-        sut.load(dump)
+        sut = ProjectConfiguration.load(dump)
         assert sut.license.id == license_id
 
-    async def test_load__should_load_licenses(self, tmp_path: Path) -> None:
-        sut = ProjectConfiguration(tmp_path / "betty.json")
-        dump = sut.dump()
+    async def test_load__should_load_licenses(self) -> None:
+        dump = ProjectConfiguration().dump()
         license_id = "my-first-license"
         license_label = "My First License"
         dump["licenses"] = {
@@ -1280,55 +1178,50 @@ class TestProjectConfiguration:
                 "text": "My First License is the best license.",
             }
         }
-        sut.load(dump)
+        sut = ProjectConfiguration.load(dump)
         assert (
             sut.licenses[license_id].label.localize(DEFAULT_LOCALIZER) == license_label
         )
 
-    async def test_load__should_load_author(self, tmp_path: Path) -> None:
+    async def test_load__should_load_author(self) -> None:
         author = "Bart"
-        sut = ProjectConfiguration(tmp_path / "betty.json")
-        dump = sut.dump()
+        dump = ProjectConfiguration().dump()
         dump["author"] = author
-        sut.load(dump)
+        sut = ProjectConfiguration.load(dump)
         assert sut.author is not None
         assert sut.author.localize(DEFAULT_LOCALIZER) == author
 
-    async def test_load__should_load_logo(self, tmp_path: Path) -> None:
-        logo = tmp_path / "logo.png"
-        sut = ProjectConfiguration(tmp_path / "betty.json")
-        dump = sut.dump()
+    async def test_load__should_load_logo(self) -> None:
+        logo = Path("logo.png")
+        dump = ProjectConfiguration().dump()
         dump["logo"] = str(logo)
-        sut.load(dump)
-        assert sut.logo == logo
+        sut = ProjectConfiguration.load(dump)
+        assert sut.logo == logo.resolve()
 
-    async def test_load__should_load_locale_locale(self, tmp_path: Path) -> None:
+    async def test_load__should_load_locale_locale(self) -> None:
         locale = "nl-NL"
-        sut = ProjectConfiguration(tmp_path / "betty.json")
-        dump = sut.dump()
+        dump = ProjectConfiguration().dump()
         dump["locales"] = [{"locale": locale}]
-        sut.load(dump)
+        sut = ProjectConfiguration.load(dump)
         assert len(sut.locales) == 1
         assert locale in sut.locales
 
-    async def test_load__should_load_locale_alias(self, tmp_path: Path) -> None:
+    async def test_load__should_load_locale_alias(self) -> None:
         locale = "nl-NL"
         alias = "nl"
-        sut = ProjectConfiguration(tmp_path / "betty.json")
-        dump = sut.dump()
+        dump = ProjectConfiguration().dump()
         dump["locales"] = [{"locale": locale, "alias": alias}]
-        sut.load(dump)
+        sut = ProjectConfiguration.load(dump)
         assert len(sut.locales) == 1
         assert locale in sut.locales
         actual = sut.locales[locale]
         assert actual.alias == alias
 
-    async def test_load__should_clean_urls(self, tmp_path: Path) -> None:
+    async def test_load__should_clean_urls(self) -> None:
         clean_urls = True
-        sut = ProjectConfiguration(tmp_path / "betty.json")
-        dump = sut.dump()
+        dump = ProjectConfiguration().dump()
         dump["clean_urls"] = clean_urls
-        sut.load(dump)
+        sut = ProjectConfiguration.load(dump)
         assert sut.clean_urls == clean_urls
 
     @pytest.mark.parametrize(
@@ -1338,33 +1231,30 @@ class TestProjectConfiguration:
             False,
         ],
     )
-    async def test_load__should_load_debug(self, debug: bool, tmp_path: Path) -> None:
-        sut = ProjectConfiguration(tmp_path / "betty.json")
-        dump = sut.dump()
+    async def test_load__should_load_debug(self, debug: bool) -> None:
+        dump = ProjectConfiguration().dump()
         dump["debug"] = debug
-        sut.load(dump)
+        sut = ProjectConfiguration.load(dump)
         assert sut.debug == debug
 
-    async def test_load__should_load_extension(self, tmp_path: Path) -> None:
-        sut = ProjectConfiguration(tmp_path / "betty.json")
-        dump = sut.dump()
+    async def test_load__should_load_extension(self) -> None:
+        dump = ProjectConfiguration().dump()
         dump["extensions"] = {
             DummyExtensionOne.plugin.id: {},
         }
-        sut.load(dump)
+        sut = ProjectConfiguration.load(dump)
         actual = sut.extensions[DummyExtensionOne.plugin]
         assert isinstance(actual.configuration, Void)
 
     async def test_load__extension_with_invalid_configuration_should_raise_error(
-        self, tmp_path: Path
+        self,
     ) -> None:
-        sut = ProjectConfiguration(tmp_path / "betty.json")
-        dump = sut.dump()
+        dump = ProjectConfiguration().dump()
         dump["extensions"] = {
             DummyConfigurableExtension.plugin.id: 1337,
         }
         with pytest.raises(HumanFacingException):
-            sut.load(dump)
+            ProjectConfiguration.load(dump)
 
     @pytest.mark.parametrize(
         ("expected", "event_types_configuration"),
@@ -1374,15 +1264,11 @@ class TestProjectConfiguration:
         ],
     )
     async def test_load__should_load_event_types(
-        self,
-        expected: DumpMapping[Dump],
-        event_types_configuration: DumpMapping[Dump],
-        tmp_path: Path,
+        self, expected: DumpMapping[Dump], event_types_configuration: DumpMapping[Dump]
     ) -> None:
-        sut = ProjectConfiguration(tmp_path / "betty.json")
-        dump = sut.dump()
+        dump = ProjectConfiguration().dump()
         dump["event_types"] = event_types_configuration
-        sut.load(dump)
+        sut = ProjectConfiguration.load(dump)
         if event_types_configuration:
             assert sut.dump()["event_types"] == expected
 
@@ -1394,15 +1280,11 @@ class TestProjectConfiguration:
         ],
     )
     async def test_load__should_load_place_types(
-        self,
-        expected: DumpMapping[Dump],
-        place_types_configuration: DumpMapping[Dump],
-        tmp_path: Path,
+        self, expected: DumpMapping[Dump], place_types_configuration: DumpMapping[Dump]
     ) -> None:
-        sut = ProjectConfiguration(tmp_path / "betty.json")
-        dump = sut.dump()
+        dump = ProjectConfiguration().dump()
         dump["place_types"] = place_types_configuration
-        sut.load(dump)
+        sut = ProjectConfiguration.load(dump)
         if place_types_configuration:
             assert sut.dump()["place_types"] == expected
 
@@ -1442,12 +1324,10 @@ class TestProjectConfiguration:
         self,
         expected: DumpMapping[Dump],
         presence_roles_configuration: DumpMapping[Dump],
-        tmp_path: Path,
     ) -> None:
-        sut = ProjectConfiguration(tmp_path / "betty.json")
-        dump = sut.dump()
+        dump = ProjectConfiguration().dump()
         dump["presence_roles"] = presence_roles_configuration
-        sut.load(dump)
+        sut = ProjectConfiguration.load(dump)
         if presence_roles_configuration:
             assert sut.dump()["presence_roles"] == expected
 
@@ -1459,91 +1339,74 @@ class TestProjectConfiguration:
         ],
     )
     async def test_load__should_load_genders(
-        self,
-        expected: DumpMapping[Dump],
-        genders_configuration: DumpMapping[Dump],
-        tmp_path: Path,
+        self, expected: DumpMapping[Dump], genders_configuration: DumpMapping[Dump]
     ) -> None:
-        sut = ProjectConfiguration(tmp_path / "betty.json")
-        dump = sut.dump()
+        dump = ProjectConfiguration().dump()
         dump["genders"] = genders_configuration
-        sut.load(dump)
+        sut = ProjectConfiguration.load(dump)
         if genders_configuration:
             assert sut.dump()["genders"] == expected
 
-    async def test_load__should_error_if_invalid_config(self, tmp_path: Path) -> None:
+    async def test_load__should_error_if_invalid_config(self) -> None:
         dump: Dump = {}
-        sut = ProjectConfiguration(tmp_path / "betty.json")
         with pytest.raises(HumanFacingException):
-            sut.load(dump)
+            ProjectConfiguration.load(dump)
 
-    async def test_dump__should_dump_minimal(self, tmp_path: Path) -> None:
-        sut = ProjectConfiguration(tmp_path / "betty.json")
+    async def test_dump__should_dump_minimal(self) -> None:
+        sut = ProjectConfiguration()
         dump = sut.dump()
         assert dump["url"] == sut.url
         assert dump["title"] == "Betty"
 
-    async def test_dump__should_dump_title(self, tmp_path: Path) -> None:
+    async def test_dump__should_dump_title(self) -> None:
         title = "My first Betty site"
-        sut = ProjectConfiguration(tmp_path / "betty.json")
-        sut.title = title
-        dump = sut.dump()
+        dump = ProjectConfiguration(title=title).dump()
         assert dump["title"] == title
 
-    async def test_dump__should_dump_name(self, tmp_path: Path) -> None:
+    async def test_dump__should_dump_name(self) -> None:
         name = "my-first-betty-site"
-        sut = ProjectConfiguration(tmp_path / "betty.json")
-        sut.name = name
-        dump = sut.dump()
+        dump = ProjectConfiguration(name=name).dump()
         assert dump["name"] == name
 
-    async def test_dump__should_dump_author(self, tmp_path: Path) -> None:
+    async def test_dump__should_dump_author(self) -> None:
         author = "Bart"
-        sut = ProjectConfiguration(tmp_path / "betty.json")
-        sut.author = author
-        dump = sut.dump()
+        dump = ProjectConfiguration(author=author).dump()
         assert dump["author"] == author
 
-    async def test_dump__should_dumpo_logo(self, tmp_path: Path) -> None:
-        logo = tmp_path / "logo.png"
-        sut = ProjectConfiguration(tmp_path / "betty.json")
-        sut.logo = logo
-        dump = sut.dump()
-        assert isinstance(dump, dict)
+    async def test_dump__should_dumpo_logo(self) -> None:
+        logo = Path("logo.png")
+        dump = ProjectConfiguration(logo=logo).dump()
         assert dump["logo"] == str(logo)
 
-    async def test_dump__should_dump_locale_locale(self, tmp_path: Path) -> None:
+    async def test_dump__should_dump_locale_locale(self) -> None:
         locale = "nl-NL"
         locale_configuration = LocaleConfiguration(locale)
-        sut = ProjectConfiguration(tmp_path / "betty.json")
-        sut.locales.replace(locale_configuration)
-        dump = sut.dump()
+        dump = ProjectConfiguration(
+            locales=LocaleConfigurationMapping([locale_configuration])
+        ).dump()
         assert dump["locales"] == [
             {
                 "locale": locale,
-                "alias": None,
             },
         ]
 
-    async def test_dump__should_dump_locale_alias(self, tmp_path: Path) -> None:
+    async def test_dump__should_dump_locale_alias(self) -> None:
         locale = "nl-NL"
         alias = "nl"
         locale_configuration = LocaleConfiguration(
             locale,
             alias=alias,
         )
-        sut = ProjectConfiguration(tmp_path / "betty.json")
-        sut.locales.replace(locale_configuration)
-        dump = sut.dump()
+        dump = ProjectConfiguration(
+            locales=LocaleConfigurationMapping([locale_configuration])
+        ).dump()
         assert dump["locales"] == [
             {"locale": locale, "alias": alias},
         ]
 
-    async def test_dump__should_dump_clean_urls(self, tmp_path: Path) -> None:
+    async def test_dump__should_dump_clean_urls(self) -> None:
         clean_urls = True
-        sut = ProjectConfiguration(tmp_path / "betty.json")
-        sut.clean_urls = clean_urls
-        dump = sut.dump()
+        dump = ProjectConfiguration(clean_urls=clean_urls).dump()
         assert dump["clean_urls"] == clean_urls
 
     @pytest.mark.parametrize(
@@ -1553,20 +1416,16 @@ class TestProjectConfiguration:
             False,
         ],
     )
-    async def test_dump__should_dump_debug(self, debug: bool, tmp_path: Path) -> None:
-        sut = ProjectConfiguration(tmp_path / "betty.json")
-        sut.debug = debug
-        dump = sut.dump()
+    async def test_dump__should_dump_debug(self, debug: bool) -> None:
+        dump = ProjectConfiguration(debug=debug).dump()
         assert dump["debug"] == debug
 
-    async def test_dump__should_dump_one_extension_with_configuration(
-        self, tmp_path: Path
-    ) -> None:
-        sut = ProjectConfiguration(tmp_path / "betty.json")
+    async def test_dump__should_dump_one_extension_with_configuration(self) -> None:
+        sut = ProjectConfiguration()
         value = "Hello, world!"
         sut.extensions.append(
             PluginInstanceConfiguration(
-                DummyConfigurableExtension.plugin, DummyConfiguration(value=value)
+                DummyConfigurableExtension.plugin, DummyConfiguration(value)
             )
         )
         dump = sut.dump()
@@ -1579,17 +1438,15 @@ class TestProjectConfiguration:
         }
         assert dump["extensions"] == expected
 
-    async def test_dump__should_dump_one_extension_without_configuration(
-        self, tmp_path: Path
-    ) -> None:
-        sut = ProjectConfiguration(tmp_path / "betty.json")
+    async def test_dump__should_dump_one_extension_without_configuration(self) -> None:
+        sut = ProjectConfiguration()
         sut.extensions.enable(_DummyNonConfigurableExtension)
         dump = sut.dump()
         expected: Dump = {_DummyNonConfigurableExtension.plugin.id: {}}
         assert dump["extensions"] == expected
 
-    async def test_dump__should_dump_event_types(self, tmp_path: Path) -> None:
-        sut = ProjectConfiguration(tmp_path / "betty.json")
+    async def test_dump__should_dump_event_types(self) -> None:
+        sut = ProjectConfiguration()
         sut.event_types.append(EventTypePluginConfiguration(id="foo", label="Foo"))
         dump = sut.dump()
         expected: DumpMapping[Dump] = {
@@ -1599,8 +1456,8 @@ class TestProjectConfiguration:
         }
         assert dump["event_types"] == expected
 
-    async def test_dump__should_dump_place_types(self, tmp_path: Path) -> None:
-        sut = ProjectConfiguration(tmp_path / "betty.json")
+    async def test_dump__should_dump_place_types(self) -> None:
+        sut = ProjectConfiguration()
         sut.place_types.append(PlaceTypePluginConfiguration(id="foo", label="Foo"))
         dump = sut.dump()
         expected: DumpMapping[Dump] = {
@@ -1610,8 +1467,8 @@ class TestProjectConfiguration:
         }
         assert dump["place_types"] == expected
 
-    async def test_dump__should_dump_presence_roles(self, tmp_path: Path) -> None:
-        sut = ProjectConfiguration(tmp_path / "betty.json")
+    async def test_dump__should_dump_presence_roles(self) -> None:
+        sut = ProjectConfiguration()
         sut.presence_roles.append(
             PresenceRolePluginConfiguration(
                 id="foo",
@@ -1635,8 +1492,8 @@ class TestProjectConfiguration:
         }
         assert dump["presence_roles"] == expected
 
-    async def test_dump__should_dump_genders(self, tmp_path: Path) -> None:
-        sut = ProjectConfiguration(tmp_path / "betty.json")
+    async def test_dump__should_dump_genders(self) -> None:
+        sut = ProjectConfiguration()
         sut.genders.append(GenderPluginConfiguration(id="foo", label="Foo"))
         dump = sut.dump()
         expected: DumpMapping[Dump] = {
@@ -1646,26 +1503,16 @@ class TestProjectConfiguration:
         }
         assert dump["genders"] == expected
 
-    async def test_dump__should_error_if_invalid_config(self, tmp_path: Path) -> None:
-        dump: Dump = {}
-        sut = ProjectConfiguration(tmp_path / "betty.json")
-        with pytest.raises(HumanFacingException):
-            sut.load(dump)
-
-    async def test_dump__should_dump_copyright_notice(self, tmp_path: Path) -> None:
-        sut = ProjectConfiguration(tmp_path / "betty.json")
+    async def test_dump__should_dump_copyright_notice(self) -> None:
+        sut = ProjectConfiguration()
         assert sut.dump()["copyright_notice"] == ProjectAuthor.plugin.id
 
-    async def test_dump__should_dump_copyright_notices_without_items(
-        self, tmp_path: Path
-    ) -> None:
-        sut = ProjectConfiguration(tmp_path / "betty.json")
+    async def test_dump__should_dump_copyright_notices_without_items(self) -> None:
+        sut = ProjectConfiguration()
         assert sut.dump()["copyright_notices"] == {}
 
-    async def test_dump__should_dump_copyright_notices_with_items(
-        self, tmp_path: Path
-    ) -> None:
-        sut = ProjectConfiguration(tmp_path / "betty.json")
+    async def test_dump__should_dump_copyright_notices_with_items(self) -> None:
+        sut = ProjectConfiguration()
         copyright_notice_id = "my-first-copyright-notice"
         copyright_notice_label = "My First Copyright Notice"
         copyright_notice_summary = "This is My First Copyright Notice."
@@ -1688,18 +1535,16 @@ class TestProjectConfiguration:
             }
         }
 
-    async def test_dump__should_dump_license(self, tmp_path: Path) -> None:
-        sut = ProjectConfiguration(tmp_path / "betty.json")
+    async def test_dump__should_dump_license(self) -> None:
+        sut = ProjectConfiguration()
         assert sut.dump()["license"] == AllRightsReserved.plugin.id
 
-    async def test_dump__should_dump_licenses_without_items(
-        self, tmp_path: Path
-    ) -> None:
-        sut = ProjectConfiguration(tmp_path / "betty.json")
+    async def test_dump__should_dump_licenses_without_items(self) -> None:
+        sut = ProjectConfiguration()
         assert sut.dump()["licenses"] == {}
 
-    async def test_dump__should_dump_licenses_with_items(self, tmp_path: Path) -> None:
-        sut = ProjectConfiguration(tmp_path / "betty.json")
+    async def test_dump__should_dump_licenses_with_items(self) -> None:
+        sut = ProjectConfiguration()
         license_id = "my-first-license"
         license_label = "My First License"
         license_summary = "This is My First License."
@@ -1731,13 +1576,7 @@ class TestCopyrightNoticePluginConfiguration:
             "summary": summary,
             "text": text,
         }
-        sut = CopyrightNoticePluginConfiguration(
-            id="-",
-            label=DUMMY_LOCALIZABLE,
-            summary=DUMMY_LOCALIZABLE,
-            text=DUMMY_LOCALIZABLE,
-        )
-        sut.load(dump)
+        sut = CopyrightNoticePluginConfiguration.load(dump)
         assert sut.summary.localize(DEFAULT_LOCALIZER) == summary
         assert sut.text.localize(DEFAULT_LOCALIZER) == text
 
@@ -1776,13 +1615,7 @@ class TestLicensePluginConfiguration:
             "summary": summary,
             "text": text,
         }
-        sut = LicensePluginConfiguration(
-            id="-",
-            label=DUMMY_LOCALIZABLE,
-            summary=DUMMY_LOCALIZABLE,
-            text=DUMMY_LOCALIZABLE,
-        )
-        sut.load(dump)
+        sut = LicensePluginConfiguration.load(dump)
         assert sut.summary.localize(DEFAULT_LOCALIZER) == summary
         assert sut.text.localize(DEFAULT_LOCALIZER) == text
 

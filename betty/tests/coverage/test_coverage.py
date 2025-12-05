@@ -435,6 +435,11 @@ _BASELINE: Mapping[str, _ModuleIgnore] = {
             "stop": MissingReason.SHOULD_BE_COVERED,
         },
     },
+    "betty/project/extension/gramps/config.py": {
+        "EventTypeMapping": MissingReason.STATIC_CONTENT_ONLY,
+        "PlaceTypeMapping": MissingReason.STATIC_CONTENT_ONLY,
+        "PresenceRoleMapping": MissingReason.STATIC_CONTENT_ONLY,
+    },
     "betty/project/extension/privatizer/__init__.py": {
         "Privatizer": {
             "post_load": MissingReason.SHOULD_BE_COVERED,

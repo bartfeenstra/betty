@@ -16,24 +16,24 @@ from betty.copyright_notice import CopyrightNoticePlugin
 from betty.gramps.loader import GrampsLoader
 from betty.job import Job
 from betty.license import LicensePlugin
-from betty.plugin import Plugin
+from betty.plugin import Plugin, PluginDefinition
 from betty.project import ProjectContext
 
 if TYPE_CHECKING:
     from collections.abc import Awaitable, Callable
 
     from betty.job.scheduler import Scheduler
-    from betty.plugin import PluginDefinition
     from betty.plugin.config import PluginInstanceConfiguration
     from betty.plugin.repository import PluginRepository
     from betty.project.factory import ProjectFactory
 
 _PluginT = TypeVar("_PluginT", bound=Plugin)
+_PluginDefinitionT = TypeVar("_PluginDefinitionT", bound=PluginDefinition)
 
 
 def _new_plugin_instance_factory(
-    configuration: PluginInstanceConfiguration[PluginDefinition, _PluginT],
-    repository: PluginRepository[PluginDefinition],
+    configuration: PluginInstanceConfiguration[_PluginDefinitionT, _PluginT],
+    repository: PluginRepository[_PluginDefinitionT],
     *,
     factory: ProjectFactory,
 ) -> Callable[[], Awaitable[_PluginT]]:

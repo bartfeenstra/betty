@@ -10,14 +10,16 @@ from typing import Any
 from betty.app import App
 from betty.argparse import assertion_to_argument_type
 from betty.assertion import assert_path
-from betty.config.file import assert_configuration_file
 from betty.console.command import CommandFunction
 from betty.error import FileNotFound
 from betty.exception import HumanFacingException
 from betty.locale.localizable import _
+from betty.plugin.repository.provider.service import plugins
 from betty.project import Project
 from betty.project.config import ProjectConfiguration
+from betty.serde.file import assert_load_file
 from betty.serde.format import FormatPlugin
+from betty.user import User
 
 
 class ConfigurationFileNotFound(HumanFacingException):
@@ -52,34 +54,41 @@ async def add_project_argument(
     async def _command_function_with_project_argument(
         *, project_configuration_file_path: Path | None = None, **kwargs: Any
     ) -> None:
-        project: Project | None = Project(
-            app, configuration=ProjectConfiguration(Path())
-        )
+        project: Project | None
         try:
-            await _read_project_configuration(project, project_configuration_file_path)
+            (
+                configuration,
+                project_configuration_file_path,
+            ) = await _read_project_configuration(
+                project_configuration_file_path, app.user
+            )
         except ConfigurationFileNotFound:
             if required:
                 raise
             project = None
+        else:
+            project = Project(
+                app, project_configuration_file_path, configuration=configuration
+            )
         return await command_function(project=project, **kwargs)
 
     return _command_function_with_project_argument
 
 
 async def _read_project_configuration(
-    project: Project, provided_configuration_file_path_str: Path | None
-) -> None:
+    provided_configuration_file_path_str: Path | None, user: User
+) -> tuple[ProjectConfiguration, Path]:
     project_directory_path = Path.cwd()
     if provided_configuration_file_path_str is None:
         try_configuration_file_paths = [
             project_directory_path / f"betty{extension}"
-            for serde_format in await project.plugins(FormatPlugin)
+            for serde_format in await plugins(FormatPlugin)
             for extension in serde_format.cls.media_type().extensions
         ]
         for try_configuration_file_path in try_configuration_file_paths:
             with suppress(FileNotFound):
                 return await _read_project_configuration_file(
-                    project, try_configuration_file_path
+                    try_configuration_file_path, user
                 )
         raise ConfigurationFileNotFound(
             _(
@@ -92,29 +101,27 @@ async def _read_project_configuration(
                 project_directory_path=str(project_directory_path),
             )
         )
-    await _read_project_configuration_file(
-        project,
+    return await _read_project_configuration_file(
         (project_directory_path / provided_configuration_file_path_str)
         .expanduser()
         .resolve(),
+        user,
     )
-    return None
 
 
 async def _read_project_configuration_file(
-    project: Project, configuration_file_path: Path
-) -> None:
-    user = project.app.user
-    assert_configuration = await assert_configuration_file(project.configuration)
+    configuration_file_path: Path, user: User
+) -> tuple[ProjectConfiguration, Path]:
+    assert_configuration = await assert_load_file()
     try:
-        assert_configuration(configuration_file_path)
+        dump = assert_configuration(configuration_file_path)
     except HumanFacingException as error:
         await user.message_debug(error)
         raise
     else:
-        await project.configuration.set_configuration_file_path(configuration_file_path)
         await user.message_information_details(
             _("Loaded the configuration from {configuration_file_path}.").format(
                 configuration_file_path=str(configuration_file_path)
             ),
         )
+        return ProjectConfiguration.load(dump), configuration_file_path

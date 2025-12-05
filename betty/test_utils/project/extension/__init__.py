@@ -7,11 +7,10 @@ from typing import Self, final
 import pytest
 from typing_extensions import override
 
-from betty.config import Configurable
 from betty.project import Project
 from betty.project.extension import Extension, ExtensionPlugin
 from betty.project.factory import ProjectDependentSelfFactory
-from betty.test_utils.config import DummyConfiguration
+from betty.test_utils.config import DummyConfigurable, DummyConfiguration
 from betty.test_utils.plugin.dependent import DependentPluginDefinitionTestBase
 from betty.test_utils.plugin.human_facing import HumanFacingPluginDefinitionTestBase
 from betty.test_utils.plugin.ordered import OrderedPluginDefinitionTestBase
@@ -66,7 +65,7 @@ class DummyExtensionTwo(_DummyExtension):
 
 @final
 @ExtensionPlugin("dummy-configurable", label="Dummy Configurable")
-class DummyConfigurableExtension(Configurable[DummyConfiguration], _DummyExtension):
+class DummyConfigurableExtension(DummyConfigurable, _DummyExtension):
     """
     A dummy :py:class:`betty.config.Configurable` and :py:class:`betty.project.extension.Extension` implementation.
     """

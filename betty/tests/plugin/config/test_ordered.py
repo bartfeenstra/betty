@@ -9,8 +9,7 @@ if TYPE_CHECKING:
 class TestOrderedPluginDefinitionConfiguration:
     async def test_load__minimal(self) -> None:
         dump: Dump = {"id": "hello-world"}
-        sut = OrderedPluginDefinitionConfiguration(id="-")
-        sut.load(dump)
+        sut = OrderedPluginDefinitionConfiguration.load(dump)
         assert not sut.comes_before
         assert not sut.comes_after
 
@@ -19,8 +18,7 @@ class TestOrderedPluginDefinitionConfiguration:
             "id": "hello-world",
             "comes_before": ["my-first-plugin"],
         }
-        sut = OrderedPluginDefinitionConfiguration(id="-")
-        sut.load(dump)
+        sut = OrderedPluginDefinitionConfiguration.load(dump)
         assert sut.comes_before == {"my-first-plugin"}
 
     async def test_load__with_comes_after(self) -> None:
@@ -28,8 +26,7 @@ class TestOrderedPluginDefinitionConfiguration:
             "id": "hello-world",
             "comes_after": ["my-first-plugin"],
         }
-        sut = OrderedPluginDefinitionConfiguration(id="-")
-        sut.load(dump)
+        sut = OrderedPluginDefinitionConfiguration.load(dump)
         assert sut.comes_after == {"my-first-plugin"}
 
     async def test_dump__minimal(self) -> None:

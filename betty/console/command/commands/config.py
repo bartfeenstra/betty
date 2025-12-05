@@ -8,7 +8,7 @@ from betty.app import config as app_config
 from betty.app.config import AppConfiguration
 from betty.app.factory import AppDependentSelfFactory
 from betty.assertion import assert_locale
-from betty.config.file import write_configuration_file
+from betty.serde.file import dump_file
 from betty.argparse import assertion_to_argument_type
 from betty.console.command import Command, CommandFunction, CommandPlugin
 from betty.locale import DEFAULT_LOCALE, to_language_tag
@@ -62,6 +62,6 @@ class Config(AppDependentSelfFactory, Command):
             )
         )
 
-        await write_configuration_file(
-            updated_configuration, app_config.CONFIGURATION_FILE_PATH
+        await dump_file(
+            updated_configuration.dump(), app_config.CONFIGURATION_FILE_PATH
         )

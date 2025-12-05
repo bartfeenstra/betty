@@ -65,7 +65,7 @@ class UpdateTranslations(AppDependentSelfFactory, Command):
     ) -> None:
         async with project:
             await translation.project.update_project_translations(
-                project.configuration.project_directory_path,
+                project.project_directory_path,
                 source,
                 None if exclude is None else set(exclude),
             )

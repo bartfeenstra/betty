@@ -36,16 +36,16 @@ async def test_generate_with_cleanup__without_error(
     async def _generate(
         project: Project, *, job_context: ProjectContext | None = None
     ) -> None:
-        project.configuration.output_directory_path.mkdir(parents=True)
+        project.output_directory_path.mkdir(parents=True)
 
     m_generate = mocker.patch("betty.project.generate.generate")
     m_generate.side_effect = _generate
     async with Project.new_isolated(isolated_app) as project, project:
-        (project.configuration.project_directory_path / "sentinel").touch()
+        (project.project_directory_path / "sentinel").touch()
         await generate_with_cleanup(project)
-        assert project.configuration.project_directory_path.is_dir()
-        assert project.configuration.output_directory_path.is_dir()
-        assert not (project.configuration.project_directory_path / "sentinel").exists()
+        assert project.project_directory_path.is_dir()
+        assert project.output_directory_path.is_dir()
+        assert not (project.project_directory_path / "sentinel").exists()
 
 
 async def test_generate_with_cleanup__with_error(
@@ -56,7 +56,7 @@ async def test_generate_with_cleanup__with_error(
     async def _generate(
         project: Project, *, job_context: ProjectContext | None = None
     ) -> None:
-        project.configuration.output_directory_path.mkdir(parents=True)
+        project.output_directory_path.mkdir(parents=True)
         raise RuntimeError(error_message)
 
     m_generate = mocker.patch("betty.project.generate.generate")
@@ -64,7 +64,7 @@ async def test_generate_with_cleanup__with_error(
     async with Project.new_isolated(isolated_app) as project, project:
         with pytest.raises(RuntimeError, match=error_message):
             await generate_with_cleanup(project)
-        assert not project.configuration.project_directory_path.exists()
+        assert not project.project_directory_path.exists()
 
 
 class TestDemoDefinition(ExtensionPluginTestBase):

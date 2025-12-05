@@ -54,7 +54,7 @@ class TestWebpack(ExtensionTestBase):
                 await generate(project)
 
                 async with aiofiles.open(
-                    project.configuration.www_directory_path / self._SENTINEL
+                    project.www_directory_path / self._SENTINEL
                 ) as f:
                     assert await f.read() == self._SENTINEL
 

@@ -14,12 +14,12 @@ if TYPE_CHECKING:
 class TestWikiConfiguration:
     async def test_load__with_minimal_configuration(self) -> None:
         dump: Mapping[str, Any] = {}
-        WikiConfiguration().load(dump)
+        WikiConfiguration.load(dump)
 
     async def test_load__without_dict_should_error(self) -> None:
         dump = None
         with pytest.raises(HumanFacingException):
-            WikiConfiguration().load(dump)
+            WikiConfiguration.load(dump)
 
     @pytest.mark.parametrize(
         "populate_images",
@@ -34,8 +34,7 @@ class TestWikiConfiguration:
         dump: Dump = {
             "populate_images": populate_images,
         }
-        sut = WikiConfiguration()
-        sut.load(dump)
+        sut = WikiConfiguration.load(dump)
         assert sut.populate_images == populate_images
 
     async def test_dump__with_minimal_configuration(self) -> None:

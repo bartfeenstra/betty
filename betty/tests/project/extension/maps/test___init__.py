@@ -26,19 +26,13 @@ class TestMaps(EntryPointProviderTestBase):
             async with project:
                 await generate(project)
                 async with aiofiles.open(
-                    project.configuration.www_directory_path
-                    / "js"
-                    / "webpack"
-                    / "maps.js",
+                    project.www_directory_path / "js" / "webpack" / "maps.js",
                     encoding="utf-8",
                 ) as f:
                     betty_js = await f.read()
                 assert Maps.plugin.id in betty_js
                 async with aiofiles.open(
-                    project.configuration.www_directory_path
-                    / "css"
-                    / "webpack"
-                    / "maps.css",
+                    project.www_directory_path / "css" / "webpack" / "maps.css",
                     encoding="utf-8",
                 ) as f:
                     betty_css = await f.read()

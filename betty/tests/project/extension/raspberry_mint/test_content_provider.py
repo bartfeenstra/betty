@@ -96,8 +96,7 @@ class TestSectionConfiguration:
         assert sut.name == "my-first-section"
 
     def test_load__minimal(self) -> None:
-        sut = SectionConfiguration(name="", heading=DUMMY_LOCALIZABLE)
-        sut.load(
+        sut = SectionConfiguration.load(
             {
                 "heading": "My First Section",
                 "content": ["my-first-content"],
@@ -107,8 +106,7 @@ class TestSectionConfiguration:
         assert sut.content[0].id == "my-first-content"
 
     def test_load__with_name(self) -> None:
-        sut = SectionConfiguration(name="", heading=DUMMY_LOCALIZABLE)
-        sut.load(
+        sut = SectionConfiguration.load(
             {
                 "name": "my-first-section",
                 "heading": "My First Section",
@@ -118,9 +116,8 @@ class TestSectionConfiguration:
         assert sut.name == "my-first-section"
 
     def test_load__without_heading(self) -> None:
-        sut = SectionConfiguration(name="", heading=DUMMY_LOCALIZABLE)
         with pytest.raises(HumanFacingException):
-            sut.load(
+            SectionConfiguration.load(
                 {
                     "name": "my-first-section",
                     "content": ["my-first-content"],
@@ -128,9 +125,8 @@ class TestSectionConfiguration:
             )
 
     def test_load__without_content(self) -> None:
-        sut = SectionConfiguration(name="", heading=DUMMY_LOCALIZABLE)
         with pytest.raises(HumanFacingException):
-            sut.load(
+            SectionConfiguration.load(
                 {
                     "name": "my-first-section",
                     "heading": "My First Section",
@@ -325,8 +321,7 @@ class TestColorStyleConfiguration:
         assert sut.style == style
 
     def test_load__minimal(self) -> None:
-        sut = ColorStyleConfiguration()
-        sut.load(
+        sut = ColorStyleConfiguration.load(
             {
                 "content": ["my-first-content"],
             }
@@ -334,8 +329,7 @@ class TestColorStyleConfiguration:
         assert sut.content[0].id == "my-first-content"
 
     def test_load__with_style(self) -> None:
-        sut = ColorStyleConfiguration()
-        sut.load(
+        sut = ColorStyleConfiguration.load(
             {
                 "style": "dark-secondary",
                 "content": ["my-first-content"],
@@ -344,9 +338,8 @@ class TestColorStyleConfiguration:
         assert sut.style is ColorStyleOption.DARK_SECONDARY
 
     def test_load__without_content(self) -> None:
-        sut = ColorStyleConfiguration()
         with pytest.raises(HumanFacingException):
-            sut.load({})
+            ColorStyleConfiguration.load({})
 
     def test_dump(self) -> None:
         sut = ColorStyleConfiguration(

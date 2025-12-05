@@ -2,13 +2,14 @@
 Provide configuration for the Wikipedia extension.
 """
 
+from typing import Self
+
 from typing_extensions import override
 
 from betty.assertion import (
     OptionalField,
     assert_bool,
     assert_record,
-    assert_setattr,
 )
 from betty.config import Configuration
 from betty.serde.dump import Dump, DumpMapping
@@ -19,9 +20,9 @@ class WikiConfiguration(Configuration):
     Provides configuration for the :py:class:`betty.project.extension.wiki.Wiki` extension.
     """
 
-    def __init__(self):
+    def __init__(self, *, populate_images: bool = True):
         super().__init__()
-        self._populate_images = True
+        self._populate_images = populate_images
 
     @property
     def populate_images(self) -> bool:
@@ -36,14 +37,11 @@ class WikiConfiguration(Configuration):
         self._populate_images = populate_images
 
     @override
-    def load(self, dump: Dump, /) -> None:
-        self.assert_mutable()
-        assert_record(
-            OptionalField(
-                "populate_images",
-                assert_bool() | assert_setattr(self, "populate_images"),
-            )
-        )(dump)
+    @classmethod
+    def load(cls, dump: Dump, /) -> Self:
+        return cls(
+            **assert_record(OptionalField("populate_images", assert_bool()))(dump)
+        )
 
     @override
     def dump(self) -> DumpMapping[Dump]:

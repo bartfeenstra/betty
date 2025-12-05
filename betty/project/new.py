@@ -8,7 +8,7 @@ from betty.ancestry.person import Person
 from betty.ancestry.place import Place
 from betty.ancestry.source import Source
 from betty.assertion import assert_str, assert_path, assert_locale
-from betty.config.file import write_configuration_file
+from betty.serde.file import dump_file
 from betty.locale import DEFAULT_LOCALE_TAG, to_language_tag
 from betty.locale.localizable import _, Localizable, StaticTranslations
 from betty.machine_name import machinify, assert_machine_name
@@ -17,6 +17,7 @@ from betty.project.config import (
     LocaleConfiguration,
     ProjectConfiguration,
     EntityTypeConfiguration,
+    EntityTypeConfigurationMapping,
 )
 from betty.project.extension import ExtensionPlugin
 from betty.project.extension.deriver import Deriver
@@ -24,6 +25,7 @@ from betty.project.extension.gramps import Gramps
 from betty.project.extension.gramps.config import (
     FamilyTreeConfiguration,
     GrampsConfiguration,
+    FamilyTreeConfigurationSequence,
 )
 from betty.project.extension.http_api_doc import HttpApiDoc
 from betty.project.extension.maps import Maps
@@ -67,13 +69,14 @@ async def new(app: App) -> None:
         assertion=_assert_project_configuration_file_path,
     )
     configuration = ProjectConfiguration(
-        configuration_file_path,
-        entity_types=[
-            EntityTypeConfiguration(Person, generate_html_list=True),
-            EntityTypeConfiguration(Event, generate_html_list=True),
-            EntityTypeConfiguration(Place, generate_html_list=True),
-            EntityTypeConfiguration(Source, generate_html_list=True),
-        ],
+        entity_types=EntityTypeConfigurationMapping(
+            [
+                EntityTypeConfiguration(Person, generate_html_list=True),
+                EntityTypeConfiguration(Event, generate_html_list=True),
+                EntityTypeConfiguration(Place, generate_html_list=True),
+                EntityTypeConfiguration(Source, generate_html_list=True),
+            ]
+        ),
     )
 
     configuration.extensions.enable(*project_extensions)
@@ -133,21 +136,23 @@ async def new(app: App) -> None:
             PluginInstanceConfiguration(
                 Gramps.plugin,
                 GrampsConfiguration(
-                    family_trees=[
-                        FamilyTreeConfiguration(
-                            await app.user.ask_input(
-                                _(
-                                    "What is the path to your exported Gramps family tree file?"
-                                ),
-                                assertion=assert_path(),
+                    family_trees=FamilyTreeConfigurationSequence(
+                        [
+                            FamilyTreeConfiguration(
+                                await app.user.ask_input(
+                                    _(
+                                        "What is the path to your exported Gramps family tree file?"
+                                    ),
+                                    assertion=assert_path(),
+                                )
                             )
-                        )
-                    ]
+                        ]
+                    )
                 ),
             )
         )
 
-    await write_configuration_file(configuration, configuration.configuration_file_path)
+    await dump_file(configuration.dump(), configuration_file_path)
     await app.user.message_information(
         _("Saved your project to {configuration_file}.").format(
             configuration_file=str(configuration_file_path)

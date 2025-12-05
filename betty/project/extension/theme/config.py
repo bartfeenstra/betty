@@ -5,12 +5,13 @@ Configuration for themes.
 from __future__ import annotations
 
 from collections import defaultdict
-from typing import TYPE_CHECKING, final
+from typing import TYPE_CHECKING, Self, final
 
 from typing_extensions import override
 
 from betty.assertion import assert_len, assert_mapping, assert_str
 from betty.config import Configuration
+from betty.content_provider import ContentProvider, ContentProviderPlugin
 from betty.data import Key
 from betty.exception import HumanFacingException, HumanFacingExceptionGroup
 from betty.locale.localizable import Paragraph, _, do_you_mean
@@ -22,7 +23,6 @@ from betty.plugin.config import (
 if TYPE_CHECKING:
     from collections.abc import Collection, Mapping, MutableMapping, Sequence
 
-    from betty.content_provider import ContentProvider, ContentProviderPlugin
     from betty.serde.dump import Dump
 
 
@@ -36,11 +36,10 @@ class RegionalContentConfiguration(Configuration):
         self,
         content: Mapping[
             str,
-            Sequence[
-                PluginInstanceConfiguration[ContentProviderPlugin, ContentProvider]
-            ],
+            PluginInstanceConfigurationSequence[ContentProviderPlugin, ContentProvider],
         ]
         | None = None,
+        /,
     ):
         super().__init__()
         self._content: MutableMapping[
@@ -48,12 +47,7 @@ class RegionalContentConfiguration(Configuration):
             PluginInstanceConfigurationSequence[ContentProviderPlugin, ContentProvider],
         ] = defaultdict(PluginInstanceConfigurationSequence)
         if content:
-            self._content.update(
-                {
-                    region: PluginInstanceConfigurationSequence(region_configuration)
-                    for region, region_configuration in content.items()
-                }
-            )
+            self._content.update(content)
 
     def __getitem__(
         self, region: str
@@ -71,15 +65,22 @@ class RegionalContentConfiguration(Configuration):
         self._content[region].append(*content)
 
     @override
-    def load(self, dump: Dump, /) -> None:
-        self._content.clear()
+    @classmethod
+    def load(cls, dump: Dump, /) -> Self:
         dump = assert_mapping(None, assert_str())(dump)
         assert_len(minimum=1)(dump)
+        content: MutableMapping[
+            str,
+            PluginInstanceConfigurationSequence[ContentProviderPlugin, ContentProvider],
+        ] = {}
         with HumanFacingExceptionGroup() as errors:
             for region, region_dump in dump.items():
                 with errors.absorb(Key(region)):
                     assert_len(minimum=1)(region_dump)
-                    self._content[region].load(region_dump)
+                    content[region] = PluginInstanceConfigurationSequence[
+                        ContentProviderPlugin, ContentProvider
+                    ].load(region_dump)
+        return cls(content)
 
     @override
     def dump(self) -> Dump:

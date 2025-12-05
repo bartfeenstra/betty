@@ -22,7 +22,6 @@ from typing import (
     Generic,
     TypeAlias,
     TypeVar,
-    cast,
     final,
     overload,
 )
@@ -32,7 +31,7 @@ from betty.error import FileNotFound
 from betty.exception import HumanFacingException, HumanFacingExceptionGroup
 from betty.locale import from_language_tag
 from betty.locale.localizable import Localizable, Paragraph, _, do_you_mean
-from betty.typing import Void, Voidable, internal
+from betty.typing import internal
 
 if TYPE_CHECKING:
     from babel import Locale
@@ -113,6 +112,7 @@ class Field(Generic[_AssertionValueT, _AssertionReturnT]):
 
     name: str
     assertion: Assertion[_AssertionValueT, _AssertionReturnT] | None = None
+    as_name: str | None = None
 
 
 @final
@@ -384,66 +384,6 @@ def assert_mapping(
     return AssertionChain(_assert_mapping)
 
 
-def assert_fields(
-    *fields: Field[Any, Any],
-) -> AssertionChain[Any, MutableMapping[str, Any]]:
-    """
-    Assert that a value is a key-value mapping of arbitrary value types, and assert several of its values.
-    """
-
-    def _assert_fields(value: Mapping[Any, Any], /) -> MutableMapping[str, Any]:
-        mapping: MutableMapping[str, Any] = {}
-        with HumanFacingExceptionGroup() as errors:
-            for field in fields:
-                with errors.absorb(Key(field.name)):
-                    if field.name in value:
-                        mapping[field.name] = (
-                            field.assertion(value[field.name])
-                            if field.assertion
-                            else value[field.name]
-                        )
-                    elif isinstance(field, RequiredField):
-                        raise HumanFacingException(_("This field is required."))
-        return mapping
-
-    return assert_mapping() | _assert_fields
-
-
-@overload
-def assert_field(
-    field: RequiredField[_AssertionValueT, _AssertionReturnT], /
-) -> AssertionChain[_AssertionValueT, _AssertionReturnT]:
-    pass
-
-
-@overload
-def assert_field(
-    field: OptionalField[_AssertionValueT, _AssertionReturnT], /
-) -> AssertionChain[_AssertionValueT, Voidable[_AssertionReturnT]]:
-    pass
-
-
-def assert_field(
-    field: Field[_AssertionValueT, _AssertionReturnT], /
-) -> (
-    AssertionChain[_AssertionValueT, _AssertionReturnT]
-    | AssertionChain[_AssertionValueT, Voidable[_AssertionReturnT]]
-):
-    """
-    Assert that a value is a key-value mapping of arbitrary value types, and assert a single of its values.
-    """
-
-    def _assert_field(
-        fields: MutableMapping[str, Any], /
-    ) -> Voidable[_AssertionReturnT]:
-        try:
-            return cast(Voidable[_AssertionReturnT], fields[field.name])
-        except KeyError:
-            return Void()
-
-    return assert_fields(field) | _assert_field
-
-
 def assert_record(
     *fields: Field[Any, Any],
 ) -> AssertionChain[Any, MutableMapping[str, Any]]:
@@ -458,6 +398,7 @@ def assert_record(
     def _assert_record(value: Mapping[Any, Any], /) -> MutableMapping[str, Any]:
         known_keys = {x.name for x in fields}
         unknown_keys = set(value.keys()) - known_keys
+        record: MutableMapping[str, Any] = {}
         with HumanFacingExceptionGroup() as errors:
             for unknown_key in unknown_keys:
                 with errors.absorb(Key(unknown_key)):
@@ -469,7 +410,19 @@ def assert_record(
                             do_you_mean(*(f'"{x}"' for x in sorted(known_keys))),
                         )
                     )
-            return assert_fields(*fields)(value)
+            for field in fields:
+                with errors.absorb(Key(field.name)):
+                    if field.name in value:
+                        record[
+                            field.name if field.as_name is None else field.as_name
+                        ] = (
+                            field.assertion(value[field.name])
+                            if field.assertion
+                            else value[field.name]
+                        )
+                    elif isinstance(field, RequiredField):
+                        raise HumanFacingException(_("This field is required."))
+        return record
 
     return assert_mapping() | _assert_record
 
@@ -534,20 +487,6 @@ def assert_locale() -> AssertionChain[Any, Locale]:
     Assert that a value is a valid `IETF BCP 47 language tag <https://en.wikipedia.org/wiki/IETF_language_tag>`_.
     """
     return assert_str() | from_language_tag
-
-
-def assert_setattr(instance: object, attr_name: str, /) -> AssertionChain[Any, Any]:
-    """
-    Set a value for the given object's attribute.
-    """
-
-    def _assert_setattr(value: Any, /) -> Any:
-        setattr(instance, attr_name, value)
-        # Return the getter's return value rather than the assertion value, just
-        # in case the setter and/or getter perform changes to the value.
-        return getattr(instance, attr_name)
-
-    return AssertionChain(_assert_setattr)
 
 
 _SizedT = TypeVar("_SizedT", bound=Sized)

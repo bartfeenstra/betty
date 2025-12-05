@@ -6,11 +6,11 @@ from pytest_mock import MockerFixture
 from typing_extensions import override
 
 from betty.app import App
-from betty.config.file import write_configuration_file
 from betty.console import SystemExitCode
 from betty.console.command.commands.new_translation import NewTranslation
 from betty.plugin import PluginDefinition
 from betty.project import Project
+from betty.serde.file import dump_file
 from betty.test_utils.console import run
 from betty.test_utils.console.command import CommandPluginTestBase
 
@@ -27,8 +27,8 @@ class TestNewTranslation:
         self, mocker: MockerFixture, isolated_app: App
     ) -> None:
         async with Project.new_isolated(isolated_app) as project, project:
-            await write_configuration_file(
-                project.configuration, project.configuration.configuration_file_path
+            await dump_file(
+                project.configuration.dump(), project.configuration_file_path
             )
             locale = "nl"
             m_new_translation = mocker.patch(
@@ -38,7 +38,7 @@ class TestNewTranslation:
                 isolated_app,
                 "new-translation",
                 "--project",
-                str(project.configuration.configuration_file_path),
+                str(project.configuration_file_path),
                 locale,
             )
             m_new_translation.assert_awaited_once_with(Locale(locale), ANY, user=ANY)
