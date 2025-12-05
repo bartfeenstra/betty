@@ -52,8 +52,8 @@ class TestGenerateEntityTypesHtml:
             Source,
         ],
     )
-    async def test_do(self, entity_type: type[Entity], temporary_app: App) -> None:
-        async with Project.new_temporary(temporary_app) as project:
+    async def test_do(self, entity_type: type[Entity], isolated_app: App) -> None:
+        async with Project.new_isolated(isolated_app) as project:
             project.configuration.entity_types.append(
                 EntityTypeConfiguration(entity_type, generate_html_list=True)
             )
@@ -62,8 +62,8 @@ class TestGenerateEntityTypesHtml:
 
                 await assert_betty_html(project, f"/{entity_type.plugin.id}/index.html")
 
-    async def test_do__with_pager(self, temporary_app: App) -> None:
-        async with Project.new_temporary(temporary_app) as project:
+    async def test_do__with_pager(self, isolated_app: App) -> None:
+        async with Project.new_isolated(isolated_app) as project:
             project.configuration.entity_types.append(
                 EntityTypeConfiguration(Place, generate_html_list=True)
             )
@@ -92,8 +92,8 @@ class TestGenerateEntityTypesJson:
             Source,
         ],
     )
-    async def test_do(self, entity_type: type[Entity], temporary_app: App) -> None:
-        async with Project.new_temporary(temporary_app) as project, project:
+    async def test_do(self, entity_type: type[Entity], isolated_app: App) -> None:
+        async with Project.new_isolated(isolated_app) as project, project:
             await do(ProjectContext(project), GenerateEntityTypesJson())
 
             await assert_betty_json(
@@ -116,8 +116,8 @@ class TestGenerateEntitiesHtml:
             Source(id="ID"),
         ],
     )
-    async def test_do(self, entity: Entity, temporary_app: App) -> None:
-        async with Project.new_temporary(temporary_app) as project:
+    async def test_do(self, entity: Entity, isolated_app: App) -> None:
+        async with Project.new_isolated(isolated_app) as project:
             project.ancestry.add(entity)
             async with project:
                 await do(ProjectContext(project), GenerateEntitiesHtml())
@@ -149,9 +149,9 @@ class TestGenerateEntitiesHtml:
         ],
     )
     async def test_do__with_non_publishable_entity(
-        self, entity: Entity, temporary_app: App
+        self, entity: Entity, isolated_app: App
     ) -> None:
-        async with Project.new_temporary(temporary_app) as project:
+        async with Project.new_isolated(isolated_app) as project:
             project.ancestry.add(entity)
             async with project:
                 await do(ProjectContext(project), GenerateEntitiesHtml())
@@ -177,8 +177,8 @@ class TestGenerateEntitiesJson:
             Source(id="ID"),
         ],
     )
-    async def test_do(self, entity: Entity, temporary_app: App) -> None:
-        async with Project.new_temporary(temporary_app) as project:
+    async def test_do(self, entity: Entity, isolated_app: App) -> None:
+        async with Project.new_isolated(isolated_app) as project:
             project.ancestry.add(entity)
             async with project:
                 await do(ProjectContext(project), GenerateEntitiesJson())
@@ -205,9 +205,9 @@ class TestGenerateEntitiesJson:
         ],
     )
     async def test_do__with_non_publishable_entity(
-        self, entity: Entity, temporary_app: App
+        self, entity: Entity, isolated_app: App
     ) -> None:
-        async with Project.new_temporary(temporary_app) as project:
+        async with Project.new_isolated(isolated_app) as project:
             project.ancestry.add(entity)
             async with project:
                 await do(ProjectContext(project), GenerateEntitiesJson())
@@ -221,8 +221,8 @@ class TestGenerateEntitiesJson:
 
 
 class TestGenerateSitemap:
-    async def test_do(self, temporary_app: App) -> None:
-        async with Project.new_temporary(temporary_app) as project, project:
+    async def test_do(self, isolated_app: App) -> None:
+        async with Project.new_isolated(isolated_app) as project, project:
             await do(ProjectContext(project), GenerateSitemap())
 
             schema_doc = etree.parse(
@@ -236,8 +236,8 @@ class TestGenerateSitemap:
 
 
 class TestGenerateStaticPublicAssets:
-    async def test_do(self, temporary_app: App) -> None:
-        async with Project.new_temporary(temporary_app) as project:
+    async def test_do(self, isolated_app: App) -> None:
+        async with Project.new_isolated(isolated_app) as project:
             project.configuration.locales.replace(
                 LocaleConfiguration(
                     "nl-NL",
@@ -261,8 +261,8 @@ class TestGenerateStaticPublicAssets:
 
 
 class TestGenerateLocalizedPublicAssets:
-    async def test_do(self, temporary_app: App) -> None:
-        async with Project.new_temporary(temporary_app) as project:
+    async def test_do(self, isolated_app: App) -> None:
+        async with Project.new_isolated(isolated_app) as project:
             project.configuration.locales.replace(
                 LocaleConfiguration(
                     "nl-NL",
@@ -285,16 +285,16 @@ class TestGenerateLocalizedPublicAssets:
 
 
 class TestGenerateRobotsTxt:
-    async def test_do(self, temporary_app: App) -> None:
-        async with Project.new_temporary(temporary_app) as project, project:
+    async def test_do(self, isolated_app: App) -> None:
+        async with Project.new_isolated(isolated_app) as project, project:
             await do(ProjectContext(project), GenerateRobotsTxt())
 
             assert (project.configuration.www_directory_path / "robots.txt").is_file()
 
 
 class TestGenerateOpenApi:
-    async def test_do(self, temporary_app: App) -> None:
-        async with Project.new_temporary(temporary_app) as project, project:
+    async def test_do(self, isolated_app: App) -> None:
+        async with Project.new_isolated(isolated_app) as project, project:
             await do(ProjectContext(project), GenerateOpenApi())
 
             with open(
@@ -304,8 +304,8 @@ class TestGenerateOpenApi:
 
 
 class TestGenerateJsonSchema:
-    async def test_do(self, temporary_app: App) -> None:
-        async with Project.new_temporary(temporary_app) as project, project:
+    async def test_do(self, isolated_app: App) -> None:
+        async with Project.new_isolated(isolated_app) as project, project:
             await do(ProjectContext(project), GenerateJsonSchema())
 
             with open(project.configuration.www_directory_path / "schema.json") as f:
@@ -313,16 +313,16 @@ class TestGenerateJsonSchema:
 
 
 class TestGenerateFavicon:
-    async def test_do(self, temporary_app: App) -> None:
-        async with Project.new_temporary(temporary_app) as project, project:
+    async def test_do(self, isolated_app: App) -> None:
+        async with Project.new_isolated(isolated_app) as project, project:
             await do(ProjectContext(project), GenerateFavicon())
 
             assert (project.configuration.www_directory_path / "favicon.ico").is_file()
 
 
 class TestGenerateJsonErrorResponses:
-    async def test_do(self, temporary_app: App) -> None:
-        async with Project.new_temporary(temporary_app) as project, project:
+    async def test_do(self, isolated_app: App) -> None:
+        async with Project.new_isolated(isolated_app) as project, project:
             await do(ProjectContext(project), GenerateJsonErrorResponses())
 
             for code in [401, 403, 404]:

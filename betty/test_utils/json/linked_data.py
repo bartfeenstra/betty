@@ -54,9 +54,9 @@ async def assert_linked_data_dump(
     Assert that dumped linked data is valid against a schema.
     """
     async with (
-        App.new_temporary() as app,
+        App.new_isolated() as app,
         app,
-        Project.new_temporary(app) as project,
+        Project.new_isolated(app) as project,
         project,
     ):
         actual = await dump(project) if callable(dump) else dump

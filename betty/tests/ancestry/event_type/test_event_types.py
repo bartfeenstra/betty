@@ -122,17 +122,17 @@ class TestDeath(EventTypePluginTestBase):
         return Death.plugin
 
     async def test_may_create_may_not_for_person_without_presences(
-        self, temporary_app: App
+        self, isolated_app: App
     ) -> None:
-        async with Project.new_temporary(temporary_app) as project, project:
+        async with Project.new_isolated(isolated_app) as project, project:
             person = Person(id="P0")
 
             assert await Death.should_exist(project, person) is False
 
     async def test_may_create_may_not_within_lifetime_threshold(
-        self, temporary_app: App
+        self, isolated_app: App
     ) -> None:
-        async with Project.new_temporary(temporary_app) as project, project:
+        async with Project.new_isolated(isolated_app) as project, project:
             person = Person(id="P0")
             Presence(
                 person,
@@ -146,9 +146,9 @@ class TestDeath(EventTypePluginTestBase):
             assert await Death.should_exist(project, person) is False
 
     async def test_may_create_may_over_lifetime_threshold(
-        self, temporary_app: App
+        self, isolated_app: App
     ) -> None:
-        async with Project.new_temporary(temporary_app) as project, project:
+        async with Project.new_isolated(isolated_app) as project, project:
             person = Person(id="P0")
             Presence(
                 person,

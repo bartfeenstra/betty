@@ -24,9 +24,9 @@ class TestNewTranslationsDefinition(CommandPluginTestBase):
 
 class TestNewTranslation:
     async def test_configure__minimal(
-        self, mocker: MockerFixture, temporary_app: App
+        self, mocker: MockerFixture, isolated_app: App
     ) -> None:
-        async with Project.new_temporary(temporary_app) as project, project:
+        async with Project.new_isolated(isolated_app) as project, project:
             await write_configuration_file(
                 project.configuration, project.configuration.configuration_file_path
             )
@@ -35,7 +35,7 @@ class TestNewTranslation:
                 "betty.locale.translation.project.new_project_translation"
             )
             await run(
-                temporary_app,
+                isolated_app,
                 "new-translation",
                 "--project",
                 str(project.configuration.configuration_file_path),
@@ -43,9 +43,9 @@ class TestNewTranslation:
             )
             m_new_translation.assert_awaited_once_with(Locale(locale), ANY, user=ANY)
 
-    async def test_configure__with_invalid_locale(self, temporary_app: App) -> None:
+    async def test_configure__with_invalid_locale(self, isolated_app: App) -> None:
         await run(
-            temporary_app,
+            isolated_app,
             "new-translation",
             "",
             expected_exit_code=SystemExitCode.ERROR_CONSOLE_USAGE,

@@ -47,21 +47,21 @@ def _create_raising_command(exception: BaseException) -> CommandPlugin:
     return _RaisingCommand.plugin
 
 
-async def test_main__without_arguments(temporary_app: App) -> None:
-    await run(temporary_app, expected_exit_code=SystemExitCode.ERROR_CONSOLE_USAGE)
+async def test_main__without_arguments(isolated_app: App) -> None:
+    await run(isolated_app, expected_exit_code=SystemExitCode.ERROR_CONSOLE_USAGE)
 
 
-async def test_main__help(temporary_app: App) -> None:
-    await run(temporary_app, "--help")
+async def test_main__help(isolated_app: App) -> None:
+    await run(isolated_app, "--help")
 
 
-async def test_main__commands(temporary_app: App) -> None:
-    await run(temporary_app, "--commands")
+async def test_main__commands(isolated_app: App) -> None:
+    await run(isolated_app, "--commands")
 
 
-async def test_main__with_unknown_command(temporary_app: App) -> None:
+async def test_main__with_unknown_command(isolated_app: App) -> None:
     await run(
-        temporary_app,
+        isolated_app,
         "unknown-command",
         expected_exit_code=SystemExitCode.ERROR_CONSOLE_USAGE,
     )
@@ -81,11 +81,11 @@ async def test_main__with_unknown_command(temporary_app: App) -> None:
     ],
 )
 async def test_main__with_user_facing_exception(
-    expected: SystemExitCode, command: CommandPlugin, temporary_app: App
+    expected: SystemExitCode, command: CommandPlugin, isolated_app: App
 ) -> None:
     with CommandPlugin.type.override_discovery(command):
         await run(
-            temporary_app,
+            isolated_app,
             command.id,
             expected_exit_code=expected,
         )
@@ -135,18 +135,18 @@ class TestVerbosity:
         ],
     )
     async def test(
-        self, expected: Verbosity, temporary_app: App, verbosity: str | None
+        self, expected: Verbosity, isolated_app: App, verbosity: str | None
     ) -> None:
         with CommandPlugin.type.override_discovery(_NoOpCommand.plugin):
-            async with Project.new_temporary(temporary_app) as project:
+            async with Project.new_isolated(isolated_app) as project:
                 await write_configuration_file(
                     project.configuration, project.configuration.configuration_file_path
                 )
                 args = ["no-op"]
                 if verbosity is not None:
                     args.append(verbosity)
-                await run(temporary_app, *args)
-                assert temporary_app.user.verbosity is expected
+                await run(isolated_app, *args)
+                assert isolated_app.user.verbosity is expected
 
 
 async def test_call_command_func() -> None:

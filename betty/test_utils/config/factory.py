@@ -77,13 +77,13 @@ class ConfigurationDependentSelfFactoryTestBase(Generic[_ConfigurationT]):
             ConfigurationDependentSelfFactory[_ConfigurationT]
         ],
         configuration_dependent_self_factory_sut_configuration: _ConfigurationT,
-        temporary_app: App,
+        isolated_app: App,
     ) -> None:
         """
         Tests :py:meth:`betty.config.factory.ConfigurationDependentSelfFactory.new_for_configuration` implementations.
         """
         try:
-            await temporary_app.new_target(
+            await isolated_app.new_target(
                 configuration_dependent_self_factory_sut.new_for_configuration(  # type: ignore[arg-type]
                     configuration_dependent_self_factory_sut_configuration
                 )
@@ -93,7 +93,7 @@ class ConfigurationDependentSelfFactoryTestBase(Generic[_ConfigurationT]):
             if issubclass(configuration_dependent_self_factory_sut, HasRequirement):
                 requirement = (
                     await configuration_dependent_self_factory_sut.requirement(
-                        temporary_app
+                        isolated_app
                     )
                 )
             if requirement is None:
@@ -107,12 +107,12 @@ class ConfigurationDependentSelfFactoryTestBase(Generic[_ConfigurationT]):
             ConfigurationDependentSelfFactory[_ConfigurationT]
         ],
         configuration_dependent_self_factory_sut_configuration: _ConfigurationT,
-        temporary_app: App,
+        isolated_app: App,
     ) -> None:
         """
         Tests :py:meth:`betty.config.factory.ConfigurationDependentSelfFactory.new_for_configuration` implementations.
         """
-        async with Project.new_temporary(temporary_app) as project, project:
+        async with Project.new_isolated(isolated_app) as project, project:
             try:
                 await project.new_target(
                     configuration_dependent_self_factory_sut.new_for_configuration(

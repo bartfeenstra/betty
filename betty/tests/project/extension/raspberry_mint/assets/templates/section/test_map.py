@@ -8,8 +8,8 @@ from betty.project.extension.raspberry_mint import RaspberryMint
 from betty.test_utils.jinja2 import assert_template_file
 
 
-async def test_minimal(temporary_app: App) -> None:
-    async with Project.new_temporary(temporary_app) as project:
+async def test_minimal(isolated_app: App) -> None:
+    async with Project.new_isolated(isolated_app) as project:
         project.configuration.extensions.enable(Maps)
         async with (
             project,
@@ -25,9 +25,9 @@ async def test_minimal(temporary_app: App) -> None:
             assert actual == ""
 
 
-async def test_with_places(temporary_app: App) -> None:
+async def test_with_places(isolated_app: App) -> None:
     place = Place(coordinates=Point(1, 1))
-    async with Project.new_temporary(temporary_app) as project:
+    async with Project.new_isolated(isolated_app) as project:
         project.configuration.extensions.enable(Maps)
         async with (
             project,

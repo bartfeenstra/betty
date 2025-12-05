@@ -14,8 +14,8 @@ class TestSpecification:
             False,
         ],
     )
-    async def test_build(self, clean_urls: bool, temporary_app: App) -> None:
-        async with Project.new_temporary(temporary_app) as project:
+    async def test_build(self, clean_urls: bool, isolated_app: App) -> None:
+        async with Project.new_isolated(isolated_app) as project:
             project.configuration.clean_urls = clean_urls
             async with project:
                 sut = Specification(project)

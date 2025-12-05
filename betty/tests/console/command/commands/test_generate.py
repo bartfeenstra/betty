@@ -21,18 +21,18 @@ class TestGenerateDefinition(CommandPluginTestBase):
 
 
 class TestGenerate:
-    async def test_configure(self, mocker: MockerFixture, temporary_app: App) -> None:
+    async def test_configure(self, mocker: MockerFixture, isolated_app: App) -> None:
         m_generate = mocker.patch(
             "betty.project.generate.generate", new_callable=AsyncMock
         )
         m_load = mocker.patch("betty.project.load.load", new_callable=AsyncMock)
 
-        async with Project.new_temporary(temporary_app) as project:
+        async with Project.new_isolated(isolated_app) as project:
             await write_configuration_file(
                 project.configuration, project.configuration.configuration_file_path
             )
             await run(
-                temporary_app,
+                isolated_app,
                 "generate",
                 "--project",
                 str(project.configuration.configuration_file_path),

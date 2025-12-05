@@ -64,57 +64,57 @@ class TestProject:
         assert isinstance(requires, Requirement)
         assert subject in requires.localize(DEFAULT_LOCALIZER)
 
-    async def test_requires_project__with_app(self, temporary_app: App) -> None:
+    async def test_requires_project__with_app(self, isolated_app: App) -> None:
         subject = "My First Subject"
-        requires = await Project.requires(temporary_app, subject)
+        requires = await Project.requires(isolated_app, subject)
         assert isinstance(requires, Requirement)
         assert subject in requires.localize(DEFAULT_LOCALIZER)
 
-    async def test_requires_project__with_project(self, temporary_app: App) -> None:
-        async with Project.new_temporary(temporary_app) as project, project:
+    async def test_requires_project__with_project(self, isolated_app: App) -> None:
+        async with Project.new_isolated(isolated_app) as project, project:
             assert await Project.requires(project, "") is project
 
-    async def test_plugins(self, temporary_app: App) -> None:
-        async with Project.new_temporary(temporary_app) as sut, sut:
+    async def test_plugins(self, isolated_app: App) -> None:
+        async with Project.new_isolated(isolated_app) as sut, sut:
             await sut.plugins(DummyPluginDefinition)
 
     async def test_new__without_ancestry(
-        self, temporary_app: App, tmp_path: Path
+        self, isolated_app: App, tmp_path: Path
     ) -> None:
         Project(
-            temporary_app,
+            isolated_app,
             configuration=ProjectConfiguration(tmp_path / "betty.json"),
         )
 
-    async def test_new__with_ancestry(self, temporary_app: App, tmp_path: Path) -> None:
+    async def test_new__with_ancestry(self, isolated_app: App, tmp_path: Path) -> None:
         ancestry = Ancestry()
         sut = Project(
-            temporary_app,
+            isolated_app,
             configuration=ProjectConfiguration(tmp_path / "betty.json"),
             ancestry=ancestry,
         )
         assert sut.ancestry is ancestry
 
     async def test_new_temporary__without_configuration(
-        self, temporary_app: App, tmp_path: Path
+        self, isolated_app: App, tmp_path: Path
     ) -> None:
-        async with Project.new_temporary(temporary_app):
+        async with Project.new_isolated(isolated_app):
             pass
 
     async def test_new_temporary__with_configuration(
-        self, temporary_app: App, tmp_path: Path
+        self, isolated_app: App, tmp_path: Path
     ) -> None:
         configuration = ProjectConfiguration(tmp_path / "betty.json")
-        async with Project.new_temporary(
-            temporary_app, configuration=configuration
+        async with Project.new_isolated(
+            isolated_app, configuration=configuration
         ) as sut:
             assert sut.configuration is configuration
 
     async def test_bootstrap__should_initialize_extensions(
-        self, temporary_app: App
+        self, isolated_app: App
     ) -> None:
         with ExtensionPlugin.type.override_discovery(DummyExtensionOne.plugin):
-            async with Project.new_temporary(temporary_app) as sut:
+            async with Project.new_isolated(isolated_app) as sut:
                 sut.configuration.extensions.enable(DummyExtensionOne)
                 async with sut:
                     extensions = await sut.extensions
@@ -122,10 +122,10 @@ class TestProject:
                     assert extension.bootstrapped
 
     async def test_bootstrap__should_validate_entity_type_configuration(
-        self, temporary_app: App
+        self, isolated_app: App
     ) -> None:
         with EntityPlugin.type.override_discovery(DummyNonPublicFacingEntityOne.plugin):
-            async with Project.new_temporary(temporary_app) as sut:
+            async with Project.new_isolated(isolated_app) as sut:
                 sut.configuration.entity_types.replace(
                     EntityTypeConfiguration(
                         DummyNonPublicFacingEntityOne.plugin, generate_html_list=True
@@ -139,22 +139,22 @@ class TestProject:
         )
 
     async def test_extensions__should_enable_betty_extensions(
-        self, temporary_app: App
+        self, isolated_app: App
     ) -> None:
-        async with Project.new_temporary(temporary_app) as sut, sut:
+        async with Project.new_isolated(isolated_app) as sut, sut:
             extensions = await sut.extensions
 
-            for betty_extension in await temporary_app.plugins(ExtensionPlugin):
+            for betty_extension in await isolated_app.plugins(ExtensionPlugin):
                 if betty_extension.id.startswith("betty-"):
                     assert betty_extension.id in extensions
 
     async def test_extensions__should_assert_requirement(
-        self, temporary_app: App
+        self, isolated_app: App
     ) -> None:
         with ExtensionPlugin.type.override_discovery(
             _DummyExtensionWithUnmetRequirement.plugin
         ):
-            async with Project.new_temporary(temporary_app) as sut:
+            async with Project.new_isolated(isolated_app) as sut:
                 sut.configuration.extensions.enable(_DummyExtensionWithUnmetRequirement)
                 with pytest.raises(UnmetRequirement):
                     async with sut:
@@ -168,12 +168,12 @@ class TestProject:
         ],
     )
     async def test_extensions__should_sort_by_plugin_id(
-        self, enable: Sequence[type[Extension]], temporary_app: App
+        self, enable: Sequence[type[Extension]], isolated_app: App
     ) -> None:
         with ExtensionPlugin.type.override_discovery(
             _DummyExtensionA.plugin, _DummyExtensionB.plugin
         ):
-            async with Project.new_temporary(temporary_app) as sut:
+            async with Project.new_isolated(isolated_app) as sut:
                 sut.configuration.extensions.enable(*enable)
                 async with sut:
                     extensions = [
@@ -184,100 +184,98 @@ class TestProject:
                         _DummyExtensionB.plugin
                     )
 
-    async def test_ancestry__with___init___ancestry(self, temporary_app: App) -> None:
+    async def test_ancestry__with___init___ancestry(self, isolated_app: App) -> None:
         ancestry = Ancestry()
         async with (
-            Project.new_temporary(temporary_app, ancestry=ancestry) as sut,
+            Project.new_isolated(isolated_app, ancestry=ancestry) as sut,
             sut,
         ):
             assert sut.ancestry is ancestry
 
-    async def test_ancestry__without___init___ancestry(
-        self, temporary_app: App
-    ) -> None:
-        async with Project.new_temporary(temporary_app) as sut, sut:
+    async def test_ancestry__without___init___ancestry(self, isolated_app: App) -> None:
+        async with Project.new_isolated(isolated_app) as sut, sut:
             sut.ancestry  # noqa B018
 
-    async def test_app(self, temporary_app: App) -> None:
-        async with Project.new_temporary(temporary_app) as sut, sut:
-            assert sut.app is temporary_app
+    async def test_app(self, isolated_app: App) -> None:
+        async with Project.new_isolated(isolated_app) as sut, sut:
+            assert sut.app is isolated_app
 
-    async def test_assets__without_extensions(self, temporary_app: App) -> None:
-        async with Project.new_temporary(temporary_app) as sut, sut:
+    async def test_assets__without_extensions(self, isolated_app: App) -> None:
+        async with Project.new_isolated(isolated_app) as sut, sut:
             assets = await sut.assets
             assert len(assets.assets_directory_paths) == 2
 
     async def test_assets__with_extension_without_assets_directory(
-        self, temporary_app: App
+        self, isolated_app: App
     ) -> None:
         with ExtensionPlugin.type.override_discovery(DummyExtensionOne.plugin):
-            async with Project.new_temporary(temporary_app) as sut:
+            async with Project.new_isolated(isolated_app) as sut:
                 sut.configuration.extensions.enable(DummyExtensionOne)
                 async with sut:
                     assets = await sut.assets
                     assert len(assets.assets_directory_paths) == 2
 
     async def test_assets__with_extension_with_assets_directory(
-        self, temporary_app: App, tmp_path: Path
+        self, isolated_app: App, tmp_path: Path
     ) -> None:
         with ExtensionPlugin.type.override_discovery(
             _DummyExtensionWithAssetsDirectory.plugin
         ):
-            async with Project.new_temporary(temporary_app) as sut:
+            async with Project.new_isolated(isolated_app) as sut:
                 sut.configuration.extensions.enable(_DummyExtensionWithAssetsDirectory)
                 async with sut:
                     assets = await sut.assets
                     assert len(assets.assets_directory_paths) == 3
 
-    async def test_jinja2_environment(self, temporary_app: App) -> None:
-        async with Project.new_temporary(temporary_app) as sut, sut:
+    async def test_jinja2_environment(self, isolated_app: App) -> None:
+        async with Project.new_isolated(isolated_app) as sut, sut:
             await sut.jinja2_environment
 
-    async def test_localizers(self, temporary_app: App) -> None:
-        async with Project.new_temporary(temporary_app) as sut, sut:
+    async def test_localizers(self, isolated_app: App) -> None:
+        async with Project.new_isolated(isolated_app) as sut, sut:
             localizers = await sut.localizers
             assert localizers is await sut.localizers
 
-    async def test_name__with_configuration_name(self, temporary_app: App) -> None:
+    async def test_name__with_configuration_name(self, isolated_app: App) -> None:
         name = "hello-world"
-        async with Project.new_temporary(temporary_app) as sut:
+        async with Project.new_isolated(isolated_app) as sut:
             sut.configuration.name = name
             async with sut:
                 assert sut.name == name
 
-    async def test_name__without_configuration_name(self, temporary_app: App) -> None:
-        async with Project.new_temporary(temporary_app) as sut, sut:
+    async def test_name__without_configuration_name(self, isolated_app: App) -> None:
+        async with Project.new_isolated(isolated_app) as sut, sut:
             sut.name  # noqa B018
 
-    async def test_renderer(self, temporary_app: App) -> None:
-        async with Project.new_temporary(temporary_app) as sut, sut:
+    async def test_renderer(self, isolated_app: App) -> None:
+        async with Project.new_isolated(isolated_app) as sut, sut:
             await sut.renderer
 
-    async def test_url_generator(self, temporary_app: App) -> None:
-        async with Project.new_temporary(temporary_app) as sut, sut:
+    async def test_url_generator(self, isolated_app: App) -> None:
+        async with Project.new_isolated(isolated_app) as sut, sut:
             await sut.url_generator
 
-    async def test_new_target(self, temporary_app: App) -> None:
+    async def test_new_target(self, isolated_app: App) -> None:
         class Dependent:
             pass
 
-        async with Project.new_temporary(temporary_app) as sut, sut:
+        async with Project.new_isolated(isolated_app) as sut, sut:
             await sut.new_target(Dependent)
 
     async def test_new_target__with_project_dependent_factory(
-        self, temporary_app: App
+        self, isolated_app: App
     ) -> None:
         class _Factory(ProjectDependentFactory[Project]):
             @override
             async def new_for_project(self, project: Project, /) -> Project:
                 return project
 
-        async with Project.new_temporary(temporary_app) as sut, sut:
+        async with Project.new_isolated(isolated_app) as sut, sut:
             target = await sut.new_target(_Factory())
             assert target is sut
 
     async def test_new_target__with_project_dependent_self_factory(
-        self, temporary_app: App
+        self, isolated_app: App
     ) -> None:
         class Dependent(ProjectDependentSelfFactory):
             def __init__(self, project: Project):
@@ -288,24 +286,24 @@ class TestProject:
             async def new_for_project(cls, project: Project, /) -> Self:
                 return cls(project)
 
-        async with Project.new_temporary(temporary_app) as sut, sut:
+        async with Project.new_isolated(isolated_app) as sut, sut:
             dependent = await sut.new_target(Dependent)
             assert dependent.project is sut
 
     async def test_new_target__with_app_dependent_factory(
-        self, temporary_app: App
+        self, isolated_app: App
     ) -> None:
         class _Factory(AppDependentFactory[App]):
             @override
             async def new_for_app(self, app: App, /) -> App:
                 return app
 
-        async with Project.new_temporary(temporary_app) as sut, sut:
+        async with Project.new_isolated(isolated_app) as sut, sut:
             target = await sut.new_target(_Factory())
-            assert target is temporary_app
+            assert target is isolated_app
 
     async def test_new_target__with_app_dependent_self_factory(
-        self, temporary_app: App
+        self, isolated_app: App
     ) -> None:
         class Dependent(AppDependentSelfFactory):
             def __init__(self, app: App):
@@ -316,43 +314,43 @@ class TestProject:
             async def new_for_app(cls, app: App, /) -> Self:
                 return cls(app)
 
-        async with Project.new_temporary(temporary_app) as sut, sut:
+        async with Project.new_isolated(isolated_app) as sut, sut:
             dependent = await sut.new_target(Dependent)
-            assert dependent.app is temporary_app
+            assert dependent.app is isolated_app
 
     async def test_logo__with_configuration(
-        self, temporary_app: App, tmp_path: Path
+        self, isolated_app: App, tmp_path: Path
     ) -> None:
         logo = tmp_path / "logo.png"
-        async with Project.new_temporary(temporary_app) as sut:
+        async with Project.new_isolated(isolated_app) as sut:
             sut.configuration.logo = logo
             async with sut:
                 assert sut.logo == logo
 
-    async def test_logo__without_configuration(self, temporary_app: App) -> None:
-        async with Project.new_temporary(temporary_app) as sut, sut:
+    async def test_logo__without_configuration(self, isolated_app: App) -> None:
+        async with Project.new_isolated(isolated_app) as sut, sut:
             assert sut.logo.exists()
 
-    async def test_copyright_notice(self, temporary_app: App) -> None:
-        async with Project.new_temporary(temporary_app) as sut, sut:
+    async def test_copyright_notice(self, isolated_app: App) -> None:
+        async with Project.new_isolated(isolated_app) as sut, sut:
             assert await sut.copyright_notice is await sut.copyright_notice
 
-    async def test_license(self, temporary_app: App) -> None:
-        async with Project.new_temporary(temporary_app) as sut, sut:
+    async def test_license(self, isolated_app: App) -> None:
+        async with Project.new_isolated(isolated_app) as sut, sut:
             assert await sut.license is await sut.license
 
-    async def test_privatizer(self, temporary_app: App) -> None:
-        async with Project.new_temporary(temporary_app) as sut, sut:
+    async def test_privatizer(self, isolated_app: App) -> None:
+        async with Project.new_isolated(isolated_app) as sut, sut:
             sut.privatizer  # noqa B018
 
-    async def test_new_resource_context(self, temporary_app: App) -> None:
-        async with Project.new_temporary(temporary_app) as sut, sut:
+    async def test_new_resource_context(self, isolated_app: App) -> None:
+        async with Project.new_isolated(isolated_app) as sut, sut:
             assert await sut.new_resource_context()
 
 
 class TestProjectContext:
-    async def test_project(self, temporary_app: App) -> None:
-        async with Project.new_temporary(temporary_app) as project, project:
+    async def test_project(self, isolated_app: App) -> None:
+        async with Project.new_isolated(isolated_app) as project, project:
             sut = ProjectContext(project)
             assert sut.project is project
 

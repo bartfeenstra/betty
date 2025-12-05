@@ -159,13 +159,13 @@ class ComesAfterShouldNotExist(ShouldExistEventType):
 
 class TestDeriver:
     @pytest.fixture
-    def new_project(self, temporary_app: App) -> NewProject:
+    def new_project(self, isolated_app: App) -> NewProject:
         @asynccontextmanager
         async def _new_project(
             event_types: Iterable[EventTypePlugin],
         ) -> AsyncIterator[Project]:
             with EventTypePlugin.type.override_discovery(*event_types):
-                async with Project.new_temporary(temporary_app) as project, project:
+                async with Project.new_isolated(isolated_app) as project, project:
                     yield project
 
         return _new_project

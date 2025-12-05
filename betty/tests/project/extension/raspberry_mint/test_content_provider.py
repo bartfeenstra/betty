@@ -58,15 +58,15 @@ class TestFeaturedEntities(
     ) -> EntityReferenceSequence:
         return EntityReferenceSequence()
 
-    async def test_provide__without_entities(self, temporary_app: App) -> None:
-        async with Project.new_temporary(temporary_app) as project:
+    async def test_provide__without_entities(self, isolated_app: App) -> None:
+        async with Project.new_isolated(isolated_app) as project:
             project.configuration.extensions.enable(RaspberryMint)
             async with project:
                 sut = await FeaturedEntities.new_for_project(project)
                 assert await sut.provide(resource=new_context()) is None
 
-    async def test_provide__with_entities(self, temporary_app: App) -> None:
-        async with Project.new_temporary(temporary_app) as project:
+    async def test_provide__with_entities(self, isolated_app: App) -> None:
+        async with Project.new_isolated(isolated_app) as project:
             project.configuration.extensions.enable(RaspberryMint)
             entity = Person(id="my-first-entity")
             project.ancestry.add(entity)
@@ -186,15 +186,15 @@ class TestSection(ConfigurationDependentSelfFactoryTestBase[SectionConfiguration
     ) -> SectionConfiguration:
         return SectionConfiguration(heading=DUMMY_LOCALIZABLE)
 
-    async def test_provide__without_content(self, temporary_app: App) -> None:
-        async with Project.new_temporary(temporary_app) as project:
+    async def test_provide__without_content(self, isolated_app: App) -> None:
+        async with Project.new_isolated(isolated_app) as project:
             project.configuration.extensions.enable(RaspberryMint)
             async with project:
                 sut = await Section.new_for_project(project)
             assert await sut.provide(resource=new_context()) is None
 
-    async def test_provide__with_content(self, temporary_app: App) -> None:
-        async with Project.new_temporary(temporary_app) as project:
+    async def test_provide__with_content(self, isolated_app: App) -> None:
+        async with Project.new_isolated(isolated_app) as project:
             project.configuration.extensions.enable(RaspberryMint)
             async with project:
                 sut = await Section.new_for_project(project)
@@ -209,8 +209,8 @@ class TestSection(ConfigurationDependentSelfFactoryTestBase[SectionConfiguration
         assert "My First Section" in actual
         assert "My First Content" in actual
 
-    async def test_provide__with_name(self, temporary_app: App) -> None:
-        async with Project.new_temporary(temporary_app) as project:
+    async def test_provide__with_name(self, isolated_app: App) -> None:
+        async with Project.new_isolated(isolated_app) as project:
             project.configuration.extensions.enable(RaspberryMint)
             async with project:
                 sut = await Section.new_for_project(project)
@@ -225,10 +225,8 @@ class TestSection(ConfigurationDependentSelfFactoryTestBase[SectionConfiguration
         assert actual is not None
         assert "my-first-section" in actual
 
-    async def test_provide__with_visually_hide_heading(
-        self, temporary_app: App
-    ) -> None:
-        async with Project.new_temporary(temporary_app) as project:
+    async def test_provide__with_visually_hide_heading(self, isolated_app: App) -> None:
+        async with Project.new_isolated(isolated_app) as project:
             project.configuration.extensions.enable(RaspberryMint)
             async with project:
                 sut = await Section.new_for_project(project)
@@ -255,19 +253,19 @@ class TestFamily:
         ],
     )
     async def test_provide__without_person(
-        self, resource: object, temporary_app: App
+        self, resource: object, isolated_app: App
     ) -> None:
-        async with Project.new_temporary(temporary_app) as project:
+        async with Project.new_isolated(isolated_app) as project:
             project.configuration.extensions.enable(RaspberryMint)
             async with project:
                 sut = await Family.new_for_project(project)
         assert await sut.provide(resource=new_context(resource)) is None
 
-    async def test_provide__with_person(self, temporary_app: App) -> None:
+    async def test_provide__with_person(self, isolated_app: App) -> None:
         parent = Person(id="parent")
         resource = Person(id="resource", parents=[parent])
         child = Person(id="child", parents=[resource])
-        async with Project.new_temporary(temporary_app) as project:
+        async with Project.new_isolated(isolated_app) as project:
             project.configuration.extensions.enable(RaspberryMint)
             project.ancestry.add(resource)
             async with project:
@@ -280,31 +278,31 @@ class TestFamily:
 
 class TestMedia:
     async def test_provide__without_has_file_references(
-        self, temporary_app: App
+        self, isolated_app: App
     ) -> None:
-        async with Project.new_temporary(temporary_app) as project:
+        async with Project.new_isolated(isolated_app) as project:
             project.configuration.extensions.enable(RaspberryMint)
             async with project:
                 sut = await Media.new_for_project(project)
                 assert await sut.provide(resource=new_context(object())) is None
 
     async def test_provide__with_has_file_references_without_file_references(
-        self, temporary_app: App
+        self, isolated_app: App
     ) -> None:
         resource = Person()
-        async with Project.new_temporary(temporary_app) as project:
+        async with Project.new_isolated(isolated_app) as project:
             project.configuration.extensions.enable(RaspberryMint)
             async with project:
                 sut = await Media.new_for_project(project)
                 assert await sut.provide(resource=new_context(resource)) is None
 
     async def test_provide__with_has_file_references_with_file_references(
-        self, temporary_app: App
+        self, isolated_app: App
     ) -> None:
         resource = Person()
         file = File(Path(__file__))
         FileReference(resource, file)
-        async with Project.new_temporary(temporary_app) as project:
+        async with Project.new_isolated(isolated_app) as project:
             project.configuration.extensions.enable(RaspberryMint)
             async with project:
                 sut = await Media.new_for_project(project)
@@ -374,15 +372,15 @@ class TestColorStyleConfiguration:
 
 
 class TestColorStyle:
-    async def test_provide__without_content(self, temporary_app: App) -> None:
-        async with Project.new_temporary(temporary_app) as project:
+    async def test_provide__without_content(self, isolated_app: App) -> None:
+        async with Project.new_isolated(isolated_app) as project:
             project.configuration.extensions.enable(RaspberryMint)
             async with project:
                 sut = await ColorStyle.new_for_project(project)
                 assert await sut.provide(resource=new_context()) is None
 
-    async def test_provide__with_content(self, temporary_app: App) -> None:
-        async with Project.new_temporary(temporary_app) as project:
+    async def test_provide__with_content(self, isolated_app: App) -> None:
+        async with Project.new_isolated(isolated_app) as project:
             project.configuration.extensions.enable(RaspberryMint)
             async with project:
                 sut = await ColorStyle.new_for_project(project)
@@ -397,8 +395,8 @@ class TestColorStyle:
 
 
 class TestExternalLinks:
-    async def test_provide__without_has_links(self, temporary_app: App) -> None:
-        async with Project.new_temporary(temporary_app) as project:
+    async def test_provide__without_has_links(self, isolated_app: App) -> None:
+        async with Project.new_isolated(isolated_app) as project:
             project.configuration.extensions.enable(RaspberryMint)
             async with project:
                 sut = await ExternalLinks.new_for_project(project)
@@ -406,19 +404,19 @@ class TestExternalLinks:
         assert provided_content is None
 
     async def test_provide__with_has_links_without_links(
-        self, temporary_app: App
+        self, isolated_app: App
     ) -> None:
         resource = Person()
-        async with Project.new_temporary(temporary_app) as project:
+        async with Project.new_isolated(isolated_app) as project:
             project.configuration.extensions.enable(RaspberryMint)
             async with project:
                 sut = await ExternalLinks.new_for_project(project)
                 assert await sut.provide(resource=new_context(resource)) is None
 
-    async def test_provide__with_has_links_with_links(self, temporary_app: App) -> None:
+    async def test_provide__with_has_links_with_links(self, isolated_app: App) -> None:
         url = "betty:///my-first-page"
         resource = Person(links=[Link(url)])
-        async with Project.new_temporary(temporary_app) as project:
+        async with Project.new_isolated(isolated_app) as project:
             project.configuration.extensions.enable(RaspberryMint)
             async with project:
                 sut = await ExternalLinks.new_for_project(project)

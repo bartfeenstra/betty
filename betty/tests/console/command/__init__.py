@@ -9,8 +9,8 @@ from betty.project.extension import Extension, ExtensionPlugin
 
 class ExtensionTranslationTestBase:
     @pytest.fixture
-    async def temporary_app_with_extensions(
-        self, tmp_path: Path, temporary_app: App
+    async def isolated_app_with_extensions(
+        self, tmp_path: Path, isolated_app: App
     ) -> AsyncIterator[App]:
         @ExtensionPlugin("dummy-without-assets", label="Dummy without assets")
         class _DummyWithoutAssetsDirectoryExtension(Extension):
@@ -28,4 +28,4 @@ class ExtensionTranslationTestBase:
             _DummyWithoutAssetsDirectoryExtension.plugin,
             _DummyWithAssetsDirectoryExtension.plugin,
         ):
-            yield temporary_app
+            yield isolated_app

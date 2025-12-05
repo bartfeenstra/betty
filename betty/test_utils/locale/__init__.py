@@ -112,7 +112,7 @@ class ProjectPotFileTestBase(PotFileTestBase):
     async def update_translations(  # pragma: no cover
         self, output_assets_directory_path_override: Path
     ) -> None:
-        async with App.new_temporary() as app, app:
+        async with App.new_isolated() as app, app:
             await update_project_translations(
                 self.project_directory_path(),
                 self.source_directory_path(),

@@ -6,7 +6,7 @@ from betty.console.command.commands.about import About
 from betty.plugin import PluginDefinition
 from betty.project import Project
 from betty.rich.user import RichUser
-from betty.test_utils.conftest import TemporaryAppFactory
+from betty.test_utils.conftest import IsolatedAppFactory
 from betty.test_utils.console import run
 from betty.test_utils.console.command import CommandPluginTestBase
 
@@ -19,18 +19,18 @@ class TestAboutDefinition(CommandPluginTestBase):
 
 
 class TestAbout:
-    async def test_configure(self, temporary_app_factory: TemporaryAppFactory) -> None:
-        async with temporary_app_factory(user=RichUser()) as app, app:
+    async def test_configure(self, isolated_app_factory: IsolatedAppFactory) -> None:
+        async with isolated_app_factory(user=RichUser()) as app, app:
             result = await run(app, "about")
             assert "Betty" in result.stdout
 
     async def test_configure__with_project(
-        self, temporary_app_factory: TemporaryAppFactory
+        self, isolated_app_factory: IsolatedAppFactory
     ) -> None:
         async with (
-            temporary_app_factory(user=RichUser()) as app,
+            isolated_app_factory(user=RichUser()) as app,
             app,
-            Project.new_temporary(app) as project,
+            Project.new_isolated(app) as project,
         ):
             await write_configuration_file(
                 project.configuration, project.configuration.configuration_file_path

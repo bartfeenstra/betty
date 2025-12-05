@@ -25,7 +25,7 @@ class PluginDocumentationTestBase(Generic[_PluginDefinitionT]):
     _plugin_type: type[_PluginDefinitionT]
     _plugin_type_documentation_path: Path
 
-    async def test_should_contain_plugins(self, temporary_app: App) -> None:
+    async def test_should_contain_plugins(self, isolated_app: App) -> None:
         """
         Test that the plugin type's documentation includes all its plugins.
         """
@@ -34,7 +34,7 @@ class PluginDocumentationTestBase(Generic[_PluginDefinitionT]):
         )
         async with aiofiles.open(documentation_file_path) as f:
             documentation = await f.read()
-        async with Project.new_temporary(temporary_app) as project, project:
+        async with Project.new_isolated(isolated_app) as project, project:
             for plugin in await betty.plugin.repository.provider.service.plugins(
                 self._plugin_type
             ):

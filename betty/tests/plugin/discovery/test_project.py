@@ -45,18 +45,18 @@ class TestProjectDiscovery:
     async def test_discover__with_app(
         self,
         sut_params: ProjectDiscoveryTestParams,
-        temporary_app: App,
+        isolated_app: App,
     ) -> None:
         expected, discovery = sut_params
         sut = ProjectDiscovery(discovery)
-        assert not list(await sut.discover(temporary_app))
+        assert not list(await sut.discover(isolated_app))
 
     async def test_discover__with_project(
         self,
         sut_params: ProjectDiscoveryTestParams,
-        temporary_app: App,
+        isolated_app: App,
     ) -> None:
         expected, discovery = sut_params
-        async with Project.new_temporary(temporary_app) as project, project:
+        async with Project.new_isolated(isolated_app) as project, project:
             sut = ProjectDiscovery(discovery)
             assert await sut.discover(project) == expected

@@ -19,9 +19,9 @@ class TestWebpack(ExtensionTestBase):
 
     @override
     @pytest.fixture
-    async def sut(self, temporary_app: App) -> AsyncIterator[Extension]:
+    async def sut(self, isolated_app: App) -> AsyncIterator[Extension]:
         async with (
-            Project.new_temporary(temporary_app) as project,
+            Project.new_isolated(isolated_app) as project,
             project,
             await Webpack.new_for_project(project) as sut,
         ):
@@ -37,7 +37,7 @@ class TestWebpack(ExtensionTestBase):
         assert await sut.get_public_css_paths()
 
     async def test_generate__with_npm(
-        self, mocker: MockerFixture, temporary_app: App, tmp_path: Path
+        self, mocker: MockerFixture, isolated_app: App, tmp_path: Path
     ) -> None:
         webpack_build_directory_path = tmp_path
         m_build = mocker.patch("betty.project.extension.webpack.build.Builder.build")
@@ -48,7 +48,7 @@ class TestWebpack(ExtensionTestBase):
         ) as f:
             await f.write(self._SENTINEL)
 
-        async with Project.new_temporary(temporary_app) as project:
+        async with Project.new_isolated(isolated_app) as project:
             project.configuration.extensions.enable(Webpack)
             async with project:
                 await generate(project)
@@ -58,7 +58,7 @@ class TestWebpack(ExtensionTestBase):
                 ) as f:
                     assert await f.read() == self._SENTINEL
 
-    async def test_new_resource_context(self, temporary_app: App) -> None:
-        async with Project.new_temporary(temporary_app) as project, project:
+    async def test_new_resource_context(self, isolated_app: App) -> None:
+        async with Project.new_isolated(isolated_app) as project, project:
             sut = await Webpack.new_for_project(project)
             assert sut.new_resource_context()

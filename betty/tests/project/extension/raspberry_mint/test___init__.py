@@ -29,8 +29,8 @@ class TestRaspberryMint(
 ):
     @override
     @pytest.fixture
-    async def sut(self, temporary_app: App) -> Extension:
-        async with Project.new_temporary(temporary_app) as project, project:
+    async def sut(self, isolated_app: App) -> Extension:
+        async with Project.new_isolated(isolated_app) as project, project:
             return await RaspberryMint.new_for_project(project)
 
     @override
@@ -51,9 +51,9 @@ class TestRaspberryMint(
         assert sut.filters
 
     async def test_bootstrap__should_validate_featured_entities_configuration(
-        self, temporary_app: App
+        self, isolated_app: App
     ) -> None:
-        async with Project.new_temporary(temporary_app) as project, project:
+        async with Project.new_isolated(isolated_app) as project, project:
             sut = await RaspberryMint.new_for_project(project)
             sut.configuration.regional_content["unknown-region"] = []
             with pytest.raises(HumanFacingException) as exc_info:
@@ -66,10 +66,10 @@ class TestRaspberryMint(
 
     @check_skip_webpack_entry_point_provider
     async def test_generate__html_list_for_third_party_entity(
-        self, temporary_app: App
+        self, isolated_app: App
     ) -> None:
         with EntityPlugin.type.override_discovery(DummyEntityOne.plugin):
-            async with Project.new_temporary(temporary_app) as project:
+            async with Project.new_isolated(isolated_app) as project:
                 project.configuration.extensions.enable(RaspberryMint)
                 project.configuration.entity_types.replace(
                     EntityTypeConfiguration(DummyEntityOne, generate_html_list=True)
@@ -82,7 +82,7 @@ class TestRaspberryMint(
                     / "index.html"
                 ).is_file()
 
-    async def test_regions(self, temporary_app: App) -> None:
-        async with Project.new_temporary(temporary_app) as project, project:
+    async def test_regions(self, isolated_app: App) -> None:
+        async with Project.new_isolated(isolated_app) as project, project:
             sut = await RaspberryMint.new_for_project(project)
             assert sut.regions

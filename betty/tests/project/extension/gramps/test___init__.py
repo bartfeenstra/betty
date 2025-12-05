@@ -54,7 +54,7 @@ class TestGramps(
         return GrampsConfiguration()
 
     async def test_load__with_event_type_mapping(
-        self, temporary_app: App, tmp_path: Path
+        self, isolated_app: App, tmp_path: Path
     ) -> None:
         family_tree_xml = """
 <?xml version="1.0" encoding="UTF-8"?>
@@ -78,7 +78,7 @@ class TestGramps(
         with gzip.open(gramps_family_tree_path, "w") as f:
             f.write(family_tree_xml.encode("utf-8"))
 
-        async with Project.new_temporary(temporary_app) as project:
+        async with Project.new_isolated(isolated_app) as project:
             project.configuration.extensions.append(
                 PluginInstanceConfiguration(
                     Gramps.plugin,
@@ -99,7 +99,7 @@ class TestGramps(
             assert isinstance(project.ancestry[Event]["E0000"].event_type, Birth)
 
     async def test_load__with_place_type_mapping(
-        self, temporary_app: App, tmp_path: Path
+        self, isolated_app: App, tmp_path: Path
     ) -> None:
         family_tree_xml = """
 <?xml version="1.0" encoding="UTF-8"?>
@@ -121,7 +121,7 @@ class TestGramps(
         with gzip.open(gramps_family_tree_path, "w") as f:
             f.write(family_tree_xml.encode("utf-8"))
 
-        async with Project.new_temporary(temporary_app) as project:
+        async with Project.new_isolated(isolated_app) as project:
             project.configuration.extensions.append(
                 PluginInstanceConfiguration(
                     Gramps.plugin,
@@ -142,7 +142,7 @@ class TestGramps(
             assert isinstance(project.ancestry[Place]["P0001"].place_type, City)
 
     async def test_load__with_presence_role_map(
-        self, temporary_app: App, tmp_path: Path
+        self, isolated_app: App, tmp_path: Path
     ) -> None:
         family_tree_xml = """
 <?xml version="1.0" encoding="UTF-8"?>
@@ -172,7 +172,7 @@ class TestGramps(
         with gzip.open(gramps_family_tree_path, "w") as f:
             f.write(family_tree_xml.encode("utf-8"))
 
-        async with Project.new_temporary(temporary_app) as project:
+        async with Project.new_isolated(isolated_app) as project:
             project.configuration.extensions.append(
                 PluginInstanceConfiguration(
                     Gramps.plugin,
@@ -196,7 +196,7 @@ class TestGramps(
                 next(iter(project.ancestry[Person]["I0000"].presences)).role, Subject
             )
 
-    async def test_load__with_multiple_family_trees(self, temporary_app: App) -> None:
+    async def test_load__with_multiple_family_trees(self, isolated_app: App) -> None:
         family_tree_one_xml = """
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE database PUBLIC "-//Gramps//DTD Gramps XML 1.7.1//EN"
@@ -301,7 +301,7 @@ class TestGramps(
             with gzip.open(gramps_family_tree_two_path, "w") as f:
                 f.write(family_tree_two_xml.encode("utf-8"))
 
-            async with Project.new_temporary(temporary_app) as project:
+            async with Project.new_isolated(isolated_app) as project:
                 project.configuration.extensions.append(
                     PluginInstanceConfiguration(
                         Gramps.plugin,

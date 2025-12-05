@@ -25,11 +25,11 @@ if TYPE_CHECKING:
 class TestDeriver(ExtensionTestBase):
     @override
     @pytest.fixture
-    async def sut(self, temporary_app: App) -> Extension:
-        async with Project.new_temporary(temporary_app) as project, project:
+    async def sut(self, isolated_app: App) -> Extension:
+        async with Project.new_isolated(isolated_app) as project, project:
             return Deriver(project)
 
-    async def test_post_load(self, temporary_app: App) -> None:
+    async def test_post_load(self, isolated_app: App) -> None:
         person = Person(id="P0")
         event = Event(
             event_type=Residence(),
@@ -37,7 +37,7 @@ class TestDeriver(ExtensionTestBase):
         )
         Presence(person, Subject(), event)
 
-        async with Project.new_temporary(temporary_app) as project:
+        async with Project.new_isolated(isolated_app) as project:
             project.configuration.extensions.enable(Deriver)
             project.ancestry.add(person)
             async with project:

@@ -18,8 +18,8 @@ from betty.resource import new_context
 
 
 class TestMap:
-    async def test_provide__without_supported_entity(self, temporary_app: App) -> None:
-        async with Project.new_temporary(temporary_app) as project:
+    async def test_provide__without_supported_entity(self, isolated_app: App) -> None:
+        async with Project.new_isolated(isolated_app) as project:
             project.configuration.extensions.enable(Maps)
             async with project:
                 sut = await Map.new_for_project(project)
@@ -34,9 +34,9 @@ class TestMap:
         ],
     )
     async def test_provide__with_entity_without_places(
-        self, has_associated_places: Entity, temporary_app: App
+        self, has_associated_places: Entity, isolated_app: App
     ) -> None:
-        async with Project.new_temporary(temporary_app) as project:
+        async with Project.new_isolated(isolated_app) as project:
             project.configuration.extensions.enable(Maps)
             async with project:
                 project.ancestry.add(has_associated_places)
@@ -69,10 +69,10 @@ class TestMap:
         return cast(tuple[Entity, Place], request.param)
 
     async def test_provide__with_entity_with_places(
-        self, has_map_entities: tuple[Entity, Place], temporary_app: App
+        self, has_map_entities: tuple[Entity, Place], isolated_app: App
     ) -> None:
         has_associated_places, place = has_map_entities
-        async with Project.new_temporary(temporary_app) as project:
+        async with Project.new_isolated(isolated_app) as project:
             project.configuration.extensions.enable(Maps)
             async with project:
                 project.ancestry.add(has_associated_places)

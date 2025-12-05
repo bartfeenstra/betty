@@ -27,14 +27,14 @@ class TestExtensionNewTranslation(ExtensionTranslationTestBase):
     async def test_configure__minimal(
         self,
         mocker: MockerFixture,
-        temporary_app_with_extensions: App,
+        isolated_app_with_extensions: App,
     ) -> None:
         locale = "nl"
         m_new_extension_translation = mocker.patch(
             "betty.locale.translation.project.extension.new_extension_translation"
         )
         await run(
-            temporary_app_with_extensions,
+            isolated_app_with_extensions,
             "extension-new-translation",
             "dummy-with-assets",
             locale,
@@ -44,10 +44,10 @@ class TestExtensionNewTranslation(ExtensionTranslationTestBase):
         )
 
     async def test_configure__with_unknown_extension(
-        self, temporary_app_with_extensions: App
+        self, isolated_app_with_extensions: App
     ) -> None:
         await run(
-            temporary_app_with_extensions,
+            isolated_app_with_extensions,
             "extension-new-translation",
             "unknown-extension-id",
             "nl-NL",
@@ -55,10 +55,10 @@ class TestExtensionNewTranslation(ExtensionTranslationTestBase):
         )
 
     async def test_configure__with_extension_without_assets_directory(
-        self, temporary_app_with_extensions: App
+        self, isolated_app_with_extensions: App
     ) -> None:
         await run(
-            temporary_app_with_extensions,
+            isolated_app_with_extensions,
             "extension-new-translation",
             "dummy-without-assets",
             "nl-NL",
@@ -66,10 +66,10 @@ class TestExtensionNewTranslation(ExtensionTranslationTestBase):
         )
 
     async def test_configure__with_invalid_locale(
-        self, temporary_app_with_extensions: App
+        self, isolated_app_with_extensions: App
     ) -> None:
         await run(
-            temporary_app_with_extensions,
+            isolated_app_with_extensions,
             "extension-new-translation",
             "dummy-with-assets",
             "",
