@@ -17,7 +17,7 @@ from betty.plugin.config import (
 )
 from betty.plugin.discovery.callback import CallbackDiscovery
 from betty.plugin.resolve import ResolvableId
-from betty.test_utils.config import DummyConfiguration
+from betty.test_utils.config import DummyConfigurable, DummyConfiguration
 from betty.test_utils.config.collections.mapping import ConfigurationMappingTestBase
 from betty.test_utils.locale.localizable import DUMMY_COUNTABLE_LOCALIZABLE
 
@@ -74,7 +74,7 @@ class PluginDefinitionConfigurationMappingTestBase(
 
 
 class ConfigurableDummyPlugin(
-    ConfigurationDependentSelfFactory[DummyConfiguration], Plugin
+    DummyConfigurable, ConfigurationDependentSelfFactory[DummyConfiguration], Plugin
 ):
     """
     A configurable dummy plugin.

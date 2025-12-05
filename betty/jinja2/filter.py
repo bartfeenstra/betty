@@ -260,11 +260,7 @@ async def filter_file(context: Context, file: File) -> str:
                 execute_filter = False
     if execute_filter:
         file_destination_path = (
-            project.configuration.www_directory_path
-            / "file"
-            / file.id
-            / "file"
-            / file.name
+            project.www_directory_path / "file" / file.id / "file" / file.name
         )
         await makedirs(file_destination_path.parent, exist_ok=True)
         await link_or_copy(file.path, file_destination_path)
@@ -317,7 +313,7 @@ async def filter_image_resize_cover(
     if focus is not None:
         destination_name += f"-{focus[0]}x{focus[1]}x{focus[2]}x{focus[3]}"
 
-    file_directory_path = project.configuration.www_directory_path / "file"
+    file_directory_path = project.www_directory_path / "file"
 
     if file.media_type:
         if file.media_type.type == "image":

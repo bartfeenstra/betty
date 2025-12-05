@@ -51,7 +51,7 @@ class _GeneratePlacePreview(Job[ProjectContext]):
         localizers = await app.localizers
         jinja2_environment = await project.jinja2_environment
         place_path = (
-            project.configuration.localize_www_directory_path(self._locale)
+            project.localize_www_directory_path(self._locale)
             / place.plugin.id
             / place.public_id
         )

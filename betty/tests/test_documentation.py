@@ -58,7 +58,7 @@ class TestDocumentation:
         ],
     )
     async def test_should_contain_valid_configuration(
-        self, language: str, serde_format: Format, tmp_path: Path
+        self, language: str, serde_format: Format
     ) -> None:
         async with aiofiles.open(
             ROOT_DIRECTORY_PATH
@@ -76,7 +76,7 @@ class TestDocumentation:
         assert match is not None
         dump = match[1]
         assert dump is not None
-        configuration = ProjectConfiguration(tmp_path / "betty.json")
+        configuration = ProjectConfiguration()
         configuration.load(serde_format.load(dump))
 
     async def test_should_contain_builtin_jinja2_filters(self) -> None:

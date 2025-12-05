@@ -62,9 +62,7 @@ class TestRaspberryMint(
                 async with project:
                     await generate(project)
                 assert (
-                    project.configuration.www_directory_path
-                    / DummyEntityOne.plugin.id
-                    / "index.html"
+                    project.www_directory_path / DummyEntityOne.plugin.id / "index.html"
                 ).is_file()
 
     async def test_regions(self, isolated_app: App) -> None:

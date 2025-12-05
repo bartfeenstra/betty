@@ -73,6 +73,11 @@ class RaspberryMint(
 
     @override
     @classmethod
+    def configuration_cls(cls) -> type[RaspberryMintConfiguration]:
+        return RaspberryMintConfiguration
+
+    @override
+    @classmethod
     async def new_for_project(cls, project: Project, /) -> Self:
         return cls(project=project)
 

@@ -71,6 +71,11 @@ class Wiki(
 
     @override
     @classmethod
+    def configuration_cls(cls) -> type[WikiConfiguration]:
+        return WikiConfiguration
+
+    @override
+    @classmethod
     async def new_for_project(cls, project: Project, /) -> Self:
         copyright_notices = await project.plugins(CopyrightNoticePlugin)
         return cls(

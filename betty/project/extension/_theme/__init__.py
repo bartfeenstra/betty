@@ -8,7 +8,7 @@ from __future__ import annotations
 
 import re
 from collections import defaultdict
-from typing import TYPE_CHECKING, cast
+from typing import TYPE_CHECKING, Self, cast
 
 from typing_extensions import override
 
@@ -242,13 +242,14 @@ class ColorConfiguration(Configuration):
 
     _HEX_PATTERN = re.compile(r"^#[a-zA-Z0-9]{6}$")
 
-    def __init__(self, hex_value: str):
+    def __init__(self, hex_value: str, /):
         super().__init__()
         self._hex: str
         self.hex = hex_value
 
-    def _assert_hex(self, hex_value: str) -> str:
-        if not self._HEX_PATTERN.match(hex_value):
+    @classmethod
+    def _assert_hex(cls, hex_value: str) -> str:
+        if not cls._HEX_PATTERN.match(hex_value):
             raise HumanFacingException(
                 _(
                     '"{hex_value}" is not a valid hexadecimal color, such as #ffc0cb.'
@@ -272,9 +273,9 @@ class ColorConfiguration(Configuration):
         self._hex = hex_value
 
     @override
-    def load(self, dump: Dump, /) -> None:
-        self.assert_mutable()
-        self._hex = (assert_str() | self._assert_hex)(dump)
+    @classmethod
+    def load(cls, dump: Dump, /) -> Self:
+        return cls((assert_str() | cls._assert_hex)(dump))
 
     @override
     def dump(self) -> Dump:

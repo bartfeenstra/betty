@@ -27,7 +27,7 @@ async def test_add_project_argument__with_argument(
     parser = argparse.ArgumentParser()
 
     async def _command_function(*, project: Project) -> None:
-        assert project.configuration.configuration_file_path == configuration_file_path
+        assert project.configuration_file_path == configuration_file_path
 
     command_function = await add_project_argument(
         parser, _command_function, isolated_app
@@ -49,7 +49,7 @@ async def test_add_project_argument__without_argument_with_file(
     parser = argparse.ArgumentParser()
 
     async def _command_function(*, project: Project) -> None:
-        assert project.configuration.configuration_file_path == configuration_file_path
+        assert project.configuration_file_path == configuration_file_path
 
     command_function = await add_project_argument(
         parser, _command_function, isolated_app

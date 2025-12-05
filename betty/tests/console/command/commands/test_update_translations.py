@@ -6,11 +6,11 @@ from pytest_mock import MockerFixture
 from typing_extensions import override
 
 from betty.app import App
-from betty.config.file import write_configuration_file
 from betty.console import SystemExitCode
 from betty.console.command.commands.update_translations import UpdateTranslations
 from betty.plugin import PluginDefinition
 from betty.project import Project
+from betty.serde.file import dump_file
 from betty.test_utils.console import run
 from betty.test_utils.console.command import CommandPluginTestBase
 
@@ -30,14 +30,14 @@ class TestUpdateTranslations:
             "betty.locale.translation.project.update_project_translations"
         )
         async with Project.new_isolated(isolated_app) as project, project:
-            await write_configuration_file(
-                project.configuration, project.configuration.configuration_file_path
+            await dump_file(
+                project.configuration.dump(), project.configuration_file_path
             )
             await run(
                 isolated_app,
                 "update-translations",
                 "--project",
-                str(project.configuration.configuration_file_path),
+                str(project.configuration_file_path),
             )
         m_update_project_translations.assert_awaited_once_with(ANY, None, None)
 
@@ -50,14 +50,14 @@ class TestUpdateTranslations:
             "betty.locale.translation.project.update_project_translations"
         )
         async with Project.new_isolated(isolated_app) as project, project:
-            await write_configuration_file(
-                project.configuration, project.configuration.configuration_file_path
+            await dump_file(
+                project.configuration.dump(), project.configuration_file_path
             )
             await run(
                 isolated_app,
                 "update-translations",
                 "--project",
-                str(project.configuration.configuration_file_path),
+                str(project.configuration_file_path),
                 "--source",
                 str(source),
             )
@@ -75,14 +75,14 @@ class TestUpdateTranslations:
             "betty.locale.translation.project.update_project_translations"
         )
         async with Project.new_isolated(isolated_app) as project, project:
-            await write_configuration_file(
-                project.configuration, project.configuration.configuration_file_path
+            await dump_file(
+                project.configuration.dump(), project.configuration_file_path
             )
             await run(
                 isolated_app,
                 "update-translations",
                 "--project",
-                str(project.configuration.configuration_file_path),
+                str(project.configuration_file_path),
                 *[arg for exclude in excludes for arg in ("--exclude", str(exclude))],
             )
         m_update_project_translations.assert_awaited_once_with(ANY, None, set(excludes))

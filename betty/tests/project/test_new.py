@@ -3,7 +3,6 @@ from pathlib import Path
 from babel import Locale
 from pytest_mock import MockerFixture
 
-from betty.config.file import assert_configuration_file
 from betty.locale import DEFAULT_LOCALE_TAG, to_language_tag
 from betty.locale.localizer import DEFAULT_LOCALIZER
 from betty.project import Project
@@ -11,13 +10,15 @@ from betty.project.config import ProjectConfiguration
 from betty.project.extension import ExtensionPlugin
 from betty.project.extension.gramps import Gramps
 from betty.project.new import new
+from betty.serde.file import assert_load_file
 from betty.test_utils.conftest import IsolatedAppFactory
 from betty.test_utils.user import StaticUser
 
 
 async def _assert_new(configuration_file_path: Path) -> ProjectConfiguration:
-    configuration = ProjectConfiguration(Path())
-    return (await assert_configuration_file(configuration))(configuration_file_path)
+    return ProjectConfiguration.load(
+        (await assert_load_file())(configuration_file_path)
+    )
 
 
 async def test_new__minimal(

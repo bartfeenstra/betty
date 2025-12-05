@@ -6,7 +6,7 @@ from __future__ import annotations
 
 from abc import abstractmethod
 from contextlib import suppress
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Self
 
 from typing_extensions import TypeVar, override
 
@@ -106,25 +106,26 @@ class ConfigurationMapping(
     To test your own subclasses, use :py:class:`betty.test_utils.config.collections.mapping.ConfigurationMappingTestBase`.
     """
 
+    @classmethod
     @abstractmethod
-    def _load_key(self, item_dump: Dump, key_dump: str, /) -> Dump:
+    def _load_key(cls, item_dump: Dump, key_dump: str, /) -> Dump:
         pass
 
     @abstractmethod
     def _dump_key(self, item_dump: Dump, /) -> tuple[Dump, str]:
         pass
 
-    def __load_item_key(self, value_dump: DumpMapping[Dump], key_dump: str, /) -> Dump:
-        return self._load_key(value_dump, key_dump)
+    @classmethod
+    def __load_item_key(cls, value_dump: DumpMapping[Dump], key_dump: str, /) -> Dump:
+        return cls._load_key(value_dump, key_dump)
 
     @override
-    def load(self, dump: Dump, /) -> None:
-        self.assert_mutable()
-        self.clear()
-        self.replace(
-            *assert_mapping(self._load_item)(
+    @classmethod
+    def load(cls, dump: Dump, /) -> Self:
+        return cls(
+            assert_mapping(cls._load_item)(
                 {
-                    item_key_dump: self.__load_item_key(item_value_dump, item_key_dump)
+                    item_key_dump: cls.__load_item_key(item_value_dump, item_key_dump)
                     for item_key_dump, item_value_dump in assert_mapping(
                         assert_mapping()
                     )(dump).items()
@@ -154,9 +155,9 @@ class OrderedConfigurationMapping(
     """
 
     @override
-    def load(self, dump: Dump, /) -> None:
-        self.assert_mutable()
-        self.replace(*assert_sequence(self._load_item)(dump))
+    @classmethod
+    def load(cls, dump: Dump, /) -> Self:
+        return cls(assert_sequence(cls._load_item)(dump))
 
     @override
     def dump(self) -> DumpSequence[Dump]:

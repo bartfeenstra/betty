@@ -7,9 +7,9 @@ from typing_extensions import override
 
 from betty.app import App
 from betty.app.config import AppConfiguration
-from betty.config.file import assert_configuration_file
 from betty.console.command.commands.config import Config
 from betty.plugin import PluginDefinition
+from betty.serde.file import assert_load_file
 from betty.test_utils.console import run
 from betty.test_utils.console.command import CommandPluginTestBase
 
@@ -38,6 +38,7 @@ class TestConfig:
             "--locale",
             locale,
         )
-        configuration = AppConfiguration()
-        (await assert_configuration_file(configuration))(configuration_file_path)
+        configuration = AppConfiguration.load(
+            (await assert_load_file())(configuration_file_path)
+        )
         assert configuration.locale == Locale(locale)

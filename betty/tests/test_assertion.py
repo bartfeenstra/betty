@@ -17,8 +17,6 @@ from betty.assertion import (
     assert_bool,
     assert_directory_path,
     assert_enum,
-    assert_field,
-    assert_fields,
     assert_file_path,
     assert_float,
     assert_int,
@@ -33,7 +31,6 @@ from betty.assertion import (
     assert_positive_number,
     assert_record,
     assert_sequence,
-    assert_setattr,
     assert_str,
 )
 from betty.data import Index, Key
@@ -41,7 +38,6 @@ from betty.exception import HumanFacingException
 from betty.locale import DEFAULT_LOCALE_TAG, to_language_tag
 from betty.locale.localizable import StaticTranslations
 from betty.test_utils.exception import assert_error
-from betty.typing import Void
 
 if TYPE_CHECKING:
     from collections.abc import Mapping, Sized
@@ -214,80 +210,6 @@ def test_assert_sequence__valid(
     assert_sequence(value_assertion)(value)
 
 
-def test_assert_fields__with_invalid_value() -> None:
-    with pytest.raises(HumanFacingException):
-        assert_fields(OptionalField("hello", assert_str()))(None)
-
-
-def test_assert_fields__required_without_key() -> None:
-    with pytest.raises(HumanFacingException) as exc_info:
-        assert_fields(RequiredField("hello", assert_str()))({})
-    assert_error(
-        exc_info.value, error_type=HumanFacingException, error_contexts=[Key("hello")]
-    )
-
-
-def test_assert_fields__optional_without_key() -> None:
-    expected: Mapping[str, Any] = {}
-    actual = assert_fields(OptionalField("hello", assert_str()))({})
-    assert actual == expected
-
-
-def test_assert_fields__required_key_with_key() -> None:
-    expected = {
-        "hello": "World!",
-    }
-    actual = assert_fields(RequiredField("hello", assert_str()))({"hello": "World!"})
-    assert actual == expected
-
-
-def test_assert_fields__optional_key_with_key() -> None:
-    expected = {
-        "hello": "World!",
-    }
-    actual = assert_fields(OptionalField("hello", assert_str()))({"hello": "World!"})
-    assert actual == expected
-
-
-def test_assert_fields__without_field_assertion() -> None:
-    expected = {
-        "hello": "World!",
-    }
-    actual = assert_fields(RequiredField("hello"))({"hello": "World!"})
-    assert actual == expected
-
-
-def test_assert_field__with_invalid_value() -> None:
-    with pytest.raises(HumanFacingException):
-        assert_field(OptionalField("hello", assert_str()))(None)
-
-
-def test_assert_field__required_without_key() -> None:
-    with pytest.raises(HumanFacingException) as exc_info:
-        assert_field(RequiredField("hello", assert_str()))({})
-    assert_error(
-        exc_info.value, error_type=HumanFacingException, error_contexts=[Key("hello")]
-    )
-
-
-def test_assert_field__optional_without_key() -> None:
-    expected = Void()
-    actual = assert_field(OptionalField("hello", assert_str()))({})
-    assert actual == expected
-
-
-def test_assert_field__required_key_with_key() -> None:
-    expected = "World!"
-    actual = assert_field(RequiredField("hello", assert_str()))({"hello": "World!"})
-    assert actual == expected
-
-
-def test_assert_field__optional_key_with_key() -> None:
-    expected = "World!"
-    actual = assert_field(OptionalField("hello", assert_str()))({"hello": "World!"})
-    assert actual == expected
-
-
 @pytest.mark.parametrize(
     "value",
     [
@@ -377,6 +299,18 @@ def test_assert_record__with_required_fields_with_items() -> None:
     actual = assert_record(
         RequiredField("hello", assert_str().chain(lambda x: x.upper()))
     )(
+        {
+            "hello": "World!",
+        }
+    )
+    assert actual == expected
+
+
+def test_assert_record__with_as_name() -> None:
+    expected = {
+        "as_hello": "World!",
+    }
+    actual = assert_record(RequiredField("hello", None, "as_hello"))(
         {
             "hello": "World!",
         }
@@ -582,17 +516,6 @@ def test_assert_locale__with_valid_value(value: str) -> None:
 def test_assert_locale__with_invalid_value(value: Any) -> None:
     with pytest.raises(HumanFacingException):
         assert_locale()(value)
-
-
-class _Instance:
-    attr: Any
-
-
-def test_assert_setattr() -> None:
-    value = "Hello, world!"
-    instance = _Instance()
-    assert assert_setattr(instance, "attr")(value) == value
-    assert instance.attr == value
 
 
 class _Enum(Enum):

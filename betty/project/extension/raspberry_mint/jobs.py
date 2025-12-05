@@ -32,7 +32,7 @@ class _GenerateLogo(Job[ProjectContext]):
         project = scheduler.context.project
         await link_or_copy(
             project.logo,
-            project.configuration.www_directory_path / ("logo" + project.logo.suffix),
+            project.www_directory_path / ("logo" + project.logo.suffix),
         )
 
 
@@ -86,6 +86,6 @@ class _GenerateWebmanifest(Job[ProjectContext]):
             }
         )
         async with aiofiles.open(
-            project.configuration.www_directory_path / "betty.webmanifest", "w"
+            project.www_directory_path / "betty.webmanifest", "w"
         ) as f:
             await f.write(webmanifest)

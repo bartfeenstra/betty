@@ -108,6 +108,8 @@ from betty.locale.localizable import (
 from betty.media_type import InvalidMediaType, MediaType
 from betty.model import Entity
 from betty.model.association import ToManyResolver, ToOneResolver, resolve
+from betty.plugin import Plugin, PluginDefinition
+from betty.plugin.config import PluginInstanceConfiguration
 from betty.plugin.error import PluginUnavailable
 from betty.privacy import HasPrivacy
 from betty.typing import internal, private
@@ -127,21 +129,24 @@ if TYPE_CHECKING:
     from babel import Locale
 
     from betty.ancestry import Ancestry
-    from betty.ancestry.event_type import EventType
-    from betty.ancestry.gender import GenderPlugin
+    from betty.ancestry.event_type import EventType, EventTypePlugin
+    from betty.ancestry.gender import Gender, GenderPlugin
     from betty.ancestry.has_citations import HasCitations
     from betty.ancestry.has_file_references import HasFileReferences
     from betty.ancestry.has_notes import HasNotes
-    from betty.ancestry.place_type import PlaceType
-    from betty.ancestry.presence_role import PresenceRole
+    from betty.ancestry.place_type import PlaceType, PlaceTypePlugin
+    from betty.ancestry.presence_role import PresenceRole, PresenceRolePlugin
     from betty.copyright_notice import CopyrightNoticePlugin
     from betty.license import LicensePlugin
     from betty.machine_name import MachineName
     from betty.plugin.repository import PluginRepository
+    from betty.plugin.resolve import ResolvableId
     from betty.project.factory import ProjectFactory
     from betty.user import User
 
 _EntityT = TypeVar("_EntityT", bound=Entity)
+_PluginT = TypeVar("_PluginT", bound=Plugin)
+_PluginDefinitionT = TypeVar("_PluginDefinitionT", bound=PluginDefinition)
 
 
 class LoaderUsedAlready(GrampsError):
@@ -210,76 +215,92 @@ class _ToManyResolver(ToManyResolver[_EntityT], Generic[_EntityT]):
             yield cast(_EntityT, self._handles_to_entities[handle])
 
 
-_GENDER_MAPPING = {
-    "F": Female.plugin,
-    "M": Male.plugin,
-    "U": UnknownGender.plugin,
-    "X": NonBinary.plugin,
+def _plugin_mapping(
+    mapping: Mapping[str, ResolvableId[_PluginDefinitionT, _PluginT]],
+) -> Mapping[str, PluginInstanceConfiguration[_PluginDefinitionT, _PluginT]]:
+    return {
+        gramps_type: PluginInstanceConfiguration(plugin)
+        for gramps_type, plugin in mapping.items()
+    }
+
+
+_DEFAULT_GENDER_MAPPING: Mapping[str, ResolvableId[GenderPlugin, Gender]] = {
+    "F": Female,
+    "M": Male,
+    "U": UnknownGender,
+    "X": NonBinary,
+}
+DEFAULT_GENDER_MAPPING = _plugin_mapping(_DEFAULT_GENDER_MAPPING)
+
+_DEFAULT_EVENT_TYPE_MAPPING: Mapping[str, ResolvableId[EventTypePlugin, EventType]] = {
+    "Adopted": Adoption,
+    "Adult Christening": Baptism,
+    "Baptism": Baptism,
+    "Bar Mitzvah": BarMitzvah,
+    "Bat Mitzvah": BatMitzvah,
+    "Birth": Birth,
+    "Burial": Burial,
+    "Christening": Baptism,
+    "Confirmation": Confirmation,
+    "Cremation": Cremation,
+    "Death": Death,
+    "Divorce": Divorce,
+    "Divorce Filing": DivorceAnnouncement,
+    "Emigration": Emigration,
+    "Engagement": Engagement,
+    "Immigration": Immigration,
+    "Marriage": Marriage,
+    "Marriage Banns": MarriageAnnouncement,
+    "Occupation": Occupation,
+    "Residence": Residence,
+    "Retirement": Retirement,
+    "Will": Will,
+}
+DEFAULT_EVENT_TYPE_MAPPING = _plugin_mapping(_DEFAULT_EVENT_TYPE_MAPPING)
+
+
+_DEFAULT_PLACE_TYPE_MAPPING: Mapping[str, ResolvableId[PlaceTypePlugin, PlaceType]] = {
+    "Borough": Borough,
+    "Building": Building,
+    "City": City,
+    "Country": Country,
+    "County": County,
+    "Department": Department,
+    "District": District,
+    "Farm": Farm,
+    "Hamlet": Hamlet,
+    "Locality": Locality,
+    "Municipality": Municipality,
+    "Neighborhood": Neighborhood,
+    "Number": Number,
+    "Parish": Parish,
+    "Province": Province,
+    "Region": Region,
+    "State": State,
+    "Street": Street,
+    "Town": Town,
+    "Unknown": UnknownPlaceType,
+    "Village": Village,
 }
 
-DEFAULT_EVENT_TYPES_MAPPING = {
-    "Adopted": Adoption.plugin,
-    "Adult Christening": Baptism.plugin,
-    "Baptism": Baptism.plugin,
-    "Bar Mitzvah": BarMitzvah.plugin,
-    "Bat Mitzvah": BatMitzvah.plugin,
-    "Birth": Birth.plugin,
-    "Burial": Burial.plugin,
-    "Christening": Baptism.plugin,
-    "Confirmation": Confirmation.plugin,
-    "Cremation": Cremation.plugin,
-    "Death": Death.plugin,
-    "Divorce": Divorce.plugin,
-    "Divorce Filing": DivorceAnnouncement.plugin,
-    "Emigration": Emigration.plugin,
-    "Engagement": Engagement.plugin,
-    "Immigration": Immigration.plugin,
-    "Marriage": Marriage.plugin,
-    "Marriage Banns": MarriageAnnouncement.plugin,
-    "Occupation": Occupation.plugin,
-    "Residence": Residence.plugin,
-    "Retirement": Retirement.plugin,
-    "Will": Will.plugin,
+DEFAULT_PLACE_TYPE_MAPPING = _plugin_mapping(_DEFAULT_PLACE_TYPE_MAPPING)
+
+
+_DEFAULT_PRESENCE_ROLE_MAPPING: Mapping[
+    str, ResolvableId[PresenceRolePlugin, PresenceRole]
+] = {
+    "Aide": Attendee,
+    "Bride": Subject,
+    "Celebrant": Celebrant,
+    "Clergy": Celebrant,
+    "Family": Subject,
+    "Groom": Subject,
+    "Informant": Informant,
+    "Primary": Subject,
+    "Unknown": UnknownPresenceRole,
+    "Witness": Witness,
 }
-
-
-DEFAULT_PLACE_TYPES_MAPPING = {
-    "Borough": Borough.plugin,
-    "Building": Building.plugin,
-    "City": City.plugin,
-    "Country": Country.plugin,
-    "County": County.plugin,
-    "Department": Department.plugin,
-    "District": District.plugin,
-    "Farm": Farm.plugin,
-    "Hamlet": Hamlet.plugin,
-    "Locality": Locality.plugin,
-    "Municipality": Municipality.plugin,
-    "Neighborhood": Neighborhood.plugin,
-    "Number": Number.plugin,
-    "Parish": Parish.plugin,
-    "Province": Province.plugin,
-    "Region": Region.plugin,
-    "State": State.plugin,
-    "Street": Street.plugin,
-    "Town": Town.plugin,
-    "Unknown": UnknownPlaceType.plugin,
-    "Village": Village.plugin,
-}
-
-
-DEFAULT_PRESENCE_ROLES_MAPPING = {
-    "Aide": Attendee.plugin,
-    "Bride": Subject.plugin,
-    "Celebrant": Celebrant.plugin,
-    "Clergy": Celebrant.plugin,
-    "Family": Subject.plugin,
-    "Groom": Subject.plugin,
-    "Informant": Informant.plugin,
-    "Primary": Subject.plugin,
-    "Unknown": UnknownPresenceRole.plugin,
-    "Witness": Witness.plugin,
-}
+DEFAULT_PRESENCE_ROLE_MAPPING = _plugin_mapping(_DEFAULT_PRESENCE_ROLE_MAPPING)
 
 _DEFAULT_GRAMPS_EXECUTABLE = (
     "Gramps.exe" if sys.platform.startswith("win32") else "gramps"
@@ -812,7 +833,7 @@ class GrampsLoader:
         if gender_id is None:
             gramps_gender = self._xpath1(element, "./ns:gender").text
             assert gramps_gender is not None
-            gender_id = _GENDER_MAPPING[gramps_gender].id
+            gender_id = DEFAULT_GENDER_MAPPING[gramps_gender].id
 
         person = Person(
             id=element.get("id"),

@@ -5,10 +5,10 @@ from pytest_mock import MockerFixture
 from typing_extensions import override
 
 from betty.app import App
-from betty.config.file import write_configuration_file
 from betty.console.command.commands.generate import Generate
 from betty.plugin import PluginDefinition
 from betty.project import Project
+from betty.serde.file import dump_file
 from betty.test_utils.console import run
 from betty.test_utils.console.command import CommandPluginTestBase
 
@@ -28,14 +28,14 @@ class TestGenerate:
         m_load = mocker.patch("betty.project.load.load", new_callable=AsyncMock)
 
         async with Project.new_isolated(isolated_app) as project:
-            await write_configuration_file(
-                project.configuration, project.configuration.configuration_file_path
+            await dump_file(
+                project.configuration.dump(), project.configuration_file_path
             )
             await run(
                 isolated_app,
                 "generate",
                 "--project",
-                str(project.configuration.configuration_file_path),
+                str(project.configuration_file_path),
             )
 
             m_load.assert_called_once()
@@ -43,13 +43,13 @@ class TestGenerate:
             assert await_args is not None
             load_args, _ = await_args
             assert (
-                load_args[0].configuration.configuration_file_path
-                == project.configuration.configuration_file_path.expanduser().resolve()
+                load_args[0].configuration_file_path
+                == project.configuration_file_path.expanduser().resolve()
             )
 
             m_generate.assert_called_once()
             generate_args, _ = m_generate.call_args
             assert (
-                generate_args[0].configuration.configuration_file_path
-                == project.configuration.configuration_file_path.expanduser().resolve()
+                generate_args[0].configuration_file_path
+                == project.configuration_file_path.expanduser().resolve()
             )

@@ -40,17 +40,15 @@ class TestPlainTextConfiguration:
 
     def test_load__without_text(self) -> None:
         dump: Dump = {}
-        sut = PlainTextConfiguration(DUMMY_LOCALIZABLE)
         with pytest.raises(HumanFacingException):
-            sut.load(dump)
+            PlainTextConfiguration.load(dump)
 
     def test_load__minimal(self) -> None:
         text = "Hello, world!"
         dump: Dump = {
             "text": text,
         }
-        sut = PlainTextConfiguration(DUMMY_LOCALIZABLE)
-        sut.load(dump)
+        sut = PlainTextConfiguration.load(dump)
         assert sut.text.localize(DEFAULT_LOCALIZER) == text
 
     def test_dump(self) -> None:
@@ -120,9 +118,7 @@ class TestTemplate:
 """
         job_context = Context()
         async with Project.new_isolated(isolated_app) as project, project:
-            templates_directory_path = (
-                project.configuration.assets_directory_path / "templates"
-            )
+            templates_directory_path = project.assets_directory_path / "templates"
             await makedirs(templates_directory_path)
             template_file_path = templates_directory_path / template_path
             await makedirs(template_file_path.parent)

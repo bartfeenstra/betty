@@ -31,9 +31,8 @@ class TestAppConfiguration:
 
     def test_load__with_locale(self) -> None:
         locale = "nl"
-        sut = AppConfiguration()
         dump: DumpMapping[Dump] = {"locale": locale}
-        sut.load(dump)
+        sut = AppConfiguration.load(dump)
         assert sut.locale == Locale(locale)
 
     def test_dump__minimal(self) -> None:

@@ -55,6 +55,11 @@ class Gramps(
 
     @override
     @classmethod
+    def configuration_cls(cls) -> type[GrampsConfiguration]:
+        return GrampsConfiguration
+
+    @override
+    @classmethod
     async def new_for_project(cls, project: Project, /) -> Self:
         return cls(project=project)
 

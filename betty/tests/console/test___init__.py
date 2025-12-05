@@ -9,12 +9,12 @@ from pytest_mock import MockerFixture
 from typing_extensions import override
 
 from betty.app import App
-from betty.config.file import write_configuration_file
 from betty.console import SystemExitCode, call_command_func, main_standalone
 from betty.console.command import Command, CommandPlugin
 from betty.exception import HumanFacingException
 from betty.functools import Result, suppress
 from betty.project import Project
+from betty.serde.file import dump_file
 from betty.test_utils.console import run
 from betty.test_utils.locale.localizable import DUMMY_LOCALIZABLE
 from betty.user import Verbosity
@@ -139,8 +139,8 @@ class TestVerbosity:
     ) -> None:
         with CommandPlugin.type.override_discovery(_NoOpCommand.plugin):
             async with Project.new_isolated(isolated_app) as project:
-                await write_configuration_file(
-                    project.configuration, project.configuration.configuration_file_path
+                await dump_file(
+                    project.configuration.dump(), project.configuration_file_path
                 )
                 args = ["no-op"]
                 if verbosity is not None:

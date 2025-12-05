@@ -1,11 +1,11 @@
 import pytest
 from typing_extensions import override
 
-from betty.config.file import write_configuration_file
 from betty.console.command.commands.about import About
 from betty.plugin import PluginDefinition
 from betty.project import Project
 from betty.rich.user import RichUser
+from betty.serde.file import dump_file
 from betty.test_utils.conftest import IsolatedAppFactory
 from betty.test_utils.console import run
 from betty.test_utils.console.command import CommandPluginTestBase
@@ -32,13 +32,13 @@ class TestAbout:
             app,
             Project.new_isolated(app) as project,
         ):
-            await write_configuration_file(
-                project.configuration, project.configuration.configuration_file_path
+            await dump_file(
+                project.configuration.dump(), project.configuration_file_path
             )
             result = await run(
                 app,
                 "about",
                 "--project",
-                str(project.configuration.configuration_file_path),
+                str(project.configuration_file_path),
             )
             assert "Betty" in result.stdout

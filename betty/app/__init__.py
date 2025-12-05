@@ -21,7 +21,6 @@ from betty.asset import AssetRepository, StaticAssetRepository
 from betty.cache.file import BinaryFileCache, PickledFileCache
 from betty.cache.no_op import NoOpCache
 from betty.config import Configurable
-from betty.config.file import assert_configuration_file
 from betty.dirs import CACHE_DIRECTORY_PATH
 from betty.factory import Target, new_target
 from betty.http_client import ClientErrorToUserMessageMiddleware
@@ -45,6 +44,7 @@ from betty.plugin.repository.provider.service import (
 )
 from betty.plugin.repository.static import StaticPluginRepository
 from betty.requirement import Requirement, StaticRequirement
+from betty.serde.file import assert_load_file
 from betty.service.container import (
     ServiceContainer,
     ServiceFactory,
@@ -105,6 +105,11 @@ class App(Configurable[AppConfiguration], ServiceContainer, PluginRepositoryProv
 
     @override
     @classmethod
+    def configuration_cls(cls) -> type[AppConfiguration]:
+        return AppConfiguration
+
+    @override
+    @classmethod
     async def requires(
         cls, services: ServiceLevel, subject: LocalizableLike, /
     ) -> Requirement | Self:
@@ -131,11 +136,12 @@ class App(Configurable[AppConfiguration], ServiceContainer, PluginRepositoryProv
         """
         Create a new application from the environment.
         """
-        configuration = AppConfiguration()
         if config.CONFIGURATION_FILE_PATH.exists():
-            (await assert_configuration_file(configuration))(
-                config.CONFIGURATION_FILE_PATH
+            configuration = AppConfiguration.load(
+                (await assert_load_file())(config.CONFIGURATION_FILE_PATH)
             )
+        else:
+            configuration = AppConfiguration()
         yield cls(
             configuration,
             Path(environ.get("BETTY_CACHE_DIRECTORY", CACHE_DIRECTORY_PATH)),

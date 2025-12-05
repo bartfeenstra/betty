@@ -4,30 +4,28 @@ Provide configuration for the :py:class:`betty.project.extension.gramps.Gramps` 
 
 from __future__ import annotations
 
-from pathlib import Path
-from typing import TYPE_CHECKING, Any, Generic, TypeVar, final
+from typing import TYPE_CHECKING, Any, Generic, Self, TypeVar
 
 from typing_extensions import override
 
-from betty.ancestry.event_type import EventType
-from betty.ancestry.place_type import PlaceType
-from betty.ancestry.presence_role import PresenceRole
+from betty.ancestry.event_type import EventType, EventTypePlugin
+from betty.ancestry.place_type import PlaceType, PlaceTypePlugin
+from betty.ancestry.presence_role import PresenceRole, PresenceRolePlugin
 from betty.assertion import (
     OptionalField,
     assert_len,
     assert_mapping,
     assert_path,
     assert_record,
-    assert_setattr,
     assert_str,
 )
 from betty.config import Configuration
 from betty.config.collections.sequence import ConfigurationSequence
 from betty.exception import HumanFacingException
 from betty.gramps.loader import (
-    DEFAULT_EVENT_TYPES_MAPPING,
-    DEFAULT_PLACE_TYPES_MAPPING,
-    DEFAULT_PRESENCE_ROLES_MAPPING,
+    DEFAULT_EVENT_TYPE_MAPPING,
+    DEFAULT_PLACE_TYPE_MAPPING,
+    DEFAULT_PRESENCE_ROLE_MAPPING,
 )
 from betty.locale.localizable import _
 from betty.plugin import Plugin, PluginDefinition
@@ -35,7 +33,8 @@ from betty.plugin.config import PluginInstanceConfiguration
 from betty.typing import internal
 
 if TYPE_CHECKING:
-    from collections.abc import Iterable, Iterator, Mapping, MutableMapping
+    from collections.abc import Iterable, Iterator, Mapping
+    from pathlib import Path
 
     from betty.serde.dump import Dump, DumpMapping
 
@@ -50,44 +49,32 @@ def _assert_gramps_type(value: Any) -> str:
 
 
 @internal
-@final
 class PluginMapping(Generic[_PluginDefinitionT, _PluginT], Configuration):
     """
     Map Gramps types to Betty plugin instances.
     """
 
+    _DEFAULT_MAPPING: Mapping[
+        str, PluginInstanceConfiguration[_PluginDefinitionT, _PluginT]
+    ] = {}
+
     def __init__(
         self,
-        default_mapping: Mapping[
-            str, PluginInstanceConfiguration[_PluginDefinitionT, _PluginT]
-        ],
-        mapping: Mapping[
-            str, PluginInstanceConfiguration[_PluginDefinitionT, _PluginT]
-        ],
+        mapping: Mapping[str, PluginInstanceConfiguration[_PluginDefinitionT, _PluginT]]
+        | None = None,
+        /,
     ):
         super().__init__()
-        self._default_mapping = default_mapping
-        self._mapping: MutableMapping[
-            str, PluginInstanceConfiguration[_PluginDefinitionT, _PluginT]
-        ] = {
-            **default_mapping,
-            **mapping,
-        }
+        self._mapping = dict(self._DEFAULT_MAPPING)
+        if mapping is not None:
+            self._mapping.update(mapping)
 
     @override
-    def load(self, dump: Dump, /) -> None:
-        self.assert_mutable()
-        self._mapping = {
-            **self._default_mapping,
-            **assert_mapping(self._load_item, _assert_gramps_type)(dump),
-        }
-
-    def _load_item(
-        self, dump: Dump
-    ) -> PluginInstanceConfiguration[_PluginDefinitionT, _PluginT]:
-        configuration = PluginInstanceConfiguration[_PluginDefinitionT, _PluginT]("-")
-        configuration.load(dump)
-        return configuration
+    @classmethod
+    def load(cls, dump: Dump, /) -> Self:
+        return cls(
+            assert_mapping(PluginInstanceConfiguration.load, _assert_gramps_type)(dump)
+        )
 
     @override
     def dump(self) -> Dump:
@@ -117,6 +104,30 @@ class PluginMapping(Generic[_PluginDefinitionT, _PluginT], Configuration):
         return iter(self._mapping)
 
 
+class EventTypeMapping(PluginMapping[EventTypePlugin, EventType]):
+    """
+    Map Gramps event types to Betty event types.
+    """
+
+    _DEFAULT_MAPPING = DEFAULT_EVENT_TYPE_MAPPING
+
+
+class PlaceTypeMapping(PluginMapping[PlaceTypePlugin, PlaceType]):
+    """
+    Map Gramps place types to Betty place types.
+    """
+
+    _DEFAULT_MAPPING = DEFAULT_PLACE_TYPE_MAPPING
+
+
+class PresenceRoleMapping(PluginMapping[PresenceRolePlugin, PresenceRole]):
+    """
+    Map Gramps roles to Betty presence roles.
+    """
+
+    _DEFAULT_MAPPING = DEFAULT_PRESENCE_ROLE_MAPPING
+
+
 class FamilyTreeConfiguration(Configuration):
     """
     Configure a single Gramps family tree.
@@ -126,44 +137,16 @@ class FamilyTreeConfiguration(Configuration):
         self,
         source: Path | str,
         *,
-        event_types: Mapping[
-            str,
-            PluginInstanceConfiguration[PluginDefinition, EventType],
-        ]
-        | None = None,
-        place_types: Mapping[
-            str,
-            PluginInstanceConfiguration[PluginDefinition, PlaceType],
-        ]
-        | None = None,
-        presence_roles: Mapping[
-            str,
-            PluginInstanceConfiguration[PluginDefinition, PresenceRole],
-        ]
-        | None = None,
+        event_types: EventTypeMapping | None = None,
+        place_types: PlaceTypeMapping | None = None,
+        presence_roles: PresenceRoleMapping | None = None,
     ):
         super().__init__()
         self._source = source
-        self._event_types = PluginMapping[PluginDefinition, EventType](
-            {
-                gramps_value: PluginInstanceConfiguration(event_type)
-                for gramps_value, event_type in DEFAULT_EVENT_TYPES_MAPPING.items()
-            },
-            event_types or {},
-        )
-        self._place_types = PluginMapping[PluginDefinition, PlaceType](
-            {
-                gramps_value: PluginInstanceConfiguration(event_type)
-                for gramps_value, event_type in DEFAULT_PLACE_TYPES_MAPPING.items()
-            },
-            place_types or {},
-        )
-        self._presence_roles = PluginMapping[PluginDefinition, PresenceRole](
-            {
-                gramps_value: PluginInstanceConfiguration(event_type)
-                for gramps_value, event_type in DEFAULT_PRESENCE_ROLES_MAPPING.items()
-            },
-            presence_roles or {},
+        self._event_types = EventTypeMapping() if event_types is None else event_types
+        self._place_types = PlaceTypeMapping() if place_types is None else place_types
+        self._presence_roles = (
+            PresenceRoleMapping() if presence_roles is None else presence_roles
         )
 
     @override
@@ -189,35 +172,29 @@ class FamilyTreeConfiguration(Configuration):
         self._source = source
 
     @property
-    def event_types(
-        self,
-    ) -> PluginMapping[PluginDefinition, EventType]:
+    def event_types(self) -> EventTypeMapping:
         """
         How to map event types.
         """
         return self._event_types
 
     @property
-    def place_types(
-        self,
-    ) -> PluginMapping[PluginDefinition, PlaceType]:
+    def place_types(self) -> PlaceTypeMapping:
         """
         How to map place types.
         """
         return self._place_types
 
     @property
-    def presence_roles(
-        self,
-    ) -> PluginMapping[PluginDefinition, PresenceRole]:
+    def presence_roles(self) -> PresenceRoleMapping:
         """
         How to map presence roles.
         """
         return self._presence_roles
 
     @override
-    def load(self, dump: Dump, /) -> None:
-        self.assert_mutable()
+    @classmethod
+    def load(cls, dump: Dump, /) -> Self:
         dump = assert_mapping()(dump)
         if (
             "file" in dump
@@ -230,13 +207,15 @@ class FamilyTreeConfiguration(Configuration):
                     'Family tree configuration must contain either a "file" or a "name" key'
                 )
             )
-        assert_record(
-            OptionalField("file", assert_path() | assert_setattr(self, "source")),
-            OptionalField("name", assert_str() | assert_setattr(self, "source")),
-            OptionalField("event_types", self.event_types.load),
-            OptionalField("place_types", self.place_types.load),
-            OptionalField("presence_roles", self.presence_roles.load),
+        record = assert_record(
+            OptionalField("file", assert_path(), "source"),
+            OptionalField("name", assert_str(), "source"),
+            OptionalField("event_types", EventTypeMapping.load),
+            OptionalField("place_types", PlaceTypeMapping.load),
+            OptionalField("presence_roles", PresenceRoleMapping.load),
         )(dump)
+        source = record.pop("source")
+        return cls(source, **record)
 
     @override
     def dump(self) -> DumpMapping[Dump]:
@@ -258,12 +237,9 @@ class FamilyTreeConfigurationSequence(ConfigurationSequence[FamilyTreeConfigurat
     """
 
     @override
-    def _load_item(self, dump: Dump, /) -> FamilyTreeConfiguration:
-        # Use a dummy path to satisfy initializer arguments.
-        # It will be overridden when loading the dump.
-        item = FamilyTreeConfiguration(Path())
-        item.load(dump)
-        return item
+    @classmethod
+    def _load_item(cls, dump: Dump, /) -> FamilyTreeConfiguration:
+        return FamilyTreeConfiguration.load(dump)
 
 
 class GrampsConfiguration(Configuration):
@@ -274,11 +250,13 @@ class GrampsConfiguration(Configuration):
     def __init__(
         self,
         *,
-        family_trees: Iterable[FamilyTreeConfiguration] | None = None,
+        family_trees: FamilyTreeConfigurationSequence | None = None,
         executable: Path | None = None,
     ):
         super().__init__()
-        self._family_trees = FamilyTreeConfigurationSequence(family_trees)
+        self._family_trees = (
+            FamilyTreeConfigurationSequence() if family_trees is None else family_trees
+        )
         self._executable = executable
 
     @override
@@ -310,14 +288,14 @@ class GrampsConfiguration(Configuration):
         self._executable = executable
 
     @override
-    def load(self, dump: Dump, /) -> None:
-        self.assert_mutable()
-        assert_record(
-            OptionalField("family_trees", self.family_trees.load),
-            OptionalField(
-                "executable", assert_path() | assert_setattr(self, "executable")
-            ),
-        )(dump)
+    @classmethod
+    def load(cls, dump: Dump, /) -> Self:
+        return cls(
+            **assert_record(
+                OptionalField("family_trees", FamilyTreeConfigurationSequence.load),
+                OptionalField("executable", assert_path()),
+            )(dump)
+        )
 
     @override
     def dump(self) -> DumpMapping[Dump]:

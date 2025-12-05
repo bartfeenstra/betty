@@ -111,8 +111,9 @@ class ConfigurationCollection(
     def _post_remove(self, configuration: _ConfigurationT, /) -> None:
         pass
 
+    @classmethod
     @abstractmethod
-    def _load_item(self, dump: Dump, /) -> _ConfigurationT:
+    def _load_item(cls, dump: Dump, /) -> _ConfigurationT:
         """
         Create and load a new item from the given dump, or raise an assertion error.
 

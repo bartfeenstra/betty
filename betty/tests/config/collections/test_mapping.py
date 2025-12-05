@@ -1,18 +1,12 @@
 from __future__ import annotations
 
 from collections.abc import Mapping, Sequence
-from typing import TYPE_CHECKING, cast
+from typing import TYPE_CHECKING, Self, cast
 
 import pytest
 from typing_extensions import override
 
-from betty.assertion import (
-    RequiredField,
-    assert_int,
-    assert_record,
-    assert_setattr,
-    assert_str,
-)
+from betty.assertion import RequiredField, assert_int, assert_record, assert_str
 from betty.config import Configuration
 from betty.config.collections.mapping import (
     ConfigurationMapping,
@@ -30,17 +24,19 @@ if TYPE_CHECKING:
 
 
 class ConfigurationMappingTestConfiguration(Configuration):
-    def __init__(self, configuration_key: str, configuration_value: int):
+    def __init__(self, key: str, value: int, /):
         super().__init__()
-        self.key = configuration_key
-        self.value = configuration_value
+        self.key = key
+        self.value = value
 
     @override
-    def load(self, dump: Dump, /) -> None:
-        assert_record(
-            RequiredField("key", assert_str() | assert_setattr(self, "key")),
-            RequiredField("value", assert_int() | assert_setattr(self, "value")),
+    @classmethod
+    def load(cls, dump: Dump, /) -> Self:
+        record = assert_record(
+            RequiredField("key", assert_str()),
+            RequiredField("value", assert_int()),
         )(dump)
+        return cls(record["key"], record["value"])
 
     @override
     def dump(self) -> Dump:
@@ -89,7 +85,7 @@ class TestConfigurationMapping(
     async def test_load__without_items(
         self, sut: ConfigurationMapping[str, str, Configuration]
     ) -> None:
-        sut.load({})
+        sut = type(sut).load({})
         assert len(sut) == 0
 
     async def test_load__with_items(
@@ -99,7 +95,7 @@ class TestConfigurationMapping(
             ConfigurationMappingTestConfiguration
         ],
     ) -> None:
-        sut.load({item.key: item.dump() for item in sut_configurations})
+        sut = type(sut).load({item.key: item.dump() for item in sut_configurations})
         assert len(sut) == len(sut_configurations)
 
     async def test_dump__without_items(
@@ -134,17 +130,17 @@ class ConfigurationMappingTestConfigurationMapping(
         return configuration_key
 
     @override
-    def _load_item(self, dump: Dump, /) -> ConfigurationMappingTestConfiguration:
-        configuration = ConfigurationMappingTestConfiguration("", 0)
-        configuration.load(dump)
-        return configuration
+    @classmethod
+    def _load_item(cls, dump: Dump, /) -> ConfigurationMappingTestConfiguration:
+        return ConfigurationMappingTestConfiguration.load(dump)
 
     @override
     def _get_key(self, configuration: ConfigurationMappingTestConfiguration, /) -> str:
         return configuration.key
 
     @override
-    def _load_key(self, item_dump: Dump, key_dump: str, /) -> Dump:
+    @classmethod
+    def _load_key(cls, item_dump: Dump, key_dump: str, /) -> Dump:
         assert isinstance(item_dump, Mapping)
         item_dump["key"] = key_dump
         return item_dump
@@ -194,7 +190,7 @@ class TestOrderedConfigurationMapping(
     async def test_load__without_items(
         self, sut: OrderedConfigurationMapping[str, str, Configuration]
     ) -> None:
-        sut.load([])
+        sut = type(sut).load([])
         assert len(sut) == 0
 
     async def test_load__with_items(
@@ -204,7 +200,7 @@ class TestOrderedConfigurationMapping(
             ConfigurationMappingTestConfiguration
         ],
     ) -> None:
-        sut.load([item.dump() for item in sut_configurations])
+        sut = type(sut).load([item.dump() for item in sut_configurations])
         assert len(sut) == len(sut_configurations)
 
     async def test_dump__without_items(
@@ -234,10 +230,9 @@ class OrderedConfigurationMappingTestOrderedConfigurationMapping(
         return configuration_key
 
     @override
-    def _load_item(self, dump: Dump, /) -> ConfigurationMappingTestConfiguration:
-        configuration = ConfigurationMappingTestConfiguration("", 0)
-        configuration.load(dump)
-        return configuration
+    @classmethod
+    def _load_item(cls, dump: Dump, /) -> ConfigurationMappingTestConfiguration:
+        return ConfigurationMappingTestConfiguration.load(dump)
 
     @override
     def _get_key(self, configuration: ConfigurationMappingTestConfiguration, /) -> str:
