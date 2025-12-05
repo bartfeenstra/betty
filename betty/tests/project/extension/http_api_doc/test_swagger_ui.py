@@ -19,11 +19,11 @@ class TestSwaggerUi:
     async def served_project(self) -> AsyncIterator[tuple[Project, Server]]:
         async with (
             TemporaryDirectory() as cache_directory_path_str,
-            App.new_temporary(
+            App.new_isolated(
                 cache_directory_path=Path(cache_directory_path_str)
             ) as app,
             app,
-            Project.new_temporary(app) as project,
+            Project.new_isolated(app) as project,
         ):
             project.configuration.extensions.enable(HttpApiDoc)
             async with project:

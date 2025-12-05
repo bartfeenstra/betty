@@ -116,11 +116,11 @@ class TestGrampsLoader:
     ATTRIBUTE_PREFIX_KEY = "pre3f1x"
     PROJECT_NAME = "pr0j3ct"
 
-    async def test_load_gramps(self, temporary_app: App, tmp_path: Path) -> None:
+    async def test_load_gramps(self, isolated_app: App, tmp_path: Path) -> None:
         gramps_file_path = tmp_path / "betty.gramps"
         with gzip.open(gramps_file_path, "w") as f:
             f.write(_minimal_xml().encode("utf-8"))
-        async with Project.new_temporary(temporary_app) as project, project:
+        async with Project.new_isolated(isolated_app) as project, project:
             sut = GrampsLoader(
                 project.ancestry,
                 factory=project.new_target,
@@ -139,9 +139,9 @@ class TestGrampsLoader:
             await sut.load_gramps(gramps_file_path)
 
     async def test_load_gramps__with_non_existent_file(
-        self, temporary_app: App, tmp_path: Path
+        self, isolated_app: App, tmp_path: Path
     ) -> None:
-        async with Project.new_temporary(temporary_app) as project, project:
+        async with Project.new_isolated(isolated_app) as project, project:
             sut = GrampsLoader(
                 project.ancestry,
                 factory=project.new_target,
@@ -160,7 +160,7 @@ class TestGrampsLoader:
             with pytest.raises(GrampsFileNotFound):
                 await sut.load_gramps(tmp_path / "non-existent-file")
 
-    async def test_load_gpkg(self, temporary_app: App, tmp_path: Path) -> None:
+    async def test_load_gpkg(self, isolated_app: App, tmp_path: Path) -> None:
         gramps_file_path = tmp_path / "betty.gramps"
         with gzip.open(gramps_file_path, "w") as f:
             f.write(_minimal_xml().encode("utf-8"))
@@ -169,7 +169,7 @@ class TestGrampsLoader:
             name=gpkg_file_path, mode="w:gz"
         ) as tar_file:
             tar_file.add(gramps_file_path, "/data.gramps")
-        async with Project.new_temporary(temporary_app) as project, project:
+        async with Project.new_isolated(isolated_app) as project, project:
             sut = GrampsLoader(
                 project.ancestry,
                 factory=project.new_target,
@@ -188,9 +188,9 @@ class TestGrampsLoader:
             await sut.load_gpkg(gpkg_file_path)
 
     async def test_load_gpkg__with_non_existent_file(
-        self, temporary_app: App, tmp_path: Path
+        self, isolated_app: App, tmp_path: Path
     ) -> None:
-        async with Project.new_temporary(temporary_app) as project, project:
+        async with Project.new_isolated(isolated_app) as project, project:
             sut = GrampsLoader(
                 project.ancestry,
                 factory=project.new_target,
@@ -210,12 +210,12 @@ class TestGrampsLoader:
                 await sut.load_gpkg(tmp_path / "non-existent-file")
 
     async def test_load_file__with_gramps(
-        self, temporary_app: App, tmp_path: Path
+        self, isolated_app: App, tmp_path: Path
     ) -> None:
         gramps_file_path = tmp_path / "betty.gramps"
         with gzip.open(gramps_file_path, "w") as f:
             f.write(_minimal_xml().encode("utf-8"))
-        async with Project.new_temporary(temporary_app) as project, project:
+        async with Project.new_isolated(isolated_app) as project, project:
             sut = GrampsLoader(
                 project.ancestry,
                 factory=project.new_target,
@@ -236,7 +236,7 @@ class TestGrampsLoader:
                 await sut.load_file(gramps_file_path)
 
     async def test_load_file__with_gpkg(
-        self, temporary_app: App, tmp_path: Path
+        self, isolated_app: App, tmp_path: Path
     ) -> None:
         gramps_file_path = tmp_path / "betty.gramps"
         with gzip.open(gramps_file_path, "w") as f:
@@ -246,7 +246,7 @@ class TestGrampsLoader:
             name=gpkg_file_path, mode="w:gz"
         ) as tar_file:
             tar_file.add(gramps_file_path, "/data.gramps")
-        async with Project.new_temporary(temporary_app) as project, project:
+        async with Project.new_isolated(isolated_app) as project, project:
             sut = GrampsLoader(
                 project.ancestry,
                 factory=project.new_target,
@@ -267,7 +267,7 @@ class TestGrampsLoader:
                 await sut.load_file(gpkg_file_path)
 
     async def test_load_file__with_ged(
-        self, mocker: MockerFixture, temporary_app: App, tmp_path: Path
+        self, mocker: MockerFixture, isolated_app: App, tmp_path: Path
     ) -> None:
         gramps_executable = "gramps"
         ged_file_path = Path("my-first-family-tree.ged")
@@ -284,7 +284,7 @@ class TestGrampsLoader:
         gramps_file_path = tmp_path / "betty.gramps"
         with gzip.open(gramps_file_path, "w") as f:
             f.write(_minimal_xml().encode("utf-8"))
-        async with Project.new_temporary(temporary_app) as project, project:
+        async with Project.new_isolated(isolated_app) as project, project:
             sut = GrampsLoader(
                 project.ancestry,
                 factory=project.new_target,
@@ -305,9 +305,9 @@ class TestGrampsLoader:
         m_run_process.assert_awaited()
 
     async def test_load_file__with_non_existent_file(
-        self, temporary_app: App, tmp_path: Path
+        self, isolated_app: App, tmp_path: Path
     ) -> None:
-        async with Project.new_temporary(temporary_app) as project, project:
+        async with Project.new_isolated(isolated_app) as project, project:
             sut = GrampsLoader(
                 project.ancestry,
                 factory=project.new_target,
@@ -327,9 +327,9 @@ class TestGrampsLoader:
                 await sut.load_file(tmp_path / "non-existent-file")
 
     async def test_load_file__with_invalid_file(
-        self, temporary_app: App, tmp_path: Path
+        self, isolated_app: App, tmp_path: Path
     ) -> None:
-        async with Project.new_temporary(temporary_app) as project, project:
+        async with Project.new_isolated(isolated_app) as project, project:
             sut = GrampsLoader(
                 project.ancestry,
                 factory=project.new_target,
@@ -351,7 +351,7 @@ class TestGrampsLoader:
                 )
 
     async def test_load_name__with_existent_family_tree(
-        self, mocker: MockerFixture, temporary_app: App, tmp_path: Path
+        self, mocker: MockerFixture, isolated_app: App, tmp_path: Path
     ) -> None:
         gramps_executable = "gramps"
         family_tree_name = "my-first-family-tree"
@@ -368,7 +368,7 @@ class TestGrampsLoader:
         gramps_file_path = tmp_path / "betty.gramps"
         with gzip.open(gramps_file_path, "w") as f:
             f.write(_minimal_xml().encode("utf-8"))
-        async with Project.new_temporary(temporary_app) as project, project:
+        async with Project.new_isolated(isolated_app) as project, project:
             sut = GrampsLoader(
                 project.ancestry,
                 factory=project.new_target,
@@ -392,7 +392,7 @@ class TestGrampsLoader:
         )
 
     async def test_load_name__with_non_existent_family_tree(
-        self, mocker: MockerFixture, temporary_app: App, tmp_path: Path
+        self, mocker: MockerFixture, isolated_app: App, tmp_path: Path
     ) -> None:
         gramps_executable = "gramps"
         family_tree_name = "my-first-family-tree"
@@ -407,7 +407,7 @@ class TestGrampsLoader:
         m_run_process = mocker.patch("betty.subprocess.run_process")
         m_run_process.side_effect = CalledSubprocessError(1, "", "", "")
         gramps_file_path = tmp_path / "betty.gramps"
-        async with Project.new_temporary(temporary_app) as project, project:
+        async with Project.new_isolated(isolated_app) as project, project:
             sut = GrampsLoader(
                 project.ancestry,
                 factory=project.new_target,
@@ -445,9 +445,9 @@ class TestGrampsLoader:
         | None = None,
     ) -> Ancestry:
         async with (
-            App.new_temporary() as app,
+            App.new_isolated() as app,
             app,
-            Project.new_temporary(app) as project,
+            Project.new_isolated(app) as project,
         ):
             project.configuration.name = self.PROJECT_NAME
             async with project:
@@ -507,8 +507,8 @@ class TestGrampsLoader:
             presence_role_mapping=presence_role_mapping,
         )
 
-    async def test_load_xml(self, temporary_app: App) -> None:
-        async with Project.new_temporary(temporary_app) as project, project:
+    async def test_load_xml(self, isolated_app: App) -> None:
+        async with Project.new_isolated(isolated_app) as project, project:
             sut = GrampsLoader(
                 project.ancestry,
                 factory=project.new_target,
@@ -535,9 +535,9 @@ class TestGrampsLoader:
         ],
     )
     async def test_load_xml_with_unsupported_version_should_error(
-        self, temporary_app: App, version: str
+        self, isolated_app: App, version: str
     ) -> None:
-        async with Project.new_temporary(temporary_app) as project, project:
+        async with Project.new_isolated(isolated_app) as project, project:
             sut = GrampsLoader(
                 project.ancestry,
                 factory=project.new_target,
@@ -557,7 +557,7 @@ class TestGrampsLoader:
                 await sut.load_xml(_minimal_xml(version))
 
     async def test_load_xml_with_invalid_xml_should_error(
-        self, temporary_app: App
+        self, isolated_app: App
     ) -> None:
         xml = """<?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE database PUBLIC "-//Gramps//DTD Gramps XML 1.7.1//EN"
@@ -570,7 +570,7 @@ class TestGrampsLoader:
   </header>
 </database>
 """
-        async with Project.new_temporary(temporary_app) as project, project:
+        async with Project.new_isolated(isolated_app) as project, project:
             sut = GrampsLoader(
                 project.ancestry,
                 factory=project.new_target,
@@ -2336,10 +2336,10 @@ class TestGrampsLoader:
         ],
     )
     async def test_load_locale(
-        self, expected: Locale | None, locale: str, temporary_app: App
+        self, expected: Locale | None, locale: str, isolated_app: App
     ) -> None:
         user = StaticUser()
-        async with Project.new_temporary(temporary_app) as project, project:
+        async with Project.new_isolated(isolated_app) as project, project:
             sut = GrampsLoader(
                 project.ancestry,
                 factory=project.new_target,

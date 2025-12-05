@@ -45,26 +45,26 @@ class TestExtension:
         assert isinstance(requires, Requirement)
         assert subject in requires.localize(DEFAULT_LOCALIZER)
 
-    async def test_requires__with_app(self, temporary_app: App) -> None:
+    async def test_requires__with_app(self, isolated_app: App) -> None:
         subject = "My First Subject"
-        requires = await DummyExtensionOne.requires(temporary_app, subject)
+        requires = await DummyExtensionOne.requires(isolated_app, subject)
         assert isinstance(requires, Requirement)
         assert subject in requires.localize(DEFAULT_LOCALIZER)
 
     async def test_requires__with_project_without_extension(
-        self, temporary_app: App
+        self, isolated_app: App
     ) -> None:
         subject = "My First Subject"
-        async with Project.new_temporary(temporary_app) as project, project:
+        async with Project.new_isolated(isolated_app) as project, project:
             requires = await DummyExtensionOne.requires(project, subject)
         assert isinstance(requires, Requirement)
         assert subject in requires.localize(DEFAULT_LOCALIZER)
 
     async def test_requires__with_project_with_extension(
-        self, temporary_app: App
+        self, isolated_app: App
     ) -> None:
         with ExtensionPlugin.type.override_discovery(DummyExtensionOne.plugin):
-            async with Project.new_temporary(temporary_app) as project:
+            async with Project.new_isolated(isolated_app) as project:
                 project.configuration.extensions.enable(DummyExtensionOne)
                 async with project:
                     requires = await DummyExtensionOne.requires(project, "")

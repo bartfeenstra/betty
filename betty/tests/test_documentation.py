@@ -41,12 +41,12 @@ class TestDocumentationServer:
 
 
 class TestDocumentation:
-    async def test_should_contain_console_help(self, temporary_app: App) -> None:
+    async def test_should_contain_console_help(self, isolated_app: App) -> None:
         async with aiofiles.open(
             ROOT_DIRECTORY_PATH / "documentation" / "usage" / "console.rst"
         ) as f:
             actual = await f.read()
-        for command in await temporary_app.plugins(CommandPlugin):
+        for command in await isolated_app.plugins(CommandPlugin):
             assert command.id in actual
             assert command.label.localize(DEFAULT_LOCALIZER) in actual
 

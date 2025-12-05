@@ -25,7 +25,7 @@ if TYPE_CHECKING:
 
 async def _target(user: User) -> None:
     async with (
-        App.new_temporary() as app,
+        App.new_isolated() as app,
         app,
         TemporaryDirectory() as project_directory_path_str,
     ):

@@ -39,9 +39,9 @@ async def _assert_template(
     extensions: set[ResolvableId[ExtensionPlugin, Extension]] | None = None,
 ) -> AsyncIterator[tuple[str, Project]]:
     async with (
-        App.new_temporary() as app,
+        App.new_isolated() as app,
         app,
-        Project.new_temporary(app) as project,
+        Project.new_isolated(app) as project,
     ):
         project.configuration.debug = True
         if extensions is not None:

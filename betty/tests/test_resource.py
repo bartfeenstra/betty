@@ -44,15 +44,15 @@ class TestBreadcrumbs:
         sut.append(label, resource)
         assert len(sut) == 1
 
-    async def test_dump_linked_data__without_items(self, temporary_app: App) -> None:
+    async def test_dump_linked_data__without_items(self, isolated_app: App) -> None:
         sut = Breadcrumbs()
-        async with Project.new_temporary(temporary_app) as project, project:
+        async with Project.new_isolated(isolated_app) as project, project:
             assert await sut.dump_linked_data(project) == {}
 
-    async def test_dump_linked_data__with_items(self, temporary_app: App) -> None:
+    async def test_dump_linked_data__with_items(self, isolated_app: App) -> None:
         sut = Breadcrumbs()
         sut.append("My First Page", "betty:///my-first-page")
-        async with Project.new_temporary(temporary_app) as project, project:
+        async with Project.new_isolated(isolated_app) as project, project:
             assert await sut.dump_linked_data(project) == {
                 "@context": "https://schema.org",
                 "@type": "BreadcrumbList",
@@ -78,9 +78,9 @@ class TestBreadcrumb:
         sut = Breadcrumb("My First Page", resource_url)
         assert sut.resource_url == resource_url
 
-    async def test_dump_linked_data__with_items(self, temporary_app: App) -> None:
+    async def test_dump_linked_data__with_items(self, isolated_app: App) -> None:
         sut = Breadcrumb("My First Page", "betty:///my-first-page")
-        async with Project.new_temporary(temporary_app) as project, project:
+        async with Project.new_isolated(isolated_app) as project, project:
             assert await sut.dump_linked_data(project) == {
                 "@type": "ListItem",
                 "item": "https://example.com/my-first-page",

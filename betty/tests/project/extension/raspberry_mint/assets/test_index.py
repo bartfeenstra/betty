@@ -26,9 +26,9 @@ def file() -> str:
 
 
 async def test_regional_content_front_page_summary(
-    file: str, temporary_app: App
+    file: str, isolated_app: App
 ) -> None:
-    async with Project.new_temporary(temporary_app) as project:
+    async with Project.new_isolated(isolated_app) as project:
         project.configuration.extensions.append(
             PluginInstanceConfiguration(
                 RaspberryMint,
@@ -53,9 +53,9 @@ async def test_regional_content_front_page_summary(
 
 
 async def test_regional_content_front_page_content(
-    file: str, temporary_app: App
+    file: str, isolated_app: App
 ) -> None:
-    async with Project.new_temporary(temporary_app) as project:
+    async with Project.new_isolated(isolated_app) as project:
         project.configuration.extensions.append(
             PluginInstanceConfiguration(
                 RaspberryMint,

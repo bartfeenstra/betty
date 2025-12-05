@@ -20,7 +20,7 @@ class TestClearCachesDefinition(CommandPluginTestBase):
 
 class TestClearCaches:
     async def test_configure(
-        self, mocker: MockerFixture, temporary_app: App, tmp_path: Path
+        self, mocker: MockerFixture, isolated_app: App, tmp_path: Path
     ) -> None:
         legacy_cache_directory_path = tmp_path / "legacy"
         legacy_cache_directory_path.mkdir()
@@ -30,8 +30,8 @@ class TestClearCaches:
         )
         legacy_cache_item_path = legacy_cache_directory_path / "item"
         legacy_cache_item_path.touch()
-        await temporary_app.cache.set("KeepMeAroundPlease", "")
-        await run(temporary_app, "clear-caches")
-        cache_item = await temporary_app.cache.get("KeepMeAroundPlease")
+        await isolated_app.cache.set("KeepMeAroundPlease", "")
+        await run(isolated_app, "clear-caches")
+        cache_item = await isolated_app.cache.get("KeepMeAroundPlease")
         assert cache_item is None
         assert not legacy_cache_item_path.exists()

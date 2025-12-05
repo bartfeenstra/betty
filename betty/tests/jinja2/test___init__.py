@@ -37,28 +37,28 @@ class DummyHasFileReferencesEntity(HasFileReferences):
 
 
 class TestEnvironment:
-    async def test_context_class(self, temporary_app: App) -> None:
-        async with Project.new_temporary(temporary_app) as project, project:
+    async def test_context_class(self, isolated_app: App) -> None:
+        async with Project.new_isolated(isolated_app) as project, project:
             sut = await Environment.new_for_project(project)
             context_class = sut.context_class
             context_class(sut, {}, "", {}, {})
 
-    async def test_project(self, temporary_app: App) -> None:
-        async with Project.new_temporary(temporary_app) as project, project:
+    async def test_project(self, isolated_app: App) -> None:
+        async with Project.new_isolated(isolated_app) as project, project:
             sut = await Environment.new_for_project(project)
             assert sut.project is project
 
-    async def test_new_for_project_with_debug(self, temporary_app: App) -> None:
-        async with Project.new_temporary(temporary_app) as project:
+    async def test_new_for_project_with_debug(self, isolated_app: App) -> None:
+        async with Project.new_isolated(isolated_app) as project:
             project.configuration.debug = True
             async with project:
                 sut = await Environment.new_for_project(project)
                 assert "jinja2.ext.DebugExtension" in sut.extensions
 
     async def test_make_copy_function__www_directory(
-        self, temporary_app: App, tmp_path: Path
+        self, isolated_app: App, tmp_path: Path
     ) -> None:
-        async with Project.new_temporary(temporary_app) as project, project:
+        async with Project.new_isolated(isolated_app) as project, project:
             sut = await Environment.new_for_project(project)
             source_file_path = tmp_path / "source.test.j2"
             async with aiofiles.open(source_file_path, "w") as f:
@@ -77,9 +77,9 @@ class TestEnvironment:
                 )
 
     async def test_make_copy_function__www_directory_with_hidden_file(
-        self, temporary_app: App, tmp_path: Path
+        self, isolated_app: App, tmp_path: Path
     ) -> None:
-        async with Project.new_temporary(temporary_app) as project, project:
+        async with Project.new_isolated(isolated_app) as project, project:
             sut = await Environment.new_for_project(project)
             source_file_path = tmp_path / "source.test.j2"
             async with aiofiles.open(source_file_path, "w") as f:
@@ -97,9 +97,9 @@ class TestEnvironment:
                 ).strip() == f"{rendered_destination_file_path}\nNone"
 
     async def test_make_copy_function__www_directory_and_is_localized_and_multilingual(
-        self, temporary_app: App, tmp_path: Path
+        self, isolated_app: App, tmp_path: Path
     ) -> None:
-        async with Project.new_temporary(temporary_app) as project, project:
+        async with Project.new_isolated(isolated_app) as project, project:
             sut = await Environment.new_for_project(project)
             source_file_path = tmp_path / "source.test.j2"
             async with aiofiles.open(source_file_path, "w") as f:
@@ -125,9 +125,9 @@ class TestEnvironment:
 
 
 class Test_CacheTagExtension:
-    async def test_tag__without_job_context(self, temporary_app: App) -> None:
+    async def test_tag__without_job_context(self, isolated_app: App) -> None:
         counter = Counter()
-        async with Project.new_temporary(temporary_app) as project, project:
+        async with Project.new_isolated(isolated_app) as project, project:
             sut = await Environment.new_for_project(project)
             template = sut.from_string(
                 "{% cache 'my-first-cache-key' %}{% do count() %}{% endcache %}"
@@ -136,10 +136,10 @@ class Test_CacheTagExtension:
             await template.render_async(count=counter)
         assert counter.count == 2
 
-    async def test_tag__with_job_context(self, temporary_app: App) -> None:
+    async def test_tag__with_job_context(self, isolated_app: App) -> None:
         counter = Counter()
         job_context = Context()
-        async with Project.new_temporary(temporary_app) as project, project:
+        async with Project.new_isolated(isolated_app) as project, project:
             sut = await Environment.new_for_project(project)
             template = sut.from_string(
                 "{% cache 'my-first-cache-key' %}{% do count() %}{% endcache %}"

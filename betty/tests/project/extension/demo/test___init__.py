@@ -27,11 +27,11 @@ if TYPE_CHECKING:
     from betty.app import App
     from betty.plugin import PluginDefinition
     from betty.project.extension import Extension
-    from betty.test_utils.conftest import TemporaryAppFactory
+    from betty.test_utils.conftest import IsolatedAppFactory
 
 
 async def test_generate_with_cleanup__without_error(
-    mocker: MockerFixture, temporary_app: App
+    mocker: MockerFixture, isolated_app: App
 ) -> None:
     async def _generate(
         project: Project, *, job_context: ProjectContext | None = None
@@ -40,7 +40,7 @@ async def test_generate_with_cleanup__without_error(
 
     m_generate = mocker.patch("betty.project.generate.generate")
     m_generate.side_effect = _generate
-    async with Project.new_temporary(temporary_app) as project, project:
+    async with Project.new_isolated(isolated_app) as project, project:
         (project.configuration.project_directory_path / "sentinel").touch()
         await generate_with_cleanup(project)
         assert project.configuration.project_directory_path.is_dir()
@@ -49,7 +49,7 @@ async def test_generate_with_cleanup__without_error(
 
 
 async def test_generate_with_cleanup__with_error(
-    mocker: MockerFixture, temporary_app: App
+    mocker: MockerFixture, isolated_app: App
 ) -> None:
     error_message = "generation error"
 
@@ -61,7 +61,7 @@ async def test_generate_with_cleanup__with_error(
 
     m_generate = mocker.patch("betty.project.generate.generate")
     m_generate.side_effect = _generate
-    async with Project.new_temporary(temporary_app) as project, project:
+    async with Project.new_isolated(isolated_app) as project, project:
         with pytest.raises(RuntimeError, match=error_message):
             await generate_with_cleanup(project)
         assert not project.configuration.project_directory_path.exists()
@@ -77,21 +77,21 @@ class TestDemoDefinition(ExtensionPluginTestBase):
 class TestDemo(ExtensionTestBase):
     @override
     @pytest.fixture
-    async def sut(self, temporary_app: App) -> Extension:
-        async with Project.new_temporary(temporary_app) as project, project:
+    async def sut(self, isolated_app: App) -> Extension:
+        async with Project.new_isolated(isolated_app) as project, project:
             return Demo(project)
 
     async def test_load(
         self,
         demo_project_aioresponses: None,  # noqa F811
         mocker: MockerFixture,
-        temporary_app_factory: TemporaryAppFactory,
+        isolated_app_factory: IsolatedAppFactory,
     ) -> None:
         mocker.patch("betty.wiki.populator.Populator.populate")
         async with (
-            temporary_app_factory() as app,
+            isolated_app_factory() as app,
             app,
-            Project.new_temporary(app) as project,
+            Project.new_isolated(app) as project,
         ):
             project.configuration.extensions.enable(Demo)
             async with project:

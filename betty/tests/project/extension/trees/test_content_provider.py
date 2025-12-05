@@ -12,8 +12,8 @@ from betty.resource import new_context
 
 
 class TestTree:
-    async def test_provide__without_supported_entity(self, temporary_app: App) -> None:
-        async with Project.new_temporary(temporary_app) as project:
+    async def test_provide__without_supported_entity(self, isolated_app: App) -> None:
+        async with Project.new_isolated(isolated_app) as project:
             project.configuration.extensions.enable(Trees)
             async with project:
                 sut = await Tree.new_for_project(project)
@@ -27,9 +27,9 @@ class TestTree:
         ],
     )
     async def test_provide__without_trees(
-        self, resource: Entity, temporary_app: App
+        self, resource: Entity, isolated_app: App
     ) -> None:
-        async with Project.new_temporary(temporary_app) as project:
+        async with Project.new_isolated(isolated_app) as project:
             project.configuration.extensions.enable(Trees)
             async with project:
                 project.ancestry.add(resource)
@@ -42,11 +42,11 @@ class TestTree:
                 )
 
     async def test_provide__with_person_with_relationships(
-        self, temporary_app: App
+        self, isolated_app: App
     ) -> None:
         person = Person()
         Person(parents=[person])
-        async with Project.new_temporary(temporary_app) as project:
+        async with Project.new_isolated(isolated_app) as project:
             project.configuration.extensions.enable(Trees)
             async with project:
                 project.ancestry.add(person)

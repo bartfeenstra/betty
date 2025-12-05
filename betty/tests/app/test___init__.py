@@ -23,72 +23,72 @@ class TestApp:
         assert isinstance(requires, Requirement)
         assert subject in requires.localize(DEFAULT_LOCALIZER)
 
-    async def test_requires__with_app(self, temporary_app: App) -> None:
-        assert await App.requires(temporary_app, "") is temporary_app
+    async def test_requires__with_app(self, isolated_app: App) -> None:
+        assert await App.requires(isolated_app, "") is isolated_app
 
-    async def test_requires__with_project(self, temporary_app: App) -> None:
-        async with Project.new_temporary(temporary_app) as project, project:
-            assert await App.requires(project, "") is temporary_app
+    async def test_requires__with_project(self, isolated_app: App) -> None:
+        async with Project.new_isolated(isolated_app) as project, project:
+            assert await App.requires(project, "") is isolated_app
 
-    async def test_plugins(self, temporary_app: App) -> None:
-        await temporary_app.plugins(DummyPluginDefinition)
+    async def test_plugins(self, isolated_app: App) -> None:
+        await isolated_app.plugins(DummyPluginDefinition)
 
-    async def test_new_from_environment(self, temporary_app: App) -> None:
-        assert temporary_app.cache is temporary_app.cache
+    async def test_new_from_environment(self, isolated_app: App) -> None:
+        assert isolated_app.cache is isolated_app.cache
 
     async def test_bootstrap__should_set_user_localizer(
-        self, mocker: MockerFixture, temporary_app: App
+        self, mocker: MockerFixture, isolated_app: App
     ) -> None:
         user = StaticUser()
-        async with App.new_temporary(user=user) as sut, sut:
+        async with App.new_isolated(user=user) as sut, sut:
             assert sut.user.localizer is await sut.localizer
 
-    async def test_user(self, temporary_app: App) -> None:
+    async def test_user(self, isolated_app: App) -> None:
         user = StaticUser()
-        async with App.new_temporary(user=user) as sut, sut:
+        async with App.new_isolated(user=user) as sut, sut:
             assert sut.user is user
 
-    async def test_assets(self, temporary_app: App) -> None:
-        assert temporary_app.assets is temporary_app.assets
+    async def test_assets(self, isolated_app: App) -> None:
+        assert isolated_app.assets is isolated_app.assets
 
-    async def test_binary_file_cache(self, temporary_app: App) -> None:
-        assert temporary_app.binary_file_cache is temporary_app.binary_file_cache
+    async def test_binary_file_cache(self, isolated_app: App) -> None:
+        assert isolated_app.binary_file_cache is isolated_app.binary_file_cache
 
-    async def test_cache(self, temporary_app: App) -> None:
-        assert temporary_app.cache is temporary_app.cache
+    async def test_cache(self, isolated_app: App) -> None:
+        assert isolated_app.cache is isolated_app.cache
 
-    async def test_http_client(self, temporary_app: App) -> None:
-        assert await temporary_app.http_client is await temporary_app.http_client
+    async def test_http_client(self, isolated_app: App) -> None:
+        assert await isolated_app.http_client is await isolated_app.http_client
 
-    async def test_localizer(self, temporary_app: App) -> None:
-        assert await temporary_app.localizer is await temporary_app.localizer
+    async def test_localizer(self, isolated_app: App) -> None:
+        assert await isolated_app.localizer is await isolated_app.localizer
 
-    async def test_localizers(self, temporary_app: App) -> None:
-        localizers = await temporary_app.localizers
-        assert localizers is await temporary_app.localizers
+    async def test_localizers(self, isolated_app: App) -> None:
+        localizers = await isolated_app.localizers
+        assert localizers is await isolated_app.localizers
 
-    async def test_process_pool(self, temporary_app: App) -> None:
-        assert temporary_app.process_pool is temporary_app.process_pool
+    async def test_process_pool(self, isolated_app: App) -> None:
+        assert isolated_app.process_pool is isolated_app.process_pool
 
-    async def test_new_target(self, temporary_app: App) -> None:
+    async def test_new_target(self, isolated_app: App) -> None:
         class Dependent:
             pass
 
-        await temporary_app.new_target(Dependent)
+        await isolated_app.new_target(Dependent)
 
     async def test_new_target__with_app_dependent_factory(
-        self, temporary_app: App
+        self, isolated_app: App
     ) -> None:
         class _Factory(AppDependentFactory[App]):
             @override
             async def new_for_app(self, app: App, /) -> App:
                 return app
 
-        target = await temporary_app.new_target(_Factory())
-        assert target is temporary_app
+        target = await isolated_app.new_target(_Factory())
+        assert target is isolated_app
 
     async def test_new_target__with_app_dependent_self_factory(
-        self, temporary_app: App
+        self, isolated_app: App
     ) -> None:
         class Dependent(AppDependentSelfFactory):
             def __init__(self, app: App):
@@ -99,8 +99,8 @@ class TestApp:
             async def new_for_app(cls, app: App, /) -> Self:
                 return cls(app)
 
-        dependent = await temporary_app.new_target(Dependent)
-        assert dependent.app is temporary_app
+        dependent = await isolated_app.new_target(Dependent)
+        assert dependent.app is isolated_app
 
-    async def test__spdx_license_repository(self, temporary_app: App) -> None:
-        await temporary_app._spdx_license_repository
+    async def test__spdx_license_repository(self, isolated_app: App) -> None:
+        await isolated_app._spdx_license_repository

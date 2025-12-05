@@ -23,7 +23,7 @@ class TestConfigDefinition(CommandPluginTestBase):
 
 class TestConfig:
     async def test_configure__with_locale(
-        self, mocker: MockerFixture, temporary_app: App, tmp_path: Path
+        self, mocker: MockerFixture, isolated_app: App, tmp_path: Path
     ) -> None:
         configuration_file_path = tmp_path / "app.json"
         mocker.patch(
@@ -33,7 +33,7 @@ class TestConfig:
 
         locale = "nl"
         await run(
-            temporary_app,
+            isolated_app,
             "config",
             "--locale",
             locale,

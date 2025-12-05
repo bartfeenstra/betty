@@ -104,9 +104,9 @@ class Test_LocalizedPathUrlUrlGenerator:
         ],
     )
     async def test_supports(
-        self, expected: bool, resource: Any, temporary_app: App
+        self, expected: bool, resource: Any, isolated_app: App
     ) -> None:
-        async with Project.new_temporary(temporary_app) as project, project:
+        async with Project.new_isolated(isolated_app) as project, project:
             sut = await _LocalizedPathUrlUrlGenerator.new_for_project(project)
             assert sut.supports(resource) == expected
 
@@ -183,9 +183,9 @@ class Test_LocalizedPathUrlUrlGenerator:
         absolute: bool,
         locale: LocaleLike | None,
         additional_project_locale: Locale | None,
-        temporary_app: App,
+        isolated_app: App,
     ) -> None:
-        async with Project.new_temporary(temporary_app) as project:
+        async with Project.new_isolated(isolated_app) as project:
             if additional_project_locale:
                 project.configuration.locales.append(
                     LocaleConfiguration(additional_project_locale)
@@ -224,9 +224,9 @@ class Test_StaticPathUrlUrlGenerator:
         ],
     )
     async def test_supports(
-        self, expected: bool, resource: Any, temporary_app: App
+        self, expected: bool, resource: Any, isolated_app: App
     ) -> None:
-        async with Project.new_temporary(temporary_app) as project, project:
+        async with Project.new_isolated(isolated_app) as project, project:
             sut = await _StaticPathUrlUrlGenerator.new_for_project(project)
             assert sut.supports(resource) == expected
 
@@ -286,9 +286,9 @@ class Test_StaticPathUrlUrlGenerator:
         additional_project_locale: Locale | None,
         fragment: str | None,
         query: Mapping[str, Sequence[str]] | None,
-        temporary_app: App,
+        isolated_app: App,
     ) -> None:
-        async with Project.new_temporary(temporary_app) as project:
+        async with Project.new_isolated(isolated_app) as project:
             if additional_project_locale:
                 project.configuration.locales.append(
                     LocaleConfiguration(additional_project_locale)
@@ -329,10 +329,10 @@ class Test_StaticPathUrlUrlGenerator:
     ],
 )
 async def test_new_project_url_generator__supports(
-    expected: bool, resource: Any, temporary_app: App
+    expected: bool, resource: Any, isolated_app: App
 ) -> None:
     with EntityPlugin.type.override_discovery(DummyEntityOne.plugin):
-        async with Project.new_temporary(temporary_app) as project, project:
+        async with Project.new_isolated(isolated_app) as project, project:
             sut = await new_project_url_generator(project)
             assert sut.supports(resource) == expected
 
@@ -388,10 +388,10 @@ async def test_new_project_url_generator__generate(
     absolute: bool,
     locale: LocaleLike | None,
     additional_project_locale: Locale | None,
-    temporary_app: App,
+    isolated_app: App,
 ) -> None:
     with EntityPlugin.type.override_discovery(DummyEntityOne.plugin):
-        async with Project.new_temporary(temporary_app) as project:
+        async with Project.new_isolated(isolated_app) as project:
             if additional_project_locale:
                 project.configuration.locales.append(
                     LocaleConfiguration(additional_project_locale)

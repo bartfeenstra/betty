@@ -45,16 +45,16 @@ class TestCallbackDiscovery:
         assert await sut.discover(None) == expected
 
     async def test_discover__with_app(
-        self, sut_params: CallbackResultDiscoveryTestParams, temporary_app: App
+        self, sut_params: CallbackResultDiscoveryTestParams, isolated_app: App
     ) -> None:
         expected, discovery = sut_params
         sut = CallbackDiscovery(discovery)
-        assert await sut.discover(temporary_app) == expected
+        assert await sut.discover(isolated_app) == expected
 
     async def test_discover__with_project(
-        self, sut_params: CallbackResultDiscoveryTestParams, temporary_app: App
+        self, sut_params: CallbackResultDiscoveryTestParams, isolated_app: App
     ) -> None:
         expected, discovery = sut_params
-        async with Project.new_temporary(temporary_app) as project, project:
+        async with Project.new_isolated(isolated_app) as project, project:
             sut = CallbackDiscovery(discovery)
             assert await sut.discover(project) == expected

@@ -22,17 +22,17 @@ class TestServeDefinition(CommandPluginTestBase):
 
 
 class TestServe:
-    async def test_configure(self, mocker: MockerFixture, temporary_app: App) -> None:
+    async def test_configure(self, mocker: MockerFixture, isolated_app: App) -> None:
         mocker.patch("asyncio.sleep", side_effect=KeyboardInterrupt)
         mocker.patch("betty.serve.BuiltinProjectServer", new=NoOpProjectServer)
-        async with Project.new_temporary(temporary_app) as project:
+        async with Project.new_isolated(isolated_app) as project:
             await write_configuration_file(
                 project.configuration, project.configuration.configuration_file_path
             )
             await makedirs(project.configuration.www_directory_path)
 
             await run(
-                temporary_app,
+                isolated_app,
                 "serve",
                 "--project",
                 str(project.configuration.configuration_file_path),

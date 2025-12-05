@@ -18,8 +18,8 @@ class TestMaps(EntryPointProviderTestBase):
         return Maps()
 
     @check_skip_webpack_entry_point_provider
-    async def test_generate(self, temporary_app: App) -> None:
-        async with Project.new_temporary(temporary_app) as project:
+    async def test_generate(self, isolated_app: App) -> None:
+        async with Project.new_isolated(isolated_app) as project:
             project.configuration.debug = True
             project.configuration.extensions.enable(Maps)
             async with project:

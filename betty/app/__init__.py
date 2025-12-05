@@ -143,7 +143,7 @@ class App(Configurable[AppConfiguration], ServiceContainer, PluginRepositoryProv
 
     @classmethod
     @asynccontextmanager
-    async def new_temporary(
+    async def new_isolated(
         cls,
         *,
         cache_directory_path: Path | None = None,
@@ -153,7 +153,7 @@ class App(Configurable[AppConfiguration], ServiceContainer, PluginRepositoryProv
         translations: TranslationRepository | None | False = False,
     ) -> AsyncIterator[Self]:
         """
-        Create a new, temporary, isolated application.
+        Create a new, isolated, temporary application.
 
         The application will not use any persistent caches, or leave
         any traces on the system.

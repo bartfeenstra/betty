@@ -18,8 +18,8 @@ from betty.project.extension.raspberry_mint import RaspberryMint
 
 
 class TestIndex:
-    async def test_build_empty(self, temporary_app: App) -> None:
-        async with Project.new_temporary(temporary_app) as project:
+    async def test_build_empty(self, isolated_app: App) -> None:
+        async with Project.new_isolated(isolated_app) as project:
             project.configuration.extensions.enable(RaspberryMint)
             project.configuration.locales["en-US"].alias = "en"
             project.configuration.locales.append(
@@ -33,11 +33,11 @@ class TestIndex:
 
                 assert actual == []
 
-    async def test_build_person_without_names(self, temporary_app: App) -> None:
+    async def test_build_person_without_names(self, isolated_app: App) -> None:
         person_id = "P1"
         person = Person(id=person_id)
 
-        async with Project.new_temporary(temporary_app) as project:
+        async with Project.new_isolated(isolated_app) as project:
             project.configuration.extensions.enable(RaspberryMint)
             project.configuration.locales["en-US"].alias = "en"
             project.configuration.locales.append(
@@ -52,7 +52,7 @@ class TestIndex:
 
                 assert actual[0].text == {"p1"}
 
-    async def test_build_private_person(self, temporary_app: App) -> None:
+    async def test_build_private_person(self, isolated_app: App) -> None:
         person_id = "P1"
         individual_name = "Jane"
         person = Person(
@@ -64,7 +64,7 @@ class TestIndex:
             individual=individual_name,
         )
 
-        async with Project.new_temporary(temporary_app) as project:
+        async with Project.new_isolated(isolated_app) as project:
             project.configuration.extensions.enable(RaspberryMint)
             project.configuration.locales["en-US"].alias = "en"
             project.configuration.locales.append(
@@ -87,7 +87,7 @@ class TestIndex:
         ],
     )
     async def test_build_person_with_individual_name(
-        self, expected: str, locale: str, temporary_app: App
+        self, expected: str, locale: str, isolated_app: App
     ) -> None:
         person_id = "P1"
         individual_name = "Jane"
@@ -97,7 +97,7 @@ class TestIndex:
             individual=individual_name,
         )
 
-        async with Project.new_temporary(temporary_app) as project:
+        async with Project.new_isolated(isolated_app) as project:
             project.configuration.extensions.enable(RaspberryMint)
             project.configuration.locales["en-US"].alias = "en"
             project.configuration.locales.append(
@@ -122,7 +122,7 @@ class TestIndex:
         ],
     )
     async def test_build_person_with_affiliation_name(
-        self, expected: str, locale: str, temporary_app: App
+        self, expected: str, locale: str, isolated_app: App
     ) -> None:
         person_id = "P1"
         affiliation_name = "Doughnut"
@@ -132,7 +132,7 @@ class TestIndex:
             affiliation=affiliation_name,
         )
 
-        async with Project.new_temporary(temporary_app) as project:
+        async with Project.new_isolated(isolated_app) as project:
             project.configuration.extensions.enable(RaspberryMint)
             project.configuration.locales["en-US"].alias = "en"
             project.configuration.locales.append(
@@ -161,7 +161,7 @@ class TestIndex:
         ],
     )
     async def test_build_person_with_individual_and_affiliation_names(
-        self, expected: str, locale: str, temporary_app: App
+        self, expected: str, locale: str, isolated_app: App
     ) -> None:
         person_id = "P1"
         individual_name = "Jane"
@@ -173,7 +173,7 @@ class TestIndex:
             affiliation=affiliation_name,
         )
 
-        async with Project.new_temporary(temporary_app) as project:
+        async with Project.new_isolated(isolated_app) as project:
             project.configuration.extensions.enable(RaspberryMint)
             project.configuration.locales["en-US"].alias = "en"
             project.configuration.locales.append(
@@ -210,7 +210,7 @@ class TestIndex:
         expected_result: str,
         expected_text: set[str],
         locale: str,
-        temporary_app: App,
+        isolated_app: App,
     ) -> None:
         place_id = "P1"
         place = Place(
@@ -227,7 +227,7 @@ class TestIndex:
             ],
         )
 
-        async with Project.new_temporary(temporary_app) as project:
+        async with Project.new_isolated(isolated_app) as project:
             project.configuration.extensions.enable(RaspberryMint)
             project.configuration.locales["en-US"].alias = "en"
             project.configuration.locales.append(
@@ -248,7 +248,7 @@ class TestIndex:
                 assert actual[0].text == expected_text
                 assert expected_result in actual[0].result
 
-    async def test_build_private_place(self, temporary_app: App) -> None:
+    async def test_build_private_place(self, isolated_app: App) -> None:
         place_id = "P1"
         place = Place(
             id=place_id,
@@ -258,7 +258,7 @@ class TestIndex:
             private=True,
         )
 
-        async with Project.new_temporary(temporary_app) as project:
+        async with Project.new_isolated(isolated_app) as project:
             project.configuration.extensions.enable(RaspberryMint)
             project.configuration.locales["en-US"].alias = "en"
             project.ancestry.add(place)
@@ -330,7 +330,7 @@ class TestIndex:
         expected_result: str,
         description: str | None,
         locale: str,
-        temporary_app: App,
+        isolated_app: App,
     ) -> None:
         file_id = "F1"
         file = File(
@@ -339,7 +339,7 @@ class TestIndex:
             description=description,
         )
 
-        async with Project.new_temporary(temporary_app) as project:
+        async with Project.new_isolated(isolated_app) as project:
             project.configuration.extensions.enable(RaspberryMint)
             project.configuration.locales["en-US"].alias = "en"
             project.configuration.locales.append(
@@ -360,7 +360,7 @@ class TestIndex:
                 assert actual[0].text == expected_text
                 assert expected_result in actual[0].result
 
-    async def test_build_private_file(self, temporary_app: App) -> None:
+    async def test_build_private_file(self, isolated_app: App) -> None:
         file_id = "F1"
         file = File(
             id=file_id,
@@ -369,7 +369,7 @@ class TestIndex:
             private=True,
         )
 
-        async with Project.new_temporary(temporary_app) as project:
+        async with Project.new_isolated(isolated_app) as project:
             project.configuration.extensions.enable(RaspberryMint)
             project.configuration.locales["en-US"].alias = "en"
             project.ancestry.add(file)

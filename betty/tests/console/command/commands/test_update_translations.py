@@ -24,17 +24,17 @@ class TestUpdateTranslationsDefinition(CommandPluginTestBase):
 
 class TestUpdateTranslations:
     async def test_configure__minimal(
-        self, mocker: MockerFixture, temporary_app: App
+        self, mocker: MockerFixture, isolated_app: App
     ) -> None:
         m_update_project_translations = mocker.patch(
             "betty.locale.translation.project.update_project_translations"
         )
-        async with Project.new_temporary(temporary_app) as project, project:
+        async with Project.new_isolated(isolated_app) as project, project:
             await write_configuration_file(
                 project.configuration, project.configuration.configuration_file_path
             )
             await run(
-                temporary_app,
+                isolated_app,
                 "update-translations",
                 "--project",
                 str(project.configuration.configuration_file_path),
@@ -42,19 +42,19 @@ class TestUpdateTranslations:
         m_update_project_translations.assert_awaited_once_with(ANY, None, None)
 
     async def test_configure__with_source(
-        self, mocker: MockerFixture, temporary_app: App, tmp_path: Path
+        self, mocker: MockerFixture, isolated_app: App, tmp_path: Path
     ) -> None:
         source = tmp_path / "source"
         source.mkdir()
         m_update_project_translations = mocker.patch(
             "betty.locale.translation.project.update_project_translations"
         )
-        async with Project.new_temporary(temporary_app) as project, project:
+        async with Project.new_isolated(isolated_app) as project, project:
             await write_configuration_file(
                 project.configuration, project.configuration.configuration_file_path
             )
             await run(
-                temporary_app,
+                isolated_app,
                 "update-translations",
                 "--project",
                 str(project.configuration.configuration_file_path),
@@ -64,7 +64,7 @@ class TestUpdateTranslations:
         m_update_project_translations.assert_awaited_once_with(ANY, source, None)
 
     async def test_configure__with_exclude(
-        self, mocker: MockerFixture, temporary_app: App, tmp_path: Path
+        self, mocker: MockerFixture, isolated_app: App, tmp_path: Path
     ) -> None:
         source = tmp_path / "source"
         source.mkdir()
@@ -74,12 +74,12 @@ class TestUpdateTranslations:
         m_update_project_translations = mocker.patch(
             "betty.locale.translation.project.update_project_translations"
         )
-        async with Project.new_temporary(temporary_app) as project, project:
+        async with Project.new_isolated(isolated_app) as project, project:
             await write_configuration_file(
                 project.configuration, project.configuration.configuration_file_path
             )
             await run(
-                temporary_app,
+                isolated_app,
                 "update-translations",
                 "--project",
                 str(project.configuration.configuration_file_path),
@@ -88,10 +88,10 @@ class TestUpdateTranslations:
         m_update_project_translations.assert_awaited_once_with(ANY, None, set(excludes))
 
     async def test_configure__with_invalid_source_directory(
-        self, temporary_app: App, tmp_path: Path
+        self, isolated_app: App, tmp_path: Path
     ) -> None:
         await run(
-            temporary_app,
+            isolated_app,
             "extension-update-translations",
             "with-assets",
             str(tmp_path / "non-existent-source"),

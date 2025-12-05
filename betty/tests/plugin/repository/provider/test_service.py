@@ -33,9 +33,9 @@ class TestServiceLevelPluginRepositoryProvider:
         sut = ServiceLevelPluginRepositoryProvider(None)
         assert DummyPluginOne.plugin in await sut.plugins(DummyPluginDefinition.type.id)
 
-    async def test_plugins__should_forward_services(self, temporary_app: App) -> None:
+    async def test_plugins__should_forward_services(self, isolated_app: App) -> None:
         async def _discovery(app: App) -> Iterable["_PluginDefinition"]:
-            assert app is temporary_app
+            assert app is isolated_app
             return ()
 
         class _PluginDefinition(PluginDefinition):
@@ -47,7 +47,7 @@ class TestServiceLevelPluginRepositoryProvider:
                 discoveries=AppDiscovery(_discovery),
             )
 
-        sut = ServiceLevelPluginRepositoryProvider(temporary_app)
+        sut = ServiceLevelPluginRepositoryProvider(isolated_app)
         await sut.plugins(_PluginDefinition)
 
     async def test_plugins__with_overridden_discoveries(self) -> None:

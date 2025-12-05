@@ -10,10 +10,10 @@ from __future__ import annotations
 __all__ = [
     "binary_file_cache",
     "http_client_mock",
+    "isolated_app",
+    "isolated_app_factory",
     "page",
     "process_pool",
-    "temporary_app",
-    "temporary_app_factory",
 ]
 
 from contextlib import asynccontextmanager
@@ -68,24 +68,24 @@ async def process_pool() -> AsyncIterator[futures.ProcessPoolExecutor]:
         yield process_pool
 
 
-async def _configure_temporary_app(app: App) -> None:
+async def _configure_isolated_app(app: App) -> None:
     await app.user.set_verbosity(Verbosity.QUIET)
 
 
 @pytest.fixture(scope="session")
-async def temporary_app(
+async def isolated_app(
     process_pool: futures.ProcessPoolExecutor,
 ) -> AsyncIterator[App]:
     """
-    Create a new, temporary :py:class:`betty.app.App`.
+    Create a new, isolated, temporary :py:class:`betty.app.App`.
     """
-    async with App.new_temporary(process_pool=process_pool) as app:
-        await _configure_temporary_app(app)
+    async with App.new_isolated(process_pool=process_pool) as app:
+        await _configure_isolated_app(app)
         async with app:
             yield app
 
 
-class TemporaryAppFactory(Protocol):
+class IsolatedAppFactory(Protocol):
     def __call__(
         self,
         *,
@@ -96,30 +96,30 @@ class TemporaryAppFactory(Protocol):
 
 
 @pytest.fixture
-def temporary_app_factory(
+def isolated_app_factory(
     process_pool: futures.ProcessPoolExecutor,
-) -> TemporaryAppFactory:
+) -> IsolatedAppFactory:
     """
-    Get a factory to create a new, temporary :py:class:`betty.app.App`.
+    Get a factory to create a new, isolated, temporary :py:class:`betty.app.App`.
     """
     fixture_process_pool = process_pool
 
     @asynccontextmanager
-    async def _temporary_app_factory(
+    async def _isolated_app_factory(
         *,
         cache_factory: ServiceFactory[App, Cache[Any]] | None = None,
         process_pool: futures.ProcessPoolExecutor | None = None,
         user: User | None = None,
     ) -> AsyncIterator[App]:
-        async with App.new_temporary(
+        async with App.new_isolated(
             cache_factory=cache_factory,
             process_pool=process_pool or fixture_process_pool,
             user=user,
         ) as app:
-            await _configure_temporary_app(app)
+            await _configure_isolated_app(app)
             yield app
 
-    return _temporary_app_factory
+    return _isolated_app_factory
 
 
 @pytest_asyncio.fixture(loop_scope="session")

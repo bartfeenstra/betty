@@ -132,7 +132,7 @@ class Project(
 
     @classmethod
     @asynccontextmanager
-    async def new_temporary(
+    async def new_isolated(
         cls,
         app: App,
         *,
@@ -140,7 +140,7 @@ class Project(
         ancestry: Ancestry | None = None,
     ) -> AsyncIterator[Self]:
         """
-        Creat a new, temporary, isolated project.
+        Creat a new, isolated, temporary project.
 
         The project will not leave any traces on the system, except when it uses
         global Betty functionality such as caches.

@@ -11,21 +11,21 @@ from betty.test_utils.model import DummyEntityOne
 
 
 class TestPopulateEntity:
-    async def test_do(self, mocker: MockerFixture, temporary_app: App) -> None:
+    async def test_do(self, mocker: MockerFixture, isolated_app: App) -> None:
         m_populate = mocker.patch("betty.wiki.populator.Populator.populate")
         entity = DummyEntityOne()
-        async with Project.new_temporary(temporary_app) as project:
+        async with Project.new_isolated(isolated_app) as project:
             project.configuration.extensions.enable(Wiki)
             async with project:
                 await do(ProjectContext(project), PopulateEntity(entity))
         m_populate.assert_awaited_once_with(entity)
 
     async def test_do__with_link(
-        self, mocker: MockerFixture, temporary_app: App
+        self, mocker: MockerFixture, isolated_app: App
     ) -> None:
         m_populate = mocker.patch("betty.wiki.populator.Populator.populate")
         link = Link("https://en.wikipedia.org/wiki/Amsterdam")
-        async with Project.new_temporary(temporary_app) as project:
+        async with Project.new_isolated(isolated_app) as project:
             project.configuration.extensions.enable(Wiki)
             async with project:
                 await do(

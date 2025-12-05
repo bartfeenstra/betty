@@ -31,10 +31,10 @@ class TestProjectSchema(SchemaTestBase):
     @override
     @pytest.fixture(params=_sut_params())
     async def sut(
-        self, temporary_app: App, request: pytest.FixtureRequest
+        self, isolated_app: App, request: pytest.FixtureRequest
     ) -> SchemaTestBaseSut:
         url, clean_urls = request.param
-        async with Project.new_temporary(temporary_app) as project:
+        async with Project.new_isolated(isolated_app) as project:
             project.configuration.url = url
             project.configuration.clean_urls = clean_urls
             async with project:
@@ -55,20 +55,20 @@ class TestProjectSchema(SchemaTestBase):
             False,
         ],
     )
-    async def test_new_for_project(self, clean_urls: bool, temporary_app: App) -> None:
-        async with Project.new_temporary(temporary_app) as project, project:
+    async def test_new_for_project(self, clean_urls: bool, isolated_app: App) -> None:
+        async with Project.new_isolated(isolated_app) as project, project:
             sut = await ProjectSchema.new_for_project(project)
         JsonSchemaSchema().validate(sut.schema)
 
-    async def test_def_url(self, temporary_app: App) -> None:
-        async with Project.new_temporary(temporary_app) as project, project:
+    async def test_def_url(self, isolated_app: App) -> None:
+        async with Project.new_isolated(isolated_app) as project, project:
             def_name = "myFirstDefinition"
             assert def_name in await ProjectSchema.def_url(project, def_name)
 
-    async def test_url(self, temporary_app: App) -> None:
-        async with Project.new_temporary(temporary_app) as project, project:
+    async def test_url(self, isolated_app: App) -> None:
+        async with Project.new_isolated(isolated_app) as project, project:
             assert "http" in await ProjectSchema.url(project)
 
-    async def test_www_path(self, temporary_app: App) -> None:
-        async with Project.new_temporary(temporary_app) as project, project:
+    async def test_www_path(self, isolated_app: App) -> None:
+        async with Project.new_isolated(isolated_app) as project, project:
             assert str(ProjectSchema.www_path(project))

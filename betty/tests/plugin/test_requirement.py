@@ -91,35 +91,35 @@ class DownstreamWithMetRequirements(HasRequirementPlugin):
 
 
 async def test_new_dependencies_requirement__without_dependent_plugin(
-    temporary_app: App,
+    isolated_app: App,
 ) -> None:
     actual = await new_dependencies_requirement(
         DummyPluginOne.plugin,
         [DummyPluginOne.plugin],
-        services=temporary_app,
+        services=isolated_app,
     )
     assert actual is None
 
 
 async def test_new_dependencies_requirement__without_requirements(
-    temporary_app: App,
+    isolated_app: App,
 ) -> None:
     plugins = [UpstreamWithoutRequirements.plugin, DownstreamWithoutRequirements.plugin]
     actual = await new_dependencies_requirement(
-        UpstreamWithoutRequirements.plugin, plugins, services=temporary_app
+        UpstreamWithoutRequirements.plugin, plugins, services=isolated_app
     )
     assert actual is None
 
 
 async def test_new_dependencies_requirement__with_unmet_requirements(
-    temporary_app: App,
+    isolated_app: App,
 ) -> None:
     plugins = [
         UpstreamWithUnmetRequirements.plugin,
         DownstreamWithUnmetRequirements.plugin,
     ]
     actual = await new_dependencies_requirement(
-        UpstreamWithUnmetRequirements.plugin, plugins, services=temporary_app
+        UpstreamWithUnmetRequirements.plugin, plugins, services=isolated_app
     )
     assert actual is not None
     message = actual.localize(DEFAULT_LOCALIZER)
@@ -127,11 +127,11 @@ async def test_new_dependencies_requirement__with_unmet_requirements(
 
 
 async def test_new_dependencies_requirement__with_met_requirements(
-    temporary_app: App,
+    isolated_app: App,
 ) -> None:
     plugins = [UpstreamWithMetRequirements.plugin, DownstreamWithMetRequirements.plugin]
     actual = await new_dependencies_requirement(
-        UpstreamWithMetRequirements.plugin, plugins, services=temporary_app
+        UpstreamWithMetRequirements.plugin, plugins, services=isolated_app
     )
     assert actual is None
 

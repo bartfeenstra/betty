@@ -17,8 +17,8 @@ class TestHttpApiDoc(EntryPointProviderTestBase):
         return HttpApiDoc()
 
     @check_skip_webpack_entry_point_provider
-    async def test_generate(self, temporary_app: App) -> None:
-        async with Project.new_temporary(temporary_app) as project:
+    async def test_generate(self, isolated_app: App) -> None:
+        async with Project.new_isolated(isolated_app) as project:
             project.configuration.extensions.enable(HttpApiDoc)
             async with project:
                 await generate(project)
@@ -32,8 +32,8 @@ class TestHttpApiDoc(EntryPointProviderTestBase):
                     / "http-api-doc.js"
                 ).is_file()
 
-    async def test_secondary_navigation_links(self, temporary_app: App) -> None:
-        async with Project.new_temporary(temporary_app) as project:
+    async def test_secondary_navigation_links(self, isolated_app: App) -> None:
+        async with Project.new_isolated(isolated_app) as project:
             project.configuration.extensions.enable(HttpApiDoc)
             async with project:
                 extensions = await project.extensions

@@ -29,7 +29,7 @@ class DummyEntryPointProviderExtension(EntryPointProvider, Extension):
 
 
 class TestBuilder:
-    async def test_build(self, temporary_app: App, tmp_path: Path) -> None:
+    async def test_build(self, isolated_app: App, tmp_path: Path) -> None:
         with ExtensionPlugin.type.override_discovery():
             # Loop instead of parameterization, so we can reuse caches.
             for index, (with_entry_point_provider, debug, root_path) in enumerate(
@@ -43,7 +43,7 @@ class TestBuilder:
                 ]
             ):
                 await self._test_build(
-                    temporary_app,
+                    isolated_app,
                     tmp_path / str(index),
                     with_entry_point_provider,
                     debug,
@@ -52,13 +52,13 @@ class TestBuilder:
 
     async def _test_build(
         self,
-        temporary_app: App,
+        isolated_app: App,
         tmp_path: Path,
         with_entry_point_provider: bool,
         debug: bool,
         root_path: str,
     ) -> None:
-        async with Project.new_temporary(temporary_app) as project:
+        async with Project.new_isolated(isolated_app) as project:
             job_context = Context()
             async with project:
                 sut = Builder(

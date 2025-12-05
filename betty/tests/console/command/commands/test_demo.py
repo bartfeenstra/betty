@@ -23,15 +23,15 @@ class TestDemoDefinition(CommandPluginTestBase):
 
 class TestDemo:
     async def test_configure__minimal(
-        self, mocker: MockerFixture, temporary_app: App
+        self, mocker: MockerFixture, isolated_app: App
     ) -> None:
         mocker.patch("asyncio.sleep", side_effect=KeyboardInterrupt)
         mocker.patch("betty.project.extension.demo.serve.DemoServer", new=NoOpServer)
 
-        await run(temporary_app, "demo", expected_exit_code=SystemExitCode.USER_QUIT)
+        await run(isolated_app, "demo", expected_exit_code=SystemExitCode.USER_QUIT)
 
     async def test_configure__with_path(
-        self, mocker: MockerFixture, temporary_app: App, tmp_path: Path
+        self, mocker: MockerFixture, isolated_app: App, tmp_path: Path
     ) -> None:
         m_generate_with_cleanup = mocker.patch(
             "betty.project.extension.demo.generate_with_cleanup"
@@ -39,12 +39,12 @@ class TestDemo:
 
         project_directory_path = tmp_path / "project"
 
-        await run(temporary_app, "demo", "--path", str(project_directory_path))
+        await run(isolated_app, "demo", "--path", str(project_directory_path))
 
         m_generate_with_cleanup.assert_called_once()
 
     async def test_configure__with_path_and_url(
-        self, mocker: MockerFixture, temporary_app: App, tmp_path: Path
+        self, mocker: MockerFixture, isolated_app: App, tmp_path: Path
     ) -> None:
         m_generate_with_cleanup = mocker.patch(
             "betty.project.extension.demo.generate_with_cleanup"
@@ -54,7 +54,7 @@ class TestDemo:
         url = "https://betty.example.com"
 
         await run(
-            temporary_app,
+            isolated_app,
             "demo",
             "--path",
             str(project_directory_path),

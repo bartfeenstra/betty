@@ -49,30 +49,30 @@ class TestExtensionDiscovery:
     async def test_discover__with_app(
         self,
         sut_params: ExtensionDiscoveryTestParams,
-        temporary_app: App,
+        isolated_app: App,
     ) -> None:
         expected, discovery = sut_params
         sut = ExtensionDiscovery(DummyExtensionOne, discovery)
-        assert not list(await sut.discover(temporary_app))
+        assert not list(await sut.discover(isolated_app))
 
     async def test_discover__with_project_without_extension(
         self,
         sut_params: ExtensionDiscoveryTestParams,
-        temporary_app: App,
+        isolated_app: App,
     ) -> None:
         expected, discovery = sut_params
-        async with Project.new_temporary(temporary_app) as project, project:
+        async with Project.new_isolated(isolated_app) as project, project:
             sut = ExtensionDiscovery(DummyExtensionOne, discovery)
             assert not list(await sut.discover(project))
 
     async def test_discover__with_project_with_extension(
         self,
         sut_params: ExtensionDiscoveryTestParams,
-        temporary_app: App,
+        isolated_app: App,
     ) -> None:
         expected, discovery = sut_params
         with ExtensionPlugin.type.override_discovery(DummyExtensionOne.plugin):
-            async with Project.new_temporary(temporary_app) as project:
+            async with Project.new_isolated(isolated_app) as project:
                 project.configuration.extensions.enable(DummyExtensionOne)
                 async with project:
                     sut = ExtensionDiscovery(DummyExtensionOne, discovery)
