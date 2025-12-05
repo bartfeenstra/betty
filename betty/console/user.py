@@ -16,7 +16,8 @@ from typing_extensions import override
 from betty.assertion import Assertion
 from betty.console.progress import ConsoleProgress
 from betty.console.rich import ConsoleTheme
-from betty.locale.localizable import LocalizableLike, ensure_localized
+from betty.locale.localizable import LocalizableLike
+from betty.locale.localized import ensure_localized
 from betty.progress import Progress
 from betty.progress.no_op import NoOpProgress
 from betty.typing import Void, internal

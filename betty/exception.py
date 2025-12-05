@@ -16,9 +16,8 @@ from betty.locale.localizable import (
     LocalizableLike,
     UnorderedList,
     _,
-    ensure_localized,
 )
-from betty.locale.localized import Localized, LocalizedStr
+from betty.locale.localized import Localized, LocalizedStr, ensure_localized
 
 if TYPE_CHECKING:
     from collections.abc import Iterator, MutableSequence, Sequence

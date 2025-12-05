@@ -624,17 +624,6 @@ def ensure_localizable(localizable: LocalizableLike) -> Localizable:
     return StaticTranslations(localizable)
 
 
-def ensure_localized(localizable: LocalizableLike, *, localizer: Localizer) -> str:
-    """
-    Ensure that a localizable-like value is or is made to be localized.
-    """
-    if isinstance(localizable, str):
-        return localizable
-    if not isinstance(localizable, Localizable):
-        localizable = StaticTranslations(localizable)
-    return localizable.localize(localizer)
-
-
 _LocalizableAttrLocalizableT = TypeVar("_LocalizableAttrLocalizableT")
 
 

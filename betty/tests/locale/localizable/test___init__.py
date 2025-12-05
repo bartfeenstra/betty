@@ -28,7 +28,6 @@ from betty.locale.localizable import (
     UnorderedList,
     do_you_mean,
     ensure_localizable,
-    ensure_localized,
 )
 from betty.locale.localizer import DEFAULT_LOCALIZER, Localizer
 
@@ -468,40 +467,6 @@ def test_ensure_localizable__with_static_translations_mapping() -> None:
         locale: localized,
     }
     assert ensure_localizable(localizable).localize(localizer) == localized
-
-
-def test_ensure_localized__with_localizable() -> None:
-    localizable = "My First Localizable"
-    assert (
-        ensure_localized(Plain(localizable), localizer=DEFAULT_LOCALIZER) == localizable
-    )
-
-
-def test_ensure_localized__with_str() -> None:
-    localizable = "My First Localizable"
-    assert ensure_localized(localizable, localizer=DEFAULT_LOCALIZER) == localizable
-
-
-def test_ensure_localized__with_static_translations_mapping() -> None:
-    locale = "nl"
-    localizer = Localizer(locale, NullTranslations())
-    localized = "Mijn Eerste, Ja, Wat Eigenlijk?"
-    localizable: StaticTranslationsMapping = {
-        DEFAULT_LOCALE: "My First Localizable",
-        Locale(locale): localized,
-    }
-    assert ensure_localized(localizable, localizer=localizer) == localized
-
-
-def test_ensure_localized__with_shorthand_static_translations_mapping() -> None:
-    locale = "nl-NL"
-    localizer = Localizer(locale, NullTranslations())
-    localized = "Mijn Eerste, Ja, Wat Eigenlijk?"
-    localizable: ShorthandStaticTranslations = {
-        DEFAULT_LOCALE_TAG: "My First Localizable",
-        locale: localized,
-    }
-    assert ensure_localized(localizable, localizer=localizer) == localized
 
 
 class TestRequiredLocalizableAttr:
