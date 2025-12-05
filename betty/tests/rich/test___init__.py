@@ -1,6 +1,6 @@
-from betty.rich import ConsoleTheme
+from betty.rich import Theme
 
 
-class TestConsoleTheme:
+class TestTheme:
     def test(self) -> None:
-        ConsoleTheme()
+        Theme()

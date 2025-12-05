@@ -1,26 +1,25 @@
 """
-Output progress to the console.
+Output progress to Rich.
 """
 
 from typing import final
 
-from rich.progress import Progress as RichProgress
+from rich.progress import Progress as _RichProgress
 from typing_extensions import override
 
 from betty.concurrent import AsynchronizedLock
 from betty.progress import Progress
-from betty.typing import internal, threadsafe
+from betty.typing import threadsafe
 
 
 @final
-@internal
 @threadsafe
-class ConsoleProgress(Progress):
+class RichProgress(Progress):
     """
     Output progress to Rich.
     """
 
-    def __init__(self, rich_progress: RichProgress, rich_task_description: str):
+    def __init__(self, rich_progress: _RichProgress, rich_task_description: str):
         self._rich_progress = rich_progress
         self._rich_task = self._rich_progress.add_task(
             f"[green]{rich_task_description}", total=0

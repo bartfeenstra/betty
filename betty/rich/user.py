@@ -9,17 +9,17 @@ from typing import TextIO, TypeVar, cast, final, overload
 
 from rich.console import Console
 from rich.progress import BarColumn, TaskProgressColumn, TextColumn, TimeElapsedColumn
-from rich.progress import Progress as RichProgress
+from rich.progress import Progress as _RichProgress
 from rich.prompt import Confirm, Prompt
 from typing_extensions import override
 
 from betty.assertion import Assertion
-from betty.console.progress import ConsoleProgress
 from betty.locale.localizable import LocalizableLike
 from betty.locale.localized import ensure_localized
 from betty.progress import Progress
 from betty.progress.no_op import NoOpProgress
-from betty.rich import ConsoleTheme
+from betty.rich import Theme
+from betty.rich.progress import RichProgress
 from betty.typing import Void, internal
 from betty.user import User, Verbosity
 from betty.user.logging import UserHandler
@@ -37,7 +37,7 @@ class RichUser(User):
     def __init__(self):
         self._connected = False
         self._exit_stack = AsyncExitStack()
-        self._console = Console(theme=ConsoleTheme())
+        self._console = Console(theme=Theme())
         self._verbosity = Verbosity.DEFAULT
         self._logging_handler = UserHandler(self)
         self._exit_stack.push_async_callback(self._logging_handler.stop)
@@ -149,14 +149,14 @@ class RichUser(User):
         if self.verbosity < Verbosity.DEFAULT:
             yield NoOpProgress()
         else:
-            with RichProgress(
+            with _RichProgress(
                 TextColumn("[progress.description]{task.description}"),
                 BarColumn(),
                 TaskProgressColumn(),
                 TimeElapsedColumn(),
                 console=self._console,
             ) as rich_progress:
-                yield ConsoleProgress(
+                yield RichProgress(
                     rich_progress, ensure_localized(message, localizer=self.localizer)
                 )
 
