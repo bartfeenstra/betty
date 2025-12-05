@@ -9,7 +9,7 @@ from betty.app.config import AppConfiguration
 from betty.app.factory import AppDependentSelfFactory
 from betty.assertion import assert_locale
 from betty.config.file import write_configuration_file
-from betty.console.assertion import assertion_to_argument_type
+from betty.argparse import assertion_to_argument_type
 from betty.console.command import Command, CommandFunction, CommandPlugin
 from betty.locale import DEFAULT_LOCALE, to_language_tag
 from betty.locale.localizable import _

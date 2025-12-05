@@ -2,7 +2,7 @@ import argparse
 
 import pytest
 
-from betty.console.assertion import assertion_to_argument_type
+from betty.argparse import assertion_to_argument_type
 from betty.exception import HumanFacingException
 from betty.locale.localizer import DEFAULT_LOCALIZER
 

@@ -10,7 +10,7 @@ from betty.assertion import (
     assert_none,
     assert_directory_path,
 )
-from betty.console.assertion import assertion_to_argument_type
+from betty.argparse import assertion_to_argument_type
 from betty.console.command import Command, CommandFunction, CommandPlugin
 from betty.console.project import add_project_argument
 from betty.locale import translation
