@@ -11,7 +11,8 @@ from typing import TypeVar, overload
 from typing_extensions import override
 
 from betty.assertion import Assertion
-from betty.locale.localizable import LocalizableLike, ensure_localized
+from betty.locale.localizable import LocalizableLike
+from betty.locale.localized import ensure_localized
 from betty.locale.localizer import DEFAULT_LOCALIZER
 from betty.progress import Progress
 from betty.progress.no_op import NoOpProgress

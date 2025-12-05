@@ -16,6 +16,9 @@ if TYPE_CHECKING:
 
     from babel import Locale
 
+    from betty.locale.localizable import LocalizableLike
+    from betty.locale.localizer import Localizer
+
 
 class Localized:
     """
@@ -67,3 +70,16 @@ class LocalizedStr(Localized, str):
         new = super().__new__(cls, localized)
         new._locale = locale
         return new
+
+
+def ensure_localized(localizable: LocalizableLike, *, localizer: Localizer) -> str:
+    """
+    Ensure that a localizable-like value is or is made to be localized.
+    """
+    from betty.locale.localizable import Localizable, StaticTranslations
+
+    if isinstance(localizable, str):
+        return localizable
+    if not isinstance(localizable, Localizable):
+        localizable = StaticTranslations(localizable)
+    return localizable.localize(localizer)
