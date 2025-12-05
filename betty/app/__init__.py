@@ -89,11 +89,11 @@ class App(Configurable[AppConfiguration], ServiceContainer, PluginRepositoryProv
         process_pool: futures.ProcessPoolExecutor | None = None,
         translations: TranslationRepository | None = None,
     ):
-        from betty.console.user import ConsoleUser
+        from betty.rich.user import RichUser
 
         cls = type(self)
         super().__init__(configuration=configuration)
-        self._user = user or ConsoleUser()
+        self._user = user or RichUser()
         if process_pool is not None:
             cls.process_pool.override(self, process_pool)
         if translations is not None:

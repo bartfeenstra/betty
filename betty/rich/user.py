@@ -29,9 +29,9 @@ _T = TypeVar("_T")
 
 @internal
 @final
-class ConsoleUser(User):
+class RichUser(User):
     """
-    A console user session.
+    A Rich user session.
     """
 
     def __init__(self):

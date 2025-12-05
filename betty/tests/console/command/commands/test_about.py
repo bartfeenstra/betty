@@ -3,9 +3,9 @@ from typing_extensions import override
 
 from betty.config.file import write_configuration_file
 from betty.console.command.commands.about import About
-from betty.console.user import ConsoleUser
 from betty.plugin import PluginDefinition
 from betty.project import Project
+from betty.rich.user import RichUser
 from betty.test_utils.conftest import TemporaryAppFactory
 from betty.test_utils.console import run
 from betty.test_utils.console.command import CommandPluginTestBase
@@ -20,7 +20,7 @@ class TestAboutDefinition(CommandPluginTestBase):
 
 class TestAbout:
     async def test_configure(self, temporary_app_factory: TemporaryAppFactory) -> None:
-        async with temporary_app_factory(user=ConsoleUser()) as app, app:
+        async with temporary_app_factory(user=RichUser()) as app, app:
             result = await run(app, "about")
             assert "Betty" in result.stdout
 
@@ -28,7 +28,7 @@ class TestAbout:
         self, temporary_app_factory: TemporaryAppFactory
     ) -> None:
         async with (
-            temporary_app_factory(user=ConsoleUser()) as app,
+            temporary_app_factory(user=RichUser()) as app,
             app,
             Project.new_temporary(app) as project,
         ):
