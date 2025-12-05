@@ -8,9 +8,9 @@ from pathlib import Path
 from typing import Any
 
 from betty.app import App
+from betty.argparse import assertion_to_argument_type
 from betty.assertion import assert_path
 from betty.config.file import assert_configuration_file
-from betty.console.assertion import assertion_to_argument_type
 from betty.console.command import CommandFunction
 from betty.error import FileNotFound
 from betty.exception import HumanFacingException

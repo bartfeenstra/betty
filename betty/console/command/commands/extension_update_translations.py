@@ -6,7 +6,7 @@ from typing_extensions import override
 
 from betty.app.factory import AppDependentSelfFactory
 from betty.assertion import assert_or, assert_none, assert_directory_path
-from betty.console.assertion import assertion_to_argument_type
+from betty.argparse import assertion_to_argument_type
 from betty.console.command import Command, CommandFunction, CommandPlugin
 from betty.locale.localizable import _
 from betty.locale.translation.project import extension as extension_translation

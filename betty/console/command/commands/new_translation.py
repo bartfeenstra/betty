@@ -6,7 +6,7 @@ from typing_extensions import override
 
 from betty.app.factory import AppDependentSelfFactory
 from betty.assertion import assert_locale
-from betty.console.assertion import assertion_to_argument_type
+from betty.argparse import assertion_to_argument_type
 from betty.console.command import Command, CommandFunction, CommandPlugin
 from betty.console.project import add_project_argument
 from betty.locale import translation
