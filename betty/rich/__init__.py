@@ -3,10 +3,10 @@ Rich integration.
 """
 
 from rich.style import Style
-from rich.theme import Theme
+from rich.theme import Theme as RichTheme
 
 
-class ConsoleTheme(Theme):
+class Theme(RichTheme):
     """
     A Rich theme for Betty's console.
     """
