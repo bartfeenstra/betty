@@ -79,7 +79,7 @@ class TestDemo(ExtensionTestBase):
     @pytest.fixture
     async def sut(self, isolated_app: App) -> Extension:
         async with Project.new_isolated(isolated_app) as project, project:
-            return Demo(project)
+            return Demo(project=project)
 
     async def test_load(
         self,

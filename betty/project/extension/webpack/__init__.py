@@ -28,7 +28,7 @@ from betty.requirement import (
     Requirement,
 )
 from betty.resource import ContextProvider, ContextVars
-from betty.typing import internal, private
+from betty.typing import internal
 
 if TYPE_CHECKING:
     from collections.abc import Sequence
@@ -58,11 +58,6 @@ class Webpack(
     """
 
     _npm_requirement: ClassVar[Requirement | None | Literal[False]] = False
-
-    @private
-    def __init__(self, *, project: Project):
-        super().__init__()
-        self._project = project
 
     @override
     @classmethod

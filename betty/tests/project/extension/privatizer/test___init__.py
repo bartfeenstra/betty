@@ -19,4 +19,4 @@ class TestPrivatizer(ExtensionTestBase):
     @pytest.fixture
     async def sut(self, isolated_app: App) -> Extension:
         async with Project.new_isolated(isolated_app) as project, project:
-            return Privatizer(project)
+            return Privatizer(project=project)

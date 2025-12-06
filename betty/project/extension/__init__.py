@@ -14,6 +14,7 @@ from betty.plugin.human_facing import HumanFacingPluginDefinition
 from betty.plugin.requirement import new_dependencies_requirement
 from betty.requirement import HasRequirement, Requirement, StaticRequirement
 from betty.service.container import ServiceContainer
+from betty.typing import private
 
 if TYPE_CHECKING:
     from collections.abc import Set
@@ -21,7 +22,12 @@ if TYPE_CHECKING:
 
     from betty.machine_name import MachineName
     from betty.plugin.resolve import ResolvableId
+    from betty.project import Project
     from betty.service.level import ServiceLevel
+    from betty.service.level.factory import AnyFactoryTarget
+
+
+_T = TypeVar("_T")
 
 
 class Extension(ServiceContainer, Plugin, HasRequirement):
@@ -34,6 +40,11 @@ class Extension(ServiceContainer, Plugin, HasRequirement):
     """
 
     plugin: ClassVar[ExtensionPlugin]
+
+    @private
+    def __init__(self, *, project: Project):
+        super().__init__()
+        self._project = project
 
     @override
     @classmethod
@@ -68,6 +79,10 @@ class Extension(ServiceContainer, Plugin, HasRequirement):
             await project.plugins(ExtensionPlugin, check_requirements=False),
             services=project,
         )
+
+    @override
+    async def new_target(self, target: AnyFactoryTarget[_T]) -> _T:
+        return await self._project.new_target(target)
 
 
 _ExtensionT = TypeVar("_ExtensionT", bound=Extension)

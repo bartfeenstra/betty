@@ -36,8 +36,9 @@ class TestGramps(
 ):
     @override
     @pytest.fixture
-    async def sut(self) -> Extension:
-        return Gramps()
+    async def sut(self, isolated_app: App) -> Extension:
+        async with Project.new_isolated(isolated_app) as project, project:
+            return Gramps(project=project)
 
     @override
     @pytest.fixture

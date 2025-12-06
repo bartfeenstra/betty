@@ -4,17 +4,29 @@ The Configuration API.
 
 from __future__ import annotations
 
-from typing import Any, Generic, TypeVar
+from typing import TYPE_CHECKING, Any, Generic, TypeVar
 
 from betty.mutability import Mutable
 from betty.serde.dump import Dumpable
 from betty.serde.load import Loadable
+
+if TYPE_CHECKING:
+    from betty.service.level.factory import AnyFactoryTarget
 
 
 class Configuration(Mutable, Loadable, Dumpable):
     """
     Any configuration object.
     """
+
+    @property
+    def validator(self) -> AnyFactoryTarget[None] | None:
+        """
+        The validator for this configuration, if it can be validated.
+
+        :raises betty.exception.HumanFacingException: Raised if any part of the configuration is invalid.
+        """
+        return None
 
 
 _ConfigurationT = TypeVar("_ConfigurationT", bound=Configuration)

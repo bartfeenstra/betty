@@ -64,7 +64,7 @@ class TestBuilder:
                 sut = Builder(
                     tmp_path,
                     (
-                        [DummyEntryPointProviderExtension()]
+                        [DummyEntryPointProviderExtension(project=project)]
                         if with_entry_point_provider
                         else []
                     ),

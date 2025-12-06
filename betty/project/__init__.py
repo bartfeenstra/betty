@@ -22,8 +22,6 @@ from betty.app.factory import AppTarget
 from betty.asset import AssetRepository, ProxyAssetRepository, StaticAssetRepository
 from betty.config import Configurable
 from betty.copyright_notice import CopyrightNotice, CopyrightNoticePlugin
-from betty.data import Key
-from betty.exception import reraise_within_context
 from betty.hashid import hashid
 from betty.job import Context as JobContext
 from betty.license import LicensePlugin
@@ -34,7 +32,7 @@ from betty.locale.translation import (
     ProxyTranslationRepository,
     TranslationRepository,
 )
-from betty.model import Entity, EntityPlugin
+from betty.model import Entity
 from betty.plugin import PluginDefinition
 from betty.plugin.dependent import sort_dependent_plugin_graph
 from betty.plugin.repository.provider import PluginRepositoryProvider
@@ -45,11 +43,7 @@ from betty.plugin.resolve import ResolvableId, resolve_id
 from betty.privacy.privatizer import Privatizer
 from betty.project.config import ProjectConfiguration
 from betty.project.extension import Extension, ExtensionPlugin
-from betty.project.factory import (
-    ProjectDependentFactory,
-    ProjectDependentSelfFactory,
-    ProjectTarget,
-)
+from betty.project.factory import ProjectDependentFactory, ProjectDependentSelfFactory
 from betty.project.url import new_project_url_generator
 from betty.render import RenderDispatcher, RendererPlugin
 from betty.requirement import Requirement, StaticRequirement
@@ -75,6 +69,7 @@ if TYPE_CHECKING:
     from betty.plugin.repository import PluginRepository
     from betty.progress import Progress
     from betty.service.level import ServiceLevel
+    from betty.service.level.factory import AnyFactoryTarget
     from betty.url import UrlGenerator
 
 _T = TypeVar("_T")
@@ -167,16 +162,9 @@ class Project(
                 for project_extension in project_extension_batch:
                     await project_extension.bootstrap()
                     self._shutdown_stack.append(project_extension)
-            await self._assert_configuration()
         except BaseException:
             await self.shutdown()
             raise
-
-    async def _assert_configuration(self) -> None:
-        with reraise_within_context(Key("entity_types")):
-            await self.configuration.entity_types.validate(
-                await self.plugins(EntityPlugin)
-            )
 
     @property
     def app(self) -> App:
@@ -334,12 +322,8 @@ class Project(
 
         return initialized_extensions
 
-    async def new_target(self, target: ProjectTarget[_T]) -> _T:
-        """
-        Create a new instance.
-
-        :raises FactoryError: raised when ``target`` could not be called.
-        """
+    @override
+    async def new_target(self, target: AnyFactoryTarget[_T]) -> _T:
         if (
             isinstance(target, ProjectDependentFactory)
             or isinstance(target, type)

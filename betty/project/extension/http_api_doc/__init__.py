@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 from pathlib import Path
-from typing import TYPE_CHECKING, final
+from typing import TYPE_CHECKING, Self, final
 
 from typing_extensions import override
 
@@ -12,9 +12,12 @@ from betty.locale.localizable import _
 from betty.project.extension import ExtensionPlugin
 from betty.project.extension.webpack import Webpack
 from betty.project.extension.webpack.build import EntryPointProvider
+from betty.project.factory import ProjectDependentSelfFactory
 
 if TYPE_CHECKING:
     from collections.abc import Sequence
+
+    from betty.project import Project
 
 
 @final
@@ -27,10 +30,17 @@ if TYPE_CHECKING:
     depends_on={Webpack},
     assets_directory_path=Path(__file__).parent / "assets",
 )
-class HttpApiDoc(EntryPointProvider, NavigationLinkProvider):
+class HttpApiDoc(
+    EntryPointProvider, NavigationLinkProvider, ProjectDependentSelfFactory
+):
     """
     Provide user-friendly HTTP API documentation.
     """
+
+    @override
+    @classmethod
+    async def new_for_project(cls, project: Project, /) -> Self:
+        return cls(project=project)
 
     @override
     @classmethod

@@ -21,5 +21,5 @@ class Loadable(ABC):
         """
         Load a serialized data dump into ``self``.
 
-        :raises betty.exception.UserFacingException: Raised if the dump is invalid.
+        :raises betty.exception.HumanFacingException: Raised if the dump is invalid.
         """
