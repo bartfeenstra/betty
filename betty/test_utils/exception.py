@@ -90,4 +90,4 @@ def assert_error(
         ]
     if errors:
         return errors
-    raise AssertionError("Failed raising UserFacingException.")
+    raise AssertionError("Failed raising HumanFacingException.")

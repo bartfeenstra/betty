@@ -125,6 +125,11 @@ _BASELINE: Mapping[str, _ModuleIgnore] = {
             "release": MissingReason.ABSTRACT,
         },
     },
+    "betty/config/__init__.py": {
+        "Configuration": {
+            "validator": MissingReason.STATIC_CONTENT_ONLY,
+        }
+    },
     "betty/config/collections/__init__.py": MissingReason.ABSTRACT,
     "betty/config/factory.py": MissingReason.ABSTRACT,
     "betty/content_provider/__init__.py": {
@@ -149,6 +154,9 @@ _BASELINE: Mapping[str, _ModuleIgnore] = {
         },
     },
     "betty/service/container.py": {
+        "ServiceContainer": {
+            "new_target": MissingReason.ABSTRACT,
+        },
         "ServiceInitializedError": MissingReason.ABSTRACT,
     },
     "betty/service/level/__init__.py": MissingReason.ABSTRACT,

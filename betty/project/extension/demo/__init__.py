@@ -8,7 +8,7 @@ from asyncio import to_thread
 from contextlib import suppress
 from pathlib import Path
 from shutil import rmtree
-from typing import TYPE_CHECKING, final
+from typing import TYPE_CHECKING, Self, final
 
 from typing_extensions import override
 
@@ -23,6 +23,7 @@ from betty.project.extension.maps import Maps
 from betty.project.extension.raspberry_mint import RaspberryMint
 from betty.project.extension.trees import Trees
 from betty.project.extension.wiki import Wiki
+from betty.project.factory import ProjectDependentSelfFactory
 from betty.project.load import Loader, load
 from betty.typing import internal
 
@@ -74,10 +75,15 @@ async def generate_with_cleanup(
     },
     assets_directory_path=Path(__file__).parent / "assets",
 )
-class Demo(NavigationLinkProvider, Loader, Extension):
+class Demo(NavigationLinkProvider, Loader, ProjectDependentSelfFactory, Extension):
     """
     Provide demonstration site functionality.
     """
+
+    @override
+    @classmethod
+    async def new_for_project(cls, project: Project, /) -> Self:
+        return cls(project=project)
 
     @override
     async def load(self, scheduler: Scheduler[ProjectContext]) -> None:

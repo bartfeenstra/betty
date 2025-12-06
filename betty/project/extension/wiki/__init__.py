@@ -64,8 +64,7 @@ class Wiki(
         project: Project,
         wikipedia_contributors_copyright_notice: CopyrightNotice,
     ):
-        super().__init__(configuration=configuration)
-        self._project = project
+        super().__init__(configuration=configuration, project=project)
         self._wikipedia_contributors_copyright_notice = (
             wikipedia_contributors_copyright_notice
         )

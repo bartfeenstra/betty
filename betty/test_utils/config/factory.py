@@ -84,7 +84,7 @@ class ConfigurationDependentSelfFactoryTestBase(Generic[_ConfigurationT]):
         """
         try:
             await isolated_app.new_target(
-                configuration_dependent_self_factory_sut.new_for_configuration(  # type: ignore[arg-type]
+                configuration_dependent_self_factory_sut.new_for_configuration(
                     configuration_dependent_self_factory_sut_configuration
                 )
             )

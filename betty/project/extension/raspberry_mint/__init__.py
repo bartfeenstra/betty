@@ -11,9 +11,6 @@ from typing import TYPE_CHECKING, Self, final
 from typing_extensions import override
 
 from betty.config.factory import ConfigurationDependentSelfFactory
-from betty.data import Key
-from betty.data import Path as DataPath
-from betty.exception import reraise_within_context
 from betty.jinja2 import Filters, Jinja2Provider
 from betty.project.extension import ExtensionPlugin
 from betty.project.extension._theme import jinja2_filters
@@ -50,11 +47,11 @@ if TYPE_CHECKING:
     assets_directory_path=Path(__file__).parent / "assets",
 )
 class RaspberryMint(
+    ConfigurationDependentSelfFactory[RaspberryMintConfiguration],
+    ProjectDependentSelfFactory,
     Jinja2Provider,
     Generator,
     EntryPointProvider,
-    ProjectDependentSelfFactory,
-    ConfigurationDependentSelfFactory[RaspberryMintConfiguration],
 ):
     """
     The Raspberry Mint theme.
@@ -70,9 +67,9 @@ class RaspberryMint(
         super().__init__(
             configuration=RaspberryMintConfiguration()
             if configuration is None
-            else configuration
+            else configuration,
+            project=project,
         )
-        self._project = project
 
     @override
     @classmethod
@@ -87,24 +84,6 @@ class RaspberryMint(
         return CallbackProjectDependentFactory(
             lambda project: cls(configuration=configuration, project=project)
         )
-
-    @override
-    async def bootstrap(self) -> None:
-        await super().bootstrap()
-        try:
-            await self._assert_configuration()
-        except BaseException:
-            await self.shutdown()
-            raise
-
-    async def _assert_configuration(self) -> None:
-        with reraise_within_context(
-            Key("regional_content"),
-            Key("raspberry-mint"),
-            Key("extensions"),
-            DataPath(self._project.configuration.configuration_file_path),
-        ):
-            self.configuration.regional_content.validate(self.regions)
 
     @override
     async def generate(self, scheduler: Scheduler[ProjectContext]) -> None:

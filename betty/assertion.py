@@ -95,7 +95,7 @@ class AssertionChain(Generic[_AssertionValueT, _AssertionReturnT]):
 
         This method may be called more than once.
 
-        :raises betty.exception.UserFacingException: Raised if any part of the
+        :raises betty.exception.HumanFacingException: Raised if any part of the
             assertion chain fails.
         """
         return self._assertion(value)

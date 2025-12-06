@@ -14,8 +14,9 @@ from betty.tests.conftest import check_skip_webpack_entry_point_provider
 class TestMaps(EntryPointProviderTestBase):
     @override
     @pytest.fixture
-    async def sut(self) -> Extension:
-        return Maps()
+    async def sut(self, isolated_app: App) -> Extension:
+        async with Project.new_isolated(isolated_app) as project, project:
+            return Maps(project=project)
 
     @check_skip_webpack_entry_point_provider
     async def test_generate(self, isolated_app: App) -> None:

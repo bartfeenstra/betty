@@ -37,8 +37,10 @@ if TYPE_CHECKING:
 
     from betty.locale.localizable import LocalizableLike
     from betty.service.level import ServiceLevel
+    from betty.service.level.factory import AnyFactoryTarget
 
 
+_T = TypeVar("_T")
 _ServiceT = TypeVar("_ServiceT")
 _ServiceGetT = TypeVar("_ServiceGetT")
 
@@ -62,11 +64,14 @@ class ServiceContainer(Bootstrapped, Shutdownable):
         Bootstrap the component.
         """
         self.assert_not_bootstrapped()
-        self._bootstrapped = True
         await self._bootstrap()
+        self._bootstrapped = True
 
     async def _bootstrap(self) -> None:
         if isinstance(self, Configurable):
+            validator_factory = self.configuration.validator
+            if validator_factory is not None:
+                await self.new_target(validator_factory)
             self.configuration.immutable = True
 
     @classmethod
@@ -127,6 +132,14 @@ class ServiceContainer(Bootstrapped, Shutdownable):
         if isinstance(requires, Requirement):
             return requires
         return None
+
+    @abstractmethod
+    async def new_target(self, target: AnyFactoryTarget[_T]) -> _T:
+        """
+        Create a new instance.
+
+        :raises FactoryError: raised when ``target`` could not be called.
+        """
 
 
 _ServiceProviderT = TypeVar("_ServiceProviderT", bound=ServiceContainer)

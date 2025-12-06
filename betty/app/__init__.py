@@ -16,7 +16,7 @@ import betty
 import betty.dirs
 from betty.app import config
 from betty.app.config import AppConfiguration
-from betty.app.factory import AppDependentFactory, AppDependentSelfFactory, AppTarget
+from betty.app.factory import AppDependentFactory, AppDependentSelfFactory
 from betty.asset import AssetRepository, StaticAssetRepository
 from betty.cache.file import BinaryFileCache, PickledFileCache
 from betty.cache.no_op import NoOpCache
@@ -64,6 +64,7 @@ if TYPE_CHECKING:
     from betty.machine_name import MachineName
     from betty.plugin.repository import PluginRepository
     from betty.service.level import ServiceLevel
+    from betty.service.level.factory import AnyFactoryTarget
     from betty.user import User
 
 _T = TypeVar("_T")
@@ -286,12 +287,8 @@ class App(Configurable[AppConfiguration], ServiceContainer, PluginRepositoryProv
         self._shutdown_stack.append(_shutdown)
         return process_pool
 
-    async def new_target(self, target: AppTarget[_T]) -> _T:
-        """
-        Create a new instance.
-
-        :raises FactoryError: raised when ``target`` could not be called.
-        """
+    @override
+    async def new_target(self, target: AnyFactoryTarget[_T]) -> _T:
         if (
             isinstance(target, AppDependentFactory)
             or isinstance(target, type)

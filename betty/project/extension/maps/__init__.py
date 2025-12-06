@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 from pathlib import Path
-from typing import TYPE_CHECKING, final
+from typing import TYPE_CHECKING, Self, final
 
 from typing_extensions import override
 
@@ -12,13 +12,14 @@ from betty.project.extension import ExtensionPlugin
 from betty.project.extension.maps.jobs import _GeneratePlacePreviews
 from betty.project.extension.webpack import Webpack
 from betty.project.extension.webpack.build import EntryPointProvider
+from betty.project.factory import ProjectDependentSelfFactory
 from betty.project.generate import Generator
 
 if TYPE_CHECKING:
     from collections.abc import Sequence
 
     from betty.job.scheduler import Scheduler
-    from betty.project import ProjectContext
+    from betty.project import Project, ProjectContext
 
 
 @final
@@ -29,10 +30,15 @@ if TYPE_CHECKING:
     depends_on={Webpack},
     assets_directory_path=Path(__file__).parent / "assets",
 )
-class Maps(Generator, EntryPointProvider):
+class Maps(Generator, EntryPointProvider, ProjectDependentSelfFactory):
     """
     Provide interactive maps for use on web pages.
     """
+
+    @override
+    @classmethod
+    async def new_for_project(cls, project: Project, /) -> Self:
+        return cls(project=project)
 
     @override
     @classmethod

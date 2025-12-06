@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, final
+from typing import TYPE_CHECKING, Self, final
 
 from typing_extensions import override
 
@@ -11,11 +11,12 @@ from betty.project.extension import Extension, ExtensionPlugin
 from betty.project.extension.deriver import Deriver
 from betty.project.extension.deriver.jobs import DeriveAncestry
 from betty.project.extension.privatizer.jobs import PrivatizeAncestry
+from betty.project.factory import ProjectDependentSelfFactory
 from betty.project.load import PostLoader
 
 if TYPE_CHECKING:
     from betty.job.scheduler import Scheduler
-    from betty.project import ProjectContext
+    from betty.project import Project, ProjectContext
 
 
 @final
@@ -27,10 +28,15 @@ if TYPE_CHECKING:
     ),
     comes_after={Deriver.plugin},
 )
-class Privatizer(PostLoader, Extension):
+class Privatizer(PostLoader, ProjectDependentSelfFactory, Extension):
     """
     Extend the Betty Application with privatization features.
     """
+
+    @override
+    @classmethod
+    async def new_for_project(cls, project: Project, /) -> Self:
+        return cls(project=project)
 
     @override
     async def post_load(self, scheduler: Scheduler[ProjectContext]) -> None:

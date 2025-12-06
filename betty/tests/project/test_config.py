@@ -23,6 +23,7 @@ from betty.model import Entity, EntityPlugin
 from betty.plugin.config import PluginInstanceConfiguration
 from betty.plugin.repository.static import StaticPluginRepository
 from betty.plugin.resolve import ResolvableId
+from betty.project import Project
 from betty.project.config import (
     CopyrightNoticePluginConfiguration,
     CopyrightNoticePluginConfigurationMapping,
@@ -65,6 +66,7 @@ from betty.typing import Void
 if TYPE_CHECKING:
     from pathlib import Path
 
+    from betty.app import App
     from betty.serde.dump import Dump, DumpMapping
     from betty.test_utils.config.collections import (
         ConfigurationCollectionTestBaseSutConfigurationKeys,
@@ -1004,6 +1006,24 @@ class TestGenderPluginConfigurationMapping(
 
 
 class TestProjectConfiguration:
+    async def test_validator__should_validate_entity_type_configuration(
+        self, isolated_app: App, tmp_path: Path
+    ) -> None:
+        sut = ProjectConfiguration(tmp_path)
+        sut.entity_types.replace(
+            EntityTypeConfiguration(
+                DummyNonPublicFacingEntityOne.plugin, generate_html_list=True
+            )
+        )
+        with EntityPlugin.type.override_discovery(DummyNonPublicFacingEntityOne.plugin):
+            async with Project.new_isolated(isolated_app) as project:
+                async with project:
+                    with pytest.raises(HumanFacingException) as exc_info:
+                        await project.new_target(sut.validator)
+        assert 'data["entity_types"]["dummy-non-public-facing-one"]' in str(
+            exc_info.value
+        )
+
     async def test_configuration_file_path(self, tmp_path: Path) -> None:
         configuration_file_path = tmp_path / "init.json"
         sut = ProjectConfiguration(configuration_file_path)

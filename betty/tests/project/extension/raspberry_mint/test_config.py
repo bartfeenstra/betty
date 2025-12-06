@@ -7,15 +7,34 @@ import pytest
 from betty.content_provider import ContentProvider, ContentProviderPlugin
 from betty.exception import HumanFacingException
 from betty.plugin.config import PluginInstanceConfiguration
+from betty.project import Project
+from betty.project.extension.raspberry_mint import RaspberryMint
 from betty.project.extension.raspberry_mint.config import RaspberryMintConfiguration
 
 if TYPE_CHECKING:
     from collections.abc import Mapping
 
+    from betty.app import App
+    from betty.data import Path
     from betty.serde.dump import Dump, DumpMapping
 
 
 class TestRaspberryMintConfiguration:
+    async def test_validator__should_validate_featured_entities_configuration(
+        self, isolated_app: App, tmp_path: Path
+    ) -> None:
+        sut = RaspberryMintConfiguration()
+        sut.regional_content["unknown-region"] = []
+        async with Project.new_isolated(isolated_app) as project:
+            project.configuration.extensions.enable(RaspberryMint)
+            async with project:
+                with pytest.raises(HumanFacingException) as exc_info:
+                    await project.new_target(sut.validator)
+        assert (
+            'data["extensions"]["raspberry-mint"]["regional_content"]["unknown-region"]'
+            in str(exc_info.value)
+        )
+
     def test_primary_color__from___init__(self) -> None:
         hex_value = "#000000"
         sut = RaspberryMintConfiguration(primary_color=hex_value)

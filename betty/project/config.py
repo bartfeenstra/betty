@@ -35,7 +35,11 @@ from betty.config import Configuration
 from betty.config.collections.mapping import OrderedConfigurationMapping
 from betty.copyright_notice import CopyrightNotice, CopyrightNoticePlugin
 from betty.data import Key
-from betty.exception import HumanFacingException, HumanFacingExceptionGroup
+from betty.exception import (
+    HumanFacingException,
+    HumanFacingExceptionGroup,
+    reraise_within_context,
+)
 from betty.license import License, LicensePlugin
 from betty.license.licenses import AllRightsReserved
 from betty.locale import DEFAULT_LOCALE, LocaleLike, ensure_locale, to_language_tag
@@ -63,6 +67,7 @@ from betty.plugin.config.ordered import OrderedPluginDefinitionConfiguration
 from betty.plugin.repository.provider.service import plugins
 from betty.plugin.resolve import ResolvableId, resolve_id
 from betty.project.extension import Extension, ExtensionPlugin
+from betty.project.factory import CallbackProjectDependentFactory
 from betty.serde.format import FormatPlugin, format_for
 from betty.test_utils.locale.localizable import DUMMY_COUNTABLE_LOCALIZABLE
 
@@ -70,7 +75,9 @@ if TYPE_CHECKING:
     from pathlib import Path
 
     from betty.plugin.repository import PluginRepository
+    from betty.project import Project
     from betty.serde.dump import Dump, DumpMapping
+    from betty.service.level.factory import AnyFactoryTarget
 
 DEFAULT_LIFETIME_THRESHOLD = 123
 """
@@ -713,6 +720,15 @@ class ProjectConfiguration(Configuration):
         self._locales = LocaleConfigurationMapping(locales or ())
         self._lifetime_threshold = lifetime_threshold
         self._logo = logo
+
+    @override
+    @property
+    def validator(self) -> AnyFactoryTarget[None]:
+        async def _validate(project: Project) -> None:
+            with reraise_within_context(Key("entity_types")):
+                await self.entity_types.validate(await project.plugins(EntityPlugin))
+
+        return CallbackProjectDependentFactory(_validate)
 
     @property
     def configuration_file_path(self) -> Path:
