@@ -37,6 +37,11 @@ structure. Example configuration:
           place_types:
             moon:
               label: Moon
+              label_plural: Moons
+              label_countable:
+                en-US:
+                  one: "{count} moon"
+                  other: "{count} moons"
           presence_roles:
             astronaut:
               label: Astronaut
@@ -89,7 +94,14 @@ structure. Example configuration:
             },
             "place_types": {
               "moon": {
-                "label": "Moon"
+                "label": "Moon",
+                "label_plural": "Moons",
+                "label_countable": {
+                  "en-US": {
+                    "one": "{count} moon",
+                    "other": "{count} moons"
+                  }
+                }
               }
             },
             "presence_roles": {

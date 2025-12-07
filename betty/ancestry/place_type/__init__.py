@@ -10,7 +10,9 @@ from betty.locale.localizable import _, ngettext
 from betty.plugin import Plugin, PluginTypeDefinition
 from betty.plugin.discovery.entry_point import EntryPointDiscovery
 from betty.plugin.discovery.project import ProjectDiscovery
-from betty.plugin.human_facing import HumanFacingPluginDefinition
+from betty.plugin.human_facing import (
+    CountableHumanFacingPluginDefinition,
+)
 
 
 class PlaceType(Plugin):
@@ -24,7 +26,7 @@ class PlaceType(Plugin):
 
 
 @final
-class PlaceTypePlugin(HumanFacingPluginDefinition[PlaceType]):
+class PlaceTypePlugin(CountableHumanFacingPluginDefinition[PlaceType]):
     """
     A place type definition.
 
