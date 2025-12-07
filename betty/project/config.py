@@ -502,7 +502,7 @@ class EventTypePluginConfigurationMapping(
         return _ProjectConfigurationEventType.plugin
 
 
-class PlaceTypePluginConfiguration(HumanFacingPluginDefinitionConfiguration):
+class PlaceTypePluginConfiguration(CountableHumanFacingPluginDefinitionConfiguration):
     """
     Configure a :py:class:`betty.ancestry.place_type.PlaceTypePlugin`.
     """
@@ -529,6 +529,8 @@ class PlaceTypePluginConfigurationMapping(
         @PlaceTypePlugin(
             configuration.id,
             label=configuration.label,
+            label_plural=configuration.label_plural,
+            label_countable=configuration.label_countable,
             description=configuration.description,
         )
         class _ProjectConfigurationPlaceType(PlaceType):

@@ -180,7 +180,7 @@ class CountableHumanFacingPluginDefinitionConfiguration(
         return [
             *super().fields(),
             RequiredField("label_plural", assert_load_localizable),
-            OptionalField("label_countable", assert_load_countable_localizable),
+            RequiredField("label_countable", assert_load_countable_localizable),
         ]
 
     @override

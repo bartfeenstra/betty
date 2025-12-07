@@ -853,10 +853,30 @@ class TestPlaceTypePluginConfigurationMapping(
         self,
     ) -> ConfigurationCollectionTestBaseSutConfigurations[PlaceTypePluginConfiguration]:
         return (
-            PlaceTypePluginConfiguration(id="foo", label="Foo"),
-            PlaceTypePluginConfiguration(id="bar", label="Bar"),
-            PlaceTypePluginConfiguration(id="baz", label="Baz"),
-            PlaceTypePluginConfiguration(id="qux", label="Qux"),
+            PlaceTypePluginConfiguration(
+                id="foo",
+                label="Foo",
+                label_plural="Foo",
+                label_countable=DUMMY_COUNTABLE_LOCALIZABLE,
+            ),
+            PlaceTypePluginConfiguration(
+                id="bar",
+                label="Bar",
+                label_plural="Bar",
+                label_countable=DUMMY_COUNTABLE_LOCALIZABLE,
+            ),
+            PlaceTypePluginConfiguration(
+                id="baz",
+                label="Baz",
+                label_plural="Baz",
+                label_countable=DUMMY_COUNTABLE_LOCALIZABLE,
+            ),
+            PlaceTypePluginConfiguration(
+                id="qux",
+                label="Qux",
+                label_plural="Qux",
+                label_countable=DUMMY_COUNTABLE_LOCALIZABLE,
+            ),
         )
 
     @override
@@ -1276,7 +1296,32 @@ class TestProjectConfiguration:
         ("expected", "place_types_configuration"),
         [
             ({}, {}),
-            ({"foo": {"label": "Foo"}}, {"foo": {"label": "Foo"}}),
+            (
+                {
+                    "foo": {
+                        "label": "Foo",
+                        "label_plural": "Foos",
+                        "label_countable": {
+                            "en-US": {
+                                "one": "{count} DUMMY_COUNTABLE_LOCALIZABLE",
+                                "other": "{count} DUMMY_COUNTABLE_LOCALIZABLES",
+                            },
+                        },
+                    }
+                },
+                {
+                    "foo": {
+                        "label": "Foo",
+                        "label_plural": "Foos",
+                        "label_countable": {
+                            "en-US": {
+                                "one": "{count} DUMMY_COUNTABLE_LOCALIZABLE",
+                                "other": "{count} DUMMY_COUNTABLE_LOCALIZABLES",
+                            },
+                        },
+                    }
+                },
+            ),
         ],
     )
     async def test_load__should_load_place_types(
@@ -1458,11 +1503,25 @@ class TestProjectConfiguration:
 
     async def test_dump__should_dump_place_types(self) -> None:
         sut = ProjectConfiguration()
-        sut.place_types.append(PlaceTypePluginConfiguration(id="foo", label="Foo"))
+        sut.place_types.append(
+            PlaceTypePluginConfiguration(
+                id="foo",
+                label="Foo",
+                label_plural="Foos",
+                label_countable=DUMMY_COUNTABLE_LOCALIZABLE,
+            )
+        )
         dump = sut.dump()
         expected: DumpMapping[Dump] = {
             "foo": {
                 "label": "Foo",
+                "label_plural": "Foos",
+                "label_countable": {
+                    "en-US": {
+                        "one": "{count} DUMMY_COUNTABLE_LOCALIZABLE",
+                        "other": "{count} DUMMY_COUNTABLE_LOCALIZABLES",
+                    },
+                },
             }
         }
         assert dump["place_types"] == expected

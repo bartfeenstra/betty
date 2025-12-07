@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PROJECT VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2025-12-08 00:55+0000\n"
+"POT-Creation-Date: 2025-12-08 10:57+0000\n"
 "PO-Revision-Date: 2025-11-08 23:46+0000\n"
 "Last-Translator: Bart Feenstra <bart@bartfeenstra.com>\n"
 "Language: nl_NL\n"
@@ -251,11 +251,17 @@ msgstr "Geboorte"
 msgid "Borough"
 msgstr "Borough"
 
+msgid "Boroughs"
+msgstr ""
+
 msgid "Breadcrumbs"
 msgstr ""
 
 msgid "Building"
 msgstr "Gebouw"
+
+msgid "Buildings"
+msgstr ""
 
 msgid "Burial"
 msgstr "Begravenis"
@@ -298,6 +304,9 @@ msgstr "Ambtenaar"
 msgid "Celebrants"
 msgstr ""
 
+msgid "Cemeteries"
+msgstr ""
+
 msgid "Cemetery"
 msgstr ""
 
@@ -306,6 +315,9 @@ msgstr "Verwijzing"
 
 msgid "Citations"
 msgstr "Verwijzingen"
+
+msgid "Cities"
+msgstr ""
 
 msgid "City"
 msgstr "Stad"
@@ -402,6 +414,9 @@ msgstr ""
 msgid "Could not find the file \"{file_path}\"."
 msgstr "Kan het bestand \"{file_path}\" niet vinden."
 
+msgid "Counties"
+msgstr ""
+
 msgid "Country"
 msgstr "Land"
 
@@ -441,6 +456,9 @@ msgstr "Overlijden"
 msgid "Department"
 msgstr "Departement"
 
+msgid "Departments"
+msgstr ""
+
 msgid "Description, licensing, and image history"
 msgstr "Beschrijving, licentie, en afbeeldingsgeschiedenis"
 
@@ -476,6 +494,9 @@ msgstr ""
 
 msgid "District"
 msgstr "District"
+
+msgid "Districts"
+msgstr ""
 
 msgid "Divorce"
 msgstr "Echtscheiding"
@@ -564,6 +585,9 @@ msgstr ""
 msgid "Farm"
 msgstr "Boerderij"
 
+msgid "Farms"
+msgstr ""
+
 msgid "Featured entities"
 msgstr ""
 
@@ -643,6 +667,9 @@ msgstr ""
 
 msgid "Hamlet"
 msgstr "Gehucht"
+
+msgid "Hamlets"
+msgstr ""
 
 msgid "Home"
 msgstr ""
@@ -781,6 +808,9 @@ msgstr "Taalregioaliassen mogen geen schuine streep bevatten."
 msgid "Locale {locale} is not known by your system."
 msgstr ""
 
+msgid "Localities"
+msgstr ""
+
 msgid "Locality"
 msgstr "Plaats"
 
@@ -831,11 +861,17 @@ msgstr ""
 msgid "More plugins may be available when running this command with --project."
 msgstr ""
 
+msgid "Municipalities"
+msgstr ""
+
 msgid "Municipality"
 msgstr "Gemeente"
 
 msgid "Neighborhood"
 msgstr "Buurt"
+
+msgid "Neighborhoods"
+msgstr ""
 
 msgid "Netherlands"
 msgstr ""
@@ -866,6 +902,9 @@ msgstr "Opmerkingen"
 
 msgid "Number"
 msgstr "Nummer"
+
+msgid "Numbers"
+msgstr ""
 
 msgid "Occupation"
 msgstr "Beroep"
@@ -924,6 +963,9 @@ msgstr "Pagina niet gevonden"
 
 msgid "Parish"
 msgstr "Parish"
+
+msgid "Parishes"
+msgstr ""
 
 msgid "People"
 msgstr "Personen"
@@ -1033,6 +1075,9 @@ msgstr "Projectauteur"
 msgid "Province"
 msgstr "Provincie"
 
+msgid "Provinces"
+msgstr ""
+
 msgid "Public domain"
 msgstr "Publiek domein"
 
@@ -1063,6 +1108,9 @@ msgstr "Referenties"
 
 msgid "Region"
 msgstr "Regio"
+
+msgid "Regions"
+msgstr ""
 
 msgid "Renderer"
 msgstr ""
@@ -1142,8 +1190,14 @@ msgstr "Pythons ingebouwde webserver aan het starten..."
 msgid "State"
 msgstr "Staat"
 
+msgid "States"
+msgstr ""
+
 msgid "Street"
 msgstr "Straat"
+
+msgid "Streets"
+msgstr ""
 
 msgid "Subcommands"
 msgstr ""
@@ -1315,6 +1369,9 @@ msgstr "Schakel volledig scherm"
 msgid "Town"
 msgstr "Town"
 
+msgid "Towns"
+msgstr ""
+
 #, python-brace-format
 msgid "Translations for {locale} already exist at {po_file_path}."
 msgstr ""
@@ -1343,6 +1400,9 @@ msgstr ""
 #, python-brace-format
 msgid "Unknown key: {unknown_key}."
 msgstr "Onbekende sleutel: {unknown_key}."
+
+msgid "Unknown places"
+msgstr ""
 
 #, python-brace-format
 msgid "Unknown plugin \"{plugin_id}\"."
@@ -1389,6 +1449,9 @@ msgstr "Bekijk de documentatie"
 
 msgid "Village"
 msgstr "Dorp"
+
+msgid "Villages"
+msgstr ""
 
 #, python-format
 msgid "Welcome to %(project_title)s"
@@ -1590,6 +1653,12 @@ msgid "y"
 msgstr "y"
 
 #, python-brace-format
+msgid "{count} "
+msgid_plural "{count} "
+msgstr[0] ""
+msgstr[1] ""
+
+#, python-brace-format
 msgid "{count} HTTP client rate limit"
 msgid_plural "{count} HTTP client rate limits"
 msgstr[0] ""
@@ -1608,8 +1677,26 @@ msgstr[0] ""
 msgstr[1] ""
 
 #, python-brace-format
+msgid "{count} borough"
+msgid_plural "{count} boroughs"
+msgstr[0] ""
+msgstr[1] ""
+
+#, python-brace-format
+msgid "{count} building"
+msgid_plural "{count} buildings"
+msgstr[0] ""
+msgstr[1] ""
+
+#, python-brace-format
 msgid "{count} celebrant"
 msgid_plural "{count} celebrants"
+msgstr[0] ""
+msgstr[1] ""
+
+#, python-brace-format
+msgid "{count} cemetery"
+msgid_plural "{count} cemeteries"
 msgstr[0] ""
 msgstr[1] ""
 
@@ -1618,6 +1705,12 @@ msgid "{count} citation"
 msgid_plural "{count} citations"
 msgstr[0] "{count} citaat"
 msgstr[1] "{count} citaten"
+
+#, python-brace-format
+msgid "{count} city"
+msgid_plural "{count} cities"
+msgstr[0] ""
+msgstr[1] ""
 
 #, python-brace-format
 msgid "{count} command"
@@ -1634,6 +1727,24 @@ msgstr[1] ""
 #, python-brace-format
 msgid "{count} copyright notice"
 msgid_plural "{count} copyright notices"
+msgstr[0] ""
+msgstr[1] ""
+
+#, python-brace-format
+msgid "{count} county"
+msgid_plural "{count} counties"
+msgstr[0] ""
+msgstr[1] ""
+
+#, python-brace-format
+msgid "{count} department"
+msgid_plural "{count} departments"
+msgstr[0] ""
+msgstr[1] ""
+
+#, python-brace-format
+msgid "{count} district"
+msgid_plural "{count} districts"
 msgstr[0] ""
 msgstr[1] ""
 
@@ -1668,6 +1779,12 @@ msgstr[0] ""
 msgstr[1] ""
 
 #, python-brace-format
+msgid "{count} farm"
+msgid_plural "{count} farms"
+msgstr[0] ""
+msgstr[1] ""
+
+#, python-brace-format
 msgid "{count} file"
 msgid_plural "{count} files"
 msgstr[0] "{count} bestand"
@@ -1682,6 +1799,12 @@ msgstr[1] "{count} bestandsverwijzingen"
 #, python-brace-format
 msgid "{count} gender"
 msgid_plural "{count} genders"
+msgstr[0] ""
+msgstr[1] ""
+
+#, python-brace-format
+msgid "{count} hamlet"
+msgid_plural "{count} hamlets"
 msgstr[0] ""
 msgstr[1] ""
 
@@ -1704,14 +1827,44 @@ msgstr[0] ""
 msgstr[1] ""
 
 #, python-brace-format
+msgid "{count} locality"
+msgid_plural "{count} localities"
+msgstr[0] ""
+msgstr[1] ""
+
+#, python-brace-format
+msgid "{count} municipality"
+msgid_plural "{count} municipalities"
+msgstr[0] ""
+msgstr[1] ""
+
+#, python-brace-format
+msgid "{count} neighborhood"
+msgid_plural "{count} neighborhoods"
+msgstr[0] ""
+msgstr[1] ""
+
+#, python-brace-format
 msgid "{count} note"
 msgid_plural "{count} notes"
 msgstr[0] "{count} aantekening"
 msgstr[1] "{count} aantekeningen"
 
 #, python-brace-format
+msgid "{count} number"
+msgid_plural "{count} numbers"
+msgstr[0] ""
+msgstr[1] ""
+
+#, python-brace-format
 msgid "{count} organizer"
 msgid_plural "{count} organizers"
+msgstr[0] ""
+msgstr[1] ""
+
+#, python-brace-format
+msgid "{count} parish"
+msgid_plural "{count} parishes"
 msgstr[0] ""
 msgstr[1] ""
 
@@ -1752,6 +1905,18 @@ msgstr[0] ""
 msgstr[1] ""
 
 #, python-brace-format
+msgid "{count} province"
+msgid_plural "{count} provinces"
+msgstr[0] ""
+msgstr[1] ""
+
+#, python-brace-format
+msgid "{count} region"
+msgid_plural "{count} regions"
+msgstr[0] ""
+msgstr[1] ""
+
+#, python-brace-format
 msgid "{count} renderer"
 msgid_plural "{count} renderers"
 msgstr[0] ""
@@ -1776,14 +1941,44 @@ msgstr[0] ""
 msgstr[1] ""
 
 #, python-brace-format
+msgid "{count} state"
+msgid_plural "{count} states"
+msgstr[0] ""
+msgstr[1] ""
+
+#, python-brace-format
+msgid "{count} street"
+msgid_plural "{count} streets"
+msgstr[0] ""
+msgstr[1] ""
+
+#, python-brace-format
 msgid "{count} subjects"
 msgid_plural "{count} subjects"
 msgstr[0] ""
 msgstr[1] ""
 
 #, python-brace-format
+msgid "{count} town"
+msgid_plural "{count} towns"
+msgstr[0] ""
+msgstr[1] ""
+
+#, python-brace-format
 msgid "{count} unknown"
 msgid_plural "{count} unknowns"
+msgstr[0] ""
+msgstr[1] ""
+
+#, python-brace-format
+msgid "{count} unknown place"
+msgid_plural "{count} unknown places"
+msgstr[0] ""
+msgstr[1] ""
+
+#, python-brace-format
+msgid "{count} village"
+msgid_plural "{count} villages"
 msgstr[0] ""
 msgstr[1] ""
 

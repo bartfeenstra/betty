@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Betty 0.4\n"
 "Report-Msgid-Bugs-To: illia@maier.page\n"
-"POT-Creation-Date: 2025-12-08 00:55+0000\n"
+"POT-Creation-Date: 2025-12-08 10:57+0000\n"
 "PO-Revision-Date: 2025-05-13 17:01+0000\n"
 "Last-Translator: Максим Горпиніч <maksimgorpinic4@gmail.com>\n"
 "Language: uk\n"
@@ -248,11 +248,17 @@ msgstr "Народження"
 msgid "Borough"
 msgstr "Боро"
 
+msgid "Boroughs"
+msgstr ""
+
 msgid "Breadcrumbs"
 msgstr ""
 
 msgid "Building"
 msgstr "Будівля"
+
+msgid "Buildings"
+msgstr ""
 
 msgid "Burial"
 msgstr "Поховання"
@@ -297,6 +303,9 @@ msgstr "Святкуючий"
 msgid "Celebrants"
 msgstr ""
 
+msgid "Cemeteries"
+msgstr ""
+
 msgid "Cemetery"
 msgstr ""
 
@@ -305,6 +314,9 @@ msgstr "Цитата"
 
 msgid "Citations"
 msgstr "Цитати"
+
+msgid "Cities"
+msgstr ""
 
 msgid "City"
 msgstr "Місто"
@@ -399,6 +411,9 @@ msgstr ""
 msgid "Could not find the file \"{file_path}\"."
 msgstr "Не вдалося знайти файл \"{file_path}\"."
 
+msgid "Counties"
+msgstr ""
+
 msgid "Country"
 msgstr "Країна"
 
@@ -438,6 +453,9 @@ msgstr "Смерть"
 msgid "Department"
 msgstr "Відділ"
 
+msgid "Departments"
+msgstr ""
+
 msgid "Description, licensing, and image history"
 msgstr "Опис, ліцензування та історія зображення"
 
@@ -473,6 +491,9 @@ msgstr ""
 
 msgid "District"
 msgstr "Район"
+
+msgid "Districts"
+msgstr ""
 
 msgid "Divorce"
 msgstr "Розлучення"
@@ -561,6 +582,9 @@ msgstr ""
 msgid "Farm"
 msgstr "Ферма"
 
+msgid "Farms"
+msgstr ""
+
 msgid "Featured entities"
 msgstr ""
 
@@ -639,6 +663,9 @@ msgstr ""
 
 msgid "Hamlet"
 msgstr "Хутір"
+
+msgid "Hamlets"
+msgstr ""
 
 msgid "Home"
 msgstr ""
@@ -775,6 +802,9 @@ msgstr "Аліаси локалей не повинні містити слеш�
 msgid "Locale {locale} is not known by your system."
 msgstr ""
 
+msgid "Localities"
+msgstr ""
+
 msgid "Locality"
 msgstr "Місцевість"
 
@@ -825,11 +855,17 @@ msgstr ""
 msgid "More plugins may be available when running this command with --project."
 msgstr ""
 
+msgid "Municipalities"
+msgstr ""
+
 msgid "Municipality"
 msgstr "Муніципалітет"
 
 msgid "Neighborhood"
 msgstr "Околиці"
+
+msgid "Neighborhoods"
+msgstr ""
 
 msgid "Netherlands"
 msgstr ""
@@ -860,6 +896,9 @@ msgstr "Примітки"
 
 msgid "Number"
 msgstr "Номер"
+
+msgid "Numbers"
+msgstr ""
 
 msgid "Occupation"
 msgstr "Праця"
@@ -918,6 +957,9 @@ msgstr "Сторінку не знайдено"
 
 msgid "Parish"
 msgstr "Парафія"
+
+msgid "Parishes"
+msgstr ""
 
 msgid "People"
 msgstr "Люди"
@@ -1028,6 +1070,9 @@ msgstr "Автор проєкту"
 msgid "Province"
 msgstr "Провінція"
 
+msgid "Provinces"
+msgstr ""
+
 msgid "Public domain"
 msgstr "Публічний домен"
 
@@ -1058,6 +1103,9 @@ msgstr "Референції"
 
 msgid "Region"
 msgstr "Регіон"
+
+msgid "Regions"
+msgstr ""
 
 msgid "Renderer"
 msgstr ""
@@ -1137,8 +1185,14 @@ msgstr "Запуск вбудованого вебсерверу Python..."
 msgid "State"
 msgstr "Штат"
 
+msgid "States"
+msgstr ""
+
 msgid "Street"
 msgstr "Вулиця"
+
+msgid "Streets"
+msgstr ""
 
 msgid "Subcommands"
 msgstr ""
@@ -1313,6 +1367,9 @@ msgstr "Перемкнути на весь екран"
 msgid "Town"
 msgstr "Містечко"
 
+msgid "Towns"
+msgstr ""
+
 #, python-brace-format
 msgid "Translations for {locale} already exist at {po_file_path}."
 msgstr ""
@@ -1341,6 +1398,9 @@ msgstr ""
 #, python-brace-format
 msgid "Unknown key: {unknown_key}."
 msgstr "Невідомий ключ: {unknown_key}."
+
+msgid "Unknown places"
+msgstr ""
 
 #, python-brace-format
 msgid "Unknown plugin \"{plugin_id}\"."
@@ -1387,6 +1447,9 @@ msgstr "Переглянути документацію"
 
 msgid "Village"
 msgstr "Село"
+
+msgid "Villages"
+msgstr ""
 
 #, python-format
 msgid "Welcome to %(project_title)s"
@@ -1586,6 +1649,13 @@ msgid "y"
 msgstr "y року"
 
 #, python-brace-format
+msgid "{count} "
+msgid_plural "{count} "
+msgstr[0] ""
+msgstr[1] ""
+msgstr[2] ""
+
+#, python-brace-format
 msgid "{count} HTTP client rate limit"
 msgid_plural "{count} HTTP client rate limits"
 msgstr[0] ""
@@ -1607,8 +1677,29 @@ msgstr[1] ""
 msgstr[2] ""
 
 #, python-brace-format
+msgid "{count} borough"
+msgid_plural "{count} boroughs"
+msgstr[0] ""
+msgstr[1] ""
+msgstr[2] ""
+
+#, python-brace-format
+msgid "{count} building"
+msgid_plural "{count} buildings"
+msgstr[0] ""
+msgstr[1] ""
+msgstr[2] ""
+
+#, python-brace-format
 msgid "{count} celebrant"
 msgid_plural "{count} celebrants"
+msgstr[0] ""
+msgstr[1] ""
+msgstr[2] ""
+
+#, python-brace-format
+msgid "{count} cemetery"
+msgid_plural "{count} cemeteries"
 msgstr[0] ""
 msgstr[1] ""
 msgstr[2] ""
@@ -1619,6 +1710,13 @@ msgid_plural "{count} citations"
 msgstr[0] "{count} цитата"
 msgstr[1] "{count} цитати"
 msgstr[2] "{count} цитаті"
+
+#, python-brace-format
+msgid "{count} city"
+msgid_plural "{count} cities"
+msgstr[0] ""
+msgstr[1] ""
+msgstr[2] ""
 
 #, python-brace-format
 msgid "{count} command"
@@ -1637,6 +1735,27 @@ msgstr[2] ""
 #, python-brace-format
 msgid "{count} copyright notice"
 msgid_plural "{count} copyright notices"
+msgstr[0] ""
+msgstr[1] ""
+msgstr[2] ""
+
+#, python-brace-format
+msgid "{count} county"
+msgid_plural "{count} counties"
+msgstr[0] ""
+msgstr[1] ""
+msgstr[2] ""
+
+#, python-brace-format
+msgid "{count} department"
+msgid_plural "{count} departments"
+msgstr[0] ""
+msgstr[1] ""
+msgstr[2] ""
+
+#, python-brace-format
+msgid "{count} district"
+msgid_plural "{count} districts"
 msgstr[0] ""
 msgstr[1] ""
 msgstr[2] ""
@@ -1677,6 +1796,13 @@ msgstr[1] ""
 msgstr[2] ""
 
 #, python-brace-format
+msgid "{count} farm"
+msgid_plural "{count} farms"
+msgstr[0] ""
+msgstr[1] ""
+msgstr[2] ""
+
+#, python-brace-format
 msgid "{count} file"
 msgid_plural "{count} files"
 msgstr[0] "{count} файл"
@@ -1693,6 +1819,13 @@ msgstr[2] "{count} посилання на файлів"
 #, python-brace-format
 msgid "{count} gender"
 msgid_plural "{count} genders"
+msgstr[0] ""
+msgstr[1] ""
+msgstr[2] ""
+
+#, python-brace-format
+msgid "{count} hamlet"
+msgid_plural "{count} hamlets"
 msgstr[0] ""
 msgstr[1] ""
 msgstr[2] ""
@@ -1719,6 +1852,27 @@ msgstr[1] ""
 msgstr[2] ""
 
 #, python-brace-format
+msgid "{count} locality"
+msgid_plural "{count} localities"
+msgstr[0] ""
+msgstr[1] ""
+msgstr[2] ""
+
+#, python-brace-format
+msgid "{count} municipality"
+msgid_plural "{count} municipalities"
+msgstr[0] ""
+msgstr[1] ""
+msgstr[2] ""
+
+#, python-brace-format
+msgid "{count} neighborhood"
+msgid_plural "{count} neighborhoods"
+msgstr[0] ""
+msgstr[1] ""
+msgstr[2] ""
+
+#, python-brace-format
 msgid "{count} note"
 msgid_plural "{count} notes"
 msgstr[0] "{count} примітка"
@@ -1726,8 +1880,22 @@ msgstr[1] "{count} примітки"
 msgstr[2] "{count} примітки"
 
 #, python-brace-format
+msgid "{count} number"
+msgid_plural "{count} numbers"
+msgstr[0] ""
+msgstr[1] ""
+msgstr[2] ""
+
+#, python-brace-format
 msgid "{count} organizer"
 msgid_plural "{count} organizers"
+msgstr[0] ""
+msgstr[1] ""
+msgstr[2] ""
+
+#, python-brace-format
+msgid "{count} parish"
+msgid_plural "{count} parishes"
 msgstr[0] ""
 msgstr[1] ""
 msgstr[2] ""
@@ -1775,6 +1943,20 @@ msgstr[1] ""
 msgstr[2] ""
 
 #, python-brace-format
+msgid "{count} province"
+msgid_plural "{count} provinces"
+msgstr[0] ""
+msgstr[1] ""
+msgstr[2] ""
+
+#, python-brace-format
+msgid "{count} region"
+msgid_plural "{count} regions"
+msgstr[0] ""
+msgstr[1] ""
+msgstr[2] ""
+
+#, python-brace-format
 msgid "{count} renderer"
 msgid_plural "{count} renderers"
 msgstr[0] ""
@@ -1803,6 +1985,20 @@ msgstr[1] ""
 msgstr[2] ""
 
 #, python-brace-format
+msgid "{count} state"
+msgid_plural "{count} states"
+msgstr[0] ""
+msgstr[1] ""
+msgstr[2] ""
+
+#, python-brace-format
+msgid "{count} street"
+msgid_plural "{count} streets"
+msgstr[0] ""
+msgstr[1] ""
+msgstr[2] ""
+
+#, python-brace-format
 msgid "{count} subjects"
 msgid_plural "{count} subjects"
 msgstr[0] ""
@@ -1810,8 +2006,29 @@ msgstr[1] ""
 msgstr[2] ""
 
 #, python-brace-format
+msgid "{count} town"
+msgid_plural "{count} towns"
+msgstr[0] ""
+msgstr[1] ""
+msgstr[2] ""
+
+#, python-brace-format
 msgid "{count} unknown"
 msgid_plural "{count} unknowns"
+msgstr[0] ""
+msgstr[1] ""
+msgstr[2] ""
+
+#, python-brace-format
+msgid "{count} unknown place"
+msgid_plural "{count} unknown places"
+msgstr[0] ""
+msgstr[1] ""
+msgstr[2] ""
+
+#, python-brace-format
+msgid "{count} village"
+msgid_plural "{count} villages"
 msgstr[0] ""
 msgstr[1] ""
 msgstr[2] ""
