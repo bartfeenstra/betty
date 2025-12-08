@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PROJECT VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2025-12-08 15:11+0000\n"
+"POT-Creation-Date: 2025-12-08 16:21+0000\n"
 "PO-Revision-Date: 2025-11-08 23:46+0000\n"
 "Last-Translator: Bart Feenstra <bart@bartfeenstra.com>\n"
 "Language: nl_NL\n"
@@ -86,6 +86,9 @@ msgstr ""
 msgid "Adoption"
 msgstr "Adoptie"
 
+msgid "Adoptions"
+msgstr ""
+
 msgid "All caches cleared."
 msgstr "Alle caches geleegd."
 
@@ -120,6 +123,12 @@ msgstr "Scheidingsaankondiging"
 msgid "Announcement of marriage"
 msgstr "Huwelijksaankondiging"
 
+msgid "Announcements of divorce"
+msgstr ""
+
+msgid "Announcements of marriage"
+msgstr ""
+
 msgid "Appearances"
 msgstr "Verschijningen"
 
@@ -153,14 +162,23 @@ msgstr ""
 msgid "Baptism"
 msgstr "Doping"
 
+msgid "Baptisms"
+msgstr ""
+
 msgid "Bar mitzvah"
 msgstr "Bar mitswa"
+
+msgid "Bar mitzvahs"
+msgstr ""
 
 msgid "Bart Feenstra and contributors"
 msgstr ""
 
 msgid "Bat mitzvah"
 msgstr "Bat mitswa"
+
+msgid "Bat mitzvahs"
+msgstr ""
 
 msgid "Beneficiaries"
 msgstr ""
@@ -248,6 +266,9 @@ msgstr "Betty zal in het {locale} tegen je praten"
 msgid "Birth"
 msgstr "Geboorte"
 
+msgid "Births"
+msgstr ""
+
 msgid "Borough"
 msgstr "Borough"
 
@@ -265,6 +286,9 @@ msgstr ""
 
 msgid "Burial"
 msgstr "Begravenis"
+
+msgid "Burials"
+msgstr ""
 
 msgid "Cannot find an available port to bind the web server to."
 msgstr "Kan geen beschikbare poort voor de webserver vinden."
@@ -340,6 +364,9 @@ msgstr ""
 msgid "Conference"
 msgstr "Conferentie"
 
+msgid "Conferences"
+msgstr ""
+
 msgid "Configuration file"
 msgstr ""
 
@@ -348,6 +375,9 @@ msgstr "Configureer Betty"
 
 msgid "Confirmation"
 msgstr "Geloofsbelijdenis"
+
+msgid "Confirmations"
+msgstr ""
 
 msgid "Content provider"
 msgstr ""
@@ -387,6 +417,9 @@ msgstr ""
 
 msgid "Correspondence"
 msgstr "Correspondentie"
+
+msgid "Correspondences"
+msgstr ""
 
 #, python-brace-format
 msgid "Could not extract {file_path} as a gzip file  (*.gz)."
@@ -450,8 +483,14 @@ msgstr ""
 msgid "Cremation"
 msgstr "Crematie"
 
+msgid "Cremations"
+msgstr ""
+
 msgid "Death"
 msgstr "Overlijden"
+
+msgid "Deaths"
+msgstr ""
 
 msgid "Department"
 msgstr "Departement"
@@ -501,6 +540,9 @@ msgstr ""
 msgid "Divorce"
 msgstr "Echtscheiding"
 
+msgid "Divorces"
+msgstr ""
+
 msgid "Do not show any output, except error messages"
 msgstr ""
 
@@ -521,6 +563,9 @@ msgstr "Wil je een Gramps-stamboom laden?"
 msgid "Emigration"
 msgstr "Emigratie"
 
+msgid "Emigrations"
+msgstr ""
+
 msgid "Enclosure"
 msgstr "Omsluiting"
 
@@ -529,6 +574,9 @@ msgstr "Omsluitingen"
 
 msgid "Engagement"
 msgstr "Verloving"
+
+msgid "Engagements"
+msgstr ""
 
 msgid "Enrich your ancestry with information from Wikipedia and Wikimedia Commons"
 msgstr ""
@@ -618,6 +666,9 @@ msgstr ""
 msgid "Funeral"
 msgstr "Uitvaart"
 
+msgid "Funerals"
+msgstr ""
+
 msgid "Gemeente Amsterdam"
 msgstr ""
 
@@ -693,6 +744,9 @@ msgstr ""
 
 msgid "Immigration"
 msgstr "Immigratie"
+
+msgid "Immigrations"
+msgstr ""
 
 msgid "Informant"
 msgstr "Informant"
@@ -832,6 +886,9 @@ msgstr ""
 msgid "Marriage"
 msgstr "Huwelijk"
 
+msgid "Marriages"
+msgstr ""
+
 msgid "Media"
 msgstr "Media"
 
@@ -856,6 +913,9 @@ msgstr ""
 
 #, python-brace-format
 msgid "Missing plural tag(s) {plural_tags} for {locale} translations."
+msgstr ""
+
+msgid "Missings"
 msgstr ""
 
 msgid "More plugins may be available when running this command with --project."
@@ -911,6 +971,9 @@ msgstr ""
 
 msgid "Occupation"
 msgstr "Beroep"
+
+msgid "Occupations"
+msgstr ""
 
 msgid "One or more of these requirements must be met"
 msgstr "Aan één van deze vereisten moet voldaan worden"
@@ -1133,12 +1196,18 @@ msgstr "Reset"
 msgid "Residence"
 msgstr "Woonplaats"
 
+msgid "Residences"
+msgstr ""
+
 #, python-brace-format
 msgid "Results ({{{ betty-search-results-count }}})"
 msgstr "Resultaten ({{{ betty-search-results-count }}})"
 
 msgid "Retirement"
 msgstr "Pensioen"
+
+msgid "Retirements"
+msgstr ""
 
 #, python-brace-format
 msgid "Running subprocess `{command}`..."
@@ -1410,9 +1479,6 @@ msgstr ""
 msgid "Unknown key: {unknown_key}."
 msgstr "Onbekende sleutel: {unknown_key}."
 
-msgid "Unknown places"
-msgstr ""
-
 #, python-brace-format
 msgid "Unknown plugin \"{plugin_id}\"."
 msgstr ""
@@ -1496,6 +1562,9 @@ msgstr ""
 
 msgid "Will"
 msgstr "Testament"
+
+msgid "Wills"
+msgstr ""
 
 msgid "Witness"
 msgstr "Getuige"
@@ -1680,14 +1749,56 @@ msgstr[0] ""
 msgstr[1] ""
 
 #, python-brace-format
+msgid "{count} adoption"
+msgid_plural "{count} adoptions"
+msgstr[0] ""
+msgstr[1] ""
+
+#, python-brace-format
+msgid "{count} announcement of divorce"
+msgid_plural "{count} announcements of divorce"
+msgstr[0] ""
+msgstr[1] ""
+
+#, python-brace-format
+msgid "{count} announcement of marriage"
+msgid_plural "{count} announcements of marriage"
+msgstr[0] ""
+msgstr[1] ""
+
+#, python-brace-format
 msgid "{count} attendee"
 msgid_plural "{count} attendees"
 msgstr[0] ""
 msgstr[1] ""
 
 #, python-brace-format
+msgid "{count} baptism"
+msgid_plural "{count} baptisms"
+msgstr[0] ""
+msgstr[1] ""
+
+#, python-brace-format
+msgid "{count} bar mitzvah"
+msgid_plural "{count} bar mitzvahs"
+msgstr[0] ""
+msgstr[1] ""
+
+#, python-brace-format
+msgid "{count} bat mitzvah"
+msgid_plural "{count} bat mitzvahs"
+msgstr[0] ""
+msgstr[1] ""
+
+#, python-brace-format
 msgid "{count} beneficiary"
 msgid_plural "{count} beneficiaries"
+msgstr[0] ""
+msgstr[1] ""
+
+#, python-brace-format
+msgid "{count} birth"
+msgid_plural "{count} births"
 msgstr[0] ""
 msgstr[1] ""
 
@@ -1700,6 +1811,12 @@ msgstr[1] ""
 #, python-brace-format
 msgid "{count} building"
 msgid_plural "{count} buildings"
+msgstr[0] ""
+msgstr[1] ""
+
+#, python-brace-format
+msgid "{count} burial"
+msgid_plural "{count} burials"
 msgstr[0] ""
 msgstr[1] ""
 
@@ -1734,6 +1851,18 @@ msgstr[0] ""
 msgstr[1] ""
 
 #, python-brace-format
+msgid "{count} conference"
+msgid_plural "{count} conferences"
+msgstr[0] ""
+msgstr[1] ""
+
+#, python-brace-format
+msgid "{count} confirmation"
+msgid_plural "{count} confirmations"
+msgstr[0] ""
+msgstr[1] ""
+
+#, python-brace-format
 msgid "{count} content provider"
 msgid_plural "{count} content providers"
 msgstr[0] ""
@@ -1746,8 +1875,26 @@ msgstr[0] ""
 msgstr[1] ""
 
 #, python-brace-format
+msgid "{count} correspondence"
+msgid_plural "{count} correspondences"
+msgstr[0] ""
+msgstr[1] ""
+
+#, python-brace-format
 msgid "{count} county"
 msgid_plural "{count} counties"
+msgstr[0] ""
+msgstr[1] ""
+
+#, python-brace-format
+msgid "{count} cremation"
+msgid_plural "{count} cremations"
+msgstr[0] ""
+msgstr[1] ""
+
+#, python-brace-format
+msgid "{count} death"
+msgid_plural "{count} deaths"
 msgstr[0] ""
 msgstr[1] ""
 
@@ -1764,10 +1911,28 @@ msgstr[0] ""
 msgstr[1] ""
 
 #, python-brace-format
+msgid "{count} divorce"
+msgid_plural "{count} divorces"
+msgstr[0] ""
+msgstr[1] ""
+
+#, python-brace-format
+msgid "{count} emigration"
+msgid_plural "{count} emigrations"
+msgstr[0] ""
+msgstr[1] ""
+
+#, python-brace-format
 msgid "{count} enclosure"
 msgid_plural "{count} enclosures"
 msgstr[0] "{count} omsluiting"
 msgstr[1] "{count} omsluitingen"
+
+#, python-brace-format
+msgid "{count} engagement"
+msgid_plural "{count} engagements"
+msgstr[0] ""
+msgstr[1] ""
 
 #, python-brace-format
 msgid "{count} entity"
@@ -1812,6 +1977,12 @@ msgstr[0] "{count} bestandsverwijzing"
 msgstr[1] "{count} bestandsverwijzingen"
 
 #, python-brace-format
+msgid "{count} funeral"
+msgid_plural "{count} funerals"
+msgstr[0] ""
+msgstr[1] ""
+
+#, python-brace-format
 msgid "{count} gender"
 msgid_plural "{count} genders"
 msgstr[0] ""
@@ -1820,6 +1991,12 @@ msgstr[1] ""
 #, python-brace-format
 msgid "{count} hamlet"
 msgid_plural "{count} hamlets"
+msgstr[0] ""
+msgstr[1] ""
+
+#, python-brace-format
+msgid "{count} immigration"
+msgid_plural "{count} immigrations"
 msgstr[0] ""
 msgstr[1] ""
 
@@ -1854,6 +2031,18 @@ msgstr[0] ""
 msgstr[1] ""
 
 #, python-brace-format
+msgid "{count} marriage"
+msgid_plural "{count} marriages"
+msgstr[0] ""
+msgstr[1] ""
+
+#, python-brace-format
+msgid "{count} missing"
+msgid_plural "{count} missings"
+msgstr[0] ""
+msgstr[1] ""
+
+#, python-brace-format
 msgid "{count} municipality"
 msgid_plural "{count} municipalities"
 msgstr[0] ""
@@ -1880,6 +2069,12 @@ msgstr[1] "{count} aantekeningen"
 #, python-brace-format
 msgid "{count} number"
 msgid_plural "{count} numbers"
+msgstr[0] ""
+msgstr[1] ""
+
+#, python-brace-format
+msgid "{count} occupation"
+msgid_plural "{count} occupations"
 msgstr[0] ""
 msgstr[1] ""
 
@@ -1956,6 +2151,18 @@ msgstr[0] ""
 msgstr[1] ""
 
 #, python-brace-format
+msgid "{count} residence"
+msgid_plural "{count} residences"
+msgstr[0] ""
+msgstr[1] ""
+
+#, python-brace-format
+msgid "{count} retirement"
+msgid_plural "{count} retirements"
+msgstr[0] ""
+msgstr[1] ""
+
+#, python-brace-format
 msgid "{count} serialization format"
 msgid_plural "{count} serialization formats"
 msgstr[0] ""
@@ -2004,14 +2211,14 @@ msgstr[0] ""
 msgstr[1] ""
 
 #, python-brace-format
-msgid "{count} unknown place"
-msgid_plural "{count} unknown places"
+msgid "{count} village"
+msgid_plural "{count} villages"
 msgstr[0] ""
 msgstr[1] ""
 
 #, python-brace-format
-msgid "{count} village"
-msgid_plural "{count} villages"
+msgid "{count} will"
+msgid_plural "{count} wills"
 msgstr[0] ""
 msgstr[1] ""
 

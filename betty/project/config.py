@@ -466,7 +466,8 @@ class LicensePluginConfigurationMapping(
 
 
 class EventTypePluginConfiguration(
-    HumanFacingPluginDefinitionConfiguration, OrderedPluginDefinitionConfiguration
+    CountableHumanFacingPluginDefinitionConfiguration,
+    OrderedPluginDefinitionConfiguration,
 ):
     """
     Configure a :py:class:`betty.ancestry.event_type.EventTypePlugin`.
@@ -494,6 +495,8 @@ class EventTypePluginConfigurationMapping(
         @EventTypePlugin(
             configuration.id,
             label=configuration.label,
+            label_plural=configuration.label_plural,
+            label_countable=configuration.label_countable,
             description=configuration.description,
         )
         class _ProjectConfigurationEventType(EventType):

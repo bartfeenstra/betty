@@ -7,11 +7,11 @@ from __future__ import annotations
 from abc import ABC, abstractmethod
 from typing import TYPE_CHECKING, ClassVar, final
 
-from betty.locale.localizable import LocalizableLike, _, ngettext
+from betty.locale.localizable import CountableLocalizable, LocalizableLike, _, ngettext
 from betty.plugin import Plugin, PluginTypeDefinition
 from betty.plugin.discovery.entry_point import EntryPointDiscovery
 from betty.plugin.discovery.project import ProjectDiscovery
-from betty.plugin.human_facing import HumanFacingPluginDefinition
+from betty.plugin.human_facing import CountableHumanFacingPluginDefinition
 from betty.plugin.ordered import OrderedPluginDefinition
 from betty.plugin.resolve import ResolvableId, resolve_id
 
@@ -46,7 +46,7 @@ class ShouldExistEventType(EventType, ABC):
 
 @final
 class EventTypePlugin(
-    HumanFacingPluginDefinition[EventType], OrderedPluginDefinition[EventType]
+    CountableHumanFacingPluginDefinition[EventType], OrderedPluginDefinition[EventType]
 ):
     """
     An event type definition.
@@ -73,6 +73,8 @@ class EventTypePlugin(
         plugin_id: MachineName,
         *,
         label: LocalizableLike,
+        label_plural: LocalizableLike,
+        label_countable: CountableLocalizable,
         description: LocalizableLike | None = None,
         comes_before: Set[ResolvableId] | None = None,
         comes_after: Set[ResolvableId] | None = None,
@@ -81,6 +83,8 @@ class EventTypePlugin(
         super().__init__(
             plugin_id,
             label=label,
+            label_plural=label_plural,
+            label_countable=label_countable,
             description=description,
             comes_before=comes_before,
             comes_after=comes_after,

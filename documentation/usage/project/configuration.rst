@@ -31,6 +31,11 @@ structure. Example configuration:
           event_types:
             moon-landing:
               label: Moon Landing
+              label_plural: Moon landings
+              label_countable:
+                en-US:
+                  one: "{count} moon landing"
+                  other: "{count} moon landings"
           genders:
             genderqueer:
               label: Genderqueer
@@ -89,7 +94,14 @@ structure. Example configuration:
             },
             "event_types": {
               "moon-landing": {
-                "label": "Moon Landing"
+                "label": "Moon Landing",
+                "label_plural": "Moon landings",
+                "label_countable": {
+                  "en-US": {
+                    "one": "{count} moon landing",
+                    "other": "{count} moon landings"
+                  }
+                }
               }
             },
             "genders": {

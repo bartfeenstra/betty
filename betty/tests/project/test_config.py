@@ -817,10 +817,30 @@ class TestEventTypePluginConfigurationMapping(
         self,
     ) -> ConfigurationCollectionTestBaseSutConfigurations[EventTypePluginConfiguration]:
         return (
-            EventTypePluginConfiguration(id="foo", label="Foo"),
-            EventTypePluginConfiguration(id="bar", label="Bar"),
-            EventTypePluginConfiguration(id="baz", label="Baz"),
-            EventTypePluginConfiguration(id="qux", label="Qux"),
+            EventTypePluginConfiguration(
+                id="foo",
+                label="Foo",
+                label_plural="Foo",
+                label_countable=DUMMY_COUNTABLE_LOCALIZABLE,
+            ),
+            EventTypePluginConfiguration(
+                id="bar",
+                label="Bar",
+                label_plural="Bar",
+                label_countable=DUMMY_COUNTABLE_LOCALIZABLE,
+            ),
+            EventTypePluginConfiguration(
+                id="baz",
+                label="Baz",
+                label_plural="Baz",
+                label_countable=DUMMY_COUNTABLE_LOCALIZABLE,
+            ),
+            EventTypePluginConfiguration(
+                id="qux",
+                label="Qux",
+                label_plural="Qux",
+                label_countable=DUMMY_COUNTABLE_LOCALIZABLE,
+            ),
         )
 
     @override
@@ -1300,7 +1320,32 @@ class TestProjectConfiguration:
         ("expected", "event_types_configuration"),
         [
             ({}, {}),
-            ({"foo": {"label": "Foo"}}, {"foo": {"label": "Foo"}}),
+            (
+                {
+                    "foo": {
+                        "label": "Foo",
+                        "label_plural": "Foos",
+                        "label_countable": {
+                            "en-US": {
+                                "one": "{count} DUMMY_COUNTABLE_LOCALIZABLE",
+                                "other": "{count} DUMMY_COUNTABLE_LOCALIZABLES",
+                            },
+                        },
+                    }
+                },
+                {
+                    "foo": {
+                        "label": "Foo",
+                        "label_plural": "Foos",
+                        "label_countable": {
+                            "en-US": {
+                                "one": "{count} DUMMY_COUNTABLE_LOCALIZABLE",
+                                "other": "{count} DUMMY_COUNTABLE_LOCALIZABLES",
+                            },
+                        },
+                    }
+                },
+            ),
         ],
     )
     async def test_load__should_load_event_types(
@@ -1537,11 +1582,25 @@ class TestProjectConfiguration:
 
     async def test_dump__should_dump_event_types(self) -> None:
         sut = ProjectConfiguration()
-        sut.event_types.append(EventTypePluginConfiguration(id="foo", label="Foo"))
+        sut.event_types.append(
+            EventTypePluginConfiguration(
+                id="foo",
+                label="Foo",
+                label_plural="Foos",
+                label_countable=DUMMY_COUNTABLE_LOCALIZABLE,
+            )
+        )
         dump = sut.dump()
         expected: DumpMapping[Dump] = {
             "foo": {
                 "label": "Foo",
+                "label_plural": "Foos",
+                "label_countable": {
+                    "en-US": {
+                        "one": "{count} DUMMY_COUNTABLE_LOCALIZABLE",
+                        "other": "{count} DUMMY_COUNTABLE_LOCALIZABLES",
+                    },
+                },
             }
         }
         assert dump["event_types"] == expected
