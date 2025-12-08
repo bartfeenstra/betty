@@ -275,8 +275,8 @@ class Town(PlaceType):
 @PlaceTypePlugin(
     "unknown",
     label=_("Unknown"),
-    label_plural=_("Unknown places"),
-    label_countable=ngettext("{count} unknown place", "{count} unknown places"),
+    label_plural=_("Unknowns"),
+    label_countable=ngettext("{count} unknown", "{count} unknowns"),
 )
 class Unknown(PlaceType, Singleton):
     """
