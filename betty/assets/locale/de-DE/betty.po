@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Betty VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2025-12-07 23:51+0000\n"
+"POT-Creation-Date: 2025-12-08 00:55+0000\n"
 "PO-Revision-Date: 2025-03-28 20:02+0000\n"
 "Last-Translator: Ettore Atalan <atalanttore@googlemail.com>\n"
 "Language: de_DE\n"
@@ -1251,8 +1251,20 @@ msgstr "Es muss ein Text-String sein."
 msgid "This must be a whole number."
 msgstr "Es muss eine ganze Zahl sein."
 
+#, python-brace-format
+msgid "This must be at least {length} characters long."
+msgstr ""
+
+#, python-brace-format
+msgid "This must be at most {length} characters long."
+msgstr ""
+
 msgid "This must be none/null."
 msgstr "Es muss None/Null sein."
+
+#, python-brace-format
+msgid "This must be {length} characters long."
+msgstr ""
 
 msgid "This person's name is unknown."
 msgstr "Der Name dieser Person ist nicht bekannt."

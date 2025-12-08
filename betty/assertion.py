@@ -266,13 +266,38 @@ def assert_positive_number() -> AssertionChain[Any, Number]:
     return assert_number() | _assert_positive_number
 
 
-def assert_str() -> AssertionChain[Any, str]:
+def assert_str(
+    *,
+    exact_length: int | None = None,
+    minimum_length: int | None = None,
+    maximum_length: int | None = None,
+) -> AssertionChain[Any, str]:
     """
     Assert that a value is a Python ``str``.
     """
 
     def _assert_str(value: Any, /) -> str:
-        return _assert_type(value, str)
+        string = _assert_type(value, str)
+        actual = len(value)
+        if exact_length is not None and actual != exact_length:
+            raise HumanFacingException(
+                _("This must be {length} characters long.").format(
+                    length=str(exact_length)
+                )
+            )
+        if minimum_length is not None and actual < minimum_length:
+            raise HumanFacingException(
+                _("This must be at least {length} characters long.").format(
+                    length=str(minimum_length)
+                )
+            )
+        if maximum_length is not None and actual > maximum_length:
+            raise HumanFacingException(
+                _("This must be at most {length} characters long.").format(
+                    length=str(maximum_length)
+                )
+            )
+        return string
 
     return AssertionChain(_assert_str)
 

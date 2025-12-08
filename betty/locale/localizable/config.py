@@ -5,7 +5,6 @@ Provide localizable configuration.
 from contextlib import suppress
 
 from betty.assertion import (
-    assert_len,
     assert_locale,
     assert_mapping,
     assert_or,
@@ -32,7 +31,6 @@ def load_localizable(dump: Dump, /) -> Localizable:
         assert_str().chain(lambda translation: {None: translation}),
         assert_mapping(assert_str(), assert_locale()),
     )(dump)
-    assert_len(minimum=1)(translations)
     return StaticTranslations(translations)
 
 

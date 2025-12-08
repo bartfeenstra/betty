@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Betty 0.4\n"
 "Report-Msgid-Bugs-To: illia@maier.page\n"
-"POT-Creation-Date: 2025-12-07 23:51+0000\n"
+"POT-Creation-Date: 2025-12-08 00:55+0000\n"
 "PO-Revision-Date: 2025-05-13 17:01+0000\n"
 "Last-Translator: Максим Горпиніч <maksimgorpinic4@gmail.com>\n"
 "Language: uk\n"
@@ -1283,8 +1283,20 @@ msgstr "Це має бути рядок."
 msgid "This must be a whole number."
 msgstr "Це має бути ціле число."
 
+#, python-brace-format
+msgid "This must be at least {length} characters long."
+msgstr ""
+
+#, python-brace-format
+msgid "This must be at most {length} characters long."
+msgstr ""
+
 msgid "This must be none/null."
 msgstr "Це має бути значення none/null."
+
+#, python-brace-format
+msgid "This must be {length} characters long."
+msgstr ""
 
 msgid "This person's name is unknown."
 msgstr "Ім'я цієї людини невідоме."

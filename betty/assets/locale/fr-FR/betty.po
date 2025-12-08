@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PROJECT VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2025-12-07 23:51+0000\n"
+"POT-Creation-Date: 2025-12-08 00:55+0000\n"
 "PO-Revision-Date: 2025-08-27 20:02+0000\n"
 "Last-Translator: \"David D.\" <dadu042@users.noreply.hosted.weblate.org>\n"
 "Language: fr_FR\n"
@@ -1226,7 +1226,19 @@ msgstr "Cela doit être une chaîne."
 msgid "This must be a whole number."
 msgstr "Cela doit être un nombre entier."
 
+#, python-brace-format
+msgid "This must be at least {length} characters long."
+msgstr ""
+
+#, python-brace-format
+msgid "This must be at most {length} characters long."
+msgstr ""
+
 msgid "This must be none/null."
+msgstr ""
+
+#, python-brace-format
+msgid "This must be {length} characters long."
 msgstr ""
 
 msgid "This person's name is unknown."

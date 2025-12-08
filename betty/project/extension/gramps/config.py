@@ -4,7 +4,7 @@ Provide configuration for the :py:class:`betty.project.extension.gramps.Gramps` 
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Any, Generic, Self, TypeVar
+from typing import TYPE_CHECKING, Generic, Self, TypeVar
 
 from typing_extensions import override
 
@@ -13,7 +13,6 @@ from betty.ancestry.place_type import PlaceType, PlaceTypePlugin
 from betty.ancestry.presence_role import PresenceRole, PresenceRolePlugin
 from betty.assertion import (
     OptionalField,
-    assert_len,
     assert_mapping,
     assert_path,
     assert_record,
@@ -42,10 +41,7 @@ _PluginT = TypeVar("_PluginT", bound=Plugin)
 _PluginDefinitionT = TypeVar("_PluginDefinitionT", bound=PluginDefinition)
 
 
-def _assert_gramps_type(value: Any) -> str:
-    event_type = assert_str()(value)
-    assert_len(minimum=1)(event_type)
-    return event_type
+_assert_gramps_type = assert_str(minimum_length=1)
 
 
 @internal
