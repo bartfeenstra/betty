@@ -578,7 +578,7 @@ class PresenceRolePluginConfigurationMapping(
         return _ProjectConfigurationPresenceRole.plugin
 
 
-class GenderPluginConfiguration(HumanFacingPluginDefinitionConfiguration):
+class GenderPluginConfiguration(CountableHumanFacingPluginDefinitionConfiguration):
     """
     Configure a :py:class:`betty.ancestry.gender.GenderPlugin`.
     """
@@ -603,6 +603,8 @@ class GenderPluginConfigurationMapping(
         @GenderPlugin(
             configuration.id,
             label=configuration.label,
+            label_plural=configuration.label_plural,
+            label_countable=configuration.label_countable,
             description=configuration.description,
         )
         class _ProjectConfigurationGender(Gender):

@@ -15,7 +15,7 @@ from betty.ancestry.event import Event
 from betty.ancestry.event_type.event_types import Birth, Death, Marriage
 from betty.ancestry.file import File
 from betty.ancestry.file_reference import FileReference
-from betty.ancestry.gender.genders import Female, Male
+from betty.ancestry.gender.genders import Man, Woman
 from betty.ancestry.link import Link
 from betty.ancestry.name import Name
 from betty.ancestry.note import Note
@@ -163,7 +163,7 @@ class LoadAncestry(Job[ProjectContext]):
         ancestry.add(bevolkingsregister_amsterdam)
 
         david_marinus_lankester = Person(
-            id="betty-demo-david-marinus-lankester", gender=Male()
+            id="betty-demo-david-marinus-lankester", gender=Man()
         )
         _streetmix_image(david_marinus_lankester)
         ancestry.add(
@@ -176,7 +176,7 @@ class LoadAncestry(Job[ProjectContext]):
         )
 
         geertruida_van_ling = Person(
-            id="betty-demo-geertruida-van-ling", gender=Female()
+            id="betty-demo-geertruida-van-ling", gender=Woman()
         )
         _streetmix_image(geertruida_van_ling)
         ancestry.add(
@@ -214,7 +214,7 @@ class LoadAncestry(Job[ProjectContext]):
 
         dirk_jacobus_lankester = Person(
             id="betty-demo-dirk-jacobus-lankester",
-            gender=Male(),
+            gender=Man(),
             parents=[david_marinus_lankester, geertruida_van_ling],
         )
         _streetmix_image(dirk_jacobus_lankester)
@@ -261,7 +261,7 @@ class LoadAncestry(Job[ProjectContext]):
 
         marinus_david_lankester = Person(
             id="betty-demo-marinus-david-lankester",
-            gender=Male(),
+            gender=Man(),
             parents=[david_marinus_lankester, geertruida_van_ling],
         )
         _streetmix_image(marinus_david_lankester)
@@ -290,7 +290,7 @@ class LoadAncestry(Job[ProjectContext]):
 
         jacoba_gesina_lankester = Person(
             id="betty-demo-jacoba-gesina-lankester",
-            gender=Female(),
+            gender=Woman(),
             parents=[david_marinus_lankester, geertruida_van_ling],
         )
         _streetmix_image(jacoba_gesina_lankester)
@@ -306,7 +306,7 @@ class LoadAncestry(Job[ProjectContext]):
         )
         ancestry.add(jacoba_gesina_lankester)
 
-        jannigje_palsen = Person(id="betty-demo-jannigje-palsen", gender=Female())
+        jannigje_palsen = Person(id="betty-demo-jannigje-palsen", gender=Woman())
         _streetmix_image(jannigje_palsen)
         ancestry.add(
             PersonName(
@@ -364,7 +364,7 @@ class LoadAncestry(Job[ProjectContext]):
 
         liberta_lankester = Person(
             id="betty-demo-liberta-lankester",
-            gender=Female(),
+            gender=Woman(),
             parents=[dirk_jacobus_lankester, jannigje_palsen],
             notes=[liberta_lankester_note],
         )
@@ -407,7 +407,7 @@ class LoadAncestry(Job[ProjectContext]):
         )
         ancestry.add(death_of_johan_de_boer)
 
-        johan_de_boer = Person(id="betty-demo-johan-de-boer", gender=Male())
+        johan_de_boer = Person(id="betty-demo-johan-de-boer", gender=Man())
         _streetmix_image(johan_de_boer)
         ancestry.add(
             PersonName(
@@ -456,7 +456,7 @@ class LoadAncestry(Job[ProjectContext]):
 
         bart_feenstra = Person(
             id="betty-demo-bart-feenstra",
-            gender=Male(),
+            gender=Man(),
             parents=[parent_of_bart_feenstra_child_of_liberta_lankester],
         )
         Presence(bart_feenstra, Subject(), birth_of_bart_feenstra)
@@ -518,6 +518,6 @@ class LoadAncestry(Job[ProjectContext]):
             project.ancestry.add(file)
 
         return {
-            Female.plugin.id: feminine + androgynous,
-            Male.plugin.id: masculine + androgynous,
+            Woman.plugin.id: feminine + androgynous,
+            Man.plugin.id: masculine + androgynous,
         }, androgynous

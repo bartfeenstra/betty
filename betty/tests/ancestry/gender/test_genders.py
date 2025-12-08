@@ -1,7 +1,7 @@
 import pytest
 from typing_extensions import override
 
-from betty.ancestry.gender.genders import Female, Male, NonBinary, Unknown
+from betty.ancestry.gender.genders import Man, NonBinary, Unknown, Woman
 from betty.plugin import PluginDefinition
 from betty.test_utils.ancestry.gender import GenderPluginTestBase
 
@@ -13,18 +13,18 @@ class TestNonBinary(GenderPluginTestBase):
         return NonBinary.plugin
 
 
-class TestFemale(GenderPluginTestBase):
+class TestWoman(GenderPluginTestBase):
     @override
     @pytest.fixture
     def sut(self) -> PluginDefinition:
-        return Female.plugin
+        return Woman.plugin
 
 
-class TestMale(GenderPluginTestBase):
+class TestMan(GenderPluginTestBase):
     @override
     @pytest.fixture
     def sut(self) -> PluginDefinition:
-        return Male.plugin
+        return Man.plugin
 
 
 class TestUnknown(GenderPluginTestBase):

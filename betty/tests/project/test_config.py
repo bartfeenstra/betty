@@ -967,10 +967,30 @@ class TestGenderPluginConfigurationMapping(
         self,
     ) -> ConfigurationCollectionTestBaseSutConfigurations[GenderPluginConfiguration]:
         return (
-            GenderPluginConfiguration(id="foo", label="Foo"),
-            GenderPluginConfiguration(id="bar", label="Bar"),
-            GenderPluginConfiguration(id="baz", label="Baz"),
-            GenderPluginConfiguration(id="qux", label="Qux"),
+            GenderPluginConfiguration(
+                id="foo",
+                label="Foo",
+                label_plural="Foo",
+                label_countable=DUMMY_COUNTABLE_LOCALIZABLE,
+            ),
+            GenderPluginConfiguration(
+                id="bar",
+                label="Bar",
+                label_plural="Bar",
+                label_countable=DUMMY_COUNTABLE_LOCALIZABLE,
+            ),
+            GenderPluginConfiguration(
+                id="baz",
+                label="Baz",
+                label_plural="Baz",
+                label_countable=DUMMY_COUNTABLE_LOCALIZABLE,
+            ),
+            GenderPluginConfiguration(
+                id="qux",
+                label="Qux",
+                label_plural="Qux",
+                label_countable=DUMMY_COUNTABLE_LOCALIZABLE,
+            ),
         )
 
     @override
@@ -1380,7 +1400,32 @@ class TestProjectConfiguration:
         ("expected", "genders_configuration"),
         [
             ({}, {}),
-            ({"foo": {"label": "Foo"}}, {"foo": {"label": "Foo"}}),
+            (
+                {
+                    "foo": {
+                        "label": "Foo",
+                        "label_countable": {
+                            "en-US": {
+                                "one": "{count} DUMMY_COUNTABLE_LOCALIZABLE",
+                                "other": "{count} DUMMY_COUNTABLE_LOCALIZABLES",
+                            },
+                        },
+                        "label_plural": "Foo",
+                    }
+                },
+                {
+                    "foo": {
+                        "label": "Foo",
+                        "label_countable": {
+                            "en-US": {
+                                "one": "{count} DUMMY_COUNTABLE_LOCALIZABLE",
+                                "other": "{count} DUMMY_COUNTABLE_LOCALIZABLES",
+                            },
+                        },
+                        "label_plural": "Foo",
+                    }
+                },
+            ),
         ],
     )
     async def test_load__should_load_genders(
@@ -1532,7 +1577,7 @@ class TestProjectConfiguration:
             PresenceRolePluginConfiguration(
                 id="foo",
                 label="Foo",
-                label_plural="Foo",
+                label_plural="Foos",
                 label_countable=DUMMY_COUNTABLE_LOCALIZABLE,
             ),
         )
@@ -1540,24 +1585,38 @@ class TestProjectConfiguration:
         expected: DumpMapping[Dump] = {
             "foo": {
                 "label": "Foo",
+                "label_plural": "Foos",
                 "label_countable": {
                     "en-US": {
                         "one": "{count} DUMMY_COUNTABLE_LOCALIZABLE",
                         "other": "{count} DUMMY_COUNTABLE_LOCALIZABLES",
                     },
                 },
-                "label_plural": "Foo",
             }
         }
         assert dump["presence_roles"] == expected
 
     async def test_dump__should_dump_genders(self) -> None:
         sut = ProjectConfiguration()
-        sut.genders.append(GenderPluginConfiguration(id="foo", label="Foo"))
+        sut.genders.append(
+            GenderPluginConfiguration(
+                id="foo",
+                label="Foo",
+                label_plural="Foos",
+                label_countable=DUMMY_COUNTABLE_LOCALIZABLE,
+            )
+        )
         dump = sut.dump()
         expected: DumpMapping[Dump] = {
             "foo": {
                 "label": "Foo",
+                "label_plural": "Foos",
+                "label_countable": {
+                    "en-US": {
+                        "one": "{count} DUMMY_COUNTABLE_LOCALIZABLE",
+                        "other": "{count} DUMMY_COUNTABLE_LOCALIZABLES",
+                    },
+                },
             }
         }
         assert dump["genders"] == expected

@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Betty VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2025-12-08 10:57+0000\n"
+"POT-Creation-Date: 2025-12-08 15:11+0000\n"
 "PO-Revision-Date: 2025-11-16 18:38+0000\n"
 "Last-Translator: Артур Калагов "
 "<artur.kalagov@users.noreply.hosted.weblate.org>\n"
@@ -591,9 +591,6 @@ msgstr ""
 msgid "Featured entities"
 msgstr ""
 
-msgid "Female"
-msgstr "Женщина"
-
 msgid "File"
 msgstr "Файл"
 
@@ -824,8 +821,8 @@ msgstr "d MMMM y г."
 msgid "MMMM, y"
 msgstr "MMMM y г."
 
-msgid "Male"
-msgstr "Мужчина"
+msgid "Man"
+msgstr ""
 
 msgid "Map"
 msgstr ""
@@ -841,6 +838,9 @@ msgstr ""
 
 msgid "Media references"
 msgstr "Ссылки на медиа"
+
+msgid "Men"
+msgstr ""
 
 msgid "Menu"
 msgstr "Меню"
@@ -886,8 +886,11 @@ msgstr ""
 "форме или любыми средствами без явного письменного разрешения "
 "правообладателя или если это не разрешено законом об авторском праве."
 
-msgid "Non-binary"
-msgstr "Небинарный"
+msgid "Non-binary people"
+msgstr ""
+
+msgid "Non-binary person"
+msgstr ""
 
 msgid "North Holland"
 msgstr ""
@@ -968,6 +971,9 @@ msgstr ""
 msgid "People"
 msgstr "Люди"
 
+msgid "People of unknown gender"
+msgstr ""
+
 msgid "Permanent link to this section."
 msgstr "Постоянная ссылка на этот раздел."
 
@@ -979,6 +985,9 @@ msgstr "Имя"
 
 msgid "Person names"
 msgstr "Имена"
+
+msgid "Person of unknown gender"
+msgstr ""
 
 msgid "Personal accounts"
 msgstr ""
@@ -1479,6 +1488,12 @@ msgstr "Свидетель"
 msgid "Witnesses"
 msgstr "Свидетели"
 
+msgid "Woman"
+msgstr ""
+
+msgid "Women"
+msgstr ""
+
 msgid ""
 "Works in the public domain can be used or referenced without permission, "
 "because nobody holds any exclusive rights over these works (anymore)."
@@ -1848,6 +1863,13 @@ msgstr[1] ""
 msgstr[2] ""
 
 #, python-brace-format
+msgid "{count} man"
+msgid_plural "{count} men"
+msgstr[0] ""
+msgstr[1] ""
+msgstr[2] ""
+
+#, python-brace-format
 msgid "{count} municipality"
 msgid_plural "{count} municipalities"
 msgstr[0] ""
@@ -1857,6 +1879,13 @@ msgstr[2] ""
 #, python-brace-format
 msgid "{count} neighborhood"
 msgid_plural "{count} neighborhoods"
+msgstr[0] ""
+msgstr[1] ""
+msgstr[2] ""
+
+#, python-brace-format
+msgid "{count} non-binary person"
+msgid_plural "{count} non-binary people"
 msgstr[0] ""
 msgstr[1] ""
 msgstr[2] ""
@@ -1902,6 +1931,13 @@ msgid_plural "{count} person names"
 msgstr[0] "{count} имя"
 msgstr[1] "{count} имени"
 msgstr[2] "{count} имен"
+
+#, python-brace-format
+msgid "{count} person of unknown gender"
+msgid_plural "{count} people of unknown gender"
+msgstr[0] ""
+msgstr[1] ""
+msgstr[2] ""
 
 #, python-brace-format
 msgid "{count} place"
@@ -2025,6 +2061,13 @@ msgstr[2] ""
 #, python-brace-format
 msgid "{count} witness"
 msgid_plural "{count} witnesses"
+msgstr[0] ""
+msgstr[1] ""
+msgstr[2] ""
+
+#, python-brace-format
+msgid "{count} woman"
+msgid_plural "{count} women"
 msgstr[0] ""
 msgstr[1] ""
 msgstr[2] ""

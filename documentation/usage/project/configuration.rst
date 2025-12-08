@@ -34,6 +34,11 @@ structure. Example configuration:
           genders:
             genderqueer:
               label: Genderqueer
+              label_plural: Genderqueers
+              label_countable:
+                en-US:
+                  one: "{count} genderqueer"
+                  other: "{count} genderqueers"
           place_types:
             moon:
               label: Moon
@@ -89,7 +94,14 @@ structure. Example configuration:
             },
             "genders": {
               "genderqueer": {
-                "label": "Genderqueer"
+                "label": "Genderqueer",
+                "label_plural": "Genderqueers",
+                "label_countable": {
+                  "en-US": {
+                    "one": "{count} genderqueer",
+                    "other": "{count} genderqueers"
+                  }
+                }
               }
             },
             "place_types": {
