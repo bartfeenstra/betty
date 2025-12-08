@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PROJECT VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2025-12-08 10:57+0000\n"
+"POT-Creation-Date: 2025-12-08 15:11+0000\n"
 "PO-Revision-Date: 2025-11-08 23:46+0000\n"
 "Last-Translator: Bart Feenstra <bart@bartfeenstra.com>\n"
 "Language: nl_NL\n"
@@ -591,9 +591,6 @@ msgstr ""
 msgid "Featured entities"
 msgstr ""
 
-msgid "Female"
-msgstr "Vrouw"
-
 msgid "File"
 msgstr "Bestand"
 
@@ -826,8 +823,8 @@ msgstr "d MMMM y"
 msgid "MMMM, y"
 msgstr "MMMM y"
 
-msgid "Male"
-msgstr "Man"
+msgid "Man"
+msgstr ""
 
 msgid "Map"
 msgstr ""
@@ -843,6 +840,9 @@ msgstr ""
 
 msgid "Media references"
 msgstr "Mediaverwijzingen"
+
+msgid "Men"
+msgstr ""
 
 msgid "Menu"
 msgstr "Menu"
@@ -888,8 +888,11 @@ msgstr ""
 "op welke manier, zonder expliciete geschreven toestemming van de "
 "copyrighthouder, of indien toegestaan door copyrightwetgeving."
 
-msgid "Non-binary"
-msgstr "Non-binair"
+msgid "Non-binary people"
+msgstr ""
+
+msgid "Non-binary person"
+msgstr ""
 
 msgid "North Holland"
 msgstr ""
@@ -970,6 +973,9 @@ msgstr ""
 msgid "People"
 msgstr "Personen"
 
+msgid "People of unknown gender"
+msgstr ""
+
 msgid "Permanent link to this section."
 msgstr "Permanente link naar dit onderdeel."
 
@@ -981,6 +987,9 @@ msgstr "Persoonsnaam"
 
 msgid "Person names"
 msgstr "Persoonsnamen"
+
+msgid "Person of unknown gender"
+msgstr ""
 
 msgid "Personal accounts"
 msgstr ""
@@ -1494,6 +1503,12 @@ msgstr "Getuige"
 msgid "Witnesses"
 msgstr "Getuigen"
 
+msgid "Woman"
+msgstr ""
+
+msgid "Women"
+msgstr ""
+
 msgid ""
 "Works in the public domain can be used or referenced without permission, "
 "because nobody holds any exclusive rights over these works (anymore)."
@@ -1833,6 +1848,12 @@ msgstr[0] ""
 msgstr[1] ""
 
 #, python-brace-format
+msgid "{count} man"
+msgid_plural "{count} men"
+msgstr[0] ""
+msgstr[1] ""
+
+#, python-brace-format
 msgid "{count} municipality"
 msgid_plural "{count} municipalities"
 msgstr[0] ""
@@ -1841,6 +1862,12 @@ msgstr[1] ""
 #, python-brace-format
 msgid "{count} neighborhood"
 msgid_plural "{count} neighborhoods"
+msgstr[0] ""
+msgstr[1] ""
+
+#, python-brace-format
+msgid "{count} non-binary person"
+msgid_plural "{count} non-binary people"
 msgstr[0] ""
 msgstr[1] ""
 
@@ -1879,6 +1906,12 @@ msgid "{count} person name"
 msgid_plural "{count} person names"
 msgstr[0] "{count} persoonsnaam"
 msgstr[1] "{count} persoonsnamen"
+
+#, python-brace-format
+msgid "{count} person of unknown gender"
+msgid_plural "{count} people of unknown gender"
+msgstr[0] ""
+msgstr[1] ""
 
 #, python-brace-format
 msgid "{count} place"
@@ -1985,6 +2018,12 @@ msgstr[1] ""
 #, python-brace-format
 msgid "{count} witness"
 msgid_plural "{count} witnesses"
+msgstr[0] ""
+msgstr[1] ""
+
+#, python-brace-format
+msgid "{count} woman"
+msgid_plural "{count} women"
 msgstr[0] ""
 msgstr[1] ""
 

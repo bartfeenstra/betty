@@ -300,9 +300,9 @@ Betty maps Gramps genders as follows:
    * - Gramps gender
      - Betty gender
    * - ``F``
-     - ``female``
+     - ``woman``
    * - ``M``
-     - ``male``
+     - ``man``
    * - ``U``
      - ``unknown``
    * - ``X``

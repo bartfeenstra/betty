@@ -52,7 +52,7 @@ from betty.ancestry.event_type.event_types import (
 from betty.ancestry.event_type.event_types import Unknown as UnknownEventType
 from betty.ancestry.file import File
 from betty.ancestry.file_reference import FileReference
-from betty.ancestry.gender.genders import Female, Male, NonBinary
+from betty.ancestry.gender.genders import Man, NonBinary, Woman
 from betty.ancestry.gender.genders import Unknown as UnknownGender
 from betty.ancestry.has_links import HasLinks
 from betty.ancestry.link import Link
@@ -225,8 +225,8 @@ def _plugin_mapping(
 
 
 _DEFAULT_GENDER_MAPPING: Mapping[str, ResolvableId[GenderPlugin, Gender]] = {
-    "F": Female,
-    "M": Male,
+    "F": Woman,
+    "M": Man,
     "U": UnknownGender,
     "X": NonBinary,
 }

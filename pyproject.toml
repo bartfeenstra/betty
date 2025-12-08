@@ -174,10 +174,10 @@ betty = 'betty.console:main_standalone'
 'wiki' = 'betty.project.extension.wiki:Wiki'
 
 [project.entry-points.'betty.gender']
-'female' = 'betty.ancestry.gender.genders:Female'
-'male' = 'betty.ancestry.gender.genders:Male'
+'man' = 'betty.ancestry.gender.genders:Man'
 'non-binary' = 'betty.ancestry.gender.genders:NonBinary'
 'unknown' = 'betty.ancestry.gender.genders:Unknown'
+'woman' = 'betty.ancestry.gender.genders:Woman'
 
 [project.entry-points.'betty.place_type']
 'borough' = 'betty.ancestry.place_type.place_types:Borough'
