@@ -321,9 +321,9 @@ class Plain(Localizable):
     """
 
     def __init__(self, text: str, locale: LocaleLike | None = None, /):
-        from betty.assertion import assert_len
+        from betty.assertion import assert_str
 
-        assert_len(minimum=1)(text)
+        assert_str(minimum_length=1)(text)
         self._text = text
         self._locale = None if locale is None else ensure_locale(locale)
 
@@ -520,7 +520,10 @@ class StaticTranslations(Mutable, Localizable):
         """
         :param translations: Keys are locales, values are translations.
         """
+        from betty.assertion import assert_len
+
         super().__init__()
+        assert_len(minimum=1)(translations)
         self._translations = (
             {None: translations}
             if isinstance(translations, str)
