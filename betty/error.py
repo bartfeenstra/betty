@@ -5,7 +5,7 @@ Provide error handling utilities.
 from pathlib import Path
 
 from betty.exception import HumanFacingException
-from betty.locale.localizable import _
+from betty.locale.localizable.gettext import _
 
 
 class FileNotFound(HumanFacingException, FileNotFoundError):

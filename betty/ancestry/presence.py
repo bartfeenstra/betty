@@ -9,7 +9,7 @@ from typing import TYPE_CHECKING, final
 from typing_extensions import override
 
 from betty.ancestry.presence_role import PresenceRolePlugin
-from betty.locale.localizable import Localizable, _, ngettext
+from betty.locale.localizable.gettext import _, ngettext
 from betty.model import Entity, EntityPlugin
 from betty.model.association import BidirectionalToOne, ToOneAssociate
 from betty.privacy import HasPrivacy, Privacy, is_public, merge_secondary_privacies
@@ -21,6 +21,7 @@ if TYPE_CHECKING:
     from betty.ancestry.person import Person
     from betty.ancestry.presence_role import PresenceRole
     from betty.json.linked_data import JsonLdObject
+    from betty.locale.localizable import Localizable
     from betty.project import Project
     from betty.serde.dump import Dump, DumpMapping
 

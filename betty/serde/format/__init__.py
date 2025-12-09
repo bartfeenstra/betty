@@ -10,7 +10,8 @@ from typing import TYPE_CHECKING, ClassVar, final
 from typing_extensions import override
 
 from betty.exception import HumanFacingException
-from betty.locale.localizable import Localizable, _, ngettext
+from betty.locale.localizable import Localizable
+from betty.locale.localizable.gettext import _, ngettext
 from betty.locale.localized import Localized, LocalizedStr
 from betty.plugin import Plugin, PluginTypeDefinition
 from betty.plugin.discovery.entry_point import EntryPointDiscovery

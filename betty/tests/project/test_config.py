@@ -17,7 +17,7 @@ from betty.exception import HumanFacingException
 from betty.license import License, LicensePlugin
 from betty.license.licenses import AllRightsReserved
 from betty.locale import DEFAULT_LOCALE, DEFAULT_LOCALE_TAG, LocaleLike
-from betty.locale.localizable import Plain
+from betty.locale.localizable.plain import Plain
 from betty.locale.localizer import DEFAULT_LOCALIZER
 from betty.machine_name import MachineName
 from betty.model import Entity, EntityPlugin

@@ -15,7 +15,7 @@ from typing_extensions import override
 
 from betty.assertion import Assertion
 from betty.locale.localizable import LocalizableLike
-from betty.locale.localized import ensure_localized
+from betty.locale.localized.ensure import ensure_localized
 from betty.progress import Progress
 from betty.progress.no_op import NoOpProgress
 from betty.rich import Theme

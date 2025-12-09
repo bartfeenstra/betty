@@ -7,7 +7,7 @@ from __future__ import annotations
 from typing import TYPE_CHECKING, TypeVar
 
 from betty.exception import HumanFacingException
-from betty.locale.localizable import _
+from betty.locale.localizable.gettext import _
 from betty.locale.translation import (
     _new_translation,
     _update_translations,

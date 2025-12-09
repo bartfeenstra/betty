@@ -7,7 +7,9 @@ from typing import Self, final
 from typing_extensions import override
 
 from betty.copyright_notice import CopyrightNotice, CopyrightNoticePlugin
-from betty.locale.localizable import Localizable, LocalizableLike, _, ensure_localizable
+from betty.locale.localizable import Localizable, LocalizableLike
+from betty.locale.localizable.ensure import ensure_localizable
+from betty.locale.localizable.gettext import _
 from betty.project import Project
 from betty.project.factory import ProjectDependentSelfFactory
 

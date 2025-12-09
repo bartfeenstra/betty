@@ -100,11 +100,8 @@ from betty.error import FileNotFound
 from betty.gramps.error import GrampsError, UserFacingGrampsError
 from betty.locale import from_language_tag
 from betty.locale.error import LocaleError
-from betty.locale.localizable import (
-    StaticTranslations,
-    StaticTranslationsMapping,
-    _,
-)
+from betty.locale.localizable.gettext import _
+from betty.locale.localizable.static import StaticTranslations
 from betty.media_type import InvalidMediaType, MediaType
 from betty.model import Entity
 from betty.model.association import ToManyResolver, ToOneResolver, resolve
@@ -138,6 +135,7 @@ if TYPE_CHECKING:
     from betty.ancestry.presence_role import PresenceRole, PresenceRolePlugin
     from betty.copyright_notice import CopyrightNoticePlugin
     from betty.license import LicensePlugin
+    from betty.locale.localizable import StaticTranslationsMapping
     from betty.machine_name import MachineName
     from betty.plugin.repository import PluginRepository
     from betty.plugin.resolve import ResolvableId

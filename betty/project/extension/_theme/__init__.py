@@ -22,7 +22,7 @@ from betty.config import Configuration
 from betty.date import Date, DateLike
 from betty.exception import HumanFacingException
 from betty.functools import unique
-from betty.locale.localizable import _
+from betty.locale.localizable.gettext import _
 from betty.model import persistent_id
 from betty.privacy import is_public
 

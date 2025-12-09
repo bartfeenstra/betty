@@ -16,7 +16,7 @@ from typing_extensions import override
 from betty.app import App
 from betty.console.command import CommandFunction, CommandPlugin
 from betty.exception import HumanFacingException
-from betty.locale.localizable import _
+from betty.locale.localizable.gettext import _
 from betty.locale.localizer import Localizer
 from betty.user import Verbosity
 

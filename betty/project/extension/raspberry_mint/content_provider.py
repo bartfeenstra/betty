@@ -19,14 +19,11 @@ from betty.config import Configuration
 from betty.config.factory import ConfigurationDependentSelfFactory
 from betty.content_provider import ContentProviderPlugin
 from betty.content_provider.content_providers import Template
-from betty.locale.localizable import (
-    LocalizableLike,
-    RequiredLocalizableAttr,
-    _,
-    ensure_localizable,
-)
 from betty.locale.localizable.assertion import assert_load_localizable
+from betty.locale.localizable.attr import RequiredLocalizableAttr
 from betty.locale.localizable.config import dump_localizable
+from betty.locale.localizable.ensure import ensure_localizable
+from betty.locale.localizable.gettext import _
 from betty.machine_name import MachineName, assert_machine_name
 from betty.model import EntityPlugin
 from betty.model.config import EntityReferenceSequence
@@ -49,6 +46,7 @@ if TYPE_CHECKING:
         ShorthandContentProviderInstanceConfigurationSequence,
     )
     from betty.jinja2 import Environment
+    from betty.locale.localizable import LocalizableLike
     from betty.model import Entity
     from betty.project import Project
     from betty.resource import Context

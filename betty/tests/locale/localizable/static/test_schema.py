@@ -5,7 +5,7 @@ import pytest
 from typing_extensions import override
 
 from betty.locale import DEFAULT_LOCALE_TAG
-from betty.locale.localizable.schema import StaticTranslationsSchema
+from betty.locale.localizable.static.schema import StaticTranslationsSchema
 from betty.test_utils.json.schema import SchemaTestBase, SchemaTestBaseSut
 
 if TYPE_CHECKING:

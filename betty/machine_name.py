@@ -9,7 +9,7 @@ from typing import Any, TypeAlias, TypeGuard
 
 from betty.assertion import AssertionChain, assert_str
 from betty.exception import HumanFacingException
-from betty.locale.localizable import _
+from betty.locale.localizable.gettext import _
 
 MachineName: TypeAlias = str
 """

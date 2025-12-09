@@ -10,7 +10,8 @@ from typing import TYPE_CHECKING, Self, final
 from typing_extensions import TypeVar, override
 
 from betty.functools import unique
-from betty.locale.localizable import AllEnumeration, _
+from betty.locale.localizable.gettext import _
+from betty.locale.localizable.markup import AllEnumeration
 from betty.plugin import Plugin, PluginDefinition
 from betty.plugin.dependent import DependentPluginDefinition
 from betty.plugin.error import PluginError, PluginNotFound, UnmetRequirement

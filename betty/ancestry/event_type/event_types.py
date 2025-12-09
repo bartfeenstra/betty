@@ -14,7 +14,7 @@ from betty.ancestry.event_type import (
     ShouldExistEventType,
 )
 from betty.classtools import Singleton
-from betty.locale.localizable import _, ngettext
+from betty.locale.localizable.gettext import _, ngettext
 
 if TYPE_CHECKING:
     from betty.ancestry.person import Person

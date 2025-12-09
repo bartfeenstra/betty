@@ -15,7 +15,7 @@ from betty.ancestry.file_reference import FileReference
 from betty.date import Date, DateLike, DateRange
 from betty.dirs import ASSETS_DIRECTORY_PATH
 from betty.job import Context
-from betty.locale.localizable import Plain
+from betty.locale.localizable.plain import Plain
 from betty.locale.localized import Localized, LocalizedStr
 from betty.media_type import MediaType
 from betty.media_type.media_types import SVG

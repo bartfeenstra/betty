@@ -298,17 +298,21 @@ _BASELINE: Mapping[str, _ModuleIgnore] = {
             "count": MissingReason.ABSTRACT,
         },
         "format": MissingReason.SHOULD_BE_COVERED,
-        "gettext": MissingReason.SHOULD_BE_COVERED,
         "Localizable": MissingReason.SHOULD_BE_COVERED,
-        "LocalizableSequence": MissingReason.ABSTRACT,
-        "ngettext": MissingReason.SHOULD_BE_COVERED,
-        "npgettext": MissingReason.SHOULD_BE_COVERED,
-        "pgettext": MissingReason.SHOULD_BE_COVERED,
     },
     "betty/locale/localizable/error.py": {
         "InvalidPluralTag": MissingReason.STATIC_CONTENT_ONLY,
         "MissingPluralPlaceholder": MissingReason.STATIC_CONTENT_ONLY,
         "MissingPluralTag": MissingReason.STATIC_CONTENT_ONLY,
+    },
+    "betty/locale/localizable/gettext.py": {
+        "gettext": MissingReason.SHOULD_BE_COVERED,
+        "ngettext": MissingReason.SHOULD_BE_COVERED,
+        "npgettext": MissingReason.SHOULD_BE_COVERED,
+        "pgettext": MissingReason.SHOULD_BE_COVERED,
+    },
+    "betty/locale/localizable/markup.py": {
+        "LocalizableSequence": MissingReason.ABSTRACT,
     },
     "betty/media_type/__init__.py": {
         "InvalidMediaType": MissingReason.STATIC_CONTENT_ONLY,

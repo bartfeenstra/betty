@@ -12,7 +12,8 @@ from typing import TYPE_CHECKING
 
 from betty import subprocess
 from betty.exception import HumanFacingException
-from betty.locale.localizable import Paragraph, _
+from betty.locale.localizable.gettext import _
+from betty.locale.localizable.markup import Paragraph
 from betty.requirement import Requirement, StaticRequirement
 
 if TYPE_CHECKING:

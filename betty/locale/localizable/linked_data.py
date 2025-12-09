@@ -5,7 +5,8 @@ Linked data for the localizable API.
 from collections.abc import Iterable
 
 from betty.locale import to_language_tag
-from betty.locale.localizable import Localizable, StaticTranslations
+from betty.locale.localizable import Localizable
+from betty.locale.localizable.static import StaticTranslations
 from betty.locale.localizer import Localizer
 from betty.serde.dump import Dump, DumpMapping
 

@@ -20,7 +20,8 @@ from betty.content_provider.content_providers import (
 from betty.exception import HumanFacingException
 from betty.job import Context
 from betty.locale import DEFAULT_LOCALE, DEFAULT_LOCALE_TAG
-from betty.locale.localizable import LocalizableLike, StaticTranslations
+from betty.locale.localizable import LocalizableLike
+from betty.locale.localizable.static import StaticTranslations
 from betty.locale.localizer import DEFAULT_LOCALIZER, Localizer
 from betty.project import Project
 from betty.resource import new_context

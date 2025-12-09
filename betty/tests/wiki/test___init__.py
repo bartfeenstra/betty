@@ -7,7 +7,7 @@ import pytest
 
 from betty.ancestry.link import Link
 from betty.locale import DEFAULT_LOCALE_TAG
-from betty.locale.localizable import StaticTranslations
+from betty.locale.localizable.static import StaticTranslations
 from betty.locale.localizer import Localizer
 from betty.wiki import NotAPageError, parse_page_link, parse_page_url
 

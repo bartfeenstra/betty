@@ -7,7 +7,7 @@ from __future__ import annotations
 from typing import TYPE_CHECKING, final
 
 from betty.ancestry.file import File
-from betty.locale.localizable import _, ngettext
+from betty.locale.localizable.gettext import _, ngettext
 from betty.model import Entity, EntityPlugin
 from betty.model.association import BidirectionalToOne, ToOneAssociate
 

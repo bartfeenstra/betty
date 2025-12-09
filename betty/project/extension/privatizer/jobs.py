@@ -11,7 +11,7 @@ from typing_extensions import override
 
 from betty.ancestry.person import Person
 from betty.job import Job
-from betty.locale.localizable import _, ngettext
+from betty.locale.localizable.gettext import _, ngettext
 from betty.privacy import HasPrivacy
 from betty.project import ProjectContext
 

@@ -26,7 +26,7 @@ from betty.gramps.loader import (
     DEFAULT_PLACE_TYPE_MAPPING,
     DEFAULT_PRESENCE_ROLE_MAPPING,
 )
-from betty.locale.localizable import _
+from betty.locale.localizable.gettext import _
 from betty.plugin import Plugin, PluginDefinition
 from betty.plugin.config import PluginInstanceConfiguration
 from betty.typing import internal

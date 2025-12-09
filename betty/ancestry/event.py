@@ -21,16 +21,11 @@ from betty.ancestry.presence import Presence
 from betty.ancestry.presence_role.presence_roles import Subject
 from betty.json.linked_data import JsonLdObject, dump_context
 from betty.json.schema import String
-from betty.locale.localizable import (
-    AllEnumeration,
-    Localizable,
-    LocalizableLike,
-    OptionalLocalizableAttr,
-    _,
-    ngettext,
-)
+from betty.locale.localizable.attr import OptionalLocalizableAttr
+from betty.locale.localizable.gettext import _, ngettext
 from betty.locale.localizable.linked_data import dump_linked_data
-from betty.locale.localizable.schema import StaticTranslationsSchema
+from betty.locale.localizable.markup import AllEnumeration
+from betty.locale.localizable.static.schema import StaticTranslationsSchema
 from betty.model import EntityPlugin
 from betty.model.association import (
     BidirectionalToManySingleType,
@@ -48,6 +43,7 @@ if TYPE_CHECKING:
     from betty.ancestry.file_reference import FileReference
     from betty.ancestry.note import Note
     from betty.date import DateLike
+    from betty.locale.localizable import Localizable, LocalizableLike
     from betty.project import Project
     from betty.serde.dump import Dump, DumpMapping
 

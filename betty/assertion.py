@@ -30,11 +30,14 @@ from betty.data import Index, Key
 from betty.error import FileNotFound
 from betty.exception import HumanFacingException, HumanFacingExceptionGroup
 from betty.locale import from_language_tag
-from betty.locale.localizable import Localizable, Paragraph, _, do_you_mean
+from betty.locale.localizable.gettext import _
+from betty.locale.localizable.markup import Paragraph, do_you_mean
 from betty.typing import internal
 
 if TYPE_CHECKING:
     from babel import Locale
+
+    from betty.locale.localizable import Localizable
 
 Number: TypeAlias = int | float
 

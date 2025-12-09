@@ -12,7 +12,7 @@ from betty.ancestry.has_citations import HasCitations
 from betty.ancestry.locale import HasLocale
 from betty.json.linked_data import JsonLdObject, dump_context
 from betty.json.schema import String
-from betty.locale.localizable import Localizable, _, ngettext
+from betty.locale.localizable.gettext import _, ngettext
 from betty.model import Entity, EntityPlugin
 from betty.model.association import BidirectionalToOne, ToManyAssociates, ToOneAssociate
 from betty.privacy import HasPrivacy, Privacy, merge_privacies
@@ -21,6 +21,7 @@ if TYPE_CHECKING:
     from betty.ancestry.citation import Citation
     from betty.ancestry.person import Person
     from betty.locale import LocaleLike
+    from betty.locale.localizable import Localizable
     from betty.project import Project
     from betty.serde.dump import Dump, DumpMapping
 

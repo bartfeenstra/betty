@@ -6,7 +6,7 @@ from typing_extensions import override
 
 from betty.app.factory import AppDependentSelfFactory
 from betty.console.command import Command, CommandFunction, CommandPlugin
-from betty.locale.localizable import _
+from betty.locale.localizable.gettext import _
 from betty.project import new
 
 if TYPE_CHECKING:

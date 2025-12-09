@@ -9,7 +9,7 @@ from typing import TYPE_CHECKING, Self, final
 from typing_extensions import override
 
 from betty.config.factory import ConfigurationDependentSelfFactory
-from betty.locale.localizable import _
+from betty.locale.localizable.gettext import _
 from betty.project.extension import Extension, ExtensionPlugin
 from betty.project.extension.gramps.config import GrampsConfiguration
 from betty.project.extension.gramps.jobs import LoadAncestry

@@ -13,9 +13,9 @@ from betty.json.linked_data import (
     LinkedDataDumpableWithSchemaJsonLdObject,
     dump_context,
 )
-from betty.locale.localizable import OptionalLocalizableAttr
+from betty.locale.localizable.attr import OptionalLocalizableAttr
 from betty.locale.localizable.linked_data import dump_linked_data
-from betty.locale.localizable.schema import StaticTranslationsSchema
+from betty.locale.localizable.static.schema import StaticTranslationsSchema
 from betty.privacy import is_public
 
 if TYPE_CHECKING:

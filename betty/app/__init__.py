@@ -28,7 +28,7 @@ from betty.http_client.rate_limit import RateLimitMiddleware, RateLimitPlugin
 from betty.license import LicensePlugin
 from betty.license.licenses import SpdxLicenseBuilder
 from betty.locale import DEFAULT_LOCALE
-from betty.locale.localizable import LocalizableLike, _
+from betty.locale.localizable.gettext import _
 from betty.locale.localizer import Localizer, LocalizerRepository
 from betty.locale.translation import (
     AssetTranslationRepository,
@@ -61,6 +61,7 @@ if TYPE_CHECKING:
     import aiohttp
 
     from betty.cache import Cache
+    from betty.locale.localizable import LocalizableLike
     from betty.machine_name import MachineName
     from betty.plugin.repository import PluginRepository
     from betty.service.level import ServiceLevel

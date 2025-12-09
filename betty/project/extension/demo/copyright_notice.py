@@ -7,11 +7,12 @@ from typing import final
 from typing_extensions import override
 
 from betty.copyright_notice import CopyrightNotice, CopyrightNoticePlugin
-from betty.locale.localizable import Localizable, StaticTranslations
+from betty.locale.localizable import Localizable
+from betty.locale.localizable.plain import Plain
 
 
 @final
-@CopyrightNoticePlugin("streetmix", label=StaticTranslations("Streetmix LLC"))
+@CopyrightNoticePlugin("streetmix", label=Plain("Streetmix LLC"))
 class Streetmix(CopyrightNotice):
     """
     The copyright for Streetmix resources.
@@ -30,4 +31,4 @@ class Streetmix(CopyrightNotice):
     @override
     @property
     def url(self) -> Localizable:
-        return StaticTranslations("https://github.com/streetmix/streetmix")
+        return Plain("https://github.com/streetmix/streetmix")

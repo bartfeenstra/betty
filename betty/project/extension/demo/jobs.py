@@ -36,7 +36,7 @@ from betty.dirs import DATA_DIRECTORY_PATH
 from betty.job import Job
 from betty.license import LicensePlugin
 from betty.license.licenses import spdx_license_id_to_license_id
-from betty.locale.localizable import _
+from betty.locale.localizable.gettext import _
 from betty.media_type.media_types import SVG
 from betty.project import Project, ProjectContext
 from betty.project.extension.demo.copyright_notice import Streetmix

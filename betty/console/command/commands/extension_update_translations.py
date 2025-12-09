@@ -8,7 +8,7 @@ from betty.app.factory import AppDependentSelfFactory
 from betty.assertion import assert_or, assert_none, assert_directory_path
 from betty.argparse import assertion_to_argument_type
 from betty.console.command import Command, CommandFunction, CommandPlugin
-from betty.locale.localizable import _
+from betty.locale.localizable.gettext import _
 from betty.locale.translation.project import extension as extension_translation
 from betty.locale.translation.project.extension import (
     assert_extension_has_assets_directory_path,

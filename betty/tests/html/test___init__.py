@@ -9,7 +9,7 @@ from betty.html import (
     newlines_to_paragraphs,
     plain_text_to_html,
 )
-from betty.locale.localizable import Plain
+from betty.locale.localizable.plain import Plain
 from betty.locale.localizer import DEFAULT_LOCALIZER
 
 

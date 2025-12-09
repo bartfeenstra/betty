@@ -15,19 +15,19 @@ from typing import TYPE_CHECKING, ClassVar, Generic, final
 
 from typing_extensions import TypeVar
 
-from betty.locale.localizable import (
-    CountableLocalizable,
-    LocalizableLike,
-    _,
-    ensure_localizable,
-)
+from betty.locale.localizable.ensure import ensure_localizable
+from betty.locale.localizable.gettext import _
 from betty.machine_name import InvalidMachineName, MachineName, validate_machine_name
 
 if TYPE_CHECKING:
     import builtins
     from collections.abc import Collection, Iterator, Mapping
 
-    from betty.locale.localizable import Localizable
+    from betty.locale.localizable import (
+        CountableLocalizable,
+        Localizable,
+        LocalizableLike,
+    )
     from betty.plugin.discovery import PluginDiscovery
 
 

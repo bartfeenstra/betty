@@ -10,14 +10,8 @@ from typing import TYPE_CHECKING, Never, Self
 from typing_extensions import override
 
 from betty.data import Selectors
-from betty.locale.localizable import (
-    Lines,
-    Localizable,
-    LocalizableLike,
-    UnorderedList,
-    _,
-)
-from betty.locale.localized import Localized, LocalizedStr, ensure_localized
+from betty.locale.localizable import Localizable, LocalizableLike
+from betty.locale.localized import Localized, LocalizedStr
 
 if TYPE_CHECKING:
     from collections.abc import Iterator, MutableSequence, Sequence
@@ -59,6 +53,7 @@ class HumanFacingException(Exception, Localizable):
     def __init__(
         self, message: LocalizableLike, *, contexts: Sequence[Context] | None = None
     ):
+        from betty.locale.localized.ensure import ensure_localized
         from betty.locale.localizer import DEFAULT_LOCALIZER
 
         super().__init__(
@@ -76,6 +71,8 @@ class HumanFacingException(Exception, Localizable):
 
     @override
     def localize(self, localizer: Localizer, /) -> Localized & str:
+        from betty.locale.localizable.markup import Lines, UnorderedList
+
         return Lines(
             self._localizable_message,
             UnorderedList(
@@ -116,6 +113,8 @@ class HumanFacingExceptionGroup(HumanFacingException):
     """
 
     def __init__(self, errors: Sequence[HumanFacingException] | None = None, /):
+        from betty.locale.localizable.gettext import _
+
         super().__init__(_("The following errors occurred"))
         self._errors: MutableSequence[HumanFacingException] = []
         if errors is not None:

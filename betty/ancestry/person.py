@@ -17,7 +17,7 @@ from betty.ancestry.has_links import HasLinks
 from betty.ancestry.has_notes import HasNotes
 from betty.functools import unique
 from betty.json.linked_data import JsonLdObject, dump_context
-from betty.locale.localizable import Localizable, _, ngettext
+from betty.locale.localizable.gettext import _, ngettext
 from betty.model import EntityPlugin, persistent_id
 from betty.model.association import BidirectionalToManySingleType, ToManyAssociates
 from betty.model.schema import ToManySchema
@@ -33,6 +33,7 @@ if TYPE_CHECKING:
     from betty.ancestry.note import Note
     from betty.ancestry.person_name import PersonName
     from betty.ancestry.presence import Presence
+    from betty.locale.localizable import Localizable
     from betty.project import Project
     from betty.serde.dump import Dump, DumpMapping
 

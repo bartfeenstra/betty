@@ -14,7 +14,7 @@ from betty.app import App
 from betty.config.factory import ConfigurationDependentSelfFactory
 from betty.content_provider.content_providers import PlainText, PlainTextConfiguration
 from betty.exception import HumanFacingException
-from betty.locale.localizable import Plain
+from betty.locale.localizable.plain import Plain
 from betty.locale.localizer import DEFAULT_LOCALIZER
 from betty.model.config import EntityReference, EntityReferenceSequence
 from betty.plugin.config import PluginInstanceConfiguration

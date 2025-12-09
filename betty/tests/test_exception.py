@@ -11,7 +11,7 @@ from betty.exception import (
     reraise_within_context,
 )
 from betty.locale import DEFAULT_LOCALE_TAG
-from betty.locale.localizable import StaticTranslations
+from betty.locale.localizable.static import StaticTranslations
 from betty.locale.localizer import DEFAULT_LOCALIZER, Localizer
 from betty.test_utils.exception import assert_error
 from betty.test_utils.locale.localizable import DUMMY_LOCALIZABLE

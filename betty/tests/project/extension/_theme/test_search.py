@@ -9,7 +9,7 @@ from betty.ancestry.person_name import PersonName
 from betty.ancestry.place import Place
 from betty.app import App
 from betty.job import Context
-from betty.locale.localizable import StaticTranslations
+from betty.locale.localizable.static import StaticTranslations
 from betty.locale.localizer import DEFAULT_LOCALIZER
 from betty.project import Project
 from betty.project.config import LocaleConfiguration

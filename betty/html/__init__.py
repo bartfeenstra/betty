@@ -12,12 +12,12 @@ from uuid import uuid4
 
 from markupsafe import escape
 
-from betty.locale.localizable import LocalizableLike, ensure_localizable
+from betty.locale.localizable.ensure import ensure_localizable
 
 if TYPE_CHECKING:
     from collections.abc import Sequence
 
-    from betty.locale.localizable import Localizable
+    from betty.locale.localizable import Localizable, LocalizableLike
 
 
 class CssProvider(ABC):
