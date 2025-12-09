@@ -10,14 +10,14 @@ from betty.ancestry.event import Event
 from betty.ancestry.event_type.event_types import Unknown as UnknownEventType
 from betty.ancestry.person import Person
 from betty.ancestry.presence import Presence
-from betty.ancestry.presence_role import PresenceRole, PresenceRolePlugin
+from betty.ancestry.presence_role import PresenceRole, PresenceRoleDefinition
 from betty.ancestry.presence_role.presence_roles import Subject
 from betty.ancestry.presence_role.presence_roles import Unknown as UnknownPresenceRole
 from betty.mutability import Mutable
 from betty.privacy import Privacy
 from betty.test_utils.documentation import PluginDocumentationTestBase
 from betty.test_utils.json.linked_data import assert_dumps_linked_data
-from betty.test_utils.model import EntityPluginTestBase, EntityTestBase
+from betty.test_utils.model import EntityDefinitionTestBase, EntityTestBase
 
 if TYPE_CHECKING:
     from betty.model import Entity
@@ -25,15 +25,17 @@ if TYPE_CHECKING:
     from betty.serde.dump import Dump, DumpMapping
 
 
-class TestPresenceDefinition(EntityPluginTestBase):
+class TestPresenceDefinition(EntityDefinitionTestBase):
     @override
     @pytest.fixture
     def sut(self) -> PluginDefinition:
-        return Presence.plugin
+        return Presence.plugin()
 
 
-class TestPresenceRoleDocumentation(PluginDocumentationTestBase[PresenceRolePlugin]):
-    _plugin_type = PresenceRolePlugin
+class TestPresenceRoleDocumentation(
+    PluginDocumentationTestBase[PresenceRoleDefinition]
+):
+    _plugin_type = PresenceRoleDefinition
     _plugin_type_documentation_path = Path("usage") / "ancestry" / "presence-role.rst"
 
 
@@ -91,7 +93,7 @@ class TestPresence(EntityTestBase):
             "event": "/event/my-first-event/index.json",
             "person": "/person/my-first-person/index.json",
             "private": False,
-            "role": role.plugin.id,
+            "role": role.plugin().id,
         }
         actual = await assert_dumps_linked_data(sut)
         assert actual == expected

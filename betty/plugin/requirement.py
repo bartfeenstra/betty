@@ -145,7 +145,7 @@ class CheckRequirementRepository(PluginRepository[_PluginDefinitionT]):
                 raise UnmetRequirement(plugin, requirement)
             return plugin
         except KeyError:
-            raise PluginNotFound(self.type.type, plugin_id, list(self)) from None
+            raise PluginNotFound(self.type.type(), plugin_id, list(self)) from None
 
     @override
     def __iter__(self) -> Iterator[_PluginDefinitionT]:

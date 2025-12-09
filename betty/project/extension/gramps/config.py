@@ -8,9 +8,9 @@ from typing import TYPE_CHECKING, Generic, Self, TypeVar
 
 from typing_extensions import override
 
-from betty.ancestry.event_type import EventType, EventTypePlugin
-from betty.ancestry.place_type import PlaceType, PlaceTypePlugin
-from betty.ancestry.presence_role import PresenceRole, PresenceRolePlugin
+from betty.ancestry.event_type import EventType, EventTypeDefinition
+from betty.ancestry.place_type import PlaceType, PlaceTypeDefinition
+from betty.ancestry.presence_role import PresenceRole, PresenceRoleDefinition
 from betty.assertion import (
     OptionalField,
     assert_mapping,
@@ -100,7 +100,7 @@ class PluginMapping(Generic[_PluginDefinitionT, _PluginT], Configuration):
         return iter(self._mapping)
 
 
-class EventTypeMapping(PluginMapping[EventTypePlugin, EventType]):
+class EventTypeMapping(PluginMapping[EventTypeDefinition, EventType]):
     """
     Map Gramps event types to Betty event types.
     """
@@ -108,7 +108,7 @@ class EventTypeMapping(PluginMapping[EventTypePlugin, EventType]):
     _DEFAULT_MAPPING = DEFAULT_EVENT_TYPE_MAPPING
 
 
-class PlaceTypeMapping(PluginMapping[PlaceTypePlugin, PlaceType]):
+class PlaceTypeMapping(PluginMapping[PlaceTypeDefinition, PlaceType]):
     """
     Map Gramps place types to Betty place types.
     """
@@ -116,7 +116,7 @@ class PlaceTypeMapping(PluginMapping[PlaceTypePlugin, PlaceType]):
     _DEFAULT_MAPPING = DEFAULT_PLACE_TYPE_MAPPING
 
 
-class PresenceRoleMapping(PluginMapping[PresenceRolePlugin, PresenceRole]):
+class PresenceRoleMapping(PluginMapping[PresenceRoleDefinition, PresenceRole]):
     """
     Map Gramps roles to Betty presence roles.
     """

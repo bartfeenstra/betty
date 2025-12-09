@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import pytest
 
-from betty.content_provider import ContentProvider, ContentProviderPlugin
+from betty.content_provider import ContentProvider, ContentProviderDefinition
 from betty.exception import HumanFacingException
 from betty.plugin.config import (
     PluginInstanceConfiguration,
@@ -19,7 +19,7 @@ class TestRegionalContentConfiguration:
     def test___setitem__(self) -> None:
         sut = RegionalContentConfiguration()
         content_provider = PluginInstanceConfiguration[
-            ContentProviderPlugin, ContentProvider
+            ContentProviderDefinition, ContentProvider
         ]("my-first-plugin")
         sut["front"] = [content_provider]
         assert sut["front"][0] is content_provider

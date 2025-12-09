@@ -15,7 +15,7 @@ from betty.data import Path as DataPath
 from betty.exception import reraise_within_context
 from betty.factory import new_target
 from betty.plugin.repository.provider.service import plugins
-from betty.serde.format import FormatPlugin, format_for
+from betty.serde.format import FormatDefinition, format_for
 
 if TYPE_CHECKING:
     from pathlib import Path
@@ -29,7 +29,7 @@ async def assert_load_file() -> AssertionChain[Path, Dump]:
     """
     available_formats = {
         available_format: await new_target(available_format.cls)
-        for available_format in await plugins(FormatPlugin)
+        for available_format in await plugins(FormatDefinition)
     }
 
     def _assert(file_path: Path) -> Dump:
@@ -53,7 +53,9 @@ async def dump_file(dump: Dump, file_path: Path, /) -> None:
     """
     Write a dump to a file.
     """
-    serde_format_type = format_for(list(await plugins(FormatPlugin)), file_path.suffix)
+    serde_format_type = format_for(
+        list(await plugins(FormatDefinition)), file_path.suffix
+    )
     serde_format = await new_target(serde_format_type.cls)
     dump_data = serde_format.dump(dump)
     await makedirs(file_path.parent, exist_ok=True)

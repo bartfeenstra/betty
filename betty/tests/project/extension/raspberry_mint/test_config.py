@@ -5,7 +5,7 @@ from typing import TYPE_CHECKING, Any
 import pytest
 
 from betty.config.color import ColorConfiguration
-from betty.content_provider import ContentProvider, ContentProviderPlugin
+from betty.content_provider import ContentProvider, ContentProviderDefinition
 from betty.exception import HumanFacingException
 from betty.plugin.config import (
     PluginInstanceConfiguration,
@@ -57,7 +57,7 @@ class TestRaspberryMintConfiguration:
 
     def test_regional_content__from___init__(self) -> None:
         content_provider = PluginInstanceConfiguration[
-            ContentProviderPlugin, ContentProvider
+            ContentProviderDefinition, ContentProvider
         ]("my-first-plugin")
         regional_content = {
             "front": PluginInstanceConfigurationSequence([content_provider])

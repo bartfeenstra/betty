@@ -79,7 +79,7 @@ class TestFamilyTreeConfiguration:
             ),
         )
         assert sut.event_types[gramps_type].id == plugin_id
-        assert sut.event_types["Birth"].id == Birth.plugin.id
+        assert sut.event_types["Birth"].id == Birth.plugin().id
 
     def test___init____with_place_types(self, tmp_path: Path) -> None:
         gramps_type = "my-first-gramps-type"
@@ -91,7 +91,7 @@ class TestFamilyTreeConfiguration:
             ),
         )
         assert sut.place_types[gramps_type].id == plugin_id
-        assert sut.place_types["Borough"].id == Borough.plugin.id
+        assert sut.place_types["Borough"].id == Borough.plugin().id
 
     def test___init____with_presence_roles(self, tmp_path: Path) -> None:
         gramps_type = "my-first-gramps-type"
@@ -103,7 +103,7 @@ class TestFamilyTreeConfiguration:
             ),
         )
         assert sut.presence_roles[gramps_type].id == plugin_id
-        assert sut.presence_roles["Aide"].id == Attendee.plugin.id
+        assert sut.presence_roles["Aide"].id == Attendee.plugin().id
 
     def test_source(self) -> None:
         source = "my-first-family-tree"
@@ -144,7 +144,7 @@ class TestFamilyTreeConfiguration:
         }
         sut = FamilyTreeConfiguration.load(dump)
         assert sut.event_types["my-first-gramps-type"].id == "my-first-betty-plugin-id"
-        assert sut.event_types["Birth"].id == Birth.plugin.id
+        assert sut.event_types["Birth"].id == Birth.plugin().id
 
     async def test_load__with_place_types(self, tmp_path: Path) -> None:
         file_path = tmp_path / "ancestry.gramps"
@@ -154,7 +154,7 @@ class TestFamilyTreeConfiguration:
         }
         sut = FamilyTreeConfiguration.load(dump)
         assert sut.place_types["my-first-gramps-type"].id == "my-first-betty-plugin-id"
-        assert sut.place_types["Borough"].id == Borough.plugin.id
+        assert sut.place_types["Borough"].id == Borough.plugin().id
 
     async def test_load__with_presence_roles(self, tmp_path: Path) -> None:
         file_path = tmp_path / "ancestry.gramps"
@@ -166,7 +166,7 @@ class TestFamilyTreeConfiguration:
         assert (
             sut.presence_roles["my-first-gramps-type"].id == "my-first-betty-plugin-id"
         )
-        assert sut.presence_roles["Aide"].id == Attendee.plugin.id
+        assert sut.presence_roles["Aide"].id == Attendee.plugin().id
 
     async def test_load__without_dict_should_error(self, tmp_path: Path) -> None:
         dump = None

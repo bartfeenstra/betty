@@ -30,10 +30,10 @@ class TestTrees(EntryPointProviderTestBase):
                     encoding="utf-8",
                 ) as f:
                     betty_js = await f.read()
-                assert Trees.plugin.id in betty_js
+                assert Trees.plugin().id in betty_js
                 async with aiofiles.open(
                     project.www_directory_path / "css" / "webpack" / "trees.css",
                     encoding="utf-8",
                 ) as f:
                     betty_css = await f.read()
-                assert Trees.plugin.id in betty_css
+                assert Trees.plugin().id in betty_css

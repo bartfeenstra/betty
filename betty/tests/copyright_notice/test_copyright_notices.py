@@ -5,16 +5,16 @@ from betty.copyright_notice import CopyrightNotice
 from betty.copyright_notice.copyright_notices import ProjectAuthor, PublicDomain
 from betty.plugin import PluginDefinition
 from betty.test_utils.copyright_notice import (
-    CopyrightNoticePluginTestBase,
+    CopyrightNoticeDefinitionTestBase,
     CopyrightNoticeTestBase,
 )
 
 
-class TestProjectAuthorDefinition(CopyrightNoticePluginTestBase):
+class TestProjectAuthorDefinition(CopyrightNoticeDefinitionTestBase):
     @override
     @pytest.fixture
     def sut(self) -> PluginDefinition:
-        return ProjectAuthor.plugin
+        return ProjectAuthor.plugin()
 
 
 class TestProjectAuthor(CopyrightNoticeTestBase):
@@ -29,11 +29,11 @@ class TestProjectAuthor(CopyrightNoticeTestBase):
         return ProjectAuthor(request.param)
 
 
-class TestPublicDomainDefinition(CopyrightNoticePluginTestBase):
+class TestPublicDomainDefinition(CopyrightNoticeDefinitionTestBase):
     @override
     @pytest.fixture
     def sut(self) -> PluginDefinition:
-        return PublicDomain.plugin
+        return PublicDomain.plugin()
 
 
 class TestPublicDomain(CopyrightNoticeTestBase):

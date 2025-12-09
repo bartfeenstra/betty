@@ -8,9 +8,9 @@ from typing import TYPE_CHECKING, final
 
 from typing_extensions import override
 
-from betty.ancestry.presence_role import PresenceRolePlugin
+from betty.ancestry.presence_role import PresenceRoleDefinition
 from betty.locale.localizable.gettext import _, ngettext
-from betty.model import Entity, EntityPlugin
+from betty.model import Entity, EntityDefinition
 from betty.model.association import BidirectionalToOne, ToOneAssociate
 from betty.privacy import HasPrivacy, Privacy, is_public, merge_secondary_privacies
 
@@ -27,7 +27,7 @@ if TYPE_CHECKING:
 
 
 @final
-@EntityPlugin(
+@EntityDefinition(
     "presence",
     label=_("Presence"),
     label_plural=_("Presences"),
@@ -105,7 +105,7 @@ class Presence(HasPrivacy, Entity):
     @classmethod
     async def linked_data_schema(cls, project: Project, /) -> JsonLdObject:
         schema = await super().linked_data_schema(project)
-        presence_roles = await project.plugins(PresenceRolePlugin)
+        presence_roles = await project.plugins(PresenceRoleDefinition)
         schema.add_property("role", presence_roles.plugin_id_schema, False)
         return schema
 
@@ -113,5 +113,5 @@ class Presence(HasPrivacy, Entity):
     async def dump_linked_data(self, project: Project, /) -> DumpMapping[Dump]:
         dump = await super().dump_linked_data(project)
         if is_public(self):
-            dump["role"] = self.role.plugin.id
+            dump["role"] = self.role.plugin().id
         return dump

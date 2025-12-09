@@ -7,7 +7,7 @@ from typing import TYPE_CHECKING, Self, final
 from typing_extensions import override
 
 from betty.locale.localizable.gettext import _
-from betty.project.extension import Extension, ExtensionPlugin
+from betty.project.extension import Extension, ExtensionDefinition
 from betty.project.extension.deriver import Deriver
 from betty.project.extension.deriver.jobs import DeriveAncestry
 from betty.project.extension.privatizer.jobs import PrivatizeAncestry
@@ -20,13 +20,13 @@ if TYPE_CHECKING:
 
 
 @final
-@ExtensionPlugin(
+@ExtensionDefinition(
     "privatizer",
     label="Privatizer",
     description=_(
         "Determine if people can be proven to have died. If not, mark them and their associated entities private."
     ),
-    comes_after={Deriver.plugin},
+    comes_after={Deriver},
 )
 class Privatizer(PostLoader, ProjectDependentSelfFactory, Extension):
     """
@@ -43,7 +43,7 @@ class Privatizer(PostLoader, ProjectDependentSelfFactory, Extension):
         await scheduler.add(
             PrivatizeAncestry(
                 dependencies={DeriveAncestry.id_for()}
-                if Deriver.plugin.id in await scheduler.context.project.extensions
+                if Deriver.plugin().id in await scheduler.context.project.extensions
                 else set()
             )
         )

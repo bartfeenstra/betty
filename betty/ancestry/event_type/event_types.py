@@ -10,7 +10,7 @@ from typing_extensions import override
 
 from betty.ancestry.event_type import (
     EventType,
-    EventTypePlugin,
+    EventTypeDefinition,
     ShouldExistEventType,
 )
 from betty.classtools import Singleton
@@ -22,7 +22,7 @@ if TYPE_CHECKING:
 
 
 @final
-@EventTypePlugin(
+@EventTypeDefinition(
     "unknown",
     label=_("Unknown"),
     label_plural=_("Unknowns"),
@@ -35,7 +35,7 @@ class Unknown(EventType, Singleton):
 
 
 @final
-@EventTypePlugin(
+@EventTypeDefinition(
     "birth",
     label=_("Birth"),
     label_plural=_("Births"),
@@ -53,7 +53,7 @@ class Birth(ShouldExistEventType):
 
 
 @final
-@EventTypePlugin(
+@EventTypeDefinition(
     "death",
     label=_("Death"),
     label_plural=_("Deaths"),
@@ -72,7 +72,7 @@ class Death(ShouldExistEventType):
 
 
 @final
-@EventTypePlugin(
+@EventTypeDefinition(
     "baptism",
     label=_("Baptism"),
     label_plural=_("Baptisms"),
@@ -88,7 +88,7 @@ class Baptism(EventType):
 
 
 @final
-@EventTypePlugin(
+@EventTypeDefinition(
     "bar-mitzvah",
     label=_("Bar mitzvah"),
     label_plural=_("Bar mitzvahs"),
@@ -104,7 +104,7 @@ class BarMitzvah(EventType):
 
 
 @final
-@EventTypePlugin(
+@EventTypeDefinition(
     "ba-mitzvah",
     label=_("Bat mitzvah"),
     label_plural=_("Bat mitzvahs"),
@@ -120,7 +120,7 @@ class BatMitzvah(EventType):
 
 
 @final
-@EventTypePlugin(
+@EventTypeDefinition(
     "adoption",
     label=_("Adoption"),
     label_plural=_("Adoptions"),
@@ -135,7 +135,7 @@ class Adoption(EventType):
 
 
 @final
-@EventTypePlugin(
+@EventTypeDefinition(
     "funeral",
     label=_("Funeral"),
     label_plural=_("Funerals"),
@@ -150,7 +150,7 @@ class Funeral(EventType):
 
 
 @final
-@EventTypePlugin(
+@EventTypeDefinition(
     "cremation",
     label=_("Cremation"),
     label_plural=_("Cremations"),
@@ -165,7 +165,7 @@ class Cremation(EventType):
 
 
 @final
-@EventTypePlugin(
+@EventTypeDefinition(
     "burial",
     label=_("Burial"),
     label_plural=_("Burials"),
@@ -180,7 +180,7 @@ class Burial(EventType):
 
 
 @final
-@EventTypePlugin(
+@EventTypeDefinition(
     "will",
     label=_("Will"),
     label_plural=_("Wills"),
@@ -194,7 +194,7 @@ class Will(EventType):
 
 
 @final
-@EventTypePlugin(
+@EventTypeDefinition(
     "engagement",
     label=_("Engagement"),
     label_plural=_("Engagements"),
@@ -209,7 +209,7 @@ class Engagement(EventType):
 
 
 @final
-@EventTypePlugin(
+@EventTypeDefinition(
     "marriage",
     label=_("Marriage"),
     label_plural=_("Marriages"),
@@ -224,7 +224,7 @@ class Marriage(EventType):
 
 
 @final
-@EventTypePlugin(
+@EventTypeDefinition(
     "marriage-announcement",
     label=_("Announcement of marriage"),
     label_plural=_("Announcements of marriage"),
@@ -241,7 +241,7 @@ class MarriageAnnouncement(EventType):
 
 
 @final
-@EventTypePlugin(
+@EventTypeDefinition(
     "divorce",
     label=_("Divorce"),
     label_plural=_("Divorces"),
@@ -256,7 +256,7 @@ class Divorce(EventType):
 
 
 @final
-@EventTypePlugin(
+@EventTypeDefinition(
     "divorce-announcement",
     label=_("Announcement of divorce"),
     label_plural=_("Announcements of divorce"),
@@ -273,7 +273,7 @@ class DivorceAnnouncement(EventType):
 
 
 @final
-@EventTypePlugin(
+@EventTypeDefinition(
     "residence",
     label=_("Residence"),
     label_plural=_("Residences"),
@@ -288,7 +288,7 @@ class Residence(EventType):
 
 
 @final
-@EventTypePlugin(
+@EventTypeDefinition(
     "immigration",
     label=_("Immigration"),
     label_plural=_("Immigrations"),
@@ -303,7 +303,7 @@ class Immigration(EventType):
 
 
 @final
-@EventTypePlugin(
+@EventTypeDefinition(
     "emigration",
     label=_("Emigration"),
     label_plural=_("Emigrations"),
@@ -318,7 +318,7 @@ class Emigration(EventType):
 
 
 @final
-@EventTypePlugin(
+@EventTypeDefinition(
     "occupation",
     label=_("Occupation"),
     label_plural=_("Occupations"),
@@ -335,7 +335,7 @@ class Occupation(EventType):
 
 
 @final
-@EventTypePlugin(
+@EventTypeDefinition(
     "retirement",
     label=_("Retirement"),
     label_plural=_("Retirements"),
@@ -350,7 +350,7 @@ class Retirement(EventType):
 
 
 @final
-@EventTypePlugin(
+@EventTypeDefinition(
     "correspondence",
     label=_("Correspondence"),
     label_plural=_("Correspondences"),
@@ -363,7 +363,7 @@ class Correspondence(EventType):
 
 
 @final
-@EventTypePlugin(
+@EventTypeDefinition(
     "confirmation",
     label=_("Confirmation"),
     label_plural=_("Confirmations"),
@@ -378,7 +378,7 @@ class Confirmation(EventType):
 
 
 @final
-@EventTypePlugin(
+@EventTypeDefinition(
     "missing",
     label=_("Missing"),
     label_plural=_("Missings"),
@@ -393,7 +393,7 @@ class Missing(EventType):
 
 
 @final
-@EventTypePlugin(
+@EventTypeDefinition(
     "conference",
     label=_("Conference"),
     label_plural=_("Conferences"),

@@ -7,7 +7,7 @@ from betty.locale import DEFAULT_LOCALE_TAG, to_language_tag
 from betty.locale.localizer import DEFAULT_LOCALIZER
 from betty.project import Project
 from betty.project.config import ProjectConfiguration
-from betty.project.extension import ExtensionPlugin
+from betty.project.extension import ExtensionDefinition
 from betty.project.extension.gramps import Gramps
 from betty.project.new import new
 from betty.serde.file import assert_load_file
@@ -204,10 +204,12 @@ async def test_new__with_gramps(
     async with isolated_app_factory(user=user) as app, app:
         await new(app)
         configuration = await _assert_new(configuration_file_path)
-        assert Gramps.plugin in configuration.extensions
+        assert Gramps.plugin() in configuration.extensions
         async with Project.new_isolated(app) as project, project:
-            gramps = await configuration.extensions[Gramps.plugin].new_plugin_instance(
-                await project.plugins(ExtensionPlugin), factory=project.new_target
+            gramps = await configuration.extensions[
+                Gramps.plugin()
+            ].new_plugin_instance(
+                await project.plugins(ExtensionDefinition), factory=project.new_target
             )
             assert isinstance(gramps, Gramps)
             assert (

@@ -16,7 +16,7 @@ from betty.plugin.resolve import ResolvableId, resolve_id
 if TYPE_CHECKING:
     from collections.abc import Awaitable, Callable, Iterable
 
-    from betty.project.extension import Extension, ExtensionPlugin
+    from betty.project.extension import Extension, ExtensionDefinition
     from betty.service.level import ServiceLevel
 
 
@@ -33,7 +33,7 @@ class ExtensionDiscovery(PluginDiscovery[_PluginDefinitionT]):
 
     def __init__(
         self,
-        extension: ResolvableId[ExtensionPlugin, Extension],
+        extension: ResolvableId[ExtensionDefinition, Extension],
         discovery: Callable[[Extension], Awaitable[Iterable[_PluginDefinitionT]]]
         | Callable[[Extension], Iterable[_PluginDefinitionT]],
         /,

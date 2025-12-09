@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Any, ClassVar, Self, TypeAlias, TypeVar, final
+from typing import TYPE_CHECKING, Any, Self, TypeAlias, TypeVar, final
 from uuid import uuid4
 
 from typing_extensions import override
@@ -52,7 +52,9 @@ class NonPersistentId(str):
         return super().__new__(cls, entity_id or str(uuid4()))
 
 
-class Entity(LinkedDataDumpableWithSchemaJsonLdObject, Mutable, Plugin):
+class Entity(
+    LinkedDataDumpableWithSchemaJsonLdObject, Mutable, Plugin["EntityDefinition"]
+):
     """
     An entity is a uniquely identifiable data container.
 
@@ -60,8 +62,6 @@ class Entity(LinkedDataDumpableWithSchemaJsonLdObject, Mutable, Plugin):
 
     To test your own subclasses, use :py:class:`betty.test_utils.model.EntityTestBase`.
     """
-
-    plugin: ClassVar[EntityPlugin]
 
     def __init__(
         self,
@@ -112,17 +112,17 @@ class Entity(LinkedDataDumpableWithSchemaJsonLdObject, Mutable, Plugin):
         The entity's human-readable label.
         """
         return _("{entity_type} {entity_id}").format(
-            entity_type=self.plugin.label, entity_id=self.id
+            entity_type=self.plugin().label, entity_id=self.id
         )
 
     @override
     async def dump_linked_data(self, project: Project, /) -> DumpMapping[Dump]:
         dump = await super().dump_linked_data(project)
 
-        if persistent_id(self) and self.plugin.public_facing:
+        if persistent_id(self) and self.plugin().public_facing:
             url_generator = await project.url_generator
             dump["@id"] = url_generator.generate(
-                f"betty-static:///{self.plugin.id}/{self.id}/index.json",
+                f"betty-static:///{self.plugin().id}/{self.id}/index.json",
                 absolute=True,
             )
         dump["id"] = self.id
@@ -133,8 +133,8 @@ class Entity(LinkedDataDumpableWithSchemaJsonLdObject, Mutable, Plugin):
     @classmethod
     async def linked_data_schema(cls, project: Project, /) -> JsonLdObject:
         schema = await super().linked_data_schema(project)
-        schema._def_name = f"{kebab_case_to_lower_camel_case(cls.plugin.id)}Entity"
-        schema.title = cls.plugin.label.localize(DEFAULT_LOCALIZER)
+        schema._def_name = f"{kebab_case_to_lower_camel_case(cls.plugin().id)}Entity"
+        schema.title = cls.plugin().label.localize(DEFAULT_LOCALIZER)
         schema.add_property("$schema", JsonSchemaReference())
         schema.add_property("id", String(title="Entity ID"), False)
 
@@ -142,19 +142,18 @@ class Entity(LinkedDataDumpableWithSchemaJsonLdObject, Mutable, Plugin):
 
 
 @final
-class EntityPlugin(CountableHumanFacingPluginDefinition[Entity]):
+@PluginTypeDefinition(
+    "entity",
+    Entity,
+    _("Entity"),
+    _("Entities"),
+    ngettext("{count} entity", "{count} entities"),
+    discovery=EntryPointDiscovery("betty.entity_type"),
+)
+class EntityDefinition(CountableHumanFacingPluginDefinition[Entity]):
     """
     An entity definition.
     """
-
-    plugin_type_cls = Entity
-    type = PluginTypeDefinition(
-        "entity",
-        _("Entity"),
-        _("Entities"),
-        ngettext("{count} entity", "{count} entities"),
-        discovery=EntryPointDiscovery("betty.entity_type"),
-    )
 
     def __init__(
         self,

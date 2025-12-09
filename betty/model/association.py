@@ -47,11 +47,11 @@ _EntityCollectionT = TypeVar("_EntityCollectionT", bound=EntityCollection[_Assoc
 async def _generate_associate_url(project: Project, associate: Entity, /) -> str | None:
     if not persistent_id(associate):
         return None
-    if not associate.plugin.public_facing:
+    if not associate.plugin().public_facing:
         return None
     url_generator = await project.url_generator
     return url_generator.generate(
-        f"betty-static:///{associate.plugin.id}/{quote(associate.id)}/index.json"
+        f"betty-static:///{associate.plugin().id}/{quote(associate.id)}/index.json"
     )
 
 

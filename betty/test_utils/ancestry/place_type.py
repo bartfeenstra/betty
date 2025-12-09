@@ -4,10 +4,18 @@ Test utilities for :py:mod:`betty.ancestry.place_type`.
 
 from __future__ import annotations
 
+from betty.ancestry.place_type import PlaceType
+from betty.test_utils.plugin import PluginTestBase
 from betty.test_utils.plugin.human_facing import HumanFacingPluginDefinitionTestBase
 
 
-class PlaceTypePluginTestBase(HumanFacingPluginDefinitionTestBase):
+class PlaceTypeDefinitionTestBase(HumanFacingPluginDefinitionTestBase):
     """
-    A base class for testing :py:class:`betty.ancestry.place_type.PlaceTypePlugin` implementations.
+    A base class for testing :py:class:`betty.ancestry.place_type.PlaceTypeDefinition` implementations.
+    """
+
+
+class PlaceTypeTestBase(PluginTestBase[PlaceType]):
+    """
+    A base class for testing :py:class:`betty.ancestry.place_type.PlaceType` implementations.
     """

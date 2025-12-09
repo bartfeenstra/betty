@@ -4,7 +4,7 @@ Provide Betty's ancestry place types.
 
 from __future__ import annotations
 
-from typing import ClassVar, final
+from typing import final
 
 from betty.locale.localizable.gettext import _, ngettext
 from betty.plugin import Plugin, PluginTypeDefinition
@@ -15,34 +15,31 @@ from betty.plugin.human_facing import (
 )
 
 
-class PlaceType(Plugin):
+class PlaceType(Plugin["PlaceTypeDefinition"]):
     """
     Define an :py:class:`betty.ancestry.place.Place` type.
 
     Read more about :doc:`/development/plugin/place-type`.
     """
 
-    plugin: ClassVar[PlaceTypePlugin]
-
 
 @final
-class PlaceTypePlugin(CountableHumanFacingPluginDefinition[PlaceType]):
+@PluginTypeDefinition(
+    "place-type",
+    PlaceType,
+    _("Place type"),
+    _("Place types"),
+    ngettext("{count} place type", "{count} place types"),
+    discovery=[
+        EntryPointDiscovery("betty.place_type"),
+        ProjectDiscovery(
+            lambda project: project.configuration.place_types.new_plugins(),
+        ),
+    ],
+)
+class PlaceTypeDefinition(CountableHumanFacingPluginDefinition[PlaceType]):
     """
     A place type definition.
 
     Read more about :doc:`/development/plugin/place-type`.
     """
-
-    plugin_type_cls = PlaceType
-    type = PluginTypeDefinition(
-        "place-type",
-        _("Place type"),
-        _("Place types"),
-        ngettext("{count} place type", "{count} place types"),
-        discovery=[
-            EntryPointDiscovery("betty.place_type"),
-            ProjectDiscovery(
-                lambda project: project.configuration.place_types.new_plugins(),
-            ),
-        ],
-    )

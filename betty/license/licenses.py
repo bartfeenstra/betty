@@ -18,7 +18,7 @@ from typing_extensions import override
 
 from betty.cache.file import BinaryFileCache
 from betty.exception import HumanFacingException
-from betty.license import License, LicensePlugin
+from betty.license import License, LicenseDefinition
 from betty.locale.localizable import Localizable
 from betty.locale.localizable.gettext import _
 from betty.locale.localizable.plain import Plain
@@ -27,7 +27,7 @@ from betty.user import User
 
 
 @final
-@LicensePlugin("all-rights-reserved", label=_("All rights reserved"))
+@LicenseDefinition("all-rights-reserved", label=_("All rights reserved"))
 class AllRightsReserved(License):
     """
     A license that does not permit the public any rights.
@@ -36,7 +36,7 @@ class AllRightsReserved(License):
     @property
     @override
     def summary(self) -> Localizable:
-        return self.plugin.label
+        return self.plugin().label
 
     @property
     @override
@@ -47,7 +47,7 @@ class AllRightsReserved(License):
 
 
 @final
-@LicensePlugin("public-domain", label=_("Public domain"))
+@LicenseDefinition("public-domain", label=_("Public domain"))
 class PublicDomain(License):
     """
     A work is in the `public domain <https://en.wikipedia.org/wiki/Public_domain>`.
@@ -56,7 +56,7 @@ class PublicDomain(License):
     @property
     @override
     def summary(self) -> Localizable:
-        return self.plugin.label
+        return self.plugin().label
 
     @property
     @override
@@ -99,7 +99,7 @@ class SpdxLicenseBuilder:
             binary_file_cache.with_scope("spdx-licenses").with_scope(self.VERSION).path
         )
 
-    async def build(self) -> AsyncIterable[LicensePlugin]:
+    async def build(self) -> AsyncIterable[LicenseDefinition]:
         """
         Build the licenses.
         """
@@ -148,7 +148,7 @@ class SpdxLicenseBuilder:
 
             yield await self._build_license(spdx_license_id, spdx_reference)
 
-    async def _build_license(self, license_id: str, url: str) -> LicensePlugin:
+    async def _build_license(self, license_id: str, url: str) -> LicenseDefinition:
         async with aiofiles.open(
             self._cache_directory_path
             / f"license-list-data-{self.VERSION}"
@@ -169,14 +169,14 @@ class SpdxLicenseBuilder:
             license_text = spdx_license_data["licenseText"]
             assert isinstance(license_text, str)
 
-            @LicensePlugin(
+            @LicenseDefinition(
                 spdx_license_id_to_license_id(license_id), label=license_name
             )
             class _SpdxLicense(License):
                 @override
                 @property
                 def summary(self) -> Localizable:
-                    return self.plugin.label
+                    return self.plugin().label
 
                 @override
                 @property
@@ -190,7 +190,7 @@ class SpdxLicenseBuilder:
                 def url(self) -> Localizable | None:
                     return Plain(url)
 
-            return _SpdxLicense.plugin
+            return _SpdxLicense.plugin()
 
     @classmethod
     def _extract_licenses(

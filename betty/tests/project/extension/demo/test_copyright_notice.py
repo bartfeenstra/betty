@@ -5,16 +5,16 @@ from betty.copyright_notice import CopyrightNotice
 from betty.plugin import PluginDefinition
 from betty.project.extension.demo.copyright_notice import Streetmix
 from betty.test_utils.copyright_notice import (
-    CopyrightNoticePluginTestBase,
+    CopyrightNoticeDefinitionTestBase,
     CopyrightNoticeTestBase,
 )
 
 
-class TestStreetmixDefinition(CopyrightNoticePluginTestBase):
+class TestStreetmixDefinition(CopyrightNoticeDefinitionTestBase):
     @override
     @pytest.fixture
     def sut(self) -> PluginDefinition:
-        return Streetmix.plugin
+        return Streetmix.plugin()
 
 
 class TestStreetmix(CopyrightNoticeTestBase):

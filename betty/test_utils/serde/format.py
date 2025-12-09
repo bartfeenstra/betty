@@ -6,26 +6,20 @@ import pytest
 
 from betty.serde.dump import Dump
 from betty.serde.format import Format
+from betty.test_utils.plugin import PluginTestBase
 from betty.test_utils.plugin.human_facing import HumanFacingPluginDefinitionTestBase
 
 
-class FormatPluginTestBase(HumanFacingPluginDefinitionTestBase):
+class FormatDefinitionTestBase(HumanFacingPluginDefinitionTestBase):
     """
-    A base class for testing :py:class:`betty.serde.format.FormatPlugin` subclasses.
+    A base class for testing :py:class:`betty.serde.format.FormatDefinition` subclasses.
     """
 
 
-class FormatTestBase:
+class FormatTestBase(PluginTestBase[Format]):
     """
     A base class for testing :py:class:`betty.serde.format.Format` implementations.
     """
-
-    @pytest.fixture
-    def sut(self) -> Format:
-        """
-        Provide the system(s) under test.
-        """
-        raise NotImplementedError
 
     @pytest.mark.parametrize(
         "dump",

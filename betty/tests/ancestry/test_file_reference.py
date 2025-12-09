@@ -8,21 +8,27 @@ from typing_extensions import override
 
 from betty.ancestry.file import File
 from betty.ancestry.file_reference import FileReference
-from betty.test_utils.model import EntityPluginTestBase
+from betty.test_utils.model import EntityDefinitionTestBase, EntityTestBase
 from betty.tests.ancestry.test___init__ import DummyHasFileReferences
 
 if TYPE_CHECKING:
+    from betty.model import Entity
     from betty.plugin import PluginDefinition
 
 
-class TestFileReferenceDefinition(EntityPluginTestBase):
+class TestFileReferenceDefinition(EntityDefinitionTestBase):
     @override
     @pytest.fixture
     def sut(self) -> PluginDefinition:
-        return FileReference.plugin
+        return FileReference.plugin()
 
 
-class TestFileReference:
+class TestFileReference(EntityTestBase):
+    @override
+    @pytest.fixture
+    def sut(self) -> Entity:
+        return FileReference(DummyHasFileReferences(), File(Path()))
+
     async def test_focus(self) -> None:
         sut = FileReference(DummyHasFileReferences(), File(Path()))
         focus = (1, 2, 3, 4)

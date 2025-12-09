@@ -20,8 +20,8 @@
                 {% block page_summary %}
                     {% if resource.resource is entity_plugin %}
                         {% with entity = resource.resource %}
-                            {% include 'entity/summary--' + entity.plugin.id + '.html.j2' ignore missing %}
-                            {% include 'entity/details--' + entity.plugin.id + '.html.j2' ignore missing %}
+                            {% include 'entity/summary--' + entity.plugin().id + '.html.j2' ignore missing %}
+                            {% include 'entity/details--' + entity.plugin().id + '.html.j2' ignore missing %}
                         {% endwith %}
                     {% endif %}
                 {% endblock %}

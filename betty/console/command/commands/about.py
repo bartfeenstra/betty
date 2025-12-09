@@ -10,7 +10,7 @@ from typing_extensions import override
 
 from betty import about
 from betty.app.factory import AppDependentSelfFactory
-from betty.console.command import Command, CommandFunction, CommandPlugin
+from betty.console.command import Command, CommandFunction, CommandDefinition
 from betty.console.project import add_project_argument
 from betty.rich.user import RichUser
 from betty.locale.localizable.gettext import _
@@ -27,7 +27,7 @@ if TYPE_CHECKING:
 
 
 @final
-@CommandPlugin(
+@CommandDefinition(
     "about", label=_("Output information about Betty, and optionally your project")
 )
 class About(AppDependentSelfFactory, Command):
@@ -96,14 +96,14 @@ class About(AppDependentSelfFactory, Command):
         about_plugins.add_column(user.localizer._("Label"))
         for plugin_type in sorted(
             plugin_types().values(),
-            key=lambda plugin_type: plugin_type.type.label.localize(user.localizer),
+            key=lambda plugin_type: plugin_type.type().label.localize(user.localizer),
         ):
             repository = await services.plugins(plugin_type, check_requirements=False)
             for index, plugin in enumerate(
                 sorted(repository, key=lambda plugin: plugin.id)
             ):
                 first_column = (
-                    plugin_type.type.label.localize(user.localizer)
+                    plugin_type.type().label.localize(user.localizer)
                     if index == 0
                     else ""
                 )

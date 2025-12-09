@@ -21,10 +21,10 @@ from betty.ancestry import Ancestry
 from betty.app.factory import AppTarget
 from betty.asset import AssetRepository, ProxyAssetRepository, StaticAssetRepository
 from betty.config import Configurable
-from betty.copyright_notice import CopyrightNotice, CopyrightNoticePlugin
+from betty.copyright_notice import CopyrightNotice, CopyrightNoticeDefinition
 from betty.hashid import hashid
 from betty.job import Context as JobContext
-from betty.license import LicensePlugin
+from betty.license import LicenseDefinition
 from betty.locale.localizable.gettext import _
 from betty.locale.localizer import Localizer, LocalizerRepository
 from betty.locale.translation import (
@@ -33,7 +33,7 @@ from betty.locale.translation import (
     TranslationRepository,
 )
 from betty.model import Entity
-from betty.plugin import PluginDefinition
+from betty.plugin import Plugin, PluginDefinition
 from betty.plugin.dependent import sort_dependent_plugin_graph
 from betty.plugin.repository.provider import PluginRepositoryProvider
 from betty.plugin.repository.provider.service import (
@@ -43,14 +43,14 @@ from betty.plugin.repository.provider.service import (
 from betty.plugin.resolve import ResolvableId, resolve_id
 from betty.privacy.privatizer import Privatizer
 from betty.project.config import ProjectConfiguration
-from betty.project.extension import Extension, ExtensionPlugin
+from betty.project.extension import Extension, ExtensionDefinition
 from betty.project.factory import ProjectDependentFactory, ProjectDependentSelfFactory
 from betty.project.url import new_project_url_generator
-from betty.render import RenderDispatcher, RendererPlugin
+from betty.render import RenderDispatcher, RendererDefinition
 from betty.requirement import Requirement, StaticRequirement
 from betty.resource import Context as ResourceContext
 from betty.resource import ContextProvider, new_context
-from betty.serde.format import FormatPlugin, format_for
+from betty.serde.format import FormatDefinition, format_for
 from betty.service.container import ServiceContainer, service
 from betty.typing import internal
 
@@ -78,6 +78,7 @@ if TYPE_CHECKING:
     from betty.url import UrlGenerator
 
 _T = TypeVar("_T")
+_PluginT = TypeVar("_PluginT", bound=Plugin, default=Plugin)
 _PluginDefinitionT = TypeVar(
     "_PluginDefinitionT", bound=PluginDefinition, default=PluginDefinition
 )
@@ -198,7 +199,9 @@ class Project(
         """
         if configuration_file_path == self._configuration_file_path:
             return
-        format_for(list(await plugins(FormatPlugin)), configuration_file_path.suffix)
+        format_for(
+            list(await plugins(FormatDefinition)), configuration_file_path.suffix
+        )
         self._configuration_file_path = configuration_file_path
 
     @property
@@ -271,7 +274,7 @@ class Project(
         extensions = await self.extensions
         for project_extension in extensions.flatten():
             extension_assets_directory_path = (
-                project_extension.plugin.assets_directory_path
+                project_extension.plugin().assets_directory_path
             )
             if extension_assets_directory_path is not None:
                 asset_paths.append(extension_assets_directory_path)
@@ -335,7 +338,7 @@ class Project(
         return RenderDispatcher(
             *[
                 await self.new_target(plugin.cls)
-                for plugin in await self.plugins(RendererPlugin)
+                for plugin in await self.plugins(RendererDefinition)
             ]
         )
 
@@ -344,7 +347,7 @@ class Project(
         """
         The enabled extensions.
         """
-        extensions = await self.plugins(ExtensionPlugin)
+        extensions = await self.plugins(ExtensionDefinition)
         configured_extension_definitions = []
         configured_extension_configurations = {}
         for extension_configuration in self.configuration.extensions.values():
@@ -355,7 +358,7 @@ class Project(
                 extension_configuration
             )
 
-        extensions_sorter = await sort_dependent_plugin_graph(  # type: ignore[type-var]
+        extensions_sorter = await sort_dependent_plugin_graph(
             extensions, configured_extension_definitions
         )
         extensions_sorter.prepare()
@@ -380,7 +383,7 @@ class Project(
             enabled_extensions.append(
                 sorted(
                     enabled_extension_batch,
-                    key=lambda extension: extension.plugin.id,
+                    key=lambda extension: extension.plugin().id,
                 )
             )
         initialized_extensions = ProjectExtensions(enabled_extensions)
@@ -425,7 +428,7 @@ class Project(
         The overall project copyright.
         """
         return await self.configuration.copyright_notice.new_plugin_instance(
-            await self.plugins(CopyrightNoticePlugin), factory=self.new_target
+            await self.plugins(CopyrightNoticeDefinition), factory=self.new_target
         )
 
     @service
@@ -434,7 +437,7 @@ class Project(
         The overall project license.
         """
         return await self.configuration.license.new_plugin_instance(
-            await self.plugins(LicensePlugin), factory=self.new_target
+            await self.plugins(LicenseDefinition), factory=self.new_target
         )
 
     @service
@@ -487,16 +490,16 @@ class ProjectExtensions:
 
     @overload
     def __getitem__(
-        self, extension: ResolvableId[ExtensionPlugin, Extension]
+        self, extension: ResolvableId[ExtensionDefinition, Extension]
     ) -> Extension:
         pass
 
     def __getitem__(
-        self, extension: ResolvableId[ExtensionPlugin, Extension]
+        self, extension: ResolvableId[ExtensionDefinition, Extension]
     ) -> Extension:
         extension_id = resolve_id(extension)
         for project_extension in self.flatten():
-            if project_extension.plugin.id == extension_id:
+            if project_extension.plugin().id == extension_id:
                 return project_extension
         raise KeyError(f'Unknown extension of type "{extension_id}"')
 
@@ -520,9 +523,11 @@ class ProjectExtensions:
         for batch in self:
             yield from batch
 
-    def __contains__(self, extension: ResolvableId[ExtensionPlugin, Extension]) -> bool:
+    def __contains__(
+        self, extension: ResolvableId[ExtensionDefinition, Extension]
+    ) -> bool:
         if isinstance(extension, type) and issubclass(extension, Extension):
-            extension = extension.plugin
+            extension = extension.plugin()
         try:
             self[resolve_id(extension)]
         except KeyError:

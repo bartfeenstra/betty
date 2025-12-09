@@ -86,7 +86,7 @@ class TestGramps(
         async with Project.new_isolated(isolated_app) as project:
             project.configuration.extensions.append(
                 PluginInstanceConfiguration(
-                    Gramps.plugin,
+                    Gramps.plugin(),
                     GrampsConfiguration(
                         family_trees=FamilyTreeConfigurationSequence(
                             [
@@ -131,7 +131,7 @@ class TestGramps(
         async with Project.new_isolated(isolated_app) as project:
             project.configuration.extensions.append(
                 PluginInstanceConfiguration(
-                    Gramps.plugin,
+                    Gramps.plugin(),
                     GrampsConfiguration(
                         family_trees=FamilyTreeConfigurationSequence(
                             [
@@ -184,7 +184,7 @@ class TestGramps(
         async with Project.new_isolated(isolated_app) as project:
             project.configuration.extensions.append(
                 PluginInstanceConfiguration(
-                    Gramps.plugin,
+                    Gramps.plugin(),
                     GrampsConfiguration(
                         family_trees=FamilyTreeConfigurationSequence(
                             [
@@ -317,7 +317,7 @@ class TestGramps(
             async with Project.new_isolated(isolated_app) as project:
                 project.configuration.extensions.append(
                     PluginInstanceConfiguration(
-                        Gramps.plugin,
+                        Gramps.plugin(),
                         GrampsConfiguration(
                             family_trees=FamilyTreeConfigurationSequence(
                                 [

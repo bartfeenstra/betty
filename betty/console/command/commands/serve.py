@@ -6,7 +6,7 @@ from typing import TYPE_CHECKING, final, Self
 from typing_extensions import override
 
 from betty.app.factory import AppDependentSelfFactory
-from betty.console.command import Command, CommandFunction, CommandPlugin
+from betty.console.command import Command, CommandFunction, CommandDefinition
 from betty.console.project import add_project_argument
 from betty.locale.localizable.gettext import _
 
@@ -18,7 +18,7 @@ if TYPE_CHECKING:
 
 
 @final
-@CommandPlugin(
+@CommandDefinition(
     "serve",
     label=_("Serve a generated site"),
     description=_("This will open your web browser."),

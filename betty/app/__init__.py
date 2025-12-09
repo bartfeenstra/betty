@@ -24,8 +24,8 @@ from betty.config import Configurable
 from betty.dirs import CACHE_DIRECTORY_PATH
 from betty.factory import Target, new_target
 from betty.http_client import ClientErrorToUserMessageMiddleware
-from betty.http_client.rate_limit import RateLimitMiddleware, RateLimitPlugin
-from betty.license import LicensePlugin
+from betty.http_client.rate_limit import RateLimitDefinition, RateLimitMiddleware
+from betty.license import LicenseDefinition
 from betty.license.licenses import SpdxLicenseBuilder
 from betty.locale import DEFAULT_LOCALE
 from betty.locale.localizable.gettext import _
@@ -36,7 +36,7 @@ from betty.locale.translation import (
     TranslationRepository,
 )
 from betty.multiprocessing import ProcessPoolExecutor
-from betty.plugin import PluginDefinition
+from betty.plugin import Plugin, PluginDefinition
 from betty.plugin.ordered import sort_ordered_plugin_graph
 from betty.plugin.repository.provider import PluginRepositoryProvider
 from betty.plugin.repository.provider.service import (
@@ -69,6 +69,7 @@ if TYPE_CHECKING:
     from betty.user import User
 
 _T = TypeVar("_T")
+_PluginT = TypeVar("_PluginT", bound=Plugin, default=Plugin)
 _PluginDefinitionT = TypeVar(
     "_PluginDefinitionT", bound=PluginDefinition, default=PluginDefinition
 )
@@ -235,8 +236,8 @@ class App(Configurable[AppConfiguration], ServiceContainer, PluginRepositoryProv
         """
         The HTTP client.
         """
-        http_rate_limits = await self.plugins(RateLimitPlugin)
-        rate_limit_sorter = await sort_ordered_plugin_graph(  # type: ignore[type-var]
+        http_rate_limits = await self.plugins(RateLimitDefinition)
+        rate_limit_sorter = await sort_ordered_plugin_graph(
             http_rate_limits, http_rate_limits
         )
 
@@ -305,9 +306,9 @@ class App(Configurable[AppConfiguration], ServiceContainer, PluginRepositoryProv
         return await new_target(cast(Target[_T], target))
 
     @service
-    async def _spdx_license_repository(self) -> PluginRepository[LicensePlugin]:
+    async def _spdx_license_repository(self) -> PluginRepository[LicenseDefinition]:
         return StaticPluginRepository(
-            LicensePlugin,
+            LicenseDefinition,
             *[
                 license
                 async for license in SpdxLicenseBuilder(  # noqa A001

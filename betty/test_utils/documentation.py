@@ -46,4 +46,4 @@ class PluginDocumentationTestBase(Generic[_PluginDefinitionT]):
                     )
 
     def _get_expected(self, plugin: _PluginDefinitionT) -> Collection[str]:
-        return (plugin.type.id,)
+        return (plugin.type().id,)

@@ -10,7 +10,7 @@ from typing_extensions import override
 from betty.ancestry.event import Event
 from betty.ancestry.event_type import (
     EventType,
-    EventTypePlugin,
+    EventTypeDefinition,
     ShouldExistEventType,
 )
 from betty.ancestry.person import Person
@@ -32,12 +32,12 @@ if TYPE_CHECKING:
     from betty.app import App
 
 NewProject: TypeAlias = Callable[
-    [Iterable[EventTypePlugin]], AbstractAsyncContextManager[Project]
+    [Iterable[EventTypeDefinition]], AbstractAsyncContextManager[Project]
 ]
 
 
 @final
-@EventTypePlugin(
+@EventTypeDefinition(
     "isolated",
     label=DUMMY_LOCALIZABLE,
     label_plural=DUMMY_LOCALIZABLE,
@@ -48,7 +48,7 @@ class Isolated(EventType):
 
 
 @final
-@EventTypePlugin(
+@EventTypeDefinition(
     "comes-before-reference",
     label=DUMMY_LOCALIZABLE,
     label_plural=DUMMY_LOCALIZABLE,
@@ -59,7 +59,7 @@ class ComesBeforeReference(EventType):
 
 
 @final
-@EventTypePlugin(
+@EventTypeDefinition(
     "comes-after-reference",
     label=DUMMY_LOCALIZABLE,
     label_plural=DUMMY_LOCALIZABLE,
@@ -70,24 +70,24 @@ class ComesAfterReference(EventType):
 
 
 @final
-@EventTypePlugin(
+@EventTypeDefinition(
     "comes-before",
     label=DUMMY_LOCALIZABLE,
     label_plural=DUMMY_LOCALIZABLE,
     label_countable=DUMMY_COUNTABLE_LOCALIZABLE,
-    comes_before={ComesBeforeReference.plugin},
+    comes_before={ComesBeforeReference},
 )
 class ComesBefore(EventType):
     pass
 
 
 @final
-@EventTypePlugin(
+@EventTypeDefinition(
     "comes-before-should-exist",
     label=DUMMY_LOCALIZABLE,
     label_plural=DUMMY_LOCALIZABLE,
     label_countable=DUMMY_COUNTABLE_LOCALIZABLE,
-    comes_before={ComesBeforeReference.plugin},
+    comes_before={ComesBeforeReference},
 )
 class ComesBeforeShouldExist(ShouldExistEventType):
     @override
@@ -97,12 +97,12 @@ class ComesBeforeShouldExist(ShouldExistEventType):
 
 
 @final
-@EventTypePlugin(
+@EventTypeDefinition(
     "comes-before-should-not-exist",
     label=DUMMY_LOCALIZABLE,
     label_plural=DUMMY_LOCALIZABLE,
     label_countable=DUMMY_COUNTABLE_LOCALIZABLE,
-    comes_before={ComesBeforeReference.plugin},
+    comes_before={ComesBeforeReference},
 )
 class ComesBeforeShouldNotExist(ShouldExistEventType):
     @override
@@ -112,26 +112,26 @@ class ComesBeforeShouldNotExist(ShouldExistEventType):
 
 
 @final
-@EventTypePlugin(
+@EventTypeDefinition(
     "comes-before-and-after",
     label=DUMMY_LOCALIZABLE,
     label_plural=DUMMY_LOCALIZABLE,
     label_countable=DUMMY_COUNTABLE_LOCALIZABLE,
-    comes_before={ComesBeforeReference.plugin},
-    comes_after={ComesAfterReference.plugin},
+    comes_before={ComesBeforeReference},
+    comes_after={ComesAfterReference},
 )
 class ComesBeforeAndAfter(EventType):
     pass
 
 
 @final
-@EventTypePlugin(
+@EventTypeDefinition(
     "comes-before-and-after-should-exist",
     label=DUMMY_LOCALIZABLE,
     label_plural=DUMMY_LOCALIZABLE,
     label_countable=DUMMY_COUNTABLE_LOCALIZABLE,
-    comes_before={ComesBeforeReference.plugin},
-    comes_after={ComesAfterReference.plugin},
+    comes_before={ComesBeforeReference},
+    comes_after={ComesAfterReference},
 )
 class ComesBeforeAndAfterShouldExist(ShouldExistEventType):
     @override
@@ -141,13 +141,13 @@ class ComesBeforeAndAfterShouldExist(ShouldExistEventType):
 
 
 @final
-@EventTypePlugin(
+@EventTypeDefinition(
     "comes-before-and-after-should-not-exist",
     label=DUMMY_LOCALIZABLE,
     label_plural=DUMMY_LOCALIZABLE,
     label_countable=DUMMY_COUNTABLE_LOCALIZABLE,
-    comes_before={ComesBeforeReference.plugin},
-    comes_after={ComesAfterReference.plugin},
+    comes_before={ComesBeforeReference},
+    comes_after={ComesAfterReference},
 )
 class ComesBeforeAndAfterShouldNotExist(ShouldExistEventType):
     @override
@@ -157,24 +157,24 @@ class ComesBeforeAndAfterShouldNotExist(ShouldExistEventType):
 
 
 @final
-@EventTypePlugin(
+@EventTypeDefinition(
     "comes-after",
     label=DUMMY_LOCALIZABLE,
     label_plural=DUMMY_LOCALIZABLE,
     label_countable=DUMMY_COUNTABLE_LOCALIZABLE,
-    comes_after={ComesAfterReference.plugin},
+    comes_after={ComesAfterReference},
 )
 class ComesAfter(EventType):
     pass
 
 
 @final
-@EventTypePlugin(
+@EventTypeDefinition(
     "comes-after-should-exist",
     label=DUMMY_LOCALIZABLE,
     label_plural=DUMMY_LOCALIZABLE,
     label_countable=DUMMY_COUNTABLE_LOCALIZABLE,
-    comes_after={ComesAfterReference.plugin},
+    comes_after={ComesAfterReference},
 )
 class ComesAfterShouldExist(ShouldExistEventType):
     @override
@@ -184,12 +184,12 @@ class ComesAfterShouldExist(ShouldExistEventType):
 
 
 @final
-@EventTypePlugin(
+@EventTypeDefinition(
     "comes-after-should-not-exist",
     label=DUMMY_LOCALIZABLE,
     label_plural=DUMMY_LOCALIZABLE,
     label_countable=DUMMY_COUNTABLE_LOCALIZABLE,
-    comes_after={ComesAfterReference.plugin},
+    comes_after={ComesAfterReference},
 )
 class ComesAfterShouldNotExist(ShouldExistEventType):
     @override
@@ -203,9 +203,11 @@ class TestDeriver:
     def new_project(self, isolated_app: App) -> NewProject:
         @asynccontextmanager
         async def _new_project(
-            event_types: Iterable[EventTypePlugin],
+            event_types: Iterable[EventTypeDefinition],
         ) -> AsyncIterator[Project]:
-            with EventTypePlugin.type.override_discovery(StaticDiscovery(*event_types)):
+            with EventTypeDefinition.type().override_discovery(
+                StaticDiscovery(*event_types)
+            ):
                 async with Project.new_isolated(isolated_app) as project, project:
                     yield project
 
@@ -215,18 +217,18 @@ class TestDeriver:
     async def project(self, new_project: NewProject) -> AsyncIterator[Project]:
         async with new_project(
             {
-                Isolated.plugin,
-                ComesBeforeReference.plugin,
-                ComesBefore.plugin,
-                ComesBeforeShouldExist.plugin,
-                ComesBeforeShouldNotExist.plugin,
-                ComesAfterReference.plugin,
-                ComesAfter.plugin,
-                ComesAfterShouldExist.plugin,
-                ComesAfterShouldNotExist.plugin,
-                ComesBeforeAndAfter.plugin,
-                ComesBeforeAndAfterShouldExist.plugin,
-                ComesBeforeAndAfterShouldNotExist.plugin,
+                Isolated.plugin(),
+                ComesBeforeReference.plugin(),
+                ComesBefore.plugin(),
+                ComesBeforeShouldExist.plugin(),
+                ComesBeforeShouldNotExist.plugin(),
+                ComesAfterReference.plugin(),
+                ComesAfter.plugin(),
+                ComesAfterShouldExist.plugin(),
+                ComesAfterShouldNotExist.plugin(),
+                ComesBeforeAndAfter.plugin(),
+                ComesBeforeAndAfterShouldExist.plugin(),
+                ComesBeforeAndAfterShouldNotExist.plugin(),
             }
         ) as project:
             yield project
@@ -467,8 +469,8 @@ class TestDeriver:
     ) -> None:
         async with new_project(
             {
-                ComesBefore.plugin,
-                ComesBeforeReference.plugin,
+                ComesBefore.plugin(),
+                ComesBeforeReference.plugin(),
             }
         ) as project:
             person = Person(id="P0")
@@ -543,8 +545,8 @@ class TestDeriver:
     ) -> None:
         async with new_project(
             {
-                ComesBeforeShouldExist.plugin,
-                ComesBeforeReference.plugin,
+                ComesBeforeShouldExist.plugin(),
+                ComesBeforeReference.plugin(),
             }
         ) as project:
             person = Person(id="P0")
@@ -781,8 +783,8 @@ class TestDeriver:
     ) -> None:
         async with new_project(
             {
-                ComesAfter.plugin,
-                ComesAfterReference.plugin,
+                ComesAfter.plugin(),
+                ComesAfterReference.plugin(),
             }
         ) as project:
             person = Person(id="P0")
@@ -846,8 +848,8 @@ class TestDeriver:
     ) -> None:
         async with new_project(
             {
-                ComesAfterShouldExist.plugin,
-                ComesAfterReference.plugin,
+                ComesAfterShouldExist.plugin(),
+                ComesAfterReference.plugin(),
             }
         ) as project:
             person = Person(id="P0")
@@ -906,11 +908,11 @@ class TestDeriver:
     ) -> None:
         async with new_project(
             {
-                ComesBeforeReference.plugin,
-                ComesBeforeShouldNotExist.plugin,
-                ComesAfterReference.plugin,
-                ComesAfterShouldNotExist.plugin,
-                ComesBeforeAndAfterShouldNotExist.plugin,
+                ComesBeforeReference.plugin(),
+                ComesBeforeShouldNotExist.plugin(),
+                ComesAfterReference.plugin(),
+                ComesAfterShouldNotExist.plugin(),
+                ComesBeforeAndAfterShouldNotExist.plugin(),
             }
         ) as project:
             person = Person(id="P0")

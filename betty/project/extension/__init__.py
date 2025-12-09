@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, ClassVar, Self, TypeVar, final
+from typing import TYPE_CHECKING, Self, TypeVar, final
 
 from typing_extensions import override
 
@@ -31,7 +31,7 @@ if TYPE_CHECKING:
 _T = TypeVar("_T")
 
 
-class Extension(ServiceContainer, Plugin, HasRequirement):
+class Extension(ServiceContainer, HasRequirement, Plugin["ExtensionDefinition"]):
     """
     Integrate optional functionality with Betty :py:class:`betty.project.Project`s.
 
@@ -39,8 +39,6 @@ class Extension(ServiceContainer, Plugin, HasRequirement):
 
     To test your own subclasses, use :py:class:`betty.test_utils.project.extension.ExtensionTestBase`.
     """
-
-    plugin: ClassVar[ExtensionPlugin]
 
     @private
     def __init__(self, *, project: Project):
@@ -59,11 +57,11 @@ class Extension(ServiceContainer, Plugin, HasRequirement):
             return project
 
         extensions = await project.extensions
-        if cls.plugin.id not in extensions:
+        if cls.plugin().id not in extensions:
             return StaticRequirement(
                 _(
                     "{subject} requires the {extension} extension. Enable it in your project configuration, and try again."
-                ).format(subject=subject, extension=cls.plugin.reference_label)
+                ).format(subject=subject, extension=cls.plugin().reference_label)
             )
         return extensions[cls]
 
@@ -72,12 +70,14 @@ class Extension(ServiceContainer, Plugin, HasRequirement):
     async def requirement(cls, services: ServiceLevel, /) -> Requirement | None:
         from betty.project import Project
 
-        project = await Project.requires(services, cls.plugin.reference_label_with_type)
+        project = await Project.requires(
+            services, cls.plugin().reference_label_with_type
+        )
         if isinstance(project, Requirement):
             return project
         return await new_dependencies_requirement(
-            cls.plugin,
-            await project.plugins(ExtensionPlugin, check_requirements=False),
+            cls.plugin(),
+            await project.plugins(ExtensionDefinition, check_requirements=False),
             services=project,
         )
 
@@ -86,25 +86,21 @@ class Extension(ServiceContainer, Plugin, HasRequirement):
         return await self._project.new_target(target)
 
 
-_ExtensionT = TypeVar("_ExtensionT", bound=Extension)
-
-
 @final
-class ExtensionPlugin(
+@PluginTypeDefinition(
+    "extension",
+    Extension,
+    _("Extension"),
+    _("Extensions"),
+    ngettext("{count} extension", "{count} extensions"),
+    discovery=EntryPointDiscovery("betty.extension"),
+)
+class ExtensionDefinition(
     HumanFacingPluginDefinition[Extension], DependentPluginDefinition[Extension]
 ):
     """
     An extension definition.
     """
-
-    plugin_type_cls = Extension
-    type = PluginTypeDefinition(
-        "extension",
-        _("Extension"),
-        _("Extensions"),
-        ngettext("{count} extension", "{count} extensions"),
-        discovery=EntryPointDiscovery("betty.extension"),
-    )
 
     def __init__(
         self,

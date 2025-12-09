@@ -29,7 +29,10 @@ class PluginRepository(ABC, Generic[_PluginDefinitionT]):
     Access discovered plugins.
     """
 
-    def __init__(self, plugin_type: type[_PluginDefinitionT]):
+    def __init__(
+        self,
+        plugin_type: type[_PluginDefinitionT],
+    ):
         self._type = plugin_type
         self._plugin_id_schema: Enum | None = None
 
@@ -64,10 +67,10 @@ class PluginRepository(ABC, Generic[_PluginDefinitionT]):
         Get the JSON schema for the IDs of the plugins in this repository.
         """
         if self._plugin_id_schema is None:
-            label = self._type.type.label.localize(DEFAULT_LOCALIZER)
+            label = self._type.type().label.localize(DEFAULT_LOCALIZER)
             self._plugin_id_schema = Enum(
                 *[plugin.id for plugin in self],  # noqa A002
-                def_name=kebab_case_to_lower_camel_case(self._type.type.id),
+                def_name=kebab_case_to_lower_camel_case(self._type.type().id),
                 title=label,
                 description=f"A {label} plugin ID",
             )

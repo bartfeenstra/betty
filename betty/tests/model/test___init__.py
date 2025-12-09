@@ -5,7 +5,7 @@ from typing_extensions import override
 
 from betty.model import (
     Entity,
-    EntityPlugin,
+    EntityDefinition,
     persistent_id,
 )
 from betty.plugin import PluginDefinition
@@ -17,14 +17,14 @@ from betty.test_utils.locale.localizable import (
 from betty.test_utils.plugin import PluginDefinitionClassTestBase
 
 
-class TestEntityPlugin(PluginDefinitionClassTestBase):
+class TestEntityDefinition(PluginDefinitionClassTestBase):
     @override
     @pytest.fixture
     def sut(self) -> type[PluginDefinition]:
-        return EntityPlugin
+        return EntityDefinition
 
     def test_public_facing(self) -> None:
-        sut = EntityPlugin(
+        sut = EntityDefinition(
             "-",
             public_facing=True,
             label=DUMMY_LOCALIZABLE,
@@ -34,8 +34,8 @@ class TestEntityPlugin(PluginDefinitionClassTestBase):
         assert sut.public_facing
 
 
-class TestEntityDocumentation(PluginDocumentationTestBase[EntityPlugin]):
-    _plugin_type = EntityPlugin
+class TestEntityDocumentation(PluginDocumentationTestBase[EntityDefinition]):
+    _plugin_type = EntityDefinition
     _plugin_type_documentation_path = Path("usage") / "ancestry.rst"
 
 

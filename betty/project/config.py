@@ -11,10 +11,10 @@ from urllib.parse import urlparse
 from babel import Locale
 from typing_extensions import override
 
-from betty.ancestry.event_type import EventType, EventTypePlugin
-from betty.ancestry.gender import Gender, GenderPlugin
-from betty.ancestry.place_type import PlaceType, PlaceTypePlugin
-from betty.ancestry.presence_role import PresenceRole, PresenceRolePlugin
+from betty.ancestry.event_type import EventType, EventTypeDefinition
+from betty.ancestry.gender import Gender, GenderDefinition
+from betty.ancestry.place_type import PlaceType, PlaceTypeDefinition
+from betty.ancestry.presence_role import PresenceRole, PresenceRoleDefinition
 from betty.assertion import (
     Field,
     OptionalField,
@@ -31,14 +31,14 @@ from betty.assertion import (
 )
 from betty.config import Configuration
 from betty.config.collections.mapping import OrderedConfigurationMapping
-from betty.copyright_notice import CopyrightNotice, CopyrightNoticePlugin
+from betty.copyright_notice import CopyrightNotice, CopyrightNoticeDefinition
 from betty.data import Key
 from betty.exception import (
     HumanFacingException,
     HumanFacingExceptionGroup,
     reraise_within_context,
 )
-from betty.license import License, LicensePlugin
+from betty.license import License, LicenseDefinition
 from betty.license.licenses import AllRightsReserved
 from betty.locale import DEFAULT_LOCALE, LocaleLike, ensure_locale, to_language_tag
 from betty.locale.localizable.assertion import assert_load_localizable
@@ -50,7 +50,7 @@ from betty.locale.localizable.config import dump_localizable
 from betty.locale.localizable.ensure import ensure_localizable
 from betty.locale.localizable.gettext import _
 from betty.machine_name import MachineName, assert_machine_name
-from betty.model import Entity, EntityPlugin
+from betty.model import Entity, EntityDefinition
 from betty.plugin.config import (
     CountableHumanFacingPluginDefinitionConfiguration,
     HumanFacingPluginDefinitionConfiguration,
@@ -61,7 +61,7 @@ from betty.plugin.config import (
 )
 from betty.plugin.config.ordered import OrderedPluginDefinitionConfiguration
 from betty.plugin.resolve import ResolvableId, resolve_id
-from betty.project.extension import Extension, ExtensionPlugin
+from betty.project.extension import Extension, ExtensionDefinition
 from betty.project.factory import CallbackProjectDependentFactory
 
 if TYPE_CHECKING:
@@ -84,13 +84,13 @@ the oldest verified person to ever have lived.
 
 @final
 class ExtensionInstanceConfigurationMapping(
-    PluginInstanceConfigurationMapping[ExtensionPlugin, Extension]
+    PluginInstanceConfigurationMapping[ExtensionDefinition, Extension]
 ):
     """
     Configure a project's enabled extensions.
     """
 
-    def enable(self, *extensions: ResolvableId[ExtensionPlugin, Extension]) -> None:
+    def enable(self, *extensions: ResolvableId[ExtensionDefinition, Extension]) -> None:
         """
         Enable the given extensions.
         """
@@ -108,7 +108,7 @@ class EntityTypeConfiguration(Configuration):
 
     def __init__(
         self,
-        entity_type: ResolvableId[EntityPlugin, Entity],
+        entity_type: ResolvableId[EntityDefinition, Entity],
         *,
         generate_html_list: bool = False,
     ):
@@ -154,7 +154,7 @@ class EntityTypeConfiguration(Configuration):
         }
 
     async def validate(
-        self, entity_type_repository: PluginRepository[EntityPlugin], /
+        self, entity_type_repository: PluginRepository[EntityDefinition], /
     ) -> None:
         """
         Validate the configuration.
@@ -171,7 +171,7 @@ class EntityTypeConfiguration(Configuration):
 @final
 class EntityTypeConfigurationMapping(
     PluginIdentifierKeyConfigurationMapping[
-        EntityPlugin, Entity, EntityTypeConfiguration
+        EntityDefinition, Entity, EntityTypeConfiguration
     ]
 ):
     """
@@ -200,7 +200,7 @@ class EntityTypeConfigurationMapping(
         return EntityTypeConfiguration.load(dump)
 
     async def validate(
-        self, entity_type_repository: PluginRepository[EntityPlugin], /
+        self, entity_type_repository: PluginRepository[EntityDefinition], /
     ) -> None:
         """
         Validate the configuration.
@@ -326,7 +326,7 @@ class LocaleConfigurationMapping(
 
 class CopyrightNoticePluginConfiguration(HumanFacingPluginDefinitionConfiguration):
     """
-    Configure a :py:class:`betty.copyright_notice.CopyrightNoticePlugin`.
+    Configure a :py:class:`betty.copyright_notice.CopyrightNoticeDefinition`.
     """
 
     summary = RequiredLocalizableAttr("summary")
@@ -359,7 +359,7 @@ class CopyrightNoticePluginConfiguration(HumanFacingPluginDefinitionConfiguratio
 
 class CopyrightNoticePluginConfigurationMapping(
     PluginDefinitionConfigurationMapping[
-        CopyrightNoticePlugin, CopyrightNotice, CopyrightNoticePluginConfiguration
+        CopyrightNoticeDefinition, CopyrightNotice, CopyrightNoticePluginConfiguration
     ]
 ):
     """
@@ -374,8 +374,8 @@ class CopyrightNoticePluginConfigurationMapping(
     @override
     def _new_plugin(
         self, configuration: CopyrightNoticePluginConfiguration, /
-    ) -> CopyrightNoticePlugin:
-        @CopyrightNoticePlugin(
+    ) -> CopyrightNoticeDefinition:
+        @CopyrightNoticeDefinition(
             configuration.id,
             label=configuration.label,
             description=configuration.description,
@@ -391,12 +391,12 @@ class CopyrightNoticePluginConfigurationMapping(
             def text(self) -> Localizable:
                 return configuration.text
 
-        return _ProjectConfigurationCopyrightNotice.plugin
+        return _ProjectConfigurationCopyrightNotice.plugin()
 
 
 class LicensePluginConfiguration(HumanFacingPluginDefinitionConfiguration):
     """
-    Configure a :py:class:`betty.license.LicensePlugin`.
+    Configure a :py:class:`betty.license.LicenseDefinition`.
     """
 
     summary = RequiredLocalizableAttr("summary")
@@ -429,7 +429,7 @@ class LicensePluginConfiguration(HumanFacingPluginDefinitionConfiguration):
 
 class LicensePluginConfigurationMapping(
     PluginDefinitionConfigurationMapping[
-        LicensePlugin, License, LicensePluginConfiguration
+        LicenseDefinition, License, LicensePluginConfiguration
     ]
 ):
     """
@@ -444,8 +444,8 @@ class LicensePluginConfigurationMapping(
     @override
     def _new_plugin(
         self, configuration: LicensePluginConfiguration, /
-    ) -> LicensePlugin:
-        @LicensePlugin(
+    ) -> LicenseDefinition:
+        @LicenseDefinition(
             configuration.id,
             label=configuration.label,
             description=configuration.description,
@@ -461,7 +461,7 @@ class LicensePluginConfigurationMapping(
             def text(self) -> Localizable:
                 return configuration.text
 
-        return _ProjectConfigurationLicense.plugin
+        return _ProjectConfigurationLicense.plugin()
 
 
 class EventTypePluginConfiguration(
@@ -469,13 +469,13 @@ class EventTypePluginConfiguration(
     OrderedPluginDefinitionConfiguration,
 ):
     """
-    Configure a :py:class:`betty.ancestry.event_type.EventTypePlugin`.
+    Configure a :py:class:`betty.ancestry.event_type.EventTypeDefinition`.
     """
 
 
 class EventTypePluginConfigurationMapping(
     PluginDefinitionConfigurationMapping[
-        EventTypePlugin, EventType, EventTypePluginConfiguration
+        EventTypeDefinition, EventType, EventTypePluginConfiguration
     ]
 ):
     """
@@ -490,8 +490,8 @@ class EventTypePluginConfigurationMapping(
     @override
     def _new_plugin(
         self, configuration: EventTypePluginConfiguration, /
-    ) -> EventTypePlugin:
-        @EventTypePlugin(
+    ) -> EventTypeDefinition:
+        @EventTypeDefinition(
             configuration.id,
             label=configuration.label,
             label_plural=configuration.label_plural,
@@ -501,18 +501,18 @@ class EventTypePluginConfigurationMapping(
         class _ProjectConfigurationEventType(EventType):
             pass
 
-        return _ProjectConfigurationEventType.plugin
+        return _ProjectConfigurationEventType.plugin()
 
 
 class PlaceTypePluginConfiguration(CountableHumanFacingPluginDefinitionConfiguration):
     """
-    Configure a :py:class:`betty.ancestry.place_type.PlaceTypePlugin`.
+    Configure a :py:class:`betty.ancestry.place_type.PlaceTypeDefinition`.
     """
 
 
 class PlaceTypePluginConfigurationMapping(
     PluginDefinitionConfigurationMapping[
-        PlaceTypePlugin, PlaceType, PlaceTypePluginConfiguration
+        PlaceTypeDefinition, PlaceType, PlaceTypePluginConfiguration
     ]
 ):
     """
@@ -527,8 +527,8 @@ class PlaceTypePluginConfigurationMapping(
     @override
     def _new_plugin(
         self, configuration: PlaceTypePluginConfiguration, /
-    ) -> PlaceTypePlugin:
-        @PlaceTypePlugin(
+    ) -> PlaceTypeDefinition:
+        @PlaceTypeDefinition(
             configuration.id,
             label=configuration.label,
             label_plural=configuration.label_plural,
@@ -538,20 +538,20 @@ class PlaceTypePluginConfigurationMapping(
         class _ProjectConfigurationPlaceType(PlaceType):
             pass
 
-        return _ProjectConfigurationPlaceType.plugin
+        return _ProjectConfigurationPlaceType.plugin()
 
 
 class PresenceRolePluginConfiguration(
     CountableHumanFacingPluginDefinitionConfiguration
 ):
     """
-    Configure a :py:class:`betty.ancestry.presence_role.PresenceRolePlugin`.
+    Configure a :py:class:`betty.ancestry.presence_role.PresenceRoleDefinition`.
     """
 
 
 class PresenceRolePluginConfigurationMapping(
     PluginDefinitionConfigurationMapping[
-        PresenceRolePlugin, PresenceRole, PresenceRolePluginConfiguration
+        PresenceRoleDefinition, PresenceRole, PresenceRolePluginConfiguration
     ]
 ):
     """
@@ -566,8 +566,8 @@ class PresenceRolePluginConfigurationMapping(
     @override
     def _new_plugin(
         self, configuration: PresenceRolePluginConfiguration, /
-    ) -> PresenceRolePlugin:
-        @PresenceRolePlugin(
+    ) -> PresenceRoleDefinition:
+        @PresenceRoleDefinition(
             configuration.id,
             label=configuration.label,
             label_plural=configuration.label_plural,
@@ -577,18 +577,18 @@ class PresenceRolePluginConfigurationMapping(
         class _ProjectConfigurationPresenceRole(PresenceRole):
             pass
 
-        return _ProjectConfigurationPresenceRole.plugin
+        return _ProjectConfigurationPresenceRole.plugin()
 
 
 class GenderPluginConfiguration(CountableHumanFacingPluginDefinitionConfiguration):
     """
-    Configure a :py:class:`betty.ancestry.gender.GenderPlugin`.
+    Configure a :py:class:`betty.ancestry.gender.GenderDefinition`.
     """
 
 
 class GenderPluginConfigurationMapping(
     PluginDefinitionConfigurationMapping[
-        GenderPlugin, Gender, GenderPluginConfiguration
+        GenderDefinition, Gender, GenderPluginConfiguration
     ]
 ):
     """
@@ -601,8 +601,10 @@ class GenderPluginConfigurationMapping(
         return GenderPluginConfiguration.load(dump)
 
     @override
-    def _new_plugin(self, configuration: GenderPluginConfiguration, /) -> GenderPlugin:
-        @GenderPlugin(
+    def _new_plugin(
+        self, configuration: GenderPluginConfiguration, /
+    ) -> GenderDefinition:
+        @GenderDefinition(
             configuration.id,
             label=configuration.label,
             label_plural=configuration.label_plural,
@@ -612,7 +614,7 @@ class GenderPluginConfigurationMapping(
         class _ProjectConfigurationGender(Gender):
             pass
 
-        return _ProjectConfigurationGender.plugin
+        return _ProjectConfigurationGender.plugin()
 
 
 @final
@@ -636,11 +638,11 @@ class ProjectConfiguration(Configuration):
         place_types: PlaceTypePluginConfigurationMapping | None = None,
         presence_roles: PresenceRolePluginConfigurationMapping | None = None,
         copyright_notice: PluginInstanceConfiguration[
-            CopyrightNoticePlugin, CopyrightNotice
+            CopyrightNoticeDefinition, CopyrightNotice
         ]
         | None = None,
         copyright_notices: CopyrightNoticePluginConfigurationMapping | None = None,
-        license: PluginInstanceConfiguration[LicensePlugin, License] | None = None,  # noqa A002
+        license: PluginInstanceConfiguration[LicenseDefinition, License] | None = None,  # noqa A002
         licenses: LicensePluginConfigurationMapping | None = None,
         genders: GenderPluginConfigurationMapping | None = None,
         extensions: ExtensionInstanceConfigurationMapping | None = None,
@@ -663,16 +665,16 @@ class ProjectConfiguration(Configuration):
             EntityTypeConfigurationMapping() if entity_types is None else entity_types
         )
         self.copyright_notice = copyright_notice or PluginInstanceConfiguration[
-            CopyrightNoticePlugin, CopyrightNotice
+            CopyrightNoticeDefinition, CopyrightNotice
         ](ProjectAuthor)
         self._copyright_notices = (
             CopyrightNoticePluginConfigurationMapping()
             if copyright_notices is None
             else copyright_notices
         )
-        self.license = license or PluginInstanceConfiguration[LicensePlugin, License](
-            AllRightsReserved
-        )
+        self.license = license or PluginInstanceConfiguration[
+            LicenseDefinition, License
+        ](AllRightsReserved)
         self._licenses = (
             LicensePluginConfigurationMapping() if licenses is None else licenses
         )
@@ -709,7 +711,9 @@ class ProjectConfiguration(Configuration):
     def validator(self) -> AnyFactoryTarget[None]:
         async def _validate(project: Project) -> None:
             with reraise_within_context(Key("entity_types")):
-                await self.entity_types.validate(await project.plugins(EntityPlugin))
+                await self.entity_types.validate(
+                    await project.plugins(EntityDefinition)
+                )
 
         return CallbackProjectDependentFactory(_validate)
 

@@ -14,7 +14,7 @@ from betty.project import Project, ProjectContext
 from betty.project.extension.demo import Demo, generate_with_cleanup
 from betty.project.load import load
 from betty.test_utils.project.extension import (
-    ExtensionPluginTestBase,
+    ExtensionDefinitionTestBase,
     ExtensionTestBase,
 )
 from betty.test_utils.project.extension.demo.project import (
@@ -67,11 +67,11 @@ async def test_generate_with_cleanup__with_error(
         assert not project.project_directory_path.exists()
 
 
-class TestDemoDefinition(ExtensionPluginTestBase):
+class TestDemoDefinition(ExtensionDefinitionTestBase):
     @override
     @pytest.fixture
     def sut(self) -> PluginDefinition:
-        return Demo.plugin
+        return Demo.plugin()
 
 
 class TestDemo(ExtensionTestBase):

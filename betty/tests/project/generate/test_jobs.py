@@ -60,7 +60,9 @@ class TestGenerateEntityTypesHtml:
             async with project:
                 await do(ProjectContext(project), GenerateEntityTypesHtml())
 
-                await assert_betty_html(project, f"/{entity_type.plugin.id}/index.html")
+                await assert_betty_html(
+                    project, f"/{entity_type.plugin().id}/index.html"
+                )
 
     async def test_do__with_pager(self, isolated_app: App) -> None:
         async with Project.new_isolated(isolated_app) as project:
@@ -98,8 +100,8 @@ class TestGenerateEntityTypesJson:
 
             await assert_betty_json(
                 project,
-                f"/{entity_type.plugin.id}/index.json",
-                f"{kebab_case_to_lower_camel_case(entity_type.plugin.id)}EntityCollectionResponse",
+                f"/{entity_type.plugin().id}/index.json",
+                f"{kebab_case_to_lower_camel_case(entity_type.plugin().id)}EntityCollectionResponse",
             )
 
 
@@ -123,7 +125,7 @@ class TestGenerateEntitiesHtml:
                 await do(ProjectContext(project), GenerateEntitiesHtml())
 
                 await assert_betty_html(
-                    project, f"/{entity.plugin.id}/{entity.public_id}/index.html"
+                    project, f"/{entity.plugin().id}/{entity.public_id}/index.html"
                 )
 
     @pytest.mark.parametrize(
@@ -158,7 +160,7 @@ class TestGenerateEntitiesHtml:
 
                 assert not (
                     project.www_directory_path
-                    / entity.plugin.id
+                    / entity.plugin().id
                     / entity.public_id
                     / "index.html"
                 ).exists()
@@ -185,8 +187,8 @@ class TestGenerateEntitiesJson:
 
                 await assert_betty_json(
                     project,
-                    f"/{entity.plugin.id}/{entity.public_id}/index.json",
-                    f"{kebab_case_to_lower_camel_case(entity.plugin.id)}Entity",
+                    f"/{entity.plugin().id}/{entity.public_id}/index.json",
+                    f"{kebab_case_to_lower_camel_case(entity.plugin().id)}Entity",
                 )
 
     @pytest.mark.parametrize(
@@ -214,7 +216,7 @@ class TestGenerateEntitiesJson:
 
                 assert not (
                     project.www_directory_path
-                    / entity.plugin.id
+                    / entity.plugin().id
                     / entity.public_id
                     / "index.json"
                 ).exists()

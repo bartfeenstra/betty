@@ -5,7 +5,7 @@ import pytest
 
 from betty.app import App
 from betty.plugin.discovery.static import StaticDiscovery
-from betty.project.extension import Extension, ExtensionPlugin
+from betty.project.extension import Extension, ExtensionDefinition
 
 
 class ExtensionTranslationTestBase:
@@ -13,11 +13,11 @@ class ExtensionTranslationTestBase:
     async def isolated_app_with_extensions(
         self, tmp_path: Path, isolated_app: App
     ) -> AsyncIterator[App]:
-        @ExtensionPlugin("dummy-without-assets", label="Dummy without assets")
+        @ExtensionDefinition("dummy-without-assets", label="Dummy without assets")
         class _DummyWithoutAssetsDirectoryExtension(Extension):
             pass
 
-        @ExtensionPlugin(
+        @ExtensionDefinition(
             "dummy-with-assets",
             label="Dummy with assets",
             assets_directory_path=tmp_path / "assets",
@@ -25,10 +25,10 @@ class ExtensionTranslationTestBase:
         class _DummyWithAssetsDirectoryExtension(Extension):
             pass
 
-        with ExtensionPlugin.type.override_discovery(
+        with ExtensionDefinition.type().override_discovery(
             StaticDiscovery(
-                _DummyWithoutAssetsDirectoryExtension.plugin,
-                _DummyWithAssetsDirectoryExtension.plugin,
+                _DummyWithoutAssetsDirectoryExtension.plugin(),
+                _DummyWithAssetsDirectoryExtension.plugin(),
             )
         ):
             yield isolated_app

@@ -6,22 +6,28 @@ from typing_extensions import override
 
 from betty.app import App
 from betty.console import SystemExitCode
+from betty.console.command import Command
 from betty.console.command.commands.demo import Demo
 from betty.plugin import PluginDefinition
 from betty.project import Project
 from betty.test_utils.console import run
-from betty.test_utils.console.command import CommandPluginTestBase
+from betty.test_utils.console.command import CommandDefinitionTestBase, CommandTestBase
 from betty.test_utils.serve import NoOpServer
 
 
-class TestDemoDefinition(CommandPluginTestBase):
+class TestDemoDefinition(CommandDefinitionTestBase):
     @override
     @pytest.fixture
     def sut(self) -> PluginDefinition:
-        return Demo.plugin
+        return Demo.plugin()
 
 
-class TestDemo:
+class TestDemo(CommandTestBase):
+    @override
+    @pytest.fixture
+    def sut(self, isolated_app: App) -> Command:
+        return Demo(isolated_app)
+
     async def test_configure__minimal(
         self, mocker: MockerFixture, isolated_app: App
     ) -> None:

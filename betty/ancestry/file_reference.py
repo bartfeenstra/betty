@@ -8,7 +8,7 @@ from typing import TYPE_CHECKING, final
 
 from betty.ancestry.file import File
 from betty.locale.localizable.gettext import _, ngettext
-from betty.model import Entity, EntityPlugin
+from betty.model import Entity, EntityDefinition
 from betty.model.association import BidirectionalToOne, ToOneAssociate
 
 if TYPE_CHECKING:
@@ -17,7 +17,7 @@ if TYPE_CHECKING:
 
 
 @final
-@EntityPlugin(
+@EntityDefinition(
     "file-reference",
     label=_("File reference"),
     label_plural=_("File references"),

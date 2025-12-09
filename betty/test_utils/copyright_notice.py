@@ -4,34 +4,22 @@ Test utilities for :py:mod:`betty.copyright_notice`.
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING
-
-import pytest
-
+from betty.copyright_notice import CopyrightNotice
 from betty.locale.localizer import DEFAULT_LOCALIZER
+from betty.test_utils.plugin import PluginTestBase
 from betty.test_utils.plugin.human_facing import HumanFacingPluginDefinitionTestBase
 
-if TYPE_CHECKING:
-    from betty.copyright_notice import CopyrightNotice
 
-
-class CopyrightNoticePluginTestBase(HumanFacingPluginDefinitionTestBase):
+class CopyrightNoticeDefinitionTestBase(HumanFacingPluginDefinitionTestBase):
     """
-    A base class for testing :py:class:`betty.copyright_notice.CopyrightNoticePlugin` implementations.
+    A base class for testing :py:class:`betty.copyright_notice.CopyrightNoticeDefinition` implementations.
     """
 
 
-class CopyrightNoticeTestBase:
+class CopyrightNoticeTestBase(PluginTestBase[CopyrightNotice]):
     """
     A base class for testing :py:class:`betty.copyright_notice.CopyrightNotice` implementations.
     """
-
-    @pytest.fixture
-    def sut(self) -> CopyrightNotice:
-        """
-        Provide the system(s) under test.
-        """
-        raise NotImplementedError
 
     def test_summary(self, sut: CopyrightNotice) -> None:
         """

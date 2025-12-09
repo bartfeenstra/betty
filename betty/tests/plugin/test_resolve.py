@@ -6,23 +6,29 @@ from betty.test_utils.locale.localizable import (
 )
 
 
+class _PluginCls(Plugin["_PluginDefinition"]):
+    pass
+
+
+@PluginTypeDefinition(
+    "-",
+    _PluginCls,
+    DUMMY_LOCALIZABLE,
+    DUMMY_LOCALIZABLE,
+    DUMMY_COUNTABLE_LOCALIZABLE,
+)
+class _PluginDefinition(PluginDefinition[_PluginCls]):
+    pass
+
+
 def test_resolve_definition__with_plugin_cls() -> None:
     plugin_id = "my-first-plugin-id"
 
-    class _PluginCls(Plugin):
-        pass
-
-    class _PluginDefinition(PluginDefinition):
-        plugin_type_cls = _PluginCls
-        type = PluginTypeDefinition(
-            "-", DUMMY_LOCALIZABLE, DUMMY_LOCALIZABLE, DUMMY_COUNTABLE_LOCALIZABLE
-        )
-
     @_PluginDefinition(plugin_id)
-    class _Plugin(_PluginCls, Plugin):
+    class _Plugin(_PluginCls):
         pass
 
-    assert resolve_definition(_Plugin) is _Plugin.plugin
+    assert resolve_definition(_Plugin) is _Plugin.plugin()
 
 
 def test_resolve_definition__with_plugin_definition() -> None:
@@ -33,17 +39,8 @@ def test_resolve_definition__with_plugin_definition() -> None:
 def test_resolve_id__with_plugin_cls() -> None:
     plugin_id = "my-first-plugin-id"
 
-    class _PluginCls(Plugin):
-        pass
-
-    class _PluginDefinition(PluginDefinition):
-        plugin_type_cls = _PluginCls
-        type = PluginTypeDefinition(
-            "-", DUMMY_LOCALIZABLE, DUMMY_LOCALIZABLE, DUMMY_COUNTABLE_LOCALIZABLE
-        )
-
     @_PluginDefinition(plugin_id)
-    class _Plugin(_PluginCls, Plugin):
+    class _Plugin(_PluginCls):
         pass
 
     assert resolve_id(_Plugin) == plugin_id

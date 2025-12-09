@@ -6,28 +6,20 @@ from __future__ import annotations
 
 from typing import final
 
-import pytest
-
 from betty.locale import DEFAULT_LOCALE
 from betty.locale.localizable.static import CountableStaticTranslations
 from betty.locale.localizer import DEFAULT_LOCALIZER
-from betty.model import Entity, EntityPlugin
+from betty.model import Entity, EntityDefinition
+from betty.test_utils.plugin import PluginTestBase
 from betty.test_utils.plugin.human_facing import (
     CountableHumanFacingPluginDefinitionTestBase,
 )
 
 
-class EntityTestBase:
+class EntityTestBase(PluginTestBase[Entity]):
     """
     A base class for testing :py:class:`betty.model.Entity` implementations.
     """
-
-    @pytest.fixture
-    def sut(self) -> Entity:
-        """
-        Provide the system(s) under test.
-        """
-        raise NotImplementedError
 
     async def test_label(self, sut: Entity) -> None:
         """
@@ -36,14 +28,14 @@ class EntityTestBase:
         assert sut.label.localize(DEFAULT_LOCALIZER)
 
 
-class EntityPluginTestBase(CountableHumanFacingPluginDefinitionTestBase):
+class EntityDefinitionTestBase(CountableHumanFacingPluginDefinitionTestBase):
     """
-    A base class for testing :py:class:`betty.model.EntityPlugin` implementations.
+    A base class for testing :py:class:`betty.model.EntityDefinition` implementations.
     """
 
 
 @final
-@EntityPlugin(
+@EntityDefinition(
     "dummy-one",
     label="Dummy (one)",
     label_plural="Dummies (one)",
@@ -63,7 +55,7 @@ class DummyEntityOne(Entity):
 
 
 @final
-@EntityPlugin(
+@EntityDefinition(
     "dummy",
     label="Dummy (two)",
     label_plural="Dummies (two)",
@@ -83,7 +75,7 @@ class DummyEntityTwo(Entity):
 
 
 @final
-@EntityPlugin(
+@EntityDefinition(
     "dummy",
     label="Dummy (three)",
     label_plural="Dummies (three)",
@@ -103,7 +95,7 @@ class DummyEntityThree(Entity):
 
 
 @final
-@EntityPlugin(
+@EntityDefinition(
     "dummy",
     label="Dummy (four)",
     label_plural="Dummies (four)",
@@ -123,7 +115,7 @@ class DummyEntityFour(Entity):
 
 
 @final
-@EntityPlugin(
+@EntityDefinition(
     "dummy-non-public-facing-one",
     label="Dummy non-public-facing (two)",
     label_plural="Dummies non-public-facing (two)",

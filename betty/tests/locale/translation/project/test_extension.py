@@ -9,12 +9,12 @@ from betty.locale.translation.project.extension import (
     assert_extension_assets_directory_path,
     assert_extension_has_assets_directory_path,
 )
-from betty.project.extension import Extension, ExtensionPlugin
+from betty.project.extension import Extension, ExtensionDefinition
 from betty.test_utils.locale.localizable import DUMMY_LOCALIZABLE
 from betty.test_utils.project.extension import DummyExtensionOne
 
 
-@ExtensionPlugin(
+@ExtensionDefinition(
     "dummy-with-assets-directory",
     label=DUMMY_LOCALIZABLE,
     assets_directory_path=Path(__file__),
@@ -25,27 +25,27 @@ class _DummyExtensionWithAssetsDirectory(Extension):
 
 def test_assert_extension_assets_directory_path__without_assets_directory() -> None:
     with pytest.raises(HumanFacingException):
-        assert_extension_assets_directory_path(DummyExtensionOne.plugin)
+        assert_extension_assets_directory_path(DummyExtensionOne.plugin())
 
 
 def test_assert_extension_assets_directory_path__with_assets_directory() -> None:
     assert (
         assert_extension_assets_directory_path(
-            _DummyExtensionWithAssetsDirectory.plugin
+            _DummyExtensionWithAssetsDirectory.plugin()
         )
-        == _DummyExtensionWithAssetsDirectory.plugin.assets_directory_path
+        == _DummyExtensionWithAssetsDirectory.plugin().assets_directory_path
     )
 
 
 def test_assert_extension_has_assets_directory_path__without_assets_directory() -> None:
     with pytest.raises(HumanFacingException):
-        assert_extension_has_assets_directory_path(DummyExtensionOne.plugin)
+        assert_extension_has_assets_directory_path(DummyExtensionOne.plugin())
 
 
 def test_assert_extension_has_assets_directory_path__with_assets_directory() -> None:
     assert (
         assert_extension_has_assets_directory_path(
-            _DummyExtensionWithAssetsDirectory.plugin
+            _DummyExtensionWithAssetsDirectory.plugin()
         )
-        == _DummyExtensionWithAssetsDirectory.plugin
+        == _DummyExtensionWithAssetsDirectory.plugin()
     )

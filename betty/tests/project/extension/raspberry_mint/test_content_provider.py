@@ -12,6 +12,7 @@ from betty.ancestry.person import Person
 from betty.ancestry.place import Place
 from betty.app import App
 from betty.config.factory import ConfigurationDependentSelfFactory
+from betty.content_provider import ContentProvider
 from betty.content_provider.content_providers import PlainText, PlainTextConfiguration
 from betty.exception import HumanFacingException
 from betty.locale.localizable.plain import Plain
@@ -33,17 +34,27 @@ from betty.project.extension.raspberry_mint.content_provider import (
 )
 from betty.resource import new_context
 from betty.test_utils.config.factory import ConfigurationDependentSelfFactoryTestBase
+from betty.test_utils.content_provider import ContentProviderTestBase
 from betty.test_utils.locale.localizable import DUMMY_LOCALIZABLE
 
 if TYPE_CHECKING:
     from collections.abc import Sequence
 
-    from betty.content_provider import ContentProvider, ContentProviderPlugin
+    from betty.content_provider import ContentProviderDefinition
 
 
 class TestFeaturedEntities(
-    ConfigurationDependentSelfFactoryTestBase[EntityReferenceSequence]
+    ConfigurationDependentSelfFactoryTestBase[EntityReferenceSequence],
+    ContentProviderTestBase,
 ):
+    @override
+    @pytest.fixture
+    async def sut(self, isolated_app: App) -> ContentProvider:
+        async with Project.new_isolated(isolated_app) as project, project:
+            return FeaturedEntities(
+                jinja2_environment=await project.jinja2_environment, project=project
+            )
+
     @override
     @pytest.fixture
     async def configuration_dependent_self_factory_sut(
@@ -72,7 +83,7 @@ class TestFeaturedEntities(
             project.ancestry.add(entity)
             async with project:
                 sut = await FeaturedEntities.new_for_project(project)
-                sut.configuration.append(EntityReference(entity.plugin, entity.id))
+                sut.configuration.append(EntityReference(entity.plugin(), entity.id))
                 provided_content = await sut.provide(resource=new_context())
         assert provided_content is not None
         assert entity.public_id in provided_content
@@ -81,7 +92,7 @@ class TestFeaturedEntities(
 class TestSectionConfiguration:
     def test_content(self) -> None:
         content: Sequence[
-            PluginInstanceConfiguration[ContentProviderPlugin, ContentProvider]
+            PluginInstanceConfiguration[ContentProviderDefinition, ContentProvider]
         ] = [PluginInstanceConfiguration("my-first-content")]
         sut = SectionConfiguration(name="", heading=DUMMY_LOCALIZABLE, content=content)
         assert sut.content[0].id == "my-first-content"
@@ -167,7 +178,16 @@ class TestSectionConfiguration:
         assert list(sut.get_mutables())
 
 
-class TestSection(ConfigurationDependentSelfFactoryTestBase[SectionConfiguration]):
+class TestSection(
+    ConfigurationDependentSelfFactoryTestBase[SectionConfiguration],
+    ContentProviderTestBase,
+):
+    @override
+    @pytest.fixture
+    async def sut(self, isolated_app: App) -> ContentProvider:
+        async with Project.new_isolated(isolated_app) as project, project:
+            return Section(jinja2_environment=await project.jinja2_environment)
+
     @override
     @pytest.fixture
     async def configuration_dependent_self_factory_sut(
@@ -238,7 +258,13 @@ class TestSection(ConfigurationDependentSelfFactoryTestBase[SectionConfiguration
         assert "visually-hidden" in actual
 
 
-class TestFamily:
+class TestFamily(ContentProviderTestBase):
+    @override
+    @pytest.fixture
+    async def sut(self, isolated_app: App) -> ContentProvider:
+        async with Project.new_isolated(isolated_app) as project, project:
+            return Family(jinja2_environment=await project.jinja2_environment)
+
     @pytest.mark.parametrize(
         "resource",
         [
@@ -272,7 +298,13 @@ class TestFamily:
         assert child.public_id in actual
 
 
-class TestMedia:
+class TestMedia(ContentProviderTestBase):
+    @override
+    @pytest.fixture
+    async def sut(self, isolated_app: App) -> ContentProvider:
+        async with Project.new_isolated(isolated_app) as project, project:
+            return Media(jinja2_environment=await project.jinja2_environment)
+
     async def test_provide__without_has_file_references(
         self, isolated_app: App
     ) -> None:
@@ -310,7 +342,7 @@ class TestMedia:
 class TestColorStyleConfiguration:
     def test_content(self) -> None:
         content: Sequence[
-            PluginInstanceConfiguration[ContentProviderPlugin, ContentProvider]
+            PluginInstanceConfiguration[ContentProviderDefinition, ContentProvider]
         ] = [PluginInstanceConfiguration("my-first-content")]
         sut = ColorStyleConfiguration(content=content)
         assert sut.content[0].id == "my-first-content"
@@ -364,7 +396,13 @@ class TestColorStyleConfiguration:
         assert list(sut.get_mutables())
 
 
-class TestColorStyle:
+class TestColorStyle(ContentProviderTestBase):
+    @override
+    @pytest.fixture
+    async def sut(self, isolated_app: App) -> ContentProvider:
+        async with Project.new_isolated(isolated_app) as project, project:
+            return ColorStyle(jinja2_environment=await project.jinja2_environment)
+
     async def test_provide__without_content(self, isolated_app: App) -> None:
         async with Project.new_isolated(isolated_app) as project:
             project.configuration.extensions.enable(RaspberryMint)
@@ -387,7 +425,13 @@ class TestColorStyle:
         assert "My First Content" in actual
 
 
-class TestExternalLinks:
+class TestExternalLinks(ContentProviderTestBase):
+    @override
+    @pytest.fixture
+    async def sut(self, isolated_app: App) -> ContentProvider:
+        async with Project.new_isolated(isolated_app) as project, project:
+            return ExternalLinks(jinja2_environment=await project.jinja2_environment)
+
     async def test_provide__without_has_links(self, isolated_app: App) -> None:
         async with Project.new_isolated(isolated_app) as project:
             project.configuration.extensions.enable(RaspberryMint)

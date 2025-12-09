@@ -16,7 +16,7 @@ if TYPE_CHECKING:
     from betty.media_type import MediaType
 
 
-class Renderer(Plugin, ABC):
+class Renderer(ABC, Plugin["RendererDefinition"]):
     """
     Render content in a different media type to HTML.
 
@@ -38,21 +38,20 @@ class Renderer(Plugin, ABC):
 
 
 @final
-class RendererPlugin(PluginDefinition[Renderer]):
+@PluginTypeDefinition(
+    "renderer",
+    Renderer,
+    _("Renderer"),
+    _("Renderers"),
+    ngettext("{count} renderer", "{count} renderers"),
+    discovery=EntryPointDiscovery("betty.renderer"),
+)
+class RendererDefinition(PluginDefinition[Renderer]):
     """
     A renderer definition.
 
     Read more about :doc:`/development/plugin/renderer`.
     """
-
-    plugin_type_cls = Renderer
-    type = PluginTypeDefinition(
-        "renderer",
-        _("Renderer"),
-        _("Renderers"),
-        ngettext("{count} renderer", "{count} renderers"),
-        discovery=EntryPointDiscovery("betty.renderer"),
-    )
 
 
 @final

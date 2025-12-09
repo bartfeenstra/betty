@@ -5,7 +5,7 @@ from typing import TYPE_CHECKING
 import pytest
 from typing_extensions import override
 
-from betty.model import EntityPlugin
+from betty.model import EntityDefinition
 from betty.plugin.discovery.static import StaticDiscovery
 from betty.project import Project
 from betty.project.config import EntityTypeConfiguration
@@ -54,8 +54,8 @@ class TestRaspberryMint(
     async def test_generate__html_list_for_third_party_entity(
         self, isolated_app: App
     ) -> None:
-        with EntityPlugin.type.override_discovery(
-            StaticDiscovery(DummyEntityOne.plugin)
+        with EntityDefinition.type().override_discovery(
+            StaticDiscovery(DummyEntityOne.plugin())
         ):
             async with Project.new_isolated(isolated_app) as project:
                 project.configuration.extensions.enable(RaspberryMint)
@@ -65,7 +65,9 @@ class TestRaspberryMint(
                 async with project:
                     await generate(project)
                 assert (
-                    project.www_directory_path / DummyEntityOne.plugin.id / "index.html"
+                    project.www_directory_path
+                    / DummyEntityOne.plugin().id
+                    / "index.html"
                 ).is_file()
 
     async def test_regions(self, isolated_app: App) -> None:

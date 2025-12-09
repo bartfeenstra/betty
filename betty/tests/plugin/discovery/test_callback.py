@@ -24,11 +24,11 @@ class TestCallbackDiscovery:
     @staticmethod
     def _sut_params() -> Sequence[CallbackResultDiscoveryTestParams]:
         async def _async_discovery() -> Iterable[PluginDefinition]:
-            return [DummyPluginOne.plugin]
+            return [DummyPluginOne.plugin()]
 
         return [
-            ([DummyPluginOne.plugin], lambda: [DummyPluginOne.plugin]),
-            ([DummyPluginOne.plugin], _async_discovery),
+            ([DummyPluginOne.plugin()], lambda: [DummyPluginOne.plugin()]),
+            ([DummyPluginOne.plugin()], _async_discovery),
         ]
 
     @pytest.fixture(params=_sut_params())

@@ -22,7 +22,7 @@ from betty.plugin.assertion import assert_plugin
 from betty.plugin.resolve import ResolvableId, resolve_id
 
 if TYPE_CHECKING:
-    from betty.model import Entity, EntityPlugin
+    from betty.model import Entity, EntityDefinition
     from betty.plugin.repository import PluginRepository
     from betty.serde.dump import Dump, DumpMapping
 
@@ -34,7 +34,7 @@ class EntityReference(Configuration):
     """
 
     def __init__(
-        self, entity_type: ResolvableId[EntityPlugin, Entity], entity_id: str, /
+        self, entity_type: ResolvableId[EntityDefinition, Entity], entity_id: str, /
     ):
         super().__init__()
         self.entity_type = entity_type  # type: ignore[assignment]
@@ -48,7 +48,7 @@ class EntityReference(Configuration):
         return self._entity_type
 
     @entity_type.setter
-    def entity_type(self, entity_type: ResolvableId[EntityPlugin, Entity]) -> None:
+    def entity_type(self, entity_type: ResolvableId[EntityDefinition, Entity]) -> None:
         self._entity_type = resolve_id(entity_type)
 
     @property
@@ -79,7 +79,7 @@ class EntityReference(Configuration):
         }
 
     async def validate(
-        self, entity_type_repository: PluginRepository[EntityPlugin], /
+        self, entity_type_repository: PluginRepository[EntityDefinition], /
     ) -> None:
         """
         Validate the configuration.
@@ -99,7 +99,7 @@ class EntityReferenceSequence(ConfigurationSequence[EntityReference]):
         return EntityReference.load(dump)
 
     async def validate(
-        self, entity_type_repository: PluginRepository[EntityPlugin], /
+        self, entity_type_repository: PluginRepository[EntityDefinition], /
     ) -> None:
         """
         Validate the configuration.

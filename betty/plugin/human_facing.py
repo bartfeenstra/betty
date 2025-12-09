@@ -4,7 +4,7 @@ Plugins that are human-facing and have localizable attributes.
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Any, Generic
+from typing import TYPE_CHECKING, Any
 
 from typing_extensions import TypeVar, override
 
@@ -14,7 +14,7 @@ from betty.locale.localizable.attr import (
 )
 from betty.locale.localizable.ensure import ensure_localizable
 from betty.locale.localizable.gettext import _
-from betty.plugin import Plugin, PluginDefinition
+from betty.plugin import PluginDefinition
 
 if TYPE_CHECKING:
     from betty.locale.localizable import (
@@ -24,10 +24,11 @@ if TYPE_CHECKING:
     )
     from betty.machine_name import MachineName
 
-_PluginT = TypeVar("_PluginT", bound=Plugin, default=Plugin)
+
+_BaseClsCoT = TypeVar("_BaseClsCoT", default=object, covariant=True)
 
 
-class HumanFacingPluginDefinition(PluginDefinition[_PluginT], Generic[_PluginT]):
+class HumanFacingPluginDefinition(PluginDefinition[_BaseClsCoT]):
     """
     A definition of a plugin that is human-facing.
     """
@@ -59,7 +60,7 @@ class HumanFacingPluginDefinition(PluginDefinition[_PluginT], Generic[_PluginT])
     @property
     def reference_label_with_type(self) -> Localizable:
         return _('{plugin_type} "{plugin_id}" ({plugin_label})').format(
-            plugin_type=self.type.label,
+            plugin_type=self.type().label,
             plugin_id=self.id,
             plugin_label=self.label,
         )
@@ -79,7 +80,7 @@ class HumanFacingPluginDefinition(PluginDefinition[_PluginT], Generic[_PluginT])
         return self._description
 
 
-class CountableHumanFacingPluginDefinition(HumanFacingPluginDefinition[_PluginT]):
+class CountableHumanFacingPluginDefinition(HumanFacingPluginDefinition[_BaseClsCoT]):
     """
     A definition of a plugin that is human-facing, and of which instances are countable.
     """

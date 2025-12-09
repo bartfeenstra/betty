@@ -7,20 +7,20 @@ import pytest
 from babel import Locale
 from typing_extensions import override
 
-from betty.ancestry.event_type import EventType, EventTypePlugin
-from betty.ancestry.gender import Gender, GenderPlugin
-from betty.ancestry.place_type import PlaceType, PlaceTypePlugin
-from betty.ancestry.presence_role import PresenceRole, PresenceRolePlugin
-from betty.copyright_notice import CopyrightNotice, CopyrightNoticePlugin
+from betty.ancestry.event_type import EventType, EventTypeDefinition
+from betty.ancestry.gender import Gender, GenderDefinition
+from betty.ancestry.place_type import PlaceType, PlaceTypeDefinition
+from betty.ancestry.presence_role import PresenceRole, PresenceRoleDefinition
+from betty.copyright_notice import CopyrightNotice, CopyrightNoticeDefinition
 from betty.copyright_notice.copyright_notices import ProjectAuthor
 from betty.exception import HumanFacingException
-from betty.license import License, LicensePlugin
+from betty.license import License, LicenseDefinition
 from betty.license.licenses import AllRightsReserved
 from betty.locale import DEFAULT_LOCALE, DEFAULT_LOCALE_TAG, LocaleLike
 from betty.locale.localizable.plain import Plain
 from betty.locale.localizer import DEFAULT_LOCALIZER
 from betty.machine_name import MachineName
-from betty.model import Entity, EntityPlugin
+from betty.model import Entity, EntityDefinition
 from betty.plugin.config import PluginInstanceConfiguration
 from betty.plugin.discovery.static import StaticDiscovery
 from betty.plugin.repository.static import StaticPluginRepository
@@ -46,7 +46,7 @@ from betty.project.config import (
     PresenceRolePluginConfigurationMapping,
     ProjectConfiguration,
 )
-from betty.project.extension import Extension, ExtensionPlugin
+from betty.project.extension import Extension, ExtensionDefinition
 from betty.test_utils.config import DummyConfiguration
 from betty.test_utils.config.collections import (
     ConfigurationCollectionTestBaseNewSut,
@@ -73,7 +73,7 @@ if TYPE_CHECKING:
     )
 
 
-@ExtensionPlugin("dummy-non-configurable", label=DUMMY_LOCALIZABLE)
+@ExtensionDefinition("dummy-non-configurable", label=DUMMY_LOCALIZABLE)
 class _DummyNonConfigurableExtension(Extension):
     pass
 
@@ -269,7 +269,7 @@ class TestLocaleConfigurationMapping(
         assert sut.multilingual
 
 
-@ExtensionPlugin(
+@ExtensionDefinition(
     "extension-instance-configuration-mapping-test-extension-0",
     label=DUMMY_LOCALIZABLE,
 )
@@ -277,7 +277,7 @@ class ExtensionInstanceConfigurationMappingTestExtension0(Extension):
     pass
 
 
-@ExtensionPlugin(
+@ExtensionDefinition(
     "extension-instance-configuration-mapping-test-extension-1",
     label=DUMMY_LOCALIZABLE,
 )
@@ -285,7 +285,7 @@ class ExtensionInstanceConfigurationMappingTestExtension1(Extension):
     pass
 
 
-@ExtensionPlugin(
+@ExtensionDefinition(
     "extension-instance-configuration-mapping-test-extension-2",
     label=DUMMY_LOCALIZABLE,
 )
@@ -293,7 +293,7 @@ class ExtensionInstanceConfigurationMappingTestExtension2(Extension):
     pass
 
 
-@ExtensionPlugin(
+@ExtensionDefinition(
     "extension-instance-configuration-mapping-test-extension-3",
     label=DUMMY_LOCALIZABLE,
 )
@@ -304,8 +304,8 @@ class ExtensionInstanceConfigurationMappingTestExtension3(Extension):
 class TestExtensionInstanceConfigurationMapping(
     ConfigurationMappingTestBase[
         MachineName,
-        ResolvableId[ExtensionPlugin, Extension],
-        PluginInstanceConfiguration[ExtensionPlugin, Extension],
+        ResolvableId[ExtensionDefinition, Extension],
+        PluginInstanceConfiguration[ExtensionDefinition, Extension],
     ]
 ):
     @override
@@ -314,10 +314,10 @@ class TestExtensionInstanceConfigurationMapping(
         self,
     ) -> ConfigurationCollectionTestBaseSutConfigurationKeys[MachineName]:
         return (
-            ExtensionInstanceConfigurationMappingTestExtension0.plugin.id,
-            ExtensionInstanceConfigurationMappingTestExtension1.plugin.id,
-            ExtensionInstanceConfigurationMappingTestExtension2.plugin.id,
-            ExtensionInstanceConfigurationMappingTestExtension3.plugin.id,
+            ExtensionInstanceConfigurationMappingTestExtension0.plugin().id,
+            ExtensionInstanceConfigurationMappingTestExtension1.plugin().id,
+            ExtensionInstanceConfigurationMappingTestExtension2.plugin().id,
+            ExtensionInstanceConfigurationMappingTestExtension3.plugin().id,
         )
 
     @override
@@ -325,9 +325,9 @@ class TestExtensionInstanceConfigurationMapping(
     def new_sut(
         self,
     ) -> ConfigurationCollectionTestBaseNewSut[
-        PluginInstanceConfiguration[ExtensionPlugin, Extension],
+        PluginInstanceConfiguration[ExtensionDefinition, Extension],
         MachineName,
-        ResolvableId[ExtensionPlugin, Extension],
+        ResolvableId[ExtensionDefinition, Extension],
     ]:
         return ExtensionInstanceConfigurationMapping
 
@@ -339,7 +339,7 @@ class TestExtensionInstanceConfigurationMapping(
             MachineName
         ],
     ) -> ConfigurationCollectionTestBaseSutConfigurations[
-        PluginInstanceConfiguration[ExtensionPlugin, Extension]
+        PluginInstanceConfiguration[ExtensionDefinition, Extension]
     ]:
         return (
             PluginInstanceConfiguration(sut_configuration_keys[0]),
@@ -351,17 +351,17 @@ class TestExtensionInstanceConfigurationMapping(
     def test_enable(self) -> None:
         sut = ExtensionInstanceConfigurationMapping()
         sut.enable(DummyExtensionOne)
-        assert DummyExtensionOne.plugin in sut
+        assert DummyExtensionOne.plugin() in sut
 
 
 class TestEntityTypeConfiguration:
     async def test_id__with___init___entity_type(self) -> None:
         entity_type = DummyEntityOne
         sut = EntityTypeConfiguration(entity_type)
-        assert sut.id == entity_type.plugin.id
+        assert sut.id == entity_type.plugin().id
 
     async def test_id__with___init___entity_type_id(self) -> None:
-        entity_type_id = DummyEntityOne.plugin.id
+        entity_type_id = DummyEntityOne.plugin().id
         sut = EntityTypeConfiguration(entity_type_id)
         assert sut.id == entity_type_id
 
@@ -384,7 +384,7 @@ class TestEntityTypeConfiguration:
 
     def test_load__with_minimal_configuration(self) -> None:
         dump: Dump = {
-            "entity_type": DummyEntityOne.plugin.id,
+            "entity_type": DummyEntityOne.plugin().id,
         }
         EntityTypeConfiguration.load(dump)
 
@@ -397,7 +397,7 @@ class TestEntityTypeConfiguration:
     )
     def test_load__with_generate_html_list(self, generate_html_list: bool) -> None:
         dump: Dump = {
-            "entity_type": DummyEntityOne.plugin.id,
+            "entity_type": DummyEntityOne.plugin().id,
             "generate_html_list": generate_html_list,
         }
         sut = EntityTypeConfiguration.load(dump)
@@ -406,7 +406,7 @@ class TestEntityTypeConfiguration:
     async def test_dump__with_minimal_configuration(self) -> None:
         sut = EntityTypeConfiguration(DummyEntityOne)
         expected = {
-            "entity_type": DummyEntityOne.plugin.id,
+            "entity_type": DummyEntityOne.plugin().id,
             "generate_html_list": False,
         }
         assert sut.dump() == expected
@@ -414,7 +414,7 @@ class TestEntityTypeConfiguration:
     async def test_dump__with_generate_html_list(self) -> None:
         sut = EntityTypeConfiguration(DummyEntityOne, generate_html_list=False)
         expected = {
-            "entity_type": DummyEntityOne.plugin.id,
+            "entity_type": DummyEntityOne.plugin().id,
             "generate_html_list": False,
         }
         assert sut.dump() == expected
@@ -428,12 +428,12 @@ class TestEntityTypeConfiguration:
         with pytest.raises(HumanFacingException):
             await sut.validate(
                 StaticPluginRepository(
-                    EntityPlugin, DummyNonPublicFacingEntityOne.plugin
+                    EntityDefinition, DummyNonPublicFacingEntityOne.plugin()
                 )
             )
 
 
-@EntityPlugin(
+@EntityDefinition(
     "zero",
     label=DUMMY_LOCALIZABLE,
     label_plural=DUMMY_LOCALIZABLE,
@@ -443,7 +443,7 @@ class EntityTypeConfigurationMappingTestEntity0(Entity):
     pass
 
 
-@EntityPlugin(
+@EntityDefinition(
     "one",
     label=DUMMY_LOCALIZABLE,
     label_plural=DUMMY_LOCALIZABLE,
@@ -453,7 +453,7 @@ class EntityTypeConfigurationMappingTestEntity1(Entity):
     pass
 
 
-@EntityPlugin(
+@EntityDefinition(
     "two",
     label=DUMMY_LOCALIZABLE,
     label_plural=DUMMY_LOCALIZABLE,
@@ -463,7 +463,7 @@ class EntityTypeConfigurationMappingTestEntity2(Entity):
     pass
 
 
-@EntityPlugin(
+@EntityDefinition(
     "three",
     label=DUMMY_LOCALIZABLE,
     label_plural=DUMMY_LOCALIZABLE,
@@ -475,7 +475,7 @@ class EntityTypeConfigurationMappingTestEntity3(Entity):
 
 class TestEntityTypeConfigurationMapping(
     ConfigurationMappingTestBase[
-        MachineName, ResolvableId[EntityPlugin, Entity], EntityTypeConfiguration
+        MachineName, ResolvableId[EntityDefinition, Entity], EntityTypeConfiguration
     ]
 ):
     @override
@@ -484,10 +484,10 @@ class TestEntityTypeConfigurationMapping(
         self,
     ) -> ConfigurationCollectionTestBaseSutConfigurationKeys[MachineName]:
         return (
-            EntityTypeConfigurationMappingTestEntity0.plugin.id,
-            EntityTypeConfigurationMappingTestEntity1.plugin.id,
-            EntityTypeConfigurationMappingTestEntity2.plugin.id,
-            EntityTypeConfigurationMappingTestEntity3.plugin.id,
+            EntityTypeConfigurationMappingTestEntity0.plugin().id,
+            EntityTypeConfigurationMappingTestEntity1.plugin().id,
+            EntityTypeConfigurationMappingTestEntity2.plugin().id,
+            EntityTypeConfigurationMappingTestEntity3.plugin().id,
         )
 
     @override
@@ -495,7 +495,7 @@ class TestEntityTypeConfigurationMapping(
     def new_sut(
         self,
     ) -> ConfigurationCollectionTestBaseNewSut[
-        EntityTypeConfiguration, MachineName, ResolvableId[EntityPlugin, Entity]
+        EntityTypeConfiguration, MachineName, ResolvableId[EntityDefinition, Entity]
     ]:
         return EntityTypeConfigurationMapping
 
@@ -525,7 +525,7 @@ class TestEntityTypeConfigurationMapping(
         with pytest.raises(HumanFacingException):
             await sut.validate(
                 StaticPluginRepository(
-                    EntityPlugin, DummyNonPublicFacingEntityOne.plugin
+                    EntityDefinition, DummyNonPublicFacingEntityOne.plugin()
                 )
             )
 
@@ -611,7 +611,7 @@ class TestCopyrightNoticeConfiguration:
 
 class TestCopyrightNoticePluginConfigurationMapping(
     PluginDefinitionConfigurationMappingTestBase[
-        CopyrightNoticePlugin, CopyrightNotice, CopyrightNoticePluginConfiguration
+        CopyrightNoticeDefinition, CopyrightNotice, CopyrightNoticePluginConfiguration
     ]
 ):
     @override
@@ -662,7 +662,7 @@ class TestCopyrightNoticePluginConfigurationMapping(
     ) -> ConfigurationCollectionTestBaseNewSut[
         CopyrightNoticePluginConfigurationMapping,
         MachineName,
-        ResolvableId[CopyrightNoticePlugin, CopyrightNotice],
+        ResolvableId[CopyrightNoticeDefinition, CopyrightNotice],
     ]:
         return CopyrightNoticePluginConfigurationMapping  # type: ignore[return-value]
 
@@ -748,7 +748,7 @@ class TestLicenseConfiguration:
 
 class TestLicensePluginConfigurationMapping(
     PluginDefinitionConfigurationMappingTestBase[
-        LicensePlugin, License, LicensePluginConfiguration
+        LicenseDefinition, License, LicensePluginConfiguration
     ]
 ):
     @override
@@ -795,14 +795,16 @@ class TestLicensePluginConfigurationMapping(
     def new_sut(
         self,
     ) -> ConfigurationCollectionTestBaseNewSut[
-        LicensePluginConfiguration, MachineName, ResolvableId[LicensePlugin, License]
+        LicensePluginConfiguration,
+        MachineName,
+        ResolvableId[LicenseDefinition, License],
     ]:
         return LicensePluginConfigurationMapping
 
 
 class TestEventTypePluginConfigurationMapping(
     PluginDefinitionConfigurationMappingTestBase[
-        EventTypePlugin, EventType, EventTypePluginConfiguration
+        EventTypeDefinition, EventType, EventTypePluginConfiguration
     ]
 ):
     @override
@@ -851,14 +853,14 @@ class TestEventTypePluginConfigurationMapping(
     ) -> ConfigurationCollectionTestBaseNewSut[
         EventTypePluginConfiguration,
         MachineName,
-        ResolvableId[EventTypePlugin, EventType],
+        ResolvableId[EventTypeDefinition, EventType],
     ]:
         return EventTypePluginConfigurationMapping
 
 
 class TestPlaceTypePluginConfigurationMapping(
     PluginDefinitionConfigurationMappingTestBase[
-        PlaceTypePlugin, PlaceType, PlaceTypePluginConfiguration
+        PlaceTypeDefinition, PlaceType, PlaceTypePluginConfiguration
     ]
 ):
     @override
@@ -907,14 +909,14 @@ class TestPlaceTypePluginConfigurationMapping(
     ) -> ConfigurationCollectionTestBaseNewSut[
         PlaceTypePluginConfiguration,
         MachineName,
-        ResolvableId[PlaceTypePlugin, PlaceType],
+        ResolvableId[PlaceTypeDefinition, PlaceType],
     ]:
         return PlaceTypePluginConfigurationMapping
 
 
 class TestPresenceRolePluginConfigurationMapping(
     PluginDefinitionConfigurationMappingTestBase[
-        PresenceRolePlugin, PresenceRole, PresenceRolePluginConfiguration
+        PresenceRoleDefinition, PresenceRole, PresenceRolePluginConfiguration
     ]
 ):
     @override
@@ -965,14 +967,14 @@ class TestPresenceRolePluginConfigurationMapping(
     ) -> ConfigurationCollectionTestBaseNewSut[
         PresenceRolePluginConfiguration,
         MachineName,
-        ResolvableId[PresenceRolePlugin, PresenceRole],
+        ResolvableId[PresenceRoleDefinition, PresenceRole],
     ]:
         return PresenceRolePluginConfigurationMapping
 
 
 class TestGenderPluginConfigurationMapping(
     PluginDefinitionConfigurationMappingTestBase[
-        GenderPlugin, Gender, GenderPluginConfiguration
+        GenderDefinition, Gender, GenderPluginConfiguration
     ]
 ):
     @override
@@ -1019,7 +1021,7 @@ class TestGenderPluginConfigurationMapping(
     def new_sut(
         self,
     ) -> ConfigurationCollectionTestBaseNewSut[
-        GenderPluginConfiguration, MachineName, ResolvableId[GenderPlugin, Gender]
+        GenderPluginConfiguration, MachineName, ResolvableId[GenderDefinition, Gender]
     ]:
         return GenderPluginConfigurationMapping
 
@@ -1031,11 +1033,11 @@ class TestProjectConfiguration:
         sut = ProjectConfiguration()
         sut.entity_types.replace(
             EntityTypeConfiguration(
-                DummyNonPublicFacingEntityOne.plugin, generate_html_list=True
+                DummyNonPublicFacingEntityOne.plugin(), generate_html_list=True
             )
         )
-        with EntityPlugin.type.override_discovery(
-            StaticDiscovery(DummyNonPublicFacingEntityOne.plugin)
+        with EntityDefinition.type().override_discovery(
+            StaticDiscovery(DummyNonPublicFacingEntityOne.plugin())
         ):
             async with Project.new_isolated(isolated_app) as project:
                 async with project:
@@ -1303,10 +1305,10 @@ class TestProjectConfiguration:
     async def test_load__should_load_extension(self) -> None:
         dump = ProjectConfiguration().dump()
         dump["extensions"] = {
-            DummyExtensionOne.plugin.id: {},
+            DummyExtensionOne.plugin().id: {},
         }
         sut = ProjectConfiguration.load(dump)
-        actual = sut.extensions[DummyExtensionOne.plugin]
+        actual = sut.extensions[DummyExtensionOne.plugin()]
         assert isinstance(actual.configuration, Void)
 
     async def test_load__extension_with_invalid_configuration_should_raise_error(
@@ -1314,7 +1316,7 @@ class TestProjectConfiguration:
     ) -> None:
         dump = ProjectConfiguration().dump()
         dump["extensions"] = {
-            DummyConfigurableExtension.plugin.id: 1337,
+            DummyConfigurableExtension.plugin().id: 1337,
         }
         with pytest.raises(HumanFacingException):
             ProjectConfiguration.load(dump)
@@ -1563,12 +1565,12 @@ class TestProjectConfiguration:
         value = "Hello, world!"
         sut.extensions.append(
             PluginInstanceConfiguration(
-                DummyConfigurableExtension.plugin, DummyConfiguration(value)
+                DummyConfigurableExtension.plugin(), DummyConfiguration(value)
             )
         )
         dump = sut.dump()
         expected = {
-            DummyConfigurableExtension.plugin.id: {
+            DummyConfigurableExtension.plugin().id: {
                 "configuration": {
                     "value": value,
                 },
@@ -1580,7 +1582,7 @@ class TestProjectConfiguration:
         sut = ProjectConfiguration()
         sut.extensions.enable(_DummyNonConfigurableExtension)
         dump = sut.dump()
-        expected: Dump = {_DummyNonConfigurableExtension.plugin.id: {}}
+        expected: Dump = {_DummyNonConfigurableExtension.plugin().id: {}}
         assert dump["extensions"] == expected
 
     async def test_dump__should_dump_event_types(self) -> None:
@@ -1685,7 +1687,7 @@ class TestProjectConfiguration:
 
     async def test_dump__should_dump_copyright_notice(self) -> None:
         sut = ProjectConfiguration()
-        assert sut.dump()["copyright_notice"] == ProjectAuthor.plugin.id
+        assert sut.dump()["copyright_notice"] == ProjectAuthor.plugin().id
 
     async def test_dump__should_dump_copyright_notices_without_items(self) -> None:
         sut = ProjectConfiguration()
@@ -1717,7 +1719,7 @@ class TestProjectConfiguration:
 
     async def test_dump__should_dump_license(self) -> None:
         sut = ProjectConfiguration()
-        assert sut.dump()["license"] == AllRightsReserved.plugin.id
+        assert sut.dump()["license"] == AllRightsReserved.plugin().id
 
     async def test_dump__should_dump_licenses_without_items(self) -> None:
         sut = ProjectConfiguration()

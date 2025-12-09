@@ -5,7 +5,7 @@ Provide copyright notices.
 from __future__ import annotations
 
 from abc import abstractmethod
-from typing import TYPE_CHECKING, ClassVar, final
+from typing import TYPE_CHECKING, final
 
 from betty.locale.localizable.gettext import _, ngettext
 from betty.mutability import Mutable
@@ -18,7 +18,7 @@ if TYPE_CHECKING:
     from betty.locale.localizable import Localizable
 
 
-class CopyrightNotice(Mutable, Plugin):
+class CopyrightNotice(Mutable, Plugin["CopyrightNoticeDefinition"]):
     """
     A copyright notice.
 
@@ -26,8 +26,6 @@ class CopyrightNotice(Mutable, Plugin):
 
     To test your own subclasses, use :py:class:`betty.test_utils.copyright_notice.CopyrightNoticeTestBase`.
     """
-
-    plugin: ClassVar[CopyrightNoticePlugin]
 
     @property
     @abstractmethod
@@ -52,23 +50,22 @@ class CopyrightNotice(Mutable, Plugin):
 
 
 @final
-class CopyrightNoticePlugin(HumanFacingPluginDefinition[CopyrightNotice]):
+@PluginTypeDefinition(
+    "copyright-notice",
+    CopyrightNotice,
+    _("Copyright notice"),
+    _("Copyright notices"),
+    ngettext("{count} copyright notice", "{count} copyright notices"),
+    discovery=[
+        EntryPointDiscovery("betty.copyright_notice"),
+        ProjectDiscovery(
+            lambda project: project.configuration.copyright_notices.new_plugins()
+        ),
+    ],
+)
+class CopyrightNoticeDefinition(HumanFacingPluginDefinition[CopyrightNotice]):
     """
     A copyright notice definition.
 
     Read more about :doc:`/development/plugin/copyright-notice`.
     """
-
-    plugin_type_cls = CopyrightNotice
-    type = PluginTypeDefinition(
-        "copyright-notice",
-        _("Copyright notice"),
-        _("Copyright notices"),
-        ngettext("{count} copyright notice", "{count} copyright notices"),
-        discovery=[
-            EntryPointDiscovery("betty.copyright_notice"),
-            ProjectDiscovery(
-                lambda project: project.configuration.copyright_notices.new_plugins()
-            ),
-        ],
-    )

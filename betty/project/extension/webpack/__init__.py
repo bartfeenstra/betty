@@ -17,7 +17,7 @@ from betty._npm import new_npm_requirement
 from betty.html import CssProvider, JsProvider
 from betty.jinja2 import Filters, Jinja2Provider
 from betty.project import Project, ProjectContext
-from betty.project.extension import Extension, ExtensionPlugin
+from betty.project.extension import Extension, ExtensionDefinition
 from betty.project.extension.webpack import build
 from betty.project.extension.webpack.build import EntryPointProvider
 from betty.project.extension.webpack.jinja2.filter import FILTERS
@@ -39,7 +39,7 @@ if TYPE_CHECKING:
 
 @internal
 @final
-@ExtensionPlugin(
+@ExtensionDefinition(
     "webpack",
     label="Webpack",
     assets_directory_path=Path(__file__).parent / "assets",
@@ -73,7 +73,9 @@ class Webpack(
     @override
     @classmethod
     async def requirement(cls, services: ServiceLevel, /) -> Requirement | None:
-        project = await Project.requires(services, cls.plugin.reference_label_with_type)
+        project = await Project.requires(
+            services, cls.plugin().reference_label_with_type
+        )
         if isinstance(project, Requirement):
             return project
         npm_requirement = cls._npm_requirement
@@ -91,7 +93,7 @@ class Webpack(
         return (
             "betty-static:///css/webpack/webpack-vendor.css",
             *(
-                f"betty-static:///css/webpack/{entry_point.plugin.id}.css"
+                f"betty-static:///css/webpack/{entry_point.plugin().id}.css"
                 for entry_point in await self._project_entry_point_providers()
                 if (
                     entry_point.webpack_entry_point_directory_path() / "main.scss"

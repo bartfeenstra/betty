@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, ClassVar
+from typing import TYPE_CHECKING
 
 import pytest
 from typing_extensions import override
@@ -27,18 +27,19 @@ if TYPE_CHECKING:
     from betty.service.level import ServiceLevel
 
 
-class HasRequirementPlugin(HasRequirement, Plugin):
-    plugin: ClassVar[HasRequirementPluginDefinition]
+class HasRequirementPlugin(HasRequirement, Plugin["HasRequirementPluginDefinition"]):
+    pass
 
 
-class HasRequirementPluginDefinition(DependentPluginDefinition):
-    plugin_type_cls = DummyPlugin
-    type = PluginTypeDefinition(
-        "-",
-        "HasRequirement",
-        "HasRequirement",
-        DUMMY_COUNTABLE_LOCALIZABLE,
-    )
+@PluginTypeDefinition(
+    "-",
+    HasRequirementPlugin,
+    "HasRequirement",
+    "HasRequirement",
+    DUMMY_COUNTABLE_LOCALIZABLE,
+)
+class HasRequirementPluginDefinition(DependentPluginDefinition[HasRequirementPlugin]):
+    pass
 
 
 @HasRequirementPluginDefinition(
@@ -94,8 +95,8 @@ async def test_new_dependencies_requirement__without_dependent_plugin(
     isolated_app: App,
 ) -> None:
     actual = await new_dependencies_requirement(
-        DummyPluginOne.plugin,
-        [DummyPluginOne.plugin],
+        DummyPluginOne.plugin(),
+        [DummyPluginOne.plugin()],
         services=isolated_app,
     )
     assert actual is None
@@ -104,9 +105,12 @@ async def test_new_dependencies_requirement__without_dependent_plugin(
 async def test_new_dependencies_requirement__without_requirements(
     isolated_app: App,
 ) -> None:
-    plugins = [UpstreamWithoutRequirements.plugin, DownstreamWithoutRequirements.plugin]
+    plugins = [
+        UpstreamWithoutRequirements.plugin(),
+        DownstreamWithoutRequirements.plugin(),
+    ]
     actual = await new_dependencies_requirement(
-        UpstreamWithoutRequirements.plugin, plugins, services=isolated_app
+        UpstreamWithoutRequirements.plugin(), plugins, services=isolated_app
     )
     assert actual is None
 
@@ -115,11 +119,11 @@ async def test_new_dependencies_requirement__with_unmet_requirements(
     isolated_app: App,
 ) -> None:
     plugins = [
-        UpstreamWithUnmetRequirements.plugin,
-        DownstreamWithUnmetRequirements.plugin,
+        UpstreamWithUnmetRequirements.plugin(),
+        DownstreamWithUnmetRequirements.plugin(),
     ]
     actual = await new_dependencies_requirement(
-        UpstreamWithUnmetRequirements.plugin, plugins, services=isolated_app
+        UpstreamWithUnmetRequirements.plugin(), plugins, services=isolated_app
     )
     assert actual is not None
     message = actual.localize(DEFAULT_LOCALIZER)
@@ -129,9 +133,12 @@ async def test_new_dependencies_requirement__with_unmet_requirements(
 async def test_new_dependencies_requirement__with_met_requirements(
     isolated_app: App,
 ) -> None:
-    plugins = [UpstreamWithMetRequirements.plugin, DownstreamWithMetRequirements.plugin]
+    plugins = [
+        UpstreamWithMetRequirements.plugin(),
+        DownstreamWithMetRequirements.plugin(),
+    ]
     actual = await new_dependencies_requirement(
-        UpstreamWithMetRequirements.plugin, plugins, services=isolated_app
+        UpstreamWithMetRequirements.plugin(), plugins, services=isolated_app
     )
     assert actual is None
 
@@ -144,7 +151,7 @@ class TestCyclicDependencyError:
 
 
 async def test_get_requirement__without_classed_plugin() -> None:
-    assert await get_requirement(DummyPluginOne.plugin, None) is None
+    assert await get_requirement(DummyPluginOne.plugin(), None) is None
 
 
 async def test_get_requirement__without_has_requirement() -> None:
@@ -175,9 +182,9 @@ async def test_get_requirement__with_requirement() -> None:
 class TestCheckRequirementRepository:
     async def test_get__without_requirement(self) -> None:
         sut = await CheckRequirementRepository.new(
-            DummyPluginDefinition, [DummyPluginOne.plugin], None
+            DummyPluginDefinition, [DummyPluginOne.plugin()], None
         )
-        assert sut.get(DummyPluginOne.plugin.id) is DummyPluginOne.plugin
+        assert sut.get(DummyPluginOne.plugin().id) is DummyPluginOne.plugin()
 
     async def test_get__with_plugin_not_found(self) -> None:
         sut = await CheckRequirementRepository.new(DummyPluginDefinition, [], None)
@@ -193,9 +200,9 @@ class TestCheckRequirementRepository:
 
     async def test___iter____without_requirement(self) -> None:
         sut = await CheckRequirementRepository.new(
-            DummyPluginDefinition, [DummyPluginOne.plugin], None
+            DummyPluginDefinition, [DummyPluginOne.plugin()], None
         )
-        assert list(iter(sut)) == [DummyPluginOne.plugin]
+        assert list(iter(sut)) == [DummyPluginOne.plugin()]
 
     async def test___iter____without_plugins(self) -> None:
         sut = await CheckRequirementRepository.new(DummyPluginDefinition, [], None)

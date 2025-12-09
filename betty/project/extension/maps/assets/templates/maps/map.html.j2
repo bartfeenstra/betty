@@ -2,7 +2,7 @@
 {% if places | length > 0 %}
     {% set ns = namespace(places_data=[]) %}
     {% for place in places %}
-        {% do ns.places_data.append((place.coordinates.latitude, place.coordinates.longitude, ('betty:///' ~ place.plugin.id ~ '/' ~ place.public_id ~ '/-maps-place-preview.html') | url)) %}
+        {% do ns.places_data.append((place.coordinates.latitude, place.coordinates.longitude, ('betty:///' ~ place.plugin().id ~ '/' ~ place.public_id ~ '/-maps-place-preview.html') | url)) %}
     {% endfor %}
     <div class="map{% if embedded | default(false) %} map-embedded{% endif %}" id="{{ generate_html_id() }}" data-betty-maps-places="{{ ns.places_data | json_dump }}" tabindex="0"></div>
     {% do 'maps' | webpack_entry_point_js %}

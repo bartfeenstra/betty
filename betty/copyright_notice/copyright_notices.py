@@ -6,7 +6,7 @@ from typing import Self, final
 
 from typing_extensions import override
 
-from betty.copyright_notice import CopyrightNotice, CopyrightNoticePlugin
+from betty.copyright_notice import CopyrightNotice, CopyrightNoticeDefinition
 from betty.locale.localizable import Localizable, LocalizableLike
 from betty.locale.localizable.ensure import ensure_localizable
 from betty.locale.localizable.gettext import _
@@ -15,7 +15,7 @@ from betty.project.factory import ProjectDependentSelfFactory
 
 
 @final
-@CopyrightNoticePlugin("project-author", label=_("Project author"))
+@CopyrightNoticeDefinition("project-author", label=_("Project author"))
 class ProjectAuthor(ProjectDependentSelfFactory, CopyrightNotice):
     """
     Copyright belonging to a project author.
@@ -46,7 +46,7 @@ class ProjectAuthor(ProjectDependentSelfFactory, CopyrightNotice):
 
 
 @final
-@CopyrightNoticePlugin("public-domain", label=_("Public domain"))
+@CopyrightNoticeDefinition("public-domain", label=_("Public domain"))
 class PublicDomain(CopyrightNotice):
     """
     A work is in the `public domain <https://en.wikipedia.org/wiki/Public_domain>`.

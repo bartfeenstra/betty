@@ -10,7 +10,7 @@ from betty.app import App
 from betty.locale import DEFAULT_LOCALE_TAG, LocaleLike
 from betty.media_type import MediaType
 from betty.media_type.media_types import HTML, JSON
-from betty.model import EntityPlugin
+from betty.model import EntityDefinition
 from betty.plugin.discovery.static import StaticDiscovery
 from betty.plugin.repository.static import StaticPluginRepository
 from betty.project import Project
@@ -34,9 +34,9 @@ class Test_EntityUrlUrlGenerator:
             (False, "betty-entity"),
             (False, "betty-entity://"),
             (False, "betty-entity://["),
-            (False, f"betty-entity://{DummyEntityOne.plugin.id}"),
-            (False, f"betty-entity://{DummyEntityOne.plugin.id}/"),
-            (True, f"betty-entity://{DummyEntityOne.plugin.id}/{_ENTITY_ID}"),
+            (False, f"betty-entity://{DummyEntityOne.plugin().id}"),
+            (False, f"betty-entity://{DummyEntityOne.plugin().id}/"),
+            (True, f"betty-entity://{DummyEntityOne.plugin().id}/{_ENTITY_ID}"),
             (False, "/"),
         ],
     )
@@ -48,7 +48,9 @@ class Test_EntityUrlUrlGenerator:
     ) -> None:
         m_entity_url_generator = mocker.patch("betty.project.url._EntityUrlGenerator")
         ancestry = Ancestry()
-        entity_repository = StaticPluginRepository(EntityPlugin, DummyEntityOne.plugin)
+        entity_repository = StaticPluginRepository(
+            EntityDefinition, DummyEntityOne.plugin()
+        )
         sut = _EntityUrlUrlGenerator(
             ancestry, m_entity_url_generator, entity_repository
         )
@@ -64,13 +66,15 @@ class Test_EntityUrlUrlGenerator:
         entity = DummyEntityOne(self._ENTITY_ID)
         ancestry = Ancestry()
         ancestry.add(entity)
-        entity_repository = StaticPluginRepository(EntityPlugin, DummyEntityOne.plugin)
+        entity_repository = StaticPluginRepository(
+            EntityDefinition, DummyEntityOne.plugin()
+        )
         sut = _EntityUrlUrlGenerator(
             ancestry, m_entity_url_generator, entity_repository
         )
         assert (
             sut.generate(
-                f"betty-entity://{DummyEntityOne.plugin.id}/{self._ENTITY_ID}",
+                f"betty-entity://{DummyEntityOne.plugin().id}/{self._ENTITY_ID}",
                 absolute=True,
                 fragment=fragment,
                 locale=locale,
@@ -332,7 +336,9 @@ class Test_StaticPathUrlUrlGenerator:
 async def test_new_project_url_generator__supports(
     expected: bool, resource: Any, isolated_app: App
 ) -> None:
-    with EntityPlugin.type.override_discovery(StaticDiscovery(DummyEntityOne.plugin)):
+    with EntityDefinition.type().override_discovery(
+        StaticDiscovery(DummyEntityOne.plugin())
+    ):
         async with Project.new_isolated(isolated_app) as project, project:
             sut = await new_project_url_generator(project)
             assert sut.supports(resource) == expected
@@ -391,7 +397,9 @@ async def test_new_project_url_generator__generate(
     additional_project_locale: Locale | None,
     isolated_app: App,
 ) -> None:
-    with EntityPlugin.type.override_discovery(StaticDiscovery(DummyEntityOne.plugin)):
+    with EntityDefinition.type().override_discovery(
+        StaticDiscovery(DummyEntityOne.plugin())
+    ):
         async with Project.new_isolated(isolated_app) as project:
             if additional_project_locale:
                 project.configuration.locales.append(

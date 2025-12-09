@@ -1,17 +1,26 @@
 import pytest
+from typing_extensions import override
 
 from betty.ancestry.event import Event
 from betty.ancestry.person import Person
 from betty.ancestry.place import Place
 from betty.app import App
+from betty.content_provider import ContentProvider
 from betty.model import Entity
 from betty.project import Project
 from betty.project.extension.trees import Trees
 from betty.project.extension.trees.content_provider import Tree
 from betty.resource import new_context
+from betty.test_utils.content_provider import ContentProviderTestBase
 
 
-class TestTree:
+class TestTree(ContentProviderTestBase):
+    @override
+    @pytest.fixture
+    async def sut(self, isolated_app: App) -> ContentProvider:
+        async with Project.new_isolated(isolated_app) as project, project:
+            return Tree(jinja2_environment=await project.jinja2_environment)
+
     async def test_provide__without_supported_entity(self, isolated_app: App) -> None:
         async with Project.new_isolated(isolated_app) as project:
             project.configuration.extensions.enable(Trees)
