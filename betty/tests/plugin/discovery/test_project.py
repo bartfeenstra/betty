@@ -24,11 +24,11 @@ class TestProjectDiscovery:
     @staticmethod
     def _sut_params() -> Sequence[ProjectDiscoveryTestParams]:
         async def _async_discovery(project: Project) -> Iterable[PluginDefinition]:
-            return [DummyPluginOne.plugin]
+            return [DummyPluginOne.plugin()]
 
         return [
-            ([DummyPluginOne.plugin], lambda project: [DummyPluginOne.plugin]),
-            ([DummyPluginOne.plugin], _async_discovery),
+            ([DummyPluginOne.plugin()], lambda project: [DummyPluginOne.plugin()]),
+            ([DummyPluginOne.plugin()], _async_discovery),
         ]
 
     @pytest.fixture(params=_sut_params())

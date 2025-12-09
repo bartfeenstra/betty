@@ -11,7 +11,7 @@ from betty.assertion import (
     assert_directory_path,
 )
 from betty.argparse import assertion_to_argument_type
-from betty.console.command import Command, CommandFunction, CommandPlugin
+from betty.console.command import Command, CommandFunction, CommandDefinition
 from betty.console.project import add_project_argument
 from betty.locale import translation
 from betty.locale.localizable.gettext import _
@@ -25,7 +25,7 @@ if TYPE_CHECKING:
 
 
 @final
-@CommandPlugin("update-translations", label=_("Update all existing translations"))
+@CommandDefinition("update-translations", label=_("Update all existing translations"))
 class UpdateTranslations(AppDependentSelfFactory, Command):
     """
     A command to update all of a project's translations.

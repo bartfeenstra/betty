@@ -2,14 +2,14 @@
     <h4 class="card-header" data-bs-theme="dark-secondary">
         {% with embedded = True %}
             {% include [
-                'entity/label--' + entity.plugin.id + '.html.j2',
+                'entity/label--' + entity.plugin().id + '.html.j2',
                 'entity/label.html.j2',
             ] %}
         {% endwith %}
     </h4>
     <div class="card-body">
         {% with embedded = True %}
-            {% include 'entity/summary--' + entity.plugin.id + '.html.j2' ignore missing %}
+            {% include 'entity/summary--' + entity.plugin().id + '.html.j2' ignore missing %}
         {% endwith %}
         <a href="{{ entity | url }}" class="stretched-link view-more">{% trans %}Read more{% endtrans %}</a>
     </div>

@@ -7,7 +7,7 @@ from typing_extensions import override
 from betty.app.factory import AppDependentSelfFactory
 from betty.assertion import assert_locale
 from betty.argparse import assertion_to_argument_type
-from betty.console.command import Command, CommandFunction, CommandPlugin
+from betty.console.command import Command, CommandFunction, CommandDefinition
 from betty.console.project import add_project_argument
 from betty.locale import translation
 from betty.locale.localizable.gettext import _
@@ -22,7 +22,7 @@ if TYPE_CHECKING:
 
 
 @final
-@CommandPlugin("new-translation", label=_("Create a new translation"))
+@CommandDefinition("new-translation", label=_("Create a new translation"))
 class NewTranslation(AppDependentSelfFactory, Command):
     """
     A command to create a new translation for a project.

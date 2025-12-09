@@ -20,7 +20,7 @@ from betty.job import Job
 from betty.locale.localizable.gettext import _
 from betty.locale.localizer import DEFAULT_LOCALIZER
 from betty.media_type.media_types import HTML, JSON
-from betty.model import EntityPlugin, persistent_id
+from betty.model import EntityDefinition, persistent_id
 from betty.openapi import Specification
 from betty.privacy import is_public
 from betty.project import ProjectContext
@@ -149,7 +149,7 @@ class GenerateSitemap(Job[ProjectContext]):
             for entity in project.ancestry:
                 if not persistent_id(entity):
                     continue
-                if not entity.plugin.public_facing:
+                if not entity.plugin().public_facing:
                     continue
 
                 sitemap_batch_urls.append(
@@ -454,19 +454,21 @@ class GenerateEntityTypesJson(Job[ProjectContext]):
         await gather(
             *[
                 scheduler.add(_GenerateEntityTypeJson(entity_type))
-                for entity_type in await scheduler.context.project.plugins(EntityPlugin)
+                for entity_type in await scheduler.context.project.plugins(
+                    EntityDefinition
+                )
             ]
         )
 
 
 @final
 class _GenerateEntityTypeJson(Job[ProjectContext]):
-    def __init__(self, entity_type: EntityPlugin):
+    def __init__(self, entity_type: EntityDefinition):
         super().__init__(self.id_for(entity_type))
         self._entity_type = entity_type
 
     @classmethod
-    def id_for(cls, entity_type: EntityPlugin) -> str:
+    def id_for(cls, entity_type: EntityDefinition) -> str:
         return f"generate-entity-type-json:{entity_type.id}"
 
     @override
@@ -521,7 +523,7 @@ class GenerateEntityTypesHtml(Job[ProjectContext]):
                         entity_type, locale, page, self._per_page, page_count
                     )
                 )
-                for entity_type in await project.plugins(EntityPlugin)
+                for entity_type in await project.plugins(EntityDefinition)
                 if entity_type.public_facing
                 and (
                     entity_type in project.configuration.entity_types
@@ -546,7 +548,7 @@ class GenerateEntityTypesHtml(Job[ProjectContext]):
 class _GenerateEntityTypeHtml(Job[ProjectContext]):
     def __init__(
         self,
-        entity_type: EntityPlugin,
+        entity_type: EntityDefinition,
         locale: Locale,
         page: int,
         per_page: int,
@@ -560,7 +562,7 @@ class _GenerateEntityTypeHtml(Job[ProjectContext]):
         self._page_count = page_count
 
     @classmethod
-    def id_for(cls, entity_type: EntityPlugin, locale: Locale, page: int) -> str:
+    def id_for(cls, entity_type: EntityDefinition, locale: Locale, page: int) -> str:
         return f"generate-entity-type-html:{entity_type.id}:{locale}:{page}"
 
     @override
@@ -623,7 +625,7 @@ class GenerateEntitiesJson(Job[ProjectContext]):
         await gather(
             *[
                 scheduler.add(_GenerateEntityJson(entity_type, entity.id))
-                for entity_type in await project.plugins(EntityPlugin)
+                for entity_type in await project.plugins(EntityDefinition)
                 for entity in project.ancestry[entity_type.cls]
                 if persistent_id(entity)
             ]
@@ -632,13 +634,13 @@ class GenerateEntitiesJson(Job[ProjectContext]):
 
 @final
 class _GenerateEntityJson(Job[ProjectContext]):
-    def __init__(self, entity_type: EntityPlugin, entity_id: str):
+    def __init__(self, entity_type: EntityDefinition, entity_id: str):
         super().__init__(self.id_for(entity_type, entity_id))
         self._entity_type = entity_type
         self._entity_id = entity_id
 
     @classmethod
-    def id_for(cls, entity_type: EntityPlugin, entity_id: str) -> str:
+    def id_for(cls, entity_type: EntityDefinition, entity_id: str) -> str:
         return f"generate-entity-json:{entity_type.id}:{entity_id}"
 
     @override
@@ -676,7 +678,7 @@ class GenerateEntitiesHtml(Job[ProjectContext]):
         await gather(
             *[
                 scheduler.add(_GenerateEntityHtml(entity_type, entity.id, locale))
-                for entity_type in await project.plugins(EntityPlugin)
+                for entity_type in await project.plugins(EntityDefinition)
                 if entity_type.public_facing
                 for entity in project.ancestry[entity_type.cls]
                 if persistent_id(entity) and is_public(entity)
@@ -687,14 +689,16 @@ class GenerateEntitiesHtml(Job[ProjectContext]):
 
 @final
 class _GenerateEntityHtml(Job[ProjectContext]):
-    def __init__(self, entity_type: EntityPlugin, entity_id: str, locale: Locale):
+    def __init__(self, entity_type: EntityDefinition, entity_id: str, locale: Locale):
         super().__init__(self.id_for(entity_type, entity_id, locale))
         self._entity_type = entity_type
         self._entity_id = entity_id
         self._locale = locale
 
     @classmethod
-    def id_for(cls, entity_type: EntityPlugin, entity_id: str, locale: Locale) -> str:
+    def id_for(
+        cls, entity_type: EntityDefinition, entity_id: str, locale: Locale
+    ) -> str:
         return f"generate-entity-html:{entity_type.id}:{entity_id}:{locale}"
 
     @override

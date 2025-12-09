@@ -6,17 +6,17 @@ from typing_extensions import override
 from betty.plugin import PluginDefinition
 from betty.serde.format import Format, FormatError
 from betty.serde.format.formats import Json, Yaml
-from betty.test_utils.serde.format import FormatPluginTestBase, FormatTestBase
+from betty.test_utils.serde.format import FormatDefinitionTestBase, FormatTestBase
 
 if TYPE_CHECKING:
     from betty.serde.dump import Dump
 
 
-class TestJsonDefinition(FormatPluginTestBase):
+class TestJsonDefinition(FormatDefinitionTestBase):
     @override
     @pytest.fixture
     def sut(self) -> PluginDefinition:
-        return Json.plugin
+        return Json.plugin()
 
 
 class TestJson(FormatTestBase):
@@ -43,11 +43,11 @@ class TestJson(FormatTestBase):
         assert json_dump == '{"hello": [123, "World!"]}'
 
 
-class TestYamlDefinition(FormatPluginTestBase):
+class TestYamlDefinition(FormatDefinitionTestBase):
     @override
     @pytest.fixture
     def sut(self) -> PluginDefinition:
-        return Yaml.plugin
+        return Yaml.plugin()
 
 
 class TestYaml(FormatTestBase):

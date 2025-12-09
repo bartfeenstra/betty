@@ -7,23 +7,29 @@ from typing_extensions import override
 
 from betty.app import App
 from betty.console import SystemExitCode
+from betty.console.command import Command
 from betty.console.command.commands.extension_new_translation import (
     ExtensionNewTranslation,
 )
 from betty.plugin import PluginDefinition
 from betty.test_utils.console import run
-from betty.test_utils.console.command import CommandPluginTestBase
+from betty.test_utils.console.command import CommandDefinitionTestBase, CommandTestBase
 from betty.tests.console.command import ExtensionTranslationTestBase
 
 
-class TestExtensionNewTranslationsDefinition(CommandPluginTestBase):
+class TestExtensionNewTranslationsDefinition(CommandDefinitionTestBase):
     @override
     @pytest.fixture
     def sut(self) -> PluginDefinition:
-        return ExtensionNewTranslation.plugin
+        return ExtensionNewTranslation.plugin()
 
 
-class TestExtensionNewTranslation(ExtensionTranslationTestBase):
+class TestExtensionNewTranslation(ExtensionTranslationTestBase, CommandTestBase):
+    @override
+    @pytest.fixture
+    def sut(self, isolated_app: App) -> Command:
+        return ExtensionNewTranslation(isolated_app)
+
     async def test_configure__minimal(
         self,
         mocker: MockerFixture,

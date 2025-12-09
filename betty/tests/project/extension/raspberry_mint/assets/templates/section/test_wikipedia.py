@@ -3,7 +3,7 @@ from pytest_mock import MockerFixture
 from betty.ancestry.has_links import HasLinks
 from betty.ancestry.link import Link
 from betty.locale import DEFAULT_LOCALE_TAG
-from betty.model import EntityPlugin
+from betty.model import EntityDefinition
 from betty.project.extension.raspberry_mint import RaspberryMint
 from betty.project.extension.wiki import Wiki
 from betty.resource import new_context
@@ -15,7 +15,7 @@ from betty.test_utils.locale.localizable import (
 from betty.wiki.client import Summary
 
 
-@EntityPlugin(
+@EntityDefinition(
     "dummy-has-links",
     label=DUMMY_LOCALIZABLE,
     label_plural=DUMMY_LOCALIZABLE,

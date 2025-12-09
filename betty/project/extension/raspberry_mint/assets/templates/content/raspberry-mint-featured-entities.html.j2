@@ -5,7 +5,7 @@
             {% for entity in entities %}
                 <div class="col">
                     {% include [
-                        'entity/card--' + entity.plugin.id + '.html.j2',
+                        'entity/card--' + entity.plugin().id + '.html.j2',
                         'entity/card.html.j2',
                     ] %}
                 </div>

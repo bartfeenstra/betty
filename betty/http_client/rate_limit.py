@@ -66,7 +66,7 @@ class RateLimitMiddleware:
                 return request_limiter
 
 
-class RateLimit(Plugin):
+class RateLimit(Plugin["RateLimitDefinition"]):
     """
     A rate limit for HTTP requests.
     """
@@ -86,18 +86,17 @@ class RateLimit(Plugin):
 
 
 @final
-class RateLimitPlugin(OrderedPluginDefinition[RateLimit]):
+@PluginTypeDefinition(
+    "http-rate-limit",
+    RateLimit,
+    _("HTTP client rate limit"),
+    _("HTTP client rate limits"),
+    ngettext("{count} HTTP client rate limit", "{count} HTTP client rate limits"),
+    discovery=EntryPointDiscovery("betty.http_rate_limit"),
+)
+class RateLimitDefinition(OrderedPluginDefinition[RateLimit]):
     """
     A rate limit definition.
 
     Read more about :doc:`/development/plugin/http-rate-limit`.
     """
-
-    plugin_type_cls = RateLimit
-    type = PluginTypeDefinition(
-        "http-rate-limit",
-        _("HTTP client rate limit"),
-        _("HTTP client rate limits"),
-        ngettext("{count} HTTP client rate limit", "{count} HTTP client rate limits"),
-        discovery=EntryPointDiscovery("betty.http_rate_limit"),
-    )

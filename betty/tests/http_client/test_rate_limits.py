@@ -3,19 +3,28 @@ from aiohttp.client_reqrep import ClientRequest
 from typing_extensions import override
 from yarl import URL
 
+from betty.http_client.rate_limit import RateLimit
 from betty.http_client.rate_limits import WikipediaActionApi, WikipediaRestApi
 from betty.plugin import PluginDefinition
-from betty.test_utils.http_client.rate_limit import RateLimitPluginTestBase
+from betty.test_utils.http_client.rate_limit import (
+    RateLimitDefinitionTestBase,
+    RateLimitTestBase,
+)
 
 
-class TestWikipediaActionApiDefinition(RateLimitPluginTestBase):
+class TestWikipediaActionApiDefinition(RateLimitDefinitionTestBase):
     @override
     @pytest.fixture
     def sut(self) -> PluginDefinition:
-        return WikipediaActionApi.plugin
+        return WikipediaActionApi.plugin()
 
 
-class TestWikipediaActionApi:
+class TestWikipediaActionApi(RateLimitTestBase):
+    @override
+    @pytest.fixture
+    def sut(self) -> RateLimit:
+        return WikipediaActionApi()
+
     @pytest.mark.parametrize(
         ("expected", "method", "url"),
         [
@@ -43,14 +52,19 @@ class TestWikipediaActionApi:
         assert sut.limit[1]
 
 
-class TestWikipediaRestApiDefinition(RateLimitPluginTestBase):
+class TestWikipediaRestApiDefinition(RateLimitDefinitionTestBase):
     @override
     @pytest.fixture
     def sut(self) -> PluginDefinition:
-        return WikipediaRestApi.plugin
+        return WikipediaRestApi.plugin()
 
 
-class TestWikipediaRestApi:
+class TestWikipediaRestApi(RateLimitTestBase):
+    @override
+    @pytest.fixture
+    def sut(self) -> RateLimit:
+        return WikipediaRestApi()
+
     @pytest.mark.parametrize(
         ("expected", "method", "url"),
         [

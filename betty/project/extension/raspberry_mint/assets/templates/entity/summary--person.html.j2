@@ -13,26 +13,44 @@
     {%- if entity.private -%}
         <p>{%- trans -%}This information is unavailable to protect people's privacy.{%- endtrans -%}</p>
     {%- else -%}
-        {% if entity.gender.plugin.id != 'unknown' %}
-            <p class="m-0">{{ entity.gender.plugin.label | localize | html_lang }}</p>
+        {% if entity.gender.plugin().id != 'unknown' %}
+            <p class="m-0">{{ entity.gender.plugin().label | localize | html_lang }}</p>
         {% endif %}
         {% set alternative_names = (entity.names | select('public') | list)[1:] %}
         {%- if alternative_names -%}
             <span class="aka">{%- trans names = alternative_names | map(_embedded_person_name_label if embedded else _person_name_label) | list | join(', ') -%}Also known as {{ names }}{%- endtrans -%}</span>
         {%- endif -%}
         {% set events = entity.presences | selectattr('role', 'presence_role_plugin', 'subject') | map(attribute='event') | reject('none') | select('public') | list %}
-        {% set birth_indicators = events | selectattr('event_type.plugin.id', 'eq', 'birth') | list + events | selectattr('event_type.plugin.indicates', 'eq', 'birth') | list %}
-        {%- if birth_indicators | length -%}
-            {% set birth_indicator = birth_indicators | first %}
+        {% set ns = namespace(birth_indicators=[]) %}
+        {% for event in events %}
+            {% if event.event_type.plugin().id == 'birth' or event.event_type.plugin().indicates == 'birth' %}
+                {% do ns.birth_indicators.append(event) %}
+            {% endif %}
+        {% endfor %}
+        {%- if ns.birth_indicators | length -%}
+            {% set birth_indicator = ns.birth_indicators | first %}
             {%- set formatted_start -%}
                 {%- with event = birth_indicator -%}
                     {%- include 'entity/event-dimensions.html.j2' -%}
                 {%- endwith -%}
             {%- endset -%}
         {%- endif -%}
-        {% set death_indicators = events | selectattr('event_type.plugin.id', 'eq', 'death') | list + events | selectattr('event_type.plugin.indicates', 'eq', 'death') | list %}
-        {%- if death_indicators | length -%}
-            {% set death_indicator = death_indicators | first %}
+        {% set ns = namespace(death_indicators=[]) %}
+        {% for event in events %}
+            {% if event.event_type.plugin().id == 'death' or event.event_type.plugin().indicates == 'death' %}
+                {% do ns.death_indicators.append(event) %}
+            {% endif %}
+        {% endfor %}
+        {%- if ns.death_indicators | length -%}
+            {% set death_indicator = ns.death_indicators | first %}
+            {%- set formatted_end -%}
+                {%- with event = death_indicator -%}
+                    {%- include 'entity/event-dimensions.html.j2' -%}
+                {%- endwith -%}
+            {%- endset -%}
+        {%- endif -%}
+        {%- if ns.death_indicators | length -%}
+            {% set death_indicator = ns.death_indicators | first %}
             {%- set formatted_end -%}
                 {%- with event = death_indicator -%}
                     {%- include 'entity/event-dimensions.html.j2' -%}
@@ -44,7 +62,7 @@
                 {%- if formatted_start is defined and formatted_start -%}
                     <div class="d-table-row">
                         <dt class="d-table-cell pe-2">
-                            {{ birth_indicator.event_type.plugin.label | localize | html_lang }}
+                            {{ birth_indicator.event_type.plugin().label | localize | html_lang }}
                         </dt>
                         <dd class="d-table-cell">
                             {{ formatted_start }}
@@ -54,7 +72,7 @@
                 {%- if formatted_end is defined and formatted_end -%}
                     <div class="d-table-row">
                         <dt class="d-table-cell pe-2">
-                            {{ death_indicator.event_type.plugin.label | localize | html_lang }}
+                            {{ death_indicator.event_type.plugin().label | localize | html_lang }}
                         </dt>
                         <dd class="d-table-cell">
                             {{ formatted_end }}

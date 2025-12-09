@@ -12,7 +12,7 @@ from typing_extensions import override
 
 from betty.config.factory import ConfigurationDependentSelfFactory
 from betty.jinja2 import Filters, Jinja2Provider
-from betty.project.extension import ExtensionPlugin
+from betty.project.extension import ExtensionDefinition
 from betty.project.extension._theme import jinja2_filters
 from betty.project.extension.maps import Maps
 from betty.project.extension.raspberry_mint.config import RaspberryMintConfiguration
@@ -35,7 +35,7 @@ if TYPE_CHECKING:
 
 
 @final
-@ExtensionPlugin(
+@ExtensionDefinition(
     "raspberry-mint",
     label="Raspberry Mint",
     depends_on={Webpack},

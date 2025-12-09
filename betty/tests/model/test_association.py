@@ -5,7 +5,7 @@ from typing import TYPE_CHECKING, TypeVar
 import pytest
 from typing_extensions import override
 
-from betty.model import Entity, EntityPlugin
+from betty.model import Entity, EntityDefinition
 from betty.model.association import (
     AssociationRegistry,
     AssociationRequired,
@@ -168,7 +168,7 @@ class TestAssociationRegistry:
 
 
 class TestUnidirectionalToZeroOrOne:
-    @EntityPlugin(
+    @EntityDefinition(
         "owner",
         label=DUMMY_LOCALIZABLE,
         label_plural=DUMMY_LOCALIZABLE,
@@ -193,7 +193,7 @@ class TestUnidirectionalToZeroOrOne:
             "betty.tests.model.test_association:TestUnidirectionalToZeroOrOne._Associate",
         )
 
-    @EntityPlugin(
+    @EntityDefinition(
         "owner-embedded",
         label=DUMMY_LOCALIZABLE,
         label_plural=DUMMY_LOCALIZABLE,
@@ -216,7 +216,7 @@ class TestUnidirectionalToZeroOrOne:
             linked_data_embedded=True,
         )
 
-    @EntityPlugin(
+    @EntityDefinition(
         "owner-with-non-public-facing-associate",
         label=DUMMY_LOCALIZABLE,
         label_plural=DUMMY_LOCALIZABLE,
@@ -240,7 +240,7 @@ class TestUnidirectionalToZeroOrOne:
             "betty.tests.model.test_association:TestUnidirectionalToZeroOrOne._NonPublicFacingAssociate",
         )
 
-    @EntityPlugin(
+    @EntityDefinition(
         "associate",
         label=DUMMY_LOCALIZABLE,
         label_plural=DUMMY_LOCALIZABLE,
@@ -249,7 +249,7 @@ class TestUnidirectionalToZeroOrOne:
     class _Associate(Entity):
         pass
 
-    @EntityPlugin(
+    @EntityDefinition(
         "non-public-facing-associate",
         label=DUMMY_LOCALIZABLE,
         label_plural=DUMMY_LOCALIZABLE,
@@ -362,7 +362,7 @@ class TestUnidirectionalToZeroOrOne:
 
 
 class TestBidirectionalToZeroOrOne:
-    @EntityPlugin(
+    @EntityDefinition(
         "owner",
         label=DUMMY_LOCALIZABLE,
         label_plural=DUMMY_LOCALIZABLE,
@@ -388,7 +388,7 @@ class TestBidirectionalToZeroOrOne:
             "owner",
         )
 
-    @EntityPlugin(
+    @EntityDefinition(
         "owner-embedded",
         label=DUMMY_LOCALIZABLE,
         label_plural=DUMMY_LOCALIZABLE,
@@ -413,7 +413,7 @@ class TestBidirectionalToZeroOrOne:
             linked_data_embedded=True,
         )
 
-    @EntityPlugin(
+    @EntityDefinition(
         "owner-with-non-public-facing-associate",
         label=DUMMY_LOCALIZABLE,
         label_plural=DUMMY_LOCALIZABLE,
@@ -438,7 +438,7 @@ class TestBidirectionalToZeroOrOne:
             "owner",
         )
 
-    @EntityPlugin(
+    @EntityDefinition(
         "associate",
         label=DUMMY_LOCALIZABLE,
         label_plural=DUMMY_LOCALIZABLE,
@@ -455,7 +455,7 @@ class TestBidirectionalToZeroOrOne:
             "associate",
         )
 
-    @EntityPlugin(
+    @EntityDefinition(
         "non-public-facing-associate",
         label=DUMMY_LOCALIZABLE,
         label_plural=DUMMY_LOCALIZABLE,
@@ -582,7 +582,7 @@ class TestBidirectionalToZeroOrOne:
 
 
 class TestUnidirectionalToOne:
-    @EntityPlugin(
+    @EntityDefinition(
         "owner",
         label=DUMMY_LOCALIZABLE,
         label_plural=DUMMY_LOCALIZABLE,
@@ -603,7 +603,7 @@ class TestUnidirectionalToOne:
             "betty.tests.model.test_association:TestUnidirectionalToOne._Associate",
         )
 
-    @EntityPlugin(
+    @EntityDefinition(
         "owner-embedded",
         label=DUMMY_LOCALIZABLE,
         label_plural=DUMMY_LOCALIZABLE,
@@ -624,7 +624,7 @@ class TestUnidirectionalToOne:
             linked_data_embedded=True,
         )
 
-    @EntityPlugin(
+    @EntityDefinition(
         "owner-with-non-public-facing-associate",
         label=DUMMY_LOCALIZABLE,
         label_plural=DUMMY_LOCALIZABLE,
@@ -646,7 +646,7 @@ class TestUnidirectionalToOne:
             "betty.tests.model.test_association:TestUnidirectionalToOne._NonPublicFacingAssociate",
         )
 
-    @EntityPlugin(
+    @EntityDefinition(
         "associate",
         label=DUMMY_LOCALIZABLE,
         label_plural=DUMMY_LOCALIZABLE,
@@ -655,7 +655,7 @@ class TestUnidirectionalToOne:
     class _Associate(Entity):
         pass
 
-    @EntityPlugin(
+    @EntityDefinition(
         "non-public-facing-associate",
         label=DUMMY_LOCALIZABLE,
         label_plural=DUMMY_LOCALIZABLE,
@@ -729,7 +729,7 @@ class TestUnidirectionalToOne:
 
 
 class TestBidirectionalToOne:
-    @EntityPlugin(
+    @EntityDefinition(
         "owner",
         label=DUMMY_LOCALIZABLE,
         label_plural=DUMMY_LOCALIZABLE,
@@ -751,7 +751,7 @@ class TestBidirectionalToOne:
             "owner",
         )
 
-    @EntityPlugin(
+    @EntityDefinition(
         "associate",
         label=DUMMY_LOCALIZABLE,
         label_plural=DUMMY_LOCALIZABLE,
@@ -767,7 +767,7 @@ class TestBidirectionalToOne:
             "associate",
         )
 
-    @EntityPlugin(
+    @EntityDefinition(
         "owner-embedded",
         label=DUMMY_LOCALIZABLE,
         label_plural=DUMMY_LOCALIZABLE,
@@ -789,7 +789,7 @@ class TestBidirectionalToOne:
             linked_data_embedded=True,
         )
 
-    @EntityPlugin(
+    @EntityDefinition(
         "associate-embedded",
         label=DUMMY_LOCALIZABLE,
         label_plural=DUMMY_LOCALIZABLE,
@@ -806,7 +806,7 @@ class TestBidirectionalToOne:
             "associate",
         )
 
-    @EntityPlugin(
+    @EntityDefinition(
         "owner-with-non-public-facing-associate",
         label=DUMMY_LOCALIZABLE,
         label_plural=DUMMY_LOCALIZABLE,
@@ -827,7 +827,7 @@ class TestBidirectionalToOne:
             "owner",
         )
 
-    @EntityPlugin(
+    @EntityDefinition(
         "non-public-facing-associate",
         label=DUMMY_LOCALIZABLE,
         label_plural=DUMMY_LOCALIZABLE,
@@ -911,7 +911,7 @@ class TestBidirectionalToOne:
 
 
 class TestUnidirectionalToManySingleType:
-    @EntityPlugin(
+    @EntityDefinition(
         "owner",
         label=DUMMY_LOCALIZABLE,
         label_plural=DUMMY_LOCALIZABLE,
@@ -927,7 +927,7 @@ class TestUnidirectionalToManySingleType:
             "betty.tests.model.test_association:TestUnidirectionalToManySingleType._Associate",
         )
 
-    @EntityPlugin(
+    @EntityDefinition(
         "owner-embedded",
         label=DUMMY_LOCALIZABLE,
         label_plural=DUMMY_LOCALIZABLE,
@@ -944,7 +944,7 @@ class TestUnidirectionalToManySingleType:
             linked_data_embedded=True,
         )
 
-    @EntityPlugin(
+    @EntityDefinition(
         "associate",
         label=DUMMY_LOCALIZABLE,
         label_plural=DUMMY_LOCALIZABLE,
@@ -953,7 +953,7 @@ class TestUnidirectionalToManySingleType:
     class _Associate(Entity):
         pass
 
-    @EntityPlugin(
+    @EntityDefinition(
         "non-public-facing-associate",
         label=DUMMY_LOCALIZABLE,
         label_plural=DUMMY_LOCALIZABLE,
@@ -1095,7 +1095,7 @@ class TestUnidirectionalToManyMultipleTypes:
 
 
 class TestBidirectionalToManySingleType:
-    @EntityPlugin(
+    @EntityDefinition(
         "owner",
         label=DUMMY_LOCALIZABLE,
         label_plural=DUMMY_LOCALIZABLE,
@@ -1112,7 +1112,7 @@ class TestBidirectionalToManySingleType:
             "owner",
         )
 
-    @EntityPlugin(
+    @EntityDefinition(
         "associate",
         label=DUMMY_LOCALIZABLE,
         label_plural=DUMMY_LOCALIZABLE,
@@ -1129,7 +1129,7 @@ class TestBidirectionalToManySingleType:
             "associates",
         )
 
-    @EntityPlugin(
+    @EntityDefinition(
         "owner-embedded",
         label=DUMMY_LOCALIZABLE,
         label_plural=DUMMY_LOCALIZABLE,
@@ -1147,7 +1147,7 @@ class TestBidirectionalToManySingleType:
             linked_data_embedded=True,
         )
 
-    @EntityPlugin(
+    @EntityDefinition(
         "associate-embedded",
         label=DUMMY_LOCALIZABLE,
         label_plural=DUMMY_LOCALIZABLE,
@@ -1164,7 +1164,7 @@ class TestBidirectionalToManySingleType:
             "associates",
         )
 
-    @EntityPlugin(
+    @EntityDefinition(
         "non-public-facing-associate-embedded",
         label=DUMMY_LOCALIZABLE,
         label_plural=DUMMY_LOCALIZABLE,
@@ -1174,7 +1174,7 @@ class TestBidirectionalToManySingleType:
     class _NonPublicFacingAssociateEmbedded(_AssociateEmbedded):
         pass
 
-    @EntityPlugin(
+    @EntityDefinition(
         "owner-with-non-public-facing-associate",
         label=DUMMY_LOCALIZABLE,
         label_plural=DUMMY_LOCALIZABLE,
@@ -1191,7 +1191,7 @@ class TestBidirectionalToManySingleType:
             "owner",
         )
 
-    @EntityPlugin(
+    @EntityDefinition(
         "non-public-facing-associate",
         label=DUMMY_LOCALIZABLE,
         label_plural=DUMMY_LOCALIZABLE,

@@ -7,11 +7,11 @@ from typing_extensions import override
 from betty.app.factory import AppDependentSelfFactory
 from betty.assertion import assert_locale
 from betty.argparse import assertion_to_argument_type
-from betty.console.command import Command, CommandFunction, CommandPlugin
+from betty.console.command import Command, CommandFunction, CommandDefinition
 from betty.locale import translation
 from betty.locale.localizable.gettext import _
 from betty.locale.translation.project import extension as extension_translation
-from betty.project.extension import ExtensionPlugin
+from betty.project.extension import ExtensionDefinition
 
 if TYPE_CHECKING:
     import argparse
@@ -22,7 +22,7 @@ if TYPE_CHECKING:
 
 
 @final
-@CommandPlugin(
+@CommandDefinition(
     "extension-new-translation", label=_("Create a new translation for an extension")
 )
 class ExtensionNewTranslation(AppDependentSelfFactory, Command):
@@ -40,7 +40,9 @@ class ExtensionNewTranslation(AppDependentSelfFactory, Command):
 
     @override
     async def configure(self, parser: argparse.ArgumentParser) -> CommandFunction:
-        extensions = await self._app.plugins(ExtensionPlugin, check_requirements=False)
+        extensions = await self._app.plugins(
+            ExtensionDefinition, check_requirements=False
+        )
         localizer = await self._app.localizer
         parser.add_argument(
             "extension",
@@ -58,7 +60,7 @@ class ExtensionNewTranslation(AppDependentSelfFactory, Command):
         return self._command_function
 
     async def _command_function(
-        self, extension: ExtensionPlugin, locale: Locale
+        self, extension: ExtensionDefinition, locale: Locale
     ) -> None:
         await extension_translation.new_extension_translation(
             locale, extension, user=self._app.user

@@ -10,7 +10,7 @@ from typing_extensions import override
 from betty.ancestry.note import Note
 from betty.app import App
 from betty.config.factory import ConfigurationDependentSelfFactory
-from betty.content_provider import ContentProviderPlugin
+from betty.content_provider import ContentProvider, ContentProviderDefinition
 from betty.content_provider.content_providers import (
     Notes,
     PlainText,
@@ -26,6 +26,7 @@ from betty.locale.localizer import DEFAULT_LOCALIZER, Localizer
 from betty.project import Project
 from betty.resource import new_context
 from betty.test_utils.config.factory import ConfigurationDependentSelfFactoryTestBase
+from betty.test_utils.content_provider import ContentProviderTestBase
 from betty.test_utils.locale.localizable import DUMMY_LOCALIZABLE
 from betty.tests.ancestry.test_has_notes import DummyHasNotes
 
@@ -60,7 +61,15 @@ class TestPlainTextConfiguration:
         }
 
 
-class TestPlainText(ConfigurationDependentSelfFactoryTestBase[PlainTextConfiguration]):
+class TestPlainText(
+    ConfigurationDependentSelfFactoryTestBase[PlainTextConfiguration],
+    ContentProviderTestBase,
+):
+    @override
+    @pytest.fixture
+    async def sut(self) -> ContentProvider:
+        return PlainText()
+
     @override
     @pytest.fixture
     async def configuration_dependent_self_factory_sut(
@@ -126,7 +135,7 @@ class TestTemplate:
             async with aiofiles.open(template_file_path, "w") as f:
                 await f.write(template)
 
-            @ContentProviderPlugin("my-first-template", label=DUMMY_LOCALIZABLE)
+            @ContentProviderDefinition("my-first-template", label=DUMMY_LOCALIZABLE)
             class _Jinja2TemplateContentProvider(Template):
                 pass
 
@@ -145,7 +154,13 @@ class TestTemplate:
             )
 
 
-class TestNotes:
+class TestNotes(ContentProviderTestBase):
+    @override
+    @pytest.fixture
+    async def sut(self, isolated_app: App) -> ContentProvider:
+        async with Project.new_isolated(isolated_app) as project, project:
+            return Notes(jinja2_environment=await project.jinja2_environment)
+
     async def test_provide__without_has_notes_resource(self, isolated_app: App) -> None:
         async with Project.new_isolated(isolated_app) as project, project:
             sut = await Notes.new_for_project(project)

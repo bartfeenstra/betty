@@ -11,7 +11,7 @@ from betty.ancestry.person_name import PersonName
 from betty.ancestry.source import Source
 from betty.model import Entity
 from betty.test_utils.json.linked_data import assert_dumps_linked_data
-from betty.test_utils.model import EntityPluginTestBase, EntityTestBase
+from betty.test_utils.model import EntityDefinitionTestBase, EntityTestBase
 
 if TYPE_CHECKING:
     from collections.abc import Sequence
@@ -20,11 +20,11 @@ if TYPE_CHECKING:
     from betty.serde.dump import Dump, DumpMapping
 
 
-class TestPersonNameDefinition(EntityPluginTestBase):
+class TestPersonNameDefinition(EntityDefinitionTestBase):
     @override
     @pytest.fixture
     def sut(self) -> PluginDefinition:
-        return PersonName.plugin
+        return PersonName.plugin()
 
 
 class TestPersonName(EntityTestBase):

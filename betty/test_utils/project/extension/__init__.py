@@ -4,40 +4,33 @@ Test utilities for :py:mod:`betty.project.extension`.
 
 from typing import Self, final
 
-import pytest
 from typing_extensions import override
 
 from betty.project import Project
-from betty.project.extension import Extension, ExtensionPlugin
+from betty.project.extension import Extension, ExtensionDefinition
 from betty.project.factory import ProjectDependentSelfFactory
 from betty.test_utils.config import DummyConfigurable, DummyConfiguration
+from betty.test_utils.plugin import PluginTestBase
 from betty.test_utils.plugin.dependent import DependentPluginDefinitionTestBase
 from betty.test_utils.plugin.human_facing import HumanFacingPluginDefinitionTestBase
 from betty.test_utils.plugin.ordered import OrderedPluginDefinitionTestBase
 from betty.typing import private
 
 
-class ExtensionPluginTestBase(
+class ExtensionDefinitionTestBase(
     HumanFacingPluginDefinitionTestBase,
     DependentPluginDefinitionTestBase,
     OrderedPluginDefinitionTestBase,
 ):
     """
-    A base class for testing :py:class:`betty.project.extension.ExtensionPlugin` implementations.
+    A base class for testing :py:class:`betty.project.extension.ExtensionDefinition` implementations.
     """
 
 
-class ExtensionTestBase:
+class ExtensionTestBase(PluginTestBase[Extension]):
     """
     A base class for testing :py:class:`betty.project.extension.Extension` implementations.
     """
-
-    @pytest.fixture
-    def sut(self) -> Extension:
-        """
-        Provide the system(s) under test.
-        """
-        raise NotImplementedError
 
 
 class _DummyExtension(ProjectDependentSelfFactory, Extension):
@@ -48,7 +41,7 @@ class _DummyExtension(ProjectDependentSelfFactory, Extension):
 
 
 @final
-@ExtensionPlugin("dummy-one", label="Dummy One")
+@ExtensionDefinition("dummy-one", label="Dummy One")
 class DummyExtensionOne(_DummyExtension):
     """
     A dummy :py:class:`betty.project.extension.Extension` implementation.
@@ -56,7 +49,7 @@ class DummyExtensionOne(_DummyExtension):
 
 
 @final
-@ExtensionPlugin("dummy-two", label="Dummy Two")
+@ExtensionDefinition("dummy-two", label="Dummy Two")
 class DummyExtensionTwo(_DummyExtension):
     """
     A dummy :py:class:`betty.project.extension.Extension` implementation.
@@ -64,7 +57,7 @@ class DummyExtensionTwo(_DummyExtension):
 
 
 @final
-@ExtensionPlugin("dummy-configurable", label="Dummy Configurable")
+@ExtensionDefinition("dummy-configurable", label="Dummy Configurable")
 class DummyConfigurableExtension(DummyConfigurable, _DummyExtension):
     """
     A dummy :py:class:`betty.config.Configurable` and :py:class:`betty.project.extension.Extension` implementation.

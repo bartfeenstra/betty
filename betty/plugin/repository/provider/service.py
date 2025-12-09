@@ -65,7 +65,7 @@ class ServiceLevelPluginRepositoryProvider(PluginRepositoryProvider):
                 plugin.plugin_types()[plugin_type],
             )
         repository: PluginRepository[_PluginDefinitionT] | None
-        if plugin_type.type.discovery_overridden:
+        if plugin_type.type().discovery_overridden:
             repository = await self._new(plugin_type)
             if check_requirements:
                 repository = await CheckRequirementRepository.new(
@@ -76,7 +76,7 @@ class ServiceLevelPluginRepositoryProvider(PluginRepositoryProvider):
         repository = self._get(plugin_type, check_requirements)
         if repository:
             return repository
-        async with self._ledger.ledger(f"{plugin_type.type.id}:{check_requirements}"):
+        async with self._ledger.ledger(f"{plugin_type.type().id}:{check_requirements}"):
             # The repository may have been created since we first checked.
             repository = self._get(plugin_type, check_requirements)
             if repository:
@@ -104,7 +104,7 @@ class ServiceLevelPluginRepositoryProvider(PluginRepositoryProvider):
     ) -> PluginRepository[_PluginDefinitionT]:
         return StaticPluginRepository(
             plugin_type,
-            *await discover(self._services, *plugin_type.type.discovery),  # type: ignore[arg-type]
+            *await discover(self._services, *plugin_type.type().discovery),
         )
 
 

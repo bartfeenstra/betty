@@ -10,6 +10,7 @@ from betty.test_utils.locale.localizable import (
     DUMMY_COUNTABLE_LOCALIZABLE,
     DUMMY_LOCALIZABLE,
 )
+from betty.test_utils.plugin import DummyPlugin
 
 
 class TestHumanFacingPluginDefinition:
@@ -24,10 +25,15 @@ class TestHumanFacingPluginDefinition:
     def test_reference_label_with_type(self) -> None:
         plugin_type_label = "My First Plugin Type"
 
-        class _HumanFacingPluginDefinition(HumanFacingPluginDefinition):
-            type = PluginTypeDefinition(
-                "-", plugin_type_label, DUMMY_LOCALIZABLE, DUMMY_COUNTABLE_LOCALIZABLE
-            )
+        @PluginTypeDefinition(
+            "-",
+            DummyPlugin,
+            plugin_type_label,
+            DUMMY_LOCALIZABLE,
+            DUMMY_COUNTABLE_LOCALIZABLE,
+        )
+        class _HumanFacingPluginDefinition(HumanFacingPluginDefinition[DummyPlugin]):
+            pass
 
         id = "my-first-plugin"  # noqa A001
         plugin_label = "My First Plugin"

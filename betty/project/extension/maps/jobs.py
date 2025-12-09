@@ -52,7 +52,7 @@ class _GeneratePlacePreview(Job[ProjectContext]):
         jinja2_environment = await project.jinja2_environment
         place_path = (
             project.localize_www_directory_path(self._locale)
-            / place.plugin.id
+            / place.plugin().id
             / place.public_id
         )
         rendered_html = await jinja2_environment.get_template(

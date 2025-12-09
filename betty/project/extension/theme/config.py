@@ -11,7 +11,7 @@ from typing_extensions import override
 
 from betty.assertion import assert_len, assert_mapping, assert_str
 from betty.config import Configuration
-from betty.content_provider import ContentProvider, ContentProviderPlugin
+from betty.content_provider import ContentProvider, ContentProviderDefinition
 from betty.data import Key
 from betty.exception import HumanFacingException, HumanFacingExceptionGroup
 from betty.locale.localizable.gettext import _
@@ -37,7 +37,9 @@ class RegionalContentConfiguration(Configuration):
         self,
         content: Mapping[
             str,
-            PluginInstanceConfigurationSequence[ContentProviderPlugin, ContentProvider],
+            PluginInstanceConfigurationSequence[
+                ContentProviderDefinition, ContentProvider
+            ],
         ]
         | None = None,
         /,
@@ -45,21 +47,25 @@ class RegionalContentConfiguration(Configuration):
         super().__init__()
         self._content: MutableMapping[
             str,
-            PluginInstanceConfigurationSequence[ContentProviderPlugin, ContentProvider],
+            PluginInstanceConfigurationSequence[
+                ContentProviderDefinition, ContentProvider
+            ],
         ] = defaultdict(PluginInstanceConfigurationSequence)
         if content:
             self._content.update(content)
 
     def __getitem__(
         self, region: str
-    ) -> PluginInstanceConfigurationSequence[ContentProviderPlugin, ContentProvider]:
+    ) -> PluginInstanceConfigurationSequence[
+        ContentProviderDefinition, ContentProvider
+    ]:
         return self._content[region]
 
     def __setitem__(
         self,
         region: str,
         content: Sequence[
-            PluginInstanceConfiguration[ContentProviderPlugin, ContentProvider]
+            PluginInstanceConfiguration[ContentProviderDefinition, ContentProvider]
         ],
     ) -> None:
         self._content[region].clear()
@@ -72,14 +78,16 @@ class RegionalContentConfiguration(Configuration):
         assert_len(minimum=1)(dump)
         content: MutableMapping[
             str,
-            PluginInstanceConfigurationSequence[ContentProviderPlugin, ContentProvider],
+            PluginInstanceConfigurationSequence[
+                ContentProviderDefinition, ContentProvider
+            ],
         ] = {}
         with HumanFacingExceptionGroup() as errors:
             for region, region_dump in dump.items():
                 with errors.absorb(Key(region)):
                     assert_len(minimum=1)(region_dump)
                     content[region] = PluginInstanceConfigurationSequence[
-                        ContentProviderPlugin, ContentProvider
+                        ContentProviderDefinition, ContentProvider
                     ].load(region_dump)
         return cls(content)
 

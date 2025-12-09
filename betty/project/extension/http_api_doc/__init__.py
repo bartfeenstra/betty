@@ -9,7 +9,7 @@ from typing_extensions import override
 
 from betty.html import NavigationLink, NavigationLinkProvider
 from betty.locale.localizable.gettext import _
-from betty.project.extension import ExtensionPlugin
+from betty.project.extension import ExtensionDefinition
 from betty.project.extension.webpack import Webpack
 from betty.project.extension.webpack.build import EntryPointProvider
 from betty.project.factory import ProjectDependentSelfFactory
@@ -21,7 +21,7 @@ if TYPE_CHECKING:
 
 
 @final
-@ExtensionPlugin(
+@ExtensionDefinition(
     "http-api-doc",
     label="HTTP API Documentation",
     description=_(

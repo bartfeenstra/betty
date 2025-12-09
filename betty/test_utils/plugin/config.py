@@ -4,7 +4,7 @@ Test utilities for :py:mod:`betty.plugin.config`.
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, ClassVar, Generic, Self, TypeVar, cast, final
+from typing import TYPE_CHECKING, Generic, Self, TypeVar, cast, final
 
 from typing_extensions import override
 
@@ -74,13 +74,13 @@ class PluginDefinitionConfigurationMappingTestBase(
 
 
 class ConfigurableDummyPlugin(
-    DummyConfigurable, ConfigurationDependentSelfFactory[DummyConfiguration], Plugin
+    DummyConfigurable,
+    ConfigurationDependentSelfFactory[DummyConfiguration],
+    Plugin["ConfigurableDummyPluginDefinition"],
 ):
     """
     A configurable dummy plugin.
     """
-
-    plugin: ClassVar[ConfigurableDummyPluginDefinition]
 
     def __init__(self, *, configuration: DummyConfiguration | None = None):
         super().__init__(
@@ -97,23 +97,22 @@ class ConfigurableDummyPlugin(
         return lambda: cls(configuration=configuration)
 
 
-class ConfigurableDummyPluginDefinition(PluginDefinition):
+@PluginTypeDefinition(
+    "configurable-dummy-plugin",
+    ConfigurableDummyPlugin,
+    "Configurable dummy plugin",
+    "Configurable dummy plugins",
+    DUMMY_COUNTABLE_LOCALIZABLE,
+    discovery=CallbackDiscovery(
+        lambda: [
+            ConfigurableDummyPluginOne.plugin(),
+        ]
+    ),
+)
+class ConfigurableDummyPluginDefinition(PluginDefinition[ConfigurableDummyPlugin]):
     """
     A definition of a configurable dummy plugin.
     """
-
-    plugin_type_cls = ConfigurableDummyPlugin
-    type = PluginTypeDefinition(
-        "configurable-dummy-plugin",
-        "Configurable dummy plugin",
-        "Configurable dummy plugins",
-        DUMMY_COUNTABLE_LOCALIZABLE,
-        discovery=CallbackDiscovery(
-            lambda: [
-                ConfigurableDummyPluginOne.plugin,
-            ]
-        ),
-    )
 
 
 @final

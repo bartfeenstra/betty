@@ -49,7 +49,7 @@ async def create_project(app: App, project_directory_path: Path) -> Project:
     from betty.project.extension.demo import Demo
 
     configuration = ProjectConfiguration(
-        name=Demo.plugin.id,
+        name=Demo.plugin().id,
         license=PluginInstanceConfiguration("spdx-gpl-3--0-or-later"),
         title=_("A Betty demonstration"),
         author=_("Bart Feenstra and contributors"),

@@ -17,7 +17,7 @@ from betty.assertion import (
 )
 from betty.config import Configuration
 from betty.config.factory import ConfigurationDependentSelfFactory
-from betty.content_provider import ContentProviderPlugin
+from betty.content_provider import ContentProviderDefinition
 from betty.content_provider.content_providers import Template
 from betty.locale.localizable.assertion import assert_load_localizable
 from betty.locale.localizable.attr import RequiredLocalizableAttr
@@ -25,7 +25,7 @@ from betty.locale.localizable.config import dump_localizable
 from betty.locale.localizable.ensure import ensure_localizable
 from betty.locale.localizable.gettext import _
 from betty.machine_name import MachineName, assert_machine_name
-from betty.model import EntityPlugin
+from betty.model import EntityDefinition
 from betty.model.config import EntityReferenceSequence
 from betty.plugin import Plugin
 from betty.plugin.config import PluginInstanceConfigurationSequence
@@ -55,12 +55,12 @@ if TYPE_CHECKING:
     from betty.service.level.factory import AnyFactoryTarget
 
 
-class _Base(Plugin, HasRequirement):
+class _Base(HasRequirement, Plugin[ContentProviderDefinition]):
     @override
     @classmethod
     async def requirement(cls, services: ServiceLevel, /) -> Requirement | None:
         return await RaspberryMint.requirement_for(
-            services, cls.plugin.reference_label_with_type
+            services, cls.plugin().reference_label_with_type
         )
 
 
@@ -124,11 +124,11 @@ class SectionConfiguration(Configuration):
         return self.heading, self._content
 
 
-@ContentProviderPlugin("raspberry-mint-section", label=_("Section"))
+@ContentProviderDefinition("raspberry-mint-section", label=_("Section"))
 class Section(
     Template,
-    _Base,
     ProjectDependentSelfFactory,
+    _Base,
     ConfigurationDependentSelfFactory[SectionConfiguration],
 ):
     """
@@ -177,7 +177,9 @@ class Section(
         }
 
 
-@ContentProviderPlugin("raspberry-mint-featured-entities", label=_("Featured entities"))
+@ContentProviderDefinition(
+    "raspberry-mint-featured-entities", label=_("Featured entities")
+)
 class FeaturedEntities(
     Template,
     ConfigurationDependentSelfFactory[EntityReferenceSequence],
@@ -229,7 +231,7 @@ class FeaturedEntities(
 
     @override
     async def _provide_data(self, resource: Context) -> Mapping[str, Any]:
-        entity_types = await self._project.plugins(EntityPlugin)
+        entity_types = await self._project.plugins(EntityDefinition)
         entities: MutableSequence[Entity] = []
         for entity in self.configuration:
             assert entity.entity_type is not None
@@ -244,14 +246,14 @@ class FeaturedEntities(
         }
 
 
-@ContentProviderPlugin("raspberry-mint-family", label=_("Family"))
+@ContentProviderDefinition("raspberry-mint-family", label=_("Family"))
 class Family(Template, _Base):
     """
     A person's family.
     """
 
 
-@ContentProviderPlugin("raspberry-mint-media", label=_("Media gallery"))
+@ContentProviderDefinition("raspberry-mint-media", label=_("Media gallery"))
 class Media(Template):
     """
     Media gallery.
@@ -303,7 +305,7 @@ class ColorStyleConfiguration(Configuration):
         return self.content
 
 
-@ContentProviderPlugin("raspberry-mint-color-style", label=_("Color style"))
+@ContentProviderDefinition("raspberry-mint-color-style", label=_("Color style"))
 class ColorStyle(Template, ConfigurationDependentSelfFactory[ColorStyleConfiguration]):
     """
     Change the color style for all containing content.
@@ -354,7 +356,7 @@ class ColorStyle(Template, ConfigurationDependentSelfFactory[ColorStyleConfigura
         }
 
 
-@ContentProviderPlugin("raspberry-mint-external-links", label=_("External links"))
+@ContentProviderDefinition("raspberry-mint-external-links", label=_("External links"))
 class ExternalLinks(Template):
     """
     External links.

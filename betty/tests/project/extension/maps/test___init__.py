@@ -30,10 +30,10 @@ class TestMaps(EntryPointProviderTestBase):
                     encoding="utf-8",
                 ) as f:
                     betty_js = await f.read()
-                assert Maps.plugin.id in betty_js
+                assert Maps.plugin().id in betty_js
                 async with aiofiles.open(
                     project.www_directory_path / "css" / "webpack" / "maps.css",
                     encoding="utf-8",
                 ) as f:
                     betty_css = await f.read()
-                assert Maps.plugin.id in betty_css
+                assert Maps.plugin().id in betty_css

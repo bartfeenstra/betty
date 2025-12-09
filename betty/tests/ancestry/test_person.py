@@ -23,7 +23,7 @@ from betty.model.association import AssociationRequired, TemporaryToOneResolver
 from betty.mutability import Mutable
 from betty.privacy import Privacy
 from betty.test_utils.json.linked_data import assert_dumps_linked_data
-from betty.test_utils.model import EntityPluginTestBase, EntityTestBase
+from betty.test_utils.model import EntityDefinitionTestBase, EntityTestBase
 
 if TYPE_CHECKING:
     from collections.abc import Mapping, Sequence
@@ -31,11 +31,11 @@ if TYPE_CHECKING:
     from betty.plugin import PluginDefinition
 
 
-class TestPersonDefinition(EntityPluginTestBase):
+class TestPersonDefinition(EntityDefinitionTestBase):
     @override
     @pytest.fixture
     def sut(self) -> PluginDefinition:
-        return Person.plugin
+        return Person.plugin()
 
 
 class TestPerson(EntityTestBase):
@@ -215,7 +215,7 @@ class TestPerson(EntityTestBase):
             "@type": "https://schema.org/Person",
             "id": person_id,
             "private": False,
-            "gender": UnknownGender.plugin.id,
+            "gender": UnknownGender.plugin().id,
             "names": [],
             "parents": [],
             "children": [],
@@ -286,7 +286,7 @@ class TestPerson(EntityTestBase):
             "@type": "https://schema.org/Person",
             "id": person_id,
             "private": False,
-            "gender": NonBinary.plugin.id,
+            "gender": NonBinary.plugin().id,
             "names": [
                 {
                     "@context": {

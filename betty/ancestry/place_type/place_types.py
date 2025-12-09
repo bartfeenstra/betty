@@ -6,13 +6,13 @@ from __future__ import annotations
 
 from typing import final
 
-from betty.ancestry.place_type import PlaceType, PlaceTypePlugin
+from betty.ancestry.place_type import PlaceType, PlaceTypeDefinition
 from betty.classtools import Singleton
 from betty.locale.localizable.gettext import _, ngettext
 
 
 @final
-@PlaceTypePlugin(
+@PlaceTypeDefinition(
     "borough",
     label=_("Borough"),
     label_plural=_("Boroughs"),
@@ -25,7 +25,7 @@ class Borough(PlaceType):
 
 
 @final
-@PlaceTypePlugin(
+@PlaceTypeDefinition(
     "building",
     label=_("Building"),
     label_plural=_("Buildings"),
@@ -38,7 +38,7 @@ class Building(PlaceType):
 
 
 @final
-@PlaceTypePlugin(
+@PlaceTypeDefinition(
     "cemetery",
     label=_("Cemetery"),
     label_plural=_("Cemeteries"),
@@ -51,7 +51,7 @@ class Cemetery(PlaceType):
 
 
 @final
-@PlaceTypePlugin(
+@PlaceTypeDefinition(
     "city",
     label=_("City"),
     label_plural=_("Cities"),
@@ -64,7 +64,7 @@ class City(PlaceType):
 
 
 @final
-@PlaceTypePlugin(
+@PlaceTypeDefinition(
     "country",
     label=_("Country"),
     label_plural=_(""),
@@ -77,7 +77,7 @@ class Country(PlaceType):
 
 
 @final
-@PlaceTypePlugin(
+@PlaceTypeDefinition(
     "county",
     label=_("County"),
     label_plural=_("Counties"),
@@ -90,7 +90,7 @@ class County(PlaceType):
 
 
 @final
-@PlaceTypePlugin(
+@PlaceTypeDefinition(
     "department",
     label=_("Department"),
     label_plural=_("Departments"),
@@ -103,7 +103,7 @@ class Department(PlaceType):
 
 
 @final
-@PlaceTypePlugin(
+@PlaceTypeDefinition(
     "district",
     label=_("District"),
     label_plural=_("Districts"),
@@ -116,7 +116,7 @@ class District(PlaceType):
 
 
 @final
-@PlaceTypePlugin(
+@PlaceTypeDefinition(
     "farm",
     label=_("Farm"),
     label_plural=_("Farms"),
@@ -129,7 +129,7 @@ class Farm(PlaceType):
 
 
 @final
-@PlaceTypePlugin(
+@PlaceTypeDefinition(
     "hamlet",
     label=_("Hamlet"),
     label_plural=_("Hamlets"),
@@ -142,7 +142,7 @@ class Hamlet(PlaceType):
 
 
 @final
-@PlaceTypePlugin(
+@PlaceTypeDefinition(
     "locality",
     label=_("Locality"),
     label_plural=_("Localities"),
@@ -155,7 +155,7 @@ class Locality(PlaceType):
 
 
 @final
-@PlaceTypePlugin(
+@PlaceTypeDefinition(
     "municipality",
     label=_("Municipality"),
     label_plural=_("Municipalities"),
@@ -168,7 +168,7 @@ class Municipality(PlaceType):
 
 
 @final
-@PlaceTypePlugin(
+@PlaceTypeDefinition(
     "neighborhood",
     label=_("Neighborhood"),
     label_plural=_("Neighborhoods"),
@@ -181,7 +181,7 @@ class Neighborhood(PlaceType):
 
 
 @final
-@PlaceTypePlugin(
+@PlaceTypeDefinition(
     "number",
     label=_("Number"),
     label_plural=_("Numbers"),
@@ -194,7 +194,7 @@ class Number(PlaceType):
 
 
 @final
-@PlaceTypePlugin(
+@PlaceTypeDefinition(
     "parish",
     label=_("Parish"),
     label_plural=_("Parishes"),
@@ -207,7 +207,7 @@ class Parish(PlaceType):
 
 
 @final
-@PlaceTypePlugin(
+@PlaceTypeDefinition(
     "province",
     label=_("Province"),
     label_plural=_("Provinces"),
@@ -220,7 +220,7 @@ class Province(PlaceType):
 
 
 @final
-@PlaceTypePlugin(
+@PlaceTypeDefinition(
     "region",
     label=_("Region"),
     label_plural=_("Regions"),
@@ -233,7 +233,7 @@ class Region(PlaceType):
 
 
 @final
-@PlaceTypePlugin(
+@PlaceTypeDefinition(
     "state",
     label=_("State"),
     label_plural=_("States"),
@@ -246,7 +246,7 @@ class State(PlaceType):
 
 
 @final
-@PlaceTypePlugin(
+@PlaceTypeDefinition(
     "street",
     label=_("Street"),
     label_plural=_("Streets"),
@@ -259,7 +259,7 @@ class Street(PlaceType):
 
 
 @final
-@PlaceTypePlugin(
+@PlaceTypeDefinition(
     "town",
     label=_("Town"),
     label_plural=_("Towns"),
@@ -272,7 +272,7 @@ class Town(PlaceType):
 
 
 @final
-@PlaceTypePlugin(
+@PlaceTypeDefinition(
     "unknown",
     label=_("Unknown"),
     label_plural=_("Unknowns"),
@@ -285,7 +285,7 @@ class Unknown(PlaceType, Singleton):
 
 
 @final
-@PlaceTypePlugin(
+@PlaceTypeDefinition(
     "village",
     label=_("Village"),
     label_plural=_("Villages"),

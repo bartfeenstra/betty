@@ -5,23 +5,29 @@ from typing_extensions import override
 
 from betty.app import App
 from betty.console import SystemExitCode
+from betty.console.command import Command
 from betty.console.command.commands.serve import Serve
 from betty.plugin import PluginDefinition
 from betty.project import Project
 from betty.serde.file import dump_file
 from betty.test_utils.console import run
-from betty.test_utils.console.command import CommandPluginTestBase
+from betty.test_utils.console.command import CommandDefinitionTestBase, CommandTestBase
 from betty.test_utils.serve import NoOpProjectServer
 
 
-class TestServeDefinition(CommandPluginTestBase):
+class TestServeDefinition(CommandDefinitionTestBase):
     @override
     @pytest.fixture
     def sut(self) -> PluginDefinition:
-        return Serve.plugin
+        return Serve.plugin()
 
 
-class TestServe:
+class TestServe(CommandTestBase):
+    @override
+    @pytest.fixture
+    def sut(self, isolated_app: App) -> Command:
+        return Serve(isolated_app)
+
     async def test_configure(self, mocker: MockerFixture, isolated_app: App) -> None:
         mocker.patch("asyncio.sleep", side_effect=KeyboardInterrupt)
         mocker.patch("betty.serve.BuiltinProjectServer", new=NoOpProjectServer)

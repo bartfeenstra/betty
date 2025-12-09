@@ -23,7 +23,7 @@ from betty.model import Entity
 from betty.privacy import Privacy
 from betty.test_utils.json.linked_data import assert_dumps_linked_data
 from betty.test_utils.locale.localizable import DUMMY_LOCALIZABLE
-from betty.test_utils.model import EntityPluginTestBase, EntityTestBase
+from betty.test_utils.model import EntityDefinitionTestBase, EntityTestBase
 from betty.tests.ancestry.test___init__ import DummyHasFileReferences
 
 if TYPE_CHECKING:
@@ -34,11 +34,11 @@ if TYPE_CHECKING:
 import pytest
 
 
-class TestFileDefinition(EntityPluginTestBase):
+class TestFileDefinition(EntityDefinitionTestBase):
     @override
     @pytest.fixture
     def sut(self) -> PluginDefinition:
-        return File.plugin
+        return File.plugin()
 
 
 class TestFile(EntityTestBase):

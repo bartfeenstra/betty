@@ -11,7 +11,7 @@ import aiohttp
 from typing_extensions import override
 
 from betty.app.factory import AppDependentSelfFactory
-from betty.copyright_notice import CopyrightNotice, CopyrightNoticePlugin
+from betty.copyright_notice import CopyrightNotice, CopyrightNoticeDefinition
 from betty.locale import DEFAULT_LOCALE, ensure_locale
 from betty.locale.error import LocaleError
 from betty.locale.localizable.ensure import ensure_localizable
@@ -30,7 +30,7 @@ def _copyright_url(language: str, page: str) -> str:
 
 
 @final
-@CopyrightNoticePlugin("wikipedia-contributors", label=_("Wikipedia contributors"))
+@CopyrightNoticeDefinition("wikipedia-contributors", label=_("Wikipedia contributors"))
 class WikipediaContributors(AppDependentSelfFactory, CopyrightNotice):
     """
     The copyright for resources on Wikipedia.

@@ -7,8 +7,8 @@ from betty.plugin import PluginDefinition
 from betty.serde.dump import Dump
 from betty.serde.format import (
     Format,
+    FormatDefinition,
     FormatError,
-    FormatPlugin,
     FormatStr,
     format_for,
 )
@@ -16,11 +16,11 @@ from betty.test_utils.plugin import PluginDefinitionClassTestBase
 from betty.typing import Voidable
 
 
-class TestFormatPlugin(PluginDefinitionClassTestBase):
+class TestFormatDefinition(PluginDefinitionClassTestBase):
     @override
     @pytest.fixture
     def sut(self) -> type[PluginDefinition]:
-        return FormatPlugin
+        return FormatDefinition
 
 
 class _Format(Format):
@@ -33,7 +33,7 @@ class _Format(Format):
         return ""  # pragma: nocover
 
 
-@FormatPlugin("one", label="One")
+@FormatDefinition("one", label="One")
 class FormatOne(_Format):
     @override
     @classmethod
@@ -41,7 +41,7 @@ class FormatOne(_Format):
         return MediaType("text/x.betty.test.one", extensions=[".one"])
 
 
-@FormatPlugin("two", label="Two")
+@FormatDefinition("two", label="Two")
 class FormatTwo(_Format):
     @override
     @classmethod
@@ -51,12 +51,12 @@ class FormatTwo(_Format):
 
 class TestFormatStr:
     def test_localize(self) -> None:
-        sut = FormatStr([FormatOne.plugin, FormatTwo.plugin])
+        sut = FormatStr([FormatOne.plugin(), FormatTwo.plugin()])
         assert sut.localize(DEFAULT_LOCALIZER) == ".one (One), .two (Two)"
 
 
 def test_format_for__with_known_format() -> None:
-    assert format_for([FormatOne.plugin], ".one") is FormatOne.plugin
+    assert format_for([FormatOne.plugin()], ".one") is FormatOne.plugin()
 
 
 def test_format_for_with_unknown_format() -> None:

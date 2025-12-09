@@ -10,7 +10,7 @@ from urllib.parse import urlparse
 from typing_extensions import override
 
 from betty.media_type.media_types import HTML, JSON, JSON_LD
-from betty.model import Entity, EntityPlugin
+from betty.model import Entity, EntityDefinition
 from betty.project.factory import ProjectDependentSelfFactory
 from betty.string import camel_case_to_kebab_case
 from betty.url import (
@@ -104,7 +104,7 @@ class _ProjectUrlGenerator(ProjectDependentSelfFactory):
         )
         return self._generate_from_path(
             pattern.format(
-                entity_type=camel_case_to_kebab_case(entity.plugin.id),
+                entity_type=camel_case_to_kebab_case(entity.plugin().id),
                 entity_id=entity.public_id,
                 extension=extension,
             ),
@@ -116,7 +116,7 @@ class _ProjectUrlGenerator(ProjectDependentSelfFactory):
 
     def _generate_from_entity_type(
         self,
-        entity_type: EntityPlugin,
+        entity_type: EntityDefinition,
         pattern: str,
         *,
         absolute: bool,
@@ -153,7 +153,7 @@ async def new_project_url_generator(project: Project, /) -> UrlGenerator:
         _EntityUrlUrlGenerator(
             project.ancestry,
             entity_url_generator,
-            await project.plugins(EntityPlugin),
+            await project.plugins(EntityDefinition),
         ),
         await _LocalizedPathUrlUrlGenerator.new_for_project(project),
         await _StaticPathUrlUrlGenerator.new_for_project(project),
@@ -175,7 +175,7 @@ class __EntityTypeUrlGenerator(_ProjectUrlGenerator):
     _pattern = "/{entity_type}/index.{extension}"
 
     def supports(self, resource: Any, /) -> bool:
-        return isinstance(resource, EntityPlugin)
+        return isinstance(resource, EntityDefinition)
 
 
 @final
@@ -183,7 +183,7 @@ class _EntityTypeUrlGenerator(__EntityTypeUrlGenerator, UrlGenerator):
     @override
     def generate(
         self,
-        resource: EntityPlugin,
+        resource: EntityDefinition,
         *,
         absolute: bool = False,
         fragment: str | None = None,
@@ -240,7 +240,7 @@ class _EntityUrlUrlGenerator(UrlGenerator):
         self,
         ancestry: Ancestry,
         entity_url_generator: _EntityUrlGenerator,
-        entity_types: PluginRepository[EntityPlugin],
+        entity_types: PluginRepository[EntityDefinition],
         /,
     ):
         self._ancestry = ancestry

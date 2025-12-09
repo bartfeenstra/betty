@@ -8,7 +8,7 @@ from betty.locale.localizer import DEFAULT_LOCALIZER
 from betty.plugin import PluginDefinition
 from betty.plugin.discovery.static import StaticDiscovery
 from betty.project import Project
-from betty.project.extension import ExtensionPlugin
+from betty.project.extension import ExtensionDefinition
 from betty.requirement import Requirement
 from betty.test_utils.documentation import PluginDocumentationTestBase
 from betty.test_utils.locale.localizable import DUMMY_LOCALIZABLE
@@ -16,26 +16,26 @@ from betty.test_utils.plugin import PluginDefinitionClassTestBase
 from betty.test_utils.project.extension import DummyExtensionOne
 
 
-class TestExtensionPlugin(PluginDefinitionClassTestBase):
+class TestExtensionDefinition(PluginDefinitionClassTestBase):
     @override
     @pytest.fixture
     def sut(self) -> type[PluginDefinition]:
-        return ExtensionPlugin
+        return ExtensionDefinition
 
     def test_assets_directory_path(self) -> None:
         assets_directory_path = Path(__file__)
-        sut = ExtensionPlugin(
+        sut = ExtensionDefinition(
             "-", assets_directory_path=assets_directory_path, label=DUMMY_LOCALIZABLE
         )
         assert sut.assets_directory_path == assets_directory_path
 
     def test_theme(self) -> None:
-        sut = ExtensionPlugin("-", theme=True, label=DUMMY_LOCALIZABLE)
+        sut = ExtensionDefinition("-", theme=True, label=DUMMY_LOCALIZABLE)
         assert sut.theme
 
 
-class TestExtensionDocumentation(PluginDocumentationTestBase[ExtensionPlugin]):
-    _plugin_type = ExtensionPlugin
+class TestExtensionDocumentation(PluginDocumentationTestBase[ExtensionDefinition]):
+    _plugin_type = ExtensionDefinition
     _plugin_type_documentation_path = Path("usage") / "extension.rst"
 
 
@@ -64,8 +64,8 @@ class TestExtension:
     async def test_requires__with_project_with_extension(
         self, isolated_app: App
     ) -> None:
-        with ExtensionPlugin.type.override_discovery(
-            StaticDiscovery(DummyExtensionOne.plugin)
+        with ExtensionDefinition.type().override_discovery(
+            StaticDiscovery(DummyExtensionOne.plugin())
         ):
             async with Project.new_isolated(isolated_app) as project:
                 project.configuration.extensions.enable(DummyExtensionOne)

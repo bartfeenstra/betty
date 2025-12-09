@@ -5,7 +5,7 @@ Provide serialization formats.
 from __future__ import annotations
 
 from abc import ABC, abstractmethod
-from typing import TYPE_CHECKING, ClassVar, final
+from typing import TYPE_CHECKING, final
 
 from typing_extensions import override
 
@@ -32,12 +32,10 @@ class FormatError(HumanFacingException):
     """
 
 
-class Format(Plugin, ABC):
+class Format(ABC, Plugin["FormatDefinition"]):
     """
     Defines a serialization format.
     """
-
-    plugin: ClassVar[FormatPlugin]
 
     @classmethod
     @abstractmethod
@@ -62,19 +60,18 @@ class Format(Plugin, ABC):
 
 
 @final
-class FormatPlugin(HumanFacingPluginDefinition[Format]):
+@PluginTypeDefinition(
+    "format",
+    Format,
+    _("Serialization format"),
+    _("Serialization formats"),
+    ngettext("{count} serialization format", "{count} serialization formats"),
+    discovery=EntryPointDiscovery("betty.serde_format"),
+)
+class FormatDefinition(HumanFacingPluginDefinition[Format]):
     """
     A serialization format definition.
     """
-
-    plugin_type_cls = Format
-    type = PluginTypeDefinition(
-        "format",
-        _("Serialization format"),
-        _("Serialization formats"),
-        ngettext("{count} serialization format", "{count} serialization formats"),
-        discovery=EntryPointDiscovery("betty.serde_format"),
-    )
 
 
 @final
@@ -83,7 +80,7 @@ class FormatStr(Localizable):
     Localize and format a sequence of serialization formats.
     """
 
-    def __init__(self, serde_formats: Sequence[FormatPlugin], /):
+    def __init__(self, serde_formats: Sequence[FormatDefinition], /):
         self._serde_formats = serde_formats
 
     @override
@@ -100,8 +97,8 @@ class FormatStr(Localizable):
 
 
 def format_for(
-    available_formats: Sequence[FormatPlugin], extension: str, /
-) -> FormatPlugin:
+    available_formats: Sequence[FormatDefinition], extension: str, /
+) -> FormatDefinition:
     """
     Get the serialization format for the given file extension.
     """

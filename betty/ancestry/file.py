@@ -13,10 +13,10 @@ from betty.ancestry.has_citations import HasCitations
 from betty.ancestry.has_links import HasLinks
 from betty.ancestry.has_notes import HasNotes
 from betty.ancestry.media_type import HasMediaType
-from betty.copyright_notice import CopyrightNoticePlugin
-from betty.license import LicensePlugin
+from betty.copyright_notice import CopyrightNoticeDefinition
+from betty.license import LicenseDefinition
 from betty.locale.localizable.gettext import _, ngettext
-from betty.model import EntityPlugin
+from betty.model import EntityDefinition
 from betty.model.association import BidirectionalToManyMultipleTypes, ToManyAssociates
 from betty.privacy import HasPrivacy, Privacy
 
@@ -38,7 +38,7 @@ if TYPE_CHECKING:
 
 
 @final
-@EntityPlugin(
+@EntityDefinition(
     "file",
     label=_("File"),
     label_plural=_("Files"),
@@ -148,8 +148,8 @@ class File(
     @override
     @classmethod
     async def linked_data_schema(cls, project: Project, /) -> JsonLdObject:
-        copyright_notices = await project.plugins(CopyrightNoticePlugin)
-        licenses = await project.plugins(LicensePlugin)
+        copyright_notices = await project.plugins(CopyrightNoticeDefinition)
+        licenses = await project.plugins(LicenseDefinition)
         schema = await super().linked_data_schema(project)
         schema.add_property(
             "copyrightNotice", copyright_notices.plugin_id_schema, False
@@ -161,7 +161,7 @@ class File(
     async def dump_linked_data(self, project: Project, /) -> DumpMapping[Dump]:
         dump = await super().dump_linked_data(project)
         if self.copyright_notice:
-            dump["copyrightNotice"] = self.copyright_notice.plugin.id
+            dump["copyrightNotice"] = self.copyright_notice.plugin().id
         if self.license:
-            dump["license"] = self.license.plugin.id
+            dump["license"] = self.license.plugin().id
         return dump

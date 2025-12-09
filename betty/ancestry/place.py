@@ -17,7 +17,7 @@ from betty.ancestry.place_type.place_types import Unknown as UnknownPlaceType
 from betty.json.linked_data import JsonLdObject, dump_context
 from betty.json.schema import Array, Number, Object
 from betty.locale.localizable.gettext import _, ngettext
-from betty.model import EntityPlugin
+from betty.model import EntityDefinition
 from betty.model.association import BidirectionalToManySingleType, ToManyAssociates
 from betty.privacy import HasPrivacy
 
@@ -38,7 +38,7 @@ if TYPE_CHECKING:
 
 
 @final
-@EntityPlugin(
+@EntityDefinition(
     "place",
     label=_("Place"),
     label_plural=_("Places"),

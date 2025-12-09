@@ -126,15 +126,15 @@ if TYPE_CHECKING:
     from babel import Locale
 
     from betty.ancestry import Ancestry
-    from betty.ancestry.event_type import EventType, EventTypePlugin
-    from betty.ancestry.gender import Gender, GenderPlugin
+    from betty.ancestry.event_type import EventType, EventTypeDefinition
+    from betty.ancestry.gender import Gender, GenderDefinition
     from betty.ancestry.has_citations import HasCitations
     from betty.ancestry.has_file_references import HasFileReferences
     from betty.ancestry.has_notes import HasNotes
-    from betty.ancestry.place_type import PlaceType, PlaceTypePlugin
-    from betty.ancestry.presence_role import PresenceRole, PresenceRolePlugin
-    from betty.copyright_notice import CopyrightNoticePlugin
-    from betty.license import LicensePlugin
+    from betty.ancestry.place_type import PlaceType, PlaceTypeDefinition
+    from betty.ancestry.presence_role import PresenceRole, PresenceRoleDefinition
+    from betty.copyright_notice import CopyrightNoticeDefinition
+    from betty.license import LicenseDefinition
     from betty.locale.localizable import StaticTranslationsMapping
     from betty.machine_name import MachineName
     from betty.plugin.repository import PluginRepository
@@ -222,7 +222,7 @@ def _plugin_mapping(
     }
 
 
-_DEFAULT_GENDER_MAPPING: Mapping[str, ResolvableId[GenderPlugin, Gender]] = {
+_DEFAULT_GENDER_MAPPING: Mapping[str, ResolvableId[GenderDefinition, Gender]] = {
     "F": Woman,
     "M": Man,
     "U": UnknownGender,
@@ -230,7 +230,9 @@ _DEFAULT_GENDER_MAPPING: Mapping[str, ResolvableId[GenderPlugin, Gender]] = {
 }
 DEFAULT_GENDER_MAPPING = _plugin_mapping(_DEFAULT_GENDER_MAPPING)
 
-_DEFAULT_EVENT_TYPE_MAPPING: Mapping[str, ResolvableId[EventTypePlugin, EventType]] = {
+_DEFAULT_EVENT_TYPE_MAPPING: Mapping[
+    str, ResolvableId[EventTypeDefinition, EventType]
+] = {
     "Adopted": Adoption,
     "Adult Christening": Baptism,
     "Baptism": Baptism,
@@ -257,7 +259,9 @@ _DEFAULT_EVENT_TYPE_MAPPING: Mapping[str, ResolvableId[EventTypePlugin, EventTyp
 DEFAULT_EVENT_TYPE_MAPPING = _plugin_mapping(_DEFAULT_EVENT_TYPE_MAPPING)
 
 
-_DEFAULT_PLACE_TYPE_MAPPING: Mapping[str, ResolvableId[PlaceTypePlugin, PlaceType]] = {
+_DEFAULT_PLACE_TYPE_MAPPING: Mapping[
+    str, ResolvableId[PlaceTypeDefinition, PlaceType]
+] = {
     "Borough": Borough,
     "Building": Building,
     "City": City,
@@ -285,7 +289,7 @@ DEFAULT_PLACE_TYPE_MAPPING = _plugin_mapping(_DEFAULT_PLACE_TYPE_MAPPING)
 
 
 _DEFAULT_PRESENCE_ROLE_MAPPING: Mapping[
-    str, ResolvableId[PresenceRolePlugin, PresenceRole]
+    str, ResolvableId[PresenceRoleDefinition, PresenceRole]
 ] = {
     "Aide": Attendee,
     "Bride": Subject,
@@ -340,9 +344,9 @@ class GrampsLoader:
         *,
         factory: ProjectFactory,
         user: User,
-        copyright_notices: PluginRepository[CopyrightNoticePlugin],
-        genders: PluginRepository[GenderPlugin],
-        licenses: PluginRepository[LicensePlugin],
+        copyright_notices: PluginRepository[CopyrightNoticeDefinition],
+        genders: PluginRepository[GenderDefinition],
+        licenses: PluginRepository[LicenseDefinition],
         attribute_prefix_key: str | None = None,
         event_type_mapping: Mapping[str, Callable[[], EventType | Awaitable[EventType]]]
         | None = None,
@@ -937,7 +941,7 @@ class GrampsLoader:
                     person_id=person.id,
                     event_handle=event_handle,
                     gramps_presence_role=gramps_presence_role,
-                    betty_presence_role=presence_role.plugin.label.localize(
+                    betty_presence_role=presence_role.plugin().label.localize(
                         self._user.localizer
                     ),
                 )
@@ -997,7 +1001,7 @@ class GrampsLoader:
                 ).format(
                     place_id=place_id,
                     gramps_place_type=gramps_type,
-                    betty_place_type=place_type.plugin.label.localize(
+                    betty_place_type=place_type.plugin().label.localize(
                         self._user.localizer
                     ),
                 )
@@ -1067,7 +1071,7 @@ class GrampsLoader:
                 ).format(
                     event_id=event_id,
                     gramps_event_type=gramps_type,
-                    betty_event_type=event_type.plugin.label.localize(
+                    betty_event_type=event_type.plugin().label.localize(
                         self._user.localizer
                     ),
                 )
@@ -1284,7 +1288,7 @@ class GrampsLoader:
                 'The betty:privacy Gramps attribute must have a value of "public" or "private", but "{privacy_value}" was given for {entity_type} {entity_id} ({entity_label}), which was ignored.',
             ).format(
                 privacy_value=privacy_value,
-                entity_type=entity.plugin.label.localize(self._user.localizer),
+                entity_type=entity.plugin().label.localize(self._user.localizer),
                 entity_id=entity.id,
                 entity_label=entity.label.localize(self._user.localizer),
             )

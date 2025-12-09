@@ -9,7 +9,7 @@ from typing import TYPE_CHECKING, Self, final
 from typing_extensions import override
 
 from betty.locale.localizable.gettext import _
-from betty.project.extension import Extension, ExtensionPlugin
+from betty.project.extension import Extension, ExtensionDefinition
 from betty.project.extension.deriver.jobs import DeriveAncestry
 from betty.project.factory import ProjectDependentSelfFactory
 from betty.project.load import PostLoader
@@ -20,7 +20,7 @@ if TYPE_CHECKING:
 
 
 @final
-@ExtensionPlugin(
+@ExtensionDefinition(
     "deriver",
     label="Deriver",
     description=_(

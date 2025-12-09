@@ -35,7 +35,7 @@ def resolve_definition(definition: ResolvableDefinition, /) -> PluginDefinition:
     """
     if isinstance(definition, PluginDefinition):
         return definition
-    return definition.plugin
+    return definition.plugin()
 
 
 def resolve_id(plugin_id: ResolvableId, /) -> MachineName:

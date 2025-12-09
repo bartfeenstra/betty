@@ -10,11 +10,13 @@ Read more at :doc:`/development/plugin`.
 from __future__ import annotations
 
 from contextlib import contextmanager
+from functools import update_wrapper
 from importlib import metadata
-from typing import TYPE_CHECKING, ClassVar, Generic, final
+from typing import TYPE_CHECKING, Generic, Self, final
 
 from typing_extensions import TypeVar
 
+from betty.importlib import fully_qualified_name
 from betty.locale.localizable.ensure import ensure_localizable
 from betty.locale.localizable.gettext import _
 from betty.machine_name import InvalidMachineName, MachineName, validate_machine_name
@@ -31,34 +33,28 @@ if TYPE_CHECKING:
     from betty.plugin.discovery import PluginDiscovery
 
 
-class Plugin:
-    """
-    A plugin class that can expose its plugin.
-
-    ``__init__()`` is considered private to the :py:mod:`factory <betty.factory>` API. That means you MUST use the
-    factory API to create new instances.
-    """
-
-    plugin: ClassVar[PluginDefinition]
+_BaseClsCoT = TypeVar("_BaseClsCoT", default=object, covariant=True)
 
 
-_PluginCoT = TypeVar("_PluginCoT", bound=Plugin, default=Plugin, covariant=True)
-
-
-class PluginDefinition(Generic[_PluginCoT]):
+class PluginDefinition(Generic[_BaseClsCoT]):
     """
     A plugin definition.
     """
-
-    plugin_type_cls: ClassVar[type[Plugin]]
-
-    type: ClassVar[PluginTypeDefinition]
 
     def __init__(self, plugin_id: MachineName, /):
         if not validate_machine_name(plugin_id):  # type: ignore[redundant-expr]
             raise InvalidMachineName(plugin_id)
         self._id = plugin_id
-        self._cls: type[_PluginCoT] | None = None
+        self._cls: type[_BaseClsCoT & Plugin[Self]] | None = None
+
+    @classmethod
+    def type(cls) -> PluginTypeDefinition[_BaseClsCoT, Self]:
+        """
+        The plugin type definition.
+        """
+        raise Exception(
+            f"{fully_qualified_name(cls)} was not decorated with a {fully_qualified_name(PluginDefinition)} subclass."
+        )
 
     @property
     def id(self) -> MachineName:
@@ -73,7 +69,7 @@ class PluginDefinition(Generic[_PluginCoT]):
         return self._id
 
     @property
-    def cls(self) -> builtins.type[_PluginCoT]:
+    def cls(self) -> builtins.type[_BaseClsCoT & Plugin[Self]]:
         """
         The plugin class.
 
@@ -84,16 +80,18 @@ class PluginDefinition(Generic[_PluginCoT]):
         assert self._cls is not None
         return self._cls
 
-    def __call__(self, cls: builtins.type[_PluginCoT]) -> builtins.type[_PluginCoT]:
+    def __call__(
+        self, cls: builtins.type[_BaseClsCoT & Plugin[Self]]
+    ) -> builtins.type[_BaseClsCoT & Plugin[Self]]:
         """
-        Set the plugin's class.
+        Decorate a plugin class.
 
         :raises ValueError: Raised if the definition was already used to decorate a class.
         """
         if self._cls is not None:
             raise ValueError("This definition was already used to decorate a class.")
         assert self._cls is None
-        cls.plugin = self
+        cls.plugin = staticmethod(update_wrapper(lambda: self, cls.plugin))  # type: ignore[attr-defined]
         self._cls = cls
         return cls
 
@@ -110,7 +108,7 @@ class PluginDefinition(Generic[_PluginCoT]):
         The label to reference this plugin with, including the plugin type.
         """
         return _('{plugin_type} "{plugin_id}"').format(
-            plugin_type=self.type.label,
+            plugin_type=self.type().label,
             plugin_id=self.id,
         )
 
@@ -118,10 +116,16 @@ class PluginDefinition(Generic[_PluginCoT]):
 _PluginDefinitionT = TypeVar(
     "_PluginDefinitionT", bound=PluginDefinition, default=PluginDefinition
 )
+_PluginDefinitionCoT = TypeVar(
+    "_PluginDefinitionCoT",
+    bound=PluginDefinition,
+    default=PluginDefinition,
+    covariant=True,
+)
 
 
 @final
-class PluginTypeDefinition(Generic[_PluginDefinitionT]):
+class PluginTypeDefinition(Generic[_BaseClsCoT, _PluginDefinitionT]):
     """
     A plugin type definition.
     """
@@ -129,6 +133,7 @@ class PluginTypeDefinition(Generic[_PluginDefinitionT]):
     def __init__(
         self,
         id: MachineName,  # noqa A002
+        base_cls: type[_BaseClsCoT & Plugin[_PluginDefinitionT]],
         label: LocalizableLike,
         label_plural: LocalizableLike,
         label_countable: CountableLocalizable,
@@ -143,6 +148,7 @@ class PluginTypeDefinition(Generic[_PluginDefinitionT]):
         if not validate_machine_name(id):  # type: ignore[redundant-expr]
             raise InvalidMachineName(id)
         self._id = id
+        self._base_cls = base_cls
         self._label = ensure_localizable(label)
         self._label_plural = ensure_localizable(label_plural)
         self._label_countable = label_countable
@@ -161,6 +167,7 @@ class PluginTypeDefinition(Generic[_PluginDefinitionT]):
         self._active_discovery: Collection[PluginDiscovery[_PluginDefinitionT]] = (
             self._defined_discovery
         )
+        self._cls: type[_PluginDefinitionT] | None = None
 
     @property
     def id(self) -> MachineName:
@@ -168,6 +175,38 @@ class PluginTypeDefinition(Generic[_PluginDefinitionT]):
         The plugin type ID.
         """
         return self._id
+
+    @property
+    def base_cls(self) -> type[_BaseClsCoT & Plugin[_PluginDefinitionT]]:
+        """
+        The base class all plugins of this type must subclass.
+        """
+        return self._base_cls
+
+    @property
+    def cls(self) -> type[_PluginDefinitionT]:
+        """
+        The plugin definition class.
+
+        :raises ValueError: Raised if the definition was not yet used to decorate a class.
+        """
+        if self._cls is None:
+            raise ValueError("This definition was not yet used to decorate a class.")
+        assert self._cls is not None
+        return self._cls
+
+    def __call__(self, cls: type[_PluginDefinitionT]) -> type[_PluginDefinitionT]:
+        """
+        Decorate a plugin class.
+
+        :raises ValueError: Raised if the definition was already used to decorate a class.
+        """
+        if self._cls is not None:
+            raise ValueError("This definition was already used to decorate a class.")
+        assert self._cls is None
+        cls.type = staticmethod(update_wrapper(lambda: self, cls.type))  # type: ignore[method-assign]
+        self._cls = cls
+        return cls
 
     @property
     def label(self) -> Localizable:
@@ -231,6 +270,27 @@ class PluginTypeDefinition(Generic[_PluginDefinitionT]):
         return self._defined_discovery != self._active_discovery
 
 
+class Plugin(Generic[_PluginDefinitionCoT]):
+    """
+    A plugin class.
+
+    ``__init__()`` is considered private to the :py:mod:`factory <betty.factory>` API. That means you MUST use the
+    factory API to create new instances.
+    """
+
+    @classmethod
+    def plugin(cls) -> _PluginDefinitionCoT:
+        """
+        The plugin definition.
+        """
+        raise Exception(
+            f"{fully_qualified_name(cls)} was not decorated with a {fully_qualified_name(PluginDefinition)} subclass."
+        )
+
+
+_PluginT = TypeVar("_PluginT", bound=Plugin, default=Plugin)
+
+
 _plugin_types: Mapping[MachineName, type[PluginDefinition]] | None = None
 
 
@@ -242,7 +302,7 @@ def plugin_types() -> Mapping[MachineName, type[PluginDefinition]]:
 
     if _plugin_types is None:
         _plugin_types = {
-            plugin.type.id: plugin
+            plugin.type().id: plugin
             for entry_point in metadata.entry_points(group="betty.plugin")
             if (plugin := entry_point.load())
         }

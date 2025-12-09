@@ -46,15 +46,15 @@ class PluginTester:
         """
         Get the available tests, keyed by test name.
         """
-        return {f"{kebab_case_to_snake_case(self._plugin_type.type.id)}_plugin": self}
+        return {f"{kebab_case_to_snake_case(self._plugin_type.type().id)}_plugin": self}
 
     def __call__(self, /, value: Any, plugin_id: MachineName | None = None) -> bool:
         """
         :param plugin_id: If given, additionally ensure the value is an instance of this type.
         """
-        if not isinstance(value, self._plugin_type.plugin_type_cls):
+        if not isinstance(value, self._plugin_type.type().base_cls):
             return False
-        if plugin_id is not None and value.plugin.id != plugin_id:
+        if plugin_id is not None and value.plugin().id != plugin_id:
             return False
         return True
 

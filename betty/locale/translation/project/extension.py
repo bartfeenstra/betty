@@ -13,7 +13,7 @@ from betty.locale.translation import (
     _update_translations,
     find_source_files,
 )
-from betty.project.extension import ExtensionPlugin
+from betty.project.extension import ExtensionDefinition
 
 if TYPE_CHECKING:
     from pathlib import Path
@@ -22,10 +22,10 @@ if TYPE_CHECKING:
 
     from betty.user import User
 
-_ExtensionPluginT = TypeVar("_ExtensionPluginT", bound=ExtensionPlugin)
+_ExtensionPluginT = TypeVar("_ExtensionPluginT", bound=ExtensionDefinition)
 
 
-def assert_extension_assets_directory_path(extension: ExtensionPlugin) -> Path:
+def assert_extension_assets_directory_path(extension: ExtensionDefinition) -> Path:
     """
     Check that the given extension has an assets directory, and return its path.
     """
@@ -50,7 +50,7 @@ def assert_extension_has_assets_directory_path(
 
 
 async def new_extension_translation(
-    locale: Locale, extension: ExtensionPlugin, *, user: User
+    locale: Locale, extension: ExtensionDefinition, *, user: User
 ) -> None:
     """
     Create a new translation for the given extension.
@@ -61,7 +61,7 @@ async def new_extension_translation(
 
 
 async def update_extension_translations(
-    extension: ExtensionPlugin,
+    extension: ExtensionDefinition,
     source_directory_path: Path | None = None,
     exclude_source_directory_paths: set[Path] | None = None,
     *,

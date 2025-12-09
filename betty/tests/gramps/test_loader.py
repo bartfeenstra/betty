@@ -23,7 +23,7 @@ from betty.ancestry.event_type.event_types import (
     Unknown as UnknownEventType,
 )
 from betty.ancestry.file import File
-from betty.ancestry.gender import GenderPlugin
+from betty.ancestry.gender import GenderDefinition
 from betty.ancestry.gender.genders import NonBinary
 from betty.ancestry.gender.genders import Unknown as UnknownGender
 from betty.ancestry.note import Note
@@ -34,14 +34,14 @@ from betty.ancestry.place_type.place_types import Unknown as UnknownPlaceType
 from betty.ancestry.presence_role.presence_roles import Subject
 from betty.ancestry.source import Source
 from betty.app import App
-from betty.copyright_notice import CopyrightNoticePlugin
+from betty.copyright_notice import CopyrightNoticeDefinition
 from betty.copyright_notice.copyright_notices import (
     PublicDomain as PublicDomainCopyrightNotice,
 )
 from betty.date import Date, DateRange
 from betty.gramps.error import UserFacingGrampsError
 from betty.gramps.loader import GrampsFileNotFound, GrampsLoader, LoaderUsedAlready
-from betty.license import LicensePlugin
+from betty.license import LicenseDefinition
 from betty.license.licenses import PublicDomain as PublicDomainLicense
 from betty.locale.localizer import DEFAULT_LOCALIZER, Localizer
 from betty.media_type import MediaType
@@ -126,13 +126,13 @@ class TestGrampsLoader:
                 factory=project.new_target,
                 user=StaticUser(),
                 copyright_notices=await betty.plugin.repository.provider.service.plugins(
-                    CopyrightNoticePlugin
+                    CopyrightNoticeDefinition
                 ),
                 licenses=await betty.plugin.repository.provider.service.plugins(
-                    LicensePlugin
+                    LicenseDefinition
                 ),
                 genders=await betty.plugin.repository.provider.service.plugins(
-                    GenderPlugin
+                    GenderDefinition
                 ),
                 attribute_prefix_key=self.ATTRIBUTE_PREFIX_KEY,
             )
@@ -147,13 +147,13 @@ class TestGrampsLoader:
                 factory=project.new_target,
                 user=StaticUser(),
                 copyright_notices=await betty.plugin.repository.provider.service.plugins(
-                    CopyrightNoticePlugin
+                    CopyrightNoticeDefinition
                 ),
                 licenses=await betty.plugin.repository.provider.service.plugins(
-                    LicensePlugin
+                    LicenseDefinition
                 ),
                 genders=await betty.plugin.repository.provider.service.plugins(
-                    GenderPlugin
+                    GenderDefinition
                 ),
                 attribute_prefix_key=self.ATTRIBUTE_PREFIX_KEY,
             )
@@ -175,13 +175,13 @@ class TestGrampsLoader:
                 factory=project.new_target,
                 user=StaticUser(),
                 copyright_notices=await betty.plugin.repository.provider.service.plugins(
-                    CopyrightNoticePlugin
+                    CopyrightNoticeDefinition
                 ),
                 licenses=await betty.plugin.repository.provider.service.plugins(
-                    LicensePlugin
+                    LicenseDefinition
                 ),
                 genders=await betty.plugin.repository.provider.service.plugins(
-                    GenderPlugin
+                    GenderDefinition
                 ),
                 attribute_prefix_key=self.ATTRIBUTE_PREFIX_KEY,
             )
@@ -196,13 +196,13 @@ class TestGrampsLoader:
                 factory=project.new_target,
                 user=StaticUser(),
                 copyright_notices=await betty.plugin.repository.provider.service.plugins(
-                    CopyrightNoticePlugin
+                    CopyrightNoticeDefinition
                 ),
                 licenses=await betty.plugin.repository.provider.service.plugins(
-                    LicensePlugin
+                    LicenseDefinition
                 ),
                 genders=await betty.plugin.repository.provider.service.plugins(
-                    GenderPlugin
+                    GenderDefinition
                 ),
                 attribute_prefix_key=self.ATTRIBUTE_PREFIX_KEY,
             )
@@ -221,13 +221,13 @@ class TestGrampsLoader:
                 factory=project.new_target,
                 user=StaticUser(),
                 copyright_notices=await betty.plugin.repository.provider.service.plugins(
-                    CopyrightNoticePlugin
+                    CopyrightNoticeDefinition
                 ),
                 licenses=await betty.plugin.repository.provider.service.plugins(
-                    LicensePlugin
+                    LicenseDefinition
                 ),
                 genders=await betty.plugin.repository.provider.service.plugins(
-                    GenderPlugin
+                    GenderDefinition
                 ),
                 attribute_prefix_key=self.ATTRIBUTE_PREFIX_KEY,
             )
@@ -252,13 +252,13 @@ class TestGrampsLoader:
                 factory=project.new_target,
                 user=StaticUser(),
                 copyright_notices=await betty.plugin.repository.provider.service.plugins(
-                    CopyrightNoticePlugin
+                    CopyrightNoticeDefinition
                 ),
                 licenses=await betty.plugin.repository.provider.service.plugins(
-                    LicensePlugin
+                    LicenseDefinition
                 ),
                 genders=await betty.plugin.repository.provider.service.plugins(
-                    GenderPlugin
+                    GenderDefinition
                 ),
                 attribute_prefix_key=self.ATTRIBUTE_PREFIX_KEY,
             )
@@ -290,13 +290,13 @@ class TestGrampsLoader:
                 factory=project.new_target,
                 user=StaticUser(),
                 copyright_notices=await betty.plugin.repository.provider.service.plugins(
-                    CopyrightNoticePlugin
+                    CopyrightNoticeDefinition
                 ),
                 licenses=await betty.plugin.repository.provider.service.plugins(
-                    LicensePlugin
+                    LicenseDefinition
                 ),
                 genders=await betty.plugin.repository.provider.service.plugins(
-                    GenderPlugin
+                    GenderDefinition
                 ),
                 attribute_prefix_key=self.ATTRIBUTE_PREFIX_KEY,
                 executable=gramps_executable,
@@ -313,13 +313,13 @@ class TestGrampsLoader:
                 factory=project.new_target,
                 user=StaticUser(),
                 copyright_notices=await betty.plugin.repository.provider.service.plugins(
-                    CopyrightNoticePlugin
+                    CopyrightNoticeDefinition
                 ),
                 licenses=await betty.plugin.repository.provider.service.plugins(
-                    LicensePlugin
+                    LicenseDefinition
                 ),
                 genders=await betty.plugin.repository.provider.service.plugins(
-                    GenderPlugin
+                    GenderDefinition
                 ),
                 attribute_prefix_key=self.ATTRIBUTE_PREFIX_KEY,
             )
@@ -335,13 +335,13 @@ class TestGrampsLoader:
                 factory=project.new_target,
                 user=StaticUser(),
                 copyright_notices=await betty.plugin.repository.provider.service.plugins(
-                    CopyrightNoticePlugin
+                    CopyrightNoticeDefinition
                 ),
                 licenses=await betty.plugin.repository.provider.service.plugins(
-                    LicensePlugin
+                    LicenseDefinition
                 ),
                 genders=await betty.plugin.repository.provider.service.plugins(
-                    GenderPlugin
+                    GenderDefinition
                 ),
                 attribute_prefix_key=self.ATTRIBUTE_PREFIX_KEY,
             )
@@ -374,13 +374,13 @@ class TestGrampsLoader:
                 factory=project.new_target,
                 user=StaticUser(),
                 copyright_notices=await betty.plugin.repository.provider.service.plugins(
-                    CopyrightNoticePlugin
+                    CopyrightNoticeDefinition
                 ),
                 licenses=await betty.plugin.repository.provider.service.plugins(
-                    LicensePlugin
+                    LicenseDefinition
                 ),
                 genders=await betty.plugin.repository.provider.service.plugins(
-                    GenderPlugin
+                    GenderDefinition
                 ),
                 attribute_prefix_key=self.ATTRIBUTE_PREFIX_KEY,
                 executable=gramps_executable,
@@ -413,13 +413,13 @@ class TestGrampsLoader:
                 factory=project.new_target,
                 user=StaticUser(),
                 copyright_notices=await betty.plugin.repository.provider.service.plugins(
-                    CopyrightNoticePlugin
+                    CopyrightNoticeDefinition
                 ),
                 licenses=await betty.plugin.repository.provider.service.plugins(
-                    LicensePlugin
+                    LicenseDefinition
                 ),
                 genders=await betty.plugin.repository.provider.service.plugins(
-                    GenderPlugin
+                    GenderDefinition
                 ),
                 attribute_prefix_key=self.ATTRIBUTE_PREFIX_KEY,
                 executable=gramps_executable,
@@ -456,13 +456,13 @@ class TestGrampsLoader:
                     factory=project.new_target,
                     user=StaticUser(),
                     copyright_notices=await betty.plugin.repository.provider.service.plugins(
-                        CopyrightNoticePlugin
+                        CopyrightNoticeDefinition
                     ),
                     licenses=await betty.plugin.repository.provider.service.plugins(
-                        LicensePlugin
+                        LicenseDefinition
                     ),
                     genders=await betty.plugin.repository.provider.service.plugins(
-                        GenderPlugin
+                        GenderDefinition
                     ),
                     attribute_prefix_key=self.ATTRIBUTE_PREFIX_KEY,
                     event_type_mapping=event_type_mapping,
@@ -514,13 +514,13 @@ class TestGrampsLoader:
                 factory=project.new_target,
                 user=StaticUser(),
                 copyright_notices=await betty.plugin.repository.provider.service.plugins(
-                    CopyrightNoticePlugin
+                    CopyrightNoticeDefinition
                 ),
                 licenses=await betty.plugin.repository.provider.service.plugins(
-                    LicensePlugin
+                    LicenseDefinition
                 ),
                 genders=await betty.plugin.repository.provider.service.plugins(
-                    GenderPlugin
+                    GenderDefinition
                 ),
                 attribute_prefix_key=self.ATTRIBUTE_PREFIX_KEY,
             )
@@ -543,13 +543,13 @@ class TestGrampsLoader:
                 factory=project.new_target,
                 user=StaticUser(),
                 copyright_notices=await betty.plugin.repository.provider.service.plugins(
-                    CopyrightNoticePlugin
+                    CopyrightNoticeDefinition
                 ),
                 licenses=await betty.plugin.repository.provider.service.plugins(
-                    LicensePlugin
+                    LicenseDefinition
                 ),
                 genders=await betty.plugin.repository.provider.service.plugins(
-                    GenderPlugin
+                    GenderDefinition
                 ),
                 attribute_prefix_key=self.ATTRIBUTE_PREFIX_KEY,
             )
@@ -576,13 +576,13 @@ class TestGrampsLoader:
                 factory=project.new_target,
                 user=StaticUser(),
                 copyright_notices=await betty.plugin.repository.provider.service.plugins(
-                    CopyrightNoticePlugin
+                    CopyrightNoticeDefinition
                 ),
                 licenses=await betty.plugin.repository.provider.service.plugins(
-                    LicensePlugin
+                    LicenseDefinition
                 ),
                 genders=await betty.plugin.repository.provider.service.plugins(
-                    GenderPlugin
+                    GenderDefinition
                 ),
                 attribute_prefix_key=self.ATTRIBUTE_PREFIX_KEY,
             )
@@ -2344,9 +2344,9 @@ class TestGrampsLoader:
                 project.ancestry,
                 factory=project.new_target,
                 user=user,
-                copyright_notices=StaticPluginRepository(CopyrightNoticePlugin),
-                licenses=StaticPluginRepository(LicensePlugin),
-                genders=StaticPluginRepository(GenderPlugin),
+                copyright_notices=StaticPluginRepository(CopyrightNoticeDefinition),
+                licenses=StaticPluginRepository(LicenseDefinition),
+                genders=StaticPluginRepository(GenderDefinition),
                 attribute_prefix_key=self.ATTRIBUTE_PREFIX_KEY,
             )
             assert await sut.load_locale(locale) == expected

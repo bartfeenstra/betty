@@ -2,7 +2,7 @@ from betty.ancestry.has_links import HasLinks
 from betty.ancestry.link import Link
 from betty.locale import DEFAULT_LOCALE_TAG
 from betty.locale.localizable.static import StaticTranslations
-from betty.model import EntityPlugin
+from betty.model import EntityDefinition
 from betty.project.extension.raspberry_mint import RaspberryMint
 from betty.resource import new_context
 from betty.test_utils.jinja2 import assert_template_file
@@ -12,7 +12,7 @@ from betty.test_utils.locale.localizable import (
 )
 
 
-@EntityPlugin(
+@EntityDefinition(
     "dummy-has-links",
     label=DUMMY_LOCALIZABLE,
     label_plural=DUMMY_LOCALIZABLE,

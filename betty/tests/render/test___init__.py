@@ -6,15 +6,15 @@ from typing_extensions import override
 from betty.media_type import MediaType
 from betty.media_type.media_types import HTML
 from betty.plugin import PluginDefinition
-from betty.render import RenderDispatcher, Renderer, RendererPlugin
+from betty.render import RenderDispatcher, Renderer, RendererDefinition
 from betty.test_utils.plugin import PluginDefinitionClassTestBase
 
 
-class TestRendererPlugin(PluginDefinitionClassTestBase):
+class TestRendererDefinition(PluginDefinitionClassTestBase):
     @override
     @pytest.fixture
     def sut(self) -> type[PluginDefinition]:
-        return RendererPlugin
+        return RendererDefinition
 
 
 class _StaticRenderer(Renderer):

@@ -9,7 +9,7 @@ from betty.locale import DEFAULT_LOCALE_TAG
 from betty.locale.localizer import DEFAULT_LOCALIZER
 from betty.test_utils.json.linked_data import assert_dumps_linked_data
 from betty.test_utils.locale.localizable import DUMMY_LOCALIZABLE
-from betty.test_utils.model import EntityPluginTestBase, EntityTestBase
+from betty.test_utils.model import EntityDefinitionTestBase, EntityTestBase
 from betty.tests.ancestry.test_has_notes import DummyHasNotes
 
 if TYPE_CHECKING:
@@ -20,11 +20,11 @@ if TYPE_CHECKING:
 import pytest
 
 
-class TestNoteDefinition(EntityPluginTestBase):
+class TestNoteDefinition(EntityDefinitionTestBase):
     @override
     @pytest.fixture
     def sut(self) -> PluginDefinition:
-        return Note.plugin
+        return Note.plugin()
 
 
 class TestNote(EntityTestBase):

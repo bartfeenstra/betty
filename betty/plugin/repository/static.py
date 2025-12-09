@@ -2,15 +2,20 @@
 Provide static plugin management.
 """
 
-from collections.abc import Iterator
-from typing import final
+from __future__ import annotations
+
+from typing import TYPE_CHECKING, final
 
 from typing_extensions import TypeVar, override
 
-from betty.machine_name import MachineName
 from betty.plugin import PluginDefinition
 from betty.plugin.error import PluginNotFound
 from betty.plugin.repository import PluginRepository
+
+if TYPE_CHECKING:
+    from collections.abc import Iterator
+
+    from betty.machine_name import MachineName
 
 _PluginDefinitionT = TypeVar("_PluginDefinitionT", bound=PluginDefinition)
 
@@ -34,7 +39,7 @@ class StaticPluginRepository(PluginRepository[_PluginDefinitionT]):
         try:
             return self._plugins[plugin_id]
         except KeyError:
-            raise PluginNotFound(self.type.type, plugin_id, list(self)) from None
+            raise PluginNotFound(self.type.type(), plugin_id, list(self)) from None
 
     @override
     def __iter__(self) -> Iterator[_PluginDefinitionT]:

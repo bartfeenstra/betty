@@ -10,17 +10,17 @@ from betty.locale.localizable.static import StaticTranslations
 from betty.locale.localizer import DEFAULT_LOCALIZER
 from betty.plugin import PluginDefinition
 from betty.test_utils.copyright_notice import (
-    CopyrightNoticePluginTestBase,
+    CopyrightNoticeDefinitionTestBase,
     CopyrightNoticeTestBase,
 )
 from betty.wiki.copyright_notice import WikipediaContributors
 
 
-class TestWikipediaContributorsDefinition(CopyrightNoticePluginTestBase):
+class TestWikipediaContributorsDefinition(CopyrightNoticeDefinitionTestBase):
     @override
     @pytest.fixture
     def sut(self) -> PluginDefinition:
-        return WikipediaContributors.plugin
+        return WikipediaContributors.plugin()
 
 
 class TestWikipediaContributors(CopyrightNoticeTestBase):

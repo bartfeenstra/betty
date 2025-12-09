@@ -16,7 +16,7 @@ if TYPE_CHECKING:
     from betty.resource import Context
 
 
-class ContentProvider(Plugin, ABC):
+class ContentProvider(ABC, Plugin["ContentProviderDefinition"]):
     """
     A content provider.
     """
@@ -29,16 +29,15 @@ class ContentProvider(Plugin, ABC):
 
 
 @final
-class ContentProviderPlugin(HumanFacingPluginDefinition[ContentProvider]):
+@PluginTypeDefinition(
+    "content-provider",
+    ContentProvider,
+    _("Content provider"),
+    _("Content providers"),
+    ngettext("{count} content provider", "{count} content providers"),
+    discovery=EntryPointDiscovery("betty.content_provider"),
+)
+class ContentProviderDefinition(HumanFacingPluginDefinition[ContentProvider]):
     """
     A content provider definition.
     """
-
-    plugin_type_cls = ContentProvider
-    type = PluginTypeDefinition(
-        "content-provider",
-        _("Content provider"),
-        _("Content providers"),
-        ngettext("{count} content provider", "{count} content providers"),
-        discovery=EntryPointDiscovery("betty.content_provider"),
-    )

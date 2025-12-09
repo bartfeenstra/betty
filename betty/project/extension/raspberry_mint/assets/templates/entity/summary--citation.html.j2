@@ -1,7 +1,7 @@
 {%- set embedded = embedded | default(False) -%}
 {%- set source_context = resource.entity_contexts['source'] -%}
 <div class="small">
-    <p class="m-0">{{ entity.plugin.label | localize | html_lang }}</p>
+    <p class="m-0">{{ entity.plugin().label | localize | html_lang }}</p>
     {%- set source_label -%}
         {%- with source = entity.source -%}
             {% include 'entity/source-containment-label.html.j2' %}

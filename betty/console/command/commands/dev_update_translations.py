@@ -5,7 +5,7 @@ from typing import TYPE_CHECKING, final, Self
 from typing_extensions import override
 
 from betty.app.factory import AppDependentSelfFactory
-from betty.console.command import Command, CommandFunction, CommandPlugin
+from betty.console.command import Command, CommandFunction, CommandDefinition
 from betty.locale import translation
 from betty.locale.localizable.gettext import _
 
@@ -16,7 +16,7 @@ if TYPE_CHECKING:
 
 
 @final
-@CommandPlugin(
+@CommandDefinition(
     "dev-update-translations",
     label=_("Update all existing translations for Betty itself"),
 )

@@ -10,7 +10,7 @@ async def test() -> None:
         data={
             "person": person,
         },
-        extensions={RaspberryMint.plugin, Trees.plugin},
+        extensions={RaspberryMint.plugin(), Trees.plugin()},
         template="section/tree.html.j2",
     ) as (actual, _):
         assert actual

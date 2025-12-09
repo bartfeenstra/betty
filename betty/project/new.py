@@ -20,7 +20,7 @@ from betty.project.config import (
     EntityTypeConfiguration,
     EntityTypeConfigurationMapping,
 )
-from betty.project.extension import ExtensionPlugin
+from betty.project.extension import ExtensionDefinition
 from betty.project.extension.deriver import Deriver
 from betty.project.extension.gramps import Gramps
 from betty.project.extension.gramps.config import (
@@ -51,7 +51,7 @@ async def new(app: App) -> None:
     """
     Create a new project.
     """
-    await app.plugins(ExtensionPlugin)
+    await app.plugins(ExtensionDefinition)
     localizers = await app.localizers
 
     project_extensions = (
@@ -136,7 +136,7 @@ async def new(app: App) -> None:
     if await app.user.ask_confirmation(_("Do you want to load a Gramps family tree?")):
         configuration.extensions.append(
             PluginInstanceConfiguration(
-                Gramps.plugin,
+                Gramps,
                 GrampsConfiguration(
                     family_trees=FamilyTreeConfigurationSequence(
                         [

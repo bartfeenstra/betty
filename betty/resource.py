@@ -233,7 +233,7 @@ class EntityContexts:
             lambda: None
         )
         for entity in entities:
-            self._contexts[entity.plugin.id] = entity
+            self._contexts[entity.plugin().id] = entity
 
     def __getitem__(self, entity_type: ResolvableId) -> Entity | None:
         return self._contexts[resolve_id(entity_type)]
@@ -246,5 +246,5 @@ class EntityContexts:
             *(entity for entity in self._contexts.values() if entity is not None)
         )
         for entity in entities:
-            updated_contexts._contexts[entity.plugin.id] = entity
+            updated_contexts._contexts[entity.plugin().id] = entity
         return updated_contexts

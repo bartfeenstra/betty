@@ -311,7 +311,9 @@ class PluginInstanceConfiguration(Generic[_PluginDefinitionT, _PluginT], Configu
                     self._configuration
                 )
             return await factory(
-                plugin_definition.cls.new_for_configuration(configuration)  # type: ignore[arg-type]
+                plugin_definition.cls.new_for_configuration(
+                    configuration,  # type: ignore[arg-type]
+                )
             )
         return await factory(
             plugin_definition.cls,  # type: ignore[arg-type]

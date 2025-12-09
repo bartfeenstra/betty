@@ -9,13 +9,13 @@ from betty.ancestry.link import Link
 from betty.locale import DEFAULT_LOCALE_TAG
 from betty.locale.localizer import DEFAULT_LOCALIZER
 from betty.media_type.media_types import HTML
-from betty.model import EntityPlugin
+from betty.model import Entity, EntityDefinition
 from betty.test_utils.json.linked_data import assert_dumps_linked_data
 from betty.test_utils.locale.localizable import (
     DUMMY_COUNTABLE_LOCALIZABLE,
     DUMMY_LOCALIZABLE,
 )
-from betty.test_utils.model import EntityPluginTestBase
+from betty.test_utils.model import EntityDefinitionTestBase, EntityTestBase
 
 if TYPE_CHECKING:
     from collections.abc import Mapping
@@ -25,7 +25,7 @@ if TYPE_CHECKING:
 import pytest
 
 
-@EntityPlugin(
+@EntityDefinition(
     "dummy-has-links",
     label=DUMMY_LOCALIZABLE,
     label_plural=DUMMY_LOCALIZABLE,
@@ -35,14 +35,19 @@ class DummyHasLinks(HasLinks):
     pass
 
 
-class TestLinkDefinition(EntityPluginTestBase):
+class TestLinkDefinition(EntityDefinitionTestBase):
     @override
     @pytest.fixture
     def sut(self) -> PluginDefinition:
-        return Link.plugin
+        return Link.plugin()
 
 
-class TestLink:
+class TestLink(EntityTestBase):
+    @override
+    @pytest.fixture
+    def sut(self) -> Entity:
+        return Link("https://example.com")
+
     async def test___init____with_label(self) -> None:
         url = "https://example.com"
         label = "Hello, world!"
@@ -78,10 +83,15 @@ class TestLink:
         sut = Link(url)
         assert sut.relationship is None
 
-    async def test_label(self) -> None:
+    async def test_label__without_label(self) -> None:
         url = "https://example.com"
         sut = Link(url)
-        assert sut.label is not None
+        assert url in sut.label.localize(DEFAULT_LOCALIZER)
+
+    async def test_label__with_label(self) -> None:
+        label = "Hello, world!"
+        sut = Link("https://example.com", label=label)
+        assert label in sut.label.localize(DEFAULT_LOCALIZER)
 
     async def test_has_label__without_label(self) -> None:
         sut = Link("https://example.com")

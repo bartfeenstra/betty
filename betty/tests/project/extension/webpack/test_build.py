@@ -10,13 +10,13 @@ from betty._npm import NpmUnavailable
 from betty.app import App
 from betty.job import Context
 from betty.project import Project
-from betty.project.extension import Extension, ExtensionPlugin
+from betty.project.extension import Extension, ExtensionDefinition
 from betty.project.extension.webpack.build import Builder, EntryPointProvider
 from betty.test_utils.locale.localizable import DUMMY_LOCALIZABLE
 from betty.test_utils.user import StaticUser
 
 
-@ExtensionPlugin("dummy", label=DUMMY_LOCALIZABLE)
+@ExtensionDefinition("dummy", label=DUMMY_LOCALIZABLE)
 class DummyEntryPointProviderExtension(EntryPointProvider, Extension):
     @override
     @classmethod
@@ -30,7 +30,7 @@ class DummyEntryPointProviderExtension(EntryPointProvider, Extension):
 
 class TestBuilder:
     async def test_build(self, isolated_app: App, tmp_path: Path) -> None:
-        with ExtensionPlugin.type.override_discovery():
+        with ExtensionDefinition.type().override_discovery():
             # Loop instead of parameterization, so we can reuse caches.
             for index, (with_entry_point_provider, debug, root_path) in enumerate(
                 [
@@ -90,14 +90,14 @@ class TestBuilder:
                     webpack_entry_loader_js = await f.read()
                 assert f"{root_path}/js/webpack/runtime.js" in webpack_entry_loader_js
                 assert (
-                    f"{root_path}/js/webpack/{DummyEntryPointProviderExtension.plugin.id}.js"
+                    f"{root_path}/js/webpack/{DummyEntryPointProviderExtension.plugin().id}.js"
                     in webpack_entry_loader_js
                 )
                 assert (
                     webpack_build_directory_path
                     / "js"
                     / "webpack"
-                    / f"{DummyEntryPointProviderExtension.plugin.id}.js"
+                    / f"{DummyEntryPointProviderExtension.plugin().id}.js"
                 ).exists()
 
     async def test_build_with_npm_unavailable(

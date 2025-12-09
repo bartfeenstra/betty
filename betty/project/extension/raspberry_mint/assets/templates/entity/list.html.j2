@@ -8,8 +8,8 @@
     <ul class="entity-list">
         {% for entity in entities %}
             <li>
-                {% include ['entity/label--' + entity.plugin.id + '.html.j2', 'entity/label.html.j2'] %}
-                {% include 'entity/summary--' + entity.plugin.id + '.html.j2' ignore missing %}
+                {% include ['entity/label--' + entity.plugin().id + '.html.j2', 'entity/label.html.j2'] %}
+                {% include 'entity/summary--' + entity.plugin().id + '.html.j2' ignore missing %}
             </li>
         {% endfor %}
     </ul>

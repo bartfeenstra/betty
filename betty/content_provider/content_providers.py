@@ -11,13 +11,12 @@ from typing_extensions import override
 from betty.assertion import RequiredField, assert_record
 from betty.config import Configuration
 from betty.config.factory import ConfigurationDependentSelfFactory
-from betty.content_provider import ContentProvider, ContentProviderPlugin
+from betty.content_provider import ContentProvider, ContentProviderDefinition
 from betty.html import plain_text_to_html
 from betty.locale.localizable.assertion import assert_load_localizable
 from betty.locale.localizable.attr import RequiredLocalizableAttr
 from betty.locale.localizable.config import dump_localizable
 from betty.locale.localizable.gettext import _
-from betty.plugin import Plugin
 from betty.project.factory import ProjectDependentSelfFactory
 from betty.typing import private
 
@@ -58,11 +57,10 @@ class PlainTextConfiguration(Configuration):
         }
 
 
-@ContentProviderPlugin("plain-text", label=_("Plain text"))
+@ContentProviderDefinition("plain-text", label=_("Plain text"))
 class PlainText(
-    ContentProvider,
-    Plugin,
     ConfigurationDependentSelfFactory[PlainTextConfiguration],
+    ContentProvider,
 ):
     """
     Plain text content.
@@ -95,7 +93,7 @@ class PlainText(
         )
 
 
-class Template(ContentProvider, Plugin, ProjectDependentSelfFactory):
+class Template(ProjectDependentSelfFactory, ContentProvider):
     """
     Provides content by rendering a Jinja2 template.
     """
@@ -115,7 +113,7 @@ class Template(ContentProvider, Plugin, ProjectDependentSelfFactory):
         jinja2_environment = self._jinja2_environment
         rendered_content = (
             await jinja2_environment.get_template(
-                f"content/{self.plugin.id}.html.j2"
+                f"content/{self.plugin().id}.html.j2"
             ).render_async(
                 resource=resource,
                 **await self._provide_data(resource),
@@ -129,7 +127,7 @@ class Template(ContentProvider, Plugin, ProjectDependentSelfFactory):
         return {}
 
 
-@ContentProviderPlugin("notes", label=_("Notes"))
+@ContentProviderDefinition("notes", label=_("Notes"))
 class Notes(Template):
     """
     Render a page resource's notes, if it has any.

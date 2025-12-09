@@ -4,34 +4,22 @@ Test utilities for :py:mod:`betty.license`.
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING
-
-import pytest
-
+from betty.license import License
 from betty.locale.localizer import DEFAULT_LOCALIZER
+from betty.test_utils.plugin import PluginTestBase
 from betty.test_utils.plugin.human_facing import HumanFacingPluginDefinitionTestBase
 
-if TYPE_CHECKING:
-    from betty.license import License
 
-
-class LicensePluginTestBase(HumanFacingPluginDefinitionTestBase):
+class LicenseDefinitionTestBase(HumanFacingPluginDefinitionTestBase):
     """
-    A base class for testing :py:class:`betty.license.LicensePlugin` implementations.
+    A base class for testing :py:class:`betty.license.LicenseDefinition` implementations.
     """
 
 
-class LicenseTestBase:
+class LicenseTestBase(PluginTestBase[License]):
     """
     A base class for testing :py:class:`betty.license.License` implementations.
     """
-
-    @pytest.fixture
-    def sut(self) -> License:
-        """
-        Provide the system(s) under test.
-        """
-        raise NotImplementedError
 
     def test_summary(self, sut: License) -> None:
         """

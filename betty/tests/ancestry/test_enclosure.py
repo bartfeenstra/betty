@@ -9,22 +9,28 @@ from betty.ancestry.enclosure import Enclosure
 from betty.ancestry.place import Place
 from betty.ancestry.source import Source
 from betty.date import Date
-from betty.test_utils.model import EntityPluginTestBase
+from betty.test_utils.model import EntityDefinitionTestBase, EntityTestBase
 
 if TYPE_CHECKING:
+    from betty.model import Entity
     from betty.plugin import PluginDefinition
 
 import pytest
 
 
-class TestEnclosureDefinition(EntityPluginTestBase):
+class TestEnclosureDefinition(EntityDefinitionTestBase):
     @override
     @pytest.fixture
     def sut(self) -> PluginDefinition:
-        return Enclosure.plugin
+        return Enclosure.plugin()
 
 
-class TestEnclosure:
+class TestEnclosure(EntityTestBase):
+    @override
+    @pytest.fixture
+    def sut(self) -> Entity:
+        return Enclosure(Place(), Place())
+
     async def test_enclosee(self) -> None:
         enclosee = Place()
         encloser = Place()

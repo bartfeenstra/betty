@@ -80,19 +80,19 @@ X = 'https://twitter.com/BettyProject'
 betty = 'betty.console:main_standalone'
 
 [project.entry-points.'betty.plugin']
-'command' = 'betty.console.command:CommandPlugin'
-'content-provider' = 'betty.content_provider:ContentProviderPlugin'
-'copyright-notice' = 'betty.copyright_notice:CopyrightNoticePlugin'
-'entity' = 'betty.model:EntityPlugin'
-'event-type' = 'betty.ancestry.event_type:EventTypePlugin'
-'extension' = 'betty.project.extension:ExtensionPlugin'
-'format' = 'betty.serde.format:FormatPlugin'
-'gender' = 'betty.ancestry.gender:GenderPlugin'
-'http-rate-limit' = 'betty.http_client.rate_limit:RateLimitPlugin'
-'license' = 'betty.license:LicensePlugin'
-'place-type' = 'betty.ancestry.place_type:PlaceTypePlugin'
-'presence-role' = 'betty.ancestry.presence_role:PresenceRolePlugin'
-'renderer' = 'betty.render:RendererPlugin'
+'command' = 'betty.console.command:CommandDefinition'
+'content-provider' = 'betty.content_provider:ContentProviderDefinition'
+'copyright-notice' = 'betty.copyright_notice:CopyrightNoticeDefinition'
+'entity' = 'betty.model:EntityDefinition'
+'event-type' = 'betty.ancestry.event_type:EventTypeDefinition'
+'extension' = 'betty.project.extension:ExtensionDefinition'
+'format' = 'betty.serde.format:FormatDefinition'
+'gender' = 'betty.ancestry.gender:GenderDefinition'
+'http-rate-limit' = 'betty.http_client.rate_limit:RateLimitDefinition'
+'license' = 'betty.license:LicenseDefinition'
+'place-type' = 'betty.ancestry.place_type:PlaceTypeDefinition'
+'presence-role' = 'betty.ancestry.presence_role:PresenceRoleDefinition'
+'renderer' = 'betty.render:RendererDefinition'
 
 [project.entry-points.'betty.command']
 'about' = 'betty.console.command.commands.about:About'
@@ -219,8 +219,8 @@ betty = 'betty.console:main_standalone'
 'wikipedia-rest-api' = 'betty.http_client.rate_limits:WikipediaRestApi'
 
 [project.entry-points.'betty.serde_format']
-'json' = 'betty.serde.format.formats:Json.plugin'
-'yaml' = 'betty.serde.format.formats:Yaml.plugin'
+'json' = 'betty.serde.format.formats:Json'
+'yaml' = 'betty.serde.format.formats:Yaml'
 
 [project.entry-points.'betty.renderer']
 'plain-text' = 'betty.render.plain_text:PlainText'

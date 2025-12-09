@@ -8,7 +8,7 @@ from typing import TYPE_CHECKING, Self, final
 from typing_extensions import override
 
 from betty.locale.localizable.gettext import _
-from betty.project.extension import ExtensionPlugin
+from betty.project.extension import ExtensionDefinition
 from betty.project.extension.trees.jobs import _GeneratePeopleJson
 from betty.project.extension.webpack import Webpack
 from betty.project.extension.webpack.build import EntryPointProvider
@@ -23,7 +23,7 @@ if TYPE_CHECKING:
 
 
 @final
-@ExtensionPlugin(
+@ExtensionDefinition(
     "trees",
     label="Trees",
     description=_(

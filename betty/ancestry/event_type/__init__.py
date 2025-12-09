@@ -5,7 +5,7 @@ Provide Betty's ancestry event types.
 from __future__ import annotations
 
 from abc import ABC, abstractmethod
-from typing import TYPE_CHECKING, ClassVar, final
+from typing import TYPE_CHECKING, final
 
 from betty.locale.localizable.gettext import _, ngettext
 from betty.plugin import Plugin, PluginTypeDefinition
@@ -24,12 +24,10 @@ if TYPE_CHECKING:
     from betty.project import Project
 
 
-class EventType(Plugin):
+class EventType(Plugin["EventTypeDefinition"]):
     """
     Define an :py:class:`betty.ancestry.event.Event` type.
     """
-
-    plugin: ClassVar[EventTypePlugin]
 
 
 class ShouldExistEventType(EventType, ABC):
@@ -46,7 +44,20 @@ class ShouldExistEventType(EventType, ABC):
 
 
 @final
-class EventTypePlugin(
+@PluginTypeDefinition(
+    "event-type",
+    EventType,
+    _("Event type"),
+    _("Event types"),
+    ngettext("{count} event type", "{count} event types"),
+    discovery=[
+        EntryPointDiscovery("betty.event_type"),
+        ProjectDiscovery(
+            lambda project: project.configuration.event_types.new_plugins(),
+        ),
+    ],
+)
+class EventTypeDefinition(
     CountableHumanFacingPluginDefinition[EventType], OrderedPluginDefinition[EventType]
 ):
     """
@@ -54,20 +65,6 @@ class EventTypePlugin(
 
     Read more about :doc:`/development/plugin/event-type`.
     """
-
-    plugin_type_cls = EventType
-    type = PluginTypeDefinition(
-        "event-type",
-        _("Event type"),
-        _("Event types"),
-        ngettext("{count} event type", "{count} event types"),
-        discovery=[
-            EntryPointDiscovery("betty.event_type"),
-            ProjectDiscovery(
-                lambda project: project.configuration.event_types.new_plugins(),
-            ),
-        ],
-    )
 
     def __init__(
         self,
@@ -79,7 +76,7 @@ class EventTypePlugin(
         description: LocalizableLike | None = None,
         comes_before: Set[ResolvableId] | None = None,
         comes_after: Set[ResolvableId] | None = None,
-        indicates: ResolvableId[EventTypePlugin, EventType] | None = None,
+        indicates: ResolvableId[EventTypeDefinition, EventType] | None = None,
     ):
         super().__init__(
             plugin_id,

@@ -31,7 +31,7 @@ class TestPluginRepository:
                 return self._plugins[plugin_id]
             except KeyError:
                 raise PluginNotFound(
-                    DummyPluginDefinition.type, plugin_id, []
+                    DummyPluginDefinition.type(), plugin_id, []
                 ) from None
 
         @override
@@ -43,17 +43,17 @@ class TestPluginRepository:
 
     def test___len__(self) -> None:
         sut = self._Sut(
-            DummyPluginOne.plugin, DummyPluginTwo.plugin, DummyPluginThree.plugin
+            DummyPluginOne.plugin(), DummyPluginTwo.plugin(), DummyPluginThree.plugin()
         )
         assert len(sut) == 3
 
     def test___getitem__(self) -> None:
-        sut = self._Sut(DummyPluginOne.plugin)
-        assert sut[DummyPluginOne.plugin.id] is DummyPluginOne.plugin
+        sut = self._Sut(DummyPluginOne.plugin())
+        assert sut[DummyPluginOne.plugin().id] is DummyPluginOne.plugin()
 
     def test_plugin_id_schema(self) -> None:
         sut = self._Sut(
-            DummyPluginOne.plugin, DummyPluginTwo.plugin, DummyPluginThree.plugin
+            DummyPluginOne.plugin(), DummyPluginTwo.plugin(), DummyPluginThree.plugin()
         )
         actual = sut.plugin_id_schema
         assert actual.schema["enum"] == [

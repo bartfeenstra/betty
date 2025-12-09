@@ -10,7 +10,7 @@ from typing_extensions import override
 
 from betty.ancestry.date import HasDate
 from betty.ancestry.description import HasDescription
-from betty.ancestry.event_type import EventTypePlugin
+from betty.ancestry.event_type import EventTypeDefinition
 from betty.ancestry.event_type.event_types import Unknown as UnknownEventType
 from betty.ancestry.has_citations import HasCitations
 from betty.ancestry.has_file_references import HasFileReferences
@@ -26,7 +26,7 @@ from betty.locale.localizable.gettext import _, ngettext
 from betty.locale.localizable.linked_data import dump_linked_data
 from betty.locale.localizable.markup import AllEnumeration
 from betty.locale.localizable.static.schema import StaticTranslationsSchema
-from betty.model import EntityPlugin
+from betty.model import EntityDefinition
 from betty.model.association import (
     BidirectionalToManySingleType,
     BidirectionalToZeroOrOne,
@@ -49,7 +49,7 @@ if TYPE_CHECKING:
 
 
 @final
-@EntityPlugin(
+@EntityDefinition(
     "event",
     label=_("Event"),
     label_plural=_("Events"),
@@ -154,7 +154,7 @@ class Event(
             return self.name
 
         format_kwargs: Mapping[str, LocalizableLike] = {
-            "event_type": self._event_type.plugin.label,
+            "event_type": self._event_type.plugin().label,
         }
         subjects = [
             presence.person
@@ -185,7 +185,7 @@ class Event(
         dump_context(dump, place="https://schema.org/location")
         dump_context(dump, presences="https://schema.org/performer")
         dump["@type"] = "https://schema.org/Event"
-        dump["type"] = self.event_type.plugin.id
+        dump["type"] = self.event_type.plugin().id
         dump["eventAttendanceMode"] = "https://schema.org/OfflineEventAttendanceMode"
         dump["eventStatus"] = "https://schema.org/EventScheduled"
         if self.name is not None:
@@ -198,7 +198,7 @@ class Event(
     @classmethod
     async def linked_data_schema(cls, project: Project, /) -> JsonLdObject:
         schema = await super().linked_data_schema(project)
-        event_types = await project.plugins(EventTypePlugin)
+        event_types = await project.plugins(EventTypeDefinition)
         schema.add_property(
             "name",
             StaticTranslationsSchema(),

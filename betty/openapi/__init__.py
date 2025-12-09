@@ -4,7 +4,7 @@ Provide the OpenAPI specification.
 
 from betty import about
 from betty.locale.localizer import DEFAULT_LOCALIZER
-from betty.model import EntityPlugin
+from betty.model import EntityDefinition
 from betty.project import Project
 from betty.project.schema import ProjectSchema
 from betty.serde.dump import Dump, DumpMapping
@@ -95,7 +95,7 @@ class Specification:
         }
 
         # Add entity operations.
-        for entity_type in await self._project.plugins(EntityPlugin):
+        for entity_type in await self._project.plugins(EntityDefinition):
             if not entity_type.public_facing:
                 continue
             await entity_type.cls.linked_data_schema(self._project)

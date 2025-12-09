@@ -13,7 +13,7 @@ from typing_extensions import override
 from betty.locale.localizable.gettext import _
 from betty.media_type.media_types import JSON, YAML
 from betty.serde.dump import Dump
-from betty.serde.format import Format, FormatError, FormatPlugin
+from betty.serde.format import Format, FormatDefinition, FormatError
 
 if TYPE_CHECKING:
     from betty.media_type import MediaType
@@ -21,7 +21,7 @@ if TYPE_CHECKING:
 
 
 @final
-@FormatPlugin("json", label="JSON")
+@FormatDefinition("json", label="JSON")
 class Json(Format):
     """
     Defines the `JSON <https://json.org/>`_ serialization format.
@@ -47,7 +47,7 @@ class Json(Format):
 
 
 @final
-@FormatPlugin("yaml", label="YAML")
+@FormatDefinition("yaml", label="YAML")
 class Yaml(Format):
     """
     Defines the `YAML <https://yaml.org/>`_ serialization format.

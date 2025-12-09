@@ -6,7 +6,7 @@
 {%- if entity.name -%}
     {%- set formatted_event = entity.name | localize | html_lang | safe -%}
 {%- else -%}
-    {%- set formatted_event = entity.event_type.plugin.label | localize | html_lang | safe -%}
+    {%- set formatted_event = entity.event_type.plugin().label | localize | html_lang | safe -%}
 {%- endif -%}
 {%- if entity is persistent_entity_id and not embedded -%}
     {%- set formatted_event -%}

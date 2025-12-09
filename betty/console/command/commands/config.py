@@ -10,7 +10,7 @@ from betty.app.factory import AppDependentSelfFactory
 from betty.assertion import assert_locale
 from betty.serde.file import dump_file
 from betty.argparse import assertion_to_argument_type
-from betty.console.command import Command, CommandFunction, CommandPlugin
+from betty.console.command import Command, CommandFunction, CommandDefinition
 from betty.locale import DEFAULT_LOCALE, to_language_tag
 from betty.locale.localizable.gettext import _
 
@@ -23,7 +23,7 @@ if TYPE_CHECKING:
 
 
 @final
-@CommandPlugin("config", label=_("Configure Betty"))
+@CommandDefinition("config", label=_("Configure Betty"))
 class Config(AppDependentSelfFactory, Command):
     """
     A command to manage Betty application configuration.

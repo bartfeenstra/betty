@@ -15,7 +15,7 @@ from typing_extensions import override
 from betty.html import NavigationLink, NavigationLinkProvider
 from betty.locale.localizable.gettext import _
 from betty.project import ProjectContext, generate
-from betty.project.extension import Extension, ExtensionPlugin
+from betty.project.extension import Extension, ExtensionDefinition
 from betty.project.extension.demo.jobs import LoadAncestry
 from betty.project.extension.deriver import Deriver
 from betty.project.extension.http_api_doc import HttpApiDoc
@@ -62,7 +62,7 @@ async def generate_with_cleanup(
 
 
 @final
-@ExtensionPlugin(
+@ExtensionDefinition(
     "demo",
     label="Demo",
     depends_on={

@@ -10,7 +10,7 @@ from typing_extensions import override
 
 from betty.app import App
 from betty.console import SystemExitCode, call_command_func, main_standalone
-from betty.console.command import Command, CommandPlugin
+from betty.console.command import Command, CommandDefinition
 from betty.exception import HumanFacingException
 from betty.functools import Result, suppress
 from betty.plugin.discovery.static import StaticDiscovery
@@ -21,7 +21,7 @@ from betty.test_utils.locale.localizable import DUMMY_LOCALIZABLE
 from betty.user import Verbosity
 
 
-@CommandPlugin("no-op", label="No-op")
+@CommandDefinition("no-op", label="No-op")
 class _NoOpCommand(Command):
     @override
     async def configure(
@@ -33,8 +33,8 @@ class _NoOpCommand(Command):
         pass
 
 
-def _create_raising_command(exception: BaseException) -> CommandPlugin:
-    @CommandPlugin("raising", label="Raising")
+def _create_raising_command(exception: BaseException) -> CommandDefinition:
+    @CommandDefinition("raising", label="Raising")
     class _RaisingCommand(Command):
         @override
         async def configure(
@@ -45,7 +45,7 @@ def _create_raising_command(exception: BaseException) -> CommandPlugin:
         async def _invoke(self) -> None:
             raise exception
 
-    return _RaisingCommand.plugin
+    return _RaisingCommand.plugin()
 
 
 async def test_main__without_arguments(isolated_app: App) -> None:
@@ -71,7 +71,7 @@ async def test_main__with_unknown_command(isolated_app: App) -> None:
 @pytest.mark.parametrize(
     ("expected", "command"),
     [
-        (SystemExitCode.OK, _NoOpCommand.plugin),
+        (SystemExitCode.OK, _NoOpCommand.plugin()),
         (
             SystemExitCode.ERROR_UNEXPECTED,
             _create_raising_command(HumanFacingException(DUMMY_LOCALIZABLE)),
@@ -82,9 +82,9 @@ async def test_main__with_unknown_command(isolated_app: App) -> None:
     ],
 )
 async def test_main__with_user_facing_exception(
-    expected: SystemExitCode, command: CommandPlugin, isolated_app: App
+    expected: SystemExitCode, command: CommandDefinition, isolated_app: App
 ) -> None:
-    with CommandPlugin.type.override_discovery(StaticDiscovery(command)):
+    with CommandDefinition.type().override_discovery(StaticDiscovery(command)):
         await run(
             isolated_app,
             command.id,
@@ -95,7 +95,7 @@ async def test_main__with_user_facing_exception(
 @pytest.mark.parametrize(
     ("expected", "command"),
     [
-        (SystemExitCode.OK, _NoOpCommand.plugin),
+        (SystemExitCode.OK, _NoOpCommand.plugin()),
         (
             SystemExitCode.ERROR_UNEXPECTED,
             _create_raising_command(HumanFacingException(DUMMY_LOCALIZABLE)),
@@ -106,11 +106,11 @@ async def test_main__with_user_facing_exception(
     ],
 )
 def test_main_standalone(
-    expected: SystemExitCode, command: CommandPlugin, mocker: MockerFixture
+    expected: SystemExitCode, command: CommandDefinition, mocker: MockerFixture
 ) -> None:
     def _target() -> None:
         mocker.patch("sys.argv", new=["betty", command.id])
-        with CommandPlugin.type.override_discovery(StaticDiscovery(command)):
+        with CommandDefinition.type().override_discovery(StaticDiscovery(command)):
             main_standalone()
 
     # Run this in a thread so as not to conflict with pytest-playwright-asyncio's session-scoped event loop.
@@ -138,8 +138,8 @@ class TestVerbosity:
     async def test(
         self, expected: Verbosity, isolated_app: App, verbosity: str | None
     ) -> None:
-        with CommandPlugin.type.override_discovery(
-            StaticDiscovery(_NoOpCommand.plugin)
+        with CommandDefinition.type().override_discovery(
+            StaticDiscovery(_NoOpCommand.plugin())
         ):
             async with Project.new_isolated(isolated_app) as project:
                 await dump_file(

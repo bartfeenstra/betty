@@ -8,7 +8,7 @@ from aiofiles.tempfile import TemporaryDirectory
 from typing_extensions import override
 
 from betty.app.factory import AppDependentSelfFactory
-from betty.console.command import Command, CommandFunction, CommandPlugin
+from betty.console.command import Command, CommandFunction, CommandDefinition
 from betty.dirs import DEV_OUTPUT_DIRECTORY_PATH
 from betty.project import ProjectContext
 from betty.project.extension.demo import generate_with_cleanup
@@ -50,7 +50,7 @@ def _print(stats: YFuncStats, sort_column: str, sort_direction: str) -> None:
 
 
 @final
-@CommandPlugin(
+@CommandDefinition(
     "dev-profile-demo", label="Profile the generation of the demonstration site"
 )
 class DevProfileDemo(AppDependentSelfFactory, Command):
@@ -155,7 +155,7 @@ class DevProfileDemo(AppDependentSelfFactory, Command):
         import yappi
 
         stats_file_path = (
-            DEV_OUTPUT_DIRECTORY_PATH / f"{self.plugin.id}-{clock_type}.ystats"
+            DEV_OUTPUT_DIRECTORY_PATH / f"{self.plugin().id}-{clock_type}.ystats"
         )
         if not force and stats_file_path.exists():
             stats = yappi.get_func_stats()

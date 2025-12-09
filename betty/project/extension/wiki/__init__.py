@@ -10,11 +10,11 @@ from jinja2 import pass_context
 from typing_extensions import override
 
 from betty.config import Configurable
-from betty.copyright_notice import CopyrightNoticePlugin
+from betty.copyright_notice import CopyrightNoticeDefinition
 from betty.jinja2 import Filters, Globals, Jinja2Provider, context_localizer
 from betty.locale import ensure_locale, negotiate_locale
 from betty.locale.localizable.gettext import _
-from betty.project.extension import Extension, ExtensionPlugin
+from betty.project.extension import Extension, ExtensionDefinition
 from betty.project.extension.wiki.config import WikiConfiguration
 from betty.project.extension.wiki.jobs import PopulateEntity
 from betty.project.factory import ProjectDependentSelfFactory
@@ -37,7 +37,7 @@ if TYPE_CHECKING:
 
 
 @final
-@ExtensionPlugin(
+@ExtensionDefinition(
     "wiki",
     label="Wiki",
     description=_(
@@ -48,9 +48,9 @@ if TYPE_CHECKING:
 class Wiki(
     PostLoader,
     Configurable[WikiConfiguration],
-    Extension,
     Jinja2Provider,
     ProjectDependentSelfFactory,
+    Extension,
 ):
     """
     Integrates Betty with `Wikipedia <https://wikipedia.org>`_.
@@ -77,7 +77,7 @@ class Wiki(
     @override
     @classmethod
     async def new_for_project(cls, project: Project, /) -> Self:
-        copyright_notices = await project.plugins(CopyrightNoticePlugin)
+        copyright_notices = await project.plugins(CopyrightNoticeDefinition)
         return cls(
             configuration=WikiConfiguration(),
             project=project,

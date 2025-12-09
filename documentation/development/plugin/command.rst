@@ -7,7 +7,7 @@ are built using :py:mod:`argparse`.
 Creating a command
 ------------------
 
-Create a new class decorated with :py:class:`betty.console.command.CommandPlugin`, and that implements the
+Create a new class decorated with :py:class:`betty.console.command.CommandDefinition`, and that implements the
 abstract methods, for example:
 
 .. code-block:: python

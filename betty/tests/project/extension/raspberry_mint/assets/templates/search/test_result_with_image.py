@@ -7,7 +7,7 @@ from betty.ancestry.file_reference import FileReference
 from betty.ancestry.has_file_references import HasFileReferences
 from betty.locale.localizer import DEFAULT_LOCALIZER
 from betty.media_type import MediaType
-from betty.model import EntityPlugin
+from betty.model import EntityDefinition
 from betty.project.extension.raspberry_mint import RaspberryMint
 from betty.test_utils.jinja2 import assert_template_file
 from betty.test_utils.locale.localizable import (
@@ -16,7 +16,7 @@ from betty.test_utils.locale.localizable import (
 )
 
 
-@EntityPlugin(
+@EntityDefinition(
     "dummy-has-file-references",
     label=DUMMY_LOCALIZABLE,
     label_plural=DUMMY_LOCALIZABLE,

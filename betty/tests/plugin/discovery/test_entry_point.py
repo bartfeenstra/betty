@@ -18,12 +18,12 @@ class TestEntryPointDiscovery:
             return_value=EntryPoints(
                 [
                     EntryPoint(
-                        name=DummyPluginOne.plugin.id,
+                        name=DummyPluginOne.plugin().id,
                         value="betty.test_utils.plugin:DummyPluginOne",
                         group=entry_point_group,
                     ),
                     EntryPoint(
-                        name=DummyPluginTwo.plugin.id,
+                        name=DummyPluginTwo.plugin().id,
                         value="betty.test_utils.plugin:DummyPluginTwo",
                         group=entry_point_group,
                     ),
@@ -32,6 +32,6 @@ class TestEntryPointDiscovery:
         )
         sut = EntryPointDiscovery(entry_point_group)
         plugins = await sut.discover(None)
-        assert DummyPluginOne.plugin in plugins
-        assert DummyPluginTwo.plugin in plugins
+        assert DummyPluginOne.plugin() in plugins
+        assert DummyPluginTwo.plugin() in plugins
         m_entry_points.assert_called_once_with(group=entry_point_group)
