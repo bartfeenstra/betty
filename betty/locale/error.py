@@ -11,7 +11,8 @@ from babel.localedata import locale_identifiers
 
 from betty.exception import HumanFacingException
 from betty.locale import to_language_tag
-from betty.locale.localizable import Paragraph, _, do_you_mean
+from betty.locale.localizable.gettext import _
+from betty.locale.localizable.markup import Paragraph, do_you_mean
 
 
 class LocaleError(HumanFacingException, Exception):

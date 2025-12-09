@@ -8,17 +8,20 @@ from typing import TYPE_CHECKING, Any, Generic
 
 from typing_extensions import TypeVar, override
 
-from betty.locale.localizable import (
-    LocalizableLike,
+from betty.locale.localizable.attr import (
     OptionalLocalizableAttr,
     RequiredLocalizableAttr,
-    _,
-    ensure_localizable,
 )
+from betty.locale.localizable.ensure import ensure_localizable
+from betty.locale.localizable.gettext import _
 from betty.plugin import Plugin, PluginDefinition
 
 if TYPE_CHECKING:
-    from betty.locale.localizable import CountableLocalizable, Localizable
+    from betty.locale.localizable import (
+        CountableLocalizable,
+        Localizable,
+        LocalizableLike,
+    )
     from betty.machine_name import MachineName
 
 _PluginT = TypeVar("_PluginT", bound=Plugin, default=Plugin)

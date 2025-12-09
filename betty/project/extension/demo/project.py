@@ -11,7 +11,7 @@ from betty.ancestry.person import Person
 from betty.ancestry.place import Place
 from betty.ancestry.source import Source
 from betty.content_provider.content_providers import PlainText, PlainTextConfiguration
-from betty.locale.localizable import _
+from betty.locale.localizable.gettext import _
 from betty.model.config import EntityReference, EntityReferenceSequence
 from betty.plugin.config import (
     PluginInstanceConfiguration,

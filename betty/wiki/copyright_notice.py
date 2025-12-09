@@ -14,18 +14,15 @@ from betty.app.factory import AppDependentSelfFactory
 from betty.copyright_notice import CopyrightNotice, CopyrightNoticePlugin
 from betty.locale import DEFAULT_LOCALE, ensure_locale
 from betty.locale.error import LocaleError
-from betty.locale.localizable import (
-    Localizable,
-    LocalizableLike,
-    StaticTranslations,
-    _,
-    ensure_localizable,
-)
+from betty.locale.localizable.ensure import ensure_localizable
+from betty.locale.localizable.gettext import _
+from betty.locale.localizable.static import StaticTranslations
 
 if TYPE_CHECKING:
     from aiohttp import ClientSession
 
     from betty.app import App
+    from betty.locale.localizable import Localizable, LocalizableLike
 
 
 def _copyright_url(language: str, page: str) -> str:

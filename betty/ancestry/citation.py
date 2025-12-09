@@ -12,15 +12,10 @@ from betty.ancestry.date import HasDate
 from betty.ancestry.has_file_references import HasFileReferences
 from betty.ancestry.has_links import HasLinks
 from betty.ancestry.source import Source
-from betty.locale.localizable import (
-    Localizable,
-    LocalizableLike,
-    OptionalLocalizableAttr,
-    _,
-    ngettext,
-)
+from betty.locale.localizable.attr import OptionalLocalizableAttr
+from betty.locale.localizable.gettext import _, ngettext
 from betty.locale.localizable.linked_data import dump_linked_data
-from betty.locale.localizable.schema import StaticTranslationsSchema
+from betty.locale.localizable.static.schema import StaticTranslationsSchema
 from betty.model import EntityPlugin
 from betty.model.association import (
     BidirectionalToManyMultipleTypes,
@@ -35,6 +30,7 @@ if TYPE_CHECKING:
     from betty.ancestry.has_citations import HasCitations
     from betty.date import DateLike
     from betty.json.linked_data import JsonLdObject
+    from betty.locale.localizable import Localizable, LocalizableLike
     from betty.model import Entity
     from betty.project import Project
     from betty.serde.dump import Dump, DumpMapping

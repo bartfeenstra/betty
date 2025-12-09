@@ -9,7 +9,8 @@ from typing import TYPE_CHECKING, final
 from typing_extensions import TypeVar
 
 from betty.exception import HumanFacingException
-from betty.locale.localizable import Paragraph, _, do_you_mean
+from betty.locale.localizable.gettext import _
+from betty.locale.localizable.markup import Paragraph, do_you_mean
 from betty.plugin import Plugin, PluginDefinition, PluginTypeDefinition
 from betty.plugin.resolve import (
     ResolvableDefinition,

@@ -6,7 +6,7 @@ from typing_extensions import override
 
 from betty.app import App
 from betty.copyright_notice import CopyrightNotice
-from betty.locale.localizable import StaticTranslations
+from betty.locale.localizable.static import StaticTranslations
 from betty.locale.localizer import DEFAULT_LOCALIZER
 from betty.plugin import PluginDefinition
 from betty.test_utils.copyright_notice import (

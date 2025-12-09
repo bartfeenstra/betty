@@ -13,9 +13,10 @@ from betty.config import Configuration
 from betty.config.factory import ConfigurationDependentSelfFactory
 from betty.content_provider import ContentProvider, ContentProviderPlugin
 from betty.html import plain_text_to_html
-from betty.locale.localizable import LocalizableLike, RequiredLocalizableAttr, _
 from betty.locale.localizable.assertion import assert_load_localizable
+from betty.locale.localizable.attr import RequiredLocalizableAttr
 from betty.locale.localizable.config import dump_localizable
+from betty.locale.localizable.gettext import _
 from betty.plugin import Plugin
 from betty.project.factory import ProjectDependentSelfFactory
 from betty.typing import private
@@ -24,6 +25,7 @@ if TYPE_CHECKING:
     from collections.abc import Mapping
 
     from betty.jinja2 import Environment
+    from betty.locale.localizable import LocalizableLike
     from betty.project import Project
     from betty.resource import Context
     from betty.serde.dump import Dump

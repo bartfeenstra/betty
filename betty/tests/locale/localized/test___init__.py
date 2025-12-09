@@ -7,22 +7,23 @@ import pytest
 from babel import Locale
 
 from betty.locale import DEFAULT_LOCALE, DEFAULT_LOCALE_TAG
-from betty.locale.localizable import (
-    Plain,
-    ShorthandStaticTranslations,
-    StaticTranslationsMapping,
-)
+from betty.locale.localizable.plain import Plain
 from betty.locale.localized import (
     Localized,
     LocalizedStr,
-    ensure_localized,
     negotiate_localizeds,
 )
+from betty.locale.localized.ensure import ensure_localized
 from betty.locale.localizer import DEFAULT_LOCALIZER, Localizer
 from betty.test_utils.locale.localized import DummyLocalized
 
 if TYPE_CHECKING:
     from collections.abc import Sequence
+
+    from betty.locale.localizable import (
+        ShorthandStaticTranslations,
+        StaticTranslationsMapping,
+    )
 
 
 class TestLocalized:

@@ -13,13 +13,7 @@ from betty.json.linked_data import (
     LinkedDataDumpableWithSchemaJsonLdObject,
 )
 from betty.json.schema import JsonSchemaReference, String
-from betty.locale.localizable import (
-    CountableLocalizable,
-    Localizable,
-    LocalizableLike,
-    _,
-    ngettext,
-)
+from betty.locale.localizable.gettext import _, ngettext
 from betty.locale.localizer import DEFAULT_LOCALIZER
 from betty.mutability import Mutable
 from betty.plugin import Plugin, PluginTypeDefinition
@@ -30,6 +24,11 @@ from betty.string import kebab_case_to_lower_camel_case
 if TYPE_CHECKING:
     import builtins
 
+    from betty.locale.localizable import (
+        CountableLocalizable,
+        Localizable,
+        LocalizableLike,
+    )
     from betty.machine_name import MachineName
     from betty.project import Project
     from betty.serde.dump import Dump, DumpMapping

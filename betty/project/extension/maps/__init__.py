@@ -7,7 +7,7 @@ from typing import TYPE_CHECKING, Self, final
 
 from typing_extensions import override
 
-from betty.locale.localizable import _
+from betty.locale.localizable.gettext import _
 from betty.project.extension import ExtensionPlugin
 from betty.project.extension.maps.jobs import _GeneratePlacePreviews
 from betty.project.extension.webpack import Webpack

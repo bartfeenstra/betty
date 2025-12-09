@@ -13,7 +13,7 @@ from html5lib import parse
 from typing_extensions import override
 
 from betty.job import Job
-from betty.locale.localizable import StaticTranslations
+from betty.locale.localizable.static import StaticTranslations
 from betty.media_type import InvalidMediaType, MediaType
 from betty.project import Project, ProjectContext
 

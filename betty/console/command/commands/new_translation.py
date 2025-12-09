@@ -10,7 +10,7 @@ from betty.argparse import assertion_to_argument_type
 from betty.console.command import Command, CommandFunction, CommandPlugin
 from betty.console.project import add_project_argument
 from betty.locale import translation
-from betty.locale.localizable import _
+from betty.locale.localizable.gettext import _
 
 if TYPE_CHECKING:
     import argparse

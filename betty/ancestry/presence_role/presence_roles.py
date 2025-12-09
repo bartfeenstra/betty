@@ -6,7 +6,7 @@ from typing import final
 
 from betty.ancestry.presence_role import PresenceRole, PresenceRolePlugin
 from betty.classtools import Singleton
-from betty.locale.localizable import _, ngettext
+from betty.locale.localizable.gettext import _, ngettext
 
 
 @final

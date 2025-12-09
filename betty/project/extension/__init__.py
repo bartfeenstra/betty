@@ -6,7 +6,7 @@ from typing import TYPE_CHECKING, ClassVar, Self, TypeVar, final
 
 from typing_extensions import override
 
-from betty.locale.localizable import LocalizableLike, _, ngettext
+from betty.locale.localizable.gettext import _, ngettext
 from betty.plugin import Plugin, PluginTypeDefinition
 from betty.plugin.dependent import DependentPluginDefinition
 from betty.plugin.discovery.entry_point import EntryPointDiscovery
@@ -20,6 +20,7 @@ if TYPE_CHECKING:
     from collections.abc import Set
     from pathlib import Path
 
+    from betty.locale.localizable import LocalizableLike
     from betty.machine_name import MachineName
     from betty.plugin.resolve import ResolvableId
     from betty.project import Project

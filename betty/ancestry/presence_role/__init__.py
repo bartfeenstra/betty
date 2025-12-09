@@ -6,7 +6,7 @@ from __future__ import annotations
 
 from typing import ClassVar, final
 
-from betty.locale.localizable import _, ngettext
+from betty.locale.localizable.gettext import _, ngettext
 from betty.plugin import Plugin, PluginTypeDefinition
 from betty.plugin.discovery.entry_point import EntryPointDiscovery
 from betty.plugin.discovery.project import ProjectDiscovery

@@ -1,8 +1,11 @@
 from __future__ import annotations
 
+from typing import TYPE_CHECKING
+
 from typing_extensions import override
 
-from betty.locale.localizable import Localizable, Plain, _
+from betty.locale.localizable.gettext import _
+from betty.locale.localizable.plain import Plain
 from betty.locale.localizer import DEFAULT_LOCALIZER
 from betty.requirement import (
     AllRequirements,
@@ -12,6 +15,9 @@ from betty.requirement import (
     UnmetRequirement,
 )
 from betty.test_utils.locale.localizable import DUMMY_LOCALIZABLE
+
+if TYPE_CHECKING:
+    from betty.locale.localizable import Localizable
 
 
 class TestRequirement:

@@ -16,7 +16,7 @@ from betty.ancestry.name import Name
 from betty.ancestry.place_type.place_types import Unknown as UnknownPlaceType
 from betty.json.linked_data import JsonLdObject, dump_context
 from betty.json.schema import Array, Number, Object
-from betty.locale.localizable import Localizable, _, ngettext
+from betty.locale.localizable.gettext import _, ngettext
 from betty.model import EntityPlugin
 from betty.model.association import BidirectionalToManySingleType, ToManyAssociates
 from betty.privacy import HasPrivacy
@@ -31,6 +31,7 @@ if TYPE_CHECKING:
     from betty.ancestry.link import Link
     from betty.ancestry.note import Note
     from betty.ancestry.place_type import PlaceType
+    from betty.locale.localizable import Localizable
     from betty.privacy import Privacy
     from betty.project import Project
     from betty.serde.dump import Dump, DumpMapping

@@ -4,13 +4,16 @@ Test utilities for :py:mod:`betty.locale.localizable`.
 
 from __future__ import annotations
 
+from typing import TYPE_CHECKING
+
 from betty.locale import DEFAULT_LOCALE
-from betty.locale.localizable import (
-    CountableLocalizable,
+from betty.locale.localizable.static import (
     CountableStaticTranslations,
-    Localizable,
     StaticTranslations,
 )
+
+if TYPE_CHECKING:
+    from betty.locale.localizable import CountableLocalizable, Localizable
 
 DUMMY_LOCALIZABLE: Localizable = StaticTranslations("DUMMY_LOCALIZABLE")
 """

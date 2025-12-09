@@ -10,14 +10,10 @@ from typing import TYPE_CHECKING, final
 from typing_extensions import override
 
 from betty.exception import HumanFacingException
-from betty.locale.localizable import (
-    Lines,
-    Localizable,
-    LocalizableLike,
-    UnorderedList,
-    _,
-    ensure_localizable,
-)
+from betty.locale.localizable import Localizable, LocalizableLike
+from betty.locale.localizable.ensure import ensure_localizable
+from betty.locale.localizable.gettext import _
+from betty.locale.localizable.markup import Lines, UnorderedList
 from betty.locale.localized import Localized, LocalizedStr
 
 if TYPE_CHECKING:

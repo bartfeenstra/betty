@@ -7,7 +7,7 @@ from __future__ import annotations
 from abc import ABC, abstractmethod
 from typing import TYPE_CHECKING, ClassVar, final
 
-from betty.locale.localizable import CountableLocalizable, LocalizableLike, _, ngettext
+from betty.locale.localizable.gettext import _, ngettext
 from betty.plugin import Plugin, PluginTypeDefinition
 from betty.plugin.discovery.entry_point import EntryPointDiscovery
 from betty.plugin.discovery.project import ProjectDiscovery
@@ -19,6 +19,7 @@ if TYPE_CHECKING:
     from collections.abc import Set
 
     from betty.ancestry.person import Person
+    from betty.locale.localizable import CountableLocalizable, LocalizableLike
     from betty.machine_name import MachineName
     from betty.project import Project
 

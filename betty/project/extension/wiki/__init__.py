@@ -13,7 +13,7 @@ from betty.config import Configurable
 from betty.copyright_notice import CopyrightNoticePlugin
 from betty.jinja2 import Filters, Globals, Jinja2Provider, context_localizer
 from betty.locale import ensure_locale, negotiate_locale
-from betty.locale.localizable import _
+from betty.locale.localizable.gettext import _
 from betty.project.extension import Extension, ExtensionPlugin
 from betty.project.extension.wiki.config import WikiConfiguration
 from betty.project.extension.wiki.jobs import PopulateEntity

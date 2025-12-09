@@ -9,7 +9,7 @@ from typing_extensions import override
 import betty.project.extension.demo as stddemo
 from betty.app.factory import AppDependentSelfFactory
 from betty.console.command import Command, CommandFunction, CommandPlugin
-from betty.locale.localizable import _
+from betty.locale.localizable.gettext import _
 from betty.project import ProjectContext
 from betty.project.extension.demo.project import create_project
 

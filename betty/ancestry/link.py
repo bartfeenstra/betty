@@ -11,16 +11,13 @@ from typing_extensions import override
 from betty.ancestry.description import HasDescription
 from betty.ancestry.media_type import HasMediaType
 from betty.json.schema import String
-from betty.locale.localizable import (
-    Localizable,
-    LocalizableLike,
+from betty.locale.localizable.attr import (
     OptionalLocalizableAttr,
     RequiredLocalizableAttr,
-    _,
-    ngettext,
 )
+from betty.locale.localizable.gettext import _, ngettext
 from betty.locale.localizable.linked_data import dump_linked_data
-from betty.locale.localizable.schema import StaticTranslationsSchema
+from betty.locale.localizable.static.schema import StaticTranslationsSchema
 from betty.model import Entity, EntityPlugin
 from betty.model.association import BidirectionalToZeroOrOne
 from betty.privacy import HasPrivacy, Privacy, merge_privacies
@@ -28,6 +25,7 @@ from betty.privacy import HasPrivacy, Privacy, merge_privacies
 if TYPE_CHECKING:
     from betty.ancestry.has_links import HasLinks
     from betty.json.linked_data import JsonLdObject
+    from betty.locale.localizable import Localizable, LocalizableLike
     from betty.media_type import MediaType
     from betty.project import Project
     from betty.serde.dump import Dump, DumpMapping

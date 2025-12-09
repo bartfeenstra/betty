@@ -9,7 +9,7 @@ from typing import final
 import pytest
 
 from betty.locale import DEFAULT_LOCALE
-from betty.locale.localizable import CountableStaticTranslations
+from betty.locale.localizable.static import CountableStaticTranslations
 from betty.locale.localizer import DEFAULT_LOCALIZER
 from betty.model import Entity, EntityPlugin
 from betty.test_utils.plugin.human_facing import (

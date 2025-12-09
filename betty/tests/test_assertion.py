@@ -36,7 +36,7 @@ from betty.assertion import (
 from betty.data import Index, Key
 from betty.exception import HumanFacingException
 from betty.locale import DEFAULT_LOCALE_TAG, to_language_tag
-from betty.locale.localizable import StaticTranslations
+from betty.locale.localizable.static import StaticTranslations
 from betty.test_utils.exception import assert_error
 
 if TYPE_CHECKING:

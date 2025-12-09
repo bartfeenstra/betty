@@ -25,7 +25,7 @@ from betty.copyright_notice import CopyrightNotice, CopyrightNoticePlugin
 from betty.hashid import hashid
 from betty.job import Context as JobContext
 from betty.license import LicensePlugin
-from betty.locale.localizable import LocalizableLike, _
+from betty.locale.localizable.gettext import _
 from betty.locale.localizer import Localizer, LocalizerRepository
 from betty.locale.translation import (
     AssetTranslationRepository,
@@ -69,6 +69,7 @@ if TYPE_CHECKING:
     from betty.cache import Cache
     from betty.jinja2 import Environment
     from betty.license import License
+    from betty.locale.localizable import LocalizableLike
     from betty.machine_name import MachineName
     from betty.plugin.repository import PluginRepository
     from betty.progress import Progress

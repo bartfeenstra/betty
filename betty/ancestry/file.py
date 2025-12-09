@@ -15,7 +15,7 @@ from betty.ancestry.has_notes import HasNotes
 from betty.ancestry.media_type import HasMediaType
 from betty.copyright_notice import CopyrightNoticePlugin
 from betty.license import LicensePlugin
-from betty.locale.localizable import Localizable, LocalizableLike, _, ngettext
+from betty.locale.localizable.gettext import _, ngettext
 from betty.model import EntityPlugin
 from betty.model.association import BidirectionalToManyMultipleTypes, ToManyAssociates
 from betty.privacy import HasPrivacy, Privacy
@@ -31,6 +31,7 @@ if TYPE_CHECKING:
     from betty.copyright_notice import CopyrightNotice
     from betty.json.linked_data import JsonLdObject
     from betty.license import License
+    from betty.locale.localizable import Localizable, LocalizableLike
     from betty.media_type import MediaType
     from betty.project import Project
     from betty.serde.dump import Dump, DumpMapping

@@ -17,7 +17,7 @@ from PIL import Image
 from typing_extensions import override
 
 from betty.job import Job
-from betty.locale.localizable import _
+from betty.locale.localizable.gettext import _
 from betty.locale.localizer import DEFAULT_LOCALIZER
 from betty.media_type.media_types import HTML, JSON
 from betty.model import EntityPlugin, persistent_id

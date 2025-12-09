@@ -22,7 +22,7 @@ from typing_extensions import override
 
 from betty.exception import HumanFacingException
 from betty.functools import Do
-from betty.locale.localizable import _
+from betty.locale.localizable.gettext import _
 from betty.project.factory import ProjectDependentSelfFactory
 
 if TYPE_CHECKING:

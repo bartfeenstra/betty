@@ -7,7 +7,7 @@ from __future__ import annotations
 import re
 from typing import TYPE_CHECKING, cast
 
-from betty.locale.localizable import StaticTranslations
+from betty.locale.localizable.static import StaticTranslations
 
 if TYPE_CHECKING:
     from collections.abc import Sequence

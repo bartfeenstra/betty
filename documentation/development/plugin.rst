@@ -50,7 +50,7 @@ A plugin definition class must subclass :py:class:`betty.plugin.PluginDefinition
    .. code-block:: python
 
      from typing import ClassVar
-     from betty.locale.localizable import _
+     from betty.locale.localizable.gettext import _
      from betty.plugin import PluginDefinition, PluginTypeDefinition
 
      class MyFirstPluginDefinition(PluginDefinition):

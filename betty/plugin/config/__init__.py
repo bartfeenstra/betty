@@ -24,21 +24,21 @@ from betty.config.collections.sequence import ConfigurationSequence
 from betty.config.factory import ConfigurationDependentSelfFactory
 from betty.exception import HumanFacingException
 from betty.importlib import fully_qualified_name
-from betty.locale.localizable import (
-    CountableLocalizableLike,
-    LocalizableLike,
-    OptionalLocalizableAttr,
-    RequiredCountableLocalizableAttr,
-    RequiredLocalizableAttr,
-    _,
-    ensure_countable_localizable,
-    ensure_localizable,
-)
 from betty.locale.localizable.assertion import (
     assert_load_countable_localizable,
     assert_load_localizable,
 )
+from betty.locale.localizable.attr import (
+    OptionalLocalizableAttr,
+    RequiredCountableLocalizableAttr,
+    RequiredLocalizableAttr,
+)
 from betty.locale.localizable.config import dump_countable_localizable, dump_localizable
+from betty.locale.localizable.ensure import (
+    ensure_countable_localizable,
+    ensure_localizable,
+)
+from betty.locale.localizable.gettext import _
 from betty.machine_name import MachineName, assert_machine_name
 from betty.plugin import Plugin, PluginDefinition
 from betty.plugin.resolve import ResolvableId, resolve_id
@@ -47,6 +47,7 @@ from betty.typing import Void, Voidable
 if TYPE_CHECKING:
     from collections.abc import Iterable
 
+    from betty.locale.localizable import CountableLocalizableLike, LocalizableLike
     from betty.plugin.repository import PluginRepository
     from betty.serde.dump import Dump, DumpMapping
     from betty.service.level.factory import AnyFactory

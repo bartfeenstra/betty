@@ -14,7 +14,8 @@ from betty.config import Configuration
 from betty.content_provider import ContentProvider, ContentProviderPlugin
 from betty.data import Key
 from betty.exception import HumanFacingException, HumanFacingExceptionGroup
-from betty.locale.localizable import Paragraph, _, do_you_mean
+from betty.locale.localizable.gettext import _
+from betty.locale.localizable.markup import Paragraph, do_you_mean
 from betty.plugin.config import (
     PluginInstanceConfiguration,
     PluginInstanceConfigurationSequence,

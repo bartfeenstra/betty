@@ -4,21 +4,15 @@ Provide localizable configuration.
 
 from contextlib import suppress
 
-from betty.assertion import (
-    assert_locale,
-    assert_mapping,
-    assert_or,
-    assert_str,
-)
+from betty.assertion import assert_locale, assert_mapping, assert_or, assert_str
 from betty.importlib import fully_qualified_name
 from betty.locale import to_language_tag
-from betty.locale.localizable import (
-    CountableLocalizable,
+from betty.locale.localizable import CountableLocalizable, Localizable
+from betty.locale.localizable.gettext import _
+from betty.locale.localizable.plain import Plain
+from betty.locale.localizable.static import (
     CountableStaticTranslations,
-    Localizable,
-    Plain,
     StaticTranslations,
-    _,
 )
 from betty.serde.dump import Dump, NotDumpable
 

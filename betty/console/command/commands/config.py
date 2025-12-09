@@ -12,7 +12,7 @@ from betty.serde.file import dump_file
 from betty.argparse import assertion_to_argument_type
 from betty.console.command import Command, CommandFunction, CommandPlugin
 from betty.locale import DEFAULT_LOCALE, to_language_tag
-from betty.locale.localizable import _
+from betty.locale.localizable.gettext import _
 
 if TYPE_CHECKING:
     import argparse

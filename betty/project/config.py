@@ -41,16 +41,14 @@ from betty.exception import (
 from betty.license import License, LicensePlugin
 from betty.license.licenses import AllRightsReserved
 from betty.locale import DEFAULT_LOCALE, LocaleLike, ensure_locale, to_language_tag
-from betty.locale.localizable import (
-    Localizable,
-    LocalizableLike,
+from betty.locale.localizable.assertion import assert_load_localizable
+from betty.locale.localizable.attr import (
     OptionalLocalizableAttr,
     RequiredLocalizableAttr,
-    _,
-    ensure_localizable,
 )
-from betty.locale.localizable.assertion import assert_load_localizable
 from betty.locale.localizable.config import dump_localizable
+from betty.locale.localizable.ensure import ensure_localizable
+from betty.locale.localizable.gettext import _
 from betty.machine_name import MachineName, assert_machine_name
 from betty.model import Entity, EntityPlugin
 from betty.plugin.config import (
@@ -69,6 +67,7 @@ from betty.project.factory import CallbackProjectDependentFactory
 if TYPE_CHECKING:
     from pathlib import Path
 
+    from betty.locale.localizable import Localizable, LocalizableLike
     from betty.plugin.repository import PluginRepository
     from betty.project import Project
     from betty.serde.dump import Dump, DumpMapping

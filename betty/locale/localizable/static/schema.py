@@ -1,5 +1,5 @@
 """
-JSON schemas for the localizable API.
+JSON schemas for static translations.
 """
 
 from __future__ import annotations
@@ -9,7 +9,7 @@ from betty.json.schema import Object
 
 class StaticTranslationsSchema(Object):
     """
-    A JSON Schema for :py:class:`betty.locale.localizable.StaticTranslations`.
+    A JSON Schema for :py:class:`betty.locale.localizable.static.StaticTranslations`.
     """
 
     def __init__(

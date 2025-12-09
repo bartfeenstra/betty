@@ -17,7 +17,7 @@ from geopy import Point
 
 from betty.exception import HumanFacingException
 from betty.hashid import hashid
-from betty.locale.localizable import _
+from betty.locale.localizable.gettext import _
 from betty.media_type import MediaType
 from betty.typing import internal
 

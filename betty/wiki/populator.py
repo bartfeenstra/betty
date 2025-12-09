@@ -18,7 +18,8 @@ from betty.concurrent import AsynchronizedLock, Lock
 from betty.functools import map_suppress
 from betty.locale import ensure_locale, negotiate_locale
 from betty.locale.error import LocaleError
-from betty.locale.localizable import StaticTranslations, _
+from betty.locale.localizable.gettext import _
+from betty.locale.localizable.static import StaticTranslations
 from betty.media_type.media_types import HTML
 from betty.typing import private, threadsafe
 from betty.wiki import NotAPageError, parse_page_link

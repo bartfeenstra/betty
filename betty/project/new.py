@@ -8,9 +8,10 @@ from betty.ancestry.person import Person
 from betty.ancestry.place import Place
 from betty.ancestry.source import Source
 from betty.assertion import assert_str, assert_path, assert_locale
+from betty.locale.localizable.static import StaticTranslations
 from betty.serde.file import dump_file
 from betty.locale import DEFAULT_LOCALE_TAG, to_language_tag
-from betty.locale.localizable import _, Localizable, StaticTranslations
+from betty.locale.localizable.gettext import _
 from betty.machine_name import machinify, assert_machine_name
 from betty.plugin.config import PluginInstanceConfiguration
 from betty.project.config import (
@@ -42,6 +43,7 @@ if TYPE_CHECKING:
     from babel import Locale
 
     from betty.app import App
+    from betty.locale.localizable import Localizable
     from betty.user import User
 
 

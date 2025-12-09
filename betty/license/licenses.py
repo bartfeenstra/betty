@@ -19,7 +19,9 @@ from typing_extensions import override
 from betty.cache.file import BinaryFileCache
 from betty.exception import HumanFacingException
 from betty.license import License, LicensePlugin
-from betty.locale.localizable import Localizable, Plain, _
+from betty.locale.localizable import Localizable
+from betty.locale.localizable.gettext import _
+from betty.locale.localizable.plain import Plain
 from betty.machine_name import MachineName
 from betty.user import User
 

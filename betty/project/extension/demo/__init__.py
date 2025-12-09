@@ -13,7 +13,7 @@ from typing import TYPE_CHECKING, Self, final
 from typing_extensions import override
 
 from betty.html import NavigationLink, NavigationLinkProvider
-from betty.locale.localizable import _
+from betty.locale.localizable.gettext import _
 from betty.project import ProjectContext, generate
 from betty.project.extension import Extension, ExtensionPlugin
 from betty.project.extension.demo.jobs import LoadAncestry

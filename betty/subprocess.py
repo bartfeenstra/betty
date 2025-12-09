@@ -10,7 +10,7 @@ from collections.abc import Sequence
 from pathlib import Path
 from subprocess import PIPE
 
-from betty.locale.localizable import _
+from betty.locale.localizable.gettext import _
 from betty.user import User
 
 

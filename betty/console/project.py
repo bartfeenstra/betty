@@ -13,7 +13,7 @@ from betty.assertion import assert_path
 from betty.console.command import CommandFunction
 from betty.error import FileNotFound
 from betty.exception import HumanFacingException
-from betty.locale.localizable import _
+from betty.locale.localizable.gettext import _
 from betty.plugin.repository.provider.service import plugins
 from betty.project import Project
 from betty.project.config import ProjectConfiguration

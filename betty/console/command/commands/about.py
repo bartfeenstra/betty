@@ -13,7 +13,7 @@ from betty.app.factory import AppDependentSelfFactory
 from betty.console.command import Command, CommandFunction, CommandPlugin
 from betty.console.project import add_project_argument
 from betty.rich.user import RichUser
-from betty.locale.localizable import _
+from betty.locale.localizable.gettext import _
 from betty.plugin import plugin_types
 from betty.plugin.human_facing import HumanFacingPluginDefinition
 from betty.plugin.requirement import get_requirement

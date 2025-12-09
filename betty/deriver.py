@@ -17,7 +17,7 @@ from betty.ancestry.person import Person
 from betty.ancestry.presence import Presence
 from betty.ancestry.presence_role.presence_roles import Subject
 from betty.date import Date, DateRange
-from betty.locale.localizable import _
+from betty.locale.localizable.gettext import _
 from betty.plugin.ordered import get_comes_after, get_comes_before
 
 if TYPE_CHECKING:

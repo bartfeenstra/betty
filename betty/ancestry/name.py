@@ -9,9 +9,9 @@ from typing import TYPE_CHECKING, final
 from typing_extensions import override
 
 from betty.ancestry.date import HasDate
-from betty.locale.localizable import RequiredLocalizableAttr
+from betty.locale.localizable.attr import RequiredLocalizableAttr
 from betty.locale.localizable.linked_data import dump_linked_data
-from betty.locale.localizable.schema import StaticTranslationsSchema
+from betty.locale.localizable.static.schema import StaticTranslationsSchema
 
 if TYPE_CHECKING:
     from betty.date import DateLike
