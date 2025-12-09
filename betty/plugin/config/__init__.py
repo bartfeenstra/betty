@@ -17,13 +17,10 @@ from betty.assertion import (
     assert_or,
     assert_record,
 )
-from betty.config import Configurable, Configuration
+from betty.config import Configuration
 from betty.config.collections import ConfigurationKey
 from betty.config.collections.mapping import ConfigurationMapping
 from betty.config.collections.sequence import ConfigurationSequence
-from betty.config.factory import ConfigurationDependentSelfFactory
-from betty.exception import HumanFacingException
-from betty.importlib import fully_qualified_name
 from betty.locale.localizable.assertion import (
     assert_load_countable_localizable,
     assert_load_localizable,
@@ -38,7 +35,6 @@ from betty.locale.localizable.ensure import (
     ensure_countable_localizable,
     ensure_localizable,
 )
-from betty.locale.localizable.gettext import _
 from betty.machine_name import MachineName, assert_machine_name
 from betty.plugin import Plugin, PluginDefinition
 from betty.plugin.resolve import ResolvableId, resolve_id
@@ -50,7 +46,6 @@ if TYPE_CHECKING:
     from betty.locale.localizable import CountableLocalizableLike, LocalizableLike
     from betty.plugin.repository import PluginRepository
     from betty.serde.dump import Dump, DumpMapping
-    from betty.service.level.factory import AnyFactory
 
 _PluginT = TypeVar("_PluginT", bound=Plugin)
 _ConfigurationT = TypeVar("_ConfigurationT", bound=Configuration)
@@ -283,39 +278,13 @@ class PluginInstanceConfiguration(Generic[_PluginDefinitionT, _PluginT], Configu
             else self._configuration
         )
 
-    async def new_plugin_instance(
-        self,
-        repository: PluginRepository[_PluginDefinitionT],
-        *,
-        factory: AnyFactory,
+    async def new_target(
+        self, repository: PluginRepository[_PluginDefinitionT, _PluginT], /
     ) -> _PluginT:
         """
         Create a new plugin instance.
         """
-        plugin_definition = repository[self._id]
-        if not isinstance(self._configuration, Void):
-            if not issubclass(plugin_definition.cls, Configurable):
-                raise HumanFacingException(
-                    _(
-                        'Plugin "{plugin_id}" is not configurable, but configuration was given.'
-                    ).format(plugin_id=plugin_definition.id)
-                )
-            if not issubclass(plugin_definition.cls, ConfigurationDependentSelfFactory):
-                raise HumanFacingException(
-                    f"Cannot instantiate {fully_qualified_name(plugin_definition.cls)} with configuration because it does not subclass {fully_qualified_name(ConfigurationDependentSelfFactory)}."
-                )
-            if isinstance(self._configuration, Configuration):
-                configuration = self._configuration
-            else:
-                configuration = plugin_definition.cls.configuration_cls().load(
-                    self._configuration
-                )
-            return await factory(
-                plugin_definition.cls.new_for_configuration(configuration)  # type: ignore[arg-type]
-            )
-        return await factory(
-            plugin_definition.cls,  # type: ignore[arg-type]
-        )
+        return await repository.new_target(self.id, self.configuration)
 
     @override
     @classmethod

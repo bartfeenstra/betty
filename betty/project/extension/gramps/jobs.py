@@ -4,6 +4,7 @@ Jobs.
 
 from __future__ import annotations
 
+from functools import partial
 from typing import TYPE_CHECKING, TypeVar
 
 from typing_extensions import override
@@ -20,27 +21,10 @@ from betty.plugin import Plugin, PluginDefinition
 from betty.project import ProjectContext
 
 if TYPE_CHECKING:
-    from collections.abc import Awaitable, Callable
-
     from betty.job.scheduler import Scheduler
-    from betty.plugin.config import PluginInstanceConfiguration
-    from betty.plugin.repository import PluginRepository
-    from betty.project.factory import ProjectFactory
 
 _PluginT = TypeVar("_PluginT", bound=Plugin)
 _PluginDefinitionT = TypeVar("_PluginDefinitionT", bound=PluginDefinition)
-
-
-def _new_plugin_instance_factory(
-    configuration: PluginInstanceConfiguration[_PluginDefinitionT, _PluginT],
-    repository: PluginRepository[_PluginDefinitionT],
-    *,
-    factory: ProjectFactory,
-) -> Callable[[], Awaitable[_PluginT]]:
-    async def plugin_instance_factory() -> _PluginT:
-        return await configuration.new_plugin_instance(repository, factory=factory)
-
-    return plugin_instance_factory
 
 
 class LoadAncestry(Job[ProjectContext]):
@@ -69,27 +53,26 @@ class LoadAncestry(Job[ProjectContext]):
                 copyright_notices=await project.plugins(CopyrightNoticePlugin),
                 licenses=await project.plugins(LicensePlugin),
                 event_type_mapping={
-                    gramps_type: _new_plugin_instance_factory(
-                        family_tree_configuration.event_types[gramps_type],
+                    gramps_type: partial(
+                        family_tree_configuration.event_types[gramps_type].new_target,
                         await project.plugins(EventTypePlugin),
-                        factory=project.new_target,
                     )
                     for gramps_type in family_tree_configuration.event_types
                 },
                 genders=await project.plugins(GenderPlugin),
                 place_type_mapping={
-                    gramps_type: _new_plugin_instance_factory(
-                        family_tree_configuration.place_types[gramps_type],
+                    gramps_type: partial(
+                        family_tree_configuration.place_types[gramps_type].new_target,
                         await project.plugins(PlaceTypePlugin),
-                        factory=project.new_target,
                     )
                     for gramps_type in family_tree_configuration.place_types
                 },
                 presence_role_mapping={
-                    gramps_type: _new_plugin_instance_factory(
-                        family_tree_configuration.presence_roles[gramps_type],
+                    gramps_type: partial(
+                        family_tree_configuration.presence_roles[
+                            gramps_type
+                        ].new_target,
                         await project.plugins(PresenceRolePlugin),
-                        factory=project.new_target,
                     )
                     for gramps_type in family_tree_configuration.presence_roles
                 },

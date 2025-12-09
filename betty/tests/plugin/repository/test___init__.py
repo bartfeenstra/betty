@@ -19,12 +19,13 @@ if TYPE_CHECKING:
     from collections.abc import Iterator
 
     from betty.plugin.resolve import ResolvableId
+    from betty.service.level.factory import AnyFactory
 
 
 class TestPluginRepository:
     class _Sut(PluginRepository[DummyPluginDefinition, DummyPlugin]):
-        def __init__(self, *plugins: DummyPluginDefinition):
-            super().__init__(DummyPluginDefinition)
+        def __init__(self, *plugins: DummyPluginDefinition, factory: AnyFactory):
+            super().__init__(DummyPluginDefinition, factory=factory)
             self._plugins = {plugin.id: plugin for plugin in plugins}
 
         @override

@@ -372,7 +372,7 @@ class Project(
                 if enabled_extension_id in configured_extension_configurations:
                     extension = await configured_extension_configurations[
                         enabled_extension_id
-                    ].new_plugin_instance(extensions, factory=self.new_target)
+                    ].new_target(extensions)
                 else:
                     extension = await self.new_target(enabled_extension_definition.cls)
                 enabled_extension_batch.append(extension)
@@ -424,8 +424,8 @@ class Project(
         """
         The overall project copyright.
         """
-        return await self.configuration.copyright_notice.new_plugin_instance(
-            await self.plugins(CopyrightNoticePlugin), factory=self.new_target
+        return await self.configuration.copyright_notice.new_target(
+            await self.plugins(CopyrightNoticePlugin)
         )
 
     @service
@@ -433,8 +433,8 @@ class Project(
         """
         The overall project license.
         """
-        return await self.configuration.license.new_plugin_instance(
-            await self.plugins(LicensePlugin), factory=self.new_target
+        return await self.configuration.license.new_target(
+            await self.plugins(LicensePlugin)
         )
 
     @service

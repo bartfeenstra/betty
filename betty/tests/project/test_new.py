@@ -206,8 +206,8 @@ async def test_new__with_gramps(
         configuration = await _assert_new(configuration_file_path)
         assert Gramps.plugin in configuration.extensions
         async with Project.new_isolated(app) as project, project:
-            gramps = await configuration.extensions[Gramps.plugin].new_plugin_instance(
-                await project.plugins(ExtensionPlugin), factory=project.new_target
+            gramps = await configuration.extensions[Gramps.plugin].new_target(
+                await project.plugins(ExtensionPlugin)
             )
             assert isinstance(gramps, Gramps)
             assert (

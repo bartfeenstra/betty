@@ -31,6 +31,7 @@ if TYPE_CHECKING:
     from betty.machine_name import MachineName
     from betty.requirement import Requirement
     from betty.service.level import ServiceLevel
+    from betty.service.level.factory import AnyFactory
 
 _PluginT = TypeVar("_PluginT", bound=Plugin, default=Plugin)
 _PluginDefinitionT = TypeVar(
@@ -115,9 +116,10 @@ class CheckRequirementRepository(PluginRepository[_PluginDefinitionT, _PluginT])
         plugins_and_requirements: Iterable[
             tuple[_PluginDefinitionT, Requirement | None]
         ],
-        /,
+        *,
+        factory: AnyFactory,
     ):
-        super().__init__(plugin_type)
+        super().__init__(plugin_type, factory=factory)
         self._plugins_and_requirements = {
             plugin.id: (plugin, requirement)
             for plugin, requirement in plugins_and_requirements

@@ -11,6 +11,7 @@ from betty.plugin import Plugin, PluginDefinition
 from betty.plugin.error import PluginNotFound
 from betty.plugin.repository import PluginRepository
 from betty.plugin.resolve import ResolvableId, resolve_id
+from betty.service.level.factory import AnyFactory
 
 _PluginT = TypeVar("_PluginT", bound=Plugin, default=Plugin)
 _PluginDefinitionT = TypeVar("_PluginDefinitionT", bound=PluginDefinition)
@@ -26,8 +27,9 @@ class StaticPluginRepository(PluginRepository[_PluginDefinitionT, _PluginT]):
         self,
         plugin_type: type[_PluginDefinitionT],  # noqa A002
         *plugins: _PluginDefinitionT,
+        factory: AnyFactory,
     ):
-        super().__init__(plugin_type)
+        super().__init__(plugin_type, factory=factory)
         self._plugins = {plugin.id: plugin for plugin in plugins}
 
     @override
