@@ -21,7 +21,7 @@ from betty.machine_name import InvalidMachineName, MachineName, validate_machine
 
 if TYPE_CHECKING:
     import builtins
-    from collections.abc import Collection, Iterator, Mapping
+    from collections.abc import Collection, Iterator, Mapping, MutableSequence
 
     from betty.locale.localizable import (
         CountableLocalizable,
@@ -134,7 +134,7 @@ class PluginTypeDefinition(Generic[_PluginDefinitionT]):
         label_countable: CountableLocalizable,
         *,
         description: LocalizableLike | None = None,
-        discoveries: Collection[PluginDiscovery[_PluginDefinitionT]]
+        discovery: Collection[PluginDiscovery[_PluginDefinitionT]]
         | PluginDiscovery[_PluginDefinitionT]
         | None = None,
     ):
@@ -149,14 +149,18 @@ class PluginTypeDefinition(Generic[_PluginDefinitionT]):
         self._description = (
             None if description is None else ensure_localizable(description)
         )
-        if discoveries is None:
-            discoveries = []
-        elif isinstance(discoveries, PluginDiscovery):
-            discoveries = [discoveries]
+        if discovery is None:
+            discovery = []
+        elif isinstance(discovery, PluginDiscovery):
+            discovery = [discovery]
         else:
-            discoveries = list(discoveries)
-        self._defined_discoveries = discoveries
-        self._discoveries = self._defined_discoveries
+            discovery = list(discovery)
+        self._defined_discovery: MutableSequence[
+            PluginDiscovery[_PluginDefinitionT]
+        ] = discovery
+        self._active_discovery: Collection[PluginDiscovery[_PluginDefinitionT]] = (
+            self._defined_discovery
+        )
 
     @property
     def id(self) -> MachineName:
@@ -194,37 +198,37 @@ class PluginTypeDefinition(Generic[_PluginDefinitionT]):
         return self._description
 
     @property
-    def discoveries(
+    def discovery(
         self,
     ) -> Collection[PluginDiscovery[_PluginDefinitionT]]:
         """
         The plugin discoveries for this type.
         """
-        return self._discoveries
+        return self._active_discovery
 
-    def add_discovery(self, discovery: PluginDiscovery[_PluginDefinitionT], /) -> None:
+    def add_discovery(self, *discoveries: PluginDiscovery[_PluginDefinitionT]) -> None:
         """
         Add a plugin discovery for this type.
         """
-        return self._defined_discoveries.append(discovery)
+        self._defined_discovery.extend(discoveries)
 
     @contextmanager
-    def override_discovery(self, *plugins: _PluginDefinitionT) -> Iterator[None]:
+    def override_discovery(
+        self, *discoveries: PluginDiscovery[_PluginDefinitionT]
+    ) -> Iterator[None]:
         """
         Temporarily override the discoveries for this plugin type with the given plugins.
         """
-        from betty.plugin.discovery.static import StaticDiscovery
-
-        self._discoveries = [StaticDiscovery(*plugins)]
+        self._active_discovery = discoveries
         yield
-        self._discoveries = self._defined_discoveries
+        self._active_discovery = self._defined_discovery
 
     @property
     def discovery_overridden(self) -> bool:
         """
         Whether the discoveries are currently overridden.
         """
-        return self._defined_discoveries != self._discoveries
+        return self._defined_discovery != self._active_discovery
 
 
 _plugin_types: Mapping[MachineName, type[PluginDefinition]] | None = None

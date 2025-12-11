@@ -122,16 +122,16 @@ class TestPluginTypeDefinition:
         )
         assert sut.description is description
 
-    def test_discoveries(self) -> None:
+    def test_discovery(self) -> None:
         discovery = StaticDiscovery()
         sut = PluginTypeDefinition(
             "-",
             DUMMY_LOCALIZABLE,
             DUMMY_LOCALIZABLE,
             DUMMY_COUNTABLE_LOCALIZABLE,
-            discoveries=discovery,
+            discovery=discovery,
         )
-        assert discovery in sut.discoveries
+        assert discovery in sut.discovery
 
     def test_add_discovery(self) -> None:
         discovery = StaticDiscovery()
@@ -139,26 +139,26 @@ class TestPluginTypeDefinition:
             "-", DUMMY_LOCALIZABLE, DUMMY_LOCALIZABLE, DUMMY_COUNTABLE_LOCALIZABLE
         )
         sut.add_discovery(discovery)
-        assert discovery in sut.discoveries
+        assert discovery in sut.discovery
 
     def test_override_discovery(self) -> None:
         sut = PluginTypeDefinition(
             "-", DUMMY_LOCALIZABLE, DUMMY_LOCALIZABLE, DUMMY_COUNTABLE_LOCALIZABLE
         )
-        assert not sut.discoveries
-        with sut.override_discovery(DummyPluginOne.plugin):
-            assert sut.discoveries
-        assert not sut.discoveries
+        assert not sut.discovery
+        with sut.override_discovery(StaticDiscovery(DummyPluginOne.plugin)):
+            assert sut.discovery
+        assert not sut.discovery
 
     async def test_add_discovery__during_override_discovery(self) -> None:
         sut = PluginTypeDefinition(
             "-", DUMMY_LOCALIZABLE, DUMMY_LOCALIZABLE, DUMMY_COUNTABLE_LOCALIZABLE
         )
-        with sut.override_discovery(DummyPluginOne.plugin):
+        with sut.override_discovery(StaticDiscovery(DummyPluginOne.plugin)):
             sut.add_discovery(StaticDiscovery(DummyPluginTwo.plugin))
-            assert DummyPluginTwo.plugin not in await discover(None, *sut.discoveries)
-        assert DummyPluginOne.plugin not in await discover(None, *sut.discoveries)
-        assert DummyPluginTwo.plugin in await discover(None, *sut.discoveries)
+            assert DummyPluginTwo.plugin not in await discover(None, *sut.discovery)
+        assert DummyPluginOne.plugin not in await discover(None, *sut.discovery)
+        assert DummyPluginTwo.plugin in await discover(None, *sut.discovery)
 
     def test_discovery_overridden(self) -> None:
         sut = PluginTypeDefinition(

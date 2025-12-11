@@ -22,6 +22,7 @@ from betty.locale.localizer import DEFAULT_LOCALIZER
 from betty.machine_name import MachineName
 from betty.model import Entity, EntityPlugin
 from betty.plugin.config import PluginInstanceConfiguration
+from betty.plugin.discovery.static import StaticDiscovery
 from betty.plugin.repository.static import StaticPluginRepository
 from betty.plugin.resolve import ResolvableId
 from betty.project import Project
@@ -1033,7 +1034,9 @@ class TestProjectConfiguration:
                 DummyNonPublicFacingEntityOne.plugin, generate_html_list=True
             )
         )
-        with EntityPlugin.type.override_discovery(DummyNonPublicFacingEntityOne.plugin):
+        with EntityPlugin.type.override_discovery(
+            StaticDiscovery(DummyNonPublicFacingEntityOne.plugin)
+        ):
             async with Project.new_isolated(isolated_app) as project:
                 async with project:
                     with pytest.raises(HumanFacingException) as exc_info:

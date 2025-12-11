@@ -65,7 +65,7 @@ class CopyrightNoticePlugin(HumanFacingPluginDefinition[CopyrightNotice]):
         _("Copyright notice"),
         _("Copyright notices"),
         ngettext("{count} copyright notice", "{count} copyright notices"),
-        discoveries=[
+        discovery=[
             EntryPointDiscovery("betty.copyright_notice"),
             ProjectDiscovery(
                 lambda project: project.configuration.copyright_notices.new_plugins()

@@ -51,7 +51,7 @@ class RendererPlugin(PluginDefinition[Renderer]):
         _("Renderer"),
         _("Renderers"),
         ngettext("{count} renderer", "{count} renderers"),
-        discoveries=EntryPointDiscovery("betty.renderer"),
+        discovery=EntryPointDiscovery("betty.renderer"),
     )
 
 

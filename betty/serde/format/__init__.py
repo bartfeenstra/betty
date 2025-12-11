@@ -73,7 +73,7 @@ class FormatPlugin(HumanFacingPluginDefinition[Format]):
         _("Serialization format"),
         _("Serialization formats"),
         ngettext("{count} serialization format", "{count} serialization formats"),
-        discoveries=EntryPointDiscovery("betty.serde_format"),
+        discovery=EntryPointDiscovery("betty.serde_format"),
     )
 
 

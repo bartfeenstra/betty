@@ -37,7 +37,7 @@ class GenderPlugin(CountableHumanFacingPluginDefinition[Gender]):
         _("Gender"),
         _("Genders"),
         ngettext("{count} gender", "{count} genders"),
-        discoveries=[
+        discovery=[
             EntryPointDiscovery("betty.gender"),
             ProjectDiscovery(
                 lambda project: project.configuration.genders.new_plugins()

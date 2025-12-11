@@ -40,5 +40,5 @@ class ContentProviderPlugin(HumanFacingPluginDefinition[ContentProvider]):
         _("Content provider"),
         _("Content providers"),
         ngettext("{count} content provider", "{count} content providers"),
-        discoveries=EntryPointDiscovery("betty.content_provider"),
+        discovery=EntryPointDiscovery("betty.content_provider"),
     )

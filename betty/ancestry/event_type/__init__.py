@@ -61,7 +61,7 @@ class EventTypePlugin(
         _("Event type"),
         _("Event types"),
         ngettext("{count} event type", "{count} event types"),
-        discoveries=[
+        discovery=[
             EntryPointDiscovery("betty.event_type"),
             ProjectDiscovery(
                 lambda project: project.configuration.event_types.new_plugins(),
