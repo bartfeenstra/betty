@@ -37,7 +37,7 @@ class PresenceRolePlugin(CountableHumanFacingPluginDefinition[PresenceRole]):
         _("Presence role"),
         _("Presence roles"),
         ngettext("{count} presence role", "{count} presence roles"),
-        discoveries=[
+        discovery=[
             EntryPointDiscovery("betty.presence_role"),
             ProjectDiscovery(
                 lambda project: project.configuration.presence_roles.new_plugins()

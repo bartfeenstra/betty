@@ -153,7 +153,7 @@ class EntityPlugin(CountableHumanFacingPluginDefinition[Entity]):
         _("Entity"),
         _("Entities"),
         ngettext("{count} entity", "{count} entities"),
-        discoveries=EntryPointDiscovery("betty.entity_type"),
+        discovery=EntryPointDiscovery("betty.entity_type"),
     )
 
     def __init__(

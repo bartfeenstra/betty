@@ -96,7 +96,7 @@ class DummyPluginDefinition(PluginDefinition[DummyPlugin]):
         " dummy plugin",
         " dummy plugin",
         DUMMY_COUNTABLE_LOCALIZABLE,
-        discoveries=CallbackDiscovery(
+        discovery=CallbackDiscovery(
             lambda: [
                 DummyPluginOne.plugin,
                 DummyPluginTwo.plugin,

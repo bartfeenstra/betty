@@ -54,7 +54,7 @@ class CommandPlugin(HumanFacingPluginDefinition[Command]):
         _("Command"),
         _("Commands"),
         ngettext("{count} command", "{count} commands"),
-        discoveries=EntryPointDiscovery("betty.command"),
+        discovery=EntryPointDiscovery("betty.command"),
     )
 
 

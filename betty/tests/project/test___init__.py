@@ -11,6 +11,7 @@ from betty.app import App
 from betty.app.factory import AppDependentFactory, AppDependentSelfFactory
 from betty.locale import DEFAULT_LOCALE, DEFAULT_LOCALE_TAG
 from betty.locale.localizer import DEFAULT_LOCALIZER
+from betty.plugin.discovery.static import StaticDiscovery
 from betty.project import Project, ProjectContext, ProjectExtensions
 from betty.project.config import LocaleConfiguration, ProjectConfiguration
 from betty.project.extension import Extension, ExtensionPlugin
@@ -116,7 +117,9 @@ class TestProject:
     async def test_bootstrap__should_initialize_extensions(
         self, isolated_app: App
     ) -> None:
-        with ExtensionPlugin.type.override_discovery(DummyExtensionOne.plugin):
+        with ExtensionPlugin.type.override_discovery(
+            StaticDiscovery(DummyExtensionOne.plugin)
+        ):
             async with Project.new_isolated(isolated_app) as sut:
                 sut.configuration.extensions.enable(DummyExtensionOne)
                 async with sut:
@@ -138,7 +141,7 @@ class TestProject:
         self, isolated_app: App
     ) -> None:
         with ExtensionPlugin.type.override_discovery(
-            _DummyExtensionWithUnmetRequirement.plugin
+            StaticDiscovery(_DummyExtensionWithUnmetRequirement.plugin)
         ):
             async with Project.new_isolated(isolated_app) as sut:
                 sut.configuration.extensions.enable(_DummyExtensionWithUnmetRequirement)
@@ -157,7 +160,7 @@ class TestProject:
         self, enable: Sequence[type[Extension]], isolated_app: App
     ) -> None:
         with ExtensionPlugin.type.override_discovery(
-            _DummyExtensionA.plugin, _DummyExtensionB.plugin
+            StaticDiscovery(_DummyExtensionA.plugin, _DummyExtensionB.plugin)
         ):
             async with Project.new_isolated(isolated_app) as sut:
                 sut.configuration.extensions.enable(*enable)
@@ -194,7 +197,9 @@ class TestProject:
     async def test_assets__with_extension_without_assets_directory(
         self, isolated_app: App
     ) -> None:
-        with ExtensionPlugin.type.override_discovery(DummyExtensionOne.plugin):
+        with ExtensionPlugin.type.override_discovery(
+            StaticDiscovery(DummyExtensionOne.plugin)
+        ):
             async with Project.new_isolated(isolated_app) as sut:
                 sut.configuration.extensions.enable(DummyExtensionOne)
                 async with sut:
@@ -205,7 +210,7 @@ class TestProject:
         self, isolated_app: App, tmp_path: Path
     ) -> None:
         with ExtensionPlugin.type.override_discovery(
-            _DummyExtensionWithAssetsDirectory.plugin
+            StaticDiscovery(_DummyExtensionWithAssetsDirectory.plugin)
         ):
             async with Project.new_isolated(isolated_app) as sut:
                 sut.configuration.extensions.enable(_DummyExtensionWithAssetsDirectory)

@@ -39,7 +39,7 @@ class PlaceTypePlugin(CountableHumanFacingPluginDefinition[PlaceType]):
         _("Place type"),
         _("Place types"),
         ngettext("{count} place type", "{count} place types"),
-        discoveries=[
+        discovery=[
             EntryPointDiscovery("betty.place_type"),
             ProjectDiscovery(
                 lambda project: project.configuration.place_types.new_plugins(),

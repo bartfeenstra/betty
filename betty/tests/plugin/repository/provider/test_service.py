@@ -5,6 +5,7 @@ from pytest_mock import MockerFixture
 from betty.app import App
 from betty.plugin import PluginDefinition, PluginTypeDefinition
 from betty.plugin.discovery.app import AppDiscovery
+from betty.plugin.discovery.static import StaticDiscovery
 from betty.plugin.repository.provider.service import (
     ServiceLevelPluginRepositoryProvider,
 )
@@ -44,7 +45,7 @@ class TestServiceLevelPluginRepositoryProvider:
                 DUMMY_LOCALIZABLE,
                 DUMMY_LOCALIZABLE,
                 DUMMY_COUNTABLE_LOCALIZABLE,
-                discoveries=AppDiscovery(_discovery),
+                discovery=AppDiscovery(_discovery),
             )
 
         sut = ServiceLevelPluginRepositoryProvider(isolated_app)
@@ -56,6 +57,8 @@ class TestServiceLevelPluginRepositoryProvider:
             pass
 
         sut = ServiceLevelPluginRepositoryProvider(None)
-        with DummyPluginDefinition.type.override_discovery(_Plugin.plugin):
+        with DummyPluginDefinition.type.override_discovery(
+            StaticDiscovery(_Plugin.plugin)
+        ):
             assert _Plugin.plugin in await sut.plugins(DummyPluginDefinition)
         assert _Plugin.plugin not in await sut.plugins(DummyPluginDefinition)

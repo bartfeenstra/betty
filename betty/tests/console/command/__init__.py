@@ -4,6 +4,7 @@ from pathlib import Path
 import pytest
 
 from betty.app import App
+from betty.plugin.discovery.static import StaticDiscovery
 from betty.project.extension import Extension, ExtensionPlugin
 
 
@@ -25,7 +26,9 @@ class ExtensionTranslationTestBase:
             pass
 
         with ExtensionPlugin.type.override_discovery(
-            _DummyWithoutAssetsDirectoryExtension.plugin,
-            _DummyWithAssetsDirectoryExtension.plugin,
+            StaticDiscovery(
+                _DummyWithoutAssetsDirectoryExtension.plugin,
+                _DummyWithAssetsDirectoryExtension.plugin,
+            )
         ):
             yield isolated_app

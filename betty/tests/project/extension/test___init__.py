@@ -6,6 +6,7 @@ from typing_extensions import override
 from betty.app import App
 from betty.locale.localizer import DEFAULT_LOCALIZER
 from betty.plugin import PluginDefinition
+from betty.plugin.discovery.static import StaticDiscovery
 from betty.project import Project
 from betty.project.extension import ExtensionPlugin
 from betty.requirement import Requirement
@@ -63,7 +64,9 @@ class TestExtension:
     async def test_requires__with_project_with_extension(
         self, isolated_app: App
     ) -> None:
-        with ExtensionPlugin.type.override_discovery(DummyExtensionOne.plugin):
+        with ExtensionPlugin.type.override_discovery(
+            StaticDiscovery(DummyExtensionOne.plugin)
+        ):
             async with Project.new_isolated(isolated_app) as project:
                 project.configuration.extensions.enable(DummyExtensionOne)
                 async with project:

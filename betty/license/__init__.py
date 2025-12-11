@@ -66,7 +66,7 @@ class LicensePlugin(HumanFacingPluginDefinition[License]):
         _("License"),
         _("Licenses"),
         ngettext("{count} license", "{count} licenses"),
-        discoveries=[
+        discovery=[
             EntryPointDiscovery("betty.license"),
             AppDiscovery(lambda app: app._spdx_license_repository),
             ProjectDiscovery(

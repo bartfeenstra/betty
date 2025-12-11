@@ -6,6 +6,7 @@ import pytest
 from typing_extensions import override
 
 from betty.model import EntityPlugin
+from betty.plugin.discovery.static import StaticDiscovery
 from betty.project import Project
 from betty.project.config import EntityTypeConfiguration
 from betty.project.extension.raspberry_mint import RaspberryMint
@@ -53,7 +54,9 @@ class TestRaspberryMint(
     async def test_generate__html_list_for_third_party_entity(
         self, isolated_app: App
     ) -> None:
-        with EntityPlugin.type.override_discovery(DummyEntityOne.plugin):
+        with EntityPlugin.type.override_discovery(
+            StaticDiscovery(DummyEntityOne.plugin)
+        ):
             async with Project.new_isolated(isolated_app) as project:
                 project.configuration.extensions.enable(RaspberryMint)
                 project.configuration.entity_types.replace(

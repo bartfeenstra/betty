@@ -7,6 +7,7 @@ import pytest
 
 from betty.plugin import PluginDefinition
 from betty.plugin.discovery.extension import ExtensionDiscovery
+from betty.plugin.discovery.static import StaticDiscovery
 from betty.project import Project
 from betty.project.extension import Extension, ExtensionPlugin
 from betty.test_utils.plugin import DummyPluginOne
@@ -71,7 +72,9 @@ class TestExtensionDiscovery:
         isolated_app: App,
     ) -> None:
         expected, discovery = sut_params
-        with ExtensionPlugin.type.override_discovery(DummyExtensionOne.plugin):
+        with ExtensionPlugin.type.override_discovery(
+            StaticDiscovery(DummyExtensionOne.plugin)
+        ):
             async with Project.new_isolated(isolated_app) as project:
                 project.configuration.extensions.enable(DummyExtensionOne)
                 async with project:

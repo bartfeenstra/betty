@@ -108,7 +108,7 @@ class ConfigurableDummyPluginDefinition(PluginDefinition):
         "Configurable dummy plugin",
         "Configurable dummy plugins",
         DUMMY_COUNTABLE_LOCALIZABLE,
-        discoveries=CallbackDiscovery(
+        discovery=CallbackDiscovery(
             lambda: [
                 ConfigurableDummyPluginOne.plugin,
             ]

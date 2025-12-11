@@ -19,6 +19,7 @@ from betty.ancestry.presence_role.presence_roles import Subject
 from betty.date import Date, DateLike, DateRange
 from betty.deriver import Deriver
 from betty.model.collections import record_added
+from betty.plugin.discovery.static import StaticDiscovery
 from betty.project import Project
 from betty.test_utils.locale.localizable import (
     DUMMY_COUNTABLE_LOCALIZABLE,
@@ -204,7 +205,7 @@ class TestDeriver:
         async def _new_project(
             event_types: Iterable[EventTypePlugin],
         ) -> AsyncIterator[Project]:
-            with EventTypePlugin.type.override_discovery(*event_types):
+            with EventTypePlugin.type.override_discovery(StaticDiscovery(*event_types)):
                 async with Project.new_isolated(isolated_app) as project, project:
                     yield project
 

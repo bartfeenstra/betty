@@ -99,5 +99,5 @@ class RateLimitPlugin(OrderedPluginDefinition[RateLimit]):
         _("HTTP client rate limit"),
         _("HTTP client rate limits"),
         ngettext("{count} HTTP client rate limit", "{count} HTTP client rate limits"),
-        discoveries=EntryPointDiscovery("betty.http_rate_limit"),
+        discovery=EntryPointDiscovery("betty.http_rate_limit"),
     )

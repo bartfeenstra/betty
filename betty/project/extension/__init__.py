@@ -103,7 +103,7 @@ class ExtensionPlugin(
         _("Extension"),
         _("Extensions"),
         ngettext("{count} extension", "{count} extensions"),
-        discoveries=EntryPointDiscovery("betty.extension"),
+        discovery=EntryPointDiscovery("betty.extension"),
     )
 
     def __init__(
