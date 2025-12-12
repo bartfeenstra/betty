@@ -12,17 +12,12 @@ from typing_extensions import TypeVar, override
 from betty.functools import unique
 from betty.locale.localizable.gettext import _
 from betty.locale.localizable.markup import AllEnumeration
-from betty.plugin import Plugin, PluginDefinition
+from betty.plugin import PluginDefinition
 from betty.plugin.dependent import DependentPluginDefinition
 from betty.plugin.error import PluginError, PluginNotFound, UnmetRequirement
 from betty.plugin.human_facing import HumanFacingPluginDefinition
 from betty.plugin.repository import PluginRepository
-from betty.plugin.resolve import (
-    ResolvableDefinition,
-    ResolvableId,
-    resolve_definition,
-    resolve_id,
-)
+from betty.plugin.resolve import ResolvableDefinition, resolve_definition, resolve_id
 from betty.requirement import AllRequirements, HasRequirement
 
 if TYPE_CHECKING:
@@ -32,7 +27,7 @@ if TYPE_CHECKING:
     from betty.requirement import Requirement
     from betty.service.level import ServiceLevel
 
-_PluginT = TypeVar("_PluginT", bound=Plugin, default=Plugin)
+
 _PluginDefinitionT = TypeVar(
     "_PluginDefinitionT", bound=PluginDefinition, default=PluginDefinition
 )
@@ -104,7 +99,7 @@ async def get_requirement(
 
 
 @final
-class CheckRequirementRepository(PluginRepository[_PluginDefinitionT, _PluginT]):
+class CheckRequirementRepository(PluginRepository[_PluginDefinitionT]):
     """
     A plugin repository that checks plugins' requirements.
     """
@@ -143,10 +138,7 @@ class CheckRequirementRepository(PluginRepository[_PluginDefinitionT, _PluginT])
         )
 
     @override
-    def get(
-        self, plugin_id: ResolvableId[_PluginDefinitionT, Plugin], /
-    ) -> _PluginDefinitionT:
-        plugin_id = resolve_id(plugin_id)
+    def get(self, plugin_id: MachineName, /) -> _PluginDefinitionT:
         try:
             plugin, requirement = self._plugins_and_requirements[plugin_id]
             if requirement:

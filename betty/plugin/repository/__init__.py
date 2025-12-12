@@ -11,22 +11,20 @@ from typing_extensions import TypeVar
 
 from betty.json.schema import Enum
 from betty.locale.localizer import DEFAULT_LOCALIZER
-from betty.plugin import Plugin, PluginDefinition
+from betty.plugin import PluginDefinition
 from betty.string import kebab_case_to_lower_camel_case
 
 if TYPE_CHECKING:
     from collections.abc import Iterator
 
     from betty.machine_name import MachineName
-    from betty.plugin.resolve import ResolvableId
 
-_PluginT = TypeVar("_PluginT", bound=Plugin, default=Plugin)
 _PluginDefinitionT = TypeVar(
     "_PluginDefinitionT", bound=PluginDefinition, default=PluginDefinition
 )
 
 
-class PluginRepository(ABC, Generic[_PluginDefinitionT, _PluginT]):
+class PluginRepository(ABC, Generic[_PluginDefinitionT]):
     """
     Access discovered plugins.
     """
@@ -43,9 +41,7 @@ class PluginRepository(ABC, Generic[_PluginDefinitionT, _PluginT]):
         return self._type
 
     @abstractmethod
-    def get(
-        self, plugin_id: ResolvableId[_PluginDefinitionT, _PluginT], /
-    ) -> _PluginDefinitionT:
+    def get(self, plugin_id: MachineName, /) -> _PluginDefinitionT:
         """
         Get a single plugin by its ID.
 
