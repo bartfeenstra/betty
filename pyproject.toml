@@ -219,19 +219,19 @@ betty = 'betty.console:main_standalone'
 'yaml' = 'betty.serde.format.formats:Yaml'
 
 [project.entry-points.'betty.renderer']
+'html' = 'betty.render.html:Html'
 'plain-text' = 'betty.render.plain_text:PlainText'
 
 [project.entry-points.'betty.content_provider']
-'-demo-front-page-content' = 'betty.project.extension.demo.content_provider:_FrontPageContent'
 'maps-map' = 'betty.project.extension.maps.content_provider:Map'
 'notes' = 'betty.content_provider.content_providers:Notes'
-'plain-text' = 'betty.content_provider.content_providers:PlainText'
 'raspberry-mint-color-style' = 'betty.project.extension.raspberry_mint.content_provider:ColorStyle'
 'raspberry-mint-external-links' = 'betty.project.extension.raspberry_mint.content_provider:ExternalLinks'
 'raspberry-mint-family' = 'betty.project.extension.raspberry_mint.content_provider:Family'
 'raspberry-mint-featured-entities' = 'betty.project.extension.raspberry_mint.content_provider:FeaturedEntities'
 'raspberry-mint-media' = 'betty.project.extension.raspberry_mint.content_provider:Media'
 'raspberry-mint-section' = 'betty.project.extension.raspberry_mint.content_provider:Section'
+'render' = 'betty.content_provider.content_providers:Render'
 'trees-tree' = 'betty.project.extension.trees.content_provider:Tree'
 'wiki-wikipedia-summary' = 'betty.project.extension.wiki.content_provider:WikipediaSummary'
 

@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Betty 0.4\n"
 "Report-Msgid-Bugs-To: illia@maier.page\n"
-"POT-Creation-Date: 2025-12-22 00:39+0000\n"
+"POT-Creation-Date: 2025-12-22 19:31+0000\n"
 "PO-Revision-Date: 2025-05-13 17:01+0000\n"
 "Last-Translator: Максим Горпиніч <maksimgorpinic4@gmail.com>\n"
 "Language: uk\n"
@@ -249,16 +249,12 @@ msgstr ""
 "\"{event_handle}\". Роль була імпортована, але змінена на "
 "\"{betty_presence_role}\"."
 
-#, python-format
 msgid ""
-"Betty was named after %(liberta_lankester_label)s, and this website shows"
-" a small sample of her family history. You can browse the pages about her"
-" and some of her family to get an idea of what a Betty site looks like."
+"Betty was named after <a href=\"betty-entity://person/betty-demo-liberta-"
+"lankester\">Liberta 'Betty' Lankester</a>, and this website shows a small"
+" sample of her family history. You can browse the pages about her and "
+"some of her family to get an idea of what a Betty site looks like."
 msgstr ""
-"Назва Betty походить від %(liberta_lankester_label)s, а цей вебсайт "
-"показує невелику частину її сімейної історії. Ви можете переглянути "
-"сторінки про неї та деяких її родичів, щоб отримати уявлення про те, як "
-"виглядає сайт Betty."
 
 #, python-brace-format
 msgid "Betty will talk to you in {locale}"
@@ -1179,6 +1175,9 @@ msgstr "Регіон"
 msgid "Regions"
 msgstr ""
 
+msgid "Rendered content"
+msgstr ""
+
 msgid "Renderer"
 msgstr ""
 
@@ -1357,6 +1356,12 @@ msgstr ""
 msgid "The server at {url} was unreachable after starting."
 msgstr "Сервер за адресою {url} залишився недоступним після запуску."
 
+#, python-brace-format
+msgid ""
+"The values of the following HTML attributes will automatically be "
+"replaced with the URLs generated from them where possible: {attributes}"
+msgstr ""
+
 msgid "There are no available options."
 msgstr "Немає доступних варіантів."
 
@@ -1524,6 +1529,9 @@ msgid "Village"
 msgstr "Село"
 
 msgid "Villages"
+msgstr ""
+
+msgid "Welcome"
 msgstr ""
 
 #, python-format

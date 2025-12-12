@@ -8,16 +8,22 @@ from typing import TYPE_CHECKING, Any, Self
 
 from typing_extensions import override
 
-from betty.assertion import RequiredField, assert_record
+from betty.assertion import OptionalField, RequiredField, assert_record, assert_str
 from betty.config import Configuration
 from betty.config.factory import ConfigurationDependentSelfFactory
 from betty.content_provider import ContentProvider, ContentProviderDefinition
-from betty.html import plain_text_to_html
 from betty.locale.localizable.assertion import assert_load_localizable
 from betty.locale.localizable.attr import RequiredLocalizableAttr
 from betty.locale.localizable.config import dump_localizable
 from betty.locale.localizable.gettext import _
-from betty.project.factory import ProjectDependentSelfFactory
+from betty.media_type import MediaType
+from betty.media_type.media_types import PLAIN_TEXT
+from betty.project import Project
+from betty.project.factory import (
+    CallbackProjectDependentFactory,
+    ProjectDependentSelfFactory,
+)
+from betty.requirement import HasRequirement, Requirement
 from betty.typing import private
 
 if TYPE_CHECKING:
@@ -25,70 +31,85 @@ if TYPE_CHECKING:
 
     from betty.jinja2 import Environment
     from betty.locale.localizable import LocalizableLike
-    from betty.project import Project
+    from betty.render import RenderDispatcher
     from betty.resource import Context
     from betty.serde.dump import Dump
+    from betty.service.level import ServiceLevel
     from betty.service.level.factory import AnyFactoryTarget
 
 
-class PlainTextConfiguration(Configuration):
+class RenderConfiguration(Configuration):
     """
-    Configuration for :py:class:`betty.content_provider.content_providers.PlainText`.
+    Configuration for :py:class:`betty.content_provider.content_providers.Render`.
     """
 
-    text = RequiredLocalizableAttr("text")
+    content = RequiredLocalizableAttr("text")
 
-    def __init__(self, text: LocalizableLike, /):
+    def __init__(self, content: LocalizableLike, media_type: MediaType = PLAIN_TEXT, /):
         super().__init__()
-        self.text = text
+        self.content = content
+        self.media_type = media_type
 
     @override
     @classmethod
     def load(cls, dump: Dump, /) -> Self:
         record = assert_record(
-            RequiredField("text", assert_load_localizable),
+            RequiredField("content", assert_load_localizable),
+            OptionalField("media_type", assert_str() | MediaType),
         )(dump)
-        return cls(record["text"])
+        return cls(record["content"], record.get("media_type", PLAIN_TEXT))
 
     @override
     def dump(self) -> Dump:
         return {
-            "text": dump_localizable(self.text),
+            "content": dump_localizable(self.content),
+            "media_type": str(self.media_type),
         }
 
 
-@ContentProviderDefinition("plain-text", label=_("Plain text"))
-class PlainText(
-    ConfigurationDependentSelfFactory[PlainTextConfiguration],
+@ContentProviderDefinition("render", label=_("Rendered content"))
+class Render(
+    ConfigurationDependentSelfFactory[RenderConfiguration],
     ContentProvider,
+    HasRequirement,
 ):
     """
-    Plain text content.
+    Rendered content.
     """
 
     @private
-    def __init__(self, *, configuration: PlainTextConfiguration | None = None):
-        super().__init__(
-            configuration=PlainTextConfiguration("-")
-            if configuration is None
-            else configuration
-        )
+    def __init__(
+        self, *, configuration: RenderConfiguration, renderer: RenderDispatcher
+    ):
+        super().__init__(configuration=configuration)
+        self._renderer = renderer
 
     @override
     @classmethod
-    def configuration_cls(cls) -> type[PlainTextConfiguration]:
-        return PlainTextConfiguration
+    async def requirement(cls, services: ServiceLevel, /) -> Requirement | None:
+        return await Project.requirement_for(services, str(cls))
+
+    @override
+    @classmethod
+    def configuration_cls(cls) -> type[RenderConfiguration]:
+        return RenderConfiguration
 
     @override
     @classmethod
     def new_for_configuration(
-        cls, configuration: PlainTextConfiguration
+        cls, configuration: RenderConfiguration
     ) -> AnyFactoryTarget[Self]:
-        return lambda: cls(configuration=configuration)
+        async def _callback(project: Project) -> Self:
+            return cls(configuration=configuration, renderer=await project.renderer)
+
+        return CallbackProjectDependentFactory(_callback)
 
     @override
     async def provide(self, *, resource: Context) -> str | None:
-        return plain_text_to_html(self.configuration.text.localize(resource.localizer))
+        return await self._renderer.render(
+            self.configuration.content.localize(resource.localizer),
+            self.configuration.media_type,
+        )
 
 
 class Template(ProjectDependentSelfFactory, ContentProvider):

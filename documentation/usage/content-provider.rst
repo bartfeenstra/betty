@@ -9,8 +9,6 @@ Built-in content providers
     Display an interactive map for the :doc:`places </usage/ancestry/place.rst>` associated with a resource.
 ``notes`` (:py:class:`betty.content_provider.content_providers.Notes`)
     Display a resource's :doc:`notes </usage/ancestry/note.rst>`
-``plain-text`` (:py:class:`betty.content_provider.content_providers.PlainText`)
-    Display plain text.
 ``raspberry-mint-external-links`` (:py:class:`betty.project.extension.raspberry_mint.content_provider.ExternalLinks`)
     A resource's external links.
 ``raspberry-mint-family`` (:py:class:`betty.project.extension.raspberry_mint.content_provider.Family`)
@@ -21,6 +19,8 @@ Built-in content providers
     Show a media gallery of a resource's associated files.
 ``raspberry-mint-section`` (:py:class:`betty.project.extension.raspberry_mint.content_provider.Section`)
     Display other content in a section with a heading and a permanent link.
+``render`` (:py:class:`betty.content_provider.content_providers.Render`)
+    Display rendered content.
 ``trees-tree`` (:py:class:`betty.project.extension.trees.content_provider.Tree`)
     Display an interactive family tree for the :doc:`places </usage/ancestry/person.rst>` associated with a resource.
 ``wiki-wikipedia-summary`` (:py:class:`betty.project.extension.wiki.content_provider.WikipediaSummary`)
