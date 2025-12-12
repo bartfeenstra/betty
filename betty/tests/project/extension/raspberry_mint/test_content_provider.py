@@ -13,7 +13,7 @@ from betty.ancestry.place import Place
 from betty.app import App
 from betty.config.factory import ConfigurationDependentSelfFactory
 from betty.content_provider import ContentProvider
-from betty.content_provider.content_providers import PlainText, PlainTextConfiguration
+from betty.content_provider.content_providers import Render, RenderConfiguration
 from betty.exception import HumanFacingException
 from betty.locale.localizable.plain import Plain
 from betty.locale.localizer import DEFAULT_LOCALIZER
@@ -217,7 +217,8 @@ class TestSection(
                 sut.configuration.heading = "My First Section"
                 sut.configuration.content.append(
                     PluginInstanceConfiguration(
-                        "plain-text", PlainTextConfiguration("My First Content")
+                        Render,
+                        RenderConfiguration("My First Content"),
                     )
                 )
                 actual = await sut.provide(resource=Context())
@@ -234,7 +235,8 @@ class TestSection(
                 sut.configuration.heading = "My First Section"
                 sut.configuration.content.append(
                     PluginInstanceConfiguration(
-                        "plain-text", PlainTextConfiguration("My First Content")
+                        Render,
+                        RenderConfiguration("My First Content"),
                     )
                 )
                 actual = await sut.provide(resource=Context())
@@ -250,7 +252,8 @@ class TestSection(
                 sut.configuration.visually_hide_heading = True
                 sut.configuration.content.append(
                     PluginInstanceConfiguration(
-                        "plain-text", PlainTextConfiguration("My First Content")
+                        Render,
+                        RenderConfiguration("My First Content"),
                     )
                 )
                 actual = await sut.provide(resource=Context())
@@ -417,7 +420,7 @@ class TestColorStyle(ContentProviderTestBase):
                 sut = await ColorStyle.new_for_project(project)
                 sut.configuration.content.append(
                     PluginInstanceConfiguration(
-                        PlainText, PlainTextConfiguration("My First Content")
+                        Render, RenderConfiguration("My First Content")
                     )
                 )
                 actual = await sut.provide(resource=Context())

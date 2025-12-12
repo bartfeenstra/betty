@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Betty VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2025-12-22 00:39+0000\n"
+"POT-Creation-Date: 2025-12-22 19:31+0000\n"
 "PO-Revision-Date: 2025-11-16 18:38+0000\n"
 "Last-Translator: Артур Калагов "
 "<artur.kalagov@users.noreply.hosted.weblate.org>\n"
@@ -254,16 +254,12 @@ msgstr ""
 "\"{event_handle}\". Роль была импортирована, но изменена на "
 "\"{betty_presence_role}\"."
 
-#, python-format
 msgid ""
-"Betty was named after %(liberta_lankester_label)s, and this website shows"
-" a small sample of her family history. You can browse the pages about her"
-" and some of her family to get an idea of what a Betty site looks like."
+"Betty was named after <a href=\"betty-entity://person/betty-demo-liberta-"
+"lankester\">Liberta 'Betty' Lankester</a>, and this website shows a small"
+" sample of her family history. You can browse the pages about her and "
+"some of her family to get an idea of what a Betty site looks like."
 msgstr ""
-"Название Betty происходит от %(liberta_lankester_label)s, а этот вебсайт "
-"показывает небольшую часть ее семейной истории. Вы можете просмотреть "
-"страницы о ней и некоторых ее родственниках, чтобы получить представление"
-" о том, как выглядит сайт Betty."
 
 #, python-brace-format
 msgid "Betty will talk to you in {locale}"
@@ -1176,6 +1172,9 @@ msgstr ""
 msgid "Regions"
 msgstr ""
 
+msgid "Rendered content"
+msgstr ""
+
 msgid "Renderer"
 msgstr ""
 
@@ -1346,6 +1345,12 @@ msgstr ""
 msgid "The server at {url} was unreachable after starting."
 msgstr ""
 
+#, python-brace-format
+msgid ""
+"The values of the following HTML attributes will automatically be "
+"replaced with the URLs generated from them where possible: {attributes}"
+msgstr ""
+
 msgid "There are no available options."
 msgstr ""
 
@@ -1511,6 +1516,9 @@ msgid "Village"
 msgstr ""
 
 msgid "Villages"
+msgstr ""
+
+msgid "Welcome"
 msgstr ""
 
 #, python-format

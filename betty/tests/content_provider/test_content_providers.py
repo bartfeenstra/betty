@@ -13,8 +13,8 @@ from betty.config.factory import ConfigurationDependentSelfFactory
 from betty.content_provider import ContentProvider, ContentProviderDefinition
 from betty.content_provider.content_providers import (
     Notes,
-    PlainText,
-    PlainTextConfiguration,
+    Render,
+    RenderConfiguration,
     Template,
 )
 from betty.exception import HumanFacingException
@@ -23,7 +23,10 @@ from betty.locale import DEFAULT_LOCALE, DEFAULT_LOCALE_TAG
 from betty.locale.localizable import LocalizableLike
 from betty.locale.localizable.static import StaticTranslations
 from betty.locale.localizer import DEFAULT_LOCALIZER, Localizer
+from betty.media_type.media_types import HTML, PLAIN_TEXT
 from betty.project import Project
+from betty.render import RenderDispatcher
+from betty.render.plain_text import PlainText
 from betty.resource import Context as ResourceContext
 from betty.test_utils.config.factory import ConfigurationDependentSelfFactoryTestBase
 from betty.test_utils.content_provider import ContentProviderTestBase
@@ -34,58 +37,79 @@ if TYPE_CHECKING:
     from betty.serde.dump import Dump
 
 
-class TestPlainTextConfiguration:
-    def test_text(self) -> None:
-        text = DUMMY_LOCALIZABLE
-        sut = PlainTextConfiguration(text)
-        assert sut.text is text
+class TestRenderConfiguration:
+    def test_content(self) -> None:
+        content = DUMMY_LOCALIZABLE
+        sut = RenderConfiguration(content)
+        assert sut.content is content
 
     def test_load__without_text(self) -> None:
         dump: Dump = {}
         with pytest.raises(HumanFacingException):
-            PlainTextConfiguration.load(dump)
+            RenderConfiguration.load(dump)
 
     def test_load__minimal(self) -> None:
-        text = "Hello, world!"
+        content = "Hello, world!"
         dump: Dump = {
-            "text": text,
+            "content": content,
         }
-        sut = PlainTextConfiguration.load(dump)
-        assert sut.text.localize(DEFAULT_LOCALIZER) == text
+        sut = RenderConfiguration.load(dump)
+        assert sut.content.localize(DEFAULT_LOCALIZER) == content
+        assert sut.media_type == PLAIN_TEXT
 
-    def test_dump(self) -> None:
+    def test_load__with_media_type(self) -> None:
+        dump: Dump = {
+            "content": "Hello, world!",
+            "media_type": "text/html",
+        }
+        sut = RenderConfiguration.load(dump)
+        assert sut.media_type == HTML
+
+    def test_dump__minimal(self) -> None:
         text = "Hello, world!"
-        sut = PlainTextConfiguration(text)
+        sut = RenderConfiguration(text)
         assert sut.dump() == {
-            "text": text,
+            "content": text,
+            "media_type": str(PLAIN_TEXT),
+        }
+
+    def test_dump__with_media_type(self) -> None:
+        text = "Hello, world!"
+        sut = RenderConfiguration(text, HTML)
+        assert sut.dump() == {
+            "content": text,
+            "media_type": str(HTML),
         }
 
 
-class TestPlainText(
-    ConfigurationDependentSelfFactoryTestBase[PlainTextConfiguration],
+class TestRender(
+    ConfigurationDependentSelfFactoryTestBase[RenderConfiguration],
     ContentProviderTestBase,
 ):
     @override
     @pytest.fixture
     async def sut(self) -> ContentProvider:
-        return PlainText()
+        return Render(
+            configuration=RenderConfiguration("Hello, world!"),
+            renderer=RenderDispatcher(PlainText()),
+        )
 
     @override
     @pytest.fixture
     async def configuration_dependent_self_factory_sut(
         self,
-    ) -> type[ConfigurationDependentSelfFactory[PlainTextConfiguration]]:
-        return PlainText
+    ) -> type[ConfigurationDependentSelfFactory[RenderConfiguration]]:
+        return Render
 
     @override
     @pytest.fixture
     def configuration_dependent_self_factory_sut_configuration(
         self,
-    ) -> PlainTextConfiguration:
-        return PlainTextConfiguration(DUMMY_LOCALIZABLE)
+    ) -> RenderConfiguration:
+        return RenderConfiguration(DUMMY_LOCALIZABLE)
 
     @pytest.mark.parametrize(
-        ("expected", "text", "locale"),
+        ("expected", "content", "locale"),
         [
             (
                 "<p>One<br>\nTwo<br>\nThree</p>",
@@ -102,10 +126,12 @@ class TestPlainText(
         ],
     )
     async def test_provide(
-        self, expected: str, text: LocalizableLike, locale: str
+        self, expected: str, content: LocalizableLike, locale: str
     ) -> None:
-        sut = PlainText()
-        sut.configuration.text = text
+        sut = Render(
+            configuration=RenderConfiguration(content),
+            renderer=RenderDispatcher(PlainText()),
+        )
         assert (
             await sut.provide(
                 resource=ResourceContext(

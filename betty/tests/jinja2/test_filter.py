@@ -13,7 +13,7 @@ from typing_extensions import override
 
 from betty.ancestry.file import File
 from betty.ancestry.file_reference import FileReference
-from betty.content_provider.content_providers import PlainText, PlainTextConfiguration
+from betty.content_provider.content_providers import Render, RenderConfiguration
 from betty.date import Date, DateLike, DateRange
 from betty.dirs import ASSETS_DIRECTORY_PATH
 from betty.job import Context as JobContext
@@ -838,11 +838,7 @@ async def test_filter_negotiate_localizeds() -> None:
         ("", []),
         (
             "<p>Hello, world!</p>",
-            [
-                PluginInstanceConfiguration(
-                    PlainText, PlainTextConfiguration("Hello, world!")
-                )
-            ],
+            [PluginInstanceConfiguration(Render, RenderConfiguration("Hello, world!"))],
         ),
     ],
 )

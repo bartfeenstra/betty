@@ -1,7 +1,7 @@
 import pytest
 
 from betty.app import App
-from betty.content_provider.content_providers import PlainText, PlainTextConfiguration
+from betty.content_provider.content_providers import Render, RenderConfiguration
 from betty.dirs import ROOT_DIRECTORY_PATH
 from betty.plugin.config import (
     PluginInstanceConfiguration,
@@ -42,8 +42,8 @@ async def test_regional_content_front_page_summary(
                             "front-page-summary": PluginInstanceConfigurationSequence(
                                 [
                                     PluginInstanceConfiguration(
-                                        PlainText,
-                                        PlainTextConfiguration("Hello, world!"),
+                                        Render,
+                                        RenderConfiguration("Hello, world!"),
                                     ),
                                 ]
                             )
@@ -74,8 +74,8 @@ async def test_regional_content_front_page_content(
                             "front-page-content": PluginInstanceConfigurationSequence(
                                 [
                                     PluginInstanceConfiguration(
-                                        PlainText,
-                                        PlainTextConfiguration("Hello, world!"),
+                                        Render,
+                                        RenderConfiguration("Hello, world!"),
                                     ),
                                 ]
                             )

@@ -10,8 +10,10 @@ from betty.ancestry.event import Event
 from betty.ancestry.person import Person
 from betty.ancestry.place import Place
 from betty.ancestry.source import Source
-from betty.content_provider.content_providers import PlainText, PlainTextConfiguration
+from betty.content_provider.content_providers import Render, RenderConfiguration
 from betty.locale.localizable.gettext import _
+from betty.locale.localizable.markup import Chain
+from betty.media_type.media_types import HTML
 from betty.model.config import EntityReference, EntityReferenceSequence
 from betty.plugin.config import (
     PluginInstanceConfiguration,
@@ -26,7 +28,6 @@ from betty.project.config import (
     LocaleConfigurationMapping,
     ProjectConfiguration,
 )
-from betty.project.extension.demo.content_provider import _FrontPageContent
 from betty.project.extension.raspberry_mint import RaspberryMint
 from betty.project.extension.raspberry_mint.config import RaspberryMintConfiguration
 from betty.project.extension.raspberry_mint.content_provider import (
@@ -63,7 +64,28 @@ async def create_project(app: App, project_directory_path: Path) -> Project:
                             {
                                 "front-page-content": PluginInstanceConfigurationSequence(
                                     [
-                                        PluginInstanceConfiguration(_FrontPageContent),
+                                        PluginInstanceConfiguration(
+                                            Section,
+                                            SectionConfiguration(
+                                                heading=_("Welcome"),
+                                                visually_hide_heading=True,
+                                                content=[
+                                                    PluginInstanceConfiguration(
+                                                        Render,
+                                                        RenderConfiguration(
+                                                            Chain(
+                                                                "<p>",
+                                                                _(
+                                                                    "Betty was named after <a href=\"betty-entity://person/betty-demo-liberta-lankester\">Liberta 'Betty' Lankester</a>, and this website shows a small sample of her family history. You can browse the pages about her and some of her family to get an idea of what a Betty site looks like."
+                                                                ),
+                                                                "</p>",
+                                                            ),
+                                                            HTML,
+                                                        ),
+                                                    ),
+                                                ],
+                                            ),
+                                        ),
                                         PluginInstanceConfiguration(
                                             Section,
                                             SectionConfiguration(
@@ -96,8 +118,8 @@ async def create_project(app: App, project_directory_path: Path) -> Project:
                                 "front-page-summary": PluginInstanceConfigurationSequence(
                                     [
                                         PluginInstanceConfiguration(
-                                            PlainText,
-                                            PlainTextConfiguration(
+                                            Render,
+                                            RenderConfiguration(
                                                 _(
                                                     "Betty is an application that takes a family tree and builds a website out of it, much like the one you are viewing right now. The more information your genealogical research contains, the more interactivity Betty can add to your site, such as media galleries, maps, and browsable family trees."
                                                 )
