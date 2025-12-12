@@ -11,7 +11,7 @@ from typing_extensions import TypeVar, override
 
 from betty import plugin
 from betty.concurrent import AsynchronizedLock, Ledger
-from betty.plugin import Plugin, PluginDefinition
+from betty.plugin import PluginDefinition
 from betty.plugin.discovery import discover
 from betty.plugin.repository.provider import PluginRepositoryProvider
 from betty.plugin.repository.static import StaticPluginRepository
@@ -25,7 +25,6 @@ if TYPE_CHECKING:
     from betty.plugin.repository import PluginRepository
     from betty.service.level import ServiceLevel
 
-_PluginT = TypeVar("_PluginT", bound=Plugin, default=Plugin)
 _PluginDefinitionT = TypeVar(
     "_PluginDefinitionT", bound=PluginDefinition, default=PluginDefinition
 )

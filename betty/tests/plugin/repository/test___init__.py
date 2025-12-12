@@ -6,9 +6,7 @@ from typing_extensions import override
 
 from betty.plugin.error import PluginNotFound
 from betty.plugin.repository import PluginRepository
-from betty.plugin.resolve import resolve_id
 from betty.test_utils.plugin import (
-    DummyPlugin,
     DummyPluginDefinition,
     DummyPluginOne,
     DummyPluginThree,
@@ -18,20 +16,17 @@ from betty.test_utils.plugin import (
 if TYPE_CHECKING:
     from collections.abc import Iterator
 
-    from betty.plugin.resolve import ResolvableId
+    from betty.machine_name import MachineName
 
 
 class TestPluginRepository:
-    class _Sut(PluginRepository[DummyPluginDefinition, DummyPlugin]):
+    class _Sut(PluginRepository[DummyPluginDefinition]):
         def __init__(self, *plugins: DummyPluginDefinition):
             super().__init__(DummyPluginDefinition)
             self._plugins = {plugin.id: plugin for plugin in plugins}
 
         @override
-        def get(
-            self, plugin_id: ResolvableId[DummyPluginDefinition, DummyPlugin], /
-        ) -> DummyPluginDefinition:
-            plugin_id = resolve_id(plugin_id)
+        def get(self, plugin_id: MachineName, /) -> DummyPluginDefinition:
             try:
                 return self._plugins[plugin_id]
             except KeyError:

@@ -7,17 +7,16 @@ from typing import final
 
 from typing_extensions import TypeVar, override
 
-from betty.plugin import Plugin, PluginDefinition
+from betty.machine_name import MachineName
+from betty.plugin import PluginDefinition
 from betty.plugin.error import PluginNotFound
 from betty.plugin.repository import PluginRepository
-from betty.plugin.resolve import ResolvableId, resolve_id
 
-_PluginT = TypeVar("_PluginT", bound=Plugin, default=Plugin)
 _PluginDefinitionT = TypeVar("_PluginDefinitionT", bound=PluginDefinition)
 
 
 @final
-class StaticPluginRepository(PluginRepository[_PluginDefinitionT, _PluginT]):
+class StaticPluginRepository(PluginRepository[_PluginDefinitionT]):
     """
     A repository that is given a static collection of plugins, and exposes those.
     """
@@ -31,10 +30,7 @@ class StaticPluginRepository(PluginRepository[_PluginDefinitionT, _PluginT]):
         self._plugins = {plugin.id: plugin for plugin in plugins}
 
     @override
-    def get(
-        self, plugin_id: ResolvableId[_PluginDefinitionT, _PluginT], /
-    ) -> _PluginDefinitionT:
-        plugin_id = resolve_id(plugin_id)
+    def get(self, plugin_id: MachineName, /) -> _PluginDefinitionT:
         try:
             return self._plugins[plugin_id]
         except KeyError:
