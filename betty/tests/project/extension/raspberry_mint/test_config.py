@@ -4,6 +4,7 @@ from typing import TYPE_CHECKING, Any
 
 import pytest
 
+from betty.config.color import ColorConfiguration
 from betty.content_provider import ContentProvider, ContentProviderPlugin
 from betty.exception import HumanFacingException
 from betty.plugin.config import (
@@ -11,7 +12,6 @@ from betty.plugin.config import (
     PluginInstanceConfigurationSequence,
 )
 from betty.project import Project
-from betty.project.extension._theme import ColorConfiguration
 from betty.project.extension.raspberry_mint import RaspberryMint
 from betty.project.extension.raspberry_mint.config import RaspberryMintConfiguration
 from betty.project.extension.theme.config import RegionalContentConfiguration
