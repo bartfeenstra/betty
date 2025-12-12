@@ -6,23 +6,16 @@ The contents of this file should eventually be stabilized and moved to more spec
 
 from __future__ import annotations
 
-import re
 from collections import defaultdict
-from typing import TYPE_CHECKING, Self, cast
-
-from typing_extensions import override
+from typing import TYPE_CHECKING, cast
 
 from betty.ancestry.event import Event
 from betty.ancestry.event_type.event_types import Birth, Death
 from betty.ancestry.person import Person
 from betty.ancestry.place import Place
 from betty.ancestry.presence_role.presence_roles import Subject
-from betty.assertion import assert_str
-from betty.config import Configuration
 from betty.date import Date, DateLike
-from betty.exception import HumanFacingException
 from betty.functools import unique
-from betty.locale.localizable.gettext import _
 from betty.model import persistent_id
 from betty.privacy import is_public
 
@@ -34,7 +27,6 @@ if TYPE_CHECKING:
     from betty.ancestry.presence import Presence
     from betty.jinja2 import Filters
     from betty.project import Project
-    from betty.serde.dump import Dump
 
 
 def _is_person_timeline_presence(presence: Presence) -> bool:
@@ -233,50 +225,3 @@ def jinja2_filters(project: Project) -> Filters:
         "person_descendant_families": person_descendant_families,
         "associated_file_references": associated_file_references,
     }
-
-
-class ColorConfiguration(Configuration):
-    """
-    Configure a color.
-    """
-
-    _HEX_PATTERN = re.compile(r"^#[a-zA-Z0-9]{6}$")
-
-    def __init__(self, hex_value: str, /):
-        super().__init__()
-        self._hex: str
-        self.hex = hex_value
-
-    @classmethod
-    def _assert_hex(cls, hex_value: str) -> str:
-        if not cls._HEX_PATTERN.match(hex_value):
-            raise HumanFacingException(
-                _(
-                    '"{hex_value}" is not a valid hexadecimal color, such as #ffc0cb.'
-                ).format(
-                    hex_value=hex_value,
-                )
-            )
-        return hex_value
-
-    @property
-    def hex(self) -> str:
-        """
-        The color's hexadecimal value.
-        """
-        return self._hex
-
-    @hex.setter
-    def hex(self, hex_value: str) -> None:
-        self.assert_mutable()
-        self._assert_hex(hex_value)
-        self._hex = hex_value
-
-    @override
-    @classmethod
-    def load(cls, dump: Dump, /) -> Self:
-        return cls((assert_str() | cls._assert_hex)(dump))
-
-    @override
-    def dump(self) -> Dump:
-        return self._hex
