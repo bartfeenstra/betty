@@ -75,7 +75,6 @@ _BASELINE: Mapping[str, _ModuleIgnore] = {
     },
     "betty/app/factory.py": {
         "AppDependentFactory": MissingReason.ABSTRACT,
-        "AppFactory": MissingReason.ABSTRACT,
     },
     "betty/asset.py": {
         "AssetError": MissingReason.ABSTRACT,
@@ -191,7 +190,6 @@ _BASELINE: Mapping[str, _ModuleIgnore] = {
     "betty/factory.py": {
         "Factory": MissingReason.PROTOCOL,
         "SelfFactory": MissingReason.ABSTRACT,
-        "TargetFactory": MissingReason.ABSTRACT,
     },
     "betty/fetch/__init__.py": {
         "Fetcher": MissingReason.ABSTRACT,
@@ -465,7 +463,6 @@ _BASELINE: Mapping[str, _ModuleIgnore] = {
     },
     "betty/project/factory.py": {
         "ProjectDependentFactory": MissingReason.ABSTRACT,
-        "ProjectFactory": MissingReason.ABSTRACT,
     },
     "betty/project/generate/__init__.py": {
         "Generator": MissingReason.ABSTRACT,

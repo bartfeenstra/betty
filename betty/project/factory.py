@@ -8,7 +8,6 @@ from abc import abstractmethod
 from typing import (
     TYPE_CHECKING,
     Generic,
-    Protocol,
     Self,
     TypeAlias,
     TypeVar,
@@ -89,16 +88,3 @@ ProjectTarget: TypeAlias = (
    ``new_for_project()``'s return value.
 #. Else, ``target`` will be treated as :py:type:`betty.app.factory.AppFactoryTarget`.
 """
-
-
-class ProjectFactory(Protocol):
-    """
-    The project factory.
-    """
-
-    async def __call__(self, target: ProjectTarget[_T]) -> _T:
-        """
-        Create a new instance.
-
-        :raises FactoryError: raised when ``target`` could not be instantiated.
-        """
