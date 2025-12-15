@@ -9,8 +9,9 @@ from typing import TYPE_CHECKING, final
 
 from betty.html import plain_text_to_html
 from betty.locale.localizable.gettext import _, ngettext
-from betty.plugin import Plugin, PluginDefinition, PluginTypeDefinition
+from betty.plugin import Plugin, PluginTypeDefinition
 from betty.plugin.discovery.entry_point import EntryPointDiscovery
+from betty.plugin.human_facing import HumanFacingPluginDefinition
 
 if TYPE_CHECKING:
     from betty.media_type import MediaType
@@ -46,7 +47,7 @@ class Renderer(ABC, Plugin["RendererDefinition"]):
     ngettext("{count} renderer", "{count} renderers"),
     discovery=EntryPointDiscovery("betty.renderer"),
 )
-class RendererDefinition(PluginDefinition[Renderer]):
+class RendererDefinition(HumanFacingPluginDefinition[Renderer]):
     """
     A renderer definition.
 
