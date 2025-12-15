@@ -4,14 +4,15 @@ Jobs.
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, TypeVar
+from typing import TYPE_CHECKING
 
-from typing_extensions import override
+from typing_extensions import TypeVar, override
 
 from betty.ancestry.event_type import EventTypeDefinition
 from betty.ancestry.gender import GenderDefinition
 from betty.ancestry.place_type import PlaceTypeDefinition
 from betty.ancestry.presence_role import PresenceRoleDefinition
+from betty.config.factory import new_target
 from betty.copyright_notice import CopyrightNoticeDefinition
 from betty.gramps.loader import GrampsLoader
 from betty.job import Job
@@ -28,18 +29,24 @@ if TYPE_CHECKING:
     from betty.service.level.factory import AnyFactory
 
 _T = TypeVar("_T")
-_PluginT = TypeVar("_PluginT", bound=Plugin)
-_PluginDefinitionT = TypeVar("_PluginDefinitionT", bound=PluginDefinition)
+_PluginT = TypeVar("_PluginT", bound=Plugin, default=Plugin)
+_PluginDefinitionT = TypeVar(
+    "_PluginDefinitionT", bound=PluginDefinition, default=PluginDefinition
+)
 
 
 def _new_plugin_instance_factory(
     configuration: PluginInstanceConfiguration[_PluginDefinitionT, _PluginT],
-    repository: PluginRepository[_PluginDefinitionT],
+    repository: PluginRepository[_PluginDefinitionT & PluginDefinition[_PluginT]],
     *,
     factory: AnyFactory,
 ) -> Callable[[], Awaitable[_PluginT]]:
     async def plugin_instance_factory() -> _PluginT:
-        return await configuration.new_plugin_instance(repository, factory=factory)
+        return await factory(
+            new_target(
+                repository.get(configuration.id).cls, configuration.configuration
+            )
+        )
 
     return plugin_instance_factory
 

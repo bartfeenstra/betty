@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Betty 0.4\n"
 "Report-Msgid-Bugs-To: illia@maier.page\n"
-"POT-Creation-Date: 2025-12-08 16:21+0000\n"
+"POT-Creation-Date: 2025-12-22 00:39+0000\n"
 "PO-Revision-Date: 2025-05-13 17:01+0000\n"
 "Last-Translator: Максим Горпиніч <maksimgorpinic4@gmail.com>\n"
 "Language: uk\n"
@@ -38,6 +38,10 @@ msgstr ""
 
 #, python-brace-format
 msgid "\"{plugin_id}\" ({plugin_label})"
+msgstr ""
+
+#, python-brace-format
+msgid "\"{target}\" is not configurable, but configuration was given."
 msgstr ""
 
 #, python-brace-format
@@ -1064,10 +1068,6 @@ msgid "Places"
 msgstr "Місця"
 
 msgid "Plain text"
-msgstr ""
-
-#, python-brace-format
-msgid "Plugin \"{plugin_id}\" is not configurable, but configuration was given."
 msgstr ""
 
 msgid "Plugins"

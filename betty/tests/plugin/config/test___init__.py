@@ -5,7 +5,6 @@ import pytest
 from typing_extensions import override
 
 from betty.exception import HumanFacingException
-from betty.factory import new_target
 from betty.locale import DEFAULT_LOCALE_TAG
 from betty.locale.localizable.static import StaticTranslations
 from betty.locale.localizer import DEFAULT_LOCALIZER
@@ -19,7 +18,6 @@ from betty.plugin.config import (
     PluginInstanceConfigurationMapping,
     PluginInstanceConfigurationSequence,
 )
-from betty.plugin.repository.static import StaticPluginRepository
 from betty.plugin.resolve import ResolvableId
 from betty.serde.dump import Dump
 from betty.test_utils.config import DummyConfiguration
@@ -225,22 +223,6 @@ class TestCountableHumanFacingPluginDefinitionConfiguration:
 
 
 class TestPluginInstanceConfiguration:
-    def test___init____with_configuration(self):
-        value = "Hello, world!"
-        sut = PluginInstanceConfiguration[
-            ConfigurableDummyPluginDefinition, ConfigurableDummyPlugin
-        ](ConfigurableDummyPluginOne.plugin(), DummyConfiguration(value))
-        assert sut.configuration == {"value": value}
-
-    def test___init____with_configuration_dump(self):
-        configuration: Dump = {
-            "value": "Hello, world!",
-        }
-        sut = PluginInstanceConfiguration[
-            ConfigurableDummyPluginDefinition, ConfigurableDummyPlugin
-        ](ConfigurableDummyPluginOne.plugin(), configuration)
-        assert sut.configuration == configuration
-
     def test_id(self) -> None:
         sut = PluginInstanceConfiguration[DummyPluginDefinition, DummyPlugin](
             DummyPluginOne.plugin()
@@ -252,8 +234,7 @@ class TestPluginInstanceConfiguration:
         sut = PluginInstanceConfiguration[
             ConfigurableDummyPluginDefinition, ConfigurableDummyPlugin
         ](ConfigurableDummyPluginOne.plugin(), configuration)
-        assert sut.configuration == sut.configuration
-        assert sut.configuration == configuration.dump()
+        assert sut.configuration is configuration
 
     def test_configuration__with_dump(self) -> None:
         configuration = DummyConfiguration().dump()
@@ -305,57 +286,6 @@ class TestPluginInstanceConfiguration:
             },
         }
         assert sut.dump() == expected
-
-    async def test_new_plugin_instance__with_configurable_plugin_with_configuration(
-        self,
-    ) -> None:
-        value = "Hello, world!"
-        sut = PluginInstanceConfiguration[
-            ConfigurableDummyPluginDefinition, ConfigurableDummyPlugin
-        ](ConfigurableDummyPluginOne.plugin(), DummyConfiguration(value))
-        repository = StaticPluginRepository(
-            ConfigurableDummyPluginDefinition, ConfigurableDummyPluginOne.plugin()
-        )
-        instance = await sut.new_plugin_instance(repository, factory=new_target)
-        assert isinstance(instance, ConfigurableDummyPluginOne)
-        assert instance.configuration.value == value
-
-    async def test_new_plugin_instance__with_configurable_plugin_without_configuration(
-        self,
-    ) -> None:
-        sut = PluginInstanceConfiguration[
-            ConfigurableDummyPluginDefinition, ConfigurableDummyPlugin
-        ](ConfigurableDummyPluginOne.plugin())
-        repository = StaticPluginRepository(
-            ConfigurableDummyPluginDefinition, ConfigurableDummyPluginOne.plugin()
-        )
-        instance = await sut.new_plugin_instance(repository, factory=new_target)
-        assert isinstance(instance, ConfigurableDummyPluginOne)
-
-    async def test_new_plugin_instance__with_non_configurable_plugin_with_configuration(
-        self,
-    ) -> None:
-        value = "Hello, world!"
-        sut = PluginInstanceConfiguration[DummyPluginDefinition, DummyPlugin](
-            DummyPluginOne.plugin(), DummyConfiguration(value)
-        )
-        repository = StaticPluginRepository(
-            DummyPluginDefinition, DummyPluginOne.plugin()
-        )
-        with pytest.raises(HumanFacingException):
-            await sut.new_plugin_instance(repository, factory=new_target)
-
-    async def test_new_plugin_instance__with_non_configurable_plugin_without_configuration(
-        self,
-    ) -> None:
-        sut = PluginInstanceConfiguration[DummyPluginDefinition, DummyPlugin](
-            DummyPluginOne.plugin().id
-        )
-        repository = StaticPluginRepository(
-            DummyPluginDefinition, DummyPluginOne.plugin()
-        )
-        instance = await sut.new_plugin_instance(repository, factory=new_target)
-        assert isinstance(instance, DummyPluginOne)
 
 
 class TestPluginInstanceConfigurationMapping(

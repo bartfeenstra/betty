@@ -6,7 +6,7 @@ from __future__ import annotations
 
 from abc import ABC, abstractmethod
 from collections.abc import Awaitable, Callable
-from typing import TYPE_CHECKING, Any, Self, TypeAlias, cast
+from typing import TYPE_CHECKING, Self, TypeAlias, cast
 
 from typing_extensions import TypeVar
 
@@ -44,13 +44,10 @@ Target: TypeAlias = (
 """
 
 
-class FactoryError(RuntimeError):
+class FactoryError(Exception):
     """
-    Raised when a class could not be instantiated by a factory API.
+    Raised when a class could not be instantiated.
     """
-
-    def __init__(self, target: Any, /):
-        super().__init__(f"Could not call {repr(target)}")
 
 
 async def new_target(target: AnyFactoryTarget[_T], /) -> _T:

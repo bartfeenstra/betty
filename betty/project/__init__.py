@@ -347,6 +347,8 @@ class Project(
         """
         The enabled extensions.
         """
+        from betty.config.factory import new_target
+
         extensions = await self.plugins(ExtensionDefinition)
         configured_extension_definitions = []
         configured_extension_configurations = {}
@@ -373,11 +375,15 @@ class Project(
                 if enabled_extension_definition.theme:
                     theme_count += 1
                 if enabled_extension_id in configured_extension_configurations:
-                    extension = await configured_extension_configurations[
-                        enabled_extension_id
-                    ].new_plugin_instance(extensions, factory=self.new_target)
+                    extension_target = new_target(
+                        enabled_extension_definition.cls,
+                        configured_extension_configurations[
+                            enabled_extension_id
+                        ].configuration,
+                    )
                 else:
-                    extension = await self.new_target(enabled_extension_definition.cls)
+                    extension_target = enabled_extension_definition.cls
+                extension = await self.new_target(extension_target)
                 enabled_extension_batch.append(extension)
                 extensions_sorter.done(enabled_extension_id)
             enabled_extensions.append(
@@ -427,8 +433,14 @@ class Project(
         """
         The overall project copyright.
         """
-        return await self.configuration.copyright_notice.new_plugin_instance(
-            await self.plugins(CopyrightNoticeDefinition), factory=self.new_target
+        from betty.config.factory import new_target
+
+        copyright_notices = await self.plugins(CopyrightNoticeDefinition)
+        return await self.new_target(
+            new_target(
+                copyright_notices[self.configuration.copyright_notice.id].cls,
+                self.configuration.copyright_notice.configuration,
+            )
         )
 
     @service
@@ -436,8 +448,14 @@ class Project(
         """
         The overall project license.
         """
-        return await self.configuration.license.new_plugin_instance(
-            await self.plugins(LicenseDefinition), factory=self.new_target
+        from betty.config.factory import new_target
+
+        licenses = await self.plugins(LicenseDefinition)
+        return await self.new_target(
+            new_target(
+                licenses[self.configuration.license.id].cls,
+                self.configuration.license.configuration,
+            )
         )
 
     @service

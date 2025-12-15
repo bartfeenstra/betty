@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Betty VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2025-12-08 16:21+0000\n"
+"POT-Creation-Date: 2025-12-22 00:39+0000\n"
 "PO-Revision-Date: 2025-11-16 18:38+0000\n"
 "Last-Translator: Артур Калагов "
 "<artur.kalagov@users.noreply.hosted.weblate.org>\n"
@@ -41,6 +41,10 @@ msgstr ""
 
 #, python-brace-format
 msgid "\"{plugin_id}\" ({plugin_label})"
+msgstr ""
+
+#, python-brace-format
+msgid "\"{target}\" is not configurable, but configuration was given."
 msgstr ""
 
 #, python-brace-format
@@ -1068,10 +1072,6 @@ msgid "Places"
 msgstr "Места"
 
 msgid "Plain text"
-msgstr ""
-
-#, python-brace-format
-msgid "Plugin \"{plugin_id}\" is not configurable, but configuration was given."
 msgstr ""
 
 msgid "Plugins"
