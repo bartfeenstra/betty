@@ -2,11 +2,11 @@
 Service level factories.
 """
 
-from typing import TypeAlias, TypeVar
+from typing import Protocol, TypeAlias
 
-from betty.app.factory import AppFactory
-from betty.factory import Factory
-from betty.project.factory import ProjectFactory, ProjectTarget
+from typing_extensions import TypeVar
+
+from betty.project.factory import ProjectTarget
 
 _T = TypeVar("_T")
 
@@ -17,7 +17,14 @@ A factory target for any service level.
 """
 
 
-AnyFactory: TypeAlias = Factory | AppFactory | ProjectFactory
-"""
-A factory for any service level.
-"""
+class AnyFactory(Protocol):
+    """
+    A factory for any service level.
+    """
+
+    async def __call__(self, target: AnyFactoryTarget[_T], /) -> _T:
+        """
+        Create a new instance.
+
+        :raises FactoryError: raised when ``target`` could not be instantiated.
+        """

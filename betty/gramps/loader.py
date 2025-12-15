@@ -139,7 +139,7 @@ if TYPE_CHECKING:
     from betty.machine_name import MachineName
     from betty.plugin.repository import PluginRepository
     from betty.plugin.resolve import ResolvableId
-    from betty.project.factory import ProjectFactory
+    from betty.service.level.factory import AnyFactory
     from betty.user import User
 
 _EntityT = TypeVar("_EntityT", bound=Entity)
@@ -342,7 +342,7 @@ class GrampsLoader:
         self,
         ancestry: Ancestry,
         *,
-        factory: ProjectFactory,
+        factory: AnyFactory,
         user: User,
         copyright_notices: PluginRepository[CopyrightNoticeDefinition],
         genders: PluginRepository[GenderDefinition],

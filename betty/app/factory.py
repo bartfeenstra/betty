@@ -8,7 +8,6 @@ from abc import abstractmethod
 from typing import (
     TYPE_CHECKING,
     Generic,
-    Protocol,
     Self,
     TypeAlias,
     TypeVar,
@@ -87,16 +86,3 @@ AppTarget: TypeAlias = Target[_T] | AppDependentSelfFactory | AppDependentFactor
    ``new_for_app()``'s return value.
 #. Else, ``target`` will be treated as :py:type:`betty.factory.Target`.
 """
-
-
-class AppFactory(Protocol):
-    """
-    The app factory.
-    """
-
-    async def __call__(self, target: AppTarget[_T]) -> _T:
-        """
-        Create a new instance.
-
-        :raises FactoryError: raised when ``target`` could not be instantiated.
-        """

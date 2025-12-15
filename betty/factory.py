@@ -6,13 +6,16 @@ from __future__ import annotations
 
 from abc import ABC, abstractmethod
 from collections.abc import Awaitable, Callable
-from typing import Any, Protocol, Self, TypeAlias, cast
+from typing import TYPE_CHECKING, Any, Self, TypeAlias, cast
 
 from typing_extensions import TypeVar
 
 from betty.asyncio import ensure_await
 
-_T = TypeVar("_T", default=Any)
+if TYPE_CHECKING:
+    from betty.service.level.factory import AnyFactoryTarget
+
+_T = TypeVar("_T")
 
 
 class SelfFactory(ABC):
@@ -46,11 +49,11 @@ class FactoryError(RuntimeError):
     Raised when a class could not be instantiated by a factory API.
     """
 
-    def __init__(self, target: Target, /):
+    def __init__(self, target: Any, /):
         super().__init__(f"Could not call {repr(target)}")
 
 
-async def new_target(target: Target[_T], /) -> _T:
+async def new_target(target: AnyFactoryTarget[_T], /) -> _T:
     """
     Create a new instance.
 
@@ -61,19 +64,8 @@ async def new_target(target: Target[_T], /) -> _T:
             if issubclass(target, SelfFactory):
                 return cast(_T, await target.new())
             return cast(type[_T], target)()
-        return await ensure_await(target())
+        if callable(target):
+            return await ensure_await(target())
+        raise FactoryError(target)
     except Exception as error:
         raise FactoryError(target) from error
-
-
-class Factory(Protocol):
-    """
-    A callable to create a new instance.
-    """
-
-    async def __call__(self, target: Target[_T], /) -> _T:
-        """
-        Create a new instance.
-
-        :raises FactoryError: raised when ``target`` could not be instantiated.
-        """

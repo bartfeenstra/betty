@@ -36,9 +36,7 @@ class _ServiceContainer(ServiceContainer):
 
     @override
     async def new_target(self, target: AnyFactoryTarget[_T]) -> _T:
-        return await new_target(
-            target,  # type: ignore[arg-type]
-        )
+        return await new_target(target)
 
 
 class _ConfigurableServiceProvider(DummyConfigurable, _ServiceContainer):
