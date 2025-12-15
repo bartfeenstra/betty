@@ -33,7 +33,7 @@ class ExtensionDiscovery(PluginDiscovery[_PluginDefinitionT]):
 
     def __init__(
         self,
-        extension: ResolvableId[ExtensionDefinition, Extension],
+        extension: ResolvableId[ExtensionDefinition],
         discovery: Callable[[Extension], Awaitable[Iterable[_PluginDefinitionT]]]
         | Callable[[Extension], Iterable[_PluginDefinitionT]],
         /,

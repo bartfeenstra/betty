@@ -24,7 +24,7 @@ if TYPE_CHECKING:
 
     from jinja2 import Template
 
-    from betty.project.extension import Extension, ExtensionDefinition
+    from betty.project.extension import ExtensionDefinition
 
 
 @asynccontextmanager
@@ -34,7 +34,7 @@ async def _assert_template(
     *,
     data: MutableMapping[str, Any] | None = None,
     autoescape: bool | None = None,
-    extensions: set[ResolvableId[ExtensionDefinition, Extension]] | None = None,
+    extensions: set[ResolvableId[ExtensionDefinition]] | None = None,
 ) -> AsyncIterator[tuple[str, Project]]:
     async with (
         App.new_isolated() as app,
@@ -63,7 +63,7 @@ def assert_template_string(
     *,
     data: MutableMapping[str, Any] | None = None,
     autoescape: bool | None = None,
-    extensions: set[ResolvableId[ExtensionDefinition, Extension]] | None = None,
+    extensions: set[ResolvableId[ExtensionDefinition]] | None = None,
 ) -> AbstractAsyncContextManager[tuple[str, Project]]:
     """
     Assert that a template string can be rendered.
@@ -82,7 +82,7 @@ def assert_template_file(
     *,
     data: MutableMapping[str, Any] | None = None,
     autoescape: bool | None = None,
-    extensions: set[ResolvableId[ExtensionDefinition, Extension]] | None = None,
+    extensions: set[ResolvableId[ExtensionDefinition]] | None = None,
 ) -> AbstractAsyncContextManager[tuple[str, Project]]:
     """
     Assert that a template file can be rendered.

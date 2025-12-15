@@ -291,7 +291,7 @@ class TestPluginInstanceConfiguration:
 class TestPluginInstanceConfigurationMapping(
     ConfigurationMappingTestBase[
         MachineName,
-        ResolvableId[DummyPluginDefinition, DummyPlugin],
+        ResolvableId[DummyPluginDefinition],
         PluginInstanceConfiguration[DummyPluginDefinition, DummyPlugin],
     ]
 ):
@@ -314,7 +314,7 @@ class TestPluginInstanceConfigurationMapping(
     ) -> ConfigurationCollectionTestBaseNewSut[
         PluginInstanceConfiguration[DummyPluginDefinition, DummyPlugin],
         MachineName,
-        ResolvableId[DummyPluginDefinition, DummyPlugin],
+        ResolvableId[DummyPluginDefinition],
     ]:
         return PluginInstanceConfigurationMapping
 
@@ -339,7 +339,7 @@ class TestPluginInstanceConfigurationMapping(
 class TestPluginIdentifierKeyConfigurationMapping:
     class _Sut(
         PluginIdentifierKeyConfigurationMapping[
-            DummyPluginDefinition, DummyPlugin, DummyConfiguration
+            DummyPluginDefinition, DummyConfiguration
         ]
     ):
         @override

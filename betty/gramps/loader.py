@@ -27,6 +27,7 @@ from betty import subprocess
 from betty.ancestry.citation import Citation
 from betty.ancestry.enclosure import Enclosure
 from betty.ancestry.event import Event
+from betty.ancestry.event_type import EventType, EventTypeDefinition
 from betty.ancestry.event_type.event_types import (
     Adoption,
     Baptism,
@@ -52,6 +53,7 @@ from betty.ancestry.event_type.event_types import (
 from betty.ancestry.event_type.event_types import Unknown as UnknownEventType
 from betty.ancestry.file import File
 from betty.ancestry.file_reference import FileReference
+from betty.ancestry.gender import Gender, GenderDefinition
 from betty.ancestry.gender.genders import Man, NonBinary, Woman
 from betty.ancestry.gender.genders import Unknown as UnknownGender
 from betty.ancestry.has_links import HasLinks
@@ -61,6 +63,7 @@ from betty.ancestry.note import Note
 from betty.ancestry.person import Person
 from betty.ancestry.person_name import PersonName
 from betty.ancestry.place import Place
+from betty.ancestry.place_type import PlaceType, PlaceTypeDefinition
 from betty.ancestry.place_type.place_types import (
     Borough,
     Building,
@@ -85,6 +88,7 @@ from betty.ancestry.place_type.place_types import (
 )
 from betty.ancestry.place_type.place_types import Unknown as UnknownPlaceType
 from betty.ancestry.presence import Presence
+from betty.ancestry.presence_role import PresenceRole, PresenceRoleDefinition
 from betty.ancestry.presence_role.presence_roles import (
     Attendee,
     Celebrant,
@@ -126,19 +130,14 @@ if TYPE_CHECKING:
     from babel import Locale
 
     from betty.ancestry import Ancestry
-    from betty.ancestry.event_type import EventType, EventTypeDefinition
-    from betty.ancestry.gender import Gender, GenderDefinition
     from betty.ancestry.has_citations import HasCitations
     from betty.ancestry.has_file_references import HasFileReferences
     from betty.ancestry.has_notes import HasNotes
-    from betty.ancestry.place_type import PlaceType, PlaceTypeDefinition
-    from betty.ancestry.presence_role import PresenceRole, PresenceRoleDefinition
     from betty.copyright_notice import CopyrightNoticeDefinition
     from betty.license import LicenseDefinition
     from betty.locale.localizable import StaticTranslationsMapping
     from betty.machine_name import MachineName
     from betty.plugin.repository import PluginRepository
-    from betty.plugin.resolve import ResolvableId
     from betty.service.level.factory import AnyFactory
     from betty.user import User
 
@@ -213,96 +212,90 @@ class _ToManyResolver(ToManyResolver[_EntityT], Generic[_EntityT]):
             yield cast(_EntityT, self._handles_to_entities[handle])
 
 
-def _plugin_mapping(
-    mapping: Mapping[str, ResolvableId[_PluginDefinitionT, _PluginT]],
-) -> Mapping[str, PluginInstanceConfiguration[_PluginDefinitionT, _PluginT]]:
-    return {
-        gramps_type: PluginInstanceConfiguration(plugin)
-        for gramps_type, plugin in mapping.items()
-    }
-
-
-_DEFAULT_GENDER_MAPPING: Mapping[str, ResolvableId[GenderDefinition, Gender]] = {
-    "F": Woman,
-    "M": Man,
-    "U": UnknownGender,
-    "X": NonBinary,
-}
-DEFAULT_GENDER_MAPPING = _plugin_mapping(_DEFAULT_GENDER_MAPPING)
-
-_DEFAULT_EVENT_TYPE_MAPPING: Mapping[
-    str, ResolvableId[EventTypeDefinition, EventType]
-] = {
-    "Adopted": Adoption,
-    "Adult Christening": Baptism,
-    "Baptism": Baptism,
-    "Bar Mitzvah": BarMitzvah,
-    "Bat Mitzvah": BatMitzvah,
-    "Birth": Birth,
-    "Burial": Burial,
-    "Christening": Baptism,
-    "Confirmation": Confirmation,
-    "Cremation": Cremation,
-    "Death": Death,
-    "Divorce": Divorce,
-    "Divorce Filing": DivorceAnnouncement,
-    "Emigration": Emigration,
-    "Engagement": Engagement,
-    "Immigration": Immigration,
-    "Marriage": Marriage,
-    "Marriage Banns": MarriageAnnouncement,
-    "Occupation": Occupation,
-    "Residence": Residence,
-    "Retirement": Retirement,
-    "Will": Will,
-}
-DEFAULT_EVENT_TYPE_MAPPING = _plugin_mapping(_DEFAULT_EVENT_TYPE_MAPPING)
-
-
-_DEFAULT_PLACE_TYPE_MAPPING: Mapping[
-    str, ResolvableId[PlaceTypeDefinition, PlaceType]
-] = {
-    "Borough": Borough,
-    "Building": Building,
-    "City": City,
-    "Country": Country,
-    "County": County,
-    "Department": Department,
-    "District": District,
-    "Farm": Farm,
-    "Hamlet": Hamlet,
-    "Locality": Locality,
-    "Municipality": Municipality,
-    "Neighborhood": Neighborhood,
-    "Number": Number,
-    "Parish": Parish,
-    "Province": Province,
-    "Region": Region,
-    "State": State,
-    "Street": Street,
-    "Town": Town,
-    "Unknown": UnknownPlaceType,
-    "Village": Village,
+DEFAULT_GENDER_MAPPING = {
+    gramps_type: PluginInstanceConfiguration[GenderDefinition, Gender](plugin)
+    for gramps_type, plugin in {
+        "F": Woman,
+        "M": Man,
+        "U": UnknownGender,
+        "X": NonBinary,
+    }.items()
 }
 
-DEFAULT_PLACE_TYPE_MAPPING = _plugin_mapping(_DEFAULT_PLACE_TYPE_MAPPING)
-
-
-_DEFAULT_PRESENCE_ROLE_MAPPING: Mapping[
-    str, ResolvableId[PresenceRoleDefinition, PresenceRole]
-] = {
-    "Aide": Attendee,
-    "Bride": Subject,
-    "Celebrant": Celebrant,
-    "Clergy": Celebrant,
-    "Family": Subject,
-    "Groom": Subject,
-    "Informant": Informant,
-    "Primary": Subject,
-    "Unknown": UnknownPresenceRole,
-    "Witness": Witness,
+DEFAULT_EVENT_TYPE_MAPPING = {
+    gramps_type: PluginInstanceConfiguration[EventTypeDefinition, EventType](plugin)
+    for gramps_type, plugin in {
+        "Adopted": Adoption,
+        "Adult Christening": Baptism,
+        "Baptism": Baptism,
+        "Bar Mitzvah": BarMitzvah,
+        "Bat Mitzvah": BatMitzvah,
+        "Birth": Birth,
+        "Burial": Burial,
+        "Christening": Baptism,
+        "Confirmation": Confirmation,
+        "Cremation": Cremation,
+        "Death": Death,
+        "Divorce": Divorce,
+        "Divorce Filing": DivorceAnnouncement,
+        "Emigration": Emigration,
+        "Engagement": Engagement,
+        "Immigration": Immigration,
+        "Marriage": Marriage,
+        "Marriage Banns": MarriageAnnouncement,
+        "Occupation": Occupation,
+        "Residence": Residence,
+        "Retirement": Retirement,
+        "Will": Will,
+    }.items()
 }
-DEFAULT_PRESENCE_ROLE_MAPPING = _plugin_mapping(_DEFAULT_PRESENCE_ROLE_MAPPING)
+
+
+DEFAULT_PLACE_TYPE_MAPPING = {
+    gramps_type: PluginInstanceConfiguration[PlaceTypeDefinition, PlaceType](plugin)
+    for gramps_type, plugin in {
+        "Borough": Borough,
+        "Building": Building,
+        "City": City,
+        "Country": Country,
+        "County": County,
+        "Department": Department,
+        "District": District,
+        "Farm": Farm,
+        "Hamlet": Hamlet,
+        "Locality": Locality,
+        "Municipality": Municipality,
+        "Neighborhood": Neighborhood,
+        "Number": Number,
+        "Parish": Parish,
+        "Province": Province,
+        "Region": Region,
+        "State": State,
+        "Street": Street,
+        "Town": Town,
+        "Unknown": UnknownPlaceType,
+        "Village": Village,
+    }.items()
+}
+
+
+DEFAULT_PRESENCE_ROLE_MAPPING = {
+    gramps_type: PluginInstanceConfiguration[PresenceRoleDefinition, PresenceRole](
+        plugin
+    )
+    for gramps_type, plugin in {
+        "Aide": Attendee,
+        "Bride": Subject,
+        "Celebrant": Celebrant,
+        "Clergy": Celebrant,
+        "Family": Subject,
+        "Groom": Subject,
+        "Informant": Informant,
+        "Primary": Subject,
+        "Unknown": UnknownPresenceRole,
+        "Witness": Witness,
+    }.items()
+}
 
 _DEFAULT_GRAMPS_EXECUTABLE = (
     "Gramps.exe" if sys.platform.startswith("win32") else "gramps"

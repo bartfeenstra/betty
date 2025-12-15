@@ -50,7 +50,7 @@ from betty.locale.localizable.config import dump_localizable
 from betty.locale.localizable.ensure import ensure_localizable
 from betty.locale.localizable.gettext import _
 from betty.machine_name import MachineName, assert_machine_name
-from betty.model import Entity, EntityDefinition
+from betty.model import EntityDefinition
 from betty.plugin.config import (
     CountableHumanFacingPluginDefinitionConfiguration,
     HumanFacingPluginDefinitionConfiguration,
@@ -90,7 +90,7 @@ class ExtensionInstanceConfigurationMapping(
     Configure a project's enabled extensions.
     """
 
-    def enable(self, *extensions: ResolvableId[ExtensionDefinition, Extension]) -> None:
+    def enable(self, *extensions: ResolvableId[ExtensionDefinition]) -> None:
         """
         Enable the given extensions.
         """
@@ -108,7 +108,7 @@ class EntityTypeConfiguration(Configuration):
 
     def __init__(
         self,
-        entity_type: ResolvableId[EntityDefinition, Entity],
+        entity_type: ResolvableId[EntityDefinition],
         *,
         generate_html_list: bool = False,
     ):
@@ -170,9 +170,7 @@ class EntityTypeConfiguration(Configuration):
 
 @final
 class EntityTypeConfigurationMapping(
-    PluginIdentifierKeyConfigurationMapping[
-        EntityDefinition, Entity, EntityTypeConfiguration
-    ]
+    PluginIdentifierKeyConfigurationMapping[EntityDefinition, EntityTypeConfiguration]
 ):
     """
     Configure the entity types for a project.
@@ -359,7 +357,7 @@ class CopyrightNoticePluginConfiguration(HumanFacingPluginDefinitionConfiguratio
 
 class CopyrightNoticePluginConfigurationMapping(
     PluginDefinitionConfigurationMapping[
-        CopyrightNoticeDefinition, CopyrightNotice, CopyrightNoticePluginConfiguration
+        CopyrightNoticeDefinition, CopyrightNoticePluginConfiguration
     ]
 ):
     """
@@ -428,9 +426,7 @@ class LicensePluginConfiguration(HumanFacingPluginDefinitionConfiguration):
 
 
 class LicensePluginConfigurationMapping(
-    PluginDefinitionConfigurationMapping[
-        LicenseDefinition, License, LicensePluginConfiguration
-    ]
+    PluginDefinitionConfigurationMapping[LicenseDefinition, LicensePluginConfiguration]
 ):
     """
     A configuration mapping for licenses.
@@ -475,7 +471,7 @@ class EventTypePluginConfiguration(
 
 class EventTypePluginConfigurationMapping(
     PluginDefinitionConfigurationMapping[
-        EventTypeDefinition, EventType, EventTypePluginConfiguration
+        EventTypeDefinition, EventTypePluginConfiguration
     ]
 ):
     """
@@ -512,7 +508,7 @@ class PlaceTypePluginConfiguration(CountableHumanFacingPluginDefinitionConfigura
 
 class PlaceTypePluginConfigurationMapping(
     PluginDefinitionConfigurationMapping[
-        PlaceTypeDefinition, PlaceType, PlaceTypePluginConfiguration
+        PlaceTypeDefinition, PlaceTypePluginConfiguration
     ]
 ):
     """
@@ -551,7 +547,7 @@ class PresenceRolePluginConfiguration(
 
 class PresenceRolePluginConfigurationMapping(
     PluginDefinitionConfigurationMapping[
-        PresenceRoleDefinition, PresenceRole, PresenceRolePluginConfiguration
+        PresenceRoleDefinition, PresenceRolePluginConfiguration
     ]
 ):
     """
@@ -587,9 +583,7 @@ class GenderPluginConfiguration(CountableHumanFacingPluginDefinitionConfiguratio
 
 
 class GenderPluginConfigurationMapping(
-    PluginDefinitionConfigurationMapping[
-        GenderDefinition, Gender, GenderPluginConfiguration
-    ]
+    PluginDefinitionConfigurationMapping[GenderDefinition, GenderPluginConfiguration]
 ):
     """
     A configuration mapping for genders.

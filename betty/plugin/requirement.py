@@ -5,7 +5,7 @@ Requirements for plugins.
 from __future__ import annotations
 
 from collections.abc import Iterable
-from typing import TYPE_CHECKING, Self, final
+from typing import TYPE_CHECKING, Self, cast, final
 
 from typing_extensions import TypeVar, override
 
@@ -132,8 +132,16 @@ class CheckRequirementRepository(PluginRepository[_PluginDefinitionT]):
         return cls(
             plugin_type,
             [
-                (plugin, await get_requirement(plugin, services))  # type: ignore[misc]
-                for plugin in list(map(resolve_definition, plugins))
+                (plugin, await get_requirement(plugin, services))
+                for plugin in cast(
+                    list[_PluginDefinitionT],
+                    list(
+                        map(
+                            resolve_definition,  # type: ignore[arg-type]
+                            plugins,
+                        )
+                    ),
+                )
             ],
         )
 

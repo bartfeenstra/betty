@@ -14,27 +14,26 @@ from betty.plugin import Plugin, PluginDefinition
 _PluginDefinitionT = TypeVar(
     "_PluginDefinitionT", bound=PluginDefinition, default=PluginDefinition
 )
-_PluginT = TypeVar("_PluginT", bound=Plugin, default=Plugin)
 
-ResolvableDefinition: TypeAlias = _PluginDefinitionT | type[_PluginT]
+ResolvableDefinition: TypeAlias = _PluginDefinitionT | type[Plugin[_PluginDefinitionT]]
 """
 Use :py:func:`betty.plugin.resolve.resolve_definition` to resolve this to a :py:class:`betty.plugin.PluginDefinition`
 """
 
-ResolvableId: TypeAlias = (
-    MachineName | ResolvableDefinition[_PluginDefinitionT, _PluginT]
-)
+ResolvableId: TypeAlias = MachineName | ResolvableDefinition[_PluginDefinitionT]
 """
 Use :py:func:`betty.plugin.resolve.resolve_id` to resolve this to a plugin ID.
 """
 
 
-def resolve_definition(definition: ResolvableDefinition, /) -> PluginDefinition:
+def resolve_definition(
+    definition: ResolvableDefinition[_PluginDefinitionT], /
+) -> _PluginDefinitionT:
     """
     Resolve a plugin definition.
     """
     if isinstance(definition, PluginDefinition):
-        return definition
+        return definition  # type: ignore[return-value]
     return definition.plugin()
 
 

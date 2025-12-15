@@ -7,14 +7,14 @@ import pytest
 from babel import Locale
 from typing_extensions import override
 
-from betty.ancestry.event_type import EventType, EventTypeDefinition
-from betty.ancestry.gender import Gender, GenderDefinition
-from betty.ancestry.place_type import PlaceType, PlaceTypeDefinition
-from betty.ancestry.presence_role import PresenceRole, PresenceRoleDefinition
-from betty.copyright_notice import CopyrightNotice, CopyrightNoticeDefinition
+from betty.ancestry.event_type import EventTypeDefinition
+from betty.ancestry.gender import GenderDefinition
+from betty.ancestry.place_type import PlaceTypeDefinition
+from betty.ancestry.presence_role import PresenceRoleDefinition
+from betty.copyright_notice import CopyrightNoticeDefinition
 from betty.copyright_notice.copyright_notices import ProjectAuthor
 from betty.exception import HumanFacingException
-from betty.license import License, LicenseDefinition
+from betty.license import LicenseDefinition
 from betty.license.licenses import AllRightsReserved
 from betty.locale import DEFAULT_LOCALE, DEFAULT_LOCALE_TAG, LocaleLike
 from betty.locale.localizable.plain import Plain
@@ -304,7 +304,7 @@ class ExtensionInstanceConfigurationMappingTestExtension3(Extension):
 class TestExtensionInstanceConfigurationMapping(
     ConfigurationMappingTestBase[
         MachineName,
-        ResolvableId[ExtensionDefinition, Extension],
+        ResolvableId[ExtensionDefinition],
         PluginInstanceConfiguration[ExtensionDefinition, Extension],
     ]
 ):
@@ -327,7 +327,7 @@ class TestExtensionInstanceConfigurationMapping(
     ) -> ConfigurationCollectionTestBaseNewSut[
         PluginInstanceConfiguration[ExtensionDefinition, Extension],
         MachineName,
-        ResolvableId[ExtensionDefinition, Extension],
+        ResolvableId[ExtensionDefinition],
     ]:
         return ExtensionInstanceConfigurationMapping
 
@@ -475,7 +475,7 @@ class EntityTypeConfigurationMappingTestEntity3(Entity):
 
 class TestEntityTypeConfigurationMapping(
     ConfigurationMappingTestBase[
-        MachineName, ResolvableId[EntityDefinition, Entity], EntityTypeConfiguration
+        MachineName, ResolvableId[EntityDefinition], EntityTypeConfiguration
     ]
 ):
     @override
@@ -495,7 +495,7 @@ class TestEntityTypeConfigurationMapping(
     def new_sut(
         self,
     ) -> ConfigurationCollectionTestBaseNewSut[
-        EntityTypeConfiguration, MachineName, ResolvableId[EntityDefinition, Entity]
+        EntityTypeConfiguration, MachineName, ResolvableId[EntityDefinition]
     ]:
         return EntityTypeConfigurationMapping
 
@@ -611,7 +611,7 @@ class TestCopyrightNoticeConfiguration:
 
 class TestCopyrightNoticePluginConfigurationMapping(
     PluginDefinitionConfigurationMappingTestBase[
-        CopyrightNoticeDefinition, CopyrightNotice, CopyrightNoticePluginConfiguration
+        CopyrightNoticeDefinition, CopyrightNoticePluginConfiguration
     ]
 ):
     @override
@@ -660,11 +660,11 @@ class TestCopyrightNoticePluginConfigurationMapping(
     def new_sut(
         self,
     ) -> ConfigurationCollectionTestBaseNewSut[
-        CopyrightNoticePluginConfigurationMapping,
+        CopyrightNoticePluginConfiguration,
         MachineName,
-        ResolvableId[CopyrightNoticeDefinition, CopyrightNotice],
+        ResolvableId[CopyrightNoticeDefinition],
     ]:
-        return CopyrightNoticePluginConfigurationMapping  # type: ignore[return-value]
+        return CopyrightNoticePluginConfigurationMapping
 
 
 class TestLicenseConfiguration:
@@ -748,7 +748,7 @@ class TestLicenseConfiguration:
 
 class TestLicensePluginConfigurationMapping(
     PluginDefinitionConfigurationMappingTestBase[
-        LicenseDefinition, License, LicensePluginConfiguration
+        LicenseDefinition, LicensePluginConfiguration
     ]
 ):
     @override
@@ -797,14 +797,14 @@ class TestLicensePluginConfigurationMapping(
     ) -> ConfigurationCollectionTestBaseNewSut[
         LicensePluginConfiguration,
         MachineName,
-        ResolvableId[LicenseDefinition, License],
+        ResolvableId[LicenseDefinition],
     ]:
         return LicensePluginConfigurationMapping
 
 
 class TestEventTypePluginConfigurationMapping(
     PluginDefinitionConfigurationMappingTestBase[
-        EventTypeDefinition, EventType, EventTypePluginConfiguration
+        EventTypeDefinition, EventTypePluginConfiguration
     ]
 ):
     @override
@@ -853,14 +853,14 @@ class TestEventTypePluginConfigurationMapping(
     ) -> ConfigurationCollectionTestBaseNewSut[
         EventTypePluginConfiguration,
         MachineName,
-        ResolvableId[EventTypeDefinition, EventType],
+        ResolvableId[EventTypeDefinition],
     ]:
         return EventTypePluginConfigurationMapping
 
 
 class TestPlaceTypePluginConfigurationMapping(
     PluginDefinitionConfigurationMappingTestBase[
-        PlaceTypeDefinition, PlaceType, PlaceTypePluginConfiguration
+        PlaceTypeDefinition, PlaceTypePluginConfiguration
     ]
 ):
     @override
@@ -909,14 +909,14 @@ class TestPlaceTypePluginConfigurationMapping(
     ) -> ConfigurationCollectionTestBaseNewSut[
         PlaceTypePluginConfiguration,
         MachineName,
-        ResolvableId[PlaceTypeDefinition, PlaceType],
+        ResolvableId[PlaceTypeDefinition],
     ]:
         return PlaceTypePluginConfigurationMapping
 
 
 class TestPresenceRolePluginConfigurationMapping(
     PluginDefinitionConfigurationMappingTestBase[
-        PresenceRoleDefinition, PresenceRole, PresenceRolePluginConfiguration
+        PresenceRoleDefinition, PresenceRolePluginConfiguration
     ]
 ):
     @override
@@ -967,14 +967,14 @@ class TestPresenceRolePluginConfigurationMapping(
     ) -> ConfigurationCollectionTestBaseNewSut[
         PresenceRolePluginConfiguration,
         MachineName,
-        ResolvableId[PresenceRoleDefinition, PresenceRole],
+        ResolvableId[PresenceRoleDefinition],
     ]:
         return PresenceRolePluginConfigurationMapping
 
 
 class TestGenderPluginConfigurationMapping(
     PluginDefinitionConfigurationMappingTestBase[
-        GenderDefinition, Gender, GenderPluginConfiguration
+        GenderDefinition, GenderPluginConfiguration
     ]
 ):
     @override
@@ -1021,7 +1021,7 @@ class TestGenderPluginConfigurationMapping(
     def new_sut(
         self,
     ) -> ConfigurationCollectionTestBaseNewSut[
-        GenderPluginConfiguration, MachineName, ResolvableId[GenderDefinition, Gender]
+        GenderPluginConfiguration, MachineName, ResolvableId[GenderDefinition]
     ]:
         return GenderPluginConfigurationMapping
 
