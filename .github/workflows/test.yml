@@ -54,7 +54,7 @@ jobs:
         shell: bash
 
       - name: Cache pip
-        uses: actions/cache@v4
+        uses: actions/cache@v5
         with:
           path: ${{ env.pip_cache_dir }}
           key: pip-${{ runner.os }}-${{ matrix.python }}-${{ hashFiles('./pyproject.toml') }}
@@ -66,7 +66,7 @@ jobs:
         shell: bash
 
       - name: Cache npm
-        uses: actions/cache@v4
+        uses: actions/cache@v5
         with:
           path: ${{ env.npm_cache_dir }}
           key: npm-${{ runner.os }}-${{ hashFiles('./package.json') }}
@@ -75,7 +75,7 @@ jobs:
 
       - name: Cache Mypy
         if: startsWith(runner.os, 'Linux')
-        uses: actions/cache@v4
+        uses: actions/cache@v5
         with:
           path: ./.mypy_cache
           key: mypy-${{ matrix.python }}-${{ hashFiles('./pyproject.toml') }}
