@@ -28,6 +28,7 @@ from PIL.Image import DecompressionBombWarning
 
 from betty.ancestry.file import File
 from betty.ancestry.file_reference import FileReference
+from betty.config.factory import new_target
 from betty.content_provider import ContentProvider, ContentProviderDefinition
 from betty.hashid import hashid, hashid_file_meta
 from betty.html import newlines_to_paragraphs
@@ -550,8 +551,13 @@ async def filter_provide_content(
         "".join(
             [
                 await (
-                    await content_provider_configuration.new_plugin_instance(
-                        content_provider_repository, factory=project.new_target
+                    await project.new_target(
+                        new_target(
+                            content_provider_repository[
+                                content_provider_configuration.id
+                            ].cls,
+                            content_provider_configuration.configuration,
+                        )
                     )
                 ).provide(resource=context_resource_context(context))
                 or ""

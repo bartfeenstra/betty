@@ -1,0 +1,68 @@
+from typing import Self
+
+import pytest
+from typing_extensions import override
+
+from betty import factory
+from betty.config import Configurable
+from betty.config.factory import ConfigurationDependentSelfFactory, new_target
+from betty.factory import FactoryError
+from betty.service.level.factory import AnyFactoryTarget
+from betty.test_utils.config import DummyConfiguration
+
+
+class _DummyConfiguration(DummyConfiguration):
+    pass
+
+
+class _DummyConfigurable(Configurable[DummyConfiguration]):
+    @override
+    @classmethod
+    def configuration_cls(cls) -> type[DummyConfiguration]:
+        return _DummyConfiguration
+
+
+class _OptionalDummyConfigurable(_DummyConfigurable):
+    def __init__(self):
+        super().__init__(configuration=_DummyConfiguration())
+
+
+class _RequiredDummyConfigurable(
+    _DummyConfigurable, ConfigurationDependentSelfFactory[_DummyConfiguration]
+):
+    @override
+    @classmethod
+    def new_for_configuration(
+        cls, configuration: _DummyConfiguration
+    ) -> AnyFactoryTarget[Self]:
+        return lambda: cls(configuration=configuration)
+
+
+async def test_new_target__with_configurable_with_configuration() -> None:
+    configuration = _DummyConfiguration()
+    instance = await factory.new_target(
+        new_target(_RequiredDummyConfigurable, configuration)
+    )
+    assert isinstance(instance, _RequiredDummyConfigurable)
+    assert instance.configuration is configuration
+
+
+async def test_new_target__with_configurable_without_configuration() -> None:
+    instance = await factory.new_target(new_target(_OptionalDummyConfigurable))
+    assert isinstance(instance, _OptionalDummyConfigurable)
+
+
+def test_new_target__with_non_configurable_with_configuration() -> None:
+    with pytest.raises(FactoryError):
+        new_target(object, _DummyConfiguration())
+
+
+async def test_new_target__with_non_configurable_without_configuration() -> None:
+    instance = await factory.new_target(new_target(object))
+    assert isinstance(instance, object)
+
+
+async def test_new_target__with_configuration_of_wrong_type() -> None:
+    configuration = DummyConfiguration()
+    with pytest.raises(FactoryError):
+        new_target(_RequiredDummyConfigurable, configuration)

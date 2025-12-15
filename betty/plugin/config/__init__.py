@@ -17,13 +17,10 @@ from betty.assertion import (
     assert_or,
     assert_record,
 )
-from betty.config import Configurable, Configuration
+from betty.config import Configuration
 from betty.config.collections import ConfigurationKey
 from betty.config.collections.mapping import ConfigurationMapping
 from betty.config.collections.sequence import ConfigurationSequence
-from betty.config.factory import ConfigurationDependentSelfFactory
-from betty.exception import HumanFacingException
-from betty.importlib import fully_qualified_name
 from betty.locale.localizable.assertion import (
     assert_load_countable_localizable,
     assert_load_localizable,
@@ -38,7 +35,6 @@ from betty.locale.localizable.ensure import (
     ensure_countable_localizable,
     ensure_localizable,
 )
-from betty.locale.localizable.gettext import _
 from betty.machine_name import MachineName, assert_machine_name
 from betty.plugin import Plugin, PluginDefinition
 from betty.plugin.resolve import ResolvableId, resolve_id
@@ -48,14 +44,14 @@ if TYPE_CHECKING:
     from collections.abc import Iterable
 
     from betty.locale.localizable import CountableLocalizableLike, LocalizableLike
-    from betty.plugin.repository import PluginRepository
     from betty.serde.dump import Dump, DumpMapping
-    from betty.service.level.factory import AnyFactory
 
-_PluginT = TypeVar("_PluginT", bound=Plugin)
-_ConfigurationT = TypeVar("_ConfigurationT", bound=Configuration)
+_PluginT = TypeVar("_PluginT", bound=Plugin, default=Plugin)
+_ConfigurationT = TypeVar("_ConfigurationT", bound=Configuration, default=Configuration)
 _ConfigurationKeyT = TypeVar("_ConfigurationKeyT", bound=ConfigurationKey)
-_PluginDefinitionT = TypeVar("_PluginDefinitionT", bound=PluginDefinition)
+_PluginDefinitionT = TypeVar(
+    "_PluginDefinitionT", bound=PluginDefinition, default=PluginDefinition
+)
 
 
 class PluginIdentifierKeyConfigurationMapping(
@@ -192,16 +188,20 @@ class CountableHumanFacingPluginDefinitionConfiguration(
         return dump
 
 
-_PluginConfigurationT = TypeVar(
-    "_PluginConfigurationT", bound=PluginDefinitionConfiguration
+_PluginDefinitionConfigurationT = TypeVar(
+    "_PluginDefinitionConfigurationT",
+    bound=PluginDefinitionConfiguration,
+    default=PluginDefinitionConfiguration,
 )
 
 
 class PluginDefinitionConfigurationMapping(
     ConfigurationMapping[
-        MachineName, ResolvableId[_PluginDefinitionT, _PluginT], _PluginConfigurationT
+        MachineName,
+        ResolvableId[_PluginDefinitionT, _PluginT],
+        _PluginDefinitionConfigurationT,
     ],
-    Generic[_PluginDefinitionT, _PluginT, _PluginConfigurationT],
+    Generic[_PluginDefinitionT, _PluginT, _PluginDefinitionConfigurationT],
 ):
     """
     Configure a collection of plugins.
@@ -227,14 +227,14 @@ class PluginDefinitionConfigurationMapping(
 
     @abstractmethod
     def _new_plugin(
-        self, configuration: _PluginConfigurationT, /
+        self, configuration: _PluginDefinitionConfigurationT, /
     ) -> _PluginDefinitionT:
         """
         The plugin (class) for the given configuration.
         """
 
     @override
-    def _get_key(self, configuration: _PluginConfigurationT, /) -> str:
+    def _get_key(self, configuration: _PluginDefinitionConfigurationT, /) -> str:
         return configuration.id
 
     @override
@@ -273,51 +273,11 @@ class PluginInstanceConfiguration(Generic[_PluginDefinitionT, _PluginT], Configu
         return self._id
 
     @property
-    def configuration(self) -> Dump | Void:
+    def configuration(self) -> Configuration | Dump | Void:
         """
         Get the plugin's own configuration.
         """
-        return (
-            self._configuration.dump()
-            if isinstance(self._configuration, Configuration)
-            else self._configuration
-        )
-
-    async def new_plugin_instance(
-        self,
-        repository: PluginRepository[_PluginDefinitionT],
-        *,
-        factory: AnyFactory,
-    ) -> _PluginT:
-        """
-        Create a new plugin instance.
-        """
-        plugin_definition = repository[self._id]
-        if not isinstance(self._configuration, Void):
-            if not issubclass(plugin_definition.cls, Configurable):
-                raise HumanFacingException(
-                    _(
-                        'Plugin "{plugin_id}" is not configurable, but configuration was given.'
-                    ).format(plugin_id=plugin_definition.id)
-                )
-            if not issubclass(plugin_definition.cls, ConfigurationDependentSelfFactory):
-                raise HumanFacingException(
-                    f"Cannot instantiate {fully_qualified_name(plugin_definition.cls)} with configuration because it does not subclass {fully_qualified_name(ConfigurationDependentSelfFactory)}."
-                )
-            if isinstance(self._configuration, Configuration):
-                configuration = self._configuration
-            else:
-                configuration = plugin_definition.cls.configuration_cls().load(
-                    self._configuration
-                )
-            return await factory(
-                plugin_definition.cls.new_for_configuration(
-                    configuration,  # type: ignore[arg-type]
-                )
-            )
-        return await factory(
-            plugin_definition.cls,  # type: ignore[arg-type]
-        )
+        return self._configuration
 
     @override
     @classmethod
@@ -339,7 +299,9 @@ class PluginInstanceConfiguration(Generic[_PluginDefinitionT, _PluginT], Configu
             return self._id
         return {
             "id": self._id,
-            "configuration": configuration,
+            "configuration": configuration.dump()
+            if isinstance(configuration, Configuration)
+            else configuration,
         }
 
 

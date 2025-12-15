@@ -69,7 +69,10 @@ class PluginMapping(Generic[_PluginDefinitionT, _PluginT], Configuration):
     @classmethod
     def load(cls, dump: Dump, /) -> Self:
         return cls(
-            assert_mapping(PluginInstanceConfiguration.load, _assert_gramps_type)(dump)
+            assert_mapping(
+                PluginInstanceConfiguration.load,  # type: ignore[arg-type]
+                _assert_gramps_type,
+            )(dump)
         )
 
     @override
