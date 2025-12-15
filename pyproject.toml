@@ -71,8 +71,6 @@ classifiers = [
 [project.urls]
 Documentation = 'https://betty.readthedocs.io'
 GitHub = 'https://github.com/bartfeenstra/betty'
-Twitter = 'https://twitter.com/BettyProject'
-X = 'https://twitter.com/BettyProject'
 
 [project.entry-points.'console_scripts']
 betty = 'betty.cli:main'
