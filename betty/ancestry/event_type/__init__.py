@@ -76,7 +76,7 @@ class EventTypeDefinition(
         description: LocalizableLike | None = None,
         comes_before: Set[ResolvableId] | None = None,
         comes_after: Set[ResolvableId] | None = None,
-        indicates: ResolvableId[EventTypeDefinition, EventType] | None = None,
+        indicates: ResolvableId[EventTypeDefinition] | None = None,
     ):
         super().__init__(
             plugin_id,

@@ -507,14 +507,10 @@ class ProjectExtensions:
         pass
 
     @overload
-    def __getitem__(
-        self, extension: ResolvableId[ExtensionDefinition, Extension]
-    ) -> Extension:
+    def __getitem__(self, extension: ResolvableId[ExtensionDefinition]) -> Extension:
         pass
 
-    def __getitem__(
-        self, extension: ResolvableId[ExtensionDefinition, Extension]
-    ) -> Extension:
+    def __getitem__(self, extension: ResolvableId[ExtensionDefinition]) -> Extension:
         extension_id = resolve_id(extension)
         for project_extension in self.flatten():
             if project_extension.plugin().id == extension_id:
@@ -541,9 +537,7 @@ class ProjectExtensions:
         for batch in self:
             yield from batch
 
-    def __contains__(
-        self, extension: ResolvableId[ExtensionDefinition, Extension]
-    ) -> bool:
+    def __contains__(self, extension: ResolvableId[ExtensionDefinition]) -> bool:
         if isinstance(extension, type) and issubclass(extension, Extension):
             extension = extension.plugin()
         try:

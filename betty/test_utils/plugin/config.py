@@ -38,10 +38,10 @@ _PluginDefinitionConfigurationT = TypeVar(
 class PluginDefinitionConfigurationMappingTestBase(
     ConfigurationMappingTestBase[
         MachineName,
-        ResolvableId[_PluginDefinitionT, _PluginT],
+        ResolvableId[_PluginDefinitionT],
         _PluginDefinitionConfigurationT,
     ],
-    Generic[_PluginDefinitionT, _PluginT, _PluginDefinitionConfigurationT],
+    Generic[_PluginDefinitionT, _PluginDefinitionConfigurationT],
 ):
     """
     A base class for testing :py:class:`betty.plugin.config.PluginDefinitionConfigurationMapping` implementations.
@@ -52,7 +52,7 @@ class PluginDefinitionConfigurationMappingTestBase(
         new_sut: ConfigurationCollectionTestBaseNewSut[
             _PluginDefinitionConfigurationT,
             MachineName,
-            ResolvableId[_PluginDefinitionT, _PluginT],
+            ResolvableId[_PluginDefinitionT],
         ],
         sut_configurations: ConfigurationCollectionTestBaseSutConfigurations[
             _PluginDefinitionConfigurationT
@@ -63,7 +63,7 @@ class PluginDefinitionConfigurationMappingTestBase(
         """
         sut = cast(
             PluginDefinitionConfigurationMapping[
-                _PluginDefinitionT, _PluginT, _PluginDefinitionConfigurationT
+                _PluginDefinitionT, _PluginDefinitionConfigurationT
             ],
             new_sut(sut_configurations),
         )

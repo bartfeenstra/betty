@@ -56,9 +56,9 @@ _PluginDefinitionT = TypeVar(
 
 class PluginIdentifierKeyConfigurationMapping(
     ConfigurationMapping[
-        MachineName, ResolvableId[_PluginDefinitionT, _PluginT], _ConfigurationT
+        MachineName, ResolvableId[_PluginDefinitionT], _ConfigurationT
     ],
-    Generic[_PluginDefinitionT, _PluginT, _ConfigurationT],
+    Generic[_PluginDefinitionT, _ConfigurationT],
 ):
     """
     A mapping of configuration, keyed by a plugin identifier.
@@ -66,7 +66,7 @@ class PluginIdentifierKeyConfigurationMapping(
 
     @override
     def _resolve_key(
-        self, configuration_key: ResolvableId[_PluginDefinitionT, Plugin], /
+        self, configuration_key: ResolvableId[_PluginDefinitionT], /
     ) -> MachineName:
         return resolve_id(configuration_key)
 
@@ -197,11 +197,9 @@ _PluginDefinitionConfigurationT = TypeVar(
 
 class PluginDefinitionConfigurationMapping(
     ConfigurationMapping[
-        MachineName,
-        ResolvableId[_PluginDefinitionT, _PluginT],
-        _PluginDefinitionConfigurationT,
+        MachineName, ResolvableId[_PluginDefinitionT], _PluginDefinitionConfigurationT
     ],
-    Generic[_PluginDefinitionT, _PluginT, _PluginDefinitionConfigurationT],
+    Generic[_PluginDefinitionT, _PluginDefinitionConfigurationT],
 ):
     """
     Configure a collection of plugins.
@@ -209,7 +207,7 @@ class PluginDefinitionConfigurationMapping(
 
     @override
     def _resolve_key(
-        self, configuration_key: ResolvableId[_PluginDefinitionT, _PluginT], /
+        self, configuration_key: ResolvableId[_PluginDefinitionT], /
     ) -> MachineName:
         return resolve_id(configuration_key)
 
@@ -257,7 +255,7 @@ class PluginInstanceConfiguration(Generic[_PluginDefinitionT, _PluginT], Configu
 
     def __init__(
         self,
-        id: ResolvableId[_PluginDefinitionT, _PluginT],  # noqa A002
+        id: ResolvableId[_PluginDefinitionT],  # noqa A002
         configuration: Configuration | Dump | Void = Void(),  # noqa B008
         /,
     ):
@@ -308,7 +306,6 @@ class PluginInstanceConfiguration(Generic[_PluginDefinitionT, _PluginT], Configu
 class PluginInstanceConfigurationMapping(
     PluginIdentifierKeyConfigurationMapping[
         _PluginDefinitionT,
-        _PluginT,
         PluginInstanceConfiguration[_PluginDefinitionT, _PluginT],
     ],
     Generic[_PluginDefinitionT, _PluginT],
