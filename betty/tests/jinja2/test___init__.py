@@ -6,10 +6,10 @@ import aiofiles
 
 from betty.ancestry.has_file_references import HasFileReferences
 from betty.jinja2 import Environment, Jinja2Provider
-from betty.job import Context
+from betty.job import Context as JobContext
 from betty.locale import DEFAULT_LOCALE_TAG
 from betty.project import Project
-from betty.resource import new_context
+from betty.resource import Context as ResourceContext
 from betty.test_utils import Counter
 
 if TYPE_CHECKING:
@@ -67,7 +67,7 @@ class TestEnvironment:
             destination_file_path = www_directory_path / "destination.test.j2"
             rendered_destination_file_path = www_directory_path / "destination.test"
             copy_function = sut.make_copy_function(
-                www_directory_path=www_directory_path, resource=new_context()
+                www_directory_path=www_directory_path, resource=ResourceContext()
             )
             await copy_function(source_file_path, destination_file_path)
             async with aiofiles.open(rendered_destination_file_path) as f:
@@ -88,7 +88,7 @@ class TestEnvironment:
             destination_file_path = www_directory_path / ".destination.test.j2"
             rendered_destination_file_path = www_directory_path / ".destination.test"
             copy_function = sut.make_copy_function(
-                www_directory_path=www_directory_path, resource=new_context()
+                www_directory_path=www_directory_path, resource=ResourceContext()
             )
             await copy_function(source_file_path, destination_file_path)
             async with aiofiles.open(rendered_destination_file_path) as f:
@@ -114,7 +114,7 @@ class TestEnvironment:
             copy_function = sut.make_copy_function(
                 www_directory_path=www_directory_path,
                 is_localized_and_multilingual=True,
-                resource=new_context(),
+                resource=ResourceContext(),
             )
             await copy_function(source_file_path, destination_file_path)
             async with aiofiles.open(rendered_destination_file_path) as f:
@@ -138,16 +138,16 @@ class Test_CacheTagExtension:
 
     async def test_tag__with_job_context(self, isolated_app: App) -> None:
         counter = Counter()
-        job_context = Context()
+        job_context = JobContext()
         async with Project.new_isolated(isolated_app) as project, project:
             sut = await Environment.new_for_project(project)
             template = sut.from_string(
                 "{% cache 'my-first-cache-key' %}{% do count() %}{% endcache %}"
             )
             await template.render_async(
-                count=counter, resource=new_context(job_context=job_context)
+                count=counter, resource=ResourceContext(job_context=job_context)
             )
             await template.render_async(
-                count=counter, resource=new_context(job_context=job_context)
+                count=counter, resource=ResourceContext(job_context=job_context)
             )
         assert counter.count == 1

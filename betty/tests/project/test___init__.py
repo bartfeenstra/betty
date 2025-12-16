@@ -336,7 +336,7 @@ class TestProject:
 
     async def test_new_resource_context(self, isolated_app: App) -> None:
         async with Project.new_isolated(isolated_app) as sut, sut:
-            assert await sut.new_resource_context()
+            await sut.new_resource_context()
 
     async def test_configuration_file_path(
         self, isolated_app: App, tmp_path: Path

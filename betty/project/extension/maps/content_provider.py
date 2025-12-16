@@ -25,7 +25,7 @@ class Map(Template, HasRequirement):
     @override
     async def _provide_data(self, resource: ResourceContext) -> Mapping[str, Any]:
         return {
-            "entity": resource["resource"],
+            "entity": resource.resource,
         }
 
     @override

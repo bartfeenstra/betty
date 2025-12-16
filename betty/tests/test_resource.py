@@ -3,24 +3,28 @@ from __future__ import annotations
 from gettext import NullTranslations
 from typing import TYPE_CHECKING
 
+import pytest
+
 from betty.ancestry.citation import Citation
 from betty.ancestry.source import Source
 from betty.job import Context as JobContext
 from betty.locale import DEFAULT_LOCALE
+from betty.locale.localizable.plain import Plain
 from betty.locale.localizer import Localizer
 from betty.project import Project
 from betty.resource import (
     Breadcrumb,
     Breadcrumbs,
     Citer,
-    ContextVars,
+    Context,
     EntityContexts,
-    copy_context,
-    new_context,
 )
+from betty.test_utils.locale.localizable import DUMMY_LOCALIZABLE
 from betty.test_utils.model import DummyEntityOne
 
 if TYPE_CHECKING:
+    from collections.abc import Mapping
+
     from betty.app import App
 
 
@@ -140,44 +144,152 @@ class TestEntityContexts:
         assert sut[DummyEntityOne] is b
 
 
-def test_new_context__minimal() -> None:
-    assert new_context()
+class TestContext:
+    VARS = {
+        "resource": object(),
+        "resource_url": object(),
+        "entity_contexts": EntityContexts(),
+        "job_context": JobContext(),
+        "localizer": Localizer(DEFAULT_LOCALE, NullTranslations()),
+        "title": Plain("-"),
+        "vars": {
+            "my_first_var": "MY_FIRST_VAR",
+        },
+        "breadcrumbs": Breadcrumbs(),
+        "citer": Citer(),
+    }
 
+    def test_resource__from___init___(self) -> None:
+        resource = "betty:///"
+        assert Context(resource).resource is resource
 
-def test_new_context__with_resource() -> None:
-    resource = "betty:///"
-    assert new_context(resource)["resource"] is resource
+    def test_resource_url__from___init___(self) -> None:
+        resource_url = "betty:///"
+        assert Context(None, resource_url).resource_url is resource_url
 
+    def test_job_context__from___init___(self) -> None:
+        job_context = JobContext()
+        assert Context(job_context=job_context).job_context is job_context
 
-def test_new_context__with_job_context() -> None:
-    job_context = JobContext()
-    assert new_context(job_context=job_context)["job_context"] is job_context
+    def test_breadcrumbs__from___init___(self) -> None:
+        breadcrumbs = Breadcrumbs()
+        assert Context(breadcrumbs=breadcrumbs).breadcrumbs is breadcrumbs
 
+    def test_citer__from___init___(self) -> None:
+        citer = Citer()
+        assert Context(citer=citer).citer is citer
 
-def test_new_context__with_localizer() -> None:
-    localizer = Localizer(DEFAULT_LOCALE, NullTranslations())
-    assert new_context(localizer=localizer)["localizer"] is localizer
+    def test_entity_contexts__from___init___(self) -> None:
+        entity_contexts = EntityContexts()
+        assert (
+            Context(entity_contexts=entity_contexts).entity_contexts is entity_contexts
+        )
 
+    def test_localizer__from___init___(self) -> None:
+        localizer = Localizer(DEFAULT_LOCALE, NullTranslations())
+        assert Context(localizer=localizer).localizer is localizer
 
-def test_new_context__kwarg() -> None:
-    my_first_kwarg = object()
-    sut: ContextVars = new_context(my_first_kwarg=my_first_kwarg)
-    assert (
-        sut[
-            "my_first_kwarg"  # type: ignore[typeddict-item]
-        ]
-        is my_first_kwarg
+    def test_title__from___init___(self) -> None:
+        title = DUMMY_LOCALIZABLE
+        assert Context(title=title).title is title
+
+    def test___getitem__(self) -> None:
+        my_first_var = object()
+        sut = Context(my_first_var=my_first_var)
+        assert sut["my_first_var"] is my_first_var
+
+    def test___setitem__(self) -> None:
+        my_first_var = object()
+        sut = Context()
+        sut["my_first_var"] = my_first_var
+        assert sut["my_first_var"] is my_first_var
+
+    def test___contains__(self) -> None:
+        my_first_var = object()
+        sut = Context(my_first_var=my_first_var)
+        assert "my_first_var" in sut
+        assert "my_unknown_var" not in sut
+
+    @pytest.mark.parametrize(
+        ("expected", "sut_vars"),
+        [
+            (True, {}),
+            (
+                False,
+                {
+                    "resource": object(),
+                },
+            ),
+            (
+                False,
+                {
+                    "resource_url": object(),
+                },
+            ),
+            (
+                False,
+                {
+                    "entity_contexts": EntityContexts(),
+                },
+            ),
+            (
+                False,
+                {
+                    "job_context": JobContext(),
+                },
+            ),
+            (
+                False,
+                {
+                    "localizer": Localizer(DEFAULT_LOCALE, NullTranslations()),
+                },
+            ),
+            (
+                False,
+                {
+                    "title": DUMMY_LOCALIZABLE,
+                },
+            ),
+            (
+                False,
+                {
+                    "breadcrumbs": Breadcrumbs(),
+                },
+            ),
+            (
+                False,
+                {
+                    "citer": Citer(),
+                },
+            ),
+            (
+                False,
+                {
+                    "my_second_var": "MY_SECOND_VAR",
+                },
+            ),
+        ],
     )
+    def test___eq__(self, expected: bool, sut_vars: Mapping[str, object]) -> None:
+        assert (
+            Context(
+                **{  # type: ignore[arg-type]
+                    **self.VARS,
+                    **sut_vars,
+                }
+            )
+            == Context(
+                **self.VARS,  # type: ignore[arg-type]
+            )
+        ) is expected
 
+    def test_copy__minimal(self) -> None:
+        context = Context()
+        assert context.copy() == context
 
-def test_copy_context__minimal() -> None:
-    context = new_context()
-    assert copy_context(context) == context
-
-
-def test_copy_context__kwarg() -> None:
-    context_value = object()
-    context = new_context(context_value=context_value)
-    copied_context = copy_context(context)
-    assert copied_context == context
-    assert copied_context["context_value"] is context_value  # type: ignore[typeddict-item]
+    def test_copy__vars(self) -> None:
+        context_value = object()
+        context = Context(context_value=context_value)
+        copied_context = context.copy()
+        assert copied_context == context
+        assert copied_context["context_value"] is context_value

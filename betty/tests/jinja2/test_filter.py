@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+from gettext import NullTranslations
 from pathlib import Path
 from typing import TYPE_CHECKING, Any
 
@@ -14,11 +15,13 @@ from betty.ancestry.file import File
 from betty.ancestry.file_reference import FileReference
 from betty.date import Date, DateLike, DateRange
 from betty.dirs import ASSETS_DIRECTORY_PATH
-from betty.job import Context
+from betty.job import Context as JobContext
 from betty.locale.localizable.plain import Plain
 from betty.locale.localized import Localized, LocalizedStr
+from betty.locale.localizer import Localizer
 from betty.media_type import MediaType
 from betty.media_type.media_types import SVG
+from betty.resource import Context as ResourceContext
 from betty.test_utils.ancestry.date import DummyHasDate
 from betty.test_utils.jinja2 import assert_template_string
 from betty.test_utils.locale.localized import DummyLocalized
@@ -91,7 +94,7 @@ async def test_filter_file__with_job_context(
         template=template,
         data={
             "file": file,
-            "job_context": Context(),
+            "job_context": JobContext(),
         },
     ) as (actual, project):
         assert actual == expected
@@ -307,7 +310,7 @@ async def test_filter_image_resize_cover__with_job_context(
         template=template,
         data={
             "filey": filey,
-            "job_context": Context(),
+            "job_context": JobContext(),
         },
     ) as (actual, project):
         assert actual == expected
@@ -509,8 +512,10 @@ async def test_filter_select_localizeds(
         template=template,
         data={
             "data": data,
+            "resource": ResourceContext(
+                localizer=Localizer(locale, NullTranslations())
+            ),
         },
-        locale=locale,
     ) as (actual, _):
         assert actual == expected
 
@@ -523,8 +528,10 @@ async def test_filter_select_localizeds__include_unspecified() -> None:
         template=template,
         data={
             "data": data,
+            "resource": ResourceContext(
+                localizer=Localizer("en-US", NullTranslations())
+            ),
         },
-        locale="en-US",
     ) as (actual, _):
         assert actual == "None"
 
@@ -649,9 +656,11 @@ async def test_filter_html_lang(
         template=template,
         data={
             "localized": localized,
+            "resource": ResourceContext(
+                localizer=Localizer(localizer_locale, NullTranslations())
+            ),
         },
         autoescape=autoescape,
-        locale=localizer_locale,
     ) as (actual, _):
         assert actual == expected
 
@@ -810,6 +819,10 @@ async def test_filter_negotiate_localizeds() -> None:
     localizeds = [localized_en, localized_nl]
     template = "{{ (data | negotiate_localizeds).locale }}"
     async with assert_template_string(
-        template=template, data={"data": localizeds}, locale="nl"
+        template=template,
+        data={
+            "data": localizeds,
+            "resource": ResourceContext(localizer=Localizer("nl", NullTranslations())),
+        },
     ) as (actual, _):
         assert actual == "nl"

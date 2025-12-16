@@ -24,7 +24,6 @@ if TYPE_CHECKING:
 
     from jinja2 import Template
 
-    from betty.locale import LocaleLike
     from betty.project.extension import Extension, ExtensionDefinition
 
 
@@ -34,7 +33,6 @@ async def _assert_template(
     template: str,
     *,
     data: MutableMapping[str, Any] | None = None,
-    locale: LocaleLike | None = None,
     autoescape: bool | None = None,
     extensions: set[ResolvableId[ExtensionDefinition, Extension]] | None = None,
 ) -> AsyncIterator[tuple[str, Project]]:
@@ -51,9 +49,6 @@ async def _assert_template(
                 data = {}
             if "resource" not in data:
                 data["resource"] = await project.new_resource_context()
-            if locale is not None:
-                localizers = await project.localizers
-                data["resource"]["localizer"] = localizers.get(locale)
             jinja2_environment = await project.jinja2_environment
             if autoescape is not None:
                 jinja2_environment.autoescape = autoescape
@@ -67,7 +62,6 @@ def assert_template_string(
     template: str,
     *,
     data: MutableMapping[str, Any] | None = None,
-    locale: LocaleLike | None = None,
     autoescape: bool | None = None,
     extensions: set[ResolvableId[ExtensionDefinition, Extension]] | None = None,
 ) -> AbstractAsyncContextManager[tuple[str, Project]]:
@@ -78,7 +72,6 @@ def assert_template_string(
         Environment.from_string,
         template,
         data=data,
-        locale=locale,
         autoescape=autoescape,
         extensions=extensions,
     )
@@ -88,7 +81,6 @@ def assert_template_file(
     template: str,
     *,
     data: MutableMapping[str, Any] | None = None,
-    locale: LocaleLike | None = None,
     autoescape: bool | None = None,
     extensions: set[ResolvableId[ExtensionDefinition, Extension]] | None = None,
 ) -> AbstractAsyncContextManager[tuple[str, Project]]:
@@ -99,7 +91,6 @@ def assert_template_file(
         Environment.get_template,
         template,
         data=data,
-        locale=locale,
         autoescape=autoescape,
         extensions=extensions,
     )

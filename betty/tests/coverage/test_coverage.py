@@ -493,7 +493,6 @@ _BASELINE: Mapping[str, _ModuleIgnore] = {
         },
     },
     "betty/resource.py": {
-        "Context": MissingReason.STATIC_CONTENT_ONLY,
         "ContextProvider": MissingReason.STATIC_CONTENT_ONLY,
     },
     "betty/rich/user.py": {

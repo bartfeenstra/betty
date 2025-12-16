@@ -6,7 +6,7 @@ from betty.locale import DEFAULT_LOCALE_TAG
 from betty.model import EntityDefinition
 from betty.project.extension.raspberry_mint import RaspberryMint
 from betty.project.extension.wiki import Wiki
-from betty.resource import new_context
+from betty.resource import Context
 from betty.test_utils.jinja2 import assert_template_file
 from betty.test_utils.locale.localizable import (
     DUMMY_COUNTABLE_LOCALIZABLE,
@@ -29,7 +29,7 @@ async def test_minimal() -> None:
     resource = DummyHasLinks()
     async with assert_template_file(
         data={
-            "resource": new_context(resource),
+            "resource": Context(resource),
         },
         extensions={RaspberryMint, Wiki},
         template="section/wikipedia.html.j2",
@@ -46,7 +46,7 @@ async def test_with_summary(mocker: MockerFixture) -> None:
     resource = DummyHasLinks(links=[Link("https://en.wikipedia.org/wiki/Example")])
     async with assert_template_file(
         data={
-            "resource": new_context(resource),
+            "resource": Context(resource),
         },
         extensions={RaspberryMint, Wiki},
         template="section/wikipedia.html.j2",

@@ -88,9 +88,7 @@ class PlainText(
 
     @override
     async def provide(self, *, resource: Context) -> str | None:
-        return plain_text_to_html(
-            self.configuration.text.localize(resource["localizer"])
-        )
+        return plain_text_to_html(self.configuration.text.localize(resource.localizer))
 
 
 class Template(ProjectDependentSelfFactory, ContentProvider):
