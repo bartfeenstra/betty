@@ -9,7 +9,7 @@ from collections import defaultdict
 from typing import TYPE_CHECKING, final
 
 from aiohttp import ClientError
-from html5lib import parse
+from lxml.html import HtmlElement, document_fromstring
 from typing_extensions import override
 
 from betty.job import Job
@@ -19,7 +19,6 @@ from betty.project import Project, ProjectContext
 
 if TYPE_CHECKING:
     from collections.abc import Iterable, MutableMapping
-    from xml.etree.ElementTree import Element
 
     from babel import Locale
 
@@ -102,7 +101,7 @@ class PopulateLink(Job[ProjectContext]):
         ):
             return
 
-        document = parse(await response.text())
+        document = document_fromstring(await response.text())
         if not self._link.has_label:
             title = self._extract_html_title(document)
             if title is not None:
@@ -114,40 +113,20 @@ class PopulateLink(Job[ProjectContext]):
                 for locale in locales:
                     descriptions[locale] = description
 
-    def _extract_html_title(self, document: Element) -> str | None:
-        head = document.find(
-            "ns:head",
-            namespaces={
-                "ns": "http://www.w3.org/1999/xhtml",
-            },
-        )
+    def _extract_html_title(self, document: HtmlElement) -> str | None:
+        head = document.find("head")
         if head is None:
             return None
-        title = head.find(
-            "ns:title",
-            namespaces={
-                "ns": "http://www.w3.org/1999/xhtml",
-            },
-        )
+        title = head.find("title")
         if title is None:
             return None
         return title.text
 
-    def _extract_html_meta_description(self, document: Element) -> str | None:
-        head = document.find(
-            "ns:head",
-            namespaces={
-                "ns": "http://www.w3.org/1999/xhtml",
-            },
-        )
+    def _extract_html_meta_description(self, document: HtmlElement) -> str | None:
+        head = document.find("head")
         if head is None:
             return None
-        metas = head.findall(
-            "ns:meta",
-            namespaces={
-                "ns": "http://www.w3.org/1999/xhtml",
-            },
-        )
+        metas = head.findall("meta")
         for attr_name, attr_value in (
             ("name", "description"),
             ("property", "og:description"),

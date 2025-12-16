@@ -9,8 +9,8 @@ from pathlib import Path
 from typing import TYPE_CHECKING, Any
 
 import aiofiles
-import html5lib
-from html5lib.html5parser import ParseError
+from lxml.etree import ParserError
+from lxml.html import document_fromstring
 
 from betty.app import App
 from betty.jinja2 import Environment
@@ -120,8 +120,8 @@ async def assert_betty_html(project: Project, url_path: str) -> Path:
     async with aiofiles.open(betty_html_file_path) as f:
         betty_html = await f.read()
     try:
-        html5lib.HTMLParser(strict=True).parse(betty_html)
-    except ParseError as e:
+        document_fromstring(betty_html)
+    except ParserError as e:
         raise ValueError(
             f'HTML parse error "{e}" in:\n{betty_html}'
         ) from None  # pragma: no cover
