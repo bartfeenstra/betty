@@ -10,7 +10,7 @@ from betty.model import Entity
 from betty.project import Project
 from betty.project.extension.trees import Trees
 from betty.project.extension.trees.content_provider import Tree
-from betty.resource import new_context
+from betty.resource import Context
 from betty.test_utils.content_provider import ContentProviderTestBase
 
 
@@ -26,7 +26,7 @@ class TestTree(ContentProviderTestBase):
             project.configuration.extensions.enable(Trees)
             async with project:
                 sut = await Tree.new_for_project(project)
-                assert await sut.provide(resource=new_context()) is None
+                assert await sut.provide(resource=Context()) is None
 
     @pytest.mark.parametrize(
         "resource",
@@ -65,4 +65,4 @@ class TestTree(ContentProviderTestBase):
         assert actual is not None
         assert person.public_id in actual
         assert "webpack_js_entry_points" in resource
-        assert "trees" in resource["webpack_js_entry_points"]  # type: ignore[typeddict-item]
+        assert "trees" in resource["webpack_js_entry_points"]  # type: ignore[operator]

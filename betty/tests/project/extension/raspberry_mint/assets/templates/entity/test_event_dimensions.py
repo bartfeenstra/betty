@@ -6,7 +6,7 @@ from betty.ancestry.place import Place
 from betty.ancestry.source import Source
 from betty.date import Date
 from betty.project.extension.raspberry_mint import RaspberryMint
-from betty.resource import EntityContexts, new_context
+from betty.resource import Context, EntityContexts
 from betty.test_utils.jinja2 import assert_template_file
 
 
@@ -65,7 +65,7 @@ async def test_with_place_is_place_context() -> None:
     async with assert_template_file(
         data={
             "event": event,
-            "resource": new_context(entity_contexts=EntityContexts(place)),
+            "resource": Context(entity_contexts=EntityContexts(place)),
         },
         extensions={RaspberryMint},
         template="entity/event-dimensions.html.j2",

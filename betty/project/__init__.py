@@ -48,8 +48,8 @@ from betty.project.factory import ProjectDependentFactory, ProjectDependentSelfF
 from betty.project.url import new_project_url_generator
 from betty.render import RenderDispatcher, RendererDefinition
 from betty.requirement import Requirement, StaticRequirement
+from betty.resource import Context, ContextProvider
 from betty.resource import Context as ResourceContext
-from betty.resource import ContextProvider, new_context
 from betty.serde.format import FormatDefinition, format_for
 from betty.service.container import ServiceContainer, service
 from betty.typing import internal
@@ -457,7 +457,7 @@ class Project(
         Create new resource context variables.
         """
         extensions = await self.extensions
-        return new_context(
+        return Context(
             resource,
             resource_url,
             **{

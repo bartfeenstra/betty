@@ -19,8 +19,8 @@ from threading import Lock
 from typing import (
     TYPE_CHECKING,
     Any,
+    Self,
     TypeAlias,
-    TypedDict,
     final,
 )
 
@@ -43,56 +43,141 @@ if TYPE_CHECKING:
 ContextVars: TypeAlias = Mapping[str, Any]
 
 
-class Context(TypedDict):
+@final
+class Context:
     """
     The context for a single resource.
 
     The context describes the resource and manages its metadata and additional tools to work with the resource.
     """
 
-    breadcrumbs: Breadcrumbs
-    citer: Citer
-    entity_contexts: EntityContexts
-    job_context: JobContext | None
-    localizer: Localizer
-    resource: object
-    resource_url: object
-    title: Localizable | None
+    def __init__(
+        self,
+        resource: object = None,
+        resource_url: object = None,
+        *,
+        breadcrumbs: Breadcrumbs | None = None,
+        citer: Citer | None = None,
+        entity_contexts: EntityContexts | None = None,
+        job_context: JobContext | None = None,
+        localizer: Localizer | None = None,
+        title: Localizable | None = None,
+        **vars: Any,  # noqa A002
+    ):
+        self._resource = resource
+        self._resource_url = resource_url
+        self._entity_contexts = entity_contexts if entity_contexts else EntityContexts()
+        self._job_context = job_context
+        self._localizer = localizer if localizer else DEFAULT_LOCALIZER
+        self._title = title
+        self._vars = vars
+        self._breadcrumbs = Breadcrumbs() if breadcrumbs is None else breadcrumbs
+        self._citer = Citer() if citer is None else citer
 
+    @property
+    def breadcrumbs(self) -> Breadcrumbs:
+        """
+        The breadcrumbs.
+        """
+        return self._breadcrumbs
 
-def new_context(
-    resource: object = None,
-    resource_url: object = None,
-    *,
-    entity_contexts: EntityContexts | None = None,
-    job_context: JobContext | None = None,
-    localizer: Localizer | None = None,
-    **kwargs: Any,
-) -> Context:
-    """
-    Create a new resource context.
-    """
-    return {
-        "breadcrumbs": Breadcrumbs(),
-        "citer": Citer(),
-        "entity_contexts": entity_contexts if entity_contexts else EntityContexts(),
-        "job_context": job_context,
-        "localizer": localizer if localizer else DEFAULT_LOCALIZER,
-        "resource": resource,
-        "resource_url": resource_url,
-        "title": None,
-        **kwargs,  # type: ignore[typeddict-item]
-    }
+    @property
+    def citer(self) -> Citer:
+        """
+        The citer.
+        """
+        return self._citer
 
+    @property
+    def entity_contexts(self) -> EntityContexts:
+        """
+        The entity contexts.
+        """
+        return self._entity_contexts
 
-def copy_context(context: Context, **kwargs: object) -> Context:
-    """
-    Create a copy of a context, with the given fields added.
-    """
-    return {
-        **context,
-        **kwargs,  # type: ignore[typeddict-item]
-    }
+    @property
+    def job_context(self) -> JobContext | None:
+        """
+        The job context.
+        """
+        return self._job_context
+
+    @property
+    def localizer(self) -> Localizer:
+        """
+        The localizer.
+        """
+        return self._localizer
+
+    @property
+    def resource(self) -> object:
+        """
+        The resource itself.
+        """
+        return self._resource
+
+    @property
+    def resource_url(self) -> object:
+        """
+        The URL-generatable version of the resource itself.
+
+        This may be the resource itself or a completely different type of value.
+        """
+        return self._resource_url
+
+    @property
+    def title(self) -> Localizable | None:
+        """
+        The human-readable title.
+        """
+        return self._title
+
+    def copy(
+        self,
+        **vars: object,  # noqa A002
+    ) -> Self:
+        """
+        Create a copy of a context, with the given fields added.
+        """
+        return type(self)(
+            **{  # type: ignore[arg-type]
+                **self._vars,
+                "resource": self._resource,
+                "resource_url": self._resource_url,
+                "breadcrumbs": self._breadcrumbs,
+                "citer": self._citer,
+                "entity_contexts": self._entity_contexts,
+                "job_context": self._job_context,
+                "localizer": self._localizer,
+                "title": self._title,
+                **vars,
+            },
+        )
+
+    def __getitem__(self, var: str) -> object:
+        return self._vars[var]
+
+    def __setitem__(self, var: str, value: object) -> None:
+        self._vars[var] = value
+
+    def __contains__(self, var: str) -> bool:
+        return var in self._vars
+
+    @override
+    def __eq__(self, other: Any) -> bool:
+        if not isinstance(other, Context):
+            return NotImplemented
+        return (
+            self._resource == other._resource
+            and self._resource_url == other._resource_url
+            and self._entity_contexts == other._entity_contexts
+            and self._job_context == other._job_context
+            and self._localizer == other._localizer
+            and self._title == other._title
+            and self._breadcrumbs == other._breadcrumbs
+            and self._citer == other._citer
+            and self._vars == other._vars
+        )
 
 
 class ContextProvider:

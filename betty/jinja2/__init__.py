@@ -32,8 +32,6 @@ from betty.jinja2.test import tests
 from betty.media_type import UnsupportedMediaType, match_extension
 from betty.media_type.media_types import JINJA2
 from betty.project.factory import ProjectDependentSelfFactory
-from betty.resource import Context, copy_context
-from betty.resource import Context as ResourceContext
 from betty.typing import private
 from betty.warnings import deprecate
 
@@ -47,6 +45,8 @@ if TYPE_CHECKING:
     from betty.locale.localizer import Localizer
     from betty.project import Project
     from betty.project.extension import Extension
+    from betty.resource import Context
+    from betty.resource import Context as ResourceContext
 
 
 CopyFunction: TypeAlias = Callable[[Path, Path], Awaitable[None]]
@@ -76,7 +76,7 @@ def context_job_context(context: Jinja2Context) -> JobContext | None:
     Get the current job context from the Jinja2 context.
     """
     try:
-        return context_resource_context(context)["job_context"]
+        return context_resource_context(context).job_context
     except (KeyError, RuntimeError):
         return None
 
@@ -86,7 +86,7 @@ def context_localizer(context: Jinja2Context) -> Localizer:
     Get the current localizer from the Jinja2 context.
     """
     try:
-        return context_resource_context(context)["localizer"]
+        return context_resource_context(context).localizer
     except KeyError:
         raise RuntimeError(
             "No `resource.localizer` context variable exists in this Jinja2 template."
@@ -288,9 +288,11 @@ class Environment(ProjectDependentSelfFactory, Jinja2Environment):
 
     @pass_context
     def _copy_resource_context(
-        self, context: Jinja2Context, **kwargs: Any
+        self,
+        context: Jinja2Context,
+        **vars: Any,  # noqa A002
     ) -> ResourceContext:
-        return copy_context(context_resource_context(context), **kwargs)
+        return context_resource_context(context).copy(**vars)
 
     def make_copy_function(
         self,
@@ -314,7 +316,8 @@ class Environment(ProjectDependentSelfFactory, Jinja2Environment):
             destination_path = destination_path.with_name(
                 destination_path.name[: -len(extension)]
             )
-            copy_resource = copy_context(resource, resource=destination_path)
+
+            copy_resource_url = resource.resource_url
 
             if www_directory_path:
                 try:
@@ -331,13 +334,14 @@ class Environment(ProjectDependentSelfFactory, Jinja2Environment):
                     ):
                         if is_localized_and_multilingual:
                             resource_parts = resource_parts[1:]
-                        copy_resource["resource_url"] = (
-                            f"betty:///{'/'.join(resource_parts)}"
-                        )
+                        copy_resource_url = f"betty:///{'/'.join(resource_parts)}"
             async with aiofiles.open(source_path) as f:
                 content = await f.read()
 
             template = self.from_string(content)
+            copy_resource = resource.copy(
+                resource=destination_path, resource_url=copy_resource_url
+            )
             rendered_content = await template.render_async(resource=copy_resource)
             async with aiofiles.open(destination_path, "w") as f:
                 await f.write(rendered_content)

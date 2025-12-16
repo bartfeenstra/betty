@@ -18,13 +18,13 @@ from betty.content_provider.content_providers import (
     Template,
 )
 from betty.exception import HumanFacingException
-from betty.job import Context
+from betty.job import Context as JobContext
 from betty.locale import DEFAULT_LOCALE, DEFAULT_LOCALE_TAG
 from betty.locale.localizable import LocalizableLike
 from betty.locale.localizable.static import StaticTranslations
 from betty.locale.localizer import DEFAULT_LOCALIZER, Localizer
 from betty.project import Project
-from betty.resource import new_context
+from betty.resource import Context as ResourceContext
 from betty.test_utils.config.factory import ConfigurationDependentSelfFactoryTestBase
 from betty.test_utils.content_provider import ContentProviderTestBase
 from betty.test_utils.locale.localizable import DUMMY_LOCALIZABLE
@@ -108,7 +108,9 @@ class TestPlainText(
         sut.configuration.text = text
         assert (
             await sut.provide(
-                resource=new_context(localizer=Localizer(locale, NullTranslations()))
+                resource=ResourceContext(
+                    localizer=Localizer(locale, NullTranslations())
+                )
             )
             == expected
         )
@@ -126,7 +128,7 @@ class TestTemplate:
 {{ resource.resource }}
 {{ resource.job_context.id }}
 """
-        job_context = Context()
+        job_context = JobContext()
         async with Project.new_isolated(isolated_app) as project, project:
             templates_directory_path = project.assets_directory_path / "templates"
             await makedirs(templates_directory_path)
@@ -141,7 +143,7 @@ class TestTemplate:
 
             sut = await _Jinja2TemplateContentProvider.new_for_project(project)
             provided_content = await sut.provide(
-                resource=new_context(
+                resource=ResourceContext(
                     "my-first-page-resource",
                     localizer=Localizer("nl-NL", NullTranslations()),
                     job_context=job_context,
@@ -164,14 +166,14 @@ class TestNotes(ContentProviderTestBase):
     async def test_provide__without_has_notes_resource(self, isolated_app: App) -> None:
         async with Project.new_isolated(isolated_app) as project, project:
             sut = await Notes.new_for_project(project)
-            assert await sut.provide(resource=new_context()) is None
+            assert await sut.provide(resource=ResourceContext()) is None
 
     async def test_provide__without_notes(self, isolated_app: App) -> None:
         has_notes = DummyHasNotes()
         async with Project.new_isolated(isolated_app) as project, project:
             project.ancestry.add(has_notes)
             sut = await Notes.new_for_project(project)
-            assert await sut.provide(resource=new_context(has_notes)) is None
+            assert await sut.provide(resource=ResourceContext(has_notes)) is None
 
     async def test_provide__with_notes(self, isolated_app: App) -> None:
         note_text = "Hello, world!"
@@ -179,6 +181,6 @@ class TestNotes(ContentProviderTestBase):
         async with Project.new_isolated(isolated_app) as project, project:
             project.ancestry.add(has_notes)
             sut = await Notes.new_for_project(project)
-            actual = await sut.provide(resource=new_context(has_notes))
+            actual = await sut.provide(resource=ResourceContext(has_notes))
             assert actual is not None
             assert note_text in actual

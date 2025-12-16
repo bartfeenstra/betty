@@ -16,7 +16,7 @@ from betty.model import Entity
 from betty.project import Project
 from betty.project.extension.maps import Maps
 from betty.project.extension.maps.content_provider import Map
-from betty.resource import new_context
+from betty.resource import Context
 from betty.test_utils.content_provider import ContentProviderTestBase
 
 
@@ -32,7 +32,7 @@ class TestMap(ContentProviderTestBase):
             project.configuration.extensions.enable(Maps)
             async with project:
                 sut = await Map.new_for_project(project)
-                assert await sut.provide(resource=new_context()) is None
+                assert await sut.provide(resource=Context()) is None
 
     @pytest.mark.parametrize(
         "has_associated_places",
@@ -91,4 +91,4 @@ class TestMap(ContentProviderTestBase):
         assert actual is not None
         assert place.public_id in actual
         assert "webpack_js_entry_points" in resource
-        assert "maps" in resource["webpack_js_entry_points"]  # type: ignore[typeddict-item]
+        assert "maps" in resource["webpack_js_entry_points"]  # type: ignore[operator]

@@ -10,7 +10,7 @@ from betty.model import EntityDefinition
 from betty.project import Project
 from betty.project.extension.wiki import Wiki
 from betty.project.extension.wiki.content_provider import WikipediaSummary
-from betty.resource import new_context
+from betty.resource import Context
 from betty.test_utils.content_provider import ContentProviderTestBase
 from betty.test_utils.locale.localizable import (
     DUMMY_COUNTABLE_LOCALIZABLE,
@@ -41,7 +41,7 @@ class TestWikipediaSummary(ContentProviderTestBase):
             project.configuration.extensions.enable(Wiki)
             async with project:
                 sut = await WikipediaSummary.new_for_project(project)
-                assert await sut.provide(resource=new_context()) is None
+                assert await sut.provide(resource=Context()) is None
 
     async def test_provide__with_has_links_resource(
         self, mocker: MockerFixture, isolated_app: App
@@ -58,7 +58,7 @@ class TestWikipediaSummary(ContentProviderTestBase):
             async with project:
                 project.ancestry.add(resource)
                 sut = await WikipediaSummary.new_for_project(project)
-                actual = await sut.provide(resource=new_context(resource))
+                actual = await sut.provide(resource=Context(resource))
         assert actual is not None
         assert url in actual
         assert summary_content in actual
