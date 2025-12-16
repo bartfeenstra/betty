@@ -42,7 +42,7 @@ from betty.locale.localizable.gettext import _
 from betty.machine_name import MachineName, assert_machine_name
 from betty.plugin import Plugin, PluginDefinition
 from betty.plugin.resolve import ResolvableId, resolve_id
-from betty.typing import Void, Voidable
+from betty.typing import Void
 
 if TYPE_CHECKING:
     from collections.abc import Iterable
@@ -258,7 +258,7 @@ class PluginInstanceConfiguration(Generic[_PluginDefinitionT, _PluginT], Configu
     def __init__(
         self,
         id: ResolvableId[_PluginDefinitionT, _PluginT],  # noqa A002
-        configuration: Voidable[Configuration | Dump] = Void(),  # noqa B008
+        configuration: Configuration | Dump | Void = Void(),  # noqa B008
         /,
     ):
         super().__init__()
@@ -273,7 +273,7 @@ class PluginInstanceConfiguration(Generic[_PluginDefinitionT, _PluginT], Configu
         return self._id
 
     @property
-    def configuration(self) -> Voidable[Dump]:
+    def configuration(self) -> Dump | Void:
         """
         Get the plugin's own configuration.
         """

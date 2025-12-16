@@ -13,7 +13,7 @@ from betty.serde.format import (
     format_for,
 )
 from betty.test_utils.plugin import PluginDefinitionClassTestBase
-from betty.typing import Voidable
+from betty.typing import Void
 
 
 class TestFormatDefinition(PluginDefinitionClassTestBase):
@@ -29,7 +29,7 @@ class _Format(Format):
         return None  # pragma: nocover
 
     @override
-    def dump(self, dump: Voidable[Dump], /) -> str:
+    def dump(self, dump: Dump | Void, /) -> str:
         return ""  # pragma: nocover
 
 

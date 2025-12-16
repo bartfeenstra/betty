@@ -23,7 +23,7 @@ if TYPE_CHECKING:
     from betty.locale.localizer import Localizer
     from betty.media_type import MediaType
     from betty.serde.dump import Dump
-    from betty.typing import Voidable
+    from betty.typing import Void
 
 
 class FormatError(HumanFacingException):
@@ -53,7 +53,7 @@ class Format(ABC, Plugin["FormatDefinition"]):
         """
 
     @abstractmethod
-    def dump(self, dump: Voidable[Dump], /) -> str:
+    def dump(self, dump: Dump | Void, /) -> str:
         """
         Serialize data.
         """

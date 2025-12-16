@@ -17,7 +17,7 @@ from betty.serde.format import Format, FormatDefinition, FormatError
 
 if TYPE_CHECKING:
     from betty.media_type import MediaType
-    from betty.typing import Voidable
+    from betty.typing import Void
 
 
 @final
@@ -42,7 +42,7 @@ class Json(Format):
             ) from None
 
     @override
-    def dump(self, dump: Voidable[Dump], /) -> str:
+    def dump(self, dump: Dump | Void, /) -> str:
         return json.dumps(dump)
 
 
@@ -68,5 +68,5 @@ class Yaml(Format):
             ) from None
 
     @override
-    def dump(self, dump: Voidable[Dump], /) -> str:
+    def dump(self, dump: Dump | Void, /) -> str:
         return yaml.safe_dump(dump)
