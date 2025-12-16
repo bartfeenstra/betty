@@ -4,7 +4,7 @@ Providing typing utilities.
 
 from __future__ import annotations
 
-from typing import Any, TypeAlias, TypeVar, final
+from typing import Any, TypeVar, final
 
 from betty.classtools import Singleton
 from betty.docstring import append
@@ -86,6 +86,3 @@ class Void(Singleton):
     Using this sentinel allows for actual values to be ``None``. Like ``None``,
     ``Void`` is only ever used through its type, and never instantiated.
     """
-
-
-Voidable: TypeAlias = _T | Void
