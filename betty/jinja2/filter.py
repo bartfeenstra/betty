@@ -28,6 +28,7 @@ from PIL.Image import DecompressionBombWarning
 
 from betty.ancestry.file import File
 from betty.ancestry.file_reference import FileReference
+from betty.content_provider import ContentProvider, ContentProviderDefinition
 from betty.hashid import hashid, hashid_file_meta
 from betty.html import newlines_to_paragraphs
 from betty.image import (
@@ -65,6 +66,7 @@ if TYPE_CHECKING:
     from betty.date import DateLike
     from betty.locale.localizable import Localizable
     from betty.locale.localized import Localized
+    from betty.plugin.config import PluginInstanceConfiguration
 
 _T = TypeVar("_T")
 
@@ -530,6 +532,33 @@ def filter_select_has_dates(
     )
 
 
+@pass_context
+async def filter_provide_content(
+    context: Context,
+    content_provider_configurations: Iterable[
+        PluginInstanceConfiguration[ContentProviderDefinition, ContentProvider]
+    ],
+) -> str:
+    """
+    Provide content from content provider configuration.
+    """
+    from betty.jinja2 import context_project, context_resource_context
+
+    project = context_project(context)
+    content_provider_repository = await project.plugins(ContentProviderDefinition)
+    return "".join(
+        [
+            await (
+                await content_provider_configuration.new_plugin_instance(
+                    content_provider_repository, factory=project.new_target
+                )
+            ).provide(resource=context_resource_context(context))
+            or ""
+            for content_provider_configuration in content_provider_configurations
+        ]
+    )
+
+
 @internal
 async def filters() -> Mapping[str, Callable[..., Any]]:
     """
@@ -552,6 +581,7 @@ async def filters() -> Mapping[str, Callable[..., Any]]:
         "negotiate_has_dates": filter_negotiate_has_dates,
         "negotiate_localizeds": filter_negotiate_localizeds,
         "paragraphs": filter_paragraphs,
+        "provide_content": filter_provide_content,
         "select_has_dates": filter_select_has_dates,
         "select_localizeds": filter_select_localizeds,
         "sort_localizeds": filter_sort_localizeds,

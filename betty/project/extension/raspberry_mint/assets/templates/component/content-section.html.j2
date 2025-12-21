@@ -1,6 +1,4 @@
 {% set section_content %}
-    {% with content_provider_configurations = section_content_configurations %}
-        {% include 'component/content.html.j2' %}
-    {% endwith %}
+    {{ section_content_configurations | provide_content }}
 {% endset %}
 {% include 'component/section.html.j2' %}

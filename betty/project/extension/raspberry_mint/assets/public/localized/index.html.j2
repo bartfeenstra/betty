@@ -1,11 +1,7 @@
 {% extends 'base.html.j2' %}
 {% block page_summary %}
-{% with content_provider_configurations = project.extensions['raspberry-mint'].configuration.regional_content["front-page-summary"] %}
-    {% include 'component/content.html.j2' %}
-{% endwith %}
+{{ project.extensions['raspberry-mint'].configuration.regional_content["front-page-summary"] | provide_content }}
 {% endblock %}
 {% block page_content %}
-{% with content_provider_configurations = project.extensions['raspberry-mint'].configuration.regional_content["front-page-content"] %}
-    {% include 'component/content.html.j2' %}
-{% endwith %}
+{{ project.extensions['raspberry-mint'].configuration.regional_content["front-page-content"] | provide_content }}
 {% endblock %}
