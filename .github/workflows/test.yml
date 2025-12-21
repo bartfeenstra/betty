@@ -44,6 +44,10 @@ jobs:
             os: windows-latest
             nodejs: 24.x
             python: '3.14'
+          - name: 'Playwright'
+            os: ubuntu-latest
+            nodejs: 24.x
+            python: '3.14'
     timeout-minutes: 60
     steps:
       - name: Check out the source code

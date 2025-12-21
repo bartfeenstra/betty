@@ -241,7 +241,7 @@ setuptools = [
     'twine ~= 6.0',
     'wheel ~= 0.45.1',
 ]
-test = [
+test_without_gil = [
     'aioresponses ~= 0.7.8',
     'basedmypy ~= 2.6',
     'coverage ~= 7.6',
@@ -251,7 +251,6 @@ test = [
     'pytest-aioresponses ~= 0.3.0',
     'pytest-asyncio ~= 1.0',
     'pytest-mock ~= 3.14',
-    'pytest-playwright-asyncio ~= 0.7.0',
     'requests ~= 2.32',
     'ruff ~= 0.14.0',
     'types-aiofiles ~= 25.1',
@@ -265,6 +264,10 @@ test = [
     'virtualenv ~= 20.27',
     'yarl ~= 1.22',
     'betty[setuptools]',
+]
+test_playwright = [
+    'pytest-playwright-asyncio ~= 0.7.0',
+    'betty[test]',
 ]
 development = [
     'pytest-repeat ~= 0.9.4',
