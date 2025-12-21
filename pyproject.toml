@@ -241,7 +241,7 @@ setuptools = [
     'twine ~= 6.0',
     'wheel ~= 0.45.1',
 ]
-test_without_gil = [
+test = [
     'aioresponses ~= 0.7.8',
     'basedmypy ~= 2.6',
     'coverage ~= 7.6',
