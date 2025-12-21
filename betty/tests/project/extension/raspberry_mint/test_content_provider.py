@@ -207,7 +207,7 @@ class TestSection(
             project.configuration.extensions.enable(RaspberryMint)
             async with project:
                 sut = await Section.new_for_project(project)
-            assert await sut.provide(resource=Context()) is None
+                assert await sut.provide(resource=Context()) is None
 
     async def test_provide__with_content(self, isolated_app: App) -> None:
         async with Project.new_isolated(isolated_app) as project:

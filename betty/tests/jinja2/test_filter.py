@@ -13,6 +13,7 @@ from typing_extensions import override
 
 from betty.ancestry.file import File
 from betty.ancestry.file_reference import FileReference
+from betty.content_provider.content_providers import PlainText, PlainTextConfiguration
 from betty.date import Date, DateLike, DateRange
 from betty.dirs import ASSETS_DIRECTORY_PATH
 from betty.job import Context as JobContext
@@ -21,6 +22,7 @@ from betty.locale.localized import Localized, LocalizedStr
 from betty.locale.localizer import Localizer
 from betty.media_type import MediaType
 from betty.media_type.media_types import SVG
+from betty.plugin.config import PluginInstanceConfiguration
 from betty.resource import Context as ResourceContext
 from betty.test_utils.ancestry.date import DummyHasDate
 from betty.test_utils.jinja2 import assert_template_string
@@ -30,6 +32,8 @@ from betty.tests.ancestry.test___init__ import DummyHasFileReferences
 
 if TYPE_CHECKING:
     from collections.abc import Iterable, MutableMapping, Sequence
+
+    from betty.content_provider import ContentProvider, ContentProviderDefinition
 
 
 class _DummyHasDate(DummyHasDate):
@@ -826,3 +830,33 @@ async def test_filter_negotiate_localizeds() -> None:
         },
     ) as (actual, _):
         assert actual == "nl"
+
+
+@pytest.mark.parametrize(
+    ("expected", "content_provider_configurations"),
+    [
+        ("", []),
+        (
+            "&lt;p&gt;Hello, world!&lt;/p&gt;",
+            [
+                PluginInstanceConfiguration(
+                    PlainText, PlainTextConfiguration("Hello, world!")
+                )
+            ],
+        ),
+    ],
+)
+async def test_filter_provide_content(
+    expected: str,
+    content_provider_configurations: Iterable[
+        PluginInstanceConfiguration[ContentProviderDefinition, ContentProvider]
+    ],
+) -> None:
+    template = "{{ data | provide_content }}"
+    async with assert_template_string(
+        template=template,
+        data={
+            "data": content_provider_configurations,
+        },
+    ) as (actual, _):
+        assert actual == expected
