@@ -57,5 +57,5 @@ def test_generate_html_id() -> None:
 def test_plain_text_to_html() -> None:
     assert (
         plain_text_to_html("Hello...\n~!@#$%^&*()_+\n...world!")
-        == "<p>Hello...<br>\n~!@#$%^&amp;amp;*()_+<br>\n...world!</p>"
+        == "<p>Hello...<br>\n~!@#$%^&amp;*()_+<br>\n...world!</p>"
     )

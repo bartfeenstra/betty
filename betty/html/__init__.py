@@ -4,7 +4,6 @@ Provide the HTML API, for generating HTML pages.
 
 from __future__ import annotations
 
-import html
 import re
 from abc import ABC, abstractmethod
 from typing import TYPE_CHECKING, final
@@ -96,7 +95,7 @@ def newlines_to_paragraphs(text: str) -> str:
     """
     return "\n\n".join(
         "<p>{}</p>".format(paragraph.replace("\n", "<br>\n"))
-        for paragraph in _paragraph_re.split(escape(text))
+        for paragraph in _paragraph_re.split(text)
     )
 
 
@@ -104,7 +103,7 @@ def plain_text_to_html(text: str) -> str:
     """
     Convert plain text to HTML.
     """
-    return newlines_to_paragraphs(html.escape(text))
+    return newlines_to_paragraphs(escape(text))
 
 
 def generate_html_id() -> str:

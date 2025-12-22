@@ -17,7 +17,7 @@ import aiofiles
 from aiofiles.os import makedirs
 from geopy import units
 from geopy.format import DEGREES_FORMAT
-from jinja2 import pass_context, pass_eval_context
+from jinja2 import pass_context
 from jinja2.async_utils import auto_aiter, auto_await
 from jinja2.filters import make_attrgetter, prepare_map
 from jinja2.runtime import Context, Macro
@@ -31,7 +31,6 @@ from betty.ancestry.file_reference import FileReference
 from betty.config.factory import new_target
 from betty.content_provider import ContentProvider, ContentProviderDefinition
 from betty.hashid import hashid, hashid_file_meta
-from betty.html import newlines_to_paragraphs
 from betty.image import (
     FocusArea,
     Size,
@@ -60,8 +59,6 @@ if TYPE_CHECKING:
         Mapping,
     )
     from pathlib import Path
-
-    from jinja2.nodes import EvalContext
 
     from betty.ancestry.date import HasDate
     from betty.date import DateLike
@@ -181,19 +178,6 @@ async def filter_flatten(values_of_values: Iterable[Iterable[_T]]) -> AsyncItera
 
 
 _paragraph_re = re.compile(r"(?:\r\n|\r|\n){2,}")
-
-
-@pass_eval_context
-def filter_paragraphs(eval_ctx: EvalContext, text: str) -> str | Markup:
-    """
-    Convert newlines to <p> and <br> tags.
-
-    Taken from http://jinja.pocoo.org/docs/2.10/api/#custom-filters.
-    """
-    result = newlines_to_paragraphs(text)
-    if eval_ctx.autoescape:
-        result = Markup(result)
-    return result
 
 
 def filter_format_degrees(degrees: int) -> str:
@@ -588,7 +572,6 @@ async def filters() -> Mapping[str, Callable[..., Any]]:
         "map": filter_map,
         "negotiate_has_dates": filter_negotiate_has_dates,
         "negotiate_localizeds": filter_negotiate_localizeds,
-        "paragraphs": filter_paragraphs,
         "provide_content": filter_provide_content,
         "select_has_dates": filter_select_has_dates,
         "select_localizeds": filter_select_localizeds,

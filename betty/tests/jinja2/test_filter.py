@@ -123,33 +123,6 @@ async def test_filter_flatten(expected: str, template: str) -> None:
 
 
 @pytest.mark.parametrize(
-    ("expected", "autoescape", "template"),
-    [
-        ("<p></p>", True, '{{ "" | paragraphs }}'),
-        ("<p></p>", False, '{{ "" | paragraphs }}'),
-        (
-            "<p>Apples <br>\n and <br>\n oranges</p>",
-            True,
-            '{{ "Apples \n and \n oranges" | paragraphs }}',
-        ),
-        (
-            "<p>Apples <br>\n and <br>\n oranges</p>",
-            False,
-            '{{ "Apples \n and \n oranges" | paragraphs }}',
-        ),
-    ],
-)
-async def test_filter_paragraphs(
-    expected: str, autoescape: bool, template: str
-) -> None:
-    async with assert_template_string(template=template, autoescape=autoescape) as (
-        actual,
-        _,
-    ):
-        assert actual == expected
-
-
-@pytest.mark.parametrize(
     ("expected", "template"),
     [
         ("0° 0&#39; 0&#34;", "{{ 0 | format_degrees }}"),
