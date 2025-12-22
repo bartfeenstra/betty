@@ -361,3 +361,10 @@ class ExternalLinks(Template):
     """
     External links.
     """
+
+
+@ContentProviderDefinition("raspberry-mint-timeline", label=_("Timeline"))
+class Timeline(Template):
+    """
+    A timeline of events.
+    """

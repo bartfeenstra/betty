@@ -4,16 +4,20 @@ from typing import TYPE_CHECKING
 import pytest
 from typing_extensions import override
 
+from betty.ancestry.enclosure import Enclosure
 from betty.ancestry.event import Event
 from betty.ancestry.file import File
 from betty.ancestry.file_reference import FileReference
 from betty.ancestry.link import Link
 from betty.ancestry.person import Person
 from betty.ancestry.place import Place
+from betty.ancestry.presence import Presence
+from betty.ancestry.presence_role.presence_roles import Subject
 from betty.app import App
 from betty.config.factory import ConfigurationDependentSelfFactory
 from betty.content_provider import ContentProvider
 from betty.content_provider.content_providers import Render, RenderConfiguration
+from betty.date import Date
 from betty.exception import HumanFacingException
 from betty.locale.localizable.plain import Plain
 from betty.locale.localizer import DEFAULT_LOCALIZER
@@ -31,6 +35,7 @@ from betty.project.extension.raspberry_mint.content_provider import (
     Media,
     Section,
     SectionConfiguration,
+    Timeline,
 )
 from betty.resource import Context
 from betty.test_utils.config.factory import ConfigurationDependentSelfFactoryTestBase
@@ -463,3 +468,56 @@ class TestExternalLinks(ContentProviderTestBase):
                 actual = await sut.provide(resource=Context(resource))
         assert actual is not None
         assert url in actual
+
+
+class TestTimeline(ContentProviderTestBase):
+    @override
+    @pytest.fixture
+    async def sut(self, isolated_app: App) -> ContentProvider:
+        async with Project.new_isolated(isolated_app) as project, project:
+            return Timeline(jinja2_environment=await project.jinja2_environment)
+
+    @pytest.mark.parametrize(
+        "resource",
+        [
+            None,
+            object(),
+            Person(),
+            Place(),
+        ],
+    )
+    async def test_provide__without_associated_events(
+        self, resource: object, isolated_app: App
+    ) -> None:
+        async with Project.new_isolated(isolated_app) as project:
+            project.configuration.extensions.enable(RaspberryMint)
+            async with project:
+                sut = await Timeline.new_for_project(project)
+        assert await sut.provide(resource=Context(resource)) is None
+
+    async def test_provide__with_person(self, isolated_app: App) -> None:
+        event = Event(id="E0", date=Date(1970, 1, 1))
+        resource = Person()
+        Presence(resource, Subject(), event)
+        async with Project.new_isolated(isolated_app) as project:
+            project.configuration.extensions.enable(RaspberryMint)
+            async with project:
+                sut = await Timeline.new_for_project(project)
+                actual = await sut.provide(resource=Context(resource))
+        assert actual is not None
+        assert event.public_id in actual
+
+    async def test_provide__with_place(self, isolated_app: App) -> None:
+        enclosee_event = Event(id="E0", date=Date(1970, 1, 1))
+        enclosee = Place(events=[enclosee_event])
+        event = Event(id="E0", date=Date(1970, 1, 1))
+        resource = Place(events=[event])
+        Enclosure(enclosee, resource)
+        async with Project.new_isolated(isolated_app) as project:
+            project.configuration.extensions.enable(RaspberryMint)
+            async with project:
+                sut = await Timeline.new_for_project(project)
+                actual = await sut.provide(resource=Context(resource))
+        assert actual is not None
+        assert event.public_id in actual
+        assert enclosee_event.public_id in actual

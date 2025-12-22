@@ -1,0 +1,17 @@
+{% if resource.resource is entity_plugin('person') %}
+    {% set events = resource.resource | person_timeline_events %}
+{% elif resource.resource is entity_plugin('place') %}
+    {% set enclosees = resource.resource.walk_enclosees | map(attribute='enclosee') %}
+    {% set ns = namespace(events = []) %}
+    {% do ns.events.extend(resource.resource.events) %}
+    {% for enclosee in enclosees %}
+        {% do ns.events.extend(enclosee.events) %}
+    {% endfor %}
+    {% set events = ns.events %}
+{% endif %}
+{% if events is defined %}
+    {% set events = events | select('public') | list %}
+    {% if events | length %}
+        {% include 'component/timeline.html.j2' %}
+    {% endif %}
+{% endif %}
