@@ -18,5 +18,5 @@ class TestPlainText(RendererTestBase):
     async def test_render(self) -> None:
         assert (
             await PlainText().render("Hello...\n~!@#$%^&*()_+\n...world!")
-            == "<p>Hello...<br>\n~!@#$%^&amp;amp;*()_+<br>\n...world!</p>"
+            == "<p>Hello...<br>\n~!@#$%^&amp;*()_+<br>\n...world!</p>"
         )

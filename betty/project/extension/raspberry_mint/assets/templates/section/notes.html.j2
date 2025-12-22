@@ -11,7 +11,7 @@
                         {% endwith %}
                     </h2>
                     {% for note in notes %}
-                        {{ note.text | localize | paragraphs }}
+                        {% include 'note.html.j2' %}
                     {% endfor %}
                 </section>
             </div>
