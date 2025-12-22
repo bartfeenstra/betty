@@ -205,7 +205,7 @@ class TestPluginTypeDefinition:
             DUMMY_COUNTABLE_LOCALIZABLE,
         )
         assert not sut.discovery
-        with sut.override_discovery(StaticDiscovery(DummyPluginOne.plugin())):
+        with sut.override_discovery(StaticDiscovery(DummyPluginOne)):
             assert sut.discovery
         assert not sut.discovery
 
@@ -217,8 +217,8 @@ class TestPluginTypeDefinition:
             DUMMY_LOCALIZABLE,
             DUMMY_COUNTABLE_LOCALIZABLE,
         )
-        with sut.override_discovery(StaticDiscovery(DummyPluginOne.plugin())):
-            sut.add_discovery(StaticDiscovery(DummyPluginTwo.plugin()))
+        with sut.override_discovery(StaticDiscovery(DummyPluginOne)):
+            sut.add_discovery(StaticDiscovery(DummyPluginTwo))
             assert DummyPluginTwo.plugin() not in await discover(None, *sut.discovery)
         assert DummyPluginOne.plugin() not in await discover(None, *sut.discovery)
         assert DummyPluginTwo.plugin() in await discover(None, *sut.discovery)

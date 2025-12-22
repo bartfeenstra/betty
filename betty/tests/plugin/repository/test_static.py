@@ -7,7 +7,7 @@ from betty.test_utils.plugin import DummyPluginDefinition, DummyPluginOne
 
 class TestStaticPluginRepository:
     def test_get(self) -> None:
-        sut = StaticPluginRepository(DummyPluginDefinition, DummyPluginOne.plugin())
+        sut = StaticPluginRepository(DummyPluginDefinition, DummyPluginOne)
         assert sut[DummyPluginOne.plugin().id] is DummyPluginOne.plugin()
 
     def test_get_not_found(self) -> None:
@@ -16,7 +16,7 @@ class TestStaticPluginRepository:
             sut.get(DummyPluginOne.plugin().id)
 
     def test___iter__(self) -> None:
-        sut = StaticPluginRepository(DummyPluginDefinition, DummyPluginOne.plugin())
+        sut = StaticPluginRepository(DummyPluginDefinition, DummyPluginOne)
         plugin = list(iter(sut))[0]
         assert plugin is DummyPluginOne.plugin()
 

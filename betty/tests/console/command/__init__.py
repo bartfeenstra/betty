@@ -27,8 +27,8 @@ class ExtensionTranslationTestBase:
 
         with ExtensionDefinition.type().override_discovery(
             StaticDiscovery(
-                _DummyWithoutAssetsDirectoryExtension.plugin(),
-                _DummyWithAssetsDirectoryExtension.plugin(),
+                _DummyWithoutAssetsDirectoryExtension,
+                _DummyWithAssetsDirectoryExtension,
             )
         ):
             yield isolated_app

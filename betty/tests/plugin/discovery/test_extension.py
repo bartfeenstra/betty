@@ -73,7 +73,7 @@ class TestExtensionDiscovery:
     ) -> None:
         expected, discovery = sut_params
         with ExtensionDefinition.type().override_discovery(
-            StaticDiscovery(DummyExtensionOne.plugin())
+            StaticDiscovery(DummyExtensionOne)
         ):
             async with Project.new_isolated(isolated_app) as project:
                 project.configuration.extensions.enable(DummyExtensionOne)

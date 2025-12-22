@@ -138,9 +138,7 @@ class TestVerbosity:
     async def test(
         self, expected: Verbosity, isolated_app: App, verbosity: str | None
     ) -> None:
-        with CommandDefinition.type().override_discovery(
-            StaticDiscovery(_NoOpCommand.plugin())
-        ):
+        with CommandDefinition.type().override_discovery(StaticDiscovery(_NoOpCommand)):
             async with Project.new_isolated(isolated_app) as project:
                 await dump_file(
                     project.configuration.dump(), project.configuration_file_path

@@ -6,6 +6,6 @@ from betty.test_utils.plugin import DummyPluginOne
 
 class TestStaticDiscovery:
     async def test_discover(self) -> None:
-        sut = StaticDiscovery(DummyPluginOne.plugin())
+        sut = StaticDiscovery(DummyPluginOne)
         plugins = await sut.discover(None)
         assert DummyPluginOne.plugin() in plugins
