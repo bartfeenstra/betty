@@ -18,6 +18,7 @@ from betty.license import LicenseDefinition
 from betty.locale.localizable.gettext import _, ngettext
 from betty.model import EntityDefinition
 from betty.model.association import BidirectionalToManyMultipleTypes, ToManyAssociates
+from betty.plugin.schema import PluginIdSchema
 from betty.privacy import HasPrivacy, Privacy
 
 if TYPE_CHECKING:
@@ -148,13 +149,22 @@ class File(
     @override
     @classmethod
     async def linked_data_schema(cls, project: Project, /) -> JsonLdObject:
-        copyright_notices = await project.plugins(CopyrightNoticeDefinition)
-        licenses = await project.plugins(LicenseDefinition)
         schema = await super().linked_data_schema(project)
         schema.add_property(
-            "copyrightNotice", copyright_notices.plugin_id_schema, False
+            "copyrightNotice",
+            PluginIdSchema(
+                CopyrightNoticeDefinition.type(),
+                await project.plugins(CopyrightNoticeDefinition),
+            ),
+            False,
         )
-        schema.add_property("license", licenses.plugin_id_schema, False)
+        schema.add_property(
+            "license",
+            PluginIdSchema(
+                LicenseDefinition.type(), await project.plugins(LicenseDefinition)
+            ),
+            False,
+        )
         return schema
 
     @override

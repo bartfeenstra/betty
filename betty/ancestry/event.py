@@ -33,6 +33,7 @@ from betty.model.association import (
     ToManyAssociates,
     ToZeroOrOneAssociate,
 )
+from betty.plugin.schema import PluginIdSchema
 from betty.privacy import HasPrivacy, Privacy
 
 if TYPE_CHECKING:
@@ -198,13 +199,17 @@ class Event(
     @classmethod
     async def linked_data_schema(cls, project: Project, /) -> JsonLdObject:
         schema = await super().linked_data_schema(project)
-        event_types = await project.plugins(EventTypeDefinition)
         schema.add_property(
             "name",
             StaticTranslationsSchema(),
             False,
         )
-        schema.add_property("type", event_types.plugin_id_schema)
+        schema.add_property(
+            "type",
+            PluginIdSchema(
+                EventTypeDefinition.type(), await project.plugins(EventTypeDefinition)
+            ),
+        )
         schema.add_property("eventStatus", String(title="Event status"))
         schema.add_property(
             "eventAttendanceMode", String(title="Event attendance mode")

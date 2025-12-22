@@ -21,6 +21,7 @@ from betty.locale.localizable.gettext import _, ngettext
 from betty.model import EntityDefinition, persistent_id
 from betty.model.association import BidirectionalToManySingleType, ToManyAssociates
 from betty.model.schema import ToManySchema
+from betty.plugin.schema import PluginIdSchema
 from betty.privacy import HasPrivacy, Privacy
 
 if TYPE_CHECKING:
@@ -218,7 +219,12 @@ class Person(HasFileReferences, HasCitations, HasNotes, HasLinks, HasPrivacy):
     @classmethod
     async def linked_data_schema(cls, project: Project, /) -> JsonLdObject:
         schema = await super().linked_data_schema(project)
-        genders = await project.plugins(GenderDefinition)
-        schema.add_property("gender", genders.plugin_id_schema, False)
+        schema.add_property(
+            "gender",
+            PluginIdSchema(
+                GenderDefinition.type(), await project.plugins(GenderDefinition)
+            ),
+            False,
+        )
         schema.add_property("siblings", ToManySchema(title="Siblings"))
         return schema
