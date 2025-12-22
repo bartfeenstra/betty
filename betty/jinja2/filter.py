@@ -546,16 +546,18 @@ async def filter_provide_content(
 
     project = context_project(context)
     content_provider_repository = await project.plugins(ContentProviderDefinition)
-    return "".join(
-        [
-            await (
-                await content_provider_configuration.new_plugin_instance(
-                    content_provider_repository, factory=project.new_target
-                )
-            ).provide(resource=context_resource_context(context))
-            or ""
-            for content_provider_configuration in content_provider_configurations
-        ]
+    return Markup(
+        "".join(
+            [
+                await (
+                    await content_provider_configuration.new_plugin_instance(
+                        content_provider_repository, factory=project.new_target
+                    )
+                ).provide(resource=context_resource_context(context))
+                or ""
+                for content_provider_configuration in content_provider_configurations
+            ]
+        )
     )
 
 

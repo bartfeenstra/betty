@@ -837,7 +837,7 @@ async def test_filter_negotiate_localizeds() -> None:
     [
         ("", []),
         (
-            "&lt;p&gt;Hello, world!&lt;/p&gt;",
+            "<p>Hello, world!</p>",
             [
                 PluginInstanceConfiguration(
                     PlainText, PlainTextConfiguration("Hello, world!")
