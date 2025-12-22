@@ -12,6 +12,7 @@ from betty.ancestry.presence_role import PresenceRoleDefinition
 from betty.locale.localizable.gettext import _, ngettext
 from betty.model import Entity, EntityDefinition
 from betty.model.association import BidirectionalToOne, ToOneAssociate
+from betty.plugin.schema import PluginIdSchema
 from betty.privacy import HasPrivacy, Privacy, is_public, merge_secondary_privacies
 
 if TYPE_CHECKING:
@@ -105,8 +106,14 @@ class Presence(HasPrivacy, Entity):
     @classmethod
     async def linked_data_schema(cls, project: Project, /) -> JsonLdObject:
         schema = await super().linked_data_schema(project)
-        presence_roles = await project.plugins(PresenceRoleDefinition)
-        schema.add_property("role", presence_roles.plugin_id_schema, False)
+        schema.add_property(
+            "role",
+            PluginIdSchema(
+                PresenceRoleDefinition.type(),
+                await project.plugins(PresenceRoleDefinition),
+            ),
+            False,
+        )
         return schema
 
     @override

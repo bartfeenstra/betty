@@ -9,10 +9,7 @@ from typing import TYPE_CHECKING, Generic
 
 from typing_extensions import TypeVar
 
-from betty.json.schema import Enum
-from betty.locale.localizer import DEFAULT_LOCALIZER
 from betty.plugin import PluginDefinition
-from betty.string import kebab_case_to_lower_camel_case
 
 if TYPE_CHECKING:
     from collections.abc import Iterator
@@ -29,12 +26,8 @@ class PluginRepository(ABC, Generic[_PluginDefinitionT]):
     Access discovered plugins.
     """
 
-    def __init__(
-        self,
-        plugin_type: type[_PluginDefinitionT],
-    ):
+    def __init__(self, plugin_type: type[_PluginDefinitionT]):
         self._type = plugin_type
-        self._plugin_id_schema: Enum | None = None
 
     @property
     def type(self) -> type[_PluginDefinitionT]:
@@ -60,18 +53,3 @@ class PluginRepository(ABC, Generic[_PluginDefinitionT]):
 
     def __getitem__(self, plugin_id: MachineName) -> _PluginDefinitionT:
         return self.get(plugin_id)
-
-    @property
-    def plugin_id_schema(self) -> Enum:
-        """
-        Get the JSON schema for the IDs of the plugins in this repository.
-        """
-        if self._plugin_id_schema is None:
-            label = self._type.type().label.localize(DEFAULT_LOCALIZER)
-            self._plugin_id_schema = Enum(
-                *[plugin.id for plugin in self],  # noqa A002
-                def_name=kebab_case_to_lower_camel_case(self._type.type().id),
-                title=label,
-                description=f"A {label} plugin ID",
-            )
-        return self._plugin_id_schema
