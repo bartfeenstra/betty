@@ -8,7 +8,6 @@ from typing import Generic, TypeVar
 
 import aiofiles
 
-import betty.plugin.repository.provider.service
 from betty.app import App
 from betty.dirs import ROOT_DIRECTORY_PATH
 from betty.plugin import PluginDefinition
@@ -35,9 +34,7 @@ class PluginDocumentationTestBase(Generic[_PluginDefinitionT]):
         async with aiofiles.open(documentation_file_path) as f:
             documentation = await f.read()
         async with Project.new_isolated(isolated_app) as project, project:
-            for plugin in await betty.plugin.repository.provider.service.plugins(
-                self._plugin_type
-            ):
+            for plugin in await project.plugins(self._plugin_type):
                 if plugin.id.startswith("-"):
                     continue
                 for expected in self._get_expected(plugin):
