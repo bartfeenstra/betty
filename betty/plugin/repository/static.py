@@ -11,6 +11,7 @@ from typing_extensions import TypeVar, override
 from betty.plugin import PluginDefinition
 from betty.plugin.error import PluginNotFound
 from betty.plugin.repository import PluginRepository
+from betty.plugin.resolve import ResolvableDefinition, resolve_definition
 
 if TYPE_CHECKING:
     from collections.abc import Iterator
@@ -29,10 +30,13 @@ class StaticPluginRepository(PluginRepository[_PluginDefinitionT]):
     def __init__(
         self,
         plugin_type: type[_PluginDefinitionT],  # noqa A002
-        *plugins: _PluginDefinitionT,
+        *plugins: ResolvableDefinition[_PluginDefinitionT],
     ):
         super().__init__(plugin_type)
-        self._plugins = {plugin.id: plugin for plugin in plugins}
+        self._plugins = {
+            plugin.id: plugin
+            for plugin in (resolve_definition(plugin) for plugin in plugins)
+        }
 
     @override
     def get(self, plugin_id: MachineName, /) -> _PluginDefinitionT:

@@ -427,9 +427,7 @@ class TestEntityTypeConfiguration:
         )
         with pytest.raises(HumanFacingException):
             await sut.validate(
-                StaticPluginRepository(
-                    EntityDefinition, DummyNonPublicFacingEntityOne.plugin()
-                )
+                StaticPluginRepository(EntityDefinition, DummyNonPublicFacingEntityOne)
             )
 
 
@@ -524,9 +522,7 @@ class TestEntityTypeConfigurationMapping(
         )
         with pytest.raises(HumanFacingException):
             await sut.validate(
-                StaticPluginRepository(
-                    EntityDefinition, DummyNonPublicFacingEntityOne.plugin()
-                )
+                StaticPluginRepository(EntityDefinition, DummyNonPublicFacingEntityOne)
             )
 
 
@@ -1037,7 +1033,7 @@ class TestProjectConfiguration:
             )
         )
         with EntityDefinition.type().override_discovery(
-            StaticDiscovery(DummyNonPublicFacingEntityOne.plugin())
+            StaticDiscovery(DummyNonPublicFacingEntityOne)
         ):
             async with Project.new_isolated(isolated_app) as project:
                 async with project:

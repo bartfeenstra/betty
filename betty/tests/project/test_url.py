@@ -48,9 +48,7 @@ class Test_EntityUrlUrlGenerator:
     ) -> None:
         m_entity_url_generator = mocker.patch("betty.project.url._EntityUrlGenerator")
         ancestry = Ancestry()
-        entity_repository = StaticPluginRepository(
-            EntityDefinition, DummyEntityOne.plugin()
-        )
+        entity_repository = StaticPluginRepository(EntityDefinition, DummyEntityOne)
         sut = _EntityUrlUrlGenerator(
             ancestry, m_entity_url_generator, entity_repository
         )
@@ -66,9 +64,7 @@ class Test_EntityUrlUrlGenerator:
         entity = DummyEntityOne(self._ENTITY_ID)
         ancestry = Ancestry()
         ancestry.add(entity)
-        entity_repository = StaticPluginRepository(
-            EntityDefinition, DummyEntityOne.plugin()
-        )
+        entity_repository = StaticPluginRepository(EntityDefinition, DummyEntityOne)
         sut = _EntityUrlUrlGenerator(
             ancestry, m_entity_url_generator, entity_repository
         )
@@ -336,9 +332,7 @@ class Test_StaticPathUrlUrlGenerator:
 async def test_new_project_url_generator__supports(
     expected: bool, resource: Any, isolated_app: App
 ) -> None:
-    with EntityDefinition.type().override_discovery(
-        StaticDiscovery(DummyEntityOne.plugin())
-    ):
+    with EntityDefinition.type().override_discovery(StaticDiscovery(DummyEntityOne)):
         async with Project.new_isolated(isolated_app) as project, project:
             sut = await new_project_url_generator(project)
             assert sut.supports(resource) == expected
@@ -397,9 +391,7 @@ async def test_new_project_url_generator__generate(
     additional_project_locale: Locale | None,
     isolated_app: App,
 ) -> None:
-    with EntityDefinition.type().override_discovery(
-        StaticDiscovery(DummyEntityOne.plugin())
-    ):
+    with EntityDefinition.type().override_discovery(StaticDiscovery(DummyEntityOne)):
         async with Project.new_isolated(isolated_app) as project:
             if additional_project_locale:
                 project.configuration.locales.append(

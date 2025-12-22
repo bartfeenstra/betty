@@ -46,8 +46,6 @@ class TestServiceLevelPluginRepositoryProvider:
             pass
 
         sut = ServiceLevelPluginRepositoryProvider(None)
-        with DummyPluginDefinition.type().override_discovery(
-            StaticDiscovery(_Plugin.plugin())
-        ):
+        with DummyPluginDefinition.type().override_discovery(StaticDiscovery(_Plugin)):
             assert _Plugin.plugin() in await sut.plugins(DummyPluginDefinition)
         assert _Plugin.plugin() not in await sut.plugins(DummyPluginDefinition)

@@ -118,7 +118,7 @@ class TestProject:
         self, isolated_app: App
     ) -> None:
         with ExtensionDefinition.type().override_discovery(
-            StaticDiscovery(DummyExtensionOne.plugin())
+            StaticDiscovery(DummyExtensionOne)
         ):
             async with Project.new_isolated(isolated_app) as sut:
                 sut.configuration.extensions.enable(DummyExtensionOne)
@@ -141,7 +141,7 @@ class TestProject:
         self, isolated_app: App
     ) -> None:
         with ExtensionDefinition.type().override_discovery(
-            StaticDiscovery(_DummyExtensionWithUnmetRequirement.plugin())
+            StaticDiscovery(_DummyExtensionWithUnmetRequirement)
         ):
             async with Project.new_isolated(isolated_app) as sut:
                 sut.configuration.extensions.enable(_DummyExtensionWithUnmetRequirement)
@@ -160,7 +160,7 @@ class TestProject:
         self, enable: Sequence[type[Extension]], isolated_app: App
     ) -> None:
         with ExtensionDefinition.type().override_discovery(
-            StaticDiscovery(_DummyExtensionA.plugin(), _DummyExtensionB.plugin())
+            StaticDiscovery(_DummyExtensionA.plugin(), _DummyExtensionB)
         ):
             async with Project.new_isolated(isolated_app) as sut:
                 sut.configuration.extensions.enable(*enable)
@@ -198,7 +198,7 @@ class TestProject:
         self, isolated_app: App
     ) -> None:
         with ExtensionDefinition.type().override_discovery(
-            StaticDiscovery(DummyExtensionOne.plugin())
+            StaticDiscovery(DummyExtensionOne)
         ):
             async with Project.new_isolated(isolated_app) as sut:
                 sut.configuration.extensions.enable(DummyExtensionOne)
@@ -210,7 +210,7 @@ class TestProject:
         self, isolated_app: App, tmp_path: Path
     ) -> None:
         with ExtensionDefinition.type().override_discovery(
-            StaticDiscovery(_DummyExtensionWithAssetsDirectory.plugin())
+            StaticDiscovery(_DummyExtensionWithAssetsDirectory)
         ):
             async with Project.new_isolated(isolated_app) as sut:
                 sut.configuration.extensions.enable(_DummyExtensionWithAssetsDirectory)

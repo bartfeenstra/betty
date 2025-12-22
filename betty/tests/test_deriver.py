@@ -20,6 +20,7 @@ from betty.date import Date, DateLike, DateRange
 from betty.deriver import Deriver
 from betty.model.collections import record_added
 from betty.plugin.discovery.static import StaticDiscovery
+from betty.plugin.resolve import ResolvableDefinition
 from betty.project import Project
 from betty.test_utils.locale.localizable import (
     DUMMY_COUNTABLE_LOCALIZABLE,
@@ -32,7 +33,8 @@ if TYPE_CHECKING:
     from betty.app import App
 
 NewProject: TypeAlias = Callable[
-    [Iterable[EventTypeDefinition]], AbstractAsyncContextManager[Project]
+    [Iterable[ResolvableDefinition[EventTypeDefinition]]],
+    AbstractAsyncContextManager[Project],
 ]
 
 
@@ -203,7 +205,7 @@ class TestDeriver:
     def new_project(self, isolated_app: App) -> NewProject:
         @asynccontextmanager
         async def _new_project(
-            event_types: Iterable[EventTypeDefinition],
+            event_types: Iterable[ResolvableDefinition[EventTypeDefinition]],
         ) -> AsyncIterator[Project]:
             with EventTypeDefinition.type().override_discovery(
                 StaticDiscovery(*event_types)
@@ -217,18 +219,18 @@ class TestDeriver:
     async def project(self, new_project: NewProject) -> AsyncIterator[Project]:
         async with new_project(
             {
-                Isolated.plugin(),
-                ComesBeforeReference.plugin(),
-                ComesBefore.plugin(),
-                ComesBeforeShouldExist.plugin(),
-                ComesBeforeShouldNotExist.plugin(),
-                ComesAfterReference.plugin(),
-                ComesAfter.plugin(),
-                ComesAfterShouldExist.plugin(),
-                ComesAfterShouldNotExist.plugin(),
-                ComesBeforeAndAfter.plugin(),
-                ComesBeforeAndAfterShouldExist.plugin(),
-                ComesBeforeAndAfterShouldNotExist.plugin(),
+                Isolated,
+                ComesBeforeReference,
+                ComesBefore,
+                ComesBeforeShouldExist,
+                ComesBeforeShouldNotExist,
+                ComesAfterReference,
+                ComesAfter,
+                ComesAfterShouldExist,
+                ComesAfterShouldNotExist,
+                ComesBeforeAndAfter,
+                ComesBeforeAndAfterShouldExist,
+                ComesBeforeAndAfterShouldNotExist,
             }
         ) as project:
             yield project
@@ -469,8 +471,8 @@ class TestDeriver:
     ) -> None:
         async with new_project(
             {
-                ComesBefore.plugin(),
-                ComesBeforeReference.plugin(),
+                ComesBefore,
+                ComesBeforeReference,
             }
         ) as project:
             person = Person(id="P0")
@@ -545,8 +547,8 @@ class TestDeriver:
     ) -> None:
         async with new_project(
             {
-                ComesBeforeShouldExist.plugin(),
-                ComesBeforeReference.plugin(),
+                ComesBeforeShouldExist,
+                ComesBeforeReference,
             }
         ) as project:
             person = Person(id="P0")
@@ -783,8 +785,8 @@ class TestDeriver:
     ) -> None:
         async with new_project(
             {
-                ComesAfter.plugin(),
-                ComesAfterReference.plugin(),
+                ComesAfter,
+                ComesAfterReference,
             }
         ) as project:
             person = Person(id="P0")
@@ -848,8 +850,8 @@ class TestDeriver:
     ) -> None:
         async with new_project(
             {
-                ComesAfterShouldExist.plugin(),
-                ComesAfterReference.plugin(),
+                ComesAfterShouldExist,
+                ComesAfterReference,
             }
         ) as project:
             person = Person(id="P0")
@@ -908,11 +910,11 @@ class TestDeriver:
     ) -> None:
         async with new_project(
             {
-                ComesBeforeReference.plugin(),
-                ComesBeforeShouldNotExist.plugin(),
-                ComesAfterReference.plugin(),
-                ComesAfterShouldNotExist.plugin(),
-                ComesBeforeAndAfterShouldNotExist.plugin(),
+                ComesBeforeReference,
+                ComesBeforeShouldNotExist,
+                ComesAfterReference,
+                ComesAfterShouldNotExist,
+                ComesBeforeAndAfterShouldNotExist,
             }
         ) as project:
             person = Person(id="P0")

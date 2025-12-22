@@ -55,7 +55,7 @@ class TestRaspberryMint(
         self, isolated_app: App
     ) -> None:
         with EntityDefinition.type().override_discovery(
-            StaticDiscovery(DummyEntityOne.plugin())
+            StaticDiscovery(DummyEntityOne)
         ):
             async with Project.new_isolated(isolated_app) as project:
                 project.configuration.extensions.enable(RaspberryMint)
