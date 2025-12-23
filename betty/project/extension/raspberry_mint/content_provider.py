@@ -368,3 +368,16 @@ class Timeline(Template):
     """
     A timeline of events.
     """
+
+
+@ContentProviderDefinition(
+    "raspberry-mint-facts",
+    label=_("Facts"),
+    description=_(
+        "Other entities that reference a citation or source to back up their claims."
+    ),
+)
+class Facts(Template):
+    """
+    A list of facts.
+    """

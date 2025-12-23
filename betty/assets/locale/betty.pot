@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Betty VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2025-12-22 19:31+0000\n"
+"POT-Creation-Date: 2025-12-23 00:35+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -942,6 +942,9 @@ msgid "Organizers"
 msgstr ""
 
 msgid "Other attendees"
+msgstr ""
+
+msgid "Other entities that reference a citation or source to back up their claims."
 msgstr ""
 
 msgid "Other places contained by this one"

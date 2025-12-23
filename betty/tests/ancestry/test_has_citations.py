@@ -5,28 +5,13 @@ from typing import TYPE_CHECKING
 import pytest
 
 from betty.ancestry.citation import Citation
-from betty.ancestry.has_citations import HasCitations
 from betty.ancestry.source import Source
-from betty.model import EntityDefinition
+from betty.test_utils.ancestry.has_citations import DummyHasCitations
 from betty.test_utils.json.linked_data import assert_dumps_linked_data
-from betty.test_utils.locale.localizable import (
-    DUMMY_COUNTABLE_LOCALIZABLE,
-    DUMMY_LOCALIZABLE,
-)
 
 if TYPE_CHECKING:
     from betty.ancestry.has_links import HasLinks
     from betty.serde.dump import Dump, DumpMapping
-
-
-@EntityDefinition(
-    "dummy-has-citations",
-    label=DUMMY_LOCALIZABLE,
-    label_plural=DUMMY_LOCALIZABLE,
-    label_countable=DUMMY_COUNTABLE_LOCALIZABLE,
-)
-class DummyHasCitations(HasCitations):
-    pass
 
 
 class TestHasCitations:
