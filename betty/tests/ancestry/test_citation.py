@@ -7,17 +7,13 @@ from typing_extensions import override
 from betty.ancestry.citation import Citation
 from betty.ancestry.event import Event
 from betty.ancestry.event_type.event_types import Birth
-from betty.ancestry.has_citations import HasCitations
 from betty.ancestry.source import Source
 from betty.locale import DEFAULT_LOCALE_TAG
 from betty.locale.localizer import DEFAULT_LOCALIZER
-from betty.model import Entity, EntityDefinition
+from betty.model import Entity
 from betty.privacy import Privacy
+from betty.test_utils.ancestry.has_citations import DummyHasCitations
 from betty.test_utils.json.linked_data import assert_dumps_linked_data
-from betty.test_utils.locale.localizable import (
-    DUMMY_COUNTABLE_LOCALIZABLE,
-    DUMMY_LOCALIZABLE,
-)
 from betty.test_utils.model import EntityDefinitionTestBase, EntityTestBase
 
 if TYPE_CHECKING:
@@ -32,16 +28,6 @@ class TestCitationDefinition(EntityDefinitionTestBase):
     @pytest.fixture
     def sut(self) -> PluginDefinition:
         return Citation.plugin()
-
-
-@EntityDefinition(
-    "dummy-has-citations",
-    label=DUMMY_LOCALIZABLE,
-    label_plural=DUMMY_LOCALIZABLE,
-    label_countable=DUMMY_COUNTABLE_LOCALIZABLE,
-)
-class DummyHasCitations(HasCitations):
-    pass
 
 
 class TestCitation(EntityTestBase):

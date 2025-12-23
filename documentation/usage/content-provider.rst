@@ -13,6 +13,8 @@ Built-in content providers
     Change the color style for all containing content.
 ``raspberry-mint-external-links`` (:py:class:`betty.project.extension.raspberry_mint.content_provider.ExternalLinks`)
     A resource's external links.
+``raspberry-mint-facts`` (:py:class:`betty.project.extension.raspberry_mint.content_provider.Facts`)
+    Other entities that reference a citation or source to back up their claims.
 ``raspberry-mint-family`` (:py:class:`betty.project.extension.raspberry_mint.content_provider.Family`)
     Display a person's families.
 ``raspberry-mint-featured-entities`` (:py:class:`betty.project.extension.raspberry_mint.content_provider.FeaturedEntities`)
