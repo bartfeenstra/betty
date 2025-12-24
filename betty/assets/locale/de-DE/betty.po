@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Betty VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2025-12-23 00:35+0000\n"
+"POT-Creation-Date: 2025-12-27 23:39+0000\n"
 "PO-Revision-Date: 2025-03-28 20:02+0000\n"
 "Last-Translator: Ettore Atalan <atalanttore@googlemail.com>\n"
 "Language: de_DE\n"
@@ -70,6 +70,9 @@ msgid ""
 msgstr ""
 "Eine Familiengeschichte erzählt von <a "
 "href=\"https://betty.readthedocs.io\">Betty👵</a>"
+
+msgid "A single file in a media display"
+msgstr ""
 
 msgid "API documentation"
 msgstr "API Dokumentation"
@@ -893,6 +896,9 @@ msgid "Missings"
 msgstr ""
 
 msgid "More plugins may be available when running this command with --project."
+msgstr ""
+
+msgid "Multiple files in a media gallery display"
 msgstr ""
 
 msgid "Municipalities"

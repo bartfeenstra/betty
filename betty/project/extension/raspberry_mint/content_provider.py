@@ -253,10 +253,25 @@ class Family(Template, _Base):
     """
 
 
-@ContentProviderDefinition("raspberry-mint-media", label=_("Media gallery"))
+@ContentProviderDefinition(
+    "raspberry-mint-media",
+    label=_("Media"),
+    description=_("A single file in a media display"),
+)
 class Media(Template):
     """
-    Media gallery.
+    A single file in a media display.
+    """
+
+
+@ContentProviderDefinition(
+    "raspberry-mint-media-gallery",
+    label=_("Media gallery"),
+    description=_("Multiple files in a media gallery display"),
+)
+class MediaGallery(Template):
+    """
+    Multiple files in a media gallery display.
     """
 
 

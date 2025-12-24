@@ -1,16 +1,21 @@
-{% for file_reference in file_references | selectattr('file', 'public') %}
-    <div class="col media-file mt-3 position-relative">
-        {% if file_reference.file.media_type is image_supported_media_type %}
-            <figure>
-                <picture>
-                    <source srcset="{{ file_reference | image_resize_cover((900, 900)) | url }}" media="(min-width: 500px)">
-                    <img src="{{ file_reference | image_resize_cover((500, 500)) | url }}" alt="{{ file_reference.file.label | localize }}" class="image" loading="lazy">
-                </picture>
-                <figcaption class="mt-1 small text-truncate">{{ file_reference.file.label | localize | html_lang }}</figcaption>
-            </figure>
-        {% else %}
-            <p class="small">{{ file_reference.file.label | localize | html_lang }}</p>
-        {% endif %}
-        <a href="{{ file_reference.file | url }}" class="stretched-link"><span class="visually-hidden">View {{ file_reference.file.label | localize | html_lang }}</span></a>
+{% if file.media_type and (file.media_type.type == 'image' or file.media_type | str == 'application/pdf') %}
+    <div class="py-2" data-bs-theme="dark">
+        <div class="container">
+            <div class="row justify-content-center">
+                <div class="col">
+                    <figure>
+                        <a href="{{ file | file | url }}" class="image-link">
+                            <picture>
+                                {% for size, breakpoint in [(1300, 900), (900, 500)] %}
+                                    <source srcset="{{ file | image_resize_cover((size, size)) | url }}" media="(min-width: {{ breakpoint }}px)">
+                                {% endfor %}
+                                <img src="{{ file | image_resize_cover((500, 500)) | url }}" alt="{{ file.label | localize }}" class="image">
+                            </picture>
+                        </a>
+                        <figcaption class="mt-1">{{ file.label | localize }}</figcaption>
+                    </figure>
+                </div>
+            </div>
+        </div>
     </div>
-{% endfor %}
+{% endif %}

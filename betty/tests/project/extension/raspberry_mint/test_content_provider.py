@@ -20,9 +20,11 @@ from betty.config.factory import ConfigurationDependentSelfFactory
 from betty.content_provider import ContentProvider
 from betty.content_provider.content_providers import Render, RenderConfiguration
 from betty.date import Date
+from betty.dirs import ASSETS_DIRECTORY_PATH
 from betty.exception import HumanFacingException
 from betty.locale.localizable.plain import Plain
 from betty.locale.localizer import DEFAULT_LOCALIZER
+from betty.media_type import MediaType
 from betty.model.config import EntityReference, EntityReferenceSequence
 from betty.plugin.config import PluginInstanceConfiguration
 from betty.project import Project
@@ -36,6 +38,7 @@ from betty.project.extension.raspberry_mint.content_provider import (
     Family,
     FeaturedEntities,
     Media,
+    MediaGallery,
     Section,
     SectionConfiguration,
     Timeline,
@@ -317,13 +320,41 @@ class TestMedia(ContentProviderTestBase):
         async with Project.new_isolated(isolated_app) as project, project:
             return Media(jinja2_environment=await project.jinja2_environment)
 
+    async def test_provide__without_file(self, isolated_app: App) -> None:
+        async with Project.new_isolated(isolated_app) as project:
+            project.configuration.extensions.enable(RaspberryMint)
+            async with project:
+                sut = await Media.new_for_project(project)
+                assert await sut.provide(resource=Context(object())) is None
+
+    async def test_provide__with_file(self, isolated_app: App) -> None:
+        resource = File(
+            ASSETS_DIRECTORY_PATH / "public" / "static" / "betty-16x16.png",
+            media_type=MediaType("image/png"),
+        )
+        async with Project.new_isolated(isolated_app) as project:
+            project.configuration.extensions.enable(RaspberryMint)
+            async with project:
+                sut = await Media.new_for_project(project)
+                actual = await sut.provide(resource=Context(resource))
+        assert actual is not None
+        assert resource.label.localize(DEFAULT_LOCALIZER) in actual
+
+
+class TestMediaGallery(ContentProviderTestBase):
+    @override
+    @pytest.fixture
+    async def sut(self, isolated_app: App) -> ContentProvider:
+        async with Project.new_isolated(isolated_app) as project, project:
+            return MediaGallery(jinja2_environment=await project.jinja2_environment)
+
     async def test_provide__without_has_file_references(
         self, isolated_app: App
     ) -> None:
         async with Project.new_isolated(isolated_app) as project:
             project.configuration.extensions.enable(RaspberryMint)
             async with project:
-                sut = await Media.new_for_project(project)
+                sut = await MediaGallery.new_for_project(project)
                 assert await sut.provide(resource=Context(object())) is None
 
     async def test_provide__with_has_file_references_without_file_references(
@@ -333,7 +364,7 @@ class TestMedia(ContentProviderTestBase):
         async with Project.new_isolated(isolated_app) as project:
             project.configuration.extensions.enable(RaspberryMint)
             async with project:
-                sut = await Media.new_for_project(project)
+                sut = await MediaGallery.new_for_project(project)
                 assert await sut.provide(resource=Context(resource)) is None
 
     async def test_provide__with_has_file_references_with_file_references(
@@ -345,7 +376,7 @@ class TestMedia(ContentProviderTestBase):
         async with Project.new_isolated(isolated_app) as project:
             project.configuration.extensions.enable(RaspberryMint)
             async with project:
-                sut = await Media.new_for_project(project)
+                sut = await MediaGallery.new_for_project(project)
                 actual = await sut.provide(resource=Context(resource))
         assert actual is not None
         assert file.label.localize(DEFAULT_LOCALIZER) in actual

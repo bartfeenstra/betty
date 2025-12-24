@@ -1,0 +1,5 @@
+{% if resource.resource is has_file_references %}
+    {% with file_references = resource.resource | associated_file_references %}
+        {% include 'component/media-gallery.html.j2' %}
+    {% endwith %}
+{% endif %}

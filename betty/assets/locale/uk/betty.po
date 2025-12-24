@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Betty 0.4\n"
 "Report-Msgid-Bugs-To: illia@maier.page\n"
-"POT-Creation-Date: 2025-12-23 00:35+0000\n"
+"POT-Creation-Date: 2025-12-27 23:39+0000\n"
 "PO-Revision-Date: 2025-05-13 17:01+0000\n"
 "Last-Translator: Максим Горпиніч <maksimgorpinic4@gmail.com>\n"
 "Language: uk\n"
@@ -73,6 +73,9 @@ msgid ""
 msgstr ""
 "Сімейна історія, яку розповіла <a "
 "href=\"https://betty.readthedocs.io\">Betty👵</a>"
+
+msgid "A single file in a media display"
+msgstr ""
 
 msgid "API documentation"
 msgstr "документація API"
@@ -913,6 +916,9 @@ msgid "Missings"
 msgstr ""
 
 msgid "More plugins may be available when running this command with --project."
+msgstr ""
+
+msgid "Multiple files in a media gallery display"
 msgstr ""
 
 msgid "Municipalities"
