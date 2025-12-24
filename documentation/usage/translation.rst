@@ -50,6 +50,8 @@ German (``de-DE``)
     Translations are {{{ translation-coverage-de-DE }}}% complete.
 Hebrew (``he``)
     Translations are {{{ translation-coverage-he }}}% complete.
+Portuguese (``pt-BR``)
+    Translations are {{{ translation-coverage-pt-BR }}}% complete.
 Russian (``ru-RU``)
     Translations are {{{ translation-coverage-ru-RU }}}% complete.
 Ukrainian (``uk``)
