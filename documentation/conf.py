@@ -6,11 +6,11 @@ import sys
 from asyncio import run
 from pathlib import Path
 
-import betty
 import betty.dirs
 from betty.asset import StaticAssetRepository
 from betty.cache.file import BinaryFileCache
 from betty.dirs import ASSETS_DIRECTORY_PATH, CACHE_DIRECTORY_PATH
+from betty.locale import to_language_tag
 from betty.locale.localizer import LocalizerRepository
 from betty.locale.translation import AssetTranslationRepository
 
@@ -22,7 +22,7 @@ run(translations.bootstrap())
 localizers = LocalizerRepository(translations)
 for locale in translations.locales:
     coverage = run(translations.coverage(locale))
-    betty_replacements[f"translation-coverage-{locale}"] = str(
+    betty_replacements[f"translation-coverage-{to_language_tag(locale)}"] = str(
         int(round(100 / (coverage[1] / coverage[0]) if coverage[0] else 0))
     )
 
