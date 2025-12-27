@@ -15,6 +15,7 @@ from urllib.parse import quote
 
 import aiofiles
 from aiofiles.os import makedirs
+from babel.dates import format_date
 from geopy import units
 from geopy.format import DEGREES_FORMAT
 from jinja2 import pass_context
@@ -50,6 +51,7 @@ from betty.string import (
 from betty.typing import internal
 
 if TYPE_CHECKING:
+    import datetime
     from collections.abc import (
         AsyncIterator,
         Awaitable,
@@ -139,19 +141,6 @@ def filter_html_lang(context: Context, localized: str) -> str | Markup:
     if context.eval_ctx.autoescape:
         result = Markup(result)
     return result
-
-
-@pass_context
-def filter_format_date_like(
-    context: Context,
-    date_like: DateLike,
-) -> str:
-    """
-    Format a :py:type:`betty.date.DateLike`.
-    """
-    from betty.jinja2 import context_localizer
-
-    return context_localizer(context).format_date_like(date_like)
 
 
 def filter_json_dump(data: Any, indent: int | None = None) -> str:
@@ -551,6 +540,19 @@ async def filter_provide_content(
     )
 
 
+@pass_context
+def filter_format_datetime_datetime(
+    context: Context, datetime_datetime: datetime.datetime, /
+) -> str:
+    """
+    Format a datetime date to a human-readable string.
+    """
+    from betty.jinja2 import context_localizer
+
+    localizer = context_localizer(context)
+    return format_date(datetime_datetime, "long", locale=localizer.locale)
+
+
 @internal
 async def filters() -> Mapping[str, Callable[..., Any]]:
     """
@@ -561,7 +563,7 @@ async def filters() -> Mapping[str, Callable[..., Any]]:
         "camel_case_to_snake_case": camel_case_to_snake_case,
         "file": filter_file,
         "flatten": filter_flatten,
-        "format_date_like": filter_format_date_like,
+        "format_datetime_datetime": filter_format_datetime_datetime,
         "format_degrees": filter_format_degrees,
         "hashid": hashid,
         "image_resize_cover": filter_image_resize_cover,

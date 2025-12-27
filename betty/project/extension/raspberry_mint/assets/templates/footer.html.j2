@@ -13,7 +13,7 @@
                 <div class="col col-12 col-lg-6 p-3">
                     {% if resource.job_context %}
                         <p>
-                            {% trans last_modified = resource.localizer.format_datetime_datetime(resource.job_context.start) -%}
+                            {% trans last_modified = resource.job_context.start | format_datetime_datetime -%}
                                 Last modified on {{ last_modified }}
                             {%- endtrans %}
                         </p>
