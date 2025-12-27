@@ -5,7 +5,7 @@
                 {% trans %}Accessed{% endtrans %}
             </dt>
             <dd class="d-table-cell">
-                {{ entity.date | format_date_like }}
+                {{ entity.date | localize }}
             </dd>
         </div>
     </dl>

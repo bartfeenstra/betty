@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import datetime
 from gettext import NullTranslations
 from pathlib import Path
 from typing import TYPE_CHECKING, Any
@@ -567,18 +568,6 @@ async def test_filter_sort_localizeds__with_empty_iterable() -> None:
         assert actual == "[]"
 
 
-async def test_filter_format_date_like() -> None:
-    template = "{{ date | format_date_like }}"
-    date = Date(1970, 1, 1)
-    async with assert_template_string(
-        template=template,
-        data={
-            "date": date,
-        },
-    ) as (actual, _):
-        assert actual == "January 1, 1970"
-
-
 @pytest.mark.parametrize(
     ("expected", "autoescape", "localized", "localizer_locale"),
     [
@@ -829,3 +818,14 @@ async def test_filter_provide_content(
         },
     ) as (actual, _):
         assert actual == expected
+
+
+async def test_filter_format_datetime_datetime() -> None:
+    template = "{{ data | format_datetime_datetime }}"
+    async with assert_template_string(
+        template=template,
+        data={
+            "data": datetime.datetime(1970, 1, 1),
+        },
+    ) as (actual, _):
+        assert actual == "January 1, 1970"

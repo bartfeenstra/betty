@@ -4,7 +4,8 @@ from typing import TYPE_CHECKING, cast
 
 import pytest
 
-from betty.date import Date, DateLike, DateRange
+from betty.date import Date, DateLike, DateRange, IncompleteDateError
+from betty.locale.localizer import DEFAULT_LOCALIZER
 from betty.serde.dump import Dump, DumpMapping
 
 if TYPE_CHECKING:
@@ -257,6 +258,28 @@ class TestDate:
     )
     def test___gt__(self, expected: bool, sut: Date, other: DateLike) -> None:
         assert (sut > other) == expected
+
+    @pytest.mark.parametrize(
+        ("expected", "sut"),
+        [
+            # Dates that cannot be formatted.
+            ("unknown date", Date()),
+            ("unknown date", Date(None, None, 1)),
+            # Single dates.
+            ("January", Date(None, 1, None)),
+            ("around January", Date(None, 1, None, fuzzy=True)),
+            ("1970", Date(1970, None, None)),
+            ("around 1970", Date(1970, None, None, fuzzy=True)),
+            ("January, 1970", Date(1970, 1, None)),
+            ("around January, 1970", Date(1970, 1, None, fuzzy=True)),
+            ("January 1, 1970", Date(1970, 1, 1)),
+            ("around January 1, 1970", Date(1970, 1, 1, fuzzy=True)),
+            ("January 1", Date(None, 1, 1)),
+            ("around January 1", Date(None, 1, 1, fuzzy=True)),
+        ],
+    )
+    async def test_localize(self, expected: str, sut: Date) -> None:
+        assert sut.localize(DEFAULT_LOCALIZER) == expected
 
 
 class TestDateRange:
@@ -770,3 +793,146 @@ class TestDateRange:
     )
     def test___gt__(self, expected: bool, other: DateLike) -> None:
         assert (DateRange(Date(1970, 2, 2)) > other) == expected
+
+    _FORMAT_DATE_RANGE_TEST_PARAMETERS: Sequence[tuple[str, DateRange]] = [
+        (
+            "from January 1, 1970 until December 31, 1999",
+            DateRange(Date(1970, 1, 1), Date(1999, 12, 31)),
+        ),
+        (
+            "from January 1, 1970 until sometime before December 31, 1999",
+            DateRange(Date(1970, 1, 1), Date(1999, 12, 31), end_is_boundary=True),
+        ),
+        (
+            "from January 1, 1970 until around December 31, 1999",
+            DateRange(Date(1970, 1, 1), Date(1999, 12, 31, fuzzy=True)),
+        ),
+        (
+            "from January 1, 1970 until sometime before around December 31, 1999",
+            DateRange(
+                Date(1970, 1, 1), Date(1999, 12, 31, fuzzy=True), end_is_boundary=True
+            ),
+        ),
+        (
+            "from sometime after January 1, 1970 until December 31, 1999",
+            DateRange(Date(1970, 1, 1), Date(1999, 12, 31), start_is_boundary=True),
+        ),
+        (
+            "sometime between January 1, 1970 and December 31, 1999",
+            DateRange(
+                Date(1970, 1, 1),
+                Date(1999, 12, 31),
+                start_is_boundary=True,
+                end_is_boundary=True,
+            ),
+        ),
+        (
+            "from sometime after January 1, 1970 until around December 31, 1999",
+            DateRange(
+                Date(1970, 1, 1), Date(1999, 12, 31, fuzzy=True), start_is_boundary=True
+            ),
+        ),
+        (
+            "sometime between January 1, 1970 and around December 31, 1999",
+            DateRange(
+                Date(1970, 1, 1),
+                Date(1999, 12, 31, fuzzy=True),
+                start_is_boundary=True,
+                end_is_boundary=True,
+            ),
+        ),
+        (
+            "from around January 1, 1970 until December 31, 1999",
+            DateRange(Date(1970, 1, 1, fuzzy=True), Date(1999, 12, 31)),
+        ),
+        (
+            "from around January 1, 1970 until sometime before December 31, 1999",
+            DateRange(
+                Date(1970, 1, 1, fuzzy=True), Date(1999, 12, 31), end_is_boundary=True
+            ),
+        ),
+        (
+            "from around January 1, 1970 until around December 31, 1999",
+            DateRange(Date(1970, 1, 1, fuzzy=True), Date(1999, 12, 31, fuzzy=True)),
+        ),
+        (
+            "from around January 1, 1970 until sometime before around December 31, 1999",
+            DateRange(
+                Date(1970, 1, 1, fuzzy=True),
+                Date(1999, 12, 31, fuzzy=True),
+                end_is_boundary=True,
+            ),
+        ),
+        (
+            "from sometime after around January 1, 1970 until December 31, 1999",
+            DateRange(
+                Date(1970, 1, 1, fuzzy=True), Date(1999, 12, 31), start_is_boundary=True
+            ),
+        ),
+        (
+            "sometime between around January 1, 1970 and December 31, 1999",
+            DateRange(
+                Date(1970, 1, 1, fuzzy=True),
+                Date(1999, 12, 31),
+                start_is_boundary=True,
+                end_is_boundary=True,
+            ),
+        ),
+        (
+            "from sometime after around January 1, 1970 until around December 31, 1999",
+            DateRange(
+                Date(1970, 1, 1, fuzzy=True),
+                Date(1999, 12, 31, fuzzy=True),
+                start_is_boundary=True,
+            ),
+        ),
+        (
+            "sometime between around January 1, 1970 and around December 31, 1999",
+            DateRange(
+                Date(1970, 1, 1, fuzzy=True),
+                Date(1999, 12, 31, fuzzy=True),
+                start_is_boundary=True,
+                end_is_boundary=True,
+            ),
+        ),
+        ("from January 1, 1970", DateRange(Date(1970, 1, 1))),
+        (
+            "sometime after January 1, 1970",
+            DateRange(Date(1970, 1, 1), start_is_boundary=True),
+        ),
+        ("from around January 1, 1970", DateRange(Date(1970, 1, 1, fuzzy=True))),
+        (
+            "sometime after around January 1, 1970",
+            DateRange(Date(1970, 1, 1, fuzzy=True), start_is_boundary=True),
+        ),
+        ("until December 31, 1999", DateRange(None, Date(1999, 12, 31))),
+        (
+            "sometime before December 31, 1999",
+            DateRange(None, Date(1999, 12, 31), end_is_boundary=True),
+        ),
+        (
+            "until around December 31, 1999",
+            DateRange(None, Date(1999, 12, 31, fuzzy=True)),
+        ),
+        (
+            "sometime before around December 31, 1999",
+            DateRange(None, Date(1999, 12, 31, fuzzy=True), end_is_boundary=True),
+        ),
+    ]
+
+    @pytest.mark.parametrize(("expected", "sut"), _FORMAT_DATE_RANGE_TEST_PARAMETERS)
+    async def test_localize(self, expected: str, sut: DateRange) -> None:
+        assert sut.localize(DEFAULT_LOCALIZER) == expected
+
+    @pytest.mark.parametrize(
+        "sut",
+        [
+            DateRange(),
+            DateRange(Date()),
+            DateRange(None, Date()),
+            DateRange(Date(), Date()),
+        ],
+    )
+    async def test_localize__with_incomplete_date_range(self, sut: DateRange) -> None:
+        with pytest.raises(IncompleteDateError):
+            assert sut.localize(DEFAULT_LOCALIZER)

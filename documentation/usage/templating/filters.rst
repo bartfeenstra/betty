@@ -12,7 +12,7 @@ In addition to Jinja2's built-in filters, Betty provides the following:
 - :py:func:`camel_case_to_snake_case <betty.string.camel_case_to_snake_case>`
 - :py:func:`file <betty.jinja2.filter.filter_file>`
 - :py:func:`flatten <betty.jinja2.filter.filter_flatten>`
-- :py:func:`format_date_like <betty.jinja2.filter.filter_format_date_like>`
+- :py:func:`format_datetime_datetime <betty.jinja2.filter.filter_format_datetime_datetime>`
 - :py:func:`format_degrees <betty.jinja2.filter.filter_format_degrees>`
 - :py:func:`hashid <betty.hashid.hashid>`
 - :py:func:`image_resize_cover <betty.jinja2.filter.filter_image_resize_cover>`

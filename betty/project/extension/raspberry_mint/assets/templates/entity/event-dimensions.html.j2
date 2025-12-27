@@ -3,7 +3,7 @@
 {%- set place_context = resource.entity_contexts['place'] -%}
 {%- set formatted_date = '' -%}
 {%- if event.date -%}
-    {%- set formatted_date = event.date | format_date_like -%}
+    {%- set formatted_date = event.date | localize -%}
 {%- endif -%}
 
 {%- set formatted_place = '' -%}

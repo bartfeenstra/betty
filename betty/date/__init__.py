@@ -5,15 +5,24 @@ Localize dates.
 from __future__ import annotations
 
 import calendar
+import datetime
 import operator
-from collections.abc import Callable, Mapping
+from contextlib import suppress
 from functools import total_ordering
 from typing import TYPE_CHECKING, Any, TypeAlias
 
+from babel import dates
 from typing_extensions import override
 
+from betty.locale.localizable import Localizable
+from betty.locale.localizable.gettext import _
+
 if TYPE_CHECKING:
+    from collections.abc import Callable, Mapping
     from types import NotImplementedType
+
+    from betty.locale.localized import Localized
+    from betty.locale.localizer import Localizer
 
 
 class IncompleteDateError(ValueError):
@@ -22,10 +31,41 @@ class IncompleteDateError(ValueError):
     """
 
 
-class Date:
+_LOCALIZE_DATE_PART_FORMATS: Mapping[tuple[bool, bool, bool], Localizable] = {
+    (True, True, True): _("MMMM d, y"),
+    (True, True, False): _("MMMM, y"),
+    (True, False, False): _("y"),
+    (False, True, True): _("MMMM d"),
+    (False, True, False): _("MMMM"),
+}
+
+
+def _localize_date_parts(localizer: Localizer, date: Date | None, /) -> str:
+    if date is None:
+        raise IncompleteDateError("This date is None.")
+    try:
+        date_parts_format = _LOCALIZE_DATE_PART_FORMATS[
+            tuple(
+                (x is not None for x in date.parts),  # type: ignore[index]
+            )
+        ].localize(localizer)
+    except KeyError:
+        raise IncompleteDateError(
+            "This date does not have enough parts to be rendered."
+        ) from None
+    parts = (1 if x is None else x for x in date.parts)
+    return dates.format_date(datetime.date(*parts), date_parts_format, localizer.locale)
+
+
+class Date(Localizable):
     """
     A (Gregorian) date.
     """
+
+    _LOCALIZE_FORMATS: Mapping[tuple[bool | None], Localizable] = {
+        (True,): _("around {date}"),
+        (False,): _("{date}"),
+    }
 
     year: int | None
     month: int | None
@@ -44,6 +84,19 @@ class Date:
         self.month = month
         self.day = day
         self.fuzzy = fuzzy
+
+    @override
+    def localize(self, localizer: Localizer, /) -> Localized & str:
+        try:
+            return (
+                self._LOCALIZE_FORMATS[(self.fuzzy,)]
+                .format(
+                    date=_localize_date_parts(localizer, self),
+                )
+                .localize(localizer)
+            )
+        except IncompleteDateError:
+            return _("unknown date").localize(localizer)
 
     @property
     def comparable(self) -> bool:
@@ -72,7 +125,7 @@ class Date:
         """
         if not self.comparable:
             raise ValueError(
-                f"Cannot convert non-comparable date {self} to a date range."
+                f"Cannot convert non-comparable date {repr(self)} to a date range."
             )
         if self.month is None:
             month_start = 1
@@ -141,10 +194,63 @@ def _dump_date_iso8601(date: Date, /) -> str | None:
 
 
 @total_ordering
-class DateRange:
+class DateRange(Localizable):
     """
     A date range can describe a period of time between, before, after, or around start and/or end dates.
     """
+
+    _LOCALIZE_FORMATS: Mapping[
+        tuple[bool | None, bool | None, bool | None, bool | None], Localizable
+    ] = {
+        (False, False, False, False): _("from {start_date} until {end_date}"),
+        (False, False, False, True): _(
+            "from {start_date} until sometime before {end_date}"
+        ),
+        (False, False, True, False): _("from {start_date} until around {end_date}"),
+        (False, False, True, True): _(
+            "from {start_date} until sometime before around {end_date}"
+        ),
+        (False, True, False, False): _(
+            "from sometime after {start_date} until {end_date}"
+        ),
+        (False, True, False, True): _("sometime between {start_date} and {end_date}"),
+        (False, True, True, False): _(
+            "from sometime after {start_date} until around {end_date}"
+        ),
+        (False, True, True, True): _(
+            "sometime between {start_date} and around {end_date}"
+        ),
+        (True, False, False, False): _("from around {start_date} until {end_date}"),
+        (True, False, False, True): _(
+            "from around {start_date} until sometime before {end_date}"
+        ),
+        (True, False, True, False): _(
+            "from around {start_date} until around {end_date}"
+        ),
+        (True, False, True, True): _(
+            "from around {start_date} until sometime before around {end_date}"
+        ),
+        (True, True, False, False): _(
+            "from sometime after around {start_date} until {end_date}"
+        ),
+        (True, True, False, True): _(
+            "sometime between around {start_date} and {end_date}"
+        ),
+        (True, True, True, False): _(
+            "from sometime after around {start_date} until around {end_date}"
+        ),
+        (True, True, True, True): _(
+            "sometime between around {start_date} and around {end_date}"
+        ),
+        (False, False, None, None): _("from {start_date}"),
+        (False, True, None, None): _("sometime after {start_date}"),
+        (True, False, None, None): _("from around {start_date}"),
+        (True, True, None, None): _("sometime after around {start_date}"),
+        (None, None, False, False): _("until {end_date}"),
+        (None, None, False, True): _("sometime before {end_date}"),
+        (None, None, True, False): _("until around {end_date}"),
+        (None, None, True, True): _("sometime before around {end_date}"),
+    }
 
     start: Date | None
     start_is_boundary: bool
@@ -163,6 +269,44 @@ class DateRange:
         self.start_is_boundary = start_is_boundary
         self.end = end
         self.end_is_boundary = end_is_boundary
+
+    @override
+    def localize(self, localizer: Localizer, /) -> Localized & str:
+        formatter_configuration: tuple[
+            bool | None, bool | None, bool | None, bool | None
+        ] = (None, None, None, None)
+        formatter_arguments = {}
+
+        with suppress(IncompleteDateError):
+            formatter_arguments["start_date"] = _localize_date_parts(
+                localizer, self.start
+            )
+            formatter_configuration = (
+                None if self.start is None else self.start.fuzzy,
+                self.start_is_boundary,
+                formatter_configuration[2],
+                formatter_configuration[3],
+            )
+
+        with suppress(IncompleteDateError):
+            formatter_arguments["end_date"] = _localize_date_parts(localizer, self.end)
+            formatter_configuration = (
+                formatter_configuration[0],
+                formatter_configuration[1],
+                None if self.end is None else self.end.fuzzy,
+                self.end_is_boundary,
+            )
+
+        if not formatter_arguments:
+            raise IncompleteDateError(
+                "This date range does not have enough parts to be rendered."
+            )
+
+        return (
+            self._LOCALIZE_FORMATS[formatter_configuration]
+            .format(**formatter_arguments)
+            .localize(localizer)
+        )
 
     @property
     def comparable(self) -> bool:
@@ -379,8 +523,3 @@ class DateRange:
 
 
 DateLike: TypeAlias = Date | DateRange
-DatePartsFormatters: TypeAlias = Mapping[tuple[bool, bool, bool], str]
-DateFormatters: TypeAlias = Mapping[tuple[bool | None], str]
-DateRangeFormatters: TypeAlias = Mapping[
-    tuple[bool | None, bool | None, bool | None, bool | None], str
-]
