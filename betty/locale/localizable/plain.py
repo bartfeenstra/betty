@@ -8,14 +8,13 @@ from typing import TYPE_CHECKING, final
 
 from typing_extensions import override
 
-from betty.locale import LocaleLike, ensure_locale
+from betty.locale import HasLocale, HasLocaleStr, LocaleLike, ensure_locale
 from betty.locale.localizable import Localizable
-from betty.locale.localized import Localized, LocalizedStr
 
 if TYPE_CHECKING:
     from babel import Locale
 
-    from betty.locale.localizer import Localizer
+    from betty.locale.localize import Localizer
 
 
 @final
@@ -46,5 +45,5 @@ class Plain(Localizable):
         return self._locale
 
     @override
-    def localize(self, localizer: Localizer, /) -> Localized & str:
-        return LocalizedStr(self._text, locale=self._locale)
+    def localize(self, localizer: Localizer, /) -> HasLocale & str:
+        return HasLocaleStr(self._text, locale=self._locale)

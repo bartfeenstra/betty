@@ -10,7 +10,7 @@ from betty.html import (
     plain_text_to_html,
 )
 from betty.locale.localizable.plain import Plain
-from betty.locale.localizer import DEFAULT_LOCALIZER
+from betty.locale.localize import DEFAULT_LOCALIZER
 
 
 class TestNavigationLink:

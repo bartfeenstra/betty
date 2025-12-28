@@ -5,7 +5,7 @@ from typing import TYPE_CHECKING
 import pytest
 
 from betty.locale import DEFAULT_LOCALE_TAG
-from betty.locale.localizer import DEFAULT_LOCALIZER
+from betty.locale.localize import DEFAULT_LOCALIZER
 from betty.test_utils.ancestry.description import DummyHasDescription
 from betty.test_utils.json.linked_data import assert_dumps_linked_data
 

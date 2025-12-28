@@ -42,7 +42,7 @@ if TYPE_CHECKING:
 
     from betty.asset import AssetRepository
     from betty.job import Context as JobContext
-    from betty.locale.localizer import Localizer
+    from betty.locale.localize import Localizer
     from betty.project import Project
     from betty.project.extension import Extension
     from betty.resource import Context

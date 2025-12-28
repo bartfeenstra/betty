@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from betty.locale.localizer import DEFAULT_LOCALIZER
+from betty.locale.localize import DEFAULT_LOCALIZER
 from betty.plugin import PluginTypeDefinition
 from betty.plugin.human_facing import (
     CountableHumanFacingPluginDefinition,

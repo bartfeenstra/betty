@@ -23,7 +23,7 @@ from betty.date import Date
 from betty.dirs import ASSETS_DIRECTORY_PATH
 from betty.exception import HumanFacingException
 from betty.locale.localizable.plain import Plain
-from betty.locale.localizer import DEFAULT_LOCALIZER
+from betty.locale.localize import DEFAULT_LOCALIZER
 from betty.media_type import MediaType
 from betty.model.config import EntityReference, EntityReferenceSequence
 from betty.plugin.config import PluginInstanceConfiguration

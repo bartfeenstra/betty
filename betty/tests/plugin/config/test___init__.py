@@ -7,7 +7,7 @@ from typing_extensions import override
 from betty.exception import HumanFacingException
 from betty.locale import DEFAULT_LOCALE_TAG
 from betty.locale.localizable.static import StaticTranslations
-from betty.locale.localizer import DEFAULT_LOCALIZER
+from betty.locale.localize import DEFAULT_LOCALIZER
 from betty.machine_name import MachineName
 from betty.plugin.config import (
     CountableHumanFacingPluginDefinitionConfiguration,

@@ -11,7 +11,7 @@ from betty.asset import StaticAssetRepository
 from betty.cache.file import BinaryFileCache
 from betty.dirs import ASSETS_DIRECTORY_PATH, CACHE_DIRECTORY_PATH
 from betty.locale import to_language_tag
-from betty.locale.localizer import LocalizerRepository
+from betty.locale.localize import LocalizerRepository
 from betty.locale.translation import AssetTranslationRepository
 
 betty_replacements: dict[str, str] = {}

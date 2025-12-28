@@ -20,7 +20,7 @@ from betty.documentation import DocumentationServer
 from betty.functools import Do
 from betty.jinja2.filter import filters
 from betty.jinja2.test import tests
-from betty.locale.localizer import DEFAULT_LOCALIZER
+from betty.locale.localize import DEFAULT_LOCALIZER
 from betty.plugin import plugin_types
 from betty.project.config import ProjectConfiguration
 from betty.serde.format import Format

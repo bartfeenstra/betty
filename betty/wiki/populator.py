@@ -32,7 +32,7 @@ if TYPE_CHECKING:
 
     from betty.ancestry import Ancestry
     from betty.copyright_notice import CopyrightNotice
-    from betty.locale.localizer import LocalizerRepository
+    from betty.locale.localize import LocalizerRepository
     from betty.model import Entity
     from betty.user import User
     from betty.wiki.client import Client, Image

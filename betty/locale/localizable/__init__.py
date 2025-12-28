@@ -13,9 +13,8 @@ from warnings import warn
 from babel import Locale
 from typing_extensions import override
 
-from betty.locale import LocaleLike
-from betty.locale.localized import Localized, LocalizedStr
-from betty.locale.localizer import DEFAULT_LOCALIZER, Localizer
+from betty.locale import HasLocale, HasLocaleStr, LocaleLike
+from betty.locale.localize import DEFAULT_LOCALIZER, Localizer
 
 _T = TypeVar("_T")
 
@@ -41,7 +40,7 @@ class Localizable(_Localizable["Localizable"]):
     """
 
     @abstractmethod
-    def localize(self, localizer: Localizer, /) -> Localized & str:
+    def localize(self, localizer: Localizer, /) -> HasLocale & str:
         """
         Localize ``self`` to a human-readable string.
         """
@@ -102,8 +101,8 @@ class _FormattedLocalizable(Localizable):
         return self
 
     @override
-    def localize(self, localizer: Localizer, /) -> Localized & str:
-        return LocalizedStr(
+    def localize(self, localizer: Localizer, /) -> HasLocale & str:
+        return HasLocaleStr(
             self._localizable.localize(localizer).format(
                 **{
                     format_kwarg_key: format_kwarg.localize(localizer)

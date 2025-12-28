@@ -10,9 +10,9 @@ from typing import TYPE_CHECKING, final
 from typing_extensions import override
 
 from betty.exception import HumanFacingException
+from betty.locale import HasLocale, HasLocaleStr
 from betty.locale.localizable import Localizable
 from betty.locale.localizable.gettext import _, ngettext
-from betty.locale.localized import Localized, LocalizedStr
 from betty.plugin import Plugin, PluginTypeDefinition
 from betty.plugin.discovery.entry_point import EntryPointDiscovery
 from betty.plugin.human_facing import HumanFacingPluginDefinition
@@ -20,7 +20,7 @@ from betty.plugin.human_facing import HumanFacingPluginDefinition
 if TYPE_CHECKING:
     from collections.abc import Sequence
 
-    from betty.locale.localizer import Localizer
+    from betty.locale.localize import Localizer
     from betty.media_type import MediaType
     from betty.serde.dump import Dump
     from betty.typing import Void
@@ -84,8 +84,8 @@ class FormatStr(Localizable):
         self._serde_formats = serde_formats
 
     @override
-    def localize(self, localizer: Localizer, /) -> Localized & str:
-        return LocalizedStr(
+    def localize(self, localizer: Localizer, /) -> HasLocale & str:
+        return HasLocaleStr(
             ", ".join(
                 [
                     f"{extension} ({serde_format.label.localize(localizer)})"

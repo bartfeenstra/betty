@@ -3,7 +3,7 @@ Provide the OpenAPI specification.
 """
 
 from betty import about
-from betty.locale.localizer import DEFAULT_LOCALIZER
+from betty.locale.localize import DEFAULT_LOCALIZER
 from betty.model import EntityDefinition
 from betty.project import Project
 from betty.project.schema import ProjectSchema

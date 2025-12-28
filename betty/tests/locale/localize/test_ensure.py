@@ -1,12 +1,17 @@
+from __future__ import annotations
+
 from gettext import NullTranslations
 from typing import TYPE_CHECKING
 
 from babel import Locale
 
-from betty.locale import DEFAULT_LOCALE, DEFAULT_LOCALE_TAG
+from betty.locale import (
+    DEFAULT_LOCALE,
+    DEFAULT_LOCALE_TAG,
+)
 from betty.locale.localizable.plain import Plain
-from betty.locale.localized.ensure import ensure_localized
-from betty.locale.localizer import DEFAULT_LOCALIZER, Localizer
+from betty.locale.localize import DEFAULT_LOCALIZER, Localizer
+from betty.locale.localize.ensure import ensure_localized
 
 if TYPE_CHECKING:
     from betty.locale.localizable import (
@@ -27,7 +32,7 @@ def test_ensure_localized__with_str() -> None:
     assert ensure_localized(localizable, localizer=DEFAULT_LOCALIZER) == localizable
 
 
-def test_ensure_localized__with_mapping() -> None:
+def test_ensure_localized__with_static_translations_mapping() -> None:
     locale = "nl"
     localizer = Localizer(locale, NullTranslations())
     localized = "Mijn Eerste, Ja, Wat Eigenlijk?"
@@ -38,7 +43,7 @@ def test_ensure_localized__with_mapping() -> None:
     assert ensure_localized(localizable, localizer=localizer) == localized
 
 
-def test_ensure_localized__with_shorthand_mapping() -> None:
+def test_ensure_localized__with_shorthand_static_translations_mapping() -> None:
     locale = "nl-NL"
     localizer = Localizer(locale, NullTranslations())
     localized = "Mijn Eerste, Ja, Wat Eigenlijk?"

@@ -10,7 +10,7 @@ from betty.ancestry.source import Source
 from betty.job import Context as JobContext
 from betty.locale import DEFAULT_LOCALE
 from betty.locale.localizable.plain import Plain
-from betty.locale.localizer import Localizer
+from betty.locale.localize import Localizer
 from betty.project import Project
 from betty.resource import (
     Breadcrumb,

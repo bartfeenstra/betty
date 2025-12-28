@@ -8,7 +8,7 @@ from typing import TYPE_CHECKING
 
 import pytest
 
-from betty.locale.localizer import DEFAULT_LOCALIZER
+from betty.locale.localize import DEFAULT_LOCALIZER
 from betty.test_utils.plugin import PluginDefinitionTestBase
 
 if TYPE_CHECKING:

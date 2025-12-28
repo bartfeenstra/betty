@@ -17,7 +17,7 @@ from betty.copyright_notice.copyright_notices import (
 )
 from betty.license.licenses import PublicDomain as PublicDomainLicense
 from betty.locale import DEFAULT_LOCALE_TAG
-from betty.locale.localizer import DEFAULT_LOCALIZER
+from betty.locale.localize import DEFAULT_LOCALIZER
 from betty.media_type.media_types import PLAIN_TEXT
 from betty.model import Entity
 from betty.privacy import Privacy

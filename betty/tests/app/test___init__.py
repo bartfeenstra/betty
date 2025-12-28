@@ -6,7 +6,7 @@ from typing_extensions import override
 
 from betty.app import App
 from betty.app.factory import AppDependentFactory, AppDependentSelfFactory
-from betty.locale.localizer import DEFAULT_LOCALIZER
+from betty.locale.localize import DEFAULT_LOCALIZER
 from betty.project import Project
 from betty.requirement import Requirement
 from betty.test_utils.plugin import DummyPluginDefinition

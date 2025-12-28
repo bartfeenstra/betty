@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import pytest
 
-from betty.locale.localizer import DEFAULT_LOCALIZER
+from betty.locale.localize import DEFAULT_LOCALIZER
 from betty.plugin import Plugin, PluginDefinition, PluginTypeDefinition, plugin_types
 from betty.plugin.dependent import DependentPluginDefinition
 from betty.plugin.discovery import discover

@@ -18,7 +18,7 @@ from typing_extensions import override
 
 from betty.job import Job
 from betty.locale.localizable.gettext import _
-from betty.locale.localizer import DEFAULT_LOCALIZER
+from betty.locale.localize import DEFAULT_LOCALIZER
 from betty.media_type.media_types import HTML, JSON
 from betty.model import EntityDefinition, persistent_id
 from betty.openapi import Specification

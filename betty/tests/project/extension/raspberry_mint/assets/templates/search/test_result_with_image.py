@@ -5,7 +5,7 @@ from PIL import Image
 from betty.ancestry.file import File
 from betty.ancestry.file_reference import FileReference
 from betty.ancestry.has_file_references import HasFileReferences
-from betty.locale.localizer import DEFAULT_LOCALIZER
+from betty.locale.localize import DEFAULT_LOCALIZER
 from betty.media_type import MediaType
 from betty.model import EntityDefinition
 from betty.project.extension.raspberry_mint import RaspberryMint

@@ -22,7 +22,7 @@ from betty.job import Context as JobContext
 from betty.locale import DEFAULT_LOCALE, DEFAULT_LOCALE_TAG
 from betty.locale.localizable import LocalizableLike
 from betty.locale.localizable.static import StaticTranslations
-from betty.locale.localizer import DEFAULT_LOCALIZER, Localizer
+from betty.locale.localize import DEFAULT_LOCALIZER, Localizer
 from betty.media_type.media_types import HTML, PLAIN_TEXT
 from betty.project import Project
 from betty.render import RenderDispatcher

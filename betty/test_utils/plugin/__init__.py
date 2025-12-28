@@ -8,7 +8,7 @@ from typing import Generic, TypeVar, final
 
 import pytest
 
-from betty.locale.localizer import DEFAULT_LOCALIZER
+from betty.locale.localize import DEFAULT_LOCALIZER
 from betty.machine_name import assert_machine_name
 from betty.plugin import Plugin, PluginDefinition, PluginTypeDefinition
 from betty.plugin.discovery.callback import CallbackDiscovery

@@ -7,7 +7,7 @@ from typing_extensions import override
 from betty.ancestry.has_links import HasLinks
 from betty.ancestry.link import Link
 from betty.locale import DEFAULT_LOCALE_TAG
-from betty.locale.localizer import DEFAULT_LOCALIZER
+from betty.locale.localize import DEFAULT_LOCALIZER
 from betty.media_type.media_types import HTML
 from betty.model import Entity, EntityDefinition
 from betty.test_utils.json.linked_data import assert_dumps_linked_data

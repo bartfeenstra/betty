@@ -26,7 +26,7 @@ from betty.hashid import hashid
 from betty.job import Context as JobContext
 from betty.license import LicenseDefinition
 from betty.locale.localizable.gettext import _
-from betty.locale.localizer import Localizer, LocalizerRepository
+from betty.locale.localize import Localizer, LocalizerRepository
 from betty.locale.translation import (
     AssetTranslationRepository,
     ProxyTranslationRepository,

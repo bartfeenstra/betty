@@ -18,7 +18,7 @@ from betty.locale.localizable.static import (
     CountableStaticTranslations,
     StaticTranslations,
 )
-from betty.locale.localizer import DEFAULT_LOCALIZER
+from betty.locale.localize import DEFAULT_LOCALIZER
 from betty.serde.dump import NotDumpable
 from betty.test_utils.exception import assert_error
 from betty.test_utils.locale.localizable import DUMMY_LOCALIZABLE

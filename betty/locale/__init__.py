@@ -5,10 +5,12 @@ Provide the Locale API.
 from __future__ import annotations
 
 from collections.abc import Sequence
-from typing import TYPE_CHECKING, TypeAlias
+from contextlib import suppress
+from typing import TYPE_CHECKING, Any, TypeAlias
 
 from babel import Locale
 from babel.core import UnknownLocaleError
+from typing_extensions import override
 
 import betty.dirs
 
@@ -122,3 +124,64 @@ def plural_tags(locale: Locale) -> Sequence[str]:
     if "other" not in tags:
         tags.append("other")
     return tags
+
+
+class HasLocale:
+    """
+    A resource that has a locale, e.g. contains information in a specific locale.
+    """
+
+    def __init__(self, *args: Any, locale: LocaleLike | None = None, **kwargs: Any):
+        super().__init__(*args, **kwargs)
+        self._locale = None if locale is None else ensure_locale(locale)
+
+    @property
+    def locale(self) -> Locale | None:
+        """
+        The locale the data in this instance is in.
+        """
+        return self._locale
+
+
+def negotiate_has_locales(
+    preferred_locales: Locale | Sequence[Locale],
+    has_locales: Sequence[HasLocale],
+) -> HasLocale | None:
+    """
+    Negotiate the preferred value from a sequence.
+    """
+    negotiated_locale = negotiate_locale(
+        preferred_locales,
+        [
+            has_locale.locale
+            for has_locale in has_locales
+            if has_locale.locale is not None
+        ],
+    )
+    if negotiated_locale is not None:
+        for has_locale in has_locales:
+            if has_locale.locale == negotiated_locale:
+                return has_locale
+    for has_locale in has_locales:
+        if has_locale.locale is None:
+            return has_locale
+    with suppress(IndexError):
+        return has_locales[0]
+    return None
+
+
+class HasLocaleStr(HasLocale, str):
+    """
+    A string that has a locale.
+    """
+
+    __slots__ = "_locale"
+
+    @override
+    def __new__(cls, string: str, *, locale: Locale | None = None):
+        new = super().__new__(cls, string)
+        new._locale = locale
+        return new
+
+    def __init__(self, string: str, *, locale: Locale | None = None):
+        pass

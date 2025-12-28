@@ -4,7 +4,7 @@ Data types that have a locale.
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Any
+from typing import TYPE_CHECKING
 
 from typing_extensions import override
 
@@ -13,8 +13,8 @@ from betty.json.linked_data import (
     LinkedDataDumpableWithSchemaJsonLdObject,
 )
 from betty.json.schema import Null, OneOf
-from betty.locale import LocaleLike, ensure_locale, to_language_tag
-from betty.locale.localized import Localized
+from betty.locale import HasLocale as StdHasLocale
+from betty.locale import to_language_tag
 from betty.locale.schema import LocaleSchema
 from betty.privacy import is_public
 
@@ -25,19 +25,10 @@ if TYPE_CHECKING:
     from betty.serde.dump import Dump, DumpMapping
 
 
-class HasLocale(Localized, LinkedDataDumpableWithSchemaJsonLdObject):
+class HasLocale(StdHasLocale, LinkedDataDumpableWithSchemaJsonLdObject):
     """
     A resource that is localized, e.g. contains information in a specific locale.
     """
-
-    def __init__(
-        self,
-        *args: Any,
-        locale: LocaleLike | None = None,
-        **kwargs: Any,
-    ):
-        super().__init__(*args, **kwargs)
-        self._locale = None if locale is None else ensure_locale(locale)
 
     @override  # type: ignore[explicit-override]
     @property

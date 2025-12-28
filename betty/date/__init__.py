@@ -21,8 +21,8 @@ if TYPE_CHECKING:
     from collections.abc import Callable, Mapping
     from types import NotImplementedType
 
-    from betty.locale.localized import Localized
-    from betty.locale.localizer import Localizer
+    from betty.locale import HasLocale
+    from betty.locale.localize import Localizer
 
 
 class IncompleteDateError(ValueError):
@@ -86,7 +86,7 @@ class Date(Localizable):
         self.fuzzy = fuzzy
 
     @override
-    def localize(self, localizer: Localizer, /) -> Localized & str:
+    def localize(self, localizer: Localizer, /) -> HasLocale & str:
         try:
             return (
                 self._LOCALIZE_FORMATS[(self.fuzzy,)]
@@ -271,7 +271,7 @@ class DateRange(Localizable):
         self.end_is_boundary = end_is_boundary
 
     @override
-    def localize(self, localizer: Localizer, /) -> Localized & str:
+    def localize(self, localizer: Localizer, /) -> HasLocale & str:
         formatter_configuration: tuple[
             bool | None, bool | None, bool | None, bool | None
         ] = (None, None, None, None)

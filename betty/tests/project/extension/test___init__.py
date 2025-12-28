@@ -4,7 +4,7 @@ import pytest
 from typing_extensions import override
 
 from betty.app import App
-from betty.locale.localizer import DEFAULT_LOCALIZER
+from betty.locale.localize import DEFAULT_LOCALIZER
 from betty.plugin import PluginDefinition
 from betty.plugin.discovery.static import StaticDiscovery
 from betty.project import Project

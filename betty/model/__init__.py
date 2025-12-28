@@ -14,7 +14,7 @@ from betty.json.linked_data import (
 )
 from betty.json.schema import JsonSchemaReference, String
 from betty.locale.localizable.gettext import _, ngettext
-from betty.locale.localizer import DEFAULT_LOCALIZER
+from betty.locale.localize import DEFAULT_LOCALIZER
 from betty.mutability import Mutable
 from betty.plugin import Plugin, PluginTypeDefinition
 from betty.plugin.discovery.entry_point import EntryPointDiscovery

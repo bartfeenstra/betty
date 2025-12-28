@@ -4,7 +4,7 @@ from aioresponses import aioresponses
 from betty.ancestry.has_links import HasLinks
 from betty.ancestry.link import Link
 from betty.app import App
-from betty.locale.localizer import DEFAULT_LOCALIZER
+from betty.locale.localize import DEFAULT_LOCALIZER
 from betty.project import Project, ProjectContext
 from betty.project.load.jobs import PopulateLink
 from betty.test_utils.job import do

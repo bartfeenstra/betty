@@ -22,11 +22,11 @@ In addition to Jinja2's built-in filters, Betty provides the following:
 - :py:func:`localize <betty.jinja2.filter.filter_localize>`
 - :py:func:`map <betty.jinja2.filter.filter_map>`
 - :py:func:`negotiate_has_dates <betty.jinja2.filter.filter_negotiate_has_dates>`
-- :py:func:`negotiate_localizeds <betty.jinja2.filter.filter_negotiate_localizeds>`
+- :py:func:`negotiate_has_locales <betty.jinja2.filter.filter_negotiate_has_locales>`
 - :py:func:`provide_content <betty.jinja2.filter.filter_provide_content>`
 - :py:func:`select_has_dates <betty.jinja2.filter.filter_select_has_dates>`
-- :py:func:`select_localizeds <betty.jinja2.filter.filter_select_localizeds>`
-- :py:func:`sort_localizeds <betty.jinja2.filter.filter_sort_localizeds>`
+- :py:func:`select_has_locales <betty.jinja2.filter.filter_select_has_locales>`
+- :py:func:`sort_has_locales <betty.jinja2.filter.filter_sort_has_locales>`
 - :py:class:`str <str>`
 - :py:func:`to_language_tag <betty.locale.to_language_tag>`
 - :py:func:`unique <betty.jinja2.filter.filter_unique>`

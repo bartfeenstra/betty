@@ -10,7 +10,7 @@ from betty.ancestry import Ancestry
 from betty.app import App
 from betty.app.factory import AppDependentFactory, AppDependentSelfFactory
 from betty.locale import DEFAULT_LOCALE, DEFAULT_LOCALE_TAG
-from betty.locale.localizer import DEFAULT_LOCALIZER
+from betty.locale.localize import DEFAULT_LOCALIZER
 from betty.plugin.discovery.static import StaticDiscovery
 from betty.project import Project, ProjectContext, ProjectExtensions
 from betty.project.config import LocaleConfiguration, ProjectConfiguration

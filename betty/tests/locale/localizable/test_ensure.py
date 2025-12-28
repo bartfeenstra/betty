@@ -10,7 +10,7 @@ from betty.locale.localizable.ensure import (
 )
 from betty.locale.localizable.plain import Plain
 from betty.locale.localizable.static import CountableStaticTranslations
-from betty.locale.localizer import DEFAULT_LOCALIZER, Localizer
+from betty.locale.localize import DEFAULT_LOCALIZER, Localizer
 
 if TYPE_CHECKING:
     from betty.locale.localizable import (

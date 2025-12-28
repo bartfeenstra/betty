@@ -13,7 +13,7 @@ if TYPE_CHECKING:
     from collections.abc import Sequence
 
     from betty.link import Link
-    from betty.locale.localizer import Localizer
+    from betty.locale.localize import Localizer
 
 
 class NotAPageError(ValueError):

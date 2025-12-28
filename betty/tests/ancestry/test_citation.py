@@ -9,7 +9,7 @@ from betty.ancestry.event import Event
 from betty.ancestry.event_type.event_types import Birth
 from betty.ancestry.source import Source
 from betty.locale import DEFAULT_LOCALE_TAG
-from betty.locale.localizer import DEFAULT_LOCALIZER
+from betty.locale.localize import DEFAULT_LOCALIZER
 from betty.model import Entity
 from betty.privacy import Privacy
 from betty.test_utils.ancestry.has_citations import DummyHasCitations

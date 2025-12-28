@@ -1,7 +1,7 @@
 import pytest
 from typing_extensions import override
 
-from betty.locale.localizer import DEFAULT_LOCALIZER
+from betty.locale.localize import DEFAULT_LOCALIZER
 from betty.media_type import MediaType
 from betty.plugin import PluginDefinition
 from betty.serde.dump import Dump

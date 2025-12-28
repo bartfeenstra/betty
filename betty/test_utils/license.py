@@ -5,7 +5,7 @@ Test utilities for :py:mod:`betty.license`.
 from __future__ import annotations
 
 from betty.license import License
-from betty.locale.localizer import DEFAULT_LOCALIZER
+from betty.locale.localize import DEFAULT_LOCALIZER
 from betty.test_utils.plugin import PluginTestBase
 from betty.test_utils.plugin.human_facing import HumanFacingPluginDefinitionTestBase
 
