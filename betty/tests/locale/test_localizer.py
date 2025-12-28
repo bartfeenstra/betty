@@ -1,10 +1,11 @@
 from __future__ import annotations
 
+import gettext
 from typing import TYPE_CHECKING
 
 from babel import Locale
 
-from betty.locale.localizer import DEFAULT_LOCALIZER, LocalizerRepository
+from betty.locale.localizer import Localizer, LocalizerRepository
 from betty.locale.translation import TranslationRepository
 
 if TYPE_CHECKING:
@@ -15,68 +16,14 @@ if TYPE_CHECKING:
 
 class TestLocalizer:
     async def test_locale(self) -> None:
-        sut = DEFAULT_LOCALIZER
-        assert sut.locale.language == "en"
+        locale = Locale("nl")
+        sut = Localizer(locale, gettext.NullTranslations())
+        assert sut.locale is locale
 
-    async def test__(self) -> None:
-        sut = DEFAULT_LOCALIZER
-        assert sut._("My First Translatable String") == "My First Translatable String"
-
-    async def test_gettext(self) -> None:
-        sut = DEFAULT_LOCALIZER
-        assert (
-            sut.gettext("My First Translatable String")
-            == "My First Translatable String"
-        )
-
-    async def test_ngettext__with_singular(self) -> None:
-        sut = DEFAULT_LOCALIZER
-        assert (
-            sut.ngettext(
-                "My First Translatable String", "My First Translatable Strings", 1
-            )
-            == "My First Translatable String"
-        )
-
-    async def test_ngettext__with_plural(self) -> None:
-        sut = DEFAULT_LOCALIZER
-        assert (
-            sut.ngettext(
-                "My First Translatable String", "My First Translatable Strings", 9
-            )
-            == "My First Translatable Strings"
-        )
-
-    async def test_npgettext__with_singular(self) -> None:
-        sut = DEFAULT_LOCALIZER
-        assert (
-            sut.npgettext(
-                "My First Context",
-                "My First Translatable String",
-                "My First Translatable Strings",
-                1,
-            )
-            == "My First Translatable String"
-        )
-
-    async def test_npgettext__with_plural(self) -> None:
-        sut = DEFAULT_LOCALIZER
-        assert (
-            sut.npgettext(
-                "My First Context",
-                "My First Translatable String",
-                "My First Translatable Strings",
-                9,
-            )
-            == "My First Translatable Strings"
-        )
-
-    async def test_pgettext(self) -> None:
-        sut = DEFAULT_LOCALIZER
-        assert (
-            sut.pgettext("My First Context", "My First Translatable String")
-            == "My First Translatable String"
-        )
+    async def test_translations(self) -> None:
+        translations = gettext.NullTranslations()
+        sut = Localizer(Locale("nl"), translations)
+        assert sut.translations is translations
 
 
 class TestLocalizerRepository:

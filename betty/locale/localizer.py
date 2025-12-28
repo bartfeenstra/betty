@@ -35,49 +35,12 @@ class Localizer:
         """
         return self._locale
 
-    def _(self, message: str, /) -> str:
+    @property
+    def translations(self) -> gettext.NullTranslations:
         """
-        Like :py:meth:`gettext.gettext`.
-
-        Arguments are identical to those of :py:meth:`gettext.gettext`.
+        The translations.
         """
-        return self._translations.gettext(message)
-
-    def gettext(self, message: str, /) -> str:
-        """
-        Like :py:meth:`gettext.gettext`.
-
-        Arguments are identical to those of :py:meth:`gettext.gettext`.
-        """
-        return self._translations.gettext(message)
-
-    def ngettext(self, message_singular: str, message_plural: str, n: int, /) -> str:
-        """
-        Like :py:meth:`gettext.ngettext`.
-
-        Arguments are identical to those of :py:meth:`gettext.ngettext`.
-        """
-        return self._translations.ngettext(message_singular, message_plural, n)
-
-    def pgettext(self, context: str, message: str, /) -> str:
-        """
-        Like :py:meth:`gettext.pgettext`.
-
-        Arguments are identical to those of :py:meth:`gettext.pgettext`.
-        """
-        return self._translations.pgettext(context, message)
-
-    def npgettext(
-        self, context: str, message_singular: str, message_plural: str, n: int, /
-    ) -> str:
-        """
-        Like :py:meth:`gettext.npgettext`.
-
-        Arguments are identical to those of :py:meth:`gettext.npgettext`.
-        """
-        return self._translations.npgettext(
-            context, message_singular, message_plural, n
-        )
+        return self._translations
 
 
 DEFAULT_LOCALIZER = Localizer(DEFAULT_LOCALE, gettext.NullTranslations())

@@ -29,7 +29,9 @@ class _GettextLocalizable(Localizable):
         return LocalizedStr(
             cast(
                 "str",
-                getattr(localizer, self._gettext_method_name)(*self._gettext_args),  # type: ignore[operator]
+                getattr(localizer.translations, self._gettext_method_name)(
+                    *self._gettext_args
+                ),  # type: ignore[operator]
             ),
             locale=localizer.locale,
         )
