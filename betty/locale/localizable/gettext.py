@@ -8,10 +8,10 @@ from typing import TYPE_CHECKING, Any, cast, overload
 
 from typing_extensions import override
 
-from betty.locale import HasLocale, HasLocaleStr
 from betty.locale.localizable import CountableLocalizable, Localizable, LocalizableCount
 
 if TYPE_CHECKING:
+    from betty.locale import HasLocale
     from betty.locale.localize import Localizer
 
 
@@ -26,12 +26,9 @@ class _GettextLocalizable(Localizable):
 
     @override
     def localize(self, localizer: Localizer, /) -> HasLocale & str:
-        return HasLocaleStr(
-            cast(
-                "str",
-                getattr(localizer, self._gettext_method_name)(*self._gettext_args),  # type: ignore[operator]
-            ),
-            locale=localizer.locale,
+        return cast(
+            "HasLocale & str",
+            getattr(localizer, self._gettext_method_name)(*self._gettext_args),  # type: ignore[operator]
         )
 
 
