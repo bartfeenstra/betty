@@ -35,7 +35,7 @@ from betty.project.extension.raspberry_mint.content_provider import (
     ColorStyleConfiguration,
     ExternalLinks,
     Facts,
-    Family,
+    Families,
     FeaturedEntities,
     Media,
     MediaGallery,
@@ -273,12 +273,12 @@ class TestSection(
         assert "visually-hidden" in actual
 
 
-class TestFamily(ContentProviderTestBase):
+class TestFamilies(ContentProviderTestBase):
     @override
     @pytest.fixture
     async def sut(self, isolated_app: App) -> ContentProvider:
         async with Project.new_isolated(isolated_app) as project, project:
-            return Family(jinja2_environment=await project.jinja2_environment)
+            return Families(jinja2_environment=await project.jinja2_environment)
 
     @pytest.mark.parametrize(
         "resource",
@@ -295,7 +295,7 @@ class TestFamily(ContentProviderTestBase):
         async with Project.new_isolated(isolated_app) as project:
             project.configuration.extensions.enable(RaspberryMint)
             async with project:
-                sut = await Family.new_for_project(project)
+                sut = await Families.new_for_project(project)
         assert await sut.provide(resource=Context(resource)) is None
 
     async def test_provide__with_person(self, isolated_app: App) -> None:
@@ -306,7 +306,7 @@ class TestFamily(ContentProviderTestBase):
             project.configuration.extensions.enable(RaspberryMint)
             project.ancestry.add(resource)
             async with project:
-                sut = await Family.new_for_project(project)
+                sut = await Families.new_for_project(project)
                 actual = await sut.provide(resource=Context(resource))
         assert actual is not None
         assert parent.public_id in actual

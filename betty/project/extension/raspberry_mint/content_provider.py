@@ -246,10 +246,10 @@ class FeaturedEntities(
         }
 
 
-@ContentProviderDefinition("raspberry-mint-family", label=_("Family"))
-class Family(Template, _Base):
+@ContentProviderDefinition("raspberry-mint-families", label=_("Families"))
+class Families(Template, _Base):
     """
-    A person's family.
+    A person's families.
     """
 
 
