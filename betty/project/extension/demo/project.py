@@ -143,12 +143,12 @@ async def create_project(app: App, project_directory_path: Path) -> Project:
         ),
         locales=LocaleConfigurationMapping(
             [
-                LocaleConfiguration("en-US", alias="en"),
-                LocaleConfiguration("de-DE", alias="de"),
-                LocaleConfiguration("fr-FR", alias="fr"),
-                LocaleConfiguration("nl-NL", alias="nl"),
+                LocaleConfiguration("en-US"),
+                LocaleConfiguration("de-DE"),
+                LocaleConfiguration("fr-FR"),
+                LocaleConfiguration("nl-NL"),
                 LocaleConfiguration("pt-BR"),
-                LocaleConfiguration("ru-RU", alias="ru"),
+                LocaleConfiguration("ru-RU"),
                 LocaleConfiguration("uk"),
             ]
         ),
