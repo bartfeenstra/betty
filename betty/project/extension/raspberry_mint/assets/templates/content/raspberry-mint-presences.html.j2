@@ -1,0 +1,13 @@
+{% if resource.resource is entity_plugin('event') %}
+    {% set ns = namespace(people = []) %}
+    {% for presence in resource.resource.presences | select('public') %}
+        {% if presence.role is presence_role_plugin('subject') and presence.role.plugin().id in include %}
+            {% set ns.people = ns.people + [presence.person] %}
+        {% endif %}
+    {% endfor %}
+    {% if ns.people | length > 0 %}
+        {% with entities = ns.people %}
+            {% include ['entity/list--person.html.j2', 'entity/list.html.j2'] %}
+        {% endwith %}
+    {% endif %}
+{% endif %}

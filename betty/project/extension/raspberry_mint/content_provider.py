@@ -8,12 +8,15 @@ from typing import TYPE_CHECKING, Any, Self, final
 
 from typing_extensions import override
 
+from betty.ancestry.presence_role import PresenceRoleDefinition
 from betty.assertion import (
     OptionalField,
     RequiredField,
     assert_bool,
     assert_enum,
+    assert_or,
     assert_record,
+    assert_sequence,
 )
 from betty.config import Configuration
 from betty.config.factory import ConfigurationDependentSelfFactory
@@ -29,6 +32,7 @@ from betty.model import EntityDefinition
 from betty.model.config import EntityReferenceSequence
 from betty.plugin import Plugin
 from betty.plugin.config import PluginInstanceConfigurationSequence
+from betty.plugin.resolve import resolve_id
 from betty.project.extension.raspberry_mint import ColorStyle as RaspberryMintColorStyle
 from betty.project.extension.raspberry_mint import RaspberryMint
 from betty.project.factory import (
@@ -39,7 +43,7 @@ from betty.requirement import HasRequirement, Requirement
 from betty.typing import private
 
 if TYPE_CHECKING:
-    from collections.abc import Iterable, Mapping, MutableSequence
+    from collections.abc import Collection, Iterable, Mapping, MutableSequence, Sequence
 
     from betty.content_provider.config import (
         ContentProviderInstanceConfigurationSequence,
@@ -48,6 +52,8 @@ if TYPE_CHECKING:
     from betty.jinja2 import Environment
     from betty.locale.localizable import LocalizableLike
     from betty.model import Entity
+    from betty.plugin.repository import PluginRepository
+    from betty.plugin.resolve import ResolvableId
     from betty.project import Project
     from betty.resource import Context
     from betty.serde.dump import Dump, DumpMapping
@@ -396,3 +402,121 @@ class Facts(Template):
     """
     A list of facts.
     """
+
+
+class PresencesConfiguration(Configuration):
+    """
+    Configuration for :py:class:`betty.project.extension.raspberry_mint.content_provider.Presences`.
+    """
+
+    def __init__(
+        self,
+        *,
+        include: Collection[ResolvableId[PresenceRoleDefinition]] | None = None,
+        exclude: Collection[ResolvableId[PresenceRoleDefinition]] | None = None,
+    ):
+        super().__init__()
+        self._include = (
+            None
+            if include is None
+            else tuple(resolve_id(include_id) for include_id in include)
+        )
+        self._exclude = (
+            None
+            if exclude is None
+            else tuple(resolve_id(exclude_id) for exclude_id in exclude)
+        )
+
+    @property
+    def include(self) -> Sequence[MachineName] | None:
+        """
+        The presence role IDs for which to include presences.
+        """
+        return self._include
+
+    @property
+    def exclude(self) -> Sequence[MachineName] | None:
+        """
+        The presence role IDs for which to exclude presences.
+        """
+        return self._exclude
+
+    @override
+    @classmethod
+    def load(cls, dump: Dump, /) -> Self:
+        assert_ids = assert_sequence(assert_machine_name())
+        return cls(
+            **assert_or(
+                assert_record(RequiredField("include", assert_ids)),
+                assert_record(RequiredField("exclude", assert_ids)),
+            )(dump)
+        )
+
+    @override
+    def dump(self) -> Dump:
+        dump: DumpMapping[Dump] = {}
+        if self.include:
+            dump["include"] = list(self.include)
+        if self.exclude:
+            dump["exclude"] = list(self.exclude)
+        return dump
+
+
+@ContentProviderDefinition("raspberry-mint-presences", label=_("Presences"))
+class Presences(
+    Template,
+    ProjectDependentSelfFactory,
+    _Base,
+    ConfigurationDependentSelfFactory[PresencesConfiguration],
+):
+    """
+    People's presences at an event.
+    """
+
+    @private
+    def __init__(
+        self,
+        *,
+        jinja2_environment: Environment,
+        presence_roles: PluginRepository[PresenceRoleDefinition],
+        configuration: PresencesConfiguration | None = None,
+    ):
+        super().__init__(
+            configuration=PresencesConfiguration()
+            if configuration is None
+            else configuration,
+            jinja2_environment=jinja2_environment,
+        )
+        self._presence_roles = presence_roles
+
+    @override
+    @classmethod
+    def configuration_cls(cls) -> type[PresencesConfiguration]:
+        return PresencesConfiguration
+
+    @override
+    @classmethod
+    def new_for_configuration(
+        cls, configuration: PresencesConfiguration
+    ) -> AnyFactoryTarget[Self]:
+        async def _factory(project: Project) -> Self:
+            return cls(
+                configuration=configuration,
+                jinja2_environment=await project.jinja2_environment,
+                presence_roles=await project.plugins(PresenceRoleDefinition),
+            )
+
+        return CallbackProjectDependentFactory(_factory)
+
+    @override
+    async def _provide_data(self, resource: Context) -> Mapping[str, Any]:
+        include: Collection[MachineName]
+        if self.configuration.include is not None:
+            include = self.configuration.include
+        else:
+            include = {role.id for role in self._presence_roles}
+            if self.configuration.exclude is not None:
+                include -= set(self.configuration.exclude)
+        return {
+            "include": include,
+        }
