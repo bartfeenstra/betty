@@ -11,7 +11,7 @@ from betty.ancestry import Ancestry
 from betty.ancestry.link import Link
 from betty.ancestry.place import Place
 from betty.ancestry.source import Source
-from betty.locale.localizer import LocalizerRepository
+from betty.locale.localize import LocalizerRepository
 from betty.locale.translation import NoOpTranslationRepository
 from betty.media_type import MediaType
 from betty.media_type.media_types import HTML

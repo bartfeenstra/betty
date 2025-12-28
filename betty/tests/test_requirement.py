@@ -6,7 +6,7 @@ from typing_extensions import override
 
 from betty.locale.localizable.gettext import _
 from betty.locale.localizable.plain import Plain
-from betty.locale.localizer import DEFAULT_LOCALIZER
+from betty.locale.localize import DEFAULT_LOCALIZER
 from betty.requirement import (
     AllRequirements,
     AnyRequirement,

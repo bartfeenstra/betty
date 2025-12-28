@@ -2,7 +2,7 @@ from pytest_mock import MockerFixture
 
 from betty.ancestry.has_links import HasLinks
 from betty.ancestry.link import Link
-from betty.locale.localizer import DEFAULT_LOCALIZER
+from betty.locale.localize import DEFAULT_LOCALIZER
 from betty.project.extension.wiki import Wiki
 from betty.resource import Context
 from betty.test_utils.jinja2 import assert_template_file

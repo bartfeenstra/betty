@@ -29,7 +29,7 @@ from betty.license import LicenseDefinition
 from betty.license.licenses import SpdxLicenseBuilder
 from betty.locale import DEFAULT_LOCALE
 from betty.locale.localizable.gettext import _
-from betty.locale.localizer import Localizer, LocalizerRepository
+from betty.locale.localize import Localizer, LocalizerRepository
 from betty.locale.translation import (
     AssetTranslationRepository,
     NoOpTranslationRepository,

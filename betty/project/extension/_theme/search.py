@@ -29,7 +29,7 @@ if TYPE_CHECKING:
 
     from betty.job import Context
     from betty.locale.localizable import Localizable
-    from betty.locale.localizer import Localizer
+    from betty.locale.localize import Localizer
     from betty.machine_name import MachineName
     from betty.project import Project
 

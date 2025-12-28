@@ -5,7 +5,7 @@ from pytest_mock import MockerFixture
 
 from betty.config import Configuration
 from betty.locale import DEFAULT_LOCALE_TAG, to_language_tag
-from betty.locale.localizer import DEFAULT_LOCALIZER
+from betty.locale.localize import DEFAULT_LOCALIZER
 from betty.project import Project
 from betty.project.config import ProjectConfiguration
 from betty.project.extension.gramps import Gramps

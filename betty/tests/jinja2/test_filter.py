@@ -18,16 +18,15 @@ from betty.content_provider.content_providers import Render, RenderConfiguration
 from betty.date import Date, DateLike, DateRange
 from betty.dirs import ASSETS_DIRECTORY_PATH
 from betty.job import Context as JobContext
+from betty.locale import HasLocale, HasLocaleStr
 from betty.locale.localizable.plain import Plain
-from betty.locale.localized import Localized, LocalizedStr
-from betty.locale.localizer import Localizer
+from betty.locale.localize import Localizer
 from betty.media_type import MediaType
 from betty.media_type.media_types import SVG
 from betty.plugin.config import PluginInstanceConfiguration
 from betty.resource import Context as ResourceContext
 from betty.test_utils.ancestry.date import DummyHasDate
 from betty.test_utils.jinja2 import assert_template_string
-from betty.test_utils.locale.localized import DummyLocalized
 from betty.test_utils.model import DummyEntityOne
 from betty.tests.ancestry.test___init__ import DummyHasFileReferences
 
@@ -47,9 +46,9 @@ class _DummyHasDate(DummyHasDate):
         return self.value
 
 
-class _DummyLocalized(DummyLocalized):
+class _DummyHasLocale(HasLocale):
     def __init__(self, value: str, locale: str):
-        super().__init__(locale)
+        super().__init__(locale=locale)
         self.value = value
 
 
@@ -457,34 +456,34 @@ async def test_filter_select_has_dates(
         (
             "en",
             "en",
-            [DummyLocalized(locale="en")],
+            [HasLocale(locale="en")],
         ),
         (
             "en_US",
             "en",
-            [DummyLocalized(locale="en-US")],
+            [HasLocale(locale="en-US")],
         ),
         (
             "en",
             "en-US",
-            [DummyLocalized(locale="en")],
+            [HasLocale(locale="en")],
         ),
         (
             "",
             "nl",
-            [DummyLocalized(locale="en")],
+            [HasLocale(locale="en")],
         ),
         (
             "",
             "nl-NL",
-            [DummyLocalized(locale="en")],
+            [HasLocale(locale="en")],
         ),
     ],
 )
-async def test_filter_select_localizeds(
-    expected: str, locale: str, data: Iterable[Localized]
+async def test_filter_select_has_locales(
+    expected: str, locale: str, data: Iterable[HasLocale]
 ) -> None:
-    template = '{{ data | select_localizeds | map(attribute="locale") | join(", ") }}'
+    template = '{{ data | select_has_locales | map(attribute="locale") | join(", ") }}'
 
     async with assert_template_string(
         template=template,
@@ -498,9 +497,9 @@ async def test_filter_select_localizeds(
         assert actual == expected
 
 
-async def test_filter_select_localizeds__include_unspecified() -> None:
-    template = '{{ data | select_localizeds(include_unspecified=true) | map(attribute="locale") | join(", ") }}'
-    data = [DummyLocalized()]
+async def test_filter_select_has_locales__include_unspecified() -> None:
+    template = '{{ data | select_has_locales(include_unspecified=true) | map(attribute="locale") | join(", ") }}'
+    data = [HasLocale()]
 
     async with assert_template_string(
         template=template,
@@ -514,8 +513,8 @@ async def test_filter_select_localizeds__include_unspecified() -> None:
         assert actual == "None"
 
 
-class WithLocalizedDummyLocalizeds:
-    def __init__(self, identifier: str, names: Sequence[DummyLocalized]):
+class WithHasLocales:
+    def __init__(self, identifier: str, names: Sequence[HasLocale]):
         self.id = identifier
         self.names = names
 
@@ -524,27 +523,27 @@ class WithLocalizedDummyLocalizeds:
         return self.id
 
 
-async def test_filter_sort_localizeds() -> None:
-    template = '{{ data | sort_localizeds(localized_attribute="names", sort_attribute="value") }}'
+async def test_filter_sort_has_locales() -> None:
+    template = '{{ data | sort_has_locales(localized_attribute="names", sort_attribute="value") }}'
     data = [
-        WithLocalizedDummyLocalizeds(
+        WithHasLocales(
             "third",
             [
-                _DummyLocalized("3", "nl-NL"),
+                _DummyHasLocale("3", "nl-NL"),
             ],
         ),
-        WithLocalizedDummyLocalizeds(
+        WithHasLocales(
             "second",
             [
-                _DummyLocalized("2", "en"),
-                _DummyLocalized("1", "nl-NL"),
+                _DummyHasLocale("2", "en"),
+                _DummyHasLocale("1", "nl-NL"),
             ],
         ),
-        WithLocalizedDummyLocalizeds(
+        WithHasLocales(
             "first",
             [
-                _DummyLocalized("2", "nl-NL"),
-                _DummyLocalized("1", "en-US"),
+                _DummyHasLocale("2", "nl-NL"),
+                _DummyHasLocale("1", "en-US"),
             ],
         ),
     ]
@@ -557,8 +556,8 @@ async def test_filter_sort_localizeds() -> None:
         assert actual == "[first, second, third]"
 
 
-async def test_filter_sort_localizeds__with_empty_iterable() -> None:
-    template = '{{ data | sort_localizeds(localized_attribute="names", sort_attribute="value") }}'
+async def test_filter_sort_has_locales__with_empty_iterable() -> None:
+    template = '{{ data | sort_has_locales(localized_attribute="names", sort_attribute="value") }}'
     async with assert_template_string(
         template=template,
         data={
@@ -569,44 +568,44 @@ async def test_filter_sort_localizeds__with_empty_iterable() -> None:
 
 
 @pytest.mark.parametrize(
-    ("expected", "autoescape", "localized", "localizer_locale"),
+    ("expected", "autoescape", "has_locale", "localizer_locale"),
     [
         ("Hallo, wereld!", True, "Hallo, wereld!", "nl"),
         ("Hallo, wereld!", True, "Hallo, wereld!", "ar"),
         (
             "Hallo, wereld!",
             True,
-            LocalizedStr("Hallo, wereld!", locale=Locale("nl")),
+            HasLocaleStr("Hallo, wereld!", locale=Locale("nl")),
             "nl",
         ),
         (
             "Hallo, wereld!",
             False,
-            LocalizedStr("Hallo, wereld!", locale=Locale("nl")),
+            HasLocaleStr("Hallo, wereld!", locale=Locale("nl")),
             "nl",
         ),
         (
             '<span lang="nl">Hallo, wereld!</span>',
             True,
-            LocalizedStr("Hallo, wereld!", locale=Locale("nl")),
+            HasLocaleStr("Hallo, wereld!", locale=Locale("nl")),
             "en",
         ),
         (
             '<span lang="nl">Hallo, wereld!</span>',
             False,
-            LocalizedStr("Hallo, wereld!", locale=Locale("nl")),
+            HasLocaleStr("Hallo, wereld!", locale=Locale("nl")),
             "en",
         ),
         (
             '<span lang="nl" dir="ltr">Hallo, wereld!</span>',
             True,
-            LocalizedStr("Hallo, wereld!", locale=Locale("nl")),
+            HasLocaleStr("Hallo, wereld!", locale=Locale("nl")),
             "ar",
         ),
         (
             '<span lang="nl" dir="ltr">Hallo, wereld!</span>',
             False,
-            LocalizedStr("Hallo, wereld!", locale=Locale("nl")),
+            HasLocaleStr("Hallo, wereld!", locale=Locale("nl")),
             "ar",
         ),
     ],
@@ -614,14 +613,14 @@ async def test_filter_sort_localizeds__with_empty_iterable() -> None:
 async def test_filter_html_lang(
     expected: str,
     autoescape: bool,
-    localized: str,
+    has_locale: str,
     localizer_locale: str,
 ) -> None:
-    template = "{{ localized | html_lang }}"
+    template = "{{ has_locale | html_lang }}"
     async with assert_template_string(
         template=template,
         data={
-            "localized": localized,
+            "has_locale": has_locale,
             "resource": ResourceContext(
                 localizer=Localizer(localizer_locale, NullTranslations())
             ),
@@ -774,20 +773,15 @@ async def test_filter_negotiate_has_dates(
         assert actual == expected
 
 
-class _Localized(Localized):
-    def __init__(self, locale: Locale):
-        self._locale = locale
-
-
-async def test_filter_negotiate_localizeds() -> None:
-    localized_en = _Localized(Locale("en"))
-    localized_nl = _Localized(Locale("nl"))
-    localizeds = [localized_en, localized_nl]
-    template = "{{ (data | negotiate_localizeds).locale }}"
+async def test_filter_negotiate_has_locales() -> None:
+    has_locale_en = HasLocale(locale=Locale("en"))
+    has_locale_nl = HasLocale(locale=Locale("nl"))
+    has_locales = [has_locale_en, has_locale_nl]
+    template = "{{ (data | negotiate_has_locales).locale }}"
     async with assert_template_string(
         template=template,
         data={
-            "data": localizeds,
+            "data": has_locales,
             "resource": ResourceContext(localizer=Localizer("nl", NullTranslations())),
         },
     ) as (actual, _):

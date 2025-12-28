@@ -9,7 +9,7 @@ from typing import TYPE_CHECKING, final
 from typing_extensions import override
 
 from betty.ancestry.has_citations import HasCitations
-from betty.ancestry.locale import HasLocale
+from betty.ancestry.has_locale import HasLocale
 from betty.json.linked_data import JsonLdObject, dump_context
 from betty.json.schema import String
 from betty.locale.localizable.gettext import _, ngettext

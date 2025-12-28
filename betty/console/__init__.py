@@ -17,7 +17,7 @@ from betty.app import App
 from betty.console.command import CommandDefinition, CommandFunction
 from betty.exception import HumanFacingException
 from betty.locale.localizable.gettext import _
-from betty.locale.localizer import Localizer
+from betty.locale.localize import Localizer
 from betty.user import Verbosity
 
 _T = TypeVar("_T")

@@ -4,7 +4,7 @@ from typing import TYPE_CHECKING
 
 from babel import Locale
 
-from betty.locale.localizer import DEFAULT_LOCALIZER, LocalizerRepository
+from betty.locale.localize import DEFAULT_LOCALIZER, LocalizerRepository
 from betty.locale.translation import TranslationRepository
 
 if TYPE_CHECKING:

@@ -5,7 +5,7 @@ from typing import TYPE_CHECKING, cast
 import pytest
 
 from betty.date import Date, DateLike, DateRange, IncompleteDateError
-from betty.locale.localizer import DEFAULT_LOCALIZER
+from betty.locale.localize import DEFAULT_LOCALIZER
 from betty.serde.dump import Dump, DumpMapping
 
 if TYPE_CHECKING:

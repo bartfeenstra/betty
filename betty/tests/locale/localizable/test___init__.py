@@ -2,7 +2,7 @@ from typing_extensions import override
 
 from betty.locale.localizable import CountableLocalizable, Localizable, LocalizableCount
 from betty.locale.localizable.plain import Plain
-from betty.locale.localizer import DEFAULT_LOCALIZER
+from betty.locale.localize import DEFAULT_LOCALIZER
 
 
 class TestCountableLocalizable:

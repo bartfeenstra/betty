@@ -10,7 +10,7 @@ from betty.locale.localizable.attr import (
     RequiredLocalizableAttr,
 )
 from betty.locale.localizable.plain import Plain
-from betty.locale.localizer import DEFAULT_LOCALIZER, Localizer
+from betty.locale.localize import DEFAULT_LOCALIZER, Localizer
 
 
 class TestRequiredLocalizableAttr:

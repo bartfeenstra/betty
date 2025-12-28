@@ -27,6 +27,7 @@ from pdf2image.pdf2image import convert_from_path
 from PIL import Image
 from PIL.Image import DecompressionBombWarning
 
+from betty import locale
 from betty.ancestry.file import File
 from betty.ancestry.file_reference import FileReference
 from betty.config.factory import new_target
@@ -38,8 +39,13 @@ from betty.image import (
     image_file_path_format,
     resize_cover,
 )
-from betty.locale import LocaleLike, negotiate_locale, to_language_tag
-from betty.locale.localized import LocalizedStr
+from betty.locale import (
+    HasLocale,
+    HasLocaleStr,
+    LocaleLike,
+    negotiate_locale,
+    to_language_tag,
+)
 from betty.media_type import MediaType
 from betty.media_type.media_types import HTML, SVG
 from betty.os import link_or_copy
@@ -65,7 +71,6 @@ if TYPE_CHECKING:
     from betty.ancestry.date import HasDate
     from betty.date import DateLike
     from betty.locale.localizable import Localizable
-    from betty.locale.localized import Localized
     from betty.plugin.config import PluginInstanceConfiguration
 
 _T = TypeVar("_T")
@@ -113,31 +118,31 @@ _CHARACTER_ORDER_TO_HTML_LANG_MAP = {
 
 
 @pass_context
-def filter_html_lang(context: Context, localized: str) -> str | Markup:
+def filter_html_lang(context: Context, has_locale: str) -> str | Markup:
     """
     Optionally add the necessary HTML to indicate the localized string has a different locale than the surrounding HTML.
     """
     from betty.jinja2 import context_localizer
 
-    if not isinstance(localized, LocalizedStr):
-        return localized
+    if not isinstance(has_locale, HasLocaleStr):
+        return has_locale
 
     localizer = context_localizer(context)
-    result: str | Markup = localized
-    if localized.locale != localizer.locale:
+    result: str | Markup = has_locale
+    if has_locale.locale != localizer.locale:
         localizer_dir = _CHARACTER_ORDER_TO_HTML_LANG_MAP[
             localizer.locale.character_order
         ]
-        if localized.locale is None:
-            localized_dir = "auto"
+        if has_locale.locale is None:
+            has_locale_dir = "auto"
         else:
-            localized_dir = _CHARACTER_ORDER_TO_HTML_LANG_MAP[
-                localized.locale.character_order
+            has_locale_dir = _CHARACTER_ORDER_TO_HTML_LANG_MAP[
+                has_locale.locale.character_order
             ]
         dir_attribute = (
-            f' dir="{localized_dir}"' if localized_dir != localizer_dir else ""
+            f' dir="{has_locale_dir}"' if has_locale_dir != localizer_dir else ""
         )
-        result = f'<span lang="{to_language_tag(localized.locale)}"{dir_attribute}>{localized}</span>'
+        result = f'<span lang="{to_language_tag(has_locale.locale)}"{dir_attribute}>{has_locale}</span>'
     if context.eval_ctx.autoescape:
         result = Markup(result)
     return result
@@ -411,48 +416,47 @@ async def __execute_filter_image(
 
 
 @pass_context
-def filter_negotiate_localizeds(
-    context: Context, localizeds: Iterable[Localized]
-) -> Localized | None:
+def filter_negotiate_has_locales(
+    context: Context, has_locales: Iterable[HasLocale]
+) -> HasLocale | None:
     """
     Try to find an object whose locale matches the context's current locale.
     """
     from betty.jinja2 import context_localizer
-    from betty.locale import localized
 
-    return localized.negotiate_localizeds(
-        context_localizer(context).locale, list(localizeds)
+    return locale.negotiate_has_locales(
+        context_localizer(context).locale, list(has_locales)
     )
 
 
 @pass_context
-def filter_sort_localizeds(
+def filter_sort_has_locales(
     context: Context,
-    localizeds: Iterable[Localized],
+    has_locales: Iterable[HasLocale],
     localized_attribute: str,
     sort_attribute: str,
-) -> Iterable[Localized]:
+) -> Iterable[HasLocale]:
     """
     Sort localized objects.
     """
     get_localized_attr = make_attrgetter(context.environment, localized_attribute)
     get_sort_attr = make_attrgetter(context.environment, sort_attribute)
 
-    def _get_sort_key(x: Localized) -> Any:
+    def _get_sort_key(x: HasLocale) -> Any:
         return get_sort_attr(
-            filter_negotiate_localizeds(context, get_localized_attr(x))
+            filter_negotiate_has_locales(context, get_localized_attr(x))
         )
 
-    return sorted(localizeds, key=_get_sort_key)
+    return sorted(has_locales, key=_get_sort_key)
 
 
 @pass_context
-def filter_select_localizeds(
+def filter_select_has_locales(
     context: Context,
-    localizeds: Iterable[Localized],
+    has_locales: Iterable[HasLocale],
     *,
     include_unspecified: bool = False,
-) -> Iterable[Localized]:
+) -> Iterable[HasLocale]:
     """
     Select all objects whose locale matches the context's current locale.
 
@@ -461,16 +465,17 @@ def filter_select_localizeds(
     from betty.jinja2 import context_localizer
 
     localizer = context_localizer(context)
-    for localized in localizeds:
+    for has_locale in has_locales:
         if (
-            localized.locale is None
+            has_locale.locale is None
             and include_unspecified
             or negotiate_locale(
-                localizer.locale, [] if localized.locale is None else [localized.locale]
+                localizer.locale,
+                [] if has_locale.locale is None else [has_locale.locale],
             )
             is not None
         ):
-            yield localized
+            yield has_locale
 
 
 @pass_context
@@ -573,11 +578,11 @@ async def filters() -> Mapping[str, Callable[..., Any]]:
         "localize": filter_localize,
         "map": filter_map,
         "negotiate_has_dates": filter_negotiate_has_dates,
-        "negotiate_localizeds": filter_negotiate_localizeds,
+        "negotiate_has_locales": filter_negotiate_has_locales,
         "provide_content": filter_provide_content,
         "select_has_dates": filter_select_has_dates,
-        "select_localizeds": filter_select_localizeds,
-        "sort_localizeds": filter_sort_localizeds,
+        "select_has_locales": filter_select_has_locales,
+        "sort_has_locales": filter_sort_has_locales,
         "str": str,
         "to_language_tag": to_language_tag,
         "unique": filter_unique,

@@ -27,7 +27,7 @@ from typing import (
 from typing_extensions import override
 
 from betty.json.linked_data import LinkedDataDumpable
-from betty.locale.localizer import DEFAULT_LOCALIZER, Localizer
+from betty.locale.localize import DEFAULT_LOCALIZER, Localizer
 from betty.media_type.media_types import HTML
 from betty.plugin.resolve import ResolvableId, resolve_id
 from betty.serde.dump import Dump, DumpMapping

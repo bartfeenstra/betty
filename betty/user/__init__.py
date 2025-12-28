@@ -8,7 +8,7 @@ from abc import ABC, abstractmethod
 from enum import IntEnum
 from typing import TYPE_CHECKING, Self, TypeVar, final, overload
 
-from betty.locale.localizer import DEFAULT_LOCALIZER
+from betty.locale.localize import DEFAULT_LOCALIZER
 from betty.typing import Void
 
 if TYPE_CHECKING:
@@ -18,7 +18,7 @@ if TYPE_CHECKING:
 
     from betty.assertion import Assertion
     from betty.locale.localizable import LocalizableLike
-    from betty.locale.localizer import Localizer
+    from betty.locale.localize import Localizer
     from betty.progress import Progress
 
 

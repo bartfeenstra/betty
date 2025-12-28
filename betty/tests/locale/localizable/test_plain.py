@@ -2,7 +2,7 @@ import pytest
 from babel import Locale
 
 from betty.locale.localizable.plain import Plain
-from betty.locale.localizer import DEFAULT_LOCALIZER
+from betty.locale.localize import DEFAULT_LOCALIZER
 
 
 class TestPlain:

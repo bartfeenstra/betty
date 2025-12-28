@@ -8,7 +8,7 @@ from typing import TypeVar
 
 from betty.assertion import Assertion
 from betty.exception import HumanFacingException
-from betty.locale.localizer import Localizer
+from betty.locale.localize import Localizer
 
 _T = TypeVar("_T")
 

@@ -8,7 +8,7 @@ from typing import final
 
 from betty.locale import DEFAULT_LOCALE
 from betty.locale.localizable.static import CountableStaticTranslations
-from betty.locale.localizer import DEFAULT_LOCALIZER
+from betty.locale.localize import DEFAULT_LOCALIZER
 from betty.model import Entity, EntityDefinition
 from betty.test_utils.plugin import PluginTestBase
 from betty.test_utils.plugin.human_facing import (

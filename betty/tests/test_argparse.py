@@ -4,7 +4,7 @@ import pytest
 
 from betty.argparse import assertion_to_argument_type
 from betty.exception import HumanFacingException
-from betty.locale.localizer import DEFAULT_LOCALIZER
+from betty.locale.localize import DEFAULT_LOCALIZER
 
 
 def test_assertion_to_argument_type__with_error() -> None:

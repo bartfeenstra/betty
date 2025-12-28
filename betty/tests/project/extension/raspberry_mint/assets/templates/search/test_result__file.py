@@ -3,7 +3,7 @@ from pathlib import Path
 from PIL import Image
 
 from betty.ancestry.file import File
-from betty.locale.localizer import DEFAULT_LOCALIZER
+from betty.locale.localize import DEFAULT_LOCALIZER
 from betty.media_type import MediaType
 from betty.project.extension.raspberry_mint import RaspberryMint
 from betty.test_utils.jinja2 import assert_template_file

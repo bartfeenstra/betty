@@ -20,7 +20,7 @@ from betty.locale.localizable.static import (
     CountableStaticTranslations,
     StaticTranslations,
 )
-from betty.locale.localizer import Localizer
+from betty.locale.localize import Localizer
 from betty.test_utils.exception import assert_error
 
 

@@ -9,7 +9,7 @@ from typing import TYPE_CHECKING, Generic, final
 from typing_extensions import TypeVar
 
 from betty.json.schema import Enum
-from betty.locale.localizer import DEFAULT_LOCALIZER
+from betty.locale.localize import DEFAULT_LOCALIZER
 from betty.plugin import Plugin, PluginDefinition, PluginTypeDefinition
 from betty.string import kebab_case_to_lower_camel_case
 

@@ -14,12 +14,12 @@ from betty.locale.localizable import Localizable, LocalizableLike
 from betty.locale.localizable.ensure import ensure_localizable
 from betty.locale.localizable.gettext import _
 from betty.locale.localizable.markup import Lines, UnorderedList
-from betty.locale.localized import Localized, LocalizedStr
 
 if TYPE_CHECKING:
     from collections.abc import MutableSequence, Sequence
 
-    from betty.locale.localizer import Localizer
+    from betty.locale import HasLocale
+    from betty.locale.localize import Localizer
     from betty.service.level import ServiceLevel
 
 
@@ -43,14 +43,12 @@ class Requirement(Localizable):
         return None
 
     @override
-    def localize(self, localizer: Localizer, /) -> Localized & str:
-        super_localized = self.summary.localize(localizer)
+    def localize(self, localizer: Localizer, /) -> HasLocale & str:
+        localized = self.summary.localize(localizer)
         details = self.details
-        localized: str = super_localized
-        if details is not None:
-            localized += f"\n{'-' * len(localized)}"
-            localized += f"\n{details.localize(localizer)}"
-        return LocalizedStr(localized, locale=super_localized.locale)
+        if details is None:
+            return localized
+        return Lines(self.summary, "-" * len(localized), details).localize(localizer)
 
 
 class UnmetRequirement(HumanFacingException, RuntimeError):
@@ -113,7 +111,7 @@ class _RequirementCollection(Requirement, ABC):
         return self._summary
 
     @override
-    def localize(self, localizer: Localizer, /) -> Localized & str:
+    def localize(self, localizer: Localizer, /) -> HasLocale & str:
         return Lines(
             super().localize(localizer),
             UnorderedList(*self._requirements),

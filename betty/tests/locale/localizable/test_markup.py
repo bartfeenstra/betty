@@ -18,7 +18,7 @@ from betty.locale.localizable.markup import (
     do_you_mean,
 )
 from betty.locale.localizable.plain import Plain
-from betty.locale.localizer import DEFAULT_LOCALIZER, Localizer
+from betty.locale.localize import DEFAULT_LOCALIZER, Localizer
 
 
 @pytest.mark.parametrize(

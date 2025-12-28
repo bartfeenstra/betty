@@ -11,14 +11,15 @@ from typing_extensions import override
 
 from betty.data import Selectors
 from betty.locale.localizable import Localizable, LocalizableLike
-from betty.locale.localized import Localized, LocalizedStr
+from betty.locale.localizable.markup import Paragraphs
 
 if TYPE_CHECKING:
     from collections.abc import Iterator, MutableSequence, Sequence
     from types import TracebackType
 
     from betty.data import Context
-    from betty.locale.localizer import Localizer
+    from betty.locale import HasLocale
+    from betty.locale.localize import Localizer
 
 
 def do_raise(exception: BaseException, /) -> Never:
@@ -53,8 +54,8 @@ class HumanFacingException(Exception, Localizable):
     def __init__(
         self, message: LocalizableLike, *, contexts: Sequence[Context] | None = None
     ):
-        from betty.locale.localized.ensure import ensure_localized
-        from betty.locale.localizer import DEFAULT_LOCALIZER
+        from betty.locale.localize import DEFAULT_LOCALIZER
+        from betty.locale.localize.ensure import ensure_localized
 
         super().__init__(
             # Provide a default localization so this exception can be displayed like any other.
@@ -65,12 +66,12 @@ class HumanFacingException(Exception, Localizable):
 
     @override
     def __str__(self) -> str:
-        from betty.locale.localizer import DEFAULT_LOCALIZER
+        from betty.locale.localize import DEFAULT_LOCALIZER
 
         return self.localize(DEFAULT_LOCALIZER)
 
     @override
-    def localize(self, localizer: Localizer, /) -> Localized & str:
+    def localize(self, localizer: Localizer, /) -> HasLocale & str:
         from betty.locale.localizable.markup import Lines, UnorderedList
 
         return Lines(
@@ -124,11 +125,8 @@ class HumanFacingExceptionGroup(HumanFacingException):
         yield from self._errors
 
     @override
-    def localize(self, localizer: Localizer, /) -> Localized & str:
-        return LocalizedStr(
-            "\n\n".join(error.localize(localizer) for error in self._errors),
-            locale=localizer.locale,
-        )
+    def localize(self, localizer: Localizer, /) -> HasLocale & str:
+        return Paragraphs(*self._errors).localize(localizer)
 
     def __len__(self) -> int:
         return len(self._errors)

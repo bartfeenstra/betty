@@ -11,6 +11,8 @@ from typing_extensions import override
 from betty.data import Key
 from betty.exception import HumanFacingExceptionGroup
 from betty.locale import (
+    HasLocale,
+    HasLocaleStr,
     LocaleLike,
     ensure_locale,
     negotiate_locale,
@@ -38,7 +40,6 @@ from betty.locale.localizable.markup import (
     UnorderedList,
     do_you_mean,
 )
-from betty.locale.localized import Localized, LocalizedStr
 from betty.mutability import Mutable
 
 if TYPE_CHECKING:
@@ -46,7 +47,7 @@ if TYPE_CHECKING:
 
     from babel import Locale
 
-    from betty.locale.localizer import Localizer
+    from betty.locale.localize import Localizer
 
 
 @final
@@ -197,16 +198,16 @@ class StaticTranslations(Mutable, Localizable):
         return dict(self._translations)
 
     @override
-    def localize(self, localizer: Localizer, /) -> Localized & str:
+    def localize(self, localizer: Localizer, /) -> HasLocale & str:
         if len(self._translations) > 1:
             available_locales = tuple(filter(None, self._translations.keys()))
             negotiated_locale = negotiate_locale(localizer.locale, available_locales)
             if negotiated_locale is not None:
-                return LocalizedStr(
+                return HasLocaleStr(
                     self._translations[negotiated_locale], locale=negotiated_locale
                 )
         locale, translation = next(iter(self._translations.items()))
-        return LocalizedStr(translation, locale=locale)
+        return HasLocaleStr(translation, locale=locale)
 
     @classmethod
     def from_localizable(

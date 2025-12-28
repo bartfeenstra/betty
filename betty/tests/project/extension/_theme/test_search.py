@@ -10,7 +10,7 @@ from betty.ancestry.place import Place
 from betty.app import App
 from betty.job import Context
 from betty.locale.localizable.static import StaticTranslations
-from betty.locale.localizer import DEFAULT_LOCALIZER
+from betty.locale.localize import DEFAULT_LOCALIZER
 from betty.project import Project
 from betty.project.config import LocaleConfiguration
 from betty.project.extension._theme.search import Index

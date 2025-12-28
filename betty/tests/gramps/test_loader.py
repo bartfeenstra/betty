@@ -43,7 +43,7 @@ from betty.gramps.error import UserFacingGrampsError
 from betty.gramps.loader import GrampsFileNotFound, GrampsLoader, LoaderUsedAlready
 from betty.license import LicenseDefinition
 from betty.license.licenses import PublicDomain as PublicDomainLicense
-from betty.locale.localizer import DEFAULT_LOCALIZER, Localizer
+from betty.locale.localize import DEFAULT_LOCALIZER, Localizer
 from betty.media_type import MediaType
 from betty.plugin.repository.static import StaticPluginRepository
 from betty.privacy import Privacy

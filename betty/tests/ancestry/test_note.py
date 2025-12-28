@@ -6,7 +6,7 @@ from typing_extensions import override
 
 from betty.ancestry.note import Note
 from betty.locale import DEFAULT_LOCALE_TAG
-from betty.locale.localizer import DEFAULT_LOCALIZER
+from betty.locale.localize import DEFAULT_LOCALIZER
 from betty.test_utils.json.linked_data import assert_dumps_linked_data
 from betty.test_utils.locale.localizable import DUMMY_LOCALIZABLE
 from betty.test_utils.model import EntityDefinitionTestBase, EntityTestBase

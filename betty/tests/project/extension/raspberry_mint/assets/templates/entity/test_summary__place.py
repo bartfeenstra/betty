@@ -1,7 +1,7 @@
 from betty.ancestry.enclosure import Enclosure
 from betty.ancestry.place import Place
 from betty.ancestry.place_type.place_types import Country
-from betty.locale.localizer import DEFAULT_LOCALIZER
+from betty.locale.localize import DEFAULT_LOCALIZER
 from betty.project.extension.raspberry_mint import RaspberryMint
 from betty.test_utils.jinja2 import assert_template_file
 

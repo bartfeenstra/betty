@@ -15,7 +15,7 @@ from betty.locale import to_language_tag
 from betty.locale.localizable.gettext import _
 from betty.locale.localizable.markup import Chain
 from betty.locale.localizable.plain import Plain
-from betty.locale.localizer import DEFAULT_LOCALIZER
+from betty.locale.localize import DEFAULT_LOCALIZER
 from betty.os import link_or_copy
 from betty.project import ProjectContext
 from betty.project.extension._theme.search import generate_search_index

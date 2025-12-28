@@ -11,7 +11,7 @@ from betty.ancestry.source import Source
 from betty.date import Date
 from betty.locale import DEFAULT_LOCALE, DEFAULT_LOCALE_TAG, to_language_tag
 from betty.locale.localizable.plain import Plain
-from betty.locale.localizer import DEFAULT_LOCALIZER
+from betty.locale.localize import DEFAULT_LOCALIZER
 from betty.model import Entity
 from betty.privacy import Privacy
 from betty.test_utils.json.linked_data import assert_dumps_linked_data
