@@ -237,8 +237,8 @@ class FamilyTreeConfigurationSequence(ConfigurationSequence[FamilyTreeConfigurat
 
     @override
     @classmethod
-    def _load_item(cls, dump: Dump, /) -> FamilyTreeConfiguration:
-        return FamilyTreeConfiguration.load(dump)
+    def _item_cls(cls) -> type[FamilyTreeConfiguration]:
+        return FamilyTreeConfiguration
 
 
 class GrampsConfiguration(Configuration):

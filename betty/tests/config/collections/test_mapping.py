@@ -131,8 +131,8 @@ class ConfigurationMappingTestConfigurationMapping(
 
     @override
     @classmethod
-    def _load_item(cls, dump: Dump, /) -> ConfigurationMappingTestConfiguration:
-        return ConfigurationMappingTestConfiguration.load(dump)
+    def _item_cls(cls) -> type[ConfigurationMappingTestConfiguration]:
+        return ConfigurationMappingTestConfiguration
 
     @override
     def _get_key(self, configuration: ConfigurationMappingTestConfiguration, /) -> str:
@@ -231,8 +231,8 @@ class OrderedConfigurationMappingTestOrderedConfigurationMapping(
 
     @override
     @classmethod
-    def _load_item(cls, dump: Dump, /) -> ConfigurationMappingTestConfiguration:
-        return ConfigurationMappingTestConfiguration.load(dump)
+    def _item_cls(cls) -> type[ConfigurationMappingTestConfiguration]:
+        return ConfigurationMappingTestConfiguration
 
     @override
     def _get_key(self, configuration: ConfigurationMappingTestConfiguration, /) -> str:

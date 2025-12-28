@@ -123,7 +123,7 @@ class ConfigurationMapping(
     @classmethod
     def load(cls, dump: Dump, /) -> Self:
         return cls(
-            assert_mapping(cls._load_item)(
+            assert_mapping(cls._item_cls().load)(
                 {
                     item_key_dump: cls.__load_item_key(item_value_dump, item_key_dump)
                     for item_key_dump, item_value_dump in assert_mapping(
@@ -157,7 +157,7 @@ class OrderedConfigurationMapping(
     @override
     @classmethod
     def load(cls, dump: Dump, /) -> Self:
-        return cls(assert_sequence(cls._load_item)(dump))
+        return cls(assert_sequence(cls._item_cls().load)(dump))
 
     @override
     def dump(self) -> DumpSequence[Dump]:

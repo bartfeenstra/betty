@@ -110,5 +110,5 @@ class ConfigurationSequenceTestConfigurationSequence(
 ):
     @override
     @classmethod
-    def _load_item(cls, dump: Dump, /) -> ConfigurationSequenceTestConfiguration:
-        return ConfigurationSequenceTestConfiguration.load(dump)
+    def _item_cls(cls) -> type[ConfigurationSequenceTestConfiguration]:
+        return ConfigurationSequenceTestConfiguration

@@ -73,7 +73,7 @@ class ConfigurationSequence(ConfigurationCollection[int, int, _ConfigurationT]):
     @override
     @classmethod
     def load(cls, dump: Dump, /) -> Self:
-        return cls(assert_sequence(cls._load_item)(dump))
+        return cls(assert_sequence(cls._item_cls().load)(dump))
 
     @override
     def dump(self) -> DumpSequence[Dump]:

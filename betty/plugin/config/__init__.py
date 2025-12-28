@@ -326,10 +326,10 @@ class PluginInstanceConfigurationMapping(
 
     @override
     @classmethod
-    def _load_item(
-        cls, dump: Dump
-    ) -> PluginInstanceConfiguration[_PluginDefinitionT, _PluginT]:
-        return PluginInstanceConfiguration.load(dump)
+    def _item_cls(
+        cls,
+    ) -> type[PluginInstanceConfiguration[_PluginDefinitionT, _PluginT]]:
+        return PluginInstanceConfiguration
 
     @override
     def _get_key(
@@ -376,7 +376,7 @@ class PluginInstanceConfigurationSequence(
 
     @override
     @classmethod
-    def _load_item(
-        cls, dump: Dump
-    ) -> PluginInstanceConfiguration[_PluginDefinitionT, _PluginT]:
-        return PluginInstanceConfiguration.load(dump)
+    def _item_cls(
+        cls,
+    ) -> type[PluginInstanceConfiguration[_PluginDefinitionT, _PluginT]]:
+        return PluginInstanceConfiguration
