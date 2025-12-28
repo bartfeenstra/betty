@@ -33,6 +33,7 @@ from betty.model.config import EntityReference, EntityReferenceSequence
 from betty.plugin.config import (
     PluginInstanceConfiguration,
     PluginInstanceConfigurationSequence,
+    PluginInstanceConfigurationSequenceSequence,
 )
 from betty.plugin.repository.static import StaticPluginRepository
 from betty.project import Project
@@ -780,17 +781,23 @@ class TestColumnsConfiguration:
         content: PluginInstanceConfiguration[
             ContentProviderDefinition, ContentProvider
         ] = PluginInstanceConfiguration(Render, RenderConfiguration(DUMMY_LOCALIZABLE))
-        sut = ColumnsConfiguration(content=content)
-        assert list(sut.content) == [content]
+        sut = ColumnsConfiguration(
+            content=PluginInstanceConfigurationSequenceSequence(
+                [PluginInstanceConfigurationSequence([content])]
+            )
+        )
+        assert list(map(list, sut.content)) == [[content]]
 
     def test_content__with_multiple_configurations(self) -> None:
         content: PluginInstanceConfiguration[
             ContentProviderDefinition, ContentProvider
         ] = PluginInstanceConfiguration(Render, RenderConfiguration(DUMMY_LOCALIZABLE))
         sut = ColumnsConfiguration(
-            content=PluginInstanceConfigurationSequence([content])
+            content=PluginInstanceConfigurationSequenceSequence(
+                [PluginInstanceConfigurationSequence([content])]
+            )
         )
-        assert list(sut.content) == [content]
+        assert list(map(list, sut.content)) == [[content]]
 
     @pytest.mark.parametrize(
         ("expected", "width"),
@@ -827,34 +834,38 @@ class TestColumnsConfiguration:
         sut = ColumnsConfiguration.load(
             {
                 "content": [
-                    {
-                        "id": "render",
-                        "configuration": {
-                            "content": "DUMMY_LOCALIZABLE",
-                            "media_type": str(PLAIN_TEXT),
-                        },
-                    }
+                    [
+                        {
+                            "id": "render",
+                            "configuration": {
+                                "content": "DUMMY_LOCALIZABLE",
+                                "media_type": str(PLAIN_TEXT),
+                            },
+                        }
+                    ]
                 ],
                 "justify_content": justify_content.value,
             }
         )
         assert len(sut.content) == 1
-        assert sut.content[0].id == "render"
-        assert isinstance(sut.content[0].configuration, Mapping)
-        assert sut.content[0].configuration["content"] == "DUMMY_LOCALIZABLE"
-        assert sut.content[0].configuration["media_type"] == str(PLAIN_TEXT)
+        assert sut.content[0][0].id == "render"
+        assert isinstance(sut.content[0][0].configuration, Mapping)
+        assert sut.content[0][0].configuration["content"] == "DUMMY_LOCALIZABLE"
+        assert sut.content[0][0].configuration["media_type"] == str(PLAIN_TEXT)
 
     def test_load__with_width(self) -> None:
         sut = ColumnsConfiguration.load(
             {
                 "content": [
-                    {
-                        "id": "render",
-                        "configuration": {
-                            "content": "DUMMY_LOCALIZABLE",
-                            "media_type": str(PLAIN_TEXT),
-                        },
-                    }
+                    [
+                        {
+                            "id": "render",
+                            "configuration": {
+                                "content": "DUMMY_LOCALIZABLE",
+                                "media_type": str(PLAIN_TEXT),
+                            },
+                        }
+                    ]
                 ],
                 "width": {Breakpoint.XS.value: [1, 2, 3]},
             }
@@ -866,13 +877,15 @@ class TestColumnsConfiguration:
         sut = ColumnsConfiguration.load(
             {
                 "content": [
-                    {
-                        "id": "render",
-                        "configuration": {
-                            "content": "DUMMY_LOCALIZABLE",
-                            "media_type": str(PLAIN_TEXT),
-                        },
-                    }
+                    [
+                        {
+                            "id": "render",
+                            "configuration": {
+                                "content": "DUMMY_LOCALIZABLE",
+                                "media_type": str(PLAIN_TEXT),
+                            },
+                        }
+                    ]
                 ],
                 "justify_content": justify_content.value,
             }
@@ -887,13 +900,15 @@ class TestColumnsConfiguration:
         )
         assert sut.dump() == {
             "content": [
-                {
-                    "id": "render",
-                    "configuration": {
-                        "content": "DUMMY_LOCALIZABLE",
-                        "media_type": str(PLAIN_TEXT),
+                [
+                    {
+                        "id": "render",
+                        "configuration": {
+                            "content": "DUMMY_LOCALIZABLE",
+                            "media_type": str(PLAIN_TEXT),
+                        },
                     },
-                },
+                ]
             ],
             "width": {
                 "xs": [12],
@@ -971,13 +986,23 @@ class TestColumns(ContentProviderTestBase):
             async with project:
                 sut = Columns(
                     configuration=ColumnsConfiguration(
-                        content=PluginInstanceConfigurationSequence(
+                        content=PluginInstanceConfigurationSequenceSequence(
                             [
-                                PluginInstanceConfiguration(
-                                    Render, RenderConfiguration(DUMMY_LOCALIZABLE)
+                                PluginInstanceConfigurationSequence(
+                                    [
+                                        PluginInstanceConfiguration(
+                                            Render,
+                                            RenderConfiguration(DUMMY_LOCALIZABLE),
+                                        ),
+                                    ]
                                 ),
-                                PluginInstanceConfiguration(
-                                    Render, RenderConfiguration(DUMMY_LOCALIZABLE)
+                                PluginInstanceConfigurationSequence(
+                                    [
+                                        PluginInstanceConfiguration(
+                                            Render,
+                                            RenderConfiguration(DUMMY_LOCALIZABLE),
+                                        ),
+                                    ]
                                 ),
                             ]
                         ),
@@ -998,13 +1023,23 @@ class TestColumns(ContentProviderTestBase):
             async with project:
                 sut = Columns(
                     configuration=ColumnsConfiguration(
-                        content=PluginInstanceConfigurationSequence(
+                        content=PluginInstanceConfigurationSequenceSequence(
                             [
-                                PluginInstanceConfiguration(
-                                    Render, RenderConfiguration(DUMMY_LOCALIZABLE)
+                                PluginInstanceConfigurationSequence(
+                                    [
+                                        PluginInstanceConfiguration(
+                                            Render,
+                                            RenderConfiguration(DUMMY_LOCALIZABLE),
+                                        ),
+                                    ]
                                 ),
-                                PluginInstanceConfiguration(
-                                    Render, RenderConfiguration(DUMMY_LOCALIZABLE)
+                                PluginInstanceConfigurationSequence(
+                                    [
+                                        PluginInstanceConfiguration(
+                                            Render,
+                                            RenderConfiguration(DUMMY_LOCALIZABLE),
+                                        ),
+                                    ]
                                 ),
                             ]
                         ),
