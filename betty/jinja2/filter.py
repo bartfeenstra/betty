@@ -49,7 +49,6 @@ from betty.locale import (
 from betty.media_type import MediaType
 from betty.media_type.media_types import HTML, SVG
 from betty.os import link_or_copy
-from betty.plugin.config import PluginInstanceConfiguration
 from betty.string import (
     camel_case_to_kebab_case,
     camel_case_to_snake_case,
@@ -72,6 +71,7 @@ if TYPE_CHECKING:
     from betty.ancestry.date import HasDate
     from betty.date import DateLike
     from betty.locale.localizable import Localizable
+    from betty.plugin.config import PluginInstanceConfiguration
 
 _T = TypeVar("_T")
 
@@ -516,8 +516,7 @@ async def filter_provide_content(
     context: Context,
     content_provider_configurations: Iterable[
         PluginInstanceConfiguration[ContentProviderDefinition, ContentProvider]
-    ]
-    | PluginInstanceConfiguration[ContentProviderDefinition, ContentProvider],
+    ],
 ) -> str:
     """
     Provide content from content provider configuration.
@@ -526,8 +525,6 @@ async def filter_provide_content(
 
     project = context_project(context)
     content_provider_repository = await project.plugins(ContentProviderDefinition)
-    if isinstance(content_provider_configurations, PluginInstanceConfiguration):
-        content_provider_configurations = [content_provider_configurations]
     return Markup(
         "".join(
             [

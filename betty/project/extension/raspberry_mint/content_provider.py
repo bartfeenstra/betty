@@ -24,9 +24,6 @@ from betty.assertion import (
 from betty.config import Configuration
 from betty.config.factory import ConfigurationDependentSelfFactory
 from betty.content_provider import ContentProvider, ContentProviderDefinition
-from betty.content_provider.config import (
-    ContentProviderInstanceConfigurationSequence,
-)
 from betty.content_provider.content_providers import Template
 from betty.locale.localizable.assertion import assert_load_localizable
 from betty.locale.localizable.attr import RequiredLocalizableAttr
@@ -40,6 +37,7 @@ from betty.plugin import Plugin
 from betty.plugin.config import (
     PluginInstanceConfiguration,
     PluginInstanceConfigurationSequence,
+    PluginInstanceConfigurationSequenceSequence,
 )
 from betty.plugin.resolve import resolve_id
 from betty.project.extension.raspberry_mint import (
@@ -58,9 +56,6 @@ from betty.typing import private
 if TYPE_CHECKING:
     from collections.abc import Collection, Iterable, MutableSequence
 
-    from betty.content_provider.config import (
-        ShorthandContentProviderInstanceConfigurationSequence,
-    )
     from betty.document import Document
     from betty.jinja2 import Environment
     from betty.locale.localizable import LocalizableLike
@@ -93,7 +88,10 @@ class SectionConfiguration(Configuration):
         self,
         *,
         heading: LocalizableLike,
-        content: ShorthandContentProviderInstanceConfigurationSequence = None,
+        content: Sequence[
+            PluginInstanceConfiguration[ContentProviderDefinition, ContentProvider]
+        ]
+        | None = None,
         name: MachineName | None = None,
         visually_hide_heading: bool = False,
     ):
@@ -104,7 +102,11 @@ class SectionConfiguration(Configuration):
         self.visually_hide_heading = visually_hide_heading
 
     @property
-    def content(self) -> ContentProviderInstanceConfigurationSequence:
+    def content(
+        self,
+    ) -> PluginInstanceConfigurationSequence[
+        ContentProviderDefinition, ContentProvider
+    ]:
         """
         The content within this section.
         """
@@ -303,14 +305,21 @@ class ColorStyleConfiguration(Configuration):
         self,
         style: RaspberryMintColorStyle = RaspberryMintColorStyle.LIGHT,
         *,
-        content: ShorthandContentProviderInstanceConfigurationSequence = None,
+        content: Sequence[
+            PluginInstanceConfiguration[ContentProviderDefinition, ContentProvider]
+        ]
+        | None = None,
     ):
         super().__init__()
         self.style = style
         self._content = PluginInstanceConfigurationSequence(content)
 
     @property
-    def content(self) -> ContentProviderInstanceConfigurationSequence:
+    def content(
+        self,
+    ) -> PluginInstanceConfigurationSequence[
+        ContentProviderDefinition, ContentProvider
+    ]:
         """
         The content within this color style.
         """
@@ -548,14 +557,18 @@ class ColumnsConfiguration(Configuration):
     def __init__(
         self,
         *,
-        content: ContentProviderInstanceConfigurationSequence
+        content: PluginInstanceConfigurationSequenceSequence[
+            ContentProviderDefinition, ContentProvider
+        ]
         | PluginInstanceConfiguration[ContentProviderDefinition, ContentProvider],
         width: ShorthandColumnsWidth | None = None,
         justify_content: JustifyContent | None = None,
     ):
         super().__init__()
         if isinstance(content, PluginInstanceConfiguration):
-            content = ContentProviderInstanceConfigurationSequence([content])
+            content = PluginInstanceConfigurationSequenceSequence(
+                [PluginInstanceConfigurationSequence([content])]
+            )
         self._content = content
         if width is None:
             width = {Breakpoint.XS: [12]}
@@ -573,7 +586,11 @@ class ColumnsConfiguration(Configuration):
         self._justify_content = justify_content
 
     @property
-    def content(self) -> ContentProviderInstanceConfigurationSequence:
+    def content(
+        self,
+    ) -> PluginInstanceConfigurationSequenceSequence[
+        ContentProviderDefinition, ContentProvider
+    ]:
         """
         The content within the columns.
         """
@@ -599,7 +616,7 @@ class ColumnsConfiguration(Configuration):
         return cls(
             **assert_record(
                 RequiredField(
-                    "content", ContentProviderInstanceConfigurationSequence.load
+                    "content", PluginInstanceConfigurationSequenceSequence.load
                 ),
                 OptionalField("justify_content", assert_enum(JustifyContent)),
                 OptionalField(

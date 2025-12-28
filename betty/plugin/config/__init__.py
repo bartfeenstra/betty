@@ -361,18 +361,8 @@ class PluginInstanceConfigurationSequence(
     Generic[_PluginDefinitionT, _PluginT],
 ):
     """
-    Configure plugin instances.
+    A sequence of plugin instance configurations.
     """
-
-    def __init__(
-        self,
-        configurations: Iterable[
-            PluginInstanceConfiguration[_PluginDefinitionT, _PluginT]
-        ]
-        | None = None,
-        /,
-    ):
-        super().__init__(configurations)
 
     @override
     @classmethod
@@ -380,3 +370,21 @@ class PluginInstanceConfigurationSequence(
         cls,
     ) -> type[PluginInstanceConfiguration[_PluginDefinitionT, _PluginT]]:
         return PluginInstanceConfiguration
+
+
+class PluginInstanceConfigurationSequenceSequence(
+    ConfigurationSequence[
+        PluginInstanceConfigurationSequence[_PluginDefinitionT, _PluginT]
+    ],
+    Generic[_PluginDefinitionT, _PluginT],
+):
+    """
+    A sequence of sequences of plugin instance configurations.
+    """
+
+    @override
+    @classmethod
+    def _item_cls(
+        cls,
+    ) -> type[PluginInstanceConfigurationSequence[_PluginDefinitionT, _PluginT]]:
+        return PluginInstanceConfigurationSequence

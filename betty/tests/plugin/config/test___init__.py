@@ -17,6 +17,7 @@ from betty.plugin.config import (
     PluginInstanceConfiguration,
     PluginInstanceConfigurationMapping,
     PluginInstanceConfigurationSequence,
+    PluginInstanceConfigurationSequenceSequence,
 )
 from betty.plugin.resolve import ResolvableId
 from betty.serde.dump import Dump
@@ -411,4 +412,43 @@ class TestPluginInstanceConfigurationSequence(
             PluginInstanceConfiguration("my-second-plugin"),
             PluginInstanceConfiguration("my-third-plugin"),
             PluginInstanceConfiguration("my-fourth-plugin"),
+        )
+
+
+class TestPluginInstanceConfigurationSequenceSequence(
+    ConfigurationSequenceTestBase[
+        PluginInstanceConfigurationSequence[DummyPluginDefinition, DummyPlugin]
+    ]
+):
+    @override
+    @pytest.fixture
+    def new_sut(
+        self,
+    ) -> ConfigurationCollectionTestBaseNewSut[
+        PluginInstanceConfigurationSequence[DummyPluginDefinition, DummyPlugin],
+        int,
+        int,
+    ]:
+        return PluginInstanceConfigurationSequenceSequence
+
+    @override
+    @pytest.fixture
+    def sut_configurations(
+        self,
+    ) -> ConfigurationCollectionTestBaseSutConfigurations[
+        PluginInstanceConfigurationSequence[DummyPluginDefinition, DummyPlugin]
+    ]:
+        return (
+            PluginInstanceConfigurationSequence(
+                [PluginInstanceConfiguration("my-first-plugin")]
+            ),
+            PluginInstanceConfigurationSequence(
+                [PluginInstanceConfiguration("my-second-plugin")]
+            ),
+            PluginInstanceConfigurationSequence(
+                [PluginInstanceConfiguration("my-third-plugin")]
+            ),
+            PluginInstanceConfigurationSequence(
+                [PluginInstanceConfiguration("my-fourth-plugin")]
+            ),
         )
