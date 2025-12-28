@@ -11,7 +11,7 @@ from betty.ancestry.person import Person
 from betty.ancestry.place import Place
 from betty.ancestry.source import Source
 from betty.content_provider.content_providers import Render, RenderConfiguration
-from betty.locale import to_language_tag
+from betty.locale import DEFAULT_LOCALE
 from betty.locale.localizable.gettext import _
 from betty.locale.localizable.markup import Chain
 from betty.media_type.media_types import HTML
@@ -146,8 +146,13 @@ async def create_project(app: App, project_directory_path: Path) -> Project:
         ),
         locales=LocaleConfigurationMapping(
             [
-                LocaleConfiguration(to_language_tag(locale))
-                for locale in translations.locales
+                # The first configured locale is the project default.
+                LocaleConfiguration(DEFAULT_LOCALE),
+                *[
+                    LocaleConfiguration(locale)
+                    for locale in translations.locales
+                    if locale != DEFAULT_LOCALE
+                ],
             ]
         ),
     )
