@@ -1,8 +1,8 @@
 {% extends 'base.html.j2' %}
-{% set page_title = resource.resource.label_plural | localize %}
-{% do resource.breadcrumbs.append(
+{% set page_title = document.resource.label_plural | localize %}
+{% do document.breadcrumbs.append(
     page_title,
-    resource.resource
+    document.resource
 ) %}
 {% block page_content %}
 {% endblock %}

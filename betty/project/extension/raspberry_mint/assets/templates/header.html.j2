@@ -1,4 +1,4 @@
-{% cache 'raspberry-mint-template-header--before:' ~ resource.localizer.locale %}
+{% cache 'raspberry-mint-template-header--before:' ~ document.localizer.locale %}
     {% set ns = namespace(primary_navigation_links = {}) %}
     {% for entity_type_configuration in project.configuration.entity_types.values() | selectattr('generate_html_list') %}
         {% set entity_type = app.plugins('entity')[entity_type_configuration.id] %}
@@ -116,7 +116,7 @@
     {% endwith %}
 {% endcache %}
 
-{% if resource.resource_url %}
+{% if document.resource_url %}
     {% set nav_language_body %}
         <ul class="list-unstyled text-center">
             {% set ns = namespace(available_locales = []) %}
@@ -125,7 +125,7 @@
             {% endfor %}
             {% for available_locale, available_locale_name in ns.available_locales | sort(attribute='1') %}
                 <li class="h6 header-nav-link">
-                    <a href="{{ resource.resource_url | url(locale=available_locale) }}" hreflang="{{ available_locale | to_language_tag }}" lang="{{ available_locale }}" rel="alternate">{{ available_locale_name }}</a>
+                    <a href="{{ document.resource_url | url(locale=available_locale) }}" hreflang="{{ available_locale | to_language_tag }}" lang="{{ available_locale }}" rel="alternate">{{ available_locale_name }}</a>
                 </li>
             {% endfor %}
         </ul>
@@ -141,7 +141,7 @@
     {% endif %}
 {% endif %}
 
-{% cache 'raspberry-mint-template-header--after:' ~ resource.localizer.locale %}
+{% cache 'raspberry-mint-template-header--after:' ~ document.localizer.locale %}
     {% set nav_search_body %}
         <div class="container">
             {% set ns = namespace(

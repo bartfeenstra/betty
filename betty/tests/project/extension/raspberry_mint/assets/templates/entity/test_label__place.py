@@ -3,8 +3,8 @@ from __future__ import annotations
 from betty.ancestry.name import Name
 from betty.ancestry.place import Place
 from betty.date import Date, DateRange
+from betty.document import Document, EntityContexts
 from betty.project.extension.raspberry_mint import RaspberryMint
-from betty.resource import Context, EntityContexts
 from betty.test_utils.jinja2 import assert_template_file
 
 
@@ -71,7 +71,7 @@ async def test_with_place_context() -> None:
     async with assert_template_file(
         data={
             "entity": place,
-            "resource": Context(entity_contexts=EntityContexts(place)),
+            "document": Document(entity_contexts=EntityContexts(place)),
         },
         extensions={RaspberryMint},
         template="entity/label--place.html.j2",

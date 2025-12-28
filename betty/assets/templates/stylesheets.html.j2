@@ -1,3 +1,3 @@
 {% for css_path in public_css_paths | unique %}
-    <link rel="stylesheet" href="{{ css_path | url(query={"b": resource.job_context.id} if resource.job_context else {}) }}">
+    <link rel="stylesheet" href="{{ css_path | url(query={"b": document.job_context.id} if document.job_context else {}) }}">
 {% endfor %}

@@ -3,8 +3,8 @@ from betty.ancestry.event_type.event_types import Birth, Marriage
 from betty.ancestry.person import Person
 from betty.ancestry.presence import Presence
 from betty.ancestry.presence_role.presence_roles import Subject
+from betty.document import Document, EntityContexts
 from betty.project.extension.raspberry_mint import RaspberryMint
-from betty.resource import Context, EntityContexts
 from betty.test_utils.jinja2 import assert_template_file
 
 
@@ -81,7 +81,7 @@ async def test_with_single_subject_as_person_context() -> None:
     async with assert_template_file(
         data={
             "entity": event,
-            "resource": Context(entity_contexts=EntityContexts(context_subject)),
+            "document": Document(entity_contexts=EntityContexts(context_subject)),
         },
         extensions={RaspberryMint},
         template="entity/label--event.html.j2",
@@ -99,7 +99,7 @@ async def test_with_subjects_and_subject_as_person_context() -> None:
     async with assert_template_file(
         data={
             "entity": event,
-            "resource": Context(entity_contexts=EntityContexts(context_subject)),
+            "document": Document(entity_contexts=EntityContexts(context_subject)),
         },
         extensions={RaspberryMint},
         template="entity/label--event.html.j2",

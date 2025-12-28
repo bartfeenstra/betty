@@ -1,5 +1,5 @@
 {% set embedded = embedded | default(False) %}
-{% set place_context = resource.entity_contexts['place'] %}
+{% set place_context = document.entity_contexts['place'] %}
 {% set label_as_link = not embedded and place_context != entity and entity is persistent_entity_id and entity is public %}
 {%- set names = entity.names | select_has_dates(date_context | default(none)) | list -%}
 {%- if names | length == 0 -%}

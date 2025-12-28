@@ -58,7 +58,7 @@ class _GeneratePlacePreview(Job[ProjectContext]):
         rendered_html = await jinja2_environment.get_template(
             "maps/selected-place-preview.html.j2",
         ).render_async(
-            resource=await project.new_resource_context(
+            document=await project.new_document(
                 job_context=context,
                 localizer=localizers.get(self._locale),
             ),

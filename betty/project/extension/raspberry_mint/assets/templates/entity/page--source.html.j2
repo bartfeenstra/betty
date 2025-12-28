@@ -4,7 +4,7 @@
 
     {% include 'section/notes.html.j2' %}
 
-    {% set sources = [resource.resource] + resource.resource.walk_contains | select('public') | list %}
+    {% set sources = [document.resource] + document.resource.walk_contains | select('public') | list %}
 
     {% set facts = sources | map(attribute='citations') | flatten | map(attribute='facts') | flatten | unique | list %}
     {% include 'section/facts.html.j2' %}

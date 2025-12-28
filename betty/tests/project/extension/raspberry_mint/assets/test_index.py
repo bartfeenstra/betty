@@ -56,7 +56,7 @@ async def test_regional_content_front_page_summary(
         async with project:
             environment = await project.jinja2_environment
             actual = await environment.from_string(file).render_async(
-                resource=await project.new_resource_context()
+                document=await project.new_document()
             )
     assert "Hello, world!" in actual
 
@@ -88,6 +88,6 @@ async def test_regional_content_front_page_content(
         async with project:
             environment = await project.jinja2_environment
             actual = await environment.from_string(file).render_async(
-                resource=await project.new_resource_context()
+                document=await project.new_document()
             )
     assert "Hello, world!" in actual

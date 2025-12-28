@@ -47,8 +47,8 @@ async def _assert_template(
         async with project:
             if data is None:
                 data = {}
-            if "resource" not in data:
-                data["resource"] = await project.new_resource_context()
+            if "document" not in data:
+                data["document"] = await project.new_document()
             jinja2_environment = await project.jinja2_environment
             if autoescape is not None:
                 jinja2_environment.autoescape = autoescape

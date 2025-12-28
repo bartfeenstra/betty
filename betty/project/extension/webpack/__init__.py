@@ -14,6 +14,7 @@ from typing import TYPE_CHECKING, ClassVar, Literal, Self, final
 from typing_extensions import override
 
 from betty._npm import new_npm_requirement
+from betty.document import DocumentProvider, DocumentVars
 from betty.html import CssProvider, JsProvider
 from betty.jinja2 import Filters, Jinja2Provider
 from betty.project import Project, ProjectContext
@@ -27,7 +28,6 @@ from betty.requirement import (
     AllRequirements,
     Requirement,
 )
-from betty.resource import ContextProvider, ContextVars
 from betty.typing import internal
 
 if TYPE_CHECKING:
@@ -50,7 +50,7 @@ class Webpack(
     CssProvider,
     JsProvider,
     Jinja2Provider,
-    ContextProvider,
+    DocumentProvider,
     ProjectDependentSelfFactory,
 ):
     """
@@ -106,7 +106,7 @@ class Webpack(
         return ("betty-static:///js/webpack-entry-loader.js",)
 
     @override
-    def new_resource_context(self) -> ContextVars:
+    def new_document_vars(self) -> DocumentVars:
         return {
             "webpack_js_entry_points": set(),
         }

@@ -1,6 +1,6 @@
 {% do 'raspberry-mint' | webpack_entry_point_js %}
 <!doctype html>
-<html lang="{{ resource.localizer.locale | to_language_tag }}">
+<html lang="{{ document.localizer.locale | to_language_tag }}">
 <head>
     {% include 'head.html.j2' %}
     <link rel="manifest" href="{{ 'betty-static:///betty.webmanifest' | url }}">
@@ -18,16 +18,16 @@
                 {% include 'component/breadcrumbs.html.j2' %}
                 <h1 class="page-intro-title">{{ page_title | default(project.configuration.title | localize) | html_lang }}</h1>
                 {% block page_summary %}
-                    {% if resource.resource is entity_plugin %}
-                        {% with entity = resource.resource %}
+                    {% if document.resource is entity_plugin %}
+                        {% with entity = document.resource %}
                             {% include 'entity/summary--' + entity.plugin().id + '.html.j2' ignore missing %}
                             {% include 'entity/details--' + entity.plugin().id + '.html.j2' ignore missing %}
                         {% endwith %}
                     {% endif %}
                 {% endblock %}
             </div>
-            {% if resource.resource is has_file_references %}
-                {% set page_image_reference = resource.resource.file_references | selectattr('file', 'public') | selectattr('file.media_type', 'image_supported_media_type') | first %}
+            {% if document.resource is has_file_references %}
+                {% set page_image_reference = document.resource.file_references | selectattr('file', 'public') | selectattr('file.media_type', 'image_supported_media_type') | first %}
                 {% if page_image_reference is defined %}
                     <div class="align-items-center col-12 col-sm-3 d-flex justify-content-center">
                         <a href="{{ page_image_reference.file | url }}" class="image-link page-intro-image-link rounded-circle">

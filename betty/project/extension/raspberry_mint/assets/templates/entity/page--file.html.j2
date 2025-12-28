@@ -1,20 +1,20 @@
 {% extends 'entity/page.html.j2' %}
-{% set page_title = resource.resource.label | localize %}
+{% set page_title = document.resource.label | localize %}
 {% block page_content %}
-    {% with file = resource.resource %}
+    {% with file = document.resource %}
         {% include 'component/media.html.j2' %}
     {% endwith %}
 
-    {% with notes = resource.resource.notes %}
+    {% with notes = document.resource.notes %}
         {% include 'section/notes.html.j2' %}
     {% endwith %}
 
-    {% with file_references = resource.resource.referees %}
+    {% with file_references = document.resource.referees %}
         {% include 'entity/appearances.html.j2' %}
     {% endwith %}
 
     {# These are the citations for the file itself. #}
-    {% set citations = resource.resource.citations | select('public') | list %}
+    {% set citations = document.resource.citations | select('public') | list %}
     {% if citations | length  > 0 %}
         <div class="container my-5">
             <div class="row">

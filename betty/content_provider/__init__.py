@@ -13,7 +13,7 @@ from betty.plugin.discovery.entry_point import EntryPointDiscovery
 from betty.plugin.human_facing import HumanFacingPluginDefinition
 
 if TYPE_CHECKING:
-    from betty.resource import Context
+    from betty.document import Document
 
 
 class ContentProvider(ABC, Plugin["ContentProviderDefinition"]):
@@ -22,7 +22,7 @@ class ContentProvider(ABC, Plugin["ContentProviderDefinition"]):
     """
 
     @abstractmethod
-    async def provide(self, *, resource: Context) -> str | None:
+    async def provide(self, *, document: Document) -> str | None:
         """
         Render the content.
         """

@@ -19,9 +19,9 @@ from aiofiles.os import makedirs
 
 from betty import _npm
 from betty.dirs import ROOT_DIRECTORY_PATH
+from betty.document import Document
 from betty.hashid import hashid, hashid_file_content, hashid_sequence
 from betty.project.extension import Extension
-from betty.resource import Context as ResourceContext
 from betty.serde.dump import Dump, DumpMapping
 
 if TYPE_CHECKING:
@@ -184,7 +184,7 @@ class Builder:
             / _package_name_to_path(cast(str, package_json["name"]))
         )
         copy_function = self._jinja2_environment.make_copy_function(
-            resource=ResourceContext(job_context=self._job_context)
+            document=Document(job_context=self._job_context)
         )
         copies = []
         for directory_path, _, file_names in walk(entry_point_directory_path):

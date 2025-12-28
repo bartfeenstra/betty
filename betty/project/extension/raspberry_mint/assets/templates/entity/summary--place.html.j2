@@ -1,5 +1,5 @@
 {%- set embedded = embedded | default(False) -%}
-{%- set place_context = resource.entity_contexts['place'] -%}
+{%- set place_context = document.entity_contexts['place'] -%}
 <div class="small">
     {%- if entity.place_type.plugin().id != 'unknown' -%}
         <p class="m-0">{{ entity.place_type.plugin().label | localize | html_lang }}</p>

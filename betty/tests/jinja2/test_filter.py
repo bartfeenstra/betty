@@ -17,6 +17,7 @@ from betty.ancestry.file_reference import FileReference
 from betty.content_provider.content_providers import Render, RenderConfiguration
 from betty.date import Date, DateLike, DateRange
 from betty.dirs import ASSETS_DIRECTORY_PATH
+from betty.document import Document
 from betty.job import Context as JobContext
 from betty.locale import HasLocale, HasLocaleStr
 from betty.locale.localizable.plain import Plain
@@ -24,7 +25,6 @@ from betty.locale.localize import Localizer
 from betty.media_type import MediaType
 from betty.media_type.media_types import SVG
 from betty.plugin.config import PluginInstanceConfiguration
-from betty.resource import Context as ResourceContext
 from betty.test_utils.ancestry.date import DummyHasDate
 from betty.test_utils.jinja2 import assert_template_string
 from betty.test_utils.model import DummyEntityOne
@@ -489,9 +489,7 @@ async def test_filter_select_has_locales(
         template=template,
         data={
             "data": data,
-            "resource": ResourceContext(
-                localizer=Localizer(locale, NullTranslations())
-            ),
+            "document": Document(localizer=Localizer(locale, NullTranslations())),
         },
     ) as (actual, _):
         assert actual == expected
@@ -505,9 +503,7 @@ async def test_filter_select_has_locales__include_unspecified() -> None:
         template=template,
         data={
             "data": data,
-            "resource": ResourceContext(
-                localizer=Localizer("en-US", NullTranslations())
-            ),
+            "document": Document(localizer=Localizer("en-US", NullTranslations())),
         },
     ) as (actual, _):
         assert actual == "None"
@@ -621,7 +617,7 @@ async def test_filter_html_lang(
         template=template,
         data={
             "has_locale": has_locale,
-            "resource": ResourceContext(
+            "document": Document(
                 localizer=Localizer(localizer_locale, NullTranslations())
             ),
         },
@@ -782,7 +778,7 @@ async def test_filter_negotiate_has_locales() -> None:
         template=template,
         data={
             "data": has_locales,
-            "resource": ResourceContext(localizer=Localizer("nl", NullTranslations())),
+            "document": Document(localizer=Localizer("nl", NullTranslations())),
         },
     ) as (actual, _):
         assert actual == "nl"

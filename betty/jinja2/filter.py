@@ -521,7 +521,7 @@ async def filter_provide_content(
     """
     Provide content from content provider configuration.
     """
-    from betty.jinja2 import context_project, context_resource_context
+    from betty.jinja2 import context_document, context_project
 
     project = context_project(context)
     content_provider_repository = await project.plugins(ContentProviderDefinition)
@@ -537,7 +537,7 @@ async def filter_provide_content(
                             content_provider_configuration.configuration,
                         )
                     )
-                ).provide(resource=context_resource_context(context))
+                ).provide(document=context_document(context))
                 or ""
                 for content_provider_configuration in content_provider_configurations
             ]

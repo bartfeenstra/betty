@@ -15,7 +15,7 @@ async def test_minimal(isolated_app: App) -> None:
             project,
             assert_template_file(
                 data={
-                    "resource": await project.new_resource_context(),
+                    "document": await project.new_document(),
                     "places": [],
                 },
                 extensions={RaspberryMint, Maps},
@@ -33,7 +33,7 @@ async def test_with_places(isolated_app: App) -> None:
             project,
             assert_template_file(
                 data={
-                    "resource": await project.new_resource_context(),
+                    "document": await project.new_document(),
                     "places": [place],
                 },
                 extensions={RaspberryMint, Maps},

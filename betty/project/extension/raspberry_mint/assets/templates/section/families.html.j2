@@ -1,5 +1,5 @@
 {% set families %}
-    {% with person = resource.resource %}
+    {% with person = document.resource %}
         {% include 'component/families.html.j2' %}
     {% endwith %}
 {% endset %}
@@ -17,7 +17,7 @@
         </section>
     </div>
 
-    {% with person = resource.resource %}
+    {% with person = document.resource %}
         {% include 'section/tree.html.j2' %}
     {% endwith %}
 {%- endif -%}
