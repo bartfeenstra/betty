@@ -19,3 +19,45 @@
         </div>
     </div>
 {% endif %}
+
+<div class="file-usage py-2">
+    <div class="container">
+        <div class="row">
+            <div class="col">
+                <a href="{{ file | file | url }}" class="file-view-original">{% trans %}View original{% endtrans %}</a>
+            </div>
+        </div>
+        {% if file.copyright_notice is not none or file.license is not none %}
+            <div class="row mt-2">
+                {% if file.copyright_notice is not none %}
+                    <div class="col col-12 col-lg-6">
+                        <h2>{% trans %}Copyright{% endtrans %}</h2>
+                        <p>
+                            {% if file.copyright_notice.url is not none %}
+                                <a href="{{ file.copyright_notice.url | localize }}">
+                            {% endif %}
+                            {{ file.copyright_notice.summary | localize | html_lang }}
+                            {% if file.copyright_notice.url is not none %}
+                                </a>
+                            {% endif %}
+                        </p>
+                    </div>
+                {% endif %}
+                {% if file.license is not none %}
+                    <div class="col col-12 col-lg-6">
+                        <h2>{% trans %}License{% endtrans %}</h2>
+                        <p>
+                            {% if file.license.url is not none %}
+                                <a href="{{ file.license.url | localize }}">
+                            {% endif %}
+                            {{ file.license.summary | localize | html_lang }}
+                            {% if file.license.url is not none %}
+                                </a>
+                            {% endif %}
+                        </p>
+                    </div>
+                {% endif %}
+            </div>
+        {% endif %}
+    </div>
+</div>

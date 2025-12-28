@@ -1,69 +1,9 @@
 {% extends 'entity/page.html.j2' %}
 {% set page_title = resource.resource.label | localize %}
 {% block page_content %}
-    {% if resource.resource.media_type and (resource.resource.media_type.type == 'image' or resource.resource.media_type | str == 'application/pdf') %}
-        <div class="py-2" data-bs-theme="dark">
-            <div class="container">
-                <div class="row justify-content-center">
-                    <div class="col">
-                        <figure>
-                            <a href="{{ resource.resource | file | url }}" class="image-link">
-                                <picture>
-                                    {% for size, breakpoint in [(1300, 900), (900, 500)] %}
-                                        <source srcset="{{ resource.resource | image_resize_cover((size, size)) | url }}" media="(min-width: {{ breakpoint }}px)">
-                                    {% endfor %}
-                                    <img src="{{ resource.resource | image_resize_cover((500, 500)) | url }}" alt="{{ resource.resource.label | localize }}" class="image">
-                                </picture>
-                            </a>
-                            <figcaption class="mt-1">{{ resource.resource.label | localize }}</figcaption>
-                        </figure>
-                    </div>
-                </div>
-            </div>
-        </div>
-    {% endif %}
-
-    <div class="file-usage py-2">
-        <div class="container">
-            <div class="row">
-                <div class="col">
-                    <a href="{{ resource.resource | file | url }}" class="file-view-original">{% trans %}View original{% endtrans %}</a>
-                </div>
-            </div>
-            {% if resource.resource.copyright_notice is not none or resource.resource.license is not none %}
-                <div class="row mt-2">
-                    {% if resource.resource.copyright_notice is not none %}
-                        <div class="col col-12 col-lg-6">
-                            <h2>{% trans %}Copyright{% endtrans %}</h2>
-                            <p>
-                                {% if resource.resource.copyright_notice.url is not none %}
-                                    <a href="{{ resource.resource.copyright_notice.url | localize }}">
-                                {% endif %}
-                                {{ resource.resource.copyright_notice.summary | localize | html_lang }}
-                                {% if resource.resource.copyright_notice.url is not none %}
-                                    </a>
-                                {% endif %}
-                            </p>
-                        </div>
-                    {% endif %}
-                    {% if resource.resource.license is not none %}
-                        <div class="col col-12 col-lg-6">
-                            <h2>{% trans %}License{% endtrans %}</h2>
-                            <p>
-                                {% if resource.resource.license.url is not none %}
-                                    <a href="{{ resource.resource.license.url | localize }}">
-                                {% endif %}
-                                {{ resource.resource.license.summary | localize | html_lang }}
-                                {% if resource.resource.license.url is not none %}
-                                    </a>
-                                {% endif %}
-                            </p>
-                        </div>
-                    {% endif %}
-                </div>
-            {% endif %}
-        </div>
-    </div>
+    {% with file = resource.resource %}
+        {% include 'component/media.html.j2' %}
+    {% endwith %}
 
     {% with notes = resource.resource.notes %}
         {% include 'section/notes.html.j2' %}
