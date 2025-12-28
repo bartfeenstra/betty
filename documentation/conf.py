@@ -3,28 +3,10 @@ Provide Sphinx configuration.
 """
 
 import sys
-from asyncio import run
 from pathlib import Path
 
 import betty.dirs
-from betty.asset import StaticAssetRepository
-from betty.cache.file import BinaryFileCache
-from betty.dirs import ASSETS_DIRECTORY_PATH, CACHE_DIRECTORY_PATH
-from betty.locale import to_language_tag
-from betty.locale.localize import LocalizerRepository
-from betty.locale.translation import AssetTranslationRepository
-
-betty_replacements: dict[str, str] = {}
-
-assets = StaticAssetRepository(betty.dirs.ASSETS_DIRECTORY_PATH)
-translations = AssetTranslationRepository(assets, BinaryFileCache(CACHE_DIRECTORY_PATH))
-run(translations.bootstrap())
-localizers = LocalizerRepository(translations)
-for locale in translations.locales:
-    coverage = run(translations.coverage(locale))
-    betty_replacements[f"translation-coverage-{to_language_tag(locale)}"] = str(
-        int(round(100 / (coverage[1] / coverage[0]) if coverage[0] else 0))
-    )
+from betty.dirs import ASSETS_DIRECTORY_PATH
 
 sys.path.insert(0, str(Path(betty.__file__).parent.parent))
 project = "Betty"
@@ -49,13 +31,11 @@ html_context = {
     "github_repo": "betty",
     "github_version": "0.5.x",
     "conf_py_path": "/documentation/",
-    "betty_replacements": betty_replacements,
 }
 html_theme = "furo"
 highlight_language = "none"
 templates_path = ["_templates"]
 extensions = [
-    "betty.sphinx.extension.replacements",
     "sphinx.ext.autodoc",
     "sphinx.ext.autosectionlabel",
     "sphinx.ext.intersphinx",
