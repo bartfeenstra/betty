@@ -1,7 +1,7 @@
-{% if resource.resource is entity_plugin('citation') %}
-    {% set facts = resource.resource.facts %}
-{% elif resource.resource is entity_plugin('source') %}
-    {% set sources = [resource.resource] + resource.resource.walk_contains | select('public') | list %}
+{% if document.resource is entity_plugin('citation') %}
+    {% set facts = document.resource.facts %}
+{% elif document.resource is entity_plugin('source') %}
+    {% set sources = [document.resource] + document.resource.walk_contains | select('public') | list %}
     {% set facts = sources | map(attribute='citations') | flatten | map(attribute='facts') | flatten | unique %}
 {% endif %}
 {% if facts is defined %}

@@ -9,10 +9,10 @@ from typing_extensions import override
 
 from betty.content_provider import ContentProviderDefinition
 from betty.content_provider.content_providers import Template
+from betty.document import Document
 from betty.locale.localizable.gettext import _
 from betty.project.extension.maps import Maps
 from betty.requirement import HasRequirement, Requirement
-from betty.resource import Context as ResourceContext
 from betty.service.level import ServiceLevel
 
 
@@ -23,9 +23,9 @@ class Map(Template, HasRequirement):
     """
 
     @override
-    async def _provide_data(self, resource: ResourceContext) -> Mapping[str, Any]:
+    async def _provide_data(self, document: Document) -> Mapping[str, Any]:
         return {
-            "entity": resource.resource,
+            "entity": document.resource,
         }
 
     @override

@@ -22,6 +22,7 @@ from betty.app.factory import AppTarget
 from betty.asset import AssetRepository, ProxyAssetRepository, StaticAssetRepository
 from betty.config import Configurable
 from betty.copyright_notice import CopyrightNotice, CopyrightNoticeDefinition
+from betty.document import Document, DocumentProvider
 from betty.hashid import hashid
 from betty.job import Context as JobContext
 from betty.license import LicenseDefinition
@@ -48,8 +49,6 @@ from betty.project.factory import ProjectDependentFactory, ProjectDependentSelfF
 from betty.project.url import new_project_url_generator
 from betty.render import RenderDispatcher, RendererDefinition
 from betty.requirement import Requirement, StaticRequirement
-from betty.resource import Context, ContextProvider
-from betty.resource import Context as ResourceContext
 from betty.serde.format import FormatDefinition, format_for
 from betty.service.container import ServiceContainer, service
 from betty.typing import internal
@@ -465,24 +464,24 @@ class Project(
         """
         return Privatizer(self.configuration.lifetime_threshold, user=self.app.user)
 
-    async def new_resource_context(
+    async def new_document(
         self,
         resource: object = None,
         resource_url: object = None,
         **kwargs: object,
-    ) -> ResourceContext:
+    ) -> Document:
         """
-        Create new resource context variables.
+        Create a new document.
         """
         extensions = await self.extensions
-        return Context(
+        return Document(
             resource,
             resource_url,
             **{
                 key: value
                 for extension in extensions.flatten()
-                if isinstance(extension, ContextProvider)
-                for (key, value) in extension.new_resource_context().items()
+                if isinstance(extension, DocumentProvider)
+                for (key, value) in extension.new_document_vars().items()
             },
             **kwargs,  # type: ignore[arg-type]
         )

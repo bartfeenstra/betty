@@ -58,7 +58,7 @@ class TestWebpack(ExtensionTestBase):
                 ) as f:
                     assert await f.read() == self._SENTINEL
 
-    async def test_new_resource_context(self, isolated_app: App) -> None:
+    async def test_new_document_vars(self, isolated_app: App) -> None:
         async with Project.new_isolated(isolated_app) as project, project:
             sut = await Webpack.new_for_project(project)
-            assert sut.new_resource_context()
+            assert sut.new_document_vars()

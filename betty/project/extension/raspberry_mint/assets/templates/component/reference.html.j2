@@ -1,5 +1,5 @@
 {%- set ns = namespace(numbered_citations = []) -%}
 {%- for citation in citations -%}
-    {% set ns.numbered_citations = ns.numbered_citations + [(resource.citer.cite(citation), reference)] %}
+    {% set ns.numbered_citations = ns.numbered_citations + [(document.citer.cite(citation), reference)] %}
 {%- endfor -%}
 {%- for number, citation in ns.numbered_citations | sort(attribute=0) %} <sup><a href="#reference-{{ number }}">[{{ number }}]</a></sup>{%- endfor -%}

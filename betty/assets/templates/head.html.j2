@@ -9,9 +9,9 @@
 <meta name="og:site_name" content="{{ project.configuration.title | localize }}">
 <meta name="twitter:title" content="{{ page_title | default(project.configuration.title | localize) | striptags }}">
 <meta name="twitter:card" content="summary_large_image">
-{% if resource.resource %}
-    {% if resource.resource is has_file_references %}
-        {% set page_image_reference = resource.resource.file_references | selectattr('file', 'public') | selectattr('file.media_type', 'image_supported_media_type') | first %}
+{% if document.resource %}
+    {% if document.resource is has_file_references %}
+        {% set page_image_reference = document.resource.file_references | selectattr('file', 'public') | selectattr('file.media_type', 'image_supported_media_type') | first %}
         {% if page_image_reference is defined %}
             {% set page_image = page_image_reference.file %}
             {% set page_image_url = ('betty-static://' ~ page_image_reference | image_resize_cover((500, 500))) | url(absolute=true) %}
@@ -24,15 +24,15 @@
             {% endif %}
         {% endif %}
     {% endif %}
-    {% if resource.resource_url %}
-        <link rel="canonical" href="{{ resource.resource_url | url(absolute=true) }}" hreflang="{{ resource.localizer.locale | to_language_tag }}" type="text/html">
+    {% if document.resource_url %}
+        <link rel="canonical" href="{{ document.resource_url | url(absolute=true) }}" hreflang="{{ document.localizer.locale | to_language_tag }}" type="text/html">
         {% for locale in project.configuration.locales %}
-            {% if locale != resource.localizer.locale %}
-                <link rel="alternate" href="{{ resource.resource_url | url(locale=locale) }}" hreflang="{{ locale | to_language_tag }}" type="text/html">
+            {% if locale != document.localizer.locale %}
+                <link rel="alternate" href="{{ document.resource_url | url(locale=locale) }}" hreflang="{{ locale | to_language_tag }}" type="text/html">
             {% endif %}
         {% endfor %}
-        {% if resource.resource is entity_plugin and resource.resource is persistent_entity_id %}
-            <link rel="alternate" href="{{ resource.resource_url | url(media_type='application/json') }}" hreflang="und" type="application/json">
+        {% if document.resource is entity_plugin and document.resource is persistent_entity_id %}
+            <link rel="alternate" href="{{ document.resource_url | url(media_type='application/json') }}" hreflang="und" type="application/json">
         {% endif %}
     {% endif %}
 {% endif %}

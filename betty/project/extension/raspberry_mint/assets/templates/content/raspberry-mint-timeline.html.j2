@@ -1,9 +1,9 @@
-{% if resource.resource is entity_plugin('person') %}
-    {% set events = resource.resource | person_timeline_events %}
-{% elif resource.resource is entity_plugin('place') %}
-    {% set enclosees = resource.resource.walk_enclosees | map(attribute='enclosee') %}
+{% if document.resource is entity_plugin('person') %}
+    {% set events = document.resource | person_timeline_events %}
+{% elif document.resource is entity_plugin('place') %}
+    {% set enclosees = document.resource.walk_enclosees | map(attribute='enclosee') %}
     {% set ns = namespace(events = []) %}
-    {% do ns.events.extend(resource.resource.events) %}
+    {% do ns.events.extend(document.resource.events) %}
     {% for enclosee in enclosees %}
         {% do ns.events.extend(enclosee.events) %}
     {% endfor %}

@@ -2,7 +2,7 @@
 {% block page_content %}
     {% include 'section/wikipedia.html.j2' %}
 
-    {% with places = resource.resource.presences | select('public') | selectattr('event', 'public') | map(attribute='event.place') | reject('none') | unique | list %}
+    {% with places = document.resource.presences | select('public') | selectattr('event', 'public') | map(attribute='event.place') | reject('none') | unique | list %}
         {% include 'section/map.html.j2' %}
     {% endwith %}
 
@@ -10,11 +10,11 @@
 
     {% include 'section/families.html.j2' %}
 
-    {% with events = resource.resource | person_timeline_events %}
+    {% with events = document.resource | person_timeline_events %}
         {% include 'section/timeline.html.j2' %}
     {% endwith %}
 
-    {% with file_references = resource.resource | associated_file_references %}
+    {% with file_references = document.resource | associated_file_references %}
         {% include 'section/media.html.j2' %}
     {% endwith %}
 {% endblock %}

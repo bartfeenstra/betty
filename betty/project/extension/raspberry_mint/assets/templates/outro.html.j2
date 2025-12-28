@@ -1,4 +1,4 @@
-{% if resource.citer | length %}
+{% if document.citer | length %}
     <div class="background-embellished mt-5 py-5" data-bs-theme="light-secondary">
         <div class="container">
             <section id="references" class="section">
@@ -9,7 +9,7 @@
                     {% endwith %}
                 </h2>
                 <ol>
-                    {% for number, entity in resource.citer %}
+                    {% for number, entity in document.citer %}
                         <li id="reference-{{ number }}" class="reference">
                             {% include 'entity/label--citation.html.j2' %}
                         </li>

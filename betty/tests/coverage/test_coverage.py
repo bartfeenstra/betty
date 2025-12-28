@@ -236,7 +236,7 @@ _BASELINE: Mapping[str, _ModuleIgnore] = {
         "context_job_context": MissingReason.SHOULD_BE_COVERED,
         "context_localizer": MissingReason.SHOULD_BE_COVERED,
         "context_project": MissingReason.SHOULD_BE_COVERED,
-        "context_resource_context": MissingReason.SHOULD_BE_COVERED,
+        "context_document": MissingReason.SHOULD_BE_COVERED,
         "Environment": {},
     },
     "betty/jinja2/filter.py": {
@@ -494,8 +494,8 @@ _BASELINE: Mapping[str, _ModuleIgnore] = {
             "summary": MissingReason.ABSTRACT,
         },
     },
-    "betty/resource.py": {
-        "ContextProvider": MissingReason.STATIC_CONTENT_ONLY,
+    "betty/document.py": {
+        "DocumentProvider": MissingReason.STATIC_CONTENT_ONLY,
     },
     "betty/rich/user.py": {
         "RichUser": {

@@ -1,25 +1,25 @@
 {% extends 'entity/page.html.j2' %}
 {% block page_content %}
-    {% if resource.resource.description %}
+    {% if document.resource.description %}
         <div class="container my-5">
             <div class="row">
                 <div class="col col-12 col-lg-8">
                     <p>
-                        {{ resource.resource.description | localize | html_lang }}
+                        {{ document.resource.description | localize | html_lang }}
                     </p>
                 </div>
             </div>
         </div>
     {% endif %}
 
-    {% if resource.resource.place is not none %}
-        {% with places = [resource.resource.place] %}
+    {% if document.resource.place is not none %}
+        {% with places = [document.resource.place] %}
             {% include 'section/map.html.j2' %}
         {% endwith %}
     {% endif %}
 
     {% set ns = namespace(subjects = [], witnesses = [], other_attendees = []) %}
-    {% for presence in resource.resource.presences | select('public') %}
+    {% for presence in document.resource.presences | select('public') %}
         {% if presence.role is presence_role_plugin('subject') %}
             {% set ns.subjects = ns.subjects + [presence.person] %}
         {% endif %}
@@ -44,7 +44,7 @@
         </div>
     {% endif %}
 
-    {% for presence in resource.resource.presences | select('public') %}
+    {% for presence in document.resource.presences | select('public') %}
         {% if presence.role is presence_role_plugin('witness') %}
             {% set ns.witnesses = ns.witnesses + [presence.person] %}
         {% endif %}
@@ -69,7 +69,7 @@
         </div>
     {% endif %}
 
-    {% for presence in resource.resource.presences | select('public') %}
+    {% for presence in document.resource.presences | select('public') %}
         {% if not presence.role is presence_role_plugin('subject') and not presence.role is presence_role_plugin('witness') %}
             {% set ns.other_attendees = ns.other_attendees + [presence.person] %}
         {% endif %}
@@ -94,7 +94,7 @@
         </div>
     {% endif %}
 
-    {% with file_references = resource.resource | associated_file_references %}
+    {% with file_references = document.resource | associated_file_references %}
         {% include 'section/media.html.j2' %}
     {% endwith %}
 {% endblock %}

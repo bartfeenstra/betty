@@ -6,11 +6,11 @@ from betty.ancestry.person import Person
 from betty.ancestry.place import Place
 from betty.app import App
 from betty.content_provider import ContentProvider
+from betty.document import Document
 from betty.model import Entity
 from betty.project import Project
 from betty.project.extension.trees import Trees
 from betty.project.extension.trees.content_provider import Tree
-from betty.resource import Context
 from betty.test_utils.content_provider import ContentProviderTestBase
 
 
@@ -26,7 +26,7 @@ class TestTree(ContentProviderTestBase):
             project.configuration.extensions.enable(Trees)
             async with project:
                 sut = await Tree.new_for_project(project)
-                assert await sut.provide(resource=Context()) is None
+                assert await sut.provide(document=Document()) is None
 
     @pytest.mark.parametrize(
         "resource",
@@ -44,9 +44,7 @@ class TestTree(ContentProviderTestBase):
                 project.ancestry.add(resource)
                 sut = await Tree.new_for_project(project)
                 assert (
-                    await sut.provide(
-                        resource=await project.new_resource_context(resource)
-                    )
+                    await sut.provide(document=await project.new_document(resource))
                     is None
                 )
 
@@ -60,9 +58,9 @@ class TestTree(ContentProviderTestBase):
             async with project:
                 project.ancestry.add(person)
                 sut = await Tree.new_for_project(project)
-                resource = await project.new_resource_context(person)
-                actual = await sut.provide(resource=resource)
+                document = await project.new_document(person)
+                actual = await sut.provide(document=document)
         assert actual is not None
         assert person.public_id in actual
-        assert "webpack_js_entry_points" in resource
-        assert "trees" in resource["webpack_js_entry_points"]  # type: ignore[operator]
+        assert "webpack_js_entry_points" in document
+        assert "trees" in document["webpack_js_entry_points"]  # type: ignore[operator]

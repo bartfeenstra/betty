@@ -1,5 +1,5 @@
-{% if resource.resource is entity_plugin('person') %}
-    {% with person = resource.resource %}
+{% if document.resource is entity_plugin('person') %}
+    {% with person = document.resource %}
         {% include 'trees/tree.html.j2' %}
     {% endwith %}
 {% endif %}

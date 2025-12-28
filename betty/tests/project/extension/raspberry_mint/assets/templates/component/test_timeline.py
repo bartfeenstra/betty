@@ -3,8 +3,8 @@ from betty.ancestry.person import Person
 from betty.ancestry.presence import Presence
 from betty.ancestry.presence_role.presence_roles import Attendee, Subject
 from betty.date import Date
+from betty.document import Document, EntityContexts
 from betty.project.extension.raspberry_mint import RaspberryMint
-from betty.resource import Context, EntityContexts
 from betty.test_utils.jinja2 import assert_template_file
 
 
@@ -79,7 +79,7 @@ async def test_with_subject_attendee() -> None:
     async with assert_template_file(
         data={
             "events": [event],
-            "resource": Context(entity_contexts=EntityContexts(person)),
+            "document": Document(entity_contexts=EntityContexts(person)),
         },
         extensions={RaspberryMint},
         template="component/timeline.html.j2",
@@ -95,7 +95,7 @@ async def test_with_other_attendee() -> None:
     async with assert_template_file(
         data={
             "events": [event],
-            "resource": Context(entity_contexts=EntityContexts(person)),
+            "document": Document(entity_contexts=EntityContexts(person)),
         },
         extensions={RaspberryMint},
         template="component/timeline.html.j2",

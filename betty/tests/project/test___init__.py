@@ -334,9 +334,9 @@ class TestProject:
         async with Project.new_isolated(isolated_app) as sut, sut:
             sut.privatizer  # noqa B018
 
-    async def test_new_resource_context(self, isolated_app: App) -> None:
+    async def test_new_document(self, isolated_app: App) -> None:
         async with Project.new_isolated(isolated_app) as sut, sut:
-            await sut.new_resource_context()
+            await sut.new_document()
 
     async def test_configuration_file_path(
         self, isolated_app: App, tmp_path: Path

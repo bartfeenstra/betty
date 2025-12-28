@@ -64,7 +64,7 @@ class GenerateStaticPublicAssets(Job[ProjectContext]):
         assets = await project.assets
         jinja2_environment = await project.jinja2_environment
         copy_function = jinja2_environment.make_copy_function(
-            resource=await project.new_resource_context(job_context=scheduler.context),
+            document=await project.new_document(job_context=scheduler.context),
             www_directory_path=project.www_directory_path,
             is_localized_and_multilingual=project.configuration.locales.multilingual,
         )
@@ -291,7 +291,7 @@ class GenerateLocalizedPublicAssets(Job[ProjectContext]):
         jinja2_environment = await project.jinja2_environment
         copy_functions = {
             locale: jinja2_environment.make_copy_function(
-                resource=await project.new_resource_context(
+                document=await project.new_document(
                     job_context=scheduler.context,
                     localizer=localizers.get(locale),
                 ),
@@ -578,7 +578,7 @@ class _GenerateEntityTypeHtml(Job[ProjectContext]):
             ]
         )
         rendered_html = await template.render_async(
-            resource=await project.new_resource_context(
+            document=await project.new_document(
                 self._entity_type,
                 self._entity_type,
                 job_context=context,
@@ -719,7 +719,7 @@ class _GenerateEntityHtml(Job[ProjectContext]):
                 "entity/page.html.j2",
             ]
         ).render_async(
-            resource=await project.new_resource_context(
+            document=await project.new_document(
                 entity,
                 entity,
                 job_context=context,

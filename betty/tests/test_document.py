@@ -7,18 +7,18 @@ import pytest
 
 from betty.ancestry.citation import Citation
 from betty.ancestry.source import Source
+from betty.document import (
+    Breadcrumb,
+    Breadcrumbs,
+    Citer,
+    Document,
+    EntityContexts,
+)
 from betty.job import Context as JobContext
 from betty.locale import DEFAULT_LOCALE
 from betty.locale.localizable.plain import Plain
 from betty.locale.localize import Localizer
 from betty.project import Project
-from betty.resource import (
-    Breadcrumb,
-    Breadcrumbs,
-    Citer,
-    Context,
-    EntityContexts,
-)
 from betty.test_utils.locale.localizable import DUMMY_LOCALIZABLE
 from betty.test_utils.model import DummyEntityOne
 
@@ -144,7 +144,7 @@ class TestEntityContexts:
         assert sut[DummyEntityOne] is b
 
 
-class TestContext:
+class TestDocument:
     VARS = {
         "resource": object(),
         "resource_url": object(),
@@ -161,52 +161,52 @@ class TestContext:
 
     def test_resource__from___init___(self) -> None:
         resource = "betty:///"
-        assert Context(resource).resource is resource
+        assert Document(resource).resource is resource
 
     def test_resource_url__from___init___(self) -> None:
         resource_url = "betty:///"
-        assert Context(None, resource_url).resource_url is resource_url
+        assert Document(None, resource_url).resource_url is resource_url
 
     def test_job_context__from___init___(self) -> None:
         job_context = JobContext()
-        assert Context(job_context=job_context).job_context is job_context
+        assert Document(job_context=job_context).job_context is job_context
 
     def test_breadcrumbs__from___init___(self) -> None:
         breadcrumbs = Breadcrumbs()
-        assert Context(breadcrumbs=breadcrumbs).breadcrumbs is breadcrumbs
+        assert Document(breadcrumbs=breadcrumbs).breadcrumbs is breadcrumbs
 
     def test_citer__from___init___(self) -> None:
         citer = Citer()
-        assert Context(citer=citer).citer is citer
+        assert Document(citer=citer).citer is citer
 
     def test_entity_contexts__from___init___(self) -> None:
         entity_contexts = EntityContexts()
         assert (
-            Context(entity_contexts=entity_contexts).entity_contexts is entity_contexts
+            Document(entity_contexts=entity_contexts).entity_contexts is entity_contexts
         )
 
     def test_localizer__from___init___(self) -> None:
         localizer = Localizer(DEFAULT_LOCALE, NullTranslations())
-        assert Context(localizer=localizer).localizer is localizer
+        assert Document(localizer=localizer).localizer is localizer
 
     def test_title__from___init___(self) -> None:
         title = DUMMY_LOCALIZABLE
-        assert Context(title=title).title is title
+        assert Document(title=title).title is title
 
     def test___getitem__(self) -> None:
         my_first_var = object()
-        sut = Context(my_first_var=my_first_var)
+        sut = Document(my_first_var=my_first_var)
         assert sut["my_first_var"] is my_first_var
 
     def test___setitem__(self) -> None:
         my_first_var = object()
-        sut = Context()
+        sut = Document()
         sut["my_first_var"] = my_first_var
         assert sut["my_first_var"] is my_first_var
 
     def test___contains__(self) -> None:
         my_first_var = object()
-        sut = Context(my_first_var=my_first_var)
+        sut = Document(my_first_var=my_first_var)
         assert "my_first_var" in sut
         assert "my_unknown_var" not in sut
 
@@ -272,24 +272,24 @@ class TestContext:
     )
     def test___eq__(self, expected: bool, sut_vars: Mapping[str, object]) -> None:
         assert (
-            Context(
+            Document(
                 **{  # type: ignore[arg-type]
                     **self.VARS,
                     **sut_vars,
                 }
             )
-            == Context(
+            == Document(
                 **self.VARS,  # type: ignore[arg-type]
             )
         ) is expected
 
     def test_copy__minimal(self) -> None:
-        context = Context()
+        context = Document()
         assert context.copy() == context
 
     def test_copy__vars(self) -> None:
         context_value = object()
-        context = Context(context_value=context_value)
+        context = Document(context_value=context_value)
         copied_context = context.copy()
         assert copied_context == context
         assert copied_context["context_value"] is context_value

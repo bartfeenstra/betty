@@ -5,11 +5,11 @@ from typing import TYPE_CHECKING
 import aiofiles
 
 from betty.ancestry.has_file_references import HasFileReferences
+from betty.document import Document
 from betty.jinja2 import Environment, Jinja2Provider
 from betty.job import Context as JobContext
 from betty.locale import DEFAULT_LOCALE_TAG
 from betty.project import Project
-from betty.resource import Context as ResourceContext
 from betty.test_utils import Counter
 
 if TYPE_CHECKING:
@@ -62,12 +62,12 @@ class TestEnvironment:
             sut = await Environment.new_for_project(project)
             source_file_path = tmp_path / "source.test.j2"
             async with aiofiles.open(source_file_path, "w") as f:
-                await f.write("{{ resource.resource }}\n{{ resource.resource_url }}")
+                await f.write("{{ document.resource }}\n{{ document.resource_url }}")
             www_directory_path = tmp_path / "www"
             destination_file_path = www_directory_path / "destination.test.j2"
             rendered_destination_file_path = www_directory_path / "destination.test"
             copy_function = sut.make_copy_function(
-                www_directory_path=www_directory_path, resource=ResourceContext()
+                www_directory_path=www_directory_path, document=Document()
             )
             await copy_function(source_file_path, destination_file_path)
             async with aiofiles.open(rendered_destination_file_path) as f:
@@ -83,12 +83,12 @@ class TestEnvironment:
             sut = await Environment.new_for_project(project)
             source_file_path = tmp_path / "source.test.j2"
             async with aiofiles.open(source_file_path, "w") as f:
-                await f.write("{{ resource.resource }}\n{{ resource.resource_url }}")
+                await f.write("{{ document.resource }}\n{{ document.resource_url }}")
             www_directory_path = tmp_path / "www"
             destination_file_path = www_directory_path / ".destination.test.j2"
             rendered_destination_file_path = www_directory_path / ".destination.test"
             copy_function = sut.make_copy_function(
-                www_directory_path=www_directory_path, resource=ResourceContext()
+                www_directory_path=www_directory_path, document=Document()
             )
             await copy_function(source_file_path, destination_file_path)
             async with aiofiles.open(rendered_destination_file_path) as f:
@@ -103,7 +103,7 @@ class TestEnvironment:
             sut = await Environment.new_for_project(project)
             source_file_path = tmp_path / "source.test.j2"
             async with aiofiles.open(source_file_path, "w") as f:
-                await f.write("{{ resource.resource }}\n{{ resource.resource_url }}")
+                await f.write("{{ document.resource }}\n{{ document.resource_url }}")
             www_directory_path = tmp_path / "www"
             destination_file_path = (
                 www_directory_path / DEFAULT_LOCALE_TAG / "destination.test.j2"
@@ -114,7 +114,7 @@ class TestEnvironment:
             copy_function = sut.make_copy_function(
                 www_directory_path=www_directory_path,
                 is_localized_and_multilingual=True,
-                resource=ResourceContext(),
+                document=Document(),
             )
             await copy_function(source_file_path, destination_file_path)
             async with aiofiles.open(rendered_destination_file_path) as f:
@@ -145,9 +145,9 @@ class Test_CacheTagExtension:
                 "{% cache 'my-first-cache-key' %}{% do count() %}{% endcache %}"
             )
             await template.render_async(
-                count=counter, resource=ResourceContext(job_context=job_context)
+                count=counter, document=Document(job_context=job_context)
             )
             await template.render_async(
-                count=counter, resource=ResourceContext(job_context=job_context)
+                count=counter, document=Document(job_context=job_context)
             )
         assert counter.count == 1

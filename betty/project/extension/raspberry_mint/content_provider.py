@@ -49,13 +49,13 @@ if TYPE_CHECKING:
         ContentProviderInstanceConfigurationSequence,
         ShorthandContentProviderInstanceConfigurationSequence,
     )
+    from betty.document import Document
     from betty.jinja2 import Environment
     from betty.locale.localizable import LocalizableLike
     from betty.model import Entity
     from betty.plugin.repository import PluginRepository
     from betty.plugin.resolve import ResolvableId
     from betty.project import Project
-    from betty.resource import Context
     from betty.serde.dump import Dump, DumpMapping
     from betty.service.level import ServiceLevel
     from betty.service.level.factory import AnyFactoryTarget
@@ -174,7 +174,7 @@ class Section(
         return CallbackProjectDependentFactory(_factory)
 
     @override
-    async def _provide_data(self, resource: Context) -> Mapping[str, Any]:
+    async def _provide_data(self, document: Document) -> Mapping[str, Any]:
         return {
             "section_name": self.configuration.name,
             "section_heading": self.configuration.heading,
@@ -236,7 +236,7 @@ class FeaturedEntities(
         return CallbackProjectDependentFactory(_factory)
 
     @override
-    async def _provide_data(self, resource: Context) -> Mapping[str, Any]:
+    async def _provide_data(self, document: Document) -> Mapping[str, Any]:
         entity_types = await self._project.plugins(EntityDefinition)
         entities: MutableSequence[Entity] = []
         for entity in self.configuration:
@@ -370,7 +370,7 @@ class ColorStyle(Template, ConfigurationDependentSelfFactory[ColorStyleConfigura
         return CallbackProjectDependentFactory(_factory)
 
     @override
-    async def _provide_data(self, resource: Context) -> Mapping[str, Any]:
+    async def _provide_data(self, document: Document) -> Mapping[str, Any]:
         return {
             "color_style": self.configuration.style.value,
             "color_style_content_provider_configurations": self.configuration.content,
@@ -509,7 +509,7 @@ class Presences(
         return CallbackProjectDependentFactory(_factory)
 
     @override
-    async def _provide_data(self, resource: Context) -> Mapping[str, Any]:
+    async def _provide_data(self, document: Document) -> Mapping[str, Any]:
         include: Collection[MachineName]
         if self.configuration.include is not None:
             include = self.configuration.include

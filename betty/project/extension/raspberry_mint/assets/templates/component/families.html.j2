@@ -88,7 +88,7 @@
                     <div class="col">
                         <div class="card">
                             <div class="card-body">
-                                {%- with entity = public_family_child, resource=copy_resource_context(entity_contexts=resource.entity_contexts(person)) -%}
+                                {%- with entity = public_family_child, document=copy_document_context(entity_contexts=document.entity_contexts(person)) -%}
                                     {%- include 'entity/label--person.html.j2' -%}
                                     {%- include 'entity/summary--person.html.j2' -%}
                                 {%- endwith -%}

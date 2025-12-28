@@ -1,5 +1,5 @@
-{% if resource.resource is has_notes %}
-    {% for note in resource.resource.notes | select('public') %}
+{% if document.resource is has_notes %}
+    {% for note in document.resource.notes | select('public') %}
         {% include 'note.html.j2' %}
     {% endfor %}
 {% endif %}

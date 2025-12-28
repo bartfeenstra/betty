@@ -1,6 +1,6 @@
-{% if resource.resource is entity_plugin('event') %}
+{% if document.resource is entity_plugin('event') %}
     {% set ns = namespace(people = []) %}
-    {% for presence in resource.resource.presences | select('public') %}
+    {% for presence in document.resource.presences | select('public') %}
         {% if presence.role is presence_role_plugin('subject') and presence.role.plugin().id in include %}
             {% set ns.people = ns.people + [presence.person] %}
         {% endif %}

@@ -41,12 +41,11 @@ if TYPE_CHECKING:
     from jinja2.parser import Parser
 
     from betty.asset import AssetRepository
+    from betty.document import Document
     from betty.job import Context as JobContext
     from betty.locale.localize import Localizer
     from betty.project import Project
     from betty.project.extension import Extension
-    from betty.resource import Context
-    from betty.resource import Context as ResourceContext
 
 
 CopyFunction: TypeAlias = Callable[[Path, Path], Awaitable[None]]
@@ -59,16 +58,16 @@ def context_project(context: Jinja2Context) -> Project:
     return cast(Environment, context.environment).project
 
 
-def context_resource_context(context: Jinja2Context) -> ResourceContext:
+def context_document(context: Jinja2Context) -> Document:
     """
-    Get the current resource context from the Jinja2 context.
+    Get the current document from the Jinja2 context.
     """
-    resource: ResourceContext = context.resolve_or_missing("resource")
-    if resource is missing:
+    document: Document = context.resolve_or_missing("document")
+    if document is missing:
         raise RuntimeError(
-            "No `resource` context variable exists in this Jinja2 template."
+            "No `document` context variable exists in this Jinja2 template."
         ) from None
-    return resource
+    return document
 
 
 def context_job_context(context: Jinja2Context) -> JobContext | None:
@@ -76,7 +75,7 @@ def context_job_context(context: Jinja2Context) -> JobContext | None:
     Get the current job context from the Jinja2 context.
     """
     try:
-        return context_resource_context(context).job_context
+        return context_document(context).job_context
     except (KeyError, RuntimeError):
         return None
 
@@ -86,7 +85,7 @@ def context_localizer(context: Jinja2Context) -> Localizer:
     Get the current localizer from the Jinja2 context.
     """
     try:
-        return context_resource_context(context).localizer
+        return context_document(context).localizer
     except KeyError:
         raise RuntimeError(
             "No `resource.localizer` context variable exists in this Jinja2 template."
@@ -277,7 +276,7 @@ class Environment(ProjectDependentSelfFactory, Jinja2Environment):
         self.globals["generate_html_id"] = generate_html_id
         self.globals["deprecate"] = deprecate
         self.globals["new_attributes"] = Attributes
-        self.globals["copy_resource_context"] = self._copy_resource_context
+        self.globals["copy_document_context"] = self._copy_document_context
 
     def _init_extensions(self) -> None:
         for extension in self._extensions:
@@ -287,17 +286,17 @@ class Environment(ProjectDependentSelfFactory, Jinja2Environment):
                 self.tests.update(extension.tests)
 
     @pass_context
-    def _copy_resource_context(
+    def _copy_document_context(
         self,
         context: Jinja2Context,
         **vars: Any,  # noqa A002
-    ) -> ResourceContext:
-        return context_resource_context(context).copy(**vars)
+    ) -> Document:
+        return context_document(context).copy(**vars)
 
     def make_copy_function(
         self,
         *,
-        resource: Context,
+        document: Document,
         www_directory_path: Path | None = None,
         is_localized_and_multilingual: bool | None = None,
     ) -> CopyFunction:
@@ -317,7 +316,7 @@ class Environment(ProjectDependentSelfFactory, Jinja2Environment):
                 destination_path.name[: -len(extension)]
             )
 
-            copy_resource_url = resource.resource_url
+            copy_resource_url = document.resource_url
 
             if www_directory_path:
                 try:
@@ -339,10 +338,10 @@ class Environment(ProjectDependentSelfFactory, Jinja2Environment):
                 content = await f.read()
 
             template = self.from_string(content)
-            copy_resource = resource.copy(
+            copy_document = document.copy(
                 resource=destination_path, resource_url=copy_resource_url
             )
-            rendered_content = await template.render_async(resource=copy_resource)
+            rendered_content = await template.render_async(document=copy_document)
             async with aiofiles.open(destination_path, "w") as f:
                 await f.write(rendered_content)
 

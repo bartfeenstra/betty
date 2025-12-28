@@ -16,9 +16,9 @@
                         {% else %}
                             {% set link_url -%}
                                 {% if link_number == 0 %}
-                                    {{ resource.resource_url | url }}
+                                    {{ document.resource_url | url }}
                                 {% else %}
-                                    {{ ('betty://' ~ resource.resource.id ~ '/page-' ~ (link_number + 1)) | url }}
+                                    {{ ('betty://' ~ document.resource.id ~ '/page-' ~ (link_number + 1)) | url }}
                                 {% endif %}
                             {%- endset %}
                             <a class="pager-link {{ link_class }}" href="{{ link_url }}" title="{{ link_label }}">{{ link_label }}</a>

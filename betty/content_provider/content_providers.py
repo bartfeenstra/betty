@@ -29,10 +29,10 @@ from betty.typing import private
 if TYPE_CHECKING:
     from collections.abc import Mapping
 
+    from betty.document import Document
     from betty.jinja2 import Environment
     from betty.locale.localizable import LocalizableLike
     from betty.render import RenderDispatcher
-    from betty.resource import Context
     from betty.serde.dump import Dump
     from betty.service.level import ServiceLevel
     from betty.service.level.factory import AnyFactoryTarget
@@ -105,9 +105,9 @@ class Render(
         return CallbackProjectDependentFactory(_callback)
 
     @override
-    async def provide(self, *, resource: Context) -> str | None:
+    async def provide(self, *, document: Document) -> str | None:
         return await self._renderer.render(
-            self.configuration.content.localize(resource.localizer),
+            self.configuration.content.localize(document.localizer),
             self.configuration.media_type,
         )
 
@@ -128,21 +128,21 @@ class Template(ProjectDependentSelfFactory, ContentProvider):
         return cls(jinja2_environment=await project.jinja2_environment)
 
     @override
-    async def provide(self, *, resource: Context) -> str | None:
+    async def provide(self, *, document: Document) -> str | None:
         jinja2_environment = self._jinja2_environment
         rendered_content = (
             await jinja2_environment.get_template(
                 f"content/{self.plugin().id}.html.j2"
             ).render_async(
-                resource=resource,
-                **await self._provide_data(resource),
+                document=document,
+                **await self._provide_data(document),
             )
         ).strip()
         if rendered_content:
             return rendered_content
         return None
 
-    async def _provide_data(self, resource: Context) -> Mapping[str, Any]:
+    async def _provide_data(self, document: Document) -> Mapping[str, Any]:
         return {}
 
 

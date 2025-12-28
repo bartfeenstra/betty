@@ -227,7 +227,7 @@ class Index:
                 "search/result.html.j2",
             ]
         ).render_async(
-            resource=await self._project.new_resource_context(
+            document=await self._project.new_document(
                 job_context=self._job_context,
                 localizer=self._localizer,
             ),

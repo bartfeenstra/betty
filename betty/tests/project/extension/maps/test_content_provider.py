@@ -12,11 +12,11 @@ from betty.ancestry.presence import Presence
 from betty.ancestry.presence_role.presence_roles import Subject
 from betty.app import App
 from betty.content_provider import ContentProvider
+from betty.document import Document
 from betty.model import Entity
 from betty.project import Project
 from betty.project.extension.maps import Maps
 from betty.project.extension.maps.content_provider import Map
-from betty.resource import Context
 from betty.test_utils.content_provider import ContentProviderTestBase
 
 
@@ -32,7 +32,7 @@ class TestMap(ContentProviderTestBase):
             project.configuration.extensions.enable(Maps)
             async with project:
                 sut = await Map.new_for_project(project)
-                assert await sut.provide(resource=Context()) is None
+                assert await sut.provide(document=Document()) is None
 
     @pytest.mark.parametrize(
         "has_associated_places",
@@ -52,9 +52,7 @@ class TestMap(ContentProviderTestBase):
                 sut = await Map.new_for_project(project)
                 assert (
                     await sut.provide(
-                        resource=await project.new_resource_context(
-                            has_associated_places
-                        )
+                        document=await project.new_document(has_associated_places)
                     )
                     is None
                 )
@@ -86,9 +84,9 @@ class TestMap(ContentProviderTestBase):
             async with project:
                 project.ancestry.add(has_associated_places)
                 sut = await Map.new_for_project(project)
-                resource = await project.new_resource_context(has_associated_places)
-                actual = await sut.provide(resource=resource)
+                document = await project.new_document(has_associated_places)
+                actual = await sut.provide(document=document)
         assert actual is not None
         assert place.public_id in actual
-        assert "webpack_js_entry_points" in resource
-        assert "maps" in resource["webpack_js_entry_points"]  # type: ignore[operator]
+        assert "webpack_js_entry_points" in document
+        assert "maps" in document["webpack_js_entry_points"]  # type: ignore[operator]

@@ -1,4 +1,4 @@
-{% set notes = resource.resource.notes | select('public') | list %}
+{% set notes = document.resource.notes | select('public') | list %}
 {% if notes | length %}
     <div class="container my-5">
         <div class="row">

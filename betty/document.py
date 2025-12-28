@@ -1,7 +1,7 @@
 """
-Manage  resources.
+Manage documents.
 
-A resource is a singular file, such as an HTML page or a JSON file.
+A document is a singular file, such as an HTML page or a JSON file.
 """
 
 from __future__ import annotations
@@ -40,15 +40,13 @@ if TYPE_CHECKING:
     from betty.model import Entity
     from betty.project import Project
 
-ContextVars: TypeAlias = Mapping[str, Any]
+DocumentVars: TypeAlias = Mapping[str, Any]
 
 
 @final
-class Context:
+class Document:
     """
-    The context for a single resource.
-
-    The context describes the resource and manages its metadata and additional tools to work with the resource.
+    A document.
     """
 
     def __init__(
@@ -137,7 +135,7 @@ class Context:
         **vars: object,  # noqa A002
     ) -> Self:
         """
-        Create a copy of a context, with the given fields added.
+        Create a copy of this document, with the given fields added.
         """
         return type(self)(
             **{  # type: ignore[arg-type]
@@ -165,7 +163,7 @@ class Context:
 
     @override
     def __eq__(self, other: Any) -> bool:
-        if not isinstance(other, Context):
+        if not isinstance(other, Document):
             return NotImplemented
         return (
             self._resource == other._resource
@@ -180,14 +178,14 @@ class Context:
         )
 
 
-class ContextProvider:
+class DocumentProvider:
     """
-    Provide resource context.
+    Provide new documents.
     """
 
-    def new_resource_context(self) -> ContextVars:
+    def new_document_vars(self) -> DocumentVars:
         """
-        Create new variables for a new :py:class:`betty.resource.Context`.
+        Create new variables for a new :py:class:`betty.document.Document`.
 
         Keys are the variable names, and values are variable values.
         """
