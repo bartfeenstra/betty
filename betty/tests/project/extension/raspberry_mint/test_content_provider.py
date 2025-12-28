@@ -13,7 +13,8 @@ from betty.ancestry.link import Link
 from betty.ancestry.person import Person
 from betty.ancestry.place import Place
 from betty.ancestry.presence import Presence
-from betty.ancestry.presence_role.presence_roles import Subject
+from betty.ancestry.presence_role import PresenceRoleDefinition
+from betty.ancestry.presence_role.presence_roles import Subject, Witness
 from betty.ancestry.source import Source
 from betty.app import App
 from betty.config.factory import ConfigurationDependentSelfFactory
@@ -27,6 +28,7 @@ from betty.locale.localize import DEFAULT_LOCALIZER
 from betty.media_type import MediaType
 from betty.model.config import EntityReference, EntityReferenceSequence
 from betty.plugin.config import PluginInstanceConfiguration
+from betty.plugin.repository.static import StaticPluginRepository
 from betty.project import Project
 from betty.project.extension.raspberry_mint import ColorStyle as ColorStyleOption
 from betty.project.extension.raspberry_mint import RaspberryMint
@@ -39,6 +41,8 @@ from betty.project.extension.raspberry_mint.content_provider import (
     FeaturedEntities,
     Media,
     MediaGallery,
+    Presences,
+    PresencesConfiguration,
     Section,
     SectionConfiguration,
     Timeline,
@@ -53,6 +57,7 @@ if TYPE_CHECKING:
     from collections.abc import Sequence
 
     from betty.content_provider import ContentProviderDefinition
+    from betty.serde.dump import Dump
 
 
 class TestFeaturedEntities(
@@ -605,3 +610,153 @@ class TestFacts(ContentProviderTestBase):
                 actual = await sut.provide(resource=Context(resource))
         assert actual is not None
         assert fact.public_id in actual
+
+
+class TestPresencesConfiguration:
+    def test_include(self) -> None:
+        include = ["foo"]
+        sut = PresencesConfiguration(include=include)
+        assert sut.include is not None
+        assert list(sut.include) == include
+
+    def test_exclude(self) -> None:
+        exclude = ["foo"]
+        sut = PresencesConfiguration(exclude=exclude)
+        assert sut.exclude is not None
+        assert list(sut.exclude) == exclude
+
+    def test_load__with_include(self) -> None:
+        include: Dump = ["foo"]
+        sut = PresencesConfiguration.load(
+            {
+                "include": include,
+            }
+        )
+        assert sut.include is not None
+        assert list(sut.include) == include
+
+    def test_load__with_exclude(self) -> None:
+        exclude: Dump = ["foo"]
+        sut = PresencesConfiguration.load(
+            {
+                "exclude": exclude,
+            }
+        )
+        assert sut.exclude is not None
+        assert list(sut.exclude) == exclude
+
+    def test_dump__minimal(self) -> None:
+        sut = PresencesConfiguration()
+        assert sut.dump() == {}
+
+    def test_dump__with_include(self) -> None:
+        include = ["foo"]
+        sut = PresencesConfiguration(include=include)
+        assert sut.dump() == {
+            "include": include,
+        }
+
+    def test_dump__with_exclude(self) -> None:
+        exclude = ["foo"]
+        sut = PresencesConfiguration(exclude=exclude)
+        assert sut.dump() == {
+            "exclude": exclude,
+        }
+
+
+class TestPresences(ContentProviderTestBase):
+    @override
+    @pytest.fixture
+    async def sut(self, isolated_app: App) -> ContentProvider:
+        async with Project.new_isolated(isolated_app) as project, project:
+            return Presences(
+                jinja2_environment=await project.jinja2_environment,
+                presence_roles=StaticPluginRepository(PresenceRoleDefinition, Subject),
+            )
+
+    @pytest.mark.parametrize(
+        "resource",
+        [
+            None,
+            object(),
+            Person(),
+            Place(),
+            Event(),
+        ],
+    )
+    async def test_provide__without_presences(
+        self, resource: object, isolated_app: App
+    ) -> None:
+        async with Project.new_isolated(isolated_app) as project:
+            project.configuration.extensions.enable(RaspberryMint)
+            async with project:
+                sut = Presences(
+                    jinja2_environment=await project.jinja2_environment,
+                    presence_roles=StaticPluginRepository(
+                        PresenceRoleDefinition, Subject
+                    ),
+                )
+                assert await sut.provide(resource=Context(resource)) is None
+
+    async def test_provide__with_presences(self, isolated_app: App) -> None:
+        person = Person(id="P1")
+        resource = Event()
+        Presence(person, Subject(), resource)
+        async with Project.new_isolated(isolated_app) as project:
+            project.configuration.extensions.enable(RaspberryMint)
+            async with project:
+                sut = Presences(
+                    jinja2_environment=await project.jinja2_environment,
+                    presence_roles=StaticPluginRepository(
+                        PresenceRoleDefinition, Subject
+                    ),
+                )
+                actual = await sut.provide(resource=Context(resource))
+        assert actual is not None
+        assert person.public_id in actual
+
+    async def test_provide__with_presences_with_include(
+        self, isolated_app: App
+    ) -> None:
+        person_include = Person(id="P1")
+        person_exclude = Person(id="P2")
+        resource = Event()
+        Presence(person_include, Subject(), resource)
+        Presence(person_exclude, Witness(), resource)
+        async with Project.new_isolated(isolated_app) as project:
+            project.configuration.extensions.enable(RaspberryMint)
+            async with project:
+                sut = Presences(
+                    configuration=PresencesConfiguration(include=[Subject]),
+                    jinja2_environment=await project.jinja2_environment,
+                    presence_roles=StaticPluginRepository(
+                        PresenceRoleDefinition, Subject
+                    ),
+                )
+                actual = await sut.provide(resource=Context(resource))
+        assert actual is not None
+        assert person_include.public_id in actual
+        assert person_exclude.public_id not in actual
+
+    async def test_provide__with_presences_with_exclude(
+        self, isolated_app: App
+    ) -> None:
+        person_include = Person(id="P1")
+        person_exclude = Person(id="P2")
+        resource = Event()
+        Presence(person_include, Subject(), resource)
+        Presence(person_exclude, Witness(), resource)
+        async with Project.new_isolated(isolated_app) as project:
+            project.configuration.extensions.enable(RaspberryMint)
+            async with project:
+                sut = Presences(
+                    configuration=PresencesConfiguration(exclude=[Witness]),
+                    jinja2_environment=await project.jinja2_environment,
+                    presence_roles=StaticPluginRepository(
+                        PresenceRoleDefinition, Subject
+                    ),
+                )
+                actual = await sut.provide(resource=Context(resource))
+        assert actual is not None
+        assert person_include.public_id in actual
+        assert person_exclude.public_id not in actual

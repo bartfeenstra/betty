@@ -23,6 +23,8 @@ Built-in content providers
     Show a file entity as media.
 ``raspberry-mint-media-gallery`` (:py:class:`betty.project.extension.raspberry_mint.content_provider.MediaGallery`)
     Show a media gallery of a resource's associated files.
+``raspberry-mint-presences`` (:py:class:`betty.project.extension.raspberry_mint.content_provider.Presences`)
+    People's presences at an event.
 ``raspberry-mint-section`` (:py:class:`betty.project.extension.raspberry_mint.content_provider.Section`)
     Display other content in a section with a heading and a permanent link.
 ``raspberry-mint-timeline`` (:py:class:`betty.project.extension.raspberry_mint.content_provider.Timeline`)
