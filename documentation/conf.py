@@ -3,24 +3,10 @@ Provide Sphinx configuration.
 """
 
 import sys
-from asyncio import run
 from pathlib import Path
 
 import betty
-from betty import fs
-from betty.assets import AssetRepository
 from betty.fs import ASSETS_DIRECTORY_PATH
-from betty.locale.localizer import LocalizerRepository
-
-betty_replacements: dict[str, str] = {}
-
-assets = AssetRepository(fs.ASSETS_DIRECTORY_PATH)
-localizers = LocalizerRepository(assets)
-for locale in localizers.locales:
-    coverage = run(localizers.coverage(locale))
-    betty_replacements[f"translation-coverage-{locale}"] = str(
-        int(round(100 / (coverage[1] / coverage[0]) if coverage[0] else 0))
-    )
 
 sys.path.insert(0, str(Path(betty.__file__).parent.parent))
 project = "Betty"
@@ -46,13 +32,11 @@ html_context = {
     "github_repo": "betty",
     "github_version": "0.4.x",
     "conf_py_path": "/documentation/",
-    "betty_replacements": betty_replacements,
 }
 html_theme = "furo"
 highlight_language = "none"
 templates_path = ["_templates"]
 extensions = [
-    "betty.sphinx.extension.replacements",
     "sphinx.ext.autodoc",
     "sphinx.ext.autosectionlabel",
     "sphinx.ext.intersphinx",
