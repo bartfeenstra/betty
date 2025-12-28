@@ -11,6 +11,7 @@ from betty.ancestry.person import Person
 from betty.ancestry.place import Place
 from betty.ancestry.source import Source
 from betty.content_provider.content_providers import Render, RenderConfiguration
+from betty.locale import to_language_tag
 from betty.locale.localizable.gettext import _
 from betty.locale.localizable.markup import Chain
 from betty.media_type.media_types import HTML
@@ -48,6 +49,8 @@ async def create_project(app: App, project_directory_path: Path) -> Project:
     Create a new demonstration project.
     """
     from betty.project.extension.demo import Demo
+
+    translations = await app.translations
 
     configuration = ProjectConfiguration(
         name=Demo.plugin().id,
@@ -143,14 +146,8 @@ async def create_project(app: App, project_directory_path: Path) -> Project:
         ),
         locales=LocaleConfigurationMapping(
             [
-                LocaleConfiguration("en-US"),
-                LocaleConfiguration("de-DE"),
-                LocaleConfiguration("en-GB"),
-                LocaleConfiguration("fr-FR"),
-                LocaleConfiguration("nl-NL"),
-                LocaleConfiguration("pt-BR"),
-                LocaleConfiguration("ru-RU"),
-                LocaleConfiguration("uk"),
+                LocaleConfiguration(to_language_tag(locale))
+                for locale in translations.locales
             ]
         ),
     )
