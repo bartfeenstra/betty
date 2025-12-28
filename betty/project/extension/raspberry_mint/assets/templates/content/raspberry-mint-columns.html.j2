@@ -1,0 +1,10 @@
+<div class="container">
+    <div class="row{% if justify_content is not none %} justify-content-{{ justify_content }}{% endif %}">
+        {% for column_content in content %}
+            {% set column_index = loop.index0 %}
+            <div class="col{% for breakpoint in width %} col-{% if breakpoint != "xs" %}{{ breakpoint }}-{% endif %}{{ width[breakpoint][column_index] }}{% endfor %}">
+                {{ column_content | provide_content }}
+            </div>
+        {% endfor %}
+    </div>
+</div>

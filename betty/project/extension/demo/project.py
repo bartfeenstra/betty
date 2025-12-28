@@ -29,9 +29,15 @@ from betty.project.config import (
     LocaleConfigurationMapping,
     ProjectConfiguration,
 )
-from betty.project.extension.raspberry_mint import RaspberryMint
+from betty.project.extension.raspberry_mint import (
+    Breakpoint,
+    JustifyContent,
+    RaspberryMint,
+)
 from betty.project.extension.raspberry_mint.config import RaspberryMintConfiguration
 from betty.project.extension.raspberry_mint.content_provider import (
+    Columns,
+    ColumnsConfiguration,
     FeaturedEntities,
     Section,
     SectionConfiguration,
@@ -74,16 +80,26 @@ async def create_project(app: App, project_directory_path: Path) -> Project:
                                                 visually_hide_heading=True,
                                                 content=[
                                                     PluginInstanceConfiguration(
-                                                        Render,
-                                                        RenderConfiguration(
-                                                            Chain(
-                                                                "<p>",
-                                                                _(
-                                                                    "Betty was named after <a href=\"betty-entity://person/betty-demo-liberta-lankester\">Liberta 'Betty' Lankester</a>, and this website shows a small sample of her family history. You can browse the pages about her and some of her family to get an idea of what a Betty site looks like."
+                                                        Columns,
+                                                        ColumnsConfiguration(
+                                                            content=PluginInstanceConfiguration(
+                                                                Render,
+                                                                RenderConfiguration(
+                                                                    Chain(
+                                                                        "<p>",
+                                                                        _(
+                                                                            "Betty was named after <a href=\"betty-entity://person/betty-demo-liberta-lankester\">Liberta 'Betty' Lankester</a>, and this website shows a small sample of her family history. You can browse the pages about her and some of her family to get an idea of what a Betty site looks like."
+                                                                        ),
+                                                                        "</p>",
+                                                                    ),
+                                                                    HTML,
                                                                 ),
-                                                                "</p>",
                                                             ),
-                                                            HTML,
+                                                            width={
+                                                                Breakpoint.XS: 12,
+                                                                Breakpoint.LG: 8,
+                                                            },
+                                                            justify_content=JustifyContent.CENTER,
                                                         ),
                                                     ),
                                                 ],

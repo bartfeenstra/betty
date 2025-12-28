@@ -1,3 +1,4 @@
+from collections.abc import Mapping
 from pathlib import Path
 from typing import TYPE_CHECKING
 
@@ -27,15 +28,26 @@ from betty.exception import HumanFacingException
 from betty.locale.localizable.plain import Plain
 from betty.locale.localize import DEFAULT_LOCALIZER
 from betty.media_type import MediaType
+from betty.media_type.media_types import PLAIN_TEXT
 from betty.model.config import EntityReference, EntityReferenceSequence
-from betty.plugin.config import PluginInstanceConfiguration
+from betty.plugin.config import (
+    PluginInstanceConfiguration,
+    PluginInstanceConfigurationSequence,
+)
 from betty.plugin.repository.static import StaticPluginRepository
 from betty.project import Project
+from betty.project.extension.raspberry_mint import (
+    Breakpoint,
+    JustifyContent,
+    RaspberryMint,
+)
 from betty.project.extension.raspberry_mint import ColorStyle as ColorStyleOption
-from betty.project.extension.raspberry_mint import RaspberryMint
 from betty.project.extension.raspberry_mint.content_provider import (
     ColorStyle,
     ColorStyleConfiguration,
+    Columns,
+    ColumnsConfiguration,
+    ColumnsWidth,
     ExternalLinks,
     Facts,
     Families,
@@ -46,6 +58,7 @@ from betty.project.extension.raspberry_mint.content_provider import (
     PresencesConfiguration,
     Section,
     SectionConfiguration,
+    ShorthandColumnsWidth,
     Timeline,
 )
 from betty.test_utils.ancestry.has_citations import DummyHasCitations
@@ -760,3 +773,246 @@ class TestPresences(ContentProviderTestBase):
         assert actual is not None
         assert person_include.public_id in actual
         assert person_exclude.public_id not in actual
+
+
+class TestColumnsConfiguration:
+    def test_content__with_single_configuration(self) -> None:
+        content: PluginInstanceConfiguration[
+            ContentProviderDefinition, ContentProvider
+        ] = PluginInstanceConfiguration(Render, RenderConfiguration(DUMMY_LOCALIZABLE))
+        sut = ColumnsConfiguration(content=content)
+        assert list(sut.content) == [content]
+
+    def test_content__with_multiple_configurations(self) -> None:
+        content: PluginInstanceConfiguration[
+            ContentProviderDefinition, ContentProvider
+        ] = PluginInstanceConfiguration(Render, RenderConfiguration(DUMMY_LOCALIZABLE))
+        sut = ColumnsConfiguration(
+            content=PluginInstanceConfigurationSequence([content])
+        )
+        assert list(sut.content) == [content]
+
+    @pytest.mark.parametrize(
+        ("expected", "width"),
+        [
+            ({Breakpoint.XS: [7]}, 7),
+            ({Breakpoint.XS: [7]}, [7]),
+            ({Breakpoint.XS: [7]}, {Breakpoint.XS: 7}),
+            ({Breakpoint.XS: [7]}, {Breakpoint.XS: [7]}),
+        ],
+    )
+    def test_width(self, expected: ColumnsWidth, width: ShorthandColumnsWidth) -> None:
+        assert (
+            ColumnsConfiguration(
+                width=width,
+                content=PluginInstanceConfiguration(
+                    Render, RenderConfiguration(DUMMY_LOCALIZABLE)
+                ),
+            ).width
+            == expected
+        )
+
+    def test_justify_content(self) -> None:
+        justify_content = JustifyContent.CENTER
+        sut = ColumnsConfiguration(
+            content=PluginInstanceConfiguration(
+                Render, RenderConfiguration(DUMMY_LOCALIZABLE)
+            ),
+            justify_content=justify_content,
+        )
+        assert sut.justify_content == justify_content
+
+    def test_load__minimal(self) -> None:
+        justify_content = JustifyContent.CENTER
+        sut = ColumnsConfiguration.load(
+            {
+                "content": [
+                    {
+                        "id": "render",
+                        "configuration": {
+                            "content": "DUMMY_LOCALIZABLE",
+                            "media_type": str(PLAIN_TEXT),
+                        },
+                    }
+                ],
+                "justify_content": justify_content.value,
+            }
+        )
+        assert len(sut.content) == 1
+        assert sut.content[0].id == "render"
+        assert isinstance(sut.content[0].configuration, Mapping)
+        assert sut.content[0].configuration["content"] == "DUMMY_LOCALIZABLE"
+        assert sut.content[0].configuration["media_type"] == str(PLAIN_TEXT)
+
+    def test_load__with_width(self) -> None:
+        sut = ColumnsConfiguration.load(
+            {
+                "content": [
+                    {
+                        "id": "render",
+                        "configuration": {
+                            "content": "DUMMY_LOCALIZABLE",
+                            "media_type": str(PLAIN_TEXT),
+                        },
+                    }
+                ],
+                "width": {Breakpoint.XS.value: [1, 2, 3]},
+            }
+        )
+        assert sut.width == {Breakpoint.XS: [1, 2, 3]}
+
+    def test_load__with_justify_content(self) -> None:
+        justify_content = JustifyContent.CENTER
+        sut = ColumnsConfiguration.load(
+            {
+                "content": [
+                    {
+                        "id": "render",
+                        "configuration": {
+                            "content": "DUMMY_LOCALIZABLE",
+                            "media_type": str(PLAIN_TEXT),
+                        },
+                    }
+                ],
+                "justify_content": justify_content.value,
+            }
+        )
+        assert sut.justify_content == justify_content
+
+    def test_dump__minimal(self) -> None:
+        sut = ColumnsConfiguration(
+            content=PluginInstanceConfiguration(
+                Render, RenderConfiguration(DUMMY_LOCALIZABLE)
+            )
+        )
+        assert sut.dump() == {
+            "content": [
+                {
+                    "id": "render",
+                    "configuration": {
+                        "content": "DUMMY_LOCALIZABLE",
+                        "media_type": str(PLAIN_TEXT),
+                    },
+                },
+            ],
+            "width": {
+                "xs": [12],
+            },
+        }
+
+    def test_dump__with_justify_content(self) -> None:
+        justify_content = JustifyContent.CENTER
+        sut = ColumnsConfiguration(
+            content=PluginInstanceConfiguration(
+                Render, RenderConfiguration(DUMMY_LOCALIZABLE)
+            ),
+            justify_content=justify_content,
+        )
+        actual = sut.dump()
+        assert isinstance(actual, Mapping)
+        assert "justify_content" in actual
+        assert actual["justify_content"] == justify_content.value
+
+
+class TestColumns(ContentProviderTestBase):
+    @override
+    @pytest.fixture
+    async def sut(self, isolated_app: App) -> ContentProvider:
+        async with Project.new_isolated(isolated_app) as project, project:
+            return Columns(
+                configuration=ColumnsConfiguration(
+                    content=PluginInstanceConfiguration(
+                        Render, RenderConfiguration(DUMMY_LOCALIZABLE)
+                    )
+                ),
+                jinja2_environment=await project.jinja2_environment,
+            )
+
+    async def test_provide__minimal(self, isolated_app: App) -> None:
+        async with Project.new_isolated(isolated_app) as project:
+            project.configuration.extensions.enable(RaspberryMint)
+            async with project:
+                sut = Columns(
+                    configuration=ColumnsConfiguration(
+                        content=PluginInstanceConfiguration(
+                            Render, RenderConfiguration(DUMMY_LOCALIZABLE)
+                        )
+                    ),
+                    jinja2_environment=await project.jinja2_environment,
+                )
+                actual = await sut.provide(document=Document())
+        assert actual is not None
+        assert "col col-12" in actual
+
+    async def test_provide__single_column_multiple_breakpoints(
+        self, isolated_app: App
+    ) -> None:
+        async with Project.new_isolated(isolated_app) as project:
+            project.configuration.extensions.enable(RaspberryMint)
+            async with project:
+                sut = Columns(
+                    configuration=ColumnsConfiguration(
+                        content=PluginInstanceConfiguration(
+                            Render, RenderConfiguration(DUMMY_LOCALIZABLE)
+                        ),
+                        width={Breakpoint.XS: 12, Breakpoint.LG: 6},
+                    ),
+                    jinja2_environment=await project.jinja2_environment,
+                )
+                actual = await sut.provide(document=Document())
+        assert actual is not None
+        assert "col col-12 col-lg-6" in actual
+
+    async def test_provide__multiple_columns_single_breakpoint(
+        self, isolated_app: App
+    ) -> None:
+        async with Project.new_isolated(isolated_app) as project:
+            project.configuration.extensions.enable(RaspberryMint)
+            async with project:
+                sut = Columns(
+                    configuration=ColumnsConfiguration(
+                        content=PluginInstanceConfigurationSequence(
+                            [
+                                PluginInstanceConfiguration(
+                                    Render, RenderConfiguration(DUMMY_LOCALIZABLE)
+                                ),
+                                PluginInstanceConfiguration(
+                                    Render, RenderConfiguration(DUMMY_LOCALIZABLE)
+                                ),
+                            ]
+                        ),
+                        width=[8, 4],
+                    ),
+                    jinja2_environment=await project.jinja2_environment,
+                )
+                actual = await sut.provide(document=Document())
+        assert actual is not None
+        assert "col col-8" in actual
+        assert "col col-4" in actual
+
+    async def test_provide__multiple_columns_multiple_breakpoints(
+        self, isolated_app: App
+    ) -> None:
+        async with Project.new_isolated(isolated_app) as project:
+            project.configuration.extensions.enable(RaspberryMint)
+            async with project:
+                sut = Columns(
+                    configuration=ColumnsConfiguration(
+                        content=PluginInstanceConfigurationSequence(
+                            [
+                                PluginInstanceConfiguration(
+                                    Render, RenderConfiguration(DUMMY_LOCALIZABLE)
+                                ),
+                                PluginInstanceConfiguration(
+                                    Render, RenderConfiguration(DUMMY_LOCALIZABLE)
+                                ),
+                            ]
+                        ),
+                        width={Breakpoint.XS: [8, 4], Breakpoint.LG: [7, 5]},
+                    ),
+                    jinja2_environment=await project.jinja2_environment,
+                )
+                actual = await sut.provide(document=Document())
+        assert actual is not None
+        assert "col col-8 col-lg-7" in actual
+        assert "col col-4 col-lg-5" in actual
