@@ -93,8 +93,8 @@ class EntityReferenceSequence(ConfigurationSequence[EntityReference]):
 
     @override
     @classmethod
-    def _load_item(cls, dump: Dump, /) -> EntityReference:
-        return EntityReference.load(dump)
+    def _item_cls(cls) -> type[EntityReference]:
+        return EntityReference
 
     async def validate(
         self, entity_type_repository: PluginRepository[EntityDefinition], /

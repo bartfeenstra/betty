@@ -194,8 +194,8 @@ class EntityTypeConfigurationMapping(
 
     @override
     @classmethod
-    def _load_item(cls, dump: Dump, /) -> EntityTypeConfiguration:
-        return EntityTypeConfiguration.load(dump)
+    def _item_cls(cls) -> type[EntityTypeConfiguration]:
+        return EntityTypeConfiguration
 
     async def validate(
         self, entity_type_repository: PluginRepository[EntityDefinition], /
@@ -300,8 +300,8 @@ class LocaleConfigurationMapping(
 
     @override
     @classmethod
-    def _load_item(cls, dump: Dump, /) -> LocaleConfiguration:
-        return LocaleConfiguration.load(dump)
+    def _item_cls(cls) -> type[LocaleConfiguration]:
+        return LocaleConfiguration
 
     @override
     def _get_key(self, configuration: LocaleConfiguration, /) -> Locale:
@@ -366,8 +366,8 @@ class CopyrightNoticePluginConfigurationMapping(
 
     @override
     @classmethod
-    def _load_item(cls, dump: Dump, /) -> CopyrightNoticePluginConfiguration:
-        return CopyrightNoticePluginConfiguration.load(dump)
+    def _item_cls(cls) -> type[CopyrightNoticePluginConfiguration]:
+        return CopyrightNoticePluginConfiguration
 
     @override
     def _new_plugin(
@@ -434,8 +434,8 @@ class LicensePluginConfigurationMapping(
 
     @override
     @classmethod
-    def _load_item(cls, dump: Dump, /) -> LicensePluginConfiguration:
-        return LicensePluginConfiguration.load(dump)
+    def _item_cls(cls) -> type[LicensePluginConfiguration]:
+        return LicensePluginConfiguration
 
     @override
     def _new_plugin(
@@ -480,8 +480,8 @@ class EventTypePluginConfigurationMapping(
 
     @override
     @classmethod
-    def _load_item(cls, dump: Dump, /) -> EventTypePluginConfiguration:
-        return EventTypePluginConfiguration.load(dump)
+    def _item_cls(cls) -> type[EventTypePluginConfiguration]:
+        return EventTypePluginConfiguration
 
     @override
     def _new_plugin(
@@ -517,8 +517,8 @@ class PlaceTypePluginConfigurationMapping(
 
     @override
     @classmethod
-    def _load_item(cls, dump: Dump, /) -> PlaceTypePluginConfiguration:
-        return PlaceTypePluginConfiguration.load(dump)
+    def _item_cls(cls) -> type[PlaceTypePluginConfiguration]:
+        return PlaceTypePluginConfiguration
 
     @override
     def _new_plugin(
@@ -556,8 +556,8 @@ class PresenceRolePluginConfigurationMapping(
 
     @override
     @classmethod
-    def _load_item(cls, dump: Dump, /) -> PresenceRolePluginConfiguration:
-        return PresenceRolePluginConfiguration.load(dump)
+    def _item_cls(cls) -> type[PresenceRolePluginConfiguration]:
+        return PresenceRolePluginConfiguration
 
     @override
     def _new_plugin(
@@ -591,8 +591,8 @@ class GenderPluginConfigurationMapping(
 
     @override
     @classmethod
-    def _load_item(cls, dump: Dump, /) -> GenderPluginConfiguration:
-        return GenderPluginConfiguration.load(dump)
+    def _item_cls(cls) -> type[GenderPluginConfiguration]:
+        return GenderPluginConfiguration
 
     @override
     def _new_plugin(

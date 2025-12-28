@@ -12,14 +12,11 @@ from collections.abc import (
     MutableMapping,
     MutableSequence,
 )
-from typing import TYPE_CHECKING, Any, Generic, SupportsIndex, TypeAlias
+from typing import Any, Generic, SupportsIndex, TypeAlias
 
 from typing_extensions import TypeVar, override
 
 from betty.config import Configuration
-
-if TYPE_CHECKING:
-    from betty.serde.dump import Dump
 
 _ConfigurationT = TypeVar("_ConfigurationT", bound=Configuration)
 ConfigurationKey: TypeAlias = SupportsIndex | Hashable | type[Any]
@@ -113,11 +110,9 @@ class ConfigurationCollection(
 
     @classmethod
     @abstractmethod
-    def _load_item(cls, dump: Dump, /) -> _ConfigurationT:
+    def _item_cls(cls) -> type[_ConfigurationT]:
         """
-        Create and load a new item from the given dump, or raise an assertion error.
-
-        :raise betty.exception.HumanFacingException: Raised when the dump is invalid and cannot be loaded.
+        The class of each configuration item.
         """
 
     @abstractmethod

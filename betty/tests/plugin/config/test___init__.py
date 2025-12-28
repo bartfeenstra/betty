@@ -361,8 +361,8 @@ class TestPluginIdentifierKeyConfigurationMapping:
 
         @override
         @classmethod
-        def _load_item(cls, dump: Dump, /) -> DummyConfiguration:
-            raise NotImplementedError
+        def _item_cls(cls) -> type[DummyConfiguration]:
+            return DummyConfiguration
 
     def test___contains____with_plugin(self) -> None:
         item = DummyConfiguration(DummyPluginOne.plugin().id)
