@@ -4,7 +4,8 @@ Dynamic content.
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Any, Self, final
+from collections.abc import Mapping, Sequence
+from typing import TYPE_CHECKING, Any, Self, TypeAlias, final
 
 from typing_extensions import override
 
@@ -14,13 +15,18 @@ from betty.assertion import (
     RequiredField,
     assert_bool,
     assert_enum,
+    assert_int,
+    assert_mapping,
     assert_or,
     assert_record,
     assert_sequence,
 )
 from betty.config import Configuration
 from betty.config.factory import ConfigurationDependentSelfFactory
-from betty.content_provider import ContentProviderDefinition
+from betty.content_provider import ContentProvider, ContentProviderDefinition
+from betty.content_provider.config import (
+    ContentProviderInstanceConfigurationSequence,
+)
 from betty.content_provider.content_providers import Template
 from betty.locale.localizable.assertion import assert_load_localizable
 from betty.locale.localizable.attr import RequiredLocalizableAttr
@@ -31,10 +37,17 @@ from betty.machine_name import MachineName, assert_machine_name
 from betty.model import EntityDefinition
 from betty.model.config import EntityReferenceSequence
 from betty.plugin import Plugin
-from betty.plugin.config import PluginInstanceConfigurationSequence
+from betty.plugin.config import (
+    PluginInstanceConfiguration,
+    PluginInstanceConfigurationSequence,
+)
 from betty.plugin.resolve import resolve_id
+from betty.project.extension.raspberry_mint import (
+    Breakpoint,
+    JustifyContent,
+    RaspberryMint,
+)
 from betty.project.extension.raspberry_mint import ColorStyle as RaspberryMintColorStyle
-from betty.project.extension.raspberry_mint import RaspberryMint
 from betty.project.factory import (
     CallbackProjectDependentFactory,
     ProjectDependentSelfFactory,
@@ -43,10 +56,9 @@ from betty.requirement import HasRequirement, Requirement
 from betty.typing import private
 
 if TYPE_CHECKING:
-    from collections.abc import Collection, Iterable, Mapping, MutableSequence, Sequence
+    from collections.abc import Collection, Iterable, MutableSequence
 
     from betty.content_provider.config import (
-        ContentProviderInstanceConfigurationSequence,
         ShorthandContentProviderInstanceConfigurationSequence,
     )
     from betty.document import Document
@@ -519,4 +531,145 @@ class Presences(
                 include -= set(self.configuration.exclude)
         return {
             "include": include,
+        }
+
+
+ColumnsWidth: TypeAlias = Mapping[Breakpoint, Sequence[int]]
+ShorthandColumnsWidth: TypeAlias = (
+    int | Sequence[int] | Mapping[Breakpoint, int] | ColumnsWidth
+)
+
+
+class ColumnsConfiguration(Configuration):
+    """
+    Configuration for :py:class:`betty.project.extension.raspberry_mint.content_provider.Columns`.
+    """
+
+    def __init__(
+        self,
+        *,
+        content: ContentProviderInstanceConfigurationSequence
+        | PluginInstanceConfiguration[ContentProviderDefinition, ContentProvider],
+        width: ShorthandColumnsWidth | None = None,
+        justify_content: JustifyContent | None = None,
+    ):
+        super().__init__()
+        if isinstance(content, PluginInstanceConfiguration):
+            content = ContentProviderInstanceConfigurationSequence([content])
+        self._content = content
+        if width is None:
+            width = {Breakpoint.XS: [12]}
+        elif isinstance(width, int):
+            width = {Breakpoint.XS: [width]}
+        elif isinstance(width, Mapping):
+            width = {
+                breakpoint: [columns] if isinstance(columns, int) else columns
+                for breakpoint, columns in width.items()  # noqa A001
+            }
+        else:
+            width = {Breakpoint.XS: width}
+
+        self._width = width
+        self._justify_content = justify_content
+
+    @property
+    def content(self) -> ContentProviderInstanceConfigurationSequence:
+        """
+        The content within the columns.
+        """
+        return self._content
+
+    @property
+    def width(self) -> ColumnsWidth:
+        """
+        The column widths.
+        """
+        return self._width
+
+    @property
+    def justify_content(self) -> JustifyContent | None:
+        """
+        If and how to justify content.
+        """
+        return self._justify_content
+
+    @override
+    @classmethod
+    def load(cls, dump: Dump, /) -> Self:
+        return cls(
+            **assert_record(
+                RequiredField(
+                    "content", ContentProviderInstanceConfigurationSequence.load
+                ),
+                OptionalField("justify_content", assert_enum(JustifyContent)),
+                OptionalField(
+                    "width",
+                    assert_or(
+                        assert_or(
+                            assert_int(),
+                            assert_sequence(assert_int()),
+                        ),
+                        assert_or(
+                            assert_mapping(assert_int(), assert_enum(Breakpoint)),
+                            assert_mapping(
+                                assert_sequence(assert_int()), assert_enum(Breakpoint)
+                            ),
+                        ),
+                    ),
+                ),
+            )(dump)
+        )
+
+    @override
+    def dump(self) -> Dump:
+        dump: DumpMapping[Dump] = {
+            "content": self.content.dump(),
+            "width": {
+                breakpoint.value: widths  # type: ignore[misc]
+                for breakpoint, widths in self.width.items()  # noqa A001
+            },
+        }
+        if self.justify_content is not None:
+            dump["justify_content"] = self.justify_content.value
+        return dump
+
+
+@ContentProviderDefinition("raspberry-mint-columns", label=_("Columns"))
+class Columns(
+    Template,
+    ProjectDependentSelfFactory,
+    _Base,
+    ConfigurationDependentSelfFactory[ColumnsConfiguration],
+):
+    """
+    A container with one or more columns.
+    """
+
+    @override
+    @classmethod
+    def configuration_cls(cls) -> type[ColumnsConfiguration]:
+        return ColumnsConfiguration
+
+    @override
+    @classmethod
+    def new_for_configuration(
+        cls, configuration: ColumnsConfiguration
+    ) -> AnyFactoryTarget[Self]:
+        async def _factory(project: Project) -> Self:
+            return cls(
+                configuration=configuration,
+                jinja2_environment=await project.jinja2_environment,
+            )
+
+        return CallbackProjectDependentFactory(_factory)
+
+    @override
+    async def _provide_data(self, document: Document) -> Mapping[str, Any]:
+        return {
+            "content": self.configuration.content,
+            "justify_content": self.configuration.justify_content,
+            "width": {
+                breakpoint.value: widths
+                for breakpoint, widths in self.configuration.width.items()  # noqa A001
+            },
         }

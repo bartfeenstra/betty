@@ -450,7 +450,9 @@ _BASELINE: Mapping[str, _ModuleIgnore] = {
         },
     },
     "betty/project/extension/raspberry_mint/__init__.py": {
+        "Breakpoint": MissingReason.ENUM,
         "ColorStyle": MissingReason.ENUM,
+        "JustifyContent": MissingReason.ENUM,
     },
     "betty/project/extension/webpack/build.py": {
         "EntryPointProvider": MissingReason.ABSTRACT,

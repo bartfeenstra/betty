@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Betty VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2025-12-28 13:28+0000\n"
+"POT-Creation-Date: 2025-12-28 22:27+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: Automatically generated\n"
 "Language: pt_BR\n"
@@ -322,6 +322,9 @@ msgid "Close"
 msgstr ""
 
 msgid "Color style"
+msgstr ""
+
+msgid "Columns"
 msgstr ""
 
 msgid "Command"

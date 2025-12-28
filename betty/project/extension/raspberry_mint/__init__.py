@@ -159,3 +159,31 @@ class ColorStyle(Enum):
     """
     A dark style with a dark shade of the secondary color for the background.
     """
+
+
+@final
+class Breakpoint(Enum):
+    """
+    The theme's breakpoints.
+    """
+
+    XS = "xs"
+    SM = "sm"
+    MD = "md"
+    LG = "lg"
+    XL = "xl"
+    XXL = "xxl"
+
+
+@final
+class JustifyContent(Enum):
+    """
+    How to justify content.
+    """
+
+    START = "start"
+    END = "end"
+    CENTER = "center"
+    BETWEEN = "between"
+    AROUND = "around"
+    EVENLY = "evenly"

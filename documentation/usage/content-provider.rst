@@ -11,6 +11,8 @@ Built-in content providers
     Display a resource's :doc:`notes </usage/ancestry/note.rst>`
 ``raspberry-mint-color-style`` (:py:class:`betty.project.extension.raspberry_mint.content_provider.ColorStyle`)
     Change the color style for all containing content.
+``raspberry-mint-columns`` (:py:class:`betty.project.extension.raspberry_mint.content_provider.Columns`)
+    A container with one or more columns.
 ``raspberry-mint-external-links`` (:py:class:`betty.project.extension.raspberry_mint.content_provider.ExternalLinks`)
     A resource's external links.
 ``raspberry-mint-facts`` (:py:class:`betty.project.extension.raspberry_mint.content_provider.Facts`)
