@@ -5,6 +5,10 @@ Betty is fully multilingual (internationalized), and can be localized to differe
 `locales <https://en.wikipedia.org/wiki/Locale_(computer_software)>`_, which includes
 translations of the built-in US English messages to any language of your choice.
 
+.. seealso::
+
+   View the available translations on `Weblate <https://hosted.weblate.org/projects/betty/betty/>`_.
+
 Each time a message is translated, Betty finds the translation as follows:
 
 #. If the project has a translation in its assets directory, use it
@@ -32,31 +36,5 @@ If you've made changes to the translatable messages in your project, run
 ``betty update-translations`` to update ``betty.pot`` and any ``betty.po``
 files for existing translations. You can then edit the updated ``betty.po``
 files yourself.
-
-Built-in translations
----------------------
-
-Betty ships with the following translations:
-
-Arabic (``ar``)
-    Translations are {{{ translation-coverage-ar }}}% complete.
-Dutch (``nl-NL``)
-    Translations are {{{ translation-coverage-nl-NL }}}% complete.
-English (British) (``en-GB``)
-    Translations are {{{ translation-coverage-en-GB }}}% complete.
-English (American) (``en-US``)
-    Translations are 100% complete.
-French (``fr-FR``)
-    Translations are {{{ translation-coverage-fr-FR }}}% complete.
-German (``de-DE``)
-    Translations are {{{ translation-coverage-de-DE }}}% complete.
-Hebrew (``he``)
-    Translations are {{{ translation-coverage-he }}}% complete.
-Portuguese (``pt-BR``)
-    Translations are {{{ translation-coverage-pt-BR }}}% complete.
-Russian (``ru-RU``)
-    Translations are {{{ translation-coverage-ru-RU }}}% complete.
-Ukrainian (``uk``)
-    Translations are {{{ translation-coverage-uk }}}% complete.
 
 Read more about how to :doc:`contribute to Betty's built-in translations </development>`.
