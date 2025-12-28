@@ -229,19 +229,23 @@ class Environment(ProjectDependentSelfFactory, Jinja2Environment):
 
     @pass_context
     def _gettext(self, context: Jinja2Context, message: str) -> str:
-        return context_localizer(context).gettext(message)
+        return context_localizer(context).translations.gettext(message)
 
     @pass_context
     def _ngettext(
         self, context: Jinja2Context, message_singular: str, message_plural: str, n: int
     ) -> str:
-        return context_localizer(context).ngettext(message_singular, message_plural, n)
+        return context_localizer(context).translations.ngettext(
+            message_singular, message_plural, n
+        )
 
     @pass_context
     def _pgettext(
         self, context: Jinja2Context, gettext_context: str, message: str
     ) -> str:
-        return context_localizer(context).pgettext(gettext_context, message)
+        return context_localizer(context).translations.pgettext(
+            gettext_context, message
+        )
 
     @pass_context
     def _npgettext(
@@ -252,7 +256,7 @@ class Environment(ProjectDependentSelfFactory, Jinja2Environment):
         message_plural: str,
         n: int,
     ) -> str:
-        return context_localizer(context).npgettext(
+        return context_localizer(context).translations.npgettext(
             gettext_context, message_singular, message_plural, n
         )
 

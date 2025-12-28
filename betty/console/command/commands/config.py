@@ -43,7 +43,7 @@ class Config(AppDependentSelfFactory, Command):
         parser.add_argument(
             "--locale",
             default=DEFAULT_LOCALE,
-            help=localizer._(
+            help=localizer.translations._(
                 "Set the locale for Betty's user interface. This must be an IETF BCP 47 language tag."
             ),
             type=assertion_to_argument_type(assert_locale(), localizer=localizer),

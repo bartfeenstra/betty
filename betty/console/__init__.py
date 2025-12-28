@@ -72,13 +72,13 @@ def _create_parser_class(*, localizer: Localizer) -> type[argparse.ArgumentParse
                 allow_abbrev,
                 exit_on_error,
             )
-            self._positionals.title = localizer._("Positional arguments")
-            self._optionals.title = localizer._("Options")
+            self._positionals.title = localizer.translations._("Positional arguments")
+            self._optionals.title = localizer.translations._("Options")
             self.add_argument(
                 "--help",
                 action="help",
                 default=argparse.SUPPRESS,
-                help=localizer._("Show this help message"),
+                help=localizer.translations._("Show this help message"),
             )
 
     return _ArgumentParser
@@ -95,7 +95,7 @@ def _create_formatter_class(*, localizer: Localizer) -> type[argparse.HelpFormat
             prefix: str | None,
         ) -> str:
             if prefix is None:
-                prefix = localizer._("Usage: ")
+                prefix = localizer.translations._("Usage: ")
             return super()._format_usage(usage, actions, groups, prefix)
 
     return _HelpFormatter
@@ -126,7 +126,7 @@ async def _create_command_parser(
         dest="_verbosity",
         action="store_const",
         const=Verbosity.QUIET,
-        help=localizer._("Do not show any output, except error messages"),
+        help=localizer.translations._("Do not show any output, except error messages"),
     )
     verbosity_group.add_argument(
         "-v",
@@ -134,7 +134,7 @@ async def _create_command_parser(
         dest="_verbosity",
         action="store_const",
         const=Verbosity.VERBOSE,
-        help=localizer._("Also show detailed information messages"),
+        help=localizer.translations._("Also show detailed information messages"),
     )
     verbosity_group.add_argument(
         "-vv",
@@ -142,7 +142,7 @@ async def _create_command_parser(
         dest="_verbosity",
         action="store_const",
         const=Verbosity.MORE_VERBOSE,
-        help=localizer._("Also show debug messages"),
+        help=localizer.translations._("Also show debug messages"),
     )
     verbosity_group.add_argument(
         "-vvv",
@@ -150,7 +150,7 @@ async def _create_command_parser(
         dest="_verbosity",
         action="store_const",
         const=Verbosity.MOST_VERBOSE,
-        help=localizer._("Also show log messages"),
+        help=localizer.translations._("Also show log messages"),
     )
 
     return command_parser
@@ -193,7 +193,7 @@ async def _create_list_commands_action_class(
             # Import rich locally because otherwise somehow Python would load betty.console.rich instead.
             import rich  # noqa F811
 
-            usage = localizer._("Usage: ")
+            usage = localizer.translations._("Usage: ")
             for (
                 index,
                 command_definition,  # noqa F402
@@ -225,9 +225,9 @@ async def _create_parser(app: App) -> argparse.ArgumentParser:
         "--commands",
         action=await _create_list_commands_action_class(app, localizer=localizer),
         default=argparse.SUPPRESS,
-        help=localizer._("Show all available commands"),
+        help=localizer.translations._("Show all available commands"),
     )
-    subparsers = parser.add_subparsers(title=localizer._("Subcommands"))
+    subparsers = parser.add_subparsers(title=localizer.translations._("Subcommands"))
     for command_plugin in await app.plugins(CommandDefinition):
         await _create_command_parser(app, subparsers, command_plugin, formatter_class)
     return parser

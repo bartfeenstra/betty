@@ -43,7 +43,7 @@ class _GeneratePeopleJson(Job[ProjectContext]):
         url_generator = await project.url_generator
         localizers = await project.localizers
         localizer = localizers.get(locale)
-        private_label = localizer._("private")
+        private_label = localizer.translations._("private")
         people = {
             person.id: {
                 "id": person.id,

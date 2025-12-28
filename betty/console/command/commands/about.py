@@ -67,7 +67,7 @@ class About(AppDependentSelfFactory, Command):
 
     async def _about_project(self, user: RichUser, project: Project) -> None:
         about_project = Table(
-            title=user.localizer._("Your project at {file}").format(
+            title=user.localizer.translations._("Your project at {file}").format(
                 file=str(project.configuration_file_path.parent)
             ),
             show_header=False,
@@ -75,25 +75,27 @@ class About(AppDependentSelfFactory, Command):
         about_project.add_column("", style=self._KEY_STYLE)
         about_project.add_column("")
         about_project.add_row(
-            user.localizer._("Configuration file"),
+            user.localizer.translations._("Configuration file"),
             str(project.configuration_file_path),
         )
         about_project.add_row(
-            user.localizer._("Assets directory"),
+            user.localizer.translations._("Assets directory"),
             str(project.assets_directory_path),
         )
         about_project.add_row(
-            user.localizer._("Output directory"),
+            user.localizer.translations._("Output directory"),
             str(project.output_directory_path),
         )
         user.console.print(about_project)
 
     async def _about_plugins(self, user: RichUser, project: Project | None) -> None:
         services = self._app if project is None else project
-        about_plugins = Table(title=user.localizer._("Plugins"))
-        about_plugins.add_column(user.localizer._("Type"), style=self._KEY_STYLE)
-        about_plugins.add_column(user.localizer._("ID"))
-        about_plugins.add_column(user.localizer._("Label"))
+        about_plugins = Table(title=user.localizer.translations._("Plugins"))
+        about_plugins.add_column(
+            user.localizer.translations._("Type"), style=self._KEY_STYLE
+        )
+        about_plugins.add_column(user.localizer.translations._("ID"))
+        about_plugins.add_column(user.localizer.translations._("Label"))
         for plugin_type in sorted(
             plugin_types().values(),
             key=lambda plugin_type: plugin_type.type().label.localize(user.localizer),
@@ -124,26 +126,32 @@ class About(AppDependentSelfFactory, Command):
         if project is None:
             user.console.print(
                 "[yellow]"
-                + user.localizer._(
+                + user.localizer.translations._(
                     "More plugins may be available when running this command with --project."
                 )
             )
 
     async def _about_system(self, user: RichUser) -> None:
-        about_system = Table(title=user.localizer._("System"), show_header=False)
+        about_system = Table(
+            title=user.localizer.translations._("System"), show_header=False
+        )
         about_system.add_column("", style=self._KEY_STYLE)
         about_system.add_column("")
         about_system.add_row("Betty", about.VERSION_LABEL)
-        about_system.add_row(user.localizer._("Operating system"), platform.platform())
+        about_system.add_row(
+            user.localizer.translations._("Operating system"), platform.platform()
+        )
         about_system.add_row("Python", sys.version)
         user.console.print(about_system)
 
     async def _about_python_packages(self, user: RichUser) -> None:
-        about_python_packages = Table(title=user.localizer._("Python packages"))
-        about_python_packages.add_column(
-            user.localizer._("Package"), style=self._KEY_STYLE
+        about_python_packages = Table(
+            title=user.localizer.translations._("Python packages")
         )
-        about_python_packages.add_column(user.localizer._("Version"))
+        about_python_packages.add_column(
+            user.localizer.translations._("Package"), style=self._KEY_STYLE
+        )
+        about_python_packages.add_column(user.localizer.translations._("Version"))
         for x in sorted(
             metadata.distributions(),
             key=lambda x: x.metadata["Name"].lower(),  # type: ignore[no-any-return, unused-ignore]
