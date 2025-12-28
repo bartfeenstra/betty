@@ -145,6 +145,7 @@ async def create_project(app: App, project_directory_path: Path) -> Project:
             [
                 LocaleConfiguration("en-US"),
                 LocaleConfiguration("de-DE"),
+                LocaleConfiguration("en-GB"),
                 LocaleConfiguration("fr-FR"),
                 LocaleConfiguration("nl-NL"),
                 LocaleConfiguration("pt-BR"),
