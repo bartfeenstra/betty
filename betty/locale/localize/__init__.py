@@ -7,7 +7,13 @@ from __future__ import annotations
 import gettext
 from typing import TYPE_CHECKING, final
 
-from betty.locale import DEFAULT_LOCALE, LocaleLike, ensure_locale
+from betty.locale import (
+    DEFAULT_LOCALE,
+    HasLocale,
+    HasLocaleStr,
+    LocaleLike,
+    ensure_locale,
+)
 from betty.typing import threadsafe
 
 if TYPE_CHECKING:
@@ -35,48 +41,56 @@ class Localizer:
         """
         return self._locale
 
-    def _(self, message: str, /) -> str:
+    def _(self, message: str, /) -> HasLocale & str:
         """
         Like :py:meth:`gettext.gettext`.
 
         Arguments are identical to those of :py:meth:`gettext.gettext`.
         """
-        return self._translations.gettext(message)
+        return HasLocaleStr(self._translations.gettext(message), locale=self._locale)
 
-    def gettext(self, message: str, /) -> str:
+    def gettext(self, message: str, /) -> HasLocale & str:
         """
         Like :py:meth:`gettext.gettext`.
 
         Arguments are identical to those of :py:meth:`gettext.gettext`.
         """
-        return self._translations.gettext(message)
+        return HasLocaleStr(self._translations.gettext(message), locale=self._locale)
 
-    def ngettext(self, message_singular: str, message_plural: str, n: int, /) -> str:
+    def ngettext(
+        self, message_singular: str, message_plural: str, n: int, /
+    ) -> HasLocale & str:
         """
         Like :py:meth:`gettext.ngettext`.
 
         Arguments are identical to those of :py:meth:`gettext.ngettext`.
         """
-        return self._translations.ngettext(message_singular, message_plural, n)
+        return HasLocaleStr(
+            self._translations.ngettext(message_singular, message_plural, n),
+            locale=self._locale,
+        )
 
-    def pgettext(self, context: str, message: str, /) -> str:
+    def pgettext(self, context: str, message: str, /) -> HasLocale & str:
         """
         Like :py:meth:`gettext.pgettext`.
 
         Arguments are identical to those of :py:meth:`gettext.pgettext`.
         """
-        return self._translations.pgettext(context, message)
+        return HasLocaleStr(
+            self._translations.pgettext(context, message), locale=self._locale
+        )
 
     def npgettext(
         self, context: str, message_singular: str, message_plural: str, n: int, /
-    ) -> str:
+    ) -> HasLocale & str:
         """
         Like :py:meth:`gettext.npgettext`.
 
         Arguments are identical to those of :py:meth:`gettext.npgettext`.
         """
-        return self._translations.npgettext(
-            context, message_singular, message_plural, n
+        return HasLocaleStr(
+            self._translations.npgettext(context, message_singular, message_plural, n),
+            locale=self._locale,
         )
 
 
