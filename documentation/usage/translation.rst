@@ -42,7 +42,9 @@ Arabic (``ar``)
     Translations are {{{ translation-coverage-ar }}}% complete.
 Dutch (``nl-NL``)
     Translations are {{{ translation-coverage-nl-NL }}}% complete.
-English (``en-US``)
+English (British) (``en-GB``)
+    Translations are {{{ translation-coverage-en-GB }}}% complete.
+English (American) (``en-US``)
     Translations are 100% complete.
 French (``fr-FR``)
     Translations are {{{ translation-coverage-fr-FR }}}% complete.
