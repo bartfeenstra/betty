@@ -19,7 +19,7 @@ from betty.ancestry.presence_role.presence_roles import Subject, Witness
 from betty.ancestry.source import Source
 from betty.app import App
 from betty.config.factory import ConfigurationDependentSelfFactory
-from betty.content_provider import ContentProvider
+from betty.content_provider import ContentProvider, ContentProviderDefinition
 from betty.content_provider.content_providers import Render, RenderConfiguration
 from betty.date import Date
 from betty.dirs import ASSETS_DIRECTORY_PATH
@@ -32,9 +32,9 @@ from betty.media_type.media_types import PLAIN_TEXT
 from betty.model.config import EntityReference, EntityReferenceSequence
 from betty.plugin.config import (
     PluginInstanceConfiguration,
-    PluginInstanceConfigurationSequence,
     PluginInstanceConfigurationSequenceSequence,
 )
+from betty.plugin.discovery.static import StaticDiscovery
 from betty.plugin.repository.static import StaticPluginRepository
 from betty.project import Project
 from betty.project.extension.raspberry_mint import (
@@ -68,13 +68,13 @@ from betty.project.extension.raspberry_mint.content_provider import (
 from betty.test_utils.ancestry.has_citations import DummyHasCitations
 from betty.test_utils.ancestry.has_file_references import DummyHasFileReferences
 from betty.test_utils.config.factory import ConfigurationDependentSelfFactoryTestBase
-from betty.test_utils.content_provider import ContentProviderTestBase
+from betty.test_utils.content_provider import (
+    ContentProviderTestBase,
+    NoOpContentProvider,
+)
 from betty.test_utils.locale.localizable import DUMMY_LOCALIZABLE
 
 if TYPE_CHECKING:
-    from collections.abc import Sequence
-
-    from betty.content_provider import ContentProviderDefinition
     from betty.serde.dump import Dump
 
 
@@ -126,19 +126,26 @@ class TestFeaturedEntities(
 
 class TestSectionConfiguration:
     def test_content(self) -> None:
-        content: Sequence[
-            PluginInstanceConfiguration[ContentProviderDefinition, ContentProvider]
-        ] = [PluginInstanceConfiguration("my-first-content")]
-        sut = SectionConfiguration(name="", heading=DUMMY_LOCALIZABLE, content=content)
+        sut = SectionConfiguration(
+            PluginInstanceConfiguration("my-first-content"),
+            name="",
+            heading=DUMMY_LOCALIZABLE,
+        )
         assert sut.content[0].id == "my-first-content"
 
     def test_heading(self) -> None:
         heading = Plain("My First Section")
-        sut = SectionConfiguration(name="", heading=heading)
+        sut = SectionConfiguration(
+            PluginInstanceConfiguration("my-first-content"), name="", heading=heading
+        )
         assert sut.heading is heading
 
     def test_name(self) -> None:
-        sut = SectionConfiguration(name="my-first-section", heading=DUMMY_LOCALIZABLE)
+        sut = SectionConfiguration(
+            PluginInstanceConfiguration("my-first-content"),
+            name="my-first-section",
+            heading=DUMMY_LOCALIZABLE,
+        )
         assert sut.name == "my-first-section"
 
     def test_load__minimal(self) -> None:
@@ -180,18 +187,24 @@ class TestSectionConfiguration:
             )
 
     def test_dump__minimal(self) -> None:
-        sut = SectionConfiguration(name="my-first-section", heading="My First Section")
+        sut = SectionConfiguration(
+            PluginInstanceConfiguration("my-first-content"),
+            name="my-first-section",
+            heading="My First Section",
+        )
         assert sut.dump() == {
             "name": "my-first-section",
             "heading": "My First Section",
-            "content": [],
+            "content": [
+                "my-first-content",
+            ],
         }
 
     def test_dump__full(self) -> None:
         sut = SectionConfiguration(
+            PluginInstanceConfiguration("my-first-content"),
             name="my-first-section",
             heading="My First Section",
-            content=[PluginInstanceConfiguration("my-first-content")],
         )
         assert sut.dump() == {
             "name": "my-first-section",
@@ -202,13 +215,14 @@ class TestSectionConfiguration:
         }
 
     def test_get_mutables__minimal(self) -> None:
-        sut = SectionConfiguration(heading="My First Section")
+        sut = SectionConfiguration(
+            PluginInstanceConfiguration("my-first-content"), heading="My First Section"
+        )
         assert list(sut.get_mutables())
 
     def test_get_mutables__with_content(self) -> None:
         sut = SectionConfiguration(
-            heading="My First Section",
-            content=[PluginInstanceConfiguration("my-first-content")],
+            PluginInstanceConfiguration("my-first-content"), heading="My First Section"
         )
         assert list(sut.get_mutables())
 
@@ -235,25 +249,40 @@ class TestSection(
     def configuration_dependent_self_factory_sut_configuration(
         self,
     ) -> SectionConfiguration:
-        return SectionConfiguration(heading=DUMMY_LOCALIZABLE)
+        return SectionConfiguration(
+            PluginInstanceConfiguration("my-first-content"), heading=DUMMY_LOCALIZABLE
+        )
 
     async def test_provide__without_content(self, isolated_app: App) -> None:
-        async with Project.new_isolated(isolated_app) as project:
-            project.configuration.extensions.enable(RaspberryMint)
-            async with project:
-                sut = await Section.new_for_project(project)
-                assert await sut.provide(document=Document()) is None
+        with ContentProviderDefinition.type().override_discovery(
+            StaticDiscovery(NoOpContentProvider)
+        ):
+            async with Project.new_isolated(isolated_app) as project:
+                project.configuration.extensions.enable(RaspberryMint)
+                async with project:
+                    sut = await project.new_target(
+                        Section.new_for_configuration(
+                            SectionConfiguration(
+                                PluginInstanceConfiguration(NoOpContentProvider),
+                                heading="My First Section",
+                            )
+                        )
+                    )
+                    assert await sut.provide(document=Document()) is None
 
     async def test_provide__with_content(self, isolated_app: App) -> None:
         async with Project.new_isolated(isolated_app) as project:
             project.configuration.extensions.enable(RaspberryMint)
             async with project:
-                sut = await Section.new_for_project(project)
-                sut.configuration.heading = "My First Section"
-                sut.configuration.content.append(
-                    PluginInstanceConfiguration(
-                        Render,
-                        RenderConfiguration("My First Content"),
+                sut = await project.new_target(
+                    Section.new_for_configuration(
+                        SectionConfiguration(
+                            PluginInstanceConfiguration(
+                                Render,
+                                RenderConfiguration("My First Content"),
+                            ),
+                            heading="My First Section",
+                        )
                     )
                 )
                 actual = await sut.provide(document=Document())
@@ -265,13 +294,16 @@ class TestSection(
         async with Project.new_isolated(isolated_app) as project:
             project.configuration.extensions.enable(RaspberryMint)
             async with project:
-                sut = await Section.new_for_project(project)
-                sut.configuration.name = "my-first-section"
-                sut.configuration.heading = "My First Section"
-                sut.configuration.content.append(
-                    PluginInstanceConfiguration(
-                        Render,
-                        RenderConfiguration("My First Content"),
+                sut = await project.new_target(
+                    Section.new_for_configuration(
+                        SectionConfiguration(
+                            PluginInstanceConfiguration(
+                                Render,
+                                RenderConfiguration("My First Content"),
+                            ),
+                            name="my-first-section",
+                            heading="My First Section",
+                        )
                     )
                 )
                 actual = await sut.provide(document=Document())
@@ -282,13 +314,16 @@ class TestSection(
         async with Project.new_isolated(isolated_app) as project:
             project.configuration.extensions.enable(RaspberryMint)
             async with project:
-                sut = await Section.new_for_project(project)
-                sut.configuration.heading = "My First Section"
-                sut.configuration.visually_hide_heading = True
-                sut.configuration.content.append(
-                    PluginInstanceConfiguration(
-                        Render,
-                        RenderConfiguration("My First Content"),
+                sut = await project.new_target(
+                    Section.new_for_configuration(
+                        SectionConfiguration(
+                            PluginInstanceConfiguration(
+                                Render,
+                                RenderConfiguration("My First Content"),
+                            ),
+                            visually_hide_heading=True,
+                            heading="My First Section",
+                        )
                     )
                 )
                 actual = await sut.provide(document=Document())
@@ -407,15 +442,14 @@ class TestMediaGallery(ContentProviderTestBase):
 
 class TestColorStyleConfiguration:
     def test_content(self) -> None:
-        content: Sequence[
-            PluginInstanceConfiguration[ContentProviderDefinition, ContentProvider]
-        ] = [PluginInstanceConfiguration("my-first-content")]
-        sut = ColorStyleConfiguration(content=content)
+        sut = ColorStyleConfiguration(PluginInstanceConfiguration("my-first-content"))
         assert sut.content[0].id == "my-first-content"
 
     def test_style(self) -> None:
         style = ColorStyleOption.DARK_SECONDARY
-        sut = ColorStyleConfiguration(style=style)
+        sut = ColorStyleConfiguration(
+            PluginInstanceConfiguration("my-first-content"), style=style
+        )
         assert sut.style == style
 
     def test_load__minimal(self) -> None:
@@ -441,7 +475,7 @@ class TestColorStyleConfiguration:
 
     def test_dump(self) -> None:
         sut = ColorStyleConfiguration(
-            content=[PluginInstanceConfiguration("my-first-content")],
+            PluginInstanceConfiguration("my-first-content"),
             style=ColorStyleOption.DARK_SECONDARY,
         )
         assert sut.dump() == {
@@ -451,14 +485,8 @@ class TestColorStyleConfiguration:
             ],
         }
 
-    def test_get_mutables__minimal(self) -> None:
-        sut = ColorStyleConfiguration()
-        assert not list(sut.get_mutables())
-
-    def test_get_mutables__with_content(self) -> None:
-        sut = ColorStyleConfiguration(
-            content=[PluginInstanceConfiguration("my-first-content")]
-        )
+    def test_get_mutables(self) -> None:
+        sut = ColorStyleConfiguration(PluginInstanceConfiguration("my-first-content"))
         assert list(sut.get_mutables())
 
 
@@ -467,23 +495,43 @@ class TestColorStyle(ContentProviderTestBase):
     @pytest.fixture
     async def sut(self, isolated_app: App) -> ContentProvider:
         async with Project.new_isolated(isolated_app) as project, project:
-            return ColorStyle(jinja2_environment=await project.jinja2_environment)
+            return await project.new_target(
+                ColorStyle.new_for_configuration(  # type: ignore[arg-type]
+                    ColorStyleConfiguration(
+                        PluginInstanceConfiguration(
+                            Render, RenderConfiguration("My First Content")
+                        )
+                    )
+                )
+            )
 
     async def test_provide__without_content(self, isolated_app: App) -> None:
-        async with Project.new_isolated(isolated_app) as project:
-            project.configuration.extensions.enable(RaspberryMint)
-            async with project:
-                sut = await ColorStyle.new_for_project(project)
-                assert await sut.provide(document=Document()) is None
+        with ContentProviderDefinition.type().override_discovery(
+            StaticDiscovery(NoOpContentProvider)
+        ):
+            async with Project.new_isolated(isolated_app) as project:
+                project.configuration.extensions.enable(RaspberryMint)
+                async with project:
+                    sut = await project.new_target(
+                        ColorStyle.new_for_configuration(
+                            ColorStyleConfiguration(
+                                PluginInstanceConfiguration(NoOpContentProvider)
+                            )
+                        )
+                    )
+                    assert await sut.provide(document=Document()) is None
 
     async def test_provide__with_content(self, isolated_app: App) -> None:
         async with Project.new_isolated(isolated_app) as project:
             project.configuration.extensions.enable(RaspberryMint)
             async with project:
-                sut = await ColorStyle.new_for_project(project)
-                sut.configuration.content.append(
-                    PluginInstanceConfiguration(
-                        Render, RenderConfiguration("My First Content")
+                sut = await project.new_target(
+                    ColorStyle.new_for_configuration(
+                        ColorStyleConfiguration(
+                            PluginInstanceConfiguration(
+                                Render, RenderConfiguration("My First Content")
+                            )
+                        )
                     )
                 )
                 actual = await sut.provide(document=Document())
@@ -781,26 +829,11 @@ class TestPresences(ContentProviderTestBase):
 
 
 class TestColumnsConfiguration:
-    def test_content__with_single_configuration(self) -> None:
-        content: PluginInstanceConfiguration[
+    def test_content(self) -> None:
+        content = PluginInstanceConfiguration[
             ContentProviderDefinition, ContentProvider
-        ] = PluginInstanceConfiguration(Render, RenderConfiguration(DUMMY_LOCALIZABLE))
-        sut = ColumnsConfiguration(
-            content=PluginInstanceConfigurationSequenceSequence(
-                [PluginInstanceConfigurationSequence([content])]
-            )
-        )
-        assert list(map(list, sut.content)) == [[content]]
-
-    def test_content__with_multiple_configurations(self) -> None:
-        content: PluginInstanceConfiguration[
-            ContentProviderDefinition, ContentProvider
-        ] = PluginInstanceConfiguration(Render, RenderConfiguration(DUMMY_LOCALIZABLE))
-        sut = ColumnsConfiguration(
-            content=PluginInstanceConfigurationSequenceSequence(
-                [PluginInstanceConfigurationSequence([content])]
-            )
-        )
+        ](Render, RenderConfiguration(DUMMY_LOCALIZABLE))
+        sut = ColumnsConfiguration(content)
         assert list(map(list, sut.content)) == [[content]]
 
     @pytest.mark.parametrize(
@@ -815,10 +848,10 @@ class TestColumnsConfiguration:
     def test_width(self, expected: ColumnsWidth, width: ShorthandColumnsWidth) -> None:
         assert (
             ColumnsConfiguration(
-                width=width,
-                content=PluginInstanceConfiguration(
+                PluginInstanceConfiguration(
                     Render, RenderConfiguration(DUMMY_LOCALIZABLE)
                 ),
+                width=width,
             ).width
             == expected
         )
@@ -826,9 +859,7 @@ class TestColumnsConfiguration:
     def test_justify_content(self) -> None:
         justify_content = JustifyContent.CENTER
         sut = ColumnsConfiguration(
-            content=PluginInstanceConfiguration(
-                Render, RenderConfiguration(DUMMY_LOCALIZABLE)
-            ),
+            PluginInstanceConfiguration(Render, RenderConfiguration(DUMMY_LOCALIZABLE)),
             justify_content=justify_content,
         )
         assert sut.justify_content == justify_content
@@ -898,9 +929,7 @@ class TestColumnsConfiguration:
 
     def test_dump__minimal(self) -> None:
         sut = ColumnsConfiguration(
-            content=PluginInstanceConfiguration(
-                Render, RenderConfiguration(DUMMY_LOCALIZABLE)
-            )
+            PluginInstanceConfiguration(Render, RenderConfiguration(DUMMY_LOCALIZABLE))
         )
         assert sut.dump() == {
             "content": [
@@ -922,9 +951,7 @@ class TestColumnsConfiguration:
     def test_dump__with_justify_content(self) -> None:
         justify_content = JustifyContent.CENTER
         sut = ColumnsConfiguration(
-            content=PluginInstanceConfiguration(
-                Render, RenderConfiguration(DUMMY_LOCALIZABLE)
-            ),
+            PluginInstanceConfiguration(Render, RenderConfiguration(DUMMY_LOCALIZABLE)),
             justify_content=justify_content,
         )
         actual = sut.dump()
@@ -940,7 +967,7 @@ class TestColumns(ContentProviderTestBase):
         async with Project.new_isolated(isolated_app) as project, project:
             return Columns(
                 configuration=ColumnsConfiguration(
-                    content=PluginInstanceConfiguration(
+                    PluginInstanceConfiguration(
                         Render, RenderConfiguration(DUMMY_LOCALIZABLE)
                     )
                 ),
@@ -953,7 +980,7 @@ class TestColumns(ContentProviderTestBase):
             async with project:
                 sut = Columns(
                     configuration=ColumnsConfiguration(
-                        content=PluginInstanceConfiguration(
+                        PluginInstanceConfiguration(
                             Render, RenderConfiguration(DUMMY_LOCALIZABLE)
                         )
                     ),
@@ -971,7 +998,7 @@ class TestColumns(ContentProviderTestBase):
             async with project:
                 sut = Columns(
                     configuration=ColumnsConfiguration(
-                        content=PluginInstanceConfiguration(
+                        PluginInstanceConfiguration(
                             Render, RenderConfiguration(DUMMY_LOCALIZABLE)
                         ),
                         width={Breakpoint.XS: 12, Breakpoint.LG: 6},
@@ -990,24 +1017,20 @@ class TestColumns(ContentProviderTestBase):
             async with project:
                 sut = Columns(
                     configuration=ColumnsConfiguration(
-                        content=PluginInstanceConfigurationSequenceSequence(
+                        PluginInstanceConfigurationSequenceSequence(
                             [
-                                PluginInstanceConfigurationSequence(
-                                    [
-                                        PluginInstanceConfiguration(
-                                            Render,
-                                            RenderConfiguration(DUMMY_LOCALIZABLE),
-                                        ),
-                                    ]
-                                ),
-                                PluginInstanceConfigurationSequence(
-                                    [
-                                        PluginInstanceConfiguration(
-                                            Render,
-                                            RenderConfiguration(DUMMY_LOCALIZABLE),
-                                        ),
-                                    ]
-                                ),
+                                [
+                                    PluginInstanceConfiguration(
+                                        Render,
+                                        RenderConfiguration(DUMMY_LOCALIZABLE),
+                                    ),
+                                ],
+                                [
+                                    PluginInstanceConfiguration(
+                                        Render,
+                                        RenderConfiguration(DUMMY_LOCALIZABLE),
+                                    ),
+                                ],
                             ]
                         ),
                         width=[8, 4],
@@ -1027,24 +1050,20 @@ class TestColumns(ContentProviderTestBase):
             async with project:
                 sut = Columns(
                     configuration=ColumnsConfiguration(
-                        content=PluginInstanceConfigurationSequenceSequence(
+                        PluginInstanceConfigurationSequenceSequence(
                             [
-                                PluginInstanceConfigurationSequence(
-                                    [
-                                        PluginInstanceConfiguration(
-                                            Render,
-                                            RenderConfiguration(DUMMY_LOCALIZABLE),
-                                        ),
-                                    ]
-                                ),
-                                PluginInstanceConfigurationSequence(
-                                    [
-                                        PluginInstanceConfiguration(
-                                            Render,
-                                            RenderConfiguration(DUMMY_LOCALIZABLE),
-                                        ),
-                                    ]
-                                ),
+                                [
+                                    PluginInstanceConfiguration(
+                                        Render,
+                                        RenderConfiguration(DUMMY_LOCALIZABLE),
+                                    ),
+                                ],
+                                [
+                                    PluginInstanceConfiguration(
+                                        Render,
+                                        RenderConfiguration(DUMMY_LOCALIZABLE),
+                                    ),
+                                ],
                             ]
                         ),
                         width={Breakpoint.XS: [8, 4], Breakpoint.LG: [7, 5]},

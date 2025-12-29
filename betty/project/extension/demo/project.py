@@ -17,10 +17,7 @@ from betty.locale.localizable.markup import Chain
 from betty.locale.localize import LocalizerRepository
 from betty.media_type.media_types import HTML
 from betty.model.config import EntityReference, EntityReferenceSequence
-from betty.plugin.config import (
-    PluginInstanceConfiguration,
-    PluginInstanceConfigurationSequence,
-)
+from betty.plugin.config import PluginInstanceConfiguration
 from betty.project import Project
 from betty.project.config import (
     EntityTypeConfiguration,
@@ -76,78 +73,70 @@ async def create_project(app: App, project_directory_path: Path) -> Project:
                         regional_content=RegionalContentConfiguration(
                             {
                                 **regional_content(localizers=localizers),
-                                "front-page-content": PluginInstanceConfigurationSequence(
-                                    [
-                                        PluginInstanceConfiguration(
-                                            Section,
-                                            SectionConfiguration(
-                                                heading=_("Welcome"),
-                                                visually_hide_heading=True,
-                                                content=[
+                                "front-page-content": [
+                                    PluginInstanceConfiguration(
+                                        Section,
+                                        SectionConfiguration(
+                                            PluginInstanceConfiguration(
+                                                Columns,
+                                                ColumnsConfiguration(
                                                     PluginInstanceConfiguration(
-                                                        Columns,
-                                                        ColumnsConfiguration(
-                                                            content=PluginInstanceConfiguration(
-                                                                Render,
-                                                                RenderConfiguration(
-                                                                    Chain(
-                                                                        "<p>",
-                                                                        _(
-                                                                            "Betty was named after <a href=\"betty-entity://person/betty-demo-liberta-lankester\">Liberta 'Betty' Lankester</a>, and this website shows a small sample of her family history. You can browse the pages about her and some of her family to get an idea of what a Betty site looks like."
-                                                                        ),
-                                                                        "</p>",
-                                                                    ),
-                                                                    HTML,
+                                                        Render,
+                                                        RenderConfiguration(
+                                                            Chain(
+                                                                "<p>",
+                                                                _(
+                                                                    "Betty was named after <a href=\"betty-entity://person/betty-demo-liberta-lankester\">Liberta 'Betty' Lankester</a>, and this website shows a small sample of her family history. You can browse the pages about her and some of her family to get an idea of what a Betty site looks like."
                                                                 ),
+                                                                "</p>",
                                                             ),
-                                                            width=SINGLE_COLUMN_TEXT_WIDTH,
-                                                            justify_content=JustifyContent.CENTER,
+                                                            HTML,
                                                         ),
                                                     ),
-                                                ],
+                                                    width=SINGLE_COLUMN_TEXT_WIDTH,
+                                                    justify_content=JustifyContent.CENTER,
+                                                ),
                                             ),
+                                            heading=_("Welcome"),
+                                            visually_hide_heading=True,
                                         ),
-                                        PluginInstanceConfiguration(
-                                            Section,
-                                            SectionConfiguration(
-                                                heading=_("Start exploring..."),
-                                                content=[
-                                                    PluginInstanceConfiguration(
-                                                        FeaturedEntities,
-                                                        EntityReferenceSequence(
-                                                            [
-                                                                EntityReference(
-                                                                    Place,
-                                                                    "betty-demo-amsterdam",
-                                                                ),
-                                                                EntityReference(
-                                                                    Person,
-                                                                    "betty-demo-liberta-lankester",
-                                                                ),
-                                                                EntityReference(
-                                                                    Place,
-                                                                    "betty-demo-netherlands",
-                                                                ),
-                                                            ],
+                                    ),
+                                    PluginInstanceConfiguration(
+                                        Section,
+                                        SectionConfiguration(
+                                            PluginInstanceConfiguration(
+                                                FeaturedEntities,
+                                                EntityReferenceSequence(
+                                                    [
+                                                        EntityReference(
+                                                            Place,
+                                                            "betty-demo-amsterdam",
                                                         ),
-                                                    ),
-                                                ],
+                                                        EntityReference(
+                                                            Person,
+                                                            "betty-demo-liberta-lankester",
+                                                        ),
+                                                        EntityReference(
+                                                            Place,
+                                                            "betty-demo-netherlands",
+                                                        ),
+                                                    ],
+                                                ),
                                             ),
+                                            heading=_("Start exploring..."),
                                         ),
-                                    ]
-                                ),
-                                "front-page-summary": PluginInstanceConfigurationSequence(
-                                    [
-                                        PluginInstanceConfiguration(
-                                            Render,
-                                            RenderConfiguration(
-                                                _(
-                                                    "Betty is an application that takes a family tree and builds a website out of it, much like the one you are viewing right now. The more information your genealogical research contains, the more interactivity Betty can add to your site, such as media galleries, maps, and browsable family trees."
-                                                )
-                                            ),
+                                    ),
+                                ],
+                                "front-page-summary": [
+                                    PluginInstanceConfiguration(
+                                        Render,
+                                        RenderConfiguration(
+                                            _(
+                                                "Betty is an application that takes a family tree and builds a website out of it, much like the one you are viewing right now. The more information your genealogical research contains, the more interactivity Betty can add to your site, such as media galleries, maps, and browsable family trees."
+                                            )
                                         ),
-                                    ]
-                                ),
+                                    ),
+                                ],
                             }
                         ),
                     ),

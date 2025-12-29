@@ -37,8 +37,6 @@ from betty.test_utils.locale.localizable import DUMMY_LOCALIZABLE
 from betty.tests.ancestry.test_has_notes import DummyHasNotes
 
 if TYPE_CHECKING:
-    from collections.abc import Sequence
-
     from betty.serde.dump import Dump
 
 
@@ -217,10 +215,7 @@ class TestNotes(ContentProviderTestBase):
 
 class TestBoxConfiguration:
     def test_content(self) -> None:
-        content: Sequence[
-            PluginInstanceConfiguration[ContentProviderDefinition, ContentProvider]
-        ] = [PluginInstanceConfiguration("my-first-content")]
-        sut = BoxConfiguration(content)
+        sut = BoxConfiguration(PluginInstanceConfiguration("my-first-content"))
         assert sut.content[0].id == "my-first-content"
 
     def test_load__minimal(self) -> None:

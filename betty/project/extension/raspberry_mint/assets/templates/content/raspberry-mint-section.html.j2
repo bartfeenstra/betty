@@ -1,7 +1,7 @@
 {% set section_content -%}
     {{ section_content_provider_configurations | provide_content }}
 {%- endset %}
-{% if section_content %}
+{% if section_content | trim | length %}
     <section{% if section_name %} id="{{ section_name }}"{% endif %} class="section my-5">
         <div class="container">
             <div class="row">
