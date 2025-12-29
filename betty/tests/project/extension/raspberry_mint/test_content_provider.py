@@ -1158,7 +1158,7 @@ class TestCitations(ContentProviderTestBase):
     @pytest.fixture
     async def sut(self, isolated_app: App) -> ContentProvider:
         async with Project.new_isolated(isolated_app) as project, project:
-            return Citations(jinja2_environment=await project.jinja2_environment)
+            return await project.new_target(Citations)
 
     @pytest.mark.parametrize(
         "resource",
@@ -1176,7 +1176,7 @@ class TestCitations(ContentProviderTestBase):
         async with Project.new_isolated(isolated_app) as project:
             project.configuration.extensions.enable(RaspberryMint)
             async with project:
-                sut = await Citations.new_for_project(project)
+                sut = await project.new_target(Citations)
         assert await sut.provide(document=Document(resource)) is None
 
     async def test_provide__with_citation(self, isolated_app: App) -> None:
@@ -1185,7 +1185,7 @@ class TestCitations(ContentProviderTestBase):
         async with Project.new_isolated(isolated_app) as project:
             project.configuration.extensions.enable(RaspberryMint)
             async with project:
-                sut = await Citations.new_for_project(project)
+                sut = await project.new_target(Citations)
                 actual = await sut.provide(document=Document(resource))
         assert actual is not None
         assert 'href="#reference-1"' in actual

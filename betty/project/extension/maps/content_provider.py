@@ -3,7 +3,7 @@ Map content.
 """
 
 from collections.abc import Mapping
-from typing import Any
+from typing import Any, Self
 
 from typing_extensions import override
 
@@ -14,16 +14,23 @@ from betty.content_provider import ContentProviderDefinition
 from betty.content_provider.content_providers import Template
 from betty.document import Document
 from betty.locale.localizable.gettext import _
+from betty.project import Project
 from betty.project.extension.maps import Maps
+from betty.project.factory import ProjectDependentSelfFactory
 from betty.requirement import HasRequirement, Requirement
 from betty.service.level import ServiceLevel
 
 
 @ContentProviderDefinition("maps-map", label=_("Map"))
-class Map(Template, HasRequirement):
+class Map(Template, ProjectDependentSelfFactory, HasRequirement):
     """
     An interactive map.
     """
+
+    @override
+    @classmethod
+    async def new_for_project(cls, project: Project) -> Self:
+        return cls(jinja2_environment=await project.jinja2_environment)
 
     @override
     async def _provide_data(self, document: Document) -> Mapping[str, Any]:
@@ -56,10 +63,15 @@ class Map(Template, HasRequirement):
 
 
 @ContentProviderDefinition("maps-map-attribution", label=_("Map attribution"))
-class MapAttribution(Template, HasRequirement):
+class MapAttribution(Template, ProjectDependentSelfFactory, HasRequirement):
     """
     The attribution for an interactive map.
     """
+
+    @override
+    @classmethod
+    async def new_for_project(cls, project: Project) -> Self:
+        return cls(jinja2_environment=await project.jinja2_environment)
 
     @override
     @classmethod
