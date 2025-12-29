@@ -133,11 +133,11 @@ class PluginTypeDefinition(Generic[_BaseClsCoT, _PluginDefinitionT]):
     def __init__(
         self,
         id: MachineName,  # noqa A002
+        *,
         base_cls: type[_BaseClsCoT & Plugin[_PluginDefinitionT]],
         label: LocalizableLike,
         label_plural: LocalizableLike,
         label_countable: CountableLocalizable,
-        *,
         description: LocalizableLike | None = None,
         discovery: Collection[PluginDiscovery[_PluginDefinitionT]]
         | PluginDiscovery[_PluginDefinitionT]

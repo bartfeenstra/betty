@@ -53,10 +53,10 @@ class License(Mutable, Plugin["LicenseDefinition"]):
 @final
 @PluginTypeDefinition(
     "license",
-    License,
-    _("License"),
-    _("Licenses"),
-    ngettext("{count} license", "{count} licenses"),
+    base_cls=License,
+    label=_("License"),
+    label_plural=_("Licenses"),
+    label_countable=ngettext("{count} license", "{count} licenses"),
     discovery=[
         EntryPointDiscovery("betty.license"),
         AppDiscovery(lambda app: app._spdx_license_repository),

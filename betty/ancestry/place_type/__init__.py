@@ -26,10 +26,10 @@ class PlaceType(Plugin["PlaceTypeDefinition"]):
 @final
 @PluginTypeDefinition(
     "place-type",
-    PlaceType,
-    _("Place type"),
-    _("Place types"),
-    ngettext("{count} place type", "{count} place types"),
+    base_cls=PlaceType,
+    label=_("Place type"),
+    label_plural=_("Place types"),
+    label_countable=ngettext("{count} place type", "{count} place types"),
     discovery=[
         EntryPointDiscovery("betty.place_type"),
         ProjectDiscovery(

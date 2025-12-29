@@ -40,10 +40,10 @@ class Command(Plugin["CommandDefinition"]):
 @final
 @PluginTypeDefinition(
     "command",
-    Command,
-    _("Command"),
-    _("Commands"),
-    ngettext("{count} command", "{count} commands"),
+    base_cls=Command,
+    label=_("Command"),
+    label_plural=_("Commands"),
+    label_countable=ngettext("{count} command", "{count} commands"),
     discovery=EntryPointDiscovery("betty.command"),
 )
 class CommandDefinition(HumanFacingPluginDefinition[Command]):

@@ -46,10 +46,10 @@ class ShouldExistEventType(EventType, ABC):
 @final
 @PluginTypeDefinition(
     "event-type",
-    EventType,
-    _("Event type"),
-    _("Event types"),
-    ngettext("{count} event type", "{count} event types"),
+    base_cls=EventType,
+    label=_("Event type"),
+    label_plural=_("Event types"),
+    label_countable=ngettext("{count} event type", "{count} event types"),
     discovery=[
         EntryPointDiscovery("betty.event_type"),
         ProjectDiscovery(

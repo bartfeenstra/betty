@@ -62,10 +62,12 @@ class Format(ABC, Plugin["FormatDefinition"]):
 @final
 @PluginTypeDefinition(
     "format",
-    Format,
-    _("Serialization format"),
-    _("Serialization formats"),
-    ngettext("{count} serialization format", "{count} serialization formats"),
+    base_cls=Format,
+    label=_("Serialization format"),
+    label_plural=_("Serialization formats"),
+    label_countable=ngettext(
+        "{count} serialization format", "{count} serialization formats"
+    ),
     discovery=EntryPointDiscovery("betty.serde_format"),
 )
 class FormatDefinition(HumanFacingPluginDefinition[Format]):

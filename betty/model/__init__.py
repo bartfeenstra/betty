@@ -144,10 +144,10 @@ class Entity(
 @final
 @PluginTypeDefinition(
     "entity",
-    Entity,
-    _("Entity"),
-    _("Entities"),
-    ngettext("{count} entity", "{count} entities"),
+    base_cls=Entity,
+    label=_("Entity"),
+    label_plural=_("Entities"),
+    label_countable=ngettext("{count} entity", "{count} entities"),
     discovery=EntryPointDiscovery("betty.entity_type"),
 )
 class EntityDefinition(CountableHumanFacingPluginDefinition[Entity]):

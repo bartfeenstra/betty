@@ -99,10 +99,10 @@ class ConfigurableDummyPlugin(
 
 @PluginTypeDefinition(
     "configurable-dummy-plugin",
-    ConfigurableDummyPlugin,
-    "Configurable dummy plugin",
-    "Configurable dummy plugins",
-    DUMMY_COUNTABLE_LOCALIZABLE,
+    base_cls=ConfigurableDummyPlugin,
+    label="Configurable dummy plugin",
+    label_plural="Configurable dummy plugins",
+    label_countable=DUMMY_COUNTABLE_LOCALIZABLE,
     discovery=CallbackDiscovery(
         lambda: [
             ConfigurableDummyPluginOne.plugin(),

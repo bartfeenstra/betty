@@ -27,10 +27,10 @@ class TestHumanFacingPluginDefinition:
 
         @PluginTypeDefinition(
             "-",
-            DummyPlugin,
-            plugin_type_label,
-            DUMMY_LOCALIZABLE,
-            DUMMY_COUNTABLE_LOCALIZABLE,
+            base_cls=DummyPlugin,
+            label=plugin_type_label,
+            label_plural=DUMMY_LOCALIZABLE,
+            label_countable=DUMMY_COUNTABLE_LOCALIZABLE,
         )
         class _HumanFacingPluginDefinition(HumanFacingPluginDefinition[DummyPlugin]):
             pass
