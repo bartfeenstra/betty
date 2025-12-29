@@ -45,6 +45,15 @@
   --betty-border-color: #{$secondary-300};
 }
 
+[data-bs-theme="light-contrast"] {
+  @include common;
+  @include light;
+
+  --bs-body-bg: #{$gray-100};
+  --betty-background-contrast-color: #{$gray-200};
+  --betty-border-color: #{$gray-300};
+}
+
 [data-bs-theme="dark"] {
   @include common;
   @include dark;

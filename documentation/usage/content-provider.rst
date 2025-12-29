@@ -5,8 +5,12 @@ Content providers inherit from :py:class:`betty.content_provider.ContentProvider
 
 Built-in content providers
 --------------------------
+``box`` (:py:class:`betty.content_provider.content_providers.Box`)
+    A box whose dimensions can be configured.
 ``maps-map`` (:py:class:`betty.project.extension.maps.content_provider.Map`)
     Display an interactive map for the :doc:`places </usage/ancestry/place.rst>` associated with a resource.
+``maps-map-attribution`` (:py:class:`betty.project.extension.maps.content_provider.MapAttribution`)
+    Display the attribution for a map.
 ``notes`` (:py:class:`betty.content_provider.content_providers.Notes`)
     Display a resource's :doc:`notes </usage/ancestry/note.rst>`
 ``raspberry-mint-citations`` (:py:class:`betty.project.extension.raspberry_mint.content_provider.Citations`)

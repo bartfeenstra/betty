@@ -3,16 +3,16 @@
         {% include 'maps/map.html.j2' %}
     {%- endset %}
     {% if map %}
-        <div class="map-section">
+        <div style="height: 75vh; min-height: 500px; max-height: 1000px;">
             {{ map }}
-            <div class="map-attribution py-1">
-                <div class="container">
-                    <div class="row">
-                        <div class="col-12 col-lg-8">
-                            <small>
-                                {% include 'maps/attribution.html.j2' %}
-                            </small>
-                        </div>
+        </div>
+        <div data-bs-theme="light-contrast">
+            <div class="container">
+                <div class="row">
+                    <div class="col-12 col-lg-8">
+                        <small>
+                            {% include 'maps/attribution.html.j2' %}
+                        </small>
                     </div>
                 </div>
             </div>

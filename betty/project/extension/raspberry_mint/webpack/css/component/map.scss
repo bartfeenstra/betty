@@ -1,23 +1,10 @@
-.map-section {
-  .map {
-    border-color: var(--betty-border-color);
-    border-style: solid;
-    border-width: $border-width 0 $border-width 0;
-    height: 75vh;
-    min-height: 500px;
-    max-height: 1000px;
+.map {
+  border-color: var(--betty-border-color);
+  border-style: solid;
+  border-width: $border-width 0 $border-width 0;
 
-    &:focus {
-      border-color: var(--betty-focus-color);
-      outline: none;
-    }
-  }
-
-  &:fullscreen {
-    border-width: 0;
-  }
-
-  .map-attribution {
-    background-color: $gray-100;
+  &:focus {
+    border-color: var(--betty-focus-color);
+    outline: none;
   }
 }

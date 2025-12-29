@@ -7,6 +7,9 @@ from typing import Any
 
 from typing_extensions import override
 
+from betty.ancestry.event import Event
+from betty.ancestry.person import Person
+from betty.ancestry.place import Place
 from betty.content_provider import ContentProviderDefinition
 from betty.content_provider.content_providers import Template
 from betty.document import Document
@@ -24,9 +27,39 @@ class Map(Template, HasRequirement):
 
     @override
     async def _provide_data(self, document: Document) -> Mapping[str, Any]:
+        places = []
+        if isinstance(document.resource, Event):
+            places = [document.resource.place] if document.resource.place else []
+        elif isinstance(document.resource, Person):
+            places = [
+                presence.event.place
+                for presence in document.resource.presences
+                if presence.public
+                and presence.event.public
+                and presence.event.place
+                and presence.event.place.public
+            ]
+        elif isinstance(document.resource, Place):
+            places = [
+                document.resource,
+            ]
         return {
-            "entity": document.resource,
+            "places": places,
         }
+
+    @override
+    @classmethod
+    async def requirement(cls, services: ServiceLevel, /) -> Requirement | None:
+        return await Maps.requirement_for(
+            services, cls.plugin().reference_label_with_type
+        )
+
+
+@ContentProviderDefinition("maps-map-attribution", label=_("Map attribution"))
+class MapAttribution(Template, HasRequirement):
+    """
+    The attribution for an interactive map.
+    """
 
     @override
     @classmethod
