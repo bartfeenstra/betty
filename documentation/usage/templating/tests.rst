@@ -17,6 +17,7 @@ In addition to Jinja2's built-in tests, Betty provides the following:
 - :py:func:`extension_plugin <betty.jinja2.test.PluginTester.__call__>`
 - :py:func:`format_plugin <betty.jinja2.test.PluginTester.__call__>`
 - :py:func:`gender_plugin <betty.jinja2.test.PluginTester.__call__>`
+- :py:func:`has_citations <betty.jinja2.test.test_has_citations>`
 - :py:func:`has_file_references <betty.jinja2.test.test_has_file_references>`
 - :py:func:`has_links <betty.jinja2.test.test_has_links>`
 - :py:func:`has_notes <betty.jinja2.test.test_has_notes>`

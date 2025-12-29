@@ -44,6 +44,7 @@ from betty.project.extension.raspberry_mint import (
 )
 from betty.project.extension.raspberry_mint import ColorStyle as ColorStyleOption
 from betty.project.extension.raspberry_mint.content_provider import (
+    Citations,
     ColorStyle,
     ColorStyleConfiguration,
     Columns,
@@ -1131,3 +1132,41 @@ class TestFileReferees(ContentProviderTestBase):
                 actual = await sut.provide(document=Document(resource))
         assert actual is not None
         assert referee.public_id in actual
+
+
+class TestCitations(ContentProviderTestBase):
+    @override
+    @pytest.fixture
+    async def sut(self, isolated_app: App) -> ContentProvider:
+        async with Project.new_isolated(isolated_app) as project, project:
+            return Citations(jinja2_environment=await project.jinja2_environment)
+
+    @pytest.mark.parametrize(
+        "resource",
+        [
+            None,
+            object(),
+            Person(),
+            Place(),
+            DummyHasCitations(),
+        ],
+    )
+    async def test_provide__without_citations(
+        self, resource: object, isolated_app: App
+    ) -> None:
+        async with Project.new_isolated(isolated_app) as project:
+            project.configuration.extensions.enable(RaspberryMint)
+            async with project:
+                sut = await Citations.new_for_project(project)
+        assert await sut.provide(document=Document(resource)) is None
+
+    async def test_provide__with_citation(self, isolated_app: App) -> None:
+        citation = Citation(source=Source())
+        resource = DummyHasCitations(citations=[citation])
+        async with Project.new_isolated(isolated_app) as project:
+            project.configuration.extensions.enable(RaspberryMint)
+            async with project:
+                sut = await Citations.new_for_project(project)
+                actual = await sut.provide(document=Document(resource))
+        assert actual is not None
+        assert 'href="#reference-1"' in actual

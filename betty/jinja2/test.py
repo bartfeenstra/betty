@@ -6,6 +6,7 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING, Any, TypeVar
 
+from betty.ancestry.has_citations import HasCitations
 from betty.ancestry.has_file_references import HasFileReferences
 from betty.ancestry.has_links import HasLinks
 from betty.ancestry.has_notes import HasNotes
@@ -59,6 +60,13 @@ class PluginTester:
         return True
 
 
+def test_has_citations(value: Any) -> bool:
+    """
+    Test if a value has citations associated with it.
+    """
+    return isinstance(value, HasCitations)
+
+
 def test_has_links(value: Any) -> bool:
     """
     Test if a value has external links associated with it.
@@ -105,6 +113,7 @@ async def tests() -> Mapping[str, Callable[..., bool]]:
         "date_range": test_date_range,
         "has_file_references": test_has_file_references,
         "persistent_entity_id": persistent_id,
+        "has_citations": test_has_citations,
         "has_links": test_has_links,
         "has_notes": test_has_notes,
         "image_supported_media_type": test_image_supported_media_type,

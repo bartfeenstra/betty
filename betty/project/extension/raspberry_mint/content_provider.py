@@ -704,3 +704,10 @@ class FileReferees(Template):
     """
     Show the entities referencing a document resource that is a file.
     """
+
+
+@ContentProviderDefinition("raspberry-mint-citations", label=_("Citations"))
+class Citations(Template):
+    """
+    The citations for a document resource that is an entity.
+    """

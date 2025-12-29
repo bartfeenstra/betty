@@ -11,6 +11,7 @@ from betty.json.linked_data import LinkedDataDumpableWithSchemaJsonLdObject
 from betty.media_type import MediaType
 from betty.media_type.media_types import PDF, SVG
 from betty.model import Entity
+from betty.test_utils.ancestry.has_citations import DummyHasCitations
 from betty.test_utils.ancestry.has_file_references import DummyHasFileReferences
 from betty.test_utils.jinja2 import assert_template_string
 from betty.test_utils.plugin import (
@@ -61,6 +62,25 @@ class TestPluginTester:
 )
 async def test_test_date_range(expected: str, data: Any) -> None:
     template = "{% if data is date_range %}true{% else %}false{% endif %}"
+    async with assert_template_string(
+        template=template,
+        data={
+            "data": data,
+        },
+    ) as (actual, _):
+        assert actual == expected
+
+
+@pytest.mark.parametrize(
+    ("expected", "data"),
+    [
+        ("true", DummyHasCitations()),
+        ("false", DummyHasCitations),
+        ("false", object()),
+    ],
+)
+async def test_test_has_citations(expected: str, data: Any) -> None:
+    template = "{% if data is has_citations %}true{% else %}false{% endif %}"
     async with assert_template_string(
         template=template,
         data={
