@@ -6,7 +6,6 @@ import pytest
 from typing_extensions import override
 
 from betty.ancestry import Ancestry
-from betty.ancestry.has_file_references import HasFileReferences
 from betty.model import Entity
 from betty.model.association import BidirectionalToZeroOrOne
 from betty.test_utils.ancestry.date import DummyHasDate
@@ -23,10 +22,6 @@ class DummyHasDateWithContextDefinitions(DummyHasDate):
     @override
     def dated_linked_data_contexts(self) -> tuple[str | None, str | None, str | None]:
         return "single-date", "start-date", "end-date"
-
-
-class DummyHasFileReferences(HasFileReferences, Entity):
-    pass
 
 
 class _TestAncestry_OneToOne_Left(Entity):

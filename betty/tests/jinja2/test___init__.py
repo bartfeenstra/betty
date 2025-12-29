@@ -4,7 +4,6 @@ from typing import TYPE_CHECKING
 
 import aiofiles
 
-from betty.ancestry.has_file_references import HasFileReferences
 from betty.document import Document
 from betty.jinja2 import Environment, Jinja2Provider
 from betty.job import Context as JobContext
@@ -30,10 +29,6 @@ class TestJinja2Provider:
     async def test_tests(self) -> None:
         sut = Jinja2Provider()
         assert isinstance(sut.tests, dict)
-
-
-class DummyHasFileReferencesEntity(HasFileReferences):
-    pass
 
 
 class TestEnvironment:

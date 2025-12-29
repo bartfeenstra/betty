@@ -1,0 +1,6 @@
+{% if document.resource is entity_plugin('file') %}
+    {% set entities = document.resource.referees | map(attribute='referee') | select('public') | list %}
+    {% if entities %}
+        {% include 'entity/list.html.j2' %}
+    {% endif %}
+{% endif %}

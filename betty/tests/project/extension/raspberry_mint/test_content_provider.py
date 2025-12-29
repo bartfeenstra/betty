@@ -54,6 +54,7 @@ from betty.project.extension.raspberry_mint.content_provider import (
     Facts,
     Families,
     FeaturedEntities,
+    FileReferees,
     Media,
     MediaGallery,
     Presences,
@@ -64,6 +65,7 @@ from betty.project.extension.raspberry_mint.content_provider import (
     Timeline,
 )
 from betty.test_utils.ancestry.has_citations import DummyHasCitations
+from betty.test_utils.ancestry.has_file_references import DummyHasFileReferences
 from betty.test_utils.config.factory import ConfigurationDependentSelfFactoryTestBase
 from betty.test_utils.content_provider import ContentProviderTestBase
 from betty.test_utils.locale.localizable import DUMMY_LOCALIZABLE
@@ -1090,3 +1092,42 @@ class TestEnclosees(ContentProviderTestBase):
                 actual = await sut.provide(document=Document(resource))
         assert actual is not None
         assert enclosee.public_id in actual
+
+
+class TestFileReferees(ContentProviderTestBase):
+    @override
+    @pytest.fixture
+    async def sut(self, isolated_app: App) -> ContentProvider:
+        async with Project.new_isolated(isolated_app) as project, project:
+            return FileReferees(jinja2_environment=await project.jinja2_environment)
+
+    @pytest.mark.parametrize(
+        "resource",
+        [
+            None,
+            object(),
+            Person(),
+            Place(),
+            File(Path(__file__)),
+        ],
+    )
+    async def test_provide__without_referees(
+        self, resource: object, isolated_app: App
+    ) -> None:
+        async with Project.new_isolated(isolated_app) as project:
+            project.configuration.extensions.enable(RaspberryMint)
+            async with project:
+                sut = await FileReferees.new_for_project(project)
+        assert await sut.provide(document=Document(resource)) is None
+
+    async def test_provide__with_referee(self, isolated_app: App) -> None:
+        referee = DummyHasFileReferences()
+        resource = File(Path(__file__))
+        FileReference(referee, resource)
+        async with Project.new_isolated(isolated_app) as project:
+            project.configuration.extensions.enable(RaspberryMint)
+            async with project:
+                sut = await FileReferees.new_for_project(project)
+                actual = await sut.provide(document=Document(resource))
+        assert actual is not None
+        assert referee.public_id in actual

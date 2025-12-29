@@ -21,10 +21,10 @@ from betty.locale.localize import DEFAULT_LOCALIZER
 from betty.media_type.media_types import PLAIN_TEXT
 from betty.model import Entity
 from betty.privacy import Privacy
+from betty.test_utils.ancestry.has_file_references import DummyHasFileReferences
 from betty.test_utils.json.linked_data import assert_dumps_linked_data
 from betty.test_utils.locale.localizable import DUMMY_LOCALIZABLE
 from betty.test_utils.model import EntityDefinitionTestBase, EntityTestBase
-from betty.tests.ancestry.test___init__ import DummyHasFileReferences
 
 if TYPE_CHECKING:
     from collections.abc import Mapping, Sequence

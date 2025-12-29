@@ -697,3 +697,10 @@ class Enclosees(Template):
     """
     Show the places enclosed by a place document resource.
     """
+
+
+@ContentProviderDefinition("raspberry-mint-file-referees", label=_("File referees"))
+class FileReferees(Template):
+    """
+    Show the entities referencing a document resource that is a file.
+    """

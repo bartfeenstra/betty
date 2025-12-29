@@ -23,6 +23,8 @@ Built-in content providers
     Display a person's families.
 ``raspberry-mint-featured-entities`` (:py:class:`betty.project.extension.raspberry_mint.content_provider.FeaturedEntities`)
     Display one or more entities in cards.
+``raspberry-mint-file-referees`` (:py:class:`betty.project.extension.raspberry_mint.content_provider.FileReferees`)
+    Show the entities referencing a document resource that is a file.
 ``raspberry-mint-media`` (:py:class:`betty.project.extension.raspberry_mint.content_provider.Media`)
     Show a file entity as media.
 ``raspberry-mint-media-gallery`` (:py:class:`betty.project.extension.raspberry_mint.content_provider.MediaGallery`)

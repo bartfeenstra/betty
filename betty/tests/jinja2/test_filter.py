@@ -26,9 +26,9 @@ from betty.media_type import MediaType
 from betty.media_type.media_types import SVG
 from betty.plugin.config import PluginInstanceConfiguration
 from betty.test_utils.ancestry.date import DummyHasDate
+from betty.test_utils.ancestry.has_file_references import DummyHasFileReferences
 from betty.test_utils.jinja2 import assert_template_string
 from betty.test_utils.model import DummyEntityOne
-from betty.tests.ancestry.test___init__ import DummyHasFileReferences
 
 if TYPE_CHECKING:
     from collections.abc import Iterable, MutableMapping, Sequence
