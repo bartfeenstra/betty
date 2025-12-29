@@ -14,7 +14,6 @@ from betty.dirs import ASSETS_DIRECTORY_PATH
 from betty.locale import DEFAULT_LOCALE
 from betty.locale.translation import (
     AssetTranslationRepository,
-    NoOpTranslationRepository,
     ProxyTranslationRepository,
     StaticTranslationRepository,
     UntranslatedLocale,
@@ -205,16 +204,6 @@ class TestAssetTranslationRepository:
         )
         await sut.bootstrap()
         assert set(sut.locales) == {DEFAULT_LOCALE, Locale(locale)}
-
-
-class TestNoOpTranslationRepository:
-    def test_locales(self) -> None:
-        sut = NoOpTranslationRepository()
-        assert not list(sut.locales)
-
-    def test_get(self) -> None:
-        sut = NoOpTranslationRepository()
-        sut.get("nl")
 
 
 class TestStaticTranslationRepository:
