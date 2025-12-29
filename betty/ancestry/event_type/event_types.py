@@ -105,7 +105,7 @@ class BarMitzvah(EventType):
 
 @final
 @EventTypeDefinition(
-    "ba-mitzvah",
+    "bat-mitzvah",
     label=_("Bat mitzvah"),
     label_plural=_("Bat mitzvahs"),
     label_countable=ngettext("{count} bat mitzvah", "{count} bat mitzvahs"),
