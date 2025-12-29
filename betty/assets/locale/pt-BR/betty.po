@@ -7,11 +7,12 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Betty VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2025-12-28 22:27+0000\n"
-"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
-"Last-Translator: Automatically generated\n"
+"POT-Creation-Date: 2025-12-29 14:57+0000\n"
+"PO-Revision-Date: 2025-12-16 20:00+0000\n"
+"Last-Translator: Mateus Liberale Gomes <sergiogomes209403@gmail.com>\n"
 "Language: pt_BR\n"
-"Language-Team: none\n"
+"Language-Team: Portuguese (Brazil) "
+"<https://hosted.weblate.org/projects/betty/betty/pt_BR/>\n"
 "Plural-Forms: nplurals=2; plural=n > 1;\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=utf-8\n"
@@ -20,15 +21,17 @@ msgstr ""
 
 #, python-brace-format
 msgid "\"{hex_value}\" is not a valid hexadecimal color, such as #ffc0cb."
-msgstr ""
+msgstr "\"{hex_value}\" não é uma cor hexadecimal válida, como #ffc0cb."
 
 #, python-brace-format
 msgid "\"{invalid_locale}\" is not a valid IETF BCP 47 language tag."
 msgstr ""
+"\"{invalid_locale}\" não é uma etiqueta de idioma válida segundo o padrão"
+" IETF BCP 47."
 
 #, python-brace-format
 msgid "\"{path}\" is not a directory."
-msgstr ""
+msgstr "\"{path}\" não é um diretório."
 
 #, python-brace-format
 msgid "\"{plugin_id}\""
@@ -47,18 +50,20 @@ msgid ""
 "\"{value}\" is not a valid machine name: only lowercase letters, digits, "
 "and hyphens (-) are allowed."
 msgstr ""
+"\"{value}\" não é um nome de máquina válido: apenas letras minúsculas, "
+"dígitos e hífens (-) são permitidos."
 
 #, python-format
 msgid "%(date)s in %(place)s"
-msgstr ""
+msgstr "%(date)s no %(place)s"
 
 #, python-format
 msgid "%(event)s of %(subjects)s"
-msgstr ""
+msgstr "%(event)s de %(subjects)s"
 
 #, python-format
 msgid "%(event)s with %(subjects)s"
-msgstr ""
+msgstr "%(event)s com %(subjects)s"
 
 msgid "A Betty demonstration"
 msgstr ""
@@ -67,40 +72,42 @@ msgid ""
 "A family history as told by <a "
 "href=\"https://betty.readthedocs.io\">Betty👵</a>"
 msgstr ""
+"Uma história de família contada por <a "
+"href=\"https://betty.readthedocs.io\">Betty👵</a>"
 
 msgid "A single file in a media display"
 msgstr ""
 
 msgid "API documentation"
-msgstr ""
+msgstr "Documentação da API"
 
 msgid "About"
-msgstr ""
+msgstr "Sobre"
 
 msgid "Access denied"
-msgstr ""
+msgstr "Acesso negado"
 
 msgid "Accessed"
 msgstr ""
 
 msgid "Adoption"
-msgstr ""
+msgstr "Adoção"
 
 msgid "Adoptions"
 msgstr ""
 
 msgid "All caches cleared."
-msgstr ""
+msgstr "Todos os caches foram limpos."
 
 msgid "All of these requirements must be met"
-msgstr ""
+msgstr "Todos esses requisitos devem ser atendidos"
 
 msgid "All rights reserved"
-msgstr ""
+msgstr "Todos os direitos reservados"
 
 #, python-format
 msgid "Also known as %(names)s"
-msgstr ""
+msgstr "Também conhecido como %(names)s"
 
 msgid "Also show debug messages"
 msgstr ""
@@ -118,10 +125,10 @@ msgid "An unexpected error occurred:"
 msgstr ""
 
 msgid "Announcement of divorce"
-msgstr ""
+msgstr "Anúncio de divórcio"
 
 msgid "Announcement of marriage"
-msgstr ""
+msgstr "Anúncio de casamento"
 
 msgid "Announcements of divorce"
 msgstr ""
@@ -130,7 +137,7 @@ msgid "Announcements of marriage"
 msgstr ""
 
 msgid "Appearances"
-msgstr ""
+msgstr "Aparências"
 
 msgid "Assets directory"
 msgstr ""
@@ -138,16 +145,18 @@ msgstr ""
 #, python-brace-format
 msgid "At least {expected} items are required, but found {actual}."
 msgstr ""
+"Pelo menos {expected} itens são necessários, mas foram encontrados "
+"{actual}."
 
 #, python-brace-format
 msgid "At most {expected} items are allowed, but found {actual}."
-msgstr ""
+msgstr "No máximo {expected} itens são permitidos, mas foram encontrados {actual}."
 
 msgid "At which URL will your site be published?"
-msgstr ""
+msgstr "Em qual URL seu site será publicado?"
 
 msgid "Attendee"
-msgstr ""
+msgstr "Participante"
 
 msgid "Attendees"
 msgstr ""
@@ -156,13 +165,13 @@ msgid "Author"
 msgstr ""
 
 msgid "Baptism"
-msgstr ""
+msgstr "Batismo"
 
 msgid "Baptisms"
 msgstr ""
 
 msgid "Bar mitzvah"
-msgstr ""
+msgstr "Bar mitzvá"
 
 msgid "Bar mitzvahs"
 msgstr ""
@@ -171,7 +180,7 @@ msgid "Bart Feenstra and contributors"
 msgstr ""
 
 msgid "Bat mitzvah"
-msgstr ""
+msgstr "Bat mitzvá"
 
 msgid "Bat mitzvahs"
 msgstr ""
@@ -180,10 +189,10 @@ msgid "Beneficiaries"
 msgstr ""
 
 msgid "Beneficiary"
-msgstr ""
+msgstr "Beneficiário"
 
 msgid "Betty could not load the SPDX licenses"
-msgstr ""
+msgstr "Betty não conseguiu carregar as licenças SPDX"
 
 msgid ""
 "Betty is an application that takes a family tree and builds a website out"
@@ -192,6 +201,11 @@ msgid ""
 "add to your site, such as media galleries, maps, and browsable family "
 "trees."
 msgstr ""
+"Betty é um aplicativo que pega uma árvore genealógica e a transforma em "
+"um site, muito parecido com este que você está vendo agora. Quanto mais "
+"informações sua pesquisa genealógica contiver, mais interatividade Betty "
+"poderá adicionar ao seu site, como galerias de mídia, mapas e árvores "
+"genealógicas navegáveis."
 
 #, python-brace-format
 msgid ""
@@ -199,18 +213,25 @@ msgid ""
 "\"{gramps_event_type}\". The event was imported, but its type was set to "
 "\"{betty_event_type}\"."
 msgstr ""
+"Betty não está familiarizada com o tipo de evento \"{event_id}\" do Vovô,"
+" que é \"{gramps_event_type}\". O evento foi importado, mas seu tipo foi "
+"definido como \"{betty_event_type}\"."
 
 #, python-brace-format
 msgid ""
 "Betty is unfamiliar with Gramps file \"{file_id}\"'s copyright notice ID "
 "of \"{copyright_notice_id}\" and ignored it."
 msgstr ""
+"Betty não está familiarizada com o aviso de direitos autorais do arquivo "
+"\"{file_id}\" do vovô, cujo ID é \"{copyright_notice_id}\", e o ignorou."
 
 #, python-brace-format
 msgid ""
 "Betty is unfamiliar with Gramps file \"{file_id}\"'s license ID of "
 "\"{license_id}\" and ignored it."
 msgstr ""
+"Betty não está familiarizada com o ID de licença \"{license_id}\" do "
+"arquivo \"{file_id}\" do vovô e o ignorou."
 
 #, python-brace-format
 msgid ""
@@ -218,6 +239,9 @@ msgid ""
 "\"{gramps_place_type}\". The place was imported, but its type was set to "
 "\"{betty_place_type}\"."
 msgstr ""
+"Betty não está familiarizada com o local do Vovô \"{place_id}\", cujo "
+"tipo é \"{gramps_place_type}\". O local foi importado, mas seu tipo foi "
+"definido como \"{betty_place_type}\"."
 
 #, python-brace-format
 msgid ""
@@ -226,6 +250,10 @@ msgid ""
 "\"{event_handle}\". The role was imported, but set to "
 "\"{betty_presence_role}\"."
 msgstr ""
+"Betty não está familiarizada com a função de presença do Gramps da pessoa"
+" \"{person_id}\" definida como \"{gramps_presence_role}\" para o evento "
+"com o identificador Gramps \"{event_handle}\". A função foi importada, "
+"mas definida como \"{betty_presence_role}\"."
 
 msgid ""
 "Betty was named after <a href=\"betty-entity://person/betty-demo-liberta-"
@@ -236,16 +264,16 @@ msgstr ""
 
 #, python-brace-format
 msgid "Betty will talk to you in {locale}"
-msgstr ""
+msgstr "Betty falará com você em {locale}"
 
 msgid "Birth"
-msgstr ""
+msgstr "Nascimento"
 
 msgid "Births"
 msgstr ""
 
 msgid "Borough"
-msgstr ""
+msgstr "Distrito"
 
 msgid "Boroughs"
 msgstr ""
@@ -254,19 +282,21 @@ msgid "Breadcrumbs"
 msgstr ""
 
 msgid "Building"
-msgstr ""
+msgstr "Prédio"
 
 msgid "Buildings"
 msgstr ""
 
 msgid "Burial"
-msgstr ""
+msgstr "Enterro"
 
 msgid "Burials"
 msgstr ""
 
 msgid "Cannot find an available port to bind the web server to."
 msgstr ""
+"Não foi possível encontrar uma porta disponível para associar o servidor "
+"web."
 
 #, python-brace-format
 msgid ""
@@ -280,19 +310,27 @@ msgid ""
 " your family tree does not include a base path. In Gramps, add a \"base "
 "path for relative media paths\" to your family tree, and export it again."
 msgstr ""
+"Não foi possível carregar o arquivo Vovô {file_id} com o caminho relativo"
+" {file_path}, porque sua árvore genealógica não inclui um caminho base. "
+"No Vovô, adicione um \"caminho base para caminhos de mídia relativos\" à "
+"sua árvore genealógica e exporte-a novamente."
 
 #, python-brace-format
 msgid "Cannot load Gramps file {file_id}, because {file_path} is not a file."
 msgstr ""
+"Não foi possível carregar o arquivo Vovô {file_id}, porque {file_path} "
+"não é um arquivo."
 
 #, python-brace-format
 msgid ""
 "Cannot load coordinates \"{coordinates}\", because they are in an unknown"
 " format."
 msgstr ""
+"Não foi possível carregar as coordenadas \"{coordinates}\", porque elas "
+"estão em um formato desconhecido."
 
 msgid "Celebrant"
-msgstr ""
+msgstr "Celebrante"
 
 msgid "Celebrants"
 msgstr ""
@@ -304,22 +342,22 @@ msgid "Cemetery"
 msgstr ""
 
 msgid "Citation"
-msgstr ""
+msgstr "Citação"
 
 msgid "Citations"
-msgstr ""
+msgstr "Citações"
 
 msgid "Cities"
 msgstr ""
 
 msgid "City"
-msgstr ""
+msgstr "Cidade"
 
 msgid "Clear all caches"
-msgstr ""
+msgstr "Limpar todos os caches"
 
 msgid "Close"
-msgstr ""
+msgstr "Fechar"
 
 msgid "Color style"
 msgstr ""
@@ -334,7 +372,7 @@ msgid "Commands"
 msgstr ""
 
 msgid "Conference"
-msgstr ""
+msgstr "Conferência"
 
 msgid "Conferences"
 msgstr ""
@@ -343,10 +381,10 @@ msgid "Configuration file"
 msgstr ""
 
 msgid "Configure Betty"
-msgstr ""
+msgstr "Configurar Betty"
 
 msgid "Confirmation"
-msgstr ""
+msgstr "Confirmação"
 
 msgid "Confirmations"
 msgstr ""
@@ -359,20 +397,20 @@ msgstr ""
 
 #, python-format
 msgid "Continue reading on <a href=\"%(url)s\">Wikipedia</a>."
-msgstr ""
+msgstr "Continue a leitura na <a href=\"%(url)s\">Wikipedia</a>."
 
 msgid "Coordinates"
 msgstr ""
 
 msgid "Copyright"
-msgstr ""
+msgstr "Direitos autorais"
 
 #, python-format
 msgid "Copyright <a href=\"%(url)s\">OpenStreetMap</a> contributors"
-msgstr ""
+msgstr "Direitos autorais <a href=\"%(url)s\">Colaboradores do OpenStreetMap</a>"
 
 msgid "Copyright Wikipedia contributors"
-msgstr ""
+msgstr "Colaboradores da Wikipédia com direitos autorais"
 
 msgid "Copyright notice"
 msgstr ""
@@ -384,20 +422,24 @@ msgid ""
 "Copyright of these works lies with the original authors who contributed "
 "them to Wikipedia."
 msgstr ""
+"Os direitos autorais dessas obras pertencem aos autores originais que as "
+"contribuíram para a Wikipédia."
 
 msgid "Correspondence"
-msgstr ""
+msgstr "Correspondência"
 
 msgid "Correspondences"
 msgstr ""
 
 #, python-brace-format
 msgid "Could not extract {file_path} as a gzip file  (*.gz)."
-msgstr ""
+msgstr "Não foi possível extrair {file_path} como um arquivo gzip (*.gz)."
 
 #, python-brace-format
 msgid "Could not extract {file_path} as a gzipped tar file  (*.tar.gz)."
 msgstr ""
+"Não foi possível extrair {file_path} como um arquivo tar compactado com "
+"gzip (*.tar.gz)."
 
 #, python-brace-format
 msgid "Could not find a(n) {plugin_type} plugin \"{plugin_id}\"."
@@ -408,16 +450,18 @@ msgid ""
 "Could not find any of the following configuration files in "
 "{project_directory_path}: {configuration_file_names}."
 msgstr ""
+"Não foi possível encontrar nenhum dos seguintes arquivos de configuração "
+"em {project_directory_path}: {configuration_file_names}."
 
 #, python-brace-format
 msgid "Could not find the file \"{file_path}\"."
-msgstr ""
+msgstr "Não foi possível encontrar o arquivo \"{file_path}\"."
 
 msgid "Counties"
 msgstr ""
 
 msgid "Country"
-msgstr ""
+msgstr "País"
 
 msgid "County"
 msgstr ""
