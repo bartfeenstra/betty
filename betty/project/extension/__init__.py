@@ -89,10 +89,10 @@ class Extension(ServiceContainer, HasRequirement, Plugin["ExtensionDefinition"])
 @final
 @PluginTypeDefinition(
     "extension",
-    Extension,
-    _("Extension"),
-    _("Extensions"),
-    ngettext("{count} extension", "{count} extensions"),
+    base_cls=Extension,
+    label=_("Extension"),
+    label_plural=_("Extensions"),
+    label_countable=ngettext("{count} extension", "{count} extensions"),
     discovery=EntryPointDiscovery("betty.extension"),
 )
 class ExtensionDefinition(

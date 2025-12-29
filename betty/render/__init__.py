@@ -41,10 +41,10 @@ class Renderer(ABC, Plugin["RendererDefinition"]):
 @final
 @PluginTypeDefinition(
     "renderer",
-    Renderer,
-    _("Renderer"),
-    _("Renderers"),
-    ngettext("{count} renderer", "{count} renderers"),
+    base_cls=Renderer,
+    label=_("Renderer"),
+    label_plural=_("Renderers"),
+    label_countable=ngettext("{count} renderer", "{count} renderers"),
     discovery=EntryPointDiscovery("betty.renderer"),
 )
 class RendererDefinition(HumanFacingPluginDefinition[Renderer]):

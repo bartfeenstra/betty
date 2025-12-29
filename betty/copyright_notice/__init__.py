@@ -52,10 +52,10 @@ class CopyrightNotice(Mutable, Plugin["CopyrightNoticeDefinition"]):
 @final
 @PluginTypeDefinition(
     "copyright-notice",
-    CopyrightNotice,
-    _("Copyright notice"),
-    _("Copyright notices"),
-    ngettext("{count} copyright notice", "{count} copyright notices"),
+    base_cls=CopyrightNotice,
+    label=_("Copyright notice"),
+    label_plural=_("Copyright notices"),
+    label_countable=ngettext("{count} copyright notice", "{count} copyright notices"),
     discovery=[
         EntryPointDiscovery("betty.copyright_notice"),
         ProjectDiscovery(

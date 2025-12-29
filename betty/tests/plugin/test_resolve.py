@@ -12,10 +12,10 @@ class _PluginCls(Plugin["_PluginDefinition"]):
 
 @PluginTypeDefinition(
     "-",
-    _PluginCls,
-    DUMMY_LOCALIZABLE,
-    DUMMY_LOCALIZABLE,
-    DUMMY_COUNTABLE_LOCALIZABLE,
+    base_cls=_PluginCls,
+    label=DUMMY_LOCALIZABLE,
+    label_plural=DUMMY_LOCALIZABLE,
+    label_countable=DUMMY_COUNTABLE_LOCALIZABLE,
 )
 class _PluginDefinition(PluginDefinition[_PluginCls]):
     pass

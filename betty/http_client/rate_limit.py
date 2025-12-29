@@ -88,10 +88,12 @@ class RateLimit(Plugin["RateLimitDefinition"]):
 @final
 @PluginTypeDefinition(
     "http-rate-limit",
-    RateLimit,
-    _("HTTP client rate limit"),
-    _("HTTP client rate limits"),
-    ngettext("{count} HTTP client rate limit", "{count} HTTP client rate limits"),
+    base_cls=RateLimit,
+    label=_("HTTP client rate limit"),
+    label_plural=_("HTTP client rate limits"),
+    label_countable=ngettext(
+        "{count} HTTP client rate limit", "{count} HTTP client rate limits"
+    ),
     discovery=EntryPointDiscovery("betty.http_rate_limit"),
 )
 class RateLimitDefinition(OrderedPluginDefinition[RateLimit]):

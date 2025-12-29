@@ -33,10 +33,10 @@ class HasRequirementPlugin(HasRequirement, Plugin["HasRequirementPluginDefinitio
 
 @PluginTypeDefinition(
     "-",
-    HasRequirementPlugin,
-    "HasRequirement",
-    "HasRequirement",
-    DUMMY_COUNTABLE_LOCALIZABLE,
+    base_cls=HasRequirementPlugin,
+    label="HasRequirement",
+    label_plural="HasRequirement",
+    label_countable=DUMMY_COUNTABLE_LOCALIZABLE,
 )
 class HasRequirementPluginDefinition(DependentPluginDefinition[HasRequirementPlugin]):
     pass

@@ -24,10 +24,10 @@ class PresenceRole(Plugin["PresenceRoleDefinition"]):
 @final
 @PluginTypeDefinition(
     "presence-role",
-    PresenceRole,
-    _("Presence role"),
-    _("Presence roles"),
-    ngettext("{count} presence role", "{count} presence roles"),
+    base_cls=PresenceRole,
+    label=_("Presence role"),
+    label_plural=_("Presence roles"),
+    label_countable=ngettext("{count} presence role", "{count} presence roles"),
     discovery=[
         EntryPointDiscovery("betty.presence_role"),
         ProjectDiscovery(

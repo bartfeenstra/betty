@@ -100,10 +100,10 @@ class DummyPlugin(Plugin["DummyPluginDefinition"]):
 
 @PluginTypeDefinition(
     "dummy-plugin",
-    DummyPlugin,
-    " dummy plugin",
-    " dummy plugin",
-    DUMMY_COUNTABLE_LOCALIZABLE,
+    base_cls=DummyPlugin,
+    label=" dummy plugin",
+    label_plural=" dummy plugin",
+    label_countable=DUMMY_COUNTABLE_LOCALIZABLE,
     discovery=CallbackDiscovery(
         lambda: [
             DummyPluginOne.plugin(),

@@ -24,10 +24,10 @@ class Gender(Plugin["GenderDefinition"]):
 @final
 @PluginTypeDefinition(
     "gender",
-    Gender,
-    _("Gender"),
-    _("Genders"),
-    ngettext("{count} gender", "{count} genders"),
+    base_cls=Gender,
+    label=_("Gender"),
+    label_plural=_("Genders"),
+    label_countable=ngettext("{count} gender", "{count} genders"),
     discovery=[
         EntryPointDiscovery("betty.gender"),
         ProjectDiscovery(lambda project: project.configuration.genders.new_plugins()),
