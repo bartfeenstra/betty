@@ -49,6 +49,7 @@ from betty.project.extension.raspberry_mint.content_provider import (
     Columns,
     ColumnsConfiguration,
     ColumnsWidth,
+    Enclosees,
     ExternalLinks,
     Facts,
     Families,
@@ -1051,3 +1052,41 @@ class TestColumns(ContentProviderTestBase):
         assert actual is not None
         assert "col col-8 col-lg-7" in actual
         assert "col col-4 col-lg-5" in actual
+
+
+class TestEnclosees(ContentProviderTestBase):
+    @override
+    @pytest.fixture
+    async def sut(self, isolated_app: App) -> ContentProvider:
+        async with Project.new_isolated(isolated_app) as project, project:
+            return Enclosees(jinja2_environment=await project.jinja2_environment)
+
+    @pytest.mark.parametrize(
+        "resource",
+        [
+            None,
+            object(),
+            Person(),
+            Place(),
+        ],
+    )
+    async def test_provide__without_enclosees(
+        self, resource: object, isolated_app: App
+    ) -> None:
+        async with Project.new_isolated(isolated_app) as project:
+            project.configuration.extensions.enable(RaspberryMint)
+            async with project:
+                sut = await Enclosees.new_for_project(project)
+        assert await sut.provide(document=Document(resource)) is None
+
+    async def test_provide__with_enclosee(self, isolated_app: App) -> None:
+        enclosee = Place()
+        resource = Place()
+        Enclosure(enclosee, resource)
+        async with Project.new_isolated(isolated_app) as project:
+            project.configuration.extensions.enable(RaspberryMint)
+            async with project:
+                sut = await Enclosees.new_for_project(project)
+                actual = await sut.provide(document=Document(resource))
+        assert actual is not None
+        assert enclosee.public_id in actual
