@@ -9,6 +9,8 @@ Built-in content providers
     Display an interactive map for the :doc:`places </usage/ancestry/place.rst>` associated with a resource.
 ``notes`` (:py:class:`betty.content_provider.content_providers.Notes`)
     Display a resource's :doc:`notes </usage/ancestry/note.rst>`
+``raspberry-mint-citations`` (:py:class:`betty.project.extension.raspberry_mint.content_provider.Citations`)
+    The citations for a document resource that is an entity.
 ``raspberry-mint-color-style`` (:py:class:`betty.project.extension.raspberry_mint.content_provider.ColorStyle`)
     Change the color style for all containing content.
 ``raspberry-mint-columns`` (:py:class:`betty.project.extension.raspberry_mint.content_provider.Columns`)
