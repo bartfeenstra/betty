@@ -168,7 +168,9 @@ class TestTemplate:
             class _Jinja2TemplateContentProvider(Template):
                 pass
 
-            sut = await _Jinja2TemplateContentProvider.new_for_project(project)
+            sut = _Jinja2TemplateContentProvider(
+                jinja2_environment=await project.jinja2_environment
+            )
             provided_content = await sut.provide(
                 document=Document(
                     "my-first-page-resource",

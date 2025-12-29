@@ -2,21 +2,30 @@
 Tree content.
 """
 
+from typing import Self
+
 from typing_extensions import override
 
 from betty.content_provider import ContentProviderDefinition
 from betty.content_provider.content_providers import Template
 from betty.locale.localizable.gettext import _
+from betty.project import Project
 from betty.project.extension.trees import Trees
+from betty.project.factory import ProjectDependentSelfFactory
 from betty.requirement import HasRequirement, Requirement
 from betty.service.level import ServiceLevel
 
 
 @ContentProviderDefinition("trees-tree", label=_("Family tree"))
-class Tree(Template, HasRequirement):
+class Tree(Template, ProjectDependentSelfFactory, HasRequirement):
     """
     An interactive family tree.
     """
+
+    @override
+    @classmethod
+    async def new_for_project(cls, project: Project) -> Self:
+        return cls(jinja2_environment=await project.jinja2_environment)
 
     @override
     @classmethod

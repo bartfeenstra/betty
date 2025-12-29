@@ -121,7 +121,7 @@ class Render(
         )
 
 
-class Template(ProjectDependentSelfFactory, ContentProvider):
+class Template(ContentProvider):
     """
     Provides content by rendering a Jinja2 template.
     """
@@ -130,11 +130,6 @@ class Template(ProjectDependentSelfFactory, ContentProvider):
     def __init__(self, *args: Any, jinja2_environment: Environment, **kwargs: Any):
         super().__init__(*args, **kwargs)
         self._jinja2_environment = jinja2_environment
-
-    @override
-    @classmethod
-    async def new_for_project(cls, project: Project, /) -> Self:
-        return cls(jinja2_environment=await project.jinja2_environment)
 
     @override
     async def provide(self, *, document: Document) -> str | None:
@@ -156,10 +151,15 @@ class Template(ProjectDependentSelfFactory, ContentProvider):
 
 
 @ContentProviderDefinition("notes", label=_("Notes"))
-class Notes(Template):
+class Notes(Template, ProjectDependentSelfFactory):
     """
     Render a page resource's notes, if it has any.
     """
+
+    @override
+    @classmethod
+    async def new_for_project(cls, project: Project) -> Self:
+        return cls(jinja2_environment=await project.jinja2_environment)
 
 
 @final

@@ -148,7 +148,6 @@ class SectionConfiguration(Configuration):
 @ContentProviderDefinition("raspberry-mint-section", label=_("Section"))
 class Section(
     Template,
-    ProjectDependentSelfFactory,
     _Base,
     ConfigurationDependentSelfFactory[SectionConfiguration],
 ):
@@ -205,8 +204,9 @@ class Section(
 )
 class FeaturedEntities(
     Template,
-    ConfigurationDependentSelfFactory[EntityReferenceSequence],
     _Base,
+    ProjectDependentSelfFactory,
+    ConfigurationDependentSelfFactory[EntityReferenceSequence],
 ):
     """
     Featured entities.
@@ -230,13 +230,13 @@ class FeaturedEntities(
 
     @override
     @classmethod
-    def configuration_cls(cls) -> type[EntityReferenceSequence]:
-        return EntityReferenceSequence
+    async def new_for_project(cls, project: Project) -> Self:
+        return cls(jinja2_environment=await project.jinja2_environment, project=project)
 
     @override
     @classmethod
-    async def new_for_project(cls, project: Project, /) -> Self:
-        return cls(jinja2_environment=await project.jinja2_environment, project=project)
+    def configuration_cls(cls) -> type[EntityReferenceSequence]:
+        return EntityReferenceSequence
 
     @override
     @classmethod
@@ -270,10 +270,15 @@ class FeaturedEntities(
 
 
 @ContentProviderDefinition("raspberry-mint-families", label=_("Families"))
-class Families(Template, _Base):
+class Families(Template, _Base, ProjectDependentSelfFactory):
     """
     A person's families.
     """
+
+    @override
+    @classmethod
+    async def new_for_project(cls, project: Project, /) -> Self:
+        return cls(jinja2_environment=await project.jinja2_environment)
 
 
 @ContentProviderDefinition(
@@ -281,10 +286,15 @@ class Families(Template, _Base):
     label=_("Media"),
     description=_("A single file in a media display"),
 )
-class Media(Template):
+class Media(Template, _Base, ProjectDependentSelfFactory):
     """
     A single file in a media display.
     """
+
+    @override
+    @classmethod
+    async def new_for_project(cls, project: Project, /) -> Self:
+        return cls(jinja2_environment=await project.jinja2_environment)
 
 
 @ContentProviderDefinition(
@@ -292,10 +302,15 @@ class Media(Template):
     label=_("Media gallery"),
     description=_("Multiple files in a media gallery display"),
 )
-class MediaGallery(Template):
+class MediaGallery(Template, _Base, ProjectDependentSelfFactory):
     """
     Multiple files in a media gallery display.
     """
+
+    @override
+    @classmethod
+    async def new_for_project(cls, project: Project, /) -> Self:
+        return cls(jinja2_environment=await project.jinja2_environment)
 
 
 @final
@@ -350,7 +365,9 @@ class ColorStyleConfiguration(Configuration):
 
 
 @ContentProviderDefinition("raspberry-mint-color-style", label=_("Color style"))
-class ColorStyle(Template, ConfigurationDependentSelfFactory[ColorStyleConfiguration]):
+class ColorStyle(
+    Template, _Base, ConfigurationDependentSelfFactory[ColorStyleConfiguration]
+):
     """
     Change the color style for all containing content.
     """
@@ -382,17 +399,27 @@ class ColorStyle(Template, ConfigurationDependentSelfFactory[ColorStyleConfigura
 
 
 @ContentProviderDefinition("raspberry-mint-external-links", label=_("External links"))
-class ExternalLinks(Template):
+class ExternalLinks(Template, _Base, ProjectDependentSelfFactory):
     """
     External links.
     """
 
+    @override
+    @classmethod
+    async def new_for_project(cls, project: Project, /) -> Self:
+        return cls(jinja2_environment=await project.jinja2_environment)
+
 
 @ContentProviderDefinition("raspberry-mint-timeline", label=_("Timeline"))
-class Timeline(Template):
+class Timeline(Template, _Base, ProjectDependentSelfFactory):
     """
     A timeline of events.
     """
+
+    @override
+    @classmethod
+    async def new_for_project(cls, project: Project, /) -> Self:
+        return cls(jinja2_environment=await project.jinja2_environment)
 
 
 @ContentProviderDefinition(
@@ -402,10 +429,15 @@ class Timeline(Template):
         "Other entities that reference a citation or source to back up their claims."
     ),
 )
-class Facts(Template):
+class Facts(Template, _Base, ProjectDependentSelfFactory):
     """
     A list of facts.
     """
+
+    @override
+    @classmethod
+    async def new_for_project(cls, project: Project, /) -> Self:
+        return cls(jinja2_environment=await project.jinja2_environment)
 
 
 class PresencesConfiguration(Configuration):
@@ -468,10 +500,7 @@ class PresencesConfiguration(Configuration):
 
 @ContentProviderDefinition("raspberry-mint-presences", label=_("Presences"))
 class Presences(
-    Template,
-    ProjectDependentSelfFactory,
-    _Base,
-    ConfigurationDependentSelfFactory[PresencesConfiguration],
+    Template, _Base, ConfigurationDependentSelfFactory[PresencesConfiguration]
 ):
     """
     People's presences at an event.
@@ -630,12 +659,7 @@ class ColumnsConfiguration(Configuration):
 
 
 @ContentProviderDefinition("raspberry-mint-columns", label=_("Columns"))
-class Columns(
-    Template,
-    ProjectDependentSelfFactory,
-    _Base,
-    ConfigurationDependentSelfFactory[ColumnsConfiguration],
-):
+class Columns(Template, _Base, ConfigurationDependentSelfFactory[ColumnsConfiguration]):
     """
     A container with one or more columns.
     """
@@ -671,21 +695,36 @@ class Columns(
 
 
 @ContentProviderDefinition("raspberry-mint-enclosees", label=_("Enclosees"))
-class Enclosees(Template):
+class Enclosees(Template, _Base, ProjectDependentSelfFactory):
     """
     Show the places enclosed by a place document resource.
     """
 
+    @override
+    @classmethod
+    async def new_for_project(cls, project: Project, /) -> Self:
+        return cls(jinja2_environment=await project.jinja2_environment)
+
 
 @ContentProviderDefinition("raspberry-mint-file-referees", label=_("File referees"))
-class FileReferees(Template):
+class FileReferees(Template, _Base, ProjectDependentSelfFactory):
     """
     Show the entities referencing a document resource that is a file.
     """
 
+    @override
+    @classmethod
+    async def new_for_project(cls, project: Project, /) -> Self:
+        return cls(jinja2_environment=await project.jinja2_environment)
+
 
 @ContentProviderDefinition("raspberry-mint-citations", label=_("Citations"))
-class Citations(Template):
+class Citations(Template, _Base, ProjectDependentSelfFactory):
     """
     The citations for a document resource that is an entity.
     """
+
+    @override
+    @classmethod
+    async def new_for_project(cls, project: Project, /) -> Self:
+        return cls(jinja2_environment=await project.jinja2_environment)
