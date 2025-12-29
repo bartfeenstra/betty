@@ -31,8 +31,8 @@ from betty.locale import DEFAULT_LOCALE
 from betty.locale.localizable.gettext import _
 from betty.locale.localize import Localizer, LocalizerRepository
 from betty.locale.translation import (
+    DEFAULT_TRANSLATION_REPOSITORY,
     AssetTranslationRepository,
-    NoOpTranslationRepository,
     TranslationRepository,
 )
 from betty.multiprocessing import ProcessPoolExecutor
@@ -178,7 +178,7 @@ class App(Configurable[AppConfiguration], ServiceContainer, PluginRepositoryProv
                 cache_factory=cache_factory or StaticService(NoOpCache()),
                 process_pool=process_pool,
                 user=NoOpUser() if user is None else user,
-                translations=NoOpTranslationRepository()
+                translations=DEFAULT_TRANSLATION_REPOSITORY
                 if translations is False
                 else translations,
             )

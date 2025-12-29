@@ -192,25 +192,6 @@ class TranslationRepository(ABC):
 
 
 @final
-class NoOpTranslationRepository(TranslationRepository):
-    """
-    Provide no translations.
-    """
-
-    def __init__(self):
-        self._translations = gettext.NullTranslations()
-
-    @override
-    @property
-    def locales(self) -> Iterable[Locale]:
-        return ()
-
-    @override
-    def get(self, locale: LocaleLike) -> gettext.NullTranslations:
-        return self._translations
-
-
-@final
 class StaticTranslationRepository(TranslationRepository):
     """
     Provide static translations.
@@ -231,6 +212,14 @@ class StaticTranslationRepository(TranslationRepository):
             return self._translations[locale]
         except KeyError:
             raise UntranslatedLocale(locale) from None
+
+
+DEFAULT_TRANSLATION_REPOSITORY = StaticTranslationRepository(
+    {DEFAULT_LOCALE: gettext.NullTranslations()}
+)
+"""
+The translation repository for the default locale.
+"""
 
 
 @final

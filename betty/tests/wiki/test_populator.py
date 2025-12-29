@@ -12,7 +12,7 @@ from betty.ancestry.link import Link
 from betty.ancestry.place import Place
 from betty.ancestry.source import Source
 from betty.locale.localize import LocalizerRepository
-from betty.locale.translation import NoOpTranslationRepository
+from betty.locale.translation import DEFAULT_TRANSLATION_REPOSITORY
 from betty.media_type import MediaType
 from betty.media_type.media_types import HTML
 from betty.test_utils.locale.localizable import DUMMY_LOCALIZABLE
@@ -44,7 +44,7 @@ class TestPopulator:
         ]
         link = Link("http://en.wikipedia.org/wiki/Amsterdam")
         ancestry = Ancestry(link)
-        localizers = LocalizerRepository(NoOpTranslationRepository())
+        localizers = LocalizerRepository(DEFAULT_TRANSLATION_REPOSITORY)
         sut = Populator(
             ancestry,
             [Locale("en"), Locale("nl"), Locale("uk")],
@@ -97,7 +97,7 @@ class TestPopulator:
         ]
         link = Link("http://en.wikipedia.org/wiki/Amsterdam")
         ancestry = Ancestry(link)
-        localizers = LocalizerRepository(NoOpTranslationRepository())
+        localizers = LocalizerRepository(DEFAULT_TRANSLATION_REPOSITORY)
         sut = Populator(
             ancestry,
             [Locale("en"), Locale("nl"), Locale("uk")],
@@ -126,7 +126,7 @@ class TestPopulator:
         )
         link = Link("https://example.com")
         ancestry = Ancestry(link)
-        localizers = LocalizerRepository(NoOpTranslationRepository())
+        localizers = LocalizerRepository(DEFAULT_TRANSLATION_REPOSITORY)
         sut = Populator(
             ancestry,
             [Locale("en"), Locale("nl"), Locale("uk")],
@@ -149,7 +149,7 @@ class TestPopulator:
         sut = Populator(
             ancestry,
             [],
-            LocalizerRepository(NoOpTranslationRepository()),
+            LocalizerRepository(DEFAULT_TRANSLATION_REPOSITORY),
             m_client,
             WikipediaContributors(DUMMY_LOCALIZABLE),
             user=NoOpUser(),
@@ -179,7 +179,7 @@ class TestPopulator:
         sut = Populator(
             ancestry,
             [Locale("en")],
-            LocalizerRepository(NoOpTranslationRepository()),
+            LocalizerRepository(DEFAULT_TRANSLATION_REPOSITORY),
             m_client,
             WikipediaContributors(DUMMY_LOCALIZABLE),
             user=NoOpUser(),
@@ -215,7 +215,7 @@ class TestPopulator:
         sut = Populator(
             ancestry,
             [Locale("en")],
-            LocalizerRepository(NoOpTranslationRepository()),
+            LocalizerRepository(DEFAULT_TRANSLATION_REPOSITORY),
             m_client,
             WikipediaContributors(DUMMY_LOCALIZABLE),
             user=NoOpUser(),

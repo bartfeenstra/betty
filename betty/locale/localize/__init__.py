@@ -116,5 +116,11 @@ class LocalizerRepository:
         try:
             return self._localizers[locale]
         except KeyError:
-            self._localizers[locale] = Localizer(locale, self._translations.get(locale))
+            from betty.locale.translation import UntranslatedLocale
+
+            try:
+                translations = self._translations.get(locale)
+            except UntranslatedLocale:
+                translations = gettext.NullTranslations()
+            self._localizers[locale] = Localizer(locale, translations)
             return self._localizers[locale]
