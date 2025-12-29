@@ -16,7 +16,7 @@ from betty.document import Document
 from betty.model import Entity
 from betty.project import Project
 from betty.project.extension.maps import Maps
-from betty.project.extension.maps.content_provider import Map
+from betty.project.extension.maps.content_provider import Map, MapAttribution
 from betty.test_utils.content_provider import ContentProviderTestBase
 
 
@@ -90,3 +90,19 @@ class TestMap(ContentProviderTestBase):
         assert place.public_id in actual
         assert "webpack_js_entry_points" in document
         assert "maps" in document["webpack_js_entry_points"]  # type: ignore[operator]
+
+
+class TestMapAttribution(ContentProviderTestBase):
+    @override
+    @pytest.fixture
+    async def sut(self, isolated_app: App) -> ContentProvider:
+        async with Project.new_isolated(isolated_app) as project, project:
+            return MapAttribution(jinja2_environment=await project.jinja2_environment)
+
+    async def test_provide(self, isolated_app: App) -> None:
+        async with Project.new_isolated(isolated_app) as project:
+            project.configuration.extensions.enable(Maps)
+            async with project:
+                sut = await MapAttribution.new_for_project(project)
+                actual = await sut.provide(document=Document())
+        assert actual

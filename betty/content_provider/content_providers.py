@@ -4,11 +4,16 @@ Dynamic content.
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Any, Self
+from typing import TYPE_CHECKING, Any, Self, final
 
 from typing_extensions import override
 
-from betty.assertion import OptionalField, RequiredField, assert_record, assert_str
+from betty.assertion import (
+    OptionalField,
+    RequiredField,
+    assert_record,
+    assert_str,
+)
 from betty.config import Configuration
 from betty.config.factory import ConfigurationDependentSelfFactory
 from betty.content_provider import ContentProvider, ContentProviderDefinition
@@ -18,6 +23,10 @@ from betty.locale.localizable.config import dump_localizable
 from betty.locale.localizable.gettext import _
 from betty.media_type import MediaType
 from betty.media_type.media_types import PLAIN_TEXT
+from betty.plugin.config import (
+    PluginInstanceConfiguration,
+    PluginInstanceConfigurationSequence,
+)
 from betty.project import Project
 from betty.project.factory import (
     CallbackProjectDependentFactory,
@@ -27,13 +36,13 @@ from betty.requirement import HasRequirement, Requirement
 from betty.typing import private
 
 if TYPE_CHECKING:
-    from collections.abc import Mapping
+    from collections.abc import Iterable, Mapping, Sequence
 
     from betty.document import Document
     from betty.jinja2 import Environment
     from betty.locale.localizable import LocalizableLike
     from betty.render import RenderDispatcher
-    from betty.serde.dump import Dump
+    from betty.serde.dump import Dump, DumpMapping
     from betty.service.level import ServiceLevel
     from betty.service.level.factory import AnyFactoryTarget
 
@@ -151,3 +160,116 @@ class Notes(Template):
     """
     Render a page resource's notes, if it has any.
     """
+
+
+@final
+class BoxConfiguration(Configuration):
+    """
+    Configuration for :py:class:`betty.content_provider.content_providers.Box`.
+    """
+
+    def __init__(
+        self,
+        content: Sequence[
+            PluginInstanceConfiguration[ContentProviderDefinition, ContentProvider]
+        ]
+        | PluginInstanceConfiguration[ContentProviderDefinition, ContentProvider],
+        *,
+        min_height: str | None = None,
+        max_height: str | None = None,
+        height: str | None = None,
+        min_width: str | None = None,
+        max_width: str | None = None,
+        width: str | None = None,
+    ):
+        super().__init__()
+        self._content = PluginInstanceConfigurationSequence(
+            [content] if isinstance(content, PluginInstanceConfiguration) else content
+        )
+        self.min_height = min_height
+        self.max_height = max_height
+        self.height = height
+        self.min_width = min_width
+        self.max_width = max_width
+        self.width = width
+
+    @property
+    def content(
+        self,
+    ) -> PluginInstanceConfigurationSequence[
+        ContentProviderDefinition, ContentProvider
+    ]:
+        """
+        The content within this box.
+        """
+        return self._content
+
+    @override
+    @classmethod
+    def load(cls, dump: Dump, /) -> Self:
+        return cls(
+            **assert_record(
+                RequiredField("content", PluginInstanceConfigurationSequence.load),
+                OptionalField("min_height", assert_str()),
+                OptionalField("max_height", assert_str()),
+                OptionalField("height", assert_str()),
+                OptionalField("min_width", assert_str()),
+                OptionalField("max_width", assert_str()),
+                OptionalField("width", assert_str()),
+            )(dump)
+        )
+
+    @override
+    def dump(self) -> DumpMapping[Dump]:
+        dump: DumpMapping[Dump] = {
+            "content": self.content.dump(),
+        }
+        if self.min_height is not None:
+            dump["min_height"] = self.min_height
+        if self.max_height is not None:
+            dump["max_height"] = self.max_height
+        if self.height is not None:
+            dump["height"] = self.height
+        if self.min_width is not None:
+            dump["min_width"] = self.min_width
+        if self.max_width is not None:
+            dump["max_width"] = self.max_width
+        if self.width is not None:
+            dump["width"] = self.width
+        return dump
+
+    @override
+    def get_mutables(self) -> Iterable[object]:
+        return self.content
+
+
+@final
+@ContentProviderDefinition("box", label=_("Box"))
+class Box(Template, ConfigurationDependentSelfFactory[BoxConfiguration]):
+    """
+    A box whose dimensions can be configured.
+    """
+
+    @override
+    @classmethod
+    def configuration_cls(cls) -> type[BoxConfiguration]:
+        return BoxConfiguration
+
+    @override
+    @classmethod
+    def new_for_configuration(
+        cls, configuration: BoxConfiguration
+    ) -> AnyFactoryTarget[Self]:
+        async def _factory(project: Project) -> Self:
+            return cls(
+                configuration=configuration,
+                jinja2_environment=await project.jinja2_environment,
+            )
+
+        return CallbackProjectDependentFactory(_factory)
+
+    @override
+    async def _provide_data(self, document: Document) -> Mapping[str, Any]:
+        return {
+            "box_configuration": self.configuration,
+        }

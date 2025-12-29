@@ -12,6 +12,8 @@ from betty.app import App
 from betty.config.factory import ConfigurationDependentSelfFactory
 from betty.content_provider import ContentProvider, ContentProviderDefinition
 from betty.content_provider.content_providers import (
+    Box,
+    BoxConfiguration,
     Notes,
     Render,
     RenderConfiguration,
@@ -25,6 +27,7 @@ from betty.locale.localizable import LocalizableLike
 from betty.locale.localizable.static import StaticTranslations
 from betty.locale.localize import DEFAULT_LOCALIZER, Localizer
 from betty.media_type.media_types import HTML, PLAIN_TEXT
+from betty.plugin.config import PluginInstanceConfiguration
 from betty.project import Project
 from betty.render import RenderDispatcher
 from betty.render.plain_text import PlainText
@@ -34,6 +37,8 @@ from betty.test_utils.locale.localizable import DUMMY_LOCALIZABLE
 from betty.tests.ancestry.test_has_notes import DummyHasNotes
 
 if TYPE_CHECKING:
+    from collections.abc import Sequence
+
     from betty.serde.dump import Dump
 
 
@@ -208,3 +213,135 @@ class TestNotes(ContentProviderTestBase):
             actual = await sut.provide(document=Document(has_notes))
             assert actual is not None
             assert note_text in actual
+
+
+class TestBoxConfiguration:
+    def test_content(self) -> None:
+        content: Sequence[
+            PluginInstanceConfiguration[ContentProviderDefinition, ContentProvider]
+        ] = [PluginInstanceConfiguration("my-first-content")]
+        sut = BoxConfiguration(content)
+        assert sut.content[0].id == "my-first-content"
+
+    def test_load__minimal(self) -> None:
+        sut = BoxConfiguration.load(
+            {
+                "content": [
+                    "my-first-content",
+                ],
+            }
+        )
+        assert sut.content[0].id == "my-first-content"
+
+    def test_load__full(self) -> None:
+        sut = BoxConfiguration.load(
+            {
+                "content": [
+                    "my-first-content",
+                ],
+                "min_height": "MIN_HEIGHT",
+                "max_height": "MAX_HEIGHT",
+                "height": "HEIGHT",
+                "min_width": "MIN_WIDTH",
+                "max_width": "MAX_WIDTH",
+                "width": "WIDTH",
+            }
+        )
+        assert sut.min_height == "MIN_HEIGHT"
+        assert sut.max_height == "MAX_HEIGHT"
+        assert sut.height == "HEIGHT"
+        assert sut.min_width == "MIN_WIDTH"
+        assert sut.max_width == "MAX_WIDTH"
+        assert sut.width == "WIDTH"
+
+    def test_dump__minimal(self) -> None:
+        sut = BoxConfiguration(PluginInstanceConfiguration("my-first-content"))
+        assert sut.dump() == {
+            "content": [
+                "my-first-content",
+            ],
+        }
+
+    def test_dump__full(self) -> None:
+        sut = BoxConfiguration(
+            PluginInstanceConfiguration("my-first-content"),
+            min_height="MIN_HEIGHT",
+            max_height="MAX_HEIGHT",
+            height="HEIGHT",
+            min_width="MIN_WIDTH",
+            max_width="MAX_WIDTH",
+            width="WIDTH",
+        )
+        assert sut.dump() == {
+            "content": [
+                "my-first-content",
+            ],
+            "min_height": "MIN_HEIGHT",
+            "max_height": "MAX_HEIGHT",
+            "height": "HEIGHT",
+            "min_width": "MIN_WIDTH",
+            "max_width": "MAX_WIDTH",
+            "width": "WIDTH",
+        }
+
+    def test_get_mutables(self) -> None:
+        sut = BoxConfiguration(PluginInstanceConfiguration("my-first-content"))
+        assert list(sut.get_mutables())
+
+
+class TestBox(ContentProviderTestBase):
+    @override
+    @pytest.fixture
+    async def sut(self, isolated_app: App) -> ContentProvider:
+        async with Project.new_isolated(isolated_app) as project, project:
+            return await project.new_target(
+                Box.new_for_configuration(  # type: ignore[arg-type]
+                    BoxConfiguration(
+                        PluginInstanceConfiguration(
+                            Render, RenderConfiguration(DUMMY_LOCALIZABLE)
+                        )
+                    )
+                )
+            )
+
+    async def test_provide__minimal(self, isolated_app: App) -> None:
+        async with Project.new_isolated(isolated_app) as project, project:
+            sut = await project.new_target(
+                Box.new_for_configuration(
+                    BoxConfiguration(
+                        PluginInstanceConfiguration(
+                            Render, RenderConfiguration(DUMMY_LOCALIZABLE)
+                        )
+                    )
+                )
+            )
+            actual = await sut.provide(document=Document())
+        assert actual is not None
+        assert "<div>" in actual
+
+    async def test_provide__full(self, isolated_app: App) -> None:
+        async with Project.new_isolated(isolated_app) as project, project:
+            sut = await project.new_target(
+                Box.new_for_configuration(
+                    BoxConfiguration(
+                        PluginInstanceConfiguration(
+                            Render, RenderConfiguration(DUMMY_LOCALIZABLE)
+                        ),
+                        min_height="MIN_HEIGHT",
+                        max_height="MAX_HEIGHT",
+                        height="HEIGHT",
+                        min_width="MIN_WIDTH",
+                        max_width="MAX_WIDTH",
+                        width="WIDTH",
+                    )
+                )
+            )
+            actual = await sut.provide(document=Document())
+        assert actual is not None
+        assert "<div>" not in actual
+        assert "min-height: MIN_HEIGHT;" in actual
+        assert "max-height: MAX_HEIGHT;" in actual
+        assert "height: HEIGHT;" in actual
+        assert "min-width: MIN_WIDTH;" in actual
+        assert "max-width: MAX_WIDTH;" in actual
+        assert "width: WIDTH;" in actual

@@ -1,0 +1,25 @@
+{% set provided_content = box_configuration.content | provide_content %}
+{% if provided_content %}
+    {% set styles = [] %}
+    {% if box_configuration.min_height %}
+        {% do styles.append('min-height: ' ~ box_configuration.min_height ~ ';') %}
+    {% endif %}
+    {% if box_configuration.max_height %}
+        {% do styles.append('max-height: ' ~ box_configuration.max_height ~ ';') %}
+    {% endif %}
+    {% if box_configuration.height %}
+        {% do styles.append('height: ' ~ box_configuration.height ~ ';') %}
+    {% endif %}
+    {% if box_configuration.min_width %}
+        {% do styles.append('min-width: ' ~ box_configuration.min_width ~ ';') %}
+    {% endif %}
+    {% if box_configuration.max_width %}
+        {% do styles.append('max-width: ' ~ box_configuration.max_width ~ ';') %}
+    {% endif %}
+    {% if box_configuration.width %}
+        {% do styles.append('width: ' ~ box_configuration.width ~ ';') %}
+    {% endif %}
+    <div{% if styles %} style="{{ styles | join }}"{% endif %}>
+        {{ provided_content }}
+    </div>
+{% endif %}

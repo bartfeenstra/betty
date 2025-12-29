@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Betty VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2025-12-29 17:11+0000\n"
+"POT-Creation-Date: 2025-12-29 19:04+0000\n"
 "PO-Revision-Date: 2025-12-08 19:00+0000\n"
 "Last-Translator: Artur Kalagov "
 "<artur.kalagov@users.noreply.hosted.weblate.org>\n"
@@ -278,6 +278,9 @@ msgid "Borough"
 msgstr "Боро"
 
 msgid "Boroughs"
+msgstr ""
+
+msgid "Box"
 msgstr ""
 
 msgid "Breadcrumbs"
@@ -898,6 +901,9 @@ msgid "Man"
 msgstr ""
 
 msgid "Map"
+msgstr ""
+
+msgid "Map attribution"
 msgstr ""
 
 msgid "Marriage"

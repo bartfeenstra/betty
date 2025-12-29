@@ -225,7 +225,9 @@ betty = 'betty.console:main_standalone'
 'plain-text' = 'betty.render.plain_text:PlainText'
 
 [project.entry-points.'betty.content_provider']
+'box' = 'betty.content_provider.content_providers:Box'
 'maps-map' = 'betty.project.extension.maps.content_provider:Map'
+'maps-map-attribution' = 'betty.project.extension.maps.content_provider:MapAttribution'
 'notes' = 'betty.content_provider.content_providers:Notes'
 'raspberry-mint-citations' = 'betty.project.extension.raspberry_mint.content_provider:Citations'
 'raspberry-mint-color-style' = 'betty.project.extension.raspberry_mint.content_provider:ColorStyle'

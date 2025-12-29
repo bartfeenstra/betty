@@ -150,6 +150,11 @@ class ColorStyle(Enum):
     A light style with a light shade of the secondary color for the background.
     """
 
+    LIGHT_CONTRAST = "light-contrast"
+    """
+    A light style with a light shade of gray for the background.
+    """
+
     DARK = "dark"
     """
     A dark style with a black background.
