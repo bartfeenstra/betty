@@ -38,6 +38,8 @@ from betty.plugin.config import (
     PluginInstanceConfiguration,
     PluginInstanceConfigurationSequence,
     PluginInstanceConfigurationSequenceSequence,
+    ShorthandPluginInstanceConfigurationSequence,
+    ShorthandPluginInstanceConfigurationSequenceSequence,
 )
 from betty.plugin.resolve import resolve_id
 from betty.project.extension.raspberry_mint import (
@@ -86,12 +88,11 @@ class SectionConfiguration(Configuration):
 
     def __init__(
         self,
+        content: ShorthandPluginInstanceConfigurationSequence[
+            ContentProviderDefinition, ContentProvider
+        ],
         *,
         heading: LocalizableLike,
-        content: Sequence[
-            PluginInstanceConfiguration[ContentProviderDefinition, ContentProvider]
-        ]
-        | None = None,
         name: MachineName | None = None,
         visually_hide_heading: bool = False,
     ):
@@ -163,7 +164,9 @@ class Section(
         configuration: SectionConfiguration | None = None,
     ):
         super().__init__(
-            configuration=SectionConfiguration(name="", heading="-")
+            configuration=SectionConfiguration(
+                PluginInstanceConfiguration("my-first-plugin"), name="", heading="-"
+            )
             if configuration is None
             else configuration,
             jinja2_environment=jinja2_environment,
@@ -303,12 +306,11 @@ class ColorStyleConfiguration(Configuration):
 
     def __init__(
         self,
-        style: RaspberryMintColorStyle = RaspberryMintColorStyle.LIGHT,
+        content: ShorthandPluginInstanceConfigurationSequence[
+            ContentProviderDefinition, ContentProvider
+        ],
         *,
-        content: Sequence[
-            PluginInstanceConfiguration[ContentProviderDefinition, ContentProvider]
-        ]
-        | None = None,
+        style: RaspberryMintColorStyle = RaspberryMintColorStyle.LIGHT,
     ):
         super().__init__()
         self.style = style
@@ -353,29 +355,10 @@ class ColorStyle(Template, ConfigurationDependentSelfFactory[ColorStyleConfigura
     Change the color style for all containing content.
     """
 
-    @private
-    def __init__(
-        self,
-        *,
-        jinja2_environment: Environment,
-        configuration: ColorStyleConfiguration | None = None,
-    ):
-        super().__init__(
-            configuration=ColorStyleConfiguration()
-            if configuration is None
-            else configuration,
-            jinja2_environment=jinja2_environment,
-        )
-
     @override
     @classmethod
     def configuration_cls(cls) -> type[ColorStyleConfiguration]:
         return ColorStyleConfiguration
-
-    @override
-    @classmethod
-    async def new_for_project(cls, project: Project) -> Self:
-        return cls(jinja2_environment=await project.jinja2_environment)
 
     @override
     @classmethod
@@ -556,20 +539,15 @@ class ColumnsConfiguration(Configuration):
 
     def __init__(
         self,
-        *,
-        content: PluginInstanceConfigurationSequenceSequence[
+        content: ShorthandPluginInstanceConfigurationSequenceSequence[
             ContentProviderDefinition, ContentProvider
-        ]
-        | PluginInstanceConfiguration[ContentProviderDefinition, ContentProvider],
+        ],
+        *,
         width: ShorthandColumnsWidth | None = None,
         justify_content: JustifyContent | None = None,
     ):
         super().__init__()
-        if isinstance(content, PluginInstanceConfiguration):
-            content = PluginInstanceConfigurationSequenceSequence(
-                [PluginInstanceConfigurationSequence([content])]
-            )
-        self._content = content
+        self._content = PluginInstanceConfigurationSequenceSequence(content)
         if width is None:
             width = {Breakpoint.XS: [12]}
         elif isinstance(width, int):

@@ -9,7 +9,6 @@ from betty.content_provider import ContentProvider, ContentProviderDefinition
 from betty.exception import HumanFacingException
 from betty.plugin.config import (
     PluginInstanceConfiguration,
-    PluginInstanceConfigurationSequence,
 )
 from betty.project import Project
 from betty.project.extension.raspberry_mint import RaspberryMint
@@ -28,8 +27,9 @@ class TestRaspberryMintConfiguration:
     async def test_validator__should_validate_featured_entities_configuration(
         self, isolated_app: App, tmp_path: Path
     ) -> None:
-        sut = RaspberryMintConfiguration()
-        sut.regional_content["unknown-region"] = []
+        sut = RaspberryMintConfiguration(
+            regional_content=RegionalContentConfiguration({"unknown-region": []})
+        )
         async with Project.new_isolated(isolated_app) as project:
             project.configuration.extensions.enable(RaspberryMint)
             async with project:
@@ -60,7 +60,7 @@ class TestRaspberryMintConfiguration:
             ContentProviderDefinition, ContentProvider
         ]("my-first-plugin")
         regional_content = {
-            "front": PluginInstanceConfigurationSequence([content_provider])
+            "front": content_provider,
         }
         sut = RaspberryMintConfiguration(
             regional_content=RegionalContentConfiguration(regional_content)

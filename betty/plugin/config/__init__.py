@@ -5,8 +5,8 @@ Provide plugin configuration.
 from __future__ import annotations
 
 from abc import abstractmethod
-from collections.abc import Collection, Mapping, Sequence
-from typing import TYPE_CHECKING, Any, Generic, Self, cast
+from collections.abc import Collection, Iterable, Mapping, Sequence
+from typing import TYPE_CHECKING, Any, Generic, Self, TypeAlias, cast, final
 
 from typing_extensions import TypeVar, override
 
@@ -18,7 +18,7 @@ from betty.assertion import (
     assert_record,
 )
 from betty.config import Configuration
-from betty.config.collections import ConfigurationKey
+from betty.config.collections import ConfigurationCollection, ConfigurationKey
 from betty.config.collections.mapping import ConfigurationMapping
 from betty.config.collections.sequence import ConfigurationSequence
 from betty.locale.localizable.assertion import (
@@ -41,14 +41,13 @@ from betty.plugin.resolve import ResolvableId, resolve_id
 from betty.typing import Void
 
 if TYPE_CHECKING:
-    from collections.abc import Iterable
-
     from betty.locale.localizable import CountableLocalizableLike, LocalizableLike
     from betty.serde.dump import Dump, DumpMapping
 
 _PluginT = TypeVar("_PluginT", bound=Plugin, default=Plugin)
 _ConfigurationT = TypeVar("_ConfigurationT", bound=Configuration, default=Configuration)
 _ConfigurationKeyT = TypeVar("_ConfigurationKeyT", bound=ConfigurationKey)
+_ResolvableConfigurationKeyT = TypeVar("_ResolvableConfigurationKeyT")
 _PluginDefinitionT = TypeVar(
     "_PluginDefinitionT", bound=PluginDefinition, default=PluginDefinition
 )
@@ -303,25 +302,29 @@ class PluginInstanceConfiguration(Generic[_PluginDefinitionT, _PluginT], Configu
         }
 
 
-class PluginInstanceConfigurationMapping(
-    PluginIdentifierKeyConfigurationMapping[
-        _PluginDefinitionT,
-        PluginInstanceConfiguration[_PluginDefinitionT, _PluginT],
-    ],
-    Generic[_PluginDefinitionT, _PluginT],
-):
-    """
-    Configure plugin instances, keyed by their plugin IDs.
-    """
+ShorthandPluginInstanceConfigurationSequence: TypeAlias = (
+    PluginInstanceConfiguration[_PluginDefinitionT, _PluginT]
+    | Iterable[PluginInstanceConfiguration[_PluginDefinitionT, _PluginT]]
+)
 
+
+class _PluginInstanceConfigurationCollection(
+    ConfigurationCollection[
+        _ConfigurationKeyT,
+        _ResolvableConfigurationKeyT,
+        PluginInstanceConfiguration[_PluginDefinitionT, _PluginT],
+    ]
+):
     def __init__(
         self,
-        configurations: Iterable[
-            PluginInstanceConfiguration[_PluginDefinitionT, _PluginT]
+        configurations: ShorthandPluginInstanceConfigurationSequence[
+            _PluginDefinitionT, _PluginT
         ]
         | None = None,
         /,
     ):
+        if isinstance(configurations, PluginInstanceConfiguration):
+            configurations = [configurations]
         super().__init__(configurations)
 
     @override
@@ -330,6 +333,30 @@ class PluginInstanceConfigurationMapping(
         cls,
     ) -> type[PluginInstanceConfiguration[_PluginDefinitionT, _PluginT]]:
         return PluginInstanceConfiguration
+
+
+class PluginInstanceConfigurationMapping(
+    _PluginInstanceConfigurationCollection[
+        MachineName, ResolvableId[_PluginDefinitionT], _PluginDefinitionT, _PluginT
+    ],
+    PluginIdentifierKeyConfigurationMapping[
+        _PluginDefinitionT,
+        PluginInstanceConfiguration[_PluginDefinitionT, _PluginT],
+    ],
+):
+    """
+    Configure plugin instances, keyed by their plugin IDs.
+    """
+
+    def __init__(
+        self,
+        configurations: ShorthandPluginInstanceConfigurationSequence[
+            _PluginDefinitionT, _PluginT
+        ]
+        | None = None,
+        /,
+    ):
+        super().__init__(configurations)
 
     @override
     def _get_key(
@@ -356,20 +383,20 @@ class PluginInstanceConfigurationMapping(
         return item_dump, cast(str, item_dump.pop("id"))
 
 
+@final
 class PluginInstanceConfigurationSequence(
+    _PluginInstanceConfigurationCollection[int, int, _PluginDefinitionT, _PluginT],
     ConfigurationSequence[PluginInstanceConfiguration[_PluginDefinitionT, _PluginT]],
-    Generic[_PluginDefinitionT, _PluginT],
 ):
     """
     A sequence of plugin instance configurations.
     """
 
-    @override
-    @classmethod
-    def _item_cls(
-        cls,
-    ) -> type[PluginInstanceConfiguration[_PluginDefinitionT, _PluginT]]:
-        return PluginInstanceConfiguration
+
+ShorthandPluginInstanceConfigurationSequenceSequence: TypeAlias = (
+    Iterable[ShorthandPluginInstanceConfigurationSequence[_PluginDefinitionT, _PluginT]]
+    | PluginInstanceConfiguration[_PluginDefinitionT, _PluginT]
+)
 
 
 class PluginInstanceConfigurationSequenceSequence(
@@ -381,6 +408,22 @@ class PluginInstanceConfigurationSequenceSequence(
     """
     A sequence of sequences of plugin instance configurations.
     """
+
+    def __init__(
+        self,
+        configurations: ShorthandPluginInstanceConfigurationSequenceSequence[
+            _PluginDefinitionT, _PluginT
+        ],
+        /,
+    ):
+        if isinstance(configurations, PluginInstanceConfiguration):
+            configurations = [configurations]
+        super().__init__(
+            configuration
+            if isinstance(configuration, PluginInstanceConfigurationSequence)
+            else PluginInstanceConfigurationSequence(configuration)
+            for configuration in configurations
+        )
 
     @override
     @classmethod

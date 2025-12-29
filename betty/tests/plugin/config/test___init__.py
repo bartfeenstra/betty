@@ -440,15 +440,15 @@ class TestPluginInstanceConfigurationSequenceSequence(
     ]:
         return (
             PluginInstanceConfigurationSequence(
-                [PluginInstanceConfiguration("my-first-plugin")]
+                PluginInstanceConfiguration("my-first-plugin")
             ),
             PluginInstanceConfigurationSequence(
-                [PluginInstanceConfiguration("my-second-plugin")]
+                PluginInstanceConfiguration("my-second-plugin")
             ),
             PluginInstanceConfigurationSequence(
-                [PluginInstanceConfiguration("my-third-plugin")]
+                PluginInstanceConfiguration("my-third-plugin")
             ),
             PluginInstanceConfigurationSequence(
-                [PluginInstanceConfiguration("my-fourth-plugin")]
+                PluginInstanceConfiguration("my-fourth-plugin")
             ),
         )

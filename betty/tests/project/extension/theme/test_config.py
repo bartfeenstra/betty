@@ -2,11 +2,9 @@ from __future__ import annotations
 
 import pytest
 
-from betty.content_provider import ContentProvider, ContentProviderDefinition
 from betty.exception import HumanFacingException
 from betty.plugin.config import (
     PluginInstanceConfiguration,
-    PluginInstanceConfigurationSequence,
 )
 from betty.project.extension.theme.config import RegionalContentConfiguration
 
@@ -16,14 +14,6 @@ class TestRegionalContentConfiguration:
         sut = RegionalContentConfiguration()
         assert sut["front"] is sut["front"]
 
-    def test___setitem__(self) -> None:
-        sut = RegionalContentConfiguration()
-        content_provider = PluginInstanceConfiguration[
-            ContentProviderDefinition, ContentProvider
-        ]("my-first-plugin")
-        sut["front"] = [content_provider]
-        assert sut["front"][0] is content_provider
-
     def test_dump__without_regions(self) -> None:
         sut = RegionalContentConfiguration()
         actual = sut.dump()
@@ -31,7 +21,6 @@ class TestRegionalContentConfiguration:
 
     def test_dump__with_empty_regions(self) -> None:
         sut = RegionalContentConfiguration()
-        sut["front"]
         actual = sut.dump()
         assert actual == {}
 
@@ -70,11 +59,9 @@ class TestRegionalContentConfiguration:
     def test_validate__with_unknown_region(self) -> None:
         sut = RegionalContentConfiguration(
             {
-                "non-existent-region": PluginInstanceConfigurationSequence(
-                    [
-                        PluginInstanceConfiguration("my-first-plugin"),
-                    ]
-                ),
+                "non-existent-region": [
+                    PluginInstanceConfiguration("my-first-plugin"),
+                ]
             }
         )
         with pytest.raises(HumanFacingException):

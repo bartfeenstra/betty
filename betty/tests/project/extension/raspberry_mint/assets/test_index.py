@@ -5,7 +5,6 @@ from betty.content_provider.content_providers import Render, RenderConfiguration
 from betty.dirs import ROOT_DIRECTORY_PATH
 from betty.plugin.config import (
     PluginInstanceConfiguration,
-    PluginInstanceConfigurationSequence,
 )
 from betty.project import Project
 from betty.project.extension.raspberry_mint import RaspberryMint
@@ -39,14 +38,12 @@ async def test_regional_content_front_page_summary(
                 RaspberryMintConfiguration(
                     regional_content=RegionalContentConfiguration(
                         {
-                            "front-page-summary": PluginInstanceConfigurationSequence(
-                                [
-                                    PluginInstanceConfiguration(
-                                        Render,
-                                        RenderConfiguration("Hello, world!"),
-                                    ),
-                                ]
-                            )
+                            "front-page-summary": [
+                                PluginInstanceConfiguration(
+                                    Render,
+                                    RenderConfiguration("Hello, world!"),
+                                ),
+                            ]
                         }
                     )
                 ),
@@ -71,14 +68,12 @@ async def test_regional_content_front_page_content(
                 RaspberryMintConfiguration(
                     regional_content=RegionalContentConfiguration(
                         {
-                            "front-page-content": PluginInstanceConfigurationSequence(
-                                [
-                                    PluginInstanceConfiguration(
-                                        Render,
-                                        RenderConfiguration("Hello, world!"),
-                                    ),
-                                ]
-                            )
+                            "front-page-content": [
+                                PluginInstanceConfiguration(
+                                    Render,
+                                    RenderConfiguration("Hello, world!"),
+                                ),
+                            ]
                         }
                     )
                 ),

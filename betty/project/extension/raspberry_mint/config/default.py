@@ -68,19 +68,15 @@ def regional_content(
                 PluginInstanceConfiguration(
                     Section,
                     SectionConfiguration(
+                        PluginInstanceConfiguration(
+                            Columns,
+                            ColumnsConfiguration(
+                                PluginInstanceConfiguration(WikipediaSummary),
+                                width=SINGLE_COLUMN_TEXT_WIDTH,
+                            ),
+                        ),
                         heading=_make_dumpable(_("Wikipedia says...")),
                         name="wikipedia",
-                        content=[
-                            PluginInstanceConfiguration(
-                                Columns,
-                                ColumnsConfiguration(
-                                    content=PluginInstanceConfiguration(
-                                        WikipediaSummary
-                                    ),
-                                    width=SINGLE_COLUMN_TEXT_WIDTH,
-                                ),
-                            )
-                        ],
                     ),
                 ),
                 PluginInstanceConfiguration(
@@ -95,181 +91,155 @@ def regional_content(
                 PluginInstanceConfiguration(
                     ColorStyle,
                     ColorStyleConfiguration(
-                        ColorStyleOption.LIGHT_CONTRAST,
-                        content=[
-                            PluginInstanceConfiguration(
-                                Columns,
-                                ColumnsConfiguration(
-                                    content=PluginInstanceConfiguration(MapAttribution)
-                                ),
-                            )
-                        ],
+                        PluginInstanceConfiguration(
+                            Columns,
+                            ColumnsConfiguration(
+                                PluginInstanceConfiguration(MapAttribution)
+                            ),
+                        ),
+                        style=ColorStyleOption.LIGHT_CONTRAST,
                     ),
                 ),
                 PluginInstanceConfiguration(
                     Columns,
                     ColumnsConfiguration(
-                        content=PluginInstanceConfiguration(Enclosees),
+                        PluginInstanceConfiguration(Enclosees),
                         width=SINGLE_COLUMN_TEXT_WIDTH,
                     ),
                 ),
                 PluginInstanceConfiguration(
                     Section,
                     SectionConfiguration(
+                        PluginInstanceConfiguration(
+                            Columns,
+                            ColumnsConfiguration(
+                                PluginInstanceConfiguration(Notes),
+                                width=SINGLE_COLUMN_TEXT_WIDTH,
+                            ),
+                        ),
                         heading=_make_dumpable(_("Notes")),
                         name="notes",
-                        content=[
-                            PluginInstanceConfiguration(
-                                Columns,
-                                ColumnsConfiguration(
-                                    content=PluginInstanceConfiguration(Notes),
-                                    width=SINGLE_COLUMN_TEXT_WIDTH,
-                                ),
-                            )
-                        ],
                     ),
                 ),
                 PluginInstanceConfiguration(
                     Section,
                     SectionConfiguration(
+                        PluginInstanceConfiguration(
+                            Presences, PresencesConfiguration(include=[Subject])
+                        ),
                         heading=_make_dumpable(_("Subjects")),
                         name="attendees-subject",
-                        content=[
-                            PluginInstanceConfiguration(
-                                Presences, PresencesConfiguration(include=[Subject])
-                            ),
-                        ],
                     ),
                 ),
                 PluginInstanceConfiguration(
                     Section,
                     SectionConfiguration(
+                        PluginInstanceConfiguration(
+                            Presences, PresencesConfiguration(include=[Witness])
+                        ),
                         heading=_make_dumpable(_("Witnesses")),
                         name="attendees-witness",
-                        content=[
-                            PluginInstanceConfiguration(
-                                Presences, PresencesConfiguration(include=[Witness])
-                            ),
-                        ],
                     ),
                 ),
                 PluginInstanceConfiguration(
                     Section,
                     SectionConfiguration(
+                        PluginInstanceConfiguration(
+                            Presences,
+                            PresencesConfiguration(exclude=[Subject, Witness]),
+                        ),
                         heading=_make_dumpable(_("Other attendees")),
                         name="attendees-other",
-                        content=[
-                            PluginInstanceConfiguration(
-                                Presences,
-                                PresencesConfiguration(exclude=[Subject, Witness]),
-                            ),
-                        ],
                     ),
                 ),
                 PluginInstanceConfiguration(
                     Section,
                     SectionConfiguration(
+                        PluginInstanceConfiguration(Families),
                         heading=_make_dumpable(_("Family")),
                         name="family",
-                        content=[
-                            PluginInstanceConfiguration(Families),
-                        ],
                     ),
                 ),
                 PluginInstanceConfiguration(Tree),
                 PluginInstanceConfiguration(
                     Section,
                     SectionConfiguration(
+                        PluginInstanceConfiguration(
+                            Columns,
+                            ColumnsConfiguration(PluginInstanceConfiguration(Timeline)),
+                        ),
                         heading=_make_dumpable(_("Timeline")),
                         name="timeline",
-                        content=[
-                            PluginInstanceConfiguration(
-                                Columns,
-                                ColumnsConfiguration(
-                                    content=PluginInstanceConfiguration(Timeline)
-                                ),
-                            )
-                        ],
                     ),
                 ),
                 PluginInstanceConfiguration(
                     Section,
                     SectionConfiguration(
+                        PluginInstanceConfiguration(
+                            Columns,
+                            ColumnsConfiguration(
+                                PluginInstanceConfiguration(Facts),
+                                width=SINGLE_COLUMN_TEXT_WIDTH,
+                            ),
+                        ),
                         heading=_make_dumpable(_("Facts")),
                         name="facts",
-                        content=[
-                            PluginInstanceConfiguration(
-                                Columns,
-                                ColumnsConfiguration(
-                                    content=PluginInstanceConfiguration(Facts),
-                                    width=SINGLE_COLUMN_TEXT_WIDTH,
-                                ),
-                            )
-                        ],
                     ),
                 ),
                 PluginInstanceConfiguration(
                     ColorStyle,
                     ColorStyleConfiguration(
+                        PluginInstanceConfiguration(
+                            Section,
+                            SectionConfiguration(
+                                PluginInstanceConfiguration(MediaGallery),
+                                heading=_make_dumpable(_("Media")),
+                                name="media",
+                            ),
+                        ),
                         style=ColorStyleOption.DARK,
-                        content=[
-                            PluginInstanceConfiguration(
-                                Section,
-                                SectionConfiguration(
-                                    heading=_make_dumpable(_("Media")),
-                                    name="media",
-                                    content=[PluginInstanceConfiguration(MediaGallery)],
-                                ),
-                            )
-                        ],
                     ),
                 ),
                 PluginInstanceConfiguration(
                     Section,
                     SectionConfiguration(
+                        PluginInstanceConfiguration(
+                            Columns,
+                            ColumnsConfiguration(
+                                PluginInstanceConfiguration(FileReferees),
+                                width=SINGLE_COLUMN_TEXT_WIDTH,
+                            ),
+                        ),
                         heading=_make_dumpable(_("Appearances")),
                         name="appearances",
-                        content=[
-                            PluginInstanceConfiguration(
-                                Columns,
-                                ColumnsConfiguration(
-                                    content=PluginInstanceConfiguration(FileReferees),
-                                    width=SINGLE_COLUMN_TEXT_WIDTH,
-                                ),
-                            )
-                        ],
                     ),
                 ),
                 PluginInstanceConfiguration(
                     Section,
                     SectionConfiguration(
+                        PluginInstanceConfiguration(
+                            Columns,
+                            ColumnsConfiguration(
+                                PluginInstanceConfiguration(Citations),
+                                width=SINGLE_COLUMN_TEXT_WIDTH,
+                            ),
+                        ),
                         heading=_make_dumpable(_("Citations")),
                         name="citations",
-                        content=[
-                            PluginInstanceConfiguration(
-                                Columns,
-                                ColumnsConfiguration(
-                                    content=PluginInstanceConfiguration(Citations),
-                                    width=SINGLE_COLUMN_TEXT_WIDTH,
-                                ),
-                            )
-                        ],
                     ),
                 ),
                 PluginInstanceConfiguration(
                     Section,
                     SectionConfiguration(
+                        PluginInstanceConfiguration(
+                            Columns,
+                            ColumnsConfiguration(
+                                PluginInstanceConfiguration(ExternalLinks),
+                                width=SINGLE_COLUMN_TEXT_WIDTH,
+                            ),
+                        ),
                         heading=_make_dumpable(_("External links")),
                         name="external-links",
-                        content=[
-                            PluginInstanceConfiguration(
-                                Columns,
-                                ColumnsConfiguration(
-                                    content=PluginInstanceConfiguration(ExternalLinks),
-                                    width=SINGLE_COLUMN_TEXT_WIDTH,
-                                ),
-                            )
-                        ],
                     ),
                 ),
             ]

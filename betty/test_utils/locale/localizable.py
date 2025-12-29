@@ -7,15 +7,13 @@ from __future__ import annotations
 from typing import TYPE_CHECKING
 
 from betty.locale import DEFAULT_LOCALE
-from betty.locale.localizable.static import (
-    CountableStaticTranslations,
-    StaticTranslations,
-)
+from betty.locale.localizable.plain import Plain
+from betty.locale.localizable.static import CountableStaticTranslations
 
 if TYPE_CHECKING:
     from betty.locale.localizable import CountableLocalizable, Localizable
 
-DUMMY_LOCALIZABLE: Localizable = StaticTranslations("DUMMY_LOCALIZABLE")
+DUMMY_LOCALIZABLE: Localizable = Plain("DUMMY_LOCALIZABLE")
 """
 A dummy localizable.
 """

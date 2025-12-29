@@ -24,8 +24,8 @@ from betty.locale.localizable.gettext import _
 from betty.media_type import MediaType
 from betty.media_type.media_types import PLAIN_TEXT
 from betty.plugin.config import (
-    PluginInstanceConfiguration,
     PluginInstanceConfigurationSequence,
+    ShorthandPluginInstanceConfigurationSequence,
 )
 from betty.project import Project
 from betty.project.factory import (
@@ -36,7 +36,7 @@ from betty.requirement import HasRequirement, Requirement
 from betty.typing import private
 
 if TYPE_CHECKING:
-    from collections.abc import Iterable, Mapping, Sequence
+    from collections.abc import Iterable, Mapping
 
     from betty.document import Document
     from betty.jinja2 import Environment
@@ -170,10 +170,9 @@ class BoxConfiguration(Configuration):
 
     def __init__(
         self,
-        content: Sequence[
-            PluginInstanceConfiguration[ContentProviderDefinition, ContentProvider]
-        ]
-        | PluginInstanceConfiguration[ContentProviderDefinition, ContentProvider],
+        content: ShorthandPluginInstanceConfigurationSequence[
+            ContentProviderDefinition, ContentProvider
+        ],
         *,
         min_height: str | None = None,
         max_height: str | None = None,
@@ -183,9 +182,7 @@ class BoxConfiguration(Configuration):
         width: str | None = None,
     ):
         super().__init__()
-        self._content = PluginInstanceConfigurationSequence(
-            [content] if isinstance(content, PluginInstanceConfiguration) else content
-        )
+        self._content = PluginInstanceConfigurationSequence(content)
         self.min_height = min_height
         self.max_height = max_height
         self.height = height
