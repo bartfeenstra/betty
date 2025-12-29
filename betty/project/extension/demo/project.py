@@ -96,6 +96,7 @@ async def create_project(app: App, project_directory_path: Path) -> Project:
                 alias="de",
             ),
             LocaleConfiguration("en-GB"),
+            LocaleConfiguration("es-ES"),
             LocaleConfiguration(
                 "fr-FR",
                 alias="fr",
