@@ -13,6 +13,8 @@ Built-in content providers
     Change the color style for all containing content.
 ``raspberry-mint-columns`` (:py:class:`betty.project.extension.raspberry_mint.content_provider.Columns`)
     A container with one or more columns.
+``raspberry-mint-enclosees`` (:py:class:`betty.project.extension.raspberry_mint.content_provider.Enclosees`)
+    Show the places enclosed by a place document resource.
 ``raspberry-mint-external-links`` (:py:class:`betty.project.extension.raspberry_mint.content_provider.ExternalLinks`)
     A resource's external links.
 ``raspberry-mint-facts`` (:py:class:`betty.project.extension.raspberry_mint.content_provider.Facts`)

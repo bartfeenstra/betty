@@ -690,3 +690,10 @@ class Columns(
                 for breakpoint, widths in self.configuration.width.items()  # noqa A001
             },
         }
+
+
+@ContentProviderDefinition("raspberry-mint-enclosees", label=_("Enclosees"))
+class Enclosees(Template):
+    """
+    Show the places enclosed by a place document resource.
+    """

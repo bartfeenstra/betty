@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Betty VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2025-12-28 22:27+0000\n"
+"POT-Creation-Date: 2025-12-29 16:23+0000\n"
 "PO-Revision-Date: 2025-03-28 20:02+0000\n"
 "Last-Translator: Ettore Atalan <atalanttore@googlemail.com>\n"
 "Language: de_DE\n"
@@ -549,6 +549,9 @@ msgid "Emigration"
 msgstr "Auswanderung"
 
 msgid "Emigrations"
+msgstr ""
+
+msgid "Enclosees"
 msgstr ""
 
 msgid "Enclosure"

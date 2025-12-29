@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Betty 0.4\n"
 "Report-Msgid-Bugs-To: illia@maier.page\n"
-"POT-Creation-Date: 2025-12-29 14:57+0000\n"
+"POT-Creation-Date: 2025-12-29 16:23+0000\n"
 "PO-Revision-Date: 2025-05-13 17:01+0000\n"
 "Last-Translator: Максим Горпиніч <maksimgorpinic4@gmail.com>\n"
 "Language: uk\n"
@@ -567,6 +567,9 @@ msgid "Emigration"
 msgstr "Еміграція"
 
 msgid "Emigrations"
+msgstr ""
+
+msgid "Enclosees"
 msgstr ""
 
 msgid "Enclosure"
