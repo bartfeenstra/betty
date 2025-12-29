@@ -8,7 +8,7 @@ msgstr ""
 "Project-Id-Version: Betty VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
 "POT-Creation-Date: 2025-04-24 14:22+0100\n"
-"PO-Revision-Date: 2025-12-29 14:46+0000\n"
+"PO-Revision-Date: 2025-12-29 14:48+0000\n"
 "Last-Translator: Bart Feenstra <bart@bartfeenstra.com>\n"
 "Language-Team: Spanish <https://hosted.weblate.org/projects/betty/betty/es/>"
 "\n"
@@ -40,7 +40,7 @@ msgstr ""
 
 #, python-format
 msgid "%(date)s in %(place)s"
-msgstr ""
+msgstr "%(date)s en %(place)s"
 
 #, python-format
 msgid "%(event)s of %(subjects)s"
@@ -1166,7 +1166,7 @@ msgstr ""
 
 #, python-format
 msgid "in %(place)s"
-msgstr ""
+msgstr "en %(place)s"
 
 #, python-format
 msgid "in %(source)s"
