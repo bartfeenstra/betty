@@ -12,6 +12,6 @@
 {% endif %}
 {% block page_summary %}
     <p>
-        {{ document.resource.label_countable.count(project.ancestry[app.plugins('entity')[document.resource.id]] | length) | localize | html_lang }}
+        {{ document.resource.label_countable.count(project.ancestry[document.resource.id] | length) | localize | html_lang }}
     </p>
 {% endblock %}

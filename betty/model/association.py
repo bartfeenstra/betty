@@ -642,7 +642,7 @@ class UnidirectionalToManySingleType(
     def _new_collection(
         self, instance: _OwnerT, /
     ) -> SingleTypeEntityCollection[_AssociateT]:
-        return SingleTypeEntityCollection[_AssociateT](target_type=self.associate_type)
+        return SingleTypeEntityCollection[_AssociateT]()
 
 
 @final
@@ -660,9 +660,7 @@ class UnidirectionalToManyMultipleTypes(
     def _new_collection(
         self, instance: _OwnerT, /
     ) -> MultipleTypesEntityCollection[_AssociateT]:
-        return MultipleTypesEntityCollection[_AssociateT](
-            target_type=self.associate_type
-        )
+        return MultipleTypesEntityCollection[_AssociateT]()
 
 
 @final
@@ -715,7 +713,7 @@ class _BidirectionalAssociateCollection(
         association: _BidirectionalAssociation[_OwnerT, _AssociateT],
         /,
     ):
-        super().__init__(target_type=association.associate_type)
+        super().__init__()
         self._association = association
         self.__owner = weakref.ref(owner)
 

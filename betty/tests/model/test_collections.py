@@ -9,7 +9,6 @@ from betty.model.collections import (
     EntityCollection,
     MultipleTypesEntityCollection,
     SingleTypeEntityCollection,
-    UnsupportedTarget,
 )
 from betty.test_utils.model import DummyEntityOne
 from betty.test_utils.model.collections import EntityCollectionTestBase
@@ -18,19 +17,11 @@ if TYPE_CHECKING:
     from collections.abc import Sequence
 
 
-class TestUnsupportedTarget:
-    def test_new(self) -> None:
-        class _Actual:
-            pass
-
-        UnsupportedTarget(DummyEntityOne, _Actual())
-
-
 class TestSingleTypeEntityCollection(EntityCollectionTestBase[DummyEntityOne]):
     @override
     @pytest.fixture
     def sut(self) -> EntityCollection[DummyEntityOne]:
-        return SingleTypeEntityCollection(target_type=DummyEntityOne)
+        return SingleTypeEntityCollection()
 
     @override
     @pytest.fixture
@@ -88,13 +79,21 @@ class TestMultipleTypesEntityCollection(EntityCollectionTestBase[DummyEntityOne]
         sut.add(*sut_entities)
         assert list(sut[DummyEntityOne]) == list(sut_entities)
 
-    async def test___delitem___by_entity_type(
+    async def test___getitem____by_entity_type_id(
+        self,
+        sut: MultipleTypesEntityCollection[DummyEntityOne],
+        sut_entities: Sequence[DummyEntityOne],
+    ) -> None:
+        sut.add(*sut_entities)
+        assert list(sut[DummyEntityOne.plugin().id]) == list(sut_entities)
+
+    async def test___delitem__(
         self,
         sut: MultipleTypesEntityCollection[DummyEntityOne],
         sut_entities: Sequence[DummyEntityOne],
     ) -> None:
         sut.add(*sut_entities)
 
-        del sut[DummyEntityOne]
+        del sut[sut_entities[0]]
 
-        assert list(sut) == []
+        assert list(sut) == list(sut_entities[1:])
