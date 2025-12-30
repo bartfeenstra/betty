@@ -4,7 +4,7 @@ from subprocess import CalledProcessError
 import pytest
 from pytest_mock import MockerFixture
 
-from betty._npm import NpmUnavailable, new_npm_requirement, npm
+from betty.npm import NpmUnavailable, new_npm_requirement, npm
 from betty.user.no_op import NoOpUser
 
 
@@ -33,12 +33,12 @@ async def test_new_npm_requirement__is_met() -> None:
 async def test_new_npm_requirement__is_unmet_with_command_not_found(
     mocker: MockerFixture,
 ) -> None:
-    mocker.patch("betty._npm.npm", side_effect=NpmUnavailable)
+    mocker.patch("betty.npm.npm", side_effect=NpmUnavailable)
     assert await new_npm_requirement(user=NoOpUser()) is not None
 
 
 async def test_new_npm_requirement__is_unmet_with_command_error(
     mocker: MockerFixture,
 ) -> None:
-    mocker.patch("betty._npm.npm", side_effect=CalledProcessError(1, "", "", ""))
+    mocker.patch("betty.npm.npm", side_effect=CalledProcessError(1, "", "", ""))
     assert await new_npm_requirement(user=NoOpUser()) is not None
