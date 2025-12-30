@@ -6,9 +6,9 @@ import pytest
 from pytest_mock import MockerFixture
 from typing_extensions import override
 
-from betty._npm import NpmUnavailable
 from betty.app import App
 from betty.job import Context
+from betty.npm import NpmUnavailable
 from betty.project import Project
 from betty.project.extension import Extension, ExtensionDefinition
 from betty.project.extension.webpack.build import Builder, EntryPointProvider
@@ -103,7 +103,7 @@ class TestBuilder:
     async def test_build_with_npm_unavailable(
         self, mocker: MockerFixture, tmp_path: Path
     ) -> None:
-        m_npm = mocker.patch("betty._npm.npm")
+        m_npm = mocker.patch("betty.npm.npm")
         m_npm.side_effect = NpmUnavailable()
 
         job_context = Context()

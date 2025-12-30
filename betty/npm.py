@@ -30,6 +30,10 @@ _NPM_REQUIREMENT_DETAILS = _(
 
 
 class NpmUnavailable(HumanFacingException, RuntimeError):
+    """
+    An error raised when npm is unavailable.
+    """
+
     def __init__(self):
         super().__init__(_NPM_REQUIREMENT_DETAILS)
 
@@ -54,6 +58,9 @@ async def npm(
 
 
 async def is_available(*, user: User) -> bool:
+    """
+    Check if npm is available.
+    """
     try:
         await npm(["--version"], user=user)
         return True
@@ -68,6 +75,9 @@ async def is_available(*, user: User) -> bool:
 
 
 async def new_npm_requirement(*, user: User) -> Requirement | None:
+    """
+    Get the npm requirement.
+    """
     if await is_available(user=user):
         return None
     return StaticRequirement(_NPM_REQUIREMENT_SUMMARY, _NPM_REQUIREMENT_DETAILS)

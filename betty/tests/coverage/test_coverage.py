@@ -369,6 +369,11 @@ _BASELINE: Mapping[str, _ModuleIgnore] = {
     "betty/license/__init__.py": {
         "License": MissingReason.STATIC_CONTENT_ONLY,
     },
+    "betty/npm.py": {
+        "is_available": MissingReason.SHOULD_BE_COVERED,
+        "npm": MissingReason.SHOULD_BE_COVERED,
+        "NpmUnavailable": MissingReason.SHOULD_BE_COVERED,
+    },
     "betty/path.py": MissingReason.SHOULD_BE_COVERED,
     "betty/multiprocessing.py": MissingReason.STATIC_CONTENT_ONLY,
     "betty/mutability.py": {

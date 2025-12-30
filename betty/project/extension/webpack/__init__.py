@@ -13,10 +13,10 @@ from typing import TYPE_CHECKING, ClassVar, Literal, Self, final
 
 from typing_extensions import override
 
-from betty._npm import new_npm_requirement
 from betty.document import DocumentProvider, DocumentVars
 from betty.html import CssProvider, JsProvider
 from betty.jinja2 import Filters, Jinja2Provider
+from betty.npm import new_npm_requirement
 from betty.project import Project, ProjectContext
 from betty.project.extension import Extension, ExtensionDefinition
 from betty.project.extension.webpack import build
@@ -28,7 +28,6 @@ from betty.requirement import (
     AllRequirements,
     Requirement,
 )
-from betty.typing import internal
 
 if TYPE_CHECKING:
     from collections.abc import Sequence
@@ -37,7 +36,6 @@ if TYPE_CHECKING:
     from betty.service.level import ServiceLevel
 
 
-@internal
 @final
 @ExtensionDefinition(
     "webpack",

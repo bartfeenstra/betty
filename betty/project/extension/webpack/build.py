@@ -17,7 +17,7 @@ from typing import TYPE_CHECKING, cast
 import aiofiles
 from aiofiles.os import makedirs
 
-from betty import _npm
+from betty import npm
 from betty.dirs import ROOT_DIRECTORY_PATH
 from betty.document import Document
 from betty.hashid import hashid, hashid_file_content, hashid_sequence
@@ -364,14 +364,14 @@ class Builder:
             await npm_project_package_json_f.write(dumps(npm_project_package_json))
 
     async def _npm_install(self, npm_project_directory_path: Path) -> None:
-        await _npm.npm(
+        await npm.npm(
             ("install", "--production"), cwd=npm_project_directory_path, user=self._user
         )
 
     async def _webpack_build(
         self, npm_project_directory_path: Path, webpack_build_directory_path: Path
     ) -> None:
-        await _npm.npm(
+        await npm.npm(
             ("run", "webpack"), cwd=npm_project_directory_path, user=self._user
         )
 
