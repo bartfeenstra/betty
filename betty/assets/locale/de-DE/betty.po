@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Betty VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2025-12-29 19:35+0000\n"
+"POT-Creation-Date: 2025-12-30 00:37+0000\n"
 "PO-Revision-Date: 2025-03-28 20:02+0000\n"
 "Last-Translator: Ettore Atalan <atalanttore@googlemail.com>\n"
 "Language: de_DE\n"
@@ -575,6 +575,9 @@ msgstr ""
 msgid "Entity"
 msgstr ""
 
+msgid "Entity card"
+msgstr ""
+
 msgid "Entity type"
 msgstr ""
 
@@ -625,9 +628,6 @@ msgid "Farm"
 msgstr "Bauernhof"
 
 msgid "Farms"
-msgstr ""
-
-msgid "Featured entities"
 msgstr ""
 
 msgid "File"
