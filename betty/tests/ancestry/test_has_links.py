@@ -2,28 +2,13 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING
 
-from betty.ancestry.has_links import HasLinks
 from betty.ancestry.link import Link
 from betty.locale import DEFAULT_LOCALE_TAG
-from betty.model import EntityDefinition
+from betty.test_utils.ancestry.has_links import DummyHasLinks
 from betty.test_utils.json.linked_data import assert_dumps_linked_data
-from betty.test_utils.locale.localizable import (
-    DUMMY_COUNTABLE_LOCALIZABLE,
-    DUMMY_LOCALIZABLE,
-)
 
 if TYPE_CHECKING:
     from betty.serde.dump import Dump, DumpMapping
-
-
-@EntityDefinition(
-    "dummy-has-links",
-    label=DUMMY_LOCALIZABLE,
-    label_plural=DUMMY_LOCALIZABLE,
-    label_countable=DUMMY_COUNTABLE_LOCALIZABLE,
-)
-class DummyHasLinks(HasLinks):
-    pass
 
 
 class TestHasLinks:

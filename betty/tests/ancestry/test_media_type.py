@@ -12,13 +12,9 @@ if TYPE_CHECKING:
     from betty.serde.dump import Dump, DumpMapping
 
 
-class DummyHasMediaType(HasMediaType):
-    pass
-
-
 class TestHasMediaType:
     async def test_media_type(self) -> None:
-        sut = DummyHasMediaType()
+        sut = HasMediaType()
         assert sut.media_type is None
 
     @pytest.mark.parametrize(
@@ -26,17 +22,17 @@ class TestHasMediaType:
         [
             (
                 {},
-                DummyHasMediaType(),
+                HasMediaType(),
             ),
             (
                 {
                     "mediaType": "text/plain",
                 },
-                DummyHasMediaType(media_type=PLAIN_TEXT),
+                HasMediaType(media_type=PLAIN_TEXT),
             ),
         ],
     )
     async def test_dump_linked_data(
-        self, expected: DumpMapping[Dump], sut: DummyHasMediaType
+        self, expected: DumpMapping[Dump], sut: HasMediaType
     ) -> None:
         assert await assert_dumps_linked_data(sut) == expected

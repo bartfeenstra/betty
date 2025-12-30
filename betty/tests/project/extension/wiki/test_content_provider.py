@@ -2,31 +2,16 @@ import pytest
 from pytest_mock import MockerFixture
 from typing_extensions import override
 
-from betty.ancestry.has_links import HasLinks
 from betty.ancestry.link import Link
 from betty.app import App
 from betty.content_provider import ContentProvider
 from betty.document import Document
-from betty.model import EntityDefinition
 from betty.project import Project
 from betty.project.extension.wiki import Wiki
 from betty.project.extension.wiki.content_provider import WikipediaSummary
+from betty.test_utils.ancestry.has_links import DummyHasLinks
 from betty.test_utils.content_provider import ContentProviderTestBase
-from betty.test_utils.locale.localizable import (
-    DUMMY_COUNTABLE_LOCALIZABLE,
-    DUMMY_LOCALIZABLE,
-)
 from betty.wiki.client import Summary
-
-
-@EntityDefinition(
-    "dummy-has-links",
-    label=DUMMY_LOCALIZABLE,
-    label_plural=DUMMY_LOCALIZABLE,
-    label_countable=DUMMY_COUNTABLE_LOCALIZABLE,
-)
-class DummyHasLinks(HasLinks):
-    pass
 
 
 class TestWikipediaSummary(ContentProviderTestBase):
