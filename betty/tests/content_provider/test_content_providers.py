@@ -31,10 +31,10 @@ from betty.plugin.config import PluginInstanceConfiguration
 from betty.project import Project
 from betty.render import RenderDispatcher
 from betty.render.plain_text import PlainText
+from betty.test_utils.ancestry.has_notes import DummyHasNotes
 from betty.test_utils.config.factory import ConfigurationDependentSelfFactoryTestBase
 from betty.test_utils.content_provider import ContentProviderTestBase
 from betty.test_utils.locale.localizable import DUMMY_LOCALIZABLE
-from betty.tests.ancestry.test_has_notes import DummyHasNotes
 
 if TYPE_CHECKING:
     from betty.serde.dump import Dump

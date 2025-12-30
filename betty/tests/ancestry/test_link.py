@@ -4,15 +4,13 @@ from typing import TYPE_CHECKING, Any
 
 from typing_extensions import override
 
-from betty.ancestry.has_links import HasLinks
 from betty.ancestry.link import Link
 from betty.locale import DEFAULT_LOCALE_TAG
 from betty.locale.localize import DEFAULT_LOCALIZER
 from betty.media_type.media_types import HTML
-from betty.model import Entity, EntityDefinition
+from betty.test_utils.ancestry.has_links import DummyHasLinks
 from betty.test_utils.json.linked_data import assert_dumps_linked_data
 from betty.test_utils.locale.localizable import (
-    DUMMY_COUNTABLE_LOCALIZABLE,
     DUMMY_LOCALIZABLE,
 )
 from betty.test_utils.model import EntityDefinitionTestBase, EntityTestBase
@@ -20,19 +18,10 @@ from betty.test_utils.model import EntityDefinitionTestBase, EntityTestBase
 if TYPE_CHECKING:
     from collections.abc import Mapping
 
+    from betty.model import Entity
     from betty.plugin import PluginDefinition
 
 import pytest
-
-
-@EntityDefinition(
-    "dummy-has-links",
-    label=DUMMY_LOCALIZABLE,
-    label_plural=DUMMY_LOCALIZABLE,
-    label_countable=DUMMY_COUNTABLE_LOCALIZABLE,
-)
-class DummyHasLinks(HasLinks):
-    pass
 
 
 class TestLinkDefinition(EntityDefinitionTestBase):
