@@ -29,7 +29,6 @@ if TYPE_CHECKING:
     from betty.ancestry import Ancestry
     from betty.locale import LocaleLike
     from betty.media_type import MediaType
-    from betty.plugin.repository import PluginRepository
     from betty.project import Project
 
 
@@ -150,11 +149,7 @@ async def new_project_url_generator(project: Project, /) -> UrlGenerator:
     return ProxyUrlGenerator(
         await _EntityTypeUrlGenerator.new_for_project(project),
         entity_url_generator,
-        _EntityUrlUrlGenerator(
-            project.ancestry,
-            entity_url_generator,
-            await project.plugins(EntityDefinition),
-        ),
+        _EntityUrlUrlGenerator(project.ancestry, entity_url_generator),
         await _LocalizedPathUrlUrlGenerator.new_for_project(project),
         await _StaticPathUrlUrlGenerator.new_for_project(project),
         PassthroughUrlGenerator(),
@@ -240,12 +235,10 @@ class _EntityUrlUrlGenerator(UrlGenerator):
         self,
         ancestry: Ancestry,
         entity_url_generator: _EntityUrlGenerator,
-        entity_types: PluginRepository[EntityDefinition],
         /,
     ):
         self._ancestry = ancestry
         self._entity_url_generator = entity_url_generator
-        self._entity_types = entity_types
 
     @override
     def supports(self, resource: Any, /) -> bool:
@@ -277,7 +270,7 @@ class _EntityUrlUrlGenerator(UrlGenerator):
         parsed_url = urlparse(resource)
         entity_type_id = parsed_url.netloc
         entity_id = parsed_url.path[1:]
-        entity = self._ancestry[self._entity_types[entity_type_id].cls][entity_id]
+        entity = self._ancestry[entity_type_id][entity_id]
         return self._entity_url_generator.generate(
             entity,
             absolute=absolute,

@@ -1053,12 +1053,24 @@ class _TestUnidirectionalToManyMultipleTypesTargetMixin(Entity):
     )
 
 
+@EntityDefinition(
+    "one",
+    label=DUMMY_LOCALIZABLE,
+    label_plural=DUMMY_LOCALIZABLE,
+    label_countable=DUMMY_COUNTABLE_LOCALIZABLE,
+)
 class _TestUnidirectionalToManyMultipleTypesAssociateOne(
     _TestUnidirectionalToManyMultipleTypesTargetMixin, Entity
 ):
     pass
 
 
+@EntityDefinition(
+    "two",
+    label=DUMMY_LOCALIZABLE,
+    label_plural=DUMMY_LOCALIZABLE,
+    label_countable=DUMMY_COUNTABLE_LOCALIZABLE,
+)
 class _TestUnidirectionalToManyMultipleTypesAssociateTwo(
     _TestUnidirectionalToManyMultipleTypesTargetMixin, Entity
 ):
@@ -1338,12 +1350,24 @@ class _TestBidirectionalToManyMultipleTypesTargetMixin(Entity):
     )
 
 
+@EntityDefinition(
+    "one",
+    label=DUMMY_LOCALIZABLE,
+    label_plural=DUMMY_LOCALIZABLE,
+    label_countable=DUMMY_COUNTABLE_LOCALIZABLE,
+)
 class _TestBidirectionalToManyMultipleTypesAssociateOne(
     _TestBidirectionalToManyMultipleTypesTargetMixin, Entity
 ):
     pass
 
 
+@EntityDefinition(
+    "two",
+    label=DUMMY_LOCALIZABLE,
+    label_plural=DUMMY_LOCALIZABLE,
+    label_countable=DUMMY_COUNTABLE_LOCALIZABLE,
+)
 class _TestBidirectionalToManyMultipleTypesAssociateTwo(
     _TestBidirectionalToManyMultipleTypesTargetMixin, Entity
 ):

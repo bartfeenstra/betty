@@ -6,9 +6,13 @@ import pytest
 from typing_extensions import override
 
 from betty.ancestry import Ancestry
-from betty.model import Entity
+from betty.model import Entity, EntityDefinition
 from betty.model.association import BidirectionalToZeroOrOne
 from betty.test_utils.ancestry.date import DummyHasDate
+from betty.test_utils.locale.localizable import (
+    DUMMY_COUNTABLE_LOCALIZABLE,
+    DUMMY_LOCALIZABLE,
+)
 from betty.test_utils.model import DummyEntityOne
 from betty.test_utils.model.collections import EntityCollectionTestBase
 
@@ -24,6 +28,12 @@ class DummyHasDateWithContextDefinitions(DummyHasDate):
         return "single-date", "start-date", "end-date"
 
 
+@EntityDefinition(
+    "left",
+    label=DUMMY_LOCALIZABLE,
+    label_plural=DUMMY_LOCALIZABLE,
+    label_countable=DUMMY_COUNTABLE_LOCALIZABLE,
+)
 class _TestAncestry_OneToOne_Left(Entity):
     one_right = BidirectionalToZeroOrOne[
         "_TestAncestry_OneToOne_Left", "_TestAncestry_OneToOne_Right"
@@ -35,6 +45,12 @@ class _TestAncestry_OneToOne_Left(Entity):
     )
 
 
+@EntityDefinition(
+    "right",
+    label=DUMMY_LOCALIZABLE,
+    label_plural=DUMMY_LOCALIZABLE,
+    label_countable=DUMMY_COUNTABLE_LOCALIZABLE,
+)
 class _TestAncestry_OneToOne_Right(Entity):
     one_left = BidirectionalToZeroOrOne[
         "_TestAncestry_OneToOne_Right", _TestAncestry_OneToOne_Left
