@@ -29,7 +29,7 @@ from betty.locale.localizable.plain import Plain
 from betty.locale.localize import DEFAULT_LOCALIZER
 from betty.media_type import MediaType
 from betty.media_type.media_types import PLAIN_TEXT
-from betty.model.config import EntityReference, EntityReferenceSequence
+from betty.model.config import EntityReference
 from betty.plugin.config import (
     PluginInstanceConfiguration,
     PluginInstanceConfigurationSequenceSequence,
@@ -51,10 +51,10 @@ from betty.project.extension.raspberry_mint.content_provider import (
     ColumnsConfiguration,
     ColumnsWidth,
     Enclosees,
+    EntityCard,
     ExternalLinks,
     Facts,
     Families,
-    FeaturedEntities,
     FileReferees,
     Media,
     MediaGallery,
@@ -73,52 +73,49 @@ from betty.test_utils.content_provider import (
     NoOpContentProvider,
 )
 from betty.test_utils.locale.localizable import DUMMY_LOCALIZABLE
+from betty.test_utils.model import DummyEntityOne
 
 if TYPE_CHECKING:
     from betty.serde.dump import Dump
 
 
-class TestFeaturedEntities(
-    ConfigurationDependentSelfFactoryTestBase[EntityReferenceSequence],
+class TestEntityCard(
+    ConfigurationDependentSelfFactoryTestBase[EntityReference],
     ContentProviderTestBase,
 ):
     @override
     @pytest.fixture
     async def sut(self, isolated_app: App) -> ContentProvider:
         async with Project.new_isolated(isolated_app) as project, project:
-            return FeaturedEntities(
-                jinja2_environment=await project.jinja2_environment, project=project
+            return await project.new_target(
+                EntityCard.new_for_configuration(EntityReference(DummyEntityOne, "abc"))  # type: ignore[arg-type]
             )
 
     @override
     @pytest.fixture
     async def configuration_dependent_self_factory_sut(
         self,
-    ) -> type[ConfigurationDependentSelfFactory[EntityReferenceSequence]]:
-        return FeaturedEntities
+    ) -> type[ConfigurationDependentSelfFactory[EntityReference]]:
+        return EntityCard
 
     @override
     @pytest.fixture
     def configuration_dependent_self_factory_sut_configuration(
         self,
-    ) -> EntityReferenceSequence:
-        return EntityReferenceSequence()
+    ) -> EntityReference:
+        return EntityReference(DummyEntityOne, "abc")
 
-    async def test_provide__without_entities(self, isolated_app: App) -> None:
-        async with Project.new_isolated(isolated_app) as project:
-            project.configuration.extensions.enable(RaspberryMint)
-            async with project:
-                sut = await FeaturedEntities.new_for_project(project)
-                assert await sut.provide(document=Document()) is None
-
-    async def test_provide__with_entities(self, isolated_app: App) -> None:
+    async def test_provide(self, isolated_app: App) -> None:
         async with Project.new_isolated(isolated_app) as project:
             project.configuration.extensions.enable(RaspberryMint)
             entity = Person(id="my-first-entity")
             project.ancestry.add(entity)
             async with project:
-                sut = await FeaturedEntities.new_for_project(project)
-                sut.configuration.append(EntityReference(entity.plugin(), entity.id))
+                sut = await project.new_target(
+                    EntityCard.new_for_configuration(
+                        EntityReference(entity.plugin(), entity.id)
+                    )
+                )
                 provided_content = await sut.provide(document=Document())
         assert provided_content is not None
         assert entity.public_id in provided_content

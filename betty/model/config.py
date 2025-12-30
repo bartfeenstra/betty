@@ -39,7 +39,7 @@ class EntityReference(Configuration):
         self.entity_id = entity_id
 
     @property
-    def entity_type(self) -> MachineName | None:
+    def entity_type(self) -> MachineName:
         """
         The referenced entity's type.
         """
@@ -50,7 +50,7 @@ class EntityReference(Configuration):
         self._entity_type = resolve_id(entity_type)
 
     @property
-    def entity_id(self) -> str | None:
+    def entity_id(self) -> str:
         """
         The referenced entity's ID.
         """

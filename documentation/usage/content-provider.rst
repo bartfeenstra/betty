@@ -21,14 +21,14 @@ Built-in content providers
     A container with one or more columns.
 ``raspberry-mint-enclosees`` (:py:class:`betty.project.extension.raspberry_mint.content_provider.Enclosees`)
     Show the places enclosed by a place document resource.
+``raspberry-mint-entity-card`` (:py:class:`betty.project.extension.raspberry_mint.content_provider.EntityCard`)
+    A card featuring an entity.
 ``raspberry-mint-external-links`` (:py:class:`betty.project.extension.raspberry_mint.content_provider.ExternalLinks`)
     A resource's external links.
 ``raspberry-mint-facts`` (:py:class:`betty.project.extension.raspberry_mint.content_provider.Facts`)
     Other entities that reference a citation or source to back up their claims.
 ``raspberry-mint-families`` (:py:class:`betty.project.extension.raspberry_mint.content_provider.Families`)
     Display a person's families.
-``raspberry-mint-featured-entities`` (:py:class:`betty.project.extension.raspberry_mint.content_provider.FeaturedEntities`)
-    Display one or more entities in cards.
 ``raspberry-mint-file-referees`` (:py:class:`betty.project.extension.raspberry_mint.content_provider.FileReferees`)
     Show the entities referencing a document resource that is a file.
 ``raspberry-mint-media`` (:py:class:`betty.project.extension.raspberry_mint.content_provider.Media`)

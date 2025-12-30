@@ -32,7 +32,7 @@ from betty.locale.localizable.ensure import ensure_localizable
 from betty.locale.localizable.gettext import _
 from betty.machine_name import MachineName, assert_machine_name
 from betty.model import EntityDefinition
-from betty.model.config import EntityReferenceSequence
+from betty.model.config import EntityReference
 from betty.plugin import Plugin
 from betty.plugin.config import (
     PluginInstanceConfiguration,
@@ -56,12 +56,12 @@ from betty.requirement import HasRequirement, Requirement
 from betty.typing import private
 
 if TYPE_CHECKING:
-    from collections.abc import Collection, Iterable, MutableSequence
+    from collections.abc import Collection, Iterable
 
+    from betty.ancestry import Ancestry
     from betty.document import Document
     from betty.jinja2 import Environment
     from betty.locale.localizable import LocalizableLike
-    from betty.model import Entity
     from betty.plugin.repository import PluginRepository
     from betty.plugin.resolve import ResolvableId
     from betty.project import Project
@@ -199,73 +199,54 @@ class Section(
         }
 
 
-@ContentProviderDefinition(
-    "raspberry-mint-featured-entities", label=_("Featured entities")
-)
-class FeaturedEntities(
-    Template,
-    _Base,
-    ProjectDependentSelfFactory,
-    ConfigurationDependentSelfFactory[EntityReferenceSequence],
-):
+@ContentProviderDefinition("raspberry-mint-entity-card", label=_("Entity card"))
+class EntityCard(Template, ConfigurationDependentSelfFactory[EntityReference], _Base):
     """
-    Featured entities.
+    A card featuring an entity.
     """
 
     @private
     def __init__(
         self,
         *,
+        ancestry: Ancestry,
+        configuration: EntityReference,
+        entity_types: PluginRepository[EntityDefinition],
         jinja2_environment: Environment,
-        project: Project,
-        configuration: EntityReferenceSequence | None = None,
     ):
         super().__init__(
-            configuration=EntityReferenceSequence()
-            if configuration is None
-            else configuration,
+            configuration=configuration,
             jinja2_environment=jinja2_environment,
         )
-        self._project = project
+        self._ancestry = ancestry
+        self._entity_types = entity_types
 
     @override
     @classmethod
-    async def new_for_project(cls, project: Project) -> Self:
-        return cls(jinja2_environment=await project.jinja2_environment, project=project)
-
-    @override
-    @classmethod
-    def configuration_cls(cls) -> type[EntityReferenceSequence]:
-        return EntityReferenceSequence
+    def configuration_cls(cls) -> type[EntityReference]:
+        return EntityReference
 
     @override
     @classmethod
     def new_for_configuration(
-        cls, configuration: EntityReferenceSequence
+        cls, configuration: EntityReference
     ) -> AnyFactoryTarget[Self]:
         async def _factory(project: Project) -> Self:
             return cls(
+                ancestry=project.ancestry,
                 configuration=configuration,
+                entity_types=await project.plugins(EntityDefinition),
                 jinja2_environment=await project.jinja2_environment,
-                project=project,
             )
 
         return CallbackProjectDependentFactory(_factory)
 
     @override
     async def _provide_data(self, document: Document) -> Mapping[str, Any]:
-        entity_types = await self._project.plugins(EntityDefinition)
-        entities: MutableSequence[Entity] = []
-        for entity in self.configuration:
-            assert entity.entity_type is not None
-            assert entity.entity_id is not None
-            entities.append(
-                self._project.ancestry[entity_types.get(entity.entity_type)][
-                    entity.entity_id
-                ]
-            )
         return {
-            "entities": entities,
+            "entity": self._ancestry[
+                self._entity_types.get(self.configuration.entity_type)
+            ][self.configuration.entity_id],
         }
 
 

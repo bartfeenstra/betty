@@ -16,7 +16,7 @@ from betty.locale.localizable.gettext import _
 from betty.locale.localizable.markup import Chain
 from betty.locale.localize import LocalizerRepository
 from betty.media_type.media_types import HTML
-from betty.model.config import EntityReference, EntityReferenceSequence
+from betty.model.config import EntityReference
 from betty.plugin.config import PluginInstanceConfiguration
 from betty.project import Project
 from betty.project.config import (
@@ -29,6 +29,7 @@ from betty.project.config import (
 )
 from betty.project.extension.raspberry_mint import (
     SINGLE_COLUMN_TEXT_WIDTH,
+    Breakpoint,
     JustifyContent,
     RaspberryMint,
 )
@@ -37,7 +38,7 @@ from betty.project.extension.raspberry_mint.config.default import regional_conte
 from betty.project.extension.raspberry_mint.content_provider import (
     Columns,
     ColumnsConfiguration,
-    FeaturedEntities,
+    EntityCard,
     Section,
     SectionConfiguration,
 )
@@ -105,22 +106,36 @@ async def create_project(app: App, project_directory_path: Path) -> Project:
                                         Section,
                                         SectionConfiguration(
                                             PluginInstanceConfiguration(
-                                                FeaturedEntities,
-                                                EntityReferenceSequence(
+                                                Columns,
+                                                ColumnsConfiguration(
                                                     [
-                                                        EntityReference(
-                                                            Place,
-                                                            "betty-demo-amsterdam",
+                                                        PluginInstanceConfiguration(
+                                                            EntityCard,
+                                                            EntityReference(
+                                                                Place,
+                                                                "betty-demo-amsterdam",
+                                                            ),
                                                         ),
-                                                        EntityReference(
-                                                            Person,
-                                                            "betty-demo-liberta-lankester",
+                                                        PluginInstanceConfiguration(
+                                                            EntityCard,
+                                                            EntityReference(
+                                                                Person,
+                                                                "betty-demo-liberta-lankester",
+                                                            ),
                                                         ),
-                                                        EntityReference(
-                                                            Place,
-                                                            "betty-demo-netherlands",
+                                                        PluginInstanceConfiguration(
+                                                            EntityCard,
+                                                            EntityReference(
+                                                                Place,
+                                                                "betty-demo-netherlands",
+                                                            ),
                                                         ),
                                                     ],
+                                                    width={
+                                                        Breakpoint.XS: [12, 12, 12],
+                                                        Breakpoint.MD: [6, 6, 6],
+                                                        Breakpoint.LG: [4, 4, 4],
+                                                    },
                                                 ),
                                             ),
                                             heading=_("Start exploring..."),
