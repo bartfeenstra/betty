@@ -31,6 +31,7 @@ from betty.ancestry.place_type.place_types import (
 from betty.ancestry.presence import Presence
 from betty.ancestry.presence_role.presence_roles import Subject
 from betty.ancestry.source import Source
+from betty.copyright_notice.copyright_notices import Streetmix
 from betty.date import Date, DateRange
 from betty.dirs import DATA_DIRECTORY_PATH
 from betty.job import Job
@@ -39,7 +40,6 @@ from betty.license.licenses import spdx_license_id_to_license_id
 from betty.locale.localizable.gettext import _
 from betty.media_type.media_types import SVG
 from betty.project import Project, ProjectContext
-from betty.project.extension.demo.copyright_notice import Streetmix
 
 if TYPE_CHECKING:
     from collections.abc import Mapping, Sequence

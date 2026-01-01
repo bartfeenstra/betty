@@ -77,7 +77,7 @@ Templating
 Globals
 ^^^^^^^
 
-``wikipedia_contributors_copyright_notice`` (:py:class:`betty.wiki.copyright_notice.WikipediaContributors`)
+``wikipedia_contributors_copyright_notice`` (:py:class:`betty.copyright_notice.copyright_notices.WikipediaContributors`)
     The copyright notice plugin instance for Wikipedia contributors.
 
 Filters
