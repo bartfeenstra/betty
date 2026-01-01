@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PROJECT VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2025-12-30 00:37+0000\n"
+"POT-Creation-Date: 2026-01-01 22:05+0000\n"
 "PO-Revision-Date: 2025-11-08 23:46+0000\n"
 "Last-Translator: Bart Feenstra <bart@bartfeenstra.com>\n"
 "Language: nl_NL\n"
@@ -734,6 +734,9 @@ msgstr "Gehucht"
 msgid "Hamlets"
 msgstr ""
 
+msgid "Help improve the translations"
+msgstr ""
+
 msgid "Home"
 msgstr ""
 
@@ -1321,6 +1324,12 @@ msgid ""
 msgstr ""
 
 msgid "System"
+msgstr ""
+
+#, python-format
+msgid ""
+"The %(language)s translations are only %(translated)s%% complete. Some "
+"things may be shown in English."
 msgstr ""
 
 #, python-format

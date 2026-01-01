@@ -27,6 +27,7 @@ from betty.project.config import (
     LocaleConfigurationMapping,
     ProjectConfiguration,
 )
+from betty.project.extension.demo.content_provider import _IncompleteTranslationWarning
 from betty.project.extension.raspberry_mint import (
     SINGLE_COLUMN_TEXT_WIDTH,
     Breakpoint,
@@ -75,6 +76,14 @@ async def create_project(app: App, project_directory_path: Path) -> Project:
                             {
                                 **regional_content(localizers=localizers),
                                 "front-page-content": [
+                                    PluginInstanceConfiguration(
+                                        Columns,
+                                        ColumnsConfiguration(
+                                            PluginInstanceConfiguration(
+                                                _IncompleteTranslationWarning
+                                            )
+                                        ),
+                                    ),
                                     PluginInstanceConfiguration(
                                         Section,
                                         SectionConfiguration(
