@@ -160,7 +160,15 @@ def regional_content(
                         name="family",
                     ),
                 ),
-                PluginInstanceConfiguration(Tree),
+                PluginInstanceConfiguration(
+                    Box,
+                    BoxConfiguration(
+                        PluginInstanceConfiguration(Tree),
+                        min_height="500px",
+                        height="75vh",
+                        max_height="1000px",
+                    ),
+                ),
                 PluginInstanceConfiguration(
                     Section,
                     SectionConfiguration(
