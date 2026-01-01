@@ -11,6 +11,7 @@ from betty.ancestry import Ancestry
 from betty.ancestry.link import Link
 from betty.ancestry.place import Place
 from betty.ancestry.source import Source
+from betty.copyright_notice.copyright_notices import WikipediaContributors
 from betty.locale.localize import LocalizerRepository
 from betty.locale.translation import DEFAULT_TRANSLATION_REPOSITORY
 from betty.media_type import MediaType
@@ -19,7 +20,6 @@ from betty.test_utils.locale.localizable import DUMMY_LOCALIZABLE
 from betty.test_utils.model import DummyEntityOne
 from betty.user.no_op import NoOpUser
 from betty.wiki.client import Client, Image, Summary
-from betty.wiki.copyright_notice import WikipediaContributors
 from betty.wiki.populator import Populator
 
 if TYPE_CHECKING:
