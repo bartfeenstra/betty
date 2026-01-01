@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Betty VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2025-12-30 00:37+0000\n"
+"POT-Creation-Date: 2026-01-01 22:05+0000\n"
 "PO-Revision-Date: 2025-12-16 20:00+0000\n"
 "Last-Translator: Mateus Liberale Gomes <sergiogomes209403@gmail.com>\n"
 "Language: pt_BR\n"
@@ -727,6 +727,9 @@ msgstr ""
 msgid "Hamlets"
 msgstr ""
 
+msgid "Help improve the translations"
+msgstr ""
+
 msgid "Home"
 msgstr ""
 
@@ -1302,6 +1305,12 @@ msgid ""
 msgstr ""
 
 msgid "System"
+msgstr ""
+
+#, python-format
+msgid ""
+"The %(language)s translations are only %(translated)s%% complete. Some "
+"things may be shown in English."
 msgstr ""
 
 #, python-format

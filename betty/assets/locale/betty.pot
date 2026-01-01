@@ -1,14 +1,14 @@
 # Translations template for Betty.
-# Copyright (C) 2025 Bart Feenstra & contributors
+# Copyright (C) 2026 Bart Feenstra & contributors
 # This file is distributed under the same license as the Betty project.
-# FIRST AUTHOR <EMAIL@ADDRESS>, 2025.
+# FIRST AUTHOR <EMAIL@ADDRESS>, 2026.
 #
 #, fuzzy
 msgid ""
 msgstr ""
 "Project-Id-Version: Betty VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2025-12-30 00:37+0000\n"
+"POT-Creation-Date: 2026-01-01 22:05+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -678,6 +678,9 @@ msgstr ""
 msgid "Hamlets"
 msgstr ""
 
+msgid "Help improve the translations"
+msgstr ""
+
 msgid "Home"
 msgstr ""
 
@@ -1251,6 +1254,12 @@ msgid ""
 msgstr ""
 
 msgid "System"
+msgstr ""
+
+#, python-format
+msgid ""
+"The %(language)s translations are only %(translated)s%% complete. Some "
+"things may be shown in English."
 msgstr ""
 
 #, python-format

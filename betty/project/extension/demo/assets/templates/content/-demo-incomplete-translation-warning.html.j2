@@ -1,0 +1,14 @@
+{% if app.translations.coverage is defined %}
+    {% set coverage = app.translations.coverage(document.localizer.locale) %}
+    {% set translated =  coverage[0] / coverage[1] * 100 | round %}
+    {% if translated < 100 %}
+        <div class="border d-inline-block my-2 p-2" style="border-color: #ffd77a !important;">
+            <p class="fw-bold">
+                {% trans language = document.localizer.locale.get_display_name(), translated = translated | int -%}
+                    The {{ language }} translations are only {{ translated }}% complete. Some things may be shown in English.
+                {%- endtrans %}
+            </p>
+            <a href="https://hosted.weblate.org/projects/betty/betty/" class="view-more">{% trans %}Help improve the translations{% endtrans %}</a>
+        </div>
+    {% endif %}
+{% endif %}
