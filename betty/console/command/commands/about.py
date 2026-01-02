@@ -32,7 +32,7 @@ if TYPE_CHECKING:
 )
 class About(AppDependentSelfFactory, Command):
     """
-    A command to generate a new site.
+    .. plugin:: command:about.
     """
 
     _KEY_STYLE = "cyan"

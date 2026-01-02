@@ -33,11 +33,12 @@ if TYPE_CHECKING:
     label=_("Presence"),
     label_plural=_("Presences"),
     label_countable=ngettext("{count} presence", "{count} presences"),
+    description=_("A person's presence at an event."),
     public_facing=False,
 )
 class Presence(HasPrivacy, Entity):
     """
-    The presence of a :py:class:`betty.ancestry.person.Person` at an :py:class:`betty.ancestry.event.Event`.
+    .. plugin:: entity:presence.
     """
 
     person = BidirectionalToOne["Presence", "Person"](

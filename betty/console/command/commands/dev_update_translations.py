@@ -22,7 +22,7 @@ if TYPE_CHECKING:
 )
 class DevUpdateTranslations(AppDependentSelfFactory, Command):
     """
-    A command to update all of Betty's translations.
+    .. plugin:: command:dev-update-translations.
     """
 
     def __init__(self, app: App):

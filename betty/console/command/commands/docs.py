@@ -26,7 +26,7 @@ if TYPE_CHECKING:
 )
 class Docs(AppDependentSelfFactory, Command):
     """
-    A command to view Betty's documentation.
+    .. plugin:: command:docs.
     """
 
     def __init__(self, app: App):

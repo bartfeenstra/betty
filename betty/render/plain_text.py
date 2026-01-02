@@ -14,7 +14,7 @@ from betty.render import Renderer, RendererDefinition
 @RendererDefinition("plain-text", label=_("Plain text"))
 class PlainText(Renderer):
     """
-    Render plain text to HTML.
+    .. plugin:: renderer:plain-text.
     """
 
     @override

@@ -26,9 +26,7 @@ if TYPE_CHECKING:
 )
 class FileReference(Entity):
     """
-    A reference between :py:class:`betty.ancestry.has_file_references.HasFileReferences` and betty.ancestry.file.File.
-
-    This reference holds additional information specific to the relationship between the two entities.
+    .. plugin:: entity:file-reference.
     """
 
     referee = BidirectionalToOne["FileReference", "HasFileReferences"](

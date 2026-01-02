@@ -54,14 +54,7 @@ class File(
     HasCitations,
 ):
     """
-    A file on disk.
-
-    This includes but is not limited to:
-
-    - images
-    - video
-    - audio
-    - PDF documents
+    .. plugin:: entity:file.
     """
 
     referees = BidirectionalToManyMultipleTypes["File", "FileReference"](

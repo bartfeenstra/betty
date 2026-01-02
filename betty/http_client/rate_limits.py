@@ -12,7 +12,7 @@ from betty.plugin import Plugin
 @RateLimitDefinition("wikipedia-action-api")
 class WikipediaActionApi(RateLimit, Plugin):
     """
-    The Wikipedia Action API rate limit.
+    .. plugin:: http-rate-limit:wikipedia-action-api.
 
     See https://www.mediawiki.org/wiki/API:Action_API.
     """
@@ -38,7 +38,7 @@ class WikipediaActionApi(RateLimit, Plugin):
 @RateLimitDefinition("wikipedia-rest-api")
 class WikipediaRestApi(RateLimit, Plugin):
     """
-    The Wikipedia REST API rate limit.
+    .. plugin:: http-rate-limit:wikipedia-rest-api.
 
     See https://www.mediawiki.org/wiki/Wikimedia_REST_API#Terms_and_conditions.
     """

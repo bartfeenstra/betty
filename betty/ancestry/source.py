@@ -48,7 +48,7 @@ if TYPE_CHECKING:
 )
 class Source(HasDate, HasFileReferences, HasNotes, HasLinks, HasPrivacy, Entity):
     """
-    A source of information.
+    .. plugin:: entity:source.
     """
 
     name = OptionalLocalizableAttr("name")

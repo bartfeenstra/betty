@@ -34,7 +34,7 @@ class HttpApiDoc(
     EntryPointProvider, NavigationLinkProvider, ProjectDependentSelfFactory
 ):
     """
-    Provide user-friendly HTTP API documentation.
+    .. plugin:: extension:http-api-doc.
     """
 
     @override

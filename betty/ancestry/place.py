@@ -46,11 +46,7 @@ if TYPE_CHECKING:
 )
 class Place(HasLinks, HasFileReferences, HasNotes, HasPrivacy):
     """
-    A place.
-
-    A place is a physical location on earth. It may be identifiable by GPS coordinates only, or
-    be a well-known city, with names in many languages, imagery, and its own Wikipedia page, or
-    any type of place in between.
+    .. plugin:: entity:place.
     """
 
     events = BidirectionalToManySingleType["Place", "Event"](

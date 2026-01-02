@@ -32,7 +32,7 @@ if TYPE_CHECKING:
 )
 class Maps(Generator, EntryPointProvider, ProjectDependentSelfFactory):
     """
-    Provide interactive maps for use on web pages.
+    .. plugin:: extension:maps.
     """
 
     @override

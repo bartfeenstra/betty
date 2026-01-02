@@ -18,7 +18,7 @@ from betty.locale.localizable.gettext import _, ngettext
 )
 class Man(Gender):
     """
-    A man.
+    .. plugin:: gender:man.
     """
 
 
@@ -31,7 +31,7 @@ class Man(Gender):
 )
 class NonBinary(Gender):
     """
-    A non-binary person.
+    .. plugin:: gender:non-binary.
     """
 
 
@@ -46,7 +46,7 @@ class NonBinary(Gender):
 )
 class Unknown(Gender, Singleton):
     """
-    A person of an unknown gender.
+    .. plugin:: gender:unknown.
     """
 
 
@@ -59,5 +59,5 @@ class Unknown(Gender, Singleton):
 )
 class Woman(Gender):
     """
-    A woman.
+    .. plugin:: gender:woman.
     """

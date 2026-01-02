@@ -23,8 +23,6 @@ class License(Mutable, Plugin["LicenseDefinition"]):
     """
     A license.
 
-    Read more about :doc:`/development/plugin/license`.
-
     To test your own subclasses, use :py:class:`betty.test_utils.license.LicenseTestBase`.
     """
 
@@ -65,7 +63,5 @@ class License(Mutable, Plugin["LicenseDefinition"]):
 )
 class LicenseDefinition(HumanFacingPluginDefinition[License]):
     """
-    A license definition.
-
-    Read more about :doc:`/development/plugin/license`.
+    .. plugin_type:: license.
     """

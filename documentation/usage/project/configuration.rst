@@ -314,8 +314,9 @@ The presence role's human-readable long description. This can be a string or :do
 --------------
 :sup:`optional`
 
-The :doc:`extensions </usage/extension>` to enable. Keys are extension names, and values are objects containing the
-following keys, both of which may be omitted to quickly enable an extension using its default configuration:
+The :py:class:`extensions <betty.project.extension.ExtensionDefinition>` to enable. Keys are extension names, and values
+are objects containing the following keys, both of which may be omitted to quickly enable an extension using its default
+configuration:
 
 ``extensions{}.enabled``
 ^^^^^^^^^^^^^^^^^^^^^^^^

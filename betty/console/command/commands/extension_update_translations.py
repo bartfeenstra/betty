@@ -29,7 +29,7 @@ if TYPE_CHECKING:
 )
 class ExtensionUpdateTranslations(AppDependentSelfFactory, Command):
     """
-    A command to update all of an extension's translations.
+    .. plugin:: command:extension-update-translations.
     """
 
     def __init__(self, app: App):

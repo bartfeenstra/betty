@@ -27,7 +27,7 @@ if TYPE_CHECKING:
 )
 class ExtensionNewTranslation(AppDependentSelfFactory, Command):
     """
-    A command to create new translations for an extension.
+    .. plugin:: command:extension-new-translation.
     """
 
     def __init__(self, app: App):

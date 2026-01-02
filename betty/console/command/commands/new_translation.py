@@ -25,7 +25,7 @@ if TYPE_CHECKING:
 @CommandDefinition("new-translation", label=_("Create a new translation"))
 class NewTranslation(AppDependentSelfFactory, Command):
     """
-    A command to create a new translation for a project.
+    .. plugin:: command:new-translation.
     """
 
     def __init__(self, app: App):

@@ -94,11 +94,12 @@ class RateLimit(Plugin["RateLimitDefinition"]):
     label_countable=ngettext(
         "{count} HTTP client rate limit", "{count} HTTP client rate limits"
     ),
+    description=_(
+        "Rate limits ensure that Betty's HTTP client does not make more requests to a web service than that service supports or allows, by enforcing a maximum number of requests per timeframe."
+    ),
     discovery=EntryPointDiscovery("betty.http_rate_limit"),
 )
 class RateLimitDefinition(OrderedPluginDefinition[RateLimit]):
     """
-    A rate limit definition.
-
-    Read more about :doc:`/development/plugin/http-rate-limit`.
+    .. plugin_type:: http-rate-limit.
     """

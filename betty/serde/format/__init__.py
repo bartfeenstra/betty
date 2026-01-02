@@ -72,7 +72,7 @@ class Format(ABC, Plugin["FormatDefinition"]):
 )
 class FormatDefinition(HumanFacingPluginDefinition[Format]):
     """
-    A serialization format definition.
+    .. plugin_type:: format.
     """
 
 

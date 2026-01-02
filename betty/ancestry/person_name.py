@@ -36,7 +36,7 @@ if TYPE_CHECKING:
 )
 class PersonName(HasLocale, HasCitations, HasPrivacy, Entity):
     """
-    A name for a :py:class:`betty.ancestry.person.Person`.
+    .. plugin:: entity:person-name.
     """
 
     person = BidirectionalToOne["PersonName", "Person"](

@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Betty VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-01-02 00:35+0000\n"
+"POT-Creation-Date: 2026-01-03 13:04+0000\n"
 "PO-Revision-Date: 2025-05-06 10:01+0000\n"
 "Last-Translator: Yaron Shahrabani <sh.yaron@gmail.com>\n"
 "Language: he\n"
@@ -69,6 +69,15 @@ msgstr ""
 msgid ""
 "A family history as told by <a "
 "href=\"https://betty.readthedocs.io\">Betty👵</a>"
+msgstr ""
+
+msgid "A formal witness to an event."
+msgstr ""
+
+msgid "A person's presence at an event."
+msgstr ""
+
+msgid "A place number, such as a house or flat number."
 msgstr ""
 
 msgid "A single file in a media display"
@@ -479,9 +488,7 @@ msgid ""
 "Hague is the Netherlands' administrative center and seat of government?"
 msgstr ""
 
-msgid ""
-"Display interactive family trees using <a "
-"href=\"https://cytoscape.org/\">Cytoscape</a>."
+msgid "Display interactive family trees using Cytoscape."
 msgstr ""
 
 msgid "Display interactive maps"
@@ -546,6 +553,11 @@ msgid "Enrich your ancestry with information from Wikipedia and Wikimedia Common
 msgstr ""
 
 msgid "Entities"
+msgstr ""
+
+msgid ""
+"Entities represent the information in your ancestry, such as people and "
+"places."
 msgstr ""
 
 msgid "Entity"
@@ -1130,6 +1142,12 @@ msgstr ""
 msgid "Quitting..."
 msgstr ""
 
+msgid ""
+"Rate limits ensure that Betty's HTTP client does not make more requests "
+"to a web service than that service supports or allows, by enforcing a "
+"maximum number of requests per timeframe."
+msgstr ""
+
 msgid "Read more"
 msgstr ""
 
@@ -1219,6 +1237,12 @@ msgid "Show all available commands"
 msgstr ""
 
 msgid "Show this help message"
+msgstr ""
+
+msgid "Someone performed public speaking at the event."
+msgstr ""
+
+msgid "Someone reported the event with a record-keeping institution."
 msgstr ""
 
 msgid "Source"

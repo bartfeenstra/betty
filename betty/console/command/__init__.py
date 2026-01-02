@@ -23,8 +23,6 @@ CommandFunction: TypeAlias = Callable[..., Awaitable[None]]
 class Command(Plugin["CommandDefinition"]):
     """
     A console command plugin.
-
-    Read more about :doc:`/development/plugin/command`.
     """
 
     @abstractmethod
@@ -48,9 +46,7 @@ class Command(Plugin["CommandDefinition"]):
 )
 class CommandDefinition(HumanFacingPluginDefinition[Command]):
     """
-    A console command definition.
-
-    Read more about :doc:`/development/plugin/command`.
+    .. plugin_type:: command.
     """
 
 

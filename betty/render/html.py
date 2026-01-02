@@ -29,7 +29,7 @@ _ATTRIBUTES = ("href", "src")
 )
 class Html(ProjectDependentSelfFactory, Renderer):
     """
-    Render HTML.
+    .. plugin:: renderer:html.
     """
 
     @private

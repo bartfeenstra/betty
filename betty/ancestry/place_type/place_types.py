@@ -20,7 +20,7 @@ from betty.locale.localizable.gettext import _, ngettext
 )
 class Borough(PlaceType):
     """
-    A borough.
+    .. plugin:: place-type:borough.
     """
 
 
@@ -33,7 +33,7 @@ class Borough(PlaceType):
 )
 class Building(PlaceType):
     """
-    A building.
+    .. plugin:: place-type:building.
     """
 
 
@@ -46,7 +46,7 @@ class Building(PlaceType):
 )
 class Cemetery(PlaceType):
     """
-    A cemetery.
+    .. plugin:: place-type:cemetery.
     """
 
 
@@ -59,7 +59,7 @@ class Cemetery(PlaceType):
 )
 class City(PlaceType):
     """
-    A city.
+    .. plugin:: place-type:city.
     """
 
 
@@ -72,7 +72,7 @@ class City(PlaceType):
 )
 class Country(PlaceType):
     """
-    A country.
+    .. plugin:: place-type:country.
     """
 
 
@@ -85,7 +85,7 @@ class Country(PlaceType):
 )
 class County(PlaceType):
     """
-    A county.
+    .. plugin:: place-type:county.
     """
 
 
@@ -98,7 +98,7 @@ class County(PlaceType):
 )
 class Department(PlaceType):
     """
-    A department.
+    .. plugin:: place-type:department.
     """
 
 
@@ -111,7 +111,7 @@ class Department(PlaceType):
 )
 class District(PlaceType):
     """
-    A district.
+    .. plugin:: place-type:district.
     """
 
 
@@ -124,7 +124,7 @@ class District(PlaceType):
 )
 class Farm(PlaceType):
     """
-    A farm.
+    .. plugin:: place-type:farm.
     """
 
 
@@ -137,7 +137,7 @@ class Farm(PlaceType):
 )
 class Hamlet(PlaceType):
     """
-    A hamlet.
+    .. plugin:: place-type:hamlet.
     """
 
 
@@ -150,7 +150,7 @@ class Hamlet(PlaceType):
 )
 class Locality(PlaceType):
     """
-    A locality.
+    .. plugin:: place-type:locality.
     """
 
 
@@ -163,7 +163,7 @@ class Locality(PlaceType):
 )
 class Municipality(PlaceType):
     """
-    A municipality.
+    .. plugin:: place-type:municipality.
     """
 
 
@@ -176,7 +176,7 @@ class Municipality(PlaceType):
 )
 class Neighborhood(PlaceType):
     """
-    A neighborhood.
+    .. plugin:: place-type:neighborhood.
     """
 
 
@@ -186,10 +186,11 @@ class Neighborhood(PlaceType):
     label=_("Number"),
     label_plural=_("Numbers"),
     label_countable=ngettext("{count} number", "{count} numbers"),
+    description=_("A place number, such as a house or flat number."),
 )
 class Number(PlaceType):
     """
-    A place number, e.g. a house or flat number.
+    .. plugin:: place-type:number.
     """
 
 
@@ -202,7 +203,7 @@ class Number(PlaceType):
 )
 class Parish(PlaceType):
     """
-    A parish.
+    .. plugin:: place-type:parish.
     """
 
 
@@ -215,7 +216,7 @@ class Parish(PlaceType):
 )
 class Province(PlaceType):
     """
-    A province.
+    .. plugin:: place-type:province.
     """
 
 
@@ -228,7 +229,7 @@ class Province(PlaceType):
 )
 class Region(PlaceType):
     """
-    A region.
+    .. plugin:: place-type:region.
     """
 
 
@@ -241,7 +242,7 @@ class Region(PlaceType):
 )
 class State(PlaceType):
     """
-    A state.
+    .. plugin:: place-type:state.
     """
 
 
@@ -254,7 +255,7 @@ class State(PlaceType):
 )
 class Street(PlaceType):
     """
-    A street.
+    .. plugin:: place-type:street.
     """
 
 
@@ -267,7 +268,7 @@ class Street(PlaceType):
 )
 class Town(PlaceType):
     """
-    A town.
+    .. plugin:: place-type:town.
     """
 
 
@@ -280,7 +281,7 @@ class Town(PlaceType):
 )
 class Unknown(PlaceType, Singleton):
     """
-    A place of an unknown type.
+    .. plugin:: place-type:unknown.
     """
 
 
@@ -293,5 +294,5 @@ class Unknown(PlaceType, Singleton):
 )
 class Village(PlaceType):
     """
-    A village.
+    .. plugin:: place-type:village.
     """

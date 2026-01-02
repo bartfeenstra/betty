@@ -39,5 +39,5 @@ class ContentProvider(ABC, Plugin["ContentProviderDefinition"]):
 )
 class ContentProviderDefinition(HumanFacingPluginDefinition[ContentProvider]):
     """
-    A content provider definition.
+    .. plugin_type:: content-provider.
     """

@@ -45,7 +45,7 @@ if TYPE_CHECKING:
 )
 class Citation(HasDate, HasFileReferences, HasPrivacy, HasLinks):
     """
-    A citation (a reference to a source).
+    .. plugin:: entity:citation.
     """
 
     location = OptionalLocalizableAttr("location")

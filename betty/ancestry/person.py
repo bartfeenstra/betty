@@ -48,7 +48,7 @@ if TYPE_CHECKING:
 )
 class Person(HasFileReferences, HasCitations, HasNotes, HasLinks, HasPrivacy):
     """
-    A person.
+    .. plugin:: entity:person.
     """
 
     parents = BidirectionalToManySingleType["Person", "Person"](

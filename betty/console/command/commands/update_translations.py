@@ -28,7 +28,7 @@ if TYPE_CHECKING:
 @CommandDefinition("update-translations", label=_("Update all existing translations"))
 class UpdateTranslations(AppDependentSelfFactory, Command):
     """
-    A command to update all of a project's translations.
+    .. plugin:: command:update-translations.
     """
 
     def __init__(self, app: App):

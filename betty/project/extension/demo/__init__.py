@@ -77,7 +77,7 @@ async def generate_with_cleanup(
 )
 class Demo(NavigationLinkProvider, Loader, ProjectDependentSelfFactory, Extension):
     """
-    Provide demonstration site functionality.
+    .. plugin:: extension:demo.
     """
 
     @override

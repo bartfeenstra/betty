@@ -35,7 +35,7 @@ if TYPE_CHECKING:
 )
 class Note(HasPrivacy, HasLinks, HasMediaType):
     """
-    A note is a bit of textual information that can be associated with another entity.
+    .. plugin:: entity:note.
     """
 
     text = RequiredLocalizableAttr("text")

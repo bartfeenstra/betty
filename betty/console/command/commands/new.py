@@ -19,7 +19,7 @@ if TYPE_CHECKING:
 @CommandDefinition("new", label=_("Create a new project"))
 class New(AppDependentSelfFactory, Command):
     """
-    A command to create a new project.
+    .. plugin:: command:new.
     """
 
     def __init__(self, app: App):
