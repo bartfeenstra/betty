@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PROJECT VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-01-01 22:05+0000\n"
+"POT-Creation-Date: 2026-01-02 00:35+0000\n"
 "PO-Revision-Date: 2025-08-27 20:02+0000\n"
 "Last-Translator: \"David D.\" <dadu042@users.noreply.hosted.weblate.org>\n"
 "Language: fr_FR\n"
@@ -583,6 +583,9 @@ msgstr ""
 msgid "Explore a demonstration site"
 msgstr "Explorer un site de démonstration"
 
+msgid "Explore a family history..."
+msgstr ""
+
 msgid "Extension"
 msgstr ""
 
@@ -659,6 +662,9 @@ msgid "Generate a static site"
 msgstr "Générer un site statique"
 
 msgid "Generating site..."
+msgstr ""
+
+msgid "Get started"
 msgstr ""
 
 msgid "Go to the front page"
@@ -1148,6 +1154,9 @@ msgstr "Voir plus sur Wikipedia."
 msgid "Read the Betty documentation"
 msgstr "Lire la documentation de Betty"
 
+msgid "Read the documentation"
+msgstr ""
+
 msgid "References"
 msgstr "Références"
 
@@ -1233,9 +1242,6 @@ msgid "Speaker"
 msgstr ""
 
 msgid "Speakers"
-msgstr ""
-
-msgid "Start exploring..."
 msgstr ""
 
 msgid "Starting Python's built-in web server..."
@@ -1496,6 +1502,9 @@ msgstr ""
 
 msgid "View original"
 msgstr "Voir l'original"
+
+msgid "View the code"
+msgstr ""
 
 msgid "View the documentation"
 msgstr "Voir la documentation"
