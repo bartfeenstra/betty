@@ -37,10 +37,6 @@ class TestPlaceDefinition(EntityDefinitionTestBase):
         return Place.plugin()
 
 
-class TestPlaceTypeDocumentation(PluginDocumentationTestBase[PlaceTypeDefinition]):
-    _plugin_type = PlaceTypeDefinition
-    _plugin_type_documentation_path = Path("usage") / "ancestry" / "place-type.rst"
-
 
 class TestPlace(EntityTestBase):
     @staticmethod

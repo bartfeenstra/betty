@@ -12,6 +12,7 @@ from betty.ancestry.date import HasDate
 from betty.ancestry.has_file_references import HasFileReferences
 from betty.ancestry.has_links import HasLinks
 from betty.ancestry.has_notes import HasNotes
+from betty.ancestry.source_type.source_types import Unknown as UnknownSourceType
 from betty.json.linked_data import JsonLdObject, dump_context
 from betty.locale.localizable.attr import OptionalLocalizableAttr
 from betty.locale.localizable.gettext import _, ngettext
@@ -33,6 +34,7 @@ if TYPE_CHECKING:
     from betty.ancestry.file_reference import FileReference
     from betty.ancestry.link import Link
     from betty.ancestry.note import Note
+    from betty.ancestry.source_type import SourceType
     from betty.date import DateLike
     from betty.locale.localizable import Localizable, LocalizableLike
     from betty.project import Project
@@ -118,6 +120,7 @@ class Source(HasDate, HasFileReferences, HasNotes, HasLinks, HasPrivacy, Entity)
         privacy: Privacy | None = None,
         public: bool | None = None,
         private: bool | None = None,
+        source_type: SourceType | None = None,
     ):
         super().__init__(
             id,
@@ -136,6 +139,7 @@ class Source(HasDate, HasFileReferences, HasNotes, HasLinks, HasPrivacy, Entity)
             self.contained_by = contained_by
         if contains is not None:
             self.contains = contains
+        self._source_type = source_type or UnknownSourceType()
 
     @override
     def _get_effective_privacy(self) -> Privacy:
@@ -157,6 +161,13 @@ class Source(HasDate, HasFileReferences, HasNotes, HasLinks, HasPrivacy, Entity)
     @property
     def label(self) -> Localizable:
         return self.name if self.name else super().label
+
+    @property
+    def source_type(self) -> SourceType:
+        """
+        The type of this source.
+        """
+        return self._source_type
 
     @override
     @classmethod

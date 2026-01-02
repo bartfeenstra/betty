@@ -35,6 +35,7 @@ plugin repository, how to use the plugins, and how to create your own.
 - :doc:`Presence roles </development/plugin/presence-role>`
 - :doc:`Renderers </development/plugin/renderer>`
 - :doc:`Serialization formats </development/plugin/format>`
+- :doc:`Source types </development/plugin/source-type>`
 
 Creating a new plugin type
 --------------------------
