@@ -89,6 +89,7 @@ betty = 'betty.console:main_standalone'
 'place-type' = 'betty.ancestry.place_type:PlaceTypeDefinition'
 'presence-role' = 'betty.ancestry.presence_role:PresenceRoleDefinition'
 'renderer' = 'betty.render:RendererDefinition'
+'source-type' = 'betty.ancestry.source_type:SourceTypeDefinition'
 
 [project.entry-points.'betty.command']
 'about' = 'betty.console.command.commands.about:About'
@@ -219,6 +220,12 @@ betty = 'betty.console:main_standalone'
 [project.entry-points.'betty.serde_format']
 'json' = 'betty.serde.format.formats:Json'
 'yaml' = 'betty.serde.format.formats:Yaml'
+
+[project.entry-points.'betty.source_type']
+'archive' = 'betty.ancestry.source_type.source_types:Archive'
+'book' = 'betty.ancestry.source_type.source_types:Book'
+'unknown' = 'betty.ancestry.source_type.source_types:Unknown'
+'website' = 'betty.ancestry.source_type.source_types:Website'
 
 [project.entry-points.'betty.renderer']
 'html' = 'betty.render.html:Html'

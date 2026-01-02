@@ -7,7 +7,7 @@ from __future__ import annotations
 from typing import TYPE_CHECKING, final
 
 from typing_extensions import override
-
+from betty.ancestry.source_type.source_types import Unknown as UnknownSourceType
 from betty.ancestry.date import HasDate
 from betty.ancestry.has_file_references import HasFileReferences
 from betty.ancestry.has_links import HasLinks
@@ -118,6 +118,7 @@ class Source(HasDate, HasFileReferences, HasNotes, HasLinks, HasPrivacy, Entity)
         privacy: Privacy | None = None,
         public: bool | None = None,
         private: bool | None = None,
+        source_type: SourceType | None = None,
     ):
         super().__init__(
             id,
@@ -136,6 +137,7 @@ class Source(HasDate, HasFileReferences, HasNotes, HasLinks, HasPrivacy, Entity)
             self.contained_by = contained_by
         if contains is not None:
             self.contains = contains
+        self._source_type = source_type or UnknownSourceType()
 
     @override
     def _get_effective_privacy(self) -> Privacy:
@@ -157,6 +159,13 @@ class Source(HasDate, HasFileReferences, HasNotes, HasLinks, HasPrivacy, Entity)
     @property
     def label(self) -> Localizable:
         return self.name if self.name else super().label
+
+    @property
+    def source_type(self) -> SourceType:
+        """
+        The type of this source.
+        """
+        return self._source_type
 
     @override
     @classmethod
