@@ -7,11 +7,12 @@ from __future__ import annotations
 from typing import TYPE_CHECKING, final
 
 from typing_extensions import override
-from betty.ancestry.source_type.source_types import Unknown as UnknownSourceType
+
 from betty.ancestry.date import HasDate
 from betty.ancestry.has_file_references import HasFileReferences
 from betty.ancestry.has_links import HasLinks
 from betty.ancestry.has_notes import HasNotes
+from betty.ancestry.source_type.source_types import Unknown as UnknownSourceType
 from betty.json.linked_data import JsonLdObject, dump_context
 from betty.locale.localizable.attr import OptionalLocalizableAttr
 from betty.locale.localizable.gettext import _, ngettext
@@ -33,6 +34,7 @@ if TYPE_CHECKING:
     from betty.ancestry.file_reference import FileReference
     from betty.ancestry.link import Link
     from betty.ancestry.note import Note
+    from betty.ancestry.source_type import SourceType
     from betty.date import DateLike
     from betty.locale.localizable import Localizable, LocalizableLike
     from betty.project import Project

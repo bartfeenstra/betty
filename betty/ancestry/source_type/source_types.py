@@ -36,6 +36,7 @@ class Book(SourceType):
     A book.
     """
 
+
 @final
 @SourceTypeDefinition(
     "unknown",
@@ -47,6 +48,7 @@ class Unknown(SourceType, Singleton):
     """
     A source of an unknown type.
     """
+
 
 @final
 @SourceTypeDefinition(
