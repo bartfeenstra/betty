@@ -15,6 +15,7 @@ from betty.ancestry.event_type import EventType, EventTypeDefinition
 from betty.ancestry.gender import Gender, GenderDefinition
 from betty.ancestry.place_type import PlaceType, PlaceTypeDefinition
 from betty.ancestry.presence_role import PresenceRole, PresenceRoleDefinition
+from betty.ancestry.source_type import SourceType, SourceTypeDefinition
 from betty.assertion import (
     Field,
     OptionalField,
@@ -537,6 +538,43 @@ class PlaceTypePluginConfigurationMapping(
         return _ProjectConfigurationPlaceType.plugin()
 
 
+class SourceTypePluginConfiguration(CountableHumanFacingPluginDefinitionConfiguration):
+    """
+    Configure a :py:class:`betty.ancestry.source_type.SourceTypeDefinition`.
+    """
+
+
+class SourceTypePluginConfigurationMapping(
+    PluginDefinitionConfigurationMapping[
+        SourceTypeDefinition, SourceTypePluginConfiguration
+    ]
+):
+    """
+    A configuration mapping for source types.
+    """
+
+    @override
+    @classmethod
+    def _item_cls(cls) -> type[SourceTypePluginConfiguration]:
+        return SourceTypePluginConfiguration
+
+    @override
+    def _new_plugin(
+        self, configuration: SourceTypePluginConfiguration, /
+    ) -> SourceTypeDefinition:
+        @SourceTypeDefinition(
+            configuration.id,
+            label=configuration.label,
+            label_plural=configuration.label_plural,
+            label_countable=configuration.label_countable,
+            description=configuration.description,
+        )
+        class _ProjectConfigurationSourceType(SourceType):
+            pass
+
+        return _ProjectConfigurationSourceType.plugin()
+
+
 class PresenceRolePluginConfiguration(
     CountableHumanFacingPluginDefinitionConfiguration
 ):
@@ -630,6 +668,7 @@ class ProjectConfiguration(Configuration):
         entity_types: EntityTypeConfigurationMapping | None = None,
         event_types: EventTypePluginConfigurationMapping | None = None,
         place_types: PlaceTypePluginConfigurationMapping | None = None,
+        source_types: SourceTypePluginConfigurationMapping | None = None,
         presence_roles: PresenceRolePluginConfigurationMapping | None = None,
         copyright_notice: PluginInstanceConfiguration[
             CopyrightNoticeDefinition, CopyrightNotice
@@ -681,6 +720,11 @@ class ProjectConfiguration(Configuration):
             PlaceTypePluginConfigurationMapping()
             if place_types is None
             else place_types
+        )
+        self._source_types = (
+            SourceTypePluginConfigurationMapping()
+            if source_types is None
+            else source_types
         )
         self._presence_roles = (
             PresenceRolePluginConfigurationMapping()
@@ -877,6 +921,13 @@ class ProjectConfiguration(Configuration):
         The place type plugins created by this project.
         """
         return self._place_types
+
+    @property
+    def source_types(self) -> SourceTypePluginConfigurationMapping:
+        """
+        The source type plugins created by this project.
+        """
+        return self._source_types
 
     @property
     def presence_roles(self) -> PresenceRolePluginConfigurationMapping:
