@@ -41,7 +41,7 @@ if TYPE_CHECKING:
 )
 class Link(HasMediaType, HasDescription, HasPrivacy, Entity):
     """
-    An external link.
+    .. plugin:: entity:link.
     """
 
     _url = RequiredLocalizableAttr("_url")

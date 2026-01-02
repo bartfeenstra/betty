@@ -10,7 +10,6 @@ from betty.plugin.discovery.static import StaticDiscovery
 from betty.project import Project
 from betty.project.extension import ExtensionDefinition
 from betty.requirement import Requirement
-from betty.test_utils.documentation import PluginDocumentationTestBase
 from betty.test_utils.locale.localizable import DUMMY_LOCALIZABLE
 from betty.test_utils.plugin import PluginDefinitionClassTestBase
 from betty.test_utils.project.extension import DummyExtensionOne
@@ -32,11 +31,6 @@ class TestExtensionDefinition(PluginDefinitionClassTestBase):
     def test_theme(self) -> None:
         sut = ExtensionDefinition("-", theme=True, label=DUMMY_LOCALIZABLE)
         assert sut.theme
-
-
-class TestExtensionDocumentation(PluginDocumentationTestBase[ExtensionDefinition]):
-    _plugin_type = ExtensionDefinition
-    _plugin_type_documentation_path = Path("usage") / "extension.rst"
 
 
 class TestExtension:

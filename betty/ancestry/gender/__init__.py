@@ -16,8 +16,6 @@ from betty.plugin.human_facing import CountableHumanFacingPluginDefinition
 class Gender(Plugin["GenderDefinition"]):
     """
     Define a gender.
-
-    Read more about :doc:`/development/plugin/gender`.
     """
 
 
@@ -35,7 +33,9 @@ class Gender(Plugin["GenderDefinition"]):
 )
 class GenderDefinition(CountableHumanFacingPluginDefinition[Gender]):
     """
-    A gender definition.
+    .. plugin_type:: gender.
 
-    Read more about :doc:`/development/plugin/gender`.
+        Gender includes the social, psychological, cultural and behavioral aspects of being a man, woman, or other gender
+        identity.
+    From `gender <https://en.wikipedia.org/wiki/Gender>`_ on Wikipedia
     """

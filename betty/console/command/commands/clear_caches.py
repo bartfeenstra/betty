@@ -25,7 +25,7 @@ _LEGACY_CACHE_DIRECTORY_PATH = Path.home() / ".betty" / "cache"
 @CommandDefinition("clear-caches", label=_("Clear all caches"))
 class ClearCaches(AppDependentSelfFactory, Command):
     """
-    A command to clear all Betty caches.
+    .. plugin:: command:clear-caches.
     """
 
     def __init__(self, app: App):

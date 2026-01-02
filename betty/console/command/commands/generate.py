@@ -21,7 +21,7 @@ if TYPE_CHECKING:
 @CommandDefinition("generate", label=_("Generate a static site"))
 class Generate(AppDependentSelfFactory, Command):
     """
-    A command to generate a new site.
+    .. plugin:: command:generate.
     """
 
     def __init__(self, app: App):

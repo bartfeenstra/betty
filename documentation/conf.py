@@ -36,6 +36,7 @@ html_theme = "furo"
 highlight_language = "none"
 templates_path = ["_templates"]
 extensions = [
+    "betty.sphinx.extension.betty",
     "sphinx.ext.autodoc",
     "sphinx.ext.autosectionlabel",
     "sphinx.ext.intersphinx",

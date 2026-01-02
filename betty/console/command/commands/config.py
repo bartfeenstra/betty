@@ -26,7 +26,7 @@ if TYPE_CHECKING:
 @CommandDefinition("config", label=_("Configure Betty"))
 class Config(AppDependentSelfFactory, Command):
     """
-    A command to manage Betty application configuration.
+    .. plugin:: command:config.
     """
 
     def __init__(self, app: App):

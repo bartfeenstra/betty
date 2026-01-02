@@ -58,8 +58,6 @@ class Entity(
     """
     An entity is a uniquely identifiable data container.
 
-    Read more about :doc:`/development/plugin/entity-type`.
-
     To test your own subclasses, use :py:class:`betty.test_utils.model.EntityTestBase`.
     """
 
@@ -148,11 +146,14 @@ class Entity(
     label=_("Entity"),
     label_plural=_("Entities"),
     label_countable=ngettext("{count} entity", "{count} entities"),
+    description=_(
+        "Entities represent the information in your ancestry, such as people and places."
+    ),
     discovery=EntryPointDiscovery("betty.entity_type"),
 )
 class EntityDefinition(CountableHumanFacingPluginDefinition[Entity]):
     """
-    An entity definition.
+    .. plugin_type:: entity.
     """
 
     def __init__(

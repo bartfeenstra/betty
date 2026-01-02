@@ -52,7 +52,7 @@ class Webpack(
     ProjectDependentSelfFactory,
 ):
     """
-    Integrate Betty with `Webpack <https://webpack.js.org/>`_.
+    .. plugin:: extension:webpack.
     """
 
     _npm_requirement: ClassVar[Requirement | None | Literal[False]] = False

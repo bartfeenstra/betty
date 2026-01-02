@@ -35,8 +35,6 @@ class Extension(ServiceContainer, HasRequirement, Plugin["ExtensionDefinition"])
     """
     Integrate optional functionality with Betty :py:class:`betty.project.Project`s.
 
-    Read more about :doc:`/development/plugin/extension`.
-
     To test your own subclasses, use :py:class:`betty.test_utils.project.extension.ExtensionTestBase`.
     """
 
@@ -99,7 +97,13 @@ class ExtensionDefinition(
     HumanFacingPluginDefinition[Extension], DependentPluginDefinition[Extension]
 ):
     """
-    An extension definition.
+    .. plugin_type:: extension.
+
+    Betty's functionality can be altered using *extensions*. An extension can do many things, such as loading new or
+    expanding existing ancestry data, or generating additional content for your site.
+
+    Some extensions are configurable. That means that other than enabling them, you can set the configuration options
+    that determine how the extension should work. This can be done in your project's :doc:`configuration file </usage/project/configuration>`.
     """
 
     def __init__(

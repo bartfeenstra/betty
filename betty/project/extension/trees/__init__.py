@@ -26,15 +26,13 @@ if TYPE_CHECKING:
 @ExtensionDefinition(
     "trees",
     label="Trees",
-    description=_(
-        'Display interactive family trees using <a href="https://cytoscape.org/">Cytoscape</a>.'
-    ),
+    description=_("Display interactive family trees using Cytoscape."),
     depends_on={Webpack},
     assets_directory_path=Path(__file__).parent / "assets",
 )
 class Trees(Generator, EntryPointProvider, ProjectDependentSelfFactory):
     """
-    Provide interactive family trees for use in web pages.
+    .. plugin:: extension:trees.
     """
 
     @override

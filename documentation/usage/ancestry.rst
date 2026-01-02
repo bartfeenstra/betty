@@ -41,25 +41,8 @@ access any entity of any type.
 
 In this section
 ---------------
-- :doc:`/usage/ancestry/citation`
 - :doc:`/usage/ancestry/date`
-- :doc:`/usage/ancestry/enclosure`
-- :doc:`/usage/ancestry/event`
-- :doc:`/usage/ancestry/event-type`
-- :doc:`/usage/ancestry/file`
-- :doc:`/usage/ancestry/file-reference`
-- :doc:`/usage/ancestry/link`
 - :doc:`/usage/ancestry/media-type`
 - :doc:`/usage/ancestry/name`
-- :doc:`/usage/ancestry/note`
-- :doc:`/usage/ancestry/person`
-- :doc:`/usage/ancestry/person-name`
-- :doc:`/usage/ancestry/place`
-- :doc:`/usage/ancestry/presence`
-- :doc:`/usage/ancestry/presence-role`
 - :doc:`/usage/ancestry/privacy`
-- :doc:`/usage/ancestry/source`
-
-See also
---------
-- :doc:`/development/plugin/entity-type`
+- :doc:`/usage/ancestry/static-translations`

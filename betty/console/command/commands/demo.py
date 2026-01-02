@@ -23,7 +23,7 @@ if TYPE_CHECKING:
 @CommandDefinition("demo", label=_("Explore a demonstration site"))
 class Demo(AppDependentSelfFactory, Command):
     """
-    A command to run the demonstration site.
+    .. plugin:: command:demo.
     """
 
     def __init__(self, app: App):

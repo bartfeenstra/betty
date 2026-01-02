@@ -22,8 +22,6 @@ class CopyrightNotice(Mutable, Plugin["CopyrightNoticeDefinition"]):
     """
     A copyright notice.
 
-    Read more about :doc:`/development/plugin/copyright-notice`.
-
     To test your own subclasses, use :py:class:`betty.test_utils.copyright_notice.CopyrightNoticeTestBase`.
     """
 
@@ -65,7 +63,5 @@ class CopyrightNotice(Mutable, Plugin["CopyrightNoticeDefinition"]):
 )
 class CopyrightNoticeDefinition(HumanFacingPluginDefinition[CopyrightNotice]):
     """
-    A copyright notice definition.
-
-    Read more about :doc:`/development/plugin/copyright-notice`.
+    .. plugin_type:: copyright-notice.
     """

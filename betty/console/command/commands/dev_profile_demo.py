@@ -55,7 +55,7 @@ def _print(stats: YFuncStats, sort_column: str, sort_direction: str) -> None:
 )
 class DevProfileDemo(AppDependentSelfFactory, Command):
     """
-    Profile the generation of the demonstration site.
+    .. plugin:: command:dev-profile-demo.
     """
 
     def __init__(self, app: App):

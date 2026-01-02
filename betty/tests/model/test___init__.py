@@ -1,15 +1,8 @@
-from pathlib import Path
-
 import pytest
 from typing_extensions import override
 
-from betty.model import (
-    Entity,
-    EntityDefinition,
-    persistent_id,
-)
+from betty.model import Entity, EntityDefinition, persistent_id
 from betty.plugin import PluginDefinition
-from betty.test_utils.documentation import PluginDocumentationTestBase
 from betty.test_utils.locale.localizable import (
     DUMMY_COUNTABLE_LOCALIZABLE,
     DUMMY_LOCALIZABLE,
@@ -32,11 +25,6 @@ class TestEntityDefinition(PluginDefinitionClassTestBase):
             label_countable=DUMMY_COUNTABLE_LOCALIZABLE,
         )
         assert sut.public_facing
-
-
-class TestEntityDocumentation(PluginDocumentationTestBase[EntityDefinition]):
-    _plugin_type = EntityDefinition
-    _plugin_type_documentation_path = Path("usage") / "ancestry.rst"
 
 
 @pytest.mark.parametrize(

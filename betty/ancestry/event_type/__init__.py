@@ -61,9 +61,7 @@ class EventTypeDefinition(
     CountableHumanFacingPluginDefinition[EventType], OrderedPluginDefinition[EventType]
 ):
     """
-    An event type definition.
-
-    Read more about :doc:`/development/plugin/event-type`.
+    .. plugin_type:: event-type.
     """
 
     def __init__(

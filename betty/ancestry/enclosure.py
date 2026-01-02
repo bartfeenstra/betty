@@ -26,9 +26,7 @@ if TYPE_CHECKING:
 )
 class Enclosure(HasDate, HasCitations, Entity):
     """
-    The enclosure of one place by another.
-
-    Enclosures describe the outer (```encloser`) and inner(``enclosee``) places, and their relationship.
+    .. plugin:: entity:enclosure.
     """
 
     encloser = BidirectionalToOne["Enclosure", "Place"](

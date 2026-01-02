@@ -66,7 +66,7 @@ class Event(
     HasLinks,
 ):
     """
-    An event that took place.
+    .. plugin:: entity:event.
     """
 
     name = OptionalLocalizableAttr("required")

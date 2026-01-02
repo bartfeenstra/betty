@@ -16,8 +16,6 @@ from betty.plugin.human_facing import CountableHumanFacingPluginDefinition
 class PresenceRole(Plugin["PresenceRoleDefinition"]):
     """
     A person's role at an event.
-
-    Read more about :doc:`/development/plugin/presence-role`.
     """
 
 
@@ -37,7 +35,5 @@ class PresenceRole(Plugin["PresenceRoleDefinition"]):
 )
 class PresenceRoleDefinition(CountableHumanFacingPluginDefinition[PresenceRole]):
     """
-    A presence role definition.
-
-    Read more about :doc:`/development/plugin/presence-role`.
+    .. plugin_type:: presence-role.
     """

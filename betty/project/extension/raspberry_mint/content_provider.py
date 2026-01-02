@@ -152,7 +152,7 @@ class Section(
     ConfigurationDependentSelfFactory[SectionConfiguration],
 ):
     """
-    A section on the page with a heading and a permanent link.
+    .. plugin:: content-provider:raspberry-mint-section.
     """
 
     @private

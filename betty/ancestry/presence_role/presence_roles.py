@@ -18,7 +18,7 @@ from betty.locale.localizable.gettext import _, ngettext
 )
 class Attendee(PresenceRole):
     """
-    Someone attended the event (further details unknown).
+    .. plugin:: presence-role:attendee.
     """
 
 
@@ -31,6 +31,8 @@ class Attendee(PresenceRole):
 )
 class Beneficiary(PresenceRole):
     """
+    .. plugin:: presence-role:beneficiary.
+
     Someone was a `benificiary <https://en.wikipedia.org/wiki/Beneficiary>`_ in the event, such as a :py:class:`betty.ancestry.event_type.event_types.Will`.
     """
 
@@ -44,6 +46,8 @@ class Beneficiary(PresenceRole):
 )
 class Celebrant(PresenceRole):
     """
+    .. plugin:: presence-role:celebrant.
+
     Someone was the `celebrant <https://en.wikipedia.org/wiki/Officiant>`_ at the event.
 
     This includes but is not limited to:
@@ -60,10 +64,11 @@ class Celebrant(PresenceRole):
     label=_("Informant"),
     label_plural=_("Informants"),
     label_countable=ngettext("{count} informant", "{count} informants"),
+    description=_("Someone reported the event with a record-keeping institution."),
 )
 class Informant(PresenceRole):
     """
-    Someone was the informant of an event, e.g. they reported it with a record-keeping institution.
+    .. plugin:: presence-role:informant.
     """
 
 
@@ -76,7 +81,7 @@ class Informant(PresenceRole):
 )
 class Organizer(PresenceRole):
     """
-    Someone organized the event.
+    .. plugin:: presence-role:organizer.
     """
 
 
@@ -86,10 +91,11 @@ class Organizer(PresenceRole):
     label=_("Speaker"),
     label_plural=_("Speakers"),
     label_countable=ngettext("{count} speaker", "{count} speakers"),
+    description=_("Someone performed public speaking at the event."),
 )
 class Speaker(PresenceRole):
     """
-    Someone performed public speaking at the event.
+    .. plugin:: presence-role:speaker.
     """
 
 
@@ -102,7 +108,7 @@ class Speaker(PresenceRole):
 )
 class Subject(PresenceRole):
     """
-    Someone was the subject of the event.
+    .. plugin:: presence-role:subject.
 
     The meaning of this role depends on the event type. For example, for
     :py:class:`betty.ancestry.event_type.event_types.Marriage`, the subjects are the people who got married. For
@@ -119,7 +125,7 @@ class Subject(PresenceRole):
 )
 class Unknown(PresenceRole, Singleton):
     """
-    Someone's role in an event is unknown.
+    .. plugin:: presence-role:unknown.
     """
 
 
@@ -129,8 +135,9 @@ class Unknown(PresenceRole, Singleton):
     label=_("Witness"),
     label_plural=_("Witnesses"),
     label_countable=ngettext("{count} witness", "{count} witnesses"),
+    description=_("A formal witness to an event."),
 )
 class Witness(PresenceRole):
     """
-    Someone `witnessed <https://en.wikipedia.org/wiki/Witness>`_ the event.
+    .. plugin:: presence-role:witness.
     """

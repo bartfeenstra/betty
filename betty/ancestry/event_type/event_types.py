@@ -30,7 +30,7 @@ if TYPE_CHECKING:
 )
 class Unknown(EventType, Singleton):
     """
-    Describe an event for which no more specific type is known.
+    .. plugin:: event-type:unknown.
     """
 
 
@@ -43,7 +43,7 @@ class Unknown(EventType, Singleton):
 )
 class Birth(ShouldExistEventType):
     """
-    Someone was born.
+    .. plugin:: event-type:birth.
     """
 
     @override
@@ -62,7 +62,7 @@ class Birth(ShouldExistEventType):
 )
 class Death(ShouldExistEventType):
     """
-    Someone died.
+    .. plugin:: event-type:death.
     """
 
     @override
@@ -83,7 +83,7 @@ class Death(ShouldExistEventType):
 )
 class Baptism(EventType):
     """
-    Someone was `baptized <https://en.wikipedia.org/wiki/Baptism>`_.
+    .. plugin:: event-type:baptism.
     """
 
 
@@ -99,7 +99,7 @@ class Baptism(EventType):
 )
 class BarMitzvah(EventType):
     """
-    Someone's `bar mitzvah <https://en.wikipedia.org/wiki/Bar_and_bat_mitzvah>`_ took place.
+    .. plugin:: event-type:bar-mitzvah.
     """
 
 
@@ -115,7 +115,7 @@ class BarMitzvah(EventType):
 )
 class BatMitzvah(EventType):
     """
-    Someone's `bat mitzvah <https://en.wikipedia.org/wiki/Bar_and_bat_mitzvah>`_ took place.
+    .. plugin:: event-type:bat-mitzvah.
     """
 
 
@@ -130,7 +130,7 @@ class BatMitzvah(EventType):
 )
 class Adoption(EventType):
     """
-    Someone was adopted.
+    .. plugin:: event-type:adoption.
     """
 
 
@@ -145,7 +145,7 @@ class Adoption(EventType):
 )
 class Funeral(EventType):
     """
-    Someone's funeral took place.
+    .. plugin:: event-type:funeral.
     """
 
 
@@ -160,7 +160,7 @@ class Funeral(EventType):
 )
 class Cremation(EventType):
     """
-    Someone was cremated.
+    .. plugin:: event-type:cremation.
     """
 
 
@@ -175,7 +175,7 @@ class Cremation(EventType):
 )
 class Burial(EventType):
     """
-    Someone was buried.
+    .. plugin:: event-type:burial.
     """
 
 
@@ -189,7 +189,7 @@ class Burial(EventType):
 )
 class Will(EventType):
     """
-    Someone's `will and testament <https://en.wikipedia.org/wiki/Will_and_testament>`_ came into effect.
+    .. plugin:: event-type:will.
     """
 
 
@@ -204,7 +204,7 @@ class Will(EventType):
 )
 class Engagement(EventType):
     """
-    People got engaged with the intent to marry.
+    .. plugin:: event-type:engagement.
     """
 
 
@@ -219,7 +219,7 @@ class Engagement(EventType):
 )
 class Marriage(EventType):
     """
-    People were married.
+    .. plugin:: event-type:marriage.
     """
 
 
@@ -236,7 +236,7 @@ class Marriage(EventType):
 )
 class MarriageAnnouncement(EventType):
     """
-    People's marriage was announced.
+    .. plugin:: event-type:marriage-announcement.
     """
 
 
@@ -251,7 +251,7 @@ class MarriageAnnouncement(EventType):
 )
 class Divorce(EventType):
     """
-    People were divorced.
+    .. plugin:: event-type:divorce.
     """
 
 
@@ -268,7 +268,7 @@ class Divorce(EventType):
 )
 class DivorceAnnouncement(EventType):
     """
-    People's divorce was announced.
+    .. plugin:: event-type:divorce-announcement.
     """
 
 
@@ -283,7 +283,7 @@ class DivorceAnnouncement(EventType):
 )
 class Residence(EventType):
     """
-    Someone resided/lived in a place.
+    .. plugin:: event-type:residence.
     """
 
 
@@ -298,7 +298,7 @@ class Residence(EventType):
 )
 class Immigration(EventType):
     """
-    Someone immigrated to a place.
+    .. plugin:: event-type:immigration.
     """
 
 
@@ -313,7 +313,7 @@ class Immigration(EventType):
 )
 class Emigration(EventType):
     """
-    Someone emigrated from a place.
+    .. plugin:: event-type:emigration.
     """
 
 
@@ -328,9 +328,7 @@ class Emigration(EventType):
 )
 class Occupation(EventType):
     """
-    Someone's occupation, e.g. their main recurring activity.
-
-    This may include employment, education, stay at home parent, etc.
+    .. plugin:: event-type:occupation.
     """
 
 
@@ -345,7 +343,7 @@ class Occupation(EventType):
 )
 class Retirement(EventType):
     """
-    Someone `retired <https://en.wikipedia.org/wiki/Retirement>`_.
+    .. plugin:: event-type:retirement.
     """
 
 
@@ -358,7 +356,7 @@ class Retirement(EventType):
 )
 class Correspondence(EventType):
     """
-    People corresponded with each other.
+    .. plugin:: event-type:correspondence.
     """
 
 
@@ -373,7 +371,7 @@ class Correspondence(EventType):
 )
 class Confirmation(EventType):
     """
-    Someone's `confirmation <https://en.wikipedia.org/wiki/Confirmation>`_ took place.
+    .. plugin:: event-type:confirmation.
     """
 
 
@@ -388,7 +386,7 @@ class Confirmation(EventType):
 )
 class Missing(EventType):
     """
-    Someone went missing.
+    .. plugin:: event-type:missing.
     """
 
 
@@ -403,5 +401,5 @@ class Missing(EventType):
 )
 class Conference(EventType):
     """
-    A conference between people took place.
+    .. plugin:: event-type:conference.
     """

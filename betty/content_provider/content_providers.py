@@ -83,7 +83,7 @@ class Render(
     HasRequirement,
 ):
     """
-    Rendered content.
+    .. plugin:: content-provider:render.
     """
 
     @private
@@ -153,7 +153,7 @@ class Template(ContentProvider):
 @ContentProviderDefinition("notes", label=_("Notes"))
 class Notes(Template, ProjectDependentSelfFactory):
     """
-    Render a page resource's notes, if it has any.
+    .. plugin:: content-provider:notes.
     """
 
     @override
@@ -244,7 +244,7 @@ class BoxConfiguration(Configuration):
 @ContentProviderDefinition("box", label=_("Box"))
 class Box(Template, ConfigurationDependentSelfFactory[BoxConfiguration]):
     """
-    A box whose dimensions can be configured.
+    .. plugin:: content-provider:box.
     """
 
     @override

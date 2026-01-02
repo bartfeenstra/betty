@@ -20,8 +20,6 @@ if TYPE_CHECKING:
 class Renderer(ABC, Plugin["RendererDefinition"]):
     """
     Render content in a different media type to HTML.
-
-    Read more about :doc:`/development/plugin/renderer`.
     """
 
     @property
@@ -49,9 +47,7 @@ class Renderer(ABC, Plugin["RendererDefinition"]):
 )
 class RendererDefinition(HumanFacingPluginDefinition[Renderer]):
     """
-    A renderer definition.
-
-    Read more about :doc:`/development/plugin/renderer`.
+    .. plugin_type:: renderer.
     """
 
 

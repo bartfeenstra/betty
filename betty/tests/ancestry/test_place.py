@@ -1,6 +1,5 @@
 from __future__ import annotations
 
-from pathlib import Path
 from typing import TYPE_CHECKING, Any, cast
 
 import pytest
@@ -13,14 +12,13 @@ from betty.ancestry.event_type.event_types import Birth
 from betty.ancestry.link import Link
 from betty.ancestry.name import Name
 from betty.ancestry.place import Place
-from betty.ancestry.place_type import PlaceType, PlaceTypeDefinition
+from betty.ancestry.place_type import PlaceType
 from betty.ancestry.place_type.place_types import Hamlet
 from betty.ancestry.place_type.place_types import Unknown as UnknownPlaceType
 from betty.locale import DEFAULT_LOCALE, DEFAULT_LOCALE_TAG, to_language_tag
 from betty.model import Entity
 from betty.model.association import AssociationRequired, TemporaryToOneResolver
 from betty.mutability import Mutable
-from betty.test_utils.documentation import PluginDocumentationTestBase
 from betty.test_utils.json.linked_data import assert_dumps_linked_data
 from betty.test_utils.model import EntityDefinitionTestBase, EntityTestBase
 
@@ -35,11 +33,6 @@ class TestPlaceDefinition(EntityDefinitionTestBase):
     @pytest.fixture
     def sut(self) -> PluginDefinition:
         return Place.plugin()
-
-
-class TestPlaceTypeDocumentation(PluginDocumentationTestBase[PlaceTypeDefinition]):
-    _plugin_type = PlaceTypeDefinition
-    _plugin_type_documentation_path = Path("usage") / "ancestry" / "place-type.rst"
 
 
 class TestPlace(EntityTestBase):

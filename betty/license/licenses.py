@@ -30,7 +30,7 @@ from betty.user import User
 @LicenseDefinition("all-rights-reserved", label=_("All rights reserved"))
 class AllRightsReserved(License):
     """
-    A license that does not permit the public any rights.
+    .. plugin:: license:all-rights-reserved.
     """
 
     @property
@@ -50,7 +50,7 @@ class AllRightsReserved(License):
 @LicenseDefinition("public-domain", label=_("Public domain"))
 class PublicDomain(License):
     """
-    A work is in the `public domain <https://en.wikipedia.org/wiki/Public_domain>`.
+    .. plugin:: license:public-domain.
     """
 
     @property

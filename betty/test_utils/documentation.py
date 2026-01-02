@@ -2,45 +2,58 @@
 Documentation testing utilities.
 """
 
-from collections.abc import Collection
-from pathlib import Path
-from typing import Generic, TypeVar
+from typing import Any
 
-import aiofiles
+import pytest
 
 from betty.app import App
-from betty.dirs import ROOT_DIRECTORY_PATH
-from betty.plugin import PluginDefinition
+from betty.importlib import fully_qualified_name
+from betty.plugin import PluginDefinition, plugin_types
 from betty.project import Project
 
-_PluginDefinitionT = TypeVar("_PluginDefinitionT", bound=PluginDefinition)
 
-
-class PluginDocumentationTestBase(Generic[_PluginDefinitionT]):
+class PluginDocumentationTestBase:
     """
-    Test a plugin type's documentation.
+    Test a module's plugin and plugin type documentation.
     """
 
-    _plugin_type: type[_PluginDefinitionT]
-    _plugin_type_documentation_path: Path
+    _module: str
 
-    async def test_should_contain_plugins(self, isolated_app: App) -> None:
+    def _match_module(self, target: Any) -> bool:
+        module = getattr(target, "__module__", "")
+        assert isinstance(module, str)
+        return module.startswith(self._module)
+
+    async def test(self, isolated_app: App, subtests: pytest.Subtests) -> None:
         """
-        Test that the plugin type's documentation includes all its plugins.
+        Test the plugin and plugin type documentation.
         """
-        documentation_file_path = (
-            ROOT_DIRECTORY_PATH / "documentation" / self._plugin_type_documentation_path
-        )
-        async with aiofiles.open(documentation_file_path) as f:
-            documentation = await f.read()
         async with Project.new_isolated(isolated_app) as project, project:
-            for plugin in await project.plugins(self._plugin_type):
-                if plugin.id.startswith("-"):
-                    continue
-                for expected in self._get_expected(plugin):
-                    assert expected in documentation, (
-                        f'Failed to find "{expected}" in the documentation at {documentation_file_path}'
-                    )
+            for plugin_type in plugin_types().values():
+                with subtests.test():
+                    self._test_plugin_type(plugin_type)
+                for plugin in await project.plugins(plugin_type):
+                    with subtests.test():
+                        self._test_plugin(plugin)
 
-    def _get_expected(self, plugin: _PluginDefinitionT) -> Collection[str]:
-        return (plugin.type().id,)
+    def _test_plugin_type(self, plugin_type: type[PluginDefinition]) -> None:
+        if not self._match_module(plugin_type):
+            return
+        if plugin_type.type().id.startswith("-"):
+            return
+        docstring = plugin_type.__doc__ or ""
+        directive = f".. plugin_type:: {plugin_type.type().id}"
+        assert directive in docstring, (
+            f'Failed to find the "{directive}" directive in the docstring for {fully_qualified_name(plugin_type)}'
+        )
+
+    def _test_plugin(self, plugin: PluginDefinition) -> None:
+        if not self._match_module(plugin.cls):
+            return
+        if plugin.id.startswith("-"):
+            return
+        docstring = plugin.cls.__doc__ or ""
+        directive = f".. plugin:: {plugin.type().id}:{plugin.id}"
+        assert directive in docstring, (
+            f'Failed to find the "{directive}" directive in the docstring for {fully_qualified_name(plugin.cls)}'
+        )

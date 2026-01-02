@@ -21,10 +21,10 @@ from betty.functools import Do
 from betty.jinja2.filter import filters
 from betty.jinja2.test import tests
 from betty.locale.localize import DEFAULT_LOCALIZER
-from betty.plugin import plugin_types
 from betty.project.config import ProjectConfiguration
 from betty.serde.format import Format
 from betty.serde.format.formats import Json, Yaml
+from betty.test_utils.documentation import PluginDocumentationTestBase
 from betty.test_utils.user import StaticUser
 
 
@@ -100,14 +100,8 @@ class TestDocumentation:
             assert f":`{test_name} <" in documentation
 
 
-class TestPluginTypeDocumentation:
-    async def test_should_contain_plugin_types(self) -> None:
-        async with aiofiles.open(
-            ROOT_DIRECTORY_PATH / "documentation" / "development" / "plugin.rst"
-        ) as f:
-            documentation = await f.read()
-        for plugin_type_id in plugin_types():
-            assert f"/development/plugin/{plugin_type_id}" in documentation
+class TestPluginDocumentation(PluginDocumentationTestBase):
+    _module = "betty"
 
 
 class TestDocstringSphinxReferences:

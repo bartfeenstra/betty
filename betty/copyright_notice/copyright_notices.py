@@ -31,7 +31,7 @@ if TYPE_CHECKING:
 @CopyrightNoticeDefinition("project-author", label=_("Project author"))
 class ProjectAuthor(ProjectDependentSelfFactory, CopyrightNotice):
     """
-    Copyright belonging to a project author.
+    .. plugin:: copyright-notice:project-author.
     """
 
     def __init__(self, author: LocalizableLike | None):
@@ -62,7 +62,7 @@ class ProjectAuthor(ProjectDependentSelfFactory, CopyrightNotice):
 @CopyrightNoticeDefinition("public-domain", label=_("Public domain"))
 class PublicDomain(CopyrightNotice):
     """
-    A work is in the `public domain <https://en.wikipedia.org/wiki/Public_domain>`.
+    .. plugin:: copyright-notice:public-domain.
     """
 
     @property
@@ -82,7 +82,7 @@ class PublicDomain(CopyrightNotice):
 @CopyrightNoticeDefinition("streetmix", label=Plain("Streetmix LLC"))
 class Streetmix(CopyrightNotice):
     """
-    The copyright for Streetmix resources.
+    .. plugin:: copyright-notice:streetmix.
     """
 
     @override
@@ -109,7 +109,7 @@ def _copyright_url(language: str, page: str) -> str:
 @CopyrightNoticeDefinition("wikipedia-contributors", label=_("Wikipedia contributors"))
 class WikipediaContributors(AppDependentSelfFactory, CopyrightNotice):
     """
-    The copyright for resources on Wikipedia.
+    .. plugin:: copyright-notice:wikipedia-contributors.
     """
 
     def __init__(self, url: LocalizableLike):

@@ -25,7 +25,7 @@ if TYPE_CHECKING:
 )
 class Serve(AppDependentSelfFactory, Command):
     """
-    A command to serve a generated site.
+    .. plugin:: command:serve.
     """
 
     def __init__(self, app: App):

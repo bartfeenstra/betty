@@ -17,9 +17,7 @@ from betty.plugin.human_facing import (
 
 class PlaceType(Plugin["PlaceTypeDefinition"]):
     """
-    Define an :py:class:`betty.ancestry.place.Place` type.
-
-    Read more about :doc:`/development/plugin/place-type`.
+    Define a :py:class:`betty.ancestry.place.Place` type.
     """
 
 
@@ -39,7 +37,5 @@ class PlaceType(Plugin["PlaceTypeDefinition"]):
 )
 class PlaceTypeDefinition(CountableHumanFacingPluginDefinition[PlaceType]):
     """
-    A place type definition.
-
-    Read more about :doc:`/development/plugin/place-type`.
+    .. plugin_type:: place-type.
     """
