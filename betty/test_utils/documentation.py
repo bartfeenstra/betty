@@ -33,8 +33,11 @@ class PluginDocumentationTestBase(Generic[_PluginDefinitionT]):
         )
         async with aiofiles.open(documentation_file_path) as f:
             documentation = await f.read()
+        print(documentation)
         async with Project.new_isolated(isolated_app) as project, project:
             for plugin in await project.plugins(self._plugin_type):
+                print(plugin.id)
+                print(self._get_expected(plugin))
                 if plugin.id.startswith("-"):
                     continue
                 for expected in self._get_expected(plugin):
