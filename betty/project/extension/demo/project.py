@@ -29,9 +29,7 @@ from betty.project.config import (
 )
 from betty.project.extension.demo.content_provider import _IncompleteTranslationWarning
 from betty.project.extension.raspberry_mint import (
-    SINGLE_COLUMN_TEXT_WIDTH,
     Breakpoint,
-    JustifyContent,
     RaspberryMint,
 )
 from betty.project.extension.raspberry_mint.config import RaspberryMintConfiguration
@@ -90,21 +88,45 @@ async def create_project(app: App, project_directory_path: Path) -> Project:
                                             PluginInstanceConfiguration(
                                                 Columns,
                                                 ColumnsConfiguration(
-                                                    PluginInstanceConfiguration(
-                                                        Render,
-                                                        RenderConfiguration(
-                                                            Chain(
-                                                                "<p>",
-                                                                _(
-                                                                    "Betty was named after <a href=\"betty-entity://person/betty-demo-liberta-lankester\">Liberta 'Betty' Lankester</a>, and this website shows a small sample of her family history. You can browse the pages about her and some of her family to get an idea of what a Betty site looks like."
+                                                    [
+                                                        PluginInstanceConfiguration(
+                                                            Render,
+                                                            RenderConfiguration(
+                                                                Chain(
+                                                                    "<h2>",
+                                                                    _("Get started"),
+                                                                    "</h2>"
+                                                                    '<a href="https://betty.readthedocs.io/" class="view-more">',
+                                                                    _(
+                                                                        "Read the documentation"
+                                                                    ),
+                                                                    "</a>",
+                                                                    '<a href="https://github.com/bartfeenstra/betty/" class="view-more">',
+                                                                    _("View the code"),
+                                                                    "</a>",
                                                                 ),
-                                                                "</p>",
+                                                                HTML,
                                                             ),
-                                                            HTML,
                                                         ),
-                                                    ),
-                                                    width=SINGLE_COLUMN_TEXT_WIDTH,
-                                                    justify_content=JustifyContent.CENTER,
+                                                        PluginInstanceConfiguration(
+                                                            Render,
+                                                            RenderConfiguration(
+                                                                Chain(
+                                                                    "<p>",
+                                                                    _(
+                                                                        "Betty was named after <a href=\"betty-entity://person/betty-demo-liberta-lankester\">Liberta 'Betty' Lankester</a>, and this website shows a small sample of her family history. You can browse the pages about her and some of her family to get an idea of what a Betty site looks like."
+                                                                    ),
+                                                                    "</p>",
+                                                                ),
+                                                                HTML,
+                                                            ),
+                                                        ),
+                                                    ],
+                                                    width={
+                                                        Breakpoint.XS: [12, 12],
+                                                        Breakpoint.MD: [5, 6],
+                                                        Breakpoint.LG: [4, 7],
+                                                    },
                                                 ),
                                             ),
                                             heading=_("Welcome"),
@@ -147,7 +169,7 @@ async def create_project(app: App, project_directory_path: Path) -> Project:
                                                     },
                                                 ),
                                             ),
-                                            heading=_("Start exploring..."),
+                                            heading=_("Explore a family history..."),
                                         ),
                                     ),
                                 ],

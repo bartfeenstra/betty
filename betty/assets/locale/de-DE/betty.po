@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Betty VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-01-01 22:05+0000\n"
+"POT-Creation-Date: 2026-01-02 00:35+0000\n"
 "PO-Revision-Date: 2025-03-28 20:02+0000\n"
 "Last-Translator: Ettore Atalan <atalanttore@googlemail.com>\n"
 "Language: de_DE\n"
@@ -600,6 +600,9 @@ msgstr ""
 msgid "Explore a demonstration site"
 msgstr ""
 
+msgid "Explore a family history..."
+msgstr ""
+
 msgid "Extension"
 msgstr ""
 
@@ -676,6 +679,9 @@ msgid "Generate a static site"
 msgstr ""
 
 msgid "Generating site..."
+msgstr ""
+
+msgid "Get started"
 msgstr ""
 
 msgid "Go to the front page"
@@ -1168,6 +1174,9 @@ msgstr "Lies mehr auf Wikipedia."
 msgid "Read the Betty documentation"
 msgstr ""
 
+msgid "Read the documentation"
+msgstr ""
+
 msgid "References"
 msgstr "Referenzen"
 
@@ -1253,9 +1262,6 @@ msgid "Speaker"
 msgstr "Sprecher"
 
 msgid "Speakers"
-msgstr ""
-
-msgid "Start exploring..."
 msgstr ""
 
 msgid "Starting Python's built-in web server..."
@@ -1521,6 +1527,9 @@ msgstr ""
 
 msgid "View original"
 msgstr "Original ansehen"
+
+msgid "View the code"
+msgstr ""
 
 msgid "View the documentation"
 msgstr ""

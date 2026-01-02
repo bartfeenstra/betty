@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Betty 0.4\n"
 "Report-Msgid-Bugs-To: illia@maier.page\n"
-"POT-Creation-Date: 2026-01-01 22:05+0000\n"
+"POT-Creation-Date: 2026-01-02 00:35+0000\n"
 "PO-Revision-Date: 2025-05-13 17:01+0000\n"
 "Last-Translator: Максим Горпиніч <maksimgorpinic4@gmail.com>\n"
 "Language: uk\n"
@@ -618,6 +618,9 @@ msgstr "Потрібно рівно {expected} елементів, але зна
 msgid "Explore a demonstration site"
 msgstr "Ознайомтеся з демонстраційним сайтом"
 
+msgid "Explore a family history..."
+msgstr ""
+
 msgid "Extension"
 msgstr ""
 
@@ -694,6 +697,9 @@ msgid "Generate a static site"
 msgstr "Згенерувати статичний сайт"
 
 msgid "Generating site..."
+msgstr ""
+
+msgid "Get started"
 msgstr ""
 
 msgid "Go to the front page"
@@ -1192,6 +1198,9 @@ msgstr "Детальніше читайте у Вікіпедії."
 msgid "Read the Betty documentation"
 msgstr "Прочитайте документацію Betty"
 
+msgid "Read the documentation"
+msgstr ""
+
 msgid "References"
 msgstr "Референції"
 
@@ -1277,9 +1286,6 @@ msgid "Speaker"
 msgstr "Доповідач"
 
 msgid "Speakers"
-msgstr ""
-
-msgid "Start exploring..."
 msgstr ""
 
 msgid "Starting Python's built-in web server..."
@@ -1553,6 +1559,9 @@ msgstr ""
 
 msgid "View original"
 msgstr "Переглянути оригінал"
+
+msgid "View the code"
+msgstr ""
 
 msgid "View the documentation"
 msgstr "Переглянути документацію"

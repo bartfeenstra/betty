@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PROJECT VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-01-01 22:05+0000\n"
+"POT-Creation-Date: 2026-01-02 00:35+0000\n"
 "PO-Revision-Date: 2025-11-08 23:46+0000\n"
 "Last-Translator: Bart Feenstra <bart@bartfeenstra.com>\n"
 "Language: nl_NL\n"
@@ -621,6 +621,9 @@ msgstr "Precies {expected} items zijn vereist, maar er waren er {actual} gevonde
 msgid "Explore a demonstration site"
 msgstr "Verken een demonstratiesite"
 
+msgid "Explore a family history..."
+msgstr ""
+
 msgid "Extension"
 msgstr ""
 
@@ -697,6 +700,9 @@ msgid "Generate a static site"
 msgstr "Genereer een statische site"
 
 msgid "Generating site..."
+msgstr ""
+
+msgid "Get started"
 msgstr ""
 
 msgid "Go to the front page"
@@ -1197,6 +1203,9 @@ msgstr "Lees meer op Wikipedia."
 msgid "Read the Betty documentation"
 msgstr "Lees de Bettydocumentatie"
 
+msgid "Read the documentation"
+msgstr ""
+
 msgid "References"
 msgstr "Referenties"
 
@@ -1282,9 +1291,6 @@ msgid "Speaker"
 msgstr "Spreker"
 
 msgid "Speakers"
-msgstr ""
-
-msgid "Start exploring..."
 msgstr ""
 
 msgid "Starting Python's built-in web server..."
@@ -1555,6 +1561,9 @@ msgstr ""
 
 msgid "View original"
 msgstr "Bekijk origineel"
+
+msgid "View the code"
+msgstr ""
 
 msgid "View the documentation"
 msgstr "Bekijk de documentatie"

@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Betty VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-01-01 22:05+0000\n"
+"POT-Creation-Date: 2026-01-02 00:35+0000\n"
 "PO-Revision-Date: 2025-12-08 19:00+0000\n"
 "Last-Translator: Artur Kalagov "
 "<artur.kalagov@users.noreply.hosted.weblate.org>\n"
@@ -625,6 +625,9 @@ msgstr "Требуются именно {expected} элементов, но на
 msgid "Explore a demonstration site"
 msgstr "Ознакомьтесь с демонстрационным сайтом"
 
+msgid "Explore a family history..."
+msgstr ""
+
 msgid "Extension"
 msgstr ""
 
@@ -701,6 +704,9 @@ msgid "Generate a static site"
 msgstr "Создание статического сайта"
 
 msgid "Generating site..."
+msgstr ""
+
+msgid "Get started"
 msgstr ""
 
 msgid "Go to the front page"
@@ -1200,6 +1206,9 @@ msgstr "Подробнее на Wikipedia."
 msgid "Read the Betty documentation"
 msgstr "Ознакомьтесь с документацией Betty"
 
+msgid "Read the documentation"
+msgstr ""
+
 msgid "References"
 msgstr "Ссылки"
 
@@ -1285,9 +1294,6 @@ msgid "Speaker"
 msgstr "Выступавший"
 
 msgid "Speakers"
-msgstr ""
-
-msgid "Start exploring..."
 msgstr ""
 
 msgid "Starting Python's built-in web server..."
@@ -1562,6 +1568,9 @@ msgstr ""
 
 msgid "View original"
 msgstr "Посмотреть оригинал"
+
+msgid "View the code"
+msgstr ""
 
 msgid "View the documentation"
 msgstr "Просмотреть документацию"
