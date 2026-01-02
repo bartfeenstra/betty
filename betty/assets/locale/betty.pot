@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Betty VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-01-02 00:35+0000\n"
+"POT-Creation-Date: 2026-01-02 12:48+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -128,6 +128,12 @@ msgstr ""
 msgid "Appearances"
 msgstr ""
 
+msgid "Archive"
+msgstr ""
+
+msgid "Archives"
+msgstr ""
+
 msgid "Assets directory"
 msgstr ""
 
@@ -237,6 +243,12 @@ msgid "Birth"
 msgstr ""
 
 msgid "Births"
+msgstr ""
+
+msgid "Book"
+msgstr ""
+
+msgid "Books"
 msgstr ""
 
 msgid "Borough"
@@ -1214,6 +1226,12 @@ msgstr ""
 msgid "Source"
 msgstr ""
 
+msgid "Source type"
+msgstr ""
+
+msgid "Source types"
+msgstr ""
+
 msgid "Sources"
 msgstr ""
 
@@ -1492,6 +1510,12 @@ msgstr ""
 msgid "Villages"
 msgstr ""
 
+msgid "Website"
+msgstr ""
+
+msgid "Websites"
+msgstr ""
+
 msgid "Welcome"
 msgstr ""
 
@@ -1728,6 +1752,12 @@ msgstr[0] ""
 msgstr[1] ""
 
 #, python-brace-format
+msgid "{count} archive"
+msgid_plural "{count} archives"
+msgstr[0] ""
+msgstr[1] ""
+
+#, python-brace-format
 msgid "{count} attendee"
 msgid_plural "{count} attendees"
 msgstr[0] ""
@@ -1760,6 +1790,12 @@ msgstr[1] ""
 #, python-brace-format
 msgid "{count} birth"
 msgid_plural "{count} births"
+msgstr[0] ""
+msgstr[1] ""
+
+#, python-brace-format
+msgid "{count} book"
+msgid_plural "{count} books"
 msgstr[0] ""
 msgstr[1] ""
 
@@ -2136,6 +2172,12 @@ msgstr[0] ""
 msgstr[1] ""
 
 #, python-brace-format
+msgid "{count} source type"
+msgid_plural "{count} source types"
+msgstr[0] ""
+msgstr[1] ""
+
+#, python-brace-format
 msgid "{count} speaker"
 msgid_plural "{count} speakers"
 msgstr[0] ""
@@ -2174,6 +2216,12 @@ msgstr[1] ""
 #, python-brace-format
 msgid "{count} village"
 msgid_plural "{count} villages"
+msgstr[0] ""
+msgstr[1] ""
+
+#, python-brace-format
+msgid "{count} website"
+msgid_plural "{count} websites"
 msgstr[0] ""
 msgstr[1] ""
 
