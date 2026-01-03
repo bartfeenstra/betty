@@ -11,7 +11,7 @@ from pathlib import Path
 from subprocess import PIPE
 
 from betty.locale.localizable.gettext import _
-from betty.user import User
+from betty.user import User, Verbosity
 
 
 class SubprocessError(Exception):
@@ -59,29 +59,30 @@ async def run_process(
         await user.message_debug(str(error))
         raise FileNotFound(str(error)) from None
 
-    if process.returncode == 0:
-        return process
+    if process.returncode != 0 or user.verbosity is Verbosity.MOST_VERBOSE:
+        stdout_str = "\n".join(stdout.decode().split(os.linesep))
+        stderr_str = "\n".join(stderr.decode().split(os.linesep))
 
-    stdout_str = "\n".join(stdout.decode().split(os.linesep))
-    stderr_str = "\n".join(stderr.decode().split(os.linesep))
-
-    if stdout_str:
-        await user.message_debug(
-            _("Subprocess `{command}` stdout:\n{stdout}").format(
-                command=command, stdout=stdout_str
+        if stdout_str:
+            await user.message_debug(
+                _("Subprocess `{command}` stdout:\n{stdout}").format(
+                    command=command, stdout=stdout_str
+                )
             )
-        )
-    if stderr_str:
-        await user.message_debug(
-            _("Subprocess `{command}` stderr:\n{stderr}").format(
-                command=command, stderr=stderr_str
+        if stderr_str:
+            await user.message_debug(
+                _("Subprocess `{command}` stderr:\n{stderr}").format(
+                    command=command, stderr=stderr_str
+                )
             )
-        )
 
-    assert process.returncode is not None
-    raise CalledSubprocessError(
-        process.returncode,
-        " ".join(runnee),
-        stdout_str,
-        stderr_str,
-    )
+        if process.returncode != 0:
+            assert process.returncode is not None
+            raise CalledSubprocessError(
+                process.returncode,
+                " ".join(runnee),
+                stdout_str,
+                stderr_str,
+            )
+
+    return process
