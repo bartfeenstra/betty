@@ -590,9 +590,12 @@ _BASELINE: Mapping[str, _ModuleIgnore] = {
 
 
 class TestCoverage:
-    async def test(self) -> None:
-        tester = CoverageTester()
-        await tester.test()
+    async def test(self, subtests: pytest.Subtests) -> None:
+        errors = await CoverageTester().test()
+        for file_path in sorted(errors):
+            for error in errors[file_path]:
+                with subtests.test():
+                    raise AssertionError(error)
 
 
 def _module_path_to_name(module_path: Path) -> str:
@@ -607,7 +610,7 @@ class CoverageTester:
     def __init__(self):
         self._ignore_src_module_paths = self._get_ignore_src_module_paths()
 
-    async def test(self) -> None:
+    async def test(self) -> Mapping[Path, Sequence[str]]:
         errors: MutableMapping[Path, MutableSequence[str]] = defaultdict(list)
 
         for directory_path, _, file_names in walk(str(ROOT_DIRECTORY_PATH / "betty")):
@@ -616,20 +619,7 @@ class CoverageTester:
                 if file_path.suffix == ".py":
                     async for file_error in self._test_python_file(file_path):
                         errors[file_path].append(file_error)
-        if len(errors):
-            message = "Missing test coverage:"
-            total_error_count = 0
-            for file_path in sorted(errors.keys()):
-                file_error_count = len(errors[file_path])
-                total_error_count += file_error_count
-                if not file_error_count:
-                    continue
-                message += f"\n{file_path.relative_to(ROOT_DIRECTORY_PATH)}: {file_error_count} error(s)"
-                for error in errors[file_path]:
-                    message += f"\n  - {error}"
-            message += f"\nTOTAL: {total_error_count} error(s)"
-
-            raise AssertionError(message)
+        return errors
 
     def _get_coveragerc_ignore_modules(self) -> Iterable[Path]:
         coveragerc = ConfigParser()
