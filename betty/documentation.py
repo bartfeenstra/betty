@@ -6,7 +6,6 @@ from asyncio import to_thread
 from contextlib import AsyncExitStack
 from pathlib import Path
 from shutil import copytree
-from tempfile import TemporaryDirectory
 from typing import final
 
 from aiofiles.os import makedirs
@@ -30,45 +29,28 @@ async def _build(
     output_directory_path: Path, cache_directory_path: Path, *, user: User
 ) -> None:
     await makedirs(output_directory_path, exist_ok=True)
-    with TemporaryDirectory() as working_directory_path_str:
-        working_directory_path = Path(working_directory_path_str)
-        # sphinx-apidoc must output to the documentation directory, but because we do not want
-        # to 'pollute' that with generated files that must not be committed, do our work in a
-        # temporary directory and copy the documentation source files there.
-        source_directory_path = working_directory_path / "source"
-        await to_thread(
-            copytree, ROOT_DIRECTORY_PATH / "documentation", source_directory_path
-        )
-        await run_process(
-            [
-                "sphinx-apidoc",
-                "--force",
-                "--separate",
-                "-d",
-                "999",
-                "-o",
-                str(source_directory_path),
-                str(ROOT_DIRECTORY_PATH / "betty"),
-                str(ROOT_DIRECTORY_PATH / "betty" / "tests"),
-            ],
-            cwd=working_directory_path,
-            user=user,
-        )
-        await run_process(
-            [
-                "sphinx-build",
-                "-b",
-                "dirhtml",
-                "-j",
-                "auto",
-                "--doctree-dir",
-                str(cache_directory_path / ".doctrees"),
-                str(source_directory_path),
-                str(output_directory_path),
-            ],
-            cwd=working_directory_path,
-            user=user,
-        )
+    # sphinx-apidoc must output to the documentation directory, but because we do not want
+    # to 'pollute' that with generated files that must not be committed, do our work in a
+    # dedicated cache directory.
+    source_directory_path = cache_directory_path / "source"
+    await to_thread(
+        copytree, ROOT_DIRECTORY_PATH / "documentation", source_directory_path
+    )
+    await run_process(
+        [
+            "sphinx-build",
+            "-b",
+            "dirhtml",
+            "-j",
+            "auto",
+            "--doctree-dir",
+            str(cache_directory_path / ".doctrees"),
+            str(source_directory_path),
+            str(output_directory_path),
+        ],
+        cwd=cache_directory_path,
+        user=user,
+    )
 
 
 @final
@@ -94,7 +76,7 @@ class DocumentationServer(Server):
     async def start(self) -> None:
         www_directory_path = self._cache_directory_path / "www"
         await _ensure_www_directory(
-            www_directory_path, self._cache_directory_path, user=self._user
+            www_directory_path, self._cache_directory_path / "cache", user=self._user
         )
         self._server = serve.BuiltinServer(www_directory_path, user=self._user)
         await self._exit_stack.enter_async_context(self._server)

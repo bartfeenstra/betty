@@ -1,12 +1,12 @@
 """
-Provide Sphinx configuration.
+Sphinx configuration.
 """
 
 import sys
 from pathlib import Path
 
 import betty.dirs
-from betty.dirs import ASSETS_DIRECTORY_PATH
+from betty.dirs import ASSETS_DIRECTORY_PATH, ROOT_DIRECTORY_PATH
 
 sys.path.insert(0, str(Path(betty.__file__).parent.parent))
 project = "Betty"
@@ -37,6 +37,7 @@ highlight_language = "none"
 templates_path = ["_templates"]
 extensions = [
     "betty.sphinx.extension.betty",
+    "sphinx.ext.apidoc",
     "sphinx.ext.autodoc",
     "sphinx.ext.intersphinx",
     "sphinx.ext.viewcode",
@@ -44,6 +45,19 @@ extensions = [
 ]
 modindex_common_prefix = ["betty."]
 collapse_navigation = True
+
+# sphinx.ext.apidoc configuration.
+apidoc_max_depth = 1
+apidoc_separate_modules = True
+apidoc_modules = [
+    {
+        "path": str(ROOT_DIRECTORY_PATH / "betty"),
+        "destination": "api",
+    }
+]
+apidoc_exclude_patterns = [
+    str(ROOT_DIRECTORY_PATH / "betty" / "tests"),
+]
 
 # sphinx.ext.autodoc configuration.
 autodoc_class_signature = "separated"
