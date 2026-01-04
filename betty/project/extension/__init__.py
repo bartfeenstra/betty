@@ -33,7 +33,7 @@ _T = TypeVar("_T")
 
 class Extension(ServiceContainer, HasRequirement, Plugin["ExtensionDefinition"]):
     """
-    Integrate optional functionality with Betty :py:class:`betty.project.Project`s.
+    Integrate optional functionality with Betty :py:class:`projects <betty.project.Project>`.
 
     To test your own subclasses, use :py:class:`betty.test_utils.project.extension.ExtensionTestBase`.
     """

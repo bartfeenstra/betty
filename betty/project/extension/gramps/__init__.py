@@ -99,18 +99,18 @@ class Gramps(
                       "executable": "/path/to/gramps",
                       "family_trees": [
                         {
-                          "file": "./gramps.gpkg"
+                          "file": "./gramps.gpkg",
                           "event-types": {
-                            "GrampsEventType: "betty-event-type",
-                            "AnotherGrampsEventType: "another-betty-event-type"
+                            "GrampsEventType": "betty-event-type",
+                            "AnotherGrampsEventType": "another-betty-event-type"
                           },
                           "place-types": {
-                            "GrampsPlaceType: "betty-place-type",
-                            "AnotherGrampsPlaceType: "another-betty-place-type"
+                            "GrampsPlaceType": "betty-place-type",
+                            "AnotherGrampsPlaceType": "another-betty-place-type"
                           },
                           "presence-roles": {
-                            "GrampsRole: "betty-presence-role",
-                            "AnotherGrampsRole: "another-betty-presence-role"
+                            "GrampsRole": "betty-presence-role",
+                            "AnotherGrampsRole": "another-betty-presence-role"
                           }
                         }
                       ]
@@ -179,7 +179,7 @@ class Gramps(
     of the Betty place type to import the Gramps place type as.
 
     ``family_trees[].presence_roles``
-    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     :sup:`optional`
 
     How to map Gramps roles to Betty presence roles. Each key is a Gramps role, and each value is the plugin ID of the

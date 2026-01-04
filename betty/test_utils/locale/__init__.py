@@ -21,7 +21,7 @@ if TYPE_CHECKING:
 
 class PotFileTestBase:
     """
-    A base class for testing that a *.pot file is up to date.
+    A base class for testing that a ``*.pot`` file is up to date.
     """
 
     async def _readlines(self, assets_directory_path: Path) -> Iterator[str]:
@@ -79,7 +79,7 @@ class PotFileTestBase:
 
 class ProjectPotFileTestBase(PotFileTestBase):
     """
-    A base class for testing that an end user's project's *.pot file is up to date.
+    A base class for testing that an end user's project's ``*.pot`` file is up to date.
     """
 
     @override

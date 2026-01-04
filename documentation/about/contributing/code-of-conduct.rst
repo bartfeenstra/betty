@@ -4,9 +4,6 @@ Code of Conduct
 Our code of conduct expresses the values of the Betty community, how we treat
 each other, and what happens in case of violations.
 
-The text below is the `Contributor Covenant <https://www.contributor-covenant.org/>`_,
-which Betty adopted along with many other popular projects.
-
 Our Pledge
 ----------
 

@@ -35,7 +35,8 @@ class GenderDefinition(CountableHumanFacingPluginDefinition[Gender]):
     """
     .. plugin_type:: gender.
 
+    From `gender <https://en.wikipedia.org/wiki/Gender>`_ on Wikipedia:
+
         Gender includes the social, psychological, cultural and behavioral aspects of being a man, woman, or other gender
         identity.
-    From `gender <https://en.wikipedia.org/wiki/Gender>`_ on Wikipedia
     """

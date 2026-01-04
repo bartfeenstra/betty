@@ -10,9 +10,9 @@ Betty
    installation
    usage
    development
-   API Documentation <modindex>
    glossary
    About <about>
+   API Documentation <api>
 
 Betty visualizes and publishes your family history by building interactive, encyclopedia-like genealogy websites out of
 your `Gramps <https://gramps-project.org/>`_ and `GEDCOM <https://en.wikipedia.org/wiki/GEDCOM>`_ family trees.

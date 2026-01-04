@@ -11,10 +11,12 @@ from typing import final
 
 from aiofiles.os import makedirs
 from sphinx.application import Sphinx
+from sphinx.ext.autodoc import MethodDocumenter
 from typing_extensions import override
 
 from betty import serve
 from betty.dirs import ROOT_DIRECTORY_PATH
+from betty.exception import HumanFacingException
 from betty.serve import NoPublicUrlBecauseServerNotStartedError, Server
 from betty.user import User, Verbosity
 
@@ -37,7 +39,7 @@ async def _build(
     await to_thread(
         copytree, ROOT_DIRECTORY_PATH / "documentation", source_directory_path
     )
-    Sphinx(
+    sphinx_app = Sphinx(
         buildername="dirhtml",
         confdir=str(source_directory_path),
         doctreedir=str(cache_directory_path / ".doctrees"),
@@ -45,7 +47,23 @@ async def _build(
         parallel=multiprocessing.cpu_count(),
         srcdir=str(source_directory_path),
         verbosity=9 if user.verbosity is Verbosity.MOST_VERBOSE else 0,
-    ).build()
+        warningiserror=True,
+    )
+    # Work around a bug in Sphinx where MethodDocumenter.can_document_member would erroneously consider our descriptors
+    # as methods resulting in errors being raised because said descriptors are not callable and do not have a signature.
+    original_can_document_member = MethodDocumenter.can_document_member
+    MethodDocumenter.can_document_member = (  # type: ignore[method-assign]
+        lambda member, membername, isattr, parent: original_can_document_member(  # type: ignore[callable-functiontype,misc]
+            member, membername, isattr, parent
+        )
+        and callable(member)
+    )
+    try:
+        sphinx_app.build()
+    finally:
+        MethodDocumenter.can_document_member = original_can_document_member  # type: ignore[method-assign]
+    if sphinx_app.statuscode != 0:
+        raise HumanFacingException("Sphinx failed.")
 
 
 @final
