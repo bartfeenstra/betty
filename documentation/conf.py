@@ -38,7 +38,6 @@ templates_path = ["_templates"]
 extensions = [
     "betty.sphinx.extension.betty",
     "sphinx.ext.autodoc",
-    "sphinx.ext.autosectionlabel",
     "sphinx.ext.intersphinx",
     "sphinx.ext.viewcode",
     "sphinx_design",
