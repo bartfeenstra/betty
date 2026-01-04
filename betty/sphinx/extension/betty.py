@@ -10,13 +10,12 @@ from threading import Thread
 from typing import TYPE_CHECKING, TypeAlias, TypeVar
 
 from docutils import nodes
-from docutils.parsers.rst import Directive
+from sphinx.util.docutils import SphinxDirective
 from typing_extensions import override
 
 from betty.app import App
 from betty.config import Configurable
 from betty.functools import Result
-from betty.importlib import fully_qualified_name
 from betty.locale.localize import DEFAULT_LOCALIZER
 from betty.plugin import plugin_types
 from betty.plugin.human_facing import HumanFacingPluginDefinition
@@ -52,29 +51,18 @@ async def _get_plugins(plugin_type_id: str) -> PluginRepository:
         return await project.plugins(plugin_type_id, check_requirements=False)
 
 
-def _build_cls_reference(cls: type) -> nodes.Node:
-    reference = nodes.reference("", "", internal=True)
-    reference["refuri"] = f"/{cls.__module__}#{cls.__module__}.{cls.__qualname__}"
-    reference.append(nodes.literal(text=f"{cls.__module__}.{cls.__qualname__}"))
-    return reference
-
-
-def _build_cls_reference_workaround(cls: type) -> nodes.Node:
-    return nodes.literal(text=fully_qualified_name(cls))
-
-
 def _build_definition_list(
-    definitions: Iterable[tuple[NodesLike, NodesLike]],
+    definitions_nodes: Iterable[tuple[NodesLike, NodesLike]],
 ) -> nodes.Node:
     return nodes.definition_list(
         "",
         *[
             nodes.definition_list_item(
                 "",
-                nodes.term("", "", *_ensure_nodes(term)),
-                nodes.definition("", *_ensure_nodes(definition)),
+                nodes.term("", "", *_ensure_nodes(term_nodes)),
+                nodes.definition("", *_ensure_nodes(definition_nodes)),
             )
-            for term, definition in definitions
+            for term_nodes, definition_nodes in definitions_nodes
         ],
     )
 
@@ -87,7 +75,7 @@ def _ensure_nodes(nodes_like: NodesLike) -> Iterable[nodes.Node]:
     return nodes_like
 
 
-class _PluginDirective(Directive):
+class _PluginDirective(SphinxDirective):
     required_arguments = 1
 
     @override
@@ -108,51 +96,47 @@ class _PluginDirective(Directive):
         ]
 
     def _build_summary(self, plugin: PluginDefinition) -> nodes.Node:
-        summary = nodes.paragraph(
-            "",
-            "",
-            nodes.Text("The "),
-            nodes.literal(text=plugin.id),
-            nodes.Text(" "),
-            nodes.reference(
-                "",
-                "",
-                nodes.Text(plugin.type().label.localize(DEFAULT_LOCALIZER).lower()),
-                internal=True,
-                refuri=f"/{type(plugin).__module__}#{type(plugin).__module__}.{type(plugin).__qualname__}",
-            ),
-            nodes.Text(" plugin."),
+        summary_nodes, _ = self.parse_inline(
+            f"The ``{plugin.id}`` :py:class:`{plugin.type().label.localize(DEFAULT_LOCALIZER).lower()} <{type(plugin).__module__}.{type(plugin).__qualname__}>` plugin."
         )
         if isinstance(plugin, HumanFacingPluginDefinition):
             description = plugin.description
             if description:
-                summary.append(nodes.Text(" "))
-                summary.append(nodes.Text(description.localize(DEFAULT_LOCALIZER)))
-        return summary
+                summary_nodes.append(nodes.Text(" "))
+                summary_nodes.append(
+                    nodes.Text(description.localize(DEFAULT_LOCALIZER))
+                )
+        return nodes.paragraph("", "", *summary_nodes)
 
     def _build_metadata(self, plugin: PluginDefinition) -> nodes.Node:
-        definitions = [
+        cls_nodes = self.parse_text_to_nodes(
+            f":py:class:`{type(plugin).__module__}.{type(plugin).__qualname__}`"
+        )
+        definitions_nodes = [
             (
                 nodes.Text("Plugin ID"),
                 nodes.literal(text=plugin.id),
             ),
             (
                 nodes.Text("Class"),
-                _build_cls_reference_workaround(plugin.cls),
+                cls_nodes,
             ),
         ]
         cls = plugin.cls
         if issubclass(cls, Configurable):
-            definitions.append(
+            configuration_cls_nodes = self.parse_text_to_nodes(
+                f":py:class:`{cls.configuration_cls().__module__}.{cls.configuration_cls().__qualname__}`"
+            )
+            definitions_nodes.append(
                 (
                     nodes.Text("Configuration"),
-                    _build_cls_reference_workaround(cls.configuration_cls()),
+                    configuration_cls_nodes,
                 )
             )
-        return _build_definition_list(definitions)
+        return _build_definition_list(definitions_nodes)
 
 
-class _PluginTypeDirective(Directive):
+class _PluginTypeDirective(SphinxDirective):
     required_arguments = 1
 
     @override
@@ -168,7 +152,7 @@ class _PluginTypeDirective(Directive):
         ]
 
     def _build_summary(self, plugin_type: type[PluginDefinition]) -> nodes.Node:
-        summary = nodes.paragraph(
+        summary_node = nodes.paragraph(
             "",
             "",
             nodes.Text(
@@ -177,11 +161,14 @@ class _PluginTypeDirective(Directive):
         )
         description = plugin_type.type().description
         if description:
-            summary.append(nodes.Text(" "))
-            summary.append(nodes.Text(description.localize(DEFAULT_LOCALIZER)))
-        return summary
+            summary_node.append(nodes.Text(" "))
+            summary_node.append(nodes.Text(description.localize(DEFAULT_LOCALIZER)))
+        return summary_node
 
     def _build_metadata(self, plugin_type: type[PluginDefinition]) -> nodes.Node:
+        base_cls_nodes = self.parse_text_to_nodes(
+            f":py:class:`{plugin_type.type().base_cls.__module__}.{plugin_type.type().base_cls.__qualname__}`"
+        )
         return _build_definition_list(
             [
                 (
@@ -190,7 +177,7 @@ class _PluginTypeDirective(Directive):
                 ),
                 (
                     nodes.Text("Base class"),
-                    _build_cls_reference_workaround(plugin_type.type().base_cls),
+                    base_cls_nodes,
                 ),
             ]
         )
@@ -207,36 +194,36 @@ class _PluginTypeDirective(Directive):
                 ),
             ),
             _build_definition_list(
-                [self._build_builtin_plugin_definition(plugin) for plugin in plugins]
+                [
+                    self._build_builtin_plugin_definition(plugin)
+                    for plugin in sorted(plugins, key=lambda plugin: plugin.id)
+                ]
             ),
         ]
 
     def _build_builtin_plugin_definition(
         self, plugin: PluginDefinition
     ) -> tuple[NodesLike, NodesLike]:
-        term = [
-            nodes.literal(text=plugin.id),
-            nodes.Text(" ("),
-            _build_cls_reference(plugin.cls),
-            nodes.Text(")"),
-        ]
-        definition: MutableSequence[nodes.Node] | None = None
+        term_nodes, _ = self.parse_inline(
+            f"{plugin.id} (:py:class:`{plugin.cls.__module__}.{plugin.cls.__qualname__}`)"
+        )
+        definition_nodes: MutableSequence[nodes.Node] | None = None
         if isinstance(plugin, HumanFacingPluginDefinition):
-            definition = [nodes.Text(plugin.label.localize(DEFAULT_LOCALIZER))]
+            definition_nodes = [nodes.Text(plugin.label.localize(DEFAULT_LOCALIZER))]
             if plugin.description:
-                definition.append(
+                definition_nodes.append(
                     nodes.Text(f": {plugin.description.localize(DEFAULT_LOCALIZER)}")
                 )
-        return term, definition
+        return term_nodes, definition_nodes
 
 
-class _PluginTypesDirective(Directive):
+class _PluginTypesDirective(SphinxDirective):
     @override
     def run(self) -> list[nodes.Node]:
         return [
             _build_definition_list(
                 [
-                    self._build_builtin_plugin_definition(plugin_type)
+                    self._build_builtin_plugin_type_definition(plugin_type)
                     for plugin_type in sorted(
                         plugin_types().values(),
                         key=lambda plugin_type: plugin_type.type().label.localize(
@@ -247,25 +234,16 @@ class _PluginTypesDirective(Directive):
             ),
         ]
 
-    def _build_builtin_plugin_definition(
+    def _build_builtin_plugin_type_definition(
         self, plugin_type: type[PluginDefinition]
     ) -> tuple[NodesLike, NodesLike]:
-        term = [
-            nodes.reference(
-                "",
-                "",
-                nodes.Text(plugin_type.type().label.localize(DEFAULT_LOCALIZER)),
-                internal=True,
-                refuri=f"/{type(plugin_type).__module__}#{type(plugin_type).__module__}.{type(plugin_type).__qualname__}",
-            ),
-            nodes.Text(" ("),
-            nodes.literal(text=plugin_type.type().id),
-            nodes.Text(")"),
-        ]
+        term_nodes, _ = self.parse_inline(
+            f":py:class:`{plugin_type.type().label.localize(DEFAULT_LOCALIZER)} <{plugin_type.__module__}.{plugin_type.__qualname__}>` (``{plugin_type.type().id}``)"
+        )
         description = plugin_type.type().description
         if description:
-            return term, nodes.Text(description.localize(DEFAULT_LOCALIZER))
-        return term, None
+            return term_nodes, nodes.Text(description.localize(DEFAULT_LOCALIZER))
+        return term_nodes, None
 
 
 def setup(app: Sphinx) -> ExtensionMetadata:
