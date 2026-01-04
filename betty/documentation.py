@@ -2,6 +2,7 @@
 Provide the Documentation API.
 """
 
+import multiprocessing
 from asyncio import to_thread
 from contextlib import AsyncExitStack
 from pathlib import Path
@@ -9,13 +10,13 @@ from shutil import copytree
 from typing import final
 
 from aiofiles.os import makedirs
+from sphinx.application import Sphinx
 from typing_extensions import override
 
 from betty import serve
 from betty.dirs import ROOT_DIRECTORY_PATH
 from betty.serve import NoPublicUrlBecauseServerNotStartedError, Server
-from betty.subprocess import run_process
-from betty.user import User
+from betty.user import User, Verbosity
 
 
 async def _ensure_www_directory(
@@ -36,21 +37,15 @@ async def _build(
     await to_thread(
         copytree, ROOT_DIRECTORY_PATH / "documentation", source_directory_path
     )
-    await run_process(
-        [
-            "sphinx-build",
-            "-b",
-            "dirhtml",
-            "-j",
-            "auto",
-            "--doctree-dir",
-            str(cache_directory_path / ".doctrees"),
-            str(source_directory_path),
-            str(output_directory_path),
-        ],
-        cwd=cache_directory_path,
-        user=user,
-    )
+    Sphinx(
+        buildername="dirhtml",
+        confdir=str(source_directory_path),
+        doctreedir=str(cache_directory_path / ".doctrees"),
+        outdir=str(output_directory_path),
+        parallel=multiprocessing.cpu_count(),
+        srcdir=str(source_directory_path),
+        verbosity=9 if user.verbosity is Verbosity.MOST_VERBOSE else 0,
+    ).build()
 
 
 @final

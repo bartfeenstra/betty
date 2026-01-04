@@ -5,8 +5,9 @@ The Betty Sphinx extension.
 from __future__ import annotations
 
 from asyncio import run
-from collections.abc import Iterable, MutableSequence
-from typing import TYPE_CHECKING, TypeAlias
+from collections.abc import Callable, Iterable, MutableSequence
+from threading import Thread
+from typing import TYPE_CHECKING, TypeAlias, TypeVar
 
 from docutils import nodes
 from docutils.parsers.rst import Directive
@@ -14,6 +15,7 @@ from typing_extensions import override
 
 from betty.app import App
 from betty.config import Configurable
+from betty.functools import Result
 from betty.importlib import fully_qualified_name
 from betty.locale.localize import DEFAULT_LOCALIZER
 from betty.plugin import plugin_types
@@ -28,7 +30,16 @@ if TYPE_CHECKING:
     from betty.plugin.repository import PluginRepository
 
 
+_T = TypeVar("_T")
 NodesLike: TypeAlias = nodes.Node | Iterable[nodes.Node] | None
+
+
+def _to_thread(target: Callable[[], _T]) -> _T:
+    result = Result(target)
+    thread = Thread(target=result)
+    thread.start()
+    thread.join()
+    return result.result()
 
 
 async def _get_plugins(plugin_type_id: str) -> PluginRepository:
@@ -89,7 +100,7 @@ class _PluginDirective(Directive):
             raise ValueError(
                 f"The plugin directive requires a single argument that is a plugin type ID and a plugin ID, joined with a colon (:), but `{argument}` was given."
             ) from None
-        plugins = run(_get_plugins(plugin_type_id))
+        plugins = _to_thread(lambda: run(_get_plugins(plugin_type_id)))
         plugin = plugins[plugin_id]
         return [
             self._build_summary(plugin),
@@ -149,7 +160,7 @@ class _PluginTypeDirective(Directive):
         # Right-strip periods to avoid D400 and D415 violations.
         plugin_type_id = self.arguments[0].rstrip(".")
         plugin_type = plugin_types()[plugin_type_id]
-        plugins = run(_get_plugins(plugin_type_id))
+        plugins = _to_thread(lambda: run(_get_plugins(plugin_type_id)))
         return [
             self._build_summary(plugin_type),
             self._build_metadata(plugin_type),
