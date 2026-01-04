@@ -1,5 +1,5 @@
-Betty Documentation
-===================
+Betty
+=====
 
 .. toctree::
    :hidden:
@@ -14,45 +14,39 @@ Betty Documentation
    glossary
    About <about>
 
-Betty visualizes and publishes your family history by building interactive, encyclopedia-like genealogy websites out of your
-`Gramps <https://gramps-project.org/>`_ and `GEDCOM <https://en.wikipedia.org/wiki/GEDCOM>`_ family trees.
+Betty visualizes and publishes your family history by building interactive, encyclopedia-like genealogy websites out of
+your `Gramps <https://gramps-project.org/>`_ and `GEDCOM <https://en.wikipedia.org/wiki/GEDCOM>`_ family trees.
 
-Features
---------
-Betty generates generates a :term:`static site` from your genealogy records. This means that once your site has been
-generated, you will not need any special software to publish it. It's **fast and secure**.
+.. container:: buttons
 
-* Builds pages for people, places, events, and media
-* Renders interactive maps and family trees
-* Privacy by default
-* Fully multilingual: localize the site to one or more languages of your choice
-* `Responsive <https://en.wikipedia.org/wiki/Responsive_web_design>`_, and mobile- and touch-friendly interface
+    `Get started </installation>`_
+    `View a demo <https://bartfeenstra.github.io/betty-demo>`_
 
+.. grid:: 1 1 2 3
+    :gutter: 2
+    :padding: 0
+    :class-row: surface
 
-.. grid:: 2
-    :gutter: 2 3 4 5
+    .. grid-item-card:: :octicon:`file-added` Publish
 
-    .. grid-item-card:: Getting started
-        :columns: 12 6 6 6
+        Create page for people, places, events, media, and more.
 
-        .. code-block:: python
+    .. grid-item-card:: :octicon:`north-star` Interactive
 
-               pip install betty
+        Renders interactive maps and family trees.
 
-        :doc:`More installation options </installation>`
+    .. grid-item-card:: :octicon:`eye-closed` Privacy by default
 
-    .. grid-item-card:: See what Betty can do
-        :columns: 12 6 6 6
-        :text-align: center
+        :py:class:`Privatize <betty.project.extension.privatizer.Privatizer>` information that should not be public.
 
-        .. button-link:: https://bartfeenstra.github.io/betty-demo
-            :color: primary
-            :shadow:
+    .. grid-item-card:: :octicon:`globe` Multilingual
 
-            View the official Betty demonstration site
+        Localize the site to one or more languages of your choice.
 
-        .. button-link:: https://ancestry.bartfeenstra.com
-            :color: primary
-            :shadow:
+    .. grid-item-card:: :octicon:`accessibility` Accessible
 
-            View the author's own Betty site
+        `Responsive <https://en.wikipedia.org/wiki/Responsive_web_design>`_, and mobile- and touch-friendly interface.
+
+    .. grid-item-card:: :octicon:`shield-check` Fast and secure
+
+        Once your :term:`static site` is generated, you will not need any special software to publish it.
