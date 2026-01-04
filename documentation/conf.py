@@ -6,6 +6,7 @@ import sys
 from pathlib import Path
 
 import betty.dirs
+from betty.about import VERSION_MAJOR
 from betty.dirs import ASSETS_DIRECTORY_PATH, ROOT_DIRECTORY_PATH
 
 sys.path.insert(0, str(Path(betty.__file__).parent.parent))
@@ -25,16 +26,16 @@ intersphinx_mapping = {
 }
 html_favicon = str(ASSETS_DIRECTORY_PATH / "public" / "static" / "betty-512x512.png")
 html_logo = str(ASSETS_DIRECTORY_PATH / "public" / "static" / "betty-512x512.png")
-html_context = {
-    "display_github": True,
-    "github_user": "bartfeenstra",
-    "github_repo": "betty",
-    "github_version": "0.5.x",
-    "conf_py_path": "/documentation/",
-}
 html_theme = "shibuya"
 html_theme_options = {
     "accent_color": "pink",
+}
+html_context = {
+    "source_edit_template": f"https://github.com/bartfeenstra/betty/blob/{VERSION_MAJOR}.x/{{0}}",
+    "source_type": "github",
+    "source_user": "bartfeenstra",
+    "source_version": VERSION_MAJOR + "x",
+    "source_repo": "betty",
 }
 highlight_language = "none"
 templates_path = ["_templates"]
@@ -42,7 +43,6 @@ extensions = [
     "sphinx.ext.apidoc",
     "sphinx.ext.autodoc",
     "sphinx.ext.intersphinx",
-    "sphinx.ext.viewcode",
     "sphinx_design",
     "betty.sphinx.extension.betty",
 ]
