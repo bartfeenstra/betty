@@ -19,16 +19,16 @@ from betty.subprocess import run_process
 from betty.user import User
 
 
-async def _ensure_documentation_directory(
-    cache_directory_path: Path, *, user: User
-) -> Path:
-    cache_directory_path /= "documentation"
-    if not cache_directory_path.exists():
-        await _build(cache_directory_path, user=user)
-    return cache_directory_path
+async def _ensure_www_directory(
+    output_directory_path: Path, cache_directory_path: Path, *, user: User
+) -> None:
+    if not output_directory_path.exists():
+        await _build(output_directory_path, cache_directory_path, user=user)
 
 
-async def _build(output_directory_path: Path, *, user: User) -> None:
+async def _build(
+    output_directory_path: Path, cache_directory_path: Path, *, user: User
+) -> None:
     await makedirs(output_directory_path, exist_ok=True)
     with TemporaryDirectory() as working_directory_path_str:
         working_directory_path = Path(working_directory_path_str)
@@ -61,6 +61,8 @@ async def _build(output_directory_path: Path, *, user: User) -> None:
                 "dirhtml",
                 "-j",
                 "auto",
+                "--doctree-dir",
+                str(cache_directory_path / ".doctrees"),
                 str(source_directory_path),
                 str(output_directory_path),
             ],
@@ -90,8 +92,9 @@ class DocumentationServer(Server):
 
     @override
     async def start(self) -> None:
-        www_directory_path = await _ensure_documentation_directory(
-            self._cache_directory_path, user=self._user
+        www_directory_path = self._cache_directory_path / "www"
+        await _ensure_www_directory(
+            www_directory_path, self._cache_directory_path, user=self._user
         )
         self._server = serve.BuiltinServer(www_directory_path, user=self._user)
         await self._exit_stack.enter_async_context(self._server)
