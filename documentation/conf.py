@@ -44,6 +44,7 @@ extensions = [
     "sphinx.ext.autodoc",
     "sphinx.ext.intersphinx",
     "sphinx.ext.viewcode",
+    "sphinx_contributors",
     "sphinx_design",
 ]
 modindex_common_prefix = ["betty."]
