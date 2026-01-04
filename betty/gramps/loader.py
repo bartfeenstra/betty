@@ -438,7 +438,7 @@ class GrampsLoader:
 
     async def load_gramps(self, gramps_path: Path) -> None:
         """
-        Load family history data from a Gramps *.gramps file.
+        Load family history data from a Gramps ``*.gramps`` file.
 
         :raises betty.gramps.error.GrampsError:
         """
@@ -458,7 +458,7 @@ class GrampsLoader:
 
     async def load_gpkg(self, gpkg_path: Path) -> None:
         """
-        Load family history data from a Gramps *.gpkg file.
+        Load family history data from a Gramps ``*.gpkg`` file.
 
         :raises betty.gramps.error.GrampsError:
         """

@@ -165,7 +165,7 @@ A boolean indicating whether to use clean URLs, e.g. ``/path`` instead of ``/pat
 ---------
 :sup:`optional`
 
-The project's human-readable title. This can be a string or :doc:`multiple translations </usage/configuration/static-translations-localizable>`.
+The project's human-readable title. This can be a string or :py:class:`multiple translations <betty.locale.localizable.static.StaticTranslations>`.
 
 ``name``
 --------
@@ -177,7 +177,7 @@ The project's machine name.
 ----------
 :sup:`optional`
 
-The project's author and copyright holder. This can be a string or :doc:`multiple translations </usage/configuration/static-translations-localizable>`.
+The project's author and copyright holder. This can be a string or :py:class:`multiple translations <betty.locale.localizable.static.StaticTranslations>`.
 
 ``logo``
 --------
@@ -236,16 +236,16 @@ Keys are event type (plugin) IDs, and values are objects containing the followin
 ^^^^^^^^^^^^^^^^^^^^^^^
 :sup:`required`
 
-The event type's human-readable label. This can be a string or :doc:`multiple translations </usage/configuration/static-translations-localizable>`.
+The event type's human-readable label. This can be a string or :py:class:`multiple translations <betty.locale.localizable.static.StaticTranslations>`.
 
 ``event_types{}.description``
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 :sup:`optional`
 
-The event type's human-readable long description. This can be a string or :doc:`multiple translations </usage/configuration/static-translations-localizable>`.
+The event type's human-readable long description. This can be a string or :py:class:`multiple translations <betty.locale.localizable.static.StaticTranslations>`.
 
 ``event_types{}.comes_before``
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 :sup:`optional`
 
 A collection of the IDs of other event types that this one comes before.
@@ -266,13 +266,13 @@ Keys are gender (plugin) IDs, and values are objects containing the following ke
 ^^^^^^^^^^^^^^^^^^^
 :sup:`required`
 
-The gender's human-readable label. This can be a string or :doc:`multiple translations </usage/configuration/static-translations-localizable>`.
+The gender's human-readable label. This can be a string or :py:class:`multiple translations <betty.locale.localizable.static.StaticTranslations>`.
 
 ``genders{}.description``
 ^^^^^^^^^^^^^^^^^^^^^^^^^
 :sup:`optional`
 
-The gender's human-readable long description. This can be a string or :doc:`multiple translations </usage/configuration/static-translations-localizable>`.
+The gender's human-readable long description. This can be a string or :py:class:`multiple translations <betty.locale.localizable.static.StaticTranslations>`.
 
 ``place_types``
 ---------------
@@ -284,13 +284,13 @@ Keys are place type (plugin) IDs, and values are objects containing the followin
 ^^^^^^^^^^^^^^^^^^^^^^^
 :sup:`required`
 
-The place type's human-readable label. This can be a string or :doc:`multiple translations </usage/configuration/static-translations-localizable>`.
+The place type's human-readable label. This can be a string or :py:class:`multiple translations <betty.locale.localizable.static.StaticTranslations>`.
 
 ``place_types{}.description``
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 :sup:`optional`
 
-The place type's human-readable long description. This can be a string or :doc:`multiple translations </usage/configuration/static-translations-localizable>`.
+The place type's human-readable long description. This can be a string or :py:class:`multiple translations <betty.locale.localizable.static.StaticTranslations>`.
 
 ``presence_roles``
 ------------------
@@ -302,13 +302,13 @@ Keys are presence role (plugin) IDs, and values are objects containing the follo
 ^^^^^^^^^^^^^^^^^^^^^^^^^^
 :sup:`required`
 
-The presence role's human-readable label. This can be a string or :doc:`multiple translations </usage/configuration/static-translations-localizable>`.
+The presence role's human-readable label. This can be a string or :py:class:`multiple translations <betty.locale.localizable.static.StaticTranslations>`.
 
 ``presence_roles{}.description``
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 :sup:`optional`
 
-The presence role's human-readable long description. This can be a string or :doc:`multiple translations </usage/configuration/static-translations-localizable>`.
+The presence role's human-readable long description. This can be a string or :py:class:`multiple translations <betty.locale.localizable.static.StaticTranslations>`.
 
 ``extensions``
 --------------

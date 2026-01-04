@@ -494,8 +494,8 @@ class BidirectionalToZeroOrOne(
     _ToZeroOrOneAssociation[_OwnerT, _AssociateT],
     _BidirectionalAssociation[_OwnerT, _AssociateT],
 ):
-    """
-    A bidirectional *-to-zero-or-one entity type association.
+    r"""
+    A bidirectional \\*-to-zero-or-one entity type association.
     """
 
     @override
@@ -527,8 +527,8 @@ class BidirectionalToOne(
     _ToOneAssociation[_OwnerT, _AssociateT],
     _BidirectionalAssociation[_OwnerT, _AssociateT],
 ):
-    """
-    A bidirectional *-to-one entity type association.
+    r"""
+    A bidirectional \\*-to-one entity type association.
     """
 
     @override
@@ -564,8 +564,8 @@ class BidirectionalToManySingleType(
     _ToManyAssociation[_OwnerT, _AssociateT, SingleTypeEntityCollection[_AssociateT]],
     _BidirectionalAssociation[_OwnerT, _AssociateT],
 ):
-    """
-    A bidirectional *-to-many entity type association where all associates are of the same entity type.
+    r"""
+    A bidirectional \\*-to-many entity type association where all associates are of the same entity type.
     """
 
     @override
@@ -583,8 +583,8 @@ class BidirectionalToManyMultipleTypes(
     ],
     _BidirectionalAssociation[_OwnerT, _AssociateT],
 ):
-    """
-    A bidirectional *-to-many entity type association where associates may be of different entity types.
+    r"""
+    A bidirectional \\*-to-many entity type association where associates may be of different entity types.
     """
 
     @override

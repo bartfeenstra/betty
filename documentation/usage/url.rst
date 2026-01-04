@@ -25,7 +25,7 @@ you will want to use :py:attr:`betty.project.Project.url_generator`, which suppo
 Jinja2 templates
 ^^^^^^^^^^^^^^^^
 
-.. code-block:: jinja2
+.. code-block:: html+jinja
 
     resource | url
 

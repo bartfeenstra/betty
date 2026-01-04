@@ -21,7 +21,7 @@ You can create and tailor projects using :doc:`configuration files </usage/proje
 
 
 The project directory
---------------------
+---------------------
 
 ``assets/``
 ^^^^^^^^^^^

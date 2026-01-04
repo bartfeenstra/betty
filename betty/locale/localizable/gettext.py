@@ -53,7 +53,7 @@ def gettext(message: str, /) -> Localizable:
     Like :py:meth:`gettext.gettext`.
 
     Positional arguments are identical to those of :py:meth:`gettext.gettext`.
-    Keyword arguments are identical to those of :py:met:`str.format`, except that
+    Keyword arguments are identical to those of :py:meth:`str.format`, except that
     any :py:class:`betty.locale.localizable.Localizable` will be localized before string
     formatting.
     """
@@ -65,7 +65,7 @@ def _(message: str, /) -> Localizable:
     Like :py:meth:`betty.locale.localizable.gettext`.
 
     Positional arguments are identical to those of :py:meth:`gettext.gettext`.
-    Keyword arguments are identical to those of :py:met:`str.format`, except that
+    Keyword arguments are identical to those of :py:meth:`str.format`, except that
     any :py:class:`betty.locale.localizable.Localizable` will be localized before string
     formatting.
     """
@@ -91,7 +91,7 @@ def ngettext(
     Like :py:meth:`gettext.ngettext`.
 
     Positional arguments are identical to those of :py:meth:`gettext.ngettext`.
-    Keyword arguments are identical to those of :py:met:`str.format`, except that
+    Keyword arguments are identical to those of :py:meth:`str.format`, except that
     any :py:class:`betty.locale.localizable.Localizable` will be localized before string
     formatting.
 
@@ -111,7 +111,7 @@ def pgettext(context: str, message: str, /) -> Localizable:
     Like :py:meth:`gettext.pgettext`.
 
     Positional arguments are identical to those of :py:meth:`gettext.pgettext`.
-    Keyword arguments are identical to those of :py:met:`str.format`, except that
+    Keyword arguments are identical to those of :py:meth:`str.format`, except that
     any :py:class:`betty.locale.localizable.Localizable` will be localized before string
     formatting.
     """
@@ -139,7 +139,7 @@ def npgettext(
     Like :py:meth:`gettext.npgettext`.
 
     Positional arguments are identical to those of :py:meth:`gettext.npgettext`.
-    Keyword arguments are identical to those of :py:met:`str.format`, except that
+    Keyword arguments are identical to those of :py:meth:`str.format`, except that
     any :py:class:`betty.locale.localizable.Localizable` will be localized before string
     formatting.
     """

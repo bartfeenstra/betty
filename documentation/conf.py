@@ -39,15 +39,19 @@ html_theme_options = {
 highlight_language = "none"
 templates_path = ["_templates"]
 extensions = [
-    "betty.sphinx.extension.betty",
     "sphinx.ext.apidoc",
     "sphinx.ext.autodoc",
     "sphinx.ext.intersphinx",
     "sphinx.ext.viewcode",
     "sphinx_design",
+    "betty.sphinx.extension.betty",
 ]
 modindex_common_prefix = ["betty."]
 collapse_navigation = True
+suppress_warnings = [
+    # apidoc automatically inserts references that cannot be resolved.
+    "ref.python",
+]
 
 # sphinx.ext.apidoc configuration.
 apidoc_max_depth = 1
