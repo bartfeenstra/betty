@@ -7,4 +7,5 @@ API Documentation
    :maxdepth: 1
    :titlesonly:
 
-   api/*
+   api/betty
+   api/modules

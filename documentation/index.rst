@@ -3,7 +3,6 @@ Betty
 
 .. toctree::
    :hidden:
-   :includehidden:
    :maxdepth: 1
    :titlesonly:
 
