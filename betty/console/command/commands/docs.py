@@ -43,7 +43,8 @@ class Docs(AppDependentSelfFactory, Command):
 
     async def _command_function(self) -> None:
         server = documentation.DocumentationServer(
-            self._app.binary_file_cache.path, user=self._app.user
+            self._app.binary_file_cache.with_scope("documentation").path,
+            user=self._app.user,
         )
         async with server:
             await server.show()
