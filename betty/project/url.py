@@ -14,8 +14,8 @@ from betty.model import Entity, EntityDefinition
 from betty.project.factory import ProjectDependentSelfFactory
 from betty.string import camel_case_to_kebab_case
 from betty.url import (
-    InvalidMediaType,
     PassthroughUrlGenerator,
+    UnsupportedMediaType,
     UrlGenerator,
     generate_from_path,
 )
@@ -97,7 +97,7 @@ class _ProjectUrlGenerator(ProjectDependentSelfFactory):
         query: Mapping[str, Sequence[str]] | None,
     ) -> str:
         if media_type not in [HTML, JSON_LD, JSON]:
-            raise InvalidMediaType(entity, media_type)
+            raise UnsupportedMediaType(entity, media_type)
         extension, locale = _get_extension_and_locale(
             media_type, self._default_locale, locale=locale
         )
@@ -125,7 +125,7 @@ class _ProjectUrlGenerator(ProjectDependentSelfFactory):
         query: Mapping[str, Sequence[str]] | None,
     ) -> str:
         if media_type not in [HTML, JSON_LD, JSON]:
-            raise InvalidMediaType(entity_type, media_type)
+            raise UnsupportedMediaType(entity_type, media_type)
         extension, locale = _get_extension_and_locale(
             media_type, self._default_locale, locale=locale
         )

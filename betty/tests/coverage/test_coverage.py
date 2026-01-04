@@ -545,9 +545,9 @@ _BASELINE: Mapping[str, _ModuleIgnore] = {
     },
     "betty/url/__init__.py": {
         "GenerationError": MissingReason.ABSTRACT,
-        "InvalidMediaType": MissingReason.STATIC_CONTENT_ONLY,
         "LocalizedUrlGenerator": MissingReason.ABSTRACT,
         "StaticUrlGenerator": MissingReason.ABSTRACT,
+        "UnsupportedMediaType": MissingReason.SHOULD_BE_COVERED,
         "UnsupportedResource": MissingReason.STATIC_CONTENT_ONLY,
         "UrlGenerator": MissingReason.ABSTRACT,
     },
