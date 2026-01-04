@@ -37,7 +37,7 @@ class UnsupportedResource(GenerationError):
         super().__init__(f"Unsupported resource: {resource}")
 
 
-class InvalidMediaType(GenerationError):
+class UnsupportedMediaType(GenerationError):
     """
     Raised when a URL generator cannot generate a URL for a resource with the given media type.
     """
