@@ -35,7 +35,7 @@ class TestDocumentationServer:
 
             def _assert_response(response: Response) -> None:
                 assert response.status_code == 200
-                assert "Betty Documentation" in response.content.decode("utf-8")
+                assert "Betty" in response.content.decode("utf-8")
 
             await Do(requests.get, server.public_url).until(_assert_response)
 

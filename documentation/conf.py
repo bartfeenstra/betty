@@ -32,7 +32,10 @@ html_context = {
     "github_version": "0.5.x",
     "conf_py_path": "/documentation/",
 }
-html_theme = "furo"
+html_theme = "shibuya"
+html_theme_options = {
+    "accent_color": "pink",
+}
 highlight_language = "none"
 templates_path = ["_templates"]
 extensions = [
