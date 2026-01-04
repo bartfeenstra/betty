@@ -42,7 +42,6 @@ extensions = [
     "sphinx.ext.viewcode",
     "sphinx_design",
 ]
-nitpicky = True
 modindex_common_prefix = ["betty."]
 collapse_navigation = True
 
