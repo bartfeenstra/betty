@@ -11,6 +11,7 @@ from typing import TYPE_CHECKING, TypeAlias, TypeVar
 
 from docutils import nodes
 from sphinx.util.docutils import SphinxDirective
+from sphinx.util.parsing import nested_parse_to_nodes
 from typing_extensions import override
 
 from betty.app import App
@@ -18,7 +19,9 @@ from betty.config import Configurable
 from betty.functools import Result
 from betty.locale.localize import DEFAULT_LOCALIZER
 from betty.plugin import plugin_types
+from betty.plugin.dependent import DependentPluginDefinition
 from betty.plugin.human_facing import HumanFacingPluginDefinition
+from betty.plugin.ordered import OrderedPluginDefinition
 from betty.project import Project
 
 if TYPE_CHECKING:
@@ -92,7 +95,7 @@ class _PluginDirective(SphinxDirective):
         plugin = plugins[plugin_id]
         return [
             self._build_summary(plugin),
-            self._build_metadata(plugin),
+            *self._build_metadata(plugin, plugins),
         ]
 
     def _build_summary(self, plugin: PluginDefinition) -> nodes.Node:
@@ -108,32 +111,71 @@ class _PluginDirective(SphinxDirective):
                 )
         return nodes.paragraph("", "", *summary_nodes)
 
-    def _build_metadata(self, plugin: PluginDefinition) -> nodes.Node:
-        cls_nodes = self.parse_text_to_nodes(
-            f":py:class:`{type(plugin).__module__}.{type(plugin).__qualname__}`"
-        )
-        definitions_nodes = [
-            (
-                nodes.Text("Plugin ID"),
-                nodes.literal(text=plugin.id),
-            ),
-            (
-                nodes.Text("Class"),
-                cls_nodes,
-            ),
-        ]
+    def _build_metadata(
+        self, plugin: PluginDefinition, plugins: PluginRepository[PluginDefinition]
+    ) -> list[nodes.Node]:
         cls = plugin.cls
         if issubclass(cls, Configurable):
-            configuration_cls_nodes = self.parse_text_to_nodes(
-                f":py:class:`{cls.configuration_cls().__module__}.{cls.configuration_cls().__qualname__}`"
+            configuration_content = f":py:class:`{cls.configuration_cls().__name__} <{cls.configuration_cls().__module__}.{cls.configuration_cls().__qualname__}>`"
+        else:
+            configuration_content = "*not configurable*"
+        content = f"""
+.. list-table::
+   :widths: 15 10
+   :header-rows: 0
+
+   * - Plugin ID
+     - ``{plugin.id}``
+   * - Class
+     - :py:class:`{plugin.cls.__name__} <{plugin.cls.__module__}.{plugin.cls.__qualname__}>`
+   * - Configuration
+     - {configuration_content}
+"""
+        if isinstance(plugin, DependentPluginDefinition) and (
+            depends_on_content := self._build_other_plugins_references(
+                [plugins.get(plugin_id) for plugin_id in plugin.depends_on]
             )
-            definitions_nodes.append(
-                (
-                    nodes.Text("Configuration"),
-                    configuration_cls_nodes,
-                )
-            )
-        return _build_definition_list(definitions_nodes)
+        ):
+            content += f"""
+   * - Depends on
+{depends_on_content}
+"""
+        if isinstance(plugin, OrderedPluginDefinition):
+            if comes_before_content := self._build_other_plugins_references(
+                [plugins.get(plugin_id) for plugin_id in plugin.comes_before]
+            ):
+                content += f"""
+   * - Comes before
+{comes_before_content}
+"""
+            if comes_after_content := self._build_other_plugins_references(
+                [plugins.get(plugin_id) for plugin_id in plugin.comes_after]
+            ):
+                content += f"""
+   * - Comes after
+{comes_after_content}
+"""
+        return nested_parse_to_nodes(
+            self.state,
+            content,
+            offset=self.content_offset,
+        )
+
+    def _build_other_plugins_references(
+        self, plugins: Iterable[PluginDefinition]
+    ) -> str:
+        contents = [
+            f":py:class:`{plugin.id} <{plugin.cls.__module__}.{plugin.cls.__qualname__}>`"
+            for plugin in sorted(plugins, key=lambda plugin: plugin.id)
+        ]
+        if not contents:
+            return ""
+        if len(contents) == 1:
+            return f"     - {contents[0]}"
+        content = [f"     - * {contents[0]}"]
+        for dependency_content in contents[1:]:
+            content.append(f"       * {dependency_content}")
+        return "\n".join(content)
 
 
 class _PluginTypeDirective(SphinxDirective):
@@ -147,7 +189,7 @@ class _PluginTypeDirective(SphinxDirective):
         plugins = _to_thread(lambda: run(_get_plugins(plugin_type_id)))
         return [
             self._build_summary(plugin_type),
-            self._build_metadata(plugin_type),
+            *self._build_metadata(plugin_type),
             *self._build_builtin_plugins(plugin_type, plugins),
         ]
 
@@ -165,21 +207,22 @@ class _PluginTypeDirective(SphinxDirective):
             summary_node.append(nodes.Text(description.localize(DEFAULT_LOCALIZER)))
         return summary_node
 
-    def _build_metadata(self, plugin_type: type[PluginDefinition]) -> nodes.Node:
-        base_cls_nodes = self.parse_text_to_nodes(
-            f":py:class:`{plugin_type.type().base_cls.__module__}.{plugin_type.type().base_cls.__qualname__}`"
-        )
-        return _build_definition_list(
-            [
-                (
-                    nodes.Text("Plugin type ID"),
-                    nodes.literal(text=plugin_type.type().id),
-                ),
-                (
-                    nodes.Text("Base class"),
-                    base_cls_nodes,
-                ),
-            ]
+    def _build_metadata(self, plugin_type: type[PluginDefinition]) -> list[nodes.Node]:
+        return nested_parse_to_nodes(
+            self.state,
+            f"""
+.. list-table::
+   :widths: 15 10
+   :header-rows: 0
+
+   * - Plugin type ID
+     - ``{plugin_type.type().id}``
+   * - Base class
+     - :py:class:`{plugin_type.type().base_cls.__name__} <{plugin_type.type().base_cls.__module__}.{plugin_type.type().base_cls.__qualname__}>`
+   * - Definition
+     - :py:class:`@{plugin_type.__name__}(...) <{plugin_type.__module__}.{plugin_type.__qualname__}>`
+""",
+            offset=self.content_offset,
         )
 
     def _build_builtin_plugins(
@@ -205,7 +248,7 @@ class _PluginTypeDirective(SphinxDirective):
         self, plugin: PluginDefinition
     ) -> tuple[NodesLike, NodesLike]:
         term_nodes, _ = self.parse_inline(
-            f"{plugin.id} (:py:class:`{plugin.cls.__module__}.{plugin.cls.__qualname__}`)"
+            f"{plugin.id} (:py:class:`{plugin.cls.__name__} <{plugin.cls.__module__}.{plugin.cls.__qualname__}>`)"
         )
         definition_nodes: MutableSequence[nodes.Node] | None = None
         if isinstance(plugin, HumanFacingPluginDefinition):
