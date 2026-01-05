@@ -43,7 +43,6 @@ extensions = [
     "sphinx.ext.autodoc",
     "sphinx.ext.intersphinx",
     "sphinx.ext.viewcode",
-    "sphinx_contributors",
     "sphinx_design",
     "betty.sphinx.extension.betty",
 ]
