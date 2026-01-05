@@ -18,7 +18,7 @@ your `Gramps <https://gramps-project.org/>`_ and `GEDCOM <https://en.wikipedia.o
 
 .. container:: buttons
 
-    `Get started </installation>`_
+    :doc:`Get started </installation>`
     `View a demo <https://bartfeenstra.github.io/betty-demo>`_
 
 .. grid:: 1 1 2 3
