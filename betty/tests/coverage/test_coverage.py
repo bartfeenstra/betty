@@ -12,7 +12,6 @@ from collections.abc import (
     MutableSequence,
     Sequence,
 )
-from configparser import ConfigParser
 from enum import Enum
 from importlib import import_module
 from inspect import getmembers, isclass, isdatadescriptor, isfunction
@@ -530,6 +529,7 @@ _BASELINE: Mapping[str, _ModuleIgnore] = {
         "Server": MissingReason.ABSTRACT,
         "ServerNotStartedError": MissingReason.STATIC_CONTENT_ONLY,
     },
+    "betty/sphinx/extension/betty.py": MissingReason.COVERED_ELSEWHERE,
     "betty/subprocess.py": {
         "CalledSubprocessError": MissingReason.STATIC_CONTENT_ONLY,
         "FileNotFound": MissingReason.STATIC_CONTENT_ONLY,
@@ -621,29 +621,12 @@ class CoverageTester:
                         errors[file_path].append(file_error)
         return errors
 
-    def _get_coveragerc_ignore_modules(self) -> Iterable[Path]:
-        coveragerc = ConfigParser()
-        coveragerc.read(ROOT_DIRECTORY_PATH / ".coveragerc")
-        omit = coveragerc.get("run", "omit").strip().split("\n")
-        for omit_pattern in omit:
-            for module_path in Path().glob(omit_pattern):
-                if module_path.suffix != ".py":
-                    continue
-                if not module_path.is_file():
-                    continue
-                yield module_path.resolve()
-
     def _get_ignore_src_module_paths(
         self,
     ) -> Mapping[Path, _ModuleIgnore]:
         return {
-            **{
-                Path(module_file_path_str).resolve(): members
-                for module_file_path_str, members in _BASELINE.items()
-            },
-            **dict.fromkeys(
-                self._get_coveragerc_ignore_modules(), MissingReason.SHOULD_BE_COVERED
-            ),
+            Path(module_file_path_str).resolve(): members
+            for module_file_path_str, members in _BASELINE.items()
         }
 
     async def _test_python_file(self, file_path: Path) -> AsyncIterable[str]:
