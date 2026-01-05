@@ -5,7 +5,9 @@ The Betty Sphinx extension.
 from __future__ import annotations
 
 from asyncio import run
-from collections.abc import Callable, Iterable, MutableSequence
+from collections.abc import Callable, Iterable, MutableSequence, Sequence
+from functools import cmp_to_key
+from textwrap import indent
 from threading import Thread
 from typing import TYPE_CHECKING, TypeAlias, TypeVar
 
@@ -15,8 +17,9 @@ from sphinx.util.parsing import nested_parse_to_nodes
 from typing_extensions import override
 
 from betty.app import App
-from betty.config import Configurable
+from betty.config import Configurable, Configuration
 from betty.functools import Result
+from betty.importlib import import_any
 from betty.locale.localize import DEFAULT_LOCALIZER
 from betty.plugin import plugin_types
 from betty.plugin.dependent import DependentPluginDefinition
@@ -30,7 +33,7 @@ if TYPE_CHECKING:
 
     from betty.plugin import PluginDefinition
     from betty.plugin.repository import PluginRepository
-
+    from betty.serde.format import Format
 
 _T = TypeVar("_T")
 NodesLike: TypeAlias = nodes.Node | Iterable[nodes.Node] | None
@@ -52,6 +55,32 @@ async def _get_plugins(plugin_type_id: str) -> PluginRepository:
         project,
     ):
         return await project.plugins(plugin_type_id, check_requirements=False)
+
+
+def _cmp_formats(left: PluginDefinition, right: PluginDefinition) -> int:
+    if left.id == "yaml":
+        return -1
+    if right.id == "yaml":
+        return 1
+    return -1 if left.id < right.id else 1
+
+
+async def _get_formats() -> Sequence[Format]:
+    async with (
+        App.new_isolated() as app,
+        app,
+        Project.new_isolated(app) as project,
+        project,
+    ):
+        return [
+            await project.new_target(
+                serde_format.cls,  # type: ignore[arg-type]
+            )
+            for serde_format in sorted(
+                await project.plugins("format", check_requirements=False),
+                key=cmp_to_key(_cmp_formats),
+            )
+        ]
 
 
 def _build_definition_list(
@@ -289,10 +318,60 @@ class _PluginTypesDirective(SphinxDirective):
         return term_nodes, None
 
 
+class _ConfigurationDirective(SphinxDirective):
+    required_arguments = 1
+
+    @override
+    def run(self) -> list[nodes.Node]:
+        # Right-strip periods to avoid D400 and D415 violations.
+        cls_name = self.arguments[0].rstrip(".")
+        cls = import_any(cls_name)
+        assert issubclass(cls, Configuration)
+        samples = list(cls.samples())
+        if not samples:
+            return []
+        examples_label = "Examples" if len(samples) > 1 else "Example"
+        examples_content = f"""
+{examples_label}
+{"".join(["=" * len(examples_label)])}
+
+"""
+        serde_formats = _to_thread(lambda: run(_get_formats()))
+        for sample in samples:
+            example_content = ""
+            if len(samples) > 1:
+                example_label = sample.label.localize(DEFAULT_LOCALIZER)
+                example_content += f"""
+{example_label}
+{"".join(["-" * len(example_label)])}
+"""
+            example_content += """
+.. tab-set::
+
+"""
+            dump = sample.configuration.dump()
+            for serde_format in serde_formats:
+                format_dump = serde_format.dump(dump)
+                example_content += f"""
+   .. tab-item:: {serde_format.plugin().label.localize(DEFAULT_LOCALIZER)}
+
+      .. code-block:: {serde_format.plugin().id}
+
+{indent(format_dump, " " * 10)}
+"""
+            examples_content += example_content
+        return nested_parse_to_nodes(
+            self.state,
+            examples_content,
+            offset=self.content_offset,
+        )
+
+
 def setup(app: Sphinx) -> ExtensionMetadata:
     """
     Implement Sphinx's extension setup.
     """
+    app.add_directive("configuration", _ConfigurationDirective)
     app.add_directive("plugin", _PluginDirective)
     app.add_directive("plugin_type", _PluginTypeDirective)
     app.add_directive("plugin_types", _PluginTypesDirective)

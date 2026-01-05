@@ -5,6 +5,7 @@ Provide project configuration.
 from __future__ import annotations
 
 from collections.abc import Collection, Iterable, Mapping
+from pathlib import Path
 from typing import TYPE_CHECKING, Any, Self, cast, final
 from urllib.parse import urlparse
 
@@ -29,7 +30,7 @@ from betty.assertion import (
     assert_record,
     assert_str,
 )
-from betty.config import Configuration
+from betty.config import Configuration, Sample
 from betty.config.collections.mapping import OrderedConfigurationMapping
 from betty.copyright_notice import CopyrightNotice, CopyrightNoticeDefinition
 from betty.data import Key
@@ -49,6 +50,7 @@ from betty.locale.localizable.attr import (
 from betty.locale.localizable.config import dump_localizable
 from betty.locale.localizable.ensure import ensure_localizable
 from betty.locale.localizable.gettext import _
+from betty.locale.localizable.static import CountableStaticTranslations
 from betty.machine_name import MachineName, assert_machine_name
 from betty.model import EntityDefinition
 from betty.plugin.config import (
@@ -65,8 +67,6 @@ from betty.project.extension import Extension, ExtensionDefinition
 from betty.project.factory import CallbackProjectDependentFactory
 
 if TYPE_CHECKING:
-    from pathlib import Path
-
     from betty.locale.localizable import Localizable, LocalizableLike
     from betty.plugin.repository import PluginRepository
     from betty.project import Project
@@ -614,7 +614,196 @@ class GenderPluginConfigurationMapping(
 @final
 class ProjectConfiguration(Configuration):
     """
-    Provide the configuration for a :py:class:`betty.project.Project`.
+    Configuration for a :py:class:`betty.project.Project`.
+
+    .. configuration:: betty.project:ProjectConfiguration
+
+    ``url``
+    -------
+    :sup:`required`
+
+    The absolute, public URL at which the site will be published.
+
+    ``debug``
+    ---------
+    :sup:`optional`
+
+    ``true`` to output more detailed logs and disable optimizations that make debugging harder. Defaults to ``false``.
+
+    ``clean_urls``
+    --------------
+    :sup:`optional`
+
+    A boolean indicating whether to use clean URLs, e.g. ``/path`` instead of ``/path/index.html``. Defaults to ``false``.
+
+    ``title``
+    ---------
+    :sup:`optional`
+
+    The project's human-readable title. This can be a string or :py:class:`multiple translations <betty.locale.localizable.static.StaticTranslations>`.
+
+    ``name``
+    --------
+    :sup:`optional`
+
+    The project's machine name.
+
+    ``author``
+    ----------
+    :sup:`optional`
+
+    The project's author and copyright holder. This can be a string or :py:class:`multiple translations <betty.locale.localizable.static.StaticTranslations>`.
+
+    ``logo``
+    --------
+    :sup:`optional`
+
+    The path to your site's logo file. Defaults to the Betty logo.
+
+    ``lifetime_threshold``
+    ----------------------
+    :sup:`optional`
+
+    The number of years people are expected to live at most, e.g. after which they're presumed to have died.
+    :py:const:`Defaults to 123 years <betty.project.config.DEFAULT_LIFETIME_THRESHOLD>`.
+
+    ``locales``
+    -----------
+    :sup:`optional`
+
+    If no locales are specified, Betty defaults to US English (``en-US``).
+
+    Read more about :doc:`translations </usage/translation>`.
+
+    An array of locales, each of which is an object with the following keys:
+
+    ``locales[].locale``
+    ^^^^^^^^^^^^^^^^^^^^
+    :sup:`required`
+
+    An `IETF BCP 47 <https://tools.ietf.org/html/bcp47>`_ language tag.
+
+    ``locales[].alias``
+    ^^^^^^^^^^^^^^^^^^^
+    :sup:`optional`
+
+    A shorthand alias to use instead of the full language tag, such as when rendering URLs.
+
+    ``entity_types``
+    ----------------
+    :sup:`optional`
+
+    Keys are entity type (plugin) IDs, and values are objects containing the following keys:
+
+    ``entity_types{}.generate_html_list``
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    :sup:`optional`
+
+    Whether to generate the HTML page to list entities of this type. Defaults to ``false``.
+
+    ``event_types``
+    ---------------
+    :sup:`optional`
+
+    Keys are event type (plugin) IDs, and values are objects containing the following keys:
+
+    ``event_types{}.label``
+    ^^^^^^^^^^^^^^^^^^^^^^^
+    :sup:`required`
+
+    The event type's human-readable label. This can be a string or :py:class:`multiple translations <betty.locale.localizable.static.StaticTranslations>`.
+
+    ``event_types{}.description``
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    :sup:`optional`
+
+    The event type's human-readable long description. This can be a string or :py:class:`multiple translations <betty.locale.localizable.static.StaticTranslations>`.
+
+    ``event_types{}.comes_before``
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    :sup:`optional`
+
+    A collection of the IDs of other event types that this one comes before.
+
+    ``event_types{}.comes_after``
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    :sup:`optional`
+
+    A collection of the IDs of other event types that this one comes after.
+
+    ``genders``
+    -----------
+    :sup:`optional`
+
+    Keys are gender (plugin) IDs, and values are objects containing the following keys:
+
+    ``genders{}.label``
+    ^^^^^^^^^^^^^^^^^^^
+    :sup:`required`
+
+    The gender's human-readable label. This can be a string or :py:class:`multiple translations <betty.locale.localizable.static.StaticTranslations>`.
+
+    ``genders{}.description``
+    ^^^^^^^^^^^^^^^^^^^^^^^^^
+    :sup:`optional`
+
+    The gender's human-readable long description. This can be a string or :py:class:`multiple translations <betty.locale.localizable.static.StaticTranslations>`.
+
+    ``place_types``
+    ---------------
+    :sup:`optional`
+
+    Keys are place type (plugin) IDs, and values are objects containing the following keys:
+
+    ``place_types{}.label``
+    ^^^^^^^^^^^^^^^^^^^^^^^
+    :sup:`required`
+
+    The place type's human-readable label. This can be a string or :py:class:`multiple translations <betty.locale.localizable.static.StaticTranslations>`.
+
+    ``place_types{}.description``
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    :sup:`optional`
+
+    The place type's human-readable long description. This can be a string or :py:class:`multiple translations <betty.locale.localizable.static.StaticTranslations>`.
+
+    ``presence_roles``
+    ------------------
+    :sup:`optional`
+
+    Keys are presence role (plugin) IDs, and values are objects containing the following keys:
+
+    ``presence_roles{}.label``
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^
+    :sup:`required`
+
+    The presence role's human-readable label. This can be a string or :py:class:`multiple translations <betty.locale.localizable.static.StaticTranslations>`.
+
+    ``presence_roles{}.description``
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    :sup:`optional`
+
+    The presence role's human-readable long description. This can be a string or :py:class:`multiple translations <betty.locale.localizable.static.StaticTranslations>`.
+
+    ``extensions``
+    --------------
+    :sup:`optional`
+
+    The :py:class:`extensions <betty.project.extension.ExtensionDefinition>` to enable. Keys are extension names, and values
+    are objects containing the following keys, both of which may be omitted to quickly enable an extension using its default
+    configuration:
+
+    ``extensions{}.enabled``
+    ^^^^^^^^^^^^^^^^^^^^^^^^
+    :sup:`optional`
+
+    A boolean indicating whether the extension is enabled. Defaults to ``true``.
+
+    ``extensions{}.configuration``
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    :sup:`optional`
+
+    An object containing the extension's own configuration, if it provides any configuration options.
     """
 
     title = RequiredLocalizableAttr("title")
@@ -948,3 +1137,104 @@ class ProjectConfiguration(Configuration):
         if self.author is not None:
             dump["author"] = dump_localizable(self.author)
         return dump
+
+    @override
+    @classmethod
+    def samples(cls) -> Iterable[Sample[Self]]:
+        from betty.ancestry.file import File
+        from betty.ancestry.person import Person
+
+        yield Sample(cls(), label="Minimal")
+        yield Sample(
+            cls(
+                url="https://ancestry.example.com/betty",
+                debug=True,
+                clean_urls=True,
+                title="Betty's ancestry",
+                name="betty-ancestry",
+                author="Bart Feenstra",
+                logo=Path("my-ancestry-logo.png"),
+                lifetime_threshold=123,
+                locales=LocaleConfigurationMapping(
+                    [
+                        LocaleConfiguration("en-US", alias="en"),
+                        LocaleConfiguration("nl"),
+                    ]
+                ),
+                entity_types=EntityTypeConfigurationMapping(
+                    [
+                        EntityTypeConfiguration(Person, generate_html_list=True),
+                        EntityTypeConfiguration(File, generate_html_list=False),
+                    ]
+                ),
+                event_types=EventTypePluginConfigurationMapping(
+                    [
+                        EventTypePluginConfiguration(
+                            id="moon-landing",
+                            label="Moon Landing",
+                            label_plural="Moon Landings",
+                            label_countable=CountableStaticTranslations(
+                                {
+                                    DEFAULT_LOCALE: {
+                                        "one": "{count} moon landing",
+                                        "other": "{count} moon landings",
+                                    }
+                                }
+                            ),
+                        )
+                    ]
+                ),
+                genders=GenderPluginConfigurationMapping(
+                    [
+                        GenderPluginConfiguration(
+                            id="genderqueer",
+                            label="Genderqueer",
+                            label_plural="Genderqueers",
+                            label_countable=CountableStaticTranslations(
+                                {
+                                    DEFAULT_LOCALE: {
+                                        "one": "{count} genderqueer",
+                                        "other": "{count} genderqueers",
+                                    }
+                                }
+                            ),
+                        )
+                    ]
+                ),
+                place_types=PlaceTypePluginConfigurationMapping(
+                    [
+                        PlaceTypePluginConfiguration(
+                            id="moon",
+                            label="Moon",
+                            label_plural="Moons",
+                            label_countable=CountableStaticTranslations(
+                                {
+                                    DEFAULT_LOCALE: {
+                                        "one": "{count} moon",
+                                        "other": "{count} moons",
+                                    }
+                                }
+                            ),
+                        )
+                    ]
+                ),
+                presence_roles=PresenceRolePluginConfigurationMapping(
+                    [
+                        PresenceRolePluginConfiguration(
+                            id="astronaut",
+                            label="Astronaut",
+                            label_plural="Astronauts",
+                            label_countable=CountableStaticTranslations(
+                                {
+                                    DEFAULT_LOCALE: {
+                                        "one": "{count} astronaut",
+                                        "other": "{count} astronauts",
+                                    }
+                                }
+                            ),
+                        )
+                    ]
+                ),
+            ),
+            label="Full",
+        )

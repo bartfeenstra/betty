@@ -13,7 +13,7 @@ from betty.assertion import (
     assert_record,
     assert_str,
 )
-from betty.config import Configuration
+from betty.config import Configuration, Sample
 from betty.config.collections.sequence import ConfigurationSequence
 from betty.data import Index
 from betty.exception import HumanFacingExceptionGroup
@@ -22,6 +22,8 @@ from betty.plugin.assertion import assert_plugin
 from betty.plugin.resolve import ResolvableId, resolve_id
 
 if TYPE_CHECKING:
+    from collections.abc import Iterable
+
     from betty.model import EntityDefinition
     from betty.plugin.repository import PluginRepository
     from betty.serde.dump import Dump, DumpMapping
@@ -31,6 +33,8 @@ if TYPE_CHECKING:
 class EntityReference(Configuration):
     """
     Configuration that references an entity from the project's ancestry.
+
+    .. configuration:: betty.model.config:EntityReference
     """
 
     def __init__(self, entity_type: ResolvableId[EntityDefinition], entity_id: str, /):
@@ -83,6 +87,13 @@ class EntityReference(Configuration):
         Validate the configuration.
         """
         assert_plugin(entity_type_repository)(self.entity_type)
+
+    @override
+    @classmethod
+    def samples(cls) -> Iterable[Sample[Self]]:
+        from betty.ancestry.person import Person
+
+        yield Sample(cls(Person, "123"), label="Default")
 
 
 @final

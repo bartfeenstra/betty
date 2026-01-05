@@ -1,5 +1,6 @@
 import gzip
 from pathlib import Path
+from typing import cast
 
 import pytest
 from aiofiles.tempfile import TemporaryDirectory
@@ -52,11 +53,11 @@ class TestGramps(
         return Gramps
 
     @override
-    @pytest.fixture
+    @pytest.fixture(params=GrampsConfiguration.samples())
     def configuration_dependent_self_factory_sut_configuration(
-        self,
+        self, request: pytest.FixtureRequest
     ) -> GrampsConfiguration:
-        return GrampsConfiguration()
+        return cast(GrampsConfiguration, request.param)
 
     async def test_load__with_event_type_mapping(
         self, isolated_app: App, tmp_path: Path

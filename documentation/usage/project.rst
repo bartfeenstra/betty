@@ -1,18 +1,10 @@
 Projects
 ========
 
-.. toctree::
-   :glob:
-   :hidden:
-   :maxdepth: 1
-   :titlesonly:
-
-   project/*
-
 A project contains all the information necessary to turn a family tree into a site. After installing
 Betty once, you can manage multiple projects.
 
-You can create and tailor projects using :doc:`configuration files </usage/project/configuration>`.
+You can create and tailor projects using :py:class:`configuration <betty.project.config.ProjectConfiguration>`.
 
 
 .. important::
@@ -39,6 +31,3 @@ This is where Betty puts all the things it generates for you.
 ^^^^^^^^^^^^^^^
 This is where Betty puts your generated site.
 
-In this section
----------------
-- :doc:`/usage/project/configuration`

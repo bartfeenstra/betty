@@ -1,6 +1,6 @@
 from gettext import NullTranslations
 from pathlib import Path
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, cast
 
 import aiofiles
 import pytest
@@ -105,11 +105,11 @@ class TestRender(
         return Render
 
     @override
-    @pytest.fixture
+    @pytest.fixture(params=RenderConfiguration.samples())
     def configuration_dependent_self_factory_sut_configuration(
-        self,
+        self, request: pytest.FixtureRequest
     ) -> RenderConfiguration:
-        return RenderConfiguration(DUMMY_LOCALIZABLE)
+        return cast(RenderConfiguration, request.param)
 
     @pytest.mark.parametrize(
         ("expected", "content", "locale"),

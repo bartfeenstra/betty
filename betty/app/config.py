@@ -24,7 +24,7 @@ CONFIGURATION_FILE_PATH = APP_CONFIG_DIRECTORY_PATH / "app.json"
 @final
 class AppConfiguration(Configuration):
     """
-    Provide configuration for :py:class:`betty.app.App`.
+    Configuration for :py:class:`betty.app.App`.
     """
 
     def __init__(

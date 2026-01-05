@@ -1,7 +1,8 @@
 """
-Provide configuration for the Wikipedia extension.
+Configuration for the Wikipedia extension.
 """
 
+from collections.abc import Iterable
 from typing import Self
 
 from typing_extensions import override
@@ -11,39 +12,15 @@ from betty.assertion import (
     assert_bool,
     assert_record,
 )
-from betty.config import Configuration
+from betty.config import Configuration, Sample
 from betty.serde.dump import Dump, DumpMapping
 
 
 class WikiConfiguration(Configuration):
     """
-    Provides configuration for the :py:class:`betty.project.extension.wiki.Wiki` extension.
+    Configuration for the :py:class:`betty.project.extension.wiki.Wiki` extension.
 
-    .. tab-set::
-
-       .. tab-item:: YAML
-
-          .. code-block:: yaml
-
-              extensions:
-                wiki:
-                  configuration:
-                    populate_images: false
-
-       .. tab-item:: JSON
-
-          .. code-block:: json
-
-              {
-                "extensions": {
-                  "wiki": {
-                    "configuration" : {
-                      "populate_images": false
-                    }
-                  }
-                }
-              }
-
+    .. configuration:: betty.project.extension.wiki.config:WikiConfiguration
 
     ``populate_images``
     ^^^^^^^^^^^^^^^^^^^
@@ -80,3 +57,8 @@ class WikiConfiguration(Configuration):
         return {
             "populate_images": self.populate_images,
         }
+
+    @override
+    @classmethod
+    def samples(cls) -> Iterable[Sample[Self]]:
+        yield Sample(cls(), label="Default")

@@ -21,7 +21,7 @@ from betty.assertion import (
     assert_record,
     assert_sequence,
 )
-from betty.config import Configuration
+from betty.config import Configuration, Sample
 from betty.config.factory import ConfigurationDependentSelfFactory
 from betty.content_provider import ContentProvider, ContentProviderDefinition
 from betty.content_provider.content_providers import Template
@@ -82,6 +82,8 @@ class _Base(HasRequirement, Plugin[ContentProviderDefinition]):
 class SectionConfiguration(Configuration):
     """
     Configuration for :py:class:`betty.project.extension.raspberry_mint.content_provider.Section`.
+
+    .. configuration:: betty.project.extension.raspberry_mint.content_provider:SectionConfiguration
     """
 
     heading = RequiredLocalizableAttr("heading")
@@ -143,6 +145,19 @@ class SectionConfiguration(Configuration):
     @override
     def get_mutables(self) -> Iterable[object]:
         return self.heading, self._content
+
+    @override
+    @classmethod
+    def samples(cls) -> Iterable[Sample[Self]]:
+        from betty.test_utils.locale.localizable import DUMMY_LOCALIZABLE
+
+        yield Sample(
+            cls(
+                PluginInstanceConfiguration("my-first-content"),
+                heading=DUMMY_LOCALIZABLE,
+            ),
+            label="Minimal",
+        )
 
 
 @ContentProviderDefinition("raspberry-mint-section", label=_("Section"))

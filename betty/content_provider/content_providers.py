@@ -14,7 +14,7 @@ from betty.assertion import (
     assert_record,
     assert_str,
 )
-from betty.config import Configuration
+from betty.config import Configuration, Sample
 from betty.config.factory import ConfigurationDependentSelfFactory
 from betty.content_provider import ContentProvider, ContentProviderDefinition
 from betty.locale.localizable.assertion import assert_load_localizable
@@ -50,6 +50,8 @@ if TYPE_CHECKING:
 class RenderConfiguration(Configuration):
     """
     Configuration for :py:class:`betty.content_provider.content_providers.Render`.
+
+    .. configuration:: betty.content_provider.content_providers:RenderConfiguration
     """
 
     content = RequiredLocalizableAttr("text")
@@ -74,6 +76,13 @@ class RenderConfiguration(Configuration):
             "content": dump_localizable(self.content),
             "media_type": str(self.media_type),
         }
+
+    @override
+    @classmethod
+    def samples(cls) -> Iterable[Sample[Self]]:
+        from betty.test_utils.locale.localizable import DUMMY_LOCALIZABLE
+
+        yield Sample(cls(DUMMY_LOCALIZABLE), label="Minimal")
 
 
 @ContentProviderDefinition("render", label=_("Rendered content"))
