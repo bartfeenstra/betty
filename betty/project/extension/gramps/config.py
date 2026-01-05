@@ -244,6 +244,125 @@ class FamilyTreeConfigurationSequence(ConfigurationSequence[FamilyTreeConfigurat
 class GrampsConfiguration(Configuration):
     """
     Provide configuration for the :py:class:`betty.project.extension.gramps.Gramps` extension.
+
+    .. tab-set::
+
+       .. tab-item:: YAML
+
+          .. code-block:: yaml
+
+              extensions:
+                gramps:
+                  configuration:
+                    executable: /path/to/gramps
+                    family_trees:
+                      - file: ./gramps.gpkg
+                        event-types:
+                          GrampsEventType: betty-event-type
+                          AnotherGrampsEventType: another-betty-event-type
+                        place-types:
+                          GrampsPlaceType: betty-place-type
+                          AnotherGrampsPlaceType: another-betty-place-type
+                        presence-roles:
+                          GrampsRole: betty-presence-role
+                          AnotherGrampsRole: another-betty-presence-role
+
+       .. tab-item:: JSON
+
+          .. code-block:: json
+
+              {
+                "extensions": {
+                  "gramps": {
+                    "configuration" : {
+                      "executable": "/path/to/gramps",
+                      "family_trees": [
+                        {
+                          "file": "./gramps.gpkg",
+                          "event-types": {
+                            "GrampsEventType": "betty-event-type",
+                            "AnotherGrampsEventType": "another-betty-event-type"
+                          },
+                          "place-types": {
+                            "GrampsPlaceType": "betty-place-type",
+                            "AnotherGrampsPlaceType": "another-betty-place-type"
+                          },
+                          "presence-roles": {
+                            "GrampsRole": "betty-presence-role",
+                            "AnotherGrampsRole": "another-betty-presence-role"
+                          }
+                        }
+                      ]
+                    }
+                  }
+                }
+              }
+
+
+    ``executable``
+    ^^^^^^^^^^^^^^^^
+    :sup:`optional`
+
+    The path to an existing Gramps installation on your system. Defaults to ``gramps`` on Linux and macOS, and to
+    ``Gramps.exe`` on Windows.
+
+
+    ``family_trees``
+    ^^^^^^^^^^^^^^^^
+    :sup:`required`
+
+    An array defining zero or more Gramps family trees to load.
+
+    If multiple family trees contain entities of the same type and with the same ID (e.g. a person with ID ``I1234``) each
+    entity will overwrite any previously loaded entity.
+
+    Each item is an object with the following keys:
+
+    ``family_trees[].file``
+    ~~~~~~~~~~~~~~~~~~~~~~~
+    :sup:`required`
+
+    The path to a family history file. Supported file types are:
+
+    - CSV (``.csv``)
+    - GEDCOM (``.ged``)
+    - GeneWeb (``.gw``)
+    - Gramps package (``.gpkg``)
+    - Gramps XML (``.gramps``)
+    - Gramps 2.x database (``.grdb``)
+    - Pro-Gen (``.def``)
+    - vCard (``.vcf``)
+
+    This is mutually exclusive with ``family_trees[].name``.
+
+    ``family_trees[].name``
+    ~~~~~~~~~~~~~~~~~~~~~~~
+    :sup:`required`
+
+    The name of a family tree in your local Gramps installation.
+
+    This is mutually exclusive with ``family_trees[].file``.
+
+    ``family_trees[].event_types``
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    :sup:`optional`
+
+    How to map Gramps event types to Betty event types. Each key is a Gramps event type, and each value is the plugin ID of
+    the Betty event type to import the Gramps event type as.
+
+    ``family_trees[].place_types``
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    :sup:`optional`
+
+    How to map Gramps place types to Betty place types. Each key is a Gramps place type, and each value is the plugin ID
+    of the Betty place type to import the Gramps place type as.
+
+    ``family_trees[].presence_roles``
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    :sup:`optional`
+
+    How to map Gramps roles to Betty presence roles. Each key is a Gramps role, and each value is the plugin ID of the
+    Betty presence role to import the Gramps role as.
     """
 
     def __init__(

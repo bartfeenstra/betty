@@ -72,31 +72,6 @@ class Privatizer(PostLoader, ProjectDependentSelfFactory, Extension):
     Source
       Any files associated with private sources will be privatized.
 
-    Enable this extension in your project's :doc:`configuration file </usage/project/configuration>` as follows:
-
-    .. tab-set::
-
-       .. tab-item:: YAML
-
-          .. code-block:: yaml
-
-              extensions:
-                privatizer: {}
-
-       .. tab-item:: JSON
-
-          .. code-block:: json
-
-              {
-                "extensions": {
-                  "privatizer": {}
-                }
-              }
-
-    Configuration
-    -------------
-    This extension is not configurable.
-
     """
 
     @override

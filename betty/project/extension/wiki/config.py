@@ -18,6 +18,38 @@ from betty.serde.dump import Dump, DumpMapping
 class WikiConfiguration(Configuration):
     """
     Provides configuration for the :py:class:`betty.project.extension.wiki.Wiki` extension.
+
+    .. tab-set::
+
+       .. tab-item:: YAML
+
+          .. code-block:: yaml
+
+              extensions:
+                wiki:
+                  configuration:
+                    populate_images: false
+
+       .. tab-item:: JSON
+
+          .. code-block:: json
+
+              {
+                "extensions": {
+                  "wiki": {
+                    "configuration" : {
+                      "populate_images": false
+                    }
+                  }
+                }
+              }
+
+
+    ``populate_images``
+    ^^^^^^^^^^^^^^^^^^^
+    :sup:`optional`
+
+    A boolean indicating whether to download images from the Wikipedia links in the ancestry. Defaults to ``true``.
     """
 
     def __init__(self, *, populate_images: bool = True):
