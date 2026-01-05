@@ -30,13 +30,6 @@ Find Betty on
 - `GitHub <https://github.com/bartfeenstra/betty>`_
 - `PyPI <https://pypi.org/project/betty>`_
 
-Contributors
-------------
-
-..  contributors:: bartfeenstra/betty
-    :avatars:
-
-
 In this section
 ---------------
 - :doc:`/about/contributing`

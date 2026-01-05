@@ -36,7 +36,6 @@ dependencies = [
     'rich-argparse ~= 1.7',
     'shibuya == 2025.12.19',
     'sphinx ~= 8.2',
-    'sphinx_contributors ~= 0.2.7',
     'sphinx-design ~= 0.6.1',
     'typing_extensions ~= 4.12',
 ]
