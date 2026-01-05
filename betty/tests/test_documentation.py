@@ -21,9 +21,6 @@ from betty.functools import Do
 from betty.jinja2.filter import filters
 from betty.jinja2.test import tests
 from betty.locale.localize import DEFAULT_LOCALIZER
-from betty.project.config import ProjectConfiguration
-from betty.serde.format import Format
-from betty.serde.format.formats import Json, Yaml
 from betty.test_utils.documentation import PluginDocumentationTestBase
 from betty.test_utils.user import StaticUser
 
@@ -49,35 +46,6 @@ class TestDocumentation:
         for command in await isolated_app.plugins(CommandDefinition):
             assert command.id in actual
             assert command.label.localize(DEFAULT_LOCALIZER) in actual
-
-    @pytest.mark.parametrize(
-        ("language", "serde_format"),
-        [
-            ("yaml", Yaml()),
-            ("json", Json()),
-        ],
-    )
-    async def test_should_contain_valid_configuration(
-        self, language: str, serde_format: Format
-    ) -> None:
-        async with aiofiles.open(
-            ROOT_DIRECTORY_PATH
-            / "documentation"
-            / "usage"
-            / "project"
-            / "configuration.rst"
-        ) as f:
-            actual = await f.read()
-        match = re.search(
-            rf"^      \.\. code-block:: {language}\n\n((.|\n)+?)\n\n",
-            actual,
-            re.MULTILINE,
-        )
-        assert match is not None
-        dump = match[1]
-        assert dump is not None
-        configuration = ProjectConfiguration()
-        configuration.load(serde_format.load(dump))
 
     async def test_should_contain_builtin_jinja2_filters(self) -> None:
         with open(

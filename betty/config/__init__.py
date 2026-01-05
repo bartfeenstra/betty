@@ -5,13 +5,17 @@ The Configuration API.
 from __future__ import annotations
 
 from abc import ABC, abstractmethod
-from typing import TYPE_CHECKING, Any, Generic, TypeVar
+from typing import TYPE_CHECKING, Any, Generic, Self, TypeVar
 
+from betty.locale.localizable.ensure import ensure_localizable
 from betty.mutability import Mutable
 from betty.serde.dump import Dumpable
 from betty.serde.load import Loadable
 
 if TYPE_CHECKING:
+    from collections.abc import Iterable
+
+    from betty.locale.localizable import Localizable, LocalizableLike
     from betty.service.level.factory import AnyFactoryTarget
 
 
@@ -29,8 +33,55 @@ class Configuration(Mutable, Loadable, Dumpable):
         """
         return None
 
+    @classmethod
+    def samples(cls) -> Iterable[Sample[Self]]:
+        """
+        Create samples for this configuration.
+        """
+        return ()
+
 
 _ConfigurationT = TypeVar("_ConfigurationT", bound=Configuration)
+
+
+class Sample(Generic[_ConfigurationT]):
+    """
+    A configuration sample.
+
+    Samples are useful for generating documentation and tests.
+    """
+
+    def __init__(
+        self,
+        configuration: _ConfigurationT,
+        *,
+        label: LocalizableLike,
+        description: LocalizableLike | None = None,
+    ):
+        self._configuration = configuration
+        self._label = ensure_localizable(label)
+        self._description = ensure_localizable(description) if description else None
+
+    @property
+    def configuration(self) -> _ConfigurationT:
+        """
+        The sample configuration.
+        """
+        return self._configuration
+
+    @property
+    def label(self) -> Localizable:
+        """
+        The sample's human-readable short label.
+        """
+        return self._label
+
+    @property
+    def description(self) -> Localizable | None:
+        """
+        The sample's human-readable long description.
+        """
+        return self._description
 
 
 class Configurable(ABC, Generic[_ConfigurationT]):

@@ -1,6 +1,6 @@
 from collections.abc import Mapping
 from pathlib import Path
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, cast
 
 import pytest
 from typing_extensions import override
@@ -99,11 +99,11 @@ class TestEntityCard(
         return EntityCard
 
     @override
-    @pytest.fixture
+    @pytest.fixture(params=EntityReference.samples())
     def configuration_dependent_self_factory_sut_configuration(
-        self,
+        self, request: pytest.FixtureRequest
     ) -> EntityReference:
-        return EntityReference(DummyEntityOne, "abc")
+        return cast(EntityReference, request.param)
 
     async def test_provide(self, isolated_app: App) -> None:
         async with Project.new_isolated(isolated_app) as project:
@@ -242,13 +242,11 @@ class TestSection(
         return Section
 
     @override
-    @pytest.fixture
+    @pytest.fixture(params=SectionConfiguration.samples())
     def configuration_dependent_self_factory_sut_configuration(
-        self,
+        self, request: pytest.FixtureRequest
     ) -> SectionConfiguration:
-        return SectionConfiguration(
-            PluginInstanceConfiguration("my-first-content"), heading=DUMMY_LOCALIZABLE
-        )
+        return cast(SectionConfiguration, request.param)
 
     async def test_provide__without_content(self, isolated_app: App) -> None:
         with ContentProviderDefinition.type().override_discovery(

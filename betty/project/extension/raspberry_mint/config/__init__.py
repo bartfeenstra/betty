@@ -1,5 +1,5 @@
 """
-Provide configuration for the Raspberry Mint extension.
+Configuration for the Raspberry Mint extension.
 """
 
 from __future__ import annotations
@@ -9,10 +9,13 @@ from typing import TYPE_CHECKING, Self, final
 from typing_extensions import override
 
 from betty.assertion import OptionalField, assert_record
-from betty.config import Configuration
+from betty.config import Configuration, Sample
 from betty.config.color import ColorConfiguration
+from betty.content_provider.content_providers import Render, RenderConfiguration
 from betty.data import Key, Path
 from betty.exception import reraise_within_context
+from betty.media_type.media_types import HTML
+from betty.plugin.config import PluginInstanceConfiguration
 from betty.project.extension.theme.config import RegionalContentConfiguration
 from betty.project.factory import CallbackProjectDependentFactory
 
@@ -27,61 +30,9 @@ if TYPE_CHECKING:
 @final
 class RaspberryMintConfiguration(Configuration):
     """
-    Provide configuration for the :py:class:`betty.project.extension.raspberry_mint.RaspberryMint` extension.
+    Configuration for the :py:class:`betty.project.extension.raspberry_mint.RaspberryMint` extension.
 
-    .. tab-set::
-
-       .. tab-item:: YAML
-
-          .. code-block:: yaml
-
-              extensions:
-                raspberry-mint:
-                  configuration:
-                    primary_color: '#b3446c'
-                    secondary_color: '#3eb489'
-                    tertiary_color: '#ffbd22'
-                    regional_content:
-                      front-page-content:
-                        - id: raspberry-mint-featured-entities
-                          configuration:
-                            - entity_type: person
-                              entity: P123
-                            - entity_type: place
-                              entity: Amsterdam
-
-       .. tab-item:: JSON
-
-          .. code-block:: json
-
-              {
-                "extensions": {
-                  "raspberry-mint": {
-                    "configuration" : {
-                      "primary_color": "#b3446c",
-                      "secondary_color": "#3eb489",
-                      "tertiary_color": "#ffbd22",
-                      "regional_content": {
-                        "front-page-content":[
-                          {
-                            "id": "raspberry-mint-featured-entities":
-                            "configuration": [
-                              {
-                                "entity_type": "person",
-                                "entity": "P123"
-                              },
-                              {
-                                "entity_type": "place",
-                                "entity": "Amsterdam"
-                              }
-                            ]
-                          }
-                        ]
-                      ]
-                    }
-                  }
-                }
-              }
+    .. configuration:: betty.project.extension.raspberry_mint.config:RaspberryMintConfiguration
 
     ``primary_color``
     ^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -220,3 +171,33 @@ class RaspberryMintConfiguration(Configuration):
         if regional_content_dump:
             dump["regional_content"] = regional_content_dump
         return dump
+
+    @override
+    @classmethod
+    def samples(cls) -> Iterable[Sample[Self]]:
+        yield Sample(cls(), label="Minimal")
+        yield Sample(
+            cls(
+                primary_color=ColorConfiguration("#ff0000"),
+                secondary_color=ColorConfiguration("#00ff00"),
+                tertiary_color=ColorConfiguration("#0000ff"),
+            ),
+            label="Custom colors",
+        )
+        yield Sample(
+            cls(
+                regional_content=RegionalContentConfiguration(
+                    {
+                        "front-page-content": [
+                            PluginInstanceConfiguration(
+                                Render,
+                                RenderConfiguration(
+                                    "Well, <em>hello there!</em>", HTML
+                                ),
+                            )
+                        ]
+                    }
+                )
+            ),
+            label="Regional content",
+        )

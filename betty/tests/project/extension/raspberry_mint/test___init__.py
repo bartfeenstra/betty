@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, cast
 
 import pytest
 from typing_extensions import override
@@ -41,11 +41,11 @@ class TestRaspberryMint(
         return RaspberryMint
 
     @override
-    @pytest.fixture
+    @pytest.fixture(params=RaspberryMintConfiguration.samples())
     def configuration_dependent_self_factory_sut_configuration(
-        self,
+        self, request: pytest.FixtureRequest
     ) -> RaspberryMintConfiguration:
-        return RaspberryMintConfiguration()
+        return cast(RaspberryMintConfiguration, request.param)
 
     async def test_filters(self, sut: RaspberryMint) -> None:
         assert sut.filters

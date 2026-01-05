@@ -1,5 +1,5 @@
 """
-Provide configuration for the Raspberry Mint extension.
+Configuration for the Raspberry Mint extension.
 """
 
 from __future__ import annotations

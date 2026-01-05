@@ -1,9 +1,10 @@
 """
-Provide configuration for the :py:class:`betty.project.extension.gramps.Gramps` extension.
+Configuration for the :py:class:`betty.project.extension.gramps.Gramps` extension.
 """
 
 from __future__ import annotations
 
+from pathlib import Path
 from typing import TYPE_CHECKING, Generic, Self, TypeVar
 
 from typing_extensions import override
@@ -18,7 +19,7 @@ from betty.assertion import (
     assert_record,
     assert_str,
 )
-from betty.config import Configuration
+from betty.config import Configuration, Sample
 from betty.config.collections.sequence import ConfigurationSequence
 from betty.exception import HumanFacingException
 from betty.gramps.loader import (
@@ -33,7 +34,6 @@ from betty.typing import internal
 
 if TYPE_CHECKING:
     from collections.abc import Iterable, Iterator, Mapping
-    from pathlib import Path
 
     from betty.serde.dump import Dump, DumpMapping
 
@@ -243,61 +243,9 @@ class FamilyTreeConfigurationSequence(ConfigurationSequence[FamilyTreeConfigurat
 
 class GrampsConfiguration(Configuration):
     """
-    Provide configuration for the :py:class:`betty.project.extension.gramps.Gramps` extension.
+    Configuration for the :py:class:`betty.project.extension.gramps.Gramps` extension.
 
-    .. tab-set::
-
-       .. tab-item:: YAML
-
-          .. code-block:: yaml
-
-              extensions:
-                gramps:
-                  configuration:
-                    executable: /path/to/gramps
-                    family_trees:
-                      - file: ./gramps.gpkg
-                        event-types:
-                          GrampsEventType: betty-event-type
-                          AnotherGrampsEventType: another-betty-event-type
-                        place-types:
-                          GrampsPlaceType: betty-place-type
-                          AnotherGrampsPlaceType: another-betty-place-type
-                        presence-roles:
-                          GrampsRole: betty-presence-role
-                          AnotherGrampsRole: another-betty-presence-role
-
-       .. tab-item:: JSON
-
-          .. code-block:: json
-
-              {
-                "extensions": {
-                  "gramps": {
-                    "configuration" : {
-                      "executable": "/path/to/gramps",
-                      "family_trees": [
-                        {
-                          "file": "./gramps.gpkg",
-                          "event-types": {
-                            "GrampsEventType": "betty-event-type",
-                            "AnotherGrampsEventType": "another-betty-event-type"
-                          },
-                          "place-types": {
-                            "GrampsPlaceType": "betty-place-type",
-                            "AnotherGrampsPlaceType": "another-betty-place-type"
-                          },
-                          "presence-roles": {
-                            "GrampsRole": "betty-presence-role",
-                            "AnotherGrampsRole": "another-betty-presence-role"
-                          }
-                        }
-                      ]
-                    }
-                  }
-                }
-              }
-
+    .. configuration:: betty.project.extension.gramps:GrampsConfiguration
 
     ``executable``
     ^^^^^^^^^^^^^^^^
@@ -421,3 +369,88 @@ class GrampsConfiguration(Configuration):
         if self.executable is not None:
             dump["executable"] = str(self.executable)
         return dump
+
+    @override
+    @classmethod
+    def samples(cls) -> Iterable[Sample[Self]]:
+        yield Sample(cls(), label="Minimal")
+        yield Sample(
+            cls(executable=Path("gramps.exe")), label="A custom Gramps executable"
+        )
+        yield Sample(
+            cls(
+                family_trees=FamilyTreeConfigurationSequence(
+                    [
+                        FamilyTreeConfiguration(source=Path("./gramps.gpkg")),
+                    ]
+                )
+            ),
+            label="Load a family tree from a file",
+        )
+        yield Sample(
+            cls(
+                family_trees=FamilyTreeConfigurationSequence(
+                    [
+                        FamilyTreeConfiguration(source="my-family-tree"),
+                    ]
+                )
+            ),
+            label="Load a family tree by its name directly from Gramps",
+        )
+        yield Sample(
+            cls(
+                family_trees=FamilyTreeConfigurationSequence(
+                    [
+                        FamilyTreeConfiguration(
+                            source="my-family-tree",
+                            event_types=EventTypeMapping(
+                                {
+                                    "GrampsEventType": PluginInstanceConfiguration(
+                                        "betty-event-type"
+                                    ),
+                                }
+                            ),
+                        ),
+                    ]
+                )
+            ),
+            label="Map a Gramps event type to a Betty event type",
+        )
+        yield Sample(
+            cls(
+                family_trees=FamilyTreeConfigurationSequence(
+                    [
+                        FamilyTreeConfiguration(
+                            source="my-family-tree",
+                            place_types=PlaceTypeMapping(
+                                {
+                                    "GrampsPlaceType": PluginInstanceConfiguration(
+                                        "betty-place-type"
+                                    ),
+                                }
+                            ),
+                        ),
+                    ]
+                )
+            ),
+            label="Map a Gramps place type to a Betty place type",
+        )
+        yield Sample(
+            cls(
+                family_trees=FamilyTreeConfigurationSequence(
+                    [
+                        FamilyTreeConfiguration(
+                            source="my-family-tree",
+                            event_types=EventTypeMapping(
+                                {
+                                    "GrampsRole": PluginInstanceConfiguration(
+                                        "betty-presence-role"
+                                    ),
+                                }
+                            ),
+                        ),
+                    ]
+                )
+            ),
+            label="Map a Gramps role to a Betty presence role",
+        )
