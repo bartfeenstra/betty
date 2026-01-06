@@ -40,7 +40,6 @@ from betty.exception import (
     reraise_within_context,
 )
 from betty.license import License, LicenseDefinition
-from betty.license.licenses import AllRightsReserved
 from betty.locale import DEFAULT_LOCALE, LocaleLike, ensure_locale, to_language_tag
 from betty.locale.localizable.assertion import assert_load_localizable
 from betty.locale.localizable.attr import (
@@ -88,6 +87,8 @@ class ExtensionInstanceConfigurationMapping(
 ):
     """
     Configure a project's enabled extensions.
+
+    .. configuration:: betty.project.config:ExtensionInstanceConfigurationMapping
     """
 
     def enable(self, *extensions: ResolvableId[ExtensionDefinition]) -> None:
@@ -99,11 +100,37 @@ class ExtensionInstanceConfigurationMapping(
             if extension not in self._configurations:
                 self.append(PluginInstanceConfiguration(extension))
 
+    @override
+    @classmethod
+    def samples(cls) -> Iterable[Sample[Self]]:
+        from betty.project.extension.raspberry_mint import RaspberryMint
+        from betty.project.extension.raspberry_mint.config import (
+            RaspberryMintConfiguration,
+        )
+
+        yield Sample(cls(), label="Minimal")
+        yield Sample(
+            cls([PluginInstanceConfiguration(RaspberryMint)]), label="Expanded"
+        )
+        yield Sample(
+            cls(
+                [
+                    PluginInstanceConfiguration(
+                        RaspberryMint,
+                        next(iter(RaspberryMintConfiguration.samples())).configuration,
+                    )
+                ]
+            ),
+            label="Full",
+        )
+
 
 @final
 class EntityTypeConfiguration(Configuration):
     """
     Configure a single entity type for a project.
+
+    .. configuration:: betty.project.config:EntityTypeConfiguration
     """
 
     def __init__(
@@ -167,6 +194,16 @@ class EntityTypeConfiguration(Configuration):
                 ).format(entity_type=entity_type.label)
             )
 
+    @override
+    @classmethod
+    def samples(cls) -> Iterable[Sample[Self]]:
+        from betty.ancestry.person import Person
+
+        yield Sample(EntityTypeConfiguration(Person), label="Minimal")
+        yield Sample(
+            EntityTypeConfiguration(Person, generate_html_list=True), label="Full"
+        )
+
 
 @final
 class EntityTypeConfigurationMapping(
@@ -174,6 +211,8 @@ class EntityTypeConfigurationMapping(
 ):
     """
     Configure the entity types for a project.
+
+    .. configuration:: betty.project.config:EntityTypeConfigurationMapping
     """
 
     @override
@@ -208,11 +247,22 @@ class EntityTypeConfigurationMapping(
                 with errors.absorb(Key(configuration.id)):
                     await configuration.validate(entity_type_repository)
 
+    @override
+    @classmethod
+    def samples(cls) -> Iterable[Sample[Self]]:
+        yield Sample(cls(), label="Minimal")
+        yield Sample(
+            cls([next(iter(EntityTypeConfiguration.samples())).configuration]),
+            label="Full",
+        )
+
 
 @final
 class LocaleConfiguration(Configuration):
     """
     Configure a single project locale.
+
+    .. configuration:: betty.project.config:LocaleConfiguration
     """
 
     def __init__(
@@ -226,6 +276,12 @@ class LocaleConfiguration(Configuration):
         if alias is not None and "/" in alias:
             raise HumanFacingException(_("Locale aliases must not contain slashes."))
         self._alias = alias
+
+    @override
+    def __eq__(self, other: Any) -> bool:
+        if not isinstance(other, type(self)):
+            return NotImplemented
+        return (self._locale, self._alias) == (other._locale, other._alias)
 
     @property
     def locale(self) -> Locale:
@@ -265,6 +321,12 @@ class LocaleConfiguration(Configuration):
             dump["alias"] = self._alias
         return dump
 
+    @override
+    @classmethod
+    def samples(cls) -> Iterable[Sample[Self]]:
+        yield Sample(cls(Locale("nl", "NL")), label="Minimal")
+        yield Sample(cls(Locale("nl", "NL"), alias="nl"), label="Full")
+
 
 @final
 class LocaleConfigurationMapping(
@@ -272,6 +334,8 @@ class LocaleConfigurationMapping(
 ):
     """
     Configure a project's locales.
+
+    .. configuration:: betty.project.config:LocaleConfigurationMapping
     """
 
     def __init__(self, configurations: Iterable[LocaleConfiguration] | None = None, /):
@@ -321,10 +385,20 @@ class LocaleConfigurationMapping(
         """
         return len(self) > 1
 
+    @override
+    @classmethod
+    def samples(cls) -> Iterable[Sample[Self]]:
+        yield Sample(cls(), label="Minimal")
+        yield Sample(
+            cls([next(iter(LocaleConfiguration.samples())).configuration]), label="Full"
+        )
+
 
 class CopyrightNoticePluginConfiguration(HumanFacingPluginDefinitionConfiguration):
     """
     Configure a :py:class:`betty.copyright_notice.CopyrightNoticeDefinition`.
+
+    .. configuration:: betty.project.config:CopyrightNoticePluginConfiguration
     """
 
     summary = RequiredLocalizableAttr("summary")
@@ -354,6 +428,19 @@ class CopyrightNoticePluginConfiguration(HumanFacingPluginDefinitionConfiguratio
             "text": dump_localizable(self.text),
         }
 
+    @override
+    @classmethod
+    def samples(cls) -> Iterable[Sample[Self]]:
+        yield Sample(
+            cls(
+                id="my-first-copyright-notice",
+                label="My First Copyright Notice",
+                summary="My First Copyright Notice is my first copyright notice",
+                text="My First Copyright Notice is my first copyright notice, all rights are reserved.",
+            ),
+            label="Default",
+        )
+
 
 class CopyrightNoticePluginConfigurationMapping(
     PluginDefinitionConfigurationMapping[
@@ -362,6 +449,8 @@ class CopyrightNoticePluginConfigurationMapping(
 ):
     """
     A configuration mapping for copyright notices.
+
+    .. configuration:: betty.project.config:CopyrightNoticePluginConfigurationMapping
     """
 
     @override
@@ -391,10 +480,23 @@ class CopyrightNoticePluginConfigurationMapping(
 
         return _ProjectConfigurationCopyrightNotice.plugin()
 
+    @override
+    @classmethod
+    def samples(cls) -> Iterable[Sample[Self]]:
+        yield Sample(cls(), label="Minimal")
+        yield Sample(
+            cls(
+                [next(iter(CopyrightNoticePluginConfiguration.samples())).configuration]
+            ),
+            label="Full",
+        )
+
 
 class LicensePluginConfiguration(HumanFacingPluginDefinitionConfiguration):
     """
     Configure a :py:class:`betty.license.LicenseDefinition`.
+
+    .. configuration:: betty.project.config:LicensePluginConfiguration
     """
 
     summary = RequiredLocalizableAttr("summary")
@@ -424,12 +526,27 @@ class LicensePluginConfiguration(HumanFacingPluginDefinitionConfiguration):
             "text": dump_localizable(self.text),
         }
 
+    @override
+    @classmethod
+    def samples(cls) -> Iterable[Sample[Self]]:
+        yield Sample(
+            cls(
+                id="my-first-license",
+                label="My First License",
+                summary="My First License is my first license",
+                text="My First License is my first license, and allows you o...",
+            ),
+            label="Default",
+        )
+
 
 class LicensePluginConfigurationMapping(
     PluginDefinitionConfigurationMapping[LicenseDefinition, LicensePluginConfiguration]
 ):
     """
     A configuration mapping for licenses.
+
+    .. configuration:: betty.project.config:LicensePluginConfigurationMapping
     """
 
     @override
@@ -459,6 +576,15 @@ class LicensePluginConfigurationMapping(
 
         return _ProjectConfigurationLicense.plugin()
 
+    @override
+    @classmethod
+    def samples(cls) -> Iterable[Sample[Self]]:
+        yield Sample(cls(), label="Minimal")
+        yield Sample(
+            cls([next(iter(LicensePluginConfiguration.samples())).configuration]),
+            label="Full",
+        )
+
 
 class EventTypePluginConfiguration(
     CountableHumanFacingPluginDefinitionConfiguration,
@@ -466,7 +592,29 @@ class EventTypePluginConfiguration(
 ):
     """
     Configure a :py:class:`betty.ancestry.event_type.EventTypeDefinition`.
+
+    .. configuration:: betty.project.config:EventTypePluginConfiguration
     """
+
+    @override
+    @classmethod
+    def samples(cls) -> Iterable[Sample[Self]]:
+        yield Sample(
+            cls(
+                id="moon-landing",
+                label="Moon Landing",
+                label_plural="Moon Landings",
+                label_countable=CountableStaticTranslations(
+                    {
+                        DEFAULT_LOCALE: {
+                            "one": "{count} moon landing",
+                            "other": "{count} moon landings",
+                        }
+                    }
+                ),
+            ),
+            label="Default",
+        )
 
 
 class EventTypePluginConfigurationMapping(
@@ -476,6 +624,8 @@ class EventTypePluginConfigurationMapping(
 ):
     """
     A configuration mapping for event types.
+
+    .. configuration:: betty.project.config:EventTypePluginConfigurationMapping
     """
 
     @override
@@ -499,11 +649,42 @@ class EventTypePluginConfigurationMapping(
 
         return _ProjectConfigurationEventType.plugin()
 
+    @override
+    @classmethod
+    def samples(cls) -> Iterable[Sample[Self]]:
+        yield Sample(cls(), label="Minimal")
+        yield Sample(
+            cls([next(iter(EventTypePluginConfiguration.samples())).configuration]),
+            label="Full",
+        )
+
 
 class PlaceTypePluginConfiguration(CountableHumanFacingPluginDefinitionConfiguration):
     """
     Configure a :py:class:`betty.ancestry.place_type.PlaceTypeDefinition`.
+
+    .. configuration:: betty.project.config:PlaceTypePluginConfiguration
     """
+
+    @override
+    @classmethod
+    def samples(cls) -> Iterable[Sample[Self]]:
+        yield Sample(
+            cls(
+                id="moon",
+                label="Moon",
+                label_plural="Moons",
+                label_countable=CountableStaticTranslations(
+                    {
+                        DEFAULT_LOCALE: {
+                            "one": "{count} moon",
+                            "other": "{count} moons",
+                        }
+                    }
+                ),
+            ),
+            label="Default",
+        )
 
 
 class PlaceTypePluginConfigurationMapping(
@@ -513,6 +694,8 @@ class PlaceTypePluginConfigurationMapping(
 ):
     """
     A configuration mapping for place types.
+
+    .. configuration:: betty.project.config:PlaceTypePluginConfigurationMapping
     """
 
     @override
@@ -536,6 +719,15 @@ class PlaceTypePluginConfigurationMapping(
 
         return _ProjectConfigurationPlaceType.plugin()
 
+    @override
+    @classmethod
+    def samples(cls) -> Iterable[Sample[Self]]:
+        yield Sample(cls(), label="Minimal")
+        yield Sample(
+            cls([next(iter(PlaceTypePluginConfiguration.samples())).configuration]),
+            label="Full",
+        )
+
 
 class PresenceRolePluginConfiguration(
     CountableHumanFacingPluginDefinitionConfiguration
@@ -543,6 +735,26 @@ class PresenceRolePluginConfiguration(
     """
     Configure a :py:class:`betty.ancestry.presence_role.PresenceRoleDefinition`.
     """
+
+    @override
+    @classmethod
+    def samples(cls) -> Iterable[Sample[Self]]:
+        yield Sample(
+            cls(
+                id="astronaut",
+                label="Astronaut",
+                label_plural="Astronauts",
+                label_countable=CountableStaticTranslations(
+                    {
+                        DEFAULT_LOCALE: {
+                            "one": "{count} astronaut",
+                            "other": "{count} astronauts",
+                        }
+                    }
+                ),
+            ),
+            label="Default",
+        )
 
 
 class PresenceRolePluginConfigurationMapping(
@@ -552,6 +764,8 @@ class PresenceRolePluginConfigurationMapping(
 ):
     """
     A configuration mapping for presence roles.
+
+    .. configuration:: betty.project.config:PresenceRolePluginConfigurationMapping
     """
 
     @override
@@ -575,11 +789,42 @@ class PresenceRolePluginConfigurationMapping(
 
         return _ProjectConfigurationPresenceRole.plugin()
 
+    @override
+    @classmethod
+    def samples(cls) -> Iterable[Sample[Self]]:
+        yield Sample(cls(), label="Minimal")
+        yield Sample(
+            cls([next(iter(PresenceRolePluginConfiguration.samples())).configuration]),
+            label="Full",
+        )
+
 
 class GenderPluginConfiguration(CountableHumanFacingPluginDefinitionConfiguration):
     """
     Configure a :py:class:`betty.ancestry.gender.GenderDefinition`.
+
+    .. configuration:: betty.project.config:GenderPluginConfiguration
     """
+
+    @override
+    @classmethod
+    def samples(cls) -> Iterable[Sample[Self]]:
+        yield Sample(
+            cls(
+                id="genderqueer",
+                label="Genderqueer",
+                label_plural="Genderqueers",
+                label_countable=CountableStaticTranslations(
+                    {
+                        DEFAULT_LOCALE: {
+                            "one": "{count} genderqueer",
+                            "other": "{count} genderqueers",
+                        }
+                    }
+                ),
+            ),
+            label="Default",
+        )
 
 
 class GenderPluginConfigurationMapping(
@@ -587,6 +832,8 @@ class GenderPluginConfigurationMapping(
 ):
     """
     A configuration mapping for genders.
+
+    .. configuration:: betty.project.config:GenderPluginConfigurationMapping
     """
 
     @override
@@ -610,13 +857,22 @@ class GenderPluginConfigurationMapping(
 
         return _ProjectConfigurationGender.plugin()
 
+    @override
+    @classmethod
+    def samples(cls) -> Iterable[Sample[Self]]:
+        yield Sample(cls(), label="Minimal")
+        yield Sample(
+            cls([next(iter(GenderPluginConfiguration.samples())).configuration]),
+            label="Full",
+        )
+
 
 @final
 class ProjectConfiguration(Configuration):
     """
     Configuration for a :py:class:`betty.project.Project`.
 
-    .. configuration:: betty.project:ProjectConfiguration
+    .. configuration:: betty.project.config:ProjectConfiguration
 
     ``url``
     -------
@@ -806,15 +1062,25 @@ class ProjectConfiguration(Configuration):
     An object containing the extension's own configuration, if it provides any configuration options.
     """
 
+    license: PluginInstanceConfiguration[LicenseDefinition, License]
+    """
+    The project-wide license.
+    """
+    copyright_notice: PluginInstanceConfiguration[
+        CopyrightNoticeDefinition, CopyrightNotice
+    ]
+    """
+    The project-wide copyright notice.
+    """
     title = RequiredLocalizableAttr("title")
     author = OptionalLocalizableAttr("author")
 
     def __init__(
         self,
         *,
-        url: str = "https://example.com",
+        title: LocalizableLike,
+        url: str,
         clean_urls: bool = False,
-        title: LocalizableLike = "Betty",
         author: LocalizableLike | None = None,
         entity_types: EntityTypeConfigurationMapping | None = None,
         event_types: EventTypePluginConfigurationMapping | None = None,
@@ -835,11 +1101,8 @@ class ProjectConfiguration(Configuration):
         name: MachineName | None = None,
         logo: Path | None = None,
     ):
-        from betty.copyright_notice.copyright_notices import ProjectAuthor
-
         super().__init__()
         self._name = name
-        self._computed_name: str | None = None
         self._url = url
         self._clean_urls = clean_urls
         self.title = title
@@ -847,25 +1110,26 @@ class ProjectConfiguration(Configuration):
         self._entity_types = (
             EntityTypeConfigurationMapping() if entity_types is None else entity_types
         )
-        self.copyright_notice = copyright_notice or PluginInstanceConfiguration[
-            CopyrightNoticeDefinition, CopyrightNotice
-        ](ProjectAuthor)
-        self._copyright_notices = (
-            CopyrightNoticePluginConfigurationMapping()
-            if copyright_notices is None
-            else copyright_notices
-        )
-        self.license = license or PluginInstanceConfiguration[
-            LicenseDefinition, License
-        ](AllRightsReserved)
-        self._licenses = (
-            LicensePluginConfigurationMapping() if licenses is None else licenses
-        )
         self._event_types = (
             EventTypePluginConfigurationMapping()
             if event_types is None
             else event_types
         )
+        self.copyright_notice = (
+            self._default_copyright_notice()
+            if copyright_notice is None
+            else copyright_notice
+        )
+        self._copyright_notices = (
+            CopyrightNoticePluginConfigurationMapping()
+            if copyright_notices is None
+            else copyright_notices
+        )
+        self.license = self._default_license() if license is None else license
+        self._licenses = (
+            LicensePluginConfigurationMapping() if licenses is None else licenses
+        )
+        self._locales = self._default_locales() if locales is None else locales
         self._place_types = (
             PlaceTypePluginConfigurationMapping()
             if place_types is None
@@ -885,9 +1149,29 @@ class ProjectConfiguration(Configuration):
             else extensions
         )
         self._debug = debug
-        self._locales = LocaleConfigurationMapping() if locales is None else locales
         self._lifetime_threshold = lifetime_threshold
         self._logo = logo
+
+    def _default_copyright_notice(
+        self,
+    ) -> PluginInstanceConfiguration[CopyrightNoticeDefinition, CopyrightNotice]:
+        from betty.copyright_notice.copyright_notices import ProjectAuthor
+
+        return PluginInstanceConfiguration[CopyrightNoticeDefinition, CopyrightNotice](
+            ProjectAuthor
+        )
+
+    def _default_license(
+        self,
+    ) -> PluginInstanceConfiguration[LicenseDefinition, License]:
+        from betty.license.licenses import AllRightsReserved
+
+        return PluginInstanceConfiguration[LicenseDefinition, License](
+            AllRightsReserved
+        )
+
+    def _default_locales(self) -> LocaleConfigurationMapping:
+        return LocaleConfigurationMapping()
 
     @override
     @property
@@ -1088,7 +1372,7 @@ class ProjectConfiguration(Configuration):
             **assert_record(
                 OptionalField("name", assert_or(assert_str(), assert_none())),
                 RequiredField("url", assert_str()),
-                OptionalField("title", assert_load_localizable),
+                RequiredField("title", assert_load_localizable),
                 OptionalField("author", assert_load_localizable),
                 OptionalField("logo", assert_or(assert_path(), assert_none())),
                 OptionalField("clean_urls", assert_bool()),
@@ -1115,36 +1399,49 @@ class ProjectConfiguration(Configuration):
     @override
     def dump(self) -> DumpMapping[Dump]:
         dump: DumpMapping[Dump] = {
-            "name": self.name,
-            "url": self.url,
             "title": dump_localizable(self.title),
-            "clean_urls": self.clean_urls,
-            "logo": str(self._logo) if self._logo else None,
-            "debug": self.debug,
-            "lifetime_threshold": self.lifetime_threshold,
-            "locales": self.locales.dump(),
-            "extensions": self.extensions.dump(),
-            "entity_types": self.entity_types.dump(),
-            "copyright_notice": self.copyright_notice.dump(),
-            "copyright_notices": self.copyright_notices.dump(),
-            "license": self.license.dump(),
-            "licenses": self.licenses.dump(),
-            "event_types": self.event_types.dump(),
-            "genders": self.genders.dump(),
-            "place_types": self.place_types.dump(),
-            "presence_roles": self.presence_roles.dump(),
+            "url": self.url,
         }
         if self.author is not None:
             dump["author"] = dump_localizable(self.author)
+        if self.clean_urls:
+            dump["clean_urls"] = self.clean_urls
+        if self.copyright_notice != self._default_copyright_notice():
+            dump["copyright_notice"] = self.copyright_notice.dump()
+        if self.copyright_notices:
+            dump["copyright_notices"] = self.copyright_notices.dump()
+        if self.debug:
+            dump["debug"] = self.debug
+        if self.entity_types:
+            dump["entity_types"] = self.entity_types.dump()
+        if self.event_types:
+            dump["event_types"] = self.event_types.dump()
+        if self.extensions:
+            dump["extensions"] = self.extensions.dump()
+        if self.genders:
+            dump["genders"] = self.genders.dump()
+        if self.license != self._default_license():
+            dump["license"] = self.license.dump()
+        if self.licenses:
+            dump["licenses"] = self.licenses.dump()
+        if self.lifetime_threshold != DEFAULT_LIFETIME_THRESHOLD:
+            dump["lifetime_threshold"] = self.lifetime_threshold
+        if self.locales != self._default_locales():
+            dump["locales"] = self.locales.dump()
+        if self.logo:
+            dump["logo"] = str(self.logo)
+        if self.name is not None:
+            dump["name"] = self.name
+        if self.place_types:
+            dump["place_types"] = self.place_types.dump()
+        if self.presence_roles:
+            dump["presence_roles"] = self.presence_roles.dump()
         return dump
 
     @override
     @classmethod
     def samples(cls) -> Iterable[Sample[Self]]:
-        from betty.ancestry.file import File
-        from betty.ancestry.person import Person
-
-        yield Sample(cls(), label="Minimal")
+        yield Sample(cls(title="Betty", url="https://example.com"), label="Minimal")
         yield Sample(
             cls(
                 url="https://ancestry.example.com/betty",
@@ -1155,86 +1452,22 @@ class ProjectConfiguration(Configuration):
                 author="Bart Feenstra",
                 logo=Path("my-ancestry-logo.png"),
                 lifetime_threshold=123,
-                locales=LocaleConfigurationMapping(
-                    [
-                        LocaleConfiguration("en-US", alias="en"),
-                        LocaleConfiguration("nl"),
-                    ]
-                ),
-                entity_types=EntityTypeConfigurationMapping(
-                    [
-                        EntityTypeConfiguration(Person, generate_html_list=True),
-                        EntityTypeConfiguration(File, generate_html_list=False),
-                    ]
-                ),
-                event_types=EventTypePluginConfigurationMapping(
-                    [
-                        EventTypePluginConfiguration(
-                            id="moon-landing",
-                            label="Moon Landing",
-                            label_plural="Moon Landings",
-                            label_countable=CountableStaticTranslations(
-                                {
-                                    DEFAULT_LOCALE: {
-                                        "one": "{count} moon landing",
-                                        "other": "{count} moon landings",
-                                    }
-                                }
-                            ),
-                        )
-                    ]
-                ),
-                genders=GenderPluginConfigurationMapping(
-                    [
-                        GenderPluginConfiguration(
-                            id="genderqueer",
-                            label="Genderqueer",
-                            label_plural="Genderqueers",
-                            label_countable=CountableStaticTranslations(
-                                {
-                                    DEFAULT_LOCALE: {
-                                        "one": "{count} genderqueer",
-                                        "other": "{count} genderqueers",
-                                    }
-                                }
-                            ),
-                        )
-                    ]
-                ),
-                place_types=PlaceTypePluginConfigurationMapping(
-                    [
-                        PlaceTypePluginConfiguration(
-                            id="moon",
-                            label="Moon",
-                            label_plural="Moons",
-                            label_countable=CountableStaticTranslations(
-                                {
-                                    DEFAULT_LOCALE: {
-                                        "one": "{count} moon",
-                                        "other": "{count} moons",
-                                    }
-                                }
-                            ),
-                        )
-                    ]
-                ),
-                presence_roles=PresenceRolePluginConfigurationMapping(
-                    [
-                        PresenceRolePluginConfiguration(
-                            id="astronaut",
-                            label="Astronaut",
-                            label_plural="Astronauts",
-                            label_countable=CountableStaticTranslations(
-                                {
-                                    DEFAULT_LOCALE: {
-                                        "one": "{count} astronaut",
-                                        "other": "{count} astronauts",
-                                    }
-                                }
-                            ),
-                        )
-                    ]
-                ),
+                locales=next(iter(LocaleConfigurationMapping.samples())).configuration,
+                entity_types=next(
+                    iter(EntityTypeConfigurationMapping.samples())
+                ).configuration,
+                event_types=next(
+                    iter(EventTypePluginConfigurationMapping.samples())
+                ).configuration,
+                genders=next(
+                    iter(GenderPluginConfigurationMapping.samples())
+                ).configuration,
+                place_types=next(
+                    iter(PlaceTypePluginConfigurationMapping.samples())
+                ).configuration,
+                presence_roles=next(
+                    iter(PresenceRolePluginConfigurationMapping.samples())
+                ).configuration,
             ),
             label="Full",
         )

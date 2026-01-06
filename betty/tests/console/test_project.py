@@ -21,6 +21,7 @@ async def test_add_project_argument__with_argument(
     isolated_app: App, tmp_path: Path
 ) -> None:
     configuration: DumpMapping[Dump] = {
+        "title": "Betty",
         "url": "https://example.com",
     }
     configuration_file_path = tmp_path / "betty.json"
@@ -43,6 +44,7 @@ async def test_add_project_argument__without_argument_with_file(
     isolated_app: App, tmp_path: Path
 ) -> None:
     configuration: DumpMapping[Dump] = {
+        "title": "Betty",
         "url": "https://example.com",
     }
     configuration_file_path = tmp_path / "betty.json"

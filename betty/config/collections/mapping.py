@@ -6,7 +6,7 @@ from __future__ import annotations
 
 from abc import abstractmethod
 from contextlib import suppress
-from typing import TYPE_CHECKING, Self
+from typing import TYPE_CHECKING, Any, Self
 
 from typing_extensions import TypeVar, override
 
@@ -153,6 +153,15 @@ class OrderedConfigurationMapping(
 
     To test your own subclasses, use :py:class:`betty.test_utils.config.collections.mapping.OrderedConfigurationMappingTestBase`.
     """
+
+    @override
+    def __eq__(self, other: Any) -> bool:
+        eq = super().__eq__(other)
+        if eq is not True:
+            return eq
+        if not isinstance(other, type(self)):
+            return NotImplemented
+        return list(self.keys()) == list(other.keys())
 
     @override
     @classmethod

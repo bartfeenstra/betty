@@ -17,10 +17,11 @@ from betty.assertion import (
     assert_or,
     assert_record,
 )
-from betty.config import Configuration
+from betty.config import Configuration, Sample
 from betty.config.collections import ConfigurationCollection, ConfigurationKey
 from betty.config.collections.mapping import ConfigurationMapping
 from betty.config.collections.sequence import ConfigurationSequence
+from betty.config.color import ColorConfiguration
 from betty.locale.localizable.assertion import (
     assert_load_countable_localizable,
     assert_load_localizable,
@@ -250,6 +251,8 @@ class PluginDefinitionConfigurationMapping(
 class PluginInstanceConfiguration(Generic[_PluginDefinitionT, _PluginT], Configuration):
     """
     Configure a single plugin instance.
+
+    .. configuration:: betty.plugin.config:PluginInstanceConfiguration
     """
 
     def __init__(
@@ -261,6 +264,12 @@ class PluginInstanceConfiguration(Generic[_PluginDefinitionT, _PluginT], Configu
         super().__init__()
         self._id = assert_machine_name()(resolve_id(id))
         self._configuration = configuration
+
+    @override
+    def __eq__(self, other: Any) -> bool:
+        if not isinstance(other, type(self)):
+            return NotImplemented
+        return (self.id, self.configuration) == (other.id, other.configuration)
 
     @property
     def id(self) -> MachineName:
@@ -300,6 +309,28 @@ class PluginInstanceConfiguration(Generic[_PluginDefinitionT, _PluginT], Configu
             if isinstance(configuration, Configuration)
             else configuration,
         }
+
+    @override
+    @classmethod
+    def samples(cls) -> Iterable[Sample[Self]]:
+        from betty.project.extension.raspberry_mint import RaspberryMint
+        from betty.project.extension.raspberry_mint.config import (
+            RaspberryMintConfiguration,
+        )
+
+        yield Sample(
+            cls(
+                RaspberryMint,  # type: ignore[arg-type]
+            ),
+            label="Minimal",
+        )
+        yield Sample(
+            cls(
+                RaspberryMint,  # type: ignore[arg-type]
+                RaspberryMintConfiguration(primary_color=ColorConfiguration("#ff0000")),
+            ),
+            label="Full",
+        )
 
 
 ShorthandPluginInstanceConfigurationSequence: TypeAlias = (
@@ -346,6 +377,8 @@ class PluginInstanceConfigurationMapping(
 ):
     """
     Configure plugin instances, keyed by their plugin IDs.
+
+    .. configuration:: betty.plugin.config:PluginInstanceConfigurationMapping
     """
 
     def __init__(
@@ -382,6 +415,19 @@ class PluginInstanceConfigurationMapping(
         assert isinstance(item_dump, Mapping)
         return item_dump, cast(str, item_dump.pop("id"))
 
+    @override
+    @classmethod
+    def samples(cls) -> Iterable[Sample[Self]]:
+        yield Sample(cls(), label="Minimal")
+        yield Sample(
+            cls(
+                [
+                    next(iter(PluginInstanceConfiguration.samples())).configuration,  # type: ignore[list-item]
+                ]
+            ),
+            label="Full",
+        )
+
 
 @final
 class PluginInstanceConfigurationSequence(
@@ -390,7 +436,24 @@ class PluginInstanceConfigurationSequence(
 ):
     """
     A sequence of plugin instance configurations.
+
+    .. configuration:: betty.plugin.config:PluginInstanceConfigurationSequence
     """
+
+    @override
+    @classmethod
+    def samples(
+        cls,
+    ) -> Iterable[Sample[Self]]:
+        yield Sample(cls(), label="Minimal")
+        yield Sample(
+            cls(
+                [
+                    next(iter(PluginInstanceConfiguration.samples())).configuration,  # type: ignore[list-item]
+                ]
+            ),
+            label="Full",
+        )
 
 
 ShorthandPluginInstanceConfigurationSequenceSequence: TypeAlias = (
@@ -407,6 +470,8 @@ class PluginInstanceConfigurationSequenceSequence(
 ):
     """
     A sequence of sequences of plugin instance configurations.
+
+    .. configuration:: betty.plugin.config:PluginInstanceConfigurationSequenceSequence
     """
 
     def __init__(
@@ -431,3 +496,17 @@ class PluginInstanceConfigurationSequenceSequence(
         cls,
     ) -> type[PluginInstanceConfigurationSequence[_PluginDefinitionT, _PluginT]]:
         return PluginInstanceConfigurationSequence
+
+    @override
+    @classmethod
+    def samples(cls) -> Iterable[Sample[Self]]:
+        yield Sample(
+            cls(
+                [
+                    next(  # type: ignore[list-item]
+                        iter(PluginInstanceConfigurationSequence.samples())
+                    ).configuration
+                ]
+            ),
+            label="Default",
+        )

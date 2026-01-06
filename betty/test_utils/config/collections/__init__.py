@@ -11,15 +11,17 @@ import pytest
 
 from betty.config import Configuration
 from betty.config.collections import ConfigurationCollection, ConfigurationKey
+from betty.test_utils.config import ConfigurationTestBase
 
 _ConfigurationT = TypeVar("_ConfigurationT", bound=Configuration)
+_ConfigurationValueT = TypeVar("_ConfigurationValueT", bound=Configuration)
 _ConfigurationKeyT = TypeVar("_ConfigurationKeyT", bound=ConfigurationKey)
 _ResolvableConfigurationKeyT = TypeVar("_ResolvableConfigurationKeyT")
 
 ConfigurationCollectionTestBaseNewSut: TypeAlias = Callable[
-    [Iterable[_ConfigurationT]],
+    [Iterable[_ConfigurationValueT]],
     ConfigurationCollection[
-        _ConfigurationKeyT, _ResolvableConfigurationKeyT, _ConfigurationT
+        _ConfigurationKeyT, _ResolvableConfigurationKeyT, _ConfigurationValueT
     ],
 ]
 
@@ -28,12 +30,21 @@ ConfigurationCollectionTestBaseSutConfigurationKeys: TypeAlias = tuple[
 ]
 
 ConfigurationCollectionTestBaseSutConfigurations: TypeAlias = tuple[
-    _ConfigurationT, _ConfigurationT, _ConfigurationT, _ConfigurationT
+    _ConfigurationValueT,
+    _ConfigurationValueT,
+    _ConfigurationValueT,
+    _ConfigurationValueT,
 ]
 
 
 class ConfigurationCollectionTestBase(
-    Generic[_ConfigurationKeyT, _ResolvableConfigurationKeyT, _ConfigurationT]
+    ConfigurationTestBase[_ConfigurationT],
+    Generic[
+        _ConfigurationT,
+        _ConfigurationKeyT,
+        _ResolvableConfigurationKeyT,
+        _ConfigurationValueT,
+    ],
 ):
     """
     A base class for testing :py:class:`betty.config.collections.ConfigurationCollection` implementations.
@@ -43,7 +54,7 @@ class ConfigurationCollectionTestBase(
     def new_sut(
         self,
     ) -> ConfigurationCollectionTestBaseNewSut[
-        _ConfigurationT, _ConfigurationKeyT, _ResolvableConfigurationKeyT
+        _ConfigurationValueT, _ConfigurationKeyT, _ResolvableConfigurationKeyT
     ]:
         """
         Provide a factory for the system(s) under test.
@@ -62,7 +73,7 @@ class ConfigurationCollectionTestBase(
     @pytest.fixture
     def sut_configurations(
         self,
-    ) -> ConfigurationCollectionTestBaseSutConfigurations[_ConfigurationT]:
+    ) -> ConfigurationCollectionTestBaseSutConfigurations[_ConfigurationValueT]:
         """
         Provide configurations for the system(s) under test.
         """
@@ -72,10 +83,10 @@ class ConfigurationCollectionTestBase(
     def sut(
         self,
         new_sut: ConfigurationCollectionTestBaseNewSut[
-            _ConfigurationT, _ConfigurationKeyT, _ResolvableConfigurationKeyT
+            _ConfigurationValueT, _ConfigurationKeyT, _ResolvableConfigurationKeyT
         ],
     ) -> ConfigurationCollection[
-        _ConfigurationKeyT, _ResolvableConfigurationKeyT, _ConfigurationT
+        _ConfigurationKeyT, _ResolvableConfigurationKeyT, _ConfigurationValueT
     ]:
         """
         Provide the system(s) under test.
@@ -85,7 +96,7 @@ class ConfigurationCollectionTestBase(
     def test_replace__without_items(
         self,
         sut: ConfigurationCollection[
-            _ConfigurationKeyT, _ResolvableConfigurationKeyT, _ConfigurationT
+            _ConfigurationKeyT, _ResolvableConfigurationKeyT, _ConfigurationValueT
         ],
     ) -> None:
         """
@@ -99,10 +110,10 @@ class ConfigurationCollectionTestBase(
     def test_replace__with_items(
         self,
         sut: ConfigurationCollection[
-            _ConfigurationKeyT, _ResolvableConfigurationKeyT, _ConfigurationT
+            _ConfigurationKeyT, _ResolvableConfigurationKeyT, _ConfigurationValueT
         ],
         sut_configurations: ConfigurationCollectionTestBaseSutConfigurations[
-            _ConfigurationT
+            _ConfigurationValueT
         ],
     ) -> None:
         """
@@ -116,13 +127,13 @@ class ConfigurationCollectionTestBase(
     def test___getitem__(
         self,
         new_sut: ConfigurationCollectionTestBaseNewSut[
-            _ConfigurationT, _ConfigurationKeyT, _ResolvableConfigurationKeyT
+            _ConfigurationValueT, _ConfigurationKeyT, _ResolvableConfigurationKeyT
         ],
         sut: ConfigurationCollection[
-            _ConfigurationKeyT, _ResolvableConfigurationKeyT, _ConfigurationT
+            _ConfigurationKeyT, _ResolvableConfigurationKeyT, _ConfigurationValueT
         ],
         sut_configurations: ConfigurationCollectionTestBaseSutConfigurations[
-            _ConfigurationT
+            _ConfigurationValueT
         ],
     ) -> None:
         """
@@ -135,10 +146,10 @@ class ConfigurationCollectionTestBase(
     def test_keys(
         self,
         new_sut: ConfigurationCollectionTestBaseNewSut[
-            _ConfigurationT, _ConfigurationKeyT, _ResolvableConfigurationKeyT
+            _ConfigurationValueT, _ConfigurationKeyT, _ResolvableConfigurationKeyT
         ],
         sut_configurations: ConfigurationCollectionTestBaseSutConfigurations[
-            _ConfigurationT
+            _ConfigurationValueT
         ],
         sut_configuration_keys: ConfigurationCollectionTestBaseSutConfigurationKeys[
             _ConfigurationKeyT
@@ -153,10 +164,10 @@ class ConfigurationCollectionTestBase(
     def test_values(
         self,
         new_sut: ConfigurationCollectionTestBaseNewSut[
-            _ConfigurationT, _ConfigurationKeyT, _ResolvableConfigurationKeyT
+            _ConfigurationValueT, _ConfigurationKeyT, _ResolvableConfigurationKeyT
         ],
         sut_configurations: ConfigurationCollectionTestBaseSutConfigurations[
-            _ConfigurationT
+            _ConfigurationValueT
         ],
     ) -> None:
         """
@@ -168,10 +179,10 @@ class ConfigurationCollectionTestBase(
     def test___delitem__(
         self,
         new_sut: ConfigurationCollectionTestBaseNewSut[
-            _ConfigurationT, _ConfigurationKeyT, _ResolvableConfigurationKeyT
+            _ConfigurationValueT, _ConfigurationKeyT, _ResolvableConfigurationKeyT
         ],
         sut_configurations: ConfigurationCollectionTestBaseSutConfigurations[
-            _ConfigurationT
+            _ConfigurationValueT
         ],
         sut_configuration_keys: ConfigurationCollectionTestBaseSutConfigurationKeys[
             _ConfigurationKeyT
@@ -194,10 +205,10 @@ class ConfigurationCollectionTestBase(
     def test___len__(
         self,
         new_sut: ConfigurationCollectionTestBaseNewSut[
-            _ConfigurationT, _ConfigurationKeyT, _ResolvableConfigurationKeyT
+            _ConfigurationValueT, _ConfigurationKeyT, _ResolvableConfigurationKeyT
         ],
         sut_configurations: ConfigurationCollectionTestBaseSutConfigurations[
-            _ConfigurationT
+            _ConfigurationValueT
         ],
     ) -> None:
         """
@@ -214,10 +225,10 @@ class ConfigurationCollectionTestBase(
     def test_prepend(
         self,
         new_sut: ConfigurationCollectionTestBaseNewSut[
-            _ConfigurationT, _ConfigurationKeyT, _ResolvableConfigurationKeyT
+            _ConfigurationValueT, _ConfigurationKeyT, _ResolvableConfigurationKeyT
         ],
         sut_configurations: ConfigurationCollectionTestBaseSutConfigurations[
-            _ConfigurationT
+            _ConfigurationValueT
         ],
     ) -> None:
         """
@@ -234,10 +245,10 @@ class ConfigurationCollectionTestBase(
     def test_append(
         self,
         new_sut: ConfigurationCollectionTestBaseNewSut[
-            _ConfigurationT, _ConfigurationKeyT, _ResolvableConfigurationKeyT
+            _ConfigurationValueT, _ConfigurationKeyT, _ResolvableConfigurationKeyT
         ],
         sut_configurations: ConfigurationCollectionTestBaseSutConfigurations[
-            _ConfigurationT
+            _ConfigurationValueT
         ],
     ) -> None:
         """
@@ -258,10 +269,10 @@ class ConfigurationCollectionTestBase(
     def test_insert(
         self,
         new_sut: ConfigurationCollectionTestBaseNewSut[
-            _ConfigurationT, _ConfigurationKeyT, _ResolvableConfigurationKeyT
+            _ConfigurationValueT, _ConfigurationKeyT, _ResolvableConfigurationKeyT
         ],
         sut_configurations: ConfigurationCollectionTestBaseSutConfigurations[
-            _ConfigurationT
+            _ConfigurationValueT
         ],
     ) -> None:
         """

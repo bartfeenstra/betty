@@ -8,6 +8,7 @@ from typing import TYPE_CHECKING, Generic, Self, TypeVar, cast, final
 
 from typing_extensions import override
 
+from betty.config import Configuration
 from betty.config.factory import ConfigurationDependentSelfFactory
 from betty.machine_name import MachineName
 from betty.plugin import Plugin, PluginDefinition, PluginTypeDefinition
@@ -28,6 +29,7 @@ if TYPE_CHECKING:
         ConfigurationCollectionTestBaseSutConfigurations,
     )
 
+_ConfigurationT = TypeVar("_ConfigurationT", bound=Configuration)
 _PluginT = TypeVar("_PluginT", bound=Plugin)
 _PluginDefinitionT = TypeVar("_PluginDefinitionT", bound=PluginDefinition)
 _PluginDefinitionConfigurationT = TypeVar(
@@ -37,11 +39,12 @@ _PluginDefinitionConfigurationT = TypeVar(
 
 class PluginDefinitionConfigurationMappingTestBase(
     ConfigurationMappingTestBase[
+        _ConfigurationT,
         MachineName,
         ResolvableId[_PluginDefinitionT],
         _PluginDefinitionConfigurationT,
     ],
-    Generic[_PluginDefinitionT, _PluginDefinitionConfigurationT],
+    Generic[_ConfigurationT, _PluginDefinitionT, _PluginDefinitionConfigurationT],
 ):
     """
     A base class for testing :py:class:`betty.plugin.config.PluginDefinitionConfigurationMapping` implementations.

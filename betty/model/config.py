@@ -100,6 +100,8 @@ class EntityReference(Configuration):
 class EntityReferenceSequence(ConfigurationSequence[EntityReference]):
     """
     Configuration for a sequence of references to entities from the project's ancestry.
+
+    .. configuration:: betty.model.config:EntityReferenceSequence
     """
 
     @override
@@ -117,3 +119,11 @@ class EntityReferenceSequence(ConfigurationSequence[EntityReference]):
             for index, reference in enumerate(self):
                 with errors.absorb(Index(index)):
                     await reference.validate(entity_type_repository)
+
+    @override
+    @classmethod
+    def samples(cls) -> Iterable[Sample[Self]]:
+        from betty.ancestry.person import Person
+
+        yield Sample(cls(), label="Minimal")
+        yield Sample(cls([EntityReference(Person, "123")]), label="Expanded")

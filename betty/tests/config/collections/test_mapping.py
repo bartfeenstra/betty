@@ -46,9 +46,45 @@ class ConfigurationMappingTestConfiguration(Configuration):
         }
 
 
-class TestConfigurationMapping(
-    ConfigurationMappingTestBase[str, str, ConfigurationMappingTestConfiguration]
+class ConfigurationMappingTestConfigurationMapping(
+    ConfigurationMapping[str, str, ConfigurationMappingTestConfiguration]
 ):
+    @override
+    def _resolve_key(self, configuration_key: str, /) -> str:
+        return configuration_key
+
+    @override
+    @classmethod
+    def _item_cls(cls) -> type[ConfigurationMappingTestConfiguration]:
+        return ConfigurationMappingTestConfiguration
+
+    @override
+    def _get_key(self, configuration: ConfigurationMappingTestConfiguration, /) -> str:
+        return configuration.key
+
+    @override
+    @classmethod
+    def _load_key(cls, item_dump: Dump, key_dump: str, /) -> Dump:
+        assert isinstance(item_dump, Mapping)
+        item_dump["key"] = key_dump
+        return item_dump
+
+    @override
+    def _dump_key(self, item_dump: Dump, /) -> tuple[Dump, str]:
+        assert isinstance(item_dump, Mapping)
+        return item_dump, cast(str, item_dump.pop("key"))
+
+
+class TestConfigurationMapping(
+    ConfigurationMappingTestBase[
+        ConfigurationMapping[str, str, ConfigurationMappingTestConfiguration],
+        str,
+        str,
+        ConfigurationMappingTestConfiguration,
+    ]
+):
+    sut_cls = ConfigurationMapping
+
     @override
     @pytest.fixture
     def sut_configuration_keys(
@@ -122,8 +158,8 @@ class TestConfigurationMapping(
             assert configuration_key in dump
 
 
-class ConfigurationMappingTestConfigurationMapping(
-    ConfigurationMapping[str, str, ConfigurationMappingTestConfiguration]
+class OrderedConfigurationMappingTestOrderedConfigurationMapping(
+    OrderedConfigurationMapping[str, str, ConfigurationMappingTestConfiguration]
 ):
     @override
     def _resolve_key(self, configuration_key: str, /) -> str:
@@ -138,22 +174,17 @@ class ConfigurationMappingTestConfigurationMapping(
     def _get_key(self, configuration: ConfigurationMappingTestConfiguration, /) -> str:
         return configuration.key
 
-    @override
-    @classmethod
-    def _load_key(cls, item_dump: Dump, key_dump: str, /) -> Dump:
-        assert isinstance(item_dump, Mapping)
-        item_dump["key"] = key_dump
-        return item_dump
-
-    @override
-    def _dump_key(self, item_dump: Dump, /) -> tuple[Dump, str]:
-        assert isinstance(item_dump, Mapping)
-        return item_dump, cast(str, item_dump.pop("key"))
-
 
 class TestOrderedConfigurationMapping(
-    ConfigurationMappingTestBase[str, str, ConfigurationMappingTestConfiguration]
+    ConfigurationMappingTestBase[
+        OrderedConfigurationMapping[str, str, ConfigurationMappingTestConfiguration],
+        str,
+        str,
+        ConfigurationMappingTestConfiguration,
+    ]
 ):
+    sut_cls = OrderedConfigurationMapping
+
     @override
     @pytest.fixture
     def sut_configuration_keys(
@@ -220,20 +251,3 @@ class TestOrderedConfigurationMapping(
         dump = sut.dump()
         assert isinstance(dump, Sequence)
         assert len(dump) == len(sut_configurations)
-
-
-class OrderedConfigurationMappingTestOrderedConfigurationMapping(
-    OrderedConfigurationMapping[str, str, ConfigurationMappingTestConfiguration]
-):
-    @override
-    def _resolve_key(self, configuration_key: str, /) -> str:
-        return configuration_key
-
-    @override
-    @classmethod
-    def _item_cls(cls) -> type[ConfigurationMappingTestConfiguration]:
-        return ConfigurationMappingTestConfiguration
-
-    @override
-    def _get_key(self, configuration: ConfigurationMappingTestConfiguration, /) -> str:
-        return configuration.key
