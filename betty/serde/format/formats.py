@@ -43,7 +43,7 @@ class Json(Format):
 
     @override
     def dump(self, dump: Dump | Void, /) -> str:
-        return json.dumps(dump)
+        return json.dumps(dump, indent=2, sort_keys=True)
 
 
 @final

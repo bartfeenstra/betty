@@ -31,16 +31,25 @@ class TestJson(FormatTestBase):
 
     def test_load__with_valid_dump(self) -> None:
         sut = Json()
-        json_dump = '{"hello": [123, "World!"]}'
-        dump = sut.load(json_dump)
+        actual = sut.load('{"hello": [123, "World!"]}')
         expected = {"hello": [123, "World!"]}
-        assert expected == dump
+        assert actual == expected
 
     def test_dump(self) -> None:
         dump: Dump = {"hello": [123, "World!"]}
         sut = Json()
-        json_dump = sut.dump(dump)
-        assert json_dump == '{"hello": [123, "World!"]}'
+        actual = sut.dump(dump)
+        assert (
+            actual
+            == """
+{
+  "hello": [
+    123,
+    "World!"
+  ]
+}
+""".strip()
+        )
 
 
 class TestYamlDefinition(FormatDefinitionTestBase):
