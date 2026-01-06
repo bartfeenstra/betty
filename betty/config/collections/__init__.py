@@ -18,7 +18,7 @@ from typing_extensions import TypeVar, override
 
 from betty.config import Configuration
 
-_ConfigurationT = TypeVar("_ConfigurationT", bound=Configuration)
+_ConfigurationValueT = TypeVar("_ConfigurationValueT", bound=Configuration)
 ConfigurationKey: TypeAlias = SupportsIndex | Hashable | type[Any]
 _ConfigurationKeyT = TypeVar("_ConfigurationKeyT", bound=ConfigurationKey)
 _ResolvableConfigurationKeyT = TypeVar("_ResolvableConfigurationKeyT")
@@ -26,7 +26,7 @@ _ResolvableConfigurationKeyT = TypeVar("_ResolvableConfigurationKeyT")
 
 class ConfigurationCollection(
     Configuration,
-    Generic[_ConfigurationKeyT, _ResolvableConfigurationKeyT, _ConfigurationT],
+    Generic[_ConfigurationKeyT, _ResolvableConfigurationKeyT, _ConfigurationValueT],
 ):
     """
     Any collection of :py:class:`betty.config.Configuration` values.
@@ -35,14 +35,20 @@ class ConfigurationCollection(
     """
 
     _configurations: (
-        MutableSequence[_ConfigurationT]
-        | MutableMapping[_ConfigurationKeyT, _ConfigurationT]
+        MutableSequence[_ConfigurationValueT]
+        | MutableMapping[_ConfigurationKeyT, _ConfigurationValueT]
     )
 
-    def __init__(self, configurations: Iterable[_ConfigurationT] | None = None, /):
+    def __init__(self, configurations: Iterable[_ConfigurationValueT] | None = None, /):
         super().__init__()
         if configurations is not None:
             self.append(*configurations)
+
+    @override
+    def __eq__(self, other: Any) -> bool:
+        if not isinstance(other, type(self)):
+            return NotImplemented
+        return self._configurations == other._configurations
 
     @abstractmethod
     def _resolve_key(
@@ -55,13 +61,13 @@ class ConfigurationCollection(
     @abstractmethod
     def __iter__(
         self,
-    ) -> Iterator[_ConfigurationKeyT] | Iterator[_ConfigurationT]:
+    ) -> Iterator[_ConfigurationKeyT] | Iterator[_ConfigurationValueT]:
         pass
 
     @abstractmethod
     def __getitem__(
         self, configuration_key: _ConfigurationKeyT | _ResolvableConfigurationKeyT
-    ) -> _ConfigurationT:
+    ) -> _ConfigurationValueT:
         pass
 
     def __delitem__(
@@ -73,7 +79,7 @@ class ConfigurationCollection(
         return len(self._configurations)
 
     @abstractmethod
-    def replace(self, *configurations: _ConfigurationT) -> None:
+    def replace(self, *configurations: _ConfigurationValueT) -> None:
         """
         Replace any existing values with the given ones.
         """
@@ -102,15 +108,15 @@ class ConfigurationCollection(
         """
         self.remove(*self.keys())
 
-    def _pre_add(self, configuration: _ConfigurationT, /) -> None:
+    def _pre_add(self, configuration: _ConfigurationValueT, /) -> None:
         pass
 
-    def _post_remove(self, configuration: _ConfigurationT, /) -> None:
+    def _post_remove(self, configuration: _ConfigurationValueT, /) -> None:
         pass
 
     @classmethod
     @abstractmethod
-    def _item_cls(cls) -> type[_ConfigurationT]:
+    def _item_cls(cls) -> type[_ConfigurationValueT]:
         """
         The class of each configuration item.
         """
@@ -122,25 +128,25 @@ class ConfigurationCollection(
         """
 
     @abstractmethod
-    def values(self) -> Iterator[_ConfigurationT]:
+    def values(self) -> Iterator[_ConfigurationValueT]:
         """
         Get all values in this collection.
         """
 
     @abstractmethod
-    def prepend(self, *configurations: _ConfigurationT) -> None:
+    def prepend(self, *configurations: _ConfigurationValueT) -> None:
         """
         Prepend the given values to the beginning of the sequence.
         """
 
     @abstractmethod
-    def append(self, *configurations: _ConfigurationT) -> None:
+    def append(self, *configurations: _ConfigurationValueT) -> None:
         """
         Append the given values to the end of the sequence.
         """
 
     @abstractmethod
-    def insert(self, index: int, *configurations: _ConfigurationT) -> None:
+    def insert(self, index: int, *configurations: _ConfigurationValueT) -> None:
         """
         Insert the given values at the given index.
         """

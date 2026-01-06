@@ -39,9 +39,23 @@ class ConfigurationSequenceTestConfiguration(Configuration):
         return {"value": self.value}
 
 
-class TestConfigurationSequence(
-    ConfigurationSequenceTestBase[ConfigurationSequenceTestConfiguration]
+class ConfigurationSequenceTestConfigurationSequence(
+    ConfigurationSequence[ConfigurationSequenceTestConfiguration]
 ):
+    @override
+    @classmethod
+    def _item_cls(cls) -> type[ConfigurationSequenceTestConfiguration]:
+        return ConfigurationSequenceTestConfiguration
+
+
+class TestConfigurationSequence(
+    ConfigurationSequenceTestBase[
+        ConfigurationSequence[ConfigurationSequenceTestConfiguration],
+        ConfigurationSequenceTestConfiguration,
+    ]
+):
+    sut_cls = ConfigurationSequence
+
     @override
     @pytest.fixture
     def new_sut(
@@ -103,12 +117,3 @@ class TestConfigurationSequence(
         assert len(dump) == len(sut_configurations)
         for configuration_key in sut_configuration_keys:
             assert configuration_key < len(dump)
-
-
-class ConfigurationSequenceTestConfigurationSequence(
-    ConfigurationSequence[ConfigurationSequenceTestConfiguration]
-):
-    @override
-    @classmethod
-    def _item_cls(cls) -> type[ConfigurationSequenceTestConfiguration]:
-        return ConfigurationSequenceTestConfiguration

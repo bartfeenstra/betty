@@ -64,6 +64,7 @@ async def create_project(app: App, project_directory_path: Path) -> Project:
         license=PluginInstanceConfiguration("spdx-gpl-3--0-or-later"),
         title=_("A Betty demonstration"),
         author=_("Bart Feenstra and contributors"),
+        url="https://example.com",
         extensions=ExtensionInstanceConfigurationMapping(
             [
                 PluginInstanceConfiguration(Demo),

@@ -130,6 +130,8 @@ class PresenceRoleMapping(PluginMapping[PresenceRoleDefinition, PresenceRole]):
 class FamilyTreeConfiguration(Configuration):
     """
     Configure a single Gramps family tree.
+
+    .. configuration:: betty.project.extension.gramps.config:FamilyTreeConfiguration
     """
 
     def __init__(
@@ -229,10 +231,17 @@ class FamilyTreeConfiguration(Configuration):
             dump["file"] = str(self.source)
         return dump
 
+    @override
+    @classmethod
+    def samples(cls) -> Iterable[Sample[Self]]:
+        yield Sample(cls("my-gramps-family-tree"), label="Minimal")
+
 
 class FamilyTreeConfigurationSequence(ConfigurationSequence[FamilyTreeConfiguration]):
     """
     Configure zero or more Gramps family trees.
+
+    .. configuration:: betty.project.extension.gramps.config:FamilyTreeConfigurationSequence
     """
 
     @override
@@ -240,12 +249,21 @@ class FamilyTreeConfigurationSequence(ConfigurationSequence[FamilyTreeConfigurat
     def _item_cls(cls) -> type[FamilyTreeConfiguration]:
         return FamilyTreeConfiguration
 
+    @override
+    @classmethod
+    def samples(cls) -> Iterable[Sample[Self]]:
+        yield Sample(cls(), label="Minimal")
+        yield Sample(
+            cls([next(iter(FamilyTreeConfiguration.samples())).configuration]),
+            label="Full",
+        )
+
 
 class GrampsConfiguration(Configuration):
     """
     Configuration for the :py:class:`betty.project.extension.gramps.Gramps` extension.
 
-    .. configuration:: betty.project.extension.gramps:GrampsConfiguration
+    .. configuration:: betty.project.extension.gramps.config:GrampsConfiguration
 
     ``executable``
     ^^^^^^^^^^^^^^^^

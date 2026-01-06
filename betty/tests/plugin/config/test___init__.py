@@ -21,7 +21,7 @@ from betty.plugin.config import (
 )
 from betty.plugin.resolve import ResolvableId
 from betty.serde.dump import Dump
-from betty.test_utils.config import DummyConfiguration
+from betty.test_utils.config import ConfigurationTestBase, DummyConfiguration
 from betty.test_utils.config.collections import (
     ConfigurationCollectionTestBaseNewSut,
     ConfigurationCollectionTestBaseSutConfigurationKeys,
@@ -223,7 +223,11 @@ class TestCountableHumanFacingPluginDefinitionConfiguration:
         assert sut.label_countable is label_countable
 
 
-class TestPluginInstanceConfiguration:
+class TestPluginInstanceConfiguration(
+    ConfigurationTestBase[PluginInstanceConfiguration]
+):
+    sut_cls = PluginInstanceConfiguration
+
     def test_id(self) -> None:
         sut = PluginInstanceConfiguration[DummyPluginDefinition, DummyPlugin](
             DummyPluginOne.plugin()
@@ -291,11 +295,14 @@ class TestPluginInstanceConfiguration:
 
 class TestPluginInstanceConfigurationMapping(
     ConfigurationMappingTestBase[
+        PluginInstanceConfigurationMapping,
         MachineName,
         ResolvableId[DummyPluginDefinition],
         PluginInstanceConfiguration[DummyPluginDefinition, DummyPlugin],
     ]
 ):
+    sut_cls = PluginInstanceConfigurationMapping
+
     @override
     @pytest.fixture
     def sut_configuration_keys(
@@ -388,9 +395,12 @@ class TestPluginIdentifierKeyConfigurationMapping:
 
 class TestPluginInstanceConfigurationSequence(
     ConfigurationSequenceTestBase[
-        PluginInstanceConfiguration[DummyPluginDefinition, DummyPlugin]
+        PluginInstanceConfigurationSequence,
+        PluginInstanceConfiguration[DummyPluginDefinition, DummyPlugin],
     ]
 ):
+    sut_cls = PluginInstanceConfigurationSequence
+
     @override
     @pytest.fixture
     def new_sut(
@@ -417,9 +427,12 @@ class TestPluginInstanceConfigurationSequence(
 
 class TestPluginInstanceConfigurationSequenceSequence(
     ConfigurationSequenceTestBase[
-        PluginInstanceConfigurationSequence[DummyPluginDefinition, DummyPlugin]
+        PluginInstanceConfigurationSequenceSequence[DummyPluginDefinition, DummyPlugin],
+        PluginInstanceConfigurationSequence[DummyPluginDefinition, DummyPlugin],
     ]
 ):
+    sut_cls = PluginInstanceConfigurationSequenceSequence
+
     @override
     @pytest.fixture
     def new_sut(

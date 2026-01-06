@@ -4,7 +4,7 @@ Test utilities for :py:mod:`betty.config.collections.mapping`.
 
 from __future__ import annotations
 
-from typing import Generic, TypeVar
+from typing import TypeVar
 
 from typing_extensions import override
 
@@ -18,24 +18,27 @@ from betty.test_utils.config.collections import (
 )
 
 _ConfigurationT = TypeVar("_ConfigurationT", bound=Configuration)
+_ConfigurationValueT = TypeVar("_ConfigurationValueT", bound=Configuration)
 _ConfigurationKeyT = TypeVar("_ConfigurationKeyT", bound=ConfigurationKey)
 _ResolvableConfigurationKeyT = TypeVar("_ResolvableConfigurationKeyT")
 
 
 class _ConfigurationMappingTestBase(
-    Generic[_ConfigurationKeyT, _ResolvableConfigurationKeyT, _ConfigurationT],
     ConfigurationCollectionTestBase[
-        _ConfigurationKeyT, _ResolvableConfigurationKeyT, _ConfigurationT
+        _ConfigurationT,
+        _ConfigurationKeyT,
+        _ResolvableConfigurationKeyT,
+        _ConfigurationValueT,
     ],
 ):
     @override
     async def test___iter__(  # type: ignore[override]
         self,
         new_sut: ConfigurationCollectionTestBaseNewSut[
-            _ConfigurationT, _ConfigurationKeyT, _ResolvableConfigurationKeyT
+            _ConfigurationValueT, _ConfigurationKeyT, _ResolvableConfigurationKeyT
         ],
         sut_configurations: ConfigurationCollectionTestBaseSutConfigurations[
-            _ConfigurationT
+            _ConfigurationValueT
         ],
         sut_configuration_keys: ConfigurationCollectionTestBaseSutConfigurationKeys[
             _ConfigurationKeyT
@@ -55,10 +58,10 @@ class _ConfigurationMappingTestBase(
     async def test___contains__(
         self,
         new_sut: ConfigurationCollectionTestBaseNewSut[
-            _ConfigurationT, _ConfigurationKeyT, _ResolvableConfigurationKeyT
+            _ConfigurationValueT, _ConfigurationKeyT, _ResolvableConfigurationKeyT
         ],
         sut_configurations: ConfigurationCollectionTestBaseSutConfigurations[
-            _ConfigurationT
+            _ConfigurationValueT
         ],
         sut_configuration_keys: ConfigurationCollectionTestBaseSutConfigurationKeys[
             _ConfigurationKeyT
@@ -80,9 +83,11 @@ class _ConfigurationMappingTestBase(
 
 
 class ConfigurationMappingTestBase(
-    Generic[_ConfigurationKeyT, _ResolvableConfigurationKeyT, _ConfigurationT],
     _ConfigurationMappingTestBase[
-        _ConfigurationKeyT, _ResolvableConfigurationKeyT, _ConfigurationT
+        _ConfigurationT,
+        _ConfigurationKeyT,
+        _ResolvableConfigurationKeyT,
+        _ConfigurationValueT,
     ],
 ):
     """
@@ -91,9 +96,11 @@ class ConfigurationMappingTestBase(
 
 
 class OrderedConfigurationMappingTestBase(
-    Generic[_ConfigurationKeyT, _ResolvableConfigurationKeyT, _ConfigurationT],
     _ConfigurationMappingTestBase[
-        _ConfigurationKeyT, _ResolvableConfigurationKeyT, _ConfigurationT
+        _ConfigurationT,
+        _ConfigurationKeyT,
+        _ResolvableConfigurationKeyT,
+        _ConfigurationValueT,
     ],
 ):
     """

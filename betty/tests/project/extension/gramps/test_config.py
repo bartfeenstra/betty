@@ -24,6 +24,7 @@ from betty.project.extension.gramps.config import (
     PresenceRoleMapping,
 )
 from betty.serde.dump import Dump
+from betty.test_utils.config import ConfigurationTestBase
 from betty.test_utils.config.collections import (
     ConfigurationCollectionTestBaseNewSut,
     ConfigurationCollectionTestBaseSutConfigurations,
@@ -36,8 +37,12 @@ from betty.test_utils.plugin import (
 
 
 class TestFamilyTreeConfigurationSequence(
-    ConfigurationSequenceTestBase[FamilyTreeConfiguration]
+    ConfigurationSequenceTestBase[
+        FamilyTreeConfigurationSequence, FamilyTreeConfiguration
+    ]
 ):
+    sut_cls = FamilyTreeConfigurationSequence
+
     @override
     @pytest.fixture
     def new_sut(
@@ -58,7 +63,9 @@ class TestFamilyTreeConfigurationSequence(
         )
 
 
-class TestFamilyTreeConfiguration:
+class TestFamilyTreeConfiguration(ConfigurationTestBase[FamilyTreeConfiguration]):
+    sut_cls = FamilyTreeConfiguration
+
     def test___init____with_source_file_path(self, tmp_path: Path) -> None:
         file_path = tmp_path / "betty.gramps"
         sut = FamilyTreeConfiguration(file_path)

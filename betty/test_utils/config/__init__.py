@@ -2,9 +2,11 @@
 Test utilities for :py:mod:`betty.config`.
 """
 
-from typing import Self
+from inspect import isabstract
+from typing import Generic, Self
 
-from typing_extensions import override
+import pytest
+from typing_extensions import TypeVar, override
 
 from betty.assertion import (
     OptionalField,
@@ -14,7 +16,54 @@ from betty.assertion import (
     assert_str,
 )
 from betty.config import Configurable, Configuration
+from betty.importlib import fully_qualified_name
+from betty.locale.localize import DEFAULT_LOCALIZER
 from betty.serde.dump import Dump
+
+_ConfigurationT = TypeVar("_ConfigurationT", bound=Configuration)
+
+
+class ConfigurationTestBase(Generic[_ConfigurationT]):
+    """
+    A base class for testing :py:class:`betty.config.Configuration` implementations.
+    """
+
+    sut_cls: type[_ConfigurationT]
+
+    def test_docstring(self) -> None:
+        """
+        Test the configuration class's docstring.
+        """
+        if isabstract(self.sut_cls):
+            return
+        docstring = self.sut_cls.__doc__
+        assert docstring, (
+            f"{fully_qualified_name(self.sut_cls)}.samples() does not have a docstring."
+        )
+        directive = f".. configuration:: {fully_qualified_name(self.sut_cls)}"
+        assert directive in docstring, (
+            f"Failed to find `{directive}` in the docstring for {fully_qualified_name(self.sut_cls)}."
+        )
+
+    def test_samples(self) -> None:
+        """
+        Tests :py:meth:`betty.config.Configuration.samples` implementations.
+        """
+        if isabstract(self.sut_cls):
+            return
+        assert len(list(self.sut_cls.samples())), (
+            f"{fully_qualified_name(self.sut_cls)}.samples() does not return any samples."
+        )
+
+    def test___eq__(self, subtests: pytest.Subtests) -> None:
+        """
+        Tests :py:meth:`object.__eq__` implementations.
+        """
+        for sample in self.sut_cls.samples():
+            with subtests.test(str(sample.label.localize(DEFAULT_LOCALIZER))):
+                assert sample == sample
+                for other_sample in self.sut_cls.samples():
+                    assert sample != other_sample
 
 
 class DummyConfiguration(Configuration):

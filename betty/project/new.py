@@ -8,12 +8,9 @@ from betty.ancestry.person import Person
 from betty.ancestry.place import Place
 from betty.ancestry.source import Source
 from betty.assertion import assert_str, assert_path, assert_locale
-from betty.locale.localizable.static import StaticTranslations
-from betty.project.extension.raspberry_mint.config.default import regional_content
-from betty.project.extension.theme.config import RegionalContentConfiguration
-from betty.serde.file import dump_file
 from betty.locale import DEFAULT_LOCALE_TAG, to_language_tag
 from betty.locale.localizable.gettext import _
+from betty.locale.localizable.static import StaticTranslations
 from betty.machine_name import machinify, assert_machine_name
 from betty.plugin.config import PluginInstanceConfiguration
 from betty.project.config import (
@@ -21,8 +18,10 @@ from betty.project.config import (
     ProjectConfiguration,
     EntityTypeConfiguration,
     EntityTypeConfigurationMapping,
+    ExtensionInstanceConfigurationMapping,
+    LocaleConfigurationMapping,
 )
-from betty.project.extension import ExtensionDefinition
+from betty.project.extension import ExtensionDefinition, Extension
 from betty.project.extension.deriver import Deriver
 from betty.project.extension.gramps import Gramps
 from betty.project.extension.gramps.config import (
@@ -33,17 +32,18 @@ from betty.project.extension.gramps.config import (
 from betty.project.extension.http_api_doc import HttpApiDoc
 from betty.project.extension.maps import Maps
 from betty.project.extension.privatizer import Privatizer
-from betty.project.extension.raspberry_mint.config import RaspberryMintConfiguration
 from betty.project.extension.raspberry_mint import RaspberryMint
+from betty.project.extension.raspberry_mint.config import RaspberryMintConfiguration
+from betty.project.extension.raspberry_mint.config.default import regional_content
+from betty.project.extension.theme.config import RegionalContentConfiguration
 from betty.project.extension.trees import Trees
 from betty.project.extension.webpack import Webpack
 from betty.project.extension.wiki import Wiki
+from betty.serde.file import dump_file
 
 if TYPE_CHECKING:
-    from collections.abc import Sequence
+    from collections.abc import MutableSequence
     from pathlib import Path
-
-    from babel import Locale
 
     from betty.app import App
     from betty.locale.localizable import Localizable
@@ -61,30 +61,22 @@ async def new(app: App) -> None:
         _("Where do you want to save your project's configuration file?"),
         assertion=_assert_project_configuration_file_path,
     )
-    configuration = ProjectConfiguration(
-        entity_types=EntityTypeConfigurationMapping(
-            [
-                EntityTypeConfiguration(Person, generate_html_list=True),
-                EntityTypeConfiguration(Event, generate_html_list=True),
-                EntityTypeConfiguration(Place, generate_html_list=True),
-                EntityTypeConfiguration(Source, generate_html_list=True),
-            ]
-        ),
-    )
 
-    configuration.locales.replace(
-        LocaleConfiguration(
-            await app.user.ask_input(
-                _(
-                    "Which language should your project site be generated in? Enter a language code."
-                ),
-                default=DEFAULT_LOCALE_TAG,
-                assertion=assert_locale(),
+    locales = LocaleConfigurationMapping(
+        [
+            LocaleConfiguration(
+                await app.user.ask_input(
+                    _(
+                        "Which language should your project site be generated in? Enter a language code."
+                    ),
+                    default=DEFAULT_LOCALE_TAG,
+                    assertion=assert_locale(),
+                )
             )
-        )
+        ]
     )
     while await app.user.ask_confirmation(_("Do you want to add another locale?")):
-        configuration.locales.append(
+        locales.append(
             LocaleConfiguration(
                 await app.user.ask_input(
                     _(
@@ -94,13 +86,14 @@ async def new(app: App) -> None:
                 )
             )
         )
-    locales = list(configuration.locales)
 
-    configuration.extensions.enable(Deriver)
-    configuration.extensions.enable(HttpApiDoc)
-    configuration.extensions.enable(Maps)
-    configuration.extensions.enable(Privatizer)
-    configuration.extensions.append(
+    extensions: MutableSequence[
+        PluginInstanceConfiguration[ExtensionDefinition, Extension]
+    ] = [
+        PluginInstanceConfiguration(Deriver),
+        PluginInstanceConfiguration(HttpApiDoc),
+        PluginInstanceConfiguration(Maps),
+        PluginInstanceConfiguration(Privatizer),
         PluginInstanceConfiguration(
             RaspberryMint,
             RaspberryMintConfiguration(
@@ -110,41 +103,35 @@ async def new(app: App) -> None:
                     )
                 )
             ),
-        )
-    )
-    configuration.extensions.enable(Trees)
-    # Enable the Webpack extension explicitly for the test's mock to work.
-    configuration.extensions.enable(Webpack)
-    configuration.extensions.enable(Wiki)
+        ),
+        PluginInstanceConfiguration(Trees),
+        # Enable the Webpack extension explicitly for the test's mock to work.
+        PluginInstanceConfiguration(Webpack),
+        PluginInstanceConfiguration(Wiki),
+    ]
 
-    configuration.title = await _user_input_static_translations(
+    title = await _user_input_static_translations(
         app.user, locales, _("What is your project called in {locale}?")
     )
 
-    configuration.name = await app.user.ask_input(
+    name = await app.user.ask_input(
         _("What is your project's machine name?"),
-        default=str(
-            machinify(
-                configuration.title.localize(
-                    localizers.get(configuration.locales.default.locale)
-                )
-            )
-        ),
+        default=str(machinify(title.localize(localizers.get(locales.default.locale)))),
         assertion=assert_machine_name(),
     )
 
-    configuration.author = await _user_input_static_translations(
+    author = await _user_input_static_translations(
         app.user, locales, _("What is the project author called in {locale}?")
     )
 
-    configuration.url = await app.user.ask_input(
+    url = await app.user.ask_input(
         _("At which URL will your site be published?"),
         default="https://example.com",
         assertion=_assert_url,
     )
 
     if await app.user.ask_confirmation(_("Do you want to load a Gramps family tree?")):
-        configuration.extensions.append(
+        extensions.append(
             PluginInstanceConfiguration(
                 Gramps,
                 GrampsConfiguration(
@@ -164,6 +151,22 @@ async def new(app: App) -> None:
             )
         )
 
+    configuration = ProjectConfiguration(
+        author=author,
+        locales=locales,
+        entity_types=EntityTypeConfigurationMapping(
+            [
+                EntityTypeConfiguration(Person, generate_html_list=True),
+                EntityTypeConfiguration(Event, generate_html_list=True),
+                EntityTypeConfiguration(Place, generate_html_list=True),
+                EntityTypeConfiguration(Source, generate_html_list=True),
+            ]
+        ),
+        extensions=ExtensionInstanceConfigurationMapping(extensions),
+        name=name,
+        title=title,
+        url=url,
+    )
     await dump_file(configuration.dump(), configuration_file_path)
     await app.user.message_information(
         _("Saved your project to {configuration_file}.").format(
@@ -187,8 +190,9 @@ def _assert_url(value: Any) -> str:
 
 
 async def _user_input_static_translations(
-    user: User, locales: Sequence[Locale], question: Localizable
+    user: User, locale_configurations: LocaleConfigurationMapping, question: Localizable
 ) -> StaticTranslations:
+    locales = list(locale_configurations)
     return StaticTranslations(
         {
             locale: await user.ask_input(

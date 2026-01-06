@@ -81,7 +81,11 @@ class TestEntityReference:
             await sut.validate(StaticPluginRepository(EntityDefinition))
 
 
-class TestEntityReferenceSequence(ConfigurationSequenceTestBase[EntityReference]):
+class TestEntityReferenceSequence(
+    ConfigurationSequenceTestBase[EntityReferenceSequence, EntityReference]
+):
+    sut_cls = EntityReferenceSequence
+
     @override
     @pytest.fixture
     def new_sut(

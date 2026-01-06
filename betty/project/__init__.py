@@ -102,14 +102,10 @@ class Project(
         configuration_file_path: Path,
         /,
         *,
+        configuration: ProjectConfiguration,
         ancestry: Ancestry | None = None,
-        configuration: ProjectConfiguration | None = None,
     ):
-        super().__init__(
-            configuration=ProjectConfiguration()
-            if configuration is None
-            else configuration
-        )
+        super().__init__(configuration=configuration)
         self._app = app
         self._configuration_file_path = configuration_file_path
         self._ancestry = Ancestry() if ancestry is None else ancestry
@@ -167,7 +163,11 @@ class Project(
             yield cls(
                 app,
                 configuration_file_path,
-                configuration=configuration,
+                configuration=ProjectConfiguration(
+                    title="Betty", url="https://example.com"
+                )
+                if configuration is None
+                else configuration,
                 ancestry=ancestry,
             )
 
