@@ -80,6 +80,13 @@ _PluginDefinitionT = TypeVar(
 class App(Configurable[AppConfiguration], ServiceContainer, PluginRepositoryProvider):
     """
     The Betty application.
+
+    .. list-table::
+       :widths: 20 10
+       :header-rows: 0
+
+       * - Configuration
+         - :py:class:`betty.app.config.AppConfiguration`
     """
 
     def __init__(

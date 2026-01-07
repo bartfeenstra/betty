@@ -94,6 +94,13 @@ class Project(
     Define a Betty project.
 
     A project combines project configuration and the resulting ancestry.
+
+    .. list-table::
+       :widths: 10 20
+       :header-rows: 0
+
+       * - Configuration
+         - :py:class:`betty.project.config.ProjectConfiguration`
     """
 
     def __init__(
