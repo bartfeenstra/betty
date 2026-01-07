@@ -69,27 +69,40 @@ class RaspberryMintConfiguration(Configuration):
     The configuration for the content provider, if needed.
     """
 
-    DEFAULT_PRIMARY_COLOR = ColorConfiguration("#b3446c")
-    DEFAULT_SECONDARY_COLOR = ColorConfiguration("#3eb489")
-    DEFAULT_TERTIARY_COLOR = ColorConfiguration("#ffbd22")
-
     def __init__(
         self,
         *,
-        primary_color: ColorConfiguration = DEFAULT_PRIMARY_COLOR,
-        secondary_color: ColorConfiguration = DEFAULT_SECONDARY_COLOR,
-        tertiary_color: ColorConfiguration = DEFAULT_TERTIARY_COLOR,
+        primary_color: ColorConfiguration | None = None,
+        secondary_color: ColorConfiguration | None = None,
+        tertiary_color: ColorConfiguration | None = None,
         regional_content: RegionalContentConfiguration | None = None,
     ):
         super().__init__()
-        self._primary_color = primary_color
-        self._secondary_color = secondary_color
-        self._tertiary_color = tertiary_color
+        self._primary_color = (
+            self._default_primary_color() if primary_color is None else primary_color
+        )
+        self._secondary_color = (
+            self._default_secondary_color()
+            if secondary_color is None
+            else secondary_color
+        )
+        self._tertiary_color = (
+            self._default_tertiary_color() if tertiary_color is None else tertiary_color
+        )
         self._regional_content = (
             RegionalContentConfiguration()
             if regional_content is None
             else regional_content
         )
+
+    def _default_primary_color(self) -> ColorConfiguration:
+        return ColorConfiguration("#b3446c")
+
+    def _default_secondary_color(self) -> ColorConfiguration:
+        return ColorConfiguration("#3eb489")
+
+    def _default_tertiary_color(self) -> ColorConfiguration:
+        return ColorConfiguration("#ffbd22")
 
     @override
     @property
@@ -159,11 +172,13 @@ class RaspberryMintConfiguration(Configuration):
 
     @override
     def dump(self) -> DumpMapping[Dump]:
-        dump = {
-            "primary_color": self.primary_color.dump(),
-            "secondary_color": self.secondary_color.dump(),
-            "tertiary_color": self.tertiary_color.dump(),
-        }
+        dump: DumpMapping[Dump] = {}
+        if self.primary_color != self._default_primary_color():
+            dump["primary_color"] = self.primary_color.dump()
+        if self.secondary_color != self._default_secondary_color():
+            dump["secondary_color"] = self.secondary_color.dump()
+        if self.tertiary_color != self._default_tertiary_color():
+            dump["tertiary_color"] = self.tertiary_color.dump()
         regional_content_dump = self.regional_content.dump()
         if regional_content_dump:
             dump["regional_content"] = regional_content_dump

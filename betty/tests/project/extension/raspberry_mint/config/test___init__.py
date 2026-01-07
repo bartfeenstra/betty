@@ -21,7 +21,7 @@ if TYPE_CHECKING:
 
     from betty.app import App
     from betty.data import Path
-    from betty.serde.dump import Dump, DumpMapping
+    from betty.serde.dump import Dump
 
 
 class TestRaspberryMintConfiguration(ConfigurationTestBase[RaspberryMintConfiguration]):
@@ -115,14 +115,9 @@ class TestRaspberryMintConfiguration(ConfigurationTestBase[RaspberryMintConfigur
         )
         assert sut.regional_content["front"][0].id == "my-first-plugin"
 
-    def test_dump__with_minimal_configuration(self) -> None:
+    def test_dump__minimal(self) -> None:
         sut = RaspberryMintConfiguration()
-        expected: DumpMapping[Dump] = {
-            "primary_color": RaspberryMintConfiguration.DEFAULT_PRIMARY_COLOR.hex,
-            "secondary_color": RaspberryMintConfiguration.DEFAULT_SECONDARY_COLOR.hex,
-            "tertiary_color": RaspberryMintConfiguration.DEFAULT_TERTIARY_COLOR.hex,
-        }
-        assert sut.dump() == expected
+        assert sut.dump() == {}
 
     def test_dump__with_primary_color(self) -> None:
         hex_value = "#000000"
