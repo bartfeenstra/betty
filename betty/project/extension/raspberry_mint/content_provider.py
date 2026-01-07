@@ -618,6 +618,8 @@ class ColumnsConfiguration(Configuration):
     .. configuration:: betty.project.extension.raspberry_mint.content_provider:ColumnsConfiguration
     """
 
+    _DEFAULT_WIDTH: ColumnsWidth = {Breakpoint.XS: [12]}
+
     def __init__(
         self,
         content: ShorthandPluginInstanceConfigurationSequenceSequence[
@@ -630,7 +632,7 @@ class ColumnsConfiguration(Configuration):
         super().__init__()
         self._content = PluginInstanceConfigurationSequenceSequence(content)
         if width is None:
-            width = {Breakpoint.XS: [12]}
+            width = self._DEFAULT_WIDTH
         elif isinstance(width, int):
             width = {Breakpoint.XS: [width]}
         elif isinstance(width, Mapping):
@@ -700,11 +702,12 @@ class ColumnsConfiguration(Configuration):
     def dump(self) -> Dump:
         dump: DumpMapping[Dump] = {
             "content": self.content.dump(),
-            "width": {
+        }
+        if self.width != self._DEFAULT_WIDTH:
+            dump["width"] = {
                 breakpoint.value: widths  # type: ignore[misc]
                 for breakpoint, widths in self.width.items()  # noqa A001
-            },
-        }
+            }
         if self.justify_content is not None:
             dump["justify_content"] = self.justify_content.value
         return dump

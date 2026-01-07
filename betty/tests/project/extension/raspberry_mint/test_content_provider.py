@@ -1,6 +1,6 @@
 from collections.abc import Mapping
 from pathlib import Path
-from typing import TYPE_CHECKING, cast
+from typing import cast
 
 import pytest
 from typing_extensions import override
@@ -65,6 +65,7 @@ from betty.project.extension.raspberry_mint.content_provider import (
     ShorthandColumnsWidth,
     Timeline,
 )
+from betty.serde.dump import Dump
 from betty.test_utils.ancestry.has_citations import DummyHasCitations
 from betty.test_utils.ancestry.has_file_references import DummyHasFileReferences
 from betty.test_utils.config import ConfigurationTestBase
@@ -75,9 +76,6 @@ from betty.test_utils.content_provider import (
 )
 from betty.test_utils.locale.localizable import DUMMY_LOCALIZABLE
 from betty.test_utils.model import DummyEntityOne
-
-if TYPE_CHECKING:
-    from betty.serde.dump import Dump
 
 
 class TestEntityCard(
@@ -930,37 +928,77 @@ class TestColumnsConfiguration(ConfigurationTestBase[ColumnsConfiguration]):
         )
         assert sut.justify_content == justify_content
 
-    def test_dump__minimal(self) -> None:
-        sut = ColumnsConfiguration(
-            PluginInstanceConfiguration(Render, RenderConfiguration(DUMMY_LOCALIZABLE))
-        )
-        assert sut.dump() == {
-            "content": [
-                [
-                    {
-                        "id": "render",
-                        "configuration": {
-                            "content": "DUMMY_LOCALIZABLE",
-                            "media_type": str(PLAIN_TEXT),
-                        },
-                    },
-                ]
-            ],
-            "width": {
-                "xs": [12],
-            },
-        }
-
-    def test_dump__with_justify_content(self) -> None:
-        justify_content = JustifyContent.CENTER
-        sut = ColumnsConfiguration(
-            PluginInstanceConfiguration(Render, RenderConfiguration(DUMMY_LOCALIZABLE)),
-            justify_content=justify_content,
-        )
-        actual = sut.dump()
-        assert isinstance(actual, Mapping)
-        assert "justify_content" in actual
-        assert actual["justify_content"] == justify_content.value
+    @pytest.mark.parametrize(
+        ("expected", "sut"),
+        [
+            (
+                {
+                    "content": [
+                        [
+                            {
+                                "id": "render",
+                                "configuration": {
+                                    "content": "DUMMY_LOCALIZABLE",
+                                    "media_type": str(PLAIN_TEXT),
+                                },
+                            },
+                        ]
+                    ],
+                },
+                ColumnsConfiguration(
+                    PluginInstanceConfiguration(
+                        Render, RenderConfiguration(DUMMY_LOCALIZABLE)
+                    )
+                ),
+            ),
+            (
+                {
+                    "content": [
+                        [
+                            {
+                                "id": "render",
+                                "configuration": {
+                                    "content": "DUMMY_LOCALIZABLE",
+                                    "media_type": str(PLAIN_TEXT),
+                                },
+                            },
+                        ]
+                    ],
+                    "justify_content": JustifyContent.CENTER.value,
+                },
+                ColumnsConfiguration(
+                    PluginInstanceConfiguration(
+                        Render, RenderConfiguration(DUMMY_LOCALIZABLE)
+                    ),
+                    justify_content=JustifyContent.CENTER,
+                ),
+            ),
+            (
+                {
+                    "content": [
+                        [
+                            {
+                                "id": "render",
+                                "configuration": {
+                                    "content": "DUMMY_LOCALIZABLE",
+                                    "media_type": str(PLAIN_TEXT),
+                                },
+                            },
+                        ]
+                    ],
+                    "width": {Breakpoint.XS.value: [10]},
+                },
+                ColumnsConfiguration(
+                    PluginInstanceConfiguration(
+                        Render, RenderConfiguration(DUMMY_LOCALIZABLE)
+                    ),
+                    width=10,
+                ),
+            ),
+        ],
+    )
+    def test_dump(self, expected: Dump, sut: ColumnsConfiguration) -> None:
+        assert sut.dump() == expected
 
 
 class TestColumns(ContentProviderTestBase):
