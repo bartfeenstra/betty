@@ -157,6 +157,7 @@ class SectionConfiguration(Configuration):
                 heading=DUMMY_LOCALIZABLE,
             ),
             label="Minimal",
+            minimal=True,
         )
 
 

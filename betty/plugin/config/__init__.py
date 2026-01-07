@@ -17,7 +17,7 @@ from betty.assertion import (
     assert_or,
     assert_record,
 )
-from betty.config import Configuration, Sample
+from betty.config import Configuration, Sample, get_full_sample
 from betty.config.collections import ConfigurationCollection, ConfigurationKey
 from betty.config.collections.mapping import ConfigurationMapping
 from betty.config.collections.sequence import ConfigurationSequence
@@ -323,6 +323,7 @@ class PluginInstanceConfiguration(Generic[_PluginDefinitionT, _PluginT], Configu
                 RaspberryMint,  # type: ignore[arg-type]
             ),
             label="Minimal",
+            minimal=True,
         )
         yield Sample(
             cls(
@@ -330,6 +331,7 @@ class PluginInstanceConfiguration(Generic[_PluginDefinitionT, _PluginT], Configu
                 RaspberryMintConfiguration(primary_color=ColorConfiguration("#ff0000")),
             ),
             label="Full",
+            full=True,
         )
 
 
@@ -418,14 +420,11 @@ class PluginInstanceConfigurationMapping(
     @override
     @classmethod
     def samples(cls) -> Iterable[Sample[Self]]:
-        yield Sample(cls(), label="Minimal")
+        yield Sample(cls(), label="Minimal", minimal=True)
         yield Sample(
-            cls(
-                [
-                    next(iter(PluginInstanceConfiguration.samples())).configuration,  # type: ignore[list-item]
-                ]
-            ),
+            cls([get_full_sample(PluginInstanceConfiguration).configuration]),
             label="Full",
+            full=True,
         )
 
 
@@ -445,14 +444,11 @@ class PluginInstanceConfigurationSequence(
     def samples(
         cls,
     ) -> Iterable[Sample[Self]]:
-        yield Sample(cls(), label="Minimal")
+        yield Sample(cls(), label="Minimal", minimal=True)
         yield Sample(
-            cls(
-                [
-                    next(iter(PluginInstanceConfiguration.samples())).configuration,  # type: ignore[list-item]
-                ]
-            ),
+            cls([get_full_sample(PluginInstanceConfiguration).configuration]),
             label="Full",
+            full=True,
         )
 
 

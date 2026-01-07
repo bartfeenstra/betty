@@ -30,7 +30,7 @@ from betty.assertion import (
     assert_record,
     assert_str,
 )
-from betty.config import Configuration, Sample
+from betty.config import Configuration, Sample, get_full_sample
 from betty.config.collections.mapping import OrderedConfigurationMapping
 from betty.copyright_notice import CopyrightNotice, CopyrightNoticeDefinition
 from betty.data import Key
@@ -108,7 +108,7 @@ class ExtensionInstanceConfigurationMapping(
             RaspberryMintConfiguration,
         )
 
-        yield Sample(cls(), label="Minimal")
+        yield Sample(cls(), label="Minimal", minimal=True)
         yield Sample(
             cls([PluginInstanceConfiguration(RaspberryMint)]), label="Expanded"
         )
@@ -117,11 +117,12 @@ class ExtensionInstanceConfigurationMapping(
                 [
                     PluginInstanceConfiguration(
                         RaspberryMint,
-                        next(iter(RaspberryMintConfiguration.samples())).configuration,
+                        get_full_sample(RaspberryMintConfiguration).configuration,
                     )
                 ]
             ),
             label="Full",
+            full=True,
         )
 
 
@@ -199,9 +200,11 @@ class EntityTypeConfiguration(Configuration):
     def samples(cls) -> Iterable[Sample[Self]]:
         from betty.ancestry.person import Person
 
-        yield Sample(EntityTypeConfiguration(Person), label="Minimal")
+        yield Sample(EntityTypeConfiguration(Person), label="Minimal", minimal=True)
         yield Sample(
-            EntityTypeConfiguration(Person, generate_html_list=True), label="Full"
+            EntityTypeConfiguration(Person, generate_html_list=True),
+            label="Full",
+            full=True,
         )
 
 
@@ -250,10 +253,11 @@ class EntityTypeConfigurationMapping(
     @override
     @classmethod
     def samples(cls) -> Iterable[Sample[Self]]:
-        yield Sample(cls(), label="Minimal")
+        yield Sample(cls(), label="Minimal", minimal=True)
         yield Sample(
-            cls([next(iter(EntityTypeConfiguration.samples())).configuration]),
+            cls([get_full_sample(EntityTypeConfiguration).configuration]),
             label="Full",
+            full=True,
         )
 
 
@@ -324,8 +328,8 @@ class LocaleConfiguration(Configuration):
     @override
     @classmethod
     def samples(cls) -> Iterable[Sample[Self]]:
-        yield Sample(cls(Locale("nl", "NL")), label="Minimal")
-        yield Sample(cls(Locale("nl", "NL"), alias="nl"), label="Full")
+        yield Sample(cls(Locale("nl", "NL")), label="Minimal", minimal=True)
+        yield Sample(cls(Locale("nl", "NL"), alias="nl"), label="Full", full=True)
 
 
 @final
@@ -388,9 +392,11 @@ class LocaleConfigurationMapping(
     @override
     @classmethod
     def samples(cls) -> Iterable[Sample[Self]]:
-        yield Sample(cls(), label="Minimal")
+        yield Sample(cls(), label="Minimal", minimal=True)
         yield Sample(
-            cls([next(iter(LocaleConfiguration.samples())).configuration]), label="Full"
+            cls([get_full_sample(LocaleConfiguration).configuration]),
+            label="Full",
+            full=True,
         )
 
 
@@ -483,12 +489,11 @@ class CopyrightNoticePluginConfigurationMapping(
     @override
     @classmethod
     def samples(cls) -> Iterable[Sample[Self]]:
-        yield Sample(cls(), label="Minimal")
+        yield Sample(cls(), label="Minimal", minimal=True)
         yield Sample(
-            cls(
-                [next(iter(CopyrightNoticePluginConfiguration.samples())).configuration]
-            ),
+            cls([get_full_sample(CopyrightNoticePluginConfiguration).configuration]),
             label="Full",
+            full=True,
         )
 
 
@@ -579,10 +584,11 @@ class LicensePluginConfigurationMapping(
     @override
     @classmethod
     def samples(cls) -> Iterable[Sample[Self]]:
-        yield Sample(cls(), label="Minimal")
+        yield Sample(cls(), label="Minimal", minimal=True)
         yield Sample(
-            cls([next(iter(LicensePluginConfiguration.samples())).configuration]),
+            cls([get_full_sample(LicensePluginConfiguration).configuration]),
             label="Full",
+            full=True,
         )
 
 
@@ -602,8 +608,8 @@ class EventTypePluginConfiguration(
         yield Sample(
             cls(
                 id="moon-landing",
-                label="Moon Landing",
-                label_plural="Moon Landings",
+                label="Moon landing",
+                label_plural="Moon landings",
                 label_countable=CountableStaticTranslations(
                     {
                         DEFAULT_LOCALE: {
@@ -652,10 +658,11 @@ class EventTypePluginConfigurationMapping(
     @override
     @classmethod
     def samples(cls) -> Iterable[Sample[Self]]:
-        yield Sample(cls(), label="Minimal")
+        yield Sample(cls(), label="Minimal", minimal=True)
         yield Sample(
-            cls([next(iter(EventTypePluginConfiguration.samples())).configuration]),
+            cls([get_full_sample(EventTypePluginConfiguration).configuration]),
             label="Full",
+            full=True,
         )
 
 
@@ -722,10 +729,11 @@ class PlaceTypePluginConfigurationMapping(
     @override
     @classmethod
     def samples(cls) -> Iterable[Sample[Self]]:
-        yield Sample(cls(), label="Minimal")
+        yield Sample(cls(), label="Minimal", minimal=True)
         yield Sample(
-            cls([next(iter(PlaceTypePluginConfiguration.samples())).configuration]),
+            cls([get_full_sample(PlaceTypePluginConfiguration).configuration]),
             label="Full",
+            full=True,
         )
 
 
@@ -792,10 +800,11 @@ class PresenceRolePluginConfigurationMapping(
     @override
     @classmethod
     def samples(cls) -> Iterable[Sample[Self]]:
-        yield Sample(cls(), label="Minimal")
+        yield Sample(cls(), label="Minimal", minimal=True)
         yield Sample(
-            cls([next(iter(PresenceRolePluginConfiguration.samples())).configuration]),
+            cls([get_full_sample(PresenceRolePluginConfiguration).configuration]),
             label="Full",
+            full=True,
         )
 
 
@@ -860,10 +869,11 @@ class GenderPluginConfigurationMapping(
     @override
     @classmethod
     def samples(cls) -> Iterable[Sample[Self]]:
-        yield Sample(cls(), label="Minimal")
+        yield Sample(cls(), label="Minimal", minimal=True)
         yield Sample(
-            cls([next(iter(GenderPluginConfiguration.samples())).configuration]),
+            cls([get_full_sample(GenderPluginConfiguration).configuration]),
             label="Full",
+            full=True,
         )
 
 
@@ -1441,7 +1451,9 @@ class ProjectConfiguration(Configuration):
     @override
     @classmethod
     def samples(cls) -> Iterable[Sample[Self]]:
-        yield Sample(cls(title="Betty", url="https://example.com"), label="Minimal")
+        yield Sample(
+            cls(title="Betty", url="https://example.com"), label="Minimal", minimal=True
+        )
         yield Sample(
             cls(
                 url="https://ancestry.example.com/betty",
@@ -1452,22 +1464,24 @@ class ProjectConfiguration(Configuration):
                 author="Bart Feenstra",
                 logo=Path("my-ancestry-logo.png"),
                 lifetime_threshold=123,
-                locales=next(iter(LocaleConfigurationMapping.samples())).configuration,
-                entity_types=next(
-                    iter(EntityTypeConfigurationMapping.samples())
+                locales=get_full_sample(LocaleConfigurationMapping).configuration,
+                entity_types=get_full_sample(
+                    EntityTypeConfigurationMapping
                 ).configuration,
-                event_types=next(
-                    iter(EventTypePluginConfigurationMapping.samples())
+                event_types=get_full_sample(
+                    EventTypePluginConfigurationMapping
                 ).configuration,
-                genders=next(
-                    iter(GenderPluginConfigurationMapping.samples())
+                extensions=get_full_sample(
+                    ExtensionInstanceConfigurationMapping
                 ).configuration,
-                place_types=next(
-                    iter(PlaceTypePluginConfigurationMapping.samples())
+                genders=get_full_sample(GenderPluginConfigurationMapping).configuration,
+                place_types=get_full_sample(
+                    PlaceTypePluginConfigurationMapping
                 ).configuration,
-                presence_roles=next(
-                    iter(PresenceRolePluginConfigurationMapping.samples())
+                presence_roles=get_full_sample(
+                    PresenceRolePluginConfigurationMapping
                 ).configuration,
             ),
             label="Full",
+            full=True,
         )

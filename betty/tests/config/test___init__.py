@@ -44,6 +44,14 @@ class TestSample:
         )
         assert sut.description is description
 
+    def test_minimal(self) -> None:
+        sut = Sample(DummyConfiguration(), label=DUMMY_LOCALIZABLE, minimal=True)
+        assert sut.minimal
+
+    def test_full(self) -> None:
+        sut = Sample(DummyConfiguration(), label=DUMMY_LOCALIZABLE, full=True)
+        assert sut.full
+
 
 class TestConfigurable:
     class _DummyConfigurable(Configurable[DummyConfiguration]):

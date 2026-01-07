@@ -19,7 +19,7 @@ from betty.assertion import (
     assert_record,
     assert_str,
 )
-from betty.config import Configuration, Sample
+from betty.config import Configuration, Sample, get_full_sample
 from betty.config.collections.sequence import ConfigurationSequence
 from betty.exception import HumanFacingException
 from betty.gramps.loader import (
@@ -252,10 +252,11 @@ class FamilyTreeConfigurationSequence(ConfigurationSequence[FamilyTreeConfigurat
     @override
     @classmethod
     def samples(cls) -> Iterable[Sample[Self]]:
-        yield Sample(cls(), label="Minimal")
+        yield Sample(cls(), label="Minimal", minimal=True)
         yield Sample(
-            cls([next(iter(FamilyTreeConfiguration.samples())).configuration]),
+            cls([get_full_sample(FamilyTreeConfiguration).configuration]),
             label="Full",
+            full=True,
         )
 
 

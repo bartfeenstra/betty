@@ -57,10 +57,14 @@ class Sample(Generic[_ConfigurationT]):
         *,
         label: LocalizableLike,
         description: LocalizableLike | None = None,
+        minimal: bool = False,
+        full: bool = False,
     ):
         self._configuration = configuration
         self._label = ensure_localizable(label)
         self._description = ensure_localizable(description) if description else None
+        self._minimal = minimal
+        self._full = full
 
     @property
     def configuration(self) -> _ConfigurationT:
@@ -82,6 +86,48 @@ class Sample(Generic[_ConfigurationT]):
         The sample's human-readable long description.
         """
         return self._description
+
+    @property
+    def minimal(self) -> bool:
+        """
+        Whether this is a minimal sample.
+        """
+        return self._minimal
+
+    @property
+    def full(self) -> bool:
+        """
+        Whether this is a full sample.
+        """
+        return self._full
+
+
+def get_minimal_sample(configuration: type[_ConfigurationT]) -> Sample[_ConfigurationT]:
+    """
+    Get a sample for a configuration type, preferably as minimal as possible.
+    """
+    samples = list(configuration.samples())
+    for sample in samples:
+        if sample.minimal:
+            return sample
+    for sample in samples:
+        if not sample.full:
+            return sample
+    return samples[0]
+
+
+def get_full_sample(configuration: type[_ConfigurationT]) -> Sample[_ConfigurationT]:
+    """
+    Get a sample for a configuration type, preferably as full as possible.
+    """
+    samples = list(configuration.samples())
+    for sample in samples:
+        if sample.full:
+            return sample
+    for sample in samples:
+        if not sample.minimal:
+            return sample
+    return samples[0]
 
 
 class Configurable(ABC, Generic[_ConfigurationT]):
