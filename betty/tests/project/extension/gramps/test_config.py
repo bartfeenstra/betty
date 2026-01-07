@@ -249,7 +249,9 @@ class TestFamilyTreeConfiguration(ConfigurationTestBase[FamilyTreeConfiguration]
         assert sut.presence_roles.immutable
 
 
-class TestPluginMapping:
+class TestPluginMapping(ConfigurationTestBase[PluginMapping]):
+    sut_cls = PluginMapping
+
     def test___init____with_values(self) -> None:
         class _PluginMapping(PluginMapping[DummyPluginDefinition, DummyPlugin]):
             _DEFAULT_MAPPING = {
@@ -377,7 +379,9 @@ class TestPluginMapping:
         assert list(iter(sut)) == ["my-first-gramps-type"]
 
 
-class TestGrampsConfiguration:
+class TestGrampsConfiguration(ConfigurationTestBase[GrampsConfiguration]):
+    sut_cls = GrampsConfiguration
+
     async def test___init____with_family_trees(self) -> None:
         family_trees = FamilyTreeConfigurationSequence()
         sut = GrampsConfiguration(family_trees=family_trees)

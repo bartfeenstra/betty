@@ -4,6 +4,7 @@ import pytest
 
 from betty.exception import HumanFacingException
 from betty.project.extension.wiki.config import WikiConfiguration
+from betty.test_utils.config import ConfigurationTestBase
 
 if TYPE_CHECKING:
     from collections.abc import Mapping
@@ -11,7 +12,9 @@ if TYPE_CHECKING:
     from betty.serde.dump import Dump
 
 
-class TestWikiConfiguration:
+class TestWikiConfiguration(ConfigurationTestBase[WikiConfiguration]):
+    sut_cls = WikiConfiguration
+
     async def test_load__with_minimal_configuration(self) -> None:
         dump: Mapping[str, Any] = {}
         WikiConfiguration.load(dump)

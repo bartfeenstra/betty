@@ -4,7 +4,7 @@ Configuration for the data model.
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Self, final
+from typing import TYPE_CHECKING, Any, Self, final
 
 from typing_extensions import override
 
@@ -79,6 +79,15 @@ class EntityReference(Configuration):
             "type": self.entity_type,
             "id": self.entity_id,
         }
+
+    @override
+    def __eq__(self, other: Any) -> bool:
+        if not isinstance(other, type(self)):
+            return NotImplemented
+        return (self.entity_type, self.entity_id) == (
+            other.entity_type,
+            other.entity_id,
+        )
 
     async def validate(
         self, entity_type_repository: PluginRepository[EntityDefinition], /

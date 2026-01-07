@@ -5,9 +5,9 @@ Configuration for the :py:class:`betty.project.extension.gramps.Gramps` extensio
 from __future__ import annotations
 
 from pathlib import Path
-from typing import TYPE_CHECKING, Generic, Self, TypeVar
+from typing import TYPE_CHECKING, Any, Generic, Self
 
-from typing_extensions import override
+from typing_extensions import TypeVar, override
 
 from betty.ancestry.event_type import EventType, EventTypeDefinition
 from betty.ancestry.place_type import PlaceType, PlaceTypeDefinition
@@ -37,8 +37,10 @@ if TYPE_CHECKING:
 
     from betty.serde.dump import Dump, DumpMapping
 
-_PluginT = TypeVar("_PluginT", bound=Plugin)
-_PluginDefinitionT = TypeVar("_PluginDefinitionT", bound=PluginDefinition)
+_PluginT = TypeVar("_PluginT", bound=Plugin, default=Plugin)
+_PluginDefinitionT = TypeVar(
+    "_PluginDefinitionT", bound=PluginDefinition, default=PluginDefinition
+)
 
 
 _assert_gramps_type = assert_str(minimum_length=1)
@@ -48,6 +50,8 @@ _assert_gramps_type = assert_str(minimum_length=1)
 class PluginMapping(Generic[_PluginDefinitionT, _PluginT], Configuration):
     """
     Map Gramps types to Betty plugin instances.
+
+    .. configuration:: betty.project.extension.gramps.config:PluginMapping
     """
 
     _DEFAULT_MAPPING: Mapping[
@@ -82,6 +86,12 @@ class PluginMapping(Generic[_PluginDefinitionT, _PluginT], Configuration):
             for gramps_type, configuration in self._mapping.items()
         }
 
+    @override
+    def __eq__(self, other: Any) -> bool:
+        if not isinstance(other, type(self)):
+            return NotImplemented
+        return self._mapping == other._mapping
+
     def __getitem__(
         self, gramps_type: str
     ) -> PluginInstanceConfiguration[_PluginDefinitionT, _PluginT]:
@@ -102,10 +112,22 @@ class PluginMapping(Generic[_PluginDefinitionT, _PluginT], Configuration):
     def __iter__(self) -> Iterator[str]:
         return iter(self._mapping)
 
+    @override
+    @classmethod
+    def samples(cls) -> Iterable[Sample[Self]]:
+        yield Sample(cls(), label="Minimal", minimal=True)
+        yield Sample(
+            cls({"GrampsType": PluginInstanceConfiguration("my-betty-type")}),
+            label="Full",
+            full=True,
+        )
+
 
 class EventTypeMapping(PluginMapping[EventTypeDefinition, EventType]):
     """
     Map Gramps event types to Betty event types.
+
+    .. configuration:: betty.project.extension.gramps.config:EventTypeMapping
     """
 
     _DEFAULT_MAPPING = DEFAULT_EVENT_TYPE_MAPPING
@@ -114,6 +136,8 @@ class EventTypeMapping(PluginMapping[EventTypeDefinition, EventType]):
 class PlaceTypeMapping(PluginMapping[PlaceTypeDefinition, PlaceType]):
     """
     Map Gramps place types to Betty place types.
+
+    .. configuration:: betty.project.extension.gramps.config:PlaceTypeMapping
     """
 
     _DEFAULT_MAPPING = DEFAULT_PLACE_TYPE_MAPPING
@@ -122,6 +146,8 @@ class PlaceTypeMapping(PluginMapping[PlaceTypeDefinition, PlaceType]):
 class PresenceRoleMapping(PluginMapping[PresenceRoleDefinition, PresenceRole]):
     """
     Map Gramps roles to Betty presence roles.
+
+    .. configuration:: betty.project.extension.gramps.config:PresenceRoleMapping
     """
 
     _DEFAULT_MAPPING = DEFAULT_PRESENCE_ROLE_MAPPING
@@ -230,6 +256,17 @@ class FamilyTreeConfiguration(Configuration):
         else:
             dump["file"] = str(self.source)
         return dump
+
+    @override
+    def __eq__(self, other: Any) -> bool:
+        if not isinstance(other, type(self)):
+            return NotImplemented
+        return (
+            self.event_types,
+            self.place_types,
+            self.presence_roles,
+            self.source,
+        ) == (other.event_types, other.place_types, other.presence_roles, other.source)
 
     @override
     @classmethod
@@ -388,6 +425,15 @@ class GrampsConfiguration(Configuration):
         if self.executable is not None:
             dump["executable"] = str(self.executable)
         return dump
+
+    @override
+    def __eq__(self, other: Any) -> bool:
+        if not isinstance(other, type(self)):
+            return NotImplemented
+        return (self.family_trees, self.executable) == (
+            other.family_trees,
+            other.executable,
+        )
 
     @override
     @classmethod

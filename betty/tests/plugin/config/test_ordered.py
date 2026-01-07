@@ -1,12 +1,17 @@
 from typing import TYPE_CHECKING
 
 from betty.plugin.config.ordered import OrderedPluginDefinitionConfiguration
+from betty.test_utils.config import ConfigurationTestBase
 
 if TYPE_CHECKING:
     from betty.serde.dump import Dump
 
 
-class TestOrderedPluginDefinitionConfiguration:
+class TestOrderedPluginDefinitionConfiguration(
+    ConfigurationTestBase[OrderedPluginDefinitionConfiguration]
+):
+    sut_cls = OrderedPluginDefinitionConfiguration
+
     async def test_load__minimal(self) -> None:
         dump: Dump = {"id": "hello-world"}
         sut = OrderedPluginDefinitionConfiguration.load(dump)

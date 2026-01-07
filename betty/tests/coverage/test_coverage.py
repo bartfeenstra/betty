@@ -125,6 +125,7 @@ _BASELINE: Mapping[str, _ModuleIgnore] = {
     },
     "betty/config/__init__.py": {
         "Configuration": {
+            "__eq__": MissingReason.ABSTRACT,
             "validator": MissingReason.STATIC_CONTENT_ONLY,
         },
         "get_full_sample": MissingReason.SHOULD_BE_COVERED,

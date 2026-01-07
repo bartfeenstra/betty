@@ -143,6 +143,17 @@ class SectionConfiguration(Configuration):
         return dump
 
     @override
+    def __eq__(self, other: Any) -> bool:
+        if not isinstance(other, type(self)):
+            return NotImplemented
+        return (self.heading, self.content, self.name, self.visually_hide_heading) == (
+            other.heading,
+            other.content,
+            other.name,
+            other.visually_hide_heading,
+        )
+
+    @override
     def get_mutables(self) -> Iterable[object]:
         return self.heading, self._content
 
@@ -313,7 +324,9 @@ class MediaGallery(Template, _Base, ProjectDependentSelfFactory):
 @final
 class ColorStyleConfiguration(Configuration):
     """
-    Component background configuration.
+    Configuration for :py:class:`betty.project.extension.raspberry_mint.content_provider.ColorStyle`.
+
+    .. configuration:: betty.project.extension.raspberry_mint.content_provider:ColorStyleConfiguration
     """
 
     def __init__(
@@ -322,7 +335,7 @@ class ColorStyleConfiguration(Configuration):
             ContentProviderDefinition, ContentProvider
         ],
         *,
-        style: RaspberryMintColorStyle = RaspberryMintColorStyle.LIGHT,
+        style: RaspberryMintColorStyle,
     ):
         super().__init__()
         self.style = style
@@ -344,7 +357,7 @@ class ColorStyleConfiguration(Configuration):
     def load(cls, dump: Dump, /) -> Self:
         return cls(
             **assert_record(
-                OptionalField("style", assert_enum(RaspberryMintColorStyle)),
+                RequiredField("style", assert_enum(RaspberryMintColorStyle)),
                 RequiredField("content", PluginInstanceConfigurationSequence.load),
             )(dump)
         )
@@ -357,8 +370,31 @@ class ColorStyleConfiguration(Configuration):
         }
 
     @override
+    def __eq__(self, other: Any) -> bool:
+        if not isinstance(other, type(self)):
+            return NotImplemented
+        return (self.style, self.content) == (other.style, other.content)
+
+    @override
     def get_mutables(self) -> Iterable[object]:
         return self.content
+
+    @override
+    @classmethod
+    def samples(cls) -> Iterable[Sample[Self]]:
+        from betty.content_provider.content_providers import Render, RenderConfiguration
+
+        yield Sample(
+            cls(
+                style=RaspberryMintColorStyle.DARK,
+                content=[
+                    PluginInstanceConfiguration(
+                        Render, RenderConfiguration("Hello, world!")
+                    )
+                ],
+            ),
+            label="Default",
+        )
 
 
 @ContentProviderDefinition("raspberry-mint-color-style", label=_("Color style"))
@@ -440,6 +476,8 @@ class Facts(Template, _Base, ProjectDependentSelfFactory):
 class PresencesConfiguration(Configuration):
     """
     Configuration for :py:class:`betty.project.extension.raspberry_mint.content_provider.Presences`.
+
+    .. configuration:: betty.project.extension.raspberry_mint.content_provider:PresencesConfiguration
     """
 
     def __init__(
@@ -480,8 +518,8 @@ class PresencesConfiguration(Configuration):
         assert_ids = assert_sequence(assert_machine_name())
         return cls(
             **assert_or(
-                assert_record(RequiredField("include", assert_ids)),
-                assert_record(RequiredField("exclude", assert_ids)),
+                assert_record(OptionalField("include", assert_ids)),
+                assert_record(OptionalField("exclude", assert_ids)),
             )(dump)
         )
 
@@ -493,6 +531,21 @@ class PresencesConfiguration(Configuration):
         if self.exclude:
             dump["exclude"] = list(self.exclude)
         return dump
+
+    @override
+    def __eq__(self, other: Any) -> bool:
+        if not isinstance(other, type(self)):
+            return NotImplemented
+        return (self.include, self.exclude) == (other.include, other.exclude)
+
+    @override
+    @classmethod
+    def samples(cls) -> Iterable[Sample[Self]]:
+        from betty.ancestry.presence_role.presence_roles import Subject
+
+        yield Sample(cls(), label="Minimal")
+        yield Sample(cls(include=[Subject]), label="Includes", full=True)
+        yield Sample(cls(exclude=[Subject]), label="Excludes", full=True)
 
 
 @ContentProviderDefinition("raspberry-mint-presences", label=_("Presences"))
@@ -561,6 +614,8 @@ ShorthandColumnsWidth: TypeAlias = (
 class ColumnsConfiguration(Configuration):
     """
     Configuration for :py:class:`betty.project.extension.raspberry_mint.content_provider.Columns`.
+
+    .. configuration:: betty.project.extension.raspberry_mint.content_provider:ColumnsConfiguration
     """
 
     def __init__(
@@ -653,6 +708,100 @@ class ColumnsConfiguration(Configuration):
         if self.justify_content is not None:
             dump["justify_content"] = self.justify_content.value
         return dump
+
+    @override
+    def __eq__(self, other: Any) -> bool:
+        if not isinstance(other, type(self)):
+            return NotImplemented
+        return (self.content, self.width, self.justify_content) == (
+            other.content,
+            other.width,
+            other.justify_content,
+        )
+
+    @override
+    @classmethod
+    def samples(cls) -> Iterable[Sample[Self]]:
+        from betty.content_provider.content_providers import Render, RenderConfiguration
+
+        yield Sample(
+            cls(
+                [
+                    PluginInstanceConfiguration(
+                        Render, RenderConfiguration("Hello, world!")
+                    )
+                ]
+            ),
+            label="Minimal",
+            minimal=True,
+        )
+        yield Sample(
+            cls(
+                [
+                    PluginInstanceConfiguration(
+                        Render, RenderConfiguration("Hello, world!")
+                    )
+                ],
+                justify_content=JustifyContent.CENTER,
+            ),
+            label="Justify content",
+        )
+        yield Sample(
+            cls(
+                [
+                    PluginInstanceConfiguration(
+                        Render, RenderConfiguration("Hello, world!")
+                    )
+                ],
+                width=6,
+            ),
+            label="A single column with a fixed, non-responsive width",
+        )
+        yield Sample(
+            cls(
+                [
+                    PluginInstanceConfiguration(
+                        Render, RenderConfiguration("Hello, world!")
+                    ),
+                    PluginInstanceConfiguration(
+                        Render, RenderConfiguration("How are you?")
+                    ),
+                ],
+                width=[6, 6],
+            ),
+            label="Multiple columns with fixed, non-responsive widths",
+        )
+        yield Sample(
+            cls(
+                [
+                    PluginInstanceConfiguration(
+                        Render, RenderConfiguration("Hello, world!")
+                    )
+                ],
+                width={
+                    Breakpoint.XS: 12,
+                    Breakpoint.MD: 6,
+                },
+            ),
+            label="A single column with responsive widths",
+        )
+        yield Sample(
+            cls(
+                [
+                    PluginInstanceConfiguration(
+                        Render, RenderConfiguration("Hello, world!")
+                    ),
+                    PluginInstanceConfiguration(
+                        Render, RenderConfiguration("How are you?")
+                    ),
+                ],
+                width={
+                    Breakpoint.XS: [12, 12],
+                    Breakpoint.MD: [6, 6],
+                },
+            ),
+            label="Multiple columns with responsive widths",
+        )
 
 
 @ContentProviderDefinition("raspberry-mint-columns", label=_("Columns"))

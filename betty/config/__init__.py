@@ -7,6 +7,8 @@ from __future__ import annotations
 from abc import ABC, abstractmethod
 from typing import TYPE_CHECKING, Any, Generic, Self, TypeVar
 
+from typing_extensions import override
+
 from betty.locale.localizable.ensure import ensure_localizable
 from betty.mutability import Mutable
 from betty.serde.dump import Dumpable
@@ -23,6 +25,11 @@ class Configuration(Mutable, Loadable, Dumpable):
     """
     Any configuration object.
     """
+
+    @override
+    @abstractmethod
+    def __eq__(self, other: Any) -> bool:
+        raise NotImplementedError
 
     @property
     def validator(self) -> AnyFactoryTarget[None] | None:

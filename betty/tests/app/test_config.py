@@ -3,12 +3,15 @@ from typing import TYPE_CHECKING
 from babel import Locale
 
 from betty.app.config import AppConfiguration
+from betty.test_utils.config import ConfigurationTestBase
 
 if TYPE_CHECKING:
     from betty.serde.dump import Dump, DumpMapping
 
 
-class TestAppConfiguration:
+class TestAppConfiguration(ConfigurationTestBase[AppConfiguration]):
+    sut_cls = AppConfiguration
+
     def test___init____minimal_locale(self) -> None:
         sut = AppConfiguration()
         assert sut.locale is None

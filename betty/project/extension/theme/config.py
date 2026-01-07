@@ -5,24 +5,25 @@ Configuration for themes.
 from __future__ import annotations
 
 from collections import defaultdict
-from typing import TYPE_CHECKING, Self, final
+from typing import TYPE_CHECKING, Any, Self, final
 
 from typing_extensions import override
 
 from betty.assertion import assert_len, assert_mapping, assert_str
-from betty.config import Configuration
+from betty.config import Configuration, Sample
 from betty.content_provider import ContentProvider, ContentProviderDefinition
 from betty.data import Key
 from betty.exception import HumanFacingException, HumanFacingExceptionGroup
 from betty.locale.localizable.gettext import _
 from betty.locale.localizable.markup import Paragraph, do_you_mean
 from betty.plugin.config import (
+    PluginInstanceConfiguration,
     PluginInstanceConfigurationSequence,
     ShorthandPluginInstanceConfigurationSequence,
 )
 
 if TYPE_CHECKING:
-    from collections.abc import Collection, Mapping, MutableMapping
+    from collections.abc import Collection, Iterable, Mapping, MutableMapping
 
     from betty.serde.dump import Dump
 
@@ -31,6 +32,8 @@ if TYPE_CHECKING:
 class RegionalContentConfiguration(Configuration):
     """
     Configure content for regions.
+
+    .. configuration:: betty.project.extension.theme.config:RegionalContentConfiguration
     """
 
     def __init__(
@@ -97,6 +100,12 @@ class RegionalContentConfiguration(Configuration):
             if len(region_configuration)
         }
 
+    @override
+    def __eq__(self, other: Any) -> bool:
+        if not isinstance(other, type(self)):
+            return NotImplemented
+        return self._content == other._content
+
     def validate(self, available_regions: Collection[str], /) -> None:
         """
         Validate the configuration against runtime information.
@@ -118,3 +127,19 @@ class RegionalContentConfiguration(Configuration):
                                 ),
                             )
                         ) from None
+
+    @override
+    @classmethod
+    def samples(cls) -> Iterable[Sample[Self]]:
+        from betty.content_provider.content_providers import Render, RenderConfiguration
+
+        yield Sample(
+            cls(
+                {
+                    "a-theme-region": PluginInstanceConfiguration(
+                        Render, RenderConfiguration("Hello, world!")
+                    )
+                }
+            ),
+            label="Default",
+        )

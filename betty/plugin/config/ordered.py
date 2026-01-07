@@ -26,6 +26,8 @@ if TYPE_CHECKING:
 class OrderedPluginDefinitionConfiguration(PluginDefinitionConfiguration):
     """
     Configure a :py:class:`betty.plugin.ordered.OrderedPluginDefinition`.
+
+    .. configuration:: betty.plugin.config.ordered:OrderedPluginDefinitionConfiguration
     """
 
     comes_before: MutableSet[MachineName]
@@ -62,3 +64,15 @@ class OrderedPluginDefinitionConfiguration(PluginDefinitionConfiguration):
         if self.comes_after:
             dump["comes_after"] = list(self.comes_after)
         return dump
+
+    @override
+    def __eq__(self, other: Any) -> bool:
+        if not isinstance(other, type(self)):
+            return NotImplemented
+        eq = super().__eq__(other)
+        if eq is not True:
+            return eq
+        return (self.comes_before, self.comes_after) == (
+            other.comes_before,
+            other.comes_after,
+        )

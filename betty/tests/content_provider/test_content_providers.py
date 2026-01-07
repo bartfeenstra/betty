@@ -32,6 +32,7 @@ from betty.project import Project
 from betty.render import RenderDispatcher
 from betty.render.plain_text import PlainText
 from betty.test_utils.ancestry.has_notes import DummyHasNotes
+from betty.test_utils.config import ConfigurationTestBase
 from betty.test_utils.config.factory import ConfigurationDependentSelfFactoryTestBase
 from betty.test_utils.content_provider import ContentProviderTestBase
 from betty.test_utils.locale.localizable import DUMMY_LOCALIZABLE
@@ -40,7 +41,9 @@ if TYPE_CHECKING:
     from betty.serde.dump import Dump
 
 
-class TestRenderConfiguration:
+class TestRenderConfiguration(ConfigurationTestBase[RenderConfiguration]):
+    sut_cls = RenderConfiguration
+
     def test_content(self) -> None:
         content = DUMMY_LOCALIZABLE
         sut = RenderConfiguration(content)
@@ -215,7 +218,9 @@ class TestNotes(ContentProviderTestBase):
             assert note_text in actual
 
 
-class TestBoxConfiguration:
+class TestBoxConfiguration(ConfigurationTestBase[BoxConfiguration]):
+    sut_cls = BoxConfiguration
+
     def test_content(self) -> None:
         sut = BoxConfiguration(PluginInstanceConfiguration("my-first-content"))
         assert sut.content[0].id == "my-first-content"

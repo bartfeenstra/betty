@@ -5,22 +5,26 @@ Configuration for colors.
 from __future__ import annotations
 
 import re
-from typing import TYPE_CHECKING, Self
+from typing import TYPE_CHECKING, Any, Self
 
 from typing_extensions import override
 
 from betty.assertion import assert_str
-from betty.config import Configuration
+from betty.config import Configuration, Sample
 from betty.exception import HumanFacingException
 from betty.locale.localizable.gettext import _
 
 if TYPE_CHECKING:
+    from collections.abc import Iterable
+
     from betty.serde.dump import Dump
 
 
 class ColorConfiguration(Configuration):
     """
     Configure a color.
+
+    .. configuration:: betty.config.color:ColorConfiguration
     """
 
     _HEX_PATTERN = re.compile(r"^#[a-zA-Z0-9]{6}$")
@@ -63,3 +67,14 @@ class ColorConfiguration(Configuration):
     @override
     def dump(self) -> Dump:
         return self._hex
+
+    @override
+    def __eq__(self, other: Any) -> bool:
+        if not isinstance(other, type(self)):
+            return NotImplemented
+        return self.hex == other.hex
+
+    @override
+    @classmethod
+    def samples(cls) -> Iterable[Sample[Self]]:
+        yield Sample(cls("#ff0000"), label="Default")
