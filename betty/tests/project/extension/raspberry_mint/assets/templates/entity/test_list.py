@@ -1,4 +1,5 @@
 from betty.ancestry.event import Event
+from betty.privacy import Privacy
 from betty.project.extension.raspberry_mint import RaspberryMint
 from betty.test_utils.jinja2 import assert_template_file
 
@@ -16,7 +17,7 @@ async def test_minimal() -> None:
 
 
 async def test_without_public_entities() -> None:
-    entity = Event(private=True)
+    entity = Event(privacy=Privacy.PRIVATE)
     expected = ""
     async with assert_template_file(
         data={

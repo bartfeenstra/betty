@@ -261,7 +261,7 @@ class TestSource(EntityTestBase):
                 )
             ],
             links=[link],
-            private=True,
+            privacy=Privacy.PRIVATE,
         )
         Citation(
             id="the_citation",
@@ -300,7 +300,7 @@ class TestSource(EntityTestBase):
         contains_source = Source(
             id="the_contained_source",
             name="The Contained Source",
-            private=True,
+            privacy=Privacy.PRIVATE,
         )
         source = Source(
             id="the_source",
@@ -310,7 +310,7 @@ class TestSource(EntityTestBase):
         Citation(
             id="the_citation",
             source=source,
-            private=True,
+            privacy=Privacy.PRIVATE,
         )
         expected: Mapping[str, Any] = {
             "@context": {

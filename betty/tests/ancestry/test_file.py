@@ -242,7 +242,7 @@ class TestFile(EntityTestBase):
             file = File(
                 id="the_file",
                 path=Path(f.name),
-                private=True,
+                privacy=Privacy.PRIVATE,
                 media_type=PLAIN_TEXT,
                 description="The File",
             )

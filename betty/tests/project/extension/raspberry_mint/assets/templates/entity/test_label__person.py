@@ -1,6 +1,7 @@
 from betty.ancestry.person import Person
 from betty.ancestry.person_name import PersonName
 from betty.document import Document, EntityContexts
+from betty.privacy import Privacy
 from betty.project.extension.raspberry_mint import RaspberryMint
 from betty.test_utils.jinja2 import assert_template_file
 
@@ -64,7 +65,7 @@ async def test_embedded() -> None:
 
 
 async def test_private() -> None:
-    person = Person(id="P0", private=True)
+    person = Person(id="P0", privacy=Privacy.PRIVATE)
     PersonName(
         person=person,
         individual="Jane",
@@ -87,7 +88,7 @@ async def test_with_private_name() -> None:
         person=person,
         individual="Jane",
         affiliation="Dough",
-        private=True,
+        privacy=Privacy.PRIVATE,
     )
     expected = '<span class="private" title="This information is unavailable to protect people\'s privacy.">private</span>'
     async with assert_template_file(

@@ -73,15 +73,9 @@ class Link(HasMediaType, HasDescription, HasPrivacy, Entity):
         media_type: MediaType | None = None,
         owner: HasLinks | None = None,
         privacy: Privacy | None = None,
-        public: bool | None = None,
-        private: bool | None = None,
     ):
         super().__init__(
-            media_type=media_type,
-            description=description,
-            privacy=privacy,
-            public=public,
-            private=private,
+            media_type=media_type, description=description, privacy=privacy
         )
         self._url = url
         self._label = label

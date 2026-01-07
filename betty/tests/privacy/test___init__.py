@@ -22,48 +22,19 @@ if TYPE_CHECKING:
 
 class TestHasPrivacy:
     @pytest.mark.parametrize(
-        ("privacy", "public", "private"),
+        ("expected", "privacy"),
         [
-            (Privacy.PUBLIC, True, True),
-            (Privacy.PUBLIC, False, True),
-            (Privacy.PUBLIC, True, False),
-            (Privacy.PUBLIC, False, False),
-            (Privacy.PUBLIC, True, None),
-            (Privacy.PUBLIC, False, None),
-            (Privacy.PUBLIC, None, True),
-            (Privacy.PUBLIC, None, False),
-            (None, True, True),
-            (None, True, False),
-            (None, False, True),
-            (None, False, False),
-        ],
-    )
-    async def test___init___with_value_error(
-        self, privacy: Privacy | None, public: bool | None, private: bool | None
-    ) -> None:
-        with pytest.raises(ValueError):  # noqa PT011
-            DummyHasPrivacy(privacy=privacy, public=public, private=private)
-
-    @pytest.mark.parametrize(
-        ("expected", "privacy", "public", "private"),
-        [
-            (Privacy.UNDETERMINED, Privacy.UNDETERMINED, None, None),
-            (Privacy.PUBLIC, Privacy.PUBLIC, None, None),
-            (Privacy.PRIVATE, Privacy.PRIVATE, None, None),
-            (Privacy.PUBLIC, None, True, None),
-            (Privacy.UNDETERMINED, None, False, None),
-            (Privacy.PRIVATE, None, None, True),
-            (Privacy.UNDETERMINED, None, None, False),
+            (Privacy.UNDETERMINED, Privacy.UNDETERMINED),
+            (Privacy.PUBLIC, Privacy.PUBLIC),
+            (Privacy.PRIVATE, Privacy.PRIVATE),
         ],
     )
     async def test___init__(
         self,
         expected: Privacy,
         privacy: Privacy | None,
-        public: bool | None,
-        private: bool | None,
     ) -> None:
-        sut = DummyHasPrivacy(privacy=privacy, public=public, private=private)
+        sut = DummyHasPrivacy(privacy=privacy)
         assert sut.privacy is expected
 
     async def test_privacy(self) -> None:
@@ -99,13 +70,13 @@ class TestHasPrivacy:
                 {
                     "private": True,
                 },
-                DummyHasPrivacy(private=True),
+                DummyHasPrivacy(privacy=Privacy.PRIVATE),
             ),
             (
                 {
                     "private": False,
                 },
-                DummyHasPrivacy(private=False),
+                DummyHasPrivacy(privacy=Privacy.PUBLIC),
             ),
         ],
     )

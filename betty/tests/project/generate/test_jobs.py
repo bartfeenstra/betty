@@ -20,6 +20,7 @@ from betty.app import App
 from betty.json.schema import JsonSchemaSchema
 from betty.model import Entity
 from betty.openapi.schema import SpecificationSchema
+from betty.privacy import Privacy
 from betty.project import Project, ProjectContext
 from betty.project.config import EntityTypeConfiguration, LocaleConfiguration
 from betty.project.generate.jobs import (
@@ -132,22 +133,22 @@ class TestGenerateEntitiesHtml:
         "entity",
         [
             Citation(source=Source()),
-            Citation(source=Source(), id="ID", private=True),
+            Citation(source=Source(), id="ID", privacy=Privacy.PRIVATE),
             Enclosure(enclosee=Place(), encloser=Place()),
             Event(),
-            Event(id="ID", private=True),
+            Event(id="ID", privacy=Privacy.PRIVATE),
             File(Path(__file__)),
-            File(Path(__file__), id="ID", private=True),
+            File(Path(__file__), id="ID", privacy=Privacy.PRIVATE),
             Note(DUMMY_LOCALIZABLE),
-            Note(DUMMY_LOCALIZABLE, id="ID", private=True),
+            Note(DUMMY_LOCALIZABLE, id="ID", privacy=Privacy.PRIVATE),
             Person(),
-            Person(id="ID", private=True),
+            Person(id="ID", privacy=Privacy.PRIVATE),
             PersonName(individual="Jane", person=Person()),
             Presence(Person(), UnknownPresenceRole(), Event()),
             Place(),
-            Place(id="ID", private=True),
+            Place(id="ID", privacy=Privacy.PRIVATE),
             Source(),
-            Source(id="ID", private=True),
+            Source(id="ID", privacy=Privacy.PRIVATE),
         ],
     )
     async def test_do__with_non_publishable_entity(

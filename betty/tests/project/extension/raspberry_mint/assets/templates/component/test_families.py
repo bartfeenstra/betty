@@ -1,4 +1,5 @@
 from betty.ancestry.person import Person
+from betty.privacy import Privacy
 from betty.project.extension.raspberry_mint import RaspberryMint
 from betty.test_utils.jinja2 import assert_template_file
 
@@ -29,7 +30,7 @@ async def test_with_parents() -> None:
 
 
 async def test_with_private_parents() -> None:
-    parent = Person(id="P0", private=True)
+    parent = Person(id="P0", privacy=Privacy.PRIVATE)
     person = Person(parents=[parent])
     async with assert_template_file(
         data={
@@ -57,7 +58,7 @@ async def test_with_siblings() -> None:
 
 async def test_with_private_siblings() -> None:
     parent = Person(id="P0")
-    sibling = Person(id="P1", parents=[parent], private=True)
+    sibling = Person(id="P1", parents=[parent], privacy=Privacy.PRIVATE)
     person = Person(parents=[parent])
     async with assert_template_file(
         data={
@@ -83,7 +84,7 @@ async def test_with_children() -> None:
 
 
 async def test_with_private_children() -> None:
-    child = Person(id="P0", private=True)
+    child = Person(id="P0", privacy=Privacy.PRIVATE)
     person = Person(children=[child])
     async with assert_template_file(
         data={
@@ -111,7 +112,7 @@ async def test_with_co_parents() -> None:
 
 async def test_with_private_co_parents() -> None:
     child = Person()
-    co_parent = Person(id="P0", children=[child], private=True)
+    co_parent = Person(id="P0", children=[child], privacy=Privacy.PRIVATE)
     person = Person(children=[child])
     async with assert_template_file(
         data={

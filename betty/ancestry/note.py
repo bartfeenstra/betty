@@ -62,15 +62,8 @@ class Note(HasPrivacy, HasLinks, HasMediaType):
         id: str | None = None,  # noqa A002  # noqa A002
         entity: ToZeroOrOneAssociate[HasNotes] | None = None,
         privacy: Privacy | None = None,
-        public: bool | None = None,
-        private: bool | None = None,
     ):
-        super().__init__(
-            id,
-            privacy=privacy,
-            public=public,
-            private=private,
-        )
+        super().__init__(id, privacy=privacy)
         self.text = text
         if entity is not None:
             self.entity = entity

@@ -3,6 +3,7 @@ from __future__ import annotations
 from betty.ancestry.citation import Citation
 from betty.ancestry.source import Source
 from betty.document import Document, EntityContexts
+from betty.privacy import Privacy
 from betty.project.extension.raspberry_mint import RaspberryMint
 from betty.test_utils.jinja2 import assert_template_file
 
@@ -83,7 +84,7 @@ async def test_with_citation_context() -> None:
 
 async def test_private() -> None:
     source = Source()
-    citation = Citation(source=source, private=True)
+    citation = Citation(source=source, privacy=Privacy.PRIVATE)
     expected = f'<span class="private" title="This information is unavailable to protect people\'s privacy.">private</span> <sup>(<span lang="und" dir="auto">Source {source.id}</span>)</sup>'
     async with assert_template_file(
         data={

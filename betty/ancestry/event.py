@@ -108,8 +108,6 @@ class Event(
         citations: ToManyAssociates[Citation] | None = None,
         notes: ToManyAssociates[Note] | None = None,
         privacy: Privacy | None = None,
-        public: bool | None = None,
-        private: bool | None = None,
         place: ToZeroOrOneAssociate[Place] = None,
         description: LocalizableLike | None = None,
         presences: ToManyAssociates[Presence] | None = None,
@@ -122,8 +120,6 @@ class Event(
             citations=citations,
             notes=notes,
             privacy=privacy,
-            public=public,
-            private=private,
             description=description,
         )
         self._event_type = event_type or UnknownEventType()

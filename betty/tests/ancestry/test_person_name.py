@@ -10,6 +10,7 @@ from betty.ancestry.person import Person
 from betty.ancestry.person_name import PersonName
 from betty.ancestry.source import Source
 from betty.model import Entity
+from betty.privacy import Privacy
 from betty.test_utils.json.linked_data import assert_dumps_linked_data
 from betty.test_utils.model import EntityDefinitionTestBase, EntityTestBase
 
@@ -169,7 +170,7 @@ class TestPersonName(EntityTestBase):
             affiliation="Doe",
             citations=[citation],
             locale=locale,
-            private=True,
+            privacy=Privacy.PRIVATE,
         )
         actual = await assert_dumps_linked_data(sut)
         expected = {

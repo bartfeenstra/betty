@@ -11,6 +11,7 @@ from betty.app import App
 from betty.job import Context
 from betty.locale.localizable.static import StaticTranslations
 from betty.locale.localize import DEFAULT_LOCALIZER
+from betty.privacy import Privacy
 from betty.project import Project
 from betty.project.config import LocaleConfiguration
 from betty.project.extension._theme.search import Index
@@ -57,7 +58,7 @@ class TestIndex:
         individual_name = "Jane"
         person = Person(
             id=person_id,
-            private=True,
+            privacy=Privacy.PRIVATE,
         )
         PersonName(
             person=person,
@@ -255,7 +256,7 @@ class TestIndex:
             names=[
                 Name(StaticTranslations({"en": "Netherlands"})),
             ],
-            private=True,
+            privacy=Privacy.PRIVATE,
         )
 
         async with Project.new_isolated(isolated_app) as project:
@@ -366,7 +367,7 @@ class TestIndex:
             id=file_id,
             path=Path(__file__),
             description='"file" is Dutch for "traffic jam"',
-            private=True,
+            privacy=Privacy.PRIVATE,
         )
 
         async with Project.new_isolated(isolated_app) as project:

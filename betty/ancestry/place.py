@@ -99,18 +99,9 @@ class Place(HasLinks, HasFileReferences, HasNotes, HasPrivacy):
         coordinates: Point | None = None,
         links: MutableSequence[Link] | None = None,
         privacy: Privacy | None = None,
-        public: bool | None = None,
-        private: bool | None = None,
         place_type: PlaceType | None = None,
     ):
-        super().__init__(
-            id,
-            notes=notes,
-            links=links,
-            privacy=privacy,
-            public=public,
-            private=private,
-        )
+        super().__init__(id, notes=notes, links=links, privacy=privacy)
         self._names = [] if names is None else names
         self._coordinates = coordinates
         if events is not None:

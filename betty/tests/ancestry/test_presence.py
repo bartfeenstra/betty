@@ -93,7 +93,7 @@ class TestPresence(EntityTestBase):
         person = Person(id="my-first-person")
         event = Event(id="my-first-event")
         role = Subject()
-        sut = Presence(person, role, event, private=True)
+        sut = Presence(person, role, event, privacy=Privacy.PRIVATE)
 
         expected: DumpMapping[Dump] = {
             "id": sut.id,

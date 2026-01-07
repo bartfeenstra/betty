@@ -87,16 +87,12 @@ class Citation(HasDate, HasFileReferences, HasPrivacy, HasLinks):
         date: DateLike | None = None,
         file_references: ToManyAssociates[FileReference] | None = None,
         privacy: Privacy | None = None,
-        public: bool | None = None,
-        private: bool | None = None,
     ):
         super().__init__(
             id,
             date=date,
             file_references=file_references,
             privacy=privacy,
-            public=public,
-            private=private,
         )
         if facts is not None:
             self.facts = facts

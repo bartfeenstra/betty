@@ -150,7 +150,7 @@ class TestCitation(EntityTestBase):
                 id="the_source",
                 name="The Source",
             ),
-            private=True,
+            privacy=Privacy.PRIVATE,
         )
         citation.facts.add(
             Event(
