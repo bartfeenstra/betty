@@ -80,7 +80,7 @@ class Extension(ServiceContainer, HasRequirement, Plugin["ExtensionDefinition"])
         )
 
     @override
-    async def new_target(self, target: AnyFactoryTarget[_T]) -> _T:
+    async def _new_target(self, target: AnyFactoryTarget[_T]) -> _T:
         return await self._project.new_target(target)
 
 

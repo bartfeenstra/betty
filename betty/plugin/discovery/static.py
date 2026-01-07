@@ -17,7 +17,6 @@ if TYPE_CHECKING:
 
     from betty.service.level import ServiceLevel
 
-
 _PluginDefinitionT = TypeVar(
     "_PluginDefinitionT", bound=PluginDefinition, default=PluginDefinition
 )

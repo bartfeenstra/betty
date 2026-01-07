@@ -26,7 +26,6 @@ if TYPE_CHECKING:
     from betty.app import App
     from betty.service.level import ServiceLevel
 
-
 _T = TypeVar("_T")
 
 

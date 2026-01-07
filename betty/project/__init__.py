@@ -411,8 +411,16 @@ class Project(
 
         return initialized_extensions
 
-    @override
     async def new_target(self, target: AnyFactoryTarget[_T]) -> _T:
+        """
+        Create a new instance.
+
+        :raises FactoryError: raised when ``target`` could not be called.
+        """
+        return await self._new_target(target)
+
+    @override
+    async def _new_target(self, target: AnyFactoryTarget[_T]) -> _T:
         if (
             isinstance(target, ProjectDependentFactory)
             or isinstance(target, type)
