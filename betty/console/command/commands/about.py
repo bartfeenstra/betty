@@ -95,7 +95,7 @@ class About(AppDependentSelfFactory, Command):
         about_plugins.add_column(user.localizer._("ID"))
         about_plugins.add_column(user.localizer._("Label"))
         for plugin_type in sorted(
-            plugin_types().values(),
+            plugin_types,
             key=lambda plugin_type: plugin_type.type().label.localize(user.localizer),
         ):
             repository = await services.plugins(plugin_type, check_requirements=False)

@@ -3,7 +3,13 @@ from __future__ import annotations
 import pytest
 
 from betty.locale.localize import DEFAULT_LOCALIZER
-from betty.plugin import Plugin, PluginDefinition, PluginTypeDefinition, plugin_types
+from betty.model import EntityDefinition
+from betty.plugin import (
+    Plugin,
+    PluginDefinition,
+    PluginTypeDefinition,
+    PluginTypeRepository,
+)
 from betty.plugin.dependent import DependentPluginDefinition
 from betty.plugin.discovery import discover
 from betty.plugin.discovery.static import StaticDiscovery
@@ -292,5 +298,15 @@ class TestPluginDefinition:
         assert plugin_type_label in actual
 
 
-def test_plugin_types() -> None:
-    assert plugin_types()
+class TestPluginTypeRepository:
+    def test___contains__(self) -> None:
+        sut = PluginTypeRepository()
+        assert "entity" in sut
+
+    def test___getitem__(self) -> None:
+        sut = PluginTypeRepository()
+        assert sut["entity"].type().id == "entity"
+
+    def test___iter__(self) -> None:
+        sut = PluginTypeRepository()
+        assert EntityDefinition in list(iter(sut))

@@ -29,7 +29,7 @@ class PluginDocumentationTestBase:
         Test the plugin and plugin type documentation.
         """
         async with Project.new_isolated(isolated_app) as project, project:
-            for plugin_type in plugin_types().values():
+            for plugin_type in plugin_types:
                 with subtests.test():
                     self._test_plugin_type(plugin_type)
                 for plugin in await project.plugins(plugin_type):

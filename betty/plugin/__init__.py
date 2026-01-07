@@ -10,7 +10,7 @@ from __future__ import annotations
 from contextlib import contextmanager
 from functools import update_wrapper
 from importlib import metadata
-from typing import TYPE_CHECKING, Generic, Self, final
+from typing import TYPE_CHECKING, Any, Final, Generic, Self, final
 
 from typing_extensions import TypeVar
 
@@ -289,19 +289,35 @@ class Plugin(Generic[_PluginDefinitionCoT]):
 _PluginT = TypeVar("_PluginT", bound=Plugin, default=Plugin)
 
 
-_plugin_types: Mapping[MachineName, type[PluginDefinition]] | None = None
-
-
-def plugin_types() -> Mapping[MachineName, type[PluginDefinition]]:
+@final
+class PluginTypeRepository:
     """
-    Get the available plugin types.
+    A repository of available plugin types.
     """
-    global _plugin_types
 
-    if _plugin_types is None:
-        _plugin_types = {
-            plugin.type().id: plugin
-            for entry_point in metadata.entry_points(group="betty.plugin")
-            if (plugin := entry_point.load())
-        }
-    return _plugin_types
+    def __init__(self):
+        self._plugin_types: Mapping[MachineName, type[PluginDefinition]] | None = None
+
+    def _get_plugin_types(self) -> Mapping[MachineName, type[PluginDefinition]]:
+        if self._plugin_types is None:
+            self._plugin_types = {
+                plugin.type().id: plugin
+                for entry_point in metadata.entry_points(group="betty.plugin")
+                if (plugin := entry_point.load())
+            }
+        return self._plugin_types
+
+    def __contains__(self, value: Any) -> bool:
+        return value in self._get_plugin_types()
+
+    def __getitem__(self, plugin_type_id: MachineName, /) -> type[PluginDefinition]:
+        return self._get_plugin_types()[plugin_type_id]
+
+    def __iter__(self) -> Iterator[type[PluginDefinition]]:
+        return iter(self._get_plugin_types().values())
+
+
+plugin_types: Final[PluginTypeRepository] = PluginTypeRepository()
+"""
+The available plugin types.
+"""
