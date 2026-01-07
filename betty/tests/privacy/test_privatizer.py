@@ -298,7 +298,7 @@ class TestPrivatizer:
     async def test_privatize__person_should_not_privatize_if_public(self) -> None:
         citation = Citation(source=Source())
         file = File(path=Path(__file__))
-        person = Person(public=True)
+        person = Person(privacy=Privacy.PUBLIC)
         person.citations.add(citation)
         FileReference(person, file)
         presence_as_subject = Presence(person, Subject(), Event(event_type=Birth()))
@@ -317,7 +317,7 @@ class TestPrivatizer:
     async def test_privatize__person_should_privatize_if_private(self) -> None:
         citation = Citation(source=Source())
         file = File(path=Path(__file__))
-        person = Person(private=True)
+        person = Person(privacy=Privacy.PRIVATE)
         person.citations.add(citation)
         FileReference(person, file)
         presence_as_subject = Presence(person, Subject(), Event(event_type=Birth()))
@@ -467,7 +467,7 @@ class TestPrivatizer:
         event_file = File(path=Path(__file__))
         event = Event(
             event_type=Birth(),
-            public=True,
+            privacy=Privacy.PUBLIC,
         )
         event.citations.add(citation)
         FileReference(event, event_file)
@@ -486,7 +486,7 @@ class TestPrivatizer:
         )
         event = Event(
             event_type=Birth(),
-            private=True,
+            privacy=Privacy.PRIVATE,
         )
         event.citations.add(citation)
         FileReference(event, file)
@@ -504,7 +504,7 @@ class TestPrivatizer:
         )
         source = Source(
             name="The Source",
-            public=True,
+            privacy=Privacy.PUBLIC,
         )
         FileReference(source, file)
         await Privatizer(DEFAULT_LIFETIME_THRESHOLD, user=StaticUser()).privatize(
@@ -519,7 +519,7 @@ class TestPrivatizer:
         )
         source = Source(
             name="The Source",
-            private=True,
+            privacy=Privacy.PRIVATE,
         )
         FileReference(source, file)
         await Privatizer(DEFAULT_LIFETIME_THRESHOLD, user=StaticUser()).privatize(
@@ -534,7 +534,7 @@ class TestPrivatizer:
         )
         citation = Citation(
             source=Source(),
-            public=True,
+            privacy=Privacy.PUBLIC,
         )
         FileReference(citation, file)
         await Privatizer(DEFAULT_LIFETIME_THRESHOLD, user=StaticUser()).privatize(
@@ -549,7 +549,7 @@ class TestPrivatizer:
         )
         citation = Citation(
             source=Source(),
-            private=True,
+            privacy=Privacy.PRIVATE,
         )
         FileReference(citation, file)
         await Privatizer(DEFAULT_LIFETIME_THRESHOLD, user=StaticUser()).privatize(
@@ -562,7 +562,7 @@ class TestPrivatizer:
         citation = Citation(source=Source())
         file = File(
             path=Path(__file__),
-            public=True,
+            privacy=Privacy.PUBLIC,
         )
         file.citations.add(citation)
         await Privatizer(DEFAULT_LIFETIME_THRESHOLD, user=StaticUser()).privatize(file)
@@ -573,7 +573,7 @@ class TestPrivatizer:
         citation = Citation(source=Source())
         file = File(
             path=Path(__file__),
-            private=True,
+            privacy=Privacy.PRIVATE,
         )
         file.citations.add(citation)
         await Privatizer(DEFAULT_LIFETIME_THRESHOLD, user=StaticUser()).privatize(file)
@@ -590,18 +590,23 @@ class TestPrivatizer:
                 Privacy.UNDETERMINED,
                 Privacy.UNDETERMINED,
                 [
-                    Event(public=True),
-                    Event(private=True),
+                    Event(privacy=Privacy.PUBLIC),
+                    Event(privacy=Privacy.PRIVATE),
                 ],
                 [],
             ),
-            (Privacy.PRIVATE, Privacy.UNDETERMINED, [Event(private=True)], []),
+            (
+                Privacy.PRIVATE,
+                Privacy.UNDETERMINED,
+                [Event(privacy=Privacy.PRIVATE)],
+                [],
+            ),
             (
                 Privacy.UNDETERMINED,
                 Privacy.UNDETERMINED,
                 [],
                 [
-                    Enclosure(Place(public=True), Place()),
+                    Enclosure(Place(privacy=Privacy.PUBLIC), Place()),
                 ],
             ),
         ],
@@ -624,9 +629,9 @@ class TestPrivatizer:
     async def test_privatize__place_should_not_privatize_public_encloser(
         self,
     ) -> None:
-        encloser = Place(public=True)
+        encloser = Place(privacy=Privacy.PUBLIC)
         place = Place(
-            private=True,
+            privacy=Privacy.PRIVATE,
             enclosers=[Enclosure(Place(), encloser)],
         )
         await Privatizer(DEFAULT_LIFETIME_THRESHOLD, user=StaticUser()).privatize(place)
@@ -639,7 +644,7 @@ class TestPrivatizer:
             enclosees=[Enclosure(Place(), Place())],
         )
         place = Place(
-            private=True,
+            privacy=Privacy.PRIVATE,
             enclosers=[Enclosure(Place(), encloser)],
         )
         await Privatizer(DEFAULT_LIFETIME_THRESHOLD, user=StaticUser()).privatize(place)
@@ -647,7 +652,7 @@ class TestPrivatizer:
 
     async def test_privatize__place_should_privatize_enclosees(self) -> None:
         enclosee = Place()
-        place = Place(private=True)
+        place = Place(privacy=Privacy.PRIVATE)
         Enclosure(enclosee, place)
         await Privatizer(DEFAULT_LIFETIME_THRESHOLD, user=StaticUser()).privatize(place)
         assert enclosee.private

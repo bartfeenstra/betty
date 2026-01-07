@@ -46,7 +46,7 @@ class TestPerson(EntityTestBase):
             person=person_with_private_names_only,
             individual="Jane",
             affiliation="Doe",
-            private=True,
+            privacy=Privacy.PRIVATE,
         )
         person_with_one_public_name = Person()
         PersonName(
@@ -243,7 +243,7 @@ class TestPerson(EntityTestBase):
         person_id = "the_person"
         person_affiliation_name = "Person"
         person_individual_name = "The"
-        person = Person(id=person_id, public=True, gender=NonBinary())
+        person = Person(id=person_id, privacy=Privacy.PUBLIC, gender=NonBinary())
         name = PersonName(
             person=person,
             individual=person_individual_name,
@@ -361,7 +361,7 @@ class TestPerson(EntityTestBase):
         person_individual_name = "The"
         person = Person(
             id=person_id,
-            private=True,
+            privacy=Privacy.PRIVATE,
         )
         name = PersonName(
             person=person,

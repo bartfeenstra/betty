@@ -8,6 +8,7 @@ from betty.ancestry.presence import Presence
 from betty.ancestry.presence_role.presence_roles import Subject
 from betty.ancestry.source import Source
 from betty.locale.localize import DEFAULT_LOCALIZER
+from betty.privacy import Privacy
 from betty.project.extension.raspberry_mint import RaspberryMint
 from betty.test_utils.jinja2 import assert_template_file
 
@@ -47,7 +48,7 @@ async def test_embedded() -> None:
 
 async def test_private() -> None:
     source = Source()
-    person = Person(private=True)
+    person = Person(privacy=Privacy.PRIVATE)
     PersonName(person=person, individual="Primary Name")
     individual_name = "Jane"
     PersonName(
@@ -102,7 +103,7 @@ async def test_with_private_alternative_name() -> None:
         person=person,
         individual=individual_name,
         citations=[Citation(source=source)],
-        private=True,
+        privacy=Privacy.PRIVATE,
     )
     async with assert_template_file(
         data={

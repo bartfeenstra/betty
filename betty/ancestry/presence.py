@@ -75,10 +75,8 @@ class Presence(HasPrivacy, Entity):
         event: ToOneAssociate[Event],
         *,
         privacy: Privacy | None = None,
-        public: bool | None = None,
-        private: bool | None = None,
     ):
-        super().__init__(None, privacy=privacy, public=public, private=private)
+        super().__init__(None, privacy=privacy)
         self.person = person
         self.role = role
         self.event = event

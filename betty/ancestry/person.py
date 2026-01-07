@@ -107,8 +107,6 @@ class Person(HasFileReferences, HasCitations, HasNotes, HasLinks, HasPrivacy):
         links: MutableSequence[Link] | None = None,
         notes: ToManyAssociates[Note] | None = None,
         privacy: Privacy | None = None,
-        public: bool | None = None,
-        private: bool | None = None,
         parents: ToManyAssociates[Person] | None = None,
         children: ToManyAssociates[Person] | None = None,
         presences: ToManyAssociates[Presence] | None = None,
@@ -122,8 +120,6 @@ class Person(HasFileReferences, HasCitations, HasNotes, HasLinks, HasPrivacy):
             links=links,
             notes=notes,
             privacy=privacy,
-            public=public,
-            private=private,
         )
         if children is not None:
             self.children = children

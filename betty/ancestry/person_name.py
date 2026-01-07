@@ -58,8 +58,6 @@ class PersonName(HasLocale, HasCitations, HasPrivacy, Entity):
         individual: str | None = None,
         affiliation: str | None = None,
         privacy: Privacy | None = None,
-        public: bool | None = None,
-        private: bool | None = None,
         locale: LocaleLike | None = None,
         citations: ToManyAssociates[Citation] | None = None,
     ):
@@ -70,8 +68,6 @@ class PersonName(HasLocale, HasCitations, HasPrivacy, Entity):
         super().__init__(
             id,
             privacy=privacy,
-            public=public,
-            private=private,
             locale=locale,
             citations=citations,
         )

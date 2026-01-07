@@ -1,5 +1,6 @@
 from betty.ancestry.citation import Citation
 from betty.ancestry.source import Source
+from betty.privacy import Privacy
 from betty.project.extension.raspberry_mint import RaspberryMint
 from betty.test_utils.jinja2 import assert_template_file
 
@@ -18,7 +19,7 @@ async def test_minimal() -> None:
 
 
 async def test_with_private_source() -> None:
-    source = Source(private=True)
+    source = Source(privacy=Privacy.PRIVATE)
     citation = Citation(source=source)
     async with assert_template_file(
         data={

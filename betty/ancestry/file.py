@@ -91,8 +91,6 @@ class File(
         notes: ToManyAssociates[Note] | None = None,
         citations: ToManyAssociates[Citation] | None = None,
         privacy: Privacy | None = None,
-        public: bool | None = None,
-        private: bool | None = None,
         links: MutableSequence[Link] | None = None,
         copyright_notice: CopyrightNotice | None = None,
         license: License | None = None,  # noqa A002
@@ -104,8 +102,6 @@ class File(
             notes=notes,
             citations=citations,
             privacy=privacy,
-            public=public,
-            private=private,
             links=links,
         )
         self._path = path

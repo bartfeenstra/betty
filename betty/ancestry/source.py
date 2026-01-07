@@ -116,8 +116,6 @@ class Source(HasDate, HasFileReferences, HasNotes, HasLinks, HasPrivacy, Entity)
         file_references: ToManyAssociates[FileReference] | None = None,
         links: MutableSequence[Link] | None = None,
         privacy: Privacy | None = None,
-        public: bool | None = None,
-        private: bool | None = None,
     ):
         super().__init__(
             id,
@@ -126,8 +124,6 @@ class Source(HasDate, HasFileReferences, HasNotes, HasLinks, HasPrivacy, Entity)
             file_references=file_references,
             links=links,
             privacy=privacy,
-            public=public,
-            private=private,
         )
         self.name = name
         self.author = author

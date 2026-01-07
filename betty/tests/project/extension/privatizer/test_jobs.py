@@ -12,6 +12,7 @@ from betty.ancestry.person import Person
 from betty.ancestry.presence import Presence
 from betty.ancestry.presence_role.presence_roles import Subject
 from betty.ancestry.source import Source
+from betty.privacy import Privacy
 from betty.project import Project
 from betty.project.extension.privatizer import Privatizer
 from betty.project.load import load
@@ -32,7 +33,7 @@ class TestPrivatizeAncestry:
         source = Source(
             id="S0",
             name="The Source",
-            private=True,
+            privacy=Privacy.PRIVATE,
         )
         FileReference(source, source_file)
 
@@ -44,7 +45,7 @@ class TestPrivatizeAncestry:
         citation = Citation(
             id="C0",
             source=citation_source,
-            private=True,
+            privacy=Privacy.PRIVATE,
         )
         FileReference(citation, citation_file)
 

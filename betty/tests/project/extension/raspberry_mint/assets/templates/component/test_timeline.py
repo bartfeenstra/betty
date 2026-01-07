@@ -4,6 +4,7 @@ from betty.ancestry.presence import Presence
 from betty.ancestry.presence_role.presence_roles import Attendee, Subject
 from betty.date import Date
 from betty.document import Document, EntityContexts
+from betty.privacy import Privacy
 from betty.project.extension.raspberry_mint import RaspberryMint
 from betty.test_utils.jinja2 import assert_template_file
 
@@ -34,7 +35,7 @@ async def test_with_minimal_event() -> None:
 
 async def test_with_private_event() -> None:
     name = "What's happening?"
-    event = Event(name=name, date=Date(1970, 1, 1), private=True)
+    event = Event(name=name, date=Date(1970, 1, 1), privacy=Privacy.PRIVATE)
     async with assert_template_file(
         data={
             "events": [event],

@@ -253,7 +253,7 @@ class TestEvent(EntityTestBase):
         event = Event(
             id="the_event",
             event_type=Birth(),
-            private=True,
+            privacy=Privacy.PRIVATE,
             date=DateRange(Date(2000, 1, 1), Date(2019, 12, 31)),
             place=Place(
                 id="the_place",

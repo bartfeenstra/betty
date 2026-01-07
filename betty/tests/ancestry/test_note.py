@@ -7,6 +7,7 @@ from typing_extensions import override
 from betty.ancestry.note import Note
 from betty.locale import DEFAULT_LOCALE_TAG
 from betty.locale.localize import DEFAULT_LOCALIZER
+from betty.privacy import Privacy
 from betty.test_utils.ancestry.has_notes import DummyHasNotes
 from betty.test_utils.json.linked_data import assert_dumps_linked_data
 from betty.test_utils.locale.localizable import DUMMY_LOCALIZABLE
@@ -72,7 +73,7 @@ class TestNote(EntityTestBase):
         note = Note(
             "The Note",
             id="the_note",
-            private=True,
+            privacy=Privacy.PRIVATE,
         )
         expected: Mapping[str, Any] = {
             "@id": "https://example.com/note/the_note/index.json",

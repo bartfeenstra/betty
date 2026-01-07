@@ -53,23 +53,10 @@ class HasPrivacy(LinkedDataDumpableWithSchemaJsonLdObject):
         self,
         *args: Any,
         privacy: Privacy | None = None,
-        public: bool | None = None,
-        private: bool | None = None,
         **kwargs: Any,
     ):
         super().__init__(*args, **kwargs)
-        if [privacy, public, private].count(None) < 2:
-            raise ValueError(
-                f"Only one of the `privacy`, `public`, and `private` arguments to {type(self)}.__init__() may be given at a time."
-            )
-        if privacy is not None:
-            self._privacy = privacy
-        elif public is True:
-            self._privacy = Privacy.PUBLIC
-        elif private is True:
-            self._privacy = Privacy.PRIVATE
-        else:
-            self._privacy = Privacy.UNDETERMINED
+        self._privacy = Privacy.UNDETERMINED if privacy is None else privacy
 
     @property
     def own_privacy(self) -> Privacy:
