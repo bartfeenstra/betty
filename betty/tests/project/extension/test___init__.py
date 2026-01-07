@@ -66,8 +66,3 @@ class TestExtension:
                 async with project:
                     requires = await DummyExtensionOne.requires(project, "")
         assert isinstance(requires, DummyExtensionOne)
-
-    async def test_new_target(self, isolated_app: App) -> None:
-        async with Project.new_isolated(isolated_app) as project, project:
-            sut = DummyExtensionOne(project=project)
-            await sut.new_target(DummyExtensionOne)

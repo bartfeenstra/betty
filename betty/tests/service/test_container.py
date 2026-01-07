@@ -35,7 +35,7 @@ class _ServiceContainer(ServiceContainer):
         return StaticRequirement(DUMMY_LOCALIZABLE)
 
     @override
-    async def new_target(self, target: AnyFactoryTarget[_T]) -> _T:
+    async def _new_target(self, target: AnyFactoryTarget[_T]) -> _T:
         return await new_target(target)
 
 

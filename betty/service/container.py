@@ -71,7 +71,7 @@ class ServiceContainer(Bootstrapped, Shutdownable):
         if isinstance(self, Configurable):
             validator_factory = self.configuration.validator
             if validator_factory is not None:
-                await self.new_target(validator_factory)
+                await self._new_target(validator_factory)
             self.configuration.immutable = True
 
     @classmethod
@@ -134,12 +134,8 @@ class ServiceContainer(Bootstrapped, Shutdownable):
         return None
 
     @abstractmethod
-    async def new_target(self, target: AnyFactoryTarget[_T]) -> _T:
-        """
-        Create a new instance.
-
-        :raises FactoryError: raised when ``target`` could not be called.
-        """
+    async def _new_target(self, target: AnyFactoryTarget[_T]) -> _T:
+        pass
 
 
 _ServiceProviderT = TypeVar("_ServiceProviderT", bound=ServiceContainer)
