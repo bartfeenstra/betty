@@ -175,7 +175,7 @@ class RaspberryMintConfiguration(Configuration):
     @override
     @classmethod
     def samples(cls) -> Iterable[Sample[Self]]:
-        yield Sample(cls(), label="Minimal")
+        yield Sample(cls(), label="Minimal", minimal=True)
         yield Sample(
             cls(
                 primary_color=ColorConfiguration("#ff0000"),

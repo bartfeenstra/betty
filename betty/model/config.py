@@ -125,5 +125,5 @@ class EntityReferenceSequence(ConfigurationSequence[EntityReference]):
     def samples(cls) -> Iterable[Sample[Self]]:
         from betty.ancestry.person import Person
 
-        yield Sample(cls(), label="Minimal")
-        yield Sample(cls([EntityReference(Person, "123")]), label="Expanded")
+        yield Sample(cls(), label="Minimal", minimal=True)
+        yield Sample(cls([EntityReference(Person, "123")]), label="Expanded", full=True)
