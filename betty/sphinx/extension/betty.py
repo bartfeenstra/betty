@@ -150,7 +150,7 @@ class _PluginDirective(SphinxDirective):
             configuration_content = "*not configurable*"
         content = f"""
 .. list-table::
-   :widths: 15 10
+   :widths: 20 10
    :header-rows: 0
 
    * - Plugin ID
@@ -241,7 +241,7 @@ class _PluginTypeDirective(SphinxDirective):
             self.state,
             f"""
 .. list-table::
-   :widths: 15 10
+   :widths: 20 10
    :header-rows: 0
 
    * - Plugin type ID
