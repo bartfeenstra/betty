@@ -121,6 +121,6 @@ async def tests() -> Mapping[str, Callable[..., bool]]:
         "private": is_private,
         "public": is_public,
     }
-    for plugin in plugin_types().values():
+    for plugin in plugin_types:
         tests.update(PluginTester(plugin).tests())
     return tests

@@ -62,7 +62,7 @@ class ServiceLevelPluginRepositoryProvider(PluginRepositoryProvider):
         if isinstance(plugin_type, str):
             plugin_type = cast(
                 type[_PluginDefinitionT],
-                plugin.plugin_types()[plugin_type],
+                plugin.plugin_types[plugin_type],
             )
         repository: PluginRepository[_PluginDefinitionT] | None
         if plugin_type.type().discovery_overridden:

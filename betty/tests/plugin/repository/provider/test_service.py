@@ -3,6 +3,7 @@ from collections.abc import Iterable
 from pytest_mock import MockerFixture
 
 from betty.app import App
+from betty.plugin import PluginTypeRepository
 from betty.plugin.discovery.app import AppDiscovery
 from betty.plugin.discovery.static import StaticDiscovery
 from betty.plugin.repository.provider.service import (
@@ -20,12 +21,11 @@ class TestServiceLevelPluginRepositoryProvider:
         assert DummyPluginOne.plugin() in await sut.plugins(DummyPluginDefinition)
 
     async def test_plugins__with_plugin_type_id(self, mocker: MockerFixture) -> None:
-        mocker.patch(
-            "betty.plugin.plugin_types",
-            return_value={
-                DummyPluginDefinition.type().id: DummyPluginDefinition,
-            },
-        )
+        plugin_type_repository = PluginTypeRepository()
+        plugin_type_repository._plugin_types = {
+            DummyPluginDefinition.type().id: DummyPluginDefinition,
+        }
+        mocker.patch("betty.plugin.plugin_types", new=plugin_type_repository)
         sut = ServiceLevelPluginRepositoryProvider(None)
         assert DummyPluginOne.plugin() in await sut.plugins(
             DummyPluginDefinition.type().id

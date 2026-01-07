@@ -214,7 +214,7 @@ class _PluginTypeDirective(SphinxDirective):
     def run(self) -> list[nodes.Node]:
         # Right-strip periods to avoid D400 and D415 violations.
         plugin_type_id = self.arguments[0].rstrip(".")
-        plugin_type = plugin_types()[plugin_type_id]
+        plugin_type = plugin_types[plugin_type_id]
         plugins = _to_thread(lambda: run(_get_plugins(plugin_type_id)))
         return [
             self._build_summary(plugin_type),
@@ -297,7 +297,7 @@ class _PluginTypesDirective(SphinxDirective):
                 [
                     self._build_builtin_plugin_type_definition(plugin_type)
                     for plugin_type in sorted(
-                        plugin_types().values(),
+                        plugin_types,
                         key=lambda plugin_type: plugin_type.type().label.localize(
                             DEFAULT_LOCALIZER
                         ),
