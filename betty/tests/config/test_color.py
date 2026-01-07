@@ -3,9 +3,12 @@ import pytest
 from betty.config.color import ColorConfiguration
 from betty.exception import HumanFacingException
 from betty.serde.dump import Dump
+from betty.test_utils.config import ConfigurationTestBase
 
 
-class TestColorConfiguration:
+class TestColorConfiguration(ConfigurationTestBase[ColorConfiguration]):
+    sut_cls = ColorConfiguration
+
     def test_hex(self) -> None:
         hex_value = "#123456"
         sut = ColorConfiguration(hex_value)

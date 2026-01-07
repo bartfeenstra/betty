@@ -7,9 +7,14 @@ from betty.plugin.config import (
     PluginInstanceConfiguration,
 )
 from betty.project.extension.theme.config import RegionalContentConfiguration
+from betty.test_utils.config import ConfigurationTestBase
 
 
-class TestRegionalContentConfiguration:
+class TestRegionalContentConfiguration(
+    ConfigurationTestBase[RegionalContentConfiguration]
+):
+    sut_cls = RegionalContentConfiguration
+
     def test___getitem__(self) -> None:
         sut = RegionalContentConfiguration()
         assert sut["front"] is sut["front"]

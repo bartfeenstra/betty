@@ -14,6 +14,7 @@ from betty.project import Project
 from betty.project.extension.raspberry_mint import RaspberryMint
 from betty.project.extension.raspberry_mint.config import RaspberryMintConfiguration
 from betty.project.extension.theme.config import RegionalContentConfiguration
+from betty.test_utils.config import ConfigurationTestBase
 
 if TYPE_CHECKING:
     from collections.abc import Mapping
@@ -23,7 +24,9 @@ if TYPE_CHECKING:
     from betty.serde.dump import Dump, DumpMapping
 
 
-class TestRaspberryMintConfiguration:
+class TestRaspberryMintConfiguration(ConfigurationTestBase[RaspberryMintConfiguration]):
+    sut_cls = RaspberryMintConfiguration
+
     async def test_validator__should_validate_featured_entities_configuration(
         self, isolated_app: App, tmp_path: Path
     ) -> None:

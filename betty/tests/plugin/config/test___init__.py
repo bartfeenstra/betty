@@ -48,7 +48,11 @@ from betty.test_utils.plugin.config import (
 )
 
 
-class TestPluginDefinitionConfiguration:
+class TestPluginDefinitionConfiguration(
+    ConfigurationTestBase[PluginDefinitionConfiguration]
+):
+    sut_cls = PluginDefinitionConfiguration
+
     async def test_load(self) -> None:
         plugin_id = "hello-world"
         dump: Dump = {
@@ -70,7 +74,11 @@ class TestPluginDefinitionConfiguration:
         assert sut.id == plugin_id
 
 
-class TestHumanFacingPluginDefinitionConfiguration:
+class TestHumanFacingPluginDefinitionConfiguration(
+    ConfigurationTestBase[HumanFacingPluginDefinitionConfiguration]
+):
+    sut_cls = HumanFacingPluginDefinitionConfiguration
+
     async def test_load__with_undetermined_label(self) -> None:
         label = "Hello, world!"
         dump: Dump = {
@@ -168,7 +176,11 @@ class TestHumanFacingPluginDefinitionConfiguration:
         assert sut.description is description
 
 
-class TestCountableHumanFacingPluginDefinitionConfiguration:
+class TestCountableHumanFacingPluginDefinitionConfiguration(
+    ConfigurationTestBase[CountableHumanFacingPluginDefinitionConfiguration]
+):
+    sut_cls = CountableHumanFacingPluginDefinitionConfiguration
+
     async def test_load__with_undetermined_label(self) -> None:
         label_plural = "Hello, world!"
         label_countable = {

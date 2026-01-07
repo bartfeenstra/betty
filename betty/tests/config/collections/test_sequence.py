@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 from collections.abc import Sequence
-from typing import TYPE_CHECKING, Self
+from typing import TYPE_CHECKING, Any, Self
 
 import pytest
 from typing_extensions import override
@@ -37,6 +37,12 @@ class ConfigurationSequenceTestConfiguration(Configuration):
     @override
     def dump(self) -> Dump:
         return {"value": self.value}
+
+    @override
+    def __eq__(self, other: Any) -> bool:
+        if not isinstance(other, type(self)):
+            return NotImplemented
+        return self.value == other.value
 
 
 class ConfigurationSequenceTestConfigurationSequence(

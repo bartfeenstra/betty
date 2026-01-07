@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 from collections.abc import Mapping, Sequence
-from typing import TYPE_CHECKING, Self, cast
+from typing import TYPE_CHECKING, Any, Self, cast
 
 import pytest
 from typing_extensions import override
@@ -44,6 +44,12 @@ class ConfigurationMappingTestConfiguration(Configuration):
             "key": self.key,
             "value": self.value,
         }
+
+    @override
+    def __eq__(self, other: Any) -> bool:
+        if not isinstance(other, type(self)):
+            return NotImplemented
+        return (self.key, self.value) == (other.key, other.value)
 
 
 class ConfigurationMappingTestConfigurationMapping(

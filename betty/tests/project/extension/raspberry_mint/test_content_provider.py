@@ -67,6 +67,7 @@ from betty.project.extension.raspberry_mint.content_provider import (
 )
 from betty.test_utils.ancestry.has_citations import DummyHasCitations
 from betty.test_utils.ancestry.has_file_references import DummyHasFileReferences
+from betty.test_utils.config import ConfigurationTestBase
 from betty.test_utils.config.factory import ConfigurationDependentSelfFactoryTestBase
 from betty.test_utils.content_provider import (
     ContentProviderTestBase,
@@ -121,7 +122,9 @@ class TestEntityCard(
         assert entity.public_id in provided_content
 
 
-class TestSectionConfiguration:
+class TestSectionConfiguration(ConfigurationTestBase[SectionConfiguration]):
+    sut_cls = SectionConfiguration
+
     def test_content(self) -> None:
         sut = SectionConfiguration(
             PluginInstanceConfiguration("my-first-content"),
@@ -435,9 +438,13 @@ class TestMediaGallery(ContentProviderTestBase):
         assert file.label.localize(DEFAULT_LOCALIZER) in actual
 
 
-class TestColorStyleConfiguration:
+class TestColorStyleConfiguration(ConfigurationTestBase[ColorStyleConfiguration]):
+    sut_cls = ColorStyleConfiguration
+
     def test_content(self) -> None:
-        sut = ColorStyleConfiguration(PluginInstanceConfiguration("my-first-content"))
+        sut = ColorStyleConfiguration(
+            PluginInstanceConfiguration("my-first-content"), style=ColorStyleOption.DARK
+        )
         assert sut.content[0].id == "my-first-content"
 
     def test_style(self) -> None:
@@ -447,15 +454,7 @@ class TestColorStyleConfiguration:
         )
         assert sut.style == style
 
-    def test_load__minimal(self) -> None:
-        sut = ColorStyleConfiguration.load(
-            {
-                "content": ["my-first-content"],
-            }
-        )
-        assert sut.content[0].id == "my-first-content"
-
-    def test_load__with_style(self) -> None:
+    def test_load(self) -> None:
         sut = ColorStyleConfiguration.load(
             {
                 "style": "dark-secondary",
@@ -481,7 +480,9 @@ class TestColorStyleConfiguration:
         }
 
     def test_get_mutables(self) -> None:
-        sut = ColorStyleConfiguration(PluginInstanceConfiguration("my-first-content"))
+        sut = ColorStyleConfiguration(
+            PluginInstanceConfiguration("my-first-content"), style=ColorStyleOption.DARK
+        )
         assert list(sut.get_mutables())
 
 
@@ -495,7 +496,8 @@ class TestColorStyle(ContentProviderTestBase):
                     ColorStyleConfiguration(
                         PluginInstanceConfiguration(
                             Render, RenderConfiguration("My First Content")
-                        )
+                        ),
+                        style=ColorStyleOption.DARK,
                     )
                 )
             )
@@ -510,7 +512,8 @@ class TestColorStyle(ContentProviderTestBase):
                     sut = await project.new_target(
                         ColorStyle.new_for_configuration(
                             ColorStyleConfiguration(
-                                PluginInstanceConfiguration(NoOpContentProvider)
+                                PluginInstanceConfiguration(NoOpContentProvider),
+                                style=ColorStyleOption.DARK,
                             )
                         )
                     )
@@ -525,7 +528,8 @@ class TestColorStyle(ContentProviderTestBase):
                         ColorStyleConfiguration(
                             PluginInstanceConfiguration(
                                 Render, RenderConfiguration("My First Content")
-                            )
+                            ),
+                            style=ColorStyleOption.DARK,
                         )
                     )
                 )
@@ -673,7 +677,9 @@ class TestFacts(ContentProviderTestBase):
         assert fact.public_id in actual
 
 
-class TestPresencesConfiguration:
+class TestPresencesConfiguration(ConfigurationTestBase[PresencesConfiguration]):
+    sut_cls = PresencesConfiguration
+
     def test_include(self) -> None:
         include = ["foo"]
         sut = PresencesConfiguration(include=include)
@@ -823,7 +829,9 @@ class TestPresences(ContentProviderTestBase):
         assert person_exclude.public_id not in actual
 
 
-class TestColumnsConfiguration:
+class TestColumnsConfiguration(ConfigurationTestBase[ColumnsConfiguration]):
+    sut_cls = ColumnsConfiguration
+
     def test_content(self) -> None:
         content = PluginInstanceConfiguration[
             ContentProviderDefinition, ContentProvider

@@ -24,6 +24,7 @@ from betty.locale.localizable.gettext import _
 from betty.media_type import MediaType
 from betty.media_type.media_types import PLAIN_TEXT
 from betty.plugin.config import (
+    PluginInstanceConfiguration,
     PluginInstanceConfigurationSequence,
     ShorthandPluginInstanceConfigurationSequence,
 )
@@ -76,6 +77,12 @@ class RenderConfiguration(Configuration):
             "content": dump_localizable(self.content),
             "media_type": str(self.media_type),
         }
+
+    @override
+    def __eq__(self, other: Any) -> bool:
+        if not isinstance(other, type(self)):
+            return NotImplemented
+        return (self.content, self.media_type) == (other.content, other.media_type)
 
     @override
     @classmethod
@@ -175,6 +182,8 @@ class Notes(Template, ProjectDependentSelfFactory):
 class BoxConfiguration(Configuration):
     """
     Configuration for :py:class:`betty.content_provider.content_providers.Box`.
+
+    .. configuration:: betty.content_provider.content_providers:BoxConfiguration
     """
 
     def __init__(
@@ -245,8 +254,52 @@ class BoxConfiguration(Configuration):
         return dump
 
     @override
+    def __eq__(self, other: Any) -> bool:
+        if not isinstance(other, type(self)):
+            return NotImplemented
+        return (
+            self.content,
+            self.min_height,
+            self.max_height,
+            self.height,
+            self.min_width,
+            self.max_width,
+            self.width,
+        ) == (
+            other.content,
+            other.min_height,
+            other.max_height,
+            other.height,
+            other.min_width,
+            other.max_width,
+            other.width,
+        )
+
+    @override
     def get_mutables(self) -> Iterable[object]:
         return self.content
+
+    @override
+    @classmethod
+    def samples(cls) -> Iterable[Sample[Self]]:
+        yield Sample(cls([]), label="Minimal", minimal=True)
+        yield Sample(
+            cls(
+                [
+                    PluginInstanceConfiguration(
+                        Render, RenderConfiguration("Hello, world!")
+                    )
+                ],
+                min_height="100px",
+                max_height="1000px",
+                height="500px",
+                min_width="100px",
+                max_width="1000px",
+                width="500px",
+            ),
+            label="Full",
+            full=True,
+        )
 
 
 @final

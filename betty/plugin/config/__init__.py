@@ -22,6 +22,7 @@ from betty.config.collections import ConfigurationCollection, ConfigurationKey
 from betty.config.collections.mapping import ConfigurationMapping
 from betty.config.collections.sequence import ConfigurationSequence
 from betty.config.color import ColorConfiguration
+from betty.locale import DEFAULT_LOCALE
 from betty.locale.localizable.assertion import (
     assert_load_countable_localizable,
     assert_load_localizable,
@@ -36,6 +37,7 @@ from betty.locale.localizable.ensure import (
     ensure_countable_localizable,
     ensure_localizable,
 )
+from betty.locale.localizable.static import CountableStaticTranslations
 from betty.machine_name import MachineName, assert_machine_name
 from betty.plugin import Plugin, PluginDefinition
 from betty.plugin.resolve import ResolvableId, resolve_id
@@ -74,6 +76,8 @@ class PluginIdentifierKeyConfigurationMapping(
 class PluginDefinitionConfiguration(Configuration):
     """
     Configure a :py:class:`betty.plugin.PluginDefinition`.
+
+    .. configuration:: betty.plugin.config:PluginDefinitionConfiguration
     """
 
     def __init__(
@@ -111,10 +115,23 @@ class PluginDefinitionConfiguration(Configuration):
             "id": self.id,
         }
 
+    @override
+    def __eq__(self, other: Any) -> bool:
+        if not isinstance(other, type(self)):
+            return NotImplemented
+        return self.id == other.id
+
+    @override
+    @classmethod
+    def samples(cls) -> Iterable[Sample[Self]]:
+        yield Sample(cls(id="my-custom-plugin"), label="Default")
+
 
 class HumanFacingPluginDefinitionConfiguration(PluginDefinitionConfiguration):
     """
     Configure a :py:class:`betty.plugin.human_facing.HumanFacingPluginDefinition`.
+
+    .. configuration:: betty.plugin.config:HumanFacingPluginDefinitionConfiguration
     """
 
     label = RequiredLocalizableAttr("label")
@@ -149,12 +166,41 @@ class HumanFacingPluginDefinitionConfiguration(PluginDefinitionConfiguration):
             dump["description"] = dump_localizable(self.description)
         return dump
 
+    @override
+    def __eq__(self, other: Any) -> bool:
+        if not isinstance(other, type(self)):
+            return NotImplemented
+        eq = super().__eq__(other)
+        if eq is not True:
+            return eq
+        return (self.label, self.description) == (other.label, other.description)
+
+    @override
+    @classmethod
+    def samples(cls) -> Iterable[Sample[Self]]:
+        yield Sample(
+            cls(id="my-custom-plugin", label="My Custom Plugin"),
+            label="Minimal",
+            minimal=True,
+        )
+        yield Sample(
+            cls(
+                id="my-custom-plugin",
+                label="My Custom Plugin",
+                description="My Custom Plugin is the best plugin for your needs.",
+            ),
+            label="Full",
+            full=True,
+        )
+
 
 class CountableHumanFacingPluginDefinitionConfiguration(
     HumanFacingPluginDefinitionConfiguration
 ):
     """
     Configure a :py:class:`betty.plugin.human_facing.CountableHumanFacingPluginDefinition`.
+
+    .. configuration:: betty.plugin.config:CountableHumanFacingPluginDefinitionConfiguration
     """
 
     label_plural = RequiredLocalizableAttr("label_plural")
@@ -186,6 +232,57 @@ class CountableHumanFacingPluginDefinitionConfiguration(
         dump["label_plural"] = dump_localizable(self.label_plural)
         dump["label_countable"] = dump_countable_localizable(self.label_countable)
         return dump
+
+    @override
+    def __eq__(self, other: Any) -> bool:
+        if not isinstance(other, type(self)):
+            return NotImplemented
+        eq = super().__eq__(other)
+        if eq is not True:
+            return eq
+        return (self.label_plural, self.label_countable) == (
+            other.label_plural,
+            other.label_countable,
+        )
+
+    @override
+    @classmethod
+    def samples(cls) -> Iterable[Sample[Self]]:
+        yield Sample(
+            cls(
+                id="my-custom-plugin",
+                label="My Custom Plugin",
+                label_plural="My Custom Plugins",
+                label_countable=CountableStaticTranslations(
+                    {
+                        DEFAULT_LOCALE: {
+                            "one": "{count} My Custom Plugin",
+                            "other": "{count} My Custom Plugins",
+                        }
+                    }
+                ),
+            ),
+            label="Minimal",
+            minimal=True,
+        )
+        yield Sample(
+            cls(
+                id="my-custom-plugin",
+                label="My Custom Plugin",
+                label_plural="My Custom Plugins",
+                label_countable=CountableStaticTranslations(
+                    {
+                        DEFAULT_LOCALE: {
+                            "one": "{count} My Custom Plugin",
+                            "other": "{count} My Custom Plugins",
+                        }
+                    }
+                ),
+                description="My Custom Plugin is the best plugin for your needs.",
+            ),
+            label="Full",
+            full=True,
+        )
 
 
 _PluginDefinitionConfigurationT = TypeVar(

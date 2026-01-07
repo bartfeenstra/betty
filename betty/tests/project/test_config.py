@@ -361,7 +361,9 @@ class TestExtensionInstanceConfigurationMapping(
         assert DummyExtensionOne.plugin() in sut
 
 
-class TestEntityTypeConfiguration:
+class TestEntityTypeConfiguration(ConfigurationTestBase[EntityTypeConfiguration]):
+    sut_cls = EntityTypeConfiguration
+
     async def test_id__with___init___entity_type(self) -> None:
         entity_type = DummyEntityOne
         sut = EntityTypeConfiguration(entity_type)
@@ -1133,7 +1135,7 @@ class TestProjectConfiguration(ConfigurationTestBase[ProjectConfiguration]):
         dump = ProjectConfiguration(title="Betty", url="https://example.com").dump()
         dump["logo"] = str(logo)
         sut = ProjectConfiguration.load(dump)
-        assert sut.logo == logo.resolve()
+        assert sut.logo == logo
 
     async def test_load__should_load_locale_locale(self) -> None:
         locale = "nl-NL"

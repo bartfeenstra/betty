@@ -181,6 +181,15 @@ class EntityTypeConfiguration(Configuration):
             "generate_html_list": self.generate_html_list,
         }
 
+    @override
+    def __eq__(self, other: Any) -> bool:
+        if not isinstance(other, type(self)):
+            return NotImplemented
+        return (self.id, self.generate_html_list) == (
+            other.id,
+            other.generate_html_list,
+        )
+
     async def validate(
         self, entity_type_repository: PluginRepository[EntityDefinition], /
     ) -> None:
@@ -1447,6 +1456,52 @@ class ProjectConfiguration(Configuration):
         if self.presence_roles:
             dump["presence_roles"] = self.presence_roles.dump()
         return dump
+
+    @override
+    def __eq__(self, other: Any) -> bool:
+        if not isinstance(other, type(self)):
+            return NotImplemented
+        return (
+            self.title,
+            self.url,
+            self.author,
+            self.clean_urls,
+            self.copyright_notice,
+            self.copyright_notices,
+            self.debug,
+            self.entity_types,
+            self.event_types,
+            self.extensions,
+            self.genders,
+            self.license,
+            self.licenses,
+            self.lifetime_threshold,
+            self.locales,
+            self.logo,
+            self.name,
+            self.place_types,
+            self.presence_roles,
+        ) == (
+            other.title,
+            other.url,
+            other.author,
+            other.clean_urls,
+            other.copyright_notice,
+            other.copyright_notices,
+            other.debug,
+            other.entity_types,
+            other.event_types,
+            other.extensions,
+            other.genders,
+            other.license,
+            other.licenses,
+            other.lifetime_threshold,
+            other.locales,
+            other.logo,
+            other.name,
+            other.place_types,
+            other.presence_roles,
+        )
 
     @override
     @classmethod

@@ -477,9 +477,7 @@ def assert_path() -> AssertionChain[Any, Path]:
     """
     Assert that a value is a path to a file or directory on disk that may or may not exist.
     """
-    return assert_or(assert_isinstance(Path), assert_str() | Path).chain(
-        lambda value: value.expanduser().resolve()
-    )
+    return assert_or(assert_isinstance(Path), assert_str() | Path)
 
 
 def assert_directory_path() -> AssertionChain[Any, Path]:

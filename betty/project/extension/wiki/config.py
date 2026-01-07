@@ -3,7 +3,7 @@ Configuration for the Wikipedia extension.
 """
 
 from collections.abc import Iterable
-from typing import Self
+from typing import Any, Self
 
 from typing_extensions import override
 
@@ -57,6 +57,12 @@ class WikiConfiguration(Configuration):
         return {
             "populate_images": self.populate_images,
         }
+
+    @override
+    def __eq__(self, other: Any) -> bool:
+        if not isinstance(other, type(self)):
+            return NotImplemented
+        return self.populate_images == other.populate_images
 
     @override
     @classmethod

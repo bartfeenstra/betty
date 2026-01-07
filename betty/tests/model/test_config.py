@@ -9,6 +9,7 @@ from betty.exception import HumanFacingException
 from betty.model import EntityDefinition
 from betty.model.config import EntityReference, EntityReferenceSequence
 from betty.plugin.repository.static import StaticPluginRepository
+from betty.test_utils.config import ConfigurationTestBase
 from betty.test_utils.config.collections.sequence import ConfigurationSequenceTestBase
 from betty.test_utils.model import (
     DummyEntityFour,
@@ -24,7 +25,9 @@ if TYPE_CHECKING:
     )
 
 
-class TestEntityReference:
+class TestEntityReference(ConfigurationTestBase[EntityReference]):
+    sut_cls = EntityReference
+
     async def test_entity_type(self) -> None:
         entity_type = DummyEntityOne.plugin().id
         sut = EntityReference(entity_type, "123")

@@ -3,7 +3,7 @@ Test utilities for :py:mod:`betty.config`.
 """
 
 from inspect import isabstract
-from typing import Generic, Self
+from typing import Any, Generic, Self
 
 import pytest
 from typing_extensions import TypeVar, override
@@ -55,15 +55,63 @@ class ConfigurationTestBase(Generic[_ConfigurationT]):
             f"{fully_qualified_name(self.sut_cls)}.samples() does not return any samples."
         )
 
-    def test___eq__(self, subtests: pytest.Subtests) -> None:
+    @pytest.mark.parametrize(
+        "other",
+        [
+            object,
+            object(),
+            True,
+            False,
+            None,
+            123,
+            "abc",
+            [],
+            {},
+        ],
+    )
+    def test___eq____with_unsupported_other(
+        self, other: Any, subtests: pytest.Subtests
+    ) -> None:
         """
         Tests :py:meth:`object.__eq__` implementations.
         """
-        for sample in self.sut_cls.samples():
+        samples = list(self.sut_cls.samples())
+        for sample in samples:
             with subtests.test(str(sample.label.localize(DEFAULT_LOCALIZER))):
-                assert sample == sample
-                for other_sample in self.sut_cls.samples():
-                    assert sample != other_sample
+                assert sample.configuration != other
+
+    def test___eq____with_samples(self, subtests: pytest.Subtests) -> None:
+        """
+        Tests :py:meth:`object.__eq__` implementations.
+        """
+        samples = list(self.sut_cls.samples())
+        for sample in samples:
+            with subtests.test(str(sample.label.localize(DEFAULT_LOCALIZER))):
+                assert sample.configuration == sample.configuration, (
+                    f'Failed asserting that {fully_qualified_name(self.sut_cls)} sample "{sample.label.localize(DEFAULT_LOCALIZER)}" instance is equal to itself.'
+                )
+                for other_sample in samples:
+                    if other_sample is sample:
+                        continue
+                    assert sample.configuration != other_sample.configuration, (
+                        f'Failed asserting that {fully_qualified_name(self.sut_cls)} sample "{sample.label.localize(DEFAULT_LOCALIZER)}" instance is not equal to sample "{sample.label.localize(DEFAULT_LOCALIZER)}".'
+                    )
+
+    def test_dump__with_samples(self, subtests: pytest.Subtests) -> None:
+        """
+        Tests :py:meth:`object.__eq__` implementations.
+        """
+        samples = list(self.sut_cls.samples())
+        for sample in samples:
+            with subtests.test(str(sample.label.localize(DEFAULT_LOCALIZER))):
+                dump = sample.configuration.dump()
+                assert dump == self.sut_cls.load(dump).dump(), (
+                    f'Failed asserting that {fully_qualified_name(self.sut_cls)}.load() and {fully_qualified_name(self.sut_cls)}.dump() do not change the data for sample "{sample.label.localize(DEFAULT_LOCALIZER)}".'
+                )
+                for other_sample in samples:
+                    if other_sample is sample:
+                        continue
+                    assert dump != other_sample.configuration.dump()
 
 
 class DummyConfiguration(Configuration):
@@ -94,6 +142,12 @@ class DummyConfiguration(Configuration):
         return {
             "value": self.value,
         }
+
+    @override
+    def __eq__(self, other: Any) -> bool:
+        if not isinstance(other, type(self)):
+            return NotImplemented
+        return self.value == other.value
 
 
 class DummyConfigurable(Configurable[DummyConfiguration]):
