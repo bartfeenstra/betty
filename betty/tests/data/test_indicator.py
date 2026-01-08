@@ -4,7 +4,17 @@ from collections.abc import Sequence
 import pytest
 from typing_extensions import override
 
-from betty.data.indicator import Attr, Index, Indicator, Key, Path, Selector, Selectors
+from betty.data.indicator import (
+    AnyIndex,
+    AnyKey,
+    Attr,
+    Index,
+    Indicator,
+    Key,
+    Path,
+    Selector,
+    Selectors,
+)
 
 
 class DummyIndicator(Indicator):
@@ -14,13 +24,32 @@ class DummyIndicator(Indicator):
 
 
 class TestAttr:
+    def test_attr(self) -> None:
+        assert Attr("attr").attr == "attr"
+
     def test_format(self) -> None:
         assert Attr("attr").format() == ".attr"
 
 
+class TestAnyIndex:
+    def test_format(self) -> None:
+        assert AnyIndex().format()
+
+
 class TestIndex:
+    def test_item(self) -> None:
+        assert Index(0).item == 0
+
     def test_format(self) -> None:
         assert Index(0).format() == "[0]"
+
+
+class TestAnyKey:
+    def test_item(self) -> None:
+        assert Key("key").item == "key"
+
+    def test_format(self) -> None:
+        assert AnyKey().format()
 
 
 class TestKey:

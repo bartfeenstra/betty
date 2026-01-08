@@ -5,13 +5,15 @@ Data indicators.
 from __future__ import annotations
 
 from abc import ABC, abstractmethod
-from typing import TYPE_CHECKING, final
+from typing import TYPE_CHECKING, Generic, final
 
-from typing_extensions import override
+from typing_extensions import TypeVar, override
 
 if TYPE_CHECKING:
     import pathlib
     from collections.abc import MutableSequence, Sequence
+
+_T = TypeVar("_T")
 
 
 class Indicator(ABC):
@@ -72,43 +74,82 @@ class Selectors(Indicator):
 @final
 class Attr(Selector):
     """
-    An object attribute indicator.
+    An attribute selector.
     """
 
     def __init__(self, attr: str):
         self._attr = attr
+
+    @property
+    def attr(self) -> str:
+        """
+        The attribute name.
+        """
+        return self._attr
 
     @override
     def format(self) -> str:
         return f".{self._attr}"
 
 
-@final
-class Index(Selector):
-    """
-    A sequence index indicator.
-    """
+class _Item(Selector, Generic[_T]):
+    def __init__(self, item: _T):
+        self._item = item
 
-    def __init__(self, index: int):
-        self._index = index
+    @property
+    def item(self) -> _T:
+        """
+        The lookup item.
+        """
+        return self._item
 
     @override
     def format(self) -> str:
-        return f"[{self._index}]"
+        return f"[{self._item}]"
 
 
 @final
-class Key(Selector):
+class AnyIndex(Indicator):
+    """
+    A sequence item indicator.
+    """
+
+    @override
+    def format(self) -> str:
+        return "[]"
+
+
+@final
+class Index(_Item[int]):
+    """
+    A sequence item selector.
+    """
+
+    @override
+    def format(self) -> str:
+        return f"[{self._item}]"
+
+
+@final
+class AnyKey(Indicator):
+    """
+    A mapping item indicator.
+    """
+
+    @override
+    def format(self) -> str:
+        return "{}"
+
+
+@final
+class Key(_Item[str]):
     """
     A mapping key indicator.
     """
 
-    def __init__(self, key: str):
-        self._key = key
-
     @override
     def format(self) -> str:
-        return f'["{self._key}"]'
+        return f'["{self._item}"]'
 
 
 @final

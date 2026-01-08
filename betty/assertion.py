@@ -518,25 +518,6 @@ def assert_locale() -> AssertionChain[Any, Locale]:
 _SizedT = TypeVar("_SizedT", bound=Sized)
 
 
-@overload
-def assert_len(exact: int, /) -> AssertionChain[Sized, Sized]:
-    pass
-
-
-@overload
-def assert_len(
-    *, minimum: int | None, maximum: int | None = None
-) -> AssertionChain[Sized, Sized]:
-    pass
-
-
-@overload
-def assert_len(
-    *, minimum: int | None = None, maximum: int | None
-) -> AssertionChain[Sized, Sized]:
-    pass
-
-
 def assert_len(
     exact: int | None = None, *, minimum: int | None = None, maximum: int | None = None
 ) -> AssertionChain[Sized, Sized]:
