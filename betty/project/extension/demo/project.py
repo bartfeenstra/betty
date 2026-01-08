@@ -23,8 +23,6 @@ from betty.plugin.config import (
 )
 from betty.project import Project
 from betty.project.config import (
-    EntityTypeConfiguration,
-    EntityTypeConfigurationMapping,
     ExtensionInstanceConfigurationMapping,
     LocaleConfiguration,
     LocaleConfigurationMapping,
@@ -217,14 +215,12 @@ async def create_project(app: App, project_directory_path: Path) -> Project:
                 ),
             ]  # ty:ignore[invalid-argument-type]
         ),
-        entity_types=EntityTypeConfigurationMapping(
-            [
-                EntityTypeConfiguration(Person),
-                EntityTypeConfiguration(Event),
-                EntityTypeConfiguration(Place),
-                EntityTypeConfiguration(Source),
-            ]
-        ),
+        entity_types=[
+            Person,
+            Event,
+            Place,
+            Source,
+        ],
         locales=LocaleConfigurationMapping(
             [
                 # The first configured locale is the project default.

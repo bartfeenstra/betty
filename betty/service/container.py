@@ -25,7 +25,7 @@ from typing import (
 from typing_extensions import override
 
 from betty.concurrent import AsynchronizedLock, Lock
-from betty.config import Configurable
+from betty.config import Configurable, Configuration
 from betty.requirement import Requirement
 from betty.service import ServiceError
 from betty.service.bootstrap import Bootstrapped, Shutdownable, ShutdownStack
@@ -71,9 +71,16 @@ class ServiceContainer(Bootstrapped, Shutdownable):
 
     async def _bootstrap(self) -> None:
         if isinstance(self, Configurable):
-            validator_factory = self.configuration.validator
-            if validator_factory is not None:
-                await self._new_target(validator_factory)
+            configuration = self.configuration
+            if isinstance(configuration, Configuration):
+                validator_factory = configuration.validator
+                if validator_factory is not None:
+                    await self._new_target(validator_factory)
+            else:
+                await configuration.data().hydrate(  # ty:ignore[unresolved-attribute]
+                    configuration,
+                    self,
+                )
 
     @classmethod
     def _service_managers(cls) -> Iterable[ServiceManager[Self, Any, Any]]:

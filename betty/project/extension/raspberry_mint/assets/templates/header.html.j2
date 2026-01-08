@@ -1,7 +1,7 @@
 {% cache 'raspberry-mint-template-header--before:' ~ document.localizer.locale %}
     {% set ns = namespace(primary_navigation_links = {}) %}
-    {% for entity_type_configuration in project.configuration.entity_types.values() | selectattr('generate_html_list') %}
-        {% set entity_type = app.plugins('entity')[entity_type_configuration.id] %}
+    {% for entity_type_configuration in project.configuration.entity_types | selectattr('generate_html_list') %}
+        {% set entity_type = app.plugins('entity')[entity_type_configuration.entity_type] %}
         {% set entity_type_label -%}
             {% if entity_type.id == 'event' %}
                 {% trans %}Timeline{% endtrans %}

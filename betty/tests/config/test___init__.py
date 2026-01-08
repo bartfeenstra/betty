@@ -3,11 +3,9 @@ from typing import Self
 from typing_extensions import override
 
 from betty.assertion import assert_int
-from betty.config import Configurable, Configuration, Sample
-from betty.locale.localizable.plain import Plain
+from betty.config import Configurable, Configuration
 from betty.portable import PortableData
 from betty.test_utils.config import DummyConfiguration
-from betty.test_utils.locale.localizable import DUMMY_LOCALIZABLE
 
 
 class TestConfiguration:
@@ -24,33 +22,6 @@ class TestConfiguration:
         @override
         def dump(self) -> PortableData:
             return self.value
-
-
-class TestSample:
-    def test_configuration(self) -> None:
-        configuration = DummyConfiguration()
-        sut = Sample(configuration, label=DUMMY_LOCALIZABLE)
-        assert sut.configuration is configuration
-
-    def test_label(self) -> None:
-        label = Plain("-")
-        sut = Sample(DummyConfiguration(), label=label)
-        assert sut.label is label
-
-    def test_description(self) -> None:
-        description = Plain("-")
-        sut = Sample(
-            DummyConfiguration(), label=DUMMY_LOCALIZABLE, description=description
-        )
-        assert sut.description is description
-
-    def test_minimal(self) -> None:
-        sut = Sample(DummyConfiguration(), label=DUMMY_LOCALIZABLE, minimal=True)
-        assert sut.minimal
-
-    def test_full(self) -> None:
-        sut = Sample(DummyConfiguration(), label=DUMMY_LOCALIZABLE, full=True)
-        assert sut.full
 
 
 class TestConfigurable:

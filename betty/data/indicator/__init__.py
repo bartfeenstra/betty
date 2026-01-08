@@ -26,6 +26,28 @@ class Indicator(ABC):
 
 
 @final
+class AnyIndex(Indicator):
+    """
+    A sequence item indicator.
+    """
+
+    @override
+    def format(self) -> str:
+        return "[]"
+
+
+@final
+class AnyKey(Indicator):
+    """
+    A mapping item indicator.
+    """
+
+    @override
+    def format(self) -> str:
+        return "{}"
+
+
+@final
 class Path(Indicator):
     """
     A file on disk.

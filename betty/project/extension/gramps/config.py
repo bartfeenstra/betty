@@ -19,8 +19,10 @@ from betty.assertion import (
     assert_record,
     assert_str,
 )
-from betty.config import Configuration, Sample, get_full_sample
+from betty.config import Configuration
 from betty.config.collections.sequence import ConfigurationSequence
+from betty.data import Sample
+from betty.data.sample import get_full_sample
 from betty.exception import HumanFacingException
 from betty.gramps.loader import (
     DEFAULT_EVENT_TYPE_MAPPING,
@@ -111,7 +113,7 @@ class PluginMapping(Configuration, Generic[_PluginDefinitionT, _PluginT]):
 
     @override
     @classmethod
-    def samples(cls) -> Iterable[Sample[Self]]:
+    def samples(cls) -> Iterable[Sample[Self]]:  # ty:ignore[invalid-method-override]
         yield Sample(cls(), label="Minimal", minimal=True)
         yield Sample(
             cls({"GrampsType": PluginInstanceConfiguration("my-betty-type")}),
@@ -258,7 +260,7 @@ class FamilyTreeConfiguration(Configuration):
 
     @override
     @classmethod
-    def samples(cls) -> Iterable[Sample[Self]]:
+    def samples(cls) -> Iterable[Sample[Self]]:  # ty:ignore[invalid-method-override]
         yield Sample(cls("my-gramps-family-tree"), label="Minimal")
 
 
@@ -276,10 +278,10 @@ class FamilyTreeConfigurationSequence(ConfigurationSequence[FamilyTreeConfigurat
 
     @override
     @classmethod
-    def samples(cls) -> Iterable[Sample[Self]]:
+    def samples(cls) -> Iterable[Sample[Self]]:  # ty:ignore[invalid-method-override]
         yield Sample(cls(), label="Minimal", minimal=True)
         yield Sample(
-            cls([get_full_sample(FamilyTreeConfiguration).configuration]),
+            cls([get_full_sample(FamilyTreeConfiguration).data]),
             label="Full",
             full=True,
         )
@@ -421,7 +423,7 @@ class GrampsConfiguration(Configuration):
 
     @override
     @classmethod
-    def samples(cls) -> Iterable[Sample[Self]]:
+    def samples(cls) -> Iterable[Sample[Self]]:  # ty:ignore[invalid-method-override]
         yield Sample(cls(), label="Minimal")
         yield Sample(
             cls(executable=Path("gramps.exe")), label="A custom Gramps executable"

@@ -17,11 +17,13 @@ from betty.assertion import (
     assert_or,
     assert_record,
 )
-from betty.config import Configuration, Sample, get_full_sample
+from betty.config import Configuration
 from betty.config.collections import ConfigurationCollection, ConfigurationKey
 from betty.config.collections.mapping import ConfigurationMapping
 from betty.config.collections.sequence import ConfigurationSequence
 from betty.config.color import ColorConfiguration
+from betty.data import Sample
+from betty.data.sample import get_full_sample
 from betty.locale import DEFAULT_LOCALE
 from betty.locale.localizable.assertion import (
     assert_load_countable_localizable,
@@ -126,7 +128,7 @@ class PluginDefinitionConfiguration(Configuration):
 
     @override
     @classmethod
-    def samples(cls) -> Iterable[Sample[Self]]:
+    def samples(cls) -> Iterable[Sample[Self]]:  # ty:ignore[invalid-method-override]
         yield Sample(cls(id="my-custom-plugin"), label="Default")
 
 
@@ -414,7 +416,7 @@ class PluginInstanceConfiguration(Configuration, Generic[_PluginDefinitionT, _Pl
 
     @override
     @classmethod
-    def samples(cls) -> Iterable[Sample[Self]]:
+    def samples(cls) -> Iterable[Sample[Self]]:  # ty:ignore[invalid-method-override]
         from betty.project.extension.raspberry_mint import RaspberryMint
         from betty.project.extension.raspberry_mint.config import (
             RaspberryMintConfiguration,
@@ -465,7 +467,7 @@ class _PluginInstanceConfigurationCollection(
     def _item_cls(
         cls,
     ) -> type[PluginInstanceConfiguration[_PluginDefinitionT, _PluginT]]:
-        return PluginInstanceConfiguration[_PluginDefinitionT, _PluginT]
+        return PluginInstanceConfiguration  # ty:ignore[invalid-return-type]
 
 
 class PluginInstanceConfigurationMapping(
@@ -526,10 +528,10 @@ class PluginInstanceConfigurationMapping(
 
     @override
     @classmethod
-    def samples(cls) -> Iterable[Sample[Self]]:
+    def samples(cls) -> Iterable[Sample[Self]]:  # ty:ignore[invalid-method-override]
         yield Sample(cls(), label="Minimal", minimal=True)
         yield Sample(
-            cls([get_full_sample(PluginInstanceConfiguration).configuration]),
+            cls([get_full_sample(PluginInstanceConfiguration).data]),
             label="Full",
             full=True,
         )
@@ -548,10 +550,10 @@ class PluginInstanceConfigurationSequence(
 
     @override
     @classmethod
-    def samples(cls) -> Iterable[Sample[Self]]:
+    def samples(cls) -> Iterable[Sample[Self]]:  # ty:ignore[invalid-method-override]
         yield Sample(cls(), label="Minimal", minimal=True)
         yield Sample(
-            cls([get_full_sample(PluginInstanceConfiguration).configuration]),
+            cls([get_full_sample(PluginInstanceConfiguration).data]),
             label="Full",
             full=True,
         )
@@ -595,14 +597,8 @@ class PluginInstanceConfigurationSequenceSequence(
 
     @override
     @classmethod
-    def samples(cls) -> Iterable[Sample[Self]]:
+    def samples(cls) -> Iterable[Sample[Self]]:  # ty:ignore[invalid-method-override]
         yield Sample(
-            cls(
-                [
-                    next(
-                        iter(PluginInstanceConfigurationSequence.samples())
-                    ).configuration
-                ]
-            ),
+            cls([next(iter(PluginInstanceConfigurationSequence.samples())).data]),
             label="Default",
         )

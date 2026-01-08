@@ -526,7 +526,7 @@ class GenerateEntityTypesHtml(Job[ProjectContext]):
                 for entity_type in await project.plugins(EntityDefinition)
                 if entity_type.public_facing
                 and (
-                    entity_type in project.configuration.entity_types
+                    entity_type.id in project.configuration.entity_types
                     and project.configuration.entity_types[
                         entity_type.id
                     ].generate_html_list

@@ -40,7 +40,8 @@ class TestAbout(CommandTestBase):
             Project.new_isolated(app) as project,
         ):
             await dump_file(
-                project.configuration.dump(), project.configuration_file_path
+                project.configuration.data().dump(project.configuration),
+                project.configuration_file_path,
             )
             result = await run(
                 app,

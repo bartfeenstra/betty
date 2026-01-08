@@ -21,10 +21,11 @@ from betty.assertion import (
     assert_record,
     assert_sequence,
 )
-from betty.config import Configuration, Sample
+from betty.config import Configuration
 from betty.config.factory import ConfigurationDependentSelfFactory
 from betty.content_provider import ContentProvider, ContentProviderDefinition
 from betty.content_provider.content_providers import Template
+from betty.data import Sample
 from betty.locale.localizable.assertion import assert_load_localizable
 from betty.locale.localizable.attr import RequiredLocalizableAttr
 from betty.locale.localizable.ensure import ensure_localizable
@@ -158,7 +159,7 @@ class SectionConfiguration(Configuration):
 
     @override
     @classmethod
-    def samples(cls) -> Iterable[Sample[Self]]:
+    def samples(cls) -> Iterable[Sample[Self]]:  # ty:ignore[invalid-method-override]
         from betty.test_utils.locale.localizable import DUMMY_LOCALIZABLE
 
         yield Sample(
@@ -383,7 +384,7 @@ class ColorStyleConfiguration(Configuration):
 
     @override
     @classmethod
-    def samples(cls) -> Iterable[Sample[Self]]:
+    def samples(cls) -> Iterable[Sample[Self]]:  # ty:ignore[invalid-method-override]
         from betty.content_provider.content_providers import Render, RenderConfiguration
 
         yield Sample(
@@ -546,7 +547,7 @@ class PresencesConfiguration(Configuration):
 
     @override
     @classmethod
-    def samples(cls) -> Iterable[Sample[Self]]:
+    def samples(cls) -> Iterable[Sample[Self]]:  # ty:ignore[invalid-method-override]
         from betty.ancestry.presence_role.presence_roles import Subject
 
         yield Sample(cls(), label="Minimal")
@@ -730,7 +731,7 @@ class ColumnsConfiguration(Configuration):
 
     @override
     @classmethod
-    def samples(cls) -> Iterable[Sample[Self]]:
+    def samples(cls) -> Iterable[Sample[Self]]:  # ty:ignore[invalid-method-override]
         from betty.content_provider.content_providers import Render, RenderConfiguration
 
         yield Sample(

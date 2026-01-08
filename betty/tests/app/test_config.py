@@ -1,15 +1,10 @@
-from typing import TYPE_CHECKING
-
 from babel import Locale
 
 from betty.app.config import AppConfiguration
-from betty.test_utils.config import ConfigurationTestBase
-
-if TYPE_CHECKING:
-    from betty.portable import PortableMapping
+from betty.test_utils.data import HasDataTestBase
 
 
-class TestAppConfiguration(ConfigurationTestBase[AppConfiguration]):
+class TestAppConfiguration(HasDataTestBase[AppConfiguration]):
     sut_cls = AppConfiguration
 
     def test___init____minimal_locale(self) -> None:
@@ -26,25 +21,3 @@ class TestAppConfiguration(ConfigurationTestBase[AppConfiguration]):
         locale = Locale("nl", "NL")
         sut.locale = locale
         assert sut.locale is locale
-
-    def test_load__minimal(self) -> None:
-        sut = AppConfiguration()
-        portable: PortableMapping = {}
-        sut.load(portable)
-
-    def test_load__with_locale(self) -> None:
-        locale = "nl"
-        portable: PortableMapping = {"locale": locale}
-        sut = AppConfiguration.load(portable)
-        assert sut.locale == Locale(locale)
-
-    def test_dump__minimal(self) -> None:
-        sut = AppConfiguration()
-        actual = sut.dump()
-        assert actual == {}
-
-    def test_dump__with_locale(self) -> None:
-        locale = "nl"
-        sut = AppConfiguration(locale=Locale(locale))
-        actual = sut.dump()
-        assert actual == {"locale": locale}

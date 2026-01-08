@@ -2,35 +2,48 @@
 Configuration for the Wikipedia extension.
 """
 
-from collections.abc import Iterable
-from typing import Any, Self
+from typing import final
 
-from typing_extensions import override
+from betty.data import HasData, Sample
+from betty.data.aggregate.record import FieldDefinition
+from betty.data.aggregate.record.object import ObjectDefinition
+from betty.data.indicator.selector import Attr
+from betty.data.simple import SimpleDefinition
+from betty.locale.localizable.gettext import _
 
-from betty.assertion import (
-    OptionalField,
-    assert_bool,
-    assert_record,
+
+@final
+@ObjectDefinition(
+    label=_("Wiki extension configuration"),
+    fields=[
+        FieldDefinition(
+            Attr("populate_images"),
+            SimpleDefinition(
+                cls=bool,
+                label=_("Populate images"),
+                description=_(
+                    "Whether to download additional images found through Wikipedia links in the ancestry"
+                ),
+                empty=lambda data: data is True,
+            ),
+            required=False,
+        )
+    ],
+    samples=[
+        lambda: Sample(WikiConfiguration(), label="Minimal", minimal=True),
+        lambda: Sample(
+            WikiConfiguration(populate_images=False), label="Full", full=True
+        ),
+    ],
 )
-from betty.config import Configuration, Sample
-from betty.portable import PortableData, PortableMapping
-
-
-class WikiConfiguration(Configuration):
+class WikiConfiguration(HasData):
     """
     Configuration for the :py:class:`betty.project.extension.wiki.Wiki` extension.
 
-    .. configuration:: betty.project.extension.wiki.config:WikiConfiguration
-
-    ``populate_images``
-    ^^^^^^^^^^^^^^^^^^^
-    :sup:`optional`
-
-    A boolean indicating whether to download images from the Wikipedia links in the ancestry. Defaults to ``true``.
+    .. has_data:: betty.project.extension.wiki.config:WikiConfiguration
     """
 
     def __init__(self, *, populate_images: bool = True):
-        super().__init__()
         self._populate_images = populate_images
 
     @property
@@ -43,27 +56,3 @@ class WikiConfiguration(Configuration):
     @populate_images.setter
     def populate_images(self, populate_images: bool) -> None:
         self._populate_images = populate_images
-
-    @override
-    @classmethod
-    def load(cls, portable: PortableData, /) -> Self:
-        return cls(
-            **assert_record(OptionalField("populate_images", assert_bool))(portable)
-        )
-
-    @override
-    def dump(self) -> PortableMapping:
-        return {
-            "populate_images": self.populate_images,
-        }
-
-    @override
-    def __eq__(self, other: Any) -> bool:
-        if not isinstance(other, type(self)):
-            return NotImplemented
-        return self.populate_images == other.populate_images
-
-    @override
-    @classmethod
-    def samples(cls) -> Iterable[Sample[Self]]:
-        yield Sample(cls(), label="Default")

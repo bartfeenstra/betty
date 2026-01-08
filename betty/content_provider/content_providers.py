@@ -14,9 +14,10 @@ from betty.assertion import (
     assert_record,
     assert_str,
 )
-from betty.config import Configuration, Sample
+from betty.config import Configuration
 from betty.config.factory import ConfigurationDependentSelfFactory
 from betty.content_provider import ContentProvider, ContentProviderDefinition
+from betty.data import Sample
 from betty.locale.localizable.assertion import assert_load_localizable
 from betty.locale.localizable.attr import RequiredLocalizableAttr
 from betty.locale.localizable.gettext import _
@@ -87,7 +88,7 @@ class RenderConfiguration(Configuration):
 
     @override
     @classmethod
-    def samples(cls) -> Iterable[Sample[Self]]:
+    def samples(cls) -> Iterable[Sample[Self]]:  # ty:ignore[invalid-method-override]
         from betty.test_utils.locale.localizable import DUMMY_LOCALIZABLE
 
         yield Sample(cls(DUMMY_LOCALIZABLE), label="Minimal")
@@ -280,7 +281,7 @@ class BoxConfiguration(Configuration):
 
     @override
     @classmethod
-    def samples(cls) -> Iterable[Sample[Self]]:
+    def samples(cls) -> Iterable[Sample[Self]]:  # ty:ignore[invalid-method-override]
         yield Sample(cls([]), label="Minimal", minimal=True)
         yield Sample(
             cls(

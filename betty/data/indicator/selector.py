@@ -18,7 +18,7 @@ if TYPE_CHECKING:
     from betty.assertion import Assertion
 
 _T = TypeVar("_T")
-_ItemT = TypeVar("_ItemT")
+_ElementT = TypeVar("_ElementT")
 
 
 class Selector(Indicator, ABC):
@@ -88,82 +88,90 @@ class Selectors(Selector):
         return data
 
 
-@final
-class Attr(Selector):
+class Element(Selector, Generic[_ElementT]):
     """
-    An object attribute indicator.
+    An aggregate element selector.
     """
 
-    def __init__(self, attr: str, /):
-        self._attr = attr
-
-    @override
-    def format(self) -> str:
-        return f".{self._attr}"
-
-    @override
-    def _get(self, data: Any, /) -> Any:
-        try:
-            return getattr(data, self._attr)
-        except AttributeError:
-            from betty.exception import HumanFacingException
-
-            raise HumanFacingException(
-                _("Data has no {attribute} attribute.").format(
-                    attribute=f".{self._attr}"
-                )
-            ) from None
-
-
-class _Item(Selector, Generic[_ItemT]):
-    def __init__(self, item: _ItemT, /):
-        self._item = item
+    def __init__(self, element: _ElementT, /):
+        self._element = element
 
     def __eq__(self, other: Any) -> bool:
         if type(other) is not type(self):
             return NotImplemented
-        return self._item == other._item
+        return self._element == other._element
 
     @property
-    def item(self) -> _ItemT:
+    def element(self) -> _ElementT:
         """
-        The lookup item.
+        The element.
         """
-        return self._item
+        return self._element
 
 
 @final
-class Index(_Item[int]):
+class Attr(Element[str]):
     """
-    A sequence index indicator.
+    An attribute selector.
     """
 
     @override
     def format(self) -> str:
-        return f"[{self._item}]"
+        return f".{self.element}"
 
     @override
     def _get(self, data: Any, /) -> Any:
-        from betty.assertion import assert_len, assert_sequence
+        try:
+            return getattr(data, self.element)
+        except AttributeError:
+            from betty.exception import HumanFacingException
 
-        assert_sequence()(data)
-        assert_len(minimum=self._item + 1)(data)
-        return data[self.item]
+            raise HumanFacingException(
+                _("Data has no attribute {attribute}").format(
+                    attribute=f".{self.element}"
+                )
+            ) from None
 
 
 @final
-class Key(_Item[str]):
+class Index(Element[int]):
     """
-    A mapping key indicator.
+    A sequence item selector.
     """
 
     @override
     def format(self) -> str:
-        return f'["{self._item}"]'
+        return f"[{self.element}]"
 
     @override
     def _get(self, data: Any, /) -> Any:
-        from betty.assertion import RequiredField, assert_record
+        try:
+            return data[self.element]
+        except (LookupError, TypeError):
+            from betty.exception import HumanFacingException
 
-        assert_record(RequiredField(self._item), allow_extra=True)(data)
-        return data[self.item]
+            raise HumanFacingException(
+                _("Data has no index {index}").format(index=f".{self.element}")
+            ) from None
+
+
+@final
+class Key(Element[str]):
+    """
+    A mapping key selector.
+    """
+
+    @override
+    def format(self) -> str:
+        return f'["{self.element}"]'
+
+    @override
+    def _get(self, data: Any, /) -> Any:
+        try:
+            return data[self.element]
+        except (LookupError, TypeError):
+            from betty.exception import HumanFacingException
+
+            raise HumanFacingException(
+                _('Data has no key "{key}"').format(key=f".{self.element}")
+            ) from None

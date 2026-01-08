@@ -16,7 +16,6 @@ from betty.plugin.config import PluginInstanceConfiguration
 from betty.portable.file import dump_file
 from betty.project.config import (
     EntityTypeConfiguration,
-    EntityTypeConfigurationMapping,
     ExtensionInstanceConfigurationMapping,
     LocaleConfiguration,
     LocaleConfigurationMapping,
@@ -154,20 +153,18 @@ async def new(app: App) -> None:
     configuration = ProjectConfiguration(
         author=author,
         locales=locales,
-        entity_types=EntityTypeConfigurationMapping(
-            [
-                EntityTypeConfiguration(Person, generate_html_list=True),
-                EntityTypeConfiguration(Event, generate_html_list=True),
-                EntityTypeConfiguration(Place, generate_html_list=True),
-                EntityTypeConfiguration(Source, generate_html_list=True),
-            ]
-        ),
+        entity_types=[
+            EntityTypeConfiguration(entity_type=Person, generate_html_list=True),
+            EntityTypeConfiguration(entity_type=Event, generate_html_list=True),
+            EntityTypeConfiguration(entity_type=Place, generate_html_list=True),
+            EntityTypeConfiguration(entity_type=Source, generate_html_list=True),
+        ],
         extensions=ExtensionInstanceConfigurationMapping(extensions),
         name=name,
         title=title,
         url=url,
     )
-    await dump_file(configuration.dump(), configuration_file_path)
+    await dump_file(configuration.data().dump(configuration), configuration_file_path)
     await app.user.message_information(
         _("Saved your project to {configuration_file}.").format(
             configuration_file=str(configuration_file_path)

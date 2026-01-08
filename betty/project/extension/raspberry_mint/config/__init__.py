@@ -9,10 +9,12 @@ from typing import TYPE_CHECKING, Any, Self, final
 from typing_extensions import override
 
 from betty.assertion import OptionalField, assert_record
-from betty.config import Configuration, Sample, get_full_sample, get_minimal_sample
+from betty.config import Configuration
 from betty.config.color import ColorConfiguration
+from betty.data import Sample
 from betty.data.indicator import Path
 from betty.data.indicator.selector import Key
+from betty.data.sample import get_full_sample, get_minimal_sample
 from betty.exception import reraise_with_indicator
 from betty.project.extension.theme.config import RegionalContentConfiguration
 from betty.project.factory import require_project
@@ -196,21 +198,17 @@ class RaspberryMintConfiguration(Configuration):
 
     @override
     @classmethod
-    def samples(cls) -> Iterable[Sample[Self]]:
+    def samples(cls) -> Iterable[Sample[Self]]:  # ty:ignore[invalid-method-override]
         yield Sample(cls(), label="Minimal", minimal=True)
         yield Sample(
             cls(
-                primary_color=get_minimal_sample(ColorConfiguration).configuration,
-                secondary_color=get_minimal_sample(ColorConfiguration).configuration,
-                tertiary_color=get_minimal_sample(ColorConfiguration).configuration,
+                primary_color=get_minimal_sample(ColorConfiguration).data,
+                secondary_color=get_minimal_sample(ColorConfiguration).data,
+                tertiary_color=get_minimal_sample(ColorConfiguration).data,
             ),
             label="Custom colors",
         )
         yield Sample(
-            cls(
-                regional_content=get_full_sample(
-                    RegionalContentConfiguration
-                ).configuration,
-            ),
+            cls(regional_content=get_full_sample(RegionalContentConfiguration).data),
             label="Regional content",
         )
