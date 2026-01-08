@@ -33,7 +33,7 @@ from betty.assertion import (
     assert_sequence,
     assert_str,
 )
-from betty.data import Index, Key
+from betty.data.indicator import Index, Key
 from betty.exception import HumanFacingException
 from betty.locale import DEFAULT_LOCALE_TAG, to_language_tag
 from betty.locale.localizable.static import StaticTranslations
@@ -234,7 +234,7 @@ def test_assert_sequence__with_invalid_item() -> None:
     with pytest.raises(HumanFacingException) as exc_info:
         assert_sequence(assert_str())([123])
     assert_error(
-        exc_info.value, error_type=HumanFacingException, error_contexts=[Index(0)]
+        exc_info.value, error_type=HumanFacingException, error_indicators=[Index(0)]
     )
 
 
@@ -273,7 +273,7 @@ def test_assert_mapping__with_invalid_item_value() -> None:
     with pytest.raises(HumanFacingException) as exc_info:
         assert_mapping(assert_str())({"abc": 123})
     assert_error(
-        exc_info.value, error_type=HumanFacingException, error_contexts=[Key("abc")]
+        exc_info.value, error_type=HumanFacingException, error_indicators=[Key("abc")]
     )
 
 
@@ -281,7 +281,7 @@ def test_assert_mapping__with_invalid_item_key() -> None:
     with pytest.raises(HumanFacingException) as exc_info:
         assert_mapping(None, assert_str())({123: "abc"})
     assert_error(
-        exc_info.value, error_type=HumanFacingException, error_contexts=[Key("123")]
+        exc_info.value, error_type=HumanFacingException, error_indicators=[Key("123")]
     )
 
 
@@ -309,7 +309,7 @@ def test_assert_record__with_unknown_key_should_error() -> None:
     assert_error(
         exc_info.value,
         error_type=HumanFacingException,
-        error_contexts=[Key("unknown-key")],
+        error_indicators=[Key("unknown-key")],
     )
 
 

@@ -4,10 +4,10 @@ from collections.abc import Sequence
 import pytest
 from typing_extensions import override
 
-from betty.data import Attr, Context, Index, Key, Path, Selector, Selectors
+from betty.data.indicator import Attr, Index, Indicator, Key, Path, Selector, Selectors
 
 
-class DummyContext(Context):
+class DummyIndicator(Indicator):
     @override
     def format(self) -> str:
         return "DUMMY"
@@ -54,7 +54,7 @@ class TestSelectors:
         assert Selectors(*selectors).format() == expected
 
     @pytest.mark.parametrize(
-        ("expected", "contexts"),
+        ("expected", "selectors"),
         [
             (
                 "",
@@ -63,20 +63,20 @@ class TestSelectors:
             (
                 "DUMMY\ndata.my_first_attr.my_second_attr\nDUMMY\ndata.my_third_attr.my_fourth_attr",
                 [
-                    DummyContext(),
+                    DummyIndicator(),
                     Attr("my_first_attr"),
                     Attr("my_second_attr"),
-                    DummyContext(),
+                    DummyIndicator(),
                     Attr("my_third_attr"),
                     Attr("my_fourth_attr"),
                 ],
             ),
         ],
     )
-    def test_reduce(self, expected: str, contexts: Sequence[Context]) -> None:
+    def test_reduce(self, expected: str, selectors: Sequence[Selector]) -> None:
         assert (
             "\n".join(
-                [selector.format() for selector in Selectors.reduce(*contexts)]
+                [selector.format() for selector in Selectors.reduce(*selectors)]
             ).format()
             == expected
         )

@@ -1,5 +1,5 @@
 """
-Data management and description.
+Data indicators.
 """
 
 from __future__ import annotations
@@ -14,7 +14,7 @@ if TYPE_CHECKING:
     from collections.abc import MutableSequence, Sequence
 
 
-class Context(ABC):
+class Indicator(ABC):
     """
     Describe a location of a piece of data.
     """
@@ -22,20 +22,20 @@ class Context(ABC):
     @abstractmethod
     def format(self) -> str:
         """
-        Format the context to a string.schema.
+        Format the indicator to a string.
         """
 
 
-class Selector(Context):
+class Selector(Indicator):
     """
     Describe a nested piece of data relative to the total data.
     """
 
 
 @final
-class Selectors(Context):
+class Selectors(Indicator):
     """
-    Combine multiple selector contexts into a single selector.
+    Combine multiple selector indicators into a single selector.
     """
 
     def __init__(self, *selectors: Selector):
@@ -46,33 +46,33 @@ class Selectors(Context):
         return "".join(["data", *[selector.format() for selector in self._selectors]])
 
     @classmethod
-    def reduce(cls, *contexts: Context) -> Sequence[Context]:
+    def reduce(cls, *indicators: Indicator) -> Sequence[Indicator]:
         """
-        Reduce all consecutive instances of py:class:`betty.data.Selector` to a single instance of this class.
+        Reduce all consecutive instances of py:class:`betty.data.indicator.Selector` to a single instance of this class.
 
-        All other contexts are kept verbatim.
+        All other indicators are kept verbatim.
         """
-        reduced_contexts: MutableSequence[Context] = []
-        for context in contexts:
-            if isinstance(context, Selector):
+        reduced_indicators: MutableSequence[Indicator] = []
+        for indicator in indicators:
+            if isinstance(indicator, Selector):
                 try:
-                    last_context = reduced_contexts[-1]
+                    last_indicator = reduced_indicators[-1]
                 except IndexError:
                     pass
                 else:
-                    if isinstance(last_context, Selectors):
-                        last_context._selectors.append(context)
+                    if isinstance(last_indicator, Selectors):
+                        last_indicator._selectors.append(indicator)
                         continue
-                reduced_contexts.append(Selectors(context))
+                reduced_indicators.append(Selectors(indicator))
             else:
-                reduced_contexts.append(context)
-        return reduced_contexts
+                reduced_indicators.append(indicator)
+        return reduced_indicators
 
 
 @final
 class Attr(Selector):
     """
-    An object attribute context.
+    An object attribute indicator.
     """
 
     def __init__(self, attr: str):
@@ -86,7 +86,7 @@ class Attr(Selector):
 @final
 class Index(Selector):
     """
-    A sequence index context.
+    A sequence index indicator.
     """
 
     def __init__(self, index: int):
@@ -100,7 +100,7 @@ class Index(Selector):
 @final
 class Key(Selector):
     """
-    A mapping key context.
+    A mapping key indicator.
     """
 
     def __init__(self, key: str):
@@ -112,7 +112,7 @@ class Key(Selector):
 
 
 @final
-class Path(Context):
+class Path(Indicator):
     """
     A file on disk.
     """

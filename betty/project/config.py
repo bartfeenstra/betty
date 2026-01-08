@@ -33,11 +33,11 @@ from betty.assertion import (
 from betty.config import Configuration, Sample, get_full_sample
 from betty.config.collections.mapping import OrderedConfigurationMapping
 from betty.copyright_notice import CopyrightNotice, CopyrightNoticeDefinition
-from betty.data import Key
+from betty.data.indicator import Key
 from betty.exception import (
     HumanFacingException,
     HumanFacingExceptionGroup,
-    reraise_within_context,
+    reraise_with_indicator,
 )
 from betty.license import License, LicenseDefinition
 from betty.locale import DEFAULT_LOCALE, LocaleLike, ensure_locale, to_language_tag
@@ -1196,7 +1196,7 @@ class ProjectConfiguration(Configuration):
     @property
     def validator(self) -> AnyFactoryTarget[None]:
         async def _validate(project: Project) -> None:
-            with reraise_within_context(Key("entity_types")):
+            with reraise_with_indicator(Key("entity_types")):
                 await self.entity_types.validate(
                     await project.plugins(EntityDefinition)
                 )

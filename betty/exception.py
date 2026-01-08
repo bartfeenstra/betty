@@ -9,7 +9,7 @@ from typing import TYPE_CHECKING, Never, Self
 
 from typing_extensions import override
 
-from betty.data import Selectors
+from betty.data.indicator import Selectors
 from betty.locale.localizable import Localizable, LocalizableLike
 from betty.locale.localizable.markup import Paragraphs
 
@@ -17,7 +17,7 @@ if TYPE_CHECKING:
     from collections.abc import Iterator, MutableSequence, Sequence
     from types import TracebackType
 
-    from betty.data import Context
+    from betty.data.indicator import Indicator
     from betty.locale import HasLocale
     from betty.locale.localize import Localizer
 
@@ -32,14 +32,14 @@ def do_raise(exception: BaseException, /) -> Never:
 
 
 @contextmanager
-def reraise_within_context(*contexts: Context) -> Iterator[None]:
+def reraise_with_indicator(*indicators: Indicator) -> Iterator[None]:
     """
-    Re-raise a human-facing exception with the given contexts.
+    Re-raise a human-facing exception with the given indicators.
     """
     try:
         yield
     except HumanFacingException as error:
-        error.within_context(*contexts)
+        error.with_indicator(*indicators)
         raise
 
 
@@ -52,7 +52,7 @@ class HumanFacingException(Exception, Localizable):
     """
 
     def __init__(
-        self, message: LocalizableLike, *, contexts: Sequence[Context] | None = None
+        self, message: LocalizableLike, *, indicators: Sequence[Indicator] | None = None
     ):
         from betty.locale.localize import DEFAULT_LOCALIZER
         from betty.locale.localize.ensure import ensure_localized
@@ -62,7 +62,7 @@ class HumanFacingException(Exception, Localizable):
             ensure_localized(message, localizer=DEFAULT_LOCALIZER),
         )
         self._localizable_message = message
-        self._contexts = [] if contexts is None else list(contexts)
+        self._indicators = [] if indicators is None else list(indicators)
 
     @override
     def __str__(self) -> str:
@@ -79,7 +79,7 @@ class HumanFacingException(Exception, Localizable):
             UnorderedList(
                 *[
                     selector.format()
-                    for selector in Selectors.reduce(*reversed(self.contexts))
+                    for selector in Selectors.reduce(*reversed(self.indicators))
                 ]
             ),
         ).localize(localizer)
@@ -91,21 +91,21 @@ class HumanFacingException(Exception, Localizable):
         return isinstance(self, error_type)
 
     @property
-    def contexts(self) -> Sequence[Context]:
+    def indicators(self) -> Sequence[Indicator]:
         """
-        Get the human-readable contexts describing where the error occurred in the source data.
+        Get the human-readable indicators describing where the error occurred in the source data.
 
-        The first context is the innermost, and the last context is the outermost.
+        The first indicator is the innermost, and the last indicator is the outermost.
         """
-        return self._contexts
+        return self._indicators
 
-    def within_context(self, *contexts: Context) -> None:
+    def with_indicator(self, *indicators: Indicator) -> None:
         """
-        Adds the given context(s) to the exception.
+        Adds the given indicator(s) to the exception.
 
-        The first context is the innermost, and the last context is the outermost.
+        The first indicator is the innermost, and the last indicator is the outermost.
         """
-        self._contexts.extend(contexts)
+        self._indicators.extend(indicators)
 
 
 class HumanFacingExceptionGroup(HumanFacingException):
@@ -173,22 +173,22 @@ class HumanFacingExceptionGroup(HumanFacingException):
             if isinstance(error, HumanFacingExceptionGroup):
                 self.append(*error)
             else:
-                error.within_context(*self._contexts)
+                error.with_indicator(*self._indicators)
                 self._errors.append(error)
 
     @override
-    def within_context(self, *contexts: Context) -> None:
-        self._contexts.extend(contexts)
+    def with_indicator(self, *indicators: Indicator) -> None:
+        self._indicators.extend(indicators)
         for error in self._errors:
-            error.within_context(*contexts)
+            error.with_indicator(*indicators)
 
     @contextmanager
-    def absorb(self, *contexts: Context) -> Iterator[None]:
+    def absorb(self, *indicators: Indicator) -> Iterator[None]:
         """
         Absorb any errors raised within this context manager and add them to the collection.
         """
         try:
             yield
         except HumanFacingException as error:
-            error.within_context(*contexts)
+            error.with_indicator(*indicators)
             self.append(error)

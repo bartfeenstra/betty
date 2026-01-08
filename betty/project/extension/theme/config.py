@@ -12,7 +12,7 @@ from typing_extensions import override
 from betty.assertion import assert_len, assert_mapping, assert_str
 from betty.config import Configuration, Sample
 from betty.content_provider import ContentProvider, ContentProviderDefinition
-from betty.data import Key
+from betty.data.indicator import Key
 from betty.exception import HumanFacingException, HumanFacingExceptionGroup
 from betty.locale.localizable.gettext import _
 from betty.locale.localizable.markup import Paragraph, do_you_mean
