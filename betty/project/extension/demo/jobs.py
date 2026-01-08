@@ -33,7 +33,7 @@ from betty.ancestry.presence_role.presence_roles import Subject
 from betty.ancestry.source import Source
 from betty.copyright_notice.copyright_notices import Streetmix
 from betty.date import Date, DateRange
-from betty.dirs import DATA_DIRECTORY_PATH
+from betty.dirs import ASSETS_DIRECTORY_PATH
 from betty.job import Job
 from betty.license import LicenseDefinition
 from betty.license.licenses import spdx_license_id_to_license_id
@@ -479,7 +479,7 @@ class LoadAncestry(Job[ProjectContext]):
             licenses[spdx_license_id_to_license_id("AGPL-3.0-or-later")].cls
         )
         copyright_notice = await project.new_target(Streetmix)
-        streetmix_image_directory_path = DATA_DIRECTORY_PATH / "images" / "streetmix"
+        streetmix_image_directory_path = ASSETS_DIRECTORY_PATH / "vendor" / "streetmix"
         masculine: Sequence[File] = []
         feminine: Sequence[File] = []
         androgynous: Sequence[File] = []

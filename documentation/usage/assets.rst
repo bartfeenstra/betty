@@ -14,12 +14,12 @@ your site, but that are not source code files. Examples of assets:
 The assets repository
 ---------------------
 
-Betty comes with an :py:mod:`Assets API <betty.assets>` that layers the assets provided by all the different components.
+Betty comes with an :py:mod:`Asset API <betty.asset>` that layers the assets provided by all the different components.
 Each time an asset is needed, Betty finds it as follows:
 
 #. If the project provides the asset in its assets directory, use it
 #. If an extension provides the asset in its assets directory, use it
-#. If a built-in translation asset exists, use it (``/betty/assets`` within the Betty source code)
+#. If a built-in translation asset exists, use it (``/assets`` within the Betty source code)
 
 This means that extensions can override Betty's default assets, and your projects can override both extensions'
 and Betty's assets.
