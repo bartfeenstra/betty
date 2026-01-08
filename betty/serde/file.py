@@ -11,8 +11,8 @@ import aiofiles
 from aiofiles.os import makedirs
 
 from betty.assertion import AssertionChain, assert_file_path
-from betty.data import Path as DataPath
-from betty.exception import reraise_within_context
+from betty.data.indicator import Path as DataPath
+from betty.exception import reraise_with_indicator
 from betty.factory import new_target
 from betty.plugin.repository.provider.service import plugins
 from betty.serde.format import FormatDefinition, format_for
@@ -34,7 +34,7 @@ async def assert_load_file() -> AssertionChain[Path, Dump]:
 
     def _assert(file_path: Path) -> Dump:
         with (
-            reraise_within_context(DataPath(file_path)),
+            reraise_with_indicator(DataPath(file_path)),
             # Change the working directory to allow relative paths to be resolved
             # against the configuration file's directory path.
             chdir(file_path.parent),

@@ -3,12 +3,12 @@ from gettext import NullTranslations
 
 import pytest
 
-from betty.data import Attr, Key
+from betty.data.indicator import Attr, Key
 from betty.exception import (
     HumanFacingException,
     HumanFacingExceptionGroup,
     do_raise,
-    reraise_within_context,
+    reraise_with_indicator,
 )
 from betty.locale import DEFAULT_LOCALE_TAG
 from betty.locale.localizable.static import StaticTranslations
@@ -46,23 +46,25 @@ class TestHumanFacingException:
         localizer = Localizer(locale, NullTranslations())
         assert sut.localize(localizer) == localized_message
 
-    def test_localize__without_contexts(self) -> None:
+    def test_localize__without_indicators(self) -> None:
         sut = HumanFacingException(StaticTranslations("Something went wrong!"))
         assert sut.localize(DEFAULT_LOCALIZER) == "Something went wrong!"
 
-    def test_localize__with_contexts(self) -> None:
+    def test_localize__with_indicators(self) -> None:
         sut = HumanFacingException(StaticTranslations("Something went wrong!"))
-        sut.within_context(Attr("my_first_context"))
-        sut.within_context(Attr("my_second_context"))
+        sut.with_indicator(Attr("my_first_indicator"))
+        sut.with_indicator(Attr("my_second_indicator"))
         assert (
             sut.localize(DEFAULT_LOCALIZER)
-            == "Something went wrong!\n- data.my_second_context.my_first_context"
+            == "Something went wrong!\n- data.my_second_indicator.my_first_indicator"
         )
 
-    def test_within_context__and_contexts(self) -> None:
+    def test_with_indicator__and_indicators(self) -> None:
         sut = HumanFacingException(StaticTranslations("Something went wrong!"))
-        sut.within_context(Attr("my_first_context"))
-        assert [context.format() for context in sut.contexts] == [".my_first_context"]
+        sut.with_indicator(Attr("my_first_indicator"))
+        assert [indicator.format() for indicator in sut.indicators] == [
+            ".my_first_indicator"
+        ]
 
     @pytest.mark.parametrize(
         ("expected", "sut", "error_type"),
@@ -115,26 +117,26 @@ class TestHumanFacingExceptionGroup:
             == "Something went wrong!\n\nSomething else went wrong, too!"
         )
 
-    def test_localize__with_predefined_contexts(self) -> None:
+    def test_localize__with_predefined_indicators(self) -> None:
         sut = HumanFacingExceptionGroup()
-        context_1 = Attr("my_first_context")
-        context_2 = Attr("my_second_context")
-        sut.within_context(context_1)
-        sut.within_context(context_2)
+        indicator_1 = Attr("my_first_indicator")
+        indicator_2 = Attr("my_second_indicator")
+        sut.with_indicator(indicator_1)
+        sut.with_indicator(indicator_2)
         error_1 = HumanFacingException(StaticTranslations("Something went wrong!"))
         error_2 = HumanFacingException(
             StaticTranslations("Something else went wrong, too!")
         )
         sut.append(error_1)
         sut.append(error_2)
-        assert error_1.contexts == [context_1, context_2]
-        assert error_2.contexts == [context_1, context_2]
+        assert error_1.indicators == [indicator_1, indicator_2]
+        assert error_2.indicators == [indicator_1, indicator_2]
         assert (
             sut.localize(DEFAULT_LOCALIZER)
-            == "Something went wrong!\n- data.my_second_context.my_first_context\n\nSomething else went wrong, too!\n- data.my_second_context.my_first_context"
+            == "Something went wrong!\n- data.my_second_indicator.my_first_indicator\n\nSomething else went wrong, too!\n- data.my_second_indicator.my_first_indicator"
         )
 
-    def test_localize__with_postdefined_contexts(self) -> None:
+    def test_localize__with_postdefined_indicators(self) -> None:
         sut = HumanFacingExceptionGroup()
         error_1 = HumanFacingException(StaticTranslations("Something went wrong!"))
         error_2 = HumanFacingException(
@@ -142,21 +144,23 @@ class TestHumanFacingExceptionGroup:
         )
         sut.append(error_1)
         sut.append(error_2)
-        context_1 = Attr("my_first_context")
-        context_2 = Attr("my_second_context")
-        sut.within_context(context_1)
-        sut.within_context(context_2)
-        assert error_1.contexts == [context_1, context_2]
-        assert error_2.contexts == [context_1, context_2]
+        indicator_1 = Attr("my_first_indicator")
+        indicator_2 = Attr("my_second_indicator")
+        sut.with_indicator(indicator_1)
+        sut.with_indicator(indicator_2)
+        assert error_1.indicators == [indicator_1, indicator_2]
+        assert error_2.indicators == [indicator_1, indicator_2]
         assert (
             sut.localize(DEFAULT_LOCALIZER)
-            == "Something went wrong!\n- data.my_second_context.my_first_context\n\nSomething else went wrong, too!\n- data.my_second_context.my_first_context"
+            == "Something went wrong!\n- data.my_second_indicator.my_first_indicator\n\nSomething else went wrong, too!\n- data.my_second_indicator.my_first_indicator"
         )
 
-    def test_within_context(self) -> None:
+    def test_with_indicator(self) -> None:
         sut = HumanFacingExceptionGroup()
-        sut.within_context(Attr("my_first_context"))
-        assert [context.format() for context in sut.contexts] == [".my_first_context"]
+        sut.with_indicator(Attr("my_first_indicator"))
+        assert [indicator.format() for indicator in sut.indicators] == [
+            ".my_first_indicator"
+        ]
 
     def test_absorb__without_contexts(self) -> None:
         sut = HumanFacingExceptionGroup()
@@ -164,7 +168,7 @@ class TestHumanFacingExceptionGroup:
         with sut.absorb():
             raise error
         assert_error(sut, error=error)  # type: ignore[unreachable]
-        assert error.contexts == []
+        assert error.indicators == []
 
     def test_absorb__with_contexts(self) -> None:
         sut = HumanFacingExceptionGroup()
@@ -173,7 +177,7 @@ class TestHumanFacingExceptionGroup:
         with sut.absorb(context):
             raise error
         assert_error(sut, error=error)  # type: ignore[unreachable]
-        assert error.contexts == [context]
+        assert error.indicators == [context]
 
     @pytest.mark.parametrize(
         ("expected", "errors"),
@@ -247,29 +251,29 @@ class TestHumanFacingExceptionGroup:
         assert len(list(iter(sut))) == 1
 
 
-def test_reraise_within_context__without_exception() -> None:
-    with reraise_within_context():
+def test_reraise_with_indicator__without_exception() -> None:
+    with reraise_with_indicator():
         pass
 
 
-def test_reraise_within_context__with_irrelevant_exception() -> None:
+def test_reraise_with_indicator__with_irrelevant_exception() -> None:
     class _Exception(Exception):
         pass
 
-    with pytest.raises(_Exception), reraise_within_context():
+    with pytest.raises(_Exception), reraise_with_indicator():
         raise _Exception
 
 
-def test_reraise_within_context__without_contexts() -> None:
-    with pytest.raises(HumanFacingException), reraise_within_context():
+def test_reraise_with_indicator__without_contexts() -> None:
+    with pytest.raises(HumanFacingException), reraise_with_indicator():
         raise HumanFacingException("-")
 
 
-def test_reraise_within_context__with_contexts() -> None:
+def test_reraise_with_indicator__with_contexts() -> None:
     context = Key("my_first_key")
     with (
         pytest.raises(HumanFacingException) as exc_info,
-        reraise_within_context(context),
+        reraise_with_indicator(context),
     ):
         raise HumanFacingException("-")
-    assert exc_info.value.contexts == [context]
+    assert exc_info.value.indicators == [context]

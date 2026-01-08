@@ -11,7 +11,7 @@ from betty.exception import HumanFacingException, HumanFacingExceptionGroup
 if TYPE_CHECKING:
     from collections.abc import Iterable, Sequence
 
-    from betty.data import Context
+    from betty.data.indicator import Indicator
 
 
 @overload
@@ -21,7 +21,7 @@ def assert_error(
     error: HumanFacingException,
     error_type: type[HumanFacingException] = HumanFacingException,
     error_message: None = None,
-    error_contexts: None = None,
+    error_indicators: None = None,
 ) -> Sequence[HumanFacingException]:
     pass
 
@@ -33,7 +33,7 @@ def assert_error(
     error: None = None,
     error_type: type[HumanFacingException] = HumanFacingException,
     error_message: str | None = None,
-    error_contexts: Sequence[Context] | None = None,
+    error_indicators: Sequence[Indicator] | None = None,
 ) -> Sequence[HumanFacingException]:
     pass
 
@@ -44,12 +44,12 @@ def assert_error(
     error: HumanFacingException | None = None,
     error_type: type[HumanFacingException] = HumanFacingException,
     error_message: str | None = None,
-    error_contexts: Sequence[Context] | None = None,
+    error_indicators: Sequence[Indicator] | None = None,
 ) -> Sequence[HumanFacingException]:
     """
     Assert that an error group contains an error matching the given parameters.
     """
-    expected_error_contexts: Sequence[str] | None
+    expected_error_indicators: Sequence[str] | None
     actual_errors: Iterable[HumanFacingException]
     if isinstance(actual_error, HumanFacingExceptionGroup):
         actual_errors = [*actual_error]
@@ -58,17 +58,21 @@ def assert_error(
 
     expected_error_type: type
     expected_error_message = None
-    expected_error_contexts = None
+    expected_error_indicators = None
     if error:
         expected_error_type = type(error)
         expected_error_message = str(error)
-        expected_error_contexts = [context.format() for context in error.contexts]
+        expected_error_indicators = [
+            indicator.format() for indicator in error.indicators
+        ]
     else:
         expected_error_type = error_type
         if error_message is not None:
             expected_error_message = error_message
-        if error_contexts is not None:
-            expected_error_contexts = [context.format() for context in error_contexts]
+        if error_indicators is not None:
+            expected_error_indicators = [
+                indicator.format() for indicator in error_indicators
+            ]
 
     errors = [
         actual_error
@@ -81,12 +85,12 @@ def assert_error(
             for actual_error in actual_errors
             if str(actual_error).startswith(expected_error_message)
         ]
-    if expected_error_contexts is not None:
+    if expected_error_indicators is not None:
         errors = [
             actual_error
             for actual_error in actual_errors
-            if expected_error_contexts
-            == [context.format() for context in actual_error.contexts]
+            if expected_error_indicators
+            == [indicator.format() for indicator in actual_error.indicators]
         ]
     if errors:
         return errors

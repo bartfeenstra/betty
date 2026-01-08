@@ -20,7 +20,7 @@ if TYPE_CHECKING:
     from collections.abc import Mapping
 
     from betty.app import App
-    from betty.data import Path
+    from betty.data.indicator import Path
     from betty.serde.dump import Dump
 
 

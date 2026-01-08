@@ -26,7 +26,7 @@ from typing import (
     overload,
 )
 
-from betty.data import Index, Key
+from betty.data.indicator import Index, Key
 from betty.error import FileNotFound
 from betty.exception import HumanFacingException, HumanFacingExceptionGroup
 from betty.locale import from_language_tag

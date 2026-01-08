@@ -11,8 +11,8 @@ from typing_extensions import override
 from betty.assertion import OptionalField, assert_record
 from betty.config import Configuration, Sample, get_full_sample, get_minimal_sample
 from betty.config.color import ColorConfiguration
-from betty.data import Key, Path
-from betty.exception import reraise_within_context
+from betty.data.indicator import Key, Path
+from betty.exception import reraise_with_indicator
 from betty.project.extension.theme.config import RegionalContentConfiguration
 from betty.project.factory import CallbackProjectDependentFactory
 
@@ -111,7 +111,7 @@ class RaspberryMintConfiguration(Configuration):
             from betty.project.extension.raspberry_mint import RaspberryMint
 
             extensions = await project.extensions
-            with reraise_within_context(
+            with reraise_with_indicator(
                 Key("regional_content"),
                 Key("raspberry-mint"),
                 Key("extensions"),
