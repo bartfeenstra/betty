@@ -18,6 +18,8 @@ from typing_extensions import override
 
 from betty.app import App
 from betty.config import Configurable, Configuration
+from betty.data import HasData
+from betty.data.aggregate.record import RecordDefinition
 from betty.functools import Result
 from betty.importlib import import_any
 from betty.locale.localize import DEFAULT_LOCALIZER
@@ -347,7 +349,7 @@ class _ConfigurationDirective(SphinxDirective):
 .. tab-set::
 
 """
-            portable = sample.configuration.dump()
+            portable = sample.data.dump()
             for serializer in serializers:
                 serialized = serializer.dump(portable)
                 example_content += f"""
@@ -365,11 +367,102 @@ class _ConfigurationDirective(SphinxDirective):
         )
 
 
+class _HasDataDirective(SphinxDirective):
+    required_arguments = 1
+
+    @override
+    def run(self) -> list[nodes.Node]:
+        # Right-strip periods to avoid D400 and D415 violations.
+        cls_name = self.arguments[0].rstrip(".")
+        cls = import_any(cls_name)
+        assert issubclass(cls, HasData)
+        data = cls.data()
+        content = ""
+
+        if isinstance(data, RecordDefinition) and data.fields:
+            content += """
+Data
+====
+"""
+            for field in sorted(
+                data.fields,
+                key=lambda field: (not field.required, field.selector.element),
+            ):
+                primary_label = field.data.label if field.label is None else field.label
+                content += f"""
+                
+``{field.selector.element}`` :sup:`{"required" if field.required else "optional"}`
+
+    **{primary_label.localize(DEFAULT_LOCALIZER)}**
+"""
+                primary_description = (
+                    field.data.description
+                    if field.description is None
+                    else field.description
+                )
+                if primary_description is not None:
+                    content += f"""
+    {primary_description.localize(DEFAULT_LOCALIZER)}
+"""
+                content += f"""
+
+    Value: :py:class:`{field.data.cls.__name__} <{field.data.cls.__module__}.{field.data.cls.__qualname__}>`
+"""
+                if field.label is not None:
+                    content += f"""
+    *{field.data.label.localize(DEFAULT_LOCALIZER)}*
+"""
+                if field.description is not None and field.data.description is not None:
+                    content += f"""
+    *{field.data.description.localize(DEFAULT_LOCALIZER)}*
+"""
+
+        samples = list(data.samples)
+        if samples:
+            examples_label = "Examples" if len(samples) > 1 else "Example"
+            content += f"""
+{examples_label}
+{"".join(["=" * len(examples_label)])}
+
+"""
+            serializers = _to_thread(lambda: run(_get_serializers()))
+            for sample in samples:
+                example_content = ""
+                if len(samples) > 1:
+                    example_label = sample.label.localize(DEFAULT_LOCALIZER)
+                    example_content += f"""
+{example_label}
+{"".join(["-" * len(example_label)])}
+"""
+                example_content += """
+.. tab-set::
+
+"""
+                portable = data.dump(sample.data)
+                for serializer in serializers:
+                    serialized = serializer.dump(portable)
+                    example_content += f"""
+   .. tab-item:: {serializer.plugin().label.localize(DEFAULT_LOCALIZER)}
+
+      .. code-block:: {serializer.plugin().id}
+
+{indent(serialized, " " * 10)}
+"""
+                content += example_content
+
+        return nested_parse_to_nodes(
+            self.state,
+            content,
+            offset=self.content_offset,
+        )
+
+
 def setup(app: Sphinx) -> ExtensionMetadata:
     """
     Implement Sphinx's extension setup.
     """
     app.add_directive("configuration", _ConfigurationDirective)
+    app.add_directive("has_data", _HasDataDirective)
     app.add_directive("plugin", _PluginDirective)
     app.add_directive("plugin_type", _PluginTypeDirective)
     app.add_directive("plugin_types", _PluginTypesDirective)

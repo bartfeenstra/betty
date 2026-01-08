@@ -13,8 +13,9 @@ from betty.assertion import (
     assert_record,
     assert_str,
 )
-from betty.config import Configuration, Sample
+from betty.config import Configuration
 from betty.config.collections.sequence import ConfigurationSequence
+from betty.data import Sample
 from betty.data.indicator.selector import Index
 from betty.exception import reraise_with_indicator
 from betty.machine_name import MachineName, assert_machine_name
@@ -99,7 +100,7 @@ class EntityReference(Configuration):
 
     @override
     @classmethod
-    def samples(cls) -> Iterable[Sample[Self]]:
+    def samples(cls) -> Iterable[Sample[Self]]:  # ty:ignore[invalid-method-override]
         from betty.ancestry.person import Person
 
         yield Sample(cls(Person, "123"), label="Default")
@@ -130,7 +131,7 @@ class EntityReferenceSequence(ConfigurationSequence[EntityReference]):
 
     @override
     @classmethod
-    def samples(cls) -> Iterable[Sample[Self]]:
+    def samples(cls) -> Iterable[Sample[Self]]:  # ty:ignore[invalid-method-override]
         from betty.ancestry.person import Person
 
         yield Sample(cls(), label="Minimal", minimal=True)

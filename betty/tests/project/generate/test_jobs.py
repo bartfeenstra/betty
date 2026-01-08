@@ -56,8 +56,10 @@ class TestGenerateEntityTypesHtml:
     )
     async def test_do(self, entity_type: type[Entity], isolated_app: App) -> None:
         async with Project.new_isolated(isolated_app) as project:
-            project.configuration.entity_types.append(
-                EntityTypeConfiguration(entity_type, generate_html_list=True)
+            project.configuration.entity_types.add(
+                EntityTypeConfiguration(
+                    entity_type=entity_type, generate_html_list=True
+                )
             )
             async with project:
                 await do(ProjectContext(project), GenerateEntityTypesHtml())
@@ -68,8 +70,8 @@ class TestGenerateEntityTypesHtml:
 
     async def test_do__with_pager(self, isolated_app: App) -> None:
         async with Project.new_isolated(isolated_app) as project:
-            project.configuration.entity_types.append(
-                EntityTypeConfiguration(Place, generate_html_list=True)
+            project.configuration.entity_types.add(
+                EntityTypeConfiguration(entity_type=Place, generate_html_list=True)
             )
             place_one = Place(id="P1")
             place_two = Place(id="P2")

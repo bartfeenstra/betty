@@ -35,7 +35,8 @@ class TestGenerate(CommandTestBase):
 
         async with Project.new_isolated(isolated_app) as project:
             await dump_file(
-                project.configuration.dump(), project.configuration_file_path
+                project.configuration.data().dump(project.configuration),
+                project.configuration_file_path,
             )
             await run(
                 isolated_app,

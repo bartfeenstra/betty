@@ -44,7 +44,7 @@ class TestConfig(CommandTestBase):
             "--locale",
             locale,
         )
-        configuration = AppConfiguration.load(
+        configuration = AppConfiguration.data().load(
             (await assert_load_file())(configuration_file_path)
         )
         assert configuration.locale == Locale(locale)

@@ -10,8 +10,9 @@ from typing import TYPE_CHECKING, Any, Self, final
 from typing_extensions import override
 
 from betty.assertion import assert_len, assert_mapping, assert_str
-from betty.config import Configuration, Sample
+from betty.config import Configuration
 from betty.content_provider import ContentProvider, ContentProviderDefinition
+from betty.data import Sample
 from betty.data.indicator.selector import Key
 from betty.exception import HumanFacingException, reraise_with_indicator
 from betty.locale.localizable.gettext import _
@@ -128,7 +129,7 @@ class RegionalContentConfiguration(Configuration):
 
     @override
     @classmethod
-    def samples(cls) -> Iterable[Sample[Self]]:
+    def samples(cls) -> Iterable[Sample[Self]]:  # ty:ignore[invalid-method-override]
         from betty.content_provider.content_providers import Render, RenderConfiguration
 
         yield Sample(

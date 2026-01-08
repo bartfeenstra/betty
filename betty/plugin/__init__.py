@@ -52,7 +52,7 @@ class PluginDefinition(Generic[_BaseClsCoT]):
         """
         The plugin type definition.
         """
-        raise Exception(
+        raise NotImplementedError(
             f"{fully_qualified_name(cls)} was not decorated with a {fully_qualified_name(PluginDefinition)} subclass."
         )
 
@@ -285,7 +285,7 @@ class Plugin(Generic[_PluginDefinitionCoT]):
         """
         The plugin definition.
         """
-        raise Exception(
+        raise NotImplementedError(
             f"{fully_qualified_name(cls)} was not decorated with a {fully_qualified_name(PluginDefinition)} subclass."
         )
 

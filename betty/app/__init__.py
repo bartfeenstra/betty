@@ -147,7 +147,7 @@ class App(Configurable[AppConfiguration], ServiceLevel):
         Create a new application from the environment.
         """
         if config.CONFIGURATION_FILE_PATH.exists():
-            configuration = AppConfiguration.load(
+            configuration = AppConfiguration.data().load(
                 (await assert_load_file())(config.CONFIGURATION_FILE_PATH)
             )
         else:

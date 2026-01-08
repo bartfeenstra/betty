@@ -130,8 +130,6 @@ _BASELINE: Mapping[str, _ModuleIgnore] = {
             "load": MissingReason.ABSTRACT,
             "validator": MissingReason.STATIC_CONTENT_ONLY,
         },
-        "get_full_sample": MissingReason.SHOULD_BE_COVERED,
-        "get_minimal_sample": MissingReason.SHOULD_BE_COVERED,
     },
     "betty/config/collections/__init__.py": MissingReason.ABSTRACT,
     "betty/config/factory.py": {
@@ -164,8 +162,23 @@ _BASELINE: Mapping[str, _ModuleIgnore] = {
         },
         "ServiceInitializedError": MissingReason.ABSTRACT,
     },
+    "betty/service/hydrate.py": {
+        "Hydratable": MissingReason.ABSTRACT,
+    },
     "betty/service/level/__init__.py": MissingReason.ABSTRACT,
     "betty/service/level/factory.py": MissingReason.ABSTRACT,
+    "betty/data/__init__.py": {
+        "HasData": MissingReason.ABSTRACT,
+        "SampleNotFound": MissingReason.STATIC_CONTENT_ONLY,
+    },
+    "betty/data/aggregate/__init__.py": {
+        "AggregateDefinition": {
+            "elements": MissingReason.ABSTRACT,
+        },
+    },
+    "betty/data/aggregate/collection/__init__.py": {
+        "CollectionDefinition": MissingReason.ABSTRACT,
+    },
     "betty/data/indicator/__init__.py": {
         "Indicator": MissingReason.ABSTRACT,
     },
@@ -409,7 +422,10 @@ _BASELINE: Mapping[str, _ModuleIgnore] = {
         "PluginDefinitionConfigurationMapping": MissingReason.SHOULD_BE_COVERED,
     },
     "betty/portable/__init__.py": {
+        "Dumper": MissingReason.ABSTRACT,
+        "Loader": MissingReason.ABSTRACT,
         "Portable": MissingReason.ABSTRACT,
+        "Porter": MissingReason.ABSTRACT,
     },
     "betty/portable/error.py": {
         "NotPortable": MissingReason.STATIC_CONTENT_ONLY,

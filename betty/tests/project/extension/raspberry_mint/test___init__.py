@@ -59,8 +59,10 @@ class TestRaspberryMint(
         ):
             async with Project.new_isolated(isolated_app) as project:
                 project.configuration.extensions.enable(RaspberryMint)
-                project.configuration.entity_types.replace(
-                    EntityTypeConfiguration(DummyEntityOne, generate_html_list=True)
+                project.configuration.entity_types.add(
+                    EntityTypeConfiguration(
+                        entity_type=DummyEntityOne, generate_html_list=True
+                    )
                 )
                 async with project:
                     await generate(project)

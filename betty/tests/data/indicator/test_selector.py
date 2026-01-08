@@ -5,7 +5,7 @@ import pytest
 from typing_extensions import override
 
 from betty.data.indicator import Indicator
-from betty.data.indicator.selector import Attr, Index, Key, Selector, Selectors
+from betty.data.indicator.selector import Attr, Element, Index, Key, Selector, Selectors
 from betty.exception import HumanFacingException
 
 
@@ -16,6 +16,9 @@ class DummyIndicator(Indicator):
 
 
 class TestAttr:
+    def test_element(self) -> None:
+        assert Attr("my_first_attr").element == "my_first_attr"
+
     def test_format(self) -> None:
         assert Attr("attr").format() == ".attr"
 
@@ -145,3 +148,31 @@ class TestSelectors:
         with pytest.raises(HumanFacingException) as exc_info:
             Selectors(*selectors).get([[], []])
         assert list(exc_info.value.indicators) == [inner_selector, outer_selector]
+
+
+class ElementTestElement(Element[Any]):
+    @override
+    def _get(self, data: Any, /) -> Any:
+        raise NotImplementedError
+
+    @override
+    def format(self) -> str:
+        raise NotImplementedError
+
+
+class TestElement:
+    def test_element(self) -> None:
+        element = "my_first_element"
+        sut = ElementTestElement(element)
+        assert sut.element == element
+
+    @pytest.mark.parametrize(
+        ("expected", "one", "other"),
+        [
+            (True, ElementTestElement(1), ElementTestElement(1)),
+            (False, ElementTestElement(1), ElementTestElement(2)),
+            (False, ElementTestElement(1), ElementTestElement("1")),
+        ],
+    )
+    def test___eq__(self, expected: bool, one: Element, other: Element) -> None:
+        assert (one == other) is expected

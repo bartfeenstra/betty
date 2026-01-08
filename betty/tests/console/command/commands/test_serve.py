@@ -33,7 +33,8 @@ class TestServe(CommandTestBase):
         mocker.patch("betty.serve.BuiltinProjectServer", new=NoOpProjectServer)
         async with Project.new_isolated(isolated_app) as project:
             await dump_file(
-                project.configuration.dump(), project.configuration_file_path
+                project.configuration.data().dump(project.configuration),
+                project.configuration_file_path,
             )
             await makedirs(project.www_directory_path)
 

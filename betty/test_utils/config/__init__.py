@@ -16,7 +16,10 @@ from betty.assertion import (
     assert_str,
 )
 from betty.config import Configurable, Configuration
+from betty.data import HasData
+from betty.data.aggregate.record.object import ObjectDefinition
 from betty.importlib import fully_qualified_name
+from betty.locale.localizable.plain import Plain
 from betty.locale.localize import DEFAULT_LOCALIZER
 from betty.portable import PortableData
 
@@ -38,7 +41,7 @@ class ConfigurationTestBase(Generic[_ConfigurationT]):
             return
         docstring = self.sut_cls.__doc__
         assert docstring, (
-            f"{fully_qualified_name(self.sut_cls)}.samples() does not have a docstring."
+            f"{fully_qualified_name(self.sut_cls)} does not have a docstring."
         )
         directive = f".. configuration:: {fully_qualified_name(self.sut_cls)}"
         assert directive in docstring, (
@@ -78,7 +81,7 @@ class ConfigurationTestBase(Generic[_ConfigurationT]):
         samples = list(self.sut_cls.samples())
         for sample in samples:
             with subtests.test(str(sample.label.localize(DEFAULT_LOCALIZER))):
-                assert sample.configuration != other
+                assert sample.data != other
 
     def test___eq____with_samples(self, subtests: pytest.Subtests) -> None:
         """
@@ -87,13 +90,13 @@ class ConfigurationTestBase(Generic[_ConfigurationT]):
         samples = list(self.sut_cls.samples())
         for sample in samples:
             with subtests.test(str(sample.label.localize(DEFAULT_LOCALIZER))):
-                assert sample.configuration == sample.configuration, (
+                assert sample.data == sample.data, (
                     f'Failed asserting that {fully_qualified_name(self.sut_cls)} sample "{sample.label.localize(DEFAULT_LOCALIZER)}" instance is equal to itself.'
                 )
                 for other_sample in samples:
                     if other_sample is sample:
                         continue
-                    assert sample.configuration != other_sample.configuration, (
+                    assert sample.data != other_sample.data, (
                         f'Failed asserting that {fully_qualified_name(self.sut_cls)} sample "{sample.label.localize(DEFAULT_LOCALIZER)}" instance is not equal to sample "{sample.label.localize(DEFAULT_LOCALIZER)}".'
                     )
 
@@ -104,17 +107,21 @@ class ConfigurationTestBase(Generic[_ConfigurationT]):
         samples = list(self.sut_cls.samples())
         for sample in samples:
             with subtests.test(str(sample.label.localize(DEFAULT_LOCALIZER))):
-                portable = sample.configuration.dump()
+                portable = sample.data.dump()
                 assert portable == self.sut_cls.load(portable).dump(), (
                     f'Failed asserting that {fully_qualified_name(self.sut_cls)}.load() and {fully_qualified_name(self.sut_cls)}.dump() do not change the data for sample "{sample.label.localize(DEFAULT_LOCALIZER)}".'
                 )
                 for other_sample in samples:
                     if other_sample is sample:
                         continue
-                    assert portable != other_sample.configuration.dump()
+                    assert portable != other_sample.data.dump()
 
 
-class DummyConfiguration(Configuration):
+@ObjectDefinition(
+    label=Plain("Dummy configuration"),
+    fields=[],
+)
+class DummyConfiguration(Configuration, HasData):
     """
     A dummy :py:class:`betty.config.Configuration` implementation.
     """

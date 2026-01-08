@@ -4,31 +4,50 @@ Provide application configuration.
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Any, Self, final
+from typing import final
 
-from typing_extensions import override
+from babel import Locale
 
-from betty.assertion import OptionalField, assert_locale, assert_record
-from betty.config import Configuration, Sample
+from betty.assertion import assert_locale
+from betty.data import DataDefinition, HasData, Sample
+from betty.data.aggregate.record import FieldDefinition
+from betty.data.aggregate.record.object import ObjectDefinition
+from betty.data.indicator.selector import Attr
 from betty.dirs import APP_CONFIG_DIRECTORY_PATH
 from betty.locale import DEFAULT_LOCALE, to_language_tag
-
-if TYPE_CHECKING:
-    from collections.abc import Iterable
-
-    from babel import Locale
-
-    from betty.portable import PortableData, PortableMapping
+from betty.locale.localizable.gettext import _
+from betty.portable import CallbackPorter
 
 CONFIGURATION_FILE_PATH = APP_CONFIG_DIRECTORY_PATH / "app.json"
 
 
 @final
-class AppConfiguration(Configuration):
+@ObjectDefinition(
+    label=_("Application configuration"),
+    fields=[
+        FieldDefinition(
+            Attr("locale"),
+            DataDefinition(
+                cls=Locale,
+                label=_("Locale"),
+                porter=CallbackPorter(assert_locale(), to_language_tag),
+                empty=lambda data: data is None,
+            ),
+            required=False,
+        ),
+    ],
+    samples=[
+        lambda: Sample(AppConfiguration(), label="Minimal", minimal=True),
+        lambda: Sample(
+            AppConfiguration(locale=DEFAULT_LOCALE), label="Full", full=True
+        ),
+    ],
+)
+class AppConfiguration(HasData):
     """
     Configuration for :py:class:`betty.app.App`.
 
-    .. configuration:: betty.app.config:AppConfiguration
+    .. has_data:: betty.app.config:AppConfiguration
     """
 
     def __init__(
@@ -36,7 +55,6 @@ class AppConfiguration(Configuration):
         *,
         locale: Locale | None = None,
     ):
-        super().__init__()
         self._locale: Locale | None = locale
 
     @property
@@ -49,26 +67,3 @@ class AppConfiguration(Configuration):
     @locale.setter
     def locale(self, locale: Locale | None) -> None:
         self._locale = locale
-
-    @override
-    @classmethod
-    def load(cls, portable: PortableData, /) -> Self:
-        return cls(**assert_record(OptionalField("locale", assert_locale()))(portable))
-
-    @override
-    def dump(self) -> PortableMapping:
-        if self.locale is None:
-            return {}
-        return {"locale": to_language_tag(self.locale)}
-
-    @override
-    def __eq__(self, other: Any) -> bool:
-        if not isinstance(other, type(self)):
-            return NotImplemented
-        return self.locale == other.locale
-
-    @override
-    @classmethod
-    def samples(cls) -> Iterable[Sample[Self]]:
-        yield Sample(cls(), label="Minimal", minimal=True)
-        yield Sample(cls(locale=DEFAULT_LOCALE), label="Full", full=True)

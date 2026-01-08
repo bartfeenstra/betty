@@ -1,0 +1,111 @@
+"""
+Test utilities for :py:mod:`betty.data`.
+"""
+
+from typing import Any, Generic, TypeVar
+
+import pytest
+
+from betty.data import HasData
+from betty.importlib import fully_qualified_name
+from betty.locale.localize import DEFAULT_LOCALIZER
+
+_HasDataT = TypeVar("_HasDataT", bound=HasData, covariant=True)
+
+
+class HasDataTestBase(Generic[_HasDataT]):
+    """
+    A base class for testing :py:class:`betty.data.HasData` subclasses.
+    """
+
+    sut_cls: type[_HasDataT]
+    """
+    The system under test.
+    """
+
+    def test_data(self) -> None:
+        """
+        Tests :py:meth:`betty.data.HasData.data` implementations.
+        """
+        self.sut_cls.data()
+
+    def test_cls_docstring(self) -> None:
+        """
+        Test the class's docstring.
+        """
+        docstring = self.sut_cls.__doc__
+        assert docstring, "Failed asserting that the class has a docstring"
+        directive = f".. has_data:: {fully_qualified_name(self.sut_cls)}"
+        assert directive in docstring, (
+            f"Failed to find `{directive}` in the class's docstring"
+        )
+
+    def test_data__samples__should_provide_at_least_one(self) -> None:
+        """
+        Tests that the data definition provides at least one sample.
+        """
+        assert len(list(self.sut_cls.data().samples)), (
+            "Failed asserting that at least one sample is provided"
+        )
+
+    def test_data__porter__with_samples(self, subtests: pytest.Subtests) -> None:
+        """
+        Tests that the data definition can consistently dump and load its samples.
+        """
+        samples = list(self.sut_cls.data().samples)
+        for sample in samples:
+            with subtests.test(str(sample.label.localize(DEFAULT_LOCALIZER))):
+                portable = self.sut_cls.data().dump(sample.data)
+                assert portable == self.sut_cls.data().dump(
+                    self.sut_cls.data().load(portable)
+                ), (
+                    f'Failed asserting that repeatedly loading and dumping sample "{sample.label.localize(DEFAULT_LOCALIZER)}" keeps producing the same portable data'
+                )
+                for other_sample in samples:
+                    if other_sample is sample:
+                        continue
+                    assert portable != self.sut_cls.data().dump(other_sample.data), (
+                        f'Failed asserting that sample "{sample.label.localize(DEFAULT_LOCALIZER)}" instance is not equal to sample "{other_sample.label.localize(DEFAULT_LOCALIZER)}"'
+                    )
+
+    @pytest.mark.parametrize(
+        "other",
+        [
+            object,
+            object(),
+            True,
+            False,
+            None,
+            123,
+            "abc",
+            [],
+            {},
+        ],
+    )
+    def test___eq____with_non_has_data_other(
+        self, other: Any, subtests: pytest.Subtests
+    ) -> None:
+        """
+        Tests :py:meth:`object.__eq__` implementations with values that do not subclass :py:class:`betty.data.HasData`.
+        """
+        samples = list(self.sut_cls.data().samples)
+        for sample in samples:
+            with subtests.test(str(sample.label.localize(DEFAULT_LOCALIZER))):
+                assert sample.data != other
+
+    def test___eq____with_samples(self, subtests: pytest.Subtests) -> None:
+        """
+        Tests :py:meth:`object.__eq__` implementations with the data definition's samples.
+        """
+        samples = list(self.sut_cls.data().samples)
+        for sample in samples:
+            with subtests.test(str(sample.label.localize(DEFAULT_LOCALIZER))):
+                assert sample.data == sample.data, (
+                    f'Failed asserting that sample "{sample.label.localize(DEFAULT_LOCALIZER)}" instance is equal to itself'
+                )
+                for other_sample in samples:
+                    if other_sample is sample:
+                        continue
+                    assert sample.data != other_sample.data, (
+                        f'Failed asserting that sample "{sample.label.localize(DEFAULT_LOCALIZER)}" instance is not equal to sample "{other_sample.label.localize(DEFAULT_LOCALIZER)}"'
+                    )

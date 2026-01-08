@@ -4,9 +4,8 @@ Provide project configuration.
 
 from __future__ import annotations
 
-from collections.abc import Collection, Iterable, MutableMapping
 from pathlib import Path
-from typing import TYPE_CHECKING, Any, Self, cast, final
+from typing import TYPE_CHECKING, Any, Self, final
 from urllib.parse import urlparse
 
 from babel import Locale
@@ -14,27 +13,32 @@ from typing_extensions import override
 
 from betty.ancestry.event_type import EventType, EventTypeDefinition
 from betty.ancestry.gender import Gender, GenderDefinition
+from betty.ancestry.person import Person
 from betty.ancestry.place_type import PlaceType, PlaceTypeDefinition
 from betty.ancestry.presence_role import PresenceRole, PresenceRoleDefinition
 from betty.assertion import (
     Field,
     OptionalField,
     RequiredField,
-    assert_bool,
-    assert_int,
+    assert_file_path,
     assert_locale,
-    assert_none,
     assert_number,
-    assert_or,
-    assert_path,
     assert_record,
     assert_str,
 )
-from betty.config import Configuration, Sample, get_full_sample
+from betty.collections import KeyedCollection
+from betty.config import Configuration
 from betty.config.collections.mapping import OrderedConfigurationMapping
 from betty.copyright_notice import CopyrightNotice, CopyrightNoticeDefinition
-from betty.data.indicator.selector import Key
-from betty.exception import HumanFacingException, reraise_with_indicator
+from betty.data import DataDefinition, HasData, Sample
+from betty.data.aggregate.collection.keyed import KeyedCollectionDefinition
+from betty.data.aggregate.record import FieldDefinition
+from betty.data.aggregate.record.object import ObjectDefinition
+from betty.data.indicator.selector import Attr
+from betty.data.sample import get_full_sample
+from betty.data.simple import SimpleDefinition
+from betty.dirs import ASSETS_DIRECTORY_PATH
+from betty.exception import HumanFacingException
 from betty.license import License, LicenseDefinition
 from betty.locale import DEFAULT_LOCALE, LocaleLike, ensure_locale, to_language_tag
 from betty.locale.localizable.assertion import assert_load_localizable
@@ -42,6 +46,7 @@ from betty.locale.localizable.attr import (
     OptionalLocalizableAttr,
     RequiredLocalizableAttr,
 )
+from betty.locale.localizable.data import LocalizableDefinition
 from betty.locale.localizable.ensure import ensure_localizable
 from betty.locale.localizable.gettext import _
 from betty.locale.localizable.portable import dump_localizable
@@ -52,21 +57,22 @@ from betty.plugin.config import (
     CountableHumanFacingPluginDefinitionConfiguration,
     HumanFacingPluginDefinitionConfiguration,
     PluginDefinitionConfigurationMapping,
-    PluginIdentifierKeyConfigurationMapping,
     PluginInstanceConfiguration,
     PluginInstanceConfigurationMapping,
 )
 from betty.plugin.config.ordered import OrderedPluginDefinitionConfiguration
+from betty.plugin.data import PluginIdDefinition
 from betty.plugin.resolve import ResolvableId, resolve_id
+from betty.portable import CallbackPorter
 from betty.project.extension import Extension, ExtensionDefinition
-from betty.service.level.factory import CallbackServiceLevelDependentFactory
+from betty.service.hydrate import Hydratable
 
 if TYPE_CHECKING:
+    from collections.abc import Collection, Iterable
+
     from betty.locale.localizable import Localizable, LocalizableLike
-    from betty.plugin.repository import PluginRepository
     from betty.portable import PortableData, PortableMapping
-    from betty.project import Project
-    from betty.service.level.factory import ServiceLevelTarget
+    from betty.service.level import ServiceLevel
 
 DEFAULT_LIFETIME_THRESHOLD = 123
 """
@@ -114,7 +120,7 @@ class ExtensionInstanceConfigurationMapping(
                 [
                     PluginInstanceConfiguration(
                         RaspberryMint,
-                        get_full_sample(RaspberryMintConfiguration).configuration,
+                        get_full_sample(RaspberryMintConfiguration).data,
                     )
                 ]  # ty:ignore[invalid-argument-type]
             ),
@@ -124,29 +130,51 @@ class ExtensionInstanceConfigurationMapping(
 
 
 @final
-class EntityTypeConfiguration(Configuration):
+@ObjectDefinition(
+    label=_("Entity type configuration"),
+    fields=[
+        FieldDefinition(Attr("entity_type"), PluginIdDefinition(EntityDefinition)),
+        FieldDefinition(
+            Attr("generate_html_list"),
+            SimpleDefinition(cls=bool, label=_("Generate list HTML page")),
+            required=False,
+        ),
+    ],
+    samples=[
+        lambda: Sample(
+            EntityTypeConfiguration(entity_type=Person), label="Minimal", minimal=True
+        ),
+        lambda: Sample(
+            EntityTypeConfiguration(entity_type=Person, generate_html_list=True),
+            label="Full",
+            full=True,
+        ),
+    ],
+)
+class EntityTypeConfiguration(
+    HasData[ObjectDefinition["EntityTypeConfiguration"]], Hydratable
+):
     """
     Configure a single entity type for a project.
 
-    .. configuration:: betty.project.config:EntityTypeConfiguration
+    .. has_data:: betty.project.config:EntityTypeConfiguration
     """
 
     def __init__(
         self,
-        entity_type: ResolvableId[EntityDefinition],
         *,
-        generate_html_list: bool = True,
+        entity_type: ResolvableId[EntityDefinition],
+        generate_html_list: bool = False,
     ):
-        super().__init__()
-        self._id = resolve_id(entity_type)
+        self._entity_type = resolve_id(entity_type)
         self.generate_html_list = generate_html_list
 
     @property
-    def id(self) -> MachineName:
+    def entity_type(self) -> MachineName:
         """
         The ID of the configured entity type.
         """
-        return self._id
+        return self._entity_type
 
     @property
     def generate_html_list(self) -> bool:
@@ -160,117 +188,14 @@ class EntityTypeConfiguration(Configuration):
         self._generate_html_list = generate_html_list
 
     @override
-    @classmethod
-    def load(cls, portable: PortableData, /) -> Self:
-        record = assert_record(
-            RequiredField("entity_type", assert_machine_name()),
-            OptionalField("generate_html_list", assert_bool),
-        )(portable)
-        return cls(
-            record["entity_type"],
-            generate_html_list=record.get("generate_html_list", True),
-        )
-
-    @override
-    def dump(self) -> PortableMapping:
-        return {
-            "entity_type": self.id,
-            "generate_html_list": self.generate_html_list,
-        }
-
-    @override
-    def __eq__(self, other: Any) -> bool:
-        if not isinstance(other, type(self)):
-            return NotImplemented
-        return (self.id, self.generate_html_list) == (
-            other.id,
-            other.generate_html_list,
-        )
-
-    async def validate(
-        self, entity_type_repository: PluginRepository[EntityDefinition], /
-    ) -> None:
-        """
-        Validate the configuration.
-        """
-        entity_type = entity_type_repository[self.id]
+    async def hydrate(self, services: ServiceLevel, /) -> None:
+        entity_type = (await services.plugins(EntityDefinition)).get(self._entity_type)
         if self.generate_html_list and not entity_type.public_facing:
             raise HumanFacingException(
                 _(
                     "Cannot generate pages for {entity_type}, because it is not a public-facing entity type."
                 ).format(entity_type=entity_type.label)
             )
-
-    @override
-    @classmethod
-    def samples(cls) -> Iterable[Sample[Self]]:
-        from betty.ancestry.person import Person
-
-        yield Sample(EntityTypeConfiguration(Person), label="Minimal", minimal=True)
-        yield Sample(
-            EntityTypeConfiguration(Person, generate_html_list=False),
-            label="Full",
-            full=True,
-        )
-
-
-@final
-class EntityTypeConfigurationMapping(
-    PluginIdentifierKeyConfigurationMapping[EntityDefinition, EntityTypeConfiguration]
-):
-    """
-    Configure the entity types for a project.
-
-    .. configuration:: betty.project.config:EntityTypeConfigurationMapping
-    """
-
-    @override
-    def _get_key(self, configuration: EntityTypeConfiguration, /) -> MachineName:
-        return configuration.id
-
-    @override
-    @classmethod
-    def _load_key(
-        cls, portable_item: PortableData, portable_key: str, /
-    ) -> PortableData:
-        assert isinstance(portable_item, MutableMapping)
-        portable_item["entity_type"] = portable_key  # ty:ignore[invalid-assignment]
-        return portable_item
-
-    @override
-    def _dump_key(self, portable_item: PortableData, /) -> tuple[PortableData, str]:
-        assert isinstance(portable_item, MutableMapping)
-        return portable_item, cast(
-            str,
-            portable_item.pop(
-                "entity_type",  # ty:ignore[invalid-argument-type]
-            ),
-        )
-
-    @override
-    @classmethod
-    def _item_cls(cls) -> type[EntityTypeConfiguration]:
-        return EntityTypeConfiguration
-
-    async def validate(
-        self, entity_type_repository: PluginRepository[EntityDefinition], /
-    ) -> None:
-        """
-        Validate the configuration.
-        """
-        for configuration in self.values():
-            with reraise_with_indicator(Key(configuration.id)):
-                await configuration.validate(entity_type_repository)
-
-    @override
-    @classmethod
-    def samples(cls) -> Iterable[Sample[Self]]:
-        yield Sample(cls(), label="Minimal", minimal=True)
-        yield Sample(
-            cls([get_full_sample(EntityTypeConfiguration).configuration]),
-            label="Full",
-            full=True,
-        )
 
 
 @final
@@ -339,7 +264,7 @@ class LocaleConfiguration(Configuration):
 
     @override
     @classmethod
-    def samples(cls) -> Iterable[Sample[Self]]:
+    def samples(cls) -> Iterable[Sample[Self]]:  # ty:ignore[invalid-method-override]
         yield Sample(cls(Locale("nl", "NL")), label="Minimal", minimal=True)
         yield Sample(cls(Locale("nl", "NL"), alias="nl"), label="Full", full=True)
 
@@ -403,10 +328,10 @@ class LocaleConfigurationMapping(
 
     @override
     @classmethod
-    def samples(cls) -> Iterable[Sample[Self]]:
+    def samples(cls) -> Iterable[Sample[Self]]:  # ty:ignore[invalid-method-override]
         yield Sample(cls(), label="Minimal", minimal=True)
         yield Sample(
-            cls([get_full_sample(LocaleConfiguration).configuration]),
+            cls([get_full_sample(LocaleConfiguration).data]),
             label="Full",
             full=True,
         )
@@ -500,10 +425,10 @@ class CopyrightNoticePluginConfigurationMapping(
 
     @override
     @classmethod
-    def samples(cls) -> Iterable[Sample[Self]]:
+    def samples(cls) -> Iterable[Sample[Self]]:  # ty:ignore[invalid-method-override]
         yield Sample(cls(), label="Minimal", minimal=True)
         yield Sample(
-            cls([get_full_sample(CopyrightNoticePluginConfiguration).configuration]),
+            cls([get_full_sample(CopyrightNoticePluginConfiguration).data]),
             label="Full",
             full=True,
         )
@@ -595,10 +520,10 @@ class LicensePluginConfigurationMapping(
 
     @override
     @classmethod
-    def samples(cls) -> Iterable[Sample[Self]]:
+    def samples(cls) -> Iterable[Sample[Self]]:  # ty:ignore[invalid-method-override]
         yield Sample(cls(), label="Minimal", minimal=True)
         yield Sample(
-            cls([get_full_sample(LicensePluginConfiguration).configuration]),
+            cls([get_full_sample(LicensePluginConfiguration).data]),
             label="Full",
             full=True,
         )
@@ -669,10 +594,10 @@ class EventTypePluginConfigurationMapping(
 
     @override
     @classmethod
-    def samples(cls) -> Iterable[Sample[Self]]:
+    def samples(cls) -> Iterable[Sample[Self]]:  # ty:ignore[invalid-method-override]
         yield Sample(cls(), label="Minimal", minimal=True)
         yield Sample(
-            cls([get_full_sample(EventTypePluginConfiguration).configuration]),
+            cls([get_full_sample(EventTypePluginConfiguration).data]),
             label="Full",
             full=True,
         )
@@ -740,10 +665,10 @@ class PlaceTypePluginConfigurationMapping(
 
     @override
     @classmethod
-    def samples(cls) -> Iterable[Sample[Self]]:
+    def samples(cls) -> Iterable[Sample[Self]]:  # ty:ignore[invalid-method-override]
         yield Sample(cls(), label="Minimal", minimal=True)
         yield Sample(
-            cls([get_full_sample(PlaceTypePluginConfiguration).configuration]),
+            cls([get_full_sample(PlaceTypePluginConfiguration).data]),
             label="Full",
             full=True,
         )
@@ -811,10 +736,10 @@ class PresenceRolePluginConfigurationMapping(
 
     @override
     @classmethod
-    def samples(cls) -> Iterable[Sample[Self]]:
+    def samples(cls) -> Iterable[Sample[Self]]:  # ty:ignore[invalid-method-override]
         yield Sample(cls(), label="Minimal", minimal=True)
         yield Sample(
-            cls([get_full_sample(PresenceRolePluginConfiguration).configuration]),
+            cls([get_full_sample(PresenceRolePluginConfiguration).data]),
             label="Full",
             full=True,
         )
@@ -880,208 +805,209 @@ class GenderPluginConfigurationMapping(
 
     @override
     @classmethod
-    def samples(cls) -> Iterable[Sample[Self]]:
+    def samples(cls) -> Iterable[Sample[Self]]:  # ty:ignore[invalid-method-override]
         yield Sample(cls(), label="Minimal", minimal=True)
         yield Sample(
-            cls([get_full_sample(GenderPluginConfiguration).configuration]),
+            cls([get_full_sample(GenderPluginConfiguration).data]),
             label="Full",
             full=True,
         )
 
 
 @final
-class ProjectConfiguration(Configuration):
+@ObjectDefinition(
+    label=_("Project configuration"),
+    fields=[
+        FieldDefinition(
+            Attr("author"),
+            LocalizableDefinition(),
+            label=_("Author"),
+            required=False,
+            empty=lambda data: data is None,
+        ),
+        FieldDefinition(
+            Attr("clean_urls"),
+            SimpleDefinition(
+                cls=bool,
+                label=_("Clean URLs"),
+                description=_(
+                    'Whether to use clean URLs: "/path" instead of "/path/index.html".'
+                ),
+            ),
+            empty=lambda data: data is False,
+            required=False,
+        ),
+        FieldDefinition(
+            Attr("copyright_notice"),
+            DataDefinition(
+                cls=PluginInstanceConfiguration, label=_("Copyright notice")
+            ),
+            required=False,
+            empty=lambda data: data == ProjectConfiguration._default_copyright_notice(),
+        ),
+        FieldDefinition(
+            Attr("copyright_notices"),
+            DataDefinition(
+                cls=CopyrightNoticePluginConfigurationMapping,
+                label=_("Copyright notices"),
+            ),
+            empty=lambda data: not len(data),
+            required=False,
+        ),
+        FieldDefinition(
+            Attr("debug"),
+            SimpleDefinition(
+                cls=bool,
+                label=_("Debugging mode"),
+                description=_(
+                    "Whether to output more detailed logs and disable optimizations that make debugging harder."
+                ),
+            ),
+            empty=lambda data: data is False,
+            required=False,
+        ),
+        FieldDefinition(
+            Attr("entity_types"),
+            KeyedCollectionDefinition(
+                item=EntityTypeConfiguration.data(),
+                label=_("Entity types"),
+                key=Attr("entity_type"),
+                ordered=False,
+            ),
+            required=False,
+        ),
+        FieldDefinition(
+            Attr("event_types"),
+            DataDefinition(
+                cls=EventTypePluginConfigurationMapping, label=_("Event types")
+            ),
+            empty=lambda data: not len(data),
+            required=False,
+        ),
+        FieldDefinition(
+            Attr("extensions"),
+            DataDefinition(
+                cls=ExtensionInstanceConfigurationMapping, label=_("Extensions")
+            ),
+            empty=lambda data: not len(data),
+            required=False,
+        ),
+        FieldDefinition(
+            Attr("genders"),
+            DataDefinition(cls=GenderPluginConfigurationMapping, label=_("Genders")),
+            empty=lambda data: not len(data),
+            required=False,
+        ),
+        FieldDefinition(
+            Attr("license"),
+            DataDefinition(cls=PluginInstanceConfiguration, label=_("License")),
+            required=False,
+            empty=lambda data: data == ProjectConfiguration._default_license(),
+        ),
+        FieldDefinition(
+            Attr("licenses"),
+            DataDefinition(cls=LicensePluginConfigurationMapping, label=_("Licenses")),
+            empty=lambda data: not len(data),
+            required=False,
+        ),
+        FieldDefinition(
+            Attr("lifetime_threshold"),
+            SimpleDefinition(
+                cls=int,
+                label=_("Lifetime threshold"),
+                description=_(
+                    "The number of years people are expected to live at most, e.g. after which they are presumed to have died."
+                ),
+            ),
+            required=False,
+            empty=lambda data: data == DEFAULT_LIFETIME_THRESHOLD,
+        ),
+        FieldDefinition(
+            Attr("locales"),
+            DataDefinition(cls=LocaleConfigurationMapping, label=_("Locales")),
+            empty=lambda data: data == ProjectConfiguration._default_locales(),
+            required=False,
+        ),
+        FieldDefinition(
+            Attr("logo"),
+            SimpleDefinition(
+                cls=Path,
+                label=_("Logo"),
+                porter=CallbackPorter(assert_file_path(), str),
+            ),
+            required=False,
+            empty=lambda data: data is None,
+        ),
+        FieldDefinition(
+            Attr("name"),
+            SimpleDefinition(cls=str, label=_("Machine name")),
+            required=False,
+            empty=lambda data: data is None,
+        ),
+        FieldDefinition(
+            Attr("place_types"),
+            DataDefinition(
+                cls=PlaceTypePluginConfigurationMapping, label=_("Place types")
+            ),
+            empty=lambda data: not len(data),
+            required=False,
+        ),
+        FieldDefinition(
+            Attr("presence_roles"),
+            DataDefinition(
+                cls=PresenceRolePluginConfigurationMapping, label=_("Presence roles")
+            ),
+            empty=lambda data: not len(data),
+            required=False,
+        ),
+        FieldDefinition(Attr("title"), LocalizableDefinition(), label=_("Title")),
+        FieldDefinition(
+            Attr("url"),
+            SimpleDefinition(
+                cls=str,
+                label=_("URL"),
+                description=_(
+                    "The absolute, public URL at which the site will be published."
+                ),
+            ),
+        ),
+    ],
+    samples=[
+        lambda: Sample(
+            ProjectConfiguration(title="Betty", url="https://example.com"),
+            label="Minimal",
+            minimal=True,
+        ),
+        lambda: Sample(
+            ProjectConfiguration(
+                url="https://ancestry.example.com/betty",
+                debug=True,
+                clean_urls=True,
+                title="Betty's ancestry",
+                name="betty-ancestry",
+                author="Bart Feenstra",
+                logo=ASSETS_DIRECTORY_PATH / "public" / "static" / "betty-512x512.png",
+                lifetime_threshold=123,
+                locales=get_full_sample(LocaleConfigurationMapping).data,
+                entity_types=[get_full_sample(EntityTypeConfiguration).data],
+                event_types=get_full_sample(EventTypePluginConfigurationMapping).data,
+                extensions=get_full_sample(ExtensionInstanceConfigurationMapping).data,
+                genders=get_full_sample(GenderPluginConfigurationMapping).data,
+                place_types=get_full_sample(PlaceTypePluginConfigurationMapping).data,
+                presence_roles=get_full_sample(
+                    PresenceRolePluginConfigurationMapping
+                ).data,
+            ),
+            label="Full",
+            full=True,
+        ),
+    ],
+)
+class ProjectConfiguration(HasData):
     """
     Configuration for a :py:class:`betty.project.Project`.
 
-    .. configuration:: betty.project.config:ProjectConfiguration
-
-    ``url``
-    -------
-    :sup:`required`
-
-    The absolute, public URL at which the site will be published.
-
-    ``debug``
-    ---------
-    :sup:`optional`
-
-    ``true`` to output more detailed logs and disable optimizations that make debugging harder. Defaults to ``false``.
-
-    ``clean_urls``
-    --------------
-    :sup:`optional`
-
-    A boolean indicating whether to use clean URLs, e.g. ``/path`` instead of ``/path/index.html``. Defaults to ``false``.
-
-    ``title``
-    ---------
-    :sup:`optional`
-
-    The project's human-readable title. This can be a string or :py:class:`multiple translations <betty.locale.localizable.static.StaticTranslations>`.
-
-    ``name``
-    --------
-    :sup:`optional`
-
-    The project's machine name.
-
-    ``author``
-    ----------
-    :sup:`optional`
-
-    The project's author and copyright holder. This can be a string or :py:class:`multiple translations <betty.locale.localizable.static.StaticTranslations>`.
-
-    ``logo``
-    --------
-    :sup:`optional`
-
-    The path to your site's logo file. Defaults to the Betty logo.
-
-    ``lifetime_threshold``
-    ----------------------
-    :sup:`optional`
-
-    The number of years people are expected to live at most, e.g. after which they're presumed to have died.
-    :py:const:`Defaults to 123 years <betty.project.config.DEFAULT_LIFETIME_THRESHOLD>`.
-
-    ``locales``
-    -----------
-    :sup:`optional`
-
-    If no locales are specified, Betty defaults to US English (``en-US``).
-
-    Read more about :doc:`translations </usage/translation>`.
-
-    An array of locales, each of which is an object with the following keys:
-
-    ``locales[].locale``
-    ^^^^^^^^^^^^^^^^^^^^
-    :sup:`required`
-
-    An `IETF BCP 47 <https://tools.ietf.org/html/bcp47>`_ language tag.
-
-    ``locales[].alias``
-    ^^^^^^^^^^^^^^^^^^^
-    :sup:`optional`
-
-    A shorthand alias to use instead of the full language tag, such as when rendering URLs.
-
-    ``entity_types``
-    ----------------
-    :sup:`optional`
-
-    Keys are entity type (plugin) IDs, and values are objects containing the following keys:
-
-    ``entity_types{}.generate_html_list``
-    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-    :sup:`optional`
-
-    Whether to generate the HTML page to list entities of this type. Defaults to ``false``.
-
-    ``event_types``
-    ---------------
-    :sup:`optional`
-
-    Keys are event type (plugin) IDs, and values are objects containing the following keys:
-
-    ``event_types{}.label``
-    ^^^^^^^^^^^^^^^^^^^^^^^
-    :sup:`required`
-
-    The event type's human-readable label. This can be a string or :py:class:`multiple translations <betty.locale.localizable.static.StaticTranslations>`.
-
-    ``event_types{}.description``
-    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-    :sup:`optional`
-
-    The event type's human-readable long description. This can be a string or :py:class:`multiple translations <betty.locale.localizable.static.StaticTranslations>`.
-
-    ``event_types{}.comes_before``
-    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-    :sup:`optional`
-
-    A collection of the IDs of other event types that this one comes before.
-
-    ``event_types{}.comes_after``
-    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-    :sup:`optional`
-
-    A collection of the IDs of other event types that this one comes after.
-
-    ``genders``
-    -----------
-    :sup:`optional`
-
-    Keys are gender (plugin) IDs, and values are objects containing the following keys:
-
-    ``genders{}.label``
-    ^^^^^^^^^^^^^^^^^^^
-    :sup:`required`
-
-    The gender's human-readable label. This can be a string or :py:class:`multiple translations <betty.locale.localizable.static.StaticTranslations>`.
-
-    ``genders{}.description``
-    ^^^^^^^^^^^^^^^^^^^^^^^^^
-    :sup:`optional`
-
-    The gender's human-readable long description. This can be a string or :py:class:`multiple translations <betty.locale.localizable.static.StaticTranslations>`.
-
-    ``place_types``
-    ---------------
-    :sup:`optional`
-
-    Keys are place type (plugin) IDs, and values are objects containing the following keys:
-
-    ``place_types{}.label``
-    ^^^^^^^^^^^^^^^^^^^^^^^
-    :sup:`required`
-
-    The place type's human-readable label. This can be a string or :py:class:`multiple translations <betty.locale.localizable.static.StaticTranslations>`.
-
-    ``place_types{}.description``
-    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-    :sup:`optional`
-
-    The place type's human-readable long description. This can be a string or :py:class:`multiple translations <betty.locale.localizable.static.StaticTranslations>`.
-
-    ``presence_roles``
-    ------------------
-    :sup:`optional`
-
-    Keys are presence role (plugin) IDs, and values are objects containing the following keys:
-
-    ``presence_roles{}.label``
-    ^^^^^^^^^^^^^^^^^^^^^^^^^^
-    :sup:`required`
-
-    The presence role's human-readable label. This can be a string or :py:class:`multiple translations <betty.locale.localizable.static.StaticTranslations>`.
-
-    ``presence_roles{}.description``
-    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-    :sup:`optional`
-
-    The presence role's human-readable long description. This can be a string or :py:class:`multiple translations <betty.locale.localizable.static.StaticTranslations>`.
-
-    ``extensions``
-    --------------
-    :sup:`optional`
-
-    The :py:class:`extensions <betty.project.extension.ExtensionDefinition>` to enable. Keys are extension names, and values
-    are objects containing the following keys, both of which may be omitted to quickly enable an extension using its default
-    configuration:
-
-    ``extensions{}.enabled``
-    ^^^^^^^^^^^^^^^^^^^^^^^^
-    :sup:`optional`
-
-    A boolean indicating whether the extension is enabled. Defaults to ``true``.
-
-    ``extensions{}.configuration``
-    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-    :sup:`optional`
-
-    An object containing the extension's own configuration, if it provides any configuration options.
+    .. has_data:: betty.project.config:ProjectConfiguration
     """
 
     license: PluginInstanceConfiguration[LicenseDefinition, License]
@@ -1104,7 +1030,8 @@ class ProjectConfiguration(Configuration):
         url: str,
         clean_urls: bool = False,
         author: LocalizableLike | None = None,
-        entity_types: EntityTypeConfigurationMapping | None = None,
+        entity_types: Iterable[EntityTypeConfiguration | ResolvableId[EntityDefinition]]
+        | None = None,
         event_types: EventTypePluginConfigurationMapping | None = None,
         place_types: PlaceTypePluginConfigurationMapping | None = None,
         presence_roles: PresenceRolePluginConfigurationMapping | None = None,
@@ -1129,8 +1056,12 @@ class ProjectConfiguration(Configuration):
         self._clean_urls = clean_urls
         self.title = title
         self.author = author
-        self._entity_types = (
-            EntityTypeConfigurationMapping() if entity_types is None else entity_types
+        self._entity_types = KeyedCollection(
+            () if entity_types is None else entity_types,
+            key=lambda item: item.entity_type,
+            value_resolver=lambda data: data
+            if isinstance(data, EntityTypeConfiguration)
+            else EntityTypeConfiguration(entity_type=data),
         )
         self._event_types = (
             EventTypePluginConfigurationMapping()
@@ -1174,8 +1105,9 @@ class ProjectConfiguration(Configuration):
         self._lifetime_threshold = lifetime_threshold
         self._logo = logo
 
+    @classmethod
     def _default_copyright_notice(
-        self,
+        cls,
     ) -> PluginInstanceConfiguration[CopyrightNoticeDefinition, CopyrightNotice]:
         from betty.copyright_notice.copyright_notices import ProjectAuthor
 
@@ -1183,8 +1115,9 @@ class ProjectConfiguration(Configuration):
             ProjectAuthor
         )
 
+    @classmethod
     def _default_license(
-        self,
+        cls,
     ) -> PluginInstanceConfiguration[LicenseDefinition, License]:
         from betty.license.licenses import AllRightsReserved
 
@@ -1192,22 +1125,9 @@ class ProjectConfiguration(Configuration):
             AllRightsReserved
         )
 
-    def _default_locales(self) -> LocaleConfigurationMapping:
+    @classmethod
+    def _default_locales(cls) -> LocaleConfigurationMapping:
         return LocaleConfigurationMapping()
-
-    @override
-    @property
-    def validator(self) -> ServiceLevelTarget[None]:
-        from betty.project.factory import require_project
-
-        @require_project
-        async def _validate(project: Project) -> None:
-            with reraise_with_indicator(Key("entity_types")):
-                await self.entity_types.validate(
-                    await project.plugins(EntityDefinition)
-                )
-
-        return CallbackServiceLevelDependentFactory(_validate)
 
     @property
     def name(self) -> MachineName | None:
@@ -1281,7 +1201,14 @@ class ProjectConfiguration(Configuration):
         return self._locales
 
     @property
-    def entity_types(self) -> EntityTypeConfigurationMapping:
+    def entity_types(
+        self,
+    ) -> KeyedCollection[
+        MachineName,
+        EntityTypeConfiguration,
+        ResolvableId[EntityDefinition],
+        EntityTypeConfiguration | ResolvableId[EntityDefinition],
+    ]:
         """
         The available entity types.
         """
@@ -1383,160 +1310,3 @@ class ProjectConfiguration(Configuration):
         The gender plugins created by this project.
         """
         return self._genders
-
-    @override
-    @classmethod
-    def load(cls, portable: PortableData, /) -> Self:
-        return cls(
-            **assert_record(
-                OptionalField("name", assert_or(assert_str(), assert_none)),
-                RequiredField("url", assert_str()),
-                RequiredField("title", assert_load_localizable),
-                OptionalField("author", assert_load_localizable),
-                OptionalField("logo", assert_or(assert_path(), assert_none)),
-                OptionalField("clean_urls", assert_bool),
-                OptionalField("debug", assert_bool),
-                OptionalField("lifetime_threshold", assert_int()),
-                OptionalField("locales", LocaleConfigurationMapping.load),
-                OptionalField("extensions", ExtensionInstanceConfigurationMapping.load),
-                OptionalField("entity_types", EntityTypeConfigurationMapping.load),
-                OptionalField("copyright_notice", PluginInstanceConfiguration.load),
-                OptionalField(
-                    "copyright_notices", CopyrightNoticePluginConfigurationMapping.load
-                ),
-                OptionalField("license", PluginInstanceConfiguration.load),
-                OptionalField("licenses", LicensePluginConfigurationMapping.load),
-                OptionalField("event_types", EventTypePluginConfigurationMapping.load),
-                OptionalField("genders", GenderPluginConfigurationMapping.load),
-                OptionalField("place_types", PlaceTypePluginConfigurationMapping.load),
-                OptionalField(
-                    "presence_roles", PresenceRolePluginConfigurationMapping.load
-                ),
-            )(portable)
-        )
-
-    @override
-    def dump(self) -> PortableMapping:
-        portable: PortableMapping = {
-            "title": dump_localizable(self.title),
-            "url": self.url,
-        }
-        if self.author is not None:
-            portable["author"] = dump_localizable(self.author)
-        if self.clean_urls:
-            portable["clean_urls"] = self.clean_urls
-        if self.copyright_notice != self._default_copyright_notice():
-            portable["copyright_notice"] = self.copyright_notice.dump()
-        if self.copyright_notices:
-            portable["copyright_notices"] = self.copyright_notices.dump()
-        if self.debug:
-            portable["debug"] = self.debug
-        if self.entity_types:
-            portable["entity_types"] = self.entity_types.dump()
-        if self.event_types:
-            portable["event_types"] = self.event_types.dump()
-        if self.extensions:
-            portable["extensions"] = self.extensions.dump()
-        if self.genders:
-            portable["genders"] = self.genders.dump()
-        if self.license != self._default_license():
-            portable["license"] = self.license.dump()
-        if self.licenses:
-            portable["licenses"] = self.licenses.dump()
-        if self.lifetime_threshold != DEFAULT_LIFETIME_THRESHOLD:
-            portable["lifetime_threshold"] = self.lifetime_threshold
-        if self.locales != self._default_locales():
-            portable["locales"] = self.locales.dump()
-        if self.logo:
-            portable["logo"] = str(self.logo)
-        if self.name is not None:
-            portable["name"] = self.name
-        if self.place_types:
-            portable["place_types"] = self.place_types.dump()
-        if self.presence_roles:
-            portable["presence_roles"] = self.presence_roles.dump()
-        return portable
-
-    @override
-    def __eq__(self, other: Any) -> bool:
-        if not isinstance(other, type(self)):
-            return NotImplemented
-        return (
-            self.title,
-            self.url,
-            self.author,
-            self.clean_urls,
-            self.copyright_notice,
-            self.copyright_notices,
-            self.debug,
-            self.entity_types,
-            self.event_types,
-            self.extensions,
-            self.genders,
-            self.license,
-            self.licenses,
-            self.lifetime_threshold,
-            self.locales,
-            self.logo,
-            self.name,
-            self.place_types,
-            self.presence_roles,
-        ) == (
-            other.title,
-            other.url,
-            other.author,
-            other.clean_urls,
-            other.copyright_notice,
-            other.copyright_notices,
-            other.debug,
-            other.entity_types,
-            other.event_types,
-            other.extensions,
-            other.genders,
-            other.license,
-            other.licenses,
-            other.lifetime_threshold,
-            other.locales,
-            other.logo,
-            other.name,
-            other.place_types,
-            other.presence_roles,
-        )
-
-    @override
-    @classmethod
-    def samples(cls) -> Iterable[Sample[Self]]:
-        yield Sample(
-            cls(title="Betty", url="https://example.com"), label="Minimal", minimal=True
-        )
-        yield Sample(
-            cls(
-                url="https://ancestry.example.com/betty",
-                debug=True,
-                clean_urls=True,
-                title="Betty's ancestry",
-                name="betty-ancestry",
-                author="Bart Feenstra",
-                logo=Path("my-ancestry-logo.png"),
-                lifetime_threshold=123,
-                locales=get_full_sample(LocaleConfigurationMapping).configuration,
-                entity_types=get_full_sample(
-                    EntityTypeConfigurationMapping
-                ).configuration,
-                event_types=get_full_sample(
-                    EventTypePluginConfigurationMapping
-                ).configuration,
-                extensions=get_full_sample(
-                    ExtensionInstanceConfigurationMapping
-                ).configuration,
-                genders=get_full_sample(GenderPluginConfigurationMapping).configuration,
-                place_types=get_full_sample(
-                    PlaceTypePluginConfigurationMapping
-                ).configuration,
-                presence_roles=get_full_sample(
-                    PresenceRolePluginConfigurationMapping
-                ).configuration,
-            ),
-            label="Full",
-            full=True,
-        )

@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Betty VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-01-17 22:03+0000\n"
+"POT-Creation-Date: 2026-01-19 20:08+0000\n"
 "PO-Revision-Date: 2025-12-08 19:00+0000\n"
 "Last-Translator: Artur Kalagov "
 "<artur.kalagov@users.noreply.hosted.weblate.org>\n"
@@ -70,6 +70,9 @@ msgstr "%(event)s с %(subjects)s"
 msgid "A Betty demonstration"
 msgstr ""
 
+msgid "A countable localizable string"
+msgstr ""
+
 msgid ""
 "A family history as told by <a "
 "href=\"https://betty.readthedocs.io\">Betty👵</a>"
@@ -80,10 +83,16 @@ msgstr ""
 msgid "A formal witness to an event."
 msgstr ""
 
+msgid "A localizable string"
+msgstr ""
+
 msgid "A person's presence at an event."
 msgstr ""
 
 msgid "A place number, such as a house or flat number."
+msgstr ""
+
+msgid "A plugin ID"
 msgstr ""
 
 msgid "A single file in a media display"
@@ -146,6 +155,9 @@ msgstr ""
 
 msgid "Appearances"
 msgstr "Источники"
+
+msgid "Application configuration"
+msgstr ""
 
 msgid "Assets directory"
 msgstr ""
@@ -362,6 +374,9 @@ msgstr ""
 msgid "City"
 msgstr "Город"
 
+msgid "Clean URLs"
+msgstr ""
+
 msgid "Clear all caches"
 msgstr "Очистить все кэши"
 
@@ -506,13 +521,24 @@ msgid "Cremations"
 msgstr ""
 
 #, python-brace-format
-msgid "Data has no {attribute} attribute."
+msgid "Data has no attribute {attribute}"
+msgstr ""
+
+#, python-brace-format
+msgid "Data has no index {index}"
+msgstr ""
+
+#, python-brace-format
+msgid "Data has no key \"{key}\""
 msgstr ""
 
 msgid "Death"
 msgstr "Смерть"
 
 msgid "Deaths"
+msgstr ""
+
+msgid "Debugging mode"
 msgstr ""
 
 msgid "Department"
@@ -620,6 +646,12 @@ msgstr ""
 msgid "Entity type"
 msgstr "Тип объекта"
 
+msgid "Entity type configuration"
+msgstr ""
+
+msgid "Entity types"
+msgstr ""
+
 msgid "Event"
 msgstr "Событие"
 
@@ -716,6 +748,9 @@ msgstr ""
 
 msgid "Generate a static site"
 msgstr "Создание статического сайта"
+
+msgid "Generate list HTML page"
+msgstr ""
 
 msgid "Generating site..."
 msgstr ""
@@ -843,6 +878,9 @@ msgstr "Лицензия"
 msgid "Licenses"
 msgstr ""
 
+msgid "Lifetime threshold"
+msgstr ""
+
 msgid "Link"
 msgstr ""
 
@@ -892,6 +930,9 @@ msgstr "Загружено {source_count} источников."
 msgid "Loading \"{file_path}\"..."
 msgstr "Загрузка \"{file_path}\"..."
 
+msgid "Locale"
+msgstr ""
+
 msgid "Locale aliases must not contain slashes."
 msgstr "Языковые псевдонимы не должны содержать символ \"/\"."
 
@@ -899,11 +940,17 @@ msgstr "Языковые псевдонимы не должны содержат
 msgid "Locale {locale} is not known by your system."
 msgstr ""
 
+msgid "Locales"
+msgstr ""
+
 msgid "Localities"
 msgstr ""
 
 msgid "Locality"
 msgstr "Местность"
+
+msgid "Logo"
+msgstr ""
 
 msgid "MMMM"
 msgstr "MMMM"
@@ -916,6 +963,9 @@ msgstr "d MMMM y г."
 
 msgid "MMMM, y"
 msgstr "MMMM y г."
+
+msgid "Machine name"
+msgstr ""
 
 msgid "Man"
 msgstr ""
@@ -1123,6 +1173,9 @@ msgstr ""
 msgid "Plugins"
 msgstr ""
 
+msgid "Populate images"
+msgstr ""
+
 msgid "Positional arguments"
 msgstr ""
 
@@ -1188,6 +1241,9 @@ msgstr ""
 
 msgid "Project author"
 msgstr "Автор проекта"
+
+msgid "Project configuration"
+msgstr ""
 
 msgid "Province"
 msgstr "Провинция"
@@ -1406,6 +1462,9 @@ msgstr "URL-адрес должен содержать имя хоста."
 msgid "The URL must start with a scheme such as https:// or http://."
 msgstr "URL-адрес должен начинаться с указания протокола https:// или http://."
 
+msgid "The absolute, public URL at which the site will be published."
+msgstr ""
+
 #, python-brace-format
 msgid ""
 "The betty:privacy Gramps attribute must have a value of \"public\" or "
@@ -1415,6 +1474,11 @@ msgstr ""
 "Атрибут Gramps betty:privacy должен иметь значение \"public\" или "
 "\"private\", но для {entity_type} {entity_id} ({entity_label}) было "
 "указано \"{privacy_value}\", которое было проигнорировано."
+
+msgid ""
+"The number of years people are expected to live at most, e.g. after which"
+" they are presumed to have died."
+msgstr ""
 
 #, python-brace-format
 msgid ""
@@ -1519,6 +1583,9 @@ msgstr ""
 msgid "Timeline"
 msgstr "Хронология"
 
+msgid "Title"
+msgstr ""
+
 msgid "Toggle full screen"
 msgstr "Переключить режим отображения"
 
@@ -1537,6 +1604,9 @@ msgid "Translations for {locale} initialized at {po_file_path}."
 msgstr ""
 
 msgid "Type"
+msgstr ""
+
+msgid "URL"
 msgstr ""
 
 msgid "Unauthorized"
@@ -1632,8 +1702,24 @@ msgid "Where do you want to save your project's configuration file?"
 msgstr "Где вы хотите сохранить конфигурационный файл вашего проекта?"
 
 msgid ""
+"Whether to download additional images found through Wikipedia links in "
+"the ancestry"
+msgstr ""
+
+msgid ""
+"Whether to output more detailed logs and disable optimizations that make "
+"debugging harder."
+msgstr ""
+
+msgid "Whether to use clean URLs: \"/path\" instead of \"/path/index.html\"."
+msgstr ""
+
+msgid ""
 "Which language should your project site be generated in? Enter a language"
 " code."
+msgstr ""
+
+msgid "Wiki extension configuration"
 msgstr ""
 
 msgid "Wikipedia contributors"
