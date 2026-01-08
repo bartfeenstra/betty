@@ -23,16 +23,9 @@ The betty installation root directory path.
 This is read-only.
 """
 
-ASSETS_DIRECTORY_PATH = ROOT_DIRECTORY_PATH / "betty" / "assets"
+ASSETS_DIRECTORY_PATH = ROOT_DIRECTORY_PATH / "assets"
 """
 The betty installation assets directory path.
-
-This is read-only.
-"""
-
-DATA_DIRECTORY_PATH = ROOT_DIRECTORY_PATH / "betty" / "data"
-"""
-The betty installation packaged third-party assets directory path.
 
 This is read-only.
 """

@@ -307,12 +307,9 @@ exclude = [
 betty = [
     'py.typed',
 
-    # Static data.
-    'data/**/*',
-
     # Assets.
-    'assets/**/*',
-    'assets/public/localized/.error/*',
+    '../assets/**/*',
+    '../assets/public/localized/.error/*',
     'project/extension/*/assets/**/*',
 
     # JSON Schemas.
