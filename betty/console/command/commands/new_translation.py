@@ -9,8 +9,8 @@ from betty.argparse import assertion_to_argument_type
 from betty.assertion import assert_locale
 from betty.console.command import Command, CommandDefinition, CommandFunction
 from betty.console.project import add_project_argument
-from betty.locale import translation
 from betty.locale.localizable.gettext import _
+from betty.locale.translation import project as translation_project
 
 if TYPE_CHECKING:
     import argparse
@@ -50,6 +50,6 @@ class NewTranslation(AppDependentSelfFactory, Command):
 
     async def _command_function(self, project: Project, locale: Locale) -> None:
         async with project:
-            await translation.project.new_project_translation(
+            await translation_project.new_project_translation(
                 locale, project, user=self._app.user
             )

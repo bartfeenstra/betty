@@ -4,7 +4,7 @@ Provide project configuration.
 
 from __future__ import annotations
 
-from collections.abc import Collection, Iterable, Mapping
+from collections.abc import Collection, Iterable, MutableMapping
 from pathlib import Path
 from typing import TYPE_CHECKING, Any, Self, cast, final
 from urllib.parse import urlparse
@@ -102,7 +102,7 @@ class ExtensionInstanceConfigurationMapping(
 
     @override
     @classmethod
-    def samples(cls) -> Iterable[Sample[Self]]:
+    def samples(cls) -> Iterable[Sample[Self]]:  # ty:ignore[invalid-method-override]
         from betty.project.extension.raspberry_mint import RaspberryMint
         from betty.project.extension.raspberry_mint.config import (
             RaspberryMintConfiguration,
@@ -110,7 +110,8 @@ class ExtensionInstanceConfigurationMapping(
 
         yield Sample(cls(), label="Minimal", minimal=True)
         yield Sample(
-            cls([PluginInstanceConfiguration(RaspberryMint)]), label="Expanded"
+            cls([PluginInstanceConfiguration(RaspberryMint)]),  # ty:ignore[invalid-argument-type]
+            label="Expanded",
         )
         yield Sample(
             cls(
@@ -119,7 +120,7 @@ class ExtensionInstanceConfigurationMapping(
                         RaspberryMint,
                         get_full_sample(RaspberryMintConfiguration).configuration,
                     )
-                ]
+                ]  # ty:ignore[invalid-argument-type]
             ),
             label="Full",
             full=True,
@@ -236,14 +237,19 @@ class EntityTypeConfigurationMapping(
     def _load_key(
         cls, portable_item: PortableData, portable_key: str, /
     ) -> PortableData:
-        assert isinstance(portable_item, Mapping)
-        portable_item["entity_type"] = portable_key
+        assert isinstance(portable_item, MutableMapping)
+        portable_item["entity_type"] = portable_key  # ty:ignore[invalid-assignment]
         return portable_item
 
     @override
     def _dump_key(self, portable_item: PortableData, /) -> tuple[PortableData, str]:
-        assert isinstance(portable_item, Mapping)
-        return portable_item, cast(str, portable_item.pop("entity_type"))
+        assert isinstance(portable_item, MutableMapping)
+        return portable_item, cast(
+            str,
+            portable_item.pop(
+                "entity_type",  # ty:ignore[invalid-argument-type]
+            ),
+        )
 
     @override
     @classmethod
@@ -447,7 +453,7 @@ class CopyrightNoticePluginConfiguration(HumanFacingPluginDefinitionConfiguratio
 
     @override
     @classmethod
-    def samples(cls) -> Iterable[Sample[Self]]:
+    def samples(cls) -> Iterable[Sample[Self]]:  # ty:ignore[invalid-method-override]
         yield Sample(
             cls(
                 id="my-first-copyright-notice",
@@ -544,7 +550,7 @@ class LicensePluginConfiguration(HumanFacingPluginDefinitionConfiguration):
 
     @override
     @classmethod
-    def samples(cls) -> Iterable[Sample[Self]]:
+    def samples(cls) -> Iterable[Sample[Self]]:  # ty:ignore[invalid-method-override]
         yield Sample(
             cls(
                 id="my-first-license",
@@ -615,7 +621,7 @@ class EventTypePluginConfiguration(
 
     @override
     @classmethod
-    def samples(cls) -> Iterable[Sample[Self]]:
+    def samples(cls) -> Iterable[Sample[Self]]:  # ty:ignore[invalid-method-override]
         yield Sample(
             cls(
                 id="moon-landing",
@@ -686,7 +692,7 @@ class PlaceTypePluginConfiguration(CountableHumanFacingPluginDefinitionConfigura
 
     @override
     @classmethod
-    def samples(cls) -> Iterable[Sample[Self]]:
+    def samples(cls) -> Iterable[Sample[Self]]:  # ty:ignore[invalid-method-override]
         yield Sample(
             cls(
                 id="moon",
@@ -757,7 +763,7 @@ class PresenceRolePluginConfiguration(
 
     @override
     @classmethod
-    def samples(cls) -> Iterable[Sample[Self]]:
+    def samples(cls) -> Iterable[Sample[Self]]:  # ty:ignore[invalid-method-override]
         yield Sample(
             cls(
                 id="astronaut",
@@ -828,7 +834,7 @@ class GenderPluginConfiguration(CountableHumanFacingPluginDefinitionConfiguratio
 
     @override
     @classmethod
-    def samples(cls) -> Iterable[Sample[Self]]:
+    def samples(cls) -> Iterable[Sample[Self]]:  # ty:ignore[invalid-method-override]
         yield Sample(
             cls(
                 id="genderqueer",
@@ -1203,7 +1209,7 @@ class ProjectConfiguration(Configuration):
                     await project.plugins(EntityDefinition)
                 )
 
-        return CallbackProjectDependentFactory(_validate)
+        return CallbackProjectDependentFactory(_validate)  # ty:ignore[invalid-return-type]
 
     @property
     def name(self) -> MachineName | None:

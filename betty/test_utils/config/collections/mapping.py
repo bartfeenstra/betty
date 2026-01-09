@@ -32,7 +32,7 @@ class _ConfigurationMappingTestBase(
     ],
 ):
     @override
-    async def test___iter__(  # type: ignore[override]
+    async def test___iter__(
         self,
         new_sut: ConfigurationCollectionTestBaseNewSut[
             _ConfigurationValueT, _ConfigurationKeyT, _ResolvableConfigurationKeyT
@@ -43,7 +43,7 @@ class _ConfigurationMappingTestBase(
         sut_configuration_keys: ConfigurationCollectionTestBaseSutConfigurationKeys[
             _ConfigurationKeyT
         ],
-    ) -> None:
+    ) -> None:  # ty:ignore[invalid-method-override]
         sut = new_sut(
             [
                 sut_configurations[0],

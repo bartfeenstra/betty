@@ -48,7 +48,7 @@ class Configuration(Portable, Generic[_PortableDataT]):
         return ()
 
 
-_ConfigurationT = TypeVar("_ConfigurationT", bound=Configuration)
+_ConfigurationT = TypeVar("_ConfigurationT", bound=Configuration, default=Configuration)
 
 
 class Sample(Generic[_ConfigurationT]):

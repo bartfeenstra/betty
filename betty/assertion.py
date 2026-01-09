@@ -72,8 +72,8 @@ class AssertionChain(Generic[_AssertionValueT, _AssertionReturnT]):
     assertion.
 
     Assertions chains are `monads <https://en.wikipedia.org/wiki/Monad_(functional_programming)>`_.
-    While uncommon in Python, this allows us to create these chains in a type-safe way, and tools
-    like mypy can confirm that all assertions in any given chain are compatible with each other.
+    While uncommon in Python, this allows us to create these chains in a type-safe way, and type checkers
+    can confirm that all assertions in any given chain are compatible with each other.
     """
 
     def __init__(self, _assertion: Assertion[_AssertionValueT, _AssertionReturnT], /):
@@ -172,9 +172,7 @@ def assert_type(
     """
 
     def _assert_type(value: Any, /) -> _AssertTypeTypeT:
-        value_is_not_type, error_message = _ASSERT_TYPES[
-            value_type  # type: ignore[index]
-        ]
+        value_is_not_type, error_message = _ASSERT_TYPES[value_type]
         if isinstance(value, value_type) and (
             value_is_not_type is None or not isinstance(value, value_is_not_type)
         ):
@@ -206,9 +204,7 @@ def assert_or(
     return AssertionChain(_assert_or)
 
 
-assert_none = assert_type(
-    NoneType,  # type: ignore[arg-type]
-)
+assert_none = assert_type(NoneType)
 """
 Assert that a value is ``None``.
 """
@@ -224,11 +220,11 @@ def _assert_number(
     minimum: Number | None = None, maximum: Number | None = None
 ) -> AssertionChain[_NumberT, _NumberT]:
     def __assert_number(value: _NumberT) -> _NumberT:
-        if minimum is not None and value < minimum:
+        if minimum is not None and value < minimum:  # ty:ignore[unsupported-operator]
             raise HumanFacingException(
                 _("This must be at least {minimum}.").format(minimum=str(minimum))
             )
-        if maximum is not None and value > maximum:
+        if maximum is not None and value > maximum:  # ty:ignore[unsupported-operator]
             raise HumanFacingException(
                 _("This must be at most {maximum}.").format(maximum=str(maximum))
             )

@@ -122,9 +122,9 @@ def _sphinx_refs(source: str, ref_tag: str) -> Iterator[tuple[str, str]]:
         f"(:{ref_tag}:`[^`]+?<([^`]+?)>`)|(:{ref_tag}:`([^`]+?)`)", source
     ):
         if match.group(1) is None:
-            yield match.group(3), match.group(4)  # type: ignore[misc]
+            yield match.group(3), match.group(4)
         else:
-            yield match.group(1), match.group(2)  # type: ignore[misc]
+            yield match.group(1), match.group(2)
 
 
 async def _assert_sphinx_references(

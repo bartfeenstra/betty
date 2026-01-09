@@ -45,6 +45,7 @@ if TYPE_CHECKING:
     from collections.abc import Iterable, Mapping
 
     from babel import Locale
+    from ty_extensions import Intersection
 
     from betty.locale.localize import Localizer
 
@@ -263,7 +264,7 @@ class StaticTranslations(Localizable):
         return dict(self._translations)
 
     @override
-    def localize(self, localizer: Localizer, /) -> HasLocale & str:
+    def localize(self, localizer: Localizer, /) -> Intersection[HasLocale, str]:
         if len(self._translations) > 1:
             available_locales = tuple(filter(None, self._translations.keys()))
             negotiated_locale = negotiate_locale(localizer.locale, available_locales)
@@ -282,7 +283,7 @@ class StaticTranslations(Localizable):
         Create a new instance from another :py:class`betty.locale.localizable.Localizable`.
         """
         if type(other) is cls:
-            return other
+            return other  # ty:ignore[invalid-return-type]
         return cls(
             {localizer.locale: other.localize(localizer) for localizer in localizers}
         )

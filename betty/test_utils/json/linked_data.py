@@ -30,7 +30,7 @@ async def assert_dumps_linked_data(
     """
     Dump an object's linked data and assert it is valid.
     """
-    return await assert_linked_data_dump(sut.linked_data_schema, sut.dump_linked_data)
+    return await assert_linked_data_dump(sut.linked_data_schema, sut.dump_linked_data)  # ty:ignore[invalid-return-type]
 
 
 async def assert_dumps_linked_data_for(
@@ -43,7 +43,7 @@ async def assert_dumps_linked_data_for(
     async def _dump(project: Project) -> _PortableDataT:
         return await sut.dump_linked_data_for(project, target)
 
-    return await assert_linked_data_dump(sut.linked_data_schema_for, _dump)
+    return await assert_linked_data_dump(sut.linked_data_schema_for, _dump)  # ty:ignore[invalid-return-type]
 
 
 async def assert_linked_data_dump(
@@ -72,11 +72,16 @@ async def assert_linked_data_dump(
 
 def _normalize(portable: _PortableDataT) -> _PortableDataT:
     if isinstance(portable, Mapping):
-        return {  # type: ignore[return-value]
+        return {
             key: _normalize(value)
             for key, value in portable.items()
             if not key.startswith("$")
-        }
+        }  # ty:ignore[invalid-return-type]
     if isinstance(portable, Sequence) and not isinstance(portable, str):
-        return list(map(_normalize, portable))  # type: ignore[return-value]
-    return portable  # type: ignore[return-value]
+        return list(
+            map(
+                _normalize,
+                portable,  # ty:ignore[invalid-argument-type]
+            )
+        )  # ty:ignore[invalid-return-type]
+    return portable

@@ -334,7 +334,7 @@ class Gramps(
     @classmethod
     def new_for_configuration(
         cls, configuration: GrampsConfiguration
-    ) -> AnyFactoryTarget[Self]:
+    ) -> AnyFactoryTarget[Self]:  # ty:ignore[invalid-method-override]
         return CallbackProjectDependentFactory(
             lambda project: cls(configuration=configuration, project=project)
         )

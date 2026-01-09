@@ -3,11 +3,10 @@ from typing import Any
 
 import pytest
 from babel import Locale
-from pytest_mock import MockerFixture
 
 from betty.ancestry import Ancestry
 from betty.app import App
-from betty.locale import DEFAULT_LOCALE_TAG, LocaleLike
+from betty.locale import DEFAULT_LOCALE, DEFAULT_LOCALE_TAG, LocaleLike
 from betty.media_type import MediaType
 from betty.media_type.media_types import HTML, JSON
 from betty.model import EntityDefinition
@@ -15,6 +14,7 @@ from betty.plugin.discovery.static import StaticDiscovery
 from betty.project import Project
 from betty.project.config import LocaleConfiguration
 from betty.project.url import (
+    _EntityUrlGenerator,
     _EntityUrlUrlGenerator,
     _LocalizedPathUrlUrlGenerator,
     _StaticPathUrlUrlGenerator,
@@ -24,8 +24,6 @@ from betty.test_utils.model import DummyEntityOne
 
 
 class Test_EntityUrlUrlGenerator:
-    _ENTITY_ID = "E0"
-
     @pytest.mark.parametrize(
         ("expected", "resource"),
         [
@@ -35,50 +33,53 @@ class Test_EntityUrlUrlGenerator:
             (False, "betty-entity://["),
             (False, f"betty-entity://{DummyEntityOne.plugin().id}"),
             (False, f"betty-entity://{DummyEntityOne.plugin().id}/"),
-            (True, f"betty-entity://{DummyEntityOne.plugin().id}/{_ENTITY_ID}"),
+            (True, f"betty-entity://{DummyEntityOne.plugin().id}/my-first-entity"),
             (False, "/"),
         ],
     )
-    async def test_supports(
-        self,
-        expected: bool,
-        resource: Any,
-        mocker: MockerFixture,
-    ) -> None:
-        m_entity_url_generator = mocker.patch("betty.project.url._EntityUrlGenerator")
+    async def test_supports(self, expected: bool, resource: Any) -> None:
         ancestry = Ancestry()
-        sut = _EntityUrlUrlGenerator(ancestry, m_entity_url_generator)
+        sut = _EntityUrlUrlGenerator(
+            ancestry,
+            _EntityUrlGenerator(
+                "https://example.com",
+                "/",
+                {
+                    DEFAULT_LOCALE: DEFAULT_LOCALE_TAG,
+                },
+                True,
+            ),
+        )
         assert sut.supports(resource) == expected
 
-    async def test_generate(self, mocker: MockerFixture) -> None:
-        url = f"https://example.com/betty/{self._ENTITY_ID}"
+    async def test_generate(self) -> None:
         fragment = "my-first-fragment"
         locale = "nl-NL"
         query = {"my_first_query": "my first value"}
-        m_entity_url_generator = mocker.patch("betty.project.url._EntityUrlGenerator")
-        m_entity_url_generator.generate.return_value = url
-        entity = DummyEntityOne(self._ENTITY_ID)
+        entity = DummyEntityOne()
         ancestry = Ancestry()
         ancestry.add(entity)
-        sut = _EntityUrlUrlGenerator(ancestry, m_entity_url_generator)
+        sut = _EntityUrlUrlGenerator(
+            ancestry,
+            _EntityUrlGenerator(
+                "https://example.com",
+                "/",
+                {
+                    DEFAULT_LOCALE: DEFAULT_LOCALE_TAG,
+                },
+                True,
+            ),
+        )
         assert (
             sut.generate(
-                f"betty-entity://{DummyEntityOne.plugin().id}/{self._ENTITY_ID}",
+                f"betty-entity://{DummyEntityOne.plugin().id}/{entity.id}",
                 absolute=True,
                 fragment=fragment,
                 locale=locale,
                 media_type=HTML,
                 query=query,
             )
-            == url
-        )
-        m_entity_url_generator.generate.assert_called_once_with(
-            entity,
-            absolute=True,
-            fragment=fragment,
-            locale=locale,
-            media_type=HTML,
-            query=query,
+            == f"https://example.com/dummy-one/{entity.public_id}?my_first_query=my+first+value#my-first-fragment"
         )
 
 

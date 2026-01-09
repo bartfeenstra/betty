@@ -91,11 +91,7 @@ class _EntityTypeIndexer(ABC, Generic[_EntityCoT]):
     def __init__(self, project: Project):
         self._project = project
 
-    async def text(
-        self,
-        localizer: Localizer,
-        entity: _EntityCoT,  # type: ignore[unsafe-variance]
-    ) -> set[str]:
+    async def text(self, localizer: Localizer, entity: _EntityCoT) -> set[str]:
         text = {entity.id.lower()}
 
         # Each note is owned by a single other entity, so index it as part of that entity.

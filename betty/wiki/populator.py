@@ -29,6 +29,7 @@ if TYPE_CHECKING:
     from collections.abc import Mapping, MutableMapping, Sequence
 
     from babel import Locale
+    from ty_extensions import Intersection
 
     from betty.ancestry import Ancestry
     from betty.copyright_notice import CopyrightNotice
@@ -177,7 +178,7 @@ class Populator:
                 place.coordinates = coordinates
 
     async def _populate_has_file_references_and_links(
-        self, has_file_references: HasFileReferences & HasLinks
+        self, has_file_references: Intersection[HasFileReferences, HasLinks]
     ) -> None:
         await gather(
             *(

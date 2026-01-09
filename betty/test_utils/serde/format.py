@@ -43,5 +43,5 @@ class FormatTestBase(PluginTestBase[Format]):
 
     def test_load(self) -> None:
         """
-        Satisfy :py:class:`betty.tests.coverage.test_coverage.TestCoverage`.
+        Satisfy ``TestCoverage``.
         """

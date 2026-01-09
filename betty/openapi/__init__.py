@@ -24,6 +24,7 @@ class Specification:
         Build the OpenAPI specification.
         """
         url_generator = await self._project.url_generator
+        specification_paths: PortableMapping[PortableMapping] = {}
         specification: PortableMapping = {
             "openapi": "3.1.0",
             "servers": [
@@ -35,7 +36,7 @@ class Specification:
                 "title": "Betty",
                 "version": about.VERSION_LABEL,
             },
-            "paths": {},
+            "paths": specification_paths,
             "components": {
                 "responses": {
                     "401": {
@@ -106,56 +107,52 @@ class Specification:
                 collection_path = f"/{entity_type.id}/index.json"
                 single_path = f"/{entity_type.id}/{{id}}/index.json"
             entity_type_label = entity_type.label.localize(DEFAULT_LOCALIZER)
-            specification["paths"].update(  # type: ignore[union-attr]
-                {
-                    collection_path: {
-                        "get": {
-                            "summary": f"Retrieve the collection of {entity_type_label} entities.",
-                            "responses": {
-                                "200": {
-                                    "description": f"The collection of {entity_type_label} entities.",
-                                    "content": {
-                                        "application/json": {
-                                            "schema": {
-                                                "$ref": await ProjectSchema.def_url(
-                                                    self._project,
-                                                    f"{kebab_case_to_lower_camel_case(entity_type.id)}EntityCollectionResponse",
-                                                ),
-                                            },
-                                        },
+            specification_paths[collection_path] = {
+                "get": {
+                    "summary": f"Retrieve the collection of {entity_type_label} entities.",
+                    "responses": {
+                        "200": {
+                            "description": f"The collection of {entity_type_label} entities.",
+                            "content": {
+                                "application/json": {
+                                    "schema": {
+                                        "$ref": await ProjectSchema.def_url(
+                                            self._project,
+                                            f"{kebab_case_to_lower_camel_case(entity_type.id)}EntityCollectionResponse",
+                                        ),
                                     },
                                 },
                             },
-                            "tags": [entity_type_label],
                         },
                     },
-                    single_path: {
-                        "get": {
-                            "summary": f"Retrieve a single {entity_type_label} entity.",
-                            "responses": {
-                                "200": {
-                                    "description": f"The {entity_type_label} entity.",
-                                    "content": {
-                                        "application/json": {
-                                            "schema": {
-                                                "$ref": await ProjectSchema.def_url(
-                                                    self._project,
-                                                    f"{kebab_case_to_lower_camel_case(entity_type.id)}Entity",
-                                                ),
-                                            },
-                                        },
+                    "tags": [entity_type_label],
+                },
+            }
+            specification_paths[single_path] = {
+                "get": {
+                    "summary": f"Retrieve a single {entity_type_label} entity.",
+                    "responses": {
+                        "200": {
+                            "description": f"The {entity_type_label} entity.",
+                            "content": {
+                                "application/json": {
+                                    "schema": {
+                                        "$ref": await ProjectSchema.def_url(
+                                            self._project,
+                                            f"{kebab_case_to_lower_camel_case(entity_type.id)}Entity",
+                                        ),
                                     },
                                 },
                             },
-                            "tags": [entity_type_label],
                         },
                     },
-                }
-            )
+                    "tags": [entity_type_label],
+                },
+            }
 
         # Add default behavior to all requests.
-        for path in specification["paths"]:  # type: ignore[union-attr]
-            specification["paths"][path]["get"]["responses"].update(  # type: ignore[call-overload, index, union-attr]
+        for path_specification in specification_paths.values():
+            path_specification["get"]["responses"].update(
                 {
                     "401": {
                         "$ref": "#/components/responses/401",

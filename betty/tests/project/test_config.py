@@ -182,13 +182,13 @@ class TestLocaleConfigurationMapping(
         )
 
     @override
-    def test___delitem__(  # type: ignore[override]
+    def test___delitem__(
         self,
         new_sut: LocaleConfigurationMappingTestNewSut,
         sut_configurations: ConfigurationCollectionTestBaseSutConfigurations[
             LocaleConfiguration
         ],
-    ) -> None:
+    ) -> None:  # ty:ignore[invalid-method-override]
         sut = new_sut([sut_configurations[0]])
         del sut[sut_configurations[0].locale]
         with pytest.raises(KeyError):
@@ -235,23 +235,20 @@ class TestLocaleConfigurationMapping(
         assert sut.default == locale_configuration_a
 
     @override
-    def test_replace__without_items(  # type: ignore[override]
-        self,
-        sut: LocaleConfigurationMapping,
-    ) -> None:
+    def test_replace__without_items(self, sut: LocaleConfigurationMapping) -> None:  # ty:ignore[invalid-method-override]
         sut.clear()
         assert len(sut) == 1
         sut.replace()
         assert len(sut) == 1
 
     @override
-    def test_replace__with_items(  # type: ignore[override]
+    def test_replace__with_items(
         self,
         sut: LocaleConfigurationMapping,
         sut_configurations: ConfigurationCollectionTestBaseSutConfigurations[
             LocaleConfiguration
         ],
-    ) -> None:
+    ) -> None:  # ty:ignore[invalid-method-override]
         sut.clear()
         assert len(sut) == 1
         sut.replace(*sut_configurations)

@@ -19,11 +19,11 @@ Helpful commands
     Test building setuptools packages.
 ``./bin/test-eslint.py``
     Run `ESLint <https://eslint.org/>`_ tests.
-``./bin/test-mypy.py``
-    Run `mypy <https://www.mypy-lang.org/>`_ tests.
 ``./bin/test-pytest.py``
     Run `pytest <https://docs.pytest.org/en/stable/>`_ tests.
-``./bin/test-ruff.py``
-    Run `Ruff <https://docs.astral.sh/ruff/>`_ tests.
 ``./bin/test-stylelint.py``
     Run `Stylelint <https://stylelint.io/>`_ tests.
+``./bin/test-ruff.py``
+    Run `Ruff <https://docs.astral.sh/ruff/>`_ tests.
+``./bin/test-ty.py``
+    Run `ty <https://docs.astral.sh/ty/>`_ tests.

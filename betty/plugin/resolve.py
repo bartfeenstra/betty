@@ -33,7 +33,7 @@ def resolve_definition(
     Resolve a plugin definition.
     """
     if isinstance(definition, PluginDefinition):
-        return definition  # type: ignore[return-value]
+        return definition  # ty:ignore[invalid-return-type]
     return definition.plugin()
 
 

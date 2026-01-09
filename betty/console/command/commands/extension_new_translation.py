@@ -8,9 +8,9 @@ from betty.app.factory import AppDependentSelfFactory
 from betty.argparse import assertion_to_argument_type
 from betty.assertion import assert_locale
 from betty.console.command import Command, CommandDefinition, CommandFunction
-from betty.locale import translation
 from betty.locale.localizable.gettext import _
 from betty.locale.translation.project import extension as extension_translation
+from betty.locale.translation.project import extension as translation_project_extension
 from betty.project.extension import ExtensionDefinition
 
 if TYPE_CHECKING:
@@ -47,7 +47,7 @@ class ExtensionNewTranslation(AppDependentSelfFactory, Command):
         parser.add_argument(
             "extension",
             type=assertion_to_argument_type(
-                lambda extension_id: translation.project.extension.assert_extension_has_assets_directory_path(
+                lambda extension_id: translation_project_extension.assert_extension_has_assets_directory_path(
                     extensions[extension_id]
                 ),
                 localizer=localizer,

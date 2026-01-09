@@ -82,7 +82,7 @@ def dump_countable_localizable(localizable: CountableLocalizable, /) -> Portable
     """
     if isinstance(localizable, CountableStaticTranslations):
         return {
-            to_language_tag(locale): translations  # type: ignore[misc]
+            to_language_tag(locale): translations
             for locale, translations in localizable.translations.items()
         }
     raise NotPortable(

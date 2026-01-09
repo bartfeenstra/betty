@@ -1,5 +1,5 @@
+source .github/workflows/test-not-Windows.sh
 export BETTY_TEST_SKIP_ESLINT=true
-export BETTY_TEST_SKIP_MYPY=true
 export BETTY_TEST_SKIP_PLAYWRIGHT=true
 export BETTY_TEST_SKIP_STYLELINT=true
 export BETTY_TEST_SKIP_TSC=true

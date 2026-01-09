@@ -17,7 +17,7 @@ from importlib import import_module
 from inspect import getmembers, isclass, isdatadescriptor, isfunction
 from os import walk
 from pathlib import Path
-from typing import Any, Protocol, TypeAlias, cast
+from typing import TYPE_CHECKING, Any, Protocol, TypeAlias, cast
 
 import aiofiles
 import pytest
@@ -35,6 +35,9 @@ from betty.tests.coverage.fixtures import (
     module_with_test,
     module_without_test,
 )
+
+if TYPE_CHECKING:
+    from ty_extensions import Intersection
 
 
 class MissingReason(Enum):
@@ -749,21 +752,21 @@ class _ModuleCoverageTester:
         self, module_path: Path
     ) -> tuple[
         str,
-        Sequence[_Importable & Callable[..., Any]],
-        Sequence[_Importable & type],
+        Sequence[Intersection[_Importable, Callable[..., Any]]],
+        Sequence[Intersection[_Importable, type]],
     ]:
         module_name = _module_path_to_name(module_path)
         return (
             module_name,
             sorted(
-                self._get_members(module_name, isfunction),  # type: ignore[arg-type]
+                self._get_members(module_name, isfunction),
                 key=lambda member: member.__name__,
             ),
             sorted(
-                self._get_members(module_name, isclass),  # type: ignore[arg-type]
+                self._get_members(module_name, isclass),
                 key=lambda member: member.__name__,
             ),
-        )
+        )  # ty:ignore[invalid-return-type]
 
     def _get_members(
         self, module_name: str, predicate: Callable[[object], bool]
@@ -785,8 +788,8 @@ class _ModuleCoverageTester:
 class _ModuleFunctionCoverageTester:
     def __init__(
         self,
-        src_function: _Importable & Callable[..., Any],
-        test_functions: Sequence[_Importable & Callable[..., Any]],
+        src_function: Intersection[_Importable, Callable[..., Any]],
+        test_functions: Sequence[Intersection[_Importable, Callable[..., Any]]],
         src_module_name: str,
         test_module_name: str,
         ignore: _ModuleFunctionIgnore,
@@ -981,10 +984,11 @@ class Test_ModuleFunctionCoverageTester:
         self, errors_expected: bool, module: _Importable, ignore: _ModuleFunctionIgnore
     ) -> None:
         test_function = cast(
-            "_Importable & Callable[..., Any] | None", getattr(module, "test_src", None)
+            "Intersection[_Importable, Callable[..., Any]] | None",
+            getattr(module, "test_src", None),
         )
         sut = _ModuleFunctionCoverageTester(
-            module.src,  # type: ignore[attr-defined]
+            module.src,  # ty:ignore[unresolved-attribute]
             () if test_function is None else (test_function,),
             module.__name__,
             module.__name__,
@@ -1024,7 +1028,7 @@ class Test_ModuleClassCoverageTester:
     ) -> None:
         test_class = cast(type | None, getattr(module, "TestSrc", None))
         sut = _ModuleClassCoverageTester(
-            module.Src,  # type: ignore[attr-defined]
+            module.Src,  # ty:ignore[unresolved-attribute]
             () if test_class is None else (test_class,),
             module.__name__,
             module.__name__,

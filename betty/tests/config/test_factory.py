@@ -34,7 +34,7 @@ class _RequiredDummyConfigurable(
     @classmethod
     def new_for_configuration(
         cls, configuration: _DummyConfiguration
-    ) -> AnyFactoryTarget[Self]:
+    ) -> AnyFactoryTarget[Self]:  # ty:ignore[invalid-method-override]
         return lambda: cls(configuration=configuration)
 
 

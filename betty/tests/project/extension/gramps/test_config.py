@@ -1,4 +1,4 @@
-from collections.abc import Mapping
+from collections.abc import Mapping, MutableSequence
 from pathlib import Path
 
 import pytest
@@ -182,15 +182,15 @@ class TestFamilyTreeConfiguration(ConfigurationTestBase[FamilyTreeConfiguration]
     async def test_dump__with_minimal_configuration(self, tmp_path: Path) -> None:
         sut = FamilyTreeConfiguration(tmp_path)
         actual = sut.dump()
-        assert len(
-            actual.pop("event_types")  # type: ignore[arg-type]
-        )
-        assert len(
-            actual.pop("place_types")  # type: ignore[arg-type]
-        )
-        assert len(
-            actual.pop("presence_roles")  # type: ignore[arg-type]
-        )
+        event_types = actual.pop("event_types")
+        assert isinstance(event_types, Mapping)
+        assert len(event_types)
+        place_types = actual.pop("place_types")
+        assert isinstance(place_types, Mapping)
+        assert len(place_types)
+        presence_roles = actual.pop("presence_roles")
+        assert isinstance(presence_roles, Mapping)
+        assert len(presence_roles)
         assert actual == {
             "file": str(tmp_path),
         }
@@ -387,7 +387,7 @@ class TestGrampsConfiguration(ConfigurationTestBase[GrampsConfiguration]):
     async def test_family_trees(self) -> None:
         family_trees = [FamilyTreeConfiguration("my-first-family-tree")]
         sut = GrampsConfiguration()
-        sut.family_trees = family_trees  # type: ignore[assignment]
+        sut.family_trees = family_trees
         assert list(sut.family_trees) == family_trees
 
     async def test_executable(self) -> None:
@@ -425,9 +425,10 @@ class TestGrampsConfiguration(ConfigurationTestBase[GrampsConfiguration]):
         sut = GrampsConfiguration()
         sut.family_trees.append(FamilyTreeConfiguration(family_tree_name))
         actual = sut.dump()
-        actual["family_trees"][0].pop("event_types")  # type: ignore[arg-type, index, union-attr]
-        actual["family_trees"][0].pop("place_types")  # type: ignore[arg-type, index, union-attr]
-        actual["family_trees"][0].pop("presence_roles")  # type: ignore[arg-type, index, union-attr]
+        assert isinstance(actual["family_trees"], MutableSequence)
+        actual["family_trees"][0].pop("event_types")
+        actual["family_trees"][0].pop("place_types")
+        actual["family_trees"][0].pop("presence_roles")
         expected = {
             "family_trees": [
                 {

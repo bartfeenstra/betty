@@ -64,7 +64,7 @@ async def new_dependencies_requirement(
                 dependencies=AllEnumeration(
                     *(
                         dependency.label
-                        if isinstance(dependency, HumanFacingPluginDefinition)  # type: ignore[redundant-expr]
+                        if isinstance(dependency, HumanFacingPluginDefinition)
                         else dependency[0].id
                         for dependency in dependencies
                     ),
@@ -134,12 +134,7 @@ class CheckRequirementRepository(PluginRepository[_PluginDefinitionT]):
                 (plugin, await get_requirement(plugin, services))
                 for plugin in cast(
                     list[_PluginDefinitionT],
-                    list(
-                        map(
-                            resolve_definition,  # type: ignore[arg-type]
-                            plugins,
-                        )
-                    ),
+                    list(map(resolve_definition, plugins)),
                 )
             ],
         )

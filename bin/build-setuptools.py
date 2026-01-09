@@ -31,10 +31,10 @@ try:
     check_call(["pip", "install", "-e", ".[setuptools]"])
 
     # Prepare the workspace directories.
-    check_call(["python", path.join("bin", "clean-build.py")])
+    check_call([sys.executable, path.join("bin", "clean-build.py")])
 
     # Build the package.
-    check_call(["python", "-m", "build"])
+    check_call([sys.executable, "-m", "build"])
     check_call(["twine", "check", "dist/*"])
 finally:
     # Clean up.

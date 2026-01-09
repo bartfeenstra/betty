@@ -29,7 +29,7 @@ class _GenerateAssets(Job[ProjectContext]):
         build_directory_path = await webpack._generate_ensure_build_directory(
             job_context=context
         )
-        context._webpack_build_directory_path = build_directory_path  # type: ignore[attr-defined]
+        context._webpack_build_directory_path = build_directory_path  # ty:ignore[unresolved-attribute]
         await webpack._copy_build_directory(
             build_directory_path, project.www_directory_path
         )

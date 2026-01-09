@@ -23,6 +23,8 @@ if TYPE_CHECKING:
         Sequence,
     )
 
+    from ty_extensions import Intersection
+
     from betty.machine_name import MachineName
 
 _EntityT = TypeVar("_EntityT", bound=Entity, default=Entity)
@@ -36,32 +38,32 @@ class EntityCollection(ABC, Generic[_TargetT]):
     To test your own subclasses, use :py:class:`betty.test_utils.model.collections.EntityCollectionTestBase`.
     """
 
-    def _on_add(self, *entities: _TargetT & Entity) -> None:
+    def _on_add(self, *entities: Intersection[_TargetT, Entity]) -> None:
         pass
 
-    def _on_remove(self, *entities: _TargetT & Entity) -> None:
+    def _on_remove(self, *entities: Intersection[_TargetT, Entity]) -> None:
         pass
 
     @property
-    def view(self) -> Sequence[_TargetT & Entity]:
+    def view(self) -> Sequence[Intersection[_TargetT, Entity]]:
         """
         A view of the entities at the time of calling.
         """
         return [*self]
 
     @abstractmethod
-    def add(self, *entities: _TargetT & Entity) -> None:
+    def add(self, *entities: Intersection[_TargetT, Entity]) -> None:
         """
         Add the given entities.
         """
 
     @abstractmethod
-    def remove(self, *entities: _TargetT & Entity) -> None:
+    def remove(self, *entities: Intersection[_TargetT, Entity]) -> None:
         """
         Remove the given entities.
         """
 
-    def replace(self, *entities: _TargetT & Entity) -> None:
+    def replace(self, *entities: Intersection[_TargetT, Entity]) -> None:
         """
         Replace all entities with the given ones.
         """
@@ -75,7 +77,7 @@ class EntityCollection(ABC, Generic[_TargetT]):
         """
 
     @abstractmethod
-    def __iter__(self) -> Iterator[_TargetT & Entity]:
+    def __iter__(self) -> Iterator[Intersection[_TargetT, Entity]]:
         pass
 
     @abstractmethod
@@ -83,19 +85,23 @@ class EntityCollection(ABC, Generic[_TargetT]):
         pass
 
     @abstractmethod
-    def __delitem__(self, key: _TargetT & Entity) -> None:
+    def __delitem__(self, key: Intersection[_TargetT, Entity]) -> None:
         pass
 
     @abstractmethod
     def __contains__(self, value: Any) -> bool:
         pass
 
-    def _known(self, *entities: _TargetT & Entity) -> Iterable[_TargetT & Entity]:
+    def _known(
+        self, *entities: Intersection[_TargetT, Entity]
+    ) -> Iterable[Intersection[_TargetT, Entity]]:
         for entity in unique(entities):
             if entity in self:
                 yield entity
 
-    def _unknown(self, *entities: _TargetT & Entity) -> Iterable[_TargetT & Entity]:
+    def _unknown(
+        self, *entities: Intersection[_TargetT, Entity]
+    ) -> Iterable[Intersection[_TargetT, Entity]]:
         for entity in unique(entities):
             if entity not in self:
                 yield entity
@@ -109,12 +115,12 @@ class SingleTypeEntityCollection(EntityCollection[_TargetT], Generic[_TargetT]):
     Collect entities of a single type.
     """
 
-    def __init__(self, *entities: _TargetT & Entity):
+    def __init__(self, *entities: Intersection[_TargetT, Entity]):
         super().__init__()
-        self._entities: MutableSequence[_TargetT & Entity] = [*entities]
+        self._entities: MutableSequence[Intersection[_TargetT, Entity]] = [*entities]
 
     @override
-    def add(self, *entities: _TargetT & Entity) -> None:
+    def add(self, *entities: Intersection[_TargetT, Entity]) -> None:
         added_entities = [*self._unknown(*entities)]
         for entity in added_entities:
             self._entities.append(entity)
@@ -122,7 +128,7 @@ class SingleTypeEntityCollection(EntityCollection[_TargetT], Generic[_TargetT]):
             self._on_add(*added_entities)
 
     @override
-    def remove(self, *entities: _TargetT & Entity) -> None:
+    def remove(self, *entities: Intersection[_TargetT, Entity]) -> None:
         removed_entities = [*self._known(*entities)]
         for entity in removed_entities:
             self._entities.remove(entity)
@@ -134,21 +140,21 @@ class SingleTypeEntityCollection(EntityCollection[_TargetT], Generic[_TargetT]):
         self.remove(*self)
 
     @override
-    def __iter__(self) -> Iterator[_TargetT & Entity]:
+    def __iter__(self) -> Iterator[Intersection[_TargetT, Entity]]:
         return self._entities.__iter__()
 
     @override
     def __len__(self) -> int:
         return len(self._entities)
 
-    def __getitem__(self, entity_id: str) -> _TargetT & Entity:
+    def __getitem__(self, entity_id: str) -> Intersection[_TargetT, Entity]:
         for entity in self._entities:
             if entity_id == entity.id:
                 return entity
         raise KeyError(f'Cannot find an entity with ID "{entity_id}".')
 
     @override
-    def __delitem__(self, key: str | _TargetT & Entity) -> None:
+    def __delitem__(self, key: str | Intersection[_TargetT, Entity]) -> None:
         if isinstance(key, str):
             for entity in self._entities:
                 if entity.id == key:
@@ -168,7 +174,7 @@ class MultipleTypesEntityCollection(EntityCollection[_TargetT], Generic[_TargetT
     Collect entities of multiple types.
     """
 
-    def __init__(self, *entities: _TargetT & Entity):
+    def __init__(self, *entities: Intersection[_TargetT, Entity]):
         super().__init__()
         self._collections: MutableMapping[
             MachineName, SingleTypeEntityCollection[Entity]
@@ -193,14 +199,14 @@ class MultipleTypesEntityCollection(EntityCollection[_TargetT], Generic[_TargetT
         return self._get_collection(key)
 
     @override
-    def __delitem__(self, key: _TargetT & Entity) -> None:
+    def __delitem__(self, key: Intersection[_TargetT, Entity]) -> None:
         self.remove(key)
 
     @override
-    def __iter__(self) -> Iterator[_TargetT & Entity]:
+    def __iter__(self) -> Iterator[Intersection[_TargetT, Entity]]:
         for collection in self._collections.values():
             for entity in collection:
-                yield cast("_TargetT & Entity", entity)
+                yield cast("Intersection[_TargetT , Entity]", entity)
 
     @override
     def __len__(self) -> int:
@@ -213,7 +219,7 @@ class MultipleTypesEntityCollection(EntityCollection[_TargetT], Generic[_TargetT
         return False
 
     @override
-    def add(self, *entities: _TargetT & Entity) -> None:
+    def add(self, *entities: Intersection[_TargetT, Entity]) -> None:
         added_entities = [*self._unknown(*entities)]
         for entity in added_entities:
             self[type(entity)].add(entity)
@@ -221,7 +227,7 @@ class MultipleTypesEntityCollection(EntityCollection[_TargetT], Generic[_TargetT
             self._on_add(*added_entities)
 
     @override
-    def remove(self, *entities: _TargetT & Entity) -> None:
+    def remove(self, *entities: Intersection[_TargetT, Entity]) -> None:
         removed_entities = [*self._known(*entities)]
         for entity in removed_entities:
             self[type(entity)].remove(entity)

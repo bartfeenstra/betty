@@ -18,6 +18,8 @@ from betty.locale.localizable.markup import Lines, UnorderedList
 if TYPE_CHECKING:
     from collections.abc import MutableSequence, Sequence
 
+    from ty_extensions import Intersection
+
     from betty.locale import HasLocale
     from betty.locale.localize import Localizer
     from betty.service.level import ServiceLevel
@@ -43,7 +45,7 @@ class Requirement(Localizable):
         return None
 
     @override
-    def localize(self, localizer: Localizer, /) -> HasLocale & str:
+    def localize(self, localizer: Localizer, /) -> Intersection[HasLocale, str]:
         localized = self.summary.localize(localizer)
         details = self.details
         if details is None:
@@ -98,12 +100,12 @@ class _RequirementCollection(Requirement, ABC):
     def new(
         cls, *requirements: Requirement | None, summary: LocalizableLike | None = None
     ) -> Requirement | None:
-        requirements = cls._filter(requirements)
-        if not requirements:
+        filtered_requirements = cls._filter(requirements)
+        if not filtered_requirements:
             return None
-        if len(requirements) == 1:
-            return requirements[0]
-        return cls(*requirements, summary=summary)
+        if len(filtered_requirements) == 1:
+            return filtered_requirements[0]
+        return cls(*filtered_requirements, summary=summary)
 
     @override
     @property
@@ -111,7 +113,7 @@ class _RequirementCollection(Requirement, ABC):
         return self._summary
 
     @override
-    def localize(self, localizer: Localizer, /) -> HasLocale & str:
+    def localize(self, localizer: Localizer, /) -> Intersection[HasLocale, str]:
         return Lines(
             super().localize(localizer),
             UnorderedList(*self._requirements),

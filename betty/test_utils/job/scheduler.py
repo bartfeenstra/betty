@@ -118,7 +118,7 @@ class _Job(Job[_SchedulerTestBaseContextCoT]):
         if self._additional_jobs is not None:
             for additional_job in self._additional_jobs:
                 await scheduler.add(additional_job)
-        scheduler.context.jobs.append(self)
+        scheduler.context.jobs.append(self)  # ty:ignore[invalid-argument-type]
 
 
 @final
@@ -130,6 +130,30 @@ class Sleep(Job[_SchedulerTestBaseContextCoT]):
     @override
     async def do(self, scheduler: Scheduler[_SchedulerTestBaseContextCoT], /) -> None:
         await sleep(999999999)
+
+
+class Raise(Job[_SchedulerTestBaseContextCoT]):
+    """
+    A job that raises an exception.
+    """
+
+    def __init__(
+        self,
+        job_id: str,
+        *,
+        reason: BaseException,
+        dependencies: set[str] | None = None,
+        dependents: set[str] | None = None,
+        priority: bool = False,
+    ):
+        super().__init__(
+            job_id, dependencies=dependencies, dependents=dependents, priority=priority
+        )
+        self._reason = reason
+
+    @override
+    async def do(self, scheduler: Scheduler[_SchedulerTestBaseContextCoT], /) -> None:
+        raise self._reason
 
 
 class SchedulerTestBase(Generic[_SchedulerTestBaseContextCoT]):
@@ -352,15 +376,7 @@ class SchedulerTestBase(Generic[_SchedulerTestBaseContextCoT]):
         Tests :py:meth:`betty.job.scheduler.Scheduler.get` implementations.
         """
         reason = RuntimeError()
-
-        class _Raise(Job[_SchedulerTestBaseContextCoT]):
-            @override
-            async def do(
-                self, scheduler: Scheduler[_SchedulerTestBaseContextCoT], /
-            ) -> None:
-                raise reason
-
-        await sut.add(_Raise(""))
+        await sut.add(Raise("", reason=reason))
         with pytest.raises(Cancelled) as exc_info:  # noqa: PT012
             async with sut:
                 batch = await sut.get()

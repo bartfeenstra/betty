@@ -7,7 +7,7 @@ from __future__ import annotations
 import json
 from abc import abstractmethod
 from asyncio import gather, to_thread
-from collections.abc import Mapping, Sequence
+from collections.abc import Sequence
 from json import dumps, loads
 from os import walk
 from pathlib import Path
@@ -73,8 +73,7 @@ async def _npm_project_id(
 
 
 async def _npm_project_directory_path(
-    working_directory_path: Path,
-    entry_point_providers: Sequence[EntryPointProvider],
+    working_directory_path: Path, entry_point_providers: Sequence[EntryPointProvider]
 ) -> Path:
     return working_directory_path / await _npm_project_id(entry_point_providers)
 
@@ -141,7 +140,7 @@ class Builder:
     async def _prepare_betty(self, npm_project_directory_path: Path) -> None:
         await to_thread(
             copytree,
-            ROOT_DIRECTORY_PATH / "js",
+            ROOT_DIRECTORY_PATH / "js",  # ty:ignore[invalid-argument-type]
             npm_project_directory_path
             / "packages"
             / _package_name_to_path("@betty.py/betty"),
@@ -155,8 +154,8 @@ class Builder:
             *[
                 to_thread(
                     copy2,
-                    source_file_path,
-                    npm_project_directory_path,
+                    source_file_path,  # ty:ignore[invalid-argument-type]
+                    npm_project_directory_path,  # ty:ignore[invalid-argument-type]
                 )
                 for source_file_path in (
                     _NPM_PROJECT_DIRECTORIES_PATH / "package.json",
@@ -224,13 +223,12 @@ class Builder:
     async def _update_package_json(
         self,
         npm_project_directory_path: Path,
-        package_jsons_by_package_name: MutableMapping[str, PortableMapping],
+        package_jsons_by_package_name: PortableMapping[PortableMapping],
         package_name: str,
     ) -> None:
         package_json = package_jsons_by_package_name[package_name]
         try:
             dependencies = package_json["dependencies"]
-            assert isinstance(dependencies, Mapping)
         except KeyError:
             return
         for dependency_package_name in dependencies:
@@ -355,7 +353,7 @@ class Builder:
             npm_project_package_json_path
         ) as npm_project_package_json_f:
             npm_project_package_json = loads(await npm_project_package_json_f.read())
-        npm_project_package_json["dependencies"].update(  # type: ignore[call-overload,index,union-attr]
+        npm_project_package_json["dependencies"].update(
             npm_project_package_json_dependencies
         )
         async with aiofiles.open(

@@ -33,7 +33,9 @@ from betty.typing import Void, internal, public
 
 if TYPE_CHECKING:
     from collections.abc import Iterable
-    from types import TracebackType
+    from types import FunctionType, TracebackType
+
+    from ty_extensions import Intersection
 
     from betty.locale.localizable import LocalizableLike
     from betty.service.level import ServiceLevel
@@ -156,7 +158,7 @@ class _ServiceDecorator(Protocol):
 
 
 @overload
-def service(  # type: ignore[overload-overlap]
+def service(
     factory: Callable[[_ServiceProviderT], Awaitable[_ServiceT]], /
 ) -> _AsynchronousServiceManager[_ServiceProviderT, _ServiceT]:
     pass
@@ -174,9 +176,7 @@ def service(factory: None = None, /) -> _ServiceDecorator:
     pass
 
 
-def service(
-    factory: Callable[[_ServiceProviderT], _ServiceGetT] | None = None, /
-) -> ServiceManager[_ServiceProviderT, _ServiceGetT, Any] | _ServiceDecorator:
+def service(factory):
     """
     Decorate a service factory method.
 
@@ -190,11 +190,15 @@ def service(
         factory: Callable[[_ServiceProviderT], _ServiceGetT], /
     ) -> ServiceManager[_ServiceProviderT, _ServiceGetT, Any]:
         if iscoroutinefunction(factory):
-            return _AsynchronousServiceManager(factory)  # type: ignore[return-value]
-        return _SynchronousServiceManager(factory)
+            return _AsynchronousServiceManager(
+                factory,  # ty:ignore[invalid-argument-type]
+            )  # ty:ignore[invalid-return-type]
+        return _SynchronousServiceManager(
+            factory,  # ty:ignore[invalid-argument-type]
+        )
 
     if factory is None:
-        return _service  # type: ignore[return-value]
+        return _service
     return _service(factory)
 
 
@@ -220,13 +224,19 @@ class ServiceManager(Generic[_ServiceProviderT, _ServiceGetT, _ServiceT]):
     Manages a single service for a service container.
     """
 
-    def __init__(self, factory: ServiceFactory[_ServiceProviderT, _ServiceGetT], /):
-        update_wrapper(  # type: ignore[type-var]
-            self,
+    def __init__(
+        self,
+        factory: Intersection[
+            ServiceFactory[_ServiceProviderT, _ServiceGetT], FunctionType
+        ],
+        /,
+    ):
+        update_wrapper(
+            self,  # ty:ignore[invalid-argument-type]
             factory,
         )
         self._factory = factory
-        self._service_name: str = factory.__name__  # type: ignore[attr-defined]
+        self._service_name: str = factory.__name__
         self._service_attr_name = f"_{self._service_name}"
         self._service_override_attr_name = f"{self._service_attr_name}_override"
         self._factory_override_attr_name = f"{self._service_attr_name}_factory_override"
@@ -252,7 +262,7 @@ class ServiceManager(Generic[_ServiceProviderT, _ServiceGetT, _ServiceT]):
         self, instance: _ServiceProviderT | None, owner: type[_ServiceProviderT]
     ) -> _ServiceGetT | Self:
         if instance is None:
-            return self  # type: ignore[return-value]
+            return self
 
         return self.get(instance)
 
@@ -269,7 +279,7 @@ class ServiceManager(Generic[_ServiceProviderT, _ServiceGetT, _ServiceT]):
         pass
 
     def _get_attr(self, instance: _ServiceProviderT, /) -> _ServiceT | Void:
-        return getattr(instance, self._service_attr_name, Void())  # type: ignore[return-value]
+        return getattr(instance, self._service_attr_name, Void())
 
     def _get_factory(
         self, instance: _ServiceProviderT, /

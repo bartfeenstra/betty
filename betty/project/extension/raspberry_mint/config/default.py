@@ -71,10 +71,10 @@ def regional_content(
                         PluginInstanceConfiguration(
                             Columns,
                             ColumnsConfiguration(
-                                PluginInstanceConfiguration(WikipediaSummary),
+                                PluginInstanceConfiguration(WikipediaSummary),  # ty:ignore[invalid-argument-type]
                                 width=SINGLE_COLUMN_TEXT_WIDTH,
                             ),
-                        ),
+                        ),  # ty:ignore[invalid-argument-type]
                         heading=_make_dumpable(_("Wikipedia says...")),
                         name="wikipedia",
                     ),
@@ -82,7 +82,7 @@ def regional_content(
                 PluginInstanceConfiguration(
                     Box,
                     BoxConfiguration(
-                        PluginInstanceConfiguration(Map),
+                        PluginInstanceConfiguration(Map),  # ty:ignore[invalid-argument-type]
                         min_height="500px",
                         height="75vh",
                         max_height="1000px",
@@ -94,16 +94,16 @@ def regional_content(
                         PluginInstanceConfiguration(
                             Columns,
                             ColumnsConfiguration(
-                                PluginInstanceConfiguration(MapAttribution)
+                                PluginInstanceConfiguration(MapAttribution)  # ty:ignore[invalid-argument-type]
                             ),
-                        ),
+                        ),  # ty:ignore[invalid-argument-type]
                         style=ColorStyleOption.LIGHT_CONTRAST,
                     ),
                 ),
                 PluginInstanceConfiguration(
                     Columns,
                     ColumnsConfiguration(
-                        PluginInstanceConfiguration(Enclosees),
+                        PluginInstanceConfiguration(Enclosees),  # ty:ignore[invalid-argument-type]
                         width=SINGLE_COLUMN_TEXT_WIDTH,
                     ),
                 ),
@@ -113,10 +113,10 @@ def regional_content(
                         PluginInstanceConfiguration(
                             Columns,
                             ColumnsConfiguration(
-                                PluginInstanceConfiguration(Notes),
+                                PluginInstanceConfiguration(Notes),  # ty:ignore[invalid-argument-type]
                                 width=SINGLE_COLUMN_TEXT_WIDTH,
                             ),
-                        ),
+                        ),  # ty:ignore[invalid-argument-type]
                         heading=_make_dumpable(_("Notes")),
                         name="notes",
                     ),
@@ -126,7 +126,7 @@ def regional_content(
                     SectionConfiguration(
                         PluginInstanceConfiguration(
                             Presences, PresencesConfiguration(include=[Subject])
-                        ),
+                        ),  # ty:ignore[invalid-argument-type]
                         heading=_make_dumpable(_("Subjects")),
                         name="attendees-subject",
                     ),
@@ -136,7 +136,7 @@ def regional_content(
                     SectionConfiguration(
                         PluginInstanceConfiguration(
                             Presences, PresencesConfiguration(include=[Witness])
-                        ),
+                        ),  # ty:ignore[invalid-argument-type]
                         heading=_make_dumpable(_("Witnesses")),
                         name="attendees-witness",
                     ),
@@ -147,7 +147,7 @@ def regional_content(
                         PluginInstanceConfiguration(
                             Presences,
                             PresencesConfiguration(exclude=[Subject, Witness]),
-                        ),
+                        ),  # ty:ignore[invalid-argument-type]
                         heading=_make_dumpable(_("Other attendees")),
                         name="attendees-other",
                     ),
@@ -155,7 +155,7 @@ def regional_content(
                 PluginInstanceConfiguration(
                     Section,
                     SectionConfiguration(
-                        PluginInstanceConfiguration(Families),
+                        PluginInstanceConfiguration(Families),  # ty:ignore[invalid-argument-type]
                         heading=_make_dumpable(_("Family")),
                         name="family",
                     ),
@@ -163,7 +163,7 @@ def regional_content(
                 PluginInstanceConfiguration(
                     Box,
                     BoxConfiguration(
-                        PluginInstanceConfiguration(Tree),
+                        PluginInstanceConfiguration(Tree),  # ty:ignore[invalid-argument-type]
                         min_height="500px",
                         height="75vh",
                         max_height="1000px",
@@ -174,8 +174,8 @@ def regional_content(
                     SectionConfiguration(
                         PluginInstanceConfiguration(
                             Columns,
-                            ColumnsConfiguration(PluginInstanceConfiguration(Timeline)),
-                        ),
+                            ColumnsConfiguration(PluginInstanceConfiguration(Timeline)),  # ty:ignore[invalid-argument-type]
+                        ),  # ty:ignore[invalid-argument-type]
                         heading=_make_dumpable(_("Timeline")),
                         name="timeline",
                     ),
@@ -186,10 +186,10 @@ def regional_content(
                         PluginInstanceConfiguration(
                             Columns,
                             ColumnsConfiguration(
-                                PluginInstanceConfiguration(Facts),
+                                PluginInstanceConfiguration(Facts),  # ty:ignore[invalid-argument-type]
                                 width=SINGLE_COLUMN_TEXT_WIDTH,
                             ),
-                        ),
+                        ),  # ty:ignore[invalid-argument-type]
                         heading=_make_dumpable(_("Facts")),
                         name="facts",
                     ),
@@ -200,11 +200,11 @@ def regional_content(
                         PluginInstanceConfiguration(
                             Section,
                             SectionConfiguration(
-                                PluginInstanceConfiguration(MediaGallery),
+                                PluginInstanceConfiguration(MediaGallery),  # ty:ignore[invalid-argument-type]
                                 heading=_make_dumpable(_("Media")),
                                 name="media",
                             ),
-                        ),
+                        ),  # ty:ignore[invalid-argument-type]
                         style=ColorStyleOption.DARK,
                     ),
                 ),
@@ -214,10 +214,10 @@ def regional_content(
                         PluginInstanceConfiguration(
                             Columns,
                             ColumnsConfiguration(
-                                PluginInstanceConfiguration(FileReferees),
+                                PluginInstanceConfiguration(FileReferees),  # ty:ignore[invalid-argument-type]
                                 width=SINGLE_COLUMN_TEXT_WIDTH,
                             ),
-                        ),
+                        ),  # ty:ignore[invalid-argument-type]
                         heading=_make_dumpable(_("Appearances")),
                         name="appearances",
                     ),
@@ -228,10 +228,10 @@ def regional_content(
                         PluginInstanceConfiguration(
                             Columns,
                             ColumnsConfiguration(
-                                PluginInstanceConfiguration(Citations),
+                                PluginInstanceConfiguration(Citations),  # ty:ignore[invalid-argument-type]
                                 width=SINGLE_COLUMN_TEXT_WIDTH,
                             ),
-                        ),
+                        ),  # ty:ignore[invalid-argument-type]
                         heading=_make_dumpable(_("Citations")),
                         name="citations",
                     ),
@@ -242,14 +242,14 @@ def regional_content(
                         PluginInstanceConfiguration(
                             Columns,
                             ColumnsConfiguration(
-                                PluginInstanceConfiguration(ExternalLinks),
+                                PluginInstanceConfiguration(ExternalLinks),  # ty:ignore[invalid-argument-type]
                                 width=SINGLE_COLUMN_TEXT_WIDTH,
                             ),
-                        ),
+                        ),  # ty:ignore[invalid-argument-type]
                         heading=_make_dumpable(_("External links")),
                         name="external-links",
                     ),
                 ),
-            ]
+            ]  # ty:ignore[invalid-argument-type]
         ),
     }

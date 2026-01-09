@@ -27,6 +27,8 @@ class ConfigurationSequence(ConfigurationCollection[int, int, _ConfigurationT]):
     To test your own subclasses, use :py:class:`betty.test_utils.config.collections.sequence.ConfigurationSequenceTestBase`.
     """
 
+    _configurations: MutableSequence[_ConfigurationT]
+
     def __init__(self, configurations: Iterable[_ConfigurationT] | None = None, /):
         self._configurations: MutableSequence[_ConfigurationT] = []
         super().__init__(configurations)

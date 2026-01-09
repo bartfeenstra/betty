@@ -167,7 +167,7 @@ class TestHumanFacingExceptionGroup:
         error = HumanFacingException(StaticTranslations("Help!"))
         with sut.absorb():
             raise error
-        assert_error(sut, error=error)  # type: ignore[unreachable]
+        assert_error(sut, error=error)
         assert error.indicators == []
 
     def test_absorb__with_contexts(self) -> None:
@@ -176,7 +176,7 @@ class TestHumanFacingExceptionGroup:
         context = Attr("my_first_context")
         with sut.absorb(context):
             raise error
-        assert_error(sut, error=error)  # type: ignore[unreachable]
+        assert_error(sut, error=error)
         assert error.indicators == [context]
 
     @pytest.mark.parametrize(

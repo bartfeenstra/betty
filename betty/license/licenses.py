@@ -181,9 +181,7 @@ class SpdxLicenseBuilder:
                 @override
                 @property
                 def text(self) -> Localizable:
-                    return Plain(
-                        license_text  # type: ignore[arg-type]
-                    )
+                    return Plain(license_text)
 
                 @override
                 @property

@@ -73,10 +73,9 @@ class PluginMapping(Configuration, Generic[_PluginDefinitionT, _PluginT]):
     @classmethod
     def load(cls, portable: PortableData, /) -> Self:
         return cls(
-            assert_mapping(
-                PluginInstanceConfiguration.load,  # type: ignore[arg-type]
-                _assert_gramps_type,
-            )(portable)
+            assert_mapping(PluginInstanceConfiguration.load, _assert_gramps_type)(
+                portable
+            )
         )
 
     @override

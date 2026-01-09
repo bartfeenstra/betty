@@ -92,9 +92,7 @@ def _always_invalid(value: int) -> int:
 def test_assert_type__with_valid_value(
     value: Any, value_type: type[AssertTypeType]
 ) -> None:
-    assert_type(
-        value_type,  # type: ignore[arg-type]
-    )(value)
+    assert_type(value_type)(value)
 
 
 @pytest.mark.parametrize(
@@ -110,9 +108,7 @@ def test_assert_type__with_invalid_value(
     value: Any, value_type: type[AssertTypeType]
 ) -> None:
     with pytest.raises(HumanFacingException):
-        assert_type(
-            value_type,  # type: ignore[arg-type]
-        )(value)
+        assert_type(value_type)(value)
 
 
 @pytest.mark.parametrize(
@@ -487,7 +483,7 @@ def test_assert_isinstance__without_instance() -> None:
         pass
 
     with pytest.raises(HumanFacingException):
-        assert assert_isinstance(MyClass)(object())  # type: ignore[truthy-bool]
+        assert assert_isinstance(MyClass)(object())
 
 
 @pytest.mark.parametrize(

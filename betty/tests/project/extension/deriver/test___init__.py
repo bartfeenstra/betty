@@ -41,7 +41,7 @@ class TestDeriver(ExtensionTestBase):
             project.configuration.extensions.enable(Deriver)
             project.ancestry.add(person)
             async with project:
-                with record_added(project.ancestry) as added:
+                with record_added(project.ancestry) as added:  # ty:ignore[invalid-argument-type]
                     await load(project)
 
                 assert len(person.presences) == 3

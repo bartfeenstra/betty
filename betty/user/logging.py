@@ -11,7 +11,7 @@ from asyncio import (
     run_coroutine_threadsafe,
     to_thread,
 )
-from collections.abc import Awaitable, Callable
+from collections.abc import Callable, Coroutine
 from functools import partial
 from queue import Empty, Queue
 from time import sleep
@@ -37,7 +37,7 @@ class UserHandler(logging.Handler):
         self._thread = threading.Thread(
             name=self.__class__.__name__, target=suppress(self._result, BaseException)
         )
-        self._queue = Queue[Callable[[], Awaitable[None]]]()
+        self._queue = Queue[Callable[[], Coroutine[None, None, None]]]()
         self._finish = threading.Event()
         self._loop = get_running_loop()
 

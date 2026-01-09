@@ -146,7 +146,7 @@ class About(AppDependentSelfFactory, Command):
         about_python_packages.add_column(user.localizer._("Version"))
         for x in sorted(
             metadata.distributions(),
-            key=lambda x: x.metadata["Name"].lower(),  # type: ignore[no-any-return, unused-ignore]
+            key=lambda x: x.metadata["Name"].lower(),
         ):
             about_python_packages.add_row(x.metadata["Name"], x.version)
         user.console.print(about_python_packages)

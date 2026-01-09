@@ -3,6 +3,7 @@ Provide utilities for raising warnings.
 """
 
 import warnings
+from typing import LiteralString
 
 import typing_extensions
 
@@ -28,7 +29,7 @@ class deprecated(typing_extensions.deprecated):
     deprecation warning.
     """
 
-    def __init__(self, message: str, stacklevel: int = 1):
+    def __init__(self, message: LiteralString, stacklevel: int = 1):
         super().__init__(
             message, category=BettyDeprecationWarning, stacklevel=stacklevel
         )

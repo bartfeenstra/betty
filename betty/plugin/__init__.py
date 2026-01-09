@@ -23,6 +23,8 @@ if TYPE_CHECKING:
     import builtins
     from collections.abc import Collection, Iterator, Mapping, MutableSequence
 
+    from ty_extensions import Intersection
+
     from betty.locale.localizable import (
         CountableLocalizable,
         Localizable,
@@ -40,10 +42,10 @@ class PluginDefinition(Generic[_BaseClsCoT]):
     """
 
     def __init__(self, plugin_id: MachineName, /):
-        if not validate_machine_name(plugin_id):  # type: ignore[redundant-expr]
+        if not validate_machine_name(plugin_id):
             raise InvalidMachineName(plugin_id)
         self._id = plugin_id
-        self._cls: type[_BaseClsCoT & Plugin[Self]] | None = None
+        self._cls: type[Intersection[_BaseClsCoT, Plugin[Self]]] | None = None
 
     @classmethod
     def type(cls) -> PluginTypeDefinition[_BaseClsCoT, Self]:
@@ -67,7 +69,7 @@ class PluginDefinition(Generic[_BaseClsCoT]):
         return self._id
 
     @property
-    def cls(self) -> builtins.type[_BaseClsCoT & Plugin[Self]]:
+    def cls(self) -> builtins.type[Intersection[_BaseClsCoT, Plugin[Self]]]:
         """
         The plugin class.
 
@@ -79,8 +81,8 @@ class PluginDefinition(Generic[_BaseClsCoT]):
         return self._cls
 
     def __call__(
-        self, cls: builtins.type[_BaseClsCoT & Plugin[Self]]
-    ) -> builtins.type[_BaseClsCoT & Plugin[Self]]:
+        self, cls: builtins.type[Intersection[_BaseClsCoT, Plugin[Self]]]
+    ) -> builtins.type[Intersection[_BaseClsCoT, Plugin[Self]]]:
         """
         Decorate a plugin class.
 
@@ -89,7 +91,7 @@ class PluginDefinition(Generic[_BaseClsCoT]):
         if self._cls is not None:
             raise ValueError("This definition was already used to decorate a class.")
         assert self._cls is None
-        cls.plugin = staticmethod(update_wrapper(lambda: self, cls.plugin))  # type: ignore[attr-defined]
+        cls.plugin = staticmethod(update_wrapper(lambda: self, cls.plugin))
         self._cls = cls
         return cls
 
@@ -132,7 +134,7 @@ class PluginTypeDefinition(Generic[_BaseClsCoT, _PluginDefinitionT]):
         self,
         id: MachineName,  # noqa: A002
         *,
-        base_cls: type[_BaseClsCoT & Plugin[_PluginDefinitionT]],
+        base_cls: type[Intersection[_BaseClsCoT, Plugin[_PluginDefinitionT]]],
         label: LocalizableLike,
         label_plural: LocalizableLike,
         label_countable: CountableLocalizable,
@@ -143,7 +145,7 @@ class PluginTypeDefinition(Generic[_BaseClsCoT, _PluginDefinitionT]):
     ):
         from betty.plugin.discovery import PluginDiscovery
 
-        if not validate_machine_name(id):  # type: ignore[redundant-expr]
+        if not validate_machine_name(id):
             raise InvalidMachineName(id)
         self._id = id
         self._base_cls = base_cls
@@ -156,9 +158,11 @@ class PluginTypeDefinition(Generic[_BaseClsCoT, _PluginDefinitionT]):
         if discovery is None:
             discovery = []
         elif isinstance(discovery, PluginDiscovery):
-            discovery = [discovery]
+            discovery = [discovery]  # ty:ignore[invalid-assignment]
         else:
-            discovery = list(discovery)
+            discovery = list(
+                discovery,  # ty:ignore[invalid-argument-type]
+            )
         self._defined_discovery: MutableSequence[
             PluginDiscovery[_PluginDefinitionT]
         ] = discovery
@@ -175,7 +179,7 @@ class PluginTypeDefinition(Generic[_BaseClsCoT, _PluginDefinitionT]):
         return self._id
 
     @property
-    def base_cls(self) -> type[_BaseClsCoT & Plugin[_PluginDefinitionT]]:
+    def base_cls(self) -> type[Intersection[_BaseClsCoT, Plugin[_PluginDefinitionT]]]:
         """
         The base class all plugins of this type must subclass.
         """
@@ -202,7 +206,7 @@ class PluginTypeDefinition(Generic[_BaseClsCoT, _PluginDefinitionT]):
         if self._cls is not None:
             raise ValueError("This definition was already used to decorate a class.")
         assert self._cls is None
-        cls.type = staticmethod(update_wrapper(lambda: self, cls.type))  # type: ignore[method-assign]
+        cls.type = staticmethod(update_wrapper(lambda: self, cls.type))  # ty:ignore[invalid-assignment]
         self._cls = cls
         return cls
 

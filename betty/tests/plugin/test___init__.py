@@ -248,7 +248,7 @@ class TestPluginTypeDefinition:
         assert not sut.discovery_overridden
         with sut.override_discovery():
             assert sut.discovery_overridden
-        assert not sut.discovery_overridden  # type: ignore[unreachable]
+        assert not sut.discovery_overridden
 
 
 class TestPluginDefinition:

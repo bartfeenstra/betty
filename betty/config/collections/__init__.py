@@ -94,11 +94,11 @@ class ConfigurationCollection(
             configuration_key = self._resolve_key(configuration_key)
             configuration_key = self._resolve_key(configuration_key)
             try:
-                configuration = self._configurations[configuration_key]  # type: ignore[call-overload]
+                configuration = self._configurations[configuration_key]  # ty:ignore[invalid-argument-type]
             except LookupError:
                 continue
             else:
-                del self._configurations[configuration_key]  # type: ignore[call-overload]
+                del self._configurations[configuration_key]  # ty:ignore[invalid-argument-type]
                 self._post_remove(configuration)
 
     def clear(self) -> None:

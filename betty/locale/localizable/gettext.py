@@ -11,6 +11,8 @@ from typing_extensions import override
 from betty.locale.localizable import CountableLocalizable, Localizable, LocalizableCount
 
 if TYPE_CHECKING:
+    from ty_extensions import Intersection
+
     from betty.locale import HasLocale
     from betty.locale.localize import Localizer
 
@@ -25,10 +27,10 @@ class _GettextLocalizable(Localizable):
         self._gettext_args = gettext_args
 
     @override
-    def localize(self, localizer: Localizer, /) -> HasLocale & str:
+    def localize(self, localizer: Localizer, /) -> Intersection[HasLocale, str]:
         return cast(
-            "HasLocale & str",
-            getattr(localizer, self._gettext_method_name)(*self._gettext_args),  # type: ignore[operator]
+            "Intersection[HasLocale, str]",
+            getattr(localizer, self._gettext_method_name)(*self._gettext_args),
         )
 
 

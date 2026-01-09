@@ -33,4 +33,4 @@ class StaticDiscovery(PluginDiscovery[_PluginDefinitionT]):
 
     @override
     async def discover(self, services: ServiceLevel, /) -> Iterable[_PluginDefinitionT]:
-        return self._plugins
+        return self._plugins  # ty:ignore[invalid-return-type]

@@ -29,6 +29,8 @@ class _ConfigurationMapping(
         _ConfigurationKeyT, _ResolvableConfigurationKeyT, _ConfigurationT
     ]
 ):
+    _configurations: MutableMapping[_ConfigurationKeyT, _ConfigurationT]
+
     def __init__(self, configurations: Iterable[_ConfigurationT] | None = None, /):
         self._configurations: MutableMapping[_ConfigurationKeyT, _ConfigurationT] = {}
         super().__init__(configurations)
@@ -115,7 +117,7 @@ class ConfigurationMapping(
 
     @classmethod
     def __load_item_key(
-        cls, portable_value: PortableMapping, portable_key: str, /
+        cls, portable_value: PortableData, portable_key: str, /
     ) -> PortableData:
         return cls._load_key(portable_value, portable_key)
 

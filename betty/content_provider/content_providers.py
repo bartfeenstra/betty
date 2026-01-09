@@ -123,11 +123,11 @@ class Render(
     @classmethod
     def new_for_configuration(
         cls, configuration: RenderConfiguration
-    ) -> AnyFactoryTarget[Self]:
+    ) -> AnyFactoryTarget[Self]:  # ty:ignore[invalid-method-override]
         async def _callback(project: Project) -> Self:
             return cls(configuration=configuration, renderer=await project.renderer)
 
-        return CallbackProjectDependentFactory(_callback)
+        return CallbackProjectDependentFactory(_callback)  # ty:ignore[invalid-return-type]
 
     @override
     async def provide(self, *, document: Document) -> str | None:
@@ -200,7 +200,7 @@ class BoxConfiguration(Configuration):
         width: str | None = None,
     ):
         super().__init__()
-        self._content = PluginInstanceConfigurationSequence(content)
+        self._content = PluginInstanceConfigurationSequence(content)  # ty:ignore[invalid-argument-type]
         self.min_height = min_height
         self.max_height = max_height
         self.height = height
@@ -217,7 +217,7 @@ class BoxConfiguration(Configuration):
         """
         The content within this box.
         """
-        return self._content
+        return self._content  # ty:ignore[invalid-return-type]
 
     @override
     @classmethod
@@ -285,7 +285,7 @@ class BoxConfiguration(Configuration):
                     PluginInstanceConfiguration(
                         Render, RenderConfiguration("Hello, world!")
                     )
-                ],
+                ],  # ty:ignore[invalid-argument-type]
                 min_height="100px",
                 max_height="1000px",
                 height="500px",
@@ -314,14 +314,14 @@ class Box(Template, ConfigurationDependentSelfFactory[BoxConfiguration]):
     @classmethod
     def new_for_configuration(
         cls, configuration: BoxConfiguration
-    ) -> AnyFactoryTarget[Self]:
+    ) -> AnyFactoryTarget[Self]:  # ty:ignore[invalid-method-override]
         async def _factory(project: Project) -> Self:
             return cls(
                 configuration=configuration,
                 jinja2_environment=await project.jinja2_environment,
             )
 
-        return CallbackProjectDependentFactory(_factory)
+        return CallbackProjectDependentFactory(_factory)  # ty:ignore[invalid-return-type]
 
     @override
     async def _provide_data(self, document: Document) -> Mapping[str, Any]:

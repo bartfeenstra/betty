@@ -73,9 +73,7 @@ async def _get_formats() -> Sequence[Format]:
         project,
     ):
         return [
-            await project.new_target(
-                serde_format.cls,  # type: ignore[arg-type]
-            )
+            await project.new_target(serde_format.cls)
             for serde_format in sorted(
                 await project.plugins("format", check_requirements=False),
                 key=cmp_to_key(_cmp_formats),

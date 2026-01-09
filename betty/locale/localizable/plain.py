@@ -13,6 +13,7 @@ from betty.locale.localizable import Localizable
 
 if TYPE_CHECKING:
     from babel import Locale
+    from ty_extensions import Intersection
 
     from betty.locale.localize import Localizer
 
@@ -45,5 +46,5 @@ class Plain(Localizable):
         return self._locale
 
     @override
-    def localize(self, localizer: Localizer, /) -> HasLocale & str:
+    def localize(self, localizer: Localizer, /) -> Intersection[HasLocale, str]:
         return HasLocaleStr(self._text, locale=self._locale)

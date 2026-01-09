@@ -1,5 +1,5 @@
 from collections.abc import Awaitable, Callable, Iterable, Sequence
-from typing import Any, TypeVar
+from typing import Any, Literal, TypeVar
 
 import pytest
 
@@ -49,7 +49,7 @@ class TestDo:
     def _condition_raise_exception(self, result: int) -> None:
         raise self._ConditionException
 
-    def _condition_return_false(self, result: int) -> False:
+    def _condition_return_false(self, result: int) -> Literal[False]:
         return False
 
     async def test_until__should_return(self) -> None:

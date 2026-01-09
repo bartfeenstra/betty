@@ -70,8 +70,8 @@ class ServiceLevelPluginRepositoryProvider(PluginRepositoryProvider):
             if check_requirements:
                 repository = await CheckRequirementRepository.new(
                     plugin_type, repository, self._services
-                )
-            return repository
+                )  # ty:ignore[invalid-assignment]
+            return repository  # ty:ignore[invalid-return-type]
         # If the repository exists already, return it immediately so we avoid acquiring locks.
         repository = self._get(plugin_type, check_requirements)
         if repository:
@@ -86,11 +86,11 @@ class ServiceLevelPluginRepositoryProvider(PluginRepositoryProvider):
                     plugin_type,
                     await self.plugins(plugin_type, check_requirements=False),
                     self._services,
-                )
+                )  # ty:ignore[invalid-assignment]
             else:
                 repository = await self._new(plugin_type)
             self._plugin_repositories[plugin_type][check_requirements] = repository
-            return repository
+            return repository  # ty:ignore[invalid-return-type]
 
     def _get(
         self, plugin_type: type[_PluginDefinitionT], check_requirements: bool = True

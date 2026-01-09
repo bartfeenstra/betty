@@ -1,4 +1,4 @@
-from collections.abc import Iterator
+from collections.abc import Iterator, Set
 from typing import cast
 
 import pytest
@@ -89,7 +89,8 @@ class TestMap(ContentProviderTestBase):
         assert actual is not None
         assert place.public_id in actual
         assert "webpack_js_entry_points" in document
-        assert "maps" in document["webpack_js_entry_points"]  # type: ignore[operator]
+        assert isinstance(document["webpack_js_entry_points"], Set)
+        assert "maps" in document["webpack_js_entry_points"]
 
 
 class TestMapAttribution(ContentProviderTestBase):

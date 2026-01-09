@@ -6,8 +6,8 @@ from __future__ import annotations
 
 import decimal
 from abc import ABC, abstractmethod
-from collections.abc import Mapping
-from typing import Generic, TypeAlias, TypeVar
+from collections.abc import Mapping, MutableMapping
+from typing import TYPE_CHECKING, Generic, TypeAlias, TypeVar
 from warnings import warn
 
 from babel import Locale
@@ -15,6 +15,9 @@ from typing_extensions import override
 
 from betty.locale import HasLocale, HasLocaleStr, LocaleLike
 from betty.locale.localize import DEFAULT_LOCALIZER, Localizer
+
+if TYPE_CHECKING:
+    from ty_extensions import Intersection
 
 _T = TypeVar("_T")
 
@@ -40,7 +43,7 @@ class Localizable(_Localizable["Localizable"]):
     """
 
     @abstractmethod
-    def localize(self, localizer: Localizer, /) -> HasLocale & str:
+    def localize(self, localizer: Localizer, /) -> Intersection[HasLocale, str]:
         """
         Localize ``self`` to a human-readable string.
         """
@@ -101,7 +104,7 @@ class _FormattedLocalizable(Localizable):
         return self
 
     @override
-    def localize(self, localizer: Localizer, /) -> HasLocale & str:
+    def localize(self, localizer: Localizer, /) -> Intersection[HasLocale, str]:
         return HasLocaleStr(
             self._localizable.localize(localizer).format(
                 **{
@@ -132,7 +135,7 @@ class _FormattedCountableLocalizable(CountableLocalizable):
         )
 
 
-StaticTranslationsMapping: TypeAlias = Mapping[Locale | None, str]
+StaticTranslationsMapping: TypeAlias = MutableMapping[Locale | None, str]
 """
 Static translations for :py:class:`betty.locale.localizable.static.StaticTranslations`.
 
@@ -142,7 +145,9 @@ See :py:func:`betty.locale.localizable.assertion.assert_static_translations`.
 """
 
 
-ShorthandStaticTranslations: TypeAlias = Mapping[LocaleLike | None, str] | str
+ShorthandStaticTranslations: TypeAlias = (
+    MutableMapping[LocaleLike | None, str] | str | StaticTranslationsMapping
+)
 """
 Static translations for :py:class:`betty.locale.localizable.static.StaticTranslations`.
 
@@ -152,7 +157,9 @@ See :py:func:`betty.locale.localizable.assertion.assert_static_translations`.
 """
 
 
-CountableStaticTranslationsMapping: TypeAlias = Mapping[Locale, Mapping[str, str]]
+CountableStaticTranslationsMapping: TypeAlias = MutableMapping[
+    Locale, MutableMapping[str, str]
+]
 """
 Countable static translations for :py:class:`betty.locale.localizable.CountableStaticTranslations`.
 
@@ -162,7 +169,9 @@ See :py:func:`betty.locale.localizable.assertion.assert_countable_static_transla
 """
 
 
-ShorthandCountableStaticTranslations: TypeAlias = Mapping[LocaleLike, Mapping[str, str]]
+ShorthandCountableStaticTranslations: TypeAlias = MutableMapping[
+    LocaleLike, MutableMapping[str, str]
+]
 """
 Static translations for :py:class:`betty.locale.localizable.static.StaticTranslations`.
 

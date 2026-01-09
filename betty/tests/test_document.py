@@ -272,15 +272,7 @@ class TestDocument:
     )
     def test___eq__(self, expected: bool, sut_vars: Mapping[str, object]) -> None:
         assert (
-            Document(
-                **{  # type: ignore[arg-type]
-                    **self.VARS,
-                    **sut_vars,
-                }
-            )
-            == Document(
-                **self.VARS,  # type: ignore[arg-type]
-            )
+            Document(**{**self.VARS, **sut_vars}) == Document(**self.VARS)  # ty:ignore[invalid-argument-type]
         ) is expected
 
     def test_copy__minimal(self) -> None:

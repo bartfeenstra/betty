@@ -34,6 +34,8 @@ from betty.model.collections import (
 from betty.model.schema import ToManySchema, ToZeroOrOneSchema
 
 if TYPE_CHECKING:
+    from ty_extensions import Intersection
+
     from betty.portable import PortableData
     from betty.project import Project
 
@@ -249,7 +251,7 @@ class _ToOneAssociation(
 
     def __get__(self, instance: _OwnerT | None, owner: type[_OwnerT]):
         if instance is None:
-            return self  # type: ignore[return-value]
+            return self
         try:
             value = getattr(instance, self._internal_owner_attr_name)
         except AttributeError:
@@ -277,7 +279,7 @@ class _ToOneAssociation(
 
     @override
     async def dump_linked_data_for(
-        self, project: Project, target: _OwnerT & Entity, /
+        self, project: Project, target: Intersection[_OwnerT, Entity], /
     ) -> PortableData:
         associate = self.__get__(target, type(target))
         if self._linked_data_embedded:
@@ -307,7 +309,7 @@ class _ToZeroOrOneAssociation(
 
     def __get__(self, instance: _OwnerT | None, owner: type[_OwnerT]):
         if instance is None:
-            return self  # type: ignore[return-value]
+            return self
         try:
             value = getattr(instance, self._internal_owner_attr_name)
         except AttributeError:
@@ -344,7 +346,7 @@ class _ToZeroOrOneAssociation(
 
     @override
     async def dump_linked_data_for(
-        self, project: Project, target: _OwnerT & Entity, /
+        self, project: Project, target: Intersection[_OwnerT, Entity], /
     ) -> PortableData:
         associate = self.__get__(target, type(target))
         if associate is None:
@@ -372,7 +374,7 @@ class _ToManyAssociation(
 
     def __get__(self, instance: _OwnerT | None, owner: type[_OwnerT]):
         if instance is None:
-            return self  # type: ignore[return-value]
+            return self
         try:
             value = getattr(instance, self._internal_owner_attr_name)
         except AttributeError:
@@ -387,18 +389,24 @@ class _ToManyAssociation(
         if isinstance(value, _Resolver):
             setattr(instance, self._internal_owner_attr_name, value)
         else:
-            self.__get__(instance, type(instance)).replace(*value)
+            self.__get__(instance, type(instance)).replace(
+                *value,  # ty:ignore[invalid-argument-type]
+            )
 
     def __delete__(self, instance: _OwnerT) -> None:
         self.__get__(instance, type(instance)).clear()
 
     @override
     def associate(self, owner: _OwnerT, associate: _AssociateT, /) -> None:
-        self.__get__(owner, type(owner)).add(associate)
+        self.__get__(owner, type(owner)).add(
+            associate,  # ty:ignore[invalid-argument-type]
+        )
 
     @override
     def disassociate(self, owner: _OwnerT, associate: _AssociateT, /) -> None:
-        self.__get__(owner, type(owner)).remove(associate)
+        self.__get__(owner, type(owner)).remove(
+            associate,  # ty:ignore[invalid-argument-type]
+        )
 
     @override
     def get_associates(self, owner: _OwnerT, /) -> Iterable[_AssociateT]:
@@ -424,7 +432,7 @@ class _ToManyAssociation(
 
     @override
     async def dump_linked_data_for(
-        self, project: Project, target: _OwnerT & Entity, /
+        self, project: Project, target: Intersection[_OwnerT, Entity], /
     ) -> PortableData:
         associates = self.__get__(target, type(target))
         if self._linked_data_embedded:
@@ -561,7 +569,7 @@ class BidirectionalToOne(
 @final
 class BidirectionalToManySingleType(
     Generic[_OwnerT, _AssociateT],
-    _ToManyAssociation[_OwnerT, _AssociateT, SingleTypeEntityCollection[_AssociateT]],
+    _ToManyAssociation[_OwnerT, _AssociateT, SingleTypeEntityCollection[_AssociateT]],  # ty:ignore[invalid-type-arguments]
     _BidirectionalAssociation[_OwnerT, _AssociateT],
 ):
     r"""
@@ -579,7 +587,7 @@ class BidirectionalToManySingleType(
 class BidirectionalToManyMultipleTypes(
     Generic[_OwnerT, _AssociateT],
     _ToManyAssociation[
-        _OwnerT, _AssociateT, MultipleTypesEntityCollection[_AssociateT]
+        _OwnerT, _AssociateT, MultipleTypesEntityCollection[_AssociateT]  # ty:ignore[invalid-type-arguments]
     ],
     _BidirectionalAssociation[_OwnerT, _AssociateT],
 ):
@@ -632,7 +640,7 @@ class UnidirectionalToOne(
 @final
 class UnidirectionalToManySingleType(
     Generic[_OwnerT, _AssociateT],
-    _ToManyAssociation[_OwnerT, _AssociateT, SingleTypeEntityCollection[_AssociateT]],
+    _ToManyAssociation[_OwnerT, _AssociateT, SingleTypeEntityCollection[_AssociateT]],  # ty:ignore[invalid-type-arguments]
 ):
     """
     A unidirectional to-many entity type association where all associates are of the same entity type.
@@ -649,7 +657,7 @@ class UnidirectionalToManySingleType(
 class UnidirectionalToManyMultipleTypes(
     Generic[_OwnerT, _AssociateT],
     _ToManyAssociation[
-        _OwnerT, _AssociateT, MultipleTypesEntityCollection[_AssociateT]
+        _OwnerT, _AssociateT, MultipleTypesEntityCollection[_AssociateT]  # ty:ignore[invalid-type-arguments]
     ],
 ):
     """

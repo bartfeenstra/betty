@@ -10,7 +10,6 @@ Environment variables
 These impact the ``./bin/test.py`` command:
 
 * ``BETTY_TEST_SKIP_RUFF=true``: Skip Ruff tests.
-* ``BETTY_TEST_SKIP_MYPY=true``: Skip mypy tests.
 * ``BETTY_TEST_SKIP_STYLELINT=true``: Skip Stylelint tests.
 * ``BETTY_TEST_SKIP_TSC=true``: Skip tsc tests.
 * ``BETTY_TEST_SKIP_ESLINT=true``: Skip ESLint tests.

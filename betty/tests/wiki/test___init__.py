@@ -12,7 +12,7 @@ from betty.locale.localize import Localizer
 from betty.wiki import NotAPageError, parse_page_link, parse_page_url
 
 if TYPE_CHECKING:
-    from collections.abc import Mapping
+    from betty.locale.localizable import StaticTranslationsMapping
 
 _PAGE_URL_PARAMETERS = [
     (
@@ -98,7 +98,7 @@ async def test_parse_page_link__should_return(
         },
     ],
 )
-async def test_parse_page_link__should_error(urls: Mapping[str, str]) -> None:
+async def test_parse_page_link__should_error(urls: StaticTranslationsMapping) -> None:
     localizers = [
         Localizer("en", NullTranslations()),
         Localizer("nl", NullTranslations()),

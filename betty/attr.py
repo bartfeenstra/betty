@@ -26,11 +26,9 @@ class _Attr(Generic[_ValueT]):
     def __get__(self, instance: _OwnerT, owner: type[_OwnerT], /) -> _ValueT:
         pass
 
-    def __get__(
-        self, instance: object | None, owner: type[_OwnerT], /
-    ) -> _ValueT | _OwnerT:
+    def __get__(self, instance, owner):
         if instance is None:
-            return self  # type: ignore[return-value]
+            return self
         return self._check_get(instance, self._get(instance))
 
     def _get(self, instance: object, /) -> _ValueT | None:
