@@ -369,7 +369,7 @@ class TestPerson(EntityTestBase):
         person.parents.add(parent)
         person.children.add(child)
         link = Link("https://example.com/the-person")
-        link.label = "The Person Online"  # type: ignore[assignment]
+        link.label = "The Person Online"
         person.links.add(link)
         person.citations.add(
             Citation(

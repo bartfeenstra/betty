@@ -18,6 +18,8 @@ from betty.project import ProjectContext
 if TYPE_CHECKING:
     from collections.abc import MutableMapping, MutableSequence
 
+    from ty_extensions import Intersection
+
     from betty.job.scheduler import Scheduler
     from betty.machine_name import MachineName
     from betty.model import Entity
@@ -45,7 +47,7 @@ class PrivatizeAncestry(Job[ProjectContext]):
         user = project.app.user
 
         newly_privatized: MutableMapping[MachineName, int] = defaultdict(lambda: 0)
-        entities: MutableSequence[HasPrivacy & Entity] = []
+        entities: MutableSequence[Intersection[HasPrivacy, Entity]] = []
         for entity in project.ancestry:
             if isinstance(entity, HasPrivacy):
                 entities.append(entity)

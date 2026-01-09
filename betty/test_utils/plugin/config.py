@@ -96,7 +96,7 @@ class ConfigurableDummyPlugin(
     @classmethod
     def new_for_configuration(
         cls, configuration: DummyConfiguration
-    ) -> AnyFactoryTarget[Self]:
+    ) -> AnyFactoryTarget[Self]:  # ty:ignore[invalid-method-override]
         return lambda: cls(configuration=configuration)
 
 

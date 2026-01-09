@@ -174,20 +174,15 @@ class Place(HasLinks, HasFileReferences, HasNotes, HasPrivacy):
             await name.dump_linked_data(project) for name in self.names
         ]
         if self.coordinates is not None:
-            portable["coordinates"] = {
+            portable_coordinates: PortableMapping = {
                 "@type": "https://schema.org/GeoCoordinates",
                 "latitude": self.coordinates.latitude,
                 "longitude": self.coordinates.longitude,
             }
             dump_context(portable, coordinates="https://schema.org/geo")
-            dump_context(
-                portable["coordinates"],  # type: ignore[arg-type]
-                latitude="https://schema.org/latitude",
-            )
-            dump_context(
-                portable["coordinates"],  # type: ignore[arg-type]
-                longitude="https://schema.org/longitude",
-            )
+            dump_context(portable_coordinates, latitude="https://schema.org/latitude")
+            dump_context(portable_coordinates, longitude="https://schema.org/longitude")
+            portable["coordinates"] = portable_coordinates
         return portable
 
     @override

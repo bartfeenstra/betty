@@ -257,7 +257,6 @@ setuptools = [
 ]
 test = [
     'aioresponses ~= 0.7.8',
-    'basedmypy ~= 2.6',
     'coverage ~= 7.6',
     'packaging ~= 25.0',
     'puremagic ~= 1.28',
@@ -269,6 +268,7 @@ test = [
     'pytest-xdist ~= 3.8',
     'requests ~= 2.32',
     'ruff ~= 0.14.0',
+    'ty == 0.0.12',
     'types-aiofiles ~= 25.1',
     'types-babel ~= 2.11',
     'types-docutils ~= 0.21',
@@ -279,12 +279,12 @@ test = [
     'types-requests ~= 2.32',
     'types-setuptools ~= 80.0',
     'virtualenv ~= 20.27',
+    'yappi ~= 1.7',
     'yarl ~= 1.22',
     'betty[setuptools]',
 ]
 development = [
     'pytest-repeat ~= 0.9.4',
-    'yappi ~= 1.7',
     'betty[test]',
 ]
 ci = [

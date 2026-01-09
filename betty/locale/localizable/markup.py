@@ -18,6 +18,8 @@ from betty.locale.localizable.gettext import _
 if TYPE_CHECKING:
     from collections.abc import Sequence
 
+    from ty_extensions import Intersection
+
     from betty.locale.localize import Localizer
 
 
@@ -48,7 +50,7 @@ class _Join(_LocalizableSequence, Localizable):
     _SEPARATOR: ClassVar[str]
 
     @override
-    def localize(self, localizer: Localizer, /) -> HasLocale & str:
+    def localize(self, localizer: Localizer, /) -> Intersection[HasLocale, str]:
         return HasLocaleStr(
             self._SEPARATOR.join(
                 localized
@@ -100,7 +102,7 @@ class _List(_LocalizableSequence, Localizable):
     _TEMPLATE_RIGHT_TO_LEFT = "{localized} {prefix}"
 
     @override
-    def localize(self, localizer: Localizer, /) -> HasLocale & str:
+    def localize(self, localizer: Localizer, /) -> Intersection[HasLocale, str]:
         if not self.localizables:
             return HasLocaleStr("")
         localizeds = []
@@ -166,7 +168,7 @@ class _Enumeration(_LocalizableSequence, Localizable):
     _LOCALIZABLE: ClassVar[Localizable]
 
     @override
-    def localize(self, localizer: Localizer, /) -> HasLocale & str:
+    def localize(self, localizer: Localizer, /) -> Intersection[HasLocale, str]:
         if len(self.localizables) == 0:
             return HasLocaleStr("")
         if len(self.localizables) == 1:

@@ -13,8 +13,8 @@ from betty.assertion import (
 )
 from betty.console.command import Command, CommandDefinition, CommandFunction
 from betty.console.project import add_project_argument
-from betty.locale import translation
 from betty.locale.localizable.gettext import _
+from betty.locale.translation import project as translation_project
 
 if TYPE_CHECKING:
     import argparse
@@ -64,7 +64,7 @@ class UpdateTranslations(AppDependentSelfFactory, Command):
         self, project: Project, source: Path | None, exclude: tuple[Path] | None
     ) -> None:
         async with project:
-            await translation.project.update_project_translations(
+            await translation_project.update_project_translations(
                 project.project_directory_path,
                 source,
                 None if exclude is None else set(exclude),

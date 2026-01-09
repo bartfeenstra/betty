@@ -193,7 +193,7 @@ class TestCountableHumanFacingPluginDefinitionConfiguration(
             "id": "hello-world",
             "label": "-",
             "label_plural": label_plural,
-            "label_countable": label_countable,  # type: ignore[dict-item]
+            "label_countable": label_countable,
         }
         sut = CountableHumanFacingPluginDefinitionConfiguration.load(portable)
         assert sut.dump() == portable
@@ -467,15 +467,23 @@ class TestPluginInstanceConfigurationSequenceSequence(
     ]:
         return (
             PluginInstanceConfigurationSequence(
-                PluginInstanceConfiguration("my-first-plugin")
+                PluginInstanceConfiguration[DummyPluginDefinition, DummyPlugin](
+                    "my-first-plugin"
+                )
             ),
             PluginInstanceConfigurationSequence(
-                PluginInstanceConfiguration("my-second-plugin")
+                PluginInstanceConfiguration[DummyPluginDefinition, DummyPlugin](
+                    "my-second-plugin"
+                )
             ),
             PluginInstanceConfigurationSequence(
-                PluginInstanceConfiguration("my-third-plugin")
+                PluginInstanceConfiguration[DummyPluginDefinition, DummyPlugin](
+                    "my-third-plugin"
+                )
             ),
             PluginInstanceConfigurationSequence(
-                PluginInstanceConfiguration("my-fourth-plugin")
+                PluginInstanceConfiguration[DummyPluginDefinition, DummyPlugin](
+                    "my-fourth-plugin"
+                )
             ),
         )

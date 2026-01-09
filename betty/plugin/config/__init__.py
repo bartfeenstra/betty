@@ -5,7 +5,7 @@ Provide plugin configuration.
 from __future__ import annotations
 
 from abc import abstractmethod
-from collections.abc import Collection, Iterable, Mapping, Sequence
+from collections.abc import Collection, Iterable, MutableMapping, Sequence
 from typing import TYPE_CHECKING, Any, Generic, Self, TypeAlias, cast, final
 
 from typing_extensions import TypeVar, override
@@ -180,7 +180,7 @@ class HumanFacingPluginDefinitionConfiguration(PluginDefinitionConfiguration):
 
     @override
     @classmethod
-    def samples(cls) -> Iterable[Sample[Self]]:
+    def samples(cls) -> Iterable[Sample[Self]]:  # ty:ignore[invalid-method-override]
         yield Sample(
             cls(id="my-custom-plugin", label="My Custom Plugin"),
             label="Minimal",
@@ -250,7 +250,7 @@ class CountableHumanFacingPluginDefinitionConfiguration(
 
     @override
     @classmethod
-    def samples(cls) -> Iterable[Sample[Self]]:
+    def samples(cls) -> Iterable[Sample[Self]]:  # ty:ignore[invalid-method-override]
         yield Sample(
             cls(
                 id="my-custom-plugin",
@@ -340,14 +340,14 @@ class PluginDefinitionConfigurationMapping(
     def _load_key(
         cls, portable_item: PortableData, portable_key: str, /
     ) -> PortableData:
-        assert isinstance(portable_item, Mapping)
-        portable_item["id"] = portable_key
+        assert isinstance(portable_item, MutableMapping)
+        portable_item["id"] = portable_key  # ty:ignore[invalid-assignment]
         return portable_item
 
     @override
     def _dump_key(self, portable_item: PortableData, /) -> tuple[PortableData, str]:
-        assert isinstance(portable_item, Mapping)
-        return portable_item, cast(str, portable_item.pop("id"))
+        assert isinstance(portable_item, MutableMapping)
+        return portable_item, cast(str, portable_item.pop("id"))  # ty:ignore[invalid-argument-type]
 
 
 class PluginInstanceConfiguration(Configuration, Generic[_PluginDefinitionT, _PluginT]):
@@ -421,15 +421,13 @@ class PluginInstanceConfiguration(Configuration, Generic[_PluginDefinitionT, _Pl
         )
 
         yield Sample(
-            cls(
-                RaspberryMint,  # type: ignore[arg-type]
-            ),
+            cls(RaspberryMint),
             label="Minimal",
             minimal=True,
         )
         yield Sample(
             cls(
-                RaspberryMint,  # type: ignore[arg-type]
+                RaspberryMint,
                 RaspberryMintConfiguration(primary_color=ColorConfiguration("#ff0000")),
             ),
             label="Full",
@@ -459,7 +457,7 @@ class _PluginInstanceConfigurationCollection(
         /,
     ):
         if isinstance(configurations, PluginInstanceConfiguration):
-            configurations = [configurations]
+            configurations = [configurations]  # ty:ignore[invalid-assignment]
         super().__init__(configurations)
 
     @override
@@ -467,7 +465,7 @@ class _PluginInstanceConfigurationCollection(
     def _item_cls(
         cls,
     ) -> type[PluginInstanceConfiguration[_PluginDefinitionT, _PluginT]]:
-        return PluginInstanceConfiguration
+        return PluginInstanceConfiguration[_PluginDefinitionT, _PluginT]
 
 
 class PluginInstanceConfigurationMapping(
@@ -510,16 +508,21 @@ class PluginInstanceConfigurationMapping(
     ) -> PortableData:
         if not portable_item:
             return portable_key
-        assert isinstance(portable_item, Mapping)
-        portable_item["id"] = portable_key
+        assert isinstance(portable_item, MutableMapping)
+        portable_item["id"] = portable_key  # ty:ignore[invalid-assignment]
         return portable_item
 
     @override
     def _dump_key(self, portable_item: PortableData, /) -> tuple[PortableData, str]:
         if isinstance(portable_item, str):
             return {}, portable_item
-        assert isinstance(portable_item, Mapping)
-        return portable_item, cast(str, portable_item.pop("id"))
+        assert isinstance(portable_item, MutableMapping)
+        return portable_item, cast(
+            str,
+            portable_item.pop(
+                "id",  # ty:ignore[invalid-argument-type]
+            ),
+        )
 
     @override
     @classmethod
@@ -545,9 +548,7 @@ class PluginInstanceConfigurationSequence(
 
     @override
     @classmethod
-    def samples(
-        cls,
-    ) -> Iterable[Sample[Self]]:
+    def samples(cls) -> Iterable[Sample[Self]]:
         yield Sample(cls(), label="Minimal", minimal=True)
         yield Sample(
             cls([get_full_sample(PluginInstanceConfiguration).configuration]),
@@ -582,20 +583,15 @@ class PluginInstanceConfigurationSequenceSequence(
         /,
     ):
         if isinstance(configurations, PluginInstanceConfiguration):
-            configurations = [configurations]
-        super().__init__(
-            configuration
-            if isinstance(configuration, PluginInstanceConfigurationSequence)
-            else PluginInstanceConfigurationSequence(configuration)
-            for configuration in configurations
-        )
+            configurations = [PluginInstanceConfigurationSequence([configurations])]  # ty:ignore[invalid-assignment]
+        super().__init__(configurations)
 
     @override
     @classmethod
     def _item_cls(
         cls,
     ) -> type[PluginInstanceConfigurationSequence[_PluginDefinitionT, _PluginT]]:
-        return PluginInstanceConfigurationSequence
+        return PluginInstanceConfigurationSequence[_PluginDefinitionT, _PluginT]
 
     @override
     @classmethod
@@ -603,7 +599,7 @@ class PluginInstanceConfigurationSequenceSequence(
         yield Sample(
             cls(
                 [
-                    next(  # type: ignore[list-item]
+                    next(
                         iter(PluginInstanceConfigurationSequence.samples())
                     ).configuration
                 ]

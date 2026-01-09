@@ -23,7 +23,7 @@ class TestUnknownAsset:
 
 class TestStaticAssetRepository:
     @pytest.fixture
-    def sut(self, tmp_path: Path) -> tuple[AssetRepository, Path, Path]:
+    def sut_data(self, tmp_path: Path) -> tuple[AssetRepository, Path, Path]:
         source_path_1 = tmp_path / "one"
         source_path_1.mkdir()
         (source_path_1 / "apples").touch()
@@ -56,8 +56,8 @@ class TestStaticAssetRepository:
                 sut = StaticAssetRepository(source_path_1, source_path_2)
                 assert sut.assets_directory_paths == (source_path_1, source_path_2)
 
-    async def test_get(self, sut: tuple[AssetRepository, Path, Path]) -> None:
-        sut, source_path_1, source_path_2 = sut
+    async def test_get(self, sut_data: tuple[AssetRepository, Path, Path]) -> None:
+        sut, source_path_1, source_path_2 = sut_data
         assert await sut.get(Path("apples")) == source_path_1 / "apples"
         assert (
             await sut.get(Path("one") / "oranges") == source_path_1 / "one" / "oranges"
@@ -67,14 +67,14 @@ class TestStaticAssetRepository:
         )
 
     async def test_get__with_unknown_asset(
-        self, sut: tuple[AssetRepository, Path, Path]
+        self, sut_data: tuple[AssetRepository, Path, Path]
     ) -> None:
-        sut, _, _ = sut
+        sut, _, _ = sut_data
         with pytest.raises(UnknownAsset):
             await sut.get(Path("my-first-unknown-asset"))
 
-    async def test_walk(self, sut: tuple[AssetRepository, Path, Path]) -> None:
-        sut, source_path_1, source_path_2 = sut
+    async def test_walk(self, sut_data: tuple[AssetRepository, Path, Path]) -> None:
+        sut, source_path_1, source_path_2 = sut_data
         assert {path async for path in sut.walk()} == {
             Path("apples"),
             Path("basket") / "tomatoes",
@@ -85,9 +85,9 @@ class TestStaticAssetRepository:
         }
 
     async def test_walk_with_filter(
-        self, sut: tuple[AssetRepository, Path, Path]
+        self, sut_data: tuple[AssetRepository, Path, Path]
     ) -> None:
-        sut, source_path_1, source_path_2 = sut
+        sut, source_path_1, source_path_2 = sut_data
         assert {path async for path in sut.walk(Path("one"))} == {
             Path("one") / "oranges"
         }

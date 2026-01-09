@@ -96,7 +96,7 @@ def negotiate_locale(
     """
     if isinstance(preferred_locales, Locale):
         preferred_locales = [preferred_locales]
-    preferred_locale_babel_identifiers = list(map(str, preferred_locales))
+    preferred_locale_babel_identifiers = list(map(str, preferred_locales))  # ty:ignore[invalid-argument-type]
     available_locale_babel_identifiers = list(map(str, available_locales))
     negotiated_locale = Locale.negotiate(
         preferred_locale_babel_identifiers, available_locale_babel_identifiers

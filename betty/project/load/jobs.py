@@ -18,12 +18,13 @@ from betty.media_type import InvalidMediaType, MediaType
 from betty.project import Project, ProjectContext
 
 if TYPE_CHECKING:
-    from collections.abc import Iterable, MutableMapping
+    from collections.abc import Iterable
 
     from babel import Locale
 
     from betty.ancestry.link import Link
     from betty.job.scheduler import Scheduler
+    from betty.locale.localizable import StaticTranslationsMapping
 
 
 @final
@@ -58,8 +59,8 @@ class PopulateLink(Job[ProjectContext]):
         urls_to_locales = defaultdict(set)
         for locale, url in urls.translations.items():
             urls_to_locales[url].add(locale)
-        labels: MutableMapping[Locale, str] = {}
-        descriptions: MutableMapping[Locale, str] = {}
+        labels: StaticTranslationsMapping = {}
+        descriptions: StaticTranslationsMapping = {}
         await gather(
             *(
                 self._populate_link_from_url(
@@ -82,8 +83,8 @@ class PopulateLink(Job[ProjectContext]):
         project: Project,
         url: str,
         locales: Iterable[Locale],
-        labels: MutableMapping[Locale, str],
-        descriptions: MutableMapping[Locale, str],
+        labels: StaticTranslationsMapping,
+        descriptions: StaticTranslationsMapping,
     ) -> None:
         http_client = await project.app.http_client
         try:

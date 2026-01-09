@@ -37,7 +37,7 @@ class TestSchema(SchemaTestBase):
 
     @override
     @pytest.fixture(params=_sut_params())
-    def sut(self, request: pytest.FixtureRequest) -> SchemaTestBaseSut:
+    def sut_data(self, request: pytest.FixtureRequest) -> SchemaTestBaseSut:
         return cast(SchemaTestBaseSut, request.param)
 
     def test_def_name__from___init__(self) -> None:
@@ -111,7 +111,7 @@ class TestArray(SchemaTestBase):
 
     @override
     @pytest.fixture(params=_sut_params())
-    def sut(self, request: pytest.FixtureRequest) -> SchemaTestBaseSut:
+    def sut_data(self, request: pytest.FixtureRequest) -> SchemaTestBaseSut:
         return cast(SchemaTestBaseSut, request.param)
 
 
@@ -124,14 +124,14 @@ class TestDef:
 class TestRef(SchemaTestBase):
     @override
     @pytest.fixture
-    def sut(self) -> SchemaTestBaseSut:
+    def sut_data(self) -> SchemaTestBaseSut:
         return (Ref("someDefinition"), [], [])
 
 
 class TestJsonSchemaReference(SchemaTestBase):
     @override
     @pytest.fixture
-    def sut(self) -> SchemaTestBaseSut:
+    def sut_data(self) -> SchemaTestBaseSut:
         return (
             JsonSchemaReference(),
             ["https://json-schema.org/draft/2020-12/schema"],
@@ -142,28 +142,28 @@ class TestJsonSchemaReference(SchemaTestBase):
 class TestJsonSchemaSchema(SchemaTestBase):
     @override
     @pytest.fixture
-    def sut(self) -> SchemaTestBaseSut:
+    def sut_data(self) -> SchemaTestBaseSut:
         return (JsonSchemaSchema(), [], [])
 
 
 class TestString(SchemaTestBase):
     @override
     @pytest.fixture
-    def sut(self) -> SchemaTestBaseSut:
+    def sut_data(self) -> SchemaTestBaseSut:
         return (String(), ["", "abc"], [True, False, None, 123, [], {}])
 
 
 class TestNumber(SchemaTestBase):
     @override
     @pytest.fixture
-    def sut(self) -> SchemaTestBaseSut:
+    def sut_data(self) -> SchemaTestBaseSut:
         return (Number(), [-123, 0, 123, 0.1, 9.9], [True, False, None, "", [], {}])
 
 
 class TestInteger(SchemaTestBase):
     @override
     @pytest.fixture
-    def sut(self) -> SchemaTestBaseSut:
+    def sut_data(self) -> SchemaTestBaseSut:
         return (
             Integer(),
             [-123, 0, 123, 999],
@@ -174,14 +174,14 @@ class TestInteger(SchemaTestBase):
 class TestBoolean(SchemaTestBase):
     @override
     @pytest.fixture
-    def sut(self) -> SchemaTestBaseSut:
+    def sut_data(self) -> SchemaTestBaseSut:
         return (Boolean(), [True, False], [None, "", 123, [], {}])
 
 
 class TestObject(SchemaTestBase):
     @override
     @pytest.fixture
-    def sut(self) -> SchemaTestBaseSut:
+    def sut_data(self) -> SchemaTestBaseSut:
         return (Object(), [{}], [None, "", 0.1, 9.9, []])
 
     def test_add_property(self) -> None:
@@ -223,14 +223,14 @@ class TestConst(SchemaTestBase):
 
     @override
     @pytest.fixture(params=_sut_params())
-    def sut(self, request: pytest.FixtureRequest) -> SchemaTestBaseSut:
+    def sut_data(self, request: pytest.FixtureRequest) -> SchemaTestBaseSut:
         return cast(SchemaTestBaseSut, request.param)
 
 
 class TestEnum(SchemaTestBase):
     @override
     @pytest.fixture
-    def sut(self) -> SchemaTestBaseSut:
+    def sut_data(self) -> SchemaTestBaseSut:
         return (
             Enum(True, "abc", 123),
             [True, "abc", 123],
@@ -241,7 +241,7 @@ class TestEnum(SchemaTestBase):
 class TestNull(SchemaTestBase):
     @override
     @pytest.fixture
-    def sut(self) -> SchemaTestBaseSut:
+    def sut_data(self) -> SchemaTestBaseSut:
         return (
             Null(),
             [None],
@@ -252,7 +252,7 @@ class TestNull(SchemaTestBase):
 class TestAllOf(SchemaTestBase):
     @override
     @pytest.fixture
-    def sut(self) -> SchemaTestBaseSut:
+    def sut_data(self) -> SchemaTestBaseSut:
         return (
             AllOf(String(min_length=3), String(max_length=3)),
             ["abc"],
@@ -280,14 +280,14 @@ class TestAnyOf(SchemaTestBase):
 
     @override
     @pytest.fixture(params=_sut_params())
-    def sut(self, request: pytest.FixtureRequest) -> SchemaTestBaseSut:
+    def sut_data(self, request: pytest.FixtureRequest) -> SchemaTestBaseSut:
         return cast(SchemaTestBaseSut, request.param)
 
 
 class TestOneOf(SchemaTestBase):
     @override
     @pytest.fixture
-    def sut(self) -> SchemaTestBaseSut:
+    def sut_data(self) -> SchemaTestBaseSut:
         return (
             OneOf(String(), Integer()),
             ["abc", 123],

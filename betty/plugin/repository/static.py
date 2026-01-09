@@ -41,7 +41,7 @@ class StaticPluginRepository(PluginRepository[_PluginDefinitionT]):
     @override
     def get(self, plugin_id: MachineName, /) -> _PluginDefinitionT:
         try:
-            return self._plugins[plugin_id]
+            return self._plugins[plugin_id]  # ty:ignore[invalid-return-type]
         except KeyError:
             raise PluginNotFound(self.type.type(), plugin_id, list(self)) from None
 

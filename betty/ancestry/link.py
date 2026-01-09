@@ -83,16 +83,18 @@ class Link(HasMediaType, HasDescription, HasPrivacy, Entity):
         if owner is not None:
             self.owner = owner
 
-    @override
     @property
     def url(self) -> Localizable:
+        """
+        The URL the link points to.
+        """
         return self._url
 
     @url.setter
     def url(self, url: LocalizableLike) -> None:
         self._url = url
 
-    @override  # type: ignore[explicit-override]
+    @override
     @property
     def label(self) -> Localizable:
         """
@@ -159,6 +161,6 @@ class Link(HasMediaType, HasDescription, HasPrivacy, Entity):
     @override
     def _get_effective_privacy(self) -> Privacy:
         privacy = super()._get_effective_privacy()
-        if isinstance(self.owner, HasPrivacy):  # type: ignore[redundant-expr]
-            return merge_privacies(privacy, self.owner)  # type: ignore[unreachable]
+        if isinstance(self.owner, HasPrivacy):
+            return merge_privacies(privacy, self.owner)
         return privacy

@@ -4,7 +4,7 @@ Localizers provide a wide range of localization utilities through a single entry
 
 from __future__ import annotations
 
-import gettext
+import gettext as gettext_api
 from typing import TYPE_CHECKING, final
 
 from betty.locale import (
@@ -20,6 +20,7 @@ if TYPE_CHECKING:
     from collections.abc import MutableMapping
 
     from babel import Locale
+    from ty_extensions import Intersection
 
     from betty.locale.translation import TranslationRepository
 
@@ -30,7 +31,9 @@ class Localizer:
     Localize a variety of data into a specific locale.
     """
 
-    def __init__(self, locale: LocaleLike, translations: gettext.NullTranslations, /):
+    def __init__(
+        self, locale: LocaleLike, translations: gettext_api.NullTranslations, /
+    ):
         self._locale = ensure_locale(locale)
         self._translations = translations
 
@@ -41,7 +44,7 @@ class Localizer:
         """
         return self._locale
 
-    def _(self, message: str, /) -> HasLocale & str:
+    def _(self, message: str, /) -> Intersection[HasLocale, str]:
         """
         Like :py:meth:`gettext.gettext`.
 
@@ -49,7 +52,7 @@ class Localizer:
         """
         return HasLocaleStr(self._translations.gettext(message), locale=self._locale)
 
-    def gettext(self, message: str, /) -> HasLocale & str:
+    def gettext(self, message: str, /) -> Intersection[HasLocale, str]:
         """
         Like :py:meth:`gettext.gettext`.
 
@@ -59,7 +62,7 @@ class Localizer:
 
     def ngettext(
         self, message_singular: str, message_plural: str, n: int, /
-    ) -> HasLocale & str:
+    ) -> Intersection[HasLocale, str]:
         """
         Like :py:meth:`gettext.ngettext`.
 
@@ -70,7 +73,7 @@ class Localizer:
             locale=self._locale,
         )
 
-    def pgettext(self, context: str, message: str, /) -> HasLocale & str:
+    def pgettext(self, context: str, message: str, /) -> Intersection[HasLocale, str]:
         """
         Like :py:meth:`gettext.pgettext`.
 
@@ -82,7 +85,7 @@ class Localizer:
 
     def npgettext(
         self, context: str, message_singular: str, message_plural: str, n: int, /
-    ) -> HasLocale & str:
+    ) -> Intersection[HasLocale, str]:
         """
         Like :py:meth:`gettext.npgettext`.
 
@@ -94,7 +97,7 @@ class Localizer:
         )
 
 
-DEFAULT_LOCALIZER = Localizer(DEFAULT_LOCALE, gettext.NullTranslations())
+DEFAULT_LOCALIZER = Localizer(DEFAULT_LOCALE, gettext_api.NullTranslations())
 
 
 @final
@@ -121,6 +124,6 @@ class LocalizerRepository:
             try:
                 translations = self._translations.get(locale)
             except UntranslatedLocale:
-                translations = gettext.NullTranslations()
+                translations = gettext_api.NullTranslations()
             self._localizers[locale] = Localizer(locale, translations)
             return self._localizers[locale]

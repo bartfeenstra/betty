@@ -188,7 +188,7 @@ def filter_format_degrees(degrees: int) -> str:
         "minutes": round(abs(arcminutes)),
         "seconds": round(abs(arcseconds)),
     }
-    return DEGREES_FORMAT % format_dict  # type: ignore[no-any-return]
+    return DEGREES_FORMAT % format_dict
 
 
 async def filter_unique(values: Iterable[_T]) -> AsyncIterator[_T]:

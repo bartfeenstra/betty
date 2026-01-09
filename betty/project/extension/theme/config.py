@@ -60,10 +60,10 @@ class RegionalContentConfiguration(Configuration):
             {}
             if content is None
             else {
-                region: PluginInstanceConfigurationSequence(region_content)
+                region: PluginInstanceConfigurationSequence(region_content)  # ty:ignore[invalid-argument-type]
                 for region, region_content in content.items()
             },
-        )
+        )  # ty:ignore[no-matching-overload]
 
     def __getitem__(
         self, region: str
@@ -139,7 +139,7 @@ class RegionalContentConfiguration(Configuration):
                     "a-theme-region": PluginInstanceConfiguration(
                         Render, RenderConfiguration("Hello, world!")
                     )
-                }
+                }  # ty:ignore[invalid-argument-type]
             ),
             label="Default",
         )

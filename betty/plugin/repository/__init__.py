@@ -12,6 +12,7 @@ from typing_extensions import TypeVar
 from betty.plugin import PluginDefinition
 
 if TYPE_CHECKING:
+    import builtins
     from collections.abc import Iterator
 
     from betty.machine_name import MachineName
@@ -26,11 +27,11 @@ class PluginRepository(ABC, Generic[_PluginDefinitionT]):
     Access discovered plugins.
     """
 
-    def __init__(self, plugin_type: type[_PluginDefinitionT]):
+    def __init__(self, plugin_type: builtins.type[_PluginDefinitionT]):
         self._type = plugin_type
 
     @property
-    def type(self) -> type[_PluginDefinitionT]:
+    def type(self) -> builtins.type[_PluginDefinitionT]:
         """
         The plugin type contained by this repository.
         """

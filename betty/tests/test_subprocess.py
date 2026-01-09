@@ -1,5 +1,6 @@
 from asyncio.subprocess import Process
 from pathlib import Path
+from shutil import which
 
 import aiofiles
 import pytest
@@ -39,7 +40,9 @@ sys.exit(1)"""
         await f.write(python_script)
     with pytest.raises(SubprocessError):
         await run_process(
-            ["python", "-W", "ignore", str(script_path)], shell=shell, user=user
+            [which("python"), "-W", "ignore", str(script_path)],  # ty:ignore[invalid-argument-type]
+            shell=shell,
+            user=user,
         )
     user.assert_not_message_debug("stdout:\n")
     user.assert_not_message_debug("stderr:\n")
@@ -68,7 +71,9 @@ sys.exit(1)"""
         await f.write(python_script)
     with pytest.raises(SubprocessError):
         await run_process(
-            ["python", "-W", "ignore", str(script_path)], shell=shell, user=user
+            [which("python"), "-W", "ignore", str(script_path)],  # ty:ignore[invalid-argument-type]
+            shell=shell,
+            user=user,
         )
     user.assert_message_debug(["stdout:", stdout_sentinel])
     user.assert_message_debug(["stderr:", stderr_sentinel])

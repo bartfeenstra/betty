@@ -2,7 +2,6 @@
 Provide the Documentation API.
 """
 
-import multiprocessing
 from asyncio import to_thread
 from contextlib import AsyncExitStack
 from pathlib import Path
@@ -37,14 +36,17 @@ async def _build(
     # dedicated cache directory.
     source_directory_path = cache_directory_path / "source"
     await to_thread(
-        copytree, ROOT_DIRECTORY_PATH / "documentation", source_directory_path
+        copytree,
+        ROOT_DIRECTORY_PATH / "documentation",  # ty:ignore[invalid-argument-type]
+        source_directory_path,
     )
     sphinx_app = Sphinx(
         buildername="dirhtml",
         confdir=str(source_directory_path),
         doctreedir=str(cache_directory_path / ".doctrees"),
         outdir=str(output_directory_path),
-        parallel=multiprocessing.cpu_count(),
+        # @todo
+        # parallel=multiprocessing.cpu_count(),
         srcdir=str(source_directory_path),
         verbosity=9 if user.verbosity is Verbosity.MOST_VERBOSE else 0,
         warningiserror=True,
@@ -52,8 +54,8 @@ async def _build(
     # Work around a bug in Sphinx where MethodDocumenter.can_document_member would erroneously consider our descriptors
     # as methods resulting in errors being raised because said descriptors are not callable and do not have a signature.
     original_can_document_member = MethodDocumenter.can_document_member
-    MethodDocumenter.can_document_member = (  # type: ignore[method-assign]
-        lambda member, membername, isattr, parent: original_can_document_member(  # type: ignore[callable-functiontype,misc]
+    MethodDocumenter.can_document_member = (  # ty:ignore[invalid-assignment]
+        lambda member, membername, isattr, parent: original_can_document_member(
             member, membername, isattr, parent
         )
         and callable(member)
@@ -61,7 +63,7 @@ async def _build(
     try:
         sphinx_app.build()
     finally:
-        MethodDocumenter.can_document_member = original_can_document_member  # type: ignore[method-assign]
+        MethodDocumenter.can_document_member = original_can_document_member  # ty:ignore[invalid-assignment]
     if sphinx_app.statuscode != 0:
         raise HumanFacingException("Sphinx failed.")
 

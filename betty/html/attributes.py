@@ -47,7 +47,7 @@ class _Attribute(Generic[_AttributeGetT, _AttributeSetT], ABC):
         self, instance: Attributes | None, owner: type[Attributes]
     ) -> _AttributeGetT | Self:
         if instance is None:
-            return self  # type: ignore[return-value]
+            return self
         return self.get(instance)
 
     def get(self, instance: Attributes) -> _AttributeGetT:

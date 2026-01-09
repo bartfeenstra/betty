@@ -21,7 +21,8 @@ from betty.project.factory import ProjectDependentSelfFactory
 from betty.project.load import PostLoader
 from betty.service.container import service
 from betty.typing import private
-from betty.wiki import NotAPageError, parse_page_url, populator
+from betty.wiki import NotAPageError, parse_page_url
+from betty.wiki import populator as populator_api
 from betty.wiki.client import Client, ClientError, Summary
 
 if TYPE_CHECKING:
@@ -133,11 +134,11 @@ class Wiki(
         )
 
     @service
-    async def populator(self) -> populator.Populator:
+    async def populator(self) -> populator_api.Populator:
         """
         The ancestry populator.
         """
-        return populator.Populator(
+        return populator_api.Populator(
             self._project.ancestry,
             list(self._project.configuration.locales),
             await self._project.localizers,

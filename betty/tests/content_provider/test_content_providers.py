@@ -222,7 +222,7 @@ class TestBoxConfiguration(ConfigurationTestBase[BoxConfiguration]):
     sut_cls = BoxConfiguration
 
     def test_content(self) -> None:
-        sut = BoxConfiguration(PluginInstanceConfiguration("my-first-content"))
+        sut = BoxConfiguration(PluginInstanceConfiguration("my-first-content"))  # ty:ignore[invalid-argument-type]
         assert sut.content[0].id == "my-first-content"
 
     def test_load__minimal(self) -> None:
@@ -257,7 +257,7 @@ class TestBoxConfiguration(ConfigurationTestBase[BoxConfiguration]):
         assert sut.width == "WIDTH"
 
     def test_dump__minimal(self) -> None:
-        sut = BoxConfiguration(PluginInstanceConfiguration("my-first-content"))
+        sut = BoxConfiguration(PluginInstanceConfiguration("my-first-content"))  # ty:ignore[invalid-argument-type]
         assert sut.dump() == {
             "content": [
                 "my-first-content",
@@ -266,7 +266,7 @@ class TestBoxConfiguration(ConfigurationTestBase[BoxConfiguration]):
 
     def test_dump__full(self) -> None:
         sut = BoxConfiguration(
-            PluginInstanceConfiguration("my-first-content"),
+            PluginInstanceConfiguration("my-first-content"),  # ty:ignore[invalid-argument-type]
             min_height="MIN_HEIGHT",
             max_height="MAX_HEIGHT",
             height="HEIGHT",
@@ -293,11 +293,11 @@ class TestBox(ContentProviderTestBase):
     async def sut(self, isolated_app: App) -> ContentProvider:
         async with Project.new_isolated(isolated_app) as project, project:
             return await project.new_target(
-                Box.new_for_configuration(  # type: ignore[arg-type]
+                Box.new_for_configuration(
                     BoxConfiguration(
                         PluginInstanceConfiguration(
                             Render, RenderConfiguration(DUMMY_LOCALIZABLE)
-                        )
+                        )  # ty:ignore[invalid-argument-type]
                     )
                 )
             )
@@ -309,7 +309,7 @@ class TestBox(ContentProviderTestBase):
                     BoxConfiguration(
                         PluginInstanceConfiguration(
                             Render, RenderConfiguration(DUMMY_LOCALIZABLE)
-                        )
+                        )  # ty:ignore[invalid-argument-type]
                     )
                 )
             )
@@ -324,7 +324,7 @@ class TestBox(ContentProviderTestBase):
                     BoxConfiguration(
                         PluginInstanceConfiguration(
                             Render, RenderConfiguration(DUMMY_LOCALIZABLE)
-                        ),
+                        ),  # ty:ignore[invalid-argument-type]
                         min_height="MIN_HEIGHT",
                         max_height="MAX_HEIGHT",
                         height="HEIGHT",

@@ -30,7 +30,7 @@ class HasLocale(StdHasLocale, LinkedDataDumpableWithSchemaJsonLdObject):
     A resource that is localized, e.g. contains information in a specific locale.
     """
 
-    @override  # type: ignore[explicit-override]
+    @override
     @property
     def locale(self) -> Locale | None:
         return self._locale

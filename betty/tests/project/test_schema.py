@@ -5,7 +5,9 @@ from typing import TYPE_CHECKING
 import pytest
 from typing_extensions import override
 
-import betty
+from betty.ancestry.event import Event
+from betty.ancestry.person import Person
+from betty.ancestry.place import Place
 from betty.json.schema import JsonSchemaSchema
 from betty.project import Project
 from betty.project.schema import ProjectSchema
@@ -30,7 +32,7 @@ class TestProjectSchema(SchemaTestBase):
 
     @override
     @pytest.fixture(params=_sut_params())
-    async def sut(
+    async def sut_data(
         self, isolated_app: App, request: pytest.FixtureRequest
     ) -> SchemaTestBaseSut:
         url, clean_urls = request.param
@@ -41,9 +43,9 @@ class TestProjectSchema(SchemaTestBase):
                 return (
                     await ProjectSchema.new_for_project(project),
                     [
-                        await betty.ancestry.person.Person().dump_linked_data(project),
-                        await betty.ancestry.place.Place().dump_linked_data(project),
-                        await betty.ancestry.event.Event().dump_linked_data(project),
+                        await Person().dump_linked_data(project),
+                        await Place().dump_linked_data(project),
+                        await Event().dump_linked_data(project),
                     ],
                     [],
                 )

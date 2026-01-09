@@ -21,6 +21,7 @@ from typing import (
 )
 
 import aiofiles
+from aiofiles.os import makedirs, remove
 from aiofiles.ospath import getmtime
 from typing_extensions import override
 
@@ -70,7 +71,7 @@ class _PickledFileCacheItem(
 ):
     @override
     async def _load_value(self, value_bytes: bytes) -> _CacheItemValueCoT:
-        return loads(value_bytes)  # type: ignore[no-any-return]
+        return loads(value_bytes)
 
 
 @final
@@ -148,13 +149,13 @@ class _FileCache(
         suffix: str | None = None,
         modified: int | float | None = None,
     ) -> None:
-        value = self._dump_value(value)
+        value_bytes = self._dump_value(value)
         cache_item_file_path = self._cache_item_file_path(cache_item_id, suffix)
         try:
-            await self._write(cache_item_file_path, value, modified)
+            await self._write(cache_item_file_path, value_bytes, modified)
         except FileNotFoundError:
-            await aiofiles.os.makedirs(cache_item_file_path.parent, exist_ok=True)
-            await self._write(cache_item_file_path, value, modified)
+            await makedirs(cache_item_file_path.parent, exist_ok=True)
+            await self._write(cache_item_file_path, value_bytes, modified)
 
     async def _write(
         self,
@@ -170,7 +171,7 @@ class _FileCache(
     @override
     async def delete(self, cache_item_id: str, *, suffix: str | None = None) -> None:
         with suppress(FileNotFoundError):
-            await aiofiles.os.remove(self._cache_item_file_path(cache_item_id, suffix))
+            await remove(self._cache_item_file_path(cache_item_id, suffix))
 
     @override
     async def clear(self) -> None:

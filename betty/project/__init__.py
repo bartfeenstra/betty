@@ -143,7 +143,7 @@ class Project(
     ) -> PluginRepository[_PluginDefinitionT]:
         return await self._plugin_repository_provider.plugins(
             plugin_type, check_requirements=check_requirements
-        )
+        )  # ty:ignore[invalid-return-type]
 
     @classmethod
     @asynccontextmanager
@@ -426,7 +426,7 @@ class Project(
             or isinstance(target, type)
             and issubclass(target, ProjectDependentSelfFactory)
         ):
-            return cast(_T, await target.new_for_project(self))
+            return await target.new_for_project(self)
         return await self.app.new_target(cast(AppTarget[_T], target))
 
     @property
@@ -498,7 +498,7 @@ class Project(
                 if isinstance(extension, DocumentProvider)
                 for (key, value) in extension.new_document_vars().items()
             },
-            **kwargs,  # type: ignore[arg-type]
+            **kwargs,
         )
 
 

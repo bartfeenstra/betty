@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from collections.abc import Mapping, Sequence
+from collections.abc import Mapping, MutableMapping, Sequence
 from typing import TYPE_CHECKING, Any, Self, cast
 
 import pytest
@@ -73,14 +73,14 @@ class ConfigurationMappingTestConfigurationMapping(
     def _load_key(
         cls, portable_item: PortableData, portable_key: str, /
     ) -> PortableData:
-        assert isinstance(portable_item, Mapping)
-        portable_item["key"] = portable_key
+        assert isinstance(portable_item, MutableMapping)
+        portable_item["key"] = portable_key  # ty:ignore[invalid-assignment]
         return portable_item
 
     @override
     def _dump_key(self, portable_item: PortableData, /) -> tuple[PortableData, str]:
-        assert isinstance(portable_item, Mapping)
-        return portable_item, cast(str, portable_item.pop("key"))
+        assert isinstance(portable_item, MutableMapping)
+        return portable_item, cast(str, portable_item.pop("key"))  # ty:ignore[invalid-argument-type]
 
 
 class TestConfigurationMapping(

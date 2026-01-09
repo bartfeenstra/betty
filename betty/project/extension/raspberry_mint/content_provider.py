@@ -100,7 +100,7 @@ class SectionConfiguration(Configuration):
     ):
         super().__init__()
         self.heading = ensure_localizable(heading)
-        self._content = PluginInstanceConfigurationSequence(content)
+        self._content = PluginInstanceConfigurationSequence(content)  # ty:ignore[invalid-argument-type]
         self.name = name
         self.visually_hide_heading = visually_hide_heading
 
@@ -113,7 +113,7 @@ class SectionConfiguration(Configuration):
         """
         The content within this section.
         """
-        return self._content
+        return self._content  # ty:ignore[invalid-return-type]
 
     @override
     @classmethod
@@ -160,7 +160,7 @@ class SectionConfiguration(Configuration):
 
         yield Sample(
             cls(
-                PluginInstanceConfiguration("my-first-content"),
+                PluginInstanceConfiguration("my-first-content"),  # ty:ignore[invalid-argument-type]
                 heading=DUMMY_LOCALIZABLE,
             ),
             label="Minimal",
@@ -187,7 +187,9 @@ class Section(
     ):
         super().__init__(
             configuration=SectionConfiguration(
-                PluginInstanceConfiguration("my-first-plugin"), name="", heading="-"
+                PluginInstanceConfiguration("my-first-plugin"),  # ty:ignore[invalid-argument-type]
+                name="",
+                heading="-",
             )
             if configuration is None
             else configuration,
@@ -203,14 +205,14 @@ class Section(
     @classmethod
     def new_for_configuration(
         cls, configuration: SectionConfiguration
-    ) -> AnyFactoryTarget[Self]:
+    ) -> AnyFactoryTarget[Self]:  # ty:ignore[invalid-method-override]
         async def _factory(project: Project) -> Self:
             return cls(
                 configuration=configuration,
                 jinja2_environment=await project.jinja2_environment,
             )
 
-        return CallbackProjectDependentFactory(_factory)
+        return CallbackProjectDependentFactory(_factory)  # ty:ignore[invalid-return-type]
 
     @override
     async def _provide_data(self, document: Document) -> Mapping[str, Any]:
@@ -253,7 +255,7 @@ class EntityCard(Template, ConfigurationDependentSelfFactory[EntityReference], _
     @classmethod
     def new_for_configuration(
         cls, configuration: EntityReference
-    ) -> AnyFactoryTarget[Self]:
+    ) -> AnyFactoryTarget[Self]:  # ty:ignore[invalid-method-override]
         async def _factory(project: Project) -> Self:
             return cls(
                 ancestry=project.ancestry,
@@ -262,7 +264,7 @@ class EntityCard(Template, ConfigurationDependentSelfFactory[EntityReference], _
                 jinja2_environment=await project.jinja2_environment,
             )
 
-        return CallbackProjectDependentFactory(_factory)
+        return CallbackProjectDependentFactory(_factory)  # ty:ignore[invalid-return-type]
 
     @override
     async def _provide_data(self, document: Document) -> Mapping[str, Any]:
@@ -335,7 +337,7 @@ class ColorStyleConfiguration(Configuration):
     ):
         super().__init__()
         self.style = style
-        self._content = PluginInstanceConfigurationSequence(content)
+        self._content = PluginInstanceConfigurationSequence(content)  # ty:ignore[invalid-argument-type]
 
     @property
     def content(
@@ -346,7 +348,7 @@ class ColorStyleConfiguration(Configuration):
         """
         The content within this color style.
         """
-        return self._content
+        return self._content  # ty:ignore[invalid-return-type]
 
     @override
     @classmethod
@@ -383,7 +385,7 @@ class ColorStyleConfiguration(Configuration):
                     PluginInstanceConfiguration(
                         Render, RenderConfiguration("Hello, world!")
                     )
-                ],
+                ],  # ty:ignore[invalid-argument-type]
             ),
             label="Default",
         )
@@ -406,14 +408,14 @@ class ColorStyle(
     @classmethod
     def new_for_configuration(
         cls, configuration: ColorStyleConfiguration
-    ) -> AnyFactoryTarget[Self]:
+    ) -> AnyFactoryTarget[Self]:  # ty:ignore[invalid-method-override]
         async def _factory(project: Project) -> Self:
             return cls(
                 configuration=configuration,
                 jinja2_environment=await project.jinja2_environment,
             )
 
-        return CallbackProjectDependentFactory(_factory)
+        return CallbackProjectDependentFactory(_factory)  # ty:ignore[invalid-return-type]
 
     @override
     async def _provide_data(self, document: Document) -> Mapping[str, Any]:
@@ -573,7 +575,7 @@ class Presences(
     @classmethod
     def new_for_configuration(
         cls, configuration: PresencesConfiguration
-    ) -> AnyFactoryTarget[Self]:
+    ) -> AnyFactoryTarget[Self]:  # ty:ignore[invalid-method-override]
         async def _factory(project: Project) -> Self:
             return cls(
                 configuration=configuration,
@@ -581,7 +583,7 @@ class Presences(
                 presence_roles=await project.plugins(PresenceRoleDefinition),
             )
 
-        return CallbackProjectDependentFactory(_factory)
+        return CallbackProjectDependentFactory(_factory)  # ty:ignore[invalid-return-type]
 
     @override
     async def _provide_data(self, document: Document) -> Mapping[str, Any]:
@@ -611,6 +613,7 @@ class ColumnsConfiguration(Configuration):
     """
 
     _DEFAULT_WIDTH: ColumnsWidth = {Breakpoint.XS: [12]}
+    _width: ColumnsWidth
 
     def __init__(
         self,
@@ -622,20 +625,18 @@ class ColumnsConfiguration(Configuration):
         justify_content: JustifyContent | None = None,
     ):
         super().__init__()
-        self._content = PluginInstanceConfigurationSequenceSequence(content)
+        self._content = PluginInstanceConfigurationSequenceSequence(content)  # ty:ignore[invalid-argument-type]
         if width is None:
-            width = self._DEFAULT_WIDTH
+            self._width = self._DEFAULT_WIDTH
         elif isinstance(width, int):
-            width = {Breakpoint.XS: [width]}
+            self._width = {Breakpoint.XS: [width]}
         elif isinstance(width, Mapping):
-            width = {
+            self._width = {  # ty:ignore[invalid-assignment]
                 breakpoint: [columns] if isinstance(columns, int) else columns
                 for breakpoint, columns in width.items()  # noqa: A001
             }
         else:
-            width = {Breakpoint.XS: width}
-
-        self._width = width
+            self._width = {Breakpoint.XS: width}
         self._justify_content = justify_content
 
     @property
@@ -647,7 +648,7 @@ class ColumnsConfiguration(Configuration):
         """
         The content within the columns.
         """
-        return self._content
+        return self._content  # ty:ignore[invalid-return-type]
 
     @property
     def width(self) -> ColumnsWidth:
@@ -697,7 +698,7 @@ class ColumnsConfiguration(Configuration):
         }
         if self.width != self._DEFAULT_WIDTH:
             portable["width"] = {
-                breakpoint.value: widths  # type: ignore[misc]
+                breakpoint.value: widths
                 for breakpoint, widths in self.width.items()  # noqa: A001
             }
         if self.justify_content is not None:
@@ -721,33 +722,27 @@ class ColumnsConfiguration(Configuration):
 
         yield Sample(
             cls(
-                [
-                    PluginInstanceConfiguration(
-                        Render, RenderConfiguration("Hello, world!")
-                    )
-                ]
+                PluginInstanceConfiguration(
+                    Render, RenderConfiguration("Hello, world!")
+                )  # ty:ignore[invalid-argument-type]
             ),
             label="Minimal",
             minimal=True,
         )
         yield Sample(
             cls(
-                [
-                    PluginInstanceConfiguration(
-                        Render, RenderConfiguration("Hello, world!")
-                    )
-                ],
+                PluginInstanceConfiguration(
+                    Render, RenderConfiguration("Hello, world!")
+                ),  # ty:ignore[invalid-argument-type]
                 justify_content=JustifyContent.CENTER,
             ),
             label="Justify content",
         )
         yield Sample(
             cls(
-                [
-                    PluginInstanceConfiguration(
-                        Render, RenderConfiguration("Hello, world!")
-                    )
-                ],
+                PluginInstanceConfiguration(
+                    Render, RenderConfiguration("Hello, world!")
+                ),  # ty:ignore[invalid-argument-type]
                 width=6,
             ),
             label="A single column with a fixed, non-responsive width",
@@ -755,24 +750,26 @@ class ColumnsConfiguration(Configuration):
         yield Sample(
             cls(
                 [
-                    PluginInstanceConfiguration(
-                        Render, RenderConfiguration("Hello, world!")
-                    ),
-                    PluginInstanceConfiguration(
-                        Render, RenderConfiguration("How are you?")
-                    ),
-                ],
+                    PluginInstanceConfigurationSequence(
+                        [
+                            PluginInstanceConfiguration(
+                                Render, RenderConfiguration("Hello, world!")
+                            ),
+                            PluginInstanceConfiguration(
+                                Render, RenderConfiguration("How are you?")
+                            ),
+                        ]
+                    )
+                ],  # ty:ignore[invalid-argument-type]
                 width=[6, 6],
             ),
             label="Multiple columns with fixed, non-responsive widths",
         )
         yield Sample(
             cls(
-                [
-                    PluginInstanceConfiguration(
-                        Render, RenderConfiguration("Hello, world!")
-                    )
-                ],
+                PluginInstanceConfiguration(
+                    Render, RenderConfiguration("Hello, world!")
+                ),  # ty:ignore[invalid-argument-type]
                 width={
                     Breakpoint.XS: 12,
                     Breakpoint.MD: 6,
@@ -783,13 +780,17 @@ class ColumnsConfiguration(Configuration):
         yield Sample(
             cls(
                 [
-                    PluginInstanceConfiguration(
-                        Render, RenderConfiguration("Hello, world!")
-                    ),
-                    PluginInstanceConfiguration(
-                        Render, RenderConfiguration("How are you?")
-                    ),
-                ],
+                    PluginInstanceConfigurationSequence(
+                        [
+                            PluginInstanceConfiguration(
+                                Render, RenderConfiguration("Hello, world!")
+                            ),
+                            PluginInstanceConfiguration(
+                                Render, RenderConfiguration("How are you?")
+                            ),
+                        ]
+                    )
+                ],  # ty:ignore[invalid-argument-type]
                 width={
                     Breakpoint.XS: [12, 12],
                     Breakpoint.MD: [6, 6],
@@ -814,14 +815,14 @@ class Columns(Template, _Base, ConfigurationDependentSelfFactory[ColumnsConfigur
     @classmethod
     def new_for_configuration(
         cls, configuration: ColumnsConfiguration
-    ) -> AnyFactoryTarget[Self]:
+    ) -> AnyFactoryTarget[Self]:  # ty:ignore[invalid-method-override]
         async def _factory(project: Project) -> Self:
             return cls(
                 configuration=configuration,
                 jinja2_environment=await project.jinja2_environment,
             )
 
-        return CallbackProjectDependentFactory(_factory)
+        return CallbackProjectDependentFactory(_factory)  # ty:ignore[invalid-return-type]
 
     @override
     async def _provide_data(self, document: Document) -> Mapping[str, Any]:

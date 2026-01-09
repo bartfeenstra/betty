@@ -137,7 +137,7 @@ class Environment(ProjectDependentSelfFactory, Jinja2Environment):
 
     globals: dict[str, Any]
     filters: dict[str, Callable[..., Any]]
-    tests: dict[str, Callable[..., bool]]  # type: ignore[assignment]
+    tests: dict[str, Callable[..., bool]]
 
     @private
     def __init__(
@@ -217,7 +217,7 @@ class Environment(ProjectDependentSelfFactory, Jinja2Environment):
         return self._project
 
     def _init_i18n(self) -> None:
-        self.install_gettext_callables(  # type: ignore[attr-defined]
+        self.install_gettext_callables(  # ty:ignore[unresolved-attribute]
             gettext=self._gettext,
             ngettext=self._ngettext,
             pgettext=self._pgettext,

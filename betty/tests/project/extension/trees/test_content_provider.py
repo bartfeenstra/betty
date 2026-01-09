@@ -1,3 +1,5 @@
+from collections.abc import Set
+
 import pytest
 from typing_extensions import override
 
@@ -63,4 +65,5 @@ class TestTree(ContentProviderTestBase):
         assert actual is not None
         assert person.public_id in actual
         assert "webpack_js_entry_points" in document
-        assert "trees" in document["webpack_js_entry_points"]  # type: ignore[operator]
+        assert isinstance(document["webpack_js_entry_points"], Set)
+        assert "trees" in document["webpack_js_entry_points"]

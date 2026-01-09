@@ -258,15 +258,15 @@ class TestRichUser:
             assert message not in stdout_str
 
     @pytest.mark.parametrize(
-        ("expected", "stdin"),
+        ("expected", "stdin_input"),
         [
             (True, "y"),
             (False, "n"),
             (True, "x\ny"),
         ],
     )
-    async def test_ask_confirmation(self, expected: bool, stdin: str) -> None:
-        stdin = StringIO(stdin)
+    async def test_ask_confirmation(self, expected: bool, stdin_input: str) -> None:
+        stdin = StringIO(stdin_input)
         async with RichUser() as sut:
             assert await sut.ask_confirmation("", stdin=stdin) is expected
 

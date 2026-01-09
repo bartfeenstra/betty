@@ -21,6 +21,8 @@ if TYPE_CHECKING:
     from collections.abc import Callable, Mapping
     from types import NotImplementedType
 
+    from ty_extensions import Intersection
+
     from betty.locale import HasLocale
     from betty.locale.localize import Localizer
 
@@ -45,9 +47,7 @@ def _localize_date_parts(localizer: Localizer, date: Date | None, /) -> str:
         raise IncompleteDateError("This date is None.")
     try:
         date_parts_format = _LOCALIZE_DATE_PART_FORMATS[
-            tuple(
-                (x is not None for x in date.parts),  # type: ignore[index]
-            )
+            (date.year is not None, date.month is not None, date.day is not None)
         ].localize(localizer)
     except KeyError:
         raise IncompleteDateError(
@@ -86,7 +86,7 @@ class Date(Localizable):
         self.fuzzy = fuzzy
 
     @override
-    def localize(self, localizer: Localizer, /) -> HasLocale & str:
+    def localize(self, localizer: Localizer, /) -> Intersection[HasLocale, str]:
         try:
             return (
                 self._LOCALIZE_FORMATS[(self.fuzzy,)]
@@ -127,6 +127,7 @@ class Date(Localizable):
             raise ValueError(
                 f"Cannot convert non-comparable date {repr(self)} to a date range."
             )
+        assert self.year is not None
         if self.month is None:
             month_start = 1
             month_end = 12
@@ -134,10 +135,7 @@ class Date(Localizable):
             month_start = month_end = self.month
         if self.day is None:
             day_start = 1
-            day_end = calendar.monthrange(
-                self.year,  # type: ignore[arg-type]
-                month_end,
-            )[1]
+            day_end = calendar.monthrange(self.year, month_end)[1]
         else:
             day_start = day_end = self.day
         return DateRange(
@@ -148,16 +146,16 @@ class Date(Localizable):
         self, other: Any, comparator: Callable[[Any, Any], bool], /
     ) -> bool | NotImplementedType:
         if not isinstance(other, Date):
-            return NotImplemented  # type: ignore[no-any-return]
+            return NotImplemented
         selfish = self
         if not selfish.comparable or not other.comparable:
-            return NotImplemented  # type: ignore[no-any-return]
+            return NotImplemented
         if selfish.complete and other.complete:
             return comparator(selfish.parts, other.parts)
         if not other.complete:
             other = other.to_range()
         if not selfish.complete:
-            selfish = selfish.to_range()  # type: ignore[assignment]
+            selfish = selfish.to_range()
         return comparator(selfish, other)
 
     def __contains__(self, other: DateLike) -> bool:
@@ -271,7 +269,7 @@ class DateRange(Localizable):
         self.end_is_boundary = end_is_boundary
 
     @override
-    def localize(self, localizer: Localizer, /) -> HasLocale & str:
+    def localize(self, localizer: Localizer, /) -> Intersection[HasLocale, str]:
         formatter_configuration: tuple[
             bool | None, bool | None, bool | None, bool | None
         ] = (None, None, None, None)

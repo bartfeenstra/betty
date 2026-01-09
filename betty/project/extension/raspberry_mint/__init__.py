@@ -115,7 +115,7 @@ class RaspberryMint(
     @classmethod
     def new_for_configuration(
         cls, configuration: RaspberryMintConfiguration
-    ) -> AnyFactoryTarget[Self]:
+    ) -> AnyFactoryTarget[Self]:  # ty:ignore[invalid-method-override]
         return CallbackProjectDependentFactory(
             lambda project: cls(configuration=configuration, project=project)
         )

@@ -39,7 +39,7 @@ class EntityReference(Configuration):
 
     def __init__(self, entity_type: ResolvableId[EntityDefinition], entity_id: str, /):
         super().__init__()
-        self.entity_type = entity_type  # type: ignore[assignment]
+        self.entity_type = entity_type
         self.entity_id = entity_id
 
     @property

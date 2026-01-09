@@ -145,7 +145,7 @@ class Webpack(
     ) -> None:
         await to_thread(
             copytree,
-            build_directory_path,
+            build_directory_path,  # ty:ignore[invalid-argument-type]
             destination_directory_path,
             dirs_exist_ok=True,
         )

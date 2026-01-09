@@ -23,6 +23,8 @@ from betty.project import ProjectContext
 if TYPE_CHECKING:
     from collections.abc import Awaitable, Callable
 
+    from ty_extensions import Intersection
+
     from betty.job.scheduler import Scheduler
     from betty.plugin.config import PluginInstanceConfiguration
     from betty.plugin.repository import PluginRepository
@@ -37,7 +39,9 @@ _PluginDefinitionT = TypeVar(
 
 def _new_plugin_instance_factory(
     configuration: PluginInstanceConfiguration[_PluginDefinitionT, _PluginT],
-    repository: PluginRepository[_PluginDefinitionT & PluginDefinition[_PluginT]],
+    repository: PluginRepository[
+        Intersection[_PluginDefinitionT, PluginDefinition[_PluginT]]
+    ],
     *,
     factory: AnyFactory,
 ) -> Callable[[], Awaitable[_PluginT]]:

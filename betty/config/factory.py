@@ -69,5 +69,5 @@ def new_target(
                 )
         else:
             configuration = target.configuration_cls().load(configuration)
-        return target.new_for_configuration(configuration)  # type: ignore[return-value]
-    return target  # type: ignore[return-value]
+        return target.new_for_configuration(configuration)  # ty:ignore[invalid-return-type, invalid-argument-type]
+    return target  # ty:ignore[invalid-return-type]

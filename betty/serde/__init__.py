@@ -20,6 +20,8 @@ from betty.plugin.human_facing import HumanFacingPluginDefinition
 if TYPE_CHECKING:
     from collections.abc import Sequence
 
+    from ty_extensions import Intersection
+
     from betty.locale.localize import Localizer
     from betty.media_type import MediaType
     from betty.portable import PortableData
@@ -86,7 +88,7 @@ class FormatStr(Localizable):
         self._serde_formats = serde_formats
 
     @override
-    def localize(self, localizer: Localizer, /) -> HasLocale & str:
+    def localize(self, localizer: Localizer, /) -> Intersection[HasLocale, str]:
         return HasLocaleStr(
             ", ".join(
                 [

@@ -120,7 +120,7 @@ class RaspberryMintConfiguration(Configuration):
             ):
                 self.regional_content.validate(await extensions[RaspberryMint].regions)
 
-        return CallbackProjectDependentFactory(_validate)
+        return CallbackProjectDependentFactory(_validate)  # ty:ignore[invalid-return-type]
 
     @property
     def primary_color(self) -> ColorConfiguration:

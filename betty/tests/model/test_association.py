@@ -484,7 +484,7 @@ class TestBidirectionalToZeroOrOne:
         assert owner.associate is None
         assert associate.owner is None
 
-        owner.associate = associate  # type: ignore[unreachable]
+        owner.associate = associate
         del owner.associate
         assert owner.associate is None
         assert associate.owner is None

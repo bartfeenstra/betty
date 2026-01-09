@@ -16,6 +16,16 @@ if TYPE_CHECKING:
     from pytest_mock import MockerFixture
 
 
+class _AppDependentSelfFactory(AppDependentSelfFactory):
+    def __init__(self, app: App):
+        self.app = app
+
+    @override
+    @classmethod
+    async def new_for_app(cls, app: App, /) -> Self:
+        return cls(app)
+
+
 class TestApp:
     async def test_requires__with_global(self) -> None:
         subject = "My First Subject"
@@ -90,16 +100,7 @@ class TestApp:
     async def test_new_target__with_app_dependent_self_factory(
         self, isolated_app: App
     ) -> None:
-        class Dependent(AppDependentSelfFactory):
-            def __init__(self, app: App):
-                self.app = app
-
-            @override
-            @classmethod
-            async def new_for_app(cls, app: App, /) -> Self:
-                return cls(app)
-
-        dependent = await isolated_app.new_target(Dependent)
+        dependent = await isolated_app.new_target(_AppDependentSelfFactory)
         assert dependent.app is isolated_app
 
     async def test__spdx_license_repository(self, isolated_app: App) -> None:

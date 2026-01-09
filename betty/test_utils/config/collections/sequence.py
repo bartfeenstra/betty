@@ -36,13 +36,13 @@ class ConfigurationSequenceTestBase(
         return 0, 1, 2, 3
 
     @override
-    def test___iter__(  # type: ignore[override]
+    def test___iter__(
         self,
         new_sut: ConfigurationCollectionTestBaseNewSut[_ConfigurationValueT, int, int],
         sut_configurations: ConfigurationCollectionTestBaseSutConfigurations[
             _ConfigurationValueT
         ],
-    ) -> None:
+    ) -> None:  # ty:ignore[invalid-method-override]
         sut = new_sut(
             [
                 sut_configurations[0],

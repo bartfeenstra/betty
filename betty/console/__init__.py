@@ -103,7 +103,7 @@ def _create_formatter_class(*, localizer: Localizer) -> type[argparse.HelpFormat
 
 async def _create_command_parser(
     app: App,
-    subparsers: argparse._SubParsersAction,  # type: ignore[type-arg]
+    subparsers: argparse._SubParsersAction,
     command_plugin: CommandDefinition,
     formatter_class: type[argparse.HelpFormatter],
 ) -> argparse.ArgumentParser:

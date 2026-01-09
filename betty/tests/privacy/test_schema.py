@@ -21,5 +21,5 @@ class TestPrivacySchema(SchemaTestBase):
 
     @override
     @pytest.fixture(params=_sut_params())
-    def sut(self, request: pytest.FixtureRequest) -> SchemaTestBaseSut:
+    def sut_data(self, request: pytest.FixtureRequest) -> SchemaTestBaseSut:
         return cast(SchemaTestBaseSut, request.param)

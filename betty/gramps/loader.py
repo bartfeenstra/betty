@@ -128,6 +128,7 @@ if TYPE_CHECKING:
     from xml.etree import ElementTree
 
     from babel import Locale
+    from ty_extensions import Intersection
 
     from betty.ancestry import Ancestry
     from betty.ancestry.has_citations import HasCitations
@@ -492,7 +493,7 @@ class GrampsLoader:
 
     async def _load_xml(self, xml: bytes) -> None:
         try:
-            tree = cast(  # type: ignore[bad-cast]
+            tree = cast(
                 "ElementTree.ElementTree", etree.ElementTree(etree.fromstring(xml))
             )
         except etree.ParseError as error:
@@ -510,6 +511,7 @@ class GrampsLoader:
         self._tree = tree
 
         database = self._tree.getroot()
+        assert database is not None
 
         match = re.fullmatch(
             r"^{(http:\/\/gramps-project\.org\/xml\/(\d+)\.(\d+)\.(\d+)\/)}database$",
@@ -523,9 +525,7 @@ class GrampsLoader:
                 _(
                     "Gramps XML must be compatible with version {supported_gramps_xml_version}. Gramps XML {loaded_gramps_xml_version} is not supported."
                 ).format(
-                    supported_gramps_xml_version=".".join(
-                        map(str, self._SUPPORTED_GRAMPS_XML_VERSION)
-                    ),
+                    supported_gramps_xml_version=f"{self._SUPPORTED_GRAMPS_XML_VERSION[0]}.{self._SUPPORTED_GRAMPS_XML_VERSION[1]}.{self._SUPPORTED_GRAMPS_XML_VERSION[2]}",
                     loaded_gramps_xml_version=".".join(map(str, version)),
                 )
             )
@@ -694,14 +694,14 @@ class GrampsLoader:
     ) -> Date | None:
         dateval = str(element.get(value_attribute_name))
         if self._DATE_PATTERN.fullmatch(dateval):
-            date_parts: tuple[int | None, int | None, int | None] = tuple(  # type: ignore[assignment]
+            date_parts: Sequence[int | None] = [
                 (
                     int(part)
                     if self._DATE_PART_PATTERN.fullmatch(part) and int(part) > 0
                     else None
                 )
-                for part in dateval.split("-")
-            )
+                for part in dateval.split("-", 2)
+            ]
             date = Date(*date_parts)
             dateval_quality = element.get("quality")
             if dateval_quality == "estimated":
@@ -1259,11 +1259,14 @@ class GrampsLoader:
             link.relationship = "external"
             description = url_element.get("description")
             if description:
-                link.label = description  # type: ignore[assignment]
+                link.label = description
             owner.links.add(link)
 
     async def _load_attribute_privacy(
-        self, entity: HasPrivacy & Entity, element: ElementTree.Element, tag: str
+        self,
+        entity: Intersection[HasPrivacy, Entity],
+        element: ElementTree.Element,
+        tag: str,
     ) -> None:
         privacy_value = self._load_attribute("privacy", element, tag)
         if privacy_value is None:

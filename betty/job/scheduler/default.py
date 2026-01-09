@@ -207,13 +207,14 @@ class DefaultScheduler(Scheduler[_ContextCoT], Generic[_ContextCoT]):
                 raise UnknownJobError(unknown_job_id)
 
     @override  # noqa: RET503
-    async def get(self) -> ScheduledJobBatch:  # type: ignore[return]
+    async def get(self) -> ScheduledJobBatch:
         async with self._cancel_on_exception():
             async for _ in backoff():
                 async with self._lock:
                     batch = await self._get()
                     if batch is not None:
                         return batch
+        raise RuntimeError("This never happpens.")
 
     async def _get(self) -> ScheduledJobBatch | None:
         self._assert_open()

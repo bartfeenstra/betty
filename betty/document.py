@@ -138,7 +138,7 @@ class Document:
         Create a copy of this document, with the given fields added.
         """
         return type(self)(
-            **{  # type: ignore[arg-type]
+            **{
                 **self._vars,
                 "resource": self._resource,
                 "resource_url": self._resource_url,
@@ -149,7 +149,7 @@ class Document:
                 "localizer": self._localizer,
                 "title": self._title,
                 **vars,
-            },
+            },  # ty:ignore[invalid-argument-type]
         )
 
     def __getitem__(self, var: str) -> object:

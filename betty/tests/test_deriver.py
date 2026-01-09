@@ -239,7 +239,7 @@ class TestDeriver:
         person = Person(id="P0")
         project.ancestry.add(person)
 
-        with record_added(project.ancestry) as added:
+        with record_added(project.ancestry) as added:  # ty:ignore[invalid-argument-type]
             await Deriver(project).derive()
 
         assert len(added) == 0
@@ -269,7 +269,7 @@ class TestDeriver:
         Presence(person, Subject(), derivable_event)
         project.ancestry.add(person)
 
-        with record_added(project.ancestry) as added:
+        with record_added(project.ancestry) as added:  # ty:ignore[invalid-argument-type]
             await Deriver(project).derive()
 
         assert len(added) == 0
@@ -499,7 +499,7 @@ class TestDeriver:
             Presence(person, Subject(), derivable_event)
             project.ancestry.add(person)
 
-            with record_added(project.ancestry) as added:
+            with record_added(project.ancestry) as added:  # ty:ignore[invalid-argument-type]
                 await Deriver(project).derive()
 
             assert len(added) == 0
@@ -570,7 +570,7 @@ class TestDeriver:
             )
             project.ancestry.add(person)
 
-            with record_added(project.ancestry) as added:
+            with record_added(project.ancestry) as added:  # ty:ignore[invalid-argument-type]
                 await Deriver(project).derive()
 
             if expected_date_like is None:
@@ -813,7 +813,7 @@ class TestDeriver:
             Presence(person, Subject(), derivable_event)
             project.ancestry.add(person)
 
-            with record_added(project.ancestry) as added:
+            with record_added(project.ancestry) as added:  # ty:ignore[invalid-argument-type]
                 await Deriver(project).derive()
 
             assert len(added) == 0
@@ -873,7 +873,7 @@ class TestDeriver:
             )
             project.ancestry.add(person)
 
-            with record_added(project.ancestry) as added:
+            with record_added(project.ancestry) as added:  # ty:ignore[invalid-argument-type]
                 await Deriver(project).derive()
 
             if expected_date_like is None:
@@ -928,7 +928,7 @@ class TestDeriver:
             )
             project.ancestry.add(person)
 
-            with record_added(project.ancestry) as added:
+            with record_added(project.ancestry) as added:  # ty:ignore[invalid-argument-type]
                 await Deriver(project).derive()
 
             assert len(added) == 0

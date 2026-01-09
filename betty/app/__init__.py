@@ -5,7 +5,7 @@ from __future__ import annotations
 from contextlib import AsyncExitStack, asynccontextmanager
 from os import environ
 from pathlib import Path
-from typing import TYPE_CHECKING, Any, Self, cast, final
+from typing import TYPE_CHECKING, Any, Literal, Self, cast, final
 
 from aiofiles.tempfile import TemporaryDirectory
 from aiohttp_client_cache.backends.filesystem import FileBackend
@@ -109,7 +109,10 @@ class App(Configurable[AppConfiguration], ServiceContainer, PluginRepositoryProv
         if translations is not None:
             cls.translations.override(self, translations)
         self._cache_directory_path = cache_directory_path
-        cls.cache.override_factory(self, cache_factory)
+        cls.cache.override_factory(
+            self,
+            cache_factory,  # ty:ignore[invalid-argument-type]
+        )
         self._plugin_repository_provider = ServiceLevelPluginRepositoryProvider(self)
 
     @override
@@ -126,7 +129,7 @@ class App(Configurable[AppConfiguration], ServiceContainer, PluginRepositoryProv
             return StaticRequirement(
                 _("{subject} requires a running app.").format(subject=subject)
             )
-        return services if isinstance(services, App) else services.app
+        return services if isinstance(services, cls) else services.app  # ty:ignore[invalid-return-type, possibly-missing-attribute]
 
     @override
     async def plugins(
@@ -137,7 +140,7 @@ class App(Configurable[AppConfiguration], ServiceContainer, PluginRepositoryProv
     ) -> PluginRepository[_PluginDefinitionT]:
         return await self._plugin_repository_provider.plugins(
             plugin_type, check_requirements=check_requirements
-        )
+        )  # ty:ignore[invalid-return-type]
 
     @classmethod
     @asynccontextmanager
@@ -166,7 +169,7 @@ class App(Configurable[AppConfiguration], ServiceContainer, PluginRepositoryProv
         cache_factory: ServiceFactory[Self, Cache[Any]] | None = None,
         process_pool: futures.ProcessPoolExecutor | None = None,
         user: User | None = None,
-        translations: TranslationRepository | None | False = False,
+        translations: TranslationRepository | None | Literal[False] = False,
     ) -> AsyncIterator[Self]:
         """
         Create a new, isolated, temporary application.
@@ -317,7 +320,7 @@ class App(Configurable[AppConfiguration], ServiceContainer, PluginRepositoryProv
             or isinstance(target, type)
             and issubclass(target, AppDependentSelfFactory)
         ):
-            return cast(_T, await target.new_for_app(self))
+            return await target.new_for_app(self)
         return await new_target(cast(Target[_T], target))
 
     @service

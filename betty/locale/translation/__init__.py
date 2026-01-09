@@ -160,13 +160,13 @@ def find_source_files(
     """
     Find source files in a directory.
     """
-    exclude_directory_paths = {
+    resolved_exclude_directory_paths = {
         exclude_directory_path.expanduser().resolve()
         for exclude_directory_path in exclude_directory_paths
     }
     for source_file_path in source_directory_path.expanduser().resolve().rglob("*"):
         source_file_path = source_directory_path / source_file_path
-        if exclude_directory_paths & set(source_file_path.parents):
+        if set(resolved_exclude_directory_paths) & set(source_file_path.parents):
             continue
         if source_file_path.suffix in {".j2", ".py"}:
             yield source_file_path

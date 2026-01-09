@@ -64,6 +64,26 @@ class _DummyExtensionB(_DummyExtension):
     pass
 
 
+class _AppDependentSelfFactory(AppDependentSelfFactory):
+    def __init__(self, app: App):
+        self.app = app
+
+    @override
+    @classmethod
+    async def new_for_app(cls, app: App, /) -> Self:
+        return cls(app)
+
+
+class _ProjectDependentSelfFactory(ProjectDependentSelfFactory):
+    def __init__(self, project: Project):
+        self.project = project
+
+    @override
+    @classmethod
+    async def new_for_project(cls, project: Project, /) -> Self:
+        return cls(project)
+
+
 class TestProject:
     async def test_requires_project__with_global(self) -> None:
         subject = "My First Subject"
@@ -277,17 +297,8 @@ class TestProject:
     async def test_new_target__with_project_dependent_self_factory(
         self, isolated_app: App
     ) -> None:
-        class Dependent(ProjectDependentSelfFactory):
-            def __init__(self, project: Project):
-                self.project = project
-
-            @override
-            @classmethod
-            async def new_for_project(cls, project: Project, /) -> Self:
-                return cls(project)
-
         async with Project.new_isolated(isolated_app) as sut, sut:
-            dependent = await sut.new_target(Dependent)
+            dependent = await sut.new_target(_ProjectDependentSelfFactory)
             assert dependent.project is sut
 
     async def test_new_target__with_app_dependent_factory(
@@ -305,17 +316,8 @@ class TestProject:
     async def test_new_target__with_app_dependent_self_factory(
         self, isolated_app: App
     ) -> None:
-        class Dependent(AppDependentSelfFactory):
-            def __init__(self, app: App):
-                self.app = app
-
-            @override
-            @classmethod
-            async def new_for_app(cls, app: App, /) -> Self:
-                return cls(app)
-
         async with Project.new_isolated(isolated_app) as sut, sut:
-            dependent = await sut.new_target(Dependent)
+            dependent = await sut.new_target(_AppDependentSelfFactory)
             assert dependent.app is isolated_app
 
     async def test_logo__with_configuration(

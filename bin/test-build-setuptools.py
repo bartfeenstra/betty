@@ -11,11 +11,13 @@ from tempfile import TemporaryDirectory
 print("Running Setuptools...")  # noqa: T201
 
 VERSION = "0.0.0a0"
-check_call(["python", path.join("bin", "build-setuptools.py"), VERSION])
+check_call([sys.executable, path.join("bin", "build-setuptools.py"), VERSION])
 wheel_path = f"dist/betty-{VERSION}-py3-none-any.whl"
 venv_bin = "Scripts" if sys.platform.startswith("win32") else "bin"
 with TemporaryDirectory() as working_directory_path_str:
-    check_call(["python", "-m", "virtualenv", "venv"], cwd=working_directory_path_str)
+    check_call(
+        [sys.executable, "-m", "virtualenv", "venv"], cwd=working_directory_path_str
+    )
     check_call(
         [
             path.join(working_directory_path_str, "venv", venv_bin, "pip"),
@@ -29,4 +31,4 @@ with TemporaryDirectory() as working_directory_path_str:
     assert VERSION in output
 
 # Remove any stale artifacts.
-check_call(["python", path.join("bin", "clean-build.py")])
+check_call([sys.executable, path.join("bin", "clean-build.py")])

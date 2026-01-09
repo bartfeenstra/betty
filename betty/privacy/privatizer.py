@@ -26,6 +26,8 @@ from betty.privacy import HasPrivacy, Privacy
 if TYPE_CHECKING:
     from collections.abc import Iterator, MutableSequence
 
+    from ty_extensions import Intersection
+
     from betty.user import User
 
 
@@ -128,7 +130,7 @@ class Privatizer:
             await self.privatize(enclosure.encloser)
 
     async def _privatize_has_citations(
-        self, has_citations: HasCitations & HasPrivacy
+        self, has_citations: Intersection[HasCitations, HasPrivacy]
     ) -> None:
         if not has_citations.private:
             return
@@ -149,7 +151,7 @@ class Privatizer:
             await self.privatize(citation)
 
     async def _privatize_has_file_references(
-        self, has_file_references: HasFileReferences & HasPrivacy
+        self, has_file_references: Intersection[HasFileReferences, HasPrivacy]
     ) -> None:
         if not has_file_references.private:
             return
@@ -158,7 +160,9 @@ class Privatizer:
             await self._mark_private(file_reference.file, has_file_references)
             await self.privatize(file_reference.file)
 
-    async def _privatize_has_notes(self, has_notes: HasNotes & HasPrivacy) -> None:
+    async def _privatize_has_notes(
+        self, has_notes: Intersection[HasNotes, HasPrivacy]
+    ) -> None:
         if not has_notes.private:
             return
 

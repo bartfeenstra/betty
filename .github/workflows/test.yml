@@ -73,19 +73,17 @@ jobs:
           restore-keys: |
             npm-${{ runner.os }}-
 
-      - name: Cache Mypy
-        if: startsWith(runner.os, 'Linux')
-        uses: actions/cache@v5
-        with:
-          path: ./.mypy_cache
-          key: mypy-${{ matrix.python }}-${{ hashFiles('./pyproject.toml') }}
-          restore-keys: |
-            mypy-${{ matrix.python }}-
-
       - name: Set up Python ${{ matrix.python }}
         uses: actions/setup-python@v6
         with:
           python-version: ${{ matrix.python }}
+
+      # This is needed for ty. See https://github.com/astral-sh/ty/issues/2384 and https://github.com/astral-sh/ty/issues/2068.
+      - name: Set up a Python virtual environment
+        run: |
+          pip install virtualenv
+          python -m virtualenv venv
+        shell: bash
 
       - name: Set up Node.js
         uses: actions/setup-node@v6

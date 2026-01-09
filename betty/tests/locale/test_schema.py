@@ -10,7 +10,7 @@ from betty.test_utils.json.schema import SchemaTestBase, SchemaTestBaseSut
 class TestLocaleSchema(SchemaTestBase):
     @override
     @pytest.fixture
-    def sut(self) -> SchemaTestBaseSut:
+    def sut_data(self) -> SchemaTestBaseSut:
         return (
             LocaleSchema(),
             ["en", "nl", "uk"],

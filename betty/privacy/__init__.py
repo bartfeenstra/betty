@@ -5,7 +5,7 @@ The Privacy API.
 from __future__ import annotations
 
 import enum
-from typing import TYPE_CHECKING, Any
+from typing import TYPE_CHECKING, Any, Literal
 
 from typing_extensions import override
 
@@ -96,7 +96,7 @@ class HasPrivacy(LinkedDataDumpableWithSchemaJsonLdObject):
         return self.privacy is Privacy.PRIVATE
 
     @private.setter
-    def private(self, private: True) -> None:
+    def private(self, private: Literal[True]) -> None:
         self.privacy = Privacy.PRIVATE
 
     @property
@@ -108,7 +108,7 @@ class HasPrivacy(LinkedDataDumpableWithSchemaJsonLdObject):
         return self.privacy is not Privacy.PRIVATE
 
     @public.setter
-    def public(self, public: True) -> None:
+    def public(self, public: Literal[True]) -> None:
         self.privacy = Privacy.PUBLIC
 
     @override
@@ -158,10 +158,10 @@ def merge_privacies(*privacies: Privacy | HasPrivacy | None) -> Privacy:
     """
     Merge multiple privacies into one.
     """
-    privacies = {resolve_privacy(privacy) for privacy in privacies}
-    if Privacy.PRIVATE in privacies:
+    resolved_privacies = {resolve_privacy(privacy) for privacy in privacies}
+    if Privacy.PRIVATE in resolved_privacies:
         return Privacy.PRIVATE
-    if Privacy.UNDETERMINED in privacies:
+    if Privacy.UNDETERMINED in resolved_privacies:
         return Privacy.UNDETERMINED
     return Privacy.PUBLIC
 

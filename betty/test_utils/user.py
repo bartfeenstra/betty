@@ -91,7 +91,7 @@ class StaticUser(User):  # pragma: no cover
             message_type,
             [
                 ensure_localized(message, localizer=DEFAULT_LOCALIZER)
-                for message in getattr(self, f"_messages_{message_type}")  # type: ignore[attr-defined]
+                for message in getattr(self, f"_messages_{message_type}")
             ],
         )
 
@@ -165,7 +165,7 @@ class StaticUser(User):  # pragma: no cover
             message_type,
             [
                 ensure_localized(message, localizer=DEFAULT_LOCALIZER)
-                for message in getattr(self, f"_messages_{message_type}")  # type: ignore[attr-defined]
+                for message in getattr(self, f"_messages_{message_type}")
             ],
         )
 

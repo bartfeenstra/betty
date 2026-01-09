@@ -212,7 +212,7 @@ class RichUser(User):
             ask_kwargs["default"] = default
         value = cast(
             str,
-            Prompt.ask(  # type: ignore[call-overload]
+            Prompt.ask(
                 ensure_localized(question, localizer=self.localizer),
                 console=self._console,
                 stream=stdin,
