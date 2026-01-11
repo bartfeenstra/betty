@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Betty 0.4\n"
 "Report-Msgid-Bugs-To: illia@maier.page\n"
-"POT-Creation-Date: 2026-01-11 15:52+0000\n"
+"POT-Creation-Date: 2026-01-11 23:33+0000\n"
 "PO-Revision-Date: 2025-05-13 17:01+0000\n"
 "Last-Translator: Максим Горпиніч <maksimgorpinic4@gmail.com>\n"
 "Language: uk\n"
@@ -1472,9 +1472,6 @@ msgstr "Це має бути десяткове число."
 msgid "This must be a key-value mapping."
 msgstr "Це має бути відображення ключ-значення."
 
-msgid "This must be a positive number."
-msgstr "Це має бути додатнє число."
-
 msgid "This must be a sequence."
 msgstr "Це має бути послідовність."
 
@@ -1489,7 +1486,15 @@ msgid "This must be at least {length} characters long."
 msgstr ""
 
 #, python-brace-format
+msgid "This must be at least {minimum}."
+msgstr ""
+
+#, python-brace-format
 msgid "This must be at most {length} characters long."
+msgstr ""
+
+#, python-brace-format
+msgid "This must be at most {maximum}."
 msgstr ""
 
 msgid "This must be none/null."

@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Betty VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-01-11 15:52+0000\n"
+"POT-Creation-Date: 2026-01-11 23:33+0000\n"
 "PO-Revision-Date: 2025-03-28 20:02+0000\n"
 "Last-Translator: Ettore Atalan <atalanttore@googlemail.com>\n"
 "Language: de_DE\n"
@@ -1440,9 +1440,6 @@ msgstr "Es muss eine Dezimalzahl sein."
 msgid "This must be a key-value mapping."
 msgstr "Es muss ein Key-Value Paar sein."
 
-msgid "This must be a positive number."
-msgstr "Es muss einen positive Zahl sein."
-
 msgid "This must be a sequence."
 msgstr "Dies muss eine Sequenz sein."
 
@@ -1457,7 +1454,15 @@ msgid "This must be at least {length} characters long."
 msgstr ""
 
 #, python-brace-format
+msgid "This must be at least {minimum}."
+msgstr ""
+
+#, python-brace-format
 msgid "This must be at most {length} characters long."
+msgstr ""
+
+#, python-brace-format
+msgid "This must be at most {maximum}."
 msgstr ""
 
 msgid "This must be none/null."

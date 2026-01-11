@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PROJECT VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-01-11 15:52+0000\n"
+"POT-Creation-Date: 2026-01-11 23:33+0000\n"
 "PO-Revision-Date: 2025-11-08 23:46+0000\n"
 "Last-Translator: Bart Feenstra <bart@bartfeenstra.com>\n"
 "Language: nl_NL\n"
@@ -1474,9 +1474,6 @@ msgstr "Dit moet een decimaal getal zijn."
 msgid "This must be a key-value mapping."
 msgstr "Dit moet een sleutel-waardetoewijzing zijn."
 
-msgid "This must be a positive number."
-msgstr "Dit moet een positief getal zijn."
-
 msgid "This must be a sequence."
 msgstr "Dit moet een reeks zijn."
 
@@ -1491,7 +1488,15 @@ msgid "This must be at least {length} characters long."
 msgstr ""
 
 #, python-brace-format
+msgid "This must be at least {minimum}."
+msgstr ""
+
+#, python-brace-format
 msgid "This must be at most {length} characters long."
+msgstr ""
+
+#, python-brace-format
+msgid "This must be at most {maximum}."
 msgstr ""
 
 msgid "This must be none/null."

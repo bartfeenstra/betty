@@ -41,7 +41,7 @@ if TYPE_CHECKING:
     from betty.locale.localizable import Localizable
 
 Number: TypeAlias = int | float
-
+_NumberT = TypeVar("_NumberT", bound=Number)
 
 _EnumT = TypeVar("_EnumT", bound=Enum)
 _AssertionValueT = TypeVar("_AssertionValueT")
@@ -220,38 +220,48 @@ Assert that a value is a Python ``bool``.
 """
 
 
-def assert_int() -> AssertionChain[Any, int]:
+def _assert_number(
+    minimum: Number | None = None, maximum: Number | None = None
+) -> AssertionChain[_NumberT, _NumberT]:
+    def __assert_number(value: _NumberT) -> _NumberT:
+        if minimum is not None and value < minimum:
+            raise HumanFacingException(
+                _("This must be at least {minimum}.").format(minimum=str(minimum))
+            )
+        if maximum is not None and value > maximum:
+            raise HumanFacingException(
+                _("This must be at most {maximum}.").format(maximum=str(maximum))
+            )
+        return value
+
+    return AssertionChain(__assert_number)
+
+
+def assert_int(
+    *, minimum: Number | None = None, maximum: Number | None = None
+) -> AssertionChain[Any, int]:
     """
     Assert that a value is a Python ``int``.
     """
-    return AssertionChain(assert_type(int))
+    return assert_type(int) | _assert_number(minimum, maximum)
 
 
-def assert_float() -> AssertionChain[Any, float]:
+def assert_float(
+    *, minimum: Number | None = None, maximum: Number | None = None
+) -> AssertionChain[Any, float]:
     """
     Assert that a value is a Python ``float``.
     """
-    return assert_type(float)
+    return assert_type(float) | _assert_number(minimum, maximum)
 
 
-def assert_number() -> AssertionChain[Any, Number]:
+def assert_number(
+    *, minimum: Number | None = None, maximum: Number | None = None
+) -> AssertionChain[Any, Number]:
     """
     Assert that a value is a number (a Python ``int`` or ``float``).
     """
-    return assert_or(assert_int(), assert_float())
-
-
-def assert_positive_number() -> AssertionChain[Any, Number]:
-    """
-    Assert that a value is a positive nu,ber.
-    """
-
-    def _assert_positive_number(number: int | float, /) -> Number:
-        if number <= 0:
-            raise HumanFacingException(_("This must be a positive number."))
-        return number
-
-    return assert_number() | _assert_positive_number
+    return assert_or(assert_int(), assert_float()) | _assert_number(minimum, maximum)
 
 
 def assert_str(
