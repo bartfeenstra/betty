@@ -17,7 +17,6 @@ from betty.locale.localizable.ensure import ensure_localizable
 if TYPE_CHECKING:
     from collections.abc import Iterable
 
-    from betty.assertion import Assertion
     from betty.locale.localizable import Localizable, LocalizableLike
 
 
@@ -45,14 +44,12 @@ class DataDefinition(Generic[_DataT, _DataSetT]):
         cls: type[_DataT],
         label: LocalizableLike,
         description: LocalizableLike | None = None,
-        transformer: Assertion[_DataSetT, _DataT] | None = None,
     ):
         self._cls = cls
         self._label = ensure_localizable(label)
         self._description = (
             None if description is None else ensure_localizable(description)
         )
-        self._transformer = transformer
 
     @property
     def cls(self) -> type[_DataT]:
@@ -74,14 +71,6 @@ class DataDefinition(Generic[_DataT, _DataSetT]):
         The human-readable long data description.
         """
         return self._description
-
-    def transform(self, data: _DataSetT) -> _DataT:
-        """
-        Transform data into the internal type for this definition.
-        """
-        if self._transformer is None:
-            return cast(_DataT, data)
-        return self._transformer(data)
 
 
 class AggregateDefinition(
@@ -161,20 +150,8 @@ class CollectionDefinition(
         item: DataDefinition[_DataItemT, _DataItemSetT],
         label: LocalizableLike,
         description: LocalizableLike | None = None,
-        exact_length: int | None = None,
-        minimum_length: int | None = None,
-        maximum_length: int | None = None,
     ):
-        from betty.assertion import assert_len
-
-        super().__init__(
-            cls=cls,
-            label=label,
-            description=description,
-            transformer=assert_len(  # type: ignore[arg-type]
-                exact=exact_length, minimum=minimum_length, maximum=maximum_length
-            ),
-        )
+        super().__init__(cls=cls, label=label, description=description)
         self._item = item
 
     @override
@@ -230,15 +207,9 @@ class SimpleDefinition(DataDefinition[_DataT, _DataSetT]):
     _cls: type[_DataT]
 
     def __init__(
-        self,
-        *,
-        label: LocalizableLike,
-        description: LocalizableLike | None = None,
-        transformer: Assertion[_DataSetT, _DataT] | None = None,
+        self, *, label: LocalizableLike, description: LocalizableLike | None = None
     ):
-        super().__init__(
-            cls=self._cls, label=label, description=description, transformer=transformer
-        )
+        super().__init__(cls=self._cls, label=label, description=description)
 
 
 class _NumberDefinition(SimpleDefinition[_DataT, _DataSetT]):
@@ -270,27 +241,6 @@ class StrDefinition(SimpleDefinition[str, str]):
     """
 
     _cls = str
-
-    def __init__(
-        self,
-        *,
-        label: LocalizableLike,
-        description: LocalizableLike | None = None,
-        exact_length: int | None = None,
-        minimum_length: int | None = None,
-        maximum_length: int | None = None,
-    ):
-        from betty.assertion import assert_str
-
-        super().__init__(
-            label=label,
-            description=description,
-            transformer=assert_str(
-                exact_length=exact_length,
-                minimum_length=minimum_length,
-                maximum_length=maximum_length,
-            ),
-        )
 
 
 @final

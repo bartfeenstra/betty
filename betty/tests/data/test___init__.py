@@ -124,18 +124,6 @@ class TestDataDefinition(DataDefinitionTestBase[DataDefinition[Any, Any], Any]):
         )
         assert sut.description is description
 
-    def test_transform__without_transformer(self) -> None:
-        sut = DataDefinition[object, object](cls=object, label=DUMMY_LOCALIZABLE)
-        data = object()
-        assert sut.transform(data) is data
-
-    def test_transform__with_transformer(self) -> None:
-        transformed_data = object()
-        sut = DataDefinition[object, object](
-            cls=object, label=DUMMY_LOCALIZABLE, transformer=lambda _: transformed_data
-        )
-        assert sut.transform(object()) is transformed_data
-
 
 class EnumDefinitionData(Enum):
     pass
