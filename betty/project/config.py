@@ -24,9 +24,9 @@ from betty.assertion import (
     assert_int,
     assert_locale,
     assert_none,
+    assert_number,
     assert_or,
     assert_path,
-    assert_positive_number,
     assert_record,
     assert_str,
 )
@@ -1325,7 +1325,7 @@ class ProjectConfiguration(Configuration):
     @lifetime_threshold.setter
     def lifetime_threshold(self, lifetime_threshold: int) -> None:
         self.assert_mutable()
-        assert_positive_number()(lifetime_threshold)
+        assert_number(minimum=1)(lifetime_threshold)
         self._lifetime_threshold = lifetime_threshold
 
     @property

@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Betty VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-01-11 15:52+0000\n"
+"POT-Creation-Date: 2026-01-11 23:33+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -1398,9 +1398,6 @@ msgstr ""
 msgid "This must be a key-value mapping."
 msgstr ""
 
-msgid "This must be a positive number."
-msgstr ""
-
 msgid "This must be a sequence."
 msgstr ""
 
@@ -1415,7 +1412,15 @@ msgid "This must be at least {length} characters long."
 msgstr ""
 
 #, python-brace-format
+msgid "This must be at least {minimum}."
+msgstr ""
+
+#, python-brace-format
 msgid "This must be at most {length} characters long."
+msgstr ""
+
+#, python-brace-format
+msgid "This must be at most {maximum}."
 msgstr ""
 
 msgid "This must be none/null."

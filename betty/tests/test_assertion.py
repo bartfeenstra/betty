@@ -31,7 +31,6 @@ from betty.assertion import (
     assert_number,
     assert_or,
     assert_path,
-    assert_positive_number,
     assert_record,
     assert_sequence,
     assert_str,
@@ -146,64 +145,93 @@ def test_assert_bool__with_invalid_value() -> None:
         assert_bool(123)
 
 
-def test_assert_int__with_valid_value() -> None:
-    assert_int()(123)
-
-
-def test_assert_int__with_invalid_value() -> None:
-    with pytest.raises(HumanFacingException):
-        assert_int()(False)
-
-
-def test_assert_float__with_valid_value() -> None:
-    assert_float()(1.23)
-
-
-def test_assert_float__with_invalid_value() -> None:
-    with pytest.raises(HumanFacingException):
-        assert_float()(False)
+@pytest.mark.parametrize(
+    ("value", "minimum", "maximum"),
+    [
+        (123, None, None),
+        (123, 123, None),
+        (123, None, 123),
+    ],
+)
+def test_assert_int__with_valid_value(
+    value: Any, minimum: Number | None, maximum: Number | None
+) -> None:
+    assert_int(minimum=minimum, maximum=maximum)(value)
 
 
 @pytest.mark.parametrize(
-    "value",
+    ("value", "minimum", "maximum"),
     [
-        3,
-        3.13,
+        (1.23, None, None),
+        (123, 124, None),
+        (123, None, 122),
     ],
 )
-def test_assert_number__with_valid_value(value: Number) -> None:
-    assert_number()(value)
-
-
-def test_assert_number__with_invalid_value() -> None:
+def test_assert_int__with_invalid_value(
+    value: Any, minimum: Number | None, maximum: Number | None
+) -> None:
     with pytest.raises(HumanFacingException):
-        assert_number()(False)
+        assert_int(minimum=minimum, maximum=maximum)(False)
 
 
 @pytest.mark.parametrize(
-    "value",
+    ("value", "minimum", "maximum"),
     [
-        0,
-        0.0,
-        1,
-        1.1,
+        (1.23, None, None),
+        (1.23, 1.23, None),
+        (1.23, None, 1.23),
     ],
 )
-def test_assert_positive_number__with_valid_value(value: int | float) -> None:
-    assert_positive_number()(1.23)
+def test_assert_float__with_valid_value(
+    value: Any, minimum: Number | None, maximum: Number | None
+) -> None:
+    assert_float(minimum=minimum, maximum=maximum)(value)
 
 
 @pytest.mark.parametrize(
-    "value",
+    ("value", "minimum", "maximum"),
     [
-        -1,
-        -0.0000000001,
-        -1.0,
+        (123, None, None),
+        (1.23, 1.24, None),
+        (1.23, None, 1.22),
     ],
 )
-def test_assert_positive_number__with_invalid_value(value: int | float) -> None:
+def test_assert_float__with_invalid_value(
+    value: Any, minimum: Number | None, maximum: Number | None
+) -> None:
     with pytest.raises(HumanFacingException):
-        assert_positive_number()(value)
+        assert_float(minimum=minimum, maximum=maximum)(False)
+
+
+@pytest.mark.parametrize(
+    ("value", "minimum", "maximum"),
+    [
+        (123, None, None),
+        (123, 123, None),
+        (123, None, 123),
+    ],
+)
+def test_assert_number__with_valid_value(
+    value: Any, minimum: Number | None, maximum: Number | None
+) -> None:
+    assert_number(minimum=minimum, maximum=maximum)(value)
+
+
+@pytest.mark.parametrize(
+    ("value", "minimum", "maximum"),
+    [
+        (object(), None, None),
+        (123, 124, None),
+        (1.23, 1.24, None),
+        (123, None, 122),
+        (1.23, None, 1.22),
+    ],
+)
+def test_assert_number__with_invalid_value(
+    value: Any, minimum: Number | None, maximum: Number | None
+) -> None:
+    with pytest.raises(HumanFacingException):
+        assert_number(minimum=minimum, maximum=maximum)(False)
 
 
 @pytest.mark.parametrize(

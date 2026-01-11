@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Betty VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-01-11 15:52+0000\n"
+"POT-Creation-Date: 2026-01-11 23:33+0000\n"
 "PO-Revision-Date: 2025-12-08 19:00+0000\n"
 "Last-Translator: Artur Kalagov "
 "<artur.kalagov@users.noreply.hosted.weblate.org>\n"
@@ -1481,9 +1481,6 @@ msgstr "Это должно быть десятичное число."
 msgid "This must be a key-value mapping."
 msgstr "Это должна быть пара ключ-значение."
 
-msgid "This must be a positive number."
-msgstr "Это должно быть положительное число."
-
 msgid "This must be a sequence."
 msgstr "Это должна быть последовательность."
 
@@ -1498,7 +1495,15 @@ msgid "This must be at least {length} characters long."
 msgstr ""
 
 #, python-brace-format
+msgid "This must be at least {minimum}."
+msgstr ""
+
+#, python-brace-format
 msgid "This must be at most {length} characters long."
+msgstr ""
+
+#, python-brace-format
+msgid "This must be at most {maximum}."
 msgstr ""
 
 msgid "This must be none/null."
