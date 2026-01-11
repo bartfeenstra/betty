@@ -167,7 +167,7 @@ class EntityTypeConfiguration(Configuration):
     def load(cls, dump: Dump, /) -> Self:
         record = assert_record(
             RequiredField("entity_type", assert_machine_name()),
-            OptionalField("generate_html_list", assert_bool()),
+            OptionalField("generate_html_list", assert_bool),
         )(dump)
         return cls(
             record["entity_type"],
@@ -1389,13 +1389,13 @@ class ProjectConfiguration(Configuration):
     def load(cls, dump: Dump, /) -> Self:
         return cls(
             **assert_record(
-                OptionalField("name", assert_or(assert_str(), assert_none())),
+                OptionalField("name", assert_or(assert_str(), assert_none)),
                 RequiredField("url", assert_str()),
                 RequiredField("title", assert_load_localizable),
                 OptionalField("author", assert_load_localizable),
-                OptionalField("logo", assert_or(assert_path(), assert_none())),
-                OptionalField("clean_urls", assert_bool()),
-                OptionalField("debug", assert_bool()),
+                OptionalField("logo", assert_or(assert_path(), assert_none)),
+                OptionalField("clean_urls", assert_bool),
+                OptionalField("debug", assert_bool),
                 OptionalField("lifetime_threshold", assert_int()),
                 OptionalField("locales", LocaleConfigurationMapping.load),
                 OptionalField("extensions", ExtensionInstanceConfigurationMapping.load),

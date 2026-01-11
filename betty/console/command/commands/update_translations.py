@@ -48,7 +48,7 @@ class UpdateTranslations(AppDependentSelfFactory, Command):
         parser.add_argument(
             "--source",
             type=assertion_to_argument_type(
-                assert_or(assert_none(), assert_directory_path()), localizer=localizer
+                assert_or(assert_none, assert_directory_path()), localizer=localizer
             ),
         )
         parser.add_argument(

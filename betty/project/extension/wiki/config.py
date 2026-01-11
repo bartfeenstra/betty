@@ -48,9 +48,7 @@ class WikiConfiguration(Configuration):
     @override
     @classmethod
     def load(cls, dump: Dump, /) -> Self:
-        return cls(
-            **assert_record(OptionalField("populate_images", assert_bool()))(dump)
-        )
+        return cls(**assert_record(OptionalField("populate_images", assert_bool))(dump))
 
     @override
     def dump(self) -> DumpMapping[Dump]:

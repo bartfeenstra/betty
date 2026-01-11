@@ -1,8 +1,10 @@
 from __future__ import annotations
 
+from collections.abc import Mapping, Sequence
 from enum import Enum
 from pathlib import Path
 from tempfile import NamedTemporaryFile
+from types import NoneType
 from typing import TYPE_CHECKING, Any, TypeVar
 
 import pytest
@@ -11,6 +13,7 @@ from aiofiles.tempfile import TemporaryDirectory
 from betty.assertion import (
     Assertion,
     AssertionChain,
+    AssertTypeType,
     Number,
     OptionalField,
     RequiredField,
@@ -32,6 +35,7 @@ from betty.assertion import (
     assert_record,
     assert_sequence,
     assert_str,
+    assert_type,
 )
 from betty.data.indicator.selector import Index, Key
 from betty.exception import HumanFacingException
@@ -40,7 +44,7 @@ from betty.locale.localizable.static import StaticTranslations
 from betty.test_utils.exception import assert_error
 
 if TYPE_CHECKING:
-    from collections.abc import Mapping, Sized
+    from collections.abc import Sized
 
 _T = TypeVar("_T")
 
@@ -74,6 +78,45 @@ def _always_invalid(value: int) -> int:
 
 
 @pytest.mark.parametrize(
+    ("value", "value_type"),
+    [
+        (True, bool),
+        (False, bool),
+        (123, int),
+        (123.456, float),
+        ({}, Mapping),
+        (None, NoneType),
+        ([], Sequence),
+        ("", str),
+    ],
+)
+def test_assert_type__with_valid_value(
+    value: Any, value_type: type[AssertTypeType]
+) -> None:
+    assert_type(
+        value_type,  # type: ignore[arg-type]
+    )(value)
+
+
+@pytest.mark.parametrize(
+    ("value", "value_type"),
+    [
+        (0, bool),
+        (1, bool),
+        (True, int),
+        (False, int),
+    ],
+)
+def test_assert_type__with_invalid_value(
+    value: Any, value_type: type[AssertTypeType]
+) -> None:
+    with pytest.raises(HumanFacingException):
+        assert_type(
+            value_type,  # type: ignore[arg-type]
+        )(value)
+
+
+@pytest.mark.parametrize(
     ("if_assertion", "else_assertion", "value"),
     [
         (_always_valid, _always_valid, 123),
@@ -95,12 +138,12 @@ def test_assert_or__with_invalid_assertion() -> None:
 
 
 def test_assert_bool__with_valid_value() -> None:
-    assert_bool()(True)
+    assert_bool(True)
 
 
 def test_assert_bool__with_invalid_value() -> None:
     with pytest.raises(HumanFacingException):
-        assert_bool()(123)
+        assert_bool(123)
 
 
 def test_assert_int__with_valid_value() -> None:
@@ -510,7 +553,7 @@ def test_assert_len__bound_with_invalid_value(
 
 
 def test_assert_none__with_valid_value() -> None:
-    assert_none()(None)
+    assert_none(None)
 
 
 @pytest.mark.parametrize(
@@ -527,7 +570,7 @@ def test_assert_none__with_valid_value() -> None:
 )
 def test_assert_none__with_invalid_value(value: Any) -> None:
     with pytest.raises(HumanFacingException):
-        assert_none()(value)
+        assert_none(value)
 
 
 @pytest.mark.parametrize(

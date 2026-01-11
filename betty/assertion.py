@@ -14,6 +14,7 @@ from collections.abc import (
 )
 from dataclasses import dataclass
 from enum import Enum
+from functools import lru_cache
 from pathlib import Path
 from types import NoneType
 from typing import (
@@ -145,42 +146,42 @@ _AssertionBuilderMethod = Callable[[object, _AssertionValueT], _AssertionReturnT
 _AssertionBuilder = "_AssertionBuilderFunction[ValueT, ReturnT] | _AssertionBuilderMethod[ValueT, ReturnT]"
 
 
-_AssertTypeType: TypeAlias = (
+AssertTypeType: TypeAlias = (
     bool | float | int | Mapping[Any, Any] | None | Sequence[Any] | str
 )
-_AssertTypeTypeT = TypeVar("_AssertTypeTypeT", bound=_AssertTypeType)
+_AssertTypeTypeT = TypeVar("_AssertTypeTypeT", bound=AssertTypeType)
 
 
-def _assert_type_violation_error_message(
-    asserted_type: type[_AssertTypeType], /
-) -> Localizable:
-    messages: Mapping[type[_AssertTypeType], Localizable] = {
-        bool: _("This must be a boolean."),
-        int: _("This must be a whole number."),
-        float: _("This must be a decimal number."),
-        Mapping: _("This must be a key-value mapping."),
-        NoneType: _("This must be none/null."),
-        Sequence: _("This must be a sequence."),
-        str: _("This must be a string."),
-    }
-    return messages[asserted_type]
+_ASSERT_TYPES: Mapping[type[AssertTypeType], tuple[type[Any] | None, Localizable]] = {
+    bool: (None, _("This must be a boolean.")),
+    int: (bool, _("This must be a whole number.")),
+    float: (None, _("This must be a decimal number.")),
+    Mapping: (None, _("This must be a key-value mapping.")),
+    NoneType: (None, _("This must be none/null.")),
+    Sequence: (None, _("This must be a sequence.")),
+    str: (None, _("This must be a string.")),
+}
 
 
-def _assert_type(
-    value: Any,
-    value_required_type: type[_AssertTypeTypeT],
-    value_disallowed_type: type[_AssertTypeType] | None = None,
-    /,
-) -> _AssertTypeTypeT:
-    if isinstance(value, value_required_type) and (
-        value_disallowed_type is None or not isinstance(value, value_disallowed_type)
-    ):
-        return value
-    raise HumanFacingException(
-        _assert_type_violation_error_message(
-            value_required_type,  # type: ignore[arg-type]
-        )
-    )
+@lru_cache
+def assert_type(
+    value_type: type[_AssertTypeTypeT], /
+) -> AssertionChain[Any, _AssertTypeTypeT]:
+    """
+    Assert that a value is of the specified built-in type.
+    """
+
+    def _assert_type(value: Any, /) -> _AssertTypeTypeT:
+        value_is_not_type, error_message = _ASSERT_TYPES[
+            value_type  # type: ignore[index]
+        ]
+        if isinstance(value, value_type) and (
+            value_is_not_type is None or not isinstance(value, value_is_not_type)
+        ):
+            return value
+        raise HumanFacingException(error_message)
+
+    return AssertionChain(_assert_type)
 
 
 def assert_or(
@@ -205,48 +206,32 @@ def assert_or(
     return AssertionChain(_assert_or)
 
 
-def assert_none() -> AssertionChain[Any, None]:
-    """
-    Assert that a value is ``None``.
-    """
-
-    def _assert_none(value: Any, /) -> None:
-        _assert_type(value, NoneType)
-
-    return AssertionChain(_assert_none)
+assert_none = assert_type(
+    NoneType,  # type: ignore[arg-type]
+)
+"""
+Assert that a value is ``None``.
+"""
 
 
-def assert_bool() -> AssertionChain[Any, bool]:
-    """
-    Assert that a value is a Python ``bool``.
-    """
-
-    def _assert_bool(value: Any, /) -> bool:
-        return _assert_type(value, bool)
-
-    return AssertionChain(_assert_bool)
+assert_bool = assert_type(bool)
+"""
+Assert that a value is a Python ``bool``.
+"""
 
 
 def assert_int() -> AssertionChain[Any, int]:
     """
     Assert that a value is a Python ``int``.
     """
-
-    def _assert_int(value: Any, /) -> int:
-        return _assert_type(value, int, bool)
-
-    return AssertionChain(_assert_int)
+    return AssertionChain(assert_type(int))
 
 
 def assert_float() -> AssertionChain[Any, float]:
     """
     Assert that a value is a Python ``float``.
     """
-
-    def _assert_float(value: Any, /) -> float:
-        return _assert_type(value, float)
-
-    return AssertionChain(_assert_float)
+    return assert_type(float)
 
 
 def assert_number() -> AssertionChain[Any, Number]:
@@ -280,7 +265,7 @@ def assert_str(
     """
 
     def _assert_str(value: Any, /) -> str:
-        string = _assert_type(value, str)
+        string = assert_type(str)(value)
         actual = len(value)
         if exact_length is not None and actual != exact_length:
             raise HumanFacingException(
@@ -329,10 +314,7 @@ def assert_sequence(
     """
 
     def _assert_sequence(value: Any, /) -> MutableSequence[_AssertionReturnT]:
-        sequence = _assert_type(
-            value,
-            Sequence,  # type: ignore[type-abstract]
-        )
+        sequence = assert_type(Sequence)(value)
         if value_assertion is None:
             return list(sequence)
         asserted_sequence = []
@@ -389,10 +371,7 @@ def assert_mapping(
     def _assert_mapping(
         value: Any, /
     ) -> MutableMapping[_AssertionKeyT, _AssertionReturnT]:
-        mapping = _assert_type(
-            value,
-            Mapping,  # type: ignore[type-abstract]
-        )
+        mapping = assert_type(Mapping)(value)
         if value_assertion is None and key_assertion is None:
             return dict(mapping)
         asserted_mapping = {}
