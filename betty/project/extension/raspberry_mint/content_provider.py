@@ -125,7 +125,7 @@ class SectionConfiguration(Configuration):
                 RequiredField("content", PluginInstanceConfigurationSequence.load),
                 OptionalField(
                     "visually_hide_heading",
-                    assert_bool(),
+                    assert_bool,
                 ),
             )(dump)
         )

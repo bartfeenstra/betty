@@ -130,7 +130,7 @@ class DummyConfiguration(Configuration):
             assert_record(
                 OptionalField(
                     "value",
-                    assert_or(assert_none(), assert_str()),
+                    assert_or(assert_none, assert_str()),
                 )
             )(dump)["value"]
         )
