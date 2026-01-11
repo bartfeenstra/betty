@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Betty VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-01-03 13:04+0000\n"
+"POT-Creation-Date: 2026-01-11 15:52+0000\n"
 "PO-Revision-Date: 2025-05-06 10:01+0000\n"
 "Last-Translator: Yaron Shahrabani <sh.yaron@gmail.com>\n"
 "Language: he\n"
@@ -458,6 +458,10 @@ msgid "Cremation"
 msgstr ""
 
 msgid "Cremations"
+msgstr ""
+
+#, python-brace-format
+msgid "Data has no {attribute} attribute."
 msgstr ""
 
 msgid "Death"

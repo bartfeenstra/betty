@@ -26,7 +26,7 @@ from typing import (
     overload,
 )
 
-from betty.data.indicator import Index, Key
+from betty.data.indicator.selector import Index, Key
 from betty.error import FileNotFound
 from betty.exception import HumanFacingException, HumanFacingExceptionGroup
 from betty.locale import from_language_tag
@@ -413,7 +413,7 @@ def assert_mapping(
 
 
 def assert_record(
-    *fields: Field[Any, Any],
+    *fields: Field[Any, Any], allow_extra: bool = False
 ) -> AssertionChain[Any, MutableMapping[str, Any]]:
     """
     Assert that a value is a record: a key-value mapping of arbitrary value types, with a known structure.
@@ -428,16 +428,17 @@ def assert_record(
         unknown_keys = set(value.keys()) - known_keys
         record: MutableMapping[str, Any] = {}
         with HumanFacingExceptionGroup() as errors:
-            for unknown_key in unknown_keys:
-                with errors.absorb(Key(unknown_key)):
-                    raise HumanFacingException(
-                        Paragraph(
-                            _("Unknown key: {unknown_key}.").format(
-                                unknown_key=f'"{unknown_key}"'
-                            ),
-                            do_you_mean(*(f'"{x}"' for x in sorted(known_keys))),
+            if not allow_extra:
+                for unknown_key in unknown_keys:
+                    with errors.absorb(Key(unknown_key)):
+                        raise HumanFacingException(
+                            Paragraph(
+                                _("Unknown key: {unknown_key}.").format(
+                                    unknown_key=f'"{unknown_key}"'
+                                ),
+                                do_you_mean(*(f'"{x}"' for x in sorted(known_keys))),
+                            )
                         )
-                    )
             for field in fields:
                 with errors.absorb(Key(field.name)):
                     if field.name in value:

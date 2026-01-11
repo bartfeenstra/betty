@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Betty 0.4\n"
 "Report-Msgid-Bugs-To: illia@maier.page\n"
-"POT-Creation-Date: 2026-01-03 13:04+0000\n"
+"POT-Creation-Date: 2026-01-11 15:52+0000\n"
 "PO-Revision-Date: 2025-05-13 17:01+0000\n"
 "Last-Translator: Максим Горпиніч <maksimgorpinic4@gmail.com>\n"
 "Language: uk\n"
@@ -496,6 +496,10 @@ msgid "Cremation"
 msgstr "Кремація"
 
 msgid "Cremations"
+msgstr ""
+
+#, python-brace-format
+msgid "Data has no {attribute} attribute."
 msgstr ""
 
 msgid "Death"

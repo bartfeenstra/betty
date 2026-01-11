@@ -9,13 +9,16 @@ from contextlib import asynccontextmanager, contextmanager
 from dataclasses import dataclass
 from json import JSONDecodeError
 from pathlib import Path
-from typing import TYPE_CHECKING, Any, cast, final
+from typing import TYPE_CHECKING, Any, final
 from urllib.parse import quote, urlparse
 
 import aiofiles
 from geopy import Point
 
-from betty.exception import HumanFacingException
+from betty.assertion import assert_float, assert_mapping, assert_str
+from betty.data.indicator import Url
+from betty.data.indicator.selector import Index, Key, Selectors
+from betty.exception import HumanFacingException, HumanFacingExceptionGroup
 from betty.hashid import hashid
 from betty.locale.localizable.gettext import _
 from betty.media_type import MediaType
@@ -84,13 +87,12 @@ class Client:
         self._user = user
 
     @contextmanager
-    def _catch_json_lookup_errors(self, url: str) -> Iterator[None]:
+    def _absorb(self, url: str) -> Iterator[HumanFacingExceptionGroup]:
         try:
-            yield
-        except (LookupError, TypeError) as error:
-            raise ClientError(
-                f"Could not successfully parse the JSON content returned by {url}: {error}"
-            ) from error
+            with HumanFacingExceptionGroup() as errors, errors.absorb(Url(url)):
+                yield errors
+        except HumanFacingException as error:
+            raise ClientError(error) from error
 
     @asynccontextmanager
     async def _get(self, url: str) -> AsyncIterator[ClientResponse]:
@@ -103,20 +105,19 @@ class Client:
                 )
             yield response
 
-    async def _get_json(self, url: str, *selectors: str | int) -> Any:
+    async def _get_json(self, url: str) -> Any:
         async with self._get(url) as response:
             try:
-                data = await response.json()
+                return await response.json()
             except JSONDecodeError as error:
                 raise ClientError(f"Invalid JSON returned by {url}: {error}") from error
 
-        with self._catch_json_lookup_errors(url):
-            for selector in selectors:
-                data = data[selector]
-        return data
-
     async def _get_query_api_data(self, url: str) -> Mapping[str, Any]:
-        return cast("Mapping[str, Any]", await self._get_json(url, "query", "pages", 0))
+        data = await self._get_json(url)
+        with self._absorb(url):
+            return Selectors(Key("query"), Key("pages"), Index(0)).get(
+                data, assert_mapping(None, assert_str())
+            )
 
     async def _get_page_query_api_data(
         self, page_language: str, page_name: str
@@ -146,14 +147,16 @@ class Client:
         Get a summary for a page.
         """
         url = f"https://{page_language}.wikipedia.org/api/rest_v1/page/summary/{page_name}"
-        api_data = await self._get_json(url)
-        with self._catch_json_lookup_errors(url):
-            title = api_data["titles"]["normalized"]
-            extract = (
-                api_data["extract_html"]
-                if "extract_html" in api_data
-                else api_data["extract"]
+
+        with self._absorb(url):
+            api_data = await self._get_json(url)
+
+            title = Selectors(Key("titles"), Key("normalized")).get(
+                api_data, assert_str()
             )
+            extract = Selectors(
+                Key("extract_html") if "extract_html" in api_data else Key("extract")
+            ).get(api_data, assert_str())
         return Summary(
             page_language,
             page_name,
@@ -178,28 +181,35 @@ class Client:
         url = f"https://en.wikipedia.org/w/api.php?action=query&prop=imageinfo&titles=File:{quote(page_image_name)}&iiprop=url|mime|canonicaltitle&format=json&formatversion=2"
         image_info_api_data = await self._get_query_api_data(url)
 
-        with self._catch_json_lookup_errors(url):
-            image_info = image_info_api_data["imageinfo"][0]
-        async with self._get(image_info["url"]) as image_response:
+        image_info_selectors = (Key("imageinfo"), Index(0))
+        with self._absorb(url) as errors:
+            image_info = Selectors(*image_info_selectors).get(
+                image_info_api_data, assert_mapping()
+            )
+            with errors.absorb(*image_info_selectors):
+                image_url = Key("url").get(image_info, assert_str())
+                image_media_type = Key("mime").get(image_info, MediaType)
+                image_title = Key("canonicaltitle").get(image_info, assert_str())
+                image_wikimedia_commons_url = Key("descriptionurl").get(
+                    image_info, assert_str()
+                )
+        async with self._get(image_url) as image_response:
             image_data = await image_response.read()
         image_path = (
             self._download_directory_path
             / "image"
-            / (
-                hashid(image_info["url"])
-                + Path(urlparse(image_info["url"]).path).suffix.lower()
-            )
+            / (hashid(image_url) + Path(urlparse(image_url).path).suffix.lower())
         )
         await to_thread(image_path.parent.mkdir, exist_ok=True, parents=True)
         async with aiofiles.open(image_path, mode="wb") as image_f:
             await image_f.write(image_data)
         return Image(
             image_path,
-            MediaType(image_info["mime"]),
+            image_media_type,
             # Strip "File:" or any translated equivalent from the beginning of the image's title.
-            image_info["canonicaltitle"][image_info["canonicaltitle"].index(":") + 1 :],
-            image_info["descriptionurl"],
-            Path(urlparse(image_info["url"]).path).name,
+            image_title[image_title.index(":") + 1 :],
+            image_wikimedia_commons_url,
+            Path(urlparse(image_url).path).name,
         )
 
     async def get_place_coordinates(
@@ -214,9 +224,11 @@ class Client:
         except LookupError:
             # There may not be any coordinates.
             return None
-        with self._catch_json_lookup_errors(url):
-            if coordinates["globe"] != "earth":
+
+        with self._absorb(url):
+            globe = Key("globe").get(coordinates, assert_str())
+            if globe != "earth":
                 return None
-            latitude = coordinates["lat"]
-            longitude = coordinates["lon"]
+            latitude = Key("lat").get(coordinates, assert_float())
+            longitude = Key("lon").get(coordinates, assert_float())
         return Point(latitude, longitude)
