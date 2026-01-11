@@ -15,7 +15,7 @@ from betty.assertion import (
 )
 from betty.config import Configuration, Sample
 from betty.config.collections.sequence import ConfigurationSequence
-from betty.data.indicator import Index
+from betty.data.indicator.selector import Index
 from betty.exception import HumanFacingExceptionGroup
 from betty.machine_name import MachineName, assert_machine_name
 from betty.plugin.assertion import assert_plugin

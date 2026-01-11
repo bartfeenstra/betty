@@ -3,7 +3,7 @@ from gettext import NullTranslations
 
 import pytest
 
-from betty.data.indicator import Attr, Key
+from betty.data.indicator.selector import Attr, Key
 from betty.exception import (
     HumanFacingException,
     HumanFacingExceptionGroup,

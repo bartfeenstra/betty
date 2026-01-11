@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PROJECT VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-01-03 13:04+0000\n"
+"POT-Creation-Date: 2026-01-11 15:52+0000\n"
 "PO-Revision-Date: 2025-11-08 23:46+0000\n"
 "Last-Translator: Bart Feenstra <bart@bartfeenstra.com>\n"
 "Language: nl_NL\n"
@@ -499,6 +499,10 @@ msgid "Cremation"
 msgstr "Crematie"
 
 msgid "Cremations"
+msgstr ""
+
+#, python-brace-format
+msgid "Data has no {attribute} attribute."
 msgstr ""
 
 msgid "Death"

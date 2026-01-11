@@ -8,7 +8,7 @@ from typing import TYPE_CHECKING, Self, final
 
 from typing_extensions import override
 
-from betty.data.indicator import Key
+from betty.data.indicator.selector import Key
 from betty.exception import HumanFacingExceptionGroup
 from betty.locale import (
     HasLocale,

@@ -164,7 +164,10 @@ _BASELINE: Mapping[str, _ModuleIgnore] = {
     },
     "betty/service/level/__init__.py": MissingReason.ABSTRACT,
     "betty/service/level/factory.py": MissingReason.ABSTRACT,
-    "betty/data/indicator.py": {
+    "betty/data/indicator/__init__.py": {
+        "Indicator": MissingReason.ABSTRACT,
+    },
+    "betty/data/indicator/selector.py": {
         "Indicator": MissingReason.ABSTRACT,
         "Selector": MissingReason.ABSTRACT,
     },

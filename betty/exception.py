@@ -9,7 +9,7 @@ from typing import TYPE_CHECKING, Never, Self
 
 from typing_extensions import override
 
-from betty.data.indicator import Selectors
+from betty.data.indicator.selector import Selectors
 from betty.locale.localizable import Localizable, LocalizableLike
 from betty.locale.localizable.markup import Paragraphs
 

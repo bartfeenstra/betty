@@ -33,7 +33,7 @@ from betty.assertion import (
 from betty.config import Configuration, Sample, get_full_sample
 from betty.config.collections.mapping import OrderedConfigurationMapping
 from betty.copyright_notice import CopyrightNotice, CopyrightNoticeDefinition
-from betty.data.indicator import Key
+from betty.data.indicator.selector import Key
 from betty.exception import (
     HumanFacingException,
     HumanFacingExceptionGroup,
