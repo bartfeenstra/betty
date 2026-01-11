@@ -107,18 +107,6 @@ class AggregateDefinition(
         Get the value for contained data.
         """
 
-    @abstractmethod
-    def set(self, data: _DataT, selector: _SelectorT, value: _DataItemSetT, /) -> None:
-        """
-        Set the value for contained data.
-        """
-
-    @abstractmethod
-    def delete(self, data: _DataT, selector: _SelectorT, /) -> None:
-        """
-        Delete the value for contained data.
-        """
-
 
 @final
 class RecordDefinition(AggregateDefinition[_DataT, _DataT, Any, Any, Attr, Attr]):
@@ -148,14 +136,6 @@ class RecordDefinition(AggregateDefinition[_DataT, _DataT, Any, Any, Attr, Attr]
     @override
     def get(self, data: _DataT, attr: Attr, /) -> Any:
         return getattr(data, attr.attr)
-
-    @override
-    def set(self, data: _DataT, attr: Attr, value: Any, /) -> None:
-        setattr(data, attr.attr, value)
-
-    @override
-    def delete(self, data: _DataT, attr: Attr, /) -> None:
-        delattr(data, attr.attr)
 
 
 class CollectionDefinition(
@@ -219,14 +199,6 @@ class MappingDefinition(
     def get(self, data: _MutableMappingGetT, key: Key, /) -> _DataItemT:
         return cast(_DataItemT, data[key.item])
 
-    @override
-    def set(self, data: _MutableMappingGetT, key: Key, value: _DataItemSetT, /) -> None:
-        data[key.item] = self._item.transform(value)
-
-    @override
-    def delete(self, data: _MutableMappingGetT, key: Key, /) -> None:
-        del data[key.item]
-
 
 @final
 class SequenceDefinition(
@@ -248,25 +220,6 @@ class SequenceDefinition(
     @override
     def get(self, data: _MutableSequenceGetT, index: Index, /) -> _DataItemT:
         return cast(_DataItemT, data[index.item])
-
-    @override
-    def set(
-        self,
-        data: _MutableSequenceGetT,
-        index: Index,
-        value: _DataItemSetT,
-        /,
-    ) -> None:
-        data.insert(index.item, self._item.transform(value))
-
-    @override
-    def delete(
-        self,
-        data: _MutableSequenceGetT,
-        index: Index,
-        /,
-    ) -> None:
-        del data[index.item]
 
 
 class SimpleDefinition(DataDefinition[_DataT, _DataSetT]):

@@ -105,28 +105,6 @@ class TestSequenceDefinition(
         with pytest.raises(IndexError):
             sut.get(data, Index(0))
 
-    def test_set(self) -> None:
-        sut = SequenceDefinition[list[bool], list[bool], bool, bool](
-            cls=list[bool],
-            item=BoolDefinition(label=DUMMY_LOCALIZABLE),
-            label=DUMMY_LOCALIZABLE,
-        )
-        value = True
-        data: list[bool] = []
-        sut.set(data, Index(0), value)
-        assert data[0] == value
-
-    def test_delete(self) -> None:
-        sut = SequenceDefinition[list[bool], list[bool], bool, bool](
-            cls=list[bool],
-            item=BoolDefinition(label=DUMMY_LOCALIZABLE),
-            label=DUMMY_LOCALIZABLE,
-        )
-        value = True
-        data = [value]
-        sut.delete(data, Index(0))
-        assert not data
-
 
 class TestDataDefinition(DataDefinitionTestBase[DataDefinition[Any, Any], Any]):
     def test_cls(self) -> None:
@@ -211,30 +189,6 @@ class TestMappingDefinition(
         with pytest.raises(KeyError):
             sut.get(data, Key("kEy"))
 
-    def test_set(self) -> None:
-        sut = MappingDefinition[dict[str, bool], dict[str, bool], bool, bool](
-            cls=dict[str, bool],
-            item=BoolDefinition(label=DUMMY_LOCALIZABLE),
-            label=DUMMY_LOCALIZABLE,
-        )
-        key = "kEy"
-        value = True
-        data: dict[str, bool] = {}
-        sut.set(data, Key(key), value)
-        assert data[key] == value
-
-    def test_delete(self) -> None:
-        sut = MappingDefinition[dict[str, bool], dict[str, bool], bool, bool](
-            cls=dict[str, bool],
-            item=BoolDefinition(label=DUMMY_LOCALIZABLE),
-            label=DUMMY_LOCALIZABLE,
-        )
-        key = "kEy"
-        value = True
-        data = {key: value}
-        sut.delete(data, Key("kEy"))
-        assert key not in data
-
 
 # @todo Do we need this still?
 class RecordDefinitionTestBase(
@@ -263,20 +217,6 @@ class TestRecordDefinition(RecordDefinitionTestBase[RecordDefinition[Any], Any])
         data = RecordDefinitionTestRecord()
         data.my_first_attr = value
         assert self.sut.get(data, Attr(self.attr_name)) == value
-
-    def test_set(self) -> None:
-        value = "Hello, world!"
-        data = RecordDefinitionTestRecord()
-        self.sut.set(data, Attr(self.attr_name), value)
-        assert data.my_first_attr == value
-
-    def test_delete(self) -> None:
-        value = "Hello, world!"
-        data = RecordDefinitionTestRecord()
-        data.my_first_attr = value
-        self.sut.delete(data, Attr(self.attr_name))
-        with pytest.raises(AttributeError):
-            data.my_first_attr  # noqa B018
 
     def test_elements(self) -> None:
         assert list(self.sut.elements)[0][1] is self.attr_data
