@@ -13,7 +13,7 @@ jobs:
         include:
           - name: 'Python 3.14'
             os: ubuntu-latest
-            nodejs: 24.x
+            nodejs: 25.x
             python: '3.14'
     steps:
       - name: Check out the source code
