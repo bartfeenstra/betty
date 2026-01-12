@@ -22,27 +22,27 @@ jobs:
           # to the number of `after_n_builds` in ./codecov.yml.
           - name: 'Python 3.14'
             os: ubuntu-latest
-            nodejs: 24.x
+            nodejs: 25.x
             python: '3.14'
           - name: 'Python 3.13'
             os: ubuntu-latest
-            nodejs: 24.x
+            nodejs: 25.x
             python: '3.13'
           - name: 'Python 3.12'
             os: ubuntu-latest
-            nodejs: 24.x
+            nodejs: 25.x
             python: '3.12'
           - name: 'Python 3.11'
             os: ubuntu-latest
-            nodejs: 24.x
+            nodejs: 25.x
             python: '3.11'
           - name: 'macOS'
             os: macos-latest
-            nodejs: 24.x
+            nodejs: 25.x
             python: '3.14'
           - name: 'Windows'
             os: windows-latest
-            nodejs: 24.x
+            nodejs: 25.x
             python: '3.14'
     timeout-minutes: 60
     steps:
