@@ -126,6 +126,8 @@ _BASELINE: Mapping[str, _ModuleIgnore] = {
     "betty/config/__init__.py": {
         "Configuration": {
             "__eq__": MissingReason.ABSTRACT,
+            "dump": MissingReason.ABSTRACT,
+            "load": MissingReason.ABSTRACT,
             "validator": MissingReason.STATIC_CONTENT_ONLY,
         },
         "get_full_sample": MissingReason.SHOULD_BE_COVERED,
@@ -519,7 +521,6 @@ _BASELINE: Mapping[str, _ModuleIgnore] = {
         "Format": MissingReason.ABSTRACT,
         "FormatError": MissingReason.STATIC_CONTENT_ONLY,
     },
-    "betty/serde/load.py": MissingReason.ABSTRACT,
     "betty/serve.py": {
         "ProjectServer": MissingReason.SHOULD_BE_COVERED,
         "BuiltinProjectServer": {

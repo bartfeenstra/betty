@@ -11,20 +11,34 @@ from typing_extensions import override
 
 from betty.locale.localizable.ensure import ensure_localizable
 from betty.mutability import Mutable
-from betty.serde.dump import Dumpable
-from betty.serde.load import Loadable
 
 if TYPE_CHECKING:
     from collections.abc import Iterable
 
     from betty.locale.localizable import Localizable, LocalizableLike
+    from betty.serde.dump import Dump
     from betty.service.level.factory import AnyFactoryTarget
 
 
-class Configuration(Mutable, Loadable, Dumpable):
+class Configuration(Mutable, ABC):
     """
     Any configuration object.
     """
+
+    @classmethod
+    @abstractmethod
+    def load(cls, dump: Dump, /) -> Self:
+        """
+        Create a new instance from ``dump``.
+
+        :raises betty.exception.HumanFacingException: Raised if the dump is invalid.
+        """
+
+    @abstractmethod
+    def dump(self) -> Dump:
+        """
+        Produce a serialized data dump of ``self``.
+        """
 
     @override
     @abstractmethod
