@@ -35,7 +35,7 @@ from betty.typing import internal
 if TYPE_CHECKING:
     from collections.abc import Iterable, Iterator, Mapping
 
-    from betty.serde.dump import Dump, DumpMapping
+    from betty.serde import SerializedData, SerializedMapping
 
 _PluginT = TypeVar("_PluginT", bound=Plugin, default=Plugin)
 _PluginDefinitionT = TypeVar(
@@ -71,16 +71,16 @@ class PluginMapping(Generic[_PluginDefinitionT, _PluginT], Configuration):
 
     @override
     @classmethod
-    def load(cls, dump: Dump, /) -> Self:
+    def load(cls, serialized: SerializedData, /) -> Self:
         return cls(
             assert_mapping(
                 PluginInstanceConfiguration.load,  # type: ignore[arg-type]
                 _assert_gramps_type,
-            )(dump)
+            )(serialized)
         )
 
     @override
-    def dump(self) -> Dump:
+    def dump(self) -> SerializedData:
         return {
             gramps_type: configuration.dump()
             for gramps_type, configuration in self._mapping.items()
@@ -221,13 +221,13 @@ class FamilyTreeConfiguration(Configuration):
 
     @override
     @classmethod
-    def load(cls, dump: Dump, /) -> Self:
-        dump = assert_mapping()(dump)
+    def load(cls, serialized: SerializedData, /) -> Self:
+        serialized = assert_mapping()(serialized)
         if (
-            "file" in dump
-            and "name" in dump
-            or "file" not in dump
-            and "name" not in dump
+            "file" in serialized
+            and "name" in serialized
+            or "file" not in serialized
+            and "name" not in serialized
         ):
             raise HumanFacingException(
                 _(
@@ -240,22 +240,22 @@ class FamilyTreeConfiguration(Configuration):
             OptionalField("event_types", EventTypeMapping.load),
             OptionalField("place_types", PlaceTypeMapping.load),
             OptionalField("presence_roles", PresenceRoleMapping.load),
-        )(dump)
+        )(serialized)
         source = record.pop("source")
         return cls(source, **record)
 
     @override
-    def dump(self) -> DumpMapping[Dump]:
-        dump = {
+    def dump(self) -> SerializedMapping[SerializedData]:
+        serialized = {
             "event_types": self.event_types.dump(),
             "place_types": self.place_types.dump(),
             "presence_roles": self.presence_roles.dump(),
         }
         if isinstance(self.source, str):
-            dump["name"] = self.source
+            serialized["name"] = self.source
         else:
-            dump["file"] = str(self.source)
-        return dump
+            serialized["file"] = str(self.source)
+        return serialized
 
     @override
     def __eq__(self, other: Any) -> bool:
@@ -411,20 +411,22 @@ class GrampsConfiguration(Configuration):
 
     @override
     @classmethod
-    def load(cls, dump: Dump, /) -> Self:
+    def load(cls, serialized: SerializedData, /) -> Self:
         return cls(
             **assert_record(
                 OptionalField("family_trees", FamilyTreeConfigurationSequence.load),
                 OptionalField("executable", assert_path()),
-            )(dump)
+            )(serialized)
         )
 
     @override
-    def dump(self) -> DumpMapping[Dump]:
-        dump: DumpMapping[Dump] = {"family_trees": self.family_trees.dump()}
+    def dump(self) -> SerializedMapping[SerializedData]:
+        serialized: SerializedMapping[SerializedData] = {
+            "family_trees": self.family_trees.dump()
+        }
         if self.executable is not None:
-            dump["executable"] = str(self.executable)
-        return dump
+            serialized["executable"] = str(self.executable)
+        return serialized
 
     @override
     def __eq__(self, other: Any) -> bool:

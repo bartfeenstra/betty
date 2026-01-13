@@ -22,7 +22,7 @@ from betty.privacy import is_public
 
 if TYPE_CHECKING:
     from betty.project import Project
-    from betty.serde.dump import Dump, DumpMapping
+    from betty.serde import SerializedData, SerializedMapping
 
 
 class HasDate(LinkedDataDumpableWithSchemaJsonLdObject):
@@ -48,8 +48,10 @@ class HasDate(LinkedDataDumpableWithSchemaJsonLdObject):
         return None, None, None
 
     @override
-    async def dump_linked_data(self, project: Project, /) -> DumpMapping[Dump]:
-        dump = await super().dump_linked_data(project)
+    async def dump_linked_data(
+        self, project: Project, /
+    ) -> SerializedMapping[SerializedData]:
+        serialized = await super().dump_linked_data(project)
         if self.date and is_public(self):
             (
                 schema_org_date_definition,
@@ -57,16 +59,16 @@ class HasDate(LinkedDataDumpableWithSchemaJsonLdObject):
                 schema_org_end_date_definition,
             ) = self.dated_linked_data_contexts()
             if isinstance(self.date, Date):
-                dump["date"] = dump_linked_data_for_date(
+                serialized["date"] = dump_linked_data_for_date(
                     self.date, context_definition=schema_org_date_definition
                 )
             else:
-                dump["date"] = dump_linked_data_for_date_range(
+                serialized["date"] = dump_linked_data_for_date_range(
                     self.date,
                     start_context_definition=schema_org_start_date_definition,
                     end_context_definition=schema_org_end_date_definition,
                 )
-        return dump
+        return serialized
 
     @override
     @classmethod

@@ -18,7 +18,7 @@ from betty.assertion import (
 from betty.config import Configurable, Configuration
 from betty.importlib import fully_qualified_name
 from betty.locale.localize import DEFAULT_LOCALIZER
-from betty.serde.dump import Dump
+from betty.serde import SerializedData
 
 _ConfigurationT = TypeVar("_ConfigurationT", bound=Configuration)
 
@@ -104,14 +104,14 @@ class ConfigurationTestBase(Generic[_ConfigurationT]):
         samples = list(self.sut_cls.samples())
         for sample in samples:
             with subtests.test(str(sample.label.localize(DEFAULT_LOCALIZER))):
-                dump = sample.configuration.dump()
-                assert dump == self.sut_cls.load(dump).dump(), (
+                serialized = sample.configuration.dump()
+                assert serialized == self.sut_cls.load(serialized).dump(), (
                     f'Failed asserting that {fully_qualified_name(self.sut_cls)}.load() and {fully_qualified_name(self.sut_cls)}.dump() do not change the data for sample "{sample.label.localize(DEFAULT_LOCALIZER)}".'
                 )
                 for other_sample in samples:
                     if other_sample is sample:
                         continue
-                    assert dump != other_sample.configuration.dump()
+                    assert serialized != other_sample.configuration.dump()
 
 
 class DummyConfiguration(Configuration):
@@ -125,18 +125,18 @@ class DummyConfiguration(Configuration):
 
     @override
     @classmethod
-    def load(cls, dump: Dump, /) -> Self:
+    def load(cls, serialized: SerializedData, /) -> Self:
         return cls(
             assert_record(
                 OptionalField(
                     "value",
                     assert_or(assert_none, assert_str()),
                 )
-            )(dump)["value"]
+            )(serialized)["value"]
         )
 
     @override
-    def dump(self) -> Dump:
+    def dump(self) -> SerializedData:
         if self.value is None:
             return {}
         return {

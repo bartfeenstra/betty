@@ -21,7 +21,7 @@ if TYPE_CHECKING:
     from collections.abc import Iterable
 
     from betty.project import Project
-    from betty.serde.dump import Dump, DumpMapping
+    from betty.serde import SerializedData, SerializedMapping
     from betty.service.level.factory import AnyFactoryTarget
 
 
@@ -161,29 +161,29 @@ class RaspberryMintConfiguration(Configuration):
 
     @override
     @classmethod
-    def load(cls, dump: Dump, /) -> Self:
+    def load(cls, serialized: SerializedData, /) -> Self:
         return cls(
             **assert_record(
                 OptionalField("primary_color", ColorConfiguration.load),
                 OptionalField("secondary_color", ColorConfiguration.load),
                 OptionalField("tertiary_color", ColorConfiguration.load),
                 OptionalField("regional_content", RegionalContentConfiguration.load),
-            )(dump)
+            )(serialized)
         )
 
     @override
-    def dump(self) -> DumpMapping[Dump]:
-        dump: DumpMapping[Dump] = {}
+    def dump(self) -> SerializedMapping[SerializedData]:
+        serialized: SerializedMapping[SerializedData] = {}
         if self.primary_color != self._default_primary_color():
-            dump["primary_color"] = self.primary_color.dump()
+            serialized["primary_color"] = self.primary_color.dump()
         if self.secondary_color != self._default_secondary_color():
-            dump["secondary_color"] = self.secondary_color.dump()
+            serialized["secondary_color"] = self.secondary_color.dump()
         if self.tertiary_color != self._default_tertiary_color():
-            dump["tertiary_color"] = self.tertiary_color.dump()
-        regional_content_dump = self.regional_content.dump()
-        if regional_content_dump:
-            dump["regional_content"] = regional_content_dump
-        return dump
+            serialized["tertiary_color"] = self.tertiary_color.dump()
+        serialized_regional_content = self.regional_content.dump()
+        if serialized_regional_content:
+            serialized["regional_content"] = serialized_regional_content
+        return serialized
 
     @override
     def __eq__(self, other: Any) -> bool:

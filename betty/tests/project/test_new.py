@@ -208,10 +208,14 @@ async def test_new__with_gramps(
         configuration = await _assert_new(configuration_file_path)
         assert Gramps.plugin() in configuration.extensions
         async with Project.new_isolated(app) as project, project:
-            gramps_configuration_dump = configuration.extensions[Gramps].configuration
-            assert not isinstance(gramps_configuration_dump, Configuration)
-            assert not isinstance(gramps_configuration_dump, Void)
-            gramps_configuration = GrampsConfiguration.load(gramps_configuration_dump)
+            serialized_gramps_configuration = configuration.extensions[
+                Gramps
+            ].configuration
+            assert not isinstance(serialized_gramps_configuration, Configuration)
+            assert not isinstance(serialized_gramps_configuration, Void)
+            gramps_configuration = GrampsConfiguration.load(
+                serialized_gramps_configuration
+            )
             assert (
                 gramps_configuration.family_trees[0].source
                 == gramps_family_tree_file_path

@@ -20,7 +20,7 @@ from betty.plugin.resolve import ResolvableId, resolve_id
 if TYPE_CHECKING:
     from collections.abc import Collection, MutableSet, Set
 
-    from betty.serde.dump import Dump, DumpMapping
+    from betty.serde import SerializedData, SerializedMapping
 
 
 class OrderedPluginDefinitionConfiguration(PluginDefinitionConfiguration):
@@ -57,13 +57,13 @@ class OrderedPluginDefinitionConfiguration(PluginDefinitionConfiguration):
         ]
 
     @override
-    def dump(self) -> DumpMapping[Dump]:
-        dump = super().dump()
+    def dump(self) -> SerializedMapping[SerializedData]:
+        serialized = super().dump()
         if self.comes_before:
-            dump["comes_before"] = list(self.comes_before)
+            serialized["comes_before"] = list(self.comes_before)
         if self.comes_after:
-            dump["comes_after"] = list(self.comes_after)
-        return dump
+            serialized["comes_after"] = list(self.comes_after)
+        return serialized
 
     @override
     def __eq__(self, other: Any) -> bool:

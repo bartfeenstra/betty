@@ -69,7 +69,7 @@ if TYPE_CHECKING:
     from betty.locale.localizable import Localizable, LocalizableLike
     from betty.plugin.repository import PluginRepository
     from betty.project import Project
-    from betty.serde.dump import Dump, DumpMapping
+    from betty.serde import SerializedData, SerializedMapping
     from betty.service.level.factory import AnyFactoryTarget
 
 DEFAULT_LIFETIME_THRESHOLD = 123
@@ -164,18 +164,18 @@ class EntityTypeConfiguration(Configuration):
 
     @override
     @classmethod
-    def load(cls, dump: Dump, /) -> Self:
+    def load(cls, serialized: SerializedData, /) -> Self:
         record = assert_record(
             RequiredField("entity_type", assert_machine_name()),
             OptionalField("generate_html_list", assert_bool),
-        )(dump)
+        )(serialized)
         return cls(
             record["entity_type"],
             generate_html_list=record.get("generate_html_list", False),
         )
 
     @override
-    def dump(self) -> DumpMapping[Dump]:
+    def dump(self) -> SerializedMapping[SerializedData]:
         return {
             "entity_type": self.id,
             "generate_html_list": self.generate_html_list,
@@ -233,15 +233,19 @@ class EntityTypeConfigurationMapping(
 
     @override
     @classmethod
-    def _load_key(cls, item_dump: Dump, key_dump: str, /) -> Dump:
-        assert isinstance(item_dump, Mapping)
-        item_dump["entity_type"] = key_dump
-        return item_dump
+    def _load_key(
+        cls, serialized_item: SerializedData, serialized_key: str, /
+    ) -> SerializedData:
+        assert isinstance(serialized_item, Mapping)
+        serialized_item["entity_type"] = serialized_key
+        return serialized_item
 
     @override
-    def _dump_key(self, item_dump: Dump, /) -> tuple[Dump, str]:
-        assert isinstance(item_dump, Mapping)
-        return item_dump, cast(str, item_dump.pop("entity_type"))
+    def _dump_key(
+        self, serialized_item: SerializedData, /
+    ) -> tuple[SerializedData, str]:
+        assert isinstance(serialized_item, Mapping)
+        return serialized_item, cast(str, serialized_item.pop("entity_type"))
 
     @override
     @classmethod
@@ -318,21 +322,21 @@ class LocaleConfiguration(Configuration):
 
     @override
     @classmethod
-    def load(cls, dump: Dump, /) -> Self:
+    def load(cls, serialized: SerializedData, /) -> Self:
         record = assert_record(
             RequiredField("locale", assert_locale()),
             OptionalField("alias", assert_str()),
-        )(dump)
+        )(serialized)
         return cls(record["locale"], alias=record.get("alias", None))
 
     @override
-    def dump(self) -> Dump:
-        dump: Dump = {
+    def dump(self) -> SerializedData:
+        serialized: SerializedData = {
             "locale": to_language_tag(self.locale),
         }
         if self._alias is not None:
-            dump["alias"] = self._alias
-        return dump
+            serialized["alias"] = self._alias
+        return serialized
 
     @override
     @classmethod
@@ -436,7 +440,7 @@ class CopyrightNoticePluginConfiguration(HumanFacingPluginDefinitionConfiguratio
         ]
 
     @override
-    def dump(self) -> DumpMapping[Dump]:
+    def dump(self) -> SerializedMapping[SerializedData]:
         return {
             **super().dump(),
             "summary": dump_localizable(self.summary),
@@ -533,7 +537,7 @@ class LicensePluginConfiguration(HumanFacingPluginDefinitionConfiguration):
         ]
 
     @override
-    def dump(self) -> DumpMapping[Dump]:
+    def dump(self) -> SerializedMapping[SerializedData]:
         return {
             **super().dump(),
             "summary": dump_localizable(self.summary),
@@ -1386,7 +1390,7 @@ class ProjectConfiguration(Configuration):
 
     @override
     @classmethod
-    def load(cls, dump: Dump, /) -> Self:
+    def load(cls, serialized: SerializedData, /) -> Self:
         return cls(
             **assert_record(
                 OptionalField("name", assert_or(assert_str(), assert_none)),
@@ -1412,50 +1416,50 @@ class ProjectConfiguration(Configuration):
                 OptionalField(
                     "presence_roles", PresenceRolePluginConfigurationMapping.load
                 ),
-            )(dump)
+            )(serialized)
         )
 
     @override
-    def dump(self) -> DumpMapping[Dump]:
-        dump: DumpMapping[Dump] = {
+    def dump(self) -> SerializedMapping[SerializedData]:
+        serialized: SerializedMapping[SerializedData] = {
             "title": dump_localizable(self.title),
             "url": self.url,
         }
         if self.author is not None:
-            dump["author"] = dump_localizable(self.author)
+            serialized["author"] = dump_localizable(self.author)
         if self.clean_urls:
-            dump["clean_urls"] = self.clean_urls
+            serialized["clean_urls"] = self.clean_urls
         if self.copyright_notice != self._default_copyright_notice():
-            dump["copyright_notice"] = self.copyright_notice.dump()
+            serialized["copyright_notice"] = self.copyright_notice.dump()
         if self.copyright_notices:
-            dump["copyright_notices"] = self.copyright_notices.dump()
+            serialized["copyright_notices"] = self.copyright_notices.dump()
         if self.debug:
-            dump["debug"] = self.debug
+            serialized["debug"] = self.debug
         if self.entity_types:
-            dump["entity_types"] = self.entity_types.dump()
+            serialized["entity_types"] = self.entity_types.dump()
         if self.event_types:
-            dump["event_types"] = self.event_types.dump()
+            serialized["event_types"] = self.event_types.dump()
         if self.extensions:
-            dump["extensions"] = self.extensions.dump()
+            serialized["extensions"] = self.extensions.dump()
         if self.genders:
-            dump["genders"] = self.genders.dump()
+            serialized["genders"] = self.genders.dump()
         if self.license != self._default_license():
-            dump["license"] = self.license.dump()
+            serialized["license"] = self.license.dump()
         if self.licenses:
-            dump["licenses"] = self.licenses.dump()
+            serialized["licenses"] = self.licenses.dump()
         if self.lifetime_threshold != DEFAULT_LIFETIME_THRESHOLD:
-            dump["lifetime_threshold"] = self.lifetime_threshold
+            serialized["lifetime_threshold"] = self.lifetime_threshold
         if self.locales != self._default_locales():
-            dump["locales"] = self.locales.dump()
+            serialized["locales"] = self.locales.dump()
         if self.logo:
-            dump["logo"] = str(self.logo)
+            serialized["logo"] = str(self.logo)
         if self.name is not None:
-            dump["name"] = self.name
+            serialized["name"] = self.name
         if self.place_types:
-            dump["place_types"] = self.place_types.dump()
+            serialized["place_types"] = self.place_types.dump()
         if self.presence_roles:
-            dump["presence_roles"] = self.presence_roles.dump()
-        return dump
+            serialized["presence_roles"] = self.presence_roles.dump()
+        return serialized
 
     @override
     def __eq__(self, other: Any) -> bool:

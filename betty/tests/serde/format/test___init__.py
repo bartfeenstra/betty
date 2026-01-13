@@ -4,7 +4,7 @@ from typing_extensions import override
 from betty.locale.localize import DEFAULT_LOCALIZER
 from betty.media_type import MediaType
 from betty.plugin import PluginDefinition
-from betty.serde.dump import Dump
+from betty.serde import SerializedData
 from betty.serde.format import (
     Format,
     FormatDefinition,
@@ -25,11 +25,11 @@ class TestFormatDefinition(PluginDefinitionClassTestBase):
 
 class _Format(Format):
     @override
-    def load(self, dump: str, /) -> Dump:
+    def load(self, serialized: str, /) -> SerializedData:
         return None  # pragma: nocover
 
     @override
-    def dump(self, dump: Dump | Void, /) -> str:
+    def dump(self, serialized: SerializedData | Void, /) -> str:
         return ""  # pragma: nocover
 
 

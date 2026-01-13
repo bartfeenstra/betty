@@ -4,31 +4,31 @@ Linked data for the date API.
 
 from betty.date import Date, DateRange, _dump_date_iso8601
 from betty.json.linked_data import dump_context
-from betty.serde.dump import Dump, DumpMapping
+from betty.serde import SerializedData, SerializedMapping
 
 
 def dump_linked_data_for_date(
     date: Date, *, context_definition: str | None = None
-) -> DumpMapping[Dump]:
+) -> SerializedMapping[SerializedData]:
     """
     Dump a date to linked data.
     """
-    dump: DumpMapping[Dump] = {
+    serialized: SerializedMapping[SerializedData] = {
         "fuzzy": date.fuzzy,
     }
     if date.year:
-        dump["year"] = date.year
+        serialized["year"] = date.year
     if date.month:
-        dump["month"] = date.month
+        serialized["month"] = date.month
     if date.day:
-        dump["day"] = date.day
+        serialized["day"] = date.day
     if date.comparable:
-        dump["iso8601"] = _dump_date_iso8601(date)
+        serialized["iso8601"] = _dump_date_iso8601(date)
         # Set a single term definition because JSON-LD does not let us apply multiple
         # for the same term (key).
         if context_definition:
-            dump_context(dump, iso8601=context_definition)
-    return dump
+            dump_context(serialized, iso8601=context_definition)
+    return serialized
 
 
 def dump_linked_data_for_date_range(
@@ -36,7 +36,7 @@ def dump_linked_data_for_date_range(
     *,
     start_context_definition: str | None = None,
     end_context_definition: str | None = None,
-) -> DumpMapping[Dump]:
+) -> SerializedMapping[SerializedData]:
     """
     Dump a date range to linked data.
     """

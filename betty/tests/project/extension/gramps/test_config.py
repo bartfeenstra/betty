@@ -23,7 +23,7 @@ from betty.project.extension.gramps.config import (
     PluginMapping,
     PresenceRoleMapping,
 )
-from betty.serde.dump import Dump
+from betty.serde import SerializedData
 from betty.test_utils.config import ConfigurationTestBase
 from betty.test_utils.config.collections import (
     ConfigurationCollectionTestBaseNewSut,
@@ -140,45 +140,45 @@ class TestFamilyTreeConfiguration(ConfigurationTestBase[FamilyTreeConfiguration]
 
     async def test_load__with_minimal_configuration(self, tmp_path: Path) -> None:
         file_path = tmp_path / "ancestry.gramps"
-        dump: Dump = {"file": str(file_path)}
-        FamilyTreeConfiguration(tmp_path).load(dump)
+        serialized: SerializedData = {"file": str(file_path)}
+        FamilyTreeConfiguration(tmp_path).load(serialized)
 
     async def test_load__with_event_types(self, tmp_path: Path) -> None:
         file_path = tmp_path / "ancestry.gramps"
-        dump: Dump = {
+        serialized: SerializedData = {
             "file": str(file_path),
             "event_types": {"my-first-gramps-type": "my-first-betty-plugin-id"},
         }
-        sut = FamilyTreeConfiguration.load(dump)
+        sut = FamilyTreeConfiguration.load(serialized)
         assert sut.event_types["my-first-gramps-type"].id == "my-first-betty-plugin-id"
         assert sut.event_types["Birth"].id == Birth.plugin().id
 
     async def test_load__with_place_types(self, tmp_path: Path) -> None:
         file_path = tmp_path / "ancestry.gramps"
-        dump: Dump = {
+        serialized: SerializedData = {
             "file": str(file_path),
             "place_types": {"my-first-gramps-type": "my-first-betty-plugin-id"},
         }
-        sut = FamilyTreeConfiguration.load(dump)
+        sut = FamilyTreeConfiguration.load(serialized)
         assert sut.place_types["my-first-gramps-type"].id == "my-first-betty-plugin-id"
         assert sut.place_types["Borough"].id == Borough.plugin().id
 
     async def test_load__with_presence_roles(self, tmp_path: Path) -> None:
         file_path = tmp_path / "ancestry.gramps"
-        dump: Dump = {
+        serialized: SerializedData = {
             "file": str(file_path),
             "presence_roles": {"my-first-gramps-type": "my-first-betty-plugin-id"},
         }
-        sut = FamilyTreeConfiguration.load(dump)
+        sut = FamilyTreeConfiguration.load(serialized)
         assert (
             sut.presence_roles["my-first-gramps-type"].id == "my-first-betty-plugin-id"
         )
         assert sut.presence_roles["Aide"].id == Attendee.plugin().id
 
     async def test_load__without_dict_should_error(self, tmp_path: Path) -> None:
-        dump = None
+        serialized = None
         with pytest.raises(HumanFacingException):
-            FamilyTreeConfiguration(tmp_path).load(dump)
+            FamilyTreeConfiguration(tmp_path).load(serialized)
 
     async def test_dump__with_minimal_configuration(self, tmp_path: Path) -> None:
         sut = FamilyTreeConfiguration(tmp_path)
@@ -285,17 +285,17 @@ class TestPluginMapping(ConfigurationTestBase[PluginMapping]):
                 )
             }
 
-        dump: Dump = {
+        serialized: SerializedData = {
             "my-first-gramps-type": "my-first-betty-plugin-id",
             "my-second-gramps-type": "my-second-betty-plugin-id",
         }
-        sut = _PluginMapping.load(dump)
-        assert sut.dump() == dump
+        sut = _PluginMapping.load(serialized)
+        assert sut.dump() == serialized
         assert sut["my-first-gramps-type"].id == "my-first-betty-plugin-id"
         assert sut["my-second-gramps-type"].id == "my-second-betty-plugin-id"
 
     @pytest.mark.parametrize(
-        "dump",
+        "serialized",
         [
             True,
             False,
@@ -305,9 +305,9 @@ class TestPluginMapping(ConfigurationTestBase[PluginMapping]):
             [],
         ],
     )
-    def test_load__should_error(self, dump: Dump) -> None:
+    def test_load__should_error(self, serialized: SerializedData) -> None:
         with pytest.raises(HumanFacingException):
-            PluginMapping[DummyPluginDefinition, DummyPlugin].load(dump)
+            PluginMapping[DummyPluginDefinition, DummyPlugin].load(serialized)
 
     @pytest.mark.parametrize(
         ("expected", "sut"),
@@ -330,7 +330,7 @@ class TestPluginMapping(ConfigurationTestBase[PluginMapping]):
     )
     def test_dump(
         self,
-        expected: Dump,
+        expected: SerializedData,
         sut: PluginMapping[DummyPluginDefinition, DummyPlugin],
     ) -> None:
         assert sut.dump() == expected
@@ -405,24 +405,24 @@ class TestGrampsConfiguration(ConfigurationTestBase[GrampsConfiguration]):
         assert sut.executable == executable
 
     async def test_load__with_minimal_configuration(self) -> None:
-        dump: Dump = {}
-        GrampsConfiguration().load(dump)
+        serialized: SerializedData = {}
+        GrampsConfiguration().load(serialized)
 
     async def test_load__without_dict_should_error(self) -> None:
-        dump = None
+        serialized = None
         with pytest.raises(HumanFacingException):
-            GrampsConfiguration().load(dump)
+            GrampsConfiguration().load(serialized)
 
     async def test_load__with_family_tree(self) -> None:
         family_tree_name = "my-first-family-tree"
-        dump: Dump = {
+        serialized: SerializedData = {
             "family_trees": [
                 {
                     "name": family_tree_name,
                 },
             ],
         }
-        sut = GrampsConfiguration.load(dump)
+        sut = GrampsConfiguration.load(serialized)
         assert sut.family_trees[0].source == family_tree_name
 
     async def test_dump__with_minimal_configuration(self) -> None:

@@ -14,21 +14,21 @@ from betty.locale.localizable.static import (
     CountableStaticTranslations,
     StaticTranslations,
 )
-from betty.serde.dump import Dump, NotDumpable
+from betty.serde import NotDumpable, SerializedData
 
 
-def load_localizable(dump: Dump, /) -> Localizable:
+def load_localizable(serialized: SerializedData, /) -> Localizable:
     """
     Load a localizable from configuration.
     """
     translations = assert_or(
         assert_str().chain(lambda translation: {None: translation}),
         assert_mapping(assert_str(), assert_locale()),
-    )(dump)
+    )(serialized)
     return StaticTranslations(translations)
 
 
-def dump_localizable(localizable: Localizable, /) -> Dump:
+def dump_localizable(localizable: Localizable, /) -> SerializedData:
     """
     Dump a localizable.
 
@@ -58,7 +58,7 @@ def dump_localizable(localizable: Localizable, /) -> Dump:
     )
 
 
-def load_countable_localizable(dump: Dump, /) -> CountableLocalizable:
+def load_countable_localizable(serialized: SerializedData, /) -> CountableLocalizable:
     """
     Load a countable localizable from configuration.
     """
@@ -69,11 +69,11 @@ def load_countable_localizable(dump: Dump, /) -> CountableLocalizable:
                 assert_str(),
             ),
             assert_locale(),
-        )(dump)
+        )(serialized)
     )
 
 
-def dump_countable_localizable(localizable: CountableLocalizable, /) -> Dump:
+def dump_countable_localizable(localizable: CountableLocalizable, /) -> SerializedData:
     """
     Dump a countable localizable.
 

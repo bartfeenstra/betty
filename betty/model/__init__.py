@@ -31,7 +31,7 @@ if TYPE_CHECKING:
     )
     from betty.machine_name import MachineName
     from betty.project import Project
-    from betty.serde.dump import Dump, DumpMapping
+    from betty.serde import SerializedData, SerializedMapping
 
 
 class NonPersistentId(str):
@@ -114,18 +114,20 @@ class Entity(
         )
 
     @override
-    async def dump_linked_data(self, project: Project, /) -> DumpMapping[Dump]:
-        dump = await super().dump_linked_data(project)
+    async def dump_linked_data(
+        self, project: Project, /
+    ) -> SerializedMapping[SerializedData]:
+        serialized = await super().dump_linked_data(project)
 
         if persistent_id(self) and self.plugin().public_facing:
             url_generator = await project.url_generator
-            dump["@id"] = url_generator.generate(
+            serialized["@id"] = url_generator.generate(
                 f"betty-static:///{self.plugin().id}/{self.id}/index.json",
                 absolute=True,
             )
-        dump["id"] = self.id
+        serialized["id"] = self.id
 
-        return dump
+        return serialized
 
     @override
     @classmethod

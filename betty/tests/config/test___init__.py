@@ -5,7 +5,7 @@ from typing_extensions import override
 from betty.assertion import assert_int
 from betty.config import Configurable, Configuration, Sample
 from betty.locale.localizable.plain import Plain
-from betty.serde.dump import Dump
+from betty.serde import SerializedData
 from betty.test_utils.config import DummyConfiguration
 from betty.test_utils.locale.localizable import DUMMY_LOCALIZABLE
 
@@ -18,11 +18,11 @@ class TestConfiguration:
 
         @override
         @classmethod
-        def load(cls, dump: Dump, /) -> Self:
-            return cls(assert_int()(dump))
+        def load(cls, serialized: SerializedData, /) -> Self:
+            return cls(assert_int()(serialized))
 
         @override
-        def dump(self) -> Dump:
+        def dump(self) -> SerializedData:
             return self.value
 
 

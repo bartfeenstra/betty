@@ -33,7 +33,7 @@ if TYPE_CHECKING:
     from betty.locale.localizable import Localizable, LocalizableLike
     from betty.model import Entity
     from betty.project import Project
-    from betty.serde.dump import Dump, DumpMapping
+    from betty.serde import SerializedData, SerializedMapping
 
 
 @final
@@ -109,14 +109,16 @@ class Citation(HasDate, HasFileReferences, HasPrivacy, HasLinks):
         return self.location or super().label
 
     @override
-    async def dump_linked_data(self, project: Project, /) -> DumpMapping[Dump]:
-        dump = await super().dump_linked_data(project)
-        dump["@type"] = "https://schema.org/Thing"
+    async def dump_linked_data(
+        self, project: Project, /
+    ) -> SerializedMapping[SerializedData]:
+        serialized = await super().dump_linked_data(project)
+        serialized["@type"] = "https://schema.org/Thing"
         if is_public(self) and self.location is not None:
-            dump["location"] = dump_linked_data(
+            serialized["location"] = dump_linked_data(
                 self.location, localizers=await project.public_localizers
             )
-        return dump
+        return serialized
 
     @override
     @classmethod

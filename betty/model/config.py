@@ -26,7 +26,7 @@ if TYPE_CHECKING:
 
     from betty.model import EntityDefinition
     from betty.plugin.repository import PluginRepository
-    from betty.serde.dump import Dump, DumpMapping
+    from betty.serde import SerializedData, SerializedMapping
 
 
 @final
@@ -66,15 +66,15 @@ class EntityReference(Configuration):
 
     @override
     @classmethod
-    def load(cls, dump: Dump, /) -> Self:
+    def load(cls, serialized: SerializedData, /) -> Self:
         record = assert_record(
             RequiredField("type", assert_machine_name()),
             RequiredField("id", assert_str()),
-        )(dump)
+        )(serialized)
         return cls(record["type"], record["id"])
 
     @override
-    def dump(self) -> DumpMapping[Dump] | str | None:
+    def dump(self) -> SerializedMapping[SerializedData] | str | None:
         return {
             "type": self.entity_type,
             "id": self.entity_id,

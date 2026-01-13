@@ -22,7 +22,7 @@ if TYPE_CHECKING:
 
     from betty.locale.localize import Localizer
     from betty.media_type import MediaType
-    from betty.serde.dump import Dump
+    from betty.serde import SerializedData
     from betty.typing import Void
 
 
@@ -45,7 +45,7 @@ class Format(ABC, Plugin["FormatDefinition"]):
         """
 
     @abstractmethod
-    def load(self, dump: str, /) -> Dump:
+    def load(self, serialized: str, /) -> SerializedData:
         """
         Deserialize data.
 
@@ -53,7 +53,7 @@ class Format(ABC, Plugin["FormatDefinition"]):
         """
 
     @abstractmethod
-    def dump(self, dump: Dump | Void, /) -> str:
+    def dump(self, serialized: SerializedData | Void, /) -> str:
         """
         Serialize data.
         """

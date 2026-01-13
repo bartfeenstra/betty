@@ -34,7 +34,7 @@ if TYPE_CHECKING:
     from betty.locale.localizable import Localizable
     from betty.privacy import Privacy
     from betty.project import Project
-    from betty.serde.dump import Dump, DumpMapping
+    from betty.serde import SerializedData, SerializedMapping
 
 
 @final
@@ -169,33 +169,37 @@ class Place(HasLinks, HasFileReferences, HasNotes, HasPrivacy):
         return super().label
 
     @override
-    async def dump_linked_data(self, project: Project, /) -> DumpMapping[Dump]:
-        dump = await super().dump_linked_data(project)
+    async def dump_linked_data(
+        self, project: Project, /
+    ) -> SerializedMapping[SerializedData]:
+        serialized = await super().dump_linked_data(project)
         dump_context(
-            dump,
+            serialized,
             names="https://schema.org/name",
             events="https://schema.org/event",
             enclosers="https://schema.org/containedInPlace",
             enclosees="https://schema.org/containsPlace",
         )
-        dump["@type"] = "https://schema.org/Place"
-        dump["names"] = [await name.dump_linked_data(project) for name in self.names]
+        serialized["@type"] = "https://schema.org/Place"
+        serialized["names"] = [
+            await name.dump_linked_data(project) for name in self.names
+        ]
         if self.coordinates is not None:
-            dump["coordinates"] = {
+            serialized["coordinates"] = {
                 "@type": "https://schema.org/GeoCoordinates",
                 "latitude": self.coordinates.latitude,
                 "longitude": self.coordinates.longitude,
             }
-            dump_context(dump, coordinates="https://schema.org/geo")
+            dump_context(serialized, coordinates="https://schema.org/geo")
             dump_context(
-                dump["coordinates"],  # type: ignore[arg-type]
+                serialized["coordinates"],  # type: ignore[arg-type]
                 latitude="https://schema.org/latitude",
             )
             dump_context(
-                dump["coordinates"],  # type: ignore[arg-type]
+                serialized["coordinates"],  # type: ignore[arg-type]
                 longitude="https://schema.org/longitude",
             )
-        return dump
+        return serialized
 
     @override
     @classmethod

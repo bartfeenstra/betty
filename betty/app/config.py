@@ -18,7 +18,7 @@ if TYPE_CHECKING:
 
     from babel import Locale
 
-    from betty.serde.dump import Dump, DumpMapping
+    from betty.serde import SerializedData, SerializedMapping
 
 CONFIGURATION_FILE_PATH = APP_CONFIG_DIRECTORY_PATH / "app.json"
 
@@ -53,11 +53,13 @@ class AppConfiguration(Configuration):
 
     @override
     @classmethod
-    def load(cls, dump: Dump, /) -> Self:
-        return cls(**assert_record(OptionalField("locale", assert_locale()))(dump))
+    def load(cls, serialized: SerializedData, /) -> Self:
+        return cls(
+            **assert_record(OptionalField("locale", assert_locale()))(serialized)
+        )
 
     @override
-    def dump(self) -> DumpMapping[Dump]:
+    def dump(self) -> SerializedMapping[SerializedData]:
         if self.locale is None:
             return {}
         return {"locale": to_language_tag(self.locale)}

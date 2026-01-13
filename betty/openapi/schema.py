@@ -6,7 +6,7 @@ from typing import final
 
 from betty.classtools import Singleton
 from betty.json.schema import Schema
-from betty.serde.dump import Dump, DumpMapping
+from betty.serde import SerializedData, SerializedMapping
 
 
 @final
@@ -15,7 +15,7 @@ class SpecificationSchema(Singleton, Schema):
     The OpenAPI Specification schema.
     """
 
-    _SCHEMA: DumpMapping[Dump] = {
+    _SCHEMA: SerializedMapping[SerializedData] = {
         "$id": "https://spec.openapis.org/oas/3.1/schema/2022-10-07",
         "$schema": "https://json-schema.org/draft/2020-12/schema",
         "description": "The description of OpenAPI v3.1.x documents without schema validation, as defined by https://spec.openapis.org/oas/v3.1.0",

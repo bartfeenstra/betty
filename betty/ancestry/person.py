@@ -36,7 +36,7 @@ if TYPE_CHECKING:
     from betty.ancestry.presence import Presence
     from betty.locale.localizable import Localizable
     from betty.project import Project
-    from betty.serde.dump import Dump, DumpMapping
+    from betty.serde import SerializedData, SerializedMapping
 
 
 @final
@@ -189,18 +189,20 @@ class Person(HasFileReferences, HasCitations, HasNotes, HasLinks, HasPrivacy):
         return super().label
 
     @override
-    async def dump_linked_data(self, project: Project, /) -> DumpMapping[Dump]:
-        dump = await super().dump_linked_data(project)
+    async def dump_linked_data(
+        self, project: Project, /
+    ) -> SerializedMapping[SerializedData]:
+        serialized = await super().dump_linked_data(project)
         url_generator = await project.url_generator
         dump_context(
-            dump,
+            serialized,
             names="https://schema.org/name",
             parents="https://schema.org/parent",
             children="https://schema.org/child",
             siblings="https://schema.org/sibling",
         )
-        dump["@type"] = "https://schema.org/Person"
-        dump["siblings"] = [
+        serialized["@type"] = "https://schema.org/Person"
+        serialized["siblings"] = [
             url_generator.generate(
                 f"betty-static:///person/{quote(sibling.id)}/index.json"
             )
@@ -208,8 +210,8 @@ class Person(HasFileReferences, HasCitations, HasNotes, HasLinks, HasPrivacy):
             if persistent_id(sibling)
         ]
         if self.public:
-            dump["gender"] = self.gender.plugin().id
-        return dump
+            serialized["gender"] = self.gender.plugin().id
+        return serialized
 
     @override
     @classmethod

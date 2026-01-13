@@ -37,8 +37,7 @@ if TYPE_CHECKING:
     from collections.abc import Iterable
 
     from betty.app import App
-    from betty.serde.dump import Dump, DumpMapping
-
+    from betty.serde import SerializedData, SerializedMapping
 
 _EntityT = TypeVar("_EntityT", bound=Entity)
 
@@ -347,7 +346,7 @@ class TestUnidirectionalToZeroOrOne:
             associate = self._Associate()
             target = self._OwnerEmbedded(associate)
             actual = await assert_dumps_linked_data_for(type(target).associate, target)
-            expected: DumpMapping[Dump] = {
+            expected: SerializedMapping[SerializedData] = {
                 "id": associate.id,
             }
             assert actual == expected
@@ -566,7 +565,7 @@ class TestBidirectionalToZeroOrOne:
             associate = self._Associate()
             target = self._OwnerEmbedded(associate)
             actual = await assert_dumps_linked_data_for(type(target).associate, target)
-            expected: DumpMapping[Dump] = {
+            expected: SerializedMapping[SerializedData] = {
                 "id": associate.id,
                 "owner": None,
             }
@@ -722,7 +721,7 @@ class TestUnidirectionalToOne:
             associate = self._Associate()
             target = self._OwnerEmbedded(associate)
             actual = await assert_dumps_linked_data_for(type(target).associate, target)
-            expected: DumpMapping[Dump] = {
+            expected: SerializedMapping[SerializedData] = {
                 "id": associate.id,
             }
             assert actual == expected
@@ -903,7 +902,7 @@ class TestBidirectionalToOne:
             associate = self._AssociateEmbedded()
             target = self._OwnerEmbedded(associate)
             actual = await assert_dumps_linked_data_for(type(target).associate, target)
-            expected: DumpMapping[Dump] = {
+            expected: SerializedMapping[SerializedData] = {
                 "id": associate.id,
                 "owner": None,
             }

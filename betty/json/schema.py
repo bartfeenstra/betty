@@ -12,7 +12,7 @@ from referencing import Registry, Resource
 from typing_extensions import override
 
 from betty.classtools import Singleton
-from betty.serde.dump import Dump, DumpMapping
+from betty.serde import SerializedData, SerializedMapping
 
 
 class Schema:
@@ -32,7 +32,7 @@ class Schema:
         description: str | None = None,
     ):
         self._def_name = def_name
-        self._schema: DumpMapping[Dump] = {
+        self._schema: SerializedMapping[SerializedData] = {
             # The entire API assumes this dialect, so enforce it.
             "$schema": "https://json-schema.org/draft/2020-12/schema",
         }
@@ -49,7 +49,7 @@ class Schema:
         return self._def_name
 
     @property
-    def schema(self) -> DumpMapping[Dump]:
+    def schema(self) -> SerializedMapping[SerializedData]:
         """
         The raw JSON Schema.
         """
@@ -84,16 +84,18 @@ class Schema:
         self._schema["description"] = description
 
     @property
-    def defs(self) -> DumpMapping[Dump]:
+    def defs(self) -> SerializedMapping[SerializedData]:
         """
         The JSON Schema's ``$defs`` definitions, kept separately, so they can be merged when this schema is embedded.
 
         Only top-level definitions are supported. You **MUST NOT** nest definitions. Instead, prefix or suffix
         their names.
         """
-        return cast(DumpMapping[Dump], self._schema.setdefault("$defs", {}))
+        return cast(
+            SerializedMapping[SerializedData], self._schema.setdefault("$defs", {})
+        )
 
-    def embed(self, into: Schema, /) -> DumpMapping[Dump]:
+    def embed(self, into: Schema, /) -> SerializedMapping[SerializedData]:
         """
         Embed this schema.
 
@@ -335,7 +337,7 @@ class Const(Schema):
 
     def __init__(
         self,
-        const: Dump,
+        const: SerializedData,
         *,
         def_name: str | None = None,
         title: str | None = None,
@@ -352,7 +354,7 @@ class Enum(Schema):
 
     def __init__(
         self,
-        *values: Dump,
+        *values: SerializedData,
         def_name: str | None = None,
         title: str | None = None,
         description: str | None = None,
@@ -408,7 +410,7 @@ class JsonSchemaSchema(Singleton, Schema):
     The JSON Schema Draft 2020-12 schema.
     """
 
-    _SCHEMA: DumpMapping[Dump] = {
+    _SCHEMA: SerializedMapping[SerializedData] = {
         "$schema": "https://json-schema.org/draft/2020-12/schema",
         "$id": "https://json-schema.org/draft/2020-12/schema",
         "$vocabulary": {

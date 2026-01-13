@@ -23,7 +23,7 @@ if TYPE_CHECKING:
     from betty.json.linked_data import JsonLdObject
     from betty.locale.localizable import Localizable, LocalizableLike
     from betty.project import Project
-    from betty.serde.dump import Dump, DumpMapping
+    from betty.serde import SerializedData, SerializedMapping
 
 
 @final
@@ -74,14 +74,16 @@ class Note(HasPrivacy, HasLinks, HasMediaType):
         return self.text
 
     @override
-    async def dump_linked_data(self, project: Project, /) -> DumpMapping[Dump]:
-        dump = await super().dump_linked_data(project)
-        dump["@type"] = "https://schema.org/Thing"
+    async def dump_linked_data(
+        self, project: Project, /
+    ) -> SerializedMapping[SerializedData]:
+        serialized = await super().dump_linked_data(project)
+        serialized["@type"] = "https://schema.org/Thing"
         if is_public(self):
-            dump["text"] = dump_linked_data(
+            serialized["text"] = dump_linked_data(
                 self.text, localizers=await project.public_localizers
             )
-        return dump
+        return serialized
 
     @override
     @classmethod

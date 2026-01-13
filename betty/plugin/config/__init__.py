@@ -45,7 +45,7 @@ from betty.typing import Void
 
 if TYPE_CHECKING:
     from betty.locale.localizable import CountableLocalizableLike, LocalizableLike
-    from betty.serde.dump import Dump, DumpMapping
+    from betty.serde import SerializedData, SerializedMapping
 
 _PluginT = TypeVar("_PluginT", bound=Plugin, default=Plugin)
 _ConfigurationT = TypeVar("_ConfigurationT", bound=Configuration, default=Configuration)
@@ -97,8 +97,8 @@ class PluginDefinitionConfiguration(Configuration):
 
     @override
     @classmethod
-    def load(cls, dump: Dump, /) -> Self:
-        return cls(**assert_record(*cls.fields())(dump))
+    def load(cls, serialized: SerializedData, /) -> Self:
+        return cls(**assert_record(*cls.fields())(serialized))
 
     @classmethod
     def fields(cls) -> Collection[Field[Any, Any]]:
@@ -110,7 +110,7 @@ class PluginDefinitionConfiguration(Configuration):
         ]
 
     @override
-    def dump(self) -> DumpMapping[Dump]:
+    def dump(self) -> SerializedMapping[SerializedData]:
         return {
             "id": self.id,
         }
@@ -159,12 +159,12 @@ class HumanFacingPluginDefinitionConfiguration(PluginDefinitionConfiguration):
         ]
 
     @override
-    def dump(self) -> DumpMapping[Dump]:
-        dump = super().dump()
-        dump["label"] = dump_localizable(self.label)
+    def dump(self) -> SerializedMapping[SerializedData]:
+        serialized = super().dump()
+        serialized["label"] = dump_localizable(self.label)
         if self.description is not None:
-            dump["description"] = dump_localizable(self.description)
-        return dump
+            serialized["description"] = dump_localizable(self.description)
+        return serialized
 
     @override
     def __eq__(self, other: Any) -> bool:
@@ -227,11 +227,11 @@ class CountableHumanFacingPluginDefinitionConfiguration(
         ]
 
     @override
-    def dump(self) -> DumpMapping[Dump]:
-        dump = super().dump()
-        dump["label_plural"] = dump_localizable(self.label_plural)
-        dump["label_countable"] = dump_countable_localizable(self.label_countable)
-        return dump
+    def dump(self) -> SerializedMapping[SerializedData]:
+        serialized = super().dump()
+        serialized["label_plural"] = dump_localizable(self.label_plural)
+        serialized["label_countable"] = dump_countable_localizable(self.label_countable)
+        return serialized
 
     @override
     def __eq__(self, other: Any) -> bool:
@@ -334,15 +334,19 @@ class PluginDefinitionConfigurationMapping(
 
     @override
     @classmethod
-    def _load_key(cls, item_dump: Dump, key_dump: str, /) -> Dump:
-        assert isinstance(item_dump, Mapping)
-        item_dump["id"] = key_dump
-        return item_dump
+    def _load_key(
+        cls, serialized_item: SerializedData, serialized_key: str, /
+    ) -> SerializedData:
+        assert isinstance(serialized_item, Mapping)
+        serialized_item["id"] = serialized_key
+        return serialized_item
 
     @override
-    def _dump_key(self, item_dump: Dump, /) -> tuple[Dump, str]:
-        assert isinstance(item_dump, Mapping)
-        return item_dump, cast(str, item_dump.pop("id"))
+    def _dump_key(
+        self, serialized_item: SerializedData, /
+    ) -> tuple[SerializedData, str]:
+        assert isinstance(serialized_item, Mapping)
+        return serialized_item, cast(str, serialized_item.pop("id"))
 
 
 class PluginInstanceConfiguration(Generic[_PluginDefinitionT, _PluginT], Configuration):
@@ -355,7 +359,7 @@ class PluginInstanceConfiguration(Generic[_PluginDefinitionT, _PluginT], Configu
     def __init__(
         self,
         id: ResolvableId[_PluginDefinitionT],  # noqa A002
-        configuration: Configuration | Dump | Void = Void(),  # noqa B008
+        configuration: Configuration | SerializedData | Void = Void(),  # noqa B008
         /,
     ):
         super().__init__()
@@ -376,7 +380,7 @@ class PluginInstanceConfiguration(Generic[_PluginDefinitionT, _PluginT], Configu
         return self._id
 
     @property
-    def configuration(self) -> Configuration | Dump | Void:
+    def configuration(self) -> Configuration | SerializedData | Void:
         """
         Get the plugin's own configuration.
         """
@@ -384,7 +388,7 @@ class PluginInstanceConfiguration(Generic[_PluginDefinitionT, _PluginT], Configu
 
     @override
     @classmethod
-    def load(cls, dump: Dump, /) -> Self:
+    def load(cls, serialized: SerializedData, /) -> Self:
         id_assertion = assert_machine_name()
         record = assert_or(
             id_assertion | (lambda plugin_id: {"id": plugin_id}),
@@ -392,11 +396,11 @@ class PluginInstanceConfiguration(Generic[_PluginDefinitionT, _PluginT], Configu
                 RequiredField("id", id_assertion),
                 OptionalField("configuration"),
             ),
-        )(dump)
+        )(serialized)
         return cls(record["id"], record.get("configuration", Void()))
 
     @override
-    def dump(self) -> Dump:
+    def dump(self) -> SerializedData:
         configuration = self.configuration
         if isinstance(configuration, Void):
             return self._id
@@ -500,19 +504,23 @@ class PluginInstanceConfigurationMapping(
 
     @override
     @classmethod
-    def _load_key(cls, item_dump: Dump, key_dump: str, /) -> Dump:
-        if not item_dump:
-            return key_dump
-        assert isinstance(item_dump, Mapping)
-        item_dump["id"] = key_dump
-        return item_dump
+    def _load_key(
+        cls, serialized_item: SerializedData, serialized_key: str, /
+    ) -> SerializedData:
+        if not serialized_item:
+            return serialized_key
+        assert isinstance(serialized_item, Mapping)
+        serialized_item["id"] = serialized_key
+        return serialized_item
 
     @override
-    def _dump_key(self, item_dump: Dump, /) -> tuple[Dump, str]:
-        if isinstance(item_dump, str):
-            return {}, item_dump
-        assert isinstance(item_dump, Mapping)
-        return item_dump, cast(str, item_dump.pop("id"))
+    def _dump_key(
+        self, serialized_item: SerializedData, /
+    ) -> tuple[SerializedData, str]:
+        if isinstance(serialized_item, str):
+            return {}, serialized_item
+        assert isinstance(serialized_item, Mapping)
+        return serialized_item, cast(str, serialized_item.pop("id"))
 
     @override
     @classmethod
