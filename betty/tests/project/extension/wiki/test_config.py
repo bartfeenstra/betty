@@ -9,20 +9,20 @@ from betty.test_utils.config import ConfigurationTestBase
 if TYPE_CHECKING:
     from collections.abc import Mapping
 
-    from betty.serde.dump import Dump
+    from betty.serde import SerializedData
 
 
 class TestWikiConfiguration(ConfigurationTestBase[WikiConfiguration]):
     sut_cls = WikiConfiguration
 
     async def test_load__with_minimal_configuration(self) -> None:
-        dump: Mapping[str, Any] = {}
-        WikiConfiguration.load(dump)
+        serialized: Mapping[str, Any] = {}
+        WikiConfiguration.load(serialized)
 
     async def test_load__without_dict_should_error(self) -> None:
-        dump = None
+        serialized = None
         with pytest.raises(HumanFacingException):
-            WikiConfiguration.load(dump)
+            WikiConfiguration.load(serialized)
 
     @pytest.mark.parametrize(
         "populate_images",
@@ -34,10 +34,10 @@ class TestWikiConfiguration(ConfigurationTestBase[WikiConfiguration]):
     async def test_load__with_populate_images(
         self, populate_images: bool | None
     ) -> None:
-        dump: Dump = {
+        serialized: SerializedData = {
             "populate_images": populate_images,
         }
-        sut = WikiConfiguration.load(dump)
+        sut = WikiConfiguration.load(serialized)
         assert sut.populate_images == populate_images
 
     async def test_dump__with_minimal_configuration(self) -> None:

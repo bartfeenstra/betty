@@ -9,9 +9,11 @@ import pytest
 from jsonschema.exceptions import ValidationError
 
 from betty.json.schema import JsonSchemaSchema, Schema, String
-from betty.serde.dump import Dump
+from betty.serde import SerializedData
 
-DUMMY_SCHEMAS: Sequence[tuple[Schema, Sequence[Dump], Sequence[Dump]]] = (
+DUMMY_SCHEMAS: Sequence[
+    tuple[Schema, Sequence[SerializedData], Sequence[SerializedData]]
+] = (
     (
         String(),
         [
@@ -28,7 +30,9 @@ DUMMY_SCHEMAS: Sequence[tuple[Schema, Sequence[Dump], Sequence[Dump]]] = (
 )
 
 
-SchemaTestBaseSut: TypeAlias = tuple[Schema, Sequence[Dump], Sequence[Dump]]
+SchemaTestBaseSut: TypeAlias = tuple[
+    Schema, Sequence[SerializedData], Sequence[SerializedData]
+]
 
 
 class SchemaTestBase:

@@ -17,7 +17,7 @@ from betty.config.collections import ConfigurationCollection, ConfigurationKey
 if TYPE_CHECKING:
     from collections.abc import Iterable, Iterator, MutableMapping
 
-    from betty.serde.dump import Dump, DumpMapping, DumpSequence
+    from betty.serde import SerializedData, SerializedMapping, SerializedSequence
 
 _ConfigurationT = TypeVar("_ConfigurationT", bound=Configuration)
 _ConfigurationKeyT = TypeVar("_ConfigurationKeyT", bound=ConfigurationKey)
@@ -108,39 +108,47 @@ class ConfigurationMapping(
 
     @classmethod
     @abstractmethod
-    def _load_key(cls, item_dump: Dump, key_dump: str, /) -> Dump:
+    def _load_key(
+        cls, serialized_item: SerializedData, serialized_key: str, /
+    ) -> SerializedData:
         pass
 
     @abstractmethod
-    def _dump_key(self, item_dump: Dump, /) -> tuple[Dump, str]:
+    def _dump_key(
+        self, serialized_item: SerializedData, /
+    ) -> tuple[SerializedData, str]:
         pass
 
     @classmethod
-    def __load_item_key(cls, value_dump: DumpMapping[Dump], key_dump: str, /) -> Dump:
-        return cls._load_key(value_dump, key_dump)
+    def __load_item_key(
+        cls, serialized_value: SerializedMapping[SerializedData], serialized_key: str, /
+    ) -> SerializedData:
+        return cls._load_key(serialized_value, serialized_key)
 
     @override
     @classmethod
-    def load(cls, dump: Dump, /) -> Self:
+    def load(cls, serialized: SerializedData, /) -> Self:
         return cls(
             assert_mapping(cls._item_cls().load)(
                 {
-                    item_key_dump: cls.__load_item_key(item_value_dump, item_key_dump)
-                    for item_key_dump, item_value_dump in assert_mapping(
+                    serialized_item_key: cls.__load_item_key(
+                        serialized_item_value, serialized_item_key
+                    )
+                    for serialized_item_key, serialized_item_value in assert_mapping(
                         assert_mapping()
-                    )(dump).items()
+                    )(serialized).items()
                 }
             ).values()
         )
 
     @override
-    def dump(self) -> DumpMapping[Dump]:
-        dump: DumpMapping[Dump] = {}
+    def dump(self) -> SerializedMapping[SerializedData]:
+        serialized: SerializedMapping[SerializedData] = {}
         for configuration_item in self._configurations.values():
-            item_dump = configuration_item.dump()
-            item_dump, configuration_key = self._dump_key(item_dump)
-            dump[configuration_key] = item_dump
-        return dump
+            serialized_item = configuration_item.dump()
+            serialized_item, configuration_key = self._dump_key(serialized_item)
+            serialized[configuration_key] = serialized_item
+        return serialized
 
 
 class OrderedConfigurationMapping(
@@ -165,11 +173,11 @@ class OrderedConfigurationMapping(
 
     @override
     @classmethod
-    def load(cls, dump: Dump, /) -> Self:
-        return cls(assert_sequence(cls._item_cls().load)(dump))
+    def load(cls, serialized: SerializedData, /) -> Self:
+        return cls(assert_sequence(cls._item_cls().load)(serialized))
 
     @override
-    def dump(self) -> DumpSequence[Dump]:
+    def dump(self) -> SerializedSequence[SerializedData]:
         return [
             configuration_item.dump()
             for configuration_item in self._configurations.values()

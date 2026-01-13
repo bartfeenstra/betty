@@ -22,7 +22,7 @@ if TYPE_CHECKING:
     from babel import Locale
 
     from betty.project import Project
-    from betty.serde.dump import Dump, DumpMapping
+    from betty.serde import SerializedData, SerializedMapping
 
 
 class HasLocale(StdHasLocale, LinkedDataDumpableWithSchemaJsonLdObject):
@@ -40,10 +40,12 @@ class HasLocale(StdHasLocale, LinkedDataDumpableWithSchemaJsonLdObject):
         self._locale = locale
 
     @override
-    async def dump_linked_data(self, project: Project, /) -> DumpMapping[Dump]:
-        dump = await super().dump_linked_data(project)
-        dump["locale"] = to_language_tag(self.locale) if is_public(self) else None
-        return dump
+    async def dump_linked_data(
+        self, project: Project, /
+    ) -> SerializedMapping[SerializedData]:
+        serialized = await super().dump_linked_data(project)
+        serialized["locale"] = to_language_tag(self.locale) if is_public(self) else None
+        return serialized
 
     @override
     @classmethod

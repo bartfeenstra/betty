@@ -9,17 +9,17 @@ from betty.locale.localizable.static.schema import StaticTranslationsSchema
 from betty.test_utils.json.schema import SchemaTestBase, SchemaTestBaseSut
 
 if TYPE_CHECKING:
-    from betty.serde.dump import Dump
+    from betty.serde import SerializedData
 
 
 class TestStaticTranslationsSchema(SchemaTestBase):
     @staticmethod
     def _sut_params() -> Iterable[SchemaTestBaseSut]:
-        valid_datas: Sequence[Dump] = [
+        valid_datas: Sequence[SerializedData] = [
             {DEFAULT_LOCALE_TAG: "Hello, world!"},
             {"nl": "Hallo, wereld!", "uk": "Привіт Світ!"},
         ]
-        invalid_datas: Sequence[Dump] = [
+        invalid_datas: Sequence[SerializedData] = [
             True,
             False,
             None,

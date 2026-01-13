@@ -35,7 +35,7 @@ from betty.model.schema import ToManySchema, ToZeroOrOneSchema
 
 if TYPE_CHECKING:
     from betty.project import Project
-    from betty.serde.dump import Dump
+    from betty.serde import SerializedData
 
 _T = TypeVar("_T")
 _EntityT = TypeVar("_EntityT", bound=Entity)
@@ -278,7 +278,7 @@ class _ToOneAssociation(
     @override
     async def dump_linked_data_for(
         self, project: Project, target: _OwnerT & Entity, /
-    ) -> Dump:
+    ) -> SerializedData:
         associate = self.__get__(target, type(target))
         if self._linked_data_embedded:
             return await associate.dump_linked_data(project)
@@ -345,7 +345,7 @@ class _ToZeroOrOneAssociation(
     @override
     async def dump_linked_data_for(
         self, project: Project, target: _OwnerT & Entity, /
-    ) -> Dump:
+    ) -> SerializedData:
         associate = self.__get__(target, type(target))
         if associate is None:
             return None
@@ -425,7 +425,7 @@ class _ToManyAssociation(
     @override
     async def dump_linked_data_for(
         self, project: Project, target: _OwnerT & Entity, /
-    ) -> Dump:
+    ) -> SerializedData:
         associates = self.__get__(target, type(target))
         if self._linked_data_embedded:
             return [

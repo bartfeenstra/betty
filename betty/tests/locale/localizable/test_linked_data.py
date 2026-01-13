@@ -5,7 +5,7 @@ from betty.locale.localizable.linked_data import dump_linked_data
 from betty.locale.localizable.static import StaticTranslations
 from betty.locale.localizable.static.schema import StaticTranslationsSchema
 from betty.locale.localize import DEFAULT_LOCALIZER
-from betty.serde.dump import Dump, DumpMapping
+from betty.serde import SerializedData, SerializedMapping
 from betty.test_utils.json.linked_data import assert_linked_data_dump
 
 
@@ -28,7 +28,8 @@ from betty.test_utils.json.linked_data import assert_linked_data_dump
     ],
 )
 async def test_dump_linked_data(
-    expected: DumpMapping[Dump], translations: ShorthandStaticTranslations
+    expected: SerializedMapping[SerializedData],
+    translations: ShorthandStaticTranslations,
 ) -> None:
     actual = await assert_linked_data_dump(
         StaticTranslationsSchema(),

@@ -2,7 +2,7 @@ import pytest
 
 from betty.config.color import ColorConfiguration
 from betty.exception import HumanFacingException
-from betty.serde.dump import Dump
+from betty.serde import SerializedData
 from betty.test_utils.config import ConfigurationTestBase
 
 
@@ -20,7 +20,7 @@ class TestColorConfiguration(ConfigurationTestBase[ColorConfiguration]):
         assert sut.hex == hex_value
 
     @pytest.mark.parametrize(
-        "dump,",
+        "serialized,",
         [
             True,
             False,
@@ -28,9 +28,9 @@ class TestColorConfiguration(ConfigurationTestBase[ColorConfiguration]):
             "#aaaaaaa",
         ],
     )
-    def test_load__with_invalid_dumps(self, dump: Dump) -> None:
+    def test_load__with_invalid_serialized(self, serialized: SerializedData) -> None:
         with pytest.raises(HumanFacingException):
-            ColorConfiguration.load(dump)
+            ColorConfiguration.load(serialized)
 
     def test_dump(self) -> None:
         hex_value = "#123456"

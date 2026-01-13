@@ -4,7 +4,7 @@ Test utilities for :py:mod:`betty.serde.format`.
 
 import pytest
 
-from betty.serde.dump import Dump
+from betty.serde import SerializedData
 from betty.serde.format import Format
 from betty.test_utils.plugin import PluginTestBase
 from betty.test_utils.plugin.human_facing import HumanFacingPluginDefinitionTestBase
@@ -22,7 +22,7 @@ class FormatTestBase(PluginTestBase[Format]):
     """
 
     @pytest.mark.parametrize(
-        "dump",
+        "serialized",
         [
             True,
             False,
@@ -35,11 +35,11 @@ class FormatTestBase(PluginTestBase[Format]):
             ["value"],
         ],
     )
-    def test_dump_and_load(self, dump: Dump, sut: Format) -> None:
+    def test_dump_and_load(self, serialized: SerializedData, sut: Format) -> None:
         """
         Tests :py:meth:`betty.serde.format.Format.load` and :py:meth:`betty.serde.format.Format.dump` implementations.
         """
-        assert sut.load(sut.dump(dump)) == dump
+        assert sut.load(sut.dump(serialized)) == serialized
 
     def test_load(self) -> None:
         """

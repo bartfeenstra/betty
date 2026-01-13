@@ -30,7 +30,7 @@ from betty.json.linked_data import LinkedDataDumpable
 from betty.locale.localize import DEFAULT_LOCALIZER, Localizer
 from betty.media_type.media_types import HTML
 from betty.plugin.resolve import ResolvableId, resolve_id
-from betty.serde.dump import Dump, DumpMapping
+from betty.serde import SerializedData, SerializedMapping
 
 if TYPE_CHECKING:
     from betty.ancestry.citation import Citation
@@ -193,7 +193,7 @@ class DocumentProvider:
 
 
 @final
-class Breadcrumb(LinkedDataDumpable[DumpMapping[Dump]]):
+class Breadcrumb(LinkedDataDumpable[SerializedMapping[SerializedData]]):
     """
     A breadcrumb.
     """
@@ -217,21 +217,25 @@ class Breadcrumb(LinkedDataDumpable[DumpMapping[Dump]]):
         return self._resource_url
 
     @override
-    async def dump_linked_data(self, project: Project, /) -> DumpMapping[Dump]:
-        dump: DumpMapping[Dump] = {
+    async def dump_linked_data(
+        self, project: Project, /
+    ) -> SerializedMapping[SerializedData]:
+        serialized: SerializedMapping[SerializedData] = {
             "@type": "ListItem",
             "name": self._label,
         }
         if self._resource_url is not None:
             url_generator = await project.url_generator
-            dump["item"] = url_generator.generate(
+            serialized["item"] = url_generator.generate(
                 self._resource_url, absolute=True, media_type=HTML
             )
-        return dump
+        return serialized
 
 
 @final
-class Breadcrumbs(LinkedDataDumpable[DumpMapping[Dump]], Iterable[Breadcrumb], Sized):
+class Breadcrumbs(
+    LinkedDataDumpable[SerializedMapping[SerializedData]], Iterable[Breadcrumb], Sized
+):
     """
     A trail of navigational breadcrumbs.
     """
@@ -254,7 +258,9 @@ class Breadcrumbs(LinkedDataDumpable[DumpMapping[Dump]], Iterable[Breadcrumb], S
         self._breadcrumbs.append(Breadcrumb(label, resource_url))
 
     @override
-    async def dump_linked_data(self, project: Project, /) -> DumpMapping[Dump]:
+    async def dump_linked_data(
+        self, project: Project, /
+    ) -> SerializedMapping[SerializedData]:
         if not self._breadcrumbs:
             return {}
         return {

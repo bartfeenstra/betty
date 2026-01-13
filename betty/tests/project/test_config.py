@@ -64,7 +64,7 @@ from betty.typing import Void
 
 if TYPE_CHECKING:
     from betty.app import App
-    from betty.serde.dump import Dump, DumpMapping
+    from betty.serde import SerializedData, SerializedMapping
     from betty.test_utils.config.collections import (
         ConfigurationCollectionTestBaseSutConfigurationKeys,
         ConfigurationCollectionTestBaseSutConfigurations,
@@ -108,23 +108,23 @@ class TestLocaleConfiguration(ConfigurationTestBase[LocaleConfiguration]):
             )
 
     async def test_load__with_invalid_dump(self) -> None:
-        dump: Dump = {}
+        serialized: SerializedData = {}
         with pytest.raises(HumanFacingException):
-            LocaleConfiguration.load(dump)
+            LocaleConfiguration.load(serialized)
 
     async def test_load__with_locale(self) -> None:
-        dump: Dump = {
+        serialized: SerializedData = {
             "locale": DEFAULT_LOCALE_TAG,
         }
-        sut = LocaleConfiguration.load(dump)
+        sut = LocaleConfiguration.load(serialized)
         assert sut.locale == DEFAULT_LOCALE
 
     async def test_load__with_alias(self) -> None:
-        dump: Dump = {
+        serialized: SerializedData = {
             "locale": "nl-NL",
             "alias": "my-first-alias",
         }
-        sut = LocaleConfiguration.load(dump)
+        sut = LocaleConfiguration.load(serialized)
         assert sut.alias == "my-first-alias"
 
     async def test_dump__should_dump_minimal(self) -> None:
@@ -387,15 +387,15 @@ class TestEntityTypeConfiguration(ConfigurationTestBase[EntityTypeConfiguration]
         assert sut.generate_html_list == generate_html_list
 
     async def test_load__with_empty_configuration(self) -> None:
-        dump: Dump = {}
+        serialized: SerializedData = {}
         with pytest.raises(HumanFacingException):
-            EntityTypeConfiguration.load(dump)
+            EntityTypeConfiguration.load(serialized)
 
     def test_load__with_minimal_configuration(self) -> None:
-        dump: Dump = {
+        serialized: SerializedData = {
             "entity_type": DummyEntityOne.plugin().id,
         }
-        EntityTypeConfiguration.load(dump)
+        EntityTypeConfiguration.load(serialized)
 
     @pytest.mark.parametrize(
         "generate_html_list,",
@@ -405,11 +405,11 @@ class TestEntityTypeConfiguration(ConfigurationTestBase[EntityTypeConfiguration]
         ],
     )
     def test_load__with_generate_html_list(self, generate_html_list: bool) -> None:
-        dump: Dump = {
+        serialized: SerializedData = {
             "entity_type": DummyEntityOne.plugin().id,
             "generate_html_list": generate_html_list,
         }
-        sut = EntityTypeConfiguration.load(dump)
+        sut = EntityTypeConfiguration.load(serialized)
         assert sut.generate_html_list == generate_html_list
 
     async def test_dump__with_minimal_configuration(self) -> None:
@@ -1057,100 +1057,122 @@ class TestProjectConfiguration(ConfigurationTestBase[ProjectConfiguration]):
         assert sut.genders is sut.genders
 
     async def test_load__should_load_minimal(self) -> None:
-        dump = ProjectConfiguration(title="Betty", url="https://example.com").dump()
-        sut = ProjectConfiguration.load(dump)
-        assert sut.url == dump["url"]
+        serialized = ProjectConfiguration(
+            title="Betty", url="https://example.com"
+        ).dump()
+        sut = ProjectConfiguration.load(serialized)
+        assert sut.url == serialized["url"]
 
     async def test_load__should_load_name(self) -> None:
         name = "my-first-betty-site"
-        dump = ProjectConfiguration(title="Betty", url="https://example.com").dump()
-        dump["name"] = name
-        sut = ProjectConfiguration.load(dump)
+        serialized = ProjectConfiguration(
+            title="Betty", url="https://example.com"
+        ).dump()
+        serialized["name"] = name
+        sut = ProjectConfiguration.load(serialized)
         assert sut.name == name
 
     async def test_load__should_load_title(self) -> None:
         title = "My first Betty site"
-        dump = ProjectConfiguration(title="Betty", url="https://example.com").dump()
-        dump["title"] = title
-        sut = ProjectConfiguration.load(dump)
+        serialized = ProjectConfiguration(
+            title="Betty", url="https://example.com"
+        ).dump()
+        serialized["title"] = title
+        sut = ProjectConfiguration.load(serialized)
         assert sut.title.localize(DEFAULT_LOCALIZER) == title
 
     async def test_load__should_load_copyright_notice(self) -> None:
-        dump = ProjectConfiguration(title="Betty", url="https://example.com").dump()
+        serialized = ProjectConfiguration(
+            title="Betty", url="https://example.com"
+        ).dump()
         copyright_notice_id = "my-first-copyright-notice"
-        dump["copyright_notice"] = copyright_notice_id
-        sut = ProjectConfiguration.load(dump)
+        serialized["copyright_notice"] = copyright_notice_id
+        sut = ProjectConfiguration.load(serialized)
         assert sut.copyright_notice.id == copyright_notice_id
 
     async def test_load__should_load_copyright_notices(self) -> None:
-        dump = ProjectConfiguration(title="Betty", url="https://example.com").dump()
+        serialized = ProjectConfiguration(
+            title="Betty", url="https://example.com"
+        ).dump()
         copyright_notice_id = "my-first-copyright-notice"
         copyright_notice_label = "My First Copyright Notice"
-        dump["copyright_notices"] = {
+        serialized["copyright_notices"] = {
             copyright_notice_id: {
                 "label": copyright_notice_label,
                 "summary": "This is My First Copyright Notice.",
                 "text": "My First Copyright Notice is the best copyright notice.",
             }
         }
-        sut = ProjectConfiguration.load(dump)
+        sut = ProjectConfiguration.load(serialized)
         assert (
             sut.copyright_notices[copyright_notice_id].label.localize(DEFAULT_LOCALIZER)
             == copyright_notice_label
         )
 
     async def test_load__should_load_license(self) -> None:
-        dump = ProjectConfiguration(title="Betty", url="https://example.com").dump()
+        serialized = ProjectConfiguration(
+            title="Betty", url="https://example.com"
+        ).dump()
         license_id = "my-first-license"
-        dump["license"] = license_id
-        sut = ProjectConfiguration.load(dump)
+        serialized["license"] = license_id
+        sut = ProjectConfiguration.load(serialized)
         assert sut.license.id == license_id
 
     async def test_load__should_load_licenses(self) -> None:
-        dump = ProjectConfiguration(title="Betty", url="https://example.com").dump()
+        serialized = ProjectConfiguration(
+            title="Betty", url="https://example.com"
+        ).dump()
         license_id = "my-first-license"
         license_label = "My First License"
-        dump["licenses"] = {
+        serialized["licenses"] = {
             license_id: {
                 "label": license_label,
                 "summary": "This is My First License.",
                 "text": "My First License is the best license.",
             }
         }
-        sut = ProjectConfiguration.load(dump)
+        sut = ProjectConfiguration.load(serialized)
         assert (
             sut.licenses[license_id].label.localize(DEFAULT_LOCALIZER) == license_label
         )
 
     async def test_load__should_load_author(self) -> None:
         author = "Bart"
-        dump = ProjectConfiguration(title="Betty", url="https://example.com").dump()
-        dump["author"] = author
-        sut = ProjectConfiguration.load(dump)
+        serialized = ProjectConfiguration(
+            title="Betty", url="https://example.com"
+        ).dump()
+        serialized["author"] = author
+        sut = ProjectConfiguration.load(serialized)
         assert sut.author is not None
         assert sut.author.localize(DEFAULT_LOCALIZER) == author
 
     async def test_load__should_load_logo(self) -> None:
         logo = Path("logo.png")
-        dump = ProjectConfiguration(title="Betty", url="https://example.com").dump()
-        dump["logo"] = str(logo)
-        sut = ProjectConfiguration.load(dump)
+        serialized = ProjectConfiguration(
+            title="Betty", url="https://example.com"
+        ).dump()
+        serialized["logo"] = str(logo)
+        sut = ProjectConfiguration.load(serialized)
         assert sut.logo == logo
 
     async def test_load__should_load_locale_locale(self) -> None:
         locale = "nl-NL"
-        dump = ProjectConfiguration(title="Betty", url="https://example.com").dump()
-        dump["locales"] = [{"locale": locale}]
-        sut = ProjectConfiguration.load(dump)
+        serialized = ProjectConfiguration(
+            title="Betty", url="https://example.com"
+        ).dump()
+        serialized["locales"] = [{"locale": locale}]
+        sut = ProjectConfiguration.load(serialized)
         assert len(sut.locales) == 1
         assert locale in sut.locales
 
     async def test_load__should_load_locale_alias(self) -> None:
         locale = "nl-NL"
         alias = "nl"
-        dump = ProjectConfiguration(title="Betty", url="https://example.com").dump()
-        dump["locales"] = [{"locale": locale, "alias": alias}]
-        sut = ProjectConfiguration.load(dump)
+        serialized = ProjectConfiguration(
+            title="Betty", url="https://example.com"
+        ).dump()
+        serialized["locales"] = [{"locale": locale, "alias": alias}]
+        sut = ProjectConfiguration.load(serialized)
         assert len(sut.locales) == 1
         assert locale in sut.locales
         actual = sut.locales[locale]
@@ -1158,9 +1180,11 @@ class TestProjectConfiguration(ConfigurationTestBase[ProjectConfiguration]):
 
     async def test_load__should_clean_urls(self) -> None:
         clean_urls = True
-        dump = ProjectConfiguration(title="Betty", url="https://example.com").dump()
-        dump["clean_urls"] = clean_urls
-        sut = ProjectConfiguration.load(dump)
+        serialized = ProjectConfiguration(
+            title="Betty", url="https://example.com"
+        ).dump()
+        serialized["clean_urls"] = clean_urls
+        sut = ProjectConfiguration.load(serialized)
         assert sut.clean_urls == clean_urls
 
     @pytest.mark.parametrize(
@@ -1171,29 +1195,35 @@ class TestProjectConfiguration(ConfigurationTestBase[ProjectConfiguration]):
         ],
     )
     async def test_load__should_load_debug(self, debug: bool) -> None:
-        dump = ProjectConfiguration(title="Betty", url="https://example.com").dump()
-        dump["debug"] = debug
-        sut = ProjectConfiguration.load(dump)
+        serialized = ProjectConfiguration(
+            title="Betty", url="https://example.com"
+        ).dump()
+        serialized["debug"] = debug
+        sut = ProjectConfiguration.load(serialized)
         assert sut.debug == debug
 
     async def test_load__should_load_extension(self) -> None:
-        dump = ProjectConfiguration(title="Betty", url="https://example.com").dump()
-        dump["extensions"] = {
+        serialized = ProjectConfiguration(
+            title="Betty", url="https://example.com"
+        ).dump()
+        serialized["extensions"] = {
             DummyExtensionOne.plugin().id: {},
         }
-        sut = ProjectConfiguration.load(dump)
+        sut = ProjectConfiguration.load(serialized)
         actual = sut.extensions[DummyExtensionOne.plugin()]
         assert isinstance(actual.configuration, Void)
 
     async def test_load__extension_with_invalid_configuration_should_raise_error(
         self,
     ) -> None:
-        dump = ProjectConfiguration(title="Betty", url="https://example.com").dump()
-        dump["extensions"] = {
+        serialized = ProjectConfiguration(
+            title="Betty", url="https://example.com"
+        ).dump()
+        serialized["extensions"] = {
             DummyConfigurableExtension.plugin().id: 1337,
         }
         with pytest.raises(HumanFacingException):
-            ProjectConfiguration.load(dump)
+            ProjectConfiguration.load(serialized)
 
     @pytest.mark.parametrize(
         ("expected", "event_types_configuration"),
@@ -1228,11 +1258,15 @@ class TestProjectConfiguration(ConfigurationTestBase[ProjectConfiguration]):
         ],
     )
     async def test_load__should_load_event_types(
-        self, expected: DumpMapping[Dump], event_types_configuration: DumpMapping[Dump]
+        self,
+        expected: SerializedMapping[SerializedData],
+        event_types_configuration: SerializedMapping[SerializedData],
     ) -> None:
-        dump = ProjectConfiguration(title="Betty", url="https://example.com").dump()
-        dump["event_types"] = event_types_configuration
-        sut = ProjectConfiguration.load(dump)
+        serialized = ProjectConfiguration(
+            title="Betty", url="https://example.com"
+        ).dump()
+        serialized["event_types"] = event_types_configuration
+        sut = ProjectConfiguration.load(serialized)
         if event_types_configuration:
             assert sut.dump()["event_types"] == expected
 
@@ -1269,11 +1303,15 @@ class TestProjectConfiguration(ConfigurationTestBase[ProjectConfiguration]):
         ],
     )
     async def test_load__should_load_place_types(
-        self, expected: DumpMapping[Dump], place_types_configuration: DumpMapping[Dump]
+        self,
+        expected: SerializedMapping[SerializedData],
+        place_types_configuration: SerializedMapping[SerializedData],
     ) -> None:
-        dump = ProjectConfiguration(title="Betty", url="https://example.com").dump()
-        dump["place_types"] = place_types_configuration
-        sut = ProjectConfiguration.load(dump)
+        serialized = ProjectConfiguration(
+            title="Betty", url="https://example.com"
+        ).dump()
+        serialized["place_types"] = place_types_configuration
+        sut = ProjectConfiguration.load(serialized)
         if place_types_configuration:
             assert sut.dump()["place_types"] == expected
 
@@ -1311,12 +1349,14 @@ class TestProjectConfiguration(ConfigurationTestBase[ProjectConfiguration]):
     )
     async def test_load__should_load_presence_roles(
         self,
-        expected: DumpMapping[Dump],
-        presence_roles_configuration: DumpMapping[Dump],
+        expected: SerializedMapping[SerializedData],
+        presence_roles_configuration: SerializedMapping[SerializedData],
     ) -> None:
-        dump = ProjectConfiguration(title="Betty", url="https://example.com").dump()
-        dump["presence_roles"] = presence_roles_configuration
-        sut = ProjectConfiguration.load(dump)
+        serialized = ProjectConfiguration(
+            title="Betty", url="https://example.com"
+        ).dump()
+        serialized["presence_roles"] = presence_roles_configuration
+        sut = ProjectConfiguration.load(serialized)
         if presence_roles_configuration:
             assert sut.dump()["presence_roles"] == expected
 
@@ -1353,18 +1393,22 @@ class TestProjectConfiguration(ConfigurationTestBase[ProjectConfiguration]):
         ],
     )
     async def test_load__should_load_genders(
-        self, expected: DumpMapping[Dump], genders_configuration: DumpMapping[Dump]
+        self,
+        expected: SerializedMapping[SerializedData],
+        genders_configuration: SerializedMapping[SerializedData],
     ) -> None:
-        dump = ProjectConfiguration(title="Betty", url="https://example.com").dump()
-        dump["genders"] = genders_configuration
-        sut = ProjectConfiguration.load(dump)
+        serialized = ProjectConfiguration(
+            title="Betty", url="https://example.com"
+        ).dump()
+        serialized["genders"] = genders_configuration
+        sut = ProjectConfiguration.load(serialized)
         if genders_configuration:
             assert sut.dump()["genders"] == expected
 
     async def test_load__should_error_if_invalid_config(self) -> None:
-        dump: Dump = {}
+        serialized: SerializedData = {}
         with pytest.raises(HumanFacingException):
-            ProjectConfiguration.load(dump)
+            ProjectConfiguration.load(serialized)
 
     async def test_dump__should_dump_minimal(self) -> None:
         sut = ProjectConfiguration(title="Betty", url="https://example.com")
@@ -1375,39 +1419,39 @@ class TestProjectConfiguration(ConfigurationTestBase[ProjectConfiguration]):
 
     async def test_dump__should_dump_title(self) -> None:
         title = "My first Betty site"
-        dump = ProjectConfiguration(title=title, url="https://example.com").dump()
-        assert dump["title"] == title
+        serialized = ProjectConfiguration(title=title, url="https://example.com").dump()
+        assert serialized["title"] == title
 
     async def test_dump__should_dump_name(self) -> None:
         name = "my-first-betty-site"
-        dump = ProjectConfiguration(
+        serialized = ProjectConfiguration(
             name=name, title="Betty", url="https://example.com"
         ).dump()
-        assert dump["name"] == name
+        assert serialized["name"] == name
 
     async def test_dump__should_dump_author(self) -> None:
         author = "Bart"
-        dump = ProjectConfiguration(
+        serialized = ProjectConfiguration(
             author=author, title="Betty", url="https://example.com"
         ).dump()
-        assert dump["author"] == author
+        assert serialized["author"] == author
 
     async def test_dump__should_dumpo_logo(self) -> None:
         logo = Path("logo.png")
-        dump = ProjectConfiguration(
+        serialized = ProjectConfiguration(
             logo=logo, title="Betty", url="https://example.com"
         ).dump()
-        assert dump["logo"] == str(logo)
+        assert serialized["logo"] == str(logo)
 
     async def test_dump__should_dump_locale_locale(self) -> None:
         locale = "nl-NL"
         locale_configuration = LocaleConfiguration(locale)
-        dump = ProjectConfiguration(
+        serialized = ProjectConfiguration(
             locales=LocaleConfigurationMapping([locale_configuration]),
             title="Betty",
             url="https://example.com",
         ).dump()
-        assert dump["locales"] == [
+        assert serialized["locales"] == [
             {
                 "locale": locale,
             },
@@ -1420,27 +1464,27 @@ class TestProjectConfiguration(ConfigurationTestBase[ProjectConfiguration]):
             locale,
             alias=alias,
         )
-        dump = ProjectConfiguration(
+        serialized = ProjectConfiguration(
             locales=LocaleConfigurationMapping([locale_configuration]),
             title="Betty",
             url="https://example.com",
         ).dump()
-        assert dump["locales"] == [
+        assert serialized["locales"] == [
             {"locale": locale, "alias": alias},
         ]
 
     async def test_dump__should_dump_clean_urls(self) -> None:
         clean_urls = True
-        dump = ProjectConfiguration(
+        serialized = ProjectConfiguration(
             clean_urls=clean_urls, title="Betty", url="https://example.com"
         ).dump()
-        assert dump["clean_urls"] == clean_urls
+        assert serialized["clean_urls"] == clean_urls
 
     async def test_dump__should_dump_debug(self) -> None:
-        dump = ProjectConfiguration(
+        serialized = ProjectConfiguration(
             debug=True, title="Betty", url="https://example.com"
         ).dump()
-        assert dump["debug"]
+        assert serialized["debug"]
 
     async def test_dump__should_dump_one_extension_with_configuration(self) -> None:
         sut = ProjectConfiguration(title="Betty", url="https://example.com")
@@ -1450,7 +1494,7 @@ class TestProjectConfiguration(ConfigurationTestBase[ProjectConfiguration]):
                 DummyConfigurableExtension.plugin(), DummyConfiguration(value)
             )
         )
-        dump = sut.dump()
+        serialized = sut.dump()
         expected = {
             DummyConfigurableExtension.plugin().id: {
                 "configuration": {
@@ -1458,14 +1502,14 @@ class TestProjectConfiguration(ConfigurationTestBase[ProjectConfiguration]):
                 },
             }
         }
-        assert dump["extensions"] == expected
+        assert serialized["extensions"] == expected
 
     async def test_dump__should_dump_one_extension_without_configuration(self) -> None:
         sut = ProjectConfiguration(title="Betty", url="https://example.com")
         sut.extensions.enable(_DummyNonConfigurableExtension)
-        dump = sut.dump()
-        expected: Dump = {_DummyNonConfigurableExtension.plugin().id: {}}
-        assert dump["extensions"] == expected
+        serialized = sut.dump()
+        expected: SerializedData = {_DummyNonConfigurableExtension.plugin().id: {}}
+        assert serialized["extensions"] == expected
 
     async def test_dump__should_dump_event_types(self) -> None:
         sut = ProjectConfiguration(title="Betty", url="https://example.com")
@@ -1477,8 +1521,8 @@ class TestProjectConfiguration(ConfigurationTestBase[ProjectConfiguration]):
                 label_countable=DUMMY_COUNTABLE_LOCALIZABLE,
             )
         )
-        dump = sut.dump()
-        expected: DumpMapping[Dump] = {
+        serialized = sut.dump()
+        expected: SerializedMapping[SerializedData] = {
             "foo": {
                 "label": "Foo",
                 "label_plural": "Foos",
@@ -1490,7 +1534,7 @@ class TestProjectConfiguration(ConfigurationTestBase[ProjectConfiguration]):
                 },
             }
         }
-        assert dump["event_types"] == expected
+        assert serialized["event_types"] == expected
 
     async def test_dump__should_dump_place_types(self) -> None:
         sut = ProjectConfiguration(title="Betty", url="https://example.com")
@@ -1502,8 +1546,8 @@ class TestProjectConfiguration(ConfigurationTestBase[ProjectConfiguration]):
                 label_countable=DUMMY_COUNTABLE_LOCALIZABLE,
             )
         )
-        dump = sut.dump()
-        expected: DumpMapping[Dump] = {
+        serialized = sut.dump()
+        expected: SerializedMapping[SerializedData] = {
             "foo": {
                 "label": "Foo",
                 "label_plural": "Foos",
@@ -1515,7 +1559,7 @@ class TestProjectConfiguration(ConfigurationTestBase[ProjectConfiguration]):
                 },
             }
         }
-        assert dump["place_types"] == expected
+        assert serialized["place_types"] == expected
 
     async def test_dump__should_dump_presence_roles(self) -> None:
         sut = ProjectConfiguration(title="Betty", url="https://example.com")
@@ -1527,8 +1571,8 @@ class TestProjectConfiguration(ConfigurationTestBase[ProjectConfiguration]):
                 label_countable=DUMMY_COUNTABLE_LOCALIZABLE,
             ),
         )
-        dump = sut.dump()
-        expected: DumpMapping[Dump] = {
+        serialized = sut.dump()
+        expected: SerializedMapping[SerializedData] = {
             "foo": {
                 "label": "Foo",
                 "label_plural": "Foos",
@@ -1540,7 +1584,7 @@ class TestProjectConfiguration(ConfigurationTestBase[ProjectConfiguration]):
                 },
             }
         }
-        assert dump["presence_roles"] == expected
+        assert serialized["presence_roles"] == expected
 
     async def test_dump__should_dump_genders(self) -> None:
         sut = ProjectConfiguration(title="Betty", url="https://example.com")
@@ -1552,8 +1596,8 @@ class TestProjectConfiguration(ConfigurationTestBase[ProjectConfiguration]):
                 label_countable=DUMMY_COUNTABLE_LOCALIZABLE,
             )
         )
-        dump = sut.dump()
-        expected: DumpMapping[Dump] = {
+        serialized = sut.dump()
+        expected: SerializedMapping[SerializedData] = {
             "foo": {
                 "label": "Foo",
                 "label_plural": "Foos",
@@ -1565,7 +1609,7 @@ class TestProjectConfiguration(ConfigurationTestBase[ProjectConfiguration]):
                 },
             }
         }
-        assert dump["genders"] == expected
+        assert serialized["genders"] == expected
 
     async def test_dump__should_dump_copyright_notice(self) -> None:
         copyright_notice_configuration = PluginInstanceConfiguration[
@@ -1638,13 +1682,13 @@ class TestCopyrightNoticePluginConfiguration:
     def test_load(self) -> None:
         summary = "My First Summary"
         text = "My First Text"
-        dump: Dump = {
+        serialized: SerializedData = {
             "id": "hello-world",
             "label": "Hello, world!",
             "summary": summary,
             "text": text,
         }
-        sut = CopyrightNoticePluginConfiguration.load(dump)
+        sut = CopyrightNoticePluginConfiguration.load(serialized)
         assert sut.summary.localize(DEFAULT_LOCALIZER) == summary
         assert sut.text.localize(DEFAULT_LOCALIZER) == text
 
@@ -1654,9 +1698,9 @@ class TestCopyrightNoticePluginConfiguration:
         sut = CopyrightNoticePluginConfiguration(
             id="-", label=DUMMY_LOCALIZABLE, summary=summary, text=text
         )
-        dump = sut.dump()
-        assert dump["summary"] == summary
-        assert dump["text"] == text
+        serialized = sut.dump()
+        assert serialized["summary"] == summary
+        assert serialized["text"] == text
 
     def test_summary(self) -> None:
         summary = Plain("My First Summary")
@@ -1677,13 +1721,13 @@ class TestLicensePluginConfiguration:
     def test_load(self) -> None:
         summary = "My First Summary"
         text = "My First Text"
-        dump: Dump = {
+        serialized: SerializedData = {
             "id": "hello-world",
             "label": "Hello, world!",
             "summary": summary,
             "text": text,
         }
-        sut = LicensePluginConfiguration.load(dump)
+        sut = LicensePluginConfiguration.load(serialized)
         assert sut.summary.localize(DEFAULT_LOCALIZER) == summary
         assert sut.text.localize(DEFAULT_LOCALIZER) == text
 
@@ -1693,9 +1737,9 @@ class TestLicensePluginConfiguration:
         sut = LicensePluginConfiguration(
             id="-", label=DUMMY_LOCALIZABLE, summary=summary, text=text
         )
-        dump = sut.dump()
-        assert dump["summary"] == summary
-        assert dump["text"] == text
+        serialized = sut.dump()
+        assert serialized["summary"] == summary
+        assert serialized["text"] == text
 
     def test_summary(self) -> None:
         summary = Plain("My First Summary")

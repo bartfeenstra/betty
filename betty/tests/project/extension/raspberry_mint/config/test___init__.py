@@ -21,7 +21,7 @@ if TYPE_CHECKING:
 
     from betty.app import App
     from betty.data.indicator import Path
-    from betty.serde.dump import Dump
+    from betty.serde import SerializedData
 
 
 class TestRaspberryMintConfiguration(ConfigurationTestBase[RaspberryMintConfiguration]):
@@ -71,36 +71,36 @@ class TestRaspberryMintConfiguration(ConfigurationTestBase[RaspberryMintConfigur
         assert sut.regional_content["front"][0] is content_provider
 
     def test_load__with_minimal_configuration(self) -> None:
-        dump: Mapping[str, Any] = {}
-        RaspberryMintConfiguration.load(dump)
+        serialized: Mapping[str, Any] = {}
+        RaspberryMintConfiguration.load(serialized)
 
     def test_load__without_dict_should_error(self) -> None:
-        dump = None
+        serialized = None
         with pytest.raises(HumanFacingException):
-            RaspberryMintConfiguration.load(dump)
+            RaspberryMintConfiguration.load(serialized)
 
     def test_load__with_primary_color(self) -> None:
         hex_value = "#000000"
-        dump: Dump = {
+        serialized: SerializedData = {
             "primary_color": hex_value,
         }
-        sut = RaspberryMintConfiguration.load(dump)
+        sut = RaspberryMintConfiguration.load(serialized)
         assert sut.primary_color.hex == hex_value
 
     def test_load__with_secondary_color(self) -> None:
         hex_value = "#000000"
-        dump: Dump = {
+        serialized: SerializedData = {
             "secondary_color": hex_value,
         }
-        sut = RaspberryMintConfiguration.load(dump)
+        sut = RaspberryMintConfiguration.load(serialized)
         assert sut.secondary_color.hex == hex_value
 
     def test_load__with_tertiary_color(self) -> None:
         hex_value = "#000000"
-        dump: Dump = {
+        serialized: SerializedData = {
             "tertiary_color": hex_value,
         }
-        sut = RaspberryMintConfiguration.load(dump)
+        sut = RaspberryMintConfiguration.load(serialized)
         assert sut.tertiary_color.hex == hex_value
 
     def test_load__with_regional_content(self) -> None:
@@ -122,23 +122,23 @@ class TestRaspberryMintConfiguration(ConfigurationTestBase[RaspberryMintConfigur
     def test_dump__with_primary_color(self) -> None:
         hex_value = "#000000"
         sut = RaspberryMintConfiguration(primary_color=ColorConfiguration(hex_value))
-        dump = sut.dump()
-        assert isinstance(dump, dict)
-        assert hex_value == dump["primary_color"]
+        serialized = sut.dump()
+        assert isinstance(serialized, dict)
+        assert hex_value == serialized["primary_color"]
 
     def test_dump__with_secondary_color(self) -> None:
         hex_value = "#000000"
         sut = RaspberryMintConfiguration(secondary_color=ColorConfiguration(hex_value))
-        dump = sut.dump()
-        assert isinstance(dump, dict)
-        assert hex_value == dump["secondary_color"]
+        serialized = sut.dump()
+        assert isinstance(serialized, dict)
+        assert hex_value == serialized["secondary_color"]
 
     def test_dump__with_tertiary_color(self) -> None:
         hex_value = "#000000"
         sut = RaspberryMintConfiguration(tertiary_color=ColorConfiguration(hex_value))
-        dump = sut.dump()
-        assert isinstance(dump, dict)
-        assert hex_value == dump["tertiary_color"]
+        serialized = sut.dump()
+        assert isinstance(serialized, dict)
+        assert hex_value == serialized["tertiary_color"]
 
     def test_dump__with_regional_content(self) -> None:
         sut = RaspberryMintConfiguration()

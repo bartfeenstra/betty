@@ -20,7 +20,7 @@ from betty.plugin.config import (
     PluginInstanceConfigurationSequenceSequence,
 )
 from betty.plugin.resolve import ResolvableId
-from betty.serde.dump import Dump
+from betty.serde import SerializedData
 from betty.test_utils.config import ConfigurationTestBase, DummyConfiguration
 from betty.test_utils.config.collections import (
     ConfigurationCollectionTestBaseNewSut,
@@ -55,18 +55,18 @@ class TestPluginDefinitionConfiguration(
 
     async def test_load(self) -> None:
         plugin_id = "hello-world"
-        dump: Dump = {
+        serialized: SerializedData = {
             "id": plugin_id,
         }
-        sut = PluginDefinitionConfiguration.load(dump)
+        sut = PluginDefinitionConfiguration.load(serialized)
         assert sut.id == plugin_id
 
     async def test_dump(self) -> None:
         plugin_id = "hello-world"
         sut = PluginDefinitionConfiguration(id=plugin_id)
-        dump = sut.dump()
-        assert isinstance(dump, dict)
-        assert dump["id"] == plugin_id
+        serialized = sut.dump()
+        assert isinstance(serialized, dict)
+        assert serialized["id"] == plugin_id
 
     async def test_id(self) -> None:
         plugin_id = "hello-world"
@@ -81,63 +81,63 @@ class TestHumanFacingPluginDefinitionConfiguration(
 
     async def test_load__with_undetermined_label(self) -> None:
         label = "Hello, world!"
-        dump: Dump = {
+        serialized: SerializedData = {
             "id": "hello-world",
             "label": label,
         }
-        sut = HumanFacingPluginDefinitionConfiguration.load(dump)
+        sut = HumanFacingPluginDefinitionConfiguration.load(serialized)
         assert sut.label.localize(DEFAULT_LOCALIZER) == label
 
     async def test_load__with_expanded_label(self) -> None:
         label = "Hello, world!"
-        dump: Dump = {
+        serialized: SerializedData = {
             "id": "hello-world",
             "label": {
                 DEFAULT_LOCALE_TAG: label,
             },
         }
-        sut = HumanFacingPluginDefinitionConfiguration.load(dump)
+        sut = HumanFacingPluginDefinitionConfiguration.load(serialized)
         assert sut.label.localize(DEFAULT_LOCALIZER) == label
 
     async def test_load__with_undetermined_description(self) -> None:
         description = "Hello, world!"
-        dump: Dump = {
+        serialized: SerializedData = {
             "id": "hello-world",
             "label": "",
             "description": description,
         }
-        sut = HumanFacingPluginDefinitionConfiguration.load(dump)
+        sut = HumanFacingPluginDefinitionConfiguration.load(serialized)
         assert sut.description is not None
         assert sut.description.localize(DEFAULT_LOCALIZER) == description
 
     async def test_load__with_expanded_description(self) -> None:
         description = "Hello, world!"
-        dump: Dump = {
+        serialized: SerializedData = {
             "id": "hello-world",
             "label": "",
             "description": {
                 DEFAULT_LOCALE_TAG: description,
             },
         }
-        sut = HumanFacingPluginDefinitionConfiguration.load(dump)
+        sut = HumanFacingPluginDefinitionConfiguration.load(serialized)
         assert sut.description is not None
         assert sut.description.localize(DEFAULT_LOCALIZER) == description
 
     async def test_dump__with_undetermined_label(self) -> None:
         label = "Hello, world!"
         sut = HumanFacingPluginDefinitionConfiguration(id="hello-world", label=label)
-        dump = sut.dump()
-        assert isinstance(dump, dict)
-        assert dump["label"] == label
+        serialized = sut.dump()
+        assert isinstance(serialized, dict)
+        assert serialized["label"] == label
 
     async def test_dump__with_expanded_label(self) -> None:
         label = "Hello, world!"
         sut = HumanFacingPluginDefinitionConfiguration(
             id="hello-world", label=StaticTranslations({DEFAULT_LOCALE_TAG: label})
         )
-        dump = sut.dump()
-        assert isinstance(dump, dict)
-        assert dump["label"] == {
+        serialized = sut.dump()
+        assert isinstance(serialized, dict)
+        assert serialized["label"] == {
             DEFAULT_LOCALE_TAG: label,
         }
 
@@ -146,9 +146,9 @@ class TestHumanFacingPluginDefinitionConfiguration(
         sut = HumanFacingPluginDefinitionConfiguration(
             id="hello-world", label=DUMMY_LOCALIZABLE, description=description
         )
-        dump = sut.dump()
-        assert isinstance(dump, dict)
-        assert dump["description"] == description
+        serialized = sut.dump()
+        assert isinstance(serialized, dict)
+        assert serialized["description"] == description
 
     async def test_dump__with_expanded_description(self) -> None:
         description = "Hello, world!"
@@ -157,9 +157,9 @@ class TestHumanFacingPluginDefinitionConfiguration(
             label=DUMMY_LOCALIZABLE,
             description=StaticTranslations({DEFAULT_LOCALE_TAG: description}),
         )
-        dump = sut.dump()
-        assert isinstance(dump, dict)
-        assert dump["description"] == {
+        serialized = sut.dump()
+        assert isinstance(serialized, dict)
+        assert serialized["description"] == {
             DEFAULT_LOCALE_TAG: description,
         }
 
@@ -189,14 +189,14 @@ class TestCountableHumanFacingPluginDefinitionConfiguration(
                 "other": "{count} worlds",
             }
         }
-        dump: Dump = {
+        serialized: SerializedData = {
             "id": "hello-world",
             "label": "-",
             "label_plural": label_plural,
             "label_countable": label_countable,  # type: ignore[dict-item]
         }
-        sut = CountableHumanFacingPluginDefinitionConfiguration.load(dump)
-        assert sut.dump() == dump
+        sut = CountableHumanFacingPluginDefinitionConfiguration.load(serialized)
+        assert sut.dump() == serialized
 
     async def test_dump__with_undetermined_label(self) -> None:
         label_plural = "Hello, world!"
@@ -212,10 +212,10 @@ class TestCountableHumanFacingPluginDefinitionConfiguration(
             label_plural=label_plural,
             label_countable=label_countable,
         )
-        dump = sut.dump()
-        assert isinstance(dump, dict)
-        assert dump["label_plural"] == label_plural
-        assert dump["label_countable"] == label_countable
+        serialized = sut.dump()
+        assert isinstance(serialized, dict)
+        assert serialized["label_plural"] == label_plural
+        assert serialized["label_countable"] == label_countable
 
     async def test_label_plural(self) -> None:
         label_plural = DUMMY_LOCALIZABLE
@@ -272,7 +272,7 @@ class TestPluginInstanceConfiguration(
         assert sut.id == DummyPluginOne.plugin().id
 
     def test_load__with_configuration(self) -> None:
-        configuration: Dump = {
+        configuration: SerializedData = {
             "check": True,
         }
         sut = PluginInstanceConfiguration[
@@ -363,11 +363,13 @@ class TestPluginIdentifierKeyConfigurationMapping:
         ]
     ):
         @override
-        def _dump_key(self, item_dump: Dump, /) -> tuple[Dump, str]:
-            if isinstance(item_dump, str):
-                return None, item_dump
-            assert isinstance(item_dump, Mapping)
-            return None, cast(str, item_dump["value"])
+        def _dump_key(
+            self, serialized_item: SerializedData, /
+        ) -> tuple[SerializedData, str]:
+            if isinstance(serialized_item, str):
+                return None, serialized_item
+            assert isinstance(serialized_item, Mapping)
+            return None, cast(str, serialized_item["value"])
 
         @override
         def _get_key(self, configuration: DummyConfiguration, /) -> MachineName:
@@ -376,8 +378,10 @@ class TestPluginIdentifierKeyConfigurationMapping:
 
         @override
         @classmethod
-        def _load_key(cls, item_dump: Dump, key_dump: str, /) -> Dump:
-            return {"value": key_dump}
+        def _load_key(
+            cls, serialized_item: SerializedData, serialized_key: str, /
+        ) -> SerializedData:
+            return {"value": serialized_key}
 
         @override
         @classmethod

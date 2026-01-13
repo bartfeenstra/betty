@@ -6,12 +6,15 @@ import pytest
 
 from betty.date import Date, DateLike, DateRange, IncompleteDateError
 from betty.locale.localize import DEFAULT_LOCALIZER
-from betty.serde.dump import Dump, DumpMapping
+from betty.serde import SerializedData, SerializedMapping
 
 if TYPE_CHECKING:
     from collections.abc import Sequence
 
-_DUMMY_DATE_DUMPS: tuple[Sequence[DumpMapping[Dump]], Sequence[DumpMapping[Dump]]] = (
+_DUMMY_DATE_DUMPS: tuple[
+    Sequence[SerializedMapping[SerializedData]],
+    Sequence[SerializedMapping[SerializedData]],
+] = (
     [
         {
             "year": 1970,
@@ -70,19 +73,20 @@ _DUMMY_DATE_DUMPS: tuple[Sequence[DumpMapping[Dump]], Sequence[DumpMapping[Dump]
 )
 
 _DUMMY_DATE_RANGE_DUMPS: tuple[
-    Sequence[DumpMapping[Dump]], Sequence[DumpMapping[Dump]]
+    Sequence[SerializedMapping[SerializedData]],
+    Sequence[SerializedMapping[SerializedData]],
 ] = (
     [
         *[
-            cast(DumpMapping[Dump], {"start": start, "end": None})
+            cast(SerializedMapping[SerializedData], {"start": start, "end": None})
             for start in _DUMMY_DATE_DUMPS[0]
         ],
         *[
-            cast(DumpMapping[Dump], {"start": None, "end": end})
+            cast(SerializedMapping[SerializedData], {"start": None, "end": end})
             for end in _DUMMY_DATE_DUMPS[0]
         ],
         *[
-            cast(DumpMapping[Dump], {"start": start, "end": end})
+            cast(SerializedMapping[SerializedData], {"start": start, "end": end})
             for start in _DUMMY_DATE_DUMPS[0]
             for end in _DUMMY_DATE_DUMPS[0]
         ],
@@ -91,7 +95,8 @@ _DUMMY_DATE_RANGE_DUMPS: tuple[
 )
 
 _DUMMY_DATE_LIKE_DUMPS: tuple[
-    Sequence[DumpMapping[Dump]], Sequence[DumpMapping[Dump]]
+    Sequence[SerializedMapping[SerializedData]],
+    Sequence[SerializedMapping[SerializedData]],
 ] = (
     [*_DUMMY_DATE_DUMPS[0], *_DUMMY_DATE_RANGE_DUMPS[0]],
     [*_DUMMY_DATE_DUMPS[1], *_DUMMY_DATE_RANGE_DUMPS[1]],

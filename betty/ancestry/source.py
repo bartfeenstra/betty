@@ -36,7 +36,7 @@ if TYPE_CHECKING:
     from betty.date import DateLike
     from betty.locale.localizable import Localizable, LocalizableLike
     from betty.project import Project
-    from betty.serde.dump import Dump, DumpMapping
+    from betty.serde import SerializedData, SerializedMapping
 
 
 @final
@@ -165,20 +165,24 @@ class Source(HasDate, HasFileReferences, HasNotes, HasLinks, HasPrivacy, Entity)
         return schema
 
     @override
-    async def dump_linked_data(self, project: Project, /) -> DumpMapping[Dump]:
-        dump = await super().dump_linked_data(project)
-        dump["@type"] = "https://schema.org/Thing"
-        dump_context(dump, name="https://schema.org/name")
+    async def dump_linked_data(
+        self, project: Project, /
+    ) -> SerializedMapping[SerializedData]:
+        serialized = await super().dump_linked_data(project)
+        serialized["@type"] = "https://schema.org/Thing"
+        dump_context(serialized, name="https://schema.org/name")
         if is_public(self):
             public_localizers = await project.public_localizers
             if self.author is not None:
-                dump["author"] = dump_linked_data(
+                serialized["author"] = dump_linked_data(
                     self.author, localizers=public_localizers
                 )
             if self.name is not None:
-                dump["name"] = dump_linked_data(self.name, localizers=public_localizers)
+                serialized["name"] = dump_linked_data(
+                    self.name, localizers=public_localizers
+                )
             if self.publisher is not None:
-                dump["publisher"] = dump_linked_data(
+                serialized["publisher"] = dump_linked_data(
                     self.publisher, localizers=public_localizers
                 )
-        return dump
+        return serialized

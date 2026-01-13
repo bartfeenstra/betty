@@ -25,7 +25,7 @@ from betty.plugin.config import (
 if TYPE_CHECKING:
     from collections.abc import Collection, Iterable, Mapping, MutableMapping
 
-    from betty.serde.dump import Dump
+    from betty.serde import SerializedData
 
 
 @final
@@ -74,9 +74,9 @@ class RegionalContentConfiguration(Configuration):
 
     @override
     @classmethod
-    def load(cls, dump: Dump, /) -> Self:
-        dump = assert_mapping(None, assert_str())(dump)
-        assert_len(minimum=1)(dump)
+    def load(cls, serialized: SerializedData, /) -> Self:
+        serialized = assert_mapping(None, assert_str())(serialized)
+        assert_len(minimum=1)(serialized)
         content: MutableMapping[
             str,
             PluginInstanceConfigurationSequence[
@@ -84,7 +84,7 @@ class RegionalContentConfiguration(Configuration):
             ],
         ] = {}
         with HumanFacingExceptionGroup() as errors:
-            for region, region_dump in dump.items():
+            for region, region_dump in serialized.items():
                 with errors.absorb(Key(region)):
                     assert_len(minimum=1)(region_dump)
                     content[region] = PluginInstanceConfigurationSequence[
@@ -93,7 +93,7 @@ class RegionalContentConfiguration(Configuration):
         return cls(content)
 
     @override
-    def dump(self) -> Dump:
+    def dump(self) -> SerializedData:
         return {
             region: region_configuration.dump()
             for region, region_configuration in self._content.items()

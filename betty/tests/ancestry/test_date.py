@@ -11,7 +11,7 @@ from betty.tests.ancestry.test___init__ import DummyHasDateWithContextDefinition
 
 if TYPE_CHECKING:
     from betty.ancestry.has_links import HasLinks
-    from betty.serde.dump import Dump, DumpMapping
+    from betty.serde import SerializedData, SerializedMapping
 
 
 class TestHasDate:
@@ -173,6 +173,6 @@ class TestHasDate:
         ],
     )
     async def test_dump_linked_data(
-        self, expected: DumpMapping[Dump], sut: HasLinks
+        self, expected: SerializedMapping[SerializedData], sut: HasLinks
     ) -> None:
         assert await assert_dumps_linked_data(sut) == expected

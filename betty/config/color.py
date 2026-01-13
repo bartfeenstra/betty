@@ -17,7 +17,7 @@ from betty.locale.localizable.gettext import _
 if TYPE_CHECKING:
     from collections.abc import Iterable
 
-    from betty.serde.dump import Dump
+    from betty.serde import SerializedData
 
 
 class ColorConfiguration(Configuration):
@@ -61,11 +61,11 @@ class ColorConfiguration(Configuration):
 
     @override
     @classmethod
-    def load(cls, dump: Dump, /) -> Self:
-        return cls((assert_str() | cls._assert_hex)(dump))
+    def load(cls, serialized: SerializedData, /) -> Self:
+        return cls((assert_str() | cls._assert_hex)(serialized))
 
     @override
-    def dump(self) -> Dump:
+    def dump(self) -> SerializedData:
         return self._hex
 
     @override

@@ -8,12 +8,12 @@ from betty.locale import to_language_tag
 from betty.locale.localizable import Localizable
 from betty.locale.localizable.static import StaticTranslations
 from betty.locale.localize import Localizer
-from betty.serde.dump import Dump, DumpMapping
+from betty.serde import SerializedData, SerializedMapping
 
 
 def dump_linked_data(
     localizable: Localizable, *, localizers: Iterable[Localizer]
-) -> DumpMapping[Dump]:
+) -> SerializedMapping[SerializedData]:
     """
     Dump a :py:class:`betty.locale.localizable.Localizable` to `JSON-LD <https://json-ld.org/>`_.
     """

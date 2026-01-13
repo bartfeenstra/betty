@@ -6,7 +6,7 @@ from betty.date.linked_data import (
     dump_linked_data_for_date_range,
 )
 from betty.date.schema import DateRangeSchema, DateSchema
-from betty.serde.dump import Dump, DumpMapping
+from betty.serde import SerializedData, SerializedMapping
 from betty.test_utils.json.linked_data import assert_linked_data_dump
 
 
@@ -32,7 +32,7 @@ from betty.test_utils.json.linked_data import assert_linked_data_dump
     ],
 )
 async def test_dump_linked_data_for_date(
-    expected: DumpMapping[Dump], sut: Date
+    expected: SerializedMapping[SerializedData], sut: Date
 ) -> None:
     actual = await assert_linked_data_dump(DateSchema(), dump_linked_data_for_date(sut))
     assert actual == expected
@@ -89,7 +89,7 @@ async def test_dump_linked_data_for_date(
     ],
 )
 async def test_dump_linked_data_for_date_range(
-    expected: DumpMapping[Dump], sut: DateRange
+    expected: SerializedMapping[SerializedData], sut: DateRange
 ) -> None:
     actual = await assert_linked_data_dump(
         DateRangeSchema(), dump_linked_data_for_date_range(sut)

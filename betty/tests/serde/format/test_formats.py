@@ -9,7 +9,7 @@ from betty.serde.format.formats import Json, Yaml
 from betty.test_utils.serde.format import FormatDefinitionTestBase, FormatTestBase
 
 if TYPE_CHECKING:
-    from betty.serde.dump import Dump
+    from betty.serde import SerializedData
 
 
 class TestJsonDefinition(FormatDefinitionTestBase):
@@ -36,9 +36,9 @@ class TestJson(FormatTestBase):
         assert actual == expected
 
     def test_dump(self) -> None:
-        dump: Dump = {"hello": [123, "World!"]}
+        serialized: SerializedData = {"hello": [123, "World!"]}
         sut = Json()
-        actual = sut.dump(dump)
+        actual = sut.dump(serialized)
         assert (
             actual
             == """
@@ -71,13 +71,13 @@ class TestYaml(FormatTestBase):
 
     def test_load__with_valid_dump(self) -> None:
         sut = Yaml()
-        yaml_dump = "hello:\n- 123\n- World!\n"
-        dump = sut.load(yaml_dump)
+        serialized_yaml = "hello:\n- 123\n- World!\n"
+        serialized = sut.load(serialized_yaml)
         expected = {"hello": [123, "World!"]}
-        assert expected == dump
+        assert expected == serialized
 
     def test_dump(self) -> None:
-        dump: Dump = {"hello": [123, "World!"]}
+        serialized: SerializedData = {"hello": [123, "World!"]}
         sut = Yaml()
-        yaml_dump = sut.dump(dump)
-        assert yaml_dump == "hello:\n- 123\n- World!\n"
+        serialized_yaml = sut.dump(serialized)
+        assert serialized_yaml == "hello:\n- 123\n- World!\n"

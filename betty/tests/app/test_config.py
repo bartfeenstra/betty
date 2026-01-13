@@ -6,7 +6,7 @@ from betty.app.config import AppConfiguration
 from betty.test_utils.config import ConfigurationTestBase
 
 if TYPE_CHECKING:
-    from betty.serde.dump import Dump, DumpMapping
+    from betty.serde import SerializedData, SerializedMapping
 
 
 class TestAppConfiguration(ConfigurationTestBase[AppConfiguration]):
@@ -29,13 +29,13 @@ class TestAppConfiguration(ConfigurationTestBase[AppConfiguration]):
 
     def test_load__minimal(self) -> None:
         sut = AppConfiguration()
-        dump: DumpMapping[Dump] = {}
-        sut.load(dump)
+        serialized: SerializedMapping[SerializedData] = {}
+        sut.load(serialized)
 
     def test_load__with_locale(self) -> None:
         locale = "nl"
-        dump: DumpMapping[Dump] = {"locale": locale}
-        sut = AppConfiguration.load(dump)
+        serialized: SerializedMapping[SerializedData] = {"locale": locale}
+        sut = AppConfiguration.load(serialized)
         assert sut.locale == Locale(locale)
 
     def test_dump__minimal(self) -> None:

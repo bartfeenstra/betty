@@ -12,7 +12,7 @@ from betty.config.collections.sequence import ConfigurationSequence
 from betty.test_utils.config.collections.sequence import ConfigurationSequenceTestBase
 
 if TYPE_CHECKING:
-    from betty.serde.dump import Dump
+    from betty.serde import SerializedData
     from betty.test_utils.config.collections import (
         ConfigurationCollectionTestBaseNewSut,
         ConfigurationCollectionTestBaseSutConfigurationKeys,
@@ -27,15 +27,15 @@ class ConfigurationSequenceTestConfiguration(Configuration):
 
     @override
     @classmethod
-    def load(cls, dump: Dump, /) -> Self:
+    def load(cls, serialized: SerializedData, /) -> Self:
         return cls(
             assert_record(
                 RequiredField("value", assert_int()),
-            )(dump)["value"]
+            )(serialized)["value"]
         )
 
     @override
-    def dump(self) -> Dump:
+    def dump(self) -> SerializedData:
         return {"value": self.value}
 
     @override
@@ -104,8 +104,8 @@ class TestConfigurationSequence(
     async def test_dump__without_items(
         self, sut: ConfigurationSequence[Configuration]
     ) -> None:
-        dump = sut.dump()
-        assert dump == []
+        serialized = sut.dump()
+        assert serialized == []
 
     async def test_dump__with_items(
         self,
@@ -118,8 +118,8 @@ class TestConfigurationSequence(
         ],
     ) -> None:
         sut.replace(*sut_configurations)
-        dump = sut.dump()
-        assert isinstance(dump, Sequence)
-        assert len(dump) == len(sut_configurations)
+        serialized = sut.dump()
+        assert isinstance(serialized, Sequence)
+        assert len(serialized) == len(sut_configurations)
         for configuration_key in sut_configuration_keys:
-            assert configuration_key < len(dump)
+            assert configuration_key < len(serialized)

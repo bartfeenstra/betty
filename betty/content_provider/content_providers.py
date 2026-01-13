@@ -43,7 +43,7 @@ if TYPE_CHECKING:
     from betty.jinja2 import Environment
     from betty.locale.localizable import LocalizableLike
     from betty.render import RenderDispatcher
-    from betty.serde.dump import Dump, DumpMapping
+    from betty.serde import SerializedData, SerializedMapping
     from betty.service.level import ServiceLevel
     from betty.service.level.factory import AnyFactoryTarget
 
@@ -64,15 +64,15 @@ class RenderConfiguration(Configuration):
 
     @override
     @classmethod
-    def load(cls, dump: Dump, /) -> Self:
+    def load(cls, serialized: SerializedData, /) -> Self:
         record = assert_record(
             RequiredField("content", assert_load_localizable),
             OptionalField("media_type", assert_str() | MediaType),
-        )(dump)
+        )(serialized)
         return cls(record["content"], record.get("media_type", PLAIN_TEXT))
 
     @override
-    def dump(self) -> Dump:
+    def dump(self) -> SerializedData:
         return {
             "content": dump_localizable(self.content),
             "media_type": str(self.media_type),
@@ -221,7 +221,7 @@ class BoxConfiguration(Configuration):
 
     @override
     @classmethod
-    def load(cls, dump: Dump, /) -> Self:
+    def load(cls, serialized: SerializedData, /) -> Self:
         return cls(
             **assert_record(
                 RequiredField("content", PluginInstanceConfigurationSequence.load),
@@ -231,27 +231,27 @@ class BoxConfiguration(Configuration):
                 OptionalField("min_width", assert_str()),
                 OptionalField("max_width", assert_str()),
                 OptionalField("width", assert_str()),
-            )(dump)
+            )(serialized)
         )
 
     @override
-    def dump(self) -> DumpMapping[Dump]:
-        dump: DumpMapping[Dump] = {
+    def dump(self) -> SerializedMapping[SerializedData]:
+        serialized: SerializedMapping[SerializedData] = {
             "content": self.content.dump(),
         }
         if self.min_height is not None:
-            dump["min_height"] = self.min_height
+            serialized["min_height"] = self.min_height
         if self.max_height is not None:
-            dump["max_height"] = self.max_height
+            serialized["max_height"] = self.max_height
         if self.height is not None:
-            dump["height"] = self.height
+            serialized["height"] = self.height
         if self.min_width is not None:
-            dump["min_width"] = self.min_width
+            serialized["min_width"] = self.min_width
         if self.max_width is not None:
-            dump["max_width"] = self.max_width
+            serialized["max_width"] = self.max_width
         if self.width is not None:
-            dump["width"] = self.width
-        return dump
+            serialized["width"] = self.width
+        return serialized
 
     @override
     def __eq__(self, other: Any) -> bool:

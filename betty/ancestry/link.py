@@ -28,7 +28,7 @@ if TYPE_CHECKING:
     from betty.locale.localizable import Localizable, LocalizableLike
     from betty.media_type import MediaType
     from betty.project import Project
-    from betty.serde.dump import Dump, DumpMapping
+    from betty.serde import SerializedData, SerializedMapping
 
 
 @final
@@ -116,18 +116,20 @@ class Link(HasMediaType, HasDescription, HasPrivacy, Entity):
         return self._label is not None
 
     @override
-    async def dump_linked_data(self, project: Project, /) -> DumpMapping[Dump]:
+    async def dump_linked_data(
+        self, project: Project, /
+    ) -> SerializedMapping[SerializedData]:
         public_localizers = await project.public_localizers
-        dump = await super().dump_linked_data(project)
+        serialized = await super().dump_linked_data(project)
         if self.public:
-            dump["url"] = dump_linked_data(self.url, localizers=public_localizers)
+            serialized["url"] = dump_linked_data(self.url, localizers=public_localizers)
             if self._label is not None:
-                dump["label"] = dump_linked_data(
+                serialized["label"] = dump_linked_data(
                     self._label, localizers=public_localizers
                 )
             if self.relationship is not None:
-                dump["relationship"] = self.relationship
-        return dump
+                serialized["relationship"] = self.relationship
+        return serialized
 
     @override
     @classmethod

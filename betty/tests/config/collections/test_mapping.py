@@ -15,7 +15,7 @@ from betty.config.collections.mapping import (
 from betty.test_utils.config.collections.mapping import ConfigurationMappingTestBase
 
 if TYPE_CHECKING:
-    from betty.serde.dump import Dump
+    from betty.serde import SerializedData
     from betty.test_utils.config.collections import (
         ConfigurationCollectionTestBaseNewSut,
         ConfigurationCollectionTestBaseSutConfigurationKeys,
@@ -31,15 +31,15 @@ class ConfigurationMappingTestConfiguration(Configuration):
 
     @override
     @classmethod
-    def load(cls, dump: Dump, /) -> Self:
+    def load(cls, serialized: SerializedData, /) -> Self:
         record = assert_record(
             RequiredField("key", assert_str()),
             RequiredField("value", assert_int()),
-        )(dump)
+        )(serialized)
         return cls(record["key"], record["value"])
 
     @override
-    def dump(self) -> Dump:
+    def dump(self) -> SerializedData:
         return {
             "key": self.key,
             "value": self.value,
@@ -70,15 +70,19 @@ class ConfigurationMappingTestConfigurationMapping(
 
     @override
     @classmethod
-    def _load_key(cls, item_dump: Dump, key_dump: str, /) -> Dump:
-        assert isinstance(item_dump, Mapping)
-        item_dump["key"] = key_dump
-        return item_dump
+    def _load_key(
+        cls, serialized_item: SerializedData, serialized_key: str, /
+    ) -> SerializedData:
+        assert isinstance(serialized_item, Mapping)
+        serialized_item["key"] = serialized_key
+        return serialized_item
 
     @override
-    def _dump_key(self, item_dump: Dump, /) -> tuple[Dump, str]:
-        assert isinstance(item_dump, Mapping)
-        return item_dump, cast(str, item_dump.pop("key"))
+    def _dump_key(
+        self, serialized_item: SerializedData, /
+    ) -> tuple[SerializedData, str]:
+        assert isinstance(serialized_item, Mapping)
+        return serialized_item, cast(str, serialized_item.pop("key"))
 
 
 class TestConfigurationMapping(
@@ -143,8 +147,8 @@ class TestConfigurationMapping(
     async def test_dump__without_items(
         self, sut: ConfigurationMapping[str, str, Configuration]
     ) -> None:
-        dump = sut.dump()
-        assert dump == {}
+        serialized = sut.dump()
+        assert serialized == {}
 
     async def test_dump__with_items(
         self,
@@ -157,11 +161,11 @@ class TestConfigurationMapping(
         ],
     ) -> None:
         sut.replace(*sut_configurations)
-        dump = sut.dump()
-        assert isinstance(dump, Mapping)
-        assert len(dump) == len(sut_configurations)
+        serialized = sut.dump()
+        assert isinstance(serialized, Mapping)
+        assert len(serialized) == len(sut_configurations)
         for configuration_key in sut_configuration_keys:
-            assert configuration_key in dump
+            assert configuration_key in serialized
 
 
 class OrderedConfigurationMappingTestOrderedConfigurationMapping(
@@ -243,8 +247,8 @@ class TestOrderedConfigurationMapping(
     async def test_dump__without_items(
         self, sut: OrderedConfigurationMapping[str, str, Configuration]
     ) -> None:
-        dump = sut.dump()
-        assert dump == []
+        serialized = sut.dump()
+        assert serialized == []
 
     async def test_dump__with_items(
         self,
@@ -254,6 +258,6 @@ class TestOrderedConfigurationMapping(
         ],
     ) -> None:
         sut.replace(*sut_configurations)
-        dump = sut.dump()
-        assert isinstance(dump, Sequence)
-        assert len(dump) == len(sut_configurations)
+        serialized = sut.dump()
+        assert isinstance(serialized, Sequence)
+        assert len(serialized) == len(sut_configurations)

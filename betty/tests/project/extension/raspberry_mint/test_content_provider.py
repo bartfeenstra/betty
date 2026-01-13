@@ -65,7 +65,7 @@ from betty.project.extension.raspberry_mint.content_provider import (
     ShorthandColumnsWidth,
     Timeline,
 )
-from betty.serde.dump import Dump
+from betty.serde import SerializedData
 from betty.test_utils.ancestry.has_citations import DummyHasCitations
 from betty.test_utils.ancestry.has_file_references import DummyHasFileReferences
 from betty.test_utils.config import ConfigurationTestBase
@@ -691,7 +691,7 @@ class TestPresencesConfiguration(ConfigurationTestBase[PresencesConfiguration]):
         assert list(sut.exclude) == exclude
 
     def test_load__with_include(self) -> None:
-        include: Dump = ["foo"]
+        include: SerializedData = ["foo"]
         sut = PresencesConfiguration.load(
             {
                 "include": include,
@@ -701,7 +701,7 @@ class TestPresencesConfiguration(ConfigurationTestBase[PresencesConfiguration]):
         assert list(sut.include) == include
 
     def test_load__with_exclude(self) -> None:
-        exclude: Dump = ["foo"]
+        exclude: SerializedData = ["foo"]
         sut = PresencesConfiguration.load(
             {
                 "exclude": exclude,
@@ -997,7 +997,7 @@ class TestColumnsConfiguration(ConfigurationTestBase[ColumnsConfiguration]):
             ),
         ],
     )
-    def test_dump(self, expected: Dump, sut: ColumnsConfiguration) -> None:
+    def test_dump(self, expected: SerializedData, sut: ColumnsConfiguration) -> None:
         assert sut.dump() == expected
 
 

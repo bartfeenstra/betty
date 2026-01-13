@@ -65,7 +65,7 @@ if TYPE_CHECKING:
     from betty.plugin.repository import PluginRepository
     from betty.plugin.resolve import ResolvableId
     from betty.project import Project
-    from betty.serde.dump import Dump, DumpMapping
+    from betty.serde import SerializedData, SerializedMapping
     from betty.service.level import ServiceLevel
     from betty.service.level.factory import AnyFactoryTarget
 
@@ -117,7 +117,7 @@ class SectionConfiguration(Configuration):
 
     @override
     @classmethod
-    def load(cls, dump: Dump, /) -> Self:
+    def load(cls, serialized: SerializedData, /) -> Self:
         return cls(
             **assert_record(
                 OptionalField("name", assert_machine_name()),
@@ -127,20 +127,20 @@ class SectionConfiguration(Configuration):
                     "visually_hide_heading",
                     assert_bool,
                 ),
-            )(dump)
+            )(serialized)
         )
 
     @override
-    def dump(self) -> Dump:
-        dump = {
+    def dump(self) -> SerializedData:
+        serialized = {
             "heading": dump_localizable(self.heading),
             "content": self.content.dump(),
         }
         if self.name:
-            dump["name"] = self.name
+            serialized["name"] = self.name
         if self.visually_hide_heading:
-            dump["visually_hide_heading"] = True
-        return dump
+            serialized["visually_hide_heading"] = True
+        return serialized
 
     @override
     def __eq__(self, other: Any) -> bool:
@@ -354,16 +354,16 @@ class ColorStyleConfiguration(Configuration):
 
     @override
     @classmethod
-    def load(cls, dump: Dump, /) -> Self:
+    def load(cls, serialized: SerializedData, /) -> Self:
         return cls(
             **assert_record(
                 RequiredField("style", assert_enum(RaspberryMintColorStyle)),
                 RequiredField("content", PluginInstanceConfigurationSequence.load),
-            )(dump)
+            )(serialized)
         )
 
     @override
-    def dump(self) -> DumpMapping[Dump]:
+    def dump(self) -> SerializedMapping[SerializedData]:
         return {
             "style": self.style.value,
             "content": self.content.dump(),
@@ -514,23 +514,23 @@ class PresencesConfiguration(Configuration):
 
     @override
     @classmethod
-    def load(cls, dump: Dump, /) -> Self:
+    def load(cls, serialized: SerializedData, /) -> Self:
         assert_ids = assert_sequence(assert_machine_name())
         return cls(
             **assert_or(
                 assert_record(OptionalField("include", assert_ids)),
                 assert_record(OptionalField("exclude", assert_ids)),
-            )(dump)
+            )(serialized)
         )
 
     @override
-    def dump(self) -> Dump:
-        dump: DumpMapping[Dump] = {}
+    def dump(self) -> SerializedData:
+        serialized: SerializedMapping[SerializedData] = {}
         if self.include:
-            dump["include"] = list(self.include)
+            serialized["include"] = list(self.include)
         if self.exclude:
-            dump["exclude"] = list(self.exclude)
-        return dump
+            serialized["exclude"] = list(self.exclude)
+        return serialized
 
     @override
     def __eq__(self, other: Any) -> bool:
@@ -673,7 +673,7 @@ class ColumnsConfiguration(Configuration):
 
     @override
     @classmethod
-    def load(cls, dump: Dump, /) -> Self:
+    def load(cls, serialized: SerializedData, /) -> Self:
         return cls(
             **assert_record(
                 RequiredField(
@@ -695,22 +695,22 @@ class ColumnsConfiguration(Configuration):
                         ),
                     ),
                 ),
-            )(dump)
+            )(serialized)
         )
 
     @override
-    def dump(self) -> Dump:
-        dump: DumpMapping[Dump] = {
+    def dump(self) -> SerializedData:
+        serialized: SerializedMapping[SerializedData] = {
             "content": self.content.dump(),
         }
         if self.width != self._DEFAULT_WIDTH:
-            dump["width"] = {
+            serialized["width"] = {
                 breakpoint.value: widths  # type: ignore[misc]
                 for breakpoint, widths in self.width.items()  # noqa A001
             }
         if self.justify_content is not None:
-            dump["justify_content"] = self.justify_content.value
-        return dump
+            serialized["justify_content"] = self.justify_content.value
+        return serialized
 
     @override
     def __eq__(self, other: Any) -> bool:

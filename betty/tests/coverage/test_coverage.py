@@ -516,7 +516,10 @@ _BASELINE: Mapping[str, _ModuleIgnore] = {
             "disconnect": MissingReason.COVERED_ELSEWHERE,
         },
     },
-    "betty/serde/dump.py": MissingReason.SHOULD_BE_COVERED,
+    "betty/serde/__init__.py": {
+        "NotDumpable": MissingReason.STATIC_CONTENT_ONLY,
+        "Serializable": MissingReason.ABSTRACT,
+    },
     "betty/serde/format/__init__.py": {
         "Format": MissingReason.ABSTRACT,
         "FormatError": MissingReason.STATIC_CONTENT_ONLY,

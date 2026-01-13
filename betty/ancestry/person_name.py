@@ -23,7 +23,7 @@ if TYPE_CHECKING:
     from betty.locale import LocaleLike
     from betty.locale.localizable import Localizable
     from betty.project import Project
-    from betty.serde.dump import Dump, DumpMapping
+    from betty.serde import SerializedData, SerializedMapping
 
 
 @final
@@ -114,16 +114,18 @@ class PersonName(HasLocale, HasCitations, HasPrivacy, Entity):
         )
 
     @override
-    async def dump_linked_data(self, project: Project, /) -> DumpMapping[Dump]:
-        dump = await super().dump_linked_data(project)
+    async def dump_linked_data(
+        self, project: Project, /
+    ) -> SerializedMapping[SerializedData]:
+        serialized = await super().dump_linked_data(project)
         if self.public:
             if self.individual is not None:
-                dump_context(dump, individual="https://schema.org/givenName")
-                dump["individual"] = self.individual
+                dump_context(serialized, individual="https://schema.org/givenName")
+                serialized["individual"] = self.individual
             if self.affiliation is not None:
-                dump_context(dump, affiliation="https://schema.org/familyName")
-                dump["affiliation"] = self.affiliation
-        return dump
+                dump_context(serialized, affiliation="https://schema.org/familyName")
+                serialized["affiliation"] = self.affiliation
+        return serialized
 
     @override
     @classmethod

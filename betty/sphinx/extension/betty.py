@@ -349,15 +349,15 @@ class _ConfigurationDirective(SphinxDirective):
 .. tab-set::
 
 """
-            dump = sample.configuration.dump()
+            serialized = sample.configuration.dump()
             for serde_format in serde_formats:
-                format_dump = serde_format.dump(dump)
+                formatted_serialized = serde_format.dump(serialized)
                 example_content += f"""
    .. tab-item:: {serde_format.plugin().label.localize(DEFAULT_LOCALIZER)}
 
       .. code-block:: {serde_format.plugin().id}
 
-{indent(format_dump, " " * 10)}
+{indent(formatted_serialized, " " * 10)}
 """
             examples_content += example_content
         return nested_parse_to_nodes(

@@ -20,7 +20,7 @@ from betty.test_utils.model import EntityDefinitionTestBase, EntityTestBase
 if TYPE_CHECKING:
     from betty.model import Entity
     from betty.plugin import PluginDefinition
-    from betty.serde.dump import Dump, DumpMapping
+    from betty.serde import SerializedData, SerializedMapping
 
 
 class TestPresenceDefinition(EntityDefinitionTestBase):
@@ -79,7 +79,7 @@ class TestPresence(EntityTestBase):
         role = Subject()
         sut = Presence(person, role, event)
 
-        expected: DumpMapping[Dump] = {
+        expected: SerializedMapping[SerializedData] = {
             "id": sut.id,
             "event": "/event/my-first-event/index.json",
             "person": "/person/my-first-person/index.json",
@@ -95,7 +95,7 @@ class TestPresence(EntityTestBase):
         role = Subject()
         sut = Presence(person, role, event, privacy=Privacy.PRIVATE)
 
-        expected: DumpMapping[Dump] = {
+        expected: SerializedMapping[SerializedData] = {
             "id": sut.id,
             "event": "/event/my-first-event/index.json",
             "person": "/person/my-first-person/index.json",

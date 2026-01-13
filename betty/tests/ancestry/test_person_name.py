@@ -18,7 +18,7 @@ if TYPE_CHECKING:
     from collections.abc import Sequence
 
     from betty.plugin import PluginDefinition
-    from betty.serde.dump import Dump, DumpMapping
+    from betty.serde import SerializedData, SerializedMapping
 
 
 class TestPersonNameDefinition(EntityDefinitionTestBase):
@@ -102,7 +102,7 @@ class TestPersonName(EntityTestBase):
     async def test_dump_linked_data__should_dump_minimal_individual(self) -> None:
         sut = PersonName(person=Person(), individual="Jane")
         actual = await assert_dumps_linked_data(sut)
-        expected: DumpMapping[Dump] = {
+        expected: SerializedMapping[SerializedData] = {
             "@context": {
                 "individual": "https://schema.org/givenName",
             },
@@ -118,7 +118,7 @@ class TestPersonName(EntityTestBase):
     async def test_dump_linked_data__should_dump_minimal_affiliation(self) -> None:
         sut = PersonName(person=Person(), affiliation="Doe")
         actual = await assert_dumps_linked_data(sut)
-        expected: DumpMapping[Dump] = {
+        expected: SerializedMapping[SerializedData] = {
             "@context": {
                 "affiliation": "https://schema.org/familyName",
             },

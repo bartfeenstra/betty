@@ -46,7 +46,7 @@ if TYPE_CHECKING:
     from betty.date import DateLike
     from betty.locale.localizable import Localizable, LocalizableLike
     from betty.project import Project
-    from betty.serde.dump import Dump, DumpMapping
+    from betty.serde import SerializedData, SerializedMapping
 
 
 @final
@@ -177,19 +177,23 @@ class Event(
         return self._event_type
 
     @override
-    async def dump_linked_data(self, project: Project, /) -> DumpMapping[Dump]:
-        dump = await super().dump_linked_data(project)
-        dump_context(dump, place="https://schema.org/location")
-        dump_context(dump, presences="https://schema.org/performer")
-        dump["@type"] = "https://schema.org/Event"
-        dump["type"] = self.event_type.plugin().id
-        dump["eventAttendanceMode"] = "https://schema.org/OfflineEventAttendanceMode"
-        dump["eventStatus"] = "https://schema.org/EventScheduled"
+    async def dump_linked_data(
+        self, project: Project, /
+    ) -> SerializedMapping[SerializedData]:
+        serialized = await super().dump_linked_data(project)
+        dump_context(serialized, place="https://schema.org/location")
+        dump_context(serialized, presences="https://schema.org/performer")
+        serialized["@type"] = "https://schema.org/Event"
+        serialized["type"] = self.event_type.plugin().id
+        serialized["eventAttendanceMode"] = (
+            "https://schema.org/OfflineEventAttendanceMode"
+        )
+        serialized["eventStatus"] = "https://schema.org/EventScheduled"
         if self.name is not None:
-            dump["name"] = dump_linked_data(
+            serialized["name"] = dump_linked_data(
                 self.name, localizers=await project.public_localizers
             )
-        return dump
+        return serialized
 
     @override
     @classmethod
