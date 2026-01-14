@@ -40,7 +40,6 @@ from betty.locale.localizable.markup import (
     UnorderedList,
     do_you_mean,
 )
-from betty.mutability import Mutable
 
 if TYPE_CHECKING:
     from collections.abc import Iterable, Mapping
@@ -165,7 +164,7 @@ class CountableStaticTranslations(CountableLocalizable):
 
 
 @final
-class StaticTranslations(Mutable, Localizable):
+class StaticTranslations(Localizable):
     """
     A localizable backed by static translations.
 

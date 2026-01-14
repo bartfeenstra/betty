@@ -8,7 +8,6 @@ from abc import abstractmethod
 from typing import TYPE_CHECKING, final
 
 from betty.locale.localizable.gettext import _, ngettext
-from betty.mutability import Mutable
 from betty.plugin import Plugin, PluginTypeDefinition
 from betty.plugin.discovery.app import AppDiscovery
 from betty.plugin.discovery.entry_point import EntryPointDiscovery
@@ -19,7 +18,7 @@ if TYPE_CHECKING:
     from betty.locale.localizable import Localizable
 
 
-class License(Mutable, Plugin["LicenseDefinition"]):
+class License(Plugin["LicenseDefinition"]):
     """
     A license.
 
