@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Betty 0.4\n"
 "Report-Msgid-Bugs-To: illia@maier.page\n"
-"POT-Creation-Date: 2026-01-11 23:33+0000\n"
+"POT-Creation-Date: 2026-01-14 00:16+0000\n"
 "PO-Revision-Date: 2025-05-13 17:01+0000\n"
 "Last-Translator: Максим Горпиніч <maksimgorpinic4@gmail.com>\n"
 "Language: uk\n"
@@ -1015,14 +1015,14 @@ msgstr "Потрібно виконати одну або кілька з цих
 
 #, python-brace-format
 msgid ""
-"Only countable static translations can be dumped to configuration, not "
+"Only countable static translations can be dumped to serialized data, not "
 "`{localizable}` objects."
 msgstr ""
 
 #, python-brace-format
 msgid ""
-"Only plain text and static translations can be dumped to configuration, "
-"not `{localizable}` objects."
+"Only plain text and static translations can be dumped to serialized data,"
+" not `{localizable}` objects."
 msgstr ""
 
 msgid "Operating system"

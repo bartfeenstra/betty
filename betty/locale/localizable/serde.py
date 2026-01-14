@@ -1,5 +1,5 @@
 """
-Provide localizable configuration.
+(De)serialize localizables.
 """
 
 from contextlib import suppress
@@ -19,7 +19,7 @@ from betty.serde import NotDumpable, SerializedData
 
 def load_localizable(serialized: SerializedData, /) -> Localizable:
     """
-    Load a localizable from configuration.
+    Load a localizable from serialized data.
     """
     translations = assert_or(
         assert_str().chain(lambda translation: {None: translation}),
@@ -53,14 +53,14 @@ def dump_localizable(localizable: Localizable, /) -> SerializedData:
         }
     raise NotDumpable(
         _(
-            "Only plain text and static translations can be dumped to configuration, not `{localizable}` objects."
+            "Only plain text and static translations can be dumped to serialized data, not `{localizable}` objects."
         ).format(localizable=fully_qualified_name(type(localizable)))
     )
 
 
 def load_countable_localizable(serialized: SerializedData, /) -> CountableLocalizable:
     """
-    Load a countable localizable from configuration.
+    Load a countable localizable from serialized data.
     """
     return CountableStaticTranslations(
         assert_mapping(
@@ -86,6 +86,6 @@ def dump_countable_localizable(localizable: CountableLocalizable, /) -> Serializ
         }
     raise NotDumpable(
         _(
-            "Only countable static translations can be dumped to configuration, not `{localizable}` objects."
+            "Only countable static translations can be dumped to serialized data, not `{localizable}` objects."
         ).format(localizable=fully_qualified_name(type(localizable)))
     )

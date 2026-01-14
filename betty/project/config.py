@@ -46,9 +46,9 @@ from betty.locale.localizable.attr import (
     OptionalLocalizableAttr,
     RequiredLocalizableAttr,
 )
-from betty.locale.localizable.config import dump_localizable
 from betty.locale.localizable.ensure import ensure_localizable
 from betty.locale.localizable.gettext import _
+from betty.locale.localizable.serde import dump_localizable
 from betty.locale.localizable.static import CountableStaticTranslations
 from betty.machine_name import MachineName, assert_machine_name
 from betty.model import EntityDefinition

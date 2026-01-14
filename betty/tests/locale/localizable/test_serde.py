@@ -5,15 +5,15 @@ from betty.exception import HumanFacingException
 from betty.locale import DEFAULT_LOCALE_TAG
 from betty.locale.error import UnknownLocale
 from betty.locale.localizable import CountableLocalizable, Localizable, LocalizableCount
-from betty.locale.localizable.config import (
+from betty.locale.localizable.error import InvalidPluralTag, MissingPluralTag
+from betty.locale.localizable.markup import Paragraph
+from betty.locale.localizable.plain import Plain
+from betty.locale.localizable.serde import (
     dump_countable_localizable,
     dump_localizable,
     load_countable_localizable,
     load_localizable,
 )
-from betty.locale.localizable.error import InvalidPluralTag, MissingPluralTag
-from betty.locale.localizable.markup import Paragraph
-from betty.locale.localizable.plain import Plain
 from betty.locale.localizable.static import (
     CountableStaticTranslations,
     StaticTranslations,
