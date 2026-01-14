@@ -6,7 +6,6 @@ from typing_extensions import override
 
 from betty.ancestry.citation import Citation
 from betty.ancestry.event import Event
-from betty.ancestry.event_type import EventType
 from betty.ancestry.event_type.event_types import Birth
 from betty.ancestry.event_type.event_types import Unknown as UnknownEventType
 from betty.ancestry.name import Name
@@ -20,7 +19,6 @@ from betty.locale import DEFAULT_LOCALE_TAG
 from betty.locale.localize import DEFAULT_LOCALIZER
 from betty.model import Entity
 from betty.model.association import AssociationRequired, TemporaryToOneResolver
-from betty.mutability import Mutable
 from betty.privacy import Privacy
 from betty.test_utils.json.linked_data import assert_dumps_linked_data
 from betty.test_utils.model import EntityDefinitionTestBase, EntityTestBase
@@ -301,12 +299,3 @@ class TestEvent(EntityTestBase):
         }
         actual = await assert_dumps_linked_data(event)
         assert actual == expected
-
-    def test_get_mutables(self) -> None:
-        class _MutableEventType(EventType, Mutable):
-            pass
-
-        event_type = _MutableEventType()
-        sut = Event(event_type=event_type)
-        sut.immutable = True
-        assert event_type.immutable

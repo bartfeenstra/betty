@@ -9,10 +9,8 @@ from betty.ancestry.event import Event
 from betty.ancestry.event_type.event_types import Unknown as UnknownEventType
 from betty.ancestry.person import Person
 from betty.ancestry.presence import Presence
-from betty.ancestry.presence_role import PresenceRole
 from betty.ancestry.presence_role.presence_roles import Subject
 from betty.ancestry.presence_role.presence_roles import Unknown as UnknownPresenceRole
-from betty.mutability import Mutable
 from betty.privacy import Privacy
 from betty.test_utils.json.linked_data import assert_dumps_linked_data
 from betty.test_utils.model import EntityDefinitionTestBase, EntityTestBase
@@ -103,12 +101,3 @@ class TestPresence(EntityTestBase):
         }
         actual = await assert_dumps_linked_data(sut)
         assert actual == expected
-
-    def test_get_mutables(self) -> None:
-        class _MutablePresenceRole(PresenceRole, Mutable):
-            pass
-
-        role = _MutablePresenceRole()
-        sut = Presence(Person(), role, Event())
-        sut.immutable = True
-        assert role.immutable
