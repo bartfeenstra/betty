@@ -8,7 +8,6 @@ from abc import abstractmethod
 from typing import TYPE_CHECKING, final
 
 from betty.locale.localizable.gettext import _, ngettext
-from betty.mutability import Mutable
 from betty.plugin import Plugin, PluginTypeDefinition
 from betty.plugin.discovery.entry_point import EntryPointDiscovery
 from betty.plugin.discovery.project import ProjectDiscovery
@@ -18,7 +17,7 @@ if TYPE_CHECKING:
     from betty.locale.localizable import Localizable
 
 
-class CopyrightNotice(Mutable, Plugin["CopyrightNoticeDefinition"]):
+class CopyrightNotice(Plugin["CopyrightNoticeDefinition"]):
     """
     A copyright notice.
 
