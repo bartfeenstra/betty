@@ -77,4 +77,3 @@ async def load(project: Project, *, job_context: ProjectContext | None = None) -
             *(PopulateLink(link) for link in project.ancestry[Link]),
         )
         await post_load_scheduler.complete()
-    project.ancestry.immutable = True

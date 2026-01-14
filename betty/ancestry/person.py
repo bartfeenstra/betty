@@ -25,7 +25,7 @@ from betty.plugin.schema import PluginIdSchema
 from betty.privacy import HasPrivacy, Privacy
 
 if TYPE_CHECKING:
-    from collections.abc import Iterable, Iterator, MutableSequence
+    from collections.abc import Iterator, MutableSequence
 
     from betty.ancestry.citation import Citation
     from betty.ancestry.file_reference import FileReference
@@ -131,13 +131,6 @@ class Person(HasFileReferences, HasCitations, HasNotes, HasLinks, HasPrivacy):
             self.names = names
         self._gender = gender or UnknownGender()
 
-    @override
-    def get_mutables(self) -> Iterable[object]:
-        return (
-            *super().get_mutables(),
-            self.gender,
-        )
-
     @property
     def gender(self) -> Gender:
         """
@@ -147,7 +140,6 @@ class Person(HasFileReferences, HasCitations, HasNotes, HasLinks, HasPrivacy):
 
     @gender.setter
     def gender(self, gender: Gender) -> None:
-        self.assert_mutable()
         self._gender = gender
 
     @property

@@ -13,7 +13,6 @@ from typing_extensions import TypeVar, override
 
 from betty.functools import unique
 from betty.model import Entity, EntityDefinition
-from betty.mutability import Mutable
 
 if TYPE_CHECKING:
     from collections.abc import (
@@ -30,7 +29,7 @@ _EntityT = TypeVar("_EntityT", bound=Entity, default=Entity)
 _TargetT = TypeVar("_TargetT")
 
 
-class EntityCollection(Mutable, ABC, Generic[_TargetT]):
+class EntityCollection(ABC, Generic[_TargetT]):
     """
     Provide a collection of entities.
 
@@ -42,10 +41,6 @@ class EntityCollection(Mutable, ABC, Generic[_TargetT]):
 
     def _on_remove(self, *entities: _TargetT & Entity) -> None:
         pass
-
-    @override
-    def get_mutables(self) -> Iterable[object]:
-        return self
 
     @property
     def view(self) -> Sequence[_TargetT & Entity]:

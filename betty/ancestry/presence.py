@@ -16,8 +16,6 @@ from betty.plugin.schema import PluginIdSchema
 from betty.privacy import HasPrivacy, Privacy, is_public, merge_secondary_privacies
 
 if TYPE_CHECKING:
-    from collections.abc import Iterable
-
     from betty.ancestry.event import Event
     from betty.ancestry.person import Person
     from betty.ancestry.presence_role import PresenceRole
@@ -80,10 +78,6 @@ class Presence(HasPrivacy, Entity):
         self.person = person
         self.role = role
         self.event = event
-
-    @override
-    def get_mutables(self) -> Iterable[object]:
-        return (self.role,)
 
     @override
     @property

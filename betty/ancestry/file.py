@@ -22,7 +22,7 @@ from betty.plugin.schema import PluginIdSchema
 from betty.privacy import HasPrivacy, Privacy
 
 if TYPE_CHECKING:
-    from collections.abc import Iterable, MutableSequence
+    from collections.abc import MutableSequence
     from pathlib import Path
 
     from betty.ancestry.citation import Citation
@@ -108,13 +108,6 @@ class File(
         self._name = name
         self.copyright_notice = copyright_notice
         self.license = license
-
-    @override
-    def get_mutables(self) -> Iterable[object]:
-        if self.copyright_notice is not None:
-            yield self.copyright_notice
-        if self.license is not None:
-            yield self.license
 
     @property
     def name(self) -> str:

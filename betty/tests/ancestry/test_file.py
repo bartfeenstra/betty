@@ -284,11 +284,3 @@ class TestFile(EntityTestBase):
             }
             actual = await assert_dumps_linked_data(file)
             assert actual == expected
-
-    def test_get_mutables(self) -> None:
-        copyright_notice = PublicDomainCopyrightNotice()
-        license = PublicDomainLicense()  # noqa A001
-        sut = File(Path(__file__), copyright_notice=copyright_notice, license=license)
-        sut.immutable = True
-        assert copyright_notice.immutable
-        assert license.immutable

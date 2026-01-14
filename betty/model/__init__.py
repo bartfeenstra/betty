@@ -15,7 +15,6 @@ from betty.json.linked_data import (
 from betty.json.schema import JsonSchemaReference, String
 from betty.locale.localizable.gettext import _, ngettext
 from betty.locale.localize import DEFAULT_LOCALIZER
-from betty.mutability import Mutable
 from betty.plugin import Plugin, PluginTypeDefinition
 from betty.plugin.discovery.entry_point import EntryPointDiscovery
 from betty.plugin.human_facing import CountableHumanFacingPluginDefinition
@@ -52,9 +51,7 @@ class NonPersistentId(str):
         return super().__new__(cls, entity_id or str(uuid4()))
 
 
-class Entity(
-    LinkedDataDumpableWithSchemaJsonLdObject, Mutable, Plugin["EntityDefinition"]
-):
+class Entity(LinkedDataDumpableWithSchemaJsonLdObject, Plugin["EntityDefinition"]):
     """
     An entity is a uniquely identifiable data container.
 

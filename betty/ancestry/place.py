@@ -22,7 +22,7 @@ from betty.model.association import BidirectionalToManySingleType, ToManyAssocia
 from betty.privacy import HasPrivacy
 
 if TYPE_CHECKING:
-    from collections.abc import Iterable, Iterator, MutableSequence
+    from collections.abc import Iterator, MutableSequence
 
     from geopy import Point
 
@@ -112,13 +112,6 @@ class Place(HasLinks, HasFileReferences, HasNotes, HasPrivacy):
             self.enclosees = enclosees
         self._place_type = place_type or UnknownPlaceType()
 
-    @override
-    def get_mutables(self) -> Iterable[object]:
-        return (
-            *super().get_mutables(),
-            self._place_type,
-        )
-
     @property
     def walk_enclosees(self) -> Iterator[Enclosure]:
         """
@@ -137,7 +130,6 @@ class Place(HasLinks, HasFileReferences, HasNotes, HasPrivacy):
 
     @place_type.setter
     def place_type(self, place_type: PlaceType) -> None:
-        self.assert_mutable()
         self._place_type = place_type
 
     @property
@@ -158,7 +150,6 @@ class Place(HasLinks, HasFileReferences, HasNotes, HasPrivacy):
 
     @coordinates.setter
     def coordinates(self, coordinates: Point):
-        self.assert_mutable()
         self._coordinates = coordinates
 
     @override

@@ -8,7 +8,6 @@ from typing_extensions import override
 from betty.ancestry.citation import Citation
 from betty.ancestry.event import Event
 from betty.ancestry.event_type.event_types import Birth
-from betty.ancestry.gender import Gender
 from betty.ancestry.gender.genders import NonBinary
 from betty.ancestry.gender.genders import Unknown as UnknownGender
 from betty.ancestry.link import Link
@@ -20,7 +19,6 @@ from betty.ancestry.source import Source
 from betty.locale import DEFAULT_LOCALE, DEFAULT_LOCALE_TAG, to_language_tag
 from betty.model import Entity
 from betty.model.association import AssociationRequired, TemporaryToOneResolver
-from betty.mutability import Mutable
 from betty.privacy import Privacy
 from betty.test_utils.json.linked_data import assert_dumps_linked_data
 from betty.test_utils.model import EntityDefinitionTestBase, EntityTestBase
@@ -450,12 +448,3 @@ class TestPerson(EntityTestBase):
         sut = Person()
         sut.gender = gender
         assert sut.gender is gender
-
-    def test_get_mutables(self) -> None:
-        class _MutableGender(Gender, Mutable):
-            pass
-
-        gender = _MutableGender()
-        sut = Person(gender=gender)
-        sut.immutable = True
-        assert gender.immutable

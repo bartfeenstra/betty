@@ -37,7 +37,7 @@ from betty.plugin.schema import PluginIdSchema
 from betty.privacy import HasPrivacy, Privacy
 
 if TYPE_CHECKING:
-    from collections.abc import Iterable, Mapping
+    from collections.abc import Mapping
 
     from betty.ancestry.citation import Citation
     from betty.ancestry.event_type import EventType
@@ -128,13 +128,6 @@ class Event(
         if presences is not None:
             self.presences = presences
         self.name = name
-
-    @override
-    def get_mutables(self) -> Iterable[object]:
-        return (
-            *super().get_mutables(),
-            self.event_type,
-        )
 
     @override
     def dated_linked_data_contexts(self) -> tuple[str | None, str | None, str | None]:

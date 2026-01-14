@@ -484,6 +484,7 @@ _BASELINE: Mapping[str, _ModuleIgnore] = {
         "Generator": MissingReason.ABSTRACT,
     },
     "betty/project/load/__init__.py": {
+        "load": MissingReason.SHOULD_BE_COVERED,
         "Loader": MissingReason.ABSTRACT,
         "PostLoader": MissingReason.ABSTRACT,
     },
