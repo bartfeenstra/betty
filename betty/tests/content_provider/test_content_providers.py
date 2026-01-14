@@ -286,10 +286,6 @@ class TestBoxConfiguration(ConfigurationTestBase[BoxConfiguration]):
             "width": "WIDTH",
         }
 
-    def test_get_mutables(self) -> None:
-        sut = BoxConfiguration(PluginInstanceConfiguration("my-first-content"))
-        assert list(sut.get_mutables())
-
 
 class TestBox(ContentProviderTestBase):
     @override

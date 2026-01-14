@@ -42,7 +42,6 @@ class WikiConfiguration(Configuration):
 
     @populate_images.setter
     def populate_images(self, populate_images: bool) -> None:
-        self.assert_mutable()
         self._populate_images = populate_images
 
     @override

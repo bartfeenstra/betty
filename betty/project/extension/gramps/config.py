@@ -102,11 +102,9 @@ class PluginMapping(Generic[_PluginDefinitionT, _PluginT], Configuration):
         gramps_type: str,
         configuration: PluginInstanceConfiguration[_PluginDefinitionT, _PluginT],
     ) -> None:
-        self.assert_mutable()
         self._mapping[gramps_type] = configuration
 
     def __delitem__(self, gramps_type: str) -> None:
-        self.assert_mutable()
         del self._mapping[gramps_type]
 
     def __iter__(self) -> Iterator[str]:
@@ -176,14 +174,6 @@ class FamilyTreeConfiguration(Configuration):
             PresenceRoleMapping() if presence_roles is None else presence_roles
         )
 
-    @override
-    def get_mutables(self) -> Iterable[object]:
-        return (
-            self._event_types,
-            self._place_types,
-            self._presence_roles,
-        )
-
     @property
     def source(self) -> Path | str:
         """
@@ -195,7 +185,6 @@ class FamilyTreeConfiguration(Configuration):
 
     @source.setter
     def source(self, source: Path | str) -> None:
-        self.assert_mutable()
         self._source = source
 
     @property
@@ -380,10 +369,6 @@ class GrampsConfiguration(Configuration):
             FamilyTreeConfigurationSequence() if family_trees is None else family_trees
         )
         self._executable = executable
-
-    @override
-    def get_mutables(self) -> Iterable[object]:
-        return (self._family_trees,)
 
     @property
     def family_trees(self) -> FamilyTreeConfigurationSequence:

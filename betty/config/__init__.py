@@ -10,7 +10,6 @@ from typing import TYPE_CHECKING, Any, Generic, Self, TypeVar
 from typing_extensions import override
 
 from betty.locale.localizable.ensure import ensure_localizable
-from betty.mutability import Mutable
 from betty.serde import Serializable
 
 if TYPE_CHECKING:
@@ -20,7 +19,7 @@ if TYPE_CHECKING:
     from betty.service.level.factory import AnyFactoryTarget
 
 
-class Configuration(Mutable, Serializable):
+class Configuration(Serializable):
     """
     Any configuration object.
     """

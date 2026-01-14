@@ -241,13 +241,6 @@ class TestFamilyTreeConfiguration(ConfigurationTestBase[FamilyTreeConfiguration]
         assert isinstance(actual, Mapping)
         assert actual["my-first-gramps-type"] == "my-first-betty-plugin-id"
 
-    def test_get_mutables(self) -> None:
-        sut = FamilyTreeConfiguration(Path(__file__))
-        sut.immutable = True
-        assert sut.event_types.immutable
-        assert sut.place_types.immutable
-        assert sut.presence_roles.immutable
-
 
 class TestPluginMapping(ConfigurationTestBase[PluginMapping]):
     sut_cls = PluginMapping
@@ -445,8 +438,3 @@ class TestGrampsConfiguration(ConfigurationTestBase[GrampsConfiguration]):
             ],
         }
         assert actual == expected
-
-    def test_get_mutables(self) -> None:
-        sut = GrampsConfiguration()
-        sut.immutable = True
-        assert sut.family_trees.immutable

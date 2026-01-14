@@ -90,7 +90,6 @@ class ConfigurationCollection(
         """
         Remove the given keys from the collection.
         """
-        self.assert_mutable()
         for configuration_key in configuration_keys:
             configuration_key = self._resolve_key(configuration_key)
             configuration_key = self._resolve_key(configuration_key)
@@ -150,7 +149,3 @@ class ConfigurationCollection(
         """
         Insert the given values at the given index.
         """
-
-    @override
-    def get_mutables(self) -> Iterable[object]:
-        return self.values()

@@ -55,7 +55,6 @@ class ColorConfiguration(Configuration):
 
     @hex.setter
     def hex(self, hex_value: str) -> None:
-        self.assert_mutable()
         self._assert_hex(hex_value)
         self._hex = hex_value
 

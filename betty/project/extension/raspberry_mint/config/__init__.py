@@ -122,15 +122,6 @@ class RaspberryMintConfiguration(Configuration):
 
         return CallbackProjectDependentFactory(_validate)
 
-    @override
-    def get_mutables(self) -> Iterable[object]:
-        return (
-            self._primary_color,
-            self._secondary_color,
-            self._tertiary_color,
-            self._regional_content,
-        )
-
     @property
     def primary_color(self) -> ColorConfiguration:
         """

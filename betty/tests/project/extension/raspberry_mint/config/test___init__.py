@@ -151,11 +151,3 @@ class TestRaspberryMintConfiguration(ConfigurationTestBase[RaspberryMintConfigur
                 "my-first-plugin",
             ],
         }
-
-    def test_get_mutables(self) -> None:
-        sut = RaspberryMintConfiguration()
-        sut.immutable = True
-        assert sut.primary_color.immutable
-        assert sut.secondary_color.immutable
-        assert sut.tertiary_color.immutable
-        assert sut.regional_content.immutable

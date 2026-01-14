@@ -48,7 +48,6 @@ class AppConfiguration(Configuration):
 
     @locale.setter
     def locale(self, locale: Locale | None) -> None:
-        self.assert_mutable()
         self._locale = locale
 
     @override
