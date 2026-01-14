@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PROJECT VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-01-11 23:33+0000\n"
+"POT-Creation-Date: 2026-01-14 00:16+0000\n"
 "PO-Revision-Date: 2025-08-27 20:02+0000\n"
 "Last-Translator: \"David D.\" <dadu042@users.noreply.hosted.weblate.org>\n"
 "Language: fr_FR\n"
@@ -981,14 +981,14 @@ msgstr ""
 
 #, python-brace-format
 msgid ""
-"Only countable static translations can be dumped to configuration, not "
+"Only countable static translations can be dumped to serialized data, not "
 "`{localizable}` objects."
 msgstr ""
 
 #, python-brace-format
 msgid ""
-"Only plain text and static translations can be dumped to configuration, "
-"not `{localizable}` objects."
+"Only plain text and static translations can be dumped to serialized data,"
+" not `{localizable}` objects."
 msgstr ""
 
 msgid "Operating system"
