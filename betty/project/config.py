@@ -1216,7 +1216,6 @@ class ProjectConfiguration(Configuration):
 
     @name.setter
     def name(self, name: MachineName) -> None:
-        self.assert_mutable()
         self._name = assert_machine_name()(name)
 
     @property
@@ -1228,7 +1227,6 @@ class ProjectConfiguration(Configuration):
 
     @url.setter
     def url(self, url: str) -> None:
-        self.assert_mutable()
         url_parts = urlparse(url)
         if not url_parts.scheme:
             raise HumanFacingException(
@@ -1271,7 +1269,6 @@ class ProjectConfiguration(Configuration):
 
     @clean_urls.setter
     def clean_urls(self, clean_urls: bool) -> None:
-        self.assert_mutable()
         self._clean_urls = clean_urls
 
     @property
@@ -1311,7 +1308,6 @@ class ProjectConfiguration(Configuration):
 
     @debug.setter
     def debug(self, debug: bool) -> None:
-        self.assert_mutable()
         self._debug = debug
 
     @property
@@ -1328,7 +1324,6 @@ class ProjectConfiguration(Configuration):
 
     @lifetime_threshold.setter
     def lifetime_threshold(self, lifetime_threshold: int) -> None:
-        self.assert_mutable()
         assert_number(minimum=1)(lifetime_threshold)
         self._lifetime_threshold = lifetime_threshold
 
@@ -1341,7 +1336,6 @@ class ProjectConfiguration(Configuration):
 
     @logo.setter
     def logo(self, logo: Path | None) -> None:
-        self.assert_mutable()
         self._logo = logo
 
     @property

@@ -20,7 +20,7 @@ from betty.service.container import (
 )
 from betty.service.level import ServiceLevel
 from betty.service.level.factory import AnyFactoryTarget
-from betty.test_utils.config import DummyConfigurable, DummyConfiguration
+from betty.test_utils.config import DummyConfigurable
 from betty.test_utils.locale.localizable import DUMMY_LOCALIZABLE
 
 _T = TypeVar("_T")
@@ -142,19 +142,6 @@ class TestServiceContainer:
             assert sut.bootstrapped
         finally:
             await sut.shutdown()
-
-    async def test_bootstrap__should_mark_configuration_immutable(self) -> None:
-        async with _ConfigurableServiceProvider(
-            configuration=DummyConfiguration()
-        ) as sut:
-            assert sut.configuration.immutable
-
-    async def test_shutdown__should_mark_configuration_mutable(self) -> None:
-        async with _ConfigurableServiceProvider(
-            configuration=DummyConfiguration()
-        ) as sut:
-            pass
-        assert sut.configuration.mutable
 
     async def test_shutdown(self) -> None:
         sut = _ServiceContainer()

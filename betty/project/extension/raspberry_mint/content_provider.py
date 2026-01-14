@@ -154,10 +154,6 @@ class SectionConfiguration(Configuration):
         )
 
     @override
-    def get_mutables(self) -> Iterable[object]:
-        return self.heading, self._content
-
-    @override
     @classmethod
     def samples(cls) -> Iterable[Sample[Self]]:
         from betty.test_utils.locale.localizable import DUMMY_LOCALIZABLE
@@ -374,10 +370,6 @@ class ColorStyleConfiguration(Configuration):
         if not isinstance(other, type(self)):
             return NotImplemented
         return (self.style, self.content) == (other.style, other.content)
-
-    @override
-    def get_mutables(self) -> Iterable[object]:
-        return self.content
 
     @override
     @classmethod

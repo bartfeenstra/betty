@@ -58,18 +58,15 @@ class _ConfigurationMapping(
 
     @override
     def replace(self, *configurations: _ConfigurationT) -> None:
-        self.assert_mutable()
         self.clear()
         self.append(*configurations)
 
     @override
     def prepend(self, *configurations: _ConfigurationT) -> None:
-        self.assert_mutable()
         self.insert(0, *configurations)
 
     @override
     def append(self, *configurations: _ConfigurationT) -> None:
-        self.assert_mutable()
         for configuration in configurations:
             configuration_key = self._get_key(configuration)
             with suppress(KeyError):
@@ -78,7 +75,6 @@ class _ConfigurationMapping(
 
     @override
     def insert(self, index: int, *configurations: _ConfigurationT) -> None:
-        self.assert_mutable()
         self.remove(*map(self._get_key, configurations))
         existing_configurations = list(self.values())
         self._configurations = {

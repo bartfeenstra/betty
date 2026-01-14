@@ -276,10 +276,6 @@ class BoxConfiguration(Configuration):
         )
 
     @override
-    def get_mutables(self) -> Iterable[object]:
-        return self.content
-
-    @override
     @classmethod
     def samples(cls) -> Iterable[Sample[Self]]:
         yield Sample(cls([]), label="Minimal", minimal=True)

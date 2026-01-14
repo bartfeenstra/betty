@@ -72,7 +72,6 @@ class ServiceContainer(Bootstrapped, Shutdownable):
             validator_factory = self.configuration.validator
             if validator_factory is not None:
                 await self._new_target(validator_factory)
-            self.configuration.immutable = True
 
     @classmethod
     def _service_managers(cls) -> Iterable[ServiceManager[Self, Any, Any]]:
@@ -89,8 +88,6 @@ class ServiceContainer(Bootstrapped, Shutdownable):
 
     async def _shutdown(self, *, wait: bool = True) -> None:
         await self._shutdown_stack.shutdown(wait=wait)
-        if isinstance(self, Configurable):
-            self.configuration.mutable = True
 
     def __del__(self) -> None:
         if self.bootstrapped:

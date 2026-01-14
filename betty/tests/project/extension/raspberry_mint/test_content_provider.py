@@ -212,18 +212,6 @@ class TestSectionConfiguration(ConfigurationTestBase[SectionConfiguration]):
             ],
         }
 
-    def test_get_mutables__minimal(self) -> None:
-        sut = SectionConfiguration(
-            PluginInstanceConfiguration("my-first-content"), heading="My First Section"
-        )
-        assert list(sut.get_mutables())
-
-    def test_get_mutables__with_content(self) -> None:
-        sut = SectionConfiguration(
-            PluginInstanceConfiguration("my-first-content"), heading="My First Section"
-        )
-        assert list(sut.get_mutables())
-
 
 class TestSection(
     ConfigurationDependentSelfFactoryTestBase[SectionConfiguration],
@@ -476,12 +464,6 @@ class TestColorStyleConfiguration(ConfigurationTestBase[ColorStyleConfiguration]
                 "my-first-content",
             ],
         }
-
-    def test_get_mutables(self) -> None:
-        sut = ColorStyleConfiguration(
-            PluginInstanceConfiguration("my-first-content"), style=ColorStyleOption.DARK
-        )
-        assert list(sut.get_mutables())
 
 
 class TestColorStyle(ContentProviderTestBase):
