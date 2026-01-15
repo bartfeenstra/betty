@@ -34,8 +34,8 @@ if TYPE_CHECKING:
     from betty.license import License
     from betty.locale.localizable import Localizable, LocalizableLike
     from betty.media_type import MediaType
+    from betty.portable import PortableMapping
     from betty.project import Project
-    from betty.serde import SerializedData, SerializedMapping
 
 
 @final
@@ -150,9 +150,7 @@ class File(
         return schema
 
     @override
-    async def dump_linked_data(
-        self, project: Project, /
-    ) -> SerializedMapping[SerializedData]:
+    async def dump_linked_data(self, project: Project, /) -> PortableMapping:
         serialized = await super().dump_linked_data(project)
         if self.copyright_notice:
             serialized["copyrightNotice"] = self.copyright_notice.plugin().id

@@ -21,8 +21,8 @@ from betty.json.linked_data import (
 from betty.privacy import is_public
 
 if TYPE_CHECKING:
+    from betty.portable import PortableMapping
     from betty.project import Project
-    from betty.serde import SerializedData, SerializedMapping
 
 
 class HasDate(LinkedDataDumpableWithSchemaJsonLdObject):
@@ -48,9 +48,7 @@ class HasDate(LinkedDataDumpableWithSchemaJsonLdObject):
         return None, None, None
 
     @override
-    async def dump_linked_data(
-        self, project: Project, /
-    ) -> SerializedMapping[SerializedData]:
+    async def dump_linked_data(self, project: Project, /) -> PortableMapping:
         serialized = await super().dump_linked_data(project)
         if self.date and is_public(self):
             (

@@ -21,8 +21,8 @@ if TYPE_CHECKING:
     from betty.ancestry.presence_role import PresenceRole
     from betty.json.linked_data import JsonLdObject
     from betty.locale.localizable import Localizable
+    from betty.portable import PortableMapping
     from betty.project import Project
-    from betty.serde import SerializedData, SerializedMapping
 
 
 @final
@@ -110,9 +110,7 @@ class Presence(HasPrivacy, Entity):
         return schema
 
     @override
-    async def dump_linked_data(
-        self, project: Project, /
-    ) -> SerializedMapping[SerializedData]:
+    async def dump_linked_data(self, project: Project, /) -> PortableMapping:
         serialized = await super().dump_linked_data(project)
         if is_public(self):
             serialized["role"] = self.role.plugin().id

@@ -15,7 +15,7 @@ from betty.config.collections.mapping import (
 from betty.test_utils.config.collections.mapping import ConfigurationMappingTestBase
 
 if TYPE_CHECKING:
-    from betty.serde import SerializedData
+    from betty.portable import PortableData
     from betty.test_utils.config.collections import (
         ConfigurationCollectionTestBaseNewSut,
         ConfigurationCollectionTestBaseSutConfigurationKeys,
@@ -31,15 +31,15 @@ class ConfigurationMappingTestConfiguration(Configuration):
 
     @override
     @classmethod
-    def load(cls, serialized: SerializedData, /) -> Self:
+    def load(cls, portable: PortableData, /) -> Self:
         record = assert_record(
             RequiredField("key", assert_str()),
             RequiredField("value", assert_int()),
-        )(serialized)
+        )(portable)
         return cls(record["key"], record["value"])
 
     @override
-    def dump(self) -> SerializedData:
+    def dump(self) -> PortableData:
         return {
             "key": self.key,
             "value": self.value,
@@ -71,18 +71,16 @@ class ConfigurationMappingTestConfigurationMapping(
     @override
     @classmethod
     def _load_key(
-        cls, serialized_item: SerializedData, serialized_key: str, /
-    ) -> SerializedData:
-        assert isinstance(serialized_item, Mapping)
-        serialized_item["key"] = serialized_key
-        return serialized_item
+        cls, portable_item: PortableData, portable_key: str, /
+    ) -> PortableData:
+        assert isinstance(portable_item, Mapping)
+        portable_item["key"] = portable_key
+        return portable_item
 
     @override
-    def _dump_key(
-        self, serialized_item: SerializedData, /
-    ) -> tuple[SerializedData, str]:
-        assert isinstance(serialized_item, Mapping)
-        return serialized_item, cast(str, serialized_item.pop("key"))
+    def _dump_key(self, portable_item: PortableData, /) -> tuple[PortableData, str]:
+        assert isinstance(portable_item, Mapping)
+        return portable_item, cast(str, portable_item.pop("key"))
 
 
 class TestConfigurationMapping(

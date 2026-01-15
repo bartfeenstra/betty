@@ -4,12 +4,12 @@ import pytest
 from typing_extensions import override
 
 from betty.plugin import PluginDefinition
-from betty.serde.format import Format, FormatError
-from betty.serde.format.formats import Json, Yaml
+from betty.serde import Format, FormatError
+from betty.serde.formats import Json, Yaml
 from betty.test_utils.serde.format import FormatDefinitionTestBase, FormatTestBase
 
 if TYPE_CHECKING:
-    from betty.serde import SerializedData
+    from betty.portable import PortableData
 
 
 class TestJsonDefinition(FormatDefinitionTestBase):
@@ -36,9 +36,9 @@ class TestJson(FormatTestBase):
         assert actual == expected
 
     def test_dump(self) -> None:
-        serialized: SerializedData = {"hello": [123, "World!"]}
+        portable: PortableData = {"hello": [123, "World!"]}
         sut = Json()
-        actual = sut.dump(serialized)
+        actual = sut.dump(portable)
         assert (
             actual
             == """
@@ -77,7 +77,7 @@ class TestYaml(FormatTestBase):
         assert expected == serialized
 
     def test_dump(self) -> None:
-        serialized: SerializedData = {"hello": [123, "World!"]}
+        portable: PortableData = {"hello": [123, "World!"]}
         sut = Yaml()
-        serialized_yaml = sut.dump(serialized)
+        serialized_yaml = sut.dump(portable)
         assert serialized_yaml == "hello:\n- 123\n- World!\n"

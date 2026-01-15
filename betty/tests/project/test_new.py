@@ -6,12 +6,12 @@ from pytest_mock import MockerFixture
 from betty.config import Configuration
 from betty.locale import DEFAULT_LOCALE_TAG, to_language_tag
 from betty.locale.localize import DEFAULT_LOCALIZER
+from betty.portable.file import assert_load_file
 from betty.project import Project
 from betty.project.config import ProjectConfiguration
 from betty.project.extension.gramps import Gramps
 from betty.project.extension.gramps.config import GrampsConfiguration
 from betty.project.new import new
-from betty.serde.file import assert_load_file
 from betty.test_utils.conftest import IsolatedAppFactory
 from betty.test_utils.user import StaticUser
 from betty.typing import Void
@@ -208,13 +208,13 @@ async def test_new__with_gramps(
         configuration = await _assert_new(configuration_file_path)
         assert Gramps.plugin() in configuration.extensions
         async with Project.new_isolated(app) as project, project:
-            serialized_gramps_configuration = configuration.extensions[
+            portable_gramps_configuration = configuration.extensions[
                 Gramps
             ].configuration
-            assert not isinstance(serialized_gramps_configuration, Configuration)
-            assert not isinstance(serialized_gramps_configuration, Void)
+            assert not isinstance(portable_gramps_configuration, Configuration)
+            assert not isinstance(portable_gramps_configuration, Void)
             gramps_configuration = GrampsConfiguration.load(
-                serialized_gramps_configuration
+                portable_gramps_configuration
             )
             assert (
                 gramps_configuration.family_trees[0].source

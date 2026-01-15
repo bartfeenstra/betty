@@ -38,7 +38,7 @@ from betty.test_utils.content_provider import ContentProviderTestBase
 from betty.test_utils.locale.localizable import DUMMY_LOCALIZABLE
 
 if TYPE_CHECKING:
-    from betty.serde import SerializedData
+    from betty.portable import PortableData
 
 
 class TestRenderConfiguration(ConfigurationTestBase[RenderConfiguration]):
@@ -50,25 +50,25 @@ class TestRenderConfiguration(ConfigurationTestBase[RenderConfiguration]):
         assert sut.content is content
 
     def test_load__without_text(self) -> None:
-        serialized: SerializedData = {}
+        portable: PortableData = {}
         with pytest.raises(HumanFacingException):
-            RenderConfiguration.load(serialized)
+            RenderConfiguration.load(portable)
 
     def test_load__minimal(self) -> None:
         content = "Hello, world!"
-        serialized: SerializedData = {
+        portable: PortableData = {
             "content": content,
         }
-        sut = RenderConfiguration.load(serialized)
+        sut = RenderConfiguration.load(portable)
         assert sut.content.localize(DEFAULT_LOCALIZER) == content
         assert sut.media_type == PLAIN_TEXT
 
     def test_load__with_media_type(self) -> None:
-        serialized: SerializedData = {
+        portable: PortableData = {
             "content": "Hello, world!",
             "media_type": "text/html",
         }
-        sut = RenderConfiguration.load(serialized)
+        sut = RenderConfiguration.load(portable)
         assert sut.media_type == HTML
 
     def test_dump__minimal(self) -> None:

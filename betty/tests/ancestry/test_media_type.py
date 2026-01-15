@@ -9,7 +9,7 @@ from betty.media_type.media_types import PLAIN_TEXT
 from betty.test_utils.json.linked_data import assert_dumps_linked_data
 
 if TYPE_CHECKING:
-    from betty.serde import SerializedData, SerializedMapping
+    from betty.portable import PortableMapping
 
 
 class TestHasMediaType:
@@ -33,6 +33,6 @@ class TestHasMediaType:
         ],
     )
     async def test_dump_linked_data(
-        self, expected: SerializedMapping[SerializedData], sut: HasMediaType
+        self, expected: PortableMapping, sut: HasMediaType
     ) -> None:
         assert await assert_dumps_linked_data(sut) == expected

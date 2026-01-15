@@ -13,7 +13,7 @@ from betty.assertion import (
     assert_record,
 )
 from betty.config import Configuration, Sample
-from betty.serde import SerializedData, SerializedMapping
+from betty.portable import PortableData, PortableMapping
 
 
 class WikiConfiguration(Configuration):
@@ -46,13 +46,13 @@ class WikiConfiguration(Configuration):
 
     @override
     @classmethod
-    def load(cls, serialized: SerializedData, /) -> Self:
+    def load(cls, portable: PortableData, /) -> Self:
         return cls(
-            **assert_record(OptionalField("populate_images", assert_bool))(serialized)
+            **assert_record(OptionalField("populate_images", assert_bool))(portable)
         )
 
     @override
-    def dump(self) -> SerializedMapping[SerializedData]:
+    def dump(self) -> PortableMapping:
         return {
             "populate_images": self.populate_images,
         }

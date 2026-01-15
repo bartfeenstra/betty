@@ -13,7 +13,7 @@ from typing_extensions import TypeVar, override
 
 from betty.classtools import Singleton
 from betty.json.schema import Object, Schema
-from betty.serde import SerializedData, SerializedMapping
+from betty.portable import PortableData, PortableMapping
 from betty.string import snake_case_to_lower_camel_case
 
 if TYPE_CHECKING:
@@ -23,17 +23,13 @@ if TYPE_CHECKING:
 
 _T = TypeVar("_T")
 _SchemaTypeT = TypeVar("_SchemaTypeT", bound=Schema, default=Schema, covariant=True)
-_SerializedDataT = TypeVar(
-    "_SerializedDataT", bound=SerializedData, default=SerializedData
-)
+_PortableDataT = TypeVar("_PortableDataT", bound=PortableData, default=PortableData)
 
 
 async def dump_schema(
     project: Project,
-    serialized: SerializedMapping[SerializedData],
-    linked_data_dumpable: LinkedDataDumpableWithSchema[
-        Object, SerializedMapping[SerializedData]
-    ],
+    portable: PortableMapping,
+    linked_data_dumpable: LinkedDataDumpableWithSchema[Object, PortableMapping],
     /,
 ) -> None:
     """
@@ -43,23 +39,23 @@ async def dump_schema(
 
     schema = await linked_data_dumpable.linked_data_schema(project)
     if schema.def_name:
-        serialized["$schema"] = await ProjectSchema.def_url(project, schema.def_name)
+        portable["$schema"] = await ProjectSchema.def_url(project, schema.def_name)
 
 
-class LinkedDataDumpable(Generic[_SerializedDataT]):
+class LinkedDataDumpable(Generic[_PortableDataT]):
     """
     Describe an object that can be dumped to linked data.
     """
 
     @abstractmethod
-    async def dump_linked_data(self, project: Project, /) -> _SerializedDataT:
+    async def dump_linked_data(self, project: Project, /) -> _PortableDataT:
         """
         Dump this instance to `JSON-LD <https://json-ld.org/>`_.
         """
 
 
 class LinkedDataDumpableWithSchema(
-    Generic[_SchemaTypeT, _SerializedDataT], LinkedDataDumpable[_SerializedDataT]
+    Generic[_SchemaTypeT, _PortableDataT], LinkedDataDumpable[_PortableDataT]
 ):
     """
     Describe an object that can be dumped to linked data.
@@ -94,14 +90,14 @@ class JsonLdObject(Object):
 
 
 class LinkedDataDumpableWithSchemaJsonLdObject(
-    LinkedDataDumpableWithSchema[JsonLdObject, SerializedMapping[SerializedData]], ABC
+    LinkedDataDumpableWithSchema[JsonLdObject, PortableMapping], ABC
 ):
     """
     A :py:class:`betty.json.linked_data.LinkedDataDumpable` implementation for object/mapping data.
 
     This is helpful when working with diamond class hierarchies where parent classes that may not be the root class want
     to make changes to the linked data, and expect an :py:class`betty.json.schema.Object` schema and a
-    :py:type:`betty.serde.SerializedMapping` dump.
+    :py:type:`betty.portable.PortableMapping` dump.
     """
 
     @override
@@ -119,23 +115,21 @@ class LinkedDataDumpableWithSchemaJsonLdObject(
         return schema
 
     @override
-    async def dump_linked_data(
-        self, project: Project, /
-    ) -> SerializedMapping[SerializedData]:
-        serialized: SerializedMapping[SerializedData] = {}
+    async def dump_linked_data(self, project: Project, /) -> PortableMapping:
+        portable: PortableMapping = {}
 
-        await dump_schema(project, serialized, self)
+        await dump_schema(project, portable, self)
 
         for attr_name, class_attr_value in getmembers(type(self)):
             if isinstance(class_attr_value, LinkedDataDumpableProvider):
-                serialized[
+                portable[
                     snake_case_to_lower_camel_case(attr_name)
                 ] = await class_attr_value.dump_linked_data_for(project, self)
 
-        return serialized
+        return portable
 
 
-class LinkedDataDumpableProvider(Generic[_T, _SchemaTypeT, _SerializedDataT], ABC):
+class LinkedDataDumpableProvider(Generic[_T, _SchemaTypeT, _PortableDataT], ABC):
     """
     Provide linked data for instances of a target type.
     """
@@ -149,37 +143,31 @@ class LinkedDataDumpableProvider(Generic[_T, _SchemaTypeT, _SerializedDataT], AB
     @abstractmethod
     async def dump_linked_data_for(
         self, project: Project, target: _T, /
-    ) -> _SerializedDataT:
+    ) -> _PortableDataT:
         """
         Dump the given target to `JSON-LD <https://json-ld.org/>`_.
         """
 
 
-def dump_context(
-    serialized: SerializedMapping[SerializedData], **context_definitions: str
-) -> None:
+def dump_context(portable: PortableMapping, **context_definitions: str) -> None:
     """
     Add one or more contexts to a dump.
     """
-    serialized_context = cast(
-        SerializedMapping[SerializedData], serialized.setdefault("@context", {})
-    )
+    portable_context = cast(PortableMapping, portable.setdefault("@context", {}))
     for key, context_definition in context_definitions.items():
-        serialized_context[key] = context_definition
+        portable_context[key] = context_definition
 
 
-async def dump_link(
-    serialized: SerializedMapping[SerializedData], project: Project, *links: Link
-) -> None:
+async def dump_link(portable: PortableMapping, project: Project, *links: Link) -> None:
     """
     Add one or more links to a dump.
     """
-    serialized_link = cast(
-        MutableSequence[SerializedMapping[SerializedData]],
-        serialized.setdefault("links", []),
+    portable_link = cast(
+        MutableSequence[PortableMapping],
+        portable.setdefault("links", []),
     )
     for link in links:
-        serialized_link.append(await link.dump_linked_data(project))
+        portable_link.append(await link.dump_linked_data(project))
 
 
 @final
@@ -188,7 +176,7 @@ class JsonLdSchema(Singleton, Schema):
     A `JSON-LD <https://json-ld.org/>`_ JSON Schema reference.
     """
 
-    _SCHEMA: SerializedMapping[SerializedData] = {
+    _SCHEMA: PortableMapping = {
         "$schema": "https://json-schema.org/draft/2020-12/schema",
         "additionalProperties": True,
         "allOf": [

@@ -5,9 +5,9 @@ from betty.app import App
 from betty.console.command import Command
 from betty.console.command.commands.about import About
 from betty.plugin import PluginDefinition
+from betty.portable.file import dump_file
 from betty.project import Project
 from betty.rich.user import RichUser
-from betty.serde.file import dump_file
 from betty.test_utils.conftest import IsolatedAppFactory
 from betty.test_utils.console import run
 from betty.test_utils.console.command import CommandDefinitionTestBase, CommandTestBase

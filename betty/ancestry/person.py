@@ -35,8 +35,8 @@ if TYPE_CHECKING:
     from betty.ancestry.person_name import PersonName
     from betty.ancestry.presence import Presence
     from betty.locale.localizable import Localizable
+    from betty.portable import PortableMapping
     from betty.project import Project
-    from betty.serde import SerializedData, SerializedMapping
 
 
 @final
@@ -181,9 +181,7 @@ class Person(HasFileReferences, HasCitations, HasNotes, HasLinks, HasPrivacy):
         return super().label
 
     @override
-    async def dump_linked_data(
-        self, project: Project, /
-    ) -> SerializedMapping[SerializedData]:
+    async def dump_linked_data(self, project: Project, /) -> PortableMapping:
         serialized = await super().dump_linked_data(project)
         url_generator = await project.url_generator
         dump_context(

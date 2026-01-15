@@ -21,8 +21,8 @@ from betty.privacy import is_public
 if TYPE_CHECKING:
     from babel import Locale
 
+    from betty.portable import PortableMapping
     from betty.project import Project
-    from betty.serde import SerializedData, SerializedMapping
 
 
 class HasLocale(StdHasLocale, LinkedDataDumpableWithSchemaJsonLdObject):
@@ -40,9 +40,7 @@ class HasLocale(StdHasLocale, LinkedDataDumpableWithSchemaJsonLdObject):
         self._locale = locale
 
     @override
-    async def dump_linked_data(
-        self, project: Project, /
-    ) -> SerializedMapping[SerializedData]:
+    async def dump_linked_data(self, project: Project, /) -> PortableMapping:
         serialized = await super().dump_linked_data(project)
         serialized["locale"] = to_language_tag(self.locale) if is_public(self) else None
         return serialized

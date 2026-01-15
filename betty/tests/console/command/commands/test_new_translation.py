@@ -10,8 +10,8 @@ from betty.console import SystemExitCode
 from betty.console.command import Command
 from betty.console.command.commands.new_translation import NewTranslation
 from betty.plugin import PluginDefinition
+from betty.portable.file import dump_file
 from betty.project import Project
-from betty.serde.file import dump_file
 from betty.test_utils.console import run
 from betty.test_utils.console.command import CommandDefinitionTestBase, CommandTestBase
 

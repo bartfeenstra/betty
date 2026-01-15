@@ -18,7 +18,7 @@ from betty.assertion import (
 from betty.config import Configurable, Configuration
 from betty.importlib import fully_qualified_name
 from betty.locale.localize import DEFAULT_LOCALIZER
-from betty.serde import SerializedData
+from betty.portable import PortableData
 
 _ConfigurationT = TypeVar("_ConfigurationT", bound=Configuration)
 
@@ -125,18 +125,18 @@ class DummyConfiguration(Configuration):
 
     @override
     @classmethod
-    def load(cls, serialized: SerializedData, /) -> Self:
+    def load(cls, portable: PortableData, /) -> Self:
         return cls(
             assert_record(
                 OptionalField(
                     "value",
                     assert_or(assert_none, assert_str()),
                 )
-            )(serialized)["value"]
+            )(portable)["value"]
         )
 
     @override
-    def dump(self) -> SerializedData:
+    def dump(self) -> PortableData:
         if self.value is None:
             return {}
         return {

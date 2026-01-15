@@ -13,7 +13,7 @@ from betty.test_utils.locale.localizable import (
 
 if TYPE_CHECKING:
     from betty.ancestry.has_notes import HasNotes
-    from betty.serde import SerializedData, SerializedMapping
+    from betty.portable import PortableMapping
 
 
 class TestHasNotes:
@@ -62,6 +62,6 @@ class TestHasNotes:
         ],
     )
     async def test_dump_linked_data(
-        self, expected: SerializedMapping[SerializedData], sut: HasNotes
+        self, expected: PortableMapping, sut: HasNotes
     ) -> None:
         assert await assert_dumps_linked_data(sut) == expected

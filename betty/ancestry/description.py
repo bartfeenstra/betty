@@ -20,8 +20,8 @@ from betty.privacy import is_public
 
 if TYPE_CHECKING:
     from betty.locale.localizable import LocalizableLike
+    from betty.portable import PortableMapping
     from betty.project import Project
-    from betty.serde import SerializedData, SerializedMapping
 
 
 class HasDescription(LinkedDataDumpableWithSchemaJsonLdObject):
@@ -55,9 +55,7 @@ class HasDescription(LinkedDataDumpableWithSchemaJsonLdObject):
         return schema
 
     @override
-    async def dump_linked_data(
-        self, project: Project, /
-    ) -> SerializedMapping[SerializedData]:
+    async def dump_linked_data(self, project: Project, /) -> PortableMapping:
         serialized = await super().dump_linked_data(project)
         dump_context(serialized, description="https://schema.org/description")
         if self.description is not None and is_public(self):

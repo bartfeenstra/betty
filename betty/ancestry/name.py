@@ -17,8 +17,8 @@ if TYPE_CHECKING:
     from betty.date import DateLike
     from betty.json.linked_data import JsonLdObject
     from betty.locale.localizable import LocalizableLike
+    from betty.portable import PortableMapping
     from betty.project import Project
-    from betty.serde import SerializedData, SerializedMapping
 
 
 @final
@@ -48,9 +48,7 @@ class Name(HasDate):
         return schema
 
     @override
-    async def dump_linked_data(
-        self, project: Project, /
-    ) -> SerializedMapping[SerializedData]:
+    async def dump_linked_data(self, project: Project, /) -> PortableMapping:
         serialized = await super().dump_linked_data(project)
         serialized["name"] = dump_linked_data(
             self.name, localizers=await project.public_localizers

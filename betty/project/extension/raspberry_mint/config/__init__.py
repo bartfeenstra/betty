@@ -20,8 +20,8 @@ from betty.project.factory import CallbackProjectDependentFactory
 if TYPE_CHECKING:
     from collections.abc import Iterable
 
+    from betty.portable import PortableData, PortableMapping
     from betty.project import Project
-    from betty.serde import SerializedData, SerializedMapping
     from betty.service.level.factory import AnyFactoryTarget
 
 
@@ -152,29 +152,29 @@ class RaspberryMintConfiguration(Configuration):
 
     @override
     @classmethod
-    def load(cls, serialized: SerializedData, /) -> Self:
+    def load(cls, portable: PortableData, /) -> Self:
         return cls(
             **assert_record(
                 OptionalField("primary_color", ColorConfiguration.load),
                 OptionalField("secondary_color", ColorConfiguration.load),
                 OptionalField("tertiary_color", ColorConfiguration.load),
                 OptionalField("regional_content", RegionalContentConfiguration.load),
-            )(serialized)
+            )(portable)
         )
 
     @override
-    def dump(self) -> SerializedMapping[SerializedData]:
-        serialized: SerializedMapping[SerializedData] = {}
+    def dump(self) -> PortableMapping:
+        portable: PortableMapping = {}
         if self.primary_color != self._default_primary_color():
-            serialized["primary_color"] = self.primary_color.dump()
+            portable["primary_color"] = self.primary_color.dump()
         if self.secondary_color != self._default_secondary_color():
-            serialized["secondary_color"] = self.secondary_color.dump()
+            portable["secondary_color"] = self.secondary_color.dump()
         if self.tertiary_color != self._default_tertiary_color():
-            serialized["tertiary_color"] = self.tertiary_color.dump()
-        serialized_regional_content = self.regional_content.dump()
-        if serialized_regional_content:
-            serialized["regional_content"] = serialized_regional_content
-        return serialized
+            portable["tertiary_color"] = self.tertiary_color.dump()
+        portable_regional_content = self.regional_content.dump()
+        if portable_regional_content:
+            portable["regional_content"] = portable_regional_content
+        return portable
 
     @override
     def __eq__(self, other: Any) -> bool:

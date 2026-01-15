@@ -9,15 +9,15 @@ from betty.test_utils.config import ConfigurationTestBase
 if TYPE_CHECKING:
     from collections.abc import Mapping
 
-    from betty.serde import SerializedData
+    from betty.portable import PortableData
 
 
 class TestWikiConfiguration(ConfigurationTestBase[WikiConfiguration]):
     sut_cls = WikiConfiguration
 
     async def test_load__with_minimal_configuration(self) -> None:
-        serialized: Mapping[str, Any] = {}
-        WikiConfiguration.load(serialized)
+        portable: Mapping[str, Any] = {}
+        WikiConfiguration.load(portable)
 
     async def test_load__without_dict_should_error(self) -> None:
         serialized = None
@@ -34,10 +34,10 @@ class TestWikiConfiguration(ConfigurationTestBase[WikiConfiguration]):
     async def test_load__with_populate_images(
         self, populate_images: bool | None
     ) -> None:
-        serialized: SerializedData = {
+        portable: PortableData = {
             "populate_images": populate_images,
         }
-        sut = WikiConfiguration.load(serialized)
+        sut = WikiConfiguration.load(portable)
         assert sut.populate_images == populate_images
 
     async def test_dump__with_minimal_configuration(self) -> None:

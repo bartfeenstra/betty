@@ -17,8 +17,8 @@ from betty.privacy import is_public
 
 if TYPE_CHECKING:
     from betty.media_type import MediaType
+    from betty.portable import PortableMapping
     from betty.project import Project
-    from betty.serde import SerializedData, SerializedMapping
 
 
 class HasMediaType(LinkedDataDumpableWithSchemaJsonLdObject):
@@ -36,9 +36,7 @@ class HasMediaType(LinkedDataDumpableWithSchemaJsonLdObject):
         self.media_type = media_type
 
     @override
-    async def dump_linked_data(
-        self, project: Project, /
-    ) -> SerializedMapping[SerializedData]:
+    async def dump_linked_data(self, project: Project, /) -> PortableMapping:
         serialized = await super().dump_linked_data(project)
         if is_public(self) and self.media_type is not None:
             serialized["mediaType"] = str(self.media_type)

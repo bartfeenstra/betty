@@ -15,7 +15,7 @@ from betty.config.collections import ConfigurationCollection
 if TYPE_CHECKING:
     from collections.abc import Iterable, Iterator, MutableSequence, Sequence
 
-    from betty.serde import SerializedData, SerializedSequence
+    from betty.portable import PortableData, PortableSequence
 
 _ConfigurationT = TypeVar("_ConfigurationT", bound=Configuration)
 
@@ -71,11 +71,11 @@ class ConfigurationSequence(ConfigurationCollection[int, int, _ConfigurationT]):
 
     @override
     @classmethod
-    def load(cls, serialized: SerializedData, /) -> Self:
-        return cls(assert_sequence(cls._item_cls().load)(serialized))
+    def load(cls, portable: PortableData, /) -> Self:
+        return cls(assert_sequence(cls._item_cls().load)(portable))
 
     @override
-    def dump(self) -> SerializedSequence[SerializedData]:
+    def dump(self) -> PortableSequence:
         return [configuration.dump() for configuration in self._configurations]
 
     @override

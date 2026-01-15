@@ -64,8 +64,8 @@ if TYPE_CHECKING:
     from betty.locale.localizable import LocalizableLike
     from betty.plugin.repository import PluginRepository
     from betty.plugin.resolve import ResolvableId
+    from betty.portable import PortableData, PortableMapping
     from betty.project import Project
-    from betty.serde import SerializedData, SerializedMapping
     from betty.service.level import ServiceLevel
     from betty.service.level.factory import AnyFactoryTarget
 
@@ -117,7 +117,7 @@ class SectionConfiguration(Configuration):
 
     @override
     @classmethod
-    def load(cls, serialized: SerializedData, /) -> Self:
+    def load(cls, portable: PortableData, /) -> Self:
         return cls(
             **assert_record(
                 OptionalField("name", assert_machine_name()),
@@ -127,11 +127,11 @@ class SectionConfiguration(Configuration):
                     "visually_hide_heading",
                     assert_bool,
                 ),
-            )(serialized)
+            )(portable)
         )
 
     @override
-    def dump(self) -> SerializedData:
+    def dump(self) -> PortableData:
         serialized = {
             "heading": dump_localizable(self.heading),
             "content": self.content.dump(),
@@ -350,16 +350,16 @@ class ColorStyleConfiguration(Configuration):
 
     @override
     @classmethod
-    def load(cls, serialized: SerializedData, /) -> Self:
+    def load(cls, portable: PortableData, /) -> Self:
         return cls(
             **assert_record(
                 RequiredField("style", assert_enum(RaspberryMintColorStyle)),
                 RequiredField("content", PluginInstanceConfigurationSequence.load),
-            )(serialized)
+            )(portable)
         )
 
     @override
-    def dump(self) -> SerializedMapping[SerializedData]:
+    def dump(self) -> PortableMapping:
         return {
             "style": self.style.value,
             "content": self.content.dump(),
@@ -506,23 +506,23 @@ class PresencesConfiguration(Configuration):
 
     @override
     @classmethod
-    def load(cls, serialized: SerializedData, /) -> Self:
+    def load(cls, portable: PortableData, /) -> Self:
         assert_ids = assert_sequence(assert_machine_name())
         return cls(
             **assert_or(
                 assert_record(OptionalField("include", assert_ids)),
                 assert_record(OptionalField("exclude", assert_ids)),
-            )(serialized)
+            )(portable)
         )
 
     @override
-    def dump(self) -> SerializedData:
-        serialized: SerializedMapping[SerializedData] = {}
+    def dump(self) -> PortableData:
+        portable: PortableMapping = {}
         if self.include:
-            serialized["include"] = list(self.include)
+            portable["include"] = list(self.include)
         if self.exclude:
-            serialized["exclude"] = list(self.exclude)
-        return serialized
+            portable["exclude"] = list(self.exclude)
+        return portable
 
     @override
     def __eq__(self, other: Any) -> bool:
@@ -665,7 +665,7 @@ class ColumnsConfiguration(Configuration):
 
     @override
     @classmethod
-    def load(cls, serialized: SerializedData, /) -> Self:
+    def load(cls, portable: PortableData, /) -> Self:
         return cls(
             **assert_record(
                 RequiredField(
@@ -687,22 +687,22 @@ class ColumnsConfiguration(Configuration):
                         ),
                     ),
                 ),
-            )(serialized)
+            )(portable)
         )
 
     @override
-    def dump(self) -> SerializedData:
-        serialized: SerializedMapping[SerializedData] = {
+    def dump(self) -> PortableData:
+        portable: PortableMapping = {
             "content": self.content.dump(),
         }
         if self.width != self._DEFAULT_WIDTH:
-            serialized["width"] = {
+            portable["width"] = {
                 breakpoint.value: widths  # type: ignore[misc]
                 for breakpoint, widths in self.width.items()  # noqa A001
             }
         if self.justify_content is not None:
-            serialized["justify_content"] = self.justify_content.value
-        return serialized
+            portable["justify_content"] = self.justify_content.value
+        return portable
 
     @override
     def __eq__(self, other: Any) -> bool:

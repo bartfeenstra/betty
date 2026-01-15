@@ -411,6 +411,12 @@ _BASELINE: Mapping[str, _ModuleIgnore] = {
     "betty/plugin/config/__init__.py": {
         "PluginDefinitionConfigurationMapping": MissingReason.SHOULD_BE_COVERED,
     },
+    "betty/portable/__init__.py": {
+        "Portable": MissingReason.ABSTRACT,
+    },
+    "betty/portable/error.py": {
+        "NotPortable": MissingReason.STATIC_CONTENT_ONLY,
+    },
     "betty/privacy/__init__.py": {
         "Privacy": MissingReason.ENUM,
     },
@@ -513,10 +519,6 @@ _BASELINE: Mapping[str, _ModuleIgnore] = {
         },
     },
     "betty/serde/__init__.py": {
-        "NotDumpable": MissingReason.STATIC_CONTENT_ONLY,
-        "Serializable": MissingReason.ABSTRACT,
-    },
-    "betty/serde/format/__init__.py": {
         "Format": MissingReason.ABSTRACT,
         "FormatError": MissingReason.STATIC_CONTENT_ONLY,
     },

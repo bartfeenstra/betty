@@ -12,8 +12,8 @@ from typing_extensions import override
 
 from betty.locale.localizable.gettext import _
 from betty.media_type.media_types import JSON, YAML
-from betty.serde import SerializedData
-from betty.serde.format import Format, FormatDefinition, FormatError
+from betty.portable import PortableData
+from betty.serde import Format, FormatDefinition, FormatError
 
 if TYPE_CHECKING:
     from betty.media_type import MediaType
@@ -33,17 +33,17 @@ class Json(Format):
         return JSON
 
     @override
-    def load(self, serialized: str, /) -> SerializedData:
+    def load(self, serialized: str, /) -> PortableData:
         try:
-            return cast(SerializedData, json.loads(serialized))
+            return cast(PortableData, json.loads(serialized))
         except json.JSONDecodeError as e:
             raise FormatError(
                 _("Invalid JSON: {error}.").format(error=str(e))
             ) from None
 
     @override
-    def dump(self, serialized: SerializedData | Void, /) -> str:
-        return json.dumps(serialized, indent=2, sort_keys=True)
+    def dump(self, portable: PortableData | Void, /) -> str:
+        return json.dumps(portable, indent=2, sort_keys=True)
 
 
 @final
@@ -59,14 +59,14 @@ class Yaml(Format):
         return YAML
 
     @override
-    def load(self, serialized: str, /) -> SerializedData:
+    def load(self, serialized: str, /) -> PortableData:
         try:
-            return cast(SerializedData, yaml.safe_load(serialized))
+            return cast(PortableData, yaml.safe_load(serialized))
         except yaml.YAMLError as e:
             raise FormatError(
                 _("Invalid YAML: {error}.").format(error=str(e))
             ) from None
 
     @override
-    def dump(self, serialized: SerializedData | Void, /) -> str:
-        return yaml.safe_dump(serialized)
+    def dump(self, portable: PortableData | Void, /) -> str:
+        return yaml.safe_dump(portable)

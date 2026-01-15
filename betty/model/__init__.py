@@ -29,8 +29,8 @@ if TYPE_CHECKING:
         LocalizableLike,
     )
     from betty.machine_name import MachineName
+    from betty.portable import PortableMapping
     from betty.project import Project
-    from betty.serde import SerializedData, SerializedMapping
 
 
 class NonPersistentId(str):
@@ -111,9 +111,7 @@ class Entity(LinkedDataDumpableWithSchemaJsonLdObject, Plugin["EntityDefinition"
         )
 
     @override
-    async def dump_linked_data(
-        self, project: Project, /
-    ) -> SerializedMapping[SerializedData]:
+    async def dump_linked_data(self, project: Project, /) -> PortableMapping:
         serialized = await super().dump_linked_data(project)
 
         if persistent_id(self) and self.plugin().public_facing:

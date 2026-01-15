@@ -16,8 +16,8 @@ from betty.json.linked_data import (
 from betty.privacy.schema import PrivacySchema
 
 if TYPE_CHECKING:
+    from betty.portable import PortableMapping
     from betty.project import Project
-    from betty.serde import SerializedData, SerializedMapping
 
 
 class Privacy(enum.Enum):
@@ -112,9 +112,7 @@ class HasPrivacy(LinkedDataDumpableWithSchemaJsonLdObject):
         self.privacy = Privacy.PUBLIC
 
     @override
-    async def dump_linked_data(
-        self, project: Project, /
-    ) -> SerializedMapping[SerializedData]:
+    async def dump_linked_data(self, project: Project, /) -> PortableMapping:
         serialized = await super().dump_linked_data(project)
         serialized["private"] = self.private
         return serialized

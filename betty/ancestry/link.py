@@ -27,8 +27,8 @@ if TYPE_CHECKING:
     from betty.json.linked_data import JsonLdObject
     from betty.locale.localizable import Localizable, LocalizableLike
     from betty.media_type import MediaType
+    from betty.portable import PortableMapping
     from betty.project import Project
-    from betty.serde import SerializedData, SerializedMapping
 
 
 @final
@@ -116,9 +116,7 @@ class Link(HasMediaType, HasDescription, HasPrivacy, Entity):
         return self._label is not None
 
     @override
-    async def dump_linked_data(
-        self, project: Project, /
-    ) -> SerializedMapping[SerializedData]:
+    async def dump_linked_data(self, project: Project, /) -> PortableMapping:
         public_localizers = await project.public_localizers
         serialized = await super().dump_linked_data(project)
         if self.public:

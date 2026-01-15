@@ -33,7 +33,7 @@ if TYPE_CHECKING:
 
     from betty.plugin import PluginDefinition
     from betty.plugin.repository import PluginRepository
-    from betty.serde.format import Format
+    from betty.serde import Format
 
 _T = TypeVar("_T")
 NodesLike: TypeAlias = nodes.Node | Iterable[nodes.Node] | None

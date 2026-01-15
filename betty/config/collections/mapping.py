@@ -17,7 +17,7 @@ from betty.config.collections import ConfigurationCollection, ConfigurationKey
 if TYPE_CHECKING:
     from collections.abc import Iterable, Iterator, MutableMapping
 
-    from betty.serde import SerializedData, SerializedMapping, SerializedSequence
+    from betty.portable import PortableData, PortableMapping, PortableSequence
 
 _ConfigurationT = TypeVar("_ConfigurationT", bound=Configuration)
 _ConfigurationKeyT = TypeVar("_ConfigurationKeyT", bound=ConfigurationKey)
@@ -105,46 +105,44 @@ class ConfigurationMapping(
     @classmethod
     @abstractmethod
     def _load_key(
-        cls, serialized_item: SerializedData, serialized_key: str, /
-    ) -> SerializedData:
+        cls, portable_item: PortableData, portable_key: str, /
+    ) -> PortableData:
         pass
 
     @abstractmethod
-    def _dump_key(
-        self, serialized_item: SerializedData, /
-    ) -> tuple[SerializedData, str]:
+    def _dump_key(self, portable_item: PortableData, /) -> tuple[PortableData, str]:
         pass
 
     @classmethod
     def __load_item_key(
-        cls, serialized_value: SerializedMapping[SerializedData], serialized_key: str, /
-    ) -> SerializedData:
-        return cls._load_key(serialized_value, serialized_key)
+        cls, portable_value: PortableMapping, portable_key: str, /
+    ) -> PortableData:
+        return cls._load_key(portable_value, portable_key)
 
     @override
     @classmethod
-    def load(cls, serialized: SerializedData, /) -> Self:
+    def load(cls, portable: PortableData, /) -> Self:
         return cls(
             assert_mapping(cls._item_cls().load)(
                 {
-                    serialized_item_key: cls.__load_item_key(
-                        serialized_item_value, serialized_item_key
+                    portable_item_key: cls.__load_item_key(
+                        portable_item_value, portable_item_key
                     )
-                    for serialized_item_key, serialized_item_value in assert_mapping(
+                    for portable_item_key, portable_item_value in assert_mapping(
                         assert_mapping()
-                    )(serialized).items()
+                    )(portable).items()
                 }
             ).values()
         )
 
     @override
-    def dump(self) -> SerializedMapping[SerializedData]:
-        serialized: SerializedMapping[SerializedData] = {}
+    def dump(self) -> PortableMapping:
+        portable: PortableMapping = {}
         for configuration_item in self._configurations.values():
-            serialized_item = configuration_item.dump()
-            serialized_item, configuration_key = self._dump_key(serialized_item)
-            serialized[configuration_key] = serialized_item
-        return serialized
+            portable_item = configuration_item.dump()
+            portable_item, configuration_key = self._dump_key(portable_item)
+            portable[configuration_key] = portable_item
+        return portable
 
 
 class OrderedConfigurationMapping(
@@ -169,11 +167,11 @@ class OrderedConfigurationMapping(
 
     @override
     @classmethod
-    def load(cls, serialized: SerializedData, /) -> Self:
-        return cls(assert_sequence(cls._item_cls().load)(serialized))
+    def load(cls, portable: PortableData, /) -> Self:
+        return cls(assert_sequence(cls._item_cls().load)(portable))
 
     @override
-    def dump(self) -> SerializedSequence[SerializedData]:
+    def dump(self) -> PortableSequence:
         return [
             configuration_item.dump()
             for configuration_item in self._configurations.values()
