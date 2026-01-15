@@ -55,7 +55,7 @@ class FileReference(Entity):
 
     def __init__(
         self,
-        referee: ToOneAssociate[HasFileReferences & Entity],
+        referee: ToOneAssociate[HasFileReferences],
         file: ToOneAssociate[File],
         *,
         focus: FocusArea | None = None,

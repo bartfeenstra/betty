@@ -765,8 +765,8 @@ def resolve(*entities: Entity) -> None:
             association.resolve(entity)
 
 
-ToOneAssociate: TypeAlias = "_EntityT & Entity | ToOneResolver[_EntityT]"
+ToOneAssociate: TypeAlias = _EntityT | ToOneResolver[_EntityT]
 ToZeroOrOneAssociate: TypeAlias = (
-    "ToOneAssociate[_EntityT] | ToZeroOrOneResolver[_EntityT] | None"
+    ToOneAssociate[_EntityT] | ToZeroOrOneResolver[_EntityT] | None
 )
 ToManyAssociates: TypeAlias = Iterable[_EntityT] | ToManyResolver[_EntityT]

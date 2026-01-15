@@ -31,7 +31,6 @@ if TYPE_CHECKING:
     from betty.date import DateLike
     from betty.json.linked_data import JsonLdObject
     from betty.locale.localizable import Localizable, LocalizableLike
-    from betty.model import Entity
     from betty.project import Project
     from betty.serde import SerializedData, SerializedMapping
 
@@ -82,7 +81,7 @@ class Citation(HasDate, HasFileReferences, HasPrivacy, HasLinks):
         *,
         source: ToOneAssociate[Source],
         id: str | None = None,  # noqa A002  # noqa A002
-        facts: ToManyAssociates[HasCitations & Entity] | None = None,
+        facts: ToManyAssociates[HasCitations] | None = None,
         location: LocalizableLike | None = None,
         date: DateLike | None = None,
         file_references: ToManyAssociates[FileReference] | None = None,

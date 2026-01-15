@@ -728,9 +728,7 @@ class GrampsLoader:
             note.private = True
         self._add_entity(note, note_handle)
 
-    def _load_noteref(
-        self, owner: HasNotes & Entity, element: ElementTree.Element
-    ) -> None:
+    def _load_noteref(self, owner: HasNotes, element: ElementTree.Element) -> None:
         owner.notes = self._resolve(Note, *self._load_handles("noteref", element))
 
     async def _load_objects(
@@ -1208,7 +1206,7 @@ class GrampsLoader:
 
     def _load_citationref(
         self,
-        owner: HasCitations & Entity,
+        owner: HasCitations,
         element: ElementTree.Element,
     ) -> None:
         owner.citations = self._resolve(
@@ -1231,7 +1229,7 @@ class GrampsLoader:
         return None
 
     def _load_objref(
-        self, owner: HasFileReferences & Entity, element: ElementTree.Element
+        self, owner: HasFileReferences, element: ElementTree.Element
     ) -> None:
         for handle_element in self._xpath(element, "./ns:objref"):
             file_handle = handle_element.get("hlink")
@@ -1325,7 +1323,7 @@ class GrampsLoader:
 
     async def _load_attribute_links(
         self,
-        entity: HasLinks & Entity,
+        entity: HasLinks,
         gramps_entity_reference: GrampsEntityReference,
         element: ElementTree.Element,
         tag: str,
