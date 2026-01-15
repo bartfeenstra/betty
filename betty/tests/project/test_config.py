@@ -64,7 +64,7 @@ from betty.typing import Void
 
 if TYPE_CHECKING:
     from betty.app import App
-    from betty.serde import SerializedData, SerializedMapping
+    from betty.portable import PortableData, PortableMapping
     from betty.test_utils.config.collections import (
         ConfigurationCollectionTestBaseSutConfigurationKeys,
         ConfigurationCollectionTestBaseSutConfigurations,
@@ -108,23 +108,23 @@ class TestLocaleConfiguration(ConfigurationTestBase[LocaleConfiguration]):
             )
 
     async def test_load__with_invalid_dump(self) -> None:
-        serialized: SerializedData = {}
+        portable: PortableData = {}
         with pytest.raises(HumanFacingException):
-            LocaleConfiguration.load(serialized)
+            LocaleConfiguration.load(portable)
 
     async def test_load__with_locale(self) -> None:
-        serialized: SerializedData = {
+        portable: PortableData = {
             "locale": DEFAULT_LOCALE_TAG,
         }
-        sut = LocaleConfiguration.load(serialized)
+        sut = LocaleConfiguration.load(portable)
         assert sut.locale == DEFAULT_LOCALE
 
     async def test_load__with_alias(self) -> None:
-        serialized: SerializedData = {
+        portable: PortableData = {
             "locale": "nl-NL",
             "alias": "my-first-alias",
         }
-        sut = LocaleConfiguration.load(serialized)
+        sut = LocaleConfiguration.load(portable)
         assert sut.alias == "my-first-alias"
 
     async def test_dump__should_dump_minimal(self) -> None:
@@ -387,15 +387,15 @@ class TestEntityTypeConfiguration(ConfigurationTestBase[EntityTypeConfiguration]
         assert sut.generate_html_list == generate_html_list
 
     async def test_load__with_empty_configuration(self) -> None:
-        serialized: SerializedData = {}
+        portable: PortableData = {}
         with pytest.raises(HumanFacingException):
-            EntityTypeConfiguration.load(serialized)
+            EntityTypeConfiguration.load(portable)
 
     def test_load__with_minimal_configuration(self) -> None:
-        serialized: SerializedData = {
+        portable: PortableData = {
             "entity_type": DummyEntityOne.plugin().id,
         }
-        EntityTypeConfiguration.load(serialized)
+        EntityTypeConfiguration.load(portable)
 
     @pytest.mark.parametrize(
         "generate_html_list,",
@@ -405,11 +405,11 @@ class TestEntityTypeConfiguration(ConfigurationTestBase[EntityTypeConfiguration]
         ],
     )
     def test_load__with_generate_html_list(self, generate_html_list: bool) -> None:
-        serialized: SerializedData = {
+        portable: PortableData = {
             "entity_type": DummyEntityOne.plugin().id,
             "generate_html_list": generate_html_list,
         }
-        sut = EntityTypeConfiguration.load(serialized)
+        sut = EntityTypeConfiguration.load(portable)
         assert sut.generate_html_list == generate_html_list
 
     async def test_dump__with_minimal_configuration(self) -> None:
@@ -1259,8 +1259,8 @@ class TestProjectConfiguration(ConfigurationTestBase[ProjectConfiguration]):
     )
     async def test_load__should_load_event_types(
         self,
-        expected: SerializedMapping[SerializedData],
-        event_types_configuration: SerializedMapping[SerializedData],
+        expected: PortableMapping,
+        event_types_configuration: PortableMapping,
     ) -> None:
         serialized = ProjectConfiguration(
             title="Betty", url="https://example.com"
@@ -1304,8 +1304,8 @@ class TestProjectConfiguration(ConfigurationTestBase[ProjectConfiguration]):
     )
     async def test_load__should_load_place_types(
         self,
-        expected: SerializedMapping[SerializedData],
-        place_types_configuration: SerializedMapping[SerializedData],
+        expected: PortableMapping,
+        place_types_configuration: PortableMapping,
     ) -> None:
         serialized = ProjectConfiguration(
             title="Betty", url="https://example.com"
@@ -1349,8 +1349,8 @@ class TestProjectConfiguration(ConfigurationTestBase[ProjectConfiguration]):
     )
     async def test_load__should_load_presence_roles(
         self,
-        expected: SerializedMapping[SerializedData],
-        presence_roles_configuration: SerializedMapping[SerializedData],
+        expected: PortableMapping,
+        presence_roles_configuration: PortableMapping,
     ) -> None:
         serialized = ProjectConfiguration(
             title="Betty", url="https://example.com"
@@ -1394,8 +1394,8 @@ class TestProjectConfiguration(ConfigurationTestBase[ProjectConfiguration]):
     )
     async def test_load__should_load_genders(
         self,
-        expected: SerializedMapping[SerializedData],
-        genders_configuration: SerializedMapping[SerializedData],
+        expected: PortableMapping,
+        genders_configuration: PortableMapping,
     ) -> None:
         serialized = ProjectConfiguration(
             title="Betty", url="https://example.com"
@@ -1406,9 +1406,9 @@ class TestProjectConfiguration(ConfigurationTestBase[ProjectConfiguration]):
             assert sut.dump()["genders"] == expected
 
     async def test_load__should_error_if_invalid_config(self) -> None:
-        serialized: SerializedData = {}
+        portable: PortableData = {}
         with pytest.raises(HumanFacingException):
-            ProjectConfiguration.load(serialized)
+            ProjectConfiguration.load(portable)
 
     async def test_dump__should_dump_minimal(self) -> None:
         sut = ProjectConfiguration(title="Betty", url="https://example.com")
@@ -1508,7 +1508,7 @@ class TestProjectConfiguration(ConfigurationTestBase[ProjectConfiguration]):
         sut = ProjectConfiguration(title="Betty", url="https://example.com")
         sut.extensions.enable(_DummyNonConfigurableExtension)
         serialized = sut.dump()
-        expected: SerializedData = {_DummyNonConfigurableExtension.plugin().id: {}}
+        expected: PortableData = {_DummyNonConfigurableExtension.plugin().id: {}}
         assert serialized["extensions"] == expected
 
     async def test_dump__should_dump_event_types(self) -> None:
@@ -1522,7 +1522,7 @@ class TestProjectConfiguration(ConfigurationTestBase[ProjectConfiguration]):
             )
         )
         serialized = sut.dump()
-        expected: SerializedMapping[SerializedData] = {
+        expected: PortableMapping = {
             "foo": {
                 "label": "Foo",
                 "label_plural": "Foos",
@@ -1547,7 +1547,7 @@ class TestProjectConfiguration(ConfigurationTestBase[ProjectConfiguration]):
             )
         )
         serialized = sut.dump()
-        expected: SerializedMapping[SerializedData] = {
+        expected: PortableMapping = {
             "foo": {
                 "label": "Foo",
                 "label_plural": "Foos",
@@ -1572,7 +1572,7 @@ class TestProjectConfiguration(ConfigurationTestBase[ProjectConfiguration]):
             ),
         )
         serialized = sut.dump()
-        expected: SerializedMapping[SerializedData] = {
+        expected: PortableMapping = {
             "foo": {
                 "label": "Foo",
                 "label_plural": "Foos",
@@ -1597,7 +1597,7 @@ class TestProjectConfiguration(ConfigurationTestBase[ProjectConfiguration]):
             )
         )
         serialized = sut.dump()
-        expected: SerializedMapping[SerializedData] = {
+        expected: PortableMapping = {
             "foo": {
                 "label": "Foo",
                 "label_plural": "Foos",
@@ -1682,13 +1682,13 @@ class TestCopyrightNoticePluginConfiguration:
     def test_load(self) -> None:
         summary = "My First Summary"
         text = "My First Text"
-        serialized: SerializedData = {
+        portable: PortableData = {
             "id": "hello-world",
             "label": "Hello, world!",
             "summary": summary,
             "text": text,
         }
-        sut = CopyrightNoticePluginConfiguration.load(serialized)
+        sut = CopyrightNoticePluginConfiguration.load(portable)
         assert sut.summary.localize(DEFAULT_LOCALIZER) == summary
         assert sut.text.localize(DEFAULT_LOCALIZER) == text
 
@@ -1721,13 +1721,13 @@ class TestLicensePluginConfiguration:
     def test_load(self) -> None:
         summary = "My First Summary"
         text = "My First Text"
-        serialized: SerializedData = {
+        portable: PortableData = {
             "id": "hello-world",
             "label": "Hello, world!",
             "summary": summary,
             "text": text,
         }
-        sut = LicensePluginConfiguration.load(serialized)
+        sut = LicensePluginConfiguration.load(portable)
         assert sut.summary.localize(DEFAULT_LOCALIZER) == summary
         assert sut.text.localize(DEFAULT_LOCALIZER) == text
 

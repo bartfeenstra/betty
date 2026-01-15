@@ -20,7 +20,7 @@ from betty.plugin.config import (
     PluginInstanceConfigurationSequenceSequence,
 )
 from betty.plugin.resolve import ResolvableId
-from betty.serde import SerializedData
+from betty.portable import PortableData
 from betty.test_utils.config import ConfigurationTestBase, DummyConfiguration
 from betty.test_utils.config.collections import (
     ConfigurationCollectionTestBaseNewSut,
@@ -55,10 +55,10 @@ class TestPluginDefinitionConfiguration(
 
     async def test_load(self) -> None:
         plugin_id = "hello-world"
-        serialized: SerializedData = {
+        portable: PortableData = {
             "id": plugin_id,
         }
-        sut = PluginDefinitionConfiguration.load(serialized)
+        sut = PluginDefinitionConfiguration.load(portable)
         assert sut.id == plugin_id
 
     async def test_dump(self) -> None:
@@ -81,45 +81,45 @@ class TestHumanFacingPluginDefinitionConfiguration(
 
     async def test_load__with_undetermined_label(self) -> None:
         label = "Hello, world!"
-        serialized: SerializedData = {
+        portable: PortableData = {
             "id": "hello-world",
             "label": label,
         }
-        sut = HumanFacingPluginDefinitionConfiguration.load(serialized)
+        sut = HumanFacingPluginDefinitionConfiguration.load(portable)
         assert sut.label.localize(DEFAULT_LOCALIZER) == label
 
     async def test_load__with_expanded_label(self) -> None:
         label = "Hello, world!"
-        serialized: SerializedData = {
+        portable: PortableData = {
             "id": "hello-world",
             "label": {
                 DEFAULT_LOCALE_TAG: label,
             },
         }
-        sut = HumanFacingPluginDefinitionConfiguration.load(serialized)
+        sut = HumanFacingPluginDefinitionConfiguration.load(portable)
         assert sut.label.localize(DEFAULT_LOCALIZER) == label
 
     async def test_load__with_undetermined_description(self) -> None:
         description = "Hello, world!"
-        serialized: SerializedData = {
+        portable: PortableData = {
             "id": "hello-world",
             "label": "",
             "description": description,
         }
-        sut = HumanFacingPluginDefinitionConfiguration.load(serialized)
+        sut = HumanFacingPluginDefinitionConfiguration.load(portable)
         assert sut.description is not None
         assert sut.description.localize(DEFAULT_LOCALIZER) == description
 
     async def test_load__with_expanded_description(self) -> None:
         description = "Hello, world!"
-        serialized: SerializedData = {
+        portable: PortableData = {
             "id": "hello-world",
             "label": "",
             "description": {
                 DEFAULT_LOCALE_TAG: description,
             },
         }
-        sut = HumanFacingPluginDefinitionConfiguration.load(serialized)
+        sut = HumanFacingPluginDefinitionConfiguration.load(portable)
         assert sut.description is not None
         assert sut.description.localize(DEFAULT_LOCALIZER) == description
 
@@ -189,14 +189,14 @@ class TestCountableHumanFacingPluginDefinitionConfiguration(
                 "other": "{count} worlds",
             }
         }
-        serialized: SerializedData = {
+        portable: PortableData = {
             "id": "hello-world",
             "label": "-",
             "label_plural": label_plural,
             "label_countable": label_countable,  # type: ignore[dict-item]
         }
-        sut = CountableHumanFacingPluginDefinitionConfiguration.load(serialized)
-        assert sut.dump() == serialized
+        sut = CountableHumanFacingPluginDefinitionConfiguration.load(portable)
+        assert sut.dump() == portable
 
     async def test_dump__with_undetermined_label(self) -> None:
         label_plural = "Hello, world!"
@@ -272,7 +272,7 @@ class TestPluginInstanceConfiguration(
         assert sut.id == DummyPluginOne.plugin().id
 
     def test_load__with_configuration(self) -> None:
-        configuration: SerializedData = {
+        configuration: PortableData = {
             "check": True,
         }
         sut = PluginInstanceConfiguration[
@@ -363,13 +363,11 @@ class TestPluginIdentifierKeyConfigurationMapping:
         ]
     ):
         @override
-        def _dump_key(
-            self, serialized_item: SerializedData, /
-        ) -> tuple[SerializedData, str]:
-            if isinstance(serialized_item, str):
-                return None, serialized_item
-            assert isinstance(serialized_item, Mapping)
-            return None, cast(str, serialized_item["value"])
+        def _dump_key(self, portable_item: PortableData, /) -> tuple[PortableData, str]:
+            if isinstance(portable_item, str):
+                return None, portable_item
+            assert isinstance(portable_item, Mapping)
+            return None, cast(str, portable_item["value"])
 
         @override
         def _get_key(self, configuration: DummyConfiguration, /) -> MachineName:
@@ -379,9 +377,9 @@ class TestPluginIdentifierKeyConfigurationMapping:
         @override
         @classmethod
         def _load_key(
-            cls, serialized_item: SerializedData, serialized_key: str, /
-        ) -> SerializedData:
-            return {"value": serialized_key}
+            cls, portable_item: PortableData, portable_key: str, /
+        ) -> PortableData:
+            return {"value": portable_key}
 
         @override
         @classmethod

@@ -10,7 +10,7 @@ from betty.app.config import AppConfiguration
 from betty.console.command import Command
 from betty.console.command.commands.config import Config
 from betty.plugin import PluginDefinition
-from betty.serde.file import assert_load_file
+from betty.portable.file import assert_load_file
 from betty.test_utils.console import run
 from betty.test_utils.console.command import CommandDefinitionTestBase, CommandTestBase
 

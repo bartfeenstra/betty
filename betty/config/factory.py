@@ -15,7 +15,7 @@ from betty.locale.localizable.gettext import _
 from betty.typing import Void
 
 if TYPE_CHECKING:
-    from betty.serde import SerializedData
+    from betty.portable import PortableData
     from betty.service.level.factory import AnyFactoryTarget
 
 _T = TypeVar("_T")
@@ -43,7 +43,7 @@ class _HumanFacingFactoryError(FactoryError, HumanFacingException):
 
 def new_target(
     target: ConfigurationDependentSelfFactory[Configuration] | AnyFactoryTarget[_T],
-    configuration: Configuration | SerializedData | Void = Void(),  # noqa B008
+    configuration: Configuration | PortableData | Void = Void(),  # noqa B008
     /,
 ) -> AnyFactoryTarget[_T]:
     """

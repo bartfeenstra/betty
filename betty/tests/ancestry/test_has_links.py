@@ -8,7 +8,7 @@ from betty.test_utils.ancestry.has_links import DummyHasLinks
 from betty.test_utils.json.linked_data import assert_dumps_linked_data
 
 if TYPE_CHECKING:
-    from betty.serde import SerializedData, SerializedMapping
+    from betty.portable import PortableMapping
 
 
 class TestHasLinks:
@@ -23,7 +23,7 @@ class TestHasLinks:
 
     async def test_dump_linked_data_without_links(self) -> None:
         sut = DummyHasLinks()
-        expected: SerializedMapping[SerializedData] = {
+        expected: PortableMapping = {
             "id": sut.id,
             "links": [],
         }

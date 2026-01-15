@@ -14,21 +14,22 @@ from betty.locale.localizable.static import (
     CountableStaticTranslations,
     StaticTranslations,
 )
-from betty.serde import NotDumpable, SerializedData
+from betty.portable import PortableData
+from betty.portable.error import NotPortable
 
 
-def load_localizable(serialized: SerializedData, /) -> Localizable:
+def load_localizable(portable: PortableData, /) -> Localizable:
     """
     Load a localizable from serialized data.
     """
     translations = assert_or(
         assert_str().chain(lambda translation: {None: translation}),
         assert_mapping(assert_str(), assert_locale()),
-    )(serialized)
+    )(portable)
     return StaticTranslations(translations)
 
 
-def dump_localizable(localizable: Localizable, /) -> SerializedData:
+def dump_localizable(localizable: Localizable, /) -> PortableData:
     """
     Dump a localizable.
 
@@ -51,14 +52,14 @@ def dump_localizable(localizable: Localizable, /) -> SerializedData:
             to_language_tag(locale): str(translation)
             for locale, translation in translations.items()
         }
-    raise NotDumpable(
+    raise NotPortable(
         _(
             "Only plain text and static translations can be dumped to serialized data, not `{localizable}` objects."
         ).format(localizable=fully_qualified_name(type(localizable)))
     )
 
 
-def load_countable_localizable(serialized: SerializedData, /) -> CountableLocalizable:
+def load_countable_localizable(portable: PortableData, /) -> CountableLocalizable:
     """
     Load a countable localizable from serialized data.
     """
@@ -69,11 +70,11 @@ def load_countable_localizable(serialized: SerializedData, /) -> CountableLocali
                 assert_str(),
             ),
             assert_locale(),
-        )(serialized)
+        )(portable)
     )
 
 
-def dump_countable_localizable(localizable: CountableLocalizable, /) -> SerializedData:
+def dump_countable_localizable(localizable: CountableLocalizable, /) -> PortableData:
     """
     Dump a countable localizable.
 
@@ -84,7 +85,7 @@ def dump_countable_localizable(localizable: CountableLocalizable, /) -> Serializ
             to_language_tag(locale): translations  # type: ignore[misc]
             for locale, translations in localizable.translations.items()
         }
-    raise NotDumpable(
+    raise NotPortable(
         _(
             "Only countable static translations can be dumped to serialized data, not `{localizable}` objects."
         ).format(localizable=fully_qualified_name(type(localizable)))

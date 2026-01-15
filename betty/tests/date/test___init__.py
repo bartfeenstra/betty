@@ -6,14 +6,14 @@ import pytest
 
 from betty.date import Date, DateLike, DateRange, IncompleteDateError
 from betty.locale.localize import DEFAULT_LOCALIZER
-from betty.serde import SerializedData, SerializedMapping
+from betty.portable import PortableMapping
 
 if TYPE_CHECKING:
     from collections.abc import Sequence
 
 _DUMMY_DATE_DUMPS: tuple[
-    Sequence[SerializedMapping[SerializedData]],
-    Sequence[SerializedMapping[SerializedData]],
+    Sequence[PortableMapping],
+    Sequence[PortableMapping],
 ] = (
     [
         {
@@ -73,20 +73,20 @@ _DUMMY_DATE_DUMPS: tuple[
 )
 
 _DUMMY_DATE_RANGE_DUMPS: tuple[
-    Sequence[SerializedMapping[SerializedData]],
-    Sequence[SerializedMapping[SerializedData]],
+    Sequence[PortableMapping],
+    Sequence[PortableMapping],
 ] = (
     [
         *[
-            cast(SerializedMapping[SerializedData], {"start": start, "end": None})
+            cast(PortableMapping, {"start": start, "end": None})
             for start in _DUMMY_DATE_DUMPS[0]
         ],
         *[
-            cast(SerializedMapping[SerializedData], {"start": None, "end": end})
+            cast(PortableMapping, {"start": None, "end": end})
             for end in _DUMMY_DATE_DUMPS[0]
         ],
         *[
-            cast(SerializedMapping[SerializedData], {"start": start, "end": end})
+            cast(PortableMapping, {"start": start, "end": end})
             for start in _DUMMY_DATE_DUMPS[0]
             for end in _DUMMY_DATE_DUMPS[0]
         ],
@@ -95,8 +95,8 @@ _DUMMY_DATE_RANGE_DUMPS: tuple[
 )
 
 _DUMMY_DATE_LIKE_DUMPS: tuple[
-    Sequence[SerializedMapping[SerializedData]],
-    Sequence[SerializedMapping[SerializedData]],
+    Sequence[PortableMapping],
+    Sequence[PortableMapping],
 ] = (
     [*_DUMMY_DATE_DUMPS[0], *_DUMMY_DATE_RANGE_DUMPS[0]],
     [*_DUMMY_DATE_DUMPS[1], *_DUMMY_DATE_RANGE_DUMPS[1]],

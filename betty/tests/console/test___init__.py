@@ -14,8 +14,8 @@ from betty.console.command import Command, CommandDefinition
 from betty.exception import HumanFacingException
 from betty.functools import Result, suppress
 from betty.plugin.discovery.static import StaticDiscovery
+from betty.portable.file import dump_file
 from betty.project import Project
-from betty.serde.file import dump_file
 from betty.test_utils.console import run
 from betty.test_utils.locale.localizable import DUMMY_LOCALIZABLE
 from betty.user import Verbosity

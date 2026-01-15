@@ -32,9 +32,9 @@ if TYPE_CHECKING:
     from betty.ancestry.note import Note
     from betty.ancestry.place_type import PlaceType
     from betty.locale.localizable import Localizable
+    from betty.portable import PortableMapping
     from betty.privacy import Privacy
     from betty.project import Project
-    from betty.serde import SerializedData, SerializedMapping
 
 
 @final
@@ -160,9 +160,7 @@ class Place(HasLinks, HasFileReferences, HasNotes, HasPrivacy):
         return super().label
 
     @override
-    async def dump_linked_data(
-        self, project: Project, /
-    ) -> SerializedMapping[SerializedData]:
+    async def dump_linked_data(self, project: Project, /) -> PortableMapping:
         serialized = await super().dump_linked_data(project)
         dump_context(
             serialized,

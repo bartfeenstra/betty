@@ -43,8 +43,8 @@ from betty.plugin.repository.provider.service import (
     ServiceLevelPluginRepositoryProvider,
 )
 from betty.plugin.repository.static import StaticPluginRepository
+from betty.portable.file import assert_load_file
 from betty.requirement import Requirement, StaticRequirement
-from betty.serde.file import assert_load_file
 from betty.service.container import (
     ServiceContainer,
     ServiceFactory,

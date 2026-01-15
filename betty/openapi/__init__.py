@@ -5,9 +5,9 @@ Provide the OpenAPI specification.
 from betty import about
 from betty.locale.localize import DEFAULT_LOCALIZER
 from betty.model import EntityDefinition
+from betty.portable import PortableMapping
 from betty.project import Project
 from betty.project.schema import ProjectSchema
-from betty.serde import SerializedData, SerializedMapping
 from betty.string import kebab_case_to_lower_camel_case
 
 
@@ -19,12 +19,12 @@ class Specification:
     def __init__(self, project: Project):
         self._project = project
 
-    async def build(self) -> SerializedMapping[SerializedData]:
+    async def build(self) -> PortableMapping:
         """
         Build the OpenAPI specification.
         """
         url_generator = await self._project.url_generator
-        specification: SerializedMapping[SerializedData] = {
+        specification: PortableMapping = {
             "openapi": "3.1.0",
             "servers": [
                 {

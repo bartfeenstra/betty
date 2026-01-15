@@ -22,8 +22,8 @@ if TYPE_CHECKING:
     from betty.ancestry.has_notes import HasNotes
     from betty.json.linked_data import JsonLdObject
     from betty.locale.localizable import Localizable, LocalizableLike
+    from betty.portable import PortableMapping
     from betty.project import Project
-    from betty.serde import SerializedData, SerializedMapping
 
 
 @final
@@ -74,9 +74,7 @@ class Note(HasPrivacy, HasLinks, HasMediaType):
         return self.text
 
     @override
-    async def dump_linked_data(
-        self, project: Project, /
-    ) -> SerializedMapping[SerializedData]:
+    async def dump_linked_data(self, project: Project, /) -> PortableMapping:
         serialized = await super().dump_linked_data(project)
         serialized["@type"] = "https://schema.org/Thing"
         if is_public(self):

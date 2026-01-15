@@ -12,7 +12,7 @@ from betty.config.collections.sequence import ConfigurationSequence
 from betty.test_utils.config.collections.sequence import ConfigurationSequenceTestBase
 
 if TYPE_CHECKING:
-    from betty.serde import SerializedData
+    from betty.portable import PortableData
     from betty.test_utils.config.collections import (
         ConfigurationCollectionTestBaseNewSut,
         ConfigurationCollectionTestBaseSutConfigurationKeys,
@@ -27,15 +27,15 @@ class ConfigurationSequenceTestConfiguration(Configuration):
 
     @override
     @classmethod
-    def load(cls, serialized: SerializedData, /) -> Self:
+    def load(cls, portable: PortableData, /) -> Self:
         return cls(
             assert_record(
                 RequiredField("value", assert_int()),
-            )(serialized)["value"]
+            )(portable)["value"]
         )
 
     @override
-    def dump(self) -> SerializedData:
+    def dump(self) -> PortableData:
         return {"value": self.value}
 
     @override

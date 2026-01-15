@@ -11,8 +11,8 @@ from typing_extensions import TypeVar
 
 from betty.app import App
 from betty.json.schema import Schema
+from betty.portable import PortableData
 from betty.project import Project
-from betty.serde import SerializedData
 
 if TYPE_CHECKING:
     from betty.json.linked_data import (
@@ -21,14 +21,12 @@ if TYPE_CHECKING:
     )
 
 _T = TypeVar("_T")
-_SerializedDataT = TypeVar(
-    "_SerializedDataT", bound=SerializedData, default=SerializedData
-)
+_PortableDataT = TypeVar("_PortableDataT", bound=PortableData, default=PortableData)
 
 
 async def assert_dumps_linked_data(
-    sut: LinkedDataDumpableWithSchema[Schema, _SerializedDataT],
-) -> _SerializedDataT:
+    sut: LinkedDataDumpableWithSchema[Schema, _PortableDataT],
+) -> _PortableDataT:
     """
     Dump an object's linked data and assert it is valid.
     """
@@ -36,13 +34,13 @@ async def assert_dumps_linked_data(
 
 
 async def assert_dumps_linked_data_for(
-    sut: LinkedDataDumpableProvider[_T, Schema, _SerializedDataT], target: _T
-) -> _SerializedDataT:
+    sut: LinkedDataDumpableProvider[_T, Schema, _PortableDataT], target: _T
+) -> _PortableDataT:
     """
     Dump an object's linked data and assert it is valid.
     """
 
-    async def _dump(project: Project) -> _SerializedDataT:
+    async def _dump(project: Project) -> _PortableDataT:
         return await sut.dump_linked_data_for(project, target)
 
     return await assert_linked_data_dump(sut.linked_data_schema_for, _dump)
@@ -50,8 +48,8 @@ async def assert_dumps_linked_data_for(
 
 async def assert_linked_data_dump(
     schema: Callable[[Project], Awaitable[Schema]] | Schema,
-    serialized: Callable[[Project], Awaitable[_SerializedDataT]] | _SerializedDataT,
-) -> _SerializedDataT:
+    portable: Callable[[Project], Awaitable[_PortableDataT]] | _PortableDataT,
+) -> _PortableDataT:
     """
     Assert that dumped linked data is valid against a schema.
     """
@@ -61,7 +59,7 @@ async def assert_linked_data_dump(
         Project.new_isolated(app) as project,
         project,
     ):
-        actual = await serialized(project) if callable(serialized) else serialized
+        actual = await portable(project) if callable(portable) else portable
 
         # Validate the raw dump.
         sut_schema = schema if isinstance(schema, Schema) else await schema(project)
@@ -72,13 +70,13 @@ async def assert_linked_data_dump(
         return _normalize(actual)
 
 
-def _normalize(serialized: _SerializedDataT) -> _SerializedDataT:
-    if isinstance(serialized, Mapping):
+def _normalize(portable: _PortableDataT) -> _PortableDataT:
+    if isinstance(portable, Mapping):
         return {  # type: ignore[return-value]
             key: _normalize(value)
-            for key, value in serialized.items()
+            for key, value in portable.items()
             if not key.startswith("$")
         }
-    if isinstance(serialized, Sequence) and not isinstance(serialized, str):
-        return list(map(_normalize, serialized))  # type: ignore[return-value]
-    return serialized  # type: ignore[return-value]
+    if isinstance(portable, Sequence) and not isinstance(portable, str):
+        return list(map(_normalize, portable))  # type: ignore[return-value]
+    return portable  # type: ignore[return-value]

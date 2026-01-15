@@ -15,10 +15,10 @@ from betty.error import FileNotFound
 from betty.exception import HumanFacingException
 from betty.locale.localizable.gettext import _
 from betty.plugin.repository.provider.service import plugins
+from betty.portable.file import assert_load_file
 from betty.project import Project
 from betty.project.config import ProjectConfiguration
-from betty.serde.file import assert_load_file
-from betty.serde.format import FormatDefinition
+from betty.serde import FormatDefinition
 from betty.user import User
 
 

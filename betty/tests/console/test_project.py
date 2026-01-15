@@ -14,13 +14,13 @@ from betty.exception import HumanFacingException
 from betty.project import Project
 
 if TYPE_CHECKING:
-    from betty.serde import SerializedData, SerializedMapping
+    from betty.portable import PortableMapping
 
 
 async def test_add_project_argument__with_argument(
     isolated_app: App, tmp_path: Path
 ) -> None:
-    configuration: SerializedMapping[SerializedData] = {
+    configuration: PortableMapping = {
         "title": "Betty",
         "url": "https://example.com",
     }
@@ -43,7 +43,7 @@ async def test_add_project_argument__with_argument(
 async def test_add_project_argument__without_argument_with_file(
     isolated_app: App, tmp_path: Path
 ) -> None:
-    configuration: SerializedMapping[SerializedData] = {
+    configuration: PortableMapping = {
         "title": "Betty",
         "url": "https://example.com",
     }

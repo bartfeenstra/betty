@@ -39,7 +39,7 @@ if TYPE_CHECKING:
 
     from betty.jinja2 import CopyFunction
     from betty.job.scheduler import Scheduler
-    from betty.serde import SerializedData, SerializedMapping
+    from betty.portable import PortableMapping
 
 
 @final
@@ -476,7 +476,7 @@ class _GenerateEntityTypeJson(Job[ProjectContext]):
         project = scheduler.context.project
         url_generator = await project.url_generator
         entity_type_path = project.www_directory_path / self._entity_type.id
-        data: SerializedMapping[SerializedData] = {
+        data: PortableMapping = {
             "$schema": await ProjectSchema.def_url(
                 project,
                 f"{kebab_case_to_lower_camel_case(self._entity_type.id)}EntityCollectionResponse",

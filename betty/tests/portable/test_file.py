@@ -6,7 +6,7 @@ import pytest
 
 from betty.error import FileNotFound
 from betty.exception import HumanFacingException
-from betty.serde.file import assert_load_file, dump_file
+from betty.portable.file import assert_load_file, dump_file
 from betty.test_utils.config import DummyConfiguration
 
 

@@ -30,7 +30,7 @@ from betty.json.linked_data import LinkedDataDumpable
 from betty.locale.localize import DEFAULT_LOCALIZER, Localizer
 from betty.media_type.media_types import HTML
 from betty.plugin.resolve import ResolvableId, resolve_id
-from betty.serde import SerializedData, SerializedMapping
+from betty.portable import PortableMapping
 
 if TYPE_CHECKING:
     from betty.ancestry.citation import Citation
@@ -193,7 +193,7 @@ class DocumentProvider:
 
 
 @final
-class Breadcrumb(LinkedDataDumpable[SerializedMapping[SerializedData]]):
+class Breadcrumb(LinkedDataDumpable[PortableMapping]):
     """
     A breadcrumb.
     """
@@ -217,25 +217,21 @@ class Breadcrumb(LinkedDataDumpable[SerializedMapping[SerializedData]]):
         return self._resource_url
 
     @override
-    async def dump_linked_data(
-        self, project: Project, /
-    ) -> SerializedMapping[SerializedData]:
-        serialized: SerializedMapping[SerializedData] = {
+    async def dump_linked_data(self, project: Project, /) -> PortableMapping:
+        portable: PortableMapping = {
             "@type": "ListItem",
             "name": self._label,
         }
         if self._resource_url is not None:
             url_generator = await project.url_generator
-            serialized["item"] = url_generator.generate(
+            portable["item"] = url_generator.generate(
                 self._resource_url, absolute=True, media_type=HTML
             )
-        return serialized
+        return portable
 
 
 @final
-class Breadcrumbs(
-    LinkedDataDumpable[SerializedMapping[SerializedData]], Iterable[Breadcrumb], Sized
-):
+class Breadcrumbs(LinkedDataDumpable[PortableMapping], Iterable[Breadcrumb], Sized):
     """
     A trail of navigational breadcrumbs.
     """
@@ -258,9 +254,7 @@ class Breadcrumbs(
         self._breadcrumbs.append(Breadcrumb(label, resource_url))
 
     @override
-    async def dump_linked_data(
-        self, project: Project, /
-    ) -> SerializedMapping[SerializedData]:
+    async def dump_linked_data(self, project: Project, /) -> PortableMapping:
         if not self._breadcrumbs:
             return {}
         return {

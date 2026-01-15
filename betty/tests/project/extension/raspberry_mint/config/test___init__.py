@@ -21,7 +21,7 @@ if TYPE_CHECKING:
 
     from betty.app import App
     from betty.data.indicator import Path
-    from betty.serde import SerializedData
+    from betty.portable import PortableData
 
 
 class TestRaspberryMintConfiguration(ConfigurationTestBase[RaspberryMintConfiguration]):
@@ -71,8 +71,8 @@ class TestRaspberryMintConfiguration(ConfigurationTestBase[RaspberryMintConfigur
         assert sut.regional_content["front"][0] is content_provider
 
     def test_load__with_minimal_configuration(self) -> None:
-        serialized: Mapping[str, Any] = {}
-        RaspberryMintConfiguration.load(serialized)
+        portable: Mapping[str, Any] = {}
+        RaspberryMintConfiguration.load(portable)
 
     def test_load__without_dict_should_error(self) -> None:
         serialized = None
@@ -81,26 +81,26 @@ class TestRaspberryMintConfiguration(ConfigurationTestBase[RaspberryMintConfigur
 
     def test_load__with_primary_color(self) -> None:
         hex_value = "#000000"
-        serialized: SerializedData = {
+        portable: PortableData = {
             "primary_color": hex_value,
         }
-        sut = RaspberryMintConfiguration.load(serialized)
+        sut = RaspberryMintConfiguration.load(portable)
         assert sut.primary_color.hex == hex_value
 
     def test_load__with_secondary_color(self) -> None:
         hex_value = "#000000"
-        serialized: SerializedData = {
+        portable: PortableData = {
             "secondary_color": hex_value,
         }
-        sut = RaspberryMintConfiguration.load(serialized)
+        sut = RaspberryMintConfiguration.load(portable)
         assert sut.secondary_color.hex == hex_value
 
     def test_load__with_tertiary_color(self) -> None:
         hex_value = "#000000"
-        serialized: SerializedData = {
+        portable: PortableData = {
             "tertiary_color": hex_value,
         }
-        sut = RaspberryMintConfiguration.load(serialized)
+        sut = RaspberryMintConfiguration.load(portable)
         assert sut.tertiary_color.hex == hex_value
 
     def test_load__with_regional_content(self) -> None:

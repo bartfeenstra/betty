@@ -35,8 +35,8 @@ if TYPE_CHECKING:
     from betty.ancestry.note import Note
     from betty.date import DateLike
     from betty.locale.localizable import Localizable, LocalizableLike
+    from betty.portable import PortableMapping
     from betty.project import Project
-    from betty.serde import SerializedData, SerializedMapping
 
 
 @final
@@ -165,9 +165,7 @@ class Source(HasDate, HasFileReferences, HasNotes, HasLinks, HasPrivacy, Entity)
         return schema
 
     @override
-    async def dump_linked_data(
-        self, project: Project, /
-    ) -> SerializedMapping[SerializedData]:
+    async def dump_linked_data(self, project: Project, /) -> PortableMapping:
         serialized = await super().dump_linked_data(project)
         serialized["@type"] = "https://schema.org/Thing"
         dump_context(serialized, name="https://schema.org/name")

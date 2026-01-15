@@ -21,8 +21,8 @@ from betty import npm
 from betty.dirs import ROOT_DIRECTORY_PATH
 from betty.document import Document
 from betty.hashid import hashid, hashid_file_content, hashid_sequence
+from betty.portable import PortableMapping
 from betty.project.extension import Extension
-from betty.serde import SerializedData, SerializedMapping
 
 if TYPE_CHECKING:
     from collections.abc import MutableMapping, Sequence
@@ -170,7 +170,7 @@ class Builder:
     async def _prepare_webpack_entry_point_provider(
         self,
         npm_project_directory_path: Path,
-        package_json: SerializedMapping[SerializedData],
+        package_json: PortableMapping,
         entry_point_provider: type[EntryPointProvider],
         npm_project_package_json_dependencies: MutableMapping[str, str],
         webpack_entry: MutableMapping[str, str],
@@ -216,19 +216,15 @@ class Builder:
             )
         )
 
-    async def _extract_package_json(
-        self, package_path: Path
-    ) -> SerializedMapping[SerializedData]:
+    async def _extract_package_json(self, package_path: Path) -> PortableMapping:
         async with aiofiles.open(package_path / "package.json") as f:
             package_json_data = await f.read()
-        return cast(SerializedMapping[SerializedData], json.loads(package_json_data))
+        return cast(PortableMapping, json.loads(package_json_data))
 
     async def _update_package_json(
         self,
         npm_project_directory_path: Path,
-        package_jsons_by_package_name: MutableMapping[
-            str, SerializedMapping[SerializedData]
-        ],
+        package_jsons_by_package_name: MutableMapping[str, PortableMapping],
         package_name: str,
     ) -> None:
         package_json = package_jsons_by_package_name[package_name]
@@ -273,9 +269,7 @@ class Builder:
     async def _update_package_jsons(
         self,
         npm_project_directory_path: Path,
-        package_jsons_by_package_name: MutableMapping[
-            str, SerializedMapping[SerializedData]
-        ],
+        package_jsons_by_package_name: MutableMapping[str, PortableMapping],
     ) -> None:
         await gather(
             *(
@@ -298,9 +292,7 @@ class Builder:
                 for entry_point_provider in self._entry_point_providers
             ),
         ]
-        package_jsons_by_package_path: MutableMapping[
-            Path, SerializedMapping[SerializedData]
-        ] = dict(
+        package_jsons_by_package_path: MutableMapping[Path, PortableMapping] = dict(
             zip(
                 package_paths,
                 await gather(
@@ -312,9 +304,7 @@ class Builder:
                 strict=True,
             )
         )
-        package_jsons_by_package_name: MutableMapping[
-            str, SerializedMapping[SerializedData]
-        ] = {
+        package_jsons_by_package_name: MutableMapping[str, PortableMapping] = {
             cast(str, package_json["name"]): package_json
             for package_json in package_jsons_by_package_path.values()
         }

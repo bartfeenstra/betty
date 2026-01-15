@@ -68,8 +68,8 @@ from betty.project.factory import CallbackProjectDependentFactory
 if TYPE_CHECKING:
     from betty.locale.localizable import Localizable, LocalizableLike
     from betty.plugin.repository import PluginRepository
+    from betty.portable import PortableData, PortableMapping
     from betty.project import Project
-    from betty.serde import SerializedData, SerializedMapping
     from betty.service.level.factory import AnyFactoryTarget
 
 DEFAULT_LIFETIME_THRESHOLD = 123
@@ -164,18 +164,18 @@ class EntityTypeConfiguration(Configuration):
 
     @override
     @classmethod
-    def load(cls, serialized: SerializedData, /) -> Self:
+    def load(cls, portable: PortableData, /) -> Self:
         record = assert_record(
             RequiredField("entity_type", assert_machine_name()),
             OptionalField("generate_html_list", assert_bool),
-        )(serialized)
+        )(portable)
         return cls(
             record["entity_type"],
             generate_html_list=record.get("generate_html_list", False),
         )
 
     @override
-    def dump(self) -> SerializedMapping[SerializedData]:
+    def dump(self) -> PortableMapping:
         return {
             "entity_type": self.id,
             "generate_html_list": self.generate_html_list,
@@ -234,18 +234,16 @@ class EntityTypeConfigurationMapping(
     @override
     @classmethod
     def _load_key(
-        cls, serialized_item: SerializedData, serialized_key: str, /
-    ) -> SerializedData:
-        assert isinstance(serialized_item, Mapping)
-        serialized_item["entity_type"] = serialized_key
-        return serialized_item
+        cls, portable_item: PortableData, portable_key: str, /
+    ) -> PortableData:
+        assert isinstance(portable_item, Mapping)
+        portable_item["entity_type"] = portable_key
+        return portable_item
 
     @override
-    def _dump_key(
-        self, serialized_item: SerializedData, /
-    ) -> tuple[SerializedData, str]:
-        assert isinstance(serialized_item, Mapping)
-        return serialized_item, cast(str, serialized_item.pop("entity_type"))
+    def _dump_key(self, portable_item: PortableData, /) -> tuple[PortableData, str]:
+        assert isinstance(portable_item, Mapping)
+        return portable_item, cast(str, portable_item.pop("entity_type"))
 
     @override
     @classmethod
@@ -322,21 +320,21 @@ class LocaleConfiguration(Configuration):
 
     @override
     @classmethod
-    def load(cls, serialized: SerializedData, /) -> Self:
+    def load(cls, portable: PortableData, /) -> Self:
         record = assert_record(
             RequiredField("locale", assert_locale()),
             OptionalField("alias", assert_str()),
-        )(serialized)
+        )(portable)
         return cls(record["locale"], alias=record.get("alias", None))
 
     @override
-    def dump(self) -> SerializedData:
-        serialized: SerializedData = {
+    def dump(self) -> PortableData:
+        portable: PortableData = {
             "locale": to_language_tag(self.locale),
         }
         if self._alias is not None:
-            serialized["alias"] = self._alias
-        return serialized
+            portable["alias"] = self._alias
+        return portable
 
     @override
     @classmethod
@@ -440,7 +438,7 @@ class CopyrightNoticePluginConfiguration(HumanFacingPluginDefinitionConfiguratio
         ]
 
     @override
-    def dump(self) -> SerializedMapping[SerializedData]:
+    def dump(self) -> PortableMapping:
         return {
             **super().dump(),
             "summary": dump_localizable(self.summary),
@@ -537,7 +535,7 @@ class LicensePluginConfiguration(HumanFacingPluginDefinitionConfiguration):
         ]
 
     @override
-    def dump(self) -> SerializedMapping[SerializedData]:
+    def dump(self) -> PortableMapping:
         return {
             **super().dump(),
             "summary": dump_localizable(self.summary),
@@ -1384,7 +1382,7 @@ class ProjectConfiguration(Configuration):
 
     @override
     @classmethod
-    def load(cls, serialized: SerializedData, /) -> Self:
+    def load(cls, portable: PortableData, /) -> Self:
         return cls(
             **assert_record(
                 OptionalField("name", assert_or(assert_str(), assert_none)),
@@ -1410,50 +1408,50 @@ class ProjectConfiguration(Configuration):
                 OptionalField(
                     "presence_roles", PresenceRolePluginConfigurationMapping.load
                 ),
-            )(serialized)
+            )(portable)
         )
 
     @override
-    def dump(self) -> SerializedMapping[SerializedData]:
-        serialized: SerializedMapping[SerializedData] = {
+    def dump(self) -> PortableMapping:
+        portable: PortableMapping = {
             "title": dump_localizable(self.title),
             "url": self.url,
         }
         if self.author is not None:
-            serialized["author"] = dump_localizable(self.author)
+            portable["author"] = dump_localizable(self.author)
         if self.clean_urls:
-            serialized["clean_urls"] = self.clean_urls
+            portable["clean_urls"] = self.clean_urls
         if self.copyright_notice != self._default_copyright_notice():
-            serialized["copyright_notice"] = self.copyright_notice.dump()
+            portable["copyright_notice"] = self.copyright_notice.dump()
         if self.copyright_notices:
-            serialized["copyright_notices"] = self.copyright_notices.dump()
+            portable["copyright_notices"] = self.copyright_notices.dump()
         if self.debug:
-            serialized["debug"] = self.debug
+            portable["debug"] = self.debug
         if self.entity_types:
-            serialized["entity_types"] = self.entity_types.dump()
+            portable["entity_types"] = self.entity_types.dump()
         if self.event_types:
-            serialized["event_types"] = self.event_types.dump()
+            portable["event_types"] = self.event_types.dump()
         if self.extensions:
-            serialized["extensions"] = self.extensions.dump()
+            portable["extensions"] = self.extensions.dump()
         if self.genders:
-            serialized["genders"] = self.genders.dump()
+            portable["genders"] = self.genders.dump()
         if self.license != self._default_license():
-            serialized["license"] = self.license.dump()
+            portable["license"] = self.license.dump()
         if self.licenses:
-            serialized["licenses"] = self.licenses.dump()
+            portable["licenses"] = self.licenses.dump()
         if self.lifetime_threshold != DEFAULT_LIFETIME_THRESHOLD:
-            serialized["lifetime_threshold"] = self.lifetime_threshold
+            portable["lifetime_threshold"] = self.lifetime_threshold
         if self.locales != self._default_locales():
-            serialized["locales"] = self.locales.dump()
+            portable["locales"] = self.locales.dump()
         if self.logo:
-            serialized["logo"] = str(self.logo)
+            portable["logo"] = str(self.logo)
         if self.name is not None:
-            serialized["name"] = self.name
+            portable["name"] = self.name
         if self.place_types:
-            serialized["place_types"] = self.place_types.dump()
+            portable["place_types"] = self.place_types.dump()
         if self.presence_roles:
-            serialized["presence_roles"] = self.presence_roles.dump()
-        return serialized
+            portable["presence_roles"] = self.presence_roles.dump()
+        return portable
 
     @override
     def __eq__(self, other: Any) -> bool:

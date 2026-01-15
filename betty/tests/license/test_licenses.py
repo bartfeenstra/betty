@@ -25,7 +25,7 @@ from betty.test_utils.license import LicenseDefinitionTestBase, LicenseTestBase
 from betty.test_utils.user import StaticUser
 
 if TYPE_CHECKING:
-    from betty.serde import SerializedData, SerializedMapping
+    from betty.portable import PortableMapping
 
 
 class TestAllRightsReservedDefinition(LicenseDefinitionTestBase):
@@ -77,7 +77,7 @@ class TestSpdxLicenseBuilder:
     ) -> AsyncIterator[SpdxLicenseBuilder]:
         spdx_directory_path = tmp_path / "spdx"
         spdx_directory_path.mkdir()
-        licenses_data: SerializedMapping[SerializedData] = {
+        licenses_data: PortableMapping = {
             "licenseListVersion": SpdxLicenseBuilder.VERSION,
             "licenses": [],
             "releaseDate": "2024-08-19",
@@ -113,7 +113,7 @@ class TestSpdxLicenseBuilder:
     ) -> AsyncIterator[SpdxLicenseBuilder]:
         spdx_directory_path = tmp_path / "spdx"
         spdx_directory_path.mkdir()
-        licenses_data: SerializedMapping[SerializedData] = {
+        licenses_data: PortableMapping = {
             "licenseListVersion": SpdxLicenseBuilder.VERSION,
             "licenses": [
                 {
@@ -141,7 +141,7 @@ class TestSpdxLicenseBuilder:
         licenses_file_path.parent.mkdir(parents=True)
         with open(licenses_file_path, "w") as f:
             f.write(dumps(licenses_data))
-        license_data: SerializedMapping[SerializedData] = {
+        license_data: PortableMapping = {
             "isDeprecatedLicenseId": False,
             "licenseText": 'Copyright (C) YEAR by AUTHOR EMAIL\n\nPermission to use, copy, modify, and/or distribute this software for any purpose with or without fee is hereby granted.\n\nTHE SOFTWARE IS PROVIDED "AS IS" AND THE AUTHOR DISCLAIMS ALL WARRANTIES WITH REGARD TO THIS SOFTWARE INCLUDING ALL IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS. IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR ANY SPECIAL, DIRECT, INDIRECT, OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS, WHETHER IN AN ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.\n',
             "standardLicenseTemplate": '\u003c\u003cbeginOptional\u003e\u003e\u003c\u003cvar;name\u003d"title";original\u003d"BSD Zero Clause License";match\u003d"(BSD Zero[ -]Clause|Zero[ -]Clause BSD)( License)?( \\(0BSD\\))?"\u003e\u003e\n\n\u003c\u003cendOptional\u003e\u003e \u003c\u003cvar;name\u003d"copyright";original\u003d"Copyright (C) YEAR by AUTHOR EMAIL  ";match\u003d".{0,5000}"\u003e\u003e\n\nPermission to use, copy, modify, and/or distribute this software for any purpose with or without fee is hereby granted.\n\nTHE SOFTWARE IS PROVIDED "AS IS" AND THE AUTHOR DISCLAIMS ALL WARRANTIES WITH REGARD TO THIS SOFTWARE INCLUDING ALL IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS. IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR ANY SPECIAL, DIRECT, INDIRECT, OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS, WHETHER IN AN ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.\n\n',

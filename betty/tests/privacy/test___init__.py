@@ -17,7 +17,7 @@ from betty.test_utils.json.linked_data import assert_dumps_linked_data
 from betty.test_utils.privacy import DummyHasPrivacy
 
 if TYPE_CHECKING:
-    from betty.serde import SerializedData, SerializedMapping
+    from betty.portable import PortableMapping
 
 
 class TestHasPrivacy:
@@ -81,7 +81,7 @@ class TestHasPrivacy:
         ],
     )
     async def test_dump_linked_data(
-        self, expected: SerializedMapping[SerializedData], sut: HasPrivacy
+        self, expected: PortableMapping, sut: HasPrivacy
     ) -> None:
         assert await assert_dumps_linked_data(sut) == expected
 

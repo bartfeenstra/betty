@@ -39,7 +39,7 @@ from betty.project.extension.theme.config import RegionalContentConfiguration
 from betty.project.extension.trees import Trees
 from betty.project.extension.webpack import Webpack
 from betty.project.extension.wiki import Wiki
-from betty.serde.file import dump_file
+from betty.portable.file import dump_file
 
 if TYPE_CHECKING:
     from collections.abc import MutableSequence
