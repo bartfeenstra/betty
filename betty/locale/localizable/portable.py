@@ -20,7 +20,7 @@ from betty.portable.error import NotPortable
 
 def load_localizable(portable: PortableData, /) -> Localizable:
     """
-    Load a localizable from serialized data.
+    Load a localizable from portable data.
     """
     translations = assert_or(
         assert_str().chain(lambda translation: {None: translation}),
@@ -54,14 +54,14 @@ def dump_localizable(localizable: Localizable, /) -> PortableData:
         }
     raise NotPortable(
         _(
-            "Only plain text and static translations can be dumped to serialized data, not `{localizable}` objects."
+            "Only plain text and static translations can be dumped to portable data, not `{localizable}` objects."
         ).format(localizable=fully_qualified_name(type(localizable)))
     )
 
 
 def load_countable_localizable(portable: PortableData, /) -> CountableLocalizable:
     """
-    Load a countable localizable from serialized data.
+    Load a countable localizable from portable data.
     """
     return CountableStaticTranslations(
         assert_mapping(
@@ -87,6 +87,6 @@ def dump_countable_localizable(localizable: CountableLocalizable, /) -> Portable
         }
     raise NotPortable(
         _(
-            "Only countable static translations can be dumped to serialized data, not `{localizable}` objects."
+            "Only countable static translations can be dumped to portable data, not `{localizable}` objects."
         ).format(localizable=fully_qualified_name(type(localizable)))
     )

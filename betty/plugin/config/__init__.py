@@ -36,7 +36,10 @@ from betty.locale.localizable.ensure import (
     ensure_countable_localizable,
     ensure_localizable,
 )
-from betty.locale.localizable.serde import dump_countable_localizable, dump_localizable
+from betty.locale.localizable.portable import (
+    dump_countable_localizable,
+    dump_localizable,
+)
 from betty.locale.localizable.static import CountableStaticTranslations
 from betty.machine_name import MachineName, assert_machine_name
 from betty.plugin import Plugin, PluginDefinition

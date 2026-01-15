@@ -29,7 +29,7 @@ from betty.locale.localizable.assertion import assert_load_localizable
 from betty.locale.localizable.attr import RequiredLocalizableAttr
 from betty.locale.localizable.ensure import ensure_localizable
 from betty.locale.localizable.gettext import _
-from betty.locale.localizable.serde import dump_localizable
+from betty.locale.localizable.portable import dump_localizable
 from betty.machine_name import MachineName, assert_machine_name
 from betty.model import EntityDefinition
 from betty.model.config import EntityReference
