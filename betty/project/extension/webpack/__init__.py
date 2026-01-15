@@ -116,7 +116,7 @@ class Webpack(
 
     async def _project_entry_point_providers(
         self,
-    ) -> Sequence[EntryPointProvider & Extension]:
+    ) -> Sequence[EntryPointProvider]:
         extensions = await self._project.extensions
         return [
             extension

@@ -18,7 +18,7 @@ class HasLinks(Entity):
     An entity that has associated :py:class:`betty.ancestry.link.Link` entities.
     """
 
-    links = BidirectionalToManySingleType["HasLinks & Entity", "Link"](
+    links = BidirectionalToManySingleType["HasLinks", "Link"](
         "betty.ancestry.has_links:HasLinks",
         "links",
         "betty.ancestry.link:Link",

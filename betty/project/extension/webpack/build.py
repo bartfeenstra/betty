@@ -58,7 +58,7 @@ class EntryPointProvider(Extension):
 
 
 async def _npm_project_id(
-    entry_point_providers: Sequence[EntryPointProvider & Extension],
+    entry_point_providers: Sequence[EntryPointProvider],
 ) -> str:
     return hashid_sequence(
         await hashid_file_content(_NPM_PROJECT_DIRECTORIES_PATH / "package.json"),
@@ -74,13 +74,13 @@ async def _npm_project_id(
 
 async def _npm_project_directory_path(
     working_directory_path: Path,
-    entry_point_providers: Sequence[EntryPointProvider & Extension],
+    entry_point_providers: Sequence[EntryPointProvider],
 ) -> Path:
     return working_directory_path / await _npm_project_id(entry_point_providers)
 
 
 def webpack_build_id(
-    entry_point_providers: Sequence[EntryPointProvider & Extension], debug: bool
+    entry_point_providers: Sequence[EntryPointProvider], debug: bool
 ) -> str:
     """
     Generate the ID for a Webpack build.
@@ -101,7 +101,7 @@ def webpack_build_id(
 
 def _webpack_build_directory_path(
     npm_project_directory_path: Path,
-    entry_point_providers: Sequence[EntryPointProvider & Extension],
+    entry_point_providers: Sequence[EntryPointProvider],
     debug: bool,
 ) -> Path:
     return (
@@ -122,7 +122,7 @@ class Builder:
     def __init__(
         self,
         working_directory_path: Path,
-        entry_point_providers: Sequence[EntryPointProvider & Extension],
+        entry_point_providers: Sequence[EntryPointProvider],
         debug: bool,
         jinja2_environment: Environment,
         root_path: str,
@@ -171,7 +171,7 @@ class Builder:
         self,
         npm_project_directory_path: Path,
         package_json: SerializedMapping[SerializedData],
-        entry_point_provider: type[EntryPointProvider & Extension],
+        entry_point_provider: type[EntryPointProvider],
         npm_project_package_json_dependencies: MutableMapping[str, str],
         webpack_entry: MutableMapping[str, str],
     ) -> None:
