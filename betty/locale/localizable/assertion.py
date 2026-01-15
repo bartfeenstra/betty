@@ -5,7 +5,10 @@ Provide localizable assertions.
 from __future__ import annotations
 
 from betty.assertion import AssertionChain
-from betty.locale.localizable.serde import load_countable_localizable, load_localizable
+from betty.locale.localizable.portable import (
+    load_countable_localizable,
+    load_localizable,
+)
 
 assert_load_localizable = AssertionChain(load_localizable)
 """

@@ -8,7 +8,7 @@ from betty.locale.localizable import CountableLocalizable, Localizable, Localiza
 from betty.locale.localizable.error import InvalidPluralTag, MissingPluralTag
 from betty.locale.localizable.markup import Paragraph
 from betty.locale.localizable.plain import Plain
-from betty.locale.localizable.serde import (
+from betty.locale.localizable.portable import (
     dump_countable_localizable,
     dump_localizable,
     load_countable_localizable,
