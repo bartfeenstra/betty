@@ -25,11 +25,11 @@ class TestContext:
 
     def test_cache__default(self) -> None:
         sut = Context()
-        sut.cache  # noqa B018
+        sut.cache  # noqa: B018
 
     def test_start(self) -> None:
         sut = Context()
-        sut.start  # noqa B018
+        sut.start  # noqa: B018
 
     def test_progress(self) -> None:
         progress = NoOpProgress()
@@ -38,7 +38,7 @@ class TestContext:
 
     def test_progress__default(self) -> None:
         sut = Context()
-        sut.progress  # noqa B018
+        sut.progress  # noqa: B018
 
 
 class _Job(Job[Context]):

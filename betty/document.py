@@ -60,7 +60,7 @@ class Document:
         job_context: JobContext | None = None,
         localizer: Localizer | None = None,
         title: Localizable | None = None,
-        **vars: Any,  # noqa A002
+        **vars: Any,  # noqa: A002
     ):
         self._resource = resource
         self._resource_url = resource_url
@@ -132,7 +132,7 @@ class Document:
 
     def copy(
         self,
-        **vars: object,  # noqa A002
+        **vars: object,  # noqa: A002
     ) -> Self:
         """
         Create a copy of this document, with the given fields added.

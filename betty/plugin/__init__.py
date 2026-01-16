@@ -130,7 +130,7 @@ class PluginTypeDefinition(Generic[_BaseClsCoT, _PluginDefinitionT]):
 
     def __init__(
         self,
-        id: MachineName,  # noqa A002
+        id: MachineName,  # noqa: A002
         *,
         base_cls: type[_BaseClsCoT & Plugin[_PluginDefinitionT]],
         label: LocalizableLike,

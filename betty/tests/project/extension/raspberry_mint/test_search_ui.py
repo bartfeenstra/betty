@@ -1,4 +1,4 @@
-from collections.abc import AsyncIterator  # noqa I001
+from collections.abc import AsyncIterator  # noqa: I001
 from pathlib import Path
 
 import pytest

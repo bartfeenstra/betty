@@ -122,8 +122,8 @@ class TestPluginTypeDefinition:
             label_plural=DUMMY_LOCALIZABLE,
             label_countable=DUMMY_COUNTABLE_LOCALIZABLE,
         )
-        with pytest.raises(ValueError):  # noqa PT011
-            sut.cls  # noqa B018
+        with pytest.raises(ValueError):  # noqa: PT011
+            sut.cls  # noqa: B018
 
     def test___call__(self) -> None:
         class _PluginDefinition(PluginDefinition):
@@ -138,7 +138,7 @@ class TestPluginTypeDefinition:
         )
         cls = sut(_PluginDefinition)
         assert sut.cls is cls
-        with pytest.raises(ValueError):  # noqa PT011
+        with pytest.raises(ValueError):  # noqa: PT011
             sut(_PluginDefinition)
 
     def test_label(self) -> None:
@@ -253,14 +253,14 @@ class TestPluginTypeDefinition:
 
 class TestPluginDefinition:
     def test_id(self) -> None:
-        id = "my-first-plugin"  # noqa A001
+        id = "my-first-plugin"  # noqa: A001
         sut = PluginDefinition(id)
         assert sut.id == id
 
     def test_cls(self) -> None:
         sut = PluginDefinition("my-first-plugin")
-        with pytest.raises(ValueError):  # noqa PT011
-            sut.cls  # noqa B018
+        with pytest.raises(ValueError):  # noqa: PT011
+            sut.cls  # noqa: B018
 
     def test___call__(self) -> None:
         class _Plugin(Plugin):
@@ -269,11 +269,11 @@ class TestPluginDefinition:
         sut = PluginDefinition("my-first-plugin")
         cls = sut(_Plugin)
         assert sut.cls is cls
-        with pytest.raises(ValueError):  # noqa PT011
+        with pytest.raises(ValueError):  # noqa: PT011
             sut(_Plugin)
 
     def test_reference_label(self) -> None:
-        id = "my-first-plugin"  # noqa A001
+        id = "my-first-plugin"  # noqa: A001
         sut = PluginDefinition(id)
         actual = sut.reference_label.localize(DEFAULT_LOCALIZER)
         assert id in actual
@@ -291,7 +291,7 @@ class TestPluginDefinition:
         class _PluginDefinition(PluginDefinition[DummyPlugin]):
             pass
 
-        id = "my-first-plugin"  # noqa A001
+        id = "my-first-plugin"  # noqa: A001
         sut = _PluginDefinition(id)
         actual = sut.reference_label_with_type.localize(DEFAULT_LOCALIZER)
         assert id in actual

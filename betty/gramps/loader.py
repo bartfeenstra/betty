@@ -466,7 +466,7 @@ class GrampsLoader:
         with ExitStack() as stack:
             try:
                 tar_file = stack.enter_context(
-                    tarfile.open(  # noqa SIM115
+                    tarfile.open(  # noqa: SIM115
                         name=gpkg_path, mode="r:gz"
                     )
                 )

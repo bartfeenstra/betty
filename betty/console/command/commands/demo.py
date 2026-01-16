@@ -1,14 +1,14 @@
-from __future__ import annotations  # noqa D100
+from __future__ import annotations  # noqa: D100
 
 import asyncio
 from pathlib import Path
-from typing import TYPE_CHECKING, final, Self
+from typing import TYPE_CHECKING, Self, final
 
 from typing_extensions import override
 
 import betty.project.extension.demo as stddemo
 from betty.app.factory import AppDependentSelfFactory
-from betty.console.command import Command, CommandFunction, CommandDefinition
+from betty.console.command import Command, CommandDefinition, CommandFunction
 from betty.locale.localizable.gettext import _
 from betty.project import ProjectContext
 from betty.project.extension.demo.project import create_project

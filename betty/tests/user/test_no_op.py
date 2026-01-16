@@ -10,7 +10,7 @@ from betty.user.no_op import NoOpUser
 class TestNoOpUser:
     def test_verbosity(self) -> None:
         sut = NoOpUser()
-        sut.verbosity  # noqa B018
+        sut.verbosity  # noqa: B018
 
     @pytest.mark.parametrize(
         "verbosity",

@@ -80,7 +80,7 @@ class Citation(HasDate, HasFileReferences, HasPrivacy, HasLinks):
         self,
         *,
         source: ToOneAssociate[Source],
-        id: str | None = None,  # noqa A002  # noqa A002
+        id: str | None = None,  # noqa: A002  # noqa A002
         facts: ToManyAssociates[HasCitations] | None = None,
         location: LocalizableLike | None = None,
         date: DateLike | None = None,

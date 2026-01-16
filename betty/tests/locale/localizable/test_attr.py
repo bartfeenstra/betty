@@ -20,7 +20,7 @@ class TestRequiredLocalizableAttr:
     def test___get____not_initialized(self) -> None:
         instance = self._Instance()
         with pytest.raises(AttrNotInitialized):
-            instance.attr  # noqa B018
+            instance.attr  # noqa: B018
 
     def test___set____with_str(self) -> None:
         instance = self._Instance()
@@ -100,7 +100,7 @@ class TestRequiredCountableLocalizableAttr:
     def test___get____not_initialized(self) -> None:
         instance = self._Instance()
         with pytest.raises(AttrNotInitialized):
-            instance.attr  # noqa B018
+            instance.attr  # noqa: B018
 
     def test___set____with_shorthand(self) -> None:
         instance = self._Instance()

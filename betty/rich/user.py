@@ -181,7 +181,7 @@ class RichUser(User):
         self,
         question: LocalizableLike,
         *,
-        default: str | Void = Void(),  # noqa B008
+        default: str | Void = Void(),  # noqa: B008
         stdin: TextIO | None = None,
     ) -> str:
         pass
@@ -192,7 +192,7 @@ class RichUser(User):
         question: LocalizableLike,
         *,
         assertion: Assertion[str, _T],
-        default: str | Void = Void(),  # noqa B008
+        default: str | Void = Void(),  # noqa: B008
         stdin: TextIO | None = None,
     ) -> _T:
         pass
@@ -203,7 +203,7 @@ class RichUser(User):
         question: LocalizableLike,
         *,
         assertion: Assertion[str, _T] | None = None,
-        default: str | Void = Void(),  # noqa B008
+        default: str | Void = Void(),  # noqa: B008
         stdin: TextIO | None = None,
     ) -> str | _T:
         assert self._connected

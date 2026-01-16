@@ -268,7 +268,7 @@ class StaticUser(User):  # pragma: no cover
         self,
         question: LocalizableLike,
         *,
-        default: str | Void = Void(),  # noqa B008
+        default: str | Void = Void(),  # noqa: B008
     ) -> str:
         pass
 
@@ -278,7 +278,7 @@ class StaticUser(User):  # pragma: no cover
         question: LocalizableLike,
         *,
         assertion: Assertion[str, _T],
-        default: str | Void = Void(),  # noqa B008
+        default: str | Void = Void(),  # noqa: B008
     ) -> _T:
         pass
 
@@ -288,7 +288,7 @@ class StaticUser(User):  # pragma: no cover
         question: LocalizableLike,
         *,
         assertion: Assertion[str, _T] | None = None,
-        default: str | _T | Void = Void(),  # noqa B008
+        default: str | _T | Void = Void(),  # noqa: B008
     ) -> str | _T:
         value = next(self._inputs)
         if value is None:

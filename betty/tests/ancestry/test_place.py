@@ -99,7 +99,7 @@ class TestPlace(EntityTestBase):
         sut.enclosers.remove(enclosure)
         assert list(sut.enclosers) == []
         with pytest.raises(AssociationRequired):
-            enclosure.enclosee  # noqa B018
+            enclosure.enclosee  # noqa: B018
 
     async def test_enclosees(self) -> None:
         sut = Place()
@@ -111,7 +111,7 @@ class TestPlace(EntityTestBase):
         sut.enclosees.remove(enclosure)
         assert list(sut.enclosees) == []
         with pytest.raises(AssociationRequired):
-            enclosure.encloser  # noqa B018
+            enclosure.encloser  # noqa: B018
 
     async def test_walk_enclosees__without_enclosees(self) -> None:
         sut = Place()

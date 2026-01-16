@@ -8,7 +8,7 @@ from betty.project.extension.demo.jobs import LoadAncestry
 from betty.project.extension.demo.project import create_project
 from betty.test_utils.job import do
 from betty.test_utils.project.extension.demo.project import (
-    demo_project_aioresponses,  # noqa F401
+    demo_project_aioresponses,  # noqa: F401
 )
 
 if TYPE_CHECKING:
@@ -26,7 +26,7 @@ async def test_create_project(isolated_app: App, tmp_path: Path) -> None:
 
 
 async def test_load_ancestry(
-    demo_project_aioresponses: None,  # noqa F811
+    demo_project_aioresponses: None,  # noqa: F811
     isolated_app_factory: IsolatedAppFactory,
 ) -> None:
     async with (

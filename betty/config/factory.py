@@ -43,7 +43,7 @@ class _HumanFacingFactoryError(FactoryError, HumanFacingException):
 
 def new_target(
     target: ConfigurationDependentSelfFactory[Configuration] | AnyFactoryTarget[_T],
-    configuration: Configuration | PortableData | Void = Void(),  # noqa B008
+    configuration: Configuration | PortableData | Void = Void(),  # noqa: B008
     /,
 ) -> AnyFactoryTarget[_T]:
     """

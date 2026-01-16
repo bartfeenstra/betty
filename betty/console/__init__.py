@@ -9,7 +9,7 @@ from collections.abc import Iterable, Sequence
 from enum import IntEnum
 from typing import Any, TypeVar, cast, final
 
-import rich  # noqa F401
+import rich  # noqa: F401
 import rich_argparse
 from typing_extensions import override
 
@@ -170,7 +170,7 @@ async def _create_list_commands_action_class(
             option_strings: Sequence[str],
             dest: str = argparse.SUPPRESS,
             default: Any = argparse.SUPPRESS,
-            help: str | None = None,  # noqa A002
+            help: str | None = None,  # noqa: A002
             # Python 3.13 added the ``deprecated`` argument. For compatibility with all, allow it, but do not use it.
             deprecated: bool = False,
         ):
@@ -191,12 +191,12 @@ async def _create_list_commands_action_class(
             option_string: str | None = None,
         ):
             # Import rich locally because otherwise somehow Python would load betty.console.rich instead.
-            import rich  # noqa F811
+            import rich  # noqa: F811
 
             usage = localizer._("Usage: ")
             for (
                 index,
-                command_definition,  # noqa F402
+                command_definition,  # noqa: F402
             ) in enumerate(command_definitions):
                 if index != 0:
                     rich.print("")

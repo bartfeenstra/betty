@@ -22,7 +22,7 @@ def test_do_raise() -> None:
     try:
         do_raise(expected)
     except BaseException as actual:
-        assert actual is expected  # noqa PT017
+        assert actual is expected  # noqa: PT017
 
 
 class _DummyHumanFacingException(HumanFacingException):

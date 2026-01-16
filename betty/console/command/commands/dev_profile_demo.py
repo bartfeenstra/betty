@@ -1,19 +1,19 @@
-from __future__ import annotations  # noqa D100
+from __future__ import annotations  # noqa: D100
 
 from pathlib import Path
-from typing import TYPE_CHECKING, final, Self
+from typing import TYPE_CHECKING, Self, final
 
 from aiofiles.os import makedirs
 from aiofiles.tempfile import TemporaryDirectory
 from typing_extensions import override
 
+from betty.app import App
 from betty.app.factory import AppDependentSelfFactory
-from betty.console.command import Command, CommandFunction, CommandDefinition
+from betty.console.command import Command, CommandDefinition, CommandFunction
 from betty.dirs import DEV_OUTPUT_DIRECTORY_PATH
 from betty.project import ProjectContext
 from betty.project.extension.demo import generate_with_cleanup
 from betty.project.extension.demo.project import create_project
-from betty.app import App
 
 if TYPE_CHECKING:
     import argparse

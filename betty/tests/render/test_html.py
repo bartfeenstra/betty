@@ -38,7 +38,7 @@ class TestHtml(RendererTestBase):
         return Html(url_generator=_TestHtmlUrlGenerator())
 
     async def test_media_type(self) -> None:
-        Html(url_generator=_TestHtmlUrlGenerator()).media_type  # noqa B018
+        Html(url_generator=_TestHtmlUrlGenerator()).media_type  # noqa: B018
 
     async def test_render(self) -> None:
         assert (

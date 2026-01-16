@@ -26,7 +26,7 @@ if TYPE_CHECKING:
     from pathlib import Path
 
     from betty.ancestry.citation import Citation
-    from betty.ancestry.file_reference import FileReference  # noqa F401
+    from betty.ancestry.file_reference import FileReference  # noqa: F401
     from betty.ancestry.link import Link
     from betty.ancestry.note import Note
     from betty.copyright_notice import CopyrightNotice
@@ -84,7 +84,7 @@ class File(
         self,
         path: Path,
         *,
-        id: str | None = None,  # noqa A002  # noqa A002
+        id: str | None = None,  # noqa: A002  # noqa A002
         name: str | None = None,
         media_type: MediaType | None = None,
         description: LocalizableLike | None = None,
@@ -93,7 +93,7 @@ class File(
         privacy: Privacy | None = None,
         links: MutableSequence[Link] | None = None,
         copyright_notice: CopyrightNotice | None = None,
-        license: License | None = None,  # noqa A002
+        license: License | None = None,  # noqa: A002
     ):
         super().__init__(
             id,

@@ -13,7 +13,7 @@ class TestPlainText(RendererTestBase):
         return PlainText()
 
     async def test_media_type(self) -> None:
-        PlainText().media_type  # noqa B018
+        PlainText().media_type  # noqa: B018
 
     async def test_render(self) -> None:
         assert (

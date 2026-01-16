@@ -208,7 +208,7 @@ class User(ABC):
         self,
         question: LocalizableLike,
         *,
-        default: str | Void = Void(),  # noqa B008
+        default: str | Void = Void(),  # noqa: B008
     ) -> str:
         pass
 
@@ -218,7 +218,7 @@ class User(ABC):
         question: LocalizableLike,
         *,
         assertion: Assertion[str, _T],
-        default: str | Void = Void(),  # noqa B008
+        default: str | Void = Void(),  # noqa: B008
     ) -> _T:
         pass
 
@@ -228,7 +228,7 @@ class User(ABC):
         question: LocalizableLike,
         *,
         assertion: Assertion[str, _T] | None = None,
-        default: str | _T | Void = Void(),  # noqa B008
+        default: str | _T | Void = Void(),  # noqa: B008
     ) -> str | _T:
         """
         Ask the user to input text.
