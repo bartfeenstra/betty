@@ -30,7 +30,7 @@ from betty.multiprocessing import ProcessPoolExecutor
 from betty.user import Verbosity
 
 if TYPE_CHECKING:
-    from collections.abc import AsyncIterator, Iterator  # noqa I001
+    from collections.abc import AsyncIterator, Iterator  # noqa: I001
     from concurrent import futures
     from contextlib import AbstractAsyncContextManager
     from pathlib import Path

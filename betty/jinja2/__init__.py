@@ -145,7 +145,7 @@ class Environment(ProjectDependentSelfFactory, Jinja2Environment):
         project: Project,
         extensions: Sequence[Extension],
         assets: AssetRepository,
-        globals: Mapping[str, Any],  # noqa A002
+        globals: Mapping[str, Any],  # noqa: A002
         filters: Mapping[str, Callable[..., Any]],
         tests: Mapping[str, Callable[..., bool]],
     ):

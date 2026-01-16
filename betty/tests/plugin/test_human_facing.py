@@ -15,7 +15,7 @@ from betty.test_utils.plugin import DummyPlugin
 
 class TestHumanFacingPluginDefinition:
     def test_reference_label(self) -> None:
-        id = "my-first-plugin"  # noqa A001
+        id = "my-first-plugin"  # noqa: A001
         plugin_label = "My First Plugin"
         sut = HumanFacingPluginDefinition(id, label=plugin_label)
         actual = sut.reference_label.localize(DEFAULT_LOCALIZER)
@@ -35,7 +35,7 @@ class TestHumanFacingPluginDefinition:
         class _HumanFacingPluginDefinition(HumanFacingPluginDefinition[DummyPlugin]):
             pass
 
-        id = "my-first-plugin"  # noqa A001
+        id = "my-first-plugin"  # noqa: A001
         plugin_label = "My First Plugin"
         sut = _HumanFacingPluginDefinition(id, label=plugin_label)
         actual = sut.reference_label_with_type.localize(DEFAULT_LOCALIZER)

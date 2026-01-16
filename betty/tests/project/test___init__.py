@@ -192,7 +192,7 @@ class TestProject:
 
     async def test_ancestry__without___init___ancestry(self, isolated_app: App) -> None:
         async with Project.new_isolated(isolated_app) as sut, sut:
-            sut.ancestry  # noqa B018
+            sut.ancestry  # noqa: B018
 
     async def test_app(self, isolated_app: App) -> None:
         async with Project.new_isolated(isolated_app) as sut, sut:
@@ -245,7 +245,7 @@ class TestProject:
 
     async def test_name__without_configuration_name(self, isolated_app: App) -> None:
         async with Project.new_isolated(isolated_app) as sut, sut:
-            sut.name  # noqa B018
+            sut.name  # noqa: B018
 
     async def test_renderer(self, isolated_app: App) -> None:
         async with Project.new_isolated(isolated_app) as sut, sut:
@@ -341,7 +341,7 @@ class TestProject:
 
     async def test_privatizer(self, isolated_app: App) -> None:
         async with Project.new_isolated(isolated_app) as sut, sut:
-            sut.privatizer  # noqa B018
+            sut.privatizer  # noqa: B018
 
     async def test_new_document(self, isolated_app: App) -> None:
         async with Project.new_isolated(isolated_app) as sut, sut:

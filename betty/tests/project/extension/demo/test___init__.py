@@ -18,7 +18,7 @@ from betty.test_utils.project.extension import (
     ExtensionTestBase,
 )
 from betty.test_utils.project.extension.demo.project import (
-    demo_project_aioresponses,  # noqa F401
+    demo_project_aioresponses,  # noqa: F401
 )
 
 if TYPE_CHECKING:
@@ -83,7 +83,7 @@ class TestDemo(ExtensionTestBase):
 
     async def test_load(
         self,
-        demo_project_aioresponses: None,  # noqa F811
+        demo_project_aioresponses: None,  # noqa: F811
         mocker: MockerFixture,
         isolated_app_factory: IsolatedAppFactory,
     ) -> None:

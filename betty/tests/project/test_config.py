@@ -936,7 +936,7 @@ class TestProjectConfiguration(ConfigurationTestBase[ProjectConfiguration]):
 
     async def test_entity_types(self) -> None:
         sut = ProjectConfiguration(title="Betty", url="https://example.com")
-        sut.entity_types  # noqa B018
+        sut.entity_types  # noqa: B018
 
     @pytest.mark.parametrize(
         "debug",

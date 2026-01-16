@@ -22,7 +22,7 @@ def generate_urls(
         f"boolean(@{attribute_name})" for attribute_name in attribute_names
     )
     for element in fragment.xpath(f"//*[{attributes_xpath}]"):
-        for attr_name in element.keys():  # noqa SIM118
+        for attr_name in element.keys():  # noqa: SIM118
             if attr_name in attribute_names:
                 attr_value = element.get(attr_name)
                 if url_generator.supports(attr_value):

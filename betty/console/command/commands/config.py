@@ -1,18 +1,18 @@
-from __future__ import annotations  # noqa D100
+from __future__ import annotations  # noqa: D100
 
-from typing import TYPE_CHECKING, final, Self
+from typing import TYPE_CHECKING, Self, final
 
 from typing_extensions import override
 
 from betty.app import config as app_config
 from betty.app.config import AppConfiguration
 from betty.app.factory import AppDependentSelfFactory
-from betty.assertion import assert_locale
-from betty.portable.file import dump_file
 from betty.argparse import assertion_to_argument_type
-from betty.console.command import Command, CommandFunction, CommandDefinition
+from betty.assertion import assert_locale
+from betty.console.command import Command, CommandDefinition, CommandFunction
 from betty.locale import DEFAULT_LOCALE, to_language_tag
 from betty.locale.localizable.gettext import _
+from betty.portable.file import dump_file
 
 if TYPE_CHECKING:
     import argparse

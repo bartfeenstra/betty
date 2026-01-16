@@ -1,17 +1,17 @@
-from __future__ import annotations  # noqa D100
+from __future__ import annotations  # noqa: D100
 
-from typing import TYPE_CHECKING, final, Self
+from typing import TYPE_CHECKING, Self, final
 
 from typing_extensions import override
 
 from betty.app.factory import AppDependentSelfFactory
-from betty.assertion import (
-    assert_or,
-    assert_none,
-    assert_directory_path,
-)
 from betty.argparse import assertion_to_argument_type
-from betty.console.command import Command, CommandFunction, CommandDefinition
+from betty.assertion import (
+    assert_directory_path,
+    assert_none,
+    assert_or,
+)
+from betty.console.command import Command, CommandDefinition, CommandFunction
 from betty.console.project import add_project_argument
 from betty.locale import translation
 from betty.locale.localizable.gettext import _

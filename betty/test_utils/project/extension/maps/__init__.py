@@ -2,7 +2,7 @@
 Test utilities for :py:mod:`betty.project.extension.maps`.
 """
 
-import re  # noqa I001
+import re  # noqa: I001
 from collections.abc import AsyncIterator, Iterable
 from pathlib import Path
 from shutil import copytree

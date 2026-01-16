@@ -1,4 +1,4 @@
-from __future__ import annotations  # noqa D100
+from __future__ import annotations  # noqa: D100
 
 from typing import TYPE_CHECKING, Any
 from urllib.parse import urlparse
@@ -7,27 +7,28 @@ from betty.ancestry.event import Event
 from betty.ancestry.person import Person
 from betty.ancestry.place import Place
 from betty.ancestry.source import Source
-from betty.assertion import assert_str, assert_path, assert_locale
+from betty.assertion import assert_locale, assert_path, assert_str
 from betty.locale import DEFAULT_LOCALE_TAG, to_language_tag
 from betty.locale.localizable.gettext import _
 from betty.locale.localizable.static import StaticTranslations
-from betty.machine_name import machinify, assert_machine_name
+from betty.machine_name import assert_machine_name, machinify
 from betty.plugin.config import PluginInstanceConfiguration
+from betty.portable.file import dump_file
 from betty.project.config import (
-    LocaleConfiguration,
-    ProjectConfiguration,
     EntityTypeConfiguration,
     EntityTypeConfigurationMapping,
     ExtensionInstanceConfigurationMapping,
+    LocaleConfiguration,
     LocaleConfigurationMapping,
+    ProjectConfiguration,
 )
-from betty.project.extension import ExtensionDefinition, Extension
+from betty.project.extension import Extension, ExtensionDefinition
 from betty.project.extension.deriver import Deriver
 from betty.project.extension.gramps import Gramps
 from betty.project.extension.gramps.config import (
     FamilyTreeConfiguration,
-    GrampsConfiguration,
     FamilyTreeConfigurationSequence,
+    GrampsConfiguration,
 )
 from betty.project.extension.http_api_doc import HttpApiDoc
 from betty.project.extension.maps import Maps
@@ -39,7 +40,6 @@ from betty.project.extension.theme.config import RegionalContentConfiguration
 from betty.project.extension.trees import Trees
 from betty.project.extension.webpack import Webpack
 from betty.project.extension.wiki import Wiki
-from betty.portable.file import dump_file
 
 if TYPE_CHECKING:
     from collections.abc import MutableSequence

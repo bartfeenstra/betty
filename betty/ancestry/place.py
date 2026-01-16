@@ -90,7 +90,7 @@ class Place(HasLinks, HasFileReferences, HasNotes, HasPrivacy):
     def __init__(
         self,
         *,
-        id: str | None = None,  # noqa A002
+        id: str | None = None,  # noqa: A002
         names: MutableSequence[Name] | None = None,
         events: ToManyAssociates[Event] | None = None,
         enclosers: ToManyAssociates[Enclosure] | None = None,

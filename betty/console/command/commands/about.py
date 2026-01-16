@@ -1,22 +1,22 @@
-from __future__ import annotations  # noqa D100
+from __future__ import annotations  # noqa: D100
 
 import platform
 import sys
 from importlib import metadata
-from typing import TYPE_CHECKING, final, Self
+from typing import TYPE_CHECKING, Self, final
 
 from rich.table import Table
 from typing_extensions import override
 
 from betty import about
 from betty.app.factory import AppDependentSelfFactory
-from betty.console.command import Command, CommandFunction, CommandDefinition
+from betty.console.command import Command, CommandDefinition, CommandFunction
 from betty.console.project import add_project_argument
-from betty.rich.user import RichUser
 from betty.locale.localizable.gettext import _
 from betty.plugin import plugin_types
 from betty.plugin.human_facing import HumanFacingPluginDefinition
 from betty.plugin.requirement import get_requirement
+from betty.rich.user import RichUser
 
 if TYPE_CHECKING:
     import argparse

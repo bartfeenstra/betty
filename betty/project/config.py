@@ -1112,7 +1112,7 @@ class ProjectConfiguration(Configuration):
         ]
         | None = None,
         copyright_notices: CopyrightNoticePluginConfigurationMapping | None = None,
-        license: PluginInstanceConfiguration[LicenseDefinition, License] | None = None,  # noqa A002
+        license: PluginInstanceConfiguration[LicenseDefinition, License] | None = None,  # noqa: A002
         licenses: LicensePluginConfigurationMapping | None = None,
         genders: GenderPluginConfigurationMapping | None = None,
         extensions: ExtensionInstanceConfigurationMapping | None = None,

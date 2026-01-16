@@ -205,7 +205,7 @@ class TestSpdxLicenseBuilder:
     ) -> None:
         zero_bsd_type = [
             license
-            async for license in sut_with_licenses.build()  # noqa A001
+            async for license in sut_with_licenses.build()  # noqa: A001
         ][0]
         assert (
             zero_bsd_type.label.localize(DEFAULT_LOCALIZER) == "BSD Zero Clause License"
@@ -225,5 +225,5 @@ class TestSpdxLicenseBuilder:
     ) -> None:
         assert not [
             license
-            async for license in sut_without_licenses.build()  # noqa A001
+            async for license in sut_without_licenses.build()  # noqa: A001
         ]

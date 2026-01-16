@@ -361,7 +361,7 @@ class SchedulerTestBase(Generic[_SchedulerTestBaseContextCoT]):
                 raise reason
 
         await sut.add(_Raise(""))
-        with pytest.raises(Cancelled) as exc_info:  # noqa PT012
+        with pytest.raises(Cancelled) as exc_info:  # noqa: PT012
             async with sut:
                 batch = await sut.get()
                 await batch()
@@ -374,7 +374,7 @@ class SchedulerTestBase(Generic[_SchedulerTestBaseContextCoT]):
         Tests :py:meth:`betty.job.scheduler.Scheduler.get` implementations.
         """
         await sut.add(_Job("one"))
-        with pytest.raises(Cancelled) as exc_info:  # noqa PT012
+        with pytest.raises(Cancelled):  # noqa: PT012
             async with sut:
                 batch = await sut.get()
                 await sut.cancel()

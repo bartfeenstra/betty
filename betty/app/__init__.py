@@ -326,7 +326,7 @@ class App(Configurable[AppConfiguration], ServiceContainer, PluginRepositoryProv
             LicenseDefinition,
             *[
                 license
-                async for license in SpdxLicenseBuilder(  # noqa A001
+                async for license in SpdxLicenseBuilder(  # noqa: A001
                     binary_file_cache=self.binary_file_cache.with_scope("spdx"),
                     http_client=await self.http_client,
                     user=self.user,

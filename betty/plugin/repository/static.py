@@ -29,7 +29,7 @@ class StaticPluginRepository(PluginRepository[_PluginDefinitionT]):
 
     def __init__(
         self,
-        plugin_type: type[_PluginDefinitionT],  # noqa A002
+        plugin_type: type[_PluginDefinitionT],  # noqa: A002
         *plugins: ResolvableDefinition[_PluginDefinitionT],
     ):
         super().__init__(plugin_type)

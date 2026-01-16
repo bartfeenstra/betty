@@ -66,7 +66,7 @@ class Server(ABC):
         self._user = user
 
     @abstractmethod
-    async def start(self) -> None:  # noqa B027
+    async def start(self) -> None:  # noqa: B027
         """
         Start the server.
         """
@@ -83,7 +83,7 @@ class Server(ABC):
         webbrowser.open_new_tab(self.public_url)
 
     @abstractmethod
-    async def stop(self) -> None:  # noqa B027
+    async def stop(self) -> None:  # noqa: B027
         """
         Stop the server.
         """

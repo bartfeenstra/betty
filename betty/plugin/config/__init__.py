@@ -86,7 +86,7 @@ class PluginDefinitionConfiguration(Configuration):
     def __init__(
         self,
         *,
-        id: MachineName,  # noqa A002
+        id: MachineName,  # noqa: A002
     ):
         super().__init__()
         self._id = assert_machine_name()(id)
@@ -359,8 +359,8 @@ class PluginInstanceConfiguration(Generic[_PluginDefinitionT, _PluginT], Configu
 
     def __init__(
         self,
-        id: ResolvableId[_PluginDefinitionT],  # noqa A002
-        configuration: Configuration | PortableData | Void = Void(),  # noqa B008
+        id: ResolvableId[_PluginDefinitionT],  # noqa: A002
+        configuration: Configuration | PortableData | Void = Void(),  # noqa: B008
         /,
     ):
         super().__init__()

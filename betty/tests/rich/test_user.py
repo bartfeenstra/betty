@@ -12,11 +12,11 @@ from betty.user import Verbosity
 class TestRichUser:
     async def test_console(self) -> None:
         sut = RichUser()
-        sut.console  # noqa B018
+        sut.console  # noqa: B018
 
     async def test_verbosity(self) -> None:
         sut = RichUser()
-        sut.verbosity  # noqa B018
+        sut.verbosity  # noqa: B018
 
     @pytest.mark.parametrize(
         "verbosity",

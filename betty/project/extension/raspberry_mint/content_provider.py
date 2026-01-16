@@ -630,7 +630,7 @@ class ColumnsConfiguration(Configuration):
         elif isinstance(width, Mapping):
             width = {
                 breakpoint: [columns] if isinstance(columns, int) else columns
-                for breakpoint, columns in width.items()  # noqa A001
+                for breakpoint, columns in width.items()  # noqa: A001
             }
         else:
             width = {Breakpoint.XS: width}
@@ -698,7 +698,7 @@ class ColumnsConfiguration(Configuration):
         if self.width != self._DEFAULT_WIDTH:
             portable["width"] = {
                 breakpoint.value: widths  # type: ignore[misc]
-                for breakpoint, widths in self.width.items()  # noqa A001
+                for breakpoint, widths in self.width.items()  # noqa: A001
             }
         if self.justify_content is not None:
             portable["justify_content"] = self.justify_content.value
@@ -830,7 +830,7 @@ class Columns(Template, _Base, ConfigurationDependentSelfFactory[ColumnsConfigur
             "justify_content": self.configuration.justify_content,
             "width": {
                 breakpoint.value: widths
-                for breakpoint, widths in self.configuration.width.items()  # noqa A001
+                for breakpoint, widths in self.configuration.width.items()  # noqa: A001
             },
         }
 

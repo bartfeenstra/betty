@@ -181,7 +181,7 @@ class String(_Type):
         min_length: int | None = None,
         max_length: int | None = None,
         pattern: str | None = None,
-        format: Format | None = None,  # noqa A002
+        format: Format | None = None,  # noqa: A002
     ):
         super().__init__(
             def_name=def_name,
