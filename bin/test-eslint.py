@@ -6,7 +6,7 @@ Run ESLint.
 import sys
 from subprocess import check_call
 
-print("Running ESLint...")  # noqa T201
+print("Running ESLint...")  # noqa: T201
 
 check_call(
     [

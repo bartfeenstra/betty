@@ -59,7 +59,7 @@ class Note(HasPrivacy, HasLinks, HasMediaType):
         self,
         text: LocalizableLike,
         *,
-        id: str | None = None,  # noqa: A002  # noqa A002
+        id: str | None = None,  # noqa: A002
         entity: ToZeroOrOneAssociate[HasNotes] | None = None,
         privacy: Privacy | None = None,
     ):

@@ -106,7 +106,7 @@ class Source(HasDate, HasFileReferences, HasNotes, HasLinks, HasPrivacy, Entity)
         self,
         name: LocalizableLike | None = None,
         *,
-        id: str | None = None,  # noqa: A002  # noqa A002
+        id: str | None = None,  # noqa: A002
         author: LocalizableLike | None = None,
         publisher: LocalizableLike | None = None,
         contained_by: ToZeroOrOneAssociate[Source] = None,
