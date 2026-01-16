@@ -11,7 +11,7 @@ from betty.dirs import ASSETS_DIRECTORY_PATH, ROOT_DIRECTORY_PATH
 
 sys.path.insert(0, str(Path(betty.__file__).parent.parent))
 project = "Betty"
-copyright = "Bart Feenstra and contributors"  # noqa A001
+copyright = "Bart Feenstra and contributors"  # noqa: A001
 intersphinx_mapping = {
     "aiohttp": ("https://docs.aiohttp.org/en/stable/", None),
     "babel": ("https://babel.pocoo.org/en/stable/", None),

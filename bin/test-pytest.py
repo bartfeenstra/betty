@@ -7,7 +7,7 @@ import sys
 from os import environ, getcwd, path
 from subprocess import check_call
 
-print("Running pytest...")  # noqa T201
+print("Running pytest...")  # noqa: T201
 
 check_call(["coverage", "erase"])
 check_call(

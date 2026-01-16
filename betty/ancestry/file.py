@@ -84,7 +84,7 @@ class File(
         self,
         path: Path,
         *,
-        id: str | None = None,  # noqa: A002  # noqa A002
+        id: str | None = None,  # noqa: A002
         name: str | None = None,
         media_type: MediaType | None = None,
         description: LocalizableLike | None = None,
