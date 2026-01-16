@@ -232,7 +232,7 @@ class _FormattedLocalizable(Localizable):
         )
 
 
-def format(  # noqa A001
+def format(  # noqa: A001
     localizable: Localizable,
     *format_args: str | Localizable,
     **format_kwargs: str | Localizable,

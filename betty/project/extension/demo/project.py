@@ -544,7 +544,7 @@ async def _load_streetmix_images(
     project: Project,
 ) -> tuple[Mapping[MachineName, Sequence[File]], Sequence[File]]:
     licenses = await project.license_repository
-    license = await licenses.new_target(  # noqa A001
+    license = await licenses.new_target(  # noqa: A001
         spdx_license_id_to_license_id("AGPL-3.0-or-later")
     )
     copyright_notice = await project.copyright_notice_repository.new_target(Streetmix)

@@ -160,7 +160,7 @@ class TestDate:
         assert sut.complete == expected
 
     def test_to_range__when_incomparable_should_raise(self) -> None:
-        with pytest.raises(ValueError):  # noqa PT011
+        with pytest.raises(ValueError):  # noqa: PT011
             Date(None, 1, 1).to_range()
 
     @pytest.mark.parametrize(

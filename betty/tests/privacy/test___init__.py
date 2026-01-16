@@ -47,7 +47,7 @@ class TestHasPrivacy:
     async def test___init___with_value_error(
         self, privacy: Privacy | None, public: bool | None, private: bool | None
     ) -> None:
-        with pytest.raises(ValueError):  # noqa PT011
+        with pytest.raises(ValueError):  # noqa: PT011
             DummyHasPrivacy(privacy=privacy, public=public, private=private)
 
     @pytest.mark.parametrize(

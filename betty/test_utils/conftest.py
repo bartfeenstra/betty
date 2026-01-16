@@ -28,7 +28,7 @@ from betty.error import do_raise
 from betty.multiprocessing import ProcessPoolExecutor
 
 if TYPE_CHECKING:
-    from collections.abc import AsyncIterator, Iterator  # noqa I001
+    from collections.abc import AsyncIterator, Iterator  # noqa: I001
     from concurrent import futures
     from contextlib import AbstractAsyncContextManager
     from multiprocessing.managers import SyncManager

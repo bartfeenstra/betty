@@ -105,7 +105,7 @@ class TestGrampsLoader:
         with gzip.open(gramps_file_path, "w") as f:
             f.write(_minimal_xml().encode("utf-8"))
         gpkg_file_path = tmp_path / "gramps.gpkg"
-        with tarfile.open(  # noqa SIM115
+        with tarfile.open(  # noqa: SIM115
             name=gpkg_file_path, mode="w:gz"
         ) as tar_file:
             tar_file.add(gramps_file_path, "/data.gramps")
@@ -161,7 +161,7 @@ class TestGrampsLoader:
         with gzip.open(gramps_file_path, "w") as f:
             f.write(_minimal_xml().encode("utf-8"))
         gpkg_file_path = tmp_path / "gramps.gpkg"
-        with tarfile.open(  # noqa SIM115
+        with tarfile.open(  # noqa: SIM115
             name=gpkg_file_path, mode="w:gz"
         ) as tar_file:
             tar_file.add(gramps_file_path, "/data.gramps")

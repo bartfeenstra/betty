@@ -49,7 +49,7 @@ class PersonName(ShorthandPluginBase, HasLocale, HasCitations, HasPrivacy, Entit
         self,
         *,
         person: ToOneAssociate[Person],
-        id: str | None = None,  # noqa A002
+        id: str | None = None,  # noqa: A002
         individual: str | None = None,
         affiliation: str | None = None,
         privacy: Privacy | None = None,

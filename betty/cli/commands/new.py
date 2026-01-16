@@ -1,19 +1,19 @@
-from __future__ import annotations  # noqa D100
+from __future__ import annotations  # noqa: D100
 
-from typing import TYPE_CHECKING, final, Self, Any
+from typing import TYPE_CHECKING, Any, Self, final
 from urllib.parse import urlparse
 
 import asyncclick as click
 from typing_extensions import override
 
 from betty.app.factory import AppDependentFactory
-from betty.assertion import assert_str, assert_path, assert_locale
-from betty.cli.commands import command, Command
+from betty.assertion import assert_locale, assert_path, assert_str
+from betty.cli.commands import Command, command
 from betty.cli.error import user_facing_error_to_bad_parameter
 from betty.config import write_configuration_file
-from betty.locale import get_display_name, DEFAULT_LOCALE
-from betty.locale.localizable import _, StaticTranslations
-from betty.machine_name import machinify, assert_machine_name
+from betty.locale import DEFAULT_LOCALE, get_display_name
+from betty.locale.localizable import StaticTranslations, _
+from betty.machine_name import assert_machine_name, machinify
 from betty.plugin import ShorthandPluginBase
 from betty.plugin.config import PluginInstanceConfiguration
 from betty.project.config import LocaleConfiguration, ProjectConfiguration
@@ -199,7 +199,7 @@ async def _prompt_static_translations(
     default: Any | None = None,
     hide_input: bool = False,
     confirmation_prompt: bool | str = False,
-    type: click.ParamType | Any | None = None,  # noqa A002
+    type: click.ParamType | Any | None = None,  # noqa: A002
     value_proc: Callable[[str], Any] | None = None,
     prompt_suffix: str = ": ",
     show_default: bool = True,

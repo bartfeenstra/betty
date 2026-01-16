@@ -208,7 +208,7 @@ class TestProject:
         self, new_temporary_app: App
     ) -> None:
         async with Project.new_temporary(new_temporary_app) as sut, sut:
-            sut.ancestry  # noqa B018
+            sut.ancestry  # noqa: B018
 
     async def test_app(self, new_temporary_app: App) -> None:
         async with Project.new_temporary(new_temporary_app) as sut, sut:
@@ -247,7 +247,7 @@ class TestProject:
 
     async def test_event_dispatcher(self, new_temporary_app: App) -> None:
         async with Project.new_temporary(new_temporary_app) as sut, sut:
-            sut.event_dispatcher  # noqa B018
+            sut.event_dispatcher  # noqa: B018
 
     async def test_jinja2_environment(self, new_temporary_app: App) -> None:
         async with Project.new_temporary(new_temporary_app) as sut, sut:
@@ -269,7 +269,7 @@ class TestProject:
         self, new_temporary_app: App
     ) -> None:
         async with Project.new_temporary(new_temporary_app) as sut, sut:
-            sut.name  # noqa B018
+            sut.name  # noqa: B018
 
     async def test_renderer(self, new_temporary_app: App) -> None:
         async with Project.new_temporary(new_temporary_app) as sut, sut:

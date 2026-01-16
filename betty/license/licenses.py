@@ -220,19 +220,19 @@ class SpdxLicenseRepository(PluginRepository[License]):
         await self._load_licenses()
         async with self._ledger.ledger(license_id):
             try:
-                license = self._licenses[license_id]  # noqa a001
+                license = self._licenses[license_id]  # noqa: A001
             except KeyError:
                 raise PluginNotFound.new(license_id, await self.select()) from None
             else:
                 if license is None:
-                    license = await self._create_license(license_id)  # noqa a001
+                    license = await self._create_license(license_id)  # noqa: A001
                     self._licenses[license_id] = license  # type: ignore[index]
                 return license
 
     @override
     async def __aiter__(self) -> AsyncIterator[type[License]]:
         await self._load_licenses()
-        for license in await gather(  # noqa A001
+        for license in await gather(  # noqa: A001
             *(self._load_license(license_id) for license_id in self._licenses)
         ):
             yield license

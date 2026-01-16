@@ -369,7 +369,7 @@ class PluginRepository(Generic[_PluginT], TargetFactory, ABC):
             )
         if self._plugin_id_schema is None:
             self._plugin_id_schema = Enum(
-                *[plugin.plugin_id() async for plugin in self],  # noqa A002
+                *[plugin.plugin_id() async for plugin in self],  # noqa: A002
                 def_name=self._schema_template.def_name,
                 title=self._schema_template.title,
                 description=f"A {self._schema_template.title} plugin ID",

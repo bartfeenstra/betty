@@ -1,18 +1,18 @@
-from __future__ import annotations  # noqa D100
+from __future__ import annotations  # noqa: D100
 
-from typing import TYPE_CHECKING, final, Self
+from typing import TYPE_CHECKING, Self, final
 
 import asyncclick as click
 from typing_extensions import override
 
 from betty.app.factory import AppDependentFactory
 from betty.assertion import (
-    assert_or,
-    assert_none,
     assert_directory_path,
+    assert_none,
+    assert_or,
     assert_sequence,
 )
-from betty.cli.commands import command, Command, parameter_callback, project_option
+from betty.cli.commands import Command, command, parameter_callback, project_option
 from betty.locale import translation
 from betty.locale.localizable import _
 from betty.plugin import ShorthandPluginBase
