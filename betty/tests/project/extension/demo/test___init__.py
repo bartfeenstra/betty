@@ -15,7 +15,7 @@ from betty.project.extension.demo import Demo, generate_with_cleanup
 from betty.project.load import load
 from betty.test_utils.project.extension import ExtensionTestBase
 from betty.test_utils.project.extension.demo.project import (
-    demo_project_fetcher,  # noqa F401
+    demo_project_fetcher,  # noqa: F401
 )
 
 if TYPE_CHECKING:
@@ -66,7 +66,7 @@ class TestDemo(ExtensionTestBase[Demo]):
 
     async def test_load(
         self,
-        demo_project_fetcher: Fetcher,  # noqa F811
+        demo_project_fetcher: Fetcher,  # noqa: F811
         mocker: MockerFixture,
         new_temporary_app_factory: NewTemporaryAppFactory,
     ) -> None:

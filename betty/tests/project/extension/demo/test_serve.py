@@ -8,7 +8,7 @@ from requests import Response
 from betty.functools import Do
 from betty.project.extension.demo.serve import DemoServer
 from betty.test_utils.project.extension.demo.project import (
-    demo_project_fetcher,  # noqa F401
+    demo_project_fetcher,  # noqa: F401
 )
 
 if TYPE_CHECKING:
@@ -21,7 +21,7 @@ if TYPE_CHECKING:
 class TestDemoServer:
     async def test(
         self,
-        demo_project_fetcher: Fetcher,  # noqa F811
+        demo_project_fetcher: Fetcher,  # noqa: F811
         mocker: MockerFixture,
         new_temporary_app_factory: NewTemporaryAppFactory,
     ) -> None:

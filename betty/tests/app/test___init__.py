@@ -123,13 +123,13 @@ class TestApp:
                 assert await cache_item.value() == binary_file_cache_item_value
 
             # Test that other services can be requested.
-            unpickled_sut.assets  # noqa B018
+            unpickled_sut.assets  # noqa: B018
             await unpickled_sut.localizer
-            unpickled_sut.localizers  # noqa B018
+            unpickled_sut.localizers  # noqa: B018
             await unpickled_sut.http_client
             await unpickled_sut.fetcher
-            unpickled_sut.process_pool  # noqa B018
-            unpickled_sut.multiprocessing_manager  # noqa B018
+            unpickled_sut.process_pool  # noqa: B018
+            unpickled_sut.multiprocessing_manager  # noqa: B018
             await unpickled_sut.spdx_license_repository
 
         await unpickled_sut.shutdown()

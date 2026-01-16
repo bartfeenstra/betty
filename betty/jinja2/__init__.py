@@ -283,7 +283,7 @@ class Environment(ProjectDependentFactory, Jinja2Environment):
                     parent: dict[str, Any],
                     name: str | None,
                     blocks: dict[str, Callable[[Context], Iterator[str]]],
-                    globals: MutableMapping[str, Any] | None = None,  # noqa A002
+                    globals: MutableMapping[str, Any] | None = None,  # noqa: A002
                 ):
                     if "citer" not in parent:
                         parent["citer"] = Citer()

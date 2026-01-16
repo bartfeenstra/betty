@@ -236,7 +236,7 @@ class TestRequiredStaticTranslationsLocalizableAttr:
 
     def test___get__(self) -> None:
         instance = self.Instance()
-        instance.attr  # noqa B018
+        instance.attr  # noqa: B018
 
     def test___set__(self) -> None:
         translation = "Hello, world!"
@@ -251,7 +251,7 @@ class TestOptionalStaticTranslationsLocalizableAttr:
 
     def test___get__(self) -> None:
         instance = self.Instance()
-        instance.attr  # noqa B018
+        instance.attr  # noqa: B018
 
     def test___set__(self) -> None:
         translation = "Hello, world!"
@@ -265,7 +265,7 @@ class TestOptionalStaticTranslationsLocalizableAttr:
         instance.attr = translation
         del instance.attr
         with pytest.raises(KeyError):
-            instance.attr[UNDETERMINED_LOCALE]  # noqa B018
+            instance.attr[UNDETERMINED_LOCALE]  # noqa: B018
 
 
 @pytest.mark.parametrize(

@@ -6,7 +6,7 @@ from betty.project import Project
 from betty.project.extension.demo import Demo
 from betty.project.extension.demo.project import create_project, load_ancestry
 from betty.test_utils.project.extension.demo.project import (
-    demo_project_fetcher,  # noqa F401
+    demo_project_fetcher,  # noqa: F401
 )
 
 if TYPE_CHECKING:
@@ -25,7 +25,7 @@ async def test_create_project(new_temporary_app: App, tmp_path: Path) -> None:
 
 
 async def test_load_ancestry(
-    demo_project_fetcher: Fetcher,  # noqa F811
+    demo_project_fetcher: Fetcher,  # noqa: F811
     new_temporary_app_factory: NewTemporaryAppFactory,
 ) -> None:
     async with (

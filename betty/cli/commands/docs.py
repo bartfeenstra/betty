@@ -1,13 +1,13 @@
-from __future__ import annotations  # noqa D100
+from __future__ import annotations  # noqa: D100
 
 import asyncio
-from typing import TYPE_CHECKING, final, Self
+from typing import TYPE_CHECKING, Self, final
 
 from typing_extensions import override
 
 from betty import documentation
 from betty.app.factory import AppDependentFactory
-from betty.cli.commands import command, Command
+from betty.cli.commands import Command, command
 from betty.locale.localizable import _
 from betty.plugin import ShorthandPluginBase
 

@@ -30,12 +30,12 @@ from betty.plugin import ShorthandPluginBase
 from betty.privacy import HasPrivacy, Privacy, merge_secondary_privacies
 
 if TYPE_CHECKING:
-    from betty.ancestry.has_citations import HasCitations  # noqa F401
-    from betty.model import Entity  # noqa F401
-    from betty.serde.dump import DumpMapping, Dump
-    from betty.project import Project
-    from betty.date import Datey
     from betty.ancestry.file_reference import FileReference
+    from betty.ancestry.has_citations import HasCitations  # noqa: F401
+    from betty.date import Datey
+    from betty.model import Entity  # noqa: F401
+    from betty.project import Project
+    from betty.serde.dump import Dump, DumpMapping
 
 
 @final
@@ -80,7 +80,7 @@ class Citation(
         self,
         *,
         source: ToOneAssociate[Source],
-        id: str | None = None,  # noqa A002  # noqa A002
+        id: str | None = None,  # noqa: A002  # noqa A002
         facts: ToManyAssociates[HasCitations & Entity] | None = None,
         location: ShorthandStaticTranslations | None = None,
         date: Datey | None = None,

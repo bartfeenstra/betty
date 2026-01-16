@@ -167,7 +167,7 @@ def main() -> Any:
     try:
         return run(_main())
     except KeyboardInterrupt:
-        print("Aborted!")  # noqa T201
+        print("Aborted!")  # noqa: T201
         sys.exit(1)
 
 

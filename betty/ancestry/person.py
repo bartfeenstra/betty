@@ -95,7 +95,7 @@ class Person(
     def __init__(
         self,
         *,
-        id: str | None = None,  # noqa A002
+        id: str | None = None,  # noqa: A002
         file_references: ToManyAssociates[FileReference] | None = None,
         citations: ToManyAssociates[Citation] | None = None,
         links: MutableSequence[Link] | None = None,

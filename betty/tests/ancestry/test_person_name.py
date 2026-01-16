@@ -34,7 +34,7 @@ class TestPersonName(EntityTestBase):
         ]
 
     def test___init___should_require_at_least_one_type_of_name(self) -> None:
-        with pytest.raises(ValueError):  # noqa PT011
+        with pytest.raises(ValueError):  # noqa: PT011
             PersonName(person=Person())
 
     async def test___init___with_citations(self) -> None:

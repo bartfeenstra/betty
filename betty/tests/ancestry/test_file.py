@@ -273,7 +273,7 @@ class TestFile(EntityTestBase):
 
     def test_get_mutable_instances(self) -> None:
         copyright_notice = PublicDomainCopyrightNotice()
-        license = PublicDomainLicense()  # noqa A001
+        license = PublicDomainLicense()  # noqa: A001
         sut = File(Path(__file__), copyright_notice=copyright_notice, license=license)
         sut.immutable()
         assert copyright_notice.is_immutable

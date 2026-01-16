@@ -112,7 +112,7 @@ class TestPerson(EntityTestBase):
         sut.presences.remove(presence)
         assert list(sut.presences) == []
         with pytest.raises(AssociationRequired):
-            presence.person  # noqa B018
+            presence.person  # noqa: B018
 
     async def test_names(self) -> None:
         sut = Person()
@@ -126,7 +126,7 @@ class TestPerson(EntityTestBase):
         sut.names.remove(name)
         assert list(sut.names) == []
         with pytest.raises(AssociationRequired):
-            name.person  # noqa B018
+            name.person  # noqa: B018
 
     async def test_id(self) -> None:
         person_id = "P1"

@@ -588,9 +588,9 @@ class ProjectConfiguration(Configuration):
         event_types: Iterable[PluginConfiguration] | None = None,
         place_types: Iterable[PluginConfiguration] | None = None,
         presence_roles: Iterable[PluginConfiguration] | None = None,
-        copyright_notice: PluginInstanceConfiguration | None = None,  # noqa A002
+        copyright_notice: PluginInstanceConfiguration | None = None,  # noqa: A002
         copyright_notices: Iterable[CopyrightNoticeConfiguration] | None = None,
-        license: PluginInstanceConfiguration | None = None,  # noqa A002
+        license: PluginInstanceConfiguration | None = None,  # noqa: A002
         licenses: Iterable[LicenseConfiguration] | None = None,
         genders: Iterable[PluginConfiguration] | None = None,
         extensions: Iterable[PluginInstanceConfiguration] | None = None,
@@ -662,9 +662,9 @@ class ProjectConfiguration(Configuration):
         event_types: Iterable[PluginConfiguration] | None = None,
         place_types: Iterable[PluginConfiguration] | None = None,
         presence_roles: Iterable[PluginConfiguration] | None = None,
-        copyright_notice: PluginInstanceConfiguration | None = None,  # noqa A002
+        copyright_notice: PluginInstanceConfiguration | None = None,  # noqa: A002
         copyright_notices: Iterable[CopyrightNoticeConfiguration] | None = None,
-        license: PluginInstanceConfiguration | None = None,  # noqa A002
+        license: PluginInstanceConfiguration | None = None,  # noqa: A002
         licenses: Iterable[LicenseConfiguration] | None = None,
         genders: Iterable[PluginConfiguration] | None = None,
         extensions: Iterable[PluginInstanceConfiguration] | None = None,

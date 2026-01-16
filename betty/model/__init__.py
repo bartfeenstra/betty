@@ -62,7 +62,7 @@ class NonPersistentId(str):
 
     __slots__ = ()
 
-    def __new__(cls, entity_id: str | None = None):  # noqa D102
+    def __new__(cls, entity_id: str | None = None):  # noqa: D102
         return super().__new__(cls, entity_id or str(uuid4()))
 
 
@@ -77,7 +77,7 @@ class Entity(LinkedDataDumpableJsonLdObject, Mutable, Plugin):
 
     def __init__(
         self,
-        id: str | None = None,  # noqa A002
+        id: str | None = None,  # noqa: A002
         *args: Any,
         **kwargs: Any,
     ):

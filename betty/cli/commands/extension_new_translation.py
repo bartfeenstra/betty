@@ -1,13 +1,13 @@
-from __future__ import annotations  # noqa D100
+from __future__ import annotations  # noqa: D100
 
-from typing import TYPE_CHECKING, final, Self
+from typing import TYPE_CHECKING, Self, final
 
 import asyncclick as click
 from typing_extensions import override
 
 from betty.app.factory import AppDependentFactory
 from betty.assertion import assert_locale_identifier
-from betty.cli.commands import command, parameter_callback, Command
+from betty.cli.commands import Command, command, parameter_callback
 from betty.locale import translation
 from betty.locale.localizable import _
 from betty.locale.translation import assert_extension_has_assets_directory_path
@@ -63,7 +63,7 @@ class ExtensionNewTranslation(ShorthandPluginBase, AppDependentFactory, Command)
             required=True,
             callback=parameter_callback(assert_locale_identifier()),
         )
-        async def extension_new_translation(  # noqa D103
+        async def extension_new_translation(  # noqa: D103
             extension: type[Extension], locale: str
         ) -> None:
             await translation.new_extension_translation(locale, extension)

@@ -33,7 +33,7 @@ from betty.privacy import HasPrivacy, Privacy, merge_privacies
 if TYPE_CHECKING:
     from collections.abc import Iterator, MutableSequence
 
-    from betty.ancestry.citation import Citation  # noqa F401
+    from betty.ancestry.citation import Citation  # noqa: F401
     from betty.ancestry.file_reference import FileReference
     from betty.ancestry.note import Note
     from betty.date import Datey
@@ -100,7 +100,7 @@ class Source(
         self,
         name: ShorthandStaticTranslations | None = None,
         *,
-        id: str | None = None,  # noqa A002  # noqa A002
+        id: str | None = None,  # noqa: A002  # noqa A002
         author: ShorthandStaticTranslations | None = None,
         publisher: ShorthandStaticTranslations | None = None,
         contained_by: ToZeroOrOneAssociate[Source] = None,

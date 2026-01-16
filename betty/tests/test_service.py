@@ -367,7 +367,7 @@ class TestServiceManager:
             )
 
     async def test___get____with_class_attr(self) -> None:
-        _AsynchronousServiceProvider.my_first_asynchronous_service  # noqa B018
+        _AsynchronousServiceProvider.my_first_asynchronous_service  # noqa: B018
 
     async def test___get____with_instance_attr_with_asynchronous_method(self) -> None:
         service = object()

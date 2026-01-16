@@ -1,7 +1,7 @@
-from __future__ import annotations  # noqa D100
+from __future__ import annotations  # noqa: D100
 
 from logging import getLogger
-from typing import TYPE_CHECKING, final, Self
+from typing import TYPE_CHECKING, Self, final
 
 import asyncclick as click
 from typing_extensions import override
@@ -9,7 +9,7 @@ from typing_extensions import override
 from betty.app import config as app_config
 from betty.app.config import AppConfiguration
 from betty.app.factory import AppDependentFactory
-from betty.cli.commands import command, Command
+from betty.cli.commands import Command, command
 from betty.config import write_configuration_file
 from betty.locale import DEFAULT_LOCALE, get_display_name
 from betty.locale.localizable import _

@@ -97,7 +97,7 @@ class Event(
     def __init__(
         self,
         *,
-        id: str | None = None,  # noqa A002
+        id: str | None = None,  # noqa: A002
         event_type: EventType | None = None,
         date: Datey | None = None,
         file_references: ToManyAssociates[FileReference] | None = None,

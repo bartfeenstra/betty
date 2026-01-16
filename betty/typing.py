@@ -131,7 +131,7 @@ class Void:
     ``Void`` is only ever used through its type, and never instantiated.
     """
 
-    def __new__(cls):  # pragma: no cover  # noqa D102
+    def __new__(cls):  # pragma: no cover  # noqa: D102
         raise RuntimeError("The Void sentinel cannot be instantiated.")
 
 

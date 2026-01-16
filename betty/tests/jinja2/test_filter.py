@@ -371,7 +371,7 @@ async def test_filter_image_resize_cover__with_pdf(tmp_path: Path) -> None:
 async def test_filter_image_resize_cover__with_invalid_image(tmp_path: Path) -> None:
     file_path = tmp_path / "not-an-image.txt"
     file_path.touch()
-    with pytest.raises(ValueError):  # noqa PT011
+    with pytest.raises(ValueError):  # noqa: PT011
         async with assert_template_string(
             template="{{ filey | image_resize_cover }}",
             data={
@@ -388,7 +388,7 @@ async def test_filter_image_resize_cover__with_invalid_image(tmp_path: Path) -> 
 async def test_filter_image_resize_cover__with_file_without_media_type(
     tmp_path: Path,
 ) -> None:
-    with pytest.raises(ValueError):  # noqa PT011
+    with pytest.raises(ValueError):  # noqa: PT011
         async with assert_template_string(
             template="{{ filey | image_resize_cover }}",
             data={

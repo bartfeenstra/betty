@@ -92,7 +92,7 @@ class TestEvent(EntityTestBase):
         sut.presences.remove(presence)
         assert list(sut.presences) == []
         with pytest.raises(AssociationRequired):
-            presence.event  # noqa B018
+            presence.event  # noqa: B018
 
     async def test_date(self) -> None:
         sut = Event(event_type=UnknownEventType())

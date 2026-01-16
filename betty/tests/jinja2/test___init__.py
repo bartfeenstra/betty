@@ -167,7 +167,7 @@ class TestJinja2Renderer(PluginTestBase[Jinja2Renderer]):
     async def test_file_extensions(self, new_temporary_app: App) -> None:
         async with Project.new_temporary(new_temporary_app) as project, project:
             sut = await Jinja2Renderer.new_for_project(project)
-            sut.file_extensions  # noqa B018
+            sut.file_extensions  # noqa: B018
 
 
 class DummyHasFileReferencesEntity(HasFileReferences, DummyEntity):

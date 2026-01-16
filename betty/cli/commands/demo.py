@@ -1,17 +1,18 @@
-from __future__ import annotations  # noqa D100
+from __future__ import annotations  # noqa: D100
 
 import asyncio
 from pathlib import Path
-from typing import TYPE_CHECKING, final, Self
+from typing import TYPE_CHECKING, Self, final
 
 import asyncclick as click
+from typing_extensions import override
+
+import betty.project.extension.demo as stddemo
 from betty.app.factory import AppDependentFactory
-from betty.cli.commands import command, Command
+from betty.cli.commands import Command, command
 from betty.locale.localizable import _
 from betty.plugin import ShorthandPluginBase
-import betty.project.extension.demo as stddemo
 from betty.project.extension.demo.project import create_project
-from typing_extensions import override
 
 if TYPE_CHECKING:
     from betty.app import App
