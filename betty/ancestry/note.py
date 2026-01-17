@@ -44,8 +44,6 @@ class Note(HasPrivacy, HasLinks, HasMediaType):
     """
 
     entity = BidirectionalToZeroOrOne["Note", "HasNotes"](
-        "betty.ancestry.note:Note",
-        "entity",
         "betty.ancestry.has_notes:HasNotes",
         "notes",
         title="Entity",

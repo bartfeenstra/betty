@@ -19,8 +19,6 @@ class HasLinks(Entity):
     """
 
     links = BidirectionalToManySingleType["HasLinks", "Link"](
-        "betty.ancestry.has_links:HasLinks",
-        "links",
         "betty.ancestry.link:Link",
         "owner",
         title="Links",

@@ -17,8 +17,6 @@ class HasNotes(Entity):
     """
 
     notes = BidirectionalToManySingleType["HasNotes", Note](
-        "betty.ancestry.has_notes:HasNotes",
-        "notes",
         "betty.ancestry.note:Note",
         "entity",
         title="Notes",

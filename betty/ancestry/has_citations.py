@@ -19,8 +19,6 @@ class HasCitations(Entity):
     """
 
     citations = BidirectionalToManySingleType["HasCitations", "Citation"](
-        "betty.ancestry.has_citations:HasCitations",
-        "citations",
         "betty.ancestry.citation:Citation",
         "facts",
         title="Citations",

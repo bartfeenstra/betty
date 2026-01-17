@@ -53,8 +53,6 @@ class Link(HasMediaType, HasDescription, HasPrivacy, Entity):
     """
 
     owner = BidirectionalToZeroOrOne["Link", "HasLinks"](
-        "betty.ancestry.link:Link",
-        "owner",
         "betty.ancestry.has_links:HasLinks",
         "links",
         title="Owner",

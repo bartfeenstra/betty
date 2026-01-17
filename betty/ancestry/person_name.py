@@ -40,8 +40,6 @@ class PersonName(HasLocale, HasCitations, HasPrivacy, Entity):
     """
 
     person = BidirectionalToOne["PersonName", "Person"](
-        "betty.ancestry.person_name:PersonName",
-        "person",
         "betty.ancestry.person:Person",
         "names",
         title="Person",

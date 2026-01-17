@@ -22,7 +22,7 @@ from urllib.parse import quote
 
 from typing_extensions import override
 
-from betty.importlib import import_any
+from betty.importlib import fully_qualified_name, import_any
 from betty.json.linked_data import LinkedDataDumpableProvider
 from betty.json.schema import Array, Null, OneOf, Schema
 from betty.model import Entity, persistent_id
@@ -64,7 +64,7 @@ class AssociationRequired(RuntimeError):
 
     def __init__(self, association: _Association[_OwnerT, Any], owner: _OwnerT, /):
         super().__init__(
-            f"Association {association._owner_type_name}.{association.owner_attr_name} is required, but missing for {owner}."
+            f"Association {fully_qualified_name(association.owner_type)}.{association.owner_attr_name} is required, but missing for {owner}."
         )
 
 
@@ -138,23 +138,27 @@ class TemporaryToManyResolver(
 
 
 class _Association(LinkedDataDumpableProvider[_OwnerT], Generic[_OwnerT, _AssociateT]):
+    _owner_type: type[_OwnerT]
+    _owner_attr_name: str
+    _internal_owner_attr_name: str
+
     def __init__(
         self,
-        owner_type_name: str,
-        owner_attr_name: str,
         associate_type_name: str,
         *,
         title: str | None = None,
         description: str | None = None,
         linked_data_embedded: bool = False,
     ):
-        self._owner_type_name = owner_type_name
-        self._owner_attr_name = owner_attr_name
-        self._internal_owner_attr_name = f"_{owner_attr_name}"
         self._associate_type_name = associate_type_name
         self._linked_data_embedded = linked_data_embedded
         self._title = title
         self._description = description
+
+    def __set_name__(self, owner: type[_OwnerT], name: str) -> None:
+        self._owner_type = owner
+        self._owner_attr_name = name
+        self._internal_owner_attr_name = f"_{name}"
         AssociationRegistry._register(self)
 
     @override
@@ -162,7 +166,7 @@ class _Association(LinkedDataDumpableProvider[_OwnerT], Generic[_OwnerT, _Associ
         return hash(
             (
                 type(self),
-                self._owner_type_name,
+                self._owner_type,
                 self._owner_attr_name,
                 self._associate_type_name,
                 self._linked_data_embedded,
@@ -178,10 +182,7 @@ class _Association(LinkedDataDumpableProvider[_OwnerT], Generic[_OwnerT, _Associ
 
         This may be an abstract class.
         """
-        return cast(
-            "type[_OwnerT]",
-            import_any(self._owner_type_name),
-        )
+        return self._owner_type
 
     @property
     def owner_attr_name(self) -> str:
@@ -455,8 +456,6 @@ class _BidirectionalAssociation(
 ):
     def __init__(
         self,
-        owner_type_name: str,
-        owner_attr_name: str,
         associate_type_name: str,
         associate_attr_name: str,
         *,
@@ -466,8 +465,6 @@ class _BidirectionalAssociation(
     ):
         self._associate_attr_name = associate_attr_name
         super().__init__(
-            owner_type_name,
-            owner_attr_name,
             associate_type_name,
             title=title,
             description=description,
@@ -704,7 +701,7 @@ class AssociationRegistry:
             if association.owner_attr_name == owner_attr_name:
                 return association
         raise ValueError(
-            f"No association exists for {owner if isinstance(owner, type) else owner.__class__}.{owner_attr_name}."
+            f"No association exists for {fully_qualified_name(owner if isinstance(owner, type) else type(owner))}.{owner_attr_name}."
         )
 
     @classmethod

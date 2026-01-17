@@ -58,8 +58,6 @@ class File(
     """
 
     referees = BidirectionalToManyMultipleTypes["File", "FileReference"](
-        "betty.ancestry.file:File",
-        "referees",
         "betty.ancestry.file_reference:FileReference",
         "file",
         title="Referees",

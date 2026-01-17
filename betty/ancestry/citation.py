@@ -53,8 +53,6 @@ class Citation(HasDate, HasFileReferences, HasPrivacy, HasLinks):
     """
 
     facts = BidirectionalToManyMultipleTypes["Citation", "HasCitations"](
-        "betty.ancestry.citation:Citation",
-        "facts",
         "betty.ancestry.has_citations:HasCitations",
         "citations",
         title="Facts",
@@ -65,8 +63,6 @@ class Citation(HasDate, HasFileReferences, HasPrivacy, HasLinks):
     """
 
     source = BidirectionalToOne["Citation", Source](
-        "betty.ancestry.citation:Citation",
-        "source",
         "betty.ancestry.source:Source",
         "citations",
         title="Source",

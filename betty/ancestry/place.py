@@ -50,8 +50,6 @@ class Place(HasLinks, HasFileReferences, HasNotes, HasPrivacy):
     """
 
     events = BidirectionalToManySingleType["Place", "Event"](
-        "betty.ancestry.place:Place",
-        "events",
         "betty.ancestry.event:Event",
         "place",
         title="Events",
@@ -62,8 +60,6 @@ class Place(HasLinks, HasFileReferences, HasNotes, HasPrivacy):
     """
 
     enclosers = BidirectionalToManySingleType["Place", "Enclosure"](
-        "betty.ancestry.place:Place",
-        "encloser",
         "betty.ancestry.enclosure:Enclosure",
         "enclosee",
         title="Enclosers",
@@ -75,8 +71,6 @@ class Place(HasLinks, HasFileReferences, HasNotes, HasPrivacy):
     """
 
     enclosees = BidirectionalToManySingleType["Place", "Enclosure"](
-        "betty.ancestry.place:Place",
-        "enclosee",
         "betty.ancestry.enclosure:Enclosure",
         "encloser",
         title="Enclosees",

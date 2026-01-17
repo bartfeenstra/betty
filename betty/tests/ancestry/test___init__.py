@@ -38,8 +38,6 @@ class _TestAncestry_OneToOne_Left(Entity):
     one_right = BidirectionalToZeroOrOne[
         "_TestAncestry_OneToOne_Left", "_TestAncestry_OneToOne_Right"
     ](
-        "betty.tests.ancestry.test___init__:_TestAncestry_OneToOne_Left",
-        "one_right",
         "betty.tests.ancestry.test___init__:_TestAncestry_OneToOne_Right",
         "one_left",
     )
@@ -55,8 +53,6 @@ class _TestAncestry_OneToOne_Right(Entity):
     one_left = BidirectionalToZeroOrOne[
         "_TestAncestry_OneToOne_Right", _TestAncestry_OneToOne_Left
     ](
-        "betty.tests.ancestry.test___init__:_TestAncestry_OneToOne_Right",
-        "one_left",
         "betty.tests.ancestry.test___init__:_TestAncestry_OneToOne_Left",
         "one_right",
     )

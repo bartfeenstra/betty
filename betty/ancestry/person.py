@@ -53,8 +53,6 @@ class Person(HasFileReferences, HasCitations, HasNotes, HasLinks, HasPrivacy):
 
     parents = BidirectionalToManySingleType["Person", "Person"](
         "betty.ancestry.person:Person",
-        "parents",
-        "betty.ancestry.person:Person",
         "children",
         title="Parents",
     )
@@ -64,8 +62,6 @@ class Person(HasFileReferences, HasCitations, HasNotes, HasLinks, HasPrivacy):
 
     children = BidirectionalToManySingleType["Person", "Person"](
         "betty.ancestry.person:Person",
-        "children",
-        "betty.ancestry.person:Person",
         "parents",
         title="Children",
     )
@@ -74,8 +70,6 @@ class Person(HasFileReferences, HasCitations, HasNotes, HasLinks, HasPrivacy):
     """
 
     presences = BidirectionalToManySingleType["Person", "Presence"](
-        "betty.ancestry.person:Person",
-        "presences",
         "betty.ancestry.presence:Presence",
         "person",
         title="Presences",
@@ -87,8 +81,6 @@ class Person(HasFileReferences, HasCitations, HasNotes, HasLinks, HasPrivacy):
     """
 
     names = BidirectionalToManySingleType["Person", "PersonName"](
-        "betty.ancestry.person:Person",
-        "names",
         "betty.ancestry.person_name:PersonName",
         "person",
         title="Names",
