@@ -44,8 +44,8 @@ class Link(HasMediaType, HasDescription, HasPrivacy, Entity):
     .. plugin:: entity:link.
     """
 
-    _url = RequiredLocalizableAttr("_url")
-    _label = OptionalLocalizableAttr("_label")
+    _url = RequiredLocalizableAttr()
+    _label = OptionalLocalizableAttr()
 
     relationship: str | None
     """

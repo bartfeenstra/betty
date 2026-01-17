@@ -137,8 +137,8 @@ class HumanFacingPluginDefinitionConfiguration(PluginDefinitionConfiguration):
     .. configuration:: betty.plugin.config:HumanFacingPluginDefinitionConfiguration
     """
 
-    label = RequiredLocalizableAttr("label")
-    description = OptionalLocalizableAttr("description")
+    label = RequiredLocalizableAttr()
+    description = OptionalLocalizableAttr()
 
     def __init__(
         self,
@@ -206,8 +206,8 @@ class CountableHumanFacingPluginDefinitionConfiguration(
     .. configuration:: betty.plugin.config:CountableHumanFacingPluginDefinitionConfiguration
     """
 
-    label_plural = RequiredLocalizableAttr("label_plural")
-    label_countable = RequiredCountableLocalizableAttr("label_countable")
+    label_plural = RequiredLocalizableAttr()
+    label_countable = RequiredCountableLocalizableAttr()
 
     def __init__(
         self,

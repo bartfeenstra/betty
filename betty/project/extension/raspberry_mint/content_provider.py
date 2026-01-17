@@ -86,7 +86,7 @@ class SectionConfiguration(Configuration):
     .. configuration:: betty.project.extension.raspberry_mint.content_provider:SectionConfiguration
     """
 
-    heading = RequiredLocalizableAttr("heading")
+    heading = RequiredLocalizableAttr()
 
     def __init__(
         self,

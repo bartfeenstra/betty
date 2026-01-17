@@ -29,7 +29,7 @@ class HasDescription(LinkedDataDumpableWithSchemaJsonLdObject):
     A resource with a description.
     """
 
-    description = OptionalLocalizableAttr("description")
+    description = OptionalLocalizableAttr()
     """
     The description.
     """

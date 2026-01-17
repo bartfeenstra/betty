@@ -3,7 +3,7 @@ Object attribute tools.
 """
 
 from abc import abstractmethod
-from typing import Generic, Self, TypeVar, cast, final, overload
+from typing import Any, Generic, Self, TypeVar, cast, final, overload
 
 from typing_extensions import override
 
@@ -15,8 +15,10 @@ _OwnerT = TypeVar("_OwnerT")
 
 
 class _Attr(Generic[_ValueT]):
-    def __init__(self, attr_name: str, /):
-        self._attr_name = f"_{attr_name}"
+    _attr_name: str
+
+    def __set_name__(self, owner: type[Any], name: str) -> None:
+        self._attr_name = f"_{name}"
 
     @overload
     def __get__(self, instance: None, owner: type[object], /) -> Self:

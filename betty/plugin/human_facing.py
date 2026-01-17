@@ -33,8 +33,8 @@ class HumanFacingPluginDefinition(PluginDefinition[_BaseClsCoT]):
     A definition of a plugin that is human-facing.
     """
 
-    _label = RequiredLocalizableAttr("_label")
-    _description = OptionalLocalizableAttr("_description")
+    _label = RequiredLocalizableAttr()
+    _description = OptionalLocalizableAttr()
 
     def __init__(
         self,

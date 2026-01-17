@@ -69,7 +69,7 @@ class Event(
     .. plugin:: entity:event.
     """
 
-    name = OptionalLocalizableAttr("required")
+    name = OptionalLocalizableAttr()
     """
     The event's name, if it has any.
     """
