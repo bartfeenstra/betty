@@ -5,12 +5,12 @@ The Configuration API.
 from __future__ import annotations
 
 from abc import ABC, abstractmethod
-from typing import TYPE_CHECKING, Any, Generic, Self, TypeVar
+from typing import TYPE_CHECKING, Any, Generic, Self
 
-from typing_extensions import override
+from typing_extensions import TypeVar, override
 
 from betty.locale.localizable.ensure import ensure_localizable
-from betty.portable import Portable
+from betty.portable import Portable, PortableData
 
 if TYPE_CHECKING:
     from collections.abc import Iterable
@@ -18,8 +18,10 @@ if TYPE_CHECKING:
     from betty.locale.localizable import Localizable, LocalizableLike
     from betty.service.level.factory import AnyFactoryTarget
 
+_PortableDataT = TypeVar("_PortableDataT", bound=PortableData, default=PortableData)
 
-class Configuration(Portable):
+
+class Configuration(Portable, Generic[_PortableDataT]):
     """
     Any configuration object.
     """
@@ -39,7 +41,7 @@ class Configuration(Portable):
         return None
 
     @classmethod
-    def samples(cls) -> Iterable[Sample[Self]]:
+    def samples(cls) -> Iterable[Sample[Self]]:  # type: ignore[type-var]
         """
         Create samples for this configuration.
         """
