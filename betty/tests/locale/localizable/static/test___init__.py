@@ -3,7 +3,6 @@ from gettext import NullTranslations
 import pytest
 from babel import Locale
 
-from betty.exception import HumanFacingException
 from betty.locale import DEFAULT_LOCALE, DEFAULT_LOCALE_TAG, ensure_locale
 from betty.locale.localizable import (
     LocalizableCount,
@@ -21,7 +20,6 @@ from betty.locale.localizable.static import (
     StaticTranslations,
 )
 from betty.locale.localize import Localizer
-from betty.test_utils.exception import assert_error
 
 
 class TestStaticTranslations:
@@ -107,7 +105,7 @@ class TestStaticTranslations:
 
 class TestCountableStaticTranslations:
     async def test___init____with_missing_placeholder(self) -> None:
-        with pytest.raises(HumanFacingException) as exc_info:
+        with pytest.raises(MissingPluralPlaceholder):
             CountableStaticTranslations(
                 {
                     "en-US": {
@@ -116,26 +114,24 @@ class TestCountableStaticTranslations:
                     },
                 }
             )
-        assert_error(exc_info.value, error_type=MissingPluralPlaceholder)
 
     async def test___init____with_invalid_plural_tag(self) -> None:
         invalid_plural_tag = "invalid-tag"
 
-        with pytest.raises(HumanFacingException) as exc_info:
+        with pytest.raises(InvalidPluralTag) as exc_info:
             CountableStaticTranslations(
                 {
                     "en-US": {
-                        invalid_plural_tag: "???",
+                        invalid_plural_tag: "{count}",
                         "one": "{count} hello, world!",
                         "other": "{count} hello, worlds!",
                     },
                 }
             )
-        for error in assert_error(exc_info.value, error_type=InvalidPluralTag):
-            assert invalid_plural_tag in str(error)
+        assert invalid_plural_tag in str(exc_info.value)
 
     async def test___init____with_missing_plural_tag(self) -> None:
-        with pytest.raises(HumanFacingException) as exc_info:
+        with pytest.raises(MissingPluralTag) as exc_info:
             CountableStaticTranslations(
                 {
                     "en-US": {
@@ -143,8 +139,7 @@ class TestCountableStaticTranslations:
                     },
                 }
             )
-        for error in assert_error(exc_info.value, error_type=MissingPluralTag):
-            assert "other" in str(error)
+        assert "other" in str(exc_info.value)
 
     async def test_translations(self) -> None:
         sut = CountableStaticTranslations(

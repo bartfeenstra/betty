@@ -29,10 +29,10 @@ from typing import (
 
 from betty.data.indicator.selector import Index, Key
 from betty.error import FileNotFound
-from betty.exception import HumanFacingException, HumanFacingExceptionGroup
+from betty.exception import HumanFacingException, reraise_with_indicator
 from betty.locale import from_language_tag
 from betty.locale.localizable.gettext import _
-from betty.locale.localizable.markup import Paragraph, do_you_mean
+from betty.locale.localizable.markup import Paragraph, Paragraphs, do_you_mean
 from betty.typing import internal
 
 if TYPE_CHECKING:
@@ -193,13 +193,13 @@ def assert_or(
 
     def _assert_or(value: Any, /) -> _AssertionReturnT | _AssertionReturnU:
         assertions = (if_assertion, else_assertion)
-        errors = HumanFacingExceptionGroup()
+        errors = []
         for assertion in assertions:
             try:
                 return assertion(value)
             except HumanFacingException as e:
                 errors.append(e)
-        raise errors
+        raise HumanFacingException(Paragraphs(*errors))
 
     return AssertionChain(_assert_or)
 
@@ -324,10 +324,9 @@ def assert_sequence(
         if value_assertion is None:
             return list(sequence)
         asserted_sequence = []
-        with HumanFacingExceptionGroup() as errors:
-            for value_index, value_value in enumerate(sequence):
-                with errors.absorb(Index(value_index)):
-                    asserted_sequence.append(value_assertion(value_value))
+        for value_index, value_value in enumerate(sequence):
+            with reraise_with_indicator(Index(value_index)):
+                asserted_sequence.append(value_assertion(value_value))
         return asserted_sequence
 
     return AssertionChain(_assert_sequence)
@@ -381,17 +380,16 @@ def assert_mapping(
         if value_assertion is None and key_assertion is None:
             return dict(mapping)
         asserted_mapping = {}
-        with HumanFacingExceptionGroup() as errors:
-            for value_key, value_value in mapping.items():
-                asserted_value_key = value_key
-                if key_assertion:
-                    with errors.absorb(Key(value_key)):
-                        asserted_value_key = key_assertion(value_key)
-                asserted_value_value = value_value
-                if value_assertion:
-                    with errors.absorb(Key(value_key)):
-                        asserted_value_value = value_assertion(value_value)
-                asserted_mapping[asserted_value_key] = asserted_value_value
+        for value_key, value_value in mapping.items():
+            asserted_value_key = value_key
+            if key_assertion:
+                with reraise_with_indicator(Key(str(value_key))):
+                    asserted_value_key = key_assertion(value_key)
+            asserted_value_value = value_value
+            if value_assertion:
+                with reraise_with_indicator(Key(str(value_key))):
+                    asserted_value_value = value_assertion(value_value)
+            asserted_mapping[asserted_value_key] = asserted_value_value
         return asserted_mapping
 
     return AssertionChain(_assert_mapping)
@@ -412,30 +410,27 @@ def assert_record(
         known_keys = {x.name for x in fields}
         unknown_keys = set(value.keys()) - known_keys
         record: MutableMapping[str, Any] = {}
-        with HumanFacingExceptionGroup() as errors:
-            if not allow_extra:
-                for unknown_key in unknown_keys:
-                    with errors.absorb(Key(unknown_key)):
-                        raise HumanFacingException(
-                            Paragraph(
-                                _("Unknown key: {unknown_key}.").format(
-                                    unknown_key=f'"{unknown_key}"'
-                                ),
-                                do_you_mean(*(f'"{x}"' for x in sorted(known_keys))),
-                            )
+        if not allow_extra:
+            for unknown_key in unknown_keys:
+                with reraise_with_indicator(Key(unknown_key)):
+                    raise HumanFacingException(
+                        Paragraph(
+                            _("Unknown key: {unknown_key}.").format(
+                                unknown_key=f'"{unknown_key}"'
+                            ),
+                            do_you_mean(*(f'"{x}"' for x in sorted(known_keys))),
                         )
-            for field in fields:
-                with errors.absorb(Key(field.name)):
-                    if field.name in value:
-                        record[
-                            field.name if field.as_name is None else field.as_name
-                        ] = (
-                            field.assertion(value[field.name])
-                            if field.assertion
-                            else value[field.name]
-                        )
-                    elif isinstance(field, RequiredField):
-                        raise HumanFacingException(_("This field is required."))
+                    )
+        for field in fields:
+            with reraise_with_indicator(Key(field.name)):
+                if field.name in value:
+                    record[field.name if field.as_name is None else field.as_name] = (
+                        field.assertion(value[field.name])
+                        if field.assertion
+                        else value[field.name]
+                    )
+                elif isinstance(field, RequiredField):
+                    raise HumanFacingException(_("This field is required."))
         return record
 
     return assert_mapping() | _assert_record

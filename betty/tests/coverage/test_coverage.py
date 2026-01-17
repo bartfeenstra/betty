@@ -195,9 +195,6 @@ _BASELINE: Mapping[str, _ModuleIgnore] = {
         "HumanFacingException": {
             "indicators": MissingReason.COVERED_ELSEWHERE,
         },
-        "HumanFacingExceptionGroup": {
-            "invalid": MissingReason.COVERED_ELSEWHERE,
-        },
     },
     "betty/factory.py": {
         "Factory": MissingReason.PROTOCOL,

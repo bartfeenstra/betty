@@ -18,7 +18,7 @@ from geopy import Point
 from betty.assertion import assert_float, assert_mapping, assert_str
 from betty.data.indicator import Url
 from betty.data.indicator.selector import Index, Key, Selectors
-from betty.exception import HumanFacingException, HumanFacingExceptionGroup
+from betty.exception import HumanFacingException, reraise_with_indicator
 from betty.hashid import hashid
 from betty.locale.localizable.gettext import _
 from betty.media_type import MediaType
@@ -87,10 +87,9 @@ class Client:
         self._user = user
 
     @contextmanager
-    def _absorb(self, url: str) -> Iterator[HumanFacingExceptionGroup]:
+    def _human_facing_exception_to_client_error(self) -> Iterator[None]:
         try:
-            with HumanFacingExceptionGroup() as errors, errors.absorb(Url(url)):
-                yield errors
+            yield
         except HumanFacingException as error:
             raise ClientError(error) from error
 
@@ -114,7 +113,10 @@ class Client:
 
     async def _get_query_api_data(self, url: str) -> Mapping[str, Any]:
         data = await self._get_json(url)
-        with self._absorb(url):
+        with (
+            self._human_facing_exception_to_client_error(),
+            reraise_with_indicator(Url(url)),
+        ):
             return Selectors(Key("query"), Key("pages"), Index(0)).get(
                 data, assert_mapping(None, assert_str())
             )
@@ -148,7 +150,10 @@ class Client:
         """
         url = f"https://{page_language}.wikipedia.org/api/rest_v1/page/summary/{page_name}"
 
-        with self._absorb(url):
+        with (
+            self._human_facing_exception_to_client_error(),
+            reraise_with_indicator(Url(url)),
+        ):
             api_data = await self._get_json(url)
 
             title = Selectors(Key("titles"), Key("normalized")).get(
@@ -182,11 +187,14 @@ class Client:
         image_info_api_data = await self._get_query_api_data(url)
 
         image_info_selectors = (Key("imageinfo"), Index(0))
-        with self._absorb(url) as errors:
+        with (
+            self._human_facing_exception_to_client_error(),
+            reraise_with_indicator(Url(url)),
+        ):
             image_info = Selectors(*image_info_selectors).get(
                 image_info_api_data, assert_mapping()
             )
-            with errors.absorb(*image_info_selectors):
+            with reraise_with_indicator(*image_info_selectors):
                 image_url = Key("url").get(image_info, assert_str())
                 image_media_type = Key("mime").get(image_info, MediaType)
                 image_title = Key("canonicaltitle").get(image_info, assert_str())
@@ -225,7 +233,10 @@ class Client:
             # There may not be any coordinates.
             return None
 
-        with self._absorb(url):
+        with (
+            self._human_facing_exception_to_client_error(),
+            reraise_with_indicator(Url(url)),
+        ):
             globe = Key("globe").get(coordinates, assert_str())
             if globe != "earth":
                 return None
