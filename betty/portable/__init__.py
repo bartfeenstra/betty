@@ -8,7 +8,7 @@ from __future__ import annotations
 
 from abc import ABC, abstractmethod
 from collections.abc import MutableMapping, MutableSequence
-from typing import Self, TypeAlias
+from typing import Generic, Self, TypeAlias
 
 from typing_extensions import TypeVar
 
@@ -45,7 +45,7 @@ Keys are strings.
 """
 
 
-class Portable(ABC):
+class Portable(ABC, Generic[_PortableDataT]):
     """
     A class that can be dumped to and loaded from portable data.
     """
@@ -60,7 +60,7 @@ class Portable(ABC):
         """
 
     @abstractmethod
-    def dump(self) -> PortableData:
+    def dump(self) -> _PortableDataT:
         """
         Produce a portable data dump of ``self``.
 

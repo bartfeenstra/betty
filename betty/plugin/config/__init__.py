@@ -350,7 +350,7 @@ class PluginDefinitionConfigurationMapping(
         return portable_item, cast(str, portable_item.pop("id"))
 
 
-class PluginInstanceConfiguration(Generic[_PluginDefinitionT, _PluginT], Configuration):
+class PluginInstanceConfiguration(Configuration, Generic[_PluginDefinitionT, _PluginT]):
     """
     Configure a single plugin instance.
 

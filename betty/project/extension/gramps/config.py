@@ -47,7 +47,7 @@ _assert_gramps_type = assert_str(minimum_length=1)
 
 
 @internal
-class PluginMapping(Generic[_PluginDefinitionT, _PluginT], Configuration):
+class PluginMapping(Configuration, Generic[_PluginDefinitionT, _PluginT]):
     """
     Map Gramps types to Betty plugin instances.
 
