@@ -7,7 +7,7 @@ Helpful commands
     Build the npm components of the development environment.
 ``./bin/build-dev-pip.py``
     Build the pip components of the development environment. This **should** be run within a Python virtual environment.
-``./bin/build-setuptools.py``
+``./bin/build-package.py``
     Build setuptools packages.
 ``./bin/clean-build.py``
     Clean build artifacts.
@@ -15,7 +15,7 @@ Helpful commands
     Automatically fix as many problems as possible.
 ``./bin/test.py``
     Run all tests.
-``./bin/test-build-setuptools.py``
+``./bin/test-build-package.py``
     Test building setuptools packages.
 ``./bin/test-eslint.py``
     Run `ESLint <https://eslint.org/>`_ tests.

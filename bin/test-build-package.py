@@ -11,7 +11,7 @@ from tempfile import TemporaryDirectory
 print("Running Setuptools...")  # noqa: T201
 
 VERSION = "0.0.0a0"
-check_call([sys.executable, path.join("bin", "build-setuptools.py"), VERSION])
+check_call([sys.executable, path.join("bin", "build-package.py"), VERSION])
 wheel_path = f"dist/betty-{VERSION}-py3-none-any.whl"
 venv_bin = "Scripts" if sys.platform.startswith("win32") else "bin"
 with TemporaryDirectory() as working_directory_path_str:

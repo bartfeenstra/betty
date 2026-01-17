@@ -21,4 +21,4 @@ if "BETTY_TEST_SKIP_TSC" not in environ or not environ["BETTY_TEST_SKIP_TSC"]:
 if "BETTY_TEST_SKIP_ESLINT" not in environ or not environ["BETTY_TEST_SKIP_ESLINT"]:
     check_call([sys.executable, path.join("bin", "test-eslint.py")])
 check_call([sys.executable, path.join("bin", "test-pytest.py")])
-check_call([sys.executable, path.join("bin", "test-build-setuptools.py")])
+check_call([sys.executable, path.join("bin", "test-build-package.py")])
