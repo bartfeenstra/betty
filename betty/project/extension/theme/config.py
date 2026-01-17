@@ -13,7 +13,7 @@ from betty.assertion import assert_len, assert_mapping, assert_str
 from betty.config import Configuration, Sample
 from betty.content_provider import ContentProvider, ContentProviderDefinition
 from betty.data.indicator.selector import Key
-from betty.exception import HumanFacingException, HumanFacingExceptionGroup
+from betty.exception import HumanFacingException, reraise_with_indicator
 from betty.locale.localizable.gettext import _
 from betty.locale.localizable.markup import Paragraph, do_you_mean
 from betty.plugin.config import (
@@ -83,13 +83,12 @@ class RegionalContentConfiguration(Configuration):
                 ContentProviderDefinition, ContentProvider
             ],
         ] = {}
-        with HumanFacingExceptionGroup() as errors:
-            for region, region_dump in portable.items():
-                with errors.absorb(Key(region)):
-                    assert_len(minimum=1)(region_dump)
-                    content[region] = PluginInstanceConfigurationSequence[
-                        ContentProviderDefinition, ContentProvider
-                    ].load(region_dump)
+        for region, region_dump in portable.items():
+            with reraise_with_indicator(Key(region)):
+                assert_len(minimum=1)(region_dump)
+                content[region] = PluginInstanceConfigurationSequence[
+                    ContentProviderDefinition, ContentProvider
+                ].load(region_dump)
         return cls(content)
 
     @override
@@ -110,23 +109,22 @@ class RegionalContentConfiguration(Configuration):
         """
         Validate the configuration against runtime information.
         """
-        with HumanFacingExceptionGroup() as errors:
-            for region in self._content:
-                with errors.absorb(Key(region)):
-                    if region not in available_regions:
-                        raise HumanFacingException(
-                            Paragraph(
-                                _("Invalid region {invalid_region}.").format(
-                                    invalid_region=f'"{region}"',
-                                ),
-                                do_you_mean(
-                                    *(
-                                        f'"{available_region}"'
-                                        for available_region in available_regions
-                                    )
-                                ),
-                            )
-                        ) from None
+        for region in self._content:
+            with reraise_with_indicator(Key(region)):
+                if region not in available_regions:
+                    raise HumanFacingException(
+                        Paragraph(
+                            _("Invalid region {invalid_region}.").format(
+                                invalid_region=f'"{region}"',
+                            ),
+                            do_you_mean(
+                                *(
+                                    f'"{available_region}"'
+                                    for available_region in available_regions
+                                )
+                            ),
+                        )
+                    ) from None
 
     @override
     @classmethod

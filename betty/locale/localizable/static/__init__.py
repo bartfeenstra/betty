@@ -9,7 +9,7 @@ from typing import TYPE_CHECKING, Self, final
 from typing_extensions import override
 
 from betty.data.indicator.selector import Key
-from betty.exception import HumanFacingExceptionGroup
+from betty.exception import reraise_with_indicator
 from betty.locale import (
     HasLocale,
     HasLocaleStr,
@@ -62,13 +62,10 @@ class CountableStaticTranslations(CountableLocalizable):
         from betty.assertion import assert_len
 
         assert_len(minimum=1)(translations)
-        with HumanFacingExceptionGroup() as errors:
-            self._translations = {
-                self._ensure_locale(
-                    locale, locale_translations, errors
-                ): locale_translations
-                for locale, locale_translations in translations.items()
-            }
+        self._translations = {
+            self._ensure_locale(locale, locale_translations): locale_translations
+            for locale, locale_translations in translations.items()
+        }
 
     @property
     def translations(self) -> CountableStaticTranslationsMapping:
@@ -78,20 +75,15 @@ class CountableStaticTranslations(CountableLocalizable):
         return dict(self._translations)
 
     def _ensure_locale(
-        self,
-        locale: LocaleLike,
-        translations: Mapping[str, str],
-        errors: HumanFacingExceptionGroup,
+        self, locale: LocaleLike, translations: Mapping[str, str]
     ) -> Locale:
         from betty.assertion import assert_len
 
         locale = ensure_locale(locale)
-        with errors.absorb(Key(to_language_tag(locale))):
+        with reraise_with_indicator(Key(to_language_tag(locale))):
             for plural_tag, translation in translations.items():
-                plural_tag_key = Key(plural_tag)
-                with errors.absorb(plural_tag_key):
+                with reraise_with_indicator(Key(plural_tag)):
                     assert_len(minimum=1)(translations)
-                with errors.absorb(plural_tag_key):
                     if "{count}" not in translation:
                         raise MissingPluralPlaceholder(
                             Paragraphs(

@@ -34,11 +34,7 @@ from betty.config import Configuration, Sample, get_full_sample
 from betty.config.collections.mapping import OrderedConfigurationMapping
 from betty.copyright_notice import CopyrightNotice, CopyrightNoticeDefinition
 from betty.data.indicator.selector import Key
-from betty.exception import (
-    HumanFacingException,
-    HumanFacingExceptionGroup,
-    reraise_with_indicator,
-)
+from betty.exception import HumanFacingException, reraise_with_indicator
 from betty.license import License, LicenseDefinition
 from betty.locale import DEFAULT_LOCALE, LocaleLike, ensure_locale, to_language_tag
 from betty.locale.localizable.assertion import assert_load_localizable
@@ -262,10 +258,9 @@ class EntityTypeConfigurationMapping(
         """
         Validate the configuration.
         """
-        with HumanFacingExceptionGroup() as errors:
-            for configuration in self.values():
-                with errors.absorb(Key(configuration.id)):
-                    await configuration.validate(entity_type_repository)
+        for configuration in self.values():
+            with reraise_with_indicator(Key(configuration.id)):
+                await configuration.validate(entity_type_repository)
 
     @override
     @classmethod

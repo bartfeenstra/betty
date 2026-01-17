@@ -16,7 +16,7 @@ from betty.assertion import (
 from betty.config import Configuration, Sample
 from betty.config.collections.sequence import ConfigurationSequence
 from betty.data.indicator.selector import Index
-from betty.exception import HumanFacingExceptionGroup
+from betty.exception import reraise_with_indicator
 from betty.machine_name import MachineName, assert_machine_name
 from betty.plugin.assertion import assert_plugin
 from betty.plugin.resolve import ResolvableId, resolve_id
@@ -124,10 +124,9 @@ class EntityReferenceSequence(ConfigurationSequence[EntityReference]):
         """
         Validate the configuration.
         """
-        with HumanFacingExceptionGroup() as errors:
-            for index, reference in enumerate(self):
-                with errors.absorb(Index(index)):
-                    await reference.validate(entity_type_repository)
+        for index, reference in enumerate(self):
+            with reraise_with_indicator(Index(index)):
+                await reference.validate(entity_type_repository)
 
     @override
     @classmethod

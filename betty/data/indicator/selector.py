@@ -119,6 +119,11 @@ class _Item(Selector, Generic[_ItemT]):
     def __init__(self, item: _ItemT, /):
         self._item = item
 
+    def __eq__(self, other: Any) -> bool:
+        if type(other) is not type(self):
+            return NotImplemented
+        return self._item == other._item
+
     @property
     def item(self) -> _ItemT:
         """

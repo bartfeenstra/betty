@@ -20,7 +20,6 @@ from betty.locale.localizable.static import (
 )
 from betty.locale.localize import DEFAULT_LOCALIZER
 from betty.portable.error import NotPortable
-from betty.test_utils.exception import assert_error
 from betty.test_utils.locale.localizable import DUMMY_LOCALIZABLE
 
 
@@ -76,27 +75,25 @@ def test_load_countable_localizable__without_locales() -> None:
 
 
 def test_load_countable_localizable__with_unknown_locale() -> None:
-    with pytest.raises(HumanFacingException) as exc_info:
+    with pytest.raises(UnknownLocale):
         load_countable_localizable(
             {
                 "unknownlocale": {},
             }
         )
-    assert_error(exc_info.value, error_type=UnknownLocale)
 
 
 def test_load_countable_localizable__with_missing_plural_tag() -> None:
-    with pytest.raises(HumanFacingException) as exc_info:
+    with pytest.raises(MissingPluralTag):
         load_countable_localizable(
             {
                 DEFAULT_LOCALE_TAG: {},
             }
         )
-    assert_error(exc_info.value, error_type=MissingPluralTag)
 
 
 def test_load_countable_localizable__wth_invalid_plural_tag() -> None:
-    with pytest.raises(HumanFacingException) as exc_info:
+    with pytest.raises(InvalidPluralTag):
         load_countable_localizable(
             {
                 DEFAULT_LOCALE_TAG: {
@@ -106,7 +103,6 @@ def test_load_countable_localizable__wth_invalid_plural_tag() -> None:
                 },
             }
         )
-    assert_error(exc_info.value, error_type=InvalidPluralTag)
 
 
 def test_dump_countable_localizable() -> None:

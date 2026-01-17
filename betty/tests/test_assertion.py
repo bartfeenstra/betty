@@ -40,7 +40,6 @@ from betty.data.indicator.selector import Index, Key
 from betty.exception import HumanFacingException
 from betty.locale import DEFAULT_LOCALE_TAG, to_language_tag
 from betty.locale.localizable.static import StaticTranslations
-from betty.test_utils.exception import assert_error
 
 if TYPE_CHECKING:
     from collections.abc import Sized
@@ -300,9 +299,7 @@ def test_assert_sequence__with_invalid_top_level_value(value: Any) -> None:
 def test_assert_sequence__with_invalid_item() -> None:
     with pytest.raises(HumanFacingException) as exc_info:
         assert_sequence(assert_str())([123])
-    assert_error(
-        exc_info.value, error_type=HumanFacingException, error_indicators=[Index(0)]
-    )
+    assert exc_info.value.indicators == [Index(0)]
 
 
 @pytest.mark.parametrize(
@@ -339,17 +336,13 @@ def test_assert_mapping__with_invalid_top_level_value(value: Any) -> None:
 def test_assert_mapping__with_invalid_item_value() -> None:
     with pytest.raises(HumanFacingException) as exc_info:
         assert_mapping(assert_str())({"abc": 123})
-    assert_error(
-        exc_info.value, error_type=HumanFacingException, error_indicators=[Key("abc")]
-    )
+    assert exc_info.value.indicators == [Key("abc")]
 
 
 def test_assert_mapping__with_invalid_item_key() -> None:
     with pytest.raises(HumanFacingException) as exc_info:
         assert_mapping(None, assert_str())({123: "abc"})
-    assert_error(
-        exc_info.value, error_type=HumanFacingException, error_indicators=[Key("123")]
-    )
+    assert exc_info.value.indicators == [Key("123")]
 
 
 @pytest.mark.parametrize(
@@ -373,11 +366,7 @@ def test_assert_mapping__valid(
 def test_assert_record__with_unknown_key_should_error() -> None:
     with pytest.raises(HumanFacingException) as exc_info:
         assert_record()({"unknown-key": True})
-    assert_error(
-        exc_info.value,
-        error_type=HumanFacingException,
-        error_indicators=[Key("unknown-key")],
-    )
+    assert exc_info.value.indicators == [Key("unknown-key")]
 
 
 def test_assert_record__with_optional_fields_without_items() -> None:
