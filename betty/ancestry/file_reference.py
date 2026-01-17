@@ -30,8 +30,6 @@ class FileReference(Entity):
     """
 
     referee = BidirectionalToOne["FileReference", "HasFileReferences"](
-        "betty.ancestry.file_reference:FileReference",
-        "referee",
         "betty.ancestry.has_file_references:HasFileReferences",
         "file_references",
         title="Referee",
@@ -42,8 +40,6 @@ class FileReference(Entity):
     """
 
     file = BidirectionalToOne["FileReference", File](
-        "betty.ancestry.file_reference:FileReference",
-        "file",
         "betty.ancestry.file:File",
         "referees",
         title="File",

@@ -21,8 +21,6 @@ class HasFileReferences(Entity):
     file_references = BidirectionalToManySingleType[
         "HasFileReferences", "FileReference"
     ](
-        "betty.ancestry.has_file_references:HasFileReferences",
-        "file_references",
         "betty.ancestry.file_reference:FileReference",
         "referee",
         title="File references",

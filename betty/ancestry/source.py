@@ -68,8 +68,6 @@ class Source(HasDate, HasFileReferences, HasNotes, HasLinks, HasPrivacy, Entity)
 
     contained_by = BidirectionalToZeroOrOne["Source", "Source"](
         "betty.ancestry.source:Source",
-        "contained_by",
-        "betty.ancestry.source:Source",
         "contains",
         title="Contained by",
         description="Another source this source may be contained by",
@@ -80,8 +78,6 @@ class Source(HasDate, HasFileReferences, HasNotes, HasLinks, HasPrivacy, Entity)
 
     contains = BidirectionalToManySingleType["Source", "Source"](
         "betty.ancestry.source:Source",
-        "contains",
-        "betty.ancestry.source:Source",
         "contained_by",
         title="Contains",
         description="Other sources this source may contain",
@@ -91,8 +87,6 @@ class Source(HasDate, HasFileReferences, HasNotes, HasLinks, HasPrivacy, Entity)
     """
 
     citations = BidirectionalToManySingleType["Source", "Citation"](
-        "betty.ancestry.source:Source",
-        "citations",
         "betty.ancestry.citation:Citation",
         "source",
         title="Citations",

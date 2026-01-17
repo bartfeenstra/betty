@@ -75,8 +75,6 @@ class Event(
     """
 
     place = BidirectionalToZeroOrOne["Event", Place](
-        "betty.ancestry.event:Event",
-        "place",
         "betty.ancestry.place:Place",
         "events",
         title="Place",
@@ -86,8 +84,6 @@ class Event(
     The place the event happened.
     """
     presences = BidirectionalToManySingleType["Event", Presence](
-        "betty.ancestry.event:Event",
-        "presences",
         "betty.ancestry.presence:Presence",
         "event",
         title="Presences",

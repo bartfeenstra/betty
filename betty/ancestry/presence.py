@@ -40,8 +40,6 @@ class Presence(HasPrivacy, Entity):
     """
 
     person = BidirectionalToOne["Presence", "Person"](
-        "betty.ancestry.presence:Presence",
-        "person",
         "betty.ancestry.person:Person",
         "presences",
         title="Person",
@@ -51,8 +49,6 @@ class Presence(HasPrivacy, Entity):
     """
 
     event = BidirectionalToOne["Presence", "Event"](
-        "betty.ancestry.presence:Presence",
-        "event",
         "betty.ancestry.event:Event",
         "presences",
         title="Event",
