@@ -51,17 +51,17 @@ class Source(HasDate, HasFileReferences, HasNotes, HasLinks, HasPrivacy, Entity)
     .. plugin:: entity:source.
     """
 
-    name = OptionalLocalizableAttr("name")
+    name = OptionalLocalizableAttr()
     """
     The source's name.
     """
 
-    author = OptionalLocalizableAttr("author")
+    author = OptionalLocalizableAttr()
     """
     The source's author.
     """
 
-    publisher = OptionalLocalizableAttr("publisher")
+    publisher = OptionalLocalizableAttr()
     """
     The source's publisher.
     """

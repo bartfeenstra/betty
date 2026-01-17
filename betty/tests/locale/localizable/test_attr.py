@@ -15,7 +15,7 @@ from betty.locale.localize import DEFAULT_LOCALIZER, Localizer
 
 class TestRequiredLocalizableAttr:
     class _Instance:
-        attr = RequiredLocalizableAttr("attr")
+        attr = RequiredLocalizableAttr()
 
     def test___get____not_initialized(self) -> None:
         instance = self._Instance()
@@ -49,7 +49,7 @@ class TestRequiredLocalizableAttr:
 
 class TestOptionalLocalizableAttr:
     class _Instance:
-        attr = OptionalLocalizableAttr("attr")
+        attr = OptionalLocalizableAttr()
 
     def test___get____not_initialized(self) -> None:
         instance = self._Instance()
@@ -95,7 +95,7 @@ class TestOptionalLocalizableAttr:
 
 class TestRequiredCountableLocalizableAttr:
     class _Instance:
-        attr = RequiredCountableLocalizableAttr("attr")
+        attr = RequiredCountableLocalizableAttr()
 
     def test___get____not_initialized(self) -> None:
         instance = self._Instance()

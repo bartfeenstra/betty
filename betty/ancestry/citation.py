@@ -47,7 +47,7 @@ class Citation(HasDate, HasFileReferences, HasPrivacy, HasLinks):
     .. plugin:: entity:citation.
     """
 
-    location = OptionalLocalizableAttr("location")
+    location = OptionalLocalizableAttr()
     """
     The location within the source this citation references.
     """

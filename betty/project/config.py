@@ -419,8 +419,8 @@ class CopyrightNoticePluginConfiguration(HumanFacingPluginDefinitionConfiguratio
     .. configuration:: betty.project.config:CopyrightNoticePluginConfiguration
     """
 
-    summary = RequiredLocalizableAttr("summary")
-    text = RequiredLocalizableAttr("text")
+    summary = RequiredLocalizableAttr()
+    text = RequiredLocalizableAttr()
 
     def __init__(
         self, *, summary: LocalizableLike, text: LocalizableLike, **kwargs: Any
@@ -516,8 +516,8 @@ class LicensePluginConfiguration(HumanFacingPluginDefinitionConfiguration):
     .. configuration:: betty.project.config:LicensePluginConfiguration
     """
 
-    summary = RequiredLocalizableAttr("summary")
-    text = RequiredLocalizableAttr("text")
+    summary = RequiredLocalizableAttr()
+    text = RequiredLocalizableAttr()
 
     def __init__(
         self, *, summary: LocalizableLike, text: LocalizableLike, **kwargs: Any
@@ -1094,8 +1094,8 @@ class ProjectConfiguration(Configuration):
     """
     The project-wide copyright notice.
     """
-    title = RequiredLocalizableAttr("title")
-    author = OptionalLocalizableAttr("author")
+    title = RequiredLocalizableAttr()
+    author = OptionalLocalizableAttr()
 
     def __init__(
         self,

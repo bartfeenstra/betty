@@ -38,7 +38,7 @@ class Note(HasPrivacy, HasLinks, HasMediaType):
     .. plugin:: entity:note.
     """
 
-    text = RequiredLocalizableAttr("text")
+    text = RequiredLocalizableAttr()
     """
     The note text.
     """

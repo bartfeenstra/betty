@@ -55,7 +55,7 @@ class RenderConfiguration(Configuration):
     .. configuration:: betty.content_provider.content_providers:RenderConfiguration
     """
 
-    content = RequiredLocalizableAttr("text")
+    content = RequiredLocalizableAttr()
 
     def __init__(self, content: LocalizableLike, media_type: MediaType = PLAIN_TEXT, /):
         super().__init__()

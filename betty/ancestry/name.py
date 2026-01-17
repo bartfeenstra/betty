@@ -29,7 +29,7 @@ class Name(HasDate):
     A name can be translated, and have a date expressing the period the name was in use.
     """
 
-    name = RequiredLocalizableAttr("name")
+    name = RequiredLocalizableAttr()
 
     def __init__(
         self,
