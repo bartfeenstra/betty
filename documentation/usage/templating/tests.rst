@@ -15,7 +15,6 @@ In addition to Jinja2's built-in tests, Betty provides the following:
 - :py:func:`entity_plugin <betty.jinja2.test.PluginTester.__call__>`
 - :py:func:`event_type_plugin <betty.jinja2.test.PluginTester.__call__>`
 - :py:func:`extension_plugin <betty.jinja2.test.PluginTester.__call__>`
-- :py:func:`format_plugin <betty.jinja2.test.PluginTester.__call__>`
 - :py:func:`gender_plugin <betty.jinja2.test.PluginTester.__call__>`
 - :py:func:`has_citations <betty.jinja2.test.test_has_citations>`
 - :py:func:`has_file_references <betty.jinja2.test.test_has_file_references>`
@@ -31,3 +30,4 @@ In addition to Jinja2's built-in tests, Betty provides the following:
 - :py:func:`private <betty.privacy.is_private>`
 - :py:func:`public <betty.privacy.is_public>`
 - :py:func:`renderer_plugin <betty.jinja2.test.PluginTester.__call__>`
+- :py:func:`serializer_plugin <betty.jinja2.test.PluginTester.__call__>`

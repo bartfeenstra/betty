@@ -33,7 +33,7 @@ if TYPE_CHECKING:
 
     from betty.plugin import PluginDefinition
     from betty.plugin.repository import PluginRepository
-    from betty.serde import Format
+    from betty.serde import Serializer
 
 _T = TypeVar("_T")
 NodesLike: TypeAlias = nodes.Node | Iterable[nodes.Node] | None
@@ -65,7 +65,7 @@ def _cmp_formats(left: PluginDefinition, right: PluginDefinition) -> int:
     return -1 if left.id < right.id else 1
 
 
-async def _get_formats() -> Sequence[Format]:
+async def _get_serializers() -> Sequence[Serializer]:
     async with (
         App.new_isolated() as app,
         app,
@@ -73,9 +73,9 @@ async def _get_formats() -> Sequence[Format]:
         project,
     ):
         return [
-            await project.new_target(serde_format.cls)
-            for serde_format in sorted(
-                await project.plugins("format", check_requirements=False),
+            await project.new_target(serializer.cls)
+            for serializer in sorted(
+                await project.plugins("serializer", check_requirements=False),
                 key=cmp_to_key(_cmp_formats),
             )
         ]
@@ -334,7 +334,7 @@ class _ConfigurationDirective(SphinxDirective):
 {"".join(["=" * len(examples_label)])}
 
 """
-        serde_formats = _to_thread(lambda: run(_get_formats()))
+        serializers = _to_thread(lambda: run(_get_serializers()))
         for sample in samples:
             example_content = ""
             if len(samples) > 1:
@@ -348,12 +348,12 @@ class _ConfigurationDirective(SphinxDirective):
 
 """
             portable = sample.configuration.dump()
-            for serde_format in serde_formats:
-                serialized = serde_format.dump(portable)
+            for serializer in serializers:
+                serialized = serializer.dump(portable)
                 example_content += f"""
-   .. tab-item:: {serde_format.plugin().label.localize(DEFAULT_LOCALIZER)}
+   .. tab-item:: {serializer.plugin().label.localize(DEFAULT_LOCALIZER)}
 
-      .. code-block:: {serde_format.plugin().id}
+      .. code-block:: {serializer.plugin().id}
 
 {indent(serialized, " " * 10)}
 """

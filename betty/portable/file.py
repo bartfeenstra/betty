@@ -15,7 +15,7 @@ from betty.data.indicator import Path as DataPath
 from betty.exception import reraise_with_indicator
 from betty.factory import new_target
 from betty.plugin.repository.provider.service import plugins
-from betty.serde import FormatDefinition, format_for
+from betty.serde import SerializerDefinition, serializer_for
 
 if TYPE_CHECKING:
     from pathlib import Path
@@ -29,7 +29,7 @@ async def assert_load_file() -> AssertionChain[Path, PortableData]:
     """
     available_formats = {
         available_format: await new_target(available_format.cls)
-        for available_format in await plugins(FormatDefinition)
+        for available_format in await plugins(SerializerDefinition)
     }
 
     def _assert(file_path: Path) -> PortableData:
@@ -42,7 +42,7 @@ async def assert_load_file() -> AssertionChain[Path, PortableData]:
             with open(file_path) as f:
                 dump_data = f.read()
             file_format = available_formats[
-                format_for(list(available_formats), file_path.suffix)
+                serializer_for(list(available_formats), file_path.suffix)
             ]
             return file_format.load(dump_data)
 
@@ -53,11 +53,10 @@ async def dump_file(portable: PortableData, file_path: Path, /) -> None:
     """
     Write a dump to a file.
     """
-    serde_format_type = format_for(
-        list(await plugins(FormatDefinition)), file_path.suffix
+    serializer = await new_target(
+        serializer_for(list(await plugins(SerializerDefinition)), file_path.suffix).cls
     )
-    serde_format = await new_target(serde_format_type.cls)
-    dump_data = serde_format.dump(portable)
+    dump_data = serializer.dump(portable)
     await makedirs(file_path.parent, exist_ok=True)
     async with aiofiles.open(file_path, mode="w") as f:
         await f.write(dump_data)

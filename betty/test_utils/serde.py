@@ -5,20 +5,20 @@ Test utilities for :py:mod:`betty.serde`.
 import pytest
 
 from betty.portable import PortableData
-from betty.serde import Format
+from betty.serde import Serializer
 from betty.test_utils.plugin import PluginTestBase
 from betty.test_utils.plugin.human_facing import HumanFacingPluginDefinitionTestBase
 
 
-class FormatDefinitionTestBase(HumanFacingPluginDefinitionTestBase):
+class SerializerDefinitionTestBase(HumanFacingPluginDefinitionTestBase):
     """
-    A base class for testing :py:class:`betty.serde.FormatDefinition` subclasses.
+    A base class for testing :py:class:`betty.serde.SerializerDefinition` subclasses.
     """
 
 
-class FormatTestBase(PluginTestBase[Format]):
+class SerializerTestBase(PluginTestBase[Serializer]):
     """
-    A base class for testing :py:class:`betty.serde.Format` implementations.
+    A base class for testing :py:class:`betty.serde.Serializer` implementations.
     """
 
     @pytest.mark.parametrize(
@@ -35,9 +35,9 @@ class FormatTestBase(PluginTestBase[Format]):
             ["value"],
         ],
     )
-    def test_dump_and_load(self, portable: PortableData, sut: Format) -> None:
+    def test_dump_and_load(self, portable: PortableData, sut: Serializer) -> None:
         """
-        Tests :py:meth:`betty.serde.Format.load` and :py:meth:`betty.serde.Format.dump` implementations.
+        Tests :py:meth:`betty.serde.Serializer.load` and :py:meth:`betty.serde.Serializer.dump` implementations.
         """
         assert sut.load(sut.dump(portable)) == portable
 

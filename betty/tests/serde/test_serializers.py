@@ -4,29 +4,29 @@ import pytest
 from typing_extensions import override
 
 from betty.plugin import PluginDefinition
-from betty.serde import Format, FormatError
-from betty.serde.formats import Json, Yaml
-from betty.test_utils.serde.format import FormatDefinitionTestBase, FormatTestBase
+from betty.serde import SerializationError, Serializer
+from betty.serde.serializers import Json, Yaml
+from betty.test_utils.serde import SerializerDefinitionTestBase, SerializerTestBase
 
 if TYPE_CHECKING:
     from betty.portable import PortableData
 
 
-class TestJsonDefinition(FormatDefinitionTestBase):
+class TestJsonDefinition(SerializerDefinitionTestBase):
     @override
     @pytest.fixture
     def sut(self) -> PluginDefinition:
         return Json.plugin()
 
 
-class TestJson(FormatTestBase):
+class TestJson(SerializerTestBase):
     @override
     @pytest.fixture
-    def sut(self) -> Format:
+    def sut(self) -> Serializer:
         return Json()
 
     def test_load__with_invalid_dump(self) -> None:
-        with pytest.raises(FormatError):
+        with pytest.raises(SerializationError):
             Json().load("InvalidJson")
 
     def test_load__with_valid_dump(self) -> None:
@@ -52,21 +52,21 @@ class TestJson(FormatTestBase):
         )
 
 
-class TestYamlDefinition(FormatDefinitionTestBase):
+class TestYamlDefinition(SerializerDefinitionTestBase):
     @override
     @pytest.fixture
     def sut(self) -> PluginDefinition:
         return Yaml.plugin()
 
 
-class TestYaml(FormatTestBase):
+class TestYaml(SerializerTestBase):
     @override
     @pytest.fixture
-    def sut(self) -> Format:
+    def sut(self) -> Serializer:
         return Yaml()
 
     def test_load__with_invalid_dump(self) -> None:
-        with pytest.raises(FormatError):
+        with pytest.raises(SerializationError):
             Yaml().load(": :InvalidYaml: :")
 
     def test_load__with_valid_dump(self) -> None:

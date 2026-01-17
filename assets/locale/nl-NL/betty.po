@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PROJECT VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-01-17 21:42+0000\n"
+"POT-Creation-Date: 2026-01-17 22:03+0000\n"
 "PO-Revision-Date: 2025-11-08 23:46+0000\n"
 "Last-Translator: Bart Feenstra <bart@bartfeenstra.com>\n"
 "Language: nl_NL\n"
@@ -1277,10 +1277,10 @@ msgstr "Zoeken"
 msgid "Section"
 msgstr ""
 
-msgid "Serialization format"
+msgid "Serializer"
 msgstr ""
 
-msgid "Serialization formats"
+msgid "Serializers"
 msgstr ""
 
 msgid "Serve a generated site"
@@ -1539,14 +1539,6 @@ msgid "Unknown"
 msgstr "Onbekend"
 
 #, python-brace-format
-msgid ""
-"Unknown file format \"{extension}\". Supported formats are: "
-"{available_formats}."
-msgstr ""
-"Onbekend bestandstype \"{extension}\". Ondersteunde bestandstypes zijn: "
-"{available_formats}."
-
-#, python-brace-format
 msgid "Unknown key: {unknown_key}."
 msgstr "Onbekende sleutel: {unknown_key}."
 
@@ -1555,6 +1547,12 @@ msgid "Unknown plugin \"{plugin_id}\"."
 msgstr ""
 
 msgid "Unknowns"
+msgstr ""
+
+#, python-brace-format
+msgid ""
+"Unsupported file \"{unsupported_type}\". Supported types are: "
+"{available_types}."
 msgstr ""
 
 #, python-brace-format
@@ -2243,8 +2241,8 @@ msgstr[0] ""
 msgstr[1] ""
 
 #, python-brace-format
-msgid "{count} serialization format"
-msgid_plural "{count} serialization formats"
+msgid "{count} serializer"
+msgid_plural "{count} serializers"
 msgstr[0] ""
 msgstr[1] ""
 
