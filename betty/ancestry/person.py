@@ -182,17 +182,17 @@ class Person(HasFileReferences, HasCitations, HasNotes, HasLinks, HasPrivacy):
 
     @override
     async def dump_linked_data(self, project: Project, /) -> PortableMapping:
-        serialized = await super().dump_linked_data(project)
+        portable = await super().dump_linked_data(project)
         url_generator = await project.url_generator
         dump_context(
-            serialized,
+            portable,
             names="https://schema.org/name",
             parents="https://schema.org/parent",
             children="https://schema.org/child",
             siblings="https://schema.org/sibling",
         )
-        serialized["@type"] = "https://schema.org/Person"
-        serialized["siblings"] = [
+        portable["@type"] = "https://schema.org/Person"
+        portable["siblings"] = [
             url_generator.generate(
                 f"betty-static:///person/{quote(sibling.id)}/index.json"
             )
@@ -200,8 +200,8 @@ class Person(HasFileReferences, HasCitations, HasNotes, HasLinks, HasPrivacy):
             if persistent_id(sibling)
         ]
         if self.public:
-            serialized["gender"] = self.gender.plugin().id
-        return serialized
+            portable["gender"] = self.gender.plugin().id
+        return portable
 
     @override
     @classmethod

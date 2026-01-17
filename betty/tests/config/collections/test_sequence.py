@@ -104,8 +104,8 @@ class TestConfigurationSequence(
     async def test_dump__without_items(
         self, sut: ConfigurationSequence[Configuration]
     ) -> None:
-        serialized = sut.dump()
-        assert serialized == []
+        portable = sut.dump()
+        assert portable == []
 
     async def test_dump__with_items(
         self,
@@ -118,8 +118,8 @@ class TestConfigurationSequence(
         ],
     ) -> None:
         sut.replace(*sut_configurations)
-        serialized = sut.dump()
-        assert isinstance(serialized, Sequence)
-        assert len(serialized) == len(sut_configurations)
+        portable = sut.dump()
+        assert isinstance(portable, Sequence)
+        assert len(portable) == len(sut_configurations)
         for configuration_key in sut_configuration_keys:
-            assert configuration_key < len(serialized)
+            assert configuration_key < len(portable)

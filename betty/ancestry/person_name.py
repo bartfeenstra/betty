@@ -115,15 +115,15 @@ class PersonName(HasLocale, HasCitations, HasPrivacy, Entity):
 
     @override
     async def dump_linked_data(self, project: Project, /) -> PortableMapping:
-        serialized = await super().dump_linked_data(project)
+        portable = await super().dump_linked_data(project)
         if self.public:
             if self.individual is not None:
-                dump_context(serialized, individual="https://schema.org/givenName")
-                serialized["individual"] = self.individual
+                dump_context(portable, individual="https://schema.org/givenName")
+                portable["individual"] = self.individual
             if self.affiliation is not None:
-                dump_context(serialized, affiliation="https://schema.org/familyName")
-                serialized["affiliation"] = self.affiliation
-        return serialized
+                dump_context(portable, affiliation="https://schema.org/familyName")
+                portable["affiliation"] = self.affiliation
+        return portable
 
     @override
     @classmethod

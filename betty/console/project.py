@@ -114,7 +114,7 @@ async def _read_project_configuration_file(
 ) -> tuple[ProjectConfiguration, Path]:
     assert_configuration = await assert_load_file()
     try:
-        serialized = assert_configuration(configuration_file_path)
+        portable = assert_configuration(configuration_file_path)
     except HumanFacingException as error:
         await user.message_debug(error)
         raise
@@ -124,4 +124,4 @@ async def _read_project_configuration_file(
                 configuration_file_path=str(configuration_file_path)
             ),
         )
-        return ProjectConfiguration.load(serialized), configuration_file_path
+        return ProjectConfiguration.load(portable), configuration_file_path

@@ -235,16 +235,16 @@ class FamilyTreeConfiguration(Configuration):
 
     @override
     def dump(self) -> PortableMapping:
-        serialized = {
+        portable = {
             "event_types": self.event_types.dump(),
             "place_types": self.place_types.dump(),
             "presence_roles": self.presence_roles.dump(),
         }
         if isinstance(self.source, str):
-            serialized["name"] = self.source
+            portable["name"] = self.source
         else:
-            serialized["file"] = str(self.source)
-        return serialized
+            portable["file"] = str(self.source)
+        return portable
 
     @override
     def __eq__(self, other: Any) -> bool:

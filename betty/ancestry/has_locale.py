@@ -41,9 +41,9 @@ class HasLocale(StdHasLocale, LinkedDataDumpableWithSchemaJsonLdObject):
 
     @override
     async def dump_linked_data(self, project: Project, /) -> PortableMapping:
-        serialized = await super().dump_linked_data(project)
-        serialized["locale"] = to_language_tag(self.locale) if is_public(self) else None
-        return serialized
+        portable = await super().dump_linked_data(project)
+        portable["locale"] = to_language_tag(self.locale) if is_public(self) else None
+        return portable
 
     @override
     @classmethod

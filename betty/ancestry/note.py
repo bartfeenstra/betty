@@ -75,13 +75,13 @@ class Note(HasPrivacy, HasLinks, HasMediaType):
 
     @override
     async def dump_linked_data(self, project: Project, /) -> PortableMapping:
-        serialized = await super().dump_linked_data(project)
-        serialized["@type"] = "https://schema.org/Thing"
+        portable = await super().dump_linked_data(project)
+        portable["@type"] = "https://schema.org/Thing"
         if is_public(self):
-            serialized["text"] = dump_linked_data(
+            portable["text"] = dump_linked_data(
                 self.text, localizers=await project.public_localizers
             )
-        return serialized
+        return portable
 
     @override
     @classmethod

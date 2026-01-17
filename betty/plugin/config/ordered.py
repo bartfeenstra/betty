@@ -58,12 +58,12 @@ class OrderedPluginDefinitionConfiguration(PluginDefinitionConfiguration):
 
     @override
     def dump(self) -> PortableMapping:
-        serialized = super().dump()
+        portable = super().dump()
         if self.comes_before:
-            serialized["comes_before"] = list(self.comes_before)
+            portable["comes_before"] = list(self.comes_before)
         if self.comes_after:
-            serialized["comes_after"] = list(self.comes_after)
-        return serialized
+            portable["comes_after"] = list(self.comes_after)
+        return portable
 
     @override
     def __eq__(self, other: Any) -> bool:

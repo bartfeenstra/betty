@@ -112,17 +112,17 @@ class Entity(LinkedDataDumpableWithSchemaJsonLdObject, Plugin["EntityDefinition"
 
     @override
     async def dump_linked_data(self, project: Project, /) -> PortableMapping:
-        serialized = await super().dump_linked_data(project)
+        portable = await super().dump_linked_data(project)
 
         if persistent_id(self) and self.plugin().public_facing:
             url_generator = await project.url_generator
-            serialized["@id"] = url_generator.generate(
+            portable["@id"] = url_generator.generate(
                 f"betty-static:///{self.plugin().id}/{self.id}/index.json",
                 absolute=True,
             )
-        serialized["id"] = self.id
+        portable["id"] = self.id
 
-        return serialized
+        return portable
 
     @override
     @classmethod

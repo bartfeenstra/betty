@@ -49,8 +49,8 @@ class Name(HasDate):
 
     @override
     async def dump_linked_data(self, project: Project, /) -> PortableMapping:
-        serialized = await super().dump_linked_data(project)
-        serialized["name"] = dump_linked_data(
+        portable = await super().dump_linked_data(project)
+        portable["name"] = dump_linked_data(
             self.name, localizers=await project.public_localizers
         )
-        return serialized
+        return portable

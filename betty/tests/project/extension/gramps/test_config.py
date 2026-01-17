@@ -176,9 +176,8 @@ class TestFamilyTreeConfiguration(ConfigurationTestBase[FamilyTreeConfiguration]
         assert sut.presence_roles["Aide"].id == Attendee.plugin().id
 
     async def test_load__without_dict_should_error(self, tmp_path: Path) -> None:
-        serialized = None
         with pytest.raises(HumanFacingException):
-            FamilyTreeConfiguration(tmp_path).load(serialized)
+            FamilyTreeConfiguration(tmp_path).load(None)
 
     async def test_dump__with_minimal_configuration(self, tmp_path: Path) -> None:
         sut = FamilyTreeConfiguration(tmp_path)
@@ -402,9 +401,8 @@ class TestGrampsConfiguration(ConfigurationTestBase[GrampsConfiguration]):
         GrampsConfiguration().load(portable)
 
     async def test_load__without_dict_should_error(self) -> None:
-        serialized = None
         with pytest.raises(HumanFacingException):
-            GrampsConfiguration().load(serialized)
+            GrampsConfiguration().load(None)
 
     async def test_load__with_family_tree(self) -> None:
         family_tree_name = "my-first-family-tree"

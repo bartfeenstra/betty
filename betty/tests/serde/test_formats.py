@@ -31,16 +31,16 @@ class TestJson(FormatTestBase):
 
     def test_load__with_valid_dump(self) -> None:
         sut = Json()
-        actual = sut.load('{"hello": [123, "World!"]}')
+        portable = sut.load('{"hello": [123, "World!"]}')
         expected = {"hello": [123, "World!"]}
-        assert actual == expected
+        assert portable == expected
 
     def test_dump(self) -> None:
         portable: PortableData = {"hello": [123, "World!"]}
         sut = Json()
-        actual = sut.dump(portable)
+        serialized = sut.dump(portable)
         assert (
-            actual
+            serialized
             == """
 {
   "hello": [
@@ -71,13 +71,13 @@ class TestYaml(FormatTestBase):
 
     def test_load__with_valid_dump(self) -> None:
         sut = Yaml()
-        serialized_yaml = "hello:\n- 123\n- World!\n"
-        serialized = sut.load(serialized_yaml)
+        serialized = "hello:\n- 123\n- World!\n"
+        portable = sut.load(serialized)
         expected = {"hello": [123, "World!"]}
-        assert expected == serialized
+        assert expected == portable
 
     def test_dump(self) -> None:
         portable: PortableData = {"hello": [123, "World!"]}
         sut = Yaml()
-        serialized_yaml = sut.dump(portable)
-        assert serialized_yaml == "hello:\n- 123\n- World!\n"
+        serialized = sut.dump(portable)
+        assert serialized == "hello:\n- 123\n- World!\n"

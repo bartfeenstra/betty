@@ -109,13 +109,13 @@ class Citation(HasDate, HasFileReferences, HasPrivacy, HasLinks):
 
     @override
     async def dump_linked_data(self, project: Project, /) -> PortableMapping:
-        serialized = await super().dump_linked_data(project)
-        serialized["@type"] = "https://schema.org/Thing"
+        portable = await super().dump_linked_data(project)
+        portable["@type"] = "https://schema.org/Thing"
         if is_public(self) and self.location is not None:
-            serialized["location"] = dump_linked_data(
+            portable["location"] = dump_linked_data(
                 self.location, localizers=await project.public_localizers
             )
-        return serialized
+        return portable
 
     @override
     @classmethod

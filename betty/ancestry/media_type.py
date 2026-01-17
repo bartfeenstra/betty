@@ -37,10 +37,10 @@ class HasMediaType(LinkedDataDumpableWithSchemaJsonLdObject):
 
     @override
     async def dump_linked_data(self, project: Project, /) -> PortableMapping:
-        serialized = await super().dump_linked_data(project)
+        portable = await super().dump_linked_data(project)
         if is_public(self) and self.media_type is not None:
-            serialized["mediaType"] = str(self.media_type)
-        return serialized
+            portable["mediaType"] = str(self.media_type)
+        return portable
 
     @override
     @classmethod
