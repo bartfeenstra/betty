@@ -1,5 +1,5 @@
 """
-Provide serialization formats.
+Common serializers.
 """
 
 from __future__ import annotations
@@ -13,7 +13,7 @@ from typing_extensions import override
 from betty.locale.localizable.gettext import _
 from betty.media_type.media_types import JSON, YAML
 from betty.portable import PortableData
-from betty.serde import Format, FormatDefinition, FormatError
+from betty.serde import SerializationError, Serializer, SerializerDefinition
 
 if TYPE_CHECKING:
     from betty.media_type import MediaType
@@ -21,10 +21,10 @@ if TYPE_CHECKING:
 
 
 @final
-@FormatDefinition("json", label="JSON")
-class Json(Format):
+@SerializerDefinition("json", label="JSON")
+class Json(Serializer):
     """
-    .. plugin:: format:json.
+    .. plugin:: serializer:json.
     """
 
     @override
@@ -37,7 +37,7 @@ class Json(Format):
         try:
             return cast(PortableData, json.loads(serialized))
         except json.JSONDecodeError as e:
-            raise FormatError(
+            raise SerializationError(
                 _("Invalid JSON: {error}.").format(error=str(e))
             ) from None
 
@@ -47,10 +47,10 @@ class Json(Format):
 
 
 @final
-@FormatDefinition("yaml", label="YAML")
-class Yaml(Format):
+@SerializerDefinition("yaml", label="YAML")
+class Yaml(Serializer):
     """
-    .. plugin:: format:yaml.
+    .. plugin:: serializer:yaml.
     """
 
     @override
@@ -63,7 +63,7 @@ class Yaml(Format):
         try:
             return cast(PortableData, yaml.safe_load(serialized))
         except yaml.YAMLError as e:
-            raise FormatError(
+            raise SerializationError(
                 _("Invalid YAML: {error}.").format(error=str(e))
             ) from None
 

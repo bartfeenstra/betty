@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Betty 0.4\n"
 "Report-Msgid-Bugs-To: illia@maier.page\n"
-"POT-Creation-Date: 2026-01-17 21:42+0000\n"
+"POT-Creation-Date: 2026-01-17 22:03+0000\n"
 "PO-Revision-Date: 2025-05-13 17:01+0000\n"
 "Last-Translator: Максим Горпиніч <maksimgorpinic4@gmail.com>\n"
 "Language: uk\n"
@@ -1272,10 +1272,10 @@ msgstr "Пошук"
 msgid "Section"
 msgstr ""
 
-msgid "Serialization format"
+msgid "Serializer"
 msgstr ""
 
-msgid "Serialization formats"
+msgid "Serializers"
 msgstr ""
 
 msgid "Serve a generated site"
@@ -1537,14 +1537,6 @@ msgid "Unknown"
 msgstr "Невідомо"
 
 #, python-brace-format
-msgid ""
-"Unknown file format \"{extension}\". Supported formats are: "
-"{available_formats}."
-msgstr ""
-"Невідомий формат файлу \"{extension}\". Підтримувані формати: "
-"{available_formats}."
-
-#, python-brace-format
 msgid "Unknown key: {unknown_key}."
 msgstr "Невідомий ключ: {unknown_key}."
 
@@ -1553,6 +1545,12 @@ msgid "Unknown plugin \"{plugin_id}\"."
 msgstr ""
 
 msgid "Unknowns"
+msgstr ""
+
+#, python-brace-format
+msgid ""
+"Unsupported file \"{unsupported_type}\". Supported types are: "
+"{available_types}."
 msgstr ""
 
 #, python-brace-format
@@ -2310,8 +2308,8 @@ msgstr[1] ""
 msgstr[2] ""
 
 #, python-brace-format
-msgid "{count} serialization format"
-msgid_plural "{count} serialization formats"
+msgid "{count} serializer"
+msgid_plural "{count} serializers"
 msgstr[0] ""
 msgstr[1] ""
 msgstr[2] ""

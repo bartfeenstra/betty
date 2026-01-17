@@ -519,8 +519,8 @@ _BASELINE: Mapping[str, _ModuleIgnore] = {
         },
     },
     "betty/serde/__init__.py": {
-        "Format": MissingReason.ABSTRACT,
-        "FormatError": MissingReason.STATIC_CONTENT_ONLY,
+        "Serializer": MissingReason.ABSTRACT,
+        "SerializationError": MissingReason.STATIC_CONTENT_ONLY,
     },
     "betty/serve.py": {
         "ProjectServer": MissingReason.SHOULD_BE_COVERED,

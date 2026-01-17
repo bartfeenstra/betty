@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PROJECT VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-01-17 21:42+0000\n"
+"POT-Creation-Date: 2026-01-17 22:03+0000\n"
 "PO-Revision-Date: 2025-08-27 20:02+0000\n"
 "Last-Translator: \"David D.\" <dadu042@users.noreply.hosted.weblate.org>\n"
 "Language: fr_FR\n"
@@ -1230,10 +1230,10 @@ msgstr "Recherche"
 msgid "Section"
 msgstr ""
 
-msgid "Serialization format"
+msgid "Serializer"
 msgstr ""
 
-msgid "Serialization formats"
+msgid "Serializers"
 msgstr ""
 
 msgid "Serve a generated site"
@@ -1486,12 +1486,6 @@ msgid "Unknown"
 msgstr "Inconnu"
 
 #, python-brace-format
-msgid ""
-"Unknown file format \"{extension}\". Supported formats are: "
-"{available_formats}."
-msgstr ""
-
-#, python-brace-format
 msgid "Unknown key: {unknown_key}."
 msgstr ""
 
@@ -1500,6 +1494,12 @@ msgid "Unknown plugin \"{plugin_id}\"."
 msgstr ""
 
 msgid "Unknowns"
+msgstr ""
+
+#, python-brace-format
+msgid ""
+"Unsupported file \"{unsupported_type}\". Supported types are: "
+"{available_types}."
 msgstr ""
 
 #, python-brace-format
@@ -2206,8 +2206,8 @@ msgstr[0] ""
 msgstr[1] ""
 
 #, python-brace-format
-msgid "{count} serialization format"
-msgid_plural "{count} serialization formats"
+msgid "{count} serializer"
+msgid_plural "{count} serializers"
 msgstr[0] ""
 msgstr[1] ""
 

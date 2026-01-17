@@ -49,7 +49,7 @@ from betty.project.factory import ProjectDependentFactory, ProjectDependentSelfF
 from betty.project.url import new_project_url_generator
 from betty.render import RenderDispatcher, RendererDefinition
 from betty.requirement import Requirement, StaticRequirement
-from betty.serde import FormatDefinition, format_for
+from betty.serde import SerializerDefinition, serializer_for
 from betty.service.container import ServiceContainer, service
 from betty.typing import internal
 
@@ -205,8 +205,8 @@ class Project(
         """
         if configuration_file_path == self._configuration_file_path:
             return
-        format_for(
-            list(await plugins(FormatDefinition)), configuration_file_path.suffix
+        serializer_for(
+            list(await plugins(SerializerDefinition)), configuration_file_path.suffix
         )
         self._configuration_file_path = configuration_file_path
 

@@ -1,29 +1,27 @@
 import pytest
 from typing_extensions import override
 
-from betty.locale.localize import DEFAULT_LOCALIZER
 from betty.media_type import MediaType
 from betty.plugin import PluginDefinition
 from betty.portable import PortableData
 from betty.serde import (
-    Format,
-    FormatDefinition,
-    FormatError,
-    FormatStr,
-    format_for,
+    SerializationError,
+    Serializer,
+    SerializerDefinition,
+    serializer_for,
 )
 from betty.test_utils.plugin import PluginDefinitionClassTestBase
 from betty.typing import Void
 
 
-class TestFormatDefinition(PluginDefinitionClassTestBase):
+class TestSerializerDefinition(PluginDefinitionClassTestBase):
     @override
     @pytest.fixture
     def sut(self) -> type[PluginDefinition]:
-        return FormatDefinition
+        return SerializerDefinition
 
 
-class _Format(Format):
+class _Serializer(Serializer):
     @override
     def load(self, serialized: str, /) -> PortableData:
         return None  # pragma: nocover
@@ -33,32 +31,26 @@ class _Format(Format):
         return ""  # pragma: nocover
 
 
-@FormatDefinition("one", label="One")
-class FormatOne(_Format):
+@SerializerDefinition("one", label="One")
+class SerializerOne(_Serializer):
     @override
     @classmethod
     def media_type(cls) -> MediaType:
         return MediaType("text/x.betty.test.one", extensions=[".one"])
 
 
-@FormatDefinition("two", label="Two")
-class FormatTwo(_Format):
+@SerializerDefinition("two", label="Two")
+class SerializerTwo(_Serializer):
     @override
     @classmethod
     def media_type(cls) -> MediaType:
         return MediaType("text/x.betty.test.two", extensions=[".two"])
 
 
-class TestFormatStr:
-    def test_localize(self) -> None:
-        sut = FormatStr([FormatOne.plugin(), FormatTwo.plugin()])
-        assert sut.localize(DEFAULT_LOCALIZER) == ".one (One), .two (Two)"
+def test_serializer_for__with_supported_type() -> None:
+    assert serializer_for([SerializerOne.plugin()], ".one") is SerializerOne.plugin()
 
 
-def test_format_for__with_known_format() -> None:
-    assert format_for([FormatOne.plugin()], ".one") is FormatOne.plugin()
-
-
-def test_format_for_with_unknown_format() -> None:
-    with pytest.raises(FormatError):
-        format_for([], ".unknown")
+def test_serializer_for_with_unsupported_type() -> None:
+    with pytest.raises(SerializationError):
+        serializer_for([], ".unknown")

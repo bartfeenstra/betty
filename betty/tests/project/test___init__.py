@@ -17,7 +17,7 @@ from betty.project.config import LocaleConfiguration, ProjectConfiguration
 from betty.project.extension import Extension, ExtensionDefinition
 from betty.project.factory import ProjectDependentFactory, ProjectDependentSelfFactory
 from betty.requirement import Requirement, StaticRequirement, UnmetRequirement
-from betty.serde import FormatError
+from betty.serde import SerializationError
 from betty.test_utils.locale.localizable import DUMMY_LOCALIZABLE
 from betty.test_utils.plugin import DummyPluginDefinition
 from betty.test_utils.project.extension import DummyExtensionOne, DummyExtensionTwo
@@ -388,7 +388,7 @@ class TestProject:
             ),
         )
         configuration_file_path = tmp_path / "set"
-        with pytest.raises(FormatError):
+        with pytest.raises(SerializationError):
             await sut.set_configuration_file_path(configuration_file_path)
 
     async def test_project_directory_path(
