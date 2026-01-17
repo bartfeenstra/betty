@@ -33,11 +33,11 @@ async def test_assert_load_file__with_valid_configuration(
 ) -> None:
     configuration_file_path = tmp_path / "config.json"
     value = "world!"
-    serialized = {"hello": value}
+    portable = {"hello": value}
     async with aiofiles.open(configuration_file_path, "w") as f:
-        await f.write(dumps(serialized))
+        await f.write(dumps(portable))
     assertion = await assert_load_file()
-    assert assertion(configuration_file_path) == serialized
+    assert assertion(configuration_file_path) == portable
 
 
 async def test_dump_file(tmp_path: Path) -> None:

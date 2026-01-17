@@ -161,34 +161,34 @@ class Place(HasLinks, HasFileReferences, HasNotes, HasPrivacy):
 
     @override
     async def dump_linked_data(self, project: Project, /) -> PortableMapping:
-        serialized = await super().dump_linked_data(project)
+        portable = await super().dump_linked_data(project)
         dump_context(
-            serialized,
+            portable,
             names="https://schema.org/name",
             events="https://schema.org/event",
             enclosers="https://schema.org/containedInPlace",
             enclosees="https://schema.org/containsPlace",
         )
-        serialized["@type"] = "https://schema.org/Place"
-        serialized["names"] = [
+        portable["@type"] = "https://schema.org/Place"
+        portable["names"] = [
             await name.dump_linked_data(project) for name in self.names
         ]
         if self.coordinates is not None:
-            serialized["coordinates"] = {
+            portable["coordinates"] = {
                 "@type": "https://schema.org/GeoCoordinates",
                 "latitude": self.coordinates.latitude,
                 "longitude": self.coordinates.longitude,
             }
-            dump_context(serialized, coordinates="https://schema.org/geo")
+            dump_context(portable, coordinates="https://schema.org/geo")
             dump_context(
-                serialized["coordinates"],  # type: ignore[arg-type]
+                portable["coordinates"],  # type: ignore[arg-type]
                 latitude="https://schema.org/latitude",
             )
             dump_context(
-                serialized["coordinates"],  # type: ignore[arg-type]
+                portable["coordinates"],  # type: ignore[arg-type]
                 longitude="https://schema.org/longitude",
             )
-        return serialized
+        return portable
 
     @override
     @classmethod

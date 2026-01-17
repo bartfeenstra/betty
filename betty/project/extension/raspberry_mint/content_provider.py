@@ -132,15 +132,15 @@ class SectionConfiguration(Configuration):
 
     @override
     def dump(self) -> PortableData:
-        serialized = {
+        portable = {
             "heading": dump_localizable(self.heading),
             "content": self.content.dump(),
         }
         if self.name:
-            serialized["name"] = self.name
+            portable["name"] = self.name
         if self.visually_hide_heading:
-            serialized["visually_hide_heading"] = True
-        return serialized
+            portable["visually_hide_heading"] = True
+        return portable
 
     @override
     def __eq__(self, other: Any) -> bool:

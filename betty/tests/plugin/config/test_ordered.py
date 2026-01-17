@@ -36,21 +36,21 @@ class TestOrderedPluginDefinitionConfiguration(
 
     async def test_dump__minimal(self) -> None:
         sut = OrderedPluginDefinitionConfiguration(id="-")
-        serialized = sut.dump()
-        assert "comes_before" not in serialized
-        assert "comes_after" not in serialized
+        portable = sut.dump()
+        assert "comes_before" not in portable
+        assert "comes_after" not in portable
 
     async def test_dump__with_comes_before(self) -> None:
         comes_before = {"my-first-plugin"}
         sut = OrderedPluginDefinitionConfiguration(id="-", comes_before=comes_before)
-        serialized = sut.dump()
-        assert serialized["comes_before"] == list(comes_before)
+        portable = sut.dump()
+        assert portable["comes_before"] == list(comes_before)
 
     async def test_dump__with_comes_after(self) -> None:
         comes_after = {"my-first-plugin"}
         sut = OrderedPluginDefinitionConfiguration(id="-", comes_after=comes_after)
-        serialized = sut.dump()
-        assert serialized["comes_after"] == list(comes_after)
+        portable = sut.dump()
+        assert portable["comes_after"] == list(comes_after)
 
     async def test_comes_before(self) -> None:
         comes_before = {"my-first-plugin"}

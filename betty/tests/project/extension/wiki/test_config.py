@@ -20,9 +20,8 @@ class TestWikiConfiguration(ConfigurationTestBase[WikiConfiguration]):
         WikiConfiguration.load(portable)
 
     async def test_load__without_dict_should_error(self) -> None:
-        serialized = None
         with pytest.raises(HumanFacingException):
-            WikiConfiguration.load(serialized)
+            WikiConfiguration.load(None)
 
     @pytest.mark.parametrize(
         "populate_images",

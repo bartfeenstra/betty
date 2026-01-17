@@ -113,9 +113,9 @@ class HasPrivacy(LinkedDataDumpableWithSchemaJsonLdObject):
 
     @override
     async def dump_linked_data(self, project: Project, /) -> PortableMapping:
-        serialized = await super().dump_linked_data(project)
-        serialized["private"] = self.private
-        return serialized
+        portable = await super().dump_linked_data(project)
+        portable["private"] = self.private
+        return portable
 
     @override
     @classmethod

@@ -145,8 +145,8 @@ class TestConfigurationMapping(
     async def test_dump__without_items(
         self, sut: ConfigurationMapping[str, str, Configuration]
     ) -> None:
-        serialized = sut.dump()
-        assert serialized == {}
+        portable = sut.dump()
+        assert portable == {}
 
     async def test_dump__with_items(
         self,
@@ -159,11 +159,11 @@ class TestConfigurationMapping(
         ],
     ) -> None:
         sut.replace(*sut_configurations)
-        serialized = sut.dump()
-        assert isinstance(serialized, Mapping)
-        assert len(serialized) == len(sut_configurations)
+        portable = sut.dump()
+        assert isinstance(portable, Mapping)
+        assert len(portable) == len(sut_configurations)
         for configuration_key in sut_configuration_keys:
-            assert configuration_key in serialized
+            assert configuration_key in portable
 
 
 class OrderedConfigurationMappingTestOrderedConfigurationMapping(
@@ -245,8 +245,8 @@ class TestOrderedConfigurationMapping(
     async def test_dump__without_items(
         self, sut: OrderedConfigurationMapping[str, str, Configuration]
     ) -> None:
-        serialized = sut.dump()
-        assert serialized == []
+        portable = sut.dump()
+        assert portable == []
 
     async def test_dump__with_items(
         self,
@@ -256,6 +256,6 @@ class TestOrderedConfigurationMapping(
         ],
     ) -> None:
         sut.replace(*sut_configurations)
-        serialized = sut.dump()
-        assert isinstance(serialized, Sequence)
-        assert len(serialized) == len(sut_configurations)
+        portable = sut.dump()
+        assert isinstance(portable, Sequence)
+        assert len(portable) == len(sut_configurations)

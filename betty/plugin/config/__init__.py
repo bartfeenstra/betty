@@ -163,11 +163,11 @@ class HumanFacingPluginDefinitionConfiguration(PluginDefinitionConfiguration):
 
     @override
     def dump(self) -> PortableMapping:
-        serialized = super().dump()
-        serialized["label"] = dump_localizable(self.label)
+        portable = super().dump()
+        portable["label"] = dump_localizable(self.label)
         if self.description is not None:
-            serialized["description"] = dump_localizable(self.description)
-        return serialized
+            portable["description"] = dump_localizable(self.description)
+        return portable
 
     @override
     def __eq__(self, other: Any) -> bool:
@@ -231,10 +231,10 @@ class CountableHumanFacingPluginDefinitionConfiguration(
 
     @override
     def dump(self) -> PortableMapping:
-        serialized = super().dump()
-        serialized["label_plural"] = dump_localizable(self.label_plural)
-        serialized["label_countable"] = dump_countable_localizable(self.label_countable)
-        return serialized
+        portable = super().dump()
+        portable["label_plural"] = dump_localizable(self.label_plural)
+        portable["label_countable"] = dump_countable_localizable(self.label_countable)
+        return portable
 
     @override
     def __eq__(self, other: Any) -> bool:

@@ -64,9 +64,9 @@ class TestPluginDefinitionConfiguration(
     async def test_dump(self) -> None:
         plugin_id = "hello-world"
         sut = PluginDefinitionConfiguration(id=plugin_id)
-        serialized = sut.dump()
-        assert isinstance(serialized, dict)
-        assert serialized["id"] == plugin_id
+        portable = sut.dump()
+        assert isinstance(portable, dict)
+        assert portable["id"] == plugin_id
 
     async def test_id(self) -> None:
         plugin_id = "hello-world"
@@ -126,18 +126,18 @@ class TestHumanFacingPluginDefinitionConfiguration(
     async def test_dump__with_undetermined_label(self) -> None:
         label = "Hello, world!"
         sut = HumanFacingPluginDefinitionConfiguration(id="hello-world", label=label)
-        serialized = sut.dump()
-        assert isinstance(serialized, dict)
-        assert serialized["label"] == label
+        portable = sut.dump()
+        assert isinstance(portable, dict)
+        assert portable["label"] == label
 
     async def test_dump__with_expanded_label(self) -> None:
         label = "Hello, world!"
         sut = HumanFacingPluginDefinitionConfiguration(
             id="hello-world", label=StaticTranslations({DEFAULT_LOCALE_TAG: label})
         )
-        serialized = sut.dump()
-        assert isinstance(serialized, dict)
-        assert serialized["label"] == {
+        portable = sut.dump()
+        assert isinstance(portable, dict)
+        assert portable["label"] == {
             DEFAULT_LOCALE_TAG: label,
         }
 
@@ -146,9 +146,9 @@ class TestHumanFacingPluginDefinitionConfiguration(
         sut = HumanFacingPluginDefinitionConfiguration(
             id="hello-world", label=DUMMY_LOCALIZABLE, description=description
         )
-        serialized = sut.dump()
-        assert isinstance(serialized, dict)
-        assert serialized["description"] == description
+        portable = sut.dump()
+        assert isinstance(portable, dict)
+        assert portable["description"] == description
 
     async def test_dump__with_expanded_description(self) -> None:
         description = "Hello, world!"
@@ -157,9 +157,9 @@ class TestHumanFacingPluginDefinitionConfiguration(
             label=DUMMY_LOCALIZABLE,
             description=StaticTranslations({DEFAULT_LOCALE_TAG: description}),
         )
-        serialized = sut.dump()
-        assert isinstance(serialized, dict)
-        assert serialized["description"] == {
+        portable = sut.dump()
+        assert isinstance(portable, dict)
+        assert portable["description"] == {
             DEFAULT_LOCALE_TAG: description,
         }
 
@@ -212,10 +212,10 @@ class TestCountableHumanFacingPluginDefinitionConfiguration(
             label_plural=label_plural,
             label_countable=label_countable,
         )
-        serialized = sut.dump()
-        assert isinstance(serialized, dict)
-        assert serialized["label_plural"] == label_plural
-        assert serialized["label_countable"] == label_countable
+        portable = sut.dump()
+        assert isinstance(portable, dict)
+        assert portable["label_plural"] == label_plural
+        assert portable["label_countable"] == label_countable
 
     async def test_label_plural(self) -> None:
         label_plural = DUMMY_LOCALIZABLE

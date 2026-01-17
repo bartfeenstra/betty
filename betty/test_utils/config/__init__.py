@@ -104,14 +104,14 @@ class ConfigurationTestBase(Generic[_ConfigurationT]):
         samples = list(self.sut_cls.samples())
         for sample in samples:
             with subtests.test(str(sample.label.localize(DEFAULT_LOCALIZER))):
-                serialized = sample.configuration.dump()
-                assert serialized == self.sut_cls.load(serialized).dump(), (
+                portable = sample.configuration.dump()
+                assert portable == self.sut_cls.load(portable).dump(), (
                     f'Failed asserting that {fully_qualified_name(self.sut_cls)}.load() and {fully_qualified_name(self.sut_cls)}.dump() do not change the data for sample "{sample.label.localize(DEFAULT_LOCALIZER)}".'
                 )
                 for other_sample in samples:
                     if other_sample is sample:
                         continue
-                    assert serialized != other_sample.configuration.dump()
+                    assert portable != other_sample.configuration.dump()
 
 
 class DummyConfiguration(Configuration):

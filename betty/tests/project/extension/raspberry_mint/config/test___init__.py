@@ -75,9 +75,8 @@ class TestRaspberryMintConfiguration(ConfigurationTestBase[RaspberryMintConfigur
         RaspberryMintConfiguration.load(portable)
 
     def test_load__without_dict_should_error(self) -> None:
-        serialized = None
         with pytest.raises(HumanFacingException):
-            RaspberryMintConfiguration.load(serialized)
+            RaspberryMintConfiguration.load(None)
 
     def test_load__with_primary_color(self) -> None:
         hex_value = "#000000"
@@ -122,23 +121,23 @@ class TestRaspberryMintConfiguration(ConfigurationTestBase[RaspberryMintConfigur
     def test_dump__with_primary_color(self) -> None:
         hex_value = "#000000"
         sut = RaspberryMintConfiguration(primary_color=ColorConfiguration(hex_value))
-        serialized = sut.dump()
-        assert isinstance(serialized, dict)
-        assert hex_value == serialized["primary_color"]
+        portable = sut.dump()
+        assert isinstance(portable, dict)
+        assert hex_value == portable["primary_color"]
 
     def test_dump__with_secondary_color(self) -> None:
         hex_value = "#000000"
         sut = RaspberryMintConfiguration(secondary_color=ColorConfiguration(hex_value))
-        serialized = sut.dump()
-        assert isinstance(serialized, dict)
-        assert hex_value == serialized["secondary_color"]
+        portable = sut.dump()
+        assert isinstance(portable, dict)
+        assert hex_value == portable["secondary_color"]
 
     def test_dump__with_tertiary_color(self) -> None:
         hex_value = "#000000"
         sut = RaspberryMintConfiguration(tertiary_color=ColorConfiguration(hex_value))
-        serialized = sut.dump()
-        assert isinstance(serialized, dict)
-        assert hex_value == serialized["tertiary_color"]
+        portable = sut.dump()
+        assert isinstance(portable, dict)
+        assert hex_value == portable["tertiary_color"]
 
     def test_dump__with_regional_content(self) -> None:
         sut = RaspberryMintConfiguration()
