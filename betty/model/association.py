@@ -78,25 +78,25 @@ class _Resolver(ABC, Generic[_T]):
         """
 
 
-class ToZeroOrOneResolver(_Resolver[_EntityT | None], Generic[_EntityT]):
+class ToZeroOrOneResolver(_Resolver[_EntityT | None]):
     """
     An object that can optionally resolve to an entity.
     """
 
 
-class ToOneResolver(_Resolver[_EntityT], Generic[_EntityT]):
+class ToOneResolver(_Resolver[_EntityT]):
     """
     An object that can resolve to an entity.
     """
 
 
-class ToManyResolver(_Resolver[Iterable[_EntityT]], Generic[_EntityT]):
+class ToManyResolver(_Resolver[Iterable[_EntityT]]):
     """
     An object that can resolve to a collection of entities.
     """
 
 
-class _TemporaryResolver(_Resolver[_T], Generic[_T]):
+class _TemporaryResolver(_Resolver[_T]):
     @override
     def resolve(self) -> _T:
         raise RuntimeError(
@@ -105,7 +105,7 @@ class _TemporaryResolver(_Resolver[_T], Generic[_T]):
 
 
 class TemporaryToZeroOrOneResolver(
-    _TemporaryResolver[_EntityT], ToZeroOrOneResolver[_EntityT], Generic[_EntityT]
+    _TemporaryResolver[_EntityT], ToZeroOrOneResolver[_EntityT]
 ):
     """
     A 'temporary' to-zero-or-one resolver.
@@ -115,9 +115,7 @@ class TemporaryToZeroOrOneResolver(
     """
 
 
-class TemporaryToOneResolver(
-    _TemporaryResolver[_EntityT], ToOneResolver[_EntityT], Generic[_EntityT]
-):
+class TemporaryToOneResolver(_TemporaryResolver[_EntityT], ToOneResolver[_EntityT]):
     """
     A 'temporary' to-one resolver.
 
@@ -126,9 +124,7 @@ class TemporaryToOneResolver(
     """
 
 
-class TemporaryToManyResolver(
-    _TemporaryResolver[_EntityT], ToManyResolver[_EntityT], Generic[_EntityT]
-):
+class TemporaryToManyResolver(_TemporaryResolver[_EntityT], ToManyResolver[_EntityT]):
     """
     A 'temporary' to-many resolver.
 
@@ -231,9 +227,7 @@ class _Association(LinkedDataDumpableProvider[_OwnerT], Generic[_OwnerT, _Associ
         """
 
 
-class _ToOneAssociation(
-    Generic[_OwnerT, _AssociateT], _Association[_OwnerT, _AssociateT]
-):
+class _ToOneAssociation(_Association[_OwnerT, _AssociateT]):
     @override
     def associate(self, owner: _OwnerT, associate: _AssociateT, /) -> None:
         self.__set__(owner, associate)
@@ -288,9 +282,7 @@ class _ToOneAssociation(
         return await _generate_associate_url(project, associate)
 
 
-class _ToZeroOrOneAssociation(
-    Generic[_OwnerT, _AssociateT], _Association[_OwnerT, _AssociateT]
-):
+class _ToZeroOrOneAssociation(_Association[_OwnerT, _AssociateT]):
     @override
     def associate(self, owner: _OwnerT, associate: _AssociateT, /) -> None:
         self.__set__(owner, associate)
@@ -358,8 +350,8 @@ class _ToZeroOrOneAssociation(
 
 
 class _ToManyAssociation(
-    Generic[_OwnerT, _AssociateT, _EntityCollectionT],
     _Association[_OwnerT, _AssociateT],
+    Generic[_OwnerT, _AssociateT, _EntityCollectionT],
 ):
     @abstractmethod
     def _new_collection(self, instance: _OwnerT, /) -> _EntityCollectionT:
@@ -451,9 +443,7 @@ class _ToManyAssociation(
         )
 
 
-class _BidirectionalAssociation(
-    Generic[_OwnerT, _AssociateT], _Association[_OwnerT, _AssociateT]
-):
+class _BidirectionalAssociation(_Association[_OwnerT, _AssociateT]):
     def __init__(
         self,
         associate_type_name: str,
@@ -495,7 +485,6 @@ class _BidirectionalAssociation(
 
 @final
 class BidirectionalToZeroOrOne(
-    Generic[_OwnerT, _AssociateT],
     _ToZeroOrOneAssociation[_OwnerT, _AssociateT],
     _BidirectionalAssociation[_OwnerT, _AssociateT],
 ):
@@ -528,7 +517,6 @@ class BidirectionalToZeroOrOne(
 
 @final
 class BidirectionalToOne(
-    Generic[_OwnerT, _AssociateT],
     _ToOneAssociation[_OwnerT, _AssociateT],
     _BidirectionalAssociation[_OwnerT, _AssociateT],
 ):
@@ -565,7 +553,6 @@ class BidirectionalToOne(
 
 @final
 class BidirectionalToManySingleType(
-    Generic[_OwnerT, _AssociateT],
     _ToManyAssociation[_OwnerT, _AssociateT, SingleTypeEntityCollection[_AssociateT]],  # ty:ignore[invalid-type-arguments]
     _BidirectionalAssociation[_OwnerT, _AssociateT],
 ):
@@ -582,7 +569,6 @@ class BidirectionalToManySingleType(
 
 @final
 class BidirectionalToManyMultipleTypes(
-    Generic[_OwnerT, _AssociateT],
     _ToManyAssociation[
         _OwnerT, _AssociateT, MultipleTypesEntityCollection[_AssociateT]  # ty:ignore[invalid-type-arguments]
     ],
@@ -603,9 +589,7 @@ class BidirectionalToManyMultipleTypes(
 
 
 @final
-class UnidirectionalToZeroOrOne(
-    Generic[_OwnerT, _AssociateT], _ToZeroOrOneAssociation[_OwnerT, _AssociateT]
-):
+class UnidirectionalToZeroOrOne(_ToZeroOrOneAssociation[_OwnerT, _AssociateT]):
     """
     A unidirectional to-zero-or-one entity type association.
     """
@@ -618,9 +602,7 @@ class UnidirectionalToZeroOrOne(
 
 
 @final
-class UnidirectionalToOne(
-    Generic[_OwnerT, _AssociateT], _ToOneAssociation[_OwnerT, _AssociateT]
-):
+class UnidirectionalToOne(_ToOneAssociation[_OwnerT, _AssociateT]):
     """
     A unidirectional to-one entity type association.
     """
@@ -636,7 +618,6 @@ class UnidirectionalToOne(
 
 @final
 class UnidirectionalToManySingleType(
-    Generic[_OwnerT, _AssociateT],
     _ToManyAssociation[_OwnerT, _AssociateT, SingleTypeEntityCollection[_AssociateT]],  # ty:ignore[invalid-type-arguments]
 ):
     """
@@ -652,7 +633,6 @@ class UnidirectionalToManySingleType(
 
 @final
 class UnidirectionalToManyMultipleTypes(
-    Generic[_OwnerT, _AssociateT],
     _ToManyAssociation[
         _OwnerT, _AssociateT, MultipleTypesEntityCollection[_AssociateT]  # ty:ignore[invalid-type-arguments]
     ],
@@ -710,7 +690,7 @@ class AssociationRegistry:
 
 
 class _BidirectionalAssociateCollection(
-    Generic[_AssociateT, _OwnerT], EntityCollection[_AssociateT]
+    EntityCollection[_AssociateT], Generic[_AssociateT, _OwnerT]
 ):
     def __init__(
         self,
@@ -744,7 +724,6 @@ class _BidirectionalAssociateCollection(
 
 
 class _BidirectionalSingleTypeAssociateCollection(
-    Generic[_AssociateT, _OwnerT],
     _BidirectionalAssociateCollection[_AssociateT, _OwnerT],
     SingleTypeEntityCollection[_AssociateT],
 ):
@@ -752,7 +731,6 @@ class _BidirectionalSingleTypeAssociateCollection(
 
 
 class _BidirectionalMultipleTypesAssociateCollection(
-    Generic[_AssociateT, _OwnerT],
     _BidirectionalAssociateCollection[_AssociateT, _OwnerT],
     MultipleTypesEntityCollection[_AssociateT],
 ):
