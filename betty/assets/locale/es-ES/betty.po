@@ -8,7 +8,7 @@ msgstr ""
 "Project-Id-Version: Betty VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
 "POT-Creation-Date: 2025-04-24 14:22+0100\n"
-"PO-Revision-Date: 2025-12-29 14:48+0000\n"
+"PO-Revision-Date: 2026-01-18 18:06+0000\n"
 "Last-Translator: Bart Feenstra <bart@bartfeenstra.com>\n"
 "Language-Team: Spanish <https://hosted.weblate.org/projects/betty/betty/es/>"
 "\n"
@@ -17,7 +17,7 @@ msgstr ""
 "Content-Type: text/plain; charset=utf-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
-"X-Generator: Weblate 5.15.1\n"
+"X-Generator: Weblate 5.15.2\n"
 "Generated-By: Babel 2.17.0\n"
 
 #, python-brace-format
@@ -728,7 +728,7 @@ msgid "Person names"
 msgstr ""
 
 msgid "Place"
-msgstr ""
+msgstr "Lugar"
 
 msgid "Places"
 msgstr "Lugares"
@@ -1273,8 +1273,8 @@ msgstr[1] "{count} entidades"
 #, python-brace-format
 msgid "{count} event"
 msgid_plural "{count} events"
-msgstr[0] ""
-msgstr[1] ""
+msgstr[0] "{count} evento"
+msgstr[1] "{count} eventos"
 
 #, python-brace-format
 msgid "{count} file"
@@ -1297,14 +1297,14 @@ msgstr[1] "{count} notas"
 #, python-brace-format
 msgid "{count} person"
 msgid_plural "{count} people"
-msgstr[0] ""
-msgstr[1] ""
+msgstr[0] "{count} persona"
+msgstr[1] "{count} personas"
 
 #, python-brace-format
 msgid "{count} person name"
 msgid_plural "{count} person names"
-msgstr[0] ""
-msgstr[1] ""
+msgstr[0] "{count} nombre de persona"
+msgstr[1] "{count} nombres de personas"
 
 #, python-brace-format
 msgid "{count} place"
