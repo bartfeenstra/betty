@@ -26,9 +26,7 @@ def is_supported_media_type(media_type: MediaType) -> bool:
     """
     if media_type.type == "image":
         return True
-    if media_type == PDF:
-        return True
-    return False
+    return media_type == PDF
 
 
 def image_file_path_format(image_file_path: Path) -> str:

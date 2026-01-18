@@ -608,9 +608,7 @@ class GrampsLoader:
             return False
         if version[1] != self._SUPPORTED_GRAMPS_XML_VERSION[1]:
             return False
-        if version[2] < self._SUPPORTED_GRAMPS_XML_VERSION[2]:
-            return False
-        return True
+        return not version[2] < self._SUPPORTED_GRAMPS_XML_VERSION[2]
 
     def _resolve1(
         self, entity_type: type[_EntityT], handle: str

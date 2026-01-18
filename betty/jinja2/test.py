@@ -55,9 +55,7 @@ class PluginTester:
         """
         if not isinstance(value, self._plugin_type.type().base_cls):
             return False
-        if plugin_id is not None and value.plugin().id != plugin_id:
-            return False
-        return True
+        return not (plugin_id is not None and value.plugin().id != plugin_id)
 
 
 def test_has_citations(value: Any) -> bool:
