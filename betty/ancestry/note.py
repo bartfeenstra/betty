@@ -56,7 +56,7 @@ class Note(ShorthandPluginBase, UserFacingEntity, HasPrivacy, HasLinks, Entity):
         self,
         text: ShorthandStaticTranslations,
         *,
-        id: str | None = None,  # noqa: A002  # noqa A002
+        id: str | None = None,  # noqa: A002
         entity: ToZeroOrOneAssociate[HasNotes] | None = None,
         privacy: Privacy | None = None,
         public: bool | None = None,
