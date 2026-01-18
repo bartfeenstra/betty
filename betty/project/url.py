@@ -252,9 +252,7 @@ class _EntityUrlUrlGenerator(UrlGenerator):
             return False
         if not parsed_url.netloc:
             return False
-        if not len(parsed_url.path) >= 2:
-            return False
-        return True
+        return len(parsed_url.path) >= 2
 
     @override
     def generate(
@@ -292,9 +290,7 @@ class _LocalizedPathUrlUrlGenerator(_ProjectUrlGenerator, UrlGenerator):
             return False
         if parsed_url.scheme != "betty":
             return False
-        if not parsed_url.netloc and not parsed_url.path:
-            return False
-        return True
+        return not (not parsed_url.netloc and not parsed_url.path)
 
     @override
     def generate(
@@ -330,9 +326,7 @@ class _StaticPathUrlUrlGenerator(_ProjectUrlGenerator, UrlGenerator):
             return False
         if parsed_url.scheme != "betty-static":
             return False
-        if not parsed_url.netloc and not parsed_url.path:
-            return False
-        return True
+        return not (not parsed_url.netloc and not parsed_url.path)
 
     @override
     def generate(

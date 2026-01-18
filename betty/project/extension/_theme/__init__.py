@@ -34,9 +34,7 @@ def _is_person_timeline_presence(presence: Presence) -> bool:
         return False
     if not presence.event.date:
         return False
-    if not presence.event.date.comparable:
-        return False
-    return True
+    return presence.event.date.comparable
 
 
 def person_timeline_events(person: Person, lifetime_threshold: int) -> Iterable[Event]:
