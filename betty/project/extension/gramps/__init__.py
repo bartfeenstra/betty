@@ -22,7 +22,8 @@ from betty.typing import private
 
 if TYPE_CHECKING:
     from betty.job.scheduler import Scheduler
-    from betty.project import Project, ProjectContext
+    from betty.project import Project
+    from betty.project.job import ProjectContext
     from betty.service.level.factory import AnyFactoryTarget
 
 

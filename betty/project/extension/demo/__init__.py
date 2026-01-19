@@ -14,7 +14,7 @@ from typing_extensions import override
 
 from betty.html import NavigationLink, NavigationLinkProvider
 from betty.locale.localizable.gettext import _
-from betty.project import ProjectContext, generate
+from betty.project import generate
 from betty.project.extension import Extension, ExtensionDefinition
 from betty.project.extension.demo.jobs import LoadAncestry
 from betty.project.extension.deriver import Deriver
@@ -32,6 +32,7 @@ if TYPE_CHECKING:
 
     from betty.job.scheduler import Scheduler
     from betty.project import Project
+    from betty.project.job import ProjectContext
 
 
 @internal

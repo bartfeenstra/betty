@@ -10,7 +10,7 @@ from betty.ancestry.event import Event
 from betty.ancestry.person import Person
 from betty.ancestry.place import Place
 from betty.ancestry.source import Source
-from betty.project import Project, ProjectContext
+from betty.project import Project
 from betty.project.extension.demo import Demo, generate_with_cleanup
 from betty.project.load import load
 from betty.test_utils.project.extension import (
@@ -27,6 +27,7 @@ if TYPE_CHECKING:
     from betty.app import App
     from betty.plugin import PluginDefinition
     from betty.project.extension import Extension
+    from betty.project.job import ProjectContext
     from betty.test_utils.conftest import IsolatedAppFactory
 
 

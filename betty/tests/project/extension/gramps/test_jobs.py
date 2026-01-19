@@ -2,7 +2,7 @@ from pytest_mock import MockerFixture
 
 from betty.app import App
 from betty.plugin.config import PluginInstanceConfiguration
-from betty.project import Project, ProjectContext
+from betty.project import Project
 from betty.project.extension.gramps import Gramps
 from betty.project.extension.gramps.config import (
     FamilyTreeConfiguration,
@@ -10,6 +10,7 @@ from betty.project.extension.gramps.config import (
     GrampsConfiguration,
 )
 from betty.project.extension.gramps.jobs import LoadAncestry
+from betty.project.job import ProjectContext
 from betty.test_utils.job import do
 
 

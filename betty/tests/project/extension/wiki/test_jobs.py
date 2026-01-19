@@ -2,9 +2,10 @@ from pytest_mock import MockerFixture
 
 from betty.ancestry.link import Link
 from betty.app import App
-from betty.project import Project, ProjectContext
+from betty.project import Project
 from betty.project.extension.wiki import Wiki
 from betty.project.extension.wiki.jobs import PopulateEntity
+from betty.project.job import ProjectContext
 from betty.project.load.jobs import PopulateLink
 from betty.test_utils.job import do
 from betty.test_utils.model import DummyEntityOne

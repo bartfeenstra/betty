@@ -10,8 +10,8 @@ from typing_extensions import override
 
 from betty.ancestry.place import Place
 from betty.job import Job
-from betty.project import ProjectContext
 from betty.project.generate.file import create_file
+from betty.project.job import ProjectContext
 
 if TYPE_CHECKING:
     from babel import Locale

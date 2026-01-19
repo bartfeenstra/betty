@@ -39,13 +39,14 @@ from betty.license import LicenseDefinition
 from betty.license.licenses import spdx_license_id_to_license_id
 from betty.locale.localizable.gettext import _
 from betty.media_type.media_types import SVG
-from betty.project import Project, ProjectContext
+from betty.project.job import ProjectContext
 
 if TYPE_CHECKING:
     from collections.abc import Mapping, Sequence
 
     from betty.job.scheduler import Scheduler
     from betty.machine_name import MachineName
+    from betty.project import Project
 
 
 class LoadAncestry(Job[ProjectContext]):

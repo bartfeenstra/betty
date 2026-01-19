@@ -13,7 +13,7 @@ from betty.ancestry.person import Person
 from betty.job import Job
 from betty.locale.localizable.gettext import _, ngettext
 from betty.privacy import HasPrivacy
-from betty.project import ProjectContext
+from betty.project.job import ProjectContext
 
 if TYPE_CHECKING:
     from collections.abc import MutableMapping, MutableSequence

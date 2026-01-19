@@ -10,7 +10,8 @@ from betty.concurrent import MAX_STRANDS
 from betty.job.executor.asyncio import AsyncExecutor
 from betty.job.scheduler import Scheduler
 from betty.job.scheduler.default import DefaultScheduler
-from betty.project import Project, ProjectContext
+from betty.project import Project
+from betty.project.job import ProjectContext
 from betty.project.load.jobs import PopulateLink
 
 

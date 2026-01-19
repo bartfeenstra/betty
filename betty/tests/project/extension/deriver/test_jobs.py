@@ -1,8 +1,9 @@
 from pytest_mock import MockerFixture
 
 from betty.app import App
-from betty.project import Project, ProjectContext
+from betty.project import Project
 from betty.project.extension.deriver.jobs import DeriveAncestry
+from betty.project.job import ProjectContext
 from betty.test_utils.job import do
 
 

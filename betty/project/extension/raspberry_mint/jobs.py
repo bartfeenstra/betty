@@ -17,9 +17,9 @@ from betty.locale.localizable.markup import Chain
 from betty.locale.localizable.plain import Plain
 from betty.locale.localize import DEFAULT_LOCALIZER
 from betty.os import link_or_copy
-from betty.project import ProjectContext
 from betty.project.extension._theme.search import generate_search_index
 from betty.project.extension.raspberry_mint import RaspberryMint
+from betty.project.job import ProjectContext
 
 if TYPE_CHECKING:
     from betty.job.scheduler import Scheduler

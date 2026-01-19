@@ -20,7 +20,6 @@ from aiofiles.os import makedirs
 from betty.concurrent import MAX_STRANDS
 from betty.job.executor.threading import ThreadPoolExecutor
 from betty.job.scheduler.default import DefaultScheduler
-from betty.project import ProjectContext
 from betty.project.generate.jobs import (
     GenerateEntitiesHtml,
     GenerateEntitiesJson,
@@ -35,6 +34,7 @@ from betty.project.generate.jobs import (
     GenerateSitemap,
     GenerateStaticPublicAssets,
 )
+from betty.project.job import ProjectContext
 
 if TYPE_CHECKING:
     from betty.job.scheduler import Scheduler

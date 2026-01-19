@@ -15,7 +15,7 @@ from typing_extensions import override
 from betty.job import Job
 from betty.locale.localizable.static import StaticTranslations
 from betty.media_type import InvalidMediaType, MediaType
-from betty.project import Project, ProjectContext
+from betty.project.job import ProjectContext
 
 if TYPE_CHECKING:
     from collections.abc import Iterable
@@ -25,6 +25,7 @@ if TYPE_CHECKING:
     from betty.ancestry.link import Link
     from betty.job.scheduler import Scheduler
     from betty.locale.localizable import StaticTranslationsMapping
+    from betty.project import Project
 
 
 @final

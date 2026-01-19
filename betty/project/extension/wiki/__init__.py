@@ -34,7 +34,8 @@ if TYPE_CHECKING:
     from betty.ancestry.link import Link
     from betty.copyright_notice import CopyrightNotice
     from betty.job.scheduler import Scheduler
-    from betty.project import Project, ProjectContext
+    from betty.project import Project
+    from betty.project.job import ProjectContext
 
 
 @final

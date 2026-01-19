@@ -1,5 +1,6 @@
-from betty.project import Project, ProjectContext
+from betty.project import Project
 from betty.project.extension.demo.jobs import LoadAncestry
+from betty.project.job import ProjectContext
 from betty.test_utils.conftest import IsolatedAppFactory
 from betty.test_utils.job import do
 from betty.test_utils.project.extension.demo.project import (
