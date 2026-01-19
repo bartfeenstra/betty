@@ -59,14 +59,14 @@ from betty.plugin.config import (
 from betty.plugin.config.ordered import OrderedPluginDefinitionConfiguration
 from betty.plugin.resolve import ResolvableId, resolve_id
 from betty.project.extension import Extension, ExtensionDefinition
-from betty.project.factory import CallbackProjectDependentFactory
+from betty.service.level.factory import CallbackServiceLevelDependentFactory
 
 if TYPE_CHECKING:
     from betty.locale.localizable import Localizable, LocalizableLike
     from betty.plugin.repository import PluginRepository
     from betty.portable import PortableData, PortableMapping
     from betty.project import Project
-    from betty.service.level.factory import AnyFactoryTarget
+    from betty.service.level.factory import ServiceLevelTarget
 
 DEFAULT_LIFETIME_THRESHOLD = 123
 """
@@ -1197,14 +1197,17 @@ class ProjectConfiguration(Configuration):
 
     @override
     @property
-    def validator(self) -> AnyFactoryTarget[None]:
+    def validator(self) -> ServiceLevelTarget[None]:
+        from betty.project.factory import require_project
+
+        @require_project
         async def _validate(project: Project) -> None:
             with reraise_with_indicator(Key("entity_types")):
                 await self.entity_types.validate(
                     await project.plugins(EntityDefinition)
                 )
 
-        return CallbackProjectDependentFactory(_validate)  # ty:ignore[invalid-return-type]
+        return CallbackServiceLevelDependentFactory(_validate)
 
     @property
     def name(self) -> MachineName | None:

@@ -12,8 +12,9 @@ from betty.locale.localizable.markup import AllEnumeration
 from betty.media_type import MediaType
 from betty.media_type.media_types import HTML
 from betty.project import Project
-from betty.project.factory import ProjectDependentSelfFactory
+from betty.project.factory import require_project
 from betty.render import Renderer, RendererDefinition
+from betty.service.level.factory import ServiceLevelDependentSelfFactory
 from betty.typing import private
 from betty.url import UrlGenerator
 
@@ -27,7 +28,7 @@ _ATTRIBUTES = ("href", "src")
         "The values of the following HTML attributes will automatically be replaced with the URLs generated from them where possible: {attributes}"
     ).format(attributes=AllEnumeration(*_ATTRIBUTES)),
 )
-class Html(ProjectDependentSelfFactory, Renderer):
+class Html(ServiceLevelDependentSelfFactory, Renderer):
     """
     .. plugin:: renderer:html.
     """
@@ -38,7 +39,8 @@ class Html(ProjectDependentSelfFactory, Renderer):
 
     @override
     @classmethod
-    async def new_for_project(cls, project: Project, /) -> Self:
+    @require_project
+    async def new_for_services(cls, project: Project, /) -> Self:
         return cls(url_generator=await project.url_generator)
 
     @override

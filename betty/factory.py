@@ -6,14 +6,11 @@ from __future__ import annotations
 
 from abc import ABC, abstractmethod
 from collections.abc import Awaitable, Callable
-from typing import TYPE_CHECKING, Self, TypeAlias, cast
+from typing import Self, TypeAlias
 
 from typing_extensions import TypeVar
 
 from betty.asyncio import ensure_await
-
-if TYPE_CHECKING:
-    from betty.service.level.factory import AnyFactoryTarget
 
 _T = TypeVar("_T")
 
@@ -50,7 +47,7 @@ class FactoryError(Exception):
     """
 
 
-async def new_target(target: AnyFactoryTarget[_T], /) -> _T:
+async def new_target(target: Target[_T], /) -> _T:
     """
     Create a new instance.
 
@@ -59,8 +56,8 @@ async def new_target(target: AnyFactoryTarget[_T], /) -> _T:
     try:
         if isinstance(target, type):
             if issubclass(target, SelfFactory):
-                return cast(_T, await target.new())
-            return cast(type[_T], target)()
+                return await target.new()  # ty:ignore[invalid-return-type]
+            return target()
         if callable(target):
             return await ensure_await(target())
         raise FactoryError(target)

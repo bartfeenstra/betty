@@ -11,7 +11,7 @@ import aiohttp
 from aiohttp import ClientSession
 from typing_extensions import override
 
-from betty.app.factory import AppDependentSelfFactory
+from betty.app.factory import require_app
 from betty.copyright_notice import CopyrightNotice, CopyrightNoticeDefinition
 from betty.locale import DEFAULT_LOCALE, ensure_locale
 from betty.locale.error import LocaleError
@@ -19,7 +19,8 @@ from betty.locale.localizable.ensure import ensure_localizable
 from betty.locale.localizable.gettext import _
 from betty.locale.localizable.plain import Plain
 from betty.locale.localizable.static import StaticTranslations
-from betty.project.factory import ProjectDependentSelfFactory
+from betty.project.factory import require_project
+from betty.service.level.factory import ServiceLevelDependentSelfFactory
 
 if TYPE_CHECKING:
     from betty.app import App
@@ -29,7 +30,7 @@ if TYPE_CHECKING:
 
 @final
 @CopyrightNoticeDefinition("project-author", label=_("Project author"))
-class ProjectAuthor(ProjectDependentSelfFactory, CopyrightNotice):
+class ProjectAuthor(ServiceLevelDependentSelfFactory, CopyrightNotice):
     """
     .. plugin:: copyright-notice:project-author.
     """
@@ -40,7 +41,8 @@ class ProjectAuthor(ProjectDependentSelfFactory, CopyrightNotice):
 
     @override
     @classmethod
-    async def new_for_project(cls, project: Project, /) -> Self:
+    @require_project
+    async def new_for_services(cls, project: Project, /) -> Self:
         return cls(project.configuration.author)
 
     @property
@@ -107,7 +109,7 @@ def _copyright_url(language: str, page: str) -> str:
 
 @final
 @CopyrightNoticeDefinition("wikipedia-contributors", label=_("Wikipedia contributors"))
-class WikipediaContributors(AppDependentSelfFactory, CopyrightNotice):
+class WikipediaContributors(ServiceLevelDependentSelfFactory, CopyrightNotice):
     """
     .. plugin:: copyright-notice:wikipedia-contributors.
     """
@@ -144,7 +146,8 @@ class WikipediaContributors(AppDependentSelfFactory, CopyrightNotice):
 
     @override
     @classmethod
-    async def new_for_app(cls, app: App, /) -> Self:
+    @require_app
+    async def new_for_services(cls, app: App, /) -> Self:
         return await cls.new(http_client=await app.http_client)
 
     @override

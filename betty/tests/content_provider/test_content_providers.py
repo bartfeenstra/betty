@@ -197,14 +197,14 @@ class TestNotes(ContentProviderTestBase):
 
     async def test_provide__without_has_notes_resource(self, isolated_app: App) -> None:
         async with Project.new_isolated(isolated_app) as project, project:
-            sut = await Notes.new_for_project(project)
+            sut = await Notes.new_for_services(project)
             assert await sut.provide(document=Document()) is None
 
     async def test_provide__without_notes(self, isolated_app: App) -> None:
         has_notes = DummyHasNotes()
         async with Project.new_isolated(isolated_app) as project, project:
             project.ancestry.add(has_notes)
-            sut = await Notes.new_for_project(project)
+            sut = await Notes.new_for_services(project)
             assert await sut.provide(document=Document(has_notes)) is None
 
     async def test_provide__with_notes(self, isolated_app: App) -> None:
@@ -212,7 +212,7 @@ class TestNotes(ContentProviderTestBase):
         has_notes = DummyHasNotes(notes=[Note(note_text)])
         async with Project.new_isolated(isolated_app) as project, project:
             project.ancestry.add(has_notes)
-            sut = await Notes.new_for_project(project)
+            sut = await Notes.new_for_services(project)
             actual = await sut.provide(document=Document(has_notes))
             assert actual is not None
             assert note_text in actual

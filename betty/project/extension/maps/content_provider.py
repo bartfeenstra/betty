@@ -16,20 +16,22 @@ from betty.document import Document
 from betty.locale.localizable.gettext import _
 from betty.project import Project
 from betty.project.extension.maps import Maps
-from betty.project.factory import ProjectDependentSelfFactory
+from betty.project.factory import require_project
 from betty.requirement import HasRequirement, Requirement
 from betty.service.level import ServiceLevel
+from betty.service.level.factory import ServiceLevelDependentSelfFactory
 
 
 @ContentProviderDefinition("maps-map", label=_("Map"))
-class Map(Template, ProjectDependentSelfFactory, HasRequirement):
+class Map(Template, ServiceLevelDependentSelfFactory, HasRequirement):
     """
     An interactive map.
     """
 
     @override
     @classmethod
-    async def new_for_project(cls, project: Project) -> Self:
+    @require_project
+    async def new_for_services(cls, project: Project) -> Self:
         return cls(jinja2_environment=await project.jinja2_environment)
 
     @override
@@ -63,14 +65,15 @@ class Map(Template, ProjectDependentSelfFactory, HasRequirement):
 
 
 @ContentProviderDefinition("maps-map-attribution", label=_("Map attribution"))
-class MapAttribution(Template, ProjectDependentSelfFactory, HasRequirement):
+class MapAttribution(Template, ServiceLevelDependentSelfFactory, HasRequirement):
     """
     The attribution for an interactive map.
     """
 
     @override
     @classmethod
-    async def new_for_project(cls, project: Project) -> Self:
+    @require_project
+    async def new_for_services(cls, project: Project) -> Self:
         return cls(jinja2_environment=await project.jinja2_environment)
 
     @override

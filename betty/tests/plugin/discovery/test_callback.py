@@ -8,6 +8,7 @@ import pytest
 from betty.plugin import PluginDefinition
 from betty.plugin.discovery.callback import CallbackDiscovery
 from betty.project import Project
+from betty.service.level.universal import universe
 from betty.test_utils.plugin import DummyPluginOne
 
 if TYPE_CHECKING:
@@ -42,7 +43,7 @@ class TestCallbackDiscovery:
     ) -> None:
         expected, discovery = sut_params
         sut = CallbackDiscovery(discovery)
-        assert await sut.discover(None) == expected
+        assert await sut.discover(universe) == expected
 
     async def test_discover__with_app(
         self, sut_params: CallbackResultDiscoveryTestParams, isolated_app: App

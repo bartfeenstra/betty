@@ -4,7 +4,6 @@ from typing import Any, Self, TypeVar
 import pytest
 from typing_extensions import override
 
-from betty.factory import new_target
 from betty.locale.localizable import LocalizableLike
 from betty.requirement import Requirement, StaticRequirement
 from betty.service.bootstrap import NotBootstrappedError
@@ -19,7 +18,8 @@ from betty.service.container import (
     service,
 )
 from betty.service.level import ServiceLevel
-from betty.service.level.factory import AnyFactoryTarget
+from betty.service.level.factory import ServiceLevelTarget
+from betty.service.level.universal import universe
 from betty.test_utils.config import DummyConfigurable
 from betty.test_utils.locale.localizable import DUMMY_LOCALIZABLE
 
@@ -35,8 +35,8 @@ class _ServiceContainer(ServiceContainer):
         return StaticRequirement(DUMMY_LOCALIZABLE)
 
     @override
-    async def _new_target(self, target: AnyFactoryTarget[_T]) -> _T:
-        return await new_target(target)
+    async def _new_target(self, target: ServiceLevelTarget[_T]) -> _T:
+        return await universe.new_target(target)
 
 
 class _ConfigurableServiceProvider(DummyConfigurable, _ServiceContainer):

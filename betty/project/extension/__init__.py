@@ -25,7 +25,7 @@ if TYPE_CHECKING:
     from betty.plugin.resolve import ResolvableId
     from betty.project import Project
     from betty.service.level import ServiceLevel
-    from betty.service.level.factory import AnyFactoryTarget
+    from betty.service.level.factory import ServiceLevelTarget
 
 
 _T = TypeVar("_T")
@@ -80,7 +80,7 @@ class Extension(ServiceContainer, HasRequirement, Plugin["ExtensionDefinition"])
         )
 
     @override
-    async def _new_target(self, target: AnyFactoryTarget[_T]) -> _T:
+    async def _new_target(self, target: ServiceLevelTarget[_T]) -> _T:
         return await self._project.new_target(target)
 
 

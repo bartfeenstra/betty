@@ -9,9 +9,10 @@ import pytest
 from betty.app import App
 from betty.config import Configuration
 from betty.config.factory import ConfigurationDependentSelfFactory
-from betty.factory import FactoryError, new_target
+from betty.factory import FactoryError
 from betty.project import Project
 from betty.requirement import HasRequirement, Requirement
+from betty.service.level.universal import universe
 
 _ConfigurationT = TypeVar("_ConfigurationT", bound=Configuration)
 
@@ -50,7 +51,7 @@ class ConfigurationDependentSelfFactoryTestBase(Generic[_ConfigurationT]):
         Tests :py:meth:`betty.config.factory.ConfigurationDependentSelfFactory.new_for_configuration` implementations.
         """
         try:
-            sut = await new_target(
+            sut = await universe.new_target(
                 configuration_dependent_self_factory_sut.new_for_configuration(
                     configuration_dependent_self_factory_sut_configuration
                 )
@@ -59,7 +60,7 @@ class ConfigurationDependentSelfFactoryTestBase(Generic[_ConfigurationT]):
             requirement: Requirement | None = None
             if issubclass(configuration_dependent_self_factory_sut, HasRequirement):
                 requirement = (
-                    await configuration_dependent_self_factory_sut.requirement(None)
+                    await configuration_dependent_self_factory_sut.requirement(universe)
                 )
             if requirement is None:
                 raise AssertionError(

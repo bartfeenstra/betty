@@ -13,18 +13,19 @@ from betty.locale.localizable.gettext import _
 from betty.project.extension import Extension, ExtensionDefinition
 from betty.project.extension.gramps.config import GrampsConfiguration
 from betty.project.extension.gramps.jobs import LoadAncestry
-from betty.project.factory import (
-    CallbackProjectDependentFactory,
-    ProjectDependentSelfFactory,
-)
+from betty.project.factory import require_project
 from betty.project.load import Loader
+from betty.service.level.factory import (
+    CallbackServiceLevelDependentFactory,
+    ServiceLevelDependentSelfFactory,
+)
 from betty.typing import private
 
 if TYPE_CHECKING:
     from betty.job.scheduler import Scheduler
     from betty.project import Project
     from betty.project.job import ProjectContext
-    from betty.service.level.factory import AnyFactoryTarget
+    from betty.service.level.factory import ServiceLevelTarget
 
 
 @final
@@ -36,7 +37,7 @@ if TYPE_CHECKING:
 class Gramps(
     Loader,
     ConfigurationDependentSelfFactory[GrampsConfiguration],
-    ProjectDependentSelfFactory,
+    ServiceLevelDependentSelfFactory,
     Extension,
 ):
     """
@@ -328,16 +329,19 @@ class Gramps(
 
     @override
     @classmethod
-    async def new_for_project(cls, project: Project, /) -> Self:
+    @require_project
+    async def new_for_services(cls, project: Project, /) -> Self:
         return cls(project=project)
 
     @override
     @classmethod
     def new_for_configuration(
         cls, configuration: GrampsConfiguration
-    ) -> AnyFactoryTarget[Self]:  # ty:ignore[invalid-method-override]
-        return CallbackProjectDependentFactory(
-            lambda project: cls(configuration=configuration, project=project)
+    ) -> ServiceLevelTarget[Self]:  # ty:ignore[invalid-method-override]
+        return CallbackServiceLevelDependentFactory(
+            require_project(
+                lambda project: cls(configuration=configuration, project=project)
+            )
         )
 
     @override

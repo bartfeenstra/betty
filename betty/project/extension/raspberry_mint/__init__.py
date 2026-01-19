@@ -20,11 +20,12 @@ from betty.project.extension.raspberry_mint.config import RaspberryMintConfigura
 from betty.project.extension.trees import Trees
 from betty.project.extension.webpack import Webpack
 from betty.project.extension.webpack.build import EntryPointProvider
-from betty.project.factory import (
-    CallbackProjectDependentFactory,
-    ProjectDependentSelfFactory,
-)
+from betty.project.factory import require_project
 from betty.project.generate import Generator
+from betty.service.level.factory import (
+    CallbackServiceLevelDependentFactory,
+    ServiceLevelDependentSelfFactory,
+)
 from betty.typing import private
 
 if TYPE_CHECKING:
@@ -33,7 +34,7 @@ if TYPE_CHECKING:
     from betty.job.scheduler import Scheduler
     from betty.project import Project
     from betty.project.job import ProjectContext
-    from betty.service.level.factory import AnyFactoryTarget
+    from betty.service.level.factory import ServiceLevelTarget
 
 
 @final
@@ -50,7 +51,7 @@ if TYPE_CHECKING:
 )
 class RaspberryMint(
     ConfigurationDependentSelfFactory[RaspberryMintConfiguration],
-    ProjectDependentSelfFactory,
+    ServiceLevelDependentSelfFactory,
     Jinja2Provider,
     Generator,
     EntryPointProvider,
@@ -109,16 +110,19 @@ class RaspberryMint(
 
     @override
     @classmethod
-    async def new_for_project(cls, project: Project, /) -> Self:
+    @require_project
+    async def new_for_services(cls, project: Project, /) -> Self:
         return cls(project=project)
 
     @override
     @classmethod
     def new_for_configuration(
         cls, configuration: RaspberryMintConfiguration
-    ) -> AnyFactoryTarget[Self]:  # ty:ignore[invalid-method-override]
-        return CallbackProjectDependentFactory(
-            lambda project: cls(configuration=configuration, project=project)
+    ) -> ServiceLevelTarget[Self]:  # ty:ignore[invalid-method-override]
+        return CallbackServiceLevelDependentFactory(
+            require_project(
+                lambda project: cls(configuration=configuration, project=project)
+            )
         )
 
     @override

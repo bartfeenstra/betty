@@ -9,6 +9,7 @@ from betty.app import App
 from betty.plugin import PluginDefinition
 from betty.plugin.discovery.app import AppDiscovery
 from betty.project import Project
+from betty.service.level.universal import universe
 from betty.test_utils.plugin import DummyPluginOne
 
 AppDiscoveryTestParams: TypeAlias = tuple[
@@ -33,10 +34,10 @@ class TestAppDiscovery:
     def sut_params(self, request: pytest.FixtureRequest) -> AppDiscoveryTestParams:
         return cast(AppDiscoveryTestParams, request.param)
 
-    async def test_discover_global(self, sut_params: AppDiscoveryTestParams) -> None:
+    async def test_discover_universe(self, sut_params: AppDiscoveryTestParams) -> None:
         expected, discovery = sut_params
         sut = AppDiscovery(discovery)
-        assert not list(await sut.discover(None))
+        assert not list(await sut.discover(universe))
 
     async def test_discover__with_app(
         self, sut_params: AppDiscoveryTestParams, isolated_app: App

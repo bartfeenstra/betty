@@ -31,7 +31,7 @@ class TestRaspberryMint(
     @pytest.fixture
     async def sut(self, isolated_app: App) -> Extension:
         async with Project.new_isolated(isolated_app) as project, project:
-            return await RaspberryMint.new_for_project(project)
+            return await RaspberryMint.new_for_services(project)
 
     @override
     @pytest.fixture
@@ -72,5 +72,5 @@ class TestRaspberryMint(
 
     async def test_regions(self, isolated_app: App) -> None:
         async with Project.new_isolated(isolated_app) as project, project:
-            sut = await RaspberryMint.new_for_project(project)
+            sut = await RaspberryMint.new_for_services(project)
             assert await sut.regions

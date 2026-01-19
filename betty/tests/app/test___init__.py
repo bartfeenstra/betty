@@ -5,10 +5,12 @@ from typing import TYPE_CHECKING, Self
 from typing_extensions import override
 
 from betty.app import App
-from betty.app.factory import AppDependentFactory, AppDependentSelfFactory
+from betty.app.factory import require_app
 from betty.locale.localize import DEFAULT_LOCALIZER
 from betty.project import Project
 from betty.requirement import Requirement
+from betty.service.level.factory import ServiceLevelDependentSelfFactory
+from betty.service.level.universal import universe
 from betty.test_utils.plugin import DummyPluginDefinition
 from betty.test_utils.user import StaticUser
 
@@ -16,20 +18,21 @@ if TYPE_CHECKING:
     from pytest_mock import MockerFixture
 
 
-class _AppDependentSelfFactory(AppDependentSelfFactory):
+class _ServiceLevelDependentSelfFactory(ServiceLevelDependentSelfFactory):
     def __init__(self, app: App):
         self.app = app
 
     @override
     @classmethod
-    async def new_for_app(cls, app: App, /) -> Self:
+    @require_app
+    async def new_for_services(cls, app: App, /) -> Self:
         return cls(app)
 
 
 class TestApp:
-    async def test_requires__with_global(self) -> None:
+    async def test_requires__with_universe(self) -> None:
         subject = "My First Subject"
-        requires = await App.requires(None, subject)
+        requires = await App.requires(universe, subject)
         assert isinstance(requires, Requirement)
         assert subject in requires.localize(DEFAULT_LOCALIZER)
 
@@ -79,29 +82,6 @@ class TestApp:
 
     async def test_process_pool(self, isolated_app: App) -> None:
         assert isolated_app.process_pool is isolated_app.process_pool
-
-    async def test_new_target(self, isolated_app: App) -> None:
-        class Dependent:
-            pass
-
-        await isolated_app.new_target(Dependent)
-
-    async def test_new_target__with_app_dependent_factory(
-        self, isolated_app: App
-    ) -> None:
-        class _Factory(AppDependentFactory[App]):
-            @override
-            async def new_for_app(self, app: App, /) -> App:
-                return app
-
-        target = await isolated_app.new_target(_Factory())
-        assert target is isolated_app
-
-    async def test_new_target__with_app_dependent_self_factory(
-        self, isolated_app: App
-    ) -> None:
-        dependent = await isolated_app.new_target(_AppDependentSelfFactory)
-        assert dependent.app is isolated_app
 
     async def test__spdx_license_repository(self, isolated_app: App) -> None:
         await isolated_app._spdx_license_repository

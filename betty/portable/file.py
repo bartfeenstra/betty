@@ -14,8 +14,8 @@ from betty.assertion import AssertionChain, assert_file_path
 from betty.data.indicator import Path as DataPath
 from betty.exception import reraise_with_indicator
 from betty.factory import new_target
-from betty.plugin.repository.provider.service import plugins
 from betty.serde import SerializerDefinition, serializer_for
+from betty.service.level.universal import universe
 
 if TYPE_CHECKING:
     from pathlib import Path
@@ -29,7 +29,7 @@ async def assert_load_file() -> AssertionChain[Path, PortableData]:
     """
     available_formats = {
         available_format: await new_target(available_format.cls)
-        for available_format in await plugins(SerializerDefinition)
+        for available_format in await universe.plugins(SerializerDefinition)
     }
 
     def _assert(file_path: Path) -> PortableData:
@@ -54,7 +54,9 @@ async def dump_file(portable: PortableData, file_path: Path, /) -> None:
     Write a dump to a file.
     """
     serializer = await new_target(
-        serializer_for(list(await plugins(SerializerDefinition)), file_path.suffix).cls
+        serializer_for(
+            list(await universe.plugins(SerializerDefinition)), file_path.suffix
+        ).cls
     )
     dump_data = serializer.dump(portable)
     await makedirs(file_path.parent, exist_ok=True)

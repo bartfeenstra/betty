@@ -102,7 +102,7 @@ class Test_LocalizedPathUrlUrlGenerator:
         self, expected: bool, resource: Any, isolated_app: App
     ) -> None:
         async with Project.new_isolated(isolated_app) as project, project:
-            sut = await _LocalizedPathUrlUrlGenerator.new_for_project(project)
+            sut = await _LocalizedPathUrlUrlGenerator.new_for_services(project)
             assert sut.supports(resource) == expected
 
     _GENERATE_RESOURCES = [
@@ -186,7 +186,7 @@ class Test_LocalizedPathUrlUrlGenerator:
                     LocaleConfiguration(additional_project_locale)
                 )
             async with project:
-                sut = await _LocalizedPathUrlUrlGenerator.new_for_project(project)
+                sut = await _LocalizedPathUrlUrlGenerator.new_for_services(project)
                 assert (
                     sut.generate(
                         resource,
@@ -222,7 +222,7 @@ class Test_StaticPathUrlUrlGenerator:
         self, expected: bool, resource: Any, isolated_app: App
     ) -> None:
         async with Project.new_isolated(isolated_app) as project, project:
-            sut = await _StaticPathUrlUrlGenerator.new_for_project(project)
+            sut = await _StaticPathUrlUrlGenerator.new_for_services(project)
             assert sut.supports(resource) == expected
 
     @pytest.mark.parametrize(
@@ -289,7 +289,7 @@ class Test_StaticPathUrlUrlGenerator:
                     LocaleConfiguration(additional_project_locale)
                 )
             async with project:
-                sut = await _StaticPathUrlUrlGenerator.new_for_project(project)
+                sut = await _StaticPathUrlUrlGenerator.new_for_services(project)
                 assert (
                     sut.generate(
                         resource,

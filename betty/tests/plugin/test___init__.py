@@ -14,6 +14,7 @@ from betty.plugin.dependent import DependentPluginDefinition
 from betty.plugin.discovery import discover
 from betty.plugin.discovery.static import StaticDiscovery
 from betty.plugin.ordered import OrderedPluginDefinition
+from betty.service.level.universal import universe
 from betty.test_utils.locale.localizable import (
     DUMMY_COUNTABLE_LOCALIZABLE,
     DUMMY_LOCALIZABLE,
@@ -233,9 +234,11 @@ class TestPluginTypeDefinition:
         )
         with sut.override_discovery(StaticDiscovery(DummyPluginOne)):
             sut.add_discovery(StaticDiscovery(DummyPluginTwo))
-            assert DummyPluginTwo.plugin() not in await discover(None, *sut.discovery)
-        assert DummyPluginOne.plugin() not in await discover(None, *sut.discovery)
-        assert DummyPluginTwo.plugin() in await discover(None, *sut.discovery)
+            assert DummyPluginTwo.plugin() not in await discover(
+                universe, *sut.discovery
+            )
+        assert DummyPluginOne.plugin() not in await discover(universe, *sut.discovery)
+        assert DummyPluginTwo.plugin() in await discover(universe, *sut.discovery)
 
     def test_discovery_overridden(self) -> None:
         sut = PluginTypeDefinition(

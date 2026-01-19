@@ -6,13 +6,14 @@ from typing_extensions import override
 
 from betty.app import config as app_config
 from betty.app.config import AppConfiguration
-from betty.app.factory import AppDependentSelfFactory
+from betty.app.factory import require_app
 from betty.argparse import assertion_to_argument_type
 from betty.assertion import assert_locale
 from betty.console.command import Command, CommandDefinition, CommandFunction
 from betty.locale import DEFAULT_LOCALE, to_language_tag
 from betty.locale.localizable.gettext import _
 from betty.portable.file import dump_file
+from betty.service.level.factory import ServiceLevelDependentSelfFactory
 
 if TYPE_CHECKING:
     import argparse
@@ -24,7 +25,7 @@ if TYPE_CHECKING:
 
 @final
 @CommandDefinition("config", label=_("Configure Betty"))
-class Config(AppDependentSelfFactory, Command):
+class Config(ServiceLevelDependentSelfFactory, Command):
     """
     .. plugin:: command:config.
     """
@@ -34,7 +35,8 @@ class Config(AppDependentSelfFactory, Command):
 
     @override
     @classmethod
-    async def new_for_app(cls, app: App, /) -> Self:
+    @require_app
+    async def new_for_services(cls, app: App, /) -> Self:
         return cls(app)
 
     @override

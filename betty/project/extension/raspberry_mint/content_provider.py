@@ -48,11 +48,12 @@ from betty.project.extension.raspberry_mint import (
     RaspberryMint,
 )
 from betty.project.extension.raspberry_mint import ColorStyle as RaspberryMintColorStyle
-from betty.project.factory import (
-    CallbackProjectDependentFactory,
-    ProjectDependentSelfFactory,
-)
+from betty.project.factory import require_project
 from betty.requirement import HasRequirement, Requirement
+from betty.service.level.factory import (
+    CallbackServiceLevelDependentFactory,
+    ServiceLevelDependentSelfFactory,
+)
 from betty.typing import private
 
 if TYPE_CHECKING:
@@ -67,7 +68,9 @@ if TYPE_CHECKING:
     from betty.portable import PortableData, PortableMapping
     from betty.project import Project
     from betty.service.level import ServiceLevel
-    from betty.service.level.factory import AnyFactoryTarget
+    from betty.service.level.factory import (
+        ServiceLevelTarget,
+    )
 
 
 class _Base(HasRequirement, Plugin[ContentProviderDefinition]):
@@ -205,14 +208,15 @@ class Section(
     @classmethod
     def new_for_configuration(
         cls, configuration: SectionConfiguration
-    ) -> AnyFactoryTarget[Self]:  # ty:ignore[invalid-method-override]
+    ) -> ServiceLevelTarget[Self]:  # ty:ignore[invalid-method-override]
+        @require_project
         async def _factory(project: Project) -> Self:
             return cls(
                 configuration=configuration,
                 jinja2_environment=await project.jinja2_environment,
             )
 
-        return CallbackProjectDependentFactory(_factory)  # ty:ignore[invalid-return-type]
+        return CallbackServiceLevelDependentFactory(_factory)
 
     @override
     async def _provide_data(self, document: Document) -> Mapping[str, Any]:
@@ -255,7 +259,8 @@ class EntityCard(Template, ConfigurationDependentSelfFactory[EntityReference], _
     @classmethod
     def new_for_configuration(
         cls, configuration: EntityReference
-    ) -> AnyFactoryTarget[Self]:  # ty:ignore[invalid-method-override]
+    ) -> ServiceLevelTarget[Self]:  # ty:ignore[invalid-method-override]
+        @require_project
         async def _factory(project: Project) -> Self:
             return cls(
                 ancestry=project.ancestry,
@@ -264,7 +269,7 @@ class EntityCard(Template, ConfigurationDependentSelfFactory[EntityReference], _
                 jinja2_environment=await project.jinja2_environment,
             )
 
-        return CallbackProjectDependentFactory(_factory)  # ty:ignore[invalid-return-type]
+        return CallbackServiceLevelDependentFactory(_factory)
 
     @override
     async def _provide_data(self, document: Document) -> Mapping[str, Any]:
@@ -276,14 +281,15 @@ class EntityCard(Template, ConfigurationDependentSelfFactory[EntityReference], _
 
 
 @ContentProviderDefinition("raspberry-mint-families", label=_("Families"))
-class Families(Template, _Base, ProjectDependentSelfFactory):
+class Families(Template, _Base, ServiceLevelDependentSelfFactory):
     """
     A person's families.
     """
 
     @override
     @classmethod
-    async def new_for_project(cls, project: Project, /) -> Self:
+    @require_project
+    async def new_for_services(cls, project: Project, /) -> Self:
         return cls(jinja2_environment=await project.jinja2_environment)
 
 
@@ -292,14 +298,15 @@ class Families(Template, _Base, ProjectDependentSelfFactory):
     label=_("Media"),
     description=_("A single file in a media display"),
 )
-class Media(Template, _Base, ProjectDependentSelfFactory):
+class Media(Template, _Base, ServiceLevelDependentSelfFactory):
     """
     A single file in a media display.
     """
 
     @override
     @classmethod
-    async def new_for_project(cls, project: Project, /) -> Self:
+    @require_project
+    async def new_for_services(cls, project: Project, /) -> Self:
         return cls(jinja2_environment=await project.jinja2_environment)
 
 
@@ -308,14 +315,15 @@ class Media(Template, _Base, ProjectDependentSelfFactory):
     label=_("Media gallery"),
     description=_("Multiple files in a media gallery display"),
 )
-class MediaGallery(Template, _Base, ProjectDependentSelfFactory):
+class MediaGallery(Template, _Base, ServiceLevelDependentSelfFactory):
     """
     Multiple files in a media gallery display.
     """
 
     @override
     @classmethod
-    async def new_for_project(cls, project: Project, /) -> Self:
+    @require_project
+    async def new_for_services(cls, project: Project, /) -> Self:
         return cls(jinja2_environment=await project.jinja2_environment)
 
 
@@ -408,14 +416,15 @@ class ColorStyle(
     @classmethod
     def new_for_configuration(
         cls, configuration: ColorStyleConfiguration
-    ) -> AnyFactoryTarget[Self]:  # ty:ignore[invalid-method-override]
+    ) -> ServiceLevelTarget[Self]:  # ty:ignore[invalid-method-override]
+        @require_project
         async def _factory(project: Project) -> Self:
             return cls(
                 configuration=configuration,
                 jinja2_environment=await project.jinja2_environment,
             )
 
-        return CallbackProjectDependentFactory(_factory)  # ty:ignore[invalid-return-type]
+        return CallbackServiceLevelDependentFactory(_factory)
 
     @override
     async def _provide_data(self, document: Document) -> Mapping[str, Any]:
@@ -426,26 +435,28 @@ class ColorStyle(
 
 
 @ContentProviderDefinition("raspberry-mint-external-links", label=_("External links"))
-class ExternalLinks(Template, _Base, ProjectDependentSelfFactory):
+class ExternalLinks(Template, _Base, ServiceLevelDependentSelfFactory):
     """
     External links.
     """
 
     @override
     @classmethod
-    async def new_for_project(cls, project: Project, /) -> Self:
+    @require_project
+    async def new_for_services(cls, project: Project, /) -> Self:
         return cls(jinja2_environment=await project.jinja2_environment)
 
 
 @ContentProviderDefinition("raspberry-mint-timeline", label=_("Timeline"))
-class Timeline(Template, _Base, ProjectDependentSelfFactory):
+class Timeline(Template, _Base, ServiceLevelDependentSelfFactory):
     """
     A timeline of events.
     """
 
     @override
     @classmethod
-    async def new_for_project(cls, project: Project, /) -> Self:
+    @require_project
+    async def new_for_services(cls, project: Project, /) -> Self:
         return cls(jinja2_environment=await project.jinja2_environment)
 
 
@@ -456,14 +467,15 @@ class Timeline(Template, _Base, ProjectDependentSelfFactory):
         "Other entities that reference a citation or source to back up their claims."
     ),
 )
-class Facts(Template, _Base, ProjectDependentSelfFactory):
+class Facts(Template, _Base, ServiceLevelDependentSelfFactory):
     """
     A list of facts.
     """
 
     @override
     @classmethod
-    async def new_for_project(cls, project: Project, /) -> Self:
+    @require_project
+    async def new_for_services(cls, project: Project, /) -> Self:
         return cls(jinja2_environment=await project.jinja2_environment)
 
 
@@ -575,7 +587,8 @@ class Presences(
     @classmethod
     def new_for_configuration(
         cls, configuration: PresencesConfiguration
-    ) -> AnyFactoryTarget[Self]:  # ty:ignore[invalid-method-override]
+    ) -> ServiceLevelTarget[Self]:  # ty:ignore[invalid-method-override]
+        @require_project
         async def _factory(project: Project) -> Self:
             return cls(
                 configuration=configuration,
@@ -583,7 +596,7 @@ class Presences(
                 presence_roles=await project.plugins(PresenceRoleDefinition),
             )
 
-        return CallbackProjectDependentFactory(_factory)  # ty:ignore[invalid-return-type]
+        return CallbackServiceLevelDependentFactory(_factory)
 
     @override
     async def _provide_data(self, document: Document) -> Mapping[str, Any]:
@@ -815,14 +828,15 @@ class Columns(Template, _Base, ConfigurationDependentSelfFactory[ColumnsConfigur
     @classmethod
     def new_for_configuration(
         cls, configuration: ColumnsConfiguration
-    ) -> AnyFactoryTarget[Self]:  # ty:ignore[invalid-method-override]
+    ) -> ServiceLevelTarget[Self]:  # ty:ignore[invalid-method-override]
+        @require_project
         async def _factory(project: Project) -> Self:
             return cls(
                 configuration=configuration,
                 jinja2_environment=await project.jinja2_environment,
             )
 
-        return CallbackProjectDependentFactory(_factory)  # ty:ignore[invalid-return-type]
+        return CallbackServiceLevelDependentFactory(_factory)
 
     @override
     async def _provide_data(self, document: Document) -> Mapping[str, Any]:
@@ -837,36 +851,39 @@ class Columns(Template, _Base, ConfigurationDependentSelfFactory[ColumnsConfigur
 
 
 @ContentProviderDefinition("raspberry-mint-enclosees", label=_("Enclosees"))
-class Enclosees(Template, _Base, ProjectDependentSelfFactory):
+class Enclosees(Template, _Base, ServiceLevelDependentSelfFactory):
     """
     Show the places enclosed by a place document resource.
     """
 
     @override
     @classmethod
-    async def new_for_project(cls, project: Project, /) -> Self:
+    @require_project
+    async def new_for_services(cls, project: Project, /) -> Self:
         return cls(jinja2_environment=await project.jinja2_environment)
 
 
 @ContentProviderDefinition("raspberry-mint-file-referees", label=_("File referees"))
-class FileReferees(Template, _Base, ProjectDependentSelfFactory):
+class FileReferees(Template, _Base, ServiceLevelDependentSelfFactory):
     """
     Show the entities referencing a document resource that is a file.
     """
 
     @override
     @classmethod
-    async def new_for_project(cls, project: Project, /) -> Self:
+    @require_project
+    async def new_for_services(cls, project: Project, /) -> Self:
         return cls(jinja2_environment=await project.jinja2_environment)
 
 
 @ContentProviderDefinition("raspberry-mint-citations", label=_("Citations"))
-class Citations(Template, _Base, ProjectDependentSelfFactory):
+class Citations(Template, _Base, ServiceLevelDependentSelfFactory):
     """
     The citations for a document resource that is an entity.
     """
 
     @override
     @classmethod
-    async def new_for_project(cls, project: Project, /) -> Self:
+    @require_project
+    async def new_for_services(cls, project: Project, /) -> Self:
         return cls(jinja2_environment=await project.jinja2_environment)

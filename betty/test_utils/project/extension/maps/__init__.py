@@ -70,7 +70,7 @@ class MapsTestBase:
             )
             async with project:
                 await generate(project)
-                async with await serve.BuiltinProjectServer.new_for_project(
+                async with await serve.BuiltinProjectServer.new_for_services(
                     project
                 ) as server:
                     yield server

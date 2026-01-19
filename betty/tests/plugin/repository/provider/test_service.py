@@ -9,12 +9,13 @@ from betty.plugin.discovery.static import StaticDiscovery
 from betty.plugin.repository.provider.service import (
     ServiceLevelPluginRepositoryProvider,
 )
+from betty.service.level.universal import universe
 from betty.test_utils.plugin import DummyPlugin, DummyPluginDefinition, DummyPluginOne
 
 
 class TestServiceLevelPluginRepositoryProvider:
     async def test_plugins__with_plugin_type(self) -> None:
-        sut = ServiceLevelPluginRepositoryProvider(None)
+        sut = ServiceLevelPluginRepositoryProvider(universe)
         assert await sut.plugins(DummyPluginDefinition) is await sut.plugins(
             DummyPluginDefinition
         )
@@ -26,7 +27,7 @@ class TestServiceLevelPluginRepositoryProvider:
             DummyPluginDefinition.type().id: DummyPluginDefinition,
         }
         mocker.patch("betty.plugin.plugin_types", new=plugin_type_repository)
-        sut = ServiceLevelPluginRepositoryProvider(None)
+        sut = ServiceLevelPluginRepositoryProvider(universe)
         assert DummyPluginOne.plugin() in await sut.plugins(
             DummyPluginDefinition.type().id
         )
@@ -45,7 +46,7 @@ class TestServiceLevelPluginRepositoryProvider:
         class _Plugin(DummyPlugin):
             pass
 
-        sut = ServiceLevelPluginRepositoryProvider(None)
+        sut = ServiceLevelPluginRepositoryProvider(universe)
         with DummyPluginDefinition.type().override_discovery(StaticDiscovery(_Plugin)):
             assert _Plugin.plugin() in await sut.plugins(DummyPluginDefinition)
         assert _Plugin.plugin() not in await sut.plugins(DummyPluginDefinition)

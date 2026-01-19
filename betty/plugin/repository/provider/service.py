@@ -25,6 +25,8 @@ if TYPE_CHECKING:
     from betty.plugin.repository import PluginRepository
     from betty.service.level import ServiceLevel
 
+
+_T = TypeVar("_T")
 _PluginDefinitionT = TypeVar(
     "_PluginDefinitionT", bound=PluginDefinition, default=PluginDefinition
 )
@@ -106,10 +108,3 @@ class ServiceLevelPluginRepositoryProvider(PluginRepositoryProvider):
             plugin_type,
             *await discover(self._services, *plugin_type.type().discovery),
         )
-
-
-_global_plugins = ServiceLevelPluginRepositoryProvider(None)
-plugins = _global_plugins.plugins
-"""
-Get the plugin repository for a plugin type, for the global service level.
-"""
