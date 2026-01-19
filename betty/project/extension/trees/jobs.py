@@ -15,7 +15,7 @@ from typing_extensions import override
 from betty.ancestry.person import Person
 from betty.job import Job
 from betty.media_type.media_types import HTML
-from betty.project import ProjectContext
+from betty.project.job import ProjectContext
 
 if TYPE_CHECKING:
     from babel import Locale

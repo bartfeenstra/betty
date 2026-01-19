@@ -11,9 +11,9 @@ from betty.app import App
 from betty.app.factory import AppDependentSelfFactory
 from betty.console.command import Command, CommandDefinition, CommandFunction
 from betty.dirs import DEV_OUTPUT_DIRECTORY_PATH
-from betty.project import ProjectContext
 from betty.project.extension.demo import generate_with_cleanup
 from betty.project.extension.demo.project import create_project
+from betty.project.job import ProjectContext
 
 if TYPE_CHECKING:
     import argparse

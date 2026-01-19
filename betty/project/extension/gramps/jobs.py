@@ -18,7 +18,7 @@ from betty.gramps.loader import GrampsLoader
 from betty.job import Job
 from betty.license import LicenseDefinition
 from betty.plugin import Plugin, PluginDefinition
-from betty.project import ProjectContext
+from betty.project.job import ProjectContext
 
 if TYPE_CHECKING:
     from collections.abc import Awaitable, Callable

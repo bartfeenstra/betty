@@ -10,7 +10,7 @@ from __future__ import annotations
 
 from contextlib import AsyncExitStack, asynccontextmanager
 from pathlib import Path
-from typing import TYPE_CHECKING, Any, Self, cast, final, overload
+from typing import TYPE_CHECKING, Self, cast, final, overload
 
 from aiofiles.tempfile import TemporaryDirectory
 from typing_extensions import TypeVar, override
@@ -24,7 +24,6 @@ from betty.config import Configurable
 from betty.copyright_notice import CopyrightNotice, CopyrightNoticeDefinition
 from betty.document import Document, DocumentProvider
 from betty.hashid import hashid
-from betty.job import Context as JobContext
 from betty.license import LicenseDefinition
 from betty.locale.localizable.gettext import _
 from betty.locale.localize import Localizer, LocalizerRepository
@@ -65,13 +64,11 @@ if TYPE_CHECKING:
     from babel import Locale
 
     from betty.app import App
-    from betty.cache import Cache
     from betty.jinja2 import Environment
     from betty.license import License
     from betty.locale.localizable import LocalizableLike
     from betty.machine_name import MachineName
     from betty.plugin.repository import PluginRepository
-    from betty.progress import Progress
     from betty.service.level import ServiceLevel
     from betty.service.level.factory import AnyFactoryTarget
     from betty.url import UrlGenerator
@@ -560,26 +557,3 @@ class ProjectExtensions:
             return False
         else:
             return True
-
-
-class ProjectContext(JobContext):
-    """
-    A job context for a project.
-    """
-
-    def __init__(
-        self,
-        project: Project,
-        *,
-        cache: Cache[Any] | None = None,
-        progress: Progress | None = None,
-    ):
-        super().__init__(cache=cache, progress=progress)
-        self._project = project
-
-    @property
-    def project(self) -> Project:
-        """
-        The Betty project this job context is run within.
-        """
-        return self._project

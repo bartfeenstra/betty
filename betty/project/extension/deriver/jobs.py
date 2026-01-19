@@ -10,7 +10,7 @@ from typing_extensions import override
 
 from betty.deriver import Deriver as DeriverApi
 from betty.job import Job
-from betty.project import ProjectContext
+from betty.project.job import ProjectContext
 
 if TYPE_CHECKING:
     from betty.job.scheduler import Scheduler

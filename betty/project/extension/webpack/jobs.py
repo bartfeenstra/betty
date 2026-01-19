@@ -9,8 +9,8 @@ from typing import TYPE_CHECKING
 from typing_extensions import override
 
 from betty.job import Job
-from betty.project import ProjectContext
 from betty.project.extension.webpack import Webpack
+from betty.project.job import ProjectContext
 
 if TYPE_CHECKING:
     from betty.job.scheduler import Scheduler

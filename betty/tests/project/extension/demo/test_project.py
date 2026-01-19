@@ -2,10 +2,11 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING
 
-from betty.project import Project, ProjectContext
+from betty.project import Project
 from betty.project.extension.demo import Demo
 from betty.project.extension.demo.jobs import LoadAncestry
 from betty.project.extension.demo.project import create_project
+from betty.project.job import ProjectContext
 from betty.test_utils.job import do
 from betty.test_utils.project.extension.demo.project import (
     demo_project_aioresponses,  # noqa: F401

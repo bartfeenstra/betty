@@ -10,8 +10,8 @@ import betty.project.extension.demo as stddemo
 from betty.app.factory import AppDependentSelfFactory
 from betty.console.command import Command, CommandDefinition, CommandFunction
 from betty.locale.localizable.gettext import _
-from betty.project import ProjectContext
 from betty.project.extension.demo.project import create_project
+from betty.project.job import ProjectContext
 
 if TYPE_CHECKING:
     import argparse

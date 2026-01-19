@@ -10,7 +10,7 @@ from typing_extensions import override
 
 from betty.ancestry.link import Link
 from betty.job import Job
-from betty.project import ProjectContext
+from betty.project.job import ProjectContext
 from betty.project.load.jobs import PopulateLink
 
 if TYPE_CHECKING:

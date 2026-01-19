@@ -12,7 +12,7 @@ from betty.app.factory import AppDependentFactory, AppDependentSelfFactory
 from betty.locale import DEFAULT_LOCALE, DEFAULT_LOCALE_TAG
 from betty.locale.localize import DEFAULT_LOCALIZER
 from betty.plugin.discovery.static import StaticDiscovery
-from betty.project import Project, ProjectContext, ProjectExtensions
+from betty.project import Project, ProjectExtensions
 from betty.project.config import LocaleConfiguration, ProjectConfiguration
 from betty.project.extension import Extension, ExtensionDefinition
 from betty.project.factory import ProjectDependentFactory, ProjectDependentSelfFactory
@@ -465,13 +465,6 @@ class TestProject:
         actual = sut.localize_www_directory_path(DEFAULT_LOCALE)
         assert tmp_path in actual.parents
         assert DEFAULT_LOCALE_TAG in str(actual)
-
-
-class TestProjectContext:
-    async def test_project(self, isolated_app: App) -> None:
-        async with Project.new_isolated(isolated_app) as project, project:
-            sut = ProjectContext(project)
-            assert sut.project is project
 
 
 class TestProjectExtensions:
