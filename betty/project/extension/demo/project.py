@@ -219,10 +219,10 @@ async def create_project(app: App, project_directory_path: Path) -> Project:
         ),
         entity_types=EntityTypeConfigurationMapping(
             [
-                EntityTypeConfiguration(Person, generate_html_list=True),
-                EntityTypeConfiguration(Event, generate_html_list=True),
-                EntityTypeConfiguration(Place, generate_html_list=True),
-                EntityTypeConfiguration(Source, generate_html_list=True),
+                EntityTypeConfiguration(Person),
+                EntityTypeConfiguration(Event),
+                EntityTypeConfiguration(Place),
+                EntityTypeConfiguration(Source),
             ]
         ),
         locales=LocaleConfigurationMapping(
