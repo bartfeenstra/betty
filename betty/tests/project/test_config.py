@@ -413,7 +413,7 @@ class TestEntityTypeConfiguration(ConfigurationTestBase[EntityTypeConfiguration]
         sut = EntityTypeConfiguration(DummyEntityOne)
         expected = {
             "entity_type": DummyEntityOne.plugin().id,
-            "generate_html_list": False,
+            "generate_html_list": True,
         }
         assert sut.dump() == expected
 
@@ -428,9 +428,7 @@ class TestEntityTypeConfiguration(ConfigurationTestBase[EntityTypeConfiguration]
     async def test_validate__with_generate_html_list_with_non_public_facing_entity_type_should_error(
         self,
     ) -> None:
-        sut = EntityTypeConfiguration(
-            DummyNonPublicFacingEntityOne, generate_html_list=True
-        )
+        sut = EntityTypeConfiguration(DummyNonPublicFacingEntityOne)
         with pytest.raises(HumanFacingException):
             await sut.validate(
                 StaticPluginRepository(EntityDefinition, DummyNonPublicFacingEntityOne)

@@ -135,7 +135,7 @@ class EntityTypeConfiguration(Configuration):
         self,
         entity_type: ResolvableId[EntityDefinition],
         *,
-        generate_html_list: bool = False,
+        generate_html_list: bool = True,
     ):
         super().__init__()
         self._id = resolve_id(entity_type)
@@ -168,7 +168,7 @@ class EntityTypeConfiguration(Configuration):
         )(portable)
         return cls(
             record["entity_type"],
-            generate_html_list=record.get("generate_html_list", False),
+            generate_html_list=record.get("generate_html_list", True),
         )
 
     @override
@@ -208,7 +208,7 @@ class EntityTypeConfiguration(Configuration):
 
         yield Sample(EntityTypeConfiguration(Person), label="Minimal", minimal=True)
         yield Sample(
-            EntityTypeConfiguration(Person, generate_html_list=True),
+            EntityTypeConfiguration(Person, generate_html_list=False),
             label="Full",
             full=True,
         )
