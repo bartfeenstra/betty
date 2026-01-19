@@ -16,6 +16,7 @@ from betty.plugin.requirement import (
     new_dependencies_requirement,
 )
 from betty.requirement import HasRequirement, Requirement, StaticRequirement
+from betty.service.level.universal import universe
 from betty.test_utils.locale.localizable import (
     DUMMY_COUNTABLE_LOCALIZABLE,
     DUMMY_LOCALIZABLE,
@@ -151,11 +152,11 @@ class TestCyclicDependencyError:
 
 
 async def test_get_requirement__without_classed_plugin() -> None:
-    assert await get_requirement(DummyPluginOne.plugin(), None) is None
+    assert await get_requirement(DummyPluginOne.plugin(), universe) is None
 
 
 async def test_get_requirement__without_has_requirement() -> None:
-    assert await get_requirement(DummyPluginOne, None) is None
+    assert await get_requirement(DummyPluginOne, universe) is None
 
 
 async def test_get_requirement__without_requirement() -> None:
@@ -163,7 +164,7 @@ async def test_get_requirement__without_requirement() -> None:
     class _Plugin(HasRequirement, DummyPlugin):
         pass
 
-    assert await get_requirement(_Plugin, None) is None
+    assert await get_requirement(_Plugin, universe) is None
 
 
 async def test_get_requirement__with_requirement() -> None:
@@ -176,40 +177,40 @@ async def test_get_requirement__with_requirement() -> None:
         async def requirement(cls, level: ServiceLevel, /) -> Requirement | None:
             return requirement
 
-    assert await get_requirement(_Plugin, None) is requirement
+    assert await get_requirement(_Plugin, universe) is requirement
 
 
 class TestCheckRequirementRepository:
     async def test_get__without_requirement(self) -> None:
         sut = await CheckRequirementRepository.new(
-            DummyPluginDefinition, [DummyPluginOne.plugin()], None
+            DummyPluginDefinition, [DummyPluginOne.plugin()], universe
         )
         assert sut.get(DummyPluginOne.plugin().id) is DummyPluginOne.plugin()
 
     async def test_get__with_plugin_not_found(self) -> None:
-        sut = await CheckRequirementRepository.new(DummyPluginDefinition, [], None)
+        sut = await CheckRequirementRepository.new(DummyPluginDefinition, [], universe)
         with pytest.raises(PluginNotFound):
             sut.get("non-existent-plugin")
 
     async def test_get__with_unmet_requirement(self) -> None:
         sut = await CheckRequirementRepository.new(
-            HasRequirementPluginDefinition, [DownstreamWithUnmetRequirements], None
+            HasRequirementPluginDefinition, [DownstreamWithUnmetRequirements], universe
         )
         with pytest.raises(PluginNotFound):
             sut.get("non-existent-plugin")
 
     async def test___iter____without_requirement(self) -> None:
         sut = await CheckRequirementRepository.new(
-            DummyPluginDefinition, [DummyPluginOne.plugin()], None
+            DummyPluginDefinition, [DummyPluginOne.plugin()], universe
         )
         assert list(iter(sut)) == [DummyPluginOne.plugin()]
 
     async def test___iter____without_plugins(self) -> None:
-        sut = await CheckRequirementRepository.new(DummyPluginDefinition, [], None)
+        sut = await CheckRequirementRepository.new(DummyPluginDefinition, [], universe)
         assert not list(iter(sut))
 
     async def test___iter____with_unmet_requirement(self) -> None:
         sut = await CheckRequirementRepository.new(
-            HasRequirementPluginDefinition, [DownstreamWithUnmetRequirements], None
+            HasRequirementPluginDefinition, [DownstreamWithUnmetRequirements], universe
         )
         assert not list(iter(sut))

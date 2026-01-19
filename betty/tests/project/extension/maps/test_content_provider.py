@@ -31,7 +31,7 @@ class TestMap(ContentProviderTestBase):
         async with Project.new_isolated(isolated_app) as project:
             project.configuration.extensions.enable(Maps)
             async with project:
-                sut = await Map.new_for_project(project)
+                sut = await Map.new_for_services(project)
                 assert await sut.provide(document=Document()) is None
 
     @pytest.mark.parametrize(
@@ -49,7 +49,7 @@ class TestMap(ContentProviderTestBase):
             project.configuration.extensions.enable(Maps)
             async with project:
                 project.ancestry.add(has_associated_places)
-                sut = await Map.new_for_project(project)
+                sut = await Map.new_for_services(project)
                 assert (
                     await sut.provide(
                         document=await project.new_document(has_associated_places)
@@ -83,7 +83,7 @@ class TestMap(ContentProviderTestBase):
             project.configuration.extensions.enable(Maps)
             async with project:
                 project.ancestry.add(has_associated_places)
-                sut = await Map.new_for_project(project)
+                sut = await Map.new_for_services(project)
                 document = await project.new_document(has_associated_places)
                 actual = await sut.provide(document=document)
         assert actual is not None
@@ -104,6 +104,6 @@ class TestMapAttribution(ContentProviderTestBase):
         async with Project.new_isolated(isolated_app) as project:
             project.configuration.extensions.enable(Maps)
             async with project:
-                sut = await MapAttribution.new_for_project(project)
+                sut = await MapAttribution.new_for_services(project)
                 actual = await sut.provide(document=Document())
         assert actual

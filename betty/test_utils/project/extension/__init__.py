@@ -8,7 +8,8 @@ from typing_extensions import override
 
 from betty.project import Project
 from betty.project.extension import Extension, ExtensionDefinition
-from betty.project.factory import ProjectDependentSelfFactory
+from betty.project.factory import require_project
+from betty.service.level.factory import ServiceLevelDependentSelfFactory
 from betty.test_utils.config import DummyConfigurable, DummyConfiguration
 from betty.test_utils.plugin import PluginTestBase
 from betty.test_utils.plugin.dependent import DependentPluginDefinitionTestBase
@@ -33,10 +34,11 @@ class ExtensionTestBase(PluginTestBase[Extension]):
     """
 
 
-class _DummyExtension(ProjectDependentSelfFactory, Extension):
+class _DummyExtension(ServiceLevelDependentSelfFactory, Extension):
     @override
     @classmethod
-    async def new_for_project(cls, project: Project, /) -> Self:
+    @require_project
+    async def new_for_services(cls, project: Project, /) -> Self:
         return cls(project=project)
 
 

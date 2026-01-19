@@ -23,7 +23,8 @@ from typing_extensions import override
 from betty.exception import HumanFacingException
 from betty.functools import Do
 from betty.locale.localizable.gettext import _
-from betty.project.factory import ProjectDependentSelfFactory
+from betty.project.factory import require_project
+from betty.service.level.factory import ServiceLevelDependentSelfFactory
 
 if TYPE_CHECKING:
     from types import TracebackType
@@ -136,7 +137,7 @@ class Server(ABC):
         assert 400 > response.status >= 200
 
 
-class ProjectServer(ProjectDependentSelfFactory, Server):
+class ProjectServer(ServiceLevelDependentSelfFactory, Server):
     """
     A web server for a Betty project.
     """
@@ -147,7 +148,8 @@ class ProjectServer(ProjectDependentSelfFactory, Server):
 
     @override
     @classmethod
-    async def new_for_project(cls, project: Project, /) -> Self:
+    @require_project
+    async def new_for_services(cls, project: Project, /) -> Self:
         return cls(project)
 
 

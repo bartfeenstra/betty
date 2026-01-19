@@ -39,7 +39,7 @@ if TYPE_CHECKING:
 
     from betty.locale.localizable import LocalizableLike
     from betty.service.level import ServiceLevel
-    from betty.service.level.factory import AnyFactoryTarget
+    from betty.service.level.factory import ServiceLevelTarget
 
 
 _T = TypeVar("_T")
@@ -133,7 +133,7 @@ class ServiceContainer(Bootstrapped, Shutdownable):
         return None
 
     @abstractmethod
-    async def _new_target(self, target: AnyFactoryTarget[_T]) -> _T:
+    async def _new_target(self, target: ServiceLevelTarget[_T]) -> _T:
         pass
 
 

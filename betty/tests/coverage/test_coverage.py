@@ -75,9 +75,6 @@ _BASELINE: Mapping[str, _ModuleIgnore] = {
             "shutdown": MissingReason.COVERED_ELSEWHERE,
         }
     },
-    "betty/app/factory.py": {
-        "AppDependentFactory": MissingReason.ABSTRACT,
-    },
     "betty/asset.py": {
         "AssetError": MissingReason.ABSTRACT,
         "AssetRepository": MissingReason.ABSTRACT,
@@ -477,9 +474,6 @@ _BASELINE: Mapping[str, _ModuleIgnore] = {
         "WikiConfiguration": {
             "populate_images": MissingReason.SHOULD_BE_COVERED,
         },
-    },
-    "betty/project/factory.py": {
-        "ProjectDependentFactory": MissingReason.ABSTRACT,
     },
     "betty/project/generate/__init__.py": {
         "Generator": MissingReason.ABSTRACT,

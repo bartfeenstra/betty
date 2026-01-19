@@ -1,89 +1,64 @@
 """
-Functionality for creating new instances of types that depend on :py:class:`betty.project.Project`.
+Functionality for creating new class instances that depend on projects.
 """
 
 from __future__ import annotations
 
-from abc import abstractmethod
-from typing import (
-    TYPE_CHECKING,
-    Generic,
-    Self,
-    TypeAlias,
-    TypeVar,
-    final,
-)
+from functools import wraps
+from typing import TYPE_CHECKING, Any, Concatenate, ParamSpec, overload
 
-from typing_extensions import override
+from typing_extensions import TypeVar
 
-from betty.app.factory import AppTarget
 from betty.asyncio import ensure_await
-from betty.requirement import HasRequirement, Requirement
+from betty.factory import FactoryError
+from betty.locale.localize import DEFAULT_LOCALIZER
+from betty.project import Project
+from betty.requirement import Requirement
+from betty.service.level import ServiceLevel
 
 if TYPE_CHECKING:
     from collections.abc import Awaitable, Callable
 
-    from betty.project import Project
-    from betty.service.level import ServiceLevel
 
 _T = TypeVar("_T")
+_P = ParamSpec("_P")
 
 
-class ProjectDependentSelfFactory(HasRequirement):
+@overload
+def require_project(
+    factory: Callable[Concatenate[Project, _P], Awaitable[_T]],
+    /,
+) -> Callable[Concatenate[ServiceLevel, _P], Awaitable[_T]]:
+    pass
+
+
+@overload
+def require_project(
+    factory: Callable[Concatenate[Project, _P], _T],
+    /,
+) -> Callable[Concatenate[ServiceLevel, _P], Awaitable[_T]]:
+    pass
+
+
+def require_project(factory, /):
     """
-    Allow this type to be instantiated using a :py:class:`betty.project.Project`.
-    """
-
-    @classmethod
-    @abstractmethod
-    async def new_for_project(cls, project: Project, /) -> Self:
-        """
-        Create a new instance using the given project.
-        """
-
-    @override
-    @classmethod
-    async def requirement(cls, services: ServiceLevel, /) -> Requirement | None:
-        from betty.project import Project
-
-        return await Project.requirement_for(services, str(cls))
-
-
-class ProjectDependentFactory(Generic[_T]):
-    """
-    Create new instances using a :py:class:`betty.project.Project`.
+    Decorate a factory that requires a project to accept any service level.
     """
 
-    @abstractmethod
-    async def new_for_project(self, project: Project, /) -> _T:
-        """
-        Create a new instance using the given project.
-        """
+    @wraps(factory)
+    async def _require_project(arg0: Any, arg1: Any = None) -> _T:
+        # Compare the arguments to support functions, class methods, and instance methods.
+        if isinstance(arg0, ServiceLevel):
+            assert arg1 is None
+            services = arg0
+            args = []
+        else:
+            assert isinstance(arg1, ServiceLevel)
+            services = arg1
+            args = [arg0]
+        services = await Project.requires(services, repr(factory))
+        if isinstance(services, Requirement):
+            raise FactoryError(services.localize(DEFAULT_LOCALIZER))
+        return await ensure_await(factory(*args, services))
 
-
-@final
-class CallbackProjectDependentFactory(ProjectDependentFactory[_T], Generic[_T]):
-    """
-    Create new instances using a callback that takes a :py:class:`betty.project.Project`.
-    """
-
-    def __init__(
-        self, callback: Callable[[Project], Awaitable[_T]] | Callable[[Project], _T], /
-    ):
-        self._callback = callback
-
-    @override
-    async def new_for_project(self, project: Project, /) -> _T:
-        return await ensure_await(self._callback(project))
-
-
-ProjectTarget: TypeAlias = (
-    AppTarget[_T] | ProjectDependentSelfFactory | ProjectDependentFactory[_T]
-)
-"""
-#. If ``target`` subclasses :py:class:`betty.app.project.ProjectDependentSelfFactory`, this will return ``target``'s
-   ``new_for_project()``'s return value.
-#. If ``target`` is an instance of :py:class:`betty.app.project.ProjectDependentFactory`, this will return ``target``'s
-   ``new_for_project()``'s return value.
-#. Else, ``target`` will be treated as :py:type:`betty.app.factory.AppFactoryTarget`.
-"""
+    return _require_project

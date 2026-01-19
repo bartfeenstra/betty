@@ -5,7 +5,7 @@ from __future__ import annotations
 from contextlib import AsyncExitStack, asynccontextmanager
 from os import environ
 from pathlib import Path
-from typing import TYPE_CHECKING, Any, Literal, Self, cast, final
+from typing import TYPE_CHECKING, Any, Literal, Self, final
 
 from aiofiles.tempfile import TemporaryDirectory
 from aiohttp_client_cache.backends.filesystem import FileBackend
@@ -16,13 +16,11 @@ import betty
 import betty.dirs
 from betty.app import config
 from betty.app.config import AppConfiguration
-from betty.app.factory import AppDependentFactory, AppDependentSelfFactory
 from betty.asset import AssetRepository, StaticAssetRepository
 from betty.cache.file import BinaryFileCache, PickledFileCache
 from betty.cache.no_op import NoOpCache
 from betty.config import Configurable
 from betty.dirs import CACHE_DIRECTORY_PATH
-from betty.factory import Target, new_target
 from betty.http_client import ClientErrorToUserMessageMiddleware
 from betty.http_client.rate_limit import RateLimitDefinition, RateLimitMiddleware
 from betty.license import LicenseDefinition
@@ -38,7 +36,6 @@ from betty.locale.translation import (
 from betty.multiprocessing import ProcessPoolExecutor
 from betty.plugin import Plugin, PluginDefinition
 from betty.plugin.ordered import sort_ordered_plugin_graph
-from betty.plugin.repository.provider import PluginRepositoryProvider
 from betty.plugin.repository.provider.service import (
     ServiceLevelPluginRepositoryProvider,
 )
@@ -46,11 +43,11 @@ from betty.plugin.repository.static import StaticPluginRepository
 from betty.portable.file import assert_load_file
 from betty.requirement import Requirement, StaticRequirement
 from betty.service.container import (
-    ServiceContainer,
     ServiceFactory,
     StaticService,
     service,
 )
+from betty.service.level import ServiceLevel
 from betty.typing import threadsafe
 from betty.user.no_op import NoOpUser
 
@@ -64,11 +61,8 @@ if TYPE_CHECKING:
     from betty.locale.localizable import LocalizableLike
     from betty.machine_name import MachineName
     from betty.plugin.repository import PluginRepository
-    from betty.service.level import ServiceLevel
-    from betty.service.level.factory import AnyFactoryTarget
     from betty.user import User
 
-_T = TypeVar("_T")
 _PluginT = TypeVar("_PluginT", bound=Plugin, default=Plugin)
 _PluginDefinitionT = TypeVar(
     "_PluginDefinitionT", bound=PluginDefinition, default=PluginDefinition
@@ -77,7 +71,7 @@ _PluginDefinitionT = TypeVar(
 
 @final
 @threadsafe
-class App(Configurable[AppConfiguration], ServiceContainer, PluginRepositoryProvider):
+class App(Configurable[AppConfiguration], ServiceLevel):
     """
     The Betty application.
 
@@ -125,11 +119,15 @@ class App(Configurable[AppConfiguration], ServiceContainer, PluginRepositoryProv
     async def requires(
         cls, services: ServiceLevel, subject: LocalizableLike, /
     ) -> Requirement | Self:
-        if services is None:
-            return StaticRequirement(
-                _("{subject} requires a running app.").format(subject=subject)
-            )
-        return services if isinstance(services, cls) else services.app  # ty:ignore[invalid-return-type, possibly-missing-attribute]
+        from betty.project import Project
+
+        if isinstance(services, Project):
+            services = services.app
+        if isinstance(services, cls):
+            return services
+        return StaticRequirement(
+            _("{subject} requires a running app.").format(subject=subject)
+        )
 
     @override
     async def plugins(
@@ -304,24 +302,6 @@ class App(Configurable[AppConfiguration], ServiceContainer, PluginRepositoryProv
 
         self._shutdown_stack.append(_shutdown)
         return process_pool
-
-    async def new_target(self, target: AnyFactoryTarget[_T]) -> _T:
-        """
-        Create a new instance.
-
-        :raises FactoryError: raised when ``target`` could not be called.
-        """
-        return await self._new_target(target)
-
-    @override
-    async def _new_target(self, target: AnyFactoryTarget[_T]) -> _T:
-        if (
-            isinstance(target, AppDependentFactory)
-            or isinstance(target, type)
-            and issubclass(target, AppDependentSelfFactory)
-        ):
-            return await target.new_for_app(self)
-        return await new_target(cast(Target[_T], target))
 
     @service
     async def _spdx_license_repository(self) -> PluginRepository[LicenseDefinition]:

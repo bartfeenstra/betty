@@ -28,7 +28,7 @@ if TYPE_CHECKING:
     from betty.job.scheduler import Scheduler
     from betty.plugin.config import PluginInstanceConfiguration
     from betty.plugin.repository import PluginRepository
-    from betty.service.level.factory import AnyFactory
+    from betty.service.level.factory import ServiceLevelFactory
 
 _T = TypeVar("_T")
 _PluginT = TypeVar("_PluginT", bound=Plugin, default=Plugin)
@@ -43,7 +43,7 @@ def _new_plugin_instance_factory(
         Intersection[_PluginDefinitionT, PluginDefinition[_PluginT]]
     ],
     *,
-    factory: AnyFactory,
+    factory: ServiceLevelFactory,
 ) -> Callable[[], Awaitable[_PluginT]]:
     async def plugin_instance_factory() -> _PluginT:
         return await factory(

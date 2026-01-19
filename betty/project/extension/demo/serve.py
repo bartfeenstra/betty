@@ -51,7 +51,7 @@ class DemoServer(Server):
             ) as progress:
                 job_context = ProjectContext(project, progress=progress)
                 await generate_with_cleanup(project, job_context=job_context)
-            self._server = await serve.BuiltinProjectServer.new_for_project(project)
+            self._server = await serve.BuiltinProjectServer.new_for_services(project)
             await self._exit_stack.enter_async_context(self._server)
         except BaseException:
             # __aexit__() is not called when __aenter__() raises an exception, so ensure we clean up our resources.

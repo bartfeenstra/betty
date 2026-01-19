@@ -23,7 +23,7 @@ from betty.test_utils.config.collections.mapping import ConfigurationMappingTest
 from betty.test_utils.locale.localizable import DUMMY_COUNTABLE_LOCALIZABLE
 
 if TYPE_CHECKING:
-    from betty.service.level.factory import AnyFactoryTarget
+    from betty.service.level.factory import ServiceLevelTarget
     from betty.test_utils.config.collections import (
         ConfigurationCollectionTestBaseNewSut,
         ConfigurationCollectionTestBaseSutConfigurations,
@@ -96,7 +96,7 @@ class ConfigurableDummyPlugin(
     @classmethod
     def new_for_configuration(
         cls, configuration: DummyConfiguration
-    ) -> AnyFactoryTarget[Self]:  # ty:ignore[invalid-method-override]
+    ) -> ServiceLevelTarget[Self]:  # ty:ignore[invalid-method-override]
         return lambda: cls(configuration=configuration)
 
 

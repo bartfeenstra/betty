@@ -7,17 +7,17 @@ import pytest
 from typing_extensions import override
 
 from betty.ancestry import Ancestry
-from betty.app import App
-from betty.app.factory import AppDependentFactory, AppDependentSelfFactory
 from betty.locale import DEFAULT_LOCALE, DEFAULT_LOCALE_TAG
 from betty.locale.localize import DEFAULT_LOCALIZER
 from betty.plugin.discovery.static import StaticDiscovery
 from betty.project import Project, ProjectExtensions
 from betty.project.config import LocaleConfiguration, ProjectConfiguration
 from betty.project.extension import Extension, ExtensionDefinition
-from betty.project.factory import ProjectDependentFactory, ProjectDependentSelfFactory
+from betty.project.factory import require_project
 from betty.requirement import Requirement, StaticRequirement, UnmetRequirement
 from betty.serde import SerializationError
+from betty.service.level.factory import ServiceLevelDependentSelfFactory
+from betty.service.level.universal import universe
 from betty.test_utils.locale.localizable import DUMMY_LOCALIZABLE
 from betty.test_utils.plugin import DummyPluginDefinition
 from betty.test_utils.project.extension import DummyExtensionOne, DummyExtensionTwo
@@ -25,13 +25,15 @@ from betty.test_utils.project.extension import DummyExtensionOne, DummyExtension
 if TYPE_CHECKING:
     from collections.abc import Sequence
 
+    from betty.app import App
     from betty.service.level import ServiceLevel
 
 
-class _DummyExtension(ProjectDependentSelfFactory, Extension):
+class _DummyExtension(ServiceLevelDependentSelfFactory, Extension):
     @override
     @classmethod
-    async def new_for_project(cls, project: Project, /) -> Self:
+    @require_project
+    async def new_for_services(cls, project: Project, /) -> Self:
         return cls(project=project)
 
 
@@ -64,30 +66,32 @@ class _DummyExtensionB(_DummyExtension):
     pass
 
 
-class _AppDependentSelfFactory(AppDependentSelfFactory):
+class _ServiceLevelDependentSelfFactory(ServiceLevelDependentSelfFactory):
     def __init__(self, app: App):
         self.app = app
 
     @override
     @classmethod
-    async def new_for_app(cls, app: App, /) -> Self:
+    @require_project
+    async def new_for_services(cls, app: App, /) -> Self:
         return cls(app)
 
 
-class _ProjectDependentSelfFactory(ProjectDependentSelfFactory):
+class _ServiceLevelDependentSelfFactory(ServiceLevelDependentSelfFactory):
     def __init__(self, project: Project):
         self.project = project
 
     @override
     @classmethod
-    async def new_for_project(cls, project: Project, /) -> Self:
+    @require_project
+    async def new_for_services(cls, project: Project, /) -> Self:
         return cls(project)
 
 
 class TestProject:
-    async def test_requires_project__with_global(self) -> None:
+    async def test_requires_project__with_universe(self) -> None:
         subject = "My First Subject"
-        requires = await Project.requires(None, subject)
+        requires = await Project.requires(universe, subject)
         assert isinstance(requires, Requirement)
         assert subject in requires.localize(DEFAULT_LOCALIZER)
 
@@ -274,51 +278,6 @@ class TestProject:
     async def test_url_generator(self, isolated_app: App) -> None:
         async with Project.new_isolated(isolated_app) as sut, sut:
             await sut.url_generator
-
-    async def test_new_target(self, isolated_app: App) -> None:
-        class Dependent:
-            pass
-
-        async with Project.new_isolated(isolated_app) as sut, sut:
-            await sut.new_target(Dependent)
-
-    async def test_new_target__with_project_dependent_factory(
-        self, isolated_app: App
-    ) -> None:
-        class _Factory(ProjectDependentFactory[Project]):
-            @override
-            async def new_for_project(self, project: Project, /) -> Project:
-                return project
-
-        async with Project.new_isolated(isolated_app) as sut, sut:
-            target = await sut.new_target(_Factory())
-            assert target is sut
-
-    async def test_new_target__with_project_dependent_self_factory(
-        self, isolated_app: App
-    ) -> None:
-        async with Project.new_isolated(isolated_app) as sut, sut:
-            dependent = await sut.new_target(_ProjectDependentSelfFactory)
-            assert dependent.project is sut
-
-    async def test_new_target__with_app_dependent_factory(
-        self, isolated_app: App
-    ) -> None:
-        class _Factory(AppDependentFactory[App]):
-            @override
-            async def new_for_app(self, app: App, /) -> App:
-                return app
-
-        async with Project.new_isolated(isolated_app) as sut, sut:
-            target = await sut.new_target(_Factory())
-            assert target is isolated_app
-
-    async def test_new_target__with_app_dependent_self_factory(
-        self, isolated_app: App
-    ) -> None:
-        async with Project.new_isolated(isolated_app) as sut, sut:
-            dependent = await sut.new_target(_AppDependentSelfFactory)
-            assert dependent.app is isolated_app
 
     async def test_logo__with_configuration(
         self, isolated_app: App, tmp_path: Path

@@ -336,7 +336,7 @@ class TestFamilies(ContentProviderTestBase):
         async with Project.new_isolated(isolated_app) as project:
             project.configuration.extensions.enable(RaspberryMint)
             async with project:
-                sut = await Families.new_for_project(project)
+                sut = await Families.new_for_services(project)
         assert await sut.provide(document=Document(resource)) is None
 
     async def test_provide__with_person(self, isolated_app: App) -> None:
@@ -347,7 +347,7 @@ class TestFamilies(ContentProviderTestBase):
             project.configuration.extensions.enable(RaspberryMint)
             project.ancestry.add(resource)
             async with project:
-                sut = await Families.new_for_project(project)
+                sut = await Families.new_for_services(project)
                 actual = await sut.provide(document=Document(resource))
         assert actual is not None
         assert parent.public_id in actual
@@ -365,7 +365,7 @@ class TestMedia(ContentProviderTestBase):
         async with Project.new_isolated(isolated_app) as project:
             project.configuration.extensions.enable(RaspberryMint)
             async with project:
-                sut = await Media.new_for_project(project)
+                sut = await Media.new_for_services(project)
                 assert await sut.provide(document=Document(object())) is None
 
     async def test_provide__with_file(self, isolated_app: App) -> None:
@@ -376,7 +376,7 @@ class TestMedia(ContentProviderTestBase):
         async with Project.new_isolated(isolated_app) as project:
             project.configuration.extensions.enable(RaspberryMint)
             async with project:
-                sut = await Media.new_for_project(project)
+                sut = await Media.new_for_services(project)
                 actual = await sut.provide(document=Document(resource))
         assert actual is not None
         assert resource.label.localize(DEFAULT_LOCALIZER) in actual
@@ -395,7 +395,7 @@ class TestMediaGallery(ContentProviderTestBase):
         async with Project.new_isolated(isolated_app) as project:
             project.configuration.extensions.enable(RaspberryMint)
             async with project:
-                sut = await MediaGallery.new_for_project(project)
+                sut = await MediaGallery.new_for_services(project)
                 assert await sut.provide(document=Document(object())) is None
 
     async def test_provide__with_has_file_references_without_file_references(
@@ -405,7 +405,7 @@ class TestMediaGallery(ContentProviderTestBase):
         async with Project.new_isolated(isolated_app) as project:
             project.configuration.extensions.enable(RaspberryMint)
             async with project:
-                sut = await MediaGallery.new_for_project(project)
+                sut = await MediaGallery.new_for_services(project)
                 assert await sut.provide(document=Document(resource)) is None
 
     async def test_provide__with_has_file_references_with_file_references(
@@ -417,7 +417,7 @@ class TestMediaGallery(ContentProviderTestBase):
         async with Project.new_isolated(isolated_app) as project:
             project.configuration.extensions.enable(RaspberryMint)
             async with project:
-                sut = await MediaGallery.new_for_project(project)
+                sut = await MediaGallery.new_for_services(project)
                 actual = await sut.provide(document=Document(resource))
         assert actual is not None
         assert file.label.localize(DEFAULT_LOCALIZER) in actual
@@ -530,7 +530,7 @@ class TestExternalLinks(ContentProviderTestBase):
         async with Project.new_isolated(isolated_app) as project:
             project.configuration.extensions.enable(RaspberryMint)
             async with project:
-                sut = await ExternalLinks.new_for_project(project)
+                sut = await ExternalLinks.new_for_services(project)
                 provided_content = await sut.provide(document=Document(object()))
         assert provided_content is None
 
@@ -541,7 +541,7 @@ class TestExternalLinks(ContentProviderTestBase):
         async with Project.new_isolated(isolated_app) as project:
             project.configuration.extensions.enable(RaspberryMint)
             async with project:
-                sut = await ExternalLinks.new_for_project(project)
+                sut = await ExternalLinks.new_for_services(project)
                 assert await sut.provide(document=Document(resource)) is None
 
     async def test_provide__with_has_links_with_links(self, isolated_app: App) -> None:
@@ -550,7 +550,7 @@ class TestExternalLinks(ContentProviderTestBase):
         async with Project.new_isolated(isolated_app) as project:
             project.configuration.extensions.enable(RaspberryMint)
             async with project:
-                sut = await ExternalLinks.new_for_project(project)
+                sut = await ExternalLinks.new_for_services(project)
                 actual = await sut.provide(document=Document(resource))
         assert actual is not None
         assert url in actual
@@ -578,7 +578,7 @@ class TestTimeline(ContentProviderTestBase):
         async with Project.new_isolated(isolated_app) as project:
             project.configuration.extensions.enable(RaspberryMint)
             async with project:
-                sut = await Timeline.new_for_project(project)
+                sut = await Timeline.new_for_services(project)
         assert await sut.provide(document=Document(resource)) is None
 
     async def test_provide__with_person(self, isolated_app: App) -> None:
@@ -588,7 +588,7 @@ class TestTimeline(ContentProviderTestBase):
         async with Project.new_isolated(isolated_app) as project:
             project.configuration.extensions.enable(RaspberryMint)
             async with project:
-                sut = await Timeline.new_for_project(project)
+                sut = await Timeline.new_for_services(project)
                 actual = await sut.provide(document=Document(resource))
         assert actual is not None
         assert event.public_id in actual
@@ -602,7 +602,7 @@ class TestTimeline(ContentProviderTestBase):
         async with Project.new_isolated(isolated_app) as project:
             project.configuration.extensions.enable(RaspberryMint)
             async with project:
-                sut = await Timeline.new_for_project(project)
+                sut = await Timeline.new_for_services(project)
                 actual = await sut.provide(document=Document(resource))
         assert actual is not None
         assert event.public_id in actual
@@ -631,7 +631,7 @@ class TestFacts(ContentProviderTestBase):
         async with Project.new_isolated(isolated_app) as project:
             project.configuration.extensions.enable(RaspberryMint)
             async with project:
-                sut = await Facts.new_for_project(project)
+                sut = await Facts.new_for_services(project)
         assert await sut.provide(document=Document(resource)) is None
 
     async def test_provide__with_citation(self, isolated_app: App) -> None:
@@ -640,7 +640,7 @@ class TestFacts(ContentProviderTestBase):
         async with Project.new_isolated(isolated_app) as project:
             project.configuration.extensions.enable(RaspberryMint)
             async with project:
-                sut = await Facts.new_for_project(project)
+                sut = await Facts.new_for_services(project)
                 actual = await sut.provide(document=Document(resource))
         assert actual is not None
         assert fact.public_id in actual
@@ -652,7 +652,7 @@ class TestFacts(ContentProviderTestBase):
         async with Project.new_isolated(isolated_app) as project:
             project.configuration.extensions.enable(RaspberryMint)
             async with project:
-                sut = await Facts.new_for_project(project)
+                sut = await Facts.new_for_services(project)
                 actual = await sut.provide(document=Document(resource))
         assert actual is not None
         assert fact.public_id in actual
@@ -1118,7 +1118,7 @@ class TestEnclosees(ContentProviderTestBase):
         async with Project.new_isolated(isolated_app) as project:
             project.configuration.extensions.enable(RaspberryMint)
             async with project:
-                sut = await Enclosees.new_for_project(project)
+                sut = await Enclosees.new_for_services(project)
         assert await sut.provide(document=Document(resource)) is None
 
     async def test_provide__with_enclosee(self, isolated_app: App) -> None:
@@ -1128,7 +1128,7 @@ class TestEnclosees(ContentProviderTestBase):
         async with Project.new_isolated(isolated_app) as project:
             project.configuration.extensions.enable(RaspberryMint)
             async with project:
-                sut = await Enclosees.new_for_project(project)
+                sut = await Enclosees.new_for_services(project)
                 actual = await sut.provide(document=Document(resource))
         assert actual is not None
         assert enclosee.public_id in actual
@@ -1157,7 +1157,7 @@ class TestFileReferees(ContentProviderTestBase):
         async with Project.new_isolated(isolated_app) as project:
             project.configuration.extensions.enable(RaspberryMint)
             async with project:
-                sut = await FileReferees.new_for_project(project)
+                sut = await FileReferees.new_for_services(project)
         assert await sut.provide(document=Document(resource)) is None
 
     async def test_provide__with_referee(self, isolated_app: App) -> None:
@@ -1167,7 +1167,7 @@ class TestFileReferees(ContentProviderTestBase):
         async with Project.new_isolated(isolated_app) as project:
             project.configuration.extensions.enable(RaspberryMint)
             async with project:
-                sut = await FileReferees.new_for_project(project)
+                sut = await FileReferees.new_for_services(project)
                 actual = await sut.provide(document=Document(resource))
         assert actual is not None
         assert referee.public_id in actual

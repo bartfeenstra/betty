@@ -15,14 +15,15 @@ from betty.data.indicator import Path
 from betty.data.indicator.selector import Key
 from betty.exception import reraise_with_indicator
 from betty.project.extension.theme.config import RegionalContentConfiguration
-from betty.project.factory import CallbackProjectDependentFactory
+from betty.project.factory import require_project
+from betty.service.level.factory import CallbackServiceLevelDependentFactory
 
 if TYPE_CHECKING:
     from collections.abc import Iterable
 
     from betty.portable import PortableData, PortableMapping
     from betty.project import Project
-    from betty.service.level.factory import AnyFactoryTarget
+    from betty.service.level.factory import ServiceLevelTarget
 
 
 @final
@@ -107,7 +108,8 @@ class RaspberryMintConfiguration(Configuration):
 
     @override
     @property
-    def validator(self) -> AnyFactoryTarget[None]:
+    def validator(self) -> ServiceLevelTarget[None]:
+        @require_project
         async def _validate(project: Project) -> None:
             from betty.project.extension.raspberry_mint import RaspberryMint
 
@@ -120,7 +122,7 @@ class RaspberryMintConfiguration(Configuration):
             ):
                 self.regional_content.validate(await extensions[RaspberryMint].regions)
 
-        return CallbackProjectDependentFactory(_validate)  # ty:ignore[invalid-return-type]
+        return CallbackServiceLevelDependentFactory(_validate)
 
     @property
     def primary_color(self) -> ColorConfiguration:

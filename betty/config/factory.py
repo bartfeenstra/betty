@@ -16,7 +16,8 @@ from betty.typing import Void
 
 if TYPE_CHECKING:
     from betty.portable import PortableData
-    from betty.service.level.factory import AnyFactoryTarget
+    from betty.service.level.factory import ServiceLevelTarget
+
 
 _T = TypeVar("_T")
 _ConfigurationT = TypeVar("_ConfigurationT", bound=Configuration)
@@ -31,7 +32,7 @@ class ConfigurationDependentSelfFactory(Configurable[_ConfigurationT], ABC):
     @abstractmethod
     def new_for_configuration(
         cls, configuration: _ConfigurationT
-    ) -> AnyFactoryTarget[Self]:
+    ) -> ServiceLevelTarget[Self]:
         """
         Create a new factory for the given configuration.
         """
@@ -42,10 +43,10 @@ class _HumanFacingFactoryError(FactoryError, HumanFacingException):
 
 
 def new_target(
-    target: ConfigurationDependentSelfFactory[Configuration] | AnyFactoryTarget[_T],
+    target: ConfigurationDependentSelfFactory[Configuration] | ServiceLevelTarget[_T],
     configuration: Configuration | PortableData | Void = Void(),  # noqa: B008
     /,
-) -> AnyFactoryTarget[_T]:
+) -> ServiceLevelTarget[_T]:
     """
     Create a new instance of a potentially configurable target.
 

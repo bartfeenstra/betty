@@ -8,6 +8,7 @@ import pytest
 from betty.plugin import PluginDefinition
 from betty.plugin.discovery.project import ProjectDiscovery
 from betty.project import Project
+from betty.service.level.universal import universe
 from betty.test_utils.plugin import DummyPluginOne
 
 if TYPE_CHECKING:
@@ -35,12 +36,12 @@ class TestProjectDiscovery:
     def sut_params(self, request: pytest.FixtureRequest) -> ProjectDiscoveryTestParams:
         return cast(ProjectDiscoveryTestParams, request.param)
 
-    async def test_discover_global(
+    async def test_discover_universe(
         self, sut_params: ProjectDiscoveryTestParams
     ) -> None:
         expected, discovery = sut_params
         sut = ProjectDiscovery(discovery)
-        assert not list(await sut.discover(None))
+        assert not list(await sut.discover(universe))
 
     async def test_discover__with_app(
         self,

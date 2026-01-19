@@ -41,10 +41,9 @@ class AppDiscovery(PluginDiscovery[_PluginDefinitionT]):
 
     @override
     async def discover(self, services: ServiceLevel, /) -> Iterable[_PluginDefinitionT]:
-        from betty.project import Project
+        from betty.app import App
 
-        if services is None:
-            return ()
-        if isinstance(services, Project):
-            services = services.app
-        return await ensure_await(self._discovery(services))
+        app = await App.requires(services, repr(self))
+        if isinstance(app, App):
+            return await ensure_await(self._discovery(app))
+        return ()

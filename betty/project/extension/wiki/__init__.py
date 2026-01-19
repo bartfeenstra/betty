@@ -17,9 +17,10 @@ from betty.locale.localizable.gettext import _
 from betty.project.extension import Extension, ExtensionDefinition
 from betty.project.extension.wiki.config import WikiConfiguration
 from betty.project.extension.wiki.jobs import PopulateEntity
-from betty.project.factory import ProjectDependentSelfFactory
+from betty.project.factory import require_project
 from betty.project.load import PostLoader
 from betty.service.container import service
+from betty.service.level.factory import ServiceLevelDependentSelfFactory
 from betty.typing import private
 from betty.wiki import NotAPageError, parse_page_url
 from betty.wiki import populator as populator_api
@@ -51,7 +52,7 @@ class Wiki(
     PostLoader,
     Configurable[WikiConfiguration],
     Jinja2Provider,
-    ProjectDependentSelfFactory,
+    ServiceLevelDependentSelfFactory,
     Extension,
 ):
     """
@@ -105,7 +106,8 @@ class Wiki(
 
     @override
     @classmethod
-    async def new_for_project(cls, project: Project, /) -> Self:
+    @require_project
+    async def new_for_services(cls, project: Project, /) -> Self:
         copyright_notices = await project.plugins(CopyrightNoticeDefinition)
         return cls(
             configuration=WikiConfiguration(),

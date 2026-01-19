@@ -1,87 +1,64 @@
 """
-Functionality for creating new instances of types that depend on :py:class:`betty.app.App`.
+Functionality for creating new class instances that depend on apps.
 """
 
 from __future__ import annotations
 
-from abc import abstractmethod
-from typing import (
-    TYPE_CHECKING,
-    Generic,
-    Self,
-    TypeAlias,
-    TypeVar,
-    final,
-)
+from functools import wraps
+from typing import TYPE_CHECKING, Any, Concatenate, ParamSpec, overload
 
-from typing_extensions import override
+from typing_extensions import TypeVar
 
+from betty.app import App
 from betty.asyncio import ensure_await
-from betty.factory import Target
-from betty.requirement import HasRequirement, Requirement
+from betty.factory import FactoryError
+from betty.locale.localize import DEFAULT_LOCALIZER
+from betty.requirement import Requirement
+from betty.service.level import ServiceLevel
 
 if TYPE_CHECKING:
     from collections.abc import Awaitable, Callable
 
-    from betty.app import App
-    from betty.service.level import ServiceLevel
 
 _T = TypeVar("_T")
+_P = ParamSpec("_P")
 
 
-class AppDependentSelfFactory(HasRequirement):
+@overload
+def require_app(
+    factory: Callable[Concatenate[App, _P], Awaitable[_T]],
+    /,
+) -> Callable[Concatenate[ServiceLevel, _P], Awaitable[_T]]:
+    pass
+
+
+@overload
+def require_app(
+    factory: Callable[Concatenate[App, _P], _T],
+    /,
+) -> Callable[Concatenate[ServiceLevel, _P], Awaitable[_T]]:
+    pass
+
+
+def require_app(factory, /):
     """
-    Allow this type to be instantiated using a :py:class:`betty.app.App`.
-    """
-
-    @classmethod
-    @abstractmethod
-    async def new_for_app(cls, app: App, /) -> Self:
-        """
-        Create a new instance using the given app.
-        """
-
-    @override
-    @classmethod
-    async def requirement(cls, services: ServiceLevel, /) -> Requirement | None:
-        from betty.app import App
-
-        return await App.requirement_for(services, str(cls))
-
-
-class AppDependentFactory(Generic[_T]):
-    """
-    Create new instances using a :py:class:`betty.app.App`.
+    Decorate a factory that requires an app to accept any service level.
     """
 
-    @abstractmethod
-    async def new_for_app(self, app: App, /) -> _T:
-        """
-        Create a new instance using the given app.
-        """
+    @wraps(factory)
+    async def _require_app(arg0: Any, arg1: Any = None) -> _T:
+        # Compare the arguments to support functions, class methods, and instance methods.
+        if isinstance(arg0, ServiceLevel):
+            assert arg1 is None
+            services = arg0
+            args = []
+        else:
+            assert isinstance(arg1, ServiceLevel)
+            services = arg1
+            args = [arg0]
+        services = await App.requires(services, repr(factory))
+        if isinstance(services, Requirement):
+            raise FactoryError(services.localize(DEFAULT_LOCALIZER))
+        return await ensure_await(factory(*args, services))
 
-
-@final
-class CallbackAppDependentFactory(AppDependentFactory[_T], Generic[_T]):
-    """
-    Create new instances using a callback that takes a :py:class:`betty.app.App`.
-    """
-
-    def __init__(
-        self, callback: Callable[[App], Awaitable[_T]] | Callable[[App], _T], /
-    ):
-        self._callback = callback
-
-    @override
-    async def new_for_app(self, app: App, /) -> _T:
-        return await ensure_await(self._callback(app))
-
-
-AppTarget: TypeAlias = Target[_T] | AppDependentSelfFactory | AppDependentFactory[_T]
-"""
-#. If ``target`` subclasses :py:class:`betty.app.factory.AppDependentSelfFactory`, this will return ``target``'s
-   ``new_for_app()``'s return value.
-#. If ``target`` is an instance of :py:class:`betty.app.factory.AppDependentFactory`, this will return ``target``'s
-   ``new_for_app()``'s return value.
-#. Else, ``target`` will be treated as :py:type:`betty.factory.Target`.
-"""
+    return _require_app

@@ -3,11 +3,11 @@ from typing import Self
 import pytest
 from typing_extensions import override
 
-from betty import factory
 from betty.config import Configurable
 from betty.config.factory import ConfigurationDependentSelfFactory, new_target
 from betty.factory import FactoryError
-from betty.service.level.factory import AnyFactoryTarget
+from betty.service.level.factory import ServiceLevelTarget
+from betty.service.level.universal import universe
 from betty.test_utils.config import DummyConfiguration
 
 
@@ -34,13 +34,13 @@ class _RequiredDummyConfigurable(
     @classmethod
     def new_for_configuration(
         cls, configuration: _DummyConfiguration
-    ) -> AnyFactoryTarget[Self]:  # ty:ignore[invalid-method-override]
+    ) -> ServiceLevelTarget[Self]:  # ty:ignore[invalid-method-override]
         return lambda: cls(configuration=configuration)
 
 
 async def test_new_target__with_configurable_with_configuration() -> None:
     configuration = _DummyConfiguration()
-    instance = await factory.new_target(
+    instance = await universe.new_target(
         new_target(_RequiredDummyConfigurable, configuration)
     )
     assert isinstance(instance, _RequiredDummyConfigurable)
@@ -48,7 +48,7 @@ async def test_new_target__with_configurable_with_configuration() -> None:
 
 
 async def test_new_target__with_configurable_without_configuration() -> None:
-    instance = await factory.new_target(new_target(_OptionalDummyConfigurable))
+    instance = await universe.new_target(new_target(_OptionalDummyConfigurable))
     assert isinstance(instance, _OptionalDummyConfigurable)
 
 
@@ -58,7 +58,7 @@ def test_new_target__with_non_configurable_with_configuration() -> None:
 
 
 async def test_new_target__with_non_configurable_without_configuration() -> None:
-    instance = await factory.new_target(new_target(object))
+    instance = await universe.new_target(new_target(object))
     assert isinstance(instance, object)
 
 

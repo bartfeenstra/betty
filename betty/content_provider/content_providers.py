@@ -29,11 +29,13 @@ from betty.plugin.config import (
     ShorthandPluginInstanceConfigurationSequence,
 )
 from betty.project import Project
-from betty.project.factory import (
-    CallbackProjectDependentFactory,
-    ProjectDependentSelfFactory,
-)
+from betty.project.factory import require_project
 from betty.requirement import HasRequirement, Requirement
+from betty.service.level.factory import (
+    CallbackServiceLevelDependentFactory,
+    ServiceLevelDependentSelfFactory,
+    ServiceLevelTarget,
+)
 from betty.typing import private
 
 if TYPE_CHECKING:
@@ -45,7 +47,6 @@ if TYPE_CHECKING:
     from betty.portable import PortableData, PortableMapping
     from betty.render import RenderDispatcher
     from betty.service.level import ServiceLevel
-    from betty.service.level.factory import AnyFactoryTarget
 
 
 class RenderConfiguration(Configuration):
@@ -123,11 +124,12 @@ class Render(
     @classmethod
     def new_for_configuration(
         cls, configuration: RenderConfiguration
-    ) -> AnyFactoryTarget[Self]:  # ty:ignore[invalid-method-override]
+    ) -> ServiceLevelTarget[Self]:  # ty:ignore[invalid-method-override]
+        @require_project
         async def _callback(project: Project) -> Self:
             return cls(configuration=configuration, renderer=await project.renderer)
 
-        return CallbackProjectDependentFactory(_callback)  # ty:ignore[invalid-return-type]
+        return CallbackServiceLevelDependentFactory(_callback)
 
     @override
     async def provide(self, *, document: Document) -> str | None:
@@ -167,15 +169,16 @@ class Template(ContentProvider):
 
 
 @ContentProviderDefinition("notes", label=_("Notes"))
-class Notes(Template, ProjectDependentSelfFactory):
+class Notes(Template, ServiceLevelDependentSelfFactory):
     """
     .. plugin:: content-provider:notes.
     """
 
     @override
     @classmethod
-    async def new_for_project(cls, project: Project) -> Self:
-        return cls(jinja2_environment=await project.jinja2_environment)
+    @require_project
+    async def new_for_services(cls, services: Project, /) -> Self:
+        return cls(jinja2_environment=await services.jinja2_environment)
 
 
 @final
@@ -314,14 +317,15 @@ class Box(Template, ConfigurationDependentSelfFactory[BoxConfiguration]):
     @classmethod
     def new_for_configuration(
         cls, configuration: BoxConfiguration
-    ) -> AnyFactoryTarget[Self]:  # ty:ignore[invalid-method-override]
+    ) -> ServiceLevelTarget[Self]:  # ty:ignore[invalid-method-override]
+        @require_project
         async def _factory(project: Project) -> Self:
             return cls(
                 configuration=configuration,
                 jinja2_environment=await project.jinja2_environment,
             )
 
-        return CallbackProjectDependentFactory(_factory)  # ty:ignore[invalid-return-type]
+        return CallbackServiceLevelDependentFactory(_factory)
 
     @override
     async def _provide_data(self, document: Document) -> Mapping[str, Any]:

@@ -16,7 +16,8 @@ if TYPE_CHECKING:
     from collections.abc import Iterable
 
     from betty.locale.localizable import Localizable, LocalizableLike
-    from betty.service.level.factory import AnyFactoryTarget
+    from betty.service.level.factory import ServiceLevelTarget
+
 
 _PortableDataT = TypeVar("_PortableDataT", bound=PortableData, default=PortableData)
 
@@ -32,7 +33,7 @@ class Configuration(Portable, Generic[_PortableDataT]):
         raise NotImplementedError
 
     @property
-    def validator(self) -> AnyFactoryTarget[None] | None:
+    def validator(self) -> ServiceLevelTarget[None] | None:
         """
         The validator for this configuration, if it can be validated.
 

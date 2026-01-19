@@ -9,14 +9,16 @@ from typing_extensions import override
 from betty.content_provider import ContentProviderDefinition
 from betty.content_provider.content_providers import Template
 from betty.project import Project
-from betty.project.factory import ProjectDependentSelfFactory
+from betty.project.factory import require_project
+from betty.service.level.factory import ServiceLevelDependentSelfFactory
 
 
 @ContentProviderDefinition(
     "-demo-incomplete-translation-warning", label="Incomplete translation warning"
 )
-class _IncompleteTranslationWarning(Template, ProjectDependentSelfFactory):
+class _IncompleteTranslationWarning(Template, ServiceLevelDependentSelfFactory):
     @override
     @classmethod
-    async def new_for_project(cls, project: Project) -> Self:
+    @require_project
+    async def new_for_services(cls, project: Project) -> Self:
         return cls(jinja2_environment=await project.jinja2_environment)

@@ -7,11 +7,12 @@ from typing import TYPE_CHECKING, Self, final
 from typing_extensions import override
 
 import betty.project.extension.demo as stddemo
-from betty.app.factory import AppDependentSelfFactory
+from betty.app.factory import require_app
 from betty.console.command import Command, CommandDefinition, CommandFunction
 from betty.locale.localizable.gettext import _
 from betty.project.extension.demo.project import create_project
 from betty.project.job import ProjectContext
+from betty.service.level.factory import ServiceLevelDependentSelfFactory
 
 if TYPE_CHECKING:
     import argparse
@@ -21,7 +22,7 @@ if TYPE_CHECKING:
 
 @final
 @CommandDefinition("demo", label=_("Explore a demonstration site"))
-class Demo(AppDependentSelfFactory, Command):
+class Demo(ServiceLevelDependentSelfFactory, Command):
     """
     .. plugin:: command:demo.
     """
@@ -31,7 +32,8 @@ class Demo(AppDependentSelfFactory, Command):
 
     @override
     @classmethod
-    async def new_for_app(cls, app: App, /) -> Self:
+    @require_app
+    async def new_for_services(cls, app: App, /) -> Self:
         return cls(app)
 
     @override

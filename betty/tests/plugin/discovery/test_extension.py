@@ -10,6 +10,7 @@ from betty.plugin.discovery.extension import ExtensionDiscovery
 from betty.plugin.discovery.static import StaticDiscovery
 from betty.project import Project
 from betty.project.extension import Extension, ExtensionDefinition
+from betty.service.level.universal import universe
 from betty.test_utils.plugin import DummyPluginOne
 from betty.test_utils.project.extension import DummyExtensionOne
 
@@ -40,12 +41,12 @@ class TestExtensionDiscovery:
     ) -> ExtensionDiscoveryTestParams:
         return cast(ExtensionDiscoveryTestParams, request.param)
 
-    async def test_discover_global(
+    async def test_discover_universe(
         self, sut_params: ExtensionDiscoveryTestParams
     ) -> None:
         expected, discovery = sut_params
         sut = ExtensionDiscovery(DummyExtensionOne, discovery)
-        assert not list(await sut.discover(None))
+        assert not list(await sut.discover(universe))
 
     async def test_discover__with_app(
         self,

@@ -139,7 +139,7 @@ if TYPE_CHECKING:
     from betty.locale.localizable import StaticTranslationsMapping
     from betty.machine_name import MachineName
     from betty.plugin.repository import PluginRepository
-    from betty.service.level.factory import AnyFactory
+    from betty.service.level.factory import ServiceLevelFactory
     from betty.user import User
 
 _EntityT = TypeVar("_EntityT", bound=Entity)
@@ -336,7 +336,7 @@ class GrampsLoader:
         self,
         ancestry: Ancestry,
         *,
-        factory: AnyFactory,
+        factory: ServiceLevelFactory,
         user: User,
         copyright_notices: PluginRepository[CopyrightNoticeDefinition],
         genders: PluginRepository[GenderDefinition],

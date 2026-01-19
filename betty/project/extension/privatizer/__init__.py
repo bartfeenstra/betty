@@ -11,8 +11,9 @@ from betty.project.extension import Extension, ExtensionDefinition
 from betty.project.extension.deriver import Deriver
 from betty.project.extension.deriver.jobs import DeriveAncestry
 from betty.project.extension.privatizer.jobs import PrivatizeAncestry
-from betty.project.factory import ProjectDependentSelfFactory
+from betty.project.factory import require_project
 from betty.project.load import PostLoader
+from betty.service.level.factory import ServiceLevelDependentSelfFactory
 
 if TYPE_CHECKING:
     from betty.job.scheduler import Scheduler
@@ -29,7 +30,7 @@ if TYPE_CHECKING:
     ),
     comes_after={Deriver},
 )
-class Privatizer(PostLoader, ProjectDependentSelfFactory, Extension):
+class Privatizer(PostLoader, ServiceLevelDependentSelfFactory, Extension):
     """
     .. plugin:: extension:privatizer.
 
@@ -77,7 +78,8 @@ class Privatizer(PostLoader, ProjectDependentSelfFactory, Extension):
 
     @override
     @classmethod
-    async def new_for_project(cls, project: Project, /) -> Self:
+    @require_project
+    async def new_for_services(cls, project: Project, /) -> Self:
         return cls(project=project)
 
     @override

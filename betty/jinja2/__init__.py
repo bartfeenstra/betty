@@ -31,7 +31,8 @@ from betty.jinja2.filter import filters
 from betty.jinja2.test import tests
 from betty.media_type import UnsupportedMediaType, match_extension
 from betty.media_type.media_types import JINJA2
-from betty.project.factory import ProjectDependentSelfFactory
+from betty.project.factory import require_project
+from betty.service.level.factory import ServiceLevelDependentSelfFactory
 from betty.typing import private
 from betty.warnings import deprecate
 
@@ -130,7 +131,7 @@ class Jinja2Provider:
         return {}
 
 
-class Environment(ProjectDependentSelfFactory, Jinja2Environment):
+class Environment(ServiceLevelDependentSelfFactory, Jinja2Environment):
     """
     Betty's Jinja2 environment.
     """
@@ -184,7 +185,8 @@ class Environment(ProjectDependentSelfFactory, Jinja2Environment):
 
     @override
     @classmethod
-    async def new_for_project(cls, project: Project, /) -> Self:
+    @require_project
+    async def new_for_services(cls, project: Project, /) -> Self:
         extensions = list((await project.extensions).flatten())
         return cls(
             project,

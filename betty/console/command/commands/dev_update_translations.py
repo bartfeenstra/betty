@@ -4,10 +4,11 @@ from typing import TYPE_CHECKING, Self, final
 
 from typing_extensions import override
 
-from betty.app.factory import AppDependentSelfFactory
+from betty.app.factory import require_app
 from betty.console.command import Command, CommandDefinition, CommandFunction
 from betty.locale import translation
 from betty.locale.localizable.gettext import _
+from betty.service.level.factory import ServiceLevelDependentSelfFactory
 
 if TYPE_CHECKING:
     import argparse
@@ -20,7 +21,7 @@ if TYPE_CHECKING:
     "dev-update-translations",
     label=_("Update all existing translations for Betty itself"),
 )
-class DevUpdateTranslations(AppDependentSelfFactory, Command):
+class DevUpdateTranslations(ServiceLevelDependentSelfFactory, Command):
     """
     .. plugin:: command:dev-update-translations.
     """
@@ -30,7 +31,8 @@ class DevUpdateTranslations(AppDependentSelfFactory, Command):
 
     @override
     @classmethod
-    async def new_for_app(cls, app: App, /) -> Self:
+    @require_app
+    async def new_for_services(cls, app: App, /) -> Self:
         return cls(app)
 
     @override

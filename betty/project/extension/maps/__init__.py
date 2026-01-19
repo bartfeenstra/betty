@@ -12,8 +12,9 @@ from betty.project.extension import ExtensionDefinition
 from betty.project.extension.maps.jobs import _GeneratePlacePreviews
 from betty.project.extension.webpack import Webpack
 from betty.project.extension.webpack.build import EntryPointProvider
-from betty.project.factory import ProjectDependentSelfFactory
+from betty.project.factory import require_project
 from betty.project.generate import Generator
+from betty.service.level.factory import ServiceLevelDependentSelfFactory
 
 if TYPE_CHECKING:
     from collections.abc import Sequence
@@ -31,14 +32,15 @@ if TYPE_CHECKING:
     depends_on={Webpack},
     assets_directory_path=Path(__file__).parent / "assets",
 )
-class Maps(Generator, EntryPointProvider, ProjectDependentSelfFactory):
+class Maps(Generator, EntryPointProvider, ServiceLevelDependentSelfFactory):
     """
     .. plugin:: extension:maps.
     """
 
     @override
     @classmethod
-    async def new_for_project(cls, project: Project, /) -> Self:
+    @require_project
+    async def new_for_services(cls, project: Project, /) -> Self:
         return cls(project=project)
 
     @override

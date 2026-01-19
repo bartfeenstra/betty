@@ -10,7 +10,7 @@ from __future__ import annotations
 
 from contextlib import AsyncExitStack, asynccontextmanager
 from pathlib import Path
-from typing import TYPE_CHECKING, Self, cast, final, overload
+from typing import TYPE_CHECKING, Self, final, overload
 
 from aiofiles.tempfile import TemporaryDirectory
 from typing_extensions import TypeVar, override
@@ -18,7 +18,6 @@ from typing_extensions import TypeVar, override
 import betty
 import betty.dirs
 from betty.ancestry import Ancestry
-from betty.app.factory import AppTarget
 from betty.asset import AssetRepository, ProxyAssetRepository, StaticAssetRepository
 from betty.config import Configurable
 from betty.copyright_notice import CopyrightNotice, CopyrightNoticeDefinition
@@ -32,24 +31,21 @@ from betty.locale.translation import (
     ProxyTranslationRepository,
     TranslationRepository,
 )
-from betty.model import Entity
-from betty.plugin import Plugin, PluginDefinition
+from betty.plugin import PluginDefinition
 from betty.plugin.dependent import sort_dependent_plugin_graph
-from betty.plugin.repository.provider import PluginRepositoryProvider
 from betty.plugin.repository.provider.service import (
     ServiceLevelPluginRepositoryProvider,
-    plugins,
 )
 from betty.plugin.resolve import ResolvableId, resolve_id
 from betty.privacy.privatizer import Privatizer
 from betty.project.config import ProjectConfiguration
 from betty.project.extension import Extension, ExtensionDefinition
-from betty.project.factory import ProjectDependentFactory, ProjectDependentSelfFactory
-from betty.project.url import new_project_url_generator
 from betty.render import RenderDispatcher, RendererDefinition
 from betty.requirement import Requirement, StaticRequirement
 from betty.serde import SerializerDefinition, serializer_for
-from betty.service.container import ServiceContainer, service
+from betty.service.container import service
+from betty.service.level import ServiceLevel
+from betty.service.level.universal import universe
 from betty.typing import internal
 
 if TYPE_CHECKING:
@@ -69,24 +65,15 @@ if TYPE_CHECKING:
     from betty.locale.localizable import LocalizableLike
     from betty.machine_name import MachineName
     from betty.plugin.repository import PluginRepository
-    from betty.service.level import ServiceLevel
-    from betty.service.level.factory import AnyFactoryTarget
     from betty.url import UrlGenerator
 
-_T = TypeVar("_T")
-_PluginT = TypeVar("_PluginT", bound=Plugin, default=Plugin)
 _PluginDefinitionT = TypeVar(
     "_PluginDefinitionT", bound=PluginDefinition, default=PluginDefinition
 )
-_EntityT = TypeVar("_EntityT", bound=Entity)
-
-_ProjectDependentT = TypeVar("_ProjectDependentT")
 
 
 @final
-class Project(
-    Configurable[ProjectConfiguration], ServiceContainer, PluginRepositoryProvider
-):
+class Project(Configurable[ProjectConfiguration], ServiceLevel):
     """
     Define a Betty project.
 
@@ -203,7 +190,8 @@ class Project(
         if configuration_file_path == self._configuration_file_path:
             return
         serializer_for(
-            list(await plugins(SerializerDefinition)), configuration_file_path.suffix
+            list(await universe.plugins(SerializerDefinition)),
+            configuration_file_path.suffix,
         )
         self._configuration_file_path = configuration_file_path
 
@@ -322,6 +310,8 @@ class Project(
         """
         The URL generator.
         """
+        from betty.project.url import new_project_url_generator
+
         return await new_project_url_generator(self)
 
     @service
@@ -331,7 +321,7 @@ class Project(
         """
         from betty.jinja2 import Environment
 
-        return await Environment.new_for_project(self)
+        return await Environment.new_for_services(self)
 
     @service
     async def renderer(self) -> RenderDispatcher:
@@ -407,24 +397,6 @@ class Project(
             )
 
         return initialized_extensions
-
-    async def new_target(self, target: AnyFactoryTarget[_T]) -> _T:
-        """
-        Create a new instance.
-
-        :raises FactoryError: raised when ``target`` could not be called.
-        """
-        return await self._new_target(target)
-
-    @override
-    async def _new_target(self, target: AnyFactoryTarget[_T]) -> _T:
-        if (
-            isinstance(target, ProjectDependentFactory)
-            or isinstance(target, type)
-            and issubclass(target, ProjectDependentSelfFactory)
-        ):
-            return await target.new_for_project(self)
-        return await self.app.new_target(cast(AppTarget[_T], target))
 
     @property
     def logo(self) -> Path:

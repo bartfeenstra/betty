@@ -23,8 +23,10 @@ from betty.project.extension.maps import Maps
 from betty.project.extension.raspberry_mint import RaspberryMint
 from betty.project.extension.trees import Trees
 from betty.project.extension.wiki import Wiki
-from betty.project.factory import ProjectDependentSelfFactory
+from betty.project.factory import require_project
+from betty.project.job import ProjectContext
 from betty.project.load import Loader, load
+from betty.service.level.factory import ServiceLevelDependentSelfFactory
 from betty.typing import internal
 
 if TYPE_CHECKING:
@@ -76,14 +78,15 @@ async def generate_with_cleanup(
     },
     assets_directory_path=Path(__file__).parent / "assets",
 )
-class Demo(NavigationLinkProvider, Loader, ProjectDependentSelfFactory, Extension):
+class Demo(NavigationLinkProvider, Loader, ServiceLevelDependentSelfFactory, Extension):
     """
     .. plugin:: extension:demo.
     """
 
     @override
     @classmethod
-    async def new_for_project(cls, project: Project, /) -> Self:
+    @require_project
+    async def new_for_services(cls, project: Project, /) -> Self:
         return cls(project=project)
 
     @override

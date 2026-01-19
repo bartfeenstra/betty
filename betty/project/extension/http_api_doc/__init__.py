@@ -12,7 +12,8 @@ from betty.locale.localizable.gettext import _
 from betty.project.extension import ExtensionDefinition
 from betty.project.extension.webpack import Webpack
 from betty.project.extension.webpack.build import EntryPointProvider
-from betty.project.factory import ProjectDependentSelfFactory
+from betty.project.factory import require_project
+from betty.service.level.factory import ServiceLevelDependentSelfFactory
 
 if TYPE_CHECKING:
     from collections.abc import Sequence
@@ -31,7 +32,7 @@ if TYPE_CHECKING:
     assets_directory_path=Path(__file__).parent / "assets",
 )
 class HttpApiDoc(
-    EntryPointProvider, NavigationLinkProvider, ProjectDependentSelfFactory
+    EntryPointProvider, NavigationLinkProvider, ServiceLevelDependentSelfFactory
 ):
     """
     .. plugin:: extension:http-api-doc.
@@ -39,7 +40,8 @@ class HttpApiDoc(
 
     @override
     @classmethod
-    async def new_for_project(cls, project: Project, /) -> Self:
+    @require_project
+    async def new_for_services(cls, project: Project, /) -> Self:
         return cls(project=project)
 
     @override

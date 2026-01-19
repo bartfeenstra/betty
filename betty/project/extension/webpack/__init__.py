@@ -22,12 +22,10 @@ from betty.project.extension import Extension, ExtensionDefinition
 from betty.project.extension.webpack import build
 from betty.project.extension.webpack.build import EntryPointProvider
 from betty.project.extension.webpack.jinja2.filter import FILTERS
-from betty.project.factory import ProjectDependentSelfFactory
+from betty.project.factory import require_project
 from betty.project.generate import Generator
-from betty.requirement import (
-    AllRequirements,
-    Requirement,
-)
+from betty.requirement import AllRequirements, Requirement
+from betty.service.level.factory import ServiceLevelDependentSelfFactory
 
 if TYPE_CHECKING:
     from collections.abc import Sequence
@@ -50,7 +48,7 @@ class Webpack(
     JsProvider,
     Jinja2Provider,
     DocumentProvider,
-    ProjectDependentSelfFactory,
+    ServiceLevelDependentSelfFactory,
 ):
     """
     .. plugin:: extension:webpack.
@@ -60,7 +58,8 @@ class Webpack(
 
     @override
     @classmethod
-    async def new_for_project(cls, project: Project, /) -> Self:
+    @require_project
+    async def new_for_services(cls, project: Project, /) -> Self:
         return cls(project=project)
 
     @override

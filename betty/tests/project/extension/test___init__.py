@@ -10,6 +10,7 @@ from betty.plugin.discovery.static import StaticDiscovery
 from betty.project import Project
 from betty.project.extension import ExtensionDefinition
 from betty.requirement import Requirement
+from betty.service.level.universal import universe
 from betty.test_utils.locale.localizable import DUMMY_LOCALIZABLE
 from betty.test_utils.plugin import PluginDefinitionClassTestBase
 from betty.test_utils.project.extension import DummyExtensionOne
@@ -34,9 +35,9 @@ class TestExtensionDefinition(PluginDefinitionClassTestBase):
 
 
 class TestExtension:
-    async def test_requires__with_global(self) -> None:
+    async def test_requires__with_universe(self) -> None:
         subject = "My First Subject"
-        requires = await DummyExtensionOne.requires(None, subject)
+        requires = await DummyExtensionOne.requires(universe, subject)
         assert isinstance(requires, Requirement)
         assert subject in requires.localize(DEFAULT_LOCALIZER)
 

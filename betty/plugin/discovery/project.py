@@ -43,6 +43,7 @@ class ProjectDiscovery(PluginDiscovery[_PluginDefinitionT]):
     async def discover(self, services: ServiceLevel, /) -> Iterable[_PluginDefinitionT]:
         from betty.project import Project
 
-        if not isinstance(services, Project):
-            return ()
-        return await ensure_await(self._discovery(services))
+        project = await Project.requires(services, repr(self))
+        if isinstance(project, Project):
+            return await ensure_await(self._discovery(project))
+        return ()
