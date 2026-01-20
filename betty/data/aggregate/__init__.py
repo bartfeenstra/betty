@@ -23,9 +23,7 @@ _ElementT = TypeVar("_ElementT", bound=Element[Any], default=Element[Any])
 
 
 class AggregateDefinition(
-    DataDefinition[_DataClsT],
-    ABC,
-    Generic[_DataClsT, _ElementT],
+    DataDefinition[_DataClsT], ABC, Generic[_DataClsT, _ElementT]
 ):
     """
     Define an aggregate data type, e.g. data that consists of other parts.

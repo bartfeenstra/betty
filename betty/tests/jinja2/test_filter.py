@@ -24,7 +24,7 @@ from betty.locale.localizable.plain import Plain
 from betty.locale.localize import Localizer
 from betty.media_type import MediaType
 from betty.media_type.media_types import SVG
-from betty.plugin.config import PluginInstanceConfiguration
+from betty.plugin.config import PluginConfiguration
 from betty.test_utils.ancestry.date import DummyHasDate
 from betty.test_utils.ancestry.has_file_references import DummyHasFileReferences
 from betty.test_utils.jinja2 import assert_template_string
@@ -790,14 +790,14 @@ async def test_filter_negotiate_has_locales() -> None:
         ("", []),
         (
             "<p>Hello, world!</p>",
-            [PluginInstanceConfiguration(Render, RenderConfiguration("Hello, world!"))],
+            [PluginConfiguration(Render, RenderConfiguration("Hello, world!"))],
         ),
     ],
 )
 async def test_filter_provide_content(
     expected: str,
     content_provider_configurations: Iterable[
-        PluginInstanceConfiguration[ContentProviderDefinition, ContentProvider]
+        PluginConfiguration[ContentProviderDefinition, ContentProvider]
     ],
 ) -> None:
     template = "{{ data | provide_content }}"

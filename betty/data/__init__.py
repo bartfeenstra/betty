@@ -54,13 +54,11 @@ class DataDefinition(
         The porter for the data.
         """
         if self._porter is None:
-            if issubclass(self.cls, Portable):
-                self._porter = PortablePorter(self.cls)
-            else:
+            if not issubclass(self.cls, Portable):
                 raise NotPortable(
                     f"This definition does not have a porter. Either make the data class {fully_qualified_name(self.cls)} subclass {fully_qualified_name(Portable)}, or provide a porter when initializing the definition."
                 )
-        assert self._porter is not None
+            self._porter = PortablePorter(self.cls)
         return self._porter
 
     @override

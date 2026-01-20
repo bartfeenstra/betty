@@ -1,7 +1,7 @@
 from pytest_mock import MockerFixture
 
 from betty.app import App
-from betty.plugin.config import PluginInstanceConfiguration
+from betty.plugin.config import PluginConfiguration
 from betty.project import Project
 from betty.project.extension.gramps import Gramps
 from betty.project.extension.gramps.config import (
@@ -20,7 +20,7 @@ class TestLoadAncestry:
         family_tree_name = "my-first-family-tree"
         async with Project.new_isolated(isolated_app) as project:
             project.configuration.extensions.append(
-                PluginInstanceConfiguration(
+                PluginConfiguration(
                     Gramps.plugin(),
                     GrampsConfiguration(
                         family_trees=FamilyTreeConfigurationSequence(

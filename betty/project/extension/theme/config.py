@@ -18,7 +18,7 @@ from betty.exception import HumanFacingException, reraise_with_indicator
 from betty.locale.localizable.gettext import _
 from betty.locale.localizable.markup import Paragraph, do_you_mean
 from betty.plugin.config import (
-    PluginInstanceConfiguration,
+    PluginConfiguration,
     PluginInstanceConfigurationSequence,
     ShorthandPluginInstanceConfigurationSequence,
 )
@@ -138,7 +138,7 @@ class RegionalContentConfiguration(Configuration):
                 lambda: Sample(
                     cls(
                         {
-                            "a-theme-region": PluginInstanceConfiguration(
+                            "a-theme-region": PluginConfiguration(
                                 Render, RenderConfiguration("Hello, world!")
                             )
                         }  # ty:ignore[invalid-argument-type]

@@ -26,7 +26,7 @@ from betty.locale.localizable.property import LocalizableProperty
 from betty.media_type import MediaType
 from betty.media_type.media_types import PLAIN_TEXT
 from betty.plugin.config import (
-    PluginInstanceConfiguration,
+    PluginConfiguration,
     PluginInstanceConfigurationSequence,
     ShorthandPluginInstanceConfigurationSequence,
 )
@@ -291,10 +291,10 @@ class BoxConfiguration(Configuration):
                 lambda: Sample(
                     cls(
                         [
-                            PluginInstanceConfiguration(
+                            PluginConfiguration(
                                 Render, RenderConfiguration("Hello, world!")
                             )
-                        ],  # ty:ignore[invalid-argument-type]
+                        ],
                         min_height="100px",
                         max_height="1000px",
                         height="500px",

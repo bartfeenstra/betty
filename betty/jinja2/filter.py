@@ -71,7 +71,7 @@ if TYPE_CHECKING:
     from betty.ancestry.date import HasDate
     from betty.date import DateLike
     from betty.locale.localizable import Localizable
-    from betty.plugin.config import PluginInstanceConfiguration
+    from betty.plugin.config import PluginConfiguration
 
 _T = TypeVar("_T")
 
@@ -515,7 +515,7 @@ def filter_select_has_dates(
 async def filter_provide_content(
     context: Context,
     content_provider_configurations: Iterable[
-        PluginInstanceConfiguration[ContentProviderDefinition, ContentProvider]
+        PluginConfiguration[ContentProviderDefinition, ContentProvider]
     ],
 ) -> str:
     """

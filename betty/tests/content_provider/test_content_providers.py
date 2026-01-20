@@ -27,7 +27,7 @@ from betty.locale.localizable import LocalizableLike
 from betty.locale.localizable.static import StaticTranslations
 from betty.locale.localize import DEFAULT_LOCALIZER, Localizer
 from betty.media_type.media_types import HTML, PLAIN_TEXT
-from betty.plugin.config import PluginInstanceConfiguration
+from betty.plugin.config import PluginConfiguration
 from betty.project import Project
 from betty.render import RenderDispatcher
 from betty.render.plain_text import PlainText
@@ -222,7 +222,7 @@ class TestBoxConfiguration(ConfigurationTestBase[BoxConfiguration]):
     sut_cls = BoxConfiguration
 
     def test_content(self) -> None:
-        sut = BoxConfiguration(PluginInstanceConfiguration("my-first-content"))  # ty:ignore[invalid-argument-type]
+        sut = BoxConfiguration(PluginConfiguration("my-first-content"))  # ty:ignore[invalid-argument-type]
         assert sut.content[0].id == "my-first-content"
 
     def test_load__minimal(self) -> None:
@@ -257,7 +257,7 @@ class TestBoxConfiguration(ConfigurationTestBase[BoxConfiguration]):
         assert sut.width == "WIDTH"
 
     def test_dump__minimal(self) -> None:
-        sut = BoxConfiguration(PluginInstanceConfiguration("my-first-content"))  # ty:ignore[invalid-argument-type]
+        sut = BoxConfiguration(PluginConfiguration("my-first-content"))  # ty:ignore[invalid-argument-type]
         assert sut.dump() == {
             "content": [
                 "my-first-content",
@@ -266,7 +266,7 @@ class TestBoxConfiguration(ConfigurationTestBase[BoxConfiguration]):
 
     def test_dump__full(self) -> None:
         sut = BoxConfiguration(
-            PluginInstanceConfiguration("my-first-content"),  # ty:ignore[invalid-argument-type]
+            PluginConfiguration("my-first-content"),  # ty:ignore[invalid-argument-type]
             min_height="MIN_HEIGHT",
             max_height="MAX_HEIGHT",
             height="HEIGHT",
@@ -295,7 +295,7 @@ class TestBox(ContentProviderTestBase):
             return await project.new_target(
                 Box.new_for_configuration(
                     BoxConfiguration(
-                        PluginInstanceConfiguration(
+                        PluginConfiguration(
                             Render, RenderConfiguration(DUMMY_LOCALIZABLE)
                         )  # ty:ignore[invalid-argument-type]
                     )
@@ -307,7 +307,7 @@ class TestBox(ContentProviderTestBase):
             sut = await project.new_target(
                 Box.new_for_configuration(
                     BoxConfiguration(
-                        PluginInstanceConfiguration(
+                        PluginConfiguration(
                             Render, RenderConfiguration(DUMMY_LOCALIZABLE)
                         )  # ty:ignore[invalid-argument-type]
                     )
@@ -322,7 +322,7 @@ class TestBox(ContentProviderTestBase):
             sut = await project.new_target(
                 Box.new_for_configuration(
                     BoxConfiguration(
-                        PluginInstanceConfiguration(
+                        PluginConfiguration(
                             Render, RenderConfiguration(DUMMY_LOCALIZABLE)
                         ),  # ty:ignore[invalid-argument-type]
                         min_height="MIN_HEIGHT",

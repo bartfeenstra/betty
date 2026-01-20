@@ -30,9 +30,8 @@ from betty.config.collections.mapping import OrderedConfigurationMapping
 from betty.copyright_notice import CopyrightNotice, CopyrightNoticeDefinition
 from betty.data import Data, DataDefinition, OptionalDefinition, Sample
 from betty.data.aggregate.collection.keyed import KeyedCollectionDefinition
-from betty.data.aggregate.record import FieldDefinition
 from betty.data.aggregate.record.object import AttrDefinition, ObjectDefinition
-from betty.data.aggregate.record.object.property import Optional
+from betty.data.aggregate.record.object.property import Optional, Property
 from betty.data.bool import BoolDefinition
 from betty.data.indicator.selector import Attr
 from betty.data.int import IntDefinition
@@ -54,12 +53,12 @@ from betty.pathlib import FilePathDefinition
 from betty.plugin.config import (
     CountableHumanFacingPluginDefinitionConfiguration,
     HumanFacingPluginDefinitionConfiguration,
+    PluginConfiguration,
     PluginDefinitionConfigurationMapping,
-    PluginInstanceConfiguration,
     PluginInstanceConfigurationMapping,
 )
 from betty.plugin.config.ordered import OrderedPluginDefinitionConfiguration
-from betty.plugin.data import PluginIdDefinition
+from betty.plugin.data import PluginConfigurationDefinition, PluginIdDefinition
 from betty.plugin.resolve import ResolvableId, resolve_id
 from betty.project.extension import Extension, ExtensionDefinition
 from betty.service.hydrate import Hydratable
@@ -98,7 +97,7 @@ class ExtensionInstanceConfigurationMapping(
         for extension in extensions:
             extension = resolve_id(extension)
             if extension not in self._configurations:
-                self.append(PluginInstanceConfiguration(extension))
+                self.append(PluginConfiguration(extension))
 
     @override
     @classmethod
@@ -112,19 +111,18 @@ class ExtensionInstanceConfigurationMapping(
             [
                 lambda: Sample(cls(), label="Minimal", size=Size.MINIMAL),
                 lambda: Sample(
-                    cls([PluginInstanceConfiguration(RaspberryMint)]),  # ty:ignore[invalid-argument-type]
-                    label="Expanded",
+                    cls([PluginConfiguration(RaspberryMint)]), label="Expanded"
                 ),
                 lambda: Sample(
                     cls(
                         [
-                            PluginInstanceConfiguration(
+                            PluginConfiguration(
                                 RaspberryMint,
                                 RaspberryMintConfiguration.samples()
                                 .get(Size.FULL)
                                 .data,
                             )
-                        ]  # ty:ignore[invalid-argument-type]
+                        ]
                     ),
                     label="Full",
                     size=Size.FULL,
@@ -889,23 +887,6 @@ class GenderPluginConfigurationMapping(
 @final
 @ObjectDefinition(
     label=_("Project configuration"),
-    fields=[
-        FieldDefinition(
-            Attr("copyright_notice"),
-            DataDefinition(
-                cls=PluginInstanceConfiguration, label=_("Copyright notice")
-            ),
-            omit_load=True,
-            omit_dump=lambda data: data
-            == ProjectConfiguration._default_copyright_notice(),
-        ),
-        FieldDefinition(
-            Attr("license"),
-            DataDefinition(cls=PluginInstanceConfiguration, label=_("License")),
-            omit_load=True,
-            omit_dump=lambda data: data == ProjectConfiguration._default_license(),
-        ),
-    ],
     samples=[
         lambda: Sample(
             ProjectConfiguration(title="Betty", url="https://example.com"),
@@ -917,10 +898,16 @@ class GenderPluginConfigurationMapping(
                 url="https://ancestry.example.com/betty",
                 debug=True,
                 clean_urls=True,
+                copyright_notice=ProjectConfiguration.copyright_notice.attr.data.samples.get(
+                    Size.FULL
+                ).data,
                 title="Betty's ancestry",
                 name="betty-ancestry",
                 author="Bart Feenstra",
                 logo=ASSETS_DIRECTORY_PATH / "public" / "static" / "betty-512x512.png",
+                license=ProjectConfiguration.license.attr.data.samples.get(
+                    Size.FULL
+                ).data,
                 lifetime_threshold=123,
                 locales=LocaleConfigurationMapping.samples().get(Size.FULL).data,
                 entity_types=[
@@ -952,16 +939,24 @@ class ProjectConfiguration(Data):
     .. data:: betty.project.config:ProjectConfiguration
     """
 
-    license: PluginInstanceConfiguration[LicenseDefinition, License]
-    """
-    The project-wide license.
-    """
-    copyright_notice: PluginInstanceConfiguration[
-        CopyrightNoticeDefinition, CopyrightNotice
-    ]
+    copyright_notice = Property(
+        PluginConfigurationDefinition(CopyrightNoticeDefinition),
+        omit_load=True,
+        omit_dump=lambda data: data == ProjectConfiguration._default_copyright_notice(),
+    )
     """
     The project-wide copyright notice.
     """
+
+    license = Property(
+        PluginConfigurationDefinition(LicenseDefinition),
+        omit_load=True,
+        omit_dump=lambda data: data == ProjectConfiguration._default_license(),
+    )
+    """
+    The project-wide license.
+    """
+
     title = LocalizableProperty(label=_("Title"))
     author = Optional(LocalizableProperty(label=_("Author")))
 
@@ -977,12 +972,12 @@ class ProjectConfiguration(Data):
         event_types: EventTypePluginConfigurationMapping | None = None,
         place_types: PlaceTypePluginConfigurationMapping | None = None,
         presence_roles: PresenceRolePluginConfigurationMapping | None = None,
-        copyright_notice: PluginInstanceConfiguration[
+        copyright_notice: PluginConfiguration[
             CopyrightNoticeDefinition, CopyrightNotice
         ]
         | None = None,
         copyright_notices: CopyrightNoticePluginConfigurationMapping | None = None,
-        license: PluginInstanceConfiguration[LicenseDefinition, License] | None = None,  # noqa: A002
+        license: PluginConfiguration[LicenseDefinition, License] | None = None,  # noqa: A002
         licenses: LicensePluginConfigurationMapping | None = None,
         genders: GenderPluginConfigurationMapping | None = None,
         extensions: ExtensionInstanceConfigurationMapping | None = None,
@@ -1050,22 +1045,20 @@ class ProjectConfiguration(Data):
     @classmethod
     def _default_copyright_notice(
         cls,
-    ) -> PluginInstanceConfiguration[CopyrightNoticeDefinition, CopyrightNotice]:
+    ) -> PluginConfiguration[CopyrightNoticeDefinition, CopyrightNotice]:
         from betty.copyright_notice.copyright_notices import ProjectAuthor
 
-        return PluginInstanceConfiguration[CopyrightNoticeDefinition, CopyrightNotice](
+        return PluginConfiguration[CopyrightNoticeDefinition, CopyrightNotice](
             ProjectAuthor
         )
 
     @classmethod
     def _default_license(
         cls,
-    ) -> PluginInstanceConfiguration[LicenseDefinition, License]:
+    ) -> PluginConfiguration[LicenseDefinition, License]:
         from betty.license.licenses import AllRightsReserved
 
-        return PluginInstanceConfiguration[LicenseDefinition, License](
-            AllRightsReserved
-        )
+        return PluginConfiguration[LicenseDefinition, License](AllRightsReserved)
 
     @classmethod
     def _default_locales(cls) -> LocaleConfigurationMapping:

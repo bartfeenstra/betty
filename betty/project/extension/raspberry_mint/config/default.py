@@ -12,7 +12,7 @@ from betty.content_provider.content_providers import Box, BoxConfiguration, Note
 from betty.locale.localizable.gettext import _
 from betty.locale.localizable.static import StaticTranslations
 from betty.plugin.config import (
-    PluginInstanceConfiguration,
+    PluginConfiguration,
     PluginInstanceConfigurationSequence,
 )
 from betty.project.extension.maps.content_provider import Map, MapAttribution
@@ -64,14 +64,14 @@ def regional_content(
             ContentProviderDefinition, ContentProvider
         ](
             [
-                PluginInstanceConfiguration(Media),
-                PluginInstanceConfiguration(
+                PluginConfiguration(Media),
+                PluginConfiguration(
                     Section,
                     SectionConfiguration(
-                        PluginInstanceConfiguration(
+                        PluginConfiguration(
                             Columns,
                             ColumnsConfiguration(
-                                PluginInstanceConfiguration(WikipediaSummary),  # ty:ignore[invalid-argument-type]
+                                PluginConfiguration(WikipediaSummary),  # ty:ignore[invalid-argument-type]
                                 width=SINGLE_COLUMN_TEXT_WIDTH,
                             ),
                         ),  # ty:ignore[invalid-argument-type]
@@ -79,41 +79,41 @@ def regional_content(
                         name="wikipedia",
                     ),
                 ),
-                PluginInstanceConfiguration(
+                PluginConfiguration(
                     Box,
                     BoxConfiguration(
-                        PluginInstanceConfiguration(Map),  # ty:ignore[invalid-argument-type]
+                        PluginConfiguration(Map),  # ty:ignore[invalid-argument-type]
                         min_height="500px",
                         height="75vh",
                         max_height="1000px",
                     ),
                 ),
-                PluginInstanceConfiguration(
+                PluginConfiguration(
                     ColorStyle,
                     ColorStyleConfiguration(
-                        PluginInstanceConfiguration(
+                        PluginConfiguration(
                             Columns,
                             ColumnsConfiguration(
-                                PluginInstanceConfiguration(MapAttribution)  # ty:ignore[invalid-argument-type]
+                                PluginConfiguration(MapAttribution)  # ty:ignore[invalid-argument-type]
                             ),
                         ),  # ty:ignore[invalid-argument-type]
                         style=ColorStyleOption.LIGHT_CONTRAST,
                     ),
                 ),
-                PluginInstanceConfiguration(
+                PluginConfiguration(
                     Columns,
                     ColumnsConfiguration(
-                        PluginInstanceConfiguration(Enclosees),  # ty:ignore[invalid-argument-type]
+                        PluginConfiguration(Enclosees),  # ty:ignore[invalid-argument-type]
                         width=SINGLE_COLUMN_TEXT_WIDTH,
                     ),
                 ),
-                PluginInstanceConfiguration(
+                PluginConfiguration(
                     Section,
                     SectionConfiguration(
-                        PluginInstanceConfiguration(
+                        PluginConfiguration(
                             Columns,
                             ColumnsConfiguration(
-                                PluginInstanceConfiguration(Notes),  # ty:ignore[invalid-argument-type]
+                                PluginConfiguration(Notes),  # ty:ignore[invalid-argument-type]
                                 width=SINGLE_COLUMN_TEXT_WIDTH,
                             ),
                         ),  # ty:ignore[invalid-argument-type]
@@ -121,30 +121,30 @@ def regional_content(
                         name="notes",
                     ),
                 ),
-                PluginInstanceConfiguration(
+                PluginConfiguration(
                     Section,
                     SectionConfiguration(
-                        PluginInstanceConfiguration(
+                        PluginConfiguration(
                             Presences, PresencesConfiguration(include=[Subject])
                         ),  # ty:ignore[invalid-argument-type]
                         heading=_make_dumpable(_("Subjects")),
                         name="attendees-subject",
                     ),
                 ),
-                PluginInstanceConfiguration(
+                PluginConfiguration(
                     Section,
                     SectionConfiguration(
-                        PluginInstanceConfiguration(
+                        PluginConfiguration(
                             Presences, PresencesConfiguration(include=[Witness])
                         ),  # ty:ignore[invalid-argument-type]
                         heading=_make_dumpable(_("Witnesses")),
                         name="attendees-witness",
                     ),
                 ),
-                PluginInstanceConfiguration(
+                PluginConfiguration(
                     Section,
                     SectionConfiguration(
-                        PluginInstanceConfiguration(
+                        PluginConfiguration(
                             Presences,
                             PresencesConfiguration(exclude=[Subject, Witness]),
                         ),  # ty:ignore[invalid-argument-type]
@@ -152,41 +152,41 @@ def regional_content(
                         name="attendees-other",
                     ),
                 ),
-                PluginInstanceConfiguration(
+                PluginConfiguration(
                     Section,
                     SectionConfiguration(
-                        PluginInstanceConfiguration(Families),  # ty:ignore[invalid-argument-type]
+                        PluginConfiguration(Families),  # ty:ignore[invalid-argument-type]
                         heading=_make_dumpable(_("Family")),
                         name="family",
                     ),
                 ),
-                PluginInstanceConfiguration(
+                PluginConfiguration(
                     Box,
                     BoxConfiguration(
-                        PluginInstanceConfiguration(Tree),  # ty:ignore[invalid-argument-type]
+                        PluginConfiguration(Tree),  # ty:ignore[invalid-argument-type]
                         min_height="500px",
                         height="75vh",
                         max_height="1000px",
                     ),
                 ),
-                PluginInstanceConfiguration(
+                PluginConfiguration(
                     Section,
                     SectionConfiguration(
-                        PluginInstanceConfiguration(
+                        PluginConfiguration(
                             Columns,
-                            ColumnsConfiguration(PluginInstanceConfiguration(Timeline)),  # ty:ignore[invalid-argument-type]
+                            ColumnsConfiguration(PluginConfiguration(Timeline)),  # ty:ignore[invalid-argument-type]
                         ),  # ty:ignore[invalid-argument-type]
                         heading=_make_dumpable(_("Timeline")),
                         name="timeline",
                     ),
                 ),
-                PluginInstanceConfiguration(
+                PluginConfiguration(
                     Section,
                     SectionConfiguration(
-                        PluginInstanceConfiguration(
+                        PluginConfiguration(
                             Columns,
                             ColumnsConfiguration(
-                                PluginInstanceConfiguration(Facts),  # ty:ignore[invalid-argument-type]
+                                PluginConfiguration(Facts),  # ty:ignore[invalid-argument-type]
                                 width=SINGLE_COLUMN_TEXT_WIDTH,
                             ),
                         ),  # ty:ignore[invalid-argument-type]
@@ -194,13 +194,13 @@ def regional_content(
                         name="facts",
                     ),
                 ),
-                PluginInstanceConfiguration(
+                PluginConfiguration(
                     ColorStyle,
                     ColorStyleConfiguration(
-                        PluginInstanceConfiguration(
+                        PluginConfiguration(
                             Section,
                             SectionConfiguration(
-                                PluginInstanceConfiguration(MediaGallery),  # ty:ignore[invalid-argument-type]
+                                PluginConfiguration(MediaGallery),  # ty:ignore[invalid-argument-type]
                                 heading=_make_dumpable(_("Media")),
                                 name="media",
                             ),
@@ -208,13 +208,13 @@ def regional_content(
                         style=ColorStyleOption.DARK,
                     ),
                 ),
-                PluginInstanceConfiguration(
+                PluginConfiguration(
                     Section,
                     SectionConfiguration(
-                        PluginInstanceConfiguration(
+                        PluginConfiguration(
                             Columns,
                             ColumnsConfiguration(
-                                PluginInstanceConfiguration(FileReferees),  # ty:ignore[invalid-argument-type]
+                                PluginConfiguration(FileReferees),  # ty:ignore[invalid-argument-type]
                                 width=SINGLE_COLUMN_TEXT_WIDTH,
                             ),
                         ),  # ty:ignore[invalid-argument-type]
@@ -222,13 +222,13 @@ def regional_content(
                         name="appearances",
                     ),
                 ),
-                PluginInstanceConfiguration(
+                PluginConfiguration(
                     Section,
                     SectionConfiguration(
-                        PluginInstanceConfiguration(
+                        PluginConfiguration(
                             Columns,
                             ColumnsConfiguration(
-                                PluginInstanceConfiguration(Citations),  # ty:ignore[invalid-argument-type]
+                                PluginConfiguration(Citations),  # ty:ignore[invalid-argument-type]
                                 width=SINGLE_COLUMN_TEXT_WIDTH,
                             ),
                         ),  # ty:ignore[invalid-argument-type]
@@ -236,13 +236,13 @@ def regional_content(
                         name="citations",
                     ),
                 ),
-                PluginInstanceConfiguration(
+                PluginConfiguration(
                     Section,
                     SectionConfiguration(
-                        PluginInstanceConfiguration(
+                        PluginConfiguration(
                             Columns,
                             ColumnsConfiguration(
-                                PluginInstanceConfiguration(ExternalLinks),  # ty:ignore[invalid-argument-type]
+                                PluginConfiguration(ExternalLinks),  # ty:ignore[invalid-argument-type]
                                 width=SINGLE_COLUMN_TEXT_WIDTH,
                             ),
                         ),  # ty:ignore[invalid-argument-type]
@@ -250,6 +250,6 @@ def regional_content(
                         name="external-links",
                     ),
                 ),
-            ]  # ty:ignore[invalid-argument-type]
+            ]
         ),
     }

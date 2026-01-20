@@ -4,7 +4,7 @@ from betty.app import App
 from betty.content_provider.content_providers import Render, RenderConfiguration
 from betty.dirs import ROOT_DIRECTORY_PATH
 from betty.plugin.config import (
-    PluginInstanceConfiguration,
+    PluginConfiguration,
 )
 from betty.project import Project
 from betty.project.extension.raspberry_mint import RaspberryMint
@@ -33,18 +33,18 @@ async def test_regional_content_front_page_summary(
 ) -> None:
     async with Project.new_isolated(isolated_app) as project:
         project.configuration.extensions.append(
-            PluginInstanceConfiguration(
+            PluginConfiguration(
                 RaspberryMint,
                 RaspberryMintConfiguration(
                     regional_content=RegionalContentConfiguration(
                         {
                             "front-page-summary": [
-                                PluginInstanceConfiguration(
+                                PluginConfiguration(
                                     Render,
                                     RenderConfiguration("Hello, world!"),
                                 ),
                             ]
-                        }  # ty:ignore[invalid-argument-type]
+                        }
                     )
                 ),
             )
@@ -63,18 +63,18 @@ async def test_regional_content_front_page_content(
 ) -> None:
     async with Project.new_isolated(isolated_app) as project:
         project.configuration.extensions.append(
-            PluginInstanceConfiguration(
+            PluginConfiguration(
                 RaspberryMint,
                 RaspberryMintConfiguration(
                     regional_content=RegionalContentConfiguration(
                         {
                             "front-page-content": [
-                                PluginInstanceConfiguration(
+                                PluginConfiguration(
                                     Render,
                                     RenderConfiguration("Hello, world!"),
                                 ),
                             ]
-                        }  # ty:ignore[invalid-argument-type]
+                        }
                     )
                 ),
             )

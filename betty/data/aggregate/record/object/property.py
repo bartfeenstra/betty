@@ -37,14 +37,19 @@ class Property(Attr[_ValueGetT], Generic[_ValueGetT, _ValueSetT]):
         *,
         label: LocalizableLike | None = None,
         description: LocalizableLike | None = None,
-        omit: Callable[[_ValueGetT], bool] | None = None,
+        omit_load: bool | None = None,
+        omit_dump: Callable[[_ValueGetT], bool] | None = None,
         resolver: Callable[[_ValueSetT | _ValueGetT], _ValueGetT] = passthrough,
     ):
         self._data = data
         self._label = label
         self._description = description
         self._attr = AttrDefinition(
-            data, label=label, description=description, omit_dump=omit
+            data,
+            label=label,
+            description=description,
+            omit_load=omit_load,
+            omit_dump=omit_dump,
         )
         self._resolver = resolver
 

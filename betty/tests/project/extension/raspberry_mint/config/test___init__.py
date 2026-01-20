@@ -8,7 +8,7 @@ from betty.config.color import ColorConfiguration
 from betty.content_provider import ContentProvider, ContentProviderDefinition
 from betty.exception import HumanFacingException
 from betty.plugin.config import (
-    PluginInstanceConfiguration,
+    PluginConfiguration,
 )
 from betty.project import Project
 from betty.project.extension.raspberry_mint import RaspberryMint
@@ -59,7 +59,7 @@ class TestRaspberryMintConfiguration(ConfigurationTestBase[RaspberryMintConfigur
         assert sut.tertiary_color.hex == hex_value
 
     def test_regional_content__from___init__(self) -> None:
-        content_provider = PluginInstanceConfiguration[
+        content_provider = PluginConfiguration[
             ContentProviderDefinition, ContentProvider
         ]("my-first-plugin")
         regional_content = {
@@ -141,9 +141,7 @@ class TestRaspberryMintConfiguration(ConfigurationTestBase[RaspberryMintConfigur
 
     def test_dump__with_regional_content(self) -> None:
         sut = RaspberryMintConfiguration()
-        sut.regional_content["front"].append(
-            PluginInstanceConfiguration("my-first-plugin")
-        )
+        sut.regional_content["front"].append(PluginConfiguration("my-first-plugin"))
         actual = sut.dump()
         assert actual["regional_content"] == {
             "front": [

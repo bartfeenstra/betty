@@ -26,7 +26,7 @@ if TYPE_CHECKING:
     from ty_extensions import Intersection
 
     from betty.job.scheduler import Scheduler
-    from betty.plugin.config import PluginInstanceConfiguration
+    from betty.plugin.config import PluginConfiguration
     from betty.plugin.repository import PluginRepository
     from betty.service.level.factory import ServiceLevelFactory
 
@@ -38,7 +38,7 @@ _PluginDefinitionT = TypeVar(
 
 
 def _new_plugin_instance_factory(
-    configuration: PluginInstanceConfiguration[_PluginDefinitionT, _PluginT],
+    configuration: PluginConfiguration[_PluginDefinitionT, _PluginT],
     repository: PluginRepository[
         Intersection[_PluginDefinitionT, PluginDefinition[_PluginT]]
     ],

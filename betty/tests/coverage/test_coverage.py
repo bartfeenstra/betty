@@ -179,6 +179,7 @@ _BASELINE: Mapping[str, _ModuleIgnore] = {
         "CollectionDefinition": MissingReason.ABSTRACT,
     },
     "betty/data/aggregate/record/__init__.py": {
+        "PortableRecord": MissingReason.ABSTRACT,
         "RecordPorter": MissingReason.ABSTRACT,
     },
     "betty/data/aggregate/record/object/__init__.py": {
@@ -450,6 +451,10 @@ _BASELINE: Mapping[str, _ModuleIgnore] = {
         "GenderPluginConfiguration": MissingReason.STATIC_CONTENT_ONLY,
         "PlaceTypePluginConfiguration": MissingReason.STATIC_CONTENT_ONLY,
         "PresenceRolePluginConfiguration": MissingReason.STATIC_CONTENT_ONLY,
+        "ProjectConfiguration": {
+            "copyright_notice": MissingReason.INHERITED,
+            "license": MissingReason.INHERITED,
+        },
     },
     "betty/project/extension/__init__.py": {
         "ExtensionError": MissingReason.STATIC_CONTENT_ONLY,

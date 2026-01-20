@@ -57,7 +57,7 @@ class Portable(ABC, Generic[_PortableDataT]):
     @abstractmethod
     def load(cls, portable: PortableData, /) -> Self:
         """
-        Create a new instance from ``portable``.
+        Create a new instance from portable data.
 
         :raises betty.exception.HumanFacingException: Raised if the portable data is invalid.
         """
@@ -65,7 +65,7 @@ class Portable(ABC, Generic[_PortableDataT]):
     @abstractmethod
     def dump(self) -> _PortableDataT:
         """
-        Produce a portable data dump of ``self``.
+        Dump the instance to portable data.
 
         :raises betty.portable.error.NotPortable: Raised if any part of the data is not portable.
         """
@@ -116,7 +116,6 @@ class CallbackPorter(Porter[_DataClsT, _PortableDataT]):
         return self._dumper(data)
 
 
-@final
 class PortablePorter(Porter[_PortableT, _PortableDataT]):
     """
     Expose a portable data type as a porter.

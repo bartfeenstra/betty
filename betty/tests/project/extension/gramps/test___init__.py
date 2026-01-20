@@ -17,7 +17,7 @@ from betty.ancestry.presence_role.presence_roles import Subject
 from betty.ancestry.source import Source
 from betty.app import App
 from betty.config.factory import ConfigurationDependentSelfFactory
-from betty.plugin.config import PluginInstanceConfiguration
+from betty.plugin.config import PluginConfiguration
 from betty.project import Project
 from betty.project.extension import Extension
 from betty.project.extension.gramps import Gramps
@@ -86,7 +86,7 @@ class TestGramps(
 
         async with Project.new_isolated(isolated_app) as project:
             project.configuration.extensions.append(
-                PluginInstanceConfiguration(
+                PluginConfiguration(
                     Gramps.plugin(),
                     GrampsConfiguration(
                         family_trees=FamilyTreeConfigurationSequence(
@@ -94,7 +94,7 @@ class TestGramps(
                                 FamilyTreeConfiguration(
                                     gramps_family_tree_path,
                                     event_types=EventTypeMapping(
-                                        {"Birth": PluginInstanceConfiguration("birth")}
+                                        {"Birth": PluginConfiguration("birth")}
                                     ),
                                 )
                             ]
@@ -131,7 +131,7 @@ class TestGramps(
 
         async with Project.new_isolated(isolated_app) as project:
             project.configuration.extensions.append(
-                PluginInstanceConfiguration(
+                PluginConfiguration(
                     Gramps.plugin(),
                     GrampsConfiguration(
                         family_trees=FamilyTreeConfigurationSequence(
@@ -139,7 +139,7 @@ class TestGramps(
                                 FamilyTreeConfiguration(
                                     gramps_family_tree_path,
                                     place_types=PlaceTypeMapping(
-                                        {"City": PluginInstanceConfiguration("city")}
+                                        {"City": PluginConfiguration("city")}
                                     ),
                                 )
                             ]
@@ -184,7 +184,7 @@ class TestGramps(
 
         async with Project.new_isolated(isolated_app) as project:
             project.configuration.extensions.append(
-                PluginInstanceConfiguration(
+                PluginConfiguration(
                     Gramps.plugin(),
                     GrampsConfiguration(
                         family_trees=FamilyTreeConfigurationSequence(
@@ -192,11 +192,7 @@ class TestGramps(
                                 FamilyTreeConfiguration(
                                     gramps_family_tree_path,
                                     presence_roles=PresenceRoleMapping(
-                                        {
-                                            "MyFirstRole": PluginInstanceConfiguration(
-                                                "subject"
-                                            )
-                                        }
+                                        {"MyFirstRole": PluginConfiguration("subject")}
                                     ),
                                 )
                             ]
@@ -317,7 +313,7 @@ class TestGramps(
 
             async with Project.new_isolated(isolated_app) as project:
                 project.configuration.extensions.append(
-                    PluginInstanceConfiguration(
+                    PluginConfiguration(
                         Gramps.plugin(),
                         GrampsConfiguration(
                             family_trees=FamilyTreeConfigurationSequence(

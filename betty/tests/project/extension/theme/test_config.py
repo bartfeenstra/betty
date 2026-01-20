@@ -4,7 +4,7 @@ import pytest
 
 from betty.exception import HumanFacingException
 from betty.plugin.config import (
-    PluginInstanceConfiguration,
+    PluginConfiguration,
 )
 from betty.project.extension.theme.config import RegionalContentConfiguration
 from betty.test_utils.config import ConfigurationTestBase
@@ -31,7 +31,7 @@ class TestRegionalContentConfiguration(
 
     def test_dump__with_full_regions(self) -> None:
         sut = RegionalContentConfiguration()
-        sut["front"].append(PluginInstanceConfiguration("my-first-plugin"))
+        sut["front"].append(PluginConfiguration("my-first-plugin"))
         actual = sut.dump()
         assert actual == {
             "front": [
@@ -65,9 +65,9 @@ class TestRegionalContentConfiguration(
         sut = RegionalContentConfiguration(
             {
                 "non-existent-region": [
-                    PluginInstanceConfiguration("my-first-plugin"),
+                    PluginConfiguration("my-first-plugin"),
                 ]
-            }  # ty:ignore[invalid-argument-type]
+            }
         )
         with pytest.raises(HumanFacingException):
             sut.validate([])

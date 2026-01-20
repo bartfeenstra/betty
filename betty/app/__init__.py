@@ -189,9 +189,11 @@ class App(Configurable[AppConfiguration], ServiceLevel):
             )
 
     @override
-    async def bootstrap(self) -> None:
-        await super().bootstrap()
+    async def _bootstrap(self) -> None:
         await self._user.connect()
+
+    @override
+    async def _post_bootstrap(self) -> None:
         self._user.localizer = await self.localizer
 
     @override
