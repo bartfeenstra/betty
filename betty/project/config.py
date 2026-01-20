@@ -58,11 +58,10 @@ from betty.plugin.config import (
     HumanFacingPluginDefinitionConfiguration,
     PluginDefinitionConfigurationMapping,
     PluginInstanceConfiguration,
-    PluginInstanceConfigurationDefinition,
     PluginInstanceConfigurationMapping,
 )
 from betty.plugin.config.ordered import OrderedPluginDefinitionConfiguration
-from betty.plugin.data import PluginIdDefinition
+from betty.plugin.data import PluginIdDefinition, PluginInstanceConfigurationDefinition
 from betty.plugin.resolve import ResolvableId, resolve_id
 from betty.portable import CallbackPorter
 from betty.project.extension import Extension, ExtensionDefinition

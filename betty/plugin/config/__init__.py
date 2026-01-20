@@ -22,9 +22,6 @@ from betty.config.collections import ConfigurationCollection, ConfigurationKey
 from betty.config.collections.mapping import ConfigurationMapping
 from betty.config.collections.sequence import ConfigurationSequence
 from betty.data import Sample
-from betty.data.aggregate.record import FieldDefinition
-from betty.data.aggregate.record.object import ObjectDefinition
-from betty.data.indicator.selector import Attr
 from betty.data.sample import get_full_sample
 from betty.locale import DEFAULT_LOCALE
 from betty.locale.localizable.assertion import (
@@ -40,7 +37,6 @@ from betty.locale.localizable.ensure import (
     ensure_countable_localizable,
     ensure_localizable,
 )
-from betty.locale.localizable.gettext import _
 from betty.locale.localizable.portable import (
     dump_countable_localizable,
     dump_localizable,
@@ -48,7 +44,6 @@ from betty.locale.localizable.portable import (
 from betty.locale.localizable.static import CountableStaticTranslations
 from betty.machine_name import MachineName, assert_machine_name
 from betty.plugin import Plugin, PluginDefinition
-from betty.plugin.data import PluginIdDefinition
 from betty.plugin.resolve import ResolvableId, resolve_id
 from betty.typing import Void
 
@@ -416,24 +411,6 @@ class PluginInstanceConfiguration(Configuration, Generic[_PluginDefinitionT, _Pl
             if isinstance(configuration, Configuration)
             else configuration,
         }
-
-
-@final
-class PluginInstanceConfigurationDefinition(ObjectDefinition):
-    """
-    Define :py:class:`betty.plugin.config.PluginInstanceConfiguration`.
-    """
-
-    def __init__(self, plugin_type: type[PluginDefinition], /):
-        super().__init__(
-            cls=PluginInstanceConfiguration,
-            label=_("{plugin_type} configuration").format(
-                plugin_type=plugin_type.type().label
-            ),
-            fields=[
-                FieldDefinition(Attr("id"), PluginIdDefinition(plugin_type)),
-            ],
-        )
 
 
 ShorthandPluginInstanceConfigurationSequence: TypeAlias = (
