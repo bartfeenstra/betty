@@ -250,6 +250,6 @@ def regional_content(
                         name="external-links",
                     ),
                 ),
-            ]  # ty:ignore[invalid-argument-type]
+            ]
         ),
     }

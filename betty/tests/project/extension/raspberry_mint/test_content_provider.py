@@ -1054,7 +1054,7 @@ class TestColumns(ContentProviderTestBase):
                                     RenderConfiguration(DUMMY_LOCALIZABLE),
                                 ),
                             ],
-                        ],  # ty:ignore[invalid-argument-type]
+                        ],
                         width=[8, 4],
                     ),
                     jinja2_environment=await project.jinja2_environment,
@@ -1085,7 +1085,7 @@ class TestColumns(ContentProviderTestBase):
                                     RenderConfiguration(DUMMY_LOCALIZABLE),
                                 ),
                             ],
-                        ],  # ty:ignore[invalid-argument-type]
+                        ],
                         width={Breakpoint.XS: [8, 4], Breakpoint.LG: [7, 5]},
                     ),
                     jinja2_environment=await project.jinja2_environment,

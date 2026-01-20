@@ -289,7 +289,7 @@ class BoxConfiguration(Configuration):
                     PluginInstanceConfiguration(
                         Render, RenderConfiguration("Hello, world!")
                     )
-                ],  # ty:ignore[invalid-argument-type]
+                ],
                 min_height="100px",
                 max_height="1000px",
                 height="500px",

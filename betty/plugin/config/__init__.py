@@ -21,8 +21,10 @@ from betty.config import Configuration
 from betty.config.collections import ConfigurationCollection, ConfigurationKey
 from betty.config.collections.mapping import ConfigurationMapping
 from betty.config.collections.sequence import ConfigurationSequence
-from betty.config.color import ColorConfiguration
 from betty.data import Sample
+from betty.data.aggregate.record import FieldDefinition
+from betty.data.aggregate.record.object import ObjectDefinition
+from betty.data.indicator.selector import Attr
 from betty.data.sample import get_full_sample
 from betty.locale import DEFAULT_LOCALE
 from betty.locale.localizable.assertion import (
@@ -38,6 +40,7 @@ from betty.locale.localizable.ensure import (
     ensure_countable_localizable,
     ensure_localizable,
 )
+from betty.locale.localizable.gettext import _
 from betty.locale.localizable.portable import (
     dump_countable_localizable,
     dump_localizable,
@@ -45,6 +48,7 @@ from betty.locale.localizable.portable import (
 from betty.locale.localizable.static import CountableStaticTranslations
 from betty.machine_name import MachineName, assert_machine_name
 from betty.plugin import Plugin, PluginDefinition
+from betty.plugin.data import PluginIdDefinition
 from betty.plugin.resolve import ResolvableId, resolve_id
 from betty.typing import Void
 
@@ -352,11 +356,10 @@ class PluginDefinitionConfigurationMapping(
         return portable_item, cast(str, portable_item.pop("id"))  # ty:ignore[invalid-argument-type]
 
 
+@final
 class PluginInstanceConfiguration(Configuration, Generic[_PluginDefinitionT, _PluginT]):
     """
     Configure a single plugin instance.
-
-    .. configuration:: betty.plugin.config:PluginInstanceConfiguration
     """
 
     def __init__(
@@ -414,26 +417,22 @@ class PluginInstanceConfiguration(Configuration, Generic[_PluginDefinitionT, _Pl
             else configuration,
         }
 
-    @override
-    @classmethod
-    def samples(cls) -> Iterable[Sample[Self]]:  # ty:ignore[invalid-method-override]
-        from betty.project.extension.raspberry_mint import RaspberryMint
-        from betty.project.extension.raspberry_mint.config import (
-            RaspberryMintConfiguration,
-        )
 
-        yield Sample(
-            cls(RaspberryMint),
-            label="Minimal",
-            minimal=True,
-        )
-        yield Sample(
-            cls(
-                RaspberryMint,
-                RaspberryMintConfiguration(primary_color=ColorConfiguration("#ff0000")),
+@final
+class PluginInstanceConfigurationDefinition(ObjectDefinition):
+    """
+    Define :py:class:`betty.plugin.config.PluginInstanceConfiguration`.
+    """
+
+    def __init__(self, plugin_type: type[PluginDefinition], /):
+        super().__init__(
+            cls=PluginInstanceConfiguration,
+            label=_("{plugin_type} configuration").format(
+                plugin_type=plugin_type.type().label
             ),
-            label="Full",
-            full=True,
+            fields=[
+                FieldDefinition(Attr("id"), PluginIdDefinition(plugin_type)),
+            ],
         )
 
 
@@ -459,7 +458,7 @@ class _PluginInstanceConfigurationCollection(
         /,
     ):
         if isinstance(configurations, PluginInstanceConfiguration):
-            configurations = [configurations]  # ty:ignore[invalid-assignment]
+            configurations = [configurations]
         super().__init__(configurations)
 
     @override

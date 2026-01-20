@@ -44,7 +44,7 @@ async def test_regional_content_front_page_summary(
                                     RenderConfiguration("Hello, world!"),
                                 ),
                             ]
-                        }  # ty:ignore[invalid-argument-type]
+                        }
                     )
                 ),
             )
@@ -74,7 +74,7 @@ async def test_regional_content_front_page_content(
                                     RenderConfiguration("Hello, world!"),
                                 ),
                             ]
-                        }  # ty:ignore[invalid-argument-type]
+                        }
                     )
                 ),
             )

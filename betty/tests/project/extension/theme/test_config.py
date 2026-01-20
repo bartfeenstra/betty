@@ -67,7 +67,7 @@ class TestRegionalContentConfiguration(
                 "non-existent-region": [
                     PluginInstanceConfiguration("my-first-plugin"),
                 ]
-            }  # ty:ignore[invalid-argument-type]
+            }
         )
         with pytest.raises(HumanFacingException):
             sut.validate([])

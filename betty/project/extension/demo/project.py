@@ -209,11 +209,11 @@ async def create_project(app: App, project_directory_path: Path) -> Project:
                                         ),
                                     ),
                                 ],
-                            }  # ty:ignore[invalid-argument-type]
+                            }
                         ),
                     ),
                 ),
-            ]  # ty:ignore[invalid-argument-type]
+            ]
         ),
         entity_types=[
             Person,

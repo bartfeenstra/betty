@@ -394,7 +394,7 @@ class ColorStyleConfiguration(Configuration):
                     PluginInstanceConfiguration(
                         Render, RenderConfiguration("Hello, world!")
                     )
-                ],  # ty:ignore[invalid-argument-type]
+                ],
             ),
             label="Default",
         )

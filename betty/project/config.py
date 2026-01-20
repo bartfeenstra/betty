@@ -58,6 +58,7 @@ from betty.plugin.config import (
     HumanFacingPluginDefinitionConfiguration,
     PluginDefinitionConfigurationMapping,
     PluginInstanceConfiguration,
+    PluginInstanceConfigurationDefinition,
     PluginInstanceConfigurationMapping,
 )
 from betty.plugin.config.ordered import OrderedPluginDefinitionConfiguration
@@ -112,8 +113,7 @@ class ExtensionInstanceConfigurationMapping(
 
         yield Sample(cls(), label="Minimal", minimal=True)
         yield Sample(
-            cls([PluginInstanceConfiguration(RaspberryMint)]),  # ty:ignore[invalid-argument-type]
-            label="Expanded",
+            cls([PluginInstanceConfiguration(RaspberryMint)]), label="Expanded"
         )
         yield Sample(
             cls(
@@ -122,7 +122,7 @@ class ExtensionInstanceConfigurationMapping(
                         RaspberryMint,
                         get_full_sample(RaspberryMintConfiguration).data,
                     )
-                ]  # ty:ignore[invalid-argument-type]
+                ]
             ),
             label="Full",
             full=True,
@@ -839,9 +839,7 @@ class GenderPluginConfigurationMapping(
         ),
         FieldDefinition(
             Attr("copyright_notice"),
-            DataDefinition(
-                cls=PluginInstanceConfiguration, label=_("Copyright notice")
-            ),
+            PluginInstanceConfigurationDefinition(CopyrightNoticeDefinition),
             required=False,
             empty=lambda data: data == ProjectConfiguration._default_copyright_notice(),
         ),
@@ -900,7 +898,7 @@ class GenderPluginConfigurationMapping(
         ),
         FieldDefinition(
             Attr("license"),
-            DataDefinition(cls=PluginInstanceConfiguration, label=_("License")),
+            PluginInstanceConfigurationDefinition(LicenseDefinition),
             required=False,
             empty=lambda data: data == ProjectConfiguration._default_license(),
         ),
