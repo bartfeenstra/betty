@@ -9,15 +9,16 @@ import pytest
 from betty.app import App
 from betty.config import Configuration
 from betty.config.factory import ConfigurationDependentSelfFactory
+from betty.data import HasData
 from betty.factory import FactoryError
 from betty.project import Project
 from betty.requirement import HasRequirement, Requirement
 from betty.service.level.universal import universe
 
-_ConfigurationT = TypeVar("_ConfigurationT", bound=Configuration)
+_HasDataT = TypeVar("_HasDataT", bound=HasData | Configuration)
 
 
-class ConfigurationDependentSelfFactoryTestBase(Generic[_ConfigurationT]):
+class ConfigurationDependentSelfFactoryTestBase(Generic[_HasDataT]):
     """
     A base class for testing :py:class:`betty.config.factory.ConfigurationDependentSelfFactory` implementations.
     """
@@ -25,7 +26,7 @@ class ConfigurationDependentSelfFactoryTestBase(Generic[_ConfigurationT]):
     @pytest.fixture
     def configuration_dependent_self_factory_sut(
         self,
-    ) -> type[ConfigurationDependentSelfFactory[_ConfigurationT]]:
+    ) -> type[ConfigurationDependentSelfFactory[_HasDataT]]:
         """
         Provide the system(s) under test.
         """
@@ -34,7 +35,7 @@ class ConfigurationDependentSelfFactoryTestBase(Generic[_ConfigurationT]):
     @pytest.fixture
     def configuration_dependent_self_factory_sut_configuration(
         self,
-    ) -> _ConfigurationT:
+    ) -> _HasDataT:
         """
         Provide the system(s) under test.
         """
@@ -43,9 +44,9 @@ class ConfigurationDependentSelfFactoryTestBase(Generic[_ConfigurationT]):
     async def test_new_for_configuration__with_global(
         self,
         configuration_dependent_self_factory_sut: type[
-            ConfigurationDependentSelfFactory[_ConfigurationT]
+            ConfigurationDependentSelfFactory[_HasDataT]
         ],
-        configuration_dependent_self_factory_sut_configuration: _ConfigurationT,
+        configuration_dependent_self_factory_sut_configuration: _HasDataT,
     ) -> None:
         """
         Tests :py:meth:`betty.config.factory.ConfigurationDependentSelfFactory.new_for_configuration` implementations.
@@ -75,9 +76,9 @@ class ConfigurationDependentSelfFactoryTestBase(Generic[_ConfigurationT]):
     async def test_new_for_configuration__with_app(
         self,
         configuration_dependent_self_factory_sut: type[
-            ConfigurationDependentSelfFactory[_ConfigurationT]
+            ConfigurationDependentSelfFactory[_HasDataT]
         ],
-        configuration_dependent_self_factory_sut_configuration: _ConfigurationT,
+        configuration_dependent_self_factory_sut_configuration: _HasDataT,
         isolated_app: App,
     ) -> None:
         """
@@ -105,9 +106,9 @@ class ConfigurationDependentSelfFactoryTestBase(Generic[_ConfigurationT]):
     async def test_new_for_configuration__with_project(
         self,
         configuration_dependent_self_factory_sut: type[
-            ConfigurationDependentSelfFactory[_ConfigurationT]
+            ConfigurationDependentSelfFactory[_HasDataT]
         ],
-        configuration_dependent_self_factory_sut_configuration: _ConfigurationT,
+        configuration_dependent_self_factory_sut_configuration: _HasDataT,
         isolated_app: App,
     ) -> None:
         """

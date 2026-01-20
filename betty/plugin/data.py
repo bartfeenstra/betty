@@ -57,6 +57,9 @@ class PluginInstanceConfigurationDefinition(ObjectDefinition):
             ),
             fields=[
                 FieldDefinition(Attr("id"), PluginIdDefinition(plugin_type)),
-                FieldDefinition(Attr("configuration"), DataDefinition(cls=object, label=_("Plugin configuration"))),
+                FieldDefinition(
+                    Attr("configuration"),
+                    DataDefinition(cls=object, label=_("Plugin configuration")),
+                ),
             ],
         )

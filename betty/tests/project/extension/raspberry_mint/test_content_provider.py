@@ -71,6 +71,7 @@ from betty.test_utils.content_provider import (
     ContentProviderTestBase,
     NoOpContentProvider,
 )
+from betty.test_utils.data import HasDataTestBase
 from betty.test_utils.locale.localizable import DUMMY_LOCALIZABLE
 from betty.test_utils.model import DummyEntityOne
 
@@ -117,7 +118,7 @@ class TestEntityCard(
         assert entity.public_id in provided_content
 
 
-class TestSectionConfiguration(ConfigurationTestBase[SectionConfiguration]):
+class TestSectionConfiguration(HasDataTestBase[SectionConfiguration]):
     sut_cls = SectionConfiguration
 
     def test_content(self) -> None:
@@ -146,7 +147,7 @@ class TestSectionConfiguration(ConfigurationTestBase[SectionConfiguration]):
         assert sut.name == "my-first-section"
 
     def test_load__minimal(self) -> None:
-        sut = SectionConfiguration.load(
+        sut = SectionConfiguration.data().load(
             {
                 "heading": "My First Section",
                 "content": ["my-first-content"],
@@ -156,7 +157,7 @@ class TestSectionConfiguration(ConfigurationTestBase[SectionConfiguration]):
         assert sut.content[0].id == "my-first-content"
 
     def test_load__with_name(self) -> None:
-        sut = SectionConfiguration.load(
+        sut = SectionConfiguration.data().load(
             {
                 "name": "my-first-section",
                 "heading": "My First Section",
@@ -167,7 +168,7 @@ class TestSectionConfiguration(ConfigurationTestBase[SectionConfiguration]):
 
     def test_load__without_heading(self) -> None:
         with pytest.raises(HumanFacingException):
-            SectionConfiguration.load(
+            SectionConfiguration.data().load(
                 {
                     "name": "my-first-section",
                     "content": ["my-first-content"],
@@ -176,7 +177,7 @@ class TestSectionConfiguration(ConfigurationTestBase[SectionConfiguration]):
 
     def test_load__without_content(self) -> None:
         with pytest.raises(HumanFacingException):
-            SectionConfiguration.load(
+            SectionConfiguration.data().load(
                 {
                     "name": "my-first-section",
                     "heading": "My First Section",
@@ -189,7 +190,7 @@ class TestSectionConfiguration(ConfigurationTestBase[SectionConfiguration]):
             name="my-first-section",
             heading="My First Section",
         )
-        assert sut.dump() == {
+        assert SectionConfiguration.data().dump(sut) == {
             "name": "my-first-section",
             "heading": "My First Section",
             "content": [
@@ -203,7 +204,7 @@ class TestSectionConfiguration(ConfigurationTestBase[SectionConfiguration]):
             name="my-first-section",
             heading="My First Section",
         )
-        assert sut.dump() == {
+        assert SectionConfiguration.data().dump(sut) == {
             "name": "my-first-section",
             "heading": "My First Section",
             "content": [
@@ -230,7 +231,7 @@ class TestSection(
         return Section
 
     @override
-    @pytest.fixture(params=SectionConfiguration.samples())
+    @pytest.fixture(params=SectionConfiguration.data().samples)
     def configuration_dependent_self_factory_sut_configuration(
         self, request: pytest.FixtureRequest
     ) -> SectionConfiguration:

@@ -21,7 +21,7 @@ from betty.config import Configuration
 from betty.config.collections import ConfigurationCollection, ConfigurationKey
 from betty.config.collections.mapping import ConfigurationMapping
 from betty.config.collections.sequence import ConfigurationSequence
-from betty.data import Sample
+from betty.data import HasData, Sample
 from betty.data.sample import get_full_sample
 from betty.locale import DEFAULT_LOCALE
 from betty.locale.localizable.assertion import (
@@ -360,7 +360,7 @@ class PluginInstanceConfiguration(Configuration, Generic[_PluginDefinitionT, _Pl
     def __init__(
         self,
         id: ResolvableId[_PluginDefinitionT],  # noqa: A002
-        configuration: Configuration | PortableData | Void = Void(),  # noqa: B008
+        configuration: HasData | Configuration | PortableData | Void = Void(),  # noqa: B008
         /,
     ):
         super().__init__()
@@ -381,7 +381,7 @@ class PluginInstanceConfiguration(Configuration, Generic[_PluginDefinitionT, _Pl
         return self._id
 
     @property
-    def configuration(self) -> Configuration | PortableData | Void:
+    def configuration(self) -> HasData | Configuration | PortableData | Void:
         """
         Get the plugin's own configuration.
         """

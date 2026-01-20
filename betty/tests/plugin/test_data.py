@@ -32,5 +32,6 @@ class TestPluginIdDefinition:
         with pytest.raises(PluginNotFound):
             await sut.hydrate("non-existent-plugin-id", universe)
 
+
 class TestPluginInstanceConfigurationDefinition:
     pass
