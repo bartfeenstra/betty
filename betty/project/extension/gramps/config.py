@@ -31,7 +31,7 @@ from betty.gramps.loader import (
 )
 from betty.locale.localizable.gettext import _
 from betty.plugin import Plugin, PluginDefinition
-from betty.plugin.config import PluginInstanceConfiguration
+from betty.plugin.config import PluginConfiguration
 from betty.typing import internal
 
 if TYPE_CHECKING:
@@ -57,12 +57,12 @@ class PluginMapping(Configuration, Generic[_PluginDefinitionT, _PluginT]):
     """
 
     _DEFAULT_MAPPING: Mapping[
-        str, PluginInstanceConfiguration[_PluginDefinitionT, _PluginT]
+        str, PluginConfiguration[_PluginDefinitionT, _PluginT]
     ] = {}
 
     def __init__(
         self,
-        mapping: Mapping[str, PluginInstanceConfiguration[_PluginDefinitionT, _PluginT]]
+        mapping: Mapping[str, PluginConfiguration[_PluginDefinitionT, _PluginT]]
         | None = None,
         /,
     ):
@@ -75,9 +75,7 @@ class PluginMapping(Configuration, Generic[_PluginDefinitionT, _PluginT]):
     @classmethod
     def load(cls, portable: PortableData, /) -> Self:
         return cls(
-            assert_mapping(PluginInstanceConfiguration.load, _assert_gramps_type)(
-                portable
-            )
+            assert_mapping(PluginConfiguration.load, _assert_gramps_type)(portable)
         )
 
     @override
@@ -95,13 +93,13 @@ class PluginMapping(Configuration, Generic[_PluginDefinitionT, _PluginT]):
 
     def __getitem__(
         self, gramps_type: str
-    ) -> PluginInstanceConfiguration[_PluginDefinitionT, _PluginT]:
+    ) -> PluginConfiguration[_PluginDefinitionT, _PluginT]:
         return self._mapping[gramps_type]
 
     def __setitem__(
         self,
         gramps_type: str,
-        configuration: PluginInstanceConfiguration[_PluginDefinitionT, _PluginT],
+        configuration: PluginConfiguration[_PluginDefinitionT, _PluginT],
     ) -> None:
         self._mapping[gramps_type] = configuration
 
@@ -118,7 +116,7 @@ class PluginMapping(Configuration, Generic[_PluginDefinitionT, _PluginT]):
             [
                 lambda: Sample(cls(), label="Minimal", size=Size.MINIMAL),
                 lambda: Sample(
-                    cls({"GrampsType": PluginInstanceConfiguration("my-betty-type")}),
+                    cls({"GrampsType": PluginConfiguration("my-betty-type")}),
                     label="Full",
                     size=Size.FULL,
                 ),
@@ -473,7 +471,7 @@ class GrampsConfiguration(Configuration):
                                     source="my-family-tree",
                                     event_types=EventTypeMapping(
                                         {
-                                            "GrampsEventType": PluginInstanceConfiguration(
+                                            "GrampsEventType": PluginConfiguration(
                                                 "betty-event-type"
                                             ),
                                         }
@@ -492,7 +490,7 @@ class GrampsConfiguration(Configuration):
                                     source="my-family-tree",
                                     place_types=PlaceTypeMapping(
                                         {
-                                            "GrampsPlaceType": PluginInstanceConfiguration(
+                                            "GrampsPlaceType": PluginConfiguration(
                                                 "betty-place-type"
                                             ),
                                         }
@@ -511,7 +509,7 @@ class GrampsConfiguration(Configuration):
                                     source="my-family-tree",
                                     event_types=EventTypeMapping(
                                         {
-                                            "GrampsRole": PluginInstanceConfiguration(
+                                            "GrampsRole": PluginConfiguration(
                                                 "betty-presence-role"
                                             ),
                                         }

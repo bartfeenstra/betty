@@ -17,10 +17,7 @@ from betty.locale.localizable.markup import Chain
 from betty.locale.localize import LocalizerRepository
 from betty.media_type.media_types import HTML
 from betty.model.config import EntityReference
-from betty.plugin.config import (
-    PluginInstanceConfiguration,
-    PluginInstanceConfigurationSequence,
-)
+from betty.plugin.config import PluginConfiguration, PluginInstanceConfigurationSequence
 from betty.project import Project
 from betty.project.config import (
     ExtensionInstanceConfigurationMapping,
@@ -62,38 +59,38 @@ async def create_project(app: App, project_directory_path: Path) -> Project:
 
     configuration = ProjectConfiguration(
         name=Demo.plugin().id,
-        license=PluginInstanceConfiguration("spdx-gpl-3--0-or-later"),
+        license=PluginConfiguration("spdx-gpl-3--0-or-later"),
         title=_("A Betty demonstration"),
         author=_("Bart Feenstra and contributors"),
         url="https://example.com",
         extensions=ExtensionInstanceConfigurationMapping(
             [
-                PluginInstanceConfiguration(Demo),
-                PluginInstanceConfiguration(
+                PluginConfiguration(Demo),
+                PluginConfiguration(
                     RaspberryMint,
                     RaspberryMintConfiguration(
                         regional_content=RegionalContentConfiguration(
                             {
                                 **regional_content(localizers=localizers),
                                 "front-page-content": [
-                                    PluginInstanceConfiguration(
+                                    PluginConfiguration(
                                         Columns,
                                         ColumnsConfiguration(
-                                            PluginInstanceConfiguration(
+                                            PluginConfiguration(
                                                 _IncompleteTranslationWarning
                                             )  # ty:ignore[invalid-argument-type]
                                         ),
                                     ),
-                                    PluginInstanceConfiguration(
+                                    PluginConfiguration(
                                         Section,
                                         SectionConfiguration(
-                                            PluginInstanceConfiguration(
+                                            PluginConfiguration(
                                                 Columns,
                                                 ColumnsConfiguration(
                                                     [
                                                         PluginInstanceConfigurationSequence(
                                                             [
-                                                                PluginInstanceConfiguration(
+                                                                PluginConfiguration(
                                                                     Render,
                                                                     RenderConfiguration(
                                                                         Chain(
@@ -120,7 +117,7 @@ async def create_project(app: App, project_directory_path: Path) -> Project:
                                                         ),
                                                         PluginInstanceConfigurationSequence(
                                                             [
-                                                                PluginInstanceConfiguration(
+                                                                PluginConfiguration(
                                                                     Render,
                                                                     RenderConfiguration(
                                                                         Chain(
@@ -147,16 +144,16 @@ async def create_project(app: App, project_directory_path: Path) -> Project:
                                             visually_hide_heading=True,
                                         ),
                                     ),
-                                    PluginInstanceConfiguration(
+                                    PluginConfiguration(
                                         Section,
                                         SectionConfiguration(
-                                            PluginInstanceConfiguration(
+                                            PluginConfiguration(
                                                 Columns,
                                                 ColumnsConfiguration(
                                                     [
                                                         PluginInstanceConfigurationSequence(
                                                             [
-                                                                PluginInstanceConfiguration(
+                                                                PluginConfiguration(
                                                                     EntityCard,
                                                                     EntityReference(
                                                                         Place,
@@ -167,7 +164,7 @@ async def create_project(app: App, project_directory_path: Path) -> Project:
                                                         ),
                                                         PluginInstanceConfigurationSequence(
                                                             [
-                                                                PluginInstanceConfiguration(
+                                                                PluginConfiguration(
                                                                     EntityCard,
                                                                     EntityReference(
                                                                         Person,
@@ -178,7 +175,7 @@ async def create_project(app: App, project_directory_path: Path) -> Project:
                                                         ),
                                                         PluginInstanceConfigurationSequence(
                                                             [
-                                                                PluginInstanceConfiguration(
+                                                                PluginConfiguration(
                                                                     EntityCard,
                                                                     EntityReference(
                                                                         Place,
@@ -200,7 +197,7 @@ async def create_project(app: App, project_directory_path: Path) -> Project:
                                     ),
                                 ],
                                 "front-page-summary": [
-                                    PluginInstanceConfiguration(
+                                    PluginConfiguration(
                                         Render,
                                         RenderConfiguration(
                                             _(
@@ -209,11 +206,11 @@ async def create_project(app: App, project_directory_path: Path) -> Project:
                                         ),
                                     ),
                                 ],
-                            }  # ty:ignore[invalid-argument-type]
+                            }
                         ),
                     ),
                 ),
-            ]  # ty:ignore[invalid-argument-type]
+            ]
         ),
         entity_types=[
             Person,

@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Betty VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-01-27 14:31+0000\n"
+"POT-Creation-Date: 2026-01-27 15:05+0000\n"
 "PO-Revision-Date: 2026-01-18 18:06+0000\n"
 "Last-Translator: Bart Feenstra <bart@bartfeenstra.com>\n"
 "Language: es_ES\n"
@@ -1164,6 +1164,9 @@ msgid "Places"
 msgstr "Lugares"
 
 msgid "Plain text"
+msgstr ""
+
+msgid "Plugin configuration"
 msgstr ""
 
 msgid "Plugins"
@@ -2479,6 +2482,10 @@ msgstr ""
 
 #, python-brace-format
 msgid "{plugin_type} \"{plugin_id}\" has unmet requirements"
+msgstr ""
+
+#, python-brace-format
+msgid "{plugin_type} configuration"
 msgstr ""
 
 #, python-brace-format

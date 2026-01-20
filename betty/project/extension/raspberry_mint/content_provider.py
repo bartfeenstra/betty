@@ -37,7 +37,7 @@ from betty.model import EntityDefinition
 from betty.model.config import EntityReference
 from betty.plugin import Plugin
 from betty.plugin.config import (
-    PluginInstanceConfiguration,
+    PluginConfiguration,
     PluginInstanceConfigurationSequence,
     PluginInstanceConfigurationSequenceSequence,
     ShorthandPluginInstanceConfigurationSequence,
@@ -167,7 +167,7 @@ class SectionConfiguration(Configuration):
             [
                 lambda: Sample(
                     cls(
-                        PluginInstanceConfiguration("my-first-content"),  # ty:ignore[invalid-argument-type]
+                        PluginConfiguration("my-first-content"),  # ty:ignore[invalid-argument-type]
                         heading=DUMMY_LOCALIZABLE,
                     ),
                     label="Minimal",
@@ -196,7 +196,7 @@ class Section(
     ):
         super().__init__(
             configuration=SectionConfiguration(
-                PluginInstanceConfiguration("my-first-plugin"),  # ty:ignore[invalid-argument-type]
+                PluginConfiguration("my-first-plugin"),  # ty:ignore[invalid-argument-type]
                 name="",
                 heading="-",
             )
@@ -398,10 +398,10 @@ class ColorStyleConfiguration(Configuration):
                     cls(
                         style=RaspberryMintColorStyle.DARK,
                         content=[
-                            PluginInstanceConfiguration(
+                            PluginConfiguration(
                                 Render, RenderConfiguration("Hello, world!")
                             )
-                        ],  # ty:ignore[invalid-argument-type]
+                        ],
                     ),
                     label="Default",
                 )
@@ -755,7 +755,7 @@ class ColumnsConfiguration(Configuration):
             [
                 lambda: Sample(
                     cls(
-                        PluginInstanceConfiguration(
+                        PluginConfiguration(
                             Render, RenderConfiguration("Hello, world!")
                         )  # ty:ignore[invalid-argument-type]
                     ),
@@ -764,7 +764,7 @@ class ColumnsConfiguration(Configuration):
                 ),
                 lambda: Sample(
                     cls(
-                        PluginInstanceConfiguration(
+                        PluginConfiguration(
                             Render, RenderConfiguration("Hello, world!")
                         ),  # ty:ignore[invalid-argument-type]
                         justify_content=JustifyContent.CENTER,
@@ -773,7 +773,7 @@ class ColumnsConfiguration(Configuration):
                 ),
                 lambda: Sample(
                     cls(
-                        PluginInstanceConfiguration(
+                        PluginConfiguration(
                             Render, RenderConfiguration("Hello, world!")
                         ),  # ty:ignore[invalid-argument-type]
                         width=6,
@@ -785,10 +785,10 @@ class ColumnsConfiguration(Configuration):
                         [
                             PluginInstanceConfigurationSequence(
                                 [
-                                    PluginInstanceConfiguration(
+                                    PluginConfiguration(
                                         Render, RenderConfiguration("Hello, world!")
                                     ),
-                                    PluginInstanceConfiguration(
+                                    PluginConfiguration(
                                         Render, RenderConfiguration("How are you?")
                                     ),
                                 ]
@@ -800,7 +800,7 @@ class ColumnsConfiguration(Configuration):
                 ),
                 lambda: Sample(
                     cls(
-                        PluginInstanceConfiguration(
+                        PluginConfiguration(
                             Render, RenderConfiguration("Hello, world!")
                         ),  # ty:ignore[invalid-argument-type]
                         width={
@@ -815,10 +815,10 @@ class ColumnsConfiguration(Configuration):
                         [
                             PluginInstanceConfigurationSequence(
                                 [
-                                    PluginInstanceConfiguration(
+                                    PluginConfiguration(
                                         Render, RenderConfiguration("Hello, world!")
                                     ),
-                                    PluginInstanceConfiguration(
+                                    PluginConfiguration(
                                         Render, RenderConfiguration("How are you?")
                                     ),
                                 ]

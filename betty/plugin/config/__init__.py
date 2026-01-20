@@ -21,9 +21,10 @@ from betty.config import Configuration
 from betty.config.collections import ConfigurationCollection, ConfigurationKey
 from betty.config.collections.mapping import ConfigurationMapping
 from betty.config.collections.sequence import ConfigurationSequence
-from betty.config.color import ColorConfiguration
 from betty.data import Sample
+from betty.data.aggregate.record import PortableRecord
 from betty.data.aggregate.record.object.property import Optional
+from betty.data.indicator.selector import Attr
 from betty.data.sample import Samples, Size
 from betty.locale import DEFAULT_LOCALE
 from betty.locale.localizable.assertion import (
@@ -361,11 +362,16 @@ class PluginDefinitionConfigurationMapping(
         return portable_item, cast(str, portable_item.pop("id"))  # ty:ignore[invalid-argument-type]
 
 
-class PluginInstanceConfiguration(Configuration, Generic[_PluginDefinitionT, _PluginT]):
+@final
+class PluginConfiguration(
+    Configuration, PortableRecord[Attr], Generic[_PluginDefinitionT, _PluginT]
+):
     """
     Configure a single plugin instance.
 
-    .. configuration:: betty.plugin.config:PluginInstanceConfiguration
+    Use this with :py:class:`betty.plugin.data.PluginConfigurationDefinition` to provide defined data.
+
+    .. configuration:: betty.plugin.config:PluginConfiguration
     """
 
     def __init__(
@@ -412,6 +418,11 @@ class PluginInstanceConfiguration(Configuration, Generic[_PluginDefinitionT, _Pl
         return cls(record["id"], record.get("configuration", Void()))
 
     @override
+    @classmethod
+    def load_key(cls, portable: PortableData, key: Attr, portable_key: str, /) -> Self:
+        return cls.load({"id": portable_key, "configuration": portable})
+
+    @override
     def dump(self) -> PortableData:
         configuration = self.configuration
         if isinstance(configuration, Void):
@@ -424,26 +435,29 @@ class PluginInstanceConfiguration(Configuration, Generic[_PluginDefinitionT, _Pl
         }
 
     @override
+    def dump_key(self, key: Attr, /) -> tuple[str, PortableData]:
+        return self.id, {} if self.configuration is Void() else {
+            "configuration": self.configuration.dump()
+            if isinstance(self.configuration, Configuration)
+            else self.configuration,
+        }
+
+    @override
     @classmethod
     def samples(cls) -> Samples:
-        from betty.project.extension.raspberry_mint import RaspberryMint
-        from betty.project.extension.raspberry_mint.config import (
-            RaspberryMintConfiguration,
-        )
-
         return Samples(
             [
                 lambda: Sample(
-                    cls(RaspberryMint),
+                    PluginConfiguration("my-first-plugin-id"),
                     label="Minimal",
                     size=Size.MINIMAL,
                 ),
                 lambda: Sample(
-                    cls(
-                        RaspberryMint,
-                        RaspberryMintConfiguration(
-                            primary_color=ColorConfiguration("#ff0000")
-                        ),
+                    PluginConfiguration(
+                        "my-first-plugin-id",
+                        {
+                            "configuration-key": "configuration-value",
+                        },
                     ),
                     label="Full",
                     size=Size.FULL,
@@ -453,8 +467,8 @@ class PluginInstanceConfiguration(Configuration, Generic[_PluginDefinitionT, _Pl
 
 
 ShorthandPluginInstanceConfigurationSequence: TypeAlias = (
-    PluginInstanceConfiguration[_PluginDefinitionT, _PluginT]
-    | Iterable[PluginInstanceConfiguration[_PluginDefinitionT, _PluginT]]
+    PluginConfiguration[_PluginDefinitionT, _PluginT]
+    | Iterable[PluginConfiguration[_PluginDefinitionT, _PluginT]]
 )
 
 
@@ -462,7 +476,7 @@ class _PluginInstanceConfigurationCollection(
     ConfigurationCollection[
         _ConfigurationKeyT,
         _ResolvableConfigurationKeyT,
-        PluginInstanceConfiguration[_PluginDefinitionT, _PluginT],
+        PluginConfiguration[_PluginDefinitionT, _PluginT],
     ]
 ):
     def __init__(
@@ -473,16 +487,16 @@ class _PluginInstanceConfigurationCollection(
         | None = None,
         /,
     ):
-        if isinstance(configurations, PluginInstanceConfiguration):
-            configurations = [configurations]  # ty:ignore[invalid-assignment]
+        if isinstance(configurations, PluginConfiguration):
+            configurations = [configurations]
         super().__init__(configurations)
 
     @override
     @classmethod
     def _item_cls(
         cls,
-    ) -> type[PluginInstanceConfiguration[_PluginDefinitionT, _PluginT]]:
-        return PluginInstanceConfiguration  # ty:ignore[invalid-return-type]
+    ) -> type[PluginConfiguration[_PluginDefinitionT, _PluginT]]:
+        return PluginConfiguration  # ty:ignore[invalid-return-type]
 
 
 class PluginInstanceConfigurationMapping(
@@ -491,7 +505,7 @@ class PluginInstanceConfigurationMapping(
     ],
     PluginIdentifierKeyConfigurationMapping[
         _PluginDefinitionT,
-        PluginInstanceConfiguration[_PluginDefinitionT, _PluginT],
+        PluginConfiguration[_PluginDefinitionT, _PluginT],
     ],
 ):
     """
@@ -513,7 +527,7 @@ class PluginInstanceConfigurationMapping(
     @override
     def _get_key(
         self,
-        configuration: PluginInstanceConfiguration[_PluginDefinitionT, _PluginT],
+        configuration: PluginConfiguration[_PluginDefinitionT, _PluginT],
         /,
     ) -> MachineName:
         return configuration.id
@@ -548,7 +562,7 @@ class PluginInstanceConfigurationMapping(
             [
                 lambda: Sample(cls(), label="Minimal", size=Size.MINIMAL),
                 lambda: Sample(
-                    cls([PluginInstanceConfiguration.samples().get(Size.FULL).data]),
+                    cls([PluginConfiguration.samples().get(Size.FULL).data]),
                     label="Full",
                     size=Size.FULL,
                 ),
@@ -559,7 +573,7 @@ class PluginInstanceConfigurationMapping(
 @final
 class PluginInstanceConfigurationSequence(
     _PluginInstanceConfigurationCollection[int, int, _PluginDefinitionT, _PluginT],
-    ConfigurationSequence[PluginInstanceConfiguration[_PluginDefinitionT, _PluginT]],
+    ConfigurationSequence[PluginConfiguration[_PluginDefinitionT, _PluginT]],
 ):
     """
     A sequence of plugin instance configurations.
@@ -574,7 +588,7 @@ class PluginInstanceConfigurationSequence(
             [
                 lambda: Sample(cls(), label="Minimal", size=Size.MINIMAL),
                 lambda: Sample(
-                    cls([PluginInstanceConfiguration.samples().get(Size.FULL).data]),
+                    cls([PluginConfiguration.samples().get(Size.FULL).data]),
                     label="Full",
                     size=Size.FULL,
                 ),
@@ -584,7 +598,7 @@ class PluginInstanceConfigurationSequence(
 
 ShorthandPluginInstanceConfigurationSequenceSequence: TypeAlias = (
     Iterable[ShorthandPluginInstanceConfigurationSequence[_PluginDefinitionT, _PluginT]]
-    | PluginInstanceConfiguration[_PluginDefinitionT, _PluginT]
+    | PluginConfiguration[_PluginDefinitionT, _PluginT]
 )
 
 
@@ -607,7 +621,7 @@ class PluginInstanceConfigurationSequenceSequence(
         ],
         /,
     ):
-        if isinstance(configurations, PluginInstanceConfiguration):
+        if isinstance(configurations, PluginConfiguration):
             configurations = [PluginInstanceConfigurationSequence([configurations])]  # ty:ignore[invalid-assignment]
         super().__init__(configurations)
 

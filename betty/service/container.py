@@ -66,10 +66,14 @@ class ServiceContainer(Bootstrapped, Shutdownable):
         Bootstrap the component.
         """
         self.assert_not_bootstrapped()
-        await self._bootstrap()
         self._bootstrapped = True
+        await self._bootstrap()
+        await self._post_bootstrap()
 
     async def _bootstrap(self) -> None:
+        pass
+
+    async def _post_bootstrap(self) -> None:
         if isinstance(self, Configurable):
             configuration = self.configuration
             if isinstance(configuration, Configuration):

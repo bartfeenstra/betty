@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PROJECT VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-01-27 14:31+0000\n"
+"POT-Creation-Date: 2026-01-27 15:05+0000\n"
 "PO-Revision-Date: 2025-08-27 20:02+0000\n"
 "Last-Translator: \"David D.\" <dadu042@users.noreply.hosted.weblate.org>\n"
 "Language: fr_FR\n"
@@ -1173,6 +1173,9 @@ msgid "Places"
 msgstr "Lieux"
 
 msgid "Plain text"
+msgstr ""
+
+msgid "Plugin configuration"
 msgstr ""
 
 msgid "Plugins"
@@ -2517,6 +2520,10 @@ msgstr ""
 
 #, python-brace-format
 msgid "{plugin_type} \"{plugin_id}\" has unmet requirements"
+msgstr ""
+
+#, python-brace-format
+msgid "{plugin_type} configuration"
 msgstr ""
 
 #, python-brace-format

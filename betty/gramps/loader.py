@@ -110,7 +110,7 @@ from betty.media_type import InvalidMediaType, MediaType
 from betty.model import Entity
 from betty.model.association import ToManyResolver, ToOneResolver, resolve
 from betty.plugin import Plugin, PluginDefinition
-from betty.plugin.config import PluginInstanceConfiguration
+from betty.plugin.config import PluginConfiguration
 from betty.plugin.error import PluginUnavailable
 from betty.privacy import HasPrivacy
 from betty.typing import internal, private
@@ -214,7 +214,7 @@ class _ToManyResolver(ToManyResolver[_EntityT], Generic[_EntityT]):
 
 
 DEFAULT_GENDER_MAPPING = {
-    gramps_type: PluginInstanceConfiguration[GenderDefinition, Gender](plugin)
+    gramps_type: PluginConfiguration[GenderDefinition, Gender](plugin)
     for gramps_type, plugin in {
         "F": Woman,
         "M": Man,
@@ -224,7 +224,7 @@ DEFAULT_GENDER_MAPPING = {
 }
 
 DEFAULT_EVENT_TYPE_MAPPING = {
-    gramps_type: PluginInstanceConfiguration[EventTypeDefinition, EventType](plugin)
+    gramps_type: PluginConfiguration[EventTypeDefinition, EventType](plugin)
     for gramps_type, plugin in {
         "Adopted": Adoption,
         "Adult Christening": Baptism,
@@ -253,7 +253,7 @@ DEFAULT_EVENT_TYPE_MAPPING = {
 
 
 DEFAULT_PLACE_TYPE_MAPPING = {
-    gramps_type: PluginInstanceConfiguration[PlaceTypeDefinition, PlaceType](plugin)
+    gramps_type: PluginConfiguration[PlaceTypeDefinition, PlaceType](plugin)
     for gramps_type, plugin in {
         "Borough": Borough,
         "Building": Building,
@@ -281,9 +281,7 @@ DEFAULT_PLACE_TYPE_MAPPING = {
 
 
 DEFAULT_PRESENCE_ROLE_MAPPING = {
-    gramps_type: PluginInstanceConfiguration[PresenceRoleDefinition, PresenceRole](
-        plugin
-    )
+    gramps_type: PluginConfiguration[PresenceRoleDefinition, PresenceRole](plugin)
     for gramps_type, plugin in {
         "Aide": Attendee,
         "Bride": Subject,

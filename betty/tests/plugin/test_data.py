@@ -31,3 +31,7 @@ class TestPluginIdDefinition:
         sut = PluginIdDefinition(DummyPluginDefinition)
         with pytest.raises(PluginNotFound):
             await sut.hydrate(universe, "non-existent-plugin-id")
+
+
+class TestPluginConfigurationDefinition:
+    pass

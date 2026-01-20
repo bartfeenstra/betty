@@ -163,8 +163,7 @@ class Project(Configurable[ProjectConfiguration], ServiceLevel):
             )
 
     @override
-    async def bootstrap(self) -> None:
-        await super().bootstrap()
+    async def _bootstrap(self) -> None:
         try:
             for project_extension_batch in await self.extensions:
                 for project_extension in project_extension_batch:

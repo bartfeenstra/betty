@@ -28,8 +28,8 @@ class PortablePorterTestPortable(Portable):
 
     @override
     @classmethod
-    def load(cls, serialized: PortableData, /) -> Self:
-        return cls(assert_str()(serialized))
+    def load(cls, portable: PortableData, /) -> Self:
+        return cls(assert_str()(portable))
 
     @override
     def dump(self) -> PortableData:

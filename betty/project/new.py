@@ -12,7 +12,7 @@ from betty.locale import DEFAULT_LOCALE_TAG, to_language_tag
 from betty.locale.localizable.gettext import _
 from betty.locale.localizable.static import StaticTranslations
 from betty.machine_name import assert_machine_name, machinify
-from betty.plugin.config import PluginInstanceConfiguration
+from betty.plugin.config import PluginConfiguration
 from betty.portable.file import dump_file
 from betty.project.config import (
     EntityTypeConfiguration,
@@ -86,14 +86,12 @@ async def new(app: App) -> None:
             )
         )
 
-    extensions: MutableSequence[
-        PluginInstanceConfiguration[ExtensionDefinition, Extension]
-    ] = [
-        PluginInstanceConfiguration(Deriver),
-        PluginInstanceConfiguration(HttpApiDoc),
-        PluginInstanceConfiguration(Maps),
-        PluginInstanceConfiguration(Privatizer),
-        PluginInstanceConfiguration(
+    extensions: MutableSequence[PluginConfiguration[ExtensionDefinition, Extension]] = [
+        PluginConfiguration(Deriver),
+        PluginConfiguration(HttpApiDoc),
+        PluginConfiguration(Maps),
+        PluginConfiguration(Privatizer),
+        PluginConfiguration(
             RaspberryMint,
             RaspberryMintConfiguration(
                 regional_content=RegionalContentConfiguration(
@@ -103,10 +101,10 @@ async def new(app: App) -> None:
                 )
             ),
         ),
-        PluginInstanceConfiguration(Trees),
+        PluginConfiguration(Trees),
         # Enable the Webpack extension explicitly for the test's mock to work.
-        PluginInstanceConfiguration(Webpack),
-        PluginInstanceConfiguration(Wiki),
+        PluginConfiguration(Webpack),
+        PluginConfiguration(Wiki),
     ]
 
     title = await _user_input_static_translations(
@@ -131,7 +129,7 @@ async def new(app: App) -> None:
 
     if await app.user.ask_confirmation(_("Do you want to load a Gramps family tree?")):
         extensions.append(
-            PluginInstanceConfiguration(
+            PluginConfiguration(
                 Gramps,
                 GrampsConfiguration(
                     family_trees=FamilyTreeConfigurationSequence(

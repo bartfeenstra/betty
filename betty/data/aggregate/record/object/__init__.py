@@ -142,7 +142,6 @@ class Attr(ABC, Generic[_DataClsT]):
         """
 
 
-@final
 class ObjectDefinition(RecordDefinition[_DataClsT, AttrElement]):
     """
     Define an object with attributes.
@@ -162,5 +161,7 @@ class ObjectDefinition(RecordDefinition[_DataClsT, AttrElement]):
             if isinstance(member, Attr):
                 self._fields.append(member.attr.field(member_name))
             elif member_name in attrs:
-                self._fields.append(attrs[member_name].field(member_name))
+                self._fields.append(
+                    attrs[member_name].field(member_name),  # ty:ignore[invalid-argument-type]
+                )
         return cls  # ty:ignore[invalid-return-type]

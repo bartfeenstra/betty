@@ -30,7 +30,7 @@ from betty.locale.localize import DEFAULT_LOCALIZER
 from betty.media_type import MediaType
 from betty.media_type.media_types import PLAIN_TEXT
 from betty.model.config import EntityReference
-from betty.plugin.config import PluginInstanceConfiguration
+from betty.plugin.config import PluginConfiguration
 from betty.plugin.discovery.static import StaticDiscovery
 from betty.plugin.repository.static import StaticPluginRepository
 from betty.portable import PortableData
@@ -122,7 +122,7 @@ class TestSectionConfiguration(ConfigurationTestBase[SectionConfiguration]):
 
     def test_content(self) -> None:
         sut = SectionConfiguration(
-            PluginInstanceConfiguration("my-first-content"),  # ty:ignore[invalid-argument-type]
+            PluginConfiguration("my-first-content"),  # ty:ignore[invalid-argument-type]
             name="",
             heading=DUMMY_LOCALIZABLE,
         )
@@ -131,7 +131,7 @@ class TestSectionConfiguration(ConfigurationTestBase[SectionConfiguration]):
     def test_heading(self) -> None:
         heading = Plain("My First Section")
         sut = SectionConfiguration(
-            PluginInstanceConfiguration("my-first-content"),  # ty:ignore[invalid-argument-type]
+            PluginConfiguration("my-first-content"),  # ty:ignore[invalid-argument-type]
             name="",
             heading=heading,
         )
@@ -139,7 +139,7 @@ class TestSectionConfiguration(ConfigurationTestBase[SectionConfiguration]):
 
     def test_name(self) -> None:
         sut = SectionConfiguration(
-            PluginInstanceConfiguration("my-first-content"),  # ty:ignore[invalid-argument-type]
+            PluginConfiguration("my-first-content"),  # ty:ignore[invalid-argument-type]
             name="my-first-section",
             heading=DUMMY_LOCALIZABLE,
         )
@@ -185,7 +185,7 @@ class TestSectionConfiguration(ConfigurationTestBase[SectionConfiguration]):
 
     def test_dump__minimal(self) -> None:
         sut = SectionConfiguration(
-            PluginInstanceConfiguration("my-first-content"),  # ty:ignore[invalid-argument-type]
+            PluginConfiguration("my-first-content"),  # ty:ignore[invalid-argument-type]
             name="my-first-section",
             heading="My First Section",
         )
@@ -199,7 +199,7 @@ class TestSectionConfiguration(ConfigurationTestBase[SectionConfiguration]):
 
     def test_dump__full(self) -> None:
         sut = SectionConfiguration(
-            PluginInstanceConfiguration("my-first-content"),  # ty:ignore[invalid-argument-type]
+            PluginConfiguration("my-first-content"),  # ty:ignore[invalid-argument-type]
             name="my-first-section",
             heading="My First Section",
         )
@@ -246,7 +246,7 @@ class TestSection(
                     sut = await project.new_target(
                         Section.new_for_configuration(
                             SectionConfiguration(
-                                PluginInstanceConfiguration(NoOpContentProvider),  # ty:ignore[invalid-argument-type]
+                                PluginConfiguration(NoOpContentProvider),  # ty:ignore[invalid-argument-type]
                                 heading="My First Section",
                             )
                         )
@@ -260,7 +260,7 @@ class TestSection(
                 sut = await project.new_target(
                     Section.new_for_configuration(
                         SectionConfiguration(
-                            PluginInstanceConfiguration(
+                            PluginConfiguration(
                                 Render,
                                 RenderConfiguration("My First Content"),
                             ),  # ty:ignore[invalid-argument-type]
@@ -280,7 +280,7 @@ class TestSection(
                 sut = await project.new_target(
                     Section.new_for_configuration(
                         SectionConfiguration(
-                            PluginInstanceConfiguration(
+                            PluginConfiguration(
                                 Render,
                                 RenderConfiguration("My First Content"),
                             ),  # ty:ignore[invalid-argument-type]
@@ -300,7 +300,7 @@ class TestSection(
                 sut = await project.new_target(
                     Section.new_for_configuration(
                         SectionConfiguration(
-                            PluginInstanceConfiguration(
+                            PluginConfiguration(
                                 Render,
                                 RenderConfiguration("My First Content"),
                             ),  # ty:ignore[invalid-argument-type]
@@ -428,7 +428,7 @@ class TestColorStyleConfiguration(ConfigurationTestBase[ColorStyleConfiguration]
 
     def test_content(self) -> None:
         sut = ColorStyleConfiguration(
-            PluginInstanceConfiguration("my-first-content"),  # ty:ignore[invalid-argument-type]
+            PluginConfiguration("my-first-content"),  # ty:ignore[invalid-argument-type]
             style=ColorStyleOption.DARK,
         )
         assert sut.content[0].id == "my-first-content"
@@ -436,7 +436,7 @@ class TestColorStyleConfiguration(ConfigurationTestBase[ColorStyleConfiguration]
     def test_style(self) -> None:
         style = ColorStyleOption.DARK_SECONDARY
         sut = ColorStyleConfiguration(
-            PluginInstanceConfiguration("my-first-content"),  # ty:ignore[invalid-argument-type]
+            PluginConfiguration("my-first-content"),  # ty:ignore[invalid-argument-type]
             style=style,
         )
         assert sut.style == style
@@ -456,7 +456,7 @@ class TestColorStyleConfiguration(ConfigurationTestBase[ColorStyleConfiguration]
 
     def test_dump(self) -> None:
         sut = ColorStyleConfiguration(
-            PluginInstanceConfiguration("my-first-content"),  # ty:ignore[invalid-argument-type]
+            PluginConfiguration("my-first-content"),  # ty:ignore[invalid-argument-type]
             style=ColorStyleOption.DARK_SECONDARY,
         )
         assert sut.dump() == {
@@ -475,7 +475,7 @@ class TestColorStyle(ContentProviderTestBase):
             return await project.new_target(
                 ColorStyle.new_for_configuration(
                     ColorStyleConfiguration(
-                        PluginInstanceConfiguration(
+                        PluginConfiguration(
                             Render, RenderConfiguration("My First Content")
                         ),  # ty:ignore[invalid-argument-type]
                         style=ColorStyleOption.DARK,
@@ -493,7 +493,7 @@ class TestColorStyle(ContentProviderTestBase):
                     sut = await project.new_target(
                         ColorStyle.new_for_configuration(
                             ColorStyleConfiguration(
-                                PluginInstanceConfiguration(NoOpContentProvider),  # ty:ignore[invalid-argument-type]
+                                PluginConfiguration(NoOpContentProvider),  # ty:ignore[invalid-argument-type]
                                 style=ColorStyleOption.DARK,
                             )
                         )
@@ -507,7 +507,7 @@ class TestColorStyle(ContentProviderTestBase):
                 sut = await project.new_target(
                     ColorStyle.new_for_configuration(
                         ColorStyleConfiguration(
-                            PluginInstanceConfiguration(
+                            PluginConfiguration(
                                 Render, RenderConfiguration("My First Content")
                             ),  # ty:ignore[invalid-argument-type]
                             style=ColorStyleOption.DARK,
@@ -814,9 +814,9 @@ class TestColumnsConfiguration(ConfigurationTestBase[ColumnsConfiguration]):
     sut_cls = ColumnsConfiguration
 
     def test_content(self) -> None:
-        content = PluginInstanceConfiguration[
-            ContentProviderDefinition, ContentProvider
-        ](Render, RenderConfiguration(DUMMY_LOCALIZABLE))
+        content = PluginConfiguration[ContentProviderDefinition, ContentProvider](
+            Render, RenderConfiguration(DUMMY_LOCALIZABLE)
+        )
         sut = ColumnsConfiguration(content)
         assert list(map(list, sut.content)) == [[content]]
 
@@ -832,9 +832,7 @@ class TestColumnsConfiguration(ConfigurationTestBase[ColumnsConfiguration]):
     def test_width(self, expected: ColumnsWidth, width: ShorthandColumnsWidth) -> None:
         assert (
             ColumnsConfiguration(
-                PluginInstanceConfiguration(
-                    Render, RenderConfiguration(DUMMY_LOCALIZABLE)
-                ),  # ty:ignore[invalid-argument-type]
+                PluginConfiguration(Render, RenderConfiguration(DUMMY_LOCALIZABLE)),  # ty:ignore[invalid-argument-type]
                 width=width,
             ).width
             == expected
@@ -843,7 +841,7 @@ class TestColumnsConfiguration(ConfigurationTestBase[ColumnsConfiguration]):
     def test_justify_content(self) -> None:
         justify_content = JustifyContent.CENTER
         sut = ColumnsConfiguration(
-            PluginInstanceConfiguration(Render, RenderConfiguration(DUMMY_LOCALIZABLE)),  # ty:ignore[invalid-argument-type]
+            PluginConfiguration(Render, RenderConfiguration(DUMMY_LOCALIZABLE)),  # ty:ignore[invalid-argument-type]
             justify_content=justify_content,
         )
         assert sut.justify_content == justify_content
@@ -929,9 +927,7 @@ class TestColumnsConfiguration(ConfigurationTestBase[ColumnsConfiguration]):
                     ],
                 },
                 ColumnsConfiguration(
-                    PluginInstanceConfiguration(
-                        Render, RenderConfiguration(DUMMY_LOCALIZABLE)
-                    )  # ty:ignore[invalid-argument-type]
+                    PluginConfiguration(Render, RenderConfiguration(DUMMY_LOCALIZABLE))  # ty:ignore[invalid-argument-type]
                 ),
             ),
             (
@@ -950,9 +946,7 @@ class TestColumnsConfiguration(ConfigurationTestBase[ColumnsConfiguration]):
                     "justify_content": JustifyContent.CENTER.value,
                 },
                 ColumnsConfiguration(
-                    PluginInstanceConfiguration(
-                        Render, RenderConfiguration(DUMMY_LOCALIZABLE)
-                    ),  # ty:ignore[invalid-argument-type]
+                    PluginConfiguration(Render, RenderConfiguration(DUMMY_LOCALIZABLE)),  # ty:ignore[invalid-argument-type]
                     justify_content=JustifyContent.CENTER,
                 ),
             ),
@@ -972,9 +966,7 @@ class TestColumnsConfiguration(ConfigurationTestBase[ColumnsConfiguration]):
                     "width": {Breakpoint.XS.value: [10]},
                 },
                 ColumnsConfiguration(
-                    PluginInstanceConfiguration(
-                        Render, RenderConfiguration(DUMMY_LOCALIZABLE)
-                    ),  # ty:ignore[invalid-argument-type]
+                    PluginConfiguration(Render, RenderConfiguration(DUMMY_LOCALIZABLE)),  # ty:ignore[invalid-argument-type]
                     width=10,
                 ),
             ),
@@ -991,9 +983,7 @@ class TestColumns(ContentProviderTestBase):
         async with Project.new_isolated(isolated_app) as project, project:
             return Columns(
                 configuration=ColumnsConfiguration(
-                    PluginInstanceConfiguration(
-                        Render, RenderConfiguration(DUMMY_LOCALIZABLE)
-                    )  # ty:ignore[invalid-argument-type]
+                    PluginConfiguration(Render, RenderConfiguration(DUMMY_LOCALIZABLE))  # ty:ignore[invalid-argument-type]
                 ),
                 jinja2_environment=await project.jinja2_environment,
             )
@@ -1004,7 +994,7 @@ class TestColumns(ContentProviderTestBase):
             async with project:
                 sut = Columns(
                     configuration=ColumnsConfiguration(
-                        PluginInstanceConfiguration(
+                        PluginConfiguration(
                             Render, RenderConfiguration(DUMMY_LOCALIZABLE)
                         )  # ty:ignore[invalid-argument-type]
                     ),
@@ -1022,7 +1012,7 @@ class TestColumns(ContentProviderTestBase):
             async with project:
                 sut = Columns(
                     configuration=ColumnsConfiguration(
-                        PluginInstanceConfiguration(
+                        PluginConfiguration(
                             Render, RenderConfiguration(DUMMY_LOCALIZABLE)
                         ),  # ty:ignore[invalid-argument-type]
                         width={Breakpoint.XS: 12, Breakpoint.LG: 6},
@@ -1043,18 +1033,18 @@ class TestColumns(ContentProviderTestBase):
                     configuration=ColumnsConfiguration(
                         [
                             [
-                                PluginInstanceConfiguration(
+                                PluginConfiguration(
                                     Render,
                                     RenderConfiguration(DUMMY_LOCALIZABLE),
                                 ),
                             ],
                             [
-                                PluginInstanceConfiguration(
+                                PluginConfiguration(
                                     Render,
                                     RenderConfiguration(DUMMY_LOCALIZABLE),
                                 ),
                             ],
-                        ],  # ty:ignore[invalid-argument-type]
+                        ],
                         width=[8, 4],
                     ),
                     jinja2_environment=await project.jinja2_environment,
@@ -1074,18 +1064,18 @@ class TestColumns(ContentProviderTestBase):
                     configuration=ColumnsConfiguration(
                         [
                             [
-                                PluginInstanceConfiguration(
+                                PluginConfiguration(
                                     Render,
                                     RenderConfiguration(DUMMY_LOCALIZABLE),
                                 ),
                             ],
                             [
-                                PluginInstanceConfiguration(
+                                PluginConfiguration(
                                     Render,
                                     RenderConfiguration(DUMMY_LOCALIZABLE),
                                 ),
                             ],
-                        ],  # ty:ignore[invalid-argument-type]
+                        ],
                         width={Breakpoint.XS: [8, 4], Breakpoint.LG: [7, 5]},
                     ),
                     jinja2_environment=await project.jinja2_environment,

@@ -20,7 +20,7 @@ from betty.locale.localizable.plain import Plain
 from betty.locale.localize import DEFAULT_LOCALIZER
 from betty.machine_name import MachineName
 from betty.model import EntityDefinition
-from betty.plugin.config import PluginInstanceConfiguration
+from betty.plugin.config import PluginConfiguration
 from betty.plugin.discovery.static import StaticDiscovery
 from betty.plugin.resolve import ResolvableId
 from betty.project.config import (
@@ -306,7 +306,7 @@ class TestExtensionInstanceConfigurationMapping(
         ExtensionInstanceConfigurationMapping,
         MachineName,
         ResolvableId[ExtensionDefinition],
-        PluginInstanceConfiguration[ExtensionDefinition, Extension],
+        PluginConfiguration[ExtensionDefinition, Extension],
     ]
 ):
     sut_cls = ExtensionInstanceConfigurationMapping
@@ -328,7 +328,7 @@ class TestExtensionInstanceConfigurationMapping(
     def new_sut(
         self,
     ) -> ConfigurationCollectionTestBaseNewSut[
-        PluginInstanceConfiguration[ExtensionDefinition, Extension],
+        PluginConfiguration[ExtensionDefinition, Extension],
         MachineName,
         ResolvableId[ExtensionDefinition],
     ]:
@@ -342,13 +342,13 @@ class TestExtensionInstanceConfigurationMapping(
             MachineName
         ],
     ) -> ConfigurationCollectionTestBaseSutConfigurations[
-        PluginInstanceConfiguration[ExtensionDefinition, Extension]
+        PluginConfiguration[ExtensionDefinition, Extension]
     ]:
         return (
-            PluginInstanceConfiguration(sut_configuration_keys[0]),
-            PluginInstanceConfiguration(sut_configuration_keys[1]),
-            PluginInstanceConfiguration(sut_configuration_keys[2]),
-            PluginInstanceConfiguration(sut_configuration_keys[3]),
+            PluginConfiguration(sut_configuration_keys[0]),
+            PluginConfiguration(sut_configuration_keys[1]),
+            PluginConfiguration(sut_configuration_keys[2]),
+            PluginConfiguration(sut_configuration_keys[3]),
         )
 
     def test_enable(self) -> None:
@@ -1344,7 +1344,7 @@ class TestProjectConfiguration(DataTestBase[ProjectConfiguration]):
         sut = ProjectConfiguration(title="Betty", url="https://example.com")
         value = "Hello, world!"
         sut.extensions.append(
-            PluginInstanceConfiguration(
+            PluginConfiguration(
                 DummyConfigurableExtension.plugin(), DummyConfiguration(value)
             )
         )
@@ -1466,7 +1466,7 @@ class TestProjectConfiguration(DataTestBase[ProjectConfiguration]):
         assert portable["genders"] == expected
 
     async def test_dump__should_dump_copyright_notice(self) -> None:
-        copyright_notice_configuration = PluginInstanceConfiguration[
+        copyright_notice_configuration = PluginConfiguration[
             CopyrightNoticeDefinition, CopyrightNotice
         ]("-")
         sut = ProjectConfiguration(
@@ -1504,9 +1504,7 @@ class TestProjectConfiguration(DataTestBase[ProjectConfiguration]):
         }
 
     async def test_dump__should_dump_license(self) -> None:
-        license_configuration = PluginInstanceConfiguration[LicenseDefinition, License](
-            "-"
-        )
+        license_configuration = PluginConfiguration[LicenseDefinition, License]("-")
         sut = ProjectConfiguration(
             license=license_configuration, title="Betty", url="https://example.com"
         )

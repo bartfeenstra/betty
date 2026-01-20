@@ -13,7 +13,7 @@ from betty.gramps.loader import (
     DEFAULT_PLACE_TYPE_MAPPING,
     DEFAULT_PRESENCE_ROLE_MAPPING,
 )
-from betty.plugin.config import PluginInstanceConfiguration
+from betty.plugin.config import PluginConfiguration
 from betty.portable import PortableData
 from betty.project.extension.gramps.config import (
     EventTypeMapping,
@@ -81,9 +81,7 @@ class TestFamilyTreeConfiguration(ConfigurationTestBase[FamilyTreeConfiguration]
         plugin_id = "my-first-betty-plugin-id"
         sut = FamilyTreeConfiguration(
             tmp_path,
-            event_types=EventTypeMapping(
-                {gramps_type: PluginInstanceConfiguration(plugin_id)}
-            ),
+            event_types=EventTypeMapping({gramps_type: PluginConfiguration(plugin_id)}),
         )
         assert sut.event_types[gramps_type].id == plugin_id
         assert sut.event_types["Birth"].id == Birth.plugin().id
@@ -93,9 +91,7 @@ class TestFamilyTreeConfiguration(ConfigurationTestBase[FamilyTreeConfiguration]
         plugin_id = "my-first-betty-plugin-id"
         sut = FamilyTreeConfiguration(
             tmp_path,
-            place_types=PlaceTypeMapping(
-                {gramps_type: PluginInstanceConfiguration(plugin_id)}
-            ),
+            place_types=PlaceTypeMapping({gramps_type: PluginConfiguration(plugin_id)}),
         )
         assert sut.place_types[gramps_type].id == plugin_id
         assert sut.place_types["Borough"].id == Borough.plugin().id
@@ -106,7 +102,7 @@ class TestFamilyTreeConfiguration(ConfigurationTestBase[FamilyTreeConfiguration]
         sut = FamilyTreeConfiguration(
             tmp_path,
             presence_roles=PresenceRoleMapping(
-                {gramps_type: PluginInstanceConfiguration(plugin_id)}
+                {gramps_type: PluginConfiguration(plugin_id)}
             ),
         )
         assert sut.presence_roles[gramps_type].id == plugin_id
@@ -200,7 +196,7 @@ class TestFamilyTreeConfiguration(ConfigurationTestBase[FamilyTreeConfiguration]
             tmp_path,
             event_types=EventTypeMapping(
                 {
-                    "my-first-gramps-type": PluginInstanceConfiguration(
+                    "my-first-gramps-type": PluginConfiguration(
                         "my-first-betty-plugin-id"
                     )
                 }
@@ -215,7 +211,7 @@ class TestFamilyTreeConfiguration(ConfigurationTestBase[FamilyTreeConfiguration]
             tmp_path,
             place_types=PlaceTypeMapping(
                 {
-                    "my-first-gramps-type": PluginInstanceConfiguration(
+                    "my-first-gramps-type": PluginConfiguration(
                         "my-first-betty-plugin-id"
                     )
                 }
@@ -230,7 +226,7 @@ class TestFamilyTreeConfiguration(ConfigurationTestBase[FamilyTreeConfiguration]
             tmp_path,
             presence_roles=PresenceRoleMapping(
                 {
-                    "my-first-gramps-type": PluginInstanceConfiguration(
+                    "my-first-gramps-type": PluginConfiguration(
                         "my-first-betty-plugin-id"
                     )
                 }
@@ -247,17 +243,15 @@ class TestPluginMapping(ConfigurationTestBase[PluginMapping]):
     def test___init____with_values(self) -> None:
         class _PluginMapping(PluginMapping[DummyPluginDefinition, DummyPlugin]):
             _DEFAULT_MAPPING = {
-                "my-first-gramps-type": PluginInstanceConfiguration(
+                "my-first-gramps-type": PluginConfiguration(
                     "some-elses-betty-plugin-id"
                 )
             }
 
         sut = _PluginMapping(
             {
-                "my-first-gramps-type": PluginInstanceConfiguration(
-                    "my-first-betty-plugin-id"
-                ),
-                "my-second-gramps-type": PluginInstanceConfiguration(
+                "my-first-gramps-type": PluginConfiguration("my-first-betty-plugin-id"),
+                "my-second-gramps-type": PluginConfiguration(
                     "my-second-betty-plugin-id"
                 ),
             },
@@ -272,9 +266,7 @@ class TestPluginMapping(ConfigurationTestBase[PluginMapping]):
     def test_load__with_values(self) -> None:
         class _PluginMapping(PluginMapping[DummyPluginDefinition, DummyPlugin]):
             _DEFAULT_MAPPING = {
-                "my-first-gramps-type": PluginInstanceConfiguration(
-                    "default-betty-plugin-id"
-                )
+                "my-first-gramps-type": PluginConfiguration("default-betty-plugin-id")
             }
 
         portable: PortableData = {
@@ -312,7 +304,7 @@ class TestPluginMapping(ConfigurationTestBase[PluginMapping]):
                 {"my-first-gramps-type": "my-first-betty-plugin-id"},
                 PluginMapping(
                     {
-                        "my-first-gramps-type": PluginInstanceConfiguration(
+                        "my-first-gramps-type": PluginConfiguration(
                             "my-first-betty-plugin-id"
                         )
                     },
@@ -329,28 +321,18 @@ class TestPluginMapping(ConfigurationTestBase[PluginMapping]):
 
     def test___getitem__(self) -> None:
         sut = PluginMapping[DummyPluginDefinition, DummyPlugin](
-            {
-                "my-first-gramps-type": PluginInstanceConfiguration(
-                    "my-first-betty-plugin-id"
-                )
-            },
+            {"my-first-gramps-type": PluginConfiguration("my-first-betty-plugin-id")},
         )
         assert sut["my-first-gramps-type"].id == "my-first-betty-plugin-id"
 
     def test___setitem__(self) -> None:
         sut = PluginMapping[DummyPluginDefinition, DummyPlugin]()
-        sut["my-first-gramps-type"] = PluginInstanceConfiguration(
-            "my-first-betty-plugin-id"
-        )
+        sut["my-first-gramps-type"] = PluginConfiguration("my-first-betty-plugin-id")
         assert sut["my-first-gramps-type"].id == "my-first-betty-plugin-id"
 
     def test___delitem__(self) -> None:
         sut = PluginMapping[DummyPluginDefinition, DummyPlugin](
-            {
-                "my-first-gramps-type": PluginInstanceConfiguration(
-                    "my-first-betty-plugin-id"
-                )
-            },
+            {"my-first-gramps-type": PluginConfiguration("my-first-betty-plugin-id")},
         )
         del sut["my-first-gramps-type"]
         with pytest.raises(KeyError):
@@ -362,11 +344,7 @@ class TestPluginMapping(ConfigurationTestBase[PluginMapping]):
 
     def test___iter____with_items(self) -> None:
         sut = PluginMapping[DummyPluginDefinition, DummyPlugin](
-            {
-                "my-first-gramps-type": PluginInstanceConfiguration(
-                    "my-first-betty-plugin-id"
-                )
-            },
+            {"my-first-gramps-type": PluginConfiguration("my-first-betty-plugin-id")},
         )
         assert list(iter(sut)) == ["my-first-gramps-type"]
 

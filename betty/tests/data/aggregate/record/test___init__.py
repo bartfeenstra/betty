@@ -1,11 +1,15 @@
+from typing import Self
 from unittest.mock import Mock
 
 import pytest
+from typing_extensions import override
 
 from betty.data import DataDefinition, OptionalDefinition
 from betty.data.aggregate.record import (
     FieldDefinition,
     MappingPorter,
+    PortableRecord,
+    PortableRecordPorter,
     RecordDefinition,
     RecordPorter,
 )
@@ -14,6 +18,7 @@ from betty.data.indicator.selector import Attr, Key
 from betty.data.str import StrDefinition
 from betty.exception import HumanFacingException
 from betty.locale.localizable.plain import Plain
+from betty.portable import PortableData
 from betty.test_utils.locale.localizable import DUMMY_LOCALIZABLE
 
 
@@ -257,3 +262,44 @@ class TestMappingPorter:
         value = "Hello, world!"
         data = RecordDefinitionTestRecord(value)
         assert sut.dump_key(data, Attr(field_name)) == (value, {})
+
+
+class PortableRecordPorterTestPortable(PortableRecord[Attr]):
+    def __init__(self, key: str, value: str):
+        self.key = key
+        self.value = value
+
+    @override
+    @classmethod
+    def load(cls, portable: PortableData, /) -> Self:
+        raise NotImplementedError
+
+    @override
+    def dump(self) -> PortableData:
+        raise NotImplementedError
+
+    @override
+    @classmethod
+    def load_key(cls, portable: PortableData, key: Attr, portable_key: str, /) -> Self:
+        return cls(portable_key, portable["value"])  # ty:ignore[invalid-argument-type, not-subscriptable]
+
+    @override
+    def dump_key(self, key: Attr, /) -> tuple[str, PortableData]:
+        return self.key, {"value": self.value}
+
+
+class TestPortableRecordPorter:
+    def test_load_key(self) -> None:
+        sut = PortableRecordPorter(PortableRecordPorterTestPortable)
+        key = "hello-world"
+        value = "Hello, world!"
+        data = sut.load_key({"value": value}, Attr("key"), key)
+        assert data.key == key
+        assert data.value == value
+
+    def test_dump_key(self) -> None:
+        sut = PortableRecordPorter(PortableRecordPorterTestPortable)
+        key = "hello-world"
+        value = "Hello, world!"
+        data = PortableRecordPorterTestPortable(key, value)
+        assert sut.dump_key(data, Attr("key")) == (key, {"value": value})

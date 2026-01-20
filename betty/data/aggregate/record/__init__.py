@@ -5,7 +5,7 @@ Record data types.
 from __future__ import annotations
 
 from abc import abstractmethod
-from typing import TYPE_CHECKING, Any, Generic, final
+from typing import TYPE_CHECKING, Any, Generic, Self, final
 
 from typing_extensions import TypeVar, override
 
@@ -14,8 +14,7 @@ from betty.data import DataDefinition, OptionalDefinition, Sample, Samples
 from betty.data.aggregate import AggregateDefinition
 from betty.data.indicator.selector import Element
 from betty.locale.localizable.ensure import ensure_localizable
-from betty.portable import PortableData, Porter
-from betty.portable.error import NotPortable
+from betty.portable import Portable, PortableData, PortablePorter, Porter
 
 if TYPE_CHECKING:
     from collections.abc import Callable, Iterable, MutableSequence, Sequence
@@ -24,8 +23,10 @@ if TYPE_CHECKING:
     from betty.locale.localizable import Localizable, LocalizableLike
     from betty.portable import PortableMapping
 
-_DataClsT = TypeVar("_DataClsT")
-_ElementCoT = TypeVar("_ElementCoT", bound=Element[Any], covariant=True)
+_DataClsT = TypeVar("_DataClsT", default=Any)
+_ElementCoT = TypeVar(
+    "_ElementCoT", bound=Element[Any], default=Element[Any], covariant=True
+)
 
 
 @final
@@ -101,9 +102,37 @@ class FieldDefinition(Generic[_ElementCoT, _DataClsT]):
         return self._omit_dump(data)
 
 
-class RecordPorter(Porter[_DataClsT, PortableData]):
+class PortableRecord(Portable, Generic[_ElementCoT]):
     """
-    An object capable of dumping and loading data to and from portable data.
+    A record object capable of dumping and loading itself to and from portable data.
+    """
+
+    @classmethod
+    @abstractmethod
+    def load_key(
+        cls, portable: PortableData, key: _ElementCoT, portable_key: str, /
+    ) -> Self:
+        """
+        Create a new instance from portable data and a portable primary key.
+
+        :raises betty.exception.HumanFacingException: Raised if the portable data is invalid.
+        """
+
+    @abstractmethod
+    def dump_key(self, key: _ElementCoT, /) -> tuple[str, PortableData]:
+        """
+        Dump the instance to portable data and a portable primary key.
+
+        :raises betty.portable.error.NotPortable: Raised if any part of the data is not portable.
+        """
+
+
+_PortableRecordT = TypeVar("_PortableRecordT", bound=PortableRecord)
+
+
+class RecordPorter(Porter[_DataClsT], Generic[_DataClsT, _ElementCoT]):
+    """
+    An object capable of dumping and loading record data to and from portable data.
     """
 
     @abstractmethod
@@ -123,6 +152,27 @@ class RecordPorter(Porter[_DataClsT, PortableData]):
         """
         Dump the data to portable data and a portable primary key.
         """
+
+
+@final
+class PortableRecordPorter(
+    PortablePorter[_PortableRecordT], RecordPorter[_PortableRecordT, _ElementCoT]
+):
+    """
+    Expose a portable record data type as a porter.
+    """
+
+    @override
+    def load_key(
+        self, portable: PortableData, key: _ElementCoT, portable_key: str, /
+    ) -> _PortableRecordT:
+        return self._cls.load_key(portable, key, portable_key)
+
+    @override
+    def dump_key(
+        self, data: _PortableRecordT, key: _ElementCoT, /
+    ) -> tuple[str, PortableData]:
+        return data.dump_key(key)
 
 
 @final
@@ -181,6 +231,8 @@ class RecordDefinition(AggregateDefinition[_DataClsT, _ElementCoT]):
     Records have explicitly defined fields.
     """
 
+    _porter: RecordPorter[_DataClsT] | None
+
     def __init__(
         self,
         *,
@@ -217,11 +269,12 @@ class RecordDefinition(AggregateDefinition[_DataClsT, _ElementCoT]):
     @override
     @property
     def porter(self) -> RecordPorter[_DataClsT]:
-        try:
-            return super().porter
-        except NotPortable:
-            self._porter = MappingPorter(self)
-            return self._porter
+        if self._porter is None:
+            if issubclass(self.cls, PortableRecord):
+                self._porter = PortableRecordPorter(self.cls)
+            else:
+                self._porter = MappingPorter(self)
+        return self._porter
 
     @property
     def fields(self) -> Sequence[FieldDefinition[_ElementCoT, Any]]:

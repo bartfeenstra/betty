@@ -22,6 +22,7 @@ class TestDemoDefinition(CommandDefinitionTestBase):
         return Demo.plugin()
 
 
+@pytest.mark.usefixtures("demo_project_aioresponses")
 class TestDemo(CommandTestBase):
     @override
     @pytest.fixture
