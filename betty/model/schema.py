@@ -4,7 +4,12 @@ JSON schemas for the model API.
 
 from __future__ import annotations
 
+from typing import TYPE_CHECKING
+
 from betty.json.schema import Array, Null, OneOf, String
+
+if TYPE_CHECKING:
+    from betty.locale.localizable import LocalizableLike
 
 
 class ToZeroOrOneSchema(OneOf):
@@ -12,7 +17,12 @@ class ToZeroOrOneSchema(OneOf):
     A schema for a to-zero-or-one entity association.
     """
 
-    def __init__(self, *, title: str | None = None, description: str | None = None):
+    def __init__(
+        self,
+        *,
+        title: LocalizableLike | None = None,
+        description: LocalizableLike | None = None,
+    ):
         super().__init__(
             String(
                 title=title or "Optional associate entity",
@@ -29,7 +39,12 @@ class ToOneSchema(String):
     A schema for a to-one entity association.
     """
 
-    def __init__(self, *, title: str | None = None, description: str | None = None):
+    def __init__(
+        self,
+        *,
+        title: LocalizableLike | None = None,
+        description: LocalizableLike | None = None,
+    ):
         super().__init__(
             title=title or "Associate entity",
             description=description
@@ -43,7 +58,12 @@ class ToManySchema(Array):
     A schema for a to-many entity association.
     """
 
-    def __init__(self, *, title: str | None = None, description: str | None = None):
+    def __init__(
+        self,
+        *,
+        title: LocalizableLike | None = None,
+        description: LocalizableLike | None = None,
+    ):
         super().__init__(
             ToOneSchema(),
             title=title or "Associate entities",
