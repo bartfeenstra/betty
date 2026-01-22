@@ -5,29 +5,14 @@ Configuration for the Wikipedia extension.
 from typing import final
 
 from betty.data import Data, Sample
-from betty.data.aggregate.record import FieldDefinition
-from betty.data.aggregate.record.object import ObjectDefinition
+from betty.data.aggregate.record.object import AttrDefinition, ObjectDefinition
 from betty.data.bool import BoolDefinition
-from betty.data.indicator.selector import Attr
 from betty.locale.localizable.gettext import _
 
 
 @final
 @ObjectDefinition(
     label=_("Wiki extension configuration"),
-    fields=[
-        FieldDefinition(
-            Attr("populate_images"),
-            BoolDefinition(
-                label=_("Populate images"),
-                description=_(
-                    "Whether to download additional images found through Wikipedia links in the ancestry"
-                ),
-            ),
-            empty=lambda data: data is True,
-            required=False,
-        )
-    ],
     samples=[
         lambda: Sample(WikiConfiguration(), label="Minimal", minimal=True),
         lambda: Sample(
@@ -46,6 +31,16 @@ class WikiConfiguration(Data):
         self._populate_images = populate_images
 
     @property
+    @AttrDefinition(
+        BoolDefinition(
+            label=_("Populate images"),
+            description=_(
+                "Whether to download additional images found through Wikipedia links in the ancestry"
+            ),
+        ),
+        empty=lambda data: data is True,
+        required=False,
+    )
     def populate_images(self) -> bool:
         """
         Whether to populate entities with Wikimedia images after loading ancestries.

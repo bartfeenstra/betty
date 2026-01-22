@@ -33,7 +33,7 @@ from betty.copyright_notice import CopyrightNotice, CopyrightNoticeDefinition
 from betty.data import Data, DataDefinition, Sample
 from betty.data.aggregate.collection.keyed import KeyedCollectionDefinition
 from betty.data.aggregate.record import FieldDefinition
-from betty.data.aggregate.record.object import ObjectDefinition
+from betty.data.aggregate.record.object import AttrDefinition, ObjectDefinition
 from betty.data.bool import BoolDefinition
 from betty.data.indicator.selector import Attr
 from betty.data.int import IntDefinition
@@ -134,14 +134,6 @@ class ExtensionInstanceConfigurationMapping(
 @final
 @ObjectDefinition(
     label=_("Entity type configuration"),
-    fields=[
-        FieldDefinition(Attr("entity_type"), PluginIdDefinition(EntityDefinition)),
-        FieldDefinition(
-            Attr("generate_html_list"),
-            BoolDefinition(label=_("Generate list HTML page")),
-            required=False,
-        ),
-    ],
     samples=[
         lambda: Sample(
             EntityTypeConfiguration(entity_type=Person), label="Minimal", minimal=True
@@ -172,6 +164,7 @@ class EntityTypeConfiguration(
         self.generate_html_list = generate_html_list
 
     @property
+    @AttrDefinition(PluginIdDefinition(EntityDefinition))
     def entity_type(self) -> MachineName:
         """
         The ID of the configured entity type.
@@ -179,6 +172,7 @@ class EntityTypeConfiguration(
         return self._entity_type
 
     @property
+    @AttrDefinition(BoolDefinition(label=_("Generate list HTML page")), required=False)
     def generate_html_list(self) -> bool:
         """
         Whether to generate listing web pages for entities of this type.
@@ -828,17 +822,6 @@ class GenderPluginConfigurationMapping(
             empty=lambda data: data is None,
         ),
         FieldDefinition(
-            Attr("clean_urls"),
-            BoolDefinition(
-                label=_("Clean URLs"),
-                description=_(
-                    'Whether to use clean URLs: "/path" instead of "/path/index.html".'
-                ),
-            ),
-            empty=lambda data: data is False,
-            required=False,
-        ),
-        FieldDefinition(
             Attr("copyright_notice"),
             DataDefinition(
                 cls=PluginInstanceConfiguration, label=_("Copyright notice")
@@ -847,128 +830,12 @@ class GenderPluginConfigurationMapping(
             empty=lambda data: data == ProjectConfiguration._default_copyright_notice(),
         ),
         FieldDefinition(
-            Attr("copyright_notices"),
-            DataDefinition(
-                cls=CopyrightNoticePluginConfigurationMapping,
-                label=_("Copyright notices"),
-            ),
-            empty=lambda data: not len(data),
-            required=False,
-        ),
-        FieldDefinition(
-            Attr("debug"),
-            BoolDefinition(
-                label=_("Debugging mode"),
-                description=_(
-                    "Whether to output more detailed logs and disable optimizations that make debugging harder."
-                ),
-            ),
-            empty=lambda data: data is False,
-            required=False,
-        ),
-        FieldDefinition(
-            Attr("entity_types"),
-            KeyedCollectionDefinition(
-                item=EntityTypeConfiguration.data(),
-                label=_("Entity types"),
-                key=Attr("entity_type"),
-                ordered=False,
-            ),
-            required=False,
-        ),
-        FieldDefinition(
-            Attr("event_types"),
-            DataDefinition(
-                cls=EventTypePluginConfigurationMapping, label=_("Event types")
-            ),
-            empty=lambda data: not len(data),
-            required=False,
-        ),
-        FieldDefinition(
-            Attr("extensions"),
-            DataDefinition(
-                cls=ExtensionInstanceConfigurationMapping, label=_("Extensions")
-            ),
-            empty=lambda data: not len(data),
-            required=False,
-        ),
-        FieldDefinition(
-            Attr("genders"),
-            DataDefinition(cls=GenderPluginConfigurationMapping, label=_("Genders")),
-            empty=lambda data: not len(data),
-            required=False,
-        ),
-        FieldDefinition(
             Attr("license"),
             DataDefinition(cls=PluginInstanceConfiguration, label=_("License")),
             required=False,
             empty=lambda data: data == ProjectConfiguration._default_license(),
         ),
-        FieldDefinition(
-            Attr("licenses"),
-            DataDefinition(cls=LicensePluginConfigurationMapping, label=_("Licenses")),
-            empty=lambda data: not len(data),
-            required=False,
-        ),
-        FieldDefinition(
-            Attr("lifetime_threshold"),
-            IntDefinition(
-                label=_("Lifetime threshold"),
-                description=_(
-                    "The number of years people are expected to live at most, e.g. after which they are presumed to have died."
-                ),
-            ),
-            required=False,
-            empty=lambda data: data == DEFAULT_LIFETIME_THRESHOLD,
-        ),
-        FieldDefinition(
-            Attr("locales"),
-            DataDefinition(cls=LocaleConfigurationMapping, label=_("Locales")),
-            empty=lambda data: data == ProjectConfiguration._default_locales(),
-            required=False,
-        ),
-        FieldDefinition(
-            Attr("logo"),
-            DataDefinition(
-                cls=Path,
-                label=_("Logo"),
-                porter=CallbackPorter(assert_file_path(), str),
-            ),
-            required=False,
-            empty=lambda data: data is None,
-        ),
-        FieldDefinition(
-            Attr("name"),
-            MachineNameDefinition(),
-            required=False,
-            empty=lambda data: data is None,
-        ),
-        FieldDefinition(
-            Attr("place_types"),
-            DataDefinition(
-                cls=PlaceTypePluginConfigurationMapping, label=_("Place types")
-            ),
-            empty=lambda data: not len(data),
-            required=False,
-        ),
-        FieldDefinition(
-            Attr("presence_roles"),
-            DataDefinition(
-                cls=PresenceRolePluginConfigurationMapping, label=_("Presence roles")
-            ),
-            empty=lambda data: not len(data),
-            required=False,
-        ),
         FieldDefinition(Attr("title"), LocalizableDefinition(), label=_("Title")),
-        FieldDefinition(
-            Attr("url"),
-            StrDefinition(
-                label=_("URL"),
-                description=_(
-                    "The absolute, public URL at which the site will be published."
-                ),
-            ),
-        ),
     ],
     samples=[
         lambda: Sample(
@@ -1128,6 +995,9 @@ class ProjectConfiguration(Data):
         return LocaleConfigurationMapping()
 
     @property
+    @AttrDefinition(
+        MachineNameDefinition(), required=False, empty=lambda data: data is None
+    )
     def name(self) -> MachineName | None:
         """
         The project's machine name.
@@ -1139,6 +1009,14 @@ class ProjectConfiguration(Data):
         self._name = assert_machine_name()(name)
 
     @property
+    @AttrDefinition(
+        StrDefinition(
+            label=_("URL"),
+            description=_(
+                "The absolute, public URL at which the site will be published."
+            ),
+        )
+    )
     def url(self) -> str:
         """
         The project's public URL.
@@ -1179,6 +1057,16 @@ class ProjectConfiguration(Data):
         return urlparse(self.url).path.rstrip("/")
 
     @property
+    @AttrDefinition(
+        BoolDefinition(
+            label=_("Clean URLs"),
+            description=_(
+                'Whether to use clean URLs: "/path" instead of "/path/index.html".'
+            ),
+        ),
+        empty=lambda data: data is False,
+        required=False,
+    )
     def clean_urls(self) -> bool:
         """
         Whether to generate clean URLs such as ``/person/first-person`` instead of ``/person/first-person/index.html``.
@@ -1192,6 +1080,11 @@ class ProjectConfiguration(Data):
         self._clean_urls = clean_urls
 
     @property
+    @AttrDefinition(
+        DataDefinition(cls=LocaleConfigurationMapping, label=_("Locales")),
+        empty=lambda data: data == ProjectConfiguration._default_locales(),
+        required=False,
+    )
     def locales(self) -> LocaleConfigurationMapping:
         """
         The available locales.
@@ -1199,6 +1092,15 @@ class ProjectConfiguration(Data):
         return self._locales
 
     @property
+    @AttrDefinition(
+        KeyedCollectionDefinition(
+            item=EntityTypeConfiguration.data(),
+            label=_("Entity types"),
+            key=Attr("entity_type"),
+            ordered=False,
+        ),
+        required=False,
+    )
     def entity_types(
         self,
     ) -> KeyedCollection[
@@ -1213,6 +1115,13 @@ class ProjectConfiguration(Data):
         return self._entity_types
 
     @property
+    @AttrDefinition(
+        DataDefinition(
+            cls=ExtensionInstanceConfigurationMapping, label=_("Extensions")
+        ),
+        empty=lambda data: not len(data),
+        required=False,
+    )
     def extensions(self) -> ExtensionInstanceConfigurationMapping:
         """
         Then extensions running within this application.
@@ -1220,6 +1129,16 @@ class ProjectConfiguration(Data):
         return self._extensions
 
     @property
+    @AttrDefinition(
+        BoolDefinition(
+            label=_("Debugging mode"),
+            description=_(
+                "Whether to output more detailed logs and disable optimizations that make debugging harder."
+            ),
+        ),
+        empty=lambda data: data is False,
+        required=False,
+    )
     def debug(self) -> bool:
         """
         Whether to enable debugging for project jobs.
@@ -1238,6 +1157,16 @@ class ProjectConfiguration(Data):
         self._debug = debug
 
     @property
+    @AttrDefinition(
+        IntDefinition(
+            label=_("Lifetime threshold"),
+            description=_(
+                "The number of years people are expected to live at most, e.g. after which they are presumed to have died."
+            ),
+        ),
+        required=False,
+        empty=lambda data: data == DEFAULT_LIFETIME_THRESHOLD,
+    )
     def lifetime_threshold(self) -> int:
         """
         The lifetime threshold indicates when people are considered dead.
@@ -1255,6 +1184,13 @@ class ProjectConfiguration(Data):
         self._lifetime_threshold = lifetime_threshold
 
     @property
+    @AttrDefinition(
+        DataDefinition(
+            cls=Path, label=_("Logo"), porter=CallbackPorter(assert_file_path(), str)
+        ),
+        required=False,
+        empty=lambda data: data is None,
+    )
     def logo(self) -> Path | None:
         """
         The path to the logo.
@@ -1266,6 +1202,14 @@ class ProjectConfiguration(Data):
         self._logo = logo
 
     @property
+    @AttrDefinition(
+        DataDefinition(
+            cls=CopyrightNoticePluginConfigurationMapping,
+            label=_("Copyright notices"),
+        ),
+        empty=lambda data: not len(data),
+        required=False,
+    )
     def copyright_notices(
         self,
     ) -> CopyrightNoticePluginConfigurationMapping:
@@ -1275,6 +1219,11 @@ class ProjectConfiguration(Data):
         return self._copyright_notices
 
     @property
+    @AttrDefinition(
+        DataDefinition(cls=LicensePluginConfigurationMapping, label=_("Licenses")),
+        empty=lambda data: not len(data),
+        required=False,
+    )
     def licenses(self) -> LicensePluginConfigurationMapping:
         """
         The :py:class:`betty.license.License` plugins created by this project.
@@ -1282,6 +1231,11 @@ class ProjectConfiguration(Data):
         return self._licenses
 
     @property
+    @AttrDefinition(
+        DataDefinition(cls=EventTypePluginConfigurationMapping, label=_("Event types")),
+        empty=lambda data: not len(data),
+        required=False,
+    )
     def event_types(self) -> EventTypePluginConfigurationMapping:
         """
         The event type plugins created by this project.
@@ -1289,6 +1243,11 @@ class ProjectConfiguration(Data):
         return self._event_types
 
     @property
+    @AttrDefinition(
+        DataDefinition(cls=PlaceTypePluginConfigurationMapping, label=_("Place types")),
+        empty=lambda data: not len(data),
+        required=False,
+    )
     def place_types(self) -> PlaceTypePluginConfigurationMapping:
         """
         The place type plugins created by this project.
@@ -1296,6 +1255,13 @@ class ProjectConfiguration(Data):
         return self._place_types
 
     @property
+    @AttrDefinition(
+        DataDefinition(
+            cls=PresenceRolePluginConfigurationMapping, label=_("Presence roles")
+        ),
+        empty=lambda data: not len(data),
+        required=False,
+    )
     def presence_roles(self) -> PresenceRolePluginConfigurationMapping:
         """
         The presence role plugins created by this project.
@@ -1303,6 +1269,11 @@ class ProjectConfiguration(Data):
         return self._presence_roles
 
     @property
+    @AttrDefinition(
+        DataDefinition(cls=GenderPluginConfigurationMapping, label=_("Genders")),
+        empty=lambda data: not len(data),
+        required=False,
+    )
     def genders(self) -> GenderPluginConfigurationMapping:
         """
         The gender plugins created by this project.

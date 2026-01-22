@@ -16,7 +16,7 @@ from betty.locale.localizable.ensure import ensure_localizable
 from betty.portable import Loader, PortableData, PortableMapping, Porter
 
 if TYPE_CHECKING:
-    from collections.abc import Callable, Iterable, Sequence
+    from collections.abc import Callable, Iterable, MutableSequence, Sequence
 
     from betty.data import Data, Sample
     from betty.locale.localizable import Localizable, LocalizableLike
@@ -127,7 +127,7 @@ class RecordDefinition(AggregateDefinition[_DataClsT, _ElementT]):
         *,
         cls: type[_DataClsT] | None = None,
         label: LocalizableLike,
-        fields: Sequence[FieldDefinition[_ElementT, Any]],
+        fields: Sequence[FieldDefinition[_ElementT, Any]] | None = None,
         description: LocalizableLike | None = None,
         samples: Iterable[Callable[[], Sample[_DataClsT]]] | None = None,
         factory: Callable[..., _DataClsT] | None = None,
@@ -140,7 +140,9 @@ class RecordDefinition(AggregateDefinition[_DataClsT, _ElementT]):
             porter=_RecordPorter(self._load, self._dump),
         )
         self._factory = factory
-        self._fields = fields
+        self._fields: MutableSequence[FieldDefinition[_ElementT, Any]] = (
+            [] if fields is None else list(fields)
+        )
 
     @property
     def fields(self) -> Sequence[FieldDefinition[_ElementT, Any]]:
@@ -163,7 +165,7 @@ class RecordDefinition(AggregateDefinition[_DataClsT, _ElementT]):
                     (RequiredField if field.required else OptionalField)(
                         field.selector.element, field.data.load
                     )
-                    for field in self._fields
+                    for field in self.fields
                 ]
             )(portable)
         )
