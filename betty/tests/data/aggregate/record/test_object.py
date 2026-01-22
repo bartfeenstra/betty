@@ -1,7 +1,7 @@
 from betty.data.aggregate.record import FieldDefinition
 from betty.data.aggregate.record.object import ObjectDefinition
 from betty.data.indicator.selector import Attr
-from betty.data.simple import SimpleDefinition
+from betty.data.str import StrDefinition
 from betty.test_utils.locale.localizable import DUMMY_LOCALIZABLE
 
 
@@ -17,7 +17,7 @@ class ObjectDefinitionTestFactoryObject(ObjectDefinitionTestObject):
 class TestObjectDefinition:
     def test_elements(self) -> None:
         element = FieldDefinition(
-            Attr("my_first_element"), SimpleDefinition(cls=str, label=DUMMY_LOCALIZABLE)
+            Attr("my_first_element"), StrDefinition(label=DUMMY_LOCALIZABLE)
         )
         sut = ObjectDefinition[ObjectDefinitionTestObject](
             cls=ObjectDefinitionTestObject,
@@ -33,8 +33,7 @@ class TestObjectDefinition:
             label=DUMMY_LOCALIZABLE,
             fields=[
                 FieldDefinition(
-                    Attr(field_name),
-                    SimpleDefinition(cls=str, label=DUMMY_LOCALIZABLE),
+                    Attr(field_name), StrDefinition(label=DUMMY_LOCALIZABLE)
                 ),
             ],
         )
@@ -48,8 +47,7 @@ class TestObjectDefinition:
             label=DUMMY_LOCALIZABLE,
             fields=[
                 FieldDefinition(
-                    Attr("my_first_element"),
-                    SimpleDefinition(cls=str, label=DUMMY_LOCALIZABLE),
+                    Attr("my_first_element"), StrDefinition(label=DUMMY_LOCALIZABLE)
                 ),
             ],
             factory=ObjectDefinitionTestFactoryObject,
@@ -66,8 +64,7 @@ class TestObjectDefinition:
             label=DUMMY_LOCALIZABLE,
             fields=[
                 FieldDefinition(
-                    Attr(field_name),
-                    SimpleDefinition(cls=str, label=DUMMY_LOCALIZABLE),
+                    Attr(field_name), StrDefinition(label=DUMMY_LOCALIZABLE)
                 ),
             ],
         )

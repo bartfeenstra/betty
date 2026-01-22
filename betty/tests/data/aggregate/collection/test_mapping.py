@@ -3,14 +3,14 @@ import pytest
 from betty.data import DataDefinition
 from betty.data.aggregate.collection.mapping import MappingDefinition
 from betty.data.indicator.selector import Key
-from betty.data.simple import SimpleDefinition
+from betty.data.str import StrDefinition
 from betty.portable.error import NotPortable
 from betty.test_utils.locale.localizable import DUMMY_LOCALIZABLE
 
 
 class TestMappingDefinition:
     def test_elements(self) -> None:
-        item = SimpleDefinition(cls=str, label=DUMMY_LOCALIZABLE)
+        item = StrDefinition(label=DUMMY_LOCALIZABLE)
         sut = MappingDefinition[dict[str, str]](
             cls=dict[str, str],
             item=item,
@@ -20,7 +20,7 @@ class TestMappingDefinition:
         assert list(sut.elements({"key": "value"})) == [(Key("key"), item)]
 
     def test_item(self) -> None:
-        item = SimpleDefinition(cls=str, label=DUMMY_LOCALIZABLE)
+        item = StrDefinition(label=DUMMY_LOCALIZABLE)
         sut = MappingDefinition[dict[str, str]](
             cls=dict[str, str],
             item=item,
@@ -31,7 +31,7 @@ class TestMappingDefinition:
     def test_load__without_items(self) -> None:
         sut = MappingDefinition[dict[str, str]](
             cls=dict[str, str],
-            item=SimpleDefinition(cls=str, label=DUMMY_LOCALIZABLE),
+            item=StrDefinition(label=DUMMY_LOCALIZABLE),
             label=DUMMY_LOCALIZABLE,
         )
         assert sut.load({}) == {}
@@ -39,7 +39,7 @@ class TestMappingDefinition:
     def test_load__with_items(self) -> None:
         sut = MappingDefinition[dict[str, str]](
             cls=dict[str, str],
-            item=SimpleDefinition(cls=str, label=DUMMY_LOCALIZABLE),
+            item=StrDefinition(label=DUMMY_LOCALIZABLE),
             label=DUMMY_LOCALIZABLE,
         )
         assert sut.load({"hello": "Hello, world!"}) == {"hello": "Hello, world!"}
@@ -50,7 +50,7 @@ class TestMappingDefinition:
 
         sut = MappingDefinition[dict[str, str]](
             cls=dict[str, str],
-            item=SimpleDefinition(cls=str, label=DUMMY_LOCALIZABLE),
+            item=StrDefinition(label=DUMMY_LOCALIZABLE),
             label=DUMMY_LOCALIZABLE,
             factory=FactoryDict,
         )
@@ -68,7 +68,7 @@ class TestMappingDefinition:
     def test_dump__without_items(self) -> None:
         sut = MappingDefinition[dict[str, str]](
             cls=dict[str, str],
-            item=SimpleDefinition(cls=str, label=DUMMY_LOCALIZABLE),
+            item=StrDefinition(label=DUMMY_LOCALIZABLE),
             label=DUMMY_LOCALIZABLE,
         )
         assert sut.dump({}) == {}
@@ -76,7 +76,7 @@ class TestMappingDefinition:
     def test_dump__with_items(self) -> None:
         sut = MappingDefinition[dict[str, str]](
             cls=dict[str, str],
-            item=SimpleDefinition(cls=str, label=DUMMY_LOCALIZABLE),
+            item=StrDefinition(label=DUMMY_LOCALIZABLE),
             label=DUMMY_LOCALIZABLE,
         )
         assert sut.dump({"hello": "Hello, world!"}) == {"hello": "Hello, world!"}

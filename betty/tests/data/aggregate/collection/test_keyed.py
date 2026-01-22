@@ -5,7 +5,7 @@ from betty.data.aggregate.collection.keyed import KeyedCollectionDefinition
 from betty.data.aggregate.record import FieldDefinition
 from betty.data.aggregate.record.mapping import TypedMappingDefinition
 from betty.data.indicator.selector import Key
-from betty.data.simple import SimpleDefinition
+from betty.data.str import StrDefinition
 from betty.portable import PortableData
 from betty.test_utils.locale.localizable import DUMMY_LOCALIZABLE
 
@@ -15,11 +15,9 @@ class TestKeyedCollectionDefinition:
         cls=dict,
         label=DUMMY_LOCALIZABLE,
         fields=[
+            FieldDefinition(Key("key"), StrDefinition(label=DUMMY_LOCALIZABLE)),
             FieldDefinition(
-                Key("key"), SimpleDefinition(cls=str, label=DUMMY_LOCALIZABLE)
-            ),
-            FieldDefinition(
-                Key("other_element"), SimpleDefinition(cls=str, label=DUMMY_LOCALIZABLE)
+                Key("other_element"), StrDefinition(label=DUMMY_LOCALIZABLE)
             ),
         ],
     )

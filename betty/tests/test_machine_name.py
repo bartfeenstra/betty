@@ -1,7 +1,11 @@
+from typing import Any
+
 import pytest
 
+from betty.exception import HumanFacingException
 from betty.machine_name import (
     InvalidMachineName,
+    MachineNameDefinition,
     assert_machine_name,
     machinify,
     validate_machine_name,
@@ -111,3 +115,28 @@ async def test_machinify(expected: str | None, source: str) -> None:
     if expected is not None:
         assert_machine_name()(expected)
     assert actual == expected
+
+
+class TestMachineNameDefinition:
+    def test_load(self) -> None:
+        value = "hello-world"
+        sut = MachineNameDefinition()
+        assert sut.load(value) == value
+
+    @pytest.mark.parametrize(
+        "value",
+        [
+            "",
+            "abcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijX",
+            {},
+        ],
+    )
+    def test_load__without_machine_name(self, value: Any) -> None:
+        sut = MachineNameDefinition()
+        with pytest.raises(HumanFacingException):
+            sut.load(value)
+
+    def test_dump(self) -> None:
+        value = "hello-world"
+        sut = MachineNameDefinition()
+        assert sut.dump(value) == value

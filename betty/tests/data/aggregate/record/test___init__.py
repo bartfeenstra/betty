@@ -3,7 +3,7 @@ import pytest
 from betty.data import DataDefinition
 from betty.data.aggregate.record import FieldDefinition, RecordDefinition
 from betty.data.indicator.selector import Attr, Key
-from betty.data.simple import SimpleDefinition
+from betty.data.str import StrDefinition
 from betty.exception import HumanFacingException
 from betty.locale.localizable.plain import Plain
 from betty.test_utils.locale.localizable import DUMMY_LOCALIZABLE
@@ -73,7 +73,7 @@ class RecordDefinitionTestFactoryRecord(RecordDefinitionTestRecord):
 class TestRecordDefinition:
     def test_fields(self) -> None:
         element = FieldDefinition(
-            Attr("my_first_element"), SimpleDefinition(cls=str, label=DUMMY_LOCALIZABLE)
+            Attr("my_first_element"), StrDefinition(label=DUMMY_LOCALIZABLE)
         )
         sut = RecordDefinition[RecordDefinitionTestRecord, Attr](
             cls=RecordDefinitionTestRecord,
@@ -84,7 +84,7 @@ class TestRecordDefinition:
 
     def test_elements(self) -> None:
         selector = Attr("my_first_element")
-        element = SimpleDefinition(cls=str, label=DUMMY_LOCALIZABLE)
+        element = StrDefinition(label=DUMMY_LOCALIZABLE)
         field = FieldDefinition(selector, element)
         sut = RecordDefinition[RecordDefinitionTestRecord, Attr](
             cls=RecordDefinitionTestRecord,
@@ -100,9 +100,8 @@ class TestRecordDefinition:
             label=DUMMY_LOCALIZABLE,
             fields=[
                 FieldDefinition(
-                    Attr(field_name),
-                    SimpleDefinition(cls=str, label=DUMMY_LOCALIZABLE),
-                ),
+                    Attr(field_name), StrDefinition(label=DUMMY_LOCALIZABLE)
+                )
             ],
         )
         value = "Hello, world!"
@@ -116,9 +115,8 @@ class TestRecordDefinition:
             label=DUMMY_LOCALIZABLE,
             fields=[
                 FieldDefinition(
-                    Attr(field_name),
-                    SimpleDefinition(cls=str, label=DUMMY_LOCALIZABLE),
-                ),
+                    Attr(field_name), StrDefinition(label=DUMMY_LOCALIZABLE)
+                )
             ],
         )
         with pytest.raises(HumanFacingException):
@@ -132,9 +130,9 @@ class TestRecordDefinition:
             fields=[
                 FieldDefinition(
                     Attr(field_name),
-                    SimpleDefinition(cls=str, label=DUMMY_LOCALIZABLE),
+                    StrDefinition(label=DUMMY_LOCALIZABLE),
                     required=False,
-                ),
+                )
             ],
         )
         value = "Hello, world!"
@@ -149,9 +147,9 @@ class TestRecordDefinition:
             fields=[
                 FieldDefinition(
                     Attr(field_name),
-                    SimpleDefinition(cls=str, label=DUMMY_LOCALIZABLE),
+                    StrDefinition(label=DUMMY_LOCALIZABLE),
                     required=False,
-                ),
+                )
             ],
         )
         sut.load({})
@@ -163,9 +161,8 @@ class TestRecordDefinition:
             label=DUMMY_LOCALIZABLE,
             fields=[
                 FieldDefinition(
-                    Attr(field_name),
-                    SimpleDefinition(cls=str, label=DUMMY_LOCALIZABLE),
-                ),
+                    Attr(field_name), StrDefinition(label=DUMMY_LOCALIZABLE)
+                )
             ],
             factory=RecordDefinitionTestFactoryRecord,
         )
@@ -181,9 +178,8 @@ class TestRecordDefinition:
             label=DUMMY_LOCALIZABLE,
             fields=[
                 FieldDefinition(
-                    Attr(field_name),
-                    SimpleDefinition(cls=str, label=DUMMY_LOCALIZABLE),
-                ),
+                    Attr(field_name), StrDefinition(label=DUMMY_LOCALIZABLE)
+                )
             ],
         )
         value = "Hello, world!"
@@ -197,9 +193,8 @@ class TestRecordDefinition:
             label=DUMMY_LOCALIZABLE,
             fields=[
                 FieldDefinition(
-                    Attr(field_name),
-                    SimpleDefinition(cls=str, label=DUMMY_LOCALIZABLE),
-                ),
+                    Attr(field_name), StrDefinition(label=DUMMY_LOCALIZABLE)
+                )
             ],
         )
         value = "Hello, world!"
@@ -213,9 +208,8 @@ class TestRecordDefinition:
             label=DUMMY_LOCALIZABLE,
             fields=[
                 FieldDefinition(
-                    Attr(field_name),
-                    SimpleDefinition(cls=str, label=DUMMY_LOCALIZABLE),
-                ),
+                    Attr(field_name), StrDefinition(label=DUMMY_LOCALIZABLE)
+                )
             ],
         )
         value = "Hello, world!"

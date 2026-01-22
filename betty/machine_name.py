@@ -5,11 +5,14 @@ Define portable machine names.
 from __future__ import annotations
 
 import re
-from typing import Any, TypeAlias, TypeGuard
+from typing import Any, TypeAlias, TypeGuard, final
 
 from betty.assertion import AssertionChain, assert_str
+from betty.data import DataDefinition
 from betty.exception import HumanFacingException
+from betty.functools import passthrough
 from betty.locale.localizable.gettext import _
+from betty.portable import CallbackPorter
 
 MachineName: TypeAlias = str
 """
@@ -19,6 +22,20 @@ A machine name is a string that meets these criteria:
 
 See :py:func:`betty.machine_name.validate_machine_name`.
 """
+
+
+@final
+class MachineNameDefinition(DataDefinition[str]):
+    """
+    A machine name data definition.
+    """
+
+    def __init__(self):
+        super().__init__(
+            cls=str,
+            label=_("Machine name"),
+            porter=CallbackPorter(assert_machine_name(), passthrough),
+        )
 
 
 _MACHINE_NAME_PATTERN = re.compile(r"^[a-z0-9\-]{1,250}$")

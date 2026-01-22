@@ -7,8 +7,8 @@ from typing import final
 from betty.data import Data, Sample
 from betty.data.aggregate.record import FieldDefinition
 from betty.data.aggregate.record.object import ObjectDefinition
+from betty.data.bool import BoolDefinition
 from betty.data.indicator.selector import Attr
-from betty.data.simple import SimpleDefinition
 from betty.locale.localizable.gettext import _
 
 
@@ -18,14 +18,13 @@ from betty.locale.localizable.gettext import _
     fields=[
         FieldDefinition(
             Attr("populate_images"),
-            SimpleDefinition(
-                cls=bool,
+            BoolDefinition(
                 label=_("Populate images"),
                 description=_(
                     "Whether to download additional images found through Wikipedia links in the ancestry"
                 ),
-                empty=lambda data: data is True,
             ),
+            empty=lambda data: data is True,
             required=False,
         )
     ],

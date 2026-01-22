@@ -1,14 +1,14 @@
 from betty.data.aggregate.record import FieldDefinition
 from betty.data.aggregate.record.mapping import TypedMappingDefinition
 from betty.data.indicator.selector import Key
-from betty.data.simple import SimpleDefinition
+from betty.data.str import StrDefinition
 from betty.test_utils.locale.localizable import DUMMY_LOCALIZABLE
 
 
 class TestTypedMappingDefinition:
     def test_elements(self) -> None:
         element = FieldDefinition(
-            Key("my_first_element"), SimpleDefinition(cls=str, label=DUMMY_LOCALIZABLE)
+            Key("my_first_element"), StrDefinition(label=DUMMY_LOCALIZABLE)
         )
         sut = TypedMappingDefinition[dict[str, str]](
             cls=dict,
@@ -24,8 +24,7 @@ class TestTypedMappingDefinition:
             label=DUMMY_LOCALIZABLE,
             fields=[
                 FieldDefinition(
-                    Key(field_name),
-                    SimpleDefinition(cls=str, label=DUMMY_LOCALIZABLE),
+                    Key(field_name), StrDefinition(label=DUMMY_LOCALIZABLE)
                 ),
             ],
         )
@@ -42,8 +41,7 @@ class TestTypedMappingDefinition:
             label=DUMMY_LOCALIZABLE,
             fields=[
                 FieldDefinition(
-                    Key("my_first_element"),
-                    SimpleDefinition(cls=str, label=DUMMY_LOCALIZABLE),
+                    Key("my_first_element"), StrDefinition(label=DUMMY_LOCALIZABLE)
                 ),
             ],
             factory=FactoryDict,
@@ -57,8 +55,7 @@ class TestTypedMappingDefinition:
             label=DUMMY_LOCALIZABLE,
             fields=[
                 FieldDefinition(
-                    Key(field_name),
-                    SimpleDefinition(cls=str, label=DUMMY_LOCALIZABLE),
+                    Key(field_name), StrDefinition(label=DUMMY_LOCALIZABLE)
                 ),
             ],
         )
