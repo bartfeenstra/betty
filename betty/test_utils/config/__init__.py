@@ -16,7 +16,7 @@ from betty.assertion import (
     assert_str,
 )
 from betty.config import Configurable, Configuration
-from betty.data import HasData
+from betty.data import Data
 from betty.data.aggregate.record.object import ObjectDefinition
 from betty.importlib import fully_qualified_name
 from betty.locale.localizable.plain import Plain
@@ -121,7 +121,7 @@ class ConfigurationTestBase(Generic[_ConfigurationT]):
     label=Plain("Dummy configuration"),
     fields=[],
 )
-class DummyConfiguration(Configuration, HasData):
+class DummyConfiguration(Configuration, Data):
     """
     A dummy :py:class:`betty.config.Configuration` implementation.
     """

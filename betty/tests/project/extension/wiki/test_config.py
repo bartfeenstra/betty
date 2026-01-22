@@ -1,6 +1,6 @@
 from betty.project.extension.wiki.config import WikiConfiguration
-from betty.test_utils.data import HasDataTestBase
+from betty.test_utils.data import DataTestBase
 
 
-class TestWikiConfiguration(HasDataTestBase[WikiConfiguration]):
+class TestWikiConfiguration(DataTestBase[WikiConfiguration]):
     sut_cls = WikiConfiguration

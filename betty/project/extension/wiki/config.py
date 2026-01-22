@@ -4,7 +4,7 @@ Configuration for the Wikipedia extension.
 
 from typing import final
 
-from betty.data import HasData, Sample
+from betty.data import Data, Sample
 from betty.data.aggregate.record import FieldDefinition
 from betty.data.aggregate.record.object import ObjectDefinition
 from betty.data.indicator.selector import Attr
@@ -36,11 +36,11 @@ from betty.locale.localizable.gettext import _
         ),
     ],
 )
-class WikiConfiguration(HasData):
+class WikiConfiguration(Data):
     """
     Configuration for the :py:class:`betty.project.extension.wiki.Wiki` extension.
 
-    .. has_data:: betty.project.extension.wiki.config:WikiConfiguration
+    .. data:: betty.project.extension.wiki.config:WikiConfiguration
     """
 
     def __init__(self, *, populate_images: bool = True):

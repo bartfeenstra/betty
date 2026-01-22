@@ -7,8 +7,8 @@ from typing_extensions import override
 
 from betty.assertion import assert_str
 from betty.data import (
+    Data,
     DataDefinition,
-    HasData,
     Sample,
 )
 from betty.locale.localizable.plain import Plain
@@ -43,7 +43,7 @@ class TestSample:
         assert sut.full
 
 
-class DataDefinitionTestData(Portable, HasData):
+class DataDefinitionTestData(Portable, Data):
     def __init__(self, value: str):
         self.value = value
 

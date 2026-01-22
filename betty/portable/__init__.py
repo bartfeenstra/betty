@@ -12,7 +12,7 @@ from typing import Generic, Protocol, Self, TypeAlias, final
 
 from typing_extensions import TypeVar, override
 
-_DataT = TypeVar("_DataT")
+_DataClsT = TypeVar("_DataClsT")
 
 
 PortableData: TypeAlias = (
@@ -74,67 +74,67 @@ class Portable(ABC):
 _PortableT = TypeVar("_PortableT", bound=Portable)
 
 
-class Loader(Protocol[_DataT]):
+class Loader(Protocol[_DataClsT]):
     """
     A callable that can load portable data.
     """
 
-    def __call__(self, portable: PortableData, /) -> _DataT:
+    def __call__(self, portable: PortableData, /) -> _DataClsT:
         """
         Load the portable data.
         """
 
 
-class Dumper(Protocol[_DataT]):
+class Dumper(Protocol[_DataClsT]):
     """
     A callable that can dump to portable data.
     """
 
-    def __call__(self, data: _DataT, /) -> PortableData:
+    def __call__(self, data: _DataClsT, /) -> PortableData:
         """
         Dump the portable data.
         """
 
 
-class Porter(ABC, Generic[_DataT]):
+class Porter(ABC, Generic[_DataClsT]):
     """
     An object capable of dumping and loading data to and from portable data.
     """
 
     @abstractmethod
-    def load(self, portable: PortableData, /) -> _DataT:
+    def load(self, portable: PortableData, /) -> _DataClsT:
         """
         Load data from its portable form.
         """
 
     @abstractmethod
-    def dump(self, data: _DataT, /) -> PortableData:
+    def dump(self, data: _DataClsT, /) -> PortableData:
         """
         Dump data to its portable form.
         """
 
 
 @final
-class CallbackPorter(Porter[_DataT]):
+class CallbackPorter(Porter[_DataClsT]):
     """
     Make data portable using a separate loader and dumper.
     """
 
     def __init__(
         self,
-        loader: Loader[_DataT],
-        dumper: Dumper[_DataT],
+        loader: Loader[_DataClsT],
+        dumper: Dumper[_DataClsT],
         /,
     ):
         self._loader = loader
         self._dumper = dumper
 
     @override
-    def load(self, portable: PortableData) -> _DataT:
+    def load(self, portable: PortableData) -> _DataClsT:
         return self._loader(portable)
 
     @override
-    def dump(self, data: _DataT) -> PortableData:
+    def dump(self, data: _DataClsT) -> PortableData:
         return self._dumper(data)
 
 
