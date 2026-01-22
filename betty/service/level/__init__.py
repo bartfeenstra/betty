@@ -24,17 +24,23 @@ class ServiceLevel(ServiceContainer, PluginRepositoryProvider):
     """
     A service level.
 
-    A runtime Betty application consists of three types of service containers:
+    A runtime Betty environment consists of different service levels, as well as one or more types of service containers
+    (that can provide services across the environment) within those levels.
 
-    - :py:class:`betty.app.App`
-    - :py:class:`betty.project.Project`
-    - :py:class:`betty.project.extension.Extension`
+    .. list-table:: Service levels and containers
+       :widths: 25 25
+       :header-rows: 1
 
-    Extensions always exist in the context of a project, so they are the same level. Additionally, Betty may not be running,
-    leaving us with three levels:
-    - global (``None``)
-    - app (:py:class:`betty.app.App`)
-    - project (:py:class:`betty.project.Project`)
+       * - Level
+         - Container(s)
+       * - :py:data:`betty.service.level.universal.universe`
+         - *N/A*
+       * - :py:class:`betty.app.App`
+         - :py:class:`betty.app.App`
+       * - :py:class:`betty.project.Project`
+         - :py:class:`betty.project.Project`
+       * - :py:class:`betty.project.Project`
+         - :py:class:`betty.project.extension.Extension`
     """
 
     @final
