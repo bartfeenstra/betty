@@ -155,7 +155,7 @@ class Builder:
                 to_thread(
                     copy2,
                     source_file_path,  # ty:ignore[invalid-argument-type]
-                    npm_project_directory_path,  # ty:ignore[invalid-argument-type]
+                    npm_project_directory_path,
                 )
                 for source_file_path in (
                     _NPM_PROJECT_DIRECTORIES_PATH / "package.json",
