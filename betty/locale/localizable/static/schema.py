@@ -4,7 +4,13 @@ JSON schemas for static translations.
 
 from __future__ import annotations
 
+from typing import TYPE_CHECKING
+
 from betty.json.schema import Object
+from betty.locale.localizable.markup import Paragraph
+
+if TYPE_CHECKING:
+    from betty.locale.localizable import LocalizableLike
 
 
 class StaticTranslationsSchema(Object):
@@ -13,13 +19,17 @@ class StaticTranslationsSchema(Object):
     """
 
     def __init__(
-        self, *, title: str = "Static translations", description: str | None = None
+        self,
+        *,
+        title: LocalizableLike = "Static translations",
+        description: LocalizableLike | None = None,
     ):
         super().__init__(
             title=title,
-            description=(
-                (description or "") + "Keys are IETF BCP-47 language tags."
-            ).strip(),
+            description=Paragraph(
+                *([] if description is None else [description]),
+                "Keys are IETF BCP-47 language tags.",
+            ),
         )
         self._schema["additionalProperties"] = {
             "type": "string",
