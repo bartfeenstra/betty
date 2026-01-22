@@ -34,9 +34,11 @@ from betty.data import Data, DataDefinition, Sample
 from betty.data.aggregate.collection.keyed import KeyedCollectionDefinition
 from betty.data.aggregate.record import FieldDefinition
 from betty.data.aggregate.record.object import ObjectDefinition
+from betty.data.bool import BoolDefinition
 from betty.data.indicator.selector import Attr
+from betty.data.int import IntDefinition
 from betty.data.sample import get_full_sample
-from betty.data.simple import SimpleDefinition
+from betty.data.str import StrDefinition
 from betty.dirs import ASSETS_DIRECTORY_PATH
 from betty.exception import HumanFacingException
 from betty.license import License, LicenseDefinition
@@ -51,7 +53,7 @@ from betty.locale.localizable.ensure import ensure_localizable
 from betty.locale.localizable.gettext import _
 from betty.locale.localizable.portable import dump_localizable
 from betty.locale.localizable.static import CountableStaticTranslations
-from betty.machine_name import MachineName, assert_machine_name
+from betty.machine_name import MachineName, MachineNameDefinition, assert_machine_name
 from betty.model import EntityDefinition
 from betty.plugin.config import (
     CountableHumanFacingPluginDefinitionConfiguration,
@@ -136,7 +138,7 @@ class ExtensionInstanceConfigurationMapping(
         FieldDefinition(Attr("entity_type"), PluginIdDefinition(EntityDefinition)),
         FieldDefinition(
             Attr("generate_html_list"),
-            SimpleDefinition(cls=bool, label=_("Generate list HTML page")),
+            BoolDefinition(label=_("Generate list HTML page")),
             required=False,
         ),
     ],
@@ -827,8 +829,7 @@ class GenderPluginConfigurationMapping(
         ),
         FieldDefinition(
             Attr("clean_urls"),
-            SimpleDefinition(
-                cls=bool,
+            BoolDefinition(
                 label=_("Clean URLs"),
                 description=_(
                     'Whether to use clean URLs: "/path" instead of "/path/index.html".'
@@ -856,8 +857,7 @@ class GenderPluginConfigurationMapping(
         ),
         FieldDefinition(
             Attr("debug"),
-            SimpleDefinition(
-                cls=bool,
+            BoolDefinition(
                 label=_("Debugging mode"),
                 description=_(
                     "Whether to output more detailed logs and disable optimizations that make debugging harder."
@@ -912,8 +912,7 @@ class GenderPluginConfigurationMapping(
         ),
         FieldDefinition(
             Attr("lifetime_threshold"),
-            SimpleDefinition(
-                cls=int,
+            IntDefinition(
                 label=_("Lifetime threshold"),
                 description=_(
                     "The number of years people are expected to live at most, e.g. after which they are presumed to have died."
@@ -930,7 +929,7 @@ class GenderPluginConfigurationMapping(
         ),
         FieldDefinition(
             Attr("logo"),
-            SimpleDefinition(
+            DataDefinition(
                 cls=Path,
                 label=_("Logo"),
                 porter=CallbackPorter(assert_file_path(), str),
@@ -940,7 +939,7 @@ class GenderPluginConfigurationMapping(
         ),
         FieldDefinition(
             Attr("name"),
-            SimpleDefinition(cls=str, label=_("Machine name")),
+            MachineNameDefinition(),
             required=False,
             empty=lambda data: data is None,
         ),
@@ -963,8 +962,7 @@ class GenderPluginConfigurationMapping(
         FieldDefinition(Attr("title"), LocalizableDefinition(), label=_("Title")),
         FieldDefinition(
             Attr("url"),
-            SimpleDefinition(
-                cls=str,
+            StrDefinition(
                 label=_("URL"),
                 description=_(
                     "The absolute, public URL at which the site will be published."

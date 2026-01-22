@@ -2,14 +2,14 @@ import pytest
 
 from betty.data import DataDefinition
 from betty.data.aggregate.collection.sequence import SequenceDefinition
-from betty.data.simple import SimpleDefinition
+from betty.data.str import StrDefinition
 from betty.portable.error import NotPortable
 from betty.test_utils.locale.localizable import DUMMY_LOCALIZABLE
 
 
 class TestSequenceDefinition:
     def test_elements__should_contain_exactly_one_element(self) -> None:
-        item = SimpleDefinition(cls=str, label=DUMMY_LOCALIZABLE)
+        item = StrDefinition(label=DUMMY_LOCALIZABLE)
         sut = SequenceDefinition[list[str]](
             cls=list[str],
             item=item,
@@ -20,7 +20,7 @@ class TestSequenceDefinition:
     def test_load__without_items(self) -> None:
         sut = SequenceDefinition[list[str]](
             cls=list[str],
-            item=SimpleDefinition(cls=str, label=DUMMY_LOCALIZABLE),
+            item=StrDefinition(label=DUMMY_LOCALIZABLE),
             label=DUMMY_LOCALIZABLE,
         )
         assert sut.load([]) == []
@@ -28,7 +28,7 @@ class TestSequenceDefinition:
     def test_load__with_items(self) -> None:
         sut = SequenceDefinition[list[str]](
             cls=list[str],
-            item=SimpleDefinition(cls=str, label=DUMMY_LOCALIZABLE),
+            item=StrDefinition(label=DUMMY_LOCALIZABLE),
             label=DUMMY_LOCALIZABLE,
         )
         assert sut.load(["Hello, world!"]) == ["Hello, world!"]
@@ -39,7 +39,7 @@ class TestSequenceDefinition:
 
         sut = SequenceDefinition[list[str]](
             cls=list[str],
-            item=SimpleDefinition(cls=str, label=DUMMY_LOCALIZABLE),
+            item=StrDefinition(label=DUMMY_LOCALIZABLE),
             label=DUMMY_LOCALIZABLE,
             factory=FactoryList,
         )
@@ -57,7 +57,7 @@ class TestSequenceDefinition:
     def test_dump__without_items(self) -> None:
         sut = SequenceDefinition[list[str]](
             cls=list[str],
-            item=SimpleDefinition(cls=str, label=DUMMY_LOCALIZABLE),
+            item=StrDefinition(label=DUMMY_LOCALIZABLE),
             label=DUMMY_LOCALIZABLE,
         )
         assert sut.dump([]) == []
@@ -65,7 +65,7 @@ class TestSequenceDefinition:
     def test_dump__with_items(self) -> None:
         sut = SequenceDefinition[list[str]](
             cls=list[str],
-            item=SimpleDefinition(cls=str, label=DUMMY_LOCALIZABLE),
+            item=StrDefinition(label=DUMMY_LOCALIZABLE),
             label=DUMMY_LOCALIZABLE,
         )
         assert sut.dump(["Hello, world!"]) == ["Hello, world!"]
