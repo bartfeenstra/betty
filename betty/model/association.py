@@ -25,6 +25,8 @@ from typing_extensions import override
 from betty.importlib import fully_qualified_name, import_any
 from betty.json.linked_data import LinkedDataDumpableProvider
 from betty.json.schema import Array, Null, OneOf, Schema
+from betty.locale.localizable.ensure import ensure_localizable
+from betty.locale.localize import DEFAULT_LOCALIZER
 from betty.model import Entity, persistent_id
 from betty.model.collections import (
     EntityCollection,
@@ -36,6 +38,7 @@ from betty.model.schema import ToManySchema, ToZeroOrOneSchema
 if TYPE_CHECKING:
     from ty_extensions import Intersection
 
+    from betty.locale.localizable import LocalizableLike
     from betty.portable import PortableData
     from betty.project import Project
 
@@ -142,14 +145,16 @@ class _Association(LinkedDataDumpableProvider[_OwnerT], Generic[_OwnerT, _Associ
         self,
         associate_type_name: str,
         *,
-        title: str | None = None,
-        description: str | None = None,
+        label: LocalizableLike,
+        description: LocalizableLike | None = None,
         linked_data_embedded: bool = False,
     ):
         self._associate_type_name = associate_type_name
         self._linked_data_embedded = linked_data_embedded
-        self._title = title
-        self._description = description
+        self._label = ensure_localizable(label)
+        self._description = (
+            None if description is None else ensure_localizable(description)
+        )
 
     def __set_name__(self, owner: type[_OwnerT], name: str) -> None:
         self._owner_type = owner
@@ -166,7 +171,7 @@ class _Association(LinkedDataDumpableProvider[_OwnerT], Generic[_OwnerT, _Associ
                 self._owner_attr_name,
                 self._associate_type_name,
                 self._linked_data_embedded,
-                self._title,
+                self._label,
                 self._description,
             )
         )
@@ -270,7 +275,12 @@ class _ToOneAssociation(_Association[_OwnerT, _AssociateT]):
             return await self.associate_type.linked_data_schema(project)
         # We must allow for the associate to be missing, for example if it has a generated entity ID and the linked data
         # is not embedded, no URL can be generated.
-        return ToZeroOrOneSchema(title=self._title, description=self._description)
+        return ToZeroOrOneSchema(
+            title=self._label.localize(DEFAULT_LOCALIZER),
+            description=None
+            if self._description is None
+            else self._description.localize(DEFAULT_LOCALIZER),
+        )
 
     @override
     async def dump_linked_data_for(
@@ -332,10 +342,17 @@ class _ToZeroOrOneAssociation(_Association[_OwnerT, _AssociateT]):
             return OneOf(
                 await self.associate_type.linked_data_schema(project),
                 Null(),
-                title=self._title,
-                description=self._description,
+                title=self._label.localize(DEFAULT_LOCALIZER),
+                description=None
+                if self._description is None
+                else self._description.localize(DEFAULT_LOCALIZER),
             )
-        return ToZeroOrOneSchema(title=self._title, description=self._description)
+        return ToZeroOrOneSchema(
+            title=self._label.localize(DEFAULT_LOCALIZER),
+            description=None
+            if self._description is None
+            else self._description.localize(DEFAULT_LOCALIZER),
+        )
 
     @override
     async def dump_linked_data_for(
@@ -418,10 +435,17 @@ class _ToManyAssociation(
         if self._linked_data_embedded:
             return Array(
                 await self.associate_type.linked_data_schema(project),
-                title=self._title,
-                description=self._description,
+                title=self._label.localize(DEFAULT_LOCALIZER),
+                description=None
+                if self._description is None
+                else self._description.localize(DEFAULT_LOCALIZER),
             )
-        return ToManySchema(title=self._title, description=self._description)
+        return ToManySchema(
+            title=self._label.localize(DEFAULT_LOCALIZER),
+            description=None
+            if self._description is None
+            else self._description.localize(DEFAULT_LOCALIZER),
+        )
 
     @override
     async def dump_linked_data_for(
@@ -449,14 +473,14 @@ class _BidirectionalAssociation(_Association[_OwnerT, _AssociateT]):
         associate_type_name: str,
         associate_attr_name: str,
         *,
+        label: LocalizableLike,
         linked_data_embedded: bool = False,
-        title: str | None = None,
-        description: str | None = None,
+        description: LocalizableLike | None = None,
     ):
         self._associate_attr_name = associate_attr_name
         super().__init__(
             associate_type_name,
-            title=title,
+            label=label,
             description=description,
             linked_data_embedded=linked_data_embedded,
         )

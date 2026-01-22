@@ -32,8 +32,8 @@ class FileReference(Entity):
     referee = BidirectionalToOne["FileReference", "HasFileReferences"](
         "betty.ancestry.has_file_references:HasFileReferences",
         "file_references",
-        title="Referee",
-        description="The entity referencing the file",
+        label=_("Referee"),
+        description=_("The entity referencing the file"),
     )
     """
     The entity that references the file.
@@ -42,8 +42,8 @@ class FileReference(Entity):
     file = BidirectionalToOne["FileReference", File](
         "betty.ancestry.file:File",
         "referees",
-        title="File",
-        description="The file being referenced",
+        label=_("File"),
+        description=_("The file being referenced"),
     )
     """
     The referenced file.

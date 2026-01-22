@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Betty VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-01-19 20:08+0000\n"
+"POT-Creation-Date: 2026-01-22 17:40+0000\n"
 "PO-Revision-Date: 2025-12-16 20:00+0000\n"
 "Last-Translator: Mateus Liberale Gomes <sergiogomes209403@gmail.com>\n"
 "Language: pt_BR\n"
@@ -149,6 +149,9 @@ msgid "Announcements of divorce"
 msgstr ""
 
 msgid "Announcements of marriage"
+msgstr ""
+
+msgid "Another source this source may be contained by"
 msgstr ""
 
 msgid "Appearances"
@@ -362,6 +365,9 @@ msgstr ""
 msgid "Cemetery"
 msgstr ""
 
+msgid "Children"
+msgstr ""
+
 msgid "Citation"
 msgstr "Citação"
 
@@ -411,6 +417,12 @@ msgid "Confirmation"
 msgstr "Confirmação"
 
 msgid "Confirmations"
+msgstr ""
+
+msgid "Contained by"
+msgstr ""
+
+msgid "Contains"
 msgstr ""
 
 msgid "Content provider"
@@ -605,7 +617,16 @@ msgstr ""
 msgid "Emigrations"
 msgstr ""
 
+msgid "Enclosee"
+msgstr ""
+
 msgid "Enclosees"
+msgstr ""
+
+msgid "Encloser"
+msgstr ""
+
+msgid "Enclosers"
 msgstr ""
 
 msgid "Enclosure"
@@ -1011,6 +1032,9 @@ msgstr ""
 msgid "Municipality"
 msgstr ""
 
+msgid "Names"
+msgstr ""
+
 msgid "Neighborhood"
 msgstr ""
 
@@ -1094,10 +1118,16 @@ msgstr ""
 msgid "Other places contained by this one"
 msgstr ""
 
+msgid "Other sources this source may contain"
+msgstr ""
+
 msgid "Output directory"
 msgstr ""
 
 msgid "Output information about Betty, and optionally your project"
+msgstr ""
+
+msgid "Owner"
 msgstr ""
 
 msgid "Package"
@@ -1113,6 +1143,9 @@ msgstr ""
 msgid "Page not found"
 msgstr ""
 
+msgid "Parents"
+msgstr ""
+
 msgid "Parish"
 msgstr ""
 
@@ -1123,6 +1156,9 @@ msgid "People"
 msgstr ""
 
 msgid "People of unknown gender"
+msgstr ""
+
+msgid "People's presences at this event"
 msgstr ""
 
 msgid "Permanent link to this section."
@@ -1263,6 +1299,12 @@ msgid "Read the Betty documentation"
 msgstr ""
 
 msgid "Read the documentation"
+msgstr ""
+
+msgid "Referee"
+msgstr ""
+
+msgid "Referees"
 msgstr ""
 
 msgid "References"
@@ -1446,9 +1488,36 @@ msgid ""
 "{entity_id} ({entity_label}), which was ignored."
 msgstr ""
 
+msgid "The citations backing up the claims made by this entity"
+msgstr ""
+
+msgid "The citations referencing this source"
+msgstr ""
+
+msgid "The entities referencing this file"
+msgstr ""
+
+msgid "The entity referencing the file"
+msgstr ""
+
+msgid "The entity the note belongs to"
+msgstr ""
+
+msgid "The events that happened in this place"
+msgstr ""
+
+msgid "The file being referenced"
+msgstr ""
+
+msgid "The location of the event"
+msgstr ""
+
 msgid ""
 "The number of years people are expected to live at most, e.g. after which"
 " they are presumed to have died."
+msgstr ""
+
+msgid "The other entities that reference these citations to back up their claims."
 msgstr ""
 
 #, python-brace-format
@@ -1457,8 +1526,23 @@ msgid ""
 "{default} in the current working directory."
 msgstr ""
 
+msgid "The place that encloses or contains the enclosee"
+msgstr ""
+
+msgid "The place that is enclosed or contained by the encloser"
+msgstr ""
+
+msgid "The places this place encloses or contains"
+msgstr ""
+
+msgid "The places this place is enclosed or contained by"
+msgstr ""
+
 #, python-brace-format
 msgid "The server at {url} was unreachable after starting."
+msgstr ""
+
+msgid "The source this citation references."
 msgstr ""
 
 #, python-brace-format
@@ -1543,6 +1627,9 @@ msgid "This must be {length} characters long."
 msgstr ""
 
 msgid "This person's name is unknown."
+msgstr ""
+
+msgid "This person's presences at events"
 msgstr ""
 
 msgid "This will open your web browser."

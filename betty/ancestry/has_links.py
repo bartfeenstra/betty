@@ -6,6 +6,7 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING, Any
 
+from betty.locale.localizable.gettext import _
 from betty.model import Entity
 from betty.model.association import BidirectionalToManySingleType, ToManyAssociates
 
@@ -21,7 +22,7 @@ class HasLinks(Entity):
     links = BidirectionalToManySingleType["HasLinks", "Link"](
         "betty.ancestry.link:Link",
         "owner",
-        title="Links",
+        label=_("Links"),
         linked_data_embedded=True,
     )
 

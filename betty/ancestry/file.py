@@ -60,8 +60,8 @@ class File(
     referees = BidirectionalToManyMultipleTypes["File", "FileReference"](
         "betty.ancestry.file_reference:FileReference",
         "file",
-        title="Referees",
-        description="The entities referencing this file",
+        label=_("Referees"),
+        description=_("The entities referencing this file"),
         linked_data_embedded=True,
     )
     """

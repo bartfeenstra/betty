@@ -74,13 +74,19 @@ class TestAssociationRegistry:
         base_associate = UnidirectionalToZeroOrOne[
             "TestAssociationRegistry._OwnerBase",
             "TestAssociationRegistry._Associate",
-        ]("betty.tests.model.test_association:TestAssociationRegistry._Associate")
+        ](
+            "betty.tests.model.test_association:TestAssociationRegistry._Associate",
+            label=DUMMY_LOCALIZABLE,
+        )
 
     class _Owner(_OwnerBase):
         associate = UnidirectionalToZeroOrOne[
             "TestAssociationRegistry._Owner",
             "TestAssociationRegistry._Associate",
-        ]("betty.tests.model.test_association:TestAssociationRegistry._Associate")
+        ](
+            "betty.tests.model.test_association:TestAssociationRegistry._Associate",
+            label=DUMMY_LOCALIZABLE,
+        )
 
     class _Associate(Entity):
         pass
@@ -180,6 +186,7 @@ class TestUnidirectionalToZeroOrOne:
             "TestUnidirectionalToZeroOrOne._Associate",
         ](
             "betty.tests.model.test_association:TestUnidirectionalToZeroOrOne._Associate",
+            label=DUMMY_LOCALIZABLE,
         )
 
     @EntityDefinition(
@@ -200,6 +207,7 @@ class TestUnidirectionalToZeroOrOne:
             "TestUnidirectionalToZeroOrOne._Associate",
         ](
             "betty.tests.model.test_association:TestUnidirectionalToZeroOrOne._Associate",
+            label=DUMMY_LOCALIZABLE,
             linked_data_embedded=True,
         )
 
@@ -222,7 +230,8 @@ class TestUnidirectionalToZeroOrOne:
             "TestUnidirectionalToZeroOrOne._OwnerWithNonPublicFacingAssociate",
             "TestUnidirectionalToZeroOrOne._NonPublicFacingAssociate",
         ](
-            "betty.tests.model.test_association:TestUnidirectionalToZeroOrOne._NonPublicFacingAssociate"
+            "betty.tests.model.test_association:TestUnidirectionalToZeroOrOne._NonPublicFacingAssociate",
+            label=DUMMY_LOCALIZABLE,
         )
 
     @EntityDefinition(
@@ -369,6 +378,7 @@ class TestBidirectionalToZeroOrOne:
         ](
             "betty.tests.model.test_association:TestBidirectionalToZeroOrOne._Associate",
             "owner",
+            label=DUMMY_LOCALIZABLE,
         )
 
     @EntityDefinition(
@@ -391,6 +401,7 @@ class TestBidirectionalToZeroOrOne:
         ](
             "betty.tests.model.test_association:TestBidirectionalToZeroOrOne._Associate",
             "owner",
+            label=DUMMY_LOCALIZABLE,
             linked_data_embedded=True,
         )
 
@@ -415,6 +426,7 @@ class TestBidirectionalToZeroOrOne:
         ](
             "betty.tests.model.test_association:TestBidirectionalToZeroOrOne._NonPublicFacingAssociate",
             "owner",
+            label=DUMMY_LOCALIZABLE,
         )
 
     @EntityDefinition(
@@ -430,6 +442,7 @@ class TestBidirectionalToZeroOrOne:
         ](
             "betty.tests.model.test_association:TestBidirectionalToZeroOrOne._Owner",
             "associate",
+            label=DUMMY_LOCALIZABLE,
         )
 
     @EntityDefinition(
@@ -446,6 +459,7 @@ class TestBidirectionalToZeroOrOne:
         ](
             "betty.tests.model.test_association:TestBidirectionalToZeroOrOne._OwnerWithNonPublicFacingAssociate",
             "associate",
+            label=DUMMY_LOCALIZABLE,
         )
 
     def test(self) -> None:
@@ -574,6 +588,7 @@ class TestUnidirectionalToOne:
             "TestUnidirectionalToOne._Owner", "TestUnidirectionalToOne._Associate"
         ](
             "betty.tests.model.test_association:TestUnidirectionalToOne._Associate",
+            label=DUMMY_LOCALIZABLE,
         )
 
     @EntityDefinition(
@@ -592,6 +607,7 @@ class TestUnidirectionalToOne:
             "TestUnidirectionalToOne._Associate",
         ](
             "betty.tests.model.test_association:TestUnidirectionalToOne._Associate",
+            label=DUMMY_LOCALIZABLE,
             linked_data_embedded=True,
         )
 
@@ -612,7 +628,8 @@ class TestUnidirectionalToOne:
             "TestUnidirectionalToOne._OwnerWithNonPublicFacingAssociate",
             "TestUnidirectionalToOne._NonPublicFacingAssociate",
         ](
-            "betty.tests.model.test_association:TestUnidirectionalToOne._NonPublicFacingAssociate"
+            "betty.tests.model.test_association:TestUnidirectionalToOne._NonPublicFacingAssociate",
+            label=DUMMY_LOCALIZABLE,
         )
 
     @EntityDefinition(
@@ -716,6 +733,7 @@ class TestBidirectionalToOne:
         ](
             "betty.tests.model.test_association:TestBidirectionalToOne._Associate",
             "owner",
+            label=DUMMY_LOCALIZABLE,
         )
 
     @EntityDefinition(
@@ -730,6 +748,7 @@ class TestBidirectionalToOne:
         ](
             "betty.tests.model.test_association:TestBidirectionalToOne._Owner",
             "associate",
+            label=DUMMY_LOCALIZABLE,
         )
 
     @EntityDefinition(
@@ -749,6 +768,7 @@ class TestBidirectionalToOne:
         ](
             "betty.tests.model.test_association:TestBidirectionalToOne._AssociateEmbedded",
             "owner",
+            label=DUMMY_LOCALIZABLE,
             linked_data_embedded=True,
         )
 
@@ -765,6 +785,7 @@ class TestBidirectionalToOne:
         ](
             "betty.tests.model.test_association:TestBidirectionalToOne._OwnerEmbedded",
             "associate",
+            label=DUMMY_LOCALIZABLE,
         )
 
     @EntityDefinition(
@@ -784,6 +805,7 @@ class TestBidirectionalToOne:
         ](
             "betty.tests.model.test_association:TestBidirectionalToOne._NonPublicFacingAssociate",
             "owner",
+            label=DUMMY_LOCALIZABLE,
         )
 
     @EntityDefinition(
@@ -800,6 +822,7 @@ class TestBidirectionalToOne:
         ](
             "betty.tests.model.test_association:TestBidirectionalToOne._OwnerWithNonPublicFacingAssociate",
             "associate",
+            label=DUMMY_LOCALIZABLE,
         )
 
     def test(self) -> None:
@@ -879,7 +902,8 @@ class TestUnidirectionalToManySingleType:
             "TestUnidirectionalToManySingleType._Owner",
             "TestUnidirectionalToManySingleType._Associate",
         ](
-            "betty.tests.model.test_association:TestUnidirectionalToManySingleType._Associate"
+            "betty.tests.model.test_association:TestUnidirectionalToManySingleType._Associate",
+            label=DUMMY_LOCALIZABLE,
         )
 
     @EntityDefinition(
@@ -894,6 +918,7 @@ class TestUnidirectionalToManySingleType:
             "TestUnidirectionalToManySingleType._Associate",
         ](
             "betty.tests.model.test_association:TestUnidirectionalToManySingleType._Associate",
+            label=DUMMY_LOCALIZABLE,
             linked_data_embedded=True,
         )
 
@@ -996,7 +1021,8 @@ class TestUnidirectionalToManyMultipleTypes:
             "TestUnidirectionalToManyMultipleTypes._Owner",
             "TestUnidirectionalToManyMultipleTypes._TargetMixin",
         ](
-            "betty.tests.model.test_association:TestUnidirectionalToManyMultipleTypes._TargetMixin"
+            "betty.tests.model.test_association:TestUnidirectionalToManyMultipleTypes._TargetMixin",
+            label=DUMMY_LOCALIZABLE,
         )
 
     class _TargetMixin(Entity):
@@ -1005,7 +1031,7 @@ class TestUnidirectionalToManyMultipleTypes:
             "TestUnidirectionalToManyMultipleTypes._Owner",
         ](
             "betty.tests.model.test_association:TestUnidirectionalToManyMultipleTypes._Owner",
-            title="Owner",
+            label="Owner",
         )
 
     @EntityDefinition(
@@ -1054,6 +1080,7 @@ class TestBidirectionalToManySingleType:
         ](
             "betty.tests.model.test_association:TestBidirectionalToManySingleType._Associate",
             "owner",
+            label=DUMMY_LOCALIZABLE,
         )
 
     @EntityDefinition(
@@ -1069,6 +1096,7 @@ class TestBidirectionalToManySingleType:
         ](
             "betty.tests.model.test_association:TestBidirectionalToManySingleType._Owner",
             "associates",
+            label=DUMMY_LOCALIZABLE,
         )
 
     @EntityDefinition(
@@ -1084,6 +1112,7 @@ class TestBidirectionalToManySingleType:
         ](
             "betty.tests.model.test_association:TestBidirectionalToManySingleType._AssociateEmbedded",
             "owner",
+            label=DUMMY_LOCALIZABLE,
             linked_data_embedded=True,
         )
 
@@ -1100,6 +1129,7 @@ class TestBidirectionalToManySingleType:
         ](
             "betty.tests.model.test_association:TestBidirectionalToManySingleType._OwnerEmbedded",
             "associates",
+            label=DUMMY_LOCALIZABLE,
         )
 
     @EntityDefinition(
@@ -1125,6 +1155,7 @@ class TestBidirectionalToManySingleType:
         ](
             "betty.tests.model.test_association:TestBidirectionalToManySingleType._NonPublicFacingAssociate",
             "owner",
+            label=DUMMY_LOCALIZABLE,
         )
 
     @EntityDefinition(
@@ -1141,6 +1172,7 @@ class TestBidirectionalToManySingleType:
         ](
             "betty.tests.model.test_association:TestBidirectionalToManySingleType._OwnerWithNonPublicFacingAssociate",
             "associates",
+            label=DUMMY_LOCALIZABLE,
         )
 
     def test(self) -> None:
@@ -1263,6 +1295,7 @@ class TestBidirectionalToManyMultipleTypes:
         ](
             "betty.tests.model.test_association:TestBidirectionalToManyMultipleTypes._TargetMixin",
             "owner",
+            label=DUMMY_LOCALIZABLE,
         )
 
     class _TargetMixin(Entity):
@@ -1272,7 +1305,7 @@ class TestBidirectionalToManyMultipleTypes:
         ](
             "betty.tests.model.test_association:TestBidirectionalToManyMultipleTypes._Owner",
             "associates",
-            title="Owner",
+            label="Owner",
         )
 
     @EntityDefinition(
@@ -1311,7 +1344,10 @@ class TestAssociationRequired:
     class _Owner(Entity):
         associate = UnidirectionalToOne[
             "TestAssociationRequired._Owner", "TestAssociationRequired._Associate"
-        ]("betty.tests.model.test_association:TestAssociationRequired._Associate")
+        ](
+            "betty.tests.model.test_association:TestAssociationRequired._Associate",
+            label=DUMMY_LOCALIZABLE,
+        )
 
     class _Associate(Entity):
         pass

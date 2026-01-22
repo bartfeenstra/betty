@@ -6,6 +6,7 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING, Any
 
+from betty.locale.localizable.gettext import _
 from betty.model import Entity
 from betty.model.association import BidirectionalToManySingleType, ToManyAssociates
 
@@ -21,8 +22,8 @@ class HasCitations(Entity):
     citations = BidirectionalToManySingleType["HasCitations", "Citation"](
         "betty.ancestry.citation:Citation",
         "facts",
-        title="Citations",
-        description="The citations backing up the claims made by this entity",
+        label=_("Citations"),
+        description=_("The citations backing up the claims made by this entity"),
     )
 
     def __init__(

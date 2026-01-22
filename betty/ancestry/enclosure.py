@@ -32,8 +32,8 @@ class Enclosure(HasDate, HasCitations, Entity):
     encloser = BidirectionalToOne["Enclosure", "Place"](
         "betty.ancestry.place:Place",
         "enclosees",
-        title="Encloser",
-        description="The place that encloses or contains the enclosee",
+        label=_("Encloser"),
+        description=_("The place that encloses or contains the enclosee"),
     )
     """
     The outer place.
@@ -42,8 +42,8 @@ class Enclosure(HasDate, HasCitations, Entity):
     enclosee = BidirectionalToOne["Enclosure", "Place"](
         "betty.ancestry.place:Place",
         "enclosers",
-        title="Enclosee",
-        description="The place that is enclosed or contained by the encloser",
+        label=_("Enclosee"),
+        description=_("The place that is enclosed or contained by the encloser"),
     )
     """
     The inner place.

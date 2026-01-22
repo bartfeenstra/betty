@@ -6,6 +6,7 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING, Any
 
+from betty.locale.localizable.gettext import _
 from betty.model import Entity
 from betty.model.association import BidirectionalToManySingleType, ToManyAssociates
 
@@ -23,7 +24,7 @@ class HasFileReferences(Entity):
     ](
         "betty.ancestry.file_reference:FileReference",
         "referee",
-        title="File references",
+        label=_("File references"),
         linked_data_embedded=True,
     )
 

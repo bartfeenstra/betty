@@ -42,7 +42,7 @@ class Presence(HasPrivacy, Entity):
     person = BidirectionalToOne["Presence", "Person"](
         "betty.ancestry.person:Person",
         "presences",
-        title="Person",
+        label=_("Person"),
     )
     """
     The person whose presence is described.
@@ -51,7 +51,7 @@ class Presence(HasPrivacy, Entity):
     event = BidirectionalToOne["Presence", "Event"](
         "betty.ancestry.event:Event",
         "presences",
-        title="Event",
+        label=_("Event"),
     )
     """
     The event the person was present at.
