@@ -117,10 +117,7 @@ class ConfigurationTestBase(Generic[_ConfigurationT]):
                     assert portable != other_sample.data.dump()
 
 
-@ObjectDefinition(
-    label=Plain("Dummy configuration"),
-    fields=[],
-)
+@ObjectDefinition(label=Plain("Dummy configuration"))
 class DummyConfiguration(Configuration, Data):
     """
     A dummy :py:class:`betty.config.Configuration` implementation.

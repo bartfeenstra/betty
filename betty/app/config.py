@@ -10,9 +10,7 @@ from babel import Locale
 
 from betty.assertion import assert_locale
 from betty.data import Data, DataDefinition, Sample
-from betty.data.aggregate.record import FieldDefinition
-from betty.data.aggregate.record.object import ObjectDefinition
-from betty.data.indicator.selector import Attr
+from betty.data.aggregate.record.object import AttrDefinition, ObjectDefinition
 from betty.dirs import APP_CONFIG_DIRECTORY_PATH
 from betty.locale import DEFAULT_LOCALE, to_language_tag
 from betty.locale.localizable.gettext import _
@@ -24,18 +22,6 @@ CONFIGURATION_FILE_PATH = APP_CONFIG_DIRECTORY_PATH / "app.json"
 @final
 @ObjectDefinition(
     label=_("Application configuration"),
-    fields=[
-        FieldDefinition(
-            Attr("locale"),
-            DataDefinition(
-                cls=Locale,
-                label=_("Locale"),
-                porter=CallbackPorter(assert_locale(), to_language_tag),
-                empty=lambda data: data is None,
-            ),
-            required=False,
-        ),
-    ],
     samples=[
         lambda: Sample(AppConfiguration(), label="Minimal", minimal=True),
         lambda: Sample(
@@ -58,6 +44,15 @@ class AppConfiguration(Data):
         self._locale: Locale | None = locale
 
     @property
+    @AttrDefinition(
+        DataDefinition(
+            cls=Locale,
+            label=_("Locale"),
+            porter=CallbackPorter(assert_locale(), to_language_tag),
+            empty=lambda data: data is None,
+        ),
+        required=False,
+    )
     def locale(self) -> Locale | None:
         """
         The application locale.
