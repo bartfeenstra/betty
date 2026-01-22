@@ -389,10 +389,10 @@ class TestEntityTypeConfiguration(DataTestBase[EntityTypeConfiguration]):
             entity_type=DummyNonPublicFacingEntityOne, generate_html_list=True
         )
         with (
-            pytest.raises(HumanFacingException),
             EntityDefinition.type().override_discovery(
                 StaticDiscovery(DummyNonPublicFacingEntityOne)
             ),
+            pytest.raises(HumanFacingException),
         ):
             await sut.hydrate(universe)
 
