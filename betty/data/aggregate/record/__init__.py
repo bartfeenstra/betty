@@ -18,15 +18,15 @@ from betty.portable import Loader, PortableData, PortableMapping, Porter
 if TYPE_CHECKING:
     from collections.abc import Callable, Iterable, Sequence
 
-    from betty.data import HasData, Sample
+    from betty.data import Data, Sample
     from betty.locale.localizable import Localizable, LocalizableLike
 
-_DataT = TypeVar("_DataT")
+_DataClsT = TypeVar("_DataClsT")
 _ElementT = TypeVar("_ElementT", bound=Element[Any])
 
 
 @final
-class FieldDefinition(Generic[_ElementT, _DataT]):
+class FieldDefinition(Generic[_ElementT, _DataClsT]):
     """
     A record field definition.
     """
@@ -34,12 +34,12 @@ class FieldDefinition(Generic[_ElementT, _DataT]):
     def __init__(
         self,
         selector: _ElementT,
-        data: DataDefinition[_DataT] | HasData[DataDefinition[_DataT]],
+        data: DataDefinition[_DataClsT] | Data[DataDefinition[_DataClsT]],
         *,
         label: LocalizableLike | None = None,
         description: LocalizableLike | None = None,
         required: bool = True,
-        empty: Callable[[_DataT], bool] | None = None,
+        empty: Callable[[_DataClsT], bool] | None = None,
     ):
         self._selector = selector
         self._data = data if isinstance(data, DataDefinition) else data.data()
@@ -85,7 +85,7 @@ class FieldDefinition(Generic[_ElementT, _DataT]):
         """
         return self._required
 
-    def empty(self, data: _DataT) -> bool:
+    def empty(self, data: _DataClsT) -> bool:
         """
         Check if the data can be considered 'empty'.
         """
@@ -94,43 +94,43 @@ class FieldDefinition(Generic[_ElementT, _DataT]):
         return self._empty(data)
 
 
-class _RecordPorter(Porter[_DataT]):
+class _RecordPorter(Porter[_DataClsT]):
     def __init__(
         self,
-        loader: Loader[_DataT],
-        dumper: Callable[[_DataT], PortableMapping],
+        loader: Loader[_DataClsT],
+        dumper: Callable[[_DataClsT], PortableMapping],
         /,
     ):
         self._loader = loader
         self._dumper = dumper
 
     @override
-    def load(self, portable: PortableData) -> _DataT:
+    def load(self, portable: PortableData) -> _DataClsT:
         return self._loader(portable)
 
     @override
-    def dump(self, data: _DataT) -> PortableMapping:
+    def dump(self, data: _DataClsT) -> PortableMapping:
         return self._dumper(data)
 
 
-class RecordDefinition(AggregateDefinition[_DataT, _ElementT]):
+class RecordDefinition(AggregateDefinition[_DataClsT, _ElementT]):
     """
     A record data definition.
 
     Records have explicitly defined fields.
     """
 
-    _porter: _RecordPorter[_DataT]
+    _porter: _RecordPorter[_DataClsT]
 
     def __init__(
         self,
         *,
-        cls: type[_DataT] | None = None,
+        cls: type[_DataClsT] | None = None,
         label: LocalizableLike,
         fields: Sequence[FieldDefinition[_ElementT, Any]],
         description: LocalizableLike | None = None,
-        samples: Iterable[Callable[[], Sample[_DataT]]] | None = None,
-        factory: Callable[..., _DataT] | None = None,
+        samples: Iterable[Callable[[], Sample[_DataClsT]]] | None = None,
+        factory: Callable[..., _DataClsT] | None = None,
     ):
         super().__init__(
             cls=cls,
@@ -150,10 +150,10 @@ class RecordDefinition(AggregateDefinition[_DataT, _ElementT]):
         return self._fields
 
     @override
-    def elements(self, data: _DataT) -> Sequence[tuple[_ElementT, DataDefinition]]:
+    def elements(self, data: _DataClsT) -> Sequence[tuple[_ElementT, DataDefinition]]:
         return [(field.selector, field.data) for field in self.fields]  # ty:ignore[invalid-return-type]
 
-    def _load(self, portable: PortableData, /) -> _DataT:
+    def _load(self, portable: PortableData, /) -> _DataClsT:
         from betty.assertion import RequiredField, assert_record
 
         factory = self.cls if not self._factory else self._factory
@@ -168,7 +168,7 @@ class RecordDefinition(AggregateDefinition[_DataT, _ElementT]):
             )(portable)
         )
 
-    def _dump(self, data: _DataT) -> PortableMapping:
+    def _dump(self, data: _DataClsT) -> PortableMapping:
         portable = {}
         for field in self.fields:
             field_data = field.selector.get(data)
@@ -178,7 +178,7 @@ class RecordDefinition(AggregateDefinition[_DataT, _ElementT]):
 
     def load_key(
         self, portable: PortableData, key: _ElementT, portable_key: str, /
-    ) -> _DataT:
+    ) -> _DataClsT:
         """
         Create a new data instance from portable data and a portable primary key.
 
@@ -186,7 +186,7 @@ class RecordDefinition(AggregateDefinition[_DataT, _ElementT]):
         """
         return self._porter.load({**portable, key.element: portable_key})
 
-    def dump_key(self, data: _DataT, key: _ElementT, /) -> tuple[str, PortableData]:
+    def dump_key(self, data: _DataClsT, key: _ElementT, /) -> tuple[str, PortableData]:
         """
         Dump the data to portable data and a portable primary key.
         """

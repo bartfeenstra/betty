@@ -8,7 +8,7 @@ from abc import ABC, abstractmethod
 from typing import TYPE_CHECKING, Self, TypeVar, cast
 
 from betty.config import Configurable, Configuration
-from betty.data import HasData
+from betty.data import Data
 from betty.exception import HumanFacingException
 from betty.factory import FactoryError
 from betty.importlib import fully_qualified_name
@@ -21,19 +21,17 @@ if TYPE_CHECKING:
 
 
 _T = TypeVar("_T")
-_HasDataT = TypeVar("_HasDataT", bound=HasData | Configuration)
+_DataT = TypeVar("_DataT", bound=Data | Configuration)
 
 
-class ConfigurationDependentSelfFactory(Configurable[_HasDataT], ABC):
+class ConfigurationDependentSelfFactory(Configurable[_DataT], ABC):
     """
     Create factories that require configuration.
     """
 
     @classmethod
     @abstractmethod
-    def new_for_configuration(
-        cls, configuration: _HasDataT
-    ) -> ServiceLevelTarget[Self]:
+    def new_for_configuration(cls, configuration: _DataT) -> ServiceLevelTarget[Self]:
         """
         Create a new factory for the given configuration.
         """
@@ -44,10 +42,10 @@ class _HumanFacingFactoryError(FactoryError, HumanFacingException):
 
 
 def new_target(
-    target: ConfigurationDependentSelfFactory[HasData]
+    target: ConfigurationDependentSelfFactory[Data]
     | ConfigurationDependentSelfFactory[Configuration]
     | ServiceLevelTarget[_T],
-    configuration: HasData | Configuration | PortableData | Void = Void(),  # noqa: B008
+    configuration: Data | Configuration | PortableData | Void = Void(),  # noqa: B008
     /,
 ) -> ServiceLevelTarget[_T]:
     """
@@ -66,7 +64,7 @@ def new_target(
             raise FactoryError(
                 f"Cannot instantiate {fully_qualified_name(target)} with configuration because it does not subclass {fully_qualified_name(ConfigurationDependentSelfFactory)}."
             )
-        if isinstance(configuration, (HasData, Configuration)):
+        if isinstance(configuration, (Data, Configuration)):
             if not isinstance(configuration, target.configuration_cls()):
                 raise FactoryError(
                     f"{fully_qualified_name(target)} required {fully_qualified_name(target.configuration_cls())}, but {fully_qualified_name(type(configuration))} was given."
@@ -75,7 +73,7 @@ def new_target(
             configuration_cls = cast(
                 type[ConfigurationDependentSelfFactory], target
             ).configuration_cls()
-            if issubclass(configuration_cls, HasData):
+            if issubclass(configuration_cls, Data):
                 configuration = configuration_cls.data().load(configuration)
             else:
                 configuration = configuration_cls.load(configuration)

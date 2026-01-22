@@ -1,10 +1,10 @@
 from babel import Locale
 
 from betty.app.config import AppConfiguration
-from betty.test_utils.data import HasDataTestBase
+from betty.test_utils.data import DataTestBase
 
 
-class TestAppConfiguration(HasDataTestBase[AppConfiguration]):
+class TestAppConfiguration(DataTestBase[AppConfiguration]):
     sut_cls = AppConfiguration
 
     def test___init____minimal_locale(self) -> None:

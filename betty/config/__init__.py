@@ -9,7 +9,7 @@ from typing import TYPE_CHECKING, Any, Generic, Self
 
 from typing_extensions import TypeVar, override
 
-from betty.data import HasData
+from betty.data import Data
 from betty.portable import Portable, PortableData
 
 if TYPE_CHECKING:
@@ -48,20 +48,20 @@ class Configuration(Portable, Generic[_PortableDataT]):
         return ()
 
 
-_HasDataT = TypeVar("_HasDataT", bound=HasData | Configuration)
+_DataClsT = TypeVar("_DataClsT", bound=Data | Configuration)
 
 
-class Configurable(ABC, Generic[_HasDataT]):
+class Configurable(ABC, Generic[_DataClsT]):
     """
     Any configurable object.
     """
 
-    def __init__(self, *args: Any, configuration: _HasDataT, **kwargs: Any):
+    def __init__(self, *args: Any, configuration: _DataClsT, **kwargs: Any):
         super().__init__(*args, **kwargs)
         self._configuration = configuration
 
     @property
-    def configuration(self) -> _HasDataT:
+    def configuration(self) -> _DataClsT:
         """
         The object's configuration.
         """
@@ -69,7 +69,7 @@ class Configurable(ABC, Generic[_HasDataT]):
 
     @classmethod
     @abstractmethod
-    def configuration_cls(cls) -> type[_HasDataT]:
+    def configuration_cls(cls) -> type[_DataClsT]:
         """
         The object's configuration class.
         """

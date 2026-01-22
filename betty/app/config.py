@@ -9,7 +9,7 @@ from typing import final
 from babel import Locale
 
 from betty.assertion import assert_locale
-from betty.data import DataDefinition, HasData, Sample
+from betty.data import Data, DataDefinition, Sample
 from betty.data.aggregate.record import FieldDefinition
 from betty.data.aggregate.record.object import ObjectDefinition
 from betty.data.indicator.selector import Attr
@@ -43,11 +43,11 @@ CONFIGURATION_FILE_PATH = APP_CONFIG_DIRECTORY_PATH / "app.json"
         ),
     ],
 )
-class AppConfiguration(HasData):
+class AppConfiguration(Data):
     """
     Configuration for :py:class:`betty.app.App`.
 
-    .. has_data:: betty.app.config:AppConfiguration
+    .. data:: betty.app.config:AppConfiguration
     """
 
     def __init__(

@@ -23,10 +23,10 @@ if TYPE_CHECKING:
     from betty.locale.localizable import Localizable, LocalizableLike
     from betty.service.level import ServiceLevel
 
-_DataT = TypeVar("_DataT", default=Any)
+_DataClsT = TypeVar("_DataClsT", default=Any)
 
 
-class DataDefinition(Generic[_DataT]):
+class DataDefinition(Generic[_DataClsT]):
     """
     A data definition.
     """
@@ -34,15 +34,15 @@ class DataDefinition(Generic[_DataT]):
     def __init__(
         self,
         *,
-        cls: type[_DataT] | None = None,
+        cls: type[_DataClsT] | None = None,
         label: LocalizableLike,
         description: LocalizableLike | None = None,
-        porter: Porter[_DataT] | None = None,
-        fallback_porter: Porter[_DataT] | None = None,
-        samples: Iterable[Callable[[], Sample[_DataT]]] | None = None,
-        empty: Callable[[_DataT], bool] | None = None,
+        porter: Porter[_DataClsT] | None = None,
+        fallback_porter: Porter[_DataClsT] | None = None,
+        samples: Iterable[Callable[[], Sample[_DataClsT]]] | None = None,
+        empty: Callable[[_DataClsT], bool] | None = None,
     ):
-        self._cls: type[_DataT] | None = None
+        self._cls: type[_DataClsT] | None = None
         self._label = ensure_localizable(label)
         self._description = (
             None if description is None else ensure_localizable(description)
@@ -55,7 +55,7 @@ class DataDefinition(Generic[_DataT]):
             self._cls = cls
 
     @property
-    def cls(self) -> type[_DataT]:
+    def cls(self) -> type[_DataClsT]:
         """
         The data's Python type.
         """
@@ -65,7 +65,7 @@ class DataDefinition(Generic[_DataT]):
         return self._cls
 
     @property
-    def porter(self) -> Porter[_DataT]:
+    def porter(self) -> Porter[_DataClsT]:
         """
         The porter for the data.
         """
@@ -82,7 +82,7 @@ class DataDefinition(Generic[_DataT]):
         assert self._porter is not None
         return self._porter
 
-    def __call__(self, cls: type[_DataT]) -> type[_DataT]:
+    def __call__(self, cls: type[_DataClsT]) -> type[_DataClsT]:
         """
         Decorate a data class.
 
@@ -90,9 +90,9 @@ class DataDefinition(Generic[_DataT]):
         """
         if self._cls is not None:
             raise ValueError("This definition was already used to decorate a class.")
-        if not issubclass(cls, HasData):
+        if not issubclass(cls, Data):
             raise ValueError(
-                f"Can only decorate classes that subclass {fully_qualified_name(HasData)}."
+                f"Can only decorate classes that subclass {fully_qualified_name(Data)}."
             )
         assert self._cls is None
         cls.data = staticmethod(update_wrapper(lambda: self, cls.data))  # ty:ignore[invalid-assignment]
@@ -114,14 +114,14 @@ class DataDefinition(Generic[_DataT]):
         return self._description
 
     @property
-    def samples(self) -> Iterable[Sample[_DataT]]:
+    def samples(self) -> Iterable[Sample[_DataClsT]]:
         """
         Any samples for this data.
         """
         for sample in self._samples:
             yield sample()
 
-    def load(self, portable: PortableData, /) -> _DataT:
+    def load(self, portable: PortableData, /) -> _DataClsT:
         """
         Create a new data instance from portable.
 
@@ -129,13 +129,13 @@ class DataDefinition(Generic[_DataT]):
         """
         return self.porter.load(portable)
 
-    def dump(self, data: _DataT, /) -> PortableData:
+    def dump(self, data: _DataClsT, /) -> PortableData:
         """
         Dump the data to portable data.
         """
         return self.porter.dump(data)
 
-    async def hydrate(self, data: _DataT, services: ServiceLevel, /) -> None:
+    async def hydrate(self, data: _DataClsT, services: ServiceLevel, /) -> None:
         """
         Hydrate the data.
 
@@ -152,7 +152,7 @@ class DataDefinition(Generic[_DataT]):
             if validator is not None:
                 await services.new_target(validator)
 
-    def empty(self, data: _DataT, /) -> bool:
+    def empty(self, data: _DataClsT, /) -> bool:
         """
         Check if the data can be considered 'empty'.
         """
@@ -166,7 +166,7 @@ _DataDefinitionT = TypeVar(
 )
 
 
-class HasData(Generic[_DataDefinitionT]):
+class Data(Generic[_DataDefinitionT]):
     """
     A class that defines data for its instances.
     """
@@ -187,7 +187,7 @@ class HasData(Generic[_DataDefinitionT]):
         return data.dump(self) == data.dump(other)
 
 
-class Sample(Generic[_DataT]):
+class Sample(Generic[_DataClsT]):
     """
     A data sample.
 
@@ -196,7 +196,7 @@ class Sample(Generic[_DataT]):
 
     def __init__(
         self,
-        data: _DataT,
+        data: _DataClsT,
         *,
         label: LocalizableLike,
         description: LocalizableLike | None = None,
@@ -210,7 +210,7 @@ class Sample(Generic[_DataT]):
         self._full = full
 
     @property
-    def data(self) -> _DataT:
+    def data(self) -> _DataClsT:
         """
         The sample data.
         """

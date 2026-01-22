@@ -18,7 +18,7 @@ from typing_extensions import override
 
 from betty.app import App
 from betty.config import Configurable, Configuration
-from betty.data import HasData
+from betty.data import Data
 from betty.data.aggregate.record import RecordDefinition
 from betty.functools import Result
 from betty.importlib import import_any
@@ -367,7 +367,7 @@ class _ConfigurationDirective(SphinxDirective):
         )
 
 
-class _HasDataDirective(SphinxDirective):
+class _DataDirective(SphinxDirective):
     required_arguments = 1
 
     @override
@@ -375,7 +375,7 @@ class _HasDataDirective(SphinxDirective):
         # Right-strip periods to avoid D400 and D415 violations.
         cls_name = self.arguments[0].rstrip(".")
         cls = import_any(cls_name)
-        assert issubclass(cls, HasData)
+        assert issubclass(cls, Data)
         data = cls.data()
         content = ""
 
@@ -462,7 +462,7 @@ def setup(app: Sphinx) -> ExtensionMetadata:
     Implement Sphinx's extension setup.
     """
     app.add_directive("configuration", _ConfigurationDirective)
-    app.add_directive("has_data", _HasDataDirective)
+    app.add_directive("data", _DataDirective)
     app.add_directive("plugin", _PluginDirective)
     app.add_directive("plugin_type", _PluginTypeDirective)
     app.add_directive("plugin_types", _PluginTypesDirective)

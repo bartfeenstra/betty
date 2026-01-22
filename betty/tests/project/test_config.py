@@ -49,7 +49,7 @@ from betty.test_utils.config.collections import (
     ConfigurationCollectionTestBaseNewSut,
 )
 from betty.test_utils.config.collections.mapping import ConfigurationMappingTestBase
-from betty.test_utils.data import HasDataTestBase
+from betty.test_utils.data import DataTestBase
 from betty.test_utils.locale.localizable import (
     DUMMY_COUNTABLE_LOCALIZABLE,
     DUMMY_LOCALIZABLE,
@@ -357,7 +357,7 @@ class TestExtensionInstanceConfigurationMapping(
         assert DummyExtensionOne.plugin() in sut
 
 
-class TestEntityTypeConfiguration(HasDataTestBase[EntityTypeConfiguration]):
+class TestEntityTypeConfiguration(DataTestBase[EntityTypeConfiguration]):
     sut_cls = EntityTypeConfiguration
 
     async def test_entity_type__with___init___entity_type(self) -> None:
@@ -755,7 +755,7 @@ class TestGenderPluginConfigurationMapping(
         return GenderPluginConfigurationMapping
 
 
-class TestProjectConfiguration(HasDataTestBase[ProjectConfiguration]):
+class TestProjectConfiguration(DataTestBase[ProjectConfiguration]):
     sut_cls = ProjectConfiguration
 
     async def test_lifetime_threshold(self) -> None:

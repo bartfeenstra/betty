@@ -30,7 +30,7 @@ from betty.collections import KeyedCollection
 from betty.config import Configuration
 from betty.config.collections.mapping import OrderedConfigurationMapping
 from betty.copyright_notice import CopyrightNotice, CopyrightNoticeDefinition
-from betty.data import DataDefinition, HasData, Sample
+from betty.data import Data, DataDefinition, Sample
 from betty.data.aggregate.collection.keyed import KeyedCollectionDefinition
 from betty.data.aggregate.record import FieldDefinition
 from betty.data.aggregate.record.object import ObjectDefinition
@@ -152,12 +152,12 @@ class ExtensionInstanceConfigurationMapping(
     ],
 )
 class EntityTypeConfiguration(
-    HasData[ObjectDefinition["EntityTypeConfiguration"]], Hydratable
+    Data[ObjectDefinition["EntityTypeConfiguration"]], Hydratable
 ):
     """
     Configure a single entity type for a project.
 
-    .. has_data:: betty.project.config:EntityTypeConfiguration
+    .. data:: betty.project.config:EntityTypeConfiguration
     """
 
     def __init__(
@@ -1003,11 +1003,11 @@ class GenderPluginConfigurationMapping(
         ),
     ],
 )
-class ProjectConfiguration(HasData):
+class ProjectConfiguration(Data):
     """
     Configuration for a :py:class:`betty.project.Project`.
 
-    .. has_data:: betty.project.config:ProjectConfiguration
+    .. data:: betty.project.config:ProjectConfiguration
     """
 
     license: PluginInstanceConfiguration[LicenseDefinition, License]

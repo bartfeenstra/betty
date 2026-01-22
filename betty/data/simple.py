@@ -15,10 +15,10 @@ if TYPE_CHECKING:
 
     from betty.locale.localizable import LocalizableLike
 
-_DataT = TypeVar("_DataT")
+_DataClsT = TypeVar("_DataClsT")
 
 
-class SimpleDefinition(DataDefinition[_DataT]):
+class SimpleDefinition(DataDefinition[_DataClsT]):
     """
     A simple (scalar) data definition.
     """
@@ -26,11 +26,11 @@ class SimpleDefinition(DataDefinition[_DataT]):
     def __init__(
         self,
         *,
-        cls: type[_DataT] | None = None,
+        cls: type[_DataClsT] | None = None,
         label: LocalizableLike,
         description: LocalizableLike | None = None,
-        porter: Porter[_DataT] | None = None,
-        empty: Callable[[_DataT], bool] | None = None,
+        porter: Porter[_DataClsT] | None = None,
+        empty: Callable[[_DataClsT], bool] | None = None,
     ):
         super().__init__(
             cls=cls,

@@ -18,7 +18,7 @@ from betty.locale.localizable.portable import (
 )
 from betty.portable import CallbackPorter
 
-_DataT = TypeVar("_DataT")
+_DataClsT = TypeVar("_DataClsT")
 
 
 @final

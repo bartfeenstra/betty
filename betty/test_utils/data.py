@@ -6,26 +6,26 @@ from typing import Any, Generic, TypeVar
 
 import pytest
 
-from betty.data import HasData
+from betty.data import Data
 from betty.importlib import fully_qualified_name
 from betty.locale.localize import DEFAULT_LOCALIZER
 
-_HasDataT = TypeVar("_HasDataT", bound=HasData, covariant=True)
+_DataT = TypeVar("_DataT", bound=Data, covariant=True)
 
 
-class HasDataTestBase(Generic[_HasDataT]):
+class DataTestBase(Generic[_DataT]):
     """
-    A base class for testing :py:class:`betty.data.HasData` subclasses.
+    A base class for testing :py:class:`betty.data.Data` subclasses.
     """
 
-    sut_cls: type[_HasDataT]
+    sut_cls: type[_DataT]
     """
     The system under test.
     """
 
     def test_data(self) -> None:
         """
-        Tests :py:meth:`betty.data.HasData.data` implementations.
+        Tests :py:meth:`betty.data.Data.data` implementations.
         """
         self.sut_cls.data()
 
@@ -35,7 +35,7 @@ class HasDataTestBase(Generic[_HasDataT]):
         """
         docstring = self.sut_cls.__doc__
         assert docstring, "Failed asserting that the class has a docstring"
-        directive = f".. has_data:: {fully_qualified_name(self.sut_cls)}"
+        directive = f".. data:: {fully_qualified_name(self.sut_cls)}"
         assert directive in docstring, (
             f"Failed to find `{directive}` in the class's docstring"
         )
@@ -82,11 +82,11 @@ class HasDataTestBase(Generic[_HasDataT]):
             {},
         ],
     )
-    def test___eq____with_non_has_data_other(
+    def test___eq____with_non_data_other(
         self, other: Any, subtests: pytest.Subtests
     ) -> None:
         """
-        Tests :py:meth:`object.__eq__` implementations with values that do not subclass :py:class:`betty.data.HasData`.
+        Tests :py:meth:`object.__eq__` implementations with values that do not subclass :py:class:`betty.data.Data`.
         """
         samples = list(self.sut_cls.data().samples)
         for sample in samples:

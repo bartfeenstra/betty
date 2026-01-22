@@ -168,7 +168,7 @@ _BASELINE: Mapping[str, _ModuleIgnore] = {
     "betty/service/level/__init__.py": MissingReason.ABSTRACT,
     "betty/service/level/factory.py": MissingReason.ABSTRACT,
     "betty/data/__init__.py": {
-        "HasData": MissingReason.ABSTRACT,
+        "Data": MissingReason.ABSTRACT,
         "SampleNotFound": MissingReason.STATIC_CONTENT_ONLY,
     },
     "betty/data/aggregate/__init__.py": {
