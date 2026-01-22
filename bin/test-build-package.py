@@ -8,7 +8,7 @@ from os import path
 from subprocess import check_call, check_output
 from tempfile import TemporaryDirectory
 
-print("Running Setuptools...")  # noqa: T201
+print("Testing packages...")  # noqa: T201
 
 VERSION = "0.0.0a0"
 check_call([sys.executable, path.join("bin", "build-package.py"), VERSION])

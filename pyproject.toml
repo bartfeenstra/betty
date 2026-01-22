@@ -9,7 +9,8 @@ version = '0.0.0'
 name = 'betty'
 description = 'Betty visualizes and publishes your family history by building interactive, encyclopedia-like genealogy websites out of your Gramps and GEDCOM family trees'
 readme = 'README.md'
-license = {file = 'LICENSE.txt'}
+license = 'GPL-3.0-or-later'
+license-files = ['LICENSE.txt']
 authors = [
   {name = 'Bart Feenstra', email = 'bar@bartfeenstra.com'},
 ]
@@ -44,7 +45,6 @@ classifiers = [
     'Intended Audience :: Developers',
     'Intended Audience :: End Users/Desktop',
     'Intended Audience :: Science/Research',
-    'License :: OSI Approved :: GNU General Public License v3 or later (GPLv3+)',
     'Programming Language :: JavaScript',
     'Programming Language :: Python :: 3.11',
     'Programming Language :: Python :: 3.12',
