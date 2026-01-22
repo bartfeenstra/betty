@@ -77,8 +77,8 @@ class Event(
     place = BidirectionalToZeroOrOne["Event", Place](
         "betty.ancestry.place:Place",
         "events",
-        title="Place",
-        description="The location of the event",
+        label=_("Place"),
+        description=_("The location of the event"),
     )
     """
     The place the event happened.
@@ -86,8 +86,8 @@ class Event(
     presences = BidirectionalToManySingleType["Event", Presence](
         "betty.ancestry.presence:Presence",
         "event",
-        title="Presences",
-        description="People's presences at this event",
+        label=_("Presences"),
+        description=_("People's presences at this event"),
         linked_data_embedded=True,
     )
     """

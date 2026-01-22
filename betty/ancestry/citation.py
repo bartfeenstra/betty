@@ -55,8 +55,10 @@ class Citation(HasDate, HasFileReferences, HasPrivacy, HasLinks):
     facts = BidirectionalToManyMultipleTypes["Citation", "HasCitations"](
         "betty.ancestry.has_citations:HasCitations",
         "citations",
-        title="Facts",
-        description="The other entities that reference these citations to back up their claims.",
+        label=_("Facts"),
+        description=_(
+            "The other entities that reference these citations to back up their claims."
+        ),
     )
     """
     The other entities that reference these citations to back up their claims.
@@ -65,8 +67,8 @@ class Citation(HasDate, HasFileReferences, HasPrivacy, HasLinks):
     source = BidirectionalToOne["Citation", Source](
         "betty.ancestry.source:Source",
         "citations",
-        title="Source",
-        description="The source this citation references.",
+        label=_("Source"),
+        description=_("The source this citation references."),
     )
     """
     The source this citation references.

@@ -40,6 +40,7 @@ class _TestAncestry_OneToOne_Left(Entity):
     ](
         "betty.tests.ancestry.test___init__:_TestAncestry_OneToOne_Right",
         "one_left",
+        label=DUMMY_LOCALIZABLE,
     )
 
 
@@ -55,6 +56,7 @@ class _TestAncestry_OneToOne_Right(Entity):
     ](
         "betty.tests.ancestry.test___init__:_TestAncestry_OneToOne_Left",
         "one_right",
+        label=DUMMY_LOCALIZABLE,
     )
 
 

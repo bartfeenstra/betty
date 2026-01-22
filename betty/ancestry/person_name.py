@@ -42,7 +42,7 @@ class PersonName(HasLocale, HasCitations, HasPrivacy, Entity):
     person = BidirectionalToOne["PersonName", "Person"](
         "betty.ancestry.person:Person",
         "names",
-        title="Person",
+        label=_("Person"),
     )
     """
     The person whose name this is.

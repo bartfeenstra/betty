@@ -55,7 +55,7 @@ class Link(HasMediaType, HasDescription, HasPrivacy, Entity):
     owner = BidirectionalToZeroOrOne["Link", "HasLinks"](
         "betty.ancestry.has_links:HasLinks",
         "links",
-        title="Owner",
+        label=_("Owner"),
     )
     """
     The entity hat owns the link.

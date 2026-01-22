@@ -46,8 +46,8 @@ class Note(HasPrivacy, HasLinks, HasMediaType):
     entity = BidirectionalToZeroOrOne["Note", "HasNotes"](
         "betty.ancestry.has_notes:HasNotes",
         "notes",
-        title="Entity",
-        description="The entity the note belongs to",
+        label=_("Owner"),
+        description=_("The entity the note belongs to"),
     )
     """
     The entity the note belongs to.
