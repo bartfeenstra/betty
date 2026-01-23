@@ -48,7 +48,7 @@ Keys are strings.
 """
 
 
-class Portable(ABC):
+class Portable(ABC, Generic[_PortableDataT]):
     """
     A class that can be dumped to and loaded from portable data.
     """
@@ -63,7 +63,7 @@ class Portable(ABC):
         """
 
     @abstractmethod
-    def dump(self) -> PortableData:
+    def dump(self) -> _PortableDataT:
         """
         Produce a portable data dump of ``self``.
 
@@ -85,18 +85,18 @@ class Loader(Protocol[_DataClsT]):
         """
 
 
-class Dumper(Protocol[_DataClsT]):
+class Dumper(Protocol[_DataClsT, _PortableDataT]):
     """
     A callable that can dump to portable data.
     """
 
-    def __call__(self, data: _DataClsT, /) -> PortableData:
+    def __call__(self, data: _DataClsT, /) -> _PortableDataT:
         """
         Dump the portable data.
         """
 
 
-class Porter(ABC, Generic[_DataClsT]):
+class Porter(ABC, Generic[_DataClsT, _PortableDataT]):
     """
     An object capable of dumping and loading data to and from portable data.
     """
@@ -108,14 +108,14 @@ class Porter(ABC, Generic[_DataClsT]):
         """
 
     @abstractmethod
-    def dump(self, data: _DataClsT, /) -> PortableData:
+    def dump(self, data: _DataClsT, /) -> _PortableDataT:
         """
         Dump data to its portable form.
         """
 
 
 @final
-class CallbackPorter(Porter[_DataClsT]):
+class CallbackPorter(Porter[_DataClsT, _PortableDataT]):
     """
     Make data portable using a separate loader and dumper.
     """
@@ -123,7 +123,7 @@ class CallbackPorter(Porter[_DataClsT]):
     def __init__(
         self,
         loader: Loader[_DataClsT],
-        dumper: Dumper[_DataClsT],
+        dumper: Dumper[_DataClsT, _PortableDataT],
         /,
     ):
         self._loader = loader
@@ -134,12 +134,12 @@ class CallbackPorter(Porter[_DataClsT]):
         return self._loader(portable)
 
     @override
-    def dump(self, data: _DataClsT) -> PortableData:
+    def dump(self, data: _DataClsT) -> _PortableDataT:
         return self._dumper(data)
 
 
 @final
-class PortablePorter(Porter[_PortableT]):
+class PortablePorter(Porter[_PortableT, _PortableDataT]):
     """
     Expose a portable data type as a porter.
     """
@@ -152,5 +152,5 @@ class PortablePorter(Porter[_PortableT]):
         return self._cls.load(portable)
 
     @override
-    def dump(self, data: _PortableT) -> PortableData:
-        return data.dump()
+    def dump(self, data: _PortableT) -> _PortableDataT:
+        return data.dump()  # ty:ignore[invalid-return-type]

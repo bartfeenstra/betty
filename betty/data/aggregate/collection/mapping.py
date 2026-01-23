@@ -14,11 +14,14 @@ from betty.data.indicator.selector import Key
 from betty.portable import CallbackPorter, PortableData
 
 if TYPE_CHECKING:
+    from ty_extensions import Intersection
+
     from betty.data import DataDefinition
     from betty.locale.localizable import LocalizableLike
 
+_DataKeyT = TypeVar("_DataKeyT")
 _DataItemT = TypeVar("_DataItemT")
-_MutableMappingT = TypeVar("_MutableMappingT", bound=MutableMapping[str, Any])
+_MutableMappingT = TypeVar("_MutableMappingT", bound=MutableMapping[Any, Any])
 
 
 @final
@@ -30,7 +33,10 @@ class MappingDefinition(CollectionDefinition[_MutableMappingT, Key]):
     def __init__(
         self,
         *,
-        cls: type[_MutableMappingT],
+        cls: type[
+            Intersection[_MutableMappingT, MutableMapping[_DataKeyT, _DataItemT]]
+        ],
+        key: DataDefinition[_DataKeyT, str],
         item: DataDefinition[_DataItemT],
         label: LocalizableLike,
         description: LocalizableLike | None = None,
@@ -43,6 +49,7 @@ class MappingDefinition(CollectionDefinition[_MutableMappingT, Key]):
             description=description,
             porter=CallbackPorter(self._load, self._dump),
         )
+        self._key = key
         self._factory = factory
 
     @override
@@ -50,10 +57,12 @@ class MappingDefinition(CollectionDefinition[_MutableMappingT, Key]):
         return [(Key(key), self.item) for key, item_data in data.items()]
 
     def _load(self, portable: PortableData, /) -> _MutableMappingT:
-        from betty.assertion import assert_mapping, assert_str
+        from betty.assertion import assert_mapping
 
         factory = self.cls if not self._factory else self._factory
-        return factory(assert_mapping(self._item.load, assert_str())(portable))
+        return factory(assert_mapping(self._item.load, self._key.load)(portable))
 
     def _dump(self, data: _MutableMappingT) -> PortableData:
-        return {key: self._item.dump(item) for key, item in data.items()}
+        return {
+            self._key.dump(key): self._item.dump(item) for key, item in data.items()
+        }  # ty:ignore[invalid-return-type]

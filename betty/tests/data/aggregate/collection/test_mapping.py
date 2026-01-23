@@ -13,16 +13,17 @@ class TestMappingDefinition:
         item = StrDefinition(label=DUMMY_LOCALIZABLE)
         sut = MappingDefinition[dict[str, str]](
             cls=dict[str, str],
+            key=StrDefinition(label=DUMMY_LOCALIZABLE),
             item=item,
             label=DUMMY_LOCALIZABLE,
         )
-        assert sut.item is item
         assert list(sut.elements({"key": "value"})) == [(Key("key"), item)]
 
     def test_item(self) -> None:
         item = StrDefinition(label=DUMMY_LOCALIZABLE)
         sut = MappingDefinition[dict[str, str]](
             cls=dict[str, str],
+            key=StrDefinition(label=DUMMY_LOCALIZABLE),
             item=item,
             label=DUMMY_LOCALIZABLE,
         )
@@ -31,6 +32,7 @@ class TestMappingDefinition:
     def test_load__without_items(self) -> None:
         sut = MappingDefinition[dict[str, str]](
             cls=dict[str, str],
+            key=StrDefinition(label=DUMMY_LOCALIZABLE),
             item=StrDefinition(label=DUMMY_LOCALIZABLE),
             label=DUMMY_LOCALIZABLE,
         )
@@ -39,6 +41,7 @@ class TestMappingDefinition:
     def test_load__with_items(self) -> None:
         sut = MappingDefinition[dict[str, str]](
             cls=dict[str, str],
+            key=StrDefinition(label=DUMMY_LOCALIZABLE),
             item=StrDefinition(label=DUMMY_LOCALIZABLE),
             label=DUMMY_LOCALIZABLE,
         )
@@ -50,6 +53,7 @@ class TestMappingDefinition:
 
         sut = MappingDefinition[dict[str, str]](
             cls=dict[str, str],
+            key=StrDefinition(label=DUMMY_LOCALIZABLE),
             item=StrDefinition(label=DUMMY_LOCALIZABLE),
             label=DUMMY_LOCALIZABLE,
             factory=FactoryDict,
@@ -59,6 +63,7 @@ class TestMappingDefinition:
     def test_load__with_item_not_loadable(self) -> None:
         sut = MappingDefinition[dict[str, str]](
             cls=dict[str, str],
+            key=StrDefinition(label=DUMMY_LOCALIZABLE),
             item=DataDefinition(cls=str, label=DUMMY_LOCALIZABLE),
             label=DUMMY_LOCALIZABLE,
         )
@@ -68,6 +73,7 @@ class TestMappingDefinition:
     def test_dump__without_items(self) -> None:
         sut = MappingDefinition[dict[str, str]](
             cls=dict[str, str],
+            key=StrDefinition(label=DUMMY_LOCALIZABLE),
             item=StrDefinition(label=DUMMY_LOCALIZABLE),
             label=DUMMY_LOCALIZABLE,
         )
@@ -76,6 +82,7 @@ class TestMappingDefinition:
     def test_dump__with_items(self) -> None:
         sut = MappingDefinition[dict[str, str]](
             cls=dict[str, str],
+            key=StrDefinition(label=DUMMY_LOCALIZABLE),
             item=StrDefinition(label=DUMMY_LOCALIZABLE),
             label=DUMMY_LOCALIZABLE,
         )
@@ -84,6 +91,7 @@ class TestMappingDefinition:
     def test_dump__with_item_not_dumpable(self) -> None:
         sut = MappingDefinition[dict[str, str]](
             cls=dict[str, str],
+            key=StrDefinition(label=DUMMY_LOCALIZABLE),
             item=DataDefinition(cls=str, label=DUMMY_LOCALIZABLE),
             label=DUMMY_LOCALIZABLE,
         )

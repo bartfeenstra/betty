@@ -24,12 +24,17 @@ if TYPE_CHECKING:
     from betty.service.level import ServiceLevel
 
 _DataClsT = TypeVar("_DataClsT", default=Any)
+_PortableDataCoT = TypeVar(
+    "_PortableDataCoT", bound=PortableData, default=PortableData, covariant=True
+)
 
 
-class DataDefinition(Generic[_DataClsT]):
+class DataDefinition(Generic[_DataClsT, _PortableDataCoT]):
     """
     A data definition.
     """
+
+    _porter: Porter[_DataClsT, _PortableDataCoT] | None
 
     def __init__(
         self,
@@ -37,8 +42,8 @@ class DataDefinition(Generic[_DataClsT]):
         cls: type[_DataClsT] | None = None,
         label: LocalizableLike,
         description: LocalizableLike | None = None,
-        porter: Porter[_DataClsT] | None = None,
-        fallback_porter: Porter[_DataClsT] | None = None,
+        porter: Porter[_DataClsT, _PortableDataCoT] | None = None,
+        fallback_porter: Porter[_DataClsT, _PortableDataCoT] | None = None,
         samples: Iterable[Callable[[], Sample[_DataClsT]]] | None = None,
         empty: Callable[[_DataClsT], bool] | None = None,
     ):
@@ -65,13 +70,13 @@ class DataDefinition(Generic[_DataClsT]):
         return self._cls
 
     @property
-    def porter(self) -> Porter[_DataClsT]:
+    def porter(self) -> Porter[_DataClsT, _PortableDataCoT]:
         """
         The porter for the data.
         """
         if self._porter is None:
             if issubclass(self.cls, Portable):
-                self._porter = PortablePorter(self.cls)
+                self._porter = PortablePorter(self.cls)  # ty:ignore[invalid-assignment]
             elif self._fallback_porter is not None:
                 self._porter = self._fallback_porter
 
