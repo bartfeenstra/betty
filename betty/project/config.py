@@ -4,7 +4,6 @@ Provide project configuration.
 
 from __future__ import annotations
 
-from pathlib import Path
 from typing import TYPE_CHECKING, Any, Self, final
 from urllib.parse import urlparse
 
@@ -20,7 +19,6 @@ from betty.assertion import (
     Field,
     OptionalField,
     RequiredField,
-    assert_file_path,
     assert_locale,
     assert_number,
     assert_record,
@@ -55,6 +53,7 @@ from betty.locale.localizable.portable import dump_localizable
 from betty.locale.localizable.static import CountableStaticTranslations
 from betty.machine_name import MachineName, MachineNameDefinition, assert_machine_name
 from betty.model import EntityDefinition
+from betty.pathlib import FilePathDefinition
 from betty.plugin.config import (
     CountableHumanFacingPluginDefinitionConfiguration,
     HumanFacingPluginDefinitionConfiguration,
@@ -65,12 +64,12 @@ from betty.plugin.config import (
 from betty.plugin.config.ordered import OrderedPluginDefinitionConfiguration
 from betty.plugin.data import PluginIdDefinition
 from betty.plugin.resolve import ResolvableId, resolve_id
-from betty.portable import CallbackPorter
 from betty.project.extension import Extension, ExtensionDefinition
 from betty.service.hydrate import Hydratable
 
 if TYPE_CHECKING:
     from collections.abc import Collection, Iterable
+    from pathlib import Path
 
     from betty.locale.localizable import Localizable, LocalizableLike
     from betty.portable import PortableData, PortableMapping
@@ -1185,9 +1184,8 @@ class ProjectConfiguration(Data):
 
     @property
     @AttrDefinition(
-        DataDefinition(
-            cls=Path, label=_("Logo"), porter=CallbackPorter(assert_file_path(), str)
-        ),
+        FilePathDefinition(),
+        label=_("Logo"),
         required=False,
         empty=lambda data: data is None,
     )
