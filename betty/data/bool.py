@@ -16,7 +16,7 @@ if TYPE_CHECKING:
 
 
 @final
-class BoolDefinition(DataDefinition[bool]):
+class BoolDefinition(DataDefinition[bool, bool]):
     """
     A boolean data definition.
     """

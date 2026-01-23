@@ -16,7 +16,7 @@ if TYPE_CHECKING:
 
 
 @final
-class StrDefinition(DataDefinition[str]):
+class StrDefinition(DataDefinition[str, str]):
     """
     A string data definition.
     """

@@ -16,7 +16,7 @@ if TYPE_CHECKING:
 
 
 @final
-class IntDefinition(DataDefinition[int]):
+class IntDefinition(DataDefinition[int, int]):
     """
     An integer data definition.
     """
