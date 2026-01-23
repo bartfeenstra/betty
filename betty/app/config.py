@@ -4,17 +4,17 @@ Provide application configuration.
 
 from __future__ import annotations
 
-from typing import final
+from typing import TYPE_CHECKING, final
 
-from babel import Locale
-
-from betty.assertion import assert_locale
-from betty.data import Data, DataDefinition, Sample
+from betty.data import Data, Sample
 from betty.data.aggregate.record.object import AttrDefinition, ObjectDefinition
 from betty.dirs import APP_CONFIG_DIRECTORY_PATH
-from betty.locale import DEFAULT_LOCALE, to_language_tag
+from betty.locale import DEFAULT_LOCALE
+from betty.locale.data import LocaleDefinition
 from betty.locale.localizable.gettext import _
-from betty.portable import CallbackPorter
+
+if TYPE_CHECKING:
+    from babel import Locale
 
 CONFIGURATION_FILE_PATH = APP_CONFIG_DIRECTORY_PATH / "app.json"
 
@@ -44,15 +44,7 @@ class AppConfiguration(Data):
         self._locale: Locale | None = locale
 
     @property
-    @AttrDefinition(
-        DataDefinition(
-            cls=Locale,
-            label=_("Locale"),
-            porter=CallbackPorter(assert_locale(), to_language_tag),
-            empty=lambda data: data is None,
-        ),
-        required=False,
-    )
+    @AttrDefinition(LocaleDefinition(), empty=lambda data: data is None, required=False)
     def locale(self) -> Locale | None:
         """
         The application locale.
