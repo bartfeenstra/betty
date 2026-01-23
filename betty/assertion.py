@@ -501,7 +501,7 @@ _SizedT = TypeVar("_SizedT", bound=Sized)
 
 def assert_len(
     exact: int | None = None, *, minimum: int | None = None, maximum: int | None = None
-) -> AssertionChain[Sized, Sized]:
+) -> AssertionChain[_SizedT, _SizedT]:
     """
     Assert the length of a value.
 

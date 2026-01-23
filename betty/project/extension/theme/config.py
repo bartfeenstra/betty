@@ -76,20 +76,21 @@ class RegionalContentConfiguration(Configuration):
     @override
     @classmethod
     def load(cls, portable: PortableData, /) -> Self:
-        portable = assert_mapping(None, assert_str())(portable)
-        assert_len(minimum=1)(portable)
+        portable = assert_mapping(None, assert_str()).chain(assert_len(minimum=1))(
+            portable
+        )
         content: MutableMapping[
             str,
             PluginInstanceConfigurationSequence[
                 ContentProviderDefinition, ContentProvider
             ],
         ] = {}
-        for region, region_dump in portable.items():
+        for region, portable_region in portable.items():
             with reraise_with_indicator(Key(region)):
-                assert_len(minimum=1)(region_dump)
+                assert_len(minimum=1)(portable_region)
                 content[region] = PluginInstanceConfigurationSequence[
                     ContentProviderDefinition, ContentProvider
-                ].load(region_dump)
+                ].load(portable_region)
         return cls(content)
 
     @override
