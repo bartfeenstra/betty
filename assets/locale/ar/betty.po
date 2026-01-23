@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Betty VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-01-22 17:40+0000\n"
+"POT-Creation-Date: 2026-01-23 08:36+0000\n"
 "PO-Revision-Date: 2024-11-30 19:00+0000\n"
 "Last-Translator: Bart Feenstra <bart@bartfeenstra.com>\n"
 "Language: ar\n"
@@ -129,6 +129,9 @@ msgid "Also show log messages"
 msgstr ""
 
 msgid "Amsterdam"
+msgstr ""
+
+msgid "An IETF BCP 47 language tag, such as \"nl-NL\"."
 msgstr ""
 
 msgid "An unexpected error occurred:"
