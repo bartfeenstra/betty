@@ -5,15 +5,15 @@ Data selectors.
 from __future__ import annotations
 
 from abc import ABC, abstractmethod
+from contextlib import contextmanager
 from typing import TYPE_CHECKING, Any, Generic, final
 
 from typing_extensions import TypeVar, override
 
 from betty.data.indicator import Indicator
-from betty.locale.localizable.gettext import _
 
 if TYPE_CHECKING:
-    from collections.abc import MutableSequence, Sequence
+    from collections.abc import Iterator, MutableSequence, Sequence
 
     from betty.assertion import Assertion
 
@@ -21,21 +21,69 @@ _T = TypeVar("_T")
 _ElementT = TypeVar("_ElementT")
 
 
+@final
+class SelectorError(ValueError):
+    """
+    Raise when a selector cannot access its element on the given data.
+    """
+
+    def __init__(self, selector: Selector, /):
+        super().__init__(f"Cannot access {selector.format()}")
+
+
 class Selector(Indicator, ABC):
     """
     Indicate and interact with aggregate data.
     """
 
+    @contextmanager
+    def _catch(self) -> Iterator[None]:
+        try:
+            yield
+        except Exception as error:
+            raise SelectorError(self) from error
+
     @final
     def get(self, data: Any, assertion: Assertion[Any, _T] | None = None, /) -> _T:
         """
         Get the value for this selector.
+
+        :raises SelectorError: raised if the selected element cannot be accessed.
         """
-        data = self._get(data)
+        with self._catch():
+            data = self._get(data)
         return assertion(data) if assertion else data
 
     @abstractmethod
     def _get(self, data: Any, /) -> Any:
+        pass
+
+    @final
+    def set(self, data: Any, value: Any, /) -> None:
+        """
+        Set the value for this selector.
+
+        :raises SelectorError: raised if the selected element cannot be accessed.
+        """
+        with self._catch():
+            self._set(data, value)
+
+    @abstractmethod
+    def _set(self, data: Any, value: Any, /) -> None:
+        pass
+
+    @final
+    def delete(self, data: Any, /) -> None:
+        """
+        Delete the element for this selector.
+
+        :raises SelectorError: raised if the selected element cannot be accessed.
+        """
+        with self._catch():
+            self._delete(data)
+
+    @abstractmethod
+    def _delete(self, data: Any, /) -> None:
         pass
 
 
@@ -77,15 +125,21 @@ class Selectors(Selector):
 
     @override
     def _get(self, data: Any, /) -> Any:
-        from betty.exception import HumanFacingException
-
-        for index, selector in enumerate(self._selectors):
-            try:
-                data = selector.get(data)
-            except HumanFacingException as error:
-                error.with_indicator(*reversed(self._selectors[0 : index + 1]))
-                raise
+        for selector in self._selectors:
+            data = selector.get(data)
         return data
+
+    @override
+    def _set(self, data: Any, value: Any, /) -> None:
+        for selector in self._selectors[:-1]:
+            data = selector.get(data)
+        self._selectors[-1].set(data, value)
+
+    @override
+    def _delete(self, data: Any, /) -> None:
+        for selector in self._selectors[:-1]:
+            data = selector.get(data)
+        self._selectors[-1].delete(data)
 
 
 class Element(Selector, Generic[_ElementT]):
@@ -123,14 +177,16 @@ class Attr(Element[str]):
     def _get(self, data: Any, /) -> Any:
         try:
             return getattr(data, self.element)
-        except AttributeError:
-            from betty.exception import HumanFacingException
+        except AttributeError as error:
+            raise SelectorError(self) from error
 
-            raise HumanFacingException(
-                _("Data has no attribute {attribute}").format(
-                    attribute=f".{self.element}"
-                )
-            ) from None
+    @override
+    def _set(self, data: Any, value: Any, /) -> None:
+        setattr(data, self.element, value)
+
+    @override
+    def _delete(self, data: Any, /) -> None:
+        delattr(data, self.element)
 
 
 @final
@@ -145,14 +201,15 @@ class Index(Element[int]):
 
     @override
     def _get(self, data: Any, /) -> Any:
-        try:
-            return data[self.element]
-        except (LookupError, TypeError):
-            from betty.exception import HumanFacingException
+        return data[self.element]
 
-            raise HumanFacingException(
-                _("Data has no index {index}").format(index=f".{self.element}")
-            ) from None
+    @override
+    def _set(self, data: Any, value: Any, /) -> None:
+        data[self.element] = value
+
+    @override
+    def _delete(self, data: Any, /) -> None:
+        del data[self.element]
 
 
 @final
@@ -167,11 +224,12 @@ class Key(Element[str]):
 
     @override
     def _get(self, data: Any, /) -> Any:
-        try:
-            return data[self.element]
-        except (LookupError, TypeError):
-            from betty.exception import HumanFacingException
+        return data[self.element]
 
-            raise HumanFacingException(
-                _('Data has no key "{key}"').format(key=f".{self.element}")
-            ) from None
+    @override
+    def _set(self, data: Any, value: Any, /) -> None:
+        data[self.element] = value
+
+    @override
+    def _delete(self, data: Any, /) -> None:
+        del data[self.element]

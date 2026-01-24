@@ -17,7 +17,7 @@ from geopy import Point
 
 from betty.assertion import assert_float, assert_mapping, assert_str
 from betty.data.indicator import Url
-from betty.data.indicator.selector import Index, Key, Selectors
+from betty.data.indicator.selector import Index, Key, SelectorError, Selectors
 from betty.exception import HumanFacingException, reraise_with_indicator
 from betty.hashid import hashid
 from betty.locale.localizable.gettext import _
@@ -92,6 +92,8 @@ class Client:
             yield
         except HumanFacingException as error:
             raise ClientError(error) from error
+        except SelectorError as error:
+            raise ClientError(str(error)) from error
 
     @asynccontextmanager
     async def _get(self, url: str) -> AsyncIterator[ClientResponse]:
