@@ -26,5 +26,5 @@ class LocaleDefinition(DataDefinition[Locale]):
             cls=Locale,
             label=_("Locale"),
             description=_('An IETF BCP 47 language tag, such as "nl-NL".'),
-            porter=CallbackPorter(assert_locale(), to_language_tag),
+            porter=CallbackPorter[Locale](assert_locale(), to_language_tag),
         )

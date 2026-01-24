@@ -13,7 +13,7 @@ from betty.data import DataDefinition
 from betty.data.aggregate import AggregateDefinition
 from betty.data.indicator.selector import Element
 from betty.locale.localizable.ensure import ensure_localizable
-from betty.portable import Loader, PortableData, PortableMapping, Porter
+from betty.portable import PortableData, PortableMapping, Porter
 
 if TYPE_CHECKING:
     from collections.abc import Callable, Iterable, MutableSequence, Sequence
@@ -97,7 +97,7 @@ class FieldDefinition(Generic[_ElementT, _DataClsT]):
 class _RecordPorter(Porter[_DataClsT]):
     def __init__(
         self,
-        loader: Loader[_DataClsT],
+        loader: Callable[[PortableData], _DataClsT],
         dumper: Callable[[_DataClsT], PortableMapping],
         /,
     ):

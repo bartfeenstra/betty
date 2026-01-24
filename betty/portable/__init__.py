@@ -7,8 +7,8 @@ Portable data can easily be persistent or transmitted across and between systems
 from __future__ import annotations
 
 from abc import ABC, abstractmethod
-from collections.abc import MutableMapping, MutableSequence
-from typing import Generic, Protocol, Self, TypeAlias, final
+from collections.abc import Callable, MutableMapping, MutableSequence
+from typing import Generic, Self, TypeAlias, final
 
 from typing_extensions import TypeVar, override
 
@@ -74,28 +74,6 @@ class Portable(ABC, Generic[_PortableDataT]):
 _PortableT = TypeVar("_PortableT", bound=Portable)
 
 
-class Loader(Protocol[_DataClsT]):
-    """
-    A callable that can load portable data.
-    """
-
-    def __call__(self, portable: PortableData, /) -> _DataClsT:
-        """
-        Load the portable data.
-        """
-
-
-class Dumper(Protocol[_DataClsT, _PortableDataT]):
-    """
-    A callable that can dump to portable data.
-    """
-
-    def __call__(self, data: _DataClsT, /) -> _PortableDataT:
-        """
-        Dump the portable data.
-        """
-
-
 class Porter(ABC, Generic[_DataClsT, _PortableDataT]):
     """
     An object capable of dumping and loading data to and from portable data.
@@ -122,8 +100,8 @@ class CallbackPorter(Porter[_DataClsT, _PortableDataT]):
 
     def __init__(
         self,
-        loader: Loader[_DataClsT],
-        dumper: Dumper[_DataClsT, _PortableDataT],
+        loader: Callable[[PortableData], _DataClsT],
+        dumper: Callable[[_DataClsT], _PortableDataT],
         /,
     ):
         self._loader = loader

@@ -426,8 +426,6 @@ _BASELINE: Mapping[str, _ModuleIgnore] = {
         "PluginDefinitionConfigurationMapping": MissingReason.SHOULD_BE_COVERED,
     },
     "betty/portable/__init__.py": {
-        "Dumper": MissingReason.ABSTRACT,
-        "Loader": MissingReason.ABSTRACT,
         "Portable": MissingReason.ABSTRACT,
         "Porter": MissingReason.ABSTRACT,
     },
