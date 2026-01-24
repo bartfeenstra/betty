@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Betty VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-01-23 09:00+0000\n"
+"POT-Creation-Date: 2026-01-25 00:31+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -483,18 +483,6 @@ msgid "Cremation"
 msgstr ""
 
 msgid "Cremations"
-msgstr ""
-
-#, python-brace-format
-msgid "Data has no attribute {attribute}"
-msgstr ""
-
-#, python-brace-format
-msgid "Data has no index {index}"
-msgstr ""
-
-#, python-brace-format
-msgid "Data has no key \"{key}\""
 msgstr ""
 
 msgid "Death"
