@@ -56,7 +56,7 @@ class DataDefinition(
         self._description = (
             None if description is None else ensure_localizable(description)
         )
-        self._porter = porter
+        self.__porter = porter
         self._fallback_porter = fallback_porter
         self._samples = () if samples is None else list(samples)
         self._empty = empty
@@ -64,32 +64,19 @@ class DataDefinition(
             self._cls = cls
 
     @property
-    def cls(self) -> type[_DataClsT]:
-        """
-        The data's Python type.
-        """
-        if self._cls is None:
-            raise ValueError("This definition was not yet used to decorate a class.")
-        assert self._cls is not None
-        return self._cls
-
-    @property
-    def porter(self) -> Porter[_DataClsT, _PortableDataCoT]:
-        """
-        The porter for the data.
-        """
-        if self._porter is None:
+    def _porter(self) -> Porter[_DataClsT, _PortableDataCoT]:
+        if self.__porter is None:
             if issubclass(self.cls, Portable):
-                self._porter = PortablePorter(self.cls)  # ty:ignore[invalid-assignment]
+                self.__porter = PortablePorter(self.cls)  # ty:ignore[invalid-assignment]
             elif self._fallback_porter is not None:
-                self._porter = self._fallback_porter
+                self.__porter = self._fallback_porter
 
             else:
                 raise NotPortable(
                     f"This definition does not have a porter. Either make the data class {fully_qualified_name(self.cls)} subclass {fully_qualified_name(Portable)}, or provide a porter when initializing the definition."
                 )
-        assert self._porter is not None
-        return self._porter
+        assert self.__porter is not None
+        return self.__porter
 
     def __call__(self, cls: type[_DataClsT]) -> type[_DataClsT]:
         """
@@ -132,11 +119,11 @@ class DataDefinition(
 
     @override
     def load(self, portable: PortableData, /) -> _DataClsT:
-        return self.porter.load(portable)
+        return self._porter.load(portable)
 
     @override
     def dump(self, data: _DataClsT, /) -> _PortableDataCoT:
-        return self.porter.dump(data)
+        return self._porter.dump(data)
 
     @override
     async def hydrate(self, services: ServiceLevel, data: _DataClsT, /) -> None:

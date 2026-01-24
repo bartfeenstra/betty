@@ -58,10 +58,6 @@ class DataDefinitionTestData(Portable, Data):
 
 
 class TestDataDefinition:
-    def test_cls(self) -> None:
-        sut = DataDefinition(cls=object, label=DUMMY_LOCALIZABLE)
-        assert sut.cls is object
-
     def test___call__(self) -> None:
         sut = DataDefinition[DataDefinitionTestData](label=DUMMY_LOCALIZABLE)
         sut(DataDefinitionTestData)
