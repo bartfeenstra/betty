@@ -65,4 +65,4 @@ class MappingDefinition(CollectionDefinition[_MutableMappingT, Key]):
     def _dump(self, data: _MutableMappingT) -> PortableData:
         return {
             self._key.dump(key): self._item.dump(item) for key, item in data.items()
-        }  # ty:ignore[invalid-return-type]
+        }

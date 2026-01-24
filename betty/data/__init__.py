@@ -7,7 +7,7 @@ from __future__ import annotations
 from functools import update_wrapper
 from typing import TYPE_CHECKING, Any, Generic, Self
 
-from typing_extensions import TypeVar
+from typing_extensions import TypeVar, override
 
 from betty.importlib import fully_qualified_name
 from betty.locale.localizable.ensure import ensure_localizable
@@ -29,7 +29,7 @@ _PortableDataCoT = TypeVar(
 )
 
 
-class DataDefinition(Generic[_DataClsT, _PortableDataCoT]):
+class DataDefinition(Porter[_DataClsT, _PortableDataCoT]):
     """
     A data definition.
     """
@@ -126,18 +126,12 @@ class DataDefinition(Generic[_DataClsT, _PortableDataCoT]):
         for sample in self._samples:
             yield sample()
 
+    @override
     def load(self, portable: PortableData, /) -> _DataClsT:
-        """
-        Create a new data instance from portable.
-
-        :raises betty.exception.HumanFacingException: Raised if the portable data is invalid.
-        """
         return self.porter.load(portable)
 
-    def dump(self, data: _DataClsT, /) -> PortableData:
-        """
-        Dump the data to portable data.
-        """
+    @override
+    def dump(self, data: _DataClsT, /) -> _PortableDataCoT:
         return self.porter.dump(data)
 
     async def hydrate(self, data: _DataClsT, services: ServiceLevel, /) -> None:
