@@ -11,6 +11,7 @@ from typing_extensions import TypeVar, override
 
 from betty.importlib import fully_qualified_name
 from betty.locale.localizable.ensure import ensure_localizable
+from betty.locale.localizable.markup import Paragraphs, UnorderedList
 from betty.portable import Portable, PortableData, PortablePorter, Porter
 from betty.portable.error import NotPortable
 from betty.service.hydrate import Hydratable, Hydrator
@@ -50,6 +51,11 @@ class DataDefinition(
         fallback_porter: Porter[_DataClsT, _PortableDataCoT] | None = None,
         samples: Iterable[Callable[[], Sample[_DataClsT]]] | None = None,
         empty: Callable[[_DataClsT], bool] | None = None,
+        # @todo What is the _DataClsT is `str | None`? We would not need a factory because they are portable data already.
+        # @todo What is the _DataClsT is `MyFirstCls | None`? (we can add hardcoded support for that. In which case _DataClsT would effectively just be `MyFirstCls`)
+        # @todo What is the _DataClsT is `MyFirstCls | MySecondCls`? I don't think we want to support that?
+        # @todo
+        factory: Callable[[Mapping[str, _DataItemT]], _MutableMappingT] | None = None,
     ):
         self._cls: type[_DataClsT] | None = None
         self._label = ensure_localizable(label)
@@ -62,21 +68,6 @@ class DataDefinition(
         self._empty = empty
         if cls is not None:
             self._cls = cls
-
-    @property
-    def _porter(self) -> Porter[_DataClsT, _PortableDataCoT]:
-        if self.__porter is None:
-            if issubclass(self.cls, Portable):
-                self.__porter = PortablePorter(self.cls)  # ty:ignore[invalid-assignment]
-            elif self._fallback_porter is not None:
-                self.__porter = self._fallback_porter
-
-            else:
-                raise NotPortable(
-                    f"This definition does not have a porter. Either make the data class {fully_qualified_name(self.cls)} subclass {fully_qualified_name(Portable)}, or provide a porter when initializing the definition."
-                )
-        assert self.__porter is not None
-        return self.__porter
 
     def __call__(self, cls: type[_DataClsT]) -> type[_DataClsT]:
         """
@@ -117,6 +108,29 @@ class DataDefinition(
         for sample in self._samples:
             yield sample()
 
+    @property
+    def _porter(self) -> Porter[_DataClsT, _PortableDataCoT]:
+        if self.__porter is None:
+            if self._cls is not None and issubclass(self._cls, Portable):
+                self.__porter = PortablePorter(self._cls)
+            elif self._fallback_porter is not None:
+                self.__porter = self._fallback_porter
+
+            else:
+                instructions = ["Provide a porter when initializing the definition"]
+                if self._cls is not None:
+                    instructions.append(
+                        f"Make the data class {fully_qualified_name(self._cls)} subclass {fully_qualified_name(Portable)}"
+                    )
+                raise NotPortable(
+                    Paragraphs(
+                        "This definition does not have a porter. Possible solutions:",
+                        UnorderedList(*instructions),
+                    )
+                )
+        assert self.__porter is not None
+        return self.__porter  # ty:ignore[invalid-return-type]
+
     @override
     def load(self, portable: PortableData, /) -> _DataClsT:
         return self._porter.load(portable)
@@ -132,7 +146,6 @@ class DataDefinition(
         if isinstance(data, Hydratable):
             await data.hydrate(services)
         if isinstance(data, Configuration):
-            assert services is not None
             validator = data.validator
             if validator is not None:
                 await services.new_target(validator)

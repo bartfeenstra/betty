@@ -59,6 +59,15 @@ class MappingDefinition(CollectionDefinition[_MutableMappingT, Key]):
     def _load(self, portable: PortableData, /) -> _MutableMappingT:
         from betty.assertion import assert_mapping
 
+        # @todo Can we merge cls and factory? I had thoughts about that recently but did not write them down. What were they?
+        # @todo Basically, we do not need a cls for definitions to work. In fact, we cannot depend on just a cls, because
+        # @todo of data that is a union and/or intersection, including Optional.
+        # @todo
+        # @todo What we really use cls for, is a fallback for all other functionality: porting, hydrating, and potentially as a factory.
+        # @todo
+        # @todo
+        # @todo
+        # @todo
         factory = self.cls if not self._factory else self._factory
         return factory(assert_mapping(self._item.load, self._key.load)(portable))
 
