@@ -21,5 +21,5 @@ class FilePathDefinition(DataDefinition[Path]):
         super().__init__(
             cls=Path,
             label=_("File path"),
-            porter=CallbackPorter(assert_file_path(), str),
+            porter=CallbackPorter[Path](assert_file_path(), str),
         )

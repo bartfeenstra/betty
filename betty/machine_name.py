@@ -34,7 +34,7 @@ class MachineNameDefinition(DataDefinition[str]):
         super().__init__(
             cls=str,
             label=_("Machine name"),
-            porter=CallbackPorter(assert_machine_name(), passthrough),
+            porter=CallbackPorter[str](assert_machine_name(), passthrough),
         )
 
 

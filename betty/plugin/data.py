@@ -30,7 +30,7 @@ class PluginIdDefinition(DataDefinition[MachineName]):
             cls=MachineName,
             label=plugin_type.type().label,
             description=_("A plugin ID"),
-            porter=CallbackPorter(assert_machine_name(), passthrough),
+            porter=CallbackPorter[str](assert_machine_name(), passthrough),
         )
         self._plugin_type = plugin_type
 
