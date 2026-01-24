@@ -31,5 +31,5 @@ class TestAggregateDefinition:
 
         element_data = object()
         sut = _Sut()
-        await sut.hydrate({"key": element_data}, universe)
-        m_element.hydrate.assert_awaited_once_with(element_data, universe)
+        await sut.hydrate(universe, {"key": element_data})
+        m_element.hydrate.assert_awaited_once_with(universe, element_data)

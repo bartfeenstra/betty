@@ -78,8 +78,8 @@ class ServiceContainer(Bootstrapped, Shutdownable):
                     await self._new_target(validator_factory)
             else:
                 await configuration.data().hydrate(  # ty:ignore[unresolved-attribute]
-                    configuration,
                     self,
+                    configuration,
                 )
 
     @classmethod

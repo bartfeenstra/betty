@@ -25,9 +25,9 @@ class TestPluginIdDefinition:
 
     async def test_hydrate(self) -> None:
         sut = PluginIdDefinition(DummyPluginDefinition)
-        await sut.hydrate(DummyPluginOne.plugin().id, universe)
+        await sut.hydrate(universe, DummyPluginOne.plugin().id)
 
     async def test_hydrate__plugin_not_found(self) -> None:
         sut = PluginIdDefinition(DummyPluginDefinition)
         with pytest.raises(PluginNotFound):
-            await sut.hydrate("non-existent-plugin-id", universe)
+            await sut.hydrate(universe, "non-existent-plugin-id")
