@@ -164,6 +164,7 @@ _BASELINE: Mapping[str, _ModuleIgnore] = {
     },
     "betty/service/hydrate.py": {
         "Hydratable": MissingReason.ABSTRACT,
+        "Hydrator": MissingReason.ABSTRACT,
     },
     "betty/service/level/__init__.py": MissingReason.ABSTRACT,
     "betty/service/level/factory.py": MissingReason.ABSTRACT,

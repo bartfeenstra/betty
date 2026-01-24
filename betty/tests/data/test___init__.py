@@ -148,4 +148,4 @@ class TestDataDefinition:
 
     async def test_hydrate(self) -> None:
         sut = DataDefinition(cls=object, label=DUMMY_LOCALIZABLE)
-        await sut.hydrate(object(), universe)
+        await sut.hydrate(universe, object())

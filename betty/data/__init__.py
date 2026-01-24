@@ -13,7 +13,7 @@ from betty.importlib import fully_qualified_name
 from betty.locale.localizable.ensure import ensure_localizable
 from betty.portable import Portable, PortableData, PortablePorter, Porter
 from betty.portable.error import NotPortable
-from betty.service.hydrate import Hydratable
+from betty.service.hydrate import Hydratable, Hydrator
 
 if TYPE_CHECKING:
     from collections.abc import Callable, Iterable
@@ -29,7 +29,11 @@ _PortableDataCoT = TypeVar(
 )
 
 
-class DataDefinition(Porter[_DataClsT, _PortableDataCoT]):
+class DataDefinition(
+    Hydrator[_DataClsT],
+    Porter[_DataClsT, _PortableDataCoT],
+    Generic[_DataClsT, _PortableDataCoT],
+):
     """
     A data definition.
     """
@@ -134,13 +138,8 @@ class DataDefinition(Porter[_DataClsT, _PortableDataCoT]):
     def dump(self, data: _DataClsT, /) -> _PortableDataCoT:
         return self.porter.dump(data)
 
-    async def hydrate(self, data: _DataClsT, services: ServiceLevel, /) -> None:
-        """
-        Hydrate the data.
-
-        Hydration allows data definitions to require a :py:type:`betty.service.level.ServiceLevel` to perform tasks
-        such as validation or enhancing the data using information or functionality from the service level.
-        """
+    @override
+    async def hydrate(self, services: ServiceLevel, data: _DataClsT, /) -> None:
         from betty.config import Configuration
 
         if isinstance(data, Hydratable):
