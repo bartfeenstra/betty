@@ -8,10 +8,6 @@ from typing import TYPE_CHECKING, Any
 
 from typing_extensions import TypeVar, override
 
-from betty.locale.localizable.attr import (
-    OptionalLocalizableAttr,
-    RequiredLocalizableAttr,
-)
 from betty.locale.localizable.ensure import ensure_localizable
 from betty.locale.localizable.gettext import _
 from betty.plugin import PluginDefinition
@@ -33,9 +29,6 @@ class HumanFacingPluginDefinition(PluginDefinition[_BaseClsCoT]):
     A definition of a plugin that is human-facing.
     """
 
-    _label = RequiredLocalizableAttr()
-    _description = OptionalLocalizableAttr()
-
     def __init__(
         self,
         plugin_id: MachineName,
@@ -45,8 +38,10 @@ class HumanFacingPluginDefinition(PluginDefinition[_BaseClsCoT]):
         **kwargs: Any,
     ):
         super().__init__(plugin_id, **kwargs)
-        self._label = label
-        self._description = description
+        self._label = ensure_localizable(label)
+        self._description = (
+            None if description is None else ensure_localizable(description)
+        )
 
     @override
     @property
