@@ -19,9 +19,9 @@ from betty.config.factory import ConfigurationDependentSelfFactory
 from betty.content_provider import ContentProvider, ContentProviderDefinition
 from betty.data import Sample
 from betty.locale.localizable.assertion import assert_load_localizable
-from betty.locale.localizable.attr import RequiredLocalizableAttr
 from betty.locale.localizable.gettext import _
 from betty.locale.localizable.portable import dump_localizable
+from betty.locale.localizable.property import LocalizableProperty
 from betty.media_type import MediaType
 from betty.media_type.media_types import PLAIN_TEXT
 from betty.plugin.config import (
@@ -57,7 +57,7 @@ class RenderConfiguration(Configuration):
     .. configuration:: betty.content_provider.content_providers:RenderConfiguration
     """
 
-    content = RequiredLocalizableAttr()
+    content = LocalizableProperty(label=_("Content"))
 
     def __init__(self, content: LocalizableLike, media_type: MediaType = PLAIN_TEXT, /):
         super().__init__()

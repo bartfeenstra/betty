@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Betty VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-01-25 12:42+0000\n"
+"POT-Creation-Date: 2026-01-25 13:11+0000\n"
 "PO-Revision-Date: 2026-01-18 18:06+0000\n"
 "Last-Translator: Bart Feenstra <bart@bartfeenstra.com>\n"
 "Language: es_ES\n"
@@ -393,6 +393,9 @@ msgstr ""
 msgid "Contains"
 msgstr ""
 
+msgid "Content"
+msgstr ""
+
 msgid "Content provider"
 msgstr ""
 
@@ -505,6 +508,9 @@ msgid "Department"
 msgstr "Departamento"
 
 msgid "Departments"
+msgstr ""
+
+msgid "Description"
 msgstr ""
 
 msgid "Description, licensing, and image history"
@@ -760,6 +766,9 @@ msgstr "Aldea"
 msgid "Hamlets"
 msgstr ""
 
+msgid "Heading"
+msgstr ""
+
 msgid "Help improve the translations"
 msgstr ""
 
@@ -827,6 +836,12 @@ msgid "Keywords"
 msgstr "Palabras clave"
 
 msgid "Label"
+msgstr ""
+
+msgid "Label (countable)"
+msgstr ""
+
+msgid "Label (plural)"
 msgstr ""
 
 msgid "Language"
@@ -916,6 +931,9 @@ msgstr ""
 msgid "Locality"
 msgstr ""
 
+msgid "Location"
+msgstr ""
+
 msgid "Logo"
 msgstr ""
 
@@ -986,6 +1004,9 @@ msgstr ""
 
 msgid "Municipality"
 msgstr "Municipio"
+
+msgid "Name"
+msgstr ""
 
 msgid "Names"
 msgstr ""
@@ -1391,7 +1412,13 @@ msgid ""
 "{stdout}"
 msgstr ""
 
+msgid "Summary"
+msgstr ""
+
 msgid "System"
+msgstr ""
+
+msgid "Text"
 msgstr ""
 
 #, python-format

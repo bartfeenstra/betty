@@ -12,9 +12,10 @@ from betty.ancestry.date import HasDate
 from betty.ancestry.has_file_references import HasFileReferences
 from betty.ancestry.has_links import HasLinks
 from betty.ancestry.source import Source
-from betty.locale.localizable.attr import OptionalLocalizableAttr
+from betty.data.aggregate.record.object.property import Optional
 from betty.locale.localizable.gettext import _, ngettext
 from betty.locale.localizable.linked_data import dump_linked_data
+from betty.locale.localizable.property import LocalizableProperty
 from betty.locale.localizable.static.schema import StaticTranslationsSchema
 from betty.model import EntityDefinition
 from betty.model.association import (
@@ -47,7 +48,7 @@ class Citation(HasDate, HasFileReferences, HasPrivacy, HasLinks):
     .. plugin:: entity:citation.
     """
 
-    location = OptionalLocalizableAttr()
+    location = Optional(LocalizableProperty(label=_("Location")))
     """
     The location within the source this citation references.
     """

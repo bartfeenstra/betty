@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Betty VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-01-25 12:42+0000\n"
+"POT-Creation-Date: 2026-01-25 13:11+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -388,6 +388,9 @@ msgstr ""
 msgid "Contains"
 msgstr ""
 
+msgid "Content"
+msgstr ""
+
 msgid "Content provider"
 msgstr ""
 
@@ -498,6 +501,9 @@ msgid "Department"
 msgstr ""
 
 msgid "Departments"
+msgstr ""
+
+msgid "Description"
 msgstr ""
 
 msgid "Description, licensing, and image history"
@@ -750,6 +756,9 @@ msgstr ""
 msgid "Hamlets"
 msgstr ""
 
+msgid "Heading"
+msgstr ""
+
 msgid "Help improve the translations"
 msgstr ""
 
@@ -817,6 +826,12 @@ msgid "Keywords"
 msgstr ""
 
 msgid "Label"
+msgstr ""
+
+msgid "Label (countable)"
+msgstr ""
+
+msgid "Label (plural)"
 msgstr ""
 
 msgid "Language"
@@ -906,6 +921,9 @@ msgstr ""
 msgid "Locality"
 msgstr ""
 
+msgid "Location"
+msgstr ""
+
 msgid "Logo"
 msgstr ""
 
@@ -975,6 +993,9 @@ msgid "Municipalities"
 msgstr ""
 
 msgid "Municipality"
+msgstr ""
+
+msgid "Name"
 msgstr ""
 
 msgid "Names"
@@ -1379,7 +1400,13 @@ msgid ""
 "{stdout}"
 msgstr ""
 
+msgid "Summary"
+msgstr ""
+
 msgid "System"
+msgstr ""
+
+msgid "Text"
 msgstr ""
 
 #, python-format

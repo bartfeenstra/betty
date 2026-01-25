@@ -9,8 +9,9 @@ from typing import TYPE_CHECKING, final
 from typing_extensions import override
 
 from betty.ancestry.date import HasDate
-from betty.locale.localizable.attr import RequiredLocalizableAttr
+from betty.locale.localizable.gettext import _
 from betty.locale.localizable.linked_data import dump_linked_data
+from betty.locale.localizable.property import LocalizableProperty
 from betty.locale.localizable.static.schema import StaticTranslationsSchema
 
 if TYPE_CHECKING:
@@ -29,7 +30,7 @@ class Name(HasDate):
     A name can be translated, and have a date expressing the period the name was in use.
     """
 
-    name = RequiredLocalizableAttr()
+    name = LocalizableProperty(label=_("Name"))
 
     def __init__(
         self,

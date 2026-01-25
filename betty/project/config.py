@@ -32,6 +32,7 @@ from betty.data import Data, DataDefinition, Sample
 from betty.data.aggregate.collection.keyed import KeyedCollectionDefinition
 from betty.data.aggregate.record import FieldDefinition
 from betty.data.aggregate.record.object import AttrDefinition, ObjectDefinition
+from betty.data.aggregate.record.object.property import Optional
 from betty.data.bool import BoolDefinition
 from betty.data.indicator.selector import Attr
 from betty.data.int import IntDefinition
@@ -42,14 +43,10 @@ from betty.exception import HumanFacingException
 from betty.license import License, LicenseDefinition
 from betty.locale import DEFAULT_LOCALE, LocaleLike, ensure_locale, to_language_tag
 from betty.locale.localizable.assertion import assert_load_localizable
-from betty.locale.localizable.attr import (
-    OptionalLocalizableAttr,
-    RequiredLocalizableAttr,
-)
-from betty.locale.localizable.data import LocalizableDefinition
 from betty.locale.localizable.ensure import ensure_localizable
 from betty.locale.localizable.gettext import _
 from betty.locale.localizable.portable import dump_localizable
+from betty.locale.localizable.property import LocalizableProperty
 from betty.locale.localizable.static import CountableStaticTranslations
 from betty.machine_name import MachineName, MachineNameDefinition, assert_machine_name
 from betty.model import EntityDefinition
@@ -339,8 +336,8 @@ class CopyrightNoticePluginConfiguration(HumanFacingPluginDefinitionConfiguratio
     .. configuration:: betty.project.config:CopyrightNoticePluginConfiguration
     """
 
-    summary = RequiredLocalizableAttr()
-    text = RequiredLocalizableAttr()
+    summary = LocalizableProperty(label=_("Summary"))
+    text = LocalizableProperty(label=_("Text"))
 
     def __init__(
         self, *, summary: LocalizableLike, text: LocalizableLike, **kwargs: Any
@@ -436,8 +433,8 @@ class LicensePluginConfiguration(HumanFacingPluginDefinitionConfiguration):
     .. configuration:: betty.project.config:LicensePluginConfiguration
     """
 
-    summary = RequiredLocalizableAttr()
-    text = RequiredLocalizableAttr()
+    summary = LocalizableProperty(label=_("Summary"))
+    text = LocalizableProperty(label=_("Text"))
 
     def __init__(
         self, *, summary: LocalizableLike, text: LocalizableLike, **kwargs: Any
@@ -814,9 +811,6 @@ class GenderPluginConfigurationMapping(
     label=_("Project configuration"),
     fields=[
         FieldDefinition(
-            Attr("author"), LocalizableDefinition(), label=_("Author"), optional=True
-        ),
-        FieldDefinition(
             Attr("copyright_notice"),
             DataDefinition(
                 cls=PluginInstanceConfiguration, label=_("Copyright notice")
@@ -830,7 +824,6 @@ class GenderPluginConfigurationMapping(
             optional=True,
             empty=lambda data: data == ProjectConfiguration._default_license(),
         ),
-        FieldDefinition(Attr("title"), LocalizableDefinition(), label=_("Title")),
     ],
     samples=[
         lambda: Sample(
@@ -880,8 +873,8 @@ class ProjectConfiguration(Data):
     """
     The project-wide copyright notice.
     """
-    title = RequiredLocalizableAttr()
-    author = OptionalLocalizableAttr()
+    title = LocalizableProperty(label=_("Title"))
+    author = Optional(LocalizableProperty(label=_("Author")))
 
     def __init__(
         self,

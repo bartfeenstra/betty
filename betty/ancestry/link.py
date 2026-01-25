@@ -10,13 +10,11 @@ from typing_extensions import override
 
 from betty.ancestry.description import HasDescription
 from betty.ancestry.media_type import HasMediaType
+from betty.data.aggregate.record.object.property import Optional
 from betty.json.schema import String
-from betty.locale.localizable.attr import (
-    OptionalLocalizableAttr,
-    RequiredLocalizableAttr,
-)
 from betty.locale.localizable.gettext import _, ngettext
 from betty.locale.localizable.linked_data import dump_linked_data
+from betty.locale.localizable.property import LocalizableProperty
 from betty.locale.localizable.static.schema import StaticTranslationsSchema
 from betty.model import Entity, EntityDefinition
 from betty.model.association import BidirectionalToZeroOrOne
@@ -44,8 +42,8 @@ class Link(HasMediaType, HasDescription, HasPrivacy, Entity):
     .. plugin:: entity:link.
     """
 
-    _url = RequiredLocalizableAttr()
-    _label = OptionalLocalizableAttr()
+    _url = LocalizableProperty(label=_("URL"))
+    _label = Optional(LocalizableProperty(label=_("Label")))
 
     relationship: str | None
     """

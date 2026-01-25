@@ -10,9 +10,9 @@ from typing_extensions import override
 
 from betty.ancestry.has_links import HasLinks
 from betty.ancestry.media_type import HasMediaType
-from betty.locale.localizable.attr import RequiredLocalizableAttr
 from betty.locale.localizable.gettext import _, ngettext
 from betty.locale.localizable.linked_data import dump_linked_data
+from betty.locale.localizable.property import LocalizableProperty
 from betty.locale.localizable.static.schema import StaticTranslationsSchema
 from betty.model import EntityDefinition
 from betty.model.association import BidirectionalToZeroOrOne, ToZeroOrOneAssociate
@@ -38,7 +38,7 @@ class Note(HasPrivacy, HasLinks, HasMediaType):
     .. plugin:: entity:note.
     """
 
-    text = RequiredLocalizableAttr()
+    text = LocalizableProperty(label=_("Text"))
     """
     The note text.
     """

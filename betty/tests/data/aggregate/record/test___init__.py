@@ -1,3 +1,5 @@
+from unittest.mock import AsyncMock
+
 import pytest
 
 from betty.data import DataDefinition
@@ -6,6 +8,7 @@ from betty.data.indicator.selector import Attr, Key
 from betty.data.str import StrDefinition
 from betty.exception import HumanFacingException
 from betty.locale.localizable.plain import Plain
+from betty.service.level.universal import universe
 from betty.test_utils.locale.localizable import DUMMY_LOCALIZABLE
 
 
@@ -70,6 +73,45 @@ class TestFieldDefinition:
         )
         assert sut.empty(None)
 
+    def test_load__without_none(self) -> None:
+        m_data = AsyncMock(spec=DataDefinition)
+        sut = FieldDefinition(Key("-"), m_data, optional=True)
+        portable = {}
+        sut.load(portable)
+        m_data.load.assert_called_once_with(portable)
+
+    def test_load__with_none(self) -> None:
+        m_data = AsyncMock(spec=DataDefinition)
+        sut = FieldDefinition(Key("-"), m_data, optional=True)
+        sut.load(None)
+        m_data.load.assert_not_called()
+
+    def test_dump__without_none(self) -> None:
+        m_data = AsyncMock(spec=DataDefinition)
+        sut = FieldDefinition(Key("-"), m_data, optional=True)
+        data = object()
+        sut.dump(data)
+        m_data.dump.assert_called_once_with(data)
+
+    def test_dump__with_none(self) -> None:
+        m_data = AsyncMock(spec=DataDefinition)
+        sut = FieldDefinition(Key("-"), m_data, optional=True)
+        sut.dump(None)
+        m_data.dump.assert_not_called()
+
+    async def test_hydrate__without_none(self) -> None:
+        m_data = AsyncMock(spec=DataDefinition)
+        sut = FieldDefinition(Key("-"), m_data, optional=True)
+        data = object()
+        await sut.hydrate(universe, data)
+        m_data.hydrate.assert_awaited_once_with(universe, data)
+
+    async def test_hydrate__with_none(self) -> None:
+        m_data = AsyncMock(spec=DataDefinition)
+        sut = FieldDefinition(Key("-"), m_data, optional=True)
+        await sut.hydrate(universe, None)
+        m_data.hydrate.assert_not_awaited()
+
 
 class RecordDefinitionTestRecord:
     def __init__(self, my_first_element: str | None = None):
@@ -82,26 +124,37 @@ class RecordDefinitionTestFactoryRecord(RecordDefinitionTestRecord):
 
 class TestRecordDefinition:
     def test_fields(self) -> None:
-        element = FieldDefinition(
+        field = FieldDefinition(
             Attr("my_first_element"), StrDefinition(label=DUMMY_LOCALIZABLE)
         )
         sut = RecordDefinition[RecordDefinitionTestRecord, Attr](
             cls=RecordDefinitionTestRecord,
             label=DUMMY_LOCALIZABLE,
-            fields=[element],
+            fields=[field],
         )
-        assert list(sut.fields) == [element]
+        assert list(sut.fields) == [field]
 
-    def test_elements(self) -> None:
-        selector = Attr("my_first_element")
-        element = StrDefinition(label=DUMMY_LOCALIZABLE)
-        field = FieldDefinition(selector, element)
+    def test_field(self) -> None:
+        field = FieldDefinition(
+            Attr("my_first_element"), StrDefinition(label=DUMMY_LOCALIZABLE)
+        )
         sut = RecordDefinition[RecordDefinitionTestRecord, Attr](
             cls=RecordDefinitionTestRecord,
             label=DUMMY_LOCALIZABLE,
             fields=[field],
         )
-        assert list(sut.elements(RecordDefinitionTestRecord())) == [(selector, element)]
+        assert sut.field(Attr("my_first_element")) == field
+
+    def test_elements(self) -> None:
+        selector = Attr("my_first_element")
+        data = StrDefinition(label=DUMMY_LOCALIZABLE)
+        field = FieldDefinition(selector, data)
+        sut = RecordDefinition[RecordDefinitionTestRecord, Attr](
+            cls=RecordDefinitionTestRecord,
+            label=DUMMY_LOCALIZABLE,
+            fields=[field],
+        )
+        assert list(sut.elements(RecordDefinitionTestRecord())) == [(selector, data)]
 
     def test_load__required_with_value(self) -> None:
         field_name = "my_first_element"

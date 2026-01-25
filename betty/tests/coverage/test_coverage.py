@@ -84,11 +84,6 @@ _BASELINE: Mapping[str, _ModuleIgnore] = {
         "OptionalField": MissingReason.DATACLASS,
         "RequiredField": MissingReason.DATACLASS,
     },
-    "betty/attr.py": {
-        "AttrNotInitialized": MissingReason.STATIC_CONTENT_ONLY,
-        "OptionalAttr": MissingReason.SHOULD_BE_COVERED,
-        "RequiredAttr": MissingReason.SHOULD_BE_COVERED,
-    },
     "betty/cache/__init__.py": {
         "Cache": MissingReason.ABSTRACT,
         "CacheItem": MissingReason.SHOULD_BE_COVERED,
@@ -180,8 +175,11 @@ _BASELINE: Mapping[str, _ModuleIgnore] = {
     "betty/data/aggregate/collection/__init__.py": {
         "CollectionDefinition": MissingReason.ABSTRACT,
     },
-    "betty/data/aggregate/record/object.py": {
+    "betty/data/aggregate/record/object/__init__.py": {
         "Attr": MissingReason.ABSTRACT,
+    },
+    "betty/data/aggregate/record/object/property.py": {
+        "PropertyNotInitialized": MissingReason.STATIC_CONTENT_ONLY,
     },
     "betty/data/indicator/__init__.py": {
         "Indicator": MissingReason.ABSTRACT,

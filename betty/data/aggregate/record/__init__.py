@@ -4,9 +4,9 @@ Record data types.
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Any, Generic, TypeVar, final
+from typing import TYPE_CHECKING, Any, Generic, final
 
-from typing_extensions import override
+from typing_extensions import TypeVar, override
 
 from betty.assertion import OptionalField
 from betty.data import DataDefinition
@@ -14,19 +14,28 @@ from betty.data.aggregate import AggregateDefinition
 from betty.data.indicator.selector import Element
 from betty.locale.localizable.ensure import ensure_localizable
 from betty.portable import PortableData, PortableMapping, Porter
+from betty.service.hydrate import Hydrator
 
 if TYPE_CHECKING:
     from collections.abc import Callable, Iterable, MutableSequence, Sequence
 
     from betty.data import Data, Sample
     from betty.locale.localizable import Localizable, LocalizableLike
+    from betty.service.level import ServiceLevel
 
 _DataClsT = TypeVar("_DataClsT")
 _ElementT = TypeVar("_ElementT", bound=Element[Any])
+_PortableDataCoT = TypeVar(
+    "_PortableDataCoT", bound=PortableData, default=PortableData, covariant=True
+)
 
 
 @final
-class FieldDefinition(Generic[_ElementT, _DataClsT]):
+class FieldDefinition(
+    Hydrator[_DataClsT | None],
+    Porter[_DataClsT | None, _PortableDataCoT | None],
+    Generic[_ElementT, _DataClsT, _PortableDataCoT],
+):
     """
     A record field definition.
     """
@@ -34,7 +43,8 @@ class FieldDefinition(Generic[_ElementT, _DataClsT]):
     def __init__(
         self,
         selector: _ElementT,
-        data: DataDefinition[_DataClsT] | Data[DataDefinition[_DataClsT]],
+        data: DataDefinition[_DataClsT, _PortableDataCoT]
+        | Data[DataDefinition[_DataClsT, _PortableDataCoT]],
         *,
         label: LocalizableLike | None = None,
         description: LocalizableLike | None = None,
@@ -42,7 +52,9 @@ class FieldDefinition(Generic[_ElementT, _DataClsT]):
         empty: Callable[[_DataClsT], bool] | None = None,
     ):
         self._selector = selector
-        self._data = data if isinstance(data, DataDefinition) else data.data()
+        self._data: DataDefinition[_DataClsT, _PortableDataCoT] = (
+            data if isinstance(data, DataDefinition) else data.data()
+        )
         self._label = None if label is None else ensure_localizable(label)
         self._description = (
             None if description is None else ensure_localizable(description)
@@ -58,7 +70,7 @@ class FieldDefinition(Generic[_ElementT, _DataClsT]):
         return self._selector
 
     @property
-    def data(self) -> DataDefinition:
+    def data(self) -> DataDefinition[_DataClsT, _PortableDataCoT]:
         """
         The field's data definition.
         """
@@ -94,6 +106,28 @@ class FieldDefinition(Generic[_ElementT, _DataClsT]):
         if self._empty is None:
             return self.data.empty(data)
         return self._empty(data)
+
+    @override
+    def load(self, portable: PortableData, /) -> _DataClsT | None:
+        if self._optional and portable is None:
+            return None
+        return self.data.load(portable)
+
+    @override
+    def dump(self, data: _DataClsT | None, /) -> _PortableDataCoT | None:
+        if data is None:
+            if self._optional:
+                return None
+            raise ValueError("This field is not optional and cannot contain `None`.")
+        return self.data.dump(data)
+
+    @override
+    async def hydrate(self, services: ServiceLevel, data: _DataClsT | None, /) -> None:
+        if data is None:
+            if self._optional:
+                return
+            raise ValueError("This field is not optional and cannot contain `None`.")
+        await self.data.hydrate(services, data)
 
 
 class _RecordPorter(Porter[_DataClsT]):
@@ -153,6 +187,15 @@ class RecordDefinition(AggregateDefinition[_DataClsT, _ElementT]):
         """
         return self._fields
 
+    def field(self, selector: _ElementT) -> FieldDefinition[_ElementT, Any]:
+        """
+        Get the field definition for the given selector.
+        """
+        for field in self.fields:
+            if field.selector == selector:
+                return field
+        raise ValueError(f"Field {selector} not found")
+
     @override
     def elements(self, data: _DataClsT) -> Sequence[tuple[_ElementT, DataDefinition]]:
         return [(field.selector, field.data) for field in self.fields]  # ty:ignore[invalid-return-type]
@@ -165,7 +208,7 @@ class RecordDefinition(AggregateDefinition[_DataClsT, _ElementT]):
             **assert_record(
                 *[
                     (OptionalField if field.optional else RequiredField)(
-                        field.selector.element, field.data.load
+                        field.selector.element, field.load
                     )
                     for field in self.fields
                 ]
@@ -177,7 +220,7 @@ class RecordDefinition(AggregateDefinition[_DataClsT, _ElementT]):
         for field in self.fields:
             field_data = field.selector.get(data)
             if not field.empty(field_data):
-                portable[field.selector.element] = field.data.dump(field_data)
+                portable[field.selector.element] = field.dump(field_data)
         return portable
 
     def load_key(
@@ -198,3 +241,9 @@ class RecordDefinition(AggregateDefinition[_DataClsT, _ElementT]):
         portable_key = portable.pop(key.element)
         assert isinstance(portable_key, str)
         return portable_key, portable
+
+    @override
+    async def _hydrate_element(
+        self, services: ServiceLevel, data: Any, selector: _ElementT, /
+    ) -> None:
+        await self.field(selector).hydrate(services, data)
