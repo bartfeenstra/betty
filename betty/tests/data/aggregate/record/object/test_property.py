@@ -2,6 +2,7 @@ from unittest.mock import AsyncMock
 
 import pytest
 
+from betty.app import App
 from betty.assertion import assert_str
 from betty.data import Data, DataDefinition
 from betty.data.aggregate.record.object import ObjectDefinition
@@ -187,3 +188,19 @@ class TestOptional:
 
         await _Owner.data().hydrate(universe, _Owner(None))
         m_data.hydrate.assert_not_awaited()
+
+    async def test_dump_linked_data__without_dumpable_required_property(self) -> None:
+        raise NotImplementedError
+
+    async def test_dump_linked_data__with_dumpable_required_property(self) -> None:
+        raise NotImplementedError
+
+    async def test_linked_data_schema__without_dumpable_required_property(
+        self, isolated_app: App
+    ) -> None:
+        raise NotImplementedError
+
+    async def test_linked_data_schema__with_dumpable_required_property(
+        self, isolated_app: App
+    ) -> None:
+        raise NotImplementedError

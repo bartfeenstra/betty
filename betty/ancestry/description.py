@@ -10,15 +10,11 @@ from typing_extensions import override
 
 from betty.data.aggregate.record.object.property import Optional
 from betty.json.linked_data import (
-    JsonLdObject,
     LinkedDataDumpableWithSchemaJsonLdObject,
     dump_context,
 )
 from betty.locale.localizable.gettext import _
-from betty.locale.localizable.linked_data import dump_linked_data
 from betty.locale.localizable.property import LocalizableProperty
-from betty.locale.localizable.static.schema import StaticTranslationsSchema
-from betty.privacy import is_public
 
 if TYPE_CHECKING:
     from betty.locale.localizable import LocalizableLike
@@ -46,22 +42,7 @@ class HasDescription(LinkedDataDumpableWithSchemaJsonLdObject):
         self.description = description
 
     @override
-    @classmethod
-    async def linked_data_schema(cls, project: Project, /) -> JsonLdObject:
-        schema = await super().linked_data_schema(project)
-        schema.add_property(
-            "description",
-            StaticTranslationsSchema(),
-            False,
-        )
-        return schema
-
-    @override
     async def dump_linked_data(self, project: Project, /) -> PortableMapping:
         portable = await super().dump_linked_data(project)
         dump_context(portable, description="https://schema.org/description")
-        if self.description is not None and is_public(self):
-            portable["description"] = dump_linked_data(
-                self.description, localizers=await project.public_localizers
-            )
         return portable

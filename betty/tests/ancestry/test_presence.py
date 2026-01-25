@@ -78,6 +78,7 @@ class TestPresence(EntityTestBase):
         sut = Presence(person, role, event)
 
         expected: PortableMapping = {
+            "@type": "https://schema.org/Thing",
             "id": sut.id,
             "event": "/event/my-first-event/index.json",
             "person": "/person/my-first-person/index.json",
@@ -94,6 +95,7 @@ class TestPresence(EntityTestBase):
         sut = Presence(person, role, event, privacy=Privacy.PRIVATE)
 
         expected: PortableMapping = {
+            "@type": "https://schema.org/Thing",
             "id": sut.id,
             "event": "/event/my-first-event/index.json",
             "person": "/person/my-first-person/index.json",

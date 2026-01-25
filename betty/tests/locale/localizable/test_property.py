@@ -1,12 +1,16 @@
 from gettext import NullTranslations
 
+from betty.app import App
 from betty.locale import DEFAULT_LOCALE, DEFAULT_LOCALE_TAG
 from betty.locale.localizable.plain import Plain
 from betty.locale.localizable.property import (
     CountableLocalizableProperty,
     LocalizableProperty,
 )
+from betty.locale.localizable.static.schema import StaticTranslationsSchema
 from betty.locale.localize import DEFAULT_LOCALIZER, Localizer
+from betty.project import Project
+from betty.test_utils.json.linked_data import assert_linked_data_dump
 from betty.test_utils.locale.localizable import DUMMY_LOCALIZABLE
 
 
@@ -37,6 +41,21 @@ class TestLocalizableProperty:
         localizable = Plain("Hello, world!")
         instance.attr = localizable
         assert instance.attr is localizable
+
+    async def test_dump_linked_data(self) -> None:
+        instance = self._Instance()
+        localizable = Plain("Hello, world!")
+        instance.attr = localizable
+
+        actual = await assert_linked_data_dump(
+            StaticTranslationsSchema(),
+            lambda project: self._Instance.attr.dump_linked_data(project, instance),
+        )
+        assert actual == {"en-US": "Hello, world!"}
+
+    async def test_linked_data_schema(self, isolated_app: App) -> None:
+        async with Project.new_isolated(isolated_app) as project, project:
+            await self._Instance.attr.linked_data_schema(project)
 
 
 class TestCountableLocalizableProperty:

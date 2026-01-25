@@ -13,9 +13,7 @@ from betty.ancestry.media_type import HasMediaType
 from betty.data.aggregate.record.object.property import Optional
 from betty.json.schema import String
 from betty.locale.localizable.gettext import _, ngettext
-from betty.locale.localizable.linked_data import dump_linked_data
 from betty.locale.localizable.property import LocalizableProperty
-from betty.locale.localizable.static.schema import StaticTranslationsSchema
 from betty.model import Entity, EntityDefinition
 from betty.model.association import BidirectionalToZeroOrOne
 from betty.privacy import HasPrivacy, Privacy, merge_privacies
@@ -115,16 +113,9 @@ class Link(HasMediaType, HasDescription, HasPrivacy, Entity):
 
     @override
     async def dump_linked_data(self, project: Project, /) -> PortableMapping:
-        public_localizers = await project.public_localizers
         portable = await super().dump_linked_data(project)
-        if self.public:
-            portable["url"] = dump_linked_data(self.url, localizers=public_localizers)
-            if self._label is not None:
-                portable["label"] = dump_linked_data(
-                    self._label, localizers=public_localizers
-                )
-            if self.relationship is not None:
-                portable["relationship"] = self.relationship
+        if self.public and self.relationship is not None:
+            portable["relationship"] = self.relationship
         return portable
 
     @override
@@ -132,23 +123,9 @@ class Link(HasMediaType, HasDescription, HasPrivacy, Entity):
     async def linked_data_schema(cls, project: Project, /) -> JsonLdObject:
         schema = await super().linked_data_schema(project)
         schema.add_property(
-            "url",
-            StaticTranslationsSchema(
-                title="Label", description="The full URL to the other resource."
-            ),
-            False,
-        )
-        schema.add_property(
             "relationship",
             String(
                 description="The relationship between this resource and the link target (https://en.wikipedia.org/wiki/Link_relation)."
-            ),
-            False,
-        )
-        schema.add_property(
-            "label",
-            StaticTranslationsSchema(
-                title="Label", description="The human-readable link label."
             ),
             False,
         )

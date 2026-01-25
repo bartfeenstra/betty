@@ -209,6 +209,7 @@ class TestPlace(EntityTestBase):
             "notes": [],
             "links": [
                 {
+                    "@type": "https://schema.org/Thing",
                     "@context": {"description": "https://schema.org/description"},
                     "id": link.id,
                     "url": {
@@ -234,6 +235,7 @@ class TestPlace(EntityTestBase):
             },
             "enclosees": [
                 {
+                    "@type": "https://schema.org/Thing",
                     "id": enclosee.id,
                     "enclosee": "/place/the_enclosed_place/index.json",
                     "encloser": "/place/the_place/index.json",
@@ -242,6 +244,7 @@ class TestPlace(EntityTestBase):
             ],
             "enclosers": [
                 {
+                    "@type": "https://schema.org/Thing",
                     "id": encloser.id,
                     "enclosee": "/place/the_place/index.json",
                     "encloser": "/place/the_enclosing_place/index.json",

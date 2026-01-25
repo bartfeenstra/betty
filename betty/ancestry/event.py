@@ -23,10 +23,8 @@ from betty.data.aggregate.record.object.property import Optional
 from betty.json.linked_data import JsonLdObject, dump_context
 from betty.json.schema import String
 from betty.locale.localizable.gettext import _, ngettext
-from betty.locale.localizable.linked_data import dump_linked_data
 from betty.locale.localizable.markup import AllEnumeration
 from betty.locale.localizable.property import LocalizableProperty
-from betty.locale.localizable.static.schema import StaticTranslationsSchema
 from betty.model import EntityDefinition
 from betty.model.association import (
     BidirectionalToManySingleType,
@@ -177,21 +175,12 @@ class Event(
             "https://schema.org/OfflineEventAttendanceMode"
         )
         portable["eventStatus"] = "https://schema.org/EventScheduled"
-        if self.name is not None:
-            portable["name"] = dump_linked_data(
-                self.name, localizers=await project.public_localizers
-            )
         return portable
 
     @override
     @classmethod
     async def linked_data_schema(cls, project: Project, /) -> JsonLdObject:
         schema = await super().linked_data_schema(project)
-        schema.add_property(
-            "name",
-            StaticTranslationsSchema(),
-            False,
-        )
         schema.add_property(
             "type",
             PluginIdSchema(

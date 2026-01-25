@@ -290,19 +290,15 @@ class TestUnidirectionalToZeroOrOne:
         type(owner).associate.resolve(owner)
         assert owner.associate is associate
 
-    async def test_linked_data_schema_for(self, isolated_app: App) -> None:
+    async def test_linked_data_schema(self, isolated_app: App) -> None:
         async with Project.new_isolated(isolated_app) as project, project:
-            await self._Owner.associate.linked_data_schema_for(project)
+            await self._Owner.associate.linked_data_schema(project)
 
-    async def test_linked_data_schema_for__with_embedded(
-        self, isolated_app: App
-    ) -> None:
+    async def test_linked_data_schema__with_embedded(self, isolated_app: App) -> None:
         async with Project.new_isolated(isolated_app) as project, project:
-            await self._OwnerEmbedded.associate.linked_data_schema_for(project)
+            await self._OwnerEmbedded.associate.linked_data_schema(project)
 
-    async def test_dump_linked_data_for__with_publishable(
-        self, isolated_app: App
-    ) -> None:
+    async def test_dump_linked_data__with_publishable(self, isolated_app: App) -> None:
         async with Project.new_isolated(isolated_app) as project, project:
             associate = self._Associate("my-first-associate")
             target = self._Owner(associate)
@@ -310,16 +306,14 @@ class TestUnidirectionalToZeroOrOne:
             expected = "/associate/my-first-associate/index.json"
             assert actual == expected
 
-    async def test_dump_linked_data_for__with_generated_id(
-        self, isolated_app: App
-    ) -> None:
+    async def test_dump_linked_data__with_generated_id(self, isolated_app: App) -> None:
         async with Project.new_isolated(isolated_app) as project, project:
             associate = self._NonPublicFacingAssociate()
             target = self._OwnerWithNonPublicFacingAssociate(associate)
             actual = await assert_dumps_linked_data_for(type(target).associate, target)
             assert actual is None
 
-    async def test_dump_linked_data_for__with_non_public_facing(
+    async def test_dump_linked_data__with_non_public_facing(
         self, isolated_app: App
     ) -> None:
         async with Project.new_isolated(isolated_app) as project, project:
@@ -328,25 +322,24 @@ class TestUnidirectionalToZeroOrOne:
             actual = await assert_dumps_linked_data_for(type(target).associate, target)
             assert actual is None
 
-    async def test_dump_linked_data_for__without_associate(
-        self, isolated_app: App
-    ) -> None:
+    async def test_dump_linked_data__without_associate(self, isolated_app: App) -> None:
         async with Project.new_isolated(isolated_app) as project, project:
             target = self._Owner()
             actual = await assert_dumps_linked_data_for(type(target).associate, target)
             assert actual is None
 
-    async def test_dump_linked_data_for__with_embedded(self, isolated_app: App) -> None:
+    async def test_dump_linked_data__with_embedded(self, isolated_app: App) -> None:
         async with Project.new_isolated(isolated_app) as project, project:
             associate = self._Associate()
             target = self._OwnerEmbedded(associate)
             actual = await assert_dumps_linked_data_for(type(target).associate, target)
             expected: PortableMapping = {
+                "@type": "https://schema.org/Thing",
                 "id": associate.id,
             }
             assert actual == expected
 
-    async def test_dump_linked_data_for__with_embedded_without_associate(
+    async def test_dump_linked_data__with_embedded_without_associate(
         self, isolated_app: App
     ) -> None:
         async with Project.new_isolated(isolated_app) as project, project:
@@ -504,19 +497,15 @@ class TestBidirectionalToZeroOrOne:
         assert owner.associate is associate
         assert associate.owner is owner
 
-    async def test_linked_data_schema_for(self, isolated_app: App) -> None:
+    async def test_linked_data_schema(self, isolated_app: App) -> None:
         async with Project.new_isolated(isolated_app) as project, project:
-            await self._Owner.associate.linked_data_schema_for(project)
+            await self._Owner.associate.linked_data_schema(project)
 
-    async def test_linked_data_schema_for__with_embedded(
-        self, isolated_app: App
-    ) -> None:
+    async def test_linked_data_schema__with_embedded(self, isolated_app: App) -> None:
         async with Project.new_isolated(isolated_app) as project, project:
-            await self._OwnerEmbedded.associate.linked_data_schema_for(project)
+            await self._OwnerEmbedded.associate.linked_data_schema(project)
 
-    async def test_dump_linked_data_for__with_publishable(
-        self, isolated_app: App
-    ) -> None:
+    async def test_dump_linked_data__with_publishable(self, isolated_app: App) -> None:
         async with Project.new_isolated(isolated_app) as project, project:
             associate = self._Associate("my-first-associate")
             target = self._Owner(associate)
@@ -524,16 +513,14 @@ class TestBidirectionalToZeroOrOne:
             expected = "/associate/my-first-associate/index.json"
             assert actual == expected
 
-    async def test_dump_linked_data_for__with_generated_id(
-        self, isolated_app: App
-    ) -> None:
+    async def test_dump_linked_data__with_generated_id(self, isolated_app: App) -> None:
         async with Project.new_isolated(isolated_app) as project, project:
             associate = self._NonPublicFacingAssociate()
             target = self._OwnerWithNonPublicFacingAssociate(associate)
             actual = await assert_dumps_linked_data_for(type(target).associate, target)
             assert actual is None
 
-    async def test_dump_linked_data_for__with_non_public_facing(
+    async def test_dump_linked_data__with_non_public_facing(
         self, isolated_app: App
     ) -> None:
         async with Project.new_isolated(isolated_app) as project, project:
@@ -542,26 +529,25 @@ class TestBidirectionalToZeroOrOne:
             actual = await assert_dumps_linked_data_for(type(target).associate, target)
             assert actual is None
 
-    async def test_dump_linked_data_for__without_associate(
-        self, isolated_app: App
-    ) -> None:
+    async def test_dump_linked_data__without_associate(self, isolated_app: App) -> None:
         async with Project.new_isolated(isolated_app) as project, project:
             target = self._Owner()
             actual = await assert_dumps_linked_data_for(type(target).associate, target)
             assert actual is None
 
-    async def test_dump_linked_data_for__with_embedded(self, isolated_app: App) -> None:
+    async def test_dump_linked_data__with_embedded(self, isolated_app: App) -> None:
         async with Project.new_isolated(isolated_app) as project, project:
             associate = self._Associate()
             target = self._OwnerEmbedded(associate)
             actual = await assert_dumps_linked_data_for(type(target).associate, target)
             expected: PortableMapping = {
+                "@type": "https://schema.org/Thing",
                 "id": associate.id,
                 "owner": None,
             }
             assert actual == expected
 
-    async def test_dump_linked_data_for__with_embedded_without_associate(
+    async def test_dump_linked_data__with_embedded_without_associate(
         self, isolated_app: App
     ) -> None:
         async with Project.new_isolated(isolated_app) as project, project:
@@ -665,19 +651,15 @@ class TestUnidirectionalToOne:
         type(owner).associate.resolve(owner)
         assert owner.associate is associate
 
-    async def test_linked_data_schema_for(self, isolated_app: App) -> None:
+    async def test_linked_data_schema(self, isolated_app: App) -> None:
         async with Project.new_isolated(isolated_app) as project, project:
-            await self._Owner.associate.linked_data_schema_for(project)
+            await self._Owner.associate.linked_data_schema(project)
 
-    async def test_linked_data_schema_for__with_embedded(
-        self, isolated_app: App
-    ) -> None:
+    async def test_linked_data_schema__with_embedded(self, isolated_app: App) -> None:
         async with Project.new_isolated(isolated_app) as project, project:
-            await self._OwnerEmbedded.associate.linked_data_schema_for(project)
+            await self._OwnerEmbedded.associate.linked_data_schema(project)
 
-    async def test_dump_linked_data_for__with_publishable(
-        self, isolated_app: App
-    ) -> None:
+    async def test_dump_linked_data__with_publishable(self, isolated_app: App) -> None:
         async with Project.new_isolated(isolated_app) as project, project:
             associate = self._Associate("my-first-associate")
             target = self._Owner(associate)
@@ -685,16 +667,14 @@ class TestUnidirectionalToOne:
             expected = "/associate/my-first-associate/index.json"
             assert actual == expected
 
-    async def test_dump_linked_data_for__with_generated_id(
-        self, isolated_app: App
-    ) -> None:
+    async def test_dump_linked_data__with_generated_id(self, isolated_app: App) -> None:
         async with Project.new_isolated(isolated_app) as project, project:
             associate = self._NonPublicFacingAssociate()
             target = self._OwnerWithNonPublicFacingAssociate(associate)
             actual = await assert_dumps_linked_data_for(type(target).associate, target)
             assert actual is None
 
-    async def test_dump_linked_data_for__with_non_public_facing(
+    async def test_dump_linked_data__with_non_public_facing(
         self, isolated_app: App
     ) -> None:
         async with Project.new_isolated(isolated_app) as project, project:
@@ -703,12 +683,13 @@ class TestUnidirectionalToOne:
             actual = await assert_dumps_linked_data_for(type(target).associate, target)
             assert actual is None
 
-    async def test_dump_linked_data_for__with_embedded(self, isolated_app: App) -> None:
+    async def test_dump_linked_data__with_embedded(self, isolated_app: App) -> None:
         async with Project.new_isolated(isolated_app) as project, project:
             associate = self._Associate()
             target = self._OwnerEmbedded(associate)
             actual = await assert_dumps_linked_data_for(type(target).associate, target)
             expected: PortableMapping = {
+                "@type": "https://schema.org/Thing",
                 "id": associate.id,
             }
             assert actual == expected
@@ -840,19 +821,15 @@ class TestBidirectionalToOne:
         assert owner.associate is associate
         assert associate.owner is owner
 
-    async def test_linked_data_schema_for(self, isolated_app: App) -> None:
+    async def test_linked_data_schema(self, isolated_app: App) -> None:
         async with Project.new_isolated(isolated_app) as project, project:
-            await self._Owner.associate.linked_data_schema_for(project)
+            await self._Owner.associate.linked_data_schema(project)
 
-    async def test_linked_data_schema_for__with_embedded(
-        self, isolated_app: App
-    ) -> None:
+    async def test_linked_data_schema__with_embedded(self, isolated_app: App) -> None:
         async with Project.new_isolated(isolated_app) as project, project:
-            await self._OwnerEmbedded.associate.linked_data_schema_for(project)
+            await self._OwnerEmbedded.associate.linked_data_schema(project)
 
-    async def test_dump_linked_data_for__with_publishable(
-        self, isolated_app: App
-    ) -> None:
+    async def test_dump_linked_data__with_publishable(self, isolated_app: App) -> None:
         async with Project.new_isolated(isolated_app) as project, project:
             associate = self._Associate("my-first-associate")
             target = self._Owner(associate)
@@ -860,16 +837,14 @@ class TestBidirectionalToOne:
             expected = "/associate/my-first-associate/index.json"
             assert actual == expected
 
-    async def test_dump_linked_data_for__with_generated_id(
-        self, isolated_app: App
-    ) -> None:
+    async def test_dump_linked_data__with_generated_id(self, isolated_app: App) -> None:
         async with Project.new_isolated(isolated_app) as project, project:
             associate = self._NonPublicFacingAssociate()
             target = self._OwnerWithNonPublicFacingAssociate(associate)
             actual = await assert_dumps_linked_data_for(type(target).associate, target)
             assert actual is None
 
-    async def test_dump_linked_data_for__with_non_public_facing(
+    async def test_dump_linked_data__with_non_public_facing(
         self, isolated_app: App
     ) -> None:
         async with Project.new_isolated(isolated_app) as project, project:
@@ -878,12 +853,13 @@ class TestBidirectionalToOne:
             actual = await assert_dumps_linked_data_for(type(target).associate, target)
             assert actual is None
 
-    async def test_dump_linked_data_for__with_embedded(self, isolated_app: App) -> None:
+    async def test_dump_linked_data__with_embedded(self, isolated_app: App) -> None:
         async with Project.new_isolated(isolated_app) as project, project:
             associate = self._AssociateEmbedded()
             target = self._OwnerEmbedded(associate)
             actual = await assert_dumps_linked_data_for(type(target).associate, target)
             expected: PortableMapping = {
+                "@type": "https://schema.org/Thing",
                 "id": associate.id,
                 "owner": None,
             }
@@ -959,17 +935,15 @@ class TestUnidirectionalToManySingleType:
         type(owner).associates.resolve(owner)
         assert associate in owner.associates
 
-    async def test_linked_data_schema_for(self, isolated_app: App) -> None:
+    async def test_linked_data_schema(self, isolated_app: App) -> None:
         async with Project.new_isolated(isolated_app) as project, project:
-            await self._Owner.associates.linked_data_schema_for(project)
+            await self._Owner.associates.linked_data_schema(project)
 
-    async def test_linked_data_schema_for__with_embedded(
-        self, isolated_app: App
-    ) -> None:
+    async def test_linked_data_schema__with_embedded(self, isolated_app: App) -> None:
         async with Project.new_isolated(isolated_app) as project, project:
-            await self._OwnerEmbedded.associates.linked_data_schema_for(project)
+            await self._OwnerEmbedded.associates.linked_data_schema(project)
 
-    async def test_dump_linked_data_for(self, isolated_app: App) -> None:
+    async def test_dump_linked_data(self, isolated_app: App) -> None:
         async with Project.new_isolated(isolated_app) as project, project:
             publishable_associate = self._NonPublicFacingAssociate(
                 "my-first-non-public-facing-associate"
@@ -990,7 +964,7 @@ class TestUnidirectionalToManySingleType:
             expected = ["/associate/my-first-associate/index.json"]
             assert actual == expected
 
-    async def test_dump_linked_data_for__with_embedded(self, isolated_app: App) -> None:
+    async def test_dump_linked_data__with_embedded(self, isolated_app: App) -> None:
         async with Project.new_isolated(isolated_app) as project, project:
             associate_one = self._Associate("my-first-publishable-associate")
             associate_two = self._NonPublicFacingAssociate()
@@ -1002,13 +976,16 @@ class TestUnidirectionalToManySingleType:
             actual = await assert_dumps_linked_data_for(type(target).associates, target)
             expected = [
                 {
+                    "@type": "https://schema.org/Thing",
                     "@id": "https://example.com/associate/my-first-publishable-associate/index.json",
                     "id": associate_one.id,
                 },
                 {
+                    "@type": "https://schema.org/Thing",
                     "id": associate_two.id,
                 },
                 {
+                    "@type": "https://schema.org/Thing",
                     "id": associate_three.id,
                 },
             ]
@@ -1196,19 +1173,15 @@ class TestBidirectionalToManySingleType:
         assert associate in owner.associates
         assert associate.owner is owner
 
-    async def test_linked_data_schema_for(self, isolated_app: App) -> None:
+    async def test_linked_data_schema(self, isolated_app: App) -> None:
         async with Project.new_isolated(isolated_app) as project, project:
-            await self._Owner.associates.linked_data_schema_for(project)
+            await self._Owner.associates.linked_data_schema(project)
 
-    async def test_linked_data_schema_for__with_embedded(
-        self, isolated_app: App
-    ) -> None:
+    async def test_linked_data_schema__with_embedded(self, isolated_app: App) -> None:
         async with Project.new_isolated(isolated_app) as project, project:
-            await self._OwnerEmbedded.associates.linked_data_schema_for(project)
+            await self._OwnerEmbedded.associates.linked_data_schema(project)
 
-    async def test_dump_linked_data_for__with_publishable(
-        self, isolated_app: App
-    ) -> None:
+    async def test_dump_linked_data__with_publishable(self, isolated_app: App) -> None:
         async with Project.new_isolated(isolated_app) as project, project:
             associate = self._Associate("my-first-associate")
             target = self._Owner()
@@ -1217,9 +1190,7 @@ class TestBidirectionalToManySingleType:
             expected = ["/associate/my-first-associate/index.json"]
             assert actual == expected
 
-    async def test_dump_linked_data_for__with_generated_id(
-        self, isolated_app: App
-    ) -> None:
+    async def test_dump_linked_data__with_generated_id(self, isolated_app: App) -> None:
         async with Project.new_isolated(isolated_app) as project, project:
             associate = self._Associate()
             target = self._Owner()
@@ -1227,7 +1198,7 @@ class TestBidirectionalToManySingleType:
             actual = await assert_dumps_linked_data_for(type(target).associates, target)
             assert actual == []
 
-    async def test_dump_linked_data_for__with_non_public_facing(
+    async def test_dump_linked_data__with_non_public_facing(
         self, isolated_app: App
     ) -> None:
         async with Project.new_isolated(isolated_app) as project, project:
@@ -1237,7 +1208,7 @@ class TestBidirectionalToManySingleType:
             actual = await assert_dumps_linked_data_for(type(target).associates, target)
             assert actual == []
 
-    async def test_dump_linked_data_for__with_embedded_with_publishable(
+    async def test_dump_linked_data__with_embedded_with_publishable(
         self, isolated_app: App
     ) -> None:
         async with Project.new_isolated(isolated_app) as project, project:
@@ -1247,6 +1218,7 @@ class TestBidirectionalToManySingleType:
             actual = await assert_dumps_linked_data_for(type(target).associates, target)
             expected = [
                 {
+                    "@type": "https://schema.org/Thing",
                     "@id": "https://example.com/associate-embedded/my-first-associate/index.json",
                     "id": associate.id,
                     "owner": None,
@@ -1254,7 +1226,7 @@ class TestBidirectionalToManySingleType:
             ]
             assert actual == expected
 
-    async def test_dump_linked_data_for__with_embedded_with_generated_id(
+    async def test_dump_linked_data__with_embedded_with_generated_id(
         self, isolated_app: App
     ) -> None:
         async with Project.new_isolated(isolated_app) as project, project:
@@ -1264,13 +1236,14 @@ class TestBidirectionalToManySingleType:
             actual = await assert_dumps_linked_data_for(type(target).associates, target)
             expected = [
                 {
+                    "@type": "https://schema.org/Thing",
                     "id": associate.id,
                     "owner": None,
                 },
             ]
             assert actual == expected
 
-    async def test_dump_linked_data_for__with_embedded_with_non_public_facing(
+    async def test_dump_linked_data__with_embedded_with_non_public_facing(
         self, isolated_app: App
     ) -> None:
         async with Project.new_isolated(isolated_app) as project, project:
@@ -1280,6 +1253,7 @@ class TestBidirectionalToManySingleType:
             actual = await assert_dumps_linked_data_for(type(target).associates, target)
             expected = [
                 {
+                    "@type": "https://schema.org/Thing",
                     "id": associate.id,
                     "owner": None,
                 },

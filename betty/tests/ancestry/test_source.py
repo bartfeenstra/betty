@@ -223,6 +223,7 @@ class TestSource(EntityTestBase):
             },
             "links": [
                 {
+                    "@type": "https://schema.org/Thing",
                     "@context": {"description": "https://schema.org/description"},
                     "id": link.id,
                     "url": {

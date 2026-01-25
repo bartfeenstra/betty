@@ -11,19 +11,24 @@ from typing_extensions import override
 from betty.data.aggregate.record.object import Attr, AttrDefinition
 from betty.functools import passthrough
 from betty.importlib import fully_qualified_name
+from betty.json.linked_data import LinkedDataDumper
+from betty.typing import Void
 
 if TYPE_CHECKING:
     from collections.abc import Callable
 
     from betty.data import Data, DataDefinition
+    from betty.json.schema import Schema
     from betty.locale.localizable import LocalizableLike
+    from betty.portable import PortableData
+    from betty.project import Project
 
 
 _ValueGetT = TypeVar("_ValueGetT")
 _ValueSetT = TypeVar("_ValueSetT")
 
 
-class Property(Attr, Generic[_ValueGetT, _ValueSetT]):
+class Property(Attr, LinkedDataDumper[Any], Generic[_ValueGetT, _ValueSetT]):
     """
     An object attribute with a definition.
     """
@@ -90,7 +95,7 @@ class PropertyNotInitialized(ValueError):
 
 
 @final
-class Optional(Attr, Generic[_ValueGetT, _ValueSetT]):
+class Optional(Attr, LinkedDataDumper, Generic[_ValueGetT, _ValueSetT]):
     """
     A base class for properties with optional values.
     """
@@ -139,3 +144,20 @@ class Optional(Attr, Generic[_ValueGetT, _ValueSetT]):
 
     def __delete__(self, instance: Any) -> None:
         setattr(instance, self._attr_name, None)
+
+    @override
+    async def linked_data_schema(self, project: Project, /) -> Schema | Void:
+        # @todo Alter the schema to make it optional
+        if isinstance(self._required_property, LinkedDataDumper):
+            return await self._required_property.linked_data_schema(project)
+        return Void()
+
+    @override
+    async def dump_linked_data(
+        self, project: Project, target: Any, /
+    ) -> PortableData | Void:
+        if self.__get__(target, type(target)) is None:
+            return Void()
+        if isinstance(self._required_property, LinkedDataDumper):
+            return await self._required_property.dump_linked_data(project, target)
+        return Void()

@@ -94,6 +94,7 @@ class TestLink(EntityTestBase):
     async def test_dump_linked_data__should_dump_minimal(self) -> None:
         link = Link("https://example.com")
         expected: Mapping[str, Any] = {
+            "@type": "https://schema.org/Thing",
             "@context": {"description": "https://schema.org/description"},
             "id": link.id,
             "url": {
@@ -116,6 +117,7 @@ class TestLink(EntityTestBase):
             owner=owner,
         )
         expected: Mapping[str, Any] = {
+            "@type": "https://schema.org/Thing",
             "@context": {"description": "https://schema.org/description"},
             "id": link.id,
             "url": {
@@ -147,6 +149,7 @@ class TestLink(EntityTestBase):
             privacy=Privacy.PRIVATE,
         )
         expected: Mapping[str, Any] = {
+            "@type": "https://schema.org/Thing",
             "@context": {"description": "https://schema.org/description"},
             "id": link.id,
             "owner": "/dummy-has-links/O1/index.json",

@@ -269,7 +269,7 @@ class _ToOneAssociation(_Association[_OwnerT, _AssociateT]):
         yield self.__get__(owner, type(owner))
 
     @override
-    async def linked_data_schema_for(self, project: Project, /) -> Schema:
+    async def linked_data_schema(self, project: Project, /) -> Schema:
         if self._linked_data_embedded:
             return await self.associate_type.linked_data_schema(project)
         # We must allow for the associate to be missing, for example if it has a generated entity ID and the linked data
@@ -280,7 +280,7 @@ class _ToOneAssociation(_Association[_OwnerT, _AssociateT]):
         )
 
     @override
-    async def dump_linked_data_for(
+    async def dump_linked_data(
         self, project: Project, target: Intersection[_OwnerT, Entity], /
     ) -> PortableData:
         associate = self.__get__(target, type(target))
@@ -334,7 +334,7 @@ class _ToZeroOrOneAssociation(_Association[_OwnerT, _AssociateT]):
             yield associate
 
     @override
-    async def linked_data_schema_for(self, project: Project, /) -> Schema:
+    async def linked_data_schema(self, project: Project, /) -> Schema:
         if self._linked_data_embedded:
             return OneOf(
                 await self.associate_type.linked_data_schema(project),
@@ -348,7 +348,7 @@ class _ToZeroOrOneAssociation(_Association[_OwnerT, _AssociateT]):
         )
 
     @override
-    async def dump_linked_data_for(
+    async def dump_linked_data(
         self, project: Project, target: Intersection[_OwnerT, Entity], /
     ) -> PortableData:
         associate = self.__get__(target, type(target))
@@ -424,7 +424,7 @@ class _ToManyAssociation(
             collection.add(*value.resolve())
 
     @override
-    async def linked_data_schema_for(self, project: Project, /) -> Schema:
+    async def linked_data_schema(self, project: Project, /) -> Schema:
         if self._linked_data_embedded:
             return Array(
                 await self.associate_type.linked_data_schema(project),
@@ -437,7 +437,7 @@ class _ToManyAssociation(
         )
 
     @override
-    async def dump_linked_data_for(
+    async def dump_linked_data(
         self, project: Project, target: Intersection[_OwnerT, Entity], /
     ) -> PortableData:
         associates = self.__get__(target, type(target))

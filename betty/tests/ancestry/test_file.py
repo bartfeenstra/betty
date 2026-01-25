@@ -172,6 +172,7 @@ class TestFile(EntityTestBase):
                 path=Path(f.name),
             )
             expected: Mapping[str, Any] = {
+                "@type": "https://schema.org/Thing",
                 "@context": {"description": "https://schema.org/description"},
                 "@id": "https://example.com/file/the_file/index.json",
                 "id": "the_file",
@@ -211,6 +212,7 @@ class TestFile(EntityTestBase):
                 )
             )
             expected: Mapping[str, Any] = {
+                "@type": "https://schema.org/Thing",
                 "@context": {"description": "https://schema.org/description"},
                 "@id": "https://example.com/file/the_file/index.json",
                 "id": "the_file",
@@ -225,6 +227,7 @@ class TestFile(EntityTestBase):
                 "links": [],
                 "referees": [
                     {
+                        "@type": "https://schema.org/Thing",
                         "id": reference.id,
                         "referee": "/person/the_person/index.json",
                         "file": "/file/the_file/index.json",
@@ -263,6 +266,7 @@ class TestFile(EntityTestBase):
                 )
             )
             expected: Mapping[str, Any] = {
+                "@type": "https://schema.org/Thing",
                 "@context": {"description": "https://schema.org/description"},
                 "@id": "https://example.com/file/the_file/index.json",
                 "id": "the_file",
@@ -276,6 +280,7 @@ class TestFile(EntityTestBase):
                 "links": [],
                 "referees": [
                     {
+                        "@type": "https://schema.org/Thing",
                         "id": reference.id,
                         "referee": "/person/the_person/index.json",
                         "file": "/file/the_file/index.json",

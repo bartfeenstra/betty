@@ -15,6 +15,7 @@ from betty.classtools import Singleton
 from betty.json.schema import Object, Schema
 from betty.portable import PortableData, PortableMapping
 from betty.string import snake_case_to_lower_camel_case
+from betty.typing import Void
 
 if TYPE_CHECKING:
     from betty.ancestry.link import Link
@@ -110,8 +111,8 @@ class LinkedDataDumpableWithSchemaJsonLdObject(
                 linked_data_dumpable = class_attr_value
                 schema.add_property(
                     snake_case_to_lower_camel_case(attr_name),
-                    await linked_data_dumpable.linked_data_schema_for(project),
-                    True,
+                    await linked_data_dumpable.linked_data_schema(project),
+                    False,
                 )
         return schema
 
@@ -123,31 +124,31 @@ class LinkedDataDumpableWithSchemaJsonLdObject(
 
         for attr_name, class_attr_value in getmembers(type(self)):
             if isinstance(class_attr_value, LinkedDataDumper):
-                portable[
-                    snake_case_to_lower_camel_case(attr_name)
-                ] = await class_attr_value.dump_linked_data_for(project, self)
+                portable_attr = await class_attr_value.dump_linked_data(project, self)
+                if not isinstance(portable_attr, Void):
+                    portable[snake_case_to_lower_camel_case(attr_name)] = portable_attr
 
         return portable
 
 
-class LinkedDataDumper(Generic[_T, _SchemaTypeT, _PortableDataT], ABC):
+class LinkedDataDumper(Generic[_T, _SchemaTypeT, _PortableDataT]):
     """
     Provide linked data for instances of a target type.
     """
 
-    @abstractmethod
-    async def linked_data_schema_for(self, project: Project, /) -> _SchemaTypeT:
+    async def linked_data_schema(self, project: Project, /) -> _SchemaTypeT | Void:
         """
-        Define the `JSON Schema <https://json-schema.org/>`_ for :py:meth:`betty.json.linked_data.LinkedDataDumper.dump_linked_data_for`.
+        Define the `JSON Schema <https://json-schema.org/>`_ for :py:meth:`betty.json.linked_data.LinkedDataDumper.dump_linked_data`.
         """
+        return Void()
 
-    @abstractmethod
-    async def dump_linked_data_for(
+    async def dump_linked_data(
         self, project: Project, target: _T, /
-    ) -> _PortableDataT:
+    ) -> _PortableDataT | Void:
         """
         Dump the given target to `JSON-LD <https://json-ld.org/>`_.
         """
+        return Void()
 
 
 def dump_context(portable: PortableMapping, **context_definitions: str) -> None:

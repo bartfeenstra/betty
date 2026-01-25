@@ -113,6 +113,7 @@ class Entity(LinkedDataDumpableWithSchemaJsonLdObject, Plugin["EntityDefinition"
     @override
     async def dump_linked_data(self, project: Project, /) -> PortableMapping:
         portable = await super().dump_linked_data(project)
+        portable["@type"] = "https://schema.org/Thing"
 
         if persistent_id(self) and self.plugin().public_facing:
             url_generator = await project.url_generator

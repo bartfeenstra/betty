@@ -103,6 +103,7 @@ class TestPersonName(EntityTestBase):
         sut = PersonName(person=Person(), individual="Jane")
         actual = await assert_dumps_linked_data(sut)
         expected: PortableMapping = {
+            "@type": "https://schema.org/Thing",
             "@context": {
                 "individual": "https://schema.org/givenName",
             },
@@ -119,6 +120,7 @@ class TestPersonName(EntityTestBase):
         sut = PersonName(person=Person(), affiliation="Doe")
         actual = await assert_dumps_linked_data(sut)
         expected: PortableMapping = {
+            "@type": "https://schema.org/Thing",
             "@context": {
                 "affiliation": "https://schema.org/familyName",
             },
@@ -144,6 +146,7 @@ class TestPersonName(EntityTestBase):
         )
         actual = await assert_dumps_linked_data(sut)
         expected = {
+            "@type": "https://schema.org/Thing",
             "@context": {
                 "individual": "https://schema.org/givenName",
                 "affiliation": "https://schema.org/familyName",
@@ -174,6 +177,7 @@ class TestPersonName(EntityTestBase):
         )
         actual = await assert_dumps_linked_data(sut)
         expected = {
+            "@type": "https://schema.org/Thing",
             "id": sut.id,
             "locale": None,
             "private": True,

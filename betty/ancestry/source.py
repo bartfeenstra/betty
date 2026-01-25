@@ -13,11 +13,9 @@ from betty.ancestry.has_file_references import HasFileReferences
 from betty.ancestry.has_links import HasLinks
 from betty.ancestry.has_notes import HasNotes
 from betty.data.aggregate.record.object.property import Optional
-from betty.json.linked_data import JsonLdObject, dump_context
+from betty.json.linked_data import dump_context
 from betty.locale.localizable.gettext import _, ngettext
-from betty.locale.localizable.linked_data import dump_linked_data
 from betty.locale.localizable.property import LocalizableProperty
-from betty.locale.localizable.static.schema import StaticTranslationsSchema
 from betty.model import Entity, EntityDefinition
 from betty.model.association import (
     BidirectionalToManySingleType,
@@ -25,7 +23,7 @@ from betty.model.association import (
     ToManyAssociates,
     ToZeroOrOneAssociate,
 )
-from betty.privacy import HasPrivacy, Privacy, is_public, merge_privacies
+from betty.privacy import HasPrivacy, Privacy, merge_privacies
 
 if TYPE_CHECKING:
     from collections.abc import Iterator, MutableSequence
@@ -150,32 +148,7 @@ class Source(HasDate, HasFileReferences, HasNotes, HasLinks, HasPrivacy, Entity)
         return self.name if self.name else super().label
 
     @override
-    @classmethod
-    async def linked_data_schema(cls, project: Project, /) -> JsonLdObject:
-        schema = await super().linked_data_schema(project)
-        static_translations_schema = StaticTranslationsSchema()
-        schema.add_property("author", static_translations_schema, False)
-        schema.add_property("name", static_translations_schema, False)
-        schema.add_property("publisher", static_translations_schema, False)
-        return schema
-
-    @override
     async def dump_linked_data(self, project: Project, /) -> PortableMapping:
         portable = await super().dump_linked_data(project)
-        portable["@type"] = "https://schema.org/Thing"
         dump_context(portable, name="https://schema.org/name")
-        if is_public(self):
-            public_localizers = await project.public_localizers
-            if self.author is not None:
-                portable["author"] = dump_linked_data(
-                    self.author, localizers=public_localizers
-                )
-            if self.name is not None:
-                portable["name"] = dump_linked_data(
-                    self.name, localizers=public_localizers
-                )
-            if self.publisher is not None:
-                portable["publisher"] = dump_linked_data(
-                    self.publisher, localizers=public_localizers
-                )
         return portable

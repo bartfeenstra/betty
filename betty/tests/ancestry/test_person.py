@@ -287,6 +287,7 @@ class TestPerson(EntityTestBase):
             "gender": NonBinary.plugin().id,
             "names": [
                 {
+                    "@type": "https://schema.org/Thing",
                     "@context": {
                         "individual": "https://schema.org/givenName",
                         "affiliation": "https://schema.org/familyName",
@@ -311,6 +312,7 @@ class TestPerson(EntityTestBase):
             ],
             "presences": [
                 {
+                    "@type": "https://schema.org/Thing",
                     "id": presence.id,
                     "role": "subject",
                     "event": "/event/the_event/index.json",
@@ -324,6 +326,7 @@ class TestPerson(EntityTestBase):
             "notes": [],
             "links": [
                 {
+                    "@type": "https://schema.org/Thing",
                     "@context": {"description": "https://schema.org/description"},
                     "id": link.id,
                     "url": {
@@ -401,6 +404,7 @@ class TestPerson(EntityTestBase):
             "id": person_id,
             "names": [
                 {
+                    "@type": "https://schema.org/Thing",
                     "id": name.id,
                     "citations": [],
                     "locale": None,
@@ -420,6 +424,7 @@ class TestPerson(EntityTestBase):
             "private": True,
             "presences": [
                 {
+                    "@type": "https://schema.org/Thing",
                     "id": presence.id,
                     "event": "/event/the_event/index.json",
                     "person": "/person/the_person/index.json",
@@ -432,6 +437,7 @@ class TestPerson(EntityTestBase):
             "notes": [],
             "links": [
                 {
+                    "@type": "https://schema.org/Thing",
                     "@context": {"description": "https://schema.org/description"},
                     "id": link.id,
                     "owner": "/person/the_person/index.json",

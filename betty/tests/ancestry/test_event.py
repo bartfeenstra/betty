@@ -205,6 +205,7 @@ class TestEvent(EntityTestBase):
             "eventStatus": "https://schema.org/EventScheduled",
             "presences": [
                 {
+                    "@type": "https://schema.org/Thing",
                     "id": presence.id,
                     "role": "subject",
                     "person": "/person/the_person/index.json",
@@ -283,6 +284,7 @@ class TestEvent(EntityTestBase):
             "eventStatus": "https://schema.org/EventScheduled",
             "presences": [
                 {
+                    "@type": "https://schema.org/Thing",
                     "id": presence.id,
                     "person": "/person/the_person/index.json",
                     "event": "/event/the_event/index.json",

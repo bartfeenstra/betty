@@ -24,6 +24,7 @@ class TestHasLinks:
     async def test_dump_linked_data_without_links(self) -> None:
         sut = DummyHasLinks()
         expected: PortableMapping = {
+            "@type": "https://schema.org/Thing",
             "id": sut.id,
             "links": [],
         }
@@ -33,9 +34,11 @@ class TestHasLinks:
         link = Link("https://example.com")
         sut = DummyHasLinks(links=[link])
         expected = {
+            "@type": "https://schema.org/Thing",
             "id": sut.id,
             "links": [
                 {
+                    "@type": "https://schema.org/Thing",
                     "@context": {"description": "https://schema.org/description"},
                     "id": link.id,
                     "url": {
