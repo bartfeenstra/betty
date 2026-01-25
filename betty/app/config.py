@@ -8,6 +8,7 @@ from typing import TYPE_CHECKING, final
 
 from betty.data import Data, Sample
 from betty.data.aggregate.record.object import AttrDefinition, ObjectDefinition
+from betty.data.sample import Size
 from betty.dirs import APP_CONFIG_DIRECTORY_PATH
 from betty.locale import DEFAULT_LOCALE
 from betty.locale.data import LocaleDefinition
@@ -23,9 +24,9 @@ CONFIGURATION_FILE_PATH = APP_CONFIG_DIRECTORY_PATH / "app.json"
 @ObjectDefinition(
     label=_("Application configuration"),
     samples=[
-        lambda: Sample(AppConfiguration(), label="Minimal", minimal=True),
+        lambda: Sample(AppConfiguration(), label="Minimal", size=Size.MINIMAL),
         lambda: Sample(
-            AppConfiguration(locale=DEFAULT_LOCALE), label="Full", full=True
+            AppConfiguration(locale=DEFAULT_LOCALE), label="Full", size=Size.FULL
         ),
     ],
 )

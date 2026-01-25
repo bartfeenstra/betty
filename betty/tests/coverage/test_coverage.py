@@ -165,7 +165,10 @@ _BASELINE: Mapping[str, _ModuleIgnore] = {
     "betty/service/level/factory.py": MissingReason.ABSTRACT,
     "betty/data/__init__.py": {
         "Data": MissingReason.ABSTRACT,
+    },
+    "betty/data/sample.py": {
         "SampleNotFound": MissingReason.STATIC_CONTENT_ONLY,
+        "Size": MissingReason.ENUM,
     },
     "betty/data/aggregate/__init__.py": {
         "AggregateDefinition": {

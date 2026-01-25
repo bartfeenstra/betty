@@ -11,18 +11,16 @@ from typing_extensions import override
 from betty.assertion import OptionalField, assert_record
 from betty.config import Configuration
 from betty.config.color import ColorConfiguration
-from betty.data import Sample
+from betty.data import Sample, Samples
 from betty.data.indicator import Path
 from betty.data.indicator.selector import Key
-from betty.data.sample import get_full_sample, get_minimal_sample
+from betty.data.sample import Size
 from betty.exception import reraise_with_indicator
 from betty.project.extension.theme.config import RegionalContentConfiguration
 from betty.project.factory import require_project
 from betty.service.level.factory import CallbackServiceLevelDependentFactory
 
 if TYPE_CHECKING:
-    from collections.abc import Iterable
-
     from betty.portable import PortableData, PortableMapping
     from betty.project import Project
     from betty.service.level.factory import ServiceLevelTarget
@@ -198,17 +196,31 @@ class RaspberryMintConfiguration(Configuration):
 
     @override
     @classmethod
-    def samples(cls) -> Iterable[Sample[Self]]:  # ty:ignore[invalid-method-override]
-        yield Sample(cls(), label="Minimal", minimal=True)
-        yield Sample(
-            cls(
-                primary_color=get_minimal_sample(ColorConfiguration).data,
-                secondary_color=get_minimal_sample(ColorConfiguration).data,
-                tertiary_color=get_minimal_sample(ColorConfiguration).data,
-            ),
-            label="Custom colors",
-        )
-        yield Sample(
-            cls(regional_content=get_full_sample(RegionalContentConfiguration).data),
-            label="Regional content",
+    def samples(cls) -> Samples:
+        return Samples(
+            [
+                lambda: Sample(cls(), label="Minimal", size=Size.MINIMAL),
+                lambda: Sample(
+                    cls(
+                        primary_color=ColorConfiguration.samples()
+                        .get(Size.MINIMAL)
+                        .data,
+                        secondary_color=ColorConfiguration.samples()
+                        .get(Size.MINIMAL)
+                        .data,
+                        tertiary_color=ColorConfiguration.samples()
+                        .get(Size.MINIMAL)
+                        .data,
+                    ),
+                    label="Custom colors",
+                ),
+                lambda: Sample(
+                    cls(
+                        regional_content=RegionalContentConfiguration.samples()
+                        .get(Size.FULL)
+                        .data
+                    ),
+                    label="Regional content",
+                ),
+            ]
         )

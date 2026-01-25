@@ -17,7 +17,8 @@ from betty.assertion import (
 from betty.config import Configuration
 from betty.config.factory import ConfigurationDependentSelfFactory
 from betty.content_provider import ContentProvider, ContentProviderDefinition
-from betty.data import Sample
+from betty.data import Sample, Samples
+from betty.data.sample import Size
 from betty.locale.localizable.assertion import assert_load_localizable
 from betty.locale.localizable.gettext import _
 from betty.locale.localizable.portable import dump_localizable
@@ -40,7 +41,7 @@ from betty.service.level.factory import (
 from betty.typing import private
 
 if TYPE_CHECKING:
-    from collections.abc import Iterable, Mapping
+    from collections.abc import Mapping
 
     from betty.document import Document
     from betty.jinja2 import Environment
@@ -88,10 +89,12 @@ class RenderConfiguration(Configuration):
 
     @override
     @classmethod
-    def samples(cls) -> Iterable[Sample[Self]]:  # ty:ignore[invalid-method-override]
+    def samples(cls) -> Samples:
         from betty.test_utils.locale.localizable import DUMMY_LOCALIZABLE
 
-        yield Sample(cls(DUMMY_LOCALIZABLE), label="Minimal")
+        return Samples(
+            [lambda: Sample(cls(DUMMY_LOCALIZABLE), label="Minimal", size=Size.MINIMAL)]
+        )
 
 
 @ContentProviderDefinition("render", label=_("Rendered content"))
@@ -281,24 +284,28 @@ class BoxConfiguration(Configuration):
 
     @override
     @classmethod
-    def samples(cls) -> Iterable[Sample[Self]]:  # ty:ignore[invalid-method-override]
-        yield Sample(cls([]), label="Minimal", minimal=True)
-        yield Sample(
-            cls(
-                [
-                    PluginInstanceConfiguration(
-                        Render, RenderConfiguration("Hello, world!")
-                    )
-                ],  # ty:ignore[invalid-argument-type]
-                min_height="100px",
-                max_height="1000px",
-                height="500px",
-                min_width="100px",
-                max_width="1000px",
-                width="500px",
-            ),
-            label="Full",
-            full=True,
+    def samples(cls) -> Samples:
+        return Samples(
+            [
+                lambda: Sample(cls([]), label="Minimal", size=Size.MINIMAL),
+                lambda: Sample(
+                    cls(
+                        [
+                            PluginInstanceConfiguration(
+                                Render, RenderConfiguration("Hello, world!")
+                            )
+                        ],  # ty:ignore[invalid-argument-type]
+                        min_height="100px",
+                        max_height="1000px",
+                        height="500px",
+                        min_width="100px",
+                        max_width="1000px",
+                        width="500px",
+                    ),
+                    label="Full",
+                    size=Size.FULL,
+                ),
+            ]
         )
 
 

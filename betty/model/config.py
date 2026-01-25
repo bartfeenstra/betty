@@ -14,14 +14,12 @@ from betty.assertion import (
     assert_str,
 )
 from betty.config import Configuration
-from betty.data import Sample
+from betty.data import Sample, Samples
 from betty.machine_name import MachineName, assert_machine_name
 from betty.plugin.assertion import assert_plugin
 from betty.plugin.resolve import ResolvableId, resolve_id
 
 if TYPE_CHECKING:
-    from collections.abc import Iterable
-
     from betty.model import EntityDefinition
     from betty.plugin.repository import PluginRepository
     from betty.portable import PortableData, PortableMapping
@@ -97,7 +95,11 @@ class EntityReference(Configuration):
 
     @override
     @classmethod
-    def samples(cls) -> Iterable[Sample[Self]]:  # ty:ignore[invalid-method-override]
+    def samples(cls) -> Samples:
         from betty.ancestry.person import Person
 
-        yield Sample(cls(Person, "123"), label="Default")
+        return Samples(
+            [
+                lambda: Sample(cls(Person, "123"), label="Default"),
+            ]
+        )

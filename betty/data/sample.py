@@ -4,77 +4,109 @@ Data sample helpers.
 
 from __future__ import annotations
 
-from typing import TypeVar, overload
+from enum import IntEnum, auto
+from typing import TYPE_CHECKING, Any, Generic, final
 
-from betty.config import Configuration
-from betty.data import Data, DataDefinition, Sample, SampleNotFound
+from typing_extensions import TypeVar
 
-_DataClsT = TypeVar("_DataClsT")
-_DataT = TypeVar("_DataT", bound=Data)
-_ConfigurationT = TypeVar("_ConfigurationT", bound=Configuration)
+from betty.locale.localizable.ensure import ensure_localizable
 
+if TYPE_CHECKING:
+    from collections.abc import Callable, Iterable, Iterator
 
-@overload
-def get_minimal_sample(data: type[_DataT], /) -> Sample[_DataT]:
-    pass
+    from betty.locale.localizable import Localizable, LocalizableLike
 
-
-@overload
-def get_minimal_sample(data: DataDefinition[_DataClsT], /) -> Sample[_DataClsT]:
-    pass
+_DataClsT = TypeVar("_DataClsT", default=Any)
 
 
-@overload
-def get_minimal_sample(data: type[_ConfigurationT], /) -> Sample[_ConfigurationT]:
-    pass
-
-
-def get_minimal_sample(data):
+@final
+class Size(IntEnum):
     """
-    Get a sample for a data type, preferably as minimal as possible.
+    A sample size indicator.
     """
-    if isinstance(data, type) and issubclass(data, Data):
-        data = data.data()
-    samples = list(data.samples if isinstance(data, DataDefinition) else data.samples())
-    for sample in samples:
-        if sample.minimal:
-            return sample
-    for sample in samples:
-        if not sample.full:
-            return sample
-    if samples:
-        return samples[0]
-    raise SampleNotFound
+
+    MINIMAL = auto()
+    INTERMEDIATE = auto()
+    FULL = auto()
 
 
-@overload
-def get_full_sample(data: type[_DataT], /) -> Sample[_DataT]:
-    pass
-
-
-@overload
-def get_full_sample(data: DataDefinition[_DataClsT], /) -> Sample[_DataClsT]:
-    pass
-
-
-@overload
-def get_full_sample(data: type[_ConfigurationT], /) -> Sample[_ConfigurationT]:
-    pass
-
-
-def get_full_sample(data):
+@final
+class Sample(Generic[_DataClsT]):
     """
-    Get a sample for a data type, preferably as full as possible.
+    A data sample.
+
+    Samples are useful for generating documentation and tests.
     """
-    if isinstance(data, type) and issubclass(data, Data):
-        data = data.data()
-    samples = list(data.samples if isinstance(data, DataDefinition) else data.samples())
-    for sample in samples:
-        if sample.full:
-            return sample
-    for sample in samples:
-        if not sample.minimal:
-            return sample
-    if samples:
-        return samples[0]
-    raise SampleNotFound
+
+    def __init__(
+        self,
+        data: _DataClsT,
+        *,
+        label: LocalizableLike,
+        description: LocalizableLike | None = None,
+        size: Size = Size.INTERMEDIATE,
+    ):
+        self._data = data
+        self._label = ensure_localizable(label)
+        self._description = ensure_localizable(description) if description else None
+        self._size = size
+
+    @property
+    def data(self) -> _DataClsT:
+        """
+        The sample data.
+        """
+        return self._data
+
+    @property
+    def label(self) -> Localizable:
+        """
+        The sample's human-readable short label.
+        """
+        return self._label
+
+    @property
+    def description(self) -> Localizable | None:
+        """
+        The sample's human-readable long description.
+        """
+        return self._description
+
+    @property
+    def size(self) -> Size:
+        """
+        The sample size.
+        """
+        return self._size
+
+
+@final
+class Samples(Generic[_DataClsT]):
+    """
+    A set of samples.
+    """
+
+    def __init__(
+        self,
+        samples: Iterable[Callable[[], Sample[_DataClsT]]],
+    ):
+        self._samples = list(samples)
+
+    def __iter__(self) -> Iterator[Sample[_DataClsT]]:
+        for sample in self._samples:
+            yield sample()
+
+    def get(self, preferred_size: Size = Size.INTERMEDIATE, /):
+        """
+        Get a sample.
+        """
+        samples = sorted(self, key=lambda sample: abs(preferred_size - sample.size))
+        if samples:
+            return samples[0]
+        raise SampleNotFound
+
+
+class SampleNotFound(Exception):
+    """
+    Raised when a sample could not be found.
+    """

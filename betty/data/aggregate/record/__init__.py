@@ -9,7 +9,7 @@ from typing import TYPE_CHECKING, Any, Generic, final
 from typing_extensions import TypeVar, override
 
 from betty.assertion import OptionalField
-from betty.data import DataDefinition
+from betty.data import DataDefinition, Sample
 from betty.data.aggregate import AggregateDefinition
 from betty.data.indicator.selector import Element
 from betty.locale.localizable.ensure import ensure_localizable
@@ -19,7 +19,7 @@ from betty.service.hydrate import Hydrator
 if TYPE_CHECKING:
     from collections.abc import Callable, Iterable, MutableSequence, Sequence
 
-    from betty.data import Data, Sample
+    from betty.data import Data
     from betty.locale.localizable import Localizable, LocalizableLike
     from betty.service.level import ServiceLevel
 

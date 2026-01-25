@@ -11,13 +11,11 @@ from typing_extensions import override
 
 from betty.assertion import assert_str
 from betty.config import Configuration
-from betty.data import Sample
+from betty.data import Sample, Samples
 from betty.exception import HumanFacingException
 from betty.locale.localizable.gettext import _
 
 if TYPE_CHECKING:
-    from collections.abc import Iterable
-
     from betty.portable import PortableData
 
 
@@ -76,5 +74,5 @@ class ColorConfiguration(Configuration):
 
     @override
     @classmethod
-    def samples(cls) -> Iterable[Sample[Self]]:  # ty:ignore[invalid-method-override]
-        yield Sample(cls("#ff0000"), label="Default")
+    def samples(cls) -> Samples:
+        return Samples([lambda: Sample(cls("#ff0000"), label="Default")])

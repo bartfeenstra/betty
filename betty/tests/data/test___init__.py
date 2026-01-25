@@ -6,41 +6,12 @@ import pytest
 from typing_extensions import override
 
 from betty.assertion import assert_str
-from betty.data import (
-    Data,
-    DataDefinition,
-    Sample,
-)
+from betty.data import Data, DataDefinition, Sample
 from betty.locale.localizable.plain import Plain
 from betty.portable import CallbackPorter, Portable, PortableData
 from betty.portable.error import NotPortable
 from betty.service.level.universal import universe
 from betty.test_utils.locale.localizable import DUMMY_LOCALIZABLE
-
-
-class TestSample:
-    def test_data(self) -> None:
-        data = object()
-        sut = Sample(data, label=DUMMY_LOCALIZABLE)
-        assert sut.data is data
-
-    def test_label(self) -> None:
-        label = Plain("-")
-        sut = Sample(object(), label=label)
-        assert sut.label is label
-
-    def test_description(self) -> None:
-        description = Plain("-")
-        sut = Sample(object(), label=DUMMY_LOCALIZABLE, description=description)
-        assert sut.description is description
-
-    def test_minimal(self) -> None:
-        sut = Sample(object(), label=DUMMY_LOCALIZABLE, minimal=True)
-        assert sut.minimal
-
-    def test_full(self) -> None:
-        sut = Sample(object(), label=DUMMY_LOCALIZABLE, full=True)
-        assert sut.full
 
 
 class DataDefinitionTestData(Portable, Data):

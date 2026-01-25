@@ -36,7 +36,7 @@ from betty.data.aggregate.record.object.property import Optional
 from betty.data.bool import BoolDefinition
 from betty.data.indicator.selector import Attr
 from betty.data.int import IntDefinition
-from betty.data.sample import get_full_sample
+from betty.data.sample import Samples, Size
 from betty.data.str import StrDefinition
 from betty.dirs import ASSETS_DIRECTORY_PATH
 from betty.exception import HumanFacingException
@@ -102,28 +102,34 @@ class ExtensionInstanceConfigurationMapping(
 
     @override
     @classmethod
-    def samples(cls) -> Iterable[Sample[Self]]:  # ty:ignore[invalid-method-override]
+    def samples(cls) -> Samples:
         from betty.project.extension.raspberry_mint import RaspberryMint
         from betty.project.extension.raspberry_mint.config import (
             RaspberryMintConfiguration,
         )
 
-        yield Sample(cls(), label="Minimal", minimal=True)
-        yield Sample(
-            cls([PluginInstanceConfiguration(RaspberryMint)]),  # ty:ignore[invalid-argument-type]
-            label="Expanded",
-        )
-        yield Sample(
-            cls(
-                [
-                    PluginInstanceConfiguration(
-                        RaspberryMint,
-                        get_full_sample(RaspberryMintConfiguration).data,
-                    )
-                ]  # ty:ignore[invalid-argument-type]
-            ),
-            label="Full",
-            full=True,
+        return Samples(
+            [
+                lambda: Sample(cls(), label="Minimal", size=Size.MINIMAL),
+                lambda: Sample(
+                    cls([PluginInstanceConfiguration(RaspberryMint)]),  # ty:ignore[invalid-argument-type]
+                    label="Expanded",
+                ),
+                lambda: Sample(
+                    cls(
+                        [
+                            PluginInstanceConfiguration(
+                                RaspberryMint,
+                                RaspberryMintConfiguration.samples()
+                                .get(Size.FULL)
+                                .data,
+                            )
+                        ]  # ty:ignore[invalid-argument-type]
+                    ),
+                    label="Full",
+                    size=Size.FULL,
+                ),
+            ]
         )
 
 
@@ -132,12 +138,14 @@ class ExtensionInstanceConfigurationMapping(
     label=_("Entity type configuration"),
     samples=[
         lambda: Sample(
-            EntityTypeConfiguration(entity_type=Person), label="Minimal", minimal=True
+            EntityTypeConfiguration(entity_type=Person),
+            label="Minimal",
+            size=Size.MINIMAL,
         ),
         lambda: Sample(
             EntityTypeConfiguration(entity_type=Person, generate_html_list=True),
             label="Full",
-            full=True,
+            size=Size.FULL,
         ),
     ],
 )
@@ -256,9 +264,17 @@ class LocaleConfiguration(Configuration):
 
     @override
     @classmethod
-    def samples(cls) -> Iterable[Sample[Self]]:  # ty:ignore[invalid-method-override]
-        yield Sample(cls(Locale("nl", "NL")), label="Minimal", minimal=True)
-        yield Sample(cls(Locale("nl", "NL"), alias="nl"), label="Full", full=True)
+    def samples(cls) -> Samples:
+        return Samples(
+            [
+                lambda: Sample(
+                    cls(Locale("nl", "NL")), label="Minimal", size=Size.MINIMAL
+                ),
+                lambda: Sample(
+                    cls(Locale("nl", "NL"), alias="nl"), label="Full", size=Size.FULL
+                ),
+            ]
+        )
 
 
 @final
@@ -320,12 +336,16 @@ class LocaleConfigurationMapping(
 
     @override
     @classmethod
-    def samples(cls) -> Iterable[Sample[Self]]:  # ty:ignore[invalid-method-override]
-        yield Sample(cls(), label="Minimal", minimal=True)
-        yield Sample(
-            cls([get_full_sample(LocaleConfiguration).data]),
-            label="Full",
-            full=True,
+    def samples(cls) -> Samples:
+        return Samples(
+            [
+                lambda: Sample(cls(), label="Minimal", size=Size.MINIMAL),
+                lambda: Sample(
+                    cls([LocaleConfiguration.samples().get(Size.FULL).data]),
+                    label="Full",
+                    size=Size.FULL,
+                ),
+            ]
         )
 
 
@@ -365,15 +385,19 @@ class CopyrightNoticePluginConfiguration(HumanFacingPluginDefinitionConfiguratio
 
     @override
     @classmethod
-    def samples(cls) -> Iterable[Sample[Self]]:  # ty:ignore[invalid-method-override]
-        yield Sample(
-            cls(
-                id="my-first-copyright-notice",
-                label="My First Copyright Notice",
-                summary="My First Copyright Notice is my first copyright notice",
-                text="My First Copyright Notice is my first copyright notice, all rights are reserved.",
-            ),
-            label="Default",
+    def samples(cls) -> Samples:
+        return Samples(
+            [
+                lambda: Sample(
+                    cls(
+                        id="my-first-copyright-notice",
+                        label="My First Copyright Notice",
+                        summary="My First Copyright Notice is my first copyright notice",
+                        text="My First Copyright Notice is my first copyright notice, all rights are reserved.",
+                    ),
+                    label="Default",
+                )
+            ]
         )
 
 
@@ -417,12 +441,22 @@ class CopyrightNoticePluginConfigurationMapping(
 
     @override
     @classmethod
-    def samples(cls) -> Iterable[Sample[Self]]:  # ty:ignore[invalid-method-override]
-        yield Sample(cls(), label="Minimal", minimal=True)
-        yield Sample(
-            cls([get_full_sample(CopyrightNoticePluginConfiguration).data]),
-            label="Full",
-            full=True,
+    def samples(cls) -> Samples:
+        return Samples(
+            [
+                lambda: Sample(cls(), label="Minimal", size=Size.MINIMAL),
+                lambda: Sample(
+                    cls(
+                        [
+                            CopyrightNoticePluginConfiguration.samples()
+                            .get(Size.FULL)
+                            .data
+                        ]
+                    ),
+                    label="Full",
+                    size=Size.FULL,
+                ),
+            ]
         )
 
 
@@ -462,15 +496,19 @@ class LicensePluginConfiguration(HumanFacingPluginDefinitionConfiguration):
 
     @override
     @classmethod
-    def samples(cls) -> Iterable[Sample[Self]]:  # ty:ignore[invalid-method-override]
-        yield Sample(
-            cls(
-                id="my-first-license",
-                label="My First License",
-                summary="My First License is my first license",
-                text="My First License is my first license, and allows you o...",
-            ),
-            label="Default",
+    def samples(cls) -> Samples:
+        return Samples(
+            [
+                lambda: Sample(
+                    cls(
+                        id="my-first-license",
+                        label="My First License",
+                        summary="My First License is my first license",
+                        text="My First License is my first license, and allows you o...",
+                    ),
+                    label="Default",
+                )
+            ]
         )
 
 
@@ -512,12 +550,16 @@ class LicensePluginConfigurationMapping(
 
     @override
     @classmethod
-    def samples(cls) -> Iterable[Sample[Self]]:  # ty:ignore[invalid-method-override]
-        yield Sample(cls(), label="Minimal", minimal=True)
-        yield Sample(
-            cls([get_full_sample(LicensePluginConfiguration).data]),
-            label="Full",
-            full=True,
+    def samples(cls) -> Samples:
+        return Samples(
+            [
+                lambda: Sample(cls(), label="Minimal", size=Size.MINIMAL),
+                lambda: Sample(
+                    cls([LicensePluginConfiguration.samples().get(Size.FULL).data]),
+                    label="Full",
+                    size=Size.FULL,
+                ),
+            ]
         )
 
 
@@ -533,22 +575,26 @@ class EventTypePluginConfiguration(
 
     @override
     @classmethod
-    def samples(cls) -> Iterable[Sample[Self]]:  # ty:ignore[invalid-method-override]
-        yield Sample(
-            cls(
-                id="moon-landing",
-                label="Moon landing",
-                label_plural="Moon landings",
-                label_countable=CountableStaticTranslations(
-                    {
-                        DEFAULT_LOCALE: {
-                            "one": "{count} moon landing",
-                            "other": "{count} moon landings",
-                        }
-                    }
-                ),
-            ),
-            label="Default",
+    def samples(cls) -> Samples:
+        return Samples(
+            [
+                lambda: Sample(
+                    cls(
+                        id="moon-landing",
+                        label="Moon landing",
+                        label_plural="Moon landings",
+                        label_countable=CountableStaticTranslations(
+                            {
+                                DEFAULT_LOCALE: {
+                                    "one": "{count} moon landing",
+                                    "other": "{count} moon landings",
+                                }
+                            }
+                        ),
+                    ),
+                    label="Default",
+                )
+            ]
         )
 
 
@@ -586,12 +632,16 @@ class EventTypePluginConfigurationMapping(
 
     @override
     @classmethod
-    def samples(cls) -> Iterable[Sample[Self]]:  # ty:ignore[invalid-method-override]
-        yield Sample(cls(), label="Minimal", minimal=True)
-        yield Sample(
-            cls([get_full_sample(EventTypePluginConfiguration).data]),
-            label="Full",
-            full=True,
+    def samples(cls) -> Samples:
+        return Samples(
+            [
+                lambda: Sample(cls(), label="Minimal", size=Size.MINIMAL),
+                lambda: Sample(
+                    cls([EventTypePluginConfiguration.samples().get(Size.FULL).data]),
+                    label="Full",
+                    size=Size.FULL,
+                ),
+            ]
         )
 
 
@@ -604,22 +654,26 @@ class PlaceTypePluginConfiguration(CountableHumanFacingPluginDefinitionConfigura
 
     @override
     @classmethod
-    def samples(cls) -> Iterable[Sample[Self]]:  # ty:ignore[invalid-method-override]
-        yield Sample(
-            cls(
-                id="moon",
-                label="Moon",
-                label_plural="Moons",
-                label_countable=CountableStaticTranslations(
-                    {
-                        DEFAULT_LOCALE: {
-                            "one": "{count} moon",
-                            "other": "{count} moons",
-                        }
-                    }
-                ),
-            ),
-            label="Default",
+    def samples(cls) -> Samples:
+        return Samples(
+            [
+                lambda: Sample(
+                    cls(
+                        id="moon",
+                        label="Moon",
+                        label_plural="Moons",
+                        label_countable=CountableStaticTranslations(
+                            {
+                                DEFAULT_LOCALE: {
+                                    "one": "{count} moon",
+                                    "other": "{count} moons",
+                                }
+                            }
+                        ),
+                    ),
+                    label="Default",
+                )
+            ]
         )
 
 
@@ -657,12 +711,16 @@ class PlaceTypePluginConfigurationMapping(
 
     @override
     @classmethod
-    def samples(cls) -> Iterable[Sample[Self]]:  # ty:ignore[invalid-method-override]
-        yield Sample(cls(), label="Minimal", minimal=True)
-        yield Sample(
-            cls([get_full_sample(PlaceTypePluginConfiguration).data]),
-            label="Full",
-            full=True,
+    def samples(cls) -> Samples:
+        return Samples(
+            [
+                lambda: Sample(cls(), label="Minimal", size=Size.MINIMAL),
+                lambda: Sample(
+                    cls([PlaceTypePluginConfiguration.samples().get(Size.FULL).data]),
+                    label="Full",
+                    size=Size.FULL,
+                ),
+            ]
         )
 
 
@@ -675,22 +733,26 @@ class PresenceRolePluginConfiguration(
 
     @override
     @classmethod
-    def samples(cls) -> Iterable[Sample[Self]]:  # ty:ignore[invalid-method-override]
-        yield Sample(
-            cls(
-                id="astronaut",
-                label="Astronaut",
-                label_plural="Astronauts",
-                label_countable=CountableStaticTranslations(
-                    {
-                        DEFAULT_LOCALE: {
-                            "one": "{count} astronaut",
-                            "other": "{count} astronauts",
-                        }
-                    }
-                ),
-            ),
-            label="Default",
+    def samples(cls) -> Samples:
+        return Samples(
+            [
+                lambda: Sample(
+                    cls(
+                        id="astronaut",
+                        label="Astronaut",
+                        label_plural="Astronauts",
+                        label_countable=CountableStaticTranslations(
+                            {
+                                DEFAULT_LOCALE: {
+                                    "one": "{count} astronaut",
+                                    "other": "{count} astronauts",
+                                }
+                            }
+                        ),
+                    ),
+                    label="Default",
+                )
+            ]
         )
 
 
@@ -728,12 +790,18 @@ class PresenceRolePluginConfigurationMapping(
 
     @override
     @classmethod
-    def samples(cls) -> Iterable[Sample[Self]]:  # ty:ignore[invalid-method-override]
-        yield Sample(cls(), label="Minimal", minimal=True)
-        yield Sample(
-            cls([get_full_sample(PresenceRolePluginConfiguration).data]),
-            label="Full",
-            full=True,
+    def samples(cls) -> Samples:
+        return Samples(
+            [
+                lambda: Sample(cls(), label="Minimal", size=Size.MINIMAL),
+                lambda: Sample(
+                    cls(
+                        [PresenceRolePluginConfiguration.samples().get(Size.FULL).data]
+                    ),
+                    label="Full",
+                    size=Size.FULL,
+                ),
+            ]
         )
 
 
@@ -746,22 +814,26 @@ class GenderPluginConfiguration(CountableHumanFacingPluginDefinitionConfiguratio
 
     @override
     @classmethod
-    def samples(cls) -> Iterable[Sample[Self]]:  # ty:ignore[invalid-method-override]
-        yield Sample(
-            cls(
-                id="genderqueer",
-                label="Genderqueer",
-                label_plural="Genderqueers",
-                label_countable=CountableStaticTranslations(
-                    {
-                        DEFAULT_LOCALE: {
-                            "one": "{count} genderqueer",
-                            "other": "{count} genderqueers",
-                        }
-                    }
-                ),
-            ),
-            label="Default",
+    def samples(cls) -> Samples:
+        return Samples(
+            [
+                lambda: Sample(
+                    cls(
+                        id="genderqueer",
+                        label="Genderqueer",
+                        label_plural="Genderqueers",
+                        label_countable=CountableStaticTranslations(
+                            {
+                                DEFAULT_LOCALE: {
+                                    "one": "{count} genderqueer",
+                                    "other": "{count} genderqueers",
+                                }
+                            }
+                        ),
+                    ),
+                    label="Default",
+                )
+            ]
         )
 
 
@@ -797,12 +869,16 @@ class GenderPluginConfigurationMapping(
 
     @override
     @classmethod
-    def samples(cls) -> Iterable[Sample[Self]]:  # ty:ignore[invalid-method-override]
-        yield Sample(cls(), label="Minimal", minimal=True)
-        yield Sample(
-            cls([get_full_sample(GenderPluginConfiguration).data]),
-            label="Full",
-            full=True,
+    def samples(cls) -> Samples:
+        return Samples(
+            [
+                lambda: Sample(cls(), label="Minimal", size=Size.MINIMAL),
+                lambda: Sample(
+                    cls([GenderPluginConfiguration.samples().get(Size.FULL).data]),
+                    label="Full",
+                    size=Size.FULL,
+                ),
+            ]
         )
 
 
@@ -829,7 +905,7 @@ class GenderPluginConfigurationMapping(
         lambda: Sample(
             ProjectConfiguration(title="Betty", url="https://example.com"),
             label="Minimal",
-            minimal=True,
+            size=Size.MINIMAL,
         ),
         lambda: Sample(
             ProjectConfiguration(
@@ -841,18 +917,26 @@ class GenderPluginConfigurationMapping(
                 author="Bart Feenstra",
                 logo=ASSETS_DIRECTORY_PATH / "public" / "static" / "betty-512x512.png",
                 lifetime_threshold=123,
-                locales=get_full_sample(LocaleConfigurationMapping).data,
-                entity_types=[get_full_sample(EntityTypeConfiguration).data],
-                event_types=get_full_sample(EventTypePluginConfigurationMapping).data,
-                extensions=get_full_sample(ExtensionInstanceConfigurationMapping).data,
-                genders=get_full_sample(GenderPluginConfigurationMapping).data,
-                place_types=get_full_sample(PlaceTypePluginConfigurationMapping).data,
-                presence_roles=get_full_sample(
-                    PresenceRolePluginConfigurationMapping
-                ).data,
+                locales=LocaleConfigurationMapping.samples().get(Size.FULL).data,
+                entity_types=[
+                    EntityTypeConfiguration.data().samples.get(Size.FULL).data
+                ],
+                event_types=EventTypePluginConfigurationMapping.samples()
+                .get(Size.FULL)
+                .data,
+                extensions=ExtensionInstanceConfigurationMapping.samples()
+                .get(Size.FULL)
+                .data,
+                genders=GenderPluginConfigurationMapping.samples().get(Size.FULL).data,
+                place_types=PlaceTypePluginConfigurationMapping.samples()
+                .get(Size.FULL)
+                .data,
+                presence_roles=PresenceRolePluginConfigurationMapping.samples()
+                .get(Size.FULL)
+                .data,
             ),
             label="Full",
-            full=True,
+            size=Size.FULL,
         ),
     ],
 )

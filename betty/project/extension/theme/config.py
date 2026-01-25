@@ -12,7 +12,7 @@ from typing_extensions import override
 from betty.assertion import assert_len, assert_mapping, assert_str
 from betty.config import Configuration
 from betty.content_provider import ContentProvider, ContentProviderDefinition
-from betty.data import Sample
+from betty.data import Sample, Samples
 from betty.data.indicator.selector import Key
 from betty.exception import HumanFacingException, reraise_with_indicator
 from betty.locale.localizable.gettext import _
@@ -24,7 +24,7 @@ from betty.plugin.config import (
 )
 
 if TYPE_CHECKING:
-    from collections.abc import Collection, Iterable, Mapping, MutableMapping
+    from collections.abc import Collection, Mapping, MutableMapping
 
     from betty.portable import PortableData
 
@@ -130,16 +130,20 @@ class RegionalContentConfiguration(Configuration):
 
     @override
     @classmethod
-    def samples(cls) -> Iterable[Sample[Self]]:  # ty:ignore[invalid-method-override]
+    def samples(cls) -> Samples:
         from betty.content_provider.content_providers import Render, RenderConfiguration
 
-        yield Sample(
-            cls(
-                {
-                    "a-theme-region": PluginInstanceConfiguration(
-                        Render, RenderConfiguration("Hello, world!")
-                    )
-                }  # ty:ignore[invalid-argument-type]
-            ),
-            label="Default",
+        return Samples(
+            [
+                lambda: Sample(
+                    cls(
+                        {
+                            "a-theme-region": PluginInstanceConfiguration(
+                                Render, RenderConfiguration("Hello, world!")
+                            )
+                        }  # ty:ignore[invalid-argument-type]
+                    ),
+                    label="Default",
+                )
+            ]
         )

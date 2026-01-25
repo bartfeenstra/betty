@@ -7,6 +7,7 @@ from typing import final
 from betty.data import Data, Sample
 from betty.data.aggregate.record.object import AttrDefinition, ObjectDefinition
 from betty.data.bool import BoolDefinition
+from betty.data.sample import Size
 from betty.locale.localizable.gettext import _
 
 
@@ -14,9 +15,9 @@ from betty.locale.localizable.gettext import _
 @ObjectDefinition(
     label=_("Wiki extension configuration"),
     samples=[
-        lambda: Sample(WikiConfiguration(), label="Minimal", minimal=True),
+        lambda: Sample(WikiConfiguration(), label="Minimal", size=Size.MINIMAL),
         lambda: Sample(
-            WikiConfiguration(populate_images=False), label="Full", full=True
+            WikiConfiguration(populate_images=False), label="Full", size=Size.FULL
         ),
     ],
 )
