@@ -38,7 +38,7 @@ class FieldDefinition(Generic[_ElementT, _DataClsT]):
         *,
         label: LocalizableLike | None = None,
         description: LocalizableLike | None = None,
-        required: bool = True,
+        optional: bool = False,
         empty: Callable[[_DataClsT], bool] | None = None,
     ):
         self._selector = selector
@@ -47,7 +47,7 @@ class FieldDefinition(Generic[_ElementT, _DataClsT]):
         self._description = (
             None if description is None else ensure_localizable(description)
         )
-        self._required = required
+        self._optional = optional
         self._empty = empty
 
     @property
@@ -79,16 +79,18 @@ class FieldDefinition(Generic[_ElementT, _DataClsT]):
         return self._description
 
     @property
-    def required(self) -> bool:
+    def optional(self) -> bool:
         """
-        Whether the field is required.
+        Whether the field is optional.
         """
-        return self._required
+        return self._optional
 
     def empty(self, data: _DataClsT) -> bool:
         """
         Check if the data can be considered 'empty'.
         """
+        if self._optional and data is None:
+            return True
         if self._empty is None:
             return self.data.empty(data)
         return self._empty(data)
@@ -162,7 +164,7 @@ class RecordDefinition(AggregateDefinition[_DataClsT, _ElementT]):
         return factory(
             **assert_record(
                 *[
-                    (RequiredField if field.required else OptionalField)(
+                    (OptionalField if field.optional else RequiredField)(
                         field.selector.element, field.data.load
                     )
                     for field in self.fields

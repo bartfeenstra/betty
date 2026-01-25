@@ -54,13 +54,13 @@ class AttrDefinition:
         *,
         label: LocalizableLike | None = None,
         description: LocalizableLike | None = None,
-        required: bool = True,
+        optional: bool = False,
         empty: Callable[[_DataClsT], bool] | None = None,
     ):
         self._data = data
         self._label = label
         self._description = description
-        self._required = required
+        self._optional = optional
         self._empty = empty
 
     def field(self, name: str, /) -> FieldDefinition:
@@ -72,7 +72,7 @@ class AttrDefinition:
             self._data,
             label=self._label,
             description=self._description,
-            required=self._required,
+            optional=self._optional,
             empty=self._empty,
         )
 

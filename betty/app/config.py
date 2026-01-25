@@ -44,7 +44,7 @@ class AppConfiguration(Data):
         self._locale: Locale | None = locale
 
     @property
-    @AttrDefinition(LocaleDefinition(), empty=lambda data: data is None, required=False)
+    @AttrDefinition(LocaleDefinition(), optional=True)
     def locale(self) -> Locale | None:
         """
         The application locale.
