@@ -14,10 +14,7 @@ from betty.assertion import (
     assert_str,
 )
 from betty.config import Configuration
-from betty.config.collections.sequence import ConfigurationSequence
 from betty.data import Sample
-from betty.data.indicator.selector import Index
-from betty.exception import reraise_with_indicator
 from betty.machine_name import MachineName, assert_machine_name
 from betty.plugin.assertion import assert_plugin
 from betty.plugin.resolve import ResolvableId, resolve_id
@@ -104,35 +101,3 @@ class EntityReference(Configuration):
         from betty.ancestry.person import Person
 
         yield Sample(cls(Person, "123"), label="Default")
-
-
-@final
-class EntityReferenceSequence(ConfigurationSequence[EntityReference]):
-    """
-    Configuration for a sequence of references to entities from the project's ancestry.
-
-    .. configuration:: betty.model.config:EntityReferenceSequence
-    """
-
-    @override
-    @classmethod
-    def _item_cls(cls) -> type[EntityReference]:
-        return EntityReference
-
-    async def validate(
-        self, entity_type_repository: PluginRepository[EntityDefinition], /
-    ) -> None:
-        """
-        Validate the configuration.
-        """
-        for index, reference in enumerate(self):
-            with reraise_with_indicator(Index(index)):
-                await reference.validate(entity_type_repository)
-
-    @override
-    @classmethod
-    def samples(cls) -> Iterable[Sample[Self]]:  # ty:ignore[invalid-method-override]
-        from betty.ancestry.person import Person
-
-        yield Sample(cls(), label="Minimal", minimal=True)
-        yield Sample(cls([EntityReference(Person, "123")]), label="Expanded", full=True)
