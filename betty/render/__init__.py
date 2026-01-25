@@ -7,11 +7,11 @@ from __future__ import annotations
 from abc import ABC, abstractmethod
 from typing import TYPE_CHECKING, final
 
+from betty.definition.human_facing import HumanFacingDefinition
 from betty.html import plain_text_to_html
 from betty.locale.localizable.gettext import _, ngettext
-from betty.plugin import Plugin, PluginTypeDefinition
+from betty.plugin import Plugin, PluginDefinition, PluginTypeDefinition
 from betty.plugin.discovery.entry_point import EntryPointDiscovery
-from betty.plugin.human_facing import HumanFacingPluginDefinition
 
 if TYPE_CHECKING:
     from betty.media_type import MediaType
@@ -45,7 +45,7 @@ class Renderer(ABC, Plugin["RendererDefinition"]):
     label_countable=ngettext("{count} renderer", "{count} renderers"),
     discovery=EntryPointDiscovery("betty.renderer"),
 )
-class RendererDefinition(HumanFacingPluginDefinition[Renderer]):
+class RendererDefinition(HumanFacingDefinition, PluginDefinition[Renderer]):
     """
     .. plugin_type:: renderer.
     """

@@ -12,10 +12,11 @@ from functools import update_wrapper
 from importlib import metadata
 from typing import TYPE_CHECKING, Any, Final, Generic, Self, final
 
-from typing_extensions import TypeVar
+from typing_extensions import TypeVar, override
 
+from betty.definition.cls import ClsDefinition
+from betty.definition.human_facing import CountableHumanFacingDefinition
 from betty.importlib import fully_qualified_name
-from betty.locale.localizable.ensure import ensure_localizable
 from betty.locale.localizable.gettext import _
 from betty.machine_name import InvalidMachineName, MachineName, validate_machine_name
 
@@ -36,16 +37,16 @@ if TYPE_CHECKING:
 _BaseClsCoT = TypeVar("_BaseClsCoT", default=object, covariant=True)
 
 
-class PluginDefinition(Generic[_BaseClsCoT]):
+class PluginDefinition(ClsDefinition[_BaseClsCoT], Generic[_BaseClsCoT]):
     """
     A plugin definition.
     """
 
     def __init__(self, plugin_id: MachineName, /):
+        super().__init__()
         if not validate_machine_name(plugin_id):
             raise InvalidMachineName(plugin_id)
         self._id = plugin_id
-        self._cls: type[Intersection[_BaseClsCoT, Plugin[Self]]] | None = None
 
     @classmethod
     def type(cls) -> PluginTypeDefinition[_BaseClsCoT, Self]:
@@ -68,32 +69,10 @@ class PluginDefinition(Generic[_BaseClsCoT]):
         """
         return self._id
 
-    @property
-    def cls(self) -> builtins.type[Intersection[_BaseClsCoT, Plugin[Self]]]:
-        """
-        The plugin class.
-
-        :raises ValueError: Raised if the definition was not yet used to decorate a class.
-        """
-        if self._cls is None:
-            raise ValueError("This definition was not yet used to decorate a class.")
-        assert self._cls is not None
-        return self._cls
-
-    def __call__(
-        self, cls: builtins.type[Intersection[_BaseClsCoT, Plugin[Self]]]
-    ) -> builtins.type[Intersection[_BaseClsCoT, Plugin[Self]]]:
-        """
-        Decorate a plugin class.
-
-        :raises ValueError: Raised if the definition was already used to decorate a class.
-        """
-        if self._cls is not None:
-            raise ValueError("This definition was already used to decorate a class.")
-        assert self._cls is None
-        cls.plugin = staticmethod(update_wrapper(lambda: self, cls.plugin))
-        self._cls = cls
-        return cls
+    @override
+    def _set_cls(self, cls: builtins.type[_BaseClsCoT]) -> None:
+        super()._set_cls(cls)
+        cls.plugin = staticmethod(update_wrapper(lambda: self, cls.plugin))  # ty:ignore[unresolved-attribute]
 
     @property
     def reference_label(self) -> Localizable:
@@ -125,7 +104,11 @@ _PluginDefinitionCoT = TypeVar(
 
 
 @final
-class PluginTypeDefinition(Generic[_BaseClsCoT, _PluginDefinitionT]):
+class PluginTypeDefinition(
+    CountableHumanFacingDefinition,
+    ClsDefinition[_PluginDefinitionT],
+    Generic[_BaseClsCoT, _PluginDefinitionT],
+):
     """
     A plugin type definition.
     """
@@ -145,16 +128,17 @@ class PluginTypeDefinition(Generic[_BaseClsCoT, _PluginDefinitionT]):
     ):
         from betty.plugin.discovery import PluginDiscovery
 
+        super().__init__(
+            label=label,
+            label_plural=label_plural,
+            label_countable=label_countable,
+            description=description,
+        )
+
         if not validate_machine_name(id):
             raise InvalidMachineName(id)
         self._id = id
         self._base_cls = base_cls
-        self._label = ensure_localizable(label)
-        self._label_plural = ensure_localizable(label_plural)
-        self._label_countable = label_countable
-        self._description = (
-            None if description is None else ensure_localizable(description)
-        )
         if discovery is None:
             discovery = []
         elif isinstance(discovery, PluginDiscovery):
@@ -169,7 +153,6 @@ class PluginTypeDefinition(Generic[_BaseClsCoT, _PluginDefinitionT]):
         self._active_discovery: Collection[PluginDiscovery[_PluginDefinitionT]] = (
             self._defined_discovery
         )
-        self._cls: type[_PluginDefinitionT] | None = None
 
     @property
     def id(self) -> MachineName:
@@ -185,58 +168,10 @@ class PluginTypeDefinition(Generic[_BaseClsCoT, _PluginDefinitionT]):
         """
         return self._base_cls
 
-    @property
-    def cls(self) -> type[_PluginDefinitionT]:
-        """
-        The plugin definition class.
-
-        :raises ValueError: Raised if the definition was not yet used to decorate a class.
-        """
-        if self._cls is None:
-            raise ValueError("This definition was not yet used to decorate a class.")
-        assert self._cls is not None
-        return self._cls
-
-    def __call__(self, cls: type[_PluginDefinitionT]) -> type[_PluginDefinitionT]:
-        """
-        Decorate a plugin class.
-
-        :raises ValueError: Raised if the definition was already used to decorate a class.
-        """
-        if self._cls is not None:
-            raise ValueError("This definition was already used to decorate a class.")
-        assert self._cls is None
+    @override
+    def _set_cls(self, cls: type[_PluginDefinitionT]) -> None:
+        super()._set_cls(cls)
         cls.type = staticmethod(update_wrapper(lambda: self, cls.type))  # ty:ignore[invalid-assignment]
-        self._cls = cls
-        return cls
-
-    @property
-    def label(self) -> Localizable:
-        """
-        The plugin type label.
-        """
-        return self._label
-
-    @property
-    def label_plural(self) -> Localizable:
-        """
-        The human-readable short plugin type label (plural).
-        """
-        return self._label_plural
-
-    @property
-    def label_countable(self) -> CountableLocalizable:
-        """
-        The human-readable short plugin type label (countable).
-        """
-        return self._label_countable
-
-    @property
-    def description(self) -> Localizable | None:
-        """
-        The human-readable long plugin type description.
-        """
-        return self._description
 
     @property
     def discovery(

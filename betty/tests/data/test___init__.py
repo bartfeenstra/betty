@@ -7,7 +7,6 @@ from typing_extensions import override
 
 from betty.assertion import assert_str
 from betty.data import Data, DataDefinition, Sample
-from betty.locale.localizable.plain import Plain
 from betty.portable import CallbackPorter, Portable, PortableData
 from betty.portable.error import NotPortable
 from betty.service.level.universal import universe
@@ -29,27 +28,6 @@ class DataDefinitionTestData(Portable, Data):
 
 
 class TestDataDefinition:
-    def test_cls(self) -> None:
-        sut = DataDefinition(cls=object, label=DUMMY_LOCALIZABLE)
-        assert sut.cls is object
-
-    def test___call__(self) -> None:
-        sut = DataDefinition[DataDefinitionTestData](label=DUMMY_LOCALIZABLE)
-        sut(DataDefinitionTestData)
-        assert sut.cls is DataDefinitionTestData
-
-    def test_label(self) -> None:
-        label = Plain("-")
-        sut = DataDefinition(cls=object, label=label)
-        assert sut.label is label
-
-    def test_description(self) -> None:
-        description = Plain("-")
-        sut = DataDefinition(
-            cls=object, label=DUMMY_LOCALIZABLE, description=description
-        )
-        assert sut.description is description
-
     def test_porter__without_porter(self) -> None:
         sut = DataDefinition(cls=object, label=DUMMY_LOCALIZABLE)
         with pytest.raises(NotPortable):

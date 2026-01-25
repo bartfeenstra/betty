@@ -6,11 +6,11 @@ import pytest
 
 from betty.portable import PortableData
 from betty.serde import Serializer
+from betty.test_utils.definition.human_facing import HumanFacingDefinitionTestBase
 from betty.test_utils.plugin import PluginTestBase
-from betty.test_utils.plugin.human_facing import HumanFacingPluginDefinitionTestBase
 
 
-class SerializerDefinitionTestBase(HumanFacingPluginDefinitionTestBase):
+class SerializerDefinitionTestBase(HumanFacingDefinitionTestBase):
     """
     A base class for testing :py:class:`betty.serde.SerializerDefinition` subclasses.
     """

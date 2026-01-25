@@ -1,7 +1,5 @@
 from __future__ import annotations
 
-import pytest
-
 from betty.locale.localize import DEFAULT_LOCALIZER
 from betty.model import EntityDefinition
 from betty.plugin import (
@@ -115,78 +113,6 @@ class TestPluginTypeDefinition:
         )
         assert sut.base_cls is _Plugin
 
-    def test_cls(self) -> None:
-        sut = PluginTypeDefinition(
-            "-",
-            base_cls=DummyPlugin,
-            label=DUMMY_LOCALIZABLE,
-            label_plural=DUMMY_LOCALIZABLE,
-            label_countable=DUMMY_COUNTABLE_LOCALIZABLE,
-        )
-        with pytest.raises(ValueError):  # noqa: PT011
-            sut.cls  # noqa: B018
-
-    def test___call__(self) -> None:
-        class _PluginDefinition(PluginDefinition):
-            pass
-
-        sut = PluginTypeDefinition(
-            "-",
-            base_cls=DummyPlugin,
-            label=DUMMY_LOCALIZABLE,
-            label_plural=DUMMY_LOCALIZABLE,
-            label_countable=DUMMY_COUNTABLE_LOCALIZABLE,
-        )
-        cls = sut(_PluginDefinition)
-        assert sut.cls is cls
-        with pytest.raises(ValueError):  # noqa: PT011
-            sut(_PluginDefinition)
-
-    def test_label(self) -> None:
-        label = DUMMY_LOCALIZABLE
-        sut = PluginTypeDefinition(
-            "-",
-            base_cls=DummyPlugin,
-            label=label,
-            label_plural=DUMMY_LOCALIZABLE,
-            label_countable=DUMMY_COUNTABLE_LOCALIZABLE,
-        )
-        assert sut.label is label
-
-    def test_label_plural(self) -> None:
-        label_plural = DUMMY_LOCALIZABLE
-        sut = PluginTypeDefinition(
-            "-",
-            base_cls=DummyPlugin,
-            label=DUMMY_LOCALIZABLE,
-            label_plural=DUMMY_LOCALIZABLE,
-            label_countable=DUMMY_COUNTABLE_LOCALIZABLE,
-        )
-        assert sut.label_plural is label_plural
-
-    def test_label_countable(self) -> None:
-        label_countable = DUMMY_COUNTABLE_LOCALIZABLE
-        sut = PluginTypeDefinition(
-            "-",
-            base_cls=DummyPlugin,
-            label=DUMMY_LOCALIZABLE,
-            label_plural=DUMMY_LOCALIZABLE,
-            label_countable=label_countable,
-        )
-        assert sut.label_countable is label_countable
-
-    def test_description(self) -> None:
-        description = DUMMY_LOCALIZABLE
-        sut = PluginTypeDefinition(
-            "-",
-            base_cls=DummyPlugin,
-            label=DUMMY_LOCALIZABLE,
-            label_plural=DUMMY_LOCALIZABLE,
-            label_countable=DUMMY_COUNTABLE_LOCALIZABLE,
-            description=description,
-        )
-        assert sut.description is description
-
     def test_discovery(self) -> None:
         discovery = StaticDiscovery()
         sut = PluginTypeDefinition(
@@ -259,21 +185,6 @@ class TestPluginDefinition:
         id = "my-first-plugin"  # noqa: A001
         sut = PluginDefinition(id)
         assert sut.id == id
-
-    def test_cls(self) -> None:
-        sut = PluginDefinition("my-first-plugin")
-        with pytest.raises(ValueError):  # noqa: PT011
-            sut.cls  # noqa: B018
-
-    def test___call__(self) -> None:
-        class _Plugin(Plugin):
-            pass
-
-        sut = PluginDefinition("my-first-plugin")
-        cls = sut(_Plugin)
-        assert sut.cls is cls
-        with pytest.raises(ValueError):  # noqa: PT011
-            sut(_Plugin)
 
     def test_reference_label(self) -> None:
         id = "my-first-plugin"  # noqa: A001

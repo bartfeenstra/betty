@@ -135,7 +135,7 @@ class PluginDefinitionConfiguration(Configuration):
 
 class HumanFacingPluginDefinitionConfiguration(PluginDefinitionConfiguration):
     """
-    Configure a :py:class:`betty.plugin.human_facing.HumanFacingPluginDefinition`.
+    Configure a :py:class:`betty.definition.human_facing.HumanFacingDefinition`.
 
     .. configuration:: betty.plugin.config:HumanFacingPluginDefinitionConfiguration
     """
@@ -208,7 +208,7 @@ class CountableHumanFacingPluginDefinitionConfiguration(
     HumanFacingPluginDefinitionConfiguration
 ):
     """
-    Configure a :py:class:`betty.plugin.human_facing.CountableHumanFacingPluginDefinition`.
+    Configure a :py:class:`betty.definition.human_facing.CountableHumanFacingDefinition`.
 
     .. configuration:: betty.plugin.config:CountableHumanFacingPluginDefinitionConfiguration
     """

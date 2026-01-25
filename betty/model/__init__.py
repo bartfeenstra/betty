@@ -7,6 +7,7 @@ from uuid import uuid4
 
 from typing_extensions import override
 
+from betty.definition.human_facing import CountableHumanFacingDefinition
 from betty.hashid import hashid
 from betty.json.linked_data import (
     JsonLdObject,
@@ -15,9 +16,8 @@ from betty.json.linked_data import (
 from betty.json.schema import JsonSchemaReference, String
 from betty.locale.localizable.gettext import _, ngettext
 from betty.locale.localize import DEFAULT_LOCALIZER
-from betty.plugin import Plugin, PluginTypeDefinition
+from betty.plugin import Plugin, PluginDefinition, PluginTypeDefinition
 from betty.plugin.discovery.entry_point import EntryPointDiscovery
-from betty.plugin.human_facing import CountableHumanFacingPluginDefinition
 from betty.string import kebab_case_to_lower_camel_case
 
 if TYPE_CHECKING:
@@ -148,7 +148,7 @@ class Entity(LinkedDataDumpableWithSchemaJsonLdObject, Plugin["EntityDefinition"
     ),
     discovery=EntryPointDiscovery("betty.entity_type"),
 )
-class EntityDefinition(CountableHumanFacingPluginDefinition[Entity]):
+class EntityDefinition(CountableHumanFacingDefinition, PluginDefinition[Entity]):
     """
     .. plugin_type:: entity.
     """

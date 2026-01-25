@@ -11,15 +11,15 @@ from betty.project.extension import Extension, ExtensionDefinition
 from betty.project.factory import require_project
 from betty.service.level.factory import ServiceLevelDependentSelfFactory
 from betty.test_utils.config import DummyConfigurable, DummyConfiguration
+from betty.test_utils.definition.human_facing import HumanFacingDefinitionTestBase
 from betty.test_utils.plugin import PluginTestBase
 from betty.test_utils.plugin.dependent import DependentPluginDefinitionTestBase
-from betty.test_utils.plugin.human_facing import HumanFacingPluginDefinitionTestBase
 from betty.test_utils.plugin.ordered import OrderedPluginDefinitionTestBase
 from betty.typing import private
 
 
 class ExtensionDefinitionTestBase(
-    HumanFacingPluginDefinitionTestBase,
+    HumanFacingDefinitionTestBase,
     DependentPluginDefinitionTestBase,
     OrderedPluginDefinitionTestBase,
 ):

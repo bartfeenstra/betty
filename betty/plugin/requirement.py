@@ -9,13 +9,13 @@ from typing import TYPE_CHECKING, Self, cast, final
 
 from typing_extensions import TypeVar, override
 
+from betty.definition.human_facing import HumanFacingDefinition
 from betty.functools import unique
 from betty.locale.localizable.gettext import _
 from betty.locale.localizable.markup import AllEnumeration
 from betty.plugin import PluginDefinition
 from betty.plugin.dependent import DependentPluginDefinition
 from betty.plugin.error import PluginError, PluginNotFound, UnmetRequirement
-from betty.plugin.human_facing import HumanFacingPluginDefinition
 from betty.plugin.repository import PluginRepository
 from betty.plugin.resolve import ResolvableDefinition, resolve_definition, resolve_id
 from betty.requirement import AllRequirements, HasRequirement
@@ -64,7 +64,7 @@ async def new_dependencies_requirement(
                 dependencies=AllEnumeration(
                     *(
                         dependency.label
-                        if isinstance(dependency, HumanFacingPluginDefinition)
+                        if isinstance(dependency, HumanFacingDefinition)
                         else dependency[0].id
                         for dependency in dependencies
                     ),

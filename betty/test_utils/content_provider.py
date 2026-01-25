@@ -9,14 +9,14 @@ from typing import TYPE_CHECKING, final
 from typing_extensions import override
 
 from betty.content_provider import ContentProvider, ContentProviderDefinition
+from betty.test_utils.definition.human_facing import HumanFacingDefinitionTestBase
 from betty.test_utils.plugin import PluginTestBase
-from betty.test_utils.plugin.human_facing import HumanFacingPluginDefinitionTestBase
 
 if TYPE_CHECKING:
     from betty.document import Document
 
 
-class ContentProviderDefinitionTestBase(HumanFacingPluginDefinitionTestBase):
+class ContentProviderDefinitionTestBase(HumanFacingDefinitionTestBase):
     """
     A base class for testing :py:class:`betty.content_provider.ContentProviderDefinition` implementations.
     """

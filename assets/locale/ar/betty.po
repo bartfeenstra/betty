@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Betty VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-01-25 13:11+0000\n"
+"POT-Creation-Date: 2026-01-25 19:24+0000\n"
 "PO-Revision-Date: 2024-11-30 19:00+0000\n"
 "Last-Translator: Bart Feenstra <bart@bartfeenstra.com>\n"
 "Language: ar\n"
@@ -34,10 +34,6 @@ msgstr ""
 
 #, python-brace-format
 msgid "\"{plugin_id}\""
-msgstr ""
-
-#, python-brace-format
-msgid "\"{plugin_id}\" ({plugin_label})"
 msgstr ""
 
 #, python-brace-format
@@ -2814,10 +2810,6 @@ msgstr ""
 
 #, python-brace-format
 msgid "{plugin_type} \"{plugin_id}\""
-msgstr ""
-
-#, python-brace-format
-msgid "{plugin_type} \"{plugin_id}\" ({plugin_label})"
 msgstr ""
 
 #, python-brace-format

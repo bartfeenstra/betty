@@ -7,11 +7,11 @@ from __future__ import annotations
 from abc import ABC, abstractmethod
 from typing import TYPE_CHECKING, final
 
+from betty.definition.human_facing import CountableHumanFacingDefinition
 from betty.locale.localizable.gettext import _, ngettext
 from betty.plugin import Plugin, PluginTypeDefinition
 from betty.plugin.discovery.entry_point import EntryPointDiscovery
 from betty.plugin.discovery.project import ProjectDiscovery
-from betty.plugin.human_facing import CountableHumanFacingPluginDefinition
 from betty.plugin.ordered import OrderedPluginDefinition
 from betty.plugin.resolve import ResolvableId, resolve_id
 
@@ -58,7 +58,7 @@ class ShouldExistEventType(EventType, ABC):
     ],
 )
 class EventTypeDefinition(
-    CountableHumanFacingPluginDefinition[EventType], OrderedPluginDefinition[EventType]
+    CountableHumanFacingDefinition, OrderedPluginDefinition[EventType]
 ):
     """
     .. plugin_type:: event-type.
