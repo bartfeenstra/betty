@@ -270,7 +270,17 @@ _BASELINE: Mapping[str, _ModuleIgnore] = {
         "Released": MissingReason.STATIC_CONTENT_ONLY,
         "Scheduler": MissingReason.ABSTRACT,
     },
-    "betty/json/linked_data.py": MissingReason.SHOULD_BE_COVERED,
+    "betty/json/linked_data.py": {
+        "dump_context": MissingReason.SHOULD_BE_COVERED,
+        "dump_link": MissingReason.SHOULD_BE_COVERED,
+        "dump_schema": MissingReason.SHOULD_BE_COVERED,
+        "JsonLdObject": MissingReason.SHOULD_BE_COVERED,
+        "JsonLdSchema": MissingReason.SHOULD_BE_COVERED,
+        "LinkedDataDumpable": MissingReason.ABSTRACT,
+        "LinkedDataDumpableWithSchema": MissingReason.ABSTRACT,
+        "LinkedDataDumpableWithSchemaJsonLdObject": MissingReason.SHOULD_BE_COVERED,
+        "LinkedDataDumper": MissingReason.ABSTRACT,
+    },
     "betty/json/schema.py": {
         "FileBasedSchema": {
             "__init_subclass__": MissingReason.INHERITED,
