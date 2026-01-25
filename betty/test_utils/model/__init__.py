@@ -10,13 +10,14 @@ from betty.locale import DEFAULT_LOCALE
 from betty.locale.localizable.static import CountableStaticTranslations
 from betty.locale.localize import DEFAULT_LOCALIZER
 from betty.model import Entity, EntityDefinition
+from betty.test_utils.data import DataTestBase
 from betty.test_utils.plugin import PluginTestBase
 from betty.test_utils.plugin.human_facing import (
     CountableHumanFacingPluginDefinitionTestBase,
 )
 
 
-class EntityTestBase(PluginTestBase[Entity]):
+class EntityTestBase(PluginTestBase[Entity], DataTestBase[Entity]):
     """
     A base class for testing :py:class:`betty.model.Entity` implementations.
     """
