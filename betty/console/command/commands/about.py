@@ -12,9 +12,9 @@ from betty import about
 from betty.app.factory import require_app
 from betty.console.command import Command, CommandDefinition, CommandFunction
 from betty.console.project import add_project_argument
+from betty.definition.human_facing import HumanFacingDefinition
 from betty.locale.localizable.gettext import _
 from betty.plugin import plugin_types
-from betty.plugin.human_facing import HumanFacingPluginDefinition
 from betty.plugin.requirement import get_requirement
 from betty.rich.user import RichUser
 from betty.service.level.factory import ServiceLevelDependentSelfFactory
@@ -110,7 +110,7 @@ class About(ServiceLevelDependentSelfFactory, Command):
                     else ""
                 )
                 third_column_lines: MutableSequence[str] = []
-                if isinstance(plugin, HumanFacingPluginDefinition):
+                if isinstance(plugin, HumanFacingDefinition):
                     third_column_lines.append(plugin.label.localize(user.localizer))
                 requirement = await get_requirement(plugin, services)
                 if requirement:

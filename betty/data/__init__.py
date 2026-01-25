@@ -10,8 +10,9 @@ from typing import TYPE_CHECKING, Any, Generic, Self
 from typing_extensions import TypeVar, override
 
 from betty.data.sample import Sample, Samples
+from betty.definition.cls import ClsDefinition
+from betty.definition.human_facing import HumanFacingDefinition
 from betty.importlib import fully_qualified_name
-from betty.locale.localizable.ensure import ensure_localizable
 from betty.portable import Portable, PortableData, PortablePorter, Porter
 from betty.portable.error import NotPortable
 from betty.service.hydrate import Hydratable, Hydrator
@@ -21,7 +22,7 @@ if TYPE_CHECKING:
 
     from ty_extensions import Intersection
 
-    from betty.locale.localizable import Localizable, LocalizableLike
+    from betty.locale.localizable import LocalizableLike
     from betty.service.level import ServiceLevel
 
 _DataClsT = TypeVar("_DataClsT", default=Any)
@@ -31,6 +32,8 @@ _PortableDataCoT = TypeVar(
 
 
 class DataDefinition(
+    HumanFacingDefinition,
+    ClsDefinition[_DataClsT],
     Hydrator[_DataClsT],
     Porter[_DataClsT, _PortableDataCoT],
     Generic[_DataClsT, _PortableDataCoT],
@@ -52,27 +55,11 @@ class DataDefinition(
         samples: Iterable[Callable[[], Sample[_DataClsT]]] | None = None,
         empty: Callable[[_DataClsT], bool] | None = None,
     ):
-        self._cls: type[_DataClsT] | None = None
-        self._label = ensure_localizable(label)
-        self._description = (
-            None if description is None else ensure_localizable(description)
-        )
+        super().__init__(cls=cls, label=label, description=description)
         self._porter = porter
         self._fallback_porter = fallback_porter
         self._samples = Samples(() if samples is None else samples)
         self._empty = empty
-        if cls is not None:
-            self._cls = cls
-
-    @property
-    def cls(self) -> type[_DataClsT]:
-        """
-        The data's Python type.
-        """
-        if self._cls is None:
-            raise ValueError("This definition was not yet used to decorate a class.")
-        assert self._cls is not None
-        return self._cls
 
     @property
     def porter(self) -> Porter[_DataClsT, _PortableDataCoT]:
@@ -92,36 +79,11 @@ class DataDefinition(
         assert self._porter is not None
         return self._porter
 
-    def __call__(self, cls: type[_DataClsT]) -> type[_DataClsT]:
-        """
-        Decorate a data class.
-
-        :raises ValueError: Raised if the definition was already used to decorate a class.
-        """
-        if self._cls is not None:
-            raise ValueError("This definition was already used to decorate a class.")
-        if not issubclass(cls, Data):
-            raise ValueError(
-                f"Can only decorate classes that subclass {fully_qualified_name(Data)}."
-            )
-        assert self._cls is None
-        cls.data = staticmethod(update_wrapper(lambda: self, cls.data))  # ty:ignore[invalid-assignment]
-        self._cls = cls
-        return cls
-
-    @property
-    def label(self) -> Localizable:
-        """
-        The human-readable data label.
-        """
-        return self._label
-
-    @property
-    def description(self) -> Localizable | None:
-        """
-        The human-readable long data description.
-        """
-        return self._description
+    @override
+    def _set_cls(self, cls: type[_DataClsT]) -> None:
+        super()._set_cls(cls)
+        if issubclass(cls, Data):
+            cls.data = staticmethod(update_wrapper(lambda: self, cls.data))  # ty:ignore[invalid-assignment]
 
     @property
     def samples(self) -> Samples:

@@ -6,11 +6,11 @@ from __future__ import annotations
 
 from betty.license import License
 from betty.locale.localize import DEFAULT_LOCALIZER
+from betty.test_utils.definition.human_facing import HumanFacingDefinitionTestBase
 from betty.test_utils.plugin import PluginTestBase
-from betty.test_utils.plugin.human_facing import HumanFacingPluginDefinitionTestBase
 
 
-class LicenseDefinitionTestBase(HumanFacingPluginDefinitionTestBase):
+class LicenseDefinitionTestBase(HumanFacingDefinitionTestBase):
     """
     A base class for testing :py:class:`betty.license.LicenseDefinition` implementations.
     """

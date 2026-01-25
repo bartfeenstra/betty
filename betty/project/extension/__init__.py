@@ -6,11 +6,11 @@ from typing import TYPE_CHECKING, Self, TypeVar, final
 
 from typing_extensions import override
 
+from betty.definition.human_facing import HumanFacingDefinition
 from betty.locale.localizable.gettext import _, ngettext
 from betty.plugin import Plugin, PluginTypeDefinition
 from betty.plugin.dependent import DependentPluginDefinition
 from betty.plugin.discovery.entry_point import EntryPointDiscovery
-from betty.plugin.human_facing import HumanFacingPluginDefinition
 from betty.plugin.requirement import new_dependencies_requirement
 from betty.requirement import HasRequirement, Requirement, StaticRequirement
 from betty.service.container import ServiceContainer
@@ -93,9 +93,7 @@ class Extension(ServiceContainer, HasRequirement, Plugin["ExtensionDefinition"])
     label_countable=ngettext("{count} extension", "{count} extensions"),
     discovery=EntryPointDiscovery("betty.extension"),
 )
-class ExtensionDefinition(
-    HumanFacingPluginDefinition[Extension], DependentPluginDefinition[Extension]
-):
+class ExtensionDefinition(HumanFacingDefinition, DependentPluginDefinition[Extension]):
     """
     .. plugin_type:: extension.
 

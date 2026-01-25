@@ -7,12 +7,12 @@ from __future__ import annotations
 from abc import abstractmethod
 from typing import TYPE_CHECKING, final
 
+from betty.definition.human_facing import HumanFacingDefinition
 from betty.locale.localizable.gettext import _, ngettext
-from betty.plugin import Plugin, PluginTypeDefinition
+from betty.plugin import Plugin, PluginDefinition, PluginTypeDefinition
 from betty.plugin.discovery.app import AppDiscovery
 from betty.plugin.discovery.entry_point import EntryPointDiscovery
 from betty.plugin.discovery.project import ProjectDiscovery
-from betty.plugin.human_facing import HumanFacingPluginDefinition
 
 if TYPE_CHECKING:
     from betty.locale.localizable import Localizable
@@ -60,7 +60,7 @@ class License(Plugin["LicenseDefinition"]):
         ProjectDiscovery(lambda project: project.configuration.licenses.new_plugins()),
     ],
 )
-class LicenseDefinition(HumanFacingPluginDefinition[License]):
+class LicenseDefinition(HumanFacingDefinition, PluginDefinition[License]):
     """
     .. plugin_type:: license.
     """

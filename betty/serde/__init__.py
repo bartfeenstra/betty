@@ -7,13 +7,13 @@ from __future__ import annotations
 from abc import ABC, abstractmethod
 from typing import TYPE_CHECKING, final
 
+from betty.definition.human_facing import HumanFacingDefinition
 from betty.exception import HumanFacingException
 from betty.locale.localizable.gettext import _, ngettext
 from betty.locale.localizable.markup import AnyEnumeration
 from betty.locale.localizable.plain import Plain
-from betty.plugin import Plugin, PluginTypeDefinition
+from betty.plugin import Plugin, PluginDefinition, PluginTypeDefinition
 from betty.plugin.discovery.entry_point import EntryPointDiscovery
-from betty.plugin.human_facing import HumanFacingPluginDefinition
 
 if TYPE_CHECKING:
     from collections.abc import Sequence
@@ -65,7 +65,7 @@ class Serializer(ABC, Plugin["SerializerDefinition"]):
     label_countable=ngettext("{count} serializer", "{count} serializers"),
     discovery=EntryPointDiscovery("betty.serializer"),
 )
-class SerializerDefinition(HumanFacingPluginDefinition[Serializer]):
+class SerializerDefinition(HumanFacingDefinition, PluginDefinition[Serializer]):
     """
     .. plugin_type:: serializer.
     """

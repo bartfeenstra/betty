@@ -20,14 +20,15 @@ from betty.app import App
 from betty.config import Configurable, Configuration
 from betty.data import Data
 from betty.data.aggregate.record import RecordDefinition
+from betty.definition.human_facing import HumanFacingDefinition
 from betty.functools import Result
 from betty.importlib import import_any
 from betty.locale.localize import DEFAULT_LOCALIZER
 from betty.plugin import plugin_types
 from betty.plugin.dependent import DependentPluginDefinition
-from betty.plugin.human_facing import HumanFacingPluginDefinition
 from betty.plugin.ordered import OrderedPluginDefinition
 from betty.project import Project
+from betty.serde import SerializerDefinition
 
 if TYPE_CHECKING:
     from sphinx.application import Sphinx
@@ -77,10 +78,10 @@ async def _get_serializers() -> Sequence[Serializer]:
         return [
             await project.new_target(serializer.cls)
             for serializer in sorted(
-                await project.plugins("serializer", check_requirements=False),
+                await project.plugins(SerializerDefinition, check_requirements=False),
                 key=cmp_to_key(_cmp_formats),
             )
-        ]
+        ]  # ty:ignore[invalid-return-type]
 
 
 def _build_definition_list(
@@ -131,7 +132,7 @@ class _PluginDirective(SphinxDirective):
         summary_nodes, _ = self.parse_inline(
             f"The ``{plugin.id}`` :py:class:`{plugin.type().label.localize(DEFAULT_LOCALIZER).lower()} <{type(plugin).__module__}.{type(plugin).__qualname__}>` plugin."
         )
-        if isinstance(plugin, HumanFacingPluginDefinition):
+        if isinstance(plugin, HumanFacingDefinition):
             description = plugin.description
             if description:
                 summary_nodes.append(nodes.Text(" "))
@@ -280,7 +281,7 @@ class _PluginTypeDirective(SphinxDirective):
             f"{plugin.id} (:py:class:`{plugin.cls.__name__} <{plugin.cls.__module__}.{plugin.cls.__qualname__}>`)"
         )
         definition_nodes: MutableSequence[nodes.Node] | None = None
-        if isinstance(plugin, HumanFacingPluginDefinition):
+        if isinstance(plugin, HumanFacingDefinition):
             definition_nodes = [nodes.Text(plugin.label.localize(DEFAULT_LOCALIZER))]
             if plugin.description:
                 definition_nodes.append(

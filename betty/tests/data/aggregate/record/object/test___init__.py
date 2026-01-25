@@ -76,7 +76,7 @@ class TestObjectDefinition:
         data = ObjectDefinitionTestObject(value)
         assert sut.dump(data) == {field_name: value}
 
-    def test___call____without_attributes(self) -> None:
+    def test__set_cls__without_attributes(self) -> None:
         @ObjectDefinition(label=DUMMY_LOCALIZABLE)
         class _Object(Data[ObjectDefinition]):
             pass
@@ -85,7 +85,7 @@ class TestObjectDefinition:
         assert isinstance(data_object, ObjectDefinition)
         assert not data_object.fields
 
-    def test___call____with_attr(self) -> None:
+    def test__set_cls__with_attr(self) -> None:
         class _Attr(Attr):
             @property
             def attr(self) -> AttrDefinition:
@@ -99,7 +99,7 @@ class TestObjectDefinition:
         assert isinstance(data_object, ObjectDefinition)
         assert data_object.fields
 
-    def test___call____with_attr_definition(self) -> None:
+    def test__set_cls__with_attr_definition(self) -> None:
         @ObjectDefinition(label=DUMMY_LOCALIZABLE)
         class _Object(Data[ObjectDefinition]):
             @property

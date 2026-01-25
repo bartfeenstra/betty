@@ -1,16 +1,14 @@
 """
-Plugins that are human-facing and have localizable attributes.
+Definitions that are human-facing and provide human-friendly information.
 """
 
 from __future__ import annotations
 
 from typing import TYPE_CHECKING, Any
 
-from typing_extensions import TypeVar, override
+from typing_extensions import TypeVar
 
 from betty.locale.localizable.ensure import ensure_localizable
-from betty.locale.localizable.gettext import _
-from betty.plugin import PluginDefinition
 
 if TYPE_CHECKING:
     from betty.locale.localizable import (
@@ -18,92 +16,71 @@ if TYPE_CHECKING:
         Localizable,
         LocalizableLike,
     )
-    from betty.machine_name import MachineName
-
 
 _BaseClsCoT = TypeVar("_BaseClsCoT", default=object, covariant=True)
 
 
-class HumanFacingPluginDefinition(PluginDefinition[_BaseClsCoT]):
+class HumanFacingDefinition:
     """
-    A definition of a plugin that is human-facing.
+    A definition that is human-facing and provides human-friendly information.
     """
 
     def __init__(
         self,
-        plugin_id: MachineName,
-        *,
+        *args: Any,
         label: LocalizableLike,
         description: LocalizableLike | None = None,
         **kwargs: Any,
     ):
-        super().__init__(plugin_id, **kwargs)
+        super().__init__(*args, **kwargs)
         self._label = ensure_localizable(label)
         self._description = (
             None if description is None else ensure_localizable(description)
         )
 
-    @override
-    @property
-    def reference_label(self) -> Localizable:
-        return _('"{plugin_id}" ({plugin_label})').format(
-            plugin_id=self.id,
-            plugin_label=self.label,
-        )
-
-    @override
-    @property
-    def reference_label_with_type(self) -> Localizable:
-        return _('{plugin_type} "{plugin_id}" ({plugin_label})').format(
-            plugin_type=self.type().label,
-            plugin_id=self.id,
-            plugin_label=self.label,
-        )
-
     @property
     def label(self) -> Localizable:
         """
-        The human-readable short plugin label (singular).
+        The human-readable short label (singular).
         """
         return self._label
 
     @property
     def description(self) -> Localizable | None:
         """
-        The human-readable long plugin description.
+        The human-readable long description.
         """
         return self._description
 
 
-class CountableHumanFacingPluginDefinition(HumanFacingPluginDefinition[_BaseClsCoT]):
+class CountableHumanFacingDefinition(HumanFacingDefinition):
     """
-    A definition of a plugin that is human-facing, and of which instances are countable.
+    A definition that is human-facing and provides countable human-friendly information.
     """
 
     def __init__(
         self,
-        plugin_id: MachineName,
-        *,
+        *args: Any,
         label: LocalizableLike,
         label_plural: LocalizableLike,
         label_countable: CountableLocalizable,
         description: LocalizableLike | None = None,
         **kwargs: Any,
     ):
-        super().__init__(plugin_id, label=label, description=description, **kwargs)
+        super().__init__(*args, label=label, description=description, **kwargs)
         self._label_plural = ensure_localizable(label_plural)
         self._label_countable = label_countable
 
     @property
     def label_plural(self) -> Localizable:
         """
-        The human-readable short plugin label (plural).
+        The human-readable short label (plural).
         """
         return self._label_plural
 
     @property
     def label_countable(self) -> CountableLocalizable:
         """
-        The human-readable short plugin label (countable).
+        The human-readable short label (countable).
         """
         return self._label_countable

@@ -113,9 +113,9 @@ class ObjectDefinition(RecordDefinition[_DataClsT, AttrElement]):
     """
 
     @override
-    def __call__(self, cls: type[_DataClsT]) -> type[_DataClsT]:
+    def _set_cls(self, cls: type[_DataClsT]) -> None:
         global _attrs
-        cls = super().__call__(cls)
+        super()._set_cls(cls)
         cls_name = fully_qualified_name(cls)
         attrs = _attrs[cls_name]
 
@@ -124,4 +124,4 @@ class ObjectDefinition(RecordDefinition[_DataClsT, AttrElement]):
                 self._fields.append(member.attr.field(member_name))
             elif member_name in attrs:
                 self._fields.append(attrs[member_name].field(member_name))
-        return cls
+        return cls  # ty:ignore[invalid-return-type]

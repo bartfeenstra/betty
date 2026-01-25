@@ -7,11 +7,11 @@ from __future__ import annotations
 from abc import abstractmethod
 from typing import TYPE_CHECKING, final
 
+from betty.definition.human_facing import HumanFacingDefinition
 from betty.locale.localizable.gettext import _, ngettext
-from betty.plugin import Plugin, PluginTypeDefinition
+from betty.plugin import Plugin, PluginDefinition, PluginTypeDefinition
 from betty.plugin.discovery.entry_point import EntryPointDiscovery
 from betty.plugin.discovery.project import ProjectDiscovery
-from betty.plugin.human_facing import HumanFacingPluginDefinition
 
 if TYPE_CHECKING:
     from betty.locale.localizable import Localizable
@@ -60,7 +60,9 @@ class CopyrightNotice(Plugin["CopyrightNoticeDefinition"]):
         ),
     ],
 )
-class CopyrightNoticeDefinition(HumanFacingPluginDefinition[CopyrightNotice]):
+class CopyrightNoticeDefinition(
+    HumanFacingDefinition, PluginDefinition[CopyrightNotice]
+):
     """
     .. plugin_type:: copyright-notice.
     """

@@ -17,7 +17,7 @@ class TestAggregateDefinition:
     async def test_hydrate(self) -> None:
         class _Sut(AggregateDefinition[dict[str, object], Key]):
             def __init__(self):
-                super().__init__(cls=dict[str, object], label=DUMMY_LOCALIZABLE)
+                super().__init__(cls=dict, label=DUMMY_LOCALIZABLE)
 
             @override
             def elements(

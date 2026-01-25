@@ -9,10 +9,10 @@ from collections.abc import Awaitable, Callable
 from typing import TYPE_CHECKING, TypeAlias, final
 
 from betty import about
+from betty.definition.human_facing import HumanFacingDefinition
 from betty.locale.localizable.gettext import _, ngettext
-from betty.plugin import Plugin, PluginTypeDefinition
+from betty.plugin import Plugin, PluginDefinition, PluginTypeDefinition
 from betty.plugin.discovery.entry_point import EntryPointDiscovery
-from betty.plugin.human_facing import HumanFacingPluginDefinition
 
 if TYPE_CHECKING:
     import argparse
@@ -44,7 +44,7 @@ class Command(Plugin["CommandDefinition"]):
     label_countable=ngettext("{count} command", "{count} commands"),
     discovery=EntryPointDiscovery("betty.command"),
 )
-class CommandDefinition(HumanFacingPluginDefinition[Command]):
+class CommandDefinition(HumanFacingDefinition, PluginDefinition[Command]):
     """
     .. plugin_type:: command.
     """
