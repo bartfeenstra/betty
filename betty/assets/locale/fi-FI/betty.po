@@ -8,41 +8,45 @@ msgstr ""
 "Project-Id-Version: Betty VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
 "POT-Creation-Date: 2025-04-24 14:22+0100\n"
-"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
-"Last-Translator: Automatically generated\n"
-"Language-Team: none\n"
-"Language: fi\n"
+"PO-Revision-Date: 2026-01-25 12:19+0000\n"
+"Last-Translator: Kieli Puoli <kielipuoli@gmail.com>\n"
+"Language-Team: Finnish <https://hosted.weblate.org/projects/betty/betty/fi/>"
+"\n"
+"Language: fi-FI\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=utf-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
+"X-Generator: Weblate 5.16-dev\n"
 "Generated-By: Babel 2.17.0\n"
 
 #, python-brace-format
 msgid "\"{hex_value}\" is not a valid hexadecimal color, such as #ffc0cb."
-msgstr ""
+msgstr "\"{hex_value}\" ei ole kelvollinen heksadesimaaliväri, esim. #ffc0cb."
 
 #, python-brace-format
 msgid "\"{invalid_locale}\" is not a valid IETF BCP 47 language tag."
-msgstr ""
+msgstr "\"{invalid_locale}\" ei ole kelvollinen IETF BCP 47 -kielitunniste."
 
 #, python-brace-format
 msgid "\"{path}\" is not a directory."
-msgstr ""
+msgstr "\"{path}\" ei ole hakemisto."
 
 #, python-brace-format
 msgid ""
 "\"{value}\" is not a valid machine name: only lowercase letters, digits, "
 "and hyphens (-) are allowed."
 msgstr ""
+"\"{value}\" ei ole kelvollinen koneen nimi: nimissä saa olla vain pieniä "
+"kirjaimia, numeroita ja viivoja (-)."
 
 #, python-format
 msgid "%(date)s in %(place)s"
-msgstr ""
+msgstr "%(date)s kohteessa %(place)s"
 
 #, python-format
 msgid "%(event)s of %(subjects)s"
-msgstr ""
+msgstr "%(event)s/%(subjects)s"
 
 #, python-format
 msgid "%(event)s with %(subjects)s"
@@ -53,61 +57,64 @@ msgid "%(person_individual_name)s had a child with %(co_parent_labels)s."
 msgid_plural ""
 "%(person_individual_name)s had %(child_count)s children with "
 "%(co_parent_labels)s."
-msgstr[0] ""
+msgstr[0] "%(person_individual_name)s ja %(co_parent_labels)s saivat lapsen."
 msgstr[1] ""
+"%(person_individual_name)s ja %(co_parent_labels)s saivat %(child_count)s "
+"lasta."
 
 #, python-format
 msgid "%(person_individual_name)s had a child."
 msgid_plural "%(person_individual_name)s had %(child_count)s children."
-msgstr[0] ""
-msgstr[1] ""
+msgstr[0] "%(person_individual_name)s sai lapsen."
+msgstr[1] "%(person_individual_name)s sai %(child_count)s lasta."
 
 #, python-format
 msgid "%(person_individual_name)s is the child of %(parent_labels)s."
-msgstr ""
+msgstr "%(person_individual_name)s on henkilön %(parent_labels)s lapsi."
 
 msgid ""
 "A family history as told by <a "
 "href=\"https://betty.readthedocs.io\">Betty👵</a>"
 msgstr ""
+"Sukuhistorian kertoja: <a href=\"https://betty.readthedocs.io\">Betty👵</a>"
 
 msgid "API documentation"
-msgstr ""
+msgstr "API-asiakirjat"
 
 msgid "About"
-msgstr ""
+msgstr "Tietoja"
 
 msgid "Access denied"
-msgstr ""
+msgstr "Käyttö estetty"
 
 #, python-format
 msgid "Accessed %(date)s"
-msgstr ""
+msgstr "Käytetty %(date)s"
 
 msgid "Adoption"
-msgstr ""
+msgstr "Adoptio"
 
 msgid "All caches cleared."
-msgstr ""
+msgstr "Kaikki välimuistitiedot on poistettu."
 
 msgid "All of these requirements must be met"
-msgstr ""
+msgstr "Kaikki nämä vaatimukset on täytettävä"
 
 msgid "All rights reserved"
-msgstr ""
+msgstr "Kaikki oikeudet pidätetään"
 
 #, python-format
 msgid "Also known as %(names)s"
-msgstr ""
+msgstr "Tunnetaan myös nimellä %(names)s"
 
 msgid "Ancestral names include"
 msgstr ""
 
 msgid "Announcement of divorce"
-msgstr ""
+msgstr "Avioeroilmoitus"
 
 msgid "Announcement of marriage"
-msgstr ""
+msgstr "Avioliittoilmoitus"
 
 msgid "Appearances"
 msgstr ""
@@ -115,22 +122,23 @@ msgstr ""
 #, python-brace-format
 msgid "At least {expected} items are required, but found {actual}."
 msgstr ""
+"Vähintään {expected} kohdetta vaaditaan, mutta niitä löytyi vain {actual}."
 
 #, python-brace-format
 msgid "At most {expected} items are allowed, but found {actual}."
-msgstr ""
+msgstr "Enintään {expected} kohdetta sallitaan, mutta niitä löytyi {actual}."
 
 msgid "At which URL will your site be published?"
-msgstr ""
+msgstr "Missä URL-osoitteessa sivustosi julkaistaan?"
 
 msgid "Attendee"
-msgstr ""
+msgstr "Osallistuja"
 
 msgid "Baptism"
-msgstr ""
+msgstr "Kaste"
 
 msgid "Bar mitzvah"
-msgstr ""
+msgstr "Bar mitsva"
 
 msgid "Bat mitzvah"
 msgstr ""
