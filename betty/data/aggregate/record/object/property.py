@@ -28,7 +28,7 @@ _ValueGetT = TypeVar("_ValueGetT")
 _ValueSetT = TypeVar("_ValueSetT")
 
 
-class Property(Attr, LinkedDataDumper[Any], Generic[_ValueGetT, _ValueSetT]):
+class Property(Attr, Generic[_ValueGetT, _ValueSetT]):
     """
     An object attribute with a definition.
     """
@@ -145,6 +145,13 @@ class Optional(Attr, LinkedDataDumper, Generic[_ValueGetT, _ValueSetT]):
     def __delete__(self, instance: Any) -> None:
         setattr(instance, self._attr_name, None)
 
+    # @todo I really, really do not want linked data in our property base classes.
+    # @todo Leave plenty of @todo comments, and create follow-up issues to remove this
+    # @todo as soon as we move linked data into the data definition API.
+    # @todo
+    # @todo
+    # @todo
+    # @todo
     @override
     async def linked_data_schema(self, project: Project, /) -> Schema | Void:
         # @todo Alter the schema to make it optional

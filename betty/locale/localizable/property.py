@@ -9,6 +9,7 @@ from typing import TYPE_CHECKING, Any, TypeVar, final
 from typing_extensions import override
 
 from betty.data.aggregate.record.object.property import Property
+from betty.json.linked_data import LinkedDataDumper
 from betty.locale import to_language_tag
 from betty.locale.localizable import (
     CountableLocalizable,
@@ -39,7 +40,9 @@ _ValueSetT = TypeVar("_ValueSetT")
 
 
 @final
-class LocalizableProperty(Property[Localizable, LocalizableLike]):
+class LocalizableProperty(
+    LinkedDataDumper[Any], Property[Localizable, LocalizableLike]
+):
     """
     A property containing a :py:class:`betty.locale.localizable.Localizable`.
     """
