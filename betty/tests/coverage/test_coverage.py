@@ -214,18 +214,6 @@ _BASELINE: Mapping[str, _ModuleIgnore] = {
         "Factory": MissingReason.PROTOCOL,
         "SelfFactory": MissingReason.ABSTRACT,
     },
-    "betty/fetch/__init__.py": {
-        "Fetcher": MissingReason.ABSTRACT,
-        "FetchResponse": {
-            "__annotate_func__": MissingReason.DATACLASS,
-            "__eq__": MissingReason.DATACLASS,
-            "__delattr__": MissingReason.DATACLASS,
-            "__hash__": MissingReason.DATACLASS,
-            "__replace__": MissingReason.DATACLASS,
-            "__setattr__": MissingReason.DATACLASS,
-        },
-    },
-    "betty/fetch/static.py": MissingReason.SHOULD_BE_COVERED,
     "betty/functools.py": {
         "Result": {
             "result": MissingReason.COVERED_ELSEWHERE,
@@ -512,7 +500,6 @@ _BASELINE: Mapping[str, _ModuleIgnore] = {
     "betty/render/__init__.py": {
         "Renderer": MissingReason.ABSTRACT,
     },
-    "betty/repr.py": MissingReason.SHOULD_BE_COVERED,
     "betty/requirement.py": {
         "HasRequirement": MissingReason.STATIC_CONTENT_ONLY,
         "Requirement": {
