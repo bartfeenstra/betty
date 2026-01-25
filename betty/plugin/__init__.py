@@ -88,12 +88,17 @@ class PluginDefinition(Generic[_BaseClsCoT]):
 
         :raises ValueError: Raised if the definition was already used to decorate a class.
         """
+        self._set_cls(cls)
+        return cls
+
+    def _set_cls(
+        self, cls: builtins.type[Intersection[_BaseClsCoT, Plugin[Self]]]
+    ) -> None:
         if self._cls is not None:
             raise ValueError("This definition was already used to decorate a class.")
         assert self._cls is None
         cls.plugin = staticmethod(update_wrapper(lambda: self, cls.plugin))
         self._cls = cls
-        return cls
 
     @property
     def reference_label(self) -> Localizable:

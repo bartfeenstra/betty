@@ -7,6 +7,7 @@ from uuid import uuid4
 
 from typing_extensions import override
 
+from betty.data import Data
 from betty.hashid import hashid
 from betty.json.linked_data import (
     JsonLdObject,
@@ -16,6 +17,7 @@ from betty.json.schema import JsonSchemaReference, String
 from betty.locale.localizable.gettext import _, ngettext
 from betty.locale.localize import DEFAULT_LOCALIZER
 from betty.plugin import Plugin, PluginTypeDefinition
+from betty.plugin.data import DataPluginDefinition
 from betty.plugin.discovery.entry_point import EntryPointDiscovery
 from betty.plugin.human_facing import CountableHumanFacingPluginDefinition
 from betty.string import kebab_case_to_lower_camel_case
@@ -51,7 +53,9 @@ class NonPersistentId(str):
         return super().__new__(cls, entity_id or str(uuid4()))
 
 
-class Entity(LinkedDataDumpableWithSchemaJsonLdObject, Plugin["EntityDefinition"]):
+class Entity(
+    Data, LinkedDataDumpableWithSchemaJsonLdObject, Plugin["EntityDefinition"]
+):
     """
     An entity is a uniquely identifiable data container.
 
@@ -148,7 +152,9 @@ class Entity(LinkedDataDumpableWithSchemaJsonLdObject, Plugin["EntityDefinition"
     ),
     discovery=EntryPointDiscovery("betty.entity_type"),
 )
-class EntityDefinition(CountableHumanFacingPluginDefinition[Entity]):
+class EntityDefinition(
+    CountableHumanFacingPluginDefinition[Entity], DataPluginDefinition[Entity]
+):
     """
     .. plugin_type:: entity.
     """
