@@ -10,7 +10,7 @@ from asyncio import sleep
 from collections.abc import AsyncIterator, Hashable, MutableMapping
 from math import floor
 from types import TracebackType
-from typing import Self, TypeAlias, TypeVar, Union, final
+from typing import Self, TypeVar, final
 
 from typing_extensions import override
 
@@ -52,23 +52,6 @@ class Lock(ABC):
         """
 
 
-Acquirable: TypeAlias = Union[threading.Lock, threading.Semaphore]  # noqa: UP007
-
-
-async def asynchronize_acquire(acquirable: Acquirable, *, wait: bool = True) -> bool:
-    """
-    Acquire a synchronous lock or semaphore asynchronously.
-    """
-    while not acquirable.acquire(blocking=False):
-        if not wait:
-            return False
-        # Sleeping for zero seconds does not actually sleep, but gives the event
-        # loop a chance to progress other tasks while we wait for another chance
-        # to acquire the acquirable.
-        await sleep(0)
-    return True
-
-
 @final
 class AsynchronizedLock(Lock):
     """
@@ -89,7 +72,14 @@ class AsynchronizedLock(Lock):
 
     @override
     async def acquire(self, *, wait: bool = True) -> bool:
-        return await asynchronize_acquire(self._lock, wait=wait)
+        while not self._lock.acquire(blocking=False):
+            if not wait:
+                return False
+            # Sleeping for zero seconds does not actually sleep, but gives the event
+            # loop a chance to progress other tasks while we wait for another chance
+            # to acquire the acquirable.
+            await sleep(0)
+        return True
 
     @override
     async def release(self) -> None:
@@ -101,69 +91,6 @@ class AsynchronizedLock(Lock):
         Create a new thread-safe, asynchronous lock.
         """
         return cls(threading.Lock())
-
-
-class Semaphore(ABC):
-    """
-    An asynchronous semaphore.
-    """
-
-    async def __aenter__(self):
-        await self.acquire()
-
-    async def __aexit__(
-        self,
-        exc_type: type[BaseException] | None,
-        exc_val: BaseException | None,
-        exc_tb: TracebackType | None,
-    ) -> None:
-        await self.release()
-
-    @abstractmethod
-    async def acquire(self, *, wait: bool = True) -> bool:
-        """
-        Acquire the semaphore.
-        """
-
-    @abstractmethod
-    async def release(self, n: int = 1) -> None:
-        """
-        Release the semaphore.
-        """
-
-
-@final
-class AsynchronizedSemaphore(Semaphore):
-    """
-    Make a synchronous (blocking) semaphore asynchronous (non-blocking).
-    """
-
-    __slots__ = "_semaphore"
-
-    def __init__(self, semaphore: threading.Semaphore):
-        self._semaphore = semaphore
-
-    @property
-    def semaphore(self) -> threading.Semaphore:
-        """
-        The underlying, synchronous semaphore.
-        """
-        return self._semaphore
-
-    @override
-    async def acquire(self, *, wait: bool = True) -> bool:
-        return await asynchronize_acquire(self._semaphore, wait=wait)
-
-    @override
-    async def release(self, n: int = 1) -> None:
-        self._semaphore.release(n)
-
-    @classmethod
-    def new_threadsafe(cls, n: int = 1) -> Self:
-        """
-        Create a new thread-safe, asynchronous semaphore.
-        """
-        return cls(threading.Semaphore(n))
 
 
 @final
