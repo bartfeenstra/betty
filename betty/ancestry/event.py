@@ -19,12 +19,13 @@ from betty.ancestry.has_notes import HasNotes
 from betty.ancestry.place import Place
 from betty.ancestry.presence import Presence
 from betty.ancestry.presence_role.presence_roles import Subject
+from betty.data.aggregate.record.object.property import Optional
 from betty.json.linked_data import JsonLdObject, dump_context
 from betty.json.schema import String
-from betty.locale.localizable.attr import OptionalLocalizableAttr
 from betty.locale.localizable.gettext import _, ngettext
 from betty.locale.localizable.linked_data import dump_linked_data
 from betty.locale.localizable.markup import AllEnumeration
+from betty.locale.localizable.property import LocalizableProperty
 from betty.locale.localizable.static.schema import StaticTranslationsSchema
 from betty.model import EntityDefinition
 from betty.model.association import (
@@ -69,7 +70,7 @@ class Event(
     .. plugin:: entity:event.
     """
 
-    name = OptionalLocalizableAttr()
+    name = Optional(LocalizableProperty(label=_("Name")))
     """
     The event's name, if it has any.
     """

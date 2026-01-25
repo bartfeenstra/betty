@@ -7,6 +7,8 @@ from __future__ import annotations
 from collections.abc import Collection
 from typing import TYPE_CHECKING, Any, TypeVar
 
+from typing_extensions import override
+
 from betty.data.aggregate import AggregateDefinition
 from betty.data.indicator.selector import Element
 
@@ -14,6 +16,7 @@ if TYPE_CHECKING:
     from betty.data import DataDefinition
     from betty.locale.localizable import LocalizableLike
     from betty.portable import Porter
+    from betty.service.level import ServiceLevel
 
 _CollectionT = TypeVar("_CollectionT", bound=Collection)
 _ElementT = TypeVar("_ElementT", bound=Element[Any])
@@ -48,3 +51,9 @@ class CollectionDefinition(AggregateDefinition[_CollectionT, _ElementT]):
         The definition of the items contained by this collection.
         """
         return self._item
+
+    @override
+    async def _hydrate_element(
+        self, services: ServiceLevel, data: Any, selector: _ElementT, /
+    ) -> None:
+        await self._item.hydrate(services, data)

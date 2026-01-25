@@ -27,10 +27,10 @@ from betty.content_provider import ContentProvider, ContentProviderDefinition
 from betty.content_provider.content_providers import Template
 from betty.data import Sample
 from betty.locale.localizable.assertion import assert_load_localizable
-from betty.locale.localizable.attr import RequiredLocalizableAttr
 from betty.locale.localizable.ensure import ensure_localizable
 from betty.locale.localizable.gettext import _
 from betty.locale.localizable.portable import dump_localizable
+from betty.locale.localizable.property import LocalizableProperty
 from betty.machine_name import MachineName, assert_machine_name
 from betty.model import EntityDefinition
 from betty.model.config import EntityReference
@@ -90,7 +90,7 @@ class SectionConfiguration(Configuration):
     .. configuration:: betty.project.extension.raspberry_mint.content_provider:SectionConfiguration
     """
 
-    heading = RequiredLocalizableAttr()
+    heading = LocalizableProperty(label=_("Heading"))
 
     def __init__(
         self,

@@ -23,24 +23,25 @@ from betty.config.collections.mapping import ConfigurationMapping
 from betty.config.collections.sequence import ConfigurationSequence
 from betty.config.color import ColorConfiguration
 from betty.data import Sample
+from betty.data.aggregate.record.object.property import Optional
 from betty.data.sample import get_full_sample
 from betty.locale import DEFAULT_LOCALE
 from betty.locale.localizable.assertion import (
     assert_load_countable_localizable,
     assert_load_localizable,
 )
-from betty.locale.localizable.attr import (
-    OptionalLocalizableAttr,
-    RequiredCountableLocalizableAttr,
-    RequiredLocalizableAttr,
-)
 from betty.locale.localizable.ensure import (
     ensure_countable_localizable,
     ensure_localizable,
 )
+from betty.locale.localizable.gettext import _
 from betty.locale.localizable.portable import (
     dump_countable_localizable,
     dump_localizable,
+)
+from betty.locale.localizable.property import (
+    CountableLocalizableProperty,
+    LocalizableProperty,
 )
 from betty.locale.localizable.static import CountableStaticTranslations
 from betty.machine_name import MachineName, assert_machine_name
@@ -139,8 +140,8 @@ class HumanFacingPluginDefinitionConfiguration(PluginDefinitionConfiguration):
     .. configuration:: betty.plugin.config:HumanFacingPluginDefinitionConfiguration
     """
 
-    label = RequiredLocalizableAttr()
-    description = OptionalLocalizableAttr()
+    label = LocalizableProperty(label=_("Label"))
+    description = Optional(LocalizableProperty(label=_("Description")))
 
     def __init__(
         self,
@@ -208,8 +209,8 @@ class CountableHumanFacingPluginDefinitionConfiguration(
     .. configuration:: betty.plugin.config:CountableHumanFacingPluginDefinitionConfiguration
     """
 
-    label_plural = RequiredLocalizableAttr()
-    label_countable = RequiredCountableLocalizableAttr()
+    label_plural = LocalizableProperty(label=_("Label (plural)"))
+    label_countable = CountableLocalizableProperty(label=_("Label (countable)"))
 
     def __init__(
         self,
