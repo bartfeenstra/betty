@@ -1,5 +1,5 @@
 """
-Data types for plugins.
+Integrate the plugin API with the data API.
 """
 
 from __future__ import annotations
@@ -47,7 +47,7 @@ class PluginIdDefinition(DataDefinition[MachineName]):
 
 class DataPluginDefinition(HumanFacingPluginDefinition[_DataT]):
     """
-    A definition of plugin that can declare its order with respect to other plugins.
+    A definition of a plugin that contains defined object data.
     """
 
     @override
