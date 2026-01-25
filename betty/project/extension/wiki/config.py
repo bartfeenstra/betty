@@ -39,7 +39,7 @@ class WikiConfiguration(Data):
             ),
         ),
         empty=lambda data: data is True,
-        required=False,
+        optional=True,
     )
     def populate_images(self) -> bool:
         """

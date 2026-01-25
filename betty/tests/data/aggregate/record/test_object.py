@@ -123,14 +123,14 @@ class TestAttrDefinition:
             return False
 
         sut = AttrDefinition(
-            data, label=label, description=description, empty=empty, required=False
+            data, label=label, description=description, empty=empty, optional=True
         )
         field = sut.field(name)
         assert field.selector.element == name
         assert field.data is data
         assert field.label is label
         assert field.description is description
-        assert not field.required
+        assert field.optional
 
     def test___call__(self) -> None:
         class _Object:

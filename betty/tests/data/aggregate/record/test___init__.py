@@ -38,11 +38,11 @@ class TestFieldDefinition:
         )
         assert sut.description is description
 
-    def test_required(self) -> None:
+    def test_optional(self) -> None:
         sut = FieldDefinition(
-            Key("_"), DataDefinition(label=DUMMY_LOCALIZABLE), required=False
+            Key("_"), DataDefinition(label=DUMMY_LOCALIZABLE), optional=True
         )
-        assert not sut.required
+        assert sut.optional
 
     def test_empty__without_callback(self) -> None:
         sut = FieldDefinition(Key("_"), DataDefinition(label=DUMMY_LOCALIZABLE))
@@ -59,6 +59,16 @@ class TestFieldDefinition:
             Key("_"), DataDefinition(label=DUMMY_LOCALIZABLE, empty=lambda _: True)
         )
         assert sut.empty(object())
+
+    def test_empty__without_optional(self) -> None:
+        sut = FieldDefinition(Key("_"), DataDefinition(label=DUMMY_LOCALIZABLE))
+        assert not sut.empty(None)
+
+    def test_empty__with_optional(self) -> None:
+        sut = FieldDefinition(
+            Key("_"), DataDefinition(label=DUMMY_LOCALIZABLE), optional=True
+        )
+        assert sut.empty(None)
 
 
 class RecordDefinitionTestRecord:
@@ -131,7 +141,7 @@ class TestRecordDefinition:
                 FieldDefinition(
                     Attr(field_name),
                     StrDefinition(label=DUMMY_LOCALIZABLE),
-                    required=False,
+                    optional=True,
                 )
             ],
         )
@@ -148,7 +158,7 @@ class TestRecordDefinition:
                 FieldDefinition(
                     Attr(field_name),
                     StrDefinition(label=DUMMY_LOCALIZABLE),
-                    required=False,
+                    optional=True,
                 )
             ],
         )

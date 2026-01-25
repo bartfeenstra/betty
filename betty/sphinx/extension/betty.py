@@ -386,12 +386,12 @@ Data
 """
             for field in sorted(
                 data.fields,
-                key=lambda field: (not field.required, field.selector.element),
+                key=lambda field: (field.optional, field.selector.element),
             ):
                 primary_label = field.data.label if field.label is None else field.label
                 content += f"""
                 
-``{field.selector.element}`` :sup:`{"required" if field.required else "optional"}`
+``{field.selector.element}`` :sup:`{"optional" if field.optional else "required"}`
 
     **{primary_label.localize(DEFAULT_LOCALIZER)}**
 """
