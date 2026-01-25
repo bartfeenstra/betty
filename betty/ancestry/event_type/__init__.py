@@ -7,8 +7,10 @@ from __future__ import annotations
 from abc import ABC, abstractmethod
 from typing import TYPE_CHECKING, final
 
+from betty.data import Data
 from betty.locale.localizable.gettext import _, ngettext
 from betty.plugin import Plugin, PluginTypeDefinition
+from betty.plugin.data import DataPluginDefinition
 from betty.plugin.discovery.entry_point import EntryPointDiscovery
 from betty.plugin.discovery.project import ProjectDiscovery
 from betty.plugin.human_facing import CountableHumanFacingPluginDefinition
@@ -24,7 +26,7 @@ if TYPE_CHECKING:
     from betty.project import Project
 
 
-class EventType(Plugin["EventTypeDefinition"]):
+class EventType(Data, Plugin["EventTypeDefinition"]):
     """
     Define an :py:class:`betty.ancestry.event.Event` type.
     """
@@ -58,7 +60,9 @@ class ShouldExistEventType(EventType, ABC):
     ],
 )
 class EventTypeDefinition(
-    CountableHumanFacingPluginDefinition[EventType], OrderedPluginDefinition[EventType]
+    CountableHumanFacingPluginDefinition[EventType],
+    OrderedPluginDefinition[EventType],
+    DataPluginDefinition[EventType],
 ):
     """
     .. plugin_type:: event-type.
