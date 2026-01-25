@@ -9,6 +9,7 @@ from typing import TYPE_CHECKING, Any, Generic, Self
 
 from typing_extensions import TypeVar, override
 
+from betty.data.sample import Sample, Samples
 from betty.importlib import fully_qualified_name
 from betty.locale.localizable.ensure import ensure_localizable
 from betty.portable import Portable, PortableData, PortablePorter, Porter
@@ -58,7 +59,7 @@ class DataDefinition(
         )
         self._porter = porter
         self._fallback_porter = fallback_porter
-        self._samples = () if samples is None else list(samples)
+        self._samples = Samples(() if samples is None else samples)
         self._empty = empty
         if cls is not None:
             self._cls = cls
@@ -123,12 +124,11 @@ class DataDefinition(
         return self._description
 
     @property
-    def samples(self) -> Iterable[Sample[_DataClsT]]:
+    def samples(self) -> Samples:
         """
         Any samples for this data.
         """
-        for sample in self._samples:
-            yield sample()
+        return self._samples
 
     @override
     def load(self, portable: PortableData, /) -> _DataClsT:
@@ -183,67 +183,3 @@ class Data(Generic[_DataDefinitionT]):
             return NotImplemented
         data = type(self).data()
         return data.dump(self) == data.dump(other)
-
-
-class Sample(Generic[_DataClsT]):
-    """
-    A data sample.
-
-    Samples are useful for generating documentation and tests.
-    """
-
-    def __init__(
-        self,
-        data: _DataClsT,
-        *,
-        label: LocalizableLike,
-        description: LocalizableLike | None = None,
-        minimal: bool = False,
-        full: bool = False,
-    ):
-        self._data = data
-        self._label = ensure_localizable(label)
-        self._description = ensure_localizable(description) if description else None
-        self._minimal = minimal
-        self._full = full
-
-    @property
-    def data(self) -> _DataClsT:
-        """
-        The sample data.
-        """
-        return self._data
-
-    @property
-    def label(self) -> Localizable:
-        """
-        The sample's human-readable short label.
-        """
-        return self._label
-
-    @property
-    def description(self) -> Localizable | None:
-        """
-        The sample's human-readable long description.
-        """
-        return self._description
-
-    @property
-    def minimal(self) -> bool:
-        """
-        Whether this is a minimal sample.
-        """
-        return self._minimal
-
-    @property
-    def full(self) -> bool:
-        """
-        Whether this is a full sample.
-        """
-        return self._full
-
-
-class SampleNotFound(Exception):
-    """
-    Raised when a sample could not be found.
-    """

@@ -24,7 +24,7 @@ from betty.config.collections.sequence import ConfigurationSequence
 from betty.config.color import ColorConfiguration
 from betty.data import Sample
 from betty.data.aggregate.record.object.property import Optional
-from betty.data.sample import get_full_sample
+from betty.data.sample import Samples, Size
 from betty.locale import DEFAULT_LOCALE
 from betty.locale.localizable.assertion import (
     assert_load_countable_localizable,
@@ -129,8 +129,8 @@ class PluginDefinitionConfiguration(Configuration):
 
     @override
     @classmethod
-    def samples(cls) -> Iterable[Sample[Self]]:  # ty:ignore[invalid-method-override]
-        yield Sample(cls(id="my-custom-plugin"), label="Default")
+    def samples(cls) -> Samples:
+        return Samples([lambda: Sample(cls(id="my-custom-plugin"), label="Default")])
 
 
 class HumanFacingPluginDefinitionConfiguration(PluginDefinitionConfiguration):
@@ -183,20 +183,24 @@ class HumanFacingPluginDefinitionConfiguration(PluginDefinitionConfiguration):
 
     @override
     @classmethod
-    def samples(cls) -> Iterable[Sample[Self]]:  # ty:ignore[invalid-method-override]
-        yield Sample(
-            cls(id="my-custom-plugin", label="My Custom Plugin"),
-            label="Minimal",
-            minimal=True,
-        )
-        yield Sample(
-            cls(
-                id="my-custom-plugin",
-                label="My Custom Plugin",
-                description="My Custom Plugin is the best plugin for your needs.",
-            ),
-            label="Full",
-            full=True,
+    def samples(cls) -> Samples:
+        return Samples(
+            [
+                lambda: Sample(
+                    cls(id="my-custom-plugin", label="My Custom Plugin"),
+                    label="Minimal",
+                    size=Size.MINIMAL,
+                ),
+                lambda: Sample(
+                    cls(
+                        id="my-custom-plugin",
+                        label="My Custom Plugin",
+                        description="My Custom Plugin is the best plugin for your needs.",
+                    ),
+                    label="Full",
+                    size=Size.FULL,
+                ),
+            ]
         )
 
 
@@ -253,41 +257,45 @@ class CountableHumanFacingPluginDefinitionConfiguration(
 
     @override
     @classmethod
-    def samples(cls) -> Iterable[Sample[Self]]:  # ty:ignore[invalid-method-override]
-        yield Sample(
-            cls(
-                id="my-custom-plugin",
-                label="My Custom Plugin",
-                label_plural="My Custom Plugins",
-                label_countable=CountableStaticTranslations(
-                    {
-                        DEFAULT_LOCALE: {
-                            "one": "{count} My Custom Plugin",
-                            "other": "{count} My Custom Plugins",
-                        }
-                    }
+    def samples(cls) -> Samples:
+        return Samples(
+            [
+                lambda: Sample(
+                    cls(
+                        id="my-custom-plugin",
+                        label="My Custom Plugin",
+                        label_plural="My Custom Plugins",
+                        label_countable=CountableStaticTranslations(
+                            {
+                                DEFAULT_LOCALE: {
+                                    "one": "{count} My Custom Plugin",
+                                    "other": "{count} My Custom Plugins",
+                                }
+                            }
+                        ),
+                    ),
+                    label="Minimal",
+                    size=Size.MINIMAL,
                 ),
-            ),
-            label="Minimal",
-            minimal=True,
-        )
-        yield Sample(
-            cls(
-                id="my-custom-plugin",
-                label="My Custom Plugin",
-                label_plural="My Custom Plugins",
-                label_countable=CountableStaticTranslations(
-                    {
-                        DEFAULT_LOCALE: {
-                            "one": "{count} My Custom Plugin",
-                            "other": "{count} My Custom Plugins",
-                        }
-                    }
+                lambda: Sample(
+                    cls(
+                        id="my-custom-plugin",
+                        label="My Custom Plugin",
+                        label_plural="My Custom Plugins",
+                        label_countable=CountableStaticTranslations(
+                            {
+                                DEFAULT_LOCALE: {
+                                    "one": "{count} My Custom Plugin",
+                                    "other": "{count} My Custom Plugins",
+                                }
+                            }
+                        ),
+                        description="My Custom Plugin is the best plugin for your needs.",
+                    ),
+                    label="Full",
+                    size=Size.FULL,
                 ),
-                description="My Custom Plugin is the best plugin for your needs.",
-            ),
-            label="Full",
-            full=True,
+            ]
         )
 
 
@@ -417,24 +425,30 @@ class PluginInstanceConfiguration(Configuration, Generic[_PluginDefinitionT, _Pl
 
     @override
     @classmethod
-    def samples(cls) -> Iterable[Sample[Self]]:  # ty:ignore[invalid-method-override]
+    def samples(cls) -> Samples:
         from betty.project.extension.raspberry_mint import RaspberryMint
         from betty.project.extension.raspberry_mint.config import (
             RaspberryMintConfiguration,
         )
 
-        yield Sample(
-            cls(RaspberryMint),
-            label="Minimal",
-            minimal=True,
-        )
-        yield Sample(
-            cls(
-                RaspberryMint,
-                RaspberryMintConfiguration(primary_color=ColorConfiguration("#ff0000")),
-            ),
-            label="Full",
-            full=True,
+        return Samples(
+            [
+                lambda: Sample(
+                    cls(RaspberryMint),
+                    label="Minimal",
+                    size=Size.MINIMAL,
+                ),
+                lambda: Sample(
+                    cls(
+                        RaspberryMint,
+                        RaspberryMintConfiguration(
+                            primary_color=ColorConfiguration("#ff0000")
+                        ),
+                    ),
+                    label="Full",
+                    size=Size.FULL,
+                ),
+            ]
         )
 
 
@@ -529,12 +543,16 @@ class PluginInstanceConfigurationMapping(
 
     @override
     @classmethod
-    def samples(cls) -> Iterable[Sample[Self]]:  # ty:ignore[invalid-method-override]
-        yield Sample(cls(), label="Minimal", minimal=True)
-        yield Sample(
-            cls([get_full_sample(PluginInstanceConfiguration).data]),
-            label="Full",
-            full=True,
+    def samples(cls) -> Samples:
+        return Samples(
+            [
+                lambda: Sample(cls(), label="Minimal", size=Size.MINIMAL),
+                lambda: Sample(
+                    cls([PluginInstanceConfiguration.samples().get(Size.FULL).data]),
+                    label="Full",
+                    size=Size.FULL,
+                ),
+            ]
         )
 
 
@@ -551,12 +569,16 @@ class PluginInstanceConfigurationSequence(
 
     @override
     @classmethod
-    def samples(cls) -> Iterable[Sample[Self]]:  # ty:ignore[invalid-method-override]
-        yield Sample(cls(), label="Minimal", minimal=True)
-        yield Sample(
-            cls([get_full_sample(PluginInstanceConfiguration).data]),
-            label="Full",
-            full=True,
+    def samples(cls) -> Samples:
+        return Samples(
+            [
+                lambda: Sample(cls(), label="Minimal", size=Size.MINIMAL),
+                lambda: Sample(
+                    cls([PluginInstanceConfiguration.samples().get(Size.FULL).data]),
+                    label="Full",
+                    size=Size.FULL,
+                ),
+            ]
         )
 
 
@@ -598,8 +620,14 @@ class PluginInstanceConfigurationSequenceSequence(
 
     @override
     @classmethod
-    def samples(cls) -> Iterable[Sample[Self]]:  # ty:ignore[invalid-method-override]
-        yield Sample(
-            cls([next(iter(PluginInstanceConfigurationSequence.samples())).data]),
-            label="Default",
+    def samples(cls) -> Samples:
+        return Samples(
+            [
+                lambda: Sample(
+                    cls(
+                        [next(iter(PluginInstanceConfigurationSequence.samples())).data]
+                    ),
+                    label="Default",
+                )
+            ]
         )

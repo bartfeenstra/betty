@@ -22,7 +22,7 @@ from betty.assertion import (
 from betty.config import Configuration
 from betty.config.collections.sequence import ConfigurationSequence
 from betty.data import Sample
-from betty.data.sample import get_full_sample
+from betty.data.sample import Samples, Size
 from betty.exception import HumanFacingException
 from betty.gramps.loader import (
     DEFAULT_EVENT_TYPE_MAPPING,
@@ -113,12 +113,16 @@ class PluginMapping(Configuration, Generic[_PluginDefinitionT, _PluginT]):
 
     @override
     @classmethod
-    def samples(cls) -> Iterable[Sample[Self]]:  # ty:ignore[invalid-method-override]
-        yield Sample(cls(), label="Minimal", minimal=True)
-        yield Sample(
-            cls({"GrampsType": PluginInstanceConfiguration("my-betty-type")}),
-            label="Full",
-            full=True,
+    def samples(cls) -> Samples:
+        return Samples(
+            [
+                lambda: Sample(cls(), label="Minimal", size=Size.MINIMAL),
+                lambda: Sample(
+                    cls({"GrampsType": PluginInstanceConfiguration("my-betty-type")}),
+                    label="Full",
+                    size=Size.FULL,
+                ),
+            ]
         )
 
 
@@ -260,8 +264,14 @@ class FamilyTreeConfiguration(Configuration):
 
     @override
     @classmethod
-    def samples(cls) -> Iterable[Sample[Self]]:  # ty:ignore[invalid-method-override]
-        yield Sample(cls("my-gramps-family-tree"), label="Minimal")
+    def samples(cls) -> Samples:
+        return Samples(
+            [
+                lambda: Sample(
+                    cls("my-gramps-family-tree"), label="Minimal", size=Size.MINIMAL
+                )
+            ]
+        )
 
 
 class FamilyTreeConfigurationSequence(ConfigurationSequence[FamilyTreeConfiguration]):
@@ -278,12 +288,16 @@ class FamilyTreeConfigurationSequence(ConfigurationSequence[FamilyTreeConfigurat
 
     @override
     @classmethod
-    def samples(cls) -> Iterable[Sample[Self]]:  # ty:ignore[invalid-method-override]
-        yield Sample(cls(), label="Minimal", minimal=True)
-        yield Sample(
-            cls([get_full_sample(FamilyTreeConfiguration).data]),
-            label="Full",
-            full=True,
+    def samples(cls) -> Samples:
+        return Samples(
+            [
+                lambda: Sample(cls(), label="Minimal", size=Size.MINIMAL),
+                lambda: Sample(
+                    cls([FamilyTreeConfiguration.samples().get(Size.FULL).data]),
+                    label="Full",
+                    size=Size.FULL,
+                ),
+            ]
         )
 
 
@@ -423,85 +437,90 @@ class GrampsConfiguration(Configuration):
 
     @override
     @classmethod
-    def samples(cls) -> Iterable[Sample[Self]]:  # ty:ignore[invalid-method-override]
-        yield Sample(cls(), label="Minimal")
-        yield Sample(
-            cls(executable=Path("gramps.exe")), label="A custom Gramps executable"
-        )
-        yield Sample(
-            cls(
-                family_trees=FamilyTreeConfigurationSequence(
-                    [
-                        FamilyTreeConfiguration(source=Path("./gramps.gpkg")),
-                    ]
-                )
-            ),
-            label="Load a family tree from a file",
-        )
-        yield Sample(
-            cls(
-                family_trees=FamilyTreeConfigurationSequence(
-                    [
-                        FamilyTreeConfiguration(source="my-family-tree"),
-                    ]
-                )
-            ),
-            label="Load a family tree by its name directly from Gramps",
-        )
-        yield Sample(
-            cls(
-                family_trees=FamilyTreeConfigurationSequence(
-                    [
-                        FamilyTreeConfiguration(
-                            source="my-family-tree",
-                            event_types=EventTypeMapping(
-                                {
-                                    "GrampsEventType": PluginInstanceConfiguration(
-                                        "betty-event-type"
+    def samples(cls) -> Samples:
+        return Samples(
+            [
+                lambda: Sample(cls(), label="Minimal", size=Size.MINIMAL),
+                lambda: Sample(
+                    cls(executable=Path("gramps.exe")),
+                    label="A custom Gramps executable",
+                ),
+                lambda: Sample(
+                    cls(
+                        family_trees=FamilyTreeConfigurationSequence(
+                            [
+                                FamilyTreeConfiguration(source=Path("./gramps.gpkg")),
+                            ]
+                        )
+                    ),
+                    label="Load a family tree from a file",
+                ),
+                lambda: Sample(
+                    cls(
+                        family_trees=FamilyTreeConfigurationSequence(
+                            [
+                                FamilyTreeConfiguration(source="my-family-tree"),
+                            ]
+                        )
+                    ),
+                    label="Load a family tree by its name directly from Gramps",
+                ),
+                lambda: Sample(
+                    cls(
+                        family_trees=FamilyTreeConfigurationSequence(
+                            [
+                                FamilyTreeConfiguration(
+                                    source="my-family-tree",
+                                    event_types=EventTypeMapping(
+                                        {
+                                            "GrampsEventType": PluginInstanceConfiguration(
+                                                "betty-event-type"
+                                            ),
+                                        }
                                     ),
-                                }
-                            ),
-                        ),
-                    ]
-                )
-            ),
-            label="Map a Gramps event type to a Betty event type",
-        )
-        yield Sample(
-            cls(
-                family_trees=FamilyTreeConfigurationSequence(
-                    [
-                        FamilyTreeConfiguration(
-                            source="my-family-tree",
-                            place_types=PlaceTypeMapping(
-                                {
-                                    "GrampsPlaceType": PluginInstanceConfiguration(
-                                        "betty-place-type"
+                                ),
+                            ]
+                        )
+                    ),
+                    label="Map a Gramps event type to a Betty event type",
+                ),
+                lambda: Sample(
+                    cls(
+                        family_trees=FamilyTreeConfigurationSequence(
+                            [
+                                FamilyTreeConfiguration(
+                                    source="my-family-tree",
+                                    place_types=PlaceTypeMapping(
+                                        {
+                                            "GrampsPlaceType": PluginInstanceConfiguration(
+                                                "betty-place-type"
+                                            ),
+                                        }
                                     ),
-                                }
-                            ),
-                        ),
-                    ]
-                )
-            ),
-            label="Map a Gramps place type to a Betty place type",
-        )
-        yield Sample(
-            cls(
-                family_trees=FamilyTreeConfigurationSequence(
-                    [
-                        FamilyTreeConfiguration(
-                            source="my-family-tree",
-                            event_types=EventTypeMapping(
-                                {
-                                    "GrampsRole": PluginInstanceConfiguration(
-                                        "betty-presence-role"
+                                ),
+                            ]
+                        )
+                    ),
+                    label="Map a Gramps place type to a Betty place type",
+                ),
+                lambda: Sample(
+                    cls(
+                        family_trees=FamilyTreeConfigurationSequence(
+                            [
+                                FamilyTreeConfiguration(
+                                    source="my-family-tree",
+                                    event_types=EventTypeMapping(
+                                        {
+                                            "GrampsRole": PluginInstanceConfiguration(
+                                                "betty-presence-role"
+                                            ),
+                                        }
                                     ),
-                                }
-                            ),
-                        ),
-                    ]
-                )
-            ),
-            label="Map a Gramps role to a Betty presence role",
+                                ),
+                            ]
+                        )
+                    ),
+                    label="Map a Gramps role to a Betty presence role",
+                ),
+            ]
         )

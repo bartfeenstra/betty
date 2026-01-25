@@ -25,7 +25,8 @@ from betty.config import Configuration
 from betty.config.factory import ConfigurationDependentSelfFactory
 from betty.content_provider import ContentProvider, ContentProviderDefinition
 from betty.content_provider.content_providers import Template
-from betty.data import Sample
+from betty.data import Sample, Samples
+from betty.data.sample import Size
 from betty.locale.localizable.assertion import assert_load_localizable
 from betty.locale.localizable.ensure import ensure_localizable
 from betty.locale.localizable.gettext import _
@@ -58,7 +59,7 @@ from betty.service.level.factory import (
 from betty.typing import private
 
 if TYPE_CHECKING:
-    from collections.abc import Collection, Iterable
+    from collections.abc import Collection
 
     from betty.ancestry import Ancestry
     from betty.document import Document
@@ -159,16 +160,20 @@ class SectionConfiguration(Configuration):
 
     @override
     @classmethod
-    def samples(cls) -> Iterable[Sample[Self]]:  # ty:ignore[invalid-method-override]
+    def samples(cls) -> Samples:
         from betty.test_utils.locale.localizable import DUMMY_LOCALIZABLE
 
-        yield Sample(
-            cls(
-                PluginInstanceConfiguration("my-first-content"),  # ty:ignore[invalid-argument-type]
-                heading=DUMMY_LOCALIZABLE,
-            ),
-            label="Minimal",
-            minimal=True,
+        return Samples(
+            [
+                lambda: Sample(
+                    cls(
+                        PluginInstanceConfiguration("my-first-content"),  # ty:ignore[invalid-argument-type]
+                        heading=DUMMY_LOCALIZABLE,
+                    ),
+                    label="Minimal",
+                    size=Size.MINIMAL,
+                )
+            ]
         )
 
 
@@ -384,19 +389,23 @@ class ColorStyleConfiguration(Configuration):
 
     @override
     @classmethod
-    def samples(cls) -> Iterable[Sample[Self]]:  # ty:ignore[invalid-method-override]
+    def samples(cls) -> Samples:
         from betty.content_provider.content_providers import Render, RenderConfiguration
 
-        yield Sample(
-            cls(
-                style=RaspberryMintColorStyle.DARK,
-                content=[
-                    PluginInstanceConfiguration(
-                        Render, RenderConfiguration("Hello, world!")
-                    )
-                ],  # ty:ignore[invalid-argument-type]
-            ),
-            label="Default",
+        return Samples(
+            [
+                lambda: Sample(
+                    cls(
+                        style=RaspberryMintColorStyle.DARK,
+                        content=[
+                            PluginInstanceConfiguration(
+                                Render, RenderConfiguration("Hello, world!")
+                            )
+                        ],  # ty:ignore[invalid-argument-type]
+                    ),
+                    label="Default",
+                )
+            ]
         )
 
 
@@ -547,12 +556,20 @@ class PresencesConfiguration(Configuration):
 
     @override
     @classmethod
-    def samples(cls) -> Iterable[Sample[Self]]:  # ty:ignore[invalid-method-override]
+    def samples(cls) -> Samples:
         from betty.ancestry.presence_role.presence_roles import Subject
 
-        yield Sample(cls(), label="Minimal")
-        yield Sample(cls(include=[Subject]), label="Includes", full=True)
-        yield Sample(cls(exclude=[Subject]), label="Excludes", full=True)
+        return Samples(
+            [
+                lambda: Sample(cls(), label="Minimal"),
+                lambda: Sample(
+                    cls(include=[Subject]), label="Includes", size=Size.FULL
+                ),
+                lambda: Sample(
+                    cls(exclude=[Subject]), label="Excludes", size=Size.FULL
+                ),
+            ]
+        )
 
 
 @ContentProviderDefinition("raspberry-mint-presences", label=_("Presences"))
@@ -731,86 +748,90 @@ class ColumnsConfiguration(Configuration):
 
     @override
     @classmethod
-    def samples(cls) -> Iterable[Sample[Self]]:  # ty:ignore[invalid-method-override]
+    def samples(cls) -> Samples:
         from betty.content_provider.content_providers import Render, RenderConfiguration
 
-        yield Sample(
-            cls(
-                PluginInstanceConfiguration(
-                    Render, RenderConfiguration("Hello, world!")
-                )  # ty:ignore[invalid-argument-type]
-            ),
-            label="Minimal",
-            minimal=True,
-        )
-        yield Sample(
-            cls(
-                PluginInstanceConfiguration(
-                    Render, RenderConfiguration("Hello, world!")
-                ),  # ty:ignore[invalid-argument-type]
-                justify_content=JustifyContent.CENTER,
-            ),
-            label="Justify content",
-        )
-        yield Sample(
-            cls(
-                PluginInstanceConfiguration(
-                    Render, RenderConfiguration("Hello, world!")
-                ),  # ty:ignore[invalid-argument-type]
-                width=6,
-            ),
-            label="A single column with a fixed, non-responsive width",
-        )
-        yield Sample(
-            cls(
-                [
-                    PluginInstanceConfigurationSequence(
+        return Samples(
+            [
+                lambda: Sample(
+                    cls(
+                        PluginInstanceConfiguration(
+                            Render, RenderConfiguration("Hello, world!")
+                        )  # ty:ignore[invalid-argument-type]
+                    ),
+                    label="Minimal",
+                    size=Size.MINIMAL,
+                ),
+                lambda: Sample(
+                    cls(
+                        PluginInstanceConfiguration(
+                            Render, RenderConfiguration("Hello, world!")
+                        ),  # ty:ignore[invalid-argument-type]
+                        justify_content=JustifyContent.CENTER,
+                    ),
+                    label="Justify content",
+                ),
+                lambda: Sample(
+                    cls(
+                        PluginInstanceConfiguration(
+                            Render, RenderConfiguration("Hello, world!")
+                        ),  # ty:ignore[invalid-argument-type]
+                        width=6,
+                    ),
+                    label="A single column with a fixed, non-responsive width",
+                ),
+                lambda: Sample(
+                    cls(
                         [
-                            PluginInstanceConfiguration(
-                                Render, RenderConfiguration("Hello, world!")
-                            ),
-                            PluginInstanceConfiguration(
-                                Render, RenderConfiguration("How are you?")
-                            ),
-                        ]
-                    )
-                ],  # ty:ignore[invalid-argument-type]
-                width=[6, 6],
-            ),
-            label="Multiple columns with fixed, non-responsive widths",
-        )
-        yield Sample(
-            cls(
-                PluginInstanceConfiguration(
-                    Render, RenderConfiguration("Hello, world!")
-                ),  # ty:ignore[invalid-argument-type]
-                width={
-                    Breakpoint.XS: 12,
-                    Breakpoint.MD: 6,
-                },
-            ),
-            label="A single column with responsive widths",
-        )
-        yield Sample(
-            cls(
-                [
-                    PluginInstanceConfigurationSequence(
+                            PluginInstanceConfigurationSequence(
+                                [
+                                    PluginInstanceConfiguration(
+                                        Render, RenderConfiguration("Hello, world!")
+                                    ),
+                                    PluginInstanceConfiguration(
+                                        Render, RenderConfiguration("How are you?")
+                                    ),
+                                ]
+                            )
+                        ],  # ty:ignore[invalid-argument-type]
+                        width=[6, 6],
+                    ),
+                    label="Multiple columns with fixed, non-responsive widths",
+                ),
+                lambda: Sample(
+                    cls(
+                        PluginInstanceConfiguration(
+                            Render, RenderConfiguration("Hello, world!")
+                        ),  # ty:ignore[invalid-argument-type]
+                        width={
+                            Breakpoint.XS: 12,
+                            Breakpoint.MD: 6,
+                        },
+                    ),
+                    label="A single column with responsive widths",
+                ),
+                lambda: Sample(
+                    cls(
                         [
-                            PluginInstanceConfiguration(
-                                Render, RenderConfiguration("Hello, world!")
-                            ),
-                            PluginInstanceConfiguration(
-                                Render, RenderConfiguration("How are you?")
-                            ),
-                        ]
-                    )
-                ],  # ty:ignore[invalid-argument-type]
-                width={
-                    Breakpoint.XS: [12, 12],
-                    Breakpoint.MD: [6, 6],
-                },
-            ),
-            label="Multiple columns with responsive widths",
+                            PluginInstanceConfigurationSequence(
+                                [
+                                    PluginInstanceConfiguration(
+                                        Render, RenderConfiguration("Hello, world!")
+                                    ),
+                                    PluginInstanceConfiguration(
+                                        Render, RenderConfiguration("How are you?")
+                                    ),
+                                ]
+                            )
+                        ],  # ty:ignore[invalid-argument-type]
+                        width={
+                            Breakpoint.XS: [12, 12],
+                            Breakpoint.MD: [6, 6],
+                        },
+                    ),
+                    label="Multiple columns with responsive widths",
+                ),
+            ]
         )
 
 
