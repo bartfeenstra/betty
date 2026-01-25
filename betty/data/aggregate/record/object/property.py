@@ -149,7 +149,7 @@ class Optional(Attr, LinkedDataDumper, Generic[_ValueGetT, _ValueSetT]):
     # @todo Leave plenty of @todo comments, and create follow-up issues to remove this
     # @todo as soon as we move linked data into the data definition API.
     # @todo
-    # @todo
+    # @todo What if we create a new linked data API that just operates on PortableData (none of that class builder malarkey)?
     # @todo
     # @todo
     @override
