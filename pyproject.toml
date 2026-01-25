@@ -61,6 +61,7 @@ classifiers = [
     'Natural Language :: Arabic',
     'Natural Language :: Dutch',
     'Natural Language :: English',
+    'Natural Language :: Finnish',
     'Natural Language :: French',
     'Natural Language :: German',
     'Natural Language :: Hebrew',

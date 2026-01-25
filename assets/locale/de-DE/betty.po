@@ -7,9 +7,9 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Betty VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-01-25 00:31+0000\n"
-"PO-Revision-Date: 2025-03-28 20:02+0000\n"
-"Last-Translator: Ettore Atalan <atalanttore@googlemail.com>\n"
+"POT-Creation-Date: 2026-01-25 12:42+0000\n"
+"PO-Revision-Date: 2025-12-30 16:01+0000\n"
+"Last-Translator: Bart Feenstra <bart@bartfeenstra.com>\n"
 "Language: de_DE\n"
 "Language-Team: German "
 "<https://hosted.weblate.org/projects/betty/betty/de/>\n"
@@ -631,7 +631,7 @@ msgid "Entity card"
 msgstr ""
 
 msgid "Entity type"
-msgstr ""
+msgstr "Entitätstyp"
 
 msgid "Entity type configuration"
 msgstr ""
@@ -713,7 +713,7 @@ msgid "Filters"
 msgstr "Filter"
 
 msgid "Find Betty on GitHub"
-msgstr ""
+msgstr "Besuche Betty auf GitHub"
 
 msgid "Find out more about this image on Wikimedia Commons."
 msgstr "Mehr über dieses Bild erfährst du auf Wikimedia Commons."
@@ -1268,7 +1268,7 @@ msgid ""
 msgstr ""
 
 msgid "Read more"
-msgstr ""
+msgstr "Mehr lesen"
 
 #, python-brace-format
 msgid "Read more at {url}"
@@ -1278,7 +1278,7 @@ msgid "Read more on Wikipedia."
 msgstr "Lies mehr auf Wikipedia."
 
 msgid "Read the Betty documentation"
-msgstr ""
+msgstr "Lese die Betty-Dokumentation"
 
 msgid "Read the documentation"
 msgstr ""

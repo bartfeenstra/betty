@@ -7,8 +7,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Betty VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-01-25 00:31+0000\n"
-"PO-Revision-Date: 2025-12-29 14:48+0000\n"
+"POT-Creation-Date: 2026-01-25 12:42+0000\n"
+"PO-Revision-Date: 2026-01-18 18:06+0000\n"
 "Last-Translator: Bart Feenstra <bart@bartfeenstra.com>\n"
 "Language: es_ES\n"
 "Language-Team: Spanish "
@@ -1135,7 +1135,7 @@ msgid "Personal accounts"
 msgstr ""
 
 msgid "Place"
-msgstr ""
+msgstr "Lugar"
 
 msgid "Place type"
 msgstr ""
@@ -2115,8 +2115,8 @@ msgstr[1] "{count} entidades"
 #, python-brace-format
 msgid "{count} event"
 msgid_plural "{count} events"
-msgstr[0] ""
-msgstr[1] ""
+msgstr[0] "{count} evento"
+msgstr[1] "{count} eventos"
 
 #, python-brace-format
 msgid "{count} event type"
@@ -2265,14 +2265,14 @@ msgstr[1] ""
 #, python-brace-format
 msgid "{count} person"
 msgid_plural "{count} people"
-msgstr[0] ""
-msgstr[1] ""
+msgstr[0] "{count} persona"
+msgstr[1] "{count} personas"
 
 #, python-brace-format
 msgid "{count} person name"
 msgid_plural "{count} person names"
-msgstr[0] ""
-msgstr[1] ""
+msgstr[0] "{count} nombre de persona"
+msgstr[1] "{count} nombres de personas"
 
 #, python-brace-format
 msgid "{count} person of unknown gender"
