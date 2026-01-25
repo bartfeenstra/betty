@@ -16,8 +16,8 @@ from betty.project import Project
 
 if TYPE_CHECKING:
     from betty.json.linked_data import (
-        LinkedDataDumpableProvider,
         LinkedDataDumpableWithSchema,
+        LinkedDataDumper,
     )
 
 _T = TypeVar("_T")
@@ -34,7 +34,7 @@ async def assert_dumps_linked_data(
 
 
 async def assert_dumps_linked_data_for(
-    sut: LinkedDataDumpableProvider[_T, Schema, _PortableDataT], target: _T
+    sut: LinkedDataDumper[_T, Schema, _PortableDataT], target: _T
 ) -> _PortableDataT:
     """
     Dump an object's linked data and assert it is valid.

@@ -106,7 +106,7 @@ class LinkedDataDumpableWithSchemaJsonLdObject(
     async def linked_data_schema(cls, project: Project, /) -> JsonLdObject:
         schema = JsonLdObject()
         for attr_name, class_attr_value in getmembers(cls):
-            if isinstance(class_attr_value, LinkedDataDumpableProvider):
+            if isinstance(class_attr_value, LinkedDataDumper):
                 linked_data_dumpable = class_attr_value
                 schema.add_property(
                     snake_case_to_lower_camel_case(attr_name),
@@ -122,7 +122,7 @@ class LinkedDataDumpableWithSchemaJsonLdObject(
         await dump_schema(project, portable, self)
 
         for attr_name, class_attr_value in getmembers(type(self)):
-            if isinstance(class_attr_value, LinkedDataDumpableProvider):
+            if isinstance(class_attr_value, LinkedDataDumper):
                 portable[
                     snake_case_to_lower_camel_case(attr_name)
                 ] = await class_attr_value.dump_linked_data_for(project, self)
@@ -130,7 +130,7 @@ class LinkedDataDumpableWithSchemaJsonLdObject(
         return portable
 
 
-class LinkedDataDumpableProvider(Generic[_T, _SchemaTypeT, _PortableDataT], ABC):
+class LinkedDataDumper(Generic[_T, _SchemaTypeT, _PortableDataT], ABC):
     """
     Provide linked data for instances of a target type.
     """
@@ -138,7 +138,7 @@ class LinkedDataDumpableProvider(Generic[_T, _SchemaTypeT, _PortableDataT], ABC)
     @abstractmethod
     async def linked_data_schema_for(self, project: Project, /) -> _SchemaTypeT:
         """
-        Define the `JSON Schema <https://json-schema.org/>`_ for :py:meth:`betty.json.linked_data.LinkedDataDumpableProvider.dump_linked_data_for`.
+        Define the `JSON Schema <https://json-schema.org/>`_ for :py:meth:`betty.json.linked_data.LinkedDataDumper.dump_linked_data_for`.
         """
 
     @abstractmethod

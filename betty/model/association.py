@@ -23,7 +23,7 @@ from urllib.parse import quote
 from typing_extensions import override
 
 from betty.importlib import fully_qualified_name, import_any
-from betty.json.linked_data import LinkedDataDumpableProvider
+from betty.json.linked_data import LinkedDataDumper
 from betty.json.schema import Array, Null, OneOf, Schema
 from betty.locale.localizable.ensure import ensure_localizable
 from betty.model import Entity, persistent_id
@@ -135,7 +135,7 @@ class TemporaryToManyResolver(_TemporaryResolver[_EntityT], ToManyResolver[_Enti
     """
 
 
-class _Association(LinkedDataDumpableProvider[_OwnerT], Generic[_OwnerT, _AssociateT]):
+class _Association(LinkedDataDumper[_OwnerT], Generic[_OwnerT, _AssociateT]):
     _owner_type: type[_OwnerT]
     _owner_attr_name: str
     _internal_owner_attr_name: str
