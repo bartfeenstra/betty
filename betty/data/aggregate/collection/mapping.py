@@ -60,9 +60,12 @@ class MappingDefinition(CollectionDefinition[_MutableMappingT, Key]):
         from betty.assertion import assert_mapping
 
         factory = self.cls if not self._factory else self._factory
-        return factory(assert_mapping(self._item.load, self._key.load)(portable))
+        return factory(
+            assert_mapping(self._item.porter.load, self._key.porter.load)(portable)
+        )
 
     def _dump(self, data: _MutableMappingT) -> PortableData:
         return {
-            self._key.dump(key): self._item.dump(item) for key, item in data.items()
+            self._key.porter.dump(key): self._item.porter.dump(item)
+            for key, item in data.items()
         }

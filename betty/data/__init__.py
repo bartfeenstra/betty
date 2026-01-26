@@ -35,7 +35,6 @@ class DataDefinition(
     HumanFacingDefinition,
     ClsDefinition[_DataClsT],
     Hydrator[_DataClsT],
-    Porter[_DataClsT, _PortableDataCoT],
     Generic[_DataClsT, _PortableDataCoT],
 ):
     """
@@ -93,14 +92,6 @@ class DataDefinition(
         return self._samples
 
     @override
-    def load(self, portable: PortableData, /) -> _DataClsT:
-        return self.porter.load(portable)
-
-    @override
-    def dump(self, data: _DataClsT, /) -> _PortableDataCoT:
-        return self.porter.dump(data)
-
-    @override
     async def hydrate(self, services: ServiceLevel, data: _DataClsT, /) -> None:
         from betty.config import Configuration
 
@@ -143,5 +134,5 @@ class Data(Generic[_DataDefinitionT]):
     def __eq__(self, other: Any) -> bool:
         if type(self) is not type(other):
             return NotImplemented
-        data = type(self).data()
-        return data.dump(self) == data.dump(other)
+        porter = type(self).data().porter
+        return porter.dump(self) == porter.dump(other)

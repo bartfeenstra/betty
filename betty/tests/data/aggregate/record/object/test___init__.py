@@ -41,7 +41,7 @@ class TestObjectDefinition:
             ],
         )
         value = "Hello, world!"
-        data = sut.load({field_name: value})
+        data = sut.porter.load({field_name: value})
         assert data.my_first_element == value
 
     def test_load__with_factory(self) -> None:
@@ -57,7 +57,7 @@ class TestObjectDefinition:
             factory=ObjectDefinitionTestFactoryObject,
         )
         assert isinstance(
-            sut.load({"my_first_element": "Hello, world!"}),
+            sut.porter.load({"my_first_element": "Hello, world!"}),
             ObjectDefinitionTestFactoryObject,
         )
 
@@ -74,7 +74,7 @@ class TestObjectDefinition:
         )
         value = "Hello, world!"
         data = ObjectDefinitionTestObject(value)
-        assert sut.dump(data) == {field_name: value}
+        assert sut.porter.dump(data) == {field_name: value}
 
     def test__set_cls__without_attributes(self) -> None:
         @ObjectDefinition(label=DUMMY_LOCALIZABLE)

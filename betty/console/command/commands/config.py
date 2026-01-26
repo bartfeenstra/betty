@@ -54,8 +54,8 @@ class Config(ServiceLevelDependentSelfFactory, Command):
 
     async def _command_function(self, *, locale: Locale) -> None:
         localizers = await self._app.localizers
-        updated_configuration = AppConfiguration.data().load(
-            AppConfiguration.data().dump(self._app.configuration)
+        updated_configuration = AppConfiguration.data().porter.load(
+            AppConfiguration.data().porter.dump(self._app.configuration)
         )
         updated_configuration.locale = locale
         self._app.user.localizer = localizers.get(locale)
@@ -66,6 +66,6 @@ class Config(ServiceLevelDependentSelfFactory, Command):
         )
 
         await dump_file(
-            AppConfiguration.data().dump(updated_configuration),
+            AppConfiguration.data().porter.dump(updated_configuration),
             app_config.CONFIGURATION_FILE_PATH,
         )

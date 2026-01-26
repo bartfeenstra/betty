@@ -164,7 +164,9 @@ async def new(app: App) -> None:
         title=title,
         url=url,
     )
-    await dump_file(configuration.data().dump(configuration), configuration_file_path)
+    await dump_file(
+        configuration.data().porter.dump(configuration), configuration_file_path
+    )
     await app.user.message_information(
         _("Saved your project to {configuration_file}.").format(
             configuration_file=str(configuration_file_path)

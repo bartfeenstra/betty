@@ -11,17 +11,17 @@ class TestPluginIdDefinition:
     def test_load__without_valid_machine_name(self) -> None:
         sut = PluginIdDefinition(DummyPluginDefinition)
         with pytest.raises(InvalidMachineName):
-            sut.load("invalid_machine_name")
+            sut.porter.load("invalid_machine_name")
 
     def test_load__with_valid_machine_name(self) -> None:
         plugin_id = DummyPluginOne.plugin().id
         sut = PluginIdDefinition(DummyPluginDefinition)
-        assert sut.load(plugin_id) == plugin_id
+        assert sut.porter.load(plugin_id) == plugin_id
 
     def test_dump(self) -> None:
         plugin_id = DummyPluginOne.plugin().id
         sut = PluginIdDefinition(DummyPluginDefinition)
-        assert sut.dump(plugin_id) == plugin_id
+        assert sut.porter.dump(plugin_id) == plugin_id
 
     async def test_hydrate(self) -> None:
         sut = PluginIdDefinition(DummyPluginDefinition)

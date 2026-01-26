@@ -121,7 +121,7 @@ class TestMachineNameDefinition:
     def test_load(self) -> None:
         value = "hello-world"
         sut = MachineNameDefinition()
-        assert sut.load(value) == value
+        assert sut.porter.load(value) == value
 
     @pytest.mark.parametrize(
         "value",
@@ -134,9 +134,9 @@ class TestMachineNameDefinition:
     def test_load__without_machine_name(self, value: Any) -> None:
         sut = MachineNameDefinition()
         with pytest.raises(HumanFacingException):
-            sut.load(value)
+            sut.porter.load(value)
 
     def test_dump(self) -> None:
         value = "hello-world"
         sut = MachineNameDefinition()
-        assert sut.dump(value) == value
+        assert sut.porter.dump(value) == value

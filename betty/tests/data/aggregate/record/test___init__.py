@@ -8,10 +8,30 @@ from betty.data.indicator.selector import Attr, Key
 from betty.data.str import StrDefinition
 from betty.exception import HumanFacingException
 from betty.locale.localizable.plain import Plain
+from betty.portable import CallbackPorter, OptionalPorter
 from betty.test_utils.locale.localizable import DUMMY_LOCALIZABLE
 
 
 class TestFieldDefinition:
+    def test_porter(self) -> None:
+        porter = CallbackPorter(lambda _: object(), lambda _: None)
+        sut = FieldDefinition(
+            Key("_"), DataDefinition(cls=object, label=DUMMY_LOCALIZABLE, porter=porter)
+        )
+        assert sut.porter is porter
+
+    def test_porter__optional(self) -> None:
+        sut = FieldDefinition(
+            Key("_"),
+            DataDefinition(
+                cls=object,
+                label=DUMMY_LOCALIZABLE,
+                porter=CallbackPorter(lambda _: object(), lambda _: None),
+            ),
+            optional=True,
+        )
+        assert isinstance(sut.porter, OptionalPorter)
+
     def test_selector(self) -> None:
         selector = Key("my_first_key")
         sut = FieldDefinition(selector, DataDefinition(label=DUMMY_LOCALIZABLE))
@@ -76,27 +96,27 @@ class TestFieldDefinition:
         m_data = AsyncMock(spec=DataDefinition)
         sut = FieldDefinition(Key("-"), m_data, optional=True)
         portable = {}
-        sut.load(portable)
-        m_data.load.assert_called_once_with(portable)
+        sut.porter.load(portable)
+        m_data.porter.load.assert_called_once_with(portable)
 
     def test_load__with_none(self) -> None:
         m_data = AsyncMock(spec=DataDefinition)
         sut = FieldDefinition(Key("-"), m_data, optional=True)
-        sut.load(None)
-        m_data.load.assert_not_called()
+        sut.porter.load(None)
+        m_data.porter.load.assert_not_called()
 
     def test_dump__without_none(self) -> None:
         m_data = AsyncMock(spec=DataDefinition)
         sut = FieldDefinition(Key("-"), m_data, optional=True)
         data = object()
-        sut.dump(data)
-        m_data.dump.assert_called_once_with(data)
+        sut.porter.dump(data)
+        m_data.porter.dump.assert_called_once_with(data)
 
     def test_dump__with_none(self) -> None:
         m_data = AsyncMock(spec=DataDefinition)
         sut = FieldDefinition(Key("-"), m_data, optional=True)
-        sut.dump(None)
-        m_data.dump.assert_not_called()
+        sut.porter.dump(None)
+        m_data.porter.dump.assert_not_called()
 
 
 class RecordDefinitionTestRecord:
@@ -154,7 +174,7 @@ class TestRecordDefinition:
             ],
         )
         value = "Hello, world!"
-        data = sut.load({field_name: value})
+        data = sut.porter.load({field_name: value})
         assert data.my_first_element == value
 
     def test_load__required_without_value(self) -> None:
@@ -169,7 +189,7 @@ class TestRecordDefinition:
             ],
         )
         with pytest.raises(HumanFacingException):
-            sut.load({})
+            sut.porter.load({})
 
     def test_load__optional_with_value(self) -> None:
         field_name = "my_first_element"
@@ -185,7 +205,7 @@ class TestRecordDefinition:
             ],
         )
         value = "Hello, world!"
-        data = sut.load({field_name: value})
+        data = sut.porter.load({field_name: value})
         assert data.my_first_element == value
 
     def test_load__optional_without_value(self) -> None:
@@ -201,7 +221,7 @@ class TestRecordDefinition:
                 )
             ],
         )
-        sut.load({})
+        sut.porter.load({})
 
     def test_load__with_factory(self) -> None:
         field_name = "my_first_element"
@@ -216,7 +236,7 @@ class TestRecordDefinition:
             factory=RecordDefinitionTestFactoryRecord,
         )
         value = "Hello, world!"
-        data = sut.load({field_name: value})
+        data = sut.porter.load({field_name: value})
         assert isinstance(data, RecordDefinitionTestFactoryRecord)
         assert data.my_first_element == value
 
@@ -233,7 +253,7 @@ class TestRecordDefinition:
         )
         value = "Hello, world!"
         data = RecordDefinitionTestRecord(value)
-        assert sut.dump(data) == {field_name: value}
+        assert sut.porter.dump(data) == {field_name: value}
 
     def test_load_key(self) -> None:
         field_name = "my_first_element"

@@ -29,7 +29,7 @@ class TestTypedMappingDefinition:
             ],
         )
         value = "Hello, world!"
-        data = sut.load({field_name: value})
+        data = sut.porter.load({field_name: value})
         assert data["my_first_element"] == value
 
     def test_load__with_factory(self) -> None:
@@ -46,7 +46,9 @@ class TestTypedMappingDefinition:
             ],
             factory=FactoryDict,
         )
-        assert isinstance(sut.load({"my_first_element": "Hello, world!"}), FactoryDict)
+        assert isinstance(
+            sut.porter.load({"my_first_element": "Hello, world!"}), FactoryDict
+        )
 
     def test_dump(self) -> None:
         field_name = "my_first_element"
@@ -61,4 +63,4 @@ class TestTypedMappingDefinition:
         )
         value = "Hello, world!"
         data = {field_name: value}
-        assert sut.dump(data) == {field_name: value}
+        assert sut.porter.dump(data) == {field_name: value}

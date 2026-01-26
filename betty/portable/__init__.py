@@ -132,3 +132,28 @@ class PortablePorter(Porter[_PortableT, _PortableDataT]):
     @override
     def dump(self, data: _PortableT) -> _PortableDataT:
         return data.dump()  # ty:ignore[invalid-return-type]
+
+
+@final
+class OptionalPorter(
+    Porter[_PortableT | None, _PortableDataT | None],
+    Generic[_PortableT, _PortableDataT],
+):
+    """
+    Add optional (``None``) support to another porter.
+    """
+
+    def __init__(self, upstream: Porter[_PortableT, _PortableDataT]):
+        self._upstream = upstream
+
+    @override
+    def load(self, portable: PortableData) -> _PortableT | None:
+        if portable is None:
+            return None
+        return self._upstream.load(portable)
+
+    @override
+    def dump(self, data: _PortableT | None) -> _PortableDataT | None:
+        if data is None:
+            return None
+        return self._upstream.dump(data)
