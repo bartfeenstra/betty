@@ -124,4 +124,6 @@ async def _read_project_configuration_file(
                 configuration_file_path=str(configuration_file_path)
             ),
         )
-        return ProjectConfiguration.data().load(portable), configuration_file_path
+        return ProjectConfiguration.data().porter.load(
+            portable
+        ), configuration_file_path

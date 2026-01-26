@@ -18,7 +18,7 @@ from betty.typing import Void
 
 
 async def _assert_new(configuration_file_path: Path) -> ProjectConfiguration:
-    return ProjectConfiguration.data().load(
+    return ProjectConfiguration.data().porter.load(
         (await assert_load_file())(configuration_file_path)
     )
 

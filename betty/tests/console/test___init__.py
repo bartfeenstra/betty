@@ -141,7 +141,7 @@ class TestVerbosity:
         with CommandDefinition.type().override_discovery(StaticDiscovery(_NoOpCommand)):
             async with Project.new_isolated(isolated_app) as project:
                 await dump_file(
-                    project.configuration.data().dump(project.configuration),
+                    project.configuration.data().porter.dump(project.configuration),
                     project.configuration_file_path,
                 )
                 args = ["no-op"]

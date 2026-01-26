@@ -13,7 +13,7 @@ from betty.data import DataDefinition, Sample
 from betty.data.aggregate import AggregateDefinition
 from betty.data.indicator.selector import Element
 from betty.locale.localizable.ensure import ensure_localizable
-from betty.portable import PortableData, PortableMapping, Porter
+from betty.portable import OptionalPorter, PortableData, PortableMapping, Porter
 
 if TYPE_CHECKING:
     from collections.abc import Callable, Iterable, MutableSequence, Sequence
@@ -29,10 +29,7 @@ _PortableDataCoT = TypeVar(
 
 
 @final
-class FieldDefinition(
-    Porter[_DataClsT | None, _PortableDataCoT | None],
-    Generic[_ElementT, _DataClsT, _PortableDataCoT],
-):
+class FieldDefinition(Generic[_ElementT, _DataClsT, _PortableDataCoT]):
     """
     A record field definition.
     """
@@ -58,6 +55,19 @@ class FieldDefinition(
         )
         self._optional = optional
         self._empty = empty
+        self._porter: Porter[_DataClsT, _PortableDataCoT] | None = None
+
+    @property
+    def porter(self) -> Porter[_DataClsT, _PortableDataCoT]:
+        """
+        The porter for the data.
+        """
+        if self._porter is None:
+            self._porter = self._data.porter
+            if self._optional:
+                self._porter = OptionalPorter(self._porter)  # ty:ignore[invalid-argument-type, invalid-assignment]
+
+        return self._porter  # ty:ignore[invalid-return-type]
 
     @property
     def selector(self) -> Element:
@@ -103,20 +113,6 @@ class FieldDefinition(
         if self._empty is None:
             return self.data.empty(data)
         return self._empty(data)
-
-    @override
-    def load(self, portable: PortableData, /) -> _DataClsT | None:
-        if self._optional and portable is None:
-            return None
-        return self.data.load(portable)
-
-    @override
-    def dump(self, data: _DataClsT | None, /) -> _PortableDataCoT | None:
-        if data is None:
-            if self._optional:
-                return None
-            raise ValueError("This field is not optional and cannot contain `None`.")
-        return self.data.dump(data)
 
 
 class _RecordPorter(Porter[_DataClsT]):
@@ -197,7 +193,7 @@ class RecordDefinition(AggregateDefinition[_DataClsT, _ElementT]):
             **assert_record(
                 *[
                     (OptionalField if field.optional else RequiredField)(
-                        field.selector.element, field.load
+                        field.selector.element, field.porter.load
                     )
                     for field in self.fields
                 ]
@@ -209,7 +205,7 @@ class RecordDefinition(AggregateDefinition[_DataClsT, _ElementT]):
         for field in self.fields:
             field_data = field.selector.get(data)
             if not field.empty(field_data):
-                portable[field.selector.element] = field.dump(field_data)
+                portable[field.selector.element] = field.porter.dump(field_data)
         return portable
 
     def load_key(

@@ -59,21 +59,21 @@ class TestKeyedCollectionDefinition:
         ) == [(Key("my_first_key"), self._item)]
 
     def test_load__unordered(self) -> None:
-        data = self._sut_unordered.load(self._portable_unordered)
+        data = self._sut_unordered.porter.load(self._portable_unordered)
         assert isinstance(data, KeyedCollection)
         assert data["my_first_key"]["key"] == "my_first_key"
         assert data["my_first_key"]["other_element"] == "my_first_other_element"
 
     def test_load__ordered(self) -> None:
-        data = self._sut_ordered.load(self._portable_ordered)
+        data = self._sut_ordered.porter.load(self._portable_ordered)
         assert isinstance(data, KeyedCollection)
         assert data["my_first_key"]["key"] == "my_first_key"
         assert data["my_first_key"]["other_element"] == "my_first_other_element"
 
     def test_dump__unordered(self) -> None:
         data = KeyedCollection(self._values, key=lambda value: value["key"])
-        assert self._sut_unordered.dump(data) == self._portable_unordered
+        assert self._sut_unordered.porter.dump(data) == self._portable_unordered
 
     def test_dump__ordered(self) -> None:
         data = KeyedCollection(self._values, key=lambda value: value["key"])
-        assert self._sut_ordered.dump(data) == self._portable_ordered
+        assert self._sut_ordered.porter.dump(data) == self._portable_ordered

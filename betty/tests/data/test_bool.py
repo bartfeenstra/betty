@@ -9,14 +9,14 @@ class TestBoolDefinition:
     def test_load(self) -> None:
         value = True
         sut = BoolDefinition(label=DUMMY_LOCALIZABLE)
-        assert sut.load(value) is value
+        assert sut.porter.load(value) is value
 
     def test_load__without_bool(self) -> None:
         sut = BoolDefinition(label=DUMMY_LOCALIZABLE)
         with pytest.raises(HumanFacingException):
-            assert sut.load({})
+            assert sut.porter.load({})
 
     def test_dump(self) -> None:
         value = True
         sut = BoolDefinition(label=DUMMY_LOCALIZABLE)
-        assert sut.dump(value) is value
+        assert sut.porter.dump(value) is value

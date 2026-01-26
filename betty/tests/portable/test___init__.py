@@ -3,7 +3,13 @@ from typing import Self
 from typing_extensions import override
 
 from betty.assertion import assert_str
-from betty.portable import CallbackPorter, Portable, PortableData, PortablePorter
+from betty.portable import (
+    CallbackPorter,
+    OptionalPorter,
+    Portable,
+    PortableData,
+    PortablePorter,
+)
 
 
 class TestCallbackPorter:
@@ -40,3 +46,23 @@ class TestPortablePorter:
         sut = PortablePorter(PortablePorterTestPortable)
         value = "Hello, world!"
         assert sut.dump(PortablePorterTestPortable(value)) == value
+
+
+class TestOptionalPorter:
+    def test_load__without_none(self) -> None:
+        sut = OptionalPorter(CallbackPorter(assert_str(), assert_str()))
+        value = "Hello, world!"
+        assert sut.load(value) == value
+
+    def test_load__with_none(self) -> None:
+        sut = OptionalPorter(CallbackPorter(assert_str(), assert_str()))
+        assert sut.load(None) is None
+
+    def test_dump__without_none(self) -> None:
+        sut = OptionalPorter(CallbackPorter(assert_str(), assert_str()))
+        value = "Hello, world!"
+        assert sut.dump(value) == value
+
+    def test_dump__with_none(self) -> None:
+        sut = OptionalPorter(CallbackPorter(assert_str(), assert_str()))
+        assert sut.dump(None) is None

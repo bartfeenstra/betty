@@ -36,7 +36,7 @@ class TestMappingDefinition:
             item=StrDefinition(label=DUMMY_LOCALIZABLE),
             label=DUMMY_LOCALIZABLE,
         )
-        assert sut.load({}) == {}
+        assert sut.porter.load({}) == {}
 
     def test_load__with_items(self) -> None:
         sut = MappingDefinition[dict[str, str]](
@@ -45,7 +45,7 @@ class TestMappingDefinition:
             item=StrDefinition(label=DUMMY_LOCALIZABLE),
             label=DUMMY_LOCALIZABLE,
         )
-        assert sut.load({"hello": "Hello, world!"}) == {"hello": "Hello, world!"}
+        assert sut.porter.load({"hello": "Hello, world!"}) == {"hello": "Hello, world!"}
 
     def test_load__with_factory(self) -> None:
         class FactoryDict(dict[str, str]):
@@ -58,7 +58,7 @@ class TestMappingDefinition:
             label=DUMMY_LOCALIZABLE,
             factory=FactoryDict,
         )
-        assert isinstance(sut.load({}), FactoryDict)
+        assert isinstance(sut.porter.load({}), FactoryDict)
 
     def test_load__with_item_not_loadable(self) -> None:
         sut = MappingDefinition[dict[str, str]](
@@ -68,7 +68,7 @@ class TestMappingDefinition:
             label=DUMMY_LOCALIZABLE,
         )
         with pytest.raises(NotPortable):
-            sut.load({"hello": "Hello, world!"})
+            sut.porter.load({"hello": "Hello, world!"})
 
     def test_dump__without_items(self) -> None:
         sut = MappingDefinition[dict[str, str]](
@@ -77,7 +77,7 @@ class TestMappingDefinition:
             item=StrDefinition(label=DUMMY_LOCALIZABLE),
             label=DUMMY_LOCALIZABLE,
         )
-        assert sut.dump({}) == {}
+        assert sut.porter.dump({}) == {}
 
     def test_dump__with_items(self) -> None:
         sut = MappingDefinition[dict[str, str]](
@@ -86,7 +86,7 @@ class TestMappingDefinition:
             item=StrDefinition(label=DUMMY_LOCALIZABLE),
             label=DUMMY_LOCALIZABLE,
         )
-        assert sut.dump({"hello": "Hello, world!"}) == {"hello": "Hello, world!"}
+        assert sut.porter.dump({"hello": "Hello, world!"}) == {"hello": "Hello, world!"}
 
     def test_dump__with_item_not_dumpable(self) -> None:
         sut = MappingDefinition[dict[str, str]](
@@ -96,4 +96,4 @@ class TestMappingDefinition:
             label=DUMMY_LOCALIZABLE,
         )
         with pytest.raises(NotPortable):
-            sut.dump({"hello": "Hello, world!"})
+            sut.porter.dump({"hello": "Hello, world!"})

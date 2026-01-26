@@ -55,17 +55,17 @@ class TestDataDefinition:
             label=DUMMY_LOCALIZABLE,
             porter=CallbackPorter(lambda _: "loader", lambda _: None),
         )
-        assert sut.load(None) == "loader"
+        assert sut.porter.load(None) == "loader"
 
     def test_load__with_portable(self) -> None:
         sut = DataDefinition(cls=DataDefinitionTestData, label=DUMMY_LOCALIZABLE)
         value = "Hello, world!"
-        assert sut.load(value).value == value
+        assert sut.porter.load(value).value == value
 
     def test_load__should_error(self) -> None:
         sut = DataDefinition(cls=object, label=DUMMY_LOCALIZABLE)
         with pytest.raises(NotPortable):
-            sut.load(None)
+            sut.porter.load(None)
 
     def test_dump__with_porter(self) -> None:
         sut = DataDefinition(
@@ -73,17 +73,17 @@ class TestDataDefinition:
             label=DUMMY_LOCALIZABLE,
             porter=CallbackPorter(lambda _: None, lambda _: "dumper"),
         )
-        assert sut.dump(None) == "dumper"
+        assert sut.porter.dump(None) == "dumper"
 
     def test_dump__with_portable(self) -> None:
         sut = DataDefinition(cls=DataDefinitionTestData, label=DUMMY_LOCALIZABLE)
         value = "Hello, world!"
-        assert sut.dump(DataDefinitionTestData(value)) == value
+        assert sut.porter.dump(DataDefinitionTestData(value)) == value
 
     def test_dump__should_error(self) -> None:
         sut = DataDefinition(cls=object, label=DUMMY_LOCALIZABLE)
         with pytest.raises(NotPortable):
-            sut.dump(None)
+            sut.porter.dump(None)
 
     def test_empty__fallback(self) -> None:
         sut = DataDefinition(cls=object, label=DUMMY_LOCALIZABLE)

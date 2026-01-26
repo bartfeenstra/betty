@@ -64,7 +64,7 @@ class KeyedCollectionDefinition(
         self, portable: PortableData, /
     ) -> KeyedCollection[str, _ValueT, str, _ValueT]:
         if self._ordered:
-            items = assert_sequence(self._item.load)(portable)
+            items = assert_sequence(self._item.porter.load)(portable)
         else:
             items = [
                 self._item.load_key(portable_item, self._key, portable_key)
@@ -75,5 +75,5 @@ class KeyedCollectionDefinition(
 
     def _dump(self, data: KeyedCollection[str, _ValueT, str, _ValueT]) -> PortableData:
         if self._ordered:
-            return [self._item.dump(value) for value in data]
+            return [self._item.porter.dump(value) for value in data]
         return dict(self._item.dump_key(item_data, self._key) for item_data in data)

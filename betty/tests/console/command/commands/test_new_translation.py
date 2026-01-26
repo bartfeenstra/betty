@@ -34,7 +34,7 @@ class TestNewTranslation(CommandTestBase):
     ) -> None:
         async with Project.new_isolated(isolated_app) as project, project:
             await dump_file(
-                project.configuration.data().dump(project.configuration),
+                project.configuration.data().porter.dump(project.configuration),
                 project.configuration_file_path,
             )
             locale = "nl"

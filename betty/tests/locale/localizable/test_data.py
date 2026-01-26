@@ -24,23 +24,24 @@ from betty.test_utils.locale.localizable import DUMMY_LOCALIZABLE
 class TestLocalizableDefinition:
     def test_load__without_translations_should_error(self) -> None:
         with pytest.raises(HumanFacingException):
-            LocalizableDefinition().load({})
+            LocalizableDefinition().porter.load({})
 
     def test_load__with_single_undetermined_translation(self) -> None:
         localizable = "Hello, world!"
         assert (
-            LocalizableDefinition().load(localizable).localize(DEFAULT_LOCALIZER)
+            LocalizableDefinition().porter.load(localizable).localize(DEFAULT_LOCALIZER)
             == localizable
         )
 
     def test_dump__with_plain_text(self) -> None:
         localizable = "Hello, world!"
-        assert LocalizableDefinition().dump(Plain(localizable)) == localizable
+        assert LocalizableDefinition().porter.dump(Plain(localizable)) == localizable
 
     def test_dump__with_static_translations_single_undetermined(self) -> None:
         localizable = "Hello, world!"
         assert (
-            LocalizableDefinition().dump(StaticTranslations(localizable)) == localizable
+            LocalizableDefinition().porter.dump(StaticTranslations(localizable))
+            == localizable
         )
 
     def test_dump__with_static_translations(self) -> None:
@@ -50,12 +51,13 @@ class TestLocalizableDefinition:
         }
 
         assert (
-            LocalizableDefinition().dump(StaticTranslations(localizable)) == localizable
+            LocalizableDefinition().porter.dump(StaticTranslations(localizable))
+            == localizable
         )
 
     def test_dump__with_unsupported_localizable(self) -> None:
         with pytest.raises(NotPortable):
-            LocalizableDefinition().dump(Paragraph("Hello, world!"))
+            LocalizableDefinition().porter.dump(Paragraph("Hello, world!"))
 
 
 class _NotDumpableCountableLocalizable(CountableLocalizable):
@@ -66,7 +68,7 @@ class _NotDumpableCountableLocalizable(CountableLocalizable):
 
 class TestCountableLocalizableDefinition:
     def test_load_countable_localizable(self) -> None:
-        loaded = CountableLocalizableDefinition().load(
+        loaded = CountableLocalizableDefinition().porter.load(
             {
                 DEFAULT_LOCALE_TAG: {
                     "one": "{count} thing",
@@ -78,11 +80,11 @@ class TestCountableLocalizableDefinition:
 
     def test_load_countable_localizable__without_locales(self) -> None:
         with pytest.raises(HumanFacingException):
-            CountableLocalizableDefinition().load({})
+            CountableLocalizableDefinition().porter.load({})
 
     def test_load_countable_localizable__with_unknown_locale(self) -> None:
         with pytest.raises(UnknownLocale):
-            CountableLocalizableDefinition().load(
+            CountableLocalizableDefinition().porter.load(
                 {
                     "unknownlocale": {},
                 }
@@ -90,7 +92,7 @@ class TestCountableLocalizableDefinition:
 
     def test_load_countable_localizable__with_missing_plural_tag(self) -> None:
         with pytest.raises(MissingPluralTag):
-            CountableLocalizableDefinition().load(
+            CountableLocalizableDefinition().porter.load(
                 {
                     DEFAULT_LOCALE_TAG: {},
                 }
@@ -98,7 +100,7 @@ class TestCountableLocalizableDefinition:
 
     def test_load_countable_localizable__wth_invalid_plural_tag(self) -> None:
         with pytest.raises(InvalidPluralTag):
-            CountableLocalizableDefinition().load(
+            CountableLocalizableDefinition().porter.load(
                 {
                     DEFAULT_LOCALE_TAG: {
                         "one": "{count}",
@@ -109,7 +111,7 @@ class TestCountableLocalizableDefinition:
             )
 
     def test_dump_countable_localizable(self) -> None:
-        assert CountableLocalizableDefinition().dump(
+        assert CountableLocalizableDefinition().porter.dump(
             CountableStaticTranslations(
                 {
                     DEFAULT_LOCALE_TAG: {
@@ -132,4 +134,6 @@ class TestCountableLocalizableDefinition:
 
     def test_dump_countable_localizable__with_unsupported_localizable(self) -> None:
         with pytest.raises(NotPortable):
-            CountableLocalizableDefinition().dump(_NotDumpableCountableLocalizable())
+            CountableLocalizableDefinition().porter.dump(
+                _NotDumpableCountableLocalizable()
+            )

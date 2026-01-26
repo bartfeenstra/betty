@@ -74,7 +74,7 @@ def new_target(
                 type[ConfigurationDependentSelfFactory], target
             ).configuration_cls()
             if issubclass(configuration_cls, Data):
-                configuration = configuration_cls.data().load(configuration)
+                configuration = configuration_cls.data().porter.load(configuration)
             else:
                 configuration = configuration_cls.load(configuration)
         return target.new_for_configuration(configuration)  # ty:ignore[invalid-return-type, invalid-argument-type]

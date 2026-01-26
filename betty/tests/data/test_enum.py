@@ -12,13 +12,13 @@ class TestEnumDefinition:
     def test_load(self) -> None:
         sut = EnumDefinition(cls=EnumDefinitionTestEnum, label=DUMMY_LOCALIZABLE)
         assert (
-            sut.load(EnumDefinitionTestEnum.HELLO_WORLD.value)
+            sut.porter.load(EnumDefinitionTestEnum.HELLO_WORLD.value)
             is EnumDefinitionTestEnum.HELLO_WORLD
         )
 
     def test_dump(self) -> None:
         sut = EnumDefinition(cls=EnumDefinitionTestEnum, label=DUMMY_LOCALIZABLE)
         assert (
-            sut.dump(EnumDefinitionTestEnum.HELLO_WORLD)
+            sut.porter.dump(EnumDefinitionTestEnum.HELLO_WORLD)
             == EnumDefinitionTestEnum.HELLO_WORLD.value
         )
