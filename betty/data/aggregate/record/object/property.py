@@ -90,19 +90,27 @@ class PropertyNotInitialized(ValueError):
 
 
 @final
-class Optional(Attr[_ValueGetT], Generic[_ValueGetT, _ValueSetT]):
+class Optional(Attr[_ValueGetT | None], Generic[_ValueGetT, _ValueSetT]):
     """
     Make another property optional, e.g. allow ``None``.
     """
 
     def __init__(self, required_property: Property[_ValueGetT, _ValueSetT], /):
         self._required_property = required_property
+
+        def _omit_dump(data: _ValueGetT | None) -> bool:
+            if data is None:
+                return True
+            if required_property.attr.omit_dump is None:
+                return False
+            return required_property.attr.omit_dump(data)
+
         self._attr = AttrDefinition(
             OptionalDefinition(required_property.attr.data),
             label=required_property.attr.label,
             description=required_property.attr.description,
             omit_load=required_property.attr.omit_load,
-            omit_dump=required_property.attr.omit_dump,
+            omit_dump=_omit_dump,
         )
 
     def __set_name__(self, owner: type[Any], name: str) -> None:
@@ -111,7 +119,7 @@ class Optional(Attr[_ValueGetT], Generic[_ValueGetT, _ValueSetT]):
 
     @override
     @property
-    def attr(self) -> AttrDefinition[_ValueGetT]:
+    def attr(self) -> AttrDefinition[_ValueGetT | None]:
         return self._attr
 
     @overload
