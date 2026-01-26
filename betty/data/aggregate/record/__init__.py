@@ -4,7 +4,7 @@ Record data types.
 
 from __future__ import annotations
 
-from abc import ABC, abstractmethod
+from abc import abstractmethod
 from typing import TYPE_CHECKING, Any, Generic, final
 
 from typing_extensions import TypeVar, override
@@ -14,6 +14,7 @@ from betty.data import DataDefinition, OptionalDefinition, Sample, Samples
 from betty.data.aggregate import AggregateDefinition
 from betty.data.indicator.selector import Element
 from betty.locale.localizable.ensure import ensure_localizable
+from betty.portable import PortableData, Porter
 from betty.portable.error import NotPortable
 
 if TYPE_CHECKING:
@@ -21,7 +22,7 @@ if TYPE_CHECKING:
 
     from betty.data import Data
     from betty.locale.localizable import Localizable, LocalizableLike
-    from betty.portable import PortableData, PortableMapping
+    from betty.portable import PortableMapping
 
 _DataClsT = TypeVar("_DataClsT")
 _ElementCoT = TypeVar("_ElementCoT", bound=Element[Any], covariant=True)
@@ -100,22 +101,10 @@ class FieldDefinition(Generic[_ElementCoT, _DataClsT]):
         return self._omit_dump(data)
 
 
-class RecordPorter(ABC, Generic[_DataClsT]):
+class RecordPorter(Porter[_DataClsT, PortableData]):
     """
     An object capable of dumping and loading data to and from portable data.
     """
-
-    @abstractmethod
-    def load(self, portable: PortableData, /) -> _DataClsT:
-        """
-        Load data from its portable form.
-        """
-
-    @abstractmethod
-    def dump(self, data: _DataClsT, /) -> PortableData:
-        """
-        Dump data to its portable form.
-        """
 
     @abstractmethod
     def load_key(
