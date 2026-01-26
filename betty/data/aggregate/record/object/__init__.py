@@ -8,7 +8,7 @@ from abc import ABC, abstractmethod
 from collections import defaultdict
 from inspect import getmembers
 from types import FunctionType
-from typing import TYPE_CHECKING, Any, final
+from typing import TYPE_CHECKING, Any, Generic, final
 
 from typing_extensions import TypeVar, override
 
@@ -90,14 +90,14 @@ class AttrDefinition:
         return attribute
 
 
-class Attr(ABC):
+class Attr(ABC, Generic[_DataClsT]):
     """
     A class attribute that exposes its data definition.
     """
 
     @property
     @abstractmethod
-    def attr(self) -> AttrDefinition:
+    def attr(self) -> AttrDefinition[_DataClsT]:
         """
         The attribute's data definition.
         """
