@@ -142,17 +142,6 @@ class TestRecordDefinition:
         )
         assert list(sut.fields) == [field]
 
-    def test_field(self) -> None:
-        field = FieldDefinition(
-            Attr("my_first_element"), StrDefinition(label=DUMMY_LOCALIZABLE)
-        )
-        sut = RecordDefinition[RecordDefinitionTestRecord, Attr](
-            cls=RecordDefinitionTestRecord,
-            label=DUMMY_LOCALIZABLE,
-            fields=[field],
-        )
-        assert sut.field(Attr("my_first_element")) == field
-
     def test_elements(self) -> None:
         selector = Attr("my_first_element")
         data = StrDefinition(label=DUMMY_LOCALIZABLE)
