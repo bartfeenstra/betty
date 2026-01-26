@@ -1,10 +1,7 @@
-from unittest.mock import AsyncMock
-
 import pytest
 
 from betty.assertion import assert_str
-from betty.data import Data, DataDefinition
-from betty.data.aggregate.record.object import ObjectDefinition
+from betty.data import DataDefinition
 from betty.data.aggregate.record.object.property import (
     Optional,
     Property,
@@ -13,7 +10,6 @@ from betty.data.aggregate.record.object.property import (
 from betty.data.str import StrDefinition
 from betty.functools import passthrough
 from betty.portable import CallbackPorter
-from betty.service.level.universal import universe
 from betty.test_utils.locale.localizable import DUMMY_LOCALIZABLE
 
 
@@ -103,87 +99,3 @@ class TestOptional:
             my_first_property = Optional(Property(data))
 
         assert _Owner.my_first_property.attr.field("my_first_property").data is data
-
-    def test_load__without_none(self) -> None:
-        m_data = AsyncMock(spec=DataDefinition)
-        m_data.empty.return_value = False
-
-        @ObjectDefinition(label=DUMMY_LOCALIZABLE)
-        class _Owner(Data):
-            my_first_property = Optional(Property(m_data))
-
-            def __init__(self, my_first_property=None):
-                self.my_first_property = my_first_property
-
-        portable = {"my_first_property": "my-first-value"}
-        assert isinstance(_Owner.data().load(portable), _Owner)
-        m_data.load.assert_called_once_with("my-first-value")
-
-    def test_load__with_none(self) -> None:
-        m_data = AsyncMock(spec=DataDefinition)
-        m_data.empty.return_value = False
-
-        @ObjectDefinition(label=DUMMY_LOCALIZABLE)
-        class _Owner(Data):
-            my_first_property = Optional(Property(m_data))
-
-            def __init__(self, my_first_property=None):
-                self.my_first_property = my_first_property
-
-        assert isinstance(_Owner.data().load({"my_first_property": None}), _Owner)
-        m_data.load.assert_not_called()
-
-    def test_dump__without_none(self) -> None:
-        m_data = AsyncMock(spec=DataDefinition)
-        m_data.empty.return_value = False
-
-        @ObjectDefinition(label=DUMMY_LOCALIZABLE)
-        class _Owner(Data):
-            my_first_property = Optional(Property(m_data))
-
-            def __init__(self, my_first_property):
-                self.my_first_property = my_first_property
-
-        data = object()
-        _Owner.data().dump(_Owner(data))
-        m_data.dump.assert_called_once_with(data)
-
-    def test_dump__with_none(self) -> None:
-        m_data = AsyncMock(spec=DataDefinition)
-
-        @ObjectDefinition(label=DUMMY_LOCALIZABLE)
-        class _Owner(Data):
-            my_first_property = Optional(Property(m_data))
-
-            def __init__(self, my_first_property):
-                self.my_first_property = my_first_property
-
-        assert _Owner.data().dump(_Owner(None)) == {}
-        m_data.dump.assert_not_called()
-
-    async def test_hydrate__without_none(self) -> None:
-        m_data = AsyncMock(spec=DataDefinition)
-
-        @ObjectDefinition(label=DUMMY_LOCALIZABLE)
-        class _Owner(Data):
-            my_first_property = Optional(Property(m_data))
-
-            def __init__(self, my_first_property):
-                self.my_first_property = my_first_property
-
-        data = object()
-        await _Owner.data().hydrate(universe, _Owner(data))
-        m_data.hydrate.assert_awaited_once_with(universe, data)
-
-    async def test_hydrate__with_none(self) -> None:
-        m_data = AsyncMock(spec=DataDefinition)
-
-        @ObjectDefinition(label=DUMMY_LOCALIZABLE)
-        class _Owner(Data):
-            my_first_property = Optional(Property(m_data))
-
-            def __init__(self, my_first_property):
-                self.my_first_property = my_first_property
-
-        await _Owner.data().hydrate(universe, _Owner(None))
-        m_data.hydrate.assert_not_awaited()

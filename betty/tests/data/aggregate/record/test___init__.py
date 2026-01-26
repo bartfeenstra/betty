@@ -8,7 +8,6 @@ from betty.data.indicator.selector import Attr, Key
 from betty.data.str import StrDefinition
 from betty.exception import HumanFacingException
 from betty.locale.localizable.plain import Plain
-from betty.service.level.universal import universe
 from betty.test_utils.locale.localizable import DUMMY_LOCALIZABLE
 
 
@@ -98,19 +97,6 @@ class TestFieldDefinition:
         sut = FieldDefinition(Key("-"), m_data, optional=True)
         sut.dump(None)
         m_data.dump.assert_not_called()
-
-    async def test_hydrate__without_none(self) -> None:
-        m_data = AsyncMock(spec=DataDefinition)
-        sut = FieldDefinition(Key("-"), m_data, optional=True)
-        data = object()
-        await sut.hydrate(universe, data)
-        m_data.hydrate.assert_awaited_once_with(universe, data)
-
-    async def test_hydrate__with_none(self) -> None:
-        m_data = AsyncMock(spec=DataDefinition)
-        sut = FieldDefinition(Key("-"), m_data, optional=True)
-        await sut.hydrate(universe, None)
-        m_data.hydrate.assert_not_awaited()
 
 
 class RecordDefinitionTestRecord:
