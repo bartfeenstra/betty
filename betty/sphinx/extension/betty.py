@@ -18,7 +18,7 @@ from typing_extensions import override
 
 from betty.app import App
 from betty.config import Configurable, Configuration
-from betty.data import Data
+from betty.data import Data, OptionalDefinition
 from betty.data.aggregate.record import RecordDefinition
 from betty.definition.human_facing import HumanFacingDefinition
 from betty.functools import Result
@@ -387,12 +387,15 @@ Data
 """
             for field in sorted(
                 data.fields,
-                key=lambda field: (field.optional, field.selector.element),
+                key=lambda field: (
+                    isinstance(field.data, OptionalDefinition),
+                    field.selector.element,
+                ),
             ):
                 primary_label = field.data.label if field.label is None else field.label
                 content += f"""
                 
-``{field.selector.element}`` :sup:`{"optional" if field.optional else "required"}`
+``{field.selector.element}`` :sup:`{"optional" if isinstance(field.data, OptionalDefinition) else "required"}`
 
     **{primary_label.localize(DEFAULT_LOCALIZER)}**
 """

@@ -39,8 +39,8 @@ class WikiConfiguration(Data):
                 "Whether to download additional images found through Wikipedia links in the ancestry"
             ),
         ),
-        empty=lambda data: data is True,
-        optional=True,
+        omit_load=True,
+        omit_dump=lambda data: data is True,
     )
     def populate_images(self) -> bool:
         """

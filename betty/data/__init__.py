@@ -5,15 +5,15 @@ Describe, access, and manipulate arbitrary data.
 from __future__ import annotations
 
 from functools import update_wrapper
-from typing import TYPE_CHECKING, Any, Generic, Self
+from typing import TYPE_CHECKING, Any, Generic, Self, final
 
 from typing_extensions import TypeVar, override
 
-from betty.data.sample import Sample, Samples
+from betty.data.sample import Sample, Samples, Size
 from betty.definition.cls import ClsDefinition
 from betty.definition.human_facing import HumanFacingDefinition
 from betty.importlib import fully_qualified_name
-from betty.portable import Portable, PortablePorter, Porter
+from betty.portable import OptionalPorter, Portable, PortablePorter, Porter
 from betty.portable.error import NotPortable
 from betty.service.hydrate import Hydratable, Hydrator
 
@@ -43,12 +43,10 @@ class DataDefinition(
         description: LocalizableLike | None = None,
         porter: Porter[_DataClsT] | None = None,
         samples: Iterable[Callable[[], Sample[_DataClsT]] | Samples] | None = None,
-        empty: Callable[[_DataClsT], bool] | None = None,
     ):
         super().__init__(cls=cls, label=label, description=description)
         self._porter = porter
         self._samples = Samples(() if samples is None else samples)
-        self._empty = empty
 
     @property
     def porter(self) -> Porter[_DataClsT]:
@@ -58,7 +56,6 @@ class DataDefinition(
         if self._porter is None:
             if issubclass(self.cls, Portable):
                 self._porter = PortablePorter(self.cls)
-
             else:
                 raise NotPortable(
                     f"This definition does not have a porter. Either make the data class {fully_qualified_name(self.cls)} subclass {fully_qualified_name(Portable)}, or provide a porter when initializing the definition."
@@ -91,14 +88,6 @@ class DataDefinition(
             if validator is not None:
                 await services.new_target(validator)
 
-    def empty(self, data: _DataClsT, /) -> bool:
-        """
-        Check if the data can be considered 'empty'.
-        """
-        if self._empty is None:
-            return False
-        return self._empty(data)
-
 
 _DataDefinitionT = TypeVar(
     "_DataDefinitionT", bound=DataDefinition, default=DataDefinition, covariant=True
@@ -124,3 +113,35 @@ class Data(Generic[_DataDefinitionT]):
             return NotImplemented
         porter = type(self).data().porter
         return porter.dump(self) == porter.dump(other)
+
+
+@final
+class OptionalDefinition(DataDefinition[_DataClsT | None]):
+    """
+    Wrap another data definition to make it optional, e.g. allow ``None``.
+    """
+
+    def __init__(self, wrapped: DataDefinition[_DataClsT], /):
+        super().__init__(
+            cls=wrapped.cls,
+            label=wrapped.label,
+            description=wrapped.description,
+            porter=OptionalPorter(wrapped.porter),  # ty:ignore[invalid-argument-type]
+            samples=[
+                lambda: Sample(None, label="Minimal", size=Size.MINIMAL),
+                wrapped.samples,
+            ],
+        )
+        self._wrapped = wrapped
+
+    @property
+    def wrapped(self) -> DataDefinition[_DataClsT]:
+        """
+        The wrapped, required (non-optional) data definition.
+        """
+        return self._wrapped
+
+    @override
+    async def hydrate(self, services: ServiceLevel, data: _DataClsT | None, /) -> None:
+        if data is not None:
+            await self.wrapped.hydrate(services, data)

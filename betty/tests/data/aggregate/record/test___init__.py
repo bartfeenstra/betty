@@ -1,41 +1,58 @@
-from unittest.mock import AsyncMock, Mock
+from unittest.mock import Mock
 
 import pytest
 
-from betty.data import DataDefinition
+from betty.data import DataDefinition, OptionalDefinition
 from betty.data.aggregate.record import (
     FieldDefinition,
     MappingPorter,
     RecordDefinition,
     RecordPorter,
 )
+from betty.data.bool import BoolDefinition
 from betty.data.indicator.selector import Attr, Key
 from betty.data.str import StrDefinition
 from betty.exception import HumanFacingException
 from betty.locale.localizable.plain import Plain
-from betty.portable import CallbackPorter, OptionalPorter
 from betty.test_utils.locale.localizable import DUMMY_LOCALIZABLE
 
 
 class TestFieldDefinition:
-    def test_porter(self) -> None:
-        porter = CallbackPorter(lambda _: object(), lambda _: None)
-        sut = FieldDefinition(
-            Key("_"), DataDefinition(cls=object, label=DUMMY_LOCALIZABLE, porter=porter)
-        )
-        assert sut.porter is porter
+    def test_omit_load(self) -> None:
+        sut = FieldDefinition(Key("_"), BoolDefinition(label=DUMMY_LOCALIZABLE))
+        assert not sut.omit_load
 
-    def test_porter__optional(self) -> None:
+    def test_omit_load__with_omit_load(self) -> None:
         sut = FieldDefinition(
             Key("_"),
-            DataDefinition(
-                cls=object,
-                label=DUMMY_LOCALIZABLE,
-                porter=CallbackPorter(lambda _: object(), lambda _: None),
-            ),
-            optional=True,
+            BoolDefinition(label=DUMMY_LOCALIZABLE),
+            omit_load=True,
         )
-        assert isinstance(sut.porter, OptionalPorter)
+        assert sut.omit_load
+
+    def test_omit_load__with_optional_definition(self) -> None:
+        sut = FieldDefinition(
+            Key("_"),
+            OptionalDefinition(BoolDefinition(label=DUMMY_LOCALIZABLE)),
+            omit_load=True,
+        )
+        assert sut.omit_load
+
+    def test_omit_dump(self) -> None:
+        sut = FieldDefinition(Key("_"), BoolDefinition(label=DUMMY_LOCALIZABLE))
+        assert not sut.omit_dump(False)
+
+    def test_omit_dump__with_omit_dump(self) -> None:
+        sut = FieldDefinition(
+            Key("_"), BoolDefinition(label=DUMMY_LOCALIZABLE), omit_dump=lambda _: True
+        )
+        assert sut.omit_dump(False)
+
+    def test_omit_dump__with_optional_none(self) -> None:
+        sut = FieldDefinition(
+            Key("_"), OptionalDefinition(BoolDefinition(label=DUMMY_LOCALIZABLE))
+        )
+        assert sut.omit_dump(None)
 
     def test_selector(self) -> None:
         selector = Key("my_first_key")
@@ -65,63 +82,15 @@ class TestFieldDefinition:
         )
         assert sut.description is description
 
-    def test_optional(self) -> None:
-        sut = FieldDefinition(
-            Key("_"), DataDefinition(label=DUMMY_LOCALIZABLE), optional=True
-        )
-        assert sut.optional
-
-    def test_empty__without_callback(self) -> None:
+    def test_omit__without_callback(self) -> None:
         sut = FieldDefinition(Key("_"), DataDefinition(label=DUMMY_LOCALIZABLE))
-        assert not sut.empty(object())
+        assert not sut.omit_dump(object())
 
-    def test_empty__with_field_callback(self) -> None:
+    def test_omit__with_callback(self) -> None:
         sut = FieldDefinition(
-            Key("_"), DataDefinition(label=DUMMY_LOCALIZABLE), empty=lambda _: True
+            Key("_"), DataDefinition(label=DUMMY_LOCALIZABLE), omit_dump=lambda _: True
         )
-        assert sut.empty(object())
-
-    def test_empty__with_data_callback(self) -> None:
-        sut = FieldDefinition(
-            Key("_"), DataDefinition(label=DUMMY_LOCALIZABLE, empty=lambda _: True)
-        )
-        assert sut.empty(object())
-
-    def test_empty__without_optional(self) -> None:
-        sut = FieldDefinition(Key("_"), DataDefinition(label=DUMMY_LOCALIZABLE))
-        assert not sut.empty(None)
-
-    def test_empty__with_optional(self) -> None:
-        sut = FieldDefinition(
-            Key("_"), DataDefinition(label=DUMMY_LOCALIZABLE), optional=True
-        )
-        assert sut.empty(None)
-
-    def test_load__without_none(self) -> None:
-        m_data = AsyncMock(spec=DataDefinition)
-        sut = FieldDefinition(Key("-"), m_data, optional=True)
-        portable = {}
-        sut.porter.load(portable)
-        m_data.porter.load.assert_called_once_with(portable)
-
-    def test_load__with_none(self) -> None:
-        m_data = AsyncMock(spec=DataDefinition)
-        sut = FieldDefinition(Key("-"), m_data, optional=True)
-        sut.porter.load(None)
-        m_data.porter.load.assert_not_called()
-
-    def test_dump__without_none(self) -> None:
-        m_data = AsyncMock(spec=DataDefinition)
-        sut = FieldDefinition(Key("-"), m_data, optional=True)
-        data = object()
-        sut.porter.dump(data)
-        m_data.porter.dump.assert_called_once_with(data)
-
-    def test_dump__with_none(self) -> None:
-        m_data = AsyncMock(spec=DataDefinition)
-        sut = FieldDefinition(Key("-"), m_data, optional=True)
-        sut.porter.dump(None)
-        m_data.porter.dump.assert_not_called()
+        assert sut.omit_dump(object())
 
 
 class RecordDefinitionTestRecord:
@@ -197,7 +166,7 @@ class TestRecordDefinition:
 
 
 class TestMappingPorter:
-    def test_load__required_with_value(self) -> None:
+    def test_load__with_value(self) -> None:
         field_name = "my_first_element"
         sut = MappingPorter(
             RecordDefinition[RecordDefinitionTestRecord, Attr](
@@ -214,7 +183,7 @@ class TestMappingPorter:
         data = sut.load({field_name: value})
         assert data.my_first_element == value
 
-    def test_load__required_without_value(self) -> None:
+    def test_load__without_value(self) -> None:
         field_name = "my_first_element"
         sut = MappingPorter(
             RecordDefinition[RecordDefinitionTestRecord, Attr](
@@ -229,42 +198,6 @@ class TestMappingPorter:
         )
         with pytest.raises(HumanFacingException):
             sut.load({})
-
-    def test_load__optional_with_value(self) -> None:
-        field_name = "my_first_element"
-        sut = MappingPorter(
-            RecordDefinition[RecordDefinitionTestRecord, Attr](
-                cls=RecordDefinitionTestRecord,
-                label=DUMMY_LOCALIZABLE,
-                fields=[
-                    FieldDefinition(
-                        Attr(field_name),
-                        StrDefinition(label=DUMMY_LOCALIZABLE),
-                        optional=True,
-                    )
-                ],
-            )
-        )
-        value = "Hello, world!"
-        data = sut.load({field_name: value})
-        assert data.my_first_element == value
-
-    def test_load__optional_without_value(self) -> None:
-        field_name = "my_first_element"
-        sut = MappingPorter(
-            RecordDefinition[RecordDefinitionTestRecord, Attr](
-                cls=RecordDefinitionTestRecord,
-                label=DUMMY_LOCALIZABLE,
-                fields=[
-                    FieldDefinition(
-                        Attr(field_name),
-                        StrDefinition(label=DUMMY_LOCALIZABLE),
-                        optional=True,
-                    )
-                ],
-            )
-        )
-        sut.load({})
 
     def test_load__with_factory(self) -> None:
         field_name = "my_first_element"

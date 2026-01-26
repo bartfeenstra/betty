@@ -28,7 +28,7 @@ from betty.collections import KeyedCollection
 from betty.config import Configuration
 from betty.config.collections.mapping import OrderedConfigurationMapping
 from betty.copyright_notice import CopyrightNotice, CopyrightNoticeDefinition
-from betty.data import Data, DataDefinition, Sample
+from betty.data import Data, DataDefinition, OptionalDefinition, Sample
 from betty.data.aggregate.collection.keyed import KeyedCollectionDefinition
 from betty.data.aggregate.record import FieldDefinition
 from betty.data.aggregate.record.object import AttrDefinition, ObjectDefinition
@@ -143,7 +143,7 @@ class ExtensionInstanceConfigurationMapping(
             size=Size.MINIMAL,
         ),
         lambda: Sample(
-            EntityTypeConfiguration(entity_type=Person, generate_html_list=True),
+            EntityTypeConfiguration(entity_type=Person, generate_html_list=False),
             label="Full",
             size=Size.FULL,
         ),
@@ -162,7 +162,7 @@ class EntityTypeConfiguration(
         self,
         *,
         entity_type: ResolvableId[EntityDefinition],
-        generate_html_list: bool = False,
+        generate_html_list: bool = True,
     ):
         self._entity_type = resolve_id(entity_type)
         self.generate_html_list = generate_html_list
@@ -176,7 +176,11 @@ class EntityTypeConfiguration(
         return self._entity_type
 
     @property
-    @AttrDefinition(BoolDefinition(label=_("Generate list HTML page")), optional=True)
+    @AttrDefinition(
+        BoolDefinition(label=_("Generate list HTML page")),
+        omit_load=True,
+        omit_dump=lambda data: data is True,
+    )
     def generate_html_list(self) -> bool:
         """
         Whether to generate listing web pages for entities of this type.
@@ -891,14 +895,15 @@ class GenderPluginConfigurationMapping(
             DataDefinition(
                 cls=PluginInstanceConfiguration, label=_("Copyright notice")
             ),
-            optional=True,
-            empty=lambda data: data == ProjectConfiguration._default_copyright_notice(),
+            omit_load=True,
+            omit_dump=lambda data: data
+            == ProjectConfiguration._default_copyright_notice(),
         ),
         FieldDefinition(
             Attr("license"),
             DataDefinition(cls=PluginInstanceConfiguration, label=_("License")),
-            optional=True,
-            empty=lambda data: data == ProjectConfiguration._default_license(),
+            omit_load=True,
+            omit_dump=lambda data: data == ProjectConfiguration._default_license(),
         ),
     ],
     samples=[
@@ -1067,7 +1072,7 @@ class ProjectConfiguration(Data):
         return LocaleConfigurationMapping()
 
     @property
-    @AttrDefinition(MachineNameDefinition(), optional=True)
+    @AttrDefinition(OptionalDefinition(MachineNameDefinition()))
     def name(self) -> MachineName | None:
         """
         The project's machine name.
@@ -1134,8 +1139,8 @@ class ProjectConfiguration(Data):
                 'Whether to use clean URLs: "/path" instead of "/path/index.html".'
             ),
         ),
-        empty=lambda data: data is False,
-        optional=True,
+        omit_load=True,
+        omit_dump=lambda data: data is False,
     )
     def clean_urls(self) -> bool:
         """
@@ -1152,8 +1157,8 @@ class ProjectConfiguration(Data):
     @property
     @AttrDefinition(
         DataDefinition(cls=LocaleConfigurationMapping, label=_("Locales")),
-        empty=lambda data: data == ProjectConfiguration._default_locales(),
-        optional=True,
+        omit_load=True,
+        omit_dump=lambda data: data == ProjectConfiguration._default_locales(),
     )
     def locales(self) -> LocaleConfigurationMapping:
         """
@@ -1169,7 +1174,8 @@ class ProjectConfiguration(Data):
             key=Attr("entity_type"),  # ty:ignore[invalid-argument-type]
             ordered=False,
         ),
-        optional=True,
+        omit_load=True,
+        omit_dump=lambda data: not len(data),
     )
     def entity_types(
         self,
@@ -1189,8 +1195,8 @@ class ProjectConfiguration(Data):
         DataDefinition(
             cls=ExtensionInstanceConfigurationMapping, label=_("Extensions")
         ),
-        empty=lambda data: not len(data),
-        optional=True,
+        omit_load=True,
+        omit_dump=lambda data: not len(data),
     )
     def extensions(self) -> ExtensionInstanceConfigurationMapping:
         """
@@ -1206,8 +1212,8 @@ class ProjectConfiguration(Data):
                 "Whether to output more detailed logs and disable optimizations that make debugging harder."
             ),
         ),
-        empty=lambda data: data is False,
-        optional=True,
+        omit_load=True,
+        omit_dump=lambda data: data is False,
     )
     def debug(self) -> bool:
         """
@@ -1234,8 +1240,8 @@ class ProjectConfiguration(Data):
                 "The number of years people are expected to live at most, e.g. after which they are presumed to have died."
             ),
         ),
-        optional=True,
-        empty=lambda data: data == DEFAULT_LIFETIME_THRESHOLD,
+        omit_load=True,
+        omit_dump=lambda data: data == DEFAULT_LIFETIME_THRESHOLD,
     )
     def lifetime_threshold(self) -> int:
         """
@@ -1254,7 +1260,7 @@ class ProjectConfiguration(Data):
         self._lifetime_threshold = lifetime_threshold
 
     @property
-    @AttrDefinition(FilePathDefinition(), label=_("Logo"), optional=True)
+    @AttrDefinition(OptionalDefinition(FilePathDefinition()), label=_("Logo"))
     def logo(self) -> Path | None:
         """
         The path to the logo.
@@ -1271,8 +1277,8 @@ class ProjectConfiguration(Data):
             cls=CopyrightNoticePluginConfigurationMapping,
             label=_("Copyright notices"),
         ),
-        empty=lambda data: not len(data),
-        optional=True,
+        omit_load=True,
+        omit_dump=lambda data: not len(data),
     )
     def copyright_notices(
         self,
@@ -1285,8 +1291,8 @@ class ProjectConfiguration(Data):
     @property
     @AttrDefinition(
         DataDefinition(cls=LicensePluginConfigurationMapping, label=_("Licenses")),
-        empty=lambda data: not len(data),
-        optional=True,
+        omit_load=True,
+        omit_dump=lambda data: not len(data),
     )
     def licenses(self) -> LicensePluginConfigurationMapping:
         """
@@ -1297,8 +1303,8 @@ class ProjectConfiguration(Data):
     @property
     @AttrDefinition(
         DataDefinition(cls=EventTypePluginConfigurationMapping, label=_("Event types")),
-        empty=lambda data: not len(data),
-        optional=True,
+        omit_load=True,
+        omit_dump=lambda data: not len(data),
     )
     def event_types(self) -> EventTypePluginConfigurationMapping:
         """
@@ -1309,8 +1315,8 @@ class ProjectConfiguration(Data):
     @property
     @AttrDefinition(
         DataDefinition(cls=PlaceTypePluginConfigurationMapping, label=_("Place types")),
-        empty=lambda data: not len(data),
-        optional=True,
+        omit_load=True,
+        omit_dump=lambda data: not len(data),
     )
     def place_types(self) -> PlaceTypePluginConfigurationMapping:
         """
@@ -1323,8 +1329,8 @@ class ProjectConfiguration(Data):
         DataDefinition(
             cls=PresenceRolePluginConfigurationMapping, label=_("Presence roles")
         ),
-        empty=lambda data: not len(data),
-        optional=True,
+        omit_load=True,
+        omit_dump=lambda data: not len(data),
     )
     def presence_roles(self) -> PresenceRolePluginConfigurationMapping:
         """
@@ -1335,8 +1341,8 @@ class ProjectConfiguration(Data):
     @property
     @AttrDefinition(
         DataDefinition(cls=GenderPluginConfigurationMapping, label=_("Genders")),
-        empty=lambda data: not len(data),
-        optional=True,
+        omit_load=True,
+        omit_dump=lambda data: not len(data),
     )
     def genders(self) -> GenderPluginConfigurationMapping:
         """

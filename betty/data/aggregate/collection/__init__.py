@@ -35,13 +35,7 @@ class CollectionDefinition(AggregateDefinition[_CollectionT, _ElementCoT]):
         description: LocalizableLike | None = None,
         porter: Porter[_CollectionT] | None = None,
     ):
-        super().__init__(
-            cls=cls,
-            label=label,
-            description=description,
-            porter=porter,
-            empty=lambda data: not len(data),
-        )
+        super().__init__(cls=cls, label=label, description=description, porter=porter)
         self._item = item
 
     @property
