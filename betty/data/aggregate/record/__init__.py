@@ -230,6 +230,15 @@ class RecordDefinition(AggregateDefinition[_DataClsT, _ElementCoT]):
         """
         return self._fields
 
+    def field(self, selector: _ElementCoT) -> FieldDefinition[_ElementCoT, Any]:
+        """
+        Get the field definition for the given selector.
+        """
+        for field in self.fields:
+            if field.selector == selector:
+                return field
+        raise ValueError(f"Field {selector} not found")
+
     @override
     def elements(self, data: _DataClsT) -> Sequence[tuple[_ElementCoT, DataDefinition]]:
         return [(field.selector, field.data) for field in self.fields]  # ty:ignore[invalid-return-type]
