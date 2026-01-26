@@ -42,7 +42,7 @@ class DataDefinition(
         label: LocalizableLike,
         description: LocalizableLike | None = None,
         porter: Porter[_DataClsT] | None = None,
-        samples: Iterable[Callable[[], Sample[_DataClsT]]] | None = None,
+        samples: Iterable[Callable[[], Sample[_DataClsT]] | Samples] | None = None,
         empty: Callable[[_DataClsT], bool] | None = None,
     ):
         super().__init__(cls=cls, label=label, description=description)

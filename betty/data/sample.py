@@ -5,7 +5,7 @@ Data sample helpers.
 from __future__ import annotations
 
 from enum import IntEnum, auto
-from typing import TYPE_CHECKING, Any, Generic, final
+from typing import TYPE_CHECKING, Any, Generic, Self, final
 
 from typing_extensions import TypeVar
 
@@ -88,13 +88,16 @@ class Samples(Generic[_DataClsT]):
 
     def __init__(
         self,
-        samples: Iterable[Callable[[], Sample[_DataClsT]]],
+        samples: Iterable[Callable[[], Sample[_DataClsT]] | Self],
     ):
         self._samples = list(samples)
 
     def __iter__(self) -> Iterator[Sample[_DataClsT]]:
         for sample in self._samples:
-            yield sample()
+            if isinstance(sample, Samples):
+                yield from sample
+            else:
+                yield sample()
 
     def get(self, preferred_size: Size = Size.INTERMEDIATE, /):
         """
