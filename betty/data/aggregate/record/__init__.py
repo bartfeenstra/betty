@@ -10,7 +10,7 @@ from typing import TYPE_CHECKING, Any, Generic, final
 from typing_extensions import TypeVar, override
 
 from betty.assertion import OptionalField
-from betty.data import DataDefinition, Sample
+from betty.data import DataDefinition, Sample, Samples
 from betty.data.aggregate import AggregateDefinition
 from betty.data.indicator.selector import Element
 from betty.locale.localizable.ensure import ensure_localizable
@@ -212,7 +212,7 @@ class RecordDefinition(AggregateDefinition[_DataClsT, _ElementCoT]):
         label: LocalizableLike,
         fields: Sequence[FieldDefinition[_ElementCoT, Any]] | None = None,
         description: LocalizableLike | None = None,
-        samples: Iterable[Callable[[], Sample[_DataClsT]]] | None = None,
+        samples: Iterable[Callable[[], Sample[_DataClsT]] | Samples] | None = None,
         factory: Callable[..., _DataClsT] | None = None,
         porter: RecordPorter[_DataClsT] | None = None,
     ):

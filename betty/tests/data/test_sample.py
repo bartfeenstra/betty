@@ -46,7 +46,7 @@ class TestSamples:
                 Samples(
                     [
                         lambda: _sample_minimal,
-                        lambda: _sample_intermediate,
+                        Samples([lambda: _sample_intermediate]),
                         lambda: _sample_full,
                     ]
                 )
@@ -68,7 +68,7 @@ class TestSamples:
         ],
     )
     def test_get__full(
-        self, expected: Sample, samples: Iterable[Callable[[], Sample]]
+        self, expected: Sample, samples: Iterable[Callable[[], Sample] | Samples]
     ) -> None:
         assert Samples(samples).get(Size.FULL) is expected
 
@@ -91,7 +91,7 @@ class TestSamples:
         ],
     )
     def test_get__minimal(
-        self, expected: Sample, samples: Iterable[Callable[[], Sample]]
+        self, expected: Sample, samples: Iterable[Callable[[], Sample] | Samples]
     ) -> None:
         assert Samples(samples).get(Size.MINIMAL) is expected
 
