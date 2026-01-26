@@ -5,7 +5,9 @@ Collection data types.
 from __future__ import annotations
 
 from collections.abc import Collection
-from typing import TYPE_CHECKING, Any, TypeVar
+from typing import TYPE_CHECKING, Any
+
+from typing_extensions import TypeVar
 
 from betty.data.aggregate import AggregateDefinition
 from betty.data.indicator.selector import Element
@@ -16,10 +18,10 @@ if TYPE_CHECKING:
     from betty.portable import Porter
 
 _CollectionT = TypeVar("_CollectionT", bound=Collection)
-_ElementT = TypeVar("_ElementT", bound=Element[Any])
+_ElementCoT = TypeVar("_ElementCoT", bound=Element[Any], covariant=True)
 
 
-class CollectionDefinition(AggregateDefinition[_CollectionT, _ElementT]):
+class CollectionDefinition(AggregateDefinition[_CollectionT, _ElementCoT]):
     """
     A homogenous collection data definition.
     """

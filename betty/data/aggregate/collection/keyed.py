@@ -14,7 +14,12 @@ from betty.data.aggregate.collection import CollectionDefinition
 from betty.data.aggregate.record import RecordDefinition
 from betty.data.indicator.selector import Element, Key
 from betty.locale.localizable import LocalizableLike
-from betty.portable import CallbackPorter, PortableData
+from betty.portable import (
+    CallbackPorter,
+    PortableData,
+    PortableMapping,
+    PortableSequence,
+)
 
 if TYPE_CHECKING:
     from ty_extensions import Intersection  # noqa: TC004
@@ -22,7 +27,6 @@ if TYPE_CHECKING:
 
 _ValueT = TypeVar("_ValueT")
 _ElementT = TypeVar("_ElementT")
-_ElementTT = TypeVar("_ElementTT", bound=Element[Any])
 
 
 @final
@@ -33,13 +37,13 @@ class KeyedCollectionDefinition(
     A definition for :py:class:`betty.collections.KeyedCollection`.
     """
 
-    _item: RecordDefinition[_ValueT, Element[Any]]
+    _item: RecordDefinition[_ValueT, Key]
 
     def __init__(
         self,
         *,
-        item: RecordDefinition[_ValueT, _ElementTT],
-        key: "Intersection[_ElementTT, Element[_ElementT]]",
+        item: RecordDefinition[_ValueT, Key],
+        key: "Intersection[Key, Element[_ElementT]]",
         ordered: bool,
         label: LocalizableLike,
         description: LocalizableLike | None = None,
@@ -67,13 +71,17 @@ class KeyedCollectionDefinition(
             items = assert_sequence(self._item.porter.load)(portable)
         else:
             items = [
-                self._item.load_key(portable_item, self._key, portable_key)
+                self._item.porter.load_key(portable_item, self._key, portable_key)
                 for portable_key, portable_item in assert_mapping()(portable).items()
             ]
 
         return KeyedCollection(items, key=self._key.get)
 
-    def _dump(self, data: KeyedCollection[str, _ValueT, str, _ValueT]) -> PortableData:
+    def _dump(
+        self, data: KeyedCollection[str, _ValueT, str, _ValueT]
+    ) -> PortableMapping | PortableSequence:
         if self._ordered:
             return [self._item.porter.dump(value) for value in data]
-        return dict(self._item.dump_key(item_data, self._key) for item_data in data)
+        return dict(
+            self._item.porter.dump_key(item_data, self._key) for item_data in data
+        )

@@ -178,6 +178,9 @@ _BASELINE: Mapping[str, _ModuleIgnore] = {
     "betty/data/aggregate/collection/__init__.py": {
         "CollectionDefinition": MissingReason.ABSTRACT,
     },
+    "betty/data/aggregate/record/__init__.py": {
+        "RecordPorter": MissingReason.ABSTRACT,
+    },
     "betty/data/aggregate/record/object/__init__.py": {
         "Attr": MissingReason.ABSTRACT,
     },

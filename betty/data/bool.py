@@ -16,7 +16,7 @@ if TYPE_CHECKING:
 
 
 @final
-class BoolDefinition(DataDefinition[bool, bool]):
+class BoolDefinition(DataDefinition[bool]):
     """
     A boolean data definition.
     """
@@ -31,5 +31,5 @@ class BoolDefinition(DataDefinition[bool, bool]):
             cls=bool,
             label=label,
             description=description,
-            porter=CallbackPorter(assert_bool, passthrough),
+            porter=CallbackPorter(assert_bool, passthrough),  # ty:ignore[invalid-argument-type]
         )

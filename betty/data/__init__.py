@@ -13,7 +13,7 @@ from betty.data.sample import Sample, Samples
 from betty.definition.cls import ClsDefinition
 from betty.definition.human_facing import HumanFacingDefinition
 from betty.importlib import fully_qualified_name
-from betty.portable import Portable, PortableData, PortablePorter, Porter
+from betty.portable import Portable, PortablePorter, Porter
 from betty.portable.error import NotPortable
 from betty.service.hydrate import Hydratable, Hydrator
 
@@ -26,22 +26,14 @@ if TYPE_CHECKING:
     from betty.service.level import ServiceLevel
 
 _DataClsT = TypeVar("_DataClsT", default=Any)
-_PortableDataCoT = TypeVar(
-    "_PortableDataCoT", bound=PortableData, default=PortableData, covariant=True
-)
 
 
 class DataDefinition(
-    HumanFacingDefinition,
-    ClsDefinition[_DataClsT],
-    Hydrator[_DataClsT],
-    Generic[_DataClsT, _PortableDataCoT],
+    HumanFacingDefinition, ClsDefinition[_DataClsT], Hydrator[_DataClsT]
 ):
     """
     A data definition.
     """
-
-    _porter: Porter[_DataClsT, _PortableDataCoT] | None
 
     def __init__(
         self,
@@ -49,27 +41,23 @@ class DataDefinition(
         cls: type[_DataClsT] | None = None,
         label: LocalizableLike,
         description: LocalizableLike | None = None,
-        porter: Porter[_DataClsT, _PortableDataCoT] | None = None,
-        fallback_porter: Porter[_DataClsT, _PortableDataCoT] | None = None,
+        porter: Porter[_DataClsT] | None = None,
         samples: Iterable[Callable[[], Sample[_DataClsT]]] | None = None,
         empty: Callable[[_DataClsT], bool] | None = None,
     ):
         super().__init__(cls=cls, label=label, description=description)
         self._porter = porter
-        self._fallback_porter = fallback_porter
         self._samples = Samples(() if samples is None else samples)
         self._empty = empty
 
     @property
-    def porter(self) -> Porter[_DataClsT, _PortableDataCoT]:
+    def porter(self) -> Porter[_DataClsT]:
         """
         The porter for the data.
         """
         if self._porter is None:
             if issubclass(self.cls, Portable):
-                self._porter = PortablePorter(self.cls)  # ty:ignore[invalid-assignment]
-            elif self._fallback_porter is not None:
-                self._porter = self._fallback_porter
+                self._porter = PortablePorter(self.cls)
 
             else:
                 raise NotPortable(
