@@ -8,20 +8,22 @@ from abc import ABC, abstractmethod
 from collections import defaultdict
 from inspect import getmembers
 from types import FunctionType
-from typing import TYPE_CHECKING, Any, final
+from typing import TYPE_CHECKING, Any, Generic, final
 
 from typing_extensions import TypeVar, override
 
+from betty.data import DataDefinition
 from betty.data.aggregate.record import FieldDefinition, RecordDefinition
 from betty.data.indicator.selector import Attr as AttrElement
 from betty.data.indicator.selector import Element
 from betty.importlib import fully_qualified_name
+from betty.locale.localizable.ensure import ensure_localizable
 
 if TYPE_CHECKING:
     from collections.abc import Callable, MutableMapping
 
-    from betty.data import Data, DataDefinition
-    from betty.locale.localizable import LocalizableLike
+    from betty.data import Data
+    from betty.locale.localizable import Localizable, LocalizableLike
 
 _FunctionTypeT = TypeVar("_FunctionTypeT", bound=FunctionType)
 _DataClsT = TypeVar("_DataClsT")
@@ -32,7 +34,7 @@ _attrs: MutableMapping[str, MutableMapping[str, AttrDefinition]] = defaultdict(d
 
 
 @final
-class AttrDefinition:
+class AttrDefinition(Generic[_DataClsT]):
     """
     Define an object attribute.
 
@@ -54,14 +56,16 @@ class AttrDefinition:
         *,
         label: LocalizableLike | None = None,
         description: LocalizableLike | None = None,
-        optional: bool = False,
-        empty: Callable[[_DataClsT], bool] | None = None,
+        omit_load: bool | None = None,
+        omit_dump: Callable[[_DataClsT], bool] | None = None,
     ):
-        self._data = data
-        self._label = label
-        self._description = description
-        self._optional = optional
-        self._empty = empty
+        self._data = data if isinstance(data, DataDefinition) else data.data()
+        self._label = None if label is None else ensure_localizable(label)
+        self._description = (
+            None if description is None else ensure_localizable(description)
+        )
+        self._omit_load = omit_load
+        self._omit_dump = omit_dump
 
     def field(self, name: str, /) -> FieldDefinition:
         """
@@ -72,8 +76,8 @@ class AttrDefinition:
             self._data,
             label=self._label,
             description=self._description,
-            optional=self._optional,
-            empty=self._empty,
+            omit_load=self._omit_load,
+            omit_dump=self._omit_dump,
         )
 
     def __call__(self, attribute: _FunctionTypeT) -> _FunctionTypeT:
@@ -88,6 +92,41 @@ class AttrDefinition:
         )
         _attrs[cls_name][attribute_name] = self
         return attribute
+
+    @property
+    def data(self) -> DataDefinition[_DataClsT]:
+        """
+        The attribute's data definition.
+        """
+        return self._data
+
+    @property
+    def label(self) -> Localizable | None:
+        """
+        The human-readable attribute label.
+        """
+        return self._label
+
+    @property
+    def description(self) -> Localizable | None:
+        """
+        The human-readable long attribute description.
+        """
+        return self._description
+
+    @property
+    def omit_load(self) -> bool | None:
+        """
+        Check if the field may be omitted from the parent when loading from portable data.
+        """
+        return self._omit_load
+
+    @property
+    def omit_dump(self) -> Callable[[_DataClsT], bool] | None:
+        """
+        Check if the field may be omitted from the parent when dumping to portable data.
+        """
+        return self._omit_dump
 
 
 class Attr(ABC):

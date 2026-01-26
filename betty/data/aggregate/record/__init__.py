@@ -10,11 +10,10 @@ from typing import TYPE_CHECKING, Any, Generic, final
 from typing_extensions import TypeVar, override
 
 from betty.assertion import OptionalField
-from betty.data import DataDefinition, Sample, Samples
+from betty.data import DataDefinition, OptionalDefinition, Sample, Samples
 from betty.data.aggregate import AggregateDefinition
 from betty.data.indicator.selector import Element
 from betty.locale.localizable.ensure import ensure_localizable
-from betty.portable import OptionalPorter, PortableData, PortableMapping, Porter
 from betty.portable.error import NotPortable
 
 if TYPE_CHECKING:
@@ -22,6 +21,7 @@ if TYPE_CHECKING:
 
     from betty.data import Data
     from betty.locale.localizable import Localizable, LocalizableLike
+    from betty.portable import PortableData, PortableMapping
 
 _DataClsT = TypeVar("_DataClsT")
 _ElementCoT = TypeVar("_ElementCoT", bound=Element[Any], covariant=True)
@@ -40,32 +40,17 @@ class FieldDefinition(Generic[_ElementCoT, _DataClsT]):
         *,
         label: LocalizableLike | None = None,
         description: LocalizableLike | None = None,
-        optional: bool = False,
-        empty: Callable[[_DataClsT], bool] | None = None,
+        omit_load: bool | None = None,
+        omit_dump: Callable[[_DataClsT], bool] | None = None,
     ):
         self._selector = selector
-        self._data: DataDefinition[_DataClsT] = (
-            data if isinstance(data, DataDefinition) else data.data()
-        )
+        self._data = data if isinstance(data, DataDefinition) else data.data()
         self._label = None if label is None else ensure_localizable(label)
         self._description = (
             None if description is None else ensure_localizable(description)
         )
-        self._optional = optional
-        self._empty = empty
-        self._porter: Porter[_DataClsT] | None = None
-
-    @property
-    def porter(self) -> Porter[_DataClsT]:
-        """
-        The porter for the data.
-        """
-        if self._porter is None:
-            self._porter = self._data.porter
-            if self._optional:
-                self._porter = OptionalPorter(self._porter)  # ty:ignore[invalid-argument-type, invalid-assignment]
-
-        return self._porter  # ty:ignore[invalid-return-type]
+        self._omit_load = omit_load
+        self._omit_dump = omit_dump
 
     @property
     def selector(self) -> Element:
@@ -96,21 +81,23 @@ class FieldDefinition(Generic[_ElementCoT, _DataClsT]):
         return self._description
 
     @property
-    def optional(self) -> bool:
+    def omit_load(self) -> bool:
         """
-        Whether the field is optional.
+        Check if the field may be omitted from the parent when loading from portable data.
         """
-        return self._optional
+        if self._omit_load is not None:
+            return self._omit_load
+        return isinstance(self._data, OptionalDefinition)
 
-    def empty(self, data: _DataClsT) -> bool:
+    def omit_dump(self, data: _DataClsT, /) -> bool:
         """
-        Check if the data can be considered 'empty'.
+        Check if the field may be omitted from the parent when dumping to portable data.
         """
-        if self._optional and data is None:
+        if data is None and isinstance(self._data, OptionalDefinition):
             return True
-        if self._empty is None:
-            return self.data.empty(data)
-        return self._empty(data)
+        if self._omit_dump is None:
+            return False
+        return self._omit_dump(data)
 
 
 class RecordPorter(ABC, Generic[_DataClsT]):
@@ -165,8 +152,8 @@ class MappingPorter(RecordPorter[_DataClsT]):
         return self._record.factory(
             **assert_record(
                 *[
-                    (OptionalField if field.optional else RequiredField)(
-                        field.selector.element, field.porter.load
+                    (OptionalField if field.omit_load else RequiredField)(
+                        field.selector.element, field.data.porter.load
                     )
                     for field in self._record.fields
                 ]
@@ -178,8 +165,8 @@ class MappingPorter(RecordPorter[_DataClsT]):
         portable = {}
         for field in self._record.fields:
             field_data = field.selector.get(data)
-            if not field.empty(field_data):
-                portable[field.selector.element] = field.porter.dump(field_data)
+            if not field.omit_dump(field_data):
+                portable[field.selector.element] = field.data.porter.dump(field_data)
         return portable
 
     @override

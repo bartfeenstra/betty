@@ -113,24 +113,55 @@ class TestObjectDefinition:
 
 
 class TestAttrDefinition:
+    def test_data(self) -> None:
+        data = BoolDefinition(label=DUMMY_LOCALIZABLE)
+        sut = AttrDefinition(data)
+        assert sut.data is data
+
+    def test_label(self) -> None:
+        label = Plain("-")
+        sut = AttrDefinition(BoolDefinition(label=DUMMY_LOCALIZABLE), label=label)
+        assert sut.label is label
+
+    def test_description(self) -> None:
+        description = Plain("-")
+        sut = AttrDefinition(
+            BoolDefinition(label=DUMMY_LOCALIZABLE), description=description
+        )
+        assert sut.description is description
+
     def test_field(self) -> None:
         name = "my_first_field"
         data = BoolDefinition(label=DUMMY_LOCALIZABLE)
         label = Plain("-")
         description = Plain("-")
-
-        def empty(_):
-            return False
-
         sut = AttrDefinition(
-            data, label=label, description=description, empty=empty, optional=True
+            data,
+            label=label,
+            description=description,
+            omit_load=True,
+            omit_dump=lambda _: True,
         )
         field = sut.field(name)
         assert field.selector.element == name
         assert field.data is data
         assert field.label is label
         assert field.description is description
-        assert field.optional
+        assert field.omit_load is True
+        assert field.omit_dump(None)
+
+    def test_omit_load(self) -> None:
+        sut = AttrDefinition(BoolDefinition(label=DUMMY_LOCALIZABLE), omit_load=True)
+        assert sut.omit_load
+
+    def test_omit_dump(self) -> None:
+        def _omit_dump(_) -> bool:
+            return True
+
+        sut = AttrDefinition(
+            BoolDefinition(label=DUMMY_LOCALIZABLE), omit_dump=_omit_dump
+        )
+        assert sut.omit_dump(False)  # ty:ignore[call-non-callable]
 
     def test___call__(self) -> None:
         class _Object:

@@ -1,19 +1,25 @@
 from __future__ import annotations
 
-from typing import Self
+from typing import TYPE_CHECKING, Self
 
 import pytest
 from typing_extensions import override
 
 from betty.assertion import assert_str
-from betty.data import Data, DataDefinition, Sample
-from betty.portable import CallbackPorter, Portable, PortableData
+from betty.data import Data, DataDefinition, OptionalDefinition, Sample
+from betty.data.bool import BoolDefinition
+from betty.exception import HumanFacingException
+from betty.portable import CallbackPorter, OptionalPorter, Portable, PortableData
 from betty.portable.error import NotPortable
+from betty.service.hydrate import Hydratable
 from betty.service.level.universal import universe
 from betty.test_utils.locale.localizable import DUMMY_LOCALIZABLE
 
+if TYPE_CHECKING:
+    from betty.service.level import ServiceLevel
 
-class DataDefinitionTestData(Portable, Data):
+
+class _DummyData(Portable, Hydratable, Data):
     def __init__(self, value: str):
         self.value = value
 
@@ -25,6 +31,10 @@ class DataDefinitionTestData(Portable, Data):
     @override
     def dump(self) -> PortableData:
         return self.value
+
+    @override
+    async def hydrate(self, services: ServiceLevel, /) -> None:
+        raise HumanFacingException("Uh-oh!")
 
 
 class TestDataDefinition:
@@ -39,7 +49,7 @@ class TestDataDefinition:
         assert sut.porter is porter
 
     def test_porter__with_portable(self) -> None:
-        sut = DataDefinition(cls=DataDefinitionTestData, label=DUMMY_LOCALIZABLE)
+        sut = DataDefinition(cls=_DummyData, label=DUMMY_LOCALIZABLE)
         sut.porter  # noqa: B018
 
     def test_samples(self) -> None:
@@ -58,7 +68,7 @@ class TestDataDefinition:
         assert sut.porter.load(None) == "loader"
 
     def test_load__with_portable(self) -> None:
-        sut = DataDefinition(cls=DataDefinitionTestData, label=DUMMY_LOCALIZABLE)
+        sut = DataDefinition(cls=_DummyData, label=DUMMY_LOCALIZABLE)
         value = "Hello, world!"
         assert sut.porter.load(value).value == value
 
@@ -76,25 +86,41 @@ class TestDataDefinition:
         assert sut.porter.dump(None) == "dumper"
 
     def test_dump__with_portable(self) -> None:
-        sut = DataDefinition(cls=DataDefinitionTestData, label=DUMMY_LOCALIZABLE)
+        sut = DataDefinition(cls=_DummyData, label=DUMMY_LOCALIZABLE)
         value = "Hello, world!"
-        assert sut.porter.dump(DataDefinitionTestData(value)) == value
+        assert sut.porter.dump(_DummyData(value)) == value
 
     def test_dump__should_error(self) -> None:
         sut = DataDefinition(cls=object, label=DUMMY_LOCALIZABLE)
         with pytest.raises(NotPortable):
             sut.porter.dump(None)
 
-    def test_empty__fallback(self) -> None:
-        sut = DataDefinition(cls=object, label=DUMMY_LOCALIZABLE)
-        assert not sut.empty(object())
-
-    def test_empty__callback(self) -> None:
-        sut = DataDefinition(
-            cls=object, label=DUMMY_LOCALIZABLE, empty=lambda data: True
-        )
-        assert sut.empty(object())
-
     async def test_hydrate(self) -> None:
         sut = DataDefinition(cls=object, label=DUMMY_LOCALIZABLE)
         await sut.hydrate(universe, object())
+
+
+class TestOptionalDefinition:
+    def test_wrapped(self) -> None:
+        wrapped = BoolDefinition(label=DUMMY_LOCALIZABLE)
+        sut = OptionalDefinition(wrapped)
+        assert sut.wrapped is wrapped
+
+    def test_porter(self) -> None:
+        sut = OptionalDefinition(
+            DataDefinition(cls=_DummyData, label=DUMMY_LOCALIZABLE)
+        )
+        assert isinstance(sut.porter, OptionalPorter)
+
+    async def test_hydrate__without_none(self) -> None:
+        sut = OptionalDefinition(
+            DataDefinition(cls=_DummyData, label=DUMMY_LOCALIZABLE)
+        )
+        with pytest.raises(HumanFacingException):
+            await sut.hydrate(universe, _DummyData("Hello, world!"))
+
+    async def test_hydrate__with_none(self) -> None:
+        sut = OptionalDefinition(
+            DataDefinition(cls=_DummyData, label=DUMMY_LOCALIZABLE)
+        )
+        await sut.hydrate(universe, None)

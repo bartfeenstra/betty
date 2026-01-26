@@ -6,7 +6,7 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING, final
 
-from betty.data import Data, Sample
+from betty.data import Data, OptionalDefinition, Sample
 from betty.data.aggregate.record.object import AttrDefinition, ObjectDefinition
 from betty.data.sample import Size
 from betty.dirs import APP_CONFIG_DIRECTORY_PATH
@@ -45,7 +45,7 @@ class AppConfiguration(Data):
         self._locale: Locale | None = locale
 
     @property
-    @AttrDefinition(LocaleDefinition(), optional=True)
+    @AttrDefinition(OptionalDefinition(LocaleDefinition()))
     def locale(self) -> Locale | None:
         """
         The application locale.

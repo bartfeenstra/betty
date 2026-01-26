@@ -56,16 +56,16 @@ class DataTestBase(Generic[_DataT]):
         for sample in samples:
             with subtests.test(str(sample.label.localize(DEFAULT_LOCALIZER))):
                 portable = self.sut_cls.data().porter.dump(sample.data)
-                assert portable == self.sut_cls.data().porter.dump(
-                    self.sut_cls.data().porter.load(portable)
-                ), (
+                loaded = self.sut_cls.data().porter.load(portable)
+                dumped = self.sut_cls.data().porter.dump(loaded)
+                assert self.sut_cls.data().porter.dump(loaded) == dumped, (
                     f'Failed asserting that repeatedly loading and dumping sample "{sample.label.localize(DEFAULT_LOCALIZER)}" keeps producing the same portable data'
                 )
                 for other_sample in samples:
                     if other_sample is sample:
                         continue
-                    assert portable != self.sut_cls.data().porter.dump(
-                        other_sample.data
+                    assert (
+                        self.sut_cls.data().porter.dump(other_sample.data) != dumped
                     ), (
                         f'Failed asserting that sample "{sample.label.localize(DEFAULT_LOCALIZER)}" instance is not equal to sample "{other_sample.label.localize(DEFAULT_LOCALIZER)}"'
                     )

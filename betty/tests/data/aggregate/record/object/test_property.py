@@ -1,7 +1,7 @@
 import pytest
 
 from betty.assertion import assert_str
-from betty.data import DataDefinition
+from betty.data import DataDefinition, OptionalDefinition
 from betty.data.aggregate.record.object.property import (
     Optional,
     Property,
@@ -98,4 +98,6 @@ class TestOptional:
         class _Owner:
             my_first_property = Optional(Property(data))
 
-        assert _Owner.my_first_property.attr.field("my_first_property").data is data
+        optional_data = _Owner.my_first_property.attr.data
+        assert isinstance(optional_data, OptionalDefinition)
+        assert optional_data.wrapped is data
