@@ -14,14 +14,12 @@ from betty.data.aggregate import AggregateDefinition
 from betty.data.indicator.selector import Element
 from betty.locale.localizable.ensure import ensure_localizable
 from betty.portable import PortableData, PortableMapping, Porter
-from betty.service.hydrate import Hydrator
 
 if TYPE_CHECKING:
     from collections.abc import Callable, Iterable, MutableSequence, Sequence
 
     from betty.data import Data
     from betty.locale.localizable import Localizable, LocalizableLike
-    from betty.service.level import ServiceLevel
 
 _DataClsT = TypeVar("_DataClsT")
 _ElementT = TypeVar("_ElementT", bound=Element[Any])
@@ -32,7 +30,6 @@ _PortableDataCoT = TypeVar(
 
 @final
 class FieldDefinition(
-    Hydrator[_DataClsT | None],
     Porter[_DataClsT | None, _PortableDataCoT | None],
     Generic[_ElementT, _DataClsT, _PortableDataCoT],
 ):
@@ -120,14 +117,6 @@ class FieldDefinition(
                 return None
             raise ValueError("This field is not optional and cannot contain `None`.")
         return self.data.dump(data)
-
-    @override
-    async def hydrate(self, services: ServiceLevel, data: _DataClsT | None, /) -> None:
-        if data is None:
-            if self._optional:
-                return
-            raise ValueError("This field is not optional and cannot contain `None`.")
-        await self.data.hydrate(services, data)
 
 
 class _RecordPorter(Porter[_DataClsT]):
@@ -241,9 +230,3 @@ class RecordDefinition(AggregateDefinition[_DataClsT, _ElementT]):
         portable_key = portable.pop(key.element)
         assert isinstance(portable_key, str)
         return portable_key, portable
-
-    @override
-    async def _hydrate_element(
-        self, services: ServiceLevel, data: Any, selector: _ElementT, /
-    ) -> None:
-        await self.field(selector).hydrate(services, data)
