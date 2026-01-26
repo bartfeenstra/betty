@@ -24,7 +24,7 @@ _ValueGetT = TypeVar("_ValueGetT")
 _ValueSetT = TypeVar("_ValueSetT")
 
 
-class Property(Attr, Generic[_ValueGetT, _ValueSetT]):
+class Property(Attr[_ValueGetT], Generic[_ValueGetT, _ValueSetT]):
     """
     An object attribute with a definition.
     """
@@ -53,7 +53,7 @@ class Property(Attr, Generic[_ValueGetT, _ValueSetT]):
 
     @override
     @property
-    def attr(self) -> AttrDefinition:
+    def attr(self) -> AttrDefinition[_ValueGetT]:
         return self._attr
 
     @overload
@@ -90,7 +90,7 @@ class PropertyNotInitialized(ValueError):
 
 
 @final
-class Optional(Attr, Generic[_ValueGetT, _ValueSetT]):
+class Optional(Attr[_ValueGetT], Generic[_ValueGetT, _ValueSetT]):
     """
     Make another property optional, e.g. allow ``None``.
     """
@@ -111,7 +111,7 @@ class Optional(Attr, Generic[_ValueGetT, _ValueSetT]):
 
     @override
     @property
-    def attr(self) -> AttrDefinition:
+    def attr(self) -> AttrDefinition[_ValueGetT]:
         return self._attr
 
     @overload

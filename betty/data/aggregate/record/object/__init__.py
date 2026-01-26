@@ -129,14 +129,14 @@ class AttrDefinition(Generic[_DataClsT]):
         return self._omit_dump
 
 
-class Attr(ABC):
+class Attr(ABC, Generic[_DataClsT]):
     """
     A class attribute that exposes its data definition.
     """
 
     @property
     @abstractmethod
-    def attr(self) -> AttrDefinition:
+    def attr(self) -> AttrDefinition[_DataClsT]:
         """
         The attribute's data definition.
         """
