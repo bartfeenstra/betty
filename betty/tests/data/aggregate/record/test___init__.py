@@ -1,9 +1,14 @@
-from unittest.mock import AsyncMock
+from unittest.mock import AsyncMock, Mock
 
 import pytest
 
 from betty.data import DataDefinition
-from betty.data.aggregate.record import FieldDefinition, RecordDefinition
+from betty.data.aggregate.record import (
+    FieldDefinition,
+    MappingPorter,
+    RecordDefinition,
+    RecordPorter,
+)
 from betty.data.indicator.selector import Attr, Key
 from betty.data.str import StrDefinition
 from betty.exception import HumanFacingException
@@ -129,6 +134,34 @@ class RecordDefinitionTestFactoryRecord(RecordDefinitionTestRecord):
 
 
 class TestRecordDefinition:
+    def test_factory__without_factory(self) -> None:
+        sut = RecordDefinition[RecordDefinitionTestRecord, Attr](
+            cls=RecordDefinitionTestRecord, label=DUMMY_LOCALIZABLE
+        )
+        assert sut.factory is RecordDefinitionTestRecord
+
+    def test_factory__with_factory(self) -> None:
+        def factory():
+            return RecordDefinitionTestRecord()
+
+        sut = RecordDefinition[RecordDefinitionTestRecord, Attr](
+            cls=RecordDefinitionTestRecord, label=DUMMY_LOCALIZABLE, factory=factory
+        )
+        assert sut.factory is factory
+
+    def test_porter__without_porter(self) -> None:
+        sut = RecordDefinition[RecordDefinitionTestRecord, Attr](
+            cls=RecordDefinitionTestRecord, label=DUMMY_LOCALIZABLE
+        )
+        assert isinstance(sut.porter, MappingPorter)
+
+    def test_porter__with_porter(self) -> None:
+        m_porter = Mock(spec=RecordPorter)
+        sut = RecordDefinition[RecordDefinitionTestRecord, Attr](
+            cls=RecordDefinitionTestRecord, label=DUMMY_LOCALIZABLE, porter=m_porter
+        )
+        assert sut.porter is m_porter
+
     def test_fields(self) -> None:
         field = FieldDefinition(
             Attr("my_first_element"), StrDefinition(label=DUMMY_LOCALIZABLE)
@@ -162,109 +195,125 @@ class TestRecordDefinition:
         )
         assert list(sut.elements(RecordDefinitionTestRecord())) == [(selector, data)]
 
+
+class TestMappingPorter:
     def test_load__required_with_value(self) -> None:
         field_name = "my_first_element"
-        sut = RecordDefinition[RecordDefinitionTestRecord, Attr](
-            cls=RecordDefinitionTestRecord,
-            label=DUMMY_LOCALIZABLE,
-            fields=[
-                FieldDefinition(
-                    Attr(field_name), StrDefinition(label=DUMMY_LOCALIZABLE)
-                )
-            ],
+        sut = MappingPorter(
+            RecordDefinition[RecordDefinitionTestRecord, Attr](
+                cls=RecordDefinitionTestRecord,
+                label=DUMMY_LOCALIZABLE,
+                fields=[
+                    FieldDefinition(
+                        Attr(field_name), StrDefinition(label=DUMMY_LOCALIZABLE)
+                    )
+                ],
+            )
         )
         value = "Hello, world!"
-        data = sut.porter.load({field_name: value})
+        data = sut.load({field_name: value})
         assert data.my_first_element == value
 
     def test_load__required_without_value(self) -> None:
         field_name = "my_first_element"
-        sut = RecordDefinition[RecordDefinitionTestRecord, Attr](
-            cls=RecordDefinitionTestRecord,
-            label=DUMMY_LOCALIZABLE,
-            fields=[
-                FieldDefinition(
-                    Attr(field_name), StrDefinition(label=DUMMY_LOCALIZABLE)
-                )
-            ],
+        sut = MappingPorter(
+            RecordDefinition[RecordDefinitionTestRecord, Attr](
+                cls=RecordDefinitionTestRecord,
+                label=DUMMY_LOCALIZABLE,
+                fields=[
+                    FieldDefinition(
+                        Attr(field_name), StrDefinition(label=DUMMY_LOCALIZABLE)
+                    )
+                ],
+            )
         )
         with pytest.raises(HumanFacingException):
-            sut.porter.load({})
+            sut.load({})
 
     def test_load__optional_with_value(self) -> None:
         field_name = "my_first_element"
-        sut = RecordDefinition[RecordDefinitionTestRecord, Attr](
-            cls=RecordDefinitionTestRecord,
-            label=DUMMY_LOCALIZABLE,
-            fields=[
-                FieldDefinition(
-                    Attr(field_name),
-                    StrDefinition(label=DUMMY_LOCALIZABLE),
-                    optional=True,
-                )
-            ],
+        sut = MappingPorter(
+            RecordDefinition[RecordDefinitionTestRecord, Attr](
+                cls=RecordDefinitionTestRecord,
+                label=DUMMY_LOCALIZABLE,
+                fields=[
+                    FieldDefinition(
+                        Attr(field_name),
+                        StrDefinition(label=DUMMY_LOCALIZABLE),
+                        optional=True,
+                    )
+                ],
+            )
         )
         value = "Hello, world!"
-        data = sut.porter.load({field_name: value})
+        data = sut.load({field_name: value})
         assert data.my_first_element == value
 
     def test_load__optional_without_value(self) -> None:
         field_name = "my_first_element"
-        sut = RecordDefinition[RecordDefinitionTestRecord, Attr](
-            cls=RecordDefinitionTestRecord,
-            label=DUMMY_LOCALIZABLE,
-            fields=[
-                FieldDefinition(
-                    Attr(field_name),
-                    StrDefinition(label=DUMMY_LOCALIZABLE),
-                    optional=True,
-                )
-            ],
+        sut = MappingPorter(
+            RecordDefinition[RecordDefinitionTestRecord, Attr](
+                cls=RecordDefinitionTestRecord,
+                label=DUMMY_LOCALIZABLE,
+                fields=[
+                    FieldDefinition(
+                        Attr(field_name),
+                        StrDefinition(label=DUMMY_LOCALIZABLE),
+                        optional=True,
+                    )
+                ],
+            )
         )
-        sut.porter.load({})
+        sut.load({})
 
     def test_load__with_factory(self) -> None:
         field_name = "my_first_element"
-        sut = RecordDefinition[RecordDefinitionTestRecord, Attr](
-            cls=RecordDefinitionTestRecord,
-            label=DUMMY_LOCALIZABLE,
-            fields=[
-                FieldDefinition(
-                    Attr(field_name), StrDefinition(label=DUMMY_LOCALIZABLE)
-                )
-            ],
-            factory=RecordDefinitionTestFactoryRecord,
+        sut = MappingPorter(
+            RecordDefinition[RecordDefinitionTestRecord, Attr](
+                cls=RecordDefinitionTestRecord,
+                label=DUMMY_LOCALIZABLE,
+                fields=[
+                    FieldDefinition(
+                        Attr(field_name), StrDefinition(label=DUMMY_LOCALIZABLE)
+                    )
+                ],
+                factory=RecordDefinitionTestFactoryRecord,
+            )
         )
         value = "Hello, world!"
-        data = sut.porter.load({field_name: value})
+        data = sut.load({field_name: value})
         assert isinstance(data, RecordDefinitionTestFactoryRecord)
         assert data.my_first_element == value
 
     def test_dump(self) -> None:
         field_name = "my_first_element"
-        sut = RecordDefinition[RecordDefinitionTestRecord, Attr](
-            cls=RecordDefinitionTestRecord,
-            label=DUMMY_LOCALIZABLE,
-            fields=[
-                FieldDefinition(
-                    Attr(field_name), StrDefinition(label=DUMMY_LOCALIZABLE)
-                )
-            ],
+        sut = MappingPorter(
+            RecordDefinition[RecordDefinitionTestRecord, Attr](
+                cls=RecordDefinitionTestRecord,
+                label=DUMMY_LOCALIZABLE,
+                fields=[
+                    FieldDefinition(
+                        Attr(field_name), StrDefinition(label=DUMMY_LOCALIZABLE)
+                    )
+                ],
+            )
         )
         value = "Hello, world!"
         data = RecordDefinitionTestRecord(value)
-        assert sut.porter.dump(data) == {field_name: value}
+        assert sut.dump(data) == {field_name: value}
 
     def test_load_key(self) -> None:
         field_name = "my_first_element"
-        sut = RecordDefinition[RecordDefinitionTestRecord, Attr](
-            cls=RecordDefinitionTestRecord,
-            label=DUMMY_LOCALIZABLE,
-            fields=[
-                FieldDefinition(
-                    Attr(field_name), StrDefinition(label=DUMMY_LOCALIZABLE)
-                )
-            ],
+        sut = MappingPorter(
+            RecordDefinition[RecordDefinitionTestRecord, Attr](
+                cls=RecordDefinitionTestRecord,
+                label=DUMMY_LOCALIZABLE,
+                fields=[
+                    FieldDefinition(
+                        Attr(field_name), StrDefinition(label=DUMMY_LOCALIZABLE)
+                    )
+                ],
+            )
         )
         value = "Hello, world!"
         data = sut.load_key({}, Attr(field_name), value)
@@ -272,14 +321,16 @@ class TestRecordDefinition:
 
     def test_dump_key(self) -> None:
         field_name = "my_first_element"
-        sut = RecordDefinition[RecordDefinitionTestRecord, Attr](
-            cls=RecordDefinitionTestRecord,
-            label=DUMMY_LOCALIZABLE,
-            fields=[
-                FieldDefinition(
-                    Attr(field_name), StrDefinition(label=DUMMY_LOCALIZABLE)
-                )
-            ],
+        sut = MappingPorter(
+            RecordDefinition[RecordDefinitionTestRecord, Attr](
+                cls=RecordDefinitionTestRecord,
+                label=DUMMY_LOCALIZABLE,
+                fields=[
+                    FieldDefinition(
+                        Attr(field_name), StrDefinition(label=DUMMY_LOCALIZABLE)
+                    )
+                ],
+            )
         )
         value = "Hello, world!"
         data = RecordDefinitionTestRecord(value)

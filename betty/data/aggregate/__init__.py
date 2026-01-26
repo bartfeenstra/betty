@@ -5,9 +5,9 @@ Aggregate data types.
 from __future__ import annotations
 
 from abc import ABC, abstractmethod
-from typing import TYPE_CHECKING, Any, Generic, TypeVar
+from typing import TYPE_CHECKING, Any, Generic
 
-from typing_extensions import override
+from typing_extensions import TypeVar, override
 
 from betty.data import DataDefinition
 from betty.data.indicator.selector import Element
@@ -19,11 +19,13 @@ if TYPE_CHECKING:
     from betty.service.level import ServiceLevel
 
 _DataClsT = TypeVar("_DataClsT")
-_ElementT = TypeVar("_ElementT", bound=Element[Any])
+_ElementT = TypeVar("_ElementT", bound=Element[Any], default=Element[Any])
 
 
 class AggregateDefinition(
-    DataDefinition[_DataClsT], ABC, Generic[_DataClsT, _ElementT]
+    DataDefinition[_DataClsT],
+    ABC,
+    Generic[_DataClsT, _ElementT],
 ):
     """
     Define an aggregate data type, e.g. data that consists of other parts.

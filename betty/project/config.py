@@ -1164,9 +1164,9 @@ class ProjectConfiguration(Data):
     @property
     @AttrDefinition(
         KeyedCollectionDefinition(
-            item=EntityTypeConfiguration.data(),
+            item=EntityTypeConfiguration.data(),  # ty:ignore[invalid-argument-type]
             label=_("Entity types"),
-            key=Attr("entity_type"),
+            key=Attr("entity_type"),  # ty:ignore[invalid-argument-type]
             ordered=False,
         ),
         optional=True,

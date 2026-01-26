@@ -16,7 +16,7 @@ if TYPE_CHECKING:
 
 
 @final
-class IntDefinition(DataDefinition[int, int]):
+class IntDefinition(DataDefinition[int]):
     """
     An integer data definition.
     """
@@ -31,5 +31,5 @@ class IntDefinition(DataDefinition[int, int]):
             cls=int,
             label=label,
             description=description,
-            porter=CallbackPorter(assert_int(), passthrough),
+            porter=CallbackPorter(assert_int(), passthrough),  # ty:ignore[invalid-argument-type]
         )

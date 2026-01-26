@@ -8,9 +8,9 @@ from abc import ABC, abstractmethod
 from collections import defaultdict
 from inspect import getmembers
 from types import FunctionType
-from typing import TYPE_CHECKING, Any, TypeVar, final
+from typing import TYPE_CHECKING, Any, final
 
-from typing_extensions import override
+from typing_extensions import TypeVar, override
 
 from betty.data.aggregate.record import FieldDefinition, RecordDefinition
 from betty.data.indicator.selector import Attr as AttrElement
@@ -25,7 +25,7 @@ if TYPE_CHECKING:
 
 _FunctionTypeT = TypeVar("_FunctionTypeT", bound=FunctionType)
 _DataClsT = TypeVar("_DataClsT")
-_ElementT = TypeVar("_ElementT", bound=Element[Any])
+_ElementCoT = TypeVar("_ElementCoT", bound=Element[Any], covariant=True)
 
 
 _attrs: MutableMapping[str, MutableMapping[str, AttrDefinition]] = defaultdict(dict)

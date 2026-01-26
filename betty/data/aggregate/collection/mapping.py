@@ -36,7 +36,7 @@ class MappingDefinition(CollectionDefinition[_MutableMappingT, Key]):
         cls: type[
             Intersection[_MutableMappingT, MutableMapping[_DataKeyT, _DataItemT]]
         ],
-        key: DataDefinition[_DataKeyT, str],
+        key: DataDefinition[_DataKeyT],
         item: DataDefinition[_DataItemT],
         label: LocalizableLike,
         description: LocalizableLike | None = None,
@@ -68,4 +68,4 @@ class MappingDefinition(CollectionDefinition[_MutableMappingT, Key]):
         return {
             self._key.porter.dump(key): self._item.porter.dump(item)
             for key, item in data.items()
-        }
+        }  # ty:ignore[invalid-return-type]
