@@ -37,9 +37,7 @@ async def _build(
     # dedicated cache directory.
     source_directory_path = cache_directory_path / "source"
     await to_thread(
-        copytree,
-        ROOT_DIRECTORY_PATH / "documentation",  # ty:ignore[invalid-argument-type]
-        source_directory_path,
+        copytree, ROOT_DIRECTORY_PATH / "documentation", source_directory_path
     )
     sphinx_app = Sphinx(
         buildername="dirhtml",

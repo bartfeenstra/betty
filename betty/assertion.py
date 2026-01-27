@@ -230,7 +230,7 @@ def _assert_number(
             )
         return value
 
-    return AssertionChain(__assert_number)
+    return AssertionChain(__assert_number)  # ty:ignore[invalid-return-type]
 
 
 def assert_int(

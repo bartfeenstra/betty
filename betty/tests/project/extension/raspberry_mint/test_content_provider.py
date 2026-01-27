@@ -869,8 +869,8 @@ class TestColumnsConfiguration(ConfigurationTestBase[ColumnsConfiguration]):
         assert len(sut.content) == 1
         assert sut.content[0][0].id == "render"
         assert isinstance(sut.content[0][0].configuration, Mapping)
-        assert sut.content[0][0].configuration["content"] == "DUMMY_LOCALIZABLE"
-        assert sut.content[0][0].configuration["media_type"] == str(PLAIN_TEXT)
+        assert sut.content[0][0].configuration["content"] == "DUMMY_LOCALIZABLE"  # ty:ignore[invalid-argument-type]
+        assert sut.content[0][0].configuration["media_type"] == str(PLAIN_TEXT)  # ty:ignore[invalid-argument-type]
 
     def test_load__with_width(self) -> None:
         sut = ColumnsConfiguration.load(

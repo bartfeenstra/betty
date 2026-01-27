@@ -9,7 +9,7 @@ from typing import TYPE_CHECKING, Any, Generic, final
 
 from typing_extensions import TypeVar, override
 
-from betty.assertion import OptionalField
+from betty.assertion import OptionalField, assert_mapping
 from betty.data import DataDefinition, OptionalDefinition, Sample, Samples
 from betty.data.aggregate import AggregateDefinition
 from betty.data.indicator.selector import Element
@@ -162,7 +162,7 @@ class MappingPorter(RecordPorter[_DataClsT]):
     def load_key(
         self, portable: PortableData, key: _ElementCoT, portable_key: str, /
     ) -> _DataClsT:
-        return self.load({**portable, key.element: portable_key})
+        return self.load({**assert_mapping()(portable), key.element: portable_key})
 
     @override
     def dump_key(
