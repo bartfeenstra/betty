@@ -35,3 +35,7 @@ class TestPluginIdDefinition:
 
 class TestPluginConfigurationDefinition:
     pass
+
+
+class TestPluginConfigurationSequenceDefinition:
+    pass

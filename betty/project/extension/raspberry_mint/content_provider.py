@@ -11,25 +11,27 @@ from typing_extensions import override
 
 from betty.ancestry.presence_role import PresenceRoleDefinition
 from betty.assertion import (
-    OptionalField,
-    RequiredField,
     assert_enum,
     assert_int,
     assert_mapping,
     assert_or,
-    assert_record,
     assert_sequence,
 )
-from betty.config import Configuration
 from betty.config.factory import ConfigurationDependentSelfFactory
 from betty.content_provider import ContentProvider, ContentProviderDefinition
-from betty.content_provider.content_providers import Template
-from betty.data import Data, Sample, Samples, Size
+from betty.content_provider.content_providers import (
+    Render,
+    RenderConfiguration,
+    Template,
+)
+from betty.data import Data, Sample, Size
+from betty.data.aggregate.collection.mapping import MappingDefinition
 from betty.data.aggregate.collection.sequence import SequenceDefinition
 from betty.data.aggregate.record.object import ObjectDefinition
 from betty.data.aggregate.record.object.property import Optional, Property
 from betty.data.bool import BoolDefinition
 from betty.data.enum import EnumDefinition
+from betty.data.int import IntDefinition
 from betty.locale.localizable.gettext import _
 from betty.locale.localizable.property import LocalizableProperty
 from betty.machine_name import MachineName, MachineNameDefinition
@@ -38,14 +40,13 @@ from betty.model.config import EntityReference
 from betty.plugin import Plugin
 from betty.plugin.config import (
     PluginConfiguration,
-    PluginInstanceConfigurationSequence,
-    PluginInstanceConfigurationSequenceSequence,
     ResolvablePluginConfigurations,
-    ShorthandPluginInstanceConfigurationSequenceSequence,
+    resolve_plugin_configurations,
 )
 from betty.plugin.config.property import PluginConfigurationSequenceProperty
-from betty.plugin.data import PluginIdDefinition
+from betty.plugin.data import PluginConfigurationSequenceDefinition, PluginIdDefinition
 from betty.plugin.resolve import resolve_id
+from betty.portable import CallbackPorter
 from betty.project.extension.raspberry_mint import (
     Breakpoint,
     JustifyContent,
@@ -70,7 +71,6 @@ if TYPE_CHECKING:
     from betty.locale.localizable import LocalizableLike
     from betty.plugin.repository import PluginRepository
     from betty.plugin.resolve import ResolvableId
-    from betty.portable import PortableData, PortableMapping
     from betty.project import Project
     from betty.service.level import ServiceLevel
     from betty.service.level.factory import (
@@ -549,203 +549,170 @@ ShorthandColumnsWidth: TypeAlias = (
 )
 
 
-class ColumnsConfiguration(Configuration):
+@final
+@ObjectDefinition(
+    label=_("Columns configuration"),
+    samples=[
+        lambda: Sample(
+            ColumnsConfiguration(
+                [PluginConfiguration(Render, RenderConfiguration("Hello, world!"))]  # ty:ignore[invalid-argument-type]
+            ),
+            label="Minimal",
+            size=Size.MINIMAL,
+        ),
+        lambda: Sample(
+            ColumnsConfiguration(
+                [PluginConfiguration(Render, RenderConfiguration("Hello, world!"))],  # ty:ignore[invalid-argument-type]
+                justify_content=JustifyContent.CENTER,
+            ),
+            label="Justify content",
+        ),
+        lambda: Sample(
+            ColumnsConfiguration(
+                [PluginConfiguration(Render, RenderConfiguration("Hello, world!"))],  # ty:ignore[invalid-argument-type]
+                width=6,
+            ),
+            label="A single column with a fixed, non-responsive width",
+        ),
+        lambda: Sample(
+            ColumnsConfiguration(
+                [
+                    [
+                        PluginConfiguration(
+                            Render, RenderConfiguration("Hello, world!")
+                        ),
+                    ],
+                    [
+                        PluginConfiguration(
+                            Render, RenderConfiguration("How are you?")
+                        ),
+                    ],
+                ],
+                width=[6, 6],
+            ),
+            label="Multiple columns with fixed, non-responsive widths",
+        ),
+        lambda: Sample(
+            ColumnsConfiguration(
+                [PluginConfiguration(Render, RenderConfiguration("Hello, world!"))],  # ty:ignore[invalid-argument-type]
+                width={
+                    Breakpoint.XS: 12,
+                    Breakpoint.MD: 6,
+                },
+            ),
+            label="A single column with responsive widths",
+        ),
+        lambda: Sample(
+            ColumnsConfiguration(
+                [
+                    [
+                        PluginConfiguration(
+                            Render, RenderConfiguration("Hello, world!")
+                        ),
+                    ],
+                    [
+                        PluginConfiguration(
+                            Render, RenderConfiguration("How are you?")
+                        ),
+                    ],
+                ],
+                width={
+                    Breakpoint.XS: [12, 12],
+                    Breakpoint.MD: [6, 6],
+                },
+            ),
+            label="Multiple columns with responsive widths",
+        ),
+    ],
+)
+class ColumnsConfiguration(Data):
     """
     Configuration for :py:class:`betty.project.extension.raspberry_mint.content_provider.Columns`.
 
-    .. configuration:: betty.project.extension.raspberry_mint.content_provider:ColumnsConfiguration
+    .. data:: betty.project.extension.raspberry_mint.content_provider:ColumnsConfiguration
     """
 
     _DEFAULT_WIDTH: ColumnsWidth = {Breakpoint.XS: [12]}
     _width: ColumnsWidth
 
+    content = Property(
+        SequenceDefinition(
+            cls=list,
+            item=PluginConfigurationSequenceDefinition(
+                ContentProviderDefinition, label=_("Column content")
+            ),
+            label=_("Columns"),
+        )
+    )
+    """
+    The content within the columns.
+    """
+
+    justify_content = Optional(
+        Property(EnumDefinition(cls=JustifyContent, label=_("Justify content")))
+    )
+    """
+    If and how to justify content.
+    """
+
+    width = Property(
+        MappingDefinition(
+            cls=dict,
+            key=EnumDefinition(cls=Breakpoint, label=_("Breakpoint")),
+            item=SequenceDefinition(
+                cls=list,
+                label=_("Column widths"),
+                item=IntDefinition(label=_("Column width")),
+            ),
+            label=_("Breakpoints"),
+            porter=CallbackPorter(
+                assert_or(
+                    assert_or(
+                        assert_int(),
+                        assert_sequence(assert_int()),
+                    ),
+                    assert_or(
+                        assert_mapping(assert_int(), assert_enum(Breakpoint)),
+                        assert_mapping(
+                            assert_sequence(assert_int()), assert_enum(Breakpoint)
+                        ),
+                    ),
+                ),
+                lambda data: {
+                    breakpoint.value: widths
+                    for breakpoint, widths in data.items()  # noqa: A001
+                },
+            ),
+        )
+    )
+    """
+    The column widths.
+    """
+
     def __init__(
         self,
-        content: ShorthandPluginInstanceConfigurationSequenceSequence[
-            ContentProviderDefinition, ContentProvider
+        /,
+        content: Sequence[
+            ResolvablePluginConfigurations[ContentProviderDefinition, ContentProvider]
         ],
         *,
         width: ShorthandColumnsWidth | None = None,
         justify_content: JustifyContent | None = None,
     ):
         super().__init__()
-        self._content = PluginInstanceConfigurationSequenceSequence(content)  # ty:ignore[invalid-argument-type]
+        self.content = list(map(list, map(resolve_plugin_configurations, content)))
         if width is None:
             self._width = self._DEFAULT_WIDTH
         elif isinstance(width, int):
-            self._width = {Breakpoint.XS: [width]}
+            self.width = {Breakpoint.XS: [width]}
         elif isinstance(width, Mapping):
-            self._width = {  # ty:ignore[invalid-assignment]
+            self.width = {
                 breakpoint: [columns] if isinstance(columns, int) else columns
                 for breakpoint, columns in width.items()  # noqa: A001
             }
         else:
-            self._width = {Breakpoint.XS: width}
-        self._justify_content = justify_content
-
-    @property
-    def content(
-        self,
-    ) -> PluginInstanceConfigurationSequenceSequence[
-        ContentProviderDefinition, ContentProvider
-    ]:
-        """
-        The content within the columns.
-        """
-        return self._content  # ty:ignore[invalid-return-type]
-
-    @property
-    def width(self) -> ColumnsWidth:
-        """
-        The column widths.
-        """
-        return self._width
-
-    @property
-    def justify_content(self) -> JustifyContent | None:
-        """
-        If and how to justify content.
-        """
-        return self._justify_content
-
-    @override
-    @classmethod
-    def load(cls, portable: PortableData, /) -> Self:
-        return cls(
-            **assert_record(
-                RequiredField(
-                    "content", PluginInstanceConfigurationSequenceSequence.load
-                ),
-                OptionalField("justify_content", assert_enum(JustifyContent)),
-                OptionalField(
-                    "width",
-                    assert_or(
-                        assert_or(
-                            assert_int(),
-                            assert_sequence(assert_int()),
-                        ),
-                        assert_or(
-                            assert_mapping(assert_int(), assert_enum(Breakpoint)),
-                            assert_mapping(
-                                assert_sequence(assert_int()), assert_enum(Breakpoint)
-                            ),
-                        ),
-                    ),
-                ),
-            )(portable)
-        )
-
-    @override
-    def dump(self) -> PortableData:
-        portable: PortableMapping = {
-            "content": self.content.dump(),
-        }
-        if self.width != self._DEFAULT_WIDTH:
-            portable["width"] = {
-                breakpoint.value: widths
-                for breakpoint, widths in self.width.items()  # noqa: A001
-            }
-        if self.justify_content is not None:
-            portable["justify_content"] = self.justify_content.value
-        return portable
-
-    @override
-    def __eq__(self, other: Any) -> bool:
-        if not isinstance(other, type(self)):
-            return NotImplemented
-        return (self.content, self.width, self.justify_content) == (
-            other.content,
-            other.width,
-            other.justify_content,
-        )
-
-    @override
-    @classmethod
-    def samples(cls) -> Samples:
-        from betty.content_provider.content_providers import Render, RenderConfiguration
-
-        return Samples(
-            [
-                lambda: Sample(
-                    cls(
-                        PluginConfiguration(
-                            Render, RenderConfiguration("Hello, world!")
-                        )  # ty:ignore[invalid-argument-type]
-                    ),
-                    label="Minimal",
-                    size=Size.MINIMAL,
-                ),
-                lambda: Sample(
-                    cls(
-                        PluginConfiguration(
-                            Render, RenderConfiguration("Hello, world!")
-                        ),  # ty:ignore[invalid-argument-type]
-                        justify_content=JustifyContent.CENTER,
-                    ),
-                    label="Justify content",
-                ),
-                lambda: Sample(
-                    cls(
-                        PluginConfiguration(
-                            Render, RenderConfiguration("Hello, world!")
-                        ),  # ty:ignore[invalid-argument-type]
-                        width=6,
-                    ),
-                    label="A single column with a fixed, non-responsive width",
-                ),
-                lambda: Sample(
-                    cls(
-                        [
-                            PluginInstanceConfigurationSequence(
-                                [
-                                    PluginConfiguration(
-                                        Render, RenderConfiguration("Hello, world!")
-                                    ),
-                                    PluginConfiguration(
-                                        Render, RenderConfiguration("How are you?")
-                                    ),
-                                ]
-                            )
-                        ],  # ty:ignore[invalid-argument-type]
-                        width=[6, 6],
-                    ),
-                    label="Multiple columns with fixed, non-responsive widths",
-                ),
-                lambda: Sample(
-                    cls(
-                        PluginConfiguration(
-                            Render, RenderConfiguration("Hello, world!")
-                        ),  # ty:ignore[invalid-argument-type]
-                        width={
-                            Breakpoint.XS: 12,
-                            Breakpoint.MD: 6,
-                        },
-                    ),
-                    label="A single column with responsive widths",
-                ),
-                lambda: Sample(
-                    cls(
-                        [
-                            PluginInstanceConfigurationSequence(
-                                [
-                                    PluginConfiguration(
-                                        Render, RenderConfiguration("Hello, world!")
-                                    ),
-                                    PluginConfiguration(
-                                        Render, RenderConfiguration("How are you?")
-                                    ),
-                                ]
-                            )
-                        ],  # ty:ignore[invalid-argument-type]
-                        width={
-                            Breakpoint.XS: [12, 12],
-                            Breakpoint.MD: [6, 6],
-                        },
-                    ),
-                    label="Multiple columns with responsive widths",
-                ),
-            ]
-        )
+            self.width = {Breakpoint.XS: width}
+        self.justify_content = justify_content
 
 
 @ContentProviderDefinition("raspberry-mint-columns", label=_("Columns"))

@@ -5,7 +5,7 @@ Sequence data types.
 from __future__ import annotations
 
 from collections.abc import Callable, Iterable, MutableSequence, Sequence
-from typing import TYPE_CHECKING, Any, TypeVar, final
+from typing import TYPE_CHECKING, Any, TypeVar
 
 from typing_extensions import override
 
@@ -21,7 +21,6 @@ _DataItemT = TypeVar("_DataItemT")
 _MutableSequenceT = TypeVar("_MutableSequenceT", bound=MutableSequence[Any])
 
 
-@final
 class SequenceDefinition(CollectionDefinition[_MutableSequenceT, Index]):
     """
     A sequence data definition.

@@ -9,7 +9,6 @@ from typing import TYPE_CHECKING, Any, final
 from typing_extensions import TypeVar
 
 from betty.collections import ResolvingMutableSequence
-from betty.data.aggregate.collection.sequence import SequenceDefinition
 from betty.data.aggregate.record.object.property import Property
 from betty.plugin import Plugin, PluginDefinition
 from betty.plugin.config import (
@@ -19,7 +18,7 @@ from betty.plugin.config import (
     resolve_plugin_configuration,
     resolve_plugin_configurations,
 )
-from betty.plugin.data import PluginConfigurationDefinition
+from betty.plugin.data import PluginConfigurationSequenceDefinition
 
 if TYPE_CHECKING:
     from betty.locale.localizable import LocalizableLike
@@ -52,11 +51,7 @@ class PluginConfigurationSequenceProperty(
         description: LocalizableLike | None = None,
     ):
         super().__init__(
-            SequenceDefinition(
-                cls=list,
-                item=PluginConfigurationDefinition(plugin_type),
-                label=plugin_type.type().label_plural,
-            ),
+            PluginConfigurationSequenceDefinition(plugin_type),
             label=label,
             description=description,
             resolver=resolve_plugin_configurations,

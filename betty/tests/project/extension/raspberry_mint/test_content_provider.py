@@ -1,4 +1,3 @@
-from collections.abc import Mapping
 from pathlib import Path
 from typing import cast
 
@@ -27,12 +26,10 @@ from betty.document import Document
 from betty.locale.localizable.plain import Plain
 from betty.locale.localize import DEFAULT_LOCALIZER
 from betty.media_type import MediaType
-from betty.media_type.media_types import PLAIN_TEXT
 from betty.model.config import EntityReference
 from betty.plugin.config import PluginConfiguration
 from betty.plugin.discovery.static import StaticDiscovery
 from betty.plugin.repository.static import StaticPluginRepository
-from betty.portable import PortableData
 from betty.project import Project
 from betty.project.extension.raspberry_mint import (
     Breakpoint,
@@ -64,7 +61,6 @@ from betty.project.extension.raspberry_mint.content_provider import (
 )
 from betty.test_utils.ancestry.has_citations import DummyHasCitations
 from betty.test_utils.ancestry.has_file_references import DummyHasFileReferences
-from betty.test_utils.config import ConfigurationTestBase
 from betty.test_utils.config.factory import ConfigurationDependentSelfFactoryTestBase
 from betty.test_utils.content_provider import (
     ContentProviderTestBase,
@@ -692,14 +688,14 @@ class TestPresences(ContentProviderTestBase):
         assert person_exclude.public_id not in actual
 
 
-class TestColumnsConfiguration(ConfigurationTestBase[ColumnsConfiguration]):
+class TestColumnsConfiguration(DataTestBase[ColumnsConfiguration]):
     sut_cls = ColumnsConfiguration
 
     def test_content(self) -> None:
         content = PluginConfiguration[ContentProviderDefinition, ContentProvider](
             Render, RenderConfiguration(DUMMY_LOCALIZABLE)
         )
-        sut = ColumnsConfiguration(content)
+        sut = ColumnsConfiguration([content])
         assert list(map(list, sut.content)) == [[content]]
 
     @pytest.mark.parametrize(
@@ -714,7 +710,7 @@ class TestColumnsConfiguration(ConfigurationTestBase[ColumnsConfiguration]):
     def test_width(self, expected: ColumnsWidth, width: ShorthandColumnsWidth) -> None:
         assert (
             ColumnsConfiguration(
-                PluginConfiguration(Render, RenderConfiguration(DUMMY_LOCALIZABLE)),  # ty:ignore[invalid-argument-type]
+                [[PluginConfiguration(Render, RenderConfiguration(DUMMY_LOCALIZABLE))]],
                 width=width,
             ).width
             == expected
@@ -723,139 +719,10 @@ class TestColumnsConfiguration(ConfigurationTestBase[ColumnsConfiguration]):
     def test_justify_content(self) -> None:
         justify_content = JustifyContent.CENTER
         sut = ColumnsConfiguration(
-            PluginConfiguration(Render, RenderConfiguration(DUMMY_LOCALIZABLE)),  # ty:ignore[invalid-argument-type]
+            [[PluginConfiguration(Render, RenderConfiguration(DUMMY_LOCALIZABLE))]],
             justify_content=justify_content,
         )
         assert sut.justify_content == justify_content
-
-    def test_load__minimal(self) -> None:
-        justify_content = JustifyContent.CENTER
-        sut = ColumnsConfiguration.load(
-            {
-                "content": [
-                    [
-                        {
-                            "id": "render",
-                            "configuration": {
-                                "content": "DUMMY_LOCALIZABLE",
-                                "media_type": str(PLAIN_TEXT),
-                            },
-                        }
-                    ]
-                ],
-                "justify_content": justify_content.value,
-            }
-        )
-        assert len(sut.content) == 1
-        assert sut.content[0][0].id == "render"
-        assert isinstance(sut.content[0][0].configuration, Mapping)
-        assert sut.content[0][0].configuration["content"] == "DUMMY_LOCALIZABLE"  # ty:ignore[invalid-argument-type]
-        assert sut.content[0][0].configuration["media_type"] == str(PLAIN_TEXT)  # ty:ignore[invalid-argument-type]
-
-    def test_load__with_width(self) -> None:
-        sut = ColumnsConfiguration.load(
-            {
-                "content": [
-                    [
-                        {
-                            "id": "render",
-                            "configuration": {
-                                "content": "DUMMY_LOCALIZABLE",
-                                "media_type": str(PLAIN_TEXT),
-                            },
-                        }
-                    ]
-                ],
-                "width": {Breakpoint.XS.value: [1, 2, 3]},
-            }
-        )
-        assert sut.width == {Breakpoint.XS: [1, 2, 3]}
-
-    def test_load__with_justify_content(self) -> None:
-        justify_content = JustifyContent.CENTER
-        sut = ColumnsConfiguration.load(
-            {
-                "content": [
-                    [
-                        {
-                            "id": "render",
-                            "configuration": {
-                                "content": "DUMMY_LOCALIZABLE",
-                                "media_type": str(PLAIN_TEXT),
-                            },
-                        }
-                    ]
-                ],
-                "justify_content": justify_content.value,
-            }
-        )
-        assert sut.justify_content == justify_content
-
-    @pytest.mark.parametrize(
-        ("expected", "sut"),
-        [
-            (
-                {
-                    "content": [
-                        [
-                            {
-                                "id": "render",
-                                "configuration": {
-                                    "content": "DUMMY_LOCALIZABLE",
-                                    "media_type": str(PLAIN_TEXT),
-                                },
-                            },
-                        ]
-                    ],
-                },
-                ColumnsConfiguration(
-                    PluginConfiguration(Render, RenderConfiguration(DUMMY_LOCALIZABLE))  # ty:ignore[invalid-argument-type]
-                ),
-            ),
-            (
-                {
-                    "content": [
-                        [
-                            {
-                                "id": "render",
-                                "configuration": {
-                                    "content": "DUMMY_LOCALIZABLE",
-                                    "media_type": str(PLAIN_TEXT),
-                                },
-                            },
-                        ]
-                    ],
-                    "justify_content": JustifyContent.CENTER.value,
-                },
-                ColumnsConfiguration(
-                    PluginConfiguration(Render, RenderConfiguration(DUMMY_LOCALIZABLE)),  # ty:ignore[invalid-argument-type]
-                    justify_content=JustifyContent.CENTER,
-                ),
-            ),
-            (
-                {
-                    "content": [
-                        [
-                            {
-                                "id": "render",
-                                "configuration": {
-                                    "content": "DUMMY_LOCALIZABLE",
-                                    "media_type": str(PLAIN_TEXT),
-                                },
-                            },
-                        ]
-                    ],
-                    "width": {Breakpoint.XS.value: [10]},
-                },
-                ColumnsConfiguration(
-                    PluginConfiguration(Render, RenderConfiguration(DUMMY_LOCALIZABLE)),  # ty:ignore[invalid-argument-type]
-                    width=10,
-                ),
-            ),
-        ],
-    )
-    def test_dump(self, expected: PortableData, sut: ColumnsConfiguration) -> None:
-        assert sut.dump() == expected
 
 
 class TestColumns(ContentProviderTestBase):
@@ -865,7 +732,13 @@ class TestColumns(ContentProviderTestBase):
         async with Project.new_isolated(isolated_app) as project, project:
             return Columns(
                 configuration=ColumnsConfiguration(
-                    PluginConfiguration(Render, RenderConfiguration(DUMMY_LOCALIZABLE))  # ty:ignore[invalid-argument-type]
+                    [
+                        [
+                            PluginConfiguration(
+                                Render, RenderConfiguration(DUMMY_LOCALIZABLE)
+                            )
+                        ]
+                    ]
                 ),
                 jinja2_environment=await project.jinja2_environment,
             )
@@ -876,9 +749,13 @@ class TestColumns(ContentProviderTestBase):
             async with project:
                 sut = Columns(
                     configuration=ColumnsConfiguration(
-                        PluginConfiguration(
-                            Render, RenderConfiguration(DUMMY_LOCALIZABLE)
-                        )  # ty:ignore[invalid-argument-type]
+                        [
+                            [
+                                PluginConfiguration(
+                                    Render, RenderConfiguration(DUMMY_LOCALIZABLE)
+                                )
+                            ]
+                        ]
                     ),
                     jinja2_environment=await project.jinja2_environment,
                 )
@@ -894,9 +771,13 @@ class TestColumns(ContentProviderTestBase):
             async with project:
                 sut = Columns(
                     configuration=ColumnsConfiguration(
-                        PluginConfiguration(
-                            Render, RenderConfiguration(DUMMY_LOCALIZABLE)
-                        ),  # ty:ignore[invalid-argument-type]
+                        [
+                            [
+                                PluginConfiguration(
+                                    Render, RenderConfiguration(DUMMY_LOCALIZABLE)
+                                )
+                            ]
+                        ],
                         width={Breakpoint.XS: 12, Breakpoint.LG: 6},
                     ),
                     jinja2_environment=await project.jinja2_environment,
@@ -918,13 +799,13 @@ class TestColumns(ContentProviderTestBase):
                                 PluginConfiguration(
                                     Render,
                                     RenderConfiguration(DUMMY_LOCALIZABLE),
-                                ),
+                                )
                             ],
                             [
                                 PluginConfiguration(
                                     Render,
                                     RenderConfiguration(DUMMY_LOCALIZABLE),
-                                ),
+                                )
                             ],
                         ],
                         width=[8, 4],
@@ -949,13 +830,13 @@ class TestColumns(ContentProviderTestBase):
                                 PluginConfiguration(
                                     Render,
                                     RenderConfiguration(DUMMY_LOCALIZABLE),
-                                ),
+                                )
                             ],
                             [
                                 PluginConfiguration(
                                     Render,
                                     RenderConfiguration(DUMMY_LOCALIZABLE),
-                                ),
+                                )
                             ],
                         ],
                         width={Breakpoint.XS: [8, 4], Breakpoint.LG: [7, 5]},

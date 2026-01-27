@@ -11,10 +11,7 @@ from betty.content_provider import ContentProvider, ContentProviderDefinition
 from betty.content_provider.content_providers import Box, BoxConfiguration, Notes
 from betty.locale.localizable.gettext import _
 from betty.locale.localizable.static import StaticTranslations
-from betty.plugin.config import (
-    PluginConfiguration,
-    PluginInstanceConfigurationSequence,
-)
+from betty.plugin.config import PluginConfiguration, PluginInstanceConfigurationSequence
 from betty.project.extension.maps.content_provider import Map, MapAttribution
 from betty.project.extension.raspberry_mint import SINGLE_COLUMN_TEXT_WIDTH
 from betty.project.extension.raspberry_mint import ColorStyle as ColorStyleOption
@@ -71,7 +68,7 @@ def regional_content(
                         PluginConfiguration(
                             Columns,
                             ColumnsConfiguration(
-                                PluginConfiguration(WikipediaSummary),  # ty:ignore[invalid-argument-type]
+                                [[WikipediaSummary]],
                                 width=SINGLE_COLUMN_TEXT_WIDTH,
                             ),
                         ),  # ty:ignore[invalid-argument-type]
@@ -93,19 +90,14 @@ def regional_content(
                     ColorStyleConfiguration(
                         PluginConfiguration(
                             Columns,
-                            ColumnsConfiguration(
-                                PluginConfiguration(MapAttribution)  # ty:ignore[invalid-argument-type]
-                            ),
+                            ColumnsConfiguration([[MapAttribution]]),
                         ),  # ty:ignore[invalid-argument-type]
                         style=ColorStyleOption.LIGHT_CONTRAST,
                     ),
                 ),
                 PluginConfiguration(
                     Columns,
-                    ColumnsConfiguration(
-                        PluginConfiguration(Enclosees),  # ty:ignore[invalid-argument-type]
-                        width=SINGLE_COLUMN_TEXT_WIDTH,
-                    ),
+                    ColumnsConfiguration([[Enclosees]], width=SINGLE_COLUMN_TEXT_WIDTH),
                 ),
                 PluginConfiguration(
                     Section,
@@ -113,7 +105,7 @@ def regional_content(
                         PluginConfiguration(
                             Columns,
                             ColumnsConfiguration(
-                                PluginConfiguration(Notes),  # ty:ignore[invalid-argument-type]
+                                [[Notes]],
                                 width=SINGLE_COLUMN_TEXT_WIDTH,
                             ),
                         ),  # ty:ignore[invalid-argument-type]
@@ -171,8 +163,7 @@ def regional_content(
                     Section,
                     SectionConfiguration(
                         PluginConfiguration(
-                            Columns,
-                            ColumnsConfiguration(PluginConfiguration(Timeline)),  # ty:ignore[invalid-argument-type]
+                            Columns, ColumnsConfiguration([[Timeline]])
                         ),  # ty:ignore[invalid-argument-type]
                         heading=_make_dumpable(_("Timeline")),
                         name="timeline",
@@ -184,8 +175,7 @@ def regional_content(
                         PluginConfiguration(
                             Columns,
                             ColumnsConfiguration(
-                                PluginConfiguration(Facts),  # ty:ignore[invalid-argument-type]
-                                width=SINGLE_COLUMN_TEXT_WIDTH,
+                                [[Facts]], width=SINGLE_COLUMN_TEXT_WIDTH
                             ),
                         ),  # ty:ignore[invalid-argument-type]
                         heading=_make_dumpable(_("Facts")),
@@ -212,8 +202,7 @@ def regional_content(
                         PluginConfiguration(
                             Columns,
                             ColumnsConfiguration(
-                                PluginConfiguration(FileReferees),  # ty:ignore[invalid-argument-type]
-                                width=SINGLE_COLUMN_TEXT_WIDTH,
+                                [[FileReferees]], width=SINGLE_COLUMN_TEXT_WIDTH
                             ),
                         ),  # ty:ignore[invalid-argument-type]
                         heading=_make_dumpable(_("Appearances")),
@@ -226,8 +215,7 @@ def regional_content(
                         PluginConfiguration(
                             Columns,
                             ColumnsConfiguration(
-                                PluginConfiguration(Citations),  # ty:ignore[invalid-argument-type]
-                                width=SINGLE_COLUMN_TEXT_WIDTH,
+                                [[Citations]], width=SINGLE_COLUMN_TEXT_WIDTH
                             ),
                         ),  # ty:ignore[invalid-argument-type]
                         heading=_make_dumpable(_("Citations")),
@@ -240,8 +228,7 @@ def regional_content(
                         PluginConfiguration(
                             Columns,
                             ColumnsConfiguration(
-                                PluginConfiguration(ExternalLinks),  # ty:ignore[invalid-argument-type]
-                                width=SINGLE_COLUMN_TEXT_WIDTH,
+                                [[ExternalLinks]], width=SINGLE_COLUMN_TEXT_WIDTH
                             ),
                         ),  # ty:ignore[invalid-argument-type]
                         heading=_make_dumpable(_("External links")),

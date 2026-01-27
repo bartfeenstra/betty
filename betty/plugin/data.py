@@ -9,6 +9,7 @@ from typing import TYPE_CHECKING, final
 from typing_extensions import override
 
 from betty.data import DataDefinition
+from betty.data.aggregate.collection.sequence import SequenceDefinition
 from betty.data.aggregate.record import (
     FieldDefinition,
 )
@@ -17,10 +18,11 @@ from betty.data.indicator.selector import Attr
 from betty.functools import passthrough
 from betty.locale.localizable.gettext import _
 from betty.machine_name import MachineName, assert_machine_name
-from betty.plugin.config import PluginConfiguration
+from betty.plugin.config import PluginConfiguration, _PluginDefinitionT
 from betty.portable import CallbackPorter
 
 if TYPE_CHECKING:
+    from betty.locale.localizable import LocalizableLike
     from betty.plugin import PluginDefinition
     from betty.service.level import ServiceLevel
 
@@ -65,4 +67,23 @@ class PluginConfigurationDefinition(ObjectDefinition):
                 ),
             ],
             samples=[PluginConfiguration.samples()],
+        )
+
+
+@final
+class PluginConfigurationSequenceDefinition(SequenceDefinition):
+    """
+    Define a sequence of plugin instance configurations.
+    """
+
+    def __init__(
+        self,
+        plugin_type: type[_PluginDefinitionT],
+        *,
+        label: LocalizableLike | None = None,
+    ):
+        super().__init__(
+            cls=list,
+            item=PluginConfigurationDefinition(plugin_type),
+            label=plugin_type.type().label_plural if label is None else label,
         )

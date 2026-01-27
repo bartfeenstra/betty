@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Betty VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-01-27 22:22+0000\n"
+"POT-Creation-Date: 2026-01-28 00:14+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -277,6 +277,12 @@ msgstr ""
 msgid "Breadcrumbs"
 msgstr ""
 
+msgid "Breakpoint"
+msgstr ""
+
+msgid "Breakpoints"
+msgstr ""
+
 msgid "Building"
 msgstr ""
 
@@ -357,7 +363,19 @@ msgstr ""
 msgid "Color style configuration"
 msgstr ""
 
+msgid "Column content"
+msgstr ""
+
+msgid "Column width"
+msgstr ""
+
+msgid "Column widths"
+msgstr ""
+
 msgid "Columns"
+msgstr ""
+
+msgid "Columns configuration"
 msgstr ""
 
 msgid "Command"
@@ -849,6 +867,9 @@ msgid "Invalid region {invalid_region}."
 msgstr ""
 
 msgid "It appears you called Betty without a command or arguments"
+msgstr ""
+
+msgid "Justify content"
 msgstr ""
 
 msgid "Keywords"
