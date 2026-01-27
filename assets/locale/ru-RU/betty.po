@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Betty VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-01-27 20:02+0000\n"
+"POT-Creation-Date: 2026-01-27 21:55+0000\n"
 "PO-Revision-Date: 2025-12-08 19:00+0000\n"
 "Last-Translator: Artur Kalagov "
 "<artur.kalagov@users.noreply.hosted.weblate.org>\n"
@@ -688,6 +688,9 @@ msgstr "События"
 msgid "Exactly {expected} items are required, but found {actual}."
 msgstr "Требуются именно {expected} элементов, но найдено {actual}."
 
+msgid "Exclude"
+msgstr ""
+
 msgid "Explore a demonstration site"
 msgstr "Ознакомьтесь с демонстрационным сайтом"
 
@@ -850,6 +853,9 @@ msgid "Immigration"
 msgstr "Иммиграция"
 
 msgid "Immigrations"
+msgstr ""
+
+msgid "Include"
 msgstr ""
 
 msgid "Informant"
@@ -1268,6 +1274,9 @@ msgstr ""
 
 msgid "Presences"
 msgstr "Присутствия"
+
+msgid "Presences configuration"
+msgstr ""
 
 msgid "Previous page"
 msgstr ""
