@@ -8,28 +8,20 @@ from typing import TYPE_CHECKING, Any, Self, final
 
 from typing_extensions import override
 
-from betty.assertion import (
-    OptionalField,
-    RequiredField,
-    assert_record,
-    assert_str,
-)
-from betty.config import Configuration
+from betty.assertion import assert_str
 from betty.config.factory import ConfigurationDependentSelfFactory
 from betty.content_provider import ContentProvider, ContentProviderDefinition
-from betty.data import Data, DataDefinition, Sample, Samples
+from betty.data import Data, DataDefinition, Sample
 from betty.data.aggregate.record.object import ObjectDefinition
-from betty.data.aggregate.record.object.property import Property
+from betty.data.aggregate.record.object.property import Optional, Property
 from betty.data.sample import Size
+from betty.data.str import StrDefinition
 from betty.locale.localizable.gettext import _
 from betty.locale.localizable.property import LocalizableProperty
 from betty.media_type import MediaType
 from betty.media_type.media_types import PLAIN_TEXT
-from betty.plugin.config import (
-    PluginConfiguration,
-    PluginInstanceConfigurationSequence,
-    ShorthandPluginInstanceConfigurationSequence,
-)
+from betty.plugin.config import PluginConfiguration, ResolvablePluginConfigurations
+from betty.plugin.config.property import PluginConfigurationSequenceProperty
 from betty.portable import CallbackPorter
 from betty.project import Project
 from betty.project.factory import require_project
@@ -47,7 +39,6 @@ if TYPE_CHECKING:
     from betty.document import Document
     from betty.jinja2 import Environment
     from betty.locale.localizable import LocalizableLike
-    from betty.portable import PortableData, PortableMapping
     from betty.render import RenderDispatcher
     from betty.service.level import ServiceLevel
 
@@ -174,16 +165,49 @@ class Notes(Template, ServiceLevelDependentSelfFactory):
 
 
 @final
-class BoxConfiguration(Configuration):
+@ObjectDefinition(
+    label=_("Box configuration"),
+    samples=[
+        lambda: Sample(BoxConfiguration([]), label="Minimal", size=Size.MINIMAL),
+        lambda: Sample(
+            BoxConfiguration(
+                [PluginConfiguration(Render, RenderConfiguration("Hello, world!"))],
+                min_height="100px",
+                max_height="1000px",
+                height="500px",
+                min_width="100px",
+                max_width="1000px",
+                width="500px",
+            ),
+            label="Full",
+            size=Size.FULL,
+        ),
+    ],
+)
+class BoxConfiguration(Data):
     """
     Configuration for :py:class:`betty.content_provider.content_providers.Box`.
 
-    .. configuration:: betty.content_provider.content_providers:BoxConfiguration
+    .. data:: betty.content_provider.content_providers:BoxConfiguration
     """
+
+    content = PluginConfigurationSequenceProperty[
+        ContentProviderDefinition, ContentProvider
+    ](ContentProviderDefinition, label=_("Content"))
+    """
+    The content within this box.
+    """
+
+    min_height = Optional(Property(StrDefinition(label=_("Minimum height"))))
+    max_height = Optional(Property(StrDefinition(label=_("Maximum height"))))
+    height = Optional(Property(StrDefinition(label=_("Height"))))
+    min_width = Optional(Property(StrDefinition(label=_("Minimum width"))))
+    max_width = Optional(Property(StrDefinition(label=_("Maximum width"))))
+    width = Optional(Property(StrDefinition(label=_("Width"))))
 
     def __init__(
         self,
-        content: ShorthandPluginInstanceConfigurationSequence[
+        content: ResolvablePluginConfigurations[
             ContentProviderDefinition, ContentProvider
         ],
         *,
@@ -195,106 +219,13 @@ class BoxConfiguration(Configuration):
         width: str | None = None,
     ):
         super().__init__()
-        self._content = PluginInstanceConfigurationSequence(content)  # ty:ignore[invalid-argument-type]
+        self.content = content
         self.min_height = min_height
         self.max_height = max_height
         self.height = height
         self.min_width = min_width
         self.max_width = max_width
         self.width = width
-
-    @property
-    def content(
-        self,
-    ) -> PluginInstanceConfigurationSequence[
-        ContentProviderDefinition, ContentProvider
-    ]:
-        """
-        The content within this box.
-        """
-        return self._content  # ty:ignore[invalid-return-type]
-
-    @override
-    @classmethod
-    def load(cls, portable: PortableData, /) -> Self:
-        return cls(
-            **assert_record(
-                RequiredField("content", PluginInstanceConfigurationSequence.load),
-                OptionalField("min_height", assert_str()),
-                OptionalField("max_height", assert_str()),
-                OptionalField("height", assert_str()),
-                OptionalField("min_width", assert_str()),
-                OptionalField("max_width", assert_str()),
-                OptionalField("width", assert_str()),
-            )(portable)
-        )
-
-    @override
-    def dump(self) -> PortableMapping:
-        portable: PortableMapping = {
-            "content": self.content.dump(),
-        }
-        if self.min_height is not None:
-            portable["min_height"] = self.min_height
-        if self.max_height is not None:
-            portable["max_height"] = self.max_height
-        if self.height is not None:
-            portable["height"] = self.height
-        if self.min_width is not None:
-            portable["min_width"] = self.min_width
-        if self.max_width is not None:
-            portable["max_width"] = self.max_width
-        if self.width is not None:
-            portable["width"] = self.width
-        return portable
-
-    @override
-    def __eq__(self, other: Any) -> bool:
-        if not isinstance(other, type(self)):
-            return NotImplemented
-        return (
-            self.content,
-            self.min_height,
-            self.max_height,
-            self.height,
-            self.min_width,
-            self.max_width,
-            self.width,
-        ) == (
-            other.content,
-            other.min_height,
-            other.max_height,
-            other.height,
-            other.min_width,
-            other.max_width,
-            other.width,
-        )
-
-    @override
-    @classmethod
-    def samples(cls) -> Samples:
-        return Samples(
-            [
-                lambda: Sample(cls([]), label="Minimal", size=Size.MINIMAL),
-                lambda: Sample(
-                    cls(
-                        [
-                            PluginConfiguration(
-                                Render, RenderConfiguration("Hello, world!")
-                            )
-                        ],
-                        min_height="100px",
-                        max_height="1000px",
-                        height="500px",
-                        min_width="100px",
-                        max_width="1000px",
-                        width="500px",
-                    ),
-                    label="Full",
-                    size=Size.FULL,
-                ),
-            ]
-        )
 
 
 @final
