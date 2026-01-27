@@ -28,6 +28,7 @@ from betty.data import Data, Sample, Samples, Size
 from betty.data.aggregate.record.object import ObjectDefinition
 from betty.data.aggregate.record.object.property import Optional, Property
 from betty.data.bool import BoolDefinition
+from betty.data.enum import EnumDefinition
 from betty.locale.localizable.gettext import _
 from betty.locale.localizable.property import LocalizableProperty
 from betty.machine_name import MachineName, MachineNameDefinition, assert_machine_name
@@ -39,7 +40,6 @@ from betty.plugin.config import (
     PluginInstanceConfigurationSequence,
     PluginInstanceConfigurationSequenceSequence,
     ResolvablePluginConfigurations,
-    ShorthandPluginInstanceConfigurationSequence,
     ShorthandPluginInstanceConfigurationSequenceSequence,
 )
 from betty.plugin.config.property import PluginConfigurationSequenceProperty
@@ -297,16 +297,39 @@ class MediaGallery(Template, _Base, ServiceLevelDependentSelfFactory):
 
 
 @final
-class ColorStyleConfiguration(Configuration):
+@ObjectDefinition(
+    label=_("Color style configuration"),
+    samples=[
+        lambda: Sample(
+            ColorStyleConfiguration(
+                "my-first-content", style=RaspberryMintColorStyle.DARK
+            ),
+            label="Default",
+        )
+    ],
+)
+class ColorStyleConfiguration(Data):
     """
     Configuration for :py:class:`betty.project.extension.raspberry_mint.content_provider.ColorStyle`.
 
-    .. configuration:: betty.project.extension.raspberry_mint.content_provider:ColorStyleConfiguration
+    .. data:: betty.project.extension.raspberry_mint.content_provider:ColorStyleConfiguration
+    """
+
+    content = PluginConfigurationSequenceProperty[
+        ContentProviderDefinition, ContentProvider
+    ](ContentProviderDefinition, label=_("Content"))
+    """
+    The content within this color style.
+    """
+
+    style = Property(EnumDefinition(cls=RaspberryMintColorStyle, label=_("Style")))
+    """
+    The style.
     """
 
     def __init__(
         self,
-        content: ShorthandPluginInstanceConfigurationSequence[
+        content: ResolvablePluginConfigurations[
             ContentProviderDefinition, ContentProvider
         ],
         *,
@@ -314,62 +337,7 @@ class ColorStyleConfiguration(Configuration):
     ):
         super().__init__()
         self.style = style
-        self._content = PluginInstanceConfigurationSequence(content)  # ty:ignore[invalid-argument-type]
-
-    @property
-    def content(
-        self,
-    ) -> PluginInstanceConfigurationSequence[
-        ContentProviderDefinition, ContentProvider
-    ]:
-        """
-        The content within this color style.
-        """
-        return self._content  # ty:ignore[invalid-return-type]
-
-    @override
-    @classmethod
-    def load(cls, portable: PortableData, /) -> Self:
-        return cls(
-            **assert_record(
-                RequiredField("style", assert_enum(RaspberryMintColorStyle)),
-                RequiredField("content", PluginInstanceConfigurationSequence.load),
-            )(portable)
-        )
-
-    @override
-    def dump(self) -> PortableMapping:
-        return {
-            "style": self.style.value,
-            "content": self.content.dump(),
-        }
-
-    @override
-    def __eq__(self, other: Any) -> bool:
-        if not isinstance(other, type(self)):
-            return NotImplemented
-        return (self.style, self.content) == (other.style, other.content)
-
-    @override
-    @classmethod
-    def samples(cls) -> Samples:
-        from betty.content_provider.content_providers import Render, RenderConfiguration
-
-        return Samples(
-            [
-                lambda: Sample(
-                    cls(
-                        style=RaspberryMintColorStyle.DARK,
-                        content=[
-                            PluginConfiguration(
-                                Render, RenderConfiguration("Hello, world!")
-                            )
-                        ],
-                    ),
-                    label="Default",
-                )
-            ]
-        )
+        self.content = content
 
 
 @ContentProviderDefinition("raspberry-mint-color-style", label=_("Color style"))

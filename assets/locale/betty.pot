@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Betty VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-01-27 17:08+0000\n"
+"POT-Creation-Date: 2026-01-27 19:23+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -349,6 +349,9 @@ msgid "Close"
 msgstr ""
 
 msgid "Color style"
+msgstr ""
+
+msgid "Color style configuration"
 msgstr ""
 
 msgid "Columns"
@@ -1387,6 +1390,9 @@ msgid "Street"
 msgstr ""
 
 msgid "Streets"
+msgstr ""
+
+msgid "Style"
 msgstr ""
 
 msgid "Subcommands"

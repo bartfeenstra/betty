@@ -24,7 +24,6 @@ from betty.content_provider.content_providers import Render, RenderConfiguration
 from betty.date import Date
 from betty.dirs import ASSETS_DIRECTORY_PATH
 from betty.document import Document
-from betty.exception import HumanFacingException
 from betty.locale.localizable.plain import Plain
 from betty.locale.localize import DEFAULT_LOCALIZER
 from betty.media_type import MediaType
@@ -369,7 +368,7 @@ class TestMediaGallery(ContentProviderTestBase):
         assert file.label.localize(DEFAULT_LOCALIZER) in actual
 
 
-class TestColorStyleConfiguration(ConfigurationTestBase[ColorStyleConfiguration]):
+class TestColorStyleConfiguration(DataTestBase[ColorStyleConfiguration]):
     sut_cls = ColorStyleConfiguration
 
     def test_content(self) -> None:
@@ -386,31 +385,6 @@ class TestColorStyleConfiguration(ConfigurationTestBase[ColorStyleConfiguration]
             style=style,
         )
         assert sut.style == style
-
-    def test_load(self) -> None:
-        sut = ColorStyleConfiguration.load(
-            {
-                "style": "dark-secondary",
-                "content": ["my-first-content"],
-            }
-        )
-        assert sut.style is ColorStyleOption.DARK_SECONDARY
-
-    def test_load__without_content(self) -> None:
-        with pytest.raises(HumanFacingException):
-            ColorStyleConfiguration.load({})
-
-    def test_dump(self) -> None:
-        sut = ColorStyleConfiguration(
-            PluginConfiguration("my-first-content"),  # ty:ignore[invalid-argument-type]
-            style=ColorStyleOption.DARK_SECONDARY,
-        )
-        assert sut.dump() == {
-            "style": "dark-secondary",
-            "content": [
-                "my-first-content",
-            ],
-        }
 
 
 class TestColorStyle(ContentProviderTestBase):
