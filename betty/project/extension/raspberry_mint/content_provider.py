@@ -4,7 +4,7 @@ Dynamic content.
 
 from __future__ import annotations
 
-from collections.abc import Mapping, Sequence
+from collections.abc import Iterable, Mapping, Sequence
 from typing import TYPE_CHECKING, Any, Self, TypeAlias, final
 
 from typing_extensions import override
@@ -25,13 +25,14 @@ from betty.config.factory import ConfigurationDependentSelfFactory
 from betty.content_provider import ContentProvider, ContentProviderDefinition
 from betty.content_provider.content_providers import Template
 from betty.data import Data, Sample, Samples, Size
+from betty.data.aggregate.collection.sequence import SequenceDefinition
 from betty.data.aggregate.record.object import ObjectDefinition
 from betty.data.aggregate.record.object.property import Optional, Property
 from betty.data.bool import BoolDefinition
 from betty.data.enum import EnumDefinition
 from betty.locale.localizable.gettext import _
 from betty.locale.localizable.property import LocalizableProperty
-from betty.machine_name import MachineName, MachineNameDefinition, assert_machine_name
+from betty.machine_name import MachineName, MachineNameDefinition
 from betty.model import EntityDefinition
 from betty.model.config import EntityReference
 from betty.plugin import Plugin
@@ -43,6 +44,7 @@ from betty.plugin.config import (
     ShorthandPluginInstanceConfigurationSequenceSequence,
 )
 from betty.plugin.config.property import PluginConfigurationSequenceProperty
+from betty.plugin.data import PluginIdDefinition
 from betty.plugin.resolve import resolve_id
 from betty.project.extension.raspberry_mint import (
     Breakpoint,
@@ -420,87 +422,67 @@ class Facts(Template, _Base, ServiceLevelDependentSelfFactory):
         return cls(jinja2_environment=await project.jinja2_environment)
 
 
-class PresencesConfiguration(Configuration):
+@final
+@ObjectDefinition(
+    label=_("Presences configuration"),
+    samples=[
+        lambda: Sample(PresencesConfiguration(), label="Minimal"),
+        lambda: Sample(
+            PresencesConfiguration(include=["subject"]),
+            label="Includes",
+            size=Size.FULL,
+        ),
+        lambda: Sample(
+            PresencesConfiguration(exclude=["subject"]),
+            label="Excludes",
+            size=Size.FULL,
+        ),
+    ],
+)
+class PresencesConfiguration(Data):
     """
     Configuration for :py:class:`betty.project.extension.raspberry_mint.content_provider.Presences`.
 
-    .. configuration:: betty.project.extension.raspberry_mint.content_provider:PresencesConfiguration
+    .. data:: betty.project.extension.raspberry_mint.content_provider:PresencesConfiguration
+    """
+
+    exclude = Optional(
+        Property(
+            SequenceDefinition(
+                cls=list,
+                item=PluginIdDefinition(PresenceRoleDefinition),
+                label=_("Exclude"),
+            )
+        )
+    )
+    """
+    The presence roles for which to exclude presences.
+    """
+
+    include = Optional(
+        Property(
+            SequenceDefinition(
+                cls=list,
+                item=PluginIdDefinition(PresenceRoleDefinition),
+                label=_("Include"),
+            )
+        )
+    )
+    """
+    The presence roles for which to include presences.
     """
 
     def __init__(
         self,
         *,
-        include: Collection[ResolvableId[PresenceRoleDefinition]] | None = None,
-        exclude: Collection[ResolvableId[PresenceRoleDefinition]] | None = None,
+        include: Iterable[ResolvableId[PresenceRoleDefinition]] | None = None,
+        exclude: Iterable[ResolvableId[PresenceRoleDefinition]] | None = None,
     ):
         super().__init__()
-        self._include = (
-            None
-            if include is None
-            else tuple(resolve_id(include_id) for include_id in include)
-        )
-        self._exclude = (
-            None
-            if exclude is None
-            else tuple(resolve_id(exclude_id) for exclude_id in exclude)
-        )
-
-    @property
-    def include(self) -> Sequence[MachineName] | None:
-        """
-        The presence role IDs for which to include presences.
-        """
-        return self._include
-
-    @property
-    def exclude(self) -> Sequence[MachineName] | None:
-        """
-        The presence role IDs for which to exclude presences.
-        """
-        return self._exclude
-
-    @override
-    @classmethod
-    def load(cls, portable: PortableData, /) -> Self:
-        assert_ids = assert_sequence(assert_machine_name())
-        return cls(
-            **assert_or(
-                assert_record(OptionalField("include", assert_ids)),
-                assert_record(OptionalField("exclude", assert_ids)),
-            )(portable)
-        )
-
-    @override
-    def dump(self) -> PortableData:
-        portable: PortableMapping = {}
-        if self.include:
-            portable["include"] = list(self.include)
-        if self.exclude:
-            portable["exclude"] = list(self.exclude)
-        return portable
-
-    @override
-    def __eq__(self, other: Any) -> bool:
-        if not isinstance(other, type(self)):
-            return NotImplemented
-        return (self.include, self.exclude) == (other.include, other.exclude)
-
-    @override
-    @classmethod
-    def samples(cls) -> Samples:
-        from betty.ancestry.presence_role.presence_roles import Subject
-
-        return Samples(
-            [
-                lambda: Sample(cls(), label="Minimal"),
-                lambda: Sample(
-                    cls(include=[Subject]), label="Includes", size=Size.FULL
-                ),
-                lambda: Sample(
-                    cls(exclude=[Subject]), label="Excludes", size=Size.FULL
-                ),
-            ]
-        )
+        if include is not None:
+            self.include = list(map(resolve_id, include))
+        if exclude is not None:
+            self.exclude = list(map(resolve_id, exclude))
 
 
 @ContentProviderDefinition("raspberry-mint-presences", label=_("Presences"))

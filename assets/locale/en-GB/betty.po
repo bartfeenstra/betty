@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Betty VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-01-27 20:02+0000\n"
+"POT-Creation-Date: 2026-01-27 21:55+0000\n"
 "PO-Revision-Date: 2025-12-29 14:25+0000\n"
 "Last-Translator: Bart Feenstra <bart@bartfeenstra.com>\n"
 "Language: en_GB\n"
@@ -677,6 +677,9 @@ msgstr "Events"
 msgid "Exactly {expected} items are required, but found {actual}."
 msgstr "Exactly {expected} items are required, but found {actual}."
 
+msgid "Exclude"
+msgstr ""
+
 msgid "Explore a demonstration site"
 msgstr "Explore a demonstration site"
 
@@ -839,6 +842,9 @@ msgid "Immigration"
 msgstr "Immigration"
 
 msgid "Immigrations"
+msgstr ""
+
+msgid "Include"
 msgstr ""
 
 msgid "Informant"
@@ -1257,6 +1263,9 @@ msgstr ""
 
 msgid "Presences"
 msgstr "Presences"
+
+msgid "Presences configuration"
+msgstr ""
 
 msgid "Previous page"
 msgstr ""

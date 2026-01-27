@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PROJECT VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-01-27 20:02+0000\n"
+"POT-Creation-Date: 2026-01-27 21:55+0000\n"
 "PO-Revision-Date: 2025-08-27 20:02+0000\n"
 "Last-Translator: \"David D.\" <dadu042@users.noreply.hosted.weblate.org>\n"
 "Language: fr_FR\n"
@@ -648,6 +648,9 @@ msgstr "Evénements"
 msgid "Exactly {expected} items are required, but found {actual}."
 msgstr ""
 
+msgid "Exclude"
+msgstr ""
+
 msgid "Explore a demonstration site"
 msgstr "Explorer un site de démonstration"
 
@@ -811,6 +814,9 @@ msgid "Immigration"
 msgstr "Immigration"
 
 msgid "Immigrations"
+msgstr ""
+
+msgid "Include"
 msgstr ""
 
 msgid "Informant"
@@ -1226,6 +1232,9 @@ msgstr ""
 
 msgid "Presences"
 msgstr "Présences"
+
+msgid "Presences configuration"
+msgstr ""
 
 msgid "Previous page"
 msgstr ""

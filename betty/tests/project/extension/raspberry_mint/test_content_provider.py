@@ -578,7 +578,7 @@ class TestFacts(ContentProviderTestBase):
         assert fact.public_id in actual
 
 
-class TestPresencesConfiguration(ConfigurationTestBase[PresencesConfiguration]):
+class TestPresencesConfiguration(DataTestBase[PresencesConfiguration]):
     sut_cls = PresencesConfiguration
 
     def test_include(self) -> None:
@@ -592,44 +592,6 @@ class TestPresencesConfiguration(ConfigurationTestBase[PresencesConfiguration]):
         sut = PresencesConfiguration(exclude=exclude)
         assert sut.exclude is not None
         assert list(sut.exclude) == exclude
-
-    def test_load__with_include(self) -> None:
-        include: PortableData = ["foo"]
-        sut = PresencesConfiguration.load(
-            {
-                "include": include,
-            }
-        )
-        assert sut.include is not None
-        assert list(sut.include) == include
-
-    def test_load__with_exclude(self) -> None:
-        exclude: PortableData = ["foo"]
-        sut = PresencesConfiguration.load(
-            {
-                "exclude": exclude,
-            }
-        )
-        assert sut.exclude is not None
-        assert list(sut.exclude) == exclude
-
-    def test_dump__minimal(self) -> None:
-        sut = PresencesConfiguration()
-        assert sut.dump() == {}
-
-    def test_dump__with_include(self) -> None:
-        include = ["foo"]
-        sut = PresencesConfiguration(include=include)
-        assert sut.dump() == {
-            "include": include,
-        }
-
-    def test_dump__with_exclude(self) -> None:
-        exclude = ["foo"]
-        sut = PresencesConfiguration(exclude=exclude)
-        assert sut.dump() == {
-            "exclude": exclude,
-        }
 
 
 class TestPresences(ContentProviderTestBase):

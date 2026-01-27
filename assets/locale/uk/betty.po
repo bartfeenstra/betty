@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Betty 0.4\n"
 "Report-Msgid-Bugs-To: illia@maier.page\n"
-"POT-Creation-Date: 2026-01-27 20:02+0000\n"
+"POT-Creation-Date: 2026-01-27 21:55+0000\n"
 "PO-Revision-Date: 2025-05-13 17:01+0000\n"
 "Last-Translator: Максим Горпиніч <maksimgorpinic4@gmail.com>\n"
 "Language: uk\n"
@@ -681,6 +681,9 @@ msgstr "Події"
 msgid "Exactly {expected} items are required, but found {actual}."
 msgstr "Потрібно рівно {expected} елементів, але знайдено {actual}."
 
+msgid "Exclude"
+msgstr ""
+
 msgid "Explore a demonstration site"
 msgstr "Ознайомтеся з демонстраційним сайтом"
 
@@ -842,6 +845,9 @@ msgid "Immigration"
 msgstr "Імміграція"
 
 msgid "Immigrations"
+msgstr ""
+
+msgid "Include"
 msgstr ""
 
 msgid "Informant"
@@ -1260,6 +1266,9 @@ msgstr ""
 
 msgid "Presences"
 msgstr "Присутності"
+
+msgid "Presences configuration"
+msgstr ""
 
 msgid "Previous page"
 msgstr ""
