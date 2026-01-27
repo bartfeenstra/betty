@@ -59,7 +59,6 @@ class PluginConfigurationSequenceProperty(
             ),
             label=label,
             description=description,
-            omit_dump=lambda data: not len(data),
             resolver=resolve_plugin_configurations,
             default=lambda: ResolvingMutableSequence([], resolve_plugin_configuration),
         )

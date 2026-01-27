@@ -30,7 +30,6 @@ from betty.project import Project
 from betty.render import RenderDispatcher
 from betty.render.plain_text import PlainText
 from betty.test_utils.ancestry.has_notes import DummyHasNotes
-from betty.test_utils.config import ConfigurationTestBase
 from betty.test_utils.config.factory import ConfigurationDependentSelfFactoryTestBase
 from betty.test_utils.content_provider import ContentProviderTestBase
 from betty.test_utils.data import DataTestBase
@@ -176,73 +175,12 @@ class TestNotes(ContentProviderTestBase):
             assert note_text in actual
 
 
-class TestBoxConfiguration(ConfigurationTestBase[BoxConfiguration]):
+class TestBoxConfiguration(DataTestBase[BoxConfiguration]):
     sut_cls = BoxConfiguration
 
     def test_content(self) -> None:
-        sut = BoxConfiguration(PluginConfiguration("my-first-content"))  # ty:ignore[invalid-argument-type]
+        sut = BoxConfiguration("my-first-content")
         assert sut.content[0].id == "my-first-content"
-
-    def test_load__minimal(self) -> None:
-        sut = BoxConfiguration.load(
-            {
-                "content": [
-                    "my-first-content",
-                ],
-            }
-        )
-        assert sut.content[0].id == "my-first-content"
-
-    def test_load__full(self) -> None:
-        sut = BoxConfiguration.load(
-            {
-                "content": [
-                    "my-first-content",
-                ],
-                "min_height": "MIN_HEIGHT",
-                "max_height": "MAX_HEIGHT",
-                "height": "HEIGHT",
-                "min_width": "MIN_WIDTH",
-                "max_width": "MAX_WIDTH",
-                "width": "WIDTH",
-            }
-        )
-        assert sut.min_height == "MIN_HEIGHT"
-        assert sut.max_height == "MAX_HEIGHT"
-        assert sut.height == "HEIGHT"
-        assert sut.min_width == "MIN_WIDTH"
-        assert sut.max_width == "MAX_WIDTH"
-        assert sut.width == "WIDTH"
-
-    def test_dump__minimal(self) -> None:
-        sut = BoxConfiguration(PluginConfiguration("my-first-content"))  # ty:ignore[invalid-argument-type]
-        assert sut.dump() == {
-            "content": [
-                "my-first-content",
-            ],
-        }
-
-    def test_dump__full(self) -> None:
-        sut = BoxConfiguration(
-            PluginConfiguration("my-first-content"),  # ty:ignore[invalid-argument-type]
-            min_height="MIN_HEIGHT",
-            max_height="MAX_HEIGHT",
-            height="HEIGHT",
-            min_width="MIN_WIDTH",
-            max_width="MAX_WIDTH",
-            width="WIDTH",
-        )
-        assert sut.dump() == {
-            "content": [
-                "my-first-content",
-            ],
-            "min_height": "MIN_HEIGHT",
-            "max_height": "MAX_HEIGHT",
-            "height": "HEIGHT",
-            "min_width": "MIN_WIDTH",
-            "max_width": "MAX_WIDTH",
-            "width": "WIDTH",
-        }
 
 
 class TestBox(ContentProviderTestBase):

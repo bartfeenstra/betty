@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PROJECT VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-01-27 19:52+0000\n"
+"POT-Creation-Date: 2026-01-27 20:02+0000\n"
 "PO-Revision-Date: 2025-11-08 23:46+0000\n"
 "Last-Translator: Bart Feenstra <bart@bartfeenstra.com>\n"
 "Language: nl_NL\n"
@@ -299,6 +299,9 @@ msgid "Boroughs"
 msgstr ""
 
 msgid "Box"
+msgstr ""
+
+msgid "Box configuration"
 msgstr ""
 
 msgid "Breadcrumbs"
@@ -812,6 +815,9 @@ msgstr ""
 msgid "Heading"
 msgstr ""
 
+msgid "Height"
+msgstr ""
+
 msgid "Help improve the translations"
 msgstr ""
 
@@ -1012,6 +1018,12 @@ msgstr "Huwelijk"
 msgid "Marriages"
 msgstr ""
 
+msgid "Maximum height"
+msgstr ""
+
+msgid "Maximum width"
+msgstr ""
+
 msgid "Media"
 msgstr "Media"
 
@@ -1026,6 +1038,12 @@ msgstr ""
 
 msgid "Menu"
 msgstr "Menu"
+
+msgid "Minimum height"
+msgstr ""
+
+msgid "Minimum width"
+msgstr ""
 
 msgid "Missing"
 msgstr "Vermist"
@@ -1843,6 +1861,9 @@ msgstr ""
 msgid ""
 "Which language should your project site be generated in? Enter a language"
 " code."
+msgstr ""
+
+msgid "Width"
 msgstr ""
 
 msgid "Wiki extension configuration"

@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Betty 0.4\n"
 "Report-Msgid-Bugs-To: illia@maier.page\n"
-"POT-Creation-Date: 2026-01-27 19:52+0000\n"
+"POT-Creation-Date: 2026-01-27 20:02+0000\n"
 "PO-Revision-Date: 2025-05-13 17:01+0000\n"
 "Last-Translator: Максим Горпиніч <maksimgorpinic4@gmail.com>\n"
 "Language: uk\n"
@@ -296,6 +296,9 @@ msgid "Boroughs"
 msgstr ""
 
 msgid "Box"
+msgstr ""
+
+msgid "Box configuration"
 msgstr ""
 
 msgid "Breadcrumbs"
@@ -808,6 +811,9 @@ msgstr ""
 msgid "Heading"
 msgstr ""
 
+msgid "Height"
+msgstr ""
+
 msgid "Help improve the translations"
 msgstr ""
 
@@ -1006,6 +1012,12 @@ msgstr "Шлюб"
 msgid "Marriages"
 msgstr ""
 
+msgid "Maximum height"
+msgstr ""
+
+msgid "Maximum width"
+msgstr ""
+
 msgid "Media"
 msgstr "Медіа"
 
@@ -1020,6 +1032,12 @@ msgstr ""
 
 msgid "Menu"
 msgstr "Меню"
+
+msgid "Minimum height"
+msgstr ""
+
+msgid "Minimum width"
+msgstr ""
 
 msgid "Missing"
 msgstr "Відсутній"
@@ -1841,6 +1859,9 @@ msgstr ""
 msgid ""
 "Which language should your project site be generated in? Enter a language"
 " code."
+msgstr ""
+
+msgid "Width"
 msgstr ""
 
 msgid "Wiki extension configuration"

@@ -134,6 +134,14 @@ _BASELINE: Mapping[str, _ModuleIgnore] = {
         "ContentProvider": MissingReason.ABSTRACT,
     },
     "betty/content_provider/content_providers.py": {
+        "BoxConfiguration": {
+            "min_height": MissingReason.INHERITED,
+            "max_height": MissingReason.INHERITED,
+            "height": MissingReason.INHERITED,
+            "min_width": MissingReason.INHERITED,
+            "max_width": MissingReason.INHERITED,
+            "width": MissingReason.INHERITED,
+        },
         "RenderConfiguration": {
             "media_type": MissingReason.INHERITED,
         },
