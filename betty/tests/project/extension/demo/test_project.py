@@ -2,15 +2,14 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING
 
+import pytest
+
 from betty.project import Project
 from betty.project.extension.demo import Demo
 from betty.project.extension.demo.jobs import LoadAncestry
 from betty.project.extension.demo.project import create_project
 from betty.project.job import ProjectContext
 from betty.test_utils.job import do
-from betty.test_utils.project.extension.demo.project import (
-    demo_project_aioresponses,  # noqa: F401
-)
 
 if TYPE_CHECKING:
     from pathlib import Path
@@ -19,6 +18,7 @@ if TYPE_CHECKING:
     from betty.test_utils.conftest import IsolatedAppFactory
 
 
+@pytest.mark.usefixtures("demo_project_aioresponses")
 async def test_create_project(isolated_app: App, tmp_path: Path) -> None:
     project = await create_project(isolated_app, tmp_path)
     async with project:
@@ -26,17 +26,12 @@ async def test_create_project(isolated_app: App, tmp_path: Path) -> None:
         assert Demo in await project.extensions
 
 
-async def test_load_ancestry(
-    demo_project_aioresponses: None,  # noqa: F811
-    isolated_app_factory: IsolatedAppFactory,
-) -> None:
-    async with (
-        isolated_app_factory() as app,
-        app,
-        Project.new_isolated(app) as project,
-        project,
-    ):
-        context = ProjectContext(project)
-        await do(context, LoadAncestry())
+@pytest.mark.usefixtures("demo_project_aioresponses")
+async def test_load_ancestry(isolated_app_factory: IsolatedAppFactory) -> None:
+    async with isolated_app_factory() as app, app, Project.new_isolated(app) as project:
+        project.configuration.extensions.enable(Demo)
+        async with project:
+            context = ProjectContext(project)
+            await do(context, LoadAncestry())
 
-        assert len(project.ancestry)
+            assert len(project.ancestry)

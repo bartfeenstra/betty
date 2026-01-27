@@ -21,6 +21,7 @@ from betty.project.extension.deriver import Deriver
 from betty.project.extension.http_api_doc import HttpApiDoc
 from betty.project.extension.maps import Maps
 from betty.project.extension.raspberry_mint import RaspberryMint
+from betty.project.extension.spdx import Spdx
 from betty.project.extension.trees import Trees
 from betty.project.extension.wiki import Wiki
 from betty.project.factory import require_project
@@ -73,6 +74,7 @@ async def generate_with_cleanup(
         HttpApiDoc,
         Maps,
         RaspberryMint,
+        Spdx,
         Trees,
         Wiki,
     },

@@ -10,7 +10,6 @@ from typing import TYPE_CHECKING, final
 from betty.definition.human_facing import HumanFacingDefinition
 from betty.locale.localizable.gettext import _, ngettext
 from betty.plugin import Plugin, PluginDefinition, PluginTypeDefinition
-from betty.plugin.discovery.app import AppDiscovery
 from betty.plugin.discovery.entry_point import EntryPointDiscovery
 from betty.plugin.discovery.project import ProjectDiscovery
 
@@ -56,7 +55,6 @@ class License(Plugin["LicenseDefinition"]):
     label_countable=ngettext("{count} license", "{count} licenses"),
     discovery=[
         EntryPointDiscovery("betty.license"),
-        AppDiscovery(lambda app: app._spdx_license_repository),
         ProjectDiscovery(lambda project: project.configuration.licenses.new_plugins()),
     ],
 )
