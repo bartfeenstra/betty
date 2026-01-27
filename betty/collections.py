@@ -24,16 +24,17 @@ class KeyedCollection(
 
     def __init__(
         self,
-        values: Iterable[_ResolvableValueT],
+        values: Iterable[_ResolvableValueT] | None = None,
         *,
         key: Callable[[_ValueT], _KeyT],
         key_resolver: Callable[[_ResolvableKeyT | _KeyT], _KeyT] = passthrough,
         value_resolver: Callable[[_ResolvableValueT | _KeyT], _ValueT] = passthrough,
     ):
         self._values = {}
-        for value in values:
-            value = value_resolver(value)
-            self._values[key(value)] = value
+        if values is not None:
+            for value in values:
+                value = value_resolver(value)
+                self._values[key(value)] = value
         self._key = key
         self._key_resolver = key_resolver
         self._value_resolver = value_resolver
@@ -64,12 +65,13 @@ class KeyedCollection(
     def __delitem__(self, key: _ResolvableKeyT) -> None:
         del self._values[self._key_resolver(key)]
 
-    def add(self, value: _ResolvableValueT) -> None:
+    def add(self, *values: _ResolvableValueT) -> None:
         """
         Add a value to the collection.
         """
-        value: _ValueT = self._value_resolver(value)
-        self._values[self._key(value)] = value
+        for value in values:
+            value: _ValueT = self._value_resolver(value)
+            self._values[self._key(value)] = value
 
 
 @final

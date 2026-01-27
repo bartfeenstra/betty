@@ -28,7 +28,7 @@ from betty.collections import KeyedCollection
 from betty.config import Configuration
 from betty.config.collections.mapping import OrderedConfigurationMapping
 from betty.copyright_notice import CopyrightNotice, CopyrightNoticeDefinition
-from betty.data import Data, DataDefinition, OptionalDefinition, Sample
+from betty.data import Data, DataDefinition, Sample
 from betty.data.aggregate.collection.keyed import KeyedCollectionDefinition
 from betty.data.aggregate.record.object import AttrDefinition, ObjectDefinition
 from betty.data.aggregate.record.object.property import Optional, Property
@@ -939,26 +939,122 @@ class ProjectConfiguration(Data):
     .. data:: betty.project.config:ProjectConfiguration
     """
 
+    clean_urls = Property(
+        BoolDefinition(
+            label=_("Clean URLs"),
+            description=_(
+                'Whether to use clean URLs: "/path" instead of "/path/index.html".'
+            ),
+        ),
+        omit_load=True,
+        omit_dump=lambda data: data is False,
+    )
+    """
+    Whether to generate clean URLs such as ``/person/first-person`` instead of ``/person/first-person/index.html``.
+
+    Generated artifacts will require web server that supports this.
+    """
+
     copyright_notice = Property(
         PluginConfigurationDefinition(CopyrightNoticeDefinition),
         omit_load=True,
         omit_dump=lambda data: data == ProjectConfiguration._default_copyright_notice(),
+        default=lambda: ProjectConfiguration._default_copyright_notice(),
     )
     """
     The project-wide copyright notice.
+    """
+
+    debug = Property(
+        BoolDefinition(
+            label=_("Debugging mode"),
+            description=_(
+                "Whether to output more detailed logs and disable optimizations that make debugging harder."
+            ),
+        ),
+        omit_load=True,
+        omit_dump=lambda data: data is False,
+    )
+    """
+    Whether to enable debugging for project jobs.
+
+    This setting is disabled by default.
+
+    Enabling this generally results in:
+
+    - More verbose logging output
+    - job artifacts (e.g. generated sites)
+    """
+
+    entity_types = Property(
+        KeyedCollectionDefinition(
+            item=EntityTypeConfiguration.data(),  # ty:ignore[invalid-argument-type]
+            label=_("Entity types"),
+            key=Attr("entity_type"),  # ty:ignore[invalid-argument-type]
+            ordered=False,
+        ),
+        omit_load=True,
+        omit_dump=lambda data: not len(data),
+        default=lambda: KeyedCollection(
+            key=lambda item: item.entity_type,
+            value_resolver=lambda data: data
+            if isinstance(data, EntityTypeConfiguration)
+            else EntityTypeConfiguration(entity_type=data),
+        ),
+    )
+    """
+    The available entity types.
+    """
+
+    lifetime_threshold = Property(
+        IntDefinition(
+            label=_("Lifetime threshold"),
+            description=_(
+                "The number of years people are expected to live at most, e.g. after which they are presumed to have died."
+            ),
+        ),
+        omit_load=True,
+        omit_dump=lambda data: data == DEFAULT_LIFETIME_THRESHOLD,
+        resolver=assert_number(minimum=1),
+    )
+    """
+    The lifetime threshold indicates when people are considered dead.
+
+    This setting defaults to :py:const:`betty.project.config.DEFAULT_LIFETIME_THRESHOLD`.
+
+    The value is an integer expressing the age in years over which people are
+    presumed to have died.
     """
 
     license = Property(
         PluginConfigurationDefinition(LicenseDefinition),
         omit_load=True,
         omit_dump=lambda data: data == ProjectConfiguration._default_license(),
+        default=lambda: ProjectConfiguration._default_license(),
     )
     """
     The project-wide license.
     """
 
+    logo = Optional(Property(FilePathDefinition(), label=_("Logo")))
+    """
+    The project logo.
+    """
+
+    name = Optional(Property(MachineNameDefinition(), resolver=assert_machine_name()))
+    """
+    The project's machine name.
+    """
+
     title = LocalizableProperty(label=_("Title"))
+    """
+    The human-readable project title.
+    """
+
     author = Optional(LocalizableProperty(label=_("Author")))
+    """
+    The project's author.
+    """
 
     def __init__(
         self,
@@ -988,34 +1084,27 @@ class ProjectConfiguration(Data):
         logo: Path | None = None,
     ):
         super().__init__()
-        self._name = name
+        self.name = name
         self._url = url
-        self._clean_urls = clean_urls
+        self.clean_urls = clean_urls
         self.title = title
         self.author = author
-        self._entity_types = KeyedCollection(
-            () if entity_types is None else entity_types,
-            key=lambda item: item.entity_type,
-            value_resolver=lambda data: data
-            if isinstance(data, EntityTypeConfiguration)
-            else EntityTypeConfiguration(entity_type=data),
-        )
+        if entity_types is not None:
+            self.entity_types.add(*entity_types)
         self._event_types = (
             EventTypePluginConfigurationMapping()
             if event_types is None
             else event_types
         )
-        self.copyright_notice = (
-            self._default_copyright_notice()
-            if copyright_notice is None
-            else copyright_notice
-        )
+        if copyright_notice is not None:
+            self.copyright_notice = copyright_notice
         self._copyright_notices = (
             CopyrightNoticePluginConfigurationMapping()
             if copyright_notices is None
             else copyright_notices
         )
-        self.license = self._default_license() if license is None else license
+        if license is not None:
+            self.license = license
         self._licenses = (
             LicensePluginConfigurationMapping() if licenses is None else licenses
         )
@@ -1038,9 +1127,9 @@ class ProjectConfiguration(Data):
             if extensions is None
             else extensions
         )
-        self._debug = debug
-        self._lifetime_threshold = lifetime_threshold
-        self._logo = logo
+        self.debug = debug
+        self.lifetime_threshold = lifetime_threshold
+        self.logo = logo
 
     @classmethod
     def _default_copyright_notice(
@@ -1063,18 +1152,6 @@ class ProjectConfiguration(Data):
     @classmethod
     def _default_locales(cls) -> LocaleConfigurationMapping:
         return LocaleConfigurationMapping()
-
-    @property
-    @AttrDefinition(OptionalDefinition(MachineNameDefinition()))
-    def name(self) -> MachineName | None:
-        """
-        The project's machine name.
-        """
-        return self._name
-
-    @name.setter
-    def name(self, name: MachineName) -> None:
-        self._name = assert_machine_name()(name)
 
     @property
     @AttrDefinition(
@@ -1126,29 +1203,6 @@ class ProjectConfiguration(Data):
 
     @property
     @AttrDefinition(
-        BoolDefinition(
-            label=_("Clean URLs"),
-            description=_(
-                'Whether to use clean URLs: "/path" instead of "/path/index.html".'
-            ),
-        ),
-        omit_load=True,
-        omit_dump=lambda data: data is False,
-    )
-    def clean_urls(self) -> bool:
-        """
-        Whether to generate clean URLs such as ``/person/first-person`` instead of ``/person/first-person/index.html``.
-
-        Generated artifacts will require web server that supports this.
-        """
-        return self._clean_urls
-
-    @clean_urls.setter
-    def clean_urls(self, clean_urls: bool) -> None:
-        self._clean_urls = clean_urls
-
-    @property
-    @AttrDefinition(
         DataDefinition(cls=LocaleConfigurationMapping, label=_("Locales")),
         omit_load=True,
         omit_dump=lambda data: data == ProjectConfiguration._default_locales(),
@@ -1158,30 +1212,6 @@ class ProjectConfiguration(Data):
         The available locales.
         """
         return self._locales
-
-    @property
-    @AttrDefinition(
-        KeyedCollectionDefinition(
-            item=EntityTypeConfiguration.data(),  # ty:ignore[invalid-argument-type]
-            label=_("Entity types"),
-            key=Attr("entity_type"),  # ty:ignore[invalid-argument-type]
-            ordered=False,
-        ),
-        omit_load=True,
-        omit_dump=lambda data: not len(data),
-    )
-    def entity_types(
-        self,
-    ) -> KeyedCollection[
-        MachineName,
-        EntityTypeConfiguration,
-        ResolvableId[EntityDefinition],
-        EntityTypeConfiguration | ResolvableId[EntityDefinition],
-    ]:
-        """
-        The available entity types.
-        """
-        return self._entity_types
 
     @property
     @AttrDefinition(
@@ -1196,73 +1226,6 @@ class ProjectConfiguration(Data):
         Then extensions running within this application.
         """
         return self._extensions
-
-    @property
-    @AttrDefinition(
-        BoolDefinition(
-            label=_("Debugging mode"),
-            description=_(
-                "Whether to output more detailed logs and disable optimizations that make debugging harder."
-            ),
-        ),
-        omit_load=True,
-        omit_dump=lambda data: data is False,
-    )
-    def debug(self) -> bool:
-        """
-        Whether to enable debugging for project jobs.
-
-        This setting is disabled by default.
-
-        Enabling this generally results in:
-
-        - More verbose logging output
-        - job artifacts (e.g. generated sites)
-        """
-        return self._debug
-
-    @debug.setter
-    def debug(self, debug: bool) -> None:
-        self._debug = debug
-
-    @property
-    @AttrDefinition(
-        IntDefinition(
-            label=_("Lifetime threshold"),
-            description=_(
-                "The number of years people are expected to live at most, e.g. after which they are presumed to have died."
-            ),
-        ),
-        omit_load=True,
-        omit_dump=lambda data: data == DEFAULT_LIFETIME_THRESHOLD,
-    )
-    def lifetime_threshold(self) -> int:
-        """
-        The lifetime threshold indicates when people are considered dead.
-
-        This setting defaults to :py:const:`betty.project.config.DEFAULT_LIFETIME_THRESHOLD`.
-
-        The value is an integer expressing the age in years over which people are
-        presumed to have died.
-        """
-        return self._lifetime_threshold
-
-    @lifetime_threshold.setter
-    def lifetime_threshold(self, lifetime_threshold: int) -> None:
-        assert_number(minimum=1)(lifetime_threshold)
-        self._lifetime_threshold = lifetime_threshold
-
-    @property
-    @AttrDefinition(OptionalDefinition(FilePathDefinition()), label=_("Logo"))
-    def logo(self) -> Path | None:
-        """
-        The path to the logo.
-        """
-        return self._logo
-
-    @logo.setter
-    def logo(self, logo: Path | None) -> None:
-        self._logo = logo
 
     @property
     @AttrDefinition(
