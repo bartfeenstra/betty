@@ -215,7 +215,7 @@ async def test_new__with_gramps(
             assert not isinstance(
                 portable_gramps_configuration, (Data, Configuration, Void)
             )
-            gramps_configuration = GrampsConfiguration.load(
+            gramps_configuration = GrampsConfiguration.data().porter.load(
                 portable_gramps_configuration
             )
             assert (

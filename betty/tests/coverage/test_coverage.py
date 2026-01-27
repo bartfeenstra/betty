@@ -488,9 +488,13 @@ _BASELINE: Mapping[str, _ModuleIgnore] = {
         },
     },
     "betty/project/extension/gramps/config.py": {
-        "EventTypeMapping": MissingReason.STATIC_CONTENT_ONLY,
-        "PlaceTypeMapping": MissingReason.STATIC_CONTENT_ONLY,
-        "PresenceRoleMapping": MissingReason.STATIC_CONTENT_ONLY,
+        "FamilyTreeConfiguration": {
+            "event_types": MissingReason.INHERITED,
+            "file": MissingReason.INHERITED,
+            "name": MissingReason.INHERITED,
+            "place_types": MissingReason.INHERITED,
+            "presence_roles": MissingReason.INHERITED,
+        },
     },
     "betty/project/extension/privatizer/__init__.py": {
         "Privatizer": {
