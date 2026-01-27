@@ -155,9 +155,7 @@ def regional_content(
                 PluginConfiguration(
                     Section,
                     SectionConfiguration(
-                        PluginConfiguration(Families),  # ty:ignore[invalid-argument-type]
-                        heading=_make_dumpable(_("Family")),
-                        name="family",
+                        Families, heading=_make_dumpable(_("Family")), name="family"
                     ),
                 ),
                 PluginConfiguration(
@@ -200,7 +198,7 @@ def regional_content(
                         PluginConfiguration(
                             Section,
                             SectionConfiguration(
-                                PluginConfiguration(MediaGallery),  # ty:ignore[invalid-argument-type]
+                                MediaGallery,
                                 heading=_make_dumpable(_("Media")),
                                 name="media",
                             ),

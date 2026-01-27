@@ -134,3 +134,7 @@ class ResolvingMutableSequence(
             )
         except Exception:
             return False
+
+    @override
+    def extend(self, values: Iterable[_ValueT | _ResolvableValueT]) -> None:
+        super().extend(map(self._resolver, values))

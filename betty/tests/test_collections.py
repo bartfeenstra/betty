@@ -74,6 +74,12 @@ class TestResolvingMutableSequence:
         sut.insert(3, True)
         assert decorated == ["True"]
 
+    def test_extend(self) -> None:
+        decorated = ["False"]
+        sut = ResolvingMutableSequence(decorated, str)
+        sut.extend([True])
+        assert decorated == ["False", "True"]
+
     def test___getitem__(self) -> None:
         sut = ResolvingMutableSequence(["True"], str)
         assert sut[0] == "True"

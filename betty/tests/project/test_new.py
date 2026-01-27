@@ -4,6 +4,7 @@ from babel import Locale
 from pytest_mock import MockerFixture
 
 from betty.config import Configuration
+from betty.data import Data
 from betty.locale import DEFAULT_LOCALE_TAG, to_language_tag
 from betty.locale.localize import DEFAULT_LOCALIZER
 from betty.portable.file import assert_load_file
@@ -211,8 +212,9 @@ async def test_new__with_gramps(
             portable_gramps_configuration = configuration.extensions[
                 Gramps
             ].configuration
-            assert not isinstance(portable_gramps_configuration, Configuration)
-            assert not isinstance(portable_gramps_configuration, Void)
+            assert not isinstance(
+                portable_gramps_configuration, (Data, Configuration, Void)
+            )
             gramps_configuration = GrampsConfiguration.load(
                 portable_gramps_configuration
             )

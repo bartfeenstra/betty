@@ -13,7 +13,6 @@ from betty.ancestry.presence_role import PresenceRoleDefinition
 from betty.assertion import (
     OptionalField,
     RequiredField,
-    assert_bool,
     assert_enum,
     assert_int,
     assert_mapping,
@@ -25,14 +24,13 @@ from betty.config import Configuration
 from betty.config.factory import ConfigurationDependentSelfFactory
 from betty.content_provider import ContentProvider, ContentProviderDefinition
 from betty.content_provider.content_providers import Template
-from betty.data import Sample, Samples
-from betty.data.sample import Size
-from betty.locale.localizable.assertion import assert_load_localizable
-from betty.locale.localizable.ensure import ensure_localizable
+from betty.data import Data, Sample, Samples, Size
+from betty.data.aggregate.record.object import ObjectDefinition
+from betty.data.aggregate.record.object.property import Optional, Property
+from betty.data.bool import BoolDefinition
 from betty.locale.localizable.gettext import _
-from betty.locale.localizable.portable import dump_localizable
 from betty.locale.localizable.property import LocalizableProperty
-from betty.machine_name import MachineName, assert_machine_name
+from betty.machine_name import MachineName, MachineNameDefinition, assert_machine_name
 from betty.model import EntityDefinition
 from betty.model.config import EntityReference
 from betty.plugin import Plugin
@@ -40,9 +38,11 @@ from betty.plugin.config import (
     PluginConfiguration,
     PluginInstanceConfigurationSequence,
     PluginInstanceConfigurationSequenceSequence,
+    ResolvablePluginConfigurations,
     ShorthandPluginInstanceConfigurationSequence,
     ShorthandPluginInstanceConfigurationSequenceSequence,
 )
+from betty.plugin.config.property import PluginConfigurationSequenceProperty
 from betty.plugin.resolve import resolve_id
 from betty.project.extension.raspberry_mint import (
     Breakpoint,
@@ -56,6 +56,7 @@ from betty.service.level.factory import (
     CallbackServiceLevelDependentFactory,
     ServiceLevelDependentSelfFactory,
 )
+from betty.test_utils.locale.localizable import DUMMY_LOCALIZABLE
 from betty.typing import private
 
 if TYPE_CHECKING:
@@ -84,18 +85,65 @@ class _Base(HasRequirement, Plugin[ContentProviderDefinition]):
         )
 
 
-class SectionConfiguration(Configuration):
+@final
+@ObjectDefinition(
+    label=_("Section configuration"),
+    samples=[
+        lambda: Sample(
+            SectionConfiguration(
+                PluginConfiguration("my-first-content"),  # ty:ignore[invalid-argument-type]
+                heading=DUMMY_LOCALIZABLE,
+            ),
+            label="Minimal",
+            size=Size.MINIMAL,
+        ),
+    ],
+)
+class SectionConfiguration(Data):
     """
     Configuration for :py:class:`betty.project.extension.raspberry_mint.content_provider.Section`.
 
-    .. configuration:: betty.project.extension.raspberry_mint.content_provider:SectionConfiguration
+    .. data:: betty.project.extension.raspberry_mint.content_provider:SectionConfiguration
+    """
+
+    content = PluginConfigurationSequenceProperty[
+        ContentProviderDefinition, ContentProvider
+    ](ContentProviderDefinition, label=_("Content"))
+    """
+    The content within this section.
     """
 
     heading = LocalizableProperty(label=_("Heading"))
+    """
+    The section heading.
+    """
+
+    name = Optional(
+        Property(
+            MachineNameDefinition(),
+            label=_("Name"),
+            omit_dump=lambda data: data is None,
+        )
+    )
+    """
+    The section's machine name, used to generate permanent links.
+    """
+
+    visually_hide_heading = Optional(
+        Property(
+            BoolDefinition(label=_("Visually hide heading")),
+            omit_dump=lambda data: data is False,
+        )
+    )
+    """
+    Visually hide the heading.
+    
+    This keeps the heading for accessibility purposes, but does not display it visually.
+    """
 
     def __init__(
         self,
-        content: ShorthandPluginInstanceConfigurationSequence[
+        content: ResolvablePluginConfigurations[
             ContentProviderDefinition, ContentProvider
         ],
         *,
@@ -104,77 +152,10 @@ class SectionConfiguration(Configuration):
         visually_hide_heading: bool = False,
     ):
         super().__init__()
-        self.heading = ensure_localizable(heading)
-        self._content = PluginInstanceConfigurationSequence(content)  # ty:ignore[invalid-argument-type]
+        self.content = content
+        self.heading = heading
         self.name = name
         self.visually_hide_heading = visually_hide_heading
-
-    @property
-    def content(
-        self,
-    ) -> PluginInstanceConfigurationSequence[
-        ContentProviderDefinition, ContentProvider
-    ]:
-        """
-        The content within this section.
-        """
-        return self._content  # ty:ignore[invalid-return-type]
-
-    @override
-    @classmethod
-    def load(cls, portable: PortableData, /) -> Self:
-        return cls(
-            **assert_record(
-                OptionalField("name", assert_machine_name()),
-                RequiredField("heading", assert_load_localizable),
-                RequiredField("content", PluginInstanceConfigurationSequence.load),
-                OptionalField(
-                    "visually_hide_heading",
-                    assert_bool,
-                ),
-            )(portable)
-        )
-
-    @override
-    def dump(self) -> PortableData:
-        portable = {
-            "heading": dump_localizable(self.heading),
-            "content": self.content.dump(),
-        }
-        if self.name:
-            portable["name"] = self.name
-        if self.visually_hide_heading:
-            portable["visually_hide_heading"] = True
-        return portable
-
-    @override
-    def __eq__(self, other: Any) -> bool:
-        if not isinstance(other, type(self)):
-            return NotImplemented
-        return (self.heading, self.content, self.name, self.visually_hide_heading) == (
-            other.heading,
-            other.content,
-            other.name,
-            other.visually_hide_heading,
-        )
-
-    @override
-    @classmethod
-    def samples(cls) -> Samples:
-        from betty.test_utils.locale.localizable import DUMMY_LOCALIZABLE
-
-        return Samples(
-            [
-                lambda: Sample(
-                    cls(
-                        PluginConfiguration("my-first-content"),  # ty:ignore[invalid-argument-type]
-                        heading=DUMMY_LOCALIZABLE,
-                    ),
-                    label="Minimal",
-                    size=Size.MINIMAL,
-                )
-            ]
-        )
 
 
 @ContentProviderDefinition("raspberry-mint-section", label=_("Section"))
@@ -186,24 +167,6 @@ class Section(
     """
     .. plugin:: content-provider:raspberry-mint-section.
     """
-
-    @private
-    def __init__(
-        self,
-        *,
-        jinja2_environment: Environment,
-        configuration: SectionConfiguration | None = None,
-    ):
-        super().__init__(
-            configuration=SectionConfiguration(
-                PluginConfiguration("my-first-plugin"),  # ty:ignore[invalid-argument-type]
-                name="",
-                heading="-",
-            )
-            if configuration is None
-            else configuration,
-            jinja2_environment=jinja2_environment,
-        )
 
     @override
     @classmethod
