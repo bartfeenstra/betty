@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PROJECT VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-01-27 19:23+0000\n"
+"POT-Creation-Date: 2026-01-27 19:52+0000\n"
 "PO-Revision-Date: 2025-08-27 20:02+0000\n"
 "Last-Translator: \"David D.\" <dadu042@users.noreply.hosted.weblate.org>\n"
 "Language: fr_FR\n"
@@ -981,6 +981,9 @@ msgstr "Média"
 msgid "Media gallery"
 msgstr ""
 
+msgid "Media type"
+msgstr ""
+
 msgid "Men"
 msgstr ""
 
@@ -1309,6 +1312,9 @@ msgid "Regions"
 msgstr ""
 
 msgid "Rendered content"
+msgstr ""
+
+msgid "Rendered content configuration"
 msgstr ""
 
 msgid "Renderer"
