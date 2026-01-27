@@ -40,6 +40,7 @@ class Property(Attr[_ValueGetT], Generic[_ValueGetT, _ValueSetT]):
         omit_load: bool | None = None,
         omit_dump: Callable[[_ValueGetT], bool] | None = None,
         resolver: Callable[[_ValueSetT | _ValueGetT], _ValueGetT] = passthrough,
+        default: Callable[[], _ValueGetT] | None = None,
     ):
         self._data = data
         self._label = label
@@ -52,6 +53,7 @@ class Property(Attr[_ValueGetT], Generic[_ValueGetT, _ValueSetT]):
             omit_dump=omit_dump,
         )
         self._resolver = resolver
+        self._default = default
 
     def __set_name__(self, owner: type[Any], name: str) -> None:
         self._attr_name = f"_{name}"
@@ -77,10 +79,13 @@ class Property(Attr[_ValueGetT], Generic[_ValueGetT, _ValueSetT]):
             getattr(instance, self._attr_name, None),
         )
         if value is None:
-            instance_name = fully_qualified_name(type(instance))
-            raise PropertyNotInitialized(
-                f"{instance_name}.{self._attr_name[1:]} was never initialized. {instance_name}.__init__() MUST set a value."
-            )
+            if self._default is None:
+                instance_name = fully_qualified_name(type(instance))
+                raise PropertyNotInitialized(
+                    f"{instance_name}.{self._attr_name[1:]} was never initialized. {instance_name}.__init__() MUST set a value."
+                )
+            value = self._default()
+            setattr(instance, self._attr_name, value)
         return value
 
     def __set__(self, instance: Any, value: _ValueSetT | _ValueGetT) -> None:

@@ -19,6 +19,10 @@ from betty.plugin.config import (
     PluginInstanceConfigurationMapping,
     PluginInstanceConfigurationSequence,
     PluginInstanceConfigurationSequenceSequence,
+    ResolvablePluginConfiguration,
+    ResolvablePluginConfigurations,
+    resolve_plugin_configuration,
+    resolve_plugin_configurations,
 )
 from betty.plugin.resolve import ResolvableId
 from betty.portable import PortableData
@@ -556,3 +560,49 @@ class TestPluginInstanceConfigurationSequenceSequence(
                 )
             ),
         )
+
+
+@pytest.mark.parametrize(
+    ("expected", "value"),
+    [
+        (PluginConfiguration(DummyPluginOne.plugin().id), DummyPluginOne),
+        (PluginConfiguration(DummyPluginOne.plugin().id), DummyPluginOne.plugin()),
+        (PluginConfiguration(DummyPluginOne.plugin().id), DummyPluginOne.plugin().id),
+        (
+            PluginConfiguration(DummyPluginOne.plugin().id),
+            PluginConfiguration(DummyPluginOne),
+        ),
+    ],
+)
+def test_resolve_plugin_configuration(
+    expected: PluginConfiguration, value: ResolvablePluginConfiguration
+) -> None:
+    assert resolve_plugin_configuration(value) == expected
+
+
+@pytest.mark.parametrize(
+    ("expected", "value"),
+    [
+        ([PluginConfiguration(DummyPluginOne.plugin().id)], DummyPluginOne),
+        ([PluginConfiguration(DummyPluginOne.plugin().id)], DummyPluginOne.plugin()),
+        ([PluginConfiguration(DummyPluginOne.plugin().id)], DummyPluginOne.plugin().id),
+        (
+            [PluginConfiguration(DummyPluginOne.plugin().id)],
+            PluginConfiguration(DummyPluginOne),
+        ),
+        ([PluginConfiguration(DummyPluginOne.plugin().id)], [DummyPluginOne]),
+        ([PluginConfiguration(DummyPluginOne.plugin().id)], [DummyPluginOne.plugin()]),
+        (
+            [PluginConfiguration(DummyPluginOne.plugin().id)],
+            [DummyPluginOne.plugin().id],
+        ),
+        (
+            [PluginConfiguration(DummyPluginOne.plugin().id)],
+            [PluginConfiguration(DummyPluginOne)],
+        ),
+    ],
+)
+def test_resolve_plugin_configurations(
+    expected: list[PluginConfiguration], value: ResolvablePluginConfigurations
+) -> None:
+    assert list(resolve_plugin_configurations(value)) == expected

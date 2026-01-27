@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Betty VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-01-27 15:05+0000\n"
+"POT-Creation-Date: 2026-01-27 17:08+0000\n"
 "PO-Revision-Date: 2025-12-30 16:01+0000\n"
 "Last-Translator: Bart Feenstra <bart@bartfeenstra.com>\n"
 "Language: de_DE\n"
@@ -1368,6 +1368,9 @@ msgstr "Suchen"
 msgid "Section"
 msgstr ""
 
+msgid "Section configuration"
+msgstr ""
+
 msgid "Serializer"
 msgstr ""
 
@@ -1749,6 +1752,9 @@ msgid "Village"
 msgstr "Dorf"
 
 msgid "Villages"
+msgstr ""
+
+msgid "Visually hide heading"
 msgstr ""
 
 msgid "Welcome"

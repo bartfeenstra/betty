@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Betty VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-01-27 15:05+0000\n"
+"POT-Creation-Date: 2026-01-27 17:08+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -1329,6 +1329,9 @@ msgstr ""
 msgid "Section"
 msgstr ""
 
+msgid "Section configuration"
+msgstr ""
+
 msgid "Serializer"
 msgstr ""
 
@@ -1705,6 +1708,9 @@ msgid "Village"
 msgstr ""
 
 msgid "Villages"
+msgstr ""
+
+msgid "Visually hide heading"
 msgstr ""
 
 msgid "Welcome"

@@ -21,7 +21,7 @@ from betty.config import Configuration
 from betty.config.collections import ConfigurationCollection, ConfigurationKey
 from betty.config.collections.mapping import ConfigurationMapping
 from betty.config.collections.sequence import ConfigurationSequence
-from betty.data import Sample
+from betty.data import Data, Sample
 from betty.data.aggregate.record import PortableRecord
 from betty.data.aggregate.record.object.property import Optional
 from betty.data.indicator.selector import Attr
@@ -47,7 +47,7 @@ from betty.locale.localizable.property import (
 from betty.locale.localizable.static import CountableStaticTranslations
 from betty.machine_name import MachineName, assert_machine_name
 from betty.plugin import Plugin, PluginDefinition
-from betty.plugin.resolve import ResolvableId, resolve_id
+from betty.plugin.resolve import ResolvableId, resolve_definition, resolve_id
 from betty.typing import Void
 
 if TYPE_CHECKING:
@@ -377,7 +377,7 @@ class PluginConfiguration(
     def __init__(
         self,
         id: ResolvableId[_PluginDefinitionT],  # noqa: A002
-        configuration: Configuration | PortableData | Void = Void(),  # noqa: B008
+        configuration: Data | Configuration | PortableData | Void = Void(),  # noqa: B008
         /,
     ):
         super().__init__()
@@ -398,7 +398,7 @@ class PluginConfiguration(
         return self._id
 
     @property
-    def configuration(self) -> Configuration | PortableData | Void:
+    def configuration(self) -> Data | Configuration | PortableData | Void:
         """
         Get the plugin's own configuration.
         """
@@ -422,6 +422,15 @@ class PluginConfiguration(
     def load_key(cls, portable: PortableData, key: Attr, portable_key: str, /) -> Self:
         return cls.load({"id": portable_key, "configuration": portable})
 
+    def _dump_configuration(
+        self, configuration: Data | Configuration | PortableData
+    ) -> PortableData:
+        if isinstance(configuration, Configuration):
+            return configuration.dump()
+        if isinstance(configuration, Data):
+            return configuration.data().porter.dump(configuration)  # ty:ignore[invalid-argument-type]
+        return configuration
+
     @override
     def dump(self) -> PortableData:
         configuration = self.configuration
@@ -429,17 +438,13 @@ class PluginConfiguration(
             return self._id
         return {
             "id": self._id,
-            "configuration": configuration.dump()
-            if isinstance(configuration, Configuration)
-            else configuration,
+            "configuration": self._dump_configuration(configuration),
         }
 
     @override
     def dump_key(self, key: Attr, /) -> tuple[str, PortableData]:
         return self.id, {} if self.configuration is Void() else {
-            "configuration": self.configuration.dump()
-            if isinstance(self.configuration, Configuration)
-            else self.configuration,
+            "configuration": self._dump_configuration(self.configuration),  # ty:ignore[invalid-argument-type]
         }
 
     @override
@@ -464,6 +469,47 @@ class PluginConfiguration(
                 ),
             ]
         )
+
+
+ResolvablePluginConfiguration: TypeAlias = (
+    ResolvableId[_PluginDefinitionT] | PluginConfiguration[_PluginDefinitionT, _PluginT]
+)
+
+
+def resolve_plugin_configuration(
+    plugin_configuration: ResolvablePluginConfiguration[_PluginDefinitionT, _PluginT],
+) -> PluginConfiguration[_PluginDefinitionT, _PluginT]:
+    """
+    Resolve a value to a plugin configuration.
+    """
+    if isinstance(plugin_configuration, PluginConfiguration):
+        return plugin_configuration
+    if isinstance(plugin_configuration, str):
+        return PluginConfiguration(plugin_configuration)
+    return PluginConfiguration(resolve_definition(plugin_configuration).id)  # ty:ignore[invalid-argument-type]
+
+
+ResolvablePluginConfigurations: TypeAlias = (
+    ResolvablePluginConfiguration[_PluginDefinitionT, _PluginT]
+    | Iterable[ResolvablePluginConfiguration[_PluginDefinitionT, _PluginT]]
+)
+
+
+def resolve_plugin_configurations(
+    plugin_configurations: ResolvablePluginConfigurations[_PluginDefinitionT, _PluginT],
+) -> Iterable[PluginConfiguration[_PluginDefinitionT, _PluginT]]:
+    """
+    Resolve a value to an iterable of plugin configurations.
+    """
+    if isinstance(plugin_configurations, PluginConfiguration):
+        return (plugin_configurations,)
+    if (
+        isinstance(plugin_configurations, (str, PluginDefinition))
+        or isinstance(plugin_configurations, type)
+        and issubclass(plugin_configurations, Plugin)
+    ):
+        return (resolve_plugin_configuration(plugin_configurations),)  # ty:ignore[invalid-return-type]
+    return map(resolve_plugin_configuration, plugin_configurations)  # ty:ignore[invalid-argument-type]
 
 
 ShorthandPluginInstanceConfigurationSequence: TypeAlias = (

@@ -71,6 +71,7 @@ from betty.test_utils.content_provider import (
     ContentProviderTestBase,
     NoOpContentProvider,
 )
+from betty.test_utils.data import DataTestBase
 from betty.test_utils.locale.localizable import DUMMY_LOCALIZABLE
 from betty.test_utils.model import DummyEntityOne
 
@@ -117,13 +118,12 @@ class TestEntityCard(
         assert entity.public_id in provided_content
 
 
-class TestSectionConfiguration(ConfigurationTestBase[SectionConfiguration]):
+class TestSectionConfiguration(DataTestBase[SectionConfiguration]):
     sut_cls = SectionConfiguration
 
     def test_content(self) -> None:
         sut = SectionConfiguration(
             PluginConfiguration("my-first-content"),  # ty:ignore[invalid-argument-type]
-            name="",
             heading=DUMMY_LOCALIZABLE,
         )
         assert sut.content[0].id == "my-first-content"
@@ -132,7 +132,6 @@ class TestSectionConfiguration(ConfigurationTestBase[SectionConfiguration]):
         heading = Plain("My First Section")
         sut = SectionConfiguration(
             PluginConfiguration("my-first-content"),  # ty:ignore[invalid-argument-type]
-            name="",
             heading=heading,
         )
         assert sut.heading is heading
@@ -145,71 +144,13 @@ class TestSectionConfiguration(ConfigurationTestBase[SectionConfiguration]):
         )
         assert sut.name == "my-first-section"
 
-    def test_load__minimal(self) -> None:
-        sut = SectionConfiguration.load(
-            {
-                "heading": "My First Section",
-                "content": ["my-first-content"],
-            }
-        )
-        assert sut.heading.localize(DEFAULT_LOCALIZER) == "My First Section"
-        assert sut.content[0].id == "my-first-content"
-
-    def test_load__with_name(self) -> None:
-        sut = SectionConfiguration.load(
-            {
-                "name": "my-first-section",
-                "heading": "My First Section",
-                "content": ["my-first-content"],
-            }
-        )
-        assert sut.name == "my-first-section"
-
-    def test_load__without_heading(self) -> None:
-        with pytest.raises(HumanFacingException):
-            SectionConfiguration.load(
-                {
-                    "name": "my-first-section",
-                    "content": ["my-first-content"],
-                }
-            )
-
-    def test_load__without_content(self) -> None:
-        with pytest.raises(HumanFacingException):
-            SectionConfiguration.load(
-                {
-                    "name": "my-first-section",
-                    "heading": "My First Section",
-                }
-            )
-
-    def test_dump__minimal(self) -> None:
+    def test_visually_hide_heading(self) -> None:
         sut = SectionConfiguration(
             PluginConfiguration("my-first-content"),  # ty:ignore[invalid-argument-type]
-            name="my-first-section",
-            heading="My First Section",
+            heading=DUMMY_LOCALIZABLE,
+            visually_hide_heading=True,
         )
-        assert sut.dump() == {
-            "name": "my-first-section",
-            "heading": "My First Section",
-            "content": [
-                "my-first-content",
-            ],
-        }
-
-    def test_dump__full(self) -> None:
-        sut = SectionConfiguration(
-            PluginConfiguration("my-first-content"),  # ty:ignore[invalid-argument-type]
-            name="my-first-section",
-            heading="My First Section",
-        )
-        assert sut.dump() == {
-            "name": "my-first-section",
-            "heading": "My First Section",
-            "content": [
-                "my-first-content",
-            ],
-        }
+        assert sut.visually_hide_heading
 
 
 class TestSection(
@@ -220,7 +161,12 @@ class TestSection(
     @pytest.fixture
     async def sut(self, isolated_app: App) -> ContentProvider:
         async with Project.new_isolated(isolated_app) as project, project:
-            return Section(jinja2_environment=await project.jinja2_environment)
+            return Section(
+                configuration=SectionConfiguration(
+                    content=[], heading=DUMMY_LOCALIZABLE
+                ),
+                jinja2_environment=await project.jinja2_environment,
+            )
 
     @override
     @pytest.fixture
@@ -230,7 +176,7 @@ class TestSection(
         return Section
 
     @override
-    @pytest.fixture(params=SectionConfiguration.samples())
+    @pytest.fixture(params=SectionConfiguration.data().samples)
     def configuration_dependent_self_factory_sut_configuration(
         self, request: pytest.FixtureRequest
     ) -> SectionConfiguration:
