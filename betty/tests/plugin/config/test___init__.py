@@ -367,7 +367,7 @@ class TestPluginIdentifierKeyConfigurationMapping:
             if isinstance(portable_item, str):
                 return None, portable_item
             assert isinstance(portable_item, Mapping)
-            return None, cast(str, portable_item["value"])
+            return None, cast(str, portable_item["value"])  # ty:ignore[invalid-argument-type]
 
         @override
         def _get_key(self, configuration: DummyConfiguration, /) -> MachineName:

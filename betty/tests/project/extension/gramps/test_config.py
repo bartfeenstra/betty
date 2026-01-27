@@ -208,7 +208,7 @@ class TestFamilyTreeConfiguration(ConfigurationTestBase[FamilyTreeConfiguration]
         )
         actual = sut.dump()["event_types"]
         assert isinstance(actual, Mapping)
-        assert actual["my-first-gramps-type"] == "my-first-betty-plugin-id"
+        assert actual["my-first-gramps-type"] == "my-first-betty-plugin-id"  # ty:ignore[invalid-argument-type]
 
     async def test_dump__with_place_types(self, tmp_path: Path) -> None:
         sut = FamilyTreeConfiguration(
@@ -223,7 +223,7 @@ class TestFamilyTreeConfiguration(ConfigurationTestBase[FamilyTreeConfiguration]
         )
         actual = sut.dump()["place_types"]
         assert isinstance(actual, Mapping)
-        assert actual["my-first-gramps-type"] == "my-first-betty-plugin-id"
+        assert actual["my-first-gramps-type"] == "my-first-betty-plugin-id"  # ty:ignore[invalid-argument-type]
 
     async def test_dump__with_presence_roles(self, tmp_path: Path) -> None:
         sut = FamilyTreeConfiguration(
@@ -238,7 +238,7 @@ class TestFamilyTreeConfiguration(ConfigurationTestBase[FamilyTreeConfiguration]
         )
         actual = sut.dump()["presence_roles"]
         assert isinstance(actual, Mapping)
-        assert actual["my-first-gramps-type"] == "my-first-betty-plugin-id"
+        assert actual["my-first-gramps-type"] == "my-first-betty-plugin-id"  # ty:ignore[invalid-argument-type]
 
 
 class TestPluginMapping(ConfigurationTestBase[PluginMapping]):
@@ -426,9 +426,9 @@ class TestGrampsConfiguration(ConfigurationTestBase[GrampsConfiguration]):
         sut.family_trees.append(FamilyTreeConfiguration(family_tree_name))
         actual = sut.dump()
         assert isinstance(actual["family_trees"], MutableSequence)
-        actual["family_trees"][0].pop("event_types")
-        actual["family_trees"][0].pop("place_types")
-        actual["family_trees"][0].pop("presence_roles")
+        actual["family_trees"][0].pop("event_types")  # ty:ignore[unresolved-attribute]
+        actual["family_trees"][0].pop("place_types")  # ty:ignore[unresolved-attribute]
+        actual["family_trees"][0].pop("presence_roles")  # ty:ignore[unresolved-attribute]
         expected = {
             "family_trees": [
                 {

@@ -140,7 +140,7 @@ class Builder:
     async def _prepare_betty(self, npm_project_directory_path: Path) -> None:
         await to_thread(
             copytree,
-            ROOT_DIRECTORY_PATH / "js",  # ty:ignore[invalid-argument-type]
+            ROOT_DIRECTORY_PATH / "js",
             npm_project_directory_path
             / "packages"
             / _package_name_to_path("@betty.py/betty"),
@@ -152,11 +152,7 @@ class Builder:
     ) -> None:
         await gather(
             *[
-                to_thread(
-                    copy2,
-                    source_file_path,  # ty:ignore[invalid-argument-type]
-                    npm_project_directory_path,
-                )
+                to_thread(copy2, source_file_path, npm_project_directory_path)
                 for source_file_path in (
                     _NPM_PROJECT_DIRECTORIES_PATH / "package.json",
                     _NPM_PROJECT_DIRECTORIES_PATH / "webpack.config.js",
