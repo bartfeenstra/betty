@@ -11,7 +11,7 @@ from typing_extensions import override
 
 from betty.data.aggregate.collection import CollectionDefinition
 from betty.data.indicator.selector import Key
-from betty.portable import CallbackPorter, PortableData
+from betty.portable import CallbackPorter, PortableData, Porter
 
 if TYPE_CHECKING:
     from ty_extensions import Intersection
@@ -41,13 +41,14 @@ class MappingDefinition(CollectionDefinition[_MutableMappingT, Key]):
         label: LocalizableLike,
         description: LocalizableLike | None = None,
         factory: Callable[[Mapping[str, _DataItemT]], _MutableMappingT] | None = None,
+        porter: Porter[_MutableMappingT] | None = None,
     ):
         super().__init__(
             cls=cls,
             item=item,
             label=label,
             description=description,
-            porter=CallbackPorter(self._load, self._dump),
+            porter=CallbackPorter(self._load, self._dump) if porter is None else porter,
         )
         self._key = key
         self._factory = factory

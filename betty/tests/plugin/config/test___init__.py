@@ -18,7 +18,6 @@ from betty.plugin.config import (
     PluginIdentifierKeyConfigurationMapping,
     PluginInstanceConfigurationMapping,
     PluginInstanceConfigurationSequence,
-    PluginInstanceConfigurationSequenceSequence,
     ResolvablePluginConfiguration,
     ResolvablePluginConfigurations,
     resolve_plugin_configuration,
@@ -509,56 +508,6 @@ class TestPluginInstanceConfigurationSequence(
             PluginConfiguration("my-second-plugin"),
             PluginConfiguration("my-third-plugin"),
             PluginConfiguration("my-fourth-plugin"),
-        )
-
-
-class TestPluginInstanceConfigurationSequenceSequence(
-    ConfigurationSequenceTestBase[
-        PluginInstanceConfigurationSequenceSequence[DummyPluginDefinition, DummyPlugin],
-        PluginInstanceConfigurationSequence[DummyPluginDefinition, DummyPlugin],
-    ]
-):
-    sut_cls = PluginInstanceConfigurationSequenceSequence
-
-    @override
-    @pytest.fixture
-    def new_sut(
-        self,
-    ) -> ConfigurationCollectionTestBaseNewSut[
-        PluginInstanceConfigurationSequence[DummyPluginDefinition, DummyPlugin],
-        int,
-        int,
-    ]:
-        return PluginInstanceConfigurationSequenceSequence
-
-    @override
-    @pytest.fixture
-    def sut_configurations(
-        self,
-    ) -> ConfigurationCollectionTestBaseSutConfigurations[
-        PluginInstanceConfigurationSequence[DummyPluginDefinition, DummyPlugin]
-    ]:
-        return (
-            PluginInstanceConfigurationSequence(
-                PluginConfiguration[DummyPluginDefinition, DummyPlugin](
-                    "my-first-plugin"
-                )
-            ),
-            PluginInstanceConfigurationSequence(
-                PluginConfiguration[DummyPluginDefinition, DummyPlugin](
-                    "my-second-plugin"
-                )
-            ),
-            PluginInstanceConfigurationSequence(
-                PluginConfiguration[DummyPluginDefinition, DummyPlugin](
-                    "my-third-plugin"
-                )
-            ),
-            PluginInstanceConfigurationSequence(
-                PluginConfiguration[DummyPluginDefinition, DummyPlugin](
-                    "my-fourth-plugin"
-                )
-            ),
         )
 
 

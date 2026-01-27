@@ -17,7 +17,7 @@ from betty.locale.localizable.markup import Chain
 from betty.locale.localize import LocalizerRepository
 from betty.media_type.media_types import HTML
 from betty.model.config import EntityReference
-from betty.plugin.config import PluginConfiguration, PluginInstanceConfigurationSequence
+from betty.plugin.config import PluginConfiguration
 from betty.project import Project
 from betty.project.config import (
     ExtensionInstanceConfigurationMapping,
@@ -76,9 +76,7 @@ async def create_project(app: App, project_directory_path: Path) -> Project:
                                     PluginConfiguration(
                                         Columns,
                                         ColumnsConfiguration(
-                                            PluginConfiguration(
-                                                _IncompleteTranslationWarning
-                                            )  # ty:ignore[invalid-argument-type]
+                                            [[_IncompleteTranslationWarning]]
                                         ),
                                     ),
                                     PluginConfiguration(
@@ -88,51 +86,45 @@ async def create_project(app: App, project_directory_path: Path) -> Project:
                                                 Columns,
                                                 ColumnsConfiguration(
                                                     [
-                                                        PluginInstanceConfigurationSequence(
-                                                            [
-                                                                PluginConfiguration(
-                                                                    Render,
-                                                                    RenderConfiguration(
-                                                                        Chain(
-                                                                            "<h2>",
-                                                                            _(
-                                                                                "Get started"
-                                                                            ),
-                                                                            "</h2>"
-                                                                            '<a href="https://betty.readthedocs.io/" class="view-more">',
-                                                                            _(
-                                                                                "Read the documentation"
-                                                                            ),
-                                                                            "</a>",
-                                                                            '<a href="https://github.com/bartfeenstra/betty/" class="view-more">',
-                                                                            _(
-                                                                                "View the code"
-                                                                            ),
-                                                                            "</a>",
+                                                        [
+                                                            PluginConfiguration(
+                                                                Render,
+                                                                RenderConfiguration(
+                                                                    Chain(
+                                                                        "<h2>",
+                                                                        _(
+                                                                            "Get started"
                                                                         ),
-                                                                        HTML,
-                                                                    ),
-                                                                )
-                                                            ]
-                                                        ),
-                                                        PluginInstanceConfigurationSequence(
-                                                            [
-                                                                PluginConfiguration(
-                                                                    Render,
-                                                                    RenderConfiguration(
-                                                                        Chain(
-                                                                            "<p>",
-                                                                            _(
-                                                                                "Betty was named after <a href=\"betty-entity://person/betty-demo-liberta-lankester\">Liberta 'Betty' Lankester</a>, and this website shows a small sample of her family history. You can browse the pages about her and some of her family to get an idea of what a Betty site looks like."
-                                                                            ),
-                                                                            "</p>",
+                                                                        "</h2>"
+                                                                        '<a href="https://betty.readthedocs.io/" class="view-more">',
+                                                                        _(
+                                                                            "Read the documentation"
                                                                         ),
-                                                                        HTML,
+                                                                        "</a>",
+                                                                        '<a href="https://github.com/bartfeenstra/betty/" class="view-more">',
+                                                                        _(
+                                                                            "View the code"
+                                                                        ),
+                                                                        "</a>",
                                                                     ),
-                                                                )
-                                                            ]
-                                                        ),
-                                                    ],  # ty:ignore[invalid-argument-type]
+                                                                    HTML,
+                                                                ),
+                                                            ),
+                                                            PluginConfiguration(
+                                                                Render,
+                                                                RenderConfiguration(
+                                                                    Chain(
+                                                                        "<p>",
+                                                                        _(
+                                                                            "Betty was named after <a href=\"betty-entity://person/betty-demo-liberta-lankester\">Liberta 'Betty' Lankester</a>, and this website shows a small sample of her family history. You can browse the pages about her and some of her family to get an idea of what a Betty site looks like."
+                                                                        ),
+                                                                        "</p>",
+                                                                    ),
+                                                                    HTML,
+                                                                ),
+                                                            ),
+                                                        ]
+                                                    ],
                                                     width={
                                                         Breakpoint.XS: [12, 12],
                                                         Breakpoint.MD: [5, 6],
@@ -151,40 +143,34 @@ async def create_project(app: App, project_directory_path: Path) -> Project:
                                                 Columns,
                                                 ColumnsConfiguration(
                                                     [
-                                                        PluginInstanceConfigurationSequence(
-                                                            [
-                                                                PluginConfiguration(
-                                                                    EntityCard,
-                                                                    EntityReference(
-                                                                        Place,
-                                                                        "betty-demo-amsterdam",
-                                                                    ),
-                                                                )
-                                                            ]
-                                                        ),
-                                                        PluginInstanceConfigurationSequence(
-                                                            [
-                                                                PluginConfiguration(
-                                                                    EntityCard,
-                                                                    EntityReference(
-                                                                        Person,
-                                                                        "betty-demo-liberta-lankester",
-                                                                    ),
-                                                                )
-                                                            ]
-                                                        ),
-                                                        PluginInstanceConfigurationSequence(
-                                                            [
-                                                                PluginConfiguration(
-                                                                    EntityCard,
-                                                                    EntityReference(
-                                                                        Place,
-                                                                        "betty-demo-netherlands",
-                                                                    ),
-                                                                )
-                                                            ]
-                                                        ),
-                                                    ],  # ty:ignore[invalid-argument-type]
+                                                        [
+                                                            PluginConfiguration(
+                                                                EntityCard,
+                                                                EntityReference(
+                                                                    Place,
+                                                                    "betty-demo-amsterdam",
+                                                                ),
+                                                            )
+                                                        ],
+                                                        [
+                                                            PluginConfiguration(
+                                                                EntityCard,
+                                                                EntityReference(
+                                                                    Person,
+                                                                    "betty-demo-liberta-lankester",
+                                                                ),
+                                                            )
+                                                        ],
+                                                        [
+                                                            PluginConfiguration(
+                                                                EntityCard,
+                                                                EntityReference(
+                                                                    Place,
+                                                                    "betty-demo-netherlands",
+                                                                ),
+                                                            )
+                                                        ],
+                                                    ],
                                                     width={
                                                         Breakpoint.XS: [12, 12, 12],
                                                         Breakpoint.MD: [6, 6, 6],
