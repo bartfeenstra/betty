@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Betty 0.4\n"
 "Report-Msgid-Bugs-To: illia@maier.page\n"
-"POT-Creation-Date: 2026-01-25 19:24+0000\n"
+"POT-Creation-Date: 2026-01-27 14:31+0000\n"
 "PO-Revision-Date: 2025-05-13 17:01+0000\n"
 "Last-Translator: Максим Горпиніч <maksimgorpinic4@gmail.com>\n"
 "Language: uk\n"
@@ -1284,6 +1284,11 @@ msgstr "Автор проєкту"
 msgid "Project configuration"
 msgstr ""
 
+msgid ""
+"Provide license plugins from the SPDX License List "
+"(https://spdx.org/licenses/) "
+msgstr ""
+
 msgid "Province"
 msgstr "Провінція"
 
@@ -1369,6 +1374,9 @@ msgstr ""
 
 #, python-brace-format
 msgid "Running subprocess `{command}`..."
+msgstr ""
+
+msgid "SPDX licenses"
 msgstr ""
 
 #, python-brace-format

@@ -1,24 +1,22 @@
+import pytest
+
 from betty.project import Project
+from betty.project.extension.demo import Demo
 from betty.project.extension.demo.jobs import LoadAncestry
 from betty.project.job import ProjectContext
 from betty.test_utils.conftest import IsolatedAppFactory
 from betty.test_utils.job import do
-from betty.test_utils.project.extension.demo.project import (
-    demo_project_aioresponses,  # noqa: F401
-)
 
 
+@pytest.mark.usefixtures("demo_project_aioresponses")
 class TestLoadAncestry:
-    async def test_do(
-        self,
-        demo_project_aioresponses: None,  # noqa: F811
-        isolated_app_factory: IsolatedAppFactory,
-    ) -> None:
+    async def test_do(self, isolated_app_factory: IsolatedAppFactory) -> None:
         async with (
             isolated_app_factory() as app,
             app,
             Project.new_isolated(app) as project,
-            project,
         ):
-            await do(ProjectContext(project), LoadAncestry())
-            assert len(project.ancestry)
+            project.configuration.extensions.enable(Demo)
+            async with project:
+                await do(ProjectContext(project), LoadAncestry())
+                assert len(project.ancestry)

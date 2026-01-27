@@ -17,9 +17,6 @@ from betty.test_utils.project.extension import (
     ExtensionDefinitionTestBase,
     ExtensionTestBase,
 )
-from betty.test_utils.project.extension.demo.project import (
-    demo_project_aioresponses,  # noqa: F401
-)
 
 if TYPE_CHECKING:
     from pytest_mock import MockerFixture
@@ -31,6 +28,7 @@ if TYPE_CHECKING:
     from betty.test_utils.conftest import IsolatedAppFactory
 
 
+@pytest.mark.usefixtures("demo_project_aioresponses")
 async def test_generate_with_cleanup__without_error(
     mocker: MockerFixture, isolated_app: App
 ) -> None:
@@ -49,6 +47,7 @@ async def test_generate_with_cleanup__without_error(
         assert not (project.project_directory_path / "sentinel").exists()
 
 
+@pytest.mark.usefixtures("demo_project_aioresponses")
 async def test_generate_with_cleanup__with_error(
     mocker: MockerFixture, isolated_app: App
 ) -> None:
@@ -75,6 +74,7 @@ class TestDemoDefinition(ExtensionDefinitionTestBase):
         return Demo.plugin()
 
 
+@pytest.mark.usefixtures("demo_project_aioresponses")
 class TestDemo(ExtensionTestBase):
     @override
     @pytest.fixture
@@ -83,10 +83,7 @@ class TestDemo(ExtensionTestBase):
             return Demo(project=project)
 
     async def test_load(
-        self,
-        demo_project_aioresponses: None,  # noqa: F811
-        mocker: MockerFixture,
-        isolated_app_factory: IsolatedAppFactory,
+        self, mocker: MockerFixture, isolated_app_factory: IsolatedAppFactory
     ) -> None:
         mocker.patch("betty.wiki.populator.Populator.populate")
         async with (

@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Betty VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-01-25 19:24+0000\n"
+"POT-Creation-Date: 2026-01-27 14:31+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -1221,6 +1221,11 @@ msgstr ""
 msgid "Project configuration"
 msgstr ""
 
+msgid ""
+"Provide license plugins from the SPDX License List "
+"(https://spdx.org/licenses/) "
+msgstr ""
+
 msgid "Province"
 msgstr ""
 
@@ -1306,6 +1311,9 @@ msgstr ""
 
 #, python-brace-format
 msgid "Running subprocess `{command}`..."
+msgstr ""
+
+msgid "SPDX licenses"
 msgstr ""
 
 #, python-brace-format

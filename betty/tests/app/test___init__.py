@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Self
+from typing import Self
 
 from typing_extensions import override
 
@@ -13,9 +13,6 @@ from betty.service.level.factory import ServiceLevelDependentSelfFactory
 from betty.service.level.universal import universe
 from betty.test_utils.plugin import DummyPluginDefinition
 from betty.test_utils.user import StaticUser
-
-if TYPE_CHECKING:
-    from pytest_mock import MockerFixture
 
 
 class _ServiceLevelDependentSelfFactory(ServiceLevelDependentSelfFactory):
@@ -50,7 +47,7 @@ class TestApp:
         assert isolated_app.cache is isolated_app.cache
 
     async def test_bootstrap__should_set_user_localizer(
-        self, mocker: MockerFixture, isolated_app: App
+        self, isolated_app: App
     ) -> None:
         user = StaticUser()
         async with App.new_isolated(user=user) as sut, sut:
@@ -82,6 +79,3 @@ class TestApp:
 
     async def test_process_pool(self, isolated_app: App) -> None:
         assert isolated_app.process_pool is isolated_app.process_pool
-
-    async def test__spdx_license_repository(self, isolated_app: App) -> None:
-        await isolated_app._spdx_license_repository

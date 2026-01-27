@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Betty VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-01-25 19:24+0000\n"
+"POT-Creation-Date: 2026-01-27 14:31+0000\n"
 "PO-Revision-Date: 2025-12-29 14:25+0000\n"
 "Last-Translator: Bart Feenstra <bart@bartfeenstra.com>\n"
 "Language: en_GB\n"
@@ -1280,6 +1280,11 @@ msgstr "Project author"
 msgid "Project configuration"
 msgstr ""
 
+msgid ""
+"Provide license plugins from the SPDX License List "
+"(https://spdx.org/licenses/) "
+msgstr ""
+
 msgid "Province"
 msgstr "Province"
 
@@ -1365,6 +1370,9 @@ msgstr ""
 
 #, python-brace-format
 msgid "Running subprocess `{command}`..."
+msgstr ""
+
+msgid "SPDX licenses"
 msgstr ""
 
 #, python-brace-format

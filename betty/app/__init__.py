@@ -23,8 +23,6 @@ from betty.config import Configurable
 from betty.dirs import CACHE_DIRECTORY_PATH
 from betty.http_client import ClientErrorToUserMessageMiddleware
 from betty.http_client.rate_limit import RateLimitDefinition, RateLimitMiddleware
-from betty.license import LicenseDefinition
-from betty.license.licenses import SpdxLicenseBuilder
 from betty.locale import DEFAULT_LOCALE
 from betty.locale.localizable.gettext import _
 from betty.locale.localize import Localizer, LocalizerRepository
@@ -39,7 +37,6 @@ from betty.plugin.ordered import sort_ordered_plugin_graph
 from betty.plugin.repository.provider.service import (
     ServiceLevelPluginRepositoryProvider,
 )
-from betty.plugin.repository.static import StaticPluginRepository
 from betty.portable.file import assert_load_file
 from betty.requirement import Requirement, StaticRequirement
 from betty.service.container import (
@@ -302,17 +299,3 @@ class App(Configurable[AppConfiguration], ServiceLevel):
 
         self._shutdown_stack.append(_shutdown)
         return process_pool
-
-    @service
-    async def _spdx_license_repository(self) -> PluginRepository[LicenseDefinition]:
-        return StaticPluginRepository(
-            LicenseDefinition,
-            *[
-                license
-                async for license in SpdxLicenseBuilder(  # noqa: A001
-                    binary_file_cache=self.binary_file_cache.with_scope("spdx"),
-                    http_client=await self.http_client,
-                    user=self.user,
-                ).build()
-            ],
-        )
