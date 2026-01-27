@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Betty VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-01-27 19:23+0000\n"
+"POT-Creation-Date: 2026-01-27 19:52+0000\n"
 "PO-Revision-Date: 2024-11-30 19:00+0000\n"
 "Last-Translator: Bart Feenstra <bart@bartfeenstra.com>\n"
 "Language: ar\n"
@@ -969,6 +969,9 @@ msgstr ""
 msgid "Media gallery"
 msgstr ""
 
+msgid "Media type"
+msgstr ""
+
 msgid "Men"
 msgstr ""
 
@@ -1301,6 +1304,9 @@ msgid "Regions"
 msgstr ""
 
 msgid "Rendered content"
+msgstr ""
+
+msgid "Rendered content configuration"
 msgstr ""
 
 msgid "Renderer"

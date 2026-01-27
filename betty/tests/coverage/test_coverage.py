@@ -133,6 +133,11 @@ _BASELINE: Mapping[str, _ModuleIgnore] = {
     "betty/content_provider/__init__.py": {
         "ContentProvider": MissingReason.ABSTRACT,
     },
+    "betty/content_provider/content_providers.py": {
+        "RenderConfiguration": {
+            "media_type": MissingReason.INHERITED,
+        },
+    },
     "betty/contextlib.py": {
         "SynchronizedContextManager": {
             "__enter__": MissingReason.SHOULD_BE_COVERED,

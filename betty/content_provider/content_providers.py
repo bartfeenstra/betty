@@ -17,11 +17,11 @@ from betty.assertion import (
 from betty.config import Configuration
 from betty.config.factory import ConfigurationDependentSelfFactory
 from betty.content_provider import ContentProvider, ContentProviderDefinition
-from betty.data import Sample, Samples
+from betty.data import Data, DataDefinition, Sample, Samples
+from betty.data.aggregate.record.object import ObjectDefinition
+from betty.data.aggregate.record.object.property import Property
 from betty.data.sample import Size
-from betty.locale.localizable.assertion import assert_load_localizable
 from betty.locale.localizable.gettext import _
-from betty.locale.localizable.portable import dump_localizable
 from betty.locale.localizable.property import LocalizableProperty
 from betty.media_type import MediaType
 from betty.media_type.media_types import PLAIN_TEXT
@@ -30,6 +30,7 @@ from betty.plugin.config import (
     PluginInstanceConfigurationSequence,
     ShorthandPluginInstanceConfigurationSequence,
 )
+from betty.portable import CallbackPorter
 from betty.project import Project
 from betty.project.factory import require_project
 from betty.requirement import HasRequirement, Requirement
@@ -51,50 +52,37 @@ if TYPE_CHECKING:
     from betty.service.level import ServiceLevel
 
 
-class RenderConfiguration(Configuration):
+@final
+@ObjectDefinition(
+    label=_("Rendered content configuration"),
+    samples=[
+        lambda: Sample(
+            RenderConfiguration("Hello, world!"), label="Minimal", size=Size.MINIMAL
+        )
+    ],
+)
+class RenderConfiguration(Data):
     """
     Configuration for :py:class:`betty.content_provider.content_providers.Render`.
 
-    .. configuration:: betty.content_provider.content_providers:RenderConfiguration
+    .. data:: betty.content_provider.content_providers:RenderConfiguration
     """
 
     content = LocalizableProperty(label=_("Content"))
+    media_type = Property(
+        DataDefinition(
+            cls=MediaType,
+            label=_("Media type"),
+            porter=CallbackPorter(assert_str() | MediaType, str),  # ty:ignore[invalid-argument-type]
+        ),
+        default=lambda: PLAIN_TEXT,
+        omit_load=True,
+    )
 
-    def __init__(self, content: LocalizableLike, media_type: MediaType = PLAIN_TEXT, /):
+    def __init__(self, /, content: LocalizableLike, media_type: MediaType = PLAIN_TEXT):
         super().__init__()
         self.content = content
         self.media_type = media_type
-
-    @override
-    @classmethod
-    def load(cls, portable: PortableData, /) -> Self:
-        record = assert_record(
-            RequiredField("content", assert_load_localizable),
-            OptionalField("media_type", assert_str() | MediaType),
-        )(portable)
-        return cls(record["content"], record.get("media_type", PLAIN_TEXT))
-
-    @override
-    def dump(self) -> PortableData:
-        return {
-            "content": dump_localizable(self.content),
-            "media_type": str(self.media_type),
-        }
-
-    @override
-    def __eq__(self, other: Any) -> bool:
-        if not isinstance(other, type(self)):
-            return NotImplemented
-        return (self.content, self.media_type) == (other.content, other.media_type)
-
-    @override
-    @classmethod
-    def samples(cls) -> Samples:
-        from betty.test_utils.locale.localizable import DUMMY_LOCALIZABLE
-
-        return Samples(
-            [lambda: Sample(cls(DUMMY_LOCALIZABLE), label="Minimal", size=Size.MINIMAL)]
-        )
 
 
 @ContentProviderDefinition("render", label=_("Rendered content"))

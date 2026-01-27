@@ -1,6 +1,6 @@
 from gettext import NullTranslations
 from pathlib import Path
-from typing import TYPE_CHECKING, cast
+from typing import cast
 
 import aiofiles
 import pytest
@@ -20,13 +20,11 @@ from betty.content_provider.content_providers import (
     Template,
 )
 from betty.document import Document
-from betty.exception import HumanFacingException
 from betty.job import Context as JobContext
 from betty.locale import DEFAULT_LOCALE, DEFAULT_LOCALE_TAG
 from betty.locale.localizable import LocalizableLike
 from betty.locale.localizable.static import StaticTranslations
-from betty.locale.localize import DEFAULT_LOCALIZER, Localizer
-from betty.media_type.media_types import HTML, PLAIN_TEXT
+from betty.locale.localize import Localizer
 from betty.plugin.config import PluginConfiguration
 from betty.project import Project
 from betty.render import RenderDispatcher
@@ -35,57 +33,17 @@ from betty.test_utils.ancestry.has_notes import DummyHasNotes
 from betty.test_utils.config import ConfigurationTestBase
 from betty.test_utils.config.factory import ConfigurationDependentSelfFactoryTestBase
 from betty.test_utils.content_provider import ContentProviderTestBase
+from betty.test_utils.data import DataTestBase
 from betty.test_utils.locale.localizable import DUMMY_LOCALIZABLE
 
-if TYPE_CHECKING:
-    from betty.portable import PortableData
 
-
-class TestRenderConfiguration(ConfigurationTestBase[RenderConfiguration]):
+class TestRenderConfiguration(DataTestBase[RenderConfiguration]):
     sut_cls = RenderConfiguration
 
     def test_content(self) -> None:
         content = DUMMY_LOCALIZABLE
         sut = RenderConfiguration(content)
         assert sut.content is content
-
-    def test_load__without_text(self) -> None:
-        portable: PortableData = {}
-        with pytest.raises(HumanFacingException):
-            RenderConfiguration.load(portable)
-
-    def test_load__minimal(self) -> None:
-        content = "Hello, world!"
-        portable: PortableData = {
-            "content": content,
-        }
-        sut = RenderConfiguration.load(portable)
-        assert sut.content.localize(DEFAULT_LOCALIZER) == content
-        assert sut.media_type == PLAIN_TEXT
-
-    def test_load__with_media_type(self) -> None:
-        portable: PortableData = {
-            "content": "Hello, world!",
-            "media_type": "text/html",
-        }
-        sut = RenderConfiguration.load(portable)
-        assert sut.media_type == HTML
-
-    def test_dump__minimal(self) -> None:
-        text = "Hello, world!"
-        sut = RenderConfiguration(text)
-        assert sut.dump() == {
-            "content": text,
-            "media_type": str(PLAIN_TEXT),
-        }
-
-    def test_dump__with_media_type(self) -> None:
-        text = "Hello, world!"
-        sut = RenderConfiguration(text, HTML)
-        assert sut.dump() == {
-            "content": text,
-            "media_type": str(HTML),
-        }
 
 
 class TestRender(
@@ -108,7 +66,7 @@ class TestRender(
         return Render
 
     @override
-    @pytest.fixture(params=RenderConfiguration.samples())
+    @pytest.fixture(params=RenderConfiguration.data().samples)
     def configuration_dependent_self_factory_sut_configuration(
         self, request: pytest.FixtureRequest
     ) -> RenderConfiguration:
