@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Betty VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-01-27 21:55+0000\n"
+"POT-Creation-Date: 2026-01-27 22:22+0000\n"
 "PO-Revision-Date: 2025-12-08 19:00+0000\n"
 "Last-Translator: Artur Kalagov "
 "<artur.kalagov@users.noreply.hosted.weblate.org>\n"
@@ -718,7 +718,13 @@ msgstr "Семья"
 msgid "Family tree"
 msgstr ""
 
-msgid "Family tree configuration must contain either a \"file\" or a \"name\" key"
+msgid "Family tree configuration"
+msgstr ""
+
+msgid "Family tree configuration must either have a \"file\" or a \"name\""
+msgstr ""
+
+msgid "Family trees"
 msgstr ""
 
 msgid "Farm"
@@ -797,10 +803,22 @@ msgstr ""
 "{supported_gramps_xml_version}. Gramps XML версии "
 "{loaded_gramps_xml_version} не поддерживается."
 
+msgid "Gramps configuration"
+msgstr ""
+
+msgid "Gramps event type"
+msgstr ""
+
 #, python-brace-format
 msgid ""
 "Gramps exited with the following error:\n"
 "{error}"
+msgstr ""
+
+msgid "Gramps place type"
+msgstr ""
+
+msgid "Gramps role"
 msgstr ""
 
 msgid "HTTP client rate limit"

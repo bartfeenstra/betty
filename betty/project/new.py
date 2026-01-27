@@ -26,7 +26,6 @@ from betty.project.extension.deriver import Deriver
 from betty.project.extension.gramps import Gramps
 from betty.project.extension.gramps.config import (
     FamilyTreeConfiguration,
-    FamilyTreeConfigurationSequence,
     GrampsConfiguration,
 )
 from betty.project.extension.http_api_doc import HttpApiDoc
@@ -132,18 +131,16 @@ async def new(app: App) -> None:
             PluginConfiguration(
                 Gramps,
                 GrampsConfiguration(
-                    family_trees=FamilyTreeConfigurationSequence(
-                        [
-                            FamilyTreeConfiguration(
-                                await app.user.ask_input(
-                                    _(
-                                        "What is the path to your exported Gramps family tree file?"
-                                    ),
-                                    assertion=assert_path(),
-                                )
+                    family_trees=[
+                        FamilyTreeConfiguration(
+                            await app.user.ask_input(
+                                _(
+                                    "What is the path to your exported Gramps family tree file?"
+                                ),
+                                assertion=assert_path(),
                             )
-                        ]
-                    )
+                        )
+                    ]
                 ),
             )
         )

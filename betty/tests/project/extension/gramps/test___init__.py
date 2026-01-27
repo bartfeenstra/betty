@@ -22,12 +22,8 @@ from betty.project import Project
 from betty.project.extension import Extension
 from betty.project.extension.gramps import Gramps
 from betty.project.extension.gramps.config import (
-    EventTypeMapping,
     FamilyTreeConfiguration,
-    FamilyTreeConfigurationSequence,
     GrampsConfiguration,
-    PlaceTypeMapping,
-    PresenceRoleMapping,
 )
 from betty.project.load import load
 from betty.test_utils.config.factory import (
@@ -53,7 +49,7 @@ class TestGramps(
         return Gramps
 
     @override
-    @pytest.fixture(params=GrampsConfiguration.samples())
+    @pytest.fixture(params=GrampsConfiguration.data().samples)
     def configuration_dependent_self_factory_sut_configuration(
         self, request: pytest.FixtureRequest
     ) -> GrampsConfiguration:
@@ -89,16 +85,12 @@ class TestGramps(
                 PluginConfiguration(
                     Gramps.plugin(),
                     GrampsConfiguration(
-                        family_trees=FamilyTreeConfigurationSequence(
-                            [
-                                FamilyTreeConfiguration(
-                                    gramps_family_tree_path,
-                                    event_types=EventTypeMapping(
-                                        {"Birth": PluginConfiguration("birth")}
-                                    ),
-                                )
-                            ]
-                        ),
+                        family_trees=[
+                            FamilyTreeConfiguration(
+                                gramps_family_tree_path,
+                                event_types={"Birth": PluginConfiguration("birth")},
+                            )
+                        ]
                     ),
                 )
             )
@@ -134,16 +126,12 @@ class TestGramps(
                 PluginConfiguration(
                     Gramps.plugin(),
                     GrampsConfiguration(
-                        family_trees=FamilyTreeConfigurationSequence(
-                            [
-                                FamilyTreeConfiguration(
-                                    gramps_family_tree_path,
-                                    place_types=PlaceTypeMapping(
-                                        {"City": PluginConfiguration("city")}
-                                    ),
-                                )
-                            ]
-                        ),
+                        family_trees=[
+                            FamilyTreeConfiguration(
+                                gramps_family_tree_path,
+                                place_types={"City": PluginConfiguration("city")},
+                            )
+                        ]
                     ),
                 )
             )
@@ -187,16 +175,14 @@ class TestGramps(
                 PluginConfiguration(
                     Gramps.plugin(),
                     GrampsConfiguration(
-                        family_trees=FamilyTreeConfigurationSequence(
-                            [
-                                FamilyTreeConfiguration(
-                                    gramps_family_tree_path,
-                                    presence_roles=PresenceRoleMapping(
-                                        {"MyFirstRole": PluginConfiguration("subject")}
-                                    ),
-                                )
-                            ]
-                        ),
+                        family_trees=[
+                            FamilyTreeConfiguration(
+                                gramps_family_tree_path,
+                                presence_roles={
+                                    "MyFirstRole": PluginConfiguration("subject")
+                                },
+                            )
+                        ]
                     ),
                 )
             )
@@ -316,16 +302,10 @@ class TestGramps(
                     PluginConfiguration(
                         Gramps.plugin(),
                         GrampsConfiguration(
-                            family_trees=FamilyTreeConfigurationSequence(
-                                [
-                                    FamilyTreeConfiguration(
-                                        gramps_family_tree_one_path
-                                    ),
-                                    FamilyTreeConfiguration(
-                                        gramps_family_tree_two_path
-                                    ),
-                                ]
-                            ),
+                            family_trees=[
+                                FamilyTreeConfiguration(gramps_family_tree_one_path),
+                                FamilyTreeConfiguration(gramps_family_tree_two_path),
+                            ]
                         ),
                     )
                 )

@@ -7,6 +7,7 @@ import pytest
 from typing_extensions import override
 
 from betty.ancestry import Ancestry
+from betty.dirs import ASSETS_DIRECTORY_PATH
 from betty.locale import DEFAULT_LOCALE, DEFAULT_LOCALE_TAG
 from betty.locale.localize import DEFAULT_LOCALIZER
 from betty.plugin.discovery.static import StaticDiscovery
@@ -279,10 +280,8 @@ class TestProject:
         async with Project.new_isolated(isolated_app) as sut, sut:
             await sut.url_generator
 
-    async def test_logo__with_configuration(
-        self, isolated_app: App, tmp_path: Path
-    ) -> None:
-        logo = tmp_path / "logo.png"
+    async def test_logo__with_configuration(self, isolated_app: App) -> None:
+        logo = ASSETS_DIRECTORY_PATH / "public" / "static" / "betty-512x512.png"
         async with Project.new_isolated(isolated_app) as sut:
             sut.configuration.logo = logo
             async with sut:
