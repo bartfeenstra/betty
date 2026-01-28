@@ -104,6 +104,8 @@ async def create_project(app: App, project_directory_path: Path) -> Project:
                                                                 HTML,
                                                             ),
                                                         ),
+                                                    ],
+                                                    [
                                                         PluginConfiguration(
                                                             Render,
                                                             RenderConfiguration(
@@ -117,7 +119,7 @@ async def create_project(app: App, project_directory_path: Path) -> Project:
                                                                 HTML,
                                                             ),
                                                         ),
-                                                    ]
+                                                    ],
                                                 ],
                                                 width={
                                                     Breakpoint.XS: [12, 12],
