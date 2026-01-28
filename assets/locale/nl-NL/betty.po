@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PROJECT VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-01-28 14:02+0000\n"
+"POT-Creation-Date: 2026-01-28 15:48+0000\n"
 "PO-Revision-Date: 2025-11-08 23:46+0000\n"
 "Last-Translator: Bart Feenstra <bart@bartfeenstra.com>\n"
 "Language: nl_NL\n"
@@ -680,7 +680,13 @@ msgstr ""
 msgid "Entity"
 msgstr ""
 
+msgid "Entity ID"
+msgstr ""
+
 msgid "Entity card"
+msgstr ""
+
+msgid "Entity reference"
 msgstr ""
 
 msgid "Entity type"
@@ -1157,6 +1163,10 @@ msgstr ""
 "Geen deel mag worden gereproduceerd of gedistribueerd, in welke vorm of "
 "op welke manier, zonder expliciete geschreven toestemming van de "
 "copyrighthouder, of indien toegestaan door copyrightwetgeving."
+
+#, python-brace-format
+msgid "No {entity_type} with ID \"{entity_id}\" exists in your ancestry."
+msgstr ""
 
 msgid "Non-binary people"
 msgstr ""

@@ -30,7 +30,7 @@ from betty.locale.localizable.gettext import _
 from betty.locale.localizable.markup import Chain
 from betty.locale.localize import LocalizerRepository
 from betty.media_type.media_types import HTML
-from betty.model.config import EntityReference
+from betty.model.reference import EntityReference
 from betty.plugin.config import PluginConfiguration
 from betty.project import Project
 from betty.project.config import (

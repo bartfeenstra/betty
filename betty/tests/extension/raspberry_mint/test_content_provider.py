@@ -54,7 +54,7 @@ from betty.extension.raspberry_mint.content_provider import (
 from betty.locale.localizable.plain import Plain
 from betty.locale.localize import DEFAULT_LOCALIZER
 from betty.media_type import MediaType
-from betty.model.config import EntityReference
+from betty.model.reference import EntityReference
 from betty.plugin.config import PluginConfiguration
 from betty.plugin.discovery.static import StaticDiscovery
 from betty.plugin.repository.static import StaticPluginRepository
@@ -91,7 +91,7 @@ class TestEntityCard(
         return EntityCard
 
     @override
-    @pytest.fixture(params=EntityReference.samples())
+    @pytest.fixture(params=EntityReference.data().samples)
     def configuration_dependent_self_factory_sut_configuration(
         self, request: pytest.FixtureRequest
     ) -> EntityReference:

@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Betty VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-01-28 14:02+0000\n"
+"POT-Creation-Date: 2026-01-28 15:48+0000\n"
 "PO-Revision-Date: 2024-11-30 19:00+0000\n"
 "Last-Translator: Bart Feenstra <bart@bartfeenstra.com>\n"
 "Language: ar\n"
@@ -636,7 +636,13 @@ msgstr ""
 msgid "Entity"
 msgstr ""
 
+msgid "Entity ID"
+msgstr ""
+
 msgid "Entity card"
+msgstr ""
+
+msgid "Entity reference"
 msgstr ""
 
 msgid "Entity type"
@@ -1104,6 +1110,10 @@ msgid ""
 "No part may be reproduced or distributed in any form or by any means, "
 "without express written permission from the copyright holder, or unless "
 "permitted by copyright law."
+msgstr ""
+
+#, python-brace-format
+msgid "No {entity_type} with ID \"{entity_id}\" exists in your ancestry."
 msgstr ""
 
 msgid "Non-binary people"

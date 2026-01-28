@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Betty VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-01-28 14:02+0000\n"
+"POT-Creation-Date: 2026-01-28 15:48+0000\n"
 "PO-Revision-Date: 2025-12-08 19:00+0000\n"
 "Last-Translator: Artur Kalagov "
 "<artur.kalagov@users.noreply.hosted.weblate.org>\n"
@@ -684,7 +684,13 @@ msgstr ""
 msgid "Entity"
 msgstr ""
 
+msgid "Entity ID"
+msgstr ""
+
 msgid "Entity card"
+msgstr ""
+
+msgid "Entity reference"
 msgstr ""
 
 msgid "Entity type"
@@ -1159,6 +1165,10 @@ msgstr ""
 "Никакая часть не может быть воспроизведена или распространена в любой "
 "форме или любыми средствами без явного письменного разрешения "
 "правообладателя или если это не разрешено законом об авторском праве."
+
+#, python-brace-format
+msgid "No {entity_type} with ID \"{entity_id}\" exists in your ancestry."
+msgstr ""
 
 msgid "Non-binary people"
 msgstr ""
