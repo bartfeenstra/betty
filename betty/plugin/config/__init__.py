@@ -20,7 +20,6 @@ from betty.assertion import (
 from betty.config import Configuration
 from betty.config.collections import ConfigurationCollection, ConfigurationKey
 from betty.config.collections.mapping import ConfigurationMapping
-from betty.config.collections.sequence import ConfigurationSequence
 from betty.data import Data, Sample
 from betty.data.aggregate.record import PortableRecord
 from betty.data.aggregate.record.object.property import Optional
@@ -600,32 +599,6 @@ class PluginInstanceConfigurationMapping(
                 "id",  # ty:ignore[invalid-argument-type]
             ),
         )
-
-    @override
-    @classmethod
-    def samples(cls) -> Samples:
-        return Samples(
-            [
-                lambda: Sample(cls(), label="Minimal", size=Size.MINIMAL),
-                lambda: Sample(
-                    cls([PluginConfiguration.samples().get(Size.FULL).data]),
-                    label="Full",
-                    size=Size.FULL,
-                ),
-            ]
-        )
-
-
-@final
-class PluginInstanceConfigurationSequence(
-    _PluginInstanceConfigurationCollection[int, int, _PluginDefinitionT, _PluginT],
-    ConfigurationSequence[PluginConfiguration[_PluginDefinitionT, _PluginT]],
-):
-    """
-    A sequence of plugin instance configurations.
-
-    .. configuration:: betty.plugin.config:PluginInstanceConfigurationSequence
-    """
 
     @override
     @classmethod

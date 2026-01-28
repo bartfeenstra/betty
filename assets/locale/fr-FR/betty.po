@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PROJECT VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-01-28 00:14+0000\n"
+"POT-Creation-Date: 2026-01-28 01:11+0000\n"
 "PO-Revision-Date: 2025-08-27 20:02+0000\n"
 "Last-Translator: \"David D.\" <dadu042@users.noreply.hosted.weblate.org>\n"
 "Language: fr_FR\n"
@@ -1278,6 +1278,9 @@ msgstr ""
 msgid "Previous page"
 msgstr ""
 
+msgid "Primary color"
+msgstr ""
+
 #, python-brace-format
 msgid ""
 "Privatized person {privatized_person_id} ({privatized_person}) because "
@@ -1340,6 +1343,9 @@ msgstr ""
 msgid "Quitting..."
 msgstr ""
 
+msgid "Raspberry Mint configuration"
+msgstr ""
+
 msgid ""
 "Rate limits ensure that Betty's HTTP client does not make more requests "
 "to a web service than that service supports or allows, by enforcing a "
@@ -1373,6 +1379,9 @@ msgstr "Références"
 
 msgid "Region"
 msgstr "Région"
+
+msgid "Regional content"
+msgstr ""
 
 msgid "Regions"
 msgstr ""
@@ -1421,6 +1430,9 @@ msgstr ""
 
 msgid "Search"
 msgstr "Recherche"
+
+msgid "Secondary color"
+msgstr ""
 
 msgid "Section"
 msgstr ""
@@ -1513,6 +1525,9 @@ msgid "Summary"
 msgstr ""
 
 msgid "System"
+msgstr ""
+
+msgid "Tertiary color"
 msgstr ""
 
 msgid "Text"

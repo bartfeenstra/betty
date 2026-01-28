@@ -34,7 +34,6 @@ from betty.project.extension.privatizer import Privatizer
 from betty.project.extension.raspberry_mint import RaspberryMint
 from betty.project.extension.raspberry_mint.config import RaspberryMintConfiguration
 from betty.project.extension.raspberry_mint.config.default import regional_content
-from betty.project.extension.theme.config import RegionalContentConfiguration
 from betty.project.extension.trees import Trees
 from betty.project.extension.webpack import Webpack
 from betty.project.extension.wiki import Wiki
@@ -93,10 +92,8 @@ async def new(app: App) -> None:
         PluginConfiguration(
             RaspberryMint,
             RaspberryMintConfiguration(
-                regional_content=RegionalContentConfiguration(
-                    regional_content(
-                        localizers=[localizers.get(locale) for locale in locales]
-                    )
+                regional_content=regional_content(
+                    localizers=[localizers.get(locale) for locale in locales]
                 )
             ),
         ),

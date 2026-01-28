@@ -1,7 +1,12 @@
 {% extends 'base.html.j2' %}
+{% set regional_content = project.extensions['raspberry-mint'].configuration.regional_content %}
 {% block page_summary %}
-{{ project.extensions['raspberry-mint'].configuration.regional_content["front-page-summary"] | provide_content }}
+    {% if 'front-page-summary' in regional_content %}
+        {{ regional_content['front-page-summary'] | provide_content }}
+    {% endif %}
 {% endblock %}
 {% block page_content %}
-{{ project.extensions['raspberry-mint'].configuration.regional_content["front-page-content"] | provide_content }}
+    {% if 'front-page-content' in regional_content %}
+        {{ regional_content['front-page-content'] | provide_content }}
+    {% endif %}
 {% endblock %}

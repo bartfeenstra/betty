@@ -118,8 +118,8 @@ class ExtensionInstanceConfigurationMapping(
                         [
                             PluginConfiguration(
                                 RaspberryMint,
-                                RaspberryMintConfiguration.samples()
-                                .get(Size.FULL)
+                                RaspberryMintConfiguration.data()
+                                .samples.get(Size.FULL)
                                 .data,
                             )
                         ]
