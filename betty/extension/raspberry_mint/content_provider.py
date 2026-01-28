@@ -42,7 +42,7 @@ from betty.locale.localizable.gettext import _
 from betty.locale.localizable.property import LocalizableProperty
 from betty.machine_name import MachineName, MachineNameDefinition
 from betty.model import EntityDefinition
-from betty.model.config import EntityReference
+from betty.model.reference import EntityReference
 from betty.plugin import Plugin
 from betty.plugin.config import (
     PluginConfiguration,
@@ -245,9 +245,9 @@ class EntityCard(Template, ConfigurationDependentSelfFactory[EntityReference], _
     @override
     async def _provide_data(self, document: Document) -> Mapping[str, Any]:
         return {
-            "entity": self._ancestry[
-                self._entity_types.get(self.configuration.entity_type)
-            ][self.configuration.entity_id],
+            "entity": self._ancestry[self._entity_types.get(self.configuration.type)][
+                self.configuration.id
+            ],
         }
 
 
