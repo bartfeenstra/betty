@@ -1,6 +1,7 @@
 from typing import TYPE_CHECKING
 
 import pytest
+from typing_extensions import override
 
 from betty.data.indicator.selector import Attr
 from betty.exception import HumanFacingException
@@ -11,6 +12,7 @@ from betty.plugin.config import (
     PluginDefinitionConfiguration,
     ResolvablePluginConfiguration,
     ResolvablePluginConfigurations,
+    _PluginDefinitionT,
     resolve_plugin_configuration,
     resolve_plugin_configurations,
 )
@@ -31,31 +33,56 @@ if TYPE_CHECKING:
     from betty.portable import PortableData
 
 
+class _DummyPluginDefinitionConfiguration(PluginDefinitionConfiguration):
+    @override
+    def new_plugin(self) -> _PluginDefinitionT:
+        raise NotImplementedError
+
+
 class TestPluginDefinitionConfiguration:
     async def test_id(self) -> None:
         plugin_id = "hello-world"
-        sut = PluginDefinitionConfiguration(id=plugin_id)
+        sut = _DummyPluginDefinitionConfiguration(id=plugin_id)
         assert sut.id == plugin_id
 
 
+class HumanFacingPluginDefinition:
+    pass
+
+
 class TestHumanFacingPluginDefinitionConfiguration:
+    class _Sut(
+        HumanFacingPluginDefinitionConfiguration, _DummyPluginDefinitionConfiguration
+    ):
+        @override
+        def new_plugin(self) -> _PluginDefinitionT:
+            raise NotImplementedError
+
     async def test_label(self) -> None:
         label = DUMMY_LOCALIZABLE
-        sut = HumanFacingPluginDefinitionConfiguration(id="hello-world", label=label)
+        sut = self._Sut(id="hello-world", label=label)
         assert sut.label is label
 
     async def test_description(self) -> None:
         description = DUMMY_LOCALIZABLE
-        sut = HumanFacingPluginDefinitionConfiguration(
+        sut = self._Sut(
             id="hello-world", label=DUMMY_LOCALIZABLE, description=description
         )
         assert sut.description is description
 
 
 class TestCountableHumanFacingPluginDefinitionConfiguration:
+    class _Sut(
+        CountableHumanFacingPluginDefinitionConfiguration,
+        _DummyPluginDefinitionConfiguration,
+    ):
+        @override
+        def new_plugin(self) -> _PluginDefinitionT:
+            raise NotImplementedError
+
     async def test_label_plural(self) -> None:
         label_plural = DUMMY_LOCALIZABLE
-        sut = CountableHumanFacingPluginDefinitionConfiguration(
+        sut = self._Sut(
             id="-",
             label="-",
             label_plural=label_plural,
@@ -65,7 +92,7 @@ class TestCountableHumanFacingPluginDefinitionConfiguration:
 
     async def test_label_countable(self) -> None:
         label_countable = DUMMY_COUNTABLE_LOCALIZABLE
-        sut = CountableHumanFacingPluginDefinitionConfiguration(
+        sut = self._Sut(
             id="-", label="-", label_plural="-", label_countable=label_countable
         )
         assert sut.label_countable is label_countable
