@@ -419,7 +419,7 @@ class TestProject:
                 title="Betty", url="https://example.com"
             ),
         )
-        sut.configuration.locales.append(LocaleConfiguration("nl-NL"))
+        sut.configuration.locales.add(LocaleConfiguration("nl-NL"))
         actual = sut.localize_www_directory_path(DEFAULT_LOCALE)
         assert tmp_path in actual.parents
         assert DEFAULT_LOCALE_TAG in str(actual)

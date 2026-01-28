@@ -76,15 +76,8 @@ class DataDefinition(
 
     @override
     async def hydrate(self, services: ServiceLevel, data: _DataClsT, /) -> None:
-        from betty.config import Configuration
-
         if isinstance(data, Hydratable):
             await data.hydrate(services)
-        if isinstance(data, Configuration):
-            assert services is not None
-            validator = data.validator
-            if validator is not None:
-                await services.new_target(validator)
 
 
 _DataDefinitionT = TypeVar(

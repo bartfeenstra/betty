@@ -11,10 +11,7 @@ from betty.assertion import assert_locale, assert_path, assert_str
 from betty.extension import Extension, ExtensionDefinition
 from betty.extension.deriver import Deriver
 from betty.extension.gramps import Gramps
-from betty.extension.gramps.config import (
-    FamilyTreeConfiguration,
-    GrampsConfiguration,
-)
+from betty.extension.gramps.config import FamilyTreeConfiguration, GrampsConfiguration
 from betty.extension.http_api_doc import HttpApiDoc
 from betty.extension.maps import Maps
 from betty.extension.privatizer import Privatizer
@@ -30,15 +27,13 @@ from betty.locale.localizable.static import StaticTranslations
 from betty.machine_name import assert_machine_name, machinify
 from betty.plugin.config import PluginConfiguration, ResolvablePluginConfiguration
 from betty.portable.file import dump_file
-from betty.project.config import (
-    LocaleConfiguration,
-    LocaleConfigurationMapping,
-    ProjectConfiguration,
-)
+from betty.project.config import ProjectConfiguration
 
 if TYPE_CHECKING:
-    from collections.abc import MutableSequence
+    from collections.abc import MutableSequence, Sequence
     from pathlib import Path
+
+    from babel import Locale
 
     from betty.app import App
     from betty.locale.localizable import Localizable
@@ -57,28 +52,22 @@ async def new(app: App) -> None:
         assertion=_assert_project_configuration_file_path,
     )
 
-    locales = LocaleConfigurationMapping(
-        [
-            LocaleConfiguration(
-                await app.user.ask_input(
-                    _(
-                        "Which language should your project site be generated in? Enter a language code."
-                    ),
-                    default=DEFAULT_LOCALE_TAG,
-                    assertion=assert_locale(),
-                )
-            )
-        ]
-    )
+    locales = [
+        await app.user.ask_input(
+            _(
+                "Which language should your project site be generated in? Enter a language code."
+            ),
+            default=DEFAULT_LOCALE_TAG,
+            assertion=assert_locale(),
+        )
+    ]
     while await app.user.ask_confirmation(_("Do you want to add another locale?")):
         locales.append(
-            LocaleConfiguration(
-                await app.user.ask_input(
-                    _(
-                        "Which language should your project site be generated in? Enter a language code."
-                    ),
-                    assertion=assert_locale(),
-                )
+            await app.user.ask_input(
+                _(
+                    "Which language should your project site be generated in? Enter a language code."
+                ),
+                assertion=assert_locale(),
             )
         )
 
@@ -109,7 +98,7 @@ async def new(app: App) -> None:
 
     name = await app.user.ask_input(
         _("What is your project's machine name?"),
-        default=str(machinify(title.localize(localizers.get(locales.default.locale)))),
+        default=str(machinify(title.localize(localizers.get(locales[0])))),
         assertion=assert_machine_name(),
     )
 
@@ -181,9 +170,8 @@ def _assert_url(value: Any) -> str:
 
 
 async def _user_input_static_translations(
-    user: User, locale_configurations: LocaleConfigurationMapping, question: Localizable
+    user: User, locales: Sequence[Locale], question: Localizable
 ) -> StaticTranslations:
-    locales = list(locale_configurations)
     return StaticTranslations(
         {
             locale: await user.ask_input(

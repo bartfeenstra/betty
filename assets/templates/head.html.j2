@@ -26,7 +26,7 @@
     {% endif %}
     {% if document.resource_url %}
         <link rel="canonical" href="{{ document.resource_url | url(absolute=true) }}" hreflang="{{ document.localizer.locale | to_language_tag }}" type="text/html">
-        {% for locale in project.configuration.locales %}
+        {% for locale in project.configuration.locales.keys() %}
             {% if locale != document.localizer.locale %}
                 <link rel="alternate" href="{{ document.resource_url | url(locale=locale) }}" hreflang="{{ locale | to_language_tag }}" type="text/html">
             {% endif %}

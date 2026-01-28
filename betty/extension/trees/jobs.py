@@ -32,7 +32,7 @@ class _GeneratePeopleJson(Job[ProjectContext]):
         await gather(
             *(
                 self._generate_people_json_for_locale(scheduler, locale)
-                for locale in scheduler.context.project.configuration.locales
+                for locale in scheduler.context.project.configuration.locales.keys()  # noqa: SIM118
             )
         )
 

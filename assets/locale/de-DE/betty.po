@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Betty VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-01-30 21:35+0000\n"
+"POT-Creation-Date: 2026-01-30 22:38+0000\n"
 "PO-Revision-Date: 2025-12-30 16:01+0000\n"
 "Last-Translator: Bart Feenstra <bart@bartfeenstra.com>\n"
 "Language: de_DE\n"
@@ -101,6 +101,9 @@ msgid "Adoption"
 msgstr "Adoption"
 
 msgid "Adoptions"
+msgstr ""
+
+msgid "Alias"
 msgstr ""
 
 msgid "All caches cleared."
@@ -1020,6 +1023,9 @@ msgstr ""
 
 msgid "Locale aliases must not contain slashes."
 msgstr "Gebietsschema-Aliase dürfen keine Schrägstriche enthalten."
+
+msgid "Locale configuration"
+msgstr ""
 
 #, python-brace-format
 msgid "Locale {locale} is not known by your system."

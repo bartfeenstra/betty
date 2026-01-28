@@ -17,7 +17,7 @@ from sphinx.util.parsing import nested_parse_to_nodes
 from typing_extensions import override
 
 from betty.app import App
-from betty.config import Configurable, Configuration
+from betty.config import Configurable
 from betty.data import Data, OptionalDefinition
 from betty.data.aggregate.record import RecordDefinition
 from betty.definition.human_facing import HumanFacingDefinition
@@ -317,55 +317,6 @@ class _PluginTypesDirective(SphinxDirective):
         return term_nodes, None
 
 
-class _ConfigurationDirective(SphinxDirective):
-    required_arguments = 1
-
-    @override
-    def run(self) -> list[nodes.Node]:
-        # Right-strip periods to avoid D400 and D415 violations.
-        cls_name = self.arguments[0].rstrip(".")
-        cls = import_any(cls_name)
-        assert issubclass(cls, Configuration)
-        samples = list(cls.samples())
-        if not samples:
-            return []
-        examples_label = "Examples" if len(samples) > 1 else "Example"
-        examples_content = f"""
-{examples_label}
-{"".join(["=" * len(examples_label)])}
-
-"""
-        serializers = _to_thread(lambda: run(_get_serializers()))
-        for sample in samples:
-            example_content = ""
-            if len(samples) > 1:
-                example_label = sample.label.localize(DEFAULT_LOCALIZER)
-                example_content += f"""
-{example_label}
-{"".join(["-" * len(example_label)])}
-"""
-            example_content += """
-.. tab-set::
-
-"""
-            portable = sample.data.dump()
-            for serializer in serializers:
-                serialized = serializer.dump(portable)
-                example_content += f"""
-   .. tab-item:: {serializer.plugin().label.localize(DEFAULT_LOCALIZER)}
-
-      .. code-block:: {serializer.plugin().id}
-
-{indent(serialized, " " * 10)}
-"""
-            examples_content += example_content
-        return nested_parse_to_nodes(
-            self.state,
-            examples_content,
-            offset=self.content_offset,
-        )
-
-
 class _DataDirective(SphinxDirective):
     required_arguments = 1
 
@@ -463,7 +414,6 @@ def setup(app: Sphinx) -> ExtensionMetadata:
     """
     Implement Sphinx's extension setup.
     """
-    app.add_directive("configuration", _ConfigurationDirective)
     app.add_directive("data", _DataDirective)
     app.add_directive("plugin", _PluginDirective)
     app.add_directive("plugin_type", _PluginTypeDirective)

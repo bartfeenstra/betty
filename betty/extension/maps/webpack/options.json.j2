@@ -20,7 +20,7 @@
   control_zoom_out = {},
   selected_place = {}
 ) %}
-{% for locale in project.configuration.locales %}
+{% for locale in project.configuration.locales.keys() %}
   {% with localizer = app.localizers.get(locale) %}
     {% set control_full_screen %}
       {% include 'maps/control/full-screen.html.j2' %}

@@ -66,7 +66,7 @@ class GenerateStaticPublicAssets(Job[ProjectContext]):
         copy_function = jinja2_environment.make_copy_function(
             document=await project.new_document(job_context=scheduler.context),
             www_directory_path=project.www_directory_path,
-            is_localized_and_multilingual=project.configuration.locales.multilingual,
+            is_localized_and_multilingual=project.configuration.multilingual,
         )
         await gather(
             *[
@@ -145,7 +145,7 @@ class GenerateSitemap(Job[ProjectContext]):
         sitemap_batch_urls: MutableSequence[str] = []
         sitemap_batch_urls_length = 0
         sitemap_batches.append(sitemap_batch_urls)
-        for locale in project.configuration.locales:
+        for locale in project.configuration.locales.keys():  # noqa: SIM118
             for entity in project.ancestry:
                 if not persistent_id(entity):
                     continue
@@ -296,15 +296,15 @@ class GenerateLocalizedPublicAssets(Job[ProjectContext]):
                     localizer=localizers.get(locale),
                 ),
                 www_directory_path=project.www_directory_path,
-                is_localized_and_multilingual=project.configuration.locales.multilingual,
+                is_localized_and_multilingual=project.configuration.multilingual,
             )
-            for locale in project.configuration.locales
+            for locale in project.configuration.locales.keys()  # noqa: SIM118
         }
         await gather(
             *[
                 self._generate(scheduler, asset_path, copy_functions[locale], locale)
                 async for asset_path in assets.walk(Path("public") / "localized")
-                for locale in project.configuration.locales
+                for locale in project.configuration.locales.keys()  # noqa: SIM118
             ]
         )
 
@@ -378,7 +378,7 @@ class GenerateJsonErrorResponses(Job[ProjectContext]):
             ),
             (404, _("I'm sorry, dear, but it seems this page does not exist.")),
         ]:
-            for locale in project.configuration.locales:
+            for locale in project.configuration.locales.keys():  # noqa: SIM118
                 async with create_file(
                     project.localize_www_directory_path(locale)
                     / ".error"
@@ -539,7 +539,7 @@ class GenerateEntityTypesHtml(Job[ProjectContext]):
                     or 1
                 )
                 for page in range(page_count)
-                for locale in project.configuration.locales
+                for locale in project.configuration.locales.keys()  # noqa: SIM118
             ]
         )
 
@@ -674,7 +674,6 @@ class GenerateEntitiesHtml(Job[ProjectContext]):
     @override
     async def do(self, scheduler: Scheduler[ProjectContext], /) -> None:
         project = scheduler.context.project
-        locales = list(project.configuration.locales)
         await gather(
             *[
                 scheduler.add(_GenerateEntityHtml(entity_type, entity.id, locale))
@@ -682,7 +681,7 @@ class GenerateEntitiesHtml(Job[ProjectContext]):
                 if entity_type.public_facing
                 for entity in project.ancestry[entity_type.cls]
                 if persistent_id(entity) and is_public(entity)
-                for locale in locales
+                for locale in project.configuration.locales.keys()  # noqa: SIM118
             ]
         )
 

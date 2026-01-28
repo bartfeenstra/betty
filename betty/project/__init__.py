@@ -229,8 +229,8 @@ class Project(Configurable[ProjectConfiguration], ServiceLevel):
         """
         Get the WWW directory path for a locale.
         """
-        if self.configuration.locales.multilingual:
-            return self.www_directory_path / self.configuration.locales[locale].alias
+        if self.configuration.multilingual:
+            return self.www_directory_path / self.configuration.locales[locale].slug
         return self.www_directory_path
 
     @property
@@ -302,7 +302,7 @@ class Project(Configurable[ProjectConfiguration], ServiceLevel):
         The public localizers.
         """
         localizers = await self.localizers
-        return [localizers.get(locale) for locale in self.configuration.locales]
+        return [localizers.get(locale) for locale in self.configuration.locales.keys()]  # noqa: SIM118
 
     @service
     async def url_generator(self) -> UrlGenerator:

@@ -33,11 +33,7 @@ from betty.media_type.media_types import HTML
 from betty.model.reference import EntityReference
 from betty.plugin.config import PluginConfiguration
 from betty.project import Project
-from betty.project.config import (
-    LocaleConfiguration,
-    LocaleConfigurationMapping,
-    ProjectConfiguration,
-)
+from betty.project.config import ProjectConfiguration
 
 if TYPE_CHECKING:
     from pathlib import Path
@@ -194,17 +190,11 @@ async def create_project(app: App, project_directory_path: Path) -> Project:
             Place,
             Source,
         ],
-        locales=LocaleConfigurationMapping(
-            [
-                # The first configured locale is the project default.
-                LocaleConfiguration(DEFAULT_LOCALE),
-                *[
-                    LocaleConfiguration(locale)
-                    for locale in translations.locales
-                    if locale != DEFAULT_LOCALE
-                ],
-            ]
-        ),
+        locales=[
+            # The first configured locale is the project default.
+            DEFAULT_LOCALE,
+            *[locale for locale in translations.locales if locale != DEFAULT_LOCALE],
+        ],
     )
     return Project(
         app, project_directory_path / "betty.json", configuration=configuration

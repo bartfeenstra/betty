@@ -29,7 +29,7 @@ class _GeneratePlacePreviews(Job[ProjectContext]):
         await scheduler.add(
             *(
                 _GeneratePlacePreview(place.id, locale)
-                for locale in project.configuration.locales
+                for locale in project.configuration.locales.keys()  # noqa: SIM118
                 for place in project.ancestry[Place]
                 if place.coordinates
             )

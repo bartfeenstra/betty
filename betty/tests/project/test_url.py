@@ -182,7 +182,7 @@ class Test_LocalizedPathUrlUrlGenerator:
     ) -> None:
         async with Project.new_isolated(isolated_app) as project:
             if additional_project_locale:
-                project.configuration.locales.append(
+                project.configuration.locales.add(
                     LocaleConfiguration(additional_project_locale)
                 )
             async with project:
@@ -285,9 +285,7 @@ class Test_StaticPathUrlUrlGenerator:
     ) -> None:
         async with Project.new_isolated(isolated_app) as project:
             if additional_project_locale:
-                project.configuration.locales.append(
-                    LocaleConfiguration(additional_project_locale)
-                )
+                project.configuration.locales.add(additional_project_locale)
             async with project:
                 sut = await _StaticPathUrlUrlGenerator.new_for_services(project)
                 assert (
@@ -388,7 +386,7 @@ async def test_new_project_url_generator__generate(
     with EntityDefinition.type().override_discovery(StaticDiscovery(DummyEntityOne)):
         async with Project.new_isolated(isolated_app) as project:
             if additional_project_locale:
-                project.configuration.locales.append(
+                project.configuration.locales.add(
                     LocaleConfiguration(additional_project_locale)
                 )
             project.configuration.clean_urls = clean_urls

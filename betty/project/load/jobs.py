@@ -52,10 +52,8 @@ class PopulateLink(Job[ProjectContext]):
 
         project = scheduler.context.project
 
-        localizers = await project.localizers
         urls = StaticTranslations.from_localizable(
-            self._link.url,
-            [localizers.get(locale) for locale in project.configuration.locales],
+            self._link.url, await project.public_localizers
         )
         urls_to_locales = defaultdict(set)
         for locale, url in urls.translations.items():
@@ -67,7 +65,7 @@ class PopulateLink(Job[ProjectContext]):
                 self._populate_link_from_url(
                     project,
                     url,
-                    project.configuration.locales,
+                    project.configuration.locales.keys(),
                     labels,
                     descriptions,
                 )

@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Betty VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-01-30 21:35+0000\n"
+"POT-Creation-Date: 2026-01-30 22:38+0000\n"
 "PO-Revision-Date: 2025-12-08 19:00+0000\n"
 "Last-Translator: Artur Kalagov "
 "<artur.kalagov@users.noreply.hosted.weblate.org>\n"
@@ -105,6 +105,9 @@ msgid "Adoption"
 msgstr "Принятие"
 
 msgid "Adoptions"
+msgstr ""
+
+msgid "Alias"
 msgstr ""
 
 msgid "All caches cleared."
@@ -1046,6 +1049,9 @@ msgstr ""
 
 msgid "Locale aliases must not contain slashes."
 msgstr "Языковые псевдонимы не должны содержать символ \"/\"."
+
+msgid "Locale configuration"
+msgstr ""
 
 #, python-brace-format
 msgid "Locale {locale} is not known by your system."
