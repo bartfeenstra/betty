@@ -8,7 +8,7 @@ from typing import TYPE_CHECKING, final
 
 from typing_extensions import override
 
-from betty.data import DataDefinition
+from betty.data import DataDefinition, Sample, Size
 from betty.data.aggregate.collection.sequence import SequenceDefinition
 from betty.data.aggregate.record import (
     FieldDefinition,
@@ -67,7 +67,23 @@ class PluginConfigurationDefinition(ObjectDefinition):
                     DataDefinition(cls=object, label=_("Plugin configuration")),
                 ),
             ],
-            samples=[PluginConfiguration.samples()],
+            samples=[
+                lambda: Sample(
+                    PluginConfiguration("my-first-plugin-id"),
+                    label="Minimal",
+                    size=Size.MINIMAL,
+                ),
+                lambda: Sample(
+                    PluginConfiguration(
+                        "my-first-plugin-id",
+                        {
+                            "configuration-key": "configuration-value",
+                        },
+                    ),
+                    label="Full",
+                    size=Size.FULL,
+                ),
+            ],
         )
 
 

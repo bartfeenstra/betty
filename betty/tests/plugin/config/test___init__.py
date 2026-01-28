@@ -16,7 +16,6 @@ from betty.plugin.config import (
     resolve_plugin_configuration,
     resolve_plugin_configurations,
 )
-from betty.test_utils.config import ConfigurationTestBase
 from betty.test_utils.data import DummyData
 from betty.test_utils.locale.localizable import (
     DUMMY_COUNTABLE_LOCALIZABLE,
@@ -99,14 +98,59 @@ class TestCountableHumanFacingPluginDefinitionConfiguration:
         assert sut.label_countable is label_countable
 
 
-class TestPluginConfiguration(ConfigurationTestBase[PluginConfiguration]):
-    sut_cls = PluginConfiguration
-
+class TestPluginConfiguration:
     def test_id(self) -> None:
         sut = PluginConfiguration[DummyPluginDefinition, DummyPlugin](
             DummyPluginOne.plugin()
         )
         assert sut.id == DummyPluginOne.plugin().id
+
+    @pytest.mark.parametrize(
+        ("expected", "one", "other"),
+        [
+            (
+                True,
+                PluginConfiguration("my-first-plugin"),
+                PluginConfiguration("my-first-plugin"),
+            ),
+            (
+                False,
+                PluginConfiguration("my-first-plugin"),
+                PluginConfiguration("my-second-plugin"),
+            ),
+            (
+                True,
+                PluginConfiguration(
+                    "my-first-plugin", {"configuration": "my-first-value"}
+                ),
+                PluginConfiguration(
+                    "my-first-plugin", {"configuration": "my-first-value"}
+                ),
+            ),
+            (
+                False,
+                PluginConfiguration(
+                    "my-first-plugin", {"configuration": "my-first-value"}
+                ),
+                PluginConfiguration(
+                    "my-first-plugin", {"configuration": "my-second-value"}
+                ),
+            ),
+            (
+                False,
+                PluginConfiguration(
+                    "my-first-plugin", {"configuration": "my-first-value"}
+                ),
+                PluginConfiguration(
+                    "my-second-plugin", {"configuration": "my-first-value"}
+                ),
+            ),
+        ],
+    )
+    def test___eq__(
+        self, expected: bool, one: PluginConfiguration, other: PluginConfiguration
+    ) -> None:
+        assert (one == other) is expected
 
     def test_configuration__with_configuration(self) -> None:
         configuration = DummyData()

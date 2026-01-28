@@ -17,13 +17,11 @@ from betty.assertion import (
     assert_or,
     assert_record,
 )
-from betty.config import Configuration
-from betty.data import Data, Sample
+from betty.data import Data
 from betty.data.aggregate.record import PortableRecord
 from betty.data.aggregate.record.object import ObjectDefinition
 from betty.data.aggregate.record.object.property import Optional, Property
 from betty.data.indicator.selector import Attr
-from betty.data.sample import Samples, Size
 from betty.locale.localizable.gettext import _
 from betty.locale.localizable.property import (
     CountableLocalizableProperty,
@@ -124,21 +122,17 @@ class CountableHumanFacingPluginDefinitionConfiguration(
 
 
 @final
-class PluginConfiguration(
-    Configuration, PortableRecord[Attr], Generic[_PluginDefinitionT, _PluginT]
-):
+class PluginConfiguration(PortableRecord[Attr], Generic[_PluginDefinitionT, _PluginT]):
     """
     Configure a single plugin instance.
 
     Use this with :py:class:`betty.plugin.data.PluginConfigurationDefinition` to provide defined data.
-
-    .. configuration:: betty.plugin.config:PluginConfiguration
     """
 
     def __init__(
         self,
         id: ResolvableId[_PluginDefinitionT],  # noqa: A002
-        configuration: Data | Configuration | PortableData | Void = Void(),  # noqa: B008
+        configuration: Data | PortableData | Void = Void(),  # noqa: B008
         /,
     ):
         super().__init__()
@@ -159,7 +153,7 @@ class PluginConfiguration(
         return self._id
 
     @property
-    def configuration(self) -> Data | Configuration | PortableData | Void:
+    def configuration(self) -> Data | PortableData | Void:
         """
         Get the plugin's own configuration.
         """
@@ -183,11 +177,7 @@ class PluginConfiguration(
     def load_key(cls, portable: PortableData, key: Attr, portable_key: str, /) -> Self:
         return cls.load({**assert_mapping()(portable), "id": portable_key})
 
-    def _dump_configuration(
-        self, configuration: Data | Configuration | PortableData
-    ) -> PortableData:
-        if isinstance(configuration, Configuration):
-            return configuration.dump()
+    def _dump_configuration(self, configuration: Data | PortableData) -> PortableData:
         if isinstance(configuration, Data):
             return configuration.data().porter.dump(configuration)  # ty:ignore[invalid-argument-type]
         return configuration
@@ -207,29 +197,6 @@ class PluginConfiguration(
         return self.id, {} if self.configuration is Void() else {
             "configuration": self._dump_configuration(self.configuration),  # ty:ignore[invalid-argument-type]
         }
-
-    @override
-    @classmethod
-    def samples(cls) -> Samples:
-        return Samples(
-            [
-                lambda: Sample(
-                    PluginConfiguration("my-first-plugin-id"),
-                    label="Minimal",
-                    size=Size.MINIMAL,
-                ),
-                lambda: Sample(
-                    PluginConfiguration(
-                        "my-first-plugin-id",
-                        {
-                            "configuration-key": "configuration-value",
-                        },
-                    ),
-                    label="Full",
-                    size=Size.FULL,
-                ),
-            ]
-        )
 
 
 ResolvablePluginConfiguration: TypeAlias = (
