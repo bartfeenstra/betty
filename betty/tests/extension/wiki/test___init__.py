@@ -53,7 +53,7 @@ class TestWiki(ExtensionTestBase):
         ]
 
         async with Project.new_isolated(isolated_app) as project:
-            project.configuration.extensions.enable(Wiki)
+            project.configuration.extensions.add(Wiki)
             async with project:
                 jinja2_environment = await project.jinja2_environment
                 actual = await jinja2_environment.from_string(
@@ -71,7 +71,7 @@ class TestWiki(ExtensionTestBase):
         async with Project.new_isolated(isolated_app) as project:
             entity = Link("https://example.com")
             project.ancestry.add(entity)
-            project.configuration.extensions.enable(Wiki)
+            project.configuration.extensions.add(Wiki)
             async with project:
                 await load(project)
 
@@ -79,7 +79,7 @@ class TestWiki(ExtensionTestBase):
 
     async def test_client(self, isolated_app: App) -> None:
         async with Project.new_isolated(isolated_app) as project:
-            project.configuration.extensions.enable(Wiki)
+            project.configuration.extensions.add(Wiki)
             async with project:
                 extensions = await project.extensions
                 wikipedia = extensions[Wiki]
@@ -87,7 +87,7 @@ class TestWiki(ExtensionTestBase):
 
     async def test_globals(self, isolated_app: App) -> None:
         async with Project.new_isolated(isolated_app) as project:
-            project.configuration.extensions.enable(Wiki)
+            project.configuration.extensions.add(Wiki)
             async with project:
                 extensions = await project.extensions
                 sut = extensions[Wiki]

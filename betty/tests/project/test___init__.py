@@ -155,7 +155,7 @@ class TestProject:
             StaticDiscovery(DummyExtensionOne)
         ):
             async with Project.new_isolated(isolated_app) as sut:
-                sut.configuration.extensions.enable(DummyExtensionOne)
+                sut.configuration.extensions.add(DummyExtensionOne)
                 async with sut:
                     extensions = await sut.extensions
                     extension = extensions[DummyExtensionOne]
@@ -178,7 +178,7 @@ class TestProject:
             StaticDiscovery(_DummyExtensionWithUnmetRequirement)
         ):
             async with Project.new_isolated(isolated_app) as sut:
-                sut.configuration.extensions.enable(_DummyExtensionWithUnmetRequirement)
+                sut.configuration.extensions.add(_DummyExtensionWithUnmetRequirement)
                 with pytest.raises(UnmetRequirement):
                     async with sut:
                         pass
@@ -197,7 +197,7 @@ class TestProject:
             StaticDiscovery(_DummyExtensionA.plugin(), _DummyExtensionB)
         ):
             async with Project.new_isolated(isolated_app) as sut:
-                sut.configuration.extensions.enable(*enable)
+                sut.configuration.extensions.add(*enable)
                 async with sut:
                     extensions = [
                         extension.plugin
@@ -235,7 +235,7 @@ class TestProject:
             StaticDiscovery(DummyExtensionOne)
         ):
             async with Project.new_isolated(isolated_app) as sut:
-                sut.configuration.extensions.enable(DummyExtensionOne)
+                sut.configuration.extensions.add(DummyExtensionOne)
                 async with sut:
                     assets = await sut.assets
                     assert len(assets.assets_directory_paths) == 2
@@ -247,7 +247,7 @@ class TestProject:
             StaticDiscovery(_DummyExtensionWithAssetsDirectory)
         ):
             async with Project.new_isolated(isolated_app) as sut:
-                sut.configuration.extensions.enable(_DummyExtensionWithAssetsDirectory)
+                sut.configuration.extensions.add(_DummyExtensionWithAssetsDirectory)
                 async with sut:
                     assets = await sut.assets
                     assert len(assets.assets_directory_paths) == 3

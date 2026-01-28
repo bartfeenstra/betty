@@ -33,18 +33,19 @@ class PluginIdDefinition(DataDefinition[MachineName]):
     Define data that represents a plugin ID.
     """
 
-    def __init__(self, plugin_type: type[PluginDefinition]):
+    def __init__(self, plugin_type: type[PluginDefinition] | None = None):
         super().__init__(
             cls=MachineName,
-            label=plugin_type.type().label,
-            description=_("A plugin ID"),
+            label=_("Plugin ID") if plugin_type is None else plugin_type.type().label,
+            description=None if plugin_type is None else _("Plugin ID"),
             porter=CallbackPorter[str](assert_machine_name(), passthrough),
         )
         self._plugin_type = plugin_type
 
     @override
     async def hydrate(self, services: ServiceLevel, data: MachineName, /) -> None:
-        (await services.plugins(self._plugin_type)).get(data)
+        if self._plugin_type is not None:
+            (await services.plugins(self._plugin_type)).get(data)
 
 
 @final

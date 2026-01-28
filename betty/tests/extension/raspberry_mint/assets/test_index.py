@@ -30,7 +30,7 @@ async def test_regional_content_front_page_summary(
     file: str, isolated_app: App
 ) -> None:
     async with Project.new_isolated(isolated_app) as project:
-        project.configuration.extensions.append(
+        project.configuration.extensions.add(
             PluginConfiguration(
                 RaspberryMint,
                 RaspberryMintConfiguration(
@@ -58,7 +58,7 @@ async def test_regional_content_front_page_content(
     file: str, isolated_app: App
 ) -> None:
     async with Project.new_isolated(isolated_app) as project:
-        project.configuration.extensions.append(
+        project.configuration.extensions.add(
             PluginConfiguration(
                 RaspberryMint,
                 RaspberryMintConfiguration(

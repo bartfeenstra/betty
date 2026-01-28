@@ -91,7 +91,7 @@ class TestDemo(ExtensionTestBase):
             app,
             Project.new_isolated(app) as project,
         ):
-            project.configuration.extensions.enable(Demo)
+            project.configuration.extensions.add(Demo)
             async with project:
                 await load(project)
             assert len(project.ancestry[Person]) != 0

@@ -81,7 +81,7 @@ class TestGramps(
             f.write(family_tree_xml.encode("utf-8"))
 
         async with Project.new_isolated(isolated_app) as project:
-            project.configuration.extensions.append(
+            project.configuration.extensions.add(
                 PluginConfiguration(
                     Gramps.plugin(),
                     GrampsConfiguration(
@@ -122,7 +122,7 @@ class TestGramps(
             f.write(family_tree_xml.encode("utf-8"))
 
         async with Project.new_isolated(isolated_app) as project:
-            project.configuration.extensions.append(
+            project.configuration.extensions.add(
                 PluginConfiguration(
                     Gramps.plugin(),
                     GrampsConfiguration(
@@ -171,7 +171,7 @@ class TestGramps(
             f.write(family_tree_xml.encode("utf-8"))
 
         async with Project.new_isolated(isolated_app) as project:
-            project.configuration.extensions.append(
+            project.configuration.extensions.add(
                 PluginConfiguration(
                     Gramps.plugin(),
                     GrampsConfiguration(
@@ -298,7 +298,7 @@ class TestGramps(
                 f.write(family_tree_two_xml.encode("utf-8"))
 
             async with Project.new_isolated(isolated_app) as project:
-                project.configuration.extensions.append(
+                project.configuration.extensions.add(
                     PluginConfiguration(
                         Gramps.plugin(),
                         GrampsConfiguration(

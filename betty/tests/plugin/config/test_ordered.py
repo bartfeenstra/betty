@@ -1,63 +1,13 @@
-from typing import TYPE_CHECKING
-
 from betty.plugin.config.ordered import OrderedPluginDefinitionConfiguration
-from betty.test_utils.config import ConfigurationTestBase
-
-if TYPE_CHECKING:
-    from betty.portable import PortableData
 
 
-class TestOrderedPluginDefinitionConfiguration(
-    ConfigurationTestBase[OrderedPluginDefinitionConfiguration]
-):
-    sut_cls = OrderedPluginDefinitionConfiguration
-
-    async def test_load__minimal(self) -> None:
-        portable: PortableData = {"id": "hello-world"}
-        sut = OrderedPluginDefinitionConfiguration.load(portable)
-        assert not sut.comes_before
-        assert not sut.comes_after
-
-    async def test_load__with_comes_before(self) -> None:
-        portable: PortableData = {
-            "id": "hello-world",
-            "comes_before": ["my-first-plugin"],
-        }
-        sut = OrderedPluginDefinitionConfiguration.load(portable)
-        assert sut.comes_before == {"my-first-plugin"}
-
-    async def test_load__with_comes_after(self) -> None:
-        portable: PortableData = {
-            "id": "hello-world",
-            "comes_after": ["my-first-plugin"],
-        }
-        sut = OrderedPluginDefinitionConfiguration.load(portable)
-        assert sut.comes_after == {"my-first-plugin"}
-
-    async def test_dump__minimal(self) -> None:
-        sut = OrderedPluginDefinitionConfiguration(id="-")
-        portable = sut.dump()
-        assert "comes_before" not in portable
-        assert "comes_after" not in portable
-
-    async def test_dump__with_comes_before(self) -> None:
-        comes_before = {"my-first-plugin"}
-        sut = OrderedPluginDefinitionConfiguration(id="-", comes_before=comes_before)
-        portable = sut.dump()
-        assert portable["comes_before"] == list(comes_before)
-
-    async def test_dump__with_comes_after(self) -> None:
-        comes_after = {"my-first-plugin"}
-        sut = OrderedPluginDefinitionConfiguration(id="-", comes_after=comes_after)
-        portable = sut.dump()
-        assert portable["comes_after"] == list(comes_after)
-
+class TestOrderedPluginDefinitionConfiguration:
     async def test_comes_before(self) -> None:
-        comes_before = {"my-first-plugin"}
+        comes_before = ["my-first-plugin"]
         sut = OrderedPluginDefinitionConfiguration(id="-", comes_before=comes_before)
         assert sut.comes_before == comes_before
 
     async def test_comes_after(self) -> None:
-        comes_after = {"my-first-plugin"}
+        comes_after = ["my-first-plugin"]
         sut = OrderedPluginDefinitionConfiguration(id="-", comes_after=comes_after)
         assert sut.comes_after == comes_after

@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Betty VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-01-28 01:11+0000\n"
+"POT-Creation-Date: 2026-01-28 14:02+0000\n"
 "PO-Revision-Date: 2025-12-08 19:00+0000\n"
 "Last-Translator: Artur Kalagov "
 "<artur.kalagov@users.noreply.hosted.weblate.org>\n"
@@ -86,9 +86,6 @@ msgid "A person's presence at an event."
 msgstr ""
 
 msgid "A place number, such as a house or flat number."
-msgstr ""
-
-msgid "A plugin ID"
 msgstr ""
 
 msgid "A single file in a media display"
@@ -418,6 +415,12 @@ msgstr ""
 msgid "Columns configuration"
 msgstr ""
 
+msgid "Comes after"
+msgstr ""
+
+msgid "Comes before"
+msgstr ""
+
 msgid "Command"
 msgstr ""
 
@@ -477,6 +480,9 @@ msgid "Copyright Wikipedia contributors"
 msgstr "Авторские права принадлежат участникам Wikipedia"
 
 msgid "Copyright notice"
+msgstr ""
+
+msgid "Copyright notice configuration"
 msgstr ""
 
 msgid "Copyright notices"
@@ -696,6 +702,9 @@ msgstr "Событие"
 msgid "Event type"
 msgstr ""
 
+msgid "Event type configuration"
+msgstr ""
+
 msgid "Event types"
 msgstr ""
 
@@ -791,6 +800,9 @@ msgid "Gemeente Amsterdam"
 msgstr ""
 
 msgid "Gender"
+msgstr ""
+
+msgid "Gender configuration"
 msgstr ""
 
 msgid "Genders"
@@ -954,6 +966,9 @@ msgstr ""
 
 msgid "License"
 msgstr "Лицензия"
+
+msgid "License configuration"
+msgstr ""
 
 msgid "Licenses"
 msgstr ""
@@ -1277,6 +1292,9 @@ msgstr "Место"
 msgid "Place type"
 msgstr ""
 
+msgid "Place type configuration"
+msgstr ""
+
 msgid "Place types"
 msgstr ""
 
@@ -1284,6 +1302,9 @@ msgid "Places"
 msgstr "Места"
 
 msgid "Plain text"
+msgstr ""
+
+msgid "Plugin ID"
 msgstr ""
 
 msgid "Plugin configuration"
@@ -1306,6 +1327,9 @@ msgid "Presence of {person} at {event}"
 msgstr "Присутствие {person} на {event}"
 
 msgid "Presence role"
+msgstr ""
+
+msgid "Presence role configuration"
 msgstr ""
 
 msgid "Presence roles"

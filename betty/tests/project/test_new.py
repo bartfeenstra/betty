@@ -203,7 +203,7 @@ async def test_new__with_gramps(
     async with isolated_app_factory(user=user) as app, app:
         await new(app)
         configuration = await _assert_new(configuration_file_path)
-        assert Gramps.plugin() in configuration.extensions
+        assert Gramps in configuration.extensions
         async with Project.new_isolated(app) as project, project:
             portable_gramps_configuration = configuration.extensions[
                 Gramps

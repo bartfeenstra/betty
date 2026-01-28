@@ -38,7 +38,7 @@ class TestDeriver(ExtensionTestBase):
         Presence(person, Subject(), event)
 
         async with Project.new_isolated(isolated_app) as project:
-            project.configuration.extensions.enable(Deriver)
+            project.configuration.extensions.add(Deriver)
             project.ancestry.add(person)
             async with project:
                 with record_added(project.ancestry) as added:

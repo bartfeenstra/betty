@@ -10,14 +10,14 @@ from typing import TYPE_CHECKING, Any, Self
 
 from typing_extensions import TypeVar, override
 
-from betty.assertion import assert_mapping, assert_sequence
+from betty.assertion import assert_sequence
 from betty.config import Configuration
 from betty.config.collections import ConfigurationCollection, ConfigurationKey
 
 if TYPE_CHECKING:
     from collections.abc import Iterable, Iterator, MutableMapping
 
-    from betty.portable import PortableData, PortableMapping, PortableSequence
+    from betty.portable import PortableData, PortableSequence
 
 _ConfigurationT = TypeVar("_ConfigurationT", bound=Configuration)
 _ConfigurationKeyT = TypeVar("_ConfigurationKeyT", bound=ConfigurationKey)
@@ -91,60 +91,6 @@ class _ConfigurationMapping(
     @abstractmethod
     def _get_key(self, configuration: _ConfigurationT, /) -> _ConfigurationKeyT:
         pass
-
-
-class ConfigurationMapping(
-    _ConfigurationMapping[
-        _ConfigurationKeyT, _ResolvableConfigurationKeyT, _ConfigurationT
-    ]
-):
-    """
-    A key-value mapping where values are :py:class:`betty.config.Configuration`.
-
-    To test your own subclasses, use :py:class:`betty.test_utils.config.collections.mapping.ConfigurationMappingTestBase`.
-    """
-
-    @classmethod
-    @abstractmethod
-    def _load_key(
-        cls, portable_item: PortableData, portable_key: str, /
-    ) -> PortableData:
-        pass
-
-    @abstractmethod
-    def _dump_key(self, portable_item: PortableData, /) -> tuple[PortableData, str]:
-        pass
-
-    @classmethod
-    def __load_item_key(
-        cls, portable_value: PortableData, portable_key: str, /
-    ) -> PortableData:
-        return cls._load_key(portable_value, portable_key)
-
-    @override
-    @classmethod
-    def load(cls, portable: PortableData, /) -> Self:
-        return cls(
-            assert_mapping(cls._item_cls().load)(
-                {
-                    portable_item_key: cls.__load_item_key(
-                        portable_item_value, portable_item_key
-                    )
-                    for portable_item_key, portable_item_value in assert_mapping(
-                        assert_mapping()
-                    )(portable).items()
-                }
-            ).values()
-        )
-
-    @override
-    def dump(self) -> PortableMapping:
-        portable: PortableMapping = {}
-        for configuration_item in self._configurations.values():
-            portable_item = configuration_item.dump()
-            portable_item, configuration_key = self._dump_key(portable_item)
-            portable[configuration_key] = portable_item
-        return portable
 
 
 class OrderedConfigurationMapping(

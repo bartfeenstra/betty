@@ -25,7 +25,7 @@ class TestTree(ContentProviderTestBase):
 
     async def test_provide__without_supported_entity(self, isolated_app: App) -> None:
         async with Project.new_isolated(isolated_app) as project:
-            project.configuration.extensions.enable(Trees)
+            project.configuration.extensions.add(Trees)
             async with project:
                 sut = await Tree.new_for_services(project)
                 assert await sut.provide(document=Document()) is None
@@ -41,7 +41,7 @@ class TestTree(ContentProviderTestBase):
         self, resource: Entity, isolated_app: App
     ) -> None:
         async with Project.new_isolated(isolated_app) as project:
-            project.configuration.extensions.enable(Trees)
+            project.configuration.extensions.add(Trees)
             async with project:
                 project.ancestry.add(resource)
                 sut = await Tree.new_for_services(project)
@@ -56,7 +56,7 @@ class TestTree(ContentProviderTestBase):
         person = Person()
         Person(parents=[person])
         async with Project.new_isolated(isolated_app) as project:
-            project.configuration.extensions.enable(Trees)
+            project.configuration.extensions.add(Trees)
             async with project:
                 project.ancestry.add(person)
                 sut = await Tree.new_for_services(project)

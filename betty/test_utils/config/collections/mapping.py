@@ -68,7 +68,7 @@ class _ConfigurationMappingTestBase(
         ],
     ) -> None:
         """
-        Tests :py:meth:`betty.config.collections.mapping.ConfigurationMapping.__contains__` implementations.
+        Tests :py:meth:`betty.config.collections.mapping._ConfigurationMapping.__contains__` implementations.
         """
         sut = new_sut(
             [
@@ -80,19 +80,6 @@ class _ConfigurationMappingTestBase(
         assert sut_configuration_keys[1] in sut
         assert sut_configuration_keys[2] not in sut
         assert sut_configuration_keys[3] not in sut
-
-
-class ConfigurationMappingTestBase(
-    _ConfigurationMappingTestBase[
-        _ConfigurationT,
-        _ConfigurationKeyT,
-        _ResolvableConfigurationKeyT,
-        _ConfigurationValueT,
-    ],
-):
-    """
-    A base class for testing :py:class:`betty.config.collections.mapping.ConfigurationMapping` implementations.
-    """
 
 
 class OrderedConfigurationMappingTestBase(

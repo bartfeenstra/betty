@@ -50,7 +50,7 @@ class TestPrivatizeAncestry:
         FileReference(citation, citation_file)
 
         async with Project.new_isolated(isolated_app) as project:
-            project.configuration.extensions.enable(Privatizer)
+            project.configuration.extensions.add(Privatizer)
             project.ancestry.add(person, source, citation)
             async with project:
                 await load(project)

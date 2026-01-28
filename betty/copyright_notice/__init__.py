@@ -56,7 +56,10 @@ class CopyrightNotice(Plugin["CopyrightNoticeDefinition"]):
     discovery=[
         EntryPointDiscovery("betty.copyright_notice"),
         ProjectDiscovery(
-            lambda project: project.configuration.copyright_notices.new_plugins()
+            lambda project: (
+                configuration.new_plugin()
+                for configuration in project.configuration.copyright_notices
+            )
         ),
     ],
 )

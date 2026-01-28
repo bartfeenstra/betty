@@ -29,7 +29,10 @@ class PlaceType(Plugin["PlaceTypeDefinition"]):
     discovery=[
         EntryPointDiscovery("betty.place_type"),
         ProjectDiscovery(
-            lambda project: project.configuration.place_types.new_plugins(),
+            lambda project: (
+                configuration.new_plugin()
+                for configuration in project.configuration.place_types
+            )
         ),
     ],
 )

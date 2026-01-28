@@ -56,7 +56,7 @@ class MapsTestBase:
             app,
             Project.new_isolated(app) as project,
         ):
-            project.configuration.extensions.enable(Maps, *self.get_other_extensions())
+            project.configuration.extensions.add(Maps, *self.get_other_extensions())
             project.ancestry.add(
                 Place(
                     id=_PLACE_ID,

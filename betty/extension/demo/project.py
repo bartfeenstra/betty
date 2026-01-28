@@ -34,7 +34,6 @@ from betty.model.config import EntityReference
 from betty.plugin.config import PluginConfiguration
 from betty.project import Project
 from betty.project.config import (
-    ExtensionInstanceConfigurationMapping,
     LocaleConfiguration,
     LocaleConfigurationMapping,
     ProjectConfiguration,
@@ -62,137 +61,133 @@ async def create_project(app: App, project_directory_path: Path) -> Project:
         title=_("A Betty demonstration"),
         author=_("Bart Feenstra and contributors"),
         url="https://example.com",
-        extensions=ExtensionInstanceConfigurationMapping(
-            [
-                PluginConfiguration(Demo),
-                PluginConfiguration(
-                    RaspberryMint,
-                    RaspberryMintConfiguration(
-                        regional_content={
-                            **regional_content(localizers=localizers),
-                            "front-page-content": [
-                                PluginConfiguration(
-                                    Columns,
-                                    ColumnsConfiguration(
-                                        [[_IncompleteTranslationWarning]]
-                                    ),
-                                ),
-                                PluginConfiguration(
-                                    Section,
-                                    SectionConfiguration(
-                                        PluginConfiguration(
-                                            Columns,
-                                            ColumnsConfiguration(
+        extensions=[
+            PluginConfiguration(Demo),
+            PluginConfiguration(
+                RaspberryMint,
+                RaspberryMintConfiguration(
+                    regional_content={
+                        **regional_content(localizers=localizers),
+                        "front-page-content": [
+                            PluginConfiguration(
+                                Columns,
+                                ColumnsConfiguration([[_IncompleteTranslationWarning]]),
+                            ),
+                            PluginConfiguration(
+                                Section,
+                                SectionConfiguration(
+                                    PluginConfiguration(
+                                        Columns,
+                                        ColumnsConfiguration(
+                                            [
                                                 [
-                                                    [
-                                                        PluginConfiguration(
-                                                            Render,
-                                                            RenderConfiguration(
-                                                                Chain(
-                                                                    "<h2>",
-                                                                    _("Get started"),
-                                                                    "</h2>"
-                                                                    '<a href="https://betty.readthedocs.io/" class="view-more">',
-                                                                    _(
-                                                                        "Read the documentation"
-                                                                    ),
-                                                                    "</a>",
-                                                                    '<a href="https://github.com/bartfeenstra/betty/" class="view-more">',
-                                                                    _("View the code"),
-                                                                    "</a>",
+                                                    PluginConfiguration(
+                                                        Render,
+                                                        RenderConfiguration(
+                                                            Chain(
+                                                                "<h2>",
+                                                                _("Get started"),
+                                                                "</h2>"
+                                                                '<a href="https://betty.readthedocs.io/" class="view-more">',
+                                                                _(
+                                                                    "Read the documentation"
                                                                 ),
-                                                                HTML,
+                                                                "</a>",
+                                                                '<a href="https://github.com/bartfeenstra/betty/" class="view-more">',
+                                                                _("View the code"),
+                                                                "</a>",
                                                             ),
+                                                            HTML,
                                                         ),
-                                                    ],
-                                                    [
-                                                        PluginConfiguration(
-                                                            Render,
-                                                            RenderConfiguration(
-                                                                Chain(
-                                                                    "<p>",
-                                                                    _(
-                                                                        "Betty was named after <a href=\"betty-entity://person/betty-demo-liberta-lankester\">Liberta 'Betty' Lankester</a>, and this website shows a small sample of her family history. You can browse the pages about her and some of her family to get an idea of what a Betty site looks like."
-                                                                    ),
-                                                                    "</p>",
-                                                                ),
-                                                                HTML,
-                                                            ),
-                                                        ),
-                                                    ],
+                                                    ),
                                                 ],
-                                                width={
-                                                    Breakpoint.XS: [12, 12],
-                                                    Breakpoint.MD: [5, 6],
-                                                    Breakpoint.LG: [4, 7],
-                                                },
-                                            ),
-                                        ),  # ty:ignore[invalid-argument-type]
-                                        heading=_("Welcome"),
-                                        visually_hide_heading=True,
-                                    ),
-                                ),
-                                PluginConfiguration(
-                                    Section,
-                                    SectionConfiguration(
-                                        PluginConfiguration(
-                                            Columns,
-                                            ColumnsConfiguration(
                                                 [
-                                                    [
-                                                        PluginConfiguration(
-                                                            EntityCard,
-                                                            EntityReference(
-                                                                Place,
-                                                                "betty-demo-amsterdam",
+                                                    PluginConfiguration(
+                                                        Render,
+                                                        RenderConfiguration(
+                                                            Chain(
+                                                                "<p>",
+                                                                _(
+                                                                    "Betty was named after <a href=\"betty-entity://person/betty-demo-liberta-lankester\">Liberta 'Betty' Lankester</a>, and this website shows a small sample of her family history. You can browse the pages about her and some of her family to get an idea of what a Betty site looks like."
+                                                                ),
+                                                                "</p>",
                                                             ),
-                                                        )
-                                                    ],
-                                                    [
-                                                        PluginConfiguration(
-                                                            EntityCard,
-                                                            EntityReference(
-                                                                Person,
-                                                                "betty-demo-liberta-lankester",
-                                                            ),
-                                                        )
-                                                    ],
-                                                    [
-                                                        PluginConfiguration(
-                                                            EntityCard,
-                                                            EntityReference(
-                                                                Place,
-                                                                "betty-demo-netherlands",
-                                                            ),
-                                                        )
-                                                    ],
+                                                            HTML,
+                                                        ),
+                                                    ),
                                                 ],
-                                                width={
-                                                    Breakpoint.XS: [12, 12, 12],
-                                                    Breakpoint.MD: [6, 6, 6],
-                                                    Breakpoint.LG: [4, 4, 4],
-                                                },
-                                            ),
-                                        ),  # ty:ignore[invalid-argument-type]
-                                        heading=_("Explore a family history..."),
-                                    ),
+                                            ],
+                                            width={
+                                                Breakpoint.XS: [12, 12],
+                                                Breakpoint.MD: [5, 6],
+                                                Breakpoint.LG: [4, 7],
+                                            },
+                                        ),
+                                    ),  # ty:ignore[invalid-argument-type]
+                                    heading=_("Welcome"),
+                                    visually_hide_heading=True,
                                 ),
-                            ],
-                            "front-page-summary": [
-                                PluginConfiguration(
-                                    Render,
-                                    RenderConfiguration(
-                                        _(
-                                            "Betty is an application that takes a family tree and builds a website out of it, much like the one you are viewing right now. The more information your genealogical research contains, the more interactivity Betty can add to your site, such as media galleries, maps, and browsable family trees."
-                                        )
-                                    ),
+                            ),
+                            PluginConfiguration(
+                                Section,
+                                SectionConfiguration(
+                                    PluginConfiguration(
+                                        Columns,
+                                        ColumnsConfiguration(
+                                            [
+                                                [
+                                                    PluginConfiguration(
+                                                        EntityCard,
+                                                        EntityReference(
+                                                            Place,
+                                                            "betty-demo-amsterdam",
+                                                        ),
+                                                    )
+                                                ],
+                                                [
+                                                    PluginConfiguration(
+                                                        EntityCard,
+                                                        EntityReference(
+                                                            Person,
+                                                            "betty-demo-liberta-lankester",
+                                                        ),
+                                                    )
+                                                ],
+                                                [
+                                                    PluginConfiguration(
+                                                        EntityCard,
+                                                        EntityReference(
+                                                            Place,
+                                                            "betty-demo-netherlands",
+                                                        ),
+                                                    )
+                                                ],
+                                            ],
+                                            width={
+                                                Breakpoint.XS: [12, 12, 12],
+                                                Breakpoint.MD: [6, 6, 6],
+                                                Breakpoint.LG: [4, 4, 4],
+                                            },
+                                        ),
+                                    ),  # ty:ignore[invalid-argument-type]
+                                    heading=_("Explore a family history..."),
                                 ),
-                            ],
-                        }
-                    ),
+                            ),
+                        ],
+                        "front-page-summary": [
+                            PluginConfiguration(
+                                Render,
+                                RenderConfiguration(
+                                    _(
+                                        "Betty is an application that takes a family tree and builds a website out of it, much like the one you are viewing right now. The more information your genealogical research contains, the more interactivity Betty can add to your site, such as media galleries, maps, and browsable family trees."
+                                    )
+                                ),
+                            ),
+                        ],
+                    }
                 ),
-            ]
-        ),
+            ),
+        ],
         entity_types=[
             Person,
             Event,

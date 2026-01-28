@@ -53,7 +53,10 @@ class ShouldExistEventType(EventType, ABC):
     discovery=[
         EntryPointDiscovery("betty.event_type"),
         ProjectDiscovery(
-            lambda project: project.configuration.event_types.new_plugins(),
+            lambda project: (
+                configuration.new_plugin()
+                for configuration in project.configuration.event_types
+            )
         ),
     ],
 )

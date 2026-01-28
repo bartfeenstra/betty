@@ -99,7 +99,7 @@ class TestEntityCard(
 
     async def test_provide(self, isolated_app: App) -> None:
         async with Project.new_isolated(isolated_app) as project:
-            project.configuration.extensions.enable(RaspberryMint)
+            project.configuration.extensions.add(RaspberryMint)
             entity = Person(id="my-first-entity")
             project.ancestry.add(entity)
             async with project:
@@ -182,7 +182,7 @@ class TestSection(
             StaticDiscovery(NoOpContentProvider)
         ):
             async with Project.new_isolated(isolated_app) as project:
-                project.configuration.extensions.enable(RaspberryMint)
+                project.configuration.extensions.add(RaspberryMint)
                 async with project:
                     sut = await project.new_target(
                         Section.new_for_configuration(
@@ -196,7 +196,7 @@ class TestSection(
 
     async def test_provide__with_content(self, isolated_app: App) -> None:
         async with Project.new_isolated(isolated_app) as project:
-            project.configuration.extensions.enable(RaspberryMint)
+            project.configuration.extensions.add(RaspberryMint)
             async with project:
                 sut = await project.new_target(
                     Section.new_for_configuration(
@@ -216,7 +216,7 @@ class TestSection(
 
     async def test_provide__with_name(self, isolated_app: App) -> None:
         async with Project.new_isolated(isolated_app) as project:
-            project.configuration.extensions.enable(RaspberryMint)
+            project.configuration.extensions.add(RaspberryMint)
             async with project:
                 sut = await project.new_target(
                     Section.new_for_configuration(
@@ -236,7 +236,7 @@ class TestSection(
 
     async def test_provide__with_visually_hide_heading(self, isolated_app: App) -> None:
         async with Project.new_isolated(isolated_app) as project:
-            project.configuration.extensions.enable(RaspberryMint)
+            project.configuration.extensions.add(RaspberryMint)
             async with project:
                 sut = await project.new_target(
                     Section.new_for_configuration(
@@ -275,7 +275,7 @@ class TestFamilies(ContentProviderTestBase):
         self, resource: object, isolated_app: App
     ) -> None:
         async with Project.new_isolated(isolated_app) as project:
-            project.configuration.extensions.enable(RaspberryMint)
+            project.configuration.extensions.add(RaspberryMint)
             async with project:
                 sut = await Families.new_for_services(project)
         assert await sut.provide(document=Document(resource)) is None
@@ -285,7 +285,7 @@ class TestFamilies(ContentProviderTestBase):
         resource = Person(id="resource", parents=[parent])
         child = Person(id="child", parents=[resource])
         async with Project.new_isolated(isolated_app) as project:
-            project.configuration.extensions.enable(RaspberryMint)
+            project.configuration.extensions.add(RaspberryMint)
             project.ancestry.add(resource)
             async with project:
                 sut = await Families.new_for_services(project)
@@ -304,7 +304,7 @@ class TestMedia(ContentProviderTestBase):
 
     async def test_provide__without_file(self, isolated_app: App) -> None:
         async with Project.new_isolated(isolated_app) as project:
-            project.configuration.extensions.enable(RaspberryMint)
+            project.configuration.extensions.add(RaspberryMint)
             async with project:
                 sut = await Media.new_for_services(project)
                 assert await sut.provide(document=Document(object())) is None
@@ -315,7 +315,7 @@ class TestMedia(ContentProviderTestBase):
             media_type=MediaType("image/png"),
         )
         async with Project.new_isolated(isolated_app) as project:
-            project.configuration.extensions.enable(RaspberryMint)
+            project.configuration.extensions.add(RaspberryMint)
             async with project:
                 sut = await Media.new_for_services(project)
                 actual = await sut.provide(document=Document(resource))
@@ -334,7 +334,7 @@ class TestMediaGallery(ContentProviderTestBase):
         self, isolated_app: App
     ) -> None:
         async with Project.new_isolated(isolated_app) as project:
-            project.configuration.extensions.enable(RaspberryMint)
+            project.configuration.extensions.add(RaspberryMint)
             async with project:
                 sut = await MediaGallery.new_for_services(project)
                 assert await sut.provide(document=Document(object())) is None
@@ -344,7 +344,7 @@ class TestMediaGallery(ContentProviderTestBase):
     ) -> None:
         resource = Person()
         async with Project.new_isolated(isolated_app) as project:
-            project.configuration.extensions.enable(RaspberryMint)
+            project.configuration.extensions.add(RaspberryMint)
             async with project:
                 sut = await MediaGallery.new_for_services(project)
                 assert await sut.provide(document=Document(resource)) is None
@@ -356,7 +356,7 @@ class TestMediaGallery(ContentProviderTestBase):
         file = File(Path(__file__))
         FileReference(resource, file)
         async with Project.new_isolated(isolated_app) as project:
-            project.configuration.extensions.enable(RaspberryMint)
+            project.configuration.extensions.add(RaspberryMint)
             async with project:
                 sut = await MediaGallery.new_for_services(project)
                 actual = await sut.provide(document=Document(resource))
@@ -404,7 +404,7 @@ class TestColorStyle(ContentProviderTestBase):
             StaticDiscovery(NoOpContentProvider)
         ):
             async with Project.new_isolated(isolated_app) as project:
-                project.configuration.extensions.enable(RaspberryMint)
+                project.configuration.extensions.add(RaspberryMint)
                 async with project:
                     sut = await project.new_target(
                         ColorStyle.new_for_configuration(
@@ -418,7 +418,7 @@ class TestColorStyle(ContentProviderTestBase):
 
     async def test_provide__with_content(self, isolated_app: App) -> None:
         async with Project.new_isolated(isolated_app) as project:
-            project.configuration.extensions.enable(RaspberryMint)
+            project.configuration.extensions.add(RaspberryMint)
             async with project:
                 sut = await project.new_target(
                     ColorStyle.new_for_configuration(
@@ -444,7 +444,7 @@ class TestExternalLinks(ContentProviderTestBase):
 
     async def test_provide__without_has_links(self, isolated_app: App) -> None:
         async with Project.new_isolated(isolated_app) as project:
-            project.configuration.extensions.enable(RaspberryMint)
+            project.configuration.extensions.add(RaspberryMint)
             async with project:
                 sut = await ExternalLinks.new_for_services(project)
                 provided_content = await sut.provide(document=Document(object()))
@@ -455,7 +455,7 @@ class TestExternalLinks(ContentProviderTestBase):
     ) -> None:
         resource = Person()
         async with Project.new_isolated(isolated_app) as project:
-            project.configuration.extensions.enable(RaspberryMint)
+            project.configuration.extensions.add(RaspberryMint)
             async with project:
                 sut = await ExternalLinks.new_for_services(project)
                 assert await sut.provide(document=Document(resource)) is None
@@ -464,7 +464,7 @@ class TestExternalLinks(ContentProviderTestBase):
         url = "betty:///my-first-page"
         resource = Person(links=[Link(url)])
         async with Project.new_isolated(isolated_app) as project:
-            project.configuration.extensions.enable(RaspberryMint)
+            project.configuration.extensions.add(RaspberryMint)
             async with project:
                 sut = await ExternalLinks.new_for_services(project)
                 actual = await sut.provide(document=Document(resource))
@@ -492,7 +492,7 @@ class TestTimeline(ContentProviderTestBase):
         self, resource: object, isolated_app: App
     ) -> None:
         async with Project.new_isolated(isolated_app) as project:
-            project.configuration.extensions.enable(RaspberryMint)
+            project.configuration.extensions.add(RaspberryMint)
             async with project:
                 sut = await Timeline.new_for_services(project)
         assert await sut.provide(document=Document(resource)) is None
@@ -502,7 +502,7 @@ class TestTimeline(ContentProviderTestBase):
         resource = Person()
         Presence(resource, Subject(), event)
         async with Project.new_isolated(isolated_app) as project:
-            project.configuration.extensions.enable(RaspberryMint)
+            project.configuration.extensions.add(RaspberryMint)
             async with project:
                 sut = await Timeline.new_for_services(project)
                 actual = await sut.provide(document=Document(resource))
@@ -516,7 +516,7 @@ class TestTimeline(ContentProviderTestBase):
         resource = Place(events=[event])
         Enclosure(enclosee, resource)
         async with Project.new_isolated(isolated_app) as project:
-            project.configuration.extensions.enable(RaspberryMint)
+            project.configuration.extensions.add(RaspberryMint)
             async with project:
                 sut = await Timeline.new_for_services(project)
                 actual = await sut.provide(document=Document(resource))
@@ -545,7 +545,7 @@ class TestFacts(ContentProviderTestBase):
         self, resource: object, isolated_app: App
     ) -> None:
         async with Project.new_isolated(isolated_app) as project:
-            project.configuration.extensions.enable(RaspberryMint)
+            project.configuration.extensions.add(RaspberryMint)
             async with project:
                 sut = await Facts.new_for_services(project)
         assert await sut.provide(document=Document(resource)) is None
@@ -554,7 +554,7 @@ class TestFacts(ContentProviderTestBase):
         resource = Citation(source=Source())
         fact = DummyHasCitations(citations=[resource])
         async with Project.new_isolated(isolated_app) as project:
-            project.configuration.extensions.enable(RaspberryMint)
+            project.configuration.extensions.add(RaspberryMint)
             async with project:
                 sut = await Facts.new_for_services(project)
                 actual = await sut.provide(document=Document(resource))
@@ -566,7 +566,7 @@ class TestFacts(ContentProviderTestBase):
         citation = Citation(source=resource)
         fact = DummyHasCitations(citations=[citation])
         async with Project.new_isolated(isolated_app) as project:
-            project.configuration.extensions.enable(RaspberryMint)
+            project.configuration.extensions.add(RaspberryMint)
             async with project:
                 sut = await Facts.new_for_services(project)
                 actual = await sut.provide(document=Document(resource))
@@ -614,7 +614,7 @@ class TestPresences(ContentProviderTestBase):
         self, resource: object, isolated_app: App
     ) -> None:
         async with Project.new_isolated(isolated_app) as project:
-            project.configuration.extensions.enable(RaspberryMint)
+            project.configuration.extensions.add(RaspberryMint)
             async with project:
                 sut = Presences(
                     jinja2_environment=await project.jinja2_environment,
@@ -629,7 +629,7 @@ class TestPresences(ContentProviderTestBase):
         resource = Event()
         Presence(person, Subject(), resource)
         async with Project.new_isolated(isolated_app) as project:
-            project.configuration.extensions.enable(RaspberryMint)
+            project.configuration.extensions.add(RaspberryMint)
             async with project:
                 sut = Presences(
                     jinja2_environment=await project.jinja2_environment,
@@ -650,7 +650,7 @@ class TestPresences(ContentProviderTestBase):
         Presence(person_include, Subject(), resource)
         Presence(person_exclude, Witness(), resource)
         async with Project.new_isolated(isolated_app) as project:
-            project.configuration.extensions.enable(RaspberryMint)
+            project.configuration.extensions.add(RaspberryMint)
             async with project:
                 sut = Presences(
                     configuration=PresencesConfiguration(include=[Subject]),
@@ -673,7 +673,7 @@ class TestPresences(ContentProviderTestBase):
         Presence(person_include, Subject(), resource)
         Presence(person_exclude, Witness(), resource)
         async with Project.new_isolated(isolated_app) as project:
-            project.configuration.extensions.enable(RaspberryMint)
+            project.configuration.extensions.add(RaspberryMint)
             async with project:
                 sut = Presences(
                     configuration=PresencesConfiguration(exclude=[Witness]),
@@ -745,7 +745,7 @@ class TestColumns(ContentProviderTestBase):
 
     async def test_provide__minimal(self, isolated_app: App) -> None:
         async with Project.new_isolated(isolated_app) as project:
-            project.configuration.extensions.enable(RaspberryMint)
+            project.configuration.extensions.add(RaspberryMint)
             async with project:
                 sut = Columns(
                     configuration=ColumnsConfiguration(
@@ -767,7 +767,7 @@ class TestColumns(ContentProviderTestBase):
         self, isolated_app: App
     ) -> None:
         async with Project.new_isolated(isolated_app) as project:
-            project.configuration.extensions.enable(RaspberryMint)
+            project.configuration.extensions.add(RaspberryMint)
             async with project:
                 sut = Columns(
                     configuration=ColumnsConfiguration(
@@ -790,7 +790,7 @@ class TestColumns(ContentProviderTestBase):
         self, isolated_app: App
     ) -> None:
         async with Project.new_isolated(isolated_app) as project:
-            project.configuration.extensions.enable(RaspberryMint)
+            project.configuration.extensions.add(RaspberryMint)
             async with project:
                 sut = Columns(
                     configuration=ColumnsConfiguration(
@@ -821,7 +821,7 @@ class TestColumns(ContentProviderTestBase):
         self, isolated_app: App
     ) -> None:
         async with Project.new_isolated(isolated_app) as project:
-            project.configuration.extensions.enable(RaspberryMint)
+            project.configuration.extensions.add(RaspberryMint)
             async with project:
                 sut = Columns(
                     configuration=ColumnsConfiguration(
@@ -869,7 +869,7 @@ class TestEnclosees(ContentProviderTestBase):
         self, resource: object, isolated_app: App
     ) -> None:
         async with Project.new_isolated(isolated_app) as project:
-            project.configuration.extensions.enable(RaspberryMint)
+            project.configuration.extensions.add(RaspberryMint)
             async with project:
                 sut = await Enclosees.new_for_services(project)
         assert await sut.provide(document=Document(resource)) is None
@@ -879,7 +879,7 @@ class TestEnclosees(ContentProviderTestBase):
         resource = Place()
         Enclosure(enclosee, resource)
         async with Project.new_isolated(isolated_app) as project:
-            project.configuration.extensions.enable(RaspberryMint)
+            project.configuration.extensions.add(RaspberryMint)
             async with project:
                 sut = await Enclosees.new_for_services(project)
                 actual = await sut.provide(document=Document(resource))
@@ -908,7 +908,7 @@ class TestFileReferees(ContentProviderTestBase):
         self, resource: object, isolated_app: App
     ) -> None:
         async with Project.new_isolated(isolated_app) as project:
-            project.configuration.extensions.enable(RaspberryMint)
+            project.configuration.extensions.add(RaspberryMint)
             async with project:
                 sut = await FileReferees.new_for_services(project)
         assert await sut.provide(document=Document(resource)) is None
@@ -918,7 +918,7 @@ class TestFileReferees(ContentProviderTestBase):
         resource = File(Path(__file__))
         FileReference(referee, resource)
         async with Project.new_isolated(isolated_app) as project:
-            project.configuration.extensions.enable(RaspberryMint)
+            project.configuration.extensions.add(RaspberryMint)
             async with project:
                 sut = await FileReferees.new_for_services(project)
                 actual = await sut.provide(document=Document(resource))
@@ -947,7 +947,7 @@ class TestCitations(ContentProviderTestBase):
         self, resource: object, isolated_app: App
     ) -> None:
         async with Project.new_isolated(isolated_app) as project:
-            project.configuration.extensions.enable(RaspberryMint)
+            project.configuration.extensions.add(RaspberryMint)
             async with project:
                 sut = await project.new_target(Citations)
         assert await sut.provide(document=Document(resource)) is None
@@ -956,7 +956,7 @@ class TestCitations(ContentProviderTestBase):
         citation = Citation(source=Source())
         resource = DummyHasCitations(citations=[citation])
         async with Project.new_isolated(isolated_app) as project:
-            project.configuration.extensions.enable(RaspberryMint)
+            project.configuration.extensions.add(RaspberryMint)
             async with project:
                 sut = await project.new_target(Citations)
                 actual = await sut.provide(document=Document(resource))

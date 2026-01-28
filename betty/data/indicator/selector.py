@@ -175,10 +175,7 @@ class Attr(Element[str]):
 
     @override
     def _get(self, data: Any, /) -> Any:
-        try:
-            return getattr(data, self.element)
-        except AttributeError as error:
-            raise SelectorError(self) from error
+        return getattr(data, self.element)
 
     @override
     def _set(self, data: Any, value: Any, /) -> None:

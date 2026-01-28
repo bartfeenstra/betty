@@ -4,86 +4,59 @@ Provide plugin configuration.
 
 from __future__ import annotations
 
-from abc import abstractmethod
-from collections.abc import Collection, Iterable, MutableMapping, Sequence
-from typing import TYPE_CHECKING, Any, Generic, Self, TypeAlias, cast, final
+from collections.abc import Iterable
+from typing import TYPE_CHECKING, Any, Generic, Self, TypeAlias, final
 
 from typing_extensions import TypeVar, override
 
 from betty.assertion import (
-    Field,
     OptionalField,
     RequiredField,
+    assert_mapping,
     assert_or,
     assert_record,
 )
 from betty.config import Configuration
-from betty.config.collections import ConfigurationCollection, ConfigurationKey
-from betty.config.collections.mapping import ConfigurationMapping
 from betty.data import Data, Sample
 from betty.data.aggregate.record import PortableRecord
-from betty.data.aggregate.record.object.property import Optional
+from betty.data.aggregate.record.object import ObjectDefinition
+from betty.data.aggregate.record.object.property import Optional, Property
 from betty.data.indicator.selector import Attr
 from betty.data.sample import Samples, Size
-from betty.locale import DEFAULT_LOCALE
-from betty.locale.localizable.assertion import (
-    assert_load_countable_localizable,
-    assert_load_localizable,
-)
-from betty.locale.localizable.ensure import (
-    ensure_countable_localizable,
-    ensure_localizable,
-)
 from betty.locale.localizable.gettext import _
-from betty.locale.localizable.portable import (
-    dump_countable_localizable,
-    dump_localizable,
-)
 from betty.locale.localizable.property import (
     CountableLocalizableProperty,
     LocalizableProperty,
 )
-from betty.locale.localizable.static import CountableStaticTranslations
-from betty.machine_name import MachineName, assert_machine_name
+from betty.machine_name import MachineName, MachineNameDefinition, assert_machine_name
 from betty.plugin import Plugin, PluginDefinition
 from betty.plugin.resolve import ResolvableId, resolve_definition, resolve_id
 from betty.typing import Void
 
 if TYPE_CHECKING:
     from betty.locale.localizable import CountableLocalizableLike, LocalizableLike
-    from betty.portable import PortableData, PortableMapping
+    from betty.portable import PortableData
 
 _PluginT = TypeVar("_PluginT", bound=Plugin, default=Plugin)
-_ConfigurationT = TypeVar("_ConfigurationT", bound=Configuration, default=Configuration)
-_ConfigurationKeyT = TypeVar("_ConfigurationKeyT", bound=ConfigurationKey)
-_ResolvableConfigurationKeyT = TypeVar("_ResolvableConfigurationKeyT")
 _PluginDefinitionT = TypeVar(
     "_PluginDefinitionT", bound=PluginDefinition, default=PluginDefinition
 )
 
 
-class PluginIdentifierKeyConfigurationMapping(
-    ConfigurationMapping[
-        MachineName, ResolvableId[_PluginDefinitionT], _ConfigurationT
-    ],
-    Generic[_PluginDefinitionT, _ConfigurationT],
+class PluginDefinitionConfiguration(
+    Data[ObjectDefinition["PluginDefinitionConfiguration"]]
 ):
-    """
-    A mapping of configuration, keyed by a plugin identifier.
-    """
-
-    @override
-    def _resolve_key(
-        self, configuration_key: ResolvableId[_PluginDefinitionT], /
-    ) -> MachineName:
-        return resolve_id(configuration_key)
-
-
-class PluginDefinitionConfiguration(Configuration):
     """
     Configure a :py:class:`betty.plugin.PluginDefinition`.
 
-    .. configuration:: betty.plugin.config:PluginDefinitionConfiguration
+    .. data:: betty.plugin.config:PluginDefinitionConfiguration
+    """
+
+    id = Property(
+        MachineNameDefinition(), label=_("Plugin ID"), resolver=assert_machine_name()
+    )
+    """
+    The plugin ID.
     """
 
     def __init__(
@@ -92,52 +65,14 @@ class PluginDefinitionConfiguration(Configuration):
         id: MachineName,  # noqa: A002
     ):
         super().__init__()
-        self._id = assert_machine_name()(id)
-
-    @property
-    def id(self) -> str:
-        """
-        The configured plugin ID.
-        """
-        return self._id
-
-    @override
-    @classmethod
-    def load(cls, portable: PortableData, /) -> Self:
-        return cls(**assert_record(*cls.fields())(portable))
-
-    @classmethod
-    def fields(cls) -> Collection[Field[Any, Any]]:
-        """
-        The configuration fields.
-        """
-        return [
-            RequiredField("id", assert_machine_name()),
-        ]
-
-    @override
-    def dump(self) -> PortableMapping:
-        return {
-            "id": self.id,
-        }
-
-    @override
-    def __eq__(self, other: Any) -> bool:
-        if not isinstance(other, type(self)):
-            return NotImplemented
-        return self.id == other.id
-
-    @override
-    @classmethod
-    def samples(cls) -> Samples:
-        return Samples([lambda: Sample(cls(id="my-custom-plugin"), label="Default")])
+        self.id = id
 
 
 class HumanFacingPluginDefinitionConfiguration(PluginDefinitionConfiguration):
     """
     Configure a :py:class:`betty.definition.human_facing.HumanFacingDefinition`.
 
-    .. configuration:: betty.plugin.config:HumanFacingPluginDefinitionConfiguration
+    .. data:: betty.plugin.config:HumanFacingPluginDefinitionConfiguration
     """
 
     label = LocalizableProperty(label=_("Label"))
@@ -151,57 +86,8 @@ class HumanFacingPluginDefinitionConfiguration(PluginDefinitionConfiguration):
         **kwargs: Any,
     ):
         super().__init__(**kwargs)
-        self.label = ensure_localizable(label)
-        if description is not None:
-            self.description = ensure_localizable(description)
-
-    @override
-    @classmethod
-    def fields(cls) -> Collection[Field[Any, Any]]:
-        return [
-            *super().fields(),
-            RequiredField("label", assert_load_localizable),
-            OptionalField("description", assert_load_localizable),
-        ]
-
-    @override
-    def dump(self) -> PortableMapping:
-        portable = super().dump()
-        portable["label"] = dump_localizable(self.label)
-        if self.description is not None:
-            portable["description"] = dump_localizable(self.description)
-        return portable
-
-    @override
-    def __eq__(self, other: Any) -> bool:
-        if not isinstance(other, type(self)):
-            return NotImplemented
-        eq = super().__eq__(other)
-        if eq is not True:
-            return eq
-        return (self.label, self.description) == (other.label, other.description)
-
-    @override
-    @classmethod
-    def samples(cls) -> Samples:
-        return Samples(
-            [
-                lambda: Sample(
-                    cls(id="my-custom-plugin", label="My Custom Plugin"),
-                    label="Minimal",
-                    size=Size.MINIMAL,
-                ),
-                lambda: Sample(
-                    cls(
-                        id="my-custom-plugin",
-                        label="My Custom Plugin",
-                        description="My Custom Plugin is the best plugin for your needs.",
-                    ),
-                    label="Full",
-                    size=Size.FULL,
-                ),
-            ]
-        )
+        self.label = label
+        self.description = description
 
 
 class CountableHumanFacingPluginDefinitionConfiguration(
@@ -210,7 +96,7 @@ class CountableHumanFacingPluginDefinitionConfiguration(
     """
     Configure a :py:class:`betty.definition.human_facing.CountableHumanFacingDefinition`.
 
-    .. configuration:: betty.plugin.config:CountableHumanFacingPluginDefinitionConfiguration
+    .. data:: betty.plugin.config:CountableHumanFacingPluginDefinitionConfiguration
     """
 
     label_plural = LocalizableProperty(label=_("Label (plural)"))
@@ -224,141 +110,8 @@ class CountableHumanFacingPluginDefinitionConfiguration(
         **kwargs: Any,
     ):
         super().__init__(**kwargs)
-        self.label_plural = ensure_localizable(label_plural)
-        self.label_countable = ensure_countable_localizable(label_countable)
-
-    @override
-    @classmethod
-    def fields(cls) -> Collection[Field[Any, Any]]:
-        return [
-            *super().fields(),
-            RequiredField("label_plural", assert_load_localizable),
-            RequiredField("label_countable", assert_load_countable_localizable),
-        ]
-
-    @override
-    def dump(self) -> PortableMapping:
-        portable = super().dump()
-        portable["label_plural"] = dump_localizable(self.label_plural)
-        portable["label_countable"] = dump_countable_localizable(self.label_countable)
-        return portable
-
-    @override
-    def __eq__(self, other: Any) -> bool:
-        if not isinstance(other, type(self)):
-            return NotImplemented
-        eq = super().__eq__(other)
-        if eq is not True:
-            return eq
-        return (self.label_plural, self.label_countable) == (
-            other.label_plural,
-            other.label_countable,
-        )
-
-    @override
-    @classmethod
-    def samples(cls) -> Samples:
-        return Samples(
-            [
-                lambda: Sample(
-                    cls(
-                        id="my-custom-plugin",
-                        label="My Custom Plugin",
-                        label_plural="My Custom Plugins",
-                        label_countable=CountableStaticTranslations(
-                            {
-                                DEFAULT_LOCALE: {
-                                    "one": "{count} My Custom Plugin",
-                                    "other": "{count} My Custom Plugins",
-                                }
-                            }
-                        ),
-                    ),
-                    label="Minimal",
-                    size=Size.MINIMAL,
-                ),
-                lambda: Sample(
-                    cls(
-                        id="my-custom-plugin",
-                        label="My Custom Plugin",
-                        label_plural="My Custom Plugins",
-                        label_countable=CountableStaticTranslations(
-                            {
-                                DEFAULT_LOCALE: {
-                                    "one": "{count} My Custom Plugin",
-                                    "other": "{count} My Custom Plugins",
-                                }
-                            }
-                        ),
-                        description="My Custom Plugin is the best plugin for your needs.",
-                    ),
-                    label="Full",
-                    size=Size.FULL,
-                ),
-            ]
-        )
-
-
-_PluginDefinitionConfigurationT = TypeVar(
-    "_PluginDefinitionConfigurationT",
-    bound=PluginDefinitionConfiguration,
-    default=PluginDefinitionConfiguration,
-)
-
-
-class PluginDefinitionConfigurationMapping(
-    ConfigurationMapping[
-        MachineName, ResolvableId[_PluginDefinitionT], _PluginDefinitionConfigurationT
-    ],
-    Generic[_PluginDefinitionT, _PluginDefinitionConfigurationT],
-):
-    """
-    Configure a collection of plugins.
-    """
-
-    @override
-    def _resolve_key(
-        self, configuration_key: ResolvableId[_PluginDefinitionT], /
-    ) -> MachineName:
-        return resolve_id(configuration_key)
-
-    def new_plugins(self) -> Sequence[_PluginDefinitionT]:
-        """
-        Create the plugins for this configuration.
-
-        You SHOULD NOT cache the value anywhere, as it *will* change
-        when this configuration changes.
-        """
-        return tuple(
-            self._new_plugin(plugin_configuration)
-            for plugin_configuration in self.values()
-        )
-
-    @abstractmethod
-    def _new_plugin(
-        self, configuration: _PluginDefinitionConfigurationT, /
-    ) -> _PluginDefinitionT:
-        """
-        The plugin (class) for the given configuration.
-        """
-
-    @override
-    def _get_key(self, configuration: _PluginDefinitionConfigurationT, /) -> str:
-        return configuration.id
-
-    @override
-    @classmethod
-    def _load_key(
-        cls, portable_item: PortableData, portable_key: str, /
-    ) -> PortableData:
-        assert isinstance(portable_item, MutableMapping)
-        portable_item["id"] = portable_key  # ty:ignore[invalid-assignment]
-        return portable_item
-
-    @override
-    def _dump_key(self, portable_item: PortableData, /) -> tuple[PortableData, str]:
-        assert isinstance(portable_item, MutableMapping)
-        return portable_item, cast(str, portable_item.pop("id"))  # ty:ignore[invalid-argument-type]
+        self.label_plural = label_plural
+        self.label_countable = label_countable
 
 
 @final
@@ -419,7 +172,7 @@ class PluginConfiguration(
     @override
     @classmethod
     def load_key(cls, portable: PortableData, key: Attr, portable_key: str, /) -> Self:
-        return cls.load({"id": portable_key, "configuration": portable})
+        return cls.load({**assert_mapping()(portable), "id": portable_key})
 
     def _dump_configuration(
         self, configuration: Data | Configuration | PortableData
@@ -509,107 +262,3 @@ def resolve_plugin_configurations(
     ):
         return (resolve_plugin_configuration(plugin_configurations),)  # ty:ignore[invalid-return-type]
     return map(resolve_plugin_configuration, plugin_configurations)  # ty:ignore[invalid-argument-type]
-
-
-ShorthandPluginInstanceConfigurationSequence: TypeAlias = (
-    PluginConfiguration[_PluginDefinitionT, _PluginT]
-    | Iterable[PluginConfiguration[_PluginDefinitionT, _PluginT]]
-)
-
-
-class _PluginInstanceConfigurationCollection(
-    ConfigurationCollection[
-        _ConfigurationKeyT,
-        _ResolvableConfigurationKeyT,
-        PluginConfiguration[_PluginDefinitionT, _PluginT],
-    ]
-):
-    def __init__(
-        self,
-        configurations: ShorthandPluginInstanceConfigurationSequence[
-            _PluginDefinitionT, _PluginT
-        ]
-        | None = None,
-        /,
-    ):
-        if isinstance(configurations, PluginConfiguration):
-            configurations = [configurations]
-        super().__init__(configurations)
-
-    @override
-    @classmethod
-    def _item_cls(
-        cls,
-    ) -> type[PluginConfiguration[_PluginDefinitionT, _PluginT]]:
-        return PluginConfiguration  # ty:ignore[invalid-return-type]
-
-
-class PluginInstanceConfigurationMapping(
-    _PluginInstanceConfigurationCollection[
-        MachineName, ResolvableId[_PluginDefinitionT], _PluginDefinitionT, _PluginT
-    ],
-    PluginIdentifierKeyConfigurationMapping[
-        _PluginDefinitionT,
-        PluginConfiguration[_PluginDefinitionT, _PluginT],
-    ],
-):
-    """
-    Configure plugin instances, keyed by their plugin IDs.
-
-    .. configuration:: betty.plugin.config:PluginInstanceConfigurationMapping
-    """
-
-    def __init__(
-        self,
-        configurations: ShorthandPluginInstanceConfigurationSequence[
-            _PluginDefinitionT, _PluginT
-        ]
-        | None = None,
-        /,
-    ):
-        super().__init__(configurations)
-
-    @override
-    def _get_key(
-        self,
-        configuration: PluginConfiguration[_PluginDefinitionT, _PluginT],
-        /,
-    ) -> MachineName:
-        return configuration.id
-
-    @override
-    @classmethod
-    def _load_key(
-        cls, portable_item: PortableData, portable_key: str, /
-    ) -> PortableData:
-        if not portable_item:
-            return portable_key
-        assert isinstance(portable_item, MutableMapping)
-        portable_item["id"] = portable_key  # ty:ignore[invalid-assignment]
-        return portable_item
-
-    @override
-    def _dump_key(self, portable_item: PortableData, /) -> tuple[PortableData, str]:
-        if isinstance(portable_item, str):
-            return {}, portable_item
-        assert isinstance(portable_item, MutableMapping)
-        return portable_item, cast(
-            str,
-            portable_item.pop(
-                "id",  # ty:ignore[invalid-argument-type]
-            ),
-        )
-
-    @override
-    @classmethod
-    def samples(cls) -> Samples:
-        return Samples(
-            [
-                lambda: Sample(cls(), label="Minimal", size=Size.MINIMAL),
-                lambda: Sample(
-                    cls([PluginConfiguration.samples().get(Size.FULL).data]),
-                    label="Full",
-                    size=Size.FULL,
-                ),
-            ]
-        )

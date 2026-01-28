@@ -7,63 +7,41 @@ import pytest
 from babel import Locale
 from typing_extensions import override
 
-from betty.ancestry.event_type import EventTypeDefinition
-from betty.ancestry.gender import GenderDefinition
-from betty.ancestry.place_type import PlaceTypeDefinition
-from betty.ancestry.presence_role import PresenceRoleDefinition
-from betty.copyright_notice import CopyrightNotice, CopyrightNoticeDefinition
-from betty.dirs import ASSETS_DIRECTORY_PATH
 from betty.exception import HumanFacingException
 from betty.extension import Extension, ExtensionDefinition
-from betty.license import License, LicenseDefinition
 from betty.locale import DEFAULT_LOCALE, DEFAULT_LOCALE_TAG, LocaleLike
 from betty.locale.localizable.plain import Plain
-from betty.locale.localize import DEFAULT_LOCALIZER
-from betty.machine_name import MachineName
 from betty.model import EntityDefinition
-from betty.plugin.config import PluginConfiguration
 from betty.plugin.discovery.static import StaticDiscovery
-from betty.plugin.resolve import ResolvableId
 from betty.project.config import (
-    CopyrightNoticePluginConfiguration,
-    CopyrightNoticePluginConfigurationMapping,
+    CopyrightNoticeDefinitionConfiguration,
     EntityTypeConfiguration,
-    EventTypePluginConfiguration,
-    EventTypePluginConfigurationMapping,
-    ExtensionInstanceConfigurationMapping,
-    GenderPluginConfiguration,
-    GenderPluginConfigurationMapping,
-    LicensePluginConfiguration,
-    LicensePluginConfigurationMapping,
+    EventTypeDefinitionConfiguration,
+    GenderDefinitionConfiguration,
+    LicenseDefinitionConfiguration,
     LocaleConfiguration,
     LocaleConfigurationMapping,
-    PlaceTypePluginConfiguration,
-    PlaceTypePluginConfigurationMapping,
-    PresenceRolePluginConfiguration,
-    PresenceRolePluginConfigurationMapping,
+    PlaceTypeDefinitionConfiguration,
+    PresenceRoleDefinitionConfiguration,
     ProjectConfiguration,
 )
 from betty.service.level.universal import universe
-from betty.test_utils.config import ConfigurationTestBase, DummyConfiguration
+from betty.test_utils.config import ConfigurationTestBase
 from betty.test_utils.config.collections import (
     ConfigurationCollectionTestBaseNewSut,
 )
-from betty.test_utils.config.collections.mapping import ConfigurationMappingTestBase
+from betty.test_utils.config.collections.mapping import (
+    OrderedConfigurationMappingTestBase,
+)
 from betty.test_utils.data import DataTestBase
 from betty.test_utils.locale.localizable import (
     DUMMY_COUNTABLE_LOCALIZABLE,
     DUMMY_LOCALIZABLE,
 )
 from betty.test_utils.model import DummyEntityOne, DummyNonPublicFacingEntityOne
-from betty.test_utils.plugin.config import PluginDefinitionConfigurationMappingTestBase
-from betty.test_utils.project.extension import (
-    DummyConfigurableExtension,
-    DummyExtensionOne,
-)
-from betty.typing import Void
 
 if TYPE_CHECKING:
-    from betty.portable import PortableData, PortableMapping
+    from betty.portable import PortableData
     from betty.test_utils.config.collections import (
         ConfigurationCollectionTestBaseSutConfigurationKeys,
         ConfigurationCollectionTestBaseSutConfigurations,
@@ -145,7 +123,7 @@ LocaleConfigurationMappingTestNewSut = ConfigurationCollectionTestBaseNewSut[
 
 
 class TestLocaleConfigurationMapping(
-    ConfigurationMappingTestBase[
+    OrderedConfigurationMappingTestBase[
         LocaleConfigurationMapping, Locale, LocaleLike, LocaleConfiguration
     ]
 ):
@@ -269,94 +247,6 @@ class TestLocaleConfigurationMapping(
         assert sut.multilingual
 
 
-@ExtensionDefinition(
-    "extension-instance-configuration-mapping-test-extension-0",
-    label=DUMMY_LOCALIZABLE,
-)
-class ExtensionInstanceConfigurationMappingTestExtension0(Extension):
-    pass
-
-
-@ExtensionDefinition(
-    "extension-instance-configuration-mapping-test-extension-1",
-    label=DUMMY_LOCALIZABLE,
-)
-class ExtensionInstanceConfigurationMappingTestExtension1(Extension):
-    pass
-
-
-@ExtensionDefinition(
-    "extension-instance-configuration-mapping-test-extension-2",
-    label=DUMMY_LOCALIZABLE,
-)
-class ExtensionInstanceConfigurationMappingTestExtension2(Extension):
-    pass
-
-
-@ExtensionDefinition(
-    "extension-instance-configuration-mapping-test-extension-3",
-    label=DUMMY_LOCALIZABLE,
-)
-class ExtensionInstanceConfigurationMappingTestExtension3(Extension):
-    pass
-
-
-class TestExtensionInstanceConfigurationMapping(
-    ConfigurationMappingTestBase[
-        ExtensionInstanceConfigurationMapping,
-        MachineName,
-        ResolvableId[ExtensionDefinition],
-        PluginConfiguration[ExtensionDefinition, Extension],
-    ]
-):
-    sut_cls = ExtensionInstanceConfigurationMapping
-
-    @override
-    @pytest.fixture
-    def sut_configuration_keys(
-        self,
-    ) -> ConfigurationCollectionTestBaseSutConfigurationKeys[MachineName]:
-        return (
-            ExtensionInstanceConfigurationMappingTestExtension0.plugin().id,
-            ExtensionInstanceConfigurationMappingTestExtension1.plugin().id,
-            ExtensionInstanceConfigurationMappingTestExtension2.plugin().id,
-            ExtensionInstanceConfigurationMappingTestExtension3.plugin().id,
-        )
-
-    @override
-    @pytest.fixture
-    def new_sut(
-        self,
-    ) -> ConfigurationCollectionTestBaseNewSut[
-        PluginConfiguration[ExtensionDefinition, Extension],
-        MachineName,
-        ResolvableId[ExtensionDefinition],
-    ]:
-        return ExtensionInstanceConfigurationMapping
-
-    @override
-    @pytest.fixture
-    def sut_configurations(
-        self,
-        sut_configuration_keys: ConfigurationCollectionTestBaseSutConfigurationKeys[
-            MachineName
-        ],
-    ) -> ConfigurationCollectionTestBaseSutConfigurations[
-        PluginConfiguration[ExtensionDefinition, Extension]
-    ]:
-        return (
-            PluginConfiguration(sut_configuration_keys[0]),
-            PluginConfiguration(sut_configuration_keys[1]),
-            PluginConfiguration(sut_configuration_keys[2]),
-            PluginConfiguration(sut_configuration_keys[3]),
-        )
-
-    def test_enable(self) -> None:
-        sut = ExtensionInstanceConfigurationMapping()
-        sut.enable(DummyExtensionOne)
-        assert DummyExtensionOne.plugin() in sut
-
-
 class TestEntityTypeConfiguration(DataTestBase[EntityTypeConfiguration]):
     sut_cls = EntityTypeConfiguration
 
@@ -395,364 +285,6 @@ class TestEntityTypeConfiguration(DataTestBase[EntityTypeConfiguration]):
             pytest.raises(HumanFacingException),
         ):
             await sut.hydrate(universe)
-
-
-class TestCopyrightNoticePluginConfigurationMapping(
-    PluginDefinitionConfigurationMappingTestBase[
-        CopyrightNoticePluginConfigurationMapping,
-        CopyrightNoticeDefinition,
-        CopyrightNoticePluginConfiguration,
-    ]
-):
-    sut_cls = CopyrightNoticePluginConfigurationMapping
-
-    @override
-    @pytest.fixture
-    def sut_configuration_keys(
-        self,
-    ) -> ConfigurationCollectionTestBaseSutConfigurationKeys[MachineName]:
-        return "foo", "bar", "baz", "qux"
-
-    @override
-    @pytest.fixture
-    def sut_configurations(
-        self,
-    ) -> ConfigurationCollectionTestBaseSutConfigurations[
-        CopyrightNoticePluginConfiguration
-    ]:
-        return (
-            CopyrightNoticePluginConfiguration(
-                id="foo",
-                label="Foo",
-                summary=DUMMY_LOCALIZABLE,
-                text=DUMMY_LOCALIZABLE,
-            ),
-            CopyrightNoticePluginConfiguration(
-                id="bar",
-                label="Bar",
-                summary=DUMMY_LOCALIZABLE,
-                text=DUMMY_LOCALIZABLE,
-            ),
-            CopyrightNoticePluginConfiguration(
-                id="baz",
-                label="Baz",
-                summary=DUMMY_LOCALIZABLE,
-                text=DUMMY_LOCALIZABLE,
-            ),
-            CopyrightNoticePluginConfiguration(
-                id="qux",
-                label="Qux",
-                summary=DUMMY_LOCALIZABLE,
-                text=DUMMY_LOCALIZABLE,
-            ),
-        )
-
-    @override
-    @pytest.fixture
-    def new_sut(
-        self,
-    ) -> ConfigurationCollectionTestBaseNewSut[
-        CopyrightNoticePluginConfiguration,
-        MachineName,
-        ResolvableId[CopyrightNoticeDefinition],
-    ]:
-        return CopyrightNoticePluginConfigurationMapping
-
-
-class TestLicensePluginConfigurationMapping(
-    PluginDefinitionConfigurationMappingTestBase[
-        LicensePluginConfigurationMapping, LicenseDefinition, LicensePluginConfiguration
-    ]
-):
-    sut_cls = LicensePluginConfigurationMapping
-
-    @override
-    @pytest.fixture
-    def sut_configuration_keys(
-        self,
-    ) -> ConfigurationCollectionTestBaseSutConfigurationKeys[MachineName]:
-        return "foo", "bar", "baz", "qux"
-
-    @override
-    @pytest.fixture
-    def sut_configurations(
-        self,
-    ) -> ConfigurationCollectionTestBaseSutConfigurations[LicensePluginConfiguration]:
-        return (
-            LicensePluginConfiguration(
-                id="foo",
-                label="Foo",
-                summary=DUMMY_LOCALIZABLE,
-                text=DUMMY_LOCALIZABLE,
-            ),
-            LicensePluginConfiguration(
-                id="bar",
-                label="Bar",
-                summary=DUMMY_LOCALIZABLE,
-                text=DUMMY_LOCALIZABLE,
-            ),
-            LicensePluginConfiguration(
-                id="baz",
-                label="Baz",
-                summary=DUMMY_LOCALIZABLE,
-                text=DUMMY_LOCALIZABLE,
-            ),
-            LicensePluginConfiguration(
-                id="qux",
-                label="Qux",
-                summary=DUMMY_LOCALIZABLE,
-                text=DUMMY_LOCALIZABLE,
-            ),
-        )
-
-    @override
-    @pytest.fixture
-    def new_sut(
-        self,
-    ) -> ConfigurationCollectionTestBaseNewSut[
-        LicensePluginConfiguration,
-        MachineName,
-        ResolvableId[LicenseDefinition],
-    ]:
-        return LicensePluginConfigurationMapping
-
-
-class TestEventTypePluginConfigurationMapping(
-    PluginDefinitionConfigurationMappingTestBase[
-        EventTypePluginConfigurationMapping,
-        EventTypeDefinition,
-        EventTypePluginConfiguration,
-    ]
-):
-    sut_cls = EventTypePluginConfigurationMapping
-
-    @override
-    @pytest.fixture
-    def sut_configuration_keys(
-        self,
-    ) -> ConfigurationCollectionTestBaseSutConfigurationKeys[MachineName]:
-        return "foo", "bar", "baz", "qux"
-
-    @override
-    @pytest.fixture
-    def sut_configurations(
-        self,
-    ) -> ConfigurationCollectionTestBaseSutConfigurations[EventTypePluginConfiguration]:
-        return (
-            EventTypePluginConfiguration(
-                id="foo",
-                label="Foo",
-                label_plural="Foo",
-                label_countable=DUMMY_COUNTABLE_LOCALIZABLE,
-            ),
-            EventTypePluginConfiguration(
-                id="bar",
-                label="Bar",
-                label_plural="Bar",
-                label_countable=DUMMY_COUNTABLE_LOCALIZABLE,
-            ),
-            EventTypePluginConfiguration(
-                id="baz",
-                label="Baz",
-                label_plural="Baz",
-                label_countable=DUMMY_COUNTABLE_LOCALIZABLE,
-            ),
-            EventTypePluginConfiguration(
-                id="qux",
-                label="Qux",
-                label_plural="Qux",
-                label_countable=DUMMY_COUNTABLE_LOCALIZABLE,
-            ),
-        )
-
-    @override
-    @pytest.fixture
-    def new_sut(
-        self,
-    ) -> ConfigurationCollectionTestBaseNewSut[
-        EventTypePluginConfiguration,
-        MachineName,
-        ResolvableId[EventTypeDefinition],
-    ]:
-        return EventTypePluginConfigurationMapping
-
-
-class TestPlaceTypePluginConfigurationMapping(
-    PluginDefinitionConfigurationMappingTestBase[
-        PlaceTypePluginConfigurationMapping,
-        PlaceTypeDefinition,
-        PlaceTypePluginConfiguration,
-    ]
-):
-    sut_cls = PlaceTypePluginConfigurationMapping
-
-    @override
-    @pytest.fixture
-    def sut_configuration_keys(
-        self,
-    ) -> ConfigurationCollectionTestBaseSutConfigurationKeys[MachineName]:
-        return "foo", "bar", "baz", "qux"
-
-    @override
-    @pytest.fixture
-    def sut_configurations(
-        self,
-    ) -> ConfigurationCollectionTestBaseSutConfigurations[PlaceTypePluginConfiguration]:
-        return (
-            PlaceTypePluginConfiguration(
-                id="foo",
-                label="Foo",
-                label_plural="Foo",
-                label_countable=DUMMY_COUNTABLE_LOCALIZABLE,
-            ),
-            PlaceTypePluginConfiguration(
-                id="bar",
-                label="Bar",
-                label_plural="Bar",
-                label_countable=DUMMY_COUNTABLE_LOCALIZABLE,
-            ),
-            PlaceTypePluginConfiguration(
-                id="baz",
-                label="Baz",
-                label_plural="Baz",
-                label_countable=DUMMY_COUNTABLE_LOCALIZABLE,
-            ),
-            PlaceTypePluginConfiguration(
-                id="qux",
-                label="Qux",
-                label_plural="Qux",
-                label_countable=DUMMY_COUNTABLE_LOCALIZABLE,
-            ),
-        )
-
-    @override
-    @pytest.fixture
-    def new_sut(
-        self,
-    ) -> ConfigurationCollectionTestBaseNewSut[
-        PlaceTypePluginConfiguration,
-        MachineName,
-        ResolvableId[PlaceTypeDefinition],
-    ]:
-        return PlaceTypePluginConfigurationMapping
-
-
-class TestPresenceRolePluginConfigurationMapping(
-    PluginDefinitionConfigurationMappingTestBase[
-        PresenceRolePluginConfigurationMapping,
-        PresenceRoleDefinition,
-        PresenceRolePluginConfiguration,
-    ]
-):
-    sut_cls = PresenceRolePluginConfigurationMapping
-
-    @override
-    @pytest.fixture
-    def sut_configuration_keys(
-        self,
-    ) -> ConfigurationCollectionTestBaseSutConfigurationKeys[MachineName]:
-        return "foo", "bar", "baz", "qux"
-
-    @override
-    @pytest.fixture
-    def sut_configurations(
-        self,
-    ) -> ConfigurationCollectionTestBaseSutConfigurations[
-        PresenceRolePluginConfiguration
-    ]:
-        return (
-            PresenceRolePluginConfiguration(
-                id="foo",
-                label="Foo",
-                label_plural="Foo",
-                label_countable=DUMMY_COUNTABLE_LOCALIZABLE,
-            ),
-            PresenceRolePluginConfiguration(
-                id="bar",
-                label="Bar",
-                label_plural="Bar",
-                label_countable=DUMMY_COUNTABLE_LOCALIZABLE,
-            ),
-            PresenceRolePluginConfiguration(
-                id="baz",
-                label="Baz",
-                label_plural="Baz",
-                label_countable=DUMMY_COUNTABLE_LOCALIZABLE,
-            ),
-            PresenceRolePluginConfiguration(
-                id="qux",
-                label="Qux",
-                label_plural="Qux",
-                label_countable=DUMMY_COUNTABLE_LOCALIZABLE,
-            ),
-        )
-
-    @override
-    @pytest.fixture
-    def new_sut(
-        self,
-    ) -> ConfigurationCollectionTestBaseNewSut[
-        PresenceRolePluginConfiguration,
-        MachineName,
-        ResolvableId[PresenceRoleDefinition],
-    ]:
-        return PresenceRolePluginConfigurationMapping
-
-
-class TestGenderPluginConfigurationMapping(
-    PluginDefinitionConfigurationMappingTestBase[
-        GenderPluginConfigurationMapping, GenderDefinition, GenderPluginConfiguration
-    ]
-):
-    sut_cls = GenderPluginConfigurationMapping
-
-    @override
-    @pytest.fixture
-    def sut_configuration_keys(
-        self,
-    ) -> ConfigurationCollectionTestBaseSutConfigurationKeys[MachineName]:
-        return "foo", "bar", "baz", "qux"
-
-    @override
-    @pytest.fixture
-    def sut_configurations(
-        self,
-    ) -> ConfigurationCollectionTestBaseSutConfigurations[GenderPluginConfiguration]:
-        return (
-            GenderPluginConfiguration(
-                id="foo",
-                label="Foo",
-                label_plural="Foo",
-                label_countable=DUMMY_COUNTABLE_LOCALIZABLE,
-            ),
-            GenderPluginConfiguration(
-                id="bar",
-                label="Bar",
-                label_plural="Bar",
-                label_countable=DUMMY_COUNTABLE_LOCALIZABLE,
-            ),
-            GenderPluginConfiguration(
-                id="baz",
-                label="Baz",
-                label_plural="Baz",
-                label_countable=DUMMY_COUNTABLE_LOCALIZABLE,
-            ),
-            GenderPluginConfiguration(
-                id="qux",
-                label="Qux",
-                label_plural="Qux",
-                label_countable=DUMMY_COUNTABLE_LOCALIZABLE,
-            ),
-        )
-
-    @override
-    @pytest.fixture
-    def new_sut(
-        self,
-    ) -> ConfigurationCollectionTestBaseNewSut[
-        GenderPluginConfiguration, MachineName, ResolvableId[GenderDefinition]
-    ]:
-        return GenderPluginConfigurationMapping
 
 
 class TestProjectConfiguration(DataTestBase[ProjectConfiguration]):
@@ -893,722 +425,218 @@ class TestProjectConfiguration(DataTestBase[ProjectConfiguration]):
         sut = ProjectConfiguration(title="Betty", url="https://example.com")
         assert sut.genders is sut.genders
 
-    async def test_load__should_load_minimal(self) -> None:
-        portable = ProjectConfiguration.data().porter.dump(
-            ProjectConfiguration(title="Betty", url="https://example.com")
-        )
-        sut = ProjectConfiguration.data().porter.load(portable)
-        assert sut.url == portable["url"]
 
-    async def test_load__should_load_name(self) -> None:
-        name = "my-first-betty-site"
-        portable = ProjectConfiguration.data().porter.dump(
-            ProjectConfiguration(title="Betty", url="https://example.com")
-        )
-        portable["name"] = name
-        sut = ProjectConfiguration.data().porter.load(portable)
-        assert sut.name == name
-
-    async def test_load__should_load_title(self) -> None:
-        title = "My first Betty site"
-        portable = ProjectConfiguration.data().porter.dump(
-            ProjectConfiguration(title="Betty", url="https://example.com")
-        )
-        portable["title"] = title
-        sut = ProjectConfiguration.data().porter.load(portable)
-        assert sut.title.localize(DEFAULT_LOCALIZER) == title
-
-    async def test_load__should_load_copyright_notice(self) -> None:
-        portable = ProjectConfiguration.data().porter.dump(
-            ProjectConfiguration(title="Betty", url="https://example.com")
-        )
-        copyright_notice_id = "my-first-copyright-notice"
-        portable["copyright_notice"] = copyright_notice_id
-        sut = ProjectConfiguration.data().porter.load(portable)
-        assert sut.copyright_notice.id == copyright_notice_id
-
-    async def test_load__should_load_copyright_notices(self) -> None:
-        portable = ProjectConfiguration.data().porter.dump(
-            ProjectConfiguration(title="Betty", url="https://example.com")
-        )
-        copyright_notice_id = "my-first-copyright-notice"
-        copyright_notice_label = "My First Copyright Notice"
-        portable["copyright_notices"] = {
-            copyright_notice_id: {
-                "label": copyright_notice_label,
-                "summary": "This is My First Copyright Notice.",
-                "text": "My First Copyright Notice is the best copyright notice.",
-            }
-        }
-        sut = ProjectConfiguration.data().porter.load(portable)
-        assert (
-            sut.copyright_notices[copyright_notice_id].label.localize(DEFAULT_LOCALIZER)
-            == copyright_notice_label
-        )
-
-    async def test_load__should_load_license(self) -> None:
-        portable = ProjectConfiguration.data().porter.dump(
-            ProjectConfiguration(title="Betty", url="https://example.com")
-        )
-        license_id = "my-first-license"
-        portable["license"] = license_id
-        sut = ProjectConfiguration.data().porter.load(portable)
-        assert sut.license.id == license_id
-
-    async def test_load__should_load_licenses(self) -> None:
-        portable = ProjectConfiguration.data().porter.dump(
-            ProjectConfiguration(title="Betty", url="https://example.com")
-        )
-        license_id = "my-first-license"
-        license_label = "My First License"
-        portable["licenses"] = {
-            license_id: {
-                "label": license_label,
-                "summary": "This is My First License.",
-                "text": "My First License is the best license.",
-            }
-        }
-        sut = ProjectConfiguration.data().porter.load(portable)
-        assert (
-            sut.licenses[license_id].label.localize(DEFAULT_LOCALIZER) == license_label
-        )
-
-    async def test_load__should_load_author(self) -> None:
-        author = "Bart"
-        portable = ProjectConfiguration.data().porter.dump(
-            ProjectConfiguration(title="Betty", url="https://example.com")
-        )
-        portable["author"] = author
-        sut = ProjectConfiguration.data().porter.load(portable)
-        assert sut.author is not None
-        assert sut.author.localize(DEFAULT_LOCALIZER) == author
-
-    async def test_load__should_load_logo(self) -> None:
-        logo = ASSETS_DIRECTORY_PATH / "public" / "static" / "betty-512x512.png"
-        portable = ProjectConfiguration.data().porter.dump(
-            ProjectConfiguration(title="Betty", url="https://example.com")
-        )
-        portable["logo"] = str(logo)
-        sut = ProjectConfiguration.data().porter.load(portable)
-        assert sut.logo == logo
-
-    async def test_load__should_load_locale_locale(self) -> None:
-        locale = "nl-NL"
-        portable = ProjectConfiguration.data().porter.dump(
-            ProjectConfiguration(title="Betty", url="https://example.com")
-        )
-        portable["locales"] = [{"locale": locale}]
-        sut = ProjectConfiguration.data().porter.load(portable)
-        assert len(sut.locales) == 1
-        assert locale in sut.locales
-
-    async def test_load__should_load_locale_alias(self) -> None:
-        locale = "nl-NL"
-        alias = "nl"
-        portable = ProjectConfiguration.data().porter.dump(
-            ProjectConfiguration(title="Betty", url="https://example.com")
-        )
-        portable["locales"] = [{"locale": locale, "alias": alias}]
-        sut = ProjectConfiguration.data().porter.load(portable)
-        assert len(sut.locales) == 1
-        assert locale in sut.locales
-        actual = sut.locales[locale]
-        assert actual.alias == alias
-
-    async def test_load__should_clean_urls(self) -> None:
-        clean_urls = True
-        portable = ProjectConfiguration.data().porter.dump(
-            ProjectConfiguration(title="Betty", url="https://example.com")
-        )
-        portable["clean_urls"] = clean_urls
-        sut = ProjectConfiguration.data().porter.load(portable)
-        assert sut.clean_urls == clean_urls
-
-    @pytest.mark.parametrize(
-        "debug",
-        [
-            True,
-            False,
-        ],
-    )
-    async def test_load__should_load_debug(self, debug: bool) -> None:
-        portable = ProjectConfiguration.data().porter.dump(
-            ProjectConfiguration(title="Betty", url="https://example.com")
-        )
-        portable["debug"] = debug
-        sut = ProjectConfiguration.data().porter.load(portable)
-        assert sut.debug == debug
-
-    async def test_load__should_load_extension(self) -> None:
-        portable = ProjectConfiguration.data().porter.dump(
-            ProjectConfiguration(title="Betty", url="https://example.com")
-        )
-        portable["extensions"] = {
-            DummyExtensionOne.plugin().id: {},
-        }
-        sut = ProjectConfiguration.data().porter.load(portable)
-        actual = sut.extensions[DummyExtensionOne.plugin()]
-        assert isinstance(actual.configuration, Void)
-
-    async def test_load__extension_with_invalid_configuration_should_raise_error(
-        self,
-    ) -> None:
-        portable = ProjectConfiguration.data().porter.dump(
-            ProjectConfiguration(title="Betty", url="https://example.com")
-        )
-        portable["extensions"] = {
-            DummyConfigurableExtension.plugin().id: 1337,
-        }
-        with pytest.raises(HumanFacingException):
-            ProjectConfiguration.data().porter.load(portable)
-
-    @pytest.mark.parametrize(
-        ("expected", "event_types_configuration"),
-        [
-            ({}, {}),
-            (
-                {
-                    "foo": {
-                        "label": "Foo",
-                        "label_plural": "Foos",
-                        "label_countable": {
-                            "en-US": {
-                                "one": "{count} DUMMY_COUNTABLE_LOCALIZABLE",
-                                "other": "{count} DUMMY_COUNTABLE_LOCALIZABLES",
-                            },
-                        },
-                    }
-                },
-                {
-                    "foo": {
-                        "label": "Foo",
-                        "label_plural": "Foos",
-                        "label_countable": {
-                            "en-US": {
-                                "one": "{count} DUMMY_COUNTABLE_LOCALIZABLE",
-                                "other": "{count} DUMMY_COUNTABLE_LOCALIZABLES",
-                            },
-                        },
-                    }
-                },
-            ),
-        ],
-    )
-    async def test_load__should_load_event_types(
-        self,
-        expected: PortableMapping,
-        event_types_configuration: PortableMapping,
-    ) -> None:
-        portable = ProjectConfiguration.data().porter.dump(
-            ProjectConfiguration(title="Betty", url="https://example.com")
-        )
-        portable["event_types"] = event_types_configuration
-        sut = ProjectConfiguration.data().porter.load(portable)
-        if event_types_configuration:
-            assert (
-                ProjectConfiguration.data().porter.dump(sut)["event_types"] == expected
-            )
-
-    @pytest.mark.parametrize(
-        ("expected", "place_types_configuration"),
-        [
-            ({}, {}),
-            (
-                {
-                    "foo": {
-                        "label": "Foo",
-                        "label_plural": "Foos",
-                        "label_countable": {
-                            "en-US": {
-                                "one": "{count} DUMMY_COUNTABLE_LOCALIZABLE",
-                                "other": "{count} DUMMY_COUNTABLE_LOCALIZABLES",
-                            },
-                        },
-                    }
-                },
-                {
-                    "foo": {
-                        "label": "Foo",
-                        "label_plural": "Foos",
-                        "label_countable": {
-                            "en-US": {
-                                "one": "{count} DUMMY_COUNTABLE_LOCALIZABLE",
-                                "other": "{count} DUMMY_COUNTABLE_LOCALIZABLES",
-                            },
-                        },
-                    }
-                },
-            ),
-        ],
-    )
-    async def test_load__should_load_place_types(
-        self,
-        expected: PortableMapping,
-        place_types_configuration: PortableMapping,
-    ) -> None:
-        portable = ProjectConfiguration.data().porter.dump(
-            ProjectConfiguration(title="Betty", url="https://example.com")
-        )
-        portable["place_types"] = place_types_configuration
-        sut = ProjectConfiguration.data().porter.load(portable)
-        if place_types_configuration:
-            assert (
-                ProjectConfiguration.data().porter.dump(sut)["place_types"] == expected
-            )
-
-    @pytest.mark.parametrize(
-        ("expected", "presence_roles_configuration"),
-        [
-            ({}, {}),
-            (
-                {
-                    "foo": {
-                        "label": "Foo",
-                        "label_countable": {
-                            "en-US": {
-                                "one": "{count} DUMMY_COUNTABLE_LOCALIZABLE",
-                                "other": "{count} DUMMY_COUNTABLE_LOCALIZABLES",
-                            },
-                        },
-                        "label_plural": "Foo",
-                    }
-                },
-                {
-                    "foo": {
-                        "label": "Foo",
-                        "label_countable": {
-                            "en-US": {
-                                "one": "{count} DUMMY_COUNTABLE_LOCALIZABLE",
-                                "other": "{count} DUMMY_COUNTABLE_LOCALIZABLES",
-                            },
-                        },
-                        "label_plural": "Foo",
-                    }
-                },
-            ),
-        ],
-    )
-    async def test_load__should_load_presence_roles(
-        self,
-        expected: PortableMapping,
-        presence_roles_configuration: PortableMapping,
-    ) -> None:
-        portable = ProjectConfiguration.data().porter.dump(
-            ProjectConfiguration(title="Betty", url="https://example.com")
-        )
-        portable["presence_roles"] = presence_roles_configuration
-        sut = ProjectConfiguration.data().porter.load(portable)
-        if presence_roles_configuration:
-            assert (
-                ProjectConfiguration.data().porter.dump(sut)["presence_roles"]
-                == expected
-            )
-
-    @pytest.mark.parametrize(
-        ("expected", "genders_configuration"),
-        [
-            ({}, {}),
-            (
-                {
-                    "foo": {
-                        "label": "Foo",
-                        "label_countable": {
-                            "en-US": {
-                                "one": "{count} DUMMY_COUNTABLE_LOCALIZABLE",
-                                "other": "{count} DUMMY_COUNTABLE_LOCALIZABLES",
-                            },
-                        },
-                        "label_plural": "Foo",
-                    }
-                },
-                {
-                    "foo": {
-                        "label": "Foo",
-                        "label_countable": {
-                            "en-US": {
-                                "one": "{count} DUMMY_COUNTABLE_LOCALIZABLE",
-                                "other": "{count} DUMMY_COUNTABLE_LOCALIZABLES",
-                            },
-                        },
-                        "label_plural": "Foo",
-                    }
-                },
-            ),
-        ],
-    )
-    async def test_load__should_load_genders(
-        self,
-        expected: PortableMapping,
-        genders_configuration: PortableMapping,
-    ) -> None:
-        portable = ProjectConfiguration.data().porter.dump(
-            ProjectConfiguration(title="Betty", url="https://example.com")
-        )
-        portable["genders"] = genders_configuration
-        sut = ProjectConfiguration.data().porter.load(portable)
-        if genders_configuration:
-            assert ProjectConfiguration.data().porter.dump(sut)["genders"] == expected
-
-    async def test_load__should_error_if_invalid_config(self) -> None:
-        portable: PortableData = {}
-        with pytest.raises(HumanFacingException):
-            ProjectConfiguration.data().porter.load(portable)
-
-    async def test_dump__should_dump_minimal(self) -> None:
-        sut = ProjectConfiguration(title="Betty", url="https://example.com")
-        assert ProjectConfiguration.data().porter.dump(sut) == {
-            "title": "Betty",
-            "url": "https://example.com",
-        }
-
-    async def test_dump__should_dump_title(self) -> None:
-        title = "My first Betty site"
-        portable = ProjectConfiguration.data().porter.dump(
-            ProjectConfiguration(title=title, url="https://example.com")
-        )
-        assert portable["title"] == title
-
-    async def test_dump__should_dump_name(self) -> None:
-        name = "my-first-betty-site"
-        portable = ProjectConfiguration.data().porter.dump(
-            ProjectConfiguration(name=name, title="Betty", url="https://example.com")
-        )
-        assert portable["name"] == name
-
-    async def test_dump__should_dump_author(self) -> None:
-        author = "Bart"
-        portable = ProjectConfiguration.data().porter.dump(
-            ProjectConfiguration(
-                author=author, title="Betty", url="https://example.com"
-            )
-        )
-        assert portable["author"] == author
-
-    async def test_dump__should_dumpo_logo(self) -> None:
-        logo = Path("logo.png")
-        portable = ProjectConfiguration.data().porter.dump(
-            ProjectConfiguration(logo=logo, title="Betty", url="https://example.com")
-        )
-        assert portable["logo"] == str(logo)
-
-    async def test_dump__should_dump_locale_locale(self) -> None:
-        locale = "nl-NL"
-        locale_configuration = LocaleConfiguration(locale)
-        portable = ProjectConfiguration.data().porter.dump(
-            ProjectConfiguration(
-                locales=LocaleConfigurationMapping([locale_configuration]),
-                title="Betty",
-                url="https://example.com",
-            )
-        )
-        assert portable["locales"] == [
-            {
-                "locale": locale,
-            },
-        ]
-
-    async def test_dump__should_dump_locale_alias(self) -> None:
-        locale = "nl-NL"
-        alias = "nl"
-        locale_configuration = LocaleConfiguration(
-            locale,
-            alias=alias,
-        )
-        portable = ProjectConfiguration.data().porter.dump(
-            ProjectConfiguration(
-                locales=LocaleConfigurationMapping([locale_configuration]),
-                title="Betty",
-                url="https://example.com",
-            )
-        )
-        assert portable["locales"] == [
-            {"locale": locale, "alias": alias},
-        ]
-
-    async def test_dump__should_dump_clean_urls(self) -> None:
-        clean_urls = True
-        portable = ProjectConfiguration.data().porter.dump(
-            ProjectConfiguration(
-                clean_urls=clean_urls, title="Betty", url="https://example.com"
-            )
-        )
-        assert portable["clean_urls"] == clean_urls
-
-    async def test_dump__should_dump_debug(self) -> None:
-        portable = ProjectConfiguration.data().porter.dump(
-            ProjectConfiguration(debug=True, title="Betty", url="https://example.com")
-        )
-        assert portable["debug"]
-
-    async def test_dump__should_dump_one_extension_with_configuration(self) -> None:
-        sut = ProjectConfiguration(title="Betty", url="https://example.com")
-        value = "Hello, world!"
-        sut.extensions.append(
-            PluginConfiguration(
-                DummyConfigurableExtension.plugin(), DummyConfiguration(value)
-            )
-        )
-        portable = ProjectConfiguration.data().porter.dump(sut)
-        expected = {
-            DummyConfigurableExtension.plugin().id: {
-                "configuration": {
-                    "value": value,
-                },
-            }
-        }
-        assert portable["extensions"] == expected
-
-    async def test_dump__should_dump_one_extension_without_configuration(self) -> None:
-        sut = ProjectConfiguration(title="Betty", url="https://example.com")
-        sut.extensions.enable(_DummyNonConfigurableExtension)
-        portable = ProjectConfiguration.data().porter.dump(sut)
-        expected: PortableData = {_DummyNonConfigurableExtension.plugin().id: {}}
-        assert portable["extensions"] == expected
-
-    async def test_dump__should_dump_event_types(self) -> None:
-        sut = ProjectConfiguration(title="Betty", url="https://example.com")
-        sut.event_types.append(
-            EventTypePluginConfiguration(
-                id="foo",
-                label="Foo",
-                label_plural="Foos",
-                label_countable=DUMMY_COUNTABLE_LOCALIZABLE,
-            )
-        )
-        portable = ProjectConfiguration.data().porter.dump(sut)
-        expected: PortableMapping = {
-            "foo": {
-                "label": "Foo",
-                "label_plural": "Foos",
-                "label_countable": {
-                    "en-US": {
-                        "one": "{count} DUMMY_COUNTABLE_LOCALIZABLE",
-                        "other": "{count} DUMMY_COUNTABLE_LOCALIZABLES",
-                    },
-                },
-            }
-        }
-        assert portable["event_types"] == expected
-
-    async def test_dump__should_dump_place_types(self) -> None:
-        sut = ProjectConfiguration(title="Betty", url="https://example.com")
-        sut.place_types.append(
-            PlaceTypePluginConfiguration(
-                id="foo",
-                label="Foo",
-                label_plural="Foos",
-                label_countable=DUMMY_COUNTABLE_LOCALIZABLE,
-            )
-        )
-        portable = ProjectConfiguration.data().porter.dump(sut)
-        expected: PortableMapping = {
-            "foo": {
-                "label": "Foo",
-                "label_plural": "Foos",
-                "label_countable": {
-                    "en-US": {
-                        "one": "{count} DUMMY_COUNTABLE_LOCALIZABLE",
-                        "other": "{count} DUMMY_COUNTABLE_LOCALIZABLES",
-                    },
-                },
-            }
-        }
-        assert portable["place_types"] == expected
-
-    async def test_dump__should_dump_presence_roles(self) -> None:
-        sut = ProjectConfiguration(title="Betty", url="https://example.com")
-        sut.presence_roles.append(
-            PresenceRolePluginConfiguration(
-                id="foo",
-                label="Foo",
-                label_plural="Foos",
-                label_countable=DUMMY_COUNTABLE_LOCALIZABLE,
-            ),
-        )
-        portable = ProjectConfiguration.data().porter.dump(sut)
-        expected: PortableMapping = {
-            "foo": {
-                "label": "Foo",
-                "label_plural": "Foos",
-                "label_countable": {
-                    "en-US": {
-                        "one": "{count} DUMMY_COUNTABLE_LOCALIZABLE",
-                        "other": "{count} DUMMY_COUNTABLE_LOCALIZABLES",
-                    },
-                },
-            }
-        }
-        assert portable["presence_roles"] == expected
-
-    async def test_dump__should_dump_genders(self) -> None:
-        sut = ProjectConfiguration(title="Betty", url="https://example.com")
-        sut.genders.append(
-            GenderPluginConfiguration(
-                id="foo",
-                label="Foo",
-                label_plural="Foos",
-                label_countable=DUMMY_COUNTABLE_LOCALIZABLE,
-            )
-        )
-        portable = ProjectConfiguration.data().porter.dump(sut)
-        expected: PortableMapping = {
-            "foo": {
-                "label": "Foo",
-                "label_plural": "Foos",
-                "label_countable": {
-                    "en-US": {
-                        "one": "{count} DUMMY_COUNTABLE_LOCALIZABLE",
-                        "other": "{count} DUMMY_COUNTABLE_LOCALIZABLES",
-                    },
-                },
-            }
-        }
-        assert portable["genders"] == expected
-
-    async def test_dump__should_dump_copyright_notice(self) -> None:
-        copyright_notice_configuration = PluginConfiguration[
-            CopyrightNoticeDefinition, CopyrightNotice
-        ]("-")
-        sut = ProjectConfiguration(
-            copyright_notice=copyright_notice_configuration,
-            title="Betty",
-            url="https://example.com",
-        )
-        assert (
-            ProjectConfiguration.data().porter.dump(sut)["copyright_notice"]
-            == copyright_notice_configuration.id
-        )
-
-    async def test_dump__should_dump_copyright_notices(self) -> None:
-        sut = ProjectConfiguration(title="Betty", url="https://example.com")
-        copyright_notice_id = "my-first-copyright-notice"
-        copyright_notice_label = "My First Copyright Notice"
-        copyright_notice_summary = "This is My First Copyright Notice."
-        copyright_notice_text = (
-            "My First Copyright Notice is the best copyright notice."
-        )
-        sut.copyright_notices.append(
-            CopyrightNoticePluginConfiguration(
-                id=copyright_notice_id,
-                label=copyright_notice_label,
-                summary=copyright_notice_summary,
-                text=copyright_notice_text,
-            )
-        )
-        assert ProjectConfiguration.data().porter.dump(sut)["copyright_notices"] == {
-            copyright_notice_id: {
-                "label": copyright_notice_label,
-                "summary": copyright_notice_summary,
-                "text": copyright_notice_text,
-            }
-        }
-
-    async def test_dump__should_dump_license(self) -> None:
-        license_configuration = PluginConfiguration[LicenseDefinition, License]("-")
-        sut = ProjectConfiguration(
-            license=license_configuration, title="Betty", url="https://example.com"
-        )
-        assert (
-            ProjectConfiguration.data().porter.dump(sut)["license"]
-            == license_configuration.id
-        )
-
-    async def test_dump__should_dump_licenses(self) -> None:
-        sut = ProjectConfiguration(title="Betty", url="https://example.com")
-        license_id = "my-first-license"
-        license_label = "My First License"
-        license_summary = "This is My First License."
-        license_text = "My First License is the best license."
-        sut.licenses.append(
-            LicensePluginConfiguration(
-                id=license_id,
-                label=license_label,
-                summary=license_summary,
-                text=license_text,
-            )
-        )
-        assert ProjectConfiguration.data().porter.dump(sut)["licenses"] == {
-            license_id: {
-                "label": license_label,
-                "summary": license_summary,
-                "text": license_text,
-            }
-        }
-
-
-class TestCopyrightNoticePluginConfiguration:
-    def test_load(self) -> None:
-        summary = "My First Summary"
-        text = "My First Text"
-        portable: PortableData = {
-            "id": "hello-world",
-            "label": "Hello, world!",
-            "summary": summary,
-            "text": text,
-        }
-        sut = CopyrightNoticePluginConfiguration.load(portable)
-        assert sut.summary.localize(DEFAULT_LOCALIZER) == summary
-        assert sut.text.localize(DEFAULT_LOCALIZER) == text
-
-    def test_dump(self) -> None:
-        summary = "My First Summary"
-        text = "My First Text"
-        sut = CopyrightNoticePluginConfiguration(
-            id="-", label=DUMMY_LOCALIZABLE, summary=summary, text=text
-        )
-        portable = sut.dump()
-        assert portable["summary"] == summary
-        assert portable["text"] == text
-
+class TestCopyrightNoticeDefinitionConfiguration:
     def test_summary(self) -> None:
         summary = Plain("My First Summary")
-        sut = CopyrightNoticePluginConfiguration(
+        sut = CopyrightNoticeDefinitionConfiguration(
             id="-", label=DUMMY_LOCALIZABLE, summary=summary, text=DUMMY_LOCALIZABLE
         )
         assert sut.summary is summary
 
     def test_text(self) -> None:
         text = Plain("My First Summary")
-        sut = CopyrightNoticePluginConfiguration(
+        sut = CopyrightNoticeDefinitionConfiguration(
             id="-", label=DUMMY_LOCALIZABLE, summary=DUMMY_LOCALIZABLE, text=text
         )
         assert sut.text is text
 
-
-class TestLicensePluginConfiguration:
-    def test_load(self) -> None:
-        summary = "My First Summary"
-        text = "My First Text"
-        portable: PortableData = {
-            "id": "hello-world",
-            "label": "Hello, world!",
-            "summary": summary,
-            "text": text,
-        }
-        sut = LicensePluginConfiguration.load(portable)
-        assert sut.summary.localize(DEFAULT_LOCALIZER) == summary
-        assert sut.text.localize(DEFAULT_LOCALIZER) == text
-
-    def test_dump(self) -> None:
-        summary = "My First Summary"
-        text = "My First Text"
-        sut = LicensePluginConfiguration(
-            id="-", label=DUMMY_LOCALIZABLE, summary=summary, text=text
+    def test_new_plugin__minimal(self) -> None:
+        plugin_id = "my-first-copyright-notice"
+        label = Plain("-")
+        summary = Plain("-")
+        text = Plain("-")
+        sut = CopyrightNoticeDefinitionConfiguration(
+            id=plugin_id,
+            label=label,
+            summary=summary,
+            text=text,
         )
-        portable = sut.dump()
-        assert portable["summary"] == summary
-        assert portable["text"] == text
+        plugin = sut.new_plugin()
+        assert plugin.id == plugin_id
+        assert plugin.label is label
+        assert plugin.cls().summary is summary
+        assert plugin.cls().text is text
 
+    def test_new_plugin__full(self) -> None:
+        description = Plain("-")
+        sut = CopyrightNoticeDefinitionConfiguration(
+            id="my-first-copyright-notice",
+            label=DUMMY_LOCALIZABLE,
+            description=description,
+            summary=DUMMY_LOCALIZABLE,
+            text=DUMMY_LOCALIZABLE,
+        )
+        plugin = sut.new_plugin()
+        assert plugin.description is description
+
+
+class TestLicenseDefinitionConfiguration:
     def test_summary(self) -> None:
         summary = Plain("My First Summary")
-        sut = LicensePluginConfiguration(
+        sut = LicenseDefinitionConfiguration(
             id="-", label=DUMMY_LOCALIZABLE, summary=summary, text=DUMMY_LOCALIZABLE
         )
         assert sut.summary is summary
 
     def test_text(self) -> None:
         text = Plain("My First Summary")
-        sut = LicensePluginConfiguration(
+        sut = LicenseDefinitionConfiguration(
             id="-", label=DUMMY_LOCALIZABLE, summary=DUMMY_LOCALIZABLE, text=text
         )
         assert sut.text is text
+
+    def test_new_plugin__minimal(self) -> None:
+        plugin_id = "my-first-license"
+        label = Plain("-")
+        summary = Plain("-")
+        text = Plain("-")
+        sut = LicenseDefinitionConfiguration(
+            id=plugin_id,
+            label=label,
+            summary=summary,
+            text=text,
+        )
+        plugin = sut.new_plugin()
+        assert plugin.id == plugin_id
+        assert plugin.label is label
+        assert plugin.cls().summary is summary
+        assert plugin.cls().text is text
+
+    def test_new_plugin__full(self) -> None:
+        description = Plain("-")
+        sut = LicenseDefinitionConfiguration(
+            id="my-first-license",
+            label=DUMMY_LOCALIZABLE,
+            description=description,
+            summary=DUMMY_LOCALIZABLE,
+            text=DUMMY_LOCALIZABLE,
+        )
+        plugin = sut.new_plugin()
+        assert plugin.description is description
+
+
+class TestGenderDefinitionConfiguration:
+    def test_new_plugin__minimal(self) -> None:
+        plugin_id = "my-first-gender"
+        label = Plain("-")
+        label_plural = Plain("-")
+        sut = GenderDefinitionConfiguration(
+            id=plugin_id,
+            label=label,
+            label_plural=label_plural,
+            label_countable=DUMMY_COUNTABLE_LOCALIZABLE,
+        )
+        plugin = sut.new_plugin()
+        assert plugin.id == plugin_id
+        assert plugin.label is label
+        assert plugin.label_plural is label_plural
+        assert plugin.label_countable is DUMMY_COUNTABLE_LOCALIZABLE
+
+    def test_new_plugin__full(self) -> None:
+        description = Plain("-")
+        sut = GenderDefinitionConfiguration(
+            id="my-first-gender",
+            label=DUMMY_LOCALIZABLE,
+            label_plural=DUMMY_LOCALIZABLE,
+            label_countable=DUMMY_COUNTABLE_LOCALIZABLE,
+            description=description,
+        )
+        plugin = sut.new_plugin()
+        assert plugin.description is description
+
+
+class TestPlaceTypeDefinitionConfiguration:
+    def test_new_plugin__minimal(self) -> None:
+        plugin_id = "my-first-place-type"
+        label = Plain("-")
+        label_plural = Plain("-")
+        sut = PlaceTypeDefinitionConfiguration(
+            id=plugin_id,
+            label=label,
+            label_plural=label_plural,
+            label_countable=DUMMY_COUNTABLE_LOCALIZABLE,
+        )
+        plugin = sut.new_plugin()
+        assert plugin.id == plugin_id
+        assert plugin.label is label
+        assert plugin.label_plural is label_plural
+        assert plugin.label_countable is DUMMY_COUNTABLE_LOCALIZABLE
+
+    def test_new_plugin__full(self) -> None:
+        description = Plain("-")
+        sut = PlaceTypeDefinitionConfiguration(
+            id="my-first-place-type",
+            label=DUMMY_LOCALIZABLE,
+            label_plural=DUMMY_LOCALIZABLE,
+            label_countable=DUMMY_COUNTABLE_LOCALIZABLE,
+            description=description,
+        )
+        plugin = sut.new_plugin()
+        assert plugin.description is description
+
+
+class TestPresenceRoleDefinitionConfiguration:
+    def test_new_plugin__minimal(self) -> None:
+        plugin_id = "my-first-presence-role"
+        label = Plain("-")
+        label_plural = Plain("-")
+        sut = PresenceRoleDefinitionConfiguration(
+            id=plugin_id,
+            label=label,
+            label_plural=label_plural,
+            label_countable=DUMMY_COUNTABLE_LOCALIZABLE,
+        )
+        plugin = sut.new_plugin()
+        assert plugin.id == plugin_id
+        assert plugin.label is label
+        assert plugin.label_plural is label_plural
+        assert plugin.label_countable is DUMMY_COUNTABLE_LOCALIZABLE
+
+    def test_new_plugin__full(self) -> None:
+        description = Plain("-")
+        sut = PresenceRoleDefinitionConfiguration(
+            id="my-first-presence-role",
+            label=DUMMY_LOCALIZABLE,
+            label_plural=DUMMY_LOCALIZABLE,
+            label_countable=DUMMY_COUNTABLE_LOCALIZABLE,
+            description=description,
+        )
+        plugin = sut.new_plugin()
+        assert plugin.description is description
+
+
+class TestEventTypeDefinitionConfiguration:
+    def test_new_plugin__minimal(self) -> None:
+        plugin_id = "my-first-event-type"
+        label = Plain("-")
+        label_plural = Plain("-")
+        sut = EventTypeDefinitionConfiguration(
+            id=plugin_id,
+            label=label,
+            label_plural=label_plural,
+            label_countable=DUMMY_COUNTABLE_LOCALIZABLE,
+        )
+        plugin = sut.new_plugin()
+        assert plugin.id == plugin_id
+        assert plugin.label is label
+        assert plugin.label_plural is label_plural
+        assert plugin.label_countable is DUMMY_COUNTABLE_LOCALIZABLE
+
+    def test_new_plugin__full(self) -> None:
+        description = Plain("-")
+        comes_before = {"my-first-other-event-type"}
+        comes_after = {"my-second-other-event-type"}
+        sut = EventTypeDefinitionConfiguration(
+            id="my-first-event-type",
+            label=DUMMY_LOCALIZABLE,
+            label_plural=DUMMY_LOCALIZABLE,
+            label_countable=DUMMY_COUNTABLE_LOCALIZABLE,
+            description=description,
+            comes_before=comes_before,
+            comes_after=comes_after,
+        )
+        plugin = sut.new_plugin()
+        assert plugin.description is description
+        assert plugin.comes_before == comes_before
+        assert plugin.comes_after == comes_after

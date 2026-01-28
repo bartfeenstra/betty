@@ -55,7 +55,12 @@ class License(Plugin["LicenseDefinition"]):
     label_countable=ngettext("{count} license", "{count} licenses"),
     discovery=[
         EntryPointDiscovery("betty.license"),
-        ProjectDiscovery(lambda project: project.configuration.licenses.new_plugins()),
+        ProjectDiscovery(
+            lambda project: (
+                configuration.new_plugin()
+                for configuration in project.configuration.licenses
+            )
+        ),
     ],
 )
 class LicenseDefinition(HumanFacingDefinition, PluginDefinition[License]):
