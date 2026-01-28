@@ -80,9 +80,7 @@ class _GenerateWebmanifest(Job[ProjectContext]):
                     {"src": "/logo" + project.logo.suffix},
                 ],
                 "lang": to_language_tag(project.configuration.locales.default.locale),
-                "theme_color": extensions[
-                    RaspberryMint
-                ].configuration.secondary_color.hex,
+                "theme_color": extensions[RaspberryMint].configuration.secondary_color,
                 "background_color": "#ffffff",
                 "display": "fullscreen",
             }

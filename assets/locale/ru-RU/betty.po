@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Betty VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-01-28 15:48+0000\n"
+"POT-Creation-Date: 2026-01-28 16:15+0000\n"
 "PO-Revision-Date: 2025-12-08 19:00+0000\n"
 "Last-Translator: Artur Kalagov "
 "<artur.kalagov@users.noreply.hosted.weblate.org>\n"
@@ -22,10 +22,8 @@ msgstr ""
 "Generated-By: Babel 2.17.0\n"
 
 #, python-brace-format
-msgid "\"{hex_value}\" is not a valid hexadecimal color, such as #ffc0cb."
+msgid "\"{color}\" is not a valid hexadecimal color, such as #ffc0cb."
 msgstr ""
-"«{hex_value}» не является допустимым шестнадцатеричным цветом, например "
-"#ffc0cb."
 
 #, python-brace-format
 msgid "\"{invalid_locale}\" is not a valid IETF BCP 47 language tag."
@@ -77,6 +75,9 @@ msgstr ""
 "href=\"https://betty.readthedocs.io\">Betty👵</a>"
 
 msgid "A formal witness to an event."
+msgstr ""
+
+msgid "A hexadecimal color, such as #ff0000"
 msgstr ""
 
 msgid "A localizable string"
@@ -393,6 +394,9 @@ msgstr "Очистить все кэши"
 
 msgid "Close"
 msgstr "Закрыть"
+
+msgid "Color"
+msgstr ""
 
 msgid "Color style"
 msgstr ""

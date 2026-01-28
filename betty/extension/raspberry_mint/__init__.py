@@ -148,9 +148,9 @@ class RaspberryMint(
     def webpack_entry_point_cache_keys(self) -> Sequence[str]:
         return (
             self._project.configuration.root_path,
-            self._configuration.primary_color.hex,
-            self._configuration.secondary_color.hex,
-            self._configuration.tertiary_color.hex,
+            self._configuration.primary_color,
+            self._configuration.secondary_color,
+            self._configuration.tertiary_color,
         )
 
     @override

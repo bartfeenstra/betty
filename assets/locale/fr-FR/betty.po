@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PROJECT VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-01-28 15:48+0000\n"
+"POT-Creation-Date: 2026-01-28 16:15+0000\n"
 "PO-Revision-Date: 2025-08-27 20:02+0000\n"
 "Last-Translator: \"David D.\" <dadu042@users.noreply.hosted.weblate.org>\n"
 "Language: fr_FR\n"
@@ -20,7 +20,7 @@ msgstr ""
 "Generated-By: Babel 2.17.0\n"
 
 #, python-brace-format
-msgid "\"{hex_value}\" is not a valid hexadecimal color, such as #ffc0cb."
+msgid "\"{color}\" is not a valid hexadecimal color, such as #ffc0cb."
 msgstr ""
 
 #, python-brace-format
@@ -71,6 +71,9 @@ msgstr ""
 "href=\"https://betty.readthedocs.io\">Betty👵</a>"
 
 msgid "A formal witness to an event."
+msgstr ""
+
+msgid "A hexadecimal color, such as #ff0000"
 msgstr ""
 
 msgid "A localizable string"
@@ -362,6 +365,9 @@ msgid "Clear all caches"
 msgstr ""
 
 msgid "Close"
+msgstr ""
+
+msgid "Color"
 msgstr ""
 
 msgid "Color style"
