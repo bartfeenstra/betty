@@ -4,7 +4,7 @@ Provide project configuration.
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Any, Self, final
+from typing import TYPE_CHECKING, Any, final
 from urllib.parse import urlparse
 
 from babel import Locale
@@ -15,19 +15,10 @@ from betty.ancestry.gender import Gender, GenderDefinition
 from betty.ancestry.person import Person
 from betty.ancestry.place_type import PlaceType, PlaceTypeDefinition
 from betty.ancestry.presence_role import PresenceRole, PresenceRoleDefinition
-from betty.assertion import (
-    OptionalField,
-    RequiredField,
-    assert_locale,
-    assert_number,
-    assert_record,
-    assert_str,
-)
+from betty.assertion import assert_number
 from betty.collections import KeyedCollection
-from betty.config import Configuration
-from betty.config.collections.mapping import OrderedConfigurationMapping
 from betty.copyright_notice import CopyrightNotice, CopyrightNoticeDefinition
-from betty.data import Data, DataDefinition, Sample
+from betty.data import Data, Sample
 from betty.data.aggregate.collection.keyed import KeyedCollectionDefinition
 from betty.data.aggregate.record.object import AttrDefinition, ObjectDefinition
 from betty.data.aggregate.record.object.property import (
@@ -38,12 +29,13 @@ from betty.data.aggregate.record.object.property import (
 from betty.data.bool import BoolDefinition
 from betty.data.indicator.selector import Attr
 from betty.data.int import IntDefinition
-from betty.data.sample import Samples, Size
+from betty.data.sample import Size
 from betty.data.str import StrDefinition
 from betty.dirs import ASSETS_DIRECTORY_PATH
 from betty.exception import HumanFacingException
 from betty.license import License, LicenseDefinition
 from betty.locale import DEFAULT_LOCALE, LocaleLike, ensure_locale, to_language_tag
+from betty.locale.data import LocaleDefinition
 from betty.locale.localizable.gettext import _
 from betty.locale.localizable.property import LocalizableProperty
 from betty.locale.localizable.static import CountableStaticTranslations
@@ -70,7 +62,6 @@ if TYPE_CHECKING:
     from pathlib import Path
 
     from betty.locale.localizable import Localizable, LocalizableLike
-    from betty.portable import PortableData
     from betty.service.level import ServiceLevel
 
 DEFAULT_LIFETIME_THRESHOLD = 123
@@ -152,154 +143,55 @@ class EntityTypeConfiguration(
 
 
 @final
-class LocaleConfiguration(Configuration):
+@ObjectDefinition(
+    label=_("Locale configuration"),
+    samples=[
+        lambda: Sample(
+            LocaleConfiguration(Locale("nl", "NL")), label="Minimal", size=Size.MINIMAL
+        ),
+        lambda: Sample(
+            LocaleConfiguration(Locale("nl", "NL"), alias="nl"),
+            label="Full",
+            size=Size.FULL,
+        ),
+    ],
+)
+class LocaleConfiguration(Data["ObjectDefinition"]):
     """
     Configure a single project locale.
 
-    .. configuration:: betty.project.config:LocaleConfiguration
+    .. data:: betty.project.config:LocaleConfiguration
     """
 
-    def __init__(
-        self,
-        locale: LocaleLike,
-        *,
-        alias: str | None = None,
-    ):
-        super().__init__()
-        self._locale = ensure_locale(locale)
-        if alias is not None and "/" in alias:
+    locale = Property(LocaleDefinition(), label=_("Locale"), resolver=ensure_locale)
+    """
+    The locale.
+    """
+
+    @staticmethod
+    def _resolve_alias(alias: str) -> str:
+        if "/" in alias:
             raise HumanFacingException(_("Locale aliases must not contain slashes."))
-        self._alias = alias
+        return alias
 
-    @override
-    def __eq__(self, other: Any) -> bool:
-        if not isinstance(other, type(self)):
-            return NotImplemented
-        return (self._locale, self._alias) == (other._locale, other._alias)
+    alias = Optional(Property(StrDefinition(label=_("Alias")), resolver=_resolve_alias))
+    """
+    A shorthand alias to use instead of the full language tag, such as when rendering URLs.
+    """
 
-    @property
-    def locale(self) -> Locale:
-        """
-        A locale.
-        """
-        return self._locale
+    def __init__(self, /, locale: LocaleLike, *, alias: str | None = None):
+        super().__init__()
+        self.locale = locale
+        self.alias = alias
 
     @property
-    def alias(self) -> str:
+    def slug(self) -> str:
         """
-        A shorthand alias to use instead of the full language tag, such as when rendering URLs.
+        The URL slug.
         """
-        if self._alias is None:
+        if self.alias is None:
             return to_language_tag(self.locale)
-        return self._alias
-
-    @alias.setter
-    def alias(self, alias: str | None) -> None:
-        self._alias = alias
-
-    @override
-    @classmethod
-    def load(cls, portable: PortableData, /) -> Self:
-        record = assert_record(
-            RequiredField("locale", assert_locale()),
-            OptionalField("alias", assert_str()),
-        )(portable)
-        return cls(record["locale"], alias=record.get("alias", None))
-
-    @override
-    def dump(self) -> PortableData:
-        portable: PortableData = {
-            "locale": to_language_tag(self.locale),
-        }
-        if self._alias is not None:
-            portable["alias"] = self._alias
-        return portable
-
-    @override
-    @classmethod
-    def samples(cls) -> Samples:
-        return Samples(
-            [
-                lambda: Sample(
-                    cls(Locale("nl", "NL")), label="Minimal", size=Size.MINIMAL
-                ),
-                lambda: Sample(
-                    cls(Locale("nl", "NL"), alias="nl"), label="Full", size=Size.FULL
-                ),
-            ]
-        )
-
-
-@final
-class LocaleConfigurationMapping(
-    OrderedConfigurationMapping[Locale, LocaleLike, LocaleConfiguration]
-):
-    """
-    Configure a project's locales.
-
-    .. configuration:: betty.project.config:LocaleConfigurationMapping
-    """
-
-    def __init__(self, configurations: Iterable[LocaleConfiguration] | None = None, /):
-        super().__init__(configurations)
-        self._ensure_locale()
-
-    @override
-    def _resolve_key(self, configuration_key: LocaleLike, /) -> Locale:
-        return ensure_locale(configuration_key)
-
-    @override
-    def _post_remove(self, configuration: LocaleConfiguration, /) -> None:
-        super()._post_remove(configuration)
-        self._ensure_locale()
-
-    def _ensure_locale(self) -> None:
-        if len(self) == 0:
-            self.append(LocaleConfiguration(DEFAULT_LOCALE))
-
-    @override
-    def replace(self, *configurations: LocaleConfiguration) -> None:
-        # Prevent the events from being dispatched.
-        self._configurations.clear()
-        self.append(*configurations)
-        self._ensure_locale()
-
-    @override
-    @classmethod
-    def _item_cls(cls) -> type[LocaleConfiguration]:
-        return LocaleConfiguration
-
-    @override
-    def _get_key(self, configuration: LocaleConfiguration, /) -> Locale:
-        return configuration.locale
-
-    @property
-    def default(self) -> LocaleConfiguration:
-        """
-        The default language.
-        """
-        return next(self.values())
-
-    @property
-    def multilingual(self) -> bool:
-        """
-        Whether the configuration is multilingual.
-        """
-        return len(self) > 1
-
-    @override
-    @classmethod
-    def samples(cls) -> Samples:
-        return Samples(
-            [
-                lambda: Sample(cls(), label="Minimal", size=Size.MINIMAL),
-                lambda: Sample(
-                    cls([LocaleConfiguration.samples().get(Size.FULL).data]),
-                    label="Full",
-                    size=Size.FULL,
-                ),
-            ]
-        )
+        return self.alias
 
 
 @final
@@ -642,7 +534,7 @@ class GenderDefinitionConfiguration(
                     LicenseDefinitionConfiguration.data().samples.get(Size.FULL).data
                 ],
                 lifetime_threshold=123,
-                locales=LocaleConfigurationMapping.samples().get(Size.FULL).data,
+                locales=[LocaleConfiguration.data().samples.get(Size.FULL).data],
                 name="betty-ancestry",
                 place_types=[
                     PlaceTypeDefinitionConfiguration.data().samples.get(Size.FULL).data
@@ -816,6 +708,29 @@ class ProjectConfiguration(Data):
     presumed to have died.
     """
 
+    locales = KeyedCollectionProperty(
+        KeyedCollectionDefinition(
+            value=LocaleConfiguration,
+            label=_("Locales"),
+            key=Attr("locale"),
+            ordered=True,
+        ),  # ty:ignore[invalid-argument-type]
+        omit_load=True,
+        omit_dump=lambda data: not len(data),
+        default=lambda: KeyedCollection(
+            [DEFAULT_LOCALE],
+            key=lambda item: item.locale,
+            key_resolver=ensure_locale,
+            value_resolver=lambda value: value
+            if isinstance(value, LocaleConfiguration)
+            else LocaleConfiguration(ensure_locale(value)),
+            resolver=lambda items: [DEFAULT_LOCALE] if not len(items) else items,
+        ),
+    )
+    """
+    The configured locales.
+    """
+
     logo = Optional(Property(FilePathDefinition(), label=_("Logo")))
     """
     The project logo.
@@ -870,7 +785,7 @@ class ProjectConfiguration(Data):
         license: PluginConfiguration[LicenseDefinition, License] | None = None,  # noqa: A002
         licenses: Iterable[LicenseDefinitionConfiguration] | None = None,
         lifetime_threshold: int = DEFAULT_LIFETIME_THRESHOLD,
-        locales: LocaleConfigurationMapping | None = None,
+        locales: Iterable[LocaleLike | LocaleConfiguration] | None = None,
         logo: Path | None = None,
         name: MachineName | None = None,
         place_types: Iterable[PlaceTypeDefinitionConfiguration] | None = None,
@@ -898,7 +813,8 @@ class ProjectConfiguration(Data):
             self.licenses = licenses
         self.lifetime_threshold = lifetime_threshold
         self.logo = logo
-        self._locales = self._default_locales() if locales is None else locales
+        if locales is not None:
+            self.locales = locales
         self.name = name
         if place_types is not None:
             self.place_types = place_types
@@ -924,10 +840,6 @@ class ProjectConfiguration(Data):
         from betty.license.licenses import AllRightsReserved
 
         return PluginConfiguration[LicenseDefinition, License](AllRightsReserved)
-
-    @classmethod
-    def _default_locales(cls) -> LocaleConfigurationMapping:
-        return LocaleConfigurationMapping()
 
     @property
     @AttrDefinition(
@@ -978,13 +890,15 @@ class ProjectConfiguration(Data):
         return urlparse(self.url).path.rstrip("/")
 
     @property
-    @AttrDefinition(
-        DataDefinition(cls=LocaleConfigurationMapping, label=_("Locales")),
-        omit_load=True,
-        omit_dump=lambda data: data == ProjectConfiguration._default_locales(),
-    )
-    def locales(self) -> LocaleConfigurationMapping:
+    def default_locale(self) -> LocaleConfiguration:
         """
-        The available locales.
+        The default locale.
         """
-        return self._locales
+        return next(iter(self.locales))
+
+    @property
+    def multilingual(self) -> bool:
+        """
+        Whether the configuration is multilingual.
+        """
+        return len(self.locales) > 1

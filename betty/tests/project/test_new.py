@@ -3,7 +3,6 @@ from pathlib import Path
 from babel import Locale
 from pytest_mock import MockerFixture
 
-from betty.config import Configuration
 from betty.data import Data
 from betty.extension.gramps import Gramps
 from betty.extension.gramps.config import GrampsConfiguration
@@ -147,10 +146,8 @@ async def test_new__with_multiple_locales(
         await new(app)
         configuration = await _assert_new(configuration_file_path)
     assert configuration.name == "mijn-eerste-project"
-    locale_configurations = configuration.locales
-    assert len(locale_configurations) == 2
-    assert locale_configurations.default.locale == default_locale
-    locale_configurations[other_locale]
+    assert len(configuration.locales) == 2
+    assert configuration.default_locale.locale == default_locale
 
 
 async def test_new__with_name(
@@ -208,9 +205,7 @@ async def test_new__with_gramps(
             portable_gramps_configuration = configuration.extensions[
                 Gramps
             ].configuration
-            assert not isinstance(
-                portable_gramps_configuration, (Data, Configuration, Void)
-            )
+            assert not isinstance(portable_gramps_configuration, (Data, Void))
             gramps_configuration = GrampsConfiguration.data().porter.load(
                 portable_gramps_configuration
             )

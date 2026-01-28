@@ -200,7 +200,7 @@ async def test_generate_from_path(
             locale=locale,
             query=query,
             root_path=root_path,
-            locale_aliases=locales,
+            locale_slugs=locales,
             clean_urls=clean_urls,
         )
         == expected

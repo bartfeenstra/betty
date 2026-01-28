@@ -38,15 +38,15 @@ class _ProjectUrlGenerator(ServiceLevelDependentSelfFactory):
         self,
         base_url: str,
         root_path: str,
-        locales_to_aliases: Mapping[Locale, str],
+        locales_to_slugs: Mapping[Locale, str],
         clean_urls: bool,
         /,
     ):
         self._base_url = base_url
         self._root_path = root_path
-        self._locales_to_aliases = locales_to_aliases
-        assert len(locales_to_aliases)
-        self._default_locale = next(iter(locales_to_aliases))
+        self._locales_to_slugs = locales_to_slugs
+        assert len(locales_to_slugs)
+        self._default_locale = next(iter(locales_to_slugs))
         self._clean_urls = clean_urls
 
     @override
@@ -60,8 +60,8 @@ class _ProjectUrlGenerator(ServiceLevelDependentSelfFactory):
             project.configuration.base_url,
             project.configuration.root_path,
             {
-                locale_configuration.locale: locale_configuration.alias
-                for locale_configuration in project.configuration.locales.values()
+                locale_configuration.locale: locale_configuration.slug
+                for locale_configuration in project.configuration.locales
             },
             project.configuration.clean_urls,
         )
@@ -82,7 +82,7 @@ class _ProjectUrlGenerator(ServiceLevelDependentSelfFactory):
             clean_urls=self._clean_urls,
             fragment=fragment,
             locale=locale,
-            locale_aliases=self._locales_to_aliases,
+            locale_slugs=self._locales_to_slugs,
             query=query,
             root_path=self._root_path,
         )

@@ -143,7 +143,7 @@ class Wiki(
         """
         return populator_api.Populator(
             self._project.ancestry,
-            list(self._project.configuration.locales),
+            list(self._project.configuration.locales.keys()),
             await self._project.localizers,
             await self.client,
             self._wikipedia_contributors_copyright_notice,

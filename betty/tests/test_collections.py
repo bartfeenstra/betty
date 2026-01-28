@@ -59,17 +59,40 @@ class TestKeyedCollection:
         sut.add("ONE")
         assert sut["ONE"] == "ONE"
 
-    def test_add__with_resolved_value(self) -> None:
+    def test_add__with_value_resolver(self) -> None:
         sut = KeyedCollection[str, str, str, bool](
             [], key=passthrough, value_resolver=str
         )
         sut.add(True)
         assert sut["True"] == "True"
 
+    def test_add__with_resolver(self) -> None:
+        sut = KeyedCollection[str, str, str, bool](
+            [],
+            key=passthrough,
+            resolver=reversed,  # ty:ignore[invalid-argument-type]
+        )
+        sut.add(True, False)
+        assert list(sut) == [False, True]
+
+    def test_add__with_value_resolver_and_resolver(self) -> None:
+        sut = KeyedCollection[str, str, str, bool](
+            [],
+            key=passthrough,
+            value_resolver=str,
+            resolver=reversed,  # ty:ignore[invalid-argument-type]
+        )
+        sut.add(True, False)
+        assert list(sut) == ["False", "True"]
+
     def test_clear(self) -> None:
         sut = KeyedCollection(["one"], key=passthrough)
         sut.clear()
         assert list(sut) == []
+
+    def test_keys(self) -> None:
+        sut = KeyedCollection(["one"], key=lambda value: value.upper())
+        assert list(sut.keys()) == ["ONE"]
 
 
 class TestResolvingMutableSequence:

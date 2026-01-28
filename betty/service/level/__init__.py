@@ -8,7 +8,7 @@ from typing import TYPE_CHECKING, final
 
 from typing_extensions import TypeVar, override
 
-from betty.config import Configurable, Configuration
+from betty.config import Configurable
 from betty.factory import FactoryError, new_target
 from betty.locale.localize import DEFAULT_LOCALIZER
 from betty.plugin.repository.provider import PluginRepositoryProvider
@@ -86,12 +86,7 @@ class ServiceLevel(ServiceContainer, PluginRepositoryProvider):
     async def _post_bootstrap(self) -> None:
         if isinstance(self, Configurable):
             configuration = self.configuration
-            if isinstance(configuration, Configuration):
-                validator_factory = configuration.validator
-                if validator_factory is not None:
-                    await self._new_target(validator_factory)
-            else:
-                await configuration.data().hydrate(  # ty:ignore[unresolved-attribute]
-                    self,
-                    configuration,
-                )
+            await configuration.data().hydrate(  # ty:ignore[unresolved-attribute]
+                self,
+                configuration,
+            )

@@ -118,7 +118,7 @@ def generate_from_path(
     absolute: bool = False,
     fragment: str | None = None,
     locale: LocaleLike | None = None,
-    locale_aliases: Mapping[Locale, str],
+    locale_slugs: Mapping[Locale, str],
     query: Mapping[str, Sequence[str]] | None = None,
 ) -> str:
     """
@@ -130,18 +130,18 @@ def generate_from_path(
         f'Paths must be root-relative (start with a forward slash), but "{path}" was given'
     )
     path = path.strip("/")
-    if locale and len(locale_aliases) > 1:
+    if locale and len(locale_slugs) > 1:
         locale = ensure_locale(locale)
         try:
-            negotiated_locale = negotiate_locale(locale, list(locale_aliases))
+            negotiated_locale = negotiate_locale(locale, list(locale_slugs))
             if negotiated_locale is None:
                 raise KeyError
-            locale_alias = locale_aliases[negotiated_locale]
+            locale_slug = locale_slugs[negotiated_locale]
         except KeyError:
             raise ValueError(
-                f'Cannot generate URLs in "{locale}", because it cannot be resolved to any of the available locales: {", ".join(map(to_language_tag, locale_aliases))}'
+                f'Cannot generate URLs in "{locale}", because it cannot be resolved to any of the available locales: {", ".join(map(to_language_tag, locale_slugs))}'
             ) from None
-        url += f"/{locale_alias}"
+        url += f"/{locale_slug}"
     if path:
         url += f"/{path}"
     if clean_urls and url.endswith("/index.html"):

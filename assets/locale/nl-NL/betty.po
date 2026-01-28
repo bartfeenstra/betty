@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PROJECT VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-01-30 21:35+0000\n"
+"POT-Creation-Date: 2026-01-30 22:38+0000\n"
 "PO-Revision-Date: 2025-11-08 23:46+0000\n"
 "Last-Translator: Bart Feenstra <bart@bartfeenstra.com>\n"
 "Language: nl_NL\n"
@@ -103,6 +103,9 @@ msgid "Adoption"
 msgstr "Adoptie"
 
 msgid "Adoptions"
+msgstr ""
+
+msgid "Alias"
 msgstr ""
 
 msgid "All caches cleared."
@@ -1044,6 +1047,9 @@ msgstr ""
 
 msgid "Locale aliases must not contain slashes."
 msgstr "Taalregioaliassen mogen geen schuine streep bevatten."
+
+msgid "Locale configuration"
+msgstr ""
 
 #, python-brace-format
 msgid "Locale {locale} is not known by your system."

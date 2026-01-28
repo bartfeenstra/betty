@@ -7,7 +7,6 @@ from typing import Generic, TypeVar
 import pytest
 
 from betty.app import App
-from betty.config import Configuration
 from betty.config.factory import ConfigurationDependentSelfFactory
 from betty.data import Data
 from betty.factory import FactoryError
@@ -15,7 +14,7 @@ from betty.project import Project
 from betty.requirement import HasRequirement, Requirement
 from betty.service.level.universal import universe
 
-_ConfigurationT = TypeVar("_ConfigurationT", bound=Data | Configuration)
+_ConfigurationT = TypeVar("_ConfigurationT", bound=Data)
 
 
 class ConfigurationDependentSelfFactoryTestBase(Generic[_ConfigurationT]):

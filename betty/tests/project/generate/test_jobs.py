@@ -242,7 +242,7 @@ class TestGenerateSitemap:
 class TestGenerateStaticPublicAssets:
     async def test_do(self, isolated_app: App) -> None:
         async with Project.new_isolated(isolated_app) as project:
-            project.configuration.locales.replace(
+            project.configuration.locales = [
                 LocaleConfiguration(
                     "nl-NL",
                     alias="nl",
@@ -251,7 +251,8 @@ class TestGenerateStaticPublicAssets:
                     "en-US",
                     alias="en",
                 ),
-            )
+            ]
+
             async with project:
                 await do(ProjectContext(project), GenerateStaticPublicAssets())
 
@@ -267,7 +268,7 @@ class TestGenerateStaticPublicAssets:
 class TestGenerateLocalizedPublicAssets:
     async def test_do(self, isolated_app: App) -> None:
         async with Project.new_isolated(isolated_app) as project:
-            project.configuration.locales.replace(
+            project.configuration.locales = [
                 LocaleConfiguration(
                     "nl-NL",
                     alias="nl",
@@ -276,7 +277,7 @@ class TestGenerateLocalizedPublicAssets:
                     "en-US",
                     alias="en",
                 ),
-            )
+            ]
             async with project:
                 await do(
                     ProjectContext(project),

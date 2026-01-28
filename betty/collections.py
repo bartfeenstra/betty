@@ -2,7 +2,14 @@
 Collection data tpes.
 """
 
-from collections.abc import Callable, Collection, Iterable, Iterator, MutableSequence
+from collections.abc import (
+    Callable,
+    Collection,
+    Iterable,
+    Iterator,
+    MutableSequence,
+    Sequence,
+)
 from typing import Generic, TypeVar, final, overload
 
 from typing_extensions import override
@@ -30,15 +37,17 @@ class KeyedCollection(
         key: Callable[[_ValueT], _KeyT],
         key_resolver: Callable[[_ResolvableKeyT | _KeyT], _KeyT] = passthrough,
         value_resolver: Callable[[_ResolvableValueT | _KeyT], _ValueT] = passthrough,
+        resolver: Callable[
+            [Sequence[_ValueT]], Sequence[_ResolvableValueT | _ValueT]
+        ] = passthrough,
     ):
         self._values = {}
-        if values is not None:
-            for value in values:
-                value = value_resolver(value)
-                self._values[key(value)] = value
         self._key = key
         self._key_resolver = key_resolver
         self._value_resolver = value_resolver
+        self._resolver = resolver
+        if values is not None:
+            self.add(*values)
 
     @override
     def __len__(self) -> int:
@@ -76,9 +85,20 @@ class KeyedCollection(
         """
         Add a value to the collection.
         """
-        for value in values:
-            value: _ValueT = self._value_resolver(value)
+        # Resolve the values, so the collection resolver won't have to and can stay small.
+        resolved_values = list(map(self._value_resolver, values))
+        # Allow the collection resolver to change the collection or raise (validation) errors.
+        twice_resolved_values = self._resolver(resolved_values)
+        # Resolve the values again, so the collection resolver won't have to and can stay small.
+        thrice_resolved_values = list(map(self._value_resolver, twice_resolved_values))  # ty:ignore[invalid-argument-type]
+        for value in thrice_resolved_values:
             self._values[self._key(value)] = value
+
+    def keys(self) -> Iterable[_KeyT]:
+        """
+        Get an iterable over the collection's keys.
+        """
+        return self._values.keys()
 
 
 @final
@@ -146,4 +166,4 @@ class ResolvingMutableSequence(
 
     @override
     def extend(self, values: Iterable[_ValueT | _ResolvableValueT]) -> None:
-        super().extend(map(self._resolver, values))
+        self._decorated.extend(map(self._resolver, values))

@@ -13,7 +13,7 @@ from betty.test_utils.jinja2 import assert_betty_html
 async def test_generate__html_lang(isolated_app: App) -> None:
     async with Project.new_isolated(isolated_app) as project:
         project.configuration.locales["en-US"].alias = "en"
-        project.configuration.locales.append(
+        project.configuration.locales.add(
             LocaleConfiguration(
                 "nl-NL",
                 alias="nl",
@@ -30,7 +30,7 @@ async def test_generate__html_lang(isolated_app: App) -> None:
 
 async def test_generate__links(isolated_app: App) -> None:
     async with Project.new_isolated(isolated_app) as project:
-        project.configuration.locales.replace(
+        project.configuration.locales = [
             LocaleConfiguration(
                 "nl-NL",
                 alias="nl",
@@ -39,7 +39,7 @@ async def test_generate__links(isolated_app: App) -> None:
                 "en-US",
                 alias="en",
             ),
-        )
+        ]
         async with project:
             await generate(project)
             async with aiofiles.open(
@@ -70,7 +70,7 @@ async def test_generate__links(isolated_app: App) -> None:
 
 async def test_generate__links_for_entity_pages(isolated_app: App) -> None:
     async with Project.new_isolated(isolated_app) as project:
-        project.configuration.locales.replace(
+        project.configuration.locales = [
             LocaleConfiguration(
                 "nl-NL",
                 alias="nl",
@@ -79,7 +79,7 @@ async def test_generate__links_for_entity_pages(isolated_app: App) -> None:
                 "en-US",
                 alias="en",
             ),
-        )
+        ]
         person = Person(id="PERSON1")
         project.ancestry.add(person)
         async with project:
