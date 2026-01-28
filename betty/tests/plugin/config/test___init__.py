@@ -16,7 +16,8 @@ from betty.plugin.config import (
     resolve_plugin_configuration,
     resolve_plugin_configurations,
 )
-from betty.test_utils.config import ConfigurationTestBase, DummyConfiguration
+from betty.test_utils.config import ConfigurationTestBase
+from betty.test_utils.data import DummyData
 from betty.test_utils.locale.localizable import (
     DUMMY_COUNTABLE_LOCALIZABLE,
     DUMMY_LOCALIZABLE,
@@ -108,14 +109,14 @@ class TestPluginConfiguration(ConfigurationTestBase[PluginConfiguration]):
         assert sut.id == DummyPluginOne.plugin().id
 
     def test_configuration__with_configuration(self) -> None:
-        configuration = DummyConfiguration()
+        configuration = DummyData()
         sut = PluginConfiguration[
             ConfigurableDummyPluginDefinition, ConfigurableDummyPlugin
         ](ConfigurableDummyPluginOne.plugin(), configuration)
         assert sut.configuration is configuration
 
     def test_configuration__with_portable_configuration(self) -> None:
-        configuration = DummyConfiguration().dump()
+        configuration = DummyData.data().porter.dump(DummyData())
         sut = PluginConfiguration[
             ConfigurableDummyPluginDefinition, ConfigurableDummyPlugin
         ](ConfigurableDummyPluginOne.plugin(), configuration)
@@ -186,7 +187,7 @@ class TestPluginConfiguration(ConfigurationTestBase[PluginConfiguration]):
         value = "Hello, world!"
         sut = PluginConfiguration[
             ConfigurableDummyPluginDefinition, ConfigurableDummyPlugin
-        ](ConfigurableDummyPluginOne.plugin(), DummyConfiguration(value))
+        ](ConfigurableDummyPluginOne.plugin(), DummyData(value))
         assert sut.dump() == {
             "id": ConfigurableDummyPluginOne.plugin().id,
             "configuration": {
@@ -215,7 +216,7 @@ class TestPluginConfiguration(ConfigurationTestBase[PluginConfiguration]):
     def test_dump_key__with_configuration(self) -> None:
         value = "Hello, world!"
         sut = PluginConfiguration[ConfigurableDummyPluginDefinition, DummyPlugin](
-            ConfigurableDummyPluginOne.plugin(), DummyConfiguration(value)
+            ConfigurableDummyPluginOne.plugin(), DummyData(value)
         )
         assert sut.dump_key(Attr("id")) == (
             ConfigurableDummyPluginOne.plugin().id,

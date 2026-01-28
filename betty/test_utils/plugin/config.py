@@ -13,7 +13,8 @@ from betty.config.factory import ConfigurationDependentSelfFactory
 from betty.plugin import Plugin, PluginDefinition, PluginTypeDefinition
 from betty.plugin.config import PluginDefinitionConfiguration
 from betty.plugin.discovery.callback import CallbackDiscovery
-from betty.test_utils.config import DummyConfigurable, DummyConfiguration
+from betty.test_utils.config import DummyConfigurable
+from betty.test_utils.data import DummyData
 from betty.test_utils.locale.localizable import DUMMY_COUNTABLE_LOCALIZABLE
 
 if TYPE_CHECKING:
@@ -29,24 +30,22 @@ _PluginDefinitionConfigurationT = TypeVar(
 
 class ConfigurableDummyPlugin(
     DummyConfigurable,
-    ConfigurationDependentSelfFactory[DummyConfiguration],
+    ConfigurationDependentSelfFactory[DummyData],
     Plugin["ConfigurableDummyPluginDefinition"],
 ):
     """
     A configurable dummy plugin.
     """
 
-    def __init__(self, *, configuration: DummyConfiguration | None = None):
+    def __init__(self, *, configuration: DummyData | None = None):
         super().__init__(
-            configuration=DummyConfiguration()
-            if configuration is None
-            else configuration
+            configuration=DummyData() if configuration is None else configuration
         )
 
     @override
     @classmethod
     def new_for_configuration(
-        cls, configuration: DummyConfiguration
+        cls, configuration: DummyData
     ) -> ServiceLevelTarget[Self]:  # ty:ignore[invalid-method-override]
         return lambda: cls(configuration=configuration)
 

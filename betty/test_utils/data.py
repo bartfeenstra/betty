@@ -2,12 +2,17 @@
 Test utilities for :py:mod:`betty.data`.
 """
 
-from typing import Any, Generic, TypeVar
+from typing import Any, Generic
 
 import pytest
+from typing_extensions import TypeVar
 
 from betty.data import Data
+from betty.data.aggregate.record.object import ObjectDefinition
+from betty.data.aggregate.record.object.property import Optional, Property
+from betty.data.str import StrDefinition
 from betty.importlib import fully_qualified_name
+from betty.locale.localizable.plain import Plain
 from betty.locale.localize import DEFAULT_LOCALIZER
 
 _DataT = TypeVar("_DataT", bound=Data, covariant=True)
@@ -111,3 +116,15 @@ class DataTestBase(Generic[_DataT]):
                     assert sample.data != other_sample.data, (
                         f'Failed asserting that sample "{sample.label.localize(DEFAULT_LOCALIZER)}" instance is not equal to sample "{other_sample.label.localize(DEFAULT_LOCALIZER)}"'
                     )
+
+
+@ObjectDefinition(label=Plain("Dummy data"))
+class DummyData(Data):
+    """
+    A dummy :py:class:`betty.data.Data` implementation.
+    """
+
+    value = Optional(Property(StrDefinition(label="Value")))
+
+    def __init__(self, /, value: str | None = None):
+        self.value = value

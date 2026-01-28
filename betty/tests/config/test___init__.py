@@ -5,7 +5,7 @@ from typing_extensions import override
 from betty.assertion import assert_int
 from betty.config import Configurable, Configuration
 from betty.portable import PortableData
-from betty.test_utils.config import DummyConfiguration
+from betty.test_utils.data import DummyData
 
 
 class TestConfiguration:
@@ -25,13 +25,13 @@ class TestConfiguration:
 
 
 class TestConfigurable:
-    class _DummyConfigurable(Configurable[DummyConfiguration]):
+    class _DummyConfigurable(Configurable[DummyData]):
         @override
         @classmethod
-        def configuration_cls(cls) -> type[DummyConfiguration]:
-            return DummyConfiguration
+        def configuration_cls(cls) -> type[DummyData]:
+            return DummyData
 
     def test_configuration(self) -> None:
-        configuration = DummyConfiguration()
+        configuration = DummyData()
         sut = self._DummyConfigurable(configuration=configuration)
         assert sut.configuration is configuration
