@@ -7,7 +7,7 @@ import pytest
 from betty.error import FileNotFound
 from betty.exception import HumanFacingException
 from betty.portable.file import assert_load_file, dump_file
-from betty.test_utils.config import DummyConfiguration
+from betty.test_utils.data import DummyData
 
 
 async def test_assert_load_file__with_file_not_found(tmp_path: Path) -> None:
@@ -42,9 +42,11 @@ async def test_assert_load_file__with_valid_configuration(
 
 async def test_dump_file(tmp_path: Path) -> None:
     value = "Hello, world!"
-    configuration = DummyConfiguration(value)
+    configuration = DummyData(value)
     configuration_file_path = tmp_path / "config.json"
-    await dump_file(configuration.dump(), configuration_file_path)
+    await dump_file(
+        configuration.data().porter.dump(configuration), configuration_file_path
+    )
     async with aiofiles.open(configuration_file_path) as f:
         file_contents = await f.read()
     expected = {

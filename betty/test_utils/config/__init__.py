@@ -3,25 +3,15 @@ Test utilities for :py:mod:`betty.config`.
 """
 
 from inspect import isabstract
-from typing import Any, Generic, Self
+from typing import Any, Generic
 
 import pytest
 from typing_extensions import TypeVar, override
 
-from betty.assertion import (
-    OptionalField,
-    assert_none,
-    assert_or,
-    assert_record,
-    assert_str,
-)
 from betty.config import Configurable, Configuration
-from betty.data import Data
-from betty.data.aggregate.record.object import ObjectDefinition
 from betty.importlib import fully_qualified_name
-from betty.locale.localizable.plain import Plain
 from betty.locale.localize import DEFAULT_LOCALIZER
-from betty.portable import PortableData
+from betty.test_utils.data import DummyData
 
 _ConfigurationT = TypeVar("_ConfigurationT", bound=Configuration)
 
@@ -117,49 +107,12 @@ class ConfigurationTestBase(Generic[_ConfigurationT]):
                     assert portable != other_sample.data.dump()
 
 
-@ObjectDefinition(label=Plain("Dummy configuration"))
-class DummyConfiguration(Configuration, Data):
-    """
-    A dummy :py:class:`betty.config.Configuration` implementation.
-    """
-
-    def __init__(self, value: str | None = None, /):
-        super().__init__()
-        self.value = value
-
-    @override
-    @classmethod
-    def load(cls, portable: PortableData, /) -> Self:
-        return cls(
-            assert_record(
-                OptionalField(
-                    "value",
-                    assert_or(assert_none, assert_str()),
-                )
-            )(portable)["value"]
-        )
-
-    @override
-    def dump(self) -> PortableData:
-        if self.value is None:
-            return {}
-        return {
-            "value": self.value,
-        }
-
-    @override
-    def __eq__(self, other: Any) -> bool:
-        if not isinstance(other, type(self)):
-            return NotImplemented
-        return self.value == other.value
-
-
-class DummyConfigurable(Configurable[DummyConfiguration]):
+class DummyConfigurable(Configurable[DummyData]):
     """
     A dummy :py:class:`betty.config.Configurable` implementation.
     """
 
     @override
     @classmethod
-    def configuration_cls(cls) -> type[DummyConfiguration]:
-        return DummyConfiguration
+    def configuration_cls(cls) -> type[DummyData]:
+        return DummyData

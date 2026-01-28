@@ -10,7 +10,8 @@ from betty.extension import Extension, ExtensionDefinition
 from betty.project import Project
 from betty.project.factory import require_project
 from betty.service.level.factory import ServiceLevelDependentSelfFactory
-from betty.test_utils.config import DummyConfigurable, DummyConfiguration
+from betty.test_utils.config import DummyConfigurable
+from betty.test_utils.data import DummyData
 from betty.test_utils.definition.human_facing import HumanFacingDefinitionTestBase
 from betty.test_utils.plugin import PluginTestBase
 from betty.test_utils.plugin.dependent import DependentPluginDefinitionTestBase
@@ -67,4 +68,4 @@ class DummyConfigurableExtension(DummyConfigurable, _DummyExtension):
 
     @private
     def __init__(self, project: Project):
-        super().__init__(configuration=DummyConfiguration(), project=project)
+        super().__init__(configuration=DummyData(), project=project)

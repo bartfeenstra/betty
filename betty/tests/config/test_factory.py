@@ -8,17 +8,17 @@ from betty.config.factory import ConfigurationDependentSelfFactory, new_target
 from betty.factory import FactoryError
 from betty.service.level.factory import ServiceLevelTarget
 from betty.service.level.universal import universe
-from betty.test_utils.config import DummyConfiguration
+from betty.test_utils.data import DummyData
 
 
-class _DummyConfiguration(DummyConfiguration):
+class _DummyConfiguration(DummyData):
     pass
 
 
-class _DummyConfigurable(Configurable[DummyConfiguration]):
+class _DummyConfigurable(Configurable[DummyData]):
     @override
     @classmethod
-    def configuration_cls(cls) -> type[DummyConfiguration]:
+    def configuration_cls(cls) -> type[DummyData]:
         return _DummyConfiguration
 
 
@@ -63,6 +63,6 @@ async def test_new_target__with_non_configurable_without_configuration() -> None
 
 
 async def test_new_target__with_configuration_of_wrong_type() -> None:
-    configuration = DummyConfiguration()
+    configuration = DummyData()
     with pytest.raises(FactoryError):
         new_target(_RequiredDummyConfigurable, configuration)
