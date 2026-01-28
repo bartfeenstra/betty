@@ -41,7 +41,7 @@ class ServiceLevel(ServiceContainer, PluginRepositoryProvider):
        * - :py:class:`betty.project.Project`
          - :py:class:`betty.project.Project`
        * - :py:class:`betty.project.Project`
-         - :py:class:`betty.project.extension.Extension`
+         - :py:class:`betty.extension.Extension`
     """
 
     @final

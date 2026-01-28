@@ -1,13 +1,13 @@
 """
-Test utilities for :py:mod:`betty.project.extension`.
+Test utilities for :py:mod:`betty.extension`.
 """
 
 from typing import Self, final
 
 from typing_extensions import override
 
+from betty.extension import Extension, ExtensionDefinition
 from betty.project import Project
-from betty.project.extension import Extension, ExtensionDefinition
 from betty.project.factory import require_project
 from betty.service.level.factory import ServiceLevelDependentSelfFactory
 from betty.test_utils.config import DummyConfigurable, DummyConfiguration
@@ -24,13 +24,13 @@ class ExtensionDefinitionTestBase(
     OrderedPluginDefinitionTestBase,
 ):
     """
-    A base class for testing :py:class:`betty.project.extension.ExtensionDefinition` implementations.
+    A base class for testing :py:class:`betty.extension.ExtensionDefinition` implementations.
     """
 
 
 class ExtensionTestBase(PluginTestBase[Extension]):
     """
-    A base class for testing :py:class:`betty.project.extension.Extension` implementations.
+    A base class for testing :py:class:`betty.extension.Extension` implementations.
     """
 
 
@@ -46,7 +46,7 @@ class _DummyExtension(ServiceLevelDependentSelfFactory, Extension):
 @ExtensionDefinition("dummy-one", label="Dummy One")
 class DummyExtensionOne(_DummyExtension):
     """
-    A dummy :py:class:`betty.project.extension.Extension` implementation.
+    A dummy :py:class:`betty.extension.Extension` implementation.
     """
 
 
@@ -54,7 +54,7 @@ class DummyExtensionOne(_DummyExtension):
 @ExtensionDefinition("dummy-two", label="Dummy Two")
 class DummyExtensionTwo(_DummyExtension):
     """
-    A dummy :py:class:`betty.project.extension.Extension` implementation.
+    A dummy :py:class:`betty.extension.Extension` implementation.
     """
 
 
@@ -62,7 +62,7 @@ class DummyExtensionTwo(_DummyExtension):
 @ExtensionDefinition("dummy-configurable", label="Dummy Configurable")
 class DummyConfigurableExtension(DummyConfigurable, _DummyExtension):
     """
-    A dummy :py:class:`betty.config.Configurable` and :py:class:`betty.project.extension.Extension` implementation.
+    A dummy :py:class:`betty.config.Configurable` and :py:class:`betty.extension.Extension` implementation.
     """
 
     @private

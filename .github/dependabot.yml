@@ -37,7 +37,7 @@ updates:
       prefix: npm dependencies (Betty library)
       include: scope
   - package-ecosystem: npm
-    directory: betty/project/extension/http_api_doc/webpack/
+    directory: betty/extension/http_api_doc/webpack/
     ignore:
       - dependency-name: "@betty.py/betty"
     schedule:
@@ -48,7 +48,7 @@ updates:
       prefix: npm dependencies (HttpApiDoc extension)
       include: scope
   - package-ecosystem: npm
-    directory: betty/project/extension/maps/webpack/
+    directory: betty/extension/maps/webpack/
     ignore:
       - dependency-name: "@betty.py/betty"
     schedule:
@@ -59,7 +59,7 @@ updates:
       prefix: npm dependencies (Maps extension)
       include: scope
   - package-ecosystem: npm
-    directory: betty/project/extension/raspberry_mint/webpack/
+    directory: betty/extension/raspberry_mint/webpack/
     ignore:
       - dependency-name: "@betty.py/betty"
     schedule:
@@ -70,7 +70,7 @@ updates:
       prefix: npm dependencies (Raspberry Mint extension)
       include: scope
   - package-ecosystem: npm
-    directory: betty/project/extension/trees/webpack/
+    directory: betty/extension/trees/webpack/
     ignore:
       - dependency-name: "@betty.py/betty"
     schedule:

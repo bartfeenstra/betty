@@ -24,7 +24,7 @@ if TYPE_CHECKING:
 
     from jinja2 import Template
 
-    from betty.project.extension import ExtensionDefinition
+    from betty.extension import ExtensionDefinition
 
 
 @asynccontextmanager

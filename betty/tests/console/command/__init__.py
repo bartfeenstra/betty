@@ -4,8 +4,8 @@ from pathlib import Path
 import pytest
 
 from betty.app import App
+from betty.extension import Extension, ExtensionDefinition
 from betty.plugin.discovery.static import StaticDiscovery
-from betty.project.extension import Extension, ExtensionDefinition
 
 
 class ExtensionTranslationTestBase:

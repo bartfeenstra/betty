@@ -43,10 +43,10 @@ if TYPE_CHECKING:
 
     from betty.asset import AssetRepository
     from betty.document import Document
+    from betty.extension import Extension
     from betty.job import Context as JobContext
     from betty.locale.localize import Localizer
     from betty.project import Project
-    from betty.project.extension import Extension
 
 
 CopyFunction: TypeAlias = Callable[[Path, Path], Awaitable[None]]
@@ -100,7 +100,7 @@ Tests: TypeAlias = Mapping[str, Callable[..., bool]]
 
 class Jinja2Provider:
     """
-    Integrate an :py:class:`betty.project.extension.Extension` with the Jinja2 API.
+    Integrate an :py:class:`betty.extension.Extension` with the Jinja2 API.
     """
 
     @property

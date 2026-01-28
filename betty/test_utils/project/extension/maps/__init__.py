@@ -1,5 +1,5 @@
 """
-Test utilities for :py:mod:`betty.project.extension.maps`.
+Test utilities for :py:mod:`betty.extension.maps`.
 """
 
 import re  # noqa: I001
@@ -18,8 +18,8 @@ from betty.ancestry.place import Place
 from betty.app import App
 from betty.plugin.resolve import ResolvableId
 from betty.project import Project
-from betty.project.extension import ExtensionDefinition
-from betty.project.extension.maps import Maps
+from betty.extension import ExtensionDefinition
+from betty.extension.maps import Maps
 from betty.project.generate import generate
 from betty.serve import Server
 from betty.tests.conftest import check_skip_playwright

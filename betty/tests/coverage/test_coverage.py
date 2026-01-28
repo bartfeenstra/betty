@@ -469,25 +469,25 @@ _BASELINE: Mapping[str, _ModuleIgnore] = {
             "license": MissingReason.INHERITED,
         },
     },
-    "betty/project/extension/__init__.py": {
+    "betty/extension/__init__.py": {
         "ExtensionError": MissingReason.STATIC_CONTENT_ONLY,
         "ExtensionTypeError": MissingReason.STATIC_CONTENT_ONLY,
         "ExtensionTypeInvalidError": MissingReason.SHOULD_BE_COVERED,
         "Theme": MissingReason.STATIC_CONTENT_ONLY,
     },
-    "betty/project/extension/demo/__init__.py": {
+    "betty/extension/demo/__init__.py": {
         "Demo": {
             "secondary_navigation_links": MissingReason.STATIC_CONTENT_ONLY,
         },
     },
-    "betty/project/extension/demo/serve.py": {
+    "betty/extension/demo/serve.py": {
         "DemoServer": {
             "public_url": MissingReason.SHOULD_BE_COVERED,
             "start": MissingReason.SHOULD_BE_COVERED,
             "stop": MissingReason.SHOULD_BE_COVERED,
         },
     },
-    "betty/project/extension/gramps/config.py": {
+    "betty/extension/gramps/config.py": {
         "FamilyTreeConfiguration": {
             "event_types": MissingReason.INHERITED,
             "file": MissingReason.INHERITED,
@@ -496,23 +496,23 @@ _BASELINE: Mapping[str, _ModuleIgnore] = {
             "presence_roles": MissingReason.INHERITED,
         },
     },
-    "betty/project/extension/privatizer/__init__.py": {
+    "betty/extension/privatizer/__init__.py": {
         "Privatizer": {
             "post_load": MissingReason.SHOULD_BE_COVERED,
         },
     },
-    "betty/project/extension/raspberry_mint/__init__.py": {
+    "betty/extension/raspberry_mint/__init__.py": {
         "Breakpoint": MissingReason.ENUM,
         "ColorStyle": MissingReason.ENUM,
         "JustifyContent": MissingReason.ENUM,
     },
-    "betty/project/extension/webpack/build.py": {
+    "betty/extension/webpack/build.py": {
         "EntryPointProvider": MissingReason.ABSTRACT,
         "webpack_build_id": MissingReason.SHOULD_BE_COVERED,
     },
-    "betty/project/extension/webpack/jinja2/__init__.py": MissingReason.SHOULD_BE_COVERED,
-    "betty/project/extension/webpack/jinja2/filter.py": MissingReason.SHOULD_BE_COVERED,
-    "betty/project/extension/wiki/config.py": {
+    "betty/extension/webpack/jinja2/__init__.py": MissingReason.SHOULD_BE_COVERED,
+    "betty/extension/webpack/jinja2/filter.py": MissingReason.SHOULD_BE_COVERED,
+    "betty/extension/wiki/config.py": {
         "WikiConfiguration": {
             "populate_images": MissingReason.SHOULD_BE_COVERED,
         },

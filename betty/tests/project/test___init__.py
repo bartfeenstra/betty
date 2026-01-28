@@ -8,12 +8,12 @@ from typing_extensions import override
 
 from betty.ancestry import Ancestry
 from betty.dirs import ASSETS_DIRECTORY_PATH
+from betty.extension import Extension, ExtensionDefinition
 from betty.locale import DEFAULT_LOCALE, DEFAULT_LOCALE_TAG
 from betty.locale.localize import DEFAULT_LOCALIZER
 from betty.plugin.discovery.static import StaticDiscovery
 from betty.project import Project, ProjectExtensions
 from betty.project.config import LocaleConfiguration, ProjectConfiguration
-from betty.project.extension import Extension, ExtensionDefinition
 from betty.project.factory import require_project
 from betty.requirement import Requirement, StaticRequirement, UnmetRequirement
 from betty.serde import SerializationError

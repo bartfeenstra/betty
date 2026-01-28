@@ -1,5 +1,5 @@
 """
-Discover plugins that are defined through an :py:class:`betty.project.extension.Extension`.
+Discover plugins that are defined through an :py:class:`betty.extension.Extension`.
 """
 
 from __future__ import annotations
@@ -16,7 +16,7 @@ from betty.plugin.resolve import ResolvableId, resolve_id
 if TYPE_CHECKING:
     from collections.abc import Awaitable, Callable, Iterable
 
-    from betty.project.extension import Extension, ExtensionDefinition
+    from betty.extension import Extension, ExtensionDefinition
     from betty.service.level import ServiceLevel
 
 _PluginDefinitionT = TypeVar(
@@ -27,7 +27,7 @@ _PluginDefinitionT = TypeVar(
 @final
 class ExtensionDiscovery(PluginDiscovery[_PluginDefinitionT]):
     """
-    Discover plugins that are defined through an :py:class:`betty.project.extension.Extension`.
+    Discover plugins that are defined through an :py:class:`betty.extension.Extension`.
     """
 
     def __init__(

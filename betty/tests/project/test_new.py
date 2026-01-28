@@ -5,13 +5,13 @@ from pytest_mock import MockerFixture
 
 from betty.config import Configuration
 from betty.data import Data
+from betty.extension.gramps import Gramps
+from betty.extension.gramps.config import GrampsConfiguration
 from betty.locale import DEFAULT_LOCALE_TAG, to_language_tag
 from betty.locale.localize import DEFAULT_LOCALIZER
 from betty.portable.file import assert_load_file
 from betty.project import Project
 from betty.project.config import ProjectConfiguration
-from betty.project.extension.gramps import Gramps
-from betty.project.extension.gramps.config import GrampsConfiguration
 from betty.project.new import new
 from betty.test_utils.conftest import IsolatedAppFactory
 from betty.test_utils.user import StaticUser
@@ -29,9 +29,7 @@ async def test_new__minimal(
     isolated_app_factory: IsolatedAppFactory,
     tmp_path: Path,
 ) -> None:
-    mocker.patch(
-        "betty.project.extension.webpack.Webpack.requirement"
-    ).return_value = None
+    mocker.patch("betty.extension.webpack.Webpack.requirement").return_value = None
     configuration_file_path = tmp_path / "betty.json"
     title = "My First Project"
     machine_name = "my-first-project"
@@ -66,9 +64,7 @@ async def test_new__with_project_directory(
     isolated_app_factory: IsolatedAppFactory,
     tmp_path: Path,
 ) -> None:
-    mocker.patch(
-        "betty.project.extension.webpack.Webpack.requirement"
-    ).return_value = None
+    mocker.patch("betty.extension.webpack.Webpack.requirement").return_value = None
     title = "My First Project"
     machine_name = "my-first-project"
     author = "My First Author"

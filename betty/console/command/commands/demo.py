@@ -6,11 +6,11 @@ from typing import TYPE_CHECKING, Self, final
 
 from typing_extensions import override
 
-import betty.project.extension.demo as stddemo
+import betty.extension.demo as stddemo
 from betty.app.factory import require_app
 from betty.console.command import Command, CommandDefinition, CommandFunction
+from betty.extension.demo.project import create_project
 from betty.locale.localizable.gettext import _
-from betty.project.extension.demo.project import create_project
 from betty.project.job import ProjectContext
 from betty.service.level.factory import ServiceLevelDependentSelfFactory
 
@@ -49,7 +49,7 @@ class Demo(ServiceLevelDependentSelfFactory, Command):
         return self._command_function
 
     async def _command_function(self, *, path: str | None, url: str | None) -> None:
-        from betty.project.extension.demo.serve import DemoServer
+        from betty.extension.demo.serve import DemoServer
 
         if path is None:
             async with DemoServer(app=self._app) as server:

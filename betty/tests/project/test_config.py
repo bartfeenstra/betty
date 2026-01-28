@@ -14,6 +14,7 @@ from betty.ancestry.presence_role import PresenceRoleDefinition
 from betty.copyright_notice import CopyrightNotice, CopyrightNoticeDefinition
 from betty.dirs import ASSETS_DIRECTORY_PATH
 from betty.exception import HumanFacingException
+from betty.extension import Extension, ExtensionDefinition
 from betty.license import License, LicenseDefinition
 from betty.locale import DEFAULT_LOCALE, DEFAULT_LOCALE_TAG, LocaleLike
 from betty.locale.localizable.plain import Plain
@@ -42,7 +43,6 @@ from betty.project.config import (
     PresenceRolePluginConfigurationMapping,
     ProjectConfiguration,
 )
-from betty.project.extension import Extension, ExtensionDefinition
 from betty.service.level.universal import universe
 from betty.test_utils.config import ConfigurationTestBase, DummyConfiguration
 from betty.test_utils.config.collections import (

@@ -22,6 +22,7 @@ from betty.asset import AssetRepository, ProxyAssetRepository, StaticAssetReposi
 from betty.config import Configurable
 from betty.copyright_notice import CopyrightNotice, CopyrightNoticeDefinition
 from betty.document import Document, DocumentProvider
+from betty.extension import Extension, ExtensionDefinition
 from betty.hashid import hashid
 from betty.license import LicenseDefinition
 from betty.locale.localizable.gettext import _
@@ -39,7 +40,6 @@ from betty.plugin.repository.provider.service import (
 from betty.plugin.resolve import ResolvableId, resolve_id
 from betty.privacy.privatizer import Privatizer
 from betty.project.config import ProjectConfiguration
-from betty.project.extension import Extension, ExtensionDefinition
 from betty.render import RenderDispatcher, RendererDefinition
 from betty.requirement import Requirement, StaticRequirement
 from betty.serde import SerializerDefinition, serializer_for
