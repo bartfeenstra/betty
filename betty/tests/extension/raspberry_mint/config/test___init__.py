@@ -31,7 +31,7 @@ class TestRaspberryMintConfiguration(DataTestBase[RaspberryMintConfiguration]):
     ) -> None:
         sut = RaspberryMintConfiguration(regional_content={"unknown-region": []})
         async with Project.new_isolated(isolated_app) as project:
-            project.configuration.extensions.enable(RaspberryMint)
+            project.configuration.extensions.add(RaspberryMint)
             async with project:
                 with pytest.raises(HumanFacingException) as exc_info:
                     await sut.hydrate(project)

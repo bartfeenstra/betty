@@ -77,7 +77,7 @@ class TestExtensionDiscovery:
             StaticDiscovery(DummyExtensionOne)
         ):
             async with Project.new_isolated(isolated_app) as project:
-                project.configuration.extensions.enable(DummyExtensionOne)
+                project.configuration.extensions.add(DummyExtensionOne)
                 async with project:
                     sut = ExtensionDiscovery(DummyExtensionOne, discovery)
                     assert await sut.discover(project) == expected

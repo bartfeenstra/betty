@@ -43,7 +43,7 @@ async def _assert_template(
     ):
         project.configuration.debug = True
         if extensions is not None:
-            project.configuration.extensions.enable(*extensions)
+            project.configuration.extensions.add(*extensions)
         async with project:
             if data is None:
                 data = {}

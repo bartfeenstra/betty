@@ -6,73 +6,49 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING, Any
 
-from typing_extensions import override
-
-from betty.assertion import (
-    Field,
-    OptionalField,
-    assert_sequence,
-)
-from betty.machine_name import MachineName, assert_machine_name
+from betty.data.aggregate.collection.sequence import SequenceDefinition
+from betty.data.aggregate.record.object.property import Property
+from betty.locale.localizable.gettext import _
 from betty.plugin.config import PluginDefinitionConfiguration
-from betty.plugin.resolve import ResolvableId, resolve_id
+from betty.plugin.data import PluginIdDefinition
+from betty.plugin.resolve import resolve_id
 
 if TYPE_CHECKING:
-    from collections.abc import Collection, MutableSet, Set
+    from collections.abc import Iterable
 
-    from betty.portable import PortableMapping
+    from betty.plugin.resolve import ResolvableId
 
 
 class OrderedPluginDefinitionConfiguration(PluginDefinitionConfiguration):
     """
     Configure a :py:class:`betty.plugin.ordered.OrderedPluginDefinition`.
 
-    .. configuration:: betty.plugin.config.ordered:OrderedPluginDefinitionConfiguration
+    .. data:: betty.plugin.config.ordered:OrderedPluginDefinitionConfiguration
     """
 
-    comes_before: MutableSet[MachineName]
-    comes_after: MutableSet[MachineName]
+    comes_before = Property(
+        SequenceDefinition(
+            cls=list, label=_("Comes before"), item=PluginIdDefinition()
+        ),
+        omit_load=True,
+        omit_dump=lambda data: not len(data),
+        default=list,
+    )
+    comes_after = Property(
+        SequenceDefinition(cls=list, label=_("Comes after"), item=PluginIdDefinition()),
+        omit_load=True,
+        omit_dump=lambda data: not len(data),
+        default=list,
+    )
 
     def __init__(
         self,
-        comes_before: Set[ResolvableId] | None = None,
-        comes_after: Set[ResolvableId] | None = None,
+        comes_before: Iterable[ResolvableId] | None = None,
+        comes_after: Iterable[ResolvableId] | None = None,
         **kwargs: Any,
     ):
         super().__init__(**kwargs)
-        self.comes_before = (
-            set() if comes_before is None else set(map(resolve_id, comes_before))
-        )
-        self.comes_after = (
-            set() if comes_after is None else set(map(resolve_id, comes_after))
-        )
-
-    @override
-    @classmethod
-    def fields(cls) -> Collection[Field[Any, Any]]:
-        return [
-            *super().fields(),
-            OptionalField("comes_before", assert_sequence(assert_machine_name()) | set),
-            OptionalField("comes_after", assert_sequence(assert_machine_name()) | set),
-        ]
-
-    @override
-    def dump(self) -> PortableMapping:
-        portable = super().dump()
-        if self.comes_before:
-            portable["comes_before"] = list(self.comes_before)
-        if self.comes_after:
-            portable["comes_after"] = list(self.comes_after)
-        return portable
-
-    @override
-    def __eq__(self, other: Any) -> bool:
-        if not isinstance(other, type(self)):
-            return NotImplemented
-        eq = super().__eq__(other)
-        if eq is not True:
-            return eq
-        return (self.comes_before, self.comes_after) == (
-            other.comes_before,
-            other.comes_after,
-        )
+        if comes_before:
+            self.comes_before.extend(map(resolve_id, comes_before))
+        if comes_after:
+            self.comes_after.extend(map(resolve_id, comes_after))

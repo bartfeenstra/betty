@@ -32,7 +32,6 @@ from betty.plugin.config import PluginConfiguration
 from betty.portable.file import dump_file
 from betty.project.config import (
     EntityTypeConfiguration,
-    ExtensionInstanceConfigurationMapping,
     LocaleConfiguration,
     LocaleConfigurationMapping,
     ProjectConfiguration,
@@ -151,7 +150,7 @@ async def new(app: App) -> None:
             EntityTypeConfiguration(entity_type=Place, generate_html_list=True),
             EntityTypeConfiguration(entity_type=Source, generate_html_list=True),
         ],
-        extensions=ExtensionInstanceConfigurationMapping(extensions),
+        extensions=extensions,
         name=name,
         title=title,
         url=url,

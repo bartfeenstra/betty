@@ -49,7 +49,7 @@ class TestWebpack(ExtensionTestBase):
             await f.write(self._SENTINEL)
 
         async with Project.new_isolated(isolated_app) as project:
-            project.configuration.extensions.enable(Webpack)
+            project.configuration.extensions.add(Webpack)
             async with project:
                 await generate(project)
 

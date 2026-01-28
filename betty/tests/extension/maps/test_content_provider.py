@@ -29,7 +29,7 @@ class TestMap(ContentProviderTestBase):
 
     async def test_provide__without_supported_entity(self, isolated_app: App) -> None:
         async with Project.new_isolated(isolated_app) as project:
-            project.configuration.extensions.enable(Maps)
+            project.configuration.extensions.add(Maps)
             async with project:
                 sut = await Map.new_for_services(project)
                 assert await sut.provide(document=Document()) is None
@@ -46,7 +46,7 @@ class TestMap(ContentProviderTestBase):
         self, has_associated_places: Entity, isolated_app: App
     ) -> None:
         async with Project.new_isolated(isolated_app) as project:
-            project.configuration.extensions.enable(Maps)
+            project.configuration.extensions.add(Maps)
             async with project:
                 project.ancestry.add(has_associated_places)
                 sut = await Map.new_for_services(project)
@@ -80,7 +80,7 @@ class TestMap(ContentProviderTestBase):
     ) -> None:
         has_associated_places, place = has_map_entities
         async with Project.new_isolated(isolated_app) as project:
-            project.configuration.extensions.enable(Maps)
+            project.configuration.extensions.add(Maps)
             async with project:
                 project.ancestry.add(has_associated_places)
                 sut = await Map.new_for_services(project)
@@ -102,7 +102,7 @@ class TestMapAttribution(ContentProviderTestBase):
 
     async def test_provide(self, isolated_app: App) -> None:
         async with Project.new_isolated(isolated_app) as project:
-            project.configuration.extensions.enable(Maps)
+            project.configuration.extensions.add(Maps)
             async with project:
                 sut = await MapAttribution.new_for_services(project)
                 actual = await sut.provide(document=Document())

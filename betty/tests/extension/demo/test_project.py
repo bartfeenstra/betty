@@ -29,7 +29,7 @@ async def test_create_project(isolated_app: App, tmp_path: Path) -> None:
 @pytest.mark.usefixtures("demo_project_aioresponses")
 async def test_load_ancestry(isolated_app_factory: IsolatedAppFactory) -> None:
     async with isolated_app_factory() as app, app, Project.new_isolated(app) as project:
-        project.configuration.extensions.enable(Demo)
+        project.configuration.extensions.add(Demo)
         async with project:
             context = ProjectContext(project)
             await do(context, LoadAncestry())

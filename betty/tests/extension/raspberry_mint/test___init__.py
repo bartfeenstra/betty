@@ -58,7 +58,7 @@ class TestRaspberryMint(
             StaticDiscovery(DummyEntityOne)
         ):
             async with Project.new_isolated(isolated_app) as project:
-                project.configuration.extensions.enable(RaspberryMint)
+                project.configuration.extensions.add(RaspberryMint)
                 project.configuration.entity_types.add(
                     EntityTypeConfiguration(
                         entity_type=DummyEntityOne, generate_html_list=True

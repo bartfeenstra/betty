@@ -29,7 +29,10 @@ class PresenceRole(Plugin["PresenceRoleDefinition"]):
     discovery=[
         EntryPointDiscovery("betty.presence_role"),
         ProjectDiscovery(
-            lambda project: project.configuration.presence_roles.new_plugins()
+            lambda project: (
+                configuration.new_plugin()
+                for configuration in project.configuration.presence_roles
+            )
         ),
     ],
 )

@@ -28,7 +28,12 @@ class Gender(Plugin["GenderDefinition"]):
     label_countable=ngettext("{count} gender", "{count} genders"),
     discovery=[
         EntryPointDiscovery("betty.gender"),
-        ProjectDiscovery(lambda project: project.configuration.genders.new_plugins()),
+        ProjectDiscovery(
+            lambda project: (
+                configuration.new_plugin()
+                for configuration in project.configuration.genders
+            )
+        ),
     ],
 )
 class GenderDefinition(CountableHumanFacingDefinition, PluginDefinition[Gender]):

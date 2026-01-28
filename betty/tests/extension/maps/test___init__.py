@@ -22,7 +22,7 @@ class TestMaps(EntryPointProviderTestBase):
     async def test_generate(self, isolated_app: App) -> None:
         async with Project.new_isolated(isolated_app) as project:
             project.configuration.debug = True
-            project.configuration.extensions.enable(Maps)
+            project.configuration.extensions.add(Maps)
             async with project:
                 await generate(project)
                 async with aiofiles.open(

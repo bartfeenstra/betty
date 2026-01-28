@@ -23,7 +23,7 @@ class TestWikipediaSummary(ContentProviderTestBase):
 
     async def test_provide__without_has_links_resource(self, isolated_app: App) -> None:
         async with Project.new_isolated(isolated_app) as project:
-            project.configuration.extensions.enable(Wiki)
+            project.configuration.extensions.add(Wiki)
             async with project:
                 sut = await WikipediaSummary.new_for_services(project)
                 assert await sut.provide(document=Document()) is None
@@ -39,7 +39,7 @@ class TestWikipediaSummary(ContentProviderTestBase):
         )
         resource = DummyHasLinks(links=[Link(url)])
         async with Project.new_isolated(isolated_app) as project:
-            project.configuration.extensions.enable(Wiki)
+            project.configuration.extensions.add(Wiki)
             async with project:
                 project.ancestry.add(resource)
                 sut = await WikipediaSummary.new_for_services(project)

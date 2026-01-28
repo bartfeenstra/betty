@@ -32,7 +32,7 @@ class TestSearchUi:
             app,
             Project.new_isolated(app) as project,
         ):
-            project.configuration.extensions.enable(RaspberryMint)
+            project.configuration.extensions.add(RaspberryMint)
             project.ancestry[Person].add(person)
             async with project:
                 await generate(project)

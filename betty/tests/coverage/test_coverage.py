@@ -438,9 +438,6 @@ _BASELINE: Mapping[str, _ModuleIgnore] = {
     "betty/plugin/assertion.py": {
         "assert_plugin": MissingReason.SHOULD_BE_COVERED,
     },
-    "betty/plugin/config/__init__.py": {
-        "PluginDefinitionConfigurationMapping": MissingReason.SHOULD_BE_COVERED,
-    },
     "betty/portable/__init__.py": {
         "Portable": MissingReason.ABSTRACT,
         "Porter": MissingReason.ABSTRACT,
@@ -460,13 +457,27 @@ _BASELINE: Mapping[str, _ModuleIgnore] = {
         "Progress": MissingReason.ABSTRACT,
     },
     "betty/project/config.py": {
-        "EventTypePluginConfiguration": MissingReason.STATIC_CONTENT_ONLY,
-        "GenderPluginConfiguration": MissingReason.STATIC_CONTENT_ONLY,
-        "PlaceTypePluginConfiguration": MissingReason.STATIC_CONTENT_ONLY,
-        "PresenceRolePluginConfiguration": MissingReason.STATIC_CONTENT_ONLY,
+        "CopyrightNoticeDefinitionConfiguration": {
+            "data": MissingReason.INHERITED,
+        },
+        "EventTypeDefinitionConfiguration": {
+            "data": MissingReason.INHERITED,
+        },
+        "GenderDefinitionConfiguration": {
+            "data": MissingReason.INHERITED,
+        },
+        "LicenseDefinitionConfiguration": {
+            "data": MissingReason.INHERITED,
+        },
+        "PlaceTypeDefinitionConfiguration": {
+            "data": MissingReason.INHERITED,
+        },
         "ProjectConfiguration": {
             "copyright_notice": MissingReason.INHERITED,
             "license": MissingReason.INHERITED,
+        },
+        "PresenceRoleDefinitionConfiguration": {
+            "data": MissingReason.INHERITED,
         },
     },
     "betty/extension/__init__.py": {

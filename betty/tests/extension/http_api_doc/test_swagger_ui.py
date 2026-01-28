@@ -25,7 +25,7 @@ class TestSwaggerUi:
             app,
             Project.new_isolated(app) as project,
         ):
-            project.configuration.extensions.enable(HttpApiDoc)
+            project.configuration.extensions.add(HttpApiDoc)
             async with project:
                 await generate(project)
                 async with await serve.BuiltinProjectServer.new_for_services(

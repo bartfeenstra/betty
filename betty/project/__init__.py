@@ -344,7 +344,7 @@ class Project(Configurable[ProjectConfiguration], ServiceLevel):
         extensions = await self.plugins(ExtensionDefinition)
         configured_extension_definitions = []
         configured_extension_configurations = {}
-        for extension_configuration in self.configuration.extensions.values():
+        for extension_configuration in self.configuration.extensions:
             configured_extension_definitions.append(
                 extensions[extension_configuration.id]
             )

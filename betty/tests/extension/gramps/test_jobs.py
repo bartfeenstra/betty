@@ -18,7 +18,7 @@ class TestLoadAncestry:
         m_load_name = mocker.patch("betty.gramps.loader.GrampsLoader.load_name")
         family_tree_name = "my-first-family-tree"
         async with Project.new_isolated(isolated_app) as project:
-            project.configuration.extensions.append(
+            project.configuration.extensions.add(
                 PluginConfiguration(
                     Gramps.plugin(),
                     GrampsConfiguration(

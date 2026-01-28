@@ -63,7 +63,7 @@ class TestExtension:
             StaticDiscovery(DummyExtensionOne)
         ):
             async with Project.new_isolated(isolated_app) as project:
-                project.configuration.extensions.enable(DummyExtensionOne)
+                project.configuration.extensions.add(DummyExtensionOne)
                 async with project:
                     requires = await DummyExtensionOne.requires(project, "")
         assert isinstance(requires, DummyExtensionOne)
