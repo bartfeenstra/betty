@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Betty VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-01-28 00:14+0000\n"
+"POT-Creation-Date: 2026-01-28 01:11+0000\n"
 "PO-Revision-Date: 2025-12-29 14:25+0000\n"
 "Last-Translator: Bart Feenstra <bart@bartfeenstra.com>\n"
 "Language: en_GB\n"
@@ -1309,6 +1309,9 @@ msgstr ""
 msgid "Previous page"
 msgstr ""
 
+msgid "Primary color"
+msgstr ""
+
 #, python-brace-format
 msgid ""
 "Privatized person {privatized_person_id} ({privatized_person}) because "
@@ -1378,6 +1381,9 @@ msgstr ""
 msgid "Quitting..."
 msgstr ""
 
+msgid "Raspberry Mint configuration"
+msgstr ""
+
 msgid ""
 "Rate limits ensure that Betty's HTTP client does not make more requests "
 "to a web service than that service supports or allows, by enforcing a "
@@ -1411,6 +1417,9 @@ msgstr "References"
 
 msgid "Region"
 msgstr "Region"
+
+msgid "Regional content"
+msgstr ""
 
 msgid "Regions"
 msgstr ""
@@ -1459,6 +1468,9 @@ msgstr "Saved your project to {configuration_file}."
 
 msgid "Search"
 msgstr "Search"
+
+msgid "Secondary color"
+msgstr ""
 
 msgid "Section"
 msgstr ""
@@ -1551,6 +1563,9 @@ msgid "Summary"
 msgstr ""
 
 msgid "System"
+msgstr ""
+
+msgid "Tertiary color"
 msgstr ""
 
 msgid "Text"

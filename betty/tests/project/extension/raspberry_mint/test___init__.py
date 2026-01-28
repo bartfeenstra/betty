@@ -41,7 +41,7 @@ class TestRaspberryMint(
         return RaspberryMint
 
     @override
-    @pytest.fixture(params=RaspberryMintConfiguration.samples())
+    @pytest.fixture(params=RaspberryMintConfiguration.data().samples)
     def configuration_dependent_self_factory_sut_configuration(
         self, request: pytest.FixtureRequest
     ) -> RaspberryMintConfiguration:

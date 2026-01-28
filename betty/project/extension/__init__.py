@@ -55,7 +55,7 @@ class Extension(ServiceContainer, HasRequirement, Plugin["ExtensionDefinition"])
             return project
 
         extensions = await project.extensions
-        if cls.plugin().id not in extensions:
+        if cls not in extensions:
             return StaticRequirement(
                 _(
                     "{subject} requires the {extension} extension. Enable it in your project configuration, and try again."

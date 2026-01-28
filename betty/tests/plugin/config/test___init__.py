@@ -17,7 +17,6 @@ from betty.plugin.config import (
     PluginDefinitionConfiguration,
     PluginIdentifierKeyConfigurationMapping,
     PluginInstanceConfigurationMapping,
-    PluginInstanceConfigurationSequence,
     ResolvablePluginConfiguration,
     ResolvablePluginConfigurations,
     resolve_plugin_configuration,
@@ -32,7 +31,6 @@ from betty.test_utils.config.collections import (
     ConfigurationCollectionTestBaseSutConfigurations,
 )
 from betty.test_utils.config.collections.mapping import ConfigurationMappingTestBase
-from betty.test_utils.config.collections.sequence import ConfigurationSequenceTestBase
 from betty.test_utils.locale.localizable import (
     DUMMY_COUNTABLE_LOCALIZABLE,
     DUMMY_LOCALIZABLE,
@@ -477,38 +475,6 @@ class TestPluginIdentifierKeyConfigurationMapping:
         item = DummyConfiguration(DummyPluginOne.plugin().id)
         sut = self._Sut([item])
         assert sut[DummyPluginOne.plugin().id] is item
-
-
-class TestPluginInstanceConfigurationSequence(
-    ConfigurationSequenceTestBase[
-        PluginInstanceConfigurationSequence,
-        PluginConfiguration[DummyPluginDefinition, DummyPlugin],
-    ]
-):
-    sut_cls = PluginInstanceConfigurationSequence
-
-    @override
-    @pytest.fixture
-    def new_sut(
-        self,
-    ) -> ConfigurationCollectionTestBaseNewSut[
-        PluginConfiguration[DummyPluginDefinition, DummyPlugin], int, int
-    ]:
-        return PluginInstanceConfigurationSequence
-
-    @override
-    @pytest.fixture
-    def sut_configurations(
-        self,
-    ) -> ConfigurationCollectionTestBaseSutConfigurations[
-        PluginConfiguration[DummyPluginDefinition, DummyPlugin]
-    ]:
-        return (
-            PluginConfiguration("my-first-plugin"),
-            PluginConfiguration("my-second-plugin"),
-            PluginConfiguration("my-third-plugin"),
-            PluginConfiguration("my-fourth-plugin"),
-        )
 
 
 @pytest.mark.parametrize(
