@@ -4,6 +4,7 @@ Provide plugin configuration.
 
 from __future__ import annotations
 
+from abc import ABC, abstractmethod
 from collections.abc import Iterable
 from typing import TYPE_CHECKING, Any, Generic, Self, TypeAlias, final
 
@@ -44,7 +45,9 @@ _PluginDefinitionT = TypeVar(
 
 
 class PluginDefinitionConfiguration(
-    Data[ObjectDefinition["PluginDefinitionConfiguration"]]
+    Data[ObjectDefinition["PluginDefinitionConfiguration"]],
+    ABC,
+    Generic[_PluginDefinitionT],
 ):
     """
     Configure a :py:class:`betty.plugin.PluginDefinition`.
@@ -66,6 +69,12 @@ class PluginDefinitionConfiguration(
     ):
         super().__init__()
         self.id = id
+
+    @abstractmethod
+    def new_plugin(self) -> _PluginDefinitionT:
+        """
+        Create a new plugin from this configuration.
+        """
 
 
 class HumanFacingPluginDefinitionConfiguration(PluginDefinitionConfiguration):

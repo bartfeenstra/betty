@@ -419,6 +419,9 @@ _BASELINE: Mapping[str, _ModuleIgnore] = {
     "betty/plugin/__init__.py": {
         "Plugin": MissingReason.ABSTRACT,
     },
+    "betty/plugin/config/__init__.py": {
+        "PluginDefinitionConfiguration": {"new_plugin": MissingReason.ABSTRACT},
+    },
     "betty/plugin/error.py": {
         "PluginError": MissingReason.ABSTRACT,
         "PluginUnavailable": MissingReason.ABSTRACT,

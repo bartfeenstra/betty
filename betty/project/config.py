@@ -329,10 +329,8 @@ class CopyrightNoticeDefinitionConfiguration(HumanFacingPluginDefinitionConfigur
         self.summary = summary
         self.text = text
 
+    @override
     def new_plugin(self) -> CopyrightNoticeDefinition:
-        """
-        Create a new plugin from this configuration.
-        """
         configuration = self
 
         @CopyrightNoticeDefinition(
@@ -386,10 +384,8 @@ class LicenseDefinitionConfiguration(HumanFacingPluginDefinitionConfiguration):
         self.summary = summary
         self.text = text
 
+    @override
     def new_plugin(self) -> LicenseDefinition:
-        """
-        Create a new plugin from this configuration.
-        """
         configuration = self
 
         @LicenseDefinition(
@@ -443,11 +439,8 @@ class EventTypeDefinitionConfiguration(
     .. data:: betty.project.config:EventTypeDefinitionConfiguration
     """
 
+    @override
     def new_plugin(self) -> EventTypeDefinition:
-        """
-        Create a new plugin from this configuration.
-        """
-
         @EventTypeDefinition(
             self.id,
             label=self.label,
@@ -494,11 +487,8 @@ class PlaceTypeDefinitionConfiguration(
     .. data:: betty.project.config:PlaceTypeDefinitionConfiguration
     """
 
+    @override
     def new_plugin(self) -> PlaceTypeDefinition:
-        """
-        Create a new plugin from this configuration.
-        """
-
         @PlaceTypeDefinition(
             self.id,
             label=self.label,
@@ -543,11 +533,8 @@ class PresenceRoleDefinitionConfiguration(
     .. data:: betty.project.config:PresenceRoleDefinitionConfiguration
     """
 
+    @override
     def new_plugin(self) -> PresenceRoleDefinition:
-        """
-        Create a new plugin from this configuration.
-        """
-
         @PresenceRoleDefinition(
             self.id,
             label=self.label,
@@ -590,11 +577,8 @@ class GenderDefinitionConfiguration(CountableHumanFacingPluginDefinitionConfigur
     .. data:: betty.project.config:GenderDefinitionConfiguration
     """
 
+    @override
     def new_plugin(self) -> GenderDefinition:
-        """
-        Create a new plugin from this configuration.
-        """
-
         @GenderDefinition(
             self.id,
             label=self.label,
