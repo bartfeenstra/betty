@@ -4,7 +4,6 @@ from typing import TYPE_CHECKING
 
 import pytest
 
-from betty.config.color import ColorConfiguration
 from betty.content_provider import ContentProvider, ContentProviderDefinition
 from betty.exception import HumanFacingException
 from betty.extension.raspberry_mint import RaspberryMint
@@ -38,19 +37,19 @@ class TestRaspberryMintConfiguration(DataTestBase[RaspberryMintConfiguration]):
         assert 'data.regional_content["unknown-region"]' in str(exc_info.value)
 
     def test_primary_color__from___init__(self) -> None:
-        hex_value = "#000000"
-        sut = RaspberryMintConfiguration(primary_color=ColorConfiguration(hex_value))
-        assert sut.primary_color.hex == hex_value
+        color = "#000000"
+        sut = RaspberryMintConfiguration(primary_color=color)
+        assert sut.primary_color == color
 
     def test_secondary_color__from___init__(self) -> None:
-        hex_value = "#000000"
-        sut = RaspberryMintConfiguration(secondary_color=ColorConfiguration(hex_value))
-        assert sut.secondary_color.hex == hex_value
+        color = "#000000"
+        sut = RaspberryMintConfiguration(secondary_color=color)
+        assert sut.secondary_color == color
 
     def test_tertiary_color__from___init__(self) -> None:
-        hex_value = "#000000"
-        sut = RaspberryMintConfiguration(tertiary_color=ColorConfiguration(hex_value))
-        assert sut.tertiary_color.hex == hex_value
+        color = "#000000"
+        sut = RaspberryMintConfiguration(tertiary_color=color)
+        assert sut.tertiary_color == color
 
     def test_regional_content__from___init__(self) -> None:
         content_provider = PluginConfiguration[

@@ -9,9 +9,9 @@ from typing import TYPE_CHECKING, TypeAlias, final
 
 from typing_extensions import override
 
-from betty.config.color import ColorConfiguration
+from betty.color import ColorDefinition
 from betty.content_provider import ContentProvider, ContentProviderDefinition
-from betty.data import Data, DataDefinition, Sample
+from betty.data import Data, Sample
 from betty.data.aggregate.collection.mapping import MappingDefinition
 from betty.data.aggregate.record.object import ObjectDefinition
 from betty.data.aggregate.record.object.property import Property
@@ -47,9 +47,9 @@ ResolvableRegionalContent: TypeAlias = Mapping[
         ),
         lambda: Sample(
             RaspberryMintConfiguration(
-                primary_color=ColorConfiguration.samples().get(Size.MINIMAL).data,
-                secondary_color=ColorConfiguration.samples().get(Size.MINIMAL).data,
-                tertiary_color=ColorConfiguration.samples().get(Size.MINIMAL).data,
+                primary_color=ColorDefinition().samples.get(Size.MINIMAL).data,
+                secondary_color=ColorDefinition().samples.get(Size.MINIMAL).data,
+                tertiary_color=ColorDefinition().samples.get(Size.MINIMAL).data,
             ),
             label="Custom colors",
         ),
@@ -75,25 +75,32 @@ class RaspberryMintConfiguration(Data, Hydratable):
     .. data:: betty.extension.raspberry_mint.config:RaspberryMintConfiguration
     """
 
+    DEFAULT_PRIMARY_COLOR = "#b3446c"
+    DEFAULT_SECONDARY_COLOR = "#3eb489"
+    DEFAULT_TERTIARY_COLOR = "#ffbd22"
+
     primary_color = Property(
-        DataDefinition(cls=ColorConfiguration, label=_("Primary color")),
-        default=lambda: RaspberryMintConfiguration._default_primary_color(),
+        ColorDefinition(),
+        label=_("Primary color"),
+        default=lambda: RaspberryMintConfiguration.DEFAULT_PRIMARY_COLOR,
     )
     """
     The primary color.
     """
 
     secondary_color = Property(
-        DataDefinition(cls=ColorConfiguration, label=_("Secondary color")),
-        default=lambda: RaspberryMintConfiguration._default_secondary_color(),
+        ColorDefinition(),
+        label=_("Secondary color"),
+        default=lambda: RaspberryMintConfiguration.DEFAULT_SECONDARY_COLOR,
     )
     """
     The secondary color.
     """
 
     tertiary_color = Property(
-        DataDefinition(cls=ColorConfiguration, label=_("Tertiary color")),
-        default=lambda: RaspberryMintConfiguration._default_tertiary_color(),
+        ColorDefinition(),
+        label=_("Tertiary color"),
+        default=lambda: RaspberryMintConfiguration.DEFAULT_TERTIARY_COLOR,
     )
     """
     The tertiary color.
@@ -119,9 +126,9 @@ class RaspberryMintConfiguration(Data, Hydratable):
     def __init__(
         self,
         *,
-        primary_color: ColorConfiguration | None = None,
-        secondary_color: ColorConfiguration | None = None,
-        tertiary_color: ColorConfiguration | None = None,
+        primary_color: str | None = None,
+        secondary_color: str | None = None,
+        tertiary_color: str | None = None,
         regional_content: ResolvableRegionalContent | None = None,
     ):
         super().__init__()
@@ -138,18 +145,6 @@ class RaspberryMintConfiguration(Data, Hydratable):
                     for region, content in regional_content.items()
                 }
             )
-
-    @classmethod
-    def _default_primary_color(cls) -> ColorConfiguration:
-        return ColorConfiguration("#b3446c")
-
-    @classmethod
-    def _default_secondary_color(cls) -> ColorConfiguration:
-        return ColorConfiguration("#3eb489")
-
-    @classmethod
-    def _default_tertiary_color(cls) -> ColorConfiguration:
-        return ColorConfiguration("#ffbd22")
 
     @override
     async def hydrate(self, services: ServiceLevel, /) -> None:
