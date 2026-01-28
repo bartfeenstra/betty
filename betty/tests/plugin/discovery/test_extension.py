@@ -5,11 +5,11 @@ from typing import TYPE_CHECKING, TypeAlias, cast
 
 import pytest
 
+from betty.extension import Extension, ExtensionDefinition
 from betty.plugin import PluginDefinition
 from betty.plugin.discovery.extension import ExtensionDiscovery
 from betty.plugin.discovery.static import StaticDiscovery
 from betty.project import Project
-from betty.project.extension import Extension, ExtensionDefinition
 from betty.service.level.universal import universe
 from betty.test_utils.plugin import DummyPluginOne
 from betty.test_utils.project.extension import DummyExtensionOne

@@ -8,10 +8,10 @@ from betty.app.factory import require_app
 from betty.argparse import assertion_to_argument_type
 from betty.assertion import assert_locale
 from betty.console.command import Command, CommandDefinition, CommandFunction
+from betty.extension import ExtensionDefinition
 from betty.locale.localizable.gettext import _
 from betty.locale.translation.project import extension as extension_translation
 from betty.locale.translation.project import extension as translation_project_extension
-from betty.project.extension import ExtensionDefinition
 from betty.service.level.factory import ServiceLevelDependentSelfFactory
 
 if TYPE_CHECKING:

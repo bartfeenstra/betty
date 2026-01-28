@@ -11,8 +11,8 @@ from betty.app import App
 from betty.app.factory import require_app
 from betty.console.command import Command, CommandDefinition, CommandFunction
 from betty.dirs import DEV_OUTPUT_DIRECTORY_PATH
-from betty.project.extension.demo import generate_with_cleanup
-from betty.project.extension.demo.project import create_project
+from betty.extension.demo import generate_with_cleanup
+from betty.extension.demo.project import create_project
 from betty.project.job import ProjectContext
 from betty.service.level.factory import ServiceLevelDependentSelfFactory
 

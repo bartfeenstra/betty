@@ -39,6 +39,7 @@ from betty.data.sample import Samples, Size
 from betty.data.str import StrDefinition
 from betty.dirs import ASSETS_DIRECTORY_PATH
 from betty.exception import HumanFacingException
+from betty.extension import Extension, ExtensionDefinition
 from betty.license import License, LicenseDefinition
 from betty.locale import DEFAULT_LOCALE, LocaleLike, ensure_locale, to_language_tag
 from betty.locale.localizable.assertion import assert_load_localizable
@@ -60,7 +61,6 @@ from betty.plugin.config import (
 from betty.plugin.config.ordered import OrderedPluginDefinitionConfiguration
 from betty.plugin.data import PluginConfigurationDefinition, PluginIdDefinition
 from betty.plugin.resolve import ResolvableId, resolve_id
-from betty.project.extension import Extension, ExtensionDefinition
 from betty.service.hydrate import Hydratable
 
 if TYPE_CHECKING:
@@ -102,8 +102,8 @@ class ExtensionInstanceConfigurationMapping(
     @override
     @classmethod
     def samples(cls) -> Samples:
-        from betty.project.extension.raspberry_mint import RaspberryMint
-        from betty.project.extension.raspberry_mint.config import (
+        from betty.extension.raspberry_mint import RaspberryMint
+        from betty.extension.raspberry_mint.config import (
             RaspberryMintConfiguration,
         )
 

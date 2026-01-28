@@ -8,6 +8,22 @@ from betty.ancestry.person import Person
 from betty.ancestry.place import Place
 from betty.ancestry.source import Source
 from betty.assertion import assert_locale, assert_path, assert_str
+from betty.extension import Extension, ExtensionDefinition
+from betty.extension.deriver import Deriver
+from betty.extension.gramps import Gramps
+from betty.extension.gramps.config import (
+    FamilyTreeConfiguration,
+    GrampsConfiguration,
+)
+from betty.extension.http_api_doc import HttpApiDoc
+from betty.extension.maps import Maps
+from betty.extension.privatizer import Privatizer
+from betty.extension.raspberry_mint import RaspberryMint
+from betty.extension.raspberry_mint.config import RaspberryMintConfiguration
+from betty.extension.raspberry_mint.config.default import regional_content
+from betty.extension.trees import Trees
+from betty.extension.webpack import Webpack
+from betty.extension.wiki import Wiki
 from betty.locale import DEFAULT_LOCALE_TAG, to_language_tag
 from betty.locale.localizable.gettext import _
 from betty.locale.localizable.static import StaticTranslations
@@ -21,22 +37,6 @@ from betty.project.config import (
     LocaleConfigurationMapping,
     ProjectConfiguration,
 )
-from betty.project.extension import Extension, ExtensionDefinition
-from betty.project.extension.deriver import Deriver
-from betty.project.extension.gramps import Gramps
-from betty.project.extension.gramps.config import (
-    FamilyTreeConfiguration,
-    GrampsConfiguration,
-)
-from betty.project.extension.http_api_doc import HttpApiDoc
-from betty.project.extension.maps import Maps
-from betty.project.extension.privatizer import Privatizer
-from betty.project.extension.raspberry_mint import RaspberryMint
-from betty.project.extension.raspberry_mint.config import RaspberryMintConfiguration
-from betty.project.extension.raspberry_mint.config.default import regional_content
-from betty.project.extension.trees import Trees
-from betty.project.extension.webpack import Webpack
-from betty.project.extension.wiki import Wiki
 
 if TYPE_CHECKING:
     from collections.abc import MutableSequence

@@ -33,7 +33,7 @@ class TestDemo(CommandTestBase):
         self, mocker: MockerFixture, isolated_app: App
     ) -> None:
         mocker.patch("asyncio.sleep", side_effect=KeyboardInterrupt)
-        mocker.patch("betty.project.extension.demo.serve.DemoServer", new=NoOpServer)
+        mocker.patch("betty.extension.demo.serve.DemoServer", new=NoOpServer)
 
         await run(isolated_app, "demo", expected_exit_code=SystemExitCode.USER_QUIT)
 
@@ -41,7 +41,7 @@ class TestDemo(CommandTestBase):
         self, mocker: MockerFixture, isolated_app: App, tmp_path: Path
     ) -> None:
         m_generate_with_cleanup = mocker.patch(
-            "betty.project.extension.demo.generate_with_cleanup"
+            "betty.extension.demo.generate_with_cleanup"
         )
 
         project_directory_path = tmp_path / "project"
@@ -54,7 +54,7 @@ class TestDemo(CommandTestBase):
         self, mocker: MockerFixture, isolated_app: App, tmp_path: Path
     ) -> None:
         m_generate_with_cleanup = mocker.patch(
-            "betty.project.extension.demo.generate_with_cleanup"
+            "betty.extension.demo.generate_with_cleanup"
         )
 
         project_directory_path = tmp_path / "project"

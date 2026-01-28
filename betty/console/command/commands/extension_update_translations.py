@@ -8,12 +8,12 @@ from betty.app.factory import require_app
 from betty.argparse import assertion_to_argument_type
 from betty.assertion import assert_directory_path, assert_none, assert_or
 from betty.console.command import Command, CommandDefinition, CommandFunction
+from betty.extension import ExtensionDefinition
 from betty.locale.localizable.gettext import _
 from betty.locale.translation.project import extension as translation_project_extension
 from betty.locale.translation.project.extension import (
     assert_extension_has_assets_directory_path,
 )
-from betty.project.extension import ExtensionDefinition
 from betty.service.level.factory import ServiceLevelDependentSelfFactory
 
 if TYPE_CHECKING:

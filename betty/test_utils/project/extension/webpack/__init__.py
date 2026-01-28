@@ -1,3 +1,3 @@
 """
-Test utilities for :py:mod:`betty.project.extension.webpack`.
+Test utilities for :py:mod:`betty.extension.webpack`.
 """
