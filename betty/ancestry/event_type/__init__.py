@@ -46,7 +46,6 @@ class ShouldExistEventType(EventType, ABC):
 @final
 @PluginTypeDefinition(
     "event-type",
-    base_cls=EventType,
     label=_("Event type"),
     label_plural=_("Event types"),
     label_countable=ngettext("{count} event type", "{count} event types"),

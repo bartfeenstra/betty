@@ -3,7 +3,6 @@ from __future__ import annotations
 from betty.locale.localize import DEFAULT_LOCALIZER
 from betty.model import EntityDefinition
 from betty.plugin import (
-    Plugin,
     PluginDefinition,
     PluginTypeDefinition,
     PluginTypeRepository,
@@ -22,7 +21,6 @@ from betty.test_utils.plugin import DummyPlugin, DummyPluginOne, DummyPluginTwo
 
 @PluginTypeDefinition(
     "ordered-plugin",
-    base_cls=DummyPlugin,
     label="_OrderedPluginDefinition",
     label_plural="_OrderedPluginDefinitions",
     label_countable=DUMMY_COUNTABLE_LOCALIZABLE,
@@ -62,7 +60,6 @@ _ORDERED_PLUGIN_HAS_COMES_AFTER_BIDIRECTIONAL = _OrderedPluginDefinition(
 
 @PluginTypeDefinition(
     "dependent",
-    base_cls=DummyPlugin,
     label="_DependentPluginDefinition",
     label_plural="_DependentPluginDefinition",
     label_countable=DUMMY_COUNTABLE_LOCALIZABLE,
@@ -93,31 +90,16 @@ class TestPluginTypeDefinition:
         plugin_type_id = "my-first-plugin-type"
         sut = PluginTypeDefinition(
             plugin_type_id,
-            base_cls=DummyPlugin,
             label=DUMMY_LOCALIZABLE,
             label_plural=DUMMY_LOCALIZABLE,
             label_countable=DUMMY_COUNTABLE_LOCALIZABLE,
         )
         assert sut.id == plugin_type_id
 
-    def test_base_cls(self) -> None:
-        class _Plugin(Plugin):
-            pass
-
-        sut = PluginTypeDefinition(
-            "-",
-            base_cls=_Plugin,
-            label=DUMMY_LOCALIZABLE,
-            label_plural=DUMMY_LOCALIZABLE,
-            label_countable=DUMMY_COUNTABLE_LOCALIZABLE,
-        )
-        assert sut.base_cls is _Plugin
-
     def test_discovery(self) -> None:
         discovery = StaticDiscovery()
         sut = PluginTypeDefinition(
             "-",
-            base_cls=DummyPlugin,
             label=DUMMY_LOCALIZABLE,
             label_plural=DUMMY_LOCALIZABLE,
             label_countable=DUMMY_COUNTABLE_LOCALIZABLE,
@@ -129,7 +111,6 @@ class TestPluginTypeDefinition:
         discovery = StaticDiscovery()
         sut = PluginTypeDefinition(
             "-",
-            base_cls=DummyPlugin,
             label=DUMMY_LOCALIZABLE,
             label_plural=DUMMY_LOCALIZABLE,
             label_countable=DUMMY_COUNTABLE_LOCALIZABLE,
@@ -140,7 +121,6 @@ class TestPluginTypeDefinition:
     def test_override_discovery(self) -> None:
         sut = PluginTypeDefinition(
             "-",
-            base_cls=DummyPlugin,
             label=DUMMY_LOCALIZABLE,
             label_plural=DUMMY_LOCALIZABLE,
             label_countable=DUMMY_COUNTABLE_LOCALIZABLE,
@@ -153,7 +133,6 @@ class TestPluginTypeDefinition:
     async def test_add_discovery__during_override_discovery(self) -> None:
         sut = PluginTypeDefinition(
             "-",
-            base_cls=DummyPlugin,
             label=DUMMY_LOCALIZABLE,
             label_plural=DUMMY_LOCALIZABLE,
             label_countable=DUMMY_COUNTABLE_LOCALIZABLE,
@@ -169,7 +148,6 @@ class TestPluginTypeDefinition:
     def test_discovery_overridden(self) -> None:
         sut = PluginTypeDefinition(
             "-",
-            base_cls=DummyPlugin,
             label=DUMMY_LOCALIZABLE,
             label_plural=DUMMY_LOCALIZABLE,
             label_countable=DUMMY_COUNTABLE_LOCALIZABLE,
@@ -197,7 +175,6 @@ class TestPluginDefinition:
 
         @PluginTypeDefinition(
             "my-first-plugin-type",
-            base_cls=DummyPlugin,
             label=plugin_type_label,
             label_plural=DUMMY_LOCALIZABLE,
             label_countable=DUMMY_COUNTABLE_LOCALIZABLE,

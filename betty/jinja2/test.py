@@ -14,7 +14,7 @@ from betty.date import DateRange
 from betty.image import is_supported_media_type
 from betty.json.linked_data import LinkedDataDumpableWithSchema
 from betty.model import persistent_id
-from betty.plugin import PluginDefinition, plugin_types
+from betty.plugin import Plugin, PluginDefinition, plugin_types
 from betty.privacy import is_private, is_public
 from betty.string import kebab_case_to_snake_case
 from betty.typing import internal
@@ -53,7 +53,9 @@ class PluginTester:
         """
         :param plugin_id: If given, additionally ensure the value is an instance of this type.
         """
-        if not isinstance(value, self._plugin_type.type().base_cls):
+        if not isinstance(value, Plugin):
+            return False
+        if not isinstance(value.plugin(), self._plugin_type):
             return False
         return not (plugin_id is not None and value.plugin().id != plugin_id)
 

@@ -88,7 +88,6 @@ class RateLimit(Plugin["RateLimitDefinition"]):
 @final
 @PluginTypeDefinition(
     "http-rate-limit",
-    base_cls=RateLimit,
     label=_("HTTP client rate limit"),
     label_plural=_("HTTP client rate limits"),
     label_countable=ngettext(

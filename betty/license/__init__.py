@@ -49,7 +49,6 @@ class License(Plugin["LicenseDefinition"]):
 @final
 @PluginTypeDefinition(
     "license",
-    base_cls=License,
     label=_("License"),
     label_plural=_("Licenses"),
     label_countable=ngettext("{count} license", "{count} licenses"),

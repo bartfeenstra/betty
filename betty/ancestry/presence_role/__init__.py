@@ -22,7 +22,6 @@ class PresenceRole(Plugin["PresenceRoleDefinition"]):
 @final
 @PluginTypeDefinition(
     "presence-role",
-    base_cls=PresenceRole,
     label=_("Presence role"),
     label_plural=_("Presence roles"),
     label_countable=ngettext("{count} presence role", "{count} presence roles"),

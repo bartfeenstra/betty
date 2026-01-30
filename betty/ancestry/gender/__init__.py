@@ -22,7 +22,6 @@ class Gender(Plugin["GenderDefinition"]):
 @final
 @PluginTypeDefinition(
     "gender",
-    base_cls=Gender,
     label=_("Gender"),
     label_plural=_("Genders"),
     label_countable=ngettext("{count} gender", "{count} genders"),

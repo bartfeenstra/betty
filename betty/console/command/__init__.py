@@ -38,7 +38,6 @@ class Command(Plugin["CommandDefinition"]):
 @final
 @PluginTypeDefinition(
     "command",
-    base_cls=Command,
     label=_("Command"),
     label_plural=_("Commands"),
     label_countable=ngettext("{count} command", "{count} commands"),
