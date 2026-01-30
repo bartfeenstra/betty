@@ -20,7 +20,10 @@ from betty.locale.localizable.gettext import _
 from betty.locale.localizable.property import LocalizableProperty
 from betty.media_type import MediaType
 from betty.media_type.media_types import PLAIN_TEXT
-from betty.plugin.config import PluginConfiguration, ResolvablePluginConfigurations
+from betty.plugin.config import (
+    PluginConfiguration,
+    ResolvablePluginConfigurationSequence,
+)
 from betty.plugin.config.property import PluginConfigurationSequenceProperty
 from betty.portable import CallbackPorter
 from betty.project import Project
@@ -207,7 +210,7 @@ class BoxConfiguration(Data):
 
     def __init__(
         self,
-        content: ResolvablePluginConfigurations[
+        content: ResolvablePluginConfigurationSequence[
             ContentProviderDefinition, ContentProvider
         ],
         *,

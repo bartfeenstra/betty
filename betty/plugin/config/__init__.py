@@ -5,7 +5,7 @@ Provide plugin configuration.
 from __future__ import annotations
 
 from abc import ABC, abstractmethod
-from collections.abc import Iterable
+from collections.abc import Iterable, Mapping, MutableMapping, MutableSequence
 from typing import TYPE_CHECKING, Any, Generic, Self, TypeAlias, final
 
 from typing_extensions import TypeVar, override
@@ -17,6 +17,7 @@ from betty.assertion import (
     assert_or,
     assert_record,
 )
+from betty.config.factory import new_target
 from betty.data import Data
 from betty.data.aggregate.record import PortableRecord
 from betty.data.aggregate.record.object import ObjectDefinition
@@ -35,7 +36,9 @@ from betty.typing import Void
 if TYPE_CHECKING:
     from betty.locale.localizable import CountableLocalizableLike, LocalizableLike
     from betty.portable import PortableData
+    from betty.service.level import ServiceLevel
 
+_T = TypeVar("_T")
 _PluginT = TypeVar("_PluginT", bound=Plugin, default=Plugin)
 _PluginDefinitionT = TypeVar(
     "_PluginDefinitionT", bound=PluginDefinition, default=PluginDefinition
@@ -198,6 +201,18 @@ class PluginConfiguration(PortableRecord[Attr], Generic[_PluginDefinitionT, _Plu
             "configuration": self._dump_configuration(self.configuration),  # ty:ignore[invalid-argument-type]
         }
 
+    async def new_plugin(
+        self, services: ServiceLevel, plugin_type: type[_PluginDefinitionT], /
+    ) -> _PluginT:
+        """
+        Create a new instance of the configured plugin.
+        """
+        return await services.new_target(
+            new_target(
+                (await services.plugins(plugin_type))[self.id].cls, self.configuration
+            )
+        )
+
 
 ResolvablePluginConfiguration: TypeAlias = (
     ResolvableId[_PluginDefinitionT] | PluginConfiguration[_PluginDefinitionT, _PluginT]
@@ -217,24 +232,40 @@ def resolve_plugin_configuration(
     return PluginConfiguration(resolve_definition(plugin_configuration).id)  # ty:ignore[invalid-argument-type]
 
 
-ResolvablePluginConfigurations: TypeAlias = (
+ResolvablePluginConfigurationSequence: TypeAlias = (
     ResolvablePluginConfiguration[_PluginDefinitionT, _PluginT]
     | Iterable[ResolvablePluginConfiguration[_PluginDefinitionT, _PluginT]]
 )
 
 
-def resolve_plugin_configurations(
-    plugin_configurations: ResolvablePluginConfigurations[_PluginDefinitionT, _PluginT],
-) -> Iterable[PluginConfiguration[_PluginDefinitionT, _PluginT]]:
+def resolve_plugin_configuration_sequence(
+    plugin_configurations: ResolvablePluginConfigurationSequence[
+        _PluginDefinitionT, _PluginT
+    ],
+) -> MutableSequence[PluginConfiguration[_PluginDefinitionT, _PluginT]]:
     """
-    Resolve a value to an iterable of plugin configurations.
+    Resolve a value to a sequence of plugin configurations.
     """
     if isinstance(plugin_configurations, PluginConfiguration):
-        return (plugin_configurations,)
+        return [plugin_configurations]
     if (
         isinstance(plugin_configurations, (str, PluginDefinition))
         or isinstance(plugin_configurations, type)
         and issubclass(plugin_configurations, Plugin)
     ):
-        return (resolve_plugin_configuration(plugin_configurations),)  # ty:ignore[invalid-return-type]
-    return map(resolve_plugin_configuration, plugin_configurations)  # ty:ignore[invalid-argument-type]
+        return [resolve_plugin_configuration(plugin_configurations)]  # ty:ignore[invalid-argument-type]
+    return list(map(resolve_plugin_configuration, plugin_configurations))  # ty:ignore[invalid-argument-type]
+
+
+def resolve_plugin_configuration_mapping(
+    plugin_configurations: Mapping[
+        _T, ResolvablePluginConfiguration[_PluginDefinitionT, _PluginT]
+    ],
+) -> MutableMapping[_T, PluginConfiguration[_PluginDefinitionT, _PluginT]]:
+    """
+    Resolve a value to a mapping of plugin configurations.
+    """
+    return {
+        key: resolve_plugin_configuration(plugin_configuration)
+        for key, plugin_configuration in plugin_configurations.items()
+    }

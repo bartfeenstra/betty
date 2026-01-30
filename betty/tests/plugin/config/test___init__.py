@@ -1,4 +1,5 @@
-from typing import TYPE_CHECKING
+from collections.abc import Mapping
+from typing import TYPE_CHECKING, Any
 
 import pytest
 from typing_extensions import override
@@ -11,11 +12,13 @@ from betty.plugin.config import (
     PluginConfiguration,
     PluginDefinitionConfiguration,
     ResolvablePluginConfiguration,
-    ResolvablePluginConfigurations,
+    ResolvablePluginConfigurationSequence,
     _PluginDefinitionT,
     resolve_plugin_configuration,
-    resolve_plugin_configurations,
+    resolve_plugin_configuration_mapping,
+    resolve_plugin_configuration_sequence,
 )
+from betty.service.level.universal import universe
 from betty.test_utils.data import DummyData
 from betty.test_utils.locale.localizable import (
     DUMMY_COUNTABLE_LOCALIZABLE,
@@ -283,6 +286,15 @@ class TestPluginConfiguration:
             {"configuration": portable_configuration},
         )
 
+    async def test_new_plugin(self) -> None:
+        configuration = DummyData()
+        sut = PluginConfiguration[
+            ConfigurableDummyPluginDefinition, ConfigurableDummyPlugin
+        ](ConfigurableDummyPluginOne.plugin(), configuration)
+        plugin = await sut.new_plugin(universe, ConfigurableDummyPluginDefinition)
+        assert isinstance(plugin, ConfigurableDummyPluginOne)
+        assert plugin.configuration is configuration
+
 
 @pytest.mark.parametrize(
     ("expected", "value"),
@@ -324,7 +336,35 @@ def test_resolve_plugin_configuration(
         ),
     ],
 )
-def test_resolve_plugin_configurations(
-    expected: list[PluginConfiguration], value: ResolvablePluginConfigurations
+def test_resolve_plugin_configuration_sequence(
+    expected: list[PluginConfiguration], value: ResolvablePluginConfigurationSequence
 ) -> None:
-    assert list(resolve_plugin_configurations(value)) == expected
+    assert list(resolve_plugin_configuration_sequence(value)) == expected
+
+
+@pytest.mark.parametrize(
+    ("expected", "value"),
+    [
+        (
+            {"key": PluginConfiguration(DummyPluginOne.plugin().id)},
+            {"key": DummyPluginOne},
+        ),
+        (
+            {"key": PluginConfiguration(DummyPluginOne.plugin().id)},
+            {"key": DummyPluginOne.plugin()},
+        ),
+        (
+            {"key": PluginConfiguration(DummyPluginOne.plugin().id)},
+            {"key": DummyPluginOne.plugin().id},
+        ),
+        (
+            {"key": PluginConfiguration(DummyPluginOne.plugin().id)},
+            {"key": PluginConfiguration(DummyPluginOne)},
+        ),
+    ],
+)
+def test_resolve_plugin_configuration_mapping(
+    expected: dict[Any, PluginConfiguration],
+    value: Mapping[Any, ResolvablePluginConfiguration],
+) -> None:
+    assert dict(resolve_plugin_configuration_mapping(value)) == expected

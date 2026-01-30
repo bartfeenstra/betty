@@ -14,9 +14,9 @@ from betty.plugin import Plugin, PluginDefinition
 from betty.plugin.config import (
     PluginConfiguration,
     ResolvablePluginConfiguration,
-    ResolvablePluginConfigurations,
+    ResolvablePluginConfigurationSequence,
     resolve_plugin_configuration,
-    resolve_plugin_configurations,
+    resolve_plugin_configuration_sequence,
 )
 from betty.plugin.data import PluginConfigurationSequenceDefinition
 
@@ -36,7 +36,7 @@ class PluginConfigurationSequenceProperty(
             PluginConfiguration[_PluginDefinitionT, _PluginT],
             ResolvablePluginConfiguration[_PluginDefinitionT, _PluginT],
         ],
-        ResolvablePluginConfigurations[_PluginDefinitionT, _PluginT],
+        ResolvablePluginConfigurationSequence[_PluginDefinitionT, _PluginT],
     ]
 ):
     """
@@ -54,7 +54,7 @@ class PluginConfigurationSequenceProperty(
             PluginConfigurationSequenceDefinition(plugin_type),
             label=label,
             description=description,
-            resolver=resolve_plugin_configurations,
+            resolver=resolve_plugin_configuration_sequence,
             default=lambda: ResolvingMutableSequence([], resolve_plugin_configuration),
         )
 
@@ -65,7 +65,7 @@ class PluginConfigurationSequenceProperty(
             PluginConfiguration[_PluginDefinitionT, _PluginT],
             ResolvablePluginConfiguration[_PluginDefinitionT, _PluginT],
         ]
-        | ResolvablePluginConfigurations[_PluginDefinitionT, _PluginT],
+        | ResolvablePluginConfigurationSequence[_PluginDefinitionT, _PluginT],
     ) -> None:
         configurations = self.__get__(instance, type(instance))
         configurations.clear()
