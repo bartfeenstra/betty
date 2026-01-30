@@ -8,10 +8,9 @@ from typing import TYPE_CHECKING, Any, Self, final
 
 from typing_extensions import override
 
-from betty.assertion import assert_str
 from betty.config.factory import ConfigurationDependentSelfFactory
 from betty.content_provider import ContentProvider, ContentProviderDefinition
-from betty.data import Data, DataDefinition, Sample
+from betty.data import Data, Sample
 from betty.data.aggregate.record.object import ObjectDefinition
 from betty.data.aggregate.record.object.property import Optional, Property
 from betty.data.sample import Size
@@ -25,7 +24,6 @@ from betty.plugin.config import (
     ResolvablePluginConfigurationSequence,
 )
 from betty.plugin.config.property import PluginConfigurationSequenceProperty
-from betty.portable import CallbackPorter
 from betty.project import Project
 from betty.project.factory import require_project
 from betty.requirement import HasRequirement, Requirement
@@ -63,15 +61,7 @@ class RenderConfiguration(Data):
     """
 
     content = LocalizableProperty(label=_("Content"))
-    media_type = Property(
-        DataDefinition(
-            cls=MediaType,
-            label=_("Media type"),
-            porter=CallbackPorter(assert_str() | MediaType, str),  # ty:ignore[invalid-argument-type]
-        ),
-        default=lambda: PLAIN_TEXT,
-        omit_load=True,
-    )
+    media_type = Property(MediaType.data(), default=lambda: PLAIN_TEXT, omit_load=True)
 
     def __init__(self, /, content: LocalizableLike, media_type: MediaType = PLAIN_TEXT):
         super().__init__()
