@@ -46,8 +46,8 @@ from betty.model.reference import EntityReference
 from betty.plugin import Plugin
 from betty.plugin.config import (
     PluginConfiguration,
-    ResolvablePluginConfigurations,
-    resolve_plugin_configurations,
+    ResolvablePluginConfigurationSequence,
+    resolve_plugin_configuration_sequence,
 )
 from betty.plugin.config.property import PluginConfigurationSequenceProperty
 from betty.plugin.data import PluginConfigurationSequenceDefinition, PluginIdDefinition
@@ -145,7 +145,7 @@ class SectionConfiguration(Data):
 
     def __init__(
         self,
-        content: ResolvablePluginConfigurations[
+        content: ResolvablePluginConfigurationSequence[
             ContentProviderDefinition, ContentProvider
         ],
         *,
@@ -331,7 +331,7 @@ class ColorStyleConfiguration(Data):
 
     def __init__(
         self,
-        content: ResolvablePluginConfigurations[
+        content: ResolvablePluginConfigurationSequence[
             ContentProviderDefinition, ContentProvider
         ],
         *,
@@ -693,14 +693,16 @@ class ColumnsConfiguration(Data):
         self,
         /,
         content: Sequence[
-            ResolvablePluginConfigurations[ContentProviderDefinition, ContentProvider]
+            ResolvablePluginConfigurationSequence[
+                ContentProviderDefinition, ContentProvider
+            ]
         ],
         *,
         width: ShorthandColumnsWidth | None = None,
         justify_content: JustifyContent | None = None,
     ):
         super().__init__()
-        self.content = list(map(list, map(resolve_plugin_configurations, content)))
+        self.content = list(map(resolve_plugin_configuration_sequence, content))
         if width is None:
             self._width = self._DEFAULT_WIDTH
         elif isinstance(width, int):

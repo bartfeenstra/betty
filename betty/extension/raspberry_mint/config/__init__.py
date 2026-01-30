@@ -23,7 +23,7 @@ from betty.locale.localizable.gettext import _
 from betty.locale.localizable.markup import Paragraph, do_you_mean
 from betty.plugin.config import (
     ResolvablePluginConfiguration,
-    resolve_plugin_configurations,
+    resolve_plugin_configuration_sequence,
 )
 from betty.plugin.data import PluginConfigurationSequenceDefinition
 from betty.requirement import Requirement
@@ -141,7 +141,7 @@ class RaspberryMintConfiguration(Data, Hydratable):
         if regional_content is not None:
             self.regional_content.update(
                 {
-                    region: list(resolve_plugin_configurations(content))  # ty:ignore[invalid-argument-type]
+                    region: resolve_plugin_configuration_sequence(content)  # ty:ignore[invalid-argument-type]
                     for region, content in regional_content.items()
                 }
             )

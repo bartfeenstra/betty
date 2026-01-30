@@ -50,9 +50,9 @@ from betty.plugin.config import (
     CountableHumanFacingPluginDefinitionConfiguration,
     HumanFacingPluginDefinitionConfiguration,
     PluginConfiguration,
-    ResolvablePluginConfigurations,
+    ResolvablePluginConfigurationSequence,
     resolve_plugin_configuration,
-    resolve_plugin_configurations,
+    resolve_plugin_configuration_sequence,
 )
 from betty.plugin.config.ordered import OrderedPluginDefinitionConfiguration
 from betty.plugin.data import PluginConfigurationDefinition, PluginIdDefinition
@@ -899,7 +899,9 @@ class ProjectConfiguration(Data):
         entity_types: Iterable[EntityTypeConfiguration | ResolvableId[EntityDefinition]]
         | None = None,
         event_types: Iterable[EventTypeDefinitionConfiguration] | None = None,
-        extensions: ResolvablePluginConfigurations[ExtensionDefinition, Extension]
+        extensions: ResolvablePluginConfigurationSequence[
+            ExtensionDefinition, Extension
+        ]
         | None = None,
         genders: Iterable[GenderDefinitionConfiguration] | None = None,
         license: PluginConfiguration[LicenseDefinition, License] | None = None,  # noqa: A002
@@ -924,7 +926,7 @@ class ProjectConfiguration(Data):
         if event_types is not None:
             self.event_types.add(*event_types)
         if extensions is not None:
-            self.extensions.add(*resolve_plugin_configurations(extensions))  # ty:ignore[invalid-argument-type]
+            self.extensions.add(*resolve_plugin_configuration_sequence(extensions))  # ty:ignore[invalid-argument-type]
         if genders is not None:
             self.genders.add(*genders)
         if license is not None:

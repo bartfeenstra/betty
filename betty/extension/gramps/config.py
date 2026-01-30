@@ -25,7 +25,10 @@ from betty.gramps.loader import (
 )
 from betty.locale.localizable.gettext import _
 from betty.pathlib import FilePathDefinition
-from betty.plugin.config import PluginConfiguration
+from betty.plugin.config import (
+    PluginConfiguration,
+    resolve_plugin_configuration_mapping,
+)
 from betty.plugin.data import PluginConfigurationDefinition
 
 if TYPE_CHECKING:
@@ -61,7 +64,9 @@ class FamilyTreeConfiguration(Data):
             item=PluginConfigurationDefinition(EventTypeDefinition),
             label=_("Event types"),
         ),
-        default=lambda: dict(DEFAULT_EVENT_TYPE_MAPPING),
+        default=lambda: resolve_plugin_configuration_mapping(
+            DEFAULT_EVENT_TYPE_MAPPING  # ty:ignore[invalid-argument-type]
+        ),
     )
     """
     How to map event types.
@@ -84,7 +89,9 @@ class FamilyTreeConfiguration(Data):
             item=PluginConfigurationDefinition(PlaceTypeDefinition),
             label=_("Place types"),
         ),
-        default=lambda: dict(DEFAULT_PLACE_TYPE_MAPPING),
+        default=lambda: resolve_plugin_configuration_mapping(
+            DEFAULT_PLACE_TYPE_MAPPING  # ty:ignore[invalid-argument-type]
+        ),
     )
     """
     How to map place types.
@@ -96,7 +103,9 @@ class FamilyTreeConfiguration(Data):
             item=PluginConfigurationDefinition(PresenceRoleDefinition),
             label=_("Presence roles"),
         ),
-        default=lambda: dict(DEFAULT_PRESENCE_ROLE_MAPPING),
+        default=lambda: resolve_plugin_configuration_mapping(
+            DEFAULT_PRESENCE_ROLE_MAPPING  # ty:ignore[invalid-argument-type]
+        ),
     )
     """
     How to map presence roles.

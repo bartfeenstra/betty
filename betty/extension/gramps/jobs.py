@@ -8,51 +8,19 @@ from typing import TYPE_CHECKING
 
 from typing_extensions import TypeVar, override
 
-from betty.ancestry.event_type import EventTypeDefinition
-from betty.ancestry.gender import GenderDefinition
-from betty.ancestry.place_type import PlaceTypeDefinition
-from betty.ancestry.presence_role import PresenceRoleDefinition
-from betty.config.factory import new_target
-from betty.copyright_notice import CopyrightNoticeDefinition
 from betty.gramps.loader import GrampsLoader
 from betty.job import Job
-from betty.license import LicenseDefinition
 from betty.plugin import Plugin, PluginDefinition
 from betty.project.job import ProjectContext
 
 if TYPE_CHECKING:
-    from collections.abc import Awaitable, Callable
-
-    from ty_extensions import Intersection
-
     from betty.job.scheduler import Scheduler
-    from betty.plugin.config import PluginConfiguration
-    from betty.plugin.repository import PluginRepository
-    from betty.service.level.factory import ServiceLevelFactory
 
 _T = TypeVar("_T")
 _PluginT = TypeVar("_PluginT", bound=Plugin, default=Plugin)
 _PluginDefinitionT = TypeVar(
     "_PluginDefinitionT", bound=PluginDefinition, default=PluginDefinition
 )
-
-
-def _new_plugin_instance_factory(
-    configuration: PluginConfiguration[_PluginDefinitionT, _PluginT],
-    repository: PluginRepository[
-        Intersection[_PluginDefinitionT, PluginDefinition[_PluginT]]
-    ],
-    *,
-    factory: ServiceLevelFactory,
-) -> Callable[[], Awaitable[_PluginT]]:
-    async def plugin_instance_factory() -> _PluginT:
-        return await factory(
-            new_target(
-                repository.get(configuration.id).cls, configuration.configuration
-            )
-        )
-
-    return plugin_instance_factory
 
 
 class LoadAncestry(Job[ProjectContext]):
@@ -75,36 +43,12 @@ class LoadAncestry(Job[ProjectContext]):
 
             loader = GrampsLoader(
                 project.ancestry,
-                factory=project.new_target,
+                services=project,
                 attribute_prefix_key=project.configuration.name,
                 user=project.app.user,
-                copyright_notices=await project.plugins(CopyrightNoticeDefinition),
-                licenses=await project.plugins(LicenseDefinition),
-                event_type_mapping={
-                    gramps_type: _new_plugin_instance_factory(
-                        family_tree_configuration.event_types[gramps_type],
-                        await project.plugins(EventTypeDefinition),
-                        factory=project.new_target,
-                    )
-                    for gramps_type in family_tree_configuration.event_types
-                },
-                genders=await project.plugins(GenderDefinition),
-                place_type_mapping={
-                    gramps_type: _new_plugin_instance_factory(
-                        family_tree_configuration.place_types[gramps_type],
-                        await project.plugins(PlaceTypeDefinition),
-                        factory=project.new_target,
-                    )
-                    for gramps_type in family_tree_configuration.place_types
-                },
-                presence_role_mapping={
-                    gramps_type: _new_plugin_instance_factory(
-                        family_tree_configuration.presence_roles[gramps_type],
-                        await project.plugins(PresenceRoleDefinition),
-                        factory=project.new_target,
-                    )
-                    for gramps_type in family_tree_configuration.presence_roles
-                },
+                event_type_mapping=family_tree_configuration.event_types,
+                place_type_mapping=family_tree_configuration.place_types,
+                presence_role_mapping=family_tree_configuration.presence_roles,
                 executable=gramps_configuration.executable,
             )
             if isinstance(source, str):

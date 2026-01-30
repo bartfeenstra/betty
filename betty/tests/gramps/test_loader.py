@@ -22,7 +22,6 @@ from betty.ancestry.event_type.event_types import (
     Unknown as UnknownEventType,
 )
 from betty.ancestry.file import File
-from betty.ancestry.gender import GenderDefinition
 from betty.ancestry.gender.genders import NonBinary
 from betty.ancestry.gender.genders import Unknown as UnknownGender
 from betty.ancestry.note import Note
@@ -33,33 +32,30 @@ from betty.ancestry.place_type.place_types import Unknown as UnknownPlaceType
 from betty.ancestry.presence_role.presence_roles import Subject
 from betty.ancestry.source import Source
 from betty.app import App
-from betty.copyright_notice import CopyrightNoticeDefinition
 from betty.copyright_notice.copyright_notices import (
     PublicDomain as PublicDomainCopyrightNotice,
 )
 from betty.date import Date, DateRange
 from betty.gramps.error import UserFacingGrampsError
 from betty.gramps.loader import GrampsFileNotFound, GrampsLoader, LoaderUsedAlready
-from betty.license import LicenseDefinition
 from betty.license.licenses import PublicDomain as PublicDomainLicense
 from betty.locale.localize import DEFAULT_LOCALIZER, Localizer
 from betty.media_type import MediaType
-from betty.plugin.repository.static import StaticPluginRepository
 from betty.privacy import Privacy
 from betty.project import Project
-from betty.service.level.universal import universe
 from betty.subprocess import CalledSubprocessError
 from betty.test_utils.user import StaticUser
 
 if TYPE_CHECKING:
-    from collections.abc import Awaitable, Callable, Mapping
+    from collections.abc import Mapping
 
     from pytest_mock import MockerFixture
 
     from betty.ancestry import Ancestry
-    from betty.ancestry.event_type import EventType
-    from betty.ancestry.place_type import PlaceType
-    from betty.ancestry.presence_role import PresenceRole
+    from betty.ancestry.event_type import EventType, EventTypeDefinition
+    from betty.ancestry.place_type import PlaceType, PlaceTypeDefinition
+    from betty.ancestry.presence_role import PresenceRole, PresenceRoleDefinition
+    from betty.plugin.config import ResolvablePluginConfiguration
 
 __MINIMAL_XML = """<?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE database PUBLIC "-//Gramps//DTD Gramps XML {version}//EN"
@@ -123,11 +119,8 @@ class TestGrampsLoader:
         async with Project.new_isolated(isolated_app) as project, project:
             sut = GrampsLoader(
                 project.ancestry,
-                factory=project.new_target,
                 user=StaticUser(),
-                copyright_notices=await universe.plugins(CopyrightNoticeDefinition),
-                licenses=await universe.plugins(LicenseDefinition),
-                genders=await universe.plugins(GenderDefinition),
+                services=project,
                 attribute_prefix_key=self.ATTRIBUTE_PREFIX_KEY,
             )
             await sut.load_gramps(gramps_file_path)
@@ -138,11 +131,8 @@ class TestGrampsLoader:
         async with Project.new_isolated(isolated_app) as project, project:
             sut = GrampsLoader(
                 project.ancestry,
-                factory=project.new_target,
                 user=StaticUser(),
-                copyright_notices=await universe.plugins(CopyrightNoticeDefinition),
-                licenses=await universe.plugins(LicenseDefinition),
-                genders=await universe.plugins(GenderDefinition),
+                services=project,
                 attribute_prefix_key=self.ATTRIBUTE_PREFIX_KEY,
             )
             with pytest.raises(GrampsFileNotFound):
@@ -160,11 +150,8 @@ class TestGrampsLoader:
         async with Project.new_isolated(isolated_app) as project, project:
             sut = GrampsLoader(
                 project.ancestry,
-                factory=project.new_target,
                 user=StaticUser(),
-                copyright_notices=await universe.plugins(CopyrightNoticeDefinition),
-                licenses=await universe.plugins(LicenseDefinition),
-                genders=await universe.plugins(GenderDefinition),
+                services=project,
                 attribute_prefix_key=self.ATTRIBUTE_PREFIX_KEY,
             )
             await sut.load_gpkg(gpkg_file_path)
@@ -175,11 +162,8 @@ class TestGrampsLoader:
         async with Project.new_isolated(isolated_app) as project, project:
             sut = GrampsLoader(
                 project.ancestry,
-                factory=project.new_target,
                 user=StaticUser(),
-                copyright_notices=await universe.plugins(CopyrightNoticeDefinition),
-                licenses=await universe.plugins(LicenseDefinition),
-                genders=await universe.plugins(GenderDefinition),
+                services=project,
                 attribute_prefix_key=self.ATTRIBUTE_PREFIX_KEY,
             )
             with pytest.raises(GrampsFileNotFound):
@@ -194,11 +178,8 @@ class TestGrampsLoader:
         async with Project.new_isolated(isolated_app) as project, project:
             sut = GrampsLoader(
                 project.ancestry,
-                factory=project.new_target,
                 user=StaticUser(),
-                copyright_notices=await universe.plugins(CopyrightNoticeDefinition),
-                licenses=await universe.plugins(LicenseDefinition),
-                genders=await universe.plugins(GenderDefinition),
+                services=project,
                 attribute_prefix_key=self.ATTRIBUTE_PREFIX_KEY,
             )
             await sut.load_file(gramps_file_path)
@@ -219,11 +200,8 @@ class TestGrampsLoader:
         async with Project.new_isolated(isolated_app) as project, project:
             sut = GrampsLoader(
                 project.ancestry,
-                factory=project.new_target,
                 user=StaticUser(),
-                copyright_notices=await universe.plugins(CopyrightNoticeDefinition),
-                licenses=await universe.plugins(LicenseDefinition),
-                genders=await universe.plugins(GenderDefinition),
+                services=project,
                 attribute_prefix_key=self.ATTRIBUTE_PREFIX_KEY,
             )
             await sut.load_file(gpkg_file_path)
@@ -251,11 +229,8 @@ class TestGrampsLoader:
         async with Project.new_isolated(isolated_app) as project, project:
             sut = GrampsLoader(
                 project.ancestry,
-                factory=project.new_target,
                 user=StaticUser(),
-                copyright_notices=await universe.plugins(CopyrightNoticeDefinition),
-                licenses=await universe.plugins(LicenseDefinition),
-                genders=await universe.plugins(GenderDefinition),
+                services=project,
                 attribute_prefix_key=self.ATTRIBUTE_PREFIX_KEY,
                 executable=gramps_executable,
             )
@@ -268,11 +243,8 @@ class TestGrampsLoader:
         async with Project.new_isolated(isolated_app) as project, project:
             sut = GrampsLoader(
                 project.ancestry,
-                factory=project.new_target,
                 user=StaticUser(),
-                copyright_notices=await universe.plugins(CopyrightNoticeDefinition),
-                licenses=await universe.plugins(LicenseDefinition),
-                genders=await universe.plugins(GenderDefinition),
+                services=project,
                 attribute_prefix_key=self.ATTRIBUTE_PREFIX_KEY,
             )
             with pytest.raises(UserFacingGrampsError):
@@ -284,11 +256,8 @@ class TestGrampsLoader:
         async with Project.new_isolated(isolated_app) as project, project:
             sut = GrampsLoader(
                 project.ancestry,
-                factory=project.new_target,
                 user=StaticUser(),
-                copyright_notices=await universe.plugins(CopyrightNoticeDefinition),
-                licenses=await universe.plugins(LicenseDefinition),
-                genders=await universe.plugins(GenderDefinition),
+                services=project,
                 attribute_prefix_key=self.ATTRIBUTE_PREFIX_KEY,
             )
             with pytest.raises(UserFacingGrampsError):
@@ -317,11 +286,8 @@ class TestGrampsLoader:
         async with Project.new_isolated(isolated_app) as project, project:
             sut = GrampsLoader(
                 project.ancestry,
-                factory=project.new_target,
                 user=StaticUser(),
-                copyright_notices=await universe.plugins(CopyrightNoticeDefinition),
-                licenses=await universe.plugins(LicenseDefinition),
-                genders=await universe.plugins(GenderDefinition),
+                services=project,
                 attribute_prefix_key=self.ATTRIBUTE_PREFIX_KEY,
                 executable=gramps_executable,
             )
@@ -350,11 +316,8 @@ class TestGrampsLoader:
         async with Project.new_isolated(isolated_app) as project, project:
             sut = GrampsLoader(
                 project.ancestry,
-                factory=project.new_target,
                 user=StaticUser(),
-                copyright_notices=await universe.plugins(CopyrightNoticeDefinition),
-                licenses=await universe.plugins(LicenseDefinition),
-                genders=await universe.plugins(GenderDefinition),
+                services=project,
                 attribute_prefix_key=self.ATTRIBUTE_PREFIX_KEY,
                 executable=gramps_executable,
             )
@@ -369,12 +332,16 @@ class TestGrampsLoader:
         self,
         xml: str,
         *,
-        event_type_mapping: Mapping[str, Callable[[], EventType | Awaitable[EventType]]]
+        event_type_mapping: Mapping[
+            str, ResolvablePluginConfiguration[EventTypeDefinition, EventType]
+        ]
         | None = None,
-        place_type_mapping: Mapping[str, Callable[[], PlaceType | Awaitable[PlaceType]]]
+        place_type_mapping: Mapping[
+            str, ResolvablePluginConfiguration[PlaceTypeDefinition, PlaceType]
+        ]
         | None = None,
         presence_role_mapping: Mapping[
-            str, Callable[[], PresenceRole | Awaitable[PresenceRole]]
+            str, ResolvablePluginConfiguration[PresenceRoleDefinition, PresenceRole]
         ]
         | None = None,
     ) -> Ancestry:
@@ -387,11 +354,8 @@ class TestGrampsLoader:
             async with project:
                 loader = GrampsLoader(
                     project.ancestry,
-                    factory=project.new_target,
                     user=StaticUser(),
-                    copyright_notices=await universe.plugins(CopyrightNoticeDefinition),
-                    licenses=await universe.plugins(LicenseDefinition),
-                    genders=await universe.plugins(GenderDefinition),
+                    services=project,
                     attribute_prefix_key=self.ATTRIBUTE_PREFIX_KEY,
                     event_type_mapping=event_type_mapping,
                     place_type_mapping=place_type_mapping,
@@ -405,12 +369,16 @@ class TestGrampsLoader:
         xml: str,
         *,
         media_path: Path | None = None,
-        event_type_mapping: Mapping[str, Callable[[], EventType | Awaitable[EventType]]]
+        event_type_mapping: Mapping[
+            str, ResolvablePluginConfiguration[EventTypeDefinition, EventType]
+        ]
         | None = None,
-        place_type_mapping: Mapping[str, Callable[[], PlaceType | Awaitable[PlaceType]]]
+        place_type_mapping: Mapping[
+            str, ResolvablePluginConfiguration[PlaceTypeDefinition, PlaceType]
+        ]
         | None = None,
         presence_role_mapping: Mapping[
-            str, Callable[[], PresenceRole | Awaitable[PresenceRole]]
+            str, ResolvablePluginConfiguration[PresenceRoleDefinition, PresenceRole]
         ]
         | None = None,
     ) -> Ancestry:
@@ -439,11 +407,8 @@ class TestGrampsLoader:
         async with Project.new_isolated(isolated_app) as project, project:
             sut = GrampsLoader(
                 project.ancestry,
-                factory=project.new_target,
                 user=StaticUser(),
-                copyright_notices=await universe.plugins(CopyrightNoticeDefinition),
-                licenses=await universe.plugins(LicenseDefinition),
-                genders=await universe.plugins(GenderDefinition),
+                services=project,
                 attribute_prefix_key=self.ATTRIBUTE_PREFIX_KEY,
             )
             await sut.load_xml(_minimal_xml())
@@ -462,11 +427,8 @@ class TestGrampsLoader:
         async with Project.new_isolated(isolated_app) as project, project:
             sut = GrampsLoader(
                 project.ancestry,
-                factory=project.new_target,
                 user=StaticUser(),
-                copyright_notices=await universe.plugins(CopyrightNoticeDefinition),
-                licenses=await universe.plugins(LicenseDefinition),
-                genders=await universe.plugins(GenderDefinition),
+                services=project,
                 attribute_prefix_key=self.ATTRIBUTE_PREFIX_KEY,
             )
             with pytest.raises(UserFacingGrampsError):
@@ -489,11 +451,8 @@ class TestGrampsLoader:
         async with Project.new_isolated(isolated_app) as project, project:
             sut = GrampsLoader(
                 project.ancestry,
-                factory=project.new_target,
                 user=StaticUser(),
-                copyright_notices=await universe.plugins(CopyrightNoticeDefinition),
-                licenses=await universe.plugins(LicenseDefinition),
-                genders=await universe.plugins(GenderDefinition),
+                services=project,
                 attribute_prefix_key=self.ATTRIBUTE_PREFIX_KEY,
             )
             with pytest.raises(UserFacingGrampsError):
@@ -2252,11 +2211,8 @@ class TestGrampsLoader:
         async with Project.new_isolated(isolated_app) as project, project:
             sut = GrampsLoader(
                 project.ancestry,
-                factory=project.new_target,
+                services=project,
                 user=user,
-                copyright_notices=StaticPluginRepository(CopyrightNoticeDefinition),
-                licenses=StaticPluginRepository(LicenseDefinition),
-                genders=StaticPluginRepository(GenderDefinition),
                 attribute_prefix_key=self.ATTRIBUTE_PREFIX_KEY,
             )
             assert await sut.load_locale(locale) == expected

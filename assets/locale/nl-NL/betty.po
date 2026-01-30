@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PROJECT VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-01-28 16:15+0000\n"
+"POT-Creation-Date: 2026-01-30 17:51+0000\n"
 "PO-Revision-Date: 2025-11-08 23:46+0000\n"
 "Last-Translator: Bart Feenstra <bart@bartfeenstra.com>\n"
 "Language: nl_NL\n"
@@ -251,6 +251,12 @@ msgid ""
 msgstr ""
 "Betty kent licentie-ID \"{license_id}\" van Gramps-bestand \"{file_id}\" "
 "niet en heeft het genegeerd."
+
+#, python-brace-format
+msgid ""
+"Betty is unfamiliar with Gramps file \"{person_id}\"'s gender ID of "
+"\"{gender_id}\" and ignored it."
+msgstr ""
 
 #, python-brace-format
 msgid ""

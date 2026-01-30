@@ -367,15 +367,13 @@ class Project(Configurable[ProjectConfiguration], ServiceLevel):
                 if enabled_extension_definition.theme:
                     theme_count += 1
                 if enabled_extension_id in configured_extension_configurations:
-                    extension_target = new_target(
-                        enabled_extension_definition.cls,
-                        configured_extension_configurations[
-                            enabled_extension_id
-                        ].configuration,
-                    )
+                    extension = await configured_extension_configurations[
+                        enabled_extension_id
+                    ].new_plugin(self, ExtensionDefinition)
                 else:
-                    extension_target = enabled_extension_definition.cls
-                extension = await self.new_target(extension_target)
+                    extension = await self.new_target(
+                        new_target(enabled_extension_definition.cls)
+                    )
                 enabled_extension_batch.append(extension)
                 extensions_sorter.done(enabled_extension_id)
             enabled_extensions.append(
@@ -415,14 +413,8 @@ class Project(Configurable[ProjectConfiguration], ServiceLevel):
         """
         The overall project copyright.
         """
-        from betty.config.factory import new_target
-
-        copyright_notices = await self.plugins(CopyrightNoticeDefinition)
-        return await self.new_target(
-            new_target(
-                copyright_notices[self.configuration.copyright_notice.id].cls,
-                self.configuration.copyright_notice.configuration,
-            )
+        return await self.configuration.copyright_notice.new_plugin(
+            self, CopyrightNoticeDefinition
         )
 
     @service
@@ -430,15 +422,7 @@ class Project(Configurable[ProjectConfiguration], ServiceLevel):
         """
         The overall project license.
         """
-        from betty.config.factory import new_target
-
-        licenses = await self.plugins(LicenseDefinition)
-        return await self.new_target(
-            new_target(
-                licenses[self.configuration.license.id].cls,
-                self.configuration.license.configuration,
-            )
-        )
+        return await self.configuration.license.new_plugin(self, LicenseDefinition)
 
     @service
     def privatizer(self) -> Privatizer:

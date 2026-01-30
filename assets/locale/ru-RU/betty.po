@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Betty VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-01-28 16:15+0000\n"
+"POT-Creation-Date: 2026-01-30 17:51+0000\n"
 "PO-Revision-Date: 2025-12-08 19:00+0000\n"
 "Last-Translator: Artur Kalagov "
 "<artur.kalagov@users.noreply.hosted.weblate.org>\n"
@@ -252,6 +252,12 @@ msgid ""
 msgstr ""
 "Betty не знакома с идентификатором лицензии файла Gramps \"{file_id}\" со"
 " значением \"{license_id}\" и проигнорировала его."
+
+#, python-brace-format
+msgid ""
+"Betty is unfamiliar with Gramps file \"{person_id}\"'s gender ID of "
+"\"{gender_id}\" and ignored it."
+msgstr ""
 
 #, python-brace-format
 msgid ""
