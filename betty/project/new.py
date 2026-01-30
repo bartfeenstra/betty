@@ -28,10 +28,9 @@ from betty.locale import DEFAULT_LOCALE_TAG, to_language_tag
 from betty.locale.localizable.gettext import _
 from betty.locale.localizable.static import StaticTranslations
 from betty.machine_name import assert_machine_name, machinify
-from betty.plugin.config import PluginConfiguration
+from betty.plugin.config import PluginConfiguration, ResolvablePluginConfiguration
 from betty.portable.file import dump_file
 from betty.project.config import (
-    EntityTypeConfiguration,
     LocaleConfiguration,
     LocaleConfigurationMapping,
     ProjectConfiguration,
@@ -83,11 +82,13 @@ async def new(app: App) -> None:
             )
         )
 
-    extensions: MutableSequence[PluginConfiguration[ExtensionDefinition, Extension]] = [
-        PluginConfiguration(Deriver),
-        PluginConfiguration(HttpApiDoc),
-        PluginConfiguration(Maps),
-        PluginConfiguration(Privatizer),
+    extensions: MutableSequence[
+        ResolvablePluginConfiguration[ExtensionDefinition, Extension]
+    ] = [
+        Deriver,
+        HttpApiDoc,
+        Maps,
+        Privatizer,
         PluginConfiguration(
             RaspberryMint,
             RaspberryMintConfiguration(
@@ -96,10 +97,10 @@ async def new(app: App) -> None:
                 )
             ),
         ),
-        PluginConfiguration(Trees),
+        Trees,
         # Enable the Webpack extension explicitly for the test's mock to work.
-        PluginConfiguration(Webpack),
-        PluginConfiguration(Wiki),
+        Webpack,
+        Wiki,
     ]
 
     title = await _user_input_static_translations(
@@ -145,10 +146,10 @@ async def new(app: App) -> None:
         author=author,
         locales=locales,
         entity_types=[
-            EntityTypeConfiguration(entity_type=Person, generate_html_list=True),
-            EntityTypeConfiguration(entity_type=Event, generate_html_list=True),
-            EntityTypeConfiguration(entity_type=Place, generate_html_list=True),
-            EntityTypeConfiguration(entity_type=Source, generate_html_list=True),
+            Person,
+            Event,
+            Place,
+            Source,
         ],
         extensions=extensions,
         name=name,
