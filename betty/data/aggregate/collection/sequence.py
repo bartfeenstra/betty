@@ -30,14 +30,14 @@ class SequenceDefinition(CollectionDefinition[_MutableSequenceT, Index]):
         self,
         *,
         cls: type[_MutableSequenceT],
-        item: DataDefinition[_DataItemT],
+        value: DataDefinition[_DataItemT],
         label: LocalizableLike,
         description: LocalizableLike | None = None,
         factory: Callable[[Iterable[_DataItemT]], _MutableSequenceT] | None = None,
     ):
         super().__init__(
             cls=cls,
-            item=item,
+            item=value,
             label=label,
             description=description,
             porter=CallbackPorter(self._load, self._dump),

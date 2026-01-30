@@ -14,7 +14,7 @@ class TestMappingDefinition:
         sut = MappingDefinition[dict[str, str]](
             cls=dict,
             key=StrDefinition(label=DUMMY_LOCALIZABLE),
-            item=item,
+            value=item,
             label=DUMMY_LOCALIZABLE,
         )
         assert list(sut.elements({"key": "value"})) == [(Key("key"), item)]
@@ -24,7 +24,7 @@ class TestMappingDefinition:
         sut = MappingDefinition[dict[str, str]](
             cls=dict,
             key=StrDefinition(label=DUMMY_LOCALIZABLE),
-            item=item,
+            value=item,
             label=DUMMY_LOCALIZABLE,
         )
         assert sut.item is item
@@ -33,7 +33,7 @@ class TestMappingDefinition:
         sut = MappingDefinition[dict[str, str]](
             cls=dict,
             key=StrDefinition(label=DUMMY_LOCALIZABLE),
-            item=StrDefinition(label=DUMMY_LOCALIZABLE),
+            value=StrDefinition(label=DUMMY_LOCALIZABLE),
             label=DUMMY_LOCALIZABLE,
         )
         assert sut.porter.load({}) == {}
@@ -42,7 +42,7 @@ class TestMappingDefinition:
         sut = MappingDefinition[dict[str, str]](
             cls=dict,
             key=StrDefinition(label=DUMMY_LOCALIZABLE),
-            item=StrDefinition(label=DUMMY_LOCALIZABLE),
+            value=StrDefinition(label=DUMMY_LOCALIZABLE),
             label=DUMMY_LOCALIZABLE,
         )
         assert sut.porter.load({"hello": "Hello, world!"}) == {"hello": "Hello, world!"}
@@ -54,7 +54,7 @@ class TestMappingDefinition:
         sut = MappingDefinition[dict[str, str]](
             cls=dict,
             key=StrDefinition(label=DUMMY_LOCALIZABLE),
-            item=StrDefinition(label=DUMMY_LOCALIZABLE),
+            value=StrDefinition(label=DUMMY_LOCALIZABLE),
             label=DUMMY_LOCALIZABLE,
             factory=FactoryDict,
         )
@@ -64,7 +64,7 @@ class TestMappingDefinition:
         sut = MappingDefinition[dict[str, str]](
             cls=dict,
             key=StrDefinition(label=DUMMY_LOCALIZABLE),
-            item=DataDefinition(cls=str, label=DUMMY_LOCALIZABLE),
+            value=DataDefinition(cls=str, label=DUMMY_LOCALIZABLE),
             label=DUMMY_LOCALIZABLE,
         )
         with pytest.raises(NotPortable):
@@ -74,7 +74,7 @@ class TestMappingDefinition:
         sut = MappingDefinition[dict[str, str]](
             cls=dict,
             key=StrDefinition(label=DUMMY_LOCALIZABLE),
-            item=StrDefinition(label=DUMMY_LOCALIZABLE),
+            value=StrDefinition(label=DUMMY_LOCALIZABLE),
             label=DUMMY_LOCALIZABLE,
         )
         assert sut.porter.dump({}) == {}
@@ -83,7 +83,7 @@ class TestMappingDefinition:
         sut = MappingDefinition[dict[str, str]](
             cls=dict,
             key=StrDefinition(label=DUMMY_LOCALIZABLE),
-            item=StrDefinition(label=DUMMY_LOCALIZABLE),
+            value=StrDefinition(label=DUMMY_LOCALIZABLE),
             label=DUMMY_LOCALIZABLE,
         )
         assert sut.porter.dump({"hello": "Hello, world!"}) == {"hello": "Hello, world!"}
@@ -92,7 +92,7 @@ class TestMappingDefinition:
         sut = MappingDefinition[dict[str, str]](
             cls=dict,
             key=StrDefinition(label=DUMMY_LOCALIZABLE),
-            item=DataDefinition(cls=str, label=DUMMY_LOCALIZABLE),
+            value=DataDefinition(cls=str, label=DUMMY_LOCALIZABLE),
             label=DUMMY_LOCALIZABLE,
         )
         with pytest.raises(NotPortable):

@@ -3,7 +3,7 @@ Keyed collection data types.
 """
 
 from collections.abc import Sequence
-from typing import TYPE_CHECKING, Any, TypeVar, final
+from typing import Any, TypeVar, final
 
 from typing_extensions import override
 
@@ -20,10 +20,6 @@ from betty.portable import (
     PortableMapping,
     PortableSequence,
 )
-
-if TYPE_CHECKING:
-    from ty_extensions import Intersection  # noqa: TC004
-
 
 _ValueT = TypeVar("_ValueT")
 _ElementT = TypeVar("_ElementT")
@@ -42,8 +38,8 @@ class KeyedCollectionDefinition(
     def __init__(
         self,
         *,
-        item: RecordDefinition[_ValueT, Key],
-        key: "Intersection[Key, Element[_ElementT]]",
+        value: RecordDefinition[_ValueT],
+        key: Element[str],
         ordered: bool,
         label: LocalizableLike,
         description: LocalizableLike | None = None,
@@ -53,7 +49,7 @@ class KeyedCollectionDefinition(
             label=label,
             description=description,
             porter=CallbackPorter(self._load, self._dump),
-            item=item,
+            item=value,
         )
         self._key = key
         self._ordered = ordered

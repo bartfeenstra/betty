@@ -1,18 +1,24 @@
 """
-Plugin configuration attributes.
+Plugin configuration properties.
 """
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Any, final
+from typing import TYPE_CHECKING, final
 
 from typing_extensions import TypeVar
 
-from betty.collections import ResolvingMutableSequence
-from betty.data.aggregate.record.object.property import Property
+from betty.collections import KeyedCollection, ResolvingMutableSequence
+from betty.data.aggregate.collection.keyed import KeyedCollectionDefinition
+from betty.data.aggregate.record.object.property import (
+    KeyedCollectionProperty,
+    SequenceProperty,
+)
+from betty.data.indicator.selector import Attr
 from betty.plugin import Plugin, PluginDefinition
 from betty.plugin.config import (
     PluginConfiguration,
+    PluginDefinitionConfiguration,
     ResolvablePluginConfiguration,
     ResolvablePluginConfigurationSequence,
     resolve_plugin_configuration,
@@ -31,7 +37,7 @@ _PluginDefinitionT = TypeVar(
 
 @final
 class PluginConfigurationSequenceProperty(
-    Property[
+    SequenceProperty[
         ResolvingMutableSequence[
             PluginConfiguration[_PluginDefinitionT, _PluginT],
             ResolvablePluginConfiguration[_PluginDefinitionT, _PluginT],
@@ -40,7 +46,7 @@ class PluginConfigurationSequenceProperty(
     ]
 ):
     """
-    A property containing a :py:class:`betty.plugin.config.PluginConfiguration`.
+    A property containing a sequence of :py:class:`betty.plugin.config.PluginConfiguration`.
     """
 
     def __init__(
@@ -58,15 +64,31 @@ class PluginConfigurationSequenceProperty(
             default=lambda: ResolvingMutableSequence([], resolve_plugin_configuration),
         )
 
-    def __set__(
+
+@final
+class PluginDefinitionConfigurationsProperty(KeyedCollectionProperty):
+    """
+    A property containing a :py:class:`betty.collections.KeyedCollection` of :py:class:`betty.plugin.config.PluginDefinitionConfiguration`.
+    """
+
+    def __init__(
         self,
-        instance: Any,
-        value: ResolvingMutableSequence[
-            PluginConfiguration[_PluginDefinitionT, _PluginT],
-            ResolvablePluginConfiguration[_PluginDefinitionT, _PluginT],
-        ]
-        | ResolvablePluginConfigurationSequence[_PluginDefinitionT, _PluginT],
-    ) -> None:
-        configurations = self.__get__(instance, type(instance))
-        configurations.clear()
-        configurations.extend(self._resolver(value))
+        plugin_type: type[_PluginDefinitionT],
+        item: type[PluginDefinitionConfiguration[_PluginDefinitionT]],
+        *,
+        label: LocalizableLike | None = None,
+        description: LocalizableLike | None = None,
+    ):
+        super().__init__(
+            KeyedCollectionDefinition(
+                value=item.data(),
+                label=plugin_type.type().label_plural,
+                key=Attr("id"),
+                ordered=False,
+            ),  # ty:ignore[invalid-argument-type]
+            label=label,
+            description=description,
+            omit_load=True,
+            omit_dump=lambda data: not len(data),
+            default=lambda: KeyedCollection(key=lambda item: item.id),
+        )

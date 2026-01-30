@@ -103,7 +103,7 @@ class Data(Generic[_DataDefinitionT]):
         Define the data for instances of this class.
         """
         raise NotImplementedError(
-            f"{fully_qualified_name(cls)} was not decorated with a {fully_qualified_name(DataDefinition)} subclass."
+            f"{fully_qualified_name(cls)} was not decorated with {fully_qualified_name(DataDefinition)} or any subclass."
         )
 
     def __eq__(self, other: Any) -> bool:

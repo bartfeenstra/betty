@@ -30,7 +30,11 @@ from betty.copyright_notice import CopyrightNotice, CopyrightNoticeDefinition
 from betty.data import Data, DataDefinition, Sample
 from betty.data.aggregate.collection.keyed import KeyedCollectionDefinition
 from betty.data.aggregate.record.object import AttrDefinition, ObjectDefinition
-from betty.data.aggregate.record.object.property import Optional, Property
+from betty.data.aggregate.record.object.property import (
+    KeyedCollectionProperty,
+    Optional,
+    Property,
+)
 from betty.data.bool import BoolDefinition
 from betty.data.indicator.selector import Attr
 from betty.data.int import IntDefinition
@@ -55,6 +59,7 @@ from betty.plugin.config import (
     resolve_plugin_configuration_sequence,
 )
 from betty.plugin.config.ordered import OrderedPluginDefinitionConfiguration
+from betty.plugin.config.property import PluginDefinitionConfigurationsProperty
 from betty.plugin.data import PluginConfigurationDefinition, PluginIdDefinition
 from betty.plugin.resolve import ResolvableId, resolve_id
 from betty.project import Extension, ExtensionDefinition
@@ -312,7 +317,9 @@ class LocaleConfigurationMapping(
         )
     ],
 )
-class CopyrightNoticeDefinitionConfiguration(HumanFacingPluginDefinitionConfiguration):
+class CopyrightNoticeDefinitionConfiguration(
+    HumanFacingPluginDefinitionConfiguration[CopyrightNoticeDefinition]
+):
     """
     Configure a :py:class:`betty.copyright_notice.CopyrightNoticeDefinition`.
 
@@ -367,7 +374,9 @@ class CopyrightNoticeDefinitionConfiguration(HumanFacingPluginDefinitionConfigur
         )
     ],
 )
-class LicenseDefinitionConfiguration(HumanFacingPluginDefinitionConfiguration):
+class LicenseDefinitionConfiguration(
+    HumanFacingPluginDefinitionConfiguration[LicenseDefinition]
+):
     """
     Configure a :py:class:`betty.license.LicenseDefinition`.
 
@@ -430,8 +439,8 @@ class LicenseDefinitionConfiguration(HumanFacingPluginDefinitionConfiguration):
     ],
 )
 class EventTypeDefinitionConfiguration(
-    CountableHumanFacingPluginDefinitionConfiguration,
-    OrderedPluginDefinitionConfiguration,
+    CountableHumanFacingPluginDefinitionConfiguration[EventTypeDefinition],
+    OrderedPluginDefinitionConfiguration[EventTypeDefinition],
 ):
     """
     Configure a :py:class:`betty.ancestry.event_type.EventTypeDefinition`.
@@ -479,7 +488,7 @@ class EventTypeDefinitionConfiguration(
     ],
 )
 class PlaceTypeDefinitionConfiguration(
-    CountableHumanFacingPluginDefinitionConfiguration
+    CountableHumanFacingPluginDefinitionConfiguration[PlaceTypeDefinition]
 ):
     """
     Configure a :py:class:`betty.ancestry.place_type.PlaceTypeDefinition`.
@@ -525,7 +534,7 @@ class PlaceTypeDefinitionConfiguration(
     ],
 )
 class PresenceRoleDefinitionConfiguration(
-    CountableHumanFacingPluginDefinitionConfiguration
+    CountableHumanFacingPluginDefinitionConfiguration[PresenceRoleDefinition]
 ):
     """
     Configure a :py:class:`betty.ancestry.presence_role.PresenceRoleDefinition`.
@@ -570,7 +579,9 @@ class PresenceRoleDefinitionConfiguration(
         )
     ],
 )
-class GenderDefinitionConfiguration(CountableHumanFacingPluginDefinitionConfiguration):
+class GenderDefinitionConfiguration(
+    CountableHumanFacingPluginDefinitionConfiguration[GenderDefinition]
+):
     """
     Configure a :py:class:`betty.ancestry.gender.GenderDefinition`.
 
@@ -687,16 +698,8 @@ class ProjectConfiguration(Data):
     The project-wide copyright notice.
     """
 
-    copyright_notices = Property(
-        KeyedCollectionDefinition(
-            item=CopyrightNoticeDefinitionConfiguration.data(),  # ty:ignore[invalid-argument-type]
-            label=CopyrightNoticeDefinition.type().label_plural,
-            key=Attr("id"),  # ty:ignore[invalid-argument-type]
-            ordered=False,
-        ),
-        omit_load=True,
-        omit_dump=lambda data: not len(data),
-        default=lambda: KeyedCollection(key=lambda item: item.id),
+    copyright_notices = PluginDefinitionConfigurationsProperty(
+        CopyrightNoticeDefinition, CopyrightNoticeDefinitionConfiguration
     )
     """
     The :py:class:`betty.copyright_notice.CopyrightNotice` plugins created by this project.
@@ -723,13 +726,13 @@ class ProjectConfiguration(Data):
     - job artifacts (e.g. generated sites)
     """
 
-    entity_types = Property(
+    entity_types = KeyedCollectionProperty(
         KeyedCollectionDefinition(
-            item=EntityTypeConfiguration.data(),  # ty:ignore[invalid-argument-type]
+            value=EntityTypeConfiguration.data(),
             label=_("Entity types"),
-            key=Attr("entity_type"),  # ty:ignore[invalid-argument-type]
+            key=Attr("entity_type"),
             ordered=False,
-        ),
+        ),  # ty:ignore[invalid-argument-type]
         omit_load=True,
         omit_dump=lambda data: not len(data),
         default=lambda: KeyedCollection(
@@ -743,28 +746,20 @@ class ProjectConfiguration(Data):
     The available entity types.
     """
 
-    event_types = Property(
-        KeyedCollectionDefinition(
-            item=EventTypeDefinitionConfiguration.data(),  # ty:ignore[invalid-argument-type]
-            label=EventTypeDefinition.type().label_plural,
-            key=Attr("id"),  # ty:ignore[invalid-argument-type]
-            ordered=False,
-        ),
-        omit_load=True,
-        omit_dump=lambda data: not len(data),
-        default=lambda: KeyedCollection(key=lambda item: item.id),
+    event_types = PluginDefinitionConfigurationsProperty(
+        EventTypeDefinition, EventTypeDefinitionConfiguration
     )
     """
     The :py:class:`betty.ancestry.event_type.EventType` plugins created by this project.
     """
 
-    extensions = Property(
+    extensions = KeyedCollectionProperty(
         KeyedCollectionDefinition(
-            item=PluginConfigurationDefinition(ExtensionDefinition),  # ty:ignore[invalid-argument-type]
+            value=PluginConfigurationDefinition(ExtensionDefinition),
             label=ExtensionDefinition.type().label_plural,
-            key=Attr("id"),  # ty:ignore[invalid-argument-type]
+            key=Attr("id"),
             ordered=False,
-        ),
+        ),  # ty:ignore[invalid-argument-type]
         omit_load=True,
         omit_dump=lambda data: not len(data),
         default=lambda: KeyedCollection(
@@ -777,16 +772,8 @@ class ProjectConfiguration(Data):
     The extensions to enable for the project.
     """
 
-    genders = Property(
-        KeyedCollectionDefinition(
-            item=GenderDefinitionConfiguration.data(),  # ty:ignore[invalid-argument-type]
-            label=GenderDefinition.type().label_plural,
-            key=Attr("id"),  # ty:ignore[invalid-argument-type]
-            ordered=False,
-        ),
-        omit_load=True,
-        omit_dump=lambda data: not len(data),
-        default=lambda: KeyedCollection(key=lambda item: item.id),
+    genders = PluginDefinitionConfigurationsProperty(
+        GenderDefinition, GenderDefinitionConfiguration
     )
     """
     The :py:class:`betty.gender.Gender` plugins created by this project.
@@ -802,16 +789,8 @@ class ProjectConfiguration(Data):
     The project-wide license.
     """
 
-    licenses = Property(
-        KeyedCollectionDefinition(
-            item=LicenseDefinitionConfiguration.data(),  # ty:ignore[invalid-argument-type]
-            label=LicenseDefinition.type().label_plural,
-            key=Attr("id"),  # ty:ignore[invalid-argument-type]
-            ordered=False,
-        ),
-        omit_load=True,
-        omit_dump=lambda data: not len(data),
-        default=lambda: KeyedCollection(key=lambda item: item.id),
+    licenses = PluginDefinitionConfigurationsProperty(
+        LicenseDefinition, LicenseDefinitionConfiguration
     )
     """
     The :py:class:`betty.license.License` plugins created by this project.
@@ -847,31 +826,15 @@ class ProjectConfiguration(Data):
     The project's machine name.
     """
 
-    place_types = Property(
-        KeyedCollectionDefinition(
-            item=PlaceTypeDefinitionConfiguration.data(),  # ty:ignore[invalid-argument-type]
-            label=PlaceTypeDefinition.type().label_plural,
-            key=Attr("id"),  # ty:ignore[invalid-argument-type]
-            ordered=False,
-        ),
-        omit_load=True,
-        omit_dump=lambda data: not len(data),
-        default=lambda: KeyedCollection(key=lambda item: item.id),
+    place_types = PluginDefinitionConfigurationsProperty(
+        PlaceTypeDefinition, PlaceTypeDefinitionConfiguration
     )
     """
     The :py:class:`betty.ancestry.place_type.PlaceType` plugins created by this project.
     """
 
-    presence_roles = Property(
-        KeyedCollectionDefinition(
-            item=PresenceRoleDefinitionConfiguration.data(),  # ty:ignore[invalid-argument-type]
-            label=PresenceRoleDefinition.type().label_plural,
-            key=Attr("id"),  # ty:ignore[invalid-argument-type]
-            ordered=False,
-        ),
-        omit_load=True,
-        omit_dump=lambda data: not len(data),
-        default=lambda: KeyedCollection(key=lambda item: item.id),
+    presence_roles = PluginDefinitionConfigurationsProperty(
+        PresenceRoleDefinition, PresenceRoleDefinitionConfiguration
     )
     """
     The :py:class:`betty.ancestry.presence_role.PresenceRole` plugins created by this project.
@@ -919,28 +882,28 @@ class ProjectConfiguration(Data):
         if copyright_notice is not None:
             self.copyright_notice = copyright_notice
         if copyright_notices is not None:
-            self.copyright_notices.add(*copyright_notices)
+            self.copyright_notices = copyright_notices
         self.debug = debug
         if entity_types is not None:
-            self.entity_types.add(*entity_types)
+            self.entity_types = entity_types
         if event_types is not None:
-            self.event_types.add(*event_types)
+            self.event_types = event_types
         if extensions is not None:
             self.extensions.add(*resolve_plugin_configuration_sequence(extensions))  # ty:ignore[invalid-argument-type]
         if genders is not None:
-            self.genders.add(*genders)
+            self.genders = genders
         if license is not None:
             self.license = license
         if licenses is not None:
-            self.licenses.add(*licenses)
+            self.licenses = licenses
         self.lifetime_threshold = lifetime_threshold
         self.logo = logo
         self._locales = self._default_locales() if locales is None else locales
         self.name = name
         if place_types is not None:
-            self.place_types.add(*place_types)
+            self.place_types = place_types
         if presence_roles is not None:
-            self.presence_roles.add(*presence_roles)
+            self.presence_roles = presence_roles
         self.title = title
         self._url = url
 

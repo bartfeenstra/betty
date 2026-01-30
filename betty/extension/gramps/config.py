@@ -4,8 +4,11 @@ Configuration for the :py:class:`betty.extension.gramps.Gramps` extension.
 
 from __future__ import annotations
 
+from collections.abc import Mapping, MutableMapping
 from pathlib import Path
 from typing import TYPE_CHECKING, final
+
+from typing_extensions import TypeVar
 
 from betty.ancestry.event_type import EventTypeDefinition
 from betty.ancestry.place_type import PlaceTypeDefinition
@@ -14,7 +17,12 @@ from betty.data import Data, Sample
 from betty.data.aggregate.collection.mapping import MappingDefinition
 from betty.data.aggregate.collection.sequence import SequenceDefinition
 from betty.data.aggregate.record.object import ObjectDefinition
-from betty.data.aggregate.record.object.property import Optional, Property
+from betty.data.aggregate.record.object.property import (
+    MappingProperty,
+    Optional,
+    Property,
+    SequenceProperty,
+)
 from betty.data.sample import Size
 from betty.data.str import StrDefinition
 from betty.exception import HumanFacingException
@@ -25,18 +33,50 @@ from betty.gramps.loader import (
 )
 from betty.locale.localizable.gettext import _
 from betty.pathlib import FilePathDefinition
+from betty.plugin import Plugin, PluginDefinition
 from betty.plugin.config import (
     PluginConfiguration,
+    ResolvablePluginConfiguration,
     resolve_plugin_configuration_mapping,
 )
 from betty.plugin.data import PluginConfigurationDefinition
 
 if TYPE_CHECKING:
-    from collections.abc import Iterable, Mapping
+    from collections.abc import Iterable
 
     from betty.ancestry.event_type import EventType
     from betty.ancestry.place_type import PlaceType
     from betty.ancestry.presence_role import PresenceRole
+    from betty.locale.localizable import LocalizableLike
+_PluginT = TypeVar("_PluginT", bound=Plugin, default=Plugin)
+_PluginDefinitionT = TypeVar(
+    "_PluginDefinitionT", bound=PluginDefinition, default=PluginDefinition
+)
+
+
+class _PluginMappingProperty(
+    MappingProperty[
+        MutableMapping[str, PluginConfiguration[_PluginDefinitionT, _PluginT]],
+        Mapping[str, ResolvablePluginConfiguration[_PluginDefinitionT, _PluginT]],
+    ]
+):
+    def __init__(
+        self,
+        plugin_type: type[_PluginDefinitionT],
+        gramps_label: LocalizableLike,
+        default: Mapping[
+            str, ResolvablePluginConfiguration[_PluginDefinitionT, _PluginT]
+        ],
+    ):
+        super().__init__(
+            MappingDefinition(
+                cls=dict,
+                key=StrDefinition(label=gramps_label),
+                value=PluginConfigurationDefinition(plugin_type),
+                label=plugin_type.type().label_plural,
+            ),
+            default=lambda: resolve_plugin_configuration_mapping(default),  # ty:ignore[invalid-argument-type]
+        )
 
 
 @final
@@ -57,16 +97,10 @@ class FamilyTreeConfiguration(Data):
     .. data:: betty.extension.gramps.config:FamilyTreeConfiguration
     """
 
-    event_types = Property(
-        MappingDefinition(
-            cls=dict,
-            key=StrDefinition(label=_("Gramps event type")),
-            item=PluginConfigurationDefinition(EventTypeDefinition),
-            label=_("Event types"),
-        ),
-        default=lambda: resolve_plugin_configuration_mapping(
-            DEFAULT_EVENT_TYPE_MAPPING  # ty:ignore[invalid-argument-type]
-        ),
+    event_types = _PluginMappingProperty(
+        EventTypeDefinition,
+        _("Gramps event type"),
+        DEFAULT_EVENT_TYPE_MAPPING,  # ty:ignore[invalid-argument-type]
     )
     """
     How to map event types.
@@ -82,30 +116,19 @@ class FamilyTreeConfiguration(Data):
     The family tree's name in Gramps.
     """
 
-    place_types = Property(
-        MappingDefinition(
-            cls=dict,
-            key=StrDefinition(label=_("Gramps place type")),
-            item=PluginConfigurationDefinition(PlaceTypeDefinition),
-            label=_("Place types"),
-        ),
-        default=lambda: resolve_plugin_configuration_mapping(
-            DEFAULT_PLACE_TYPE_MAPPING  # ty:ignore[invalid-argument-type]
-        ),
+    place_types = _PluginMappingProperty(
+        PlaceTypeDefinition,
+        _("Gramps place type"),
+        DEFAULT_PLACE_TYPE_MAPPING,  # ty:ignore[invalid-argument-type]
     )
     """
     How to map place types.
     """
-    presence_roles = Property(
-        MappingDefinition(
-            cls=dict,
-            key=StrDefinition(label=_("Gramps role")),
-            item=PluginConfigurationDefinition(PresenceRoleDefinition),
-            label=_("Presence roles"),
-        ),
-        default=lambda: resolve_plugin_configuration_mapping(
-            DEFAULT_PRESENCE_ROLE_MAPPING  # ty:ignore[invalid-argument-type]
-        ),
+
+    presence_roles = _PluginMappingProperty(
+        PresenceRoleDefinition,
+        _("Gramps role"),
+        DEFAULT_PRESENCE_ROLE_MAPPING,  # ty:ignore[invalid-argument-type]
     )
     """
     How to map presence roles.
@@ -115,12 +138,16 @@ class FamilyTreeConfiguration(Data):
         self,
         file: Path | None = None,
         name: str | None = None,
-        event_types: Mapping[str, PluginConfiguration[EventTypeDefinition, EventType]]
+        event_types: Mapping[
+            str, ResolvablePluginConfiguration[EventTypeDefinition, EventType]
+        ]
         | None = None,
-        place_types: Mapping[str, PluginConfiguration[PlaceTypeDefinition, PlaceType]]
+        place_types: Mapping[
+            str, ResolvablePluginConfiguration[PlaceTypeDefinition, PlaceType]
+        ]
         | None = None,
         presence_roles: Mapping[
-            str, PluginConfiguration[PresenceRoleDefinition, PresenceRole]
+            str, ResolvablePluginConfiguration[PresenceRoleDefinition, PresenceRole]
         ]
         | None = None,
     ):
@@ -129,11 +156,11 @@ class FamilyTreeConfiguration(Data):
         self.name = name
         self.source  # noqa: B018
         if event_types is not None:
-            self.event_types.update(event_types)
+            self.event_types.update(event_types)  # ty:ignore[no-matching-overload]
         if place_types is not None:
-            self.place_types.update(place_types)
+            self.place_types.update(place_types)  # ty:ignore[no-matching-overload]
         if presence_roles is not None:
-            self.presence_roles.update(presence_roles)
+            self.presence_roles.update(presence_roles)  # ty:ignore[no-matching-overload]
 
     @property
     def source(self) -> Path | str:
@@ -224,9 +251,9 @@ class GrampsConfiguration(Data):
     .. data:: betty.extension.gramps.config:GrampsConfiguration
     """
 
-    family_trees = Property(
+    family_trees = SequenceProperty(
         SequenceDefinition(
-            cls=list, item=FamilyTreeConfiguration.data(), label=_("Family trees")
+            cls=list, value=FamilyTreeConfiguration.data(), label=_("Family trees")
         ),
         default=list,
         omit_load=True,
@@ -251,5 +278,5 @@ class GrampsConfiguration(Data):
     ):
         super().__init__()
         if family_trees is not None:
-            self.family_trees.extend(family_trees)
+            self.family_trees = family_trees
         self.executable = executable

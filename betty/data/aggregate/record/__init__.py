@@ -27,6 +27,9 @@ _DataClsT = TypeVar("_DataClsT", default=Any)
 _ElementCoT = TypeVar(
     "_ElementCoT", bound=Element[Any], default=Element[Any], covariant=True
 )
+_ElementStrCoT = TypeVar(
+    "_ElementStrCoT", bound=Element[str], default=Element[str], covariant=True
+)
 
 
 @final
@@ -224,7 +227,7 @@ class MappingPorter(RecordPorter[_DataClsT]):
         return portable_key, portable
 
 
-class RecordDefinition(AggregateDefinition[_DataClsT, _ElementCoT]):
+class RecordDefinition(AggregateDefinition[_DataClsT, _ElementStrCoT]):
     """
     A record data definition.
 
@@ -238,7 +241,7 @@ class RecordDefinition(AggregateDefinition[_DataClsT, _ElementCoT]):
         *,
         cls: type[_DataClsT] | None = None,
         label: LocalizableLike,
-        fields: Sequence[FieldDefinition[_ElementCoT, Any]] | None = None,
+        fields: Sequence[FieldDefinition[_ElementStrCoT, Any]] | None = None,
         description: LocalizableLike | None = None,
         samples: Iterable[Callable[[], Sample[_DataClsT]] | Samples] | None = None,
         factory: Callable[..., _DataClsT] | None = None,
@@ -252,7 +255,7 @@ class RecordDefinition(AggregateDefinition[_DataClsT, _ElementCoT]):
             porter=porter,
         )
         self._factory = factory
-        self._fields: MutableSequence[FieldDefinition[_ElementCoT, Any]] = (
+        self._fields: MutableSequence[FieldDefinition[_ElementStrCoT, Any]] = (
             [] if fields is None else list(fields)
         )
 
@@ -277,12 +280,14 @@ class RecordDefinition(AggregateDefinition[_DataClsT, _ElementCoT]):
         return self._porter
 
     @property
-    def fields(self) -> Sequence[FieldDefinition[_ElementCoT, Any]]:
+    def fields(self) -> Sequence[FieldDefinition[_ElementStrCoT, Any]]:
         """
         The definitions of the fields contained by this record.
         """
         return self._fields
 
     @override
-    def elements(self, data: _DataClsT) -> Sequence[tuple[_ElementCoT, DataDefinition]]:
+    def elements(
+        self, data: _DataClsT
+    ) -> Sequence[tuple[_ElementStrCoT, DataDefinition]]:
         return [(field.selector, field.data) for field in self.fields]  # ty:ignore[invalid-return-type]
