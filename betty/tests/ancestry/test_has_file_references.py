@@ -9,7 +9,7 @@ from betty.test_utils.ancestry.has_file_references import DummyHasFileReferences
 
 
 class TestHasFileReferences:
-    async def test___init___with_file_references(self) -> None:
+    def test___init___with_file_references(self) -> None:
         file_one = File(path=Path())
         file_two = File(path=Path())
         file_reference_1 = FileReference(TemporaryToOneResolver(), file_one)
@@ -21,7 +21,7 @@ class TestHasFileReferences:
         assert file_reference_1.referee is sut
         assert file_reference_2.referee is sut
 
-    async def test_file_references(self) -> None:
+    def test_file_references(self) -> None:
         sut = DummyHasFileReferences()
         assert list(sut.file_references) == []
         file_one = File(path=Path())

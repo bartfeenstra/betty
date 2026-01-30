@@ -62,7 +62,7 @@ class TestStaticTranslations:
             ),
         ],
     )
-    async def test_localize__with_translations(
+    def test_localize__with_translations(
         self, expected: str, locale: str, translations: ShorthandStaticTranslations
     ) -> None:
         sut = StaticTranslations(translations)
@@ -96,7 +96,7 @@ class TestStaticTranslations:
             ),
         ],
     )
-    async def test_translations(
+    def test_translations(
         self,
         expected: StaticTranslationsMapping,
         translations: ShorthandStaticTranslations,
@@ -104,22 +104,22 @@ class TestStaticTranslations:
         sut = StaticTranslations(translations)
         assert sut.translations == expected
 
-    async def test_load__without_translations_should_error(self) -> None:
+    def test_load__without_translations_should_error(self) -> None:
         with pytest.raises(HumanFacingException):
             StaticTranslations.load({})
 
-    async def test_load__with_single_undetermined_translation(self) -> None:
+    def test_load__with_single_undetermined_translation(self) -> None:
         localizable = "Hello, world!"
         assert (
             StaticTranslations.load(localizable).localize(DEFAULT_LOCALIZER)
             == localizable
         )
 
-    async def test_dump__with_static_translations_single_undetermined(self) -> None:
+    def test_dump__with_static_translations_single_undetermined(self) -> None:
         localizable = "Hello, world!"
         assert StaticTranslations(localizable).dump() == localizable
 
-    async def test_dump_localizable__with_static_translations(self) -> None:
+    def test_dump_localizable__with_static_translations(self) -> None:
         localizable = {
             DEFAULT_LOCALE_TAG: "Hello, world!",
             "nl-NL": "Hallo, wereld!",
@@ -129,7 +129,7 @@ class TestStaticTranslations:
 
 
 class TestCountableStaticTranslations:
-    async def test___init____with_missing_placeholder(self) -> None:
+    def test___init____with_missing_placeholder(self) -> None:
         with pytest.raises(MissingPluralPlaceholder):
             CountableStaticTranslations(
                 {
@@ -140,7 +140,7 @@ class TestCountableStaticTranslations:
                 }
             )
 
-    async def test___init____with_invalid_plural_tag(self) -> None:
+    def test___init____with_invalid_plural_tag(self) -> None:
         invalid_plural_tag = "invalid-tag"
 
         with pytest.raises(InvalidPluralTag) as exc_info:
@@ -155,7 +155,7 @@ class TestCountableStaticTranslations:
             )
         assert invalid_plural_tag in str(exc_info.value)
 
-    async def test___init____with_missing_plural_tag(self) -> None:
+    def test___init____with_missing_plural_tag(self) -> None:
         with pytest.raises(MissingPluralTag) as exc_info:
             CountableStaticTranslations(
                 {
@@ -166,7 +166,7 @@ class TestCountableStaticTranslations:
             )
         assert "other" in str(exc_info.value)
 
-    async def test_translations(self) -> None:
+    def test_translations(self) -> None:
         sut = CountableStaticTranslations(
             {
                 DEFAULT_LOCALE_TAG: {
@@ -209,7 +209,7 @@ class TestCountableStaticTranslations:
             ),
         ],
     )
-    async def test_count(
+    def test_count(
         self,
         expected: str,
         count: LocalizableCount,

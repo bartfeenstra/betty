@@ -12,12 +12,12 @@ if TYPE_CHECKING:
 
 
 class TestHasLinks:
-    async def test___init____with_links(self) -> None:
+    def test___init____with_links(self) -> None:
         link = Link("https://example.com")
         sut = DummyHasLinks(links=[link])
         assert sut.links.view == [link]
 
-    async def test_links(self) -> None:
+    def test_links(self) -> None:
         sut = DummyHasLinks()
         assert sut.links is sut.links
 

@@ -15,7 +15,7 @@ if TYPE_CHECKING:
 
 
 class TestHasDate:
-    async def test_date(self) -> None:
+    def test_date(self) -> None:
         sut = DummyHasDate()
         assert sut.date is None
 

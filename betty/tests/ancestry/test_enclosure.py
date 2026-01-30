@@ -31,19 +31,19 @@ class TestEnclosure(EntityTestBase):
     def sut(self) -> Entity:
         return Enclosure(Place(), Place())
 
-    async def test_enclosee(self) -> None:
+    def test_enclosee(self) -> None:
         enclosee = Place()
         encloser = Place()
         sut = Enclosure(enclosee, encloser)
         assert sut.enclosee is enclosee
 
-    async def test_encloser(self) -> None:
+    def test_encloser(self) -> None:
         enclosee = Place()
         encloser = Place()
         sut = Enclosure(enclosee, encloser)
         assert sut.encloser is encloser
 
-    async def test_date(self) -> None:
+    def test_date(self) -> None:
         enclosee = Place()
         encloser = Place()
         sut = Enclosure(enclosee, encloser)
@@ -52,7 +52,7 @@ class TestEnclosure(EntityTestBase):
         sut.date = date
         assert sut.date is date
 
-    async def test_citations(self) -> None:
+    def test_citations(self) -> None:
         enclosee = Place()
         encloser = Place()
         sut = Enclosure(enclosee, encloser)

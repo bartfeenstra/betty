@@ -34,22 +34,22 @@ class TestNote(EntityTestBase):
     def sut(self) -> Entity:
         return Note("Betty wrote this.")
 
-    async def test___init____with_entity(self) -> None:
+    def test___init____with_entity(self) -> None:
         entity = DummyHasNotes()
         sut = Note("Betty wrote this.", entity=entity)
         assert sut.entity is entity
 
-    async def test_id(self) -> None:
+    def test_id(self) -> None:
         note_id = "N1"
         sut = Note("Betty wrote this.", id=note_id)
         assert sut.id == note_id
 
-    async def test_text(self) -> None:
+    def test_text(self) -> None:
         text = "Betty wrote this."
         sut = Note(text)
         assert sut.text.localize(DEFAULT_LOCALIZER) == text
 
-    async def test_entity(self) -> None:
+    def test_entity(self) -> None:
         entity = DummyHasNotes()
         sut = Note(DUMMY_LOCALIZABLE)
         sut.entity = entity

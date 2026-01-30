@@ -72,7 +72,7 @@ class TestEvent(EntityTestBase):
         assert sut.name is not None
         assert sut.name.localize(DEFAULT_LOCALIZER) == name
 
-    async def test_id(self) -> None:
+    def test_id(self) -> None:
         event_id = "E1"
         sut = Event(
             id=event_id,
@@ -80,7 +80,7 @@ class TestEvent(EntityTestBase):
         )
         assert sut.id == event_id
 
-    async def test_place(self) -> None:
+    def test_place(self) -> None:
         place = Place(
             id="1",
             names=[Name("one")],
@@ -93,7 +93,7 @@ class TestEvent(EntityTestBase):
         assert sut.place is None
         assert sut not in place.events
 
-    async def test_presences(self) -> None:
+    def test_presences(self) -> None:
         person = Person(id="P1")
         sut = Event(event_type=UnknownEventType())
         presence = Presence(person, Subject(), sut)
@@ -105,35 +105,35 @@ class TestEvent(EntityTestBase):
         with pytest.raises(AssociationRequired):
             presence.event  # noqa: B018
 
-    async def test_date(self) -> None:
+    def test_date(self) -> None:
         sut = Event(event_type=UnknownEventType())
         assert sut.date is None
         date = Date()
         sut.date = date
         assert sut.date == date
 
-    async def test_file_references(self) -> None:
+    def test_file_references(self) -> None:
         sut = Event(event_type=UnknownEventType())
         assert list(sut.file_references) == []
 
-    async def test_citations(self) -> None:
+    def test_citations(self) -> None:
         sut = Event(event_type=UnknownEventType())
         assert list(sut.citations) == []
 
-    async def test_description(self) -> None:
+    def test_description(self) -> None:
         sut = Event(event_type=UnknownEventType())
         assert not sut.description
 
-    async def test_private(self) -> None:
+    def test_private(self) -> None:
         sut = Event(event_type=UnknownEventType())
         assert sut.privacy is Privacy.UNDETERMINED
 
-    async def test_event_type(self) -> None:
+    def test_event_type(self) -> None:
         event_type = UnknownEventType()
         sut = Event(event_type=event_type)
         assert sut.event_type is event_type
 
-    async def test_name(self) -> None:
+    def test_name(self) -> None:
         name = "The Event"
         sut = Event()
         sut.name = name

@@ -56,7 +56,7 @@ class TestMediaType:
             ),
         ],
     )
-    async def test(
+    def test(
         self,
         expected_type: str,
         expected_subtype: str,
@@ -84,7 +84,7 @@ class TestMediaType:
             "bar",
         ],
     )
-    async def test_invalid_type_should_raise_error(self, media_type: str) -> None:
+    def test_invalid_type_should_raise_error(self, media_type: str) -> None:
         with pytest.raises(InvalidMediaType):
             MediaType(media_type)
 
@@ -108,14 +108,14 @@ class TestMediaType:
             (False, "text/html; charset=UTF-8", "text/html; charset=UTF-16"),
         ],
     )
-    async def test___eq__(self, expected: bool, left: str, right: str) -> None:
+    def test___eq__(self, expected: bool, left: str, right: str) -> None:
         assert (MediaType(left) == MediaType(right)) == expected
 
     @pytest.mark.parametrize(
         "other",
         [True, False, None, "abc", 123, [], {}],
     )
-    async def test___eq___with_not_implemented(self, other: Any) -> None:
+    def test___eq___with_not_implemented(self, other: Any) -> None:
         assert other != PLAIN_TEXT
 
     @pytest.mark.parametrize(
@@ -138,7 +138,7 @@ class TestMediaType:
             (False, "text/html; charset=UTF-8", "text/html; charset=UTF-16"),
         ],
     )
-    async def test___hash__(self, expected: bool, left: str, right: str) -> None:
+    def test___hash__(self, expected: bool, left: str, right: str) -> None:
         assert (hash(MediaType(left)) == hash(MediaType(right))) == expected
 
     @pytest.mark.parametrize(
@@ -151,7 +151,7 @@ class TestMediaType:
             "text/html; charset=UTF-8",
         ],
     )
-    async def test___str__(self, media_type: str) -> None:
+    def test___str__(self, media_type: str) -> None:
         assert str(MediaType(media_type)) == media_type
 
     @pytest.mark.parametrize(
@@ -164,7 +164,7 @@ class TestMediaType:
             ({"charset": "UTF-8"}, "text/html; charset=UTF-8"),
         ],
     )
-    async def test_parameters(
+    def test_parameters(
         self,
         expected: Mapping[str, str],
         media_type: str,
@@ -181,7 +181,7 @@ class TestMediaType:
             ("html", "text/html; charset=UTF-8"),
         ],
     )
-    async def test_subtype(
+    def test_subtype(
         self,
         expected: str,
         media_type: str,
@@ -201,7 +201,7 @@ class TestMediaType:
             (["html"], "text/html; charset=UTF-8"),
         ],
     )
-    async def test_subtypes(
+    def test_subtypes(
         self,
         expected: Sequence[str],
         media_type: str,
@@ -218,7 +218,7 @@ class TestMediaType:
             (None, "text/html; charset=UTF-8"),
         ],
     )
-    async def test_suffix(
+    def test_suffix(
         self,
         expected: str | None,
         media_type: str,
@@ -235,7 +235,7 @@ class TestMediaType:
             ("text", "text/html; charset=UTF-8"),
         ],
     )
-    async def test_type(
+    def test_type(
         self,
         expected: str,
         media_type: str,

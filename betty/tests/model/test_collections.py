@@ -28,7 +28,7 @@ class TestSingleTypeEntityCollection(EntityCollectionTestBase[DummyEntityOne]):
     def sut_entities(self) -> Sequence[DummyEntityOne]:
         return DummyEntityOne(), DummyEntityOne(), DummyEntityOne()
 
-    async def test___getitem____by_entity_id(
+    def test___getitem____by_entity_id(
         self,
         sut: SingleTypeEntityCollection[DummyEntityOne],
         sut_entities: Sequence[DummyEntityOne],
@@ -38,7 +38,7 @@ class TestSingleTypeEntityCollection(EntityCollectionTestBase[DummyEntityOne]):
         assert sut[sut_entities[1].id] is sut_entities[1]
         assert sut[sut_entities[2].id] is sut_entities[2]
 
-    async def test___delitem___by_entity_id(
+    def test___delitem___by_entity_id(
         self,
         sut: SingleTypeEntityCollection[DummyEntityOne],
         sut_entities: Sequence[DummyEntityOne],
@@ -49,7 +49,7 @@ class TestSingleTypeEntityCollection(EntityCollectionTestBase[DummyEntityOne]):
 
         assert list(sut) == list(sut_entities[1:])
 
-    async def test___contains____by_entity_id(
+    def test___contains____by_entity_id(
         self,
         sut: SingleTypeEntityCollection[DummyEntityOne],
         sut_entities: Sequence[DummyEntityOne],
@@ -68,10 +68,10 @@ class TestMultipleTypesEntityCollection(EntityCollectionTestBase[DummyEntityOne]
 
     @override
     @pytest.fixture
-    async def sut_entities(self) -> Sequence[DummyEntityOne]:
+    def sut_entities(self) -> Sequence[DummyEntityOne]:
         return DummyEntityOne(), DummyEntityOne(), DummyEntityOne()
 
-    async def test___getitem____by_entity_type(
+    def test___getitem____by_entity_type(
         self,
         sut: MultipleTypesEntityCollection[DummyEntityOne],
         sut_entities: Sequence[DummyEntityOne],
@@ -79,7 +79,7 @@ class TestMultipleTypesEntityCollection(EntityCollectionTestBase[DummyEntityOne]
         sut.add(*sut_entities)
         assert list(sut[DummyEntityOne]) == list(sut_entities)
 
-    async def test___getitem____by_entity_type_id(
+    def test___getitem____by_entity_type_id(
         self,
         sut: MultipleTypesEntityCollection[DummyEntityOne],
         sut_entities: Sequence[DummyEntityOne],
@@ -87,7 +87,7 @@ class TestMultipleTypesEntityCollection(EntityCollectionTestBase[DummyEntityOne]
         sut.add(*sut_entities)
         assert list(sut[DummyEntityOne.plugin().id]) == list(sut_entities)
 
-    async def test___delitem__(
+    def test___delitem__(
         self,
         sut: MultipleTypesEntityCollection[DummyEntityOne],
         sut_entities: Sequence[DummyEntityOne],

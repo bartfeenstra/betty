@@ -54,7 +54,7 @@ class TestFile(EntityTestBase):
     def sut(self, request: pytest.FixtureRequest) -> Entity:
         return cast(Entity, request.param)
 
-    async def test_id(self) -> None:
+    def test_id(self) -> None:
         file_id = "BETTY01"
         file_path = Path("~")
         sut = File(
@@ -63,7 +63,7 @@ class TestFile(EntityTestBase):
         )
         assert sut.id == file_id
 
-    async def test_name__with_name(self, tmp_path: Path) -> None:
+    def test_name__with_name(self, tmp_path: Path) -> None:
         name = "a-file.a-suffix"
         sut = File(
             tmp_path / "file",
@@ -71,7 +71,7 @@ class TestFile(EntityTestBase):
         )
         assert sut.name == name
 
-    async def test_private(self) -> None:
+    def test_private(self) -> None:
         file_id = "BETTY01"
         file_path = Path("~")
         sut = File(
@@ -82,7 +82,7 @@ class TestFile(EntityTestBase):
         sut.private = True
         assert sut.private is True
 
-    async def test_media_type(self) -> None:
+    def test_media_type(self) -> None:
         file_id = "BETTY01"
         file_path = Path("~")
         sut = File(
@@ -94,7 +94,7 @@ class TestFile(EntityTestBase):
         sut.media_type = media_type
         assert sut.media_type == media_type
 
-    async def test_path__with_path(self) -> None:
+    def test_path__with_path(self) -> None:
         with NamedTemporaryFile() as f:
             file_id = "BETTY01"
             file_path = Path(f.name)
@@ -104,7 +104,7 @@ class TestFile(EntityTestBase):
             )
             assert sut.path == file_path
 
-    async def test_path__with_str(self) -> None:
+    def test_path__with_str(self) -> None:
         with NamedTemporaryFile() as f:
             file_id = "BETTY01"
             sut = File(
@@ -113,7 +113,7 @@ class TestFile(EntityTestBase):
             )
             assert sut.path == Path(f.name)
 
-    async def test_description(self) -> None:
+    def test_description(self) -> None:
         file_id = "BETTY01"
         file_path = Path("~")
         sut = File(
@@ -126,7 +126,7 @@ class TestFile(EntityTestBase):
         assert sut.description is not None
         assert sut.description.localize(DEFAULT_LOCALIZER) == description
 
-    async def test_notes(self) -> None:
+    def test_notes(self) -> None:
         file_id = "BETTY01"
         file_path = Path("~")
         sut = File(
@@ -138,7 +138,7 @@ class TestFile(EntityTestBase):
         sut.notes = notes
         assert list(sut.notes) == notes
 
-    async def test_referees(self) -> None:
+    def test_referees(self) -> None:
         file_id = "BETTY01"
         file_path = Path("~")
         sut = File(
@@ -156,7 +156,7 @@ class TestFile(EntityTestBase):
             entity_two,
         ]
 
-    async def test_citations(self) -> None:
+    def test_citations(self) -> None:
         file_id = "BETTY01"
         file_path = Path("~")
         sut = File(

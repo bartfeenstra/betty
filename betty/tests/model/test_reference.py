@@ -20,12 +20,12 @@ if TYPE_CHECKING:
 class TestEntityReference(DataTestBase[EntityReference]):
     sut_cls = EntityReference
 
-    async def test_type(self) -> None:
+    def test_type(self) -> None:
         entity_type = DummyEntityOne.plugin().id
         sut = EntityReference(entity_type, "123")
         assert sut.type == entity_type
 
-    async def test_id(self) -> None:
+    def test_id(self) -> None:
         entity_id = "123"
         sut = EntityReference(DummyEntityOne, entity_id)
         assert sut.id == entity_id

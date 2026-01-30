@@ -73,73 +73,73 @@ class TestSource(EntityTestBase):
         assert list(sut.contains) == [contains_source]
         assert contains_source.contained_by is sut
 
-    async def test_id(self) -> None:
+    def test_id(self) -> None:
         source_id = "S1"
         sut = Source(id=source_id)
         assert sut.id == source_id
 
-    async def test_name(self) -> None:
+    def test_name(self) -> None:
         sut = Source()
         assert sut.name is None
         name = Plain("The Source")
         sut.name = name
         assert sut.name is name
 
-    async def test_contained_by(self) -> None:
+    def test_contained_by(self) -> None:
         contained_by_source = Source()
         sut = Source()
         assert sut.contained_by is None
         sut.contained_by = contained_by_source
         assert sut.contained_by is contained_by_source
 
-    async def test_contains(self) -> None:
+    def test_contains(self) -> None:
         contains_source = Source()
         sut = Source()
         assert list(sut.contains) == []
         sut.contains = [contains_source]
         assert list(sut.contains) == [contains_source]
 
-    async def test_walk_contains__without_contains(self) -> None:
+    def test_walk_contains__without_contains(self) -> None:
         sut = Source()
         assert list(sut.walk_contains) == []
 
-    async def test_walk_contains__with_contains(self) -> None:
+    def test_walk_contains__with_contains(self) -> None:
         sut = Source()
         contains = Source(contained_by=sut)
         contains_contains = Source(contained_by=contains)
         assert list(sut.walk_contains) == [contains, contains_contains]
 
-    async def test_citations(self) -> None:
+    def test_citations(self) -> None:
         sut = Source()
         assert list(sut.citations) == []
 
-    async def test_author(self) -> None:
+    def test_author(self) -> None:
         sut = Source()
         assert not sut.author
         author = Plain("Me")
         sut.author = author
         assert sut.author is author
 
-    async def test_publisher(self) -> None:
+    def test_publisher(self) -> None:
         sut = Source()
         assert not sut.publisher
         publisher = Plain("Me")
         sut.publisher = publisher
         assert sut.publisher is publisher
 
-    async def test_date(self) -> None:
+    def test_date(self) -> None:
         sut = Source()
         assert sut.date is None
 
-    async def test_file_references(self) -> None:
+    def test_file_references(self) -> None:
         sut = Source()
         assert list(sut.file_references) == []
 
-    async def test_links(self) -> None:
+    def test_links(self) -> None:
         sut = Source()
         assert list(sut.links) == []
 
-    async def test_private(self) -> None:
+    def test_private(self) -> None:
         sut = Source()
         assert sut.privacy is Privacy.UNDETERMINED
         sut.private = True

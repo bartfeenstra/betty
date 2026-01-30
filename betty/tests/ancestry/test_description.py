@@ -15,13 +15,13 @@ if TYPE_CHECKING:
 
 
 class TestHasDescription:
-    async def test___init___with_description(self) -> None:
+    def test___init___with_description(self) -> None:
         description = "Hello, world!"
         sut = DummyHasDescription(description=description)
         assert sut.description is not None
         assert sut.description.localize(DEFAULT_LOCALIZER) == description
 
-    async def test_description(self) -> None:
+    def test_description(self) -> None:
         sut = DummyHasDescription()
         assert not sut.description
 
