@@ -54,7 +54,7 @@ def regional_content(*, localizers: Collection[Localizer]) -> ResolvableRegional
 
     return {
         "entity-page-content": [
-            PluginConfiguration(Media),
+            Media,
             PluginConfiguration(
                 Section,
                 SectionConfiguration(
@@ -72,7 +72,7 @@ def regional_content(*, localizers: Collection[Localizer]) -> ResolvableRegional
             PluginConfiguration(
                 Box,
                 BoxConfiguration(
-                    PluginConfiguration(Map),  # ty:ignore[invalid-argument-type]
+                    Map,
                     min_height="500px",
                     height="75vh",
                     max_height="1000px",
@@ -146,7 +146,7 @@ def regional_content(*, localizers: Collection[Localizer]) -> ResolvableRegional
             PluginConfiguration(
                 Box,
                 BoxConfiguration(
-                    PluginConfiguration(Tree),  # ty:ignore[invalid-argument-type]
+                    Tree,
                     min_height="500px",
                     height="75vh",
                     max_height="1000px",
