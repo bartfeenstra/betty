@@ -14,7 +14,9 @@ from betty.data.indicator.selector import Index
 from betty.portable import CallbackPorter, PortableData
 
 if TYPE_CHECKING:
-    from betty.data import DataDefinition
+    from ty_extensions import Intersection
+
+    from betty.data import Data, DataDefinition
     from betty.locale.localizable import LocalizableLike
 
 _DataItemT = TypeVar("_DataItemT")
@@ -30,7 +32,7 @@ class SequenceDefinition(CollectionDefinition[_MutableSequenceT, Index]):
         self,
         *,
         cls: type[_MutableSequenceT],
-        value: DataDefinition[_DataItemT],
+        value: DataDefinition[_DataItemT] | type[Intersection[_DataItemT, Data]],
         label: LocalizableLike,
         description: LocalizableLike | None = None,
         factory: Callable[[Iterable[_DataItemT]], _MutableSequenceT] | None = None,

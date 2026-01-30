@@ -253,7 +253,7 @@ class GrampsConfiguration(Data):
 
     family_trees = SequenceProperty(
         SequenceDefinition(
-            cls=list, value=FamilyTreeConfiguration.data(), label=_("Family trees")
+            cls=list, value=FamilyTreeConfiguration, label=_("Family trees")
         ),
         default=list,
         omit_load=True,

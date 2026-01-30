@@ -81,7 +81,7 @@ class PluginDefinitionConfigurationsProperty(KeyedCollectionProperty):
     ):
         super().__init__(
             KeyedCollectionDefinition(
-                value=item.data(),
+                value=item,
                 label=plugin_type.type().label_plural,
                 key=Attr("id"),
                 ordered=False,
