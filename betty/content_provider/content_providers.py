@@ -61,7 +61,7 @@ class RenderConfiguration(Data):
     """
 
     content = LocalizableProperty(label=_("Content"))
-    media_type = Property(MediaType.data(), default=lambda: PLAIN_TEXT, omit_load=True)
+    media_type = Property(MediaType, default=lambda: PLAIN_TEXT, omit_load=True)
 
     def __init__(self, /, content: LocalizableLike, media_type: MediaType = PLAIN_TEXT):
         super().__init__()

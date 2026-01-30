@@ -9,7 +9,7 @@ from typing_extensions import override
 
 from betty.assertion import assert_mapping, assert_sequence
 from betty.collections import KeyedCollection
-from betty.data import DataDefinition
+from betty.data import Data, DataDefinition
 from betty.data.aggregate.collection import CollectionDefinition
 from betty.data.aggregate.record import RecordDefinition
 from betty.data.indicator.selector import Element, Key
@@ -38,7 +38,7 @@ class KeyedCollectionDefinition(
     def __init__(
         self,
         *,
-        value: RecordDefinition[_ValueT],
+        value: RecordDefinition[_ValueT] | type[Data[RecordDefinition]],
         key: Element[str],
         ordered: bool,
         label: LocalizableLike,

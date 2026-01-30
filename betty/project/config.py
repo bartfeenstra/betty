@@ -728,7 +728,7 @@ class ProjectConfiguration(Data):
 
     entity_types = KeyedCollectionProperty(
         KeyedCollectionDefinition(
-            value=EntityTypeConfiguration.data(),
+            value=EntityTypeConfiguration,
             label=_("Entity types"),
             key=Attr("entity_type"),
             ordered=False,

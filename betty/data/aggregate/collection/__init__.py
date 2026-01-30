@@ -9,11 +9,12 @@ from typing import TYPE_CHECKING, Any
 
 from typing_extensions import TypeVar
 
+from betty.data import DataDefinition
 from betty.data.aggregate import AggregateDefinition
 from betty.data.indicator.selector import Element
 
 if TYPE_CHECKING:
-    from betty.data import DataDefinition
+    from betty.data import Data
     from betty.locale.localizable import LocalizableLike
     from betty.portable import Porter
 
@@ -30,13 +31,13 @@ class CollectionDefinition(AggregateDefinition[_CollectionT, _ElementCoT]):
         self,
         *,
         cls: type[_CollectionT] | None = None,
-        item: DataDefinition,
+        item: DataDefinition | type[Data],
         label: LocalizableLike,
         description: LocalizableLike | None = None,
         porter: Porter[_CollectionT] | None = None,
     ):
         super().__init__(cls=cls, label=label, description=description, porter=porter)
-        self._item = item
+        self._item = item if isinstance(item, DataDefinition) else item.data()
 
     @property
     def item(self) -> DataDefinition:

@@ -98,7 +98,7 @@ class Property(_Property[_ValueGetT, _ValueSetT]):
 
     def __init__(
         self,
-        data: DataDefinition[_ValueGetT] | Data[DataDefinition[_ValueGetT]],
+        data: DataDefinition[_ValueGetT] | type[Data[DataDefinition[_ValueGetT]]],
         *,
         label: LocalizableLike | None = None,
         description: LocalizableLike | None = None,

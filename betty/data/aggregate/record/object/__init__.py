@@ -52,7 +52,7 @@ class AttrDefinition(Generic[_DataClsT]):
 
     def __init__(
         self,
-        data: DataDefinition[_DataClsT] | Data[DataDefinition[_DataClsT]],
+        data: DataDefinition[_DataClsT] | type[Data[DataDefinition[_DataClsT]]],
         *,
         label: LocalizableLike | None = None,
         description: LocalizableLike | None = None,
