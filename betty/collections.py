@@ -15,6 +15,7 @@ _ResolvableKeyT = TypeVar("_ResolvableKeyT")
 _ResolvableValueT = TypeVar("_ResolvableValueT")
 
 
+@final
 class KeyedCollection(
     Collection[_ValueT], Generic[_KeyT, _ValueT, _ResolvableKeyT, _ResolvableValueT]
 ):
@@ -64,6 +65,12 @@ class KeyedCollection(
 
     def __delitem__(self, key: _ResolvableKeyT) -> None:
         del self._values[self._key_resolver(key)]
+
+    def clear(self) -> None:
+        """
+        Remove all values from the collection.
+        """
+        self._values.clear()
 
     def add(self, *values: _ResolvableValueT) -> None:
         """

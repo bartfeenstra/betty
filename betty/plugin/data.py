@@ -101,6 +101,6 @@ class PluginConfigurationSequenceDefinition(SequenceDefinition):
     ):
         super().__init__(
             cls=list,
-            item=PluginConfigurationDefinition(plugin_type),
+            value=PluginConfigurationDefinition(plugin_type),
             label=plugin_type.type().label_plural if label is None else label,
         )

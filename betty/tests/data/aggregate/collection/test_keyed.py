@@ -22,13 +22,13 @@ class TestKeyedCollectionDefinition:
         ],
     )
     _sut_unordered = KeyedCollectionDefinition[dict[str, str]](
-        item=_item,
+        value=_item,
         key=Key("key"),
         ordered=False,
         label=DUMMY_LOCALIZABLE,
     )
     _sut_ordered = KeyedCollectionDefinition[dict[str, str]](
-        item=_item,
+        value=_item,
         key=Key("key"),
         ordered=True,
         label=DUMMY_LOCALIZABLE,

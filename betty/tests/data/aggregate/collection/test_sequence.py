@@ -12,7 +12,7 @@ class TestSequenceDefinition:
         item = StrDefinition(label=DUMMY_LOCALIZABLE)
         sut = SequenceDefinition[list[str]](
             cls=list,
-            item=item,
+            value=item,
             label=DUMMY_LOCALIZABLE,
         )
         assert sut.item is item
@@ -20,7 +20,7 @@ class TestSequenceDefinition:
     def test_load__without_items(self) -> None:
         sut = SequenceDefinition[list[str]](
             cls=list,
-            item=StrDefinition(label=DUMMY_LOCALIZABLE),
+            value=StrDefinition(label=DUMMY_LOCALIZABLE),
             label=DUMMY_LOCALIZABLE,
         )
         assert sut.porter.load([]) == []
@@ -28,7 +28,7 @@ class TestSequenceDefinition:
     def test_load__with_items(self) -> None:
         sut = SequenceDefinition[list[str]](
             cls=list,
-            item=StrDefinition(label=DUMMY_LOCALIZABLE),
+            value=StrDefinition(label=DUMMY_LOCALIZABLE),
             label=DUMMY_LOCALIZABLE,
         )
         assert sut.porter.load(["Hello, world!"]) == ["Hello, world!"]
@@ -39,7 +39,7 @@ class TestSequenceDefinition:
 
         sut = SequenceDefinition[list[str]](
             cls=list,
-            item=StrDefinition(label=DUMMY_LOCALIZABLE),
+            value=StrDefinition(label=DUMMY_LOCALIZABLE),
             label=DUMMY_LOCALIZABLE,
             factory=FactoryList,
         )
@@ -48,7 +48,7 @@ class TestSequenceDefinition:
     def test_load__with_item_not_loadable(self) -> None:
         sut = SequenceDefinition[list[str]](
             cls=list,
-            item=DataDefinition(cls=str, label=DUMMY_LOCALIZABLE),
+            value=DataDefinition(cls=str, label=DUMMY_LOCALIZABLE),
             label=DUMMY_LOCALIZABLE,
         )
         with pytest.raises(NotPortable):
@@ -57,7 +57,7 @@ class TestSequenceDefinition:
     def test_dump__without_items(self) -> None:
         sut = SequenceDefinition[list[str]](
             cls=list,
-            item=StrDefinition(label=DUMMY_LOCALIZABLE),
+            value=StrDefinition(label=DUMMY_LOCALIZABLE),
             label=DUMMY_LOCALIZABLE,
         )
         assert sut.porter.dump([]) == []
@@ -65,7 +65,7 @@ class TestSequenceDefinition:
     def test_dump__with_items(self) -> None:
         sut = SequenceDefinition[list[str]](
             cls=list,
-            item=StrDefinition(label=DUMMY_LOCALIZABLE),
+            value=StrDefinition(label=DUMMY_LOCALIZABLE),
             label=DUMMY_LOCALIZABLE,
         )
         assert sut.porter.dump(["Hello, world!"]) == ["Hello, world!"]
@@ -73,7 +73,7 @@ class TestSequenceDefinition:
     def test_dump__with_item_not_dumpable(self) -> None:
         sut = SequenceDefinition[list[str]](
             cls=list,
-            item=DataDefinition(cls=str, label=DUMMY_LOCALIZABLE),
+            value=DataDefinition(cls=str, label=DUMMY_LOCALIZABLE),
             label=DUMMY_LOCALIZABLE,
         )
         with pytest.raises(NotPortable):

@@ -450,7 +450,7 @@ class PresencesConfiguration(Data):
         Property(
             SequenceDefinition(
                 cls=list,
-                item=PluginIdDefinition(PresenceRoleDefinition),
+                value=PluginIdDefinition(PresenceRoleDefinition),
                 label=_("Exclude"),
             )
         )
@@ -463,7 +463,7 @@ class PresencesConfiguration(Data):
         Property(
             SequenceDefinition(
                 cls=list,
-                item=PluginIdDefinition(PresenceRoleDefinition),
+                value=PluginIdDefinition(PresenceRoleDefinition),
                 label=_("Include"),
             )
         )
@@ -638,7 +638,7 @@ class ColumnsConfiguration(Data):
     content = Property(
         SequenceDefinition(
             cls=list,
-            item=PluginConfigurationSequenceDefinition(
+            value=PluginConfigurationSequenceDefinition(
                 ContentProviderDefinition, label=_("Column content")
             ),
             label=_("Columns"),
@@ -659,10 +659,10 @@ class ColumnsConfiguration(Data):
         MappingDefinition(
             cls=dict,
             key=EnumDefinition(cls=Breakpoint, label=_("Breakpoint")),
-            item=SequenceDefinition(
+            value=SequenceDefinition(
                 cls=list,
                 label=_("Column widths"),
-                item=IntDefinition(label=_("Column width")),
+                value=IntDefinition(label=_("Column width")),
             ),
             label=_("Breakpoints"),
             porter=CallbackPorter(

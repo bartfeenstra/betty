@@ -111,7 +111,7 @@ class RaspberryMintConfiguration(Data, Hydratable):
             cls=dict,
             label=_("Regions"),
             key=StrDefinition(label=_("Region")),
-            item=PluginConfigurationSequenceDefinition(
+            value=PluginConfigurationSequenceDefinition(
                 ContentProviderDefinition, label=_("Regional content")
             ),
         ),

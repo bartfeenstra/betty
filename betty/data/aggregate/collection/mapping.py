@@ -37,7 +37,7 @@ class MappingDefinition(CollectionDefinition[_MutableMappingT, Key]):
             Intersection[_MutableMappingT, MutableMapping[_DataKeyT, _DataItemT]]
         ],
         key: DataDefinition[_DataKeyT],
-        item: DataDefinition[_DataItemT],
+        value: DataDefinition[_DataItemT],
         label: LocalizableLike,
         description: LocalizableLike | None = None,
         factory: Callable[[Mapping[str, _DataItemT]], _MutableMappingT] | None = None,
@@ -45,7 +45,7 @@ class MappingDefinition(CollectionDefinition[_MutableMappingT, Key]):
     ):
         super().__init__(
             cls=cls,
-            item=item,
+            item=value,
             label=label,
             description=description,
             porter=CallbackPorter(self._load, self._dump) if porter is None else porter,

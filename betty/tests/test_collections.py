@@ -66,6 +66,11 @@ class TestKeyedCollection:
         sut.add(True)
         assert sut["True"] == "True"
 
+    def test_clear(self) -> None:
+        sut = KeyedCollection(["one"], key=passthrough)
+        sut.clear()
+        assert list(sut) == []
+
 
 class TestResolvingMutableSequence:
     def test_insert(self) -> None:
