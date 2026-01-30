@@ -46,12 +46,12 @@ class TestPersonName(EntityTestBase):
         with pytest.raises(ValueError):  # noqa: PT011
             PersonName(person=Person())
 
-    async def test___init___with_citations(self) -> None:
+    def test___init___with_citations(self) -> None:
         citation = Citation(source=Source())
         sut = PersonName(person=Person(), individual="Jane", citations=[citation])
         assert list(sut.citations) == [citation]
 
-    async def test_person(self) -> None:
+    def test_person(self) -> None:
         person = Person(id="1")
         sut = PersonName(
             person=person,
@@ -61,7 +61,7 @@ class TestPersonName(EntityTestBase):
         assert sut.person == person
         assert [sut] == list(person.names)
 
-    async def test_locale(self) -> None:
+    def test_locale(self) -> None:
         person = Person(id="1")
         sut = PersonName(
             person=person,
@@ -70,7 +70,7 @@ class TestPersonName(EntityTestBase):
         )
         assert sut.locale is None
 
-    async def test_citations(self) -> None:
+    def test_citations(self) -> None:
         person = Person(id="1")
         sut = PersonName(
             person=person,
@@ -79,7 +79,7 @@ class TestPersonName(EntityTestBase):
         )
         assert list(sut.citations) == []
 
-    async def test_individual(self) -> None:
+    def test_individual(self) -> None:
         person = Person(id="1")
         individual = "Janet"
         sut = PersonName(
@@ -89,7 +89,7 @@ class TestPersonName(EntityTestBase):
         )
         assert sut.individual == individual
 
-    async def test_affiliation(self) -> None:
+    def test_affiliation(self) -> None:
         person = Person(id="1")
         affiliation = "Not a Girl"
         sut = PersonName(

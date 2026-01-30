@@ -43,7 +43,7 @@ class _DummyPluginDefinitionConfiguration(PluginDefinitionConfiguration):
 
 
 class TestPluginDefinitionConfiguration:
-    async def test_id(self) -> None:
+    def test_id(self) -> None:
         plugin_id = "hello-world"
         sut = _DummyPluginDefinitionConfiguration(id=plugin_id)
         assert sut.id == plugin_id
@@ -61,12 +61,12 @@ class TestHumanFacingPluginDefinitionConfiguration:
         def new_plugin(self) -> _PluginDefinitionT:
             raise NotImplementedError
 
-    async def test_label(self) -> None:
+    def test_label(self) -> None:
         label = DUMMY_LOCALIZABLE
         sut = self._Sut(id="hello-world", label=label)
         assert sut.label is label
 
-    async def test_description(self) -> None:
+    def test_description(self) -> None:
         description = DUMMY_LOCALIZABLE
         sut = self._Sut(
             id="hello-world", label=DUMMY_LOCALIZABLE, description=description
@@ -83,7 +83,7 @@ class TestCountableHumanFacingPluginDefinitionConfiguration:
         def new_plugin(self) -> _PluginDefinitionT:
             raise NotImplementedError
 
-    async def test_label_plural(self) -> None:
+    def test_label_plural(self) -> None:
         label_plural = DUMMY_LOCALIZABLE
         sut = self._Sut(
             id="-",
@@ -93,7 +93,7 @@ class TestCountableHumanFacingPluginDefinitionConfiguration:
         )
         assert sut.label_plural is label_plural
 
-    async def test_label_countable(self) -> None:
+    def test_label_countable(self) -> None:
         label_countable = DUMMY_COUNTABLE_LOCALIZABLE
         sut = self._Sut(
             id="-", label="-", label_plural="-", label_countable=label_countable

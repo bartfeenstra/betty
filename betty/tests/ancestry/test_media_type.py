@@ -13,7 +13,7 @@ if TYPE_CHECKING:
 
 
 class TestHasMediaType:
-    async def test_media_type(self) -> None:
+    def test_media_type(self) -> None:
         sut = HasMediaType()
         assert sut.media_type is None
 

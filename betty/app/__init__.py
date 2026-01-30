@@ -244,7 +244,7 @@ class App(Configurable[AppConfiguration], ServiceLevel):
         The HTTP client.
         """
         http_rate_limits = await self.plugins(RateLimitDefinition)
-        rate_limit_sorter = await sort_ordered_plugin_graph(
+        rate_limit_sorter = sort_ordered_plugin_graph(
             http_rate_limits, http_rate_limits
         )
 

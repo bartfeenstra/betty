@@ -75,7 +75,7 @@ _OrderedPluginDefinitionT = TypeVar(
 )
 
 
-async def sort_ordered_plugin_graph(
+def sort_ordered_plugin_graph(
     plugin_repository: PluginRepository[_OrderedPluginDefinitionT],
     plugins: Iterable[_OrderedPluginDefinitionT],
     /,

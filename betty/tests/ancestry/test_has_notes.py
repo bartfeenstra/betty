@@ -17,12 +17,12 @@ if TYPE_CHECKING:
 
 
 class TestHasNotes:
-    async def test___init___with_notes(self) -> None:
+    def test___init___with_notes(self) -> None:
         note = Note(DUMMY_LOCALIZABLE)
         sut = DummyHasNotes(notes=[note])
         assert list(sut.notes) == [note]
 
-    async def test_notes(self) -> None:
+    def test_notes(self) -> None:
         sut = DummyHasNotes()
         assert list(sut.notes) == []
         note = Note(DUMMY_LOCALIZABLE)

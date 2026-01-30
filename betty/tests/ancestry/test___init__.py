@@ -68,7 +68,7 @@ class TestAncestry(EntityCollectionTestBase[Entity]):
 
     @override
     @pytest.fixture
-    async def sut_entities(
+    def sut_entities(
         self,
     ) -> Sequence[Entity]:
         return (

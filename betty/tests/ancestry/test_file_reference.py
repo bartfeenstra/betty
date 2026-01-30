@@ -29,18 +29,18 @@ class TestFileReference(EntityTestBase):
     def sut(self) -> Entity:
         return FileReference(DummyHasFileReferences(), File(Path()))
 
-    async def test_focus(self) -> None:
+    def test_focus(self) -> None:
         sut = FileReference(DummyHasFileReferences(), File(Path()))
         focus = (1, 2, 3, 4)
         sut.focus = focus
         assert sut.focus == focus
 
-    async def test_file(self) -> None:
+    def test_file(self) -> None:
         file = File(Path())
         sut = FileReference(DummyHasFileReferences(), file)
         assert sut.file is file
 
-    async def test_referee(self) -> None:
+    def test_referee(self) -> None:
         referee = DummyHasFileReferences()
         sut = FileReference(referee, File(Path()))
         assert sut.referee is referee

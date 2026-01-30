@@ -89,6 +89,6 @@ async def sort_dependent_plugin_graph(
     """
     Sort a dependent plugin graph.
     """
-    return await sort_ordered_plugin_graph(
+    return sort_ordered_plugin_graph(
         plugin_repository, await expand_plugin_dependencies(plugin_repository, plugins)
     )

@@ -14,22 +14,22 @@ if TYPE_CHECKING:
 
 
 class TestLocalizer:
-    async def test_locale(self) -> None:
+    def test_locale(self) -> None:
         sut = DEFAULT_LOCALIZER
         assert sut.locale.language == "en"
 
-    async def test__(self) -> None:
+    def test__(self) -> None:
         sut = DEFAULT_LOCALIZER
         assert sut._("My First Translatable String") == "My First Translatable String"
 
-    async def test_gettext(self) -> None:
+    def test_gettext(self) -> None:
         sut = DEFAULT_LOCALIZER
         assert (
             sut.gettext("My First Translatable String")
             == "My First Translatable String"
         )
 
-    async def test_ngettext__with_singular(self) -> None:
+    def test_ngettext__with_singular(self) -> None:
         sut = DEFAULT_LOCALIZER
         assert (
             sut.ngettext(
@@ -38,7 +38,7 @@ class TestLocalizer:
             == "My First Translatable String"
         )
 
-    async def test_ngettext__with_plural(self) -> None:
+    def test_ngettext__with_plural(self) -> None:
         sut = DEFAULT_LOCALIZER
         assert (
             sut.ngettext(
@@ -47,7 +47,7 @@ class TestLocalizer:
             == "My First Translatable Strings"
         )
 
-    async def test_npgettext__with_singular(self) -> None:
+    def test_npgettext__with_singular(self) -> None:
         sut = DEFAULT_LOCALIZER
         assert (
             sut.npgettext(
@@ -59,7 +59,7 @@ class TestLocalizer:
             == "My First Translatable String"
         )
 
-    async def test_npgettext__with_plural(self) -> None:
+    def test_npgettext__with_plural(self) -> None:
         sut = DEFAULT_LOCALIZER
         assert (
             sut.npgettext(
@@ -71,7 +71,7 @@ class TestLocalizer:
             == "My First Translatable Strings"
         )
 
-    async def test_pgettext(self) -> None:
+    def test_pgettext(self) -> None:
         sut = DEFAULT_LOCALIZER
         assert (
             sut.pgettext("My First Context", "My First Translatable String")
@@ -80,7 +80,7 @@ class TestLocalizer:
 
 
 class TestLocalizerRepository:
-    async def test_get(self, mocker: MockerFixture, tmp_path: Path) -> None:
+    def test_get(self, mocker: MockerFixture, tmp_path: Path) -> None:
         locale = "nl"
         m_translations = mocker.MagicMock(spec=TranslationRepository)
         sut = LocalizerRepository(m_translations)

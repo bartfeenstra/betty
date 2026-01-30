@@ -29,7 +29,7 @@ class TestHasPrivacy:
             (Privacy.PRIVATE, Privacy.PRIVATE),
         ],
     )
-    async def test___init__(
+    def test___init__(
         self,
         expected: Privacy,
         privacy: Privacy | None,
@@ -37,7 +37,7 @@ class TestHasPrivacy:
         sut = DummyHasPrivacy(privacy=privacy)
         assert sut.privacy is expected
 
-    async def test_privacy(self) -> None:
+    def test_privacy(self) -> None:
         sut = DummyHasPrivacy()
         privacy = Privacy.PUBLIC
         sut.privacy = privacy
@@ -45,19 +45,19 @@ class TestHasPrivacy:
         del sut.privacy
         assert sut.privacy is Privacy.UNDETERMINED
 
-    async def test_own_privacy(self) -> None:
+    def test_own_privacy(self) -> None:
         sut = DummyHasPrivacy()
         privacy = Privacy.PUBLIC
         sut.privacy = privacy
         assert sut.own_privacy is privacy
 
-    async def test_public(self) -> None:
+    def test_public(self) -> None:
         sut = DummyHasPrivacy()
         sut.public = True
         assert sut.public
         assert sut.privacy is Privacy.PUBLIC
 
-    async def test_private(self) -> None:
+    def test_private(self) -> None:
         sut = DummyHasPrivacy()
         sut.private = True
         assert sut.private
@@ -95,7 +95,7 @@ class TestHasPrivacy:
         (False, object()),
     ],
 )
-async def test_is_private(expected: bool, target: Any) -> None:
+def test_is_private(expected: bool, target: Any) -> None:
     assert expected == is_private(target)
 
 
@@ -108,7 +108,7 @@ async def test_is_private(expected: bool, target: Any) -> None:
         (True, object()),
     ],
 )
-async def test_is_public(expected: bool, target: Any) -> None:
+def test_is_public(expected: bool, target: Any) -> None:
     assert expected == is_public(target)
 
 
@@ -124,7 +124,7 @@ async def test_is_public(expected: bool, target: Any) -> None:
         (Privacy.UNDETERMINED, DummyHasPrivacy(privacy=Privacy.UNDETERMINED)),
     ],
 )
-async def test_resolve_privacy(
+def test_resolve_privacy(
     expected: Privacy, privacy: Privacy | HasPrivacy | None
 ) -> None:
     assert resolve_privacy(privacy) == expected
@@ -142,7 +142,7 @@ async def test_resolve_privacy(
         (Privacy.PRIVATE, (Privacy.PUBLIC, Privacy.UNDETERMINED, Privacy.PRIVATE)),
     ],
 )
-async def test_merge_privacies(expected: Privacy, privacies: tuple[Privacy]) -> None:
+def test_merge_privacies(expected: Privacy, privacies: tuple[Privacy]) -> None:
     assert expected == merge_privacies(*privacies)
 
 
@@ -158,7 +158,7 @@ async def test_merge_privacies(expected: Privacy, privacies: tuple[Privacy]) -> 
         (Privacy.PRIVATE, (Privacy.PUBLIC, Privacy.UNDETERMINED, Privacy.PRIVATE)),
     ],
 )
-async def test_merge_secondary_privacies(
+def test_merge_secondary_privacies(
     expected: Privacy, privacies: tuple[Privacy]
 ) -> None:
     assert expected == merge_secondary_privacies(*privacies)

@@ -8,7 +8,7 @@ from betty.test_utils.json.linked_data import assert_dumps_linked_data
 
 
 class TestName:
-    async def test_date(self) -> None:
+    def test_date(self) -> None:
         date = Date()
         sut = Name(
             "Ikke",
@@ -16,7 +16,7 @@ class TestName:
         )
         assert sut.date is date
 
-    async def test_name(self) -> None:
+    def test_name(self) -> None:
         name = Plain("Ikke")
         sut = Name(name)
         assert sut.name is name

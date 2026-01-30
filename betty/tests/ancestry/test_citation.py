@@ -43,18 +43,18 @@ class TestCitation(EntityTestBase):
     def sut(self, request: pytest.FixtureRequest) -> Entity:
         return cast(Entity, request.param)
 
-    async def test___init____with_facts(self) -> None:
+    def test___init____with_facts(self) -> None:
         fact = DummyHasCitations()
         sut = Citation(source=Source(), facts=[fact])
         assert list(sut.facts) == [fact]
 
-    async def test___init____with_location(self) -> None:
+    def test___init____with_location(self) -> None:
         location = "Somewhere"
         sut = Citation(source=Source(), location=location)
         assert sut.location is not None
         assert sut.location.localize(DEFAULT_LOCALIZER) == location
 
-    async def test_id(self) -> None:
+    def test_id(self) -> None:
         citation_id = "C1"
         sut = Citation(
             id=citation_id,
@@ -62,19 +62,19 @@ class TestCitation(EntityTestBase):
         )
         assert sut.id == citation_id
 
-    async def test_facts(self) -> None:
+    def test_facts(self) -> None:
         fact = DummyHasCitations()
         sut = Citation(source=Source())
         assert list(sut.facts) == []
         sut.facts = [fact]
         assert list(sut.facts) == [fact]
 
-    async def test_source(self) -> None:
+    def test_source(self) -> None:
         source = Source()
         sut = Citation(source=source)
         assert sut.source is source
 
-    async def test_location(self) -> None:
+    def test_location(self) -> None:
         sut = Citation(source=Source())
         assert not sut.location
         location = "Somewhere"
@@ -82,15 +82,15 @@ class TestCitation(EntityTestBase):
         assert sut.location is not None
         assert sut.location.localize(DEFAULT_LOCALIZER) == location
 
-    async def test_date(self) -> None:
+    def test_date(self) -> None:
         sut = Citation(source=Source())
         assert sut.date is None
 
-    async def test_file_references(self) -> None:
+    def test_file_references(self) -> None:
         sut = Citation(source=Source())
         assert list(sut.file_references) == []
 
-    async def test_private(self) -> None:
+    def test_private(self) -> None:
         sut = Citation(source=Source())
         assert sut.privacy is Privacy.UNDETERMINED
         sut.private = True

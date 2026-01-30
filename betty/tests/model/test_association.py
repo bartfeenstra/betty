@@ -1326,7 +1326,7 @@ class TestBidirectionalToManyMultipleTypes:
     class _AssociateTwo(_TargetMixin):
         pass
 
-    async def test_support_multiple_types(self) -> None:
+    def test_support_multiple_types(self) -> None:
         owner = self._Owner()
 
         associate_one = self._AssociateOne()

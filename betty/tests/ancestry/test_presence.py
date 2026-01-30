@@ -34,17 +34,17 @@ class TestPresence(EntityTestBase):
     def sut(self) -> Entity:
         return Presence(Person(), UnknownPresenceRole(), Event())
 
-    async def test_person(self) -> None:
+    def test_person(self) -> None:
         person = Person()
         sut = Presence(person, Subject(), Event(event_type=UnknownEventType()))
         assert sut.person == person
 
-    async def test_event(self) -> None:
+    def test_event(self) -> None:
         role = Subject()
         sut = Presence(Person(), role, Event(event_type=UnknownEventType()))
         assert sut.role == role
 
-    async def test_role(self) -> None:
+    def test_role(self) -> None:
         event = Event(event_type=UnknownEventType())
         sut = Presence(Person(), Subject(), event)
         assert sut.event == event
@@ -57,7 +57,7 @@ class TestPresence(EntityTestBase):
             (Privacy.PRIVATE, Privacy.PUBLIC, Privacy.PUBLIC, Privacy.PRIVATE),
         ],
     )
-    async def test_privacy(
+    def test_privacy(
         self,
         expected: Privacy,
         person_privacy: Privacy,

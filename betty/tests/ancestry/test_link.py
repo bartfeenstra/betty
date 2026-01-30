@@ -38,7 +38,7 @@ class TestLink(EntityTestBase):
     def sut(self) -> Entity:
         return Link("https://example.com")
 
-    async def test___init____with_label(self) -> None:
+    def test___init____with_label(self) -> None:
         url = "https://example.com"
         label = "Hello, world!"
         sut = Link(url, label=label)
@@ -53,41 +53,41 @@ class TestLink(EntityTestBase):
         sut = Link("https://example.com", owner=owner)
         assert sut.owner is owner
 
-    async def test_url(self) -> None:
+    def test_url(self) -> None:
         url = "https://example.com"
         sut = Link(url)
         assert sut.url.localize(DEFAULT_LOCALIZER) == url
 
-    async def test_media_type(self) -> None:
+    def test_media_type(self) -> None:
         url = "https://example.com"
         sut = Link(url)
         assert sut.media_type is None
 
-    async def test_description(self) -> None:
+    def test_description(self) -> None:
         url = "https://example.com"
         sut = Link(url)
         assert not sut.description
 
-    async def test_relationship(self) -> None:
+    def test_relationship(self) -> None:
         url = "https://example.com"
         sut = Link(url)
         assert sut.relationship is None
 
-    async def test_label__without_label(self) -> None:
+    def test_label__without_label(self) -> None:
         url = "https://example.com"
         sut = Link(url)
         assert url in sut.label.localize(DEFAULT_LOCALIZER)
 
-    async def test_label__with_label(self) -> None:
+    def test_label__with_label(self) -> None:
         label = "Hello, world!"
         sut = Link("https://example.com", label=label)
         assert label in sut.label.localize(DEFAULT_LOCALIZER)
 
-    async def test_has_label__without_label(self) -> None:
+    def test_has_label__without_label(self) -> None:
         sut = Link("https://example.com")
         assert not sut.has_label
 
-    async def test_has_label__with_label(self) -> None:
+    def test_has_label__with_label(self) -> None:
         sut = Link("https://example.com", label=DUMMY_LOCALIZABLE)
         assert sut.has_label
 

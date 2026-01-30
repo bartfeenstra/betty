@@ -50,19 +50,19 @@ class TestPlace(EntityTestBase):
         sut = Place()
         assert isinstance(sut.place_type, UnknownPlaceType)
 
-    async def test___init____with_events(self) -> None:
+    def test___init____with_events(self) -> None:
         event = Event()
         sut = Place(events=[event])
         assert list(sut.events) == [event]
         assert event.place is sut
 
-    async def test___init____with_enclosers(self) -> None:
+    def test___init____with_enclosers(self) -> None:
         enclosure = Enclosure(enclosee=TemporaryToOneResolver(), encloser=Place())
         sut = Place(enclosers=[enclosure])
         assert list(sut.enclosers) == [enclosure]
         assert enclosure.enclosee is sut
 
-    async def test___init____with_enclosees(self) -> None:
+    def test___init____with_enclosees(self) -> None:
         enclosure = Enclosure(enclosee=Place(), encloser=TemporaryToOneResolver())
         sut = Place(enclosees=[enclosure])
         assert list(sut.enclosees) == [enclosure]
@@ -79,7 +79,7 @@ class TestPlace(EntityTestBase):
         sut.place_type = place_type
         assert sut.place_type is place_type
 
-    async def test_events(self) -> None:
+    def test_events(self) -> None:
         sut = Place()
         event = Event()
         sut.events.add(event)
@@ -89,7 +89,7 @@ class TestPlace(EntityTestBase):
         assert list(sut.events) == []
         assert event.place is None
 
-    async def test_enclosers(self) -> None:
+    def test_enclosers(self) -> None:
         sut = Place()
         assert list(sut.enclosers) == []
         encloser = Place()
@@ -101,7 +101,7 @@ class TestPlace(EntityTestBase):
         with pytest.raises(AssociationRequired):
             enclosure.enclosee  # noqa: B018
 
-    async def test_enclosees(self) -> None:
+    def test_enclosees(self) -> None:
         sut = Place()
         assert list(sut.enclosees) == []
         enclosee = Place()
@@ -113,11 +113,11 @@ class TestPlace(EntityTestBase):
         with pytest.raises(AssociationRequired):
             enclosure.encloser  # noqa: B018
 
-    async def test_walk_enclosees__without_enclosees(self) -> None:
+    def test_walk_enclosees__without_enclosees(self) -> None:
         sut = Place()
         assert list(sut.walk_enclosees) == []
 
-    async def test_walk_enclosees__with_enclosees(self) -> None:
+    def test_walk_enclosees__with_enclosees(self) -> None:
         sut = Place()
         child_enclosee = Place()
         enclosure = Enclosure(child_enclosee, sut)
@@ -125,20 +125,20 @@ class TestPlace(EntityTestBase):
         child_enclosure = Enclosure(grandchild_enclosee, child_enclosee)
         assert list(sut.walk_enclosees) == [enclosure, child_enclosure]
 
-    async def test_id(self) -> None:
+    def test_id(self) -> None:
         place_id = "C1"
         sut = Place(id=place_id)
         assert sut.id == place_id
 
-    async def test_links(self) -> None:
+    def test_links(self) -> None:
         sut = Place()
         assert list(sut.links) == []
 
-    async def test_names(self) -> None:
+    def test_names(self) -> None:
         sut = Place()
         assert sut.names is sut.names
 
-    async def test_coordinates(self) -> None:
+    def test_coordinates(self) -> None:
         sut = Place()
         coordinates = Point()
         sut.coordinates = coordinates
