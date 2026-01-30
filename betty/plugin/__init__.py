@@ -24,8 +24,6 @@ if TYPE_CHECKING:
     import builtins
     from collections.abc import Collection, Iterator, Mapping, MutableSequence
 
-    from ty_extensions import Intersection
-
     from betty.locale.localizable import (
         CountableLocalizable,
         Localizable,
@@ -117,7 +115,6 @@ class PluginTypeDefinition(
         self,
         id: MachineName,  # noqa: A002
         *,
-        base_cls: type[Intersection[_BaseClsCoT, Plugin[_PluginDefinitionT]]],
         label: LocalizableLike,
         label_plural: LocalizableLike,
         label_countable: CountableLocalizable,
@@ -138,7 +135,6 @@ class PluginTypeDefinition(
         if not validate_machine_name(id):
             raise InvalidMachineName(id)
         self._id = id
-        self._base_cls = base_cls
         if discovery is None:
             discovery = []
         elif isinstance(discovery, PluginDiscovery):
@@ -160,13 +156,6 @@ class PluginTypeDefinition(
         The plugin type ID.
         """
         return self._id
-
-    @property
-    def base_cls(self) -> type[Intersection[_BaseClsCoT, Plugin[_PluginDefinitionT]]]:
-        """
-        The base class all plugins of this type must subclass.
-        """
-        return self._base_cls
 
     @override
     def _set_cls(self, cls: type[_PluginDefinitionT]) -> None:

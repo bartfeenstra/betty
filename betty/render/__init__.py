@@ -39,7 +39,6 @@ class Renderer(ABC, Plugin["RendererDefinition"]):
 @final
 @PluginTypeDefinition(
     "renderer",
-    base_cls=Renderer,
     label=_("Renderer"),
     label_plural=_("Renderers"),
     label_countable=ngettext("{count} renderer", "{count} renderers"),

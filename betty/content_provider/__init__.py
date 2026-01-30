@@ -31,7 +31,6 @@ class ContentProvider(ABC, Plugin["ContentProviderDefinition"]):
 @final
 @PluginTypeDefinition(
     "content-provider",
-    base_cls=ContentProvider,
     label=_("Content provider"),
     label_plural=_("Content providers"),
     label_countable=ngettext("{count} content provider", "{count} content providers"),

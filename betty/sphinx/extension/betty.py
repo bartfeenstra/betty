@@ -247,8 +247,6 @@ class _PluginTypeDirective(SphinxDirective):
 
    * - Plugin type ID
      - ``{plugin_type.type().id}``
-   * - Base class
-     - :py:class:`{plugin_type.type().base_cls.__name__} <{plugin_type.type().base_cls.__module__}.{plugin_type.type().base_cls.__qualname__}>`
    * - Definition
      - :py:class:`@{plugin_type.__name__}(...) <{plugin_type.__module__}.{plugin_type.__qualname__}>`
 """,

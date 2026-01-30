@@ -59,7 +59,6 @@ class Serializer(ABC, Plugin["SerializerDefinition"]):
 @final
 @PluginTypeDefinition(
     "serializer",
-    base_cls=Serializer,
     label=_("Serializer"),
     label_plural=_("Serializers"),
     label_countable=ngettext("{count} serializer", "{count} serializers"),

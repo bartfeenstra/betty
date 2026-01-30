@@ -100,7 +100,6 @@ class DummyPlugin(Plugin["DummyPluginDefinition"]):
 
 @PluginTypeDefinition(
     "dummy-plugin",
-    base_cls=DummyPlugin,
     label=" dummy plugin",
     label_plural=" dummy plugin",
     label_countable=DUMMY_COUNTABLE_LOCALIZABLE,

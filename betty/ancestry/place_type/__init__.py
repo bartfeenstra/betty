@@ -22,7 +22,6 @@ class PlaceType(Plugin["PlaceTypeDefinition"]):
 @final
 @PluginTypeDefinition(
     "place-type",
-    base_cls=PlaceType,
     label=_("Place type"),
     label_plural=_("Place types"),
     label_countable=ngettext("{count} place type", "{count} place types"),

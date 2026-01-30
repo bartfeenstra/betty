@@ -49,7 +49,6 @@ class CopyrightNotice(Plugin["CopyrightNoticeDefinition"]):
 @final
 @PluginTypeDefinition(
     "copyright-notice",
-    base_cls=CopyrightNotice,
     label=_("Copyright notice"),
     label_plural=_("Copyright notices"),
     label_countable=ngettext("{count} copyright notice", "{count} copyright notices"),

@@ -139,7 +139,6 @@ class Entity(LinkedDataDumpableWithSchemaJsonLdObject, Plugin["EntityDefinition"
 @final
 @PluginTypeDefinition(
     "entity",
-    base_cls=Entity,
     label=_("Entity"),
     label_plural=_("Entities"),
     label_countable=ngettext("{count} entity", "{count} entities"),

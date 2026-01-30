@@ -52,7 +52,6 @@ class ConfigurableDummyPlugin(
 
 @PluginTypeDefinition(
     "configurable-dummy-plugin",
-    base_cls=ConfigurableDummyPlugin,
     label="Configurable dummy plugin",
     label_plural="Configurable dummy plugins",
     label_countable=DUMMY_COUNTABLE_LOCALIZABLE,

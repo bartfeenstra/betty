@@ -87,7 +87,6 @@ class Extension(ServiceContainer, HasRequirement, Plugin["ExtensionDefinition"])
 @final
 @PluginTypeDefinition(
     "extension",
-    base_cls=Extension,
     label=_("Extension"),
     label_plural=_("Extensions"),
     label_countable=ngettext("{count} extension", "{count} extensions"),
