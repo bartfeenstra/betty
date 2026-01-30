@@ -4,10 +4,12 @@ Static translations.
 
 from __future__ import annotations
 
+from contextlib import suppress
 from typing import TYPE_CHECKING, Self, final
 
 from typing_extensions import override
 
+from betty.assertion import assert_locale, assert_mapping, assert_or, assert_str
 from betty.data.indicator.selector import Key
 from betty.exception import reraise_with_indicator
 from betty.locale import (
@@ -40,6 +42,7 @@ from betty.locale.localizable.markup import (
     UnorderedList,
     do_you_mean,
 )
+from betty.portable import Portable, PortableData
 
 if TYPE_CHECKING:
     from collections.abc import Iterable, Mapping
@@ -51,7 +54,7 @@ if TYPE_CHECKING:
 
 
 @final
-class CountableStaticTranslations(CountableLocalizable):
+class CountableStaticTranslations(CountableLocalizable, Portable):
     """
     A countable localizable backed by static translations.
     """
@@ -155,9 +158,29 @@ class CountableStaticTranslations(CountableLocalizable):
             }
         ).format(count=str(count))
 
+    @override
+    @classmethod
+    def load(cls, portable: PortableData, /) -> Self:
+        return cls(
+            assert_mapping(
+                assert_mapping(
+                    assert_str(),
+                    assert_str(),
+                ),
+                assert_locale(),
+            )(portable)
+        )
+
+    @override
+    def dump(self) -> PortableData:
+        return {
+            to_language_tag(locale): translations
+            for locale, translations in self.translations.items()
+        }
+
 
 @final
-class StaticTranslations(Localizable):
+class StaticTranslations(Localizable, Portable):
     """
     A localizable backed by static translations.
 
@@ -279,3 +302,25 @@ class StaticTranslations(Localizable):
         return cls(
             {localizer.locale: other.localize(localizer) for localizer in localizers}
         )
+
+    @override
+    @classmethod
+    def load(cls, portable: PortableData, /) -> Self:
+        return cls(
+            assert_or(
+                assert_str().chain(lambda translation: {None: translation}),
+                assert_mapping(assert_str(), assert_locale()),
+            )(portable)
+        )
+
+    @override
+    def dump(self) -> PortableData:
+        if len(self.translations) == 1:
+            with suppress(KeyError):
+                # Explicitly cast to a string because pyyaml cannot dump ``str`` subclasses.
+                return str(self.translations[None])
+        return {
+            # Explicitly cast to a string because pyyaml cannot dump ``str`` subclasses.
+            to_language_tag(locale): str(translation)
+            for locale, translation in self.translations.items()
+        }

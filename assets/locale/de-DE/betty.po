@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Betty VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-01-30 17:51+0000\n"
+"POT-Creation-Date: 2026-01-30 21:35+0000\n"
 "PO-Revision-Date: 2025-12-30 16:01+0000\n"
 "Last-Translator: Bart Feenstra <bart@bartfeenstra.com>\n"
 "Language: de_DE\n"
@@ -1180,18 +1180,6 @@ msgstr ""
 
 msgid "One or more of these requirements must be met"
 msgstr "Eine oder mehrere dieser Anforderungen müssen erfüllt sein"
-
-#, python-brace-format
-msgid ""
-"Only countable static translations can be dumped to portable data, not "
-"`{localizable}` objects."
-msgstr ""
-
-#, python-brace-format
-msgid ""
-"Only plain text and static translations can be dumped to portable data, "
-"not `{localizable}` objects."
-msgstr ""
 
 msgid "Operating system"
 msgstr ""
