@@ -6,9 +6,14 @@ from __future__ import annotations
 
 from email.message import EmailMessage
 from pathlib import Path
-from typing import TYPE_CHECKING, Any, TypeAlias, final
+from typing import TYPE_CHECKING, Any, Self, TypeAlias, final
 
 from typing_extensions import override
+
+from betty.assertion import assert_str
+from betty.data import Data, DataDefinition
+from betty.locale.localizable.gettext import _
+from betty.portable import Portable, PortableData
 
 if TYPE_CHECKING:
     from collections.abc import Iterable, Mapping, Sequence
@@ -30,7 +35,8 @@ class UnsupportedMediaType(RuntimeError):
 
 
 @final
-class MediaType:
+@DataDefinition(label=_("Media type"))
+class MediaType(Data, Portable):
     """
     Define a `media type <https://en.wikipedia.org/wiki/Media_type>`_.
 
@@ -123,6 +129,15 @@ class MediaType:
             self.suffix,
             other.parameters,
         )
+
+    @override
+    @classmethod
+    def load(cls, portable: PortableData, /) -> Self:
+        return cls(assert_str()(portable))
+
+    @override
+    def dump(self) -> PortableData:
+        return self._str
 
 
 ExtensionIndicator: TypeAlias = Path | str

@@ -247,6 +247,17 @@ class TestMediaType:
         sut = MediaType("text/plain", extensions=extensions)
         assert sut.extensions == extensions
 
+    def test_load(self) -> None:
+        assert MediaType.load("application/vnd.oasis.opendocument.text") == MediaType(
+            "application/vnd.oasis.opendocument.text"
+        )
+
+    def test_dump(self) -> None:
+        assert (
+            MediaType("application/vnd.oasis.opendocument.text").dump()
+            == "application/vnd.oasis.opendocument.text"
+        )
+
 
 @pytest.mark.parametrize(
     ("expected", "source", "media_types"),

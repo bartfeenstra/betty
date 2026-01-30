@@ -352,6 +352,9 @@ _BASELINE: Mapping[str, _ModuleIgnore] = {
         "LocalizableSequence": MissingReason.ABSTRACT,
     },
     "betty/media_type/__init__.py": {
+        "MediaType": {
+            "data": MissingReason.INHERITED,
+        },
         "InvalidMediaType": MissingReason.STATIC_CONTENT_ONLY,
     },
     "betty/media_type/media_types.py": MissingReason.STATIC_CONTENT_ONLY,
